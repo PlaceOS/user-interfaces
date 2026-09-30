@@ -1,6 +1,7 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { DisplayListComponent } from '../../app/displays/display-list.component';
+import { signageDisplay } from '../../app/displays/signage-display';
 import { SignageService } from '../../app/signage.service';
 
 describe('DisplayListComponent', () => {
@@ -8,12 +9,14 @@ describe('DisplayListComponent', () => {
     const filtered_displays = signal<any[]>([]);
     const selected_display = signal<any>(null);
     const displays_has_more = signal(false);
+    const displays_loading = signal(false);
     const load_more = vi.fn();
     const service_stub = {
         display_search_term,
         filtered_displays,
         selected_display,
         displays_has_more,
+        displays_loading,
         loadMoreDisplays: load_more,
     };
 
@@ -30,6 +33,7 @@ describe('DisplayListComponent', () => {
         filtered_displays.set([]);
         selected_display.set(null);
         displays_has_more.set(false);
+        displays_loading.set(false);
     });
 
     it('exposes the service search term as a writable signal', () => {
@@ -64,6 +68,22 @@ describe('DisplayListComponent', () => {
         expect(
             component.statusLabel({ signage_last_seen: now_s - 10 * 60 }),
         ).toBe('SIGNAGE_MANAGER.DISPLAY_STATUS_OFFLINE');
+    });
+
+    // PlaceSystem sets a missing last check-in to now, so displays are built
+    // from the raw API data to keep it
+    it('shows a display from the API that never checked in as never seen', () => {
+        const component = make();
+        const display = signageDisplay({ id: 'd1', name: 'A &amp; B' });
+
+        expect(display.name).toBe('A & B');
+        expect(component.isOnline(display)).toBe(false);
+        expect(component.statusLabel(display)).toBe(
+            'SIGNAGE_MANAGER.DISPLAY_STATUS_NEVER_SEEN',
+        );
+        expect(
+            signageDisplay({ signage_last_seen: 1234 }).signage_last_seen,
+        ).toBe(1234);
     });
 
     it('requests the next page when the sentinel triggers a load', () => {

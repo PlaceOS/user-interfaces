@@ -363,22 +363,10 @@ export class DisplayContentComponent {
         this._service.playlist_approval_status;
     public readonly can_update = this._service.can_update;
 
-    private readonly _playlists = this._service.playlists;
-    private readonly _zones = this._service.all_zones;
-
-    public readonly display_playlists = computed(() => {
-        const display = this.selected_display();
-        if (!display) return [];
-        return this._playlists().filter((p) =>
-            display.playlists?.includes(p.id),
-        );
-    });
-
-    public readonly display_zones = computed(() => {
-        const display = this.selected_display();
-        if (!display) return [];
-        return this._zones().filter((z) => display.zones?.includes(z.id));
-    });
+    public readonly display_playlists = computed(() =>
+        this._service.playlistsById(this.selected_display()?.playlists || []),
+    );
+    public readonly display_zones = this._service.selected_display_zones;
 
     public addPlaylist() {
         const display = this.selected_display();

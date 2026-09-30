@@ -116,11 +116,18 @@ import { isDisplayOnline } from './display-status.util';
                         intersect
                         (intersect)="loadMore()"
                     ></div>
-                } @else {
+                } @else if (!loading()) {
                     <div class="text-base-content/50 p-3 text-center text-xs">
                         {{ 'COMMON.END_OF_LIST' | translate }}
                     </div>
                 }
+            } @else if (loading()) {
+                <div
+                    class="text-base-content/70 flex flex-1 flex-col items-center justify-center p-8"
+                    role="status"
+                >
+                    {{ 'COMMON.LOADING' | translate }}
+                </div>
             } @else {
                 <div
                     class="text-base-content/70 flex flex-1 flex-col items-center justify-center space-y-2 p-8"
@@ -163,6 +170,7 @@ export class DisplayListComponent {
 
     // Backend pagination: fetches the next page as the sentinel scrolls in.
     public readonly has_more = this._service.displays_has_more;
+    public readonly loading = this._service.displays_loading;
 
     // Ticks each minute so a display that stops checking in turns offline
     // without a reload.

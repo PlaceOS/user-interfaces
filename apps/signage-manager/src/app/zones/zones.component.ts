@@ -6,11 +6,14 @@ import {
     input,
     resource,
     signal,
+    untracked,
 } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, Router } from '@angular/router';
 import { IconComponent, TranslatePipe } from '@placeos/components';
+import { showZone } from '@placeos/ts-client';
+import { decodeEntityNames } from '../shared/decode-entity-names.util';
 import { NavFooterComponent } from '../shared/nav-footer.component';
 import { NavSidebarComponent } from '../shared/nav-sidebar.component';
 import { SignageService } from '../signage.service';
@@ -306,8 +309,6 @@ export class ZonesSectionComponent {
     });
 
     private readonly _zones = this._service.all_zones;
-    private readonly _playlists = this._service.playlists;
-    private readonly _displays = this._service.displays;
 
     private readonly _template_mappings = resource({
         params: () => {
@@ -321,28 +322,27 @@ export class ZonesSectionComponent {
     });
     public readonly template_count_loading = this._template_mappings.isLoading;
     public readonly playlist_count_loading = this._service.playlists_loading;
-    public readonly display_count_loading = this._service.displays_loading;
+    public readonly display_count_loading =
+        this._service.selected_zone_displays_loading;
     public readonly template_count = computed(() =>
         this._template_mappings.hasValue()
             ? this._template_mappings.value().length
             : 0,
     );
 
-    public readonly playlist_count = computed(() => {
-        const zone = this.selected_zone();
-        if (!zone) return 0;
-        return this._playlists().filter((p) => zone.playlists?.includes(p.id))
-            .length;
-    });
+    public readonly playlist_count = computed(
+        () =>
+            this._service.playlistsById(this.selected_zone()?.playlists || [])
+                .length,
+    );
 
-    public readonly display_count = computed(() => {
-        const zone = this.selected_zone();
-        if (!zone) return 0;
-        return this._displays().filter((d) => d.zones?.includes(zone.id))
-            .length;
-    });
+    public readonly display_count = computed(
+        () => this._service.selected_zone_displays().length,
+    );
 
     private _route_resolved = false;
+    // Last zone id fetched for a link, so a missing id is fetched once
+    private _requested_id = '';
 
     constructor() {
         effect(() => {
@@ -359,17 +359,37 @@ export class ZonesSectionComponent {
         effect(() => {
             const id = this.id();
             const list = this._zones();
-            if (!list.length) return;
             if (id) {
                 const match = list.find((z) => z.id === id);
-                if (match && this._service.selected_zone()?.id !== match.id) {
-                    this._service.selected_zone.set(match);
+                if (match) {
+                    if (this._service.selected_zone()?.id !== match.id) {
+                        this._service.selected_zone.set(match);
+                    }
+                    this._route_resolved = true;
+                } else if (untracked(this._service.selected_zone)?.id !== id) {
+                    // `all_zones` holds only the first 500 zones of the group
+                    untracked(() => this._loadZone(id));
                 }
-                this._route_resolved = true;
             } else if (this._route_resolved) {
                 this._service.selected_zone.set(null);
             }
         });
+    }
+
+    /** Select a zone from a link that the loaded zones do not include */
+    private async _loadZone(id: string) {
+        if (this._requested_id === id) return;
+        this._requested_id = id;
+        const zone = await showZone(id).catch(() => null);
+        if (
+            !zone ||
+            this.id() !== id ||
+            this._service.selected_zone()?.id === id
+        ) {
+            return;
+        }
+        this._service.selected_zone.set(decodeEntityNames(zone));
+        this._route_resolved = true;
     }
 
     public deselectZone() {

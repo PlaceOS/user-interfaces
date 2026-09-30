@@ -6,6 +6,7 @@ import {
     input,
     resource,
     signal,
+    untracked,
 } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -18,6 +19,7 @@ import { SignageService } from '../signage.service';
 import { DisplayContentComponent } from './display-content.component';
 import { DisplayHeaderComponent } from './display-header.component';
 import { DisplayListComponent } from './display-list.component';
+import { showSignageDisplay } from './signage-display';
 
 const TAB_QUERY_PARAM = 'tab';
 
@@ -347,8 +349,6 @@ export class DisplaysSectionComponent {
     public readonly can_delete_displays = this._service.can_delete_displays;
 
     private readonly _displays = this._service.displays;
-    private readonly _playlists = this._service.playlists;
-    private readonly _zones = this._service.all_zones;
 
     private readonly _template_mappings = resource({
         params: () => {
@@ -364,27 +364,24 @@ export class DisplaysSectionComponent {
     });
     public readonly template_count_loading = this._template_mappings.isLoading;
     public readonly playlist_count_loading = this._service.playlists_loading;
-    public readonly zone_count_loading = this._service.all_zones_loading;
+    public readonly zone_count_loading =
+        this._service.selected_display_zones_loading;
     public readonly template_count = computed(() =>
         this._template_mappings.hasValue()
             ? this._template_mappings.value().length
             : 0,
     );
 
-    public readonly playlist_count = computed(() => {
-        const display = this.selected_display();
-        if (!display) return 0;
-        return this._playlists().filter((p) =>
-            display.playlists?.includes(p.id),
-        ).length;
-    });
+    public readonly playlist_count = computed(
+        () =>
+            this._service.playlistsById(
+                this.selected_display()?.playlists || [],
+            ).length,
+    );
 
-    public readonly zone_count = computed(() => {
-        const display = this.selected_display();
-        if (!display) return 0;
-        return this._zones().filter((z) => display.zones?.includes(z.id))
-            .length;
-    });
+    public readonly zone_count = computed(
+        () => this._service.selected_display_zones().length,
+    );
     public readonly panel_link = computed(() => {
         const display = this.selected_display();
         if (!display?.id) return '';
@@ -393,6 +390,8 @@ export class DisplaysSectionComponent {
     });
 
     private _route_resolved = false;
+    // Last display id fetched for a link, so a missing id is fetched once
+    private _requested_id = '';
 
     constructor() {
         effect(() => {
@@ -409,20 +408,39 @@ export class DisplaysSectionComponent {
         effect(() => {
             const id = this.id();
             const list = this._displays();
-            if (!list.length) return;
             if (id) {
                 const match = list.find((d) => d.id === id);
-                if (
-                    match &&
-                    this._service.selected_display()?.id !== match.id
+                if (match) {
+                    if (this._service.selected_display()?.id !== match.id) {
+                        this._service.selected_display.set(match);
+                    }
+                    this._route_resolved = true;
+                } else if (
+                    untracked(this._service.selected_display)?.id !== id
                 ) {
-                    this._service.selected_display.set(match);
+                    // The list holds only the pages loaded so far
+                    untracked(() => this._loadDisplay(id));
                 }
-                this._route_resolved = true;
             } else if (this._route_resolved) {
                 this._service.selected_display.set(null);
             }
         });
+    }
+
+    /** Select a display from a link that the loaded pages do not include */
+    private async _loadDisplay(id: string) {
+        if (this._requested_id === id) return;
+        this._requested_id = id;
+        const display = await showSignageDisplay(id).catch(() => null);
+        if (
+            !display ||
+            this.id() !== id ||
+            this._service.selected_display()?.id === id
+        ) {
+            return;
+        }
+        this._service.selected_display.set(display);
+        this._route_resolved = true;
     }
 
     public deselectDisplay() {

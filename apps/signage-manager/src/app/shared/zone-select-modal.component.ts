@@ -1,4 +1,4 @@
-import { Component, inject, linkedSignal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { IconComponent, TranslatePipe } from '@placeos/components';
@@ -65,13 +65,8 @@ export class ZoneSelectModalComponent {
     );
 
     public readonly roots = this._service.root_zones;
-    public readonly selected_zone = linkedSignal<PlaceZone[], PlaceZone | null>(
-        {
-            source: this.roots,
-            computation: (roots, previous) =>
-                previous?.value || roots[0] || null,
-        },
-    );
+    // Start with no zone, so one click cannot assign to the whole organisation
+    public readonly selected_zone = signal<PlaceZone | null>(null);
     public readonly list = new PagedSearch<PlaceZone>((search) => {
         const parent_id = this.selected_zone()?.id;
         return parent_id && search.trim()

@@ -8,7 +8,7 @@ const NOW_S = Math.floor(Date.now() / 1000);
 describe('ZoneContentComponent', () => {
     const selected_zone = signal<any>(null);
     const playlists = signal<any[]>([]);
-    const displays = signal<any[]>([]);
+    const selected_zone_displays = signal<any[]>([]);
     const playlist_approval_status = signal<Record<string, boolean>>({});
     const playlist_thumbnail_media = signal<Record<string, string[]>>({});
     const can_update = signal(true);
@@ -17,8 +17,9 @@ describe('ZoneContentComponent', () => {
     const add_display = vi.fn();
     const service_stub = {
         selected_zone,
-        playlists,
-        displays,
+        playlistsById: (ids: readonly string[]) =>
+            playlists().filter(({ id }) => ids.includes(id)),
+        selected_zone_displays,
         playlist_approval_status,
         playlist_thumbnail_media,
         can_update,
@@ -43,16 +44,13 @@ describe('ZoneContentComponent', () => {
         vi.clearAllMocks();
         selected_zone.set(null);
         playlists.set([]);
-        displays.set([]);
+        selected_zone_displays.set([]);
         playlist_approval_status.set({});
     });
 
-    it('filters playlists assigned to the zone and displays that reference it', async () => {
+    it('lists the playlists and the queried displays of the zone', async () => {
         playlists.set([{ id: 'p1' }, { id: 'p2' }]);
-        displays.set([
-            { id: 'd1', zones: ['z1'] },
-            { id: 'd2', zones: ['z9'] },
-        ]);
+        selected_zone_displays.set([{ id: 'd1', zones: ['z1'] }]);
         selected_zone.set({ id: 'z1', playlists: ['p2'] });
         const component = await make();
 

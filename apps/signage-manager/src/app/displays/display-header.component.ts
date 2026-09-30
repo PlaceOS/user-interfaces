@@ -1,4 +1,4 @@
-import { Component, computed, inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { Router } from '@angular/router';
 import { IconComponent, TranslatePipe } from '@placeos/components';
@@ -58,9 +58,8 @@ export class DisplayHeaderComponent {
     private readonly _service = inject(SignageService);
     private readonly _router = inject(Router);
 
-    public readonly total_count = computed(
-        () => this._service.filtered_displays().length,
-    );
+    /** Server total, as the list holds only the pages loaded so far */
+    public readonly total_count = this._service.displays_total;
     public readonly can_create = this._service.can_create;
 
     public async addDisplay() {

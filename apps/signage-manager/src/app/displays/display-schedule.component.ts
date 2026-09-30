@@ -8,6 +8,7 @@ import { addDays, format, isSameDay, startOfWeek } from 'date-fns';
 import {
     DAY_COUNT,
     ScheduleBlock,
+    buildDisplayScheduleAssignments,
     buildScheduleBlocks,
 } from '../schedules/signage-schedule.util';
 import { SignageService } from '../signage.service';
@@ -323,7 +324,7 @@ export class DisplayScheduleComponent {
     private readonly _service = inject(SignageService);
 
     public readonly selected_display = this._service.selected_display;
-    private readonly _playlists = this._service.playlists;
+    private readonly _zones = this._service.selected_display_zones;
 
     public readonly week_offset = signal(0);
 
@@ -338,17 +339,17 @@ export class DisplayScheduleComponent {
         ),
     );
 
-    public readonly display_playlists = computed(() => {
+    /** Playlists of the display and of the zones it is in */
+    public readonly display_assignments = computed(() => {
         const display = this.selected_display();
         if (!display) return [];
-        return this._playlists().filter((p) =>
-            display.playlists?.includes(p.id),
-        );
+        const zones = this._zones();
+        const playlists = this._service.playlistsById([
+            ...(display.playlists || []),
+            ...zones.flatMap(({ playlists }) => playlists || []),
+        ]);
+        return buildDisplayScheduleAssignments(display, zones, playlists);
     });
-
-    public readonly display_assignments = computed(() =>
-        this.display_playlists().map((playlist) => ({ playlist })),
-    );
 
     public readonly schedule_entries = computed(() => {
         const days = this.days();

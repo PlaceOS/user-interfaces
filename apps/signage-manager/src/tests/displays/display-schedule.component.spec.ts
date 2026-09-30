@@ -8,10 +8,13 @@ import { SignageService } from '../../app/signage.service';
 
 describe('DisplayScheduleComponent', () => {
     const selected_display = signal<any>(null);
+    const selected_display_zones = signal<any[]>([]);
     const playlists = signal<any[]>([]);
     const service_stub = {
         selected_display,
-        playlists,
+        selected_display_zones,
+        playlistsById: (ids: readonly string[]) =>
+            playlists().filter(({ id }) => ids.includes(id)),
         templates_enabled: signal(false),
         listTemplateMappings: vi.fn(),
     };
@@ -29,6 +32,7 @@ describe('DisplayScheduleComponent', () => {
 
     beforeEach(() => {
         selected_display.set(null);
+        selected_display_zones.set([]);
         playlists.set([]);
         service_stub.templates_enabled.set(false);
         service_stub.listTemplateMappings.mockReset().mockResolvedValue([]);
@@ -65,12 +69,41 @@ describe('DisplayScheduleComponent', () => {
     });
 
     it('only lists playlists assigned to the selected display', () => {
-        playlists.set([{ id: 'p1' }, { id: 'p2' }, { id: 'p3' }]);
+        playlists.set([
+            { id: 'p1', name: 'One' },
+            { id: 'p2', name: 'Two' },
+            { id: 'p3', name: 'Three' },
+        ]);
         selected_display.set({ id: 'd1', playlists: ['p2'] });
         const component = make();
 
-        expect(component.display_playlists().map((p: any) => p.id)).toEqual([
-            'p2',
+        expect(
+            component.display_assignments().map(({ playlist }) => playlist.id),
+        ).toEqual(['p2']);
+    });
+
+    it('includes playlists of the zones the display is in', () => {
+        playlists.set([
+            { id: 'p1', name: 'Direct' },
+            { id: 'p2', name: 'Building' },
+        ]);
+        selected_display.set({
+            id: 'd1',
+            playlists: ['p1'],
+            zones: ['building'],
+        });
+        selected_display_zones.set([
+            { id: 'building', name: 'Building', playlists: ['p2'] },
+        ]);
+        const component = make();
+
+        expect(
+            component
+                .display_assignments()
+                .map(({ playlist, source_type }) => [playlist.id, source_type]),
+        ).toEqual([
+            ['p2', 'zone'],
+            ['p1', 'display'],
         ]);
     });
 
@@ -106,7 +139,7 @@ describe('DisplayScheduleComponent', () => {
         selected_display.set({ id: 'd1', playlists: [] });
         const component = make();
 
-        expect(component.display_playlists()).toEqual([]);
+        expect(component.display_assignments()).toEqual([]);
         for (const day of component.day_blocks()) {
             expect(day.all_day).toEqual([]);
             expect(day.timed).toEqual([]);

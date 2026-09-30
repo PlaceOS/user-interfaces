@@ -59,7 +59,7 @@ describe('SignageService zone search', () => {
             total: 1,
         });
 
-        service.selected_zone.set({ id: 'parent-1' });
+        service.selected_zone.set(new PlaceZone({ id: 'parent-1' }));
         service.zone_search_term.set(' lobby ');
         await vi.advanceTimersByTimeAsync(500);
         TestBed.tick();
