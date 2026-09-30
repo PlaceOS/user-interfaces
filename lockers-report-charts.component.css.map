@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["lockers-report-charts.component.ts"],
+  "sourcesContent": ["\n            :host {\n                display: block;\n            }\n\n            .is-print canvas {\n                width: 8cm !important;\n            }\n        "],
+  "mappings": ";AACY;AACI,WAAA;AACJ;AAEA,CAAA,SAAA;AACI,SAAA;AACJ;",
+  "names": []
+}
