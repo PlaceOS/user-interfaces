@@ -6,11 +6,13 @@ import {
     effect,
     inject,
     input,
+    resource,
     signal,
 } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, Router } from '@angular/router';
 import { i18n } from '@placeos/common';
@@ -32,6 +34,14 @@ const TAB_QUERY_PARAM = 'tab';
 
 function parseScheduleTab(value: string | null): 'displays' | 'zones' {
     return value === 'zones' ? 'zones' : 'displays';
+}
+
+/** Rows whose name, description or playlists include the search term */
+function filterRows(rows: ScheduleTimelineRow[], search_term: string) {
+    const search = search_term.trim().toLowerCase();
+    return search
+        ? rows.filter((row) => row.search_index.includes(search))
+        : rows;
 }
 
 @Component({
@@ -203,7 +213,35 @@ function parseScheduleTab(value: string | null): 'displays' | 'zones' {
                     <div
                         class="bg-base-100 border-base-300 flex h-full min-h-0 flex-col overflow-hidden rounded-lg border"
                     >
-                        @if (rows().length === 0) {
+                        @if (inventory_error()) {
+                            <div
+                                class="text-base-content/60 flex flex-1 flex-col items-center justify-center gap-3"
+                                role="alert"
+                            >
+                                <icon class="text-error text-4xl">error</icon>
+                                <p class="text-sm">
+                                    {{ 'COMMON.LOAD_ERROR' | translate }}
+                                </p>
+                                <button
+                                    btn
+                                    matRipple
+                                    type="button"
+                                    class="inverse"
+                                    (click)="reload()"
+                                >
+                                    {{ 'COMMON.RETRY' | translate }}
+                                </button>
+                            </div>
+                        } @else if (!rows().length && inventory_loading()) {
+                            <div
+                                class="flex flex-1 flex-col items-center justify-center gap-3 opacity-70"
+                            >
+                                <mat-spinner diameter="32" />
+                                <p class="text-sm">
+                                    {{ 'COMMON.LOADING' | translate }}
+                                </p>
+                            </div>
+                        } @else if (!rows().length) {
                             <div
                                 class="text-base-content/40 flex flex-1 flex-col items-center justify-center gap-3"
                             >
@@ -263,6 +301,7 @@ function parseScheduleTab(value: string | null): 'displays' | 'zones' {
         ScheduleTimelineComponent,
         MatFormFieldModule,
         MatInputModule,
+        MatProgressSpinnerModule,
         TranslatePipe,
     ],
 })
@@ -278,9 +317,27 @@ export class SchedulesSectionComponent {
     public readonly selected_date = signal(startOfDay(new Date()));
     public readonly current_time = signal(new Date());
 
-    private readonly _playlists = this._service.playlists;
-    private readonly _displays = this._service.displays;
-    private readonly _zones = this._service.zones;
+    // The service lists only hold the pages loaded so far, so load every
+    // display, zone and playlist in the group.
+    private readonly _inventory = resource({
+        params: () => this._service.inventory_key(),
+        loader: () => this._service.loadSignageInventory(),
+    });
+    private readonly _inventory_value = computed(() =>
+        this._inventory.hasValue() ? this._inventory.value() : undefined,
+    );
+    private readonly _playlists = computed(
+        () => this._inventory_value()?.playlists || [],
+    );
+    private readonly _displays = computed(
+        () => this._inventory_value()?.displays || [],
+    );
+    private readonly _zones = computed(
+        () => this._inventory_value()?.zones || [],
+    );
+
+    public readonly inventory_loading = this._inventory.isLoading;
+    public readonly inventory_error = computed(() => !!this._inventory.error());
 
     public readonly playlist_approval_status =
         this._service.playlist_approval_status;
@@ -299,117 +356,116 @@ export class SchedulesSectionComponent {
         isSameDay(this.selected_date(), this.current_time()),
     );
 
-    public readonly display_rows = computed<ScheduleTimelineRow[]>(() => {
+    private readonly _all_display_rows = computed<ScheduleTimelineRow[]>(() => {
         const playlists = this._playlists();
         const zones = this._zones();
         const date = this.selected_date();
-        const search = this.search_term().trim().toLowerCase();
 
-        return this._displays()
-            .map((display) => {
-                const assignments = buildDisplayScheduleAssignments(
-                    display,
-                    zones,
-                    playlists,
-                );
-                const blocks = buildScheduleBlocks(assignments, [date]).sort(
-                    (left, right) =>
-                        left.start_minutes - right.start_minutes ||
-                        left.playlist.name.localeCompare(right.playlist.name),
-                );
-                const zone_count = (display.zones || []).length;
-                const zone_label = zone_count
-                    ? ` · ${i18n(
-                          'SIGNAGE_MANAGER.ZONE_COUNT_LABEL',
-                          {
-                              count: zone_count,
-                          },
-                          zone_count,
-                      )}`
-                    : '';
-                const search_index = [
-                    display.display_name || display.name,
-                    display.description || '',
-                    ...assignments.map((item) => item.playlist.name),
-                    ...assignments.map((item) => item.source_label || ''),
-                ]
-                    .join(' ')
-                    .toLowerCase();
-                return {
-                    id: display.id,
-                    name: display.display_name || display.name,
-                    description: display.description || '',
-                    subtitle: `${i18n(
-                        'SIGNAGE_MANAGER.PLAYLIST_COUNT_LABEL',
-                        {
-                            count: assignments.length,
-                        },
-                        assignments.length,
-                    )}${zone_label}`,
-                    icon: 'tv',
-                    route: ['/displays', display.id],
-                    blocks,
-                    search_index,
-                    signage_last_seen: display.signage_last_seen,
-                    updated_at: display.updated_at,
-                };
-            })
-            .filter((row) => !search || row.search_index.includes(search));
+        return this._displays().map((display) => {
+            const assignments = buildDisplayScheduleAssignments(
+                display,
+                zones,
+                playlists,
+            );
+            const blocks = buildScheduleBlocks(assignments, [date]).sort(
+                (left, right) =>
+                    left.start_minutes - right.start_minutes ||
+                    left.playlist.name.localeCompare(right.playlist.name),
+            );
+            const zone_count = (display.zones || []).length;
+            const zone_label = zone_count
+                ? ` · ${i18n(
+                      'SIGNAGE_MANAGER.ZONE_COUNT_LABEL',
+                      {
+                          count: zone_count,
+                      },
+                      zone_count,
+                  )}`
+                : '';
+            const search_index = [
+                display.display_name || display.name,
+                display.description || '',
+                ...assignments.map((item) => item.playlist.name),
+                ...assignments.map((item) => item.source_label || ''),
+            ]
+                .join(' ')
+                .toLowerCase();
+            return {
+                id: display.id,
+                name: display.display_name || display.name,
+                description: display.description || '',
+                subtitle: `${i18n(
+                    'SIGNAGE_MANAGER.PLAYLIST_COUNT_LABEL',
+                    {
+                        count: assignments.length,
+                    },
+                    assignments.length,
+                )}${zone_label}`,
+                icon: 'tv',
+                route: ['/displays', display.id],
+                blocks,
+                search_index,
+                signage_last_seen: display.signage_last_seen,
+                updated_at: display.updated_at,
+            };
+        });
     });
 
-    public readonly zone_rows = computed<ScheduleTimelineRow[]>(() => {
+    private readonly _all_zone_rows = computed<ScheduleTimelineRow[]>(() => {
         const playlists = this._playlists();
         const displays = this._displays();
         const date = this.selected_date();
-        const search = this.search_term().trim().toLowerCase();
 
-        return this._zones()
-            .map((zone) => {
-                const assignments = buildZoneScheduleAssignments(
-                    zone,
-                    playlists,
-                );
-                const blocks = buildScheduleBlocks(assignments, [date]).sort(
-                    (left, right) =>
-                        left.start_minutes - right.start_minutes ||
-                        left.playlist.name.localeCompare(right.playlist.name),
-                );
-                const display_count = displays.filter((display) =>
-                    display.zones?.includes(zone.id),
-                ).length;
-                const search_index = [
-                    zone.display_name || zone.name,
-                    zone.description || '',
-                    ...assignments.map((item) => item.playlist.name),
-                ]
-                    .join(' ')
-                    .toLowerCase();
-                return {
-                    id: zone.id,
-                    name: zone.display_name || zone.name,
-                    description: zone.description || '',
-                    subtitle: `${i18n(
-                        'SIGNAGE_MANAGER.PLAYLIST_COUNT_LABEL',
-                        {
-                            count: assignments.length,
-                        },
-                        assignments.length,
-                    )} · ${i18n(
-                        'SIGNAGE_MANAGER.DISPLAY_COUNT_LABEL',
-                        {
-                            count: display_count,
-                        },
-                        display_count,
-                    )}`,
-                    icon: 'layers',
-                    route: ['/zones', zone.id],
-                    blocks,
-                    search_index,
-                    updated_at: zone.updated_at,
-                };
-            })
-            .filter((row) => !search || row.search_index.includes(search));
+        return this._zones().map((zone) => {
+            const assignments = buildZoneScheduleAssignments(zone, playlists);
+            const blocks = buildScheduleBlocks(assignments, [date]).sort(
+                (left, right) =>
+                    left.start_minutes - right.start_minutes ||
+                    left.playlist.name.localeCompare(right.playlist.name),
+            );
+            const display_count = displays.filter((display) =>
+                display.zones?.includes(zone.id),
+            ).length;
+            const search_index = [
+                zone.display_name || zone.name,
+                zone.description || '',
+                ...assignments.map((item) => item.playlist.name),
+            ]
+                .join(' ')
+                .toLowerCase();
+            return {
+                id: zone.id,
+                name: zone.display_name || zone.name,
+                description: zone.description || '',
+                subtitle: `${i18n(
+                    'SIGNAGE_MANAGER.PLAYLIST_COUNT_LABEL',
+                    {
+                        count: assignments.length,
+                    },
+                    assignments.length,
+                )} · ${i18n(
+                    'SIGNAGE_MANAGER.DISPLAY_COUNT_LABEL',
+                    {
+                        count: display_count,
+                    },
+                    display_count,
+                )}`,
+                icon: 'layers',
+                route: ['/zones', zone.id],
+                blocks,
+                search_index,
+                updated_at: zone.updated_at,
+            };
+        });
     });
+
+    // Filter in separate signals so typing does not rebuild the blocks
+    public readonly display_rows = computed(() =>
+        filterRows(this._all_display_rows(), this.search_term()),
+    );
+    public readonly zone_rows = computed(() =>
+        filterRows(this._all_zone_rows(), this.search_term()),
+    );
 
     public readonly rows = computed(() =>
         this.view_tab() === 'displays' ? this.display_rows() : this.zone_rows(),
@@ -428,6 +484,11 @@ export class SchedulesSectionComponent {
             60_000,
         );
         this._destroy_ref.onDestroy(() => clearInterval(timer));
+    }
+
+    /** Load the schedules again after an error */
+    public reload() {
+        this._inventory.reload();
     }
 
     public setSearch(event: Event) {

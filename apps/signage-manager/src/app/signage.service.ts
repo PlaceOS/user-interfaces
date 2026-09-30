@@ -1404,6 +1404,16 @@ export class SignageService {
     }
 
     /**
+     * Changes with the active group and after each save. Resources that call
+     * `loadSignageInventory()` use it as their params.
+     */
+    public readonly inventory_key = computed(() => ({
+        can_query: this._canQueryLists(),
+        group_id: this._api_group_id(),
+        change: this._change(),
+    }));
+
+    /**
      * Fetch every display, zone and playlist in the active group. The lists
      * on screen only hold the pages loaded so far, so checks that need the
      * full set use this instead.
