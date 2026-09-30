@@ -2,10 +2,12 @@ import { Component, computed, inject, resource } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { RouterLink } from '@angular/router';
+import { i18n } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import type { SignageMedia } from '@placeos/ts-client';
 import { format } from 'date-fns';
 import { CONFLICT_WINDOW_DAYS } from '../schedules/schedule-conflicts.util';
+import { playlistExpiredAt } from '../signage-playlist.util';
 import { SignageService } from '../signage.service';
 
 /** Most rows shown in each report section */
@@ -27,6 +29,8 @@ interface ReportSection {
     title: string;
     hint: string;
     rows: ReportRow[];
+    /** Warning that the section is not complete */
+    note?: string;
 }
 
 /**
@@ -108,6 +112,14 @@ interface ReportSection {
                                         | translate: { days: window_days }
                                 }}
                             </p>
+                            @if (section.note) {
+                                <p
+                                    class="text-warning flex items-center gap-2 px-4 pt-2 text-xs"
+                                >
+                                    <icon>warning</icon>
+                                    {{ section.note }}
+                                </p>
+                            }
                             @if (section.rows.length) {
                                 <ul class="p-2">
                                     @for (
@@ -162,7 +174,7 @@ interface ReportSection {
                                         </li>
                                     }
                                 </ul>
-                            } @else {
+                            } @else if (!section.note) {
                                 <p
                                     class="flex items-center gap-2 px-4 py-3 text-sm opacity-60"
                                 >
@@ -194,8 +206,10 @@ export class ContentReportComponent {
 
     public readonly max_rows = MAX_ROWS;
     public readonly window_days = CONFLICT_WINDOW_DAYS;
-    // Loads when the page opens. The refresh button loads it again.
+    // Loads when the page opens, when the group changes and after a save.
+    // The refresh button loads it again.
     public readonly report = resource({
+        params: () => this._service.inventory_key(),
         loader: () => this._service.loadContentReport(),
     });
 
@@ -248,7 +262,7 @@ export class ContentReportComponent {
                     key: playlist.id,
                     label: playlist.name,
                     detail: format(
-                        (playlist.valid_until || 0) * 1000,
+                        playlistExpiredAt(playlist) * 1000,
                         'd MMM yyyy',
                     ),
                     route: ['/playlists', playlist.id],
@@ -265,6 +279,13 @@ export class ContentReportComponent {
                     detail: playlists.map(({ name }) => name).join(', '),
                     media,
                 })),
+                note: report.expired_media_unchecked
+                    ? i18n(
+                          'SIGNAGE_MANAGER.REPORT_EXPIRED_MEDIA_PARTIAL',
+                          { count: report.expired_media_unchecked },
+                          report.expired_media_unchecked,
+                      )
+                    : '',
             },
         ];
     });

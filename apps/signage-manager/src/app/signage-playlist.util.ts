@@ -338,6 +338,29 @@ export function playlistScheduleExpiryTooltip(
         : '';
 }
 
+/**
+ * When a playlist stopped playing, in Unix seconds: its own end date, or the
+ * last schedule end date when every schedule has ended. 0 while it can play.
+ */
+export function playlistExpiredAt(
+    playlist: {
+        valid_until?: number;
+        schedules?: readonly Partial<PlaylistSchedule>[];
+    },
+    now = Date.now(),
+) {
+    if (playlist.valid_until && playlist.valid_until * 1000 < now) {
+        return playlist.valid_until;
+    }
+    const ends = (playlist.schedules || []).map(
+        ({ valid_until }) => valid_until || 0,
+    );
+    if (!ends.length || ends.some((end) => !end || end * 1000 >= now)) {
+        return 0;
+    }
+    return Math.max(...ends);
+}
+
 export function playlistScheduleLabel(schedule: Partial<PlaylistSchedule>) {
     const period = schedulePeriod(schedule);
     const expiry = playlistScheduleExpiryLabel(schedule);
