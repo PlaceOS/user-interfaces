@@ -84,6 +84,18 @@ describe('SchedulesSectionComponent', () => {
         );
     });
 
+    it('moves between tabs with the arrow keys', async () => {
+        const component = await make();
+        component.onTabKeydown(
+            new KeyboardEvent('keydown', { key: 'ArrowRight' }),
+        );
+        expect(component.view_tab()).toBe('zones');
+        component.onTabKeydown(
+            new KeyboardEvent('keydown', { key: 'ArrowLeft' }),
+        );
+        expect(component.view_tab()).toBe('displays');
+    });
+
     it('filters rows by the search term', async () => {
         const component = await make();
         component.search_term.set('foyer');
@@ -121,9 +133,9 @@ describe('SchedulesSectionComponent', () => {
 
         component.selected_date.set(addDays(start, 5));
         component.goToToday();
-        expect(isSameDay(component.selected_date(), startOfDay(new Date()))).toBe(
-            true,
-        );
+        expect(
+            isSameDay(component.selected_date(), startOfDay(new Date())),
+        ).toBe(true);
     });
 
     it('derives the current-time marker minutes and same-day visibility', async () => {

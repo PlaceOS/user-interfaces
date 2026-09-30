@@ -1,6 +1,6 @@
 import { i18n } from '@placeos/common';
 import { SignagePlaylist } from '@placeos/ts-client';
-import { fromUnixTime, isSameDay, startOfDay } from 'date-fns';
+import { addDays, fromUnixTime, isSameDay, startOfDay } from 'date-fns';
 import {
     cronDaySlots,
     cronParts,
@@ -25,6 +25,8 @@ const BLOCK_PALETTE = [
 
 export const DAY_COUNT = 7;
 export const MINUTES_PER_DAY = 1440;
+/** Shortest block length that the timeline shows, so short plays stay visible */
+export const MIN_VISIBLE_MINUTES = 15;
 const DEFAULT_PLAYLIST_DURATION = 24 * 60;
 
 export interface ScheduleBlock {
@@ -48,17 +50,23 @@ export interface ScheduleAssignment {
     source_label?: string;
 }
 
+/** A block on the one-day timeline */
+export interface TimelineBlock extends ScheduleBlock {
+    /** Lane in the row, so blocks that overlap do not cover each other */
+    lane: number;
+}
+
 export interface ScheduleTimelineRow {
     id: string;
     name: string;
-    description: string;
     subtitle: string;
     icon: string;
     route: string[];
-    blocks: ScheduleBlock[];
+    blocks: TimelineBlock[];
+    /** Number of lanes that the blocks use. At least 1. */
+    lane_count: number;
     search_index: string;
     signage_last_seen?: number;
-    updated_at: number;
 }
 
 interface ScheduleBlockBase {
@@ -156,7 +164,7 @@ function getCronBlocksForDay(
     return cronDaySlots(parts).map((start_minutes) => ({
         start_minutes,
         duration_minutes: duration,
-        all_day: duration >= MINUTES_PER_DAY,
+        all_day: start_minutes === 0 && duration >= MINUTES_PER_DAY,
         label: duration
             ? formatTimeRange(start_minutes, duration)
             : i18n('SIGNAGE_MANAGER.PLAY_THROUGH_ONCE'),
@@ -249,6 +257,105 @@ function generateScheduleBlocks(
     }
 
     return blocks;
+}
+
+/** Minutes that a timeline block covers on screen */
+export function visibleMinutes(block: ScheduleBlock) {
+    return block.all_day
+        ? MINUTES_PER_DAY
+        : Math.max(
+              MIN_VISIBLE_MINUTES,
+              Math.min(
+                  block.duration_minutes,
+                  MINUTES_PER_DAY - block.start_minutes,
+              ),
+          );
+}
+
+/** Part of a block on the second day of the list, as minutes of that day */
+function clipToDay(block: ScheduleBlock): ScheduleBlock[] {
+    const start = (block.day_index - 1) * MINUTES_PER_DAY + block.start_minutes;
+    const end = start + block.duration_minutes;
+    if (start < 0 && end <= 0) return [];
+    const visible_start = Math.max(0, start);
+    const visible_end = Math.min(MINUTES_PER_DAY, end);
+    return [
+        {
+            ...block,
+            start_minutes: visible_start,
+            duration_minutes: visible_end - visible_start,
+            all_day: visible_start === 0 && visible_end >= MINUTES_PER_DAY,
+        },
+    ];
+}
+
+/** Join touching or overlapping blocks of one playlist. Blocks must be in start order. */
+function mergePlaylistBlocks(blocks: ScheduleBlock[]) {
+    const merged: ScheduleBlock[] = [];
+    const last_blocks = new Map<string, ScheduleBlock>();
+    // A block with no length plays the playlist once, so give it a minute.
+    const end = (block: ScheduleBlock) =>
+        block.start_minutes + Math.max(1, block.duration_minutes);
+    for (const block of blocks) {
+        const key = `${block.playlist.id}|${block.takeover}`;
+        const last = last_blocks.get(key);
+        if (last && block.start_minutes <= end(last)) {
+            const last_end = Math.min(
+                MINUTES_PER_DAY,
+                Math.max(end(last), end(block)),
+            );
+            last.duration_minutes = last_end - last.start_minutes;
+            last.all_day =
+                last.start_minutes === 0 && last_end >= MINUTES_PER_DAY;
+            last.label = formatTimeRange(
+                last.start_minutes,
+                last.duration_minutes,
+            );
+            continue;
+        }
+        const copy = { ...block };
+        merged.push(copy);
+        last_blocks.set(key, copy);
+    }
+    return merged;
+}
+
+/**
+ * Blocks for one day of the timeline. Adds the part of the previous day's
+ * blocks that runs past midnight and cuts blocks at midnight. Joins touching
+ * blocks of one playlist, then puts blocks that overlap on screen in
+ * separate lanes.
+ */
+export function buildDayTimelineBlocks(
+    assignments: ScheduleAssignment[],
+    day: Date,
+): { blocks: TimelineBlock[]; lane_count: number } {
+    const selected_day = startOfDay(day);
+    const blocks = buildScheduleBlocks(assignments, [
+        addDays(selected_day, -1),
+        selected_day,
+    ])
+        .flatMap(clipToDay)
+        .sort(
+            (left, right) =>
+                left.start_minutes - right.start_minutes ||
+                left.playlist.name.localeCompare(right.playlist.name),
+        );
+    // Greedy lanes: each block takes the first lane that is free at its start.
+    const lane_ends: number[] = [];
+    const timeline_blocks = mergePlaylistBlocks(blocks).map((block) => {
+        const block_end = block.start_minutes + visibleMinutes(block);
+        let lane = lane_ends.findIndex(
+            (lane_end) => lane_end <= block.start_minutes,
+        );
+        if (lane < 0) lane = lane_ends.push(block_end) - 1;
+        else lane_ends[lane] = block_end;
+        return { ...block, lane };
+    });
+    return {
+        blocks: timeline_blocks,
+        lane_count: Math.max(1, lane_ends.length),
+    };
 }
 
 export function buildDisplayScheduleAssignments(

@@ -1,5 +1,4 @@
-import { Component, input, signal } from '@angular/core';
-import { MatRippleModule } from '@angular/material/core';
+import { Component, computed, input } from '@angular/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterLink } from '@angular/router';
 import { i18n } from '@placeos/common';
@@ -12,245 +11,264 @@ import { format, startOfDay } from 'date-fns';
 import { isDisplayOnline } from '../displays/display-status.util';
 import {
     MINUTES_PER_DAY,
-    ScheduleBlock,
     ScheduleTimelineRow,
+    TimelineBlock,
+    visibleMinutes,
 } from './signage-schedule.util';
+
+/** Height of one lane of blocks, in rem */
+const LANE_HEIGHT = 3.25;
+/** Space above and below the lanes of a row, in rem */
+const ROW_PADDING = 0.375;
+
+const APPROVAL_COLOURS = { bg: '#fef3c7', text: '#92400e', border: '#f59e0b' };
+
+/** Display data of one block, worked out once per change of the inputs */
+interface TimelineBlockView {
+    key: string;
+    playlist_id: string;
+    name: string;
+    enabled: boolean;
+    time: string;
+    takeover: boolean;
+    awaiting_approval: boolean;
+    source: string;
+    from_zone: boolean;
+    left: number;
+    width: number;
+    top: number;
+    bg_color: string;
+    text_color: string;
+    border_color: string;
+    tooltip: string;
+    aria_label: string;
+}
+
+interface TimelineRowView {
+    row: ScheduleTimelineRow;
+    height: number;
+    blocks: TimelineBlockView[];
+}
+
+/** Online status of a display row, as text so it is not shown by colour only */
+interface RowStatus {
+    online: boolean;
+    label: string;
+}
+
+/** Percentage of the day that a number of minutes covers */
+function dayPercent(minutes: number) {
+    const clamped = Math.min(MINUTES_PER_DAY, Math.max(0, minutes));
+    return +((clamped / MINUTES_PER_DAY) * 100).toFixed(2);
+}
 
 @Component({
     selector: 'schedule-timeline',
     template: `
-        <div timeline class="z-0 grid min-h-0 flex-1 overflow-auto">
-            <div
-                corner
-                class="bg-base-100 border-base-300 sticky top-0 left-0 z-40 flex flex-col justify-end border-r border-b px-4 pb-2"
-            >
-                <div
-                    class="text-base-content/50 text-[10px] font-semibold tracking-[0.2em] uppercase"
-                >
-                    {{
-                        (view_tab() === 'displays'
-                            ? 'SIGNAGE_MANAGER.NAV_DISPLAYS'
-                            : 'SIGNAGE_MANAGER.NAV_ZONES'
-                        ) | translate
-                    }}
-                </div>
-            </div>
-            <div
-                time-headers
-                class="border-base-300 bg-base-100 sticky top-0 z-30 flex h-14 items-end border-b"
-                [style.width]="timeline_width + 'rem'"
-            >
-                @for (hour of hours; track hour; let i = $index) {
+        <div class="min-h-0 flex-1 overflow-auto">
+            <div class="relative w-max min-w-full">
+                <div class="sticky top-0 z-40 flex">
                     <div
-                        class="relative flex h-full items-end pb-2"
-                        [style.width]="block_width + 'rem'"
+                        corner
+                        class="header-cell bg-base-100 border-base-300 sticky left-0 z-10 flex h-14 flex-col justify-end border-r border-b px-4 pb-2"
                     >
                         <div
-                            class="text-base-content/50 w-full text-center text-[10px] tabular-nums"
+                            class="text-base-content/50 text-[10px] font-semibold tracking-[0.2em] uppercase"
                         >
-                            {{ formatHour(hour) }}
-                        </div>
-                        @if (i !== 0) {
-                            <div
-                                class="bg-base-300/60 absolute top-0 left-0 h-2.5 w-px"
-                            ></div>
-                        }
-                    </div>
-                }
-            </div>
-            <div
-                row-headers
-                class="border-base-300 bg-base-100 sticky left-0 z-40 border-r"
-                [style.height]="rows().length * row_height + 'rem'"
-            >
-                @for (row of rows(); track row.id; let i = $index) {
-                    <div
-                        class="border-base-200 flex w-full items-center gap-2 border-b px-2 transition-colors duration-100 sm:gap-3 sm:px-3"
-                        [style.height]="row_height + 'rem'"
-                        [class.row-highlight]="hovered_row() === i"
-                        (mouseenter)="hovered_row.set(i)"
-                        (mouseleave)="clearHoveredRow(i)"
-                    >
-                        <div
-                            class="bg-base-content/6 hidden h-8 w-8 shrink-0 items-center justify-center rounded-md sm:flex"
-                            [class.bg-info]="
-                                displayRowStatus(row) === 'success'
-                            "
-                            [class.bg-error]="displayRowStatus(row) === 'error'"
-                            [class.text-info-content]="
-                                displayRowStatus(row) === 'success'
-                            "
-                            [class.text-error-content]="
-                                displayRowStatus(row) === 'error'
-                            "
-                            [matTooltip]="
-                                displayRowStatus(row)
-                                    ? (row.signage_last_seen * 1000 | dateFrom)
-                                    : ''
-                            "
-                            matTooltipPosition="right"
-                        >
-                            <icon class="text-base opacity-60">{{
-                                row.icon
-                            }}</icon>
-                        </div>
-                        <div class="min-w-0 flex-1">
-                            <a
-                                class="block truncate text-xs font-medium hover:underline sm:text-sm"
-                                [routerLink]="row.route"
-                            >
-                                {{ row.name }}
-                            </a>
-                            <div
-                                class="text-base-content/50 truncate text-[10px] sm:text-[11px]"
-                            >
-                                {{ row.subtitle }}
-                            </div>
-                        </div>
-                        <div
-                            class="bg-base-content/6 text-base-content/60 hidden rounded-md px-1.5 py-0.5 text-[10px] font-semibold tabular-nums sm:block"
-                        >
-                            {{ row.blocks.length }}
-                        </div>
-                    </div>
-                }
-            </div>
-            <div
-                timeline-grid
-                class="relative z-0 overflow-hidden"
-                [style.width]="timeline_width + 'rem'"
-                [style.height]="rows().length * row_height + 'rem'"
-            >
-                @for (hour of hours; track hour; let i = $index) {
-                    <div
-                        class="bg-base-content/6 absolute top-0 h-full w-px"
-                        [style.left]="i * block_width + 'rem'"
-                    ></div>
-                }
-                @for (row of rows(); track row.id; let i = $index) {
-                    <div
-                        class="absolute left-0 w-full transition-colors duration-100"
-                        [style.top]="i * row_height + 'rem'"
-                        [style.height]="row_height + 'rem'"
-                        [class.row-highlight]="hovered_row() === i"
-                        (mouseenter)="hovered_row.set(i)"
-                        (mouseleave)="clearHoveredRow(i)"
-                    ></div>
-                    <div
-                        class="border-base-content/6 absolute left-0 w-full border-b"
-                        [style.top]="i * row_height + row_height + 'rem'"
-                    ></div>
-
-                    @if (!row.blocks.length) {
-                        <div
-                            class="text-base-content/30 pointer-events-none absolute left-4 flex items-center gap-1.5 text-[11px]"
-                            [style.top]="i * row_height + 'rem'"
-                            [style.height]="row_height + 'rem'"
-                        >
-                            <icon class="text-sm">event_busy</icon>
                             {{
-                                'SIGNAGE_MANAGER.NO_PLAYLISTS_SCHEDULED'
-                                    | translate
+                                (view_tab() === 'displays'
+                                    ? 'SIGNAGE_MANAGER.NAV_DISPLAYS'
+                                    : 'SIGNAGE_MANAGER.NAV_ZONES'
+                                ) | translate
                             }}
                         </div>
-                    }
-
-                    @for (
-                        block of row.blocks;
-                        track block.playlist.id +
-                            '_' +
-                            block.start_minutes +
-                            '_' +
-                            (block.source_label || '') +
-                            '_' +
-                            $index
-                    ) {
-                        <a
-                            matRipple
-                            class="schedule-block absolute z-10 text-left"
-                            [style.left]="
-                                timeToOffset(block.start_minutes) + '%'
-                            "
-                            [style.top]="i * row_height + 0.375 + 'rem'"
-                            [style.width]="
-                                durationToOffset(visibleDuration(block)) + '%'
-                            "
-                            [style.height]="row_height - 0.75 + 'rem'"
-                            [style.min-width.rem]="2"
-                            [routerLink]="['/playlists', block.playlist.id]"
-                            [matTooltip]="blockTooltip(row, block)"
-                            [attr.aria-label]="blockAriaLabel(row, block)"
-                            (mouseenter)="hovered_row.set(i)"
-                            (mouseleave)="clearHoveredRow(i)"
-                        >
+                    </div>
+                    <div
+                        time-headers
+                        class="border-base-300 bg-base-100 flex h-14 items-end border-b"
+                        [style.width.rem]="timeline_width"
+                    >
+                        @for (hour of hours; track hour; let i = $index) {
                             <div
-                                class="relative flex h-full w-full flex-col overflow-hidden rounded-md border px-2 py-1"
-                                [style.background-color]="
-                                    blockBackgroundColor(block)
-                                "
-                                [style.color]="blockTextColor(block)"
-                                [style.border-color]="blockBorderColor(block)"
-                                [class.border-dashed]="
-                                    block.source_type === 'zone' &&
-                                    view_tab() === 'displays'
-                                "
+                                class="relative flex h-full items-end pb-2"
+                                [style.width.rem]="block_width"
                             >
                                 <div
-                                    class="truncate text-[11px] leading-tight font-semibold"
-                                    [class.line-through]="
-                                        !block.playlist.enabled
-                                    "
+                                    class="text-base-content/50 w-full text-center text-[10px] tabular-nums"
                                 >
-                                    {{ block.playlist.name }}
+                                    {{ formatHour(hour) }}
                                 </div>
-                                <div
-                                    class="truncate text-[10px] leading-tight opacity-70"
-                                >
-                                    {{
-                                        block.all_day
-                                            ? ('SIGNAGE_MANAGER.ALL_DAY'
-                                              | translate)
-                                            : block.label
-                                    }}
-                                </div>
-                                @if (requiresApproval(block)) {
+                                @if (i !== 0) {
                                     <div
-                                        class="mt-auto truncate text-[10px] leading-tight font-medium"
-                                    >
-                                        {{
-                                            'SIGNAGE_MANAGER.AWAITING_APPROVAL'
-                                                | translate
-                                        }}
-                                    </div>
-                                }
-                                @if (
-                                    block.source_label &&
-                                    view_tab() === 'displays'
-                                ) {
-                                    <div
-                                        class="mt-auto truncate text-[10px] leading-tight opacity-60"
-                                    >
-                                        {{
-                                            block.source_type === 'display'
-                                                ? ('SIGNAGE_MANAGER.SOURCE_DIRECT'
-                                                  | translate)
-                                                : ('SIGNAGE_MANAGER.SOURCE_VIA'
-                                                  | translate
-                                                      : {
-                                                            source: block.source_label,
-                                                        })
-                                        }}
-                                    </div>
+                                        class="bg-base-300/60 absolute top-0 left-0 h-2.5 w-px"
+                                    ></div>
                                 }
                             </div>
-                        </a>
-                    }
+                        }
+                    </div>
+                </div>
+                @for (view of view_rows(); track view.row.id) {
+                    <div
+                        schedule-row
+                        class="schedule-row border-base-200 flex border-b"
+                        [style.height.rem]="view.height"
+                    >
+                        <div
+                            row-header
+                            class="header-cell bg-base-100 border-base-300 sticky left-0 z-30 flex items-center gap-2 border-r px-2 sm:gap-3 sm:px-3"
+                        >
+                            @let status = row_status().get(view.row.id);
+                            @if (status) {
+                                <div
+                                    row-status
+                                    tabindex="0"
+                                    role="img"
+                                    class="hidden h-8 w-8 shrink-0 items-center justify-center rounded-md sm:flex"
+                                    [class.bg-info]="status.online"
+                                    [class.text-info-content]="status.online"
+                                    [class.bg-error]="!status.online"
+                                    [class.text-error-content]="!status.online"
+                                    [attr.aria-label]="status.label"
+                                    [matTooltip]="status.label"
+                                    matTooltipPosition="right"
+                                >
+                                    <icon class="text-base opacity-60">{{
+                                        view.row.icon
+                                    }}</icon>
+                                </div>
+                            } @else {
+                                <div
+                                    class="bg-base-content/6 hidden h-8 w-8 shrink-0 items-center justify-center rounded-md sm:flex"
+                                >
+                                    <icon class="text-base opacity-60">{{
+                                        view.row.icon
+                                    }}</icon>
+                                </div>
+                            }
+                            <div class="min-w-0 flex-1">
+                                <a
+                                    class="block truncate text-xs font-medium hover:underline sm:text-sm"
+                                    [routerLink]="view.row.route"
+                                >
+                                    {{ view.row.name }}
+                                </a>
+                                <div
+                                    class="text-base-content/50 truncate text-[10px] sm:text-[11px]"
+                                >
+                                    {{ view.row.subtitle }}
+                                </div>
+                            </div>
+                            <div
+                                class="bg-base-content/6 text-base-content/60 hidden rounded-md px-1.5 py-0.5 text-[10px] font-semibold tabular-nums sm:block"
+                            >
+                                {{ view.blocks.length }}
+                            </div>
+                        </div>
+                        <div
+                            row-timeline
+                            class="hour-lines relative"
+                            [style.width.rem]="timeline_width"
+                        >
+                            @for (block of view.blocks; track block.key) {
+                                <a
+                                    schedule-block
+                                    class="schedule-block absolute z-10 text-left"
+                                    [style.left.%]="block.left"
+                                    [style.top.rem]="block.top"
+                                    [style.width.%]="block.width"
+                                    [style.height.rem]="lane_height"
+                                    [style.min-width.rem]="2"
+                                    [routerLink]="[
+                                        '/playlists',
+                                        block.playlist_id,
+                                    ]"
+                                    [matTooltip]="block.tooltip"
+                                    [attr.aria-label]="block.aria_label"
+                                >
+                                    <div
+                                        class="relative flex h-full w-full flex-col overflow-hidden rounded-md border px-2 py-1"
+                                        [class.border-dashed]="block.from_zone"
+                                        [class.takeover]="block.takeover"
+                                        [style.background-color]="
+                                            block.bg_color
+                                        "
+                                        [style.color]="block.text_color"
+                                        [style.border-color]="
+                                            block.border_color
+                                        "
+                                    >
+                                        <div
+                                            class="flex items-center gap-1 truncate text-[11px] leading-tight font-semibold"
+                                        >
+                                            @if (block.takeover) {
+                                                <icon class="shrink-0 text-xs"
+                                                    >bolt</icon
+                                                >
+                                            }
+                                            <span
+                                                class="truncate"
+                                                [class.line-through]="
+                                                    !block.enabled
+                                                "
+                                                >{{ block.name }}</span
+                                            >
+                                        </div>
+                                        <div
+                                            class="truncate text-[10px] leading-tight opacity-70"
+                                        >
+                                            {{ block.time }}
+                                        </div>
+                                        @if (block.takeover) {
+                                            <div
+                                                class="truncate text-[10px] leading-tight font-medium"
+                                            >
+                                                {{
+                                                    'SIGNAGE_MANAGER.TAKEOVER_PLAYBACK'
+                                                        | translate
+                                                }}
+                                            </div>
+                                        }
+                                        @if (block.awaiting_approval) {
+                                            <div
+                                                class="mt-auto truncate text-[10px] leading-tight font-medium"
+                                            >
+                                                {{
+                                                    'SIGNAGE_MANAGER.AWAITING_APPROVAL'
+                                                        | translate
+                                                }}
+                                            </div>
+                                        }
+                                        @if (block.source) {
+                                            <div
+                                                class="mt-auto truncate text-[10px] leading-tight opacity-60"
+                                            >
+                                                {{ block.source }}
+                                            </div>
+                                        }
+                                    </div>
+                                </a>
+                            } @empty {
+                                <div
+                                    class="text-base-content/30 pointer-events-none absolute inset-y-0 left-4 flex items-center gap-1.5 text-[11px]"
+                                >
+                                    <icon class="text-sm">event_busy</icon>
+                                    {{
+                                        'SIGNAGE_MANAGER.NO_PLAYLISTS_SCHEDULED'
+                                            | translate
+                                    }}
+                                </div>
+                            }
+                        </div>
+                    </div>
                 }
-
                 @if (show_current_time()) {
                     <div
-                        class="pointer-events-none absolute inset-y-0 z-30"
-                        [style.left]="timeToOffset(current_minutes()) + '%'"
+                        class="pointer-events-none absolute top-14 bottom-0 z-[25]"
+                        [style.left]="
+                            'calc(var(--header-width) + ' +
+                            current_offset() +
+                            'rem)'
+                        "
                     >
                         <div
                             class="bg-error absolute -top-0.5 left-1/2 h-2 w-2 -translate-x-1/2 rounded-full"
@@ -264,27 +282,38 @@ import {
     styles: [
         `
             :host {
+                --header-width: 9rem;
                 display: flex;
                 min-height: 0;
                 flex: 1;
             }
 
-            [timeline] {
-                grid-template-columns: 9rem auto;
-                grid-template-rows: 3.5rem auto;
-            }
-
             @media (min-width: 640px) {
-                [timeline] {
-                    grid-template-columns: 16rem auto;
+                :host {
+                    --header-width: 16rem;
                 }
             }
 
-            .row-highlight {
+            .header-cell {
+                width: var(--header-width);
+                flex-shrink: 0;
+            }
+
+            .hour-lines {
+                background-image: repeating-linear-gradient(
+                    to right,
+                    color-mix(in srgb, var(--base-content) 6%, transparent) 0
+                        1px,
+                    transparent 1px 6rem
+                );
+            }
+
+            .schedule-row:hover,
+            .schedule-row:hover > .header-cell {
                 background-color: color-mix(
                     in srgb,
                     var(--info) 6%,
-                    transparent
+                    var(--base-100)
                 );
             }
 
@@ -293,7 +322,8 @@ import {
                     transform 120ms ease,
                     z-index 0ms;
             }
-            .schedule-block:hover {
+            .schedule-block:hover,
+            .schedule-block:focus-visible {
                 z-index: 20;
                 transform: scaleY(1.04);
             }
@@ -304,21 +334,19 @@ import {
             .schedule-block:hover > div {
                 box-shadow: 0 3px 8px rgb(0 0 0 / 0.12);
             }
+            .schedule-block > div.takeover {
+                border-left-width: 4px;
+                font-weight: 600;
+            }
         `,
     ],
-    imports: [
-        MatRippleModule,
-        MatTooltipModule,
-        RouterLink,
-        IconComponent,
-        DateFromPipe,
-        TranslatePipe,
-    ],
+    imports: [MatTooltipModule, RouterLink, IconComponent, TranslatePipe],
 })
 export class ScheduleTimelineComponent {
+    private readonly _date_from = new DateFromPipe();
+
     public readonly rows = input<ScheduleTimelineRow[]>([]);
     public readonly view_tab = input<'displays' | 'zones'>('displays');
-    public readonly selected_date = input.required<Date>();
     public readonly current_minutes = input(0);
     public readonly show_current_time = input(false);
     public readonly playlist_approval_status = input<Record<string, boolean>>(
@@ -326,19 +354,51 @@ export class ScheduleTimelineComponent {
     );
 
     public readonly block_width = 6;
-    public readonly row_height = 4;
+    public readonly lane_height = LANE_HEIGHT;
     public readonly hours = Array.from({ length: 24 }, (_, index) => index);
     public readonly timeline_width = this.hours.length * this.block_width;
-    public readonly hovered_row = signal(-1);
 
-    public displayRowStatus(row: ScheduleTimelineRow) {
-        if (this.view_tab() !== 'displays') return '';
-        return isDisplayOnline(row.signage_last_seen) ? 'success' : 'error';
-    }
+    /** Position of the current time line from the start of the day, in rem */
+    public readonly current_offset = computed(
+        () => (dayPercent(this.current_minutes()) / 100) * this.timeline_width,
+    );
 
-    public clearHoveredRow(index: number) {
-        if (this.hovered_row() === index) this.hovered_row.set(-1);
-    }
+    /** Rows with the position, colours and text of each block */
+    public readonly view_rows = computed<TimelineRowView[]>(() => {
+        const approvals = this.playlist_approval_status();
+        const show_source = this.view_tab() === 'displays';
+        return this.rows().map((row) => ({
+            row,
+            height: Math.max(4, row.lane_count * LANE_HEIGHT + 2 * ROW_PADDING),
+            blocks: row.blocks.map((block) =>
+                this._blockView(row, block, approvals, show_source),
+            ),
+        }));
+    });
+
+    /** Online status of display rows. Updates each minute. */
+    public readonly row_status = computed(() => {
+        this.current_minutes();
+        const statuses = new Map<string, RowStatus>();
+        if (this.view_tab() !== 'displays') return statuses;
+        for (const row of this.rows()) {
+            const online = isDisplayOnline(row.signage_last_seen);
+            const label = !row.signage_last_seen
+                ? i18n('SIGNAGE_MANAGER.DISPLAY_STATUS_NEVER_SEEN')
+                : i18n(
+                      online
+                          ? 'SIGNAGE_MANAGER.DISPLAY_STATUS_ONLINE'
+                          : 'SIGNAGE_MANAGER.DISPLAY_STATUS_OFFLINE',
+                      {
+                          time: this._date_from.transform(
+                              row.signage_last_seen * 1000,
+                          ),
+                      },
+                  );
+            statuses.set(row.id, { online, label });
+        }
+        return statuses;
+    });
 
     public formatHour(hour: number) {
         const date = startOfDay(new Date());
@@ -346,74 +406,88 @@ export class ScheduleTimelineComponent {
         return format(date, 'haaa').replace('AM', 'am').replace('PM', 'pm');
     }
 
-    public timeToOffset(minutes: number) {
-        return +((Math.max(0, minutes) / MINUTES_PER_DAY) * 100).toFixed(2);
-    }
-
-    public durationToOffset(duration: number) {
-        return +(
-            (Math.min(MINUTES_PER_DAY, Math.max(duration, 0)) /
-                MINUTES_PER_DAY) *
-            100
-        ).toFixed(2);
-    }
-
-    public visibleDuration(block: ScheduleBlock) {
-        return block.all_day
-            ? MINUTES_PER_DAY
-            : Math.max(
-                  15,
-                  Math.min(
-                      block.duration_minutes,
-                      MINUTES_PER_DAY - block.start_minutes,
-                  ),
-              );
-    }
-
-    public requiresApproval(block: ScheduleBlock) {
-        const approvals = this.playlist_approval_status();
-        return block.playlist.id in approvals && !approvals[block.playlist.id];
-    }
-
-    public blockBackgroundColor(block: ScheduleBlock) {
-        return this.requiresApproval(block) ? '#fef3c7' : block.bg_color;
-    }
-
-    public blockTextColor(block: ScheduleBlock) {
-        return this.requiresApproval(block) ? '#92400e' : block.text_color;
-    }
-
-    public blockBorderColor(block: ScheduleBlock) {
-        return this.requiresApproval(block) ? '#f59e0b' : block.text_color;
-    }
-
-    public blockTooltip(row: ScheduleTimelineRow, block: ScheduleBlock) {
+    private _blockView(
+        row: ScheduleTimelineRow,
+        block: TimelineBlock,
+        approvals: Record<string, boolean>,
+        show_source: boolean,
+    ): TimelineBlockView {
+        const { playlist } = block;
+        const awaiting_approval =
+            playlist.id in approvals && !approvals[playlist.id];
+        const colours = awaiting_approval
+            ? APPROVAL_COLOURS
+            : {
+                  bg: block.bg_color,
+                  text: block.text_color,
+                  border: block.text_color,
+              };
+        const time = block.all_day
+            ? i18n('SIGNAGE_MANAGER.ALL_DAY')
+            : block.label;
         const source =
-            block.source_label && this.view_tab() === 'displays'
-                ? `\n${i18n('SIGNAGE_MANAGER.TOOLTIP_SOURCE', {
+            show_source && block.source_label
+                ? block.source_type === 'display'
+                    ? i18n('SIGNAGE_MANAGER.SOURCE_DIRECT')
+                    : i18n('SIGNAGE_MANAGER.SOURCE_VIA', {
+                          source: block.source_label,
+                      })
+                : '';
+        const takeover = block.takeover
+            ? i18n('SIGNAGE_MANAGER.TAKEOVER_PLAYBACK')
+            : '';
+        const approval = awaiting_approval
+            ? i18n('SIGNAGE_MANAGER.AWAITING_APPROVAL')
+            : '';
+        const tooltip_source =
+            show_source && block.source_label
+                ? i18n('SIGNAGE_MANAGER.TOOLTIP_SOURCE', {
                       source:
                           block.source_type === 'display'
                               ? i18n('SIGNAGE_MANAGER.SOURCE_DISPLAY')
                               : block.source_label,
-                  })}`
+                  })
                 : '';
-        const approval = this.requiresApproval(block)
-            ? `\n${i18n('SIGNAGE_MANAGER.TOOLTIP_STATUS_AWAITING')}`
-            : '';
-        const time = block.all_day
-            ? i18n('SIGNAGE_MANAGER.ALL_DAY')
-            : block.label;
-        return `${row.name}\n${i18n('SIGNAGE_MANAGER.TOOLTIP_PLAYLIST', {
-            name: block.playlist.name,
-        })}\n${i18n('SIGNAGE_MANAGER.TOOLTIP_TIME', {
+        return {
+            key: `${playlist.id}|${block.takeover}|${block.start_minutes}`,
+            playlist_id: playlist.id,
+            name: playlist.name,
+            enabled: !!playlist.enabled,
             time,
-        })}${source}${approval}`;
-    }
-
-    public blockAriaLabel(row: ScheduleTimelineRow, block: ScheduleBlock) {
-        const time = block.all_day
-            ? i18n('SIGNAGE_MANAGER.ALL_DAY_LOWER')
-            : block.label;
-        return `${row.name}, ${block.playlist.name}, ${time}`;
+            takeover: block.takeover,
+            awaiting_approval,
+            source,
+            from_zone: show_source && block.source_type === 'zone',
+            left: dayPercent(block.start_minutes),
+            width: dayPercent(visibleMinutes(block)),
+            top: ROW_PADDING + block.lane * LANE_HEIGHT,
+            bg_color: colours.bg,
+            text_color: colours.text,
+            border_color: colours.border,
+            tooltip: [
+                row.name,
+                i18n('SIGNAGE_MANAGER.TOOLTIP_PLAYLIST', {
+                    name: playlist.name,
+                }),
+                i18n('SIGNAGE_MANAGER.TOOLTIP_TIME', { time }),
+                takeover,
+                tooltip_source,
+                awaiting_approval
+                    ? i18n('SIGNAGE_MANAGER.TOOLTIP_STATUS_AWAITING')
+                    : '',
+            ]
+                .filter((line) => line)
+                .join('\n'),
+            aria_label: [
+                row.name,
+                playlist.name,
+                block.all_day ? i18n('SIGNAGE_MANAGER.ALL_DAY_LOWER') : time,
+                takeover,
+                approval,
+                source,
+            ]
+                .filter((part) => part)
+                .join(', '),
+        };
     }
 }

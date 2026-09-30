@@ -1,6 +1,7 @@
 import { SignagePlaylist } from '@placeos/ts-client';
 import { getUnixTime } from 'date-fns';
 import {
+    buildDayTimelineBlocks,
     buildDisplayScheduleAssignments,
     buildScheduleBlocks,
     buildZoneScheduleAssignments,
@@ -278,5 +279,105 @@ describe('signage-schedule.util', () => {
             'Beta',
         ]);
         expect(assignments[0].source_label).toBe('Lobby');
+    });
+
+    describe('day timeline', () => {
+        const day = new Date(2026, 2, 3);
+        const assign = (id: string, play_cron?: string, play_period = 60) => ({
+            playlist: new SignagePlaylist({
+                id,
+                name: id,
+                schedules: play_cron
+                    ? [{ play_cron, play_period, play_takeover: false }]
+                    : [],
+            }),
+        });
+
+        it('puts overlapping blocks in separate lanes', () => {
+            // Playlists with no schedules play all day by default
+            const { blocks, lane_count } = buildDayTimelineBlocks(
+                [
+                    assign('a'),
+                    assign('b'),
+                    assign('c'),
+                    assign('d', '0 9 * * *'),
+                ],
+                day,
+            );
+
+            expect(lane_count).toBe(4);
+            expect(
+                blocks.map(({ playlist, lane }) => [playlist.id, lane]),
+            ).toEqual([
+                ['a', 0],
+                ['b', 1],
+                ['c', 2],
+                ['d', 3],
+            ]);
+        });
+
+        it('reuses a lane once the block before it ends', () => {
+            const { blocks, lane_count } = buildDayTimelineBlocks(
+                [assign('a', '0 9 * * *'), assign('b', '0 10 * * *')],
+                day,
+            );
+
+            expect(lane_count).toBe(1);
+            expect(blocks.map(({ lane }) => lane)).toEqual([0, 0]);
+        });
+
+        it('carries a block past midnight into the next day', () => {
+            const { blocks } = buildDayTimelineBlocks(
+                [assign('late', '0 22 * * *', 240)],
+                day,
+            );
+
+            expect(
+                blocks.map(({ start_minutes, duration_minutes, label }) => ({
+                    start_minutes,
+                    duration_minutes,
+                    label,
+                })),
+            ).toEqual([
+                {
+                    start_minutes: 0,
+                    duration_minutes: 120,
+                    label: '22:00 – 02:00',
+                },
+                {
+                    start_minutes: 1320,
+                    duration_minutes: 120,
+                    label: '22:00 – 02:00',
+                },
+            ]);
+        });
+
+        it('marks a block all day only when it starts at midnight', () => {
+            const noon = buildScheduleBlocks(
+                [assign('noon', '0 12 * * *', 1440)],
+                [day],
+            );
+            const midnight = buildDayTimelineBlocks(
+                [assign('midnight', '0 0 * * *', 1440)],
+                day,
+            ).blocks;
+
+            expect(noon.map(({ all_day }) => all_day)).toEqual([false]);
+            expect(midnight.map(({ all_day }) => all_day)).toEqual([true]);
+        });
+
+        it('joins touching blocks of one playlist', () => {
+            const { blocks } = buildDayTimelineBlocks(
+                [assign('often', '*/5 * * * *', 5)],
+                day,
+            );
+
+            expect(blocks).toHaveLength(1);
+            expect(blocks[0]).toMatchObject({
+                start_minutes: 0,
+                duration_minutes: 1440,
+                all_day: true,
+            });
+        });
     });
 });

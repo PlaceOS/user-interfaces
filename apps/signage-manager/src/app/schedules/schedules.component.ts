@@ -25,8 +25,8 @@ import { SignageService } from '../signage.service';
 import { ScheduleTimelineComponent } from './schedule-timeline.component';
 import {
     ScheduleTimelineRow,
+    buildDayTimelineBlocks,
     buildDisplayScheduleAssignments,
-    buildScheduleBlocks,
     buildZoneScheduleAssignments,
 } from './signage-schedule.util';
 
@@ -70,10 +70,16 @@ function filterRows(rows: ScheduleTimelineRow[], search_term: string) {
                             [attr.aria-label]="
                                 'SIGNAGE_MANAGER.SCHEDULE_TYPES' | translate
                             "
+                            (keydown)="onTabKeydown($event)"
                         >
                             <button
                                 type="button"
                                 role="tab"
+                                id="schedules-tab-displays"
+                                aria-controls="schedules-panel"
+                                [attr.tabindex]="
+                                    view_tab() === 'displays' ? 0 : -1
+                                "
                                 class="flex rounded-md p-2 font-medium transition-all duration-150"
                                 [class.bg-base-100]="view_tab() === 'displays'"
                                 [class.shadow-sm]="view_tab() === 'displays'"
@@ -97,6 +103,11 @@ function filterRows(rows: ScheduleTimelineRow[], search_term: string) {
                             <button
                                 type="button"
                                 role="tab"
+                                id="schedules-tab-zones"
+                                aria-controls="schedules-panel"
+                                [attr.tabindex]="
+                                    view_tab() === 'zones' ? 0 : -1
+                                "
                                 class="flex rounded-md p-2 font-medium transition-all duration-150"
                                 [class.bg-base-100]="view_tab() === 'zones'"
                                 [class.shadow-sm]="view_tab() === 'zones'"
@@ -211,7 +222,10 @@ function filterRows(rows: ScheduleTimelineRow[], search_term: string) {
 
                 <div class="min-h-0 flex-1 p-2">
                     <div
+                        id="schedules-panel"
+                        role="tabpanel"
                         class="bg-base-100 border-base-300 flex h-full min-h-0 flex-col overflow-hidden rounded-lg border"
+                        [attr.aria-labelledby]="'schedules-tab-' + view_tab()"
                     >
                         @if (inventory_error()) {
                             <div
@@ -267,7 +281,6 @@ function filterRows(rows: ScheduleTimelineRow[], search_term: string) {
                             <schedule-timeline
                                 [rows]="rows()"
                                 [view_tab]="view_tab()"
-                                [selected_date]="selected_date()"
                                 [current_minutes]="current_minutes()"
                                 [show_current_time]="show_current_time()"
                                 [playlist_approval_status]="
@@ -367,10 +380,9 @@ export class SchedulesSectionComponent {
                 zones,
                 playlists,
             );
-            const blocks = buildScheduleBlocks(assignments, [date]).sort(
-                (left, right) =>
-                    left.start_minutes - right.start_minutes ||
-                    left.playlist.name.localeCompare(right.playlist.name),
+            const { blocks, lane_count } = buildDayTimelineBlocks(
+                assignments,
+                date,
             );
             const zone_count = (display.zones || []).length;
             const zone_label = zone_count
@@ -393,7 +405,6 @@ export class SchedulesSectionComponent {
             return {
                 id: display.id,
                 name: display.display_name || display.name,
-                description: display.description || '',
                 subtitle: `${i18n(
                     'SIGNAGE_MANAGER.PLAYLIST_COUNT_LABEL',
                     {
@@ -404,9 +415,9 @@ export class SchedulesSectionComponent {
                 icon: 'tv',
                 route: ['/displays', display.id],
                 blocks,
+                lane_count,
                 search_index,
                 signage_last_seen: display.signage_last_seen,
-                updated_at: display.updated_at,
             };
         });
     });
@@ -418,10 +429,9 @@ export class SchedulesSectionComponent {
 
         return this._zones().map((zone) => {
             const assignments = buildZoneScheduleAssignments(zone, playlists);
-            const blocks = buildScheduleBlocks(assignments, [date]).sort(
-                (left, right) =>
-                    left.start_minutes - right.start_minutes ||
-                    left.playlist.name.localeCompare(right.playlist.name),
+            const { blocks, lane_count } = buildDayTimelineBlocks(
+                assignments,
+                date,
             );
             const display_count = displays.filter((display) =>
                 display.zones?.includes(zone.id),
@@ -436,7 +446,6 @@ export class SchedulesSectionComponent {
             return {
                 id: zone.id,
                 name: zone.display_name || zone.name,
-                description: zone.description || '',
                 subtitle: `${i18n(
                     'SIGNAGE_MANAGER.PLAYLIST_COUNT_LABEL',
                     {
@@ -453,8 +462,8 @@ export class SchedulesSectionComponent {
                 icon: 'layers',
                 route: ['/zones', zone.id],
                 blocks,
+                lane_count,
                 search_index,
-                updated_at: zone.updated_at,
             };
         });
     });
@@ -509,6 +518,21 @@ export class SchedulesSectionComponent {
             queryParamsHandling: 'merge',
             replaceUrl: true,
         });
+    }
+
+    /** Move between the tabs with the arrow, Home and End keys */
+    public onTabKeydown(event: KeyboardEvent) {
+        const keys: Record<string, 'displays' | 'zones'> = {
+            ArrowLeft: 'displays',
+            Home: 'displays',
+            ArrowRight: 'zones',
+            End: 'zones',
+        };
+        const tab = keys[event.key];
+        if (!tab) return;
+        event.preventDefault();
+        this.setViewTab(tab);
+        document.getElementById(`schedules-tab-${tab}`)?.focus();
     }
 
     public previousDay() {
