@@ -13,6 +13,7 @@ import {
 } from '@placeos/components';
 import { PlaceGroup } from '@placeos/ts-client';
 import {
+    ORGANISATION_FEATURES,
     SIGNAGE_FEATURE_IDS,
     SIGNAGE_FEATURES,
     SignageGroupFeatures,
@@ -26,6 +27,8 @@ type ListKey = keyof SignageGroupFeatures;
  * Edit the signage features and plugins a group allows for itself and its
  * children. Each list shows the effective value. A list the group does not
  * set comes from its parent groups, and a missing list allows everything.
+ * A group can only narrow its parent, so the options are what the parent
+ * allows.
  */
 @Component({
     selector: 'signage-group-features-modal',
@@ -186,11 +189,24 @@ export class SignageGroupFeaturesModalComponent {
 
     /** Replaced by a fresh read, so a save keeps flags set elsewhere */
     public group = this._data.group;
-    public readonly plugins = this._service.all_plugins;
-    /** Only features the global settings allow can be given to a group */
+    /** Plugins the parent group allows */
+    public readonly plugins = computed(() => {
+        const allowed = this._inherited()?.available_plugins;
+        const plugins = this._service.all_plugins();
+        return allowed
+            ? plugins.filter(({ id }) => allowed.includes(id))
+            : plugins;
+    });
+    /** Group features that the global settings and the parent group allow */
     public readonly available_features = computed(() => {
         const global = this._service.global_features() || [];
-        return SIGNAGE_FEATURES.filter(({ id }) => global.includes(id));
+        const parent = this._inherited()?.features;
+        return SIGNAGE_FEATURES.filter(
+            ({ id }) =>
+                global.includes(id) &&
+                !ORGANISATION_FEATURES.includes(id) &&
+                (!parent || parent.includes(id)),
+        );
     });
     public readonly saving = signal(false);
     /** Lists the group sets itself */
@@ -289,7 +305,9 @@ export class SignageGroupFeaturesModalComponent {
     private _withKnownPlugins(
         features: SignageGroupFeatures,
     ): SignageGroupFeatures {
-        const ids = new Set(this.plugins().map((plugin) => plugin.id));
+        const ids = new Set(
+            this._service.all_plugins().map((plugin) => plugin.id),
+        );
         if (!features.available_plugins || !ids.size) return features;
         return {
             ...features,

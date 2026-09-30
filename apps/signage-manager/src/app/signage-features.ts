@@ -28,9 +28,17 @@ export const SIGNAGE_FEATURE_IDS: SignageFeature[] = SIGNAGE_FEATURES.map(
 );
 
 /**
+ * Features that apply to the whole organisation. Groups cannot narrow them,
+ * so only `app.features` turns them on or off.
+ */
+export const ORGANISATION_FEATURES: readonly SignageFeature[] = [
+    'branding-editing',
+];
+
+/**
  * Signage settings stored on a group under `features.signage`. Child groups
- * inherit each key from their ancestors and can replace it. A missing key
- * keeps everything the global settings allow.
+ * inherit each key from their ancestors and can replace it with a narrower
+ * list. A missing key keeps everything the global settings allow.
  */
 export interface SignageGroupFeatures {
     /** Features the group's users can use, filtered by `app.features` */
@@ -72,4 +80,24 @@ export function effectiveFeatures(
 ) {
     const allowed = group.features;
     return allowed ? global.filter((id) => allowed.includes(id)) : [...global];
+}
+
+/**
+ * Limit the lists a group sets to the effective lists of its parent, so a
+ * group can only narrow what its parent allows. A list the parent does not
+ * set allows everything.
+ */
+export function narrowGroupFeatures(
+    own: SignageGroupFeatures,
+    parent: SignageGroupFeatures,
+): SignageGroupFeatures {
+    const result = { ...own };
+    for (const key of ['features', 'available_plugins'] as const) {
+        const allowed = parent[key];
+        const list = own[key];
+        if (allowed && list) {
+            result[key] = list.filter((id) => allowed.includes(id));
+        }
+    }
+    return result;
 }

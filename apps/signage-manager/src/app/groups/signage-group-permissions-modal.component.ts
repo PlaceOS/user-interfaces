@@ -6,16 +6,50 @@ import {
     SettingsToggleComponent,
     TranslatePipe,
 } from '@placeos/components';
+import { SignageGroupPermission } from '../signage.service';
 
+/** Labels of the group permission bits, in display order */
 export const GROUP_PERMISSION_FLAGS = [
-    { key: 'read', label: 'SIGNAGE_MANAGER.PERM_READ', value: 1 },
-    { key: 'create', label: 'SIGNAGE_MANAGER.PERM_CREATE', value: 2 },
-    { key: 'update', label: 'SIGNAGE_MANAGER.PERM_UPDATE', value: 4 },
-    { key: 'delete', label: 'COMMON.DELETE', value: 8 },
-    { key: 'operate', label: 'SIGNAGE_MANAGER.PERM_OPERATE', value: 16 },
-    { key: 'approve', label: 'COMMON.APPROVE', value: 32 },
-    { key: 'manage', label: 'SIGNAGE_MANAGER.PERM_MANAGE', value: 64 },
-    { key: 'share', label: 'SIGNAGE_MANAGER.PERM_SHARE', value: 128 },
+    {
+        key: 'read',
+        label: 'SIGNAGE_MANAGER.PERM_READ',
+        value: SignageGroupPermission.Read,
+    },
+    {
+        key: 'create',
+        label: 'SIGNAGE_MANAGER.PERM_CREATE',
+        value: SignageGroupPermission.Create,
+    },
+    {
+        key: 'update',
+        label: 'SIGNAGE_MANAGER.PERM_UPDATE',
+        value: SignageGroupPermission.Update,
+    },
+    {
+        key: 'delete',
+        label: 'COMMON.DELETE',
+        value: SignageGroupPermission.Delete,
+    },
+    {
+        key: 'operate',
+        label: 'SIGNAGE_MANAGER.PERM_OPERATE',
+        value: SignageGroupPermission.Operate,
+    },
+    {
+        key: 'approve',
+        label: 'COMMON.APPROVE',
+        value: SignageGroupPermission.Approve,
+    },
+    {
+        key: 'manage',
+        label: 'SIGNAGE_MANAGER.PERM_MANAGE',
+        value: SignageGroupPermission.Manage,
+    },
+    {
+        key: 'share',
+        label: 'SIGNAGE_MANAGER.PERM_SHARE',
+        value: SignageGroupPermission.Share,
+    },
 ];
 
 @Component({

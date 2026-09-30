@@ -1,5 +1,6 @@
 import {
     effectiveFeatures,
+    narrowGroupFeatures,
     signageGroupFeatures,
 } from '../app/signage-features';
 
@@ -50,5 +51,29 @@ describe('effectiveFeatures', () => {
                 features: ['templates', 'ai-editing'],
             }),
         ).toEqual(['templates']);
+    });
+});
+
+describe('narrowGroupFeatures', () => {
+    it('keeps a grandchild within the features its grandparent allows', () => {
+        const a = { features: ['templates', 'ai-generation'] };
+        // B is saved under A. Its effective list is its own list.
+        const b = narrowGroupFeatures(
+            { features: ['templates', 'ai-editing'] },
+            a,
+        );
+        const c = narrowGroupFeatures(
+            { features: ['templates', 'ai-generation', 'ai-editing'] },
+            b,
+        );
+
+        expect(b).toEqual({ features: ['templates'] });
+        expect(c).toEqual({ features: ['templates'] });
+    });
+
+    it('keeps lists as they are when the parent sets none', () => {
+        expect(
+            narrowGroupFeatures({ available_plugins: ['plugin-1'] }, {}),
+        ).toEqual({ available_plugins: ['plugin-1'] });
     });
 });

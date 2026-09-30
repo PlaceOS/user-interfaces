@@ -11,9 +11,11 @@ describe('SignageGroupEditModalComponent', () => {
     const manageable_signage_groups = signal<any[]>([]);
     const hotkey_listen = vi.fn();
     let hotkey_callback: () => void;
+    const can_change_parent = vi.fn();
     const service_stub = {
         manageable_signage_groups,
         saveSignageGroup: save_signage_group,
+        canChangeGroupParent: can_change_parent,
     };
     let modal_data: { group: any };
 
@@ -44,6 +46,7 @@ describe('SignageGroupEditModalComponent', () => {
             },
         );
         dialog_ref.disableClose = false;
+        can_change_parent.mockReturnValue(true);
         save_signage_group.mockResolvedValue({ id: 'group-1' });
         manageable_signage_groups.set([
             { id: 'group-1', name: 'Group 1' },
@@ -75,6 +78,24 @@ describe('SignageGroupEditModalComponent', () => {
         expect(component.parent_groups().map((group: any) => group.id)).toEqual(
             ['group-2'],
         );
+    });
+
+    it('offers only the parents the user can move the group to', () => {
+        manageable_signage_groups.set([
+            { id: 'group-1', name: 'Group 1' },
+            { id: 'group-2', name: 'Group 2' },
+            { id: 'group-3', name: 'Group 3' },
+        ]);
+        can_change_parent.mockImplementation(
+            (_group: unknown, parent_id: string) => parent_id === 'group-3',
+        );
+        modal_data = { group: { id: 'group-1', parent_id: 'group-3' } };
+        const component = make();
+
+        expect(component.parent_groups().map(({ id }) => id)).toEqual([
+            'group-3',
+        ]);
+        expect(component.can_remove_parent()).toBe(false);
     });
 
     it('saves a valid group and closes with the result', async () => {
@@ -147,5 +168,6 @@ describe('SignageGroupEditModalComponent', () => {
 
         expect(save_signage_group).toHaveBeenCalled();
         expect(dialog_ref.close).not.toHaveBeenCalled();
+        expect(component.loading()).toBe(false);
     });
 });

@@ -166,6 +166,18 @@ describe('SignageGroupListComponent', () => {
         expect(loaded.children_loaded).toBe(true);
     });
 
+    it('stops the group path when the parents form a cycle', () => {
+        manageable_signage_groups.set([
+            group('root'),
+            group('loop-a', { parent_id: 'loop-b' }),
+            group('loop-b', { parent_id: 'loop-a' }),
+        ]);
+        const component = make();
+        component.tree_nodes.set([node(group('root'))]);
+
+        expect(component['getGroupPath']('loop-a')).toEqual([]);
+    });
+
     it('does not reload children when collapsing a node', () => {
         const component = make();
         signage_group_tree_expanded.set({ root: true });

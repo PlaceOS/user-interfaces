@@ -429,8 +429,11 @@ export class SignageGroupListComponent {
         if (!group_id || !root_ids.size) return [];
         if (root_ids.has(group_id)) return [group_id];
         const group_path = [group_id];
+        // Stops on a repeated group, so a parent cycle cannot loop forever
+        const seen = new Set(group_path);
         let current_group = groups.find((group) => group.id === group_id);
-        while (current_group?.parent_id) {
+        while (current_group?.parent_id && !seen.has(current_group.parent_id)) {
+            seen.add(current_group.parent_id);
             group_path.unshift(current_group.parent_id);
             if (root_ids.has(current_group.parent_id)) {
                 return group_path;

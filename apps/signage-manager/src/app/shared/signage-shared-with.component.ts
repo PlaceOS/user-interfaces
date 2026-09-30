@@ -9,7 +9,7 @@ import {
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { i18n, notifyError, notifySuccess } from '@placeos/common';
+import { i18n, notifyError, notifySuccess, notifyWarn } from '@placeos/common';
 import {
     IconComponent,
     openConfirmModal,
@@ -17,11 +17,13 @@ import {
 } from '@placeos/components';
 import {
     listSignageSharedGroups,
+    markSignageSharedGroupsChanged,
     signage_shared_groups_change,
     SignageShareableType,
     SignageSharedGroup,
     unshareSignageItem,
 } from '../signage-shared-groups.util';
+import { SignageService } from '../signage.service';
 
 @Component({
     // Existing signage-manager components use feature selectors without the app prefix.
@@ -81,12 +83,14 @@ import {
 })
 export class SignageSharedWithComponent {
     private readonly _dialog = inject(MatDialog);
+    private readonly _service = inject(SignageService);
 
     public readonly type = input.required<SignageShareableType>();
     public readonly item_id = input('');
     /** Signage group the item is being viewed from */
     public readonly group_id = input('');
-    public readonly allow_unshare = input(true);
+    /** Shows unlink actions. Set it only for users who can change the item. */
+    public readonly allow_unshare = input(false);
     public readonly compact_label = input(false);
     public readonly unsharing_group_id = signal('');
 
@@ -135,10 +139,27 @@ export class SignageSharedWithComponent {
         this.unsharing_group_id.set(group.id);
         result.loading(i18n('SIGNAGE_MANAGER.SHARED_WITH_REMOVING'));
         try {
+            // Another user can unlink groups while this list is open. Read
+            // the list again, so the last group is never unlinked.
+            const current = await listSignageSharedGroups(
+                this.type(),
+                this.item_id(),
+                this.group_id(),
+            );
+            if (
+                current.length < 2 ||
+                !current.some(({ id }) => id === group.id)
+            ) {
+                result.close();
+                notifyWarn(i18n('SIGNAGE_MANAGER.SHARED_WITH_LIST_CHANGED'));
+                markSignageSharedGroupsChanged();
+                return;
+            }
             await unshareSignageItem(this.type(), this.item_id(), group.id);
             result.close();
             notifySuccess(i18n('SIGNAGE_MANAGER.SHARED_WITH_REMOVED'));
-            this._shared_groups.reload();
+            markSignageSharedGroupsChanged();
+            this._service.changed();
         } catch (error) {
             result.close();
             notifyError(

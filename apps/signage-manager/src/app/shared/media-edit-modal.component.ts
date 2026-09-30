@@ -460,6 +460,7 @@ function mediaSaveErrorMessage(error: unknown) {
                         type="media"
                         [item_id]="item.id"
                         [group_id]="group_id"
+                        [allow_unshare]="true"
                     ></signage-shared-with>
                 </div>
             </form>

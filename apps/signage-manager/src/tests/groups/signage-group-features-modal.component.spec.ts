@@ -53,13 +53,35 @@ describe('SignageGroupFeaturesModalComponent', () => {
     });
 
     it('lists only the features the global settings allow', async () => {
+        service_stub.loadGroupFeatures.mockResolvedValue({});
+        global_features.set([
+            'templates',
+            'ai-generation',
+            'ai-editing',
+            'branding-editing',
+        ]);
         const component = await make();
 
+        // Branding is for the whole organisation, so groups cannot limit it
         expect(component.available_features().map(({ id }) => id)).toEqual([
             'templates',
             'ai-generation',
             'ai-editing',
         ]);
+    });
+
+    it('offers only the features and plugins the parent group allows', async () => {
+        service_stub.loadGroupFeatures.mockResolvedValue({
+            features: ['templates', 'ai-generation'],
+            available_plugins: ['plugin-2'],
+        });
+        const component = await make();
+
+        expect(component.available_features().map(({ id }) => id)).toEqual([
+            'templates',
+            'ai-generation',
+        ]);
+        expect(component.plugins().map(({ id }) => id)).toEqual(['plugin-2']);
     });
 
     it('shows the parent list until the group sets its own', async () => {

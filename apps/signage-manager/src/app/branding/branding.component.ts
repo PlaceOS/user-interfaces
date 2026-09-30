@@ -11,6 +11,7 @@ import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { i18n, notifyError, notifySuccess } from '@placeos/common';
@@ -39,249 +40,271 @@ const COLOUR_NAMES = ['primary', 'secondary', 'accent'];
                 {{ 'SIGNAGE_MANAGER.BRAND_HINT' | translate }}
             </p>
 
-            @if (!can_edit()) {
-                <p
-                    class="border-base-300 bg-base-200 mb-6 flex items-center gap-2 rounded border p-3 text-sm"
+            @if (load_state() === 'loading') {
+                <div class="flex justify-center p-8">
+                    <mat-spinner diameter="32" />
+                </div>
+            } @else if (load_state() === 'failed') {
+                <div
+                    class="border-error/40 bg-error/10 flex items-center gap-3 rounded border p-3 text-sm"
                 >
-                    <icon class="text-base-content/60">lock</icon>
-                    {{
-                        (branding_disabled()
-                            ? 'SIGNAGE_MANAGER.BRAND_DISABLED'
-                            : 'SIGNAGE_MANAGER.BRAND_READ_ONLY'
-                        ) | translate
-                    }}
-                </p>
-            }
-
-            <label for="brand-org">{{
-                'SIGNAGE_MANAGER.BRAND_ORGANISATION' | translate
-            }}</label>
-            <mat-form-field appearance="outline" class="w-full">
-                <input
-                    matInput
-                    id="brand-org"
-                    [(ngModel)]="organisation"
-                    [disabled]="!can_edit()"
-                    [placeholder]="
-                        'SIGNAGE_MANAGER.BRAND_ORGANISATION' | translate
-                    "
-                />
-            </mat-form-field>
-
-            <label class="mt-4 mb-2 block">{{
-                'SIGNAGE_MANAGER.BRAND_COLOURS' | translate
-            }}</label>
-            <div class="flex flex-col items-start gap-2">
-                @for (colour of colours(); track $index) {
-                    <div class="flex items-center gap-3">
-                        <input
-                            type="color"
-                            class="border-base-content/20 h-10 w-14 rounded border bg-transparent disabled:cursor-not-allowed disabled:opacity-60"
-                            [class.cursor-pointer]="can_edit()"
-                            [disabled]="!can_edit()"
-                            [value]="colour"
-                            (input)="setColourFromInput($index, $event)"
-                            [attr.aria-label]="
-                                'SIGNAGE_MANAGER.BRAND_COLOURS' | translate
-                            "
-                        />
-                        <mat-form-field
-                            appearance="outline"
-                            class="w-40"
-                            subscriptSizing="dynamic"
-                        >
-                            <input
-                                matInput
-                                [ngModel]="colour"
-                                (ngModelChange)="setColour($index, $event)"
-                                [disabled]="!can_edit()"
-                                [class.text-error]="colour_errors()[$index]"
-                                [attr.aria-invalid]="
-                                    colour_errors()[$index] ? 'true' : null
-                                "
-                                placeholder="#0E6E52"
-                            />
-                        </mat-form-field>
-                        <span class="text-base-content/60 text-xs uppercase">{{
-                            colourName($index)
-                        }}</span>
-                        @if (can_edit()) {
-                            <button
-                                icon
-                                default
-                                error
-                                type="button"
-                                [disabled]="colours().length < 2"
-                                [matTooltip]="
-                                    'SIGNAGE_MANAGER.BRAND_REMOVE_COLOUR'
-                                        | translate
-                                "
-                                (click)="removeColour($index)"
-                            >
-                                <icon>delete</icon>
-                            </button>
-                        }
-                    </div>
-                }
-                @if (can_edit() && colours().length < 3) {
-                    <button
-                        mat-stroked-button
-                        type="button"
-                        (click)="addColour()"
-                    >
-                        {{ 'SIGNAGE_MANAGER.BRAND_ADD_COLOUR' | translate }}
+                    <icon class="text-error">error</icon>
+                    <span class="flex-1">{{
+                        'SIGNAGE_MANAGER.BRAND_LOAD_ERROR' | translate
+                    }}</span>
+                    <button mat-stroked-button type="button" (click)="load()">
+                        {{ 'COMMON.RETRY' | translate }}
                     </button>
-                }
-            </div>
-
-            <label class="mt-6" for="brand-font">{{
-                'SIGNAGE_MANAGER.BRAND_FONT' | translate
-            }}</label>
-            <mat-form-field appearance="outline" class="w-full max-w-sm">
-                <mat-select
-                    id="brand-font"
-                    [(ngModel)]="font"
-                    [disabled]="!can_edit()"
-                    (ngModelChange)="previewFont()"
-                >
-                    @for (option of fonts; track option.family) {
-                        <mat-option [value]="option.family">{{
-                            option.family
-                                ? option.label
-                                : (option.label | translate)
-                        }}</mat-option>
-                    }
-                </mat-select>
-            </mat-form-field>
-            <p
-                class="border-base-content/10 bg-base-200 mb-2 rounded border p-4 text-2xl"
-                [style.font-family]="font_stack()"
-            >
-                {{ 'SIGNAGE_MANAGER.BRAND_FONT_SAMPLE' | translate }}
-            </p>
-
-            <label class="mt-6">{{
-                'SIGNAGE_MANAGER.BRAND_LOGO' | translate
-            }}</label>
-            @if (can_edit()) {
-                <p class="text-base-content/60 mb-2 text-sm">
-                    {{ 'SIGNAGE_MANAGER.BRAND_LOGO_HINT' | translate }}
-                </p>
-            }
-            <div class="flex flex-col gap-4 sm:flex-row">
-                @for (slot of slots; track slot.id) {
-                    <div
-                        class="border-base-content/10 flex min-w-0 flex-1 flex-col gap-3 rounded border p-4"
+                </div>
+            } @else {
+                @if (!can_edit()) {
+                    <p
+                        class="border-base-300 bg-base-200 mb-6 flex items-center gap-2 rounded border p-3 text-sm"
                     >
-                        <div class="flex items-baseline justify-between gap-2">
-                            <span class="text-sm font-medium">{{
-                                slot.label | translate
-                            }}</span>
-                            @if (derived() === slot.id) {
-                                <span
-                                    class="text-base-content/60 shrink-0 text-xs"
-                                    >{{
-                                        'SIGNAGE_MANAGER.BRAND_LOGO_DERIVED'
-                                            | translate
-                                    }}</span
-                                >
-                            }
-                        </div>
+                        <icon class="text-base-content/60">lock</icon>
+                        {{
+                            (branding_disabled()
+                                ? 'SIGNAGE_MANAGER.BRAND_DISABLED'
+                                : 'SIGNAGE_MANAGER.BRAND_READ_ONLY'
+                            ) | translate
+                        }}
+                    </p>
+                }
 
-                        <!-- shown on the ground it is meant for, which is the
-                         only way to tell whether it actually works -->
-                        <div
-                            class="flex h-28 items-center justify-center rounded p-3"
-                            [style.background]="slot.ground"
-                        >
-                            @if (logoId(slot.id)) {
-                                <img
-                                    auth
-                                    [source]="logoUrl(slot.id)"
-                                    class="max-h-full max-w-full"
-                                    [alt]="slot.label | translate"
+                <label for="brand-org">{{
+                    'SIGNAGE_MANAGER.BRAND_ORGANISATION' | translate
+                }}</label>
+                <mat-form-field appearance="outline" class="w-full">
+                    <input
+                        matInput
+                        id="brand-org"
+                        [(ngModel)]="organisation"
+                        [disabled]="!can_edit()"
+                        [placeholder]="
+                            'SIGNAGE_MANAGER.BRAND_ORGANISATION' | translate
+                        "
+                    />
+                </mat-form-field>
+
+                <label class="mt-4 mb-2 block">{{
+                    'SIGNAGE_MANAGER.BRAND_COLOURS' | translate
+                }}</label>
+                <div class="flex flex-col items-start gap-2">
+                    @for (colour of colours(); track $index) {
+                        <div class="flex items-center gap-3">
+                            <input
+                                type="color"
+                                class="border-base-content/20 h-10 w-14 rounded border bg-transparent disabled:cursor-not-allowed disabled:opacity-60"
+                                [class.cursor-pointer]="can_edit()"
+                                [disabled]="!can_edit()"
+                                [value]="colour"
+                                (input)="setColourFromInput($index, $event)"
+                                [attr.aria-label]="
+                                    'SIGNAGE_MANAGER.BRAND_COLOURS' | translate
+                                "
+                            />
+                            <mat-form-field
+                                appearance="outline"
+                                class="w-40"
+                                subscriptSizing="dynamic"
+                            >
+                                <input
+                                    matInput
+                                    [ngModel]="colour"
+                                    (ngModelChange)="setColour($index, $event)"
+                                    [disabled]="!can_edit()"
+                                    [class.text-error]="colour_errors()[$index]"
+                                    [attr.aria-invalid]="
+                                        colour_errors()[$index] ? 'true' : null
+                                    "
+                                    placeholder="#0E6E52"
                                 />
-                            } @else {
-                                <span
-                                    class="text-xs"
-                                    [style.color]="slot.faded"
-                                    >{{
-                                        'SIGNAGE_MANAGER.AI_NO_LOGO_YET'
+                            </mat-form-field>
+                            <span
+                                class="text-base-content/60 text-xs uppercase"
+                                >{{ colourName($index) }}</span
+                            >
+                            @if (can_edit()) {
+                                <button
+                                    icon
+                                    default
+                                    error
+                                    type="button"
+                                    [disabled]="colours().length < 2"
+                                    [matTooltip]="
+                                        'SIGNAGE_MANAGER.BRAND_REMOVE_COLOUR'
                                             | translate
-                                    }}</span
+                                    "
+                                    (click)="removeColour($index)"
                                 >
+                                    <icon>delete</icon>
+                                </button>
                             }
                         </div>
+                    }
+                    @if (can_edit() && colours().length < 3) {
+                        <button
+                            mat-stroked-button
+                            type="button"
+                            (click)="addColour()"
+                        >
+                            {{ 'SIGNAGE_MANAGER.BRAND_ADD_COLOUR' | translate }}
+                        </button>
+                    }
+                </div>
 
-                        @if (can_edit()) {
-                            <div class="flex flex-wrap gap-2">
-                                <button
-                                    mat-stroked-button
-                                    type="button"
-                                    [disabled]="!!busy()"
-                                    (click)="pick(slot.id)"
-                                >
-                                    {{
-                                        (busy() === slot.id
-                                            ? 'SIGNAGE_MANAGER.AI_LOGO_UPLOADING'
-                                            : logoId(slot.id)
-                                              ? 'SIGNAGE_MANAGER.AI_REPLACE_LOGO'
-                                              : 'SIGNAGE_MANAGER.AI_ADD_LOGO'
-                                        ) | translate
-                                    }}
-                                </button>
-                                @if (
-                                    !logoId(slot.id) && logoId(other(slot.id))
-                                ) {
+                <label class="mt-6" for="brand-font">{{
+                    'SIGNAGE_MANAGER.BRAND_FONT' | translate
+                }}</label>
+                <mat-form-field appearance="outline" class="w-full max-w-sm">
+                    <mat-select
+                        id="brand-font"
+                        [(ngModel)]="font"
+                        [disabled]="!can_edit()"
+                        (ngModelChange)="previewFont()"
+                    >
+                        @for (option of fonts; track option.family) {
+                            <mat-option [value]="option.family">{{
+                                option.family
+                                    ? option.label
+                                    : (option.label | translate)
+                            }}</mat-option>
+                        }
+                    </mat-select>
+                </mat-form-field>
+                <p
+                    class="border-base-content/10 bg-base-200 mb-2 rounded border p-4 text-2xl"
+                    [style.font-family]="font_stack()"
+                >
+                    {{ 'SIGNAGE_MANAGER.BRAND_FONT_SAMPLE' | translate }}
+                </p>
+
+                <label class="mt-6">{{
+                    'SIGNAGE_MANAGER.BRAND_LOGO' | translate
+                }}</label>
+                @if (can_edit()) {
+                    <p class="text-base-content/60 mb-2 text-sm">
+                        {{ 'SIGNAGE_MANAGER.BRAND_LOGO_HINT' | translate }}
+                    </p>
+                }
+                <div class="flex flex-col gap-4 sm:flex-row">
+                    @for (slot of slots; track slot.id) {
+                        <div
+                            class="border-base-content/10 flex min-w-0 flex-1 flex-col gap-3 rounded border p-4"
+                        >
+                            <div
+                                class="flex items-baseline justify-between gap-2"
+                            >
+                                <span class="text-sm font-medium">{{
+                                    slot.label | translate
+                                }}</span>
+                                @if (derived() === slot.id) {
+                                    <span
+                                        class="text-base-content/60 shrink-0 text-xs"
+                                        >{{
+                                            'SIGNAGE_MANAGER.BRAND_LOGO_DERIVED'
+                                                | translate
+                                        }}</span
+                                    >
+                                }
+                            </div>
+
+                            <!-- shown on the ground it is meant for, which is the
+                             only way to tell whether it actually works -->
+                            <div
+                                class="flex h-28 items-center justify-center rounded p-3"
+                                [style.background]="slot.ground"
+                            >
+                                @if (logoId(slot.id)) {
+                                    <img
+                                        auth
+                                        [source]="logoUrl(slot.id)"
+                                        class="max-h-full max-w-full"
+                                        [alt]="slot.label | translate"
+                                    />
+                                } @else {
+                                    <span
+                                        class="text-xs"
+                                        [style.color]="slot.faded"
+                                        >{{
+                                            'SIGNAGE_MANAGER.AI_NO_LOGO_YET'
+                                                | translate
+                                        }}</span
+                                    >
+                                }
+                            </div>
+
+                            @if (can_edit()) {
+                                <div class="flex flex-wrap gap-2">
                                     <button
                                         mat-stroked-button
                                         type="button"
                                         [disabled]="!!busy()"
-                                        (click)="derive(slot.id)"
+                                        (click)="pick(slot.id)"
                                     >
                                         {{
-                                            'SIGNAGE_MANAGER.BRAND_LOGO_MAKE_IT'
-                                                | translate
+                                            (busy() === slot.id
+                                                ? 'SIGNAGE_MANAGER.AI_LOGO_UPLOADING'
+                                                : logoId(slot.id)
+                                                  ? 'SIGNAGE_MANAGER.AI_REPLACE_LOGO'
+                                                  : 'SIGNAGE_MANAGER.AI_ADD_LOGO'
+                                            ) | translate
                                         }}
                                     </button>
-                                }
-                            </div>
-                        }
-                    </div>
-                }
-                <input
-                    #logo_input
-                    type="file"
-                    class="sr-only"
-                    accept="image/png,image/jpeg,image/webp,image/svg+xml"
-                    [attr.aria-label]="
-                        'SIGNAGE_MANAGER.AI_ADD_LOGO' | translate
-                    "
-                    (change)="pickLogo($event)"
-                />
-            </div>
+                                    @if (
+                                        !logoId(slot.id) &&
+                                        logoId(other(slot.id))
+                                    ) {
+                                        <button
+                                            mat-stroked-button
+                                            type="button"
+                                            [disabled]="!!busy()"
+                                            (click)="derive(slot.id)"
+                                        >
+                                            {{
+                                                'SIGNAGE_MANAGER.BRAND_LOGO_MAKE_IT'
+                                                    | translate
+                                            }}
+                                        </button>
+                                    }
+                                </div>
+                            }
+                        </div>
+                    }
+                    <input
+                        #logo_input
+                        type="file"
+                        class="sr-only"
+                        accept="image/png,image/jpeg,image/webp,image/svg+xml"
+                        [attr.aria-label]="
+                            'SIGNAGE_MANAGER.AI_ADD_LOGO' | translate
+                        "
+                        (change)="pickLogo($event)"
+                    />
+                </div>
 
-            <div class="mt-8 flex items-center gap-3">
-                @if (can_edit()) {
-                    <button
-                        btn
-                        matRipple
-                        class="w-40"
-                        [disabled]="saving()"
-                        (click)="save()"
-                    >
-                        {{
-                            (saving() ? 'COMMON.SAVING' : 'COMMON.SAVE')
-                                | translate
-                        }}
-                    </button>
-                }
-                @if (!enabled()) {
-                    <span class="text-base-content/60 text-sm">{{
-                        'SIGNAGE_MANAGER.BRAND_AI_OFF' | translate
-                    }}</span>
-                }
-            </div>
+                <div class="mt-8 flex items-center gap-3">
+                    @if (can_edit()) {
+                        <button
+                            btn
+                            matRipple
+                            class="w-40"
+                            [disabled]="saving()"
+                            (click)="save()"
+                        >
+                            {{
+                                (saving() ? 'COMMON.SAVING' : 'COMMON.SAVE')
+                                    | translate
+                            }}
+                        </button>
+                    }
+                    @if (!enabled()) {
+                        <span class="text-base-content/60 text-sm">{{
+                            'SIGNAGE_MANAGER.BRAND_AI_OFF' | translate
+                        }}</span>
+                    }
+                </div>
+            }
         </div>
     `,
     imports: [
@@ -291,6 +314,7 @@ const COLOUR_NAMES = ['primary', 'secondary', 'accent'];
         MatButtonModule,
         MatFormFieldModule,
         MatInputModule,
+        MatProgressSpinnerModule,
         MatSelectModule,
         MatTooltipModule,
         TranslatePipe,
@@ -303,12 +327,24 @@ export class BrandingComponent implements OnInit {
     public readonly fonts = BRAND_FONTS;
     public readonly enabled = this._ai.enabled;
 
-    /** Whether the selected group's feature flags turn branding edits off */
+    /** The brand kit is for the whole organisation, so only the global
+     * `app.features` setting turns branding edits off */
     public readonly branding_disabled = computed(
-        () => !this._service.hasFeature('branding-editing'),
+        () =>
+            !(this._service.global_features() || []).includes(
+                'branding-editing',
+            ),
+    );
+    /** Whether the stored brand kit is read. The form shows only after a
+     * read works, so its defaults cannot replace the stored kit. */
+    public readonly load_state = signal<'loading' | 'ready' | 'failed'>(
+        'loading',
     );
     public readonly can_edit = computed(
-        () => this._service.is_sys_admin() && !this.branding_disabled(),
+        () =>
+            this._service.is_sys_admin() &&
+            !this.branding_disabled() &&
+            this.load_state() === 'ready',
     );
 
     public readonly organisation = signal('');
@@ -323,6 +359,9 @@ export class BrandingComponent implements OnInit {
         on_dark: '',
     });
     public readonly derived = signal<AiLogoSlot | ''>('');
+    /** Palette colours after the three that the page edits. A save replaces
+     * the whole kit, so they are saved back as they are. */
+    private _extra_palette: Record<string, string> = {};
 
     public readonly slots = [
         {
@@ -351,14 +390,23 @@ export class BrandingComponent implements OnInit {
     });
 
     public async ngOnInit() {
+        await this.load();
+        this.previewFont();
+    }
+
+    /** Read the brand kit, unless an earlier read already worked */
+    public async load() {
+        this.load_state.set('loading');
+        if (this._ai.brand_kit_read() !== 'ok') {
+            await this._ai.reloadBrandKit();
+        }
+        if (this._ai.brand_kit_read() !== 'ok') {
+            this.load_state.set('failed');
+            return;
+        }
         const brand = this._ai.brand_kit();
         if (brand) this._apply(brand);
-        if (!brand) {
-            await this._ai.reloadBrandKit();
-            const loaded = this._ai.brand_kit();
-            if (loaded) this._apply(loaded);
-        }
-        this.previewFont();
+        this.load_state.set('ready');
     }
 
     public colourName(index: number) {
@@ -468,7 +516,7 @@ export class BrandingComponent implements OnInit {
         }
         this.saving.set(true);
         try {
-            const palette: Record<string, string> = {};
+            const palette = { ...this._extra_palette };
             this.colours().forEach((colour, index) => {
                 palette[this.colourName(index)] = colour;
             });
@@ -491,12 +539,17 @@ export class BrandingComponent implements OnInit {
         this.organisation.set(brand.organisation || '');
         const palette = brand.palette || {};
         const ordered = [
-            ...COLOUR_NAMES.map((name) => palette[name]).filter(Boolean),
-            ...Object.keys(palette)
-                .filter((key) => !COLOUR_NAMES.includes(key))
-                .map((key) => palette[key]),
-        ] as string[];
-        if (ordered.length) this.colours.set(ordered.slice(0, 3));
+            ...COLOUR_NAMES.filter((name) => palette[name]),
+            ...Object.keys(palette).filter(
+                (key) => !COLOUR_NAMES.includes(key),
+            ),
+        ];
+        if (ordered.length) {
+            this.colours.set(ordered.slice(0, 3).map((key) => palette[key]));
+        }
+        this._extra_palette = Object.fromEntries(
+            ordered.slice(3).map((key) => [key, palette[key]]),
+        );
         const font = brand.font;
         this.font.set(typeof font === 'string' ? font : font?.family || '');
         this._applyLogos(brand);

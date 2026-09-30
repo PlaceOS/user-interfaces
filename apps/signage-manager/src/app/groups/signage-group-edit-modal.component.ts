@@ -69,7 +69,7 @@ import { SignageService } from '../signage.service';
                         "
                         [formField]="form.parent_id"
                     >
-                        @if (group.id) {
+                        @if (group.id && can_remove_parent()) {
                             <mat-option value="">{{
                                 'SIGNAGE_MANAGER.NO_PARENT' | translate
                             }}</mat-option>
@@ -107,10 +107,19 @@ export class SignageGroupEditModalComponent {
 
     public readonly loading = signal(false);
     public readonly group = this._data.group || {};
+    /** Groups the user can pick as the parent. Leaves out the group, its
+     * children and groups the user cannot move it to. */
     public readonly parent_groups = () =>
         this._service
             .manageable_signage_groups()
-            .filter((group) => group.id !== this.group.id);
+            .filter(
+                ({ id }) =>
+                    id !== this.group.id &&
+                    this._service.canChangeGroupParent(this.group, id),
+            );
+    /** Only system admins can move a group to the top level */
+    public readonly can_remove_parent = () =>
+        this._service.canChangeGroupParent(this.group, '');
     public readonly model = signal({
         name: this.group.name || '',
         description: this.group.description || '',
@@ -139,6 +148,7 @@ export class SignageGroupEditModalComponent {
                 );
                 this._dialog_ref.disableClose = false;
                 if (result) this._dialog_ref.close(result);
+                else this.loading.set(false);
             } catch {
                 this._dialog_ref.disableClose = false;
                 this.loading.set(false);

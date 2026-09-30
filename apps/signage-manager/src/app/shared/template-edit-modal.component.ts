@@ -206,6 +206,7 @@ export interface TemplateEditFormModel {
                     type="templates"
                     [item_id]="template.id"
                     [group_id]="group_id"
+                    [allow_unshare]="true"
                 ></signage-shared-with>
             </form>
         </fullscreen-modal-shell>

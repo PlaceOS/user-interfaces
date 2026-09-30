@@ -1,10 +1,17 @@
 import { TestBed } from '@angular/core/testing';
 import { MatDialog } from '@angular/material/dialog';
 import { setNotifyOutlet } from '@placeos/common';
-import { apiEndpoint, removeSignageMedia } from '@placeos/ts-client';
+import {
+    apiEndpoint,
+    removeSignageMedia,
+    showSignageMedia,
+    SignageMedia,
+} from '@placeos/ts-client';
 import { NEVER, of } from 'rxjs';
 
 import { SignageSharedWithComponent } from '../../app/shared/signage-shared-with.component';
+import { signage_shared_groups_change } from '../../app/signage-shared-groups.util';
+import { SignageService } from '../../app/signage.service';
 
 vi.mock('@placeos/ts-client', { spy: true });
 
@@ -17,6 +24,17 @@ const makeConfirmRef = (reason: string) => ({
 
 describe('SignageSharedWithComponent', () => {
     let dialog_open: ReturnType<typeof vi.fn>;
+    const service_stub = { changed: vi.fn() };
+    const two_groups = [
+        { id: 'grp-1', name: 'Facilities' },
+        { id: 'grp-2', name: 'Marketing' },
+    ];
+
+    function serverGroups(groups: Array<{ id: string; name: string }>) {
+        vi.mocked(showSignageMedia).mockResolvedValue(
+            new SignageMedia({ shared_with: groups }),
+        );
+    }
 
     function make(
         groups: Array<{ id: string; name: string }>,
@@ -26,6 +44,7 @@ describe('SignageSharedWithComponent', () => {
         TestBed.configureTestingModule({
             providers: [
                 { provide: MatDialog, useValue: { open: dialog_open } },
+                { provide: SignageService, useValue: service_stub },
             ],
         }).overrideComponent(SignageSharedWithComponent, {
             set: { template: '', imports: [] },
@@ -44,6 +63,7 @@ describe('SignageSharedWithComponent', () => {
         dialog_open = vi.fn(() => makeConfirmRef('done'));
         (apiEndpoint as any).mockReturnValue('/api/engine/v2');
         (removeSignageMedia as any).mockResolvedValue({});
+        serverGroups(two_groups);
         setNotifyOutlet(
             {
                 open: () => ({
@@ -102,22 +122,45 @@ describe('SignageSharedWithComponent', () => {
         expect(component.can_unshare()).toBe(false);
     });
 
-    it('unlinks the item from the confirmed group and reloads', async () => {
-        const component = make([
-            { id: 'grp-1', name: 'Facilities' },
-            { id: 'grp-2', name: 'Marketing' },
-        ]);
-        const reload = vi.spyOn(
-            (component as any)._shared_groups,
-            'reload' as any,
-        );
+    it('hides unlink actions unless the caller allows them', () => {
+        TestBed.configureTestingModule({
+            providers: [
+                { provide: MatDialog, useValue: { open: dialog_open } },
+                { provide: SignageService, useValue: service_stub },
+            ],
+        }).overrideComponent(SignageSharedWithComponent, {
+            set: { template: '', imports: [] },
+        });
+        const fixture = TestBed.createComponent(SignageSharedWithComponent);
+        fixture.componentRef.setInput('type', 'media');
+        fixture.componentInstance['_shared_groups'].value.set(two_groups);
+
+        expect(fixture.componentInstance.can_unshare()).toBe(false);
+    });
+
+    it('unlinks the item from the confirmed group and refreshes the lists', async () => {
+        const component = make(two_groups);
+        const change = signage_shared_groups_change();
 
         await component.unshare({ id: 'grp-2', name: 'Marketing' });
 
         expect(removeSignageMedia).toHaveBeenCalledWith('media-1', {
             group_id: 'grp-2',
         });
-        expect(reload).toHaveBeenCalled();
+        expect(signage_shared_groups_change()).toBe(change + 1);
+        expect(service_stub.changed).toHaveBeenCalled();
+    });
+
+    it('keeps the last group when another user unlinked the others', async () => {
+        serverGroups([{ id: 'grp-2', name: 'Marketing' }]);
+        const component = make(two_groups);
+
+        await component.unshare({ id: 'grp-2', name: 'Marketing' });
+
+        expect(showSignageMedia).toHaveBeenCalledWith('media-1', {
+            group_id: 'grp-1',
+        });
+        expect(removeSignageMedia).not.toHaveBeenCalled();
     });
 
     it('marks the group as unlinking while the request is pending', async () => {
