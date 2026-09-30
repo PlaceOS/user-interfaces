@@ -23,6 +23,7 @@ import {
     saveParkingSpace,
     saveParkingUser,
     toParkingFleetVehicle,
+    toParkingUser,
 } from '@placeos/assets';
 import {
     approveBooking,
@@ -162,6 +163,8 @@ export class ParkingStateService extends AsyncHandler {
 
     /** Whether the organisation data has finished loading */
     public readonly org_initialised = this._org.initialised;
+    /** True while cached org data is being replaced with the latest. */
+    public readonly org_refreshing = this._org.refreshing;
 
     /** Currently applied filter/view options for the parking section */
     public readonly options = this._options.asReadonly();
@@ -695,6 +698,7 @@ export class ParkingStateService extends AsyncHandler {
             }
             let success_count = 0;
             let error_count = 0;
+            const saved_spaces: PlaceAsset[] = [];
             for (const row of rows) {
                 try {
                     const space_data: Partial<ParkingSpace> = {
@@ -715,7 +719,7 @@ export class ParkingStateService extends AsyncHandler {
                             space_data.id,
                         );
                     }
-                    await saveParkingSpace(space_data);
+                    saved_spaces.push(await saveParkingSpace(space_data));
                     success_count++;
                 } catch (e) {
                     console.error('Failed to save parking space row:', row, e);
@@ -737,6 +741,7 @@ export class ParkingStateService extends AsyncHandler {
                 );
             }
             this._reloadResources();
+            this._upsertSpaces(saved_spaces);
         } catch (e) {
             console.error('CSV parsing error:', e);
             notifyError(i18n('APP.CONCIERGE.PARKING_CSV_PARSE_ERROR'));
@@ -801,7 +806,7 @@ export class ParkingStateService extends AsyncHandler {
                 this._org.region?.id,
                 this._org.building?.id,
                 selected_zone_id,
-            ]);
+            ]).filter((_) => !!_);
             const saved = await saveParkingSpace(
                 space.id
                     ? asset_data
@@ -848,6 +853,7 @@ export class ParkingStateService extends AsyncHandler {
                 });
             }
             this._reloadResources();
+            this._upsertSpaces([saved]);
         });
     }
 
@@ -883,13 +889,15 @@ export class ParkingStateService extends AsyncHandler {
                 id: state.metadata.id || undefined,
             };
             if ('user' in new_user) delete new_user.user;
-            await saveParkingUser(new_user, this._org.building.id).catch(
-                (e) => {
-                    notifyError(`Failed to save parking user. ${errorText(e)}`);
-                    throw e;
-                },
-            );
+            const saved = await saveParkingUser(
+                new_user,
+                this._org.building.id,
+            ).catch((e) => {
+                notifyError(`Failed to save parking user. ${errorText(e)}`);
+                throw e;
+            });
             this._reloadResources();
+            this._upsertUser(toParkingUser(saved));
         });
     }
 
@@ -1357,6 +1365,38 @@ export class ParkingStateService extends AsyncHandler {
                 plate_number: user?.plate_number || '',
             },
         });
+    }
+
+    /**
+     * Add or replace saved spaces in the displayed list. The asset list query
+     * lags new records by about a second, so a reload straight after a create
+     * misses them. Setting the value also cancels that stale reload.
+     */
+    private _upsertSpaces(saved: PlaceAsset[]) {
+        if (!saved.length) return;
+        const zone_ids = this._spaces_params_debounced.value()?.zone_ids || [];
+        const by_id = new Map(saved.map((space) => [space.id, space]));
+        const list = (this._spaces_resource.value() ?? []).map(
+            (space) => by_id.get(space.id) ?? space,
+        );
+        for (const space of saved) {
+            const is_new = !list.some((_) => _.id === space.id);
+            if (is_new && zone_ids.includes(space.zone_id)) list.push(space);
+        }
+        this._spaces_resource.value.set(
+            list.sort((a, b) => (a.name || '').localeCompare(b.name || '')),
+        );
+    }
+
+    /** Add or replace a saved parking user in the displayed list. */
+    private _upsertUser(user: ParkingUser) {
+        const users = this._users_resource.value() ?? [];
+        const index = users.findIndex((_) => _.id === user.id);
+        this._users_resource.value.set(
+            index >= 0
+                ? users.map((item, idx) => (idx === index ? user : item))
+                : [...users, user],
+        );
     }
 
     private _upsertFleetVehicle(vehicle: ParkingFleetVehicle) {

@@ -69,6 +69,7 @@ describe('ParkingStateService', () => {
         organisation: { id: 'org-1' },
         region: { id: 'region-1' },
         initialised: signal(true),
+        refreshing: signal(false),
         levels: [],
         buildingsForRegion: vi.fn(() => []),
         levelsForBuilding: vi.fn((bld) =>
@@ -543,6 +544,51 @@ describe('ParkingStateService', () => {
                 zones: ['org-1', 'region-1', 'bld-1', 'lvl-chosen'],
             }),
         );
+    });
+
+    it('should show a new parking space before the list query includes it', async () => {
+        const levels = [
+            { id: 'lvl-chosen', parent_id: 'bld-1', tags: ['parking'] },
+        ];
+        Object.defineProperty(spectator.service, 'levels', {
+            value: () => levels,
+            configurable: true,
+        });
+        spectator.service.setOptions({ zones: ['lvl-chosen'] });
+        await vi.waitFor(() =>
+            expect(
+                (spectator.service as any)._spaces_params_debounced.value(),
+            ).toEqual({ zone_ids: ['lvl-chosen'] }),
+        );
+        // The list query lags new records, so it keeps returning no spaces.
+        (ts_client.queryAssets as any).mockResolvedValue({
+            data: [],
+            total: 0,
+            next: null,
+        });
+        (ts_client.addAsset as any).mockResolvedValue({
+            id: 'space-new',
+            name: 'Bay 1',
+            zone_id: 'lvl-chosen',
+        });
+        (spectator.inject(MatDialog).open as any).mockReturnValue({
+            afterClosed: () => NEVER,
+            componentInstance: {
+                event: of({
+                    reason: 'done',
+                    metadata: { identifier: 'Bay 1', zone_id: 'lvl-chosen' },
+                }),
+                loading: { set: vi.fn() },
+            },
+            close: vi.fn(),
+        });
+
+        await spectator.service.editSpace();
+        await new Promise((resolve) => setTimeout(resolve, 50));
+
+        expect(spectator.service.spaces().map((_) => _.id)).toEqual([
+            'space-new',
+        ]);
     });
 
     it('should default a new parking space to the selected level', async () => {
