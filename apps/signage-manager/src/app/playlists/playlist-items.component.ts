@@ -564,7 +564,7 @@ import { SignageService } from '../signage.service';
                                             <div
                                                 class="rounded-md p-2"
                                                 [matTooltip]="
-                                                    scheduleTooltip(
+                                                    schedule_tooltips().get(
                                                         item_schedule
                                                     )
                                                 "
@@ -803,6 +803,19 @@ export class PlaylistItemsComponent {
     }
 
     public scheduleLabel = playlistScheduleLabel;
+
+    /** Next plays tooltip of each item schedule. Updates when the schedules change. */
+    public readonly schedule_tooltips = computed(
+        () =>
+            new Map(
+                this.item_schedule_list().flatMap((item) =>
+                    (item.schedules || []).map(
+                        (schedule) =>
+                            [schedule, this.scheduleTooltip(schedule)] as const,
+                    ),
+                ),
+            ),
+    );
 
     public scheduleTooltip(schedule: Partial<SignagePlaylistSchedule>) {
         const labels = playlistScheduleNextPlayLabels(schedule);

@@ -2,6 +2,11 @@ import { i18n } from '@placeos/common';
 import { SignagePlaylist } from '@placeos/ts-client';
 import { fromUnixTime, isSameDay, startOfDay } from 'date-fns';
 import {
+    cronDaySlots,
+    cronParts,
+    doesCronMatchDay,
+} from '../signage-cron.util';
+import {
     createScheduleMaskFilter,
     isPlayOnceSchedule,
     type PlaylistSchedule,
@@ -69,85 +74,6 @@ export interface ScheduleItem {
     display_name?: string;
     playlists?: readonly string[];
     zones?: readonly string[];
-}
-
-function parseCronNumber(value: string, min: number, max: number) {
-    if (!/^\d+$/.test(value || '')) return null;
-    const number_value = +value;
-    return number_value >= min && number_value <= max ? number_value : null;
-}
-
-function parseCronWeekOfMonthRange(value: string) {
-    const match = /^(\d+)-(\d+)$/.exec(value || '');
-    if (!match) return null;
-    const start = +match[1];
-    const end = +match[2];
-    if (start === 29 && end === 31) return 5;
-    if ((start - 1) % 7 !== 0 || end !== start + 6) return null;
-    const week = (start - 1) / 7 + 1;
-    return week >= 1 && week <= 4 ? week : null;
-}
-
-function parseCronWeeksOfMonth(value: string) {
-    if (!value?.trim() || value === '*') return null;
-    const weeks = new Set<number>();
-    for (const part of value.split(',')) {
-        const week = parseCronWeekOfMonthRange(part);
-        if (week === null) return null;
-        weeks.add(week);
-    }
-    return [...weeks];
-}
-
-function parseCronWeekdays(value: string) {
-    if (!value?.trim() || value === '*') return null;
-    const days = new Set<number>();
-    for (const part of value.split(',')) {
-        if (part.includes('-')) {
-            const [start, end] = part
-                .split('-')
-                .map((_) => parseCronNumber(_, 0, 6));
-            if (start === null || end === null || start > end) return null;
-            for (let day = start; day <= end; day++) days.add(day);
-        } else {
-            const day = parseCronNumber(part, 0, 6);
-            if (day === null) return null;
-            days.add(day);
-        }
-    }
-    return [...days];
-}
-
-function isCronMonthlyWeekday(day_part: string, weekday_part: string) {
-    return (
-        !!parseCronWeeksOfMonth(day_part)?.length &&
-        !!parseCronWeekdays(weekday_part)?.length
-    );
-}
-
-function matchesCronPart(value: number, cron_part: string): boolean {
-    if (cron_part === '*') return true;
-    if (cron_part.includes(',')) {
-        return cron_part
-            .split(',')
-            .some((item) => matchesCronPart(value, item));
-    }
-    if (cron_part.includes('/')) {
-        const [base, step] = cron_part.split('/');
-        const step_value = Number(step);
-        if (!step_value) return false;
-        if (base === '*') return value % step_value === 0;
-        if (base.includes('-')) {
-            const [start, end] = base.split('-').map(Number);
-            if (value < start || value > end) return false;
-            return (value - start) % step_value === 0;
-        }
-    }
-    if (cron_part.includes('-')) {
-        const [start, end] = cron_part.split('-').map(Number);
-        return value >= start && value <= end;
-    }
-    return Number(cron_part) === value;
 }
 
 function playlistSchedules(
@@ -223,57 +149,18 @@ function isDayInRange(
 }
 
 function getCronBlocksForDay(
-    cron: string,
+    parts: readonly string[],
     schedule: Partial<PlaylistSchedule>,
 ): ScheduleBlockBase[] {
-    const parts = cron.trim().split(/\s+/);
-    if (parts.length !== 5) return [];
-    const [minute_part, hour_part] = parts;
     const duration = playPeriodMinutes(schedule);
-    const blocks: ScheduleBlockBase[] = [];
-    for (let hours = 0; hours < 24; hours++) {
-        if (!matchesCronPart(hours, hour_part)) continue;
-        for (let minutes = 0; minutes < 60; minutes++) {
-            if (!matchesCronPart(minutes, minute_part)) continue;
-            const start_minutes = hours * 60 + minutes;
-            blocks.push({
-                start_minutes,
-                duration_minutes: duration,
-                all_day: duration >= MINUTES_PER_DAY,
-                label: duration
-                    ? formatTimeRange(start_minutes, duration)
-                    : i18n('SIGNAGE_MANAGER.PLAY_THROUGH_ONCE'),
-            });
-        }
-    }
-    return blocks;
-}
-
-function doesCronMatchDay(cron: string, day: Date): boolean {
-    const parts = cron.trim().split(/\s+/);
-    if (parts.length !== 5) return false;
-    const [, , dom_part, month_part, dow_part] = parts;
-    const month = day.getMonth() + 1;
-    const day_of_month = day.getDate();
-    const day_of_week = day.getDay();
-    if (!matchesCronPart(month, month_part)) return false;
-    if (dom_part === '*' && dow_part === '*') return true;
-    if (dom_part !== '*' && dow_part === '*') {
-        return matchesCronPart(day_of_month, dom_part);
-    }
-    if (dom_part === '*' && dow_part !== '*') {
-        return matchesCronPart(day_of_week, dow_part);
-    }
-    if (isCronMonthlyWeekday(dom_part, dow_part)) {
-        return (
-            matchesCronPart(day_of_month, dom_part) &&
-            matchesCronPart(day_of_week, dow_part)
-        );
-    }
-    return (
-        matchesCronPart(day_of_month, dom_part) ||
-        matchesCronPart(day_of_week, dow_part)
-    );
+    return cronDaySlots(parts).map((start_minutes) => ({
+        start_minutes,
+        duration_minutes: duration,
+        all_day: duration >= MINUTES_PER_DAY,
+        label: duration
+            ? formatTimeRange(start_minutes, duration)
+            : i18n('SIGNAGE_MANAGER.PLAY_THROUGH_ONCE'),
+    }));
 }
 
 export function buildScheduleBlocks(
@@ -336,8 +223,9 @@ function generateScheduleBlocks(
                 continue;
             }
 
-            if (!doesCronMatchDay(play_cron, day)) continue;
-            const cron_blocks = getCronBlocksForDay(play_cron, schedule);
+            const parts = cronParts(play_cron);
+            if (!parts || !doesCronMatchDay(parts, day)) continue;
+            const cron_blocks = getCronBlocksForDay(parts, schedule);
             for (const block of cron_blocks) {
                 const starts_at = new Date(day);
                 starts_at.setHours(0, block.start_minutes, 0, 0);
