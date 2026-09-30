@@ -388,18 +388,16 @@ export class ReportsOptionsComponent extends AsyncHandler implements OnInit {
         this.subscription(
             'route.query',
             this._route.queryParamMap.subscribe((params) => {
-                if (params.has('zone_ids')) {
-                    const zones = params.get('zone_ids').split(',');
-                    if (zones.length) {
-                        const level = this._org.levelWithID(zones);
-                        if (!level) {
-                            return;
-                        }
-                        this._org.building = this._org.buildings.find(
-                            (bld) => bld.id === level.parent_id,
-                        );
-                        this.zones.set(zones);
-                    }
+                // Apply the dates even when the levels are not loaded yet.
+                const zones = params.get('zone_ids')?.split(',') || [];
+                const level = zones.length
+                    ? this._org.levelWithID(zones)
+                    : null;
+                if (level) {
+                    this._org.building = this._org.buildings.find(
+                        (bld) => bld.id === level.parent_id,
+                    );
+                    this.zones.set(zones);
                 }
                 if (params.has('start')) this.start.set(+params.get('start'));
                 if (params.has('end')) this.end.set(+params.get('end'));

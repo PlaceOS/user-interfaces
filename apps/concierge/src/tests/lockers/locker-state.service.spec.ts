@@ -49,6 +49,7 @@ describe('LockerStateService', () => {
         level_list: signal([]),
         buildingsForRegion: vi.fn(() => []),
         levelsForBuilding: vi.fn(() => []),
+        levelsForRegion: vi.fn(() => []),
         get building() {
             return current_building;
         },
@@ -257,6 +258,33 @@ describe('LockerStateService', () => {
         await settle();
 
         expect(assetQueryCalls('type-lockers')).toHaveLength(1);
+    });
+
+    it('should find locker banks saved on the building levels', async () => {
+        organisation_service.levelsForBuilding.mockReturnValue([
+            { id: 'lvl-1' },
+        ]);
+        (ts_client.queryAssets as any).mockImplementation((q: any) =>
+            Promise.resolve({
+                data:
+                    q?.type_id === 'type-locker-banks' && q.zone_id === 'lvl-1'
+                        ? [{ id: 'bank-on-level', zone_id: 'lvl-1' }]
+                        : [],
+                total: 0,
+                next: null,
+            }),
+        );
+
+        spectator = createService();
+        await settle();
+
+        expect(
+            assetQueryCalls('type-locker-banks').map((c) => c[0].zone_id),
+        ).toEqual(['bld-1', 'lvl-1']);
+        expect(spectator.service.lockers_banks().map((_) => _.id)).toEqual([
+            'bank-on-level',
+        ]);
+        organisation_service.levelsForBuilding.mockReturnValue([]);
     });
 
     it('should tolerate malformed locker metadata', async () => {

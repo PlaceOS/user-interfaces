@@ -54,6 +54,23 @@ describe('ItemListModalComponent', () => {
         ]);
     });
 
+    it('should load the concierge list when workplace has none', async () => {
+        (ts_client.showMetadata as any).mockImplementation((_id, key) =>
+            Promise.resolve({
+                details:
+                    key === 'concierge_app'
+                        ? { support_issue_types: [{ name: 'HR', email: 'hr@x' }] }
+                        : {},
+            }),
+        );
+
+        await spectator.component.ngOnInit();
+
+        expect(spectator.component.item_list()).toEqual([
+            { name: 'HR', email: 'hr@x' },
+        ]);
+    });
+
     it('should add, update and remove items', () => {
         spectator.component.addItem();
         expect(spectator.component.item_list()).toEqual([

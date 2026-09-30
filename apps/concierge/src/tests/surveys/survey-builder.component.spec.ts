@@ -224,6 +224,20 @@ describe('SurveyBuilderComponent', () => {
         );
     });
 
+    it('should send new surveys without an ID and with a trigger', async () => {
+        spectator.component.model.update((m) => ({
+            ...m,
+            title: 'My Survey',
+            trigger: '',
+        }));
+
+        await spectator.component.saveSurvey();
+
+        const body = vi.mocked(ts_client.addSurvey).mock.calls[0][0] as any;
+        expect('id' in body).toBe(false);
+        expect(body.trigger).toBe('NONE');
+    });
+
     it('should update the survey when the model already has an id', async () => {
         spectator.component.model.update((m) => ({
             ...m,

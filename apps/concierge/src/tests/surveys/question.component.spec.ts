@@ -99,6 +99,16 @@ describe('QuestionComponent', () => {
         expect(spectator.component.generateArray(3)).toEqual([1, 2, 3]);
     });
 
+    it('should replace non-array choices from the API with a list', () => {
+        const question = new SurveyQuestion({ title: 'Q', type: 'radiogroup' });
+        (question as any).choices = {};
+        spectator.component.question.set(question);
+
+        spectator.component.ngOnInit();
+
+        expect(spectator.component.question().choices).toEqual([]);
+    });
+
     it('should default choices and max rating on init', () => {
         const question = new SurveyQuestion({ title: 'Q', type: 'text' });
         delete (question as any).choices;

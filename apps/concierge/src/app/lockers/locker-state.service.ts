@@ -181,10 +181,23 @@ export class LockerStateService extends AsyncHandler {
                 ? params.region
                 : params.building;
             if (!scope_id) return [] as LockerBank[];
-            const assets = await queryLockerBankAssetsForZones([scope_id]);
-            return assets.map(lockerBankFromAsset);
+            const assets = await queryLockerBankAssetsForZones(
+                this._lockerZoneIds(scope_id),
+            );
+            return unique(assets, 'id').map(lockerBankFromAsset);
         },
     });
+    /**
+     * Zones to search for locker assets. Banks and lockers are saved on
+     * their level, so search the building or region and its levels.
+     */
+    private _lockerZoneIds(scope_id: string) {
+        const levels = this._settings.get('app.use_region')
+            ? this._org.levelsForRegion()
+            : this._org.levelsForBuilding();
+        return unique([scope_id, ...levels.map((level) => level.id)]);
+    }
+
     public readonly lockers_banks = computed<LockerBank[]>(
         () => this._lockers_banks.value() ?? [],
     );
@@ -209,7 +222,10 @@ export class LockerStateService extends AsyncHandler {
                 : params.building;
             if (!scope_id) return [] as Locker[];
             const banks = params.banks;
-            const assets = await queryLockerAssetsForZones([scope_id]);
+            const assets = unique(
+                await queryLockerAssetsForZones(this._lockerZoneIds(scope_id)),
+                'id',
+            );
             const lockers = assets.map((_) => lockerFromAsset(_, banks));
             for (const bank of banks) {
                 bank.lockers = lockers

@@ -578,6 +578,13 @@ export class DesksStateService extends AsyncHandler {
         const idx = desk_list.findIndex((_) => _.id === desk.id);
         if (idx >= 0) desk_list[idx] = new_desk;
         else desk_list.push(new_desk);
+        // Saving would store two desks with the same ID on this level.
+        if (desk_list.filter((_) => _.id === new_desk.id).length > 1) {
+            notifyError(`A desk with the ID "${new_desk.id}" already exists.`);
+            ref.componentInstance.loading.set(false);
+            ref.close();
+            return;
+        }
         if (
             new_desk.assigned_to &&
             (desk.assigned_to !== new_desk.assigned_to ||

@@ -92,8 +92,18 @@ export class ItemListModalComponent implements OnInit {
     public async ngOnInit() {
         const metadata_key =
             this._settings.get('app.workplace_metadata_key') || 'workplace_app';
-        const metadata: any = await showMetadata(this._bld_id, metadata_key);
-        const items = metadata?.details?.support_issue_types || [];
+        const concierge_key =
+            this._settings.get('app.concierge_metadata_key') || 'concierge_app';
+        // Save writes the list to both apps, so load from either. Otherwise
+        // a list that only exists for concierge is replaced on save.
+        const [workplace, concierge]: any[] = await Promise.all([
+            showMetadata(this._bld_id, metadata_key),
+            showMetadata(this._bld_id, concierge_key),
+        ]);
+        const items =
+            workplace?.details?.support_issue_types ||
+            concierge?.details?.support_issue_types ||
+            [];
         this.item_list.set(items);
     }
 

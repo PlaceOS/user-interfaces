@@ -2,7 +2,7 @@ import { signal } from '@angular/core';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { MockComponent, MockPipe } from 'ng-mocks';
 
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, convertToParamMap, Router } from '@angular/router';
 import { OrganisationService, SettingsService } from '@placeos/common';
 import {
     BuildingPipe,
@@ -11,6 +11,7 @@ import {
 } from '@placeos/components';
 import { DateRangeFieldComponent } from '@placeos/form-fields';
 import { ReportsOptionsComponent } from 'apps/concierge/src/app/reports/reports-options.component';
+import { of } from 'rxjs';
 
 describe('ReportsOptionsComponent', () => {
     let spectator: Spectator<ReportsOptionsComponent>;
@@ -70,6 +71,24 @@ describe('ReportsOptionsComponent', () => {
                 },
             ],
         });
+    });
+
+    it('should apply URL dates when the selected level is not loaded', async () => {
+        const route = spectator.inject(ActivatedRoute) as any;
+        route.queryParamMap = of(
+            convertToParamMap({
+                zone_ids: 'lvl-missing',
+                start: '1000',
+                end: '2000',
+            }),
+        );
+        const org = spectator.inject(OrganisationService) as any;
+        org.levelWithID = vi.fn(() => null);
+
+        await spectator.component.ngOnInit();
+
+        expect(spectator.component.start()).toBe(1000);
+        expect(spectator.component.end()).toBe(2000);
     });
 
     it('should update the start date and merge it into the query params', () => {

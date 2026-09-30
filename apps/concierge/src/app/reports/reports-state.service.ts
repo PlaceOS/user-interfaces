@@ -527,11 +527,14 @@ export class ReportsStateService extends AsyncHandler {
         } else if (options.zones && current.zones?.includes('All')) {
             options.zones = [];
         }
-        if (
-            options.start?.valueOf() === current.start?.valueOf() ||
-            options.end?.valueOf() === current.end?.valueOf()
-        )
-            return;
+        // Skip only when every given option equals its current value.
+        const value = (v: unknown) =>
+            v instanceof Array ? v.join() : v instanceof Date ? v.valueOf() : v;
+        const unchanged = Object.entries(options).every(
+            ([key, v]) =>
+                value(v) === value(current[key as keyof ReportOptions]),
+        );
+        if (unchanged) return;
         // Clear stale bookings and cancel any in-flight load. The cancelled
         // load exits early, so clear its loading state here.
         this._active_bookings.set([]);

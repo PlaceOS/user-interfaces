@@ -112,6 +112,26 @@ describe('LockerBankModalComponent', () => {
         expect(metadata.zones).toEqual(['lvl-1', 'org-1', 'region-1', 'bld-1']);
     });
 
+    it('should save when the level is not loaded and there is no region', () => {
+        spectator = createComponent();
+        const org = spectator.inject(OrganisationService) as any;
+        vi.mocked(org.levelWithID).mockReturnValue(null);
+        org.region = null;
+        const emit = vi.spyOn(spectator.component.event, 'emit');
+        spectator.component.model.update((m) => ({
+            ...m,
+            level_id: 'lvl-other',
+            name: 'Bank A',
+            map_id: 'map-a',
+        }));
+
+        spectator.component.postForm();
+
+        const metadata = emit.mock.calls[0][0].metadata as any;
+        expect(metadata.zones).toEqual(['lvl-other', 'org-1', 'bld-1']);
+        org.region = { id: 'region-1' };
+    });
+
     it('should expose the id from the injected dialog data', () => {
         dialog_data = { id: 'bank-9', name: 'Existing' };
         spectator = createComponent();

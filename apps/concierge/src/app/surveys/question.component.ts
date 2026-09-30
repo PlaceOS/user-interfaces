@@ -338,7 +338,9 @@ export class QuestionComponent implements AfterViewInit, OnInit {
 
     public ngOnInit() {
         const q = this.question();
-        if (!q?.choices) q.choices = [];
+        if (!q) return;
+        // The API can return `{}` for questions created without choices.
+        if (!Array.isArray(q.choices)) q.choices = [];
         if (!q.max_rating) q.max_rating = 3;
     }
 
