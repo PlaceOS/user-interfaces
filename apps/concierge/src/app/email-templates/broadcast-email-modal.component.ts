@@ -13,6 +13,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { queryAllBookings } from '@placeos/bookings';
 import {
+    currentUser,
     getTimezoneDifferenceInHours,
     notifyError,
     notifySuccess,
@@ -54,9 +55,7 @@ type BroadcastRecipientGroup = 'rooms' | 'desks' | 'parking' | 'all' | 'custom';
                         [formField]="form.subject"
                         placeholder="Email subject"
                     />
-                    @if (
-                        form.subject().invalid() && form.subject().touched()
-                    ) {
+                    @if (form.subject().invalid() && form.subject().touched()) {
                         <mat-error>A subject line is required</mat-error>
                     }
                 </mat-form-field>
@@ -265,11 +264,24 @@ export class BroadcastEmailModalComponent {
             notifyError('No matching recipients found.');
             return;
         }
-        const to =
-            recipient_list.length === 1 ? recipient_list[0] : recipient_list;
+        // Recipients go in BCC so they cannot see each other's addresses.
+        const sender = currentUser()?.email;
+        if (!sender) {
+            notifyError('Unable to determine the sender email address.');
+            return;
+        }
         this.loading.set('Sending email...');
         try {
-            await mod.execute('send_mail', [to, subject, message_plaintext]);
+            await mod.execute('send_mail', [
+                sender,
+                subject,
+                message_plaintext,
+                null, // message_html
+                [], // resource attachments
+                [], // attachments
+                [], // cc
+                recipient_list, // bcc
+            ]);
             notifySuccess('Broadcast email sent.');
             this._dialog_ref.close(true);
         } catch (error) {

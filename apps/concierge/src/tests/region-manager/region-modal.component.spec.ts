@@ -60,14 +60,24 @@ describe('RegionModalComponent', () => {
         expect(model.parent_id).toBe('org-1');
     });
 
+    it('should keep the stored timezone of an existing region', () => {
+        spectator = buildRegion({
+            id: 'r1',
+            display_name: 'London',
+            timezone: 'Europe/London',
+        })();
+
+        expect(spectator.component.model().timezone).toBe('Europe/London');
+    });
+
     it('should filter timezones by the current model timezone', () => {
         spectator = buildRegion(null)();
         spectator.component.model.update((m) => ({ ...m, timezone: 'london' }));
         const filtered = spectator.component.filtered_timezones();
         expect(filtered.length).toBeGreaterThan(0);
-        expect(
-            filtered.every((_) => _.toLowerCase().includes('london')),
-        ).toBe(true);
+        expect(filtered.every((_) => _.toLowerCase().includes('london'))).toBe(
+            true,
+        );
     });
 
     it('should block saving and notify when the display name is missing', async () => {

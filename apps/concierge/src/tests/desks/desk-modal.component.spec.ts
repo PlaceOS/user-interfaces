@@ -5,12 +5,15 @@ import {
 } from '@angular/material/dialog';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { OrganisationService } from '@placeos/common';
+import * as ts_client from '@placeos/ts-client';
 import { MockProvider } from 'ng-mocks';
 
 import {
     DeskModalComponent,
     DeskModalData,
 } from '../../app/desks/desk-modal.component';
+
+vi.mock('@placeos/ts-client', { spy: true });
 
 describe('DeskModalComponent', () => {
     let spectator: Spectator<DeskModalComponent>;
@@ -95,6 +98,28 @@ describe('DeskModalComponent', () => {
 
         expect(spectator.component.model().assigned_user).toBeNull();
         expect(spectator.component.model().assigned_to).toBe('');
+    });
+
+    it('should keep the stored assignee when the staff lookup fails', async () => {
+        vi.mocked(ts_client.get).mockRejectedValue('offline');
+        dialog_data = {
+            desk: {
+                id: 'desk-5',
+                name: 'Desk 5',
+                map_id: 'map-5',
+                assigned_to: 'jane@example.com',
+                assigned_name: 'Jane',
+            },
+        };
+        spectator = build();
+        await spectator.component.ngOnInit();
+        const emit = vi.spyOn(spectator.component.event, 'emit');
+        spectator.component.model.update((m) => ({ ...m, name: 'Renamed' }));
+
+        spectator.component.postForm();
+
+        const metadata = emit.mock.calls[0][0].metadata as any;
+        expect(metadata.assigned_to).toBe('jane@example.com');
     });
 
     it('should close without emitting when nothing changed', () => {

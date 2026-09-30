@@ -1,4 +1,6 @@
 import { inject, Injectable, resource, Signal, signal } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
+import { SignedRequest } from '@placeos/cloud-uploads';
 import {
     AsyncHandler,
     Attachment,
@@ -10,6 +12,7 @@ import {
     SettingsService,
     UploadsService,
 } from '@placeos/common';
+import { openConfirmModal } from '@placeos/components';
 import {
     addSignageMedia,
     addSignagePlaylist,
@@ -31,15 +34,13 @@ import {
     updateSignagePlaylistMedia,
     updateSystem,
 } from '@placeos/ts-client';
-import { MatDialog } from '@angular/material/dialog';
-import { SignedRequest } from '@placeos/cloud-uploads';
-import { openConfirmModal } from '@placeos/components';
 import { queryAllPages } from '../query-all-pages';
 import { SignageApprovePlaylistModalComponent } from './signage-approve-playlist-modal.component';
 import { SignageDisplayModalComponent } from './signage-display-modal.component';
 import { SignageMediaModalComponent } from './signage-media-modal.component';
 import { SignageMediaPreviewModalComponent } from './signage-media-preview-modal.component';
 import { SignagePlaylistModalComponent } from './signage-playlist-modal.component';
+import { isWebPageUrl } from './signage.utilities';
 
 function dataURLtoFile(dataURL, filename) {
     // Split the data URL to get the mime type and the data
@@ -98,9 +99,7 @@ export class SignageStateService extends AsyncHandler {
             const list = await queryAllPages(
                 querySignageMedia({ limit: 200 } as any),
             );
-            return list.sort(
-                (a, b) => b.created_at - a.created_at,
-            );
+            return list.sort((a, b) => b.created_at - a.created_at);
         },
     });
     public readonly media: Signal<SignageMedia[]> = this._media.value;
@@ -117,9 +116,7 @@ export class SignageStateService extends AsyncHandler {
             const list = await queryAllPages(
                 querySignagePlaylists({ limit: 200 } as any),
             );
-            return list.sort((a, b) =>
-                a.name.localeCompare(b.name),
-            );
+            return list.sort((a, b) => a.name.localeCompare(b.name));
         },
     });
     public readonly playlists: Signal<SignagePlaylist[]> =
@@ -350,6 +347,8 @@ export class SignageStateService extends AsyncHandler {
         url: string,
         media_item: SignageMedia = new SignageMedia({}),
     ) {
+        if (!isWebPageUrl(url))
+            throw 'Webpage media must use an http or https URL';
         const url_obj = new URL(url);
         const data = {
             ...new SignageMedia({

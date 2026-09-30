@@ -194,7 +194,9 @@ function validateNoOverlap(box: Box, check_boxes: Box[]): boolean {
                                 "
                                 [ngModelOptions]="{ standalone: true }"
                                 [min]="1"
-                                [max]="(bank?.height || 10) - model().position[1]"
+                                [max]="
+                                    (bank?.height || 10) - model().position[1]
+                                "
                                 [render_fn]="render_fn"
                             ></a-counter>
                         </div>
@@ -312,7 +314,8 @@ export class LockerModalComponent extends AsyncHandler implements OnInit {
         return this.locker?.id || '';
     }
 
-    public readonly addTag = (e) => addChipItem(this._features_control as any, e);
+    public readonly addTag = (e) =>
+        addChipItem(this._features_control as any, e);
     public readonly removeTag = (i) =>
         removeChipItem(this._features_control as any, i);
 
@@ -383,8 +386,11 @@ export class LockerModalComponent extends AsyncHandler implements OnInit {
 
     public async ngOnInit() {
         if (this.locker?.assigned_to) {
-            const user = await showStaff(this.locker.assigned_to);
+            const user = await showStaff(this.locker.assigned_to).catch(
+                () => null,
+            );
             if (user) {
+                this._user_loaded = true;
                 this.model.update((m) => ({
                     ...m,
                     assigned_user: user,
@@ -394,6 +400,9 @@ export class LockerModalComponent extends AsyncHandler implements OnInit {
             }
         }
     }
+
+    /** True once the stored assignee was loaded into the search field. */
+    private _user_loaded = false;
 
     public clearUser() {
         this.model.update((m) => ({
@@ -413,10 +422,13 @@ export class LockerModalComponent extends AsyncHandler implements OnInit {
             value.assigned_to = value.assigned_user.email;
             value.assigned_name = value.assigned_user.name;
             delete value.assigned_user;
-        } else {
-            delete value.assigned_to;
-            delete value.assigned_name;
+        } else if (this._user_loaded) {
+            // The loaded assignee was removed from the search field.
+            value.assigned_to = '';
+            value.assigned_name = '';
         }
+        // Otherwise keep the stored assignee. The staff lookup may have
+        // failed or not finished, and that must not clear the assignment.
         this._dialog_ref.disableClose = true;
         this.event.emit({ reason: 'done', metadata: value });
     }

@@ -1,6 +1,9 @@
 import { signal } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { createServiceFactory, SpectatorService } from '@ngneat/spectator/vitest';
+import {
+    createServiceFactory,
+    SpectatorService,
+} from '@ngneat/spectator/vitest';
 import { OrganisationService } from '@placeos/common';
 import * as ts_client_mod from '@placeos/ts-client';
 import { MockProvider } from 'ng-mocks';
@@ -17,7 +20,10 @@ vi.mock('@placeos/ts-client', { spy: true });
  * dialog fake below.
  */
 const makeConfirmRef = () => ({
-    componentInstance: { event: of({ reason: 'done' }), loading: { set: vi.fn() } },
+    componentInstance: {
+        event: of({ reason: 'done' }),
+        loading: { set: vi.fn() },
+    },
     afterClosed: () => of({ reason: 'done' }),
     close: vi.fn(),
 });
@@ -98,6 +104,20 @@ describe('DealsService', () => {
         expect(stored_deals.some((d) => d.id === 'deal-2')).toBe(true);
     });
 
+    it('should not write deals when they cannot be read', async () => {
+        vi.mocked(ts_client_mod.showMetadata).mockRejectedValue('offline');
+        dialog_open.mockReturnValue(makeConfirmRef());
+
+        await expect(
+            spectator.service.saveDeal({ name: 'Coffee Deal' }),
+        ).rejects.toBe('offline');
+        expect(
+            await spectator.service.removeDeal({ id: 'deal-1' } as any),
+        ).toBe(false);
+
+        expect(ts_client_mod.updateMetadata).not.toHaveBeenCalled();
+    });
+
     it('should return metadata details as the current deal list', async () => {
         stored_deals = [{ id: 'deal-1' }, { id: 'deal-2' }];
         const deals = await spectator.service.getDeals();
@@ -108,7 +128,9 @@ describe('DealsService', () => {
         stored_deals = [{ id: 'deal-1' }, { id: 'deal-2' }];
         dialog_open.mockReturnValue(makeConfirmRef());
 
-        const result = await spectator.service.removeDeal({ id: 'deal-1' } as any);
+        const result = await spectator.service.removeDeal({
+            id: 'deal-1',
+        } as any);
 
         expect(result).toBe(true);
         // Confirmation dialog was opened...
@@ -122,7 +144,9 @@ describe('DealsService', () => {
         dialog_open.mockReturnValue(makeDismissRef());
         stored_deals = [{ id: 'deal-1' }];
 
-        const result = await spectator.service.removeDeal({ id: 'deal-1' } as any);
+        const result = await spectator.service.removeDeal({
+            id: 'deal-1',
+        } as any);
 
         expect(result).toBe(false);
         expect(ts_client_mod.updateMetadata).not.toHaveBeenCalled();

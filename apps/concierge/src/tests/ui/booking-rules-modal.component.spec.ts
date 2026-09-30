@@ -98,6 +98,7 @@ describe('BookingRulesModalComponent', () => {
     });
 
     it('should persist a new ruleset and return to the list view', async () => {
+        await spectator.fixture.whenStable();
         await spectator.component.save({ name: 'New Rule' } as any);
         expect(ts_client.updateMetadata).toHaveBeenCalledWith(
             'bld-1',
@@ -111,6 +112,18 @@ describe('BookingRulesModalComponent', () => {
         expect(spectator.component.view()).toBe('list');
         expect(spectator.component.loading()).toBe(false);
         expect(spectator.component.change()).not.toBe(0);
+    });
+
+    it('should not save when the stored rulesets fail to load', async () => {
+        (ts_client.showMetadata as any).mockRejectedValue('offline');
+        (ts_client.updateMetadata as any).mockClear();
+        spectator = createComponent();
+        await spectator.fixture.whenStable();
+
+        await spectator.component.save({ name: 'New Rule' } as any);
+
+        expect(spectator.component.load_failed()).toBe(true);
+        expect(ts_client.updateMetadata).not.toHaveBeenCalled();
     });
 
     it('should not overwrite a ruleset when a new one has the same ID', async () => {

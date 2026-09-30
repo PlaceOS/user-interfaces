@@ -608,9 +608,9 @@ export class SurveyBuilderComponent
         this.subscription(
             'route.params',
             this._route.paramMap.subscribe((params) => {
-                if (params.has('id')) {
-                    this._service.setSurvey(params.get('id'));
-                }
+                // The service is shared app-wide. Always reset it so a new
+                // survey never loads (and then saves over) a previous one.
+                this._service.setSurvey(params.get('id') || '');
             }),
         );
     }
@@ -708,13 +708,16 @@ export class SurveyBuilderComponent
         const call = survey.id
             ? updateSurvey(`${survey.id}`, survey as any)
             : addSurvey(survey as any);
-        await call
+        const saved = await call
             .catch((error) => {
                 notifyError('Failed to save survey details. Error: ', error);
                 throw error;
             })
             .finally(() => this.loading.set(false));
-        this._saved_model = JSON.stringify(survey);
+        // Keep the new ID so a second save updates instead of duplicating.
+        const id = survey.id || saved?.id || '';
+        if (id !== survey.id) this.model.update((m) => ({ ...m, id }));
+        this._saved_model = JSON.stringify({ ...survey, id });
         notifySuccess('Successfully saved survey details.');
     }
 }

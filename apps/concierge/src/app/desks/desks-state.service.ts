@@ -494,9 +494,7 @@ export class DesksStateService extends AsyncHandler {
                 );
                 continue;
             }
-            const desk_list = this.desks().filter(
-                (_) => (_.zone?.id || fallback_zone) === zone,
-            );
+            const desk_list = await this._storedDeskList(zone);
             for (const desk of desks) {
                 const idx = desk_list.findIndex((_) => _.id === desk.id);
                 if (idx >= 0) desk_list[idx] = desk;
@@ -516,8 +514,8 @@ export class DesksStateService extends AsyncHandler {
         if (this._settings.get('app.desks.use_assets')) {
             await deleteDeskAsset(desk.id);
         } else {
-            const updated_desks = this.desks().filter(
-                (_) => (_.zone?.id || zone_id) === zone_id && _.id !== desk.id,
+            const updated_desks = (await this._storedDeskList(zone_id)).filter(
+                (_) => _.id !== desk.id,
             );
             await updateMetadata(zone_id, {
                 name: 'desks',
@@ -564,10 +562,18 @@ export class DesksStateService extends AsyncHandler {
                 `desk-${zone.slice(-3)}.${randomInt(999_999)}`,
             zone: this._org.levelWithID([zone]),
         });
-        // Only this desk's level is written, so scope the list to that zone.
-        const original_desk_list = this.desks().filter(
-            (_) => (_.zone?.id || zone) === zone,
-        );
+        // Only this desk's level is written. Read its stored list so desks
+        // that are not loaded in the current view are kept.
+        let original_desk_list: Desk[] = [];
+        try {
+            original_desk_list = use_assets
+                ? this.desks().filter((_) => (_.zone?.id || zone) === zone)
+                : await this._storedDeskList(zone);
+        } catch (e) {
+            notifyError(i18n('APP.CONCIERGE.DESKS_SAVE_ERROR', { error: e }));
+            ref.componentInstance.loading.set(false);
+            throw e;
+        }
         const desk_list = [...original_desk_list];
         const idx = desk_list.findIndex((_) => _.id === desk.id);
         if (idx >= 0) desk_list[idx] = new_desk;
@@ -967,6 +973,17 @@ export class DesksStateService extends AsyncHandler {
         }
     }
 
+    /**
+     * Read the desk list stored in a zone's metadata. Errors are not caught,
+     * so callers never write a list built from a failed read.
+     */
+    private async _storedDeskList(zone: string): Promise<Desk[]> {
+        const { details } = await showMetadata(zone, 'desks');
+        return (details instanceof Array ? details : []).map(
+            (item) => new Desk({ ...item, zone: { id: zone } }),
+        );
+    }
+
     private async _rollbackDeskSave(
         zone: string,
         original_desk_list: Desk[],
@@ -1013,9 +1030,7 @@ export class DesksStateService extends AsyncHandler {
     private _deskAssetZones(level_id: string) {
         const level = this._org.levels?.find((item) => item.id === level_id);
         const building =
-            this._org.buildings?.find(
-                (item) => item.id === level?.parent_id,
-            ) ||
+            this._org.buildings?.find((item) => item.id === level?.parent_id) ||
             (this._org.building?.id === level?.parent_id
                 ? this._org.building
                 : undefined);

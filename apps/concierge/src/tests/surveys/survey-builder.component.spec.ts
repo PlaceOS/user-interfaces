@@ -7,8 +7,8 @@ import { MockProvider } from 'ng-mocks';
 import { of } from 'rxjs';
 
 import * as ts_client from '@placeos/ts-client';
-import { SurveyBuilderComponent } from '../../app/surveys/survey-builder.component';
 import { NewSurveyService } from '../../app/surveys/new-survey.service';
+import { SurveyBuilderComponent } from '../../app/surveys/survey-builder.component';
 
 vi.mock('@placeos/ts-client', { spy: true });
 
@@ -88,9 +88,9 @@ describe('SurveyBuilderComponent', () => {
     it('should remove a question from the active page order', () => {
         spectator.component.updateActivePage({ question_order: [10, 20, 30] });
         spectator.component.removePageQuestion(1);
-        expect(
-            spectator.component.active_page_value().question_order,
-        ).toEqual([10, 30]);
+        expect(spectator.component.active_page_value().question_order).toEqual([
+            10, 30,
+        ]);
     });
 
     it('should insert a dragged question into the page order', async () => {
@@ -104,9 +104,9 @@ describe('SurveyBuilderComponent', () => {
             currentIndex: 0,
         } as any);
 
-        expect(
-            spectator.component.active_page_value().question_order,
-        ).toEqual([100]);
+        expect(spectator.component.active_page_value().question_order).toEqual([
+            100,
+        ]);
     });
 
     it('should push filter changes through to the service', () => {
@@ -176,6 +176,30 @@ describe('SurveyBuilderComponent', () => {
 
         expect(save_survey).toHaveBeenCalled();
         expect(ts_client.addSurvey).toHaveBeenCalled();
+    });
+
+    it('should clear the active survey when opened without an id', () => {
+        spectator.component.ngOnInit();
+
+        expect(
+            spectator.inject(NewSurveyService).setSurvey,
+        ).toHaveBeenCalledWith('');
+    });
+
+    it('should update a new survey on the second save', async () => {
+        vi.mocked(ts_client.addSurvey).mockResolvedValue({
+            id: 's-1',
+        } as never);
+        spectator.component.model.update((m) => ({ ...m, title: 'My Survey' }));
+
+        await spectator.component.saveSurvey();
+        await spectator.component.saveSurvey();
+
+        expect(ts_client.addSurvey).toHaveBeenCalledTimes(1);
+        expect(ts_client.updateSurvey).toHaveBeenCalledWith(
+            's-1',
+            expect.objectContaining({ id: 's-1' }),
+        );
     });
 
     it('should update the survey when the model already has an id', async () => {
