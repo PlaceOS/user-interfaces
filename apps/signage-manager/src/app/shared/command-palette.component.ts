@@ -79,6 +79,17 @@ const KIND_LABELS: Record<PaletteKind, string> = {
                     <mat-spinner diameter="20" />
                 }
             </div>
+            <!-- Announces the result count to screen readers -->
+            <div class="sr-only" aria-live="polite">
+                @if (!loading()) {
+                    {{
+                        'SIGNAGE_MANAGER.PALETTE_RESULT_COUNT'
+                            | translate
+                                : { count: results().length }
+                                : results().length
+                    }}
+                }
+            </div>
             <div
                 id="command-palette-results"
                 role="listbox"
