@@ -1,6 +1,7 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
+import { settingSignal } from '@placeos/common';
 import { SignageTemplateLayout } from '@placeos/ts-client';
 
 import { SignageService } from '../../app/signage.service';
@@ -50,6 +51,7 @@ describe('TemplatePreviewComponent', () => {
         selected_template.set(null);
         displays.set([]);
         service_stub.template_layout_draft.set([]);
+        settingSignal('signage_path').set(undefined);
         TestBed.resetTestingModule();
     });
 
@@ -81,7 +83,7 @@ describe('TemplatePreviewComponent', () => {
                     }),
                 ],
             },
-            '*',
+            location.origin,
         );
     });
 
@@ -111,7 +113,7 @@ describe('TemplatePreviewComponent', () => {
         request(frame.contentWindow!);
         expect(post).toHaveBeenCalledWith(
             { type: 'signage:template-layouts', layouts: [] },
-            '*',
+            location.origin,
         );
     });
 
@@ -147,6 +149,44 @@ describe('TemplatePreviewComponent', () => {
         expect(component.live_preview_available()).toBe(true);
         expect(component.live_preview_url()).toBe(
             '/signage/#/template/template%201/display%201?debug=true',
+        );
+    });
+
+    it('refuses a signage path that is not a web URL', async () => {
+        selected_template.set({ id: 'template-1' });
+        const component = await make();
+        component.selected_display_id.set('display-1');
+
+        component.signage_path.set('javascript:alert(1)//');
+        expect(component.live_preview_url()).toBe(
+            '/signage/#/template/template-1/display-1?debug=true',
+        );
+
+        component.signage_path.set('https://player.example.com/signage/');
+        expect(component.live_preview_url()).toBe(
+            'https://player.example.com/signage/#/template/template-1/display-1?debug=true',
+        );
+    });
+
+    it('posts the layout draft only to the player origin', async () => {
+        selected_template.set({ id: 'template-1' });
+        displays.set([{ id: 'display-1' }]);
+        const fixture = await render();
+        const component = fixture.componentInstance;
+        component.signage_path.set('https://player.example.com/signage');
+        component.selected_display_id.set('display-1');
+        component.live_mode.set(true);
+        await fixture.whenStable();
+        const frame = (fixture.nativeElement as HTMLElement).querySelector(
+            'iframe',
+        ) as HTMLIFrameElement;
+        const post = vi.spyOn(frame.contentWindow!, 'postMessage');
+
+        component.postDraftLayouts();
+
+        expect(post).toHaveBeenCalledWith(
+            { type: 'signage:template-layouts', layouts: [] },
+            'https://player.example.com',
         );
     });
 

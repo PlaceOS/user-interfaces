@@ -20,6 +20,7 @@ import {
     TranslatePipe,
 } from '@placeos/components';
 import { mediaThumbnail } from '@placeos/ts-client';
+import { parseWebUrl } from '../signage-url.util';
 import { SignageService } from '../signage.service';
 import {
     applyLayoutPositionDefaults,
@@ -330,20 +331,31 @@ export class TemplatePreviewComponent {
         const template_id = this.live_template_id();
         const display_id = this.selected_display_id();
         if (!template_id || !display_id) return '';
-        const signage_path = this.signage_path() || '/signage';
+        // Zone metadata can override the path, so refuse schemes that would
+        // run script in this origin, such as `javascript:`
+        const setting = this.signage_path();
+        const signage_path =
+            setting && parseWebUrl(setting, document.baseURI)
+                ? setting
+                : '/signage';
         return `${signage_path.replace(/\/$/, '')}/#/template/${encodeURIComponent(template_id)}/${encodeURIComponent(display_id)}?debug=true`;
     });
 
-    /** Send the unsaved layout draft to the live player iframe */
+    /**
+     * Send the unsaved layout draft to the live player iframe. The message
+     * only goes to the player origin, so a page the frame navigates to on
+     * another origin does not get the draft.
+     */
     public postDraftLayouts() {
         const frame = this._live_frame()?.nativeElement;
-        if (!frame?.contentWindow) return;
+        const target = parseWebUrl(this.live_preview_url(), document.baseURI);
+        if (!frame?.contentWindow || !target) return;
         frame.contentWindow.postMessage(
             {
                 type: PREVIEW_LAYOUTS_MESSAGE,
                 layouts: this._layouts().map(applyLayoutPositionDefaults),
             },
-            '*',
+            target.origin,
         );
     }
 
