@@ -75,6 +75,19 @@ describe('MediaAddModalComponent', () => {
         expect(service.addMediaFromLink).not.toHaveBeenCalled();
     });
 
+    it.each(['javascript:alert(1)', 'data:text/html,<script></script>'])(
+        'rejects the non-web url %s',
+        async (url) => {
+            const component = await createComponent({ mode: 'link' });
+            component.link.set(url);
+
+            await component.add();
+
+            expect(dialog_ref.close).not.toHaveBeenCalled();
+            expect(service.addMediaFromLink).not.toHaveBeenCalled();
+        },
+    );
+
     it('adds a valid link then closes the dialog', async () => {
         const component = await createComponent({ mode: 'link' });
         component.link.set('  https://example.com/promo  ');

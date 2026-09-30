@@ -25,6 +25,7 @@ import {
     playlistMediaThumbnailUrl,
     playlistMediaUrl,
 } from '../signage-playlist.util';
+import { webPageFrameUrl } from '../signage-url.util';
 import { SignageService } from '../signage.service';
 import { SignageSharedWithComponent } from './signage-shared-with.component';
 
@@ -120,6 +121,7 @@ interface MediaPreviewModalData {
                         ></video>
                     } @else if (item.media_type === 'webpage') {
                         <iframe
+                            sandbox="allow-scripts allow-same-origin allow-forms"
                             [src]="safe_url()"
                             [title]="item.name"
                             class="h-full w-full border-0 bg-white"
@@ -407,10 +409,11 @@ export class MediaPreviewModalComponent implements OnInit {
     public readonly loading_playlists = signal(true);
     public readonly edit = () => this._service.editMedia(this.item);
 
+    /** Webpage URL for the preview iframe. Only http and https URLs load. */
     public readonly safe_url = computed(() => {
         if (this.item.media_type === 'webpage') {
             return this._sanitizer.bypassSecurityTrustResourceUrl(
-                this.media_url,
+                webPageFrameUrl(this.media_url),
             );
         }
         return null;

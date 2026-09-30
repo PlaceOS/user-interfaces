@@ -16,6 +16,7 @@ import {
 import { AiImageService } from '../ai/ai-image.service';
 import { GroupBreadcrumbsComponent } from '../shared/group-breadcrumbs.component';
 import { MediaAddModalComponent } from '../shared/media-add-modal.component';
+import { isWebPageUrl } from '../signage-url.util';
 import { SignageService } from '../signage.service';
 import {
     DEFAULT_MEDIA_VIEW,
@@ -27,15 +28,6 @@ import {
     type MediaTypeFilter,
     type MediaViewOptions,
 } from './media-view.util';
-
-function isValidUrl(url: string): boolean {
-    try {
-        new URL(url);
-        return true;
-    } catch {
-        return false;
-    }
-}
 
 @Component({
     selector: 'media-list-header',
@@ -512,8 +504,7 @@ export class MediaListHeaderComponent {
     public async addFromLink() {
         const link = this.link().trim();
         if (!link) return;
-        const is_valid = isValidUrl(link);
-        if (!is_valid) {
+        if (!isWebPageUrl(link)) {
             notifyError(i18n('SIGNAGE_MANAGER.URL_INVALID'));
             return;
         }

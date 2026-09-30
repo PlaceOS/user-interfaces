@@ -9,7 +9,13 @@ import {
     viewChild,
     ViewChild,
 } from '@angular/core';
-import { form, FormField, required, submit } from '@angular/forms/signals';
+import {
+    form,
+    FormField,
+    required,
+    submit,
+    validate,
+} from '@angular/forms/signals';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -55,6 +61,7 @@ import {
     pluginSchema,
     schemaDefaults,
 } from '../signage-plugin.util';
+import { isWebPageUrl, webPageFrameUrl } from '../signage-url.util';
 import { SignageSharedWithComponent } from './signage-shared-with.component';
 
 export interface MediaEditModalData {
@@ -167,6 +174,7 @@ function mediaSaveErrorMessage(error: unknown) {
                                     'SIGNAGE_MANAGER.MEDIA_PREVIEW' | translate
                                 "
                                 class="h-screen w-full object-contain object-center"
+                                sandbox="allow-scripts allow-same-origin allow-forms"
                                 [src]="preview_url() | safe: 'resource'"
                             ></iframe>
                         } @else {
@@ -217,7 +225,10 @@ function mediaSaveErrorMessage(error: unknown) {
                                 "
                             />
                             <mat-error>{{
-                                'SIGNAGE_MANAGER.URL_REQUIRED' | translate
+                                (form.media_uri().value()
+                                    ? 'SIGNAGE_MANAGER.URL_INVALID'
+                                    : 'SIGNAGE_MANAGER.URL_REQUIRED'
+                                ) | translate
                             }}</mat-error>
                         </mat-form-field>
                     }
@@ -547,6 +558,14 @@ export class MediaEditModalComponent implements OnDestroy {
         required(path.media_uri, {
             when: () => this.media_type === 'webpage',
         });
+        validate(path.media_uri, ({ value }) =>
+            this.media_type === 'webpage' && value() && !isWebPageUrl(value())
+                ? {
+                      kind: 'web_url',
+                      message: i18n('SIGNAGE_MANAGER.URL_INVALID'),
+                  }
+                : undefined,
+        );
     });
 
     private _file_url: string;
@@ -615,12 +634,14 @@ export class MediaEditModalComponent implements OnDestroy {
         );
         inject(DestroyRef).onDestroy(() => save_hotkey?.unsubscribe());
         if (this.media_type === 'webpage') {
-            this.preview_url.set(this.item.media_uri || this.item.media_url);
+            this.preview_url.set(
+                webPageFrameUrl(this.item.media_uri || this.item.media_url),
+            );
             effect((onCleanup) => {
                 const url = this.model().media_uri;
                 clearTimeout(this._preview_url_timeout);
                 this._preview_url_timeout = setTimeout(
-                    () => this.preview_url.set(url || ''),
+                    () => this.preview_url.set(webPageFrameUrl(url)),
                     1500,
                 );
                 onCleanup(() => clearTimeout(this._preview_url_timeout));

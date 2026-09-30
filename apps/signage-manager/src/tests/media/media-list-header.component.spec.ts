@@ -112,6 +112,13 @@ describe('MediaListHeaderComponent', () => {
         expect(add_from_link).not.toHaveBeenCalled();
     });
 
+    it('rejects a javascript link without calling the service', async () => {
+        const component = await make();
+        component.link.set('javascript:alert(1)');
+        await component.addFromLink();
+        expect(add_from_link).not.toHaveBeenCalled();
+    });
+
     it('ignores an empty link', async () => {
         const component = await make();
         component.link.set('   ');
