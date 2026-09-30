@@ -497,6 +497,31 @@ describe('BookingFormService', () => {
         }
     });
 
+    it('should wait for availability when org data reloads during the request', async () => {
+        settings_overrides.set([{}, {}]);
+        try {
+            spectator.service.newForm('desk');
+            const request = spectator.service.listAvailableResources();
+            TestBed.tick();
+            await spectator.service.listResources();
+            // An org reload clears the overrides before the form debounce ends.
+            settings_overrides.set([]);
+            TestBed.tick();
+            await new Promise((resolve) => setTimeout(resolve, 1200));
+            settings_overrides.set([{}, {}]);
+            TestBed.tick();
+
+            const available = await request;
+
+            expect(available.map((asset) => asset.id)).toEqual([
+                'desk-1',
+                'desk-1',
+            ]);
+        } finally {
+            settings_overrides.set([]);
+        }
+    });
+
     it('should exclude window-booked AND recurring-clash desks', async () => {
         // desk-1 is booked in the first-instance window, desk-2 clashes with a
         // later recurrence instance. Enabling recurrence must exclude both, not

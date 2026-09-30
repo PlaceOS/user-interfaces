@@ -6,6 +6,7 @@ import {
     Injectable,
     Injector,
     resource,
+    type ResourceStatus,
     signal,
     type Signal,
     untracked,
@@ -117,6 +118,12 @@ export interface BookingFlowOptions {
     disable_date?: boolean;
     /** Whether resource has accessibility options */
     show_accessible?: boolean;
+}
+
+/** Whether a resource has finished loading for its current params */
+function resourceSettled(ref: { status: Signal<ResourceStatus> }) {
+    const status = ref.status();
+    return status === 'resolved' || status === 'local' || status === 'error';
 }
 
 function bookingOptionsMatch(a: BookingFlowOptions, b: BookingFlowOptions) {
@@ -604,20 +611,10 @@ export class BookingFormService extends AsyncHandler {
     public async listResources(): Promise<BookingAsset[]> {
         this._startNetwork();
         await firstValueWhere(
-            this._requests_ready,
+            computed(() => this._resourcesReady()),
             (ready) => ready,
             this._injector,
         );
-        await firstValueWhere(
-            computed(
-                () =>
-                    this._resource_params_debounced.value() ===
-                    this._resource_params(),
-            ),
-            (ready) => ready,
-            this._injector,
-        );
-        await this._whenSettled(this._resources_resource);
         return this.resources();
     }
 
@@ -625,26 +622,40 @@ export class BookingFormService extends AsyncHandler {
     public async listAvailableResources(): Promise<BookingAsset[]> {
         this._startNetwork();
         this._form_value.set(this.model());
-        await this.listResources();
         await firstValueWhere(
             computed(
                 () =>
+                    this._resourcesReady() &&
                     this._booking_rules_params_debounced.value() ===
-                    this._booking_rules_params(),
+                        this._booking_rules_params() &&
+                    // Rules stay idle when there are no buildings to load.
+                    (!this._booking_rules_params() ||
+                        resourceSettled(this._booking_rules_resource)) &&
+                    // Form effects can replace the initial snapshot before the
+                    // debounce completes. Wait for the current model.
+                    this._form_value_debounced.value() === this.model() &&
+                    resourceSettled(this._available_resource),
             ),
             (ready) => ready,
             this._injector,
         );
-        await this._whenSettled(this._booking_rules_resource);
-        await firstValueWhere(
-            // Form effects can replace the initial snapshot before the debounce
-            // completes. Wait for the current model, not an obsolete snapshot.
-            computed(() => this._form_value_debounced.value() === this.model()),
-            (ready) => ready,
-            this._injector,
-        );
-        await this._whenSettled(this._available_resource);
         return this.available_resources();
+    }
+
+    /**
+     * Whether the resource list matches the current building and type.
+     *
+     * Callers check this with the other conditions in one pass. An org reload
+     * can make the requests unready after an earlier check passes, and that
+     * resets the resources to an idle, empty state.
+     */
+    private _resourcesReady() {
+        return (
+            this._requests_ready() &&
+            this._resource_params_debounced.value() ===
+                this._resource_params() &&
+            resourceSettled(this._resources_resource)
+        );
     }
 
     /** Resolve once the given resource has finished loading */
