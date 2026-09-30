@@ -267,7 +267,8 @@ export class UserSearchFieldComponent
                 const user = term as User;
                 return user.email === EMPTY_USER.email ? [] : [user];
             }
-            if (term === this.user()?.name) return [this.user()];
+            const selected = this.user();
+            if (selected && term === selected.name) return [selected];
             if (this.disable_search()) return [];
             const s = `${term || ''}`.toLowerCase();
             if (this.options()?.length) {

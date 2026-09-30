@@ -61,6 +61,14 @@ describe('DateRangeFieldComponent', () => {
         expect(button).toContainText('Sep 5, 2026');
     });
 
+    it('should move the end to the new start when the start passes it', () => {
+        const new_start = new Date(2026, 5, 10).valueOf();
+
+        spectator.component.setStartDate(new_start);
+
+        expect(spectator.component.end_date().value).toBe(new_start);
+    });
+
     it('should render the selected start and end dates', () => {
         spectator.component.setStartDate(new Date(2026, 5, 1).valueOf());
         spectator.component.setEndDate(new Date(2026, 5, 5).valueOf());

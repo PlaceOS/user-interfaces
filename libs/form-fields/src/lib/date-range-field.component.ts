@@ -131,6 +131,11 @@ export class DateRangeFieldComponent extends AsyncHandler {
         const start_date = this.start_date();
         if (!start_date) return;
         start_date.control.setValue(date);
+        // Keep a valid range if the popup closes before the end is picked.
+        const end_date = this.end_date();
+        if (end_date && (!end_date.value || end_date.value < date)) {
+            end_date.control.setValue(date);
+        }
     }
 
     public setEndDate(date: number) {
