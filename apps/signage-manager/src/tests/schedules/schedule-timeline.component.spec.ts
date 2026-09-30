@@ -1,3 +1,4 @@
+import { DatePipe } from '@angular/common';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { SignagePlaylist } from '@placeos/ts-client';
@@ -161,6 +162,40 @@ describe('ScheduleTimelineComponent', () => {
         const status = fixture.nativeElement.querySelector('[row-status]');
         expect(status.getAttribute('tabindex')).toBe('0');
         expect(status.getAttribute('aria-label')).toBeTruthy();
+    });
+
+    it('shows how long ago a display was seen, with the date before today', () => {
+        const now = new Date(2026, 9, 2, 15, 0).getTime();
+        const clock = vi.spyOn(Date, 'now').mockReturnValue(now);
+        try {
+            const seconds = (date: Date) => Math.floor(date.getTime() / 1000);
+            const component = make([
+                row({
+                    id: 'recent',
+                    signage_last_seen: seconds(new Date(2026, 9, 2, 14, 50)),
+                }),
+                row({
+                    id: 'today',
+                    signage_last_seen: seconds(new Date(2026, 9, 2, 9, 30)),
+                }),
+                row({
+                    id: 'yesterday',
+                    signage_last_seen: seconds(new Date(2026, 9, 1, 21, 3)),
+                }),
+            ]);
+            const date = new DatePipe('en-US');
+            const label = (id: string) => component.row_status().get(id)?.label;
+
+            expect(label('recent')).toBe('Offline · Last seen: 10 min');
+            expect(label('today')).toBe(
+                `Offline · Last seen: ${date.transform(new Date(2026, 9, 2, 9, 30), 'shortTime')}`,
+            );
+            expect(label('yesterday')).toBe(
+                `Offline · Last seen: ${date.transform(new Date(2026, 9, 1, 21, 3), 'short')}`,
+            );
+        } finally {
+            clock.mockRestore();
+        }
     });
 
     it('does not report connectivity in the zones view', () => {
