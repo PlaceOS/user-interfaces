@@ -598,26 +598,40 @@ export class RoomModalComponent extends AsyncHandler implements OnInit {
         this.loading.set(true);
         this._dialog_ref.disableClose = true;
         const data = { ...this.model() };
+        try {
+            // Save the room first, so a new room has an ID for its
+            // setup and breakdown times.
+            const system = await (data.id
+                ? updateSystem(data.id, data)
+                : addSystem(data));
+            await this._saveOverflow(system.id).catch(() =>
+                notifyWarn('Unable to save room setup and breakdown times'),
+            );
+            this._dialog_ref.close(true);
+        } catch (e) {
+            notifyError(`Failed to save room. ${e}`);
+        } finally {
+            this._dialog_ref.disableClose = false;
+            this.loading.set(false);
+        }
+    }
+
+    /** Store the room's setup and breakdown times in the org settings. */
+    private async _saveOverflow(system_id: string) {
         const { details } = (await showMetadata(
             this._org.organisation.id,
             'settings',
         )) as any;
         const overflow = getItemWithKeys(['events', 'overflow'], details) || {};
-        overflow[data.id] = this.settings_model();
+        overflow[system_id] = this.settings_model();
         await updateMetadata(this._org.organisation.id, {
             name: 'settings',
             details: {
                 ...details,
-                events: { ...(details.events || {}), overflow },
+                events: { ...(details?.events || {}), overflow },
             },
             description: '',
-        }).catch((e) =>
-            notifyWarn('Unable to save room setup and breakdown times'),
-        );
-        await (data.id ? updateSystem(data.id, data) : addSystem(data));
-        this._dialog_ref.disableClose = false;
-        this._dialog_ref.close(true);
-        this.loading.set(false);
+        });
     }
 
     public selectItemfromMap() {

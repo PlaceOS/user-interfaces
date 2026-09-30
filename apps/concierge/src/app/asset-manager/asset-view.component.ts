@@ -20,6 +20,7 @@ import {
     Asset,
     AssetPurchaseOrder,
     AsyncHandler,
+    notifyError,
     OrganisationService,
     unique,
 } from '@placeos/common';
@@ -27,7 +28,6 @@ import {
     CustomTooltipComponent,
     IconComponent,
     ImageCarouselComponent,
-    openConfirmModal,
     SimpleTableComponent,
     TranslatePipe,
 } from '@placeos/components';
@@ -36,6 +36,7 @@ import { addMinutes } from 'date-fns';
 import { AssetLocationModalComponent } from './asset-location-modal.component';
 import { AssetManagerStateService } from './asset-manager-state.service';
 
+import { confirmAction } from '../ui/modal-actions';
 @Component({
     selector: 'asset-view',
     template: `
@@ -549,10 +550,15 @@ export class AssetViewComponent extends AsyncHandler implements OnInit {
 
     public async deleteAsset() {
         this.deleting.set(true);
-        await this._state.deleteActiveProduct();
-        this.deleting.set(false);
-        this._router.navigate([this._state.base_route, 'list', 'items']);
-        this.closeTooltip();
+        try {
+            await this._state.deleteActiveProduct();
+            this._router.navigate([this._state.base_route, 'list', 'items']);
+        } catch (e) {
+            notifyError(`Failed to delete asset. ${e}`);
+        } finally {
+            this.deleting.set(false);
+            this.closeTooltip();
+        }
     }
 
     public closeTooltip() {
@@ -600,19 +606,24 @@ export class AssetViewComponent extends AsyncHandler implements OnInit {
     }
 
     public async removeAsset(asset: Asset) {
-        const resp = await openConfirmModal(
+        const removed = await confirmAction(
+            this._dialog,
             {
                 title: 'Delete asset',
                 content: `Are you sure you want to delete this asset?`,
                 confirm_text: 'Delete',
                 icon: { content: 'delete' },
             },
-            this._dialog,
+            {
+                loading: 'Deleting asset...',
+                action: async () => {
+                    await removeAsset(asset.id);
+                    await removeAssetRequests(asset.id);
+                },
+                error: (e) => `Failed to delete asset. ${e}`,
+            },
         );
-        if (resp.reason !== 'done') return;
-        resp.loading('Deleting asset...');
-        await removeAsset(asset.id);
-        await removeAssetRequests(asset.id);
+        if (!removed) return;
         this._removed_asset_ids.update(
             (removed_asset_ids) => new Set([...removed_asset_ids, asset.id]),
         );
@@ -620,28 +631,30 @@ export class AssetViewComponent extends AsyncHandler implements OnInit {
             this.extra_assets().filter((item) => item.id !== asset.id),
         );
         this._state.postChange();
-        resp.close();
     }
 
     public async removePurchaseOrder(asset: AssetPurchaseOrder) {
-        const resp = await openConfirmModal(
+        const removed = await confirmAction(
+            this._dialog,
             {
                 title: 'Delete purchase order',
                 content: `Are you sure you want to delete this purchase order?`,
                 confirm_text: 'Delete',
                 icon: { content: 'delete' },
             },
-            this._dialog,
+            {
+                loading: 'Deleting purchase order...',
+                action: () => removeAssetPurchaseOrder(asset.id),
+                error: (e) => `Failed to delete purchase order. ${e}`,
+            },
         );
-        if (resp.reason !== 'done') return;
-        resp.loading('Deleting purchase order...');
-        await removeAssetPurchaseOrder(asset.id);
+        if (!removed) return;
         const item = this._state.active_product();
+        if (!item) return;
         this._state.setOptions({ active_item: '' });
         setTimeout(
             () => this._state.setOptions({ active_item: item.id }),
             1000,
         );
-        resp.close();
     }
 }

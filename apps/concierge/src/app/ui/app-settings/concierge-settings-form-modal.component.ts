@@ -1992,26 +1992,34 @@ export class ConciergeSettingsFormModalComponent implements OnInit {
         this.heading.set(
             `Concierge Settings <div class="font-mono text-xs px-2 py-1 rounded bg-base-300 ml-2">${this.zone.display_name || this.zone.name || 'Organisation'}</div>`,
         );
-        const org_id = this._org.organisation.id;
-        const org_metadata =
-            zone.id !== org_id ? await this._getMetadata(org_id) : {};
-        const parent_metadata =
-            zone.id !== org_id &&
-            !!zone.parent_id &&
-            org_id !== zone.parent_id
-                ? await this._getMetadata(zone.parent_id)
-                : {};
-        const metadata = await this._getMetadata(zone.id);
-        this.existing_settings = mergeAppSettings(
-            this.model(),
-            DEFAULT_SETTINGS.app,
-            org_metadata,
-            parent_metadata,
-        );
-        this._patchModel(this.existing_settings);
-        this._patchModel(metadata || {});
-        this.old_settings = metadata;
-        this.loading.set('');
+        try {
+            const org_id = this._org.organisation.id;
+            const org_metadata =
+                zone.id !== org_id ? await this._getMetadata(org_id) : {};
+            const parent_metadata =
+                zone.id !== org_id &&
+                !!zone.parent_id &&
+                org_id !== zone.parent_id
+                    ? await this._getMetadata(zone.parent_id)
+                    : {};
+            const metadata = await this._getMetadata(zone.id);
+            this.existing_settings = mergeAppSettings(
+                this.model(),
+                DEFAULT_SETTINGS.app,
+                org_metadata,
+                parent_metadata,
+            );
+            this._patchModel(this.existing_settings);
+            this._patchModel(metadata || {});
+            this.old_settings = metadata;
+        } catch (e) {
+            // Saving defaults over settings that failed to load would lose
+            // them, so close instead.
+            notifyError(`Failed to load existing settings. ${e}`);
+            this._dialog_ref.close();
+        } finally {
+            this.loading.set('');
+        }
     }
 
     public toggleGroup(group: string) {

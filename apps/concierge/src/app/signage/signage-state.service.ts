@@ -71,6 +71,7 @@ function cleanPlaylistPayload(playlist: Partial<SignagePlaylist>) {
     ) as Partial<SignagePlaylist>;
 }
 
+import { confirmAction } from '../ui/modal-actions';
 @Injectable({
     providedIn: 'root',
 })
@@ -227,7 +228,8 @@ export class SignageStateService extends AsyncHandler {
     }
 
     public async removeDisplay(display: PlaceSystem) {
-        const result = await openConfirmModal(
+        const removed = await confirmAction(
+            this._dialog,
             {
                 title: i18n('APP.CONCIERGE.SIGNAGE_DISPLAYS_REMOVE'),
                 content: i18n('APP.CONCIERGE.SIGNAGE_DISPLAYS_REMOVE_MSG', {
@@ -235,20 +237,21 @@ export class SignageStateService extends AsyncHandler {
                 }),
                 icon: { content: 'delete' },
             },
-            this._dialog,
+            {
+                loading: i18n('APP.CONCIERGE.SIGNAGE_DISPLAYS_REMOVE_LOADING'),
+                // Systems used for other things only lose the signage flag.
+                action: () =>
+                    display.map_id ||
+                    display.email ||
+                    display.module_list.length > 0
+                        ? updateSystem(display.id, { signage: false } as any)
+                        : removeSystem(display.id),
+                error: (e) => `Failed to remove display. ${e}`,
+            },
         );
-        if (result.reason !== 'done') return;
-        result.loading(i18n('APP.CONCIERGE.SIGNAGE_DISPLAYS_REMOVE_LOADING'));
-        if (display.map_id || display.email || display.module_list.length > 0) {
-            await updateSystem(display.id, {
-                signage: false,
-            } as any);
-        } else {
-            await removeSystem(display.id);
-        }
+        if (!removed) return;
         this._change.set(Date.now());
         notifySuccess(i18n('APP.CONCIERGE.SIGNAGE_DISPLAYS_REMOVE_SUCCESS'));
-        result.close();
     }
 
     public async savePlaylist(playlist: Partial<SignagePlaylist>) {
@@ -457,7 +460,8 @@ export class SignageStateService extends AsyncHandler {
 
     public async removeMedia(item: SignageMedia) {
         if (!item?.id) return;
-        const result = await openConfirmModal(
+        const removed = await confirmAction(
+            this._dialog,
             {
                 title: i18n('APP.CONCIERGE.SIGNAGE_MEDIA_REMOVE'),
                 content: i18n('APP.CONCIERGE.SIGNAGE_MEDIA_REMOVE_MSG', {
@@ -465,14 +469,15 @@ export class SignageStateService extends AsyncHandler {
                 }),
                 icon: { content: 'delete' },
             },
-            this._dialog,
+            {
+                loading: i18n('APP.CONCIERGE.SIGNAGE_MEDIA_REMOVE_LOADING'),
+                action: () => removeSignageMedia(item.id),
+                error: (e) => `Failed to remove media. ${e}`,
+            },
         );
-        if (result.reason !== 'done') return;
-        result.loading(i18n('APP.CONCIERGE.SIGNAGE_MEDIA_REMOVE_LOADING'));
-        await removeSignageMedia(item.id);
+        if (!removed) return;
         this._change.set(Date.now());
         notifySuccess(i18n('APP.CONCIERGE.SIGNAGE_MEDIA_REMOVE_SUCCESS'));
-        result.close();
     }
 
     private _getMediaMetadata(file: File) {

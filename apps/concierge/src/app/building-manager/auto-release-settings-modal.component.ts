@@ -393,72 +393,79 @@ export class AutoReleaseSettingsModalComponent implements OnInit {
     public async loadSettings(id: string) {
         this.loading.set(i18n('APP.CONCIERGE.AUTO_RELEASE_LOADING'));
         this.settings.set({ custom: [] });
-        const settings = (await querySettings({ parent_id: id })).data;
-        const unencrypted = settings.find(
-            (_) => _.encryption_level === EncryptionLevel.None,
-        );
-        if (!unencrypted) return;
         try {
-            this.settings.set(
-                parseYaml(unencrypted.settings_string)?.auto_release || {},
+            const settings = (await querySettings({ parent_id: id })).data;
+            const unencrypted = settings.find(
+                (_) => _.encryption_level === EncryptionLevel.None,
             );
-        } catch {}
-        if (!this.setting('custom')) this.setSetting('custom', []);
-        for (const name of this.types) {
-            const key = name + '_time_before';
-            if (key in this.settings()) {
-                this.settings.update((settings) => ({
-                    ...settings,
-                    custom: [...(settings.custom || []), name],
-                }));
+            if (!unencrypted) return;
+            try {
+                this.settings.set(
+                    parseYaml(unencrypted.settings_string)?.auto_release || {},
+                );
+            } catch {}
+            if (!this.setting('custom')) this.setSetting('custom', []);
+            for (const name of this.types) {
+                const key = name + '_time_before';
+                if (key in this.settings()) {
+                    this.settings.update((settings) => ({
+                        ...settings,
+                        custom: [...(settings.custom || []), name],
+                    }));
+                }
             }
+        } catch (e) {
+            notifyError(i18n('APP.CONCIERGE.AUTO_RELEASE_ERROR', { error: e }));
+        } finally {
+            this.loading.set('');
         }
-        this.loading.set('');
     }
 
     public async save() {
         this.loading.set(i18n('APP.CONCIERGE.AUTO_RELEASE_SAVING'));
-        const settings = (await querySettings({ parent_id: this.id })).data;
-        let unencrypted = settings.find(
-            (_) => _.encryption_level === EncryptionLevel.None,
-        );
-        if (!unencrypted) {
-            unencrypted = new PlaceSettings({
-                parent_id: this.id,
-                encryption_level: EncryptionLevel.None,
-                settings_string: '',
-            });
-        }
-        const new_settings = { ...this.settings() };
-        delete new_settings.custom;
-        let old_settings = {};
         try {
-            old_settings = parseYaml(unencrypted.settings_string) || {};
-        } catch {}
-        (unencrypted as any).settings_string = stringifyYaml({
-            ...old_settings,
-            auto_release: new_settings,
-        });
-        const on_error = (e) => {
-            notifyError(i18n('APP.CONCIERGE.AUTO_RELEASE_ERROR', { error: e }));
-            throw e;
-        };
-        unencrypted.id
-            ? await updateSettings(unencrypted.id, unencrypted).catch(on_error)
-            : await addSettings(unencrypted).catch(on_error);
+            const settings = (await querySettings({ parent_id: this.id })).data;
+            let unencrypted = settings.find(
+                (_) => _.encryption_level === EncryptionLevel.None,
+            );
+            if (!unencrypted) {
+                unencrypted = new PlaceSettings({
+                    parent_id: this.id,
+                    encryption_level: EncryptionLevel.None,
+                    settings_string: '',
+                });
+            }
+            const new_settings = { ...this.settings() };
+            delete new_settings.custom;
+            let old_settings = {};
+            try {
+                old_settings = parseYaml(unencrypted.settings_string) || {};
+            } catch {}
+            (unencrypted as any).settings_string = stringifyYaml({
+                ...old_settings,
+                auto_release: new_settings,
+            });
+            unencrypted.id
+                ? await updateSettings(unencrypted.id, unencrypted)
+                : await addSettings(unencrypted);
 
-        const metadata_key =
-            this._settings.get('app.workplace_metadata_key') || 'workplace_app';
-        const metadata = await showMetadata(this.id, metadata_key);
-        const details: any = metadata.details || {};
-        details.auto_release = new_settings;
-        await updateMetadata(this.id, {
-            name: metadata_key,
-            details,
-            description: '',
-        }).catch(on_error);
-        notifySuccess(i18n('APP.CONCIERGE.AUTO_RELEASE_SUCCESS'));
-        this.loading.set('');
-        this._dialog_ref.close();
+            const metadata_key =
+                this._settings.get('app.workplace_metadata_key') ||
+                'workplace_app';
+            const metadata = await showMetadata(this.id, metadata_key);
+            const details: any = metadata.details || {};
+            details.auto_release = new_settings;
+            await updateMetadata(this.id, {
+                name: metadata_key,
+                details,
+                description: '',
+            });
+            notifySuccess(i18n('APP.CONCIERGE.AUTO_RELEASE_SUCCESS'));
+            this._dialog_ref.close();
+        } catch (e) {
+            notifyError(i18n('APP.CONCIERGE.AUTO_RELEASE_ERROR', { error: e }));
+        } finally {
+            this.loading.set('');
+        }
     }
 }

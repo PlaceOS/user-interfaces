@@ -36,6 +36,7 @@ import {
     SettingsService,
     flatten,
     nextValueFrom,
+    notifyError,
     notifySuccess,
     unique,
 } from '@placeos/common';
@@ -415,12 +416,18 @@ export class AssetManagerStateService extends AsyncHandler {
         this.timeout('change', () => this._change.set(Date.now()), 1000);
     }
 
+    /** Approve or decline a request. Shows an error and rethrows on failure. */
     public async setStatus(item: Booking, status: any) {
         let result = item;
-        if (status === 'declined') {
-            result = await rejectBooking(item.id);
-        } else if (status === 'approved') {
-            result = await approveBooking(item.id);
+        try {
+            if (status === 'declined') {
+                result = await rejectBooking(item.id);
+            } else if (status === 'approved') {
+                result = await approveBooking(item.id);
+            }
+        } catch (e) {
+            notifyError(`Failed to update request. ${e}`);
+            throw e;
         }
         this._change.set(Date.now());
         return result;
@@ -442,10 +449,14 @@ export class AssetManagerStateService extends AsyncHandler {
         return true;
     }
 
+    /** Update a request's tracking. Shows an error and rethrows on failure. */
     public async setTracking(item: Booking, tracking: string) {
         const result = await updateBooking(item.id, {
             ...item.toJSON(),
             extension_data: { ...item.extension_data, tracking },
+        }).catch((e) => {
+            notifyError(`Failed to update request tracking. ${e}`);
+            throw e;
         });
         this._change.set(Date.now());
         return result;

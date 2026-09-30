@@ -110,20 +110,26 @@ export class InductionSettingsModalComponent implements OnInit {
         this.loading.set(i18n('APP.CONCIERGE.INDUCTION_LOADING'));
         const visitor_kiosk_app =
             this._settings.get('app.visitor_kiosk_app') || 'visitor-kiosk_app';
-        const [bld_metadata, org_metadata, org_settings] = await Promise.all([
-            showMetadata(this._zone_id, visitor_kiosk_app),
-            showMetadata(this._org.organisation.id, visitor_kiosk_app),
-            showMetadata(this._org.organisation.id, 'settings'),
-        ]);
-        const settings: Record<string, any> = {
-            ...org_settings.details,
-            ...org_metadata.details,
-            ...bld_metadata.details,
-        };
-        this.settings.set(settings);
-        this.induction_details.set(settings.induction_details || '');
-        this.is_enabled.set(settings.induction_enabled ?? false);
-        this.loading.set('');
+        try {
+            const [bld_metadata, org_metadata, org_settings] =
+                await Promise.all([
+                    showMetadata(this._zone_id, visitor_kiosk_app),
+                    showMetadata(this._org.organisation.id, visitor_kiosk_app),
+                    showMetadata(this._org.organisation.id, 'settings'),
+                ]);
+            const settings: Record<string, any> = {
+                ...org_settings.details,
+                ...org_metadata.details,
+                ...bld_metadata.details,
+            };
+            this.settings.set(settings);
+            this.induction_details.set(settings.induction_details || '');
+            this.is_enabled.set(settings.induction_enabled ?? false);
+        } catch (e) {
+            notifyError(i18n('APP.CONCIERGE.INDUCTION_ERROR', { error: e }));
+        } finally {
+            this.loading.set('');
+        }
     }
 
     public async save() {
@@ -132,39 +138,28 @@ export class InductionSettingsModalComponent implements OnInit {
             this._settings.get('app.visitor_kiosk_app') || 'visitor-kiosk_app';
         const concierge_app =
             this._settings.get('app.concierge_app') || 'concierge_app';
+        const induction = {
+            induction_details: this.induction_details(),
+            induction_enabled: this.is_enabled(),
+        };
         this._dialog_ref.disableClose = true;
-        const metadata = await showMetadata(this._zone_id, visitor_kiosk_app);
-        const con_metadata = await showMetadata(this._zone_id, concierge_app);
-        const visitor_metadata = {
-            ...metadata.details,
-            induction_details: this.induction_details(),
-            induction_enabled: this.is_enabled(),
-        };
-        const concierge_metadata = {
-            ...con_metadata.details,
-            induction_details: this.induction_details(),
-            induction_enabled: this.is_enabled(),
-        };
-        const result_visitor = await updateMetadata(this._zone_id, {
-            name: metadata.name || visitor_kiosk_app,
-            description: metadata.description || '',
-            details: visitor_metadata,
-        }).catch((err) => {
-            console.error(err);
-            notifyError(i18n('APP.CONCIERGE.INDUCTION_ERROR', { error: err }));
-        });
-        const result_concierge = await updateMetadata(this._zone_id, {
-            name: con_metadata.name || concierge_app,
-            description: con_metadata.description || '',
-            details: concierge_metadata,
-        }).catch((err) => {
-            console.error(err);
-            notifyError(i18n('APP.CONCIERGE.INDUCTION_ERROR', { error: err }));
-        });
-        this.loading.set('');
-        if (result_visitor) {
+        try {
+            // Both apps read the induction settings, so both must be saved.
+            for (const key of [visitor_kiosk_app, concierge_app]) {
+                const metadata = await showMetadata(this._zone_id, key);
+                await updateMetadata(this._zone_id, {
+                    name: metadata.name || key,
+                    description: metadata.description || '',
+                    details: { ...metadata.details, ...induction },
+                });
+            }
             notifySuccess(i18n('APP.CONCIERGE.INDUCTION_SUCCESS'));
             this._dialog_ref.close();
+        } catch (e) {
+            notifyError(i18n('APP.CONCIERGE.INDUCTION_ERROR', { error: e }));
+        } finally {
+            this._dialog_ref.disableClose = false;
+            this.loading.set('');
         }
     }
 }

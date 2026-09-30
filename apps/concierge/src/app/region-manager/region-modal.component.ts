@@ -126,22 +126,19 @@ export class RegionModalComponent extends AsyncHandler {
         const data: any = this.model();
         data.tags = ['region'];
         this.loading.set(true);
-        const resp = await (
-            data.id
-                ? updateZone(data.id, {
-                      ...data,
-                      name: `REGION ${authority().description} ${
-                          data.display_name
-                      }`,
-                  })
-                : addZone({
-                      ...data,
-                      name: `REGION ${authority().description} ${
-                          data.display_name
-                      }`,
-                  })
-        ).catch();
-        if (resp.id) this._dialog_ref.close(resp);
-        this.loading.set(false);
+        const body = {
+            ...data,
+            name: `REGION ${authority().description} ${data.display_name}`,
+        };
+        try {
+            const resp = await (data.id
+                ? updateZone(data.id, body)
+                : addZone(body));
+            this._dialog_ref.close(resp);
+        } catch (e) {
+            notifyError(`Failed to save region. ${e}`);
+        } finally {
+            this.loading.set(false);
+        }
     }
 }

@@ -9,6 +9,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterModule } from '@angular/router';
 import {
     AsyncHandler,
+    notifyError,
     notifySuccess,
     OrganisationService,
     settingSignal,
@@ -216,11 +217,14 @@ export class AssetManagerTopbarComponent extends AsyncHandler {
         this.subscription(
             'room-availability',
             ref.componentInstance.change.subscribe(async (list) => {
-                await this._state
-                    .saveSettings({ disabled_rooms: list })
-                    .catch();
-                ref.componentInstance.loading.set(false);
-                notifySuccess('Room availability settings saved');
+                try {
+                    await this._state.saveSettings({ disabled_rooms: list });
+                    notifySuccess('Room availability settings saved');
+                } catch (e) {
+                    notifyError(`Failed to save room availability. ${e}`);
+                } finally {
+                    ref.componentInstance.loading.set(false);
+                }
             }),
         );
     }

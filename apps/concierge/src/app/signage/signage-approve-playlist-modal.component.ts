@@ -7,7 +7,7 @@ import {
     MatDialogRef,
 } from '@angular/material/dialog';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { i18n, notifySuccess } from '@placeos/common';
+import { i18n, notifyError, notifySuccess } from '@placeos/common';
 import {
     AuthenticatedImageDirective,
     IconComponent,
@@ -267,23 +267,36 @@ export class SignageApprovePlaylistModalComponent {
             this._dialog_ref.disableClose = false;
             return;
         }
-        await updateSignagePlaylistMedia(this._playlist?.id, previous.items);
-        this.loading.set('');
-        this._dialog_ref.disableClose = false;
-        notifySuccess(i18n('APP.CONCIERGE.SIGNAGE_PLAYLISTS_UNDONE'));
-        this._dialog_ref.close();
-        this._service.changed();
+        await this._run(async () => {
+            await updateSignagePlaylistMedia(
+                this._playlist?.id,
+                previous.items,
+            );
+            notifySuccess(i18n('APP.CONCIERGE.SIGNAGE_PLAYLISTS_UNDONE'));
+        });
     }
 
     public async approve() {
         this.loading.set('Approving playlist...');
         this._dialog_ref.disableClose = true;
-        await approveSignagePlaylist(this._playlist?.id);
-        this.loading.set('');
-        this._dialog_ref.disableClose = false;
-        notifySuccess(i18n('APP.CONCIERGE.SIGNAGE_PLAYLISTS_APPROVED'));
-        this._dialog_ref.close();
-        this._service.changed();
+        await this._run(async () => {
+            await approveSignagePlaylist(this._playlist?.id);
+            notifySuccess(i18n('APP.CONCIERGE.SIGNAGE_PLAYLISTS_APPROVED'));
+        });
+    }
+
+    /** Run a playlist change, then close. On failure keep the modal open. */
+    private async _run(action: () => Promise<void>) {
+        try {
+            await action();
+            this._dialog_ref.close();
+            this._service.changed();
+        } catch (e) {
+            notifyError(`Failed to update playlist. ${e}`);
+        } finally {
+            this.loading.set('');
+            this._dialog_ref.disableClose = false;
+        }
     }
 
     public previewItem(item: any) {

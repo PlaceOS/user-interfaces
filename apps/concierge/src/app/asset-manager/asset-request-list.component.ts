@@ -326,8 +326,15 @@ export class AssetRequestListComponent extends AsyncHandler implements OnInit {
 
     public async setStatus(item: Booking, status: string) {
         this.loading.update((loading) => ({ ...loading, [item.id]: true }));
-        await this._state.setStatus(item, status);
-        this.loading.update((loading) => ({ ...loading, [item.id]: false }));
+        await this._state
+            .setStatus(item, status)
+            .catch(() => undefined)
+            .finally(() =>
+                this.loading.update((loading) => ({
+                    ...loading,
+                    [item.id]: false,
+                })),
+            );
     }
 
     /** Approve or decline the selected requests */
@@ -343,8 +350,15 @@ export class AssetRequestListComponent extends AsyncHandler implements OnInit {
 
     public async setTracking(item: Booking, state: string) {
         this.loading.update((loading) => ({ ...loading, [item.id]: true }));
-        await this._state.setTracking(item, state);
-        this.loading.update((loading) => ({ ...loading, [item.id]: false }));
+        await this._state
+            .setTracking(item, state)
+            .catch(() => undefined)
+            .finally(() =>
+                this.loading.update((loading) => ({
+                    ...loading,
+                    [item.id]: false,
+                })),
+            );
     }
 
     public readonly setDate = (date) => this._state.setOptions({ date });

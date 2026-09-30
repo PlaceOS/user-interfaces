@@ -218,9 +218,8 @@ export class AssetPurchaseOrderFormComponent
             return asset_list.data.map((asset) => ({
                 ...asset,
                 name:
-                    groups.find(
-                        (_) => _.id === (asset as any).asset_type_id,
-                    )?.name || asset.id,
+                    groups.find((_) => _.id === (asset as any).asset_type_id)
+                        ?.name || asset.id,
             }));
         },
     });
@@ -246,6 +245,7 @@ export class AssetPurchaseOrderFormComponent
                             i18n('APP.CONCIERGE.ASSETS_PURCHASE_LOAD_ERROR'),
                         );
                         this._router.navigate([this.base_route]);
+                        return this.loading.set('');
                     }
                     patchSignalModel(this.model, {
                         ...asset,

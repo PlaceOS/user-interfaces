@@ -13,10 +13,8 @@ import {
     OrganisationService,
     i18n,
     nextValueFrom,
-    notifyError,
     notifySuccess,
 } from '@placeos/common';
-import { openConfirmModal } from '@placeos/components';
 import { requestSpacesForZone } from '@placeos/events';
 import { PlaceZone, removeZone } from '@placeos/ts-client';
 import { LevelMapEditorModalComponent } from './level-map-editor-modal.component';
@@ -27,6 +25,7 @@ export interface LevelListOptions {
     search?: string;
 }
 
+import { confirmAction } from '../ui/modal-actions';
 @Injectable({
     providedIn: 'root',
 })
@@ -110,7 +109,8 @@ export class LevelManagementService {
     }
 
     public async removeLevel(level: BuildingLevel) {
-        const ref = await openConfirmModal(
+        const removed = await confirmAction(
+            this._dialog,
             {
                 title: i18n('APP.CONCIERGE.LEVELS_REMOVE_TITLE'),
                 content: i18n('APP.CONCIERGE.LEVELS_REMOVE_MSG', {
@@ -119,19 +119,15 @@ export class LevelManagementService {
                 icon: { content: 'delete_forever' },
                 confirm_text: i18n('COMMON.REMOVE'),
             },
-            this._dialog,
+            {
+                loading: i18n('APP.CONCIERGE.LEVELS_REMOVE_LOADING'),
+                action: () => removeZone(level.id),
+                error: (error) =>
+                    i18n('APP.CONCIERGE.LEVELS_REMOVE_ERROR', { error }),
+            },
         );
-        if (ref.reason !== 'done') return ref.close();
-        ref.loading(i18n('APP.CONCIERGE.LEVELS_REMOVE_LOADING'));
-        await removeZone(level.id).catch((e) => {
-            notifyError(
-                i18n('APP.CONCIERGE.LEVELS_REMOVE_ERROR', { error: e }),
-            );
-            ref.close();
-            throw e;
-        });
+        if (!removed) return;
         this._org.removeZone({ id: level.id, tags: ['level'] } as any);
         notifySuccess(i18n('APP.CONCIERGE.LEVELS_REMOVE_SUCCESS'));
-        ref.close();
     }
 }
