@@ -1,0 +1,12 @@
+{
+  "version": 3,
+  "sources": [
+    "apps/concierge/src/app/ui/unsaved-changes.guard.ts"
+  ],
+  "sourcesContent": [
+    "import { inject } from '@angular/core';\nimport { MatDialog } from '@angular/material/dialog';\nimport { CanDeactivateFn } from '@angular/router';\nimport { i18n } from '@placeos/common';\nimport { openConfirmModal } from '@placeos/components';\n\n/**\n * A page with a form that can have unsaved changes.\n * To also warn when the user reloads or closes the tab, add this host binding\n * to the component:\n * `'(window:beforeunload)': 'hasUnsavedChanges() && $event.preventDefault()'`\n */\nexport interface HasUnsavedChanges {\n    hasUnsavedChanges(): boolean;\n}\n\n/** Asks the user to confirm before they leave a page with unsaved changes */\nexport const unsavedChangesGuard: CanDeactivateFn<HasUnsavedChanges> = async (\n    component,\n) => {\n    if (!component?.hasUnsavedChanges()) return true;\n    const ref = await openConfirmModal(\n        {\n            title: i18n('APP.CONCIERGE.UNSAVED_CHANGES_TITLE'),\n            content: i18n('APP.CONCIERGE.UNSAVED_CHANGES_MSG'),\n            icon: { content: 'warning' },\n            confirm_text: i18n('APP.CONCIERGE.UNSAVED_CHANGES_DISCARD'),\n        },\n        inject(MatDialog),\n    );\n    ref.close();\n    return ref.reason === 'done';\n};\n"
+  ],
+  "mappings": ";;;;;;;;;;AAiBO,IAAM,sBAA0D,OACnE,cACA;AACA,MAAI,CAAC,WAAW,kBAAiB;AAAI,WAAO;AAC5C,QAAM,MAAM,MAAM,iBACd;IACI,OAAO,KAAK,qCAAqC;IACjD,SAAS,KAAK,mCAAmC;IACjD,MAAM,EAAE,SAAS,UAAS;IAC1B,cAAc,KAAK,uCAAuC;KAE9D,OAAO,SAAS,CAAC;AAErB,MAAI,MAAK;AACT,SAAO,IAAI,WAAW;AAC1B;",
+  "names": [],
+  "debugId": "e0af376c-e4e3-5107-a7a5-5d56a32abcd9"
+}
