@@ -9,6 +9,7 @@ import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { RouterLink } from '@angular/router';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import { SignageTemplate } from '@placeos/ts-client';
@@ -161,6 +162,13 @@ type TemplateStatus = 'awaiting_approval' | 'awaiting_review' | null;
                         {{ 'COMMON.END_OF_LIST' | translate }}
                     </div>
                 }
+            } @else if (loading()) {
+                <div
+                    class="text-base-content/70 flex flex-1 flex-col items-center justify-center space-y-3 p-8"
+                >
+                    <mat-spinner diameter="32" />
+                    <p>{{ 'COMMON.LOADING' | translate }}</p>
+                </div>
             } @else {
                 <div
                     class="text-base-content/70 flex flex-1 flex-col items-center justify-center space-y-2 p-8"
@@ -186,6 +194,7 @@ type TemplateStatus = 'awaiting_approval' | 'awaiting_review' | null;
         MatRippleModule,
         MatFormFieldModule,
         MatInputModule,
+        MatProgressSpinnerModule,
         IconComponent,
         TranslatePipe,
         IntersectDirective,
@@ -199,6 +208,7 @@ export class TemplateListComponent {
     public readonly search = this._service.template_search_term;
     public readonly templates = this._service.templates;
     public readonly selected = this._service.selected_template;
+    public readonly loading = this._service.templates_loading;
 
     // Backend pagination: fetches the next page as the sentinel scrolls in.
     public readonly has_more = this._service.templates_has_more;

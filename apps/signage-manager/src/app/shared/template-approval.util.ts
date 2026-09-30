@@ -4,25 +4,9 @@ import {
     SignageTemplateLayout,
 } from '@placeos/ts-client';
 import {
-    EDGE_BAR_HEIGHT_PC,
-    FLOATING_DEFAULT_X_PC,
-    FLOATING_DEFAULT_Y_PC,
-    layoutRatioToPercentage,
-    SIDEBAR_WIDTH_PC,
+    layoutAxisPercentage,
+    layoutPositionAxes,
 } from '../templates/template-layout.util';
-
-/** Displayed percentage for a layout axis, with the default when unset. */
-export function layoutAxisPercentage(
-    layout: SignageTemplateLayout,
-    axis: 'x_pos' | 'y_pos',
-) {
-    const percentage = layoutRatioToPercentage(layout[axis]);
-    if (percentage !== null) return Math.round(percentage * 100) / 100;
-    if (layout.position === 'floating') {
-        return axis === 'x_pos' ? FLOATING_DEFAULT_X_PC : FLOATING_DEFAULT_Y_PC;
-    }
-    return axis === 'x_pos' ? SIDEBAR_WIDTH_PC : EDGE_BAR_HEIGHT_PC;
-}
 
 export type TemplateLayoutField =
     | 'position'
@@ -38,18 +22,6 @@ export type TemplateField =
     | 'background_item_id'
     | 'full_screen_takeover'
     | 'merge';
-
-/** Position axes that have an effect for the given layout position. */
-export function layoutPositionAxes(layout: SignageTemplateLayout) {
-    const axes: ('x_pos' | 'y_pos')[] = [];
-    if (['left', 'right', 'floating'].includes(layout.position)) {
-        axes.push('x_pos');
-    }
-    if (['top', 'bottom', 'floating'].includes(layout.position)) {
-        axes.push('y_pos');
-    }
-    return axes;
-}
 
 /**
  * List the fields of `layout` that differ from `other`. Values are compared

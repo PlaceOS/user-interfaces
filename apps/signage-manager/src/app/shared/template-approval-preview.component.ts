@@ -10,14 +10,16 @@ import {
     SignageTemplate,
     SignageTemplateLayout,
 } from '@placeos/ts-client';
+import { pluginName } from '../signage-plugin.util';
 import { SignageService } from '../signage.service';
 import {
     computeTemplateLayoutRects,
-    layoutPositionLabel,
-} from '../templates/template-layout.util';
-import {
     layoutAxisPercentage,
     layoutPositionAxes,
+    layoutPositionLabel,
+    TemplateLayoutRect,
+} from '../templates/template-layout.util';
+import {
     signageTemplateFieldChanges,
     signageTemplateLayoutChanges,
     signageTemplateVersionsEqual,
@@ -35,6 +37,8 @@ interface TemplateLayoutPreview {
     changes: TemplateLayoutField[];
     /** Plugin parameters that differ from the other version */
     params: { key: string; value: string }[];
+    /** Position in the visual preview */
+    rect: TemplateLayoutRect;
 }
 
 interface TemplateVersionPreview {
@@ -233,7 +237,7 @@ interface TemplateVersionPreview {
                                     />
                                 }
                                 @for (
-                                    item of previewItems(version);
+                                    item of version.layouts;
                                     track item.index
                                 ) {
                                     @let highlight =
@@ -475,14 +479,6 @@ export class TemplateApprovalPreviewComponent {
         unchanged: '',
     };
 
-    public previewItems(version: TemplateVersionPreview) {
-        const rects = computeTemplateLayoutRects(version.template.layouts);
-        return version.layouts.map((item) => ({
-            ...item,
-            rect: rects[item.index],
-        }));
-    }
-
     public backgroundUrl(template: SignageTemplate) {
         return template.background_item_id
             ? mediaThumbnail(template.background_item_id)
@@ -505,11 +501,7 @@ export class TemplateApprovalPreviewComponent {
     }
 
     public pluginName(plugin_id?: string) {
-        if (!plugin_id) return '';
-        return (
-            this._service.widgets().find((item) => item.id === plugin_id)
-                ?.name || plugin_id
-        );
+        return pluginName(this._service.widgets(), plugin_id);
     }
 
     /** Build the view of `template` with its differences from `other`. */
@@ -518,8 +510,9 @@ export class TemplateApprovalPreviewComponent {
         other: SignageTemplate | null,
         current: boolean,
     ): TemplateVersionPreview {
+        const rects = computeTemplateLayoutRects(template.layouts);
         const layouts = template.layouts.map((layout, index) =>
-            this.layoutPreview(layout, index, other, current),
+            this.layoutPreview(layout, index, rects[index], other, current),
         );
         const other_tags = other?.tags || [];
         return {
@@ -542,12 +535,14 @@ export class TemplateApprovalPreviewComponent {
     private layoutPreview(
         layout: SignageTemplateLayout,
         index: number,
+        rect: TemplateLayoutRect,
         other: SignageTemplate | null,
         current: boolean,
     ): TemplateLayoutPreview {
         const unchanged = {
             index,
             layout,
+            rect,
             status: 'unchanged' as const,
             changes: [],
             params: [],
@@ -565,6 +560,6 @@ export class TemplateApprovalPreviewComponent {
             .filter(
                 ({ key, value }) => value !== JSON.stringify(other_params[key]),
             );
-        return { index, layout, status: 'changed', changes, params };
+        return { index, layout, rect, status: 'changed', changes, params };
     }
 }

@@ -27,6 +27,8 @@ import {
     removeSignageMedia,
     removeSignageMediaTag,
     removeSignagePlaylist,
+    removeSignageTemplate,
+    removeSignageTemplateDraft,
     removeZone,
     renameSignageMediaTag,
     requestApprovalSignageTemplate,
@@ -1657,17 +1659,34 @@ describe('SignageService media uploads', () => {
     it('unshares deleted templates from the selected group', async () => {
         confirmNextDialog();
         const service = createService();
-        selectApiGroup(service, 'group/1');
+        selectApiGroup(service, 'group-1');
+        vi.mocked(removeSignageTemplate).mockResolvedValue({});
 
         await service.removeTemplate(
-            new SignageTemplate({ id: 'template/1', name: 'Welcome' }),
+            new SignageTemplate({ id: 'template-1', name: 'Welcome' }),
         );
 
-        expect(del).toHaveBeenCalledWith(
-            expect.stringMatching(
-                /\/signage\/templates\/template%2F1\?group_id=group%2F1$/,
-            ),
+        expect(removeSignageTemplate).toHaveBeenCalledWith('template-1', {
+            group_id: 'group-1',
+        });
+    });
+
+    it('shows an error and closes the confirm modal when delete fails', async () => {
+        confirmNextDialog();
+        const service = createService();
+        const template = new SignageTemplate({ id: 'template-1' });
+        service.selected_template.set(template);
+        vi.mocked(removeSignageTemplate).mockRejectedValue(new Error('Denied'));
+
+        await service.removeTemplate(template);
+
+        expect(dialog.open.mock.results[0].value.close).toHaveBeenCalled();
+        expect(notify_open).toHaveBeenCalledExactlyOnceWith(
+            'Error removing template',
+            expect.anything(),
+            expect.objectContaining({ panelClass: ['error'] }),
         );
+        expect(service.selected_template()).toBe(template);
     });
 
     it('shares templates with the selected signage group', async () => {
@@ -1827,6 +1846,99 @@ describe('SignageService media uploads', () => {
             'user-1',
         );
         expect(service.templates()[0].approval_requested).toBe(true);
+    });
+
+    it('shows an error when the template approval request fails', async () => {
+        const service = createService();
+        const test_service = service as unknown as SignageServiceTestAccess;
+        const template = new SignageTemplate({ id: 'template-1' });
+        TestBed.flushEffects();
+        test_service['_template_items'].set([template]);
+        Object.defineProperty(service, 'can_approve', { value: () => false });
+        test_service['_templateApprovalGroups'] = vi
+            .fn()
+            .mockResolvedValue([{ group: { id: 'group-1' } }]);
+        vi.mocked(listSignageTemplateApprovers).mockResolvedValue([]);
+        vi.mocked(requestApprovalSignageTemplate).mockRejectedValue(
+            new Error('Denied'),
+        );
+        closeNextDialogWith({ approver_id: '', message: '' });
+
+        await service.requestTemplateApproval(template);
+
+        expect(notify_open).toHaveBeenCalledExactlyOnceWith(
+            'Error requesting template approval',
+            expect.anything(),
+            expect.objectContaining({ panelClass: ['error'] }),
+        );
+        expect(service.templates()[0].approval_requested).toBe(false);
+    });
+
+    it('blocks approval while the selected template has unsaved layouts', async () => {
+        const service = createService();
+        const template = new SignageTemplate({ id: 'template-1' });
+        service.selected_template.set(template);
+        service.template_layout_draft.set([
+            { position: 'top', plugin_params: {} },
+        ]);
+
+        await service.approveTemplate(template);
+        await service.requestTemplateApproval(template);
+
+        expect(dialog.open).not.toHaveBeenCalled();
+        expect(notify_open).toHaveBeenCalledTimes(2);
+        expect(notify_open).toHaveBeenLastCalledWith(
+            'Save or discard the layout changes first.',
+            expect.anything(),
+            expect.anything(),
+        );
+    });
+
+    it('keeps unsaved layouts when the same template is refreshed', () => {
+        const service = createService();
+        const draft = new SignageTemplate({
+            id: 'template-draft',
+            live_template_id: 'template-live',
+        });
+        const layouts = [{ position: 'top' as const, plugin_params: {} }];
+        service.selected_template.set(
+            new SignageTemplate({ id: 'template-live', approved: true }),
+        );
+        service.template_layout_draft.set(layouts);
+
+        // Editing details or approving caches a new record of the template
+        service.updateCachedTemplate(draft);
+
+        expect(service.template_layout_draft()).toBe(layouts);
+        expect(service.template_layout_dirty()).toBe(true);
+
+        service.selected_template.set(
+            new SignageTemplate({ id: 'template-2' }),
+        );
+
+        expect(service.template_layout_draft()).toEqual([]);
+    });
+
+    it('discards a template draft and restores the previous version', async () => {
+        const service = createService();
+        const draft = new SignageTemplate({
+            id: 'template-draft',
+            live_template_id: 'template-live',
+        });
+        const approved = new SignageTemplate({
+            id: 'template-live',
+            approved: true,
+        });
+        service.selected_template.set(draft);
+        vi.mocked(removeSignageTemplateDraft).mockResolvedValue(undefined);
+
+        const undone = await service.undoTemplateChanges(draft.id, approved);
+
+        expect(undone).toBe(true);
+        expect(removeSignageTemplateDraft).toHaveBeenCalledWith(
+            'template-draft',
+        );
+        expect(service.selected_template()).toBe(approved);
     });
 
     it('updates template approval state in the list and selection', () => {

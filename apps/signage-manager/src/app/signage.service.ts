@@ -71,6 +71,7 @@ import {
     removeSignageMediaTag,
     removeSignagePlaylist,
     removeSignageTemplate,
+    removeSignageTemplateDraft,
     removeSignageTemplateMapping,
     removeSystem,
     renameSignageMediaTag,
@@ -1896,10 +1897,26 @@ export class SignageService {
     );
     // Editable copy of the selected template's layout items, so reorders and
     // plugin changes only hit the API when explicitly saved. Resets whenever
-    // the selection (or its saved layouts) change.
+    // the selection (or its saved layouts) change, except that unsaved edits
+    // survive a refresh of the same template (details edit, approval).
     public readonly template_layout_draft = linkedSignal<
+        SignageTemplate | null,
         SignageTemplateLayout[]
-    >(() => structuredClone(this.selected_template()?.layouts ?? []));
+    >({
+        source: this.selected_template,
+        computation: (template, previous) => {
+            const previous_template = previous?.source;
+            const keep_draft =
+                !!template &&
+                !!previous_template &&
+                isSameSignageTemplate(previous_template, template) &&
+                JSON.stringify(previous.value) !==
+                    JSON.stringify(previous_template.layouts ?? []);
+            return keep_draft
+                ? previous.value
+                : structuredClone(template?.layouts ?? []);
+        },
+    });
     public readonly template_layout_dirty = computed(
         () =>
             JSON.stringify(this.template_layout_draft()) !==
@@ -2783,7 +2800,7 @@ export class SignageService {
     }
 
     public async approveTemplate(template: SignageTemplate) {
-        if (!template?.id) return;
+        if (!template?.id || this._templateLayoutUnsaved(template)) return;
         if (
             !this._requirePermission(
                 this.can_approve(),
@@ -2801,6 +2818,7 @@ export class SignageService {
 
     public async requestTemplateApproval(template: SignageTemplate) {
         if (!template?.id || this.template_approval_request_loading()) return;
+        if (this._templateLayoutUnsaved(template)) return;
         if (this.can_approve()) {
             await this.approveTemplate(template);
             return;
@@ -2837,12 +2855,19 @@ export class SignageService {
         const result: TemplateRequestApprovalModalResult | undefined =
             await dialogClosed(ref);
         if (!result) return;
-        await requestApprovalSignageTemplate(
-            template.id,
-            group.group.id,
-            result.message || '',
-            result.approver_id || '',
-        );
+        try {
+            await requestApprovalSignageTemplate(
+                template.id,
+                group.group.id,
+                result.message || '',
+                result.approver_id || '',
+            );
+        } catch {
+            notifyError(
+                i18n('SIGNAGE_MANAGER.SVC_TEMPLATE_APPROVAL_REQUEST_ERROR'),
+            );
+            return;
+        }
         this.setTemplateApprovalStatus(template.id, false, true);
         notifySuccess(i18n('SIGNAGE_MANAGER.SVC_TEMPLATE_APPROVAL_REQUESTED'));
     }
@@ -2867,12 +2892,16 @@ export class SignageService {
             this._dialog,
         );
         if (result.reason !== 'done') return;
-        const group_id = this._api_group_id();
-        await (group_id
-            ? del(
-                  `${apiEndpoint()}/signage/templates/${encodeURIComponent(template.id)}?group_id=${encodeURIComponent(group_id)}`,
-              )
-            : removeSignageTemplate(template.id));
+        try {
+            await removeSignageTemplate(
+                template.id,
+                this._groupQueryParams({}),
+            );
+        } catch {
+            result.close();
+            notifyError(i18n('SIGNAGE_MANAGER.SVC_TEMPLATE_REMOVE_ERROR'));
+            return;
+        }
         if (this.selected_template()?.id === template.id) {
             this.selected_template.set(null);
             this.selected_template_layout_index.set(null);
@@ -2946,6 +2975,8 @@ export class SignageService {
                 new SignageTemplate({ ...response, layouts }),
             );
             this.updateCachedTemplate(result);
+            // The draft is kept while dirty, so reset it to the saved layouts
+            this.discardTemplateLayoutDraft();
             notifySuccess(i18n('SIGNAGE_MANAGER.SVC_TEMPLATE_LAYOUTS_SAVED'));
         } catch {
             notifyError(i18n('SIGNAGE_MANAGER.SVC_TEMPLATE_SAVE_ERROR'));
@@ -2956,6 +2987,34 @@ export class SignageService {
         this.template_layout_draft.set(
             structuredClone(this.selected_template()?.layouts ?? []),
         );
+    }
+
+    /**
+     * Discard the pending draft of a template and restore its previous
+     * version. Used by the approval modals.
+     * @returns Whether the draft was discarded
+     */
+    public async undoTemplateChanges(
+        template_id: string,
+        previous_version: SignageTemplate,
+    ) {
+        if (
+            !this._requirePermission(
+                this.can_update_templates(),
+                i18n('SIGNAGE_MANAGER.SVC_NO_UPDATE_TEMPLATES'),
+            )
+        )
+            return false;
+        try {
+            await removeSignageTemplateDraft(template_id);
+        } catch {
+            notifyError(i18n('SIGNAGE_MANAGER.TEMPLATE_REVERT_ERROR'));
+            return false;
+        }
+        this.updateCachedTemplate(previous_version);
+        notifySuccess(i18n('SIGNAGE_MANAGER.TEMPLATE_REVERTED'));
+        this.changed();
+        return true;
     }
 
     public setTemplateApprovalStatus(
@@ -2989,6 +3048,19 @@ export class SignageService {
         ) {
             this.selected_template.set(template);
         }
+    }
+
+    /** Warn and return true when `template` has unsaved layout edits */
+    private _templateLayoutUnsaved(template: SignageTemplate) {
+        const selected_template = this.selected_template();
+        if (
+            !selected_template ||
+            !isSameSignageTemplate(selected_template, template) ||
+            !this.template_layout_dirty()
+        )
+            return false;
+        notifyWarn(i18n('SIGNAGE_MANAGER.SVC_TEMPLATE_LAYOUTS_UNSAVED'));
+        return true;
     }
 
     private _addSignageTemplate(form_data: Partial<SignageTemplate>) {
@@ -3462,31 +3534,34 @@ export class SignageService {
         return groups.filter((_, index) => matches[index]);
     }
 
+    /**
+     * Signage groups that hold the template. The selected group is used
+     * as-is, so only search the other groups when none is selected.
+     */
     private async _templateApprovalGroups(template: SignageTemplate) {
-        const groups = this.signage_groups();
+        const groups = this.signage_groups().filter(({ group }) => group.id);
         const selected_group_id = this._api_group_id();
-        const matching_groups: PlaceCurrentGroup[] = [];
-        for (const group of groups) {
-            if (!group.group.id) continue;
-            if (group.group.id === selected_group_id) {
-                matching_groups.push(group);
-                continue;
-            }
-            try {
-                const result = await querySignageTemplates({
-                    group_id: group.group.id,
-                    limit: 500,
-                });
-                if (
-                    (result.data || []).some((item) => item.id === template.id)
-                ) {
-                    matching_groups.push(group);
+        const selected_group = groups.find(
+            ({ group }) => group.id === selected_group_id,
+        );
+        if (selected_group) return [selected_group];
+        const matches = await Promise.all(
+            groups.map(async (group) => {
+                try {
+                    const result = await querySignageTemplates({
+                        group_id: group.group.id,
+                        limit: 500,
+                    });
+                    return (result.data || []).some(
+                        (item) => item.id === template.id,
+                    );
+                } catch {
+                    // Ignore groups the user cannot query.
+                    return false;
                 }
-            } catch {
-                // Ignore groups the user cannot query.
-            }
-        }
-        return matching_groups;
+            }),
+        );
+        return groups.filter((_, index) => matches[index]);
     }
 
     private _cacheDisplay(display: any) {

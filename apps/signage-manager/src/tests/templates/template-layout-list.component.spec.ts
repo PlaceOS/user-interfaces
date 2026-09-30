@@ -343,10 +343,67 @@ describe('TemplateLayoutListComponent', () => {
     });
 
     it('saves and discards through the service', async () => {
+        let finishSave: () => void = () => undefined;
+        save.mockReturnValue(
+            new Promise<void>((resolve) => (finishSave = resolve)),
+        );
         const component = await make();
-        component.save();
+
+        const saving = component.save();
+        expect(component.saving()).toBe(true);
+        await component.save();
+        finishSave();
+        await saving;
         component.discard();
+
+        expect(component.saving()).toBe(false);
         expect(save).toHaveBeenCalledTimes(1);
         expect(discard).toHaveBeenCalledTimes(1);
+    });
+
+    it('validates every layout against its plugin schema before saving', async () => {
+        widgets.set([
+            {
+                id: 'clock',
+                params: {
+                    type: 'object',
+                    required: ['format'],
+                    properties: { format: { type: 'string' } },
+                },
+            },
+        ]);
+        draft.set([
+            {
+                position: 'top',
+                plugin_id: 'clock',
+                plugin_params: { format: '24h' },
+            },
+            { position: 'left', plugin_id: 'clock', plugin_params: {} },
+        ]);
+        const component = await make();
+
+        await component.save();
+
+        expect(save).not.toHaveBeenCalled();
+        expect(selected_index()).toBe(1);
+
+        draft.update((layouts) => [
+            layouts[0],
+            { ...layouts[1], plugin_params: { format: '12h' } },
+        ]);
+        await component.save();
+
+        expect(save).toHaveBeenCalledTimes(1);
+    });
+
+    it('shows no mappings when they fail to load', async () => {
+        selected_template.set({ id: 'template-1' });
+        list_mappings.mockRejectedValue(new Error('Forbidden'));
+        const component = await make();
+        component.setViewTab('details');
+
+        await vi.waitFor(() => expect(component.mappings_error()).toBeTruthy());
+
+        expect(component.mappings()).toEqual([]);
     });
 });
