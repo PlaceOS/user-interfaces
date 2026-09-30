@@ -105,6 +105,31 @@ describe('findTakeoverConflicts', () => {
         ).toEqual([]);
     });
 
+    // Before, each display built every block of every playlist: 200 displays
+    // x 14 days x 288 blocks of a "*/5" playlist is about 806k blocks.
+    it('builds blocks once per takeover playlist, not per display', () => {
+        const displays = Array.from({ length: 200 }, (_, i) => ({
+            id: `d${i}`,
+            name: `Display ${i}`,
+            playlists: ['a'],
+            zones: ['z1'],
+        }));
+        const started = performance.now();
+        const conflicts = findTakeoverConflicts({
+            displays,
+            zones: [{ ...level, playlists: ['b', 'often'] }],
+            playlists: [
+                playlist('a', '0 9 * * *', 60),
+                playlist('b', '30 9 * * *', 60),
+                playlist('often', '*/5 * * * *', 5, false),
+            ],
+            start,
+        });
+
+        expect(conflicts).toHaveLength(200);
+        expect(performance.now() - started).toBeLessThan(200);
+    });
+
     describe('across a daylight saving change', () => {
         const original_timezone = process.env.TZ;
         // Pin the zone so the result does not depend on the machine
