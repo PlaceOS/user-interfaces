@@ -57,8 +57,9 @@ import {
     isPlayOnceSchedule,
     isValidScheduleMask,
     parsePlayAtLocal,
-    type PlaylistSchedule,
+    playEndTime,
     playlistScheduleExpiryLabel,
+    type PlaylistSchedule,
 } from '../signage-playlist.util';
 
 export type PlaylistScheduleType = 'play_at' | 'play_cron';
@@ -386,11 +387,7 @@ function formatPlayDateTimeRange(
     duration_minutes: number,
     timezone = LOCAL_TIMEZONE,
 ) {
-    const end = new Date(
-        start.getTime() +
-            Math.max(0, duration_minutes || 0) * 60_000 -
-            (duration_minutes > 0 ? 1000 : 0),
-    );
+    const end = playEndTime(start, duration_minutes);
     const end_text =
         toZonedTime(start, timezone).toDateString() ===
         toZonedTime(end, timezone).toDateString()

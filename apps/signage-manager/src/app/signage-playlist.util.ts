@@ -498,10 +498,20 @@ function formatPlayTime(date: Date) {
     });
 }
 
+/**
+ * Last second of a play. Adds elapsed time, as the player does, so a play
+ * across a daylight saving change keeps its length. A play period of 0 plays
+ * the playlist once, so it ends at its start.
+ */
+export function playEndTime(start: Date, duration_minutes: number) {
+    const duration = Math.max(0, duration_minutes || 0);
+    return new Date(
+        start.getTime() + duration * 60_000 - (duration > 0 ? 1000 : 0),
+    );
+}
+
 function formatPlayDateTimeRange(start: Date, duration_minutes: number) {
-    const end = new Date(start);
-    end.setMinutes(end.getMinutes() + Math.max(0, duration_minutes || 0));
-    if (duration_minutes > 0) end.setSeconds(end.getSeconds() - 1);
+    const end = playEndTime(start, duration_minutes);
     const end_text =
         start.toDateString() === end.toDateString()
             ? formatPlayTime(end)
@@ -524,9 +534,7 @@ function nextSchedulePlays(
     if (isPlayOnceSchedule(schedule)) {
         const start = playOnceStart(schedule);
         if (!start) return [];
-        const end = new Date(start);
-        end.setMinutes(end.getMinutes() + Math.max(0, period || 0));
-        if (period > 0) end.setSeconds(end.getSeconds() - 1);
+        const end = playEndTime(start, period);
         const play_at = getUnixTime(start);
         const outside_valid_window =
             (!!schedule.valid_until && play_at > schedule.valid_until) ||
