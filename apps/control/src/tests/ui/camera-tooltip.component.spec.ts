@@ -11,10 +11,8 @@ import {
     ControlStateService,
     RoomInput,
 } from '../../app/control-state.service';
-import {
-    CameraTooltipComponent,
-    ZoomDirection,
-} from '../../app/ui/camera-tooltip.component';
+import { ZoomDirection } from '../../app/ui/camera-commands';
+import { CameraTooltipComponent } from '../../app/ui/camera-tooltip.component';
 import {
     JoystickComponent,
     JoystickPan,
@@ -92,30 +90,6 @@ describe('CameraTooltipComponent', () => {
         expect(spectator.component.active_camera()).toBeUndefined();
     });
 
-    it('should allow for user to select a camera', () => {
-        // const cam_list = [{ id: 'cam1', name: 'Camera 1' }] as any;
-        // expect('p[empty]').toExist();
-        // const service = spectator.inject(ControlStateService);
-        // (service as any).camera_list.set(cam_list);
-        // spectator.detectChanges();
-        // expect('p[empty]').not.toExist();
-        // expect('p[no-cam]').not.toExist();
-        // spectator.component.selectCamera(cam_list[0]);
-        // spectator.detectChanges();
-        // expect('p[no-cam]').not.toExist();
-    });
-
-    it('should show camera joystick', () => {
-        // const service = spectator.inject(ControlStateService);
-        // (service as any).camera_list.set([]);
-        // spectator.detectChanges();
-        // expect('p[empty]').toExist();
-        // expect('joystick').not.toExist();
-        // (service as any).camera_list.set([{ id: 'cam1', name: 'Camera 1' }]);
-        // spectator.detectChanges();
-        // expect('joystick').toExist();
-    });
-
     it('should stop before moving so a released axis does not keep moving', async () => {
         const execute = mockExecute();
         spectator.component.active_camera.set({
@@ -147,20 +121,17 @@ describe('CameraTooltipComponent', () => {
         expect(execute).toHaveBeenLastCalledWith('zoom', [ZoomDirection.Stop]);
     });
 
-    it('should allow user to select camera presets', () => {
-        // const cam_list = [{ id: 'cam1', name: 'Camera 1' }] as any;
-        // const service = spectator.inject(ControlStateService);
-        // (service as any).camera_list.set(cam_list);
-        // spectator.component.selectCamera(cam_list[0]);
-        // spectator.detectChanges();
-        // expect('p[preset]').toExist();
-        // spectator.component.presets = ['One', 'Two', 'Three'];
-        // spectator.detectChanges();
-        // expect('p').not.toExist();
-        // expect('button[preset].inverse').not.toExist();
-        // expect('button[preset]').toHaveLength(3);
-        // spectator.click('button[preset]');
-        // expect('button[preset].inverse').toExist();
-        // expect('button[preset].inverse').toContainText('One');
+    it('should highlight the last recalled preset', () => {
+        mockExecute();
+        available_cameras.set([
+            { id: 'cam1', name: 'Camera 1', mod: 'Camera_1' },
+        ]);
+        selected_camera.set('cam1');
+        spectator.component.presets.set(['Wide', 'Desk']);
+        spectator.detectChanges();
+        expect('button[preset].inverse').toHaveLength(2);
+        spectator.component.recallPreset('Desk');
+        spectator.detectChanges();
+        expect('button[preset]:not(.inverse)').toHaveText('Desk');
     });
 });

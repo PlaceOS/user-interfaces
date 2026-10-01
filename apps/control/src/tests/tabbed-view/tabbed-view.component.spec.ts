@@ -116,7 +116,10 @@ describe('ControlTabbedViewComponent', () => {
     });
 
     it('should open the deployed changelog', () => {
-        spectator.component.viewChangelog();
+        const service: any = spectator.inject(ControlStateService);
+        service.system.set({ connected: true });
+        spectator.detectChanges();
+        spectator.click('[name="splash"] button');
         expect(changelog.view).toHaveBeenCalled();
     });
 

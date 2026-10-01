@@ -9,7 +9,7 @@ import {
     TranslatePipe,
 } from '@placeos/components';
 import { map } from 'rxjs/operators';
-import { ControlStateService } from '../control-state.service';
+import { ControlStateService, RoomInput } from '../control-state.service';
 import { CameraControlsComponent } from '../ui/camera-controls.component';
 import { MarkdownPipe } from '../ui/markdown.pipe';
 import { VoiceAssistantComponent } from '../ui/voice-assistant.component';
@@ -89,7 +89,7 @@ import { TVControlsComponent } from './tv-controls.component';
                                 <p
                                     class="text-base-content text-center font-mono text-xs"
                                 >
-                                    {{ join_code || '=CODE=' }}
+                                    {{ join_code }}
                                 </p>
                             </div>
                         </div>
@@ -120,16 +120,6 @@ import { TVControlsComponent } from './tv-controls.component';
                                 {{ input?.name }}
                             </button>
                         }
-                        @if (!inputs().length) {
-                            <div
-                                class="flex h-1/2 w-full flex-1 items-center justify-center p-8 opacity-30"
-                            >
-                                {{
-                                    'APP.CONTROL.INPUT_CATEGORY_EMPTY'
-                                        | translate
-                                }}
-                            </div>
-                        }
                     </div>
                 }
                 <div
@@ -153,7 +143,6 @@ import { TVControlsComponent } from './tv-controls.component';
                                     }
                                     <video-call-dial-view
                                         class="mt-4 block"
-                                        [redirect]="false"
                                     ></video-call-dial-view>
                                 </div>
                             }
@@ -277,18 +266,17 @@ export class TabOutletComponent extends AsyncHandler {
     public readonly call = this._vc_state.call;
     public readonly speaker_track = this._vc_state.speaker_track;
     public readonly tab = computed(() =>
-        this.tabs().find((t: any) => (t.id || t.name) === this.active_tab()),
+        this.tabs().find((t) => (t.id || t.name) === this.active_tab()),
     );
 
+    /** Inputs for the active tab: its listed inputs, or else inputs of its type */
     public readonly inputs = computed(() => {
-        const id = this.active_tab();
-        const tab = this.tabs().find((_: any) => (_.id || _.name) === id);
-        const inputs = this._available_inputs();
+        const tab = this.tab();
         if (!tab) return [];
-        return inputs.filter(
-            (_) =>
-                (!tab.inputs && (!tab.type || _.type === tab.type)) ||
-                (tab.inputs && tab.inputs.includes(_.id)),
+        return this._available_inputs().filter((_) =>
+            tab.inputs
+                ? tab.inputs.includes(_.id)
+                : !tab.type || _.type === tab.type,
         );
     });
 
@@ -320,7 +308,8 @@ export class TabOutletComponent extends AsyncHandler {
 
     public join_code = '';
 
-    public setInput = (s) => this._service.setOutputSource(s.id);
+    public setInput = (input: RoomInput) =>
+        this._service.setOutputSource(input.id);
     public viewHelp = () => this._service.viewHelp(this.tab()?.help);
 
     constructor() {
@@ -342,26 +331,15 @@ export class TabOutletComponent extends AsyncHandler {
                 500,
             );
         });
+        // Select the first input of the tab when the user changes tab and
+        // the selected input is not on it
         effect(() => {
-            const available_inputs = this._available_inputs();
-            const tabs = this.tabs();
+            const input_list = this.inputs();
             const selected_input = this.system()?.selected_input;
-            const active_tab = this.active_tab();
             const user_action = this._user_action();
             this.timeout(
                 'inputs',
                 () => {
-                    const tab = tabs.find(
-                        (_: any) => (_.id || _.name) === active_tab,
-                    );
-                    const input_list = !tab
-                        ? []
-                        : available_inputs.filter(
-                              (_) =>
-                                  (!tab.inputs &&
-                                      (!tab.type || _.type === tab.type)) ||
-                                  (tab.inputs && tab.inputs.includes(_.id)),
-                          );
                     const has_selected = input_list.find(
                         (i) => (i.id || i.name) === selected_input,
                     );

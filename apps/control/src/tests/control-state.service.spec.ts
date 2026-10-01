@@ -25,7 +25,10 @@ describe('ControlStateService', () => {
             { provide: CalendarService, useValue: { calendars: of([]) } },
             {
                 provide: SpacesService,
-                useValue: { loadSpaces: vi.fn(), loadSpace: vi.fn() },
+                useValue: {
+                    loadSpaces: vi.fn(),
+                    loadSpace: vi.fn(async () => null),
+                },
             },
         ],
     });

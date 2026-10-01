@@ -285,7 +285,6 @@ export class TopbarHeaderComponent extends AsyncHandler {
     });
 
     public readonly viewHelp = () => this._state.viewHelp();
-    public readonly powerOff = () => this._state.powerOff();
 
     public readonly logo = computed(() => {
         this._org.active_building();

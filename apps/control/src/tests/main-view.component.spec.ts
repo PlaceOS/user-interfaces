@@ -8,8 +8,8 @@ import { ChangelogService } from '@placeos/components';
 import { MockComponent, MockProvider } from 'ng-mocks';
 import { ControlStateService } from '../app/control-state.service';
 
+import { ControlAdvancedViewComponent } from '../app/advanced-view.component';
 import { ControlMainViewComponent } from '../app/main-view.component';
-import { ControlPageViewComponent } from '../app/page-view.component';
 import { ControlStatusBarComponent } from '../app/status-bar.component';
 import { TopbarHeaderComponent } from '../app/topbar-header.component';
 import { ControlConnectingComponent } from '../app/ui/connecting.component';
@@ -28,7 +28,7 @@ describe('ControlMainViewComponent', () => {
         params: { system: 'space-0' },
         declarations: [
             MockComponent(TopbarHeaderComponent),
-            MockComponent(ControlPageViewComponent),
+            MockComponent(ControlAdvancedViewComponent),
             MockComponent(ControlStatusBarComponent),
             MockComponent(ControlConnectingComponent),
             MockComponent(NextMeetingComponent),
@@ -79,7 +79,7 @@ describe('ControlMainViewComponent', () => {
         spectator.detectChanges();
         expect('[name="splash"]').not.toExist();
         expect('topbar-header').toExist();
-        expect('[control-page-view]').toExist();
+        expect('control-advanced-view').toExist();
         expect('control-status-bar').toExist();
     });
 

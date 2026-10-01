@@ -2,16 +2,13 @@ import { Component, effect, inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
 
-import { VERSION } from '@placeos/common';
-import { ChangelogService, TranslatePipe } from '@placeos/components';
-
-import { DatePipe } from '@angular/common';
+import { ControlAdvancedViewComponent } from './advanced-view.component';
 import { ControlStateService } from './control-state.service';
-import { ControlPageViewComponent } from './page-view.component';
 import { ControlStatusBarComponent } from './status-bar.component';
 import { TopbarHeaderComponent } from './topbar-header.component';
 import { ControlConnectingComponent } from './ui/connecting.component';
 import { NextMeetingComponent } from './ui/next-meeting.component';
+import { SplashComponent } from './ui/splash.component';
 
 @Component({
     selector: 'app-control-main-view',
@@ -20,41 +17,15 @@ import { NextMeetingComponent } from './ui/next-meeting.component';
             @if (system()?.active) {
                 <div class="bg-base-200 absolute inset-0 flex flex-col">
                     <topbar-header></topbar-header>
-                    <div control-page-view></div>
+                    <control-advanced-view
+                        class="h-1/2 flex-1 overflow-hidden bg-[#f0f0f0] text-black/85"
+                    />
                     <control-status-bar></control-status-bar>
                 </div>
             } @else {
-                <div
-                    name="splash"
-                    class="absolute inset-0 flex flex-col items-center justify-center text-white"
-                    (click)="powerOn()"
-                >
-                    <h2 class="mb-4 text-4xl font-light">
-                        {{ 'APP.CONTROL.TOUCH_TO_START' | translate }}
-                    </h2>
-                    <p class="text-lg">{{ system()?.name }}</p>
+                <control-splash>
                     <next-meeting class="mt-8" />
-                    <div class="absolute bottom-0 left-0 p-2">
-                        <div class="w-full text-xs opacity-60">
-                            <ng-container
-                                >{{ 'COMMON.CONTROLS_VERSION' | translate }}:
-                            </ng-container>
-                            <button
-                                class="m-0 border-none bg-none p-0 text-xs underline"
-                                [disabled]="!changelog_available()"
-                                (click)="
-                                    $event.stopPropagation(); viewChangelog()
-                                "
-                            >
-                                {{ version.hash }}
-                            </button>
-                        </div>
-                        <div class="w-full text-xs opacity-60">
-                            {{ version.time | date: 'longDate' }}
-                            ({{ version.time | date: 'shortTime' }})
-                        </div>
-                    </div>
-                </div>
+                </control-splash>
             }
         } @else {
             <control-connecting />
@@ -72,43 +43,25 @@ import { NextMeetingComponent } from './ui/next-meeting.component';
             :host > div {
                 color: #fff;
             }
-
-            [name='splash'] {
-                animation: crossfade 10s linear;
-                animation-iteration-count: infinite;
-            }
         `,
     ],
     imports: [
         TopbarHeaderComponent,
-        ControlPageViewComponent,
+        ControlAdvancedViewComponent,
+        SplashComponent,
         ControlStatusBarComponent,
         ControlConnectingComponent,
         NextMeetingComponent,
-        TranslatePipe,
-        DatePipe,
     ],
 })
 export class ControlMainViewComponent {
     private _route = inject(ActivatedRoute);
     private _state = inject(ControlStateService);
-    private _changelog = inject(ChangelogService);
 
     private readonly _param_map = toSignal(this._route.paramMap);
     private readonly _query_param_map = toSignal(this._route.queryParamMap);
 
     public readonly system = this._state.system;
-    public readonly changelog_available = this._changelog.available;
-    public readonly viewChangelog = () => this._changelog.view();
-
-    public readonly powerOn = () => this._state.powerOn();
-    public get id() {
-        return this._state.id;
-    }
-
-    public get version() {
-        return VERSION;
-    }
 
     constructor() {
         effect(() => {

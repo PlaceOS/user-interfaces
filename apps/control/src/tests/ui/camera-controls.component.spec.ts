@@ -10,10 +10,8 @@ vi.mock('@placeos/ts-client', { spy: true });
 import { IconComponent } from '@placeos/components';
 import * as client from '@placeos/ts-client';
 import { ControlStateService } from '../../app/control-state.service';
-import {
-    CameraControlsComponent,
-    ZoomDirection,
-} from '../../app/ui/camera-controls.component';
+import { ZoomDirection } from '../../app/ui/camera-commands';
+import { CameraControlsComponent } from '../../app/ui/camera-controls.component';
 import {
     JoystickComponent,
     JoystickPan,
@@ -85,23 +83,6 @@ describe('CameraControlsComponent', () => {
         });
         expect(client.getModule).toHaveBeenCalledWith('sys-1', 'System');
         expect(execute_fn).toHaveBeenCalledWith('selected_camera', ['cam3']);
-    });
-
-    it('should recall a preset on the active camera module', () => {
-        spectator.component.active_camera.set({
-            id: 'cam1',
-            name: 'Camera 1',
-            mod: 'Camera_1',
-        } as any);
-        spectator.component.recallPreset('preset-1');
-        expect(client.getModule).toHaveBeenCalledWith('sys-1', 'Camera_1');
-        expect(execute_fn).toHaveBeenCalledWith('recall', ['preset-1']);
-    });
-
-    it('should not recall a preset when no active camera', () => {
-        spectator.component.active_camera.set(undefined);
-        spectator.component.recallPreset('preset-1');
-        expect(execute_fn).not.toHaveBeenCalled();
     });
 
     it('should stop then pan/tilt when moving the camera', async () => {

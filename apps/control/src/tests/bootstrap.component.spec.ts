@@ -11,9 +11,7 @@ import {
 import { MockModule, MockProvider } from 'ng-mocks';
 
 import { SettingsService } from '@placeos/common';
-import { SpacesService } from '@placeos/events';
 import * as client from '@placeos/ts-client';
-import { of } from 'rxjs';
 import { BootstrapComponent } from '../app/bootstrap.component';
 
 vi.mock('@placeos/ts-client', { spy: true });
@@ -22,13 +20,7 @@ describe('BootstrapComponent', () => {
     let spectator: SpectatorRouting<BootstrapComponent>;
     const createComponent = createRoutingFactory({
         component: BootstrapComponent,
-        providers: [
-            MockProvider(SpacesService, {
-                initialised: of(true),
-                space_list: [{ id: '1', name: 'Space 1' }],
-            } as any),
-            MockProvider(SettingsService, { get: vi.fn() }),
-        ],
+        providers: [MockProvider(SettingsService, { get: vi.fn() })],
         imports: [
             FormsModule,
             MockModule(MatAutocompleteModule),
@@ -66,7 +58,7 @@ describe('BootstrapComponent', () => {
         expect('p.description').toExist();
         const button: HTMLButtonElement = spectator.query('button');
         expect(button).toBeTruthy();
-        // expect(button.disabled).toBeTruthy();
+        expect(button.disabled).toBeTruthy();
         spectator.component.system_id.set('sys-B0');
         spectator.detectChanges();
         expect(button.disabled).toBeFalsy();

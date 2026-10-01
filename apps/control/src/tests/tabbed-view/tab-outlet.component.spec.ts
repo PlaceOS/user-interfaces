@@ -11,7 +11,10 @@ import {
     IconComponent,
     TranslatePipe,
 } from '@placeos/components';
-import { ControlStateService } from '../../app/control-state.service';
+import {
+    ControlStateService,
+    RoomInput,
+} from '../../app/control-state.service';
 import { DeviceOutputListComponent } from '../../app/tabbed-view/output-list.component';
 import { TabOutletComponent } from '../../app/tabbed-view/tab-outlet.component';
 import { TVControlsComponent } from '../../app/tabbed-view/tv-controls.component';
@@ -121,7 +124,7 @@ describe('TabOutletComponent', () => {
 
     it('should set the output source when an input is chosen', () => {
         const service: any = spectator.inject(ControlStateService);
-        spectator.component.setInput({ id: 'i9' });
+        spectator.component.setInput({ id: 'i9' } as RoomInput);
         expect(service.setOutputSource).toHaveBeenCalledWith('i9');
     });
 

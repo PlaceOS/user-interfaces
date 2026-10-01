@@ -178,10 +178,4 @@ describe('VideoCallPageComponent', () => {
         expect(client.getModule).toHaveBeenCalledWith('sys-1', 'System');
         expect(execute_spy).toHaveBeenCalledWith('selected_camera', ['cam-1']);
     });
-
-    it('should not execute when the System module is unavailable', () => {
-        (client.getModule as any).mockReturnValue(null);
-        spectator.component.selectCamera('cam-1');
-        expect(execute_spy).not.toHaveBeenCalled();
-    });
 });

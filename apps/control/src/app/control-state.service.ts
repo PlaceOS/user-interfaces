@@ -1,6 +1,5 @@
 import {
     computed,
-    debounced,
     effect,
     inject,
     Injectable,
@@ -11,12 +10,7 @@ import {
     untracked,
 } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import {
-    getModule,
-    isFixedDevice,
-    PlaceSystem,
-    showSystem,
-} from '@placeos/ts-client';
+import { getModule, isFixedDevice } from '@placeos/ts-client';
 
 import { Router } from '@angular/router';
 import {
@@ -27,12 +21,11 @@ import {
     firstValueWhere,
     HashMap,
     i18n,
-    log,
-    Space,
 } from '@placeos/common';
 import { openConfirmModal } from '@placeos/components';
 import { CalendarService, queryEvents, SpacesService } from '@placeos/events';
 import { endOfDay, getUnixTime } from 'date-fns';
+import { systemBinding } from './system-binding';
 import { HelpModalComponent } from './ui/help-modal.component';
 import { SelectMeetingModalComponent } from './ui/select-meeting-modal.component';
 import { SourceSelectModalComponent } from './ui/source-select-modal.component';
@@ -146,13 +139,9 @@ export class ControlStateService extends AsyncHandler {
     private readonly _inputs = signal<string[]>([]);
     private readonly _available_inputs = signal<string[]>([]);
     private readonly _outputs = signal<string[]>([]);
-    private readonly _volume = signal<number>(0);
-    private readonly _mute = signal<boolean>(false);
     private readonly _input_data = signal<RoomInput[]>([]);
     private readonly _output_data = signal<RoomOutput[]>([]);
     private readonly _lights = signal<string[]>([]);
-    private readonly _blinds = signal<string[]>([]);
-    private readonly _screens = signal<string[]>([]);
     private readonly _url = signal<string>('');
     private readonly _active_output = signal<string>('');
     private readonly _calendar = signal<Calendar>(null);
@@ -165,39 +154,7 @@ export class ControlStateService extends AsyncHandler {
     public readonly calendar = this._calendar.asReadonly();
     /** List of available light sources */
     public readonly lights = this._lights.asReadonly();
-    /** List of available blind sources */
-    public readonly blinds = this._blinds.asReadonly();
-    public readonly screens = this._screens.asReadonly();
-    public readonly volume = this._volume.asReadonly();
-    public readonly mute = this._mute.asReadonly();
     public readonly active_output = this._active_output.asReadonly();
-
-    private readonly _debounced_id = debounced(this._id, 1000, {
-        injector: this._injector,
-    });
-    /** Active system details loaded from the API */
-    private readonly _space = resource({
-        params: () => this._debounced_id.value(),
-        loader: async ({ params: id }) => {
-            if (!id) return new Space(new PlaceSystem() as any);
-            log('Panel', `Loading system "${id}"...`);
-            try {
-                const system = await showSystem(id);
-                return new Space(system as any);
-            } catch (error: any) {
-                const { status, message } = error || {};
-                log(
-                    'Control',
-                    'Error loading system details:',
-                    [status, message],
-                    'error',
-                );
-                if (status === 404) this._router.navigate(['/bootstrap']);
-                return new Space(new PlaceSystem() as any);
-            }
-        },
-    });
-    public readonly space = computed(() => this._space.value());
 
     /** List of available input sources */
     public readonly input_list = computed(() =>
@@ -343,6 +300,8 @@ export class ControlStateService extends AsyncHandler {
     public readonly events = computed(() =>
         this._events.hasValue() ? this._events.value() : [],
     );
+    /** Whether today's events for the active calendar are loading */
+    public readonly events_loading = this._events.isLoading;
 
     public get id() {
         return this._id();
@@ -372,7 +331,8 @@ export class ControlStateService extends AsyncHandler {
     public setID(id: string) {
         if (id !== this._id()) {
             this._id.set(id);
-            this._spaces.loadSpace(id);
+            // Caches the space details for the space pipe
+            this._spaces.loadSpace(id).catch(() => null);
         }
     }
 
@@ -467,10 +427,7 @@ export class ControlStateService extends AsyncHandler {
 
     public setMute(state = true, source = '') {
         const outputs = this._output_data();
-        if (!source) {
-            this._mute.set(state);
-            source = outputs[0]?.id || '';
-        }
+        if (!source) source = outputs[0]?.id || '';
         if (source) {
             const data = outputs.find((_) => _.id === source);
             if (data) {
@@ -490,7 +447,6 @@ export class ControlStateService extends AsyncHandler {
                 value = Math.floor(value);
                 const outputs = this._output_data();
                 if (!source) {
-                    this._volume.set(value);
                     // Status echoes are ignored briefly below, so set the
                     // master volume locally to keep the UI in sync.
                     this._system.update((s) => ({ ...s, volume: value }));
@@ -613,8 +569,6 @@ export class ControlStateService extends AsyncHandler {
             this._outputs.set(l),
         );
         this.bindTo(id, 'lights', undefined, (l) => this._lights.set(l));
-        this.bindTo(id, 'blinds', undefined, (l) => this._blinds.set(l));
-        this.bindTo(id, 'screen', undefined, (l) => this._screens.set(l));
         this.bindTo(id, 'qsc_dial_number', undefined, (v) =>
             this.updateProperty('phone', v),
         );
@@ -663,10 +617,6 @@ export class ControlStateService extends AsyncHandler {
         } else {
             list.push({ id, ...data });
         }
-        if (type === 'output') {
-            this._volume.set(list[0].volume || 0);
-            this._mute.set(!!list[0].mute);
-        }
         list_signal.set(list);
     }
 
@@ -690,33 +640,12 @@ export class ControlStateService extends AsyncHandler {
         this._system.update((item) => ({ ...item, [name]: value }));
     }
 
-    /**
-     * Create an Angular signal that mirrors a status variable binding on the
-     * active system, rebinding whenever the active system changes.
-     */
+    /** Signal that mirrors a status variable on the active system */
     private _systemBinding<T>(
         name: string,
         mod = 'System',
         initial: T = undefined as T,
     ): Signal<T> {
-        const value = signal<T>(initial);
-        effect((onCleanup) => {
-            const id = this._id();
-            if (!id) {
-                value.set(initial);
-                return;
-            }
-            const binding = getModule(id, mod).variable(name);
-            const unbind = binding.bind();
-            const listener = binding.listen();
-            const update = () => value.set((listener() ?? initial) as T);
-            update();
-            const unsubscribe = listener.subscribe(() => update());
-            onCleanup(() => {
-                unsubscribe();
-                unbind();
-            });
-        });
-        return value.asReadonly();
+        return systemBinding(this._id, mod, name, initial);
     }
 }
