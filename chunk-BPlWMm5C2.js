@@ -1,3 +1,0 @@
-function n(e){return!!e&&typeof e==`object`&&!Array.isArray(e)}function o(e){return n(e)&&Object.keys(e).length>0}function f(e){return o(e)?`properties`in e?e:Object.values(e).every(n)?{type:`object`,properties:e}:null:null}function c(e){let r=e?.properties;return n(r)?Object.entries(r).reduce((t,[u,i])=>(n(i)&&`default`in i&&(t[u]=i.default),t),{}):{}}function p(e,r){return r?e.find(({id:t})=>t===r)?.name||r:``}export{p as i,f as n,o as r,c as t};
-//# debugId=950f0eb3-4b4f-5f15-9414-7aa472c7f2ff
-//# sourceMappingURL=chunk-BPlWMm5C2.js.map
