@@ -337,7 +337,8 @@ The Signage app is a kiosk-style digital signage player. It bootstraps a device 
 - Only schedules with `play_takeover` enabled start an override. Other schedules of the same playlist add it to normal playback.
 - A takeover does not start when none of its media is currently valid. An active takeover ends when none of its media stays valid. The player checks this on each schedule re-evaluation.
 - The normal player is paused while an override is active.
-- Multiple active takeover playlists can be combined into the override playlist.
+- Multiple active takeover playlists can be combined into the override playlist. Timed takeovers combine with other timed takeovers, and single-pass takeovers combine with other single-pass takeovers.
+- A single-pass takeover plays ahead of timed takeovers. It interrupts a timed takeover that is playing, and a timed takeover that starts during the pass waits until the pass is complete. The timed takeover then plays until its scheduled end time.
 - The override ends at the scheduled end time when `play_period` is greater than zero.
 - A scheduled takeover with `play_period` set to zero uses a short activation window, plays a single pass, and then clears.
 - A single-pass takeover continues after its activation window closes. It clears when the pass is complete, or when its playlist is removed, disabled, or no longer a single-pass takeover.

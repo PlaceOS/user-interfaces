@@ -1152,38 +1152,51 @@ export class SignageService extends AsyncHandler {
     /**
      * Start, update or end the scheduled takeover. Runs on every display
      * change and schedule tick.
+     *
+     * Single-pass runs play alone, ahead of timed runs. The player ends an
+     * override either at `ends_at` or after one pass, never both, so the two
+     * kinds cannot share one. A timed run is detected across its whole play
+     * period, so it starts or continues once the single pass is done, and still
+     * ends at its scheduled time.
      */
     private _checkScheduledOverrides(display: any, playlist_ids: string[]) {
-        const active_schedules = this._activeOverrideSchedules(
-            display,
-            playlist_ids,
+        const active = this._activeOverrideSchedules(display, playlist_ids);
+        const held = this._heldSinglePassRuns(display, playlist_ids);
+        const single_pass = active.filter(
+            ({ schedule }) => playlistPlayPeriodMinutes(schedule) === 0,
         );
-        const active_playlists = active_schedules.map(
-            ({ playlist }) => playlist,
+        const has_single_pass = held.length > 0 || single_pass.length > 0;
+        const runs = [
+            ...held,
+            ...(has_single_pass ? single_pass : active).map(
+                ({ key, playlist }) => ({ key, playlist_id: playlist.id }),
+            ),
+        ].filter(
+            (run, index, list) =>
+                list.findIndex(({ key }) => key === run.key) === index,
         );
-        const held_keys = this._heldSinglePassKeys(display, playlist_ids);
-        if (!active_playlists.length) {
-            if (
-                this.override_playlist().schedule_keys?.length &&
-                !held_keys.length
-            ) {
+        if (!runs.length) {
+            if (this.override_playlist().schedule_keys?.length) {
                 this.override_playlist.set({ playlist: [], ends_at: 0 });
             }
             return;
         }
-        if (this._hasCurrentOverrideFor(active_schedules, held_keys)) return;
+        const keys = runs.map(({ key }) => key);
+        if (this._isCurrentOverride(keys)) return;
         const media = this._getPlaylistMedia(
             display,
-            active_playlists.map((_) => _.id),
+            [...new Set(runs.map(({ playlist_id }) => playlist_id))],
             () => true,
             'takeover',
         );
-        const ends_at = this._scheduledOverrideEnd(active_schedules);
-        log.debug('Setting override playlist', media, ends_at || 0);
+        const ends_at = has_single_pass
+            ? 0
+            : Math.max(...active.map(({ ends_at }) => ends_at));
+        log.debug('Setting override playlist', media, ends_at);
         this.override_playlist.set({
             playlist: media,
             ends_at,
-            schedule_keys: active_schedules.map(({ key }) => key),
+            schedule_keys: keys,
         });
     }
 
@@ -1214,29 +1227,35 @@ export class SignageService extends AsyncHandler {
     }
 
     /**
-     * Keys of single-pass runs in the current override that should keep
-     * playing. A single-pass run is only detected inside its short trigger
-     * window, so after that it is held until the player reports a full pass
+     * Single-pass runs in the current override that should keep playing. A
+     * single-pass run is only detected inside its short trigger window, so
+     * after that it is held until the player reports a full pass
      * (`playlist_through`). The hold ends early when its playlist is removed,
      * disabled, no longer a single-pass takeover, or has no valid media.
      */
-    private _heldSinglePassKeys(display: any, playlist_ids: string[]) {
+    private _heldSinglePassRuns(display: any, playlist_ids: string[]) {
         const keys = this.override_playlist().schedule_keys || [];
-        return keys.filter((key) =>
-            playlist_ids.some((id) => {
-                const playlist = this._playlistConfig(display, id)?.[0];
-                if (!playlist) return false;
-                const is_single_pass = playlistSchedules(playlist).some(
-                    (schedule, index) =>
-                        key.startsWith(scheduleKeyPrefix(id, index)) &&
-                        schedule.play_takeover &&
-                        playlistPlayPeriodMinutes(schedule) === 0,
-                );
-                return (
-                    is_single_pass && this._hasValidTakeoverMedia(display, id)
-                );
-            }),
-        );
+        return keys
+            .map((key) => ({
+                key,
+                playlist_id: playlist_ids.find((id) => {
+                    const playlist = this._playlistConfig(display, id)?.[0];
+                    return (
+                        !!playlist &&
+                        playlistSchedules(playlist).some(
+                            (schedule, index) =>
+                                key.startsWith(scheduleKeyPrefix(id, index)) &&
+                                schedule.play_takeover &&
+                                playlistPlayPeriodMinutes(schedule) === 0,
+                        )
+                    );
+                }),
+            }))
+            .filter(
+                ({ playlist_id }) =>
+                    !!playlist_id &&
+                    this._hasValidTakeoverMedia(display, playlist_id),
+            );
     }
 
     private _hasValidTakeoverMedia(display: any, playlist_id: string) {
@@ -1248,34 +1267,13 @@ export class SignageService extends AsyncHandler {
         ).some((item) => !validateMedia(item));
     }
 
-    /**
-     * Whether the current override already covers the active runs. It may
-     * also hold single-pass runs whose trigger window has closed.
-     */
-    private _hasCurrentOverrideFor(
-        schedules: ActivePlaylistSchedule[],
-        held_keys: string[],
-    ) {
+    /** Whether the current override is made of exactly these runs */
+    private _isCurrentOverride(keys: string[]) {
         const existing_keys = this.override_playlist().schedule_keys || [];
-        const allowed_keys = new Set([
-            ...schedules.map(({ key }) => key),
-            ...held_keys,
-        ]);
         return (
-            schedules.every(({ key }) => existing_keys.includes(key)) &&
-            existing_keys.every((key) => allowed_keys.has(key))
+            existing_keys.length === keys.length &&
+            keys.every((key) => existing_keys.includes(key))
         );
-    }
-
-    private _scheduledOverrideEnd(schedules: ActivePlaylistSchedule[]) {
-        const duration_minutes = schedules.reduce(
-            (duration, { schedule }) =>
-                Math.max(duration, playlistPlayPeriodMinutes(schedule)),
-            0,
-        );
-        return duration_minutes
-            ? Math.max(...schedules.map(({ ends_at }) => ends_at))
-            : 0;
     }
 
     private _incrementMetric(metrics: Record<string, number>, ref_id: string) {
