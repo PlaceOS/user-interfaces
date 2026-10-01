@@ -1,6 +1,7 @@
-import { NO_ERRORS_SCHEMA } from '@angular/core';
+import { NO_ERRORS_SCHEMA, SecurityContext } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { DomSanitizer } from '@angular/platform-browser';
 import {
     MediaAnimation,
     SignageMedia,
@@ -147,6 +148,23 @@ describe('MediaPreviewModalComponent', () => {
             }),
         );
         expect(webpage.safe_url()).not.toBeNull();
+    });
+
+    it('does not load a stored non-web url in the preview frame', async () => {
+        const component = await createComponent(
+            new SignageMedia({
+                id: 'm1',
+                media_type: 'webpage',
+                media_uri: 'javascript:alert(document.cookie)',
+            }),
+        );
+
+        expect(
+            TestBed.inject(DomSanitizer).sanitize(
+                SecurityContext.RESOURCE_URL,
+                component.safe_url(),
+            ),
+        ).toBe('about:blank');
     });
 
     it('merges plugin defaults with the media plugin params', async () => {

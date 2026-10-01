@@ -322,4 +322,46 @@ describe('MediaEditModalComponent', () => {
             expect(component.thumbnail_loading()).toBe(false);
         });
     });
+
+    describe('webpage urls', () => {
+        beforeEach(() => {
+            modal_data.file = undefined;
+            modal_data.file_metadata = undefined;
+            modal_data.media = new SignageMedia({
+                id: 'media-1',
+                media_type: 'webpage',
+                media_uri: 'javascript:alert(1)',
+                name: 'Example',
+            });
+        });
+
+        it('does not load a stored non-web url in the preview frame', () => {
+            const component = TestBed.createComponent(
+                MediaEditModalComponent,
+            ).componentInstance;
+
+            expect(component.preview_url()).toBe('about:blank');
+        });
+
+        it('refuses to save a non-web url and saves a normalised one', async () => {
+            const component = TestBed.createComponent(
+                MediaEditModalComponent,
+            ).componentInstance;
+
+            await component.saveMedia();
+
+            expect(component.form.media_uri().invalid()).toBe(true);
+            expect(onEdit).not.toHaveBeenCalled();
+
+            component.model.update((model) => ({
+                ...model,
+                media_uri: 'https://example.com',
+            }));
+            await component.saveMedia();
+
+            expect(onEdit.mock.calls[0][1].media_uri).toBe(
+                'https://example.com/',
+            );
+        });
+    });
 });

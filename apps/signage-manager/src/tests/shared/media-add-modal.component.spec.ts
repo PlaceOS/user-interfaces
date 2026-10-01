@@ -75,6 +75,19 @@ describe('MediaAddModalComponent', () => {
         expect(service.addMediaFromLink).not.toHaveBeenCalled();
     });
 
+    it.each(['javascript:alert(1)', 'data:text/html,<script></script>'])(
+        'rejects the non-web url %s',
+        async (url) => {
+            const component = await createComponent({ mode: 'link' });
+            component.link.set(url);
+
+            await component.add();
+
+            expect(dialog_ref.close).not.toHaveBeenCalled();
+            expect(service.addMediaFromLink).not.toHaveBeenCalled();
+        },
+    );
+
     it('adds a valid link then closes the dialog', async () => {
         const component = await createComponent({ mode: 'link' });
         component.link.set('  https://example.com/promo  ');
@@ -89,6 +102,17 @@ describe('MediaAddModalComponent', () => {
             expect.anything(),
             expect.anything(),
             expect.objectContaining({ panelClass: ['error'] }),
+        );
+    });
+
+    it('adds a bare origin link with a trailing slash', async () => {
+        const component = await createComponent({ mode: 'link' });
+        component.link.set('https://example.com');
+
+        await component.add();
+
+        expect(service.addMediaFromLink).toHaveBeenCalledWith(
+            'https://example.com/',
         );
     });
 
