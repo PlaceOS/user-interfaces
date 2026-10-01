@@ -30,13 +30,6 @@ export const routes: Routes = [
                     ),
             },
             {
-                path: 'ms-auth',
-                loadComponent: () =>
-                    import('./rooms/room-booking.component').then(
-                        (m) => m.RoomBookingComponent,
-                    ),
-            },
-            {
                 path: 'book',
                 children: [
                     {
