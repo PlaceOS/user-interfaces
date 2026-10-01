@@ -5,10 +5,6 @@
         "apps/**/src/test-setup.ts",
         "apps/**/src/index.html",
         "apps/**/src/manifest.webmanifest",
-        "apps/outlook-addin/commands/commands.ts",
-        "apps/outlook-addin/lib/**/*.js",
-        "apps/outlook-addin/src/function-file/**/*.js",
-        "apps/outlook-addin/taskpane/taskpane.ts",
         "config/proxy.conf.js",
         "jest.preset.js",
         "libs/**/src/lib/**/*.ts",
@@ -26,9 +22,7 @@
         "angular-animate",
         "angular-route",
         "angular-sanitize",
-        "core-js",
-        "fs-extra",
-        "regenerator-runtime"
+        "fs-extra"
     ],
     "ignoreExports": [
         {

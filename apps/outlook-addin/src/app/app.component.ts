@@ -18,6 +18,7 @@ import {
     setTranslationService,
     setupCache,
     setupPlace,
+    tokenExpiry,
     UploadsService,
     userSignal,
     withTimeout,
@@ -28,14 +29,10 @@ import { mocksInit } from '@placeos/mocks';
 import { invalidateToken, isMock, setToken, token } from '@placeos/ts-client';
 import { setInternalUserDomain } from '@placeos/users';
 
-declare let Office: any;
-declare let OfficeRuntime: any;
+import { acquireNaaToken, naaClientId } from './outlook-auth';
 
-interface OfficeAccessTokenResult {
-    status: string;
-    value?: string;
-    error?: { message?: string };
-}
+/** Longest wait for a Microsoft prompt or the sign-in dialog */
+const SIGN_IN_TIMEOUT_MS = 2 * 60 * 1000;
 
 @Component({
     selector: 'app-root',
@@ -71,6 +68,8 @@ export class AppComponent extends AsyncHandler implements OnInit {
 
     public readonly title = 'outlook-addin';
     private _mocks_registered = false;
+    /** Read before startup, so later URL changes cannot drop it */
+    private _naa_client_id = naaClientId();
 
     public async ngOnInit() {
         console.info(`Initialising application...`);
@@ -85,12 +84,14 @@ export class AppComponent extends AsyncHandler implements OnInit {
         console.info(`Waiting for application settings...`);
         await firstTruthyValueFrom(this._settings.initialised);
         log('Outlook', `Waiting for library initialisation...`);
+        let host: Office.HostType | null = null;
         try {
-            await withTimeout(
+            const info = await withTimeout(
                 Office.onReady(),
                 30_000,
                 'Microsoft Office did not become ready.',
             );
+            host = info.host;
         } catch (error) {
             console.error(error);
             failInitialisation(
@@ -101,35 +102,16 @@ export class AppComponent extends AsyncHandler implements OnInit {
         if (this._isAuthDialog()) return this._completeAuthDialog();
         log('Outlook', `Initialising auth...`);
         if (!(await this._initialiseAuth())) return;
-        log('Outlook', `Checking existing auth...`);
-        if (token()) return this._finishInitialise();
-        console.info(`No existing auth...`);
-        try {
-            log('Outlook', `Checking for token...`);
-            const get_token = Office?.auth?.getAccessToken() as
-                | Promise<string>
-                | undefined;
-            const tkn = await withTimeout<string | undefined>(
-                get_token || Promise.resolve(undefined),
-                10_000,
-                'Unable to get Office token.',
-            );
-            if (!tkn) throw 'Unable to get office token...';
-            log('Outlook', `Loaded office token. ${tkn}`);
-            sessionStorage.setItem('OFFICE.token', tkn);
-            if (!(await this._initialiseAuth(false))) return;
-            this._finishInitialise();
-        } catch (e) {
-            console.info(JSON.stringify(e));
-            if (!Office?.context?.auth) {
-                log('Outlook', `Error office API not loaded.`);
-                if (!(await this._initialiseAuth(false))) return;
-                await this._finishInitialise();
+        if (!token()) {
+            if (host === Office.HostType.Outlook) {
+                if (!(await this._signInWithOutlook())) return;
             } else {
-                log('Outlook', `Authenticating through Outlook...`);
-                await this._authenticateGraphAPI();
+                // A browser outside Outlook. Use the normal PlaceOS login.
+                log('Outlook', `Not in Outlook, using PlaceOS login...`);
+                if (!(await this._initialiseAuth(false))) return;
             }
         }
+        await this._finishInitialise();
         if (this._settings.get('app.has_uploads')) this._uploads.init();
     }
 
@@ -183,42 +165,84 @@ export class AppComponent extends AsyncHandler implements OnInit {
         markInitialisationComplete();
     }
 
-    private async _authenticateGraphAPIWithDialog() {
-        log('Outlook', `Authenticating...`);
-        this.timeout(
-            'office_auth_failure',
-            () =>
-                failInitialisation(
-                    'Microsoft sign in did not finish. Close the sign-in window, then try again.',
-                ),
-            2 * 60 * 1000,
-        );
-        this.timeout('office_auth', () => {
-            const path = `${location.origin}${location.pathname}#ms-auth=true`;
-            console.info(
-                `Opening office authentication dialog with URL: ${path}`,
+    /**
+     * Sign in from the task pane in Outlook. Uses nested app authentication
+     * when the manifest has a client ID and Outlook supports it. Otherwise,
+     * or when it fails, uses the PlaceOS sign-in dialog.
+     */
+    private async _signInWithOutlook(): Promise<boolean> {
+        log('Outlook', `Signing in through Outlook...`);
+        const sso_token = await withTimeout(
+            acquireNaaToken(this._naa_client_id),
+            SIGN_IN_TIMEOUT_MS,
+            'Microsoft single sign-on timed out.',
+        ).catch((error) => {
+            log('Outlook', 'Single sign-on failed.', error, 'warn');
+            return '';
+        });
+        if (sso_token) {
+            setToken(sso_token, tokenExpiry(sso_token));
+            return true;
+        }
+        return this._signInWithDialog();
+    }
+
+    /**
+     * Open the app in an Office dialog to sign in to PlaceOS. The dialog
+     * sends the PlaceOS token back. Resolves to false when sign in failed.
+     */
+    private _signInWithDialog(): Promise<boolean> {
+        log('Outlook', `Opening sign-in dialog...`);
+        const url = `${location.origin}${location.pathname}#ms-auth=true`;
+        return new Promise<boolean>((resolve) => {
+            let dialog: Office.Dialog | undefined;
+            let done = false;
+            const finish = (place_token: string, error = '') => {
+                if (done) return;
+                done = true;
+                this.clearTimeout('dialog_sign_in');
+                dialog?.close();
+                if (place_token) setToken(place_token);
+                else failInitialisation(error);
+                resolve(!!place_token);
+            };
+            this.timeout(
+                'dialog_sign_in',
+                () =>
+                    finish(
+                        '',
+                        'Microsoft sign in did not finish. Close the sign-in window, then try again.',
+                    ),
+                SIGN_IN_TIMEOUT_MS,
             );
             Office.context.ui.displayDialogAsync(
-                path,
+                url,
                 { height: 60, width: 30 },
-                (result: any) => {
-                    if (result.status !== 'succeeded') {
-                        this.clearTimeout('office_auth_failure');
-                        failInitialisation(
+                (result) => {
+                    if (result.status !== Office.AsyncResultStatus.Succeeded) {
+                        finish(
+                            '',
                             'The Microsoft sign-in window could not open. Allow pop-ups for Outlook, then try again.',
                         );
                         return;
                     }
-                    log('Outlook', `Authenticating with dialog...`);
-                    const dialog = result.value;
+                    dialog = result.value;
                     dialog.addEventHandler(
                         Office.EventType.DialogMessageReceived,
-                        (event: { message?: string }) => {
-                            this.clearTimeout('office_auth_failure');
-                            if (event.message) setToken(event.message);
-                            this._finishInitialise();
-                            dialog.close();
-                        },
+                        (event) =>
+                            finish(
+                                'message' in event ? event.message : '',
+                                'Microsoft sign in did not return a token. Try again.',
+                            ),
+                    );
+                    // The user closed the dialog.
+                    dialog.addEventHandler(
+                        Office.EventType.DialogEventReceived,
+                        () =>
+                            finish(
+                                '',
+                                'The sign-in window closed before sign in finished. Try again.',
+                            ),
                     );
                 },
             );
@@ -246,63 +270,6 @@ export class AppComponent extends AsyncHandler implements OnInit {
         if (!token()) return;
         sessionStorage.removeItem('ms-auth');
         Office.context.ui.messageParent(token());
-    }
-
-    private async _authenticateGraphAPI(tries = 0): Promise<void> {
-        if (!Office.context.auth) {
-            if (Office.context.ui) {
-                await this._authenticateGraphAPIWithDialog();
-                return;
-            }
-            if (tries >= 10) {
-                failInitialisation(
-                    'Microsoft authentication is unavailable. Close and reopen the add-in, then try again.',
-                );
-                return;
-            }
-            await new Promise<void>((resolve) =>
-                this.timeout('retry_graph_auth', () => resolve(), 300),
-            );
-            return this._authenticateGraphAPI(tries + 1);
-        }
-        try {
-            // getAccessTokenAsync takes a callback and returns nothing.
-            const access_token = new Promise<OfficeAccessTokenResult>(
-                (resolve) =>
-                    Office.context.auth.getAccessTokenAsync(
-                        { allowSignInPrompt: true },
-                        resolve,
-                    ),
-            );
-            const result = await withTimeout(
-                access_token,
-                10_000,
-                'Microsoft single sign-on timed out.',
-            );
-            if (result.status === 'succeeded') {
-                // Use the token to call your backend or Microsoft Graph
-                const token = result.value;
-                log('Outlook', 'SSO token acquired successfully');
-                if (token) setToken(token);
-                await this._finishInitialise();
-                return;
-            }
-            log(
-                'Outlook',
-                `SSO failed: ${result.error?.message || 'Unknown error'}`,
-                undefined,
-                'error',
-            );
-        } catch (error) {
-            console.error(error);
-        }
-        if (Office.context.ui) {
-            await this._authenticateGraphAPIWithDialog();
-        } else {
-            failInitialisation(
-                'Microsoft sign in did not finish. Close and reopen the add-in, then try again.',
-            );
-        }
     }
 
     private onInitError() {

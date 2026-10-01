@@ -56,6 +56,8 @@ Do these steps only if you use SSO.
 
 6. Use the application (client) ID as `--client-id`.
 
+The Outlook add-in can use the same app registration for single sign-on. It needs one more redirect URI. See [Outlook add-in](../apps/outlook-addin/README.md#register-the-microsoft-entra-app-for-single-sign-on).
+
 The source of the client IDs is [Extend a Teams personal tab across Microsoft 365](https://learn.microsoft.com/en-us/microsoftteams/platform/m365-apps/extend-m365-teams-personal-tab).
 
 **Warning:** The app sends the SSO token to PlaceOS as the bearer token. The PlaceOS backend must accept Microsoft Entra tokens for this app registration. The `aud` claim of the token is the client ID or the Application ID URI. If the backend does not accept the token, the app cannot load the user. In this condition, build the package without `--client-id`.

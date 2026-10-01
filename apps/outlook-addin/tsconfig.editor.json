@@ -1,9 +1,9 @@
 {
     "extends": "./tsconfig.json",
-    "include": ["**/*.ts", "src/function-file/function-file.js"],
+    "include": ["**/*.ts"],
     "composite": true,
     "compilerOptions": {
-        "types": ["jest", "node"]
+        "types": ["vitest/globals", "node", "office-js"]
     },
     "exclude": ["jest.config.ts"]
 }
