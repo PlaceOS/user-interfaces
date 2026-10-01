@@ -1,10 +1,10 @@
 import {
   ICON_MAP,
   NextMeetingComponent
-} from "./chunk-2O74KNLH.js";
+} from "./chunk-JMK4KSRY.js";
 import {
   VideoCallPageComponent
-} from "./chunk-GVSJEPV5.js";
+} from "./chunk-BGKRSAFG.js";
 import {
   BindingDirective,
   ControlConnectingComponent,
@@ -20,7 +20,7 @@ import {
   moveCamera,
   selectCamera,
   zoomCamera
-} from "./chunk-5B36WDRE.js";
+} from "./chunk-VABQTR2U.js";
 import {
   AuthenticatedImageDirective,
   ControlStateService,
@@ -35,12 +35,12 @@ import {
   marked,
   parse,
   toSignal
-} from "./chunk-7AQIB6VG.js";
+} from "./chunk-RSRY7JBY.js";
 import {
   TranslatePipe
-} from "./chunk-XTXJXLNA.js";
-import "./chunk-DWGOO6V6.js";
-import "./chunk-GJOZVKXV.js";
+} from "./chunk-DZAZV637.js";
+import "./chunk-IYJXFUGR.js";
+import "./chunk-I2WGZGGB.js";
 import {
   ActivatedRoute,
   AsyncHandler,
@@ -78,6 +78,7 @@ import {
   randomString,
   setClassMetadata,
   signal,
+  untracked,
   viewChildren,
   zp,
   ɵsetClassDebugInfo,
@@ -121,7 +122,7 @@ import {
   ɵɵtwoWayListener,
   ɵɵtwoWayProperty,
   ɵɵviewQuerySignal
-} from "./chunk-H5RCZCD3.js";
+} from "./chunk-LTRONDHC.js";
 import {
   __spreadProps,
   __spreadValues
@@ -486,8 +487,10 @@ var _VoiceAssistantService = class _VoiceAssistantService extends AsyncHandler {
       const id = this._system_id();
       if (!id || id === bound_id)
         return;
-      if (bound_id)
+      if (bound_id) {
+        untracked(() => this._setIdle());
         this._chat_service.close();
+      }
       bound_id = id;
       this._chat_service.setBinding(id);
     });
@@ -527,8 +530,15 @@ var _VoiceAssistantService = class _VoiceAssistantService extends AsyncHandler {
   readLevels() {
     return this._mic_levels.read();
   }
+  /** Turning on is debounced. Turning off is immediate, so nothing is heard after the view goes away. */
   setEnabled(is_enabled) {
-    this.timeout("set_enabled", () => this._enabled.set(is_enabled));
+    if (is_enabled) {
+      this.timeout("set_enabled", () => this._enabled.set(true));
+      return;
+    }
+    this.clearTimeout("set_enabled");
+    this._enabled.set(false);
+    this._teardownVoiceRecognition();
   }
   setBinding(system_id) {
     this._system_id.set(system_id);
@@ -2847,5 +2857,5 @@ var ControlTabbedViewComponent = _ControlTabbedViewComponent;
 export {
   ControlTabbedViewComponent
 };
-//# debugId=f5468c1f-ff04-5437-bb92-f1701d99be66
-//# sourceMappingURL=tabbed-view.component-HRPYB7JN.js.map
+//# debugId=d6611845-0075-544c-9c06-988b7c17e597
+//# sourceMappingURL=tabbed-view.component-ZLVOWUOL.js.map

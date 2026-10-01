@@ -2,7 +2,7 @@ import {
   DialpadComponent,
   VideoCallStateService,
   selectCamera
-} from "./chunk-5B36WDRE.js";
+} from "./chunk-VABQTR2U.js";
 import {
   ControlStateService,
   MatFormField,
@@ -11,10 +11,10 @@ import {
   MatProgressSpinnerModule,
   MatSelect,
   MatSelectModule
-} from "./chunk-7AQIB6VG.js";
+} from "./chunk-RSRY7JBY.js";
 import {
   TranslatePipe
-} from "./chunk-XTXJXLNA.js";
+} from "./chunk-DZAZV637.js";
 import {
   AsyncHandler,
   Component,
@@ -64,7 +64,7 @@ import {
   ɵɵtext,
   ɵɵtextInterpolate,
   ɵɵtextInterpolate1
-} from "./chunk-H5RCZCD3.js";
+} from "./chunk-LTRONDHC.js";
 
 // apps/control/src/app/video-call/video-call-page.component.ts
 function VideoCallPageComponent_Conditional_0_Conditional_3_For_3_Template(rf, ctx) {
@@ -328,6 +328,7 @@ var _VideoCallPageComponent = class _VideoCallPageComponent extends AsyncHandler
     this._control = inject(ControlStateService);
     this._router = inject(Router);
     this._injector = inject(Injector);
+    this._left = false;
     this.redirect = input(
       true,
       ...ngDevMode ? [{ debugName: "redirect" }] : (
@@ -415,8 +416,12 @@ var _VideoCallPageComponent = class _VideoCallPageComponent extends AsyncHandler
   selectCamera(camera) {
     selectCamera(this._control.id, camera);
   }
+  /** Leave the page once. A local hang-up and the call status clearing both end up here. */
   _onCallEnded() {
     this.loading.set("");
+    if (this._left)
+      return;
+    this._left = true;
     if (this.redirect())
       this._router.navigate(["/panel", this._control.id]);
   }
@@ -658,5 +663,5 @@ var VideoCallPageComponent = _VideoCallPageComponent;
 export {
   VideoCallPageComponent
 };
-//# debugId=06020cce-ca6f-5e60-b8b3-b1c5d56ac86f
-//# sourceMappingURL=chunk-GVSJEPV5.js.map
+//# debugId=c8e0faf5-6c48-54f7-abcc-ed2c7ae789aa
+//# sourceMappingURL=chunk-BGKRSAFG.js.map

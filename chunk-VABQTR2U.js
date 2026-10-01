@@ -20,19 +20,19 @@ import {
   MatSuffix,
   marked,
   systemBinding
-} from "./chunk-7AQIB6VG.js";
+} from "./chunk-RSRY7JBY.js";
 import {
   TranslatePipe
-} from "./chunk-XTXJXLNA.js";
+} from "./chunk-DZAZV637.js";
 import {
   CustomTooltipComponent,
   CustomTooltipData,
   SanitizePipe
-} from "./chunk-DWGOO6V6.js";
+} from "./chunk-IYJXFUGR.js";
 import {
   MatTooltip,
   MatTooltipModule
-} from "./chunk-GJOZVKXV.js";
+} from "./chunk-I2WGZGGB.js";
 import {
   AsyncHandler,
   BidiModule,
@@ -102,6 +102,7 @@ import {
   output,
   setClassMetadata,
   signal,
+  untracked,
   viewChild,
   zp,
   ɵsetClassDebugInfo,
@@ -165,7 +166,7 @@ import {
   ɵɵtwoWayProperty,
   ɵɵviewQuery,
   ɵɵviewQuerySignal
-} from "./chunk-H5RCZCD3.js";
+} from "./chunk-LTRONDHC.js";
 import {
   __spreadProps,
   __spreadValues
@@ -4281,9 +4282,13 @@ var _CameraTooltipComponent = class _CameraTooltipComponent {
     this.close = () => this._tooltip.close();
     inject(DestroyRef).onDestroy(() => this.stopZoom());
     effect(() => {
-      const l = this.camera_list();
-      const cam = this._selected_camera();
-      this.active_camera.set(l == null ? void 0 : l.find((_) => _.id === cam));
+      var _a, _b;
+      const id = this._selected_camera();
+      const camera = (_a = this.camera_list()) == null ? void 0 : _a.find((_) => _.id === id);
+      if ((camera == null ? void 0 : camera.id) !== ((_b = untracked(this.active_camera)) == null ? void 0 : _b.id)) {
+        this.preset.set("");
+      }
+      this.active_camera.set(camera);
     });
   }
   selectCamera(camera) {
@@ -4590,7 +4595,7 @@ var CameraTooltipComponent = _CameraTooltipComponent;
   }], () => [], null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(CameraTooltipComponent, { className: "CameraTooltipComponent", filePath: "apps/control/src/app/ui/camera-tooltip.component.ts", lineNumber: 238 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(CameraTooltipComponent, { className: "CameraTooltipComponent", filePath: "apps/control/src/app/ui/camera-tooltip.component.ts", lineNumber: 245 });
 })();
 
 // apps/control/src/app/ui/join-room-tooltip.component.ts
@@ -6984,5 +6989,5 @@ export {
   ControlConnectingComponent,
   SplashComponent
 };
-//# debugId=b16a81f6-cef2-592e-a5be-b103dbce22c4
-//# sourceMappingURL=chunk-5B36WDRE.js.map
+//# debugId=80bd6f45-c1ab-5eb5-b578-29a828241abd
+//# sourceMappingURL=chunk-VABQTR2U.js.map
