@@ -38,7 +38,7 @@ import {
     showGroup,
     showSignageMedia,
     showSignagePlaylist,
-    showSystem,
+    show,
     SignageMedia,
     SignagePlaylist,
     SignagePlaylistItemSchedule,
@@ -50,7 +50,7 @@ import {
     updateSignagePlaylistMediaSchedule,
     updateSignageTemplate,
     updateSignageTemplateMapping,
-    updateSystem,
+    update,
     updateGroup,
     updateZone,
 } from '@placeos/ts-client';
@@ -187,8 +187,8 @@ describe('SignageService media uploads', () => {
                 playlists: ['existing-playlist', playlist.id],
             });
             service.selected_display.set(display);
-            vi.mocked(showSystem).mockResolvedValue(display);
-            vi.mocked(updateSystem)
+            vi.mocked(show).mockResolvedValue(display);
+            vi.mocked(update)
                 .mockRejectedValueOnce(new Error('Save failed'))
                 .mockResolvedValueOnce(updated);
             const changed = vi.spyOn(service, 'changed');
@@ -212,15 +212,18 @@ describe('SignageService media uploads', () => {
 
             await assign();
 
-            expect(updateSystem).toHaveBeenLastCalledWith(
-                display.id,
-                {
-                    playlists: ['existing-playlist', playlist.id],
-                    version: 2,
-                },
-                'patch',
+            expect(update).toHaveBeenLastCalledWith(
+                expect.objectContaining({
+                    id: display.id,
+                    path: 'systems',
+                    method: 'patch',
+                    form_data: {
+                        playlists: ['existing-playlist', playlist.id],
+                        version: 2,
+                    },
+                }),
             );
-            expect(service.selected_display()).toBe(updated);
+            expect(service.selected_display()).toEqual(updated);
             expect(changed).toHaveBeenCalledOnce();
             expect(notify_open).toHaveBeenLastCalledWith(
                 expect.any(String),
@@ -233,7 +236,7 @@ describe('SignageService media uploads', () => {
     it('shows an error when the selected display cannot be loaded', async () => {
         const service = createService();
         closeNextDialogWith('display-unloaded');
-        vi.mocked(showSystem).mockRejectedValueOnce(new Error('Load failed'));
+        vi.mocked(show).mockRejectedValueOnce(new Error('Load failed'));
         const changed = vi.spyOn(service, 'changed');
 
         await service.addDisplayToPlaylist(
@@ -245,7 +248,7 @@ describe('SignageService media uploads', () => {
             expect.anything(),
             expect.objectContaining({ panelClass: ['error'] }),
         );
-        expect(updateSystem).not.toHaveBeenCalled();
+        expect(update).not.toHaveBeenCalled();
         expect(changed).not.toHaveBeenCalled();
     });
 
@@ -2236,8 +2239,8 @@ describe('SignageService media uploads', () => {
             parent_id: 'building-1',
             tags: ['signage'],
         });
-        expect(result).toBe(saved_zone);
-        expect(service.selected_zone()).toBe(saved_zone);
+        expect(result).toEqual(saved_zone);
+        expect(service.selected_zone()).toEqual(saved_zone);
     });
 
     it('updates only signage zones and preserves their tags and version', async () => {

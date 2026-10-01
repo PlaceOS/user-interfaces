@@ -1,6 +1,7 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { i18n, setNotifyOutlet } from '@placeos/common';
 import { PlaceSystem, PlaceZone } from '@placeos/ts-client';
 import {
     DisplayEditModalComponent,
@@ -12,7 +13,13 @@ describe('DisplayEditModalComponent', () => {
     const zones = signal<PlaceZone[]>([]);
     const on_add = vi.fn();
     const on_edit = vi.fn();
+    // A zone with the organisation as its only ancestor
+    const zone_ids = vi.fn(async (zone: PlaceZone) => ['org', zone.id]);
     const dialog_ref = { close: vi.fn(), disableClose: false };
+    const notify_open = vi.fn(() => ({
+        onAction: () => ({ subscribe: () => ({ unsubscribe: () => {} }) }),
+        dismiss: vi.fn(),
+    }));
 
     async function make(
         display = new PlaceSystem({}),
@@ -25,6 +32,7 @@ describe('DisplayEditModalComponent', () => {
             zones,
             load_children: vi.fn().mockResolvedValue([]),
             query_zones: vi.fn().mockReturnValue(null),
+            zone_ids,
             onAdd: on_add,
             onEdit: on_edit,
         };
@@ -45,6 +53,7 @@ describe('DisplayEditModalComponent', () => {
 
     beforeEach(() => {
         vi.clearAllMocks();
+        setNotifyOutlet({ open: notify_open } as any, true);
         dialog_ref.disableClose = false;
         roots.set([new PlaceZone({ id: 'org', name: 'Organisation' })]);
         zones.set([
@@ -118,12 +127,40 @@ describe('DisplayEditModalComponent', () => {
         const component = await make(new PlaceSystem({}), ['org']);
         const building = new PlaceZone({ id: 'building', name: 'Building' });
 
-        component.addZone(building);
-        component.addZone(building);
+        await component.addZone(building);
+        await component.addZone(building);
         component.removeZone('org');
 
         expect(component.model().zones).toEqual(['building']);
         expect(component.selected_zones()[0].name).toBe('Building');
+    });
+
+    // Playlists of a building only reach displays that are in the building
+    it('adds the ancestors of a chosen zone', async () => {
+        const component = await make(new PlaceSystem({}), []);
+
+        await component.addZone(new PlaceZone({ id: 'level-1' }));
+
+        expect(zone_ids).toHaveBeenCalledWith(
+            expect.objectContaining({ id: 'level-1' }),
+        );
+        expect(component.model().zones).toEqual(['org', 'level-1']);
+    });
+
+    it('stays open and shows an error when saving fails', async () => {
+        on_add.mockRejectedValue(new Error('Conflict'));
+        const component = await make();
+        component.model.update((model) => ({ ...model, name: 'Foyer' }));
+
+        await component.saveDisplay();
+
+        expect(dialog_ref.close).not.toHaveBeenCalled();
+        expect(component.loading()).toBe(false);
+        expect(notify_open).toHaveBeenCalledWith(
+            i18n('SIGNAGE_MANAGER.SVC_DISPLAY_SAVE_ERROR'),
+            expect.anything(),
+            expect.objectContaining({ panelClass: ['error'] }),
+        );
     });
 
     it('does not save without a name', async () => {

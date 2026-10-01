@@ -32,7 +32,6 @@ import {
     addSignagePlaylist,
     addSignageTemplate,
     addSignageTemplateMapping,
-    addSystem,
     apiEndpoint,
     addZone as createZone,
     currentGroups,
@@ -85,7 +84,6 @@ import {
     shareSignageTemplates,
     showSignageMedia,
     showSignagePlaylist,
-    showSystem,
     showZone,
     SignageMedia,
     SignagePlaylist,
@@ -107,7 +105,6 @@ import {
     updateSignagePlaylistMediaSchedule,
     updateSignageTemplate,
     updateSignageTemplateMapping,
-    updateSystem,
     updateZone,
 } from '@placeos/ts-client';
 import { format } from 'date-fns';
@@ -116,7 +113,13 @@ import type {
     AiImageModalData,
 } from './ai/ai-image-modal.component';
 import { errorStatus } from './ai/ai-image.util';
-import { displayZoneIds } from './displays/display-zones.util';
+import { displayZoneIds, type ZoneNode } from './displays/display-zones.util';
+import {
+    addSignageDisplay,
+    querySignageDisplays,
+    showSignageDisplay,
+    updateSignageDisplay,
+} from './displays/signage-display';
 import {
     applyMediaView,
     DEFAULT_MEDIA_VIEW,
@@ -513,8 +516,10 @@ export class SignageService {
     private readonly _dialog = inject(MatDialog);
     private readonly _change = signal(Date.now());
     private readonly _groups_change = signal(Date.now());
-    private readonly _display_overrides = signal<Record<string, any>>({});
-    private readonly _zone_overrides = signal<Record<string, any>>({});
+    private readonly _display_overrides = signal<Record<string, PlaceSystem>>(
+        {},
+    );
+    private readonly _zone_overrides = signal<Record<string, PlaceZone>>({});
     public readonly media_upload_accept = SIGNAGE_MEDIA_PICKER_ACCEPT;
 
     /** Whether the navigation offers a group selector. Hiding it leaves the
@@ -1393,15 +1398,21 @@ export class SignageService {
         this.display_search_term,
         400,
     );
-    private readonly _display_items = signal<any[]>([]);
+    private readonly _display_items = signal<PlaceSystem[]>([]);
     // Every display seen since the group last changed, keyed by id. Zone,
     // schedule and playlist views resolve displays by id, so they need the
     // whole set rather than whatever the current search narrowed it to.
-    private readonly _display_cache = signal<Record<string, any>>({});
+    private readonly _display_cache = signal<Record<string, PlaceSystem>>({});
     private _display_cache_group: string | null = null;
+    private _display_search: string | null = null;
     private readonly _displays_loading = signal(false);
     private readonly _displays_has_more = signal(false);
-    private _displays_next: (() => QueryResponse<any> | null) | null = null;
+    private readonly _displays_total = signal(0);
+    // Rows the server returned for the current query, before the signage
+    // filter, so paging compares like with like against the server total.
+    private _displays_loaded = 0;
+    private _displays_next: (() => QueryResponse<PlaceSystem> | null) | null =
+        null;
     private _displays_token = 0;
 
     public readonly displays = computed(() =>
@@ -1412,6 +1423,8 @@ export class SignageService {
     );
     public readonly displays_loading = this._displays_loading.asReadonly();
     public readonly displays_has_more = this._displays_has_more.asReadonly();
+    /** Number of displays the server has for the current query */
+    public readonly displays_total = this._displays_total.asReadonly();
 
     private readonly _reload_displays = effect(() => {
         const initialised = this._org.initialised();
@@ -1421,25 +1434,53 @@ export class SignageService {
         this._change();
         untracked(() => {
             const token = ++this._displays_token;
-            this._display_items.set([]);
+            // A data change on the same query keeps the loaded rows on screen
+            // and reloads as many rows as were loaded, so the list does not
+            // empty or drop the pages the user scrolled to.
+            const same_query =
+                group_id === this._display_cache_group &&
+                search === this._display_search;
+            const limit = same_query
+                ? Math.max(SignageService.PAGE_SIZE, this._displays_loaded)
+                : SignageService.PAGE_SIZE;
+            this._display_search = search;
             this._displays_next = null;
             this._displays_has_more.set(false);
+            if (!same_query) this._display_items.set([]);
             // Only drop the id cache when the source of the data changes, a
             // new search term still needs the displays other views look up.
             if (group_id !== this._display_cache_group) {
                 this._display_cache_group = group_id;
                 this._display_cache.set({});
             }
-            if (!initialised || !can_query) return;
+            if (!initialised || !can_query) {
+                this._display_items.set([]);
+                this._displays_loaded = 0;
+                this._displays_total.set(0);
+                return;
+            }
             this._fetchDisplayPage(
-                querySystems({
+                querySignageDisplays({
                     ...this._orgZoneQueryParams({}, group_id),
-                    limit: SignageService.PAGE_SIZE,
+                    limit,
                     signage: true,
                     ...this._searchParam(search),
-                } as any),
+                }),
                 token,
+                true,
             );
+        });
+    });
+
+    // Local edits only bridge the gap until the lists reload. Drop them when
+    // the group or data changes, so a stale copy never hides newer server data
+    // or sends an old version with the next patch.
+    private readonly _clear_overrides = effect(() => {
+        this._api_group_id();
+        this._change();
+        untracked(() => {
+            this._display_overrides.set({});
+            this._zone_overrides.set({});
         });
     });
 
@@ -1447,14 +1488,14 @@ export class SignageService {
      * Paged queries for the picker modals, which search on their own without
      * disturbing the lists behind them. Null when the user may not query.
      */
-    public queryDisplays(search = ''): QueryResponse<any> | null {
+    public queryDisplays(search = ''): QueryResponse<PlaceSystem> | null {
         if (!this._canQueryLists()) return null;
-        return querySystems({
+        return querySignageDisplays({
             ...this._orgZoneQueryParams({}),
             limit: SignageService.PAGE_SIZE,
             signage: true,
             ...this._searchParam(search),
-        } as any);
+        });
     }
 
     public queryPlaylists(search = ''): QueryResponse<SignagePlaylist> | null {
@@ -1793,23 +1834,41 @@ export class SignageService {
         this._fetchDisplayPage(next, this._displays_token);
     }
 
-    private async _fetchDisplayPage(query: QueryResponse<any>, token: number) {
+    /**
+     * Add a page of displays to the list.
+     * @param replace Replace the loaded rows instead of appending, for a reload
+     */
+    private async _fetchDisplayPage(
+        query: QueryResponse<PlaceSystem>,
+        token: number,
+        replace = false,
+    ) {
         this._displays_loading.set(true);
         try {
             const page = await query;
             if (token !== this._displays_token) return;
-            const items = (page.data || [])
-                .filter((item) => item.signage)
-                .map(decodeEntityNames);
-            this._display_items.update((list) => [...list, ...items]);
+            const rows = page.data || [];
+            const items = rows.filter((item) => item.signage);
+            this._displays_loaded =
+                (replace ? 0 : this._displays_loaded) + rows.length;
+            this._display_items.update((list) => {
+                const by_id = new Map(
+                    (replace ? [] : list).map((item) => [item.id, item]),
+                );
+                for (const item of items) by_id.set(item.id, item);
+                return [...by_id.values()];
+            });
             this._display_cache.update((cache) => {
                 const next = { ...cache };
                 for (const item of items) next[item.id] = item;
                 return next;
             });
             this._displays_next = page.next;
+            // Later pages can report an older total while the search index
+            // catches up, which would undo the count of a display just added
+            if (replace) this._displays_total.set(page.total);
             this._displays_has_more.set(
-                this._display_items().length < page.total,
+                !!page.next && this._displays_loaded < page.total,
             );
         } catch {
             if (token === this._displays_token)
@@ -1828,7 +1887,8 @@ export class SignageService {
             can_query: this._can_query_group_data(),
         }),
         loader: async ({ params }) => {
-            if (!params.initialised || !params.can_query) return [] as any[];
+            if (!params.initialised || !params.can_query)
+                return [] as PlaceZone[];
             try {
                 const result = await queryZones({
                     limit: 250,
@@ -1837,7 +1897,7 @@ export class SignageService {
                 } as any);
                 return (result.data || []).map(decodeEntityNames);
             } catch {
-                return [] as any[];
+                return [] as PlaceZone[];
             }
         },
     });
@@ -1853,7 +1913,8 @@ export class SignageService {
             can_query: this._can_query_group_data(),
         }),
         loader: async ({ params }) => {
-            if (!params.initialised || !params.can_query) return [] as any[];
+            if (!params.initialised || !params.can_query)
+                return [] as PlaceZone[];
             try {
                 const result = await queryZones(
                     this._groupQueryParams(
@@ -1863,7 +1924,7 @@ export class SignageService {
                 );
                 return (result.data || []).map(decodeEntityNames);
             } catch {
-                return [] as any[];
+                return [] as PlaceZone[];
             }
         },
     });
@@ -1883,7 +1944,8 @@ export class SignageService {
             can_query: this._can_query_group_data(),
         }),
         loader: async ({ params }) => {
-            if (!params.initialised || !params.can_query) return [] as any[];
+            if (!params.initialised || !params.can_query)
+                return [] as PlaceZone[];
             try {
                 const result = await queryZones({
                     limit: 500,
@@ -1898,17 +1960,16 @@ export class SignageService {
                     ? zones.filter((zone) => zone.id === org_zone_id)
                     : zones;
             } catch {
-                return [] as any[];
+                return [] as PlaceZone[];
             }
         },
     });
-    public readonly root_zones = computed(() => {
-        const roots = this._root_zone_list.value() || [];
-        const root_ids = new Set(roots.map(({ id }) => id));
-        return this._mergeItems(roots, this._zone_overrides()).filter(
-            ({ id }) => root_ids.has(id),
-        );
-    });
+    public readonly root_zones = computed(() =>
+        this._mergeItems(
+            this._root_zone_list.value() || [],
+            this._zone_overrides(),
+        ),
+    );
 
     public async zoneChildren(parent_id: string) {
         const { data } = await queryZones({
@@ -2012,7 +2073,7 @@ export class SignageService {
     );
     public readonly selected_playlist_item = signal<SignageMedia | null>(null);
     public readonly selected_playlist_item_index = signal<number | null>(null);
-    public readonly selected_zone = signal<any>(null);
+    public readonly selected_zone = signal<PlaceZone | null>(null);
     public readonly zone_search_term = signal('');
     public readonly zone_tree_expanded = signal<Record<string, boolean>>({});
     public readonly zone_tree_children_cache = signal<
@@ -2052,7 +2113,7 @@ export class SignageService {
         },
     });
 
-    public readonly selected_display = signal<any>(null);
+    public readonly selected_display = signal<PlaceSystem | null>(null);
     private readonly _playlist_meta_state = signal<
         Record<string, PlaylistMetaState>
     >(loadPlaylistMetaSessionCache());
@@ -2118,16 +2179,136 @@ export class SignageService {
     // The listing itself, which is whatever page(s) of the (possibly
     // searched) query have been loaded so far. Local edits are applied over
     // the loaded items, but never add a display the query didn't return.
-    public readonly filtered_displays = computed(() => {
-        const overrides = this._display_overrides();
-        return this._display_items()
-            .map((display) => overrides[display.id] || display)
-            .sort((a, b) =>
-                (a.display_name || a.name).localeCompare(
-                    b.display_name || b.name,
+    public readonly filtered_displays = computed(() =>
+        this._mergeItems(this._display_items(), this._display_overrides()),
+    );
+
+    /**
+     * Zones of the selected display. Queried by display, as `all_zones` holds
+     * only the first 500 zones of the group.
+     */
+    private readonly _selected_display_zones = resource({
+        params: () => {
+            const display = this.selected_display();
+            if (!display?.id || !this._canQueryLists()) return undefined;
+            return {
+                id: display.id,
+                zone_ids: display.zones,
+                group_id: this._api_group_id(),
+                change: this._change(),
+            };
+        },
+        loader: async ({ params }) => {
+            // Users without admin rights may only query zones in a group
+            const { data } = await queryZones(
+                this._groupQueryParams(
+                    { control_system_id: params.id, limit: 500 },
+                    params.group_id,
                 ),
             );
+            return (data || [])
+                .filter(({ id }) => params.zone_ids.includes(id))
+                .map(decodeEntityNames);
+        },
     });
+    public readonly selected_display_zones = computed(() =>
+        this._selected_display_zones.hasValue()
+            ? this._selected_display_zones.value()
+            : [],
+    );
+    public readonly selected_display_zones_loading =
+        this._selected_display_zones.isLoading;
+
+    /**
+     * Displays in the selected zone. Queried by zone, as the display list
+     * holds only the pages loaded so far.
+     */
+    private readonly _selected_zone_displays = resource({
+        params: () => {
+            const id = this.selected_zone()?.id;
+            if (!id || !this._canQueryLists()) return undefined;
+            return { id, change: this._change() };
+        },
+        loader: ({ params }) =>
+            this._queryAll(
+                querySignageDisplays({
+                    ...this._orgZoneQueryParams({
+                        limit: SignageService.PAGE_SIZE,
+                        signage: true,
+                    }),
+                    zone_id: params.id,
+                }),
+            ),
+    });
+    public readonly selected_zone_displays = computed(() => {
+        const displays = this._selected_zone_displays.hasValue()
+            ? this._selected_zone_displays.value()
+            : [];
+        return this._mergeItems(displays, this._display_overrides());
+    });
+    public readonly selected_zone_displays_loading =
+        this._selected_zone_displays.isLoading;
+
+    // Playlists of the selected display, its zones or the selected zone that
+    // the loaded playlist pages do not include, fetched by id. Null while
+    // loading or when the playlist cannot be loaded.
+    private readonly _playlists_by_id = signal<
+        Record<string, SignagePlaylist | null>
+    >({});
+    private _playlists_by_id_key = '';
+    private readonly _load_selected_playlists = effect(() => {
+        const key = `${this._api_group_id()}:${this._change()}`;
+        const ids = [
+            ...(this.selected_display()?.playlists || []),
+            ...this.selected_display_zones().flatMap(
+                ({ playlists }) => playlists || [],
+            ),
+            ...(this.selected_zone()?.playlists || []),
+        ];
+        const cache = this._playlist_cache();
+        // Wait for the first page, which usually holds the playlists
+        if (this._playlists_loading()) return;
+        untracked(() => {
+            if (key !== this._playlists_by_id_key) {
+                this._playlists_by_id_key = key;
+                this._playlists_by_id.set({});
+            }
+            const known = this._playlists_by_id();
+            const missing = [...new Set(ids)].filter(
+                (id) => !cache[id] && !(id in known),
+            );
+            if (!missing.length) return;
+            const query_params = this._groupQueryParams({});
+            this._playlists_by_id.update((state) => ({
+                ...state,
+                ...Object.fromEntries(missing.map((id) => [id, null])),
+            }));
+            for (const id of missing) {
+                showSignagePlaylist(id, query_params)
+                    .then((playlist) => {
+                        if (key !== this._playlists_by_id_key) return;
+                        this._playlists_by_id.update((state) => ({
+                            ...state,
+                            [id]: decodeEntityNames(playlist),
+                        }));
+                    })
+                    .catch(() => null);
+            }
+        });
+    });
+
+    /**
+     * Playlists for a list of ids, from the loaded pages or fetched by id.
+     * Only the selected display, its zones and the selected zone are fetched.
+     */
+    public playlistsById(ids: readonly string[]) {
+        const cache = this._playlist_cache();
+        const fetched = this._playlists_by_id();
+        return [...new Set(ids)]
+            .map((id) => cache[id] || fetched[id])
+            .filter((playlist): playlist is SignagePlaylist => !!playlist)
+            .sort((a, b) => a.name.localeCompare(b.name));
+    }
 
     private readonly _playlist_change = signal(Date.now());
     public readonly playlist_media_loading = signal(false);
@@ -3660,17 +3841,23 @@ export class SignageService {
         return groups.filter((_, index) => matches[index]);
     }
 
-    private _cacheDisplay(display: any) {
-        if (!display?.id) return;
+    /**
+     * Keep a saved display until the lists reload.
+     * @returns The display with its names decoded, to use for selection
+     */
+    private _cacheDisplay(display: PlaceSystem) {
+        const item = decodeEntityNames(display);
+        if (!item?.id) return item;
         this._display_overrides.update((state) => ({
             ...state,
-            [display.id]: display,
+            [item.id]: item,
         }));
+        return item;
     }
 
     private _addDisplayToList(display: PlaceSystem) {
-        if (!display?.id) return;
         const item = decodeEntityNames(display);
+        if (!item?.id) return item;
         this._display_items.update((items) => [
             item,
             ...items.filter((existing) => existing.id !== item.id),
@@ -3679,10 +3866,11 @@ export class SignageService {
             ...cache,
             [item.id]: item,
         }));
-        this._cacheDisplay(item);
+        return this._cacheDisplay(item);
     }
 
     private _removeDisplayFromList(display_id: string) {
+        this._displays_total.update((total) => Math.max(0, total - 1));
         this._display_items.update((items) =>
             items.filter((item) => item.id !== display_id),
         );
@@ -3698,22 +3886,31 @@ export class SignageService {
         });
     }
 
-    private _cacheZone(zone: any) {
-        if (!zone?.id) return;
+    /**
+     * Keep a saved zone until the lists reload.
+     * @returns The zone with its names decoded, to use for selection
+     */
+    private _cacheZone(zone: PlaceZone) {
+        const item = decodeEntityNames(zone);
+        if (!item?.id) return item;
         this._zone_overrides.update((state) => ({
             ...state,
-            [zone.id]: zone,
+            [item.id]: item,
         }));
+        return item;
     }
 
-    private _mergeItems(list: any[], overrides: Record<string, any>) {
-        const item_map = new Map((list || []).map((item) => [item.id, item]));
-        for (const item of Object.values(overrides)) {
-            if (item?.id) item_map.set(item.id, item);
-        }
-        return [...item_map.values()].sort((a, b) =>
-            (a.display_name || a.name).localeCompare(b.display_name || b.name),
-        );
+    /** Apply local edits to the items in a list, sorted by name */
+    private _mergeItems<
+        T extends { id: string; name: string; display_name: string },
+    >(list: T[], overrides: Record<string, T>) {
+        return (list || [])
+            .map((item) => overrides[item.id] || item)
+            .sort((a, b) =>
+                (a.display_name || a.name).localeCompare(
+                    b.display_name || b.name,
+                ),
+            );
     }
 
     public async updatePlaylistMedia(playlist_id: string, list: string[]) {
@@ -4905,7 +5102,7 @@ export class SignageService {
         return this.addMediaItemsToPlaylist(playlist_id, media_ids);
     }
 
-    public async addPlaylistToZone(zone: any) {
+    public async addPlaylistToZone(zone: PlaceZone) {
         if (
             !this._requirePermission(
                 this.can_update(),
@@ -4933,18 +5130,14 @@ export class SignageService {
         )
             return;
         const playlists = [...(zone.playlists || []), playlist_id];
-        const updated = await updateZone(
-            zone.id,
-            { playlists, version: zone.version },
-            'patch',
-        );
-        this._cacheZone(updated);
+        const updated = await this._patchZonePlaylists(zone, playlists);
+        if (!updated) return;
         this.selected_zone.set(updated);
         this.changed();
         notifySuccess(i18n('SIGNAGE_MANAGER.SVC_PLAYLIST_ADDED_ZONE'));
     }
 
-    public async removePlaylistFromZone(zone: any, playlist_id: string) {
+    public async removePlaylistFromZone(zone: PlaceZone, playlist_id: string) {
         if (
             !this._requirePermission(
                 this.can_update(),
@@ -4955,15 +5148,49 @@ export class SignageService {
         const playlists = (zone.playlists || []).filter(
             (id: string) => id !== playlist_id,
         );
+        const updated = await this._patchZonePlaylists(zone, playlists);
+        if (!updated) return;
+        this.selected_zone.set(updated);
+        this.changed();
+        notifySuccess(i18n('SIGNAGE_MANAGER.SVC_PLAYLIST_REMOVED_ZONE'));
+    }
+
+    /**
+     * Save the playlists of a zone and keep the result until the lists reload.
+     * @returns The saved zone, or null after showing an error when it fails
+     */
+    private async _patchZonePlaylists(zone: PlaceZone, playlists: string[]) {
         const updated = await updateZone(
             zone.id,
             { playlists, version: zone.version },
             'patch',
-        );
-        this._cacheZone(updated);
-        this.selected_zone.set(updated);
-        this.changed();
-        notifySuccess(i18n('SIGNAGE_MANAGER.SVC_PLAYLIST_REMOVED_ZONE'));
+        ).catch(() => null);
+        if (!updated) {
+            notifyError(i18n('SIGNAGE_MANAGER.SVC_ASSIGNMENT_ERROR'));
+            return null;
+        }
+        return this._cacheZone(updated);
+    }
+
+    /**
+     * Save changes to a display and keep the result until the lists reload.
+     * @param error_key Translation key of the error to show when it fails
+     * @returns The saved display, or null after showing an error when it fails
+     */
+    private async _patchDisplay(
+        display: PlaceSystem,
+        data: Pick<Partial<PlaceSystem>, 'playlists' | 'zones'>,
+        error_key = 'SIGNAGE_MANAGER.SVC_ASSIGNMENT_ERROR',
+    ) {
+        const updated = await updateSignageDisplay(display.id, {
+            ...data,
+            version: display.version,
+        }).catch(() => null);
+        if (!updated) {
+            notifyError(i18n(error_key));
+            return null;
+        }
+        return this._cacheDisplay(updated);
     }
 
     public async addZone() {
@@ -5046,15 +5273,19 @@ export class SignageService {
             tags: [...new Set([...(zone.tags || []), 'signage'])],
             ...(zone.id ? { version: zone.version } : {}),
         };
-        const result = zone.id
-            ? await updateZone(zone.id, form_data)
-            : await createZone(form_data);
-        this._cacheZone(result);
+        const result = await (
+            zone.id ? updateZone(zone.id, form_data) : createZone(form_data)
+        ).catch(() => null);
+        if (!result) {
+            notifyError(i18n('SIGNAGE_MANAGER.SVC_SIGNAGE_ZONE_SAVE_ERROR'));
+            return null;
+        }
+        const saved = this._cacheZone(result);
         this.zone_tree_children_cache.set({});
-        this.selected_zone.set(result);
+        this.selected_zone.set(saved);
         this.changed();
         notifySuccess(i18n('SIGNAGE_MANAGER.SVC_SIGNAGE_ZONE_SAVED'));
-        return result;
+        return saved;
     }
 
     public async removeZone(zone: PlaceZone) {
@@ -5077,8 +5308,15 @@ export class SignageService {
             this._dialog,
         );
         if (result.reason !== 'done') return false;
-        await deleteZone(zone.id);
+        const removed = await deleteZone(zone.id).then(
+            () => true,
+            () => false,
+        );
         result.close();
+        if (!removed) {
+            notifyError(i18n('SIGNAGE_MANAGER.SVC_SIGNAGE_ZONE_REMOVE_ERROR'));
+            return false;
+        }
         this._zone_overrides.update((overrides) => {
             const next = { ...overrides };
             delete next[zone.id];
@@ -5113,24 +5351,17 @@ export class SignageService {
             data: {
                 display: new PlaceSystem({}),
                 default_zone_ids,
-                roots: this.root_zones,
-                zones: this.all_zones,
-                load_children: (parent_id: string) =>
-                    this.zoneChildren(parent_id),
-                query_zones: (search: string, parent_id: string) =>
-                    this.querySelectableZones(search, parent_id),
-                onAdd: (data: Partial<PlaceSystem>) => addSystem(data),
-                onEdit: (id: string, data: Partial<PlaceSystem>) =>
-                    updateSystem(id, data),
+                ...this._displayEditModalData(),
             },
             panelClass: 'mobile-fullscreen',
         });
         const result = (await dialogClosed(ref)) as PlaceSystem | null;
         if (!result) return null;
-        this._addDisplayToList(result);
-        this.selected_display.set(result);
+        const display = this._addDisplayToList(result);
+        this._displays_total.update((total) => total + 1);
+        this.selected_display.set(display);
         notifySuccess(i18n('SIGNAGE_MANAGER.SVC_DISPLAY_SAVED'));
-        return result;
+        return display;
     }
 
     public async editDisplay(display: PlaceSystem) {
@@ -5147,24 +5378,31 @@ export class SignageService {
             data: {
                 display,
                 default_zone_ids: [],
-                roots: this.root_zones,
-                zones: this.all_zones,
-                load_children: (parent_id: string) =>
-                    this.zoneChildren(parent_id),
-                query_zones: (search: string, parent_id: string) =>
-                    this.querySelectableZones(search, parent_id),
-                onAdd: (data: Partial<PlaceSystem>) => addSystem(data),
-                onEdit: (id: string, data: Partial<PlaceSystem>) =>
-                    updateSystem(id, data),
+                ...this._displayEditModalData(),
             },
             panelClass: 'mobile-fullscreen',
         });
         const result = (await dialogClosed(ref)) as PlaceSystem | null;
         if (!result) return null;
-        this._addDisplayToList(result);
-        this.selected_display.set(result);
+        const saved = this._addDisplayToList(result);
+        this.selected_display.set(saved);
         notifySuccess(i18n('SIGNAGE_MANAGER.SVC_DISPLAY_SAVED'));
-        return result;
+        return saved;
+    }
+
+    /** Data the display edit modal needs for both new and existing displays */
+    private _displayEditModalData() {
+        return {
+            roots: this.root_zones,
+            zones: this.all_zones,
+            load_children: (parent_id: string) => this.zoneChildren(parent_id),
+            query_zones: (search: string, parent_id: string) =>
+                this.querySelectableZones(search, parent_id),
+            zone_ids: (zone: PlaceZone) => this._zoneIdsWithAncestors([zone]),
+            onAdd: (data: Partial<PlaceSystem>) => addSignageDisplay(data),
+            onEdit: (id: string, data: Partial<PlaceSystem>) =>
+                updateSignageDisplay(id, data),
+        };
     }
 
     public async removeDisplay(display: PlaceSystem) {
@@ -5193,12 +5431,18 @@ export class SignageService {
             display.modules.length ||
             display.module_list.length
         );
-        if (used_elsewhere) {
-            await updateSystem(display.id, { signage: false });
-        } else {
-            await removeSystem(display.id);
-        }
+        const request: Promise<unknown> = used_elsewhere
+            ? updateSignageDisplay(display.id, { signage: false })
+            : removeSystem(display.id);
+        const removed = await request.then(
+            () => true,
+            () => false,
+        );
         result.close();
+        if (!removed) {
+            notifyError(i18n('SIGNAGE_MANAGER.SVC_DISPLAY_REMOVE_ERROR'));
+            return false;
+        }
         this._removeDisplayFromList(display.id);
         if (this.selected_display()?.id === display.id) {
             this.selected_display.set(null);
@@ -5211,7 +5455,7 @@ export class SignageService {
         const group_id = this._api_group_id();
         const active_zone =
             this._org.building || this._org.region || this._org.organisation;
-        let roots = group_id
+        let roots: ZoneNode[] = group_id
             ? this.root_zones()
             : active_zone
               ? [active_zone]
@@ -5224,18 +5468,26 @@ export class SignageService {
             } as any).catch(() => null);
             roots = (result?.data || []).map(decodeEntityNames);
         }
+        return this._zoneIdsWithAncestors(roots);
+    }
+
+    /**
+     * Ids of zones with their ancestors, parent first. A display must be in
+     * the ancestors too, so playlists of a building reach its displays.
+     */
+    private _zoneIdsWithAncestors(zones: ZoneNode[]) {
         const known_zones = [
             ...this.all_zones(),
             this._org.organisation,
             this._org.region,
             this._org.building,
         ].filter((zone): zone is PlaceZone => !!zone?.id);
-        return displayZoneIds(roots, known_zones, async (zone_id) =>
+        return displayZoneIds(zones, known_zones, async (zone_id) =>
             showZone(zone_id).catch(() => null),
         );
     }
 
-    public async addDisplayToZone(zone: any) {
+    public async addDisplayToZone(zone: PlaceZone) {
         if (
             !this._requirePermission(
                 this.can_update(),
@@ -5254,25 +5506,25 @@ export class SignageService {
         // The picker searches the backend, so the choice may be a display the
         // list never loaded.
         const display =
-            this.displays().find((d: any) => d.id === display_id) ||
-            (await showSystem(display_id).catch(() => null));
-        if (!display) return;
+            this.displays().find((d) => d.id === display_id) ||
+            (await showSignageDisplay(display_id).catch(() => null));
+        if (!display) {
+            notifyError(i18n('SIGNAGE_MANAGER.SVC_ASSIGNMENT_ERROR'));
+            return;
+        }
         if (display.zones?.includes(zone.id)) {
             notifyError(i18n('SIGNAGE_MANAGER.SVC_DISPLAY_IN_ZONE'));
             return;
         }
-        const zones = [...(display.zones || []), zone.id];
-        const updated = await updateSystem(
-            display.id,
-            { zones, version: display.version } as any,
-            'patch',
-        );
-        this._cacheDisplay(updated);
+        const zone_ids = await this._zoneIdsWithAncestors([zone]);
+        const zones = [...new Set([...(display.zones || []), ...zone_ids])];
+        const updated = await this._patchDisplay(display, { zones });
+        if (!updated) return;
         this.changed();
         notifySuccess(i18n('SIGNAGE_MANAGER.SVC_DISPLAY_ADDED_ZONE'));
     }
 
-    public async removeDisplayFromZone(zone: any, display_id: string) {
+    public async removeDisplayFromZone(zone: PlaceZone, display_id: string) {
         if (
             !this._requirePermission(
                 this.can_update(),
@@ -5280,23 +5532,21 @@ export class SignageService {
             )
         )
             return;
-        const displays = this.displays();
-        const display = displays.find((d: any) => d.id === display_id);
+        const display = [
+            ...this.selected_zone_displays(),
+            ...this.displays(),
+        ].find((d) => d.id === display_id);
         if (!display) return;
         const zones = (display.zones || []).filter(
             (id: string) => id !== zone.id,
         );
-        const updated = await updateSystem(
-            display.id,
-            { zones, version: display.version } as any,
-            'patch',
-        );
-        this._cacheDisplay(updated);
+        const updated = await this._patchDisplay(display, { zones });
+        if (!updated) return;
         this.changed();
         notifySuccess(i18n('SIGNAGE_MANAGER.SVC_DISPLAY_REMOVED_ZONE'));
     }
 
-    public async addPlaylistToDisplay(display: any) {
+    public async addPlaylistToDisplay(display: PlaceSystem) {
         if (
             !this._requirePermission(
                 this.can_update(),
@@ -5324,16 +5574,12 @@ export class SignageService {
         )
             return;
         const playlists = [...(display.playlists || []), playlist_id];
-        const updated = await updateSystem(
-            display.id,
-            { playlists, version: display.version } as any,
-            'patch',
-        ).catch(() => {
-            notifyError(i18n('SIGNAGE_MANAGER.SVC_PLAYLIST_ADD_DISPLAY_ERROR'));
-            return null;
-        });
+        const updated = await this._patchDisplay(
+            display,
+            { playlists },
+            'SIGNAGE_MANAGER.SVC_PLAYLIST_ADD_DISPLAY_ERROR',
+        );
         if (!updated) return;
-        this._cacheDisplay(updated);
         this.selected_display.set(updated);
         this.changed();
         notifySuccess(i18n('SIGNAGE_MANAGER.SVC_PLAYLIST_ADDED_DISPLAY'));
@@ -5358,8 +5604,8 @@ export class SignageService {
         // The picker searches the backend, so the choice may be a display the
         // list never loaded.
         const display =
-            this.displays().find((d: any) => d.id === display_id) ||
-            (await showSystem(display_id).catch(() => {
+            this.displays().find((d) => d.id === display_id) ||
+            (await showSignageDisplay(display_id).catch(() => {
                 notifyError(
                     i18n('SIGNAGE_MANAGER.SVC_PLAYLIST_ADD_DISPLAY_ERROR'),
                 );
@@ -5379,16 +5625,12 @@ export class SignageService {
         )
             return;
         const playlists = [...(display.playlists || []), playlist.id];
-        const updated = await updateSystem(
-            display.id,
-            { playlists, version: display.version } as any,
-            'patch',
-        ).catch(() => {
-            notifyError(i18n('SIGNAGE_MANAGER.SVC_PLAYLIST_ADD_DISPLAY_ERROR'));
-            return null;
-        });
+        const updated = await this._patchDisplay(
+            display,
+            { playlists },
+            'SIGNAGE_MANAGER.SVC_PLAYLIST_ADD_DISPLAY_ERROR',
+        );
         if (!updated) return;
-        this._cacheDisplay(updated);
         if (this.selected_display()?.id === display.id) {
             this.selected_display.set(updated);
         }
@@ -5414,9 +5656,12 @@ export class SignageService {
         if (!zone_id) return;
         // Likewise the zone picker, which may return a zone outside the list
         const zone =
-            this.zones().find((z: any) => z.id === zone_id) ||
+            this.zones().find((z) => z.id === zone_id) ||
             (await showZone(zone_id).catch(() => null));
-        if (!zone) return;
+        if (!zone) {
+            notifyError(i18n('SIGNAGE_MANAGER.SVC_ASSIGNMENT_ERROR'));
+            return;
+        }
         if (zone.playlists?.includes(playlist.id)) {
             notifyError(i18n('SIGNAGE_MANAGER.SVC_PLAYLIST_IN_ZONE'));
             return;
@@ -5430,12 +5675,8 @@ export class SignageService {
         )
             return;
         const playlists = [...(zone.playlists || []), playlist.id];
-        const updated = await updateZone(
-            zone.id,
-            { playlists, version: zone.version },
-            'patch',
-        );
-        this._cacheZone(updated);
+        const updated = await this._patchZonePlaylists(zone, playlists);
+        if (!updated) return;
         if (this.selected_zone()?.id === zone.id) {
             this.selected_zone.set(updated);
         }
@@ -5445,7 +5686,7 @@ export class SignageService {
 
     public async removeDisplayFromPlaylist(
         playlist: SignagePlaylist,
-        display: any,
+        display: PlaceSystem,
     ) {
         if (
             !this._requirePermission(
@@ -5457,12 +5698,8 @@ export class SignageService {
         const playlists = (display.playlists || []).filter(
             (id: string) => id !== playlist.id,
         );
-        const updated = await updateSystem(
-            display.id,
-            { playlists, version: display.version } as any,
-            'patch',
-        );
-        this._cacheDisplay(updated);
+        const updated = await this._patchDisplay(display, { playlists });
+        if (!updated) return;
         if (this.selected_display()?.id === display.id) {
             this.selected_display.set(updated);
         }
@@ -5470,7 +5707,10 @@ export class SignageService {
         notifySuccess(i18n('SIGNAGE_MANAGER.SVC_DISPLAY_REMOVED_PLAYLIST'));
     }
 
-    public async removeZoneFromPlaylist(playlist: SignagePlaylist, zone: any) {
+    public async removeZoneFromPlaylist(
+        playlist: SignagePlaylist,
+        zone: PlaceZone,
+    ) {
         if (
             !this._requirePermission(
                 this.can_update(),
@@ -5481,12 +5721,8 @@ export class SignageService {
         const playlists = (zone.playlists || []).filter(
             (id: string) => id !== playlist.id,
         );
-        const updated = await updateZone(
-            zone.id,
-            { playlists, version: zone.version },
-            'patch',
-        );
-        this._cacheZone(updated);
+        const updated = await this._patchZonePlaylists(zone, playlists);
+        if (!updated) return;
         if (this.selected_zone()?.id === zone.id) {
             this.selected_zone.set(updated);
         }
@@ -5494,7 +5730,10 @@ export class SignageService {
         notifySuccess(i18n('SIGNAGE_MANAGER.SVC_ZONE_REMOVED_PLAYLIST'));
     }
 
-    public async removePlaylistFromDisplay(display: any, playlist_id: string) {
+    public async removePlaylistFromDisplay(
+        display: PlaceSystem,
+        playlist_id: string,
+    ) {
         if (
             !this._requirePermission(
                 this.can_update(),
@@ -5505,12 +5744,8 @@ export class SignageService {
         const playlists = (display.playlists || []).filter(
             (id: string) => id !== playlist_id,
         );
-        const updated = await updateSystem(
-            display.id,
-            { playlists, version: display.version } as any,
-            'patch',
-        );
-        this._cacheDisplay(updated);
+        const updated = await this._patchDisplay(display, { playlists });
+        if (!updated) return;
         this.selected_display.set(updated);
         this.changed();
         notifySuccess(i18n('SIGNAGE_MANAGER.SVC_PLAYLIST_REMOVED_DISPLAY'));

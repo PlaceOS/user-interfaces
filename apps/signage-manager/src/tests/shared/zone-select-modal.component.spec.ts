@@ -52,12 +52,15 @@ describe('ZoneSelectModalComponent', () => {
         expect(zoneChildren).toHaveBeenCalledWith('z1');
     });
 
-    it('defaults to the root zone', async () => {
+    // The root is the organisation, so a default would assign to every display
+    it('starts with no zone selected', async () => {
         const fixture = TestBed.createComponent(ZoneSelectModalComponent);
 
         await fixture.whenStable();
+        fixture.componentInstance.addZone();
 
-        expect(fixture.componentInstance.selected_zone()).toBe(root_zones()[0]);
+        expect(fixture.componentInstance.selected_zone()).toBeNull();
+        expect(dialog_ref.close).not.toHaveBeenCalled();
     });
 
     it('queries within the selected zone', async () => {

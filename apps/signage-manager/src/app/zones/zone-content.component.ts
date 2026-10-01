@@ -352,20 +352,10 @@ export class ZoneContentComponent {
         this._service.playlist_approval_status;
     public readonly can_update = this._service.can_update;
 
-    private readonly _playlists = this._service.playlists;
-    private readonly _displays = this._service.displays;
-
-    public readonly zone_playlists = computed(() => {
-        const zone = this.selected_zone();
-        if (!zone) return [];
-        return this._playlists().filter((p) => zone.playlists?.includes(p.id));
-    });
-
-    public readonly zone_displays = computed(() => {
-        const zone = this.selected_zone();
-        if (!zone) return [];
-        return this._displays().filter((d) => d.zones?.includes(zone.id));
-    });
+    public readonly zone_playlists = computed(() =>
+        this._service.playlistsById(this.selected_zone()?.playlists || []),
+    );
+    public readonly zone_displays = this._service.selected_zone_displays;
 
     public addPlaylist() {
         const zone = this.selected_zone();
