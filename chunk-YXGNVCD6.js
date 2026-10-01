@@ -55,7 +55,7 @@ import {
   Validators,
   ViewChild,
   ViewEncapsulation,
-  Xe,
+  _,
   _CdkPrivateStyleLoader,
   _ErrorStateTracker,
   _IdGenerator,
@@ -70,7 +70,6 @@ import {
   addYears,
   afterRenderEffect,
   auditTime,
-  ba,
   booleanAttribute,
   capitalizeFirstLetter,
   ce,
@@ -85,7 +84,7 @@ import {
   elementAcceptsMinMax,
   endOfDay,
   endOfDayInTimezone,
-  f,
+  et,
   filter,
   flatten,
   formatRuntimeError,
@@ -101,6 +100,7 @@ import {
   isSameDay,
   isSignal,
   isTextualFormElement,
+  ka,
   linkedSignal,
   map,
   merge,
@@ -179,7 +179,7 @@ import {
   ɵɵtextInterpolate,
   ɵɵviewQuery,
   ɵɵviewQuerySignal
-} from "./chunk-MTOOLKI7.js";
+} from "./chunk-OQVSHQAY.js";
 import {
   __spreadProps,
   __spreadValues
@@ -1906,8 +1906,8 @@ var BooleanOrLogic = class extends AbstractLogic {
     return false;
   }
   compute(arg) {
-    return this.fns.some((f2) => {
-      const result = f2(arg);
+    return this.fns.some((f) => {
+      const result = f(arg);
       return result && result !== IGNORED;
     });
   }
@@ -1925,8 +1925,8 @@ var ArrayMergeIgnoreLogic = class _ArrayMergeIgnoreLogic extends AbstractLogic {
     return [];
   }
   compute(arg) {
-    return this.fns.reduce((prev, f2) => {
-      const value = f2(arg);
+    return this.fns.reduce((prev, f) => {
+      const value = f(arg);
       if (value === void 0 || value === IGNORED) {
         return prev;
       } else if (isArray(value)) {
@@ -2441,7 +2441,7 @@ var MetadataReducer = {
 };
 function override(getInitial) {
   return {
-    reduce: (_, item) => item,
+    reduce: (_2, item) => item,
     getInitial: () => getInitial?.()
   };
 }
@@ -5763,7 +5763,7 @@ var Booking = class {
     }
     const list = this.linked_bookings;
     this._valid_asset_cache = (this.extension_data.assets || []).map((request) => new AssetRequest(__spreadProps(__spreadValues({}, request), { event: this }))).filter((request) => request.deliver_at < this.date_end).map((request) => {
-      const booking = list.find((_) => _.extension_data.request_id === request.id);
+      const booking = list.find((_2) => _2.extension_data.request_id === request.id);
       if (booking) {
         request.state = booking.approved ? "approved" : booking.rejected ? "rejected" : "pending";
       }
@@ -5779,7 +5779,7 @@ var Booking = class {
     this.id = data.id || "";
     this.parent_id = data.parent_id || "";
     this.asset_id = data.asset_id || "";
-    this.asset_ids = data.asset_ids || [data.asset_id].filter((_) => _);
+    this.asset_ids = data.asset_ids || [data.asset_id].filter((_2) => _2);
     const booking_type = data.booking_type || data.type || " ";
     this.asset_name = booking_type === "visitor" ? data.extension_data?.visitor_name || data.asset_name || data.extension_data?.asset_name || data.extension_data?.name || data.asset_id || "" : data.asset_name || data.extension_data?.asset_name || data.extension_data?.name || data.description || data.asset_id || "";
     this.zones = data.zones || [];
@@ -5871,7 +5871,7 @@ var Booking = class {
     }
     if (!data.parent_id)
       delete data.parent_id;
-    data.zones = data.zones.filter((_) => _);
+    data.zones = data.zones.filter((_2) => _2);
     delete data.date;
     delete data.duration;
     delete data.created_at;
@@ -5977,11 +5977,11 @@ function rememberFailedLoad(source) {
 }
 function setAuthCookie(cookie_path) {
   const tkn = J();
-  document.cookie = `${tkn === "x-api-key" ? "api-key=" + encodeURIComponent(Xe()) : "bearer_token=" + encodeURIComponent(tkn)};max-age=30;path=${cookie_path};samesite=strict;${location.protocol === "https:" ? "secure;" : ""}`;
+  document.cookie = `${tkn === "x-api-key" ? "api-key=" + encodeURIComponent(et()) : "bearer_token=" + encodeURIComponent(tkn)};max-age=30;path=${cookie_path};samesite=strict;${location.protocol === "https:" ? "secure;" : ""}`;
 }
 function authHeaders() {
   const tkn = J();
-  return tkn === "x-api-key" ? { "X-API-Key": Xe() } : { Authorization: `Bearer ${tkn}` };
+  return tkn === "x-api-key" ? { "X-API-Key": et() } : { Authorization: `Bearer ${tkn}` };
 }
 function loadAuthenticatedImage(source, cookie_path) {
   return loadImage(source, () => {
@@ -6260,11 +6260,11 @@ var SpacePipe = class _SpacePipe {
   }
   async _loadSpace(space_id) {
     if (!space_id.includes("@")) {
-      const system = await va(space_id).catch(() => null);
+      const system = await ka(space_id).catch(() => null);
       if (system)
         return this._cacheSystem(system);
     }
-    const systems = (await ba({ in: space_id }).catch(() => ({
+    const systems = (await va({ in: space_id }).catch(() => ({
       data: []
     }))).data;
     if (systems.length === 1)
@@ -6456,7 +6456,7 @@ var VirtualKeyboardComponent = class _VirtualKeyboardComponent extends AsyncHand
     }, 50);
   }
   updateKeyState() {
-    this.keyset.set(this.keyset().map((_) => _.map((k) => k.length > 1 ? k : k[this.state() !== "normal" ? "toUpperCase" : "toLowerCase"]())));
+    this.keyset.set(this.keyset().map((_2) => _2.map((k) => k.length > 1 ? k : k[this.state() !== "normal" ? "toUpperCase" : "toLowerCase"]())));
     if (this._overlay_ref)
       this.renderKeyboard();
   }
@@ -6634,16 +6634,16 @@ var VirtualKeyboardComponent = class _VirtualKeyboardComponent extends AsyncHand
 var GUEST_ENDPOINT = "/api/staff/v1/guests";
 async function searchGuests(q) {
   const query = toQueryString({ q });
-  const list = await f(`${GUEST_ENDPOINT}${q ? "?" + query : ""}`);
+  const list = await _(`${GUEST_ENDPOINT}${q ? "?" + query : ""}`);
   return list.map((item) => new GuestUser(item));
 }
 async function showGuest(id) {
-  return new GuestUser(await f(`${GUEST_ENDPOINT}/${encodeURIComponent(id)}`));
+  return new GuestUser(await _(`${GUEST_ENDPOINT}/${encodeURIComponent(id)}`));
 }
 async function getGuestCateringItem(email2, booking_id = "") {
   const path = `${GUEST_ENDPOINT}/${encodeURIComponent(email2)}/catering`;
   const query = booking_id ? `?booking_id=${encodeURIComponent(booking_id)}` : "";
-  const item = await f(`${path}${query}`);
+  const item = await _(`${path}${query}`);
   return item ? new CateringItem(item) : null;
 }
 async function setGuestCateringItem(email2, catering_item, booking_id = "") {
@@ -6677,7 +6677,7 @@ async function queryBookings(q) {
 }
 async function queryBookingsOrThrow(q) {
   const query = toQueryString(q);
-  const list = await f(`${BOOKINGS_ENDPOINT}${query ? "?" + query : ""}`);
+  const list = await _(`${BOOKINGS_ENDPOINT}${query ? "?" + query : ""}`);
   return list.map((item) => new Booking(item));
 }
 async function bookedResourceList(q, resource_count) {
@@ -6698,7 +6698,7 @@ async function bookedResourceList(q, resource_count) {
       count += 1;
     }
     return unique(list);
-  } catch (_) {
+  } catch (_2) {
     return [];
   }
 }
@@ -6707,7 +6707,7 @@ async function findBookingClashes(booking, q = {}) {
   try {
     const list = await v(`${BOOKINGS_ENDPOINT}/clashing-assets${query ? "?" + query : ""}`, booking.toJSON()).catch(() => []);
     return q.include_clash_time ? list : list;
-  } catch (_) {
+  } catch (_2) {
     return [];
   }
 }
@@ -6730,12 +6730,12 @@ async function queryAllBookings(q) {
       count += 1;
     }
     return unique(list, "id");
-  } catch (_) {
+  } catch (_2) {
     return [];
   }
 }
 async function showBooking(id) {
-  return new Booking(await f(`${BOOKINGS_ENDPOINT}/${encodeURIComponent(id)}`));
+  return new Booking(await _(`${BOOKINGS_ENDPOINT}/${encodeURIComponent(id)}`));
 }
 async function createBooking(data, q) {
   const query = toQueryString(__spreadProps(__spreadValues({}, q), { utm_source: bookingUtmSource() }));
@@ -6795,15 +6795,15 @@ async function createBookingsForEvent(event, type, resources) {
     type,
     period_start: getUnixTime(event.date),
     period_end: getUnixTime(addMinutes(event.date, event.duration))
-  })).filter((_) => _.parent_id === event.id);
-  await Promise.all(bookings.map((_) => removeBooking(_.id)));
-  await Promise.all(event.linked_bookings.filter((_) => _.booking_type === type).map((_) => removeBooking(_.id)));
-  const zones = event.system?.zones || unique(flatten(event.resources.map((_) => _.zones))) || [];
+  })).filter((_2) => _2.parent_id === event.id);
+  await Promise.all(bookings.map((_2) => removeBooking(_2.id)));
+  await Promise.all(event.linked_bookings.filter((_2) => _2.booking_type === type).map((_2) => removeBooking(_2.id)));
+  const zones = event.system?.zones || unique(flatten(event.resources.map((_2) => _2.zones))) || [];
   const created_bookings = [];
   try {
     for (const item of resources) {
-      const booking = bookings.find((_) => _.extension_data?.details?.id === item.id || _.asset_ids.find((id) => item.items?.find((i) => i.item_ids.includes(id))));
-      const assigned_space = type === "catering-order" && item.system_id ? event.resources.find((_) => _.id === item.system_id || _.email === item.system_id) : void 0;
+      const booking = bookings.find((_2) => _2.extension_data?.details?.id === item.id || _2.asset_ids.find((id) => item.items?.find((i) => i.item_ids.includes(id))));
+      const assigned_space = type === "catering-order" && item.system_id ? event.resources.find((_2) => _2.id === item.system_id || _2.email === item.system_id) : void 0;
       const resource_id = assigned_space?.id || item.system_id || item.email || item.id;
       const resource_name = assigned_space?.display_name || assigned_space?.name || item.name;
       created_bookings.push(await createBooking(new Booking({
@@ -6881,5 +6881,5 @@ export {
   queryResourceAvailability,
   createBookingsForEvent
 };
-//# debugId=01f6c2f2-f74e-53b1-89d0-fc02ce897325
-//# sourceMappingURL=chunk-7JWWB5QF.js.map
+//# debugId=9d49bbbd-830f-5d09-956a-a96574fe0cfa
+//# sourceMappingURL=chunk-YXGNVCD6.js.map

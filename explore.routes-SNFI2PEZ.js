@@ -1,6 +1,6 @@
 import {
   CustomTooltipComponent
-} from "./chunk-B2WLBZMM.js";
+} from "./chunk-KQIUYPEY.js";
 import {
   generateQRCode
 } from "./chunk-MJCQM3JL.js";
@@ -48,16 +48,16 @@ import {
   setHours,
   setMinutes,
   showStaff
-} from "./chunk-WC43U5HP.js";
+} from "./chunk-CH6U6HX4.js";
 import {
   MatTooltip,
   MatTooltipModule
-} from "./chunk-WWNI3QJE.js";
+} from "./chunk-CWR7QACH.js";
 import {
   MatCheckbox,
   MatCheckboxModule,
   validateAssetRequestsForResource
-} from "./chunk-2I25TAVK.js";
+} from "./chunk-5T3B5CHY.js";
 import {
   AuthenticatedImageDirective,
   Booking,
@@ -83,15 +83,14 @@ import {
   saveBooking,
   showGuest,
   validate
-} from "./chunk-7JWWB5QF.js";
+} from "./chunk-YXGNVCD6.js";
 import {
   TranslatePipe
-} from "./chunk-3MXEXQQP.js";
+} from "./chunk-2ICR73UQ.js";
 import {
   SanitizePipe
-} from "./chunk-QWFLHVYU.js";
+} from "./chunk-BDS7FGAR.js";
 import {
-  $a,
   ActivatedRoute,
   AssetRequest,
   AsyncHandler,
@@ -113,6 +112,7 @@ import {
   FormGroup,
   FormGroupDirective,
   FormsModule,
+  Fp,
   HostAttributeToken,
   HostListener,
   HotkeysService,
@@ -121,7 +121,6 @@ import {
   InjectionToken,
   Injector,
   Input,
-  Ja,
   LOCAL_TIMEZONE,
   MAP_FEATURE_DATA,
   MapsPeopleService,
@@ -155,9 +154,11 @@ import {
   TemplateRef,
   UpperCasePipe,
   User,
+  Va,
   ViewChild,
   ViewChildren,
   ViewEncapsulation,
+  _,
   _CdkPrivateStyleLoader,
   _IdGenerator,
   _MatInternalFormField,
@@ -172,6 +173,7 @@ import {
   alignDateToBookableHours,
   assertInInjectionContext,
   assertNotInReactiveContext,
+  ba,
   booleanAttribute,
   computed,
   constructFrom,
@@ -185,7 +187,6 @@ import {
   enUS,
   endOfDay,
   endOfDayInTimezone,
-  f,
   firstValueWhere,
   flatten,
   format,
@@ -202,7 +203,6 @@ import {
   getTimezoneOffsetString,
   getUnixTime,
   guardModelUndefinedWrites,
-  hc,
   i18n,
   inject,
   input,
@@ -212,6 +212,8 @@ import {
   isSameDay,
   isValid,
   isWithinBookableHours,
+  ka,
+  lc,
   log,
   markUserDateChange,
   minutesInDay,
@@ -222,9 +224,9 @@ import {
   notifySuccess,
   notifyWarn,
   numberAttribute,
+  oc,
   onFieldChange,
   output,
-  rc,
   resource,
   roundToNearestMinutes,
   set,
@@ -245,10 +247,8 @@ import {
   unique,
   untracked,
   user_group_names,
-  va,
   viewChild,
   viewChildren,
-  zp,
   ɵsetClassDebugInfo,
   ɵɵInheritDefinitionFeature,
   ɵɵNgOnChangesFeature,
@@ -319,7 +319,7 @@ import {
   ɵɵtwoWayProperty,
   ɵɵviewQuery,
   ɵɵviewQuerySignal
-} from "./chunk-MTOOLKI7.js";
+} from "./chunk-OQVSHQAY.js";
 import {
   __spreadProps,
   __spreadValues
@@ -1597,13 +1597,13 @@ var DynamicMapComponent = class _DynamicMapComponent {
       injector.get(MAP_FEATURE_DATA)?.track_id,
       injector
     ]));
-    this.injectors.set((this.features() || []).map((f2) => f2.track_id && old_injectors.get(f2.track_id) || Injector.create({
+    this.injectors.set((this.features() || []).map((f) => f.track_id && old_injectors.get(f.track_id) || Injector.create({
       providers: [
         {
           provide: MAP_FEATURE_DATA,
           useValue: __spreadValues({
-            track_id: f2.track_id
-          }, f2.data)
+            track_id: f.track_id
+          }, f.data)
         }
       ],
       parent: this._injector
@@ -1933,10 +1933,10 @@ var ExploreStateService = class _ExploreStateService {
         level: this._level(),
         initialised: this._initialised()
       }),
-      loader: ({ params: { level, initialised } }) => initialised ? $a({
+      loader: ({ params: { level, initialised } }) => initialised ? ba({
         zone_id: level?.id || this._org.organisation.id,
         limit: 50
-      }).then(({ data }) => data.map((_) => new Space(_))).catch((_) => []) : Promise.resolve([])
+      }).then(({ data }) => data.map((_2) => new Space(_2))).catch((_2) => []) : Promise.resolve([])
     }));
     this.spaces = computed(
       () => this._spaces.value() ?? [],
@@ -2163,9 +2163,9 @@ var ExploreStateService = class _ExploreStateService {
   }
   _normaliseDisabledOption(value) {
     if (value instanceof Array)
-      return value.filter((_) => !!_);
+      return value.filter((_2) => !!_2);
     if (typeof value === "string") {
-      return value.split(",").map((_) => _.trim()).filter((_) => !!_);
+      return value.split(",").map((_2) => _2.trim()).filter((_2) => !!_2);
     }
     return [];
   }
@@ -2790,7 +2790,7 @@ var TimeFieldComponent = class _TimeFieldComponent extends AsyncHandler {
     this._updateNoOptions();
     this.timeout("hide", () => this.show_select.set(false));
     const tz = this.timezone() || void 0;
-    this.active_time.set(this._time_options().find((_) => _.id === formatTimeInTimezone(this.date(), tz))?.date || this.active_time());
+    this.active_time.set(this._time_options().find((_2) => _2.id === formatTimeInTimezone(this.date(), tz))?.date || this.active_time());
   }
   ngOnChanges(changes) {
     if (changes.no_past_times || changes.step || changes.from || changes.range || changes.min_duration) {
@@ -2881,7 +2881,7 @@ var TimeFieldComponent = class _TimeFieldComponent extends AsyncHandler {
     const time = this.force_time() || this.time();
     const time_parts = (typeof time === "string" ? time : formatTimeInTimezone(time, tz)).split(":");
     const date_value = setTimeInTimezone(this.date(), +time_parts[0], +time_parts[1], tz);
-    this.active_time.set(this._time_options().find((_) => _.id === (typeof time === "string" ? time : formatTimeInTimezone(time, tz)))?.date || date_value);
+    this.active_time.set(this._time_options().find((_2) => _2.id === (typeof time === "string" ? time : formatTimeInTimezone(time, tz)))?.date || date_value);
   }
   /**
    * Update local value when form control value is changed
@@ -2897,7 +2897,7 @@ var TimeFieldComponent = class _TimeFieldComponent extends AsyncHandler {
     this._updateNoOptions();
     const force = this.force_time();
     const time_id = force ? formatTimeInTimezone(force, tz) : this.time();
-    this.active_time.set(this._time_options().find((_) => _.id === time_id)?.date || date.valueOf());
+    this.active_time.set(this._time_options().find((_2) => _2.id === time_id)?.date || date.valueOf());
   }
   setDisabledState(disabled2) {
     this.disabled.set(disabled2);
@@ -4581,8 +4581,8 @@ var EventFormService = class _EventFormService extends AsyncHandler {
         const model2 = this._model();
         if (!model2.id)
           return false;
-        const attendee_emails = model2.attendees.map((_) => (_.email || _).toLowerCase());
-        return this._initial_attendees.every((_) => attendee_emails.includes(_)) && attendee_emails.some((_) => !this._initial_attendees.includes(_)) && this._eventDetails(model2) === this._initial_event_details;
+        const attendee_emails = model2.attendees.map((_2) => (_2.email || _2).toLowerCase());
+        return this._initial_attendees.every((_2) => attendee_emails.includes(_2)) && attendee_emails.some((_2) => !this._initial_attendees.includes(_2)) && this._eventDetails(model2) === this._initial_event_details;
       },
       ...ngDevMode ? [{ debugName: "can_notify_new_attendees_only" }] : (
         /* istanbul ignore next */
@@ -4633,9 +4633,9 @@ var EventFormService = class _EventFormService extends AsyncHandler {
       },
       loader: ({ params: ids }) => {
         this.addLoadingTag(Tags.BookingRules);
-        return Promise.all(ids.map((id) => rc(id, "room_booking_rules").then((_) => ({
+        return Promise.all(ids.map((id) => oc(id, "room_booking_rules").then((_2) => ({
           id,
-          details: _.details instanceof Array ? _.details : []
+          details: _2.details instanceof Array ? _2.details : []
         })).catch(() => ({ id, details: [] })))).then((building_rules) => {
           const mapping = {};
           for (const rules of building_rules) {
@@ -4676,7 +4676,7 @@ var EventFormService = class _EventFormService extends AsyncHandler {
       loader: ({ params: zone_id }) => {
         this.addLoadingTag(Tags.ListingRooms);
         return this._requestSpaces(zone_id).then((list) => {
-          const spaces = list.filter((_) => _.bookable && _.email && !_.room_booking_url);
+          const spaces = list.filter((_2) => _2.bookable && _2.email && !_2.room_booking_url);
           this._loaded_space_lists.update((loaded) => __spreadProps(__spreadValues({}, loaded), {
             [zone_id]: spaces
           }));
@@ -4701,7 +4701,7 @@ var EventFormService = class _EventFormService extends AsyncHandler {
       )
     );
     this.features = computed(
-      () => unique(flatten(this.spaces().map((_) => _.features))),
+      () => unique(flatten(this.spaces().map((_2) => _2.features))),
       ...ngDevMode ? [{ debugName: "features" }] : (
         /* istanbul ignore next */
         []
@@ -4712,7 +4712,7 @@ var EventFormService = class _EventFormService extends AsyncHandler {
       {}
     )), {
       params: () => this._network_consumed() && this._requests_ready() ? this._org.organisation?.id || void 0 : void 0,
-      loader: ({ params: id }) => rc(id, "room_alerts").then((r) => r.details).catch(() => ({}))
+      loader: ({ params: id }) => oc(id, "room_alerts").then((r) => r.details).catch(() => ({}))
     }));
     this.room_alerts = computed(
       () => {
@@ -4745,7 +4745,7 @@ var EventFormService = class _EventFormService extends AsyncHandler {
           list = list.filter(({ capacity }) => filters.capacity <= capacity || capacity < 0);
         }
         if (filters.features) {
-          list = list.filter(({ features }) => filters.features.every((f2) => features.includes(f2)));
+          list = list.filter(({ features }) => filters.features.every((f) => features.includes(f)));
         }
         return list;
       },
@@ -4813,7 +4813,7 @@ var EventFormService = class _EventFormService extends AsyncHandler {
     onFieldChange(this._model, (v) => v.duration, (duration) => this.setOptions({ duration }), this._injector);
     onFieldChange(this._model, (v) => v.all_day, (all_day) => this.setOptions({ all_day }), this._injector);
     this.subscription("router.events", this._router.events.subscribe((event) => {
-      if (event instanceof NavigationEnd && !BOOKING_URLS.some((_) => event.url.includes(_))) {
+      if (event instanceof NavigationEnd && !BOOKING_URLS.some((_2) => event.url.includes(_2))) {
         this.clearForm();
       }
     }));
@@ -4894,7 +4894,7 @@ var EventFormService = class _EventFormService extends AsyncHandler {
     }, rules[this._org.building?.id] || []);
     const ignore = event?.resources[0]?.id || event?.system?.id || event?.id;
     const availability = await this._queryAvailability(spaces.map(({ id }) => id), period.date || 60, period.duration || 60, ignore, event);
-    let list = spaces.filter((_, i) => availability[i]);
+    let list = spaces.filter((_2, i) => availability[i]);
     list = filterResourcesFromRules(list, {
       date: period.date,
       duration: period.duration,
@@ -4934,7 +4934,7 @@ var EventFormService = class _EventFormService extends AsyncHandler {
     this._form_ref.lock_start_time.set(lock_start_time);
     const value = eventFormValue(event);
     this.notify_new_attendees_only.set(false);
-    value.assets = (event.extension_data.assets || []).map((_) => new AssetRequest(__spreadProps(__spreadValues({}, _), { event })));
+    value.assets = (event.extension_data.assets || []).map((_2) => new AssetRequest(__spreadProps(__spreadValues({}, _2), { event })));
     this._model.set(value);
     this._form().reset();
     this._applyDurationSettings();
@@ -4970,7 +4970,7 @@ var EventFormService = class _EventFormService extends AsyncHandler {
     const event = new CalendarEvent(event_data);
     this._event.set(event);
     const initial_value = eventFormValue(event);
-    initial_value.assets = (event.extension_data.assets || []).map((_) => new AssetRequest(__spreadProps(__spreadValues({}, _), { event })));
+    initial_value.assets = (event.extension_data.assets || []).map((_2) => new AssetRequest(__spreadProps(__spreadValues({}, _2), { event })));
     this._setInitialEvent(initial_value);
     this.notify_new_attendees_only.set(false);
     const form_data = JSON.parse(sessionStorage.getItem("PLACEOS.event_form") || "{}");
@@ -5016,7 +5016,7 @@ var EventFormService = class _EventFormService extends AsyncHandler {
     try {
       const event = this._event();
       const space_list = this._model().resources || [];
-      let spaces = space_list.filter((_) => !ignore_space_check.includes(_.id));
+      let spaces = space_list.filter((_2) => !ignore_space_check.includes(_2.id));
       const recurr = this._model().recurrence;
       const raw_value = this._model();
       this._model.update((m) => __spreadProps(__spreadValues({}, m), {
@@ -5025,8 +5025,8 @@ var EventFormService = class _EventFormService extends AsyncHandler {
       if (!this._model().recurring) {
         this._model.update((m) => __spreadProps(__spreadValues({}, m), { recurrence: null }));
       }
-      const changed_spaces = spaces.filter((_) => !event.resources.find((s) => s.id === _.id));
-      const resources_changed = !!changed_spaces.length || event.resources.some((space) => !spaces.some((_) => _.id === space.id));
+      const changed_spaces = spaces.filter((_2) => !event.resources.find((s) => s.id === _2.id));
+      const resources_changed = !!changed_spaces.length || event.resources.some((space) => !spaces.some((_2) => _2.id === space.id));
       const all_day_period = raw_value.all_day ? this._allDayTimeRange(raw_value.date) : {
         date: raw_value.date,
         duration: raw_value.duration,
@@ -5067,7 +5067,7 @@ var EventFormService = class _EventFormService extends AsyncHandler {
           attendees: unique([...m.attendees, organiser].filter(valid_attendee), "email")
         });
       });
-      if (!spaces.length && this._model().attendees.find((_) => _.is_external)) {
+      if (!spaces.length && this._model().attendees.find((_2) => _2.is_external)) {
         this.removeLoadingTag(Tags.PostBooking);
         throw i18n("CALENDAR_EVENT.SPACE_EXTERNALS_ERROR");
       }
@@ -5099,10 +5099,10 @@ var EventFormService = class _EventFormService extends AsyncHandler {
       const target_calendar = raw_value.host || raw_value.creator;
       const query_calendar = event.id ? source_calendar : target_calendar;
       const owner_fields = event.id ? [event.host, event.creator, event.calendar] : [raw_value.host, raw_value.creator, raw_value.calendar];
-      const is_owner = owner_fields.some((_) => _?.toLowerCase?.() === user_email);
+      const is_owner = owner_fields.some((_2) => _2?.toLowerCase?.() === user_email);
       if ((is_owner && !ignore_owner || force_calendar) && query_calendar)
         query.calendar = query_calendar;
-      const processed_assets = (this._model().assets || []).map((_) => new AssetRequest(_).toJSON());
+      const processed_assets = (this._model().assets || []).map((_2) => new AssetRequest(_2).toJSON());
       const host = this._host(this._model().host, spaces[0]?.email);
       const ext = {
         department: this._model().organiser?.department || currentUser()?.department
@@ -5118,8 +5118,8 @@ var EventFormService = class _EventFormService extends AsyncHandler {
         system: null,
         host,
         title: this._model().title || "Space Booking",
-        attendees: this._model().attendees.map((_) => {
-          const v = __spreadValues({}, _);
+        attendees: this._model().attendees.map((_2) => {
+          const v = __spreadValues({}, _2);
           delete v.visit_expected;
           delete v.extension_data;
           return v;
@@ -5130,8 +5130,8 @@ var EventFormService = class _EventFormService extends AsyncHandler {
       const date_end = all_day_period.date_end || all_day_period.date + all_day_period.duration * 60 * 1e3;
       const saved_resources = created_event.resources || [];
       const resolved_resources = this._resolveResourceResponses(space_list, saved_resources);
-      const failed_resources = resolved_resources.filter((_) => _.response_status === "declined");
-      const booked_resources = resolved_resources.filter((_) => _.response_status !== "declined");
+      const failed_resources = resolved_resources.filter((_2) => _2.response_status === "declined");
+      const booked_resources = resolved_resources.filter((_2) => _2.response_status !== "declined");
       spaces = booked_resources;
       created_event = new CalendarEvent(__spreadProps(__spreadValues({}, created_event), {
         event_start: Math.floor(all_day_period.date / 1e3),
@@ -5142,7 +5142,7 @@ var EventFormService = class _EventFormService extends AsyncHandler {
         resources: booked_resources
       }));
       if (failed_resources.length) {
-        const names = failed_resources.map((_) => _.display_name || _.name || _.email).join(", ");
+        const names = failed_resources.map((_2) => _2.display_name || _2.name || _2.email).join(", ");
         notifyWarn(i18n(failed_resources.length > 1 ? "CALENDAR_EVENT.SPACES_UNAVAILABLE" : "CALENDAR_EVENT.SPACE_UNAVAILABLE", { spaces: names }));
       }
       const domain = (currentUser()?.email || "@").split("@")[1];
@@ -5168,7 +5168,7 @@ var EventFormService = class _EventFormService extends AsyncHandler {
               this._org.region?.id,
               this._org.building?.id,
               ...spaces[0]?.zones || []
-            ]).filter((_) => !!_),
+            ]).filter((_2) => !!_2),
             reset_state: has_time_changed
           }, assets, changed_spaces.length > 0 || has_time_changed);
           if (!requests)
@@ -5227,11 +5227,11 @@ var EventFormService = class _EventFormService extends AsyncHandler {
     if (!spaces?.length)
       return true;
     const event = this._event();
-    const id_list = spaces.map((_) => _.id);
+    const id_list = spaces.map((_2) => _2.id);
     const response = await (this.book_internal ? queryResourceAvailability(id_list, date, duration, ignore) : querySpaceAvailability(id_list, date, duration, event?.resources[0]?.id || event?.system?.id || event?.id || void 0, void 0, [event?.date, event?.duration]));
-    const unavailable = spaces.filter((_, i) => !response[i]);
+    const unavailable = spaces.filter((_2, i) => !response[i]);
     if (unavailable.length) {
-      const names = unavailable.map((_) => _.display_name || _.name || _.email).join(", ");
+      const names = unavailable.map((_2) => _2.display_name || _2.name || _2.email).join(", ");
       throw i18n(unavailable.length > 1 ? "CALENDAR_EVENT.SPACES_UNAVAILABLE" : "CALENDAR_EVENT.SPACE_UNAVAILABLE", { spaces: names });
     }
     return true;
@@ -5255,7 +5255,7 @@ var EventFormService = class _EventFormService extends AsyncHandler {
   _resolveResourceResponses(requested, saved) {
     const require_saved_resource = requested.length > 1;
     return requested.map((space) => {
-      const response = saved.find((_) => _.email && _.email === space.email || _.id && _.id === space.id);
+      const response = saved.find((_2) => _2.email && _2.email === space.email || _2.id && _2.id === space.id);
       return new Space(__spreadProps(__spreadValues({}, space), {
         response_status: response?.response_status || (response || !require_saved_resource ? space.response_status : "declined")
       }));
@@ -5294,7 +5294,7 @@ var EventFormService = class _EventFormService extends AsyncHandler {
       const bld = buildings.find((b) => space.zones.includes(b.id));
       if (!bld || rules[bld.id])
         continue;
-      const metadata = await rc(bld.id, "room_booking_rules").catch(() => ({ details: [] }));
+      const metadata = await oc(bld.id, "room_booking_rules").catch(() => ({ details: [] }));
       rules[bld.id] = metadata.details instanceof Array ? metadata.details : [];
     }
     const space_rules = spaces.map((space) => {
@@ -5306,9 +5306,9 @@ var EventFormService = class _EventFormService extends AsyncHandler {
         resource: space
       }, rules[bld?.id]);
     });
-    const hidden = spaces.filter((_, i) => space_rules[i]?.hidden);
+    const hidden = spaces.filter((_2, i) => space_rules[i]?.hidden);
     if (hidden.length) {
-      const names = hidden.map((_) => _.display_name || _.name || _.email).join(", ");
+      const names = hidden.map((_2) => _2.display_name || _2.name || _2.email).join(", ");
       throw i18n("CALENDAR_EVENT.SPACE_BOOKING_RULES_HIDDEN", { spaces: names }, hidden.length);
     }
     return true;
@@ -5360,16 +5360,16 @@ var EventFormService = class _EventFormService extends AsyncHandler {
     const old_system = event.old_system?.id || event.old_system?.email || event.resources[0]?.email;
     const system_id = event.system?.id || event.system?.email || event.resources[0]?.email;
     if (old_system !== system_id) {
-      event.attendees = event.attendees.filter((_) => _.email !== old_system || _.id !== old_system);
+      event.attendees = event.attendees.filter((_2) => _2.email !== old_system || _2.id !== old_system);
     }
     return this.book_internal ? saveBooking(newBookingFromCalendarEvent(__spreadProps(__spreadValues({}, event.toJSON()), {
       // Native recurrence needs weekday indices and millisecond dates.
       recurrence: event.recurrence,
       status: this._settings.get("app.bookings.no_approval") === true ? "approved" : "tentative"
-    }))).then((_) => newCalendarEventFromBooking(_)) : saveEvent(event, query);
+    }))).then((_2) => newCalendarEventFromBooking(_2)) : saveEvent(event, query);
   }
   _setInitialEvent(value) {
-    this._initial_attendees = value.attendees.map((_) => (_.email || _).toLowerCase());
+    this._initial_attendees = value.attendees.map((_2) => (_2.email || _2).toLowerCase());
     this._initial_event_details = this._eventDetails(value);
   }
   _eventDetails(value) {
@@ -5391,7 +5391,7 @@ var EventFormService = class _EventFormService extends AsyncHandler {
     ]);
     details.push([
       "space_ids",
-      (value.resources || []).map((_) => (_.email || _.id || "").toLowerCase()).sort()
+      (value.resources || []).map((_2) => (_2.email || _2.id || "").toLowerCase()).sort()
     ]);
     details.sort(([a], [b]) => a > b ? 1 : -1);
     return JSON.stringify(details);
@@ -5417,8 +5417,8 @@ var EventFormService = class _EventFormService extends AsyncHandler {
       return;
     const old_visitors = this._settings.get("visitor-invitees") || [];
     this._settings.saveUserSetting("visitor-invitees", unique([
-      ...old_visitors.filter((_) => !_.includes(_.email)),
-      ...visitors.map((_) => `${_.email}|${_.name}|${_.organisation}`)
+      ...old_visitors.filter((_2) => !_2.includes(_2.email)),
+      ...visitors.map((_2) => `${_2.email}|${_2.name}|${_2.organisation}`)
     ]));
   }
   static {
@@ -5764,9 +5764,9 @@ var ExploreBookingModalComponent = class _ExploreBookingModalComponent {
     }));
   }
   async save() {
-    await this._event_form.postForm().catch((_) => {
-      notifyError(_);
-      throw _;
+    await this._event_form.postForm().catch((_2) => {
+      notifyError(_2);
+      throw _2;
     });
     if (this._settings.app_name.toLowerCase().includes("workplace")) {
       this._router.navigate(["/book", "meeting", "success"]);
@@ -6306,7 +6306,7 @@ var ExploreSpaceInfoComponent = class _ExploreSpaceInfoComponent extends AsyncHa
     );
   }
   ngOnInit() {
-    const module = zp(this.space().id, "Bookings");
+    const module = Fp(this.space().id, "Bookings");
     for (const name of [
       "hide_meeting_details",
       "hide_meeting_title"
@@ -6546,7 +6546,7 @@ var ExploreSpacesService = class _ExploreSpacesService extends AsyncHandler {
       {}
     )), {
       params: () => this._building() || void 0,
-      loader: ({ params: bld }) => rc(bld.id, `room_booking_rules`).then((_) => _?.details instanceof Array ? _.details : []).catch(() => [])
+      loader: ({ params: bld }) => oc(bld.id, `room_booking_rules`).then((_2) => _2?.details instanceof Array ? _2.details : []).catch(() => [])
     }));
     this.booking_rules = computed(
       () => this._booking_rules.value() ?? [],
@@ -6560,7 +6560,7 @@ var ExploreSpacesService = class _ExploreSpacesService extends AsyncHandler {
       {}
     )), {
       params: () => this._building() || void 0,
-      loader: () => rc(this._org.organisation.id, `room_alerts`).then((_) => _.details || {}).catch(() => ({}))
+      loader: () => oc(this._org.organisation.id, `room_alerts`).then((_2) => _2.details || {}).catch(() => ({}))
     }));
     this.room_alerts = computed(
       () => this._room_alerts.value() ?? {},
@@ -6585,7 +6585,7 @@ var ExploreSpacesService = class _ExploreSpacesService extends AsyncHandler {
     if (!list?.length)
       return;
     for (const space of list) {
-      const mod = zp(space.id, "Bookings");
+      const mod = Fp(space.id, "Bookings");
       let binding = mod.variable("bookings");
       this.subscription(`b-${space.id}`, binding.bindThenSubscribe((d) => this.handleBookingsChange(list, space, d)));
       binding = mod.variable("status");
@@ -6839,10 +6839,10 @@ var SpacesService = class _SpacesService {
    * @param predicate Predicate for filtering spaces
    */
   filter(predicate = this._compare) {
-    return this.space_list.filter((_) => predicate(_));
+    return this.space_list.filter((_2) => predicate(_2));
   }
   async loadSpace(space_id) {
-    const system = await va(space_id);
+    const system = await ka(space_id);
     const space = new Space(__spreadProps(__spreadValues({}, system), {
       level: this._org.levelWithID([...system.zones])
     }));
@@ -6856,7 +6856,7 @@ var SpacesService = class _SpacesService {
     return this._spaces_by_id().get(space_id) || this._spaces_by_email().get(space_id);
   }
   async loadSpaces() {
-    const systems = (await $a({
+    const systems = (await ba({
       zone_id: this._org.organisation.id,
       limit: 5e3
     })).data;
@@ -7943,7 +7943,7 @@ var ExploreDeviceInfoComponent = class _ExploreDeviceInfoComponent {
   async loadUser() {
     if (this.username())
       return;
-    const mod = zp(this._details.system, "LocationServices");
+    const mod = Fp(this._details.system, "LocationServices");
     if (!mod)
       return;
     this.username.set("Loading...");
@@ -8175,7 +8175,7 @@ var ExploreDesksService = class _ExploreDesksService extends AsyncHandler {
       {}
     )), {
       params: () => this._building() || void 0,
-      loader: ({ params: bld }) => rc(bld.id, `desk_booking_rules`).then((_) => _?.details instanceof Array ? _.details : []).catch(() => [])
+      loader: ({ params: bld }) => oc(bld.id, `desk_booking_rules`).then((_2) => _2?.details instanceof Array ? _2.details : []).catch(() => [])
     }));
     this.booking_rules = computed(
       () => this._booking_rules.value() ?? [],
@@ -8193,7 +8193,7 @@ var ExploreDesksService = class _ExploreDesksService extends AsyncHandler {
         if (this._settings.get("app.desks.use_assets")) {
           return queryDeskAssets(lvl.id).then((assets) => assets.map((asset) => deskFromAsset(asset, lvl))).catch(() => []);
         }
-        return rc(lvl.id, "desks").catch(() => ({ details: [] })).then((i) => (i?.details instanceof Array ? i.details : []).map((j) => new Desk(__spreadProps(__spreadValues({}, j), { zone: lvl }))));
+        return oc(lvl.id, "desks").catch(() => ({ details: [] })).then((i) => (i?.details instanceof Array ? i.details : []).map((j) => new Desk(__spreadProps(__spreadValues({}, j), { zone: lvl }))));
       }
     }));
     this.desk_list = computed(
@@ -8232,8 +8232,8 @@ var ExploreDesksService = class _ExploreDesksService extends AsyncHandler {
       if (!bookings)
         return;
       untracked(() => {
-        this._in_use.set(bookings.map((_) => _.asset_id));
-        this._checked_in.set(bookings.filter((_) => _.checked_in).map((_) => _.asset_id));
+        this._in_use.set(bookings.map((_2) => _2.asset_id));
+        this._checked_in.set(bookings.filter((_2) => _2.checked_in).map((_2) => _2.asset_id));
       });
     });
     effect(() => {
@@ -8250,7 +8250,7 @@ var ExploreDesksService = class _ExploreDesksService extends AsyncHandler {
     this.init();
   }
   async init() {
-    await firstValueWhere(this._org_initialised, (_) => !!_, this._injector);
+    await firstValueWhere(this._org_initialised, (_2) => !!_2, this._injector);
     this.setOptions({
       enable_booking: this._settings.get("app.desks.enable_maps") !== false
     });
@@ -8271,10 +8271,10 @@ var ExploreDesksService = class _ExploreDesksService extends AsyncHandler {
       this.subscription(`lvl-desk_bookings`, bookings_binding.bindThenSubscribe((d) => {
         const value = __spreadValues({}, d || {});
         for (const id in value) {
-          const new_bookings = value[id].map((_) => new Booking(__spreadProps(__spreadValues({}, _), {
-            booking_start: _.booking_start || _.started_at,
-            booking_end: _.booking_end || _.ends_at,
-            duration: _.duration / 60
+          const new_bookings = value[id].map((_2) => new Booking(__spreadProps(__spreadValues({}, _2), {
+            booking_start: _2.booking_start || _2.started_at,
+            booking_end: _2.booking_end || _2.ends_at,
+            duration: _2.duration / 60
           })));
           if (!this._desk_bookings[id]) {
             this._desk_bookings[id] = signal(new_bookings);
@@ -8471,7 +8471,7 @@ var ExploreDesksService = class _ExploreDesksService extends AsyncHandler {
         name: desk.name || "Desk"
       }));
     }
-    if (desk.groups?.length && !desk.groups.find((_) => currentUser().groups.includes(_))) {
+    if (desk.groups?.length && !desk.groups.find((_2) => currentUser().groups.includes(_2))) {
       return notifyError(i18n("EXPLORE.DESK_GROUP_ERROR", { name: desk.name || "Desk" }));
     }
     this._bookings.newForm("desk");
@@ -8625,7 +8625,7 @@ var ParkingService = class _ParkingService extends AsyncHandler {
           const bld_ids = blds.map((bld) => bld.id);
           const list = levels.filter((lvl) => bld_ids.includes(lvl.parent_id) && lvl.tags.includes("parking"));
           list.map((lvl) => __spreadProps(__spreadValues({}, lvl), {
-            display_name: `${blds.find((_) => _.id === lvl.parent_id)?.display_name} - ${lvl.display_name}`
+            display_name: `${blds.find((_2) => _2.id === lvl.parent_id)?.display_name} - ${lvl.display_name}`
           }));
           return list;
         }
@@ -8640,14 +8640,14 @@ var ParkingService = class _ParkingService extends AsyncHandler {
     this.users = this._users.asReadonly();
     this.has_booking = this._has_booking.asReadonly();
     this.assigned_space = computed(
-      () => this._spaces().find((_) => _.assigned_to?.toLowerCase() === currentUser().email?.toLowerCase()),
+      () => this._spaces().find((_2) => _2.assigned_to?.toLowerCase() === currentUser().email?.toLowerCase()),
       ...ngDevMode ? [{ debugName: "assigned_space" }] : (
         /* istanbul ignore next */
         []
       )
     );
     this.user_details = computed(
-      () => this._users().find((_) => _.email?.toLowerCase() === currentUser().email?.toLowerCase()),
+      () => this._users().find((_2) => _2.email?.toLowerCase() === currentUser().email?.toLowerCase()),
       ...ngDevMode ? [{ debugName: "user_details" }] : (
         /* istanbul ignore next */
         []
@@ -8702,12 +8702,12 @@ var ParkingService = class _ParkingService extends AsyncHandler {
   async _loadSpaces(level_ids) {
     this._loading.set([...this._loading(), "spaces"]);
     this._spaces.set(await queryParkingSpacesForZones(level_ids));
-    this._loading.set(this._loading().filter((_) => _ !== "spaces"));
+    this._loading.set(this._loading().filter((_2) => _2 !== "spaces"));
   }
   async _loadUsers(building_id) {
     this._loading.set([...this._loading(), "users"]);
     this._users.set(await queryParkingUsers(building_id));
-    this._loading.set(this._loading().filter((_) => _ !== "users"));
+    this._loading.set(this._loading().filter((_2) => _2 !== "users"));
   }
   async _loadBookings(spaces) {
     this._bookings_request = this._bookings_request || queryBookings({
@@ -8731,7 +8731,7 @@ var ParkingService = class _ParkingService extends AsyncHandler {
         const desks = await queryDeskAssetsForZones(level_ids).catch(() => []);
         return { building_id: bld.id, desks };
       }
-      return hc(bld.id, { name: "desks" }).then((data) => ({
+      return lc(bld.id, { name: "desks" }).then((data) => ({
         building_id: bld.id,
         desks: flatten(data.map((meta) => (meta?.metadata?.desks?.details instanceof Array ? meta.metadata.desks.details : []).map((d) => new Desk(__spreadProps(__spreadValues({}, d), {
           zone: meta.zone
@@ -8999,7 +8999,7 @@ var ExploreParkingService = class _ExploreParkingService extends AsyncHandler {
     this.options = this._options.asReadonly();
     this.on_book = null;
     this.levels = computed(
-      () => this._active_levels().filter((_) => _.tags.includes("parking")),
+      () => this._active_levels().filter((_2) => _2.tags.includes("parking")),
       ...ngDevMode ? [{ debugName: "levels" }] : (
         /* istanbul ignore next */
         []
@@ -9010,7 +9010,7 @@ var ExploreParkingService = class _ExploreParkingService extends AsyncHandler {
       {}
     )), {
       params: () => this._building() || void 0,
-      loader: ({ params: bld }) => rc(bld.id, `parking_booking_rules`).then((_) => _?.details instanceof Array ? _.details : []).catch(() => [])
+      loader: ({ params: bld }) => oc(bld.id, `parking_booking_rules`).then((_2) => _2?.details instanceof Array ? _2.details : []).catch(() => [])
     }));
     this.booking_rules = computed(
       () => this._booking_rules.value() ?? [],
@@ -9093,7 +9093,7 @@ var ExploreParkingService = class _ExploreParkingService extends AsyncHandler {
     this.active_spaces = computed(
       () => {
         const level = this._state.level();
-        return level ? this.spaces().filter((_) => _.zone_id === level.id) : [];
+        return level ? this.spaces().filter((_2) => _2.zone_id === level.id) : [];
       },
       ...ngDevMode ? [{ debugName: "active_spaces" }] : (
         /* istanbul ignore next */
@@ -9162,7 +9162,7 @@ var ExploreParkingService = class _ExploreParkingService extends AsyncHandler {
     const colours = this._settings.get("app.explore.colors") || {};
     let options = this._options();
     for (const space of spaces) {
-      const can_book = !!available.find((_) => _.id === space.id);
+      const can_book = !!available.find((_2) => _2.id === space.id);
       const is_workplace = this._settings.app_name.toLowerCase().includes("workplace") || this._settings.app_name.toLowerCase().includes("staff");
       const is_assigned = is_workplace ? false : !!space.assigned_to;
       const id = space.map_id || space.id;
@@ -9209,7 +9209,7 @@ var ExploreParkingService = class _ExploreParkingService extends AsyncHandler {
             name: space.name || "Parking Space"
           }));
         }
-        if (space.place_groups?.length && !space.place_groups.find((_) => currentUser().groups.includes(_))) {
+        if (space.place_groups?.length && !space.place_groups.find((_2) => currentUser().groups.includes(_2))) {
           return notifyError(i18n("EXPLORE.PARKING_GROUP_ERROR", {
             name: space.name
           }));
@@ -9642,8 +9642,8 @@ var ExploreZonesService = class _ExploreZonesService extends AsyncHandler {
     this.init();
   }
   async init() {
-    await firstValueWhere(this._org.initialised, (_) => !!_, this._injector);
-    const zone_metadata = await Promise.all(this._org.levels.map((bld) => rc(bld.id, "map_regions").catch(() => null)));
+    await firstValueWhere(this._org.initialised, (_2) => !!_2, this._injector);
+    const zone_metadata = await Promise.all(this._org.levels.map((bld) => oc(bld.id, "map_regions").catch(() => null)));
     this._capacity = {};
     this._count_key = {};
     this._location = {};
@@ -9699,7 +9699,7 @@ var ExploreZonesService = class _ExploreZonesService extends AsyncHandler {
   }
   _parseBindingData() {
     const areas = this._area_data()?.value || [];
-    const zones = (this._zone_data()?.value || []).filter((_) => _.location === "area");
+    const zones = (this._zone_data()?.value || []).filter((_2) => _2.location === "area");
     this.parseData([...areas, ...zones]);
   }
   parseData(value = []) {
@@ -9852,15 +9852,15 @@ var ASCENDING_NAME_SORTER = new Intl.Collator(void 0, {
 });
 function queryAssetCategoriesLocal(query = {}) {
   const q = toQueryString(query);
-  return f(`${BASE_ENDPOINT}/asset_categories${q ? "?" + q : ""}`).then((_) => _);
+  return _(`${BASE_ENDPOINT}/asset_categories${q ? "?" + q : ""}`).then((_2) => _2);
 }
 function queryAssetTypesLocal(query = {}) {
   const q = toQueryString(query);
-  return f(`${BASE_ENDPOINT}/asset_types${q ? "?" + q : ""}`).then((_) => _);
+  return _(`${BASE_ENDPOINT}/asset_types${q ? "?" + q : ""}`).then((_2) => _2);
 }
 function queryAssetsLocal(query = {}) {
   const q = toQueryString(query);
-  return f(`${BASE_ENDPOINT}/assets${q ? "?" + q : ""}`).then((_) => _);
+  return _(`${BASE_ENDPOINT}/assets${q ? "?" + q : ""}`).then((_2) => _2);
 }
 var TYPES = ["space", "feature", "contact", "user"];
 function typeIndex(item) {
@@ -9870,9 +9870,9 @@ function compareSearchResultsAscending(item_a, item_b) {
   return ASCENDING_NAME_SORTER.compare(item_a.name || "", item_b.name || "") || ASCENDING_NAME_SORTER.compare(item_a.description || "", item_b.description || "") || typeIndex(item_a) - typeIndex(item_b);
 }
 function sortGlobalSearchResults(results, local_zones) {
-  const local_zone_set = new Set(local_zones.filter((_) => !!_));
-  const local_contacts = results.filter((_) => _.is_role && !!_.zone && local_zone_set.has(_.zone || "")).sort(compareSearchResultsAscending);
-  const remaining_results = results.filter((_) => !(_.is_role && !!_.zone && local_zone_set.has(_.zone || ""))).sort(compareSearchResultsAscending);
+  const local_zone_set = new Set(local_zones.filter((_2) => !!_2));
+  const local_contacts = results.filter((_2) => _2.is_role && !!_2.zone && local_zone_set.has(_2.zone || "")).sort(compareSearchResultsAscending);
+  const remaining_results = results.filter((_2) => !(_2.is_role && !!_2.zone && local_zone_set.has(_2.zone || ""))).sort(compareSearchResultsAscending);
   return [...local_contacts, ...remaining_results];
 }
 var ExploreSearchService = class _ExploreSearchService {
@@ -9970,7 +9970,7 @@ var ExploreSearchService = class _ExploreSearchService {
           limit: 200
         }).catch(() => []);
         return assets.filter((a) => a.asset_type_id === asset_type.id).map((a) => {
-          const zone = this._org.levelWithID(a.zones) || this._org.buildings.find((_) => a.zones.includes(_.id));
+          const zone = this._org.levelWithID(a.zones) || this._org.buildings.find((_2) => a.zones.includes(_2.id));
           return {
             id: a.id,
             name: a.identifier || "",
@@ -9989,7 +9989,7 @@ var ExploreSearchService = class _ExploreSearchService {
     )), {
       params: () => this._building() || void 0,
       loader: async ({ params: bld }) => {
-        const { details } = await rc(bld.id, "emergency_contacts").catch(() => ({
+        const { details } = await oc(bld.id, "emergency_contacts").catch(() => ({
           details: { contacts: [], migrated: false }
         }));
         const data = details;
@@ -10022,8 +10022,8 @@ var ExploreSearchService = class _ExploreSearchService {
       {}
     )), {
       params: () => ({ q: this._debounced_filter.value() }),
-      loader: ({ params: { q } }) => q?.length > 2 ? $a({ q, zone_id: this._org.organisation.id }).then(({ data }) => data.filter((_) => _.map_id).map((_) => new Space(__spreadProps(__spreadValues({}, _), {
-        level: this._org.levelWithID(_.zones)
+      loader: ({ params: { q } }) => q?.length > 2 ? ba({ q, zone_id: this._org.organisation.id }).then(({ data }) => data.filter((_2) => _2.map_id).map((_2) => new Space(__spreadProps(__spreadValues({}, _2), {
+        level: this._org.levelWithID(_2.zones)
       })))).catch(() => []) : Promise.resolve([])
     }));
     this._desk_search = resource(__spreadProps(__spreadValues({}, ngDevMode ? { debugName: "_desk_search" } : (
@@ -10036,7 +10036,7 @@ var ExploreSearchService = class _ExploreSearchService {
           const levels = this._org.levelsForBuilding(bld);
           return queryDeskAssetsForZones(levels.map((level) => level.id)).then((assets) => assets.map((asset) => deskFromAsset(asset, levels.find((level) => level.id === asset.zone_id)))).catch(() => []);
         }
-        return hc(bld.id, { name: "desks" }).then((i) => flatten(i.map((j) => (j.metadata.desks?.details || []).map((k) => new Desk(__spreadProps(__spreadValues({}, k), { zone: j.zone })))))).catch(() => []);
+        return lc(bld.id, { name: "desks" }).then((i) => flatten(i.map((j) => (j.metadata.desks?.details || []).map((k) => new Desk(__spreadProps(__spreadValues({}, k), { zone: j.zone })))))).catch(() => []);
       }
     }));
     this._maps_people_search = resource(__spreadProps(__spreadValues({}, ngDevMode ? { debugName: "_maps_people_search" } : (
@@ -10050,12 +10050,12 @@ var ExploreSearchService = class _ExploreSearchService {
       }),
       loader: async ({ params: { available, q } }) => {
         const list = available && q.length > 2 ? await mapsindoors?.services.LocationsService.getLocations({ q }) : [];
-        return (list || []).map((_) => ({
-          id: _.properties?.externalId || _.properties?.roomId || _.roomId || _.id,
-          map_id: _.properties?.externalId || _.properties?.roomId || _.roomId || "",
+        return (list || []).map((_2) => ({
+          id: _2.properties?.externalId || _2.properties?.roomId || _2.roomId || _2.id,
+          map_id: _2.properties?.externalId || _2.properties?.roomId || _2.roomId || "",
           type: "feature",
-          name: _.properties?.name || "",
-          description: `${_.properties?.roomId} , Level ${_.properties?.floorName}`
+          name: _2.properties?.name || "",
+          description: `${_2.properties?.roomId} , Level ${_2.properties?.floorName}`
         }));
       }
     }));
@@ -10065,7 +10065,7 @@ var ExploreSearchService = class _ExploreSearchService {
     )), {
       params: () => this._building() || void 0,
       loader: async () => {
-        const data = await hc(this._org.building.id, {
+        const data = await lc(this._org.building.id, {
           name: "map_features"
         }).catch(() => []);
         const list = [];
@@ -10092,7 +10092,7 @@ var ExploreSearchService = class _ExploreSearchService {
       {}
     )), {
       params: () => this._initialised() || void 0,
-      loader: () => rc(this._org.organisation.id, "points-of-interest").catch((_) => ({ details: {} }))
+      loader: () => oc(this._org.organisation.id, "points-of-interest").catch((_2) => ({ details: {} }))
     }));
     this._poi_list = computed(
       () => {
@@ -10103,7 +10103,7 @@ var ExploreSearchService = class _ExploreSearchService {
         const mapping = metadata.details || {};
         const levels = this._org.levelsForBuilding(bld);
         const list = flatten(levels.map((lvl) => mapping[lvl.id] || []));
-        return list.filter((_) => _.can_search);
+        return list.filter((_2) => _2.can_search);
       },
       ...ngDevMode ? [{ debugName: "_poi_list" }] : (
         /* istanbul ignore next */
@@ -10172,7 +10172,7 @@ var ExploreSearchService = class _ExploreSearchService {
           })))));
         }
         if (!this.hideItem("features")) {
-          results = results.concat(features.filter((_) => _.name.toLowerCase().includes(search)).map((s) => ({
+          results = results.concat(features.filter((_2) => _2.name.toLowerCase().includes(search)).map((s) => ({
             id: s.id,
             type: "feature",
             name: s.name,
@@ -10202,7 +10202,7 @@ var ExploreSearchService = class _ExploreSearchService {
             description: u.email
           })));
         }
-        results = results.filter((_) => _.name.toLowerCase().includes(search) || _.description.toLowerCase().includes(search) || (_.email || "").toLowerCase().includes(search) || _.type.toLowerCase().includes(search) || _.zone_name?.toLowerCase().includes(search));
+        results = results.filter((_2) => _2.name.toLowerCase().includes(search) || _2.description.toLowerCase().includes(search) || (_2.email || "").toLowerCase().includes(search) || _2.type.toLowerCase().includes(search) || _2.zone_name?.toLowerCase().includes(search));
         const in_progress_zones = this._getInProgressZones(in_progress_bookings);
         results.sort((a, b) => {
           if (current_level?.id) {
@@ -10244,11 +10244,11 @@ var ExploreSearchService = class _ExploreSearchService {
         []
       )
     );
-    this.search_fn = (q) => this._settings.get("app.basic_user_search") ? Ja({ q, authority_id: Mt()?.id }).then((_) => _.data) : searchStaff(q);
+    this.search_fn = (q) => this._settings.get("app.basic_user_search") ? Va({ q, authority_id: Mt()?.id }).then((_2) => _2.data) : searchStaff(q);
     this.init();
   }
   async init() {
-    await firstValueWhere(this._initialised, (_) => !!_, this._injector);
+    await firstValueWhere(this._initialised, (_2) => !!_2, this._injector);
     await new Promise((resolve) => setTimeout(resolve, 500));
     const { is_public } = this._state.options();
     if (is_public)
@@ -10673,7 +10673,7 @@ var MatSlideToggle = class _MatSlideToggle {
   _focusMonitor = inject(FocusMonitor);
   _changeDetectorRef = inject(ChangeDetectorRef);
   defaults = inject(MAT_SLIDE_TOGGLE_DEFAULT_OPTIONS);
-  _onChange = (_) => {
+  _onChange = (_2) => {
   };
   _onTouched = () => {
   };
@@ -11515,8 +11515,8 @@ var ExploreComponent = class _ExploreComponent extends AsyncHandler {
       () => {
         const region = this._region();
         const building = this._building();
-        return (this._settings.get("app.use_region") ? flatten(this._org.buildings.filter((bld) => region?.id === bld.parent_id).map((bld) => this._org.levelsForBuilding(bld).map((_) => __spreadProps(__spreadValues({}, _), {
-          display_name: `${bld.display_name} - ${_.display_name}`
+        return (this._settings.get("app.use_region") ? flatten(this._org.buildings.filter((bld) => region?.id === bld.parent_id).map((bld) => this._org.levelsForBuilding(bld).map((_2) => __spreadProps(__spreadValues({}, _2), {
+          display_name: `${bld.display_name} - ${_2.display_name}`
         })))) : this._org.levelsForBuilding(building)) || [];
       },
       ...ngDevMode ? [{ debugName: "levels" }] : (
@@ -11608,7 +11608,7 @@ var ExploreComponent = class _ExploreComponent extends AsyncHandler {
   }
   async toggleZones(enabled) {
     const options = this.options();
-    const disable = !enabled ? unique([...options.disable || [], "zones", "devices"]) : options.disable.filter((_) => _ !== "zones" && _ !== "devices") || [];
+    const disable = !enabled ? unique([...options.disable || [], "zones", "devices"]) : options.disable.filter((_2) => _2 !== "zones" && _2 !== "devices") || [];
     this.setOptions({ disable });
   }
   async ngOnInit() {
@@ -11632,7 +11632,7 @@ var ExploreComponent = class _ExploreComponent extends AsyncHandler {
       const level = this._org.levelWithID([params.get("level")]);
       if (!level)
         return;
-      const bld = this._org.buildings.find((_) => level.parent_id === _.id);
+      const bld = this._org.buildings.find((_2) => level.parent_id === _2.id);
       if (!bld)
         return;
       this._org.building = bld;
@@ -11650,7 +11650,7 @@ var ExploreComponent = class _ExploreComponent extends AsyncHandler {
       }
       if (!user)
         return notifyError(`Unable to user details for ${params.get("user")}`);
-      this.locateUser(user instanceof Array ? user[0] : user).catch((_) => {
+      this.locateUser(user instanceof Array ? user[0] : user).catch((_2) => {
         notifyError(`Unable to locate ${params.get("user")}`);
         this._router.navigate([], {
           relativeTo: this._route,
@@ -11710,7 +11710,7 @@ var ExploreComponent = class _ExploreComponent extends AsyncHandler {
         module: "LocationServices"
       };
     }
-    const mod = zp(locate_details.system_id, locate_details.module);
+    const mod = Fp(locate_details.system_id, locate_details.module);
     const locations = (await mod.execute("locate_user", [
       user.email,
       user.username || user.id
@@ -12103,5 +12103,5 @@ var ROUTES = [
 export {
   ROUTES
 };
-//# debugId=42e5dc52-259c-5d34-a42f-af49f6953783
-//# sourceMappingURL=explore.routes-54VB3RN4.js.map
+//# debugId=f481499a-c4fd-58c6-af28-46d1b76da2d8
+//# sourceMappingURL=explore.routes-SNFI2PEZ.js.map

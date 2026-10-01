@@ -9,24 +9,24 @@ import {
   generateMockSpace,
   setHours,
   setMinutes
-} from "./chunk-WC43U5HP.js";
+} from "./chunk-CH6U6HX4.js";
 import {
   MatTooltip,
   MatTooltipModule
-} from "./chunk-WWNI3QJE.js";
+} from "./chunk-CWR7QACH.js";
 import {
   parseTokenFromUrl
 } from "./chunk-FZ3XJSQC.js";
 import {
   CheckinStateService
-} from "./chunk-GU4OHO7V.js";
+} from "./chunk-X2RZITIG.js";
 import {
   MatCheckbox,
   MatCheckboxModule,
   MatSelect,
   MatSelectModule,
   MatSelectTrigger
-} from "./chunk-2I25TAVK.js";
+} from "./chunk-5T3B5CHY.js";
 import {
   AuthenticatedImageDirective,
   FormField,
@@ -39,13 +39,13 @@ import {
   MatProgressSpinner,
   MatProgressSpinnerModule,
   VirtualKeyboardComponent
-} from "./chunk-7JWWB5QF.js";
+} from "./chunk-YXGNVCD6.js";
 import {
   TranslatePipe
-} from "./chunk-3MXEXQQP.js";
+} from "./chunk-2ICR73UQ.js";
 import {
   SanitizePipe
-} from "./chunk-QWFLHVYU.js";
+} from "./chunk-BDS7FGAR.js";
 import {
   ActivatedRoute,
   AsyncHandler,
@@ -68,8 +68,8 @@ import {
   InjectionToken,
   Injector,
   Input,
-  Ir,
   J,
+  Jr,
   LOCALE_ID,
   LocaleService,
   MatOption,
@@ -82,7 +82,6 @@ import {
   NgModel,
   NgModule,
   NgZone,
-  Op,
   OrganisationService,
   Output,
   PlaceOS_Service,
@@ -94,12 +93,11 @@ import {
   RouterOutlet,
   SettingsService,
   TraceService,
+  Ur,
   User,
   VERSION,
   ViewChild,
   ViewEncapsulation,
-  Xr,
-  Zr,
   _getAnimationsState,
   addDays,
   addMinutes,
@@ -107,6 +105,7 @@ import {
   autoConfirmNativeDomain,
   bootstrapApplication,
   capitalizeFirstLetter,
+  co,
   computed,
   createErrorHandler,
   current_user,
@@ -163,13 +162,14 @@ import {
   startOfDay,
   startOfMinute,
   timePeriodsIntersect,
+  to,
   unique,
   untracked,
-  uo,
   user_groups_loaded,
   viewChild,
   withHashLocation,
   withNavigationErrorHandler,
+  wp,
   ɵNgNoValidate,
   ɵsetClassDebugInfo,
   ɵɵInheritDefinitionFeature,
@@ -223,7 +223,7 @@ import {
   ɵɵtwoWayListener,
   ɵɵtwoWayProperty,
   ɵɵviewQuerySignal
-} from "./chunk-MTOOLKI7.js";
+} from "./chunk-OQVSHQAY.js";
 import {
   __spreadProps,
   __spreadValues
@@ -1429,7 +1429,7 @@ var GlobalLoadingComponent = class _GlobalLoadingComponent extends AsyncHandler 
   }
   ngOnInit() {
     const update_online = () => {
-      this.online.set(Xr());
+      this.online.set(eo());
       if (this.online()) {
         this.connection_checked.set(true);
         this.clearTimeout("initial-connection");
@@ -1545,15 +1545,15 @@ var GlobalLoadingComponent = class _GlobalLoadingComponent extends AsyncHandler 
 // libs/components/src/lib/settings-debug-panel-launcher.component.ts
 var SettingsDebugPanelLauncherComponent_Defer_25_DepsFn = () => [
   /* @ts-ignore */
-  import("./settings-debug-panel.component-R5OP272J.js").then((m) => m.SettingsDebugPanelComponent)
+  import("./settings-debug-panel.component-UXDE4ATT.js").then((m) => m.SettingsDebugPanelComponent)
 ];
 var SettingsDebugPanelLauncherComponent_Defer_28_DepsFn = () => [
   /* @ts-ignore */
-  import("./binding-debug-panel.component-24XWPZBE.js").then((m) => m.BindingDebugPanelComponent)
+  import("./binding-debug-panel.component-HSRN36XX.js").then((m) => m.BindingDebugPanelComponent)
 ];
 var SettingsDebugPanelLauncherComponent_Defer_31_DepsFn = () => [
   /* @ts-ignore */
-  import("./debug-console.component-JIWFGSQA.js").then((m) => m.DebugConsoleComponent)
+  import("./debug-console.component-DHJUV4ZJ.js").then((m) => m.DebugConsoleComponent)
 ];
 function SettingsDebugPanelLauncherComponent_Defer_24_Conditional_0_Template(rf, ctx) {
   if (rf & 1) {
@@ -1788,11 +1788,11 @@ var SettingsDebugPanelLauncherComponent = class _SettingsDebugPanelLauncherCompo
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(SettingsDebugPanelLauncherComponent, () => [
     /* @ts-ignore */
-    import("./settings-debug-panel.component-R5OP272J.js").then((m) => m.SettingsDebugPanelComponent),
+    import("./settings-debug-panel.component-UXDE4ATT.js").then((m) => m.SettingsDebugPanelComponent),
     /* @ts-ignore */
-    import("./binding-debug-panel.component-24XWPZBE.js").then((m) => m.BindingDebugPanelComponent),
+    import("./binding-debug-panel.component-HSRN36XX.js").then((m) => m.BindingDebugPanelComponent),
     /* @ts-ignore */
-    import("./debug-console.component-JIWFGSQA.js").then((m) => m.DebugConsoleComponent)
+    import("./debug-console.component-DHJUV4ZJ.js").then((m) => m.DebugConsoleComponent)
   ], (SettingsDebugPanelComponent, BindingDebugPanelComponent, DebugConsoleComponent) => {
     setClassMetadata(SettingsDebugPanelLauncherComponent, [{
       type: Component,
@@ -2014,7 +2014,7 @@ var AuthorisedUserGuard = class _AuthorisedUserGuard {
   }
   /** The active user, or null if the backend could not be reached in time */
   async waitForUser() {
-    const online = await this.waitForBackend(Zr(eo(), Boolean));
+    const online = await this.waitForBackend(Jr(to(), Boolean));
     if (!online)
       return null;
     let user = null;
@@ -3431,7 +3431,7 @@ var update = (dataset) => (id, data) => {
   return new_event;
 };
 function registerMockAssets() {
-  uo({
+  co({
     path: `${BASE_PATH}/asset_categories`,
     metadata: {},
     method: "GET",
@@ -3444,7 +3444,7 @@ function registerMockAssets() {
       return results;
     }
   });
-  uo({
+  co({
     path: `${BASE_PATH}/asset_categories/:id`,
     metadata: {},
     method: "GET",
@@ -3458,7 +3458,7 @@ function registerMockAssets() {
       return event;
     }
   });
-  uo({
+  co({
     path: `${BASE_PATH}/asset_categories`,
     metadata: {},
     method: "POST",
@@ -3470,13 +3470,13 @@ function registerMockAssets() {
       return new_event;
     }
   });
-  uo({
+  co({
     path: `${BASE_PATH}/asset_categories/:id`,
     metadata: {},
     method: "PUT",
     callback: (req) => update(MOCK_CATEGORIES)(req.route_params.id, __spreadValues({}, req.body))
   });
-  uo({
+  co({
     path: `${BASE_PATH}/asset_categories/:id`,
     metadata: {},
     method: "DELETE",
@@ -3491,7 +3491,7 @@ function registerMockAssets() {
       return;
     }
   });
-  uo({
+  co({
     path: `${BASE_PATH}/asset_types`,
     metadata: {},
     method: "GET",
@@ -3503,7 +3503,7 @@ function registerMockAssets() {
       return results;
     }
   });
-  uo({
+  co({
     path: `${BASE_PATH}/asset_types/:id`,
     metadata: {},
     method: "GET",
@@ -3517,7 +3517,7 @@ function registerMockAssets() {
       return event;
     }
   });
-  uo({
+  co({
     path: `${BASE_PATH}/asset_types`,
     metadata: {},
     method: "POST",
@@ -3529,13 +3529,13 @@ function registerMockAssets() {
       return new_event;
     }
   });
-  uo({
+  co({
     path: `${BASE_PATH}/asset_types/:id`,
     metadata: {},
     method: "PUT",
     callback: (req) => update(MOCK_PRODUCTS)(req.route_params.id, __spreadValues({}, req.body))
   });
-  uo({
+  co({
     path: `${BASE_PATH}/asset_types/:id`,
     metadata: {},
     method: "DELETE",
@@ -3550,7 +3550,7 @@ function registerMockAssets() {
       return;
     }
   });
-  uo({
+  co({
     path: `${BASE_PATH}/asset_purchase_orders`,
     metadata: {},
     method: "GET",
@@ -3559,7 +3559,7 @@ function registerMockAssets() {
       return events;
     }
   });
-  uo({
+  co({
     path: `${BASE_PATH}/asset_purchase_orders/:id`,
     metadata: {},
     method: "GET",
@@ -3573,7 +3573,7 @@ function registerMockAssets() {
       return event;
     }
   });
-  uo({
+  co({
     path: `${BASE_PATH}/asset_purchase_orders`,
     metadata: {},
     method: "POST",
@@ -3585,13 +3585,13 @@ function registerMockAssets() {
       return new_event;
     }
   });
-  uo({
+  co({
     path: `${BASE_PATH}/asset_purchase_orders/:id`,
     metadata: {},
     method: "PUT",
     callback: (req) => update(MOCK_PURCHASE_ORDERS)(req.route_params.id, __spreadValues({}, req.body))
   });
-  uo({
+  co({
     path: `${BASE_PATH}/asset_purchase_orders/:id`,
     metadata: {},
     method: "DELETE",
@@ -3606,7 +3606,7 @@ function registerMockAssets() {
       return;
     }
   });
-  uo({
+  co({
     path: `${BASE_PATH}/assets`,
     metadata: {},
     method: "GET",
@@ -3626,7 +3626,7 @@ function registerMockAssets() {
       return results;
     }
   });
-  uo({
+  co({
     path: `${BASE_PATH}/assets/:id`,
     metadata: {},
     method: "GET",
@@ -3640,7 +3640,7 @@ function registerMockAssets() {
       return event;
     }
   });
-  uo({
+  co({
     path: `${BASE_PATH}/assets`,
     metadata: {},
     method: "POST",
@@ -3652,13 +3652,13 @@ function registerMockAssets() {
       return new_event;
     }
   });
-  uo({
+  co({
     path: `${BASE_PATH}/assets/:id`,
     metadata: {},
     method: "PUT",
     callback: (req) => update(MOCK_ASSETS)(req.route_params.id, __spreadValues({}, req.body))
   });
-  uo({
+  co({
     path: `${BASE_PATH}/assets/:id`,
     metadata: {},
     method: "DELETE",
@@ -5491,7 +5491,7 @@ var MOCK_CATERING_BOOKINGS = (() => {
 // libs/mocks/src/lib/api/bookings.mock.ts
 var ALL_BOOKINGS = [...MOCK_BOOKINGS, ...MOCK_CATERING_BOOKINGS];
 function registerMockBookings() {
-  uo({
+  co({
     path: "/api/staff/v1/bookings",
     metadata: {},
     method: "GET",
@@ -5527,7 +5527,7 @@ function registerMockBookings() {
       return events;
     }
   });
-  uo({
+  co({
     path: "/api/debug/bookings/distribution",
     metadata: {},
     method: "GET",
@@ -5562,7 +5562,7 @@ function registerMockBookings() {
       };
     }
   });
-  uo({
+  co({
     path: "/api/staff/v1/bookings/:id",
     metadata: {},
     method: "GET",
@@ -5576,7 +5576,7 @@ function registerMockBookings() {
       return event;
     }
   });
-  uo({
+  co({
     path: "/api/staff/v1/bookings/:id/guests/:email",
     metadata: {},
     method: "POST",
@@ -5597,7 +5597,7 @@ function registerMockBookings() {
       return user;
     }
   });
-  uo({
+  co({
     path: "/api/staff/v1/bookings/:id/guests/:email",
     metadata: {},
     method: "DELETE",
@@ -5620,7 +5620,7 @@ function registerMockBookings() {
       return guest;
     }
   });
-  uo({
+  co({
     path: "/api/staff/v1/bookings/:id/guests/:email/checkin",
     metadata: {},
     method: "POST",
@@ -5637,7 +5637,7 @@ function registerMockBookings() {
       return {};
     }
   });
-  uo({
+  co({
     path: "/api/staff/v1/bookings",
     metadata: {},
     method: "POST",
@@ -5660,13 +5660,13 @@ function registerMockBookings() {
     ALL_BOOKINGS.splice(index, 1, new_event);
     return new_event;
   };
-  uo({
+  co({
     path: "/api/staff/v1/bookings/:id",
     metadata: {},
     method: "PATCH",
     callback: (req) => updateBooking(req.route_params.id, req.body)
   });
-  uo({
+  co({
     path: "/api/staff/v1/bookings/:id/approve",
     metadata: {},
     method: "POST",
@@ -5682,7 +5682,7 @@ function registerMockBookings() {
       return booking;
     }
   });
-  uo({
+  co({
     path: "/api/staff/v1/bookings/:id/reject",
     metadata: {},
     method: "POST",
@@ -5698,7 +5698,7 @@ function registerMockBookings() {
       return booking;
     }
   });
-  uo({
+  co({
     path: "/api/staff/v1/bookings/:id/check_in",
     metadata: {},
     method: "POST",
@@ -5720,7 +5720,7 @@ function registerMockBookings() {
       return booking;
     }
   });
-  uo({
+  co({
     path: "/api/staff/v1/bookings/:id/update_induction",
     metadata: {},
     method: "POST",
@@ -5736,13 +5736,13 @@ function registerMockBookings() {
       return booking;
     }
   });
-  uo({
+  co({
     path: "/api/staff/v1/bookings/:id",
     metadata: {},
     method: "PUT",
     callback: (req) => updateBooking(req.route_params.id, req.body)
   });
-  uo({
+  co({
     path: "/api/staff/v1/bookings/:id",
     metadata: {},
     method: "DELETE",
@@ -6096,7 +6096,7 @@ var event_spaces = MOCK_SPACES.map((space) => space.id);
 
 // libs/mocks/src/lib/api/calendars.mock.ts
 function registerMockCalendars() {
-  uo({
+  co({
     path: "/api/staff/v1/calendars",
     metadata: {},
     method: "GET",
@@ -6151,7 +6151,7 @@ function registerMockCalendars() {
     });
     return spaces;
   };
-  uo({
+  co({
     path: "/api/staff/v1/calendars/availability",
     metadata: {},
     method: "GET",
@@ -6159,7 +6159,7 @@ function registerMockCalendars() {
       resource: _
     }))
   });
-  uo({
+  co({
     path: "/api/staff/v1/calendars/free_busy",
     metadata: {},
     method: "GET",
@@ -6171,7 +6171,7 @@ function registerMockCalendars() {
 
 // libs/mocks/src/lib/api/events.mock.ts
 function registerMockEvents() {
-  uo({
+  co({
     path: "/api/staff/v1/events",
     metadata: {},
     method: "GET",
@@ -6188,7 +6188,7 @@ function registerMockEvents() {
       return events;
     }
   });
-  uo({
+  co({
     path: "/api/staff/v1/events",
     metadata: {},
     method: "POST",
@@ -6211,12 +6211,12 @@ function registerMockEvents() {
         ];
       }
       MOCK_EVENTS.push(new_event);
-      const system = Ir(new_event.system?.id);
+      const system = Ur(new_event.system?.id);
       system?.Bookings[0]?.$poll_bookings();
       return new_event;
     }
   });
-  uo({
+  co({
     path: "/api/staff/v1/events/:id",
     metadata: {},
     method: "GET",
@@ -6228,7 +6228,7 @@ function registerMockEvents() {
       throw { status: 404, message: "Event not found" };
     }
   });
-  uo({
+  co({
     path: "/api/staff/v1/events/:id",
     metadata: {},
     method: "DELETE",
@@ -6246,7 +6246,7 @@ function registerMockEvents() {
       throw { status: 404, message: "Event not found" };
     }
   });
-  uo({
+  co({
     path: "/api/staff/v1/events/:id",
     metadata: {},
     method: "PATCH",
@@ -6255,14 +6255,14 @@ function registerMockEvents() {
       if (index >= 0) {
         const event = __spreadValues(__spreadValues({}, MOCK_EVENTS[index]), request.body);
         MOCK_EVENTS.splice(index, 1, event);
-        const system = Ir(request.query_params.system_id || event.system?.id);
+        const system = Ur(request.query_params.system_id || event.system?.id);
         system?.Bookings?.[0]?.$poll_bookings();
         return event;
       }
       throw { status: 404, message: "Event not found" };
     }
   });
-  uo({
+  co({
     path: "/api/staff/v1/events/:id/guests/:email/checkin",
     metadata: {},
     method: "POST",
@@ -7095,7 +7095,7 @@ function registerMockSignage() {
       });
     }
   });
-  uo({
+  co({
     path: "/api/engine/v2/groups/current",
     metadata: {},
     method: "GET",
@@ -7106,13 +7106,13 @@ function registerMockSignage() {
       return [];
     }
   });
-  uo({
+  co({
     path: "/api/engine/v2/groups",
     metadata: {},
     method: "GET",
     callback: (request) => listSignageMockGroups(request.query_params)
   });
-  uo({
+  co({
     path: "/api/engine/v2/groups",
     metadata: {},
     method: "POST",
@@ -7127,7 +7127,7 @@ function registerMockSignage() {
       return group;
     }
   });
-  uo({
+  co({
     path: "/api/engine/v2/groups/:id",
     metadata: {},
     method: "PATCH",
@@ -7141,7 +7141,7 @@ function registerMockSignage() {
       return item.group;
     }
   });
-  uo({
+  co({
     path: "/api/engine/v2/groups/:id",
     metadata: {},
     method: "GET",
@@ -7152,7 +7152,7 @@ function registerMockSignage() {
       return item.group;
     }
   });
-  uo({
+  co({
     path: "/api/engine/v2/groups/:id/features",
     metadata: {},
     method: "GET",
@@ -7176,7 +7176,7 @@ function registerMockSignage() {
       return subsystem ? { [subsystem]: features[subsystem] || {} } : features;
     }
   });
-  uo({
+  co({
     path: "/api/engine/v2/groups/:id",
     metadata: {},
     method: "DELETE",
@@ -7187,7 +7187,7 @@ function registerMockSignage() {
       return {};
     }
   });
-  uo({
+  co({
     path: "/api/staff/v1/groups",
     metadata: {},
     method: "GET",
@@ -7196,13 +7196,13 @@ function registerMockSignage() {
       return MOCK_DIRECTORY_GROUPS.filter((group) => !q || group.name.toLowerCase().includes(q) || group.email.toLowerCase().includes(q));
     }
   });
-  uo({
+  co({
     path: "/api/engine/v2/group_users",
     metadata: {},
     method: "GET",
     callback: (request) => SIGNAGE_GROUP_USERS.filter((item) => item.group_id === request.query_params?.group_id)
   });
-  uo({
+  co({
     path: "/api/engine/v2/group_users",
     metadata: {},
     method: "POST",
@@ -7220,7 +7220,7 @@ function registerMockSignage() {
       return item;
     }
   });
-  uo({
+  co({
     path: "/api/engine/v2/group_users/:user_id/:group_id",
     metadata: {},
     method: "PATCH",
@@ -7236,7 +7236,7 @@ function registerMockSignage() {
       return item;
     }
   });
-  uo({
+  co({
     path: "/api/engine/v2/group_users/:user_id/:group_id",
     metadata: {},
     method: "DELETE",
@@ -7249,13 +7249,13 @@ function registerMockSignage() {
       return {};
     }
   });
-  uo({
+  co({
     path: "/api/engine/v2/group_zones",
     metadata: {},
     method: "GET",
     callback: (request) => SIGNAGE_GROUP_ZONES.filter((item) => item.group_id === request.query_params?.group_id)
   });
-  uo({
+  co({
     path: "/api/engine/v2/group_zones",
     metadata: {},
     method: "POST",
@@ -7272,7 +7272,7 @@ function registerMockSignage() {
       return item;
     }
   });
-  uo({
+  co({
     path: "/api/engine/v2/group_zones/:group_id/:zone_id",
     metadata: {},
     method: "PATCH",
@@ -7288,7 +7288,7 @@ function registerMockSignage() {
       return item;
     }
   });
-  uo({
+  co({
     path: "/api/engine/v2/group_zones/:group_id/:zone_id",
     metadata: {},
     method: "DELETE",
@@ -7301,13 +7301,13 @@ function registerMockSignage() {
       return {};
     }
   });
-  uo({
+  co({
     path: "/api/engine/v2/signage/media",
     metadata: {},
     method: "GET",
     callback: (request) => filterByGroup(MOCK_MEDIA, request.query_params?.group_id).map(toEngineMedia)
   });
-  uo({
+  co({
     path: "/api/engine/v2/signage/media/tags",
     metadata: {},
     method: "GET",
@@ -7315,7 +7315,7 @@ function registerMockSignage() {
       ...new Set(filterByGroup(MOCK_MEDIA, request.query_params?.group_id).flatMap((item) => item.tags || []).filter((tag) => !!tag))
     ]
   });
-  uo({
+  co({
     path: "/api/engine/v2/signage/media/tag_counts",
     metadata: {},
     method: "GET",
@@ -7331,7 +7331,7 @@ function registerMockSignage() {
       return counts;
     }
   });
-  uo({
+  co({
     path: "/api/engine/v2/signage/media",
     metadata: {},
     method: "POST",
@@ -7341,7 +7341,7 @@ function registerMockSignage() {
       updated_at: getUnixTime(Date.now())
     })
   });
-  uo({
+  co({
     path: "/api/engine/v2/signage/media/:id",
     metadata: {},
     method: "GET",
@@ -7349,7 +7349,7 @@ function registerMockSignage() {
       shared_with: sharedWithGroups(MOCK_MEDIA, request.route_params.id)
     })
   });
-  uo({
+  co({
     path: "/api/engine/v2/signage/media/:id",
     metadata: {},
     method: "PATCH",
@@ -7357,43 +7357,43 @@ function registerMockSignage() {
       updated_at: getUnixTime(Date.now())
     })
   });
-  uo({
+  co({
     path: "/api/engine/v2/signage/media/:id",
     metadata: {},
     method: "DELETE",
     callback: () => ({})
   });
-  uo({
+  co({
     path: "/api/engine/v2/signage/media/:id/thumbnail",
     metadata: {},
     method: "GET",
     callback: () => ({})
   });
-  uo({
+  co({
     path: "/api/engine/v2/signage/media/share",
     metadata: {},
     method: "POST",
     callback: () => ({})
   });
-  uo({
+  co({
     path: "/api/engine/v2/signage/plugins",
     metadata: {},
     method: "GET",
     callback: () => MOCK_PLUGINS
   });
-  uo({
+  co({
     path: "/api/engine/v2/signage/plugins/:id",
     metadata: {},
     method: "GET",
     callback: (request) => MOCK_PLUGINS.find((plugin) => plugin.id === request.route_params.id) || {}
   });
-  uo({
+  co({
     path: "/api/engine/v2/signage/playlists",
     metadata: {},
     method: "GET",
     callback: (request) => filterByGroup(MOCK_PLAYLISTS, request.query_params?.group_id).map(toEnginePlaylist)
   });
-  uo({
+  co({
     path: "/api/engine/v2/signage/playlists/approvers",
     metadata: {},
     method: "GET",
@@ -7402,7 +7402,7 @@ function registerMockSignage() {
       name: item.user?.name || item.user_id
     }))
   });
-  uo({
+  co({
     path: "/api/engine/v2/signage/playlists",
     metadata: {},
     method: "POST",
@@ -7412,7 +7412,7 @@ function registerMockSignage() {
       updated_at: getUnixTime(Date.now())
     })
   });
-  uo({
+  co({
     path: "/api/engine/v2/signage/playlists/:id",
     metadata: {},
     method: "GET",
@@ -7420,7 +7420,7 @@ function registerMockSignage() {
       shared_with: sharedWithGroups(MOCK_PLAYLISTS, request.route_params.id)
     })
   });
-  uo({
+  co({
     path: "/api/engine/v2/signage/playlists/:id",
     metadata: {},
     method: "PATCH",
@@ -7428,19 +7428,19 @@ function registerMockSignage() {
       updated_at: getUnixTime(Date.now())
     })
   });
-  uo({
+  co({
     path: "/api/engine/v2/signage/playlists/:id",
     metadata: {},
     method: "DELETE",
     callback: () => ({})
   });
-  uo({
+  co({
     path: "/api/engine/v2/signage/playlists/:id/media",
     metadata: {},
     method: "GET",
     callback: (request) => playlistMediaResponse(request.route_params.id, false)
   });
-  uo({
+  co({
     path: "/api/engine/v2/signage/playlists/:id/media",
     metadata: {},
     method: "POST",
@@ -7449,7 +7449,7 @@ function registerMockSignage() {
       updated_at: getUnixTime(Date.now())
     })
   });
-  uo({
+  co({
     path: "/api/engine/v2/signage/playlists/:id/media/schedule",
     metadata: {},
     method: "POST",
@@ -7463,7 +7463,7 @@ function registerMockSignage() {
       ]
     })
   });
-  uo({
+  co({
     path: "/api/engine/v2/signage/playlists/:id/media/schedule/:item_id",
     metadata: {},
     method: "PATCH",
@@ -7473,7 +7473,7 @@ function registerMockSignage() {
       schedules: request.body?.schedules || []
     })
   });
-  uo({
+  co({
     path: "/api/engine/v2/signage/playlists/:id/media/revisions",
     metadata: {},
     method: "GET",
@@ -7482,37 +7482,37 @@ function registerMockSignage() {
       playlistMediaResponse(request.route_params.id, true)
     ]
   });
-  uo({
+  co({
     path: "/api/engine/v2/signage/playlists/:id/media/approve",
     metadata: {},
     method: "POST",
     callback: (request) => playlistMediaResponse(request.route_params.id, true)
   });
-  uo({
+  co({
     path: "/api/engine/v2/signage/playlists/:id/media/request_approval",
     metadata: {},
     method: "POST",
     callback: () => ({})
   });
-  uo({
+  co({
     path: "/api/engine/v2/signage/playlists/share",
     metadata: {},
     method: "POST",
     callback: () => ({})
   });
-  uo({
+  co({
     path: "/api/engine/v2/signage/:id",
     metadata: {},
     method: "GET",
     callback: (request) => signageDisplay(request.route_params.id)
   });
-  uo({
+  co({
     path: "/api/engine/v2/signage/:id/metrics",
     metadata: {},
     method: "POST",
     callback: () => ({})
   });
-  uo({
+  co({
     path: "/api/staff/v1/signage-displays",
     metadata: {},
     method: "GET",
@@ -7538,7 +7538,7 @@ function registerMockSignage() {
       };
     }
   });
-  uo({
+  co({
     path: "/api/staff/v1/signage/displays/:id",
     metadata: {},
     method: "GET",
@@ -7549,7 +7549,7 @@ function registerMockSignage() {
       return display;
     }
   });
-  uo({
+  co({
     path: "/api/staff/v1/signage/media",
     metadata: {},
     method: "GET",
@@ -7579,7 +7579,7 @@ function registerMockSignage() {
       };
     }
   });
-  uo({
+  co({
     path: "/api/staff/v1/signage/playlists",
     metadata: {},
     method: "GET",
@@ -7601,7 +7601,7 @@ function registerMockSignage() {
       };
     }
   });
-  uo({
+  co({
     path: "/api/staff/v1/signage/playlists/:id",
     metadata: {},
     method: "GET",
@@ -7617,7 +7617,7 @@ function registerMockSignage() {
       return playlistWithMedia;
     }
   });
-  uo({
+  co({
     path: "/api/staff/v1/signage/triggers",
     metadata: {},
     method: "GET",
@@ -7640,7 +7640,7 @@ function registerMockSignage() {
       };
     }
   });
-  uo({
+  co({
     path: "/api/staff/v1/signage/displays/:id/content",
     metadata: {},
     method: "GET",
@@ -7667,7 +7667,7 @@ function registerMockSignage() {
       };
     }
   });
-  uo({
+  co({
     path: "/api/staff/v1/signage-analytics",
     metadata: {},
     method: "GET",
@@ -7712,7 +7712,7 @@ function registerMockSignage() {
       };
     }
   });
-  uo({
+  co({
     path: "/api/staff/v1/signage-displays/:id/control",
     metadata: {},
     method: "POST",
@@ -7797,7 +7797,7 @@ function registerMockSignageAI() {
     }
     return job;
   }
-  uo({
+  co({
     path: "/api/engine/v2/signage/ai/capabilities",
     metadata: {},
     method: "GET",
@@ -7832,25 +7832,25 @@ function registerMockSignageAI() {
       quota: { user_remaining_today: 42, domain_remaining_month: 900 }
     })
   });
-  uo({
+  co({
     path: "/api/engine/v2/signage/ai/generate",
     metadata: {},
     method: "POST",
     callback: (request) => makeJob(request.body || {}, "generate")
   });
-  uo({
+  co({
     path: "/api/engine/v2/signage/ai/edit",
     metadata: {},
     method: "POST",
     callback: (request) => makeJob(request.body || {}, "edit")
   });
-  uo({
+  co({
     path: "/api/engine/v2/signage/ai/jobs",
     metadata: {},
     method: "GET",
     callback: () => Object.values(AI_JOBS)
   });
-  uo({
+  co({
     path: "/api/engine/v2/signage/ai/jobs/:id",
     metadata: {},
     method: "GET",
@@ -7861,7 +7861,7 @@ function registerMockSignageAI() {
       return job;
     }
   });
-  uo({
+  co({
     path: "/api/engine/v2/signage/ai/jobs/:id/cancel",
     metadata: {},
     method: "POST",
@@ -7876,7 +7876,7 @@ function registerMockSignageAI() {
       return job;
     }
   });
-  uo({
+  co({
     path: "/api/engine/v2/signage/ai/jobs/:id/claim",
     metadata: {},
     method: "POST",
@@ -8460,7 +8460,7 @@ var MOCK_ANSWERS = [
   }
 ];
 function registerMockSurveys() {
-  uo({
+  co({
     path: "/api/staff/v1/surveys",
     metadata: {},
     method: "GET",
@@ -8479,7 +8479,7 @@ function registerMockSurveys() {
       return filteredSurveys;
     }
   });
-  uo({
+  co({
     path: "/api/staff/v1/surveys/questions",
     metadata: {},
     method: "GET",
@@ -8504,7 +8504,7 @@ function registerMockSurveys() {
       return filteredQuestions;
     }
   });
-  uo({
+  co({
     path: "/api/staff/v1/surveys/questions/:id",
     metadata: {},
     method: "GET",
@@ -8519,7 +8519,7 @@ function registerMockSurveys() {
       return question;
     }
   });
-  uo({
+  co({
     path: "/api/staff/v1/surveys/answers",
     metadata: {},
     method: "GET",
@@ -8540,7 +8540,7 @@ function registerMockSurveys() {
       return filteredAnswers;
     }
   });
-  uo({
+  co({
     path: "/api/staff/v1/surveys/answers/:id",
     metadata: {},
     method: "GET",
@@ -8553,7 +8553,7 @@ function registerMockSurveys() {
       return answer;
     }
   });
-  uo({
+  co({
     path: "/api/staff/v1/surveys/:id",
     metadata: {},
     method: "GET",
@@ -8568,7 +8568,7 @@ function registerMockSurveys() {
       return survey;
     }
   });
-  uo({
+  co({
     path: "/api/staff/v1/surveys/answers",
     metadata: {},
     method: "POST",
@@ -9767,7 +9767,7 @@ var createVideoConferenceModule = (space = {}, overrides = {}) => new VideoConfe
 
 // libs/mocks/src/lib/systems-bindings.mock.ts
 function createSystem(space) {
-  Op(space.id, {
+  wp(space.id, {
     System: [createSystemModule(space)],
     Bookings: [createBookingsModule(space)],
     ContactTracing: [createContactTracingModule(space)],
@@ -9782,7 +9782,7 @@ function createSystem(space) {
     Payment: [createPaymentsModule(space)],
     LockerLocations: [createLockerLocationsModule()]
   });
-  const system = Ir(space.id);
+  const system = Ur(space.id);
   system.Bookings[0].$poll_bookings();
   setInterval(() => system.Bookings[0].$poll_bookings(), 30 * 1e3);
   system.AreaManagement[0].$update();
@@ -9792,7 +9792,7 @@ function createSystem(space) {
 // libs/mocks/src/lib/api/systems.mock.ts
 function registerMockSystems() {
   MOCK_SPACES.forEach((space, index) => createSystem(space));
-  uo({
+  co({
     path: "/api/engine/v2/systems",
     metadata: {},
     method: "GET",
@@ -9809,7 +9809,7 @@ function registerMockSystems() {
       return systems;
     }
   });
-  uo({
+  co({
     path: "/api/engine/v2/systems/:id",
     metadata: {},
     method: "GET",
@@ -9824,7 +9824,7 @@ function registerMockSystems() {
 
 // libs/mocks/src/lib/api/users.mock.ts
 function registerMockUsers() {
-  uo({
+  co({
     path: "/api/engine/v2/users",
     metadata: {},
     method: "GET",
@@ -9836,7 +9836,7 @@ function registerMockUsers() {
       }).slice(0, limit);
     }
   });
-  uo({
+  co({
     path: "/api/engine/v2/users/:id",
     metadata: {},
     method: "GET",
@@ -9857,7 +9857,7 @@ function registerMockUsers() {
       throw { status: 404, message: "User not found" };
     }
   });
-  uo({
+  co({
     path: "/api/staff/v1/people",
     metadata: {},
     method: "GET",
@@ -9871,7 +9871,7 @@ function registerMockUsers() {
       return MOCK_STAFF;
     }
   });
-  uo({
+  co({
     path: "/api/staff/v1/people/:id",
     metadata: {},
     method: "GET",
@@ -9886,7 +9886,7 @@ function registerMockUsers() {
       throw { status: 404, message: "User not found" };
     }
   });
-  uo({
+  co({
     path: "/api/staff/v1/guests",
     metadata: {},
     method: "GET",
@@ -9898,7 +9898,7 @@ function registerMockUsers() {
       return MOCK_STAFF;
     }
   });
-  uo({
+  co({
     path: "/api/staff/v1/guests/:email",
     metadata: {},
     method: "GET",
@@ -9910,7 +9910,7 @@ function registerMockUsers() {
       throw { status: 404, message: "Guest not found" };
     }
   });
-  uo({
+  co({
     path: "/api/staff/v1/guests/:email/meetings",
     metadata: {},
     method: "GET",
@@ -10025,7 +10025,7 @@ function registerMockZones() {
     ...MOCK_LEVELS,
     ...MOCK_ZONES
   ];
-  uo({
+  co({
     path: "/api/engine/v2/zones",
     metadata: {},
     method: "GET",
@@ -10041,7 +10041,7 @@ function registerMockZones() {
       return zones;
     }
   });
-  uo({
+  co({
     path: "/api/engine/v2/zones/:id",
     metadata: {},
     method: "GET",
@@ -10056,19 +10056,19 @@ function registerMockZones() {
       return zone;
     }
   });
-  uo({
+  co({
     path: "/api/engine/v2/settings",
     metadata: {},
     method: "GET",
     callback: (request) => []
   });
-  uo({
+  co({
     path: "/api/engine/v2/settings/:id",
     metadata: {},
     method: "GET",
     callback: (request) => ({})
   });
-  uo({
+  co({
     path: "/api/engine/v2/metadata/:id",
     metadata: {},
     method: "GET",
@@ -10184,7 +10184,7 @@ function registerMockZones() {
       return {};
     }
   });
-  uo({
+  co({
     path: "/api/engine/v2/metadata/:id",
     metadata: {},
     method: "PATCH",
@@ -10195,7 +10195,7 @@ function registerMockZones() {
       return request.body;
     }
   });
-  uo({
+  co({
     path: "/api/engine/v2/metadata/:id",
     metadata: {},
     method: "PUT",
@@ -10248,7 +10248,7 @@ function registerMockZones() {
     }
     return LOCKERS[id];
   }
-  uo({
+  co({
     path: "/api/engine/v2/metadata/:id/children",
     metadata: {},
     method: "GET",
@@ -10287,7 +10287,7 @@ function mocksInit() {
 // apps/visitor-kiosk/src/app/app.component.ts
 var AppComponent_Defer_4_DepsFn = () => [
   /* @ts-ignore */
-  import("./chat.component-HGLXN7PC.js").then((m) => m.ChatComponent)
+  import("./chat.component-AGKOZ7AD.js").then((m) => m.ChatComponent)
 ];
 function AppComponent_Defer_3_Template(rf, ctx) {
   if (rf & 1) {
@@ -10351,7 +10351,7 @@ var AppComponent = class _AppComponent {
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(AppComponent, () => [
     /* @ts-ignore */
-    import("./chat.component-HGLXN7PC.js").then((m) => m.ChatComponent)
+    import("./chat.component-AGKOZ7AD.js").then((m) => m.ChatComponent)
   ], (ChatComponent) => {
     setClassMetadata(AppComponent, [{
       type: Component,
@@ -12563,17 +12563,17 @@ var routes = [
   {
     path: "explore",
     canActivate: [AuthorisedUserGuard],
-    loadChildren: () => import("./explore.routes-54VB3RN4.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./explore.routes-SNFI2PEZ.js").then((m) => m.ROUTES)
   },
   {
     path: "checkin",
     canActivate: [AuthorisedUserGuard],
-    loadChildren: () => import("./checkin.routes-UM6D7BHD.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./checkin.routes-XWXO3ZTV.js").then((m) => m.ROUTES)
   },
   {
     path: "checkout",
     canActivate: [AuthorisedUserGuard],
-    loadChildren: () => import("./checkout.routes-6YXYJ32H.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./checkout.routes-AFAPXOWV.js").then((m) => m.ROUTES)
   },
   { path: "**", redirectTo: "bootstrap" }
 ];
