@@ -32,7 +32,7 @@ questions without needing to reproduce anything.
 | `playlists.takeover`          | The override playlist, its media and when it ends                                                                                     |
 | `active_media`                | What the background playlist currently resolves to                                                                                    |
 | `upcoming_schedules`          | Every scheduled run in the next month, soonest first                                                                                  |
-| `media_cache`                 | Per file `status`, `size`, `owners`; plus totals, budget, `failed_sync_attempts`                                                      |
+| `media_cache`                 | Per file `status`, `size`, `owners`; plus totals, budget (`limit_bytes`), `too_large`, `failed_sync_attempts`                         |
 | `watchdog`                    | Heartbeats for `poll` / `schedule` / `playback`, which are `stalled`, the last fatal error, and the recovery count and throttle state |
 | `players`                     | Per player: `state`, `item_index`, `progress_percent`, `playing`, `queue`, `mid_play_through`                                         |
 
@@ -88,6 +88,7 @@ makes the display request use `?preview=true`.
 | Paused and does not resume         | Pause and resume messages are obeyed only from the parent frame. Check what embeds the player and `players[].state`                                                         |
 | Plugin cut short, or held long     | A play-through plugin advances on `finished`, or after a limit. Look for `did not report finished in time` in the console                                                   |
 | Blank screen, no `window.signage`  | The application did not start. Look for `Application failed to start` in the console; it reloads with a backoff                                                             |
+| Media always streams               | `media_cache.too_large` — the file does not fit in `limit_bytes`; see [Media cache storage](#media-cache-storage)                                                           |
 
 ## Recovery watchdog
 
@@ -188,6 +189,27 @@ recovered and you want to know what from.
 | `sessionStorage["SIGNAGE.debug"]`, `["SIGNAGE.muted"]` | Debug and mute state |
 | `sessionStorage["SIGNAGE.boot_failures"]` | Consecutive failed starts, for the backoff |
 | IndexedDB `SignageMedia` → `files` | The cached media files themselves |
+
+## Media cache storage
+
+The cache budget (`limit_bytes`) is 80% of the storage quota, less the usage
+outside the cache. To see the values, run
+`await navigator.storage.estimate()`. If the browser cannot supply them, the
+budget is 512 MB. At startup the app requests persistent storage. To see the
+result, run `await navigator.storage.persisted()`.
+
+- The cache never removes media that the current playlist uses.
+- Media that cannot fit is not downloaded. Its URL shows in `too_large` and it
+  plays from the network. The cache tries it again only when more space is
+  available, or after a reload.
+- If a write fails because storage is full (`QuotaExceededError` or
+  `DataError`), the cache removes the files that the playlist does not use and
+  tries one more time.
+- On a small profile volume, the browser's blob storage can fill before the
+  disk does. The console then shows `Browser blob storage is full`. Files up to
+  50 MB are downloaded one more time into memory. Larger files go into
+  `too_large` until the next reload.
+- The service worker does not cache media. Cache Storage holds only the app.
 
 ## Resetting
 
