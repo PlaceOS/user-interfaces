@@ -11,6 +11,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { i18n, notifyError, unique } from '@placeos/common';
 import { TranslatePipe } from '@placeos/components';
 import { ControlStateService, RoomInput } from '../control-state.service';
+import { errorText } from '../error-text';
 
 @Component({
     selector: 'source-select',
@@ -124,7 +125,9 @@ export class SourceSelectComponent {
         try {
             await this._state.setRoute(input.id, this.output());
         } catch (error) {
-            notifyError(i18n('APP.CONTROL.ROUTE_ERROR', { error }));
+            notifyError(
+                i18n('APP.CONTROL.ROUTE_ERROR', { error: errorText(error) }),
+            );
             return;
         } finally {
             this.loading.set(false);

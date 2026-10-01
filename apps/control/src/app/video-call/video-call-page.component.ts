@@ -6,6 +6,7 @@ import {
     effect,
     inject,
     input,
+    linkedSignal,
     signal,
     untracked,
 } from '@angular/core';
@@ -23,6 +24,7 @@ import {
 } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import { ControlStateService } from '../control-state.service';
+import { errorText } from '../error-text';
 import { selectCamera } from '../ui/camera-commands';
 import { DialpadComponent } from '../ui/dialpad.component';
 import {
@@ -256,8 +258,14 @@ export class VideoCallPageComponent extends AsyncHandler implements OnInit {
     public readonly show_camera_pip = computed(() => !!this._show_camera_pip());
     private readonly _mic_mute = this._state.mic_mute;
     public readonly mic_mute = computed(() => !!this._mic_mute());
-    public readonly video_layout = this._state.video_layout;
-    public readonly presentation_mode = this._state.presentation_mode;
+    /** Selected layout. Set on change, and reset to the codec value when the change fails. */
+    public readonly video_layout = linkedSignal(() =>
+        this._state.video_layout(),
+    );
+    /** Selected presentation mode. Reset to the codec value when a change fails. */
+    public readonly presentation_mode = linkedSignal(() =>
+        this._state.presentation_mode(),
+    );
     public readonly presentables = this._control.presentables;
     /** List of available cameras to select from */
     public readonly camera_list = this._control.camera_list;
@@ -274,10 +282,16 @@ export class VideoCallPageComponent extends AsyncHandler implements OnInit {
     public readonly sentDTMF = (d) => this._state.sendDTMF(d);
     public readonly setPresentationSource = (i) =>
         this._control.setRoute(i.id, this.present_output(), false);
-    public readonly setPresentationMode = (d: PresentationMode) =>
-        this._state.setPresentationMode(d);
-    public readonly setVideoLayout = (d: VideoLayout) =>
-        this._state.setVideoLayout(d);
+    public readonly setPresentationMode = async (d: PresentationMode) => {
+        this.presentation_mode.set(d);
+        if (await this._state.setPresentationMode(d)) return;
+        this.presentation_mode.set(this._state.presentation_mode());
+    };
+    public readonly setVideoLayout = async (d: VideoLayout) => {
+        this.video_layout.set(d);
+        if (await this._state.setVideoLayout(d)) return;
+        this.video_layout.set(this._state.video_layout());
+    };
     public readonly toggleCamera = async () =>
         this._state.showCameraPIP(!this.show_camera_pip());
     public readonly toggleMute = async () =>
@@ -287,7 +301,9 @@ export class VideoCallPageComponent extends AsyncHandler implements OnInit {
         this.loading.set(i18n('APP.CONTROL.VC_LEAVE_LOADING'));
         await this._state.hangup().catch((_) => {
             this.loading.set('');
-            notifyError(i18n('APP.CONTROL.VC_LEAVE_ERROR', { error: _ }));
+            notifyError(
+                i18n('APP.CONTROL.VC_LEAVE_ERROR', { error: errorText(_) }),
+            );
             throw _;
         });
         this._onCallEnded();

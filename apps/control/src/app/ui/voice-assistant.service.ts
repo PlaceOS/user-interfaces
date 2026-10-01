@@ -292,6 +292,8 @@ export class VoiceAssistantService extends AsyncHandler {
         speech.onend = null;
         speech.abort();
         this._user_speech = undefined;
+        // Commands need voice control, so drop the chat connection with it
+        this._chat_service.endChat();
     }
 
     private _sendCommand(command: string, attempt = 0) {

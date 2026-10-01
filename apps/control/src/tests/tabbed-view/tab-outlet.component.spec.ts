@@ -264,4 +264,16 @@ describe('TabOutletComponent', () => {
         );
         vi.useRealTimers();
     });
+
+    it('should leave room for the help button above the call controls', () => {
+        const service: any = spectator.inject(ControlStateService);
+        const call_state: any = spectator.inject(VideoCallStateService);
+        service.tabs.set([
+            { id: 'tab1', controls: 'vidconf-controls', help: 'vc-help' },
+        ]);
+        call_state.call.set({ Status: 'Connected' });
+        spectator.detectChanges();
+        expect(spectator.query('[video-call-page]')).toHaveClass('pt-16');
+        call_state.call.set(null);
+    });
 });

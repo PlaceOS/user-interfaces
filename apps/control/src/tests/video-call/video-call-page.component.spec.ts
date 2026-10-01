@@ -178,4 +178,16 @@ describe('VideoCallPageComponent', () => {
         expect(client.getModule).toHaveBeenCalledWith('sys-1', 'System');
         expect(execute_spy).toHaveBeenCalledWith('selected_camera', ['cam-1']);
     });
+
+    it('should reset the layout select when the change fails', async () => {
+        call_state.setVideoLayout.mockResolvedValue(false);
+        await spectator.component.setVideoLayout('Single');
+        expect(spectator.component.video_layout()).toBe('Auto');
+    });
+
+    it('should keep the new layout when the change succeeds', async () => {
+        call_state.setVideoLayout.mockResolvedValue(true);
+        await spectator.component.setVideoLayout('Single');
+        expect(spectator.component.video_layout()).toBe('Single');
+    });
 });

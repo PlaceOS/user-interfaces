@@ -19,6 +19,7 @@ import {
 } from '@placeos/components';
 import { format } from 'date-fns';
 import { ControlStateService } from '../control-state.service';
+import { errorText } from '../error-text';
 
 @Component({
     selector: 'select-meeting-modal',
@@ -143,7 +144,11 @@ export class SelectMeetingModalComponent {
         try {
             await this._service.setEvent(e);
         } catch (error) {
-            notifyError(i18n('APP.CONTROL.MEETING_JOIN_ERROR', { error }));
+            notifyError(
+                i18n('APP.CONTROL.MEETING_JOIN_ERROR', {
+                    error: errorText(error),
+                }),
+            );
             return;
         } finally {
             details.close();

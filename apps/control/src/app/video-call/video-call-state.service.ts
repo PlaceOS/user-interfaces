@@ -2,6 +2,7 @@ import { computed, inject, Injectable, Signal } from '@angular/core';
 import { i18n, notifyError } from '@placeos/common';
 import { getModule } from '@placeos/ts-client';
 import { ControlStateService } from '../control-state.service';
+import { errorText } from '../error-text';
 import { systemBinding } from '../system-binding';
 
 export type VideoLayout = 'Auto' | 'Equal' | 'Overlay' | 'Prominent' | 'Single';
@@ -108,22 +109,28 @@ export class VideoCallStateService {
         return this._exec('dtmf_send', [digit]);
     }
 
-    public toggleCallOnHold() {
+    public async toggleCallOnHold() {
         const call = this.call();
-        if (!call) return;
+        if (!call) return false;
         return this._exec(
             call.Status === 'OnHold' ? 'call_resume' : 'call_place_on_hold',
         );
     }
 
-    /** Run a VidConf method. Shows an error and resolves when it fails. */
+    /** Run a VidConf method. Shows an error when it fails. Resolves `true` on success. */
     private async _exec(method: string, args: unknown[] = []) {
         const id = this._control.id;
-        if (!id) return;
+        if (!id) return false;
         try {
-            return await getModule(id, 'VidConf').execute(method, args);
+            await getModule(id, 'VidConf').execute(method, args);
+            return true;
         } catch (error) {
-            notifyError(i18n('APP.CONTROL.VC_COMMAND_ERROR', { error }));
+            notifyError(
+                i18n('APP.CONTROL.VC_COMMAND_ERROR', {
+                    error: errorText(error),
+                }),
+            );
+            return false;
         }
     }
 

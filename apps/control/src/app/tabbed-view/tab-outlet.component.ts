@@ -131,6 +131,7 @@ import { TVControlsComponent } from './tv-controls.component';
                             @if (call()) {
                                 <div
                                     video-call-page
+                                    [class.pt-16]="!!tab()?.help"
                                     [present_output]="
                                         tab()?.presentation_source
                                     "

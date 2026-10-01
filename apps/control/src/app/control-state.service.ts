@@ -541,11 +541,12 @@ export class ControlStateService extends AsyncHandler {
 
     /** Open select meeting modal */
     public async selectMeeting(input?: string) {
-        const cals = this.calendars();
-        if (cals?.length) this.setCalendar(cals[0]);
         this._dialog.open(SelectMeetingModalComponent, {
             data: { input },
         });
+        await this._cal.loadCalendars();
+        const first = this.calendars()[0];
+        if (!this._calendar() && first) this.setCalendar(first);
     }
 
     /** Open view help modal */

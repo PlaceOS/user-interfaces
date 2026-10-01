@@ -1,11 +1,12 @@
+import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { MatDialog } from '@angular/material/dialog';
 import {
     createServiceFactory,
     SpectatorService,
 } from '@ngneat/spectator/vitest';
+import { Calendar } from '@placeos/common';
 import { CalendarService, SpacesService } from '@placeos/events';
-import { of } from 'rxjs';
 
 vi.mock('@placeos/ts-client', { spy: true });
 
@@ -23,11 +24,18 @@ describe('ControlStateService', () => {
     /** Names of bindings that were released */
     let released: string[];
     const loadSpace = vi.fn();
+    const calendar_list = signal<Calendar[]>([]);
+    const loadCalendars = vi.fn(async () =>
+        calendar_list.set([{ id: 'cal-1' } as Calendar]),
+    );
     const createService = createServiceFactory({
         service: ControlStateService,
         providers: [
             { provide: MatDialog, useValue: { open: vi.fn() } },
-            { provide: CalendarService, useValue: { calendars: of([]) } },
+            {
+                provide: CalendarService,
+                useValue: { calendar_list, loadCalendars },
+            },
             {
                 provide: SpacesService,
                 useValue: { loadSpaces: vi.fn(), loadSpace },
@@ -103,5 +111,12 @@ describe('ControlStateService', () => {
         await new Promise((r) => setTimeout(r));
         expect(navigate).not.toHaveBeenCalled();
         expect(localStorage.getItem(CONTROL_STORE_KEY)).toBe('sys-1');
+    });
+
+    it('should load calendars and pick the first when selecting a meeting', async () => {
+        calendar_list.set([]);
+        await spectator.service.selectMeeting();
+        expect(loadCalendars).toHaveBeenCalled();
+        expect(spectator.service.calendar()?.id).toBe('cal-1');
     });
 });

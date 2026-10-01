@@ -53,6 +53,7 @@ describe('VoiceAssistantService', () => {
             startChat: vi.fn(),
             sendMessage: vi.fn(),
             close: vi.fn(),
+            endChat: vi.fn(),
         };
         spectator = createService({
             providers: [{ provide: ChatService, useValue: chat }],
@@ -106,6 +107,7 @@ describe('VoiceAssistantService', () => {
         expect(spectator.service.enabled()).toBe(false);
         expect(instance.abort).toHaveBeenCalled();
         expect(instance.onresult).toBeNull();
+        expect(chat.endChat).toHaveBeenCalled();
     });
 
     it('should report speech recognition as unavailable when the browser lacks it', () => {
