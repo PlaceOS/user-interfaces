@@ -3979,6 +3979,7 @@ export class SignageService {
                     m: SignageMedia,
                     file_metadata?: SignageMediaMetadata,
                     thumbnail?: string,
+                    fallback_thumbnail?: () => Promise<string>,
                 ) =>
                     this._addMedia(
                         f,
@@ -3986,6 +3987,8 @@ export class SignageService {
                         playlist_id,
                         file_metadata,
                         thumbnail || file_thumbnail,
+                        undefined,
+                        fallback_thumbnail,
                     ),
                 onEdit: async (id: string, data: any) => {
                     const updated_media = await this._editMedia(id, data);
@@ -4042,6 +4045,12 @@ export class SignageService {
         }
     }
 
+    /**
+     * Add a media item, optionally to a playlist. Webpages and plugins without
+     * a supplied thumbnail get a server screenshot. When the screenshot fails,
+     * `fallback_thumbnail` can supply an image instead, such as the one a
+     * plugin renders of itself.
+     */
     private async _addMedia(
         file: File | undefined,
         media_item: SignageMedia,
@@ -4049,6 +4058,7 @@ export class SignageService {
         file_metadata?: SignageMediaMetadata,
         url_thumbnail?: string,
         upload_options?: SignageUploadOptions,
+        fallback_thumbnail?: () => Promise<string>,
     ) {
         let result: SignageMedia;
         if (file) {
@@ -4073,6 +4083,16 @@ export class SignageService {
                     media_item.media_uri,
                     media_item.name,
                 );
+                const fallback =
+                    !thumbnail_id && fallback_thumbnail
+                        ? await fallback_thumbnail().catch(() => '')
+                        : '';
+                if (fallback) {
+                    thumbnail_id = await this._uploadThumbnailImage(
+                        fallback,
+                        media_item.name,
+                    );
+                }
             }
             const data = {
                 ...new SignageMedia({

@@ -75,6 +75,8 @@ export interface MediaEditModalData {
         m: SignageMedia,
         file_metadata?: SignageMediaMetadata,
         thumbnail?: string,
+        /** Supplies a thumbnail when the server screenshot fails */
+        fallback_thumbnail?: () => Promise<string>,
     ) => Promise<SignageMedia>;
     onEdit: (id: string, data: any) => Promise<void>;
     preview: (item: any) => void;
@@ -686,8 +688,9 @@ export class MediaEditModalComponent implements OnDestroy {
 
     /**
      * Ask the embedded plugin to render its own thumbnail. Captured from the
-     * live preview so it reflects the config the user just set. Plugins that
-     * predate the capability return nothing and are saved exactly as before.
+     * live preview so it reflects the config the user just set. Only used
+     * when the server screenshot fails. Plugins that predate the capability
+     * return nothing.
      */
     private async _capturePluginThumbnail() {
         if (this.media_type !== 'plugin') return '';
@@ -742,14 +745,12 @@ export class MediaEditModalComponent implements OnDestroy {
                     }
                     await this._data.onEdit(this.item.id, new_media);
                 } else {
-                    const thumbnail =
-                        this.custom_thumbnail() ||
-                        (await this._capturePluginThumbnail());
                     await this._data.onAdd(
                         this.file,
                         new SignageMedia(new_media),
                         this._data.file_metadata,
-                        thumbnail,
+                        this.custom_thumbnail(),
+                        () => this._capturePluginThumbnail(),
                     );
                 }
             } catch (error) {

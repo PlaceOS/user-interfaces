@@ -837,6 +837,7 @@ describe('SignageService media uploads', () => {
             media_uri: string,
             thumbnail?: string,
             media_type: 'webpage' | 'plugin' = 'webpage',
+            fallback_thumbnail?: () => Promise<string>,
         ) => {
             const test_service = service as unknown as SignageServiceTestAccess;
             test_service['_generateThumbnail'] = vi
@@ -852,6 +853,8 @@ describe('SignageService media uploads', () => {
                 '',
                 undefined,
                 thumbnail,
+                undefined,
+                fallback_thumbnail,
             );
         };
 
@@ -887,13 +890,17 @@ describe('SignageService media uploads', () => {
 
         it('captures the plugin URI for a plugin item', async () => {
             const service = createService();
+            const fallback_thumbnail = vi.fn();
 
             await addLinkMedia(
                 service,
                 'https://plugins.example.com/clock/',
                 undefined,
                 'plugin',
+                fallback_thumbnail,
             );
+
+            expect(fallback_thumbnail).not.toHaveBeenCalled();
 
             expect(screenshot_post).toHaveBeenCalledWith(
                 expect.any(String),
@@ -901,6 +908,24 @@ describe('SignageService media uploads', () => {
                     url: 'https://plugins.example.com/clock/',
                 }),
             );
+            expect(addSignageMedia).toHaveBeenCalledWith(
+                expect.objectContaining({ thumbnail_id: 'thumbnail-upload-1' }),
+            );
+        });
+
+        it('uses the fallback thumbnail when the screenshot fails', async () => {
+            const service = createService();
+            screenshot_post.mockRejectedValue({ status: 504 });
+
+            await addLinkMedia(
+                service,
+                'https://plugins.example.com/clock/',
+                undefined,
+                'plugin',
+                () => Promise.resolve('data:image/png;base64,cGx1Z2lu'),
+            );
+
+            expect(uploads.uploadFileToCompletion).toHaveBeenCalledTimes(1);
             expect(addSignageMedia).toHaveBeenCalledWith(
                 expect.objectContaining({ thumbnail_id: 'thumbnail-upload-1' }),
             );
