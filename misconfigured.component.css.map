@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["misconfigured.component.ts"],
+  "sourcesContent": ["\n            :host {\n                display: flex;\n                align-items: center;\n                justify-content: center;\n            }\n\n            [content] {\n                width: 28em;\n                max-width: calc(100vw - 1rem);\n            }\n\n            @media (prefers-color-scheme: dark) {\n                [content] {\n                    background-color: #262626;\n                    color: #fff;\n                }\n            }\n        "],
+  "mappings": ";AACY;AACI,WAAA;AACA,eAAA;AACA,mBAAA;AACJ;AAEA,CAAA;AACI,SAAA;AACA,aAAA,KAAA,MAAA,EAAA;AACJ;AAEA,QAAA,sBAAA;AACI,GAAA;AACI,sBAAA;AACA,WAAA;AACJ;AACJ;",
+  "names": []
+}

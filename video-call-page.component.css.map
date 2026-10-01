@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["video-call-page.component.ts"],
+  "sourcesContent": ["\n            :host {\n                position: relative;\n            }\n        "],
+  "mappings": ";AACY;AACI,YAAA;AACJ;",
+  "names": []
+}
