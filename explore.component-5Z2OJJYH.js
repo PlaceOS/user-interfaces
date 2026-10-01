@@ -29,11 +29,11 @@ import {
   rulesForResource,
   searchStaff,
   showStaff
-} from "./chunk-2DO6I4I4.js";
+} from "./chunk-ROCPL7B3.js";
 import {
   CustomTooltipComponent
-} from "./chunk-CHPCSRDO.js";
-import "./chunk-2XSVGBNO.js";
+} from "./chunk-EF4NAGON.js";
+import "./chunk-H555XVLZ.js";
 import {
   MatCheckbox,
   MatCheckboxModule,
@@ -48,13 +48,12 @@ import {
   SpacePipe,
   VirtualKeyboardComponent,
   toSignal
-} from "./chunk-FDJGUV5A.js";
-import "./chunk-FPPZZRZL.js";
+} from "./chunk-VEMYLE4M.js";
+import "./chunk-UP47BWY4.js";
 import {
   TranslatePipe
-} from "./chunk-CUDJFM3X.js";
+} from "./chunk-X5XNDVI5.js";
 import {
-  $a,
   ActivatedRoute,
   AsyncHandler,
   BidiModule,
@@ -72,6 +71,7 @@ import {
   FormGroup,
   FormGroupDirective,
   FormsModule,
+  Fp,
   HostAttributeToken,
   HostListener,
   IconComponent,
@@ -79,7 +79,6 @@ import {
   InjectionToken,
   Injector,
   Input,
-  Ja,
   MAP_FEATURE_DATA,
   MapsPeopleService,
   MatOption,
@@ -103,8 +102,10 @@ import {
   SlicePipe,
   Space,
   UpperCasePipe,
+  Va,
   ViewChild,
   ViewEncapsulation,
+  _,
   _CdkPrivateStyleLoader,
   _IdGenerator,
   _MatInternalFormField,
@@ -116,6 +117,7 @@ import {
   addYears,
   afterNextRender,
   alignDateToBookableHours,
+  ba,
   booleanAttribute,
   computed,
   constructFrom,
@@ -127,7 +129,6 @@ import {
   enUS,
   endOfDay,
   endOfDayInTimezone,
-  f,
   firstValueWhere,
   flatten,
   format,
@@ -140,7 +141,6 @@ import {
   getTimezoneOffsetInMilliseconds,
   getTimezoneOffsetString,
   getUnixTime,
-  hc,
   i18n,
   inject,
   input,
@@ -149,6 +149,7 @@ import {
   isSameDay,
   isValid,
   isWithinBookableHours,
+  lc,
   log,
   markUserDateChange,
   minutesInDay,
@@ -158,7 +159,7 @@ import {
   notifyError,
   notifySuccess,
   numberAttribute,
-  rc,
+  oc,
   resource,
   roundToNearestMinutes,
   set,
@@ -178,7 +179,6 @@ import {
   untracked,
   user_group_names,
   viewChild,
-  zp,
   ɵsetClassDebugInfo,
   ɵɵInheritDefinitionFeature,
   ɵɵNgOnChangesFeature,
@@ -241,7 +241,7 @@ import {
   ɵɵtextInterpolate2,
   ɵɵviewQuery,
   ɵɵviewQuerySignal
-} from "./chunk-J4OCIEZQ.js";
+} from "./chunk-OFMU64MF.js";
 import {
   __spreadProps,
   __spreadValues
@@ -996,7 +996,7 @@ var TimeFieldComponent = class _TimeFieldComponent extends AsyncHandler {
     this._updateNoOptions();
     this.timeout("hide", () => this.show_select.set(false));
     const tz = this.timezone() || void 0;
-    this.active_time.set(this._time_options().find((_) => _.id === formatTimeInTimezone(this.date(), tz))?.date || this.active_time());
+    this.active_time.set(this._time_options().find((_2) => _2.id === formatTimeInTimezone(this.date(), tz))?.date || this.active_time());
   }
   ngOnChanges(changes) {
     if (changes.no_past_times || changes.step || changes.from || changes.range || changes.min_duration) {
@@ -1087,7 +1087,7 @@ var TimeFieldComponent = class _TimeFieldComponent extends AsyncHandler {
     const time = this.force_time() || this.time();
     const time_parts = (typeof time === "string" ? time : formatTimeInTimezone(time, tz)).split(":");
     const date_value = setTimeInTimezone(this.date(), +time_parts[0], +time_parts[1], tz);
-    this.active_time.set(this._time_options().find((_) => _.id === (typeof time === "string" ? time : formatTimeInTimezone(time, tz)))?.date || date_value);
+    this.active_time.set(this._time_options().find((_2) => _2.id === (typeof time === "string" ? time : formatTimeInTimezone(time, tz)))?.date || date_value);
   }
   /**
    * Update local value when form control value is changed
@@ -1103,7 +1103,7 @@ var TimeFieldComponent = class _TimeFieldComponent extends AsyncHandler {
     this._updateNoOptions();
     const force = this.force_time();
     const time_id = force ? formatTimeInTimezone(force, tz) : this.time();
-    this.active_time.set(this._time_options().find((_) => _.id === time_id)?.date || date.valueOf());
+    this.active_time.set(this._time_options().find((_2) => _2.id === time_id)?.date || date.valueOf());
   }
   setDisabledState(disabled) {
     this.disabled.set(disabled);
@@ -3272,7 +3272,7 @@ var ExploreDeviceInfoComponent = class _ExploreDeviceInfoComponent {
   async loadUser() {
     if (this.username())
       return;
-    const mod = zp(this._details.system, "LocationServices");
+    const mod = Fp(this._details.system, "LocationServices");
     if (!mod)
       return;
     this.username.set("Loading...");
@@ -3504,7 +3504,7 @@ var ExploreDesksService = class _ExploreDesksService extends AsyncHandler {
       {}
     )), {
       params: () => this._building() || void 0,
-      loader: ({ params: bld }) => rc(bld.id, `desk_booking_rules`).then((_) => _?.details instanceof Array ? _.details : []).catch(() => [])
+      loader: ({ params: bld }) => oc(bld.id, `desk_booking_rules`).then((_2) => _2?.details instanceof Array ? _2.details : []).catch(() => [])
     }));
     this.booking_rules = computed(
       () => this._booking_rules.value() ?? [],
@@ -3522,7 +3522,7 @@ var ExploreDesksService = class _ExploreDesksService extends AsyncHandler {
         if (this._settings.get("app.desks.use_assets")) {
           return queryDeskAssets(lvl.id).then((assets) => assets.map((asset) => deskFromAsset(asset, lvl))).catch(() => []);
         }
-        return rc(lvl.id, "desks").catch(() => ({ details: [] })).then((i) => (i?.details instanceof Array ? i.details : []).map((j) => new Desk(__spreadProps(__spreadValues({}, j), { zone: lvl }))));
+        return oc(lvl.id, "desks").catch(() => ({ details: [] })).then((i) => (i?.details instanceof Array ? i.details : []).map((j) => new Desk(__spreadProps(__spreadValues({}, j), { zone: lvl }))));
       }
     }));
     this.desk_list = computed(
@@ -3561,8 +3561,8 @@ var ExploreDesksService = class _ExploreDesksService extends AsyncHandler {
       if (!bookings)
         return;
       untracked(() => {
-        this._in_use.set(bookings.map((_) => _.asset_id));
-        this._checked_in.set(bookings.filter((_) => _.checked_in).map((_) => _.asset_id));
+        this._in_use.set(bookings.map((_2) => _2.asset_id));
+        this._checked_in.set(bookings.filter((_2) => _2.checked_in).map((_2) => _2.asset_id));
       });
     });
     effect(() => {
@@ -3579,7 +3579,7 @@ var ExploreDesksService = class _ExploreDesksService extends AsyncHandler {
     this.init();
   }
   async init() {
-    await firstValueWhere(this._org_initialised, (_) => !!_, this._injector);
+    await firstValueWhere(this._org_initialised, (_2) => !!_2, this._injector);
     this.setOptions({
       enable_booking: this._settings.get("app.desks.enable_maps") !== false
     });
@@ -3600,10 +3600,10 @@ var ExploreDesksService = class _ExploreDesksService extends AsyncHandler {
       this.subscription(`lvl-desk_bookings`, bookings_binding.bindThenSubscribe((d) => {
         const value = __spreadValues({}, d || {});
         for (const id in value) {
-          const new_bookings = value[id].map((_) => new Booking(__spreadProps(__spreadValues({}, _), {
-            booking_start: _.booking_start || _.started_at,
-            booking_end: _.booking_end || _.ends_at,
-            duration: _.duration / 60
+          const new_bookings = value[id].map((_2) => new Booking(__spreadProps(__spreadValues({}, _2), {
+            booking_start: _2.booking_start || _2.started_at,
+            booking_end: _2.booking_end || _2.ends_at,
+            duration: _2.duration / 60
           })));
           if (!this._desk_bookings[id]) {
             this._desk_bookings[id] = signal(new_bookings);
@@ -3800,7 +3800,7 @@ var ExploreDesksService = class _ExploreDesksService extends AsyncHandler {
         name: desk.name || "Desk"
       }));
     }
-    if (desk.groups?.length && !desk.groups.find((_) => currentUser().groups.includes(_))) {
+    if (desk.groups?.length && !desk.groups.find((_2) => currentUser().groups.includes(_2))) {
       return notifyError(i18n("EXPLORE.DESK_GROUP_ERROR", { name: desk.name || "Desk" }));
     }
     this._bookings.newForm("desk");
@@ -4236,8 +4236,8 @@ var ExploreZonesService = class _ExploreZonesService extends AsyncHandler {
     this.init();
   }
   async init() {
-    await firstValueWhere(this._org.initialised, (_) => !!_, this._injector);
-    const zone_metadata = await Promise.all(this._org.levels.map((bld) => rc(bld.id, "map_regions").catch(() => null)));
+    await firstValueWhere(this._org.initialised, (_2) => !!_2, this._injector);
+    const zone_metadata = await Promise.all(this._org.levels.map((bld) => oc(bld.id, "map_regions").catch(() => null)));
     this._capacity = {};
     this._count_key = {};
     this._location = {};
@@ -4293,7 +4293,7 @@ var ExploreZonesService = class _ExploreZonesService extends AsyncHandler {
   }
   _parseBindingData() {
     const areas = this._area_data()?.value || [];
-    const zones = (this._zone_data()?.value || []).filter((_) => _.location === "area");
+    const zones = (this._zone_data()?.value || []).filter((_2) => _2.location === "area");
     this.parseData([...areas, ...zones]);
   }
   parseData(value = []) {
@@ -4446,15 +4446,15 @@ var ASCENDING_NAME_SORTER = new Intl.Collator(void 0, {
 });
 function queryAssetCategoriesLocal(query = {}) {
   const q = toQueryString(query);
-  return f(`${BASE_ENDPOINT}/asset_categories${q ? "?" + q : ""}`).then((_) => _);
+  return _(`${BASE_ENDPOINT}/asset_categories${q ? "?" + q : ""}`).then((_2) => _2);
 }
 function queryAssetTypesLocal(query = {}) {
   const q = toQueryString(query);
-  return f(`${BASE_ENDPOINT}/asset_types${q ? "?" + q : ""}`).then((_) => _);
+  return _(`${BASE_ENDPOINT}/asset_types${q ? "?" + q : ""}`).then((_2) => _2);
 }
 function queryAssetsLocal(query = {}) {
   const q = toQueryString(query);
-  return f(`${BASE_ENDPOINT}/assets${q ? "?" + q : ""}`).then((_) => _);
+  return _(`${BASE_ENDPOINT}/assets${q ? "?" + q : ""}`).then((_2) => _2);
 }
 var TYPES = ["space", "feature", "contact", "user"];
 function typeIndex(item) {
@@ -4464,9 +4464,9 @@ function compareSearchResultsAscending(item_a, item_b) {
   return ASCENDING_NAME_SORTER.compare(item_a.name || "", item_b.name || "") || ASCENDING_NAME_SORTER.compare(item_a.description || "", item_b.description || "") || typeIndex(item_a) - typeIndex(item_b);
 }
 function sortGlobalSearchResults(results, local_zones) {
-  const local_zone_set = new Set(local_zones.filter((_) => !!_));
-  const local_contacts = results.filter((_) => _.is_role && !!_.zone && local_zone_set.has(_.zone || "")).sort(compareSearchResultsAscending);
-  const remaining_results = results.filter((_) => !(_.is_role && !!_.zone && local_zone_set.has(_.zone || ""))).sort(compareSearchResultsAscending);
+  const local_zone_set = new Set(local_zones.filter((_2) => !!_2));
+  const local_contacts = results.filter((_2) => _2.is_role && !!_2.zone && local_zone_set.has(_2.zone || "")).sort(compareSearchResultsAscending);
+  const remaining_results = results.filter((_2) => !(_2.is_role && !!_2.zone && local_zone_set.has(_2.zone || ""))).sort(compareSearchResultsAscending);
   return [...local_contacts, ...remaining_results];
 }
 var ExploreSearchService = class _ExploreSearchService {
@@ -4564,7 +4564,7 @@ var ExploreSearchService = class _ExploreSearchService {
           limit: 200
         }).catch(() => []);
         return assets.filter((a) => a.asset_type_id === asset_type.id).map((a) => {
-          const zone = this._org.levelWithID(a.zones) || this._org.buildings.find((_) => a.zones.includes(_.id));
+          const zone = this._org.levelWithID(a.zones) || this._org.buildings.find((_2) => a.zones.includes(_2.id));
           return {
             id: a.id,
             name: a.identifier || "",
@@ -4583,7 +4583,7 @@ var ExploreSearchService = class _ExploreSearchService {
     )), {
       params: () => this._building() || void 0,
       loader: async ({ params: bld }) => {
-        const { details } = await rc(bld.id, "emergency_contacts").catch(() => ({
+        const { details } = await oc(bld.id, "emergency_contacts").catch(() => ({
           details: { contacts: [], migrated: false }
         }));
         const data = details;
@@ -4616,8 +4616,8 @@ var ExploreSearchService = class _ExploreSearchService {
       {}
     )), {
       params: () => ({ q: this._debounced_filter.value() }),
-      loader: ({ params: { q } }) => q?.length > 2 ? $a({ q, zone_id: this._org.organisation.id }).then(({ data }) => data.filter((_) => _.map_id).map((_) => new Space(__spreadProps(__spreadValues({}, _), {
-        level: this._org.levelWithID(_.zones)
+      loader: ({ params: { q } }) => q?.length > 2 ? ba({ q, zone_id: this._org.organisation.id }).then(({ data }) => data.filter((_2) => _2.map_id).map((_2) => new Space(__spreadProps(__spreadValues({}, _2), {
+        level: this._org.levelWithID(_2.zones)
       })))).catch(() => []) : Promise.resolve([])
     }));
     this._desk_search = resource(__spreadProps(__spreadValues({}, ngDevMode ? { debugName: "_desk_search" } : (
@@ -4630,7 +4630,7 @@ var ExploreSearchService = class _ExploreSearchService {
           const levels = this._org.levelsForBuilding(bld);
           return queryDeskAssetsForZones(levels.map((level) => level.id)).then((assets) => assets.map((asset) => deskFromAsset(asset, levels.find((level) => level.id === asset.zone_id)))).catch(() => []);
         }
-        return hc(bld.id, { name: "desks" }).then((i) => flatten(i.map((j) => (j.metadata.desks?.details || []).map((k) => new Desk(__spreadProps(__spreadValues({}, k), { zone: j.zone })))))).catch(() => []);
+        return lc(bld.id, { name: "desks" }).then((i) => flatten(i.map((j) => (j.metadata.desks?.details || []).map((k) => new Desk(__spreadProps(__spreadValues({}, k), { zone: j.zone })))))).catch(() => []);
       }
     }));
     this._maps_people_search = resource(__spreadProps(__spreadValues({}, ngDevMode ? { debugName: "_maps_people_search" } : (
@@ -4644,12 +4644,12 @@ var ExploreSearchService = class _ExploreSearchService {
       }),
       loader: async ({ params: { available, q } }) => {
         const list = available && q.length > 2 ? await mapsindoors?.services.LocationsService.getLocations({ q }) : [];
-        return (list || []).map((_) => ({
-          id: _.properties?.externalId || _.properties?.roomId || _.roomId || _.id,
-          map_id: _.properties?.externalId || _.properties?.roomId || _.roomId || "",
+        return (list || []).map((_2) => ({
+          id: _2.properties?.externalId || _2.properties?.roomId || _2.roomId || _2.id,
+          map_id: _2.properties?.externalId || _2.properties?.roomId || _2.roomId || "",
           type: "feature",
-          name: _.properties?.name || "",
-          description: `${_.properties?.roomId} , Level ${_.properties?.floorName}`
+          name: _2.properties?.name || "",
+          description: `${_2.properties?.roomId} , Level ${_2.properties?.floorName}`
         }));
       }
     }));
@@ -4659,7 +4659,7 @@ var ExploreSearchService = class _ExploreSearchService {
     )), {
       params: () => this._building() || void 0,
       loader: async () => {
-        const data = await hc(this._org.building.id, {
+        const data = await lc(this._org.building.id, {
           name: "map_features"
         }).catch(() => []);
         const list = [];
@@ -4686,7 +4686,7 @@ var ExploreSearchService = class _ExploreSearchService {
       {}
     )), {
       params: () => this._initialised() || void 0,
-      loader: () => rc(this._org.organisation.id, "points-of-interest").catch((_) => ({ details: {} }))
+      loader: () => oc(this._org.organisation.id, "points-of-interest").catch((_2) => ({ details: {} }))
     }));
     this._poi_list = computed(
       () => {
@@ -4697,7 +4697,7 @@ var ExploreSearchService = class _ExploreSearchService {
         const mapping = metadata.details || {};
         const levels = this._org.levelsForBuilding(bld);
         const list = flatten(levels.map((lvl) => mapping[lvl.id] || []));
-        return list.filter((_) => _.can_search);
+        return list.filter((_2) => _2.can_search);
       },
       ...ngDevMode ? [{ debugName: "_poi_list" }] : (
         /* istanbul ignore next */
@@ -4766,7 +4766,7 @@ var ExploreSearchService = class _ExploreSearchService {
           })))));
         }
         if (!this.hideItem("features")) {
-          results = results.concat(features.filter((_) => _.name.toLowerCase().includes(search)).map((s) => ({
+          results = results.concat(features.filter((_2) => _2.name.toLowerCase().includes(search)).map((s) => ({
             id: s.id,
             type: "feature",
             name: s.name,
@@ -4796,7 +4796,7 @@ var ExploreSearchService = class _ExploreSearchService {
             description: u.email
           })));
         }
-        results = results.filter((_) => _.name.toLowerCase().includes(search) || _.description.toLowerCase().includes(search) || (_.email || "").toLowerCase().includes(search) || _.type.toLowerCase().includes(search) || _.zone_name?.toLowerCase().includes(search));
+        results = results.filter((_2) => _2.name.toLowerCase().includes(search) || _2.description.toLowerCase().includes(search) || (_2.email || "").toLowerCase().includes(search) || _2.type.toLowerCase().includes(search) || _2.zone_name?.toLowerCase().includes(search));
         const in_progress_zones = this._getInProgressZones(in_progress_bookings);
         results.sort((a, b) => {
           if (current_level?.id) {
@@ -4838,11 +4838,11 @@ var ExploreSearchService = class _ExploreSearchService {
         []
       )
     );
-    this.search_fn = (q) => this._settings.get("app.basic_user_search") ? Ja({ q, authority_id: Mt()?.id }).then((_) => _.data) : searchStaff(q);
+    this.search_fn = (q) => this._settings.get("app.basic_user_search") ? Va({ q, authority_id: Mt()?.id }).then((_2) => _2.data) : searchStaff(q);
     this.init();
   }
   async init() {
-    await firstValueWhere(this._initialised, (_) => !!_, this._injector);
+    await firstValueWhere(this._initialised, (_2) => !!_2, this._injector);
     await new Promise((resolve) => setTimeout(resolve, 500));
     const { is_public } = this._state.options();
     if (is_public)
@@ -5267,7 +5267,7 @@ var MatSlideToggle = class _MatSlideToggle {
   _focusMonitor = inject(FocusMonitor);
   _changeDetectorRef = inject(ChangeDetectorRef);
   defaults = inject(MAT_SLIDE_TOGGLE_DEFAULT_OPTIONS);
-  _onChange = (_) => {
+  _onChange = (_2) => {
   };
   _onTouched = () => {
   };
@@ -6109,8 +6109,8 @@ var ExploreComponent = class _ExploreComponent extends AsyncHandler {
       () => {
         const region = this._region();
         const building = this._building();
-        return (this._settings.get("app.use_region") ? flatten(this._org.buildings.filter((bld) => region?.id === bld.parent_id).map((bld) => this._org.levelsForBuilding(bld).map((_) => __spreadProps(__spreadValues({}, _), {
-          display_name: `${bld.display_name} - ${_.display_name}`
+        return (this._settings.get("app.use_region") ? flatten(this._org.buildings.filter((bld) => region?.id === bld.parent_id).map((bld) => this._org.levelsForBuilding(bld).map((_2) => __spreadProps(__spreadValues({}, _2), {
+          display_name: `${bld.display_name} - ${_2.display_name}`
         })))) : this._org.levelsForBuilding(building)) || [];
       },
       ...ngDevMode ? [{ debugName: "levels" }] : (
@@ -6202,7 +6202,7 @@ var ExploreComponent = class _ExploreComponent extends AsyncHandler {
   }
   async toggleZones(enabled) {
     const options = this.options();
-    const disable = !enabled ? unique([...options.disable || [], "zones", "devices"]) : options.disable.filter((_) => _ !== "zones" && _ !== "devices") || [];
+    const disable = !enabled ? unique([...options.disable || [], "zones", "devices"]) : options.disable.filter((_2) => _2 !== "zones" && _2 !== "devices") || [];
     this.setOptions({ disable });
   }
   async ngOnInit() {
@@ -6226,7 +6226,7 @@ var ExploreComponent = class _ExploreComponent extends AsyncHandler {
       const level = this._org.levelWithID([params.get("level")]);
       if (!level)
         return;
-      const bld = this._org.buildings.find((_) => level.parent_id === _.id);
+      const bld = this._org.buildings.find((_2) => level.parent_id === _2.id);
       if (!bld)
         return;
       this._org.building = bld;
@@ -6244,7 +6244,7 @@ var ExploreComponent = class _ExploreComponent extends AsyncHandler {
       }
       if (!user)
         return notifyError(`Unable to user details for ${params.get("user")}`);
-      this.locateUser(user instanceof Array ? user[0] : user).catch((_) => {
+      this.locateUser(user instanceof Array ? user[0] : user).catch((_2) => {
         notifyError(`Unable to locate ${params.get("user")}`);
         this._router.navigate([], {
           relativeTo: this._route,
@@ -6304,7 +6304,7 @@ var ExploreComponent = class _ExploreComponent extends AsyncHandler {
         module: "LocationServices"
       };
     }
-    const mod = zp(locate_details.system_id, locate_details.module);
+    const mod = Fp(locate_details.system_id, locate_details.module);
     const locations = (await mod.execute("locate_user", [
       user.email,
       user.username || user.id
@@ -6691,5 +6691,5 @@ var ExploreComponent = class _ExploreComponent extends AsyncHandler {
 export {
   ExploreComponent
 };
-//# debugId=6df5cc8b-5b91-51a8-ab2a-6267c59153c0
-//# sourceMappingURL=explore.component-JUR6GA5J.js.map
+//# debugId=323b0f6a-f845-5e2a-8b54-58df595d7f02
+//# sourceMappingURL=explore.component-5Z2OJJYH.js.map

@@ -1,9 +1,9 @@
 import {
   CustomTooltipComponent
-} from "./chunk-CHPCSRDO.js";
+} from "./chunk-EF4NAGON.js";
 import {
   SanitizePipe
-} from "./chunk-2XSVGBNO.js";
+} from "./chunk-H555XVLZ.js";
 import {
   FormField,
   MAT_FORM_FIELD,
@@ -35,17 +35,16 @@ import {
   setHours,
   setMinutes,
   validate
-} from "./chunk-FDJGUV5A.js";
+} from "./chunk-VEMYLE4M.js";
 import {
   MatTooltip,
   MatTooltipModule
-} from "./chunk-FPPZZRZL.js";
+} from "./chunk-UP47BWY4.js";
 import {
   TranslatePipe
-} from "./chunk-CUDJFM3X.js";
+} from "./chunk-X5XNDVI5.js";
 import {
   $,
-  $a,
   A11yModule,
   ActiveDescendantKeyManager,
   AssetRequest,
@@ -86,6 +85,8 @@ import {
   FormGroup,
   FormGroupDirective,
   FormsModule,
+  Fp,
+  Gl,
   GuestUser,
   HostAttributeToken,
   HotkeysService,
@@ -96,7 +97,6 @@ import {
   Input,
   InteractivityChecker,
   J,
-  Ja,
   LOCAL_TIMEZONE,
   MAP_FEATURE_DATA,
   MAT_OPTGROUP,
@@ -155,11 +155,11 @@ import {
   ViewContainerRef,
   ViewEncapsulation,
   ViewportRuler,
-  Vl,
-  Xe,
   Xl,
   Xt,
+  Ya,
   Yl,
+  _,
   _CdkPrivateStyleLoader,
   _IdGenerator,
   _MatInternalFormField,
@@ -178,6 +178,7 @@ import {
   addYears,
   afterNextRender,
   alignDateToBookableHours,
+  ba,
   booleanAttribute,
   capitalizeFirstLetter,
   ce,
@@ -202,7 +203,7 @@ import {
   endOfDayInTimezone,
   ep,
   errorMessage,
-  f,
+  et,
   filter,
   first,
   firstValueWhere,
@@ -218,18 +219,17 @@ import {
   getUnixTime,
   guardModelUndefinedWrites,
   hasModifierKey,
-  hc,
   i18n,
   inject,
   input,
-  ip,
   isAfter,
   isBefore,
   isEmptyUser,
   isMobileSafari,
   isSameDay,
   isWithinBookableHours,
-  jl,
+  ka,
+  lc,
   localToTimezone,
   log,
   map,
@@ -239,14 +239,14 @@ import {
   notifyError,
   notifySuccess,
   notifyWarn,
-  np,
   numberAttribute,
+  oc,
   of,
   oi,
   onFieldChange,
+  op,
   output,
   randomString,
-  rc,
   removeEmptyFields,
   resource,
   roundToNearestMinutes,
@@ -259,6 +259,7 @@ import {
   settingSignal,
   setupFormTimeSync,
   signal,
+  sp,
   startOfDay,
   startOfDayInTimezone,
   startOfMinute,
@@ -269,14 +270,13 @@ import {
   te,
   toDate,
   toQueryString,
+  tp,
   unique,
   untracked,
   user_group_names,
   v,
-  va,
   viewChild,
   viewChildren,
-  zp,
   ɵNgNoValidate,
   ɵsetClassDebugInfo,
   ɵɵHostDirectivesFeature,
@@ -349,7 +349,7 @@ import {
   ɵɵtwoWayProperty,
   ɵɵviewQuery,
   ɵɵviewQuerySignal
-} from "./chunk-J4OCIEZQ.js";
+} from "./chunk-OFMU64MF.js";
 import {
   __objRest,
   __spreadProps,
@@ -1792,7 +1792,7 @@ function addToDate(add2, date = /* @__PURE__ */ new Date()) {
   return addMinutes(date, stringToMinutes(add2));
 }
 function filterResourcesFromRules(resources, details, ruleset_list) {
-  return resources.filter((_) => !rulesForResource(__spreadProps(__spreadValues({}, details), { resource: _ }), ruleset_list)?.hidden);
+  return resources.filter((_2) => !rulesForResource(__spreadProps(__spreadValues({}, details), { resource: _2 }), ruleset_list)?.hidden);
 }
 function rulesForResource(details, ruleset_list) {
   if (!(ruleset_list instanceof Array))
@@ -1818,7 +1818,7 @@ function checkRulesMatch({ date, duration, host, resource: resource2 }, ruleset)
   const { conditions } = ruleset;
   if (!conditions)
     return true;
-  if (conditions.groups instanceof Array && conditions.groups.every((_) => host?.groups?.includes(_)))
+  if (conditions.groups instanceof Array && conditions.groups.every((_2) => host?.groups?.includes(_2)))
     matches += 1;
   if (conditions.is_before && isBefore(addMinutes(date, duration), addToDate(conditions.is_before)))
     matches += 1;
@@ -2110,9 +2110,9 @@ function rsCached(eccWords) {
   const gen = rsGenerator(eccWords);
   const { exp: EXP, log: LOG } = GF256;
   const mul = new Uint8Array(256 * eccWords);
-  for (let f2 = 1; f2 < 256; f2++) {
-    const lf = LOG[f2];
-    const off = f2 * eccWords;
+  for (let f = 1; f < 256; f++) {
+    const lf = LOG[f];
+    const off = f * eccWords;
     for (let j = 0; j < eccWords; j++) {
       const c = gen[j];
       if (c)
@@ -2136,13 +2136,13 @@ function rsEcc(data, gen, mul) {
     return res;
   }
   for (let i = 0; i < data.length; i++) {
-    const f2 = data[i] ^ res[0];
+    const f = data[i] ^ res[0];
     res.copyWithin(0, 1);
     res[eccWords - 1] = 0;
-    if (f2) {
+    if (f) {
       for (let j = 0; j < eccWords; j++)
         if (gen[j])
-          res[j] ^= EXP[LOG[gen[j]] + LOG[f2]];
+          res[j] ^= EXP[LOG[gen[j]] + LOG[f]];
     }
   }
   return res;
@@ -2822,8 +2822,8 @@ function encodeQR(text, output2 = "raw", opts = {}) {
     throw new RangeError(`invalid opts: output is ${W}x${W} (max ${maxOutputSize}), reduce border/scale`);
   const map2 = new Int32Array(W);
   for (let i = 0; i < W; i++) {
-    const f2 = Math.floor(i / scale) - border;
-    map2[i] = f2 >= 0 && f2 < m.size ? f2 : -1;
+    const f = Math.floor(i / scale) - border;
+    map2[i] = f >= 0 && f < m.size ? f : -1;
   }
   const r = { m, W, map: map2 };
   if (output2 === "raw")
@@ -3118,7 +3118,7 @@ var Booking = class {
     }
     const list = this.linked_bookings;
     this._valid_asset_cache = (this.extension_data.assets || []).map((request) => new AssetRequest(__spreadProps(__spreadValues({}, request), { event: this }))).filter((request) => request.deliver_at < this.date_end).map((request) => {
-      const booking = list.find((_) => _.extension_data.request_id === request.id);
+      const booking = list.find((_2) => _2.extension_data.request_id === request.id);
       if (booking) {
         request.state = booking.approved ? "approved" : booking.rejected ? "rejected" : "pending";
       }
@@ -3134,7 +3134,7 @@ var Booking = class {
     this.id = data.id || "";
     this.parent_id = data.parent_id || "";
     this.asset_id = data.asset_id || "";
-    this.asset_ids = data.asset_ids || [data.asset_id].filter((_) => _);
+    this.asset_ids = data.asset_ids || [data.asset_id].filter((_2) => _2);
     const booking_type = data.booking_type || data.type || " ";
     this.asset_name = booking_type === "visitor" ? data.extension_data?.visitor_name || data.asset_name || data.extension_data?.asset_name || data.extension_data?.name || data.asset_id || "" : data.asset_name || data.extension_data?.asset_name || data.extension_data?.name || data.description || data.asset_id || "";
     this.zones = data.zones || [];
@@ -3226,7 +3226,7 @@ var Booking = class {
     }
     if (!data.parent_id)
       delete data.parent_id;
-    data.zones = data.zones.filter((_) => _);
+    data.zones = data.zones.filter((_2) => _2);
     delete data.date;
     delete data.duration;
     delete data.created_at;
@@ -3383,11 +3383,11 @@ function rememberFailedLoad(source) {
 }
 function setAuthCookie(cookie_path) {
   const tkn = J();
-  document.cookie = `${tkn === "x-api-key" ? "api-key=" + encodeURIComponent(Xe()) : "bearer_token=" + encodeURIComponent(tkn)};max-age=30;path=${cookie_path};samesite=strict;${location.protocol === "https:" ? "secure;" : ""}`;
+  document.cookie = `${tkn === "x-api-key" ? "api-key=" + encodeURIComponent(et()) : "bearer_token=" + encodeURIComponent(tkn)};max-age=30;path=${cookie_path};samesite=strict;${location.protocol === "https:" ? "secure;" : ""}`;
 }
 function authHeaders() {
   const tkn = J();
-  return tkn === "x-api-key" ? { "X-API-Key": Xe() } : { Authorization: `Bearer ${tkn}` };
+  return tkn === "x-api-key" ? { "X-API-Key": et() } : { Authorization: `Bearer ${tkn}` };
 }
 function loadAuthenticatedImage(source, cookie_path) {
   return loadImage(source, () => {
@@ -3711,7 +3711,7 @@ var MapStore = class {
     const is_same_origin = new URL(path, location.origin).origin === location.origin;
     if (tkn && is_same_origin) {
       if (!isMobileSafari()) {
-        options.headers = tkn === "x-api-key" ? { "x-api-key": Xe() } : { Authorization: `Bearer ${tkn}` };
+        options.headers = tkn === "x-api-key" ? { "x-api-key": et() } : { Authorization: `Bearer ${tkn}` };
       } else {
         setAuthCookie("/");
       }
@@ -3966,7 +3966,7 @@ var MapViewer = class {
     this._action_event_handlers.clear();
     this._action_last_triggered.clear();
     this._actions = actions;
-    const event_names = new Set(actions.flatMap((_) => _.events));
+    const event_names = new Set(actions.flatMap((_2) => _2.events));
     for (const event_name of event_names) {
       const handler = (e) => this._handleActionEvent(event_name, e);
       this._action_event_handlers.set(event_name, handler);
@@ -5531,13 +5531,13 @@ var DynamicMapComponent = class _DynamicMapComponent {
       injector.get(MAP_FEATURE_DATA)?.track_id,
       injector
     ]));
-    this.injectors.set((this.features() || []).map((f2) => f2.track_id && old_injectors.get(f2.track_id) || Injector.create({
+    this.injectors.set((this.features() || []).map((f) => f.track_id && old_injectors.get(f.track_id) || Injector.create({
       providers: [
         {
           provide: MAP_FEATURE_DATA,
           useValue: __spreadValues({
-            track_id: f2.track_id
-          }, f2.data)
+            track_id: f.track_id
+          }, f.data)
         }
       ],
       parent: this._injector
@@ -5867,10 +5867,10 @@ var ExploreStateService = class _ExploreStateService {
         level: this._level(),
         initialised: this._initialised()
       }),
-      loader: ({ params: { level, initialised } }) => initialised ? $a({
+      loader: ({ params: { level, initialised } }) => initialised ? ba({
         zone_id: level?.id || this._org.organisation.id,
         limit: 50
-      }).then(({ data }) => data.map((_) => new Space(_))).catch((_) => []) : Promise.resolve([])
+      }).then(({ data }) => data.map((_2) => new Space(_2))).catch((_2) => []) : Promise.resolve([])
     }));
     this.spaces = computed(
       () => this._spaces.value() ?? [],
@@ -6097,9 +6097,9 @@ var ExploreStateService = class _ExploreStateService {
   }
   _normaliseDisabledOption(value) {
     if (value instanceof Array)
-      return value.filter((_) => !!_);
+      return value.filter((_2) => !!_2);
     if (typeof value === "string") {
-      return value.split(",").map((_) => _.trim()).filter((_) => !!_);
+      return value.split(",").map((_2) => _2.trim()).filter((_2) => !!_2);
     }
     return [];
   }
@@ -6135,7 +6135,7 @@ async function searchStaff(q) {
       "department"
     ].join(",")
   });
-  const list = await f(`${STAFF_ENDPOINT}${q ? "?" + query : ""}`);
+  const list = await _(`${STAFF_ENDPOINT}${q ? "?" + query : ""}`);
   return list.map((item) => new StaffUser(item));
 }
 async function searchStaffByEmailPrefix(email_prefix) {
@@ -6143,11 +6143,11 @@ async function searchStaffByEmailPrefix(email_prefix) {
   const query = toQueryString({
     filter: `startsWith(mail,'${escaped_prefix}')`
   });
-  const list = await f(`${STAFF_ENDPOINT}?${query}`);
+  const list = await _(`${STAFF_ENDPOINT}?${query}`);
   return list.map((item) => new StaffUser(item));
 }
 async function showStaff(id) {
-  return new StaffUser(await f(`${STAFF_ENDPOINT}/${encodeURIComponent(id)}`));
+  return new StaffUser(await _(`${STAFF_ENDPOINT}/${encodeURIComponent(id)}`));
 }
 
 // libs/components/src/lib/user-avatar.component.ts
@@ -6279,12 +6279,12 @@ var UserAvatarComponent = class _UserAvatarComponent {
 // libs/events/src/lib/calendar.fn.ts
 var CALENDAR_ENDPOINT = "/api/staff/v1/calendars";
 async function queryCalendars() {
-  const list = await f(CALENDAR_ENDPOINT);
+  const list = await _(CALENDAR_ENDPOINT);
   return list.map((c) => new Calendar(c));
 }
 async function queryCalendarAvailability(q) {
   const query = toQueryString(q);
-  const list = await f(`${CALENDAR_ENDPOINT}/availability${query ? "?" + query : ""}`);
+  const list = await _(`${CALENDAR_ENDPOINT}/availability${query ? "?" + query : ""}`);
   return list.map((c) => new Calendar(c));
 }
 var calendarsToSpaces = (list, org) => list.filter((cal) => !!cal.resource).map((cal) => new Space(__spreadProps(__spreadValues({}, cal.resource), {
@@ -6293,7 +6293,7 @@ var calendarsToSpaces = (list, org) => list.filter((cal) => !!cal.resource).map(
 }))).filter((space) => space.bookable);
 async function querySpaceFreeBusy(q, org) {
   const query = toQueryString(q);
-  const list = await f(`${CALENDAR_ENDPOINT}/free_busy${query ? "?" + query : ""}`);
+  const list = await _(`${CALENDAR_ENDPOINT}/free_busy${query ? "?" + query : ""}`);
   return calendarsToSpaces(list.map((c) => new Calendar(c)), org);
 }
 
@@ -7345,7 +7345,7 @@ async function openConfirmModal(data, dialog) {
     data
   }));
   return __spreadProps(__spreadValues({}, await Promise.race([
-    ref.componentInstance.event.pipe(first((_) => _.reason === "done")).toPromise(),
+    ref.componentInstance.event.pipe(first((_2) => _2.reason === "done")).toPromise(),
     ref.afterClosed().toPromise()
   ])), {
     loading: (s) => ref.componentInstance.loading?.set(s),
@@ -8211,11 +8211,11 @@ var MatRadioModule = class _MatRadioModule {
 var GUEST_ENDPOINT = "/api/staff/v1/guests";
 async function searchGuests(q) {
   const query = toQueryString({ q });
-  const list = await f(`${GUEST_ENDPOINT}${q ? "?" + query : ""}`);
+  const list = await _(`${GUEST_ENDPOINT}${q ? "?" + query : ""}`);
   return list.map((item) => new GuestUser(item));
 }
 async function showGuest(id) {
-  return new GuestUser(await f(`${GUEST_ENDPOINT}/${encodeURIComponent(id)}`));
+  return new GuestUser(await _(`${GUEST_ENDPOINT}/${encodeURIComponent(id)}`));
 }
 
 // libs/form-fields/src/lib/user-search-field.component.ts
@@ -8489,11 +8489,11 @@ var UserSearchFieldComponent = class _UserSearchFieldComponent extends AsyncHand
         const guest_query = () => searchGuests(q).catch(() => []);
         if (this.guests_only())
           return guest_query();
-        const staff = this.use_basic_search() ? await Ja({
+        const staff = this.use_basic_search() ? await Va({
           q,
           authority_id: Mt()?.id,
           fields: ["id", "name", "email"].join(",")
-        }).then((_) => _.data.map((u2) => new User(u2))).catch(() => []) : await searchStaff(q).catch(() => []);
+        }).then((_2) => _2.data.map((u2) => new User(u2))).catch(() => []) : await searchStaff(q).catch(() => []);
         if (!this.guests())
           return staff;
         return [...staff, ...await guest_query()];
@@ -8520,12 +8520,12 @@ var UserSearchFieldComponent = class _UserSearchFieldComponent extends AsyncHand
           return [];
         const s = `${term || ""}`.toLowerCase();
         if (this.options()?.length) {
-          return this.options().filter((_) => _.email !== EMPTY_USER.email && (_.name.toLowerCase().includes(s) || _.email.toLowerCase().includes(s)));
+          return this.options().filter((_2) => _2.email !== EMPTY_USER.email && (_2.name.toLowerCase().includes(s) || _2.email.toLowerCase().includes(s)));
         }
         if (s.length <= 2)
           return [];
         const list = await this.query_fn()(s).catch(() => []);
-        return list.filter((_) => !!_ && _.email !== EMPTY_USER.email).sort((a, b) => (a.name?.toLowerCase() || "").localeCompare(b.name?.toLowerCase()));
+        return list.filter((_2) => !!_2 && _2.email !== EMPTY_USER.email).sort((a, b) => (a.name?.toLowerCase() || "").localeCompare(b.name?.toLowerCase()));
       }
     }));
     this.search_results = computed(
@@ -8561,7 +8561,7 @@ var UserSearchFieldComponent = class _UserSearchFieldComponent extends AsyncHand
     this.user.set(value);
     this.search_term.set(value);
     if (typeof new_value !== "string" && !this.use_basic_search() && (value?.id || value?.email)) {
-      Va(value.email || value.id).then((details) => {
+      Ya(value.email || value.id).then((details) => {
         if (!details)
           return;
         const updated = new User(__spreadValues(__spreadValues({}, value), new User(details)));
@@ -8980,7 +8980,7 @@ async function queryBookings(q) {
 }
 async function queryBookingsOrThrow(q) {
   const query = toQueryString(q);
-  const list = await f(`${BOOKINGS_ENDPOINT}${query ? "?" + query : ""}`);
+  const list = await _(`${BOOKINGS_ENDPOINT}${query ? "?" + query : ""}`);
   return list.map((item) => new Booking(item));
 }
 async function bookedResourceList(q, resource_count) {
@@ -9001,7 +9001,7 @@ async function bookedResourceList(q, resource_count) {
       count += 1;
     }
     return unique(list);
-  } catch (_) {
+  } catch (_2) {
     return [];
   }
 }
@@ -9010,7 +9010,7 @@ async function findBookingClashes(booking, q = {}) {
   try {
     const list = await v(`${BOOKINGS_ENDPOINT}/clashing-assets${query ? "?" + query : ""}`, booking.toJSON()).catch(() => []);
     return q.include_clash_time ? list : list;
-  } catch (_) {
+  } catch (_2) {
     return [];
   }
 }
@@ -9033,7 +9033,7 @@ async function queryAllBookings(q) {
       count += 1;
     }
     return unique(list, "id");
-  } catch (_) {
+  } catch (_2) {
     return [];
   }
 }
@@ -9083,15 +9083,15 @@ async function createBookingsForEvent(event, type, resources) {
     type,
     period_start: getUnixTime(event.date),
     period_end: getUnixTime(addMinutes(event.date, event.duration))
-  })).filter((_) => _.parent_id === event.id);
-  await Promise.all(bookings.map((_) => removeBooking(_.id)));
-  await Promise.all(event.linked_bookings.filter((_) => _.booking_type === type).map((_) => removeBooking(_.id)));
-  const zones = event.system?.zones || unique(flatten(event.resources.map((_) => _.zones))) || [];
+  })).filter((_2) => _2.parent_id === event.id);
+  await Promise.all(bookings.map((_2) => removeBooking(_2.id)));
+  await Promise.all(event.linked_bookings.filter((_2) => _2.booking_type === type).map((_2) => removeBooking(_2.id)));
+  const zones = event.system?.zones || unique(flatten(event.resources.map((_2) => _2.zones))) || [];
   const created_bookings = [];
   try {
     for (const item of resources) {
-      const booking = bookings.find((_) => _.extension_data?.details?.id === item.id || _.asset_ids.find((id) => item.items?.find((i) => i.item_ids.includes(id))));
-      const assigned_space = type === "catering-order" && item.system_id ? event.resources.find((_) => _.id === item.system_id || _.email === item.system_id) : void 0;
+      const booking = bookings.find((_2) => _2.extension_data?.details?.id === item.id || _2.asset_ids.find((id) => item.items?.find((i) => i.item_ids.includes(id))));
+      const assigned_space = type === "catering-order" && item.system_id ? event.resources.find((_2) => _2.id === item.system_id || _2.email === item.system_id) : void 0;
       const resource_id = assigned_space?.id || item.system_id || item.email || item.id;
       const resource_name = assigned_space?.display_name || assigned_space?.name || item.name;
       created_bookings.push(await createBooking(new Booking({
@@ -9143,7 +9143,7 @@ var AssetGroupPipe = class _AssetGroupPipe {
     let asset_group = ASSET_GROUP_LIST.find(({ id }) => id === group_id);
     if (asset_group)
       return asset_group;
-    const group = await Yl(group_id).catch(() => null);
+    const group = await Xl(group_id).catch(() => null);
     if (group) {
       asset_group = __spreadValues({}, group);
       ASSET_GROUP_LIST.push(asset_group);
@@ -9178,7 +9178,7 @@ function getAssetRulesForZone(zone_id, fresh = false) {
   if (!zone_id)
     return Promise.resolve([]);
   if (!RULE_REQUESTS[zone_id] || fresh)
-    RULE_REQUESTS[zone_id] = rc(zone_id, "assets_config").then((_) => _.details instanceof Array ? _.details : []).catch(() => []);
+    RULE_REQUESTS[zone_id] = oc(zone_id, "assets_config").then((_2) => _2.details instanceof Array ? _2.details : []).catch(() => []);
   return RULE_REQUESTS[zone_id];
 }
 function assetAvailable(item, rules, event) {
@@ -9218,7 +9218,7 @@ function assetAvailable(item, rules, event) {
 // libs/assets/src/lib/assets.fn.ts
 function findOldestByName(list, name = "") {
   const match_name = name.trim().toLowerCase();
-  return list.filter((_) => (_.name || "").trim().toLowerCase() === match_name).sort((a, b) => (a.created_at || 0) - (b.created_at || 0))[0];
+  return list.filter((_2) => (_2.name || "").trim().toLowerCase() === match_name).sort((a, b) => (a.created_at || 0) - (b.created_at || 0))[0];
 }
 function filter_hidden_items(response) {
   return __spreadProps(__spreadValues({}, response), {
@@ -9226,21 +9226,21 @@ function filter_hidden_items(response) {
   });
 }
 async function visible_category_ids() {
-  const response = await np({});
+  const response = await sp({});
   return new Set(response.data.filter((item) => !item?.hidden).map((item) => item.id));
 }
 async function queryAssetCategories(query = {}) {
   if (query.hidden === true)
-    return np(query);
+    return sp(query);
   const _a = query, { hidden } = _a, rest = __objRest(_a, ["hidden"]);
-  return filter_hidden_items(await np(rest));
+  return filter_hidden_items(await sp(rest));
 }
 async function queryAssetTypes(query = {}) {
   if (query.hidden === true)
-    return Vl(query);
+    return Yl(query);
   const _a = query, { hidden } = _a, rest = __objRest(_a, ["hidden"]);
   const [response, visible_ids] = await Promise.all([
-    Vl(rest),
+    Yl(rest),
     visible_category_ids()
   ]);
   return __spreadProps(__spreadValues({}, response), {
@@ -9249,10 +9249,10 @@ async function queryAssetTypes(query = {}) {
 }
 async function queryAssets(query = {}) {
   if (query.hidden === true)
-    return jl(query);
+    return Gl(query);
   const _a = query, { hidden } = _a, rest = __objRest(_a, ["hidden"]);
   const [response, types] = await Promise.all([
-    jl(rest),
+    Gl(rest),
     queryAssetTypes(__spreadProps(__spreadValues({}, rest.zone_id ? { zone_id: rest.zone_id } : {}), {
       limit: 2e3
     }))
@@ -9263,12 +9263,12 @@ async function queryAssets(query = {}) {
   });
 }
 function saveAssetCategory(category) {
-  return category.id ? ip(category.id, category) : rp(category);
+  return category.id ? rp(category.id, category) : op(category);
 }
 var _GROUPS_CACHE = /* @__PURE__ */ new Map();
 var REMOVE_QUERY_KEYS = ["period_start", "period_end", "type", "rejected"];
 async function queryAllAssetPages(query = {}) {
-  let response = await jl(__spreadProps(__spreadValues({}, query), {
+  let response = await Gl(__spreadProps(__spreadValues({}, query), {
     limit: query.limit || 500
   }));
   let total = response.total;
@@ -9303,7 +9303,7 @@ async function queryAssetGroupsExtended(query = {}) {
   if (q.zones)
     delete q.zones;
   const [types, assets] = await Promise.all([
-    Vl(q),
+    Yl(q),
     queryAllAssetPages(q)
   ]);
   let groups = types.data.filter((item) => !item?.hidden);
@@ -9327,14 +9327,14 @@ async function queryAssetGroupsExtended(query = {}) {
   return list;
 }
 function saveAssetType(product) {
-  return product.id ? Xl(product.id, product) : ep(product);
+  return product.id ? ep(product.id, product) : tp(product);
 }
 async function queryGroupAvailability(query, ignore = []) {
   const [products, bookings] = await Promise.all([
     queryAssetGroupsExtended(query),
     queryBookings(__spreadProps(__spreadValues({}, query), { type: "asset-request" }))
   ]);
-  const active_bookings = bookings.filter((_) => _.status !== "declined" && _.status !== "cancelled");
+  const active_bookings = bookings.filter((_2) => _2.status !== "declined" && _2.status !== "cancelled");
   return products.map((product) => __spreadProps(__spreadValues({}, product), {
     assets: product.assets.filter((asset) => ignore?.includes(asset.id) || !active_bookings.find((booking) => !ignore.includes(booking.id) && (booking.asset_id === asset.id || booking.asset_ids?.includes(asset.id))))
   }));
@@ -9346,7 +9346,7 @@ function differenceBetweenAssetRequests(new_assets, old_assets) {
     return [];
   const changed = [];
   for (const request of new_assets) {
-    const match = old_assets.find((_) => _.id === request.id);
+    const match = old_assets.find((_2) => _2.id === request.id);
     if (!match || match.ref_id !== request.ref_id) {
       changed.push(request.id);
     }
@@ -9369,28 +9369,28 @@ async function validateAssetRequestsForResource({ id, ical_uid, from_booking }, 
     booking_id: from_booking ? id : "",
     ical_uid
   }) : [];
-  const booking_list = bookings.map((_) => [
-    _.id,
-    new AssetRequest(_.extension_data.request)
+  const booking_list = bookings.map((_2) => [
+    _2.id,
+    new AssetRequest(_2.extension_data.request)
   ]);
-  new_assets?.forEach((_) => _.conflict = false);
-  let changed = force_create ? new_assets.map((_) => _.id) : differenceBetweenAssetRequests(new_assets, booking_list.map(([_, r]) => r));
+  new_assets?.forEach((_2) => _2.conflict = false);
+  let changed = force_create ? new_assets.map((_2) => _2.id) : differenceBetweenAssetRequests(new_assets, booking_list.map(([_2, r]) => r));
   if (reset_state) {
-    const has_state = bookings.filter((_) => _.approved || _.rejected);
+    const has_state = bookings.filter((_2) => _2.approved || _2.rejected);
     changed = unique([
       ...changed,
-      ...has_state.map((_) => _.extension_data.request_id)
+      ...has_state.map((_2) => _2.extension_data.request_id)
     ]);
   }
-  const unchanged = booking_list.filter(([_, request]) => !changed.includes(request.id));
-  const changed_requests = booking_list.filter(([_, { id: id2 }]) => changed.includes(id2));
+  const unchanged = booking_list.filter(([_2, request]) => !changed.includes(request.id));
+  const changed_requests = booking_list.filter(([_2, { id: id2 }]) => changed.includes(id2));
   const changed_assets = new_assets.filter(({ id: id2 }) => changed.includes(id2));
   const filtered = requests.filter((req) => !req.rejected && (!bookings.find((b) => b.id === req.id) || unchanged.find(([id2]) => req.event_id === id2)));
-  let used_ids = flatten(filtered.map((_) => _.asset_ids));
-  for (const [_, request] of unchanged) {
+  let used_ids = flatten(filtered.map((_2) => _2.asset_ids));
+  for (const [_2, request] of unchanged) {
     used_ids = [
       ...used_ids,
-      ...flatten(request.items.map((_2) => _2.item_ids))
+      ...flatten(request.items.map((_3) => _3.item_ids))
     ];
   }
   const available_groups = await queryGroupAvailability({
@@ -9398,15 +9398,15 @@ async function validateAssetRequestsForResource({ id, ical_uid, from_booking }, 
     period_end: getUnixTime(addMinutes(date, duration)),
     type: "asset-request",
     zones: (zones || []).join(",")
-  }, bookings.map((_) => _.id));
+  }, bookings.map((_2) => _2.id));
   const processed_requests = changed_assets.map((request) => {
     const asset_ids = flatten(request.items.map(({ id: id2, item_ids, quantity }) => {
       const selected_ids = item_ids || [];
-      const assets = available_groups.find((_) => _.id === id2)?.assets;
+      const assets = available_groups.find((_2) => _2.id === id2)?.assets;
       if (!assets)
         return selected_ids;
       const list = [];
-      return new Array(quantity).fill(0).map((_, idx) => {
+      return new Array(quantity).fill(0).map((_2, idx) => {
         const item = used_ids.includes(selected_ids[idx]) || list.includes(selected_ids[idx]) || !selected_ids[idx] ? assets?.find(({ id: id3 }) => {
           return !used_ids.includes(id3) && !list.includes(id3);
         })?.id : selected_ids[idx];
@@ -9422,7 +9422,7 @@ async function validateAssetRequestsForResource({ id, ical_uid, from_booking }, 
       request.conflict = true;
       throw "Unable to find available asset for request";
     }
-    const booking = bookings.find((_) => _.asset_ids.find((id2) => request.items?.find((i) => i.item_ids?.includes(id2))));
+    const booking = bookings.find((_2) => _2.asset_ids.find((id2) => request.items?.find((i) => i.item_ids?.includes(id2))));
     used_ids = [...used_ids, ...asset_ids];
     const asset_data = {
       type: "asset-request",
@@ -9434,8 +9434,8 @@ async function validateAssetRequestsForResource({ id, ical_uid, from_booking }, 
       user_email: host,
       asset_id: asset_ids[0],
       asset_ids,
-      asset_name: request.items.map((_) => _.name).join(", "),
-      title: request.items.map((_) => _.name).join(", "),
+      asset_name: request.items.map((_2) => _2.name).join(", "),
+      title: request.items.map((_2) => _2.name).join(", "),
       approved: !reset_state && booking?.approved && !request._changed,
       rejected: !reset_state && booking?.rejected && !request._changed,
       extension_data: {
@@ -9639,7 +9639,7 @@ var AssetStateService = class _AssetStateService {
         const visible_categories = this.visible_category_ids();
         const assets = this._available_groups();
         const rules = this._rules();
-        return assets.filter((_) => _.assets?.length && visible_categories.includes(_.category_id) && (!category.length || category.includes(_.category_id)) && (_.name.toLowerCase().includes(search) || _.description.toLowerCase().includes(search)) && assetAvailable(_, rules, this._options()));
+        return assets.filter((_2) => _2.assets?.length && visible_categories.includes(_2.category_id) && (!category.length || category.includes(_2.category_id)) && (_2.name.toLowerCase().includes(search) || _2.description.toLowerCase().includes(search)) && assetAvailable(_2, rules, this._options()));
       },
       ...ngDevMode ? [{ debugName: "filtered_assets" }] : (
         /* istanbul ignore next */
@@ -9704,7 +9704,7 @@ var AssetStateService = class _AssetStateService {
   toggleCategory(value) {
     const categories = untracked(this._category);
     if (categories.includes(value)) {
-      this._category.set(categories.filter((_) => _ !== value));
+      this._category.set(categories.filter((_2) => _2 !== value));
     } else {
       this._category.set([...categories, value]);
     }
@@ -9795,7 +9795,7 @@ var AssetStateService = class _AssetStateService {
   }
   async _loadSettings(building_id) {
     const existing = this._settings_requests.get(building_id);
-    const request = existing || rc(building_id, "assets-settings").then((metadata) => metadata.details || {}).catch(() => ({}));
+    const request = existing || oc(building_id, "assets-settings").then((metadata) => metadata.details || {}).catch(() => ({}));
     if (!existing)
       this._settings_requests.set(building_id, request);
     this._settings.set(await request);
@@ -10117,7 +10117,7 @@ var DurationFieldComponent = class _DurationFieldComponent {
       )
     );
     this.selected = computed(
-      () => this.duration_options().find((_) => _.id === this.duration()),
+      () => this.duration_options().find((_2) => _2.id === this.duration()),
       ...ngDevMode ? [{ debugName: "selected" }] : (
         /* istanbul ignore next */
         []
@@ -10231,7 +10231,7 @@ var DurationFieldComponent = class _DurationFieldComponent {
     this._onTouch = fn;
   }
   /** Mark the control invalid when the selected date has no valid durations. */
-  validate(_) {
+  validate(_2) {
     if (this.no_options())
       return { no_duration_options: true };
     return this.end_time_error() ? { invalid_end_time: true } : null;
@@ -10246,7 +10246,7 @@ var DurationFieldComponent = class _DurationFieldComponent {
     const date = timeValue ? timeValue : null;
     const effective_max = this._effectiveMax(max, timeValue);
     const latest_end_max = this._effectiveMax(Number.POSITIVE_INFINITY, timeValue);
-    const custom_option_ids = new Set([...this.custom_options(), this.duration()].map((_) => Math.round(+_ || 0)).filter((_) => _ > 0));
+    const custom_option_ids = new Set([...this.custom_options(), this.duration()].map((_2) => Math.round(+_2 || 0)).filter((_2) => _2 > 0));
     for (const option of custom_option_ids) {
       blocks.push({
         id: option,
@@ -10287,7 +10287,7 @@ var DurationFieldComponent = class _DurationFieldComponent {
     const duration_options = this.duration_options();
     if (!duration_options?.length)
       return;
-    const idx = duration_options.findIndex((_) => _.id === this.duration());
+    const idx = duration_options.findIndex((_2) => _2.id === this.duration());
     if (idx < 0)
       this.setValue(duration_options[0]?.id ?? this.min());
   }
@@ -10497,14 +10497,14 @@ var DESK_TYPE_NAME = "_DESKS_";
 var _desk_type_id = null;
 var _desk_type_id_promise = null;
 async function bootstrap_desk_type() {
-  let category = findOldestByName(await np({ hidden: true, limit: 500 }).then((response) => response.data), DESK_CATEGORY_NAME);
+  let category = findOldestByName(await sp({ hidden: true, limit: 500 }).then((response) => response.data), DESK_CATEGORY_NAME);
   if (!category) {
     category = await saveAssetCategory({
       name: DESK_CATEGORY_NAME,
       hidden: true
     });
   }
-  let type = findOldestByName(await Vl({
+  let type = findOldestByName(await Yl({
     category_id: category.id,
     limit: 500
   }).then((response) => response.data), DESK_TYPE_NAME);
@@ -10530,14 +10530,14 @@ function resolveDeskTypeId() {
 }
 async function queryDeskAssets(zone_id) {
   const type_id = await resolveDeskTypeId();
-  const response = await jl({ zone_id, type_id, limit: 500 });
+  const response = await Gl({ zone_id, type_id, limit: 500 });
   return response.data;
 }
 async function queryDeskAssetsForZones(zone_ids) {
   if (!zone_ids.length)
     return [];
   const type_id = await resolveDeskTypeId();
-  const results = await Promise.all(zone_ids.map((zone_id) => jl({ zone_id, type_id, limit: 500 }).then((response) => response.data)));
+  const results = await Promise.all(zone_ids.map((zone_id) => Gl({ zone_id, type_id, limit: 500 }).then((response) => response.data)));
   return flatten(results);
 }
 function deskFromAsset(asset, zone) {
@@ -10563,16 +10563,16 @@ var _hidden_categories_promise = null;
 var _types_for_category_promises = /* @__PURE__ */ new Map();
 async function query_hidden_categories() {
   if (!_hidden_categories_promise) {
-    _hidden_categories_promise = np({
+    _hidden_categories_promise = sp({
       hidden: true,
       limit: 500
-    }).then((_) => _.data).catch(() => []);
+    }).then((_2) => _2.data).catch(() => []);
   }
   return _hidden_categories_promise;
 }
 async function query_types_for_category(category_id) {
   if (!_types_for_category_promises.has(category_id)) {
-    _types_for_category_promises.set(category_id, Vl({ category_id, limit: 500 }).then((_) => _.data).catch(() => []));
+    _types_for_category_promises.set(category_id, Yl({ category_id, limit: 500 }).then((_2) => _2.data).catch(() => []));
   }
   return _types_for_category_promises.get(category_id);
 }
@@ -10634,14 +10634,14 @@ async function queryLockerBankAssetsForZones(zone_ids) {
   if (!zone_ids?.length)
     return [];
   const type_id = await resolveLockerBankTypeId();
-  const results = await Promise.all(zone_ids.map((zone_id) => jl({ zone_id, type_id, limit: 500 }).then((_) => _.data)));
+  const results = await Promise.all(zone_ids.map((zone_id) => Gl({ zone_id, type_id, limit: 500 }).then((_2) => _2.data)));
   return flatten(results);
 }
 async function queryLockerAssetsForZones(zone_ids) {
   if (!zone_ids?.length)
     return [];
   const type_id = await resolveLockerTypeId();
-  const results = await Promise.all(zone_ids.map((zone_id) => jl({ zone_id, type_id, limit: 500 }).then((_) => _.data)));
+  const results = await Promise.all(zone_ids.map((zone_id) => Gl({ zone_id, type_id, limit: 500 }).then((_2) => _2.data)));
   return flatten(results);
 }
 
@@ -10657,16 +10657,16 @@ function normalise_name(name = "") {
 }
 async function query_hidden_categories2() {
   if (!_hidden_categories_promise2) {
-    _hidden_categories_promise2 = np({
+    _hidden_categories_promise2 = sp({
       hidden: true,
       limit: 500
-    }).then((_) => _.data).catch(() => []);
+    }).then((_2) => _2.data).catch(() => []);
   }
   return _hidden_categories_promise2;
 }
 async function query_types_for_category2(category_id) {
   if (!_types_for_category_promises2.has(category_id)) {
-    _types_for_category_promises2.set(category_id, Vl({ category_id, limit: 500 }).then((_) => _.data).catch(() => []));
+    _types_for_category_promises2.set(category_id, Yl({ category_id, limit: 500 }).then((_2) => _2.data).catch(() => []));
   }
   return _types_for_category_promises2.get(category_id);
 }
@@ -10728,7 +10728,7 @@ async function move_type_to_category(type, category_id, name) {
 async function ensure_type2(category_id, name, legacy_category_ids = []) {
   let type = findOldestByName(await query_types_for_categories([
     category_id,
-    ...legacy_category_ids.filter((_) => _ !== category_id)
+    ...legacy_category_ids.filter((_2) => _2 !== category_id)
   ]), name);
   if (type)
     return move_type_to_category(type, category_id, name);
@@ -10744,7 +10744,7 @@ async function ensure_type2(category_id, name, legacy_category_ids = []) {
     reset_types_cache([category_id, ...legacy_category_ids]);
     type = findOldestByName(await query_types_for_categories([
       category_id,
-      ...legacy_category_ids.filter((_) => _ !== category_id)
+      ...legacy_category_ids.filter((_2) => _2 !== category_id)
     ]), name);
     if (type)
       return move_type_to_category(type, category_id, name);
@@ -10774,7 +10774,7 @@ async function queryParkingSpacesForZones(zone_ids) {
   if (!zone_ids?.length)
     return [];
   const type_id = await resolveParkingTypeId();
-  const results = await Promise.all(zone_ids.map((zone_id) => jl({ zone_id, type_id, limit: 500 }).then((_) => _.data)));
+  const results = await Promise.all(zone_ids.map((zone_id) => Gl({ zone_id, type_id, limit: 500 }).then((_2) => _2.data)));
   return flatten(results);
 }
 var PARKING_USER_TYPE_NAME = "_PARKING_USERS_";
@@ -10811,7 +10811,7 @@ function toParkingUser(asset) {
 }
 async function queryParkingUsers(zone_id) {
   const type_id = await resolveParkingUserTypeId();
-  const assets = await jl({ zone_id, type_id, limit: 500 });
+  const assets = await Gl({ zone_id, type_id, limit: 500 });
   return assets.data.map(toParkingUser);
 }
 
@@ -10834,7 +10834,7 @@ function lockerBankFromAsset(asset) {
     name: asset.identifier || data.name || "",
     height: +(data.height || 3),
     notes: asset.notes || "",
-    zones: asset.zones || [asset.zone_id].filter((_) => _),
+    zones: asset.zones || [asset.zone_id].filter((_2) => _2),
     tags: asset.tags || parseJson(data.tags, []),
     images: parseJson(data.images, [])
   };
@@ -10842,7 +10842,7 @@ function lockerBankFromAsset(asset) {
 function lockerFromAsset(asset, banks) {
   const data = asset.other_data || {};
   const bank_id = asset.parent_id || "";
-  const bank = banks.find((_) => _.id === bank_id);
+  const bank = banks.find((_2) => _2.id === bank_id);
   return {
     id: asset.id,
     bank_id,
@@ -11044,9 +11044,9 @@ function newBookingFromCalendarEvent(event) {
   const date = event.date || event.event_start * 1e3;
   const duration = event.duration ?? (event.event_end - event.event_start) / 60;
   const recurrence = event.recurrence?.pattern ? toBookingRecurrence(fromEventRecurrence(event.recurrence), date) : {};
-  const rooms = [event.system, ...event.resources || []].filter((_) => !!_?.id);
+  const rooms = [event.system, ...event.resources || []].filter((_2) => !!_2?.id);
   const { system_id } = event;
-  const asset_ids = unique([...rooms.map((_) => _.id), system_id].filter((_) => !!_));
+  const asset_ids = unique([...rooms.map((_2) => _2.id), system_id].filter((_2) => !!_2));
   return new Booking(__spreadProps(__spreadValues({
     id: event.id,
     user_id: event.organiser?.id || event.host,
@@ -11059,7 +11059,7 @@ function newBookingFromCalendarEvent(event) {
     asset_id: asset_ids[0],
     asset_ids,
     asset_name: event.system?.display_name || event.system?.name,
-    zones: unique(rooms.flatMap((_) => _.zones || [])),
+    zones: unique(rooms.flatMap((_2) => _2.zones || [])),
     booking_type: "room",
     approved: event.status === "approved"
   }, recurrence), {
@@ -11080,11 +11080,11 @@ async function loadLockersForScope(org, scope_id, banks) {
   if (!scope_id)
     return [];
   const assets = await queryLockerAssetsForZones([scope_id]).catch(() => []);
-  const lockers = assets.map((_) => lockerFromAsset(_, banks));
+  const lockers = assets.map((_2) => lockerFromAsset(_2, banks));
   for (const bank of banks) {
-    bank.lockers = lockers.filter((_) => _.bank_id === bank.id).map((_) => __spreadValues({}, _));
+    bank.lockers = lockers.filter((_2) => _2.bank_id === bank.id).map((_2) => __spreadValues({}, _2));
   }
-  return lockers.filter((_) => _.bank);
+  return lockers.filter((_2) => _2.bank);
 }
 async function loadLockerResources(org, scope_id) {
   const banks = await loadLockerBanksForScope(org, scope_id);
@@ -11118,7 +11118,7 @@ async function openRecurringClashModal(data, dialog) {
     data
   });
   return Promise.race([
-    ref.componentInstance.event.pipe(first((_) => _.reason === "done")).toPromise(),
+    ref.componentInstance.event.pipe(first((_2) => _2.reason === "done")).toPromise(),
     ref.afterClosed().toPromise()
   ]);
 }
@@ -11476,8 +11476,8 @@ function generateGoogleCalendarLink(event) {
     trp: false,
     dates: `${fmt(event.date)}/${fmt(addMinutes(event.date, event.duration ?? 60))}`
   };
-  const emails = (event.attendees || []).map((_) => _.email || _);
-  const resources = ((event.resources?.length ? event.resources : null) || [event.system]).map((_) => _?.email || _);
+  const emails = (event.attendees || []).map((_2) => _2.email || _2);
+  const resources = ((event.resources?.length ? event.resources : null) || [event.system]).map((_2) => _2?.email || _2);
   if (emails.length || resources.length)
     details.add = unique([...emails, ...resources]).join();
   return `https://calendar.google.com/calendar/render?${toQueryString(details)}`;
@@ -11502,10 +11502,10 @@ function generateMicrosoftCalendarLink(event, type = "office", status = "free") 
   };
   if (event.all_day)
     delete data.enddt;
-  const emails = (event.attendees || []).map((_) => _.email || _);
-  const resources = ((event.resources?.length ? event.resources : null) || [event.system]).map((_) => _?.email || _);
+  const emails = (event.attendees || []).map((_2) => _2.email || _2);
+  const resources = ((event.resources?.length ? event.resources : null) || [event.system]).map((_2) => _2?.email || _2);
   if (emails.length || resources.length)
-    data.to = unique([...emails, ...resources]).filter((_) => !!_).join(",");
+    data.to = unique([...emails, ...resources]).filter((_2) => !!_2).join(",");
   return type === "office" ? `https://outlook.office.com/calendar/deeplink/compose?${toQueryString(data)}` : `https://outlook.live.com/calendar/deeplink/compose?${toQueryString(data)}`;
 }
 
@@ -11755,7 +11755,7 @@ async function findEventClashes(event, q = {}) {
   try {
     const list = await v(`${EVENTS_ENDPOINT}/clashing-assets${query ? "?" + query : ""}`, event.toJSON());
     return q.include_clash_time ? list : list;
-  } catch (_) {
+  } catch (_2) {
     return [];
   }
 }
@@ -12092,8 +12092,8 @@ var EventFormService = class _EventFormService extends AsyncHandler {
         const model2 = this._model();
         if (!model2.id)
           return false;
-        const attendee_emails = model2.attendees.map((_) => (_.email || _).toLowerCase());
-        return this._initial_attendees.every((_) => attendee_emails.includes(_)) && attendee_emails.some((_) => !this._initial_attendees.includes(_)) && this._eventDetails(model2) === this._initial_event_details;
+        const attendee_emails = model2.attendees.map((_2) => (_2.email || _2).toLowerCase());
+        return this._initial_attendees.every((_2) => attendee_emails.includes(_2)) && attendee_emails.some((_2) => !this._initial_attendees.includes(_2)) && this._eventDetails(model2) === this._initial_event_details;
       },
       ...ngDevMode ? [{ debugName: "can_notify_new_attendees_only" }] : (
         /* istanbul ignore next */
@@ -12144,9 +12144,9 @@ var EventFormService = class _EventFormService extends AsyncHandler {
       },
       loader: ({ params: ids }) => {
         this.addLoadingTag(Tags.BookingRules);
-        return Promise.all(ids.map((id) => rc(id, "room_booking_rules").then((_) => ({
+        return Promise.all(ids.map((id) => oc(id, "room_booking_rules").then((_2) => ({
           id,
-          details: _.details instanceof Array ? _.details : []
+          details: _2.details instanceof Array ? _2.details : []
         })).catch(() => ({ id, details: [] })))).then((building_rules) => {
           const mapping = {};
           for (const rules of building_rules) {
@@ -12187,7 +12187,7 @@ var EventFormService = class _EventFormService extends AsyncHandler {
       loader: ({ params: zone_id }) => {
         this.addLoadingTag(Tags.ListingRooms);
         return this._requestSpaces(zone_id).then((list) => {
-          const spaces = list.filter((_) => _.bookable && _.email && !_.room_booking_url);
+          const spaces = list.filter((_2) => _2.bookable && _2.email && !_2.room_booking_url);
           this._loaded_space_lists.update((loaded) => __spreadProps(__spreadValues({}, loaded), {
             [zone_id]: spaces
           }));
@@ -12212,7 +12212,7 @@ var EventFormService = class _EventFormService extends AsyncHandler {
       )
     );
     this.features = computed(
-      () => unique(flatten(this.spaces().map((_) => _.features))),
+      () => unique(flatten(this.spaces().map((_2) => _2.features))),
       ...ngDevMode ? [{ debugName: "features" }] : (
         /* istanbul ignore next */
         []
@@ -12223,7 +12223,7 @@ var EventFormService = class _EventFormService extends AsyncHandler {
       {}
     )), {
       params: () => this._network_consumed() && this._requests_ready() ? this._org.organisation?.id || void 0 : void 0,
-      loader: ({ params: id }) => rc(id, "room_alerts").then((r) => r.details).catch(() => ({}))
+      loader: ({ params: id }) => oc(id, "room_alerts").then((r) => r.details).catch(() => ({}))
     }));
     this.room_alerts = computed(
       () => {
@@ -12256,7 +12256,7 @@ var EventFormService = class _EventFormService extends AsyncHandler {
           list = list.filter(({ capacity: capacity2 }) => filters.capacity <= capacity2 || capacity2 < 0);
         }
         if (filters.features) {
-          list = list.filter(({ features }) => filters.features.every((f2) => features.includes(f2)));
+          list = list.filter(({ features }) => filters.features.every((f) => features.includes(f)));
         }
         return list;
       },
@@ -12324,7 +12324,7 @@ var EventFormService = class _EventFormService extends AsyncHandler {
     onFieldChange(this._model, (v2) => v2.duration, (duration) => this.setOptions({ duration }), this._injector);
     onFieldChange(this._model, (v2) => v2.all_day, (all_day) => this.setOptions({ all_day }), this._injector);
     this.subscription("router.events", this._router.events.subscribe((event) => {
-      if (event instanceof NavigationEnd && !BOOKING_URLS.some((_) => event.url.includes(_))) {
+      if (event instanceof NavigationEnd && !BOOKING_URLS.some((_2) => event.url.includes(_2))) {
         this.clearForm();
       }
     }));
@@ -12405,7 +12405,7 @@ var EventFormService = class _EventFormService extends AsyncHandler {
     }, rules[this._org.building?.id] || []);
     const ignore = event?.resources[0]?.id || event?.system?.id || event?.id;
     const availability = await this._queryAvailability(spaces.map(({ id }) => id), period.date || 60, period.duration || 60, ignore, event);
-    let list = spaces.filter((_, i) => availability[i]);
+    let list = spaces.filter((_2, i) => availability[i]);
     list = filterResourcesFromRules(list, {
       date: period.date,
       duration: period.duration,
@@ -12445,7 +12445,7 @@ var EventFormService = class _EventFormService extends AsyncHandler {
     this._form_ref.lock_start_time.set(lock_start_time);
     const value = eventFormValue(event);
     this.notify_new_attendees_only.set(false);
-    value.assets = (event.extension_data.assets || []).map((_) => new AssetRequest(__spreadProps(__spreadValues({}, _), { event })));
+    value.assets = (event.extension_data.assets || []).map((_2) => new AssetRequest(__spreadProps(__spreadValues({}, _2), { event })));
     this._model.set(value);
     this._form().reset();
     this._applyDurationSettings();
@@ -12481,7 +12481,7 @@ var EventFormService = class _EventFormService extends AsyncHandler {
     const event = new CalendarEvent(event_data);
     this._event.set(event);
     const initial_value = eventFormValue(event);
-    initial_value.assets = (event.extension_data.assets || []).map((_) => new AssetRequest(__spreadProps(__spreadValues({}, _), { event })));
+    initial_value.assets = (event.extension_data.assets || []).map((_2) => new AssetRequest(__spreadProps(__spreadValues({}, _2), { event })));
     this._setInitialEvent(initial_value);
     this.notify_new_attendees_only.set(false);
     const form_data = JSON.parse(sessionStorage.getItem("PLACEOS.event_form") || "{}");
@@ -12527,7 +12527,7 @@ var EventFormService = class _EventFormService extends AsyncHandler {
     try {
       const event = this._event();
       const space_list = this._model().resources || [];
-      let spaces = space_list.filter((_) => !ignore_space_check.includes(_.id));
+      let spaces = space_list.filter((_2) => !ignore_space_check.includes(_2.id));
       const recurr = this._model().recurrence;
       const raw_value = this._model();
       this._model.update((m) => __spreadProps(__spreadValues({}, m), {
@@ -12536,8 +12536,8 @@ var EventFormService = class _EventFormService extends AsyncHandler {
       if (!this._model().recurring) {
         this._model.update((m) => __spreadProps(__spreadValues({}, m), { recurrence: null }));
       }
-      const changed_spaces = spaces.filter((_) => !event.resources.find((s) => s.id === _.id));
-      const resources_changed = !!changed_spaces.length || event.resources.some((space) => !spaces.some((_) => _.id === space.id));
+      const changed_spaces = spaces.filter((_2) => !event.resources.find((s) => s.id === _2.id));
+      const resources_changed = !!changed_spaces.length || event.resources.some((space) => !spaces.some((_2) => _2.id === space.id));
       const all_day_period = raw_value.all_day ? this._allDayTimeRange(raw_value.date) : {
         date: raw_value.date,
         duration: raw_value.duration,
@@ -12578,7 +12578,7 @@ var EventFormService = class _EventFormService extends AsyncHandler {
           attendees: unique([...m.attendees, organiser].filter(valid_attendee), "email")
         });
       });
-      if (!spaces.length && this._model().attendees.find((_) => _.is_external)) {
+      if (!spaces.length && this._model().attendees.find((_2) => _2.is_external)) {
         this.removeLoadingTag(Tags.PostBooking);
         throw i18n("CALENDAR_EVENT.SPACE_EXTERNALS_ERROR");
       }
@@ -12610,10 +12610,10 @@ var EventFormService = class _EventFormService extends AsyncHandler {
       const target_calendar = raw_value.host || raw_value.creator;
       const query_calendar = event.id ? source_calendar : target_calendar;
       const owner_fields = event.id ? [event.host, event.creator, event.calendar] : [raw_value.host, raw_value.creator, raw_value.calendar];
-      const is_owner = owner_fields.some((_) => _?.toLowerCase?.() === user_email);
+      const is_owner = owner_fields.some((_2) => _2?.toLowerCase?.() === user_email);
       if ((is_owner && !ignore_owner || force_calendar) && query_calendar)
         query.calendar = query_calendar;
-      const processed_assets = (this._model().assets || []).map((_) => new AssetRequest(_).toJSON());
+      const processed_assets = (this._model().assets || []).map((_2) => new AssetRequest(_2).toJSON());
       const host = this._host(this._model().host, spaces[0]?.email);
       const ext = {
         department: this._model().organiser?.department || currentUser()?.department
@@ -12629,8 +12629,8 @@ var EventFormService = class _EventFormService extends AsyncHandler {
         system: null,
         host,
         title: this._model().title || "Space Booking",
-        attendees: this._model().attendees.map((_) => {
-          const v2 = __spreadValues({}, _);
+        attendees: this._model().attendees.map((_2) => {
+          const v2 = __spreadValues({}, _2);
           delete v2.visit_expected;
           delete v2.extension_data;
           return v2;
@@ -12641,8 +12641,8 @@ var EventFormService = class _EventFormService extends AsyncHandler {
       const date_end = all_day_period.date_end || all_day_period.date + all_day_period.duration * 60 * 1e3;
       const saved_resources = created_event.resources || [];
       const resolved_resources = this._resolveResourceResponses(space_list, saved_resources);
-      const failed_resources = resolved_resources.filter((_) => _.response_status === "declined");
-      const booked_resources = resolved_resources.filter((_) => _.response_status !== "declined");
+      const failed_resources = resolved_resources.filter((_2) => _2.response_status === "declined");
+      const booked_resources = resolved_resources.filter((_2) => _2.response_status !== "declined");
       spaces = booked_resources;
       created_event = new CalendarEvent(__spreadProps(__spreadValues({}, created_event), {
         event_start: Math.floor(all_day_period.date / 1e3),
@@ -12653,7 +12653,7 @@ var EventFormService = class _EventFormService extends AsyncHandler {
         resources: booked_resources
       }));
       if (failed_resources.length) {
-        const names = failed_resources.map((_) => _.display_name || _.name || _.email).join(", ");
+        const names = failed_resources.map((_2) => _2.display_name || _2.name || _2.email).join(", ");
         notifyWarn(i18n(failed_resources.length > 1 ? "CALENDAR_EVENT.SPACES_UNAVAILABLE" : "CALENDAR_EVENT.SPACE_UNAVAILABLE", { spaces: names }));
       }
       const domain = (currentUser()?.email || "@").split("@")[1];
@@ -12679,7 +12679,7 @@ var EventFormService = class _EventFormService extends AsyncHandler {
               this._org.region?.id,
               this._org.building?.id,
               ...spaces[0]?.zones || []
-            ]).filter((_) => !!_),
+            ]).filter((_2) => !!_2),
             reset_state: has_time_changed
           }, assets, changed_spaces.length > 0 || has_time_changed);
           if (!requests)
@@ -12738,11 +12738,11 @@ var EventFormService = class _EventFormService extends AsyncHandler {
     if (!spaces?.length)
       return true;
     const event = this._event();
-    const id_list = spaces.map((_) => _.id);
+    const id_list = spaces.map((_2) => _2.id);
     const response = await (this.book_internal ? queryResourceAvailability(id_list, date, duration, ignore) : querySpaceAvailability(id_list, date, duration, event?.resources[0]?.id || event?.system?.id || event?.id || void 0, void 0, [event?.date, event?.duration]));
-    const unavailable = spaces.filter((_, i) => !response[i]);
+    const unavailable = spaces.filter((_2, i) => !response[i]);
     if (unavailable.length) {
-      const names = unavailable.map((_) => _.display_name || _.name || _.email).join(", ");
+      const names = unavailable.map((_2) => _2.display_name || _2.name || _2.email).join(", ");
       throw i18n(unavailable.length > 1 ? "CALENDAR_EVENT.SPACES_UNAVAILABLE" : "CALENDAR_EVENT.SPACE_UNAVAILABLE", { spaces: names });
     }
     return true;
@@ -12766,7 +12766,7 @@ var EventFormService = class _EventFormService extends AsyncHandler {
   _resolveResourceResponses(requested, saved) {
     const require_saved_resource = requested.length > 1;
     return requested.map((space) => {
-      const response = saved.find((_) => _.email && _.email === space.email || _.id && _.id === space.id);
+      const response = saved.find((_2) => _2.email && _2.email === space.email || _2.id && _2.id === space.id);
       return new Space(__spreadProps(__spreadValues({}, space), {
         response_status: response?.response_status || (response || !require_saved_resource ? space.response_status : "declined")
       }));
@@ -12805,7 +12805,7 @@ var EventFormService = class _EventFormService extends AsyncHandler {
       const bld = buildings.find((b) => space.zones.includes(b.id));
       if (!bld || rules[bld.id])
         continue;
-      const metadata = await rc(bld.id, "room_booking_rules").catch(() => ({ details: [] }));
+      const metadata = await oc(bld.id, "room_booking_rules").catch(() => ({ details: [] }));
       rules[bld.id] = metadata.details instanceof Array ? metadata.details : [];
     }
     const space_rules = spaces.map((space) => {
@@ -12817,9 +12817,9 @@ var EventFormService = class _EventFormService extends AsyncHandler {
         resource: space
       }, rules[bld?.id]);
     });
-    const hidden = spaces.filter((_, i) => space_rules[i]?.hidden);
+    const hidden = spaces.filter((_2, i) => space_rules[i]?.hidden);
     if (hidden.length) {
-      const names = hidden.map((_) => _.display_name || _.name || _.email).join(", ");
+      const names = hidden.map((_2) => _2.display_name || _2.name || _2.email).join(", ");
       throw i18n("CALENDAR_EVENT.SPACE_BOOKING_RULES_HIDDEN", { spaces: names }, hidden.length);
     }
     return true;
@@ -12871,16 +12871,16 @@ var EventFormService = class _EventFormService extends AsyncHandler {
     const old_system = event.old_system?.id || event.old_system?.email || event.resources[0]?.email;
     const system_id = event.system?.id || event.system?.email || event.resources[0]?.email;
     if (old_system !== system_id) {
-      event.attendees = event.attendees.filter((_) => _.email !== old_system || _.id !== old_system);
+      event.attendees = event.attendees.filter((_2) => _2.email !== old_system || _2.id !== old_system);
     }
     return this.book_internal ? saveBooking(newBookingFromCalendarEvent(__spreadProps(__spreadValues({}, event.toJSON()), {
       // Native recurrence needs weekday indices and millisecond dates.
       recurrence: event.recurrence,
       status: this._settings.get("app.bookings.no_approval") === true ? "approved" : "tentative"
-    }))).then((_) => newCalendarEventFromBooking(_)) : saveEvent(event, query);
+    }))).then((_2) => newCalendarEventFromBooking(_2)) : saveEvent(event, query);
   }
   _setInitialEvent(value) {
-    this._initial_attendees = value.attendees.map((_) => (_.email || _).toLowerCase());
+    this._initial_attendees = value.attendees.map((_2) => (_2.email || _2).toLowerCase());
     this._initial_event_details = this._eventDetails(value);
   }
   _eventDetails(value) {
@@ -12902,7 +12902,7 @@ var EventFormService = class _EventFormService extends AsyncHandler {
     ]);
     details.push([
       "space_ids",
-      (value.resources || []).map((_) => (_.email || _.id || "").toLowerCase()).sort()
+      (value.resources || []).map((_2) => (_2.email || _2.id || "").toLowerCase()).sort()
     ]);
     details.sort(([a], [b]) => a > b ? 1 : -1);
     return JSON.stringify(details);
@@ -12928,8 +12928,8 @@ var EventFormService = class _EventFormService extends AsyncHandler {
       return;
     const old_visitors = this._settings.get("visitor-invitees") || [];
     this._settings.saveUserSetting("visitor-invitees", unique([
-      ...old_visitors.filter((_) => !_.includes(_.email)),
-      ...visitors.map((_) => `${_.email}|${_.name}|${_.organisation}`)
+      ...old_visitors.filter((_2) => !_2.includes(_2.email)),
+      ...visitors.map((_2) => `${_2.email}|${_2.name}|${_2.organisation}`)
     ]));
   }
   static {
@@ -13275,9 +13275,9 @@ var ExploreBookingModalComponent = class _ExploreBookingModalComponent {
     }));
   }
   async save() {
-    await this._event_form.postForm().catch((_) => {
-      notifyError(_);
-      throw _;
+    await this._event_form.postForm().catch((_2) => {
+      notifyError(_2);
+      throw _2;
     });
     if (this._settings.app_name.toLowerCase().includes("workplace")) {
       this._router.navigate(["/book", "meeting", "success"]);
@@ -13817,7 +13817,7 @@ var ExploreSpaceInfoComponent = class _ExploreSpaceInfoComponent extends AsyncHa
     );
   }
   ngOnInit() {
-    const module = zp(this.space().id, "Bookings");
+    const module = Fp(this.space().id, "Bookings");
     for (const name of [
       "hide_meeting_details",
       "hide_meeting_title"
@@ -14057,7 +14057,7 @@ var ExploreSpacesService = class _ExploreSpacesService extends AsyncHandler {
       {}
     )), {
       params: () => this._building() || void 0,
-      loader: ({ params: bld }) => rc(bld.id, `room_booking_rules`).then((_) => _?.details instanceof Array ? _.details : []).catch(() => [])
+      loader: ({ params: bld }) => oc(bld.id, `room_booking_rules`).then((_2) => _2?.details instanceof Array ? _2.details : []).catch(() => [])
     }));
     this.booking_rules = computed(
       () => this._booking_rules.value() ?? [],
@@ -14071,7 +14071,7 @@ var ExploreSpacesService = class _ExploreSpacesService extends AsyncHandler {
       {}
     )), {
       params: () => this._building() || void 0,
-      loader: () => rc(this._org.organisation.id, `room_alerts`).then((_) => _.details || {}).catch(() => ({}))
+      loader: () => oc(this._org.organisation.id, `room_alerts`).then((_2) => _2.details || {}).catch(() => ({}))
     }));
     this.room_alerts = computed(
       () => this._room_alerts.value() ?? {},
@@ -14096,7 +14096,7 @@ var ExploreSpacesService = class _ExploreSpacesService extends AsyncHandler {
     if (!list?.length)
       return;
     for (const space of list) {
-      const mod = zp(space.id, "Bookings");
+      const mod = Fp(space.id, "Bookings");
       let binding = mod.variable("bookings");
       this.subscription(`b-${space.id}`, binding.bindThenSubscribe((d) => this.handleBookingsChange(list, space, d)));
       binding = mod.variable("status");
@@ -14350,10 +14350,10 @@ var SpacesService = class _SpacesService {
    * @param predicate Predicate for filtering spaces
    */
   filter(predicate = this._compare) {
-    return this.space_list.filter((_) => predicate(_));
+    return this.space_list.filter((_2) => predicate(_2));
   }
   async loadSpace(space_id) {
-    const system = await va(space_id);
+    const system = await ka(space_id);
     const space = new Space(__spreadProps(__spreadValues({}, system), {
       level: this._org.levelWithID([...system.zones])
     }));
@@ -14367,7 +14367,7 @@ var SpacesService = class _SpacesService {
     return this._spaces_by_id().get(space_id) || this._spaces_by_email().get(space_id);
   }
   async loadSpaces() {
-    const systems = (await $a({
+    const systems = (await ba({
       zone_id: this._org.organisation.id,
       limit: 5e3
     })).data;
@@ -14829,11 +14829,11 @@ var CardInputFieldComponent = class _CardInputFieldComponent extends AsyncHandle
       ])
     });
     this.disabled = false;
-    this.months = Array(12).fill(0).map((_, idx) => [
+    this.months = Array(12).fill(0).map((_2, idx) => [
       DATE_PIPE.transform(setMonth(Date.now(), idx), "MM"),
       DATE_PIPE.transform(setMonth(Date.now(), idx), "MMM")
     ]);
-    this.years = Array(12).fill(0).map((_, idx) => DATE_PIPE.transform(addYears(Date.now(), idx), "yyyy"));
+    this.years = Array(12).fill(0).map((_2, idx) => DATE_PIPE.transform(addYears(Date.now(), idx), "yyyy"));
     this.digits = Array(16).fill(0);
     this._index = signal(
       0,
@@ -15802,7 +15802,7 @@ function buildBookingExtensionData(value, group_members) {
     // top-level form value — it has to be set into `extension_data` here.
     group: value.group,
     // `assets` is ignored by the constructor's auto-copy, so map it here.
-    assets: value.assets.map((_) => _.toJSON())
+    assets: value.assets.map((_2) => _2.toJSON())
   }), type === "desk" ? {
     assigned_asset_id: value.asset_id,
     assigned_asset_name: value.asset_name || value.asset_id
@@ -15950,7 +15950,7 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
       return desks.some((desk) => desk.assigned_to?.toLowerCase() === email2);
     }
     const map_metadata = (meta) => (meta?.metadata?.desks?.details instanceof Array ? meta.metadata.desks.details : []).map((desk) => new Desk(__spreadProps(__spreadValues({}, desk), { zone: meta.zone })));
-    const desk_lists = await Promise.all(buildings.map((building) => hc(building.id, { name: "desks" }).then((data) => flatten(data.map(map_metadata))).catch(() => [])));
+    const desk_lists = await Promise.all(buildings.map((building) => lc(building.id, { name: "desks" }).then((data) => flatten(data.map(map_metadata))).catch(() => [])));
     return flatten(desk_lists).some((desk) => desk.assigned_to?.toLowerCase() === email2);
   }
   /**
@@ -16012,7 +16012,7 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
         resource: asset,
         host: this._bookingRulesHost(user)
       }, restrictions[asset.zone?.id] || restrictions[asset.zone?.parent_id] || restrictions[this._org.building?.id] || []).hidden;
-      return !is_restricted && (!asset.groups?.length || asset.groups.some((grp) => currentUser().groups.includes(grp))) && asset.bookable !== false && (!options.features || options.features?.every((_) => asset.features.includes(_))) && (!options.zone_id || options.zone_id === asset.zone?.id || options.zone_id === asset.zone?.parent_id) && !booked_ids.includes(asset.id);
+      return !is_restricted && (!asset.groups?.length || asset.groups.some((grp) => currentUser().groups.includes(grp))) && asset.bookable !== false && (!options.features || options.features?.every((_2) => asset.features.includes(_2))) && (!options.zone_id || options.zone_id === asset.zone?.id || options.zone_id === asset.zone?.parent_id) && !booked_ids.includes(asset.id);
     });
   }
   _bookedResourceList(query, resource_count) {
@@ -16107,7 +16107,7 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
       if (!resources?.length)
         return;
       const item_list = await this.listResources();
-      const new_list = resources.map((asset) => item_list.find((_) => _.id == asset.id) || asset);
+      const new_list = resources.map((asset) => item_list.find((_2) => _2.id == asset.id) || asset);
       this._patch({ resources: new_list });
     });
   }
@@ -16233,7 +16233,7 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
       () => {
         const list = [];
         for (const { features } of this.resources()) {
-          features instanceof Array ? features.forEach((_) => list.push(_)) : null;
+          features instanceof Array ? features.forEach((_2) => list.push(_2)) : null;
         }
         return unique(list).sort((a, b) => a.localeCompare(b));
       },
@@ -16261,7 +16261,7 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
       params: () => this._network_consumed() && this._requests_ready() ? this._booking_rules_params_debounced.value() : void 0,
       loader: ({ params }) => {
         const { ids, type } = params;
-        return Promise.all(ids.map((id) => rc(id, `${type}_booking_rules`))).then((building_rules) => {
+        return Promise.all(ids.map((id) => oc(id, `${type}_booking_rules`))).then((building_rules) => {
           const mapping = {};
           for (const rules of building_rules) {
             mapping[rules.id] = rules.details instanceof Array ? rules.details : [];
@@ -16356,7 +16356,7 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
           const group = [];
           let asset = asset_list.pop();
           while (group.length < members.length) {
-            if (group.length && !group.find((_) => _.zone?.id === asset.zone?.id)) {
+            if (group.length && !group.find((_2) => _2.zone?.id === asset.zone?.id)) {
               break;
             }
             group.push(asset);
@@ -16374,7 +16374,7 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
       )
     );
     this.subscription("router.bookings", this._router.events.subscribe((booking) => {
-      if (booking instanceof NavigationEnd && !booking.url.includes("book") && !BOOKING_TYPES.find((_) => booking.url.includes(_))) {
+      if (booking instanceof NavigationEnd && !booking.url.includes("book") && !BOOKING_TYPES.find((_2) => booking.url.includes(_2))) {
         this.clearForm();
       }
     }));
@@ -16543,16 +16543,16 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
       throw "User cancelled";
     details.loading(i18n("BOOKINGS.CONFIRM_LOADING"));
     if (options.group) {
-      await this.postFormForGroup().catch((_) => {
-        notifyError(this._error_message(_));
+      await this.postFormForGroup().catch((_2) => {
+        notifyError(this._error_message(_2));
         details.close();
-        throw _;
+        throw _2;
       });
     } else
-      await this.postForm().catch((_) => {
-        notifyError(this._error_message(_));
+      await this.postForm().catch((_2) => {
+        notifyError(this._error_message(_2));
         details.close();
-        throw _;
+        throw _2;
       });
     details.close();
   }
@@ -16621,7 +16621,7 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
     const selected_zones = [
       ...value?.zones || [],
       ...value.booking_asset?.zones || []
-    ].filter((_) => _);
+    ].filter((_2) => _2);
     value.zones = unique(selected_zones.length ? selected_zones : [...this._booking()?.zones || []]);
     this._loading.set("Saving booking");
     delete value.booking_asset;
@@ -16666,7 +16666,7 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
       user_email: value.user?.email || value.user_email,
       extension_data: buildBookingExtensionData(value, group_members),
       approved: this._settings.get("app.bookings.no_approval") === true,
-      zones: unique([...zones, ...value.zones || []]).filter((_) => _)
+      zones: unique([...zones, ...value.zones || []]).filter((_2) => _2)
     })).toJSON(), q).catch(async (e) => {
       this._loading.set("");
       let error = e?.error || e;
@@ -16692,7 +16692,7 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
           zones: unique([
             ...zones,
             ...value.zones || []
-          ]).filter((_) => _)
+          ]).filter((_2) => _2)
         }, value.assets);
         if (!requests)
           throw i18n("BOOKINGS.ASSETS_INVALID_ERROR");
@@ -16772,7 +16772,7 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
         this._org.region?.id,
         zone.parent_id,
         zone.id
-      ]) : [this._org.organisation.id, this._org.region?.id]).filter((_) => _)
+      ]) : [this._org.organisation.id, this._org.region?.id]).filter((_2) => _2)
     });
   }
   async postFormForGroup() {
@@ -16782,7 +16782,7 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
     const rollback_on_group_error = this.setting("rollback_group_bookings") === true;
     localStorage.removeItem(STORAGE_KEYS.last_group_booking_errors);
     const member_list = members || [];
-    const extra_members = member_list.filter((_) => _.email !== currentUser().email);
+    const extra_members = member_list.filter((_2) => _2.email !== currentUser().email);
     if (extra_members.length <= 0)
       throw i18n("BOOKINGS.GROUP_NO_MEMBERS");
     const form2 = this.model();
@@ -16820,17 +16820,17 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
         return false;
       }
     }));
-    const unavailable = group_members.filter((_, idx) => !available[idx]);
+    const unavailable = group_members.filter((_2, idx) => !available[idx]);
     const group_name = this._groupName();
     const group_error = i18n("BOOKINGS.GROUP_SOME_HAVE_BOOKINGS", {
-      members: unavailable.map((_) => _.name || _.email)?.join(", ")
+      members: unavailable.map((_2) => _2.name || _2.email)?.join(", ")
     });
     let user_booking = null;
     const booking_ids = [];
     const booking_errors = [];
     let parent_id = "";
     try {
-      if (available.some((_) => _)) {
+      if (available.some((_2) => _2)) {
         const group_booking = await this.createGroupContainerBooking(form2, group_name, group_members, type);
         parent_id = group_booking.id;
         if (parent_id)
@@ -17115,7 +17115,7 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
         this._org.region?.id,
         asset.zone?.parent_id,
         asset.zone?.id
-      ]) : [this._org.organisation.id, this._org.region?.id]).filter((_) => _)
+      ]) : [this._org.organisation.id, this._org.region?.id]).filter((_2) => _2)
     };
   }
   async createGroupContainerBooking(form2, group_name, members, resource_type) {
@@ -17128,7 +17128,7 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
       ...form2.zones || [],
       this._org.organisation.id,
       this._org.region?.id
-    ].filter((_) => _));
+    ].filter((_2) => _2));
     return saveBooking(new Booking(__spreadProps(__spreadValues(__spreadProps(__spreadValues({}, formBookingData(form_data)), {
       id,
       parent_id: "",
@@ -17250,7 +17250,7 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
     })), "email");
   }
   async rollbackGroupBookings(booking_ids) {
-    const rollback_errors = (await Promise.allSettled(booking_ids.map((id) => removeBooking(id)))).filter((_) => _.status === "rejected");
+    const rollback_errors = (await Promise.allSettled(booking_ids.map((id) => removeBooking(id)))).filter((_2) => _2.status === "rejected");
     if (rollback_errors.length) {
       console.error("Failed to rollback group bookings", rollback_errors);
     }
@@ -17319,16 +17319,16 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
       email: user_email,
       limit: 1e3
     });
-    const active_bookings = bookings.filter((_) => _.status !== "declined" && _.status !== "cancelled" && _.status !== "ended" && !_.rejected);
-    if (active_bookings.find((_) => _.asset_id === asset_id && id !== _.id)) {
+    const active_bookings = bookings.filter((_2) => _2.status !== "declined" && _2.status !== "cancelled" && _2.status !== "ended" && !_2.rejected);
+    if (active_bookings.find((_2) => _2.asset_id === asset_id && id !== _2.id)) {
       throw i18n(asset_id.includes("@") ? "BOOKINGS.VISITOR_BOOKED" : "BOOKINGS.RESOURCE_BOOKED", { name: asset_id });
     }
     const is_self = user_email.toLowerCase() === currentUser()?.email?.toLowerCase();
-    if (this.assignedResourceBooking(type) !== "allow" && active_bookings.some((_) => _.id !== id && _.extension_data?.is_assigned)) {
+    if (this.assignedResourceBooking(type) !== "allow" && active_bookings.some((_2) => _2.id !== id && _2.extension_data?.is_assigned)) {
       throw `${is_self ? "You have" : "This user has"} an assigned ${type} and cannot book another ${type}.`;
     }
     const allowed_bookings = this._settings.get(`app.bookings.allowed_daily_${type}_count`) ?? 1;
-    if (allowed_bookings > 0 && active_bookings.filter((_) => _.user_email.toLowerCase() === (user_email || currentUser()?.email || "").toLowerCase() && _.id !== id).length >= allowed_bookings) {
+    if (allowed_bookings > 0 && active_bookings.filter((_2) => _2.user_email.toLowerCase() === (user_email || currentUser()?.email || "").toLowerCase() && _2.id !== id).length >= allowed_bookings) {
       const current = user_email === currentUser()?.email;
       throw i18n(current ? "BOOKINGS.CLASH_CURRENT_USER" : "BOOKINGS.CLASH_OTHER_USER", { name: user_email });
     }
@@ -17349,7 +17349,7 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
         resource: space
       }, rules[bld?.id] || []);
     });
-    if (!resource_rules.every((_) => !_.hidden)) {
+    if (!resource_rules.every((_2) => !_2.hidden)) {
       throw i18n("BOOKINGS.RULES_HIDDEN", { type: this._options().type || "resource" }, assets.length);
     }
     return true;
@@ -17369,7 +17369,7 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
     if (this._useCurrentUserForBookingRules() || current_user2.email === host) {
       return current_user2;
     }
-    return Va(host).catch(() => ({ email: host }));
+    return Ya(host).catch(() => ({ email: host }));
   }
   /**
    * Check for clashing bookings in a recurring booking series
@@ -17415,7 +17415,7 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
     const booking = new Booking(__spreadProps(__spreadValues({}, value), {
       booking_type: "desk",
       zones: [zones],
-      asset_ids: resources.map((_) => _.id),
+      asset_ids: resources.map((_2) => _2.id),
       timezone: effective_timezone
     }));
     const key = JSON.stringify({
@@ -17425,7 +17425,7 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
       recurrence_type: booking.recurrence_type,
       recurrence_end: booking.recurrence_end,
       zones,
-      asset_ids: resources.map((_) => _.id)
+      asset_ids: resources.map((_2) => _2.id)
     });
     const existing = this._recurring_clash_requests.get(key);
     if (existing)
@@ -17442,7 +17442,7 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
   }
   async loadParkingResources() {
     const use_region = this._settings.get("app.use_region");
-    const levels = (use_region ? this._org.levelsForRegion() : this._org.levelsForBuilding()).filter((_) => _.tags.includes("parking"));
+    const levels = (use_region ? this._org.levelsForRegion() : this._org.levelsForBuilding()).filter((_2) => _2.tags.includes("parking"));
     const spaces = await queryParkingSpacesForZones(levels.map((l) => l.id));
     return spaces.map((s) => __spreadProps(__spreadValues({}, s), {
       id: s.id || s.map_id,
@@ -17462,35 +17462,35 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
       return this.loadDeskResources();
     }
     const use_region = this._settings.get("app.use_region");
-    const map_metadata = (_) => (_?.metadata[type]?.details instanceof Array ? _.metadata[type].details : []).map((d) => __spreadProps(__spreadValues({}, d), {
+    const map_metadata = (_2) => (_2?.metadata[type]?.details instanceof Array ? _2.metadata[type].details : []).map((d) => __spreadProps(__spreadValues({}, d), {
       id: d.id || d.map_id,
-      zone: _.zone
+      zone: _2.zone
     }));
     if (use_region) {
       const id = this._org.building.parent_id;
-      const buildings = this._org.buildings.filter((_) => _.parent_id === id);
-      const lists = await Promise.all(buildings.map((_) => hc(_.id, { name: type }).then((data2) => flatten(data2.map(map_metadata)))));
+      const buildings = this._org.buildings.filter((_2) => _2.parent_id === id);
+      const lists = await Promise.all(buildings.map((_2) => lc(_2.id, { name: type }).then((data2) => flatten(data2.map(map_metadata)))));
       return flatten(lists);
     }
-    const data = await hc(this._org.building.id, {
+    const data = await lc(this._org.building.id, {
       name: type
     });
     return flatten(data.map(map_metadata));
   }
   async _getNearbyResources(map_url, id, resources, count, reserved_ids = /* @__PURE__ */ new Set()) {
     const nearby_resources = [];
-    let asset_list = resources.filter((_) => !this._resourceReserved(_, reserved_ids) && !this._resourceMatches(_, id));
+    let asset_list = resources.filter((_2) => !this._resourceReserved(_2, reserved_ids) && !this._resourceMatches(_2, id));
     for (let i = 0; i < count; i++) {
-      const item = await findNearbyFeature(map_url, id, asset_list.map((_) => _.map_id || _.id));
+      const item = await findNearbyFeature(map_url, id, asset_list.map((_2) => _2.map_id || _2.id));
       if (item) {
-        const resource2 = resources.find((_) => this._resourceMatches(_, item));
+        const resource2 = resources.find((_2) => this._resourceMatches(_2, item));
         if (!resource2 || this._resourceReserved(resource2, reserved_ids)) {
-          asset_list = asset_list.filter((_) => !this._resourceMatches(_, item));
+          asset_list = asset_list.filter((_2) => !this._resourceMatches(_2, item));
           continue;
         }
         nearby_resources.push(resource2);
         this._reserveResource(resource2, reserved_ids);
-        asset_list = asset_list.filter((_) => !this._resourceMatches(_, item));
+        asset_list = asset_list.filter((_2) => !this._resourceMatches(_2, item));
       }
     }
     return nearby_resources;
@@ -17525,9 +17525,9 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
       this._reserveResource(resource2, reserved_ids);
       return resource2;
     });
-    const missing_count = resolved.filter((_) => !_).length;
+    const missing_count = resolved.filter((_2) => !_2).length;
     const nearby_resources = missing_count ? await this._getNearbyResources(level.map_id, anchor_resource?.map_id || anchor_resource?.id || preferred_id, available_resources, missing_count, reserved_ids) : [];
-    let available = resolved.filter((_) => !!_).length;
+    let available = resolved.filter((_2) => !!_2).length;
     let nearby_index = 0;
     const final_resources = resolved.map((resource2) => {
       if (resource2)
@@ -17537,7 +17537,7 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
         available++;
       return next_resource || null;
     });
-    if (final_resources.some((_) => !_)) {
+    if (final_resources.some((_2) => !_2)) {
       throw i18n("BOOKINGS.GROUP_INSUFFICIENT_RESOURCES", {
         available,
         members: group_members.length
@@ -17546,7 +17546,7 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
     return final_resources;
   }
   _findResourceById(resources, id) {
-    return (resources || []).find((_) => this._resourceMatches(_, id));
+    return (resources || []).find((_2) => this._resourceMatches(_2, id));
   }
   _resourceMatches(resource2, id) {
     if (!resource2 || !id)
@@ -17653,7 +17653,7 @@ var ParkingService = class _ParkingService extends AsyncHandler {
           const bld_ids = blds.map((bld) => bld.id);
           const list = levels.filter((lvl) => bld_ids.includes(lvl.parent_id) && lvl.tags.includes("parking"));
           list.map((lvl) => __spreadProps(__spreadValues({}, lvl), {
-            display_name: `${blds.find((_) => _.id === lvl.parent_id)?.display_name} - ${lvl.display_name}`
+            display_name: `${blds.find((_2) => _2.id === lvl.parent_id)?.display_name} - ${lvl.display_name}`
           }));
           return list;
         }
@@ -17668,14 +17668,14 @@ var ParkingService = class _ParkingService extends AsyncHandler {
     this.users = this._users.asReadonly();
     this.has_booking = this._has_booking.asReadonly();
     this.assigned_space = computed(
-      () => this._spaces().find((_) => _.assigned_to?.toLowerCase() === currentUser().email?.toLowerCase()),
+      () => this._spaces().find((_2) => _2.assigned_to?.toLowerCase() === currentUser().email?.toLowerCase()),
       ...ngDevMode ? [{ debugName: "assigned_space" }] : (
         /* istanbul ignore next */
         []
       )
     );
     this.user_details = computed(
-      () => this._users().find((_) => _.email?.toLowerCase() === currentUser().email?.toLowerCase()),
+      () => this._users().find((_2) => _2.email?.toLowerCase() === currentUser().email?.toLowerCase()),
       ...ngDevMode ? [{ debugName: "user_details" }] : (
         /* istanbul ignore next */
         []
@@ -17730,12 +17730,12 @@ var ParkingService = class _ParkingService extends AsyncHandler {
   async _loadSpaces(level_ids) {
     this._loading.set([...this._loading(), "spaces"]);
     this._spaces.set(await queryParkingSpacesForZones(level_ids));
-    this._loading.set(this._loading().filter((_) => _ !== "spaces"));
+    this._loading.set(this._loading().filter((_2) => _2 !== "spaces"));
   }
   async _loadUsers(building_id) {
     this._loading.set([...this._loading(), "users"]);
     this._users.set(await queryParkingUsers(building_id));
-    this._loading.set(this._loading().filter((_) => _ !== "users"));
+    this._loading.set(this._loading().filter((_2) => _2 !== "users"));
   }
   async _loadBookings(spaces) {
     this._bookings_request = this._bookings_request || queryBookings({
@@ -17759,7 +17759,7 @@ var ParkingService = class _ParkingService extends AsyncHandler {
         const desks = await queryDeskAssetsForZones(level_ids).catch(() => []);
         return { building_id: bld.id, desks };
       }
-      return hc(bld.id, { name: "desks" }).then((data) => ({
+      return lc(bld.id, { name: "desks" }).then((data) => ({
         building_id: bld.id,
         desks: flatten(data.map((meta) => (meta?.metadata?.desks?.details instanceof Array ? meta.metadata.desks.details : []).map((d) => new Desk(__spreadProps(__spreadValues({}, d), {
           zone: meta.zone
@@ -18027,7 +18027,7 @@ var ExploreParkingService = class _ExploreParkingService extends AsyncHandler {
     this.options = this._options.asReadonly();
     this.on_book = null;
     this.levels = computed(
-      () => this._active_levels().filter((_) => _.tags.includes("parking")),
+      () => this._active_levels().filter((_2) => _2.tags.includes("parking")),
       ...ngDevMode ? [{ debugName: "levels" }] : (
         /* istanbul ignore next */
         []
@@ -18038,7 +18038,7 @@ var ExploreParkingService = class _ExploreParkingService extends AsyncHandler {
       {}
     )), {
       params: () => this._building() || void 0,
-      loader: ({ params: bld }) => rc(bld.id, `parking_booking_rules`).then((_) => _?.details instanceof Array ? _.details : []).catch(() => [])
+      loader: ({ params: bld }) => oc(bld.id, `parking_booking_rules`).then((_2) => _2?.details instanceof Array ? _2.details : []).catch(() => [])
     }));
     this.booking_rules = computed(
       () => this._booking_rules.value() ?? [],
@@ -18121,7 +18121,7 @@ var ExploreParkingService = class _ExploreParkingService extends AsyncHandler {
     this.active_spaces = computed(
       () => {
         const level = this._state.level();
-        return level ? this.spaces().filter((_) => _.zone_id === level.id) : [];
+        return level ? this.spaces().filter((_2) => _2.zone_id === level.id) : [];
       },
       ...ngDevMode ? [{ debugName: "active_spaces" }] : (
         /* istanbul ignore next */
@@ -18190,7 +18190,7 @@ var ExploreParkingService = class _ExploreParkingService extends AsyncHandler {
     const colours = this._settings.get("app.explore.colors") || {};
     let options = this._options();
     for (const space of spaces) {
-      const can_book = !!available.find((_) => _.id === space.id);
+      const can_book = !!available.find((_2) => _2.id === space.id);
       const is_workplace = this._settings.app_name.toLowerCase().includes("workplace") || this._settings.app_name.toLowerCase().includes("staff");
       const is_assigned = is_workplace ? false : !!space.assigned_to;
       const id = space.map_id || space.id;
@@ -18237,7 +18237,7 @@ var ExploreParkingService = class _ExploreParkingService extends AsyncHandler {
             name: space.name || "Parking Space"
           }));
         }
-        if (space.place_groups?.length && !space.place_groups.find((_) => currentUser().groups.includes(_))) {
+        if (space.place_groups?.length && !space.place_groups.find((_2) => currentUser().groups.includes(_2))) {
           return notifyError(i18n("EXPLORE.PARKING_GROUP_ERROR", {
             name: space.name
           }));
@@ -18350,5 +18350,5 @@ export {
   BookingFormService,
   ExploreParkingService
 };
-//# debugId=b2b0456d-cc58-571b-ba42-2ec481321f86
-//# sourceMappingURL=chunk-2DO6I4I4.js.map
+//# debugId=8258778f-ad9e-5284-b4b8-ea5827f623b3
+//# sourceMappingURL=chunk-ROCPL7B3.js.map

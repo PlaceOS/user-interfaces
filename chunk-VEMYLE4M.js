@@ -1,5 +1,4 @@
 import {
-  $a,
   A,
   APP_ID,
   AbstractControl,
@@ -123,6 +122,7 @@ import {
   isNativeFormElement,
   isSignal,
   isTextualFormElement,
+  ka,
   linkedSignal,
   map,
   merge,
@@ -203,7 +203,7 @@ import {
   ɵɵtextInterpolate,
   ɵɵviewQuery,
   ɵɵviewQuerySignal
-} from "./chunk-J4OCIEZQ.js";
+} from "./chunk-OFMU64MF.js";
 import {
   __spreadProps,
   __spreadValues
@@ -1771,11 +1771,11 @@ var SpacePipe = class _SpacePipe {
   }
   async _loadSpace(space_id) {
     if (!space_id.includes("@")) {
-      const system = await va(space_id).catch(() => null);
+      const system = await ka(space_id).catch(() => null);
       if (system)
         return this._cacheSystem(system);
     }
-    const systems = (await ba({ in: space_id }).catch(() => ({
+    const systems = (await va({ in: space_id }).catch(() => ({
       data: []
     }))).data;
     if (systems.length === 1)
@@ -9431,7 +9431,7 @@ function requestSpacesForZone(id) {
     return of([]);
   if (SPACE_LIST_REQUESTS[id])
     return SPACE_LIST_REQUESTS[id];
-  SPACE_LIST_REQUESTS[id] = from($a({
+  SPACE_LIST_REQUESTS[id] = from(ba({
     zone_id: id,
     limit: 500,
     signage: false
@@ -9507,4 +9507,4 @@ export {
   VirtualKeyboardComponent
 };
 //# debugId=5edef620-9e32-53e8-8bf2-9f2caefc2fb0
-//# sourceMappingURL=chunk-FDJGUV5A.js.map
+//# sourceMappingURL=chunk-VEMYLE4M.js.map
