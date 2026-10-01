@@ -1,0 +1,3 @@
+import{Qc as l}from"./chunk-YIQBjW2D.js";var o=null;function f(e){return!e||e.indexOf(`&`)===-1?e:(o??=document.createElement(`textarea`),o.innerHTML=e,o.value)}var c=[`name`,`display_name`];var i=[`group`,`user`,`zone`];function d(e){if(!e||typeof e!=`object`)return e;let t=l({},e);for(let n of c)typeof t[n]==`string`&&(t[n]=f(t[n]));for(let n of i)t[n]&&typeof t[n]==`object`&&(t[n]=d(t[n]));return t}export{f as n,d as t};
+//# debugId=a9d078fc-068d-574a-a9f1-a14fd40527a7
+//# sourceMappingURL=chunk-1xPeE1Pn.js.map
