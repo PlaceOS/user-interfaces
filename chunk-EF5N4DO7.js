@@ -1,7 +1,7 @@
 import {
   DialpadComponent,
   VideoCallStateService
-} from "./chunk-5AB6ZYSU.js";
+} from "./chunk-5ZTCMKOH.js";
 import {
   ControlStateService,
   MatFormField,
@@ -10,14 +10,15 @@ import {
   MatProgressSpinnerModule,
   MatSelect,
   MatSelectModule
-} from "./chunk-TTF6QWZX.js";
+} from "./chunk-2EQX7Z2A.js";
 import {
   TranslatePipe
-} from "./chunk-IMHPVO2G.js";
+} from "./chunk-G63XENND.js";
 import {
   AsyncHandler,
   Component,
   FormsModule,
+  Fp,
   IconComponent,
   Injector,
   Input,
@@ -35,7 +36,6 @@ import {
   notifyError,
   setClassMetadata,
   signal,
-  zp,
   ɵsetClassDebugInfo,
   ɵɵInheritDefinitionFeature,
   ɵɵadvance,
@@ -63,7 +63,7 @@ import {
   ɵɵtext,
   ɵɵtextInterpolate,
   ɵɵtextInterpolate1
-} from "./chunk-7OJCDYWP.js";
+} from "./chunk-YX4P66OA.js";
 
 // apps/control/src/app/video-call/video-call-page.component.ts
 function VideoCallPageComponent_Conditional_0_Conditional_3_For_3_Template(rf, ctx) {
@@ -417,7 +417,7 @@ var _VideoCallPageComponent = class _VideoCallPageComponent extends AsyncHandler
     this.clearTimeout("check_call");
   }
   selectCamera(camera) {
-    const mod = zp(this._control.id, "System");
+    const mod = Fp(this._control.id, "System");
     if (!mod)
       return;
     mod.execute("selected_camera", [camera]);
@@ -668,4 +668,4 @@ export {
   VideoCallPageComponent
 };
 //# debugId=3a22a5c6-0635-5973-96fb-aa820bbd52dc
-//# sourceMappingURL=chunk-25OKTGJB.js.map
+//# sourceMappingURL=chunk-EF5N4DO7.js.map

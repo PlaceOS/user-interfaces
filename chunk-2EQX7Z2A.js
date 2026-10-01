@@ -1,8 +1,7 @@
 import {
   TranslatePipe
-} from "./chunk-IMHPVO2G.js";
+} from "./chunk-G63XENND.js";
 import {
-  $a,
   A,
   A11yModule,
   ActiveDescendantKeyManager,
@@ -41,6 +40,7 @@ import {
   FocusTrapFactory,
   FormGroupDirective,
   FormsModule,
+  Fp,
   HostAttributeToken,
   IconComponent,
   Injectable,
@@ -104,7 +104,7 @@ import {
   ViewContainerRef,
   ViewEncapsulation,
   ViewportRuler,
-  Xe,
+  _,
   _CdkPrivateStyleLoader,
   _ErrorStateTracker,
   _IdGenerator,
@@ -138,10 +138,11 @@ import {
   debounced,
   defer,
   differenceInMinutes,
+  ds,
   effect,
   elementAcceptsMinMax,
   endOfDay,
-  f,
+  et,
   filter,
   first,
   firstValueWhere,
@@ -160,6 +161,7 @@ import {
   isNativeFormElement,
   isSignal,
   isTextualFormElement,
+  ka,
   linkedSignal,
   log,
   map,
@@ -169,7 +171,6 @@ import {
   of,
   output,
   pairwise,
-  ps,
   resource,
   selectValueAccessor,
   setClassMetadata,
@@ -187,7 +188,6 @@ import {
   untracked,
   va,
   viewChild,
-  zp,
   ɵFORM_CONTROL_INTEGRATION,
   ɵsetClassDebugInfo,
   ɵɵControlFeature,
@@ -258,7 +258,7 @@ import {
   ɵɵtextInterpolate1,
   ɵɵviewQuery,
   ɵɵviewQuerySignal
-} from "./chunk-7OJCDYWP.js";
+} from "./chunk-YX4P66OA.js";
 import {
   __spreadProps,
   __spreadValues
@@ -1988,11 +1988,11 @@ function rememberFailedLoad(source) {
 }
 function setAuthCookie(cookie_path) {
   const tkn = J();
-  document.cookie = `${tkn === "x-api-key" ? "api-key=" + encodeURIComponent(Xe()) : "bearer_token=" + encodeURIComponent(tkn)};max-age=30;path=${cookie_path};samesite=strict;${location.protocol === "https:" ? "secure;" : ""}`;
+  document.cookie = `${tkn === "x-api-key" ? "api-key=" + encodeURIComponent(et()) : "bearer_token=" + encodeURIComponent(tkn)};max-age=30;path=${cookie_path};samesite=strict;${location.protocol === "https:" ? "secure;" : ""}`;
 }
 function authHeaders() {
   const tkn = J();
-  return tkn === "x-api-key" ? { "X-API-Key": Xe() } : { Authorization: `Bearer ${tkn}` };
+  return tkn === "x-api-key" ? { "X-API-Key": et() } : { Authorization: `Bearer ${tkn}` };
 }
 function loadAuthenticatedImage(source, cookie_path) {
   return loadImage(source, () => {
@@ -4135,7 +4135,7 @@ var MetadataReducer = {
 };
 function override(getInitial) {
   return {
-    reduce: (_, item) => item,
+    reduce: (_2, item) => item,
     getInitial: () => getInitial == null ? void 0 : getInitial()
   };
 }
@@ -8485,11 +8485,11 @@ var _SpacePipe = class _SpacePipe {
   }
   async _loadSpace(space_id) {
     if (!space_id.includes("@")) {
-      const system = await va(space_id).catch(() => null);
+      const system = await ka(space_id).catch(() => null);
       if (system)
         return this._cacheSystem(system);
     }
-    const systems = (await ba({ in: space_id }).catch(() => ({
+    const systems = (await va({ in: space_id }).catch(() => ({
       data: []
     }))).data;
     if (systems.length === 1)
@@ -8585,7 +8585,7 @@ async function openConfirmModal(data, dialog) {
     data
   }));
   return __spreadProps(__spreadValues({}, await Promise.race([
-    ref.componentInstance.event.pipe(first((_) => _.reason === "done")).toPromise(),
+    ref.componentInstance.event.pipe(first((_2) => _2.reason === "done")).toPromise(),
     ref.afterClosed().toPromise()
   ])), {
     loading: (s) => {
@@ -8796,7 +8796,7 @@ function escape$1(html2, encode) {
 }
 var unescapeTest = /&(#(?:\d+)|(?:#x[0-9A-Fa-f]+)|(?:\w+));?/ig;
 function unescape(html2) {
-  return html2.replace(unescapeTest, (_, n) => {
+  return html2.replace(unescapeTest, (_2, n) => {
     n = n.toLowerCase();
     if (n === "colon")
       return ":";
@@ -9800,7 +9800,7 @@ var _Lexer = class __Lexer {
     if (this.options.pedantic) {
       src = src.replace(/\t/g, "    ").replace(/^ +$/gm, "");
     } else {
-      src = src.replace(/^( *)(\t+)/gm, (_, leading, tabs) => {
+      src = src.replace(/^( *)(\t+)/gm, (_2, leading, tabs) => {
         return leading + "    ".repeat(tabs.length);
       });
     }
@@ -10995,12 +10995,12 @@ var lexer = _Lexer.lex;
 // libs/events/src/lib/calendar.fn.ts
 var CALENDAR_ENDPOINT = "/api/staff/v1/calendars";
 async function queryCalendars() {
-  const list2 = await f(CALENDAR_ENDPOINT);
+  const list2 = await _(CALENDAR_ENDPOINT);
   return list2.map((c) => new Calendar(c));
 }
 async function queryCalendarAvailability(q) {
   const query = toQueryString(q);
-  const list2 = await f(`${CALENDAR_ENDPOINT}/availability${query ? "?" + query : ""}`);
+  const list2 = await _(`${CALENDAR_ENDPOINT}/availability${query ? "?" + query : ""}`);
   return list2.map((c) => new Calendar(c));
 }
 var calendarsToSpaces = (list2, org) => list2.filter((cal) => !!cal.resource).map((cal) => new Space(__spreadProps(__spreadValues({}, cal.resource), {
@@ -11009,7 +11009,7 @@ var calendarsToSpaces = (list2, org) => list2.filter((cal) => !!cal.resource).ma
 }))).filter((space) => space.bookable);
 async function querySpaceFreeBusy(q, org) {
   const query = toQueryString(q);
-  const list2 = await f(`${CALENDAR_ENDPOINT}/free_busy${query ? "?" + query : ""}`);
+  const list2 = await _(`${CALENDAR_ENDPOINT}/free_busy${query ? "?" + query : ""}`);
   return calendarsToSpaces(list2.map((c) => new Calendar(c)), org);
 }
 
@@ -11021,7 +11021,7 @@ async function queryEvents(q) {
 }
 async function queryEventsOrThrow(q) {
   const query = toQueryString(q);
-  const list2 = await f(`${EVENTS_ENDPOINT}${query ? "?" + query : ""}`);
+  const list2 = await _(`${EVENTS_ENDPOINT}${query ? "?" + query : ""}`);
   return list2.map((e) => new CalendarEvent(e));
 }
 
@@ -11194,10 +11194,10 @@ var _SpacesService = class _SpacesService {
    * @param predicate Predicate for filtering spaces
    */
   filter(predicate = this._compare) {
-    return this.space_list.filter((_) => predicate(_));
+    return this.space_list.filter((_2) => predicate(_2));
   }
   async loadSpace(space_id) {
-    const system = await va(space_id);
+    const system = await ka(space_id);
     const space = new Space(__spreadProps(__spreadValues({}, system), {
       level: this._org.levelWithID([...system.zones])
     }));
@@ -11211,7 +11211,7 @@ var _SpacesService = class _SpacesService {
     return this._spaces_by_id().get(space_id) || this._spaces_by_email().get(space_id);
   }
   async loadSpaces() {
-    const systems = (await $a({
+    const systems = (await ba({
       zone_id: this._org.organisation.id,
       limit: 5e3
     })).data;
@@ -11297,7 +11297,7 @@ var _HelpModalComponent = class _HelpModalComponent {
     this._org = inject(OrganisationService);
     this.items = this._data.items;
     this.active_item = signal(
-      ((_a2 = this.items) == null ? void 0 : _a2.find((_) => _.id === this._data.active_id)) || ((_b2 = this.items) == null ? void 0 : _b2[0]) || { id: "", content: `` },
+      ((_a2 = this.items) == null ? void 0 : _a2.find((_2) => _2.id === this._data.active_id)) || ((_b2 = this.items) == null ? void 0 : _b2[0]) || { id: "", content: `` },
       ...ngDevMode ? [{ debugName: "active_item" }] : (
         /* istanbul ignore next */
         []
@@ -11889,7 +11889,7 @@ var _SourceSelectComponent = class _SourceSelectComponent {
     this.details = computed(
       () => {
         const id = this.output_id();
-        return this._outputs().find((_) => _.id === id);
+        return this._outputs().find((_2) => _2.id === id);
       },
       ...ngDevMode ? [{ debugName: "details" }] : (
         /* istanbul ignore next */
@@ -11899,7 +11899,7 @@ var _SourceSelectComponent = class _SourceSelectComponent {
     this.input_list = computed(
       () => {
         const id = this.output_id();
-        return this._available_inputs().filter((_) => !_.outputs || _.outputs.includes(id));
+        return this._available_inputs().filter((_2) => !_2.outputs || _2.outputs.includes(id));
       },
       ...ngDevMode ? [{ debugName: "input_list" }] : (
         /* istanbul ignore next */
@@ -11907,7 +11907,7 @@ var _SourceSelectComponent = class _SourceSelectComponent {
       )
     );
     this.input_types = computed(
-      () => unique(this.input_list().map((_) => _.type)),
+      () => unique(this.input_list().map((_2) => _2.type)),
       ...ngDevMode ? [{ debugName: "input_types" }] : (
         /* istanbul ignore next */
         []
@@ -11917,7 +11917,7 @@ var _SourceSelectComponent = class _SourceSelectComponent {
       () => {
         const list2 = this.input_list();
         return this.input_types().reduce((map2, type) => {
-          map2[type] = list2.filter((_) => _.type === type);
+          map2[type] = list2.filter((_2) => _2.type === type);
           return map2;
         }, {});
       },
@@ -12272,7 +12272,7 @@ var _ControlStateService = class _ControlStateService extends AsyncHandler {
           return new Space(new Rs());
         log("Panel", `Loading system "${id}"...`);
         try {
-          const system = await va(id);
+          const system = await ka(id);
           return new Space(system);
         } catch (error) {
           const { status, message } = error || {};
@@ -12291,7 +12291,7 @@ var _ControlStateService = class _ControlStateService extends AsyncHandler {
       )
     );
     this.input_list = computed(
-      () => this._input_data().filter((_) => !_.hidden),
+      () => this._input_data().filter((_2) => !_2.hidden),
       ...ngDevMode ? [{ debugName: "input_list" }] : (
         /* istanbul ignore next */
         []
@@ -12300,7 +12300,7 @@ var _ControlStateService = class _ControlStateService extends AsyncHandler {
     this.available_inputs = computed(
       () => {
         const ids = this._available_inputs();
-        return this.input_list().filter((_) => ids.includes(_.id));
+        return this.input_list().filter((_2) => ids.includes(_2.id));
       },
       ...ngDevMode ? [{ debugName: "available_inputs" }] : (
         /* istanbul ignore next */
@@ -12308,16 +12308,16 @@ var _ControlStateService = class _ControlStateService extends AsyncHandler {
       )
     );
     this.presentables = computed(
-      () => this._input_data().filter((_) => _.presentable !== false),
+      () => this._input_data().filter((_2) => _2.presentable !== false),
       ...ngDevMode ? [{ debugName: "presentables" }] : (
         /* istanbul ignore next */
         []
       )
     );
     this.capture_list = computed(
-      () => this._output_data().filter((_) => {
+      () => this._output_data().filter((_2) => {
         var _a2;
-        return _.type === "recording" || ((_a2 = _.mod) == null ? void 0 : _a2.includes("Capture"));
+        return _2.type === "recording" || ((_a2 = _2.mod) == null ? void 0 : _a2.includes("Capture"));
       }),
       ...ngDevMode ? [{ debugName: "capture_list" }] : (
         /* istanbul ignore next */
@@ -12325,9 +12325,9 @@ var _ControlStateService = class _ControlStateService extends AsyncHandler {
       )
     );
     this.mic_list = computed(
-      () => this._input_data().filter((_) => {
+      () => this._input_data().filter((_2) => {
         var _a2;
-        return _.type === "mic" || ((_a2 = _.mod) == null ? void 0 : _a2.includes("Microphone"));
+        return _2.type === "mic" || ((_a2 = _2.mod) == null ? void 0 : _a2.includes("Microphone"));
       }),
       ...ngDevMode ? [{ debugName: "mic_list" }] : (
         /* istanbul ignore next */
@@ -12335,9 +12335,9 @@ var _ControlStateService = class _ControlStateService extends AsyncHandler {
       )
     );
     this.camera_list = computed(
-      () => this._input_data().filter((_) => {
+      () => this._input_data().filter((_2) => {
         var _a2;
-        return _.type === "cam" || ((_a2 = _.mod) == null ? void 0 : _a2.includes("Camera"));
+        return _2.type === "cam" || ((_a2 = _2.mod) == null ? void 0 : _a2.includes("Camera"));
       }),
       ...ngDevMode ? [{ debugName: "camera_list" }] : (
         /* istanbul ignore next */
@@ -12382,9 +12382,9 @@ var _ControlStateService = class _ControlStateService extends AsyncHandler {
         const list2 = this._output_data();
         const available = this._outputs();
         const joined = this.joined();
-        return list2.filter((_) => {
+        return list2.filter((_2) => {
           var _a2;
-          return !_.hidden && (!_.hide_on_join || !((_a2 = joined == null ? void 0 : joined.room_ids) == null ? void 0 : _a2.length)) && (!_.id || (available || []).includes(_.id));
+          return !_2.hidden && (!_2.hide_on_join || !((_a2 = joined == null ? void 0 : joined.room_ids) == null ? void 0 : _a2.length)) && (!_2.id || (available || []).includes(_2.id));
         });
       },
       ...ngDevMode ? [{ debugName: "output_list" }] : (
@@ -12458,7 +12458,7 @@ var _ControlStateService = class _ControlStateService extends AsyncHandler {
           period_end: getUnixTime(endOfDay(Date.now())),
           calendars: calendar.id
         });
-        return list2.filter((_) => _.meeting_url.startsWith(url));
+        return list2.filter((_2) => _2.meeting_url.startsWith(url));
       }
     }));
     this.events = computed(
@@ -12524,7 +12524,7 @@ var _ControlStateService = class _ControlStateService extends AsyncHandler {
   }
   /** Clear the route on every visible output that has a source */
   unrouteAll() {
-    return Promise.all(this.output_list().filter((_) => _.source).map((_) => this.unroute(_.id)));
+    return Promise.all(this.output_list().filter((_2) => _2.source).map((_2) => this.unroute(_2.id)));
   }
   routeToAll(input2 = "") {
     if (!input2)
@@ -12534,7 +12534,7 @@ var _ControlStateService = class _ControlStateService extends AsyncHandler {
   /** Set the route of the active output */
   async setOutputSource(input2, clear = true) {
     const output2 = this._active_output();
-    const data = (this._output_data() || []).find((_) => _.id === output2);
+    const data = (this._output_data() || []).find((_2) => _2.id === output2);
     this.setSelectedInput(input2);
     if (!output2 || (data == null ? void 0 : data.source) === input2)
       return;
@@ -12566,7 +12566,7 @@ var _ControlStateService = class _ControlStateService extends AsyncHandler {
       source = ((_a2 = outputs[0]) == null ? void 0 : _a2.id) || "";
     }
     if (source) {
-      const data = outputs.find((_) => _.id === source);
+      const data = outputs.find((_2) => _2.id === source);
       if (data) {
         this.updateSourceData("output", data.id, __spreadProps(__spreadValues({}, data), {
           mute: state
@@ -12586,7 +12586,7 @@ var _ControlStateService = class _ControlStateService extends AsyncHandler {
         source = ((_a2 = outputs[0]) == null ? void 0 : _a2.id) || "";
       }
       if (source) {
-        const data = outputs.find((_) => _.id === source);
+        const data = outputs.find((_2) => _2.id === source);
         if (data) {
           this.updateSourceData("output", data.id, __spreadProps(__spreadValues({}, data), {
             volume: value
@@ -12595,12 +12595,12 @@ var _ControlStateService = class _ControlStateService extends AsyncHandler {
       }
       this._execute("volume", source ? [value, source] : [value]).then();
       this._ignore_changes.push("volume");
-      this.timeout(`set-volume`, () => this._ignore_changes = this._ignore_changes.filter((_) => _ !== "volume"), 500);
+      this.timeout(`set-volume`, () => this._ignore_changes = this._ignore_changes.filter((_2) => _2 !== "volume"), 500);
     }, 100);
   }
   /** Execute driver method */
   _execute(name, params = [], mod_name = "System") {
-    const mod = zp(this._id(), mod_name);
+    const mod = Fp(this._id(), mod_name);
     if (!mod)
       return;
     return mod.execute(name, params);
@@ -12610,7 +12610,7 @@ var _ControlStateService = class _ControlStateService extends AsyncHandler {
    * up through bootstrap or an API key) keep their room.
    */
   canChangeRoom() {
-    return !ps();
+    return !ds();
   }
   /**
    * Ask for confirmation, then forget the saved system and go back to room
@@ -12650,7 +12650,7 @@ var _ControlStateService = class _ControlStateService extends AsyncHandler {
   async viewHelp(id) {
     this._dialog.open(HelpModalComponent, {
       data: {
-        items: await firstValueWhere(this.help_items, (_) => !!_, this._injector),
+        items: await firstValueWhere(this.help_items, (_2) => !!_2, this._injector),
         active_id: id
       }
     });
@@ -12718,7 +12718,7 @@ var _ControlStateService = class _ControlStateService extends AsyncHandler {
   }
   /** List to binding */
   bindTo(id, name, mod = "System", on_change = (v2) => this.updateProperty(name, v2)) {
-    const module = zp(id, mod).variable(name);
+    const module = Fp(id, mod).variable(name);
     this.subscription(`listen:${name}`, module.bindThenSubscribe(on_change));
   }
   /** Update properties of the system data */
@@ -12745,7 +12745,7 @@ var _ControlStateService = class _ControlStateService extends AsyncHandler {
         value.set(initial);
         return;
       }
-      const binding = zp(id, mod).variable(name);
+      const binding = Fp(id, mod).variable(name);
       const unbind = binding.bind();
       const listener = binding.listen();
       const update = () => value.set(listener() ?? initial);
@@ -12803,5 +12803,5 @@ export {
   CONTROL_STORE_KEY,
   ControlStateService
 };
-//# debugId=02f325c0-8351-5a84-810e-4ffba2fca4af
-//# sourceMappingURL=chunk-TTF6QWZX.js.map
+//# debugId=336ff4ec-c142-5ee6-b197-04edd990de1d
+//# sourceMappingURL=chunk-2EQX7Z2A.js.map

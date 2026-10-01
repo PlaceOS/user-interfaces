@@ -3,10 +3,10 @@ import {
   ControlConnectingComponent,
   ICON_MAP,
   NextMeetingComponent
-} from "./chunk-RHWC3LW6.js";
+} from "./chunk-IUGZWYSY.js";
 import {
   VideoCallPageComponent
-} from "./chunk-25OKTGJB.js";
+} from "./chunk-EF5N4DO7.js";
 import {
   BindingDirective,
   ControlStatusBarComponent,
@@ -16,8 +16,8 @@ import {
   JoystickTilt,
   TopbarHeaderComponent,
   VideoCallStateService
-} from "./chunk-5AB6ZYSU.js";
-import "./chunk-D5EJPBMJ.js";
+} from "./chunk-5ZTCMKOH.js";
+import "./chunk-4OHWCYHL.js";
 import {
   AuthenticatedImageDirective,
   ControlStateService,
@@ -32,11 +32,11 @@ import {
   marked,
   parse,
   toSignal
-} from "./chunk-TTF6QWZX.js";
-import "./chunk-ILO4Z7L7.js";
+} from "./chunk-2EQX7Z2A.js";
+import "./chunk-EIUEOGAT.js";
 import {
   TranslatePipe
-} from "./chunk-IMHPVO2G.js";
+} from "./chunk-G63XENND.js";
 import {
   ActivatedRoute,
   AsyncHandler,
@@ -45,6 +45,7 @@ import {
   DefaultValueAccessor,
   DestroyRef,
   FormsModule,
+  Fp,
   IconComponent,
   Injectable,
   Input,
@@ -65,10 +66,10 @@ import {
   SettingsService,
   VERSION,
   ViewChildren,
-  Xe,
   computed,
   currentUser,
   effect,
+  et,
   inject,
   input,
   log,
@@ -79,7 +80,6 @@ import {
   setClassMetadata,
   signal,
   viewChildren,
-  zp,
   ɵsetClassDebugInfo,
   ɵɵInheritDefinitionFeature,
   ɵɵadvance,
@@ -125,7 +125,7 @@ import {
   ɵɵtwoWayListener,
   ɵɵtwoWayProperty,
   ɵɵviewQuerySignal
-} from "./chunk-7OJCDYWP.js";
+} from "./chunk-YX4P66OA.js";
 import {
   __spreadProps,
   __spreadValues
@@ -201,7 +201,7 @@ var _ChatService = class _ChatService extends AsyncHandler {
     const id = this._chat_system();
     if (!id)
       return;
-    const auth = J() !== "x-api-key" ? `bearer_token=${encodeURIComponent(J())}` : `x-api-key=${Xe()}`;
+    const auth = J() !== "x-api-key" ? `bearer_token=${encodeURIComponent(J())}` : `x-api-key=${et()}`;
     const url = `ws${location.origin.replace("http", "")}/api/engine/v2/chatgpt/chat/${encodeURIComponent(id)}?${auth}${this._chat_id ? "&resume=" + encodeURIComponent(this._chat_id) : ""}`;
     log("CHAT", "Starting chat connection.");
     this._socket = new WebSocket(url);
@@ -290,7 +290,7 @@ var _ChatService = class _ChatService extends AsyncHandler {
     this._timeoutSocket();
   }
   _bindHint(id) {
-    const mod = zp(id, "LLM");
+    const mod = Fp(id, "LLM");
     const binding = mod.variable("user_hint");
     this.subscription(`binding:LLM:user_hint`, binding.bind());
     this.subscription(`listen:LLM:user_hint`, binding.listen().subscribe((value) => this.chat_hint.set(value)));
@@ -1164,7 +1164,7 @@ var _CameraControlsComponent = class _CameraControlsComponent {
   }
   selectCamera(camera) {
     this.active_camera.set(camera);
-    const mod = zp(this.id, "System");
+    const mod = Fp(this.id, "System");
     if (!mod)
       return;
     mod.execute("selected_camera", [camera.id]);
@@ -1173,7 +1173,7 @@ var _CameraControlsComponent = class _CameraControlsComponent {
     const cam = this.active_camera();
     if (!cam)
       return;
-    const mod = zp(this.id, cam.mod);
+    const mod = Fp(this.id, cam.mod);
     if (!mod)
       return;
     mod.execute("recall", [preset]);
@@ -1182,7 +1182,7 @@ var _CameraControlsComponent = class _CameraControlsComponent {
     const cam = this.active_camera();
     if (!cam)
       return;
-    const mod = zp(this.id, "System");
+    const mod = Fp(this.id, "System");
     if (!mod)
       return;
     mod.execute("add_preset", [preset, cam.id]);
@@ -1191,7 +1191,7 @@ var _CameraControlsComponent = class _CameraControlsComponent {
     const cam = this.active_camera();
     if (!cam)
       return;
-    const mod = zp(this.id, "System");
+    const mod = Fp(this.id, "System");
     if (!mod)
       return;
     mod.execute("remove_preset", [preset, cam.id]);
@@ -1203,7 +1203,7 @@ var _CameraControlsComponent = class _CameraControlsComponent {
     clearTimeout(this._move_timeout);
     this._move_timeout = setTimeout(async () => {
       const { index } = cam;
-      const mod = zp(this.id, cam.mod);
+      const mod = Fp(this.id, cam.mod);
       if (!mod)
         return;
       await mod.execute("stop", index ? [index] : []);
@@ -1217,7 +1217,7 @@ var _CameraControlsComponent = class _CameraControlsComponent {
     const cam = this.active_camera();
     if (!cam)
       return;
-    const mod = zp(this.id, cam.mod);
+    const mod = Fp(this.id, cam.mod);
     if (!mod)
       return;
     this.zoom.set(dir === "in" ? ZoomDirection.In : ZoomDirection.Out);
@@ -1232,7 +1232,7 @@ var _CameraControlsComponent = class _CameraControlsComponent {
       const cam = this.active_camera();
       if (!cam)
         return;
-      const mod = zp(this.id, cam.mod);
+      const mod = Fp(this.id, cam.mod);
       if (!mod)
         return;
       const { index } = cam;
@@ -1517,7 +1517,7 @@ var _VideoCallDialViewComponent = class _VideoCallDialViewComponent {
     if (!dial_number)
       return;
     const system_id = this._control.id;
-    const mod = zp(system_id, "VidConf");
+    const mod = Fp(system_id, "VidConf");
     this.loading.set(true);
     await mod.execute("dial", [dial_number]);
     this.loading.set(false);
@@ -1966,7 +1966,7 @@ var _TVControlsComponent = class _TVControlsComponent extends AsyncHandler {
     return this._state.id;
   }
   setChannel(url) {
-    const mod = zp(this._state.id, this.mod());
+    const mod = Fp(this._state.id, this.mod());
     mod.execute("channel", [url]);
   }
 };
@@ -3015,4 +3015,4 @@ export {
   ControlTabbedViewComponent
 };
 //# debugId=8b578e05-2901-5b85-8e3a-1df68d40c3da
-//# sourceMappingURL=tabbed-view.component-EVQHSXH5.js.map
+//# sourceMappingURL=tabbed-view.component-LBWWWJO7.js.map
