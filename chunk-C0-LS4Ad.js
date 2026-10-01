@@ -1,0 +1,3 @@
+import{Fn as Mi}from"./chunk-DKV_zu7D.js";function r(e){return`${e.id}:${e.instance||``}`}function E(e,t){let o=new Set(t);return e.filter(i=>o.has(r(i)))}function s(e,t){return{dialog:t,confirm:{title:Mi(`APP.CONCIERGE.BULK_REJECT_TITLE`),content:Mi(`APP.CONCIERGE.BULK_REJECT_MSG`,{count:e}),icon:`event_busy`}}}export{r as n,s as r,E as t};
+//# debugId=78e00d9f-6c11-51e1-9b61-2d628e289c23
+//# sourceMappingURL=chunk-C0-LS4Ad.js.map
