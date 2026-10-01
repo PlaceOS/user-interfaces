@@ -54,8 +54,11 @@ interface SignageMetrics {
     media_counts: Record<string, number>;
 }
 
-/** Background schedules join normal playback; takeover schedules override it */
-type ScheduleKind = 'background' | 'takeover';
+/**
+ * Background schedules join normal playback; takeover schedules override it.
+ * `single-pass` is the subset of takeovers that play once (`play_period` 0).
+ */
+type ScheduleKind = 'background' | 'takeover' | 'single-pass';
 
 interface PlaylistSchedule {
     readonly play_cron?: string;
@@ -313,7 +316,10 @@ function scheduledPlaylistWindow(
 }
 
 function isScheduleKind(schedule: PlaylistSchedule, kind?: ScheduleKind) {
-    return !kind || !!schedule.play_takeover === (kind === 'takeover');
+    if (!kind) return true;
+    if (kind === 'background') return !schedule.play_takeover;
+    if (!schedule.play_takeover) return false;
+    return kind === 'takeover' || playlistPlayPeriodMinutes(schedule) === 0;
 }
 
 /** Schedules of a playlist active at `now`, limited to `kind` when given */
@@ -1183,11 +1189,13 @@ export class SignageService extends AsyncHandler {
         }
         const keys = runs.map(({ key }) => key);
         if (this._isCurrentOverride(keys)) return;
+        // A playlist can also have a timed takeover active; its window must
+        // not expire the media of a single pass
         const media = this._getPlaylistMedia(
             display,
             [...new Set(runs.map(({ playlist_id }) => playlist_id))],
             () => true,
-            'takeover',
+            has_single_pass ? 'single-pass' : 'takeover',
         );
         const ends_at = has_single_pass
             ? 0

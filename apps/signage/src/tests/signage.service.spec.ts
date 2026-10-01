@@ -2490,6 +2490,31 @@ describe('SignageService', () => {
             expect(spectator.service.override_playlist().ends_at).toBe(0);
         });
 
+        it('should not expire single-pass media with a timed run on the same playlist', async () => {
+            vi.setSystemTime(day('09:59:02'));
+            (ts_client.showSignage as any).mockResolvedValue(
+                // The timed run is listed first and ends at 10:00
+                display_with_schedules([
+                    {
+                        play_cron: '50 9 * * *',
+                        play_period: 10,
+                        play_takeover: true,
+                    },
+                    {
+                        play_cron: '59 9 * * *',
+                        play_period: 0,
+                        play_takeover: true,
+                    },
+                ]),
+            );
+            spectator.service.setDisplay('display-1');
+            await flush();
+
+            const [item] = spectator.service.override_playlist().playlist;
+            expect(item.id).toBe('media-3');
+            expect(item.valid_until * 1000).not.toBe(day('10:00:00'));
+        });
+
         it('should start a timed takeover once a held single pass finishes', async () => {
             vi.setSystemTime(day('10:00:02'));
             (ts_client.showSignage as any).mockResolvedValue(
