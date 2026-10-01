@@ -1,6 +1,7 @@
 import {
     errorMessage,
     errorStatus,
+    orientationOf,
     perceivedLightness,
 } from '../../app/ai/ai-image.util';
 
@@ -24,5 +25,12 @@ describe('AI image utilities', () => {
     it('uses one luminance calculation for black and white', () => {
         expect(perceivedLightness(0, 0, 0)).toBe(0);
         expect(perceivedLightness(255, 255, 255)).toBe(255);
+    });
+
+    it('labels orientation from the image size, then the aspect ratio', () => {
+        expect(orientationOf(1024, 1536, '16:9')).toBe('portrait');
+        expect(orientationOf(1536, 1024, '9:16')).toBe('landscape');
+        expect(orientationOf(undefined, undefined, '3:4')).toBe('portrait');
+        expect(orientationOf(undefined, undefined, '1:1')).toBe('landscape');
     });
 });

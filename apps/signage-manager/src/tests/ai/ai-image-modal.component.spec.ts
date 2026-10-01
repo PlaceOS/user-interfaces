@@ -4,8 +4,29 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 
 import { AiImageModalComponent } from '../../app/ai/ai-image-modal.component';
 import { AiImageService } from '../../app/ai/ai-image.service';
-import { AiCapabilities, AiJob } from '../../app/ai/ai.types';
+import { AiCapabilities, AiJob, AiJobImage } from '../../app/ai/ai.types';
 import { SignageService } from '../../app/signage.service';
+
+function job(
+    id: string,
+    changes: Partial<AiJob> = {},
+    images: AiJobImage[] = [],
+): AiJob {
+    return {
+        id,
+        state: 'done',
+        kind: 'generate',
+        candidates: images.length || 1,
+        images_produced: images.length,
+        version: 1,
+        images,
+        ...changes,
+    };
+}
+
+function image(upload_id: string): AiJobImage {
+    return { upload_id, url: `/uploads/${upload_id}` };
+}
 
 function capabilities(changes: Partial<AiCapabilities> = {}): AiCapabilities {
     return {
@@ -83,23 +104,32 @@ describe('AiImageModalComponent', () => {
         const ai = {
             capabilities: signal(current_capabilities),
             default_model: signal(current_capabilities.providers[0].models[0]),
+            can_edit: signal(true),
             brand_kit: signal(null),
             jobs,
             intentKey: vi.fn(() => 'intent-1'),
             edit,
             generate,
+            cancel: vi.fn(),
+            unwatch: vi.fn(),
+            claim: vi.fn().mockResolvedValue({}),
             removeReference: vi.fn(),
             loadImage: vi.fn().mockResolvedValue(''),
         };
         const signage = {
             is_sys_admin: signal(false),
             selected_group: signal({ group: { id: 'group-1' } }),
+            hasFeature: vi.fn(() => true),
+            addMediaFromUpload: vi.fn(),
+            addMediaToPlaylist: vi.fn(),
+            discardCreatedMedia: vi.fn(),
         };
+        const dialog_ref = { close: vi.fn(), disableClose: false };
         await TestBed.configureTestingModule({
             imports: [AiImageModalComponent],
             providers: [
                 { provide: MAT_DIALOG_DATA, useValue: data },
-                { provide: MatDialogRef, useValue: { close: vi.fn() } },
+                { provide: MatDialogRef, useValue: dialog_ref },
                 { provide: AiImageService, useValue: ai },
                 { provide: SignageService, useValue: signage },
             ],
@@ -111,10 +141,151 @@ describe('AiImageModalComponent', () => {
         const component = TestBed.createComponent(
             AiImageModalComponent,
         ).componentInstance;
-        return { ai, component };
+        return { ai, component, dialog_ref, signage };
     }
 
-    afterEach(() => TestBed.resetTestingModule());
+    afterEach(() => {
+        vi.useRealTimers();
+        TestBed.resetTestingModule();
+    });
+
+    it('does not let a cancelled job take over when it finishes later', async () => {
+        vi.useFakeTimers();
+        const { ai, component } = await make();
+        ai.generate
+            .mockImplementationOnce(async () => {
+                ai.jobs.set({ 'job-1': job('job-1', { state: 'running' }) });
+                return ai.jobs()['job-1'];
+            })
+            .mockImplementationOnce(async () => {
+                const next = job('job-2', { state: 'running' });
+                ai.jobs.update((jobs) => ({ ...jobs, [next.id]: next }));
+                return next;
+            });
+        ai.cancel.mockResolvedValue(job('job-1', { state: 'cancelled' }));
+        component.brief.set('A poster for the launch');
+
+        await component.start();
+        await component.cancel();
+        expect(component.state()).toBe('compose');
+        await component.start();
+        // the provider finished the first job before the cancel reached it
+        ai.jobs.update((jobs) => ({
+            ...jobs,
+            'job-1': job('job-1', {}, [image('upload-1')]),
+        }));
+        await vi.advanceTimersByTimeAsync(1_000);
+
+        expect(component.state()).toBe('generating');
+        expect(component.selected()).toBeNull();
+    });
+
+    it('keeps following the job when the server refuses to cancel it', async () => {
+        vi.useFakeTimers();
+        const { ai, component } = await make();
+        ai.generate.mockImplementationOnce(async () => {
+            ai.jobs.set({ 'job-1': job('job-1', { state: 'running' }) });
+            return ai.jobs()['job-1'];
+        });
+        ai.cancel.mockResolvedValue(null);
+        component.brief.set('A poster for the launch');
+
+        await component.start();
+        await component.cancel();
+        expect(component.state()).toBe('generating');
+
+        ai.jobs.set({ 'job-1': job('job-1', {}, [image('upload-1')]) });
+        await vi.advanceTimersByTimeAsync(1_000);
+
+        expect(component.state()).toBe('review');
+    });
+
+    it('keeps every version in the rail after refining an older one', async () => {
+        const { ai, component } = await make();
+        const respond = (next: AiJob) => async () => {
+            ai.jobs.update((jobs) => ({ ...jobs, [next.id]: next }));
+            return next;
+        };
+        ai.generate.mockImplementationOnce(
+            respond(job('job-1', {}, [image('upload-1'), image('upload-2')])),
+        );
+        ai.edit
+            .mockImplementationOnce(
+                respond(
+                    job('job-2', { parent_job_id: 'job-1' }, [
+                        image('upload-3'),
+                    ]),
+                ),
+            )
+            .mockImplementationOnce(
+                // no url on the image: the rail reads it by upload id
+                respond(
+                    job('job-3', { parent_job_id: 'job-1' }, [
+                        { upload_id: 'upload-4' },
+                    ]),
+                ),
+            );
+        component.brief.set('A poster for the launch');
+        await component.start();
+        component.refinement.set('Darker');
+        await component.refine();
+
+        // refine option 2 of version 1 after version 2 exists
+        await component.select(component.rail()[1]);
+        component.refinement.set('Brighter');
+        await component.refine();
+
+        expect(
+            component
+                .rail()
+                .map(({ version, upload_id }) => `${version}:${upload_id}`),
+        ).toEqual(['1:upload-1', '1:upload-2', '2:upload-3', '3:upload-4']);
+        expect(component.rail()[3].url).toBe(
+            '/api/engine/v2/uploads/upload-4/url',
+        );
+    });
+
+    it('does not offer refining when the model cannot edit', async () => {
+        const { ai, component } = await make();
+        ai.can_edit.set(false);
+
+        expect(component.can_refine()).toBe(false);
+    });
+
+    it('reuses the saved row when Save is retried after a playlist failure', async () => {
+        const { ai, component, dialog_ref, signage } = await make({
+            playlist_id: 'playlist-1',
+        });
+        const media = { id: 'media-1', thumbnail_id: '' };
+        signage.addMediaFromUpload.mockResolvedValue(media);
+        signage.addMediaToPlaylist
+            .mockRejectedValueOnce(new Error('offline'))
+            .mockResolvedValueOnce(undefined);
+        component.selected.set({
+            job_id: 'job-1',
+            index: 0,
+            upload_id: 'upload-1',
+            url: '/uploads/upload-1',
+            width: 1024,
+            height: 1536,
+            version: 1,
+        });
+
+        await component.save();
+        expect(dialog_ref.close).not.toHaveBeenCalled();
+        expect(component.claim_pending()).toBe(true);
+        await component.save();
+
+        expect(signage.addMediaFromUpload).toHaveBeenCalledTimes(1);
+        expect(signage.addMediaFromUpload).toHaveBeenCalledWith(
+            'upload-1',
+            expect.objectContaining({ orientation: 'portrait' }),
+        );
+        expect(ai.claim).toHaveBeenCalledTimes(1);
+        expect(signage.addMediaToPlaylist).toHaveBeenCalledTimes(2);
+        expect(dialog_ref.close).toHaveBeenCalledWith(media);
+        expect(dialog_ref.disableClose).toBe(false);
+    });
 
     it('uses supported defaults and the model reference limit', async () => {
         const { component } = await make();

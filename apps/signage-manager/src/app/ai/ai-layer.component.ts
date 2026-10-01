@@ -116,6 +116,11 @@ export class AiLayerComponent {
     private _boxes = new Map<string, Box>();
     /** pointer offset inside the block when the drag started */
     private _grab = { x: 0, y: 0 };
+    /**
+     * The auto logo pick for one artwork and logo box. Reading the corner back
+     * is a GPU readback, too slow to repeat on every pointer move.
+     */
+    private _auto_logo = { key: '', dark: false };
 
     /** the organisation's face, used by any block that has not picked its own */
     private readonly _brand_family = computed(() => {
@@ -489,12 +494,17 @@ export class AiLayerComponent {
         context: CanvasRenderingContext2D,
         box: Box,
     ) {
-        const choice =
-            state.logo_choice === 'auto'
-                ? this._backgroundIsDark(context, box)
-                    ? 'on_dark'
-                    : 'on_light'
-                : state.logo_choice;
+        let choice = state.logo_choice;
+        if (choice === 'auto') {
+            const key = `${this._artwork_url}|${box.left},${box.top},${box.width},${box.height}`;
+            if (this._auto_logo.key !== key) {
+                this._auto_logo = {
+                    key,
+                    dark: this._backgroundIsDark(context, box),
+                };
+            }
+            choice = this._auto_logo.dark ? 'on_dark' : 'on_light';
+        }
         return (
             this._logos[choice] || this._logos.on_light || this._logos.on_dark
         );

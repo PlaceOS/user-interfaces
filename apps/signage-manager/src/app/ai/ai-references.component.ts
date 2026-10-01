@@ -48,10 +48,6 @@ import { AiReference } from './ai.types';
                                 'SIGNAGE_MANAGER.AI_REFERENCE_REMOVE'
                                     | translate
                             "
-                            [attr.aria-label]="
-                                'SIGNAGE_MANAGER.AI_REFERENCE_REMOVE'
-                                    | translate
-                            "
                             (click)="removed.emit(item.id)"
                             [attr.aria-label]="
                                 ('SIGNAGE_MANAGER.AI_REFERENCE_REMOVE'
