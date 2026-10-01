@@ -1,0 +1,3 @@
+import{Ar as V_,Ht as Kd,el as l,tt as F_}from"./chunk-C5GY9oSq.js";var s=class extends F_{constructor(e={}){super(e),this.background_media=e.background_media?new Kd(e.background_media):null}};var r=class extends V_{constructor(e={}){super(e),this.template_details=new s(l({id:e.template_id},e.template_details))}};export{s as n,r as t};
+//# debugId=726fab6b-352d-5e6d-abf4-4c0b395c7d32
+//# sourceMappingURL=chunk-rlnD1RG_.js.map

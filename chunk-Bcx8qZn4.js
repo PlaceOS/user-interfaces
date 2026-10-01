@@ -1,3 +1,0 @@
-import{Ar as V_,Ut as Kd,el as l,nt as F_}from"./chunk-BDem_NJY.js";var s=class extends F_{constructor(e={}){super(e),this.background_media=e.background_media?new Kd(e.background_media):null}};var r=class extends V_{constructor(e={}){super(e),this.template_details=new s(l({id:e.template_id},e.template_details))}};export{s as n,r as t};
-//# debugId=4b07a22c-0f48-54d6-b740-d86a4483300d
-//# sourceMappingURL=chunk-Bcx8qZn4.js.map
