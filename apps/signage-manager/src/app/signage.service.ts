@@ -168,6 +168,8 @@ import {
 } from './signage-playlist.util';
 import {
     effectiveFeatures,
+    narrowGroupFeatures,
+    noGroupFeaturesOn404,
     SIGNAGE_FEATURE_IDS,
     SignageFeature,
     SignageGroupFeatures,
@@ -388,7 +390,8 @@ const SIGNAGE_GROUP_FIELDS = [
     'children_count',
 ].join(',');
 
-const enum SignageGroupPermission {
+/** Permission bits of a user or zone in a signage group */
+export enum SignageGroupPermission {
     Read = 1 << 0,
     Create = 1 << 1,
     Update = 1 << 2,
@@ -506,6 +509,21 @@ export function dialogClosed<T = unknown>(ref: {
             resolve(value);
         });
     });
+}
+
+/** Users or zones of one group, with the group they were read for */
+interface ManagedGroupList<T> {
+    group_id: string;
+    items: T[];
+    failed: boolean;
+}
+
+function managedGroupList<T>(
+    group_id: string,
+    items: T[] = [],
+    failed = false,
+): ManagedGroupList<T> {
+    return { group_id, items, failed };
 }
 
 @Injectable({
@@ -797,32 +815,48 @@ export class SignageService {
             .sort((a, b) => a.name.localeCompare(b.name));
     }
 
+    // Each list keeps the group it was read for. Rows of the previous group
+    // then stay hidden while the debounced group switch catches up, so they
+    // can't be changed by mistake.
     private readonly _managed_group_users = resource({
         params: () => ({
             group_id: this._managed_group_id_debounced.value(),
             groups_change: this._groups_change(),
         }),
         loader: async ({ params }) => {
-            if (!params.group_id) return [] as PlaceGroupUser[];
+            const { group_id } = params;
+            if (!group_id) return managedGroupList<PlaceGroupUser>('');
             try {
                 const { data } = await queryGroupUsers({
-                    group_id: params.group_id,
+                    group_id,
                     limit: 1000,
                 });
-                return data
-                    .map(decodeEntityNames)
-                    .sort((a, b) =>
-                        (a.user?.name || a.user_id).localeCompare(
-                            b.user?.name || b.user_id,
+                return managedGroupList(
+                    group_id,
+                    data
+                        .map(decodeEntityNames)
+                        .sort((a, b) =>
+                            (a.user?.name || a.user_id).localeCompare(
+                                b.user?.name || b.user_id,
+                            ),
                         ),
-                    );
+                );
             } catch {
-                return [] as PlaceGroupUser[];
+                return managedGroupList<PlaceGroupUser>(group_id, [], true);
             }
         },
     });
-    public readonly managed_group_users = computed(
-        () => this._managed_group_users.value() || [],
+    /** Users of the managed group. Empty until they load. */
+    public readonly managed_group_users = computed(() =>
+        this._managedGroupRows(this._managed_group_users.value()),
+    );
+    public readonly managed_group_users_loading = computed(
+        () =>
+            this._managed_group_users.value()?.group_id !==
+            this.managed_group_id(),
+    );
+    public readonly managed_group_users_failed = computed(() =>
+        this._managedGroupFailed(this._managed_group_users.value()),
     );
     private readonly _managed_group_zones = resource({
         params: () => ({
@@ -830,27 +864,48 @@ export class SignageService {
             groups_change: this._groups_change(),
         }),
         loader: async ({ params }) => {
-            if (!params.group_id) return [] as PlaceGroupZone[];
+            const { group_id } = params;
+            if (!group_id) return managedGroupList<PlaceGroupZone>('');
             try {
                 const { data } = await queryGroupZones({
-                    group_id: params.group_id,
+                    group_id,
                     limit: 200,
                 });
-                return data
-                    .map(decodeEntityNames)
-                    .sort((a, b) =>
-                        (a.zone?.name || a.zone_id).localeCompare(
-                            b.zone?.name || b.zone_id,
+                return managedGroupList(
+                    group_id,
+                    data
+                        .map(decodeEntityNames)
+                        .sort((a, b) =>
+                            (a.zone?.name || a.zone_id).localeCompare(
+                                b.zone?.name || b.zone_id,
+                            ),
                         ),
-                    );
+                );
             } catch {
-                return [] as PlaceGroupZone[];
+                return managedGroupList<PlaceGroupZone>(group_id, [], true);
             }
         },
     });
-    public readonly managed_group_zones = computed(
-        () => this._managed_group_zones.value() || [],
+    /** Zones of the managed group. Empty until they load. */
+    public readonly managed_group_zones = computed(() =>
+        this._managedGroupRows(this._managed_group_zones.value()),
     );
+    public readonly managed_group_zones_loading = computed(
+        () =>
+            this._managed_group_zones.value()?.group_id !==
+            this.managed_group_id(),
+    );
+    public readonly managed_group_zones_failed = computed(() =>
+        this._managedGroupFailed(this._managed_group_zones.value()),
+    );
+
+    private _managedGroupRows<T>(list: ManagedGroupList<T> | undefined) {
+        return list?.group_id === this.managed_group_id() ? list.items : [];
+    }
+
+    private _managedGroupFailed<T>(list: ManagedGroupList<T> | undefined) {
+        return list?.group_id === this.managed_group_id() && list.failed;
+    }
     private readonly _api_group_id = computed(
         () => this.selected_group()?.group.id || '',
     );
@@ -3411,8 +3466,8 @@ export class SignageService {
         return signageGroupFeatures(raw);
     }
 
-    /** Replace the signage flags a group sets itself. Other subsystems keep
-     * their flags. */
+    /** Replace the signage flags a group sets itself, limited to what its
+     * parent allows. Other subsystems keep their flags. */
     public async saveGroupFeatures(
         group: PlaceGroup,
         signage: SignageGroupFeatures,
@@ -3421,13 +3476,22 @@ export class SignageService {
             notifyWarn(i18n('SIGNAGE_MANAGER.SVC_NO_EDIT_GROUP_FEATURES'));
             return null;
         }
-        const features = { ...(group.features || {}), signage: { ...signage } };
-        const result = await updateGroup(group.id, { features }).catch(
-            (error) => {
+        // A 404 means the backend has no group features route, so the
+        // parent sets no limits
+        const result = await this.loadGroupFeatures(group.parent_id)
+            .catch(noGroupFeaturesOn404)
+            .then((parent) =>
+                updateGroup(group.id, {
+                    features: {
+                        ...(group.features || {}),
+                        signage: { ...narrowGroupFeatures(signage, parent) },
+                    },
+                }),
+            )
+            .catch((error) => {
                 notifyError(i18n('SIGNAGE_MANAGER.SVC_ERR_SAVE_GROUP'));
                 throw error;
-            },
-        );
+            });
         this._groups_change.set(Date.now());
         notifySuccess(i18n('SIGNAGE_MANAGER.SVC_GROUP_FEATURES_SAVED'));
         return result;
@@ -3469,6 +3533,29 @@ export class SignageService {
         );
     }
 
+    /**
+     * Whether the user can move a group under a new parent. The group cannot
+     * go under itself or one of its children. System admins can move any
+     * group, also to the top level. Other users must manage the old and the
+     * new parent, so a manager cannot move a group out of the limits that
+     * its parent groups set.
+     */
+    public canChangeGroupParent(group: Partial<PlaceGroup>, parent_id: string) {
+        if (!group.id || parent_id === (group.parent_id || '')) return true;
+        const groups = this.signage_groups().map((item) => item.group);
+        const parent = groups.find((item) => item.id === parent_id);
+        if (groupHierarchy(parent, groups).some(({ id }) => id === group.id)) {
+            return false;
+        }
+        if (this.is_sys_admin()) return true;
+        return (
+            !!parent_id &&
+            !!group.parent_id &&
+            this.canManageSignageGroup(group.parent_id) &&
+            this.canManageSignageGroup(parent_id)
+        );
+    }
+
     public async saveSignageGroup(
         group: Partial<PlaceGroup>,
         data: Partial<PlaceGroup>,
@@ -3476,6 +3563,13 @@ export class SignageService {
         const managed_group_id = group.id || data.parent_id || '';
         if (!this.canManageSignageGroup(managed_group_id)) {
             notifyWarn(i18n('SIGNAGE_MANAGER.SVC_NO_MANAGE_GROUP'));
+            return null;
+        }
+        if (
+            data.parent_id !== undefined &&
+            !this.canChangeGroupParent(group, data.parent_id)
+        ) {
+            notifyWarn(i18n('SIGNAGE_MANAGER.SVC_NO_MOVE_GROUP'));
             return null;
         }
         // Only the edited fields. A group from a list read has defaults for
@@ -3551,11 +3645,30 @@ export class SignageService {
         notifySuccess(i18n('SIGNAGE_MANAGER.SVC_USER_ADDED'));
     }
 
+    /** Change the permissions of a group user. Asks first when the user
+     * takes the Manage permission from themselves. */
     public async updateManagedGroupUser(
         item: PlaceGroupUser,
         permissions: number,
     ) {
         if (!this.canManageSignageGroup(item.group_id)) return;
+        const manage = SignageGroupPermission.Manage;
+        if (
+            this._isCurrentUser(item.user_id) &&
+            item.permissions & manage &&
+            !(permissions & manage)
+        ) {
+            const result = await openConfirmModal(
+                {
+                    title: i18n('SIGNAGE_MANAGER.SVC_REMOVE_OWN_MANAGE_TITLE'),
+                    content: i18n('SIGNAGE_MANAGER.SVC_REMOVE_OWN_MANAGE'),
+                    icon: { content: 'warning' },
+                },
+                this._dialog,
+            );
+            if (result.reason !== 'done') return;
+            result.close();
+        }
         await updateGroupUser(item.user_id, item.group_id, {
             permissions,
         }).catch((error) => {
@@ -3566,14 +3679,18 @@ export class SignageService {
         notifySuccess(i18n('SIGNAGE_MANAGER.SVC_USER_UPDATED'));
     }
 
+    /** Remove a user from a group. The confirmation warns when users
+     * remove themselves, as they can lose access to the group. */
     public async removeManagedGroupUser(item: PlaceGroupUser) {
         if (!this.canManageSignageGroup(item.group_id)) return;
         const result = await openConfirmModal(
             {
                 title: i18n('SIGNAGE_MANAGER.SVC_REMOVE_USER_TITLE'),
-                content: i18n('SIGNAGE_MANAGER.SVC_REMOVE_NAMED_FROM_GROUP', {
-                    name: item.user?.name || item.user_id,
-                }),
+                content: this._isCurrentUser(item.user_id)
+                    ? i18n('SIGNAGE_MANAGER.SVC_REMOVE_SELF_FROM_GROUP')
+                    : i18n('SIGNAGE_MANAGER.SVC_REMOVE_NAMED_FROM_GROUP', {
+                          name: item.user?.name || item.user_id,
+                      }),
                 icon: { content: 'delete' },
             },
             this._dialog,
@@ -3587,6 +3704,10 @@ export class SignageService {
         result.close();
         this._groups_change.set(Date.now());
         notifySuccess(i18n('SIGNAGE_MANAGER.SVC_USER_REMOVED'));
+    }
+
+    private _isCurrentUser(user_id: string) {
+        return !!user_id && user_id === this._current_user()?.id;
     }
 
     public async addManagedGroupZone(zone: PlaceZone) {

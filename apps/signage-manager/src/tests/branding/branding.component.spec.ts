@@ -6,27 +6,42 @@ import { BrandingComponent } from '../../app/branding/branding.component';
 import { SignageService } from '../../app/signage.service';
 
 describe('BrandingComponent', () => {
-    it('updates a colour from a typed input event', async () => {
+    const ai_stub = {
+        enabled: signal(true),
+        brand_kit: signal<Record<string, unknown> | null>(null),
+        brand_kit_read: signal<'pending' | 'ok' | 'failed'>('ok'),
+        reloadBrandKit: vi.fn(),
+        saveBrandKit: vi.fn(),
+    };
+
+    async function make() {
         await TestBed.configureTestingModule({
             imports: [BrandingComponent],
             providers: [
-                {
-                    provide: AiImageService,
-                    useValue: {
-                        enabled: signal(true),
-                        brand_kit: signal(null),
-                    },
-                },
+                { provide: AiImageService, useValue: ai_stub },
                 {
                     provide: SignageService,
-                    useValue: { is_sys_admin: signal(true) },
+                    useValue: {
+                        is_sys_admin: signal(true),
+                        global_features: signal(['branding-editing']),
+                    },
                 },
             ],
         })
             .overrideComponent(BrandingComponent, { set: { template: '' } })
             .compileComponents();
-        const component =
-            TestBed.createComponent(BrandingComponent).componentInstance;
+        return TestBed.createComponent(BrandingComponent).componentInstance;
+    }
+
+    beforeEach(() => {
+        vi.clearAllMocks();
+        ai_stub.brand_kit.set(null);
+        ai_stub.brand_kit_read.set('ok');
+        ai_stub.saveBrandKit.mockResolvedValue({});
+    });
+
+    it('updates a colour from a typed input event', async () => {
+        const component = await make();
         const input = document.createElement('input');
         input.value = '#123456';
 
@@ -35,5 +50,43 @@ describe('BrandingComponent', () => {
         } as unknown as Event);
 
         expect(component.colours()).toEqual(['#123456']);
+    });
+
+    it('keeps palette colours past the three it shows when saving', async () => {
+        ai_stub.brand_kit.set({
+            palette: {
+                primary: '#111111',
+                secondary: '#222222',
+                accent: '#333333',
+                highlight: '#444444',
+            },
+        });
+        const component = await make();
+        await component.ngOnInit();
+
+        expect(component.colours()).toEqual(['#111111', '#222222', '#333333']);
+        await component.save();
+
+        expect(ai_stub.saveBrandKit).toHaveBeenCalledWith(
+            expect.objectContaining({
+                palette: {
+                    primary: '#111111',
+                    secondary: '#222222',
+                    accent: '#333333',
+                    highlight: '#444444',
+                },
+            }),
+        );
+    });
+
+    it('does not allow edits when the brand kit cannot be read', async () => {
+        ai_stub.brand_kit_read.set('failed');
+        ai_stub.reloadBrandKit.mockResolvedValue(null);
+        const component = await make();
+        await component.ngOnInit();
+
+        expect(ai_stub.reloadBrandKit).toHaveBeenCalled();
+        expect(component.load_state()).toBe('failed');
+        expect(component.can_edit()).toBe(false);
     });
 });

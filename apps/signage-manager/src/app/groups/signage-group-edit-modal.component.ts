@@ -4,7 +4,7 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
-import { HotkeysService } from '@placeos/common';
+import { HotkeysService, i18n } from '@placeos/common';
 import {
     FullscreenModalShellComponent,
     TranslatePipe,
@@ -69,7 +69,7 @@ import { SignageService } from '../signage.service';
                         "
                         [formField]="form.parent_id"
                     >
-                        @if (group.id) {
+                        @if (group.id && can_remove_parent()) {
                             <mat-option value="">{{
                                 'SIGNAGE_MANAGER.NO_PARENT' | translate
                             }}</mat-option>
@@ -107,10 +107,34 @@ export class SignageGroupEditModalComponent {
 
     public readonly loading = signal(false);
     public readonly group = this._data.group || {};
-    public readonly parent_groups = () =>
-        this._service
+    /** Current parent read by ID, for a parent that is not in the user's
+     * group lists */
+    private readonly _loaded_parent = signal<PlaceGroup | null>(null);
+    /** Groups the user can pick as the parent. Leaves out the group, its
+     * children and groups the user cannot move it to. The current parent
+     * always comes first, so keeping it is a choice even for users who do
+     * not manage it. */
+    public readonly parent_groups = (): Pick<PlaceGroup, 'id' | 'name'>[] => {
+        const parent_id = this.group.parent_id || '';
+        const options = this._service
             .manageable_signage_groups()
-            .filter((group) => group.id !== this.group.id);
+            .filter(
+                ({ id }) =>
+                    id !== this.group.id &&
+                    id !== parent_id &&
+                    this._service.canChangeGroupParent(this.group, id),
+            );
+        if (!parent_id) return options;
+        const parent = this._knownGroup(parent_id) ||
+            this._loaded_parent() || {
+                id: parent_id,
+                name: i18n('SIGNAGE_MANAGER.CURRENT_PARENT_GROUP'),
+            };
+        return [parent, ...options];
+    };
+    /** Only system admins can move a group to the top level */
+    public readonly can_remove_parent = () =>
+        this._service.canChangeGroupParent(this.group, '');
     public readonly model = signal({
         name: this.group.name || '',
         description: this.group.description || '',
@@ -126,6 +150,29 @@ export class SignageGroupEditModalComponent {
             this.save(),
         );
         inject(DestroyRef).onDestroy(() => save_hotkey?.unsubscribe());
+        this._loadParent();
+    }
+
+    private _knownGroup(group_id: string) {
+        return (
+            this._service
+                .signage_groups()
+                .find(({ group }) => group.id === group_id)?.group ||
+            this._service
+                .manageable_signage_groups()
+                .find(({ id }) => id === group_id)
+        );
+    }
+
+    // A failed read, such as for a parent the user cannot see, labels the
+    // option as the current parent.
+    private async _loadParent() {
+        const parent_id = this.group.parent_id;
+        if (!parent_id || this._knownGroup(parent_id)) return;
+        const parent = await this._service
+            .loadGroup(parent_id)
+            .catch(() => null);
+        if (parent) this._loaded_parent.set(parent);
     }
 
     public async save() {
@@ -139,6 +186,7 @@ export class SignageGroupEditModalComponent {
                 );
                 this._dialog_ref.disableClose = false;
                 if (result) this._dialog_ref.close(result);
+                else this.loading.set(false);
             } catch {
                 this._dialog_ref.disableClose = false;
                 this.loading.set(false);

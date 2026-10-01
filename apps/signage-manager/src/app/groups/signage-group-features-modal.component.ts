@@ -13,6 +13,8 @@ import {
 } from '@placeos/components';
 import { PlaceGroup } from '@placeos/ts-client';
 import {
+    noGroupFeaturesOn404,
+    ORGANISATION_FEATURES,
     SIGNAGE_FEATURE_IDS,
     SIGNAGE_FEATURES,
     SignageGroupFeatures,
@@ -26,6 +28,8 @@ type ListKey = keyof SignageGroupFeatures;
  * Edit the signage features and plugins a group allows for itself and its
  * children. Each list shows the effective value. A list the group does not
  * set comes from its parent groups, and a missing list allows everything.
+ * A group can only narrow its parent, so the options are what the parent
+ * allows.
  */
 @Component({
     selector: 'signage-group-features-modal',
@@ -186,11 +190,24 @@ export class SignageGroupFeaturesModalComponent {
 
     /** Replaced by a fresh read, so a save keeps flags set elsewhere */
     public group = this._data.group;
-    public readonly plugins = this._service.all_plugins;
-    /** Only features the global settings allow can be given to a group */
+    /** Plugins the parent group allows */
+    public readonly plugins = computed(() => {
+        const allowed = this._inherited()?.available_plugins;
+        const plugins = this._service.all_plugins();
+        return allowed
+            ? plugins.filter(({ id }) => allowed.includes(id))
+            : plugins;
+    });
+    /** Group features that the global settings and the parent group allow */
     public readonly available_features = computed(() => {
         const global = this._service.global_features() || [];
-        return SIGNAGE_FEATURES.filter(({ id }) => global.includes(id));
+        const parent = this._inherited()?.features;
+        return SIGNAGE_FEATURES.filter(
+            ({ id }) =>
+                global.includes(id) &&
+                !ORGANISATION_FEATURES.includes(id) &&
+                (!parent || parent.includes(id)),
+        );
     });
     public readonly saving = signal(false);
     /** Lists the group sets itself */
@@ -213,13 +230,14 @@ export class SignageGroupFeaturesModalComponent {
     }
 
     // Without current values the rows would show wrong defaults, so a failed
-    // read closes the editor.
+    // read closes the editor. A 404 from the features route means the backend
+    // has no group limits, so the parent allows everything.
     private async _load() {
         try {
             const group = await this._service.loadGroup(this.group.id);
-            const inherited = await this._service.loadGroupFeatures(
-                group.parent_id,
-            );
+            const inherited = await this._service
+                .loadGroupFeatures(group.parent_id)
+                .catch(noGroupFeaturesOn404);
             this.group = group;
             this.own.set(signageGroupFeatures(group.features));
             this._inherited.set(inherited);
@@ -289,7 +307,9 @@ export class SignageGroupFeaturesModalComponent {
     private _withKnownPlugins(
         features: SignageGroupFeatures,
     ): SignageGroupFeatures {
-        const ids = new Set(this.plugins().map((plugin) => plugin.id));
+        const ids = new Set(
+            this._service.all_plugins().map((plugin) => plugin.id),
+        );
         if (!features.available_plugins || !ids.size) return features;
         return {
             ...features,

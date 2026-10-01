@@ -315,6 +315,7 @@ export interface PlaylistEditFormModel {
                     type="playlists"
                     [item_id]="playlist.id"
                     [group_id]="group_id"
+                    [allow_unshare]="true"
                 ></signage-shared-with>
             </form>
         </fullscreen-modal-shell>

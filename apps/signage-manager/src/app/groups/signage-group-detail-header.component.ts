@@ -76,6 +76,9 @@ import { SignageGroupFeaturesModalComponent } from './signage-group-features-mod
                     [matTooltip]="
                         'SIGNAGE_MANAGER.EDIT_GROUP_TOOLTIP' | translate
                     "
+                    [attr.aria-label]="
+                        'SIGNAGE_MANAGER.EDIT_GROUP_TOOLTIP' | translate
+                    "
                     (click)="editGroup(group)"
                 >
                     <icon>edit</icon>
@@ -87,6 +90,9 @@ import { SignageGroupFeaturesModalComponent } from './signage-group-features-mod
                     type="button"
                     matRipple
                     [matTooltip]="
+                        'SIGNAGE_MANAGER.REMOVE_GROUP_TOOLTIP' | translate
+                    "
+                    [attr.aria-label]="
                         'SIGNAGE_MANAGER.REMOVE_GROUP_TOOLTIP' | translate
                     "
                     (click)="removeGroup(group)"
