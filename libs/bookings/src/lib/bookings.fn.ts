@@ -763,6 +763,27 @@ async function linkedBookingsForEvent(
 }
 
 /**
+ * Ids of the linked bookings of the given type that were made for an earlier
+ * copy of the event. A host change moves the event to the new host's calendar
+ * under a new id, and the API keeps the old host's bookings linked to it
+ * @param event Parent event
+ * @param type Type of the linked bookings
+ */
+function replacedEventBookingIds(
+    event: CalendarEvent,
+    type: BookingType,
+): string[] {
+    return (event.linked_bookings || [])
+        .filter((_) => {
+            const parent_id = _.extension_data?.parent_id;
+            return (
+                _.booking_type === type && !!parent_id && parent_id !== event.id
+            );
+        })
+        .map((_) => _.id);
+}
+
+/**
  * Whether a linked booking was created for the given resource
  * @param booking Existing linked booking
  * @param item Resource on the event
@@ -860,7 +881,8 @@ function linkedBookingChanges(
  * the given type. Bookings for resources still on the event are updated in
  * place so their ids, approval state and check-in survive an edit; bookings are
  * created for new resources and removed for resources no longer on the event.
- * Call with an empty list to remove every linked booking of the type
+ * Bookings left by a host change are removed and created again for the new
+ * host. Call with an empty list to remove every linked booking of the type
  * @param event Parent event
  * @param type Type of linked booking to sync
  * @param resources Resources of that type currently on the event
@@ -880,6 +902,11 @@ export async function createBookingsForEvent(
     try {
         // Linked booking changes update the parent event, so process each
         // request in order to avoid concurrent writes to the same event.
+        // The old host's bookings go first, as the API rejects a new booking
+        // that clashes with one of them.
+        for (const id of replacedEventBookingIds(event, type)) {
+            await removeBooking(id);
+        }
         for (const item of resources) {
             const booking = existing.find(
                 (_) => !kept.has(_.id) && bookingMatchesResource(_, item),

@@ -398,6 +398,54 @@ describe('[Booking API]', () => {
             expect(delete_spy).not.toHaveBeenCalled();
         });
 
+        it('should recreate the linked bookings of an event moved to a new host', async () => {
+            const new_host = 'new.host@example.com';
+            const old_booking = linked_visitor();
+            const moved_event = new CalendarEvent({
+                id: 'event-2',
+                event_start: 1_800_000_000,
+                event_end: 1_800_003_600,
+                host: new_host,
+                title: 'Visitor meeting',
+                ical_uid: 'event-2@example.com',
+                resources: event.resources,
+                linked_bookings: [
+                    old_booking,
+                    {
+                        ...old_booking,
+                        id: 'catering-booking-1',
+                        booking_type: 'catering-order',
+                    },
+                ] as never,
+            });
+            vi.spyOn(ts_client, 'get').mockResolvedValue([
+                old_booking,
+            ] as never);
+            const patch_spy = vi.spyOn(ts_client, 'patch');
+            const delete_spy = vi
+                .spyOn(ts_client, 'del')
+                .mockResolvedValue(undefined);
+            const post_spy = vi
+                .spyOn(ts_client, 'post')
+                .mockResolvedValue({ id: 'visitor-booking-2' } as never);
+
+            await createBookingsForEvent(moved_event, 'visitor', [visitors[0]]);
+
+            expect(delete_spy.mock.calls.map(([url]) => url)).toEqual([
+                `/api/staff/v1/bookings/visitor-booking-1?utm_source=${encoded_utm_source}`,
+            ]);
+            expect(patch_spy).not.toHaveBeenCalled();
+            expect(post_spy).toHaveBeenCalledTimes(1);
+            expect(post_spy.mock.calls[0][0]).toContain('event_id=event-2');
+            expect(post_spy.mock.calls[0][1]).toMatchObject({
+                user_email: new_host,
+                extension_data: { parent_id: 'event-2' },
+            });
+            expect(delete_spy.mock.invocationCallOrder[0]).toBeLessThan(
+                post_spy.mock.invocationCallOrder[0],
+            );
+        });
+
         it('should leave a saved catering booking alone on the next save', async () => {
             const order = () =>
                 new CateringOrder({
