@@ -135,7 +135,9 @@ import {
                         ></dialpad>
                     </div>
                     <div
+                        actions
                         class="flex flex-1 flex-col items-center justify-center space-y-4 p-2"
+                        [class.pt-14]="reserve_top()"
                     >
                         <button
                             btn
@@ -252,6 +254,8 @@ export class VideoCallPageComponent extends AsyncHandler implements OnInit {
 
     public readonly redirect = input(true);
     public readonly present_output = input('');
+    /** Leave space above the call actions for a button placed over the page */
+    public readonly reserve_top = input(false);
     public readonly loading = signal('');
     public readonly call = this._state.call;
     private readonly _show_camera_pip = this._state.show_camera_pip;

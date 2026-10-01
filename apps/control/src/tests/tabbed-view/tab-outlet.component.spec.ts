@@ -4,7 +4,7 @@ import {
     SpectatorRouting,
 } from '@ngneat/spectator/vitest';
 import { mockComponent, mockDirective } from '@placeos/common/tests';
-import { MockPipe, MockProvider } from 'ng-mocks';
+import { MockPipe, MockProvider, ngMocks } from 'ng-mocks';
 
 import {
     BindingDirective,
@@ -273,7 +273,7 @@ describe('TabOutletComponent', () => {
         ]);
         call_state.call.set({ Status: 'Connected' });
         spectator.detectChanges();
-        expect(spectator.query('[video-call-page]')).toHaveClass('pt-16');
+        expect(ngMocks.input('[video-call-page]', 'reserve_top')).toBe(true);
         call_state.call.set(null);
     });
 });

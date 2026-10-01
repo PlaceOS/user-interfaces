@@ -1,4 +1,4 @@
-import { signal } from '@angular/core';
+import { effect, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { MatDialog } from '@angular/material/dialog';
 import {
@@ -25,9 +25,12 @@ describe('ControlStateService', () => {
     let released: string[];
     const loadSpace = vi.fn();
     const calendar_list = signal<Calendar[]>([]);
-    const loadCalendars = vi.fn(async () =>
-        calendar_list.set([{ id: 'cal-1' } as Calendar]),
-    );
+    // Reads the list before awaiting, like CalendarService.loadCalendars
+    const loadCalendars = vi.fn(async () => {
+        if (calendar_list().length) return;
+        await Promise.resolve();
+        calendar_list.set([{ id: 'cal-1' } as Calendar]);
+    });
     const createService = createServiceFactory({
         service: ControlStateService,
         providers: [
@@ -118,5 +121,21 @@ describe('ControlStateService', () => {
         await spectator.service.selectMeeting();
         expect(loadCalendars).toHaveBeenCalled();
         expect(spectator.service.calendar()?.id).toBe('cal-1');
+    });
+
+    it('should not open the meeting list again when calendars load', async () => {
+        const dialog = spectator.inject(MatDialog);
+        vi.mocked(dialog.open).mockClear();
+        calendar_list.set([]);
+        const ref = TestBed.runInInjectionContext(() =>
+            effect(() => {
+                spectator.service.selectMeeting();
+            }),
+        );
+        TestBed.tick();
+        await new Promise((r) => setTimeout(r));
+        TestBed.tick();
+        expect(dialog.open).toHaveBeenCalledTimes(1);
+        ref.destroy();
     });
 });

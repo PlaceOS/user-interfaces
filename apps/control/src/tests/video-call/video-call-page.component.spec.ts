@@ -190,4 +190,10 @@ describe('VideoCallPageComponent', () => {
         await spectator.component.setVideoLayout('Single');
         expect(spectator.component.video_layout()).toBe('Single');
     });
+
+    it('should leave space above the call actions when asked', () => {
+        expect(spectator.query('[actions]')).not.toHaveClass('pt-14');
+        spectator.setInput({ reserve_top: true });
+        expect(spectator.query('[actions]')).toHaveClass('pt-14');
+    });
 });
