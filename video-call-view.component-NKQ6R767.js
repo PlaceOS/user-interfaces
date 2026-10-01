@@ -1,21 +1,21 @@
 import {
   VideoCallPageComponent
-} from "./chunk-3ZS53O3U.js";
+} from "./chunk-25OKTGJB.js";
 import {
   ControlStatusBarComponent,
   TopbarHeaderComponent
-} from "./chunk-CN63IPUL.js";
-import "./chunk-KUFU7PTD.js";
+} from "./chunk-5AB6ZYSU.js";
+import "./chunk-D5EJPBMJ.js";
 import {
   ControlStateService,
   MatProgressSpinner,
   MatProgressSpinnerModule,
   toSignal
-} from "./chunk-C6M2U4SC.js";
-import "./chunk-BDTB6PWP.js";
+} from "./chunk-TTF6QWZX.js";
+import "./chunk-ILO4Z7L7.js";
 import {
   TranslatePipe
-} from "./chunk-2LWWEJI4.js";
+} from "./chunk-IMHPVO2G.js";
 import {
   ActivatedRoute,
   Component,
@@ -43,7 +43,7 @@ import {
   ɵɵtext,
   ɵɵtextInterpolate,
   ɵɵtextInterpolate1
-} from "./chunk-GVYKSIXH.js";
+} from "./chunk-7OJCDYWP.js";
 import "./chunk-653SOEEV.js";
 
 // apps/control/src/app/video-call/video-call-view.component.ts
@@ -257,4 +257,4 @@ export {
   ControlVideoCallViewComponent
 };
 //# debugId=65d17ac4-daa8-5940-a3bb-9a5aaf73919e
-//# sourceMappingURL=video-call-view.component-RLRXR7KU.js.map
+//# sourceMappingURL=video-call-view.component-NKQ6R767.js.map

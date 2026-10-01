@@ -15,14 +15,14 @@ import {
   MatProgressSpinnerModule,
   MatSuffix,
   toSignal
-} from "./chunk-C6M2U4SC.js";
+} from "./chunk-TTF6QWZX.js";
 import {
   MatTooltip,
   MatTooltipModule
-} from "./chunk-BDTB6PWP.js";
+} from "./chunk-ILO4Z7L7.js";
 import {
   TranslatePipe
-} from "./chunk-2LWWEJI4.js";
+} from "./chunk-IMHPVO2G.js";
 import {
   $a,
   ActivatedRoute,
@@ -251,7 +251,7 @@ import {
   ɵɵtwoWayProperty,
   ɵɵviewQuery,
   ɵɵviewQuerySignal
-} from "./chunk-GVYKSIXH.js";
+} from "./chunk-7OJCDYWP.js";
 import {
   __spreadProps,
   __spreadValues
@@ -1540,15 +1540,15 @@ var GlobalLoadingComponent = _GlobalLoadingComponent;
 // libs/components/src/lib/settings-debug-panel-launcher.component.ts
 var SettingsDebugPanelLauncherComponent_Defer_25_DepsFn = () => [
   /* @ts-ignore */
-  import("./settings-debug-panel.component-CFITO5DC.js").then((m) => m.SettingsDebugPanelComponent)
+  import("./settings-debug-panel.component-RRVPLUGO.js").then((m) => m.SettingsDebugPanelComponent)
 ];
 var SettingsDebugPanelLauncherComponent_Defer_28_DepsFn = () => [
   /* @ts-ignore */
-  import("./binding-debug-panel.component-D6QME33M.js").then((m) => m.BindingDebugPanelComponent)
+  import("./binding-debug-panel.component-SFKHJLJ5.js").then((m) => m.BindingDebugPanelComponent)
 ];
 var SettingsDebugPanelLauncherComponent_Defer_31_DepsFn = () => [
   /* @ts-ignore */
-  import("./debug-console.component-Q6LKG3AD.js").then((m) => m.DebugConsoleComponent)
+  import("./debug-console.component-O2WXBNZL.js").then((m) => m.DebugConsoleComponent)
 ];
 function SettingsDebugPanelLauncherComponent_Defer_24_Conditional_0_Template(rf, ctx) {
   if (rf & 1) {
@@ -1781,11 +1781,11 @@ var SettingsDebugPanelLauncherComponent = _SettingsDebugPanelLauncherComponent;
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(SettingsDebugPanelLauncherComponent, () => [
     /* @ts-ignore */
-    import("./settings-debug-panel.component-CFITO5DC.js").then((m) => m.SettingsDebugPanelComponent),
+    import("./settings-debug-panel.component-RRVPLUGO.js").then((m) => m.SettingsDebugPanelComponent),
     /* @ts-ignore */
-    import("./binding-debug-panel.component-D6QME33M.js").then((m) => m.BindingDebugPanelComponent),
+    import("./binding-debug-panel.component-SFKHJLJ5.js").then((m) => m.BindingDebugPanelComponent),
     /* @ts-ignore */
-    import("./debug-console.component-Q6LKG3AD.js").then((m) => m.DebugConsoleComponent)
+    import("./debug-console.component-O2WXBNZL.js").then((m) => m.DebugConsoleComponent)
   ], (SettingsDebugPanelComponent, BindingDebugPanelComponent, DebugConsoleComponent) => {
     setClassMetadata(SettingsDebugPanelLauncherComponent, [{
       type: Component,
@@ -11857,22 +11857,22 @@ var routes = [
   },
   {
     path: "panel/:system",
-    loadComponent: () => import("./main-view.component-MVGN26TI.js").then((m) => m.ControlMainViewComponent),
+    loadComponent: () => import("./main-view.component-EI2WCIKQ.js").then((m) => m.ControlMainViewComponent),
     canActivate: [AuthorisedUserGuard]
   },
   {
     path: "tabbed/:system",
-    loadComponent: () => import("./tabbed-view.component-TM6UVT2R.js").then((m) => m.ControlTabbedViewComponent),
+    loadComponent: () => import("./tabbed-view.component-EVQHSXH5.js").then((m) => m.ControlTabbedViewComponent),
     canActivate: [AuthorisedUserGuard]
   },
   {
     path: "tabbed/:system/:tab",
-    loadComponent: () => import("./tabbed-view.component-TM6UVT2R.js").then((m) => m.ControlTabbedViewComponent),
+    loadComponent: () => import("./tabbed-view.component-EVQHSXH5.js").then((m) => m.ControlTabbedViewComponent),
     canActivate: [AuthorisedUserGuard]
   },
   {
     path: "panel/:system/call",
-    loadComponent: () => import("./video-call-view.component-RLRXR7KU.js").then((m) => m.ControlVideoCallViewComponent),
+    loadComponent: () => import("./video-call-view.component-NKQ6R767.js").then((m) => m.ControlVideoCallViewComponent),
     canActivate: [AuthorisedUserGuard]
   },
   { path: "**", redirectTo: "bootstrap" }

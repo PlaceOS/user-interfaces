@@ -61049,15 +61049,15 @@ var DEFAULT_SETTINGS = {
 // libs/common/src/lib/version.ts
 var VERSION4 = {
   "dirty": false,
-  "raw": "bce37f3",
-  "hash": "bce37f3",
+  "raw": "9e07326",
+  "hash": "9e07326",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "bce37f3",
+  "suffix": "9e07326",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1790756483358
+  "time": 1790821993871
 };
 
 // libs/common/src/lib/google-analytics.service.ts
@@ -81250,5 +81250,5 @@ export {
   PlaceOS_Service,
   OrganisationService
 };
-//# debugId=56837d38-a07c-5221-88f3-8f713c131fe4
-//# sourceMappingURL=chunk-GVYKSIXH.js.map
+//# debugId=fcfac186-632f-5983-b900-6c272e1be9ab
+//# sourceMappingURL=chunk-7OJCDYWP.js.map

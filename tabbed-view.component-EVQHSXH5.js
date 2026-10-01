@@ -3,10 +3,10 @@ import {
   ControlConnectingComponent,
   ICON_MAP,
   NextMeetingComponent
-} from "./chunk-3API5LWG.js";
+} from "./chunk-RHWC3LW6.js";
 import {
   VideoCallPageComponent
-} from "./chunk-3ZS53O3U.js";
+} from "./chunk-25OKTGJB.js";
 import {
   BindingDirective,
   ControlStatusBarComponent,
@@ -16,8 +16,8 @@ import {
   JoystickTilt,
   TopbarHeaderComponent,
   VideoCallStateService
-} from "./chunk-CN63IPUL.js";
-import "./chunk-KUFU7PTD.js";
+} from "./chunk-5AB6ZYSU.js";
+import "./chunk-D5EJPBMJ.js";
 import {
   AuthenticatedImageDirective,
   ControlStateService,
@@ -32,11 +32,11 @@ import {
   marked,
   parse,
   toSignal
-} from "./chunk-C6M2U4SC.js";
-import "./chunk-BDTB6PWP.js";
+} from "./chunk-TTF6QWZX.js";
+import "./chunk-ILO4Z7L7.js";
 import {
   TranslatePipe
-} from "./chunk-2LWWEJI4.js";
+} from "./chunk-IMHPVO2G.js";
 import {
   ActivatedRoute,
   AsyncHandler,
@@ -125,7 +125,7 @@ import {
   ɵɵtwoWayListener,
   ɵɵtwoWayProperty,
   ɵɵviewQuerySignal
-} from "./chunk-GVYKSIXH.js";
+} from "./chunk-7OJCDYWP.js";
 import {
   __spreadProps,
   __spreadValues
@@ -3015,4 +3015,4 @@ export {
   ControlTabbedViewComponent
 };
 //# debugId=8b578e05-2901-5b85-8e3a-1df68d40c3da
-//# sourceMappingURL=tabbed-view.component-TM6UVT2R.js.map
+//# sourceMappingURL=tabbed-view.component-EVQHSXH5.js.map
