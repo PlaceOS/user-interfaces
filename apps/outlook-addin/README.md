@@ -30,8 +30,8 @@ The script writes `dist/outlook/outlook-<host>.xml`. The add-in ID is the same f
 
 When the add-in has no PlaceOS token, it gets one in this sequence:
 
-1. Single sign-on with nested app authentication (NAA). MSAL asks Outlook for a Microsoft Entra token for the PlaceOS API. The add-in uses NAA only when the manifest has a client ID and Outlook supports the `NestedAppAuth 1.1` requirement set.
-2. A sign-in dialog. The dialog loads the app with `#ms-auth=true` and runs the normal PlaceOS login. Then it sends the PlaceOS token to the task pane.
+1. Single sign-on with nested app authentication (NAA). MSAL asks Outlook for a Microsoft Entra token for the PlaceOS API. ts-client exchanges the Entra token for PlaceOS tokens (RFC 8693 token exchange). The add-in uses NAA only when the manifest has a client ID and Outlook supports the `NestedAppAuth 1.1` requirement set.
+2. A sign-in dialog, if single sign-on or the token exchange fails. The dialog loads the app with `#ms-auth=true` and runs the normal PlaceOS login. Then it sends the PlaceOS token to the task pane.
 
 The code is in `src/app/outlook-auth.ts` and `src/app/app.component.ts`.
 
@@ -45,11 +45,11 @@ Do these steps only if you use single sign-on. The Teams app uses the same API s
 4. Open **Authentication**. Add the **Single-page application** platform with the redirect URI `brk-multihub://<host>`. Use only the host, with no path.
 5. Use the application (client) ID as `--client-id`.
 
-**Warning:** The add-in sends the Entra token to PlaceOS as the bearer token. The PlaceOS backend must accept Microsoft Entra tokens for this app registration. If the backend does not accept the token, the add-in cannot load the user. In this condition, make the manifest without `--client-id`.
+**Note:** The PlaceOS backend must accept token exchange for Microsoft Entra tokens from this app registration. If the backend refuses the exchange, the add-in uses the sign-in dialog. In this condition, make the manifest without `--client-id`.
 
 ### Known limits
 
-- **Token expiry:** The add-in does not refresh a token that it got from Outlook. When the token expires, API requests fail. Close and open the pane to get a new token. With single sign-on, this is silent.
+- **Token expiry:** With single sign-on, ts-client uses the refresh token from the exchange to get a new PlaceOS token. The add-in does not refresh a token from the sign-in dialog. When that token expires, API requests fail. Close and open the pane to sign in again.
 - **Mobile:** The manifest has only the desktop form factor. Outlook on iOS and Android does not show the add-in.
 
 ## Calendar task pane

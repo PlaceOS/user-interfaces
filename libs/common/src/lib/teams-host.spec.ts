@@ -76,6 +76,7 @@ describe('Teams host startup', () => {
         vi.mocked(teams.app.initialize).mockResolvedValue(undefined);
         vi.mocked(ts_client.token).mockReturnValue('');
         vi.mocked(ts_client.setToken).mockImplementation(() => undefined);
+        vi.mocked(ts_client.exchangeEntraToken).mockResolvedValue(undefined);
     });
 
     afterEach(() => vi.useRealTimers());
@@ -93,14 +94,29 @@ describe('Teams host startup', () => {
         expect(await mode).toBeNull();
     });
 
-    it('uses the SSO token without a sign-in window', async () => {
-        const sso = jwt(2_000_000_000);
-        getAuthToken.mockResolvedValue(sso);
+    it('exchanges the SSO token without a sign-in window', async () => {
+        getAuthToken.mockResolvedValue('entra-token');
         await startTeamsHost('tab');
 
         expect(await finishTeamsSignIn('tab')).toBe(true);
-        expect(ts_client.setToken).toHaveBeenCalledWith(sso, tokenExpiry(sso));
+        expect(ts_client.exchangeEntraToken).toHaveBeenCalledWith(
+            'entra-token',
+        );
+        expect(ts_client.setToken).not.toHaveBeenCalled();
         expect(authenticate).not.toHaveBeenCalled();
+    });
+
+    it('opens the sign-in window when PlaceOS rejects the SSO token', async () => {
+        getAuthToken.mockResolvedValue('entra-token');
+        vi.mocked(ts_client.exchangeEntraToken).mockRejectedValue(undefined);
+        authenticate.mockResolvedValue('place-token');
+        await startTeamsHost('tab');
+
+        expect(await finishTeamsSignIn('tab')).toBe(true);
+        expect(ts_client.setToken).toHaveBeenCalledWith(
+            'place-token',
+            undefined,
+        );
     });
 
     it('opens the sign-in window when SSO fails, then waits for a click after a blocked window', async () => {
