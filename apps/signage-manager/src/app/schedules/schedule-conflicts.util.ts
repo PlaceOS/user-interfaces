@@ -1,8 +1,9 @@
 import { SignagePlaylist } from '@placeos/ts-client';
-import { addDays, addMinutes, startOfDay } from 'date-fns';
+import { addDays, startOfDay } from 'date-fns';
 import {
     buildDisplayScheduleAssignments,
     buildScheduleBlocks,
+    hasTakeoverSchedule,
     MINUTES_PER_DAY,
     type ScheduleItem,
 } from './signage-schedule.util';
@@ -30,6 +31,17 @@ export interface TakeoverConflictOptions {
 }
 
 /**
+ * Date of a wall-clock minute offset from the first day. Blocks use clock
+ * minutes, so a day with a daylight saving change still starts its minutes
+ * at midnight.
+ */
+function wallClockDate(first_day: Date, minutes: number) {
+    const date = addDays(first_day, Math.floor(minutes / MINUTES_PER_DAY));
+    date.setHours(0, minutes % MINUTES_PER_DAY, 0, 0);
+    return date;
+}
+
+/**
  * Find takeover schedules that overlap on the same display. Returns the
  * first overlap of each pair of playlists on each display.
  */
@@ -45,34 +57,52 @@ export function findTakeoverConflicts({
     const day_list = Array.from({ length: days }, (_, index) =>
         addDays(first_day, index),
     );
-    const conflicts: TakeoverConflict[] = [];
-    for (const display of displays) {
-        const assignments = buildDisplayScheduleAssignments(
-            display,
-            zones,
-            playlists,
-        );
-        if (
-            playlist_id &&
-            !assignments.some(({ playlist }) => playlist.id === playlist_id)
-        ) {
-            continue;
-        }
+    // Only takeover playlists can conflict
+    const takeover_playlists = playlists.filter(hasTakeoverSchedule);
+    // Blocks do not depend on the display, so build them once per playlist
+    const playlist_blocks = new Map<
+        string,
+        { playlist: SignagePlaylist; start: number; end: number }[]
+    >();
+    const takeoverBlocks = (playlist: SignagePlaylist) => {
+        let blocks = playlist_blocks.get(playlist.id);
+        if (blocks) return blocks;
         // Minutes from the first day, so blocks that run past midnight
         // still overlap blocks on the next day.
-        const blocks = buildScheduleBlocks(assignments, day_list)
+        blocks = buildScheduleBlocks([{ playlist }], day_list)
             .filter((block) => block.takeover)
             .map((block) => {
                 const block_start =
                     block.day_index * MINUTES_PER_DAY + block.start_minutes;
-                // A play-once block has no length, so treat it as 1 minute
+                // A play period of 0 plays the playlist once, so treat it as 1 minute
                 const length = Math.max(1, block.duration_minutes);
                 return {
                     playlist: block.playlist,
                     start: block_start,
                     end: block_start + length,
                 };
-            })
+            });
+        playlist_blocks.set(playlist.id, blocks);
+        return blocks;
+    };
+    const conflicts: TakeoverConflict[] = [];
+    for (const display of displays) {
+        const assignments = buildDisplayScheduleAssignments(
+            display,
+            zones,
+            takeover_playlists,
+        );
+        if (
+            assignments.length < 2 ||
+            (playlist_id &&
+                !assignments.some(
+                    ({ playlist }) => playlist.id === playlist_id,
+                ))
+        ) {
+            continue;
+        }
+        const blocks = assignments
+            .flatMap(({ playlist }) => takeoverBlocks(playlist))
             .sort((a, b) => a.start - b.start);
         const seen_pairs = new Set<string>();
         for (let i = 0; i < blocks.length; i++) {
@@ -99,8 +129,8 @@ export function findTakeoverConflicts({
                 conflicts.push({
                     display,
                     playlists: [first.playlist, second.playlist],
-                    starts_at: addMinutes(first_day, second.start),
-                    ends_at: addMinutes(
+                    starts_at: wallClockDate(first_day, second.start),
+                    ends_at: wallClockDate(
                         first_day,
                         Math.min(first.end, second.end),
                     ),

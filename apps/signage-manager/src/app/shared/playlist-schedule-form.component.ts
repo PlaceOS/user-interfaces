@@ -41,19 +41,29 @@ import { SignagePlaylist } from '@placeos/ts-client';
 import { endOfDay, fromUnixTime, getUnixTime, startOfDay } from 'date-fns';
 import { fromZonedTime, toZonedTime } from 'date-fns-tz';
 import {
+    cronDaySlots,
+    cronParts,
+    doesCronMatchDay,
+    isCronMonthlyWeekday,
+    nextCronDates,
+    parseCronNumber,
+    parseCronWeekdays,
+    parseCronWeeksOfMonth,
+} from '../signage-cron.util';
+import {
     createScheduleMaskFilter,
     formatPlayAtLocal,
     hasPlayableScheduleMask,
     isPlayOnceSchedule,
     isValidScheduleMask,
     parsePlayAtLocal,
-    type PlaylistSchedule,
+    playEndTime,
     playlistScheduleExpiryLabel,
+    type PlaylistSchedule,
 } from '../signage-playlist.util';
 
 export type PlaylistScheduleType = 'play_at' | 'play_cron';
 type RecurringScheduleType =
-    | 'minutes'
     | 'hours'
     | 'daily'
     | 'weekdays'
@@ -77,7 +87,6 @@ export interface PlaylistScheduleFormModel {
     recurrence_time: string;
     recurrence_interval: number;
     recurrence_week_of_month: number[];
-    recurrence_day_of_week: number;
     recurrence_weekdays: number[];
     recurrence_day_of_month: number[];
     play_period: number;
@@ -167,12 +176,6 @@ function normaliseWeeksOfMonth(value: number[] | null | undefined) {
     return WEEK_OF_MONTH_OPTIONS.filter((week) => seen_weeks.has(week));
 }
 
-function parseCronNumber(value: string, min: number, max: number) {
-    if (!/^\d+$/.test(value || '')) return null;
-    const number_value = +value;
-    return number_value >= min && number_value <= max ? number_value : null;
-}
-
 function parseCronStep(value: string, min: number, max: number) {
     const match = /^\*\/(\d+)$/.exec(value || '');
     if (!match) return null;
@@ -187,47 +190,6 @@ function dayRangeForWeekOfMonth(value: number | null | undefined) {
     return `${start}-${start + 6}`;
 }
 
-function parseCronWeekOfMonthRange(value: string) {
-    const match = /^(\d+)-(\d+)$/.exec(value || '');
-    if (!match) return null;
-    const start = +match[1];
-    const end = +match[2];
-    if (start === 29 && end === 31) return 5;
-    if ((start - 1) % 7 !== 0 || end !== start + 6) return null;
-    const week = (start - 1) / 7 + 1;
-    return week >= 1 && week <= 4 ? week : null;
-}
-
-function parseCronWeeksOfMonth(value: string) {
-    if (!value?.trim() || value === '*') return null;
-    const weeks = new Set<number>();
-    for (const part of value.split(',')) {
-        const week = parseCronWeekOfMonthRange(part);
-        if (week === null) return null;
-        weeks.add(week);
-    }
-    return normaliseWeeksOfMonth([...weeks]);
-}
-
-function parseCronWeekdays(value: string) {
-    if (!value?.trim() || value === '*') return null;
-    const days = new Set<number>();
-    for (const part of value.split(',')) {
-        if (part.includes('-')) {
-            const [start, end] = part
-                .split('-')
-                .map((_) => parseCronNumber(_, 0, 6));
-            if (start === null || end === null || start > end) return null;
-            for (let day = start; day <= end; day++) days.add(day);
-        } else {
-            const day = parseCronNumber(part, 0, 6);
-            if (day === null) return null;
-            days.add(day);
-        }
-    }
-    return normaliseWeekdays([...days]);
-}
-
 function parseCronMonthDays(value: string) {
     if (!value?.trim() || value === '*') return null;
     const days = new Set<number>();
@@ -237,13 +199,6 @@ function parseCronMonthDays(value: string) {
         days.add(day);
     }
     return normaliseMonthDays([...days]);
-}
-
-function isCronMonthlyWeekday(day_part: string, weekday_part: string) {
-    return (
-        !!parseCronWeeksOfMonth(day_part)?.length &&
-        !!parseCronWeekdays(weekday_part)?.length
-    );
 }
 
 function parseRecurringCron(value: string | null | undefined) {
@@ -265,7 +220,6 @@ function parseRecurringCron(value: string | null | undefined) {
         recurrence_time: time,
         recurrence_interval: 1,
         recurrence_week_of_month: [1],
-        recurrence_day_of_week: 1,
         recurrence_weekdays: [1],
         recurrence_day_of_month: [1],
     };
@@ -293,18 +247,16 @@ function parseRecurringCron(value: string | null | undefined) {
             recurrence_type: 'weekdays' as RecurringScheduleType,
         };
     }
-    const weekdays = parseCronWeekdays(weekday_part);
+    const weekdays = normaliseWeekdays(parseCronWeekdays(weekday_part));
     if (isCronMonthlyWeekday(day_part, weekday_part)) {
-        const month_weekdays = parseCronWeekdays(weekday_part) || [1];
         return {
             ...custom,
             recurrence_type: 'monthly_weekday' as RecurringScheduleType,
-            recurrence_week_of_month: parseCronWeeksOfMonth(day_part) || [1],
-            recurrence_day_of_week: month_weekdays[0],
-            recurrence_weekdays: month_weekdays,
+            recurrence_week_of_month: parseCronWeeksOfMonth(day_part),
+            recurrence_weekdays: weekdays,
         };
     }
-    if (day_part === '*' && weekdays?.length) {
+    if (day_part === '*' && weekdays.length) {
         return {
             ...custom,
             recurrence_type: 'weekly' as RecurringScheduleType,
@@ -325,7 +277,7 @@ function parseRecurringCron(value: string | null | undefined) {
 function isIntervalRecurringType(
     value: RecurringScheduleType | null | undefined,
 ) {
-    return value === 'minutes' || value === 'hours';
+    return value === 'hours';
 }
 
 function buildRecurringCron(value: {
@@ -333,7 +285,6 @@ function buildRecurringCron(value: {
     recurrence_time?: string | null;
     recurrence_interval?: number | null;
     recurrence_week_of_month?: number[] | null;
-    recurrence_day_of_week?: number | null;
     recurrence_weekdays?: number[] | null;
     recurrence_day_of_month?: number[] | null;
     play_start?: number | null;
@@ -350,13 +301,6 @@ function buildRecurringCron(value: {
     const [hours, minutes] = recurrence_time.split(':').map((_) => +_ || 0);
     const minute = Math.max(0, Math.min(59, minutes));
     const hour = Math.max(0, Math.min(23, hours));
-    if (value.recurrence_type === 'minutes') {
-        const interval = Math.max(
-            1,
-            Math.min(59, value.recurrence_interval || 1),
-        );
-        return interval === 1 ? '* * * * *' : `*/${interval} * * * *`;
-    }
     if (value.recurrence_type === 'hours') {
         const interval = Math.max(
             1,
@@ -419,42 +363,6 @@ export function playlistSchedules(playlist: SignagePlaylist) {
     return playlist.schedules?.length ? playlist.schedules : [schedule];
 }
 
-function matchesCronPart(value: number, cron_part: string) {
-    if (cron_part === '*') return true;
-    if (cron_part.includes(',')) {
-        return cron_part
-            .split(',')
-            .some((item) => matchesCronPart(value, item));
-    }
-    if (cron_part.includes('/')) {
-        const [base, step] = cron_part.split('/');
-        return !!+step && value % +step === 0 && matchesCronPart(value, base);
-    }
-    if (cron_part.includes('-')) {
-        const [start, end] = cron_part.split('-').map(Number);
-        return value >= start && value <= end;
-    }
-    return Number(cron_part) === value;
-}
-
-function doesCronMatchDate(cron: string, date: Date) {
-    const parts = cron.trim().split(/\s+/);
-    if (parts.length !== 5) return false;
-    const [minute, hour, day, month, day_of_week] = parts;
-    if (!matchesCronPart(date.getMinutes(), minute)) return false;
-    if (!matchesCronPart(date.getHours(), hour)) return false;
-    if (!matchesCronPart(date.getMonth() + 1, month)) return false;
-    const day_matches = matchesCronPart(date.getDate(), day);
-    const weekday_matches = matchesCronPart(date.getDay(), day_of_week);
-    if (day === '*' && day_of_week === '*') return true;
-    if (day !== '*' && day_of_week === '*') return day_matches;
-    if (day === '*' && day_of_week !== '*') return weekday_matches;
-    if (isCronMonthlyWeekday(day, day_of_week)) {
-        return day_matches && weekday_matches;
-    }
-    return day_matches || weekday_matches;
-}
-
 function formatPlayDateTime(date: Date, timeZone = LOCAL_TIMEZONE) {
     return date.toLocaleString(undefined, {
         timeZone,
@@ -479,11 +387,7 @@ function formatPlayDateTimeRange(
     duration_minutes: number,
     timezone = LOCAL_TIMEZONE,
 ) {
-    const end = new Date(
-        start.getTime() +
-            Math.max(0, duration_minutes || 0) * 60_000 -
-            (duration_minutes > 0 ? 1000 : 0),
-    );
+    const end = playEndTime(start, duration_minutes);
     const end_text =
         toZonedTime(start, timezone).toDateString() ===
         toZonedTime(end, timezone).toDateString()
@@ -518,6 +422,7 @@ function formatMinutes(value: number | null | undefined) {
         .join(' ');
 }
 
+/** Time ranges of the next five plays of a recurring schedule in the timezone. */
 function nextCronPlayTimes(
     cron: string,
     duration_minutes: number,
@@ -526,50 +431,20 @@ function nextCronPlayTimes(
     valid_from = 0,
     mask = '',
 ) {
-    const allows = createScheduleMaskFilter(
-        { play_cron: cron, valid_from: valid_from / 1000, mask },
+    if (!hasPlayableScheduleMask({ mask, valid_from: valid_from / 1000 }))
+        return [];
+    return nextCronDates(cron, {
+        from: Math.max(Date.now() + 1, valid_from),
+        until: valid_until || undefined,
+        count: 5,
         timezone,
+        allows: createScheduleMaskFilter(
+            { play_cron: cron, valid_from: valid_from / 1000, mask },
+            timezone,
+        ),
+    }).map((instant) =>
+        formatPlayDateTimeRange(instant, duration_minutes, timezone),
     );
-    const result: string[] = [];
-    if (
-        !cron?.trim() ||
-        !hasPlayableScheduleMask({
-            mask,
-            valid_from: valid_from / 1000,
-        })
-    )
-        return result;
-    const now = Date.now();
-    // Start the search at the validity window when it opens in the future.
-    const date = toZonedTime(Math.max(now, valid_from), timezone);
-    date.setSeconds(0, 0);
-    if (valid_from <= now) date.setMinutes(date.getMinutes() + 1);
-    const end = new Date(date);
-    end.setFullYear(end.getFullYear() + 2);
-    const expiry = valid_until ? toZonedTime(valid_until, timezone) : end;
-    while (date <= end && date <= expiry && result.length < 5) {
-        if (doesCronMatchDate(cron, date)) {
-            const instant = fromZonedTime(date, timezone);
-            // Skip wall-clock times that do not exist during a daylight saving change.
-            if (
-                instant.getTime() > now &&
-                instant.getTime() >= valid_from &&
-                (!valid_until || instant.getTime() <= valid_until) &&
-                toZonedTime(instant, timezone).getTime() === date.getTime() &&
-                allows(instant)
-            ) {
-                result.push(
-                    formatPlayDateTimeRange(
-                        instant,
-                        duration_minutes,
-                        timezone,
-                    ),
-                );
-            }
-        }
-        date.setMinutes(date.getMinutes() + 1);
-    }
-    return result;
 }
 
 /** Find the first mask cycle, including occurrences selected to skip. */
@@ -592,17 +467,9 @@ function maskOccurrenceDates(
             ? [new Date(value.play_at)]
             : result;
     }
-    const cron = buildRecurringCron(value);
-    const parts = cron.trim().split(/\s+/);
-    if (parts.length !== 5) return result;
-    const slots: number[] = [];
-    for (let hour = 0; hour < 24; hour++) {
-        if (!matchesCronPart(hour, parts[1])) continue;
-        for (let minute = 0; minute < 60; minute++) {
-            if (matchesCronPart(minute, parts[0]))
-                slots.push(hour * 60 + minute);
-        }
-    }
+    const parts = cronParts(buildRecurringCron(value));
+    if (!parts) return result;
+    const slots = cronDaySlots(parts);
     if (!slots.length) return result;
     const day = toZonedTime(start, timezone);
     day.setHours(0, 0, 0, 0);
@@ -618,9 +485,7 @@ function maskOccurrenceDates(
         day <= end && day <= last_day && result.length < count;
         day.setDate(day.getDate() + 1)
     ) {
-        const probe = new Date(day);
-        probe.setHours(0, slots[0], 0, 0);
-        if (!doesCronMatchDate(cron, probe)) continue;
+        if (!doesCronMatchDay(parts, day)) continue;
         for (const slot of slots) {
             if (result.length >= count) break;
             const wall = new Date(day);
@@ -658,7 +523,6 @@ export function createPlaylistScheduleModel(
         recurrence_time: recurring_schedule.recurrence_time,
         recurrence_interval: recurring_schedule.recurrence_interval,
         recurrence_week_of_month: recurring_schedule.recurrence_week_of_month,
-        recurrence_day_of_week: recurring_schedule.recurrence_day_of_week,
         recurrence_weekdays: recurring_schedule.recurrence_weekdays,
         recurrence_day_of_month: recurring_schedule.recurrence_day_of_month,
         play_period: playlistPlayPeriod(source),
@@ -976,21 +840,13 @@ export function playlistSchedulePayload(
                                     <label class="m-0 min-w-40 flex-1">
                                         <div>
                                             {{
-                                                (value().recurrence_type ===
-                                                'minutes'
-                                                    ? 'SIGNAGE_MANAGER.MINUTES_BETWEEN_PLAYS'
-                                                    : 'SIGNAGE_MANAGER.HOURS_BETWEEN_PLAYS'
-                                                ) | translate
+                                                'SIGNAGE_MANAGER.HOURS_BETWEEN_PLAYS'
+                                                    | translate
                                             }}
                                         </div>
                                         <a-counter
                                             [min]="1"
-                                            [max]="
-                                                value().recurrence_type ===
-                                                'minutes'
-                                                    ? 59
-                                                    : 23
-                                            "
+                                            [max]="23"
                                             [formField]="
                                                 schedule().recurrence_interval
                                             "
@@ -1292,7 +1148,9 @@ export function playlistSchedulePayload(
                                             | translate
                                     }}
                                 </label>
-                                <div class="flex items-center justify-between gap-2">
+                                <div
+                                    class="flex items-center justify-between gap-2"
+                                >
                                     <a-counter
                                         class="block max-w-64 min-w-0 flex-1 [&_[value]]:text-sm"
                                         [render_fn]="formatMaskOccurrences"
@@ -1825,7 +1683,8 @@ export class PlaylistScheduleFormComponent {
         this.remove.emit(event);
     }
 
-    public nextCronPlayTimes() {
+    /** Upcoming plays of a recurring schedule. Updates when the form changes. */
+    public readonly nextCronPlayTimes = computed(() => {
         const value = this.value();
         if (value.schedule_type !== 'play_cron') return [];
         return nextCronPlayTimes(
@@ -1836,7 +1695,7 @@ export class PlaylistScheduleFormComponent {
             value.has_valid_from ? value.valid_from : 0,
             value.has_mask ? value.mask : '',
         );
-    }
+    });
 
     public recurringScheduleSummary() {
         const value = this.value();
@@ -1848,13 +1707,6 @@ export class PlaylistScheduleFormComponent {
         const period = value.play_period ?? DEFAULT_PLAY_PERIOD_MINUTES;
         const duration =
             formatMinutes(period) || i18n('SIGNAGE_MANAGER.ONE_PLAYLIST_PASS');
-        if (value.recurrence_type === 'minutes') {
-            return i18n(
-                'SIGNAGE_MANAGER.SUMMARY_EVERY_MINUTE',
-                { interval },
-                interval,
-            );
-        }
         if (value.recurrence_type === 'hours') {
             return i18n(
                 'SIGNAGE_MANAGER.SUMMARY_EVERY_HOUR',

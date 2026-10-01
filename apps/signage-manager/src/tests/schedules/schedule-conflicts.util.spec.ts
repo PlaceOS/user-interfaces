@@ -104,4 +104,57 @@ describe('findTakeoverConflicts', () => {
             }),
         ).toEqual([]);
     });
+
+    // Before, each display built every block of every playlist: 200 displays
+    // x 14 days x 288 blocks of a "*/5" playlist is about 806k blocks.
+    it('builds blocks once per takeover playlist, not per display', () => {
+        const displays = Array.from({ length: 200 }, (_, i) => ({
+            id: `d${i}`,
+            name: `Display ${i}`,
+            playlists: ['a'],
+            zones: ['z1'],
+        }));
+        const started = performance.now();
+        const conflicts = findTakeoverConflicts({
+            displays,
+            zones: [{ ...level, playlists: ['b', 'often'] }],
+            playlists: [
+                playlist('a', '0 9 * * *', 60),
+                playlist('b', '30 9 * * *', 60),
+                playlist('often', '*/5 * * * *', 5, false),
+            ],
+            start,
+        });
+
+        expect(conflicts).toHaveLength(200);
+        expect(performance.now() - started).toBeLessThan(200);
+    });
+
+    describe('across a daylight saving change', () => {
+        const original_timezone = process.env.TZ;
+        // Pin the zone so the result does not depend on the machine
+        beforeAll(() => (process.env.TZ = 'Australia/Sydney'));
+        afterAll(() => {
+            if (original_timezone === undefined) delete process.env.TZ;
+            else process.env.TZ = original_timezone;
+        });
+
+        it('reports the clock time of the conflict', () => {
+            // Sydney clocks go forward one hour at 02:00 on 4 October 2026
+            const conflicts = findTakeoverConflicts({
+                displays: [lobby],
+                zones: [level],
+                playlists: [
+                    playlist('a', '0 9 4 10 *', 60),
+                    playlist('b', '0 9 4 10 *', 60),
+                ],
+                start: new Date(2026, 9, 3),
+                days: 2,
+            });
+
+            expect(conflicts).toHaveLength(1);
+            expect(conflicts[0].starts_at).toEqual(new Date(2026, 9, 4, 9));
+            expect(conflicts[0].ends_at).toEqual(new Date(2026, 9, 4, 10));
+        });
+    });
 });

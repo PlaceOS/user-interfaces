@@ -208,6 +208,23 @@ describe('PlaylistItemDetailsComponent', () => {
         expect(sessions[0]).toContain('–');
     });
 
+    it('applies the schedule mask to the label and upcoming sessions', async () => {
+        const valid_from = Math.floor(Date.now() / 1000) - 86_400;
+        selected_playlist.set({
+            id: 'pl-1',
+            schedules: [{ play_cron: '0 9 * * *', valid_from, mask: '10' }],
+        });
+        const component = await make();
+        expect(component.schedule_labels()[0]).toContain('mask 10');
+
+        // A mask that skips every occurrence never plays
+        selected_playlist.set({
+            id: 'pl-1',
+            schedules: [{ play_cron: '0 9 * * *', valid_from, mask: '00' }],
+        });
+        expect(component.next_play_sessions()).toEqual([]);
+    });
+
     it.each([0, 1])(
         'applies the validity start to upcoming sessions with offset %s',
         async (offset) => {

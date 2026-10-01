@@ -1,10 +1,12 @@
 import { getUnixTime } from 'date-fns';
 import {
     createScheduleMaskFilter,
+    playEndTime,
     playlistItemScheduleMap,
     playlistLoopDuration,
     playlistMediaIds,
     playlistMediaItems,
+    playlistNextPlayLabels,
     playlistScheduleExpiryLabel,
     playlistScheduleExpiryTooltip,
     playlistScheduleLabel,
@@ -192,6 +194,43 @@ describe('signage playlist util', () => {
         });
 
         expect(labels).toEqual([]);
+    });
+});
+
+describe('play end times across a daylight saving change', () => {
+    const original_timezone = process.env.TZ;
+    // Pin the zone so the result does not depend on the machine
+    beforeAll(() => (process.env.TZ = 'Australia/Sydney'));
+    afterAll(() => {
+        if (original_timezone === undefined) delete process.env.TZ;
+        else process.env.TZ = original_timezone;
+    });
+
+    // Sydney clocks go from 02:00 to 03:00 on 4 October 2026. A 4 hour play
+    // from 22:00 ends when the clocks change, so its last second is 01:59:59.
+    // Adding clock time instead showed 03:59.
+    it('adds elapsed time to the start', () => {
+        const start = new Date('2026-10-03T12:00:00Z');
+
+        expect(playEndTime(start, 240).toISOString()).toBe(
+            '2026-10-03T15:59:59.000Z',
+        );
+        expect(playEndTime(start, 0)).toEqual(start);
+    });
+
+    it('labels the end of a play that crosses the change', () => {
+        const [label] = playlistNextPlayLabels(
+            [{ play_cron: '0 22 * * *', play_period: 240 }],
+            1,
+            Date.parse('2026-10-03T00:00:00Z'),
+        );
+        const end = new Date('2026-10-03T15:59:59Z').toLocaleTimeString(
+            undefined,
+            { hour: 'numeric', minute: '2-digit' },
+        );
+
+        expect(label.endsWith(end)).toBe(true);
+        expect(label).toContain('1:59');
     });
 });
 

@@ -432,7 +432,10 @@ import { PlaylistActionsComponent } from './playlist-actions.component';
                                         schedulesOpen(item, $index)
                                     "
                                 >
-                                    <span>Schedules</span>
+                                    <span>{{
+                                        'SIGNAGE_MANAGER.NAV_SCHEDULES'
+                                            | translate
+                                    }}</span>
                                     <icon class="text-base">{{
                                         schedulesOpen(item, $index)
                                             ? 'expand_less'
@@ -448,7 +451,7 @@ import { PlaylistActionsComponent } from './playlist-actions.component';
                                             <div
                                                 class="rounded-md p-2"
                                                 [matTooltip]="
-                                                    scheduleTooltip(
+                                                    schedule_tooltips().get(
                                                         item_schedule
                                                     )
                                                 "
@@ -682,6 +685,19 @@ export class PlaylistItemsComponent {
     }
 
     public scheduleLabel = playlistScheduleLabel;
+
+    /** Next plays tooltip of each item schedule. Updates when the schedules change. */
+    public readonly schedule_tooltips = computed(
+        () =>
+            new Map(
+                this.item_schedule_list().flatMap((item) =>
+                    (item.schedules || []).map(
+                        (schedule) =>
+                            [schedule, this.scheduleTooltip(schedule)] as const,
+                    ),
+                ),
+            ),
+    );
 
     public scheduleTooltip(schedule: Partial<SignagePlaylistSchedule>) {
         const labels = playlistScheduleNextPlayLabels(schedule);

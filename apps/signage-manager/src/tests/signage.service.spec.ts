@@ -1676,7 +1676,7 @@ describe('SignageService media uploads', () => {
             });
             test_service['_expiredMediaInPlaylists'] = vi
                 .fn()
-                .mockResolvedValue([]);
+                .mockResolvedValue({ items: [], unchecked: 0 });
 
             const report = await service.loadContentReport();
 
@@ -1685,6 +1685,81 @@ describe('SignageService media uploads', () => {
                 'b',
             ]);
             expect(report.expired_playlists.map(({ id }) => id)).toEqual(['c']);
+        });
+
+        it('checks expired media a few at a time and counts the rest', async () => {
+            const service = createService();
+            const test_service = service as unknown as SignageServiceTestAccess;
+            test_service['_canQueryLists'] = () => true;
+            test_service['_queryAll'] = vi.fn().mockResolvedValue(
+                Array.from(
+                    { length: 105 },
+                    (_, i) =>
+                        new SignageMedia({
+                            id: `m${i}`,
+                            name: `m${i}`,
+                            valid_until: 1,
+                        }),
+                ),
+            );
+            let active = 0;
+            let most_active = 0;
+            vi.mocked(showSignageMedia).mockImplementation(async (id) => {
+                most_active = Math.max(most_active, ++active);
+                await new Promise((resolve) => setTimeout(resolve));
+                active--;
+                return new SignageMedia({
+                    playlists:
+                        id === 'm0'
+                            ? [new SignagePlaylist({ name: 'News' })]
+                            : [],
+                });
+            });
+
+            const result = await test_service['_expiredMediaInPlaylists'](
+                Date.now(),
+            );
+
+            expect(showSignageMedia).toHaveBeenCalledTimes(100);
+            expect(most_active).toBeLessThanOrEqual(6);
+            expect(result.unchecked).toBe(5);
+            expect(result.items.map(({ media }) => media.id)).toEqual(['m0']);
+        });
+
+        it('reports a playlist whose schedules have all ended', async () => {
+            const service = createService();
+            const test_service = service as unknown as SignageServiceTestAccess;
+            const ended = (id: string, valid_until: number[]) =>
+                new SignagePlaylist({
+                    id,
+                    name: id,
+                    schedules: valid_until.map((end) => ({
+                        play_cron: '0 9 * * *',
+                        play_period: 60,
+                        play_takeover: false,
+                        valid_until: end,
+                    })),
+                });
+            test_service['loadSignageInventory'] = vi.fn().mockResolvedValue({
+                displays: [
+                    new PlaceSystem({
+                        id: 'd1',
+                        name: 'Lobby',
+                        playlists: ['all', 'some'],
+                    } as any),
+                ],
+                zones: [],
+                playlists: [ended('all', [1, 2]), ended('some', [1, 0])],
+            });
+            test_service['_expiredMediaInPlaylists'] = vi
+                .fn()
+                .mockResolvedValue({ items: [], unchecked: 0 });
+
+            const report = await service.loadContentReport();
+
+            expect(report.expired_playlists.map(({ id }) => id)).toEqual([
+                'all',
+            ]);
         });
     });
 

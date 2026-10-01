@@ -10,11 +10,13 @@ describe('SchedulesSectionComponent', () => {
     const displays = signal<any[]>([]);
     const zones = signal<any[]>([]);
     const navigate = vi.fn();
+    const inventory_key = signal({ group_id: 'g-1', change: 1 });
+    const load_inventory = vi.fn();
+    const flush = () => new Promise((resolve) => setTimeout(resolve));
 
     const service_stub = {
-        playlists,
-        displays,
-        zones,
+        inventory_key,
+        loadSignageInventory: load_inventory,
         playlist_approval_status: signal<Record<string, boolean>>({}),
     };
 
@@ -34,11 +36,22 @@ describe('SchedulesSectionComponent', () => {
             })
             .compileComponents();
         fixture = TestBed.createComponent(SchedulesSectionComponent);
+        await loaded();
         return fixture.componentInstance;
+    }
+
+    async function loaded() {
+        TestBed.tick();
+        await flush();
     }
 
     beforeEach(() => {
         vi.clearAllMocks();
+        load_inventory.mockImplementation(async () => ({
+            displays: displays(),
+            zones: zones(),
+            playlists: playlists(),
+        }));
         playlists.set([]);
         displays.set([
             { id: 'd-1', name: 'Foyer', zones: [], updated_at: 1 },
@@ -69,6 +82,18 @@ describe('SchedulesSectionComponent', () => {
             [],
             expect.objectContaining({ queryParams: { tab: 'zones' } }),
         );
+    });
+
+    it('moves between tabs with the arrow keys', async () => {
+        const component = await make();
+        component.onTabKeydown(
+            new KeyboardEvent('keydown', { key: 'ArrowRight' }),
+        );
+        expect(component.view_tab()).toBe('zones');
+        component.onTabKeydown(
+            new KeyboardEvent('keydown', { key: 'ArrowLeft' }),
+        );
+        expect(component.view_tab()).toBe('displays');
     });
 
     it('filters rows by the search term', async () => {
@@ -108,9 +133,9 @@ describe('SchedulesSectionComponent', () => {
 
         component.selected_date.set(addDays(start, 5));
         component.goToToday();
-        expect(isSameDay(component.selected_date(), startOfDay(new Date()))).toBe(
-            true,
-        );
+        expect(
+            isSameDay(component.selected_date(), startOfDay(new Date())),
+        ).toBe(true);
     });
 
     it('derives the current-time marker minutes and same-day visibility', async () => {
@@ -122,5 +147,54 @@ describe('SchedulesSectionComponent', () => {
 
         component.selected_date.set(startOfDay(new Date(2026, 5, 2)));
         expect(component.show_current_time()).toBe(false);
+    });
+
+    it('shows displays and playlists beyond the first page', async () => {
+        const count = 230;
+        playlists.set(
+            Array.from({ length: count }, (_, i) => ({
+                id: `p-${i + 1}`,
+                name: `Playlist ${i + 1}`,
+                enabled: true,
+                schedules: [{ play_cron: '0 9 * * *', play_period: 60 }],
+            })),
+        );
+        displays.set(
+            Array.from({ length: count }, (_, i) => ({
+                id: `d-${i + 1}`,
+                name: `Display ${i + 1}`,
+                playlists: [`p-${i + 1}`],
+                zones: [],
+            })),
+        );
+        const component = await make();
+        const last = component.rows().find(({ id }) => id === 'd-230');
+
+        expect(component.display_total()).toBe(count);
+        expect(last?.blocks.map(({ playlist }) => playlist.id)).toEqual([
+            'p-230',
+        ]);
+    });
+
+    it('loads again when the group changes', async () => {
+        const component = await make();
+        displays.set([{ id: 'd-9', name: 'Lift', zones: [] }]);
+        inventory_key.set({ group_id: 'g-2', change: 1 });
+        await loaded();
+
+        expect(load_inventory).toHaveBeenCalledTimes(2);
+        expect(component.rows().map((r) => r.id)).toEqual(['d-9']);
+    });
+
+    it('reports a failed load and loads again on retry', async () => {
+        load_inventory.mockRejectedValueOnce(new Error('offline'));
+        const component = await make();
+        expect(component.inventory_error()).toBe(true);
+        expect(component.rows()).toEqual([]);
+
+        component.reload();
+        await loaded();
+        expect(component.inventory_error()).toBe(false);
+        expect(component.rows().map((r) => r.id)).toEqual(['d-1', 'd-2']);
     });
 });
