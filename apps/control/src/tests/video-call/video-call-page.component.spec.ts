@@ -168,7 +168,7 @@ describe('VideoCallPageComponent', () => {
 
     it('should surface errors and stop loading when hangup fails', async () => {
         call_state.hangup.mockRejectedValue('boom');
-        await expect(spectator.component.endCall()).rejects.toBe('boom');
+        await expect(spectator.component.endCall()).resolves.toBeUndefined();
         expect(spectator.component.loading()).toBe('');
         expect(router_mock.navigate).not.toHaveBeenCalled();
     });

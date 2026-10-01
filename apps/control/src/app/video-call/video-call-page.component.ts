@@ -303,13 +303,15 @@ export class VideoCallPageComponent extends AsyncHandler implements OnInit {
     public readonly toggleOnHold = () => this._state.toggleCallOnHold();
     public readonly endCall = async () => {
         this.loading.set(i18n('APP.CONTROL.VC_LEAVE_LOADING'));
-        await this._state.hangup().catch((_) => {
+        try {
+            await this._state.hangup();
+        } catch (error) {
             this.loading.set('');
             notifyError(
-                i18n('APP.CONTROL.VC_LEAVE_ERROR', { error: errorText(_) }),
+                i18n('APP.CONTROL.VC_LEAVE_ERROR', { error: errorText(error) }),
             );
-            throw _;
-        });
+            return;
+        }
         this._onCallEnded();
     };
 
