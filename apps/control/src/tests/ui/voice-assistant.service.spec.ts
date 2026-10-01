@@ -98,6 +98,9 @@ describe('VoiceAssistantService', () => {
         TestBed.flushEffects();
         const instance = recognition_instances[0];
         spectator.service.setEnabled(false);
+        // Stops at once, without waiting for the debounce
+        expect(spectator.service.enabled()).toBe(false);
+        expect(instance.abort).toHaveBeenCalled();
         vi.advanceTimersByTime(300);
         TestBed.flushEffects();
         expect(spectator.service.enabled()).toBe(false);
@@ -168,6 +171,20 @@ describe('VoiceAssistantService', () => {
         expect(chat.sendMessage).toHaveBeenCalledWith(
             'Hey PlaceOS, mute the microphones',
         );
+    });
+
+    it('should not send a pending command to a new room', () => {
+        spectator.service.setBinding('sys-1');
+        TestBed.flushEffects();
+        const recognition = enable();
+        chat.connected = false;
+        hear(recognition, 'Hey place turn on the projector');
+        spectator.service.setBinding('sys-2');
+        TestBed.flushEffects();
+        chat.connected = true;
+        vi.advanceTimersByTime(1000);
+        expect(chat.sendMessage).not.toHaveBeenCalled();
+        expect(spectator.service.state()).toBe('idle');
     });
 
     it('should ignore speech without the wake phrase', () => {

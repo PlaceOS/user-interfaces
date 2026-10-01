@@ -1,4 +1,11 @@
-import { Injectable, computed, effect, inject, signal } from '@angular/core';
+import {
+    Injectable,
+    computed,
+    effect,
+    inject,
+    signal,
+    untracked,
+} from '@angular/core';
 import { AsyncHandler, currentUser, log, randomInt } from '@placeos/common';
 
 import { ChatService } from '@placeos/components';
@@ -109,8 +116,12 @@ export class VoiceAssistantService extends AsyncHandler {
         effect(() => {
             const id = this._system_id();
             if (!id || id === bound_id) return;
-            // Drop the chat for the previous room so commands go to this one
-            if (bound_id) this._chat_service.close();
+            // Drop the chat and any pending command for the previous room,
+            // so commands only go to this one
+            if (bound_id) {
+                untracked(() => this._setIdle());
+                this._chat_service.close();
+            }
             bound_id = id;
             this._chat_service.setBinding(id);
         });
@@ -151,8 +162,15 @@ export class VoiceAssistantService extends AsyncHandler {
         return this._mic_levels.read();
     }
 
+    /** Turning on is debounced. Turning off is immediate, so nothing is heard after the view goes away. */
     public setEnabled(is_enabled: boolean) {
-        this.timeout('set_enabled', () => this._enabled.set(is_enabled));
+        if (is_enabled) {
+            this.timeout('set_enabled', () => this._enabled.set(true));
+            return;
+        }
+        this.clearTimeout('set_enabled');
+        this._enabled.set(false);
+        this._teardownVoiceRecognition();
     }
 
     public setBinding(system_id: string) {
