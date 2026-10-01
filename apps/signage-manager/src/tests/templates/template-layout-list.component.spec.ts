@@ -343,10 +343,87 @@ describe('TemplateLayoutListComponent', () => {
     });
 
     it('saves and discards through the service', async () => {
+        let finishSave: () => void = () => undefined;
+        save.mockReturnValue(
+            new Promise<void>((resolve) => (finishSave = resolve)),
+        );
         const component = await make();
-        component.save();
+
+        const saving = component.save();
+        expect(component.saving()).toBe(true);
+        await component.save();
+        finishSave();
+        await saving;
         component.discard();
+
+        expect(component.saving()).toBe(false);
         expect(save).toHaveBeenCalledTimes(1);
         expect(discard).toHaveBeenCalledTimes(1);
+    });
+
+    it('validates every layout against its plugin schema before saving', async () => {
+        widgets.set([
+            {
+                id: 'clock',
+                params: {
+                    type: 'object',
+                    required: ['format'],
+                    properties: { format: { type: 'string' } },
+                },
+            },
+        ]);
+        draft.set([
+            {
+                position: 'top',
+                plugin_id: 'clock',
+                plugin_params: { format: '24h' },
+            },
+            { position: 'left', plugin_id: 'clock', plugin_params: {} },
+        ]);
+        const component = await make();
+
+        await component.save();
+
+        expect(save).not.toHaveBeenCalled();
+        expect(selected_index()).toBe(1);
+
+        draft.update((layouts) => [
+            layouts[0],
+            { ...layouts[1], plugin_params: { format: '12h' } },
+        ]);
+        await component.save();
+
+        expect(save).toHaveBeenCalledTimes(1);
+    });
+
+    it('opens a layout with an emptied panel size instead of saving', async () => {
+        draft.set([
+            { position: 'top', plugin_params: {} },
+            { position: 'left', plugin_params: {} },
+        ]);
+        const component = await make();
+
+        // An emptied counter emits 0, which the API rejects for edge panels
+        component.setAxis(1, 'x_pos', 0);
+        await component.save();
+
+        expect(save).not.toHaveBeenCalled();
+        expect(selected_index()).toBe(1);
+
+        component.setAxis(1, 'x_pos', 25);
+        await component.save();
+
+        expect(save).toHaveBeenCalledTimes(1);
+    });
+
+    it('shows no mappings when they fail to load', async () => {
+        selected_template.set({ id: 'template-1' });
+        list_mappings.mockRejectedValue(new Error('Forbidden'));
+        const component = await make();
+        component.setViewTab('details');
+
+        await vi.waitFor(() => expect(component.mappings_error()).toBeTruthy());
+
+        expect(component.mappings()).toEqual([]);
     });
 });

@@ -9,6 +9,7 @@ import { NavSidebarComponent } from '../shared/nav-sidebar.component';
 import { isSameSignageTemplate, SignageService } from '../signage.service';
 import { TemplateHeaderComponent } from './template-header.component';
 import { TemplateLayoutListComponent } from './template-layout-list.component';
+import { tabKeyIndex } from './template-layout.util';
 import { TemplateListComponent } from './template-list.component';
 import { TemplatePreviewComponent } from './template-preview.component';
 
@@ -469,15 +470,12 @@ export class TemplatesSectionComponent {
 
     public handleTabKeydown(event: KeyboardEvent) {
         const ids = this.tabs.map(({ id }) => id);
-        const index = ids.indexOf(this.view_tab());
-        let next: number;
-        if (event.key === 'Home') next = 0;
-        else if (event.key === 'End') next = ids.length - 1;
-        else if (event.key === 'ArrowLeft') {
-            next = (index - 1 + ids.length) % ids.length;
-        } else if (event.key === 'ArrowRight') {
-            next = (index + 1) % ids.length;
-        } else return;
+        const next = tabKeyIndex(
+            event.key,
+            ids.indexOf(this.view_tab()),
+            ids.length,
+        );
+        if (next === null) return;
         event.preventDefault();
         this.view_tab.set(ids[next]);
         (event.currentTarget as HTMLElement | null)?.parentElement

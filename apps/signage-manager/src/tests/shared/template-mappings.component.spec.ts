@@ -132,6 +132,20 @@ describe('TemplateMappingsComponent', () => {
         ).toBeTruthy();
     });
 
+    it('renders the error branch when mappings fail to load', async () => {
+        list_mappings.mockRejectedValue(new Error('Forbidden'));
+
+        const { fixture, component } = await setup('display', 'display-1', true);
+        await fixture.whenStable();
+        fixture.detectChanges();
+
+        expect(component.mappings()).toEqual([]);
+        expect(fixture.nativeElement.textContent).toContain('(0)');
+        expect(fixture.nativeElement.textContent).toContain(
+            'Unable to load template mappings.',
+        );
+    });
+
     it('opens a new zone mapping and reloads after save', async () => {
         const { component } = await setup('zone', 'zone-1');
         const calls_before_edit = list_mappings.mock.calls.length;

@@ -11,6 +11,7 @@ import {
     inject,
     model,
     resource,
+    signal,
     viewChild,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -20,10 +21,12 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterLink } from '@angular/router';
-import { i18n } from '@placeos/common';
+import { i18n, notifyWarn } from '@placeos/common';
 import {
     AuthenticatedImageDirective,
+    buildFormFromFields,
     IconComponent,
+    parseSchemaFields,
     SchemaFormComponent,
     TranslatePipe,
 } from '@placeos/components';
@@ -35,18 +38,21 @@ import {
     SignageTemplateMapping,
 } from '@placeos/ts-client';
 import { playlistScheduleLabel } from '../signage-playlist.util';
-import { pluginSchema, schemaDefaults } from '../signage-plugin.util';
+import {
+    pluginName,
+    pluginSchema,
+    schemaDefaults,
+} from '../signage-plugin.util';
 import { SignageService } from '../signage.service';
 import {
-    EDGE_BAR_HEIGHT_PC,
-    FLOATING_DEFAULT_X_PC,
-    FLOATING_DEFAULT_Y_PC,
     LAYOUT_POSITIONS,
+    layoutAxisPercentage,
     layoutPercentageToRatio,
+    layoutPositionAxes,
     layoutPositionIcon,
     layoutPositionLabel,
-    layoutRatioToPercentage,
-    SIDEBAR_WIDTH_PC,
+    layoutPositionValid,
+    tabKeyIndex,
 } from './template-layout.util';
 
 @Component({
@@ -163,8 +169,7 @@ import {
                                 "
                             >
                                 <div
-                                    class="flex w-full cursor-pointer items-center gap-2 px-2 py-2"
-                                    (click)="selectLayout($index)"
+                                    class="flex w-full items-center gap-2 px-2 py-2"
                                 >
                                     @if (can_update()) {
                                         <icon
@@ -173,31 +178,43 @@ import {
                                             >drag_indicator</icon
                                         >
                                     }
-                                    <icon
-                                        class="shrink-0 text-2xl opacity-70"
-                                        >{{
-                                            positionIcon(layout.position)
-                                        }}</icon
+                                    <button
+                                        type="button"
+                                        class="flex min-w-0 flex-1 items-center gap-2 text-left"
+                                        [attr.aria-expanded]="
+                                            selected_index() === $index
+                                        "
+                                        (click)="selectLayout($index)"
                                     >
-                                    <div class="min-w-0 flex-1">
-                                        <div
-                                            class="truncate text-sm font-medium"
+                                        <icon
+                                            class="shrink-0 text-2xl opacity-70"
+                                            >{{
+                                                positionIcon(layout.position)
+                                            }}</icon
                                         >
-                                            {{
-                                                positionLabel(layout.position)
-                                                    | translate
-                                            }}
+                                        <div class="min-w-0 flex-1">
+                                            <div
+                                                class="truncate text-sm font-medium"
+                                            >
+                                                {{
+                                                    positionLabel(
+                                                        layout.position
+                                                    ) | translate
+                                                }}
+                                            </div>
+                                            <div
+                                                class="truncate text-xs opacity-60"
+                                            >
+                                                {{
+                                                    pluginName(
+                                                        layout.plugin_id
+                                                    ) ||
+                                                        ('SIGNAGE_MANAGER.TEMPLATE_NO_PLUGIN'
+                                                            | translate)
+                                                }}
+                                            </div>
                                         </div>
-                                        <div
-                                            class="truncate text-xs opacity-60"
-                                        >
-                                            {{
-                                                pluginName(layout.plugin_id) ||
-                                                    ('SIGNAGE_MANAGER.TEMPLATE_NO_PLUGIN'
-                                                        | translate)
-                                            }}
-                                        </div>
-                                    </div>
+                                    </button>
                                     @if (can_update()) {
                                         <button
                                             icon
@@ -264,8 +281,9 @@ import {
                                              consumed axis; floating panels
                                              position their top-left corner
                                              and fill from there. -->
+                                        @let axes = positionAxes(layout);
                                         <div class="flex gap-2">
-                                            @if (hasXValue(layout.position)) {
+                                            @if (axes.includes('x_pos')) {
                                                 <label class="min-w-0 flex-1">
                                                     <div class="mb-1 text-sm">
                                                         {{
@@ -305,7 +323,7 @@ import {
                                                     />
                                                 </label>
                                             }
-                                            @if (hasYValue(layout.position)) {
+                                            @if (axes.includes('y_pos')) {
                                                 <label class="min-w-0 flex-1">
                                                     <div class="mb-1 text-sm">
                                                         {{
@@ -692,6 +710,7 @@ import {
                         type="button"
                         matRipple
                         class="bg-base-200 flex-1 rounded-lg py-2"
+                        [disabled]="saving()"
                         (click)="discard()"
                     >
                         {{ 'SIGNAGE_MANAGER.TEMPLATE_DISCARD' | translate }}
@@ -702,9 +721,15 @@ import {
                             type="button"
                             matRipple
                             class="bg-secondary text-secondary-content flex-1 rounded-lg py-2"
+                            [disabled]="saving()"
                             (click)="save()"
                         >
-                            {{ 'COMMON.SAVE' | translate }}
+                            {{
+                                (saving()
+                                    ? 'SIGNAGE_MANAGER.TEMPLATE_SAVING'
+                                    : 'COMMON.SAVE'
+                                ) | translate
+                            }}
                         </button>
                     }
                 </div>
@@ -750,6 +775,7 @@ export class TemplateLayoutListComponent {
     public readonly selected_index =
         this._service.selected_template_layout_index;
     public readonly dirty = this._service.template_layout_dirty;
+    public readonly saving = signal(false);
     public readonly can_update = this._service.can_update_templates;
     public readonly widgets = this._service.widgets;
     public readonly displays = this._service.displays;
@@ -774,7 +800,10 @@ export class TemplateLayoutListComponent {
                   })
                 : Promise.resolve([]),
     });
-    public readonly mappings = computed(() => this._mappings.value() || []);
+    // value() throws while the resource is in error, so check hasValue first
+    public readonly mappings = computed(() =>
+        this._mappings.hasValue() ? this._mappings.value() : [],
+    );
     public readonly mappings_loading = this._mappings.isLoading;
     public readonly mappings_error = this._mappings.error;
     public readonly selected_plugin = computed(() => {
@@ -790,14 +819,12 @@ export class TemplateLayoutListComponent {
 
     public positionIcon = layoutPositionIcon;
     public positionLabel = layoutPositionLabel;
+    public positionAxes = layoutPositionAxes;
+    public axisPercentage = layoutAxisPercentage;
     public renderPercent = (value = 0) => `${value}%`;
 
     public pluginName(plugin_id?: string) {
-        if (!plugin_id) return '';
-        return (
-            this.widgets().find((item) => item.id === plugin_id)?.name ||
-            plugin_id
-        );
+        return pluginName(this.widgets(), plugin_id);
     }
 
     public selectLayout(index: number) {
@@ -821,16 +848,16 @@ export class TemplateLayoutListComponent {
         items_tab: HTMLButtonElement,
         details_tab: HTMLButtonElement,
     ) {
-        let tab: 'items' | 'details' | null = null;
-        if (event.key === 'Home') tab = 'items';
-        else if (event.key === 'End') tab = 'details';
-        else if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
-            tab = this.view_tab() === 'items' ? 'details' : 'items';
-        }
-        if (!tab) return;
+        const tabs = ['items', 'details'] as const;
+        const next = tabKeyIndex(
+            event.key,
+            tabs.indexOf(this.view_tab()),
+            tabs.length,
+        );
+        if (next === null) return;
         event.preventDefault();
-        this.view_tab.set(tab);
-        (tab === 'items' ? items_tab : details_tab).focus();
+        this.view_tab.set(tabs[next]);
+        [items_tab, details_tab][next].focus();
     }
 
     public mappingTargetLabel(mapping: SignageTemplateMapping) {
@@ -921,22 +948,6 @@ export class TemplateLayoutListComponent {
         );
     }
 
-    public hasXValue(position: SignageTemplateLayoutPosition) {
-        return (
-            position === 'left' ||
-            position === 'right' ||
-            position === 'floating'
-        );
-    }
-
-    public hasYValue(position: SignageTemplateLayoutPosition) {
-        return (
-            position === 'top' ||
-            position === 'bottom' ||
-            position === 'floating'
-        );
-    }
-
     public xLabel(position: SignageTemplateLayoutPosition) {
         return position === 'floating'
             ? 'SIGNAGE_MANAGER.TEMPLATE_X_POS'
@@ -947,20 +958,6 @@ export class TemplateLayoutListComponent {
         return position === 'floating'
             ? 'SIGNAGE_MANAGER.TEMPLATE_Y_POS'
             : 'SIGNAGE_MANAGER.TEMPLATE_PANEL_HEIGHT';
-    }
-
-    public axisPercentage(
-        layout: SignageTemplateLayout,
-        axis: 'x_pos' | 'y_pos',
-    ) {
-        const percentage = layoutRatioToPercentage(layout[axis]);
-        if (percentage !== null) return percentage;
-        if (layout.position === 'floating') {
-            return axis === 'x_pos'
-                ? FLOATING_DEFAULT_X_PC
-                : FLOATING_DEFAULT_Y_PC;
-        }
-        return axis === 'x_pos' ? SIDEBAR_WIDTH_PC : EDGE_BAR_HEIGHT_PC;
     }
 
     public setAxis(
@@ -993,13 +990,63 @@ export class TemplateLayoutListComponent {
         );
     }
 
-    public save() {
-        const schema_form = this._schema_form();
-        if (schema_form && !schema_form.isValid()) return;
-        this._service.saveTemplateLayouts();
+    /**
+     * Save the layout draft. Every layout's position and params are checked
+     * first; the first invalid layout is opened instead.
+     */
+    public async save() {
+        if (this.saving()) return;
+        const invalid = this._invalidLayout();
+        if (invalid) {
+            if (this.selected_index() === invalid.index) {
+                this._schema_form()?.isValid(); // Shows the field errors
+            }
+            this.selected_index.set(invalid.index);
+            notifyWarn(i18n(invalid.message));
+            return;
+        }
+        this.saving.set(true);
+        try {
+            await this._service.saveTemplateLayouts();
+        } finally {
+            this.saving.set(false);
+        }
     }
 
     public discard() {
         this._service.discardTemplateLayoutDraft();
+    }
+
+    /**
+     * First layout with a position the API rejects or a missing required
+     * plugin param, with the warning to show. Null when all are valid.
+     */
+    private _invalidLayout() {
+        const widgets = this.widgets();
+        const layouts = this.layouts();
+        for (let index = 0; index < layouts.length; index++) {
+            const layout = layouts[index];
+            if (!layoutPositionValid(layout)) {
+                return {
+                    index,
+                    message: 'SIGNAGE_MANAGER.TEMPLATE_LAYOUT_POSITION_INVALID',
+                };
+            }
+            const plugin = widgets.find(({ id }) => id === layout.plugin_id);
+            const schema = pluginSchema(plugin?.params);
+            const params_valid =
+                !schema ||
+                buildFormFromFields(
+                    parseSchemaFields(schema),
+                    layout.plugin_params ?? {},
+                ).valid;
+            if (!params_valid) {
+                return {
+                    index,
+                    message: 'SIGNAGE_MANAGER.TEMPLATE_LAYOUT_PARAMS_REQUIRED',
+                };
+            }
+        }
+        return null;
     }
 }

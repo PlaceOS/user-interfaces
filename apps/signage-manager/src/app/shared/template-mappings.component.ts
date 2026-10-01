@@ -161,7 +161,12 @@ export type TemplateMappingTargetType = 'display' | 'zone';
                                                 <div
                                                     class="text-base-content/60 text-xs flex items-center gap-1"
                                                 >
-                                                    <div>Configured on zone:</div>
+                                                    <div>
+                                                        {{
+                                                            'SIGNAGE_MANAGER.TEMPLATE_MAPPING_CONFIGURED_ON_ZONE'
+                                                                | translate
+                                                        }}
+                                                    </div>
                                                     <a
                                                         class="text-primary block truncate hover:underline"
                                                         [routerLink]="[
@@ -337,7 +342,10 @@ export class TemplateMappingsComponent {
                   )
                 : Promise.resolve([]),
     });
-    public readonly mappings = computed(() => this._mappings.value() || []);
+    // value() throws while the resource is in error, so check hasValue first
+    public readonly mappings = computed(() =>
+        this._mappings.hasValue() ? this._mappings.value() : [],
+    );
     public readonly loading = this._mappings.isLoading;
     public readonly load_error = this._mappings.error;
     public readonly mapping_cards = computed(() => {

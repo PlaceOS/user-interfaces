@@ -29,3 +29,12 @@ export function schemaDefaults(schema: PluginSchema | null | undefined) {
         {} as Record<string, unknown>,
     );
 }
+
+/** Display name of a plugin, falling back to its ID when it is not loaded. */
+export function pluginName(
+    plugins: { id: string; name: string }[],
+    plugin_id?: string,
+) {
+    if (!plugin_id) return '';
+    return plugins.find(({ id }) => id === plugin_id)?.name || plugin_id;
+}

@@ -10,10 +10,9 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
-import { i18n, notifyError, notifySuccess, notifyWarn } from '@placeos/common';
+import { i18n } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import {
-    removeSignageTemplateDraft,
     SignageTemplate,
     type SignageTemplateApprover,
 } from '@placeos/ts-client';
@@ -261,22 +260,16 @@ export class TemplateRequestApprovalModalComponent {
     }
 
     public async undoChanges() {
-        if (!this.can_update()) {
-            notifyWarn(i18n('SIGNAGE_MANAGER.SVC_NO_UPDATE_TEMPLATES'));
-            return;
-        }
         const [, previous_version] = await this._loadTemplateVersions();
         if (!previous_version) return;
         this.loading.set(i18n('SIGNAGE_MANAGER.UNDOING_CHANGES'));
         this._dialog_ref.disableClose = true;
         try {
-            await removeSignageTemplateDraft(this.data.template.id);
-            this._service.updateCachedTemplate(previous_version);
-            notifySuccess(i18n('SIGNAGE_MANAGER.TEMPLATE_REVERTED'));
-            this._dialog_ref.close();
-            this._service.changed();
-        } catch {
-            notifyError(i18n('SIGNAGE_MANAGER.TEMPLATE_REVERT_ERROR'));
+            const undone = await this._service.undoTemplateChanges(
+                this.data.template.id,
+                previous_version,
+            );
+            if (undone) this._dialog_ref.close();
         } finally {
             this.loading.set('');
             this._dialog_ref.disableClose = false;

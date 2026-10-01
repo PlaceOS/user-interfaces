@@ -109,7 +109,10 @@ interface TemplateMappingFormModel {
                         </label>
                         <mat-form-field appearance="outline" class="w-full">
                             <mat-select
-                                placeholder="Select a template"
+                                [placeholder]="
+                                    'SIGNAGE_MANAGER.TEMPLATE_REQUIRED'
+                                        | translate
+                                "
                                 [formField]="form_model.template_id"
                                 [attr.aria-label]="
                                     'SIGNAGE_MANAGER.SELECT_APPROVED_TEMPLATE'
