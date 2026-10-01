@@ -8,7 +8,7 @@ import {
 } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { unique } from '@placeos/common';
+import { i18n, notifyError, unique } from '@placeos/common';
 import { TranslatePipe } from '@placeos/components';
 import { ControlStateService, RoomInput } from '../control-state.service';
 
@@ -131,8 +131,14 @@ export class SourceSelectComponent {
 
     public async selectSource(input: RoomInput) {
         this.loading.set(true);
-        await this._state.setRoute(input.id, this.output());
-        this.loading.set(false);
+        try {
+            await this._state.setRoute(input.id, this.output());
+        } catch (error) {
+            notifyError(i18n('APP.CONTROL.ROUTE_ERROR', { error }));
+            return;
+        } finally {
+            this.loading.set(false);
+        }
         this.source.emit(input);
     }
 }

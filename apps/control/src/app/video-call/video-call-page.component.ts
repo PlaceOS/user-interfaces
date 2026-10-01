@@ -3,9 +3,11 @@ import {
     Injector,
     OnInit,
     computed,
+    effect,
     inject,
     input,
     signal,
+    untracked,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
@@ -287,6 +289,17 @@ export class VideoCallPageComponent extends AsyncHandler implements OnInit {
         this._onCallEnded();
     };
 
+    constructor() {
+        super();
+        // Leave the page when the call ends remotely (far-end hang-up or drop)
+        let had_call = false;
+        effect(() => {
+            const has_call = !!this.call();
+            if (had_call && !has_call) untracked(() => this._onCallEnded());
+            had_call = has_call;
+        });
+    }
+
     public async ngOnInit() {
         this.loading.set(i18n('APP.CONTROL.VC_LOADING'));
         this.timeout(
@@ -309,6 +322,7 @@ export class VideoCallPageComponent extends AsyncHandler implements OnInit {
     }
 
     private _onCallEnded() {
+        this.loading.set('');
         if (this.redirect())
             this._router.navigate(['/panel', this._control.id]);
     }

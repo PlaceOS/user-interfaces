@@ -146,6 +146,14 @@ describe('VideoCallPageComponent', () => {
         await spectator.component.endCall();
         expect(call_state.hangup).toHaveBeenCalled();
         expect(router_mock.navigate).not.toHaveBeenCalled();
+        expect(spectator.component.loading()).toBe('');
+    });
+
+    it('should navigate back to the panel when the call ends remotely', () => {
+        spectator.detectChanges();
+        call_state.call.set(null);
+        spectator.detectChanges();
+        expect(router_mock.navigate).toHaveBeenCalledWith(['/panel', 'sys-1']);
     });
 
     it('should surface errors and stop loading when hangup fails', async () => {

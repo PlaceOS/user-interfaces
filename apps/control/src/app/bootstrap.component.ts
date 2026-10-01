@@ -205,7 +205,9 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
             }
         },
     });
-    public readonly space_list = computed(() => this._space_list.value() ?? []);
+    public readonly space_list = computed(() =>
+        this._space_list.hasValue() ? this._space_list.value() : [],
+    );
 
     constructor() {
         super();

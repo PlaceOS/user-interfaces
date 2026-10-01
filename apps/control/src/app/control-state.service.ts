@@ -340,7 +340,9 @@ export class ControlStateService extends AsyncHandler {
             return list.filter((_) => _.meeting_url.startsWith(url));
         },
     });
-    public readonly events = computed(() => this._events.value() ?? []);
+    public readonly events = computed(() =>
+        this._events.hasValue() ? this._events.value() : [],
+    );
 
     public get id() {
         return this._id();
@@ -634,6 +636,8 @@ export class ControlStateService extends AsyncHandler {
         const id = this._id();
         if (!id) return;
 
+        // Release bindings for aliases from the previous list or room
+        this.unsubWith(`listen:${type}/`);
         if (type === 'input') this._input_data.set([]);
         else this._output_data.set([]);
 

@@ -1,6 +1,9 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { createServiceFactory, SpectatorService } from '@ngneat/spectator/vitest';
+import {
+    createServiceFactory,
+    SpectatorService,
+} from '@ngneat/spectator/vitest';
 
 import { ControlStateService } from '../../app/control-state.service';
 import { VideoCallStateService } from '../../app/video-call/video-call-state.service';
@@ -51,6 +54,15 @@ describe('VideoCallStateService', () => {
             Status: 'Connected',
             RemoteNumber: '123',
         });
+    });
+
+    it('should not treat idle or disconnecting calls as active', () => {
+        variable_values.calls = {
+            a: { Status: 'Idle' },
+            b: { Status: 'Disconnecting' },
+        };
+        TestBed.flushEffects();
+        expect(spectator.service.call()).toBeNull();
     });
 
     it('should return null when no call has a status', () => {
