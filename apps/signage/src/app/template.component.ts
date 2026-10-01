@@ -87,10 +87,10 @@ function backgroundPlayerItem(
                     .catch(() => null);
             }
             try {
-                return file ? URL.createObjectURL(file) : '';
-            } catch {
-                return '';
-            }
+                if (file) return URL.createObjectURL(file);
+            } catch {}
+            // Not cached (for example too large to cache): play from the server
+            return media_cache.directURL(media.media_url);
         },
         isLoading: cacheable
             ? () => media_cache.isLoadingFile(media.media_url)

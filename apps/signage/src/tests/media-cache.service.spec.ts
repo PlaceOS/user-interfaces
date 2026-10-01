@@ -7,6 +7,22 @@ import { Subject } from 'rxjs';
 
 import { MediaCacheService } from '../app/media-cache.service';
 
+/**
+ * Before Node 24, `Response.blob()` returns Node's own Blob. jsdom's File does
+ * not take that as a part and stores the text "[object Blob]" instead. A
+ * browser has a single Blob type, so hand the service jsdom's.
+ */
+class JsdomResponse extends Response {
+    override async blob() {
+        const blob = await super.blob();
+        if (blob instanceof Blob) return blob;
+        const node_blob = blob as unknown as Blob;
+        return new Blob([await node_blob.arrayBuffer()], {
+            type: node_blob.type,
+        });
+    }
+}
+
 describe('MediaCacheService', () => {
     let spectator: SpectatorService<MediaCacheService>;
     const stored_files = new Map<
@@ -124,11 +140,13 @@ describe('MediaCacheService', () => {
             transaction: vi.fn(create_transaction),
         } as any;
         spectator.service['_cache_db_ready'] = Promise.resolve();
+        vi.stubGlobal('Response', JsdomResponse);
     });
 
     afterEach(() => {
         spectator.service.ngOnDestroy();
         vi.restoreAllMocks();
+        vi.unstubAllGlobals();
     });
 
     it('should not read stored files when re-confirming a cached playlist', async () => {
@@ -1193,6 +1211,110 @@ describe('MediaCacheService', () => {
             expect(spectator.service.availableFiles()).toEqual(['/new.png']);
             expect([...stored_files.values()].map((_) => _.url)).toEqual([
                 '/new.png',
+            ]);
+        });
+
+        it('should evict files outside the playlist before reading a body that needs the room', async () => {
+            stored_files.set('stale', {
+                name: 'stale',
+                url: '/stale.png',
+                owner: 'display-1',
+                owners: ['display-1'],
+                file: new File(['12345'], 'stale'),
+            });
+            spectator.service['_file_cache_index'].set([
+                cached_entry('stale', '/stale.png'),
+            ]);
+            let stale_kept_while_reading: boolean;
+            // A zero high-water mark: pulled only once the body is read
+            const body = new ReadableStream<Uint8Array>(
+                {
+                    pull: (controller) => {
+                        stale_kept_while_reading = stored_files.has('stale');
+                        controller.enqueue(new Uint8Array(5));
+                        controller.close();
+                    },
+                },
+                { highWaterMark: 0 },
+            );
+            Object.defineProperty(globalThis, 'fetch', {
+                configurable: true,
+                value: vi.fn().mockResolvedValue(streamed_response(body, 5)),
+            });
+
+            await spectator.service.requestFilesToCache(
+                ['/new.png'],
+                'display-1',
+                { max_size: 8 },
+            );
+
+            expect(stale_kept_while_reading).toBe(false);
+            expect(spectator.service.availableFiles()).toEqual(['/new.png']);
+        });
+
+        it('should keep playback downloads inside what the budget has left', async () => {
+            stored_files.set('playing', {
+                name: 'playing',
+                url: '/playing.png',
+                owner: 'display-1',
+                owners: ['display-1'],
+                file: new File(['12345'], 'playing'),
+            });
+            spectator.service['_file_cache_index'].set([
+                cached_entry('playing', '/playing.png'),
+            ]);
+            spectator.service['_budget_bytes'] = 8;
+            const body = new ReadableStream<Uint8Array>({
+                start: (controller) => {
+                    controller.enqueue(new Uint8Array(5));
+                    controller.close();
+                },
+            });
+            Object.defineProperty(globalThis, 'fetch', {
+                configurable: true,
+                value: vi.fn().mockResolvedValue(streamed_response(body, 5)),
+            });
+
+            const file = await spectator.service.fetchFile(
+                '/new.png',
+                'display-1',
+            );
+
+            // Plays from the network; nothing cached is evicted for it
+            expect(file).toBeNull();
+            expect([...stored_files.keys()]).toEqual(['playing']);
+            expect(spectator.service.availableFiles()).toEqual([
+                '/playing.png',
+            ]);
+        });
+
+        it('should stop playback downloading a file that storage has no room for', async () => {
+            const fetch_spy = good_fetch();
+            Object.defineProperty(globalThis, 'fetch', {
+                configurable: true,
+                value: fetch_spy,
+            });
+            spectator.service['_storeFile'] = vi
+                .fn()
+                .mockRejectedValue(
+                    new DOMException('Storage is full', 'DataError'),
+                );
+
+            const first = await spectator.service.fetchFile(
+                '/full.png',
+                'display-1',
+            );
+            const second = await spectator.service.fetchFile(
+                '/full.png',
+                'display-1',
+            );
+
+            // The download is still handed back once, then it streams
+            expect(first).toEqual(expect.any(File));
+            expect(second).toBeNull();
+            expect(fetch_spy).toHaveBeenCalledTimes(1);
+            expect(spectator.service.cacheState().too_large).toEqual([
+                '/full.png',
             ]);
         });
 

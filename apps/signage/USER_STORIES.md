@@ -476,6 +476,9 @@ The Signage app is a kiosk-style digital signage player. It bootstraps a device 
 - At startup, the app asks the browser for persistent storage.
 - Pruning never removes media in the current request. It removes files of other displays first (root players only), then the largest files.
 - Media that cannot fit in the budget is not downloaded. It plays from the network. The cache tries it again only when more space is available.
+- When the file size is known, the cache removes files to make room before it reads the download.
+- Playback downloads a missing file only if it fits in the space that is left in the budget. Playback never removes cached files. A full storage write during playback stops later playback downloads of that file.
+- A template background that the cache cannot supply plays from the network.
 - If storage becomes full during a write (`QuotaExceededError`, or a `DataError` from a failed blob write), the cache removes the files that the request does not need and tries one more time. If the write fails again, the media plays from the network.
 - If the cache database cannot be read, the cache does not download the file again. The sync tries again later.
 - Stored files that no cache entry uses (duplicates, empty files, and replaced files) are deleted.

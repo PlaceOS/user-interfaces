@@ -405,9 +405,8 @@ export class MediaCacheService extends AsyncHandler {
                     }
                 }
             }
-            const room =
-                budget - this._pinnedBytes(owner, url_list, prune_others);
-            if (!this._mayFit(url, room)) continue;
+            const fit = this._cacheFit(owner, url_list, budget, prune_others);
+            if (!this._mayFit(url, fit.max_bytes)) continue;
             // Stagger requests for uncached resources to avoid overwhelming the network
             if (uncached_count > 0) await delay(STAGGER_DELAY_MS);
             uncached_count++;
@@ -418,17 +417,8 @@ export class MediaCacheService extends AsyncHandler {
                 await this._addOwner(latest, owner);
                 continue;
             }
-            if (!this._mayFit(url, room)) continue;
-            const { stored, no_room } = await this._cacheFile(url, owner, {
-                max_bytes: room,
-                make_room: (bytes) =>
-                    this.pruneCache(
-                        owner,
-                        url_list,
-                        budget - bytes,
-                        prune_others,
-                    ),
-            });
+            if (!this._mayFit(url, fit.max_bytes)) continue;
+            const { stored, no_room } = await this._cacheFile(url, owner, fit);
             if (!stored && !no_room) failures = true;
         }
         this._file_cache_index.set([...this._cache_index]);
@@ -448,8 +438,10 @@ export class MediaCacheService extends AsyncHandler {
      * does not. Unlike `requestFilesToCache` this hands back a download that
      * could not be stored, so a broken database never stops media playing.
      * Resolves null for a file too large to cache, which plays from the
-     * network instead. Waits at most `wait_ms` for a download that is already
-     * in progress and returns null if it has not finished by then.
+     * network instead. Playback never evicts: the file must fit in what the
+     * budget has left, and only a sync makes more room. Waits at most
+     * `wait_ms` for a download that is already in progress and returns null
+     * if it has not finished by then.
      */
     public async fetchFile(
         url: string,
@@ -471,9 +463,15 @@ export class MediaCacheService extends AsyncHandler {
             if (file) return file;
         }
         if (this._too_large.has(url)) return null;
-        const { file } = await this._cacheFile(url, owner, {
-            max_bytes: this._budget_bytes,
-        });
+        // Everything cached counts as needed, so nothing is evicted
+        const fit = this._cacheFit(
+            owner,
+            this._cache_index.map((_) => _.url),
+            this._budget_bytes,
+            false,
+        );
+        if (!this._mayFit(url, fit.max_bytes)) return null;
+        const { file } = await this._cacheFile(url, owner, fit);
         return file;
     }
 
@@ -714,7 +712,7 @@ export class MediaCacheService extends AsyncHandler {
             cacheStatus(cache_item, 'downloading');
             // If not an API call, just load the image
             if (url.includes(UPLOADS_PATH)) this.applyAuthenticationCookie();
-            const blob = await this._download(url, fit.max_bytes);
+            const blob = await this._download(url, fit);
             if (blob.size <= 0) {
                 log.error(`Downloaded resource is empty.`, url);
                 throw new Error('Downloaded media file is empty');
@@ -773,9 +771,9 @@ export class MediaCacheService extends AsyncHandler {
      * cannot build a Blob from the stream, a small file is downloaded once
      * more into memory; a large one fails with a `NoRoomError`.
      */
-    private async _download(url: string, max_bytes: number): Promise<Blob> {
+    private async _download(url: string, fit: CacheFit): Promise<Blob> {
         try {
-            return await this._fetchBlob(url, max_bytes, false);
+            return await this._fetchBlob(url, fit, false);
         } catch (e) {
             if (!(e instanceof BlobStorageError)) throw e;
             log.warn(
@@ -783,7 +781,7 @@ export class MediaCacheService extends AsyncHandler {
                 url,
                 e,
             );
-            return this._fetchBlob(url, max_bytes, true);
+            return this._fetchBlob(url, fit, true);
         }
     }
 
@@ -794,9 +792,10 @@ export class MediaCacheService extends AsyncHandler {
      */
     private async _fetchBlob(
         url: string,
-        max_bytes: number,
+        fit: CacheFit,
         in_memory: boolean,
     ): Promise<Blob> {
+        const { max_bytes } = fit;
         const controller =
             typeof AbortController === 'function'
                 ? new AbortController()
@@ -818,6 +817,10 @@ export class MediaCacheService extends AsyncHandler {
             abort();
             throw new NoRoomError(length);
         }
+        // Make room before the body arrives. On a nearly full disk the
+        // browser can fail to build a large Blob that would fit once older
+        // files are gone.
+        if (length > 0) await fit.make_room?.(length);
         const type = response.headers?.get?.('content-type') || '';
         const body = response.body;
         if (in_memory) {
@@ -898,6 +901,31 @@ export class MediaCacheService extends AsyncHandler {
                         cacheOwners(item).every((_) => _ === owner)),
             )
             .sort((a, b) => own(a) - own(b) || (b.size || 0) - (a.size || 0));
+    }
+
+    /**
+     * How much a download for `owner` may store within `budget`, and how it
+     * makes room: by evicting cached entries outside `priority_urls`. Shared
+     * by cache syncs and playback so both keep to the same budget.
+     */
+    private _cacheFit(
+        owner: string,
+        priority_urls: string[],
+        budget: number,
+        prune_other_owners: boolean,
+    ): CacheFit {
+        return {
+            max_bytes:
+                budget -
+                this._pinnedBytes(owner, priority_urls, prune_other_owners),
+            make_room: (bytes) =>
+                this.pruneCache(
+                    owner,
+                    priority_urls,
+                    budget - bytes,
+                    prune_other_owners,
+                ),
+        };
     }
 
     /** Bytes held by cached entries that a request may not evict */
