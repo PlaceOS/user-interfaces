@@ -1,25 +1,25 @@
 import {
   AsyncHandler,
+  Fp,
   Injectable,
   J,
   OrganisationService,
   Pipe,
   SettingsService,
-  Xe,
   computed,
   currentUser,
   differenceInMinutes,
   effect,
+  et,
   format,
   inject,
   log,
   randomString,
   setClassMetadata,
   signal,
-  zp,
   ɵɵdefineInjectable,
   ɵɵdefinePipe
-} from "./chunk-CPPH52GS.js";
+} from "./chunk-ZX7PA44E.js";
 import {
   __spreadProps,
   __spreadValues
@@ -2376,7 +2376,7 @@ var ChatService = class _ChatService extends AsyncHandler {
     const id = this._chat_system();
     if (!id)
       return;
-    const auth = J() !== "x-api-key" ? `bearer_token=${encodeURIComponent(J())}` : `x-api-key=${Xe()}`;
+    const auth = J() !== "x-api-key" ? `bearer_token=${encodeURIComponent(J())}` : `x-api-key=${et()}`;
     const url = `ws${location.origin.replace("http", "")}/api/engine/v2/chatgpt/chat/${encodeURIComponent(id)}?${auth}${this._chat_id ? "&resume=" + encodeURIComponent(this._chat_id) : ""}`;
     log("CHAT", "Starting chat connection.");
     this._socket = new WebSocket(url);
@@ -2464,7 +2464,7 @@ var ChatService = class _ChatService extends AsyncHandler {
     this._timeoutSocket();
   }
   _bindHint(id) {
-    const mod = zp(id, "LLM");
+    const mod = Fp(id, "LLM");
     const binding = mod.variable("user_hint");
     this.subscription(`binding:LLM:user_hint`, binding.bind());
     this.subscription(`listen:LLM:user_hint`, binding.listen().subscribe((value) => this.chat_hint.set(value)));
@@ -2492,4 +2492,4 @@ export {
   ChatService
 };
 //# debugId=a2e8f408-224f-5ece-9bab-578442a96e80
-//# sourceMappingURL=chunk-HRX6R7JF.js.map
+//# sourceMappingURL=chunk-TZ32BJ2Y.js.map

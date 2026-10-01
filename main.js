@@ -1,19 +1,18 @@
 import {
   ChatService,
   DateFromPipe
-} from "./chunk-HRX6R7JF.js";
+} from "./chunk-TZ32BJ2Y.js";
 import {
   MatTooltip,
   MatTooltipModule
-} from "./chunk-IZHO7DBG.js";
+} from "./chunk-LRGWTXRV.js";
 import {
   TranslatePipe
-} from "./chunk-VOAWBD2A.js";
+} from "./chunk-LN6LCF4S.js";
 import {
   SanitizePipe
-} from "./chunk-OZMTWALV.js";
+} from "./chunk-EIFUB3KN.js";
 import {
-  $a,
   A,
   ActivatedRoute,
   ActiveDescendantKeyManager,
@@ -60,6 +59,7 @@ import {
   Injector,
   Input,
   J,
+  Jr,
   LEFT_ARROW,
   LiveAnnouncer,
   MAT_OPTGROUP,
@@ -117,9 +117,6 @@ import {
   ViewContainerRef,
   ViewEncapsulation,
   ViewportRuler,
-  Xe,
-  Xr,
-  Zr,
   _CdkPrivateStyleLoader,
   _ErrorStateTracker,
   _IdGenerator,
@@ -135,6 +132,7 @@ import {
   afterRenderEffect,
   auditTime,
   autoConfirmNativeDomain,
+  ba,
   booleanAttribute,
   bootstrapApplication,
   coerceArray,
@@ -156,6 +154,7 @@ import {
   elementAcceptsMinMax,
   enableProdMode,
   eo,
+  et,
   filter,
   firstTruthyValueFrom,
   firstValueWhere,
@@ -212,6 +211,7 @@ import {
   take,
   takeUntil,
   tap,
+  to,
   untracked,
   user_groups_loaded,
   viewChild,
@@ -293,7 +293,7 @@ import {
   ɵɵtwoWayProperty,
   ɵɵviewQuery,
   ɵɵviewQuerySignal
-} from "./chunk-CPPH52GS.js";
+} from "./chunk-ZX7PA44E.js";
 import {
   __spreadProps,
   __spreadValues
@@ -6699,11 +6699,11 @@ function rememberFailedLoad(source) {
 }
 function setAuthCookie(cookie_path) {
   const tkn = J();
-  document.cookie = `${tkn === "x-api-key" ? "api-key=" + encodeURIComponent(Xe()) : "bearer_token=" + encodeURIComponent(tkn)};max-age=30;path=${cookie_path};samesite=strict;${location.protocol === "https:" ? "secure;" : ""}`;
+  document.cookie = `${tkn === "x-api-key" ? "api-key=" + encodeURIComponent(et()) : "bearer_token=" + encodeURIComponent(tkn)};max-age=30;path=${cookie_path};samesite=strict;${location.protocol === "https:" ? "secure;" : ""}`;
 }
 function authHeaders() {
   const tkn = J();
-  return tkn === "x-api-key" ? { "X-API-Key": Xe() } : { Authorization: `Bearer ${tkn}` };
+  return tkn === "x-api-key" ? { "X-API-Key": et() } : { Authorization: `Bearer ${tkn}` };
 }
 function loadAuthenticatedImage(source, cookie_path) {
   return loadImage(source, () => {
@@ -7999,7 +7999,7 @@ var GlobalLoadingComponent = class _GlobalLoadingComponent extends AsyncHandler 
   }
   ngOnInit() {
     const update_online = () => {
-      this.online.set(Xr());
+      this.online.set(eo());
       if (this.online()) {
         this.connection_checked.set(true);
         this.clearTimeout("initial-connection");
@@ -8115,15 +8115,15 @@ var GlobalLoadingComponent = class _GlobalLoadingComponent extends AsyncHandler 
 // libs/components/src/lib/settings-debug-panel-launcher.component.ts
 var SettingsDebugPanelLauncherComponent_Defer_25_DepsFn = () => [
   /* @ts-ignore */
-  import("./settings-debug-panel.component-KMS4OL3I.js").then((m) => m.SettingsDebugPanelComponent)
+  import("./settings-debug-panel.component-MO72UGHE.js").then((m) => m.SettingsDebugPanelComponent)
 ];
 var SettingsDebugPanelLauncherComponent_Defer_28_DepsFn = () => [
   /* @ts-ignore */
-  import("./binding-debug-panel.component-L6INZOF2.js").then((m) => m.BindingDebugPanelComponent)
+  import("./binding-debug-panel.component-LPZK3HSL.js").then((m) => m.BindingDebugPanelComponent)
 ];
 var SettingsDebugPanelLauncherComponent_Defer_31_DepsFn = () => [
   /* @ts-ignore */
-  import("./debug-console.component-XMLCKTKF.js").then((m) => m.DebugConsoleComponent)
+  import("./debug-console.component-BWJSJJ4W.js").then((m) => m.DebugConsoleComponent)
 ];
 function SettingsDebugPanelLauncherComponent_Defer_24_Conditional_0_Template(rf, ctx) {
   if (rf & 1) {
@@ -8358,11 +8358,11 @@ var SettingsDebugPanelLauncherComponent = class _SettingsDebugPanelLauncherCompo
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(SettingsDebugPanelLauncherComponent, () => [
     /* @ts-ignore */
-    import("./settings-debug-panel.component-KMS4OL3I.js").then((m) => m.SettingsDebugPanelComponent),
+    import("./settings-debug-panel.component-MO72UGHE.js").then((m) => m.SettingsDebugPanelComponent),
     /* @ts-ignore */
-    import("./binding-debug-panel.component-L6INZOF2.js").then((m) => m.BindingDebugPanelComponent),
+    import("./binding-debug-panel.component-LPZK3HSL.js").then((m) => m.BindingDebugPanelComponent),
     /* @ts-ignore */
-    import("./debug-console.component-XMLCKTKF.js").then((m) => m.DebugConsoleComponent)
+    import("./debug-console.component-BWJSJJ4W.js").then((m) => m.DebugConsoleComponent)
   ], (SettingsDebugPanelComponent, BindingDebugPanelComponent, DebugConsoleComponent) => {
     setClassMetadata(SettingsDebugPanelLauncherComponent, [{
       type: Component,
@@ -8710,7 +8710,7 @@ var AuthorisedUserGuard = class _AuthorisedUserGuard {
   }
   /** The active user, or null if the backend could not be reached in time */
   async waitForUser() {
-    const online = await this.waitForBackend(Zr(eo(), Boolean));
+    const online = await this.waitForBackend(Jr(to(), Boolean));
     if (!online)
       return null;
     let user = null;
@@ -8769,7 +8769,7 @@ var AuthorisedUserGuard = class _AuthorisedUserGuard {
 // apps/assistant-panel/src/app/app.component.ts
 var AppComponent_Defer_4_DepsFn = () => [
   /* @ts-ignore */
-  import("./chat.component-ICADOBPX.js").then((m) => m.ChatComponent)
+  import("./chat.component-33FJ6G5R.js").then((m) => m.ChatComponent)
 ];
 function AppComponent_Defer_3_Template(rf, ctx) {
   if (rf & 1) {
@@ -8819,7 +8819,7 @@ var AppComponent = class _AppComponent {
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(AppComponent, () => [
     /* @ts-ignore */
-    import("./chat.component-ICADOBPX.js").then((m) => m.ChatComponent)
+    import("./chat.component-33FJ6G5R.js").then((m) => m.ChatComponent)
   ], (ChatComponent) => {
     setClassMetadata(AppComponent, [{
       type: Component,
@@ -10009,7 +10009,7 @@ var BootstrapComponent = class _BootstrapComponent extends AsyncHandler {
       loader: async ({ params }) => {
         if (!params.ready || params.q.length < 2)
           return [];
-        const { data } = await $a({
+        const { data } = await ba({
           q: params.q,
           limit: 20,
           fields: ["id", "name", "display_name", "email"].join(","),

@@ -1,13 +1,12 @@
 import {
   DebugPanelResize
-} from "./chunk-Z6SIA6HB.js";
+} from "./chunk-OFVMET3L.js";
 import {
   MatTooltip,
   MatTooltipModule
-} from "./chunk-IZHO7DBG.js";
+} from "./chunk-LRGWTXRV.js";
 import {
   AsyncHandler,
-  Br,
   Clipboard,
   Component,
   DOCUMENT,
@@ -21,15 +20,16 @@ import {
   NgControlStatus,
   NgModel,
   Output,
+  Wr,
   computed,
   effect,
   inject,
   input,
+  ka,
   model,
   resource,
   setClassMetadata,
   signal,
-  va,
   ɵsetClassDebugInfo,
   ɵɵInheritDefinitionFeature,
   ɵɵadvance,
@@ -61,7 +61,7 @@ import {
   ɵɵtwoWayBindingSet,
   ɵɵtwoWayListener,
   ɵɵtwoWayProperty
-} from "./chunk-CPPH52GS.js";
+} from "./chunk-ZX7PA44E.js";
 import {
   __spreadProps,
   __spreadValues
@@ -780,20 +780,20 @@ function addExecuteMessage(message) {
   execute_messages.update((messages) => [...messages, message].slice(-250));
 }
 function installBindingDebugHooks() {
-  const prototype = Br.prototype;
+  const prototype = Wr.prototype;
   if (prototype.__binding_debug_hooks__)
     return;
   prototype.__binding_debug_hooks__ = true;
-  const variable = Br.prototype.variable;
-  Br.prototype.variable = function(name) {
+  const variable = Wr.prototype.variable;
+  Wr.prototype.variable = function(name) {
     return trackBinding(this, variable.call(this, name));
   };
-  const binding = Br.prototype.binding;
-  Br.prototype.binding = function(name) {
+  const binding = Wr.prototype.binding;
+  Wr.prototype.binding = function(name) {
     return trackBinding(this, binding.call(this, name));
   };
-  const execute = Br.prototype.execute;
-  Br.prototype.execute = function(method, args = [], timeout_delay) {
+  const execute = Wr.prototype.execute;
+  Wr.prototype.execute = function(method, args = [], timeout_delay) {
     const id = ++execute_id;
     const details = {
       id,
@@ -918,7 +918,7 @@ var BindingDebugPanelComponent = class _BindingDebugPanelComponent extends Async
       },
       loader: async ({ params }) => Object.fromEntries(await Promise.all(params.map(async (id) => {
         if (!system_name_cache.has(id)) {
-          const system = await va(id).catch(() => null);
+          const system = await ka(id).catch(() => null);
           system_name_cache.set(id, system?.display_name || system?.name || id);
         }
         return [id, system_name_cache.get(id)];
@@ -1865,4 +1865,4 @@ export {
   pairExecuteMessages
 };
 //# debugId=f86a38ec-c8bc-570a-a808-ad3a21f66eba
-//# sourceMappingURL=binding-debug-panel.component-L6INZOF2.js.map
+//# sourceMappingURL=binding-debug-panel.component-LPZK3HSL.js.map

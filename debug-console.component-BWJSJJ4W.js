@@ -1,13 +1,13 @@
 import {
   CustomTooltipComponent,
   CustomTooltipData
-} from "./chunk-FSHM32DI.js";
+} from "./chunk-EVP4FDO3.js";
 import {
   TranslatePipe
-} from "./chunk-VOAWBD2A.js";
+} from "./chunk-LN6LCF4S.js";
 import {
   SanitizePipe
-} from "./chunk-OZMTWALV.js";
+} from "./chunk-EIFUB3KN.js";
 import {
   AsyncHandler,
   CdkFixedSizeVirtualScroll,
@@ -17,6 +17,7 @@ import {
   DatePipe,
   DefaultValueAccessor,
   FormsModule,
+  Fp,
   HotkeysService,
   IconComponent,
   Injectable,
@@ -39,7 +40,6 @@ import {
   randomString,
   setClassMetadata,
   signal,
-  zp,
   ɵsetClassDebugInfo,
   ɵɵInheritDefinitionFeature,
   ɵɵadvance,
@@ -73,7 +73,7 @@ import {
   ɵɵtext,
   ɵɵtextInterpolate,
   ɵɵtextInterpolate1
-} from "./chunk-CPPH52GS.js";
+} from "./chunk-ZX7PA44E.js";
 import "./chunk-653SOEEV.js";
 
 // libs/common/src/lib/remote-logging.service.ts
@@ -156,11 +156,11 @@ var RemoteLoggingService = class _RemoteLoggingService extends AsyncHandler {
     if (!system_id)
       return;
     this._disable_handling = true;
-    zp(system_id, "Logger").execute("post_event", [event]).catch().finally(() => this._disable_handling = false);
+    Fp(system_id, "Logger").execute("post_event", [event]).catch().finally(() => this._disable_handling = false);
   }
   /** List to binding */
   _bindTo(id, name, mod = "Logger") {
-    const module = zp(id, mod).variable(name);
+    const module = Fp(id, mod).variable(name);
     this.subscription(`bind:${name}`, module.bind());
     this.subscription(`listen:${name}`, module.listen().subscribe((enabled) => {
       this._logging_system.set(enabled ? id : "");
@@ -739,4 +739,4 @@ export {
   DebugConsoleComponent
 };
 //# debugId=a11c43b3-7ecd-53c2-b970-c763140bcf7a
-//# sourceMappingURL=debug-console.component-XMLCKTKF.js.map
+//# sourceMappingURL=debug-console.component-BWJSJJ4W.js.map
