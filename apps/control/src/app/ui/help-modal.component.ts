@@ -8,7 +8,6 @@ import { OrganisationService, SettingsService } from '@placeos/common';
 import {
     AuthenticatedImageDirective,
     IconComponent,
-    SafePipe,
 } from '@placeos/components';
 
 import { marked } from 'marked';
@@ -74,7 +73,7 @@ import { marked } from 'marked';
             <div
                 content
                 class="bg-base-100 h-1/2 w-full flex-1 overflow-auto p-4 sm:h-full sm:w-1/2 sm:p-8"
-                [innerHTML]="content() | safe"
+                [innerHTML]="content()"
             ></div>
             <button
                 icon
@@ -97,7 +96,6 @@ import { marked } from 'marked';
     ],
     imports: [
         MatDialogModule,
-        SafePipe,
         MatFormFieldModule,
         MatSelectModule,
         FormsModule,

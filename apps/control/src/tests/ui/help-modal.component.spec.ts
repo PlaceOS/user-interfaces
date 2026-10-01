@@ -5,9 +5,8 @@ import { OrganisationService, SettingsService } from '@placeos/common';
 import {
     AuthenticatedImageDirective,
     IconComponent,
-    SafePipe,
 } from '@placeos/components';
-import { MockComponent, MockDirective, MockPipe } from 'ng-mocks';
+import { MockComponent, MockDirective } from 'ng-mocks';
 
 import { HelpModalComponent } from '../../app/ui/help-modal.component';
 
@@ -30,7 +29,6 @@ describe('HelpModalComponent', () => {
         declarations: [
             MockComponent(IconComponent),
             MockDirective(AuthenticatedImageDirective),
-            MockPipe(SafePipe, (v) => v),
         ],
         providers: [
             {
@@ -96,5 +94,21 @@ describe('HelpModalComponent', () => {
     it('should resolve the dark logo when theme is dark', () => {
         setup(undefined, 'dark');
         expect(spectator.component.logo()).toEqual({ src: 'dark.png' });
+    });
+
+    it('should strip script handlers from help content', () => {
+        setup({
+            items: [
+                {
+                    id: 'x',
+                    title: 'XSS',
+                    content: '<img src="x.png" onerror="alert(1)">',
+                },
+            ],
+            active_id: 'x',
+        });
+        const img = spectator.query('[content] img');
+        expect(img).toExist();
+        expect(img.getAttribute('onerror')).toBeNull();
     });
 });

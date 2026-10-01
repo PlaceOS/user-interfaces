@@ -44,7 +44,7 @@ export enum ZoomDirection {
                         }
                     </mat-select>
                 </mat-form-field>
-                <div class="p-4">
+                <div class="relative p-4">
                     <h3 class="mb-2 text-xl font-medium">
                         {{ 'APP.CONTROL.CONTROLS' | translate }}
                     </h3>
@@ -63,9 +63,11 @@ export enum ZoomDirection {
                                 zoom-in
                                 icon
                                 matRipple
-                                class="rounded-sm"
-                                (mousedown)="startZoom('in', $event)"
-                                (touchstart)="startZoom('in', $event)"
+                                class="touch-none rounded-sm select-none"
+                                (pointerdown)="startZoom('in', $event)"
+                                (pointerup)="stopZoom()"
+                                (pointercancel)="stopZoom()"
+                                (lostpointercapture)="stopZoom()"
                                 (contextmenu)="$event.preventDefault()"
                             >
                                 <icon>add</icon>
@@ -79,25 +81,30 @@ export enum ZoomDirection {
                                 zoom-out
                                 icon
                                 matRipple
-                                class="rounded-sm"
-                                (mousedown)="startZoom('out', $event)"
-                                (touchstart)="startZoom('out', $event)"
+                                class="touch-none rounded-sm select-none"
+                                (pointerdown)="startZoom('out', $event)"
+                                (pointerup)="stopZoom()"
+                                (pointercancel)="stopZoom()"
+                                (lostpointercapture)="stopZoom()"
                                 (contextmenu)="$event.preventDefault()"
-                                (window:mouseup)="stopZoom()"
-                                (window:touchend)="stopZoom()"
                             >
                                 <icon>remove</icon>
                             </button>
                         </div>
                     </div>
+                    @if (!active_camera()) {
+                        <div
+                            no-camera
+                            class="bg-base-100/75 absolute inset-0 flex items-center justify-center"
+                        >
+                            <p>
+                                {{
+                                    'APP.CONTROL.CAMERA_SELECT_MSG' | translate
+                                }}
+                            </p>
+                        </div>
+                    }
                 </div>
-                @if (!active_camera()) {
-                    <div
-                        class="bg-base-100 bg-opacity-75 absolute inset-0 flex items-center justify-center"
-                    >
-                        <p>{{ 'APP.CONTROL.CAMERA_SELECT_MSG' | translate }}</p>
-                    </div>
-                }
             </div>
         }
     `,
@@ -114,7 +121,6 @@ export enum ZoomDirection {
 })
 export class CameraControlsComponent implements OnInit {
     private _state = inject(ControlStateService);
-    private _destroyRef = inject(DestroyRef);
 
     /** Currently active camera */
     public readonly active_camera = signal<RoomInput | undefined>(undefined);
@@ -141,6 +147,7 @@ export class CameraControlsComponent implements OnInit {
     }
 
     constructor() {
+        inject(DestroyRef).onDestroy(() => this.stopZoom());
         effect(() => {
             const list = this.camera_list();
             const cam = this._selected_camera();
@@ -205,7 +212,9 @@ export class CameraControlsComponent implements OnInit {
         }, 50);
     }
 
-    public async startZoom(dir: 'in' | 'out', e: MouseEvent | TouchEvent) {
+    /** Start zooming. Pointer capture makes sure the button receives the release. */
+    public async startZoom(dir: 'in' | 'out', e: PointerEvent) {
+        (e.currentTarget as Element | null)?.setPointerCapture?.(e.pointerId);
         const cam = this.active_camera();
         if (!cam) return;
         const mod = getModule(this.id, cam.mod);

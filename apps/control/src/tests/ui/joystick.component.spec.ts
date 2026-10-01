@@ -14,13 +14,10 @@ describe('JoystickComponent', () => {
         declarations: [MockComponent(IconComponent)],
     });
 
-    // `spectator.dispatchMouseEvent` builds events with the deprecated
-    // `initMouseEvent`, which fails jsdom's realm check under the zoneless
-    // unit-test builder. Dispatch a native MouseEvent instead.
-    const mouse = (target: string | Document, type: string, x = 0, y = 0) => {
-        const el =
-            typeof target === 'string' ? spectator.query(target) : target;
-        el.dispatchEvent(
+    // jsdom has no PointerEvent. A MouseEvent with a pointer event type carries
+    // the clientX and clientY values that the joystick reads.
+    const pointer = (type: string, x = 0, y = 0) => {
+        spectator.query('[joystick]').dispatchEvent(
             new MouseEvent(type, {
                 clientX: x,
                 clientY: y,
@@ -46,58 +43,82 @@ describe('JoystickComponent', () => {
     it('should allow for panning', () => {
         expect('[joystick]').toExist();
         const thumb: HTMLDivElement = spectator.query('[thumb]');
-        mouse('[joystick]', 'mousedown', 0, 96);
+        pointer('pointerdown', 0, 96);
         expect(spectator.component.pan()).toBe(JoystickPan.Left);
         spectator.detectChanges();
         expect(thumb.style.transform).toBe('translate(-50%, 0%)');
-        mouse(document, 'mousemove', 192, 96);
+        pointer('pointermove', 192, 96);
         expect(spectator.component.pan()).toBe(JoystickPan.Right);
         spectator.detectChanges();
         expect(thumb.style.transform).toBe('translate(50%, 0%)');
-        mouse(document, 'mouseup');
+        pointer('pointerup');
         expect(spectator.component.pan()).toBe(JoystickPan.Stop);
     });
 
     it('should allow for tilting', () => {
         expect('[joystick]').toExist();
         const thumb: HTMLDivElement = spectator.query('[thumb]');
-        mouse('[joystick]', 'mousedown', 96, 0);
+        pointer('pointerdown', 96, 0);
         expect(spectator.component.tilt()).toBe(JoystickTilt.Up);
         spectator.detectChanges();
         expect(thumb.style.transform).toBe('translate(0%, -50%)');
-        mouse(document, 'mousemove', 96, 192);
+        pointer('pointermove', 96, 192);
         expect(spectator.component.tilt()).toBe(JoystickTilt.Down);
         spectator.detectChanges();
         expect(thumb.style.transform).toBe('translate(0%, 50%)');
-        mouse(document, 'mouseup');
+        pointer('pointerup');
         expect(spectator.component.tilt()).toBe(JoystickTilt.Stop);
     });
 
     it('should allow for panning and titling', () => {
         expect('[joystick]').toExist();
         const thumb: HTMLDivElement = spectator.query('[thumb]');
-        mouse('[joystick]', 'mousedown', 0, 0);
+        pointer('pointerdown', 0, 0);
         expect(spectator.component.pan()).toBe(JoystickPan.Left);
         expect(spectator.component.tilt()).toBe(JoystickTilt.Up);
         spectator.detectChanges();
         expect(thumb.style.transform).toBe('translate(-50%, -50%)');
-        mouse(document, 'mousemove', 192, 0);
+        pointer('pointermove', 192, 0);
         expect(spectator.component.pan()).toBe(JoystickPan.Right);
         expect(spectator.component.tilt()).toBe(JoystickTilt.Up);
         spectator.detectChanges();
         expect(thumb.style.transform).toBe('translate(50%, -50%)');
-        mouse(document, 'mousemove', 0, 192);
+        pointer('pointermove', 0, 192);
         expect(spectator.component.pan()).toBe(JoystickPan.Left);
         expect(spectator.component.tilt()).toBe(JoystickTilt.Down);
         spectator.detectChanges();
         expect(thumb.style.transform).toBe('translate(-50%, 50%)');
-        mouse(document, 'mousemove', 192, 192);
+        pointer('pointermove', 192, 192);
         expect(spectator.component.pan()).toBe(JoystickPan.Right);
         expect(spectator.component.tilt()).toBe(JoystickTilt.Down);
         spectator.detectChanges();
         expect(thumb.style.transform).toBe('translate(50%, 50%)');
-        mouse(document, 'mouseup');
+        pointer('pointerup');
         expect(spectator.component.pan()).toBe(JoystickPan.Stop);
         expect(spectator.component.tilt()).toBe(JoystickTilt.Stop);
+    });
+
+    it('should stop when the pointer is cancelled', () => {
+        const pan = vi.fn();
+        spectator.output('panChange').subscribe(pan);
+        pointer('pointerdown', 0, 96);
+        expect(pan).toHaveBeenLastCalledWith(JoystickPan.Left);
+        pointer('pointercancel');
+        expect(pan).toHaveBeenLastCalledWith(JoystickPan.Stop);
+        expect(spectator.component.pan()).toBe(JoystickPan.Stop);
+    });
+
+    it('should ignore pointer moves when no gesture is active', () => {
+        pointer('pointermove', 0, 96);
+        expect(spectator.component.pan()).toBe(JoystickPan.Stop);
+    });
+
+    it('should emit a stop when destroyed mid-gesture', () => {
+        const tilt = vi.fn();
+        spectator.output('tiltChange').subscribe(tilt);
+        pointer('pointerdown', 96, 0);
+        expect(tilt).toHaveBeenLastCalledWith(JoystickTilt.Up);
+        spectator.fixture.destroy();
+        expect(tilt).toHaveBeenLastCalledWith(JoystickTilt.Stop);
     });
 });

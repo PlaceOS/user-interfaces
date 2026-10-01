@@ -7,9 +7,19 @@ import { MatSelectModule } from '@angular/material/select';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { MockComponent, MockDirective, MockModule } from 'ng-mocks';
 
-import { ControlStateService } from '../../app/control-state.service';
-import { CameraTooltipComponent } from '../../app/ui/camera-tooltip.component';
-import { JoystickComponent } from '../../app/ui/joystick.component';
+import {
+    ControlStateService,
+    RoomInput,
+} from '../../app/control-state.service';
+import {
+    CameraTooltipComponent,
+    ZoomDirection,
+} from '../../app/ui/camera-tooltip.component';
+import {
+    JoystickComponent,
+    JoystickPan,
+    JoystickTilt,
+} from '../../app/ui/joystick.component';
 
 vi.mock('@placeos/ts-client', { spy: true });
 
@@ -54,6 +64,16 @@ describe('CameraTooltipComponent', () => {
         ],
     });
 
+    /** Mock module execute calls and return the spy */
+    const mockExecute = () => {
+        const execute = vi.fn(async () => null);
+        vi.mocked(client.getModule).mockImplementation(
+            () =>
+                ({ execute }) as unknown as ReturnType<typeof client.getModule>,
+        );
+        return execute;
+    };
+
     beforeEach(() => {
         available_cameras.set([]);
         selected_camera.set(null);
@@ -96,25 +116,35 @@ describe('CameraTooltipComponent', () => {
         // expect('joystick').toExist();
     });
 
-    it('should allow user to change zoom of camera', () => {
-        // const spy = vi.spyOn(spectator.fixture.componentRef.injector.get(Renderer2), 'listen');
-        // spy.mockImplementation((_, __, fn) => {
-        //     setTimeout(() => fn({}), 100);
-        //     return () => null;
-        // });
-        // const cam_list = [{ id: 'cam1', name: 'Camera 1' }] as any;
-        // const service = spectator.inject(ControlStateService);
-        // (service as any).camera_list.set(cam_list);
-        // spectator.component.selectCamera(cam_list[0]);
-        // spectator.detectChanges();
-        // spectator.dispatchFakeEvent('button[zoom-in]', 'mousedown');
-        // expect(spectator.component.zoom).toBe(ZoomDirection.In);
-        // spectator.tick(101);
-        // expect(spectator.component.zoom).toBe(ZoomDirection.Stop);
-        // spectator.dispatchFakeEvent('button[zoom-out]', 'mousedown');
-        // expect(spectator.component.zoom).toBe(ZoomDirection.Out);
-        // spectator.tick(101);
-        // expect(spectator.component.zoom).toBe(ZoomDirection.Stop);
+    it('should stop before moving so a released axis does not keep moving', async () => {
+        const execute = mockExecute();
+        spectator.component.active_camera.set({
+            id: 'cam1',
+            name: 'Camera 1',
+            mod: 'Camera_1',
+        } as RoomInput);
+        spectator.component.pan = JoystickPan.Stop;
+        spectator.component.tilt = JoystickTilt.Up;
+        spectator.component.moveCamera();
+        await new Promise((r) => setTimeout(r, 70));
+        expect(execute.mock.calls).toEqual([
+            ['stop', []],
+            ['tilt', [JoystickTilt.Up]],
+        ]);
+    });
+
+    it('should zoom while the zoom button is held', async () => {
+        const execute = mockExecute();
+        available_cameras.set([
+            { id: 'cam1', name: 'Camera 1', mod: 'Camera_1' },
+        ]);
+        selected_camera.set('cam1');
+        spectator.detectChanges();
+        spectator.dispatchFakeEvent('button[zoom-in]', 'pointerdown');
+        expect(execute).toHaveBeenCalledWith('zoom', [ZoomDirection.In]);
+        spectator.dispatchFakeEvent('button[zoom-in]', 'pointerup');
+        await new Promise((r) => setTimeout(r, 70));
+        expect(execute).toHaveBeenLastCalledWith('zoom', [ZoomDirection.Stop]);
     });
 
     it('should allow user to select camera presets', () => {

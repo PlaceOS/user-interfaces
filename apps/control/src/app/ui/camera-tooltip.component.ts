@@ -1,4 +1,4 @@
-import { Component, effect, inject, signal } from '@angular/core';
+import { Component, DestroyRef, effect, inject, signal } from '@angular/core';
 import {
     BindingDirective,
     CustomTooltipData,
@@ -134,11 +134,7 @@ export enum ZoomDirection {
                         <h3 class="mb-2 text-xl font-medium">
                             {{ 'APP.CONTROL.CONTROLS' | translate }}
                         </h3>
-                        <div
-                            class="flex items-center space-x-2"
-                            (window:mouseup)="stopZoom()"
-                            (window:touchend)="stopZoom()"
-                        >
+                        <div class="flex items-center space-x-2">
                             <joystick
                                 [(pan)]="pan"
                                 [(tilt)]="tilt"
@@ -153,11 +149,12 @@ export enum ZoomDirection {
                                     zoom-in
                                     icon
                                     matRipple
-                                    class="rounded-sm"
-                                    (mousedown)="startZoom('in', $event)"
-                                    (touchstart)="startZoom('in', $event)"
+                                    class="touch-none rounded-sm select-none"
+                                    (pointerdown)="startZoom('in', $event)"
+                                    (pointerup)="stopZoom()"
+                                    (pointercancel)="stopZoom()"
+                                    (lostpointercapture)="stopZoom()"
                                     (contextmenu)="$event.preventDefault()"
-                                    (click)="stopZoom()"
                                 >
                                     <icon>add</icon>
                                 </button>
@@ -170,11 +167,12 @@ export enum ZoomDirection {
                                     zoom-out
                                     icon
                                     matRipple
-                                    class="rounded-sm"
-                                    (mousedown)="startZoom('out', $event)"
-                                    (touchstart)="startZoom('out', $event)"
+                                    class="touch-none rounded-sm select-none"
+                                    (pointerdown)="startZoom('out', $event)"
+                                    (pointerup)="stopZoom()"
+                                    (pointercancel)="stopZoom()"
+                                    (lostpointercapture)="stopZoom()"
                                     (contextmenu)="$event.preventDefault()"
-                                    (click)="stopZoom()"
                                 >
                                     <icon>remove</icon>
                                 </button>
@@ -183,7 +181,8 @@ export enum ZoomDirection {
                     </div>
                     @if (!active_camera()) {
                         <div
-                            class="bg-base-100 bg-opacity-75 absolute inset-0 flex items-center justify-center"
+                            no-camera
+                            class="bg-base-100/75 absolute inset-0 flex items-center justify-center"
                         >
                             <p>
                                 {{
@@ -267,6 +266,7 @@ export class CameraTooltipComponent {
     }
 
     constructor() {
+        inject(DestroyRef).onDestroy(() => this.stopZoom());
         effect(() => {
             const l = this.camera_list();
             const cam = this._selected_camera();
@@ -312,7 +312,8 @@ export class CameraTooltipComponent {
         this._move_timeout = setTimeout(async () => {
             const { index } = camera;
             const mod = getModule(this.id, camera.mod);
-            if (!mod) return;
+            // Stop first so an axis that returned to Stop does not keep moving
+            await mod.execute('stop', index ? [index] : []);
             if (this.tilt !== JoystickTilt.Stop) {
                 await mod.execute(
                     'tilt',
@@ -325,16 +326,12 @@ export class CameraTooltipComponent {
                     index ? [this.pan, index] : [this.pan],
                 );
             }
-            if (
-                this.tilt === JoystickTilt.Stop &&
-                this.pan === JoystickPan.Stop
-            ) {
-                await mod.execute('stop', index ? [index] : []);
-            }
         }, 50);
     }
 
-    public async startZoom(dir: 'in' | 'out', e: MouseEvent | TouchEvent) {
+    /** Start zooming. Pointer capture makes sure the button receives the release. */
+    public async startZoom(dir: 'in' | 'out', e: PointerEvent) {
+        (e.currentTarget as Element | null)?.setPointerCapture?.(e.pointerId);
         const camera = this.active_camera();
         if (!camera?.mod) return;
         const mod = getModule(this.id, camera.mod);
