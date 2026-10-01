@@ -30,7 +30,7 @@ import {
     shareSignageTemplates,
     showGroupFeatures,
 } from '@placeos/ts-client';
-import { errorStatus } from './ai/ai-image.util';
+import { errorStatus } from './image-gen/image-gen.util';
 import { decodeEntityNames } from './shared/decode-entity-names.util';
 import { byName } from './shared/paged-search';
 import {

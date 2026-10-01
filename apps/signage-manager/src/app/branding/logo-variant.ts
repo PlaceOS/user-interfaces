@@ -1,4 +1,4 @@
-import { perceivedLightness } from '../ai/ai-image.util';
+import { perceivedLightness } from '../image-gen/image-gen.util';
 
 /**
  * Making the other version of a logo.

@@ -10,31 +10,31 @@ import { loadAuthenticatedImage } from '@placeos/components';
 import { showMetadata, updateMetadata } from '@placeos/ts-client';
 
 import { flipLightness, inkIsLight } from '../branding/logo-variant';
-import { errorStatus } from './ai-image.util';
 import {
-    cancelSignageAIJob,
-    claimSignageAIImage,
+    cancelSignageImageGenJob,
+    claimSignageImageGenImage,
     editSignageImage,
     generateSignageImage,
-    querySignageAIJobs,
+    querySignageImageGenJobs,
     removeSignageUpload,
-    showSignageAIJob,
-    signageAICapabilities,
-} from './ai.fn';
+    showSignageImageGenJob,
+    signageImageGenCapabilities,
+} from './image-gen.fn';
 import {
-    AiBrandKit,
-    AiCapabilities,
-    AiEditRequest,
-    AiGenerateRequest,
-    AiJob,
-    AiLogoSlot,
-} from './ai.types';
+    ImageGenBrandKit,
+    ImageGenCapabilities,
+    ImageGenEditRequest,
+    ImageGenGenerateRequest,
+    ImageGenJob,
+    ImageGenLogoSlot,
+} from './image-gen.types';
+import { errorStatus } from './image-gen.util';
 
 const FINAL_STATES = ['done', 'failed', 'cancelled'];
 
 /** the brand kit key each slot is stored under */
 export function logoKey(
-    slot: AiLogoSlot,
+    slot: ImageGenLogoSlot,
 ): 'logo_upload_id' | 'logo_dark_upload_id' {
     return slot === 'on_light' ? 'logo_upload_id' : 'logo_dark_upload_id';
 }
@@ -54,7 +54,7 @@ export const MAX_JOB_WAIT_MS = 30 * 60 * 1000;
 /** background retries when the capabilities request fails at start up */
 const LOAD_RETRY_DELAYS = [5_000, 30_000, 120_000];
 
-export function isFinal(job?: AiJob | null) {
+export function isFinal(job?: ImageGenJob | null) {
     return !!job && FINAL_STATES.includes(job.state);
 }
 
@@ -62,15 +62,15 @@ export function isFinal(job?: AiJob | null) {
  * Owns generation state for the app.
  */
 @Injectable({ providedIn: 'root' })
-export class AiImageService extends AsyncHandler {
+export class ImageGenService extends AsyncHandler {
     /** null until asked; `enabled: false` hides every entry point */
-    public readonly capabilities = signal<AiCapabilities | null>(null);
-    public readonly brand_kit = signal<AiBrandKit | null>(null);
+    public readonly capabilities = signal<ImageGenCapabilities | null>(null);
+    public readonly brand_kit = signal<ImageGenBrandKit | null>(null);
     /** whether the kit above is what the server holds, or just an empty start */
     public readonly brand_kit_read = signal<'pending' | 'ok' | 'failed'>(
         'pending',
     );
-    public readonly jobs = signal<Record<string, AiJob>>({});
+    public readonly jobs = signal<Record<string, ImageGenJob>>({});
 
     public readonly enabled = computed(() => !!this.capabilities()?.enabled);
     public readonly default_provider = computed(() => {
@@ -107,13 +107,15 @@ export class AiImageService extends AsyncHandler {
     private _org_zone = '';
 
     /**
-     * Read what this domain can do. A failed read leaves AI off and tries
+     * Read what this domain can do. A failed read leaves image generation off and tries
      * again in the background a few times.
      */
     public async load(org_zone_id?: string) {
         if (this._loaded) return this.capabilities();
         this._org_zone = org_zone_id || '';
-        const capabilities = await signageAICapabilities().catch(() => null);
+        const capabilities = await signageImageGenCapabilities().catch(
+            () => null,
+        );
         if (this._loaded) return this.capabilities();
         this._loaded = !!capabilities;
         if (!capabilities) {
@@ -145,8 +147,10 @@ export class AiImageService extends AsyncHandler {
     /**
      * Store a logo for the domain and remember it.
      */
-    public async uploadBrandLogo(file: File): Promise<AiBrandKit> {
-        const slot: AiLogoSlot = (await inkIsLight(file).catch(() => false))
+    public async uploadBrandLogo(file: File): Promise<ImageGenBrandKit> {
+        const slot: ImageGenLogoSlot = (await inkIsLight(file).catch(
+            () => false,
+        ))
             ? 'on_dark'
             : 'on_light';
         return this.replaceBrandLogo(slot, file, true);
@@ -158,12 +162,14 @@ export class AiImageService extends AsyncHandler {
      * alone.
      */
     public async replaceBrandLogo(
-        slot: AiLogoSlot,
+        slot: ImageGenLogoSlot,
         file: File,
         derive_other = false,
-    ): Promise<AiBrandKit> {
+    ): Promise<ImageGenBrandKit> {
         const upload_id = await this._uploads.uploadFileToCompletion(file);
-        const changes: Partial<AiBrandKit> = { [logoKey(slot)]: upload_id };
+        const changes: Partial<ImageGenBrandKit> = {
+            [logoKey(slot)]: upload_id,
+        };
 
         const other = slot === 'on_light' ? 'on_dark' : 'on_light';
         const other_id = this.brand_kit()?.[logoKey(other)];
@@ -187,12 +193,15 @@ export class AiImageService extends AsyncHandler {
     }
 
     /** make one slot from the other, on request rather than on upload */
-    public async deriveBrandLogo(target: AiLogoSlot): Promise<AiBrandKit> {
+    public async deriveBrandLogo(
+        target: ImageGenLogoSlot,
+    ): Promise<ImageGenBrandKit> {
         const source_id =
             this.brand_kit()?.[
                 logoKey(target === 'on_light' ? 'on_dark' : 'on_light')
             ];
-        if (!source_id) throw new Error(i18n('SIGNAGE_MANAGER.AI_NO_LOGO_YET'));
+        if (!source_id)
+            throw new Error(i18n('SIGNAGE_MANAGER.IMAGE_GEN_NO_LOGO_YET'));
         const url = await this.loadImage(
             `/api/engine/v2/uploads/${encodeURIComponent(source_id)}/url`,
         );
@@ -205,7 +214,7 @@ export class AiImageService extends AsyncHandler {
 
     private async _flip(
         source: File | string,
-        target: AiLogoSlot,
+        target: ImageGenLogoSlot,
     ): Promise<string> {
         const stem =
             typeof source === 'string'
@@ -234,10 +243,10 @@ export class AiImageService extends AsyncHandler {
      * Merge changes into the domain's brand kit.
      */
     public async saveBrandKit(
-        changes: Partial<AiBrandKit>,
-    ): Promise<AiBrandKit> {
+        changes: Partial<ImageGenBrandKit>,
+    ): Promise<ImageGenBrandKit> {
         if (!this._org_zone) {
-            throw new Error(i18n('SIGNAGE_MANAGER.AI_NO_ORG_ZONE'));
+            throw new Error(i18n('SIGNAGE_MANAGER.IMAGE_GEN_NO_ORG_ZONE'));
         }
         if (this.brand_kit_read() !== 'ok') {
             throw new Error(i18n('SIGNAGE_MANAGER.BRAND_NOT_LOADED'));
@@ -264,7 +273,7 @@ export class AiImageService extends AsyncHandler {
     }
 
     /** re-read the kit, for a page opened before start up finished */
-    public async reloadBrandKit(): Promise<AiBrandKit | null> {
+    public async reloadBrandKit(): Promise<ImageGenBrandKit | null> {
         if (!this._org_zone) return null;
         const metadata = await showMetadata(this._org_zone, 'signage_ai').catch(
             () => null,
@@ -275,7 +284,7 @@ export class AiImageService extends AsyncHandler {
         }
         const details = metadata.details;
         if (details && !Array.isArray(details) && Object.keys(details).length) {
-            this.brand_kit.set(details as unknown as AiBrandKit);
+            this.brand_kit.set(details as unknown as ImageGenBrandKit);
         }
         // an empty answer is a real answer: the organisation has set nothing
         this.brand_kit_read.set('ok');
@@ -310,9 +319,10 @@ export class AiImageService extends AsyncHandler {
 
     /** jobs started before a reload, so they still announce when they finish */
     public async loadRecent() {
-        const jobs = await querySignageAIJobs({ mine: true, limit: 20 }).catch(
-            () => [] as AiJob[],
-        );
+        const jobs = await querySignageImageGenJobs({
+            mine: true,
+            limit: 20,
+        }).catch(() => [] as ImageGenJob[]);
         this._merge(jobs);
         jobs.filter((job) => !isFinal(job)).forEach((job) =>
             this.watch(job.id),
@@ -320,7 +330,7 @@ export class AiImageService extends AsyncHandler {
         return jobs;
     }
 
-    public async generate(request: AiGenerateRequest) {
+    public async generate(request: ImageGenGenerateRequest) {
         const job = await generateSignageImage({
             ...request,
             idempotency_key: request.idempotency_key || crypto.randomUUID(),
@@ -331,7 +341,7 @@ export class AiImageService extends AsyncHandler {
         return job;
     }
 
-    public async edit(request: AiEditRequest) {
+    public async edit(request: ImageGenEditRequest) {
         const job = await editSignageImage({
             ...request,
             idempotency_key: request.idempotency_key || crypto.randomUUID(),
@@ -343,7 +353,7 @@ export class AiImageService extends AsyncHandler {
     }
 
     public async cancel(id: string) {
-        const job = await cancelSignageAIJob(id).catch(() => null);
+        const job = await cancelSignageImageGenJob(id).catch(() => null);
         if (job) this._merge([job]);
         return job;
     }
@@ -357,7 +367,10 @@ export class AiImageService extends AsyncHandler {
                 );
             }
             try {
-                return await claimSignageAIImage(id, { upload_id, item_id });
+                return await claimSignageImageGenImage(id, {
+                    upload_id,
+                    item_id,
+                });
             } catch (error) {
                 last_error = error;
             }
@@ -396,10 +409,11 @@ export class AiImageService extends AsyncHandler {
         }
 
         const known = this.jobs()[id]?.version ?? 0;
-        const result: AiJob | { error: unknown } = await showSignageAIJob(id, {
-            wait: POLL_WAIT,
-            since: known,
-        }).catch((error: unknown) => ({ error }));
+        const result: ImageGenJob | { error: unknown } =
+            await showSignageImageGenJob(id, {
+                wait: POLL_WAIT,
+                since: known,
+            }).catch((error: unknown) => ({ error }));
 
         if ('error' in result) {
             const status = errorStatus(result.error);
@@ -432,7 +446,9 @@ export class AiImageService extends AsyncHandler {
      * Re-read what is left of the allowance.
      */
     public async refreshQuota() {
-        const capabilities = await signageAICapabilities().catch(() => null);
+        const capabilities = await signageImageGenCapabilities().catch(
+            () => null,
+        );
         if (capabilities?.quota) {
             this.capabilities.update((current) =>
                 current ? { ...current, quota: capabilities.quota } : current,
@@ -441,30 +457,31 @@ export class AiImageService extends AsyncHandler {
     }
 
     /** told once, when a job the user may no longer be watching finishes */
-    private _announce(job: AiJob) {
+    private _announce(job: ImageGenJob) {
         if (job.state === 'failed') {
             notifyError(
-                job.error_message || i18n('SIGNAGE_MANAGER.AI_JOB_FAILED'),
+                job.error_message ||
+                    i18n('SIGNAGE_MANAGER.IMAGE_GEN_JOB_FAILED'),
             );
         } else if (job.state === 'done' && job.images_produced > 0) {
-            notifyInfo(i18n('SIGNAGE_MANAGER.AI_JOB_DONE'));
+            notifyInfo(i18n('SIGNAGE_MANAGER.IMAGE_GEN_JOB_DONE'));
         }
     }
 
     private _failJob(id: string) {
         const current = this.jobs()[id];
         if (!current || isFinal(current)) return;
-        const failed: AiJob = {
+        const failed: ImageGenJob = {
             ...current,
             state: 'failed',
             version: current.version + 1,
-            error_message: i18n('SIGNAGE_MANAGER.AI_JOB_FAILED'),
+            error_message: i18n('SIGNAGE_MANAGER.IMAGE_GEN_JOB_FAILED'),
         };
         this._merge([failed]);
         this._announce(failed);
     }
 
-    private _merge(jobs: AiJob[]) {
+    private _merge(jobs: ImageGenJob[]) {
         if (!jobs?.length) return;
         this.jobs.update((existing) => {
             const next = { ...existing };

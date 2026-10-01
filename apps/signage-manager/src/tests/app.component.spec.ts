@@ -2,15 +2,15 @@ import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
 import { PlaceOS_Service, UploadsService } from '@placeos/common';
-import { AiImageService } from '../app/ai/ai-image.service';
 import { AppComponent } from '../app/app.component';
+import { ImageGenService } from '../app/image-gen/image-gen.service';
 import { CommandPaletteService } from '../app/shared/command-palette.service';
 import { SignageContextService } from '../app/signage-context.service';
 
 describe('AppComponent', () => {
     const placeos = { init: vi.fn() };
     const uploads = { init: vi.fn() };
-    const ai = {
+    const image_gen = {
         enabled: vi.fn(() => true),
         load: vi.fn(),
         loadRecent: vi.fn(),
@@ -30,14 +30,14 @@ describe('AppComponent', () => {
         context.templates_enabled.set(true);
         router.url = '/media';
         placeos.init.mockResolvedValue(undefined);
-        ai.load.mockResolvedValue(undefined);
-        ai.loadRecent.mockResolvedValue([]);
+        image_gen.load.mockResolvedValue(undefined);
+        image_gen.loadRecent.mockResolvedValue([]);
         await TestBed.configureTestingModule({
             imports: [AppComponent],
             providers: [
                 { provide: PlaceOS_Service, useValue: placeos },
                 { provide: UploadsService, useValue: uploads },
-                { provide: AiImageService, useValue: ai },
+                { provide: ImageGenService, useValue: image_gen },
                 { provide: CommandPaletteService, useValue: palette },
                 { provide: SignageContextService, useValue: context },
                 { provide: Router, useValue: router },
@@ -55,8 +55,8 @@ describe('AppComponent', () => {
 
         expect(placeos.init).toHaveBeenCalledTimes(1);
         expect(uploads.init).toHaveBeenCalledTimes(1);
-        expect(ai.load).toHaveBeenCalledTimes(1);
-        expect(ai.loadRecent).toHaveBeenCalledTimes(1);
+        expect(image_gen.load).toHaveBeenCalledTimes(1);
+        expect(image_gen.loadRecent).toHaveBeenCalledTimes(1);
     });
 
     it('waits for PlaceOS init to resolve before starting uploads', async () => {

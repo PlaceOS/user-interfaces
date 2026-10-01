@@ -2,7 +2,7 @@ import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { MatDialogRef } from '@angular/material/dialog';
 import { Router } from '@angular/router';
-import { AiImageService } from '../../app/ai/ai-image.service';
+import { ImageGenService } from '../../app/image-gen/image-gen.service';
 import { SignageMediaService } from '../../app/media/signage-media.service';
 import { CommandPaletteComponent } from '../../app/shared/command-palette.component';
 import { CommandPaletteService } from '../../app/shared/command-palette.service';
@@ -41,7 +41,7 @@ describe('CommandPaletteComponent', () => {
                     },
                 },
                 {
-                    provide: AiImageService,
+                    provide: ImageGenService,
                     useValue: { enabled: signal(false) },
                 },
                 { provide: Router, useValue: { navigate } },

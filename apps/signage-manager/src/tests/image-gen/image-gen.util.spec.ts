@@ -3,9 +3,9 @@ import {
     errorStatus,
     orientationOf,
     perceivedLightness,
-} from '../../app/ai/ai-image.util';
+} from '../../app/image-gen/image-gen.util';
 
-describe('AI image utilities', () => {
+describe('image generation utilities', () => {
     it('reads nested API errors without returning an object', () => {
         expect(
             errorMessage(

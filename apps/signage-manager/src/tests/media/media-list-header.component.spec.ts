@@ -3,7 +3,7 @@ import { TestBed } from '@angular/core/testing';
 import { MatDialog } from '@angular/material/dialog';
 import { setNotifyOutlet } from '@placeos/common';
 import { SignagePlugin } from '@placeos/ts-client';
-import { AiImageService } from '../../app/ai/ai-image.service';
+import { ImageGenService } from '../../app/image-gen/image-gen.service';
 import { MediaListHeaderComponent } from '../../app/media/media-list-header.component';
 import { SignageMediaService } from '../../app/media/signage-media.service';
 import { MediaAddModalComponent } from '../../app/shared/media-add-modal.component';
@@ -57,7 +57,7 @@ describe('MediaListHeaderComponent', () => {
                 { provide: SignagePluginService, useValue: plugin_stub },
                 { provide: MatDialog, useValue: { open: dialog_open } },
                 {
-                    provide: AiImageService,
+                    provide: ImageGenService,
                     useValue: { can_generate: signal(true) },
                 },
             ],

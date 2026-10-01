@@ -21,9 +21,12 @@ import {
     TranslatePipe,
 } from '@placeos/components';
 
-import { AiImageService } from '../ai/ai-image.service';
-import { errorMessage } from '../ai/ai-image.util';
-import { AiBrandKit, AiLogoSlot } from '../ai/ai.types';
+import { ImageGenService } from '../image-gen/image-gen.service';
+import {
+    ImageGenBrandKit,
+    ImageGenLogoSlot,
+} from '../image-gen/image-gen.types';
+import { errorMessage } from '../image-gen/image-gen.util';
 import { SignageContextService } from '../signage-context.service';
 import { BRAND_FONTS, ensureBrandFont } from './brand-fonts';
 
@@ -227,7 +230,7 @@ const COLOUR_NAMES = ['primary', 'secondary', 'accent'];
                                         class="text-xs"
                                         [style.color]="slot.faded"
                                         >{{
-                                            'SIGNAGE_MANAGER.AI_NO_LOGO_YET'
+                                            'SIGNAGE_MANAGER.IMAGE_GEN_NO_LOGO_YET'
                                                 | translate
                                         }}</span
                                     >
@@ -244,10 +247,10 @@ const COLOUR_NAMES = ['primary', 'secondary', 'accent'];
                                     >
                                         {{
                                             (busy() === slot.id
-                                                ? 'SIGNAGE_MANAGER.AI_LOGO_UPLOADING'
+                                                ? 'SIGNAGE_MANAGER.IMAGE_GEN_LOGO_UPLOADING'
                                                 : logoId(slot.id)
-                                                  ? 'SIGNAGE_MANAGER.AI_REPLACE_LOGO'
-                                                  : 'SIGNAGE_MANAGER.AI_ADD_LOGO'
+                                                  ? 'SIGNAGE_MANAGER.IMAGE_GEN_REPLACE_LOGO'
+                                                  : 'SIGNAGE_MANAGER.IMAGE_GEN_ADD_LOGO'
                                             ) | translate
                                         }}
                                     </button>
@@ -277,7 +280,7 @@ const COLOUR_NAMES = ['primary', 'secondary', 'accent'];
                         class="sr-only"
                         accept="image/png,image/jpeg,image/webp,image/svg+xml"
                         [attr.aria-label]="
-                            'SIGNAGE_MANAGER.AI_ADD_LOGO' | translate
+                            'SIGNAGE_MANAGER.IMAGE_GEN_ADD_LOGO' | translate
                         "
                         (change)="pickLogo($event)"
                     />
@@ -300,7 +303,7 @@ const COLOUR_NAMES = ['primary', 'secondary', 'accent'];
                     }
                     @if (!enabled()) {
                         <span class="text-base-content/60 text-sm">{{
-                            'SIGNAGE_MANAGER.BRAND_AI_OFF' | translate
+                            'SIGNAGE_MANAGER.BRAND_IMAGE_GEN_OFF' | translate
                         }}</span>
                     }
                 </div>
@@ -321,11 +324,11 @@ const COLOUR_NAMES = ['primary', 'secondary', 'accent'];
     ],
 })
 export class BrandingComponent implements OnInit {
-    private readonly _ai = inject(AiImageService);
+    private readonly _image_gen = inject(ImageGenService);
     private readonly _context = inject(SignageContextService);
 
     public readonly fonts = BRAND_FONTS;
-    public readonly enabled = this._ai.enabled;
+    public readonly enabled = this._image_gen.enabled;
 
     /** The brand kit is for the whole organisation, so only the global
      * `app.features` setting turns branding edits off */
@@ -353,25 +356,25 @@ export class BrandingComponent implements OnInit {
     public readonly saving = signal(false);
 
     /** which slot is mid upload or mid conversion, so only one runs at a time */
-    public readonly busy = signal<AiLogoSlot | ''>('');
-    public readonly logos = signal<Record<AiLogoSlot, string>>({
+    public readonly busy = signal<ImageGenLogoSlot | ''>('');
+    public readonly logos = signal<Record<ImageGenLogoSlot, string>>({
         on_light: '',
         on_dark: '',
     });
-    public readonly derived = signal<AiLogoSlot | ''>('');
+    public readonly derived = signal<ImageGenLogoSlot | ''>('');
     /** Palette colours after the three that the page edits. A save replaces
      * the whole kit, so they are saved back as they are. */
     private _extra_palette: Record<string, string> = {};
 
     public readonly slots = [
         {
-            id: 'on_light' as AiLogoSlot,
+            id: 'on_light' as ImageGenLogoSlot,
             label: 'SIGNAGE_MANAGER.BRAND_LOGO_ON_LIGHT',
             ground: '#FFFFFF',
             faded: 'rgba(0, 0, 0, 0.45)',
         },
         {
-            id: 'on_dark' as AiLogoSlot,
+            id: 'on_dark' as ImageGenLogoSlot,
             label: 'SIGNAGE_MANAGER.BRAND_LOGO_ON_DARK',
             ground: '#1B2420',
             faded: 'rgba(255, 255, 255, 0.55)',
@@ -380,7 +383,7 @@ export class BrandingComponent implements OnInit {
 
     private readonly _logo_input =
         viewChild<ElementRef<HTMLInputElement>>('logo_input');
-    private _target: AiLogoSlot = 'on_light';
+    private _target: ImageGenLogoSlot = 'on_light';
 
     public readonly font_stack = computed(() => {
         const family = this.font();
@@ -397,14 +400,14 @@ export class BrandingComponent implements OnInit {
     /** Read the brand kit, unless an earlier read already worked */
     public async load() {
         this.load_state.set('loading');
-        if (this._ai.brand_kit_read() !== 'ok') {
-            await this._ai.reloadBrandKit();
+        if (this._image_gen.brand_kit_read() !== 'ok') {
+            await this._image_gen.reloadBrandKit();
         }
-        if (this._ai.brand_kit_read() !== 'ok') {
+        if (this._image_gen.brand_kit_read() !== 'ok') {
             this.load_state.set('failed');
             return;
         }
-        const brand = this._ai.brand_kit();
+        const brand = this._image_gen.brand_kit();
         if (brand) this._apply(brand);
         this.load_state.set('ready');
     }
@@ -447,20 +450,20 @@ export class BrandingComponent implements OnInit {
         ensureBrandFont(this.font());
     }
 
-    public logoId(slot: AiLogoSlot) {
+    public logoId(slot: ImageGenLogoSlot) {
         return this.logos()[slot];
     }
 
-    public logoUrl(slot: AiLogoSlot) {
+    public logoUrl(slot: ImageGenLogoSlot) {
         const id = this.logos()[slot];
         return id ? `/api/engine/v2/uploads/${encodeURIComponent(id)}/url` : '';
     }
 
-    public other(slot: AiLogoSlot): AiLogoSlot {
+    public other(slot: ImageGenLogoSlot): ImageGenLogoSlot {
         return slot === 'on_light' ? 'on_dark' : 'on_light';
     }
 
-    public pick(slot: AiLogoSlot) {
+    public pick(slot: ImageGenLogoSlot) {
         if (!this.can_edit()) return;
         this._target = slot;
         this._logo_input()?.nativeElement.click();
@@ -475,13 +478,13 @@ export class BrandingComponent implements OnInit {
         const slot = this._target;
         this.busy.set(slot);
         try {
-            const kit = await this._ai.replaceBrandLogo(
+            const kit = await this._image_gen.replaceBrandLogo(
                 slot,
                 file,
                 !this.logoId(this.other(slot)),
             );
             this._applyLogos(kit);
-            notifySuccess(i18n('SIGNAGE_MANAGER.AI_LOGO_SAVED'));
+            notifySuccess(i18n('SIGNAGE_MANAGER.IMAGE_GEN_LOGO_SAVED'));
         } catch (error) {
             notifyError(
                 errorMessage(error, i18n('SIGNAGE_MANAGER.BRAND_SAVE_FAILED')),
@@ -492,11 +495,11 @@ export class BrandingComponent implements OnInit {
     }
 
     /** make this slot from the other one */
-    public async derive(slot: AiLogoSlot) {
+    public async derive(slot: ImageGenLogoSlot) {
         if (!this.can_edit()) return;
         this.busy.set(slot);
         try {
-            const kit = await this._ai.deriveBrandLogo(slot);
+            const kit = await this._image_gen.deriveBrandLogo(slot);
             this._applyLogos(kit);
             notifySuccess(i18n('SIGNAGE_MANAGER.BRAND_LOGO_MADE'));
         } catch (error) {
@@ -520,7 +523,7 @@ export class BrandingComponent implements OnInit {
             this.colours().forEach((colour, index) => {
                 palette[this.colourName(index)] = colour;
             });
-            await this._ai.saveBrandKit({
+            await this._image_gen.saveBrandKit({
                 organisation: this.organisation().trim() || undefined,
                 palette,
                 font: this.font() ? { family: this.font() } : undefined,
@@ -535,7 +538,7 @@ export class BrandingComponent implements OnInit {
         }
     }
 
-    private _apply(brand: AiBrandKit) {
+    private _apply(brand: ImageGenBrandKit) {
         this.organisation.set(brand.organisation || '');
         const palette = brand.palette || {};
         const ordered = [
@@ -555,7 +558,7 @@ export class BrandingComponent implements OnInit {
         this._applyLogos(brand);
     }
 
-    private _applyLogos(brand: AiBrandKit) {
+    private _applyLogos(brand: ImageGenBrandKit) {
         this.logos.set({
             on_light: brand.logo_upload_id || '',
             on_dark: brand.logo_dark_upload_id || '',

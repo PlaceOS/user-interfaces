@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 
-import { AiLayerComponent } from '../../app/ai/ai-layer.component';
-import { AiLayerState } from '../../app/ai/ai.types';
+import { ImageGenLayerComponent } from '../../app/image-gen/image-gen-layer.component';
+import { ImageGenLayerState } from '../../app/image-gen/image-gen.types';
 
 interface Box {
     left: number;
@@ -15,13 +15,15 @@ interface LayerInternals {
     _boxes: Map<string, Box>;
     _logos: Record<'on_light' | 'on_dark', HTMLImageElement | null>;
     _logoFor: (
-        state: AiLayerState,
+        state: ImageGenLayerState,
         context: CanvasRenderingContext2D,
         box: Box,
     ) => HTMLImageElement | null;
 }
 
-function layerState(changes: Partial<AiLayerState> = {}): AiLayerState {
+function layerState(
+    changes: Partial<ImageGenLayerState> = {},
+): ImageGenLayerState {
     return {
         blocks: [],
         logo: false,
@@ -32,14 +34,16 @@ function layerState(changes: Partial<AiLayerState> = {}): AiLayerState {
     };
 }
 
-describe('AiLayerComponent', () => {
+describe('ImageGenLayerComponent', () => {
     async function make(template?: string) {
-        TestBed.configureTestingModule({ imports: [AiLayerComponent] });
+        TestBed.configureTestingModule({ imports: [ImageGenLayerComponent] });
         if (template !== undefined) {
-            TestBed.overrideComponent(AiLayerComponent, { set: { template } });
+            TestBed.overrideComponent(ImageGenLayerComponent, {
+                set: { template },
+            });
         }
         await TestBed.compileComponents();
-        const fixture = TestBed.createComponent(AiLayerComponent);
+        const fixture = TestBed.createComponent(ImageGenLayerComponent);
         fixture.componentRef.setInput('image_url', '');
         fixture.componentRef.setInput('state', layerState());
         return fixture;

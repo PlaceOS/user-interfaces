@@ -12,24 +12,24 @@ import {
 import { TranslatePipe } from '@placeos/components';
 
 import { ensureBrandFont } from '../branding/brand-fonts';
-import { perceivedLightness } from './ai-image.util';
 import {
-    AiBrandKit,
-    AiLayerState,
-    AiLogoSlot,
-    AiTextBlock,
-    AiTextRole,
-} from './ai.types';
+    ImageGenBrandKit,
+    ImageGenLayerState,
+    ImageGenLogoSlot,
+    ImageGenTextBlock,
+    ImageGenTextRole,
+} from './image-gen.types';
+import { perceivedLightness } from './image-gen.util';
 
 /** share of the artwork's height each role is drawn at */
-const ROLE_SIZE: Record<AiTextRole, number> = {
+const ROLE_SIZE: Record<ImageGenTextRole, number> = {
     headline: 0.11,
     subheading: 0.055,
     body: 0.038,
 };
 
 /** line to line, as a multiple of the type size */
-const ROLE_LEADING: Record<AiTextRole, number> = {
+const ROLE_LEADING: Record<ImageGenTextRole, number> = {
     headline: 1.12,
     subheading: 1.3,
     body: 1.45,
@@ -51,7 +51,7 @@ interface Box {
  * at the artwork's native size.
  */
 @Component({
-    selector: 'ai-layer',
+    selector: 'image-gen-layer',
     template: `
         <canvas
             #canvas
@@ -59,7 +59,9 @@ interface Box {
             class="max-h-full max-w-full touch-none"
             [class.cursor-grab]="hover_id() && !drag_id()"
             [class.cursor-grabbing]="!!drag_id()"
-            [attr.aria-label]="'SIGNAGE_MANAGER.AI_LAYER_PREVIEW' | translate"
+            [attr.aria-label]="
+                'SIGNAGE_MANAGER.IMAGE_GEN_LAYER_PREVIEW' | translate
+            "
             (pointerdown)="onPointerDown($event)"
             (pointermove)="onPointerMove($event)"
             (pointerup)="onPointerUp($event)"
@@ -85,17 +87,17 @@ interface Box {
     ],
     imports: [TranslatePipe],
 })
-export class AiLayerComponent {
+export class ImageGenLayerComponent {
     public readonly image_url = input.required<string>();
     /** the logo to use on a light background, so dark ink */
     public readonly logo_on_light = input<string>('');
     /** the logo to use on a dark background, so light ink */
     public readonly logo_on_dark = input<string>('');
-    public readonly brand = input<AiBrandKit | null>(null);
-    public readonly state = input.required<AiLayerState>();
+    public readonly brand = input<ImageGenBrandKit | null>(null);
+    public readonly state = input.required<ImageGenLayerState>();
 
     /** a block was dragged or nudged */
-    public readonly changed = output<AiLayerState>();
+    public readonly changed = output<ImageGenLayerState>();
     /** the artwork could not be decoded, so there is nothing to composite */
     public readonly failed = output<void>();
 
@@ -107,10 +109,11 @@ export class AiLayerComponent {
         viewChild<ElementRef<HTMLCanvasElement>>('canvas');
     private _artwork: HTMLImageElement | null = null;
     private _artwork_url = '';
-    private readonly _logos: Record<AiLogoSlot, HTMLImageElement | null> = {
-        on_light: null,
-        on_dark: null,
-    };
+    private readonly _logos: Record<ImageGenLogoSlot, HTMLImageElement | null> =
+        {
+            on_light: null,
+            on_dark: null,
+        };
 
     /** where each block ended up last draw, in artwork pixels, for hit testing */
     private _boxes = new Map<string, Box>();
@@ -298,7 +301,7 @@ export class AiLayerComponent {
     }
 
     /** last drawn wins, so the block on top is the one you grab */
-    private _blockAt(x: number, y: number): AiTextBlock | null {
+    private _blockAt(x: number, y: number): ImageGenTextBlock | null {
         const blocks = this.state().blocks;
         for (let index = blocks.length - 1; index >= 0; index--) {
             const box = this._boxes.get(blocks[index].id);
@@ -338,7 +341,7 @@ export class AiLayerComponent {
         image.src = url;
     }
 
-    private _loadLogo(slot: AiLogoSlot, url: string) {
+    private _loadLogo(slot: ImageGenLogoSlot, url: string) {
         const image = new Image();
         image.crossOrigin = 'anonymous';
         image.onload = () => {
@@ -369,7 +372,7 @@ export class AiLayerComponent {
         context: CanvasRenderingContext2D,
         width: number,
         height: number,
-        state: AiLayerState,
+        state: ImageGenLayerState,
     ) {
         this._boxes.clear();
         const wrap_at = width * 0.88;
@@ -450,7 +453,7 @@ export class AiLayerComponent {
         context: CanvasRenderingContext2D,
         width: number,
         height: number,
-        state: AiLayerState,
+        state: ImageGenLayerState,
     ) {
         const margin = Math.round(width * 0.04);
         const target_width = Math.round(width * state.logo_scale);
@@ -490,7 +493,7 @@ export class AiLayerComponent {
      * light version and a light corner takes the dark one.
      */
     private _logoFor(
-        state: AiLayerState,
+        state: ImageGenLayerState,
         context: CanvasRenderingContext2D,
         box: Box,
     ) {

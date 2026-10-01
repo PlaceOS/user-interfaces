@@ -1,20 +1,20 @@
 import { TestBed } from '@angular/core/testing';
 
 import {
-    AiLayerControlsComponent,
+    ImageGenLayerControlsComponent,
     newTextBlock,
-} from '../../app/ai/ai-layer-controls.component';
+} from '../../app/image-gen/image-gen-layer-controls.component';
 
-describe('AiLayerControlsComponent', () => {
+describe('ImageGenLayerControlsComponent', () => {
     it('updates a block colour from a typed input event', async () => {
         await TestBed.configureTestingModule({
-            imports: [AiLayerControlsComponent],
+            imports: [ImageGenLayerControlsComponent],
         })
-            .overrideComponent(AiLayerControlsComponent, {
+            .overrideComponent(ImageGenLayerControlsComponent, {
                 set: { template: '' },
             })
             .compileComponents();
-        const fixture = TestBed.createComponent(AiLayerControlsComponent);
+        const fixture = TestBed.createComponent(ImageGenLayerControlsComponent);
         const block = newTextBlock('headline');
         fixture.componentRef.setInput('state', {
             blocks: [block],

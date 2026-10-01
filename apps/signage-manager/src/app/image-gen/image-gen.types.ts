@@ -1,6 +1,6 @@
 /** Mirrors the structs in rest-api's SignageAI controller. */
 
-export interface AiModelCapabilities {
+export interface ImageGenModelCapabilities {
     id: string;
     name: string;
     generate: boolean;
@@ -12,19 +12,19 @@ export interface AiModelCapabilities {
     aspect_ratios: string[];
 }
 
-export interface AiProviderCapabilities {
+export interface ImageGenProviderCapabilities {
     id: string;
     name: string;
     provider: string;
     region?: string;
     default_model?: string;
-    models: AiModelCapabilities[];
+    models: ImageGenModelCapabilities[];
 }
 
-export interface AiCapabilities {
+export interface ImageGenCapabilities {
     enabled: boolean;
     reason?: string;
-    providers: AiProviderCapabilities[];
+    providers: ImageGenProviderCapabilities[];
     default_provider_id?: string;
     aspect_ratios: string[];
     qualities: string[];
@@ -36,7 +36,7 @@ export interface AiCapabilities {
     };
 }
 
-export interface AiJobImage {
+export interface ImageGenJobImage {
     state?: string;
     index?: number;
     upload_id?: string;
@@ -48,11 +48,16 @@ export interface AiJobImage {
     item_id?: string;
 }
 
-export type AiJobState = 'queued' | 'running' | 'done' | 'failed' | 'cancelled';
+export type ImageGenJobState =
+    | 'queued'
+    | 'running'
+    | 'done'
+    | 'failed'
+    | 'cancelled';
 
-export interface AiJob {
+export interface ImageGenJob {
     id: string;
-    state: AiJobState;
+    state: ImageGenJobState;
     kind: 'generate' | 'edit';
     provider?: string;
     model?: string;
@@ -62,7 +67,7 @@ export interface AiJob {
     version: number;
     prompt?: string;
     /** one slot per candidate, null until that candidate lands */
-    images: (AiJobImage | null)[];
+    images: (ImageGenJobImage | null)[];
     error_kind?: string;
     error_message?: string;
     cost_units?: number;
@@ -71,7 +76,7 @@ export interface AiJob {
     finished_at?: number;
 }
 
-export interface AiGenerateRequest {
+export interface ImageGenGenerateRequest {
     prompt: string;
     aspect_ratio?: string;
     quality?: 'standard' | 'high';
@@ -88,13 +93,13 @@ export interface AiGenerateRequest {
     idempotency_key?: string;
 }
 
-export interface AiEditRequest extends AiGenerateRequest {
+export interface ImageGenEditRequest extends ImageGenGenerateRequest {
     source_upload_id: string;
     source_item_id?: string;
     parent_job_id?: string;
 }
 
-export interface AiBrandKit {
+export interface ImageGenBrandKit {
     organisation?: string;
     palette?: Record<string, string>;
     tone?: string;
@@ -103,40 +108,40 @@ export interface AiBrandKit {
     /** the logo to put on a dark background, so light ink */
     logo_dark_upload_id?: string;
     /** which of the two was made by flipping the other, rather than uploaded */
-    logo_derived?: AiLogoSlot;
+    logo_derived?: ImageGenLogoSlot;
     never_include?: string[];
     font?: { url?: string; family?: string } | string;
 }
 
 /** which background a logo file is meant to sit on */
-export type AiLogoSlot = 'on_light' | 'on_dark';
+export type ImageGenLogoSlot = 'on_light' | 'on_dark';
 
 /** on_light and on_dark pick a file; auto reads the artwork behind the logo */
-export type AiLogoChoice = 'auto' | AiLogoSlot;
+export type ImageGenLogoChoice = 'auto' | ImageGenLogoSlot;
 
 /**
  * An image attached to a request, numbered from 1 so a brief can name it.
  */
-export interface AiReference {
+export interface ImageGenReference {
     id: string;
     name: string;
     url: string;
 }
 
 /** drives the size the text is drawn at */
-export type AiTextRole = 'headline' | 'subheading' | 'body';
+export type ImageGenTextRole = 'headline' | 'subheading' | 'body';
 
 /** how the lines inside a block line up with each other */
-export type AiTextAlign = 'left' | 'centre' | 'right';
+export type ImageGenTextAlign = 'left' | 'centre' | 'right';
 
-export interface AiTextBlock {
+export interface ImageGenTextBlock {
     id: string;
     text: string;
-    role: AiTextRole;
+    role: ImageGenTextRole;
     /** top left of the block, as a fraction of the artwork's width and height */
     x: number;
     y: number;
-    align: AiTextAlign;
+    align: ImageGenTextAlign;
     colour: string;
     /** empty means the organisation's brand font */
     font: string;
@@ -144,10 +149,10 @@ export interface AiTextBlock {
 }
 
 /** what the layer editor produces, kept on the modal between states */
-export interface AiLayerState {
-    blocks: AiTextBlock[];
+export interface ImageGenLayerState {
+    blocks: ImageGenTextBlock[];
     logo: boolean;
     logo_position: 'bottom-right' | 'bottom-left' | 'top-right' | 'top-left';
     logo_scale: number;
-    logo_choice: AiLogoChoice;
+    logo_choice: ImageGenLogoChoice;
 }

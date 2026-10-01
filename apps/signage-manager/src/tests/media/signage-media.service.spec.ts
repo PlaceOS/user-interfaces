@@ -1010,7 +1010,7 @@ describe('SignageMediaService', () => {
         ['generation', {}, ['ai-editing']],
         ['editing', { source_upload_id: 'upload-1' }, ['ai-generation']],
     ])(
-        'does not open the AI modal when AI %s is off',
+        'does not open the image generation modal when image %s is off',
         async (_name, options, features) => {
             const service = createService();
             const context = TestBed.inject(SignageContextService);
@@ -1024,7 +1024,7 @@ describe('SignageMediaService', () => {
                 value: () => features,
             });
 
-            await service.generateMediaWithAI(options);
+            await service.generateMediaWithImageGen(options);
 
             expect(dialog.open).not.toHaveBeenCalled();
         },

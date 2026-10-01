@@ -1,12 +1,12 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
-import { AiImageService } from '../../app/ai/ai-image.service';
 import { BrandingComponent } from '../../app/branding/branding.component';
+import { ImageGenService } from '../../app/image-gen/image-gen.service';
 import { SignageContextService } from '../../app/signage-context.service';
 
 describe('BrandingComponent', () => {
-    const ai_stub = {
+    const image_gen_stub = {
         enabled: signal(true),
         brand_kit: signal<Record<string, unknown> | null>(null),
         brand_kit_read: signal<'pending' | 'ok' | 'failed'>('ok'),
@@ -18,7 +18,7 @@ describe('BrandingComponent', () => {
         await TestBed.configureTestingModule({
             imports: [BrandingComponent],
             providers: [
-                { provide: AiImageService, useValue: ai_stub },
+                { provide: ImageGenService, useValue: image_gen_stub },
                 {
                     provide: SignageContextService,
                     useValue: {
@@ -35,9 +35,9 @@ describe('BrandingComponent', () => {
 
     beforeEach(() => {
         vi.clearAllMocks();
-        ai_stub.brand_kit.set(null);
-        ai_stub.brand_kit_read.set('ok');
-        ai_stub.saveBrandKit.mockResolvedValue({});
+        image_gen_stub.brand_kit.set(null);
+        image_gen_stub.brand_kit_read.set('ok');
+        image_gen_stub.saveBrandKit.mockResolvedValue({});
     });
 
     it('updates a colour from a typed input event', async () => {
@@ -53,7 +53,7 @@ describe('BrandingComponent', () => {
     });
 
     it('keeps palette colours past the three it shows when saving', async () => {
-        ai_stub.brand_kit.set({
+        image_gen_stub.brand_kit.set({
             palette: {
                 primary: '#111111',
                 secondary: '#222222',
@@ -67,7 +67,7 @@ describe('BrandingComponent', () => {
         expect(component.colours()).toEqual(['#111111', '#222222', '#333333']);
         await component.save();
 
-        expect(ai_stub.saveBrandKit).toHaveBeenCalledWith(
+        expect(image_gen_stub.saveBrandKit).toHaveBeenCalledWith(
             expect.objectContaining({
                 palette: {
                     primary: '#111111',
@@ -80,12 +80,12 @@ describe('BrandingComponent', () => {
     });
 
     it('does not allow edits when the brand kit cannot be read', async () => {
-        ai_stub.brand_kit_read.set('failed');
-        ai_stub.reloadBrandKit.mockResolvedValue(null);
+        image_gen_stub.brand_kit_read.set('failed');
+        image_gen_stub.reloadBrandKit.mockResolvedValue(null);
         const component = await make();
         await component.ngOnInit();
 
-        expect(ai_stub.reloadBrandKit).toHaveBeenCalled();
+        expect(image_gen_stub.reloadBrandKit).toHaveBeenCalled();
         expect(component.load_state()).toBe('failed');
         expect(component.can_edit()).toBe(false);
     });

@@ -1,17 +1,17 @@
 import { TestBed } from '@angular/core/testing';
 
-import { AiReferencesComponent } from '../../app/ai/ai-references.component';
+import { ImageGenReferencesComponent } from '../../app/image-gen/image-gen-references.component';
 
-describe('AiReferencesComponent', () => {
+describe('ImageGenReferencesComponent', () => {
     it('emits only the files that fit within the model limit', async () => {
         await TestBed.configureTestingModule({
-            imports: [AiReferencesComponent],
+            imports: [ImageGenReferencesComponent],
         })
-            .overrideComponent(AiReferencesComponent, {
+            .overrideComponent(ImageGenReferencesComponent, {
                 set: { template: '' },
             })
             .compileComponents();
-        const fixture = TestBed.createComponent(AiReferencesComponent);
+        const fixture = TestBed.createComponent(ImageGenReferencesComponent);
         fixture.componentRef.setInput('items', [
             { id: 'one', name: 'one.png', url: 'blob:one' },
         ]);

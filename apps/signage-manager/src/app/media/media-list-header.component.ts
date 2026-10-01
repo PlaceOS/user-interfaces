@@ -14,7 +14,7 @@ import {
     TranslatePipe,
 } from '@placeos/components';
 import { SignagePlugin } from '@placeos/ts-client';
-import { AiImageService } from '../ai/ai-image.service';
+import { ImageGenService } from '../image-gen/image-gen.service';
 import { GroupBreadcrumbsComponent } from '../shared/group-breadcrumbs.component';
 import { MediaAddModalComponent } from '../shared/media-add-modal.component';
 import { SignageContextService } from '../signage-context.service';
@@ -178,7 +178,7 @@ import { SignageMediaService } from './signage-media.service';
                 />
             </mat-form-field>
             @if (can_create()) {
-                @if (ai_enabled()) {
+                @if (image_gen_enabled()) {
                     <button
                         icon
                         default
@@ -186,13 +186,13 @@ import { SignageMediaService } from './signage-media.service';
                         matRipple
                         class="text-xl max-sm:hidden"
                         [matTooltip]="
-                            'SIGNAGE_MANAGER.AI_CREATE_IMAGE' | translate
+                            'SIGNAGE_MANAGER.IMAGE_GEN_CREATE_IMAGE' | translate
                         "
                         matTooltipPosition="left"
                         [attr.aria-label]="
-                            'SIGNAGE_MANAGER.AI_CREATE_IMAGE' | translate
+                            'SIGNAGE_MANAGER.IMAGE_GEN_CREATE_IMAGE' | translate
                         "
-                        (click)="generateWithAI()"
+                        (click)="generateWithImageGen()"
                     >
                         <icon>auto_awesome</icon>
                     </button>
@@ -337,17 +337,17 @@ import { SignageMediaService } from './signage-media.service';
                     <icon>add</icon>
                 </button>
                 <mat-menu #actions_menu="matMenu">
-                    @if (ai_enabled()) {
+                    @if (image_gen_enabled()) {
                         <button
                             mat-menu-item
                             type="button"
-                            (click)="generateWithAI()"
+                            (click)="generateWithImageGen()"
                         >
                             <div class="flex items-center gap-2">
                                 <icon class="text-2xl">auto_awesome</icon>
                                 <div>
                                     {{
-                                        'SIGNAGE_MANAGER.AI_CREATE_IMAGE'
+                                        'SIGNAGE_MANAGER.IMAGE_GEN_CREATE_IMAGE'
                                             | translate
                                     }}
                                 </div>
@@ -426,7 +426,7 @@ export class MediaListHeaderComponent {
     private readonly _media_service = inject(SignageMediaService);
     private readonly _plugin_service = inject(SignagePluginService);
     private readonly _dialog = inject(MatDialog);
-    private readonly _ai = inject(AiImageService);
+    private readonly _image_gen = inject(ImageGenService);
     public readonly link = signal('');
     public readonly selected_plugin = signal<SignagePlugin | null>(null);
     public readonly available_plugins = this._plugin_service.plugins;
@@ -480,9 +480,9 @@ export class MediaListHeaderComponent {
     public readonly previewFile = (event: Event) =>
         this._media_service.previewFileFromInput(event);
 
-    public readonly ai_enabled = computed(
+    public readonly image_gen_enabled = computed(
         () =>
-            this._ai.can_generate() &&
+            this._image_gen.can_generate() &&
             this._context.hasFeature('ai-generation'),
     );
 
@@ -495,8 +495,8 @@ export class MediaListHeaderComponent {
         this.view.set(DEFAULT_MEDIA_VIEW);
     }
 
-    public generateWithAI() {
-        this._media_service.generateMediaWithAI();
+    public generateWithImageGen() {
+        this._media_service.generateMediaWithImageGen();
     }
 
     public openAdd(mode: 'plugin' | 'link') {

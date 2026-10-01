@@ -9,13 +9,21 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 
 import { BRAND_FONTS } from '../branding/brand-fonts';
-import { AiBrandKit, AiLayerState, AiTextBlock, AiTextRole } from './ai.types';
+import {
+    ImageGenBrandKit,
+    ImageGenLayerState,
+    ImageGenTextBlock,
+    ImageGenTextRole,
+} from './image-gen.types';
 
 /** first block sits under the top left margin, each next one below it */
 const FIRST_Y = 0.06;
 const BLOCK_GAP = 0.18;
 
-export function newTextBlock(role: AiTextRole, index = 0): AiTextBlock {
+export function newTextBlock(
+    role: ImageGenTextRole,
+    index = 0,
+): ImageGenTextBlock {
     return {
         id: `${Date.now()}-${Math.round(Math.random() * 1e6)}`,
         text: '',
@@ -33,11 +41,11 @@ export function newTextBlock(role: AiTextRole, index = 0): AiTextBlock {
  * The words and the logo, as a sidebar panel beside the preview.
  */
 @Component({
-    selector: 'ai-layer-controls',
+    selector: 'image-gen-layer-controls',
     template: `
         <div class="flex flex-col gap-3">
             <p class="text-base-content/60 m-0 text-xs">
-                {{ 'SIGNAGE_MANAGER.AI_TEXT_DRAG_HINT' | translate }}
+                {{ 'SIGNAGE_MANAGER.IMAGE_GEN_TEXT_DRAG_HINT' | translate }}
             </p>
 
             @for (block of state().blocks; track block.id) {
@@ -72,7 +80,8 @@ export function newTextBlock(role: AiTextRole, index = 0): AiTextBlock {
                             type="button"
                             [disabled]="state().blocks.length < 2"
                             [matTooltip]="
-                                'SIGNAGE_MANAGER.AI_REMOVE_TEXT' | translate
+                                'SIGNAGE_MANAGER.IMAGE_GEN_REMOVE_TEXT'
+                                    | translate
                             "
                             (click)="removeBlock(block.id)"
                         >
@@ -92,19 +101,21 @@ export function newTextBlock(role: AiTextRole, index = 0): AiTextBlock {
                                     patchBlock(block.id, { role: $event })
                                 "
                                 [attr.aria-label]="
-                                    'SIGNAGE_MANAGER.AI_TEXT_SIZE' | translate
+                                    'SIGNAGE_MANAGER.IMAGE_GEN_TEXT_SIZE'
+                                        | translate
                                 "
                             >
                                 <mat-option value="headline">{{
-                                    'SIGNAGE_MANAGER.AI_ROLE_HEADLINE'
+                                    'SIGNAGE_MANAGER.IMAGE_GEN_ROLE_HEADLINE'
                                         | translate
                                 }}</mat-option>
                                 <mat-option value="subheading">{{
-                                    'SIGNAGE_MANAGER.AI_ROLE_SUBHEADING'
+                                    'SIGNAGE_MANAGER.IMAGE_GEN_ROLE_SUBHEADING'
                                         | translate
                                 }}</mat-option>
                                 <mat-option value="body">{{
-                                    'SIGNAGE_MANAGER.AI_ROLE_BODY' | translate
+                                    'SIGNAGE_MANAGER.IMAGE_GEN_ROLE_BODY'
+                                        | translate
                                 }}</mat-option>
                             </mat-select>
                         </mat-form-field>
@@ -120,18 +131,21 @@ export function newTextBlock(role: AiTextRole, index = 0): AiTextBlock {
                                     patchBlock(block.id, { align: $event })
                                 "
                                 [attr.aria-label]="
-                                    'SIGNAGE_MANAGER.AI_TEXT_ALIGN' | translate
+                                    'SIGNAGE_MANAGER.IMAGE_GEN_TEXT_ALIGN'
+                                        | translate
                                 "
                             >
                                 <mat-option value="left">{{
-                                    'SIGNAGE_MANAGER.AI_ALIGN_LEFT' | translate
+                                    'SIGNAGE_MANAGER.IMAGE_GEN_ALIGN_LEFT'
+                                        | translate
                                 }}</mat-option>
                                 <mat-option value="centre">{{
-                                    'SIGNAGE_MANAGER.AI_ALIGN_CENTRE'
+                                    'SIGNAGE_MANAGER.IMAGE_GEN_ALIGN_CENTRE'
                                         | translate
                                 }}</mat-option>
                                 <mat-option value="right">{{
-                                    'SIGNAGE_MANAGER.AI_ALIGN_RIGHT' | translate
+                                    'SIGNAGE_MANAGER.IMAGE_GEN_ALIGN_RIGHT'
+                                        | translate
                                 }}</mat-option>
                             </mat-select>
                         </mat-form-field>
@@ -147,7 +161,8 @@ export function newTextBlock(role: AiTextRole, index = 0): AiTextBlock {
                                     patchBlock(block.id, { font: $event })
                                 "
                                 [attr.aria-label]="
-                                    'SIGNAGE_MANAGER.AI_TEXT_FONT' | translate
+                                    'SIGNAGE_MANAGER.IMAGE_GEN_TEXT_FONT'
+                                        | translate
                                 "
                             >
                                 <mat-option value="">{{
@@ -181,10 +196,12 @@ export function newTextBlock(role: AiTextRole, index = 0): AiTextBlock {
                             [value]="block.colour"
                             (input)="setBlockColour(block.id, $event)"
                             [matTooltip]="
-                                'SIGNAGE_MANAGER.AI_TEXT_ANY_COLOUR' | translate
+                                'SIGNAGE_MANAGER.IMAGE_GEN_TEXT_ANY_COLOUR'
+                                    | translate
                             "
                             [attr.aria-label]="
-                                'SIGNAGE_MANAGER.AI_TEXT_ANY_COLOUR' | translate
+                                'SIGNAGE_MANAGER.IMAGE_GEN_TEXT_ANY_COLOUR'
+                                    | translate
                             "
                         />
                         <mat-slide-toggle
@@ -193,7 +210,10 @@ export function newTextBlock(role: AiTextRole, index = 0): AiTextBlock {
                                 patchBlock(block.id, { panel: $event })
                             "
                         >
-                            {{ 'SIGNAGE_MANAGER.AI_TEXT_PANEL' | translate }}
+                            {{
+                                'SIGNAGE_MANAGER.IMAGE_GEN_TEXT_PANEL'
+                                    | translate
+                            }}
                         </mat-slide-toggle>
                     </div>
                 </div>
@@ -205,7 +225,7 @@ export function newTextBlock(role: AiTextRole, index = 0): AiTextBlock {
                 class="self-start"
                 (click)="addBlock()"
             >
-                {{ 'SIGNAGE_MANAGER.AI_ADD_TEXT' | translate }}
+                {{ 'SIGNAGE_MANAGER.IMAGE_GEN_ADD_TEXT' | translate }}
             </button>
 
             <div
@@ -214,8 +234,8 @@ export function newTextBlock(role: AiTextRole, index = 0): AiTextBlock {
                 @if (!has_logo()) {
                     <span class="text-sm">{{
                         (can_set_logo()
-                            ? 'SIGNAGE_MANAGER.AI_NO_LOGO_YET'
-                            : 'SIGNAGE_MANAGER.AI_NO_LOGO_ADMIN'
+                            ? 'SIGNAGE_MANAGER.IMAGE_GEN_NO_LOGO_YET'
+                            : 'SIGNAGE_MANAGER.IMAGE_GEN_NO_LOGO_ADMIN'
                         ) | translate
                     }}</span>
                     @if (can_set_logo()) {
@@ -227,8 +247,8 @@ export function newTextBlock(role: AiTextRole, index = 0): AiTextBlock {
                         >
                             {{
                                 (uploading()
-                                    ? 'SIGNAGE_MANAGER.AI_LOGO_UPLOADING'
-                                    : 'SIGNAGE_MANAGER.AI_ADD_LOGO'
+                                    ? 'SIGNAGE_MANAGER.IMAGE_GEN_LOGO_UPLOADING'
+                                    : 'SIGNAGE_MANAGER.IMAGE_GEN_ADD_LOGO'
                                 ) | translate
                             }}
                         </button>
@@ -238,7 +258,7 @@ export function newTextBlock(role: AiTextRole, index = 0): AiTextBlock {
                         [ngModel]="state().logo"
                         (ngModelChange)="patch({ logo: $event })"
                     >
-                        {{ 'SIGNAGE_MANAGER.AI_SHOW_LOGO' | translate }}
+                        {{ 'SIGNAGE_MANAGER.IMAGE_GEN_SHOW_LOGO' | translate }}
                     </mat-slide-toggle>
                     @if (state().logo) {
                         <mat-form-field
@@ -252,24 +272,24 @@ export function newTextBlock(role: AiTextRole, index = 0): AiTextBlock {
                                     patch({ logo_position: $event })
                                 "
                                 [attr.aria-label]="
-                                    'SIGNAGE_MANAGER.AI_LOGO_POSITION'
+                                    'SIGNAGE_MANAGER.IMAGE_GEN_LOGO_POSITION'
                                         | translate
                                 "
                             >
                                 <mat-option value="bottom-right">{{
-                                    'SIGNAGE_MANAGER.AI_POS_BOTTOM_RIGHT'
+                                    'SIGNAGE_MANAGER.IMAGE_GEN_POS_BOTTOM_RIGHT'
                                         | translate
                                 }}</mat-option>
                                 <mat-option value="bottom-left">{{
-                                    'SIGNAGE_MANAGER.AI_POS_BOTTOM_LEFT'
+                                    'SIGNAGE_MANAGER.IMAGE_GEN_POS_BOTTOM_LEFT'
                                         | translate
                                 }}</mat-option>
                                 <mat-option value="top-right">{{
-                                    'SIGNAGE_MANAGER.AI_POS_TOP_RIGHT'
+                                    'SIGNAGE_MANAGER.IMAGE_GEN_POS_TOP_RIGHT'
                                         | translate
                                 }}</mat-option>
                                 <mat-option value="top-left">{{
-                                    'SIGNAGE_MANAGER.AI_POS_TOP_LEFT'
+                                    'SIGNAGE_MANAGER.IMAGE_GEN_POS_TOP_LEFT'
                                         | translate
                                 }}</mat-option>
                             </mat-select>
@@ -283,7 +303,7 @@ export function newTextBlock(role: AiTextRole, index = 0): AiTextBlock {
                                 subscriptSizing="dynamic"
                             >
                                 <mat-label>{{
-                                    'SIGNAGE_MANAGER.AI_LOGO_VERSION'
+                                    'SIGNAGE_MANAGER.IMAGE_GEN_LOGO_VERSION'
                                         | translate
                                 }}</mat-label>
                                 <mat-select
@@ -293,7 +313,7 @@ export function newTextBlock(role: AiTextRole, index = 0): AiTextBlock {
                                     "
                                 >
                                     <mat-option value="auto">{{
-                                        'SIGNAGE_MANAGER.AI_LOGO_AUTO'
+                                        'SIGNAGE_MANAGER.IMAGE_GEN_LOGO_AUTO'
                                             | translate
                                     }}</mat-option>
                                     <mat-option value="on_light">{{
@@ -315,7 +335,7 @@ export function newTextBlock(role: AiTextRole, index = 0): AiTextBlock {
                     class="sr-only"
                     accept="image/png,image/jpeg,image/webp,image/svg+xml"
                     [attr.aria-label]="
-                        'SIGNAGE_MANAGER.AI_ADD_LOGO' | translate
+                        'SIGNAGE_MANAGER.IMAGE_GEN_ADD_LOGO' | translate
                     "
                     (change)="pickLogo($event)"
                 />
@@ -334,15 +354,15 @@ export function newTextBlock(role: AiTextRole, index = 0): AiTextBlock {
         TranslatePipe,
     ],
 })
-export class AiLayerControlsComponent {
-    public readonly state = input.required<AiLayerState>();
+export class ImageGenLayerControlsComponent {
+    public readonly state = input.required<ImageGenLayerState>();
     public readonly logo_on_light = input<string>('');
     public readonly logo_on_dark = input<string>('');
-    public readonly brand = input<AiBrandKit | null>(null);
+    public readonly brand = input<ImageGenBrandKit | null>(null);
     public readonly uploading = input(false);
     public readonly can_set_logo = input(true);
 
-    public readonly changed = output<AiLayerState>();
+    public readonly changed = output<ImageGenLayerState>();
     public readonly logo_picked = output<File>({ alias: 'logoPicked' });
 
     public readonly has_logo = computed(
@@ -358,7 +378,7 @@ export class AiLayerControlsComponent {
     public readonly brand_font_label = computed(() => {
         const font = this.brand()?.font;
         const family = typeof font === 'string' ? font : font?.family;
-        return family || 'SIGNAGE_MANAGER.AI_TEXT_BRAND_FONT';
+        return family || 'SIGNAGE_MANAGER.IMAGE_GEN_TEXT_BRAND_FONT';
     });
 
     public readonly palette = computed(() => {
@@ -368,11 +388,11 @@ export class AiLayerControlsComponent {
         );
     });
 
-    public patch(changes: Partial<AiLayerState>) {
+    public patch(changes: Partial<ImageGenLayerState>) {
         this.changed.emit({ ...this.state(), ...changes });
     }
 
-    public patchBlock(id: string, changes: Partial<AiTextBlock>) {
+    public patchBlock(id: string, changes: Partial<ImageGenTextBlock>) {
         this.patch({
             blocks: this.state().blocks.map((block) =>
                 block.id === id ? { ...block, ...changes } : block,
@@ -389,7 +409,8 @@ export class AiLayerControlsComponent {
 
     public addBlock() {
         const blocks = this.state().blocks;
-        const role: AiTextRole = blocks.length === 1 ? 'subheading' : 'body';
+        const role: ImageGenTextRole =
+            blocks.length === 1 ? 'subheading' : 'body';
         this.patch({ blocks: [...blocks, newTextBlock(role, blocks.length)] });
     }
 
@@ -407,11 +428,11 @@ export class AiLayerControlsComponent {
         if (file) this.logo_picked.emit(file);
     }
 
-    public placeholderFor(role: AiTextRole) {
+    public placeholderFor(role: ImageGenTextRole) {
         return role === 'headline'
-            ? 'SIGNAGE_MANAGER.AI_HEADLINE'
+            ? 'SIGNAGE_MANAGER.IMAGE_GEN_HEADLINE'
             : role === 'subheading'
-              ? 'SIGNAGE_MANAGER.AI_SUBHEADING'
-              : 'SIGNAGE_MANAGER.AI_BODY_TEXT';
+              ? 'SIGNAGE_MANAGER.IMAGE_GEN_SUBHEADING'
+              : 'SIGNAGE_MANAGER.IMAGE_GEN_BODY_TEXT';
     }
 }

@@ -24,7 +24,7 @@ import {
     TranslatePipe,
 } from '@placeos/components';
 import { SignageMedia } from '@placeos/ts-client';
-import { AiImageService } from '../ai/ai-image.service';
+import { ImageGenService } from '../image-gen/image-gen.service';
 import { IntersectDirective } from '../shared/intersect.directive';
 import { MediaThumbnailComponent } from '../shared/media-thumbnail.component';
 import { SignageContextService } from '../signage-context.service';
@@ -581,17 +581,18 @@ const UNTAGGED = '\0untagged';
                         </div>
                     </button>
                 }
-                @if (can_edit_with_ai() && isImage(media_item)) {
+                @if (can_edit_with_image_gen() && isImage(media_item)) {
                     <button
                         type="button"
                         mat-menu-item
-                        (click)="editItemWithAI(media_item)"
+                        (click)="editItemWithImageGen(media_item)"
                     >
                         <div class="flex items-center space-x-2">
                             <icon class="text-2xl">auto_awesome</icon>
                             <div class="pr-2">
                                 {{
-                                    'SIGNAGE_MANAGER.AI_EDIT_IMAGE' | translate
+                                    'SIGNAGE_MANAGER.IMAGE_GEN_EDIT_IMAGE'
+                                        | translate
                                 }}
                             </div>
                         </div>
@@ -776,7 +777,7 @@ const UNTAGGED = '\0untagged';
 export class MediaListComponent implements OnInit {
     private readonly _context = inject(SignageContextService);
     private readonly _media_service = inject(SignageMediaService);
-    private readonly _ai = inject(AiImageService);
+    private readonly _image_gen = inject(ImageGenService);
     private readonly _destroy = inject(DestroyRef);
 
     public readonly playlist_count = input(0);
@@ -985,10 +986,10 @@ export class MediaListComponent implements OnInit {
     public readonly editItem = (item: SignageMedia) =>
         this._media_service.editMedia(item);
 
-    public readonly can_edit_with_ai = computed(
+    public readonly can_edit_with_image_gen = computed(
         () =>
             this._context.can_create() &&
-            this._ai.can_edit() &&
+            this._image_gen.can_edit() &&
             this._context.hasFeature('ai-editing'),
     );
 
@@ -996,8 +997,8 @@ export class MediaListComponent implements OnInit {
     public readonly isImage = (item: SignageMedia) =>
         item?.media_type === 'image' && !!item?.media_id;
 
-    public readonly editItemWithAI = (item: SignageMedia) =>
-        this._media_service.editMediaWithAI(item);
+    public readonly editItemWithImageGen = (item: SignageMedia) =>
+        this._media_service.editMediaWithImageGen(item);
 
     public readonly removeItem = (item: SignageMedia) =>
         this._media_service.removeMedia(item);

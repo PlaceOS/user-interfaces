@@ -32,23 +32,23 @@ import { SignageMedia } from '@placeos/ts-client';
 import { SignageMediaService } from '../media/signage-media.service';
 import { SignagePlaylistService } from '../playlists/signage-playlist.service';
 import { SignageContextService } from '../signage-context.service';
-import { AiImageService, isFinal, MAX_JOB_WAIT_MS } from './ai-image.service';
-import { errorMessage, orientationOf } from './ai-image.util';
 import {
-    AiLayerControlsComponent,
+    ImageGenLayerControlsComponent,
     newTextBlock,
-} from './ai-layer-controls.component';
-import { AiLayerComponent } from './ai-layer.component';
-import { AiReferencesComponent } from './ai-references.component';
+} from './image-gen-layer-controls.component';
+import { ImageGenLayerComponent } from './image-gen-layer.component';
+import { ImageGenReferencesComponent } from './image-gen-references.component';
+import { ImageGenService, isFinal, MAX_JOB_WAIT_MS } from './image-gen.service';
 import {
-    AiEditRequest,
-    AiGenerateRequest,
-    AiJob,
-    AiLayerState,
-    AiReference,
-} from './ai.types';
+    ImageGenEditRequest,
+    ImageGenGenerateRequest,
+    ImageGenJob,
+    ImageGenLayerState,
+    ImageGenReference,
+} from './image-gen.types';
+import { errorMessage, orientationOf } from './image-gen.util';
 
-export interface AiImageModalData {
+export interface ImageGenModalData {
     /** pre-set from the playlist a user opened this from */
     aspect_ratio?: string;
     playlist_id?: string;
@@ -72,13 +72,13 @@ interface Candidate {
 }
 
 @Component({
-    selector: 'ai-image-modal',
+    selector: 'image-gen-modal',
     template: `
         <div class="bg-base-200 flex h-full w-full flex-col overflow-hidden">
             <header
                 class="border-base-content/10 bg-base-100 flex h-14 shrink-0 items-center justify-between border-b px-4"
             >
-                <h2 id="ai-image-modal-title" class="m-0 text-lg font-medium">
+                <h2 id="image-gen-modal-title" class="m-0 text-lg font-medium">
                     {{ heading() | translate }}
                 </h2>
                 <button icon mat-dialog-close [disabled]="saving()">
@@ -95,7 +95,7 @@ interface Candidate {
                         class="border-base-content/10 bg-base-300 relative flex min-h-0 flex-1 items-center justify-center overflow-hidden rounded border"
                     >
                         @if (selected_object_url()) {
-                            <ai-layer
+                            <image-gen-layer
                                 class="h-full w-full"
                                 [class.opacity-40]="state() === 'generating'"
                                 [image_url]="selected_object_url()"
@@ -105,7 +105,7 @@ interface Candidate {
                                 [state]="layer_state()"
                                 (changed)="layer_state.set($event)"
                                 (failed)="onArtworkFailed()"
-                            ></ai-layer>
+                            ></image-gen-layer>
                         } @else if (source_url()) {
                             <img
                                 auth
@@ -113,14 +113,14 @@ interface Candidate {
                                 class="max-h-full max-w-full object-contain"
                                 [class.opacity-40]="state() === 'generating'"
                                 [alt]="
-                                    'SIGNAGE_MANAGER.AI_CHANGING_THIS'
+                                    'SIGNAGE_MANAGER.IMAGE_GEN_CHANGING_THIS'
                                         | translate
                                 "
                             />
                         } @else if (state() !== 'generating') {
                             <p class="text-base-content/50 m-0 px-6 text-sm">
                                 {{
-                                    'SIGNAGE_MANAGER.AI_PREVIEW_EMPTY'
+                                    'SIGNAGE_MANAGER.IMAGE_GEN_PREVIEW_EMPTY'
                                         | translate
                                 }}
                             </p>
@@ -133,7 +133,8 @@ interface Candidate {
                                 <mat-spinner diameter="48"></mat-spinner>
                                 <p class="m-0 text-sm">
                                     {{
-                                        'SIGNAGE_MANAGER.AI_WORKING' | translate
+                                        'SIGNAGE_MANAGER.IMAGE_GEN_WORKING'
+                                            | translate
                                     }}
                                 </p>
                                 <p class="text-base-content/60 m-0 text-xs">
@@ -149,7 +150,10 @@ interface Candidate {
                             <p
                                 class="text-base-content/60 m-0 text-xs uppercase"
                             >
-                                {{ 'SIGNAGE_MANAGER.AI_VERSIONS' | translate }}
+                                {{
+                                    'SIGNAGE_MANAGER.IMAGE_GEN_VERSIONS'
+                                        | translate
+                                }}
                             </p>
                             <div class="flex gap-2 overflow-x-auto pb-1">
                                 @for (
@@ -189,24 +193,28 @@ interface Candidate {
                     <div class="flex-1 space-y-4 overflow-y-auto p-4">
                         @if (!rail().length) {
                             <div class="flex flex-col">
-                                <label for="ai-brief" class="mb-1 text-sm">{{
-                                    (is_edit()
-                                        ? 'SIGNAGE_MANAGER.AI_INSTRUCTION'
-                                        : 'SIGNAGE_MANAGER.AI_BRIEF'
-                                    ) | translate
-                                }}</label>
+                                <label
+                                    for="image-gen-brief"
+                                    class="mb-1 text-sm"
+                                    >{{
+                                        (is_edit()
+                                            ? 'SIGNAGE_MANAGER.IMAGE_GEN_INSTRUCTION'
+                                            : 'SIGNAGE_MANAGER.IMAGE_GEN_BRIEF'
+                                        ) | translate
+                                    }}</label
+                                >
                                 <mat-form-field
                                     appearance="outline"
                                     class="w-full"
                                 >
                                     <textarea
                                         matInput
-                                        id="ai-brief"
+                                        id="image-gen-brief"
                                         rows="4"
                                         [placeholder]="
                                             (is_edit()
-                                                ? 'SIGNAGE_MANAGER.AI_INSTRUCTION_HINT'
-                                                : 'SIGNAGE_MANAGER.AI_BRIEF_HINT'
+                                                ? 'SIGNAGE_MANAGER.IMAGE_GEN_INSTRUCTION_HINT'
+                                                : 'SIGNAGE_MANAGER.IMAGE_GEN_BRIEF_HINT'
                                             ) | translate
                                         "
                                         [(ngModel)]="brief"
@@ -224,7 +232,7 @@ interface Candidate {
                                         subscriptSizing="dynamic"
                                     >
                                         <mat-label>{{
-                                            'SIGNAGE_MANAGER.AI_SHAPE'
+                                            'SIGNAGE_MANAGER.IMAGE_GEN_SHAPE'
                                                 | translate
                                         }}</mat-label>
                                         <mat-select [(ngModel)]="aspect">
@@ -245,7 +253,7 @@ interface Candidate {
                                     subscriptSizing="dynamic"
                                 >
                                     <mat-label>{{
-                                        'SIGNAGE_MANAGER.AI_OPTIONS_COUNT'
+                                        'SIGNAGE_MANAGER.IMAGE_GEN_OPTIONS_COUNT'
                                             | translate
                                     }}</mat-label>
                                     <mat-select [(ngModel)]="candidates">
@@ -267,13 +275,13 @@ interface Candidate {
                                         [(ngModel)]="use_branding"
                                     >
                                         {{
-                                            'SIGNAGE_MANAGER.AI_USE_BRANDING'
+                                            'SIGNAGE_MANAGER.IMAGE_GEN_USE_BRANDING'
                                                 | translate
                                         }}
                                     </mat-slide-toggle>
                                     <p class="text-base-content/60 m-0 text-xs">
                                         {{
-                                            'SIGNAGE_MANAGER.AI_USE_BRANDING_HINT'
+                                            'SIGNAGE_MANAGER.IMAGE_GEN_USE_BRANDING_HINT'
                                                 | translate
                                         }}
                                     </p>
@@ -288,13 +296,13 @@ interface Candidate {
                                         [(ngModel)]="add_text_with_layer"
                                     >
                                         {{
-                                            'SIGNAGE_MANAGER.AI_ADD_WORDS_LAYER'
+                                            'SIGNAGE_MANAGER.IMAGE_GEN_ADD_WORDS_LAYER'
                                                 | translate
                                         }}
                                     </mat-slide-toggle>
                                     <p class="text-base-content/60 m-0 text-xs">
                                         {{
-                                            'SIGNAGE_MANAGER.AI_ADD_WORDS_LAYER_HINT'
+                                            'SIGNAGE_MANAGER.IMAGE_GEN_ADD_WORDS_LAYER_HINT'
                                                 | translate
                                         }}
                                     </p>
@@ -305,7 +313,7 @@ interface Candidate {
                                         [(ngModel)]="include_logo"
                                     >
                                         {{
-                                            'SIGNAGE_MANAGER.AI_LEAVE_LOGO_SPACE'
+                                            'SIGNAGE_MANAGER.IMAGE_GEN_LEAVE_LOGO_SPACE'
                                                 | translate
                                         }}
                                     </mat-slide-toggle>
@@ -322,14 +330,14 @@ interface Candidate {
                                 </p>
                             }
                             <!-- refining sends the pick back through the edit
-                                 model, so it follows the AI editing flag -->
+                                 model, so it follows the ai-editing flag -->
                             @if (can_refine()) {
                                 <div class="flex flex-col">
                                     <label
-                                        for="ai-refine"
+                                        for="image-gen-refine"
                                         class="mb-1 text-sm"
                                         >{{
-                                            'SIGNAGE_MANAGER.AI_REFINE'
+                                            'SIGNAGE_MANAGER.IMAGE_GEN_REFINE'
                                                 | translate
                                         }}</label
                                     >
@@ -339,10 +347,10 @@ interface Candidate {
                                     >
                                         <textarea
                                             matInput
-                                            id="ai-refine"
+                                            id="image-gen-refine"
                                             rows="2"
                                             [placeholder]="
-                                                'SIGNAGE_MANAGER.AI_REFINE_HINT'
+                                                'SIGNAGE_MANAGER.IMAGE_GEN_REFINE_HINT'
                                                     | translate
                                             "
                                             [(ngModel)]="refinement"
@@ -361,7 +369,7 @@ interface Candidate {
                                         (click)="refine()"
                                     >
                                         {{
-                                            'SIGNAGE_MANAGER.AI_REFINE_ACTION'
+                                            'SIGNAGE_MANAGER.IMAGE_GEN_REFINE_ACTION'
                                                 | translate
                                         }}
                                     </button>
@@ -369,37 +377,37 @@ interface Candidate {
                             }
                         }
 
-                        <ai-references
+                        <image-gen-references
                             [items]="include_references()"
                             [uploading]="uploading_references()"
                             [max]="include_max()"
-                            title="SIGNAGE_MANAGER.AI_INCLUDE_IMAGES"
-                            hint="SIGNAGE_MANAGER.AI_INCLUDE_IMAGES_HINT"
+                            title="SIGNAGE_MANAGER.IMAGE_GEN_INCLUDE_IMAGES"
+                            hint="SIGNAGE_MANAGER.IMAGE_GEN_INCLUDE_IMAGES_HINT"
                             (picked)="addReferences($event, 'include')"
                             (removed)="removeReference($event)"
-                        ></ai-references>
+                        ></image-gen-references>
 
-                        <ai-references
+                        <image-gen-references
                             [items]="style_items()"
                             [uploading]="uploading_references()"
                             [max]="style_max()"
                             [offset]="include_references().length"
-                            title="SIGNAGE_MANAGER.AI_STYLE_REFERENCE"
-                            hint="SIGNAGE_MANAGER.AI_STYLE_REFERENCE_HINT"
-                            add_label="SIGNAGE_MANAGER.AI_REFERENCE_ADD_ONE"
+                            title="SIGNAGE_MANAGER.IMAGE_GEN_STYLE_REFERENCE"
+                            hint="SIGNAGE_MANAGER.IMAGE_GEN_STYLE_REFERENCE_HINT"
+                            add_label="SIGNAGE_MANAGER.IMAGE_GEN_REFERENCE_ADD_ONE"
                             (picked)="addReferences($event, 'style')"
                             (removed)="removeReference($event)"
-                        ></ai-references>
+                        ></image-gen-references>
 
                         @if (rail().length) {
                             <div class="border-base-content/10 border-t pt-4">
                                 <p class="m-0 mb-2 text-sm font-medium">
                                     {{
-                                        'SIGNAGE_MANAGER.AI_WORDS_AND_LOGO'
+                                        'SIGNAGE_MANAGER.IMAGE_GEN_WORDS_AND_LOGO'
                                             | translate
                                     }}
                                 </p>
-                                <ai-layer-controls
+                                <image-gen-layer-controls
                                     [state]="layer_state()"
                                     [logo_on_light]="logo_on_light()"
                                     [logo_on_dark]="logo_on_dark()"
@@ -408,7 +416,7 @@ interface Candidate {
                                     [uploading]="uploading_logo()"
                                     (changed)="layer_state.set($event)"
                                     (logoPicked)="uploadLogo($event)"
-                                ></ai-layer-controls>
+                                ></image-gen-layer-controls>
                             </div>
                         }
 
@@ -443,7 +451,10 @@ interface Candidate {
                                 [disabled]="!brief().trim()"
                                 (click)="start()"
                             >
-                                {{ 'SIGNAGE_MANAGER.AI_GENERATE' | translate }}
+                                {{
+                                    'SIGNAGE_MANAGER.IMAGE_GEN_GENERATE'
+                                        | translate
+                                }}
                             </button>
                         } @else {
                             <button
@@ -456,7 +467,8 @@ interface Candidate {
                                 @if (saving()) {
                                     <mat-spinner diameter="18"></mat-spinner>
                                     {{
-                                        'SIGNAGE_MANAGER.AI_SAVING' | translate
+                                        'SIGNAGE_MANAGER.IMAGE_GEN_SAVING'
+                                            | translate
                                     }}
                                 } @else {
                                     {{ 'COMMON.SAVE' | translate }}
@@ -482,24 +494,25 @@ interface Candidate {
         AuthenticatedImageDirective,
         IconComponent,
         TranslatePipe,
-        AiLayerComponent,
-        AiLayerControlsComponent,
-        AiReferencesComponent,
+        ImageGenLayerComponent,
+        ImageGenLayerControlsComponent,
+        ImageGenReferencesComponent,
     ],
 })
-export class AiImageModalComponent implements OnDestroy {
-    private readonly _data = inject<AiImageModalData>(MAT_DIALOG_DATA);
+export class ImageGenModalComponent implements OnDestroy {
+    private readonly _data = inject<ImageGenModalData>(MAT_DIALOG_DATA);
     private readonly _dialog_ref =
-        inject<MatDialogRef<AiImageModalComponent>>(MatDialogRef);
+        inject<MatDialogRef<ImageGenModalComponent>>(MatDialogRef);
     private readonly _context = inject(SignageContextService);
     private readonly _media_service = inject(SignageMediaService);
     private readonly _playlist_service = inject(SignagePlaylistService);
-    private readonly _ai = inject(AiImageService);
+    private readonly _image_gen = inject(ImageGenService);
 
-    private readonly _layer = viewChild(AiLayerComponent);
+    private readonly _layer = viewChild(ImageGenLayerComponent);
     private readonly _aspect_options = computed(() => {
-        const capabilities = this._ai.capabilities();
-        const model_options = this._ai.default_model()?.aspect_ratios || [];
+        const capabilities = this._image_gen.capabilities();
+        const model_options =
+            this._image_gen.default_model()?.aspect_ratios || [];
         const domain_options = capabilities?.aspect_ratios || [];
         const shared = domain_options.filter((option) =>
             model_options.includes(option),
@@ -511,9 +524,9 @@ export class AiImageModalComponent implements OnDestroy {
               : domain_options;
     });
     private readonly _max_candidates = computed(() => {
-        const domain_max = this._ai.capabilities()?.max_candidates ?? 2;
+        const domain_max = this._image_gen.capabilities()?.max_candidates ?? 2;
         const model_max =
-            this._ai.default_model()?.max_candidates ?? domain_max;
+            this._image_gen.default_model()?.max_candidates ?? domain_max;
         return Math.max(1, Math.min(domain_max, model_max));
     });
 
@@ -536,7 +549,7 @@ export class AiImageModalComponent implements OnDestroy {
     public readonly include_logo = signal(!this._data.source_upload_id);
     public readonly use_branding = signal(true);
 
-    public readonly layer_state = signal<AiLayerState>({
+    public readonly layer_state = signal<ImageGenLayerState>({
         blocks: [newTextBlock('headline')],
         logo: false,
         logo_position: 'bottom-right',
@@ -556,8 +569,8 @@ export class AiImageModalComponent implements OnDestroy {
     public readonly logo_on_dark = signal('');
     public readonly uploading_logo = signal(false);
 
-    public readonly include_references = signal<AiReference[]>([]);
-    public readonly style_reference = signal<AiReference | null>(null);
+    public readonly include_references = signal<ImageGenReference[]>([]);
+    public readonly style_reference = signal<ImageGenReference | null>(null);
     public readonly uploading_references = signal(false);
 
     /** every attached image, in the order it is sent: includes first */
@@ -573,7 +586,7 @@ export class AiImageModalComponent implements OnDestroy {
     });
     public readonly claim_pending = signal(false);
 
-    public readonly brand = this._ai.brand_kit;
+    public readonly brand = this._image_gen.brand_kit;
 
     public readonly can_set_logo = this._context.is_sys_admin;
 
@@ -603,7 +616,9 @@ export class AiImageModalComponent implements OnDestroy {
 
     public readonly is_edit = computed(() => !!this._data.source_upload_id);
     public readonly can_refine = computed(
-        () => this._context.hasFeature('ai-editing') && this._ai.can_edit(),
+        () =>
+            this._context.hasFeature('ai-editing') &&
+            this._image_gen.can_edit(),
     );
 
     /** the image being changed, so the brief is not written blind */
@@ -612,7 +627,7 @@ export class AiImageModalComponent implements OnDestroy {
         return id ? `/api/engine/v2/uploads/${encodeURIComponent(id)}/url` : '';
     });
     public readonly has_logo = computed(
-        () => !!this._ai.capabilities()?.logo_layer,
+        () => !!this._image_gen.capabilities()?.logo_layer,
     );
 
     public readonly aspect_options = this._aspect_options;
@@ -621,7 +636,7 @@ export class AiImageModalComponent implements OnDestroy {
         return Array.from({ length: max }, (_, index) => index + 1);
     });
     public readonly max_references = computed(
-        () => this._ai.default_model()?.max_references ?? 8,
+        () => this._image_gen.default_model()?.max_references ?? 8,
     );
     public readonly include_max = computed(
         () => this.max_references() - (this.style_reference() ? 1 : 0),
@@ -630,8 +645,8 @@ export class AiImageModalComponent implements OnDestroy {
         Math.min(1, this.max_references() - this.include_references().length),
     );
 
-    public readonly job = computed<AiJob | undefined>(
-        () => this._ai.jobs()[this.current_job_id()],
+    public readonly job = computed<ImageGenJob | undefined>(
+        () => this._image_gen.jobs()[this.current_job_id()],
     );
 
     /**
@@ -641,7 +656,7 @@ export class AiImageModalComponent implements OnDestroy {
      * its number.
      */
     public readonly rail = computed<Candidate[]>(() => {
-        const jobs = this._ai.jobs();
+        const jobs = this._image_gen.jobs();
         const rail: Candidate[] = [];
         let version = 0;
         for (const id of this.job_ids()) {
@@ -673,29 +688,33 @@ export class AiImageModalComponent implements OnDestroy {
     });
 
     public readonly quota_note = computed(() => {
-        const quota = this._ai.capabilities()?.quota;
+        const quota = this._image_gen.capabilities()?.quota;
         const left = quota?.user_remaining_today;
         if (left === null || left === undefined) return '';
-        return i18n('SIGNAGE_MANAGER.AI_QUOTA_LEFT', { count: `${left}` });
+        return i18n('SIGNAGE_MANAGER.IMAGE_GEN_QUOTA_LEFT', {
+            count: `${left}`,
+        });
     });
 
     /**
      * Which engine is behind the button.
      */
     public readonly engine_note = computed(() => {
-        const provider = this._ai.default_provider();
+        const provider = this._image_gen.default_provider();
         if (!provider) return '';
-        return i18n('SIGNAGE_MANAGER.AI_ENGINE', {
+        return i18n('SIGNAGE_MANAGER.IMAGE_GEN_ENGINE', {
             model:
-                this._ai.default_model()?.name || provider.default_model || '',
+                this._image_gen.default_model()?.name ||
+                provider.default_model ||
+                '',
             provider: provider.name,
         });
     });
 
     public readonly heading = computed(() =>
         this.is_edit()
-            ? 'SIGNAGE_MANAGER.AI_EDIT_IMAGE'
-            : 'SIGNAGE_MANAGER.AI_CREATE_IMAGE',
+            ? 'SIGNAGE_MANAGER.IMAGE_GEN_EDIT_IMAGE'
+            : 'SIGNAGE_MANAGER.IMAGE_GEN_CREATE_IMAGE',
     );
 
     /** whether anything is drawn over the artwork, and so has to be flattened */
@@ -706,7 +725,7 @@ export class AiImageModalComponent implements OnDestroy {
     });
 
     public versionLabel(candidate: Candidate) {
-        return i18n('SIGNAGE_MANAGER.AI_VERSION_LABEL', {
+        return i18n('SIGNAGE_MANAGER.IMAGE_GEN_VERSION_LABEL', {
             version: `${candidate.version}`,
             option: `${candidate.index + 1}`,
         });
@@ -728,25 +747,28 @@ export class AiImageModalComponent implements OnDestroy {
                 group_id: this.group_id(),
                 references: this.reference_ids(),
             };
-            let job: AiJob;
+            let job: ImageGenJob;
             if (this._data.source_upload_id) {
-                const request: AiEditRequest = {
+                const request: ImageGenEditRequest = {
                     ...common,
                     source_upload_id: this._data.source_upload_id,
                     source_item_id: this._data.source_item_id,
                 };
-                job = await this._ai.edit({
+                job = await this._image_gen.edit({
                     ...request,
-                    idempotency_key: this._ai.intentKey('edit', request),
+                    idempotency_key: this._image_gen.intentKey('edit', request),
                 });
             } else {
-                const request: AiGenerateRequest = {
+                const request: ImageGenGenerateRequest = {
                     ...common,
                     aspect_ratio: this.aspect(),
                 };
-                job = await this._ai.generate({
+                job = await this._image_gen.generate({
                     ...request,
-                    idempotency_key: this._ai.intentKey('generate', request),
+                    idempotency_key: this._image_gen.intentKey(
+                        'generate',
+                        request,
+                    ),
                 });
             }
             this._follow(job, token);
@@ -754,7 +776,10 @@ export class AiImageModalComponent implements OnDestroy {
             if (token !== this._job_token) return;
             this.state.set('compose');
             notifyError(
-                errorMessage(error, i18n('SIGNAGE_MANAGER.AI_JOB_FAILED')),
+                errorMessage(
+                    error,
+                    i18n('SIGNAGE_MANAGER.IMAGE_GEN_JOB_FAILED'),
+                ),
             );
         }
     }
@@ -767,7 +792,7 @@ export class AiImageModalComponent implements OnDestroy {
         const token = ++this._job_token;
         this.state.set('generating');
         try {
-            const request: AiEditRequest = {
+            const request: ImageGenEditRequest = {
                 prompt: this.withReferenceRoles(instruction),
                 candidates: 1,
                 include_logo: this.include_logo(),
@@ -778,16 +803,19 @@ export class AiImageModalComponent implements OnDestroy {
                 parent_job_id: source.job_id,
                 references: this.reference_ids(),
             };
-            const job = await this._ai.edit({
+            const job = await this._image_gen.edit({
                 ...request,
-                idempotency_key: this._ai.intentKey('edit', request),
+                idempotency_key: this._image_gen.intentKey('edit', request),
             });
             this._follow(job, token);
         } catch (error) {
             if (token !== this._job_token) return;
             this.state.set('review');
             notifyError(
-                errorMessage(error, i18n('SIGNAGE_MANAGER.AI_JOB_FAILED')),
+                errorMessage(
+                    error,
+                    i18n('SIGNAGE_MANAGER.IMAGE_GEN_JOB_FAILED'),
+                ),
             );
         }
     }
@@ -796,7 +824,7 @@ export class AiImageModalComponent implements OnDestroy {
 
     public onArtworkFailed() {
         this.selected_object_url.set('');
-        notifyError(i18n('SIGNAGE_MANAGER.AI_IMAGE_UNREADABLE'));
+        notifyError(i18n('SIGNAGE_MANAGER.IMAGE_GEN_IMAGE_UNREADABLE'));
     }
 
     public async select(candidate: Candidate) {
@@ -804,7 +832,9 @@ export class AiImageModalComponent implements OnDestroy {
         const token = ++this._select_token;
         this.selected.set(candidate);
         this.selected_object_url.set('');
-        const url = await this._ai.loadImage(candidate.url).catch(() => '');
+        const url = await this._image_gen
+            .loadImage(candidate.url)
+            .catch(() => '');
         if (token !== this._select_token) return;
         this.selected_object_url.set(url);
     }
@@ -817,10 +847,10 @@ export class AiImageModalComponent implements OnDestroy {
     public async cancel() {
         this._stopAwaiting();
         const id = this.current_job_id();
-        const job = this._ai.jobs()[id];
-        if (job && !isFinal(job) && !(await this._ai.cancel(id))) {
+        const job = this._image_gen.jobs()[id];
+        if (job && !isFinal(job) && !(await this._image_gen.cancel(id))) {
             if (this._closed) return;
-            notifyError(i18n('SIGNAGE_MANAGER.AI_CANCEL_FAILED'));
+            notifyError(i18n('SIGNAGE_MANAGER.IMAGE_GEN_CANCEL_FAILED'));
             this._awaitJob(id);
             return;
         }
@@ -869,10 +899,10 @@ export class AiImageModalComponent implements OnDestroy {
         this.uploading_references.set(true);
         try {
             for (const file of kind === 'style' ? files.slice(0, 1) : files) {
-                const id = await this._ai.uploadReference(file);
+                const id = await this._image_gen.uploadReference(file);
                 // closed while this uploaded: nothing will send or clear it
                 if (this._closed) {
-                    this._ai.removeReference(id);
+                    this._image_gen.removeReference(id);
                     return;
                 }
                 const item = {
@@ -884,7 +914,7 @@ export class AiImageModalComponent implements OnDestroy {
                     const previous = this.style_reference();
                     if (previous) {
                         URL.revokeObjectURL(previous.url);
-                        this._ai.removeReference(previous.id);
+                        this._image_gen.removeReference(previous.id);
                     }
                     this.style_reference.set(item);
                 } else {
@@ -893,7 +923,10 @@ export class AiImageModalComponent implements OnDestroy {
             }
         } catch (error) {
             notifyError(
-                errorMessage(error, i18n('SIGNAGE_MANAGER.AI_JOB_FAILED')),
+                errorMessage(
+                    error,
+                    i18n('SIGNAGE_MANAGER.IMAGE_GEN_JOB_FAILED'),
+                ),
             );
         } finally {
             this.uploading_references.set(false);
@@ -907,7 +940,7 @@ export class AiImageModalComponent implements OnDestroy {
         this.include_references.update((list) =>
             list.filter((entry) => entry.id !== id),
         );
-        this._ai.removeReference(id);
+        this._image_gen.removeReference(id);
     }
 
     private _closed = false;
@@ -921,7 +954,7 @@ export class AiImageModalComponent implements OnDestroy {
             URL.revokeObjectURL(item.url);
             // a running job reads the reference bytes server side, so those are
             // left for the housekeeping sweep to clear
-            if (!running) this._ai.removeReference(item.id);
+            if (!running) this._image_gen.removeReference(item.id);
         }
     }
 
@@ -929,13 +962,16 @@ export class AiImageModalComponent implements OnDestroy {
         if (!this.can_set_logo()) return;
         this.uploading_logo.set(true);
         try {
-            await this._ai.uploadBrandLogo(file);
+            await this._image_gen.uploadBrandLogo(file);
             await this._loadBrandLogos();
             this.layer_state.set({ ...this.layer_state(), logo: true });
-            notifySuccess(i18n('SIGNAGE_MANAGER.AI_LOGO_SAVED'));
+            notifySuccess(i18n('SIGNAGE_MANAGER.IMAGE_GEN_LOGO_SAVED'));
         } catch (error) {
             notifyError(
-                errorMessage(error, i18n('SIGNAGE_MANAGER.AI_JOB_FAILED')),
+                errorMessage(
+                    error,
+                    i18n('SIGNAGE_MANAGER.IMAGE_GEN_JOB_FAILED'),
+                ),
             );
         } finally {
             this.uploading_logo.set(false);
@@ -952,7 +988,7 @@ export class AiImageModalComponent implements OnDestroy {
         const overlay = !this._pending && this.has_overlay();
         const blob = overlay ? await this._layer()?.toBlob() : undefined;
         if (overlay && !blob) {
-            notifyError(i18n('SIGNAGE_MANAGER.AI_NO_IMAGE'));
+            notifyError(i18n('SIGNAGE_MANAGER.IMAGE_GEN_NO_IMAGE'));
             return;
         }
 
@@ -995,7 +1031,7 @@ export class AiImageModalComponent implements OnDestroy {
 
             if (!pending.claimed) {
                 try {
-                    await this._ai.claim(
+                    await this._image_gen.claim(
                         candidate.job_id,
                         candidate.upload_id,
                         media.id,
@@ -1025,7 +1061,7 @@ export class AiImageModalComponent implements OnDestroy {
             // thumbnail a moment to become readable so the tile is not
             // briefly empty
             if (media.thumbnail_id) {
-                await this._ai
+                await this._image_gen
                     .loadImage(
                         `/api/engine/v2/uploads/${media.thumbnail_id}/url`,
                     )
@@ -1034,7 +1070,10 @@ export class AiImageModalComponent implements OnDestroy {
             this._dialog_ref.close(media);
         } catch (error) {
             notifyError(
-                errorMessage(error, i18n('SIGNAGE_MANAGER.AI_JOB_FAILED')),
+                errorMessage(
+                    error,
+                    i18n('SIGNAGE_MANAGER.IMAGE_GEN_JOB_FAILED'),
+                ),
             );
         } finally {
             this.claim_pending.set(!!this._pending);
@@ -1054,10 +1093,10 @@ export class AiImageModalComponent implements OnDestroy {
     private _logo_defaulted = false;
 
     /** follow a job the server accepted, unless it was cancelled on the way */
-    private _follow(job: AiJob, token: number) {
+    private _follow(job: ImageGenJob, token: number) {
         if (this._closed) return;
         if (token !== this._job_token) {
-            this._ai.cancel(job.id);
+            this._image_gen.cancel(job.id);
             return;
         }
         this.job_ids.update((ids) => [...ids, job.id]);
@@ -1078,12 +1117,12 @@ export class AiImageModalComponent implements OnDestroy {
         const check = () => {
             this._await_timer = null;
             if (this._closed || token !== this._job_token) return;
-            const job = this._ai.jobs()[id];
+            const job = this._image_gen.jobs()[id];
             if (!job || !isFinal(job)) {
                 if (Date.now() >= deadline) {
-                    this._ai.unwatch(id);
+                    this._image_gen.unwatch(id);
                     this.state.set(this.rail().length ? 'review' : 'compose');
-                    notifyError(i18n('SIGNAGE_MANAGER.AI_JOB_FAILED'));
+                    notifyError(i18n('SIGNAGE_MANAGER.IMAGE_GEN_JOB_FAILED'));
                     return;
                 }
                 this._await_timer = setTimeout(check, 250);
@@ -1126,7 +1165,7 @@ export class AiImageModalComponent implements OnDestroy {
 
     private _readUpload(id?: string) {
         if (!id) return Promise.resolve('');
-        return this._ai
+        return this._image_gen
             .loadImage(`/api/engine/v2/uploads/${encodeURIComponent(id)}/url`)
             .catch(() => '');
     }
@@ -1134,7 +1173,7 @@ export class AiImageModalComponent implements OnDestroy {
     private _name() {
         const brief = (this.brief() || this._data.source_name || '').trim();
         const words = brief.split(/\s+/).slice(0, 6).join(' ');
-        return words || i18n('SIGNAGE_MANAGER.AI_DEFAULT_NAME');
+        return words || i18n('SIGNAGE_MANAGER.IMAGE_GEN_DEFAULT_NAME');
     }
 
     /**

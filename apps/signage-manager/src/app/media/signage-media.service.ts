@@ -37,7 +37,7 @@ import {
     SignagePlugin,
     updateSignageMedia,
 } from '@placeos/ts-client';
-import type { AiImageModalData } from '../ai/ai-image-modal.component';
+import type { ImageGenModalData } from '../image-gen/image-gen-modal.component';
 import { SignagePlaylistService } from '../playlists/signage-playlist.service';
 import type {
     BulkMediaUploadItem,
@@ -168,7 +168,7 @@ function persistMediaViewMode(mode: MediaViewMode) {
 }
 
 /**
- * Signage media library: paging, tags, uploads and thumbnails, and AI
+ * Signage media library: paging, tags, uploads and thumbnails, and
  * generated images
  */
 @Injectable({
@@ -561,10 +561,10 @@ export class SignageMediaService {
     }
 
     /** guards against a second modal while one is loading or open */
-    private _ai_modal_open = false;
+    private _image_gen_modal_open = false;
 
-    /** Open the AI image modal, either to create artwork or to change some. */
-    public async generateMediaWithAI(options: AiImageModalData = {}) {
+    /** Open the image generation modal, to create artwork or to change some. */
+    public async generateMediaWithImageGen(options: ImageGenModalData = {}) {
         if (
             !this._context.requirePermission(
                 this._context.can_create(),
@@ -577,33 +577,33 @@ export class SignageMediaService {
                 this._context.hasFeature(
                     options.source_upload_id ? 'ai-editing' : 'ai-generation',
                 ),
-                'SIGNAGE_MANAGER.SVC_AI_DISABLED',
+                'SIGNAGE_MANAGER.SVC_IMAGE_GEN_DISABLED',
             )
         )
             return;
-        if (this._ai_modal_open) return;
+        if (this._image_gen_modal_open) return;
         // set before the import, so a second click while it loads is ignored
-        this._ai_modal_open = true;
+        this._image_gen_modal_open = true;
         try {
-            const { AiImageModalComponent } =
-                await import('../ai/ai-image-modal.component');
-            const ref = this._dialog.open(AiImageModalComponent, {
+            const { ImageGenModalComponent } =
+                await import('../image-gen/image-gen-modal.component');
+            const ref = this._dialog.open(ImageGenModalComponent, {
                 data: options,
                 panelClass: 'fullscreen-dialog',
                 autoFocus: false,
-                ariaLabelledBy: 'ai-image-modal-title',
+                ariaLabelledBy: 'image-gen-modal-title',
             });
             const result = await dialogClosed(ref);
             this._context.changed();
             return result;
         } finally {
-            this._ai_modal_open = false;
+            this._image_gen_modal_open = false;
         }
     }
 
-    public async editMediaWithAI(media: SignageMedia) {
+    public async editMediaWithImageGen(media: SignageMedia) {
         if (!media?.media_id) return;
-        return this.generateMediaWithAI({
+        return this.generateMediaWithImageGen({
             source_upload_id: media.media_id,
             source_item_id: media.id,
             source_name: media.name,

@@ -1909,7 +1909,7 @@ export function registerMockSignage() {
         },
     });
 
-    registerMockSignageAI();
+    registerMockSignageImageGen();
 }
 
 /**
@@ -1920,13 +1920,13 @@ export function registerMockSignage() {
  * moment later. Images point at media already in the mock library, so the
  * modal renders something real.
  */
-interface MockAiRequest {
+interface MockImageGenRequest {
     candidates?: number;
     parent_job_id?: string;
     prompt?: string;
 }
 
-interface MockAiJobImage {
+interface MockImageGenJobImage {
     state: 'done';
     index: number;
     upload_id: string;
@@ -1937,7 +1937,7 @@ interface MockAiJobImage {
     item_id?: string;
 }
 
-interface MockAiJob {
+interface MockImageGenJob {
     id: string;
     state: 'queued' | 'running' | 'done' | 'failed' | 'cancelled';
     kind: 'generate' | 'edit';
@@ -1948,23 +1948,23 @@ interface MockAiJob {
     parent_job_id?: string;
     version: number;
     prompt?: string;
-    images: (MockAiJobImage | null)[];
+    images: (MockImageGenJobImage | null)[];
     error_kind?: string;
     error_message?: string;
     created_at: number;
     finished_at?: number;
 }
 
-function registerMockSignageAI() {
-    const AI_JOBS: Record<string, MockAiJob> = {};
+function registerMockSignageImageGen() {
+    const IMAGE_GEN_JOBS: Record<string, MockImageGenJob> = {};
     const SAMPLE_IMAGES = MOCK_MEDIA.slice(0, 4).map((item) => item.id);
 
     const now = () => Math.floor(Date.now() / 1000);
 
-    function makeJob(request: MockAiRequest, kind: 'generate' | 'edit') {
+    function makeJob(request: MockImageGenRequest, kind: 'generate' | 'edit') {
         const count = Math.min(Math.max(request.candidates || 2, 1), 4);
-        const job: MockAiJob = {
-            id: `signage-ai-job-${Object.keys(AI_JOBS).length + 1}`,
+        const job: MockImageGenJob = {
+            id: `signage-ai-job-${Object.keys(IMAGE_GEN_JOBS).length + 1}`,
             state: 'queued',
             kind,
             provider: 'OPENAI',
@@ -1977,7 +1977,7 @@ function registerMockSignageAI() {
             images: Array.from({ length: count }, () => null),
             created_at: now(),
         };
-        AI_JOBS[job.id] = job;
+        IMAGE_GEN_JOBS[job.id] = job;
 
         if (`${request.prompt}`.includes('trigger-moderation')) {
             setTimeout(() => {
@@ -2074,7 +2074,7 @@ function registerMockSignageAI() {
         path: '/api/engine/v2/signage/ai/jobs',
         metadata: {},
         method: 'GET',
-        callback: () => Object.values(AI_JOBS),
+        callback: () => Object.values(IMAGE_GEN_JOBS),
     });
 
     registerMockEndpoint({
@@ -2082,7 +2082,7 @@ function registerMockSignageAI() {
         metadata: {},
         method: 'GET',
         callback: (request) => {
-            const job = AI_JOBS[request.route_params.id];
+            const job = IMAGE_GEN_JOBS[request.route_params.id];
             if (!job) throw { status: 404, message: 'No such job' };
             return job;
         },
@@ -2093,7 +2093,7 @@ function registerMockSignageAI() {
         metadata: {},
         method: 'POST',
         callback: (request) => {
-            const job = AI_JOBS[request.route_params.id];
+            const job = IMAGE_GEN_JOBS[request.route_params.id];
             if (!job) throw { status: 404, message: 'No such job' };
             if (job.state === 'queued' || job.state === 'running') {
                 job.state = 'cancelled';
@@ -2108,7 +2108,7 @@ function registerMockSignageAI() {
         metadata: {},
         method: 'POST',
         callback: (request) => {
-            const job = AI_JOBS[request.route_params.id];
+            const job = IMAGE_GEN_JOBS[request.route_params.id];
             if (!job) throw { status: 404, message: 'No such job' };
             const entry = job.images.find(
                 (image) => image?.upload_id === request.body?.upload_id,

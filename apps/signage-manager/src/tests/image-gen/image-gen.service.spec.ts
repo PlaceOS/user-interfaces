@@ -2,10 +2,16 @@ import { TestBed } from '@angular/core/testing';
 import { UploadsService } from '@placeos/common';
 import { get, post } from '@placeos/ts-client';
 
-import { AiImageService, MAX_JOB_WAIT_MS } from '../../app/ai/ai-image.service';
-import { AiCapabilities, AiJob } from '../../app/ai/ai.types';
+import {
+    ImageGenService,
+    MAX_JOB_WAIT_MS,
+} from '../../app/image-gen/image-gen.service';
+import {
+    ImageGenCapabilities,
+    ImageGenJob,
+} from '../../app/image-gen/image-gen.types';
 
-function runningJob(id = 'job-1'): AiJob {
+function runningJob(id = 'job-1'): ImageGenJob {
     return {
         id,
         state: 'running',
@@ -24,12 +30,12 @@ type JsonRequest = (...args: unknown[]) => Promise<unknown>;
 const json_get = vi.mocked(get as JsonRequest);
 const json_post = vi.mocked(post as JsonRequest);
 
-describe('AiImageService', () => {
+describe('ImageGenService', () => {
     beforeEach(() => {
         vi.clearAllMocks();
         TestBed.configureTestingModule({
             providers: [
-                AiImageService,
+                ImageGenService,
                 {
                     provide: UploadsService,
                     useValue: { uploadFileToCompletion: vi.fn() },
@@ -41,7 +47,7 @@ describe('AiImageService', () => {
     afterEach(() => vi.useRealTimers());
 
     it('reuses a key only when the complete request is unchanged', () => {
-        const service = TestBed.inject(AiImageService);
+        const service = TestBed.inject(ImageGenService);
         const first = service.intentKey('generate', {
             prompt: 'A summer party',
             aspect_ratio: '16:9',
@@ -77,7 +83,7 @@ describe('AiImageService', () => {
 
     it('keeps a key to retry a failed submit, and drops it once a job comes back', async () => {
         vi.useFakeTimers();
-        const service = TestBed.inject(AiImageService);
+        const service = TestBed.inject(ImageGenService);
         const request = { prompt: 'A summer party', aspect_ratio: '16:9' };
         const first = service.intentKey('generate', request);
 
@@ -101,11 +107,11 @@ describe('AiImageService', () => {
         const enabled = {
             enabled: true,
             providers: [],
-        } as unknown as AiCapabilities;
+        } as unknown as ImageGenCapabilities;
         json_get
             .mockRejectedValueOnce(new Error('offline'))
             .mockResolvedValueOnce(enabled);
-        const service = TestBed.inject(AiImageService);
+        const service = TestBed.inject(ImageGenService);
 
         await service.load();
         expect(service.enabled()).toBe(false);
@@ -118,7 +124,7 @@ describe('AiImageService', () => {
 
     it('gives up on a job that runs past the deadline', async () => {
         vi.useFakeTimers();
-        const service = TestBed.inject(AiImageService);
+        const service = TestBed.inject(ImageGenService);
         const job = runningJob();
         service.jobs.set({ [job.id]: job });
         service.watch(job.id);
@@ -135,7 +141,7 @@ describe('AiImageService', () => {
     it('propagates a failed claim', async () => {
         vi.useFakeTimers();
         vi.mocked(post).mockRejectedValue(new Error('claim failed'));
-        const service = TestBed.inject(AiImageService);
+        const service = TestBed.inject(ImageGenService);
         const claim = expect(
             service.claim('job-1', 'upload-1', 'media-1'),
         ).rejects.toThrow('claim failed');
@@ -147,7 +153,7 @@ describe('AiImageService', () => {
 
     it('marks a job failed when status polling exhausts its retries', async () => {
         vi.mocked(get).mockRejectedValue(new Error('network unavailable'));
-        const service = TestBed.inject(AiImageService);
+        const service = TestBed.inject(ImageGenService);
         const job = runningJob();
         service.jobs.set({ [job.id]: job });
         service.watch(job.id);

@@ -1,5 +1,5 @@
 import { i18n } from '@placeos/common';
-import { errorStatus } from './ai/ai-image.util';
+import { errorStatus } from './image-gen/image-gen.util';
 
 /**
  * Features the `app.features` setting can turn on. Groups can only narrow
@@ -13,9 +13,9 @@ export const SIGNAGE_FEATURES = [
     },
     {
         id: 'ai-generation',
-        label: i18n('SIGNAGE_MANAGER.FEATURE_AI_GENERATION'),
+        label: i18n('SIGNAGE_MANAGER.FEATURE_IMAGE_GENERATION'),
     },
-    { id: 'ai-editing', label: i18n('SIGNAGE_MANAGER.FEATURE_AI_EDITING') },
+    { id: 'ai-editing', label: i18n('SIGNAGE_MANAGER.FEATURE_IMAGE_EDITING') },
     {
         id: 'branding-editing',
         label: i18n('SIGNAGE_MANAGER.FEATURE_BRANDING_EDITING'),

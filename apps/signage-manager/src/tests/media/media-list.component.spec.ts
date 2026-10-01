@@ -1,6 +1,6 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { AiImageService } from '../../app/ai/ai-image.service';
+import { ImageGenService } from '../../app/image-gen/image-gen.service';
 import { MediaListComponent } from '../../app/media/media-list.component';
 import { SignageMediaService } from '../../app/media/signage-media.service';
 import { SignageContextService } from '../../app/signage-context.service';
@@ -54,7 +54,7 @@ describe('MediaListComponent folders', () => {
                 { provide: SignageContextService, useValue: context_stub },
                 { provide: SignageMediaService, useValue: media_stub },
                 {
-                    provide: AiImageService,
+                    provide: ImageGenService,
                     useValue: { can_edit: signal(true) },
                 },
             ],
@@ -104,21 +104,21 @@ describe('MediaListComponent folders', () => {
         expect(component.can_switch_groups()).toBe(false);
     });
 
-    it('offers AI edits only when the user can create the derived image', () => {
+    it('offers image edits only when the user can create the derived image', () => {
         const component = make();
-        expect(component.can_edit_with_ai()).toBe(true);
+        expect(component.can_edit_with_image_gen()).toBe(true);
 
         context_stub.can_create.set(false);
 
-        expect(component.can_edit_with_ai()).toBe(false);
+        expect(component.can_edit_with_image_gen()).toBe(false);
     });
 
-    it('hides AI edits when the group turns AI editing off', () => {
+    it('hides image edits when the group turns image editing off', () => {
         const component = make();
 
         context_stub.features.set([]);
 
-        expect(component.can_edit_with_ai()).toBe(false);
+        expect(component.can_edit_with_image_gen()).toBe(false);
     });
 
     it('offers the all-groups view to an all-group manager', () => {

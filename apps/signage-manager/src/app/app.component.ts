@@ -12,7 +12,7 @@ import { SettingsDebugPanelLauncherComponent } from '@placeos/components/setting
 import { mocksInit } from '@placeos/mocks';
 import { authority } from '@placeos/ts-client';
 
-import { AiImageService } from './ai/ai-image.service';
+import { ImageGenService } from './image-gen/image-gen.service';
 import { CommandPaletteService } from './shared/command-palette.service';
 import { SignageContextService } from './signage-context.service';
 
@@ -80,7 +80,7 @@ export class AppComponent implements OnInit {
 
     private _placeos = inject(PlaceOS_Service);
     private _uploads = inject(UploadsService);
-    private _ai = inject(AiImageService);
+    private _image_gen = inject(ImageGenService);
     private _palette = inject(CommandPaletteService);
     private _context = inject(SignageContextService);
     private _router = inject(Router);
@@ -128,7 +128,7 @@ export class AppComponent implements OnInit {
 
         // asks the backend once whether image generation is available here, so
         // the entry points can hide themselves on a domain without a provider
-        await this._ai.load(authority()?.config?.org_zone);
-        if (this._ai.enabled()) await this._ai.loadRecent();
+        await this._image_gen.load(authority()?.config?.org_zone);
+        if (this._image_gen.enabled()) await this._image_gen.loadRecent();
     }
 }
