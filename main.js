@@ -1,36 +1,36 @@
 import {
   subMinutes
-} from "./chunk-QFNKSA5B.js";
+} from "./chunk-6UBQK4EW.js";
 import {
   MatInput,
   MatInputModule
-} from "./chunk-XGUP4RZV.js";
+} from "./chunk-FGHYEK7L.js";
 import {
   MatMenu,
   MatMenuItem,
   MatMenuModule,
   MatMenuTrigger
-} from "./chunk-JKLB5GPA.js";
+} from "./chunk-4RGQJM3B.js";
 import {
   generateMockSpace,
   setInternalUserDomain,
   setMinutes
-} from "./chunk-T456BFR5.js";
+} from "./chunk-OFT76UNU.js";
 import {
   MatFormField,
   MatFormFieldModule,
   MatPrefix
-} from "./chunk-MI4PQCT3.js";
+} from "./chunk-GZQBZ3HN.js";
 import {
   setHours
-} from "./chunk-KP65R54R.js";
+} from "./chunk-SAVA3BE7.js";
 import {
   MatTooltip,
   MatTooltipModule
-} from "./chunk-BODEF7A2.js";
+} from "./chunk-SCYMU2U2.js";
 import {
   TranslatePipe
-} from "./chunk-JUKYSRBY.js";
+} from "./chunk-ICSJZ6TR.js";
 import {
   AsyncHandler,
   BidiModule,
@@ -108,6 +108,7 @@ import {
   setupPlace,
   startOfDay,
   timePeriodsIntersect,
+  tokenExpiry,
   unique,
   uo,
   userSignal,
@@ -115,7 +116,7 @@ import {
   withTimeout,
   yi,
   ɵNgNoValidate
-} from "./chunk-ZGPY2QHI.js";
+} from "./chunk-757SIKVF.js";
 import {
   ChangeDetectorRef,
   Component,
@@ -201,11 +202,11 @@ import {
   ɵɵtwoWayListener,
   ɵɵtwoWayProperty,
   ɵɵviewQuerySignal
-} from "./chunk-RKFYMMSC.js";
+} from "./chunk-BHT7MITS.js";
 import {
   __spreadProps,
   __spreadValues
-} from "./chunk-653SOEEV.js";
+} from "./chunk-RQBZITXC.js";
 
 // node_modules/date-fns/subDays.js
 function subDays(date, amount, options) {
@@ -1295,15 +1296,15 @@ var GlobalLoadingComponent = class _GlobalLoadingComponent extends AsyncHandler 
 // libs/components/src/lib/settings-debug-panel-launcher.component.ts
 var SettingsDebugPanelLauncherComponent_Defer_25_DepsFn = () => [
   /* @ts-ignore */
-  import("./settings-debug-panel.component-ILA6CYSN.js").then((m) => m.SettingsDebugPanelComponent)
+  import("./settings-debug-panel.component-C35TEQHL.js").then((m) => m.SettingsDebugPanelComponent)
 ];
 var SettingsDebugPanelLauncherComponent_Defer_28_DepsFn = () => [
   /* @ts-ignore */
-  import("./binding-debug-panel.component-RPJIFCLO.js").then((m) => m.BindingDebugPanelComponent)
+  import("./binding-debug-panel.component-EPN6EHJB.js").then((m) => m.BindingDebugPanelComponent)
 ];
 var SettingsDebugPanelLauncherComponent_Defer_31_DepsFn = () => [
   /* @ts-ignore */
-  import("./debug-console.component-5L43Z4CX.js").then((m) => m.DebugConsoleComponent)
+  import("./debug-console.component-52HOEEI7.js").then((m) => m.DebugConsoleComponent)
 ];
 function SettingsDebugPanelLauncherComponent_Defer_24_Conditional_0_Template(rf, ctx) {
   if (rf & 1) {
@@ -1538,11 +1539,11 @@ var SettingsDebugPanelLauncherComponent = class _SettingsDebugPanelLauncherCompo
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(SettingsDebugPanelLauncherComponent, () => [
     /* @ts-ignore */
-    import("./settings-debug-panel.component-ILA6CYSN.js").then((m) => m.SettingsDebugPanelComponent),
+    import("./settings-debug-panel.component-C35TEQHL.js").then((m) => m.SettingsDebugPanelComponent),
     /* @ts-ignore */
-    import("./binding-debug-panel.component-RPJIFCLO.js").then((m) => m.BindingDebugPanelComponent),
+    import("./binding-debug-panel.component-EPN6EHJB.js").then((m) => m.BindingDebugPanelComponent),
     /* @ts-ignore */
-    import("./debug-console.component-5L43Z4CX.js").then((m) => m.DebugConsoleComponent)
+    import("./debug-console.component-52HOEEI7.js").then((m) => m.DebugConsoleComponent)
   ], (SettingsDebugPanelComponent, BindingDebugPanelComponent, DebugConsoleComponent) => {
     setClassMetadata(SettingsDebugPanelLauncherComponent, [{
       type: Component,
@@ -10034,7 +10035,47 @@ function mocksInit() {
   registerMockZones();
 }
 
+// apps/outlook-addin/src/app/outlook-auth.ts
+var NAA_CLIENT_PARAM = "ms_client_id";
+var GUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+function naaClientId(search = location.search) {
+  const client_id = new URLSearchParams(search).get(NAA_CLIENT_PARAM) || "";
+  return GUID.test(client_id) ? client_id : "";
+}
+function placeApiScope(client_id, host = location.host) {
+  return `api://${host}/${client_id}/access_as_user`;
+}
+async function acquireNaaToken(client_id) {
+  if (!client_id)
+    return "";
+  if (!Office.context.requirements.isSetSupported("NestedAppAuth", "1.1")) {
+    return "";
+  }
+  const msal = await import("./dist-Q4JK6BGV.js");
+  const app = await msal.createNestablePublicClientApplication({
+    auth: { clientId: client_id, authority: await authority() },
+    cache: { cacheLocation: "localStorage" }
+  });
+  const request = { scopes: [placeApiScope(client_id)] };
+  try {
+    return (await app.acquireTokenSilent(request)).accessToken;
+  } catch (error) {
+    if (!(error instanceof msal.InteractionRequiredAuthError))
+      throw error;
+  }
+  return (await app.acquireTokenPopup(request)).accessToken;
+}
+async function authority() {
+  let tenant_id = "";
+  try {
+    tenant_id = (await Office.auth.getAuthContext()).tenantId;
+  } catch {
+  }
+  return `https://login.microsoftonline.com/${tenant_id || "organizations"}`;
+}
+
 // apps/outlook-addin/src/app/app.component.ts
+var SIGN_IN_TIMEOUT_MS = 2 * 60 * 1e3;
 var AppComponent = class _AppComponent extends AsyncHandler {
   constructor() {
     super(...arguments);
@@ -10058,6 +10099,7 @@ var AppComponent = class _AppComponent extends AsyncHandler {
     );
     this.title = "outlook-addin";
     this._mocks_registered = false;
+    this._naa_client_id = naaClientId();
   }
   async ngOnInit() {
     console.info(`Initialising application...`);
@@ -10071,8 +10113,10 @@ var AppComponent = class _AppComponent extends AsyncHandler {
     console.info(`Waiting for application settings...`);
     await firstTruthyValueFrom(this._settings.initialised);
     log("Outlook", `Waiting for library initialisation...`);
+    let host = null;
     try {
-      await withTimeout(Office.onReady(), 3e4, "Microsoft Office did not become ready.");
+      const info = await withTimeout(Office.onReady(), 3e4, "Microsoft Office did not become ready.");
+      host = info.host;
     } catch (error) {
       console.error(error);
       failInitialisation("The Outlook add-in could not start. Close and reopen it, then try again.");
@@ -10083,33 +10127,17 @@ var AppComponent = class _AppComponent extends AsyncHandler {
     log("Outlook", `Initialising auth...`);
     if (!await this._initialiseAuth())
       return;
-    log("Outlook", `Checking existing auth...`);
-    if (J())
-      return this._finishInitialise();
-    console.info(`No existing auth...`);
-    try {
-      log("Outlook", `Checking for token...`);
-      const get_token = Office?.auth?.getAccessToken();
-      const tkn = await withTimeout(get_token || Promise.resolve(void 0), 1e4, "Unable to get Office token.");
-      if (!tkn)
-        throw "Unable to get office token...";
-      log("Outlook", `Loaded office token. ${tkn}`);
-      sessionStorage.setItem("OFFICE.token", tkn);
-      if (!await this._initialiseAuth(false))
-        return;
-      this._finishInitialise();
-    } catch (e) {
-      console.info(JSON.stringify(e));
-      if (!Office?.context?.auth) {
-        log("Outlook", `Error office API not loaded.`);
+    if (!J()) {
+      if (host === Office.HostType.Outlook) {
+        if (!await this._signInWithOutlook())
+          return;
+      } else {
+        log("Outlook", `Not in Outlook, using PlaceOS login...`);
         if (!await this._initialiseAuth(false))
           return;
-        await this._finishInitialise();
-      } else {
-        log("Outlook", `Authenticating through Outlook...`);
-        await this._authenticateGraphAPI();
       }
     }
+    await this._finishInitialise();
     if (this._settings.get("app.has_uploads"))
       this._uploads.init();
   }
@@ -10148,27 +10176,54 @@ var AppComponent = class _AppComponent extends AsyncHandler {
       setInternalUserDomain(internal_user_domain);
     markInitialisationComplete();
   }
-  async _authenticateGraphAPIWithDialog() {
-    log("Outlook", `Authenticating...`);
-    this.timeout("office_auth_failure", () => failInitialisation("Microsoft sign in did not finish. Close the sign-in window, then try again."), 2 * 60 * 1e3);
-    this.timeout("office_auth", () => {
-      const path = `${location.origin}${location.pathname}#ms-auth=true`;
-      console.info(`Opening office authentication dialog with URL: ${path}`);
-      Office.context.ui.displayDialogAsync(path, { height: 60, width: 30 }, (result) => {
-        if (result.status !== "succeeded") {
-          this.clearTimeout("office_auth_failure");
-          failInitialisation("The Microsoft sign-in window could not open. Allow pop-ups for Outlook, then try again.");
+  /**
+   * Sign in from the task pane in Outlook. Uses nested app authentication
+   * when the manifest has a client ID and Outlook supports it. Otherwise,
+   * or when it fails, uses the PlaceOS sign-in dialog.
+   */
+  async _signInWithOutlook() {
+    log("Outlook", `Signing in through Outlook...`);
+    const sso_token = await withTimeout(acquireNaaToken(this._naa_client_id), SIGN_IN_TIMEOUT_MS, "Microsoft single sign-on timed out.").catch((error) => {
+      log("Outlook", "Single sign-on failed.", error, "warn");
+      return "";
+    });
+    if (sso_token) {
+      yi(sso_token, tokenExpiry(sso_token));
+      return true;
+    }
+    return this._signInWithDialog();
+  }
+  /**
+   * Open the app in an Office dialog to sign in to PlaceOS. The dialog
+   * sends the PlaceOS token back. Resolves to false when sign in failed.
+   */
+  _signInWithDialog() {
+    log("Outlook", `Opening sign-in dialog...`);
+    const url = `${location.origin}${location.pathname}#ms-auth=true`;
+    return new Promise((resolve) => {
+      let dialog;
+      let done = false;
+      const finish = (place_token, error = "") => {
+        if (done)
+          return;
+        done = true;
+        this.clearTimeout("dialog_sign_in");
+        dialog?.close();
+        if (place_token)
+          yi(place_token);
+        else
+          failInitialisation(error);
+        resolve(!!place_token);
+      };
+      this.timeout("dialog_sign_in", () => finish("", "Microsoft sign in did not finish. Close the sign-in window, then try again."), SIGN_IN_TIMEOUT_MS);
+      Office.context.ui.displayDialogAsync(url, { height: 60, width: 30 }, (result) => {
+        if (result.status !== Office.AsyncResultStatus.Succeeded) {
+          finish("", "The Microsoft sign-in window could not open. Allow pop-ups for Outlook, then try again.");
           return;
         }
-        log("Outlook", `Authenticating with dialog...`);
-        const dialog = result.value;
-        dialog.addEventHandler(Office.EventType.DialogMessageReceived, (event) => {
-          this.clearTimeout("office_auth_failure");
-          if (event.message)
-            yi(event.message);
-          this._finishInitialise();
-          dialog.close();
-        });
+        dialog = result.value;
+        dialog.addEventHandler(Office.EventType.DialogMessageReceived, (event) => finish("message" in event ? event.message : "", "Microsoft sign in did not return a token. Try again."));
+        dialog.addEventHandler(Office.EventType.DialogEventReceived, () => finish("", "The sign-in window closed before sign in finished. Try again."));
       });
     });
   }
@@ -10189,40 +10244,6 @@ var AppComponent = class _AppComponent extends AsyncHandler {
       return;
     sessionStorage.removeItem("ms-auth");
     Office.context.ui.messageParent(J());
-  }
-  async _authenticateGraphAPI(tries = 0) {
-    if (!Office.context.auth) {
-      if (Office.context.ui) {
-        await this._authenticateGraphAPIWithDialog();
-        return;
-      }
-      if (tries >= 10) {
-        failInitialisation("Microsoft authentication is unavailable. Close and reopen the add-in, then try again.");
-        return;
-      }
-      await new Promise((resolve) => this.timeout("retry_graph_auth", () => resolve(), 300));
-      return this._authenticateGraphAPI(tries + 1);
-    }
-    try {
-      const access_token = new Promise((resolve) => Office.context.auth.getAccessTokenAsync({ allowSignInPrompt: true }, resolve));
-      const result = await withTimeout(access_token, 1e4, "Microsoft single sign-on timed out.");
-      if (result.status === "succeeded") {
-        const token = result.value;
-        log("Outlook", "SSO token acquired successfully");
-        if (token)
-          yi(token);
-        await this._finishInitialise();
-        return;
-      }
-      log("Outlook", `SSO failed: ${result.error?.message || "Unknown error"}`, void 0, "error");
-    } catch (error) {
-      console.error(error);
-    }
-    if (Office.context.ui) {
-      await this._authenticateGraphAPIWithDialog();
-    } else {
-      failInitialisation("Microsoft sign in did not finish. Close and reopen the add-in, then try again.");
-    }
   }
   onInitError() {
     if (Rn() || this._current_user()?.is_logged_in)
@@ -10266,7 +10287,7 @@ var AppComponent = class _AppComponent extends AsyncHandler {
   }], null, null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(AppComponent, { className: "AppComponent", filePath: "apps/outlook-addin/src/app/app.component.ts", lineNumber: 55 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(AppComponent, { className: "AppComponent", filePath: "apps/outlook-addin/src/app/app.component.ts", lineNumber: 52 });
 })();
 
 // apps/outlook-addin/src/environments/environment.ts
@@ -10279,11 +10300,11 @@ var routes = [
   { path: "unauthorised", component: UnauthorisedComponent },
   {
     path: "404",
-    loadComponent: () => import("./not-found.component-74ADLWKB.js").then((m) => m.NotFoundComponent)
+    loadComponent: () => import("./not-found.component-EA3BBUTV.js").then((m) => m.NotFoundComponent)
   },
   {
     path: "find",
-    loadComponent: () => import("./find-space.component-PIRXVXSI.js").then((m) => m.FindSpaceComponent)
+    loadComponent: () => import("./find-space.component-DODOZJR3.js").then((m) => m.FindSpaceComponent)
   },
   {
     path: "",
@@ -10292,52 +10313,48 @@ var routes = [
     children: [
       {
         path: "calendar",
-        loadComponent: () => import("./calendar-pane.component-NJ6MGJEG.js").then((m) => m.CalendarPaneComponent)
-      },
-      {
-        path: "ms-auth",
-        loadComponent: () => import("./room-booking.component-3IB42ZSU.js").then((m) => m.RoomBookingComponent)
+        loadComponent: () => import("./calendar-pane.component-BIYKBPTM.js").then((m) => m.CalendarPaneComponent)
       },
       {
         path: "book",
         children: [
           {
             path: "spaces",
-            loadComponent: () => import("./room-booking.component-3IB42ZSU.js").then((m) => m.RoomBookingComponent)
+            loadComponent: () => import("./room-booking.component-J25FCSQU.js").then((m) => m.RoomBookingComponent)
           },
           {
             path: "spaces/success",
-            loadComponent: () => import("./booking-confirmed.component-TJQIFRLD.js").then((m) => m.BookingConfirmedComponent)
+            loadComponent: () => import("./booking-confirmed.component-RXAEHWJK.js").then((m) => m.BookingConfirmedComponent)
           },
           {
             path: "meeting",
-            loadComponent: () => import("./meeting-booking.component-GN6SL3W6.js").then((m) => m.MeetingBookingComponent)
+            loadComponent: () => import("./meeting-booking.component-CFVCOSXF.js").then((m) => m.MeetingBookingComponent)
           },
           {
             path: "meeting/success",
-            loadComponent: () => import("./meeting-success.component-YIP3IMLV.js").then((m) => m.MeetingBookingSuccessComponent)
+            loadComponent: () => import("./meeting-success.component-ENJJPSX4.js").then((m) => m.MeetingBookingSuccessComponent)
           },
           {
             path: "desks",
-            loadComponent: () => import("./desk-booking.component-SA46B5SE.js").then((m) => m.DeskBookingComponent)
+            loadComponent: () => import("./desk-booking.component-IMUAOZN6.js").then((m) => m.DeskBookingComponent)
           },
           {
             path: "desks/success",
-            loadComponent: () => import("./desk-success.component-KUJRCH7I.js").then((m) => m.DeskBookingSuccessComponent)
+            loadComponent: () => import("./desk-success.component-LC7YH7YQ.js").then((m) => m.DeskBookingSuccessComponent)
           }
         ]
       },
       {
         path: "schedule/view",
-        loadComponent: () => import("./find-space.component-PIRXVXSI.js").then((m) => m.FindSpaceComponent)
+        loadComponent: () => import("./find-space.component-DODOZJR3.js").then((m) => m.FindSpaceComponent)
       },
       {
         path: "confirm/success",
-        loadComponent: () => import("./booking-confirmed.component-TJQIFRLD.js").then((m) => m.BookingConfirmedComponent)
+        loadComponent: () => import("./booking-confirmed.component-RXAEHWJK.js").then((m) => m.BookingConfirmedComponent)
       },
       {
         path: "upcoming",
-        loadComponent: () => import("./upcoming-bookings.component-YTZEN4I3.js").then((m) => m.UpcomingBookingsComponent)
+        loadComponent: () => import("./upcoming-bookings.component-ZMGVI2DC.js").then((m) => m.UpcomingBookingsComponent)
       },
       { path: "**", redirectTo: "calendar" }
     ]
@@ -10363,5 +10380,5 @@ if (environment.production) {
   enableProdMode();
 }
 bootstrapApplication(AppComponent, appConfig).catch((err) => console.error(err));
-//# debugId=bfb96c46-8084-5b9f-9d0f-88c89df63985
+//# debugId=880ba4ed-14fc-5c1c-a0da-f3126a9d0789
 //# sourceMappingURL=main.js.map
