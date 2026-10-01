@@ -196,4 +196,18 @@ describe('VideoCallPageComponent', () => {
         spectator.setInput({ reserve_top: true });
         expect(spectator.query('[actions]')).toHaveClass('pt-14');
     });
+
+    it('should keep a later layout when an earlier change fails last', async () => {
+        let fail_first: (ok: boolean) => void = () => null;
+        call_state.setVideoLayout
+            .mockImplementationOnce(
+                () => new Promise<boolean>((r) => (fail_first = r)),
+            )
+            .mockResolvedValueOnce(true);
+        const first = spectator.component.setVideoLayout('Single');
+        await spectator.component.setVideoLayout('Equal');
+        fail_first(false);
+        await first;
+        expect(spectator.component.video_layout()).toBe('Equal');
+    });
 });

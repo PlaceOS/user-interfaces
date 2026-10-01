@@ -249,6 +249,9 @@ export class VideoCallPageComponent extends AsyncHandler implements OnInit {
     private _router = inject(Router);
     private _injector = inject(Injector);
 
+    /** Latest layout and presentation mode change requests */
+    private _layout_request = 0;
+    private _mode_request = 0;
     /** Whether the page has already left for the ended call */
     private _left = false;
 
@@ -286,14 +289,19 @@ export class VideoCallPageComponent extends AsyncHandler implements OnInit {
     public readonly sentDTMF = (d) => this._state.sendDTMF(d);
     public readonly setPresentationSource = (i) =>
         this._control.setRoute(i.id, this.present_output(), false);
+    /** Reset on failure only if no newer change started, so a later choice is kept */
     public readonly setPresentationMode = async (d: PresentationMode) => {
+        const request = ++this._mode_request;
         this.presentation_mode.set(d);
         if (await this._state.setPresentationMode(d)) return;
+        if (request !== this._mode_request) return;
         this.presentation_mode.set(this._state.presentation_mode());
     };
     public readonly setVideoLayout = async (d: VideoLayout) => {
+        const request = ++this._layout_request;
         this.video_layout.set(d);
         if (await this._state.setVideoLayout(d)) return;
+        if (request !== this._layout_request) return;
         this.video_layout.set(this._state.video_layout());
     };
     public readonly toggleCamera = async () =>
