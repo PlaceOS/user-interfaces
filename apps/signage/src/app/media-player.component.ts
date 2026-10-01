@@ -769,17 +769,8 @@ export class MediaPlayerComponent
         ) {
             if (this._plugin_finished) {
                 this.nextItem();
-            } else if (
-                now > this._item_start + this._playThroughLimit(item) &&
-                !this._shouldHoldSingleInteractiveItem(item)
-            ) {
-                log(
-                    'MediaPlayer',
-                    `Plugin "${item.name}" did not report finished in time; continuing.`,
-                    [item.plugin?.uri],
-                    'warn',
-                );
-                this.nextItem();
+            } else if (now > this._item_start + this._playThroughLimit(item)) {
+                this._handleOverrunPlugin(item);
             }
             return;
         }
@@ -1224,14 +1215,53 @@ export class MediaPlayerComponent
         log('MediaPlayer', `Plugin error: ${error.message}`, [error], 'error');
         if (!error.fatal) return;
         if (item?.type === 'plugin') {
-            this._markNotShown(item);
-            this._handled_error_cycle = this._currentMediaCycle();
-            this._clearDeferredReveal();
-            this._clearOutput(output);
-            this._skipFailedMedia(this._item_start || time());
+            this._failPluginItem(item, output);
         } else {
             this.nextItem();
         }
+    }
+
+    /**
+     * Treat a plugin as failed to load: remove it from screen and skip it, or
+     * retry it after a delay when there is nothing else to show.
+     */
+    private _failPluginItem(item: MediaPlayerItem, output: 0 | 1) {
+        this._markNotShown(item);
+        this._handled_error_cycle = this._currentMediaCycle();
+        this._clearDeferredReveal();
+        this._clearOutput(output);
+        this._skipFailedMedia(this._item_start || time());
+    }
+
+    /**
+     * A play-through plugin that has overrun its limit. With other items to
+     * show, move on. A lone one is held like any single item, unless it never
+     * sent a plugin message: then it can never finish and is most likely an
+     * error page, so it is retried the same way as a fatal plugin error.
+     */
+    private _handleOverrunPlugin(item: MediaPlayerItem) {
+        if (!this._shouldHoldSingleInteractiveItem(item)) {
+            log(
+                'MediaPlayer',
+                `Plugin "${item.name}" did not report finished in time; continuing.`,
+                [item.plugin?.uri],
+                'warn',
+            );
+            this.nextItem();
+            return;
+        }
+        // Already removed from screen and waiting for its retry
+        const output = this._item_output.get(item.id);
+        if (output === undefined || this._pluginResponded(item, output)) {
+            return;
+        }
+        log(
+            'MediaPlayer',
+            `Plugin "${item.name}" never responded; retrying.`,
+            [item.plugin?.uri],
+            'warn',
+        );
+        this._failPluginItem(item, output);
     }
 
     private _showPlugin(item: MediaPlayerItem, output: 0 | 1) {
@@ -1302,6 +1332,11 @@ export class MediaPlayerComponent
         return this._playback_duration || item?.duration || 15 * 1000;
     }
 
+    /** Whether the plugin on `output` has sent any plugin protocol message */
+    private _pluginResponded(item: MediaPlayerItem, output: 0 | 1) {
+        return this._responded_output_items.has(this._outputKey(output, item));
+    }
+
     /**
      * How long a play-through plugin may hold the screen without reporting
      * that it finished. One that never sent a plugin message - a page that
@@ -1313,9 +1348,7 @@ export class MediaPlayerComponent
     private _playThroughLimit(item: MediaPlayerItem) {
         const duration = this._effectivePlaybackDuration(item);
         const output = this._item_output.get(item.id) ?? this.active_output();
-        if (!this._responded_output_items.has(this._outputKey(output, item))) {
-            return duration;
-        }
+        if (!this._pluginResponded(item, output)) return duration;
         return Math.min(
             Math.max(duration * 2, PLAY_THROUGH_MIN_LIMIT),
             PLAY_THROUGH_MAX_LIMIT,

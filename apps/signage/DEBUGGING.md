@@ -155,6 +155,12 @@ reports `finished`, it advances after twice its configured duration, held
 between 5 and 60 minutes. After that limit, it also stops holding back an
 update reload.
 
+When the plugin is the only item, there is nothing to advance to. A lone
+play-through plugin that never sent a plugin message is then treated as a
+failed load: it is removed from the screen and loaded again after 30 seconds,
+until it responds. A lone plugin that responds but never reports `finished`
+stays on screen, as any single item does.
+
 Pause and resume messages (US-SIG-024) are obeyed only from the parent frame.
 Webpages and plugins on screen cannot pause the player. This is important
 because a paused player still checks in with the watchdog, so the watchdog does

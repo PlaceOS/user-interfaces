@@ -182,6 +182,7 @@ The Signage app is a kiosk-style digital signage player. It bootstraps a device 
 - Static plugins follow the configured effective duration.
 - Play-through plugins advance when they report `finished`.
 - A play-through plugin that never sends a plugin message advances after its configured duration, like a static plugin.
+- If that plugin is the only item, it is removed from the screen and loaded again after 30 seconds.
 - A play-through plugin that does not report `finished` advances after twice its configured duration, but not before 5 minutes and not after 60 minutes.
 - Interactive plugins can request a new playback duration through plugin interaction events.
 - Upcoming plugin items can be preloaded on the inactive output shortly before transition.

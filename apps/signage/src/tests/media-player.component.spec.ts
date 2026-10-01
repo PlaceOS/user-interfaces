@@ -1264,6 +1264,44 @@ describe('MediaPlayerComponent', () => {
             expect(spectator.component.isMidPlayThroughItem()).toBe(false);
         });
 
+        it('should retry a lone plugin that never responds instead of holding it', () => {
+            vi.useFakeTimers();
+            const item = play_through();
+            load_playlist([item]);
+            spectator.component.state.set('PLAYING');
+            const output = spectator.component['_item_output'].get('plugin-1');
+            // The frame loads an error page that never speaks the protocol
+            spectator.component.onPluginLoad(output);
+            expect(spectator.component['_shown_item_id']).toBe('plugin-1');
+
+            spectator.component['_item_start'] = Date.now() - 20_001;
+            spectator.component['_updateItem']();
+
+            // Taken off screen, so the player no longer reports it as shown
+            expect(spectator.component.output_plugins()[output]).toBeNull();
+            expect(spectator.component['_shown_item_id']).toBe('');
+
+            vi.advanceTimersByTime(30_000);
+            expect(spectator.component.output_plugins()[output]).toBe(
+                item.plugin,
+            );
+        });
+
+        it('should keep holding a lone plugin that is running but never finishes', () => {
+            const item = play_through();
+            load_playlist([item]);
+            spectator.component.state.set('PLAYING');
+            const output = spectator.component['_item_output'].get('plugin-1');
+            spectator.component.onPluginStatus('ready', output);
+
+            spectator.component['_item_start'] = Date.now() - 60 * 60_000;
+            spectator.component['_updateItem']();
+
+            expect(spectator.component.output_plugins()[output]).toBe(
+                item.plugin,
+            );
+        });
+
         it('should advance after its duration when the plugin never responds', () => {
             show(1_000);
             const next_item_spy = vi
