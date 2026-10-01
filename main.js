@@ -13,14 +13,14 @@ import {
   recordFatalError,
   requestRecovery,
   startWatchdog
-} from "./chunk-4CKVY7UM.js";
+} from "./chunk-4CFGENYP.js";
 import {
   MatTooltip,
   MatTooltipModule
-} from "./chunk-D7ZT4NTL.js";
+} from "./chunk-WSVA5N7Q.js";
 import {
   TranslatePipe
-} from "./chunk-JOX3RN3F.js";
+} from "./chunk-BOI6PAAM.js";
 import {
   $a,
   A,
@@ -275,7 +275,7 @@ import {
   ɵɵtwoWayProperty,
   ɵɵviewQuery,
   ɵɵviewQuerySignal
-} from "./chunk-B5TPBF66.js";
+} from "./chunk-ZOYCNKKV.js";
 import {
   __spreadProps,
   __spreadValues
@@ -4352,15 +4352,15 @@ var GlobalLoadingComponent = class _GlobalLoadingComponent extends AsyncHandler 
 // libs/components/src/lib/settings-debug-panel-launcher.component.ts
 var SettingsDebugPanelLauncherComponent_Defer_25_DepsFn = () => [
   /* @ts-ignore */
-  import("./settings-debug-panel.component-IT27NHMO.js").then((m) => m.SettingsDebugPanelComponent)
+  import("./settings-debug-panel.component-OVBQUMSQ.js").then((m) => m.SettingsDebugPanelComponent)
 ];
 var SettingsDebugPanelLauncherComponent_Defer_28_DepsFn = () => [
   /* @ts-ignore */
-  import("./binding-debug-panel.component-MEWOFNTC.js").then((m) => m.BindingDebugPanelComponent)
+  import("./binding-debug-panel.component-I2SJ5CHJ.js").then((m) => m.BindingDebugPanelComponent)
 ];
 var SettingsDebugPanelLauncherComponent_Defer_31_DepsFn = () => [
   /* @ts-ignore */
-  import("./debug-console.component-ICNQHSIW.js").then((m) => m.DebugConsoleComponent)
+  import("./debug-console.component-IFDLWAKA.js").then((m) => m.DebugConsoleComponent)
 ];
 function SettingsDebugPanelLauncherComponent_Defer_24_Conditional_0_Template(rf, ctx) {
   if (rf & 1) {
@@ -4595,11 +4595,11 @@ var SettingsDebugPanelLauncherComponent = class _SettingsDebugPanelLauncherCompo
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(SettingsDebugPanelLauncherComponent, () => [
     /* @ts-ignore */
-    import("./settings-debug-panel.component-IT27NHMO.js").then((m) => m.SettingsDebugPanelComponent),
+    import("./settings-debug-panel.component-OVBQUMSQ.js").then((m) => m.SettingsDebugPanelComponent),
     /* @ts-ignore */
-    import("./binding-debug-panel.component-MEWOFNTC.js").then((m) => m.BindingDebugPanelComponent),
+    import("./binding-debug-panel.component-I2SJ5CHJ.js").then((m) => m.BindingDebugPanelComponent),
     /* @ts-ignore */
-    import("./debug-console.component-ICNQHSIW.js").then((m) => m.DebugConsoleComponent)
+    import("./debug-console.component-IFDLWAKA.js").then((m) => m.DebugConsoleComponent)
   ], (SettingsDebugPanelComponent, BindingDebugPanelComponent, DebugConsoleComponent) => {
     setClassMetadata(SettingsDebugPanelLauncherComponent, [{
       type: Component,
@@ -13990,7 +13990,7 @@ var BootstrapComponent = class _BootstrapComponent extends AsyncHandler {
 })();
 
 // apps/signage/src/app/app.routes.ts
-var loadSignageTemplate = () => import("./template.component-IPTFYAC7.js").then((m) => m.SignageTemplateComponent);
+var loadSignageTemplate = () => import("./template.component-QP3HSNJC.js").then((m) => m.SignageTemplateComponent);
 var routes = [
   {
     path: "unauthorised",
