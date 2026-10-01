@@ -41,7 +41,7 @@ describe('TabOutletComponent', () => {
         ],
         providers: [
             MockProvider(ControlStateService, {
-                id: 'sys1',
+                system_id: signal('sys1'),
                 hide_present_all: signal(false),
                 output_list: signal([]),
                 system: signal({}),
@@ -221,6 +221,44 @@ describe('TabOutletComponent', () => {
         spectator.detectChanges();
         vi.advanceTimersByTime(600);
         expect(navigate).toHaveBeenCalledTimes(1);
+        vi.useRealTimers();
+    });
+
+    it('should fall back to the first tab when no tab is selected', () => {
+        spectator.setRouteParam('tab', '');
+        const service: any = spectator.inject(ControlStateService);
+        service.system.set({});
+        service.tabs.set([
+            { id: 'a', name: 'A', icon: 'tv' },
+            { id: 'b', name: 'B', icon: 'tv' },
+        ]);
+        spectator.detectChanges();
+        expect(spectator.component.active_tab()).toBe('a');
+        expect(spectator.query('a[aria-current="page"]')).toContainText('A');
+    });
+
+    it('should prefer the driver selected tab over the first tab', () => {
+        spectator.setRouteParam('tab', '');
+        const service: any = spectator.inject(ControlStateService);
+        service.tabs.set([{ id: 'a' }, { id: 'b' }]);
+        service.system.set({ selected_tab: 'b' });
+        expect(spectator.component.active_tab()).toBe('b');
+    });
+
+    it('should follow the driver tab on the current system', () => {
+        vi.useFakeTimers();
+        const service: any = spectator.inject(ControlStateService);
+        const navigate = vi
+            .spyOn(spectator.router, 'navigate')
+            .mockResolvedValue(true);
+        service.system_id.set('sys2');
+        service.system.set({ selected_tab: 'tab2' });
+        spectator.detectChanges();
+        vi.advanceTimersByTime(600);
+        expect(navigate).toHaveBeenCalledWith(
+            ['/tabbed', 'sys2', 'tab2'],
+            expect.anything(),
+        );
         vi.useRealTimers();
     });
 });

@@ -55,4 +55,26 @@ describe('ControlAdvancedViewComponent', () => {
         expect('output-display').toHaveLength(6);
         expect('button').toHaveLength(2);
     });
+
+    /** Output list with the given number of items */
+    const outputList = (count: number) =>
+        Array.from({ length: count }, (_, i) => ({ id: `${i + 1}` }));
+
+    it('should not add an empty page when outputs fill the last page', () => {
+        const service: any = spectator.inject(ControlStateService);
+        service.output_list.set(outputList(12));
+        spectator.detectChanges();
+        expect('button').toHaveLength(2);
+    });
+
+    it('should move to the last page when the output list shrinks', () => {
+        const service: any = spectator.inject(ControlStateService);
+        service.output_list.set(outputList(8));
+        spectator.detectChanges();
+        spectator.component.page.set(1);
+        service.output_list.set(outputList(4));
+        spectator.detectChanges();
+        expect(spectator.component.page()).toBe(0);
+        expect('output-display').toHaveLength(4);
+    });
 });

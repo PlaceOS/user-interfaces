@@ -19,6 +19,7 @@ class MockSpeechRecognition {
     public onend: any = null;
     public start = vi.fn();
     public stop = vi.fn();
+    public abort = vi.fn();
 }
 
 describe('VoiceAssistantService', () => {
@@ -51,6 +52,7 @@ describe('VoiceAssistantService', () => {
             setBinding: vi.fn(),
             startChat: vi.fn(),
             sendMessage: vi.fn(),
+            close: vi.fn(),
         };
         spectator = createService({
             providers: [{ provide: ChatService, useValue: chat }],
@@ -99,7 +101,26 @@ describe('VoiceAssistantService', () => {
         vi.advanceTimersByTime(300);
         TestBed.flushEffects();
         expect(spectator.service.enabled()).toBe(false);
-        expect(instance.stop).toHaveBeenCalled();
+        expect(instance.abort).toHaveBeenCalled();
+        expect(instance.onresult).toBeNull();
+    });
+
+    it('should report speech recognition as unavailable when the browser lacks it', () => {
+        delete (window as any).SpeechRecognition;
+        spectator.service.setEnabled(true);
+        vi.advanceTimersByTime(300);
+        TestBed.flushEffects();
+        expect(spectator.service.error().speech_recognition).toBe(true);
+    });
+
+    it('should drop the previous room chat when the system changes', () => {
+        spectator.service.setBinding('sys-1');
+        TestBed.flushEffects();
+        expect(chat.close).not.toHaveBeenCalled();
+        spectator.service.setBinding('sys-2');
+        TestBed.flushEffects();
+        expect(chat.close).toHaveBeenCalledTimes(1);
+        expect(chat.setBinding).toHaveBeenLastCalledWith('sys-2');
     });
 
     function enable() {

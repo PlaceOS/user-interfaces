@@ -111,4 +111,10 @@ describe('VoiceAssistantComponent', () => {
         spectator.setInput({ enabled: true });
         expect(service.setEnabled).toHaveBeenCalledWith(true);
     });
+
+    it('should disable voice control when destroyed', () => {
+        service.setEnabled.mockClear();
+        spectator.fixture.destroy();
+        expect(service.setEnabled).toHaveBeenCalledWith(false);
+    });
 });

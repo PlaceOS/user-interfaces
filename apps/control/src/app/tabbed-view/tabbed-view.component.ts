@@ -1,6 +1,6 @@
 import { Component, computed, effect, inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 
 import { SettingsService, VERSION } from '@placeos/common';
 import {
@@ -128,6 +128,7 @@ import { TabOutletComponent } from './tab-outlet.component';
 })
 export class ControlTabbedViewComponent {
     private _route = inject(ActivatedRoute);
+    private _router = inject(Router);
     private _state = inject(ControlStateService);
     private _changelog = inject(ChangelogService);
     private _settings = inject(SettingsService);
@@ -166,7 +167,15 @@ export class ControlTabbedViewComponent {
 
         effect(() => {
             const params = this._query_param_map();
-            if (params.get('join') === 'true') this._state.selectMeeting();
+            if (params.get('join') !== 'true') return;
+            this._state.selectMeeting();
+            // Open the meeting list once. Tab links merge query params.
+            this._router.navigate([], {
+                relativeTo: this._route,
+                queryParams: { join: null },
+                queryParamsHandling: 'merge',
+                replaceUrl: true,
+            });
         });
     }
 }

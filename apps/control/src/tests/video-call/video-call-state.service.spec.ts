@@ -140,4 +140,11 @@ describe('VideoCallStateService', () => {
         await spectator.service.sendDTMF('1');
         expect(execute_spy).not.toHaveBeenCalled();
     });
+
+    it('should resolve instead of throwing when a command fails', async () => {
+        execute_spy.mockRejectedValue(new Error('offline'));
+        await expect(
+            spectator.service.muteMicrophone(true),
+        ).resolves.toBeUndefined();
+    });
 });

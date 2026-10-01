@@ -26,7 +26,7 @@ describe('SourceSelectComponent', () => {
             {
                 provide: ControlStateService,
                 useValue: {
-                    output_list: signal([]),
+                    output_list: signal([{ id: 'display', source: 'pc' }]),
                     available_inputs: signal([input]),
                     setRoute,
                 },
@@ -66,5 +66,9 @@ describe('SourceSelectComponent', () => {
         expect(spectator.component.loading()).toBe(false);
         expect(notify_open).toHaveBeenCalled();
         expect(emitted).not.toHaveBeenCalled();
+    });
+
+    it('should highlight the routed source as selected', () => {
+        expect(spectator.query('button[source]')).not.toHaveClass('inverse');
     });
 });

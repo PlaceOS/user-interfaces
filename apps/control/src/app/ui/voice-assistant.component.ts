@@ -1,5 +1,6 @@
 import {
     Component,
+    DestroyRef,
     ElementRef,
     computed,
     effect,
@@ -146,6 +147,9 @@ export class VoiceAssistantComponent {
             const enabled = this.enabled();
             if (typeof enabled === 'boolean') this._service.setEnabled(enabled);
         });
+
+        // Stop listening when the panel leaves the room view
+        inject(DestroyRef).onDestroy(() => this._service.setEnabled(false));
 
         // Write bar heights directly each frame to skip change detection
         effect((onCleanup) => {
