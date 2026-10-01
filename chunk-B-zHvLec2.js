@@ -1,0 +1,3 @@
+import{Qc as zo,yr as Tc}from"./chunk-BDem_NJY.js";var p=(()=>{class r{transform(t,s=!1){let a=Math.floor(t/60/60),n=Math.floor(t/60%60),f=Math.floor(t%60),c=Math.floor(t*1e3%1e3),i=`${Tc(n)}:${Tc(f)}`;return s&&(i+=`.${Tc(c,3)}`),a>0&&(i=`${Tc(a)}:${i}`),i}static{this.ɵfac=function(s){return new(s||r)}}static{this.ɵpipe=zo({name:`mediaDuration`,type:r,pure:!0})}}return r})();export{p as t};
+//# debugId=22d63ac8-b6fa-5d33-a6bc-06b7b97735de
+//# sourceMappingURL=chunk-B-zHvLec2.js.map
