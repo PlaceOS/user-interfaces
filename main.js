@@ -1,16 +1,15 @@
 import {
   MatTooltip,
   MatTooltipModule
-} from "./chunk-UPGSADK6.js";
+} from "./chunk-RK2XUKYW.js";
 import {
   TranslatePipe
-} from "./chunk-PGUU3NQJ.js";
+} from "./chunk-L4VO5UAU.js";
 import {
   CustomTooltipComponent
-} from "./chunk-SZYFPKNZ.js";
-import "./chunk-J2KV7555.js";
+} from "./chunk-MJ5CIGZG.js";
+import "./chunk-GQQTPO6N.js";
 import {
-  $a,
   A,
   A11yModule,
   APP_ID,
@@ -23,7 +22,6 @@ import {
   BACKSPACE,
   BasePortalOutlet,
   BidiModule,
-  Bl,
   BreakpointObserver,
   Breakpoints,
   COMMA,
@@ -67,6 +65,7 @@ import {
   FocusTrapFactory,
   FormGroupDirective,
   FormsModule,
+  Gl,
   GroupPermission,
   HOST_TAG_NAME,
   HostAttributeToken,
@@ -77,8 +76,9 @@ import {
   Injector,
   Input,
   InteractivityChecker,
-  Ir,
   J,
+  Jr,
+  Kl,
   LEFT_ARROW,
   LiveAnnouncer,
   Lt,
@@ -106,7 +106,6 @@ import {
   OVERLAY_DEFAULT_CONFIG,
   Observable,
   ObserversModule,
-  Op,
   OrganisationService,
   Output,
   OverlayConfig,
@@ -144,6 +143,7 @@ import {
   TemplateRef,
   TraceService,
   UP_ARROW,
+  Ur,
   User,
   VERSION,
   Validators,
@@ -151,12 +151,9 @@ import {
   ViewContainerRef,
   ViewEncapsulation,
   ViewportRuler,
-  Vl,
   Wl,
-  Xe,
-  Xl,
-  Xr,
-  Zr,
+  Yl,
+  _,
   _CdkPrivateStyleLoader,
   _ErrorStateTracker,
   _IdGenerator,
@@ -186,6 +183,7 @@ import {
   bootstrapApplication,
   capitalizeFirstLetter,
   ce,
+  co,
   coerceArray,
   coerceBooleanProperty,
   coerceElement,
@@ -214,7 +212,7 @@ import {
   endOfDayInTimezone,
   eo,
   ep,
-  f,
+  et,
   filter,
   first,
   firstTruthyValueFrom,
@@ -243,7 +241,6 @@ import {
   initialisationFailure,
   inject,
   input,
-  ip,
   isAfter,
   isBefore,
   isFakeMousedownFromScreenReader,
@@ -256,8 +253,8 @@ import {
   isSignal,
   isTextualFormElement,
   isValid,
-  jl,
   jsonToCsv,
+  ka,
   linkedSignal,
   log,
   longFormatters,
@@ -275,10 +272,10 @@ import {
   notifyError,
   notifyInfo,
   notifySuccess,
-  np,
   numberAttribute,
   oc,
   of,
+  op,
   output,
   padString,
   pairwise,
@@ -288,7 +285,6 @@ import {
   provideZonelessChangeDetection,
   randomInt,
   randomString,
-  rc,
   removeEmptyFields,
   retryInitialisation,
   roundToNearestMinutes,
@@ -310,6 +306,7 @@ import {
   shareReplay,
   signal,
   skipWhile,
+  sp,
   startOfDay,
   startOfDayInTimezone,
   startOfISOWeek,
@@ -322,17 +319,20 @@ import {
   tap,
   te,
   timePeriodsIntersect,
+  to,
   toDate,
   toQueryString,
+  tp,
+  uc,
   unique,
   untracked,
-  uo,
   user_group_names,
   user_groups_loaded,
   va,
   viewChild,
   warnOrThrowProtectedError,
   withHashLocation,
+  wp,
   ɵFORM_CONTROL_INTEGRATION,
   ɵNgNoValidate,
   ɵsetClassDebugInfo,
@@ -424,7 +424,7 @@ import {
   ɵɵtwoWayProperty,
   ɵɵviewQuery,
   ɵɵviewQuerySignal
-} from "./chunk-RI4G2CIE.js";
+} from "./chunk-CXXKAYEO.js";
 import {
   __objRest,
   __spreadProps,
@@ -4206,7 +4206,7 @@ var Bt = (function(s) {
   }, e;
 })(jt);
 var ke = new Int32Array(4);
-var f2 = class _f {
+var f = class _f {
   static hashStr(e, t = false) {
     return this.onePassHasher.start().appendStr(e).end(t);
   }
@@ -4370,7 +4370,7 @@ var f2 = class _f {
     return _f._md5cycle(this._state, i), e ? this._state : _f._hex(this._state);
   }
 };
-if (f2.hashStr("hello") !== "5d41402abc4b2a76b9719d911017c592")
+if (f.hashStr("hello") !== "5d41402abc4b2a76b9719d911017c592")
   throw new Error("Md5 self test failed.");
 var Ft = class {
   _queue = [];
@@ -4523,7 +4523,7 @@ function Xt(s, e, t) {
   const r = (e - 1) * t, i = Math.min(r + t, s.size);
   return s.slice(r, i);
 }
-function _(s, e) {
+function _2(s, e) {
   const t = s.state.getValue();
   s.state.next(__spreadValues(__spreadValues({}, t), e));
 }
@@ -4543,7 +4543,7 @@ function j(s) {
   I.delete(s) && Fe();
 }
 function z(s, e, t) {
-  console.error(`[UPLOADS] ${t} for ${s.file.name}:`, e), vt(s.id), v = v.filter((r) => r.upload_id !== s.id), _(s, {
+  console.error(`[UPLOADS] ${t} for ${s.file.name}:`, e), vt(s.id), v = v.filter((r) => r.upload_id !== s.id), _2(s, {
     status: "FAILED",
     working: [],
     error: je(e)
@@ -4609,7 +4609,7 @@ async function K() {
   }
   ot++;
   const t = e.state.getValue();
-  _(e, {
+  _2(e, {
     status: "UPLOADING",
     working: [...t.working, s.part]
   });
@@ -4650,7 +4650,7 @@ async function K() {
     const c2 = e.state.getValue(), p = [...c2.completed, s.part].sort(
       (m, y) => m - y
     ), x = c2.working.filter((m) => m !== s.part);
-    if (_(e, {
+    if (_2(e, {
       completed: p,
       working: x,
       progress: Math.round(p.length / n * 100)
@@ -4668,7 +4668,7 @@ async function K() {
       console.warn(
         `Chunk upload failed for part ${s.part}, retrying in ${a}ms (${s.retries + 1}/${l.retries})...`,
         r
-      ), _(e, { working: n }), Zt(a).then(() => {
+      ), _2(e, { working: n }), Zt(a).then(() => {
         O(s.upload_id) && (v.push(__spreadProps(__spreadValues({}, s), { retries: s.retries + 1 })), K());
       });
     } else
@@ -4720,7 +4720,7 @@ async function te2(s) {
       );
     }
   }
-  if (await se(s.id), vt(s.id), _(s, {
+  if (await se(s.id), vt(s.id), _2(s, {
     status: "COMPLETED",
     progress: 100,
     error: void 0
@@ -4742,7 +4742,7 @@ function Fe() {
       E.unshift(s);
       return;
     }
-    _(s, { status: "UPLOADING" }), Pt(s);
+    _2(s, { status: "UPLOADING" }), Pt(s);
   }
 }
 async function St(s, e = 0) {
@@ -4756,7 +4756,7 @@ async function St(s, e = 0) {
   }
   console.debug(
     `[UPLOADS] Processing direct upload for ${s.file.name}...`
-  ), _(s, { status: "UPLOADING", progress: 0 });
+  ), _2(s, { status: "UPLOADING", progress: 0 });
   try {
     const t = await fetch(s.direct_signature.url, {
       method: s.direct_signature.verb,
@@ -4777,7 +4777,7 @@ async function St(s, e = 0) {
     }
     if (console.debug(
       `[UPLOADS] Direct upload complete for ${s.file.name}, committing...`
-    ), await se(s.id), _(s, {
+    ), await se(s.id), _2(s, {
       status: "COMPLETED",
       progress: 100,
       error: void 0
@@ -4862,7 +4862,7 @@ function We(s, e = []) {
   if (console.debug(
     `[UPLOADS] Adding upload to manager (${s.file.name})...`
   ), J2.push(s), $.delete(s.id), s.is_direct) {
-    if (console.debug(`[UPLOADS] Upload is direct (${s.file.name})`), _(s, {
+    if (console.debug(`[UPLOADS] Upload is direct (${s.file.name})`), _2(s, {
       status: l.auto_start ? "UPLOADING" : "PAUSED",
       completed: [],
       pending_complete: [],
@@ -4871,7 +4871,7 @@ function We(s, e = []) {
     }), !l.auto_start)
       return;
     if (!X(s)) {
-      E.push(s), _(s, { status: "PAUSED" });
+      E.push(s), _2(s, { status: "PAUSED" });
       return;
     }
     St(s);
@@ -4879,7 +4879,7 @@ function We(s, e = []) {
   }
   console.debug(`[UPLOADS] Upload is chunked (${s.file.name})`);
   const t = N(s.file, s.provider.part_size), r = [...e].sort((n, a) => n - a), i = Math.round(r.length / t * 100);
-  if (_(s, {
+  if (_2(s, {
     status: l.auto_start ? "UPLOADING" : "PAUSED",
     completed: r,
     pending_complete: [],
@@ -4887,7 +4887,7 @@ function We(s, e = []) {
     progress: i
   }), !!l.auto_start) {
     if (console.debug(`[UPLOADS] Staring upload (${s.file.name})...`), !X(s)) {
-      E.push(s), _(s, { status: "PAUSED" });
+      E.push(s), _2(s, { status: "PAUSED" });
       return;
     }
     console.debug(
@@ -4900,16 +4900,16 @@ function O(s) {
 }
 function Ge(s) {
   const e = O(s);
-  e && ($.add(s), v = v.filter((t) => t.upload_id !== s), _(e, { status: "PAUSED" }), j(s));
+  e && ($.add(s), v = v.filter((t) => t.upload_id !== s), _2(e, { status: "PAUSED" }), j(s));
 }
 function Ke(s) {
   const e = O(s);
   if (e && e.state.getValue().status !== "UPLOADING") {
     if ($.delete(s), !X(e)) {
-      E.some((t) => t.id === s) || E.push(e), _(e, { status: "PAUSED" });
+      E.some((t) => t.id === s) || E.push(e), _2(e, { status: "PAUSED" });
       return;
     }
-    _(e, { status: "UPLOADING", error: void 0 }), Pt(e);
+    _2(e, { status: "UPLOADING", error: void 0 }), Pt(e);
   }
 }
 function M(s) {
@@ -4929,7 +4929,7 @@ function yr(s = {}) {
     auto_remove: c2 = false,
     remove_after_ms: p = -1
   } = s;
-  console.debug("[UPLOADS] Initialising..."), t ? Je(t) : e && Ye(e), Xe2(o), qe({
+  console.debug("[UPLOADS] Initialising..."), t ? Je(t) : e && Ye(e), Xe(o), qe({
     simultaneous: n,
     parallel: a,
     retries: o,
@@ -4995,7 +4995,7 @@ function Ye(s) {
 function Je(s) {
   console.debug("[UPLOADS] Set an API key"), re = s, Et = true;
 }
-function Xe2(s) {
+function Xe(s) {
   bt = Math.max(0, s);
 }
 function Rt(s) {
@@ -5096,7 +5096,7 @@ async function tr(s, e) {
     )).text();
     i = r.resume_id(a);
   } else
-    i = `${f2.hashStr(`${Date.now()}|${e.name}`)}`;
+    i = `${f.hashStr(`${Date.now()}|${e.name}`)}`;
   return console.debug(
     `[UPLOADS] Initialised upload for ${e.name} (${i})`
   ), It(t.upload_id, e, r, i, false);
@@ -5274,7 +5274,7 @@ var UploadsService = class _UploadsService extends AsyncHandler {
           resolved = true;
         }
         this._upload_list.set([
-          ...this._upload_list().filter((_2) => _2.id !== details.id),
+          ...this._upload_list().filter((_3) => _3.id !== details.id),
           details
         ]);
       };
@@ -5338,7 +5338,7 @@ var UploadsService = class _UploadsService extends AsyncHandler {
     }
   }
   _initUploads() {
-    const api_key = Xe();
+    const api_key = et();
     yr(__spreadProps(__spreadValues({
       auto_start: true
     }, api_key ? { api_key } : { token: J() }), {
@@ -5348,7 +5348,7 @@ var UploadsService = class _UploadsService extends AsyncHandler {
   }
   _updateUploadToken() {
     this._token_refresh ||= (async () => {
-      if (!Xe() && !J(false))
+      if (!et() && !J(false))
         await Lt();
       this._initUploads();
     })().finally(() => this._token_refresh = null);
@@ -5474,7 +5474,7 @@ var Booking = class {
     }
     const list = this.linked_bookings;
     this._valid_asset_cache = (this.extension_data.assets || []).map((request) => new AssetRequest(__spreadProps(__spreadValues({}, request), { event: this }))).filter((request) => request.deliver_at < this.date_end).map((request) => {
-      const booking = list.find((_2) => _2.extension_data.request_id === request.id);
+      const booking = list.find((_3) => _3.extension_data.request_id === request.id);
       if (booking) {
         request.state = booking.approved ? "approved" : booking.rejected ? "rejected" : "pending";
       }
@@ -5490,7 +5490,7 @@ var Booking = class {
     this.id = data.id || "";
     this.parent_id = data.parent_id || "";
     this.asset_id = data.asset_id || "";
-    this.asset_ids = data.asset_ids || [data.asset_id].filter((_2) => _2);
+    this.asset_ids = data.asset_ids || [data.asset_id].filter((_3) => _3);
     const booking_type = data.booking_type || data.type || " ";
     this.asset_name = booking_type === "visitor" ? data.extension_data?.visitor_name || data.asset_name || data.extension_data?.asset_name || data.extension_data?.name || data.asset_id || "" : data.asset_name || data.extension_data?.asset_name || data.extension_data?.name || data.description || data.asset_id || "";
     this.zones = data.zones || [];
@@ -5582,7 +5582,7 @@ var Booking = class {
     }
     if (!data.parent_id)
       delete data.parent_id;
-    data.zones = data.zones.filter((_2) => _2);
+    data.zones = data.zones.filter((_3) => _3);
     delete data.date;
     delete data.duration;
     delete data.created_at;
@@ -5642,7 +5642,7 @@ function withAppVersion(data) {
 }
 async function queryBookingsOrThrow(q2) {
   const query = toQueryString(q2);
-  const list = await f(`${BOOKINGS_ENDPOINT}${query ? "?" + query : ""}`);
+  const list = await _(`${BOOKINGS_ENDPOINT}${query ? "?" + query : ""}`);
   return list.map((item) => new Booking(item));
 }
 async function updateBooking(id, data, method = "patch") {
@@ -5654,12 +5654,12 @@ var EVENTS_ENDPOINT = `/api/staff/v1/events`;
 var APP_VERSION2 = VERSION.raw || VERSION.version || VERSION.hash;
 async function queryEventsOrThrow(q2) {
   const query = toQueryString(q2);
-  const list = await f(`${EVENTS_ENDPOINT}${query ? "?" + query : ""}`);
+  const list = await _(`${EVENTS_ENDPOINT}${query ? "?" + query : ""}`);
   return list.map((e) => new CalendarEvent(e));
 }
 async function showEventMetadata(id, system_id, query = {}) {
   const q2 = toQueryString(__spreadValues({}, query));
-  return await f(`${EVENTS_ENDPOINT}/${encodeURIComponent(id)}/metadata/${encodeURIComponent(system_id)}${q2 ? "?" + q2 : ""}`);
+  return await _(`${EVENTS_ENDPOINT}/${encodeURIComponent(id)}/metadata/${encodeURIComponent(system_id)}${q2 ? "?" + q2 : ""}`);
 }
 async function updateEventMetadata(id, system_id, metadata2, query = {}) {
   const q2 = toQueryString(__spreadValues({}, query));
@@ -5758,11 +5758,11 @@ var SpacePipe = class _SpacePipe {
   }
   async _loadSpace(space_id) {
     if (!space_id.includes("@")) {
-      const system = await va(space_id).catch(() => null);
+      const system = await ka(space_id).catch(() => null);
       if (system)
         return this._cacheSystem(system);
     }
-    const systems = (await ba({ in: space_id }).catch(() => ({
+    const systems = (await va({ in: space_id }).catch(() => ({
       data: []
     }))).data;
     if (systems.length === 1)
@@ -5855,8 +5855,8 @@ var BooleanOrLogic = class extends AbstractLogic {
     return false;
   }
   compute(arg) {
-    return this.fns.some((f3) => {
-      const result = f3(arg);
+    return this.fns.some((f2) => {
+      const result = f2(arg);
       return result && result !== IGNORED;
     });
   }
@@ -5874,8 +5874,8 @@ var ArrayMergeIgnoreLogic = class _ArrayMergeIgnoreLogic extends AbstractLogic {
     return [];
   }
   compute(arg) {
-    return this.fns.reduce((prev, f3) => {
-      const value = f3(arg);
+    return this.fns.reduce((prev, f2) => {
+      const value = f2(arg);
       if (value === void 0 || value === IGNORED) {
         return prev;
       } else if (isArray(value)) {
@@ -6390,7 +6390,7 @@ var MetadataReducer = {
 };
 function override(getInitial) {
   return {
-    reduce: (_2, item) => item,
+    reduce: (_3, item) => item,
     getInitial: () => getInitial?.()
   };
 }
@@ -11139,16 +11139,16 @@ var MatMenuModule = class _MatMenuModule {
 // libs/assets/src/lib/assets.fn.ts
 function findOldestByName(list, name = "") {
   const match_name = name.trim().toLowerCase();
-  return list.filter((_2) => (_2.name || "").trim().toLowerCase() === match_name).sort((a, b) => (a.created_at || 0) - (b.created_at || 0))[0];
+  return list.filter((_3) => (_3.name || "").trim().toLowerCase() === match_name).sort((a, b) => (a.created_at || 0) - (b.created_at || 0))[0];
 }
 function saveAssetCategory(category) {
-  return category.id ? ip(category.id, category) : rp(category);
+  return category.id ? rp(category.id, category) : op(category);
 }
 function saveAssetType(product) {
-  return product.id ? Xl(product.id, product) : ep(product);
+  return product.id ? ep(product.id, product) : tp(product);
 }
 function saveAsset(asset) {
-  return asset.id ? Bl(asset.id, asset) : Wl(asset);
+  return asset.id ? Wl(asset.id, asset) : Ql(asset);
 }
 
 // libs/components/src/lib/authenticated-image.pipe.ts
@@ -11215,11 +11215,11 @@ function rememberFailedLoad(source) {
 }
 function setAuthCookie(cookie_path) {
   const tkn = J();
-  document.cookie = `${tkn === "x-api-key" ? "api-key=" + encodeURIComponent(Xe()) : "bearer_token=" + encodeURIComponent(tkn)};max-age=30;path=${cookie_path};samesite=strict;${location.protocol === "https:" ? "secure;" : ""}`;
+  document.cookie = `${tkn === "x-api-key" ? "api-key=" + encodeURIComponent(et()) : "bearer_token=" + encodeURIComponent(tkn)};max-age=30;path=${cookie_path};samesite=strict;${location.protocol === "https:" ? "secure;" : ""}`;
 }
 function authHeaders() {
   const tkn = J();
-  return tkn === "x-api-key" ? { "X-API-Key": Xe() } : { Authorization: `Bearer ${tkn}` };
+  return tkn === "x-api-key" ? { "X-API-Key": et() } : { Authorization: `Bearer ${tkn}` };
 }
 function loadAuthenticatedImage(source, cookie_path) {
   return loadImage(source, () => {
@@ -16444,10 +16444,10 @@ function reset_catering_types_cache() {
 }
 async function query_hidden_categories() {
   if (!_hidden_categories_promise) {
-    _hidden_categories_promise = np({
+    _hidden_categories_promise = sp({
       hidden: true,
       limit: 500
-    }).then((_2) => _2.data).catch(() => []);
+    }).then((_3) => _3.data).catch(() => []);
   }
   return _hidden_categories_promise;
 }
@@ -16499,7 +16499,7 @@ function resolveCateringCategoryId() {
 }
 function query_catering_types() {
   if (!_catering_types_promise) {
-    _catering_types_promise = resolveCateringCategoryId().then((category_id) => Vl({ category_id, limit: 500 })).then((_2) => _2.data.filter((type) => isCateringTypeName(type.name))).catch(() => []);
+    _catering_types_promise = resolveCateringCategoryId().then((category_id) => Yl({ category_id, limit: 500 })).then((_3) => _3.data.filter((type) => isCateringTypeName(type.name))).catch(() => []);
   }
   return _catering_types_promise;
 }
@@ -16573,7 +16573,7 @@ async function queryCateringItems(zone_id) {
   const types = await query_catering_types();
   if (!types.length)
     return [];
-  const results = await Promise.all(types.map((type) => jl({
+  const results = await Promise.all(types.map((type) => Gl({
     zone_id,
     type_id: type.id,
     limit: 500
@@ -16595,7 +16595,7 @@ async function saveCateringItem(item, zone_id) {
   return toCateringItem(saved, fromCateringTypeName(toCateringTypeName(item.caterer)));
 }
 function deleteCateringItem(id) {
-  return Ql(id);
+  return Kl(id);
 }
 
 // node_modules/@angular/material/fesm2022/radio.mjs
@@ -17905,7 +17905,7 @@ var SimpleTableComponent = class _SimpleTableComponent {
       () => {
         const keys = this.selectable_keys();
         const selected = this.selected();
-        return keys.length > 0 && keys.every((_2) => selected.includes(_2));
+        return keys.length > 0 && keys.every((_3) => selected.includes(_3));
       },
       ...ngDevMode ? [{ debugName: "all_selected" }] : (
         /* istanbul ignore next */
@@ -17914,7 +17914,7 @@ var SimpleTableComponent = class _SimpleTableComponent {
     );
     this.column_template = computed(
       () => {
-        const template = this.active_columns().map((_2) => _2.size || "auto").join(" ");
+        const template = this.active_columns().map((_3) => _3.size || "auto").join(" ");
         return this.selectable() ? `3.5rem ${template}` : template;
       },
       ...ngDevMode ? [{ debugName: "column_template" }] : (
@@ -17952,12 +17952,12 @@ var SimpleTableComponent = class _SimpleTableComponent {
     effect(() => {
       const keys = new Set(this._data_signal().map((row) => this.rowKey(row)));
       const selected = untracked(this.selected);
-      const kept = selected.filter((_2) => keys.has(_2));
+      const kept = selected.filter((_3) => keys.has(_3));
       if (kept.length !== selected.length)
         this.selected.set(kept);
     });
     effect(() => {
-      this.active_columns.set(this.columns().filter((_2) => _2.show !== false));
+      this.active_columns.set(this.columns().filter((_3) => _3.show !== false));
     });
     effect(() => {
       const data = this.data_view();
@@ -17976,7 +17976,7 @@ var SimpleTableComponent = class _SimpleTableComponent {
     return column.content;
   }
   column(key) {
-    return this.active_columns().find((_2) => _2.key === key);
+    return this.active_columns().find((_3) => _3.key === key);
   }
   columnType(column) {
     return column.content instanceof TemplateRef ? "template" : "raw";
@@ -17988,14 +17988,14 @@ var SimpleTableComponent = class _SimpleTableComponent {
     return this.row_key()(row);
   }
   select(key, state) {
-    const current = this.selected().filter((_2) => _2 !== key);
+    const current = this.selected().filter((_3) => _3 !== key);
     this.selected.set(state ? [...current, key] : current);
   }
   selectAll(state) {
     if (!state)
       return this.selected.set([]);
     const current = this.selected();
-    const added = this.selectable_keys().filter((_2) => !current.includes(_2));
+    const added = this.selectable_keys().filter((_3) => !current.includes(_3));
     this.selected.set([...current, ...added]);
   }
   setSort(key) {
@@ -22468,10 +22468,10 @@ var ImageListFieldComponent = class _ImageListFieldComponent extends AsyncHandle
       const list = this.upload_list();
       const id_list = this.upload_ids();
       for (const id of id_list) {
-        const item = list.find((_2) => _2?.id === id);
+        const item = list.find((_3) => _3?.id === id);
         if (item && item.progress >= 100) {
           this.addImageUrl(item.link);
-          this.upload_ids.set(this.upload_ids().filter((_2) => _2 !== id));
+          this.upload_ids.set(this.upload_ids().filter((_3) => _3 !== id));
         }
       }
     }, __spreadProps(__spreadValues({}, ngDevMode ? { debugName: "_upload_completion_effect" } : (
@@ -22568,7 +22568,7 @@ var ImageListFieldComponent = class _ImageListFieldComponent extends AsyncHandle
     this._dialog.open(ImageViewerComponent, { data: url });
   }
   removeImage(url) {
-    this.setValue(this.list().filter((_2) => _2 !== url));
+    this.setValue(this.list().filter((_3) => _3 !== url));
   }
   addImage(event) {
     if (!event.value)
@@ -22629,7 +22629,7 @@ var ImageListFieldComponent = class _ImageListFieldComponent extends AsyncHandle
     if (list.length === 0)
       return;
     const global_list = this._uploads.upload_list();
-    const new_list = global_list.filter((_2) => list.find((i) => i === _2?.id));
+    const new_list = global_list.filter((_3) => list.find((i) => i === _3?.id));
     const done_list = new_list.filter((file) => file.progress >= 100);
     this.upload_list.set(new_list);
     done_list.forEach((i) => {
@@ -25205,7 +25205,7 @@ async function openConfirmModal(data, dialog) {
     data
   }));
   return __spreadProps(__spreadValues({}, await Promise.race([
-    ref.componentInstance.event.pipe(first((_2) => _2.reason === "done")).toPromise(),
+    ref.componentInstance.event.pipe(first((_3) => _3.reason === "done")).toPromise(),
     ref.afterClosed().toPromise()
   ])), {
     loading: (s) => ref.componentInstance.loading?.set(s),
@@ -25697,10 +25697,10 @@ var CateringStateService = class _CateringStateService extends AsyncHandler {
     const bld = this._org.building;
     const menu = this._menu();
     const updated_menu = unique(details.metadata.concat(menu), "id");
-    const saved_menu = await Promise.all(updated_menu.map((item) => saveCateringItem(item, bld.id))).catch((_2) => {
+    const saved_menu = await Promise.all(updated_menu.map((item) => saveCateringItem(item, bld.id))).catch((_3) => {
       notifyError(i18n("CATERING.MENU_IMPORT_ERROR"));
       ref.close();
-      throw _2;
+      throw _3;
     });
     this._menu.set(saved_menu);
     notifySuccess(i18n("CATERING.MENU_IMPORT_SUCCESS", {
@@ -25710,7 +25710,7 @@ var CateringStateService = class _CateringStateService extends AsyncHandler {
   }
   async saveSettings(settings) {
     const old_settings = this.settings();
-    const result = await oc(this._org.building.id, {
+    const result = await uc(this._org.building.id, {
       id: this._org.building.id,
       name: "catering-settings",
       details: __spreadValues(__spreadValues({}, old_settings), settings),
@@ -25720,11 +25720,11 @@ var CateringStateService = class _CateringStateService extends AsyncHandler {
     return result;
   }
   async getCateringConfig(zone_id = this._org.building.id) {
-    const rules = (await rc(zone_id, "catering_config")).details;
+    const rules = (await oc(zone_id, "catering_config")).details;
     return rules instanceof Array ? rules : [];
   }
   updateConfig(zone_id, config) {
-    return oc(zone_id, {
+    return uc(zone_id, {
       id: zone_id,
       name: "catering_config",
       details: config,
@@ -25752,7 +25752,7 @@ var CateringStateService = class _CateringStateService extends AsyncHandler {
     this.timeout("loaded", () => this._menu.set(menu), 1e3);
   }
   async _loadSettings(building_id) {
-    const metadata2 = await rc(building_id, "catering-settings").catch(() => ({}));
+    const metadata2 = await oc(building_id, "catering-settings").catch(() => ({}));
     const settings = metadata2.details || {};
     this._settings_data.set(settings);
     this._settings.post("require_catering_notes", !!settings?.require_notes);
@@ -26073,7 +26073,7 @@ var CateringMenuComponent = class _CateringMenuComponent {
     if (!state)
       list = unique([...list, this._catering.zone]);
     else
-      list = list.filter((_2) => _2 !== this._catering.zone);
+      list = list.filter((_3) => _3 !== this._catering.zone);
     this._catering.updateItem(new CateringItem(__spreadProps(__spreadValues({}, item), { hide_for_zones: list })));
   }
   static {
@@ -28769,7 +28769,7 @@ var ChargeCodeListModalComponent = class _ChargeCodeListModalComponent {
     this.charge_codes.update((l2) => [...l2, ""]);
   }
   removeCode(index) {
-    this.charge_codes.update((l2) => l2.filter((_2, i) => i !== index));
+    this.charge_codes.update((l2) => l2.filter((_3, i) => i !== index));
   }
   updateCode(index, code) {
     this.charge_codes.update((l2) => {
@@ -28804,7 +28804,7 @@ var ChargeCodeListModalComponent = class _ChargeCodeListModalComponent {
           });
           event.target.value = "";
         });
-        reader.addEventListener("error", (_2) => notifyError("Error reading file."));
+        reader.addEventListener("error", (_3) => notifyError("Error reading file."));
       }
     }
   }
@@ -28816,7 +28816,7 @@ code-2,Another Code`;
   }
   async saveChargeCodes() {
     this.loading.set(true);
-    const cleaned_codes = this.charge_codes().filter((_2) => _2 && _2.trim());
+    const cleaned_codes = this.charge_codes().filter((_3) => _3 && _3.trim());
     await this._state.saveSettings({ charge_codes: cleaned_codes });
     this._dialog_ref.close();
   }
@@ -29065,11 +29065,11 @@ function requestSpacesForZone(id) {
     return of([]);
   if (SPACE_LIST_REQUESTS[id])
     return SPACE_LIST_REQUESTS[id];
-  SPACE_LIST_REQUESTS[id] = from($a({
+  SPACE_LIST_REQUESTS[id] = from(ba({
     zone_id: id,
     limit: 500,
     signage: false
-  })).pipe(map((_2) => (_2.data || []).map((_3) => new Space(_3))), tap((_2) => updateSpaceList(_2)), shareReplay(1));
+  })).pipe(map((_3) => (_3.data || []).map((_4) => new Space(_4))), tap((_3) => updateSpaceList(_3)), shareReplay(1));
   return SPACE_LIST_REQUESTS[id];
 }
 var SPACE_COUNT = 0;
@@ -29249,12 +29249,12 @@ var AvailableRoomsStateModalComponent = class _AvailableRoomsStateModalComponent
     if (id === "*") {
       const rooms = this.rooms() || [];
       if (this.selected().length !== rooms.length)
-        this.selected.set(rooms.map((_2) => _2.id));
+        this.selected.set(rooms.map((_3) => _3.id));
       else
         this.selected.set([]);
     } else {
       if (this.selected().includes(id))
-        this.selected.set(this.selected().filter((_2) => _2 !== id));
+        this.selected.set(this.selected().filter((_3) => _3 !== id));
       else
         this.selected.set([...this.selected(), id]);
     }
@@ -29262,7 +29262,7 @@ var AvailableRoomsStateModalComponent = class _AvailableRoomsStateModalComponent
   async enableSelected() {
     this.loading.set(true);
     const disabled_list = this.disabled_rooms();
-    const list = disabled_list.filter((_2) => !this.selected().includes(_2));
+    const list = disabled_list.filter((_3) => !this.selected().includes(_3));
     this.disabled_rooms.set(list);
     this.change.emit(list);
   }
@@ -30316,7 +30316,7 @@ var GlobalLoadingComponent = class _GlobalLoadingComponent extends AsyncHandler 
   }
   ngOnInit() {
     const update_online = () => {
-      this.online.set(Xr());
+      this.online.set(eo());
       if (this.online()) {
         this.connection_checked.set(true);
         this.clearTimeout("initial-connection");
@@ -30432,15 +30432,15 @@ var GlobalLoadingComponent = class _GlobalLoadingComponent extends AsyncHandler 
 // libs/components/src/lib/settings-debug-panel-launcher.component.ts
 var SettingsDebugPanelLauncherComponent_Defer_25_DepsFn = () => [
   /* @ts-ignore */
-  import("./settings-debug-panel.component-WGDD3Q75.js").then((m) => m.SettingsDebugPanelComponent)
+  import("./settings-debug-panel.component-A6B3QPA5.js").then((m) => m.SettingsDebugPanelComponent)
 ];
 var SettingsDebugPanelLauncherComponent_Defer_28_DepsFn = () => [
   /* @ts-ignore */
-  import("./binding-debug-panel.component-IMCBMXSK.js").then((m) => m.BindingDebugPanelComponent)
+  import("./binding-debug-panel.component-SQLLYNMF.js").then((m) => m.BindingDebugPanelComponent)
 ];
 var SettingsDebugPanelLauncherComponent_Defer_31_DepsFn = () => [
   /* @ts-ignore */
-  import("./debug-console.component-X6FWCH5S.js").then((m) => m.DebugConsoleComponent)
+  import("./debug-console.component-GS2MZ44H.js").then((m) => m.DebugConsoleComponent)
 ];
 function SettingsDebugPanelLauncherComponent_Defer_24_Conditional_0_Template(rf, ctx) {
   if (rf & 1) {
@@ -30675,11 +30675,11 @@ var SettingsDebugPanelLauncherComponent = class _SettingsDebugPanelLauncherCompo
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(SettingsDebugPanelLauncherComponent, () => [
     /* @ts-ignore */
-    import("./settings-debug-panel.component-WGDD3Q75.js").then((m) => m.SettingsDebugPanelComponent),
+    import("./settings-debug-panel.component-A6B3QPA5.js").then((m) => m.SettingsDebugPanelComponent),
     /* @ts-ignore */
-    import("./binding-debug-panel.component-IMCBMXSK.js").then((m) => m.BindingDebugPanelComponent),
+    import("./binding-debug-panel.component-SQLLYNMF.js").then((m) => m.BindingDebugPanelComponent),
     /* @ts-ignore */
-    import("./debug-console.component-X6FWCH5S.js").then((m) => m.DebugConsoleComponent)
+    import("./debug-console.component-GS2MZ44H.js").then((m) => m.DebugConsoleComponent)
   ], (SettingsDebugPanelComponent, BindingDebugPanelComponent, DebugConsoleComponent) => {
     setClassMetadata(SettingsDebugPanelLauncherComponent, [{
       type: Component,
@@ -30917,7 +30917,7 @@ var AuthorisedUserGuard = class _AuthorisedUserGuard {
       const user = await this.waitForUser();
       if (!user)
         return this.offlineAccess();
-      can_activate = !!(user && groups.find((_2) => user.groups.includes(_2)));
+      can_activate = !!(user && groups.find((_3) => user.groups.includes(_3)));
       log("ACCESS", "Checking access groups", can_activate);
     }
     if (!can_activate) {
@@ -30927,11 +30927,11 @@ var AuthorisedUserGuard = class _AuthorisedUserGuard {
   }
   /** The active user, or null if the backend could not be reached in time */
   async waitForUser() {
-    const online = await this.waitForBackend(Zr(eo(), Boolean));
+    const online = await this.waitForBackend(Jr(to(), Boolean));
     if (!online)
       return null;
     let user = null;
-    const loaded = await this.waitForBackend(firstTruthyValueFrom(current_user).then((_2) => user = _2));
+    const loaded = await this.waitForBackend(firstTruthyValueFrom(current_user).then((_3) => user = _3));
     return loaded ? user : null;
   }
   async waitForBackend(promise) {
@@ -32150,7 +32150,7 @@ var ASSET_STATUS = ["Available", "In Use", "Maintenance", "Retired"];
 var MAINTENANCE_TYPES = ["Routine", "Repair", "Calibration", "Inspection"];
 var generateAssetHistory = (assetId) => {
   const historyCount = predictableRandomInt(5, 1);
-  return Array(historyCount).fill(null).map((_2, i) => ({
+  return Array(historyCount).fill(null).map((_3, i) => ({
     id: `history-${assetId}-${i}`,
     asset_id: assetId,
     action: ["Assigned", "Returned", "Maintained", "Relocated"][predictableRandomInt(4)],
@@ -32174,7 +32174,7 @@ var generateMaintenanceSchedule = (assetId) => {
     estimated_cost: predictableRandomInt(500, 50)
   };
 };
-var MOCK_ASSETS = Array(150).fill(null).map((_2, i) => {
+var MOCK_ASSETS = Array(150).fill(null).map((_3, i) => {
   const product = MOCK_PRODUCTS[i % MOCK_PRODUCTS.length];
   const purchaseDate = subMonths(Date.now(), predictableRandomInt(36, 1));
   const condition = ASSET_CONDITIONS[predictableRandomInt(ASSET_CONDITIONS.length)];
@@ -32268,7 +32268,7 @@ MOCK_ASSETS.push({
     hide_for_zones: []
   }
 });
-var MOCK_PURCHASE_ORDERS = Array(30).fill(null).map((_2, i) => {
+var MOCK_PURCHASE_ORDERS = Array(30).fill(null).map((_3, i) => {
   const orderDate = subMonths(Date.now(), predictableRandomInt(36, 1));
   const deliveryDate = new Date(orderDate.getTime() + predictableRandomInt(30) * 24 * 60 * 60 * 1e3);
   return {
@@ -32305,7 +32305,7 @@ function generateMockParkingAssets(zone_id) {
   if (!MOCK_PARKING_ASSETS_CACHE[zone_id]) {
     const parts = zone_id.split("-");
     const id = parts[parts.length - 1];
-    MOCK_PARKING_ASSETS_CACHE[zone_id] = new Array(18 * 6).fill(0).map((_2, idx) => {
+    MOCK_PARKING_ASSETS_CACHE[zone_id] = new Array(18 * 6).fill(0).map((_3, idx) => {
       const position = padString(idx % 18 + Math.floor(idx / 18) * 100, 3);
       const assignee = predictableRandomInt(9999) % 4 === 0 ? MOCK_STAFF[predictableRandomInt(MOCK_STAFF.length)] : {};
       return {
@@ -32344,7 +32344,7 @@ var update = (dataset) => (id, data) => {
   return new_event;
 };
 function registerMockAssets() {
-  uo({
+  co({
     path: `${BASE_PATH}/asset_categories`,
     metadata: {},
     method: "GET",
@@ -32357,21 +32357,21 @@ function registerMockAssets() {
       return results;
     }
   });
-  uo({
+  co({
     path: `${BASE_PATH}/asset_categories/:id`,
     metadata: {},
     method: "GET",
-    callback: (_2) => {
-      const event = MOCK_CATEGORIES.find((e) => e.id === _2.route_params.id);
+    callback: (_3) => {
+      const event = MOCK_CATEGORIES.find((e) => e.id === _3.route_params.id);
       if (!event)
         throw {
           status: 404,
-          message: `Unable to find booking with ID ${_2.route_params.id}`
+          message: `Unable to find booking with ID ${_3.route_params.id}`
         };
       return event;
     }
   });
-  uo({
+  co({
     path: `${BASE_PATH}/asset_categories`,
     metadata: {},
     method: "POST",
@@ -32383,13 +32383,13 @@ function registerMockAssets() {
       return new_event;
     }
   });
-  uo({
+  co({
     path: `${BASE_PATH}/asset_categories/:id`,
     metadata: {},
     method: "PUT",
     callback: (req) => update(MOCK_CATEGORIES)(req.route_params.id, __spreadValues({}, req.body))
   });
-  uo({
+  co({
     path: `${BASE_PATH}/asset_categories/:id`,
     metadata: {},
     method: "DELETE",
@@ -32404,7 +32404,7 @@ function registerMockAssets() {
       return;
     }
   });
-  uo({
+  co({
     path: `${BASE_PATH}/asset_types`,
     metadata: {},
     method: "GET",
@@ -32416,21 +32416,21 @@ function registerMockAssets() {
       return results;
     }
   });
-  uo({
+  co({
     path: `${BASE_PATH}/asset_types/:id`,
     metadata: {},
     method: "GET",
-    callback: (_2) => {
-      const event = MOCK_PRODUCTS.find((e) => e.id === _2.route_params.id);
+    callback: (_3) => {
+      const event = MOCK_PRODUCTS.find((e) => e.id === _3.route_params.id);
       if (!event)
         throw {
           status: 404,
-          message: `Unable to find booking with ID ${_2.route_params.id}`
+          message: `Unable to find booking with ID ${_3.route_params.id}`
         };
       return event;
     }
   });
-  uo({
+  co({
     path: `${BASE_PATH}/asset_types`,
     metadata: {},
     method: "POST",
@@ -32442,13 +32442,13 @@ function registerMockAssets() {
       return new_event;
     }
   });
-  uo({
+  co({
     path: `${BASE_PATH}/asset_types/:id`,
     metadata: {},
     method: "PUT",
     callback: (req) => update(MOCK_PRODUCTS)(req.route_params.id, __spreadValues({}, req.body))
   });
-  uo({
+  co({
     path: `${BASE_PATH}/asset_types/:id`,
     metadata: {},
     method: "DELETE",
@@ -32463,30 +32463,30 @@ function registerMockAssets() {
       return;
     }
   });
-  uo({
+  co({
     path: `${BASE_PATH}/asset_purchase_orders`,
     metadata: {},
     method: "GET",
-    callback: (_2) => {
+    callback: (_3) => {
       const events = MOCK_PURCHASE_ORDERS;
       return events;
     }
   });
-  uo({
+  co({
     path: `${BASE_PATH}/asset_purchase_orders/:id`,
     metadata: {},
     method: "GET",
-    callback: (_2) => {
-      const event = MOCK_PURCHASE_ORDERS.find((e) => e.id === _2.route_params.id);
+    callback: (_3) => {
+      const event = MOCK_PURCHASE_ORDERS.find((e) => e.id === _3.route_params.id);
       if (!event)
         throw {
           status: 404,
-          message: `Unable to find booking with ID ${_2.route_params.id}`
+          message: `Unable to find booking with ID ${_3.route_params.id}`
         };
       return event;
     }
   });
-  uo({
+  co({
     path: `${BASE_PATH}/asset_purchase_orders`,
     metadata: {},
     method: "POST",
@@ -32498,13 +32498,13 @@ function registerMockAssets() {
       return new_event;
     }
   });
-  uo({
+  co({
     path: `${BASE_PATH}/asset_purchase_orders/:id`,
     metadata: {},
     method: "PUT",
     callback: (req) => update(MOCK_PURCHASE_ORDERS)(req.route_params.id, __spreadValues({}, req.body))
   });
-  uo({
+  co({
     path: `${BASE_PATH}/asset_purchase_orders/:id`,
     metadata: {},
     method: "DELETE",
@@ -32519,7 +32519,7 @@ function registerMockAssets() {
       return;
     }
   });
-  uo({
+  co({
     path: `${BASE_PATH}/assets`,
     metadata: {},
     method: "GET",
@@ -32539,21 +32539,21 @@ function registerMockAssets() {
       return results;
     }
   });
-  uo({
+  co({
     path: `${BASE_PATH}/assets/:id`,
     metadata: {},
     method: "GET",
-    callback: (_2) => {
-      const event = MOCK_ASSETS.find((e) => e.id === _2.route_params.id);
+    callback: (_3) => {
+      const event = MOCK_ASSETS.find((e) => e.id === _3.route_params.id);
       if (!event)
         throw {
           status: 404,
-          message: `Unable to find booking with ID ${_2.route_params.id}`
+          message: `Unable to find booking with ID ${_3.route_params.id}`
         };
       return event;
     }
   });
-  uo({
+  co({
     path: `${BASE_PATH}/assets`,
     metadata: {},
     method: "POST",
@@ -32565,13 +32565,13 @@ function registerMockAssets() {
       return new_event;
     }
   });
-  uo({
+  co({
     path: `${BASE_PATH}/assets/:id`,
     metadata: {},
     method: "PUT",
     callback: (req) => update(MOCK_ASSETS)(req.route_params.id, __spreadValues({}, req.body))
   });
-  uo({
+  co({
     path: `${BASE_PATH}/assets/:id`,
     metadata: {},
     method: "DELETE",
@@ -34467,9 +34467,9 @@ var MOCK_SPACES = rawSpaces.map((space) => generateMockSpace(__spreadProps(__spr
 var TRACKING = ["in_storage", "in_transit", "at_location"];
 var generateBookingForDay = (day, type, index, user) => {
   const bld = MOCK_BUILDINGS[predictableRandomInt(MOCK_BUILDINGS.length)];
-  const lvls = MOCK_LEVELS.filter((_2) => _2.parent_id === bld?.id);
+  const lvls = MOCK_LEVELS.filter((_3) => _3.parent_id === bld?.id);
   const lvl = lvls[predictableRandomInt(lvls.length)];
-  const lvl_spaces = MOCK_SPACES.filter((_2) => _2.zones.includes(lvl?.id)) || [];
+  const lvl_spaces = MOCK_SPACES.filter((_3) => _3.zones.includes(lvl?.id)) || [];
   const approved = predictableRandomInt(999999) % 4;
   const approver = MOCK_STAFF[predictableRandomInt(MOCK_STAFF.length)];
   const guest = MOCK_GUESTS[predictableRandomInt(MOCK_GUESTS.length)];
@@ -34489,7 +34489,7 @@ var generateBookingForDay = (day, type, index, user) => {
     title: capitalizeFirstLetter(`${type.replace("-", " ")} booking ${index}`),
     event_start: booking_start,
     event_end: booking_end,
-    asset_ids: type === "asset-request" ? [...Array(asset_count)].map((_2, i) => MOCK_ASSETS[predictableRandomInt(MOCK_ASSETS.length, i + 1)].id) : [
+    asset_ids: type === "asset-request" ? [...Array(asset_count)].map((_3, i) => MOCK_ASSETS[predictableRandomInt(MOCK_ASSETS.length, i + 1)].id) : [
       type === "visitor" ? guest.email : `${type}-${bld?.id}-${lvl?.id}-${position}`
     ],
     asset_id: type === "visitor" ? guest.email : `${type}-${bld?.id}-${lvl?.id}-${position}`,
@@ -34631,7 +34631,7 @@ var MOCK_BOOKINGS = (() => {
 })();
 var generateCateringOrderBooking = (day, index, user) => {
   const bld = MOCK_BUILDINGS[predictableRandomInt(MOCK_BUILDINGS.length)];
-  const lvls = MOCK_LEVELS.filter((_2) => _2.parent_id === bld?.id);
+  const lvls = MOCK_LEVELS.filter((_3) => _3.parent_id === bld?.id);
   const lvl = lvls[predictableRandomInt(lvls.length)];
   const space = MOCK_SPACES[predictableRandomInt(MOCK_SPACES.length)];
   const base_time = setHours(addDays(startOfDay(Date.now()), day - 15), predictableRandomInt(10, 8));
@@ -34723,47 +34723,47 @@ var MOCK_CATERING_BOOKINGS = (() => {
 // libs/mocks/src/lib/api/bookings.mock.ts
 var ALL_BOOKINGS = [...MOCK_BOOKINGS, ...MOCK_CATERING_BOOKINGS];
 function registerMockBookings() {
-  uo({
+  co({
     path: "/api/staff/v1/bookings",
     metadata: {},
     method: "GET",
-    callback: (_2) => {
+    callback: (_3) => {
       let events = ALL_BOOKINGS;
-      if (!_2.query_params.zone_ids && !_2.query_params.zones) {
-        _2.query_params.user_id = ACTIVE_USER.id;
+      if (!_3.query_params.zone_ids && !_3.query_params.zones) {
+        _3.query_params.user_id = ACTIVE_USER.id;
       }
-      if (_2.query_params.user_id) {
-        events = events.filter((booking) => booking.user_id === _2.query_params.user_id);
+      if (_3.query_params.user_id) {
+        events = events.filter((booking) => booking.user_id === _3.query_params.user_id);
       }
-      if (_2.query_params.email) {
-        events = events.filter((booking) => booking.user_email === _2.query_params.email);
+      if (_3.query_params.email) {
+        events = events.filter((booking) => booking.user_email === _3.query_params.email);
       }
-      if (_2.query_params.zones || _2.query_params.zone_ids) {
-        const zones = (_2.query_params.zones || _2.query_params.zone_ids || "").split(",").filter((id) => !!id);
+      if (_3.query_params.zones || _3.query_params.zone_ids) {
+        const zones = (_3.query_params.zones || _3.query_params.zone_ids || "").split(",").filter((id) => !!id);
         if (zones.length > 0) {
           events = events.filter((booking) => zones.some((zone) => booking.zones.includes(zone)));
         }
       }
-      if (_2.query_params.period_start && _2.query_params.period_end) {
-        events = events.filter((event) => timePeriodsIntersect(+_2.query_params.period_start, +_2.query_params.period_end, event.booking_start, event.booking_end));
+      if (_3.query_params.period_start && _3.query_params.period_end) {
+        events = events.filter((event) => timePeriodsIntersect(+_3.query_params.period_start, +_3.query_params.period_end, event.booking_start, event.booking_end));
       }
-      if (!_2.query_params.include_deleted && !_2.query_params.deleted) {
+      if (!_3.query_params.include_deleted && !_3.query_params.deleted) {
         events = events.filter((booking) => !booking.deleted);
       }
-      if (_2.query_params.type) {
-        events = events.filter((event) => event.type === _2.query_params.type || event.booking_type === _2.query_params.type);
+      if (_3.query_params.type) {
+        events = events.filter((event) => event.type === _3.query_params.type || event.booking_type === _3.query_params.type);
       }
-      const limit = +_2.query_params.limit || 50;
-      const offset = +_2.query_params.offset || 0;
+      const limit = +_3.query_params.limit || 50;
+      const offset = +_3.query_params.offset || 0;
       events = events.slice(offset, offset + limit);
       return events;
     }
   });
-  uo({
+  co({
     path: "/api/debug/bookings/distribution",
     metadata: {},
     method: "GET",
-    callback: (_2) => {
+    callback: (_3) => {
       const distribution = {};
       MOCK_BOOKINGS.forEach((booking) => {
         if (!distribution[booking.user_id]) {
@@ -34794,47 +34794,47 @@ function registerMockBookings() {
       };
     }
   });
-  uo({
+  co({
     path: "/api/staff/v1/bookings/:id",
     metadata: {},
     method: "GET",
-    callback: (_2) => {
-      const event = ALL_BOOKINGS.find((e) => `${e.id}` === `${_2.route_params.id}`);
+    callback: (_3) => {
+      const event = ALL_BOOKINGS.find((e) => `${e.id}` === `${_3.route_params.id}`);
       if (!event)
         throw {
           status: 404,
-          message: `Unable to find booking with ID ${_2.route_params.id}`
+          message: `Unable to find booking with ID ${_3.route_params.id}`
         };
       return event;
     }
   });
-  uo({
+  co({
     path: "/api/staff/v1/bookings/:id/guests/:email",
     metadata: {},
     method: "POST",
-    callback: (_2) => {
-      const event = ALL_BOOKINGS.find((e) => `${e.id}` === `${_2.route_params.id}`);
+    callback: (_3) => {
+      const event = ALL_BOOKINGS.find((e) => `${e.id}` === `${_3.route_params.id}`);
       if (!event) {
         throw {
           status: 404,
-          message: `Unable to find booking with ID ${_2.route_params.id}`
+          message: `Unable to find booking with ID ${_3.route_params.id}`
         };
       }
       const user = {
-        id: _2.body.id,
-        name: _2.body.name,
-        email: _2.body.email
+        id: _3.body.id,
+        name: _3.body.name,
+        email: _3.body.email
       };
       event.attendees.push(user);
       return user;
     }
   });
-  uo({
+  co({
     path: "/api/staff/v1/bookings/:id/guests/:email",
     metadata: {},
     method: "DELETE",
-    callback: (_2) => {
-      const { id, email } = _2.route_params;
+    callback: (_3) => {
+      const { id, email } = _3.route_params;
       const event = ALL_BOOKINGS.find((e) => `${e.id}` === `${id}`);
       if (!event) {
         throw {
@@ -34842,7 +34842,7 @@ function registerMockBookings() {
           message: `Unable to find booking with ID ${id}`
         };
       }
-      const guest = event.attendees.find((_3) => _3.email === decodeURIComponent(email));
+      const guest = event.attendees.find((_4) => _4.email === decodeURIComponent(email));
       if (!guest) {
         throw {
           status: 404,
@@ -34852,12 +34852,12 @@ function registerMockBookings() {
       return guest;
     }
   });
-  uo({
+  co({
     path: "/api/staff/v1/bookings/:id/guests/:email/checkin",
     metadata: {},
     method: "POST",
-    callback: (_2) => {
-      const { id, email } = _2.route_params;
+    callback: (_3) => {
+      const { id, email } = _3.route_params;
       const event = ALL_BOOKINGS.find((e) => `${e.id}` === `${id}`);
       if (!event) {
         throw {
@@ -34865,11 +34865,11 @@ function registerMockBookings() {
           message: `Unable to find booking with ID ${id}`
         };
       }
-      event.attendees = event.attendees.filter((_3) => _3.email !== decodeURIComponent(email));
+      event.attendees = event.attendees.filter((_4) => _4.email !== decodeURIComponent(email));
       return {};
     }
   });
-  uo({
+  co({
     path: "/api/staff/v1/bookings",
     metadata: {},
     method: "POST",
@@ -34892,13 +34892,13 @@ function registerMockBookings() {
     ALL_BOOKINGS.splice(index, 1, new_event);
     return new_event;
   };
-  uo({
+  co({
     path: "/api/staff/v1/bookings/:id",
     metadata: {},
     method: "PATCH",
     callback: (req) => updateBooking2(req.route_params.id, req.body)
   });
-  uo({
+  co({
     path: "/api/staff/v1/bookings/:id/approve",
     metadata: {},
     method: "POST",
@@ -34914,7 +34914,7 @@ function registerMockBookings() {
       return booking;
     }
   });
-  uo({
+  co({
     path: "/api/staff/v1/bookings/:id/reject",
     metadata: {},
     method: "POST",
@@ -34930,7 +34930,7 @@ function registerMockBookings() {
       return booking;
     }
   });
-  uo({
+  co({
     path: "/api/staff/v1/bookings/:id/check_in",
     metadata: {},
     method: "POST",
@@ -34952,7 +34952,7 @@ function registerMockBookings() {
       return booking;
     }
   });
-  uo({
+  co({
     path: "/api/staff/v1/bookings/:id/update_induction",
     metadata: {},
     method: "POST",
@@ -34968,13 +34968,13 @@ function registerMockBookings() {
       return booking;
     }
   });
-  uo({
+  co({
     path: "/api/staff/v1/bookings/:id",
     metadata: {},
     method: "PUT",
     callback: (req) => updateBooking2(req.route_params.id, req.body)
   });
-  uo({
+  co({
     path: "/api/staff/v1/bookings/:id",
     metadata: {},
     method: "DELETE",
@@ -35328,7 +35328,7 @@ var event_spaces = MOCK_SPACES.map((space) => space.id);
 
 // libs/mocks/src/lib/api/calendars.mock.ts
 function registerMockCalendars() {
-  uo({
+  co({
     path: "/api/staff/v1/calendars",
     metadata: {},
     method: "GET",
@@ -35383,44 +35383,44 @@ function registerMockCalendars() {
     });
     return spaces;
   };
-  uo({
+  co({
     path: "/api/staff/v1/calendars/availability",
     metadata: {},
     method: "GET",
-    callback: (request) => handleSpaceAvailability(request).map((_2) => ({
-      resource: _2
+    callback: (request) => handleSpaceAvailability(request).map((_3) => ({
+      resource: _3
     }))
   });
-  uo({
+  co({
     path: "/api/staff/v1/calendars/free_busy",
     metadata: {},
     method: "GET",
-    callback: (request) => handleSpaceAvailability(request).map((_2) => ({
-      resource: _2
+    callback: (request) => handleSpaceAvailability(request).map((_3) => ({
+      resource: _3
     }))
   });
 }
 
 // libs/mocks/src/lib/api/events.mock.ts
 function registerMockEvents() {
-  uo({
+  co({
     path: "/api/staff/v1/events",
     metadata: {},
     method: "GET",
-    callback: (_2) => {
+    callback: (_3) => {
       let events = MOCK_EVENTS;
-      if (!_2.query_params.zone_ids) {
+      if (!_3.query_params.zone_ids) {
         events = events.filter((event) => !!event.attendees.find((user) => user.email === ACTIVE_USER.email));
-      } else if (_2.query_params.zone_ids) {
-        events = events.filter((event) => !!event.system.zones.find((zone) => _2.query_params.zone_ids.includes(zone)));
+      } else if (_3.query_params.zone_ids) {
+        events = events.filter((event) => !!event.system.zones.find((zone) => _3.query_params.zone_ids.includes(zone)));
       }
-      if (_2.query_params.period_start) {
-        events = events.filter((e) => timePeriodsIntersect(+_2.query_params.period_start, +_2.query_params.period_end, e.event_start, e.event_end));
+      if (_3.query_params.period_start) {
+        events = events.filter((e) => timePeriodsIntersect(+_3.query_params.period_start, +_3.query_params.period_end, e.event_start, e.event_end));
       }
       return events;
     }
   });
-  uo({
+  co({
     path: "/api/staff/v1/events",
     metadata: {},
     method: "POST",
@@ -35429,7 +35429,7 @@ function registerMockEvents() {
         id: `-cal-event-${predictableRandomInt(999)}`
       });
       new_event.attendees = [
-        MOCK_STAFF.find((_2) => _2.email === new_event.host),
+        MOCK_STAFF.find((_3) => _3.email === new_event.host),
         ...new_event.attendees || []
       ];
       new_event.attendees.forEach((user) => {
@@ -35443,12 +35443,12 @@ function registerMockEvents() {
         ];
       }
       MOCK_EVENTS.push(new_event);
-      const system = Ir(new_event.system?.id);
+      const system = Ur(new_event.system?.id);
       system?.Bookings[0]?.$poll_bookings();
       return new_event;
     }
   });
-  uo({
+  co({
     path: "/api/staff/v1/events/:id",
     metadata: {},
     method: "GET",
@@ -35460,7 +35460,7 @@ function registerMockEvents() {
       throw { status: 404, message: "Event not found" };
     }
   });
-  uo({
+  co({
     path: "/api/staff/v1/events/:id",
     metadata: {},
     method: "DELETE",
@@ -35470,7 +35470,7 @@ function registerMockEvents() {
         if (MOCK_EVENTS[index].host === ACTIVE_USER.email) {
           MOCK_EVENTS.splice(index, 1);
         } else {
-          const user = MOCK_EVENTS[index].attendees.find((_2) => _2.email === ACTIVE_USER.email);
+          const user = MOCK_EVENTS[index].attendees.find((_3) => _3.email === ACTIVE_USER.email);
           user.response_status = "declined";
         }
         return;
@@ -35478,7 +35478,7 @@ function registerMockEvents() {
       throw { status: 404, message: "Event not found" };
     }
   });
-  uo({
+  co({
     path: "/api/staff/v1/events/:id",
     metadata: {},
     method: "PATCH",
@@ -35487,14 +35487,14 @@ function registerMockEvents() {
       if (index >= 0) {
         const event = __spreadValues(__spreadValues({}, MOCK_EVENTS[index]), request.body);
         MOCK_EVENTS.splice(index, 1, event);
-        const system = Ir(request.query_params.system_id || event.system?.id);
+        const system = Ur(request.query_params.system_id || event.system?.id);
         system?.Bookings?.[0]?.$poll_bookings();
         return event;
       }
       throw { status: 404, message: "Event not found" };
     }
   });
-  uo({
+  co({
     path: "/api/staff/v1/events/:id/guests/:email/checkin",
     metadata: {},
     method: "POST",
@@ -36222,7 +36222,7 @@ function listSignageMockGroups(query_params = {}) {
 function filterByGroup(items, group_id = "") {
   if (!group_id || group_id === SIGNAGE_GROUPS[0].group.id)
     return items;
-  return items.filter((_2, index) => index % 2 === 0);
+  return items.filter((_3, index) => index % 2 === 0);
 }
 function sharedWithGroups(items, id) {
   const index = items.findIndex((item) => item.id === id);
@@ -36327,7 +36327,7 @@ function registerMockSignage() {
       });
     }
   });
-  uo({
+  co({
     path: "/api/engine/v2/groups/current",
     metadata: {},
     method: "GET",
@@ -36338,13 +36338,13 @@ function registerMockSignage() {
       return [];
     }
   });
-  uo({
+  co({
     path: "/api/engine/v2/groups",
     metadata: {},
     method: "GET",
     callback: (request) => listSignageMockGroups(request.query_params)
   });
-  uo({
+  co({
     path: "/api/engine/v2/groups",
     metadata: {},
     method: "POST",
@@ -36359,7 +36359,7 @@ function registerMockSignage() {
       return group;
     }
   });
-  uo({
+  co({
     path: "/api/engine/v2/groups/:id",
     metadata: {},
     method: "PATCH",
@@ -36373,7 +36373,7 @@ function registerMockSignage() {
       return item.group;
     }
   });
-  uo({
+  co({
     path: "/api/engine/v2/groups/:id",
     metadata: {},
     method: "GET",
@@ -36384,7 +36384,7 @@ function registerMockSignage() {
       return item.group;
     }
   });
-  uo({
+  co({
     path: "/api/engine/v2/groups/:id/features",
     metadata: {},
     method: "GET",
@@ -36408,7 +36408,7 @@ function registerMockSignage() {
       return subsystem ? { [subsystem]: features[subsystem] || {} } : features;
     }
   });
-  uo({
+  co({
     path: "/api/engine/v2/groups/:id",
     metadata: {},
     method: "DELETE",
@@ -36419,7 +36419,7 @@ function registerMockSignage() {
       return {};
     }
   });
-  uo({
+  co({
     path: "/api/staff/v1/groups",
     metadata: {},
     method: "GET",
@@ -36428,13 +36428,13 @@ function registerMockSignage() {
       return MOCK_DIRECTORY_GROUPS.filter((group) => !q2 || group.name.toLowerCase().includes(q2) || group.email.toLowerCase().includes(q2));
     }
   });
-  uo({
+  co({
     path: "/api/engine/v2/group_users",
     metadata: {},
     method: "GET",
     callback: (request) => SIGNAGE_GROUP_USERS.filter((item) => item.group_id === request.query_params?.group_id)
   });
-  uo({
+  co({
     path: "/api/engine/v2/group_users",
     metadata: {},
     method: "POST",
@@ -36452,7 +36452,7 @@ function registerMockSignage() {
       return item;
     }
   });
-  uo({
+  co({
     path: "/api/engine/v2/group_users/:user_id/:group_id",
     metadata: {},
     method: "PATCH",
@@ -36468,7 +36468,7 @@ function registerMockSignage() {
       return item;
     }
   });
-  uo({
+  co({
     path: "/api/engine/v2/group_users/:user_id/:group_id",
     metadata: {},
     method: "DELETE",
@@ -36481,13 +36481,13 @@ function registerMockSignage() {
       return {};
     }
   });
-  uo({
+  co({
     path: "/api/engine/v2/group_zones",
     metadata: {},
     method: "GET",
     callback: (request) => SIGNAGE_GROUP_ZONES.filter((item) => item.group_id === request.query_params?.group_id)
   });
-  uo({
+  co({
     path: "/api/engine/v2/group_zones",
     metadata: {},
     method: "POST",
@@ -36504,7 +36504,7 @@ function registerMockSignage() {
       return item;
     }
   });
-  uo({
+  co({
     path: "/api/engine/v2/group_zones/:group_id/:zone_id",
     metadata: {},
     method: "PATCH",
@@ -36520,7 +36520,7 @@ function registerMockSignage() {
       return item;
     }
   });
-  uo({
+  co({
     path: "/api/engine/v2/group_zones/:group_id/:zone_id",
     metadata: {},
     method: "DELETE",
@@ -36533,13 +36533,13 @@ function registerMockSignage() {
       return {};
     }
   });
-  uo({
+  co({
     path: "/api/engine/v2/signage/media",
     metadata: {},
     method: "GET",
     callback: (request) => filterByGroup(MOCK_MEDIA, request.query_params?.group_id).map(toEngineMedia)
   });
-  uo({
+  co({
     path: "/api/engine/v2/signage/media/tags",
     metadata: {},
     method: "GET",
@@ -36547,7 +36547,7 @@ function registerMockSignage() {
       ...new Set(filterByGroup(MOCK_MEDIA, request.query_params?.group_id).flatMap((item) => item.tags || []).filter((tag) => !!tag))
     ]
   });
-  uo({
+  co({
     path: "/api/engine/v2/signage/media/tag_counts",
     metadata: {},
     method: "GET",
@@ -36563,7 +36563,7 @@ function registerMockSignage() {
       return counts;
     }
   });
-  uo({
+  co({
     path: "/api/engine/v2/signage/media",
     metadata: {},
     method: "POST",
@@ -36573,7 +36573,7 @@ function registerMockSignage() {
       updated_at: getUnixTime(Date.now())
     })
   });
-  uo({
+  co({
     path: "/api/engine/v2/signage/media/:id",
     metadata: {},
     method: "GET",
@@ -36581,7 +36581,7 @@ function registerMockSignage() {
       shared_with: sharedWithGroups(MOCK_MEDIA, request.route_params.id)
     })
   });
-  uo({
+  co({
     path: "/api/engine/v2/signage/media/:id",
     metadata: {},
     method: "PATCH",
@@ -36589,43 +36589,43 @@ function registerMockSignage() {
       updated_at: getUnixTime(Date.now())
     })
   });
-  uo({
+  co({
     path: "/api/engine/v2/signage/media/:id",
     metadata: {},
     method: "DELETE",
     callback: () => ({})
   });
-  uo({
+  co({
     path: "/api/engine/v2/signage/media/:id/thumbnail",
     metadata: {},
     method: "GET",
     callback: () => ({})
   });
-  uo({
+  co({
     path: "/api/engine/v2/signage/media/share",
     metadata: {},
     method: "POST",
     callback: () => ({})
   });
-  uo({
+  co({
     path: "/api/engine/v2/signage/plugins",
     metadata: {},
     method: "GET",
     callback: () => MOCK_PLUGINS
   });
-  uo({
+  co({
     path: "/api/engine/v2/signage/plugins/:id",
     metadata: {},
     method: "GET",
     callback: (request) => MOCK_PLUGINS.find((plugin) => plugin.id === request.route_params.id) || {}
   });
-  uo({
+  co({
     path: "/api/engine/v2/signage/playlists",
     metadata: {},
     method: "GET",
     callback: (request) => filterByGroup(MOCK_PLAYLISTS, request.query_params?.group_id).map(toEnginePlaylist)
   });
-  uo({
+  co({
     path: "/api/engine/v2/signage/playlists/approvers",
     metadata: {},
     method: "GET",
@@ -36634,7 +36634,7 @@ function registerMockSignage() {
       name: item.user?.name || item.user_id
     }))
   });
-  uo({
+  co({
     path: "/api/engine/v2/signage/playlists",
     metadata: {},
     method: "POST",
@@ -36644,7 +36644,7 @@ function registerMockSignage() {
       updated_at: getUnixTime(Date.now())
     })
   });
-  uo({
+  co({
     path: "/api/engine/v2/signage/playlists/:id",
     metadata: {},
     method: "GET",
@@ -36652,7 +36652,7 @@ function registerMockSignage() {
       shared_with: sharedWithGroups(MOCK_PLAYLISTS, request.route_params.id)
     })
   });
-  uo({
+  co({
     path: "/api/engine/v2/signage/playlists/:id",
     metadata: {},
     method: "PATCH",
@@ -36660,19 +36660,19 @@ function registerMockSignage() {
       updated_at: getUnixTime(Date.now())
     })
   });
-  uo({
+  co({
     path: "/api/engine/v2/signage/playlists/:id",
     metadata: {},
     method: "DELETE",
     callback: () => ({})
   });
-  uo({
+  co({
     path: "/api/engine/v2/signage/playlists/:id/media",
     metadata: {},
     method: "GET",
     callback: (request) => playlistMediaResponse(request.route_params.id, false)
   });
-  uo({
+  co({
     path: "/api/engine/v2/signage/playlists/:id/media",
     metadata: {},
     method: "POST",
@@ -36681,7 +36681,7 @@ function registerMockSignage() {
       updated_at: getUnixTime(Date.now())
     })
   });
-  uo({
+  co({
     path: "/api/engine/v2/signage/playlists/:id/media/schedule",
     metadata: {},
     method: "POST",
@@ -36695,7 +36695,7 @@ function registerMockSignage() {
       ]
     })
   });
-  uo({
+  co({
     path: "/api/engine/v2/signage/playlists/:id/media/schedule/:item_id",
     metadata: {},
     method: "PATCH",
@@ -36705,7 +36705,7 @@ function registerMockSignage() {
       schedules: request.body?.schedules || []
     })
   });
-  uo({
+  co({
     path: "/api/engine/v2/signage/playlists/:id/media/revisions",
     metadata: {},
     method: "GET",
@@ -36714,37 +36714,37 @@ function registerMockSignage() {
       playlistMediaResponse(request.route_params.id, true)
     ]
   });
-  uo({
+  co({
     path: "/api/engine/v2/signage/playlists/:id/media/approve",
     metadata: {},
     method: "POST",
     callback: (request) => playlistMediaResponse(request.route_params.id, true)
   });
-  uo({
+  co({
     path: "/api/engine/v2/signage/playlists/:id/media/request_approval",
     metadata: {},
     method: "POST",
     callback: () => ({})
   });
-  uo({
+  co({
     path: "/api/engine/v2/signage/playlists/share",
     metadata: {},
     method: "POST",
     callback: () => ({})
   });
-  uo({
+  co({
     path: "/api/engine/v2/signage/:id",
     metadata: {},
     method: "GET",
     callback: (request) => signageDisplay(request.route_params.id)
   });
-  uo({
+  co({
     path: "/api/engine/v2/signage/:id/metrics",
     metadata: {},
     method: "POST",
     callback: () => ({})
   });
-  uo({
+  co({
     path: "/api/staff/v1/signage-displays",
     metadata: {},
     method: "GET",
@@ -36770,7 +36770,7 @@ function registerMockSignage() {
       };
     }
   });
-  uo({
+  co({
     path: "/api/staff/v1/signage/displays/:id",
     metadata: {},
     method: "GET",
@@ -36781,7 +36781,7 @@ function registerMockSignage() {
       return display;
     }
   });
-  uo({
+  co({
     path: "/api/staff/v1/signage/media",
     metadata: {},
     method: "GET",
@@ -36811,7 +36811,7 @@ function registerMockSignage() {
       };
     }
   });
-  uo({
+  co({
     path: "/api/staff/v1/signage/playlists",
     metadata: {},
     method: "GET",
@@ -36833,7 +36833,7 @@ function registerMockSignage() {
       };
     }
   });
-  uo({
+  co({
     path: "/api/staff/v1/signage/playlists/:id",
     metadata: {},
     method: "GET",
@@ -36849,7 +36849,7 @@ function registerMockSignage() {
       return playlistWithMedia;
     }
   });
-  uo({
+  co({
     path: "/api/staff/v1/signage/triggers",
     metadata: {},
     method: "GET",
@@ -36872,7 +36872,7 @@ function registerMockSignage() {
       };
     }
   });
-  uo({
+  co({
     path: "/api/staff/v1/signage/displays/:id/content",
     metadata: {},
     method: "GET",
@@ -36899,7 +36899,7 @@ function registerMockSignage() {
       };
     }
   });
-  uo({
+  co({
     path: "/api/staff/v1/signage-analytics",
     metadata: {},
     method: "GET",
@@ -36944,7 +36944,7 @@ function registerMockSignage() {
       };
     }
   });
-  uo({
+  co({
     path: "/api/staff/v1/signage-displays/:id/control",
     metadata: {},
     method: "POST",
@@ -37029,7 +37029,7 @@ function registerMockSignageAI() {
     }
     return job;
   }
-  uo({
+  co({
     path: "/api/engine/v2/signage/ai/capabilities",
     metadata: {},
     method: "GET",
@@ -37064,25 +37064,25 @@ function registerMockSignageAI() {
       quota: { user_remaining_today: 42, domain_remaining_month: 900 }
     })
   });
-  uo({
+  co({
     path: "/api/engine/v2/signage/ai/generate",
     metadata: {},
     method: "POST",
     callback: (request) => makeJob(request.body || {}, "generate")
   });
-  uo({
+  co({
     path: "/api/engine/v2/signage/ai/edit",
     metadata: {},
     method: "POST",
     callback: (request) => makeJob(request.body || {}, "edit")
   });
-  uo({
+  co({
     path: "/api/engine/v2/signage/ai/jobs",
     metadata: {},
     method: "GET",
     callback: () => Object.values(AI_JOBS)
   });
-  uo({
+  co({
     path: "/api/engine/v2/signage/ai/jobs/:id",
     metadata: {},
     method: "GET",
@@ -37093,7 +37093,7 @@ function registerMockSignageAI() {
       return job;
     }
   });
-  uo({
+  co({
     path: "/api/engine/v2/signage/ai/jobs/:id/cancel",
     metadata: {},
     method: "POST",
@@ -37108,7 +37108,7 @@ function registerMockSignageAI() {
       return job;
     }
   });
-  uo({
+  co({
     path: "/api/engine/v2/signage/ai/jobs/:id/claim",
     metadata: {},
     method: "POST",
@@ -37692,7 +37692,7 @@ var MOCK_ANSWERS = [
   }
 ];
 function registerMockSurveys() {
-  uo({
+  co({
     path: "/api/staff/v1/surveys",
     metadata: {},
     method: "GET",
@@ -37711,7 +37711,7 @@ function registerMockSurveys() {
       return filteredSurveys;
     }
   });
-  uo({
+  co({
     path: "/api/staff/v1/surveys/questions",
     metadata: {},
     method: "GET",
@@ -37736,7 +37736,7 @@ function registerMockSurveys() {
       return filteredQuestions;
     }
   });
-  uo({
+  co({
     path: "/api/staff/v1/surveys/questions/:id",
     metadata: {},
     method: "GET",
@@ -37751,7 +37751,7 @@ function registerMockSurveys() {
       return question;
     }
   });
-  uo({
+  co({
     path: "/api/staff/v1/surveys/answers",
     metadata: {},
     method: "GET",
@@ -37772,7 +37772,7 @@ function registerMockSurveys() {
       return filteredAnswers;
     }
   });
-  uo({
+  co({
     path: "/api/staff/v1/surveys/answers/:id",
     metadata: {},
     method: "GET",
@@ -37785,7 +37785,7 @@ function registerMockSurveys() {
       return answer;
     }
   });
-  uo({
+  co({
     path: "/api/staff/v1/surveys/:id",
     metadata: {},
     method: "GET",
@@ -37800,7 +37800,7 @@ function registerMockSurveys() {
       return survey;
     }
   });
-  uo({
+  co({
     path: "/api/staff/v1/surveys/answers",
     metadata: {},
     method: "POST",
@@ -37841,7 +37841,7 @@ var CameraPan;
   CameraPan2[CameraPan2["Stop"] = 2] = "Stop";
 })(CameraPan || (CameraPan = {}));
 var CameraModule = class {
-  constructor(_2) {
+  constructor(_3) {
     this.pan = 0;
     this.tilt = 0;
     this.zoom = 50;
@@ -37898,7 +37898,7 @@ var createCameraModule = (space, overrides = {}) => new CameraModule(__spreadVal
 // libs/mocks/src/lib/realtime/capture.ts
 var interval;
 var CaptureModule = class {
-  constructor(_2) {
+  constructor(_3) {
     this.status = "stopped";
     this.live = false;
     this.remaining = randomInt(24 * 60 * 60);
@@ -37933,7 +37933,7 @@ var filterFn = (start, end) => (itm) => {
   return timePeriodsIntersect(start, end, itm.contact_time, itm.contact_time);
 };
 var ContactTracingModule = class {
-  constructor(_2) {
+  constructor(_3) {
   }
   $close_contacts(email, user, start, end) {
     if (!CONTACT_EVENTS[email])
@@ -37945,7 +37945,7 @@ var ContactTracingModule = class {
     const ending = addDays(end * 1e3, 10);
     let date = new Date(beginning);
     while (isBefore(date, ending)) {
-      new Array(randomInt(4)).fill(0).map((_2) => ({
+      new Array(randomInt(4)).fill(0).map((_3) => ({
         mac_address: randomString(10),
         contact_time: getUnixTime(setHours(date, randomInt(11) + 7)),
         duration: randomInt(60) * 60,
@@ -38077,8 +38077,8 @@ Plug your laptop into the HDMI to stream it to the screen, or access the CMS to 
     this.inputs = Object.keys(this.input_list || {}) || [];
     this.outputs = Object.keys(this.output_list || {}) || [];
     this.available_outputs = this.outputs;
-    const types = unique(this.env_sources.map((_2) => _2.type)) || [];
-    types.forEach((t) => this[`${t}`] = this.env_sources.filter((_2) => _2.type === t).map((_2) => _2.id));
+    const types = unique(this.env_sources.map((_3) => _3.type)) || [];
+    types.forEach((t) => this[`${t}`] = this.env_sources.filter((_3) => _3.type === t).map((_3) => _3.id));
     this.env_sources.forEach((source) => this[`${source.type}/${source.id}`] = source);
     this.inputs.forEach((key) => this[`input/${key}`] = this.input_list[key]);
     this.outputs.forEach((key) => this[`output/${key}`] = this.output_list[key]);
@@ -38124,7 +38124,7 @@ Plug your laptop into the HDMI to stream it to the screen, or access the CMS to 
       return;
     if (this.input_list[input2]) {
       this.$updateState(input2, {
-        routes: (this.input_list[input2].routes || []).filter((_2) => _2 !== output2)
+        routes: (this.input_list[input2].routes || []).filter((_3) => _3 !== output2)
       });
     }
     this.$updateState(output2, { source: "", following: "" });
@@ -38203,7 +38203,7 @@ Plug your laptop into the HDMI to stream it to the screen, or access the CMS to 
    * System state provides the ability to introspect configured points for both control limits and current value.
    **/
   $environment(id, state) {
-    const source = this.env_sources.find((_2) => _2.id === id);
+    const source = this.env_sources.find((_3) => _3.id === id);
     if (source) {
       this[`${source.type}/${source.id}`] = __spreadProps(__spreadValues({}, source), { state });
     }
@@ -38220,7 +38220,7 @@ Plug your laptop into the HDMI to stream it to the screen, or access the CMS to 
   $set_lighting_scene(scene) {
     if (this.lighting_scenes.includes(scene)) {
       this.lighting_scene = scene;
-      const light_source = this.env_sources.find((_2) => _2.type === "lights");
+      const light_source = this.env_sources.find((_3) => _3.type === "lights");
       if (light_source) {
         this[`${light_source.type}/${light_source.id}`] = __spreadProps(__spreadValues({}, light_source), {
           state: scene
@@ -38252,7 +38252,7 @@ Plug your laptop into the HDMI to stream it to the screen, or access the CMS to 
   }
   /** Control a room accessory */
   $set_accessory_state(accessory_id, state) {
-    const accessory = this.room_accessories.find((_2) => _2.id === accessory_id);
+    const accessory = this.room_accessories.find((_3) => _3.id === accessory_id);
     if (accessory && accessory.states.includes(state)) {
       accessory.state = state;
       this.room_accessories = [...this.room_accessories];
@@ -38557,8 +38557,8 @@ var h = class _h {
     else {
       const n = r.toString(16).match(/(.*?)(.{0,8})$/);
       if (n === null) return i ? c : "";
-      const o = parseInt(n[2], 16), _2 = parseInt(n[1], 16) || 0;
-      e[14] = o, e[15] = _2;
+      const o = parseInt(n[2], 16), _3 = parseInt(n[1], 16) || 0;
+      e[14] = o, e[15] = _3;
     }
     return _h._md5cycle(this._state, e), i ? this._state : _h._hex(this._state);
   }
@@ -38571,8 +38571,8 @@ var MockAreaManagementModule = class {
   constructor() {
     this.overview = {};
     this.emergency_contacts = {
-      "First Aid": MOCK_STAFF.filter((_2) => predictableRandomInt(9999) % 5 === 0),
-      "Fire Warden": MOCK_STAFF.filter((_2) => predictableRandomInt(9999) % 5 === 0)
+      "First Aid": MOCK_STAFF.filter((_3) => predictableRandomInt(9999) % 5 === 0),
+      "Fire Warden": MOCK_STAFF.filter((_3) => predictableRandomInt(9999) % 5 === 0)
     };
   }
   $locate_user(email, username) {
@@ -38621,7 +38621,7 @@ function createAreaManagementModule(space, overrides = {}) {
       percentage_use: 0,
       recommendation: 1e4
     };
-    mod[`${lvl.id}:desk_ids`] = new Array(mod.overview[lvl.id].desk_count).fill(0).map((_2, idx) => `table-${lvl.number}.${padZero(idx)}`);
+    mod[`${lvl.id}:desk_ids`] = new Array(mod.overview[lvl.id].desk_count).fill(0).map((_3, idx) => `table-${lvl.number}.${padZero(idx)}`);
     mod[`${lvl.id}`] = { value: [] };
     mod[`${lvl.id}:areas`] = {
       value: [
@@ -38710,7 +38710,7 @@ var DisplayModule = class {
   $volume(value) {
     this.volume = value;
   }
-  constructor(_2) {
+  constructor(_3) {
     this.volume = randomInt(100);
   }
 };
@@ -38764,7 +38764,7 @@ var MockBookingModule = class {
   }
   /** Start the meeting that begins at `t` (unix seconds) */
   $start_meeting(t) {
-    const booking = this.bookings.find((_2) => _2.event_start === t);
+    const booking = this.bookings.find((_3) => _3.event_start === t);
     if (!booking)
       return;
     this.last_booking_started = t;
@@ -38773,7 +38773,7 @@ var MockBookingModule = class {
   }
   /** End the meeting that begins at `t` (unix seconds) */
   $end_meeting(t, notify, reason) {
-    const booking = this.bookings.find((_2) => _2.event_start === t) || this.current_booking;
+    const booking = this.bookings.find((_3) => _3.event_start === t) || this.current_booking;
     if (!booking)
       return;
     this._ended.add(booking.id);
@@ -38830,8 +38830,8 @@ function updateBookings(space, mod) {
     }
   }
   mod.bookings = bookings.filter((event) => !mod._ended.has(event.id));
-  mod.current_booking = mod.bookings.find((_2) => timePeriodsIntersect(now, now, start(_2), end(_2))) || null;
-  mod.next_booking = mod.bookings.find((_2) => start(_2) > now) || null;
+  mod.current_booking = mod.bookings.find((_3) => timePeriodsIntersect(now, now, start(_3), end(_3))) || null;
+  mod.next_booking = mod.bookings.find((_3) => start(_3) > now) || null;
   const { current_booking, next_booking } = mod;
   const target = current_booking || next_booking;
   const started = !!current_booking && mod._started.has(current_booking.id);
@@ -38877,7 +38877,7 @@ var MicrophoneModule = class {
   $volume(value) {
     this.volume = value;
   }
-  constructor(_2) {
+  constructor(_3) {
     this.volume = randomInt(100);
   }
 };
@@ -38902,7 +38902,7 @@ var PaymentsModule = class {
   $create_customer(...args) {
     return `stripe-${randomInt(9999999, 1e6)}`;
   }
-  constructor(_2) {
+  constructor(_3) {
   }
 };
 var createPaymentsModule = (space, overrides = {}) => new PaymentsModule(__spreadValues(__spreadValues({}, space), overrides));
@@ -38984,7 +38984,7 @@ var VideoConferenceModule = class {
       }, 1e3);
     });
   }
-  constructor(_2) {
+  constructor(_3) {
     this.mic_mute = false;
     this.selfview = false;
     this.video_layout = "Auto";
@@ -38999,22 +38999,22 @@ var createVideoConferenceModule = (space = {}, overrides = {}) => new VideoConfe
 
 // libs/mocks/src/lib/systems-bindings.mock.ts
 function createSystem(space) {
-  Op(space.id, {
+  wp(space.id, {
     System: [createSystemModule(space)],
     Bookings: [createBookingsModule(space)],
     ContactTracing: [createContactTracingModule(space)],
     AreaManagement: [createAreaManagementModule(space)],
     LocationServices: [new MockLocationServicesModule()],
-    Camera: new Array(10).fill(0).map((_2) => createCameraModule(space)),
-    Display: new Array(10).fill(0).map((_2) => createDisplayModule(space)),
-    Microphone: new Array(10).fill(0).map((_2) => createMicrophoneModule(space)),
+    Camera: new Array(10).fill(0).map((_3) => createCameraModule(space)),
+    Display: new Array(10).fill(0).map((_3) => createDisplayModule(space)),
+    Microphone: new Array(10).fill(0).map((_3) => createMicrophoneModule(space)),
     Capture: [createCaptureModule(space)],
     MeetingPush: [createMeetingPushModule()],
     VidConf: [createVideoConferenceModule()],
     Payment: [createPaymentsModule(space)],
     LockerLocations: [createLockerLocationsModule()]
   });
-  const system = Ir(space.id);
+  const system = Ur(space.id);
   system.Bookings[0].$poll_bookings();
   setInterval(() => system.Bookings[0].$poll_bookings(), 30 * 1e3);
   system.AreaManagement[0].$update();
@@ -39024,12 +39024,12 @@ function createSystem(space) {
 // libs/mocks/src/lib/api/systems.mock.ts
 function registerMockSystems() {
   MOCK_SPACES.forEach((space, index) => createSystem(space));
-  uo({
+  co({
     path: "/api/engine/v2/systems",
     metadata: {},
     method: "GET",
     callback: (request) => {
-      const systems = request.query_params?.zone_id ? MOCK_SPACES.filter((_2) => _2.zones.includes(request.query_params.zone_id)) : MOCK_SPACES;
+      const systems = request.query_params?.zone_id ? MOCK_SPACES.filter((_3) => _3.zones.includes(request.query_params.zone_id)) : MOCK_SPACES;
       if (request.query_params?.signage) {
         return systems.map((space) => __spreadProps(__spreadValues({}, space), {
           signage: true,
@@ -39041,12 +39041,12 @@ function registerMockSystems() {
       return systems;
     }
   });
-  uo({
+  co({
     path: "/api/engine/v2/systems/:id",
     metadata: {},
     method: "GET",
     callback: (request) => {
-      const space = MOCK_SPACES.find((_2) => _2.id === request.route_params.id);
+      const space = MOCK_SPACES.find((_3) => _3.id === request.route_params.id);
       if (!space)
         throw { status: 404 };
       return space;
@@ -39056,7 +39056,7 @@ function registerMockSystems() {
 
 // libs/mocks/src/lib/api/users.mock.ts
 function registerMockUsers() {
-  uo({
+  co({
     path: "/api/engine/v2/users",
     metadata: {},
     method: "GET",
@@ -39068,7 +39068,7 @@ function registerMockUsers() {
       }).slice(0, limit);
     }
   });
-  uo({
+  co({
     path: "/api/engine/v2/users/:id",
     metadata: {},
     method: "GET",
@@ -39089,7 +39089,7 @@ function registerMockUsers() {
       throw { status: 404, message: "User not found" };
     }
   });
-  uo({
+  co({
     path: "/api/staff/v1/people",
     metadata: {},
     method: "GET",
@@ -39103,7 +39103,7 @@ function registerMockUsers() {
       return MOCK_STAFF;
     }
   });
-  uo({
+  co({
     path: "/api/staff/v1/people/:id",
     metadata: {},
     method: "GET",
@@ -39118,7 +39118,7 @@ function registerMockUsers() {
       throw { status: 404, message: "User not found" };
     }
   });
-  uo({
+  co({
     path: "/api/staff/v1/guests",
     metadata: {},
     method: "GET",
@@ -39130,7 +39130,7 @@ function registerMockUsers() {
       return MOCK_STAFF;
     }
   });
-  uo({
+  co({
     path: "/api/staff/v1/guests/:email",
     metadata: {},
     method: "GET",
@@ -39142,7 +39142,7 @@ function registerMockUsers() {
       throw { status: 404, message: "Guest not found" };
     }
   });
-  uo({
+  co({
     path: "/api/staff/v1/guests/:email/meetings",
     metadata: {},
     method: "GET",
@@ -39257,7 +39257,7 @@ function registerMockZones() {
     ...MOCK_LEVELS,
     ...MOCK_ZONES
   ];
-  uo({
+  co({
     path: "/api/engine/v2/zones",
     metadata: {},
     method: "GET",
@@ -39273,12 +39273,12 @@ function registerMockZones() {
       return zones;
     }
   });
-  uo({
+  co({
     path: "/api/engine/v2/zones/:id",
     metadata: {},
     method: "GET",
     callback: (request) => {
-      const zone = all_zones().find((_2) => _2.id === request.route_params.id);
+      const zone = all_zones().find((_3) => _3.id === request.route_params.id);
       if (!zone) {
         throw {
           status: 404,
@@ -39288,19 +39288,19 @@ function registerMockZones() {
       return zone;
     }
   });
-  uo({
+  co({
     path: "/api/engine/v2/settings",
     metadata: {},
     method: "GET",
     callback: (request) => []
   });
-  uo({
+  co({
     path: "/api/engine/v2/settings/:id",
     metadata: {},
     method: "GET",
     callback: (request) => ({})
   });
-  uo({
+  co({
     path: "/api/engine/v2/metadata/:id",
     metadata: {},
     method: "GET",
@@ -39364,7 +39364,7 @@ function registerMockZones() {
         const id = parts[parts.length - 1];
         return {
           charge_codes: {
-            details: new Array(30).fill(0).map((_2, idx) => `C-${idx}`)
+            details: new Array(30).fill(0).map((_3, idx) => `C-${idx}`)
           }
         };
       }
@@ -39416,7 +39416,7 @@ function registerMockZones() {
       return {};
     }
   });
-  uo({
+  co({
     path: "/api/engine/v2/metadata/:id",
     metadata: {},
     method: "PATCH",
@@ -39427,7 +39427,7 @@ function registerMockZones() {
       return request.body;
     }
   });
-  uo({
+  co({
     path: "/api/engine/v2/metadata/:id",
     metadata: {},
     method: "PUT",
@@ -39442,12 +39442,12 @@ function registerMockZones() {
   function generateMockDeskMetadata(id) {
     return {
       desks: {
-        details: new Array(30).fill(0).map((_2, idx) => ({
+        details: new Array(30).fill(0).map((_3, idx) => ({
           id: `table-${padString(id, 2)}.${padString(idx + 1, 3)}`,
           name: `Desk ${id}.${padString(idx + 1, 3)}`,
           bookable: predictableRandomInt(9999) % 4 !== 0,
           groups: predictableRandomInt(9999) % 4 === 0 ? ["test-1"] : [],
-          features: DESK_FEATURES.filter((_3) => predictableRandomInt(99999) % 3 === 0)
+          features: DESK_FEATURES.filter((_4) => predictableRandomInt(99999) % 3 === 0)
         }))
       }
     };
@@ -39456,7 +39456,7 @@ function registerMockZones() {
     if (!LOCKERS[id]) {
       LOCKERS[id] = {
         lockers: {
-          details: new Array(6).fill(0).map((_2, idx) => {
+          details: new Array(6).fill(0).map((_3, idx) => {
             const position = padString(idx + 1, 2);
             const assignee = predictableRandomInt(9999) % 4 === 0 ? MOCK_STAFF[predictableRandomInt(MOCK_STAFF.length)] : {};
             return {
@@ -39465,7 +39465,7 @@ function registerMockZones() {
               level_id: `lvl-02`,
               name: `Bank ${position}`,
               height: 3,
-              lockers: new Array(18).fill(0).map((_3, idx2) => ({
+              lockers: new Array(18).fill(0).map((_4, idx2) => ({
                 id: `locker-${position}.${padString(idx2 + 1, 3)}`,
                 name: `Locker ${idx2 + 1}`,
                 accessible: predictableRandomInt(9999) % 2 !== 0,
@@ -39480,18 +39480,18 @@ function registerMockZones() {
     }
     return LOCKERS[id];
   }
-  uo({
+  co({
     path: "/api/engine/v2/metadata/:id/children",
     metadata: {},
     method: "GET",
     callback: (request) => {
-      const zone = MOCK_BUILDINGS.find((_2) => _2.id === request.route_params.id);
+      const zone = MOCK_BUILDINGS.find((_3) => _3.id === request.route_params.id);
       if (!zone)
         throw {
           status: 404,
           message: `Unable to find zone with id "${request.route_params.id}"`
         };
-      return MOCK_LEVELS.filter((_2) => _2.parent_id === zone.id).map((lvl) => {
+      return MOCK_LEVELS.filter((_3) => _3.parent_id === zone.id).map((lvl) => {
         const parts = lvl.id.split("-");
         const id = parts[parts.length - 1];
         return {
@@ -39519,7 +39519,7 @@ function mocksInit() {
 // apps/caterer-ui/src/app/app.component.ts
 var AppComponent_Defer_5_DepsFn = () => [
   /* @ts-ignore */
-  import("./chat.component-QLNSW64Y.js").then((m) => m.ChatComponent)
+  import("./chat.component-BEXLCYJ2.js").then((m) => m.ChatComponent)
 ];
 function AppComponent_Defer_4_Template(rf, ctx) {
   if (rf & 1) {
@@ -39571,7 +39571,7 @@ var AppComponent = class _AppComponent {
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(AppComponent, () => [
     /* @ts-ignore */
-    import("./chat.component-QLNSW64Y.js").then((m) => m.ChatComponent)
+    import("./chat.component-BEXLCYJ2.js").then((m) => m.ChatComponent)
   ], (ChatComponent) => {
     setClassMetadata(AppComponent, [{
       type: Component,
@@ -41232,5 +41232,5 @@ if (environment.production) {
   enableProdMode();
 }
 bootstrapApplication(AppComponent, appConfig).catch((err) => console.error(err));
-//# debugId=abd8d7ba-9c9b-5959-93c7-64f1db40f68f
+//# debugId=e3bdce5c-6f60-5c06-8789-caf53ad09a39
 //# sourceMappingURL=main.js.map
