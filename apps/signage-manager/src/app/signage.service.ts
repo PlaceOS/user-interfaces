@@ -20,6 +20,7 @@ import {
     SettingsService,
     UploadPermissions,
     UploadsService,
+    user_groups_loaded,
     userSignal,
 } from '@placeos/common';
 import { loadAuthenticatedImage, openConfirmModal } from '@placeos/components';
@@ -44,6 +45,7 @@ import {
     mediaThumbnail,
     PlaceCurrentGroup,
     PlaceGroup,
+    type PlaceGroupQueryOptions,
     PlaceGroupUser,
     PlaceGroupZone,
     PlaceSystem,
@@ -113,6 +115,7 @@ import type {
     AiImageModalComponent,
     AiImageModalData,
 } from './ai/ai-image-modal.component';
+import { errorStatus } from './ai/ai-image.util';
 import { displayZoneIds } from './displays/display-zones.util';
 import {
     applyMediaView,
@@ -353,6 +356,11 @@ function escapeHtml(text: string) {
 }
 
 const SIGNAGE_GROUP_STORAGE_KEY = 'PlaceOS.SIGNAGE:selected-group:v1';
+/** Signage flags of a group, with the ID of the group they were read for */
+interface LoadedGroupFeatures {
+    group_id: string;
+    features: SignageGroupFeatures;
+}
 const SIGNAGE_VIEW_MODE_STORAGE_KEY = 'PlaceOS.SIGNAGE:media-view-mode:v1';
 type MediaViewMode = 'grid' | 'list' | 'folder';
 // Fields the backend matches a search term against. Names that don't exist on
@@ -559,12 +567,24 @@ export class SignageService {
     public readonly signage_group_tree_expanded = signal<
         Record<string, boolean>
     >({});
+    // Set once the live user has loaded. The cached user shown before it can
+    // hold the wrong role, and loading groups for that role would reset the
+    // saved group. Stays set through later reloads of the user.
+    private readonly _user_loaded = linkedSignal<boolean, boolean>({
+        source: user_groups_loaded,
+        computation: (loaded, previous) => loaded || !!previous?.value,
+    });
+    // Idle until the live user has loaded, so the group list always matches
+    // the role of the user.
     private readonly _signage_groups = resource({
-        params: () => ({
-            user_email: this._active_user()?.email || '',
-            groups_change: this._groups_change(),
-            sys_admin: this.is_sys_admin(),
-        }),
+        params: () =>
+            this._user_loaded()
+                ? {
+                      user_email: this._active_user()?.email || '',
+                      groups_change: this._groups_change(),
+                      sys_admin: this.is_sys_admin(),
+                  }
+                : undefined,
         loader: async ({ params }) => {
             if (!params.user_email) return [] as PlaceCurrentGroup[];
             try {
@@ -590,6 +610,10 @@ export class SignageService {
     /** Whether the last signage group request failed, so an empty group list
      * can't be read as "this user has no access". */
     public readonly signage_groups_failed = signal(false);
+    /** Load the signage groups again, after a failed request */
+    public reloadSignageGroups() {
+        this._groups_change.set(Date.now());
+    }
     public readonly signage_groups = computed(
         () => this._signage_groups.value() || [],
     );
@@ -606,23 +630,23 @@ export class SignageService {
         ),
     );
     public readonly is_sys_admin = computed(() => {
-        const user = this._current_user() as any as {
-            groups?: string[];
-            sys_admin?: boolean;
-        };
+        const user: Partial<Pick<PlaceUser, 'groups' | 'sys_admin'>> =
+            this._current_user();
         return (
             !!user.sys_admin || (user.groups || []).includes('placeos_admin')
         );
     });
     public readonly is_support = computed(() => {
-        const user = this._current_user() as any as {
-            groups?: string[];
-            support?: boolean;
-        };
+        const user: Partial<Pick<PlaceUser, 'groups' | 'support'>> =
+            this._current_user();
         return (
             !!user.support || (user.groups || []).includes('placeos_support')
         );
     });
+    /**
+     * Whether the user can manage every group and use the "All groups" view.
+     * Only system admins can change content in that view.
+     */
     public readonly can_manage_all_groups = computed(
         () => this.is_sys_admin() || this.is_support(),
     );
@@ -701,17 +725,30 @@ export class SignageService {
         });
     }
 
-    private async _queryManageableGroups(params: Record<string, any> = {}) {
-        const { data } = await queryGroups({
+    // Upper bound on group index pages, 10,000 groups at 200 per page.
+    private static readonly MAX_GROUP_PAGES = 50;
+
+    /**
+     * Signage groups from the groups index, every page of them. A single page
+     * would hide groups past the first 200 from the selector and group admin.
+     * Stops after `MAX_GROUP_PAGES` pages.
+     */
+    private async _queryManageableGroups(params: PlaceGroupQueryOptions = {}) {
+        let page = await queryGroups({
             limit: 200,
             fields: SIGNAGE_GROUP_FIELDS,
             subsystem: 'signage',
             ...params,
-        } as any);
+        } as PlaceGroupQueryOptions);
+        const data = [...(page.data || [])];
+        for (let i = 1; i < SignageService.MAX_GROUP_PAGES; i++) {
+            const next = page.data?.length ? page.next?.() : null;
+            if (!next) break;
+            page = await next;
+            data.push(...(page.data || []));
+        }
         return this._sortGroups(
-            (data || []).filter((group) =>
-                group.subsystems?.includes('signage'),
-            ),
+            data.filter((group) => group.subsystems?.includes('signage')),
         );
     }
 
@@ -817,9 +854,6 @@ export class SignageService {
         this._api_group_id,
         300,
     );
-    public readonly can_read = computed(() =>
-        this._hasGroupPermission(SignageGroupPermission.Read),
-    );
     public readonly can_create = computed(() =>
         this._hasGroupPermission(SignageGroupPermission.Create),
     );
@@ -830,10 +864,10 @@ export class SignageService {
         this._hasGroupPermission(SignageGroupPermission.Delete),
     );
     public readonly can_update_media_tags = computed(() =>
-        this._api_group_id() ? this.can_update() : this.can_manage_all_groups(),
+        this._api_group_id() ? this.can_update() : this.is_sys_admin(),
     );
     public readonly can_delete_tagged_media = computed(() =>
-        this._api_group_id() ? this.can_delete() : this.can_manage_all_groups(),
+        this._api_group_id() ? this.can_delete() : this.is_sys_admin(),
     );
     public readonly can_delete_displays = this.is_sys_admin;
     public readonly can_approve = computed(() =>
@@ -847,31 +881,69 @@ export class SignageService {
     );
     public readonly can_manage_zones = this.is_admin;
 
-    // Effective signage flags of the selected group, ancestors included.
-    // "All groups" has no flags. A failed read keeps every feature available.
+    // Flags that allow no feature and no plugin
+    private static readonly NO_GROUP_FEATURES: SignageGroupFeatures = {
+        features: [],
+        available_plugins: [],
+    };
+    // Effective signage flags of the selected group, ancestors included,
+    // tagged with the group they belong to. "All groups" has no flags. A 404
+    // means the backend has no group features route, so the group sets no
+    // limits. Any other failed read allows nothing.
     private readonly _group_features = resource({
         params: () => ({
             group_id: this._api_group_id_debounced.value(),
             groups_change: this._groups_change(),
         }),
-        loader: async ({ params }) => {
-            return this.loadGroupFeatures(params.group_id).catch(
-                () => ({}) as SignageGroupFeatures,
-            );
-        },
+        loader: async ({ params }) => ({
+            group_id: params.group_id,
+            features: await this.loadGroupFeatures(params.group_id).catch(
+                (error: unknown) =>
+                    errorStatus(error) === 404
+                        ? {}
+                        : SignageService.NO_GROUP_FEATURES,
+            ),
+        }),
     });
-    // A resource clears its value while it loads. Keep the last flags until
-    // the new ones arrive, so hidden features do not flash on.
-    private readonly _selected_group_features = linkedSignal<
-        SignageGroupFeatures | undefined,
-        SignageGroupFeatures
+    // A resource clears its value while it loads. Keep the last result so a
+    // reload of the same group does not hide its features.
+    private readonly _loaded_group_features = linkedSignal<
+        LoadedGroupFeatures | undefined,
+        LoadedGroupFeatures | undefined
     >({
         source: () => this._group_features.value(),
-        computation: (value, previous) => value ?? previous?.value ?? {},
+        computation: (value, previous) => value ?? previous?.value,
     });
-    /** Signage settings of the selected group, ancestors included */
-    public readonly group_features =
-        this._selected_group_features.asReadonly();
+    /** Flags of the selected group, or undefined while they load */
+    private readonly _selected_group_features = computed(() => {
+        const loaded = this._loaded_group_features();
+        return loaded?.group_id === this._api_group_id()
+            ? loaded.features
+            : undefined;
+    });
+    /**
+     * Signage settings of the selected group, ancestors included. Allows
+     * nothing until they load, so the previous group's flags never apply.
+     */
+    public readonly group_features = computed(
+        () =>
+            this._selected_group_features() ?? SignageService.NO_GROUP_FEATURES,
+    );
+    /**
+     * Whether `features` belongs to a settled group selection: the group list
+     * has loaded, the selected group is picked and its flags have loaded. Also
+     * true when the group list failed, as nothing more will load.
+     */
+    public readonly features_ready = computed(() => {
+        if (!this.signage_groups_loaded()) return false;
+        if (this.signage_groups_failed()) return true;
+        const selection_settled =
+            !!this.selected_group() ||
+            (!this.selected_group_id() &&
+                (this.can_manage_all_groups() ||
+                    !this.signage_groups().length));
+        return selection_settled && !!this._selected_group_features();
+    });
     /** Features the user can use in the selected group */
     public readonly features = computed(() =>
         effectiveFeatures(this.global_features() || [], this.group_features()),
@@ -895,10 +967,13 @@ export class SignageService {
         () => this.can_delete() && this.can_edit_templates(),
     );
 
-    private readonly _can_query_group_data = computed(() => {
-        const group_id = this._api_group_id();
-        return this.can_manage_all_groups() || !!group_id;
-    });
+    // Follows the debounced group, like the list queries it gates. Reading the
+    // live group would let lists run org-wide before a group is picked.
+    private readonly _can_query_group_data = computed(
+        () =>
+            this.can_manage_all_groups() ||
+            !!this._api_group_id_debounced.value(),
+    );
     // How many items to request per network page.
     private static readonly PAGE_SIZE = 200;
 
@@ -1844,20 +1919,25 @@ export class SignageService {
         return (data || []).map(decodeEntityNames);
     }
 
+    // Plugins available to the selected group. Signage edits never change
+    // plugins, so these lists follow the group but not `changed()`.
     private _pluginResource(plugin_type: SignagePluginType) {
         return resource({
             params: () => ({
                 initialised: this._org.initialised(),
-                change: this._change(),
+                can_query: this._can_query_group_data(),
+                group_id: this._api_group_id_debounced.value(),
             }),
             loader: async ({ params }) => {
-                if (!params.initialised) return [] as SignagePlugin[];
+                if (!params.initialised || !params.can_query) {
+                    return [] as SignagePlugin[];
+                }
                 try {
                     const result = await querySignagePlugins(
-                        this._orgZoneQueryParams({
-                            limit: 500,
-                            plugin_type,
-                        }),
+                        this._orgZoneQueryParams(
+                            { limit: 500, plugin_type },
+                            params.group_id,
+                        ),
                     );
                     return (result.data || [])
                         .filter((plugin: SignagePlugin) => plugin.enabled)
@@ -2097,7 +2177,11 @@ export class SignageService {
 
     constructor() {
         effect(() => {
-            if (!this.signage_groups_loaded()) return;
+            // A failed load is not an empty list. Keep the saved group so a
+            // retry can restore it.
+            if (!this.signage_groups_loaded() || this.signage_groups_failed()) {
+                return;
+            }
             const groups = this.signage_groups();
             const selected_group_id = this.selected_group_id();
             if (!groups.length) {
@@ -3348,27 +3432,39 @@ export class SignageService {
         notifySuccess(i18n('SIGNAGE_MANAGER.SVC_ZONE_REMOVED'));
     }
 
+    /**
+     * Switch the signage group the app works in. An empty ID selects "All
+     * groups". The lists reload when the debounced group changes.
+     */
     public setSelectedGroup(group_id: string) {
-        if (this.is_sys_admin() && !group_id) {
-            this.selected_group_id.set('');
-            this.selected_playlist.set(null);
-            this.selected_playlist_item.set(null);
-            this.selected_playlist_item_index.set(null);
-            this.selected_zone.set(null);
-            this.selected_display.set(null);
-            this.changed();
-            return;
-        }
-        if (!this.signage_groups().some((item) => item.group.id === group_id)) {
-            return;
-        }
+        const allowed = group_id
+            ? this.signage_groups().some((item) => item.group.id === group_id)
+            : this.can_manage_all_groups();
+        if (!allowed) return;
         this.selected_group_id.set(group_id);
         this.selected_playlist.set(null);
         this.selected_playlist_item.set(null);
         this.selected_playlist_item_index.set(null);
         this.selected_zone.set(null);
         this.selected_display.set(null);
-        this.changed();
+    }
+
+    /** Let the user pick the signage group to work in */
+    public async selectGroup() {
+        const { GroupSelectModalComponent } =
+            await import('./shared/group-select-modal.component');
+        const ref = this._dialog.open(GroupSelectModalComponent, {
+            data: {
+                title: i18n('SIGNAGE_MANAGER.SELECT_SIGNAGE_GROUP'),
+                groups: this.signage_groups(),
+                selected_group_id: this.selected_group_id(),
+                show_all_groups: this.can_manage_all_groups(),
+            },
+            panelClass: 'mobile-fullscreen',
+        });
+        const group_id = await dialogClosed<string>(ref);
+        if (group_id === undefined) return;
+        this.setSelectedGroup(group_id);
     }
 
     private _hasGroupPermission(permission: SignageGroupPermission) {

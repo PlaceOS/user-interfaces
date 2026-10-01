@@ -1,6 +1,5 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { MatDialog } from '@angular/material/dialog';
 import { SignageGroupSelectorComponent } from '../../app/shared/signage-group-selector.component';
 import { SignageService } from '../../app/signage.service';
 
@@ -9,32 +8,17 @@ function group(id: string, name: string, parent_id?: string) {
 }
 
 describe('SignageGroupSelectorComponent', () => {
-    let closed_value: unknown;
-    const setSelectedGroup = vi.fn();
     const signage_groups = signal<any[]>([]);
     const selected_group = signal<any>(null);
-    const selected_group_id = signal('');
-    const is_sys_admin = signal(false);
+    const selectGroup = vi.fn();
     const selected_group_hierarchy = signal<any[]>([]);
     const show_group_selector = signal(true);
     const service = {
         show_group_selector,
         signage_groups,
         selected_group,
-        selected_group_id,
-        is_sys_admin,
+        selectGroup,
         selected_group_hierarchy,
-        setSelectedGroup,
-    };
-    const dialog = {
-        open: vi.fn().mockReturnValue({
-            afterClosed: () => ({
-                subscribe: (handler: (value: unknown) => void) => {
-                    Promise.resolve().then(() => handler(closed_value));
-                    return { unsubscribe: vi.fn() };
-                },
-            }),
-        }),
     };
 
     async function createComponent() {
@@ -42,7 +26,6 @@ describe('SignageGroupSelectorComponent', () => {
             imports: [SignageGroupSelectorComponent],
             providers: [
                 { provide: SignageService, useValue: service },
-                { provide: MatDialog, useValue: dialog },
             ],
         })
             .overrideComponent(SignageGroupSelectorComponent, {
@@ -55,11 +38,8 @@ describe('SignageGroupSelectorComponent', () => {
 
     beforeEach(() => {
         vi.clearAllMocks();
-        closed_value = undefined;
         signage_groups.set([]);
         selected_group.set(null);
-        selected_group_id.set('');
-        is_sys_admin.set(false);
         selected_group_hierarchy.set([]);
         show_group_selector.set(true);
         TestBed.resetTestingModule();
@@ -101,21 +81,11 @@ describe('SignageGroupSelectorComponent', () => {
         expect(component.show_selector()).toBe(false);
     });
 
-    it('applies the chosen group after the selector closes', async () => {
-        closed_value = 'g2';
+    it('opens the shared group selector', async () => {
         const component = await createComponent();
 
         await component.selectGroup();
 
-        expect(setSelectedGroup).toHaveBeenCalledWith('g2');
-    });
-
-    it('does nothing when the selector is dismissed', async () => {
-        closed_value = undefined;
-        const component = await createComponent();
-
-        await component.selectGroup();
-
-        expect(setSelectedGroup).not.toHaveBeenCalled();
+        expect(selectGroup).toHaveBeenCalledTimes(1);
     });
 });

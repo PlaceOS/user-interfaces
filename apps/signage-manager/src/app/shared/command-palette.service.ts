@@ -1,5 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { i18n } from '@placeos/common';
 
 /**
  * Opens the command palette. The app root calls it for Cmd+K or Ctrl+K and
@@ -27,6 +28,7 @@ export class CommandPaletteService {
                 position: { top: '12vh' },
                 width: '36rem',
                 maxWidth: '95vw',
+                ariaLabel: i18n('SIGNAGE_MANAGER.PALETTE_OPEN'),
             });
             this._ref.afterClosed().subscribe(() => (this._ref = null));
         } finally {

@@ -1,6 +1,5 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { MatDialog } from '@angular/material/dialog';
 import { GroupBreadcrumbsComponent } from '../../app/shared/group-breadcrumbs.component';
 import { groupHierarchy, SignageService } from '../../app/signage.service';
 
@@ -53,22 +52,11 @@ function crumbs(fixture: any): HTMLButtonElement[] {
 }
 
 describe('GroupBreadcrumbsComponent', () => {
-    let closed_value: unknown;
     const selected_group_hierarchy = signal<any[]>([]);
-    const signage_groups = signal<any[]>([]);
     const selected_group_id = signal('');
-    const is_sys_admin = signal(false);
+    const can_manage_all_groups = signal(false);
     const setSelectedGroup = vi.fn();
-    const dialog = {
-        open: vi.fn().mockReturnValue({
-            afterClosed: () => ({
-                subscribe: (handler: (value: unknown) => void) => {
-                    Promise.resolve().then(() => handler(closed_value));
-                    return { unsubscribe: vi.fn() };
-                },
-            }),
-        }),
-    };
+    const selectGroup = vi.fn();
 
     async function make() {
         await TestBed.configureTestingModule({
@@ -78,13 +66,12 @@ describe('GroupBreadcrumbsComponent', () => {
                     provide: SignageService,
                     useValue: {
                         selected_group_hierarchy,
-                        signage_groups,
                         selected_group_id,
-                        is_sys_admin,
+                        can_manage_all_groups,
                         setSelectedGroup,
+                        selectGroup,
                     },
                 },
-                { provide: MatDialog, useValue: dialog },
             ],
         }).compileComponents();
         const fixture = TestBed.createComponent(GroupBreadcrumbsComponent);
@@ -94,11 +81,9 @@ describe('GroupBreadcrumbsComponent', () => {
 
     beforeEach(() => {
         vi.clearAllMocks();
-        closed_value = undefined;
         selected_group_hierarchy.set([]);
-        signage_groups.set([]);
         selected_group_id.set('');
-        is_sys_admin.set(false);
+        can_manage_all_groups.set(false);
         TestBed.resetTestingModule();
     });
 
@@ -108,19 +93,14 @@ describe('GroupBreadcrumbsComponent', () => {
         expect(fixture.nativeElement.querySelector('nav')).toBeNull();
     });
 
-    it('shows an all-groups crumb for admins with no group selected', async () => {
-        is_sys_admin.set(true);
-        signage_groups.set([{ group: { id: 'a', name: 'Alpha' } }]);
-        closed_value = 'a';
+    it('shows an all-groups crumb for admins and support with no group selected', async () => {
+        can_manage_all_groups.set(true);
         const fixture = await make();
 
         expect(fixture.nativeElement.querySelector('nav')).not.toBeNull();
-        const all_crumb = crumbs(fixture).at(-1);
-        all_crumb.click();
-        await fixture.whenStable();
+        crumbs(fixture).at(-1).click();
 
-        expect(dialog.open).toHaveBeenCalled();
-        expect(setSelectedGroup).toHaveBeenCalledWith('a');
+        expect(selectGroup).toHaveBeenCalled();
     });
 
     it('lists each group in the selected hierarchy', async () => {
@@ -135,27 +115,14 @@ describe('GroupBreadcrumbsComponent', () => {
         expect(text).toContain('Beta');
     });
 
-    it('applies the chosen signage group when the pill is used', async () => {
+    it('opens the group selector when the current group pill is used', async () => {
         selected_group_hierarchy.set([{ id: 'a', name: 'Alpha' }]);
-        signage_groups.set([{ group: { id: 'a', name: 'Alpha' } }]);
-        is_sys_admin.set(true);
-        closed_value = 'b';
         const fixture = await make();
 
         crumbs(fixture).at(-1).click();
-        await fixture.whenStable();
 
-        expect(dialog.open).toHaveBeenCalledWith(
-            expect.anything(),
-            expect.objectContaining({
-                data: expect.objectContaining({
-                    groups: signage_groups(),
-                    selected_group_id: '',
-                    show_all_groups: true,
-                }),
-            }),
-        );
-        expect(setSelectedGroup).toHaveBeenCalledWith('b');
+        expect(selectGroup).toHaveBeenCalled();
+        expect(setSelectedGroup).not.toHaveBeenCalled();
     });
 
     it('jumps to a parent signage group without opening the selector', async () => {
@@ -166,20 +133,8 @@ describe('GroupBreadcrumbsComponent', () => {
         const fixture = await make();
 
         crumbs(fixture)[0].click();
-        await fixture.whenStable();
 
         expect(setSelectedGroup).toHaveBeenCalledWith('a');
-        expect(dialog.open).not.toHaveBeenCalled();
-    });
-
-    it('keeps the current group when the selector is dismissed', async () => {
-        selected_group_hierarchy.set([{ id: 'a', name: 'Alpha' }]);
-        closed_value = undefined;
-        const fixture = await make();
-
-        crumbs(fixture).at(-1).click();
-        await fixture.whenStable();
-
-        expect(setSelectedGroup).not.toHaveBeenCalled();
+        expect(selectGroup).not.toHaveBeenCalled();
     });
 });

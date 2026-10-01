@@ -263,6 +263,10 @@ describe('SignageService media uploads', () => {
             } as Awaited<ReturnType<typeof querySignagePlugins>>;
         });
         const service = createService();
+        // Plugins load once the user can query the "All groups" view
+        Object.defineProperty(service, 'can_manage_all_groups', {
+            value: () => true,
+        });
         TestBed.flushEffects();
 
         await vi.waitFor(() => {
@@ -1830,6 +1834,8 @@ describe('SignageService media uploads', () => {
             id: 'template-1',
             approved: false,
         });
+        // The template list reloads once the group flags turn templates on
+        await vi.waitFor(() => expect(service.templates_enabled()).toBe(true));
         TestBed.flushEffects();
         test_service['_template_items'].set([template]);
         Object.defineProperty(service, 'can_approve', {
@@ -2425,6 +2431,9 @@ describe('SignageService media uploads', () => {
             const service = createService();
             const group = signal<SignageGroupFeatures>({});
             Object.defineProperty(service, 'group_features', { value: group });
+            Object.defineProperty(service, 'can_manage_all_groups', {
+                value: () => true,
+            });
             TestBed.flushEffects();
 
             await vi.waitFor(() =>
