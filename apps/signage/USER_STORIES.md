@@ -104,7 +104,7 @@ The Signage app is a kiosk-style digital signage player. It bootstraps a device 
 - The active playlist includes enabled playlists mapped directly to the display.
 - The active playlist also includes enabled playlists mapped to the display's zones.
 - Playlist media is ordered by the playlist media list unless the playlist is configured as random.
-- Random playlists are shuffled before playback.
+- Random playlists are shuffled before playback. The order stays the same until the playlist's media list changes, so the schedule re-evaluation does not restart the current item.
 - Disabled playlists are excluded.
 - Scheduled playlists are included in normal playback only when they have an active non-takeover schedule.
 - Takeover schedules are excluded from normal playback and handled as overrides.
@@ -334,10 +334,13 @@ The Signage app is a kiosk-style digital signage player. It bootstraps a device 
 **Acceptance Criteria:**
 
 - A scheduled playlist with `play_takeover` enabled is rendered as an override player above normal playback.
+- Only schedules with `play_takeover` enabled start an override. Other schedules of the same playlist add it to normal playback.
+- A takeover does not start when none of its media is currently valid. An active takeover ends when none of its media stays valid. The player checks this on each schedule re-evaluation.
 - The normal player is paused while an override is active.
 - Multiple active takeover playlists can be combined into the override playlist.
 - The override ends at the scheduled end time when `play_period` is greater than zero.
 - A scheduled takeover with `play_period` set to zero uses a short activation window, plays a single pass, and then clears.
+- A single-pass takeover continues after its activation window closes. It clears when the pass is complete, or when its playlist is removed, disabled, or no longer a single-pass takeover.
 - Clearing a scheduled override records its schedule key so the same activation is not immediately retriggered.
 
 ---
@@ -352,6 +355,7 @@ The Signage app is a kiosk-style digital signage player. It bootstraps a device 
 
 - Playlist mappings whose keys start with `trig-` are treated as trigger mappings.
 - The app subscribes to matching variables on the display's `_TRIGGER__1` module.
+- A trigger fires when its variable changes from a falsy value to a truthy value. The value that the binding has when the app subscribes does not fire the trigger, and a change to a falsy value does not fire it. After a page load the binding has no value, so the first truthy value from PlaceOS fires the trigger once.
 - When a trigger fires and no override is active, the mapped enabled playlists are converted to override media.
 - Trigger overrides are ignored when an override is already active.
 - Trigger overrides play once and clear after the override playlist completes.

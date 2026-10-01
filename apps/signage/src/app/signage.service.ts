@@ -54,6 +54,9 @@ interface SignageMetrics {
     media_counts: Record<string, number>;
 }
 
+/** Background schedules join normal playback; takeover schedules override it */
+type ScheduleKind = 'background' | 'takeover';
+
 interface PlaylistSchedule {
     readonly play_cron?: string;
     readonly play_period?: number;
@@ -309,24 +312,28 @@ function scheduledPlaylistWindow(
     return null;
 }
 
+function isScheduleKind(schedule: PlaylistSchedule, kind?: ScheduleKind) {
+    return !kind || !!schedule.play_takeover === (kind === 'takeover');
+}
+
+/** Schedules of a playlist active at `now`, limited to `kind` when given */
 function activePlaylistSchedules(
     playlist: SignagePlaylist,
     now = time(),
-    trigger_window_seconds = 0,
+    kind?: ScheduleKind,
 ) {
     return playlistSchedules(playlist)
         .map((schedule, index) => {
-            const window = scheduledPlaylistWindow(
-                schedule,
-                now,
-                trigger_window_seconds,
-            );
+            if (!isScheduleKind(schedule, kind)) return null;
+            const window = scheduledPlaylistWindow(schedule, now);
             return window
                 ? {
                       playlist,
                       schedule,
                       ...window,
-                      key: `${playlist.id}:${index}:${window.starts_at}`,
+                      key:
+                          scheduleKeyPrefix(playlist.id, index) +
+                          window.starts_at,
                   }
                 : null;
         })
@@ -336,9 +343,14 @@ function activePlaylistSchedules(
 function activePlaylistSchedule(
     playlist: SignagePlaylist,
     now = time(),
-    trigger_window_seconds = 0,
+    kind?: ScheduleKind,
 ) {
-    return activePlaylistSchedules(playlist, now, trigger_window_seconds)[0];
+    return activePlaylistSchedules(playlist, now, kind)[0];
+}
+
+/** Start of the keys for every run of one schedule of a playlist */
+function scheduleKeyPrefix(playlist_id: string, index: number) {
+    return `${playlist_id}:${index}:`;
 }
 
 /**
@@ -442,6 +454,11 @@ export class SignageService extends AsyncHandler {
         media_counts: {},
     };
     private _completed_schedule_overrides = new Set<string>();
+    /** Shuffled order of each random playlist and the media list it is for */
+    private _shuffles = new Map<
+        string,
+        { signature: string; order: number[] }
+    >();
 
     public readonly override_playlist = signal<PlaylistOverride>({
         ends_at: 0,
@@ -498,12 +515,8 @@ export class SignageService extends AsyncHandler {
             const media = this._getPlaylistMedia(
                 item,
                 playlists,
-                (p) =>
-                    p.enabled &&
-                    (!playlistSchedules(p).length ||
-                        activePlaylistSchedules(p).some(
-                            ({ schedule }) => !schedule.play_takeover,
-                        )),
+                (p) => this._isBackgroundPlaylist(p),
+                'background',
             );
             this._last_playlist = media;
             return media;
@@ -643,6 +656,9 @@ export class SignageService extends AsyncHandler {
             log.warn('Failed to resolve display plugins.', e);
             return display.plugins || [];
         });
+        for (const id of this._shuffles.keys()) {
+            if (!display.playlist_config?.[id]) this._shuffles.delete(id);
+        }
         this._display_data.set(display);
         try {
             this._bindTriggers(display);
@@ -717,9 +733,18 @@ export class SignageService extends AsyncHandler {
         const mod = getModule(display.id, '_TRIGGER__1');
         for (const id of triggers) {
             const binding = mod.variable(id);
+            // Fire only when the value turns truthy. Subscribing emits the
+            // current value at once, and the bindings are rebuilt on every
+            // display change, so a held trigger would otherwise replay on
+            // each reload; a trigger resetting to false must not fire either.
+            let active = !!binding.value;
             this.subscription(
                 `trigger_listen-${id}`,
-                binding.bindThenSubscribe(() => this._handleTrigger(id)),
+                binding.bindThenSubscribe((value) => {
+                    const was_active = active;
+                    active = !!value;
+                    if (active && !was_active) this._handleTrigger(id);
+                }),
             );
         }
     }
@@ -820,7 +845,11 @@ export class SignageService extends AsyncHandler {
             .map((id) => this._playlistConfig(display, id)?.[0])
             .filter((_) => !!_)
             .map((playlist) => {
-                const active = activePlaylistSchedule(playlist, now);
+                // A running takeover outranks a background schedule active
+                // at the same time, as it does in playback.
+                const active =
+                    activePlaylistSchedule(playlist, now, 'takeover') ||
+                    activePlaylistSchedule(playlist, now);
                 return {
                     id: playlist.id,
                     name: playlist.name,
@@ -943,6 +972,15 @@ export class SignageService extends AsyncHandler {
             .filter((_) => !!_);
     }
 
+    /** Whether a playlist currently belongs in normal playback */
+    private _isBackgroundPlaylist(playlist: SignagePlaylist, now = time()) {
+        return (
+            playlist.enabled &&
+            (!playlistSchedules(playlist).length ||
+                activePlaylistSchedules(playlist, now, 'background').length > 0)
+        );
+    }
+
     private _isOverridePlaylist(display: any, id: string) {
         const playlist = this._playlistConfig(display, id)?.[0];
         return (
@@ -979,10 +1017,10 @@ export class SignageService extends AsyncHandler {
     }
 
     private _mediaSignature(display: any) {
-        // Sorted, because a playlist with `random` set returns its media in a
-        // different order on every call. Comparing the raw order would report a
-        // change on every tick and re-run the whole cache sync - which reads
-        // every cached file back out of IndexedDB - fifteen seconds apart.
+        // Sorted, because only the set of files matters here. Comparing the raw
+        // order would report a change whenever a random playlist reshuffles
+        // and re-run the whole cache sync, which reads every cached file back
+        // out of IndexedDB.
         const media = [...this._activeCacheableMediaURLs(display)].sort();
         return `${display.id}:${media.join('|')}`;
     }
@@ -1070,21 +1108,16 @@ export class SignageService extends AsyncHandler {
             ...this._getPlaylistMedia(
                 display,
                 playlists,
-                (p) =>
-                    p.enabled &&
-                    (!playlistSchedules(p).length ||
-                        activePlaylistSchedules(p, now).some(
-                            ({ schedule }) => !schedule.play_takeover,
-                        )),
+                (p) => this._isBackgroundPlaylist(p, now),
+                'background',
             ),
             ...this._getPlaylistMedia(
                 display,
                 playlists,
                 (p) =>
                     p.enabled &&
-                    activePlaylistSchedules(p, now).some(
-                        ({ schedule }) => schedule.play_takeover,
-                    ),
+                    activePlaylistSchedules(p, now, 'takeover').length > 0,
+                'takeover',
             ),
         ];
         // Media for playlists that start later is downloaded ahead of time, so
@@ -1116,6 +1149,10 @@ export class SignageService extends AsyncHandler {
             .filter((_) => !!_);
     }
 
+    /**
+     * Start, update or end the scheduled takeover. Runs on every display
+     * change and schedule tick.
+     */
     private _checkScheduledOverrides(display: any, playlist_ids: string[]) {
         const active_schedules = this._activeOverrideSchedules(
             display,
@@ -1124,16 +1161,22 @@ export class SignageService extends AsyncHandler {
         const active_playlists = active_schedules.map(
             ({ playlist }) => playlist,
         );
+        const held_keys = this._heldSinglePassKeys(display, playlist_ids);
         if (!active_playlists.length) {
-            if (this.override_playlist().schedule_keys?.length) {
+            if (
+                this.override_playlist().schedule_keys?.length &&
+                !held_keys.length
+            ) {
                 this.override_playlist.set({ playlist: [], ends_at: 0 });
             }
             return;
         }
-        if (this._hasCurrentOverrideFor(active_schedules)) return;
+        if (this._hasCurrentOverrideFor(active_schedules, held_keys)) return;
         const media = this._getPlaylistMedia(
             display,
             active_playlists.map((_) => _.id),
+            () => true,
+            'takeover',
         );
         const ends_at = this._scheduledOverrideEnd(active_schedules);
         log.debug('Setting override playlist', media, ends_at || 0);
@@ -1144,6 +1187,11 @@ export class SignageService extends AsyncHandler {
         });
     }
 
+    /**
+     * Active takeover schedules that have something to show. A run whose media
+     * is all outside its validity window is left out: it would pause normal
+     * playback behind a blank override for its whole play period.
+     */
     private _activeOverrideSchedules(display: any, playlist_ids: string[]) {
         const now = time();
         return (
@@ -1154,19 +1202,68 @@ export class SignageService extends AsyncHandler {
                 // the background playlist) so an in-progress cron takeover is picked
                 // up even if the display booted/ticked after it fired. Single-pass
                 // (period 0) schedules still resolve to a short ~30s window.
-                .flatMap((playlist) => activePlaylistSchedules(playlist, now))
+                .flatMap((playlist) =>
+                    activePlaylistSchedules(playlist, now, 'takeover'),
+                )
                 .filter(
-                    ({ key }) => !this._completed_schedule_overrides.has(key),
+                    ({ key, playlist }) =>
+                        !this._completed_schedule_overrides.has(key) &&
+                        this._hasValidTakeoverMedia(display, playlist.id),
                 )
         );
     }
 
-    private _hasCurrentOverrideFor(schedules: ActivePlaylistSchedule[]) {
+    /**
+     * Keys of single-pass runs in the current override that should keep
+     * playing. A single-pass run is only detected inside its short trigger
+     * window, so after that it is held until the player reports a full pass
+     * (`playlist_through`). The hold ends early when its playlist is removed,
+     * disabled, no longer a single-pass takeover, or has no valid media.
+     */
+    private _heldSinglePassKeys(display: any, playlist_ids: string[]) {
+        const keys = this.override_playlist().schedule_keys || [];
+        return keys.filter((key) =>
+            playlist_ids.some((id) => {
+                const playlist = this._playlistConfig(display, id)?.[0];
+                if (!playlist) return false;
+                const is_single_pass = playlistSchedules(playlist).some(
+                    (schedule, index) =>
+                        key.startsWith(scheduleKeyPrefix(id, index)) &&
+                        schedule.play_takeover &&
+                        playlistPlayPeriodMinutes(schedule) === 0,
+                );
+                return (
+                    is_single_pass && this._hasValidTakeoverMedia(display, id)
+                );
+            }),
+        );
+    }
+
+    private _hasValidTakeoverMedia(display: any, playlist_id: string) {
+        return this._getPlaylistMedia(
+            display,
+            [playlist_id],
+            () => true,
+            'takeover',
+        ).some((item) => !validateMedia(item));
+    }
+
+    /**
+     * Whether the current override already covers the active runs. It may
+     * also hold single-pass runs whose trigger window has closed.
+     */
+    private _hasCurrentOverrideFor(
+        schedules: ActivePlaylistSchedule[],
+        held_keys: string[],
+    ) {
         const existing_keys = this.override_playlist().schedule_keys || [];
-        const active_keys = new Set(schedules.map(({ key }) => key));
+        const allowed_keys = new Set([
+            ...schedules.map(({ key }) => key),
+            ...held_keys,
+        ]);
         return (
-            existing_keys.length === active_keys.size &&
-            existing_keys.every((key) => active_keys.has(key))
+            schedules.every(({ key }) => existing_keys.includes(key)) &&
+            existing_keys.every((key) => allowed_keys.has(key))
         );
     }
 
@@ -1185,16 +1282,22 @@ export class SignageService extends AsyncHandler {
         metrics[ref_id] = (metrics[ref_id] || 0) + 1;
     }
 
+    /**
+     * Media items for the given playlists. `kind` picks which active schedule
+     * limits each playlist's validity window; any active schedule when unset.
+     */
     private _getPlaylistMedia(
         display: any,
         playlists: string[],
         filter_fn: (item: SignagePlaylist) => boolean = () => true,
+        kind?: ScheduleKind,
     ): MediaPlayerItem[] {
         const plugins: SignagePlugin[] = display.plugins || [];
         const playlist_media = this._playlistMediaReferences(
             display,
             playlists,
             filter_fn,
+            kind,
         );
         return playlist_media
             .map((media) =>
@@ -1267,6 +1370,7 @@ export class SignageService extends AsyncHandler {
         display: any,
         playlists: string[],
         filter_fn: (item: SignagePlaylist) => boolean,
+        kind?: ScheduleKind,
     ): PlaylistMediaReference[] {
         return playlists
             .map((id) => {
@@ -1274,21 +1378,47 @@ export class SignageService extends AsyncHandler {
                 if (!config) return [];
                 const [playlist, media_list] = config;
                 if (!playlist || !filter_fn(playlist)) return [];
-                const [valid_from, valid_until] =
-                    this._playlistValidityWindow(playlist);
+                const [valid_from, valid_until] = this._playlistValidityWindow(
+                    playlist,
+                    kind,
+                );
                 const media = media_list.map((media_id) => ({
                     id: media_id,
                     playlist_id: id,
                     valid_from,
                     valid_until,
                 }));
-                return playlist.random ? shuffleArray(media) : media;
+                return playlist.random ? this._shuffledMedia(id, media) : media;
             })
             .flat();
     }
 
-    private _playlistValidityWindow(playlist: SignagePlaylist) {
-        const schedule = activePlaylistSchedule(playlist);
+    /**
+     * Shuffled order of a random playlist. The order is kept until the
+     * playlist's media list changes: the playlist is rebuilt on every schedule
+     * tick, and a new order each time would restart the item on screen.
+     */
+    private _shuffledMedia<T extends { id: string }>(
+        playlist_id: string,
+        media: T[],
+    ) {
+        const signature = media.map(({ id }) => id).join('|');
+        let shuffle = this._shuffles.get(playlist_id);
+        if (shuffle?.signature !== signature) {
+            const order: number[] = shuffleArray(
+                media.map((_, index) => index),
+            );
+            shuffle = { signature, order };
+            this._shuffles.set(playlist_id, shuffle);
+        }
+        return shuffle.order.map((index) => media[index]);
+    }
+
+    private _playlistValidityWindow(
+        playlist: SignagePlaylist,
+        kind?: ScheduleKind,
+    ) {
+        const schedule = activePlaylistSchedule(playlist, time(), kind);
         const schedule_start = schedule
             ? Math.floor(schedule.starts_at / 1000)
             : 0;
