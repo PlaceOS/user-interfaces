@@ -1,4 +1,11 @@
-import { Component, DestroyRef, effect, inject, signal } from '@angular/core';
+import {
+    Component,
+    DestroyRef,
+    effect,
+    inject,
+    signal,
+    untracked,
+} from '@angular/core';
 import {
     BindingDirective,
     CustomTooltipData,
@@ -269,9 +276,13 @@ export class CameraTooltipComponent {
     constructor() {
         inject(DestroyRef).onDestroy(() => this.stopZoom());
         effect(() => {
-            const l = this.camera_list();
-            const cam = this._selected_camera();
-            this.active_camera.set(l?.find((_) => _.id === cam));
+            const id = this._selected_camera();
+            const camera = this.camera_list()?.find((_) => _.id === id);
+            // The recalled preset belongs to the previous camera
+            if (camera?.id !== untracked(this.active_camera)?.id) {
+                this.preset.set('');
+            }
+            this.active_camera.set(camera);
         });
     }
 

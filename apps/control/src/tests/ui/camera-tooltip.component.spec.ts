@@ -134,4 +134,18 @@ describe('CameraTooltipComponent', () => {
         spectator.detectChanges();
         expect('button[preset]:not(.inverse)').toHaveText('Desk');
     });
+
+    it('should clear the recalled preset when another control changes camera', () => {
+        mockExecute();
+        available_cameras.set([
+            { id: 'cam1', name: 'Camera 1', mod: 'Camera_1' },
+            { id: 'cam2', name: 'Camera 2', mod: 'Camera_2' },
+        ]);
+        selected_camera.set('cam1');
+        spectator.detectChanges();
+        spectator.component.recallPreset('Desk');
+        selected_camera.set('cam2');
+        spectator.detectChanges();
+        expect(spectator.component.preset()).toBe('');
+    });
 });
