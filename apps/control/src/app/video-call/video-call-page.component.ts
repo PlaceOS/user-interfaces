@@ -241,6 +241,9 @@ export class VideoCallPageComponent extends AsyncHandler implements OnInit {
     private _router = inject(Router);
     private _injector = inject(Injector);
 
+    /** Whether the page has already left for the ended call */
+    private _left = false;
+
     public readonly redirect = input(true);
     public readonly present_output = input('');
     public readonly loading = signal('');
@@ -321,8 +324,11 @@ export class VideoCallPageComponent extends AsyncHandler implements OnInit {
         mod.execute('selected_camera', [camera]);
     }
 
+    /** Leave the page once. A local hang-up and the call status clearing both end up here. */
     private _onCallEnded() {
         this.loading.set('');
+        if (this._left) return;
+        this._left = true;
         if (this.redirect())
             this._router.navigate(['/panel', this._control.id]);
     }
