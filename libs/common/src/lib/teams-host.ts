@@ -1,5 +1,5 @@
 import { signal } from '@angular/core';
-import { setToken, token } from '@placeos/ts-client';
+import { exchangeEntraToken, setToken, token } from '@placeos/ts-client';
 
 import { failInitialisation } from './application';
 import { log, withTimeout } from './general';
@@ -13,7 +13,8 @@ import { log, withTimeout } from './general';
  *
  * The tab runs in a frame that cannot show the Microsoft login page. When the
  * tab has no PlaceOS token it signs in through the host:
- * 1. Silent SSO with `authentication.getAuthToken()`.
+ * 1. Silent SSO with `authentication.getAuthToken()`. ts-client exchanges
+ *    the Microsoft Entra token for PlaceOS tokens.
  * 2. Else a sign-in window from `authentication.authenticate()`. That window
  *    loads the app with `?host=teams-auth`, runs the normal PlaceOS login and
  *    sends the PlaceOS token back with `authentication.notifySuccess()`.
@@ -122,18 +123,21 @@ export async function finishTeamsSignIn(mode: TeamsHostMode): Promise<boolean> {
 }
 
 async function signInTeamsTab(teams: TeamsJs): Promise<boolean> {
-    const sso_token = await withTimeout(
+    const sso_signed_in = await withTimeout(
         teams.authentication.getAuthToken(),
         SSO_TIMEOUT_MS,
         'Microsoft single sign-on timed out.',
-    ).catch((error) => {
-        log('Teams', 'SSO failed.', error, 'warn');
-        return '';
-    });
-    if (sso_token) {
-        setToken(sso_token, tokenExpiry(sso_token));
-        return true;
-    }
+    )
+        .then(async (entra_token) => {
+            if (!entra_token) return false;
+            await exchangeEntraToken(entra_token);
+            return true;
+        })
+        .catch((error) => {
+            log('Teams', 'SSO failed.', error, 'warn');
+            return false;
+        });
+    if (sso_signed_in) return true;
     const url = `${location.origin}${location.pathname}?${TEAMS_HOST_PARAM}=teams-auth`;
     for (let attempt = 0; attempt < MAX_SIGN_IN_ATTEMPTS; attempt++) {
         // Try without a click first. Later attempts wait for the button.

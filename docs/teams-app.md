@@ -8,7 +8,7 @@ The workplace app can run as a personal tab in Microsoft Teams, Outlook and the 
 2. With the query, the app loads `@microsoft/teams-js` and calls `app.initialize()`. If the host does not answer in 5 seconds, the app starts as a normal web app.
 3. The tab frame cannot show the Microsoft login page. Thus the app does not redirect to the PlaceOS login page in the tab.
 4. If the tab has no PlaceOS token, the app gets a token in this sequence:
-    1. Single sign-on (SSO) with `authentication.getAuthToken()`.
+    1. Single sign-on (SSO) with `authentication.getAuthToken()`. ts-client exchanges the Microsoft Entra token for PlaceOS tokens (RFC 8693 token exchange).
     2. A sign-in window from `authentication.authenticate()`. This window loads the app with `?host=teams-auth` and runs the normal PlaceOS login. Then it sends the PlaceOS token to the tab.
     3. If a host blocks the sign-in window, the tab shows a **Sign in** button. The user selects the button to open the window again.
 
@@ -60,7 +60,7 @@ The Outlook add-in can use the same app registration for single sign-on. It need
 
 The source of the client IDs is [Extend a Teams personal tab across Microsoft 365](https://learn.microsoft.com/en-us/microsoftteams/platform/m365-apps/extend-m365-teams-personal-tab).
 
-**Warning:** The app sends the SSO token to PlaceOS as the bearer token. The PlaceOS backend must accept Microsoft Entra tokens for this app registration. The `aud` claim of the token is the client ID or the Application ID URI. If the backend does not accept the token, the app cannot load the user. In this condition, build the package without `--client-id`.
+**Note:** The PlaceOS backend must accept token exchange for Microsoft Entra tokens from this app registration. The `aud` claim of the token is the client ID or the Application ID URI. If the backend refuses the exchange, the tab uses the sign-in window. In this condition, build the package without `--client-id`.
 
 ## Configure the PlaceOS host
 
@@ -88,7 +88,7 @@ For a test, a user can upload the package in Teams from **Apps** > **Manage your
 
 ## Known limits
 
-- **Token expiry:** The app does not refresh a token that it got from the host. When the token expires, API requests fail. Reload the tab to get a new token. With SSO, this is silent.
+- **Token expiry:** With SSO, ts-client uses the refresh token from the exchange to get a new PlaceOS token. The app does not refresh a token from the sign-in window. When that token expires, API requests fail. Reload the tab to sign in again.
 - **Sign out:** Sign out goes to the PlaceOS logout page in the tab frame. This can fail in the frame.
 - **External links:** `libs/components/src/lib/user-controls.component.ts` and `libs/explore/src/lib/explore-spaces.service.ts` use `window.open()`. Web hosts usually open a new browser tab. Desktop and mobile hosts are not validated. A follow-up can use `app.openLink()` from teams-js in the host.
 - **Classic Outlook for Windows:** Support for Microsoft 365 personal tabs in classic Outlook is not validated.

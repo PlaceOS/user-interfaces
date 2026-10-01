@@ -18,7 +18,6 @@ import {
     setTranslationService,
     setupCache,
     setupPlace,
-    tokenExpiry,
     UploadsService,
     userSignal,
     withTimeout,
@@ -26,7 +25,13 @@ import {
 import { GlobalLoadingComponent } from '@placeos/components';
 import { SettingsDebugPanelLauncherComponent } from '@placeos/components/settings-debug';
 import { mocksInit } from '@placeos/mocks';
-import { invalidateToken, isMock, setToken, token } from '@placeos/ts-client';
+import {
+    exchangeEntraToken,
+    invalidateToken,
+    isMock,
+    setToken,
+    token,
+} from '@placeos/ts-client';
 import { setInternalUserDomain } from '@placeos/users';
 
 import { acquireNaaToken, naaClientId } from './outlook-auth';
@@ -172,19 +177,21 @@ export class AppComponent extends AsyncHandler implements OnInit {
      */
     private async _signInWithOutlook(): Promise<boolean> {
         log('Outlook', `Signing in through Outlook...`);
-        const sso_token = await withTimeout(
+        const sso_signed_in = await withTimeout(
             acquireNaaToken(this._naa_client_id),
             SIGN_IN_TIMEOUT_MS,
             'Microsoft single sign-on timed out.',
-        ).catch((error) => {
-            log('Outlook', 'Single sign-on failed.', error, 'warn');
-            return '';
-        });
-        if (sso_token) {
-            setToken(sso_token, tokenExpiry(sso_token));
-            return true;
-        }
-        return this._signInWithDialog();
+        )
+            .then(async (entra_token) => {
+                if (!entra_token) return false;
+                await exchangeEntraToken(entra_token);
+                return true;
+            })
+            .catch((error) => {
+                log('Outlook', 'Single sign-on failed.', error, 'warn');
+                return false;
+            });
+        return sso_signed_in || this._signInWithDialog();
     }
 
     /**
