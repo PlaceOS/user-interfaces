@@ -8,25 +8,25 @@ import {
 import {
   FooterMenuComponent,
   TopbarComponent
-} from "./chunk-A2PHREFB.js";
-import "./chunk-ZXSIQYYH.js";
-import "./chunk-PYOEDQQA.js";
+} from "./chunk-FV3WZHHL.js";
+import "./chunk-6B6U6IIU.js";
+import "./chunk-LDSTKQDQ.js";
 import {
   generateMockSpace,
   setMinutes
-} from "./chunk-NI6VKMAX.js";
-import "./chunk-WPKSGW46.js";
-import "./chunk-5XT42NNS.js";
+} from "./chunk-CWR4NYI7.js";
+import "./chunk-IPANFR3W.js";
+import "./chunk-QYRW6YJG.js";
 import {
   MatMenu,
   MatMenuItem,
   MatMenuModule,
   MatMenuTrigger
-} from "./chunk-JHJ7EMM6.js";
-import "./chunk-SGCISNEM.js";
-import "./chunk-VGIGJSZ3.js";
-import "./chunk-AVOEXPDN.js";
-import "./chunk-HGFXT6H3.js";
+} from "./chunk-ZL3TEJG4.js";
+import "./chunk-TBWPVHJV.js";
+import "./chunk-62ZSVMDP.js";
+import "./chunk-XBCY5RD5.js";
+import "./chunk-DYKHKVXB.js";
 import {
   MatFormField,
   MatFormFieldModule,
@@ -34,16 +34,16 @@ import {
   MatInputModule,
   MatPrefix,
   setHours
-} from "./chunk-RBHDFYRE.js";
+} from "./chunk-SVUZCM3T.js";
 import "./chunk-2QAVTKHL.js";
 import {
   MatTooltip,
   MatTooltipModule
-} from "./chunk-JIRA3VPG.js";
+} from "./chunk-5TTCACP6.js";
 import {
   TranslatePipe
 } from "./chunk-LQ5W345X.js";
-import "./chunk-DCE2ASO3.js";
+import "./chunk-YXINNA42.js";
 import "./chunk-AGPLBNP6.js";
 import {
   AsyncHandler,
@@ -90,7 +90,7 @@ import {
   teamsSignInRequired,
   user_groups_loaded,
   watchUserGroupSync
-} from "./chunk-CTVAQDSA.js";
+} from "./chunk-44MFYYTK.js";
 import {
   ActivatedRoute,
   Component,
@@ -1284,15 +1284,15 @@ var RedirectComponent = class _RedirectComponent {
 // libs/components/src/lib/settings-debug-panel-launcher.component.ts
 var SettingsDebugPanelLauncherComponent_Defer_25_DepsFn = () => [
   /* @ts-ignore */
-  import("./settings-debug-panel.component-3H3QQRTY.js").then((m) => m.SettingsDebugPanelComponent)
+  import("./settings-debug-panel.component-GHIHQRSK.js").then((m) => m.SettingsDebugPanelComponent)
 ];
 var SettingsDebugPanelLauncherComponent_Defer_28_DepsFn = () => [
   /* @ts-ignore */
-  import("./binding-debug-panel.component-Q24FUFVF.js").then((m) => m.BindingDebugPanelComponent)
+  import("./binding-debug-panel.component-T7BTOEV6.js").then((m) => m.BindingDebugPanelComponent)
 ];
 var SettingsDebugPanelLauncherComponent_Defer_31_DepsFn = () => [
   /* @ts-ignore */
-  import("./debug-console.component-GRPNK5PW.js").then((m) => m.DebugConsoleComponent)
+  import("./debug-console.component-ZQFHFSQQ.js").then((m) => m.DebugConsoleComponent)
 ];
 function SettingsDebugPanelLauncherComponent_Defer_24_Conditional_0_Template(rf, ctx) {
   if (rf & 1) {
@@ -1527,11 +1527,11 @@ var SettingsDebugPanelLauncherComponent = class _SettingsDebugPanelLauncherCompo
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(SettingsDebugPanelLauncherComponent, () => [
     /* @ts-ignore */
-    import("./settings-debug-panel.component-3H3QQRTY.js").then((m) => m.SettingsDebugPanelComponent),
+    import("./settings-debug-panel.component-GHIHQRSK.js").then((m) => m.SettingsDebugPanelComponent),
     /* @ts-ignore */
-    import("./binding-debug-panel.component-Q24FUFVF.js").then((m) => m.BindingDebugPanelComponent),
+    import("./binding-debug-panel.component-T7BTOEV6.js").then((m) => m.BindingDebugPanelComponent),
     /* @ts-ignore */
-    import("./debug-console.component-GRPNK5PW.js").then((m) => m.DebugConsoleComponent)
+    import("./debug-console.component-ZQFHFSQQ.js").then((m) => m.DebugConsoleComponent)
   ], (SettingsDebugPanelComponent, BindingDebugPanelComponent, DebugConsoleComponent) => {
     setClassMetadata(SettingsDebugPanelLauncherComponent, [{
       type: Component,
@@ -10026,7 +10026,7 @@ function mocksInit() {
 // apps/workplace/src/app/app.component.ts
 var AppComponent_Defer_4_DepsFn = () => [
   /* @ts-ignore */
-  import("./chat.component-YLVNAYNT.js").then((m) => m.ChatComponent)
+  import("./chat.component-RCYNLVMK.js").then((m) => m.ChatComponent)
 ];
 function AppComponent_Defer_3_Template(rf, ctx) {
   if (rf & 1) {
@@ -10104,7 +10104,7 @@ var AppComponent = class _AppComponent {
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(AppComponent, () => [
     /* @ts-ignore */
-    import("./chat.component-YLVNAYNT.js").then((m) => m.ChatComponent)
+    import("./chat.component-RCYNLVMK.js").then((m) => m.ChatComponent)
   ], (ChatComponent) => {
     setClassMetadata(AppComponent, [{
       type: Component,
@@ -10304,56 +10304,56 @@ var routes = [
     title: "Home",
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard],
-    loadChildren: () => import("./landing.routes-BIHHI3DP.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./landing.routes-3IW4XNTT.js").then((m) => m.ROUTES)
   },
   {
     path: "book",
     title: "Book",
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard],
-    loadChildren: () => import("./book.routes-7432T3I6.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./book.routes-T2X3T6J5.js").then((m) => m.ROUTES)
   },
   {
     path: "explore",
     title: "Explore",
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard],
-    loadChildren: () => import("./explore.routes-FCPUMWMX.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./explore.routes-AJXDEQGH.js").then((m) => m.ROUTES)
   },
   {
     path: "control",
     title: "Control",
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard],
-    loadChildren: () => import("./control.routes-QD2AYBRN.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./control.routes-JHIJWQME.js").then((m) => m.ROUTES)
   },
   {
     path: "directory",
     title: "Directory",
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard],
-    loadChildren: () => import("./directory.routes-JPAGAZYS.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./directory.routes-OFGMEZAM.js").then((m) => m.ROUTES)
   },
   {
     path: "your-bookings",
     title: "Your Bookings",
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard],
-    loadChildren: () => import("./schedule.routes-ZZEETTR3.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./schedule.routes-U2CWYVGG.js").then((m) => m.ROUTES)
   },
   {
     path: "group-events",
     title: "Group Events",
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard],
-    loadChildren: () => import("./group-events.routes-FHG6Z2CH.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./group-events.routes-4HUDUXQD.js").then((m) => m.ROUTES)
   },
   {
     path: "deals-n-offers",
     title: "Deals & Offers",
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard],
-    loadChildren: () => import("./deals.routes-WIZZYM7J.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./deals.routes-ILWI3UG7.js").then((m) => m.ROUTES)
   },
   {
     path: "embedded/:id",
