@@ -85,6 +85,9 @@ makes the display request use `?preview=true`.
 | Old version running                | `updates.new_version`, `updates.reload_pending` (a reload waits for the network and for play-through content to finish), `updates.last_check`                               |
 | Blank screen after a reboot        | Likely offline boot — check `online`, then whether cached credentials exist                                                                                                 |
 | Player reloading itself            | `watchdog.recent_reloads` and `watchdog.last_error` — something fatal stalled a core loop                                                                                   |
+| Paused and does not resume         | Pause and resume messages are obeyed only from the parent frame. Check what embeds the player and `players[].state`                                                         |
+| Plugin cut short, or held long     | A play-through plugin advances on `finished`, or after a limit. Look for `did not report finished in time` in the console                                                   |
+| Blank screen, no `window.signage`  | The application did not start. Look for `Application failed to start` in the console; it reloads with a backoff                                                             |
 
 ## Recovery watchdog
 
@@ -105,19 +108,24 @@ boot that never completes is most often a bad cached build. That deadline only
 applies once the device has been bootstrapped to a display — one sitting on the
 picker is waiting for a person, not broken.
 
-| Guard                    | Value                                                      |
-| ------------------------ | ---------------------------------------------------------- |
-| Stall thresholds         | poll 10 min, schedule 5 min, playback 3 min, visible 5 min |
-| Boot deadline            | 5 min from start with nothing on screen                    |
-| Grace before recovering  | 5 min                                                      |
-| Recoveries allowed       | 3 per hour, then 1 per hour                                |
-| Back to 3 per hour after | 2 hours with no recovery                                   |
+| Guard | Value |
+| Stall thresholds | poll 10 min, schedule 5 min, playback 3 min, visible 5 min |
+| Boot deadline | 5 min from start with nothing on screen |
+| Grace before recovering | 5 min |
+| Recoveries allowed | 3 per hour, then 1 per hour |
+| Back to 3 per hour after | 2 hours with no recovery |
 
 Once recoveries are throttled the next one clears the application cache first —
 unregistering the service worker and deleting its caches — in case the cached
 build is what is wrong. That only happens if `location.href` returns a 200, so a
 player is never left with no cached application and no way to fetch a new one;
-if the server cannot be reached it falls back to a plain reload.
+if the server cannot be reached it falls back to a plain reload. A server that
+does not answer within 15 seconds counts as unreachable.
+
+A recovery that has not replaced the page after 2 minutes counts as failed: a
+cache clear that hung, or a reload the server never answered. The watchdog then
+reloads again and starts its checks again, inside the same limits, so a failed
+recovery cannot stop the watchdog until someone restarts the device.
 
 A recovery reload does **not** wait for the network, unlike an update reload. A
 stalled player should restart whether or not the backend is up, and it can boot
@@ -132,6 +140,26 @@ Failed initialisation — the app giving up because it cannot load the current
 user — is routed through the same limits, so it cannot restart the player every
 thirty seconds on its own.
 
+The watchdog starts inside the application, so it cannot see a start that fails
+before the application exists. That case has its own retry: the player reloads
+after 10 seconds, and the wait doubles after each consecutive failure to a
+maximum of 5 minutes. The count is in `sessionStorage["SIGNAGE.boot_failures"]`
+and is removed after a successful start.
+
+### Content that holds the screen
+
+A play-through plugin advances when it reports `finished`. If it never sends a
+plugin message (for example, the page did not load), it advances after its
+configured duration, like a static plugin. If it sends messages but never
+reports `finished`, it advances after twice its configured duration, held
+between 5 and 60 minutes. After that limit, it also stops holding back an
+update reload.
+
+Pause and resume messages (US-SIG-024) are obeyed only from the parent frame.
+Webpages and plugins on screen cannot pause the player. This is important
+because a paused player still checks in with the watchdog, so the watchdog does
+not recover it.
+
 `watchdog.booted`, `watchdog.recoveries_throttled` and `watchdog.last_recovery`
 show where in that sequence a player is.
 
@@ -145,15 +173,15 @@ recovered and you want to know what from.
 
 ## Storage
 
-| Location                                               | Holds                                     |
-| ------------------------------------------------------ | ----------------------------------------- |
-| `localStorage["PlaceOS.SIGNAGE.display_details.<id>"]` | Last known display payload, used offline  |
-| `localStorage["PlaceOS.SIGNAGE.cached_files"]`         | Media cache index (urls, sizes, owners)   |
-| `localStorage["PlaceOS.SIGNAGE.display"]`              | Bootstrapped display id                   |
-| `localStorage["PLACEOS.org.*"]`                        | Cached zone data and last known authority |
-| `localStorage["PlaceOS.SIGNAGE.watchdog_reloads"]`     | Timestamps of automatic recoveries        |
-| `sessionStorage["SIGNAGE.debug"]`, `["SIGNAGE.muted"]` | Debug and mute state                      |
-| IndexedDB `SignageMedia` → `files`                     | The cached media files themselves         |
+| Location | Holds |
+| `localStorage["PlaceOS.SIGNAGE.display_details.<id>"]` | Last known display payload, used offline |
+| `localStorage["PlaceOS.SIGNAGE.cached_files"]` | Media cache index (urls, sizes, owners) |
+| `localStorage["PlaceOS.SIGNAGE.display"]` | Bootstrapped display id |
+| `localStorage["PLACEOS.org.*"]` | Cached zone data and last known authority |
+| `localStorage["PlaceOS.SIGNAGE.watchdog_reloads"]` | Timestamps of automatic recoveries |
+| `sessionStorage["SIGNAGE.debug"]`, `["SIGNAGE.muted"]` | Debug and mute state |
+| `sessionStorage["SIGNAGE.boot_failures"]` | Consecutive failed starts, for the backoff |
+| IndexedDB `SignageMedia` → `files` | The cached media files themselves |
 
 ## Resetting
 

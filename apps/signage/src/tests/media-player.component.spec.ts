@@ -765,6 +765,8 @@ describe('MediaPlayerComponent', () => {
         spectator.component.index.set(0);
         spectator.component.active_output.set(0);
         spectator.component.pending_output.set(0);
+        // The current item is on screen, not waiting to be revealed
+        spectator.component['_clearDeferredReveal']();
         spectator.component['_output_items'] = [items[0], null];
         spectator.component['_item_start'] = Date.now() - 6_000;
         spectator.component['_item_real_start'] = Date.now() - 6_000;
@@ -782,6 +784,41 @@ describe('MediaPlayerComponent', () => {
         expect(spectator.component.output_plugins()[1]).toBeNull();
     });
 
+    it('should not preload over an item that is still waiting to be revealed', () => {
+        const items = [
+            create_item('media-1'),
+            create_item('webpage-1', { type: 'webpage', duration: 15_000 }),
+            create_item('webpage-2', { type: 'webpage' }),
+        ];
+        load_playlist(items);
+        spectator.component['_item_urls'] = {
+            'media-1': 'blob:media-1' as any,
+            'webpage-1': 'blob:webpage-1' as any,
+            'webpage-2': 'blob:webpage-2' as any,
+        };
+        spectator.component.index.set(0);
+        spectator.component.hold_over_item.set(false);
+        spectator.component.state.set('PLAYING');
+        spectator.component['clearTimeout']('wait-for-url');
+
+        // The webpage loads into the inactive output while the image stays up
+        spectator.component.setPlaylistItem(1);
+        const pending = spectator.component.pending_output();
+        expect(pending).not.toBe(spectator.component.active_output());
+        expect(spectator.component.defer_reveal()).toBe(true);
+
+        // Its load is slow enough to reach the preload window for the next item
+        spectator.component['_item_real_start'] = Date.now() - 6_000;
+        spectator.component['_processURLs']();
+
+        expect(spectator.component['_output_items'][pending].id).toBe(
+            'webpage-1',
+        );
+        expect(
+            spectator.component['_web_element'](pending).nativeElement.src,
+        ).toBe('blob:webpage-1');
+    });
+
     it('should keep the preloaded webpage output invisible until it is active', () => {
         const items = [
             create_item('webpage-1', {
@@ -796,6 +833,8 @@ describe('MediaPlayerComponent', () => {
         spectator.component.index.set(0);
         spectator.component.active_output.set(0);
         spectator.component.pending_output.set(0);
+        // The current item is on screen, not waiting to be revealed
+        spectator.component['_clearDeferredReveal']();
         spectator.component['_output_items'] = [items[0], null];
         spectator.component['_item_start'] = Date.now() - 6_000;
         spectator.component['_item_real_start'] = Date.now() - 6_000;
@@ -842,6 +881,8 @@ describe('MediaPlayerComponent', () => {
         spectator.component.index.set(0);
         spectator.component.active_output.set(0);
         spectator.component.pending_output.set(0);
+        // The current item is on screen, not waiting to be revealed
+        spectator.component['_clearDeferredReveal']();
         spectator.component['_output_items'] = [items[0], null];
         spectator.component['_item_start'] = Date.now() - 6_000;
         spectator.component['_item_real_start'] = Date.now() - 6_000;
@@ -1164,6 +1205,79 @@ describe('MediaPlayerComponent', () => {
 
         expect(spectator.component['_playback_duration']).toBe(20_000);
         expect(spectator.component['_item_start']).toBe(5_000);
+    });
+
+    describe('play-through plugins', () => {
+        const play_through = () =>
+            create_item('plugin-1', {
+                type: 'plugin',
+                duration: 20_000,
+                plugin: {
+                    id: 'plugin-1',
+                    name: 'Story',
+                    uri: 'https://plugins.example/story',
+                    playback_type: 'playsthrough',
+                } as any,
+            });
+
+        /** Show the plugin, ahead of an image, as though playback started `ago` ms back */
+        const show = (ago: number) => {
+            load_playlist([play_through(), create_item('image-1')]);
+            spectator.component.index.set(0);
+            spectator.component.state.set('PLAYING');
+            spectator.component['_item_start'] = Date.now() - ago;
+            return spectator.component['_item_output'].get('plugin-1');
+        };
+
+        it('should advance when the plugin reports it finished', () => {
+            const output = show(1_000);
+            const next_item_spy = vi
+                .spyOn(spectator.component, 'nextItem')
+                .mockImplementation(() => undefined);
+            spectator.component.onPluginStatus('ready', output);
+
+            spectator.component['_updateItem']();
+            expect(next_item_spy).not.toHaveBeenCalled();
+
+            spectator.component.onPluginStatus('finished', output);
+            spectator.component['_updateItem']();
+            expect(next_item_spy).toHaveBeenCalled();
+        });
+
+        it('should advance after a bound when a running plugin never finishes', () => {
+            const output = show(1_000);
+            const next_item_spy = vi
+                .spyOn(spectator.component, 'nextItem')
+                .mockImplementation(() => undefined);
+            spectator.component.onPluginStatus('ready', output);
+
+            // Well past its scheduled duration, but it may legitimately run long
+            spectator.component['_item_start'] = Date.now() - 4 * 60_000;
+            spectator.component['_updateItem']();
+            expect(next_item_spy).not.toHaveBeenCalled();
+            expect(spectator.component.isMidPlayThroughItem()).toBe(true);
+
+            spectator.component['_item_start'] = Date.now() - 5 * 60_000 - 1;
+            spectator.component['_updateItem']();
+            expect(next_item_spy).toHaveBeenCalled();
+            // Nor does it hold back an update any longer
+            expect(spectator.component.isMidPlayThroughItem()).toBe(false);
+        });
+
+        it('should advance after its duration when the plugin never responds', () => {
+            show(1_000);
+            const next_item_spy = vi
+                .spyOn(spectator.component, 'nextItem')
+                .mockImplementation(() => undefined);
+
+            spectator.component['_item_start'] = Date.now() - 19_000;
+            spectator.component['_updateItem']();
+            expect(next_item_spy).not.toHaveBeenCalled();
+
+            spectator.component['_item_start'] = Date.now() - 20_001;
+            spectator.component['_updateItem']();
+            expect(next_item_spy).toHaveBeenCalled();
+        });
     });
 
     it('should clear the plugin output and skip on a fatal plugin error', () => {

@@ -71,7 +71,19 @@ const MAX_RECOVERIES_PER_WINDOW = 3;
 const RECOVERY_THROTTLE_MS = 60 * MINUTES;
 /** Quiet period after which the recovery history is forgotten */
 const RECOVERY_RESET_MS = 2 * 60 * MINUTES;
+/** Longest wait for the server check before clearing the application cache */
+const REACHABLE_TIMEOUT_MS = 15 * SECONDS;
+/**
+ * How long a recovery may take before it counts as failed. A reload that
+ * works replaces the page well before this.
+ */
+const RECOVERY_TIMEOUT_MS = 2 * MINUTES;
 const RECOVERY_KEY = 'PlaceOS.SIGNAGE.watchdog_reloads';
+/** Consecutive failed application starts, for the boot retry backoff */
+const BOOT_FAILURES_KEY = 'SIGNAGE.boot_failures';
+/** First wait before reloading after a failed start; doubles each time */
+const BOOT_RETRY_BASE_MS = 10 * SECONDS;
+const BOOT_RETRY_MAX_MS = 5 * MINUTES;
 
 const log = scoped_log('Watchdog');
 
@@ -112,6 +124,7 @@ let _stalled_since = 0;
 let _last_check = 0;
 let _started_at = 0;
 let _timer: ReturnType<typeof setInterval> | undefined;
+let _recovery_timer: ReturnType<typeof setTimeout> | undefined;
 let _listening = false;
 let _recovering = false;
 let _reload: () => void = () => location.reload();
@@ -218,7 +231,8 @@ function resetHeartbeats(now: number) {
  * Reload, clearing the application cache first. Used once plain reloads have
  * failed to shift the problem, in case the cached build is what is wrong.
  * Only clears the cache when the server can be reached, so a player is never
- * left with no cached application and no way to fetch a new one.
+ * left with no cached application and no way to fetch a new one. A server
+ * that accepts the request but never answers counts as unreachable.
  *
  * Reloads the current URL rather than navigating to the base path: the route
  * that says which display to show, and whether to show it in debug mode, is in
@@ -227,11 +241,18 @@ function resetHeartbeats(now: number) {
  */
 export async function clearCachesAndReload(): Promise<boolean> {
     let reachable = false;
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), REACHABLE_TIMEOUT_MS);
     try {
-        const response = await fetch(location.href, { cache: 'reload' });
+        const response = await fetch(location.href, {
+            cache: 'reload',
+            signal: controller.signal,
+        });
         reachable = response.ok;
     } catch {
         reachable = false;
+    } finally {
+        clearTimeout(timeout);
     }
     if (!reachable) {
         log.warn('Server unreachable; not clearing the application cache.');
@@ -318,15 +339,27 @@ function recover(now: number, reasons: string[], prefer_hard: boolean) {
         last_error: _last_error,
     });
     _recovering = true;
+    // If the page is still here after the timeout, the reload never happened:
+    // a cache clear that hung, or a navigation the server never answered.
+    // Reload again and let the checks run, so a failed recovery cannot leave
+    // the watchdog latched off until someone power-cycles the device.
+    clearTimeout(_recovery_timer);
+    _recovery_timer = setTimeout(() => {
+        log.error('Recovery did not reload the page; trying again.');
+        _recovering = false;
+        _reload();
+    }, RECOVERY_TIMEOUT_MS);
     // Only clear the application cache when the server can serve a
     // replacement; `hardReload` checks that and reports back.
     if (!prefer_hard && !throttled) {
         _reload();
         return true;
     }
-    _hard_reload().then((cleared) => {
-        if (!cleared) _reload();
-    });
+    _hard_reload()
+        .catch(() => false)
+        .then((cleared) => {
+            if (!cleared) _reload();
+        });
     return true;
 }
 
@@ -371,6 +404,10 @@ export function startWatchdog(actions: WatchdogActions = {}) {
 export function stopWatchdog() {
     if (_timer) clearInterval(_timer);
     _timer = undefined;
+    // The latch must not outlive the timer that releases it
+    clearTimeout(_recovery_timer);
+    _recovery_timer = undefined;
+    _recovering = false;
     if (_listening) {
         _listening = false;
         window.removeEventListener('error', onWindowError);
@@ -436,6 +473,45 @@ export function watchdogState() {
             content: asTime(heartbeats.content),
         },
     };
+}
+
+/**
+ * Reload after the application failed to start. The watchdog starts inside
+ * the application, so a start that fails never reaches it and nothing else
+ * would recover the blank screen. The wait doubles with each consecutive
+ * failure, up to a cap, and the count lives in session storage so it survives
+ * the reloads it causes. Returns the wait in milliseconds.
+ */
+export function scheduleBootRetry(
+    reload: () => void = () => location.reload(),
+) {
+    let failures = 0;
+    try {
+        failures = Number(sessionStorage.getItem(BOOT_FAILURES_KEY)) || 0;
+        sessionStorage.setItem(BOOT_FAILURES_KEY, `${failures + 1}`);
+    } catch {
+        // Ignore privacy-mode failures; retry at the base delay.
+    }
+    const delay = Math.min(
+        BOOT_RETRY_BASE_MS * 2 ** Math.min(failures, 10),
+        BOOT_RETRY_MAX_MS,
+    );
+    // Not the scoped log: it prints only once settings enable debug, and
+    // settings never load when the application fails to start.
+    console.error(
+        `[Watchdog] Application failed to start; reloading in ${delay / 1000}s.`,
+    );
+    setTimeout(reload, delay);
+    return delay;
+}
+
+/** Forget earlier failed starts. Called once the application has started. */
+export function resetBootRetries() {
+    try {
+        sessionStorage.removeItem(BOOT_FAILURES_KEY);
+    } catch {
+        // Ignore privacy-mode failures.
+    }
 }
 
 function onWindowError(event: ErrorEvent) {

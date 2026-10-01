@@ -38,6 +38,7 @@ The Signage app is a kiosk-style digital signage player. It bootstraps a device 
 - The app also reads `OSK.enabled` from localStorage and enables the virtual keyboard when the value is `true`.
 - The bootstrap screen can clear stored signage bootstrap data when opened with `?clear=true`.
 - Clearing removes both the current display key and the legacy `PlaceOS.SIGNAGE.building` key.
+- If the application fails to start, it reloads after 10 seconds. The wait doubles after each consecutive failure, to a maximum of 5 minutes, and resets after a successful start.
 
 ---
 
@@ -161,6 +162,7 @@ The Signage app is a kiosk-style digital signage player. It bootstraps a device 
 - Webpage items play for their configured effective duration.
 - A single valid webpage item remains loaded instead of reloading on every loop.
 - Upcoming webpage items can be preloaded on the inactive output shortly before transition.
+- Preloading does not start while the current item is still waiting to be revealed or is in transition.
 - Webpage media is not cached as a local file.
 
 ---
@@ -179,6 +181,8 @@ The Signage app is a kiosk-style digital signage player. It bootstraps a device 
 - If a plugin does not report load or ready, the player sends config after a 15 second wait.
 - Static plugins follow the configured effective duration.
 - Play-through plugins advance when they report `finished`.
+- A play-through plugin that never sends a plugin message advances after its configured duration, like a static plugin.
+- A play-through plugin that does not report `finished` advances after twice its configured duration, but not before 5 minutes and not after 60 minutes.
 - Interactive plugins can request a new playback duration through plugin interaction events.
 - Upcoming plugin items can be preloaded on the inactive output shortly before transition.
 - Fatal plugin errors advance to the next media item.
@@ -425,6 +429,8 @@ The Signage app is a kiosk-style digital signage player. It bootstraps a device 
 **Acceptance Criteria:**
 
 - The signage panel listens for object postMessage payloads.
+- Only messages from the parent frame are accepted. Messages from other windows, such as webpage or plugin content on screen, are ignored.
+- A player that is not in a frame ignores all pause and resume messages.
 - A payload with `type: 'signage:pause'` pauses all player instances.
 - A payload with `type: 'signage:resume'` resumes all player instances.
 - Unknown payloads are ignored.
@@ -483,6 +489,7 @@ The Signage app is a kiosk-style digital signage player. It bootstraps a device 
 - Object URLs outside the nearby window are revoked.
 - If an active item's URL is not ready, the player waits and retries item selection.
 - Webpage and plugin outputs are prepared on the inactive layer near the end of the current item so they can be revealed after loading.
+- An item that is still waiting to be revealed keeps its output. The next item is not prepared until the current item is on screen.
 
 ---
 

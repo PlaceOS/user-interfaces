@@ -249,7 +249,13 @@ export class SignageTemplateComponent extends AsyncHandler implements OnInit {
         );
     }
 
+    /**
+     * Unsaved layouts from the manager preview, which embeds the player in an
+     * iframe. Only the parent frame is listened to, so content on screen
+     * cannot replace the layout.
+     */
     private readonly _preview_message_handler = (event: MessageEvent) => {
+        if (window.parent === window || event?.source !== window.parent) return;
         const data = event?.data;
         if (!this.debug() || data?.type !== PREVIEW_LAYOUTS_MESSAGE) return;
         this._preview_layouts.set(
@@ -260,9 +266,11 @@ export class SignageTemplateComponent extends AsyncHandler implements OnInit {
     /**
      * Ask the embedding manager preview for its unsaved layouts. The manager
      * cannot know when this listener is ready, so the player asks first.
+     * Only previews run in debug mode, so a player embedded anywhere else
+     * says nothing to its parent.
      */
     private _requestPreviewLayouts() {
-        if (window.parent === window) return;
+        if (!this.debug() || window.parent === window) return;
         window.parent.postMessage({ type: PREVIEW_READY_MESSAGE }, '*');
     }
 

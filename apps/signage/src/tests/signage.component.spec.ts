@@ -7,6 +7,7 @@ import {
 import { SettingsService } from '@placeos/common';
 import { MockProvider } from 'ng-mocks';
 
+import { MediaPlayerComponent } from '../app/media-player.component';
 import { SignagePanelComponent } from '../app/signage.component';
 import { SignageService } from '../app/signage.service';
 
@@ -249,6 +250,52 @@ describe('SignagePanelComponent', () => {
         expect(signage_service.storeMetricEvent).toHaveBeenCalledWith({
             type: 'playlist_through',
             ref_id: 'playlist-1',
+        });
+    });
+
+    describe('remote playback commands', () => {
+        let shell_frame: HTMLIFrameElement;
+        let shell: Window;
+
+        const post = (type: string, source: Window) =>
+            window.dispatchEvent(
+                new MessageEvent('message', { data: { type }, source }),
+            );
+
+        const player_state = () =>
+            spectator.query(MediaPlayerComponent)?.state();
+
+        beforeEach(() => {
+            // Stand in for a shell that embeds the player in an iframe
+            shell_frame = document.createElement('iframe');
+            document.body.appendChild(shell_frame);
+            shell = shell_frame.contentWindow as Window;
+            vi.spyOn(window, 'parent', 'get').mockReturnValue(shell);
+            build_component();
+        });
+
+        afterEach(() => {
+            vi.restoreAllMocks();
+            shell_frame.remove();
+        });
+
+        it('should pause and resume when the parent shell asks', () => {
+            post('signage:pause', shell);
+            expect(player_state()).toBe('PAUSED');
+
+            post('signage:resume', shell);
+            expect(player_state()).toBe('PLAYING');
+        });
+
+        it('should ignore commands from any other window', () => {
+            const content_frame = document.createElement('iframe');
+            document.body.appendChild(content_frame);
+
+            post('signage:pause', content_frame.contentWindow as Window);
+            post('signage:pause', window);
+
+            expect(player_state()).toBe('PLAYING');
+            content_frame.remove();
         });
     });
 
