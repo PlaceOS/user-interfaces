@@ -4,7 +4,7 @@ import {
   inject,
   setClassMetadata,
   ɵɵdefinePipe
-} from "./chunk-UWCCVAW2.js";
+} from "./chunk-GNDQKMJ4.js";
 
 // libs/components/src/lib/sanitise.pipe.ts
 var SecurityContext;
@@ -53,4 +53,4 @@ export {
   SanitizePipe
 };
 //# debugId=aad6f9d1-3a37-5f73-8964-552ec4547f14
-//# sourceMappingURL=chunk-XOMJFAYB.js.map
+//# sourceMappingURL=chunk-QKZQHPKZ.js.map
