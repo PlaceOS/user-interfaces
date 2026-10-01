@@ -110,6 +110,24 @@ describe('SignageService playlist search', () => {
         expect(service.playlists_has_more()).toBe(false);
     });
 
+    it('loads the list again after a failed request', async () => {
+        (querySignagePlaylists as any).mockRejectedValue(new Error('offline'));
+        const service = TestBed.inject(SignageService);
+        TestBed.tick();
+        await flush();
+        expect(service.playlists_error()).toBe(true);
+
+        (querySignagePlaylists as any).mockResolvedValue(pageOf(['news']));
+        service.reloadPlaylists();
+        TestBed.tick();
+        await flush();
+
+        expect(service.playlists_error()).toBe(false);
+        expect(service.filtered_playlists().map(({ id }) => id)).toEqual([
+            'news',
+        ]);
+    });
+
     it('keeps loaded playlists available for id lookups while searching', async () => {
         const service = await init();
         expect(service.playlists().map((item: any) => item.id)).toEqual([

@@ -16,6 +16,12 @@ const notify_open = vi.fn(() => ({
     dismiss: vi.fn(),
 }));
 
+/** Let the versions request, which Angular does not track, settle */
+async function flushVersions(fixture: { whenStable: () => Promise<unknown> }) {
+    await fixture.whenStable();
+    await new Promise((resolve) => setTimeout(resolve));
+}
+
 describe('PlaylistRequestApprovalModalComponent', () => {
     const dialog_ref = {
         close: vi.fn(),
@@ -55,6 +61,7 @@ describe('PlaylistRequestApprovalModalComponent', () => {
                 items: ['media-2'],
                 media: [{ id: 'media-2', name: 'Media 2' }],
                 updated_at: 2,
+                approved: true,
             },
         ]);
         (updateSignagePlaylistMedia as any).mockResolvedValue({});
@@ -118,7 +125,7 @@ describe('PlaylistRequestApprovalModalComponent', () => {
 
         component.togglePreview();
         fixture.detectChanges();
-        await fixture.whenStable();
+        await flushVersions(fixture);
         fixture.detectChanges();
 
         expect(fixture.nativeElement.textContent).toContain('New Version');
@@ -139,7 +146,7 @@ describe('PlaylistRequestApprovalModalComponent', () => {
 
         component.togglePreview();
         fixture.detectChanges();
-        await fixture.whenStable();
+        await flushVersions(fixture);
         fixture.detectChanges();
 
         expect(fixture.nativeElement.textContent).not.toContain('Approver');
@@ -153,6 +160,24 @@ describe('PlaylistRequestApprovalModalComponent', () => {
         expect(fixture.nativeElement.textContent).toContain('New Version');
     });
 
+    it('shows an error, not empty versions, when the versions fail to load', async () => {
+        (listSignagePlaylistMediaRevisions as any).mockRejectedValue(
+            new Error('Forbidden'),
+        );
+        const fixture = TestBed.createComponent(
+            PlaylistRequestApprovalModalComponent,
+        );
+        fixture.componentInstance.togglePreview();
+        fixture.detectChanges();
+        await flushVersions(fixture);
+        fixture.detectChanges();
+
+        const text = fixture.nativeElement.textContent;
+        expect(text).toContain('Could not load the playlist versions.');
+        expect(text).not.toContain('New Version');
+        expect(text).not.toContain('Undo Changes');
+    });
+
     it('shows fallback icons in preview lists', async () => {
         const fixture = TestBed.createComponent(
             PlaylistRequestApprovalModalComponent,
@@ -160,7 +185,7 @@ describe('PlaylistRequestApprovalModalComponent', () => {
         const component = fixture.componentInstance;
         component.togglePreview();
         fixture.detectChanges();
-        await fixture.whenStable();
+        await flushVersions(fixture);
         fixture.detectChanges();
 
         expect(fixture.nativeElement.textContent).toContain('extension');
@@ -173,7 +198,7 @@ describe('PlaylistRequestApprovalModalComponent', () => {
         const component = fixture.componentInstance;
         component.togglePreview();
         fixture.detectChanges();
-        await fixture.whenStable();
+        await flushVersions(fixture);
         fixture.detectChanges();
 
         expect(fixture.nativeElement.textContent).toContain('Undo Changes');
@@ -187,7 +212,7 @@ describe('PlaylistRequestApprovalModalComponent', () => {
         const component = fixture.componentInstance;
         component.togglePreview();
         fixture.detectChanges();
-        await fixture.whenStable();
+        await flushVersions(fixture);
         fixture.detectChanges();
 
         expect(fixture.nativeElement.textContent).not.toContain('Undo Changes');

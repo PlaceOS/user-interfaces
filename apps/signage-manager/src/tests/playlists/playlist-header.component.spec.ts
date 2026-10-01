@@ -4,11 +4,11 @@ import { PlaylistHeaderComponent } from '../../app/playlists/playlist-header.com
 import { SignageService } from '../../app/signage.service';
 
 describe('PlaylistHeaderComponent', () => {
-    const filtered_playlists = signal<any[]>([]);
+    const playlists_total = signal(0);
     const can_create = signal(false);
     const add_playlist = vi.fn();
     const service_stub = {
-        filtered_playlists,
+        playlists_total,
         can_create,
         addPlaylist: add_playlist,
     };
@@ -28,14 +28,14 @@ describe('PlaylistHeaderComponent', () => {
 
     beforeEach(() => {
         vi.clearAllMocks();
-        filtered_playlists.set([]);
+        playlists_total.set(0);
         can_create.set(false);
     });
 
-    it('counts the filtered playlists', async () => {
-        filtered_playlists.set([{ id: 'a' }, { id: 'b' }, { id: 'c' }]);
+    it('counts every matching playlist, not only the loaded pages', async () => {
+        playlists_total.set(450);
         const component = await make();
-        expect(component.total_count()).toBe(3);
+        expect(component.total_count()).toBe(450);
     });
 
     it('mirrors the service create permission', async () => {

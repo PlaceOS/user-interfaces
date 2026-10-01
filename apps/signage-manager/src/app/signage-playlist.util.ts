@@ -132,6 +132,27 @@ export function playlistMediaItems(list: {
         : media;
 }
 
+/**
+ * Apply a new order of the shown playlist items to the saved item ids.
+ * Items that do not resolve to media are not shown, so they keep their
+ * position instead of being dropped from the playlist.
+ * @param item_ids Saved item ids of the playlist
+ * @param ordered_ids Ids of the shown items, in the new order
+ */
+export function reorderPlaylistItemIds(
+    item_ids: string[],
+    ordered_ids: string[],
+) {
+    if (!item_ids.length) return [...ordered_ids];
+    const shown_ids = new Set(ordered_ids);
+    let next_index = 0;
+    return item_ids.map((id) =>
+        shown_ids.has(id) && next_index < ordered_ids.length
+            ? ordered_ids[next_index++]
+            : id,
+    );
+}
+
 export function playlistMediaIds(list: {
     items?: string[];
     media?: SignageMedia[];

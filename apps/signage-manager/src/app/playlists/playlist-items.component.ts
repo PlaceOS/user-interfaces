@@ -15,7 +15,6 @@ import { MatRippleModule } from '@angular/material/core';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { Router } from '@angular/router';
 import { i18n } from '@placeos/common';
 import {
     IconComponent,
@@ -35,6 +34,7 @@ import {
     playlistScheduleNextPlayLabels,
 } from '../signage-playlist.util';
 import { SignageService } from '../signage.service';
+import { PlaylistActionsComponent } from './playlist-actions.component';
 
 @Component({
     selector: 'playlist-items',
@@ -49,124 +49,7 @@ import { SignageService } from '../signage.service';
                         {{ selected_playlist().name }}
                     </h4>
                 </div>
-                @if (requires_approval()) {
-                    @if (can_approve()) {
-                        <button
-                            icon
-                            default
-                            type="button"
-                            matRipple
-                            [matTooltip]="
-                                'SIGNAGE_MANAGER.APPROVE_PLAYLIST_TOOLTIP'
-                                    | translate
-                            "
-                            (click)="approvePlaylist()"
-                            [attr.aria-label]="
-                                'SIGNAGE_MANAGER.APPROVE_SELECTED_PLAYLIST'
-                                    | translate
-                            "
-                        >
-                            <icon class="text-warning">order_approve</icon>
-                        </button>
-                    } @else {
-                        <button
-                            icon
-                            default
-                            type="button"
-                            matRipple
-                            [matTooltip]="
-                                'SIGNAGE_MANAGER.REQUEST_PLAYLIST_APPROVAL_TOOLTIP'
-                                    | translate
-                            "
-                            (click)="requestApproval()"
-                            [disabled]="approval_request_loading()"
-                            [attr.aria-label]="
-                                'SIGNAGE_MANAGER.REQUEST_APPROVAL_SELECTED'
-                                    | translate
-                            "
-                        >
-                            @if (approval_request_loading()) {
-                                <mat-spinner diameter="20" />
-                            } @else {
-                                <icon class="text-warning">approval</icon>
-                            }
-                        </button>
-                    }
-                }
-                @if (can_update()) {
-                    <button
-                        icon
-                        default
-                        type="button"
-                        matRipple
-                        [matTooltip]="
-                            'SIGNAGE_MANAGER.EDIT_PLAYLIST_TOOLTIP' | translate
-                        "
-                        (click)="editPlaylist()"
-                        [attr.aria-label]="
-                            'SIGNAGE_MANAGER.EDIT_SELECTED_PLAYLIST' | translate
-                        "
-                    >
-                        <icon>edit</icon>
-                    </button>
-                }
-                @if (can_create()) {
-                    <button
-                        icon
-                        default
-                        type="button"
-                        matRipple
-                        [matTooltip]="
-                            'SIGNAGE_MANAGER.DUPLICATE_PLAYLIST_TOOLTIP'
-                                | translate
-                        "
-                        (click)="duplicatePlaylist()"
-                        [attr.aria-label]="
-                            'SIGNAGE_MANAGER.DUPLICATE_SELECTED_PLAYLIST'
-                                | translate
-                        "
-                    >
-                        <icon>content_copy</icon>
-                    </button>
-                }
-                @if (can_share()) {
-                    <button
-                        icon
-                        default
-                        type="button"
-                        matRipple
-                        [matTooltip]="
-                            'SIGNAGE_MANAGER.SHARE_PLAYLIST_TOOLTIP' | translate
-                        "
-                        (click)="sharePlaylist()"
-                        [attr.aria-label]="
-                            'SIGNAGE_MANAGER.SHARE_SELECTED_PLAYLIST'
-                                | translate
-                        "
-                    >
-                        <icon>ios_share</icon>
-                    </button>
-                }
-                @if (can_delete()) {
-                    <button
-                        icon
-                        default
-                        error
-                        type="button"
-                        matRipple
-                        [matTooltip]="
-                            'SIGNAGE_MANAGER.DELETE_PLAYLIST_TOOLTIP'
-                                | translate
-                        "
-                        (click)="removePlaylist()"
-                        [attr.aria-label]="
-                            'SIGNAGE_MANAGER.DELETE_SELECTED_PLAYLIST'
-                                | translate
-                        "
-                    >
-                        <icon>delete</icon>
-                    </button>
-                }
+                <playlist-actions />
             </div>
             @if (!loading() && items().length > 0 && !is_distribution()) {
                 <div
@@ -364,9 +247,10 @@ import { SignageService } from '../signage.service';
                                     : 'unfold_less'
                             }}</icon>
                             <span class="mr-2">{{
-                                allSchedulesCollapsed()
-                                    ? 'Expand all'
-                                    : 'Collapse all'
+                                (allSchedulesCollapsed()
+                                    ? 'COMMON.EXPAND_ALL'
+                                    : 'COMMON.COLLAPSE_ALL'
+                                ) | translate
                             }}</span>
                         </button>
                     </div>
@@ -712,27 +596,22 @@ import { SignageService } from '../signage.service';
         MediaDurationPipe,
         TranslatePipe,
         MediaThumbnailComponent,
+        PlaylistActionsComponent,
     ],
 })
 export class PlaylistItemsComponent {
     private readonly _service = inject(SignageService);
-    private readonly _router = inject(Router);
 
     public readonly selected_playlist = this._service.selected_playlist;
     public readonly selected_item = this._service.selected_playlist_item;
     public readonly selected_item_index =
         this._service.selected_playlist_item_index;
-    public readonly requires_approval =
-        this._service.selected_playlist_requires_approval;
-    public readonly can_approve = this._service.can_approve;
     public readonly can_update = this._service.can_update;
-    public readonly can_create = this._service.can_create;
-    public readonly can_delete = this._service.can_delete;
-    public readonly can_share = this._service.can_share;
-    public readonly loading = this._service.playlist_media_loading;
-    public readonly approval_request_loading =
-        this._service.playlist_approval_request_loading;
     public readonly items = this._service.playlist_media_items;
+    /** Only show the spinner when there are no items to show yet */
+    public readonly loading = computed(
+        () => this._service.playlist_media_loading() && !this.items().length,
+    );
     /** Time in milliseconds to play each item once */
     public readonly loop_duration = computed(() =>
         playlistLoopDuration(
@@ -884,42 +763,6 @@ export class PlaylistItemsComponent {
         }
     }
 
-    public editPlaylist() {
-        const playlist = this.selected_playlist();
-        if (playlist) this._service.editPlaylist(playlist);
-    }
-
-    public removePlaylist() {
-        const playlist = this.selected_playlist();
-        if (playlist) this._service.removePlaylist(playlist);
-    }
-
-    public approvePlaylist() {
-        const playlist = this.selected_playlist();
-        if (playlist) this._service.approvePlaylist(playlist);
-    }
-
-    public requestApproval() {
-        const playlist = this.selected_playlist();
-        if (playlist) this._service.requestPlaylistApproval(playlist);
-    }
-
-    public async duplicatePlaylist() {
-        const playlist = this.selected_playlist();
-        if (!playlist) return;
-        const copy = await this._service.duplicatePlaylist(playlist);
-        if (copy?.id) {
-            void this._router.navigate(['/playlists', copy.id], {
-                queryParamsHandling: 'merge',
-            });
-        }
-    }
-
-    public sharePlaylist() {
-        const playlist = this.selected_playlist();
-        if (playlist) this._service.sharePlaylist(playlist);
-    }
-
     public async removeItem(item: SignageMedia, item_index: number) {
         const playlist = this.selected_playlist();
         if (!playlist?.id || !item?.id) return;
@@ -964,9 +807,10 @@ export class PlaylistItemsComponent {
         if (!this.can_update() || this.is_distribution()) return;
         const playlist = this.selected_playlist();
         if (!playlist?.id) return;
+        if (event.previousIndex === event.currentIndex) return;
         const current_items = [...this.items()];
         moveItemInArray(current_items, event.previousIndex, event.currentIndex);
-        const item_ids = current_items.map((m) => m.id);
-        await this._service.reorderPlaylistMedia(playlist.id, item_ids);
+        const media_ids = current_items.map((m) => m.id);
+        await this._service.reorderPlaylistMedia(playlist.id, media_ids);
     }
 }
