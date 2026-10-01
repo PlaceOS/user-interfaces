@@ -115,6 +115,12 @@ interface CacheFit {
      * budget. `Infinity` evicts every entry the request may evict.
      */
     make_room?: (bytes: number) => Promise<void>;
+    /**
+     * Whether `bytes` more fit in the budget now. Checked again just before
+     * storing, as another download may have used the room since `max_bytes`
+     * was worked out.
+     */
+    fits?: (bytes: number) => boolean;
 }
 
 /** A response body stream, typed as the browser hands it over */
@@ -405,7 +411,7 @@ export class MediaCacheService extends AsyncHandler {
                     }
                 }
             }
-            const fit = this._cacheFit(owner, url_list, budget, prune_others);
+            let fit = this._cacheFit(owner, url_list, budget, prune_others);
             if (!this._mayFit(url, fit.max_bytes)) continue;
             // Stagger requests for uncached resources to avoid overwhelming the network
             if (uncached_count > 0) await delay(STAGGER_DELAY_MS);
@@ -417,6 +423,7 @@ export class MediaCacheService extends AsyncHandler {
                 await this._addOwner(latest, owner);
                 continue;
             }
+            fit = this._cacheFit(owner, url_list, budget, prune_others);
             if (!this._mayFit(url, fit.max_bytes)) continue;
             const { stored, no_room } = await this._cacheFile(url, owner, fit);
             if (!stored && !no_room) failures = true;
@@ -721,6 +728,12 @@ export class MediaCacheService extends AsyncHandler {
             // Wraps the blob without copying it
             file = new File([blob], cache_item.id, { type: blob.type });
             await fit.make_room?.(file.size);
+            if (fit.fits && !fit.fits(file.size)) {
+                throw new NoRoomError(file.size);
+            }
+            // Claim the room before the store yields, so a download storing
+            // at the same time counts it
+            cache_item.size = file.size;
             try {
                 await this._storeFile(cache_item, file, url);
             } catch (e) {
@@ -872,6 +885,13 @@ export class MediaCacheService extends AsyncHandler {
         }
     }
 
+    /** Bytes held by cached entries and those being stored */
+    private _claimedBytes() {
+        return this._cache_index
+            .filter((_) => _.status === 'cached' || _.status === 'storing')
+            .reduce((total, _) => total + (_.size || 0), 0);
+    }
+
     private _cachedBytes() {
         return this._cache_index
             .filter((_) => _.status === 'cached')
@@ -925,6 +945,7 @@ export class MediaCacheService extends AsyncHandler {
                     budget - bytes,
                     prune_other_owners,
                 ),
+            fits: (bytes) => this._claimedBytes() + bytes <= budget,
         };
     }
 

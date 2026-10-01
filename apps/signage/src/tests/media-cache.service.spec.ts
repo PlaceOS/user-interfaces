@@ -1288,6 +1288,33 @@ describe('MediaCacheService', () => {
             ]);
         });
 
+        it('should not let two downloads spend the same room', async () => {
+            spectator.service['_budget_bytes'] = 8;
+            Object.defineProperty(globalThis, 'fetch', {
+                configurable: true,
+                value: vi.fn().mockImplementation(async () =>
+                    streamed_response(
+                        new ReadableStream<Uint8Array>({
+                            start: (controller) => {
+                                controller.enqueue(new Uint8Array(5));
+                                controller.close();
+                            },
+                        }),
+                        5,
+                    ),
+                ),
+            });
+
+            // Each fits on its own when it starts, but not both together
+            await Promise.all([
+                spectator.service.fetchFile('/a.png', 'display-1'),
+                spectator.service.fetchFile('/b.png', 'display-1'),
+            ]);
+
+            expect(stored_files.size).toBe(1);
+            expect(spectator.service.availableFiles()).toHaveLength(1);
+        });
+
         it('should stop playback downloading a file that storage has no room for', async () => {
             const fetch_spy = good_fetch();
             Object.defineProperty(globalThis, 'fetch', {
