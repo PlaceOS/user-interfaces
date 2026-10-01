@@ -1,6 +1,6 @@
 import {
   CustomTooltipComponent
-} from "./chunk-Q7ZG5OVW.js";
+} from "./chunk-GYVTUK6P.js";
 import {
   MatFormField,
   MatFormFieldModule,
@@ -11,24 +11,29 @@ import {
   isDebugEnabled,
   recordHeartbeat,
   watchdogState
-} from "./chunk-4CFGENYP.js";
+} from "./chunk-GQAC24RB.js";
 import {
   MatTooltip,
   MatTooltipModule
-} from "./chunk-WSVA5N7Q.js";
+} from "./chunk-KTIWMXAL.js";
 import {
   TranslatePipe
-} from "./chunk-BOI6PAAM.js";
+} from "./chunk-2JUMPQH3.js";
 import {
+  $r,
   ActivatedRoute,
   AsyncHandler,
+  Ch,
   CommonModule,
   Component,
   DatePipe,
   DefaultValueAccessor,
   DestroyRef,
   ElementRef,
+  Fh,
+  Fi,
   FormsModule,
+  Fp,
   IconComponent,
   Injectable,
   Injector,
@@ -37,7 +42,6 @@ import {
   MINUTES,
   MatRipple,
   MatRippleModule,
-  Mh,
   NG_VALUE_ACCESSOR,
   NgControl,
   NgControlStatus,
@@ -55,15 +59,16 @@ import {
   VERSION,
   ViewChild,
   ViewChildren,
-  Xe,
-  Xr,
   addDays,
   addMonths,
   addYears,
   assertInInjectionContext,
   computed,
+  dl,
   effect,
   endOfDay,
+  eo,
+  et,
   filter,
   firstValueFrom,
   forwardRef,
@@ -79,14 +84,11 @@ import {
   log,
   markUserDateChange,
   model,
-  mr,
   normalizeDates,
   of,
   oi,
-  ol,
   output,
   padLength,
-  pl,
   randomInt,
   randomString,
   scoped_log,
@@ -104,6 +106,7 @@ import {
   toDate,
   toZonedTime,
   u,
+  ul,
   untracked,
   updateCheckState,
   v,
@@ -111,9 +114,6 @@ import {
   viewChildren,
   ws,
   yr,
-  zh,
-  zi,
-  zp,
   ɵsetClassDebugInfo,
   ɵɵInheritDefinitionFeature,
   ɵɵNgOnChangesFeature,
@@ -168,7 +168,7 @@ import {
   ɵɵtwoWayListener,
   ɵɵtwoWayProperty,
   ɵɵviewQuerySignal
-} from "./chunk-ZOYCNKKV.js";
+} from "./chunk-RHCT4JIC.js";
 import {
   __spreadProps,
   __spreadValues
@@ -901,7 +901,7 @@ var MediaCacheService = class _MediaCacheService extends AsyncHandler {
    */
   applyAuthenticationCookie(max_age_seconds = 30) {
     const tkn = J();
-    document.cookie = `${tkn === "x-api-key" ? "api-key=" + encodeURIComponent(Xe()) : "bearer_token=" + encodeURIComponent(tkn)};max-age=${max_age_seconds};path=${UPLOADS_PATH};samesite=strict;${location.protocol === "https:" ? "secure;" : ""}`;
+    document.cookie = `${tkn === "x-api-key" ? "api-key=" + encodeURIComponent(et()) : "bearer_token=" + encodeURIComponent(tkn)};max-age=${max_age_seconds};path=${UPLOADS_PATH};samesite=strict;${location.protocol === "https:" ? "secure;" : ""}`;
   }
   _cacheItem(url) {
     return this._cache_index.find((_) => _.url === url);
@@ -6786,8 +6786,8 @@ var SignageService = class _SignageService extends AsyncHandler {
     };
     let d;
     try {
-      d = await this._withTimeout(Mh(id, query_params, request_options), DISPLAY_FETCH_TIMEOUT_MS);
-      const response_headers = zi(displayRequestURL(id, query_params));
+      d = await this._withTimeout(Ch(id, query_params, request_options), DISPLAY_FETCH_TIMEOUT_MS);
+      const response_headers = Fi(displayRequestURL(id, query_params));
       this._etag = response_headers.etag || "";
       this._last_modified = response_headers["last-modified"] || "";
     } catch (e) {
@@ -6809,7 +6809,7 @@ var SignageService = class _SignageService extends AsyncHandler {
   _bindTriggers(display) {
     const triggers = Object.keys(display.playlist_mappings || {}).filter((_) => _.startsWith("trig-"));
     this.unsubWith("trigger_");
-    const mod = zp(display.id, "_TRIGGER__1");
+    const mod = Fp(display.id, "_TRIGGER__1");
     for (const id of triggers) {
       const binding = mod.variable(id);
       this.subscription(`trigger_listen-${id}`, binding.bindThenSubscribe(() => this._handleTrigger(id)));
@@ -7142,7 +7142,7 @@ var SignageService = class _SignageService extends AsyncHandler {
     try {
       return __spreadProps(__spreadValues({}, source), {
         playlist_media: source.playlist_media?.map((_) => new ws(_)) || [],
-        plugins: source.plugins?.map((_) => new mr(_)) || []
+        plugins: source.plugins?.map((_) => new gr(_)) || []
       });
     } catch (e) {
       log3.error("Failed to parse display media.", e);
@@ -7158,7 +7158,7 @@ var SignageService = class _SignageService extends AsyncHandler {
     const unresolved_plugin = plugin_ids?.some((id) => !display_plugins.find((plugin) => plugin.id === id && plugin.uri));
     if (!unresolved_plugin)
       return Promise.resolve(display_plugins);
-    return ol({ limit: 500 }).catch(() => ({ data: [] })).then((result) => {
+    return ul({ limit: 500 }).catch(() => ({ data: [] })).then((result) => {
       const plugins = /* @__PURE__ */ new Map();
       for (const plugin of result.data || []) {
         if (plugin?.id)
@@ -7625,7 +7625,7 @@ var SignagePanelComponent = class _SignagePanelComponent extends AsyncHandler {
         hash: VERSION.hash,
         built: new Date(VERSION.time).toISOString()
       },
-      online: Xr(),
+      online: eo(),
       updates: updateCheckState()
     }, this._signage.diagnostics()), {
       players: this._players().map((player, index) => ({
@@ -8030,7 +8030,7 @@ var SignageTemplateComponent = class _SignageTemplateComponent extends AsyncHand
     this._template_mappings = computed(
       () => {
         const template_id = this._route_template_id();
-        return template_id ? [new yr({ template_id })] : this._signage.active_templates();
+        return template_id ? [new $r({ template_id })] : this._signage.active_templates();
       },
       ...ngDevMode ? [{ debugName: "_template_mappings" }] : (
         /* istanbul ignore next */
@@ -8133,22 +8133,22 @@ var SignageTemplateComponent = class _SignageTemplateComponent extends AsyncHand
     try {
       const candidates = await Promise.all(mappings.map(async (mapping) => ({
         mapping,
-        template: await pl(mapping.template_id, this.debug() ? {} : { approved: true })
+        template: await dl(mapping.template_id, this.debug() ? {} : { approved: true })
       })));
       const non_merge = candidates.filter(({ template: template2 }) => !template2.merge);
       const merge = candidates.filter(({ template: template2 }) => template2.merge);
       const base = non_merge.filter(({ mapping }) => mapping.schedule).at(-1) || non_merge[0] || merge.shift();
       if (!base || load_id !== this._load_id)
         return;
-      const template = merge.length ? new gr(__spreadProps(__spreadValues({}, base.template), {
+      const template = merge.length ? new yr(__spreadProps(__spreadValues({}, base.template), {
         layouts: [
           ...base.template.layouts,
           ...merge.flatMap(({ template: template2 }) => template2.layouts)
         ]
       })) : base.template;
       const [plugin_result, background] = await Promise.all([
-        ol({ limit: 500 }).catch(() => ({ data: [] })),
-        template.background_item_id ? zh(template.background_item_id).catch(() => null) : null
+        ul({ limit: 500 }).catch(() => ({ data: [] })),
+        template.background_item_id ? Fh(template.background_item_id).catch(() => null) : null
       ]);
       const plugins = plugin_result.data || [];
       if (load_id !== this._load_id)
@@ -8248,4 +8248,4 @@ export {
   SignageTemplateComponent
 };
 //# debugId=730f0088-74d9-572a-902c-a768f142f43d
-//# sourceMappingURL=template.component-QP3HSNJC.js.map
+//# sourceMappingURL=template.component-EZQSQVYG.js.map
