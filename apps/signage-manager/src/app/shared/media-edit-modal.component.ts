@@ -16,7 +16,11 @@ import {
     submit,
     validate,
 } from '@angular/forms/signals';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import {
+    MAT_DIALOG_DATA,
+    MatDialog,
+    MatDialogRef,
+} from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -68,12 +72,17 @@ import {
 } from '../signage-url.util';
 import { SignageSharedWithComponent } from './signage-shared-with.component';
 
+/** Media fields the modal saves. `thumbnail_image` is a picked image as a
+ * data URL, which the service uploads before it saves the item. */
+export type MediaEditChanges = {
+    -readonly [K in keyof SignageMedia]?: SignageMedia[K];
+} & { thumbnail_image?: string };
+
 export interface MediaEditModalData {
     media: SignageMedia;
     file?: File;
     file_metadata?: SignageMediaMetadata;
     file_thumbnail?: string;
-    playlist_id?: string;
     /** Signage group the media is being viewed from */
     group_id?: string;
     plugin?: SignagePlugin;
@@ -89,9 +98,13 @@ export interface MediaEditModalData {
         /** Supplies a thumbnail when the server screenshot fails */
         fallback_thumbnail?: () => Promise<string>,
     ) => Promise<SignageMedia>;
-    onEdit: (id: string, data: any) => Promise<void>;
-    preview: (item: any) => void;
+    onEdit: (id: string, data: MediaEditChanges) => Promise<void>;
+    preview: (item: SignageMedia) => void;
 }
+
+/** Focus targets where a plain key press belongs to the control, not a hotkey */
+const HOTKEY_BLOCKING_FOCUS =
+    'select, mat-select, [role="combobox"], [role="listbox"], [role="option"], [role="menu"], [role="menuitem"]';
 
 interface MediaEditFormModel {
     name: string;
@@ -512,6 +525,7 @@ export class MediaEditModalComponent implements OnDestroy {
     private _data = inject<MediaEditModalData>(MAT_DIALOG_DATA);
     private _dialog_ref =
         inject<MatDialogRef<MediaEditModalComponent>>(MatDialogRef);
+    private readonly _dialog = inject(MatDialog);
 
     @ViewChild(SchemaFormComponent) public schema_form: SchemaFormComponent;
 
@@ -578,13 +592,16 @@ export class MediaEditModalComponent implements OnDestroy {
     private _preview_url_timeout?: ReturnType<typeof setTimeout>;
 
     public readonly preview = () =>
-        this._data.preview({
-            media_uri: this.url,
-            media_type: this.media_type,
-            name: this.model().name,
-            plugin_id: this.item.plugin_id || this.plugin()?.id,
-            plugin_params: this.plugin_config(),
-        });
+        this._data.preview(
+            // No id: this previews the unsaved form, not the stored item
+            new SignageMedia({
+                media_uri: this.url,
+                media_type: this.media_type,
+                name: this.model().name,
+                plugin_id: this.item.plugin_id || this.plugin()?.id,
+                plugin_params: this.plugin_config(),
+            }),
+        );
 
     public readonly plugin_config = computed(() => ({
         ...(this.plugin()?.defaults || {}),
@@ -635,9 +652,9 @@ export class MediaEditModalComponent implements OnDestroy {
     }
 
     constructor() {
-        const save_hotkey = inject(HotkeysService).listen(['KeyS'], () =>
-            this.saveMedia(),
-        );
+        const save_hotkey = inject(HotkeysService).listen(['KeyS'], () => {
+            if (this._canUseSaveHotkey()) this.saveMedia();
+        });
         inject(DestroyRef).onDestroy(() => save_hotkey?.unsubscribe());
         if (this.media_type === 'webpage') {
             this.preview_url.set(
@@ -677,6 +694,16 @@ export class MediaEditModalComponent implements OnDestroy {
                 },
             }));
         });
+    }
+
+    /**
+     * The save hotkey is a plain key, so it only acts while this modal is the
+     * top-most dialog and focus is not on a control that takes key presses.
+     */
+    private _canUseSaveHotkey() {
+        const dialogs = this._dialog.openDialogs;
+        if (dialogs[dialogs.length - 1] !== this._dialog_ref) return false;
+        return !document.activeElement?.closest(HOTKEY_BLOCKING_FOCUS);
     }
 
     private _resolvePluginSchema(): Record<string, unknown> | null {
@@ -730,7 +757,7 @@ export class MediaEditModalComponent implements OnDestroy {
             this.loading.set(true);
             this._dialog_ref.disableClose = true;
             const form_value = this.model();
-            const new_media: any = {
+            const new_media: MediaEditChanges = {
                 ...this.item,
                 ...form_value,
             };

@@ -132,6 +132,7 @@ import type {
     BulkMediaUploadModalData,
 } from './shared/bulk-media-upload-modal.component';
 import { decodeEntityNames } from './shared/decode-entity-names.util';
+import type { MediaEditChanges } from './shared/media-edit-modal.component';
 import type { MediaTagModalResult } from './shared/media-tag-modal.component';
 import type { PlaylistRequestApprovalModalResult } from './shared/playlist-request-approval-modal.component';
 import type { TemplateRequestApprovalModalResult } from './shared/template-request-approval-modal.component';
@@ -228,17 +229,22 @@ const SIGNAGE_SHARE_CONFIG = {
 } as const;
 
 /**
+ * Creating a media record is not idempotent, so only retry statuses that mean
+ * the server did not process the request. A 500, 502 or 504, or a connection
+ * that dropped with no status, can arrive after the record was committed, and
+ * a retry would then create a duplicate.
+ *
  * A 401 is deliberately absent: the API client already invalidates the token,
  * re-authorises and replays the request itself, so retrying here as well would
  * multiply into a long run of auth refreshes.
  */
-function isRetryableMediaError(error: any) {
-    const status = error?.status;
-    // No status means the request never reached the server
-    if (typeof status !== 'number') return true;
-    return status === 408 || status === 429 || status >= 500;
+function isRetryableMediaError(error: unknown) {
+    const status = (error as { status?: unknown } | null)?.status;
+    return status === 408 || status === 429 || status === 503;
 }
 
+/** Run a media record create, retrying with backoff while the server did not
+ * process it. */
 async function retryMediaRequest<T>(request: () => Promise<T>): Promise<T> {
     let last_error: unknown;
     for (let attempt = 0; ; attempt++) {
@@ -266,9 +272,19 @@ interface PreparedUploadMedia {
     metadata: SignageMediaMetadata;
 }
 
+/** File and thumbnail that are stored, but do not have a media record yet */
+interface StoredMediaUpload {
+    media_id: string;
+    thumbnail_id: string;
+}
+
 interface SignageUploadOptions {
     permissions: UploadPermissions;
     on_progress?: (progress: number) => void;
+    /** Upload from an earlier attempt, so a retry only creates the record */
+    stored?: StoredMediaUpload;
+    /** Called when the file and thumbnail are stored */
+    on_stored?: (stored: StoredMediaUpload) => void;
 }
 
 interface PlaylistMetaState {
@@ -892,6 +908,9 @@ export class SignageService {
     private readonly _media_total = signal(0);
     private readonly _media_loading = signal(false);
     private readonly _media_has_more = signal(false);
+    private readonly _media_error = signal(false);
+    // Bumped to fetch the first page again after it failed.
+    private readonly _media_reload = signal(0);
     private _media_next: (() => QueryResponse<SignageMedia> | null) | null =
         null;
     // Bumped on every reset so in-flight pages from a stale query are discarded.
@@ -908,6 +927,8 @@ export class SignageService {
     );
     public readonly media_loading = this._media_loading.asReadonly();
     public readonly media_has_more = this._media_has_more.asReadonly();
+    /** Whether the last media page failed to load. `retryMedia` loads it. */
+    public readonly media_error = this._media_error.asReadonly();
     /** Media count the backend reports for the current group and search. */
     public readonly media_total = this._media_total.asReadonly();
 
@@ -918,12 +939,14 @@ export class SignageService {
         const group_id = this._api_group_id_debounced.value();
         const search = this._media_search_debounced.value().trim();
         this._change();
+        this._media_reload();
         untracked(() => {
             const token = ++this._media_token;
             this._media_items.set([]);
             this._media_total.set(0);
             this._media_next = null;
             this._media_has_more.set(false);
+            this._media_error.set(false);
             if (!initialised || !can_query) return;
             this._fetchMediaPage(
                 querySignageMedia(
@@ -959,6 +982,19 @@ export class SignageService {
         this._fetchMediaPage(next, this._media_token);
     }
 
+    /** Load the media page that failed again: the next page when some pages
+     * are loaded, otherwise the first page. */
+    public retryMedia() {
+        if (this._media_loading() || !this._media_error()) return;
+        this._media_error.set(false);
+        if (this._media_next) {
+            this._media_has_more.set(true);
+            this.loadMoreMedia();
+        } else {
+            this._media_reload.update((count) => count + 1);
+        }
+    }
+
     private async _fetchMediaPage(
         query: QueryResponse<SignageMedia>,
         token: number,
@@ -984,7 +1020,12 @@ export class SignageService {
                 items.length > 0 && this._media_items().length < page.total,
             );
         } catch {
-            if (token === this._media_token) this._media_has_more.set(false);
+            // Paging stops so the load-all effect cannot loop on a failing
+            // page. The error state offers a retry instead.
+            if (token === this._media_token) {
+                this._media_has_more.set(false);
+                this._media_error.set(true);
+            }
         } finally {
             if (token === this._media_token) this._media_loading.set(false);
         }
@@ -3191,11 +3232,25 @@ export class SignageService {
     private _addMediaToList(media: SignageMedia) {
         if (!media?.id) return;
         const item = decodeEntityNames(media);
+        if (!this._media_items().some(({ id }) => id === item.id)) {
+            this._media_total.update((total) => total + 1);
+        }
         this._media_items.update((items) =>
             [item, ...items.filter((existing) => existing.id !== item.id)].sort(
                 (a, b) => b.created_at - a.created_at,
             ),
         );
+        this._media_tags.reload();
+    }
+
+    /** Take deleted media out of the loaded list and its total, in place, as
+     * the search index can still return it for a short time. */
+    private _removeMediaFromList(media_ids: string[]) {
+        const removed = new Set(media_ids);
+        this._media_items.update((items) =>
+            items.filter((item) => !removed.has(item.id)),
+        );
+        this._media_total.update((total) => Math.max(0, total - removed.size));
         this._media_tags.reload();
     }
 
@@ -3684,11 +3739,11 @@ export class SignageService {
         });
     }
 
-    public async previewFileFromInput(event: Event, playlist_id = '') {
+    public async previewFileFromInput(event: Event) {
         const element = event.target as HTMLInputElement;
         if (!element?.files?.length) return;
         try {
-            await this.previewFiles(element.files, playlist_id);
+            await this.previewFiles(element.files);
         } finally {
             element.value = '';
         }
@@ -3696,7 +3751,6 @@ export class SignageService {
 
     public async previewFiles(
         files: ArrayLike<File> | Iterable<File> | null | undefined,
-        playlist_id = '',
     ) {
         if (
             !this._requirePermission(
@@ -3708,7 +3762,7 @@ export class SignageService {
         if (!files) return;
         const upload_files = Array.from(files);
         if (upload_files.length > 1) {
-            return this.bulkUploadMedia(upload_files, playlist_id);
+            return this.bulkUploadMedia(upload_files);
         }
         for (const file of upload_files) {
             const prepared = await this._prepareUploadMedia(file);
@@ -3716,13 +3770,17 @@ export class SignageService {
             await this.editMedia(
                 new SignageMedia({}),
                 prepared.file,
-                playlist_id,
                 prepared.metadata,
             );
         }
     }
 
-    public async bulkUploadMedia(files: File[], playlist_id = '') {
+    /**
+     * Upload several files through the bulk upload modal. Each created item is
+     * added to the loaded media list, so the list is not fetched again: the
+     * search index can lag the new records and would drop them.
+     */
+    public async bulkUploadMedia(files: File[]) {
         if (
             !this._requirePermission(
                 this.can_create(),
@@ -3736,16 +3794,22 @@ export class SignageService {
             if (prepared) items.push(prepared);
         }
         if (!items.length) return;
+        // A retry reuses the stored file, so only the failed step runs again
+        const stored = new Map<BulkMediaUploadItem, StoredMediaUpload>();
         const data: BulkMediaUploadModalData = {
             items,
             onUpload: (item, permissions, on_progress) =>
                 this._addMedia(
                     item.file,
                     new SignageMedia({}),
-                    playlist_id,
                     item.metadata,
                     undefined,
-                    { permissions, on_progress },
+                    {
+                        permissions,
+                        on_progress,
+                        stored: stored.get(item),
+                        on_stored: (upload) => stored.set(item, upload),
+                    },
                 ),
         };
         const { BulkMediaUploadModalComponent } =
@@ -3755,7 +3819,6 @@ export class SignageService {
             panelClass: 'mobile-fullscreen',
         });
         await dialogClosed(ref);
-        this.changed();
     }
 
     public async addMediaFromLink(url: string) {
@@ -3844,10 +3907,7 @@ export class SignageService {
     /** Remove a media row when the generated upload could not be claimed. */
     public async discardCreatedMedia(id: string) {
         await removeSignageMedia(id);
-        this._media_items.update((items) =>
-            items.filter((item) => item.id !== id),
-        );
-        this._media_tags.reload();
+        this._removeMediaFromList([id]);
     }
 
     /** guards against a second modal while one is open */
@@ -3915,13 +3975,16 @@ export class SignageService {
             plugin_id: plugin.id,
             orientation: 'landscape',
         });
-        await this.editMedia(media, undefined, '', undefined, plugin);
+        await this.editMedia(media, undefined, undefined, plugin);
     }
 
+    /**
+     * Open the media edit modal. A new file must come from
+     * `_prepareUploadMedia` with its metadata, as it is not validated again.
+     */
     public async editMedia(
         media: SignageMedia = new SignageMedia({}),
         file?: File,
-        playlist_id = '',
         prepared_file_metadata?: SignageMediaMetadata,
         plugin?: SignagePlugin,
     ) {
@@ -3968,7 +4031,6 @@ export class SignageService {
                 file,
                 file_metadata,
                 file_thumbnail,
-                playlist_id,
                 group_id: this._api_group_id(),
                 plugin,
                 tag_options: this.media_tags(),
@@ -3984,13 +4046,12 @@ export class SignageService {
                     this._addMedia(
                         f,
                         m,
-                        playlist_id,
                         file_metadata,
                         thumbnail || file_thumbnail,
                         undefined,
                         fallback_thumbnail,
                     ),
-                onEdit: async (id: string, data: any) => {
+                onEdit: async (id: string, data: MediaEditChanges) => {
                     const updated_media = await this._editMedia(id, data);
                     Object.assign(media, updated_media);
                 },
@@ -4000,7 +4061,7 @@ export class SignageService {
         await dialogClosed(ref);
     }
 
-    private async _editMedia(id: string, data: any) {
+    private async _editMedia(id: string, data: MediaEditChanges) {
         if (
             !this._requirePermission(
                 this.can_update(),
@@ -4054,7 +4115,6 @@ export class SignageService {
     private async _addMedia(
         file: File | undefined,
         media_item: SignageMedia,
-        playlist_id = '',
         file_metadata?: SignageMediaMetadata,
         url_thumbnail?: string,
         upload_options?: SignageUploadOptions,
@@ -4105,17 +4165,14 @@ export class SignageService {
             }
             result = await this._addSignageMedia(data);
         }
-        if (playlist_id && result?.id) {
-            const media_list = await listSignagePlaylistMedia(playlist_id);
-            const new_media_list = [...media_list.items, result.id];
-            await this.updatePlaylistMedia(playlist_id, new_media_list);
-            // Only the playlist views need rebuilding; the media list already
-            // holds the item returned by the create call.
-            this.changed();
-        }
         return result;
     }
 
+    /**
+     * Upload a file and create its media record. A file passed with
+     * `file_metadata` must come from `_prepareUploadMedia`, so it is not read
+     * and validated a second time.
+     */
     public async addMedia(
         file: File,
         media_item: SignageMedia = new SignageMedia({}),
@@ -4130,49 +4187,27 @@ export class SignageService {
         ) {
             throw new Error(i18n('SIGNAGE_MANAGER.SVC_PERMISSION_DENIED'));
         }
-        const prepared =
-            (file_metadata &&
-                (await this._prepareUploadMedia(file, file_metadata))) ||
-            (await this._prepareUploadMedia(file));
+        const prepared: PreparedUploadMedia | null = file_metadata
+            ? {
+                  file,
+                  media_type: getVideoContainer(file) ? 'video' : 'image',
+                  metadata: file_metadata,
+              }
+            : await this._prepareUploadMedia(file);
         if (!prepared) {
             throw new Error(i18n('SIGNAGE_MANAGER.SVC_SELECT_MEDIA_FILE'));
         }
         const { file: upload_file, media_type, metadata } = prepared;
         const { is_landscape } = metadata;
-        const thumbnail_image = await this._generateThumbnail(
-            upload_file,
-            1280,
-            720,
-        ).catch(() => null);
-        // Resolves only once the upload is committed. Watching progress reach
-        // 100 is not enough: the last chunk lands before finalisation and the
-        // commit run, so a failure there would otherwise look like success.
-        let media_id: string;
-        if (upload_options) {
-            media_id = await this._uploads.uploadFileToCompletion(
-                upload_file,
-                false,
-                upload_options.permissions,
-                upload_options.on_progress,
-            );
-        } else {
-            media_id =
-                await this._uploads.uploadFileWithPermissionsToCompletion(
-                    upload_file,
-                );
+        let stored = upload_options?.stored;
+        if (!stored) {
+            stored = await this._storeMediaUpload(upload_file, upload_options);
+            upload_options?.on_stored?.(stored);
         }
+        const { media_id, thumbnail_id } = stored;
         const media_url = `${
             location.origin
         }/api/engine/v2/uploads/${encodeURIComponent(media_id)}/url`;
-        let thumbnail_id = '';
-        if (thumbnail_image) {
-            const name_parts = upload_file.name.split('.');
-            name_parts.pop();
-            thumbnail_id = await this._uploadThumbnailImage(
-                thumbnail_image,
-                name_parts.join('.'),
-            );
-        }
         const data = {
             ...new SignageMedia({
                 ...media_item,
@@ -4191,9 +4226,46 @@ export class SignageService {
         return result;
     }
 
+    /** Upload a media file and its generated thumbnail. */
+    private async _storeMediaUpload(
+        file: File,
+        upload_options?: SignageUploadOptions,
+    ): Promise<StoredMediaUpload> {
+        const thumbnail_image = await this._generateThumbnail(
+            file,
+            1280,
+            720,
+        ).catch(() => null);
+        // Resolves only once the upload is committed. Watching progress reach
+        // 100 is not enough: the last chunk lands before finalisation and the
+        // commit run, so a failure there would otherwise look like success.
+        let media_id: string;
+        if (upload_options) {
+            media_id = await this._uploads.uploadFileToCompletion(
+                file,
+                false,
+                upload_options.permissions,
+                upload_options.on_progress,
+            );
+        } else {
+            media_id =
+                await this._uploads.uploadFileWithPermissionsToCompletion(file);
+        }
+        let thumbnail_id = '';
+        if (thumbnail_image) {
+            const name_parts = file.name.split('.');
+            name_parts.pop();
+            thumbnail_id = await this._uploadThumbnailImage(
+                thumbnail_image,
+                name_parts.join('.'),
+            );
+        }
+        return { media_id, thumbnail_id };
+    }
+
+    /** Normalise, validate and measure a picked file, once per upload. */
     private async _prepareUploadMedia(
         file: File | null,
-        metadata?: SignageMediaMetadata,
     ): Promise<PreparedUploadMedia | null> {
         if (!file) {
             notifyError(i18n('SIGNAGE_MANAGER.SVC_SELECT_MEDIA_FILE'));
@@ -4211,8 +4283,7 @@ export class SignageService {
         return {
             file: normalized_file,
             media_type: validation.media_type,
-            metadata:
-                metadata || (await this._getMediaMetadata(normalized_file)),
+            metadata: await this._getMediaMetadata(normalized_file),
         };
     }
 
@@ -4261,14 +4332,36 @@ export class SignageService {
             this._dialog,
         );
         if (result.reason !== 'done') return;
-        await this._removeMediaFromPlaylists(
+        result.loading(i18n('SIGNAGE_MANAGER.SVC_MEDIA_REMOVING'));
+        try {
+            await removeSignageMedia(item.id, this._groupQueryParams({}));
+        } catch {
+            result.close();
+            notifyError(i18n('SIGNAGE_MANAGER.SVC_ERR_REMOVE_MEDIA'));
+            return;
+        }
+        this._removeMediaFromList([item.id]);
+        await this._removeDeletedMediaFromPlaylists(
             [item.id],
             playlists.map(({ id }) => id),
         );
-        await removeSignageMedia(item.id, this._groupQueryParams({}));
-        this.changed();
         notifySuccess(i18n('SIGNAGE_MANAGER.SVC_MEDIA_REMOVED'));
         result.close();
+    }
+
+    /**
+     * Take deleted media out of the playlists that held it. The media is
+     * already gone, so a failure here only warns.
+     */
+    private async _removeDeletedMediaFromPlaylists(
+        media_ids: string[],
+        playlist_ids: string[],
+    ) {
+        try {
+            await this._removeMediaFromPlaylists(media_ids, playlist_ids);
+        } catch {
+            notifyWarn(i18n('SIGNAGE_MANAGER.SVC_MEDIA_PLAYLISTS_NOT_UPDATED'));
+        }
     }
 
     public async removeMediaItems(items: SignageMedia[]) {
@@ -4299,18 +4392,28 @@ export class SignageService {
             this._dialog,
         );
         if (result.reason !== 'done') return false;
-        await this._removeMediaFromPlaylists(
-            media_ids,
-            playlists.map(({ id }) => id),
-        );
-        await Promise.all(
-            media_items.map((item) =>
-                removeSignageMedia(item.id, this._groupQueryParams({})),
+        result.loading(i18n('SIGNAGE_MANAGER.SVC_MEDIA_REMOVING'));
+        const results = await Promise.allSettled(
+            media_ids.map((id) =>
+                removeSignageMedia(id, this._groupQueryParams({})),
             ),
         );
-        this.changed();
-        notifySuccess(i18n('SIGNAGE_MANAGER.SVC_MEDIA_REMOVED'));
+        const removed_ids = media_ids.filter(
+            (_, index) => results[index].status === 'fulfilled',
+        );
+        if (removed_ids.length) {
+            this._removeMediaFromList(removed_ids);
+            await this._removeDeletedMediaFromPlaylists(
+                removed_ids,
+                playlists.map(({ id }) => id),
+            );
+        }
         result.close();
+        if (removed_ids.length < media_ids.length) {
+            notifyError(i18n('SIGNAGE_MANAGER.SVC_ERR_REMOVE_MEDIA'));
+            return false;
+        }
+        notifySuccess(i18n('SIGNAGE_MANAGER.SVC_MEDIA_REMOVED'));
         return true;
     }
 
@@ -4343,23 +4446,40 @@ export class SignageService {
         });
         const tags = await dialogClosed<string[]>(ref);
         if (!tags?.length) return false;
-        try {
-            await Promise.all(
-                media_items.map((item) =>
-                    updateSignageMedia(item.id, {
-                        tags: [...new Set([...(item.tags || []), ...tags])],
-                    }),
+        const changes = media_items.map((item) => ({
+            id: item.id,
+            tags: [...new Set([...(item.tags || []), ...tags])],
+        }));
+        const results = await Promise.allSettled(
+            changes.map(({ id, tags }) => updateSignageMedia(id, { tags })),
+        );
+        // Show the new tags on the items that saved, in place
+        const saved = new Map(
+            changes
+                .filter((_, index) => results[index].status === 'fulfilled')
+                .map(({ id, tags }) => [id, tags]),
+        );
+        if (saved.size) {
+            this._media_items.update((items) =>
+                items.map((item) =>
+                    saved.has(item.id)
+                        ? new SignageMedia({ ...item, tags: saved.get(item.id) })
+                        : item,
                 ),
             );
-        } catch (error) {
+            this._media_tags.reload();
+        }
+        const failed = media_items.length - saved.size;
+        if (failed) {
             notifyError(
-                i18n('SIGNAGE_MANAGER.MEDIA_SAVE_ERROR', {
-                    error: error instanceof Error ? error.message : `${error}`,
-                }),
+                i18n(
+                    'SIGNAGE_MANAGER.SVC_ERR_MEDIA_TAGS',
+                    { count: failed },
+                    failed,
+                ),
             );
             return false;
         }
-        this.changed();
         notifySuccess(i18n('SIGNAGE_MANAGER.MEDIA_SAVE_SUCCESS'));
         return true;
     }

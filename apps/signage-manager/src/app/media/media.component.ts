@@ -1,5 +1,5 @@
 import { Component, inject, signal } from '@angular/core';
-import { IconComponent } from '@placeos/components';
+import { IconComponent, TranslatePipe } from '@placeos/components';
 import { NavFooterComponent } from '../shared/nav-footer.component';
 import { NavSidebarComponent } from '../shared/nav-sidebar.component';
 import { SignageService } from '../signage.service';
@@ -26,7 +26,7 @@ import { PlaylistSidebarComponent } from './playlist-sidebar.component';
                             class="relative z-0"
                             [playlist_count]="playlists()?.length"
                         />
-                        @if (show_dropzone()) {
+                        @if (show_dropzone() && can_create()) {
                             <div
                                 class="absolute inset-0 z-20"
                                 (dragenter)="handleDragEnter($event)"
@@ -43,10 +43,16 @@ import { PlaylistSidebarComponent } from './playlist-sidebar.component';
                                     <icon class="text-6xl">cloud_upload</icon>
                                     <div>
                                         <p class="text-lg font-medium">
-                                            Drop media to upload
+                                            {{
+                                                'SIGNAGE_MANAGER.DROP_MEDIA_TITLE'
+                                                    | translate
+                                            }}
                                         </p>
                                         <p class="text-sm opacity-80">
-                                            Images and supported video files
+                                            {{
+                                                'SIGNAGE_MANAGER.DROP_MEDIA_HINT'
+                                                    | translate
+                                            }}
                                         </p>
                                     </div>
                                 </div>
@@ -67,6 +73,7 @@ import { PlaylistSidebarComponent } from './playlist-sidebar.component';
         PlaylistSidebarComponent,
         NavFooterComponent,
         IconComponent,
+        TranslatePipe,
     ],
 })
 export class MediaSectionComponent {
@@ -74,6 +81,8 @@ export class MediaSectionComponent {
     private _drag_counter = 0;
 
     public readonly playlists = this._service.playlists;
+    /** The drop overlay is only offered to users who can create media */
+    public readonly can_create = this._service.can_create;
     public readonly show_dropzone = signal(false);
 
     public handleDragEnter(event: DragEvent) {

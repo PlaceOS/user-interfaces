@@ -1,4 +1,5 @@
-import { DragDropModule } from '@angular/cdk/drag-drop';
+import { CdkDragDrop, DragDropModule } from '@angular/cdk/drag-drop';
+import { NgTemplateOutlet } from '@angular/common';
 
 import {
     Component,
@@ -9,6 +10,7 @@ import {
     input,
     OnInit,
     signal,
+    untracked,
 } from '@angular/core';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatRippleModule } from '@angular/material/core';
@@ -69,6 +71,10 @@ const UNTAGGED = '\0untagged';
 
         <!-- Folder view: show tag folders until one is opened -->
         @if (view_mode() === 'folder' && selected_folder() === null) {
+            <!-- Folders can still come from the tag counts after media fails -->
+            @if (error()) {
+                <ng-container [ngTemplateOutlet]="load_error" />
+            }
             @if (folders().length > 0) {
                 <div
                     class="grid w-full grid-cols-2 gap-4 p-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6"
@@ -139,7 +145,7 @@ const UNTAGGED = '\0untagged';
                 >
                     <mat-spinner diameter="32" />
                 </div>
-            } @else {
+            } @else if (!error()) {
                 <div
                     class="text-base-content/70 mx-auto flex flex-1 flex-col items-center justify-center space-y-2 p-8"
                 >
@@ -215,7 +221,7 @@ const UNTAGGED = '\0untagged';
                                 </div>
                                 <mat-checkbox
                                     [checked]="isSelected(media_item.id)"
-                                    [attr.aria-label]="
+                                    [aria-label]="
                                         'SIGNAGE_MANAGER.SELECT_MEDIA'
                                             | translate
                                                 : { name: media_item.name }
@@ -354,7 +360,7 @@ const UNTAGGED = '\0untagged';
                                 <mat-checkbox
                                     class="absolute top-4 right-4 z-20 rounded"
                                     [checked]="isSelected(media_item.id)"
-                                    [attr.aria-label]="
+                                    [aria-label]="
                                         'SIGNAGE_MANAGER.SELECT_MEDIA'
                                             | translate
                                                 : { name: media_item.name }
@@ -485,6 +491,10 @@ const UNTAGGED = '\0untagged';
                             intersect
                             (intersect)="loadMore()"
                         ></div>
+                    } @else if (error()) {
+                        <div class="col-span-full">
+                            <ng-container [ngTemplateOutlet]="load_error" />
+                        </div>
                     } @else {
                         <div
                             class="text-base-content/50 bg-base-content/10 col-span-full rounded-lg p-2 text-center text-xs"
@@ -499,6 +509,8 @@ const UNTAGGED = '\0untagged';
                 >
                     <mat-spinner diameter="32" />
                 </div>
+            } @else if (error()) {
+                <ng-container [ngTemplateOutlet]="load_error" />
             } @else {
                 <div
                     class="text-base-content/70 mx-auto flex flex-1 flex-col items-center justify-center space-y-2 p-8"
@@ -508,6 +520,19 @@ const UNTAGGED = '\0untagged';
                 </div>
             }
         }
+
+        <ng-template #load_error>
+            <div
+                class="text-base-content/70 mx-auto flex flex-1 flex-col items-center justify-center space-y-2 p-8 text-center"
+                role="alert"
+            >
+                <icon class="text-error text-6xl">cloud_off</icon>
+                <p>{{ 'COMMON.LOAD_ERROR' | translate }}</p>
+                <button btn matRipple type="button" (click)="retry()">
+                    {{ 'COMMON.RETRY' | translate }}
+                </button>
+            </div>
+        </ng-template>
 
         <mat-menu #folder_menu="matMenu">
             <ng-template matMenuContent let-folder="folder">
@@ -679,6 +704,7 @@ const UNTAGGED = '\0untagged';
                             error
                             (click)="deleteSelected()"
                             [matTooltip]="'COMMON.DELETE' | translate"
+                            [attr.aria-label]="'COMMON.DELETE' | translate"
                         >
                             <icon>delete</icon>
                         </button>
@@ -692,6 +718,9 @@ const UNTAGGED = '\0untagged';
                             [matTooltip]="
                                 'SIGNAGE_MANAGER.ADD_TO_PLAYLIST' | translate
                             "
+                            [attr.aria-label]="
+                                'SIGNAGE_MANAGER.ADD_TO_PLAYLIST' | translate
+                            "
                         >
                             <icon>playlist_add</icon>
                         </button>
@@ -703,6 +732,7 @@ const UNTAGGED = '\0untagged';
                             matRipple
                             (click)="shareSelected()"
                             [matTooltip]="'SIGNAGE_MANAGER.SHARE' | translate"
+                            [attr.aria-label]="'SIGNAGE_MANAGER.SHARE' | translate"
                         >
                             <icon>ios_share</icon>
                         </button>
@@ -726,6 +756,7 @@ const UNTAGGED = '\0untagged';
     ],
     imports: [
         DragDropModule,
+        NgTemplateOutlet,
         MatCheckboxModule,
         MatRippleModule,
         MatMenuModule,
@@ -769,6 +800,15 @@ export class MediaListComponent implements OnInit {
         effect(() => {
             if (this.view_mode() !== 'folder') this.selected_folder.set(null);
         });
+        // An open folder filters the loaded pages, and its items can be on
+        // any page, so load every page while it is open. Paging stops on the
+        // last page, an empty page or an error.
+        effect(() => {
+            if (this.view_mode() !== 'folder') return;
+            if (this.selected_folder() === null) return;
+            if (!this.has_more() || this.loading()) return;
+            untracked(() => this.loadMore());
+        });
     }
 
     public ngOnInit() {
@@ -783,6 +823,7 @@ export class MediaListComponent implements OnInit {
     public readonly media_tags = this._service.media_tags;
     public readonly media_tag_counts = this._service.media_tag_counts;
     public readonly loading = this._service.media_loading;
+    public readonly error = this._service.media_error;
     public readonly view_mode = this._service.media_view_mode;
     public readonly groups = this._service.signage_groups;
     public readonly selected_group_id = this._service.selected_group_id;
@@ -852,6 +893,10 @@ export class MediaListComponent implements OnInit {
     public readonly has_more = this._service.media_has_more;
     public loadMore() {
         this._service.loadMoreMedia();
+    }
+
+    public retry() {
+        this._service.retryMedia();
     }
 
     public openFolder(folder_id: string) {
@@ -930,9 +975,6 @@ export class MediaListComponent implements OnInit {
         return this.remainingTags(item).length;
     }
 
-    public readonly previewFile = (event: Event) =>
-        this._service.previewFileFromInput(event);
-
     public readonly previewItem = (item: SignageMedia) =>
         this._service.previewMedia(item);
 
@@ -998,7 +1040,7 @@ export class MediaListComponent implements OnInit {
     public readonly can_delete = this._service.can_delete;
     public readonly can_share = this._service.can_share;
 
-    public drop(_event: any) {
+    public drop(_event: CdkDragDrop<SignageMedia[]>) {
         // No-op for media list drops
     }
 }

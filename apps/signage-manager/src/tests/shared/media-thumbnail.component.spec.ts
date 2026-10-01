@@ -52,7 +52,7 @@ describe('MediaThumbnailComponent', () => {
         (global as any).IntersectionObserver = original_observer;
     });
 
-    it('renders the authenticated image only while in view', async () => {
+    it('renders the authenticated image once in view and keeps it', async () => {
         const fixture = await make({
             id: 'media-1',
             name: 'News',
@@ -68,14 +68,16 @@ describe('MediaThumbnailComponent', () => {
         await fixture.whenStable();
 
         expect(fixture.nativeElement.querySelector('img')).not.toBeNull();
+        expect(disconnect_count).toBe(1);
 
+        // Scrolling away must not swap the image back to the icon
         observer_callback(
             [{ isIntersecting: false } as IntersectionObserverEntry],
             {} as IntersectionObserver,
         );
         await fixture.whenStable();
 
-        expect(fixture.nativeElement.querySelector('img')).toBeNull();
+        expect(fixture.nativeElement.querySelector('img')).not.toBeNull();
     });
 
     it('keeps the media type placeholder when no thumbnail exists', async () => {

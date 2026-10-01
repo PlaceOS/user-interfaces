@@ -2,6 +2,7 @@ import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { MatDialog } from '@angular/material/dialog';
 import { setNotifyOutlet } from '@placeos/common';
+import { SignagePlugin } from '@placeos/ts-client';
 import { AiImageService } from '../../app/ai/ai-image.service';
 import { MediaListHeaderComponent } from '../../app/media/media-list-header.component';
 import { MediaAddModalComponent } from '../../app/shared/media-add-modal.component';
@@ -140,11 +141,11 @@ describe('MediaListHeaderComponent', () => {
 
     it('adds media from the selected plugin and resets the selection', async () => {
         const component = await make();
-        const plugin = {
+        const plugin = new SignagePlugin({
             id: 'plugin-1',
             name: 'Clock',
             plugin_type: 'plugin',
-        };
+        });
         plugins.set([plugin]);
         component.selected_plugin.set(plugin);
         await component.addFromPlugin();
@@ -154,11 +155,11 @@ describe('MediaListHeaderComponent', () => {
 
     it('excludes widget plugins from media items', async () => {
         const component = await make();
-        const widget = {
+        const widget = new SignagePlugin({
             id: 'widget-1',
             name: 'Clock',
             plugin_type: 'widget',
-        };
+        });
         plugins.set([
             { id: 'plugin-1', name: 'Weather', plugin_type: 'plugin' },
         ]);

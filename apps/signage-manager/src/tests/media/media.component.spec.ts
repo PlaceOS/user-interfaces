@@ -5,6 +5,7 @@ import {
     signal,
 } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { TranslatePipe } from '@placeos/components';
 import { MediaSectionComponent } from '../../app/media/media.component';
 import { SignageService } from '../../app/signage.service';
 
@@ -63,10 +64,12 @@ describe('MediaSectionComponent', () => {
     const service_stub = {
         playlists: signal([]),
         previewFiles: preview_files,
+        can_create: signal(true),
     };
 
     beforeEach(async () => {
         preview_files.mockReset();
+        service_stub.can_create.set(true);
         await TestBed.configureTestingModule({
             imports: [MediaSectionComponent],
             providers: [{ provide: SignageService, useValue: service_stub }],
@@ -80,6 +83,7 @@ describe('MediaSectionComponent', () => {
                         PlaylistSidebarStubComponent,
                         NavFooterStubComponent,
                         IconStubComponent,
+                        TranslatePipe,
                     ],
                 },
             })
@@ -98,6 +102,23 @@ describe('MediaSectionComponent', () => {
 
         expect(prevent_default).toHaveBeenCalled();
         expect(component.show_dropzone()).toBe(true);
+    });
+
+    it('offers the upload overlay only to users who can create media', () => {
+        service_stub.can_create.set(false);
+        const fixture = TestBed.createComponent(MediaSectionComponent);
+        fixture.componentInstance.handleDragEnter({
+            dataTransfer: { types: ['Files'] },
+            preventDefault: vi.fn(),
+        } as any);
+        fixture.detectChanges();
+
+        expect(fixture.nativeElement.textContent).not.toContain('cloud_upload');
+
+        service_stub.can_create.set(true);
+        fixture.detectChanges();
+
+        expect(fixture.nativeElement.textContent).toContain('cloud_upload');
     });
 
     it('ignores drags that do not contain files', () => {

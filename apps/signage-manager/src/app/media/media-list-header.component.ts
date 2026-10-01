@@ -13,6 +13,7 @@ import {
     IconComponent,
     TranslatePipe,
 } from '@placeos/components';
+import { SignagePlugin } from '@placeos/ts-client';
 import { AiImageService } from '../ai/ai-image.service';
 import { GroupBreadcrumbsComponent } from '../shared/group-breadcrumbs.component';
 import { MediaAddModalComponent } from '../shared/media-add-modal.component';
@@ -423,7 +424,7 @@ export class MediaListHeaderComponent {
     private readonly _dialog = inject(MatDialog);
     private readonly _ai = inject(AiImageService);
     public readonly link = signal('');
-    public readonly selected_plugin = signal<any>(null);
+    public readonly selected_plugin = signal<SignagePlugin | null>(null);
     public readonly available_plugins = this._service.plugins;
     public readonly view = this._service.media_view;
     public readonly view_active = this._service.media_view_active;
@@ -472,7 +473,7 @@ export class MediaListHeaderComponent {
     public readonly file_accept = this._service.media_upload_accept;
     public readonly can_create = this._service.can_create;
 
-    public readonly previewFile = (event) =>
+    public readonly previewFile = (event: Event) =>
         this._service.previewFileFromInput(event);
 
     public readonly ai_enabled = computed(

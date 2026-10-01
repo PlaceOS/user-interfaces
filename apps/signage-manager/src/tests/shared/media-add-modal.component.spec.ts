@@ -2,6 +2,7 @@ import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { setNotifyOutlet } from '@placeos/common';
+import { SignagePlugin } from '@placeos/ts-client';
 import {
     MediaAddModalComponent,
     MediaAddModalData,
@@ -117,11 +118,11 @@ describe('MediaAddModalComponent', () => {
     });
 
     it('enables the add action once a plugin is selected', async () => {
-        const plugin = {
+        const plugin = new SignagePlugin({
             id: 'weather',
             name: 'Weather',
             plugin_type: 'plugin',
-        };
+        });
         plugins.set([plugin]);
         const component = await createComponent({ mode: 'plugin' });
 
@@ -132,11 +133,11 @@ describe('MediaAddModalComponent', () => {
     });
 
     it('adds the selected plugin and closes the dialog', async () => {
-        const plugin = {
+        const plugin = new SignagePlugin({
             id: 'weather',
             name: 'Weather',
             plugin_type: 'plugin',
-        };
+        });
         plugins.set([plugin]);
         const component = await createComponent({ mode: 'plugin' });
         component.selected_plugin.set(plugin);
@@ -148,11 +149,11 @@ describe('MediaAddModalComponent', () => {
     });
 
     it('excludes widget plugins from media items', async () => {
-        const widget = {
+        const widget = new SignagePlugin({
             id: 'widget-1',
             name: 'Clock',
             plugin_type: 'widget',
-        };
+        });
         plugins.set([
             { id: 'plugin-1', name: 'Weather', plugin_type: 'plugin' },
         ]);
