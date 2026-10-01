@@ -226,7 +226,7 @@ describe('SignageTemplateService', () => {
         // The template list reloads once the group flags turn templates on
         await vi.waitFor(() => expect(context.templates_enabled()).toBe(true));
         TestBed.flushEffects();
-        test_service['_template_items'].set([template]);
+        test_service['_template_list'].update(() => [template]);
         Object.defineProperty(context, 'can_approve', {
             value: () => false,
         });
@@ -274,7 +274,7 @@ describe('SignageTemplateService', () => {
             service as unknown as SignageTemplateServiceTestAccess;
         const template = new SignageTemplate({ id: 'template-1' });
         TestBed.flushEffects();
-        test_service['_template_items'].set([template]);
+        test_service['_template_list'].update(() => [template]);
         const context = TestBed.inject(SignageContextService);
         Object.defineProperty(context, 'can_approve', {
             value: () => false,
@@ -373,7 +373,7 @@ describe('SignageTemplateService', () => {
             id: 'template-1',
             approved: false,
         });
-        test_service['_template_items'].set([template]);
+        test_service['_template_list'].update(() => [template]);
         service.selected_template.set(template);
 
         service.setTemplateApprovalStatus('template-1', true);
@@ -395,7 +395,7 @@ describe('SignageTemplateService', () => {
             id: 'template-draft',
             live_template_id: 'template-live',
         });
-        test_service['_template_items'].set([approved]);
+        test_service['_template_list'].update(() => [approved]);
         service.selected_template.set(approved);
 
         service.updateCachedTemplate(draft);
@@ -416,7 +416,7 @@ describe('SignageTemplateService', () => {
             id: 'template-live',
             approved: true,
         });
-        test_service['_template_items'].set([draft]);
+        test_service['_template_list'].update(() => [draft]);
         service.selected_template.set(draft);
 
         service.updateCachedTemplate(approved);

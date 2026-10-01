@@ -23,7 +23,6 @@ import {
     listSignageTemplateApprovers,
     PlaceCurrentGroup,
     query,
-    type QueryResponse,
     querySignageTemplates,
     removeSignageTemplate,
     removeSignageTemplateDraft,
@@ -37,6 +36,7 @@ import {
     updateSignageTemplateMapping,
 } from '@placeos/ts-client';
 import { decodeEntityNames } from '../shared/decode-entity-names.util';
+import { PagedList } from '../shared/paged-list';
 import { byName } from '../shared/paged-search';
 import type { TemplateRequestApprovalModalResult } from '../shared/template-request-approval-modal.component';
 import { SignageContextService } from '../signage-context.service';
@@ -76,17 +76,13 @@ export class SignageTemplateService {
         this.template_search_term,
         400,
     );
-    private readonly _template_items = signal<SignageTemplate[]>([]);
-    private readonly _templates_loading = signal(false);
-    private readonly _templates_has_more = signal(false);
-    private _templates_next:
-        | (() => QueryResponse<SignageTemplate> | null)
-        | null = null;
-    private _templates_token = 0;
+    private readonly _template_list = new PagedList<SignageTemplate>({
+        sort: byName,
+    });
 
-    public readonly templates = this._template_items.asReadonly();
-    public readonly templates_loading = this._templates_loading.asReadonly();
-    public readonly templates_has_more = this._templates_has_more.asReadonly();
+    public readonly templates = this._template_list.items;
+    public readonly templates_loading = this._template_list.loading;
+    public readonly templates_has_more = this._template_list.has_more;
 
     private readonly _reload_templates = effect(() => {
         const enabled = this._context.templates_enabled();
@@ -95,62 +91,22 @@ export class SignageTemplateService {
         const group_id = this._context.api_group_id_debounced.value();
         const search = this._template_search_debounced.value().trim();
         this._context.data_change();
-        untracked(() => {
-            const token = ++this._templates_token;
-            this._template_items.set([]);
-            this._templates_next = null;
-            this._templates_has_more.set(false);
-            if (!enabled || !initialised || !can_query) return;
-            this._fetchTemplatePage(
-                querySignageTemplates(
-                    this._context.groupQueryParams(
-                        {
-                            limit: PAGE_SIZE,
-                            ...searchParam(search),
-                        },
-                        group_id,
-                    ),
-                ),
-                token,
-            );
-        });
+        untracked(() =>
+            this._template_list.reset(
+                enabled && initialised && can_query
+                    ? querySignageTemplates(
+                          this._context.groupQueryParams(
+                              { limit: PAGE_SIZE, ...searchParam(search) },
+                              group_id,
+                          ),
+                      )
+                    : null,
+            ),
+        );
     });
 
     public loadMoreTemplates() {
-        if (this._templates_loading() || !this._templates_has_more()) return;
-        const next = this._templates_next?.();
-        if (!next) {
-            this._templates_has_more.set(false);
-            return;
-        }
-        this._fetchTemplatePage(next, this._templates_token);
-    }
-
-    private async _fetchTemplatePage(
-        query: QueryResponse<SignageTemplate>,
-        token: number,
-    ) {
-        this._templates_loading.set(true);
-        try {
-            const page = await query;
-            if (token !== this._templates_token) return;
-            const items = (page.data || []).map(decodeEntityNames);
-            this._template_items.update((list) => {
-                const by_id = new Map(list.map((item) => [item.id, item]));
-                for (const item of items) by_id.set(item.id, item);
-                return [...by_id.values()].sort(byName);
-            });
-            this._templates_next = page.next;
-            this._templates_has_more.set(
-                this._template_items().length < page.total,
-            );
-        } catch {
-            if (token === this._templates_token)
-                this._templates_has_more.set(false);
-        } finally {
-            if (token === this._templates_token)
-                this._templates_loading.set(false);
-        }
+        this._template_list.loadMore();
     }
 
     public async listApprovedTemplates() {
@@ -582,7 +538,7 @@ export class SignageTemplateService {
     }
 
     public updateCachedTemplate(template: SignageTemplate) {
-        this._template_items.update((items) =>
+        this._template_list.update((items) =>
             items.map((item) =>
                 isSameSignageTemplate(item, template) ? template : item,
             ),

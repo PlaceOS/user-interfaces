@@ -46,6 +46,7 @@ import type {
 import { decodeEntityNames } from '../shared/decode-entity-names.util';
 import type { MediaEditChanges } from '../shared/media-edit-modal.component';
 import type { MediaTagModalResult } from '../shared/media-tag-modal.component';
+import { PagedList } from '../shared/paged-list';
 import { SignageContextService } from '../signage-context.service';
 import {
     listSignageMediaTagCounts,
@@ -202,17 +203,11 @@ export class SignageMediaService {
     // library; filtering the loaded pages would only search media that has
     // already been fetched.
     private readonly _media_search_debounced = debounced(this.search_term, 400);
-    private readonly _media_items = signal<SignageMedia[]>([]);
-    private readonly _media_total = signal(0);
-    private readonly _media_loading = signal(false);
-    private readonly _media_has_more = signal(false);
-    private readonly _media_error = signal(false);
+    private readonly _media_list = new PagedList<SignageMedia>({
+        sort: (a, b) => b.created_at - a.created_at,
+    });
     // Bumped to fetch the first page again after it failed.
     private readonly _media_reload = signal(0);
-    private _media_next: (() => QueryResponse<SignageMedia> | null) | null =
-        null;
-    // Bumped on every reset so in-flight pages from a stale query are discarded.
-    private _media_token = 0;
 
     /** Sort and filters for the media library */
     public readonly media_view = signal<MediaViewOptions>(DEFAULT_MEDIA_VIEW);
@@ -221,14 +216,14 @@ export class SignageMediaService {
     );
     /** Loaded media with the library sort and filters applied */
     public readonly media = computed(() =>
-        applyMediaView(this._media_items(), this.media_view()),
+        applyMediaView(this._media_list.items(), this.media_view()),
     );
-    public readonly media_loading = this._media_loading.asReadonly();
-    public readonly media_has_more = this._media_has_more.asReadonly();
+    public readonly media_loading = this._media_list.loading;
+    public readonly media_has_more = this._media_list.has_more;
     /** Whether the last media page failed to load. `retryMedia` loads it. */
-    public readonly media_error = this._media_error.asReadonly();
+    public readonly media_error = this._media_list.error;
     /** Media count the backend reports for the current group and search. */
-    public readonly media_total = this._media_total.asReadonly();
+    public readonly media_total = this._media_list.total;
 
     // Reload the first page whenever the org/group/search/change inputs change.
     private readonly _reload_media = effect(() => {
@@ -238,27 +233,18 @@ export class SignageMediaService {
         const search = this._media_search_debounced.value().trim();
         this._context.data_change();
         this._media_reload();
-        untracked(() => {
-            const token = ++this._media_token;
-            this._media_items.set([]);
-            this._media_total.set(0);
-            this._media_next = null;
-            this._media_has_more.set(false);
-            this._media_error.set(false);
-            if (!initialised || !can_query) return;
-            this._fetchMediaPage(
-                querySignageMedia(
-                    this._context.orgZoneQueryParams(
-                        {
-                            limit: PAGE_SIZE,
-                            ...searchParam(search),
-                        },
-                        group_id,
-                    ),
-                ),
-                token,
-            );
-        });
+        untracked(() =>
+            this._media_list.reset(
+                initialised && can_query
+                    ? querySignageMedia(
+                          this._context.orgZoneQueryParams(
+                              { limit: PAGE_SIZE, ...searchParam(search) },
+                              group_id,
+                          ),
+                      )
+                    : null,
+            ),
+        );
     });
 
     // The API cannot sort or filter by type or expiry, so the browser does it.
@@ -266,66 +252,19 @@ export class SignageMediaService {
     // while a sort or filter is active. Stops when the last page is loaded.
     private readonly _load_all_media = effect(() => {
         if (!this.media_view_active()) return;
-        if (!this._media_has_more() || this._media_loading()) return;
+        if (!this.media_has_more() || this.media_loading()) return;
         untracked(() => this.loadMoreMedia());
     });
 
     public loadMoreMedia() {
-        if (this._media_loading() || !this._media_has_more()) return;
-        const next = this._media_next?.();
-        if (!next) {
-            this._media_has_more.set(false);
-            return;
-        }
-        this._fetchMediaPage(next, this._media_token);
+        this._media_list.loadMore();
     }
 
     /** Load the media page that failed again: the next page when some pages
      * are loaded, otherwise the first page. */
     public retryMedia() {
-        if (this._media_loading() || !this._media_error()) return;
-        this._media_error.set(false);
-        if (this._media_next) {
-            this._media_has_more.set(true);
-            this.loadMoreMedia();
-        } else {
+        if (!this._media_list.retry()) {
             this._media_reload.update((count) => count + 1);
-        }
-    }
-
-    private async _fetchMediaPage(
-        query: QueryResponse<SignageMedia>,
-        token: number,
-    ) {
-        this._media_loading.set(true);
-        try {
-            const page = await query;
-            if (token !== this._media_token) return;
-            const items = (page.data || []).map(decodeEntityNames);
-            // Merged by id so an item already held locally, such as one
-            // just uploaded, is not shown twice when its page arrives.
-            this._media_items.update((list) => {
-                const by_id = new Map(list.map((item) => [item.id, item]));
-                for (const item of items) by_id.set(item.id, item);
-                return [...by_id.values()].sort(
-                    (a, b) => b.created_at - a.created_at,
-                );
-            });
-            this._media_next = page.next;
-            this._media_total.set(page.total);
-            // An empty page ends paging, so page loops cannot run forever
-            this._media_has_more.set(
-                items.length > 0 && this._media_items().length < page.total,
-            );
-        } catch {
-            // Paging stops so the load-all effect cannot loop on a failing
-            // page. The error state offers a retry instead.
-            if (token === this._media_token) {
-                this._media_has_more.set(false);
-                this._media_error.set(true);
-            }
-        } finally {
-            if (token === this._media_token) this._media_loading.set(false);
         }
     }
 
@@ -393,10 +332,10 @@ export class SignageMediaService {
     private _addMediaToList(media: SignageMedia) {
         if (!media?.id) return;
         const item = decodeEntityNames(media);
-        if (!this._media_items().some(({ id }) => id === item.id)) {
-            this._media_total.update((total) => total + 1);
+        if (!this._media_list.items().some(({ id }) => id === item.id)) {
+            this._media_list.adjustTotal(1);
         }
-        this._media_items.update((items) =>
+        this._media_list.update((items) =>
             [item, ...items.filter((existing) => existing.id !== item.id)].sort(
                 (a, b) => b.created_at - a.created_at,
             ),
@@ -408,10 +347,10 @@ export class SignageMediaService {
      * the search index can still return it for a short time. */
     private _removeMediaFromList(media_ids: string[]) {
         const removed = new Set(media_ids);
-        this._media_items.update((items) =>
+        this._media_list.update((items) =>
             items.filter((item) => !removed.has(item.id)),
         );
-        this._media_total.update((total) => Math.max(0, total - removed.size));
+        this._media_list.adjustTotal(-removed.size);
         this._media_tags.reload();
     }
 
@@ -796,7 +735,7 @@ export class SignageMediaService {
         const updated_media = decodeEntityNames(
             await updateSignageMedia(id, update),
         );
-        this._media_items.update((items) =>
+        this._media_list.update((items) =>
             items.map((item) => (item.id === id ? updated_media : item)),
         );
         this._media_tags.reload();
@@ -1141,7 +1080,7 @@ export class SignageMediaService {
                 .map(({ id, tags }) => [id, tags]),
         );
         if (saved.size) {
-            this._media_items.update((items) =>
+            this._media_list.update((items) =>
                 items.map((item) =>
                     saved.has(item.id)
                         ? new SignageMedia({
@@ -1272,7 +1211,7 @@ export class SignageMediaService {
         await this._playlist_service.addMediaToPlaylist(
             playlist_id,
             media_id,
-            this._media_items().find(({ id }) => id === media_id),
+            this._media_list.items().find(({ id }) => id === media_id),
         );
     }
 
@@ -1288,7 +1227,7 @@ export class SignageMediaService {
         return this._playlist_service.addMediaItemsToPlaylist(
             playlist_id,
             media_ids,
-            this._media_items().filter(({ id }) => media_ids.includes(id)),
+            this._media_list.items().filter(({ id }) => media_ids.includes(id)),
         );
     }
 

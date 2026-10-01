@@ -148,7 +148,7 @@ describe('SignagePlaylistService', () => {
                     name: `Playlist ${index}`,
                 }),
         );
-        test_service['_playlist_items'].set(loaded_playlists);
+        test_service['_playlist_list'].update(() => loaded_playlists);
         (updateSignagePlaylistMedia as any).mockResolvedValue({});
 
         await service.addMediaToPlaylist('playlist-200', 'media-1');

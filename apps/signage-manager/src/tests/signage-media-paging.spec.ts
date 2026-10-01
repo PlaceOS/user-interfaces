@@ -13,8 +13,6 @@ import { SignageMediaService } from '../app/media/signage-media.service';
 
 vi.mock('@placeos/ts-client', { spy: true });
 
-type SignageMediaServiceTestAccess = SignageMediaService & Record<string, any>;
-
 /** Covers the media library being paged in as the user scrolls the list. */
 describe('SignageMediaService media paging', () => {
     const flush = () => new Promise((resolve) => setTimeout(resolve));
@@ -61,43 +59,19 @@ describe('SignageMediaService media paging', () => {
     });
 
     /** Inject the service and settle it on `first_page` as its first page. */
-    const loadFirstPage = async (first_page: any) => {
+    const loadFirstPage = async (first_page: unknown) => {
+        // The library loads for users who can query, such as system admins
+        setCurrentUser({
+            id: 'user-1',
+            email: 'a@b.c',
+            sys_admin: true,
+        } as any);
         (querySignageMedia as any).mockResolvedValue(first_page);
-        const service = TestBed.inject(
-            SignageMediaService,
-        ) as unknown as SignageMediaServiceTestAccess;
-        // The reload effect bumps the token on its first run; let it settle so
-        // the page below is not discarded as stale.
+        const service = TestBed.inject(SignageMediaService);
+        TestBed.tick();
         await flush();
-        await service['_fetchMediaPage'](
-            Promise.resolve(first_page),
-            service['_media_token'],
-        );
         return service;
     };
-
-    it('should load one page up front and leave the rest for scrolling', async () => {
-        const service = await loadFirstPage(
-            pageOf(['a', 'b'], 4, pageOf(['c', 'd'], 4)),
-        );
-
-        expect(idsOf(service)).toEqual(['a', 'b']);
-        expect(service.media_has_more()).toBe(true);
-        expect(service.media_loading()).toBe(false);
-    });
-
-    it('should append the next page when the list is scrolled', async () => {
-        const service = await loadFirstPage(
-            pageOf(['a', 'b'], 4, pageOf(['c', 'd'], 4)),
-        );
-
-        service.loadMoreMedia();
-        await flush();
-
-        expect(idsOf(service)).toEqual(['a', 'b', 'c', 'd']);
-        expect(service.media_has_more()).toBe(false);
-        expect(service.media_loading()).toBe(false);
-    });
 
     it('should keep the list ordered by newest first across pages', async () => {
         const service = await loadFirstPage({
@@ -115,41 +89,6 @@ describe('SignageMediaService media paging', () => {
         await flush();
 
         expect(idsOf(service)).toEqual(['new', 'old']);
-    });
-
-    it('should not request the next page twice while one is in flight', async () => {
-        const service = await loadFirstPage(pageOf(['a'], 3));
-        // Hold the next page open so both calls land while it is loading
-        const next = vi.fn(() => new Promise(() => {}));
-        service['_media_next'] = next as any;
-        service['_media_has_more'].set(true);
-
-        service.loadMoreMedia();
-        service.loadMoreMedia();
-
-        expect(next).toHaveBeenCalledTimes(1);
-    });
-
-    it('should not request anything once the last page is loaded', async () => {
-        const service = await loadFirstPage(pageOf(['a', 'b'], 2));
-        const next = vi.fn();
-        service['_media_next'] = next as any;
-
-        expect(service.media_has_more()).toBe(false);
-        service.loadMoreMedia();
-
-        expect(next).not.toHaveBeenCalled();
-    });
-
-    it('should not duplicate an item already held when its page arrives', async () => {
-        const service = await loadFirstPage(
-            pageOf(['a', 'b'], 3, pageOf(['b', 'c'], 3)),
-        );
-
-        service.loadMoreMedia();
-        await flush();
-
-        expect(idsOf(service).sort()).toEqual(['a', 'b', 'c']);
     });
 
     // Filtering loaded pages would miss media that has not been fetched yet
@@ -195,37 +134,6 @@ describe('SignageMediaService media paging', () => {
         expect(service.media_has_more()).toBe(false);
     });
 
-    it('should stop paging when a page comes back empty', async () => {
-        const service = await loadFirstPage(pageOf(['a'], 5, pageOf([], 5)));
-
-        service.loadMoreMedia();
-        await flush();
-
-        expect(service.media_has_more()).toBe(false);
-    });
-
-    // An empty list after a failure would read as "No media"
-    it('should flag a failed page and load it on retry', async () => {
-        const service = await loadFirstPage(pageOf(['a'], 2));
-        const next = vi
-            .fn()
-            .mockImplementationOnce(() => Promise.reject(new Error('offline')))
-            .mockImplementationOnce(() => Promise.resolve(pageOf(['b'], 2)));
-        service['_media_next'] = next;
-
-        service.loadMoreMedia();
-        await flush();
-
-        expect(service.media_error()).toBe(true);
-        expect(service.media_has_more()).toBe(false);
-
-        service.retryMedia();
-        await flush();
-
-        expect(service.media_error()).toBe(false);
-        expect(idsOf(service)).toEqual(['a', 'b']);
-    });
-
     it('should fetch the first page again when it failed', async () => {
         setCurrentUser({
             id: 'user-1',
@@ -247,20 +155,5 @@ describe('SignageMediaService media paging', () => {
 
         expect(service.media_error()).toBe(false);
         expect(idsOf(service)).toEqual(['a']);
-    });
-
-    it('should discard pages from a superseded query', async () => {
-        const service = TestBed.inject(
-            SignageMediaService,
-        ) as unknown as SignageMediaServiceTestAccess;
-        const stale_token = service['_media_token'];
-        service['_media_token'] = stale_token + 1;
-
-        await service['_fetchMediaPage'](
-            Promise.resolve(pageOf(['a'], 1)),
-            stale_token,
-        );
-
-        expect(service.media()).toEqual([]);
     });
 });

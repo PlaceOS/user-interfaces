@@ -50,6 +50,7 @@ import {
     type ScheduleItem,
 } from '../schedules/signage-schedule.util';
 import { decodeEntityNames } from '../shared/decode-entity-names.util';
+import { PagedList } from '../shared/paged-list';
 import { byName } from '../shared/paged-search';
 import type { PlaylistRequestApprovalModalResult } from '../shared/playlist-request-approval-modal.component';
 import { SignageContextService } from '../signage-context.service';
@@ -140,7 +141,6 @@ export class SignagePlaylistService {
         this.playlist_search_term,
         400,
     );
-    private readonly _playlist_items = signal<SignagePlaylist[]>([]);
     // Keep playlists seen outside the current search available to display,
     // zone and schedule views, which resolve their playlist ids from this list.
     private readonly _playlist_cache = signal<Record<string, SignagePlaylist>>(
@@ -148,24 +148,25 @@ export class SignagePlaylistService {
     );
     private _playlist_cache_group: string | null = null;
     private _playlist_cache_change: number | null = null;
-    private readonly _playlists_loading = signal(false);
-    private readonly _playlists_error = signal(false);
-    private readonly _playlists_total = signal(0);
-    private readonly _playlists_has_more = signal(false);
-    private _playlists_next:
-        | (() => QueryResponse<SignagePlaylist> | null)
-        | null = null;
-    private _playlists_token = 0;
+    private readonly _playlist_list = new PagedList<SignagePlaylist>({
+        sort: byName,
+        on_page: (items) =>
+            this._playlist_cache.update((cache) => {
+                const next = { ...cache };
+                for (const item of items) next[item.id] = item;
+                return next;
+            }),
+    });
 
     public readonly playlists = computed(() =>
         Object.values(this._playlist_cache()).sort(byName),
     );
-    public readonly playlists_loading = this._playlists_loading.asReadonly();
+    public readonly playlists_loading = this._playlist_list.loading;
     /** Whether the last page of playlists failed to load */
-    public readonly playlists_error = this._playlists_error.asReadonly();
+    public readonly playlists_error = this._playlist_list.error;
     /** Number of playlists that match the query, loaded or not */
-    public readonly playlists_total = this._playlists_total.asReadonly();
-    public readonly playlists_has_more = this._playlists_has_more.asReadonly();
+    public readonly playlists_total = this._playlist_list.total;
+    public readonly playlists_has_more = this._playlist_list.has_more;
     private readonly _playlists_retry = signal(0);
 
     private readonly _reload_playlists = effect(() => {
@@ -176,12 +177,6 @@ export class SignagePlaylistService {
         const change = this._context.data_change();
         this._playlists_retry();
         untracked(() => {
-            const token = ++this._playlists_token;
-            this._playlist_items.set([]);
-            this._playlists_next = null;
-            this._playlists_has_more.set(false);
-            this._playlists_error.set(false);
-            this._playlists_total.set(0);
             if (
                 group_id !== this._playlist_cache_group ||
                 change !== this._playlist_cache_change
@@ -190,18 +185,15 @@ export class SignagePlaylistService {
                 this._playlist_cache_change = change;
                 this._playlist_cache.set({});
             }
-            if (!initialised || !can_query) return;
-            this._fetchPlaylistPage(
-                querySignagePlaylists(
-                    this._context.orgZoneQueryParams(
-                        {
-                            limit: PAGE_SIZE,
-                            ...searchParam(search),
-                        },
-                        group_id,
-                    ),
-                ),
-                token,
+            this._playlist_list.reset(
+                initialised && can_query
+                    ? querySignagePlaylists(
+                          this._context.orgZoneQueryParams(
+                              { limit: PAGE_SIZE, ...searchParam(search) },
+                              group_id,
+                          ),
+                      )
+                    : null,
             );
         });
     });
@@ -212,13 +204,7 @@ export class SignagePlaylistService {
     }
 
     public loadMorePlaylists() {
-        if (this._playlists_loading() || !this._playlists_has_more()) return;
-        const next = this._playlists_next?.();
-        if (!next) {
-            this._playlists_has_more.set(false);
-            return;
-        }
-        this._fetchPlaylistPage(next, this._playlists_token);
+        this._playlist_list.loadMore();
     }
 
     /**
@@ -242,42 +228,6 @@ export class SignagePlaylistService {
             return playlist;
         } catch {
             return null;
-        }
-    }
-
-    private async _fetchPlaylistPage(
-        query: QueryResponse<SignagePlaylist>,
-        token: number,
-    ) {
-        this._playlists_loading.set(true);
-        this._playlists_error.set(false);
-        try {
-            const page = await query;
-            if (token !== this._playlists_token) return;
-            const items = (page.data || []).map(decodeEntityNames);
-            this._playlist_items.update((list) => {
-                const by_id = new Map(list.map((item) => [item.id, item]));
-                for (const item of items) by_id.set(item.id, item);
-                return [...by_id.values()].sort(byName);
-            });
-            this._playlist_cache.update((cache) => {
-                const next = { ...cache };
-                for (const item of items) next[item.id] = item;
-                return next;
-            });
-            this._playlists_next = page.next;
-            this._playlists_total.set(page.total);
-            this._playlists_has_more.set(
-                this._playlist_items().length < page.total,
-            );
-        } catch {
-            if (token === this._playlists_token) {
-                this._playlists_has_more.set(false);
-                this._playlists_error.set(true);
-            }
-        } finally {
-            if (token === this._playlists_token)
-                this._playlists_loading.set(false);
         }
     }
 
@@ -415,7 +365,7 @@ export class SignagePlaylistService {
     private readonly _playlist_meta_queue: Record<string, SignagePlaylist> = {};
     private _playlist_meta_processing = false;
 
-    public readonly filtered_playlists = this._playlist_items.asReadonly();
+    public readonly filtered_playlists = this._playlist_list.items;
 
     public readonly selected_playlist_requires_approval = computed(() => {
         const playlist = this.selected_playlist();
@@ -456,7 +406,7 @@ export class SignagePlaylistService {
         const ids = this._tracked_ids().flatMap((source) => source());
         const cache = this._playlist_cache();
         // Wait for the first page, which usually holds the playlists
-        if (this._playlists_loading()) return;
+        if (this.playlists_loading()) return;
         untracked(() => {
             if (key !== this._playlists_by_id_key) {
                 this._playlists_by_id_key = key;

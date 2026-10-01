@@ -407,10 +407,10 @@ describe('SignageMediaService', () => {
         );
         const test_service =
             service as unknown as SignageMediaServiceTestAccess;
-        test_service['_media_items'].set([
+        test_service['_media_list'].update(() => [
             new SignageMedia({ id: 'media-old', name: 'Old', created_at: 100 }),
         ]);
-        test_service['_media_total'].set(223);
+        test_service['_media_list'].adjustTotal(223);
 
         await service.addMedia(
             new File(['image'], 'poster.png', { type: 'image/png' }),
@@ -726,7 +726,7 @@ describe('SignageMediaService', () => {
         const test_service =
             service as unknown as SignageMediaServiceTestAccess;
         TestBed.flushEffects();
-        test_service['_media_items'].set([media]);
+        test_service['_media_list'].update(() => [media]);
 
         await service.editMedia(media);
 
@@ -834,11 +834,11 @@ describe('SignageMediaService', () => {
             service as unknown as SignageMediaServiceTestAccess;
         stubRemoveMediaFromPlaylists();
         TestBed.flushEffects();
-        test_service['_media_items'].set([
+        test_service['_media_list'].update(() => [
             new SignageMedia({ id: 'media-1' }),
             new SignageMedia({ id: 'media-2' }),
         ]);
-        test_service['_media_total'].set(10);
+        test_service['_media_list'].adjustTotal(10);
         const changed = vi.spyOn(
             TestBed.inject(SignageContextService),
             'changed',
@@ -890,7 +890,7 @@ describe('SignageMediaService', () => {
         const test_service =
             service as unknown as SignageMediaServiceTestAccess;
         TestBed.flushEffects();
-        test_service['_media_items'].set([
+        test_service['_media_list'].update(() => [
             new SignageMedia({ id: 'media-1', tags: [] }),
             new SignageMedia({ id: 'media-2', tags: [] }),
         ]);
@@ -960,7 +960,7 @@ describe('SignageMediaService', () => {
             const test_service =
                 service as unknown as SignageMediaServiceTestAccess;
             TestBed.flushEffects();
-            test_service['_media_items'].set([
+            test_service['_media_list'].update(() => [
                 new SignageMedia({ id: 'media-old', created_at: 100 }),
             ]);
             const changed = vi.spyOn(

@@ -27,6 +27,7 @@ import {
 } from '@placeos/ts-client';
 import { SignagePlaylistService } from '../playlists/signage-playlist.service';
 import { decodeEntityNames } from '../shared/decode-entity-names.util';
+import { PagedList } from '../shared/paged-list';
 import { SignageContextService } from '../signage-context.service';
 import {
     dialogClosed,
@@ -71,22 +72,21 @@ export class SignageDisplayService {
         this.display_search_term,
         400,
     );
-    private readonly _display_items = signal<PlaceSystem[]>([]);
     // Every display seen since the group last changed, keyed by id. Zone,
     // schedule and playlist views resolve displays by id, so they need the
     // whole set rather than whatever the current search narrowed it to.
     private readonly _display_cache = signal<Record<string, PlaceSystem>>({});
     private _display_cache_group: string | null = null;
     private _display_search: string | null = null;
-    private readonly _displays_loading = signal(false);
-    private readonly _displays_has_more = signal(false);
-    private readonly _displays_total = signal(0);
-    // Rows the server returned for the current query, before the signage
-    // filter, so paging compares like with like against the server total.
-    private _displays_loaded = 0;
-    private _displays_next: (() => QueryResponse<PlaceSystem> | null) | null =
-        null;
-    private _displays_token = 0;
+    private readonly _display_list = new PagedList<PlaceSystem>({
+        filter: (item) => item.signage,
+        on_page: (items) =>
+            this._display_cache.update((cache) => {
+                const next = { ...cache };
+                for (const item of items) next[item.id] = item;
+                return next;
+            }),
+    });
 
     public readonly displays = computed(() =>
         mergeItems(
@@ -94,10 +94,10 @@ export class SignageDisplayService {
             this._display_overrides(),
         ),
     );
-    public readonly displays_loading = this._displays_loading.asReadonly();
-    public readonly displays_has_more = this._displays_has_more.asReadonly();
+    public readonly displays_loading = this._display_list.loading;
+    public readonly displays_has_more = this._display_list.has_more;
     /** Number of displays the server has for the current query */
-    public readonly displays_total = this._displays_total.asReadonly();
+    public readonly displays_total = this._display_list.total;
 
     private readonly _reload_displays = effect(() => {
         const initialised = this._org.initialised();
@@ -106,7 +106,6 @@ export class SignageDisplayService {
         const search = this._display_search_debounced.value().trim();
         this._context.data_change();
         untracked(() => {
-            const token = ++this._displays_token;
             // A data change on the same query keeps the loaded rows on screen
             // and reloads as many rows as were loaded, so the list does not
             // empty or drop the pages the user scrolled to.
@@ -114,33 +113,25 @@ export class SignageDisplayService {
                 group_id === this._display_cache_group &&
                 search === this._display_search;
             const limit = same_query
-                ? Math.max(PAGE_SIZE, this._displays_loaded)
+                ? Math.max(PAGE_SIZE, this._display_list.loaded_rows)
                 : PAGE_SIZE;
             this._display_search = search;
-            this._displays_next = null;
-            this._displays_has_more.set(false);
-            if (!same_query) this._display_items.set([]);
             // Only drop the id cache when the source of the data changes, a
             // new search term still needs the displays other views look up.
             if (group_id !== this._display_cache_group) {
                 this._display_cache_group = group_id;
                 this._display_cache.set({});
             }
-            if (!initialised || !can_query) {
-                this._display_items.set([]);
-                this._displays_loaded = 0;
-                this._displays_total.set(0);
-                return;
-            }
-            this._fetchDisplayPage(
-                querySignageDisplays({
-                    ...this._context.orgZoneQueryParams({}, group_id),
-                    limit,
-                    signage: true,
-                    ...searchParam(search),
-                }),
-                token,
-                true,
+            this._display_list.reset(
+                initialised && can_query
+                    ? querySignageDisplays({
+                          ...this._context.orgZoneQueryParams({}, group_id),
+                          limit,
+                          signage: true,
+                          ...searchParam(search),
+                      })
+                    : null,
+                { keep_items: same_query },
             );
         });
     });
@@ -169,58 +160,7 @@ export class SignageDisplayService {
     }
 
     public loadMoreDisplays() {
-        if (this._displays_loading() || !this._displays_has_more()) return;
-        const next = this._displays_next?.();
-        if (!next) {
-            this._displays_has_more.set(false);
-            return;
-        }
-        this._fetchDisplayPage(next, this._displays_token);
-    }
-
-    /**
-     * Add a page of displays to the list.
-     * @param replace Replace the loaded rows instead of appending, for a reload
-     */
-    private async _fetchDisplayPage(
-        query: QueryResponse<PlaceSystem>,
-        token: number,
-        replace = false,
-    ) {
-        this._displays_loading.set(true);
-        try {
-            const page = await query;
-            if (token !== this._displays_token) return;
-            const rows = page.data || [];
-            const items = rows.filter((item) => item.signage);
-            this._displays_loaded =
-                (replace ? 0 : this._displays_loaded) + rows.length;
-            this._display_items.update((list) => {
-                const by_id = new Map(
-                    (replace ? [] : list).map((item) => [item.id, item]),
-                );
-                for (const item of items) by_id.set(item.id, item);
-                return [...by_id.values()];
-            });
-            this._display_cache.update((cache) => {
-                const next = { ...cache };
-                for (const item of items) next[item.id] = item;
-                return next;
-            });
-            this._displays_next = page.next;
-            // Later pages can report an older total while the search index
-            // catches up, which would undo the count of a display just added
-            if (replace) this._displays_total.set(page.total);
-            this._displays_has_more.set(
-                !!page.next && this._displays_loaded < page.total,
-            );
-        } catch {
-            if (token === this._displays_token)
-                this._displays_has_more.set(false);
-        } finally {
-            if (token === this._displays_token)
-                this._displays_loading.set(false);
-        }
+        this._display_list.loadMore();
     }
 
     // Cleared when the user switches group
@@ -235,7 +175,7 @@ export class SignageDisplayService {
     // searched) query have been loaded so far. Local edits are applied over
     // the loaded items, but never add a display the query didn't return.
     public readonly filtered_displays = computed(() =>
-        mergeItems(this._display_items(), this._display_overrides()),
+        mergeItems(this._display_list.items(), this._display_overrides()),
     );
 
     /**
@@ -322,7 +262,7 @@ export class SignageDisplayService {
     private _addDisplayToList(display: PlaceSystem) {
         const item = decodeEntityNames(display);
         if (!item?.id) return item;
-        this._display_items.update((items) => [
+        this._display_list.update((items) => [
             item,
             ...items.filter((existing) => existing.id !== item.id),
         ]);
@@ -334,8 +274,8 @@ export class SignageDisplayService {
     }
 
     private _removeDisplayFromList(display_id: string) {
-        this._displays_total.update((total) => Math.max(0, total - 1));
-        this._display_items.update((items) =>
+        this._display_list.adjustTotal(-1);
+        this._display_list.update((items) =>
             items.filter((item) => item.id !== display_id),
         );
         this._display_cache.update((cache) => {
@@ -362,7 +302,7 @@ export class SignageDisplayService {
             new PlaceSystem({}),
             await this._defaultDisplayZoneIds(),
         );
-        if (display) this._displays_total.update((total) => total + 1);
+        if (display) this._display_list.adjustTotal(1);
         return display;
     }
 

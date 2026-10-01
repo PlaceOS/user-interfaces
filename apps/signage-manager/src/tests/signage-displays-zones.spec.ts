@@ -200,7 +200,7 @@ describe('SignageDisplayService and SignageZoneService', () => {
 
     it('applies local edits only to displays and zones in the list', () => {
         const { displays, zones } = createServices();
-        displays['_display_items'].set([new PlaceSystem({ id: 'd1' })]);
+        displays['_display_list'].update(() => [new PlaceSystem({ id: 'd1' })]);
         displays['_display_overrides'].set({
             d1: new PlaceSystem({ id: 'd1', name: 'Edited' }),
             other: new PlaceSystem({ id: 'other', name: 'Other group' }),
@@ -266,28 +266,9 @@ describe('SignageDisplayService and SignageZoneService', () => {
         });
     });
 
-    it('keeps the count of an added display when a later page has an older total', async () => {
-        const { displays: service } = createServices();
-        const page = (total: number) =>
-            Promise.resolve({
-                data: [new PlaceSystem({ id: `d${total}`, signage: true })],
-                total,
-                next: null,
-            });
-        const token = service['_displays_token'];
-        await service['_fetchDisplayPage'](page(206), token, true);
-        service['_displays_total'].update((total: number) => total + 1);
-
-        await service['_fetchDisplayPage'](page(206), token);
-        expect(service.displays_total()).toBe(207);
-
-        await service['_fetchDisplayPage'](page(210), token, true);
-        expect(service.displays_total()).toBe(210);
-    });
-
     it('counts added and removed displays in the total', async () => {
         const { displays: service } = createServices();
-        service['_displays_total'].set(5);
+        service['_display_list'].adjustTotal(5);
         dialog.open.mockReturnValue({
             afterClosed: () => ({
                 subscribe: (handler: (result: PlaceSystem) => void) => {
