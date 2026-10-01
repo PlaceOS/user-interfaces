@@ -1,14 +1,14 @@
 import {
   AsyncHandler,
+  Fp,
   Injectable,
   log,
   randomInt,
   randomString,
   setClassMetadata,
   signal,
-  zp,
   ɵɵdefineInjectable
-} from "./chunk-GNDQKMJ4.js";
+} from "./chunk-K6U75NDO.js";
 
 // libs/common/src/lib/remote-logging.service.ts
 function hookMethod(rootObject, functionToHook, hookingFunction) {
@@ -90,11 +90,11 @@ var _RemoteLoggingService = class _RemoteLoggingService extends AsyncHandler {
     if (!system_id)
       return;
     this._disable_handling = true;
-    zp(system_id, "Logger").execute("post_event", [event]).catch().finally(() => this._disable_handling = false);
+    Fp(system_id, "Logger").execute("post_event", [event]).catch().finally(() => this._disable_handling = false);
   }
   /** List to binding */
   _bindTo(id, name, mod = "Logger") {
-    const module = zp(id, mod).variable(name);
+    const module = Fp(id, mod).variable(name);
     this.subscription(`bind:${name}`, module.bind());
     this.subscription(`listen:${name}`, module.listen().subscribe((enabled) => {
       this._logging_system.set(enabled ? id : "");
@@ -119,4 +119,4 @@ export {
   RemoteLoggingService
 };
 //# debugId=4715f67e-0c79-50ae-a7ab-f30a3622c161
-//# sourceMappingURL=chunk-GHNNOCGJ.js.map
+//# sourceMappingURL=chunk-6YKCTQCU.js.map

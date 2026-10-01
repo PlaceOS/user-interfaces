@@ -1,14 +1,15 @@
 import {
   SanitizePipe
-} from "./chunk-QKZQHPKZ.js";
+} from "./chunk-AGPOD3XT.js";
 import {
   TranslatePipe
-} from "./chunk-25YFW7BL.js";
+} from "./chunk-NTDTHHWW.js";
 import {
   AsyncHandler,
   Component,
   DefaultValueAccessor,
   FormsModule,
+  Fp,
   IconComponent,
   Injectable,
   J,
@@ -21,12 +22,12 @@ import {
   SettingsService,
   User,
   ViewChild,
-  Xe,
   computed,
   currentUser,
   current_user,
   differenceInMinutes,
   effect,
+  et,
   format,
   inject,
   log,
@@ -35,7 +36,6 @@ import {
   settingSignal,
   signal,
   viewChild,
-  zp,
   ɵsetClassDebugInfo,
   ɵɵInheritDefinitionFeature,
   ɵɵadvance,
@@ -73,7 +73,7 @@ import {
   ɵɵtwoWayListener,
   ɵɵtwoWayProperty,
   ɵɵviewQuerySignal
-} from "./chunk-GNDQKMJ4.js";
+} from "./chunk-K6U75NDO.js";
 import {
   __privateAdd,
   __privateMethod,
@@ -2436,7 +2436,7 @@ var _ChatService = class _ChatService extends AsyncHandler {
     const id = this._chat_system();
     if (!id)
       return;
-    const auth = J() !== "x-api-key" ? `bearer_token=${encodeURIComponent(J())}` : `x-api-key=${Xe()}`;
+    const auth = J() !== "x-api-key" ? `bearer_token=${encodeURIComponent(J())}` : `x-api-key=${et()}`;
     const url = `ws${location.origin.replace("http", "")}/api/engine/v2/chatgpt/chat/${encodeURIComponent(id)}?${auth}${this._chat_id ? "&resume=" + encodeURIComponent(this._chat_id) : ""}`;
     log("CHAT", "Starting chat connection.");
     this._socket = new WebSocket(url);
@@ -2525,7 +2525,7 @@ var _ChatService = class _ChatService extends AsyncHandler {
     this._timeoutSocket();
   }
   _bindHint(id) {
-    const mod = zp(id, "LLM");
+    const mod = Fp(id, "LLM");
     const binding = mod.variable("user_hint");
     this.subscription(`binding:LLM:user_hint`, binding.bind());
     this.subscription(`listen:LLM:user_hint`, binding.listen().subscribe((value) => this.chat_hint.set(value)));
@@ -3132,4 +3132,4 @@ export {
   ChatComponent
 };
 //# debugId=93720087-0847-5214-bd75-523b1bc3b6d4
-//# sourceMappingURL=chat.component-37YOUQWB.js.map
+//# sourceMappingURL=chat.component-ATTXRWWP.js.map

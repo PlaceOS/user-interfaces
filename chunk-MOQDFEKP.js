@@ -1,5 +1,4 @@
 import {
-  $a,
   A,
   APP_ID,
   AbstractControl,
@@ -126,6 +125,7 @@ import {
   isNativeFormElement,
   isSignal,
   isTextualFormElement,
+  ka,
   linkedSignal,
   map,
   merge,
@@ -204,7 +204,7 @@ import {
   ɵɵtextInterpolate,
   ɵɵviewQuery,
   ɵɵviewQuerySignal
-} from "./chunk-GNDQKMJ4.js";
+} from "./chunk-K6U75NDO.js";
 import {
   __spreadProps,
   __spreadValues
@@ -316,11 +316,11 @@ var _SpacePipe = class _SpacePipe {
   }
   async _loadSpace(space_id) {
     if (!space_id.includes("@")) {
-      const system = await va(space_id).catch(() => null);
+      const system = await ka(space_id).catch(() => null);
       if (system)
         return this._cacheSystem(system);
     }
-    const systems = (await ba({ in: space_id }).catch(() => ({
+    const systems = (await va({ in: space_id }).catch(() => ({
       data: []
     }))).data;
     if (systems.length === 1)
@@ -7085,7 +7085,7 @@ function requestSpacesForZone(id) {
     return of([]);
   if (SPACE_LIST_REQUESTS[id])
     return SPACE_LIST_REQUESTS[id];
-  SPACE_LIST_REQUESTS[id] = from($a({
+  SPACE_LIST_REQUESTS[id] = from(ba({
     zone_id: id,
     limit: 500,
     signage: false
@@ -9546,4 +9546,4 @@ export {
   MatAutocompleteModule
 };
 //# debugId=6bfa75f8-f972-5e52-b5ed-f3eef7d377d1
-//# sourceMappingURL=chunk-HHKNELIY.js.map
+//# sourceMappingURL=chunk-MOQDFEKP.js.map
