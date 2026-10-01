@@ -1,3 +1,0 @@
-import{$c as l,Or as Wd,Tc as x_,io as k_}from"./chunk-DF0e17pG.js";var s=class extends k_{constructor(e={}){super(e),this.background_media=e.background_media?new Wd(e.background_media):null}};var r=class extends x_{constructor(e={}){super(e),this.template_details=new s(l({id:e.template_id},e.template_details))}};export{s as n,r as t};
-//# debugId=117cb203-799b-58e7-88a6-9f1fc93b6c97
-//# sourceMappingURL=chunk-CoGHohwJ.js.map
