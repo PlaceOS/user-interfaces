@@ -21,6 +21,7 @@ import {
     firstValueWhere,
     HashMap,
     i18n,
+    log,
 } from '@placeos/common';
 import { openConfirmModal } from '@placeos/components';
 import { CalendarService, queryEvents, SpacesService } from '@placeos/events';
@@ -332,8 +333,24 @@ export class ControlStateService extends AsyncHandler {
         if (id !== this._id()) {
             this._id.set(id);
             // Caches the space details for the space pipe
-            this._spaces.loadSpace(id).catch(() => null);
+            this._spaces
+                .loadSpace(id)
+                .catch((error) => this._onSystemLoadError(id, error));
         }
+    }
+
+    /**
+     * Send the panel back to bootstrap when the system does not exist.
+     * Clears the stored ID first so bootstrap does not open it again.
+     */
+    private _onSystemLoadError(id: string, error: unknown) {
+        const status = (error as { status?: number } | null)?.status;
+        log('Control', 'Error loading system details:', [id, status], 'error');
+        if (status !== 404 || id !== this._id()) return;
+        if (localStorage.getItem(CONTROL_STORE_KEY) === id) {
+            localStorage.removeItem(CONTROL_STORE_KEY);
+        }
+        this._router.navigate(['/bootstrap']);
     }
 
     /** Power on the active system */
