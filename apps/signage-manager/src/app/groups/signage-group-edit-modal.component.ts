@@ -10,7 +10,8 @@ import {
     TranslatePipe,
 } from '@placeos/components';
 import { PlaceGroup } from '@placeos/ts-client';
-import { SignageService } from '../signage.service';
+import { SignageContextService } from '../signage-context.service';
+import { SignageGroupAdminService } from './signage-group-admin.service';
 
 @Component({
     selector: 'signage-group-edit-modal',
@@ -103,7 +104,8 @@ export class SignageGroupEditModalComponent {
     );
     private readonly _dialog_ref =
         inject<MatDialogRef<SignageGroupEditModalComponent>>(MatDialogRef);
-    private readonly _service = inject(SignageService);
+    private readonly _group_admin = inject(SignageGroupAdminService);
+    private readonly _context = inject(SignageContextService);
 
     public readonly loading = signal(false);
     public readonly group = this._data.group || {};
@@ -116,13 +118,13 @@ export class SignageGroupEditModalComponent {
      * not manage it. */
     public readonly parent_groups = (): Pick<PlaceGroup, 'id' | 'name'>[] => {
         const parent_id = this.group.parent_id || '';
-        const options = this._service
+        const options = this._group_admin
             .manageable_signage_groups()
             .filter(
                 ({ id }) =>
                     id !== this.group.id &&
                     id !== parent_id &&
-                    this._service.canChangeGroupParent(this.group, id),
+                    this._group_admin.canChangeGroupParent(this.group, id),
             );
         if (!parent_id) return options;
         const parent = this._knownGroup(parent_id) ||
@@ -134,7 +136,7 @@ export class SignageGroupEditModalComponent {
     };
     /** Only system admins can move a group to the top level */
     public readonly can_remove_parent = () =>
-        this._service.canChangeGroupParent(this.group, '');
+        this._group_admin.canChangeGroupParent(this.group, '');
     public readonly model = signal({
         name: this.group.name || '',
         description: this.group.description || '',
@@ -155,10 +157,10 @@ export class SignageGroupEditModalComponent {
 
     private _knownGroup(group_id: string) {
         return (
-            this._service
+            this._context
                 .signage_groups()
                 .find(({ group }) => group.id === group_id)?.group ||
-            this._service
+            this._group_admin
                 .manageable_signage_groups()
                 .find(({ id }) => id === group_id)
         );
@@ -169,7 +171,7 @@ export class SignageGroupEditModalComponent {
     private async _loadParent() {
         const parent_id = this.group.parent_id;
         if (!parent_id || this._knownGroup(parent_id)) return;
-        const parent = await this._service
+        const parent = await this._group_admin
             .loadGroup(parent_id)
             .catch(() => null);
         if (parent) this._loaded_parent.set(parent);
@@ -180,7 +182,7 @@ export class SignageGroupEditModalComponent {
             this.loading.set(true);
             this._dialog_ref.disableClose = true;
             try {
-                const result = await this._service.saveSignageGroup(
+                const result = await this._group_admin.saveSignageGroup(
                     this.group,
                     this.model(),
                 );

@@ -21,12 +21,12 @@ import {
     SignagePlaylist,
     SignagePlugin,
 } from '@placeos/ts-client';
+import { SignageMediaService } from '../media/signage-media.service';
 import {
     playlistMediaThumbnailUrl,
     playlistMediaUrl,
 } from '../signage-playlist.util';
 import { webPageFrameUrl } from '../signage-url.util';
-import { SignageService } from '../signage.service';
 import { SignageSharedWithComponent } from './signage-shared-with.component';
 
 interface MediaPreviewModalData {
@@ -399,7 +399,7 @@ interface MediaPreviewModalData {
 })
 export class MediaPreviewModalComponent implements OnInit {
     private readonly _data: MediaPreviewModalData = inject(MAT_DIALOG_DATA);
-    private readonly _service = inject(SignageService);
+    private readonly _media_service = inject(SignageMediaService);
     private readonly _sanitizer = inject(DomSanitizer);
 
     public readonly item = this._data.media;
@@ -412,7 +412,7 @@ export class MediaPreviewModalComponent implements OnInit {
 
     public readonly containing_playlists = signal<SignagePlaylist[]>([]);
     public readonly loading_playlists = signal(true);
-    public readonly edit = () => this._service.editMedia(this.item);
+    public readonly edit = () => this._media_service.editMedia(this.item);
 
     /** Webpage URL for the preview iframe. Only http and https URLs load. */
     public readonly safe_url = computed(() => {

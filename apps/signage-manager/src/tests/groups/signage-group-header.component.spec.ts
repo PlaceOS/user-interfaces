@@ -1,25 +1,30 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { MatDialog } from '@angular/material/dialog';
+import { SignageGroupAdminService } from '../../app/groups/signage-group-admin.service';
 import { SignageGroupEditModalComponent } from '../../app/groups/signage-group-edit-modal.component';
 import { SignageGroupHeaderComponent } from '../../app/groups/signage-group-header.component';
-import { SignageService } from '../../app/signage.service';
+import { SignageContextService } from '../../app/signage-context.service';
 
 describe('SignageGroupHeaderComponent', () => {
     const manageable_signage_groups = signal<any[]>([]);
     const managed_group_id = signal('');
     const can_manage_all_groups = signal(true);
     const dialog = { open: vi.fn() };
-    const service_stub = {
+    const group_admin_stub = {
         manageable_signage_groups,
         managed_group_id,
-        can_manage_all_groups,
     };
+    const context_stub = { can_manage_all_groups };
 
     function make() {
         TestBed.configureTestingModule({
             providers: [
-                { provide: SignageService, useValue: service_stub },
+                {
+                    provide: SignageGroupAdminService,
+                    useValue: group_admin_stub,
+                },
+                { provide: SignageContextService, useValue: context_stub },
                 { provide: MatDialog, useValue: dialog },
             ],
         }).overrideComponent(SignageGroupHeaderComponent, {

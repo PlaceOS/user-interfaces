@@ -4,7 +4,9 @@ import { TestBed } from '@angular/core/testing';
 import { settingSignal } from '@placeos/common';
 import { SignageTemplateLayout } from '@placeos/ts-client';
 
-import { SignageService } from '../../app/signage.service';
+import { SignageDisplayService } from '../../app/displays/signage-display.service';
+import { SignagePluginService } from '../../app/signage-plugin.service';
+import { SignageTemplateService } from '../../app/templates/signage-template.service';
 import { TemplatePreviewComponent } from '../../app/templates/template-preview.component';
 
 describe('TemplatePreviewComponent', () => {
@@ -16,18 +18,23 @@ describe('TemplatePreviewComponent', () => {
     const displays = signal<
         { id: string; display_name?: string; name?: string }[]
     >([]);
-    const service_stub = {
+    const display_stub = { displays };
+    const plugin_stub = { widgets: signal([]) };
+    const template_stub = {
         selected_template,
         selected_template_layout_index: signal<number | null>(null),
         template_layout_draft: signal<SignageTemplateLayout[]>([]),
-        widgets: signal([]),
-        displays,
     };
+    const stub_providers = [
+        { provide: SignageDisplayService, useValue: display_stub },
+        { provide: SignagePluginService, useValue: plugin_stub },
+        { provide: SignageTemplateService, useValue: template_stub },
+    ];
 
     async function make() {
         await TestBed.configureTestingModule({
             imports: [TemplatePreviewComponent],
-            providers: [{ provide: SignageService, useValue: service_stub }],
+            providers: stub_providers,
         })
             .overrideComponent(TemplatePreviewComponent, {
                 set: { template: '' },
@@ -40,7 +47,7 @@ describe('TemplatePreviewComponent', () => {
     async function render() {
         await TestBed.configureTestingModule({
             imports: [TemplatePreviewComponent],
-            providers: [{ provide: SignageService, useValue: service_stub }],
+            providers: stub_providers,
         }).compileComponents();
         const fixture = TestBed.createComponent(TemplatePreviewComponent);
         await fixture.whenStable();
@@ -50,7 +57,7 @@ describe('TemplatePreviewComponent', () => {
     beforeEach(() => {
         selected_template.set(null);
         displays.set([]);
-        service_stub.template_layout_draft.set([]);
+        template_stub.template_layout_draft.set([]);
         settingSignal('signage_path').set(undefined);
         TestBed.resetTestingModule();
     });
@@ -68,7 +75,7 @@ describe('TemplatePreviewComponent', () => {
         ) as HTMLIFrameElement;
         const post = vi.spyOn(frame.contentWindow!, 'postMessage');
 
-        service_stub.template_layout_draft.set([
+        template_stub.template_layout_draft.set([
             { position: 'top', plugin_id: 'plugin-1' } as SignageTemplateLayout,
         ]);
         await fixture.whenStable();

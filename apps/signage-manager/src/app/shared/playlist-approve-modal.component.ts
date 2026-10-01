@@ -15,8 +15,10 @@ import {
     SignagePlaylist,
     updateSignagePlaylistMedia,
 } from '@placeos/ts-client';
+import { SignageMediaService } from '../media/signage-media.service';
+import { SignagePlaylistService } from '../playlists/signage-playlist.service';
+import { SignageContextService } from '../signage-context.service';
 import { playlistMediaItems } from '../signage-playlist.util';
-import { SignageService } from '../signage.service';
 import { PlaylistApprovalPreviewComponent } from './playlist-approval-preview.component';
 import { loadPlaylistApprovalVersions } from './playlist-approval.util';
 
@@ -122,10 +124,12 @@ export class PlaylistApproveModalComponent {
     private readonly _dialog_ref = inject(
         MatDialogRef<PlaylistApproveModalComponent>,
     );
-    private readonly _service = inject(SignageService);
+    private readonly _context = inject(SignageContextService);
+    private readonly _media_service = inject(SignageMediaService);
+    private readonly _playlist_service = inject(SignagePlaylistService);
 
     public readonly loading = signal('');
-    public readonly can_update = this._service.can_update;
+    public readonly can_update = this._context.can_update;
 
     // The version to approve and the last approved version. The approver
     // must see the changes, so a failed load blocks approval.
@@ -178,13 +182,13 @@ export class PlaylistApproveModalComponent {
                 this._data.playlist.id,
                 previous_version.items,
             );
-            this._service.setPlaylistApprovalStatus(
+            this._playlist_service.setPlaylistApprovalStatus(
                 this._data.playlist.id,
                 false,
             );
             notifySuccess(i18n('SIGNAGE_MANAGER.PLAYLIST_REVERTED'));
             this._dialog_ref.close(true);
-            this._service.refreshPlaylist(this._data.playlist.id);
+            this._playlist_service.refreshPlaylist(this._data.playlist.id);
         } catch (e) {
             notifyError(i18n('SIGNAGE_MANAGER.PLAYLIST_REVERT_ERROR'));
         } finally {
@@ -199,13 +203,13 @@ export class PlaylistApproveModalComponent {
         this._dialog_ref.disableClose = true;
         try {
             await approveSignagePlaylist(this._data.playlist.id);
-            this._service.setPlaylistApprovalStatus(
+            this._playlist_service.setPlaylistApprovalStatus(
                 this._data.playlist.id,
                 true,
             );
             notifySuccess(i18n('SIGNAGE_MANAGER.PLAYLIST_APPROVED'));
             this._dialog_ref.close(true);
-            this._service.changed();
+            this._context.changed();
         } catch (e) {
             notifyError(i18n('SIGNAGE_MANAGER.PLAYLIST_APPROVE_ERROR'));
         } finally {
@@ -215,6 +219,6 @@ export class PlaylistApproveModalComponent {
     }
 
     public previewItem(item: SignageMedia) {
-        this._service.previewMedia(item);
+        this._media_service.previewMedia(item);
     }
 }

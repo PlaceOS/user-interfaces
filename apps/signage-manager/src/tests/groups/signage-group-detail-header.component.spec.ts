@@ -2,9 +2,9 @@ import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { MatDialog } from '@angular/material/dialog';
 import { SignageGroupAccessModalComponent } from '../../app/groups/signage-group-access-modal.component';
+import { SignageGroupAdminService } from '../../app/groups/signage-group-admin.service';
 import { SignageGroupDetailHeaderComponent } from '../../app/groups/signage-group-detail-header.component';
 import { SignageGroupEditModalComponent } from '../../app/groups/signage-group-edit-modal.component';
-import { SignageService } from '../../app/signage.service';
 
 describe('SignageGroupDetailHeaderComponent', () => {
     const managed_group = signal<any>({ id: 'group-1', name: 'Group 1' });
@@ -20,7 +20,7 @@ describe('SignageGroupDetailHeaderComponent', () => {
     function make() {
         TestBed.configureTestingModule({
             providers: [
-                { provide: SignageService, useValue: service_stub },
+                { provide: SignageGroupAdminService, useValue: service_stub },
                 { provide: MatDialog, useValue: dialog },
             ],
         }).overrideComponent(SignageGroupDetailHeaderComponent, {

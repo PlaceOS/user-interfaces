@@ -4,7 +4,8 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import { GroupBreadcrumbsComponent } from '../shared/group-breadcrumbs.component';
-import { SignageService } from '../signage.service';
+import { SignageContextService } from '../signage-context.service';
+import { SignageGroupAdminService } from './signage-group-admin.service';
 import { SignageGroupEditModalComponent } from './signage-group-edit-modal.component';
 
 @Component({
@@ -58,13 +59,14 @@ import { SignageGroupEditModalComponent } from './signage-group-edit-modal.compo
     ],
 })
 export class SignageGroupHeaderComponent {
-    private readonly _service = inject(SignageService);
+    private readonly _context = inject(SignageContextService);
+    private readonly _group_admin = inject(SignageGroupAdminService);
     private readonly _dialog = inject(MatDialog);
 
-    public readonly groups = this._service.manageable_signage_groups;
+    public readonly groups = this._group_admin.manageable_signage_groups;
     public readonly group_count = computed(() => this.groups().length);
     public readonly can_add_groups = computed(
-        () => this._service.can_manage_all_groups() || this.group_count() > 0,
+        () => this._context.can_manage_all_groups() || this.group_count() > 0,
     );
 
     public editGroup() {

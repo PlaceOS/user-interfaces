@@ -6,7 +6,7 @@ import {
     SettingsToggleComponent,
     TranslatePipe,
 } from '@placeos/components';
-import { SignageGroupPermission } from '../signage.service';
+import { SignageGroupPermission } from '../signage-context.service';
 
 /** Labels of the group permission bits, in display order */
 export const GROUP_PERMISSION_FLAGS = [

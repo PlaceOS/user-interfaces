@@ -1,7 +1,10 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { GroupBreadcrumbsComponent } from '../../app/shared/group-breadcrumbs.component';
-import { groupHierarchy, SignageService } from '../../app/signage.service';
+import {
+    groupHierarchy,
+    SignageContextService,
+} from '../../app/signage-context.service';
 
 function group(id: string, name: string, parent_id?: string) {
     return { id, name, parent_id } as any;
@@ -63,7 +66,7 @@ describe('GroupBreadcrumbsComponent', () => {
             imports: [GroupBreadcrumbsComponent],
             providers: [
                 {
-                    provide: SignageService,
+                    provide: SignageContextService,
                     useValue: {
                         selected_group_hierarchy,
                         selected_group_id,

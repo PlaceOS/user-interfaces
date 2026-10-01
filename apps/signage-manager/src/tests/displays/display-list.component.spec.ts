@@ -2,7 +2,7 @@ import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { DisplayListComponent } from '../../app/displays/display-list.component';
 import { signageDisplay } from '../../app/displays/signage-display';
-import { SignageService } from '../../app/signage.service';
+import { SignageDisplayService } from '../../app/displays/signage-display.service';
 
 describe('DisplayListComponent', () => {
     const display_search_term = signal('');
@@ -11,7 +11,7 @@ describe('DisplayListComponent', () => {
     const displays_has_more = signal(false);
     const displays_loading = signal(false);
     const load_more = vi.fn();
-    const service_stub = {
+    const display_stub = {
         display_search_term,
         filtered_displays,
         selected_display,
@@ -22,7 +22,9 @@ describe('DisplayListComponent', () => {
 
     function make() {
         TestBed.configureTestingModule({
-            providers: [{ provide: SignageService, useValue: service_stub }],
+            providers: [
+                { provide: SignageDisplayService, useValue: display_stub },
+            ],
         });
         return TestBed.createComponent(DisplayListComponent).componentInstance;
     }

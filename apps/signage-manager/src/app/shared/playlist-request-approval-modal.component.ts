@@ -20,8 +20,10 @@ import {
     SignagePlaylistMedia,
     updateSignagePlaylistMedia,
 } from '@placeos/ts-client';
+import { SignageMediaService } from '../media/signage-media.service';
+import { SignagePlaylistService } from '../playlists/signage-playlist.service';
+import { SignageContextService } from '../signage-context.service';
 import { playlistMediaItems } from '../signage-playlist.util';
-import { SignageService } from '../signage.service';
 import { PlaylistApprovalPreviewComponent } from './playlist-approval-preview.component';
 import { loadPlaylistApprovalVersions } from './playlist-approval.util';
 
@@ -231,7 +233,9 @@ export interface PlaylistRequestApprovalModalResult {
     ],
 })
 export class PlaylistRequestApprovalModalComponent {
-    private readonly _service = inject(SignageService);
+    private readonly _context = inject(SignageContextService);
+    private readonly _media_service = inject(SignageMediaService);
+    private readonly _playlist_service = inject(SignagePlaylistService);
     public readonly data =
         inject<PlaylistRequestApprovalModalData>(MAT_DIALOG_DATA);
     private readonly _dialog_ref =
@@ -251,7 +255,7 @@ export class PlaylistRequestApprovalModalComponent {
     public readonly has_previous_version = signal(false);
     /** Whether the versions failed to load. Opening the preview again retries. */
     public readonly versions_error = signal(false);
-    public readonly can_update = this._service.can_update;
+    public readonly can_update = this._context.can_update;
 
     /** The latest version and the last approved version, newest first */
     public readonly playlist_versions = signal<SignagePlaylistMedia[]>([]);
@@ -307,13 +311,13 @@ export class PlaylistRequestApprovalModalComponent {
                 this.data.playlist.id,
                 previous_version.items,
             );
-            this._service.setPlaylistApprovalStatus(
+            this._playlist_service.setPlaylistApprovalStatus(
                 this.data.playlist.id,
                 false,
             );
             notifySuccess(i18n('SIGNAGE_MANAGER.PLAYLIST_REVERTED'));
             this._dialog_ref.close();
-            this._service.changed();
+            this._context.changed();
         } catch {
             notifyError(i18n('SIGNAGE_MANAGER.PLAYLIST_REVERT_ERROR'));
         } finally {
@@ -323,6 +327,6 @@ export class PlaylistRequestApprovalModalComponent {
     }
 
     public previewItem(item: SignageMedia) {
-        this._service.previewMedia(item);
+        this._media_service.previewMedia(item);
     }
 }

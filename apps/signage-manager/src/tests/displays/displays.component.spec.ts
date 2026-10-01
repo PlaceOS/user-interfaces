@@ -4,7 +4,10 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { TranslatePipe } from '@placeos/components';
 import { PlaceSystem, show } from '@placeos/ts-client';
 import { DisplaysSectionComponent } from '../../app/displays/displays.component';
-import { SignageService } from '../../app/signage.service';
+import { SignageDisplayService } from '../../app/displays/signage-display.service';
+import { SignagePlaylistService } from '../../app/playlists/signage-playlist.service';
+import { SignageContextService } from '../../app/signage-context.service';
+import { SignageTemplateService } from '../../app/templates/signage-template.service';
 
 vi.mock('@placeos/ts-client', { spy: true });
 
@@ -23,21 +26,27 @@ describe('DisplaysSectionComponent', () => {
     const navigate = vi.fn();
     const edit_display = vi.fn();
     const remove_display = vi.fn();
-    const service_stub = {
-        selected_display,
-        displays,
-        playlistsById: (ids: readonly string[]) =>
-            playlists().filter(({ id }) => ids.includes(id)),
-        selected_display_zones,
+    const context_stub = {
         can_update,
         can_delete_displays,
         templates_enabled,
-        playlists_loading,
+    };
+    const display_stub = {
+        selected_display,
+        displays,
+        selected_display_zones,
         selected_display_zones_loading: related_loading,
-        template_mappings_revision,
-        listTemplateMappings: list_template_mappings,
         editDisplay: edit_display,
         removeDisplay: remove_display,
+    };
+    const playlist_stub = {
+        playlistsById: (ids: readonly string[]) =>
+            playlists().filter(({ id }) => ids.includes(id)),
+        playlists_loading,
+    };
+    const template_stub = {
+        template_mappings_revision,
+        listTemplateMappings: list_template_mappings,
     };
     const router_stub = { navigate };
 
@@ -49,7 +58,10 @@ describe('DisplaysSectionComponent', () => {
         await TestBed.configureTestingModule({
             imports: [DisplaysSectionComponent],
             providers: [
-                { provide: SignageService, useValue: service_stub },
+                { provide: SignageContextService, useValue: context_stub },
+                { provide: SignageDisplayService, useValue: display_stub },
+                { provide: SignagePlaylistService, useValue: playlist_stub },
+                { provide: SignageTemplateService, useValue: template_stub },
                 { provide: Router, useValue: router_stub },
                 { provide: ActivatedRoute, useValue: {} },
             ],

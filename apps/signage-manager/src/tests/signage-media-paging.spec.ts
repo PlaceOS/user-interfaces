@@ -9,14 +9,14 @@ import {
 } from '@placeos/common';
 import { querySignageMedia, SignageMedia } from '@placeos/ts-client';
 
-import { SignageService } from '../app/signage.service';
+import { SignageMediaService } from '../app/media/signage-media.service';
 
 vi.mock('@placeos/ts-client', { spy: true });
 
-type SignageServiceTestAccess = SignageService & Record<string, any>;
+type SignageMediaServiceTestAccess = SignageMediaService & Record<string, any>;
 
 /** Covers the media library being paged in as the user scrolls the list. */
-describe('SignageService media paging', () => {
+describe('SignageMediaService media paging', () => {
     const flush = () => new Promise((resolve) => setTimeout(resolve));
 
     /**
@@ -33,14 +33,13 @@ describe('SignageService media paging', () => {
         next: next ? () => Promise.resolve(next) : null,
     });
 
-    const idsOf = (service: SignageService) =>
+    const idsOf = (service: SignageMediaService) =>
         service.media().map((item) => item.id);
 
     beforeEach(() => {
         vi.clearAllMocks();
         TestBed.configureTestingModule({
             providers: [
-                SignageService,
                 { provide: UploadsService, useValue: {} },
                 {
                     provide: SettingsService,
@@ -65,8 +64,8 @@ describe('SignageService media paging', () => {
     const loadFirstPage = async (first_page: any) => {
         (querySignageMedia as any).mockResolvedValue(first_page);
         const service = TestBed.inject(
-            SignageService,
-        ) as unknown as SignageServiceTestAccess;
+            SignageMediaService,
+        ) as unknown as SignageMediaServiceTestAccess;
         // The reload effect bumps the token on its first run; let it settle so
         // the page below is not discarded as stale.
         await flush();
@@ -162,7 +161,7 @@ describe('SignageService media paging', () => {
             sys_admin: true,
         } as any);
         (querySignageMedia as any).mockResolvedValue(pageOf(['a', 'b'], 9));
-        const service = TestBed.inject(SignageService);
+        const service = TestBed.inject(SignageMediaService);
         TestBed.tick();
         await flush();
         (querySignageMedia as any).mockResolvedValue(pageOf(['c'], 5));
@@ -236,7 +235,7 @@ describe('SignageService media paging', () => {
         (querySignageMedia as any)
             .mockRejectedValueOnce(new Error('offline'))
             .mockResolvedValue(pageOf(['a'], 1));
-        const service = TestBed.inject(SignageService);
+        const service = TestBed.inject(SignageMediaService);
         TestBed.tick();
         await flush();
 
@@ -252,8 +251,8 @@ describe('SignageService media paging', () => {
 
     it('should discard pages from a superseded query', async () => {
         const service = TestBed.inject(
-            SignageService,
-        ) as unknown as SignageServiceTestAccess;
+            SignageMediaService,
+        ) as unknown as SignageMediaServiceTestAccess;
         const stale_token = service['_media_token'];
         service['_media_token'] = stale_token + 1;
 

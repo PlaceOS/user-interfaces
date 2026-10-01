@@ -13,13 +13,16 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, Router } from '@angular/router';
 import { settingSignal } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
+import { SignagePlaylistService } from '../playlists/signage-playlist.service';
 import { NavFooterComponent } from '../shared/nav-footer.component';
 import { NavSidebarComponent } from '../shared/nav-sidebar.component';
-import { SignageService } from '../signage.service';
+import { SignageContextService } from '../signage-context.service';
+import { SignageTemplateService } from '../templates/signage-template.service';
 import { DisplayContentComponent } from './display-content.component';
 import { DisplayHeaderComponent } from './display-header.component';
 import { DisplayListComponent } from './display-list.component';
 import { showSignageDisplay } from './signage-display';
+import { SignageDisplayService } from './signage-display.service';
 
 const TAB_QUERY_PARAM = 'tab';
 
@@ -333,39 +336,47 @@ function parseDisplayTab(
     ],
 })
 export class DisplaysSectionComponent {
-    private readonly _service = inject(SignageService);
+    private readonly _context = inject(SignageContextService);
+    private readonly _display_service = inject(SignageDisplayService);
+    private readonly _playlist_service = inject(SignagePlaylistService);
+    private readonly _template_service = inject(SignageTemplateService);
     private readonly _route = inject(ActivatedRoute);
     private readonly _router = inject(Router);
 
     public readonly id = input('');
     public readonly tab = input<string | null>(null);
     public readonly signage_path = settingSignal('signage_path');
-    public readonly templates_enabled = this._service.templates_enabled;
+    public readonly templates_enabled = this._context.templates_enabled;
     public readonly view_tab = signal<
         'schedule' | 'templates' | 'playlists' | 'zones'
     >('schedule');
-    public readonly selected_display = this._service.selected_display;
-    public readonly can_update = this._service.can_update;
-    public readonly can_delete_displays = this._service.can_delete_displays;
+    public readonly selected_display = this._display_service.selected_display;
+    public readonly can_update = this._context.can_update;
+    public readonly can_delete_displays = this._context.can_delete_displays;
 
-    private readonly _displays = this._service.displays;
+    private readonly _displays = this._display_service.displays;
 
     private readonly _template_mappings = resource({
         params: () => {
             const id: string = this.selected_display()?.id;
             return this.templates_enabled() && id
-                ? { id, revision: this._service.template_mappings_revision() }
+                ? {
+                      id,
+                      revision:
+                          this._template_service.template_mappings_revision(),
+                  }
                 : undefined;
         },
         loader: ({ params }) =>
-            this._service.listTemplateMappings({
+            this._template_service.listTemplateMappings({
                 control_system_id: params.id,
             }),
     });
     public readonly template_count_loading = this._template_mappings.isLoading;
-    public readonly playlist_count_loading = this._service.playlists_loading;
+    public readonly playlist_count_loading =
+        this._playlist_service.playlists_loading;
     public readonly zone_count_loading =
-        this._service.selected_display_zones_loading;
+        this._display_service.selected_display_zones_loading;
     public readonly template_count = computed(() =>
         this._template_mappings.hasValue()
             ? this._template_mappings.value().length
@@ -374,13 +385,13 @@ export class DisplaysSectionComponent {
 
     public readonly playlist_count = computed(
         () =>
-            this._service.playlistsById(
+            this._playlist_service.playlistsById(
                 this.selected_display()?.playlists || [],
             ).length,
     );
 
     public readonly zone_count = computed(
-        () => this._service.selected_display_zones().length,
+        () => this._display_service.selected_display_zones().length,
     );
     public readonly panel_link = computed(() => {
         const display = this.selected_display();
@@ -411,18 +422,21 @@ export class DisplaysSectionComponent {
             if (id) {
                 const match = list.find((d) => d.id === id);
                 if (match) {
-                    if (this._service.selected_display()?.id !== match.id) {
-                        this._service.selected_display.set(match);
+                    if (
+                        this._display_service.selected_display()?.id !==
+                        match.id
+                    ) {
+                        this._display_service.selected_display.set(match);
                     }
                     this._route_resolved = true;
                 } else if (
-                    untracked(this._service.selected_display)?.id !== id
+                    untracked(this._display_service.selected_display)?.id !== id
                 ) {
                     // The list holds only the pages loaded so far
                     untracked(() => this._loadDisplay(id));
                 }
             } else if (this._route_resolved) {
-                this._service.selected_display.set(null);
+                this._display_service.selected_display.set(null);
             }
         });
     }
@@ -435,27 +449,28 @@ export class DisplaysSectionComponent {
         if (
             !display ||
             this.id() !== id ||
-            this._service.selected_display()?.id === id
+            this._display_service.selected_display()?.id === id
         ) {
             return;
         }
-        this._service.selected_display.set(display);
+        this._display_service.selected_display.set(display);
         this._route_resolved = true;
     }
 
     public deselectDisplay() {
-        this._service.selected_display.set(null);
+        this._display_service.selected_display.set(null);
         this._router.navigate(['/displays'], {});
     }
 
     public editDisplay() {
         const display = this.selected_display();
-        if (display) this._service.editDisplay(display);
+        if (display) this._display_service.editDisplay(display);
     }
 
     public async removeDisplay() {
         const display = this.selected_display();
-        if (!display || !(await this._service.removeDisplay(display))) return;
+        if (!display || !(await this._display_service.removeDisplay(display)))
+            return;
         await this._router.navigate(['/displays'], {});
     }
 

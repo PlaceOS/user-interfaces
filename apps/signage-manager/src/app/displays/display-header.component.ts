@@ -1,10 +1,11 @@
 import { Component, inject } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { Router } from '@angular/router';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import { GroupBreadcrumbsComponent } from '../shared/group-breadcrumbs.component';
-import { SignageService } from '../signage.service';
-import { MatTooltipModule } from '@angular/material/tooltip';
+import { SignageContextService } from '../signage-context.service';
+import { SignageDisplayService } from './signage-display.service';
 
 @Component({
     selector: 'display-header',
@@ -31,7 +32,8 @@ import { MatTooltipModule } from '@angular/material/tooltip';
             <div class="w-px flex-1"></div>
             @if (can_create()) {
                 <button
-                    icon default
+                    icon
+                    default
                     type="button"
                     matRipple
                     class="text-xl"
@@ -51,19 +53,20 @@ import { MatTooltipModule } from '@angular/material/tooltip';
         IconComponent,
         TranslatePipe,
         GroupBreadcrumbsComponent,
-        MatTooltipModule
+        MatTooltipModule,
     ],
 })
 export class DisplayHeaderComponent {
-    private readonly _service = inject(SignageService);
+    private readonly _context = inject(SignageContextService);
+    private readonly _display_service = inject(SignageDisplayService);
     private readonly _router = inject(Router);
 
     /** Server total, as the list holds only the pages loaded so far */
-    public readonly total_count = this._service.displays_total;
-    public readonly can_create = this._service.can_create;
+    public readonly total_count = this._display_service.displays_total;
+    public readonly can_create = this._context.can_create;
 
     public async addDisplay() {
-        const display = await this._service.addDisplay();
+        const display = await this._display_service.addDisplay();
         if (display?.id) await this._router.navigate(['/displays', display.id]);
     }
 }

@@ -2,7 +2,7 @@ import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute, Router } from '@angular/router';
 import { PlaylistsSectionComponent } from '../../app/playlists/playlists.component';
-import { SignageService } from '../../app/signage.service';
+import { SignagePlaylistService } from '../../app/playlists/signage-playlist.service';
 
 describe('PlaylistsSectionComponent', () => {
     const selected_playlist = signal<any>(null);
@@ -13,7 +13,7 @@ describe('PlaylistsSectionComponent', () => {
     const navigate = vi.fn();
     const load_playlist = vi.fn();
 
-    const service_stub = {
+    const playlist_stub = {
         selected_playlist,
         selected_playlist_item,
         selected_playlist_item_index,
@@ -28,7 +28,7 @@ describe('PlaylistsSectionComponent', () => {
         await TestBed.configureTestingModule({
             imports: [PlaylistsSectionComponent],
             providers: [
-                { provide: SignageService, useValue: service_stub },
+                { provide: SignagePlaylistService, useValue: playlist_stub },
                 { provide: Router, useValue: { navigate } },
                 { provide: ActivatedRoute, useValue: {} },
             ],

@@ -1,7 +1,9 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { DisplayContentComponent } from '../../app/displays/display-content.component';
-import { SignageService } from '../../app/signage.service';
+import { SignageDisplayService } from '../../app/displays/signage-display.service';
+import { SignagePlaylistService } from '../../app/playlists/signage-playlist.service';
+import { SignageContextService } from '../../app/signage-context.service';
 
 const NOW_S = Math.floor(Date.now() / 1000);
 
@@ -14,22 +16,28 @@ describe('DisplayContentComponent', () => {
     const can_update = signal(true);
     const add_playlist = vi.fn();
     const remove_playlist = vi.fn();
-    const service_stub = {
+    const context_stub = { can_update };
+    const display_stub = {
         selected_display,
-        playlistsById: (ids: readonly string[]) =>
-            playlists().filter(({ id }) => ids.includes(id)),
         selected_display_zones,
-        playlist_approval_status,
-        playlist_thumbnail_media,
-        can_update,
         addPlaylistToDisplay: add_playlist,
         removePlaylistFromDisplay: remove_playlist,
+    };
+    const playlist_stub = {
+        playlistsById: (ids: readonly string[]) =>
+            playlists().filter(({ id }) => ids.includes(id)),
+        playlist_approval_status,
+        playlist_thumbnail_media,
     };
 
     async function make() {
         await TestBed.configureTestingModule({
             imports: [DisplayContentComponent],
-            providers: [{ provide: SignageService, useValue: service_stub }],
+            providers: [
+                { provide: SignageContextService, useValue: context_stub },
+                { provide: SignageDisplayService, useValue: display_stub },
+                { provide: SignagePlaylistService, useValue: playlist_stub },
+            ],
         })
             .overrideComponent(DisplayContentComponent, {
                 set: { template: '' },

@@ -16,7 +16,8 @@ import {
     SignageTemplate,
     type SignageTemplateApprover,
 } from '@placeos/ts-client';
-import { SignageService } from '../signage.service';
+import { SignageContextService } from '../signage-context.service';
+import { SignageTemplateService } from '../templates/signage-template.service';
 import { TemplateApprovalPreviewComponent } from './template-approval-preview.component';
 import { loadTemplateApprovalVersions } from './template-approval.util';
 
@@ -210,7 +211,8 @@ export interface TemplateRequestApprovalModalResult {
     ],
 })
 export class TemplateRequestApprovalModalComponent {
-    private readonly _service = inject(SignageService);
+    private readonly _context = inject(SignageContextService);
+    private readonly _template_service = inject(SignageTemplateService);
     public readonly data =
         inject<TemplateRequestApprovalModalData>(MAT_DIALOG_DATA);
     private readonly _dialog_ref =
@@ -230,7 +232,7 @@ export class TemplateRequestApprovalModalComponent {
     public readonly template_versions = signal<SignageTemplate[]>([]);
     public readonly has_previous_version = () =>
         this.template_versions().length > 1;
-    public readonly can_update = this._service.can_update_templates;
+    public readonly can_update = this._context.can_update_templates;
 
     public togglePreview() {
         const show_preview = !this.show_preview();
@@ -265,7 +267,7 @@ export class TemplateRequestApprovalModalComponent {
         this.loading.set(i18n('SIGNAGE_MANAGER.UNDOING_CHANGES'));
         this._dialog_ref.disableClose = true;
         try {
-            const undone = await this._service.undoTemplateChanges(
+            const undone = await this._template_service.undoTemplateChanges(
                 this.data.template.id,
                 previous_version,
             );

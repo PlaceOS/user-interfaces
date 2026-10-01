@@ -6,9 +6,10 @@ import { i18n } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import type { SignageMedia } from '@placeos/ts-client';
 import { format } from 'date-fns';
+import { SignageMediaService } from '../media/signage-media.service';
 import { CONFLICT_WINDOW_DAYS } from '../schedules/schedule-conflicts.util';
+import { SignageInventoryService } from '../signage-inventory.service';
 import { playlistExpiredAt } from '../signage-playlist.util';
-import { SignageService } from '../signage.service';
 
 /** Most rows shown in each report section */
 const MAX_ROWS = 50;
@@ -202,15 +203,16 @@ interface ReportSection {
     ],
 })
 export class ContentReportComponent {
-    private readonly _service = inject(SignageService);
+    private readonly _inventory_service = inject(SignageInventoryService);
+    private readonly _media_service = inject(SignageMediaService);
 
     public readonly max_rows = MAX_ROWS;
     public readonly window_days = CONFLICT_WINDOW_DAYS;
     // Loads when the page opens, when the group changes and after a save.
     // The refresh button loads it again.
     public readonly report = resource({
-        params: () => this._service.inventory_key(),
-        loader: () => this._service.loadContentReport(),
+        params: () => this._inventory_service.inventory_key(),
+        loader: () => this._inventory_service.loadContentReport(),
     });
 
     public readonly sections = computed<ReportSection[]>(() => {
@@ -295,6 +297,6 @@ export class ContentReportComponent {
     }
 
     public preview(media: SignageMedia) {
-        void this._service.previewMedia(media);
+        void this._media_service.previewMedia(media);
     }
 }

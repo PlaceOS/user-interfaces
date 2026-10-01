@@ -1,10 +1,10 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { MatDialog } from '@angular/material/dialog';
-import { SignageGroupUsersComponent } from '../../app/groups/signage-group-users.component';
-import { SignageGroupUserSelectModalComponent } from '../../app/groups/signage-group-user-select-modal.component';
+import { SignageGroupAdminService } from '../../app/groups/signage-group-admin.service';
 import { SignageGroupPermissionsModalComponent } from '../../app/groups/signage-group-permissions-modal.component';
-import { SignageService } from '../../app/signage.service';
+import { SignageGroupUserSelectModalComponent } from '../../app/groups/signage-group-user-select-modal.component';
+import { SignageGroupUsersComponent } from '../../app/groups/signage-group-users.component';
 
 function dialogRef(value: unknown) {
     return {
@@ -33,7 +33,7 @@ describe('SignageGroupUsersComponent', () => {
     function make() {
         TestBed.configureTestingModule({
             providers: [
-                { provide: SignageService, useValue: service_stub },
+                { provide: SignageGroupAdminService, useValue: service_stub },
                 { provide: MatDialog, useValue: dialog },
             ],
         }).overrideComponent(SignageGroupUsersComponent, {

@@ -1,14 +1,39 @@
 import { inject, Injectable } from '@angular/core';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { i18n } from '@placeos/common';
+import {
+    PlaceSystem,
+    PlaceZone,
+    querySignageMedia,
+    querySignagePlaylists,
+    querySignageTemplates,
+    querySystems,
+    queryZones,
+    SignageMedia,
+    SignagePlaylist,
+    SignageTemplate,
+} from '@placeos/ts-client';
+import { SignageContextService } from '../signage-context.service';
+import { searchParam } from '../signage-service.util';
+import { decodeEntityNames } from './decode-entity-names.util';
+
+/** Command palette search results with no matches */
+const EMPTY_SEARCH_RESULTS = {
+    displays: [] as PlaceSystem[],
+    playlists: [] as SignagePlaylist[],
+    templates: [] as SignageTemplate[],
+    zones: [] as PlaceZone[],
+    media: [] as SignageMedia[],
+};
 
 /**
- * Opens the command palette. The app root calls it for Cmd+K or Ctrl+K and
- * the nav sidebar calls it from its search button.
+ * Opens the command palette and searches for it. The app root calls `toggle`
+ * for Cmd+K or Ctrl+K and the nav sidebar calls it from its search button.
  */
 @Injectable({ providedIn: 'root' })
 export class CommandPaletteService {
     private readonly _dialog = inject(MatDialog);
+    private readonly _context = inject(SignageContextService);
     private _ref: MatDialogRef<unknown> | null = null;
     private _opening = false;
 
@@ -34,5 +59,49 @@ export class CommandPaletteService {
         } finally {
             this._opening = false;
         }
+    }
+
+    /**
+     * First matches of each signage type for a search, for the command
+     * palette. A type is empty when its query fails or is not available.
+     * @param search Text to search for
+     * @param limit Most results to return for each type
+     */
+    public async searchAll(search: string, limit = 5) {
+        const term = search.trim();
+        if (!term || !this._context.canQueryLists()) {
+            return EMPTY_SEARCH_RESULTS;
+        }
+        const params = {
+            ...this._context.orgZoneQueryParams({ limit }),
+            ...searchParam(term),
+        };
+        const group_params = this._context.groupQueryParams({
+            limit,
+            ...searchParam(term),
+        });
+        const settle = async <T>(query: Promise<{ data?: T[] }>) => {
+            try {
+                const data = (await query).data || [];
+                return data.slice(0, limit).map(decodeEntityNames);
+            } catch {
+                return [] as T[];
+            }
+        };
+        const [displays, playlists, templates, zones, media] =
+            await Promise.all([
+                settle<PlaceSystem>(
+                    querySystems({ ...params, signage: true } as any),
+                ),
+                settle(querySignagePlaylists(params)),
+                this._context.templates_enabled()
+                    ? settle(querySignageTemplates(group_params))
+                    : Promise.resolve([] as SignageTemplate[]),
+                settle<PlaceZone>(
+                    queryZones({ ...group_params, tags: 'signage' } as any),
+                ),
+                settle(querySignageMedia(params)),
+            ]);
+        return { displays, playlists, templates, zones, media };
     }
 }

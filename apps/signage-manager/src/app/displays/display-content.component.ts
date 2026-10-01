@@ -4,10 +4,12 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterLink } from '@angular/router';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import { SignagePlaylist } from '@placeos/ts-client';
+import { SignagePlaylistService } from '../playlists/signage-playlist.service';
 import { PlaylistThumbnailComponent } from '../shared/playlist-thumbnail.component';
 import { TemplateMappingsComponent } from '../shared/template-mappings.component';
-import { SignageService } from '../signage.service';
+import { SignageContextService } from '../signage-context.service';
 import { DisplayScheduleComponent } from './display-schedule.component';
+import { SignageDisplayService } from './signage-display.service';
 
 type PlaylistStatus = 'expired' | 'pending' | 'awaiting_approval' | null;
 
@@ -353,24 +355,29 @@ type PlaylistStatus = 'expired' | 'pending' | 'awaiting_approval' | null;
     ],
 })
 export class DisplayContentComponent {
-    private readonly _service = inject(SignageService);
+    private readonly _context = inject(SignageContextService);
+    private readonly _display_service = inject(SignageDisplayService);
+    private readonly _playlist_service = inject(SignagePlaylistService);
 
     public readonly activeTab = input<
         'schedule' | 'templates' | 'playlists' | 'zones'
     >('schedule');
-    public readonly selected_display = this._service.selected_display;
+    public readonly selected_display = this._display_service.selected_display;
     public readonly playlist_approval_status =
-        this._service.playlist_approval_status;
-    public readonly can_update = this._service.can_update;
+        this._playlist_service.playlist_approval_status;
+    public readonly can_update = this._context.can_update;
 
     public readonly display_playlists = computed(() =>
-        this._service.playlistsById(this.selected_display()?.playlists || []),
+        this._playlist_service.playlistsById(
+            this.selected_display()?.playlists || [],
+        ),
     );
-    public readonly display_zones = this._service.selected_display_zones;
+    public readonly display_zones =
+        this._display_service.selected_display_zones;
 
     public addPlaylist() {
         const display = this.selected_display();
-        if (display) this._service.addPlaylistToDisplay(display);
+        if (display) this._display_service.addPlaylistToDisplay(display);
     }
 
     public removePlaylist(event: Event, playlist_id: string) {
@@ -378,7 +385,10 @@ export class DisplayContentComponent {
         event.stopPropagation();
         const display = this.selected_display();
         if (display)
-            this._service.removePlaylistFromDisplay(display, playlist_id);
+            this._display_service.removePlaylistFromDisplay(
+                display,
+                playlist_id,
+            );
     }
 
     public getStatus(playlist: SignagePlaylist): PlaylistStatus {

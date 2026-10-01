@@ -2,8 +2,9 @@ import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute, Router } from '@angular/router';
 import { addDays, isSameDay, startOfDay } from 'date-fns';
+import { SignagePlaylistService } from '../../app/playlists/signage-playlist.service';
 import { SchedulesSectionComponent } from '../../app/schedules/schedules.component';
-import { SignageService } from '../../app/signage.service';
+import { SignageInventoryService } from '../../app/signage-inventory.service';
 
 describe('SchedulesSectionComponent', () => {
     const playlists = signal<any[]>([]);
@@ -14,9 +15,11 @@ describe('SchedulesSectionComponent', () => {
     const load_inventory = vi.fn();
     const flush = () => new Promise((resolve) => setTimeout(resolve));
 
-    const service_stub = {
+    const inventory_stub = {
         inventory_key,
         loadSignageInventory: load_inventory,
+    };
+    const playlist_stub = {
         playlist_approval_status: signal<Record<string, boolean>>({}),
     };
 
@@ -26,7 +29,8 @@ describe('SchedulesSectionComponent', () => {
         await TestBed.configureTestingModule({
             imports: [SchedulesSectionComponent],
             providers: [
-                { provide: SignageService, useValue: service_stub },
+                { provide: SignageInventoryService, useValue: inventory_stub },
+                { provide: SignagePlaylistService, useValue: playlist_stub },
                 { provide: Router, useValue: { navigate } },
                 { provide: ActivatedRoute, useValue: {} },
             ],

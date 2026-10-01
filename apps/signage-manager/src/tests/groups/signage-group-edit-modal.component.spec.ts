@@ -2,8 +2,9 @@ import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { HotkeysService, i18n } from '@placeos/common';
+import { SignageGroupAdminService } from '../../app/groups/signage-group-admin.service';
 import { SignageGroupEditModalComponent } from '../../app/groups/signage-group-edit-modal.component';
-import { SignageService } from '../../app/signage.service';
+import { SignageContextService } from '../../app/signage-context.service';
 
 describe('SignageGroupEditModalComponent', () => {
     const dialog_ref = { close: vi.fn(), disableClose: false };
@@ -14,13 +15,13 @@ describe('SignageGroupEditModalComponent', () => {
     let hotkey_callback: () => void;
     const can_change_parent = vi.fn();
     const load_group = vi.fn();
-    const service_stub = {
+    const group_admin_stub = {
         manageable_signage_groups,
-        signage_groups,
         saveSignageGroup: save_signage_group,
         canChangeGroupParent: can_change_parent,
         loadGroup: load_group,
     };
+    const context_stub = { signage_groups };
     let modal_data: { group: any };
 
     function make() {
@@ -28,7 +29,11 @@ describe('SignageGroupEditModalComponent', () => {
             providers: [
                 { provide: MAT_DIALOG_DATA, useValue: modal_data },
                 { provide: MatDialogRef, useValue: dialog_ref },
-                { provide: SignageService, useValue: service_stub },
+                {
+                    provide: SignageGroupAdminService,
+                    useValue: group_admin_stub,
+                },
+                { provide: SignageContextService, useValue: context_stub },
                 {
                     provide: HotkeysService,
                     useValue: { listen: hotkey_listen },

@@ -26,7 +26,8 @@ import {
 } from '@placeos/components';
 import { PlaceGroup, PlaceGroupAdMappings } from '@placeos/ts-client';
 import { adGroupKey } from '../signage-group-access';
-import { dialogClosed, SignageService } from '../signage.service';
+import { dialogClosed } from '../signage-service.util';
+import { SignageGroupAdminService } from './signage-group-admin.service';
 import {
     GROUP_PERMISSION_FLAGS,
     groupPermissionLabels,
@@ -358,7 +359,7 @@ export class SignageGroupAccessModalComponent {
     private readonly _dialog_ref =
         inject<MatDialogRef<SignageGroupAccessModalComponent>>(MatDialogRef);
     private readonly _dialog = inject(MatDialog);
-    private readonly _service = inject(SignageService);
+    private readonly _group_admin = inject(SignageGroupAdminService);
 
     public readonly group = this._data.group;
     public readonly permissions = GROUP_PERMISSION_FLAGS;
@@ -379,7 +380,7 @@ export class SignageGroupAccessModalComponent {
     private readonly _search_debounced = debounced(this.search, 300);
     private readonly _directory = resource({
         params: () => this._search_debounced.value() ?? '',
-        loader: ({ params }) => this._service.searchDirectoryGroups(params),
+        loader: ({ params }) => this._group_admin.searchDirectoryGroups(params),
     });
     /** Without a staff API tenant that lists groups, the ID is typed in */
     public readonly directory_unavailable = computed(
@@ -407,7 +408,9 @@ export class SignageGroupAccessModalComponent {
     // failed read closes the editor.
     private async _load() {
         try {
-            const access = await this._service.loadGroupAccess(this.group.id);
+            const access = await this._group_admin.loadGroupAccess(
+                this.group.id,
+            );
             this.default_permissions.set(access.default_permissions);
             this.mappings.set(access.ad_group_mappings);
             this.loaded.set(true);
@@ -475,7 +478,7 @@ export class SignageGroupAccessModalComponent {
         this.saving.set(true);
         this._dialog_ref.disableClose = true;
         try {
-            const result = await this._service.saveGroupAccess(this.group, {
+            const result = await this._group_admin.saveGroupAccess(this.group, {
                 default_permissions: this.default_permissions(),
                 ad_group_mappings: this.mappings(),
             });

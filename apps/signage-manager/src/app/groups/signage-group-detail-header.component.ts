@@ -4,8 +4,8 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import { PlaceGroup } from '@placeos/ts-client';
-import { SignageService } from '../signage.service';
 import { SignageGroupAccessModalComponent } from './signage-group-access-modal.component';
+import { SignageGroupAdminService } from './signage-group-admin.service';
 import { SignageGroupEditModalComponent } from './signage-group-edit-modal.component';
 import { SignageGroupFeaturesModalComponent } from './signage-group-features-modal.component';
 
@@ -105,16 +105,16 @@ import { SignageGroupFeaturesModalComponent } from './signage-group-features-mod
     imports: [IconComponent, MatRippleModule, MatTooltipModule, TranslatePipe],
 })
 export class SignageGroupDetailHeaderComponent {
-    private readonly _service = inject(SignageService);
+    private readonly _group_admin = inject(SignageGroupAdminService);
     private readonly _dialog = inject(MatDialog);
 
-    public readonly selected_group = this._service.managed_group;
+    public readonly selected_group = this._group_admin.managed_group;
     public readonly can_edit_features = computed(() =>
-        this._service.canEditGroupFeatures(this.selected_group()),
+        this._group_admin.canEditGroupFeatures(this.selected_group()),
     );
 
     public clearSelection() {
-        this._service.managed_group_id.set('');
+        this._group_admin.managed_group_id.set('');
     }
 
     public editGroup(group: Partial<PlaceGroup> = {}) {
@@ -139,6 +139,6 @@ export class SignageGroupDetailHeaderComponent {
     }
 
     public removeGroup(group: PlaceGroup) {
-        this._service.removeSignageGroup(group);
+        this._group_admin.removeSignageGroup(group);
     }
 }

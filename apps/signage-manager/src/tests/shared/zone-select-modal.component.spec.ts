@@ -2,7 +2,7 @@ import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { MatDialogRef } from '@angular/material/dialog';
 import { ZoneSelectModalComponent } from '../../app/shared/zone-select-modal.component';
-import { SignageService } from '../../app/signage.service';
+import { SignageZoneService } from '../../app/zones/signage-zone.service';
 
 describe('ZoneSelectModalComponent', () => {
     const flush = () => new Promise((resolve) => setTimeout(resolve));
@@ -29,7 +29,7 @@ describe('ZoneSelectModalComponent', () => {
         await TestBed.configureTestingModule({
             imports: [ZoneSelectModalComponent],
             providers: [
-                { provide: SignageService, useValue: service },
+                { provide: SignageZoneService, useValue: service },
                 { provide: MatDialogRef, useValue: dialog_ref },
             ],
         })

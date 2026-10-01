@@ -12,6 +12,7 @@ import {
     TranslatePipe,
 } from '@placeos/components';
 import { PlaceGroup } from '@placeos/ts-client';
+import { SignageContextService } from '../signage-context.service';
 import {
     noGroupFeaturesOn404,
     ORGANISATION_FEATURES,
@@ -20,7 +21,8 @@ import {
     SignageGroupFeatures,
     signageGroupFeatures,
 } from '../signage-features';
-import { SignageService } from '../signage.service';
+import { SignagePluginService } from '../signage-plugin.service';
+import { SignageGroupAdminService } from './signage-group-admin.service';
 
 type ListKey = keyof SignageGroupFeatures;
 
@@ -186,21 +188,23 @@ export class SignageGroupFeaturesModalComponent {
     private readonly _data = inject<{ group: PlaceGroup }>(MAT_DIALOG_DATA);
     private readonly _dialog_ref =
         inject<MatDialogRef<SignageGroupFeaturesModalComponent>>(MatDialogRef);
-    private readonly _service = inject(SignageService);
+    private readonly _context = inject(SignageContextService);
+    private readonly _group_admin = inject(SignageGroupAdminService);
+    private readonly _plugin_service = inject(SignagePluginService);
 
     /** Replaced by a fresh read, so a save keeps flags set elsewhere */
     public group = this._data.group;
     /** Plugins the parent group allows */
     public readonly plugins = computed(() => {
         const allowed = this._inherited()?.available_plugins;
-        const plugins = this._service.all_plugins();
+        const plugins = this._plugin_service.all_plugins();
         return allowed
             ? plugins.filter(({ id }) => allowed.includes(id))
             : plugins;
     });
     /** Group features that the global settings and the parent group allow */
     public readonly available_features = computed(() => {
-        const global = this._service.global_features() || [];
+        const global = this._context.global_features() || [];
         const parent = this._inherited()?.features;
         return SIGNAGE_FEATURES.filter(
             ({ id }) =>
@@ -234,8 +238,8 @@ export class SignageGroupFeaturesModalComponent {
     // has no group limits, so the parent allows everything.
     private async _load() {
         try {
-            const group = await this._service.loadGroup(this.group.id);
-            const inherited = await this._service
+            const group = await this._group_admin.loadGroup(this.group.id);
+            const inherited = await this._context
                 .loadGroupFeatures(group.parent_id)
                 .catch(noGroupFeaturesOn404);
             this.group = group;
@@ -289,7 +293,7 @@ export class SignageGroupFeaturesModalComponent {
         this.saving.set(true);
         this._dialog_ref.disableClose = true;
         try {
-            const result = await this._service.saveGroupFeatures(
+            const result = await this._group_admin.saveGroupFeatures(
                 this.group,
                 this._withKnownPlugins(this.own()),
             );
@@ -308,7 +312,7 @@ export class SignageGroupFeaturesModalComponent {
         features: SignageGroupFeatures,
     ): SignageGroupFeatures {
         const ids = new Set(
-            this._service.all_plugins().map((plugin) => plugin.id),
+            this._plugin_service.all_plugins().map((plugin) => plugin.id),
         );
         if (!features.available_plugins || !ids.size) return features;
         return {

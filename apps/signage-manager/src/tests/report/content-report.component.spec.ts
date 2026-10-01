@@ -1,7 +1,8 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { SignageMediaService } from '../../app/media/signage-media.service';
 import { ContentReportComponent } from '../../app/report/content-report.component';
-import { SignageService } from '../../app/signage.service';
+import { SignageInventoryService } from '../../app/signage-inventory.service';
 
 describe('ContentReportComponent', () => {
     const flush = () => new Promise((resolve) => setTimeout(resolve));
@@ -13,12 +14,15 @@ describe('ContentReportComponent', () => {
         TestBed.configureTestingModule({
             providers: [
                 {
-                    provide: SignageService,
+                    provide: SignageInventoryService,
                     useValue: {
                         inventory_key,
                         loadContentReport: load_report,
-                        previewMedia: preview_media,
                     },
+                },
+                {
+                    provide: SignageMediaService,
+                    useValue: { previewMedia: preview_media },
                 },
             ],
         }).overrideComponent(ContentReportComponent, {

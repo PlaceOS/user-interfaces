@@ -7,8 +7,10 @@ import {
     listSignagePlaylistMediaRevisions,
     updateSignagePlaylistMedia,
 } from '@placeos/ts-client';
+import { SignageMediaService } from '../../app/media/signage-media.service';
+import { SignagePlaylistService } from '../../app/playlists/signage-playlist.service';
 import { PlaylistApproveModalComponent } from '../../app/shared/playlist-approve-modal.component';
-import { SignageService } from '../../app/signage.service';
+import { SignageContextService } from '../../app/signage-context.service';
 
 vi.mock('@placeos/ts-client', { spy: true });
 
@@ -22,11 +24,15 @@ describe('PlaylistApproveModalComponent', () => {
         close: vi.fn(),
         disableClose: false,
     };
-    const service = {
+    const context = {
         changed: vi.fn(),
         can_update: signal(true),
+    };
+    const media_service = {
         media: signal([]),
         previewMedia: vi.fn(),
+    };
+    const playlist_service = {
         refreshPlaylist: vi.fn(),
         setPlaylistApprovalStatus: vi.fn(),
     };
@@ -35,8 +41,8 @@ describe('PlaylistApproveModalComponent', () => {
         vi.clearAllMocks();
         setNotifyOutlet({ open: notify_open } as any, true);
         dialog_ref.disableClose = false;
-        service.can_update.set(true);
-        service.refreshPlaylist.mockReset();
+        context.can_update.set(true);
+        playlist_service.refreshPlaylist.mockReset();
         (updateSignagePlaylistMedia as any).mockResolvedValue({});
         (listSignagePlaylistMediaRevisions as any).mockResolvedValue([
             {
@@ -71,7 +77,9 @@ describe('PlaylistApproveModalComponent', () => {
                     useValue: { playlist: { id: 'playlist-1' } },
                 },
                 { provide: MatDialogRef, useValue: dialog_ref },
-                { provide: SignageService, useValue: service },
+                { provide: SignageContextService, useValue: context },
+                { provide: SignageMediaService, useValue: media_service },
+                { provide: SignagePlaylistService, useValue: playlist_service },
             ],
         }).compileComponents();
     });
@@ -95,7 +103,9 @@ describe('PlaylistApproveModalComponent', () => {
 
         expect(component.loading()).toBe('');
         expect(dialog_ref.disableClose).toBe(false);
-        expect(service.setPlaylistApprovalStatus).not.toHaveBeenCalled();
+        expect(
+            playlist_service.setPlaylistApprovalStatus,
+        ).not.toHaveBeenCalled();
         expect(dialog_ref.close).not.toHaveBeenCalled();
         expect(notify_open).toHaveBeenCalledWith(
             'Error approving playlist',
@@ -116,7 +126,7 @@ describe('PlaylistApproveModalComponent', () => {
     });
 
     it('hides undo changes when user does not have update permissions', async () => {
-        service.can_update.set(false);
+        context.can_update.set(false);
         const fixture = TestBed.createComponent(PlaylistApproveModalComponent);
         fixture.detectChanges();
         await fixture.whenStable();
@@ -128,7 +138,7 @@ describe('PlaylistApproveModalComponent', () => {
     });
 
     it('does not undo changes when user does not have update permissions', async () => {
-        service.can_update.set(false);
+        context.can_update.set(false);
         const fixture = TestBed.createComponent(PlaylistApproveModalComponent);
         const component = fixture.componentInstance;
 
@@ -155,7 +165,9 @@ describe('PlaylistApproveModalComponent', () => {
         expect(updateSignagePlaylistMedia).toHaveBeenCalledWith('playlist-1', [
             'media-2',
         ]);
-        expect(service.refreshPlaylist).toHaveBeenCalledWith('playlist-1');
+        expect(playlist_service.refreshPlaylist).toHaveBeenCalledWith(
+            'playlist-1',
+        );
     });
 
     it('blocks approval and shows an error when the versions fail to load', async () => {

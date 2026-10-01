@@ -8,7 +8,9 @@ import {
     SignageTemplate,
 } from '@placeos/ts-client';
 import { TemplateApproveModalComponent } from '../../app/shared/template-approve-modal.component';
-import { SignageService } from '../../app/signage.service';
+import { SignageContextService } from '../../app/signage-context.service';
+import { SignagePluginService } from '../../app/signage-plugin.service';
+import { SignageTemplateService } from '../../app/templates/signage-template.service';
 
 vi.mock('@placeos/ts-client', { spy: true });
 
@@ -22,10 +24,12 @@ describe('TemplateApproveModalComponent', () => {
         close: vi.fn(),
         disableClose: false,
     };
-    const service = {
+    const context = {
         can_update_templates: signal(true),
-        widgets: signal([]),
         changed: vi.fn(),
+    };
+    const plugin_service = { widgets: signal([]) };
+    const template_service = {
         updateCachedTemplate: vi.fn(),
         undoTemplateChanges: vi.fn(),
     };
@@ -44,7 +48,9 @@ describe('TemplateApproveModalComponent', () => {
                     },
                 },
                 { provide: MatDialogRef, useValue: dialog_ref },
-                { provide: SignageService, useValue: service },
+                { provide: SignageContextService, useValue: context },
+                { provide: SignagePluginService, useValue: plugin_service },
+                { provide: SignageTemplateService, useValue: template_service },
             ],
         }).compileComponents();
     });
@@ -62,7 +68,9 @@ describe('TemplateApproveModalComponent', () => {
         await component.approve();
 
         expect(approveSignageTemplate).toHaveBeenCalledWith('template-1');
-        expect(service.updateCachedTemplate).toHaveBeenCalledWith(approved);
+        expect(template_service.updateCachedTemplate).toHaveBeenCalledWith(
+            approved,
+        );
         expect(dialog_ref.close).toHaveBeenCalledWith(true);
     });
 
@@ -72,7 +80,7 @@ describe('TemplateApproveModalComponent', () => {
             id: 'template-1',
             approved: true,
         });
-        service.undoTemplateChanges.mockResolvedValue(true);
+        template_service.undoTemplateChanges.mockResolvedValue(true);
         const component = TestBed.createComponent(
             TemplateApproveModalComponent,
         ).componentInstance;
@@ -80,7 +88,7 @@ describe('TemplateApproveModalComponent', () => {
 
         await component.undoChanges();
 
-        expect(service.undoTemplateChanges).toHaveBeenCalledWith(
+        expect(template_service.undoTemplateChanges).toHaveBeenCalledWith(
             'template-1',
             approved,
         );

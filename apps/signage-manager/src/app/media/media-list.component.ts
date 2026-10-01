@@ -27,8 +27,9 @@ import { SignageMedia } from '@placeos/ts-client';
 import { AiImageService } from '../ai/ai-image.service';
 import { IntersectDirective } from '../shared/intersect.directive';
 import { MediaThumbnailComponent } from '../shared/media-thumbnail.component';
+import { SignageContextService } from '../signage-context.service';
 import { playlistMediaThumbnailUrl } from '../signage-playlist.util';
-import { SignageService } from '../signage.service';
+import { SignageMediaService } from './signage-media.service';
 
 // Sentinel folder for media items without any tags.
 const UNTAGGED = '\0untagged';
@@ -732,7 +733,9 @@ const UNTAGGED = '\0untagged';
                             matRipple
                             (click)="shareSelected()"
                             [matTooltip]="'SIGNAGE_MANAGER.SHARE' | translate"
-                            [attr.aria-label]="'SIGNAGE_MANAGER.SHARE' | translate"
+                            [attr.aria-label]="
+                                'SIGNAGE_MANAGER.SHARE' | translate
+                            "
                         >
                             <icon>ios_share</icon>
                         </button>
@@ -771,7 +774,8 @@ const UNTAGGED = '\0untagged';
     ],
 })
 export class MediaListComponent implements OnInit {
-    private readonly _service = inject(SignageService);
+    private readonly _context = inject(SignageContextService);
+    private readonly _media_service = inject(SignageMediaService);
     private readonly _ai = inject(AiImageService);
     private readonly _destroy = inject(DestroyRef);
 
@@ -819,18 +823,18 @@ export class MediaListComponent implements OnInit {
         );
     }
 
-    public readonly media = this._service.media;
-    public readonly media_tags = this._service.media_tags;
-    public readonly media_tag_counts = this._service.media_tag_counts;
-    public readonly loading = this._service.media_loading;
-    public readonly error = this._service.media_error;
-    public readonly view_mode = this._service.media_view_mode;
-    public readonly groups = this._service.signage_groups;
-    public readonly selected_group_id = this._service.selected_group_id;
-    public readonly can_manage_all_groups = this._service.can_manage_all_groups;
+    public readonly media = this._media_service.media;
+    public readonly media_tags = this._media_service.media_tags;
+    public readonly media_tag_counts = this._media_service.media_tag_counts;
+    public readonly loading = this._media_service.media_loading;
+    public readonly error = this._media_service.media_error;
+    public readonly view_mode = this._media_service.media_view_mode;
+    public readonly groups = this._context.signage_groups;
+    public readonly selected_group_id = this._context.selected_group_id;
+    public readonly can_manage_all_groups = this._context.can_manage_all_groups;
     public readonly can_switch_groups = computed(
         () =>
-            this._service.show_media_group_tabs() &&
+            this._media_service.show_media_group_tabs() &&
             (this.can_manage_all_groups()
                 ? this.groups().length > 0
                 : this.groups().length > 1),
@@ -890,13 +894,13 @@ export class MediaListComponent implements OnInit {
     });
 
     // Backend pagination: fetches the next page as the sentinel scrolls in.
-    public readonly has_more = this._service.media_has_more;
+    public readonly has_more = this._media_service.media_has_more;
     public loadMore() {
-        this._service.loadMoreMedia();
+        this._media_service.loadMoreMedia();
     }
 
     public retry() {
-        this._service.retryMedia();
+        this._media_service.retryMedia();
     }
 
     public openFolder(folder_id: string) {
@@ -910,7 +914,7 @@ export class MediaListComponent implements OnInit {
     public selectGroup(group_id: string) {
         this.clearSelection();
         this.selected_folder.set(null);
-        this._service.setSelectedGroup(group_id);
+        this._context.setSelectedGroup(group_id);
     }
 
     public isSelected(id: string) {
@@ -976,16 +980,16 @@ export class MediaListComponent implements OnInit {
     }
 
     public readonly previewItem = (item: SignageMedia) =>
-        this._service.previewMedia(item);
+        this._media_service.previewMedia(item);
 
     public readonly editItem = (item: SignageMedia) =>
-        this._service.editMedia(item);
+        this._media_service.editMedia(item);
 
     public readonly can_edit_with_ai = computed(
         () =>
-            this._service.can_create() &&
+            this._context.can_create() &&
             this._ai.can_edit() &&
-            this._service.hasFeature('ai-editing'),
+            this._context.hasFeature('ai-editing'),
     );
 
     /** only an uploaded still can be sent back through the model */
@@ -993,52 +997,52 @@ export class MediaListComponent implements OnInit {
         item?.media_type === 'image' && !!item?.media_id;
 
     public readonly editItemWithAI = (item: SignageMedia) =>
-        this._service.editMediaWithAI(item);
+        this._media_service.editMediaWithAI(item);
 
     public readonly removeItem = (item: SignageMedia) =>
-        this._service.removeMedia(item);
+        this._media_service.removeMedia(item);
 
     public readonly renameTag = (tag: string, count: number) =>
-        this._service.renameMediaTag(tag, count);
+        this._media_service.renameMediaTag(tag, count);
 
     public readonly removeTag = (tag: string, count: number) =>
-        this._service.removeMediaTag(tag, count);
+        this._media_service.removeMediaTag(tag, count);
 
     public readonly addToPlaylist = (media_id: string) =>
-        this._service.openPlaylistSelectModal(media_id);
+        this._media_service.openPlaylistSelectModal(media_id);
 
     public readonly shareItem = (item: SignageMedia) =>
-        this._service.shareMedia(item);
+        this._media_service.shareMediaItems([item]);
 
     public async deleteSelected() {
-        if (await this._service.removeMediaItems(this.selected_media())) {
+        if (await this._media_service.removeMediaItems(this.selected_media())) {
             this.clearSelection();
         }
     }
 
     public async addSelectedToPlaylist() {
         const media_ids = this.selected_media().map((item) => item.id);
-        if (await this._service.openBulkPlaylistSelectModal(media_ids)) {
+        if (await this._media_service.openBulkPlaylistSelectModal(media_ids)) {
             this.clearSelection();
         }
     }
 
     public async shareSelected() {
-        if (await this._service.shareMediaItems(this.selected_media())) {
+        if (await this._media_service.shareMediaItems(this.selected_media())) {
             this.clearSelection();
         }
     }
 
     public async addTagsToSelected() {
-        if (await this._service.addMediaTags(this.selected_media())) {
+        if (await this._media_service.addMediaTags(this.selected_media())) {
             this.clearSelection();
         }
     }
 
-    public readonly can_update = this._service.can_update;
-    public readonly can_update_media_tags = this._service.can_update_media_tags;
-    public readonly can_delete = this._service.can_delete;
-    public readonly can_share = this._service.can_share;
+    public readonly can_update = this._context.can_update;
+    public readonly can_update_media_tags = this._context.can_update_media_tags;
+    public readonly can_delete = this._context.can_delete;
+    public readonly can_share = this._context.can_share;
 
     public drop(_event: CdkDragDrop<SignageMedia[]>) {
         // No-op for media list drops

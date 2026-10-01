@@ -1,18 +1,22 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { SignageGroupAdminService } from '../../app/groups/signage-group-admin.service';
 import { SignageGroupFeaturesModalComponent } from '../../app/groups/signage-group-features-modal.component';
-import { SignageService } from '../../app/signage.service';
+import { SignageContextService } from '../../app/signage-context.service';
+import { SignagePluginService } from '../../app/signage-plugin.service';
 
 describe('SignageGroupFeaturesModalComponent', () => {
     const dialog_ref = { close: vi.fn(), disableClose: false };
     const all_plugins = signal<any[]>([]);
     const global_features = signal<string[]>([]);
-    const service_stub = {
-        all_plugins,
+    const plugin_stub = { all_plugins };
+    const context_stub = {
         global_features,
-        loadGroup: vi.fn(),
         loadGroupFeatures: vi.fn(),
+    };
+    const group_admin_stub = {
+        loadGroup: vi.fn(),
         saveGroupFeatures: vi.fn(),
     };
     let group: any;
@@ -22,7 +26,12 @@ describe('SignageGroupFeaturesModalComponent', () => {
             providers: [
                 { provide: MAT_DIALOG_DATA, useValue: { group } },
                 { provide: MatDialogRef, useValue: dialog_ref },
-                { provide: SignageService, useValue: service_stub },
+                {
+                    provide: SignageGroupAdminService,
+                    useValue: group_admin_stub,
+                },
+                { provide: SignageContextService, useValue: context_stub },
+                { provide: SignagePluginService, useValue: plugin_stub },
             ],
         }).overrideComponent(SignageGroupFeaturesModalComponent, {
             set: { template: '', imports: [] },
@@ -44,16 +53,16 @@ describe('SignageGroupFeaturesModalComponent', () => {
             { id: 'plugin-2', name: 'Weather' },
         ]);
         global_features.set(['templates', 'ai-generation', 'ai-editing']);
-        service_stub.loadGroupFeatures.mockResolvedValue({
+        context_stub.loadGroupFeatures.mockResolvedValue({
             features: ['templates', 'ai-generation'],
         });
-        service_stub.saveGroupFeatures.mockResolvedValue({ id: 'group-1' });
-        service_stub.loadGroup.mockImplementation(async () => group);
+        group_admin_stub.saveGroupFeatures.mockResolvedValue({ id: 'group-1' });
+        group_admin_stub.loadGroup.mockImplementation(async () => group);
         group = { id: 'group-1', parent_id: 'root', features: {} };
     });
 
     it('lists only the features the global settings allow', async () => {
-        service_stub.loadGroupFeatures.mockResolvedValue({});
+        context_stub.loadGroupFeatures.mockResolvedValue({});
         global_features.set([
             'templates',
             'ai-generation',
@@ -71,7 +80,7 @@ describe('SignageGroupFeaturesModalComponent', () => {
     });
 
     it('offers only the features and plugins the parent group allows', async () => {
-        service_stub.loadGroupFeatures.mockResolvedValue({
+        context_stub.loadGroupFeatures.mockResolvedValue({
             features: ['templates', 'ai-generation'],
             available_plugins: ['plugin-2'],
         });
@@ -87,8 +96,8 @@ describe('SignageGroupFeaturesModalComponent', () => {
     it('shows the parent list until the group sets its own', async () => {
         const component = await make();
 
-        expect(service_stub.loadGroup).toHaveBeenCalledWith('group-1');
-        expect(service_stub.loadGroupFeatures).toHaveBeenCalledWith('root');
+        expect(group_admin_stub.loadGroup).toHaveBeenCalledWith('group-1');
+        expect(context_stub.loadGroupFeatures).toHaveBeenCalledWith('root');
         expect(component.isSet('features')).toBe(false);
         expect(component.isAllowed('features', 'ai-editing')).toBe(false);
         expect(component.isAllowed('features', 'templates')).toBe(true);
@@ -112,7 +121,7 @@ describe('SignageGroupFeaturesModalComponent', () => {
     });
 
     it('keeps features the global settings hide when the list changes', async () => {
-        service_stub.loadGroupFeatures.mockResolvedValue({});
+        context_stub.loadGroupFeatures.mockResolvedValue({});
         const component = await make();
 
         component.setAllowed('features', 'templates', false);
@@ -139,7 +148,7 @@ describe('SignageGroupFeaturesModalComponent', () => {
 
         await component.save();
 
-        expect(service_stub.saveGroupFeatures).toHaveBeenCalledWith(group, {
+        expect(group_admin_stub.saveGroupFeatures).toHaveBeenCalledWith(group, {
             available_plugins: ['plugin-1'],
         });
         expect(dialog_ref.close).toHaveBeenCalledWith({ id: 'group-1' });
@@ -152,13 +161,13 @@ describe('SignageGroupFeaturesModalComponent', () => {
 
         await component.save();
 
-        expect(service_stub.saveGroupFeatures).toHaveBeenCalledWith(group, {
+        expect(group_admin_stub.saveGroupFeatures).toHaveBeenCalledWith(group, {
             available_plugins: ['plugin-1'],
         });
     });
 
     it('allows every option when the backend has no features route', async () => {
-        service_stub.loadGroupFeatures.mockRejectedValue({ status: 404 });
+        context_stub.loadGroupFeatures.mockRejectedValue({ status: 404 });
         const component = await make();
 
         expect(dialog_ref.close).not.toHaveBeenCalled();
@@ -171,14 +180,14 @@ describe('SignageGroupFeaturesModalComponent', () => {
     });
 
     it('closes when the parent features fail to load', async () => {
-        service_stub.loadGroupFeatures.mockRejectedValue({ status: 500 });
+        context_stub.loadGroupFeatures.mockRejectedValue({ status: 500 });
         create();
 
         await vi.waitFor(() => expect(dialog_ref.close).toHaveBeenCalled());
     });
 
     it('closes when the group cannot be read', async () => {
-        service_stub.loadGroup.mockRejectedValue(new Error('fail'));
+        group_admin_stub.loadGroup.mockRejectedValue(new Error('fail'));
         create();
 
         await vi.waitFor(() => expect(dialog_ref.close).toHaveBeenCalled());

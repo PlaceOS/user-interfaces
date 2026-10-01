@@ -13,10 +13,14 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, Router } from '@angular/router';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import { showZone } from '@placeos/ts-client';
+import { SignageDisplayService } from '../displays/signage-display.service';
+import { SignagePlaylistService } from '../playlists/signage-playlist.service';
 import { decodeEntityNames } from '../shared/decode-entity-names.util';
 import { NavFooterComponent } from '../shared/nav-footer.component';
 import { NavSidebarComponent } from '../shared/nav-sidebar.component';
-import { SignageService } from '../signage.service';
+import { SignageContextService } from '../signage-context.service';
+import { SignageTemplateService } from '../templates/signage-template.service';
+import { SignageZoneService } from './signage-zone.service';
 import { ZoneContentComponent } from './zone-content.component';
 import { ZoneHeaderComponent } from './zone-header.component';
 import { ZoneListComponent } from './zone-list.component';
@@ -289,41 +293,50 @@ function parseZoneTab(
     ],
 })
 export class ZonesSectionComponent {
-    private readonly _service = inject(SignageService);
+    private readonly _context = inject(SignageContextService);
+    private readonly _display_service = inject(SignageDisplayService);
+    private readonly _playlist_service = inject(SignagePlaylistService);
+    private readonly _template_service = inject(SignageTemplateService);
+    private readonly _zone_service = inject(SignageZoneService);
     private readonly _route = inject(ActivatedRoute);
     private readonly _router = inject(Router);
 
     public readonly id = input('');
     public readonly tab = input<string | null>(null);
-    public readonly templates_enabled = this._service.templates_enabled;
+    public readonly templates_enabled = this._context.templates_enabled;
     public readonly view_tab = signal<'playlists' | 'displays' | 'templates'>(
         'playlists',
     );
-    public readonly selected_zone = this._service.selected_zone;
+    public readonly selected_zone = this._zone_service.selected_zone;
     public readonly can_manage_selected_zone = computed(() => {
         const zone = this.selected_zone();
         return (
-            this._service.can_manage_zones() &&
+            this._context.can_manage_zones() &&
             !!zone?.tags?.includes('signage')
         );
     });
 
-    private readonly _zones = this._service.all_zones;
+    private readonly _zones = this._zone_service.all_zones;
 
     private readonly _template_mappings = resource({
         params: () => {
             const id: string = this.selected_zone()?.id;
             return this.templates_enabled() && id
-                ? { id, revision: this._service.template_mappings_revision() }
+                ? {
+                      id,
+                      revision:
+                          this._template_service.template_mappings_revision(),
+                  }
                 : undefined;
         },
         loader: ({ params }) =>
-            this._service.listTemplateMappings({ zone_id: params.id }),
+            this._template_service.listTemplateMappings({ zone_id: params.id }),
     });
     public readonly template_count_loading = this._template_mappings.isLoading;
-    public readonly playlist_count_loading = this._service.playlists_loading;
+    public readonly playlist_count_loading =
+        this._playlist_service.playlists_loading;
     public readonly display_count_loading =
-        this._service.selected_zone_displays_loading;
+        this._display_service.selected_zone_displays_loading;
     public readonly template_count = computed(() =>
         this._template_mappings.hasValue()
             ? this._template_mappings.value().length
@@ -332,12 +345,13 @@ export class ZonesSectionComponent {
 
     public readonly playlist_count = computed(
         () =>
-            this._service.playlistsById(this.selected_zone()?.playlists || [])
-                .length,
+            this._playlist_service.playlistsById(
+                this.selected_zone()?.playlists || [],
+            ).length,
     );
 
     public readonly display_count = computed(
-        () => this._service.selected_zone_displays().length,
+        () => this._display_service.selected_zone_displays().length,
     );
 
     private _route_resolved = false;
@@ -362,16 +376,18 @@ export class ZonesSectionComponent {
             if (id) {
                 const match = list.find((z) => z.id === id);
                 if (match) {
-                    if (this._service.selected_zone()?.id !== match.id) {
-                        this._service.selected_zone.set(match);
+                    if (this._zone_service.selected_zone()?.id !== match.id) {
+                        this._zone_service.selected_zone.set(match);
                     }
                     this._route_resolved = true;
-                } else if (untracked(this._service.selected_zone)?.id !== id) {
+                } else if (
+                    untracked(this._zone_service.selected_zone)?.id !== id
+                ) {
                     // `all_zones` holds only the first 500 zones of the group
                     untracked(() => this._loadZone(id));
                 }
             } else if (this._route_resolved) {
-                this._service.selected_zone.set(null);
+                this._zone_service.selected_zone.set(null);
             }
         });
     }
@@ -384,27 +400,27 @@ export class ZonesSectionComponent {
         if (
             !zone ||
             this.id() !== id ||
-            this._service.selected_zone()?.id === id
+            this._zone_service.selected_zone()?.id === id
         ) {
             return;
         }
-        this._service.selected_zone.set(decodeEntityNames(zone));
+        this._zone_service.selected_zone.set(decodeEntityNames(zone));
         this._route_resolved = true;
     }
 
     public deselectZone() {
-        this._service.selected_zone.set(null);
+        this._zone_service.selected_zone.set(null);
         this._router.navigate(['/zones'], {});
     }
 
     public editZone() {
         const zone = this.selected_zone();
-        if (zone) this._service.editZone(zone);
+        if (zone) this._zone_service.editZone(zone);
     }
 
     public async removeZone() {
         const zone = this.selected_zone();
-        if (!zone || !(await this._service.removeZone(zone))) return;
+        if (!zone || !(await this._zone_service.removeZone(zone))) return;
         await this._router.navigate(['/zones'], {});
     }
 

@@ -1,6 +1,9 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { SignageService } from '../../app/signage.service';
+import { SignageDisplayService } from '../../app/displays/signage-display.service';
+import { SignagePlaylistService } from '../../app/playlists/signage-playlist.service';
+import { SignageContextService } from '../../app/signage-context.service';
+import { SignageZoneService } from '../../app/zones/signage-zone.service';
 import { ZoneContentComponent } from '../../app/zones/zone-content.component';
 
 const NOW_S = Math.floor(Date.now() / 1000);
@@ -15,23 +18,32 @@ describe('ZoneContentComponent', () => {
     const add_playlist = vi.fn();
     const remove_playlist = vi.fn();
     const add_display = vi.fn();
-    const service_stub = {
-        selected_zone,
+    const context_stub = { can_update };
+    const display_stub = {
+        selected_zone_displays,
+        addDisplayToZone: add_display,
+    };
+    const playlist_stub = {
         playlistsById: (ids: readonly string[]) =>
             playlists().filter(({ id }) => ids.includes(id)),
-        selected_zone_displays,
         playlist_approval_status,
         playlist_thumbnail_media,
-        can_update,
+    };
+    const zone_stub = {
+        selected_zone,
         addPlaylistToZone: add_playlist,
         removePlaylistFromZone: remove_playlist,
-        addDisplayToZone: add_display,
     };
 
     async function make() {
         await TestBed.configureTestingModule({
             imports: [ZoneContentComponent],
-            providers: [{ provide: SignageService, useValue: service_stub }],
+            providers: [
+                { provide: SignageContextService, useValue: context_stub },
+                { provide: SignageDisplayService, useValue: display_stub },
+                { provide: SignagePlaylistService, useValue: playlist_stub },
+                { provide: SignageZoneService, useValue: zone_stub },
+            ],
         })
             .overrideComponent(ZoneContentComponent, {
                 set: { template: '' },

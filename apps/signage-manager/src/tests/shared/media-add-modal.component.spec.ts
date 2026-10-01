@@ -3,11 +3,12 @@ import { TestBed } from '@angular/core/testing';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { setNotifyOutlet } from '@placeos/common';
 import { SignagePlugin } from '@placeos/ts-client';
+import { SignageMediaService } from '../../app/media/signage-media.service';
 import {
     MediaAddModalComponent,
     MediaAddModalData,
 } from '../../app/shared/media-add-modal.component';
-import { SignageService } from '../../app/signage.service';
+import { SignagePluginService } from '../../app/signage-plugin.service';
 
 const notify_open = vi.fn(() => ({
     onAction: () => ({ subscribe: () => ({ unsubscribe: () => {} }) }),
@@ -18,9 +19,8 @@ describe('MediaAddModalComponent', () => {
     const dialog_ref = { close: vi.fn() };
     const plugins = signal<any[]>([]);
     const widgets = signal<any[]>([]);
-    const service = {
-        plugins,
-        widgets,
+    const plugin_service = { plugins, widgets };
+    const media_service = {
         addMediaFromLink: vi.fn().mockResolvedValue(undefined),
         addMediaFromPlugin: vi.fn().mockResolvedValue(undefined),
     };
@@ -31,14 +31,16 @@ describe('MediaAddModalComponent', () => {
             providers: [
                 { provide: MAT_DIALOG_DATA, useValue: data },
                 { provide: MatDialogRef, useValue: dialog_ref },
-                { provide: SignageService, useValue: service },
+                { provide: SignageMediaService, useValue: media_service },
+                { provide: SignagePluginService, useValue: plugin_service },
             ],
         })
             .overrideComponent(MediaAddModalComponent, {
                 set: { template: '', imports: [] },
             })
             .compileComponents();
-        return TestBed.createComponent(MediaAddModalComponent).componentInstance;
+        return TestBed.createComponent(MediaAddModalComponent)
+            .componentInstance;
     }
 
     beforeEach(() => {
@@ -73,7 +75,7 @@ describe('MediaAddModalComponent', () => {
             expect.objectContaining({ panelClass: ['error'] }),
         );
         expect(dialog_ref.close).not.toHaveBeenCalled();
-        expect(service.addMediaFromLink).not.toHaveBeenCalled();
+        expect(media_service.addMediaFromLink).not.toHaveBeenCalled();
     });
 
     it.each(['javascript:alert(1)', 'data:text/html,<script></script>'])(
@@ -85,7 +87,7 @@ describe('MediaAddModalComponent', () => {
             await component.add();
 
             expect(dialog_ref.close).not.toHaveBeenCalled();
-            expect(service.addMediaFromLink).not.toHaveBeenCalled();
+            expect(media_service.addMediaFromLink).not.toHaveBeenCalled();
         },
     );
 
@@ -96,7 +98,7 @@ describe('MediaAddModalComponent', () => {
         await component.add();
 
         expect(dialog_ref.close).toHaveBeenCalled();
-        expect(service.addMediaFromLink).toHaveBeenCalledWith(
+        expect(media_service.addMediaFromLink).toHaveBeenCalledWith(
             'https://example.com/promo',
         );
         expect(notify_open).not.toHaveBeenCalledWith(
@@ -112,7 +114,7 @@ describe('MediaAddModalComponent', () => {
 
         await component.add();
 
-        expect(service.addMediaFromLink).toHaveBeenCalledWith(
+        expect(media_service.addMediaFromLink).toHaveBeenCalledWith(
             'https://example.com/',
         );
     });
@@ -145,7 +147,7 @@ describe('MediaAddModalComponent', () => {
         await component.add();
 
         expect(dialog_ref.close).toHaveBeenCalled();
-        expect(service.addMediaFromPlugin).toHaveBeenCalledWith(plugin);
+        expect(media_service.addMediaFromPlugin).toHaveBeenCalledWith(plugin);
     });
 
     it('excludes widget plugins from media items', async () => {
@@ -168,7 +170,7 @@ describe('MediaAddModalComponent', () => {
         expect(component.can_add()).toBe(false);
         await component.add();
         expect(dialog_ref.close).not.toHaveBeenCalled();
-        expect(service.addMediaFromPlugin).not.toHaveBeenCalled();
+        expect(media_service.addMediaFromPlugin).not.toHaveBeenCalled();
     });
 
     it('does nothing in plugin mode when no plugin is selected', async () => {
@@ -177,6 +179,6 @@ describe('MediaAddModalComponent', () => {
         await component.add();
 
         expect(dialog_ref.close).not.toHaveBeenCalled();
-        expect(service.addMediaFromPlugin).not.toHaveBeenCalled();
+        expect(media_service.addMediaFromPlugin).not.toHaveBeenCalled();
     });
 });

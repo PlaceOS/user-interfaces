@@ -16,13 +16,17 @@ import {
     TranslatePipe,
 } from '@placeos/components';
 import { MediaAnimation, SignagePlaylist } from '@placeos/ts-client';
+import { SignageDisplayService } from '../displays/signage-display.service';
 import { SignageSharedWithComponent } from '../shared/signage-shared-with.component';
+import { SignageContextService } from '../signage-context.service';
+import { SignageInventoryService } from '../signage-inventory.service';
 import {
     playlistNextPlayLabels,
     playlistScheduleExpiryTooltip,
     playlistScheduleLabel,
 } from '../signage-playlist.util';
-import { SignageService } from '../signage.service';
+import { SignageZoneService } from '../zones/signage-zone.service';
+import { SignagePlaylistService } from './signage-playlist.service';
 
 const DEFAULT_PLAY_PERIOD_MINUTES = 24 * 60;
 
@@ -630,9 +634,13 @@ function playlistSchedules(playlist: SignagePlaylist) {
     ],
 })
 export class PlaylistItemDetailsComponent {
-    private readonly _service = inject(SignageService);
+    private readonly _context = inject(SignageContextService);
+    private readonly _display_service = inject(SignageDisplayService);
+    private readonly _inventory_service = inject(SignageInventoryService);
+    private readonly _playlist_service = inject(SignagePlaylistService);
+    private readonly _zone_service = inject(SignageZoneService);
 
-    public readonly playlist = this._service.selected_playlist;
+    public readonly playlist = this._playlist_service.selected_playlist;
     public readonly active_tab = linkedSignal<SignagePlaylist | null, number>({
         source: this.playlist,
         computation: (playlist, previous) =>
@@ -641,24 +649,24 @@ export class PlaylistItemDetailsComponent {
                 : 0,
     });
 
-    private readonly _items = this._service.playlist_media_items;
-    private readonly _displays = this._service.displays;
-    private readonly _zones = this._service.zones;
+    private readonly _items = this._playlist_service.playlist_media_items;
+    private readonly _displays = this._display_service.displays;
+    private readonly _zones = this._zone_service.zones;
     // The loaded pages may not hold every display and zone that uses the
     // playlist, so read them all. Loaded once for each data change, not for
     // each playlist. The loaded pages are shown until this loads.
     private readonly _inventory = resource({
         params: () =>
             this.playlist()?.id
-                ? { change: this._service.data_change() }
+                ? { change: this._context.data_change() }
                 : undefined,
-        loader: () => this._service.loadSignageInventory(),
+        loader: () => this._inventory_service.loadSignageInventory(),
     });
 
     public readonly item_count = computed(() => this._items().length);
-    public readonly can_update = this._service.can_update;
+    public readonly can_update = this._context.can_update;
     public readonly selected_group_id = computed(
-        () => this._service.selected_group()?.group.id || '',
+        () => this._context.selected_group()?.group.id || '',
     );
 
     public readonly playlist_displays = computed(() => {
@@ -736,12 +744,12 @@ export class PlaylistItemDetailsComponent {
 
     public addDisplay() {
         const playlist = this.playlist();
-        if (playlist) this._service.addDisplayToPlaylist(playlist);
+        if (playlist) this._display_service.addDisplayToPlaylist(playlist);
     }
 
     public addZone() {
         const playlist = this.playlist();
-        if (playlist) this._service.addZoneToPlaylist(playlist);
+        if (playlist) this._zone_service.addZoneToPlaylist(playlist);
     }
 
     public removeDisplay(event: Event, display: any) {
@@ -749,13 +757,13 @@ export class PlaylistItemDetailsComponent {
         event.stopPropagation();
         const playlist = this.playlist();
         if (playlist)
-            this._service.removeDisplayFromPlaylist(playlist, display);
+            this._display_service.removeDisplayFromPlaylist(playlist, display);
     }
 
     public removeZone(event: Event, zone: any) {
         event.preventDefault();
         event.stopPropagation();
         const playlist = this.playlist();
-        if (playlist) this._service.removeZoneFromPlaylist(playlist, zone);
+        if (playlist) this._zone_service.removeZoneFromPlaylist(playlist, zone);
     }
 }

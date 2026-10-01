@@ -6,7 +6,8 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { i18n } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import { PlaceGroupZone } from '@placeos/ts-client';
-import { dialogClosed, SignageService } from '../signage.service';
+import { dialogClosed } from '../signage-service.util';
+import { SignageGroupAdminService } from './signage-group-admin.service';
 import {
     groupPermissionLabels,
     SignageGroupPermissionsModalComponent,
@@ -175,12 +176,12 @@ import { SignageGroupZoneSelectModalComponent } from './signage-group-zone-selec
     ],
 })
 export class SignageGroupZonesComponent {
-    private readonly _service = inject(SignageService);
+    private readonly _group_admin = inject(SignageGroupAdminService);
     private readonly _dialog = inject(MatDialog);
 
-    public readonly zones = this._service.managed_group_zones;
-    public readonly loading = this._service.managed_group_zones_loading;
-    public readonly failed = this._service.managed_group_zones_failed;
+    public readonly zones = this._group_admin.managed_group_zones;
+    public readonly loading = this._group_admin.managed_group_zones_loading;
+    public readonly failed = this._group_admin.managed_group_zones_failed;
     public readonly permissionLabels = groupPermissionLabels;
 
     public async addZone() {
@@ -192,7 +193,7 @@ export class SignageGroupZonesComponent {
                 panelClass: 'mobile-fullscreen',
             }),
         );
-        if (zone) await this._service.addManagedGroupZone(zone);
+        if (zone) await this._group_admin.addManagedGroupZone(zone);
     }
 
     public async editZonePermissions(row: PlaceGroupZone) {
@@ -207,7 +208,7 @@ export class SignageGroupZonesComponent {
             }),
         );
         if (result) {
-            await this._service.updateManagedGroupZone(
+            await this._group_admin.updateManagedGroupZone(
                 row,
                 result.permissions,
                 result.deny,
@@ -216,6 +217,6 @@ export class SignageGroupZonesComponent {
     }
 
     public removeZone(row: PlaceGroupZone) {
-        this._service.removeManagedGroupZone(row);
+        this._group_admin.removeManagedGroupZone(row);
     }
 }

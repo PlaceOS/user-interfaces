@@ -1,19 +1,10 @@
-import { signal } from '@angular/core';
-import { TestBed } from '@angular/core/testing';
-import { MatDialog } from '@angular/material/dialog';
 import {
-    OrganisationService,
-    SettingsService,
-    UploadsService,
-} from '@placeos/common';
+    generateThumbnailFromResource,
+    generateVideoThumbnail,
+    imageSourceSize,
+} from '../../app/media/media-file.util';
 
-import { SignageService } from '../app/signage.service';
-
-vi.mock('@placeos/ts-client', { spy: true });
-
-type SignageServiceTestAccess = SignageService & Record<string, any>;
-
-describe('SignageService thumbnail rendering', () => {
+describe('media file thumbnails', () => {
     let context: Record<string, any>;
     let canvas: Record<string, any>;
     /** Order of drawing operations, so a fill after the draw is still caught */
@@ -36,38 +27,12 @@ describe('SignageService thumbnail rendering', () => {
             (tag: string) =>
                 (tag === 'canvas' ? canvas : {}) as HTMLElement as any,
         );
-
-        TestBed.configureTestingModule({
-            providers: [
-                SignageService,
-                { provide: UploadsService, useValue: {} },
-                {
-                    provide: SettingsService,
-                    useValue: {
-                        get: vi.fn(),
-                        signal: (_name: string, default_value?: any) =>
-                            signal(default_value),
-                    },
-                },
-                {
-                    provide: OrganisationService,
-                    useValue: {
-                        initialised: () => false,
-                        organisation: { id: 'org-1' },
-                    },
-                },
-                { provide: MatDialog, useValue: { open: vi.fn() } },
-            ],
-        });
     });
 
     afterEach(() => vi.restoreAllMocks());
 
     const render = () => {
-        const service = TestBed.inject(
-            SignageService,
-        ) as unknown as SignageServiceTestAccess;
-        return service['_generateThumbnailFromResource'](
+        return generateThumbnailFromResource(
             { width: 200, height: 100 } as any,
             200,
             100,
@@ -93,17 +58,8 @@ describe('SignageService thumbnail rendering', () => {
     });
 
     it('should never size the canvas fractionally or to zero', () => {
-        const service = TestBed.inject(
-            SignageService,
-        ) as unknown as SignageServiceTestAccess;
         // 1000x333 scaled into a 500 wide box gives a fractional height
-        service['_generateThumbnailFromResource'](
-            {} as any,
-            1000,
-            333,
-            500,
-            500,
-        );
+        generateThumbnailFromResource({} as any, 1000, 333, 500, 500);
 
         expect(Number.isInteger(canvas.width)).toBe(true);
         expect(Number.isInteger(canvas.height)).toBe(true);
@@ -113,10 +69,7 @@ describe('SignageService thumbnail rendering', () => {
 
     describe('source dimensions', () => {
         const size = (source: any, max_w = 1280, max_h = 720) => {
-            const service = TestBed.inject(
-                SignageService,
-            ) as unknown as SignageServiceTestAccess;
-            return service['_imageSourceSize'](source, max_w, max_h);
+            return imageSourceSize(source, max_w, max_h);
         };
 
         it('should prefer the intrinsic size of an image element', () => {
@@ -173,11 +126,8 @@ describe('SignageService thumbnail rendering', () => {
             vi.spyOn(document, 'createElement').mockImplementation(
                 (tag: string) => (tag === 'video' ? video : canvas) as any,
             );
-            const service = TestBed.inject(
-                SignageService,
-            ) as unknown as SignageServiceTestAccess;
 
-            const pending = service['_generateVideoThumbnail'](
+            const pending = generateVideoThumbnail(
                 new File([], 'clip.mp4'),
                 1280,
                 720,
@@ -200,11 +150,8 @@ describe('SignageService thumbnail rendering', () => {
             vi.spyOn(document, 'createElement').mockImplementation(
                 (tag: string) => (tag === 'video' ? video : canvas) as any,
             );
-            const service = TestBed.inject(
-                SignageService,
-            ) as unknown as SignageServiceTestAccess;
 
-            const pending = service['_generateVideoThumbnail'](
+            const pending = generateVideoThumbnail(
                 new File([], 'clip.mp4'),
                 1280,
                 720,

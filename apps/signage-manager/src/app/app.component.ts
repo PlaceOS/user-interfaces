@@ -14,7 +14,7 @@ import { authority } from '@placeos/ts-client';
 
 import { AiImageService } from './ai/ai-image.service';
 import { CommandPaletteService } from './shared/command-palette.service';
-import { SignageService } from './signage.service';
+import { SignageContextService } from './signage-context.service';
 
 @Component({
     selector: 'app-root',
@@ -82,20 +82,20 @@ export class AppComponent implements OnInit {
     private _uploads = inject(UploadsService);
     private _ai = inject(AiImageService);
     private _palette = inject(CommandPaletteService);
-    private _signage = inject(SignageService);
+    private _context = inject(SignageContextService);
     private _router = inject(Router);
 
     /** Whether the signage groups failed to load. Shows a banner with retry. */
-    public readonly groups_failed = this._signage.signage_groups_failed;
+    public readonly groups_failed = this._context.signage_groups_failed;
 
     constructor() {
         // The templates guard only runs on navigation. Leave the section when
         // the selected group turns templates off while it is open.
         effect(() => {
-            if (!this._signage.features_ready()) return;
+            if (!this._context.features_ready()) return;
             if (
-                this._signage.templates_enabled() &&
-                !this._signage.signage_groups_failed()
+                this._context.templates_enabled() &&
+                !this._context.signage_groups_failed()
             ) {
                 return;
             }
@@ -108,7 +108,7 @@ export class AppComponent implements OnInit {
     }
 
     public retryGroups() {
-        this._signage.reloadSignageGroups();
+        this._context.reloadSignageGroups();
     }
 
     /** Open the command palette on Cmd+K or Ctrl+K, even from a text field */

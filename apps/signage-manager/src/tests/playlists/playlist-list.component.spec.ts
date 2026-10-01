@@ -2,7 +2,7 @@ import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { PlaylistListComponent } from '../../app/playlists/playlist-list.component';
-import { SignageService } from '../../app/signage.service';
+import { SignagePlaylistService } from '../../app/playlists/signage-playlist.service';
 
 describe('PlaylistListComponent', () => {
     const filtered_playlists = signal<any[]>([]);
@@ -16,7 +16,7 @@ describe('PlaylistListComponent', () => {
     const load_more = vi.fn();
     const reload = vi.fn();
 
-    const service_stub = {
+    const playlist_stub = {
         playlist_search_term: signal(''),
         filtered_playlists,
         selected_playlist: signal<any>(null),
@@ -36,7 +36,7 @@ describe('PlaylistListComponent', () => {
             imports: [PlaylistListComponent],
             providers: [
                 provideRouter([]),
-                { provide: SignageService, useValue: service_stub },
+                { provide: SignagePlaylistService, useValue: playlist_stub },
             ],
         });
         if (!render_template) {

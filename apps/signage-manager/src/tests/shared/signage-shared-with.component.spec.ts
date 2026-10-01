@@ -10,8 +10,8 @@ import {
 import { NEVER, of } from 'rxjs';
 
 import { SignageSharedWithComponent } from '../../app/shared/signage-shared-with.component';
+import { SignageContextService } from '../../app/signage-context.service';
 import { signage_shared_groups_change } from '../../app/signage-shared-groups.util';
-import { SignageService } from '../../app/signage.service';
 
 vi.mock('@placeos/ts-client', { spy: true });
 
@@ -44,7 +44,7 @@ describe('SignageSharedWithComponent', () => {
         TestBed.configureTestingModule({
             providers: [
                 { provide: MatDialog, useValue: { open: dialog_open } },
-                { provide: SignageService, useValue: service_stub },
+                { provide: SignageContextService, useValue: service_stub },
             ],
         }).overrideComponent(SignageSharedWithComponent, {
             set: { template: '', imports: [] },
@@ -126,7 +126,7 @@ describe('SignageSharedWithComponent', () => {
         TestBed.configureTestingModule({
             providers: [
                 { provide: MatDialog, useValue: { open: dialog_open } },
-                { provide: SignageService, useValue: service_stub },
+                { provide: SignageContextService, useValue: service_stub },
             ],
         }).overrideComponent(SignageSharedWithComponent, {
             set: { template: '', imports: [] },

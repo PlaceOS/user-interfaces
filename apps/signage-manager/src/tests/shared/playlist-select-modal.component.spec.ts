@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { SignagePlaylistService } from '../../app/playlists/signage-playlist.service';
 import { PlaylistSelectModalComponent } from '../../app/shared/playlist-select-modal.component';
-import { SignageService } from '../../app/signage.service';
 
 describe('PlaylistSelectModalComponent', () => {
     const flush = () => new Promise((resolve) => setTimeout(resolve));
@@ -24,7 +24,7 @@ describe('PlaylistSelectModalComponent', () => {
             imports: [PlaylistSelectModalComponent],
             providers: [
                 { provide: MAT_DIALOG_DATA, useValue: { media_id: 'media-1' } },
-                { provide: SignageService, useValue: service },
+                { provide: SignagePlaylistService, useValue: service },
             ],
         })
             .overrideComponent(PlaylistSelectModalComponent, {

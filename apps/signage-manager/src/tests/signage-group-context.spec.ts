@@ -23,7 +23,10 @@ import {
     showGroupFeatures,
 } from '@placeos/ts-client';
 
-import { SignageService } from '../app/signage.service';
+import { SignageMediaService } from '../app/media/signage-media.service';
+import { SignagePlaylistService } from '../app/playlists/signage-playlist.service';
+import { SignageContextService } from '../app/signage-context.service';
+import { SignagePluginService } from '../app/signage-plugin.service';
 
 vi.mock('@placeos/ts-client', { spy: true });
 
@@ -54,7 +57,7 @@ function mediaQueryGroups() {
 }
 
 /** Covers the selected group context: selection, permissions and flags. */
-describe('SignageService group context', () => {
+describe('SignageContextService group context', () => {
     const dialog = { open: vi.fn() };
 
     /** Run effects and timers past the 300 ms group debounce */
@@ -89,7 +92,6 @@ describe('SignageService group context', () => {
         }
         TestBed.configureTestingModule({
             providers: [
-                SignageService,
                 { provide: UploadsService, useValue: {} },
                 {
                     provide: SettingsService,
@@ -119,7 +121,7 @@ describe('SignageService group context', () => {
     describe('switching groups', () => {
         it('does not query lists org-wide before a member has a group', async () => {
             localStorage.setItem(STORAGE_KEY, 'g1');
-            TestBed.inject(SignageService);
+            TestBed.inject(SignageMediaService);
 
             await settle();
 
@@ -128,7 +130,9 @@ describe('SignageService group context', () => {
 
         it('sends one set of list queries, all for the new group', async () => {
             localStorage.setItem(STORAGE_KEY, 'g1');
-            const service = TestBed.inject(SignageService);
+            const service = TestBed.inject(SignageContextService);
+            TestBed.inject(SignageMediaService);
+            TestBed.inject(SignagePlaylistService);
             await settle();
             vi.mocked(querySignageMedia).mockClear();
             vi.mocked(querySignagePlaylists).mockClear();
@@ -152,7 +156,7 @@ describe('SignageService group context', () => {
                 total: 1,
                 next: () => null,
             });
-            const service = TestBed.inject(SignageService);
+            const service = TestBed.inject(SignageContextService);
             await settle();
 
             expect(service.selected_group_id()).toBe('a');
@@ -170,7 +174,7 @@ describe('SignageService group context', () => {
         it('keeps the saved group and restores it on retry', async () => {
             localStorage.setItem(STORAGE_KEY, 'g1');
             vi.mocked(currentGroups).mockRejectedValueOnce(new Error('down'));
-            const service = TestBed.inject(SignageService);
+            const service = TestBed.inject(SignageContextService);
             await settle();
 
             expect(service.signage_groups_failed()).toBe(true);
@@ -189,7 +193,7 @@ describe('SignageService group context', () => {
         it('allows no feature or plugin when the flags fail to load', async () => {
             localStorage.setItem(STORAGE_KEY, 'g1');
             vi.mocked(showGroupFeatures).mockRejectedValue(new Error('down'));
-            const service = TestBed.inject(SignageService);
+            const service = TestBed.inject(SignageContextService);
             await settle();
 
             expect(service.features_ready()).toBe(true);
@@ -200,7 +204,7 @@ describe('SignageService group context', () => {
         it('keeps the global features when the backend has no flags route', async () => {
             localStorage.setItem(STORAGE_KEY, 'g1');
             vi.mocked(showGroupFeatures).mockRejectedValue({ status: 404 });
-            const service = TestBed.inject(SignageService);
+            const service = TestBed.inject(SignageContextService);
             await settle();
 
             expect(service.templates_enabled()).toBe(true);
@@ -210,7 +214,7 @@ describe('SignageService group context', () => {
         it('allows nothing when the flags read is refused', async () => {
             localStorage.setItem(STORAGE_KEY, 'g1');
             vi.mocked(showGroupFeatures).mockRejectedValue({ status: 403 });
-            const service = TestBed.inject(SignageService);
+            const service = TestBed.inject(SignageContextService);
             await settle();
 
             expect(service.features()).toEqual([]);
@@ -218,7 +222,7 @@ describe('SignageService group context', () => {
 
         it('does not carry the flags of the previous group', async () => {
             localStorage.setItem(STORAGE_KEY, 'g1');
-            const service = TestBed.inject(SignageService);
+            const service = TestBed.inject(SignageContextService);
             await settle();
             expect(service.templates_enabled()).toBe(true);
             // Flags for the next group never arrive
@@ -243,7 +247,7 @@ describe('SignageService group context', () => {
 
         it('does not query plugins before a member has a group', async () => {
             vi.mocked(currentGroups).mockRejectedValue(new Error('down'));
-            TestBed.inject(SignageService);
+            TestBed.inject(SignagePluginService);
             await settle();
 
             expect(querySignagePlugins).not.toHaveBeenCalled();
@@ -251,7 +255,8 @@ describe('SignageService group context', () => {
 
         it('queries the plugins of the new group after a switch', async () => {
             localStorage.setItem(STORAGE_KEY, 'g1');
-            const service = TestBed.inject(SignageService);
+            const service = TestBed.inject(SignageContextService);
+            TestBed.inject(SignagePluginService);
             await settle();
             expect(pluginQueryGroups()).toEqual(['g1', 'g1']);
 
@@ -266,7 +271,7 @@ describe('SignageService group context', () => {
     describe('"All groups" view', () => {
         it('lets support pick "All groups" again, read only', async () => {
             signIn(['placeos_support']);
-            const service = TestBed.inject(SignageService);
+            const service = TestBed.inject(SignageContextService);
             await settle();
             expect(service.selected_group_id()).toBe('');
 
@@ -280,7 +285,7 @@ describe('SignageService group context', () => {
 
         it('offers "All groups" in the selector to support', async () => {
             signIn(['placeos_support']);
-            const service = TestBed.inject(SignageService);
+            const service = TestBed.inject(SignageContextService);
             await settle();
             dialog.open.mockReturnValue({
                 afterClosed: () => ({
@@ -301,7 +306,7 @@ describe('SignageService group context', () => {
 
         it('does not let a group member pick "All groups"', async () => {
             localStorage.setItem(STORAGE_KEY, 'g1');
-            const service = TestBed.inject(SignageService);
+            const service = TestBed.inject(SignageContextService);
             await settle();
 
             service.setSelectedGroup('');
@@ -321,11 +326,12 @@ describe('SignageService group context', () => {
                 next: () => null,
             }),
         }));
-        const service = TestBed.inject(SignageService);
+        const service = TestBed.inject(SignageContextService);
         await settle();
 
-        expect(service.signage_groups().map(({ group }) => group.id)).toEqual(
-            ['a', 'b'],
-        );
+        expect(service.signage_groups().map(({ group }) => group.id)).toEqual([
+            'a',
+            'b',
+        ]);
     });
 });

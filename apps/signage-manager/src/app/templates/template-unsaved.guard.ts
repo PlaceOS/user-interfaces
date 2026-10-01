@@ -3,7 +3,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { CanDeactivateFn } from '@angular/router';
 import { i18n } from '@placeos/common';
 import { openConfirmModal } from '@placeos/components';
-import { SignageService } from '../signage.service';
+import { SignageTemplateService } from './signage-template.service';
 
 /**
  * Asks before the user leaves a template that has unsaved layout edits.
@@ -11,7 +11,7 @@ import { SignageService } from '../signage.service';
  * when the user comes back to the template.
  */
 export const templateUnsavedGuard: CanDeactivateFn<unknown> = async () => {
-    const service = inject(SignageService);
+    const service = inject(SignageTemplateService);
     const dialog = inject(MatDialog);
     if (!service.template_layout_dirty()) return true;
     const result = await openConfirmModal(

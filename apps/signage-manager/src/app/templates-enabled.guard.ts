@@ -1,7 +1,7 @@
 import { inject, Injector } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
 import { firstValueWhere, OrganisationService } from '@placeos/common';
-import { SignageService } from './signage.service';
+import { SignageContextService } from './signage-context.service';
 
 /**
  * Guards the templates section behind the `templates` feature of the selected
@@ -10,7 +10,7 @@ import { SignageService } from './signage.service';
  * flags of the selected group to load. Redirects when the group list failed.
  */
 export const templatesEnabledGuard: CanActivateFn = async () => {
-    const service = inject(SignageService);
+    const service = inject(SignageContextService);
     const router = inject(Router);
     const org = inject(OrganisationService);
     const injector = inject(Injector);

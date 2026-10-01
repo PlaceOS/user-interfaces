@@ -9,14 +9,15 @@ import {
 } from '@placeos/common';
 import { querySignagePlaylists, SignagePlaylist } from '@placeos/ts-client';
 
-import { SignageService } from '../app/signage.service';
+import { SignagePlaylistService } from '../app/playlists/signage-playlist.service';
 
 vi.mock('@placeos/ts-client', { spy: true });
 
-type SignageServiceTestAccess = SignageService & Record<string, any>;
+type SignagePlaylistServiceTestAccess = SignagePlaylistService &
+    Record<string, any>;
 
 /** Playlist search runs on the backend so the results paginate like displays. */
-describe('SignageService playlist search', () => {
+describe('SignagePlaylistService playlist search', () => {
     const flush = () => new Promise((resolve) => setTimeout(resolve));
 
     const pageOf = (ids: string[], total = ids.length, next: any = null) => ({
@@ -35,7 +36,6 @@ describe('SignageService playlist search', () => {
         } as any);
         TestBed.configureTestingModule({
             providers: [
-                SignageService,
                 { provide: UploadsService, useValue: {} },
                 {
                     provide: SettingsService,
@@ -64,8 +64,8 @@ describe('SignageService playlist search', () => {
             pageOf(['news', 'events']),
         );
         const service = TestBed.inject(
-            SignageService,
-        ) as unknown as SignageServiceTestAccess;
+            SignagePlaylistService,
+        ) as unknown as SignagePlaylistServiceTestAccess;
         TestBed.tick();
         await flush();
         return service;
@@ -112,7 +112,7 @@ describe('SignageService playlist search', () => {
 
     it('loads the list again after a failed request', async () => {
         (querySignagePlaylists as any).mockRejectedValue(new Error('offline'));
-        const service = TestBed.inject(SignageService);
+        const service = TestBed.inject(SignagePlaylistService);
         TestBed.tick();
         await flush();
         expect(service.playlists_error()).toBe(true);

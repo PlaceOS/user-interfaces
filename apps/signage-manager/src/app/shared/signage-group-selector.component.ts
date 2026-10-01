@@ -5,7 +5,7 @@ import {
     IconComponent,
     TranslatePipe,
 } from '@placeos/components';
-import { SignageService } from '../signage.service';
+import { SignageContextService } from '../signage-context.service';
 
 @Component({
     // Existing signage-manager components use feature selectors without the app prefix.
@@ -109,18 +109,18 @@ import { SignageService } from '../signage.service';
     ],
 })
 export class SignageGroupSelectorComponent {
-    private readonly _service = inject(SignageService);
+    private readonly _context = inject(SignageContextService);
 
-    public readonly groups = this._service.signage_groups;
-    public readonly selected_group = this._service.selected_group;
-    public readonly can_manage_all_groups = this._service.can_manage_all_groups;
-    public readonly show_selector = this._service.show_group_selector;
+    public readonly groups = this._context.signage_groups;
+    public readonly selected_group = this._context.selected_group;
+    public readonly can_manage_all_groups = this._context.can_manage_all_groups;
+    public readonly show_selector = this._context.show_group_selector;
     public readonly selected_label = computed(
         () => this.selected_group()?.group.name || 'SIGNAGE_MANAGER.ALL_GROUPS',
     );
-    public readonly selected_hierarchy = this._service.selected_group_hierarchy;
+    public readonly selected_hierarchy = this._context.selected_group_hierarchy;
 
     public selectGroup() {
-        return this._service.selectGroup();
+        return this._context.selectGroup();
     }
 }

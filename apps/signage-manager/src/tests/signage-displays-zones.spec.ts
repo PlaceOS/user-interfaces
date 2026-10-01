@@ -21,14 +21,17 @@ import {
     updateZone,
 } from '@placeos/ts-client';
 import { NEVER, of } from 'rxjs';
-import { SignageService } from '../app/signage.service';
+import { SignageDisplayService } from '../app/displays/signage-display.service';
+import { SignagePlaylistService } from '../app/playlists/signage-playlist.service';
+import { SignageContextService } from '../app/signage-context.service';
+import { SignageZoneService } from '../app/zones/signage-zone.service';
 
 vi.mock('@placeos/ts-client', { spy: true });
 
-type SignageServiceTestAccess = SignageService & Record<string, any>;
+type TestAccess<T> = T & Record<string, any>;
 
 /** Saves, errors and local edits of displays and zones */
-describe('SignageService displays and zones', () => {
+describe('SignageDisplayService and SignageZoneService', () => {
     const flush = () => new Promise((resolve) => setTimeout(resolve));
     const notify_open = vi.fn(() => ({
         onAction: () => ({ subscribe: () => ({ unsubscribe: () => {} }) }),
@@ -48,7 +51,6 @@ describe('SignageService displays and zones', () => {
         });
         TestBed.configureTestingModule({
             providers: [
-                SignageService,
                 { provide: UploadsService, useValue: {} },
                 {
                     provide: SettingsService,
@@ -67,13 +69,24 @@ describe('SignageService displays and zones', () => {
         });
     });
 
-    function createService() {
-        const service = TestBed.inject(
-            SignageService,
-        ) as SignageServiceTestAccess;
-        service['_requirePermission'] = vi.fn(() => true);
-        return service;
+    /** The services under test, with every permission check passing */
+    function createServices() {
+        const context = TestBed.inject(
+            SignageContextService,
+        ) as TestAccess<SignageContextService>;
+        vi.spyOn(context, 'requirePermission').mockReturnValue(true);
+        return {
+            context,
+            displays: TestBed.inject(
+                SignageDisplayService,
+            ) as TestAccess<SignageDisplayService>,
+            zones: TestBed.inject(
+                SignageZoneService,
+            ) as TestAccess<SignageZoneService>,
+            playlists: TestBed.inject(SignagePlaylistService),
+        };
     }
+    type SignageTestServices = ReturnType<typeof createServices>;
 
     /** The next confirm modal returns "done" */
     function confirmNextDialog() {
@@ -102,7 +115,7 @@ describe('SignageService displays and zones', () => {
         );
 
     it('decodes saved names so the next save sends the real name', async () => {
-        const service = createService();
+        const { displays: service } = createServices();
         const display = new PlaceSystem({
             id: 'd1',
             name: 'A & B',
@@ -130,7 +143,7 @@ describe('SignageService displays and zones', () => {
     });
 
     it('decodes saved zone names before selecting the zone', async () => {
-        const service = createService();
+        const { zones: service } = createServices();
         const zone = new PlaceZone({ id: 'z1', playlists: ['p1'] });
         vi.mocked(updateZone).mockResolvedValue(
             new PlaceZone({ id: 'z1', name: 'R&amp;D' }),
@@ -142,11 +155,11 @@ describe('SignageService displays and zones', () => {
     });
 
     it('shows an error and keeps the selection when an assignment fails', async () => {
-        const service = createService();
+        const { context, zones: service } = createServices();
         const zone = new PlaceZone({ id: 'z1', playlists: ['p1'] });
         service.selected_zone.set(zone);
         vi.mocked(updateZone).mockRejectedValue(new Error('Conflict'));
-        const changed = vi.spyOn(service, 'changed');
+        const changed = vi.spyOn(context, 'changed');
 
         await service.removePlaylistFromZone(zone, 'p1');
 
@@ -159,25 +172,25 @@ describe('SignageService displays and zones', () => {
         [
             'display',
             () => vi.mocked(removeSystem).mockRejectedValue(new Error('403')),
-            (service: SignageService) =>
-                service.removeDisplay(new PlaceSystem({ id: 'd1' })),
+            ({ displays }: SignageTestServices) =>
+                displays.removeDisplay(new PlaceSystem({ id: 'd1' })),
         ],
         [
             'zone',
             () => vi.mocked(removeZone).mockRejectedValue(new Error('403')),
-            (service: SignageService) =>
-                service.removeZone(
+            ({ zones }: SignageTestServices) =>
+                zones.removeZone(
                     new PlaceZone({ id: 'z1', tags: ['signage'] }),
                 ),
         ],
     ] as const)(
         'closes the confirm modal and shows an error when removing a %s fails',
         async (_, fail, remove) => {
-            const service = createService();
+            const services = createServices();
             fail();
             confirmNextDialog();
 
-            const removed = await remove(service);
+            const removed = await remove(services);
 
             expect(removed).toBe(false);
             expect(confirm_close).toHaveBeenCalled();
@@ -186,39 +199,42 @@ describe('SignageService displays and zones', () => {
     );
 
     it('applies local edits only to displays and zones in the list', () => {
-        const service = createService();
-        service['_display_items'].set([new PlaceSystem({ id: 'd1' })]);
-        service['_display_overrides'].set({
+        const { displays, zones } = createServices();
+        displays['_display_items'].set([new PlaceSystem({ id: 'd1' })]);
+        displays['_display_overrides'].set({
             d1: new PlaceSystem({ id: 'd1', name: 'Edited' }),
             other: new PlaceSystem({ id: 'other', name: 'Other group' }),
         });
-        service['_all_zone_list'].set([new PlaceZone({ id: 'z1' })]);
-        service['_zone_overrides'].set({
+        zones['_all_zone_list'].set([new PlaceZone({ id: 'z1' })]);
+        zones['_zone_overrides'].set({
             other: new PlaceZone({ id: 'other', name: 'Other group' }),
         });
 
         expect(
-            service.filtered_displays().map(({ id, name }) => [id, name]),
+            displays.filtered_displays().map(({ id, name }) => [id, name]),
         ).toEqual([['d1', 'Edited']]);
-        expect(service.all_zones().map(({ id }) => id)).toEqual(['z1']);
+        expect(zones.all_zones().map(({ id }) => id)).toEqual(['z1']);
     });
 
     /** Select a signage group, as a staff user sees one */
-    function selectGroup(service: SignageServiceTestAccess, group_id: string) {
-        service['_signage_groups'].set([
+    function selectGroup(
+        context: TestAccess<SignageContextService>,
+        group_id: string,
+    ) {
+        context['_signage_groups'].set([
             {
                 group: new PlaceGroup({ id: group_id, name: group_id }),
                 permissions: 0,
             },
         ]);
-        service.selected_group_id.set(group_id);
+        context.selected_group_id.set(group_id);
     }
 
     // Staff users get a 403 from these routes without the group
     it('scopes the zone and playlist lookups of a display to the group', async () => {
-        const service = createService();
-        service['_canQueryLists'] = () => true;
-        selectGroup(service, 'g1');
+        const { context, displays, playlists } = createServices();
+        vi.spyOn(context, 'canQueryLists').mockReturnValue(true);
+        selectGroup(context, 'g1');
         vi.mocked(queryZones).mockResolvedValue({
             data: [new PlaceZone({ id: 'z1', playlists: ['p9'] })],
             total: 1,
@@ -228,13 +244,13 @@ describe('SignageService displays and zones', () => {
             new SignagePlaylist({ id: 'p9', name: 'Zone playlist' }),
         );
 
-        service.selected_display.set(
+        displays.selected_display.set(
             new PlaceSystem({ id: 'd1', zones: ['z1'] }),
         );
         await vi.waitFor(() =>
-            expect(service.playlistsById(['p9']).map(({ id }) => id)).toEqual([
-                'p9',
-            ]),
+            expect(playlists.playlistsById(['p9']).map(({ id }) => id)).toEqual(
+                ['p9'],
+            ),
         );
 
         expect(queryZones).toHaveBeenCalledWith({
@@ -242,7 +258,7 @@ describe('SignageService displays and zones', () => {
             limit: 500,
             group_id: 'g1',
         });
-        expect(service.selected_display_zones().map(({ id }) => id)).toEqual([
+        expect(displays.selected_display_zones().map(({ id }) => id)).toEqual([
             'z1',
         ]);
         expect(showSignagePlaylist).toHaveBeenCalledWith('p9', {
@@ -251,7 +267,7 @@ describe('SignageService displays and zones', () => {
     });
 
     it('keeps the count of an added display when a later page has an older total', async () => {
-        const service = createService();
+        const { displays: service } = createServices();
         const page = (total: number) =>
             Promise.resolve({
                 data: [new PlaceSystem({ id: `d${total}`, signage: true })],
@@ -270,7 +286,7 @@ describe('SignageService displays and zones', () => {
     });
 
     it('counts added and removed displays in the total', async () => {
-        const service = createService();
+        const { displays: service } = createServices();
         service['_displays_total'].set(5);
         dialog.open.mockReturnValue({
             afterClosed: () => ({
@@ -293,25 +309,25 @@ describe('SignageService displays and zones', () => {
     });
 
     it('drops local edits when the group changes', async () => {
-        const service = createService();
-        service['_signage_groups'].set(
+        const { context, displays, zones } = createServices();
+        context['_signage_groups'].set(
             ['g1', 'g2'].map((id) => ({
                 group: new PlaceGroup({ id, name: id }),
                 permissions: 0,
             })),
         );
-        service.selected_group_id.set('g1');
+        context.selected_group_id.set('g1');
         TestBed.tick();
-        service['_display_overrides'].set({
+        displays['_display_overrides'].set({
             d1: new PlaceSystem({ id: 'd1' }),
         });
-        service['_zone_overrides'].set({ z1: new PlaceZone({ id: 'z1' }) });
+        zones['_zone_overrides'].set({ z1: new PlaceZone({ id: 'z1' }) });
 
-        service.selected_group_id.set('g2');
+        context.selected_group_id.set('g2');
         TestBed.tick();
         await flush();
 
-        expect(service['_display_overrides']()).toEqual({});
-        expect(service['_zone_overrides']()).toEqual({});
+        expect(displays['_display_overrides']()).toEqual({});
+        expect(zones['_zone_overrides']()).toEqual({});
     });
 });

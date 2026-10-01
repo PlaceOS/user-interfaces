@@ -3,7 +3,7 @@ import { TestBed } from '@angular/core/testing';
 
 import { AiImageService } from '../../app/ai/ai-image.service';
 import { BrandingComponent } from '../../app/branding/branding.component';
-import { SignageService } from '../../app/signage.service';
+import { SignageContextService } from '../../app/signage-context.service';
 
 describe('BrandingComponent', () => {
     const ai_stub = {
@@ -20,7 +20,7 @@ describe('BrandingComponent', () => {
             providers: [
                 { provide: AiImageService, useValue: ai_stub },
                 {
-                    provide: SignageService,
+                    provide: SignageContextService,
                     useValue: {
                         is_sys_admin: signal(true),
                         global_features: signal(['branding-editing']),

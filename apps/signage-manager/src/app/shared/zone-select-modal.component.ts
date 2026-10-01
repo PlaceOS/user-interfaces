@@ -3,7 +3,7 @@ import { MatRippleModule } from '@angular/material/core';
 import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import { PlaceZone } from '@placeos/ts-client';
-import { SignageService } from '../signage.service';
+import { SignageZoneService } from '../zones/signage-zone.service';
 import { byDisplayName, PagedSearch } from './paged-search';
 import { ZoneSelectTreeComponent } from './zone-select-tree.component';
 
@@ -59,22 +59,22 @@ import { ZoneSelectTreeComponent } from './zone-select-tree.component';
     ],
 })
 export class ZoneSelectModalComponent {
-    private readonly _service = inject(SignageService);
+    private readonly _zone_service = inject(SignageZoneService);
     private readonly _dialog_ref = inject(
         MatDialogRef<ZoneSelectModalComponent>,
     );
 
-    public readonly roots = this._service.root_zones;
+    public readonly roots = this._zone_service.root_zones;
     // Start with no zone, so one click cannot assign to the whole organisation
     public readonly selected_zone = signal<PlaceZone | null>(null);
     public readonly list = new PagedSearch<PlaceZone>((search) => {
         const parent_id = this.selected_zone()?.id;
         return parent_id && search.trim()
-            ? this._service.querySelectableZones(search, parent_id)
+            ? this._zone_service.querySelectableZones(search, parent_id)
             : null;
     }, byDisplayName);
     public readonly loadChildren = (parent_id: string) =>
-        this._service.zoneChildren(parent_id);
+        this._zone_service.zoneChildren(parent_id);
 
     public addZone() {
         const zone = this.selected_zone();

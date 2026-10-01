@@ -29,7 +29,9 @@ import {
 } from '@placeos/components';
 import { SignageMedia } from '@placeos/ts-client';
 
-import { SignageService } from '../signage.service';
+import { SignageMediaService } from '../media/signage-media.service';
+import { SignagePlaylistService } from '../playlists/signage-playlist.service';
+import { SignageContextService } from '../signage-context.service';
 import { AiImageService, isFinal, MAX_JOB_WAIT_MS } from './ai-image.service';
 import { errorMessage, orientationOf } from './ai-image.util';
 import {
@@ -323,9 +325,14 @@ interface Candidate {
                                  model, so it follows the AI editing flag -->
                             @if (can_refine()) {
                                 <div class="flex flex-col">
-                                    <label for="ai-refine" class="mb-1 text-sm">{{
-                                        'SIGNAGE_MANAGER.AI_REFINE' | translate
-                                    }}</label>
+                                    <label
+                                        for="ai-refine"
+                                        class="mb-1 text-sm"
+                                        >{{
+                                            'SIGNAGE_MANAGER.AI_REFINE'
+                                                | translate
+                                        }}</label
+                                    >
                                     <mat-form-field
                                         appearance="outline"
                                         class="w-full"
@@ -484,7 +491,9 @@ export class AiImageModalComponent implements OnDestroy {
     private readonly _data = inject<AiImageModalData>(MAT_DIALOG_DATA);
     private readonly _dialog_ref =
         inject<MatDialogRef<AiImageModalComponent>>(MatDialogRef);
-    private readonly _service = inject(SignageService);
+    private readonly _context = inject(SignageContextService);
+    private readonly _media_service = inject(SignageMediaService);
+    private readonly _playlist_service = inject(SignagePlaylistService);
     private readonly _ai = inject(AiImageService);
 
     private readonly _layer = viewChild(AiLayerComponent);
@@ -566,10 +575,10 @@ export class AiImageModalComponent implements OnDestroy {
 
     public readonly brand = this._ai.brand_kit;
 
-    public readonly can_set_logo = this._service.is_sys_admin;
+    public readonly can_set_logo = this._context.is_sys_admin;
 
     public readonly group_id = computed(
-        () => this._service.selected_group()?.group.id || undefined,
+        () => this._context.selected_group()?.group.id || undefined,
     );
 
     /** there is nothing to switch off if the organisation has set nothing */
@@ -594,7 +603,7 @@ export class AiImageModalComponent implements OnDestroy {
 
     public readonly is_edit = computed(() => !!this._data.source_upload_id);
     public readonly can_refine = computed(
-        () => this._service.hasFeature('ai-editing') && this._ai.can_edit(),
+        () => this._context.hasFeature('ai-editing') && this._ai.can_edit(),
     );
 
     /** the image being changed, so the brief is not written blind */
@@ -953,13 +962,13 @@ export class AiImageModalComponent implements OnDestroy {
             let pending = this._pending;
             if (!pending) {
                 const media = blob
-                    ? await this._service.addMedia(
+                    ? await this._media_service.addMedia(
                           new File([blob], `${name}.png`, {
                               type: 'image/png',
                           }),
                           new SignageMedia({ name, tags: this._tags() }),
                       )
-                    : await this._service.addMediaFromUpload(
+                    : await this._media_service.addMediaFromUpload(
                           candidate.upload_id,
                           {
                               name,
@@ -994,7 +1003,7 @@ export class AiImageModalComponent implements OnDestroy {
                 } catch (error) {
                     // an unclaimed upload is swept up, which would leave the
                     // row pointing at nothing
-                    await this._service
+                    await this._media_service
                         .discardCreatedMedia(media.id)
                         .then(() => (this._pending = undefined))
                         .catch(() => null);
@@ -1004,9 +1013,10 @@ export class AiImageModalComponent implements OnDestroy {
             }
 
             if (this._data.playlist_id) {
-                await this._service.addMediaToPlaylist(
+                await this._playlist_service.addMediaToPlaylist(
                     this._data.playlist_id,
                     media.id,
+                    media,
                 );
             }
             this._pending = undefined;

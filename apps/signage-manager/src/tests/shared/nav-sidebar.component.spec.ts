@@ -2,13 +2,13 @@ import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { LocaleService, SettingsService } from '@placeos/common';
 import { NavSidebarComponent } from '../../app/shared/nav-sidebar.component';
-import { SignageService } from '../../app/signage.service';
+import { SignageContextService } from '../../app/signage-context.service';
 
 describe('NavSidebarComponent', () => {
     const locales_signal = signal<any[]>([]);
     const show_locale_signal = signal(false);
     const can_manage_all_groups = signal(false);
-    const manageable_signage_groups = signal<any[]>([]);
+    const can_manage_groups = signal(false);
     const settings = {
         signal: vi.fn((key: string) =>
             key === 'locales' ? locales_signal : show_locale_signal,
@@ -21,9 +21,9 @@ describe('NavSidebarComponent', () => {
         setLocale: vi.fn(),
     };
     const templates_enabled = signal(false);
-    const service = {
+    const context = {
+        can_manage_groups,
         can_manage_all_groups,
-        manageable_signage_groups,
         templates_enabled,
     };
 
@@ -33,7 +33,7 @@ describe('NavSidebarComponent', () => {
             providers: [
                 { provide: SettingsService, useValue: settings },
                 { provide: LocaleService, useValue: locale },
-                { provide: SignageService, useValue: service },
+                { provide: SignageContextService, useValue: context },
             ],
         })
             .overrideComponent(NavSidebarComponent, {
@@ -75,7 +75,7 @@ describe('NavSidebarComponent', () => {
         locales_signal.set([]);
         show_locale_signal.set(false);
         can_manage_all_groups.set(false);
-        manageable_signage_groups.set([]);
+        can_manage_groups.set(false);
         templates_enabled.set(false);
         settings.theme = 'light';
         settings.get.mockReset();
@@ -92,7 +92,7 @@ describe('NavSidebarComponent', () => {
     });
 
     it('shows the group management item when groups are manageable', async () => {
-        manageable_signage_groups.set([{ id: 'g1' }]);
+        can_manage_groups.set(true);
         const component = await createComponent();
 
         expect(component.nav_items().map((_) => _.route)).toContain('/groups');

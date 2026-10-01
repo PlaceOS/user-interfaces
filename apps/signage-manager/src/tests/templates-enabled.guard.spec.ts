@@ -2,7 +2,7 @@ import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter, Router, UrlTree } from '@angular/router';
 import { OrganisationService } from '@placeos/common';
-import { SignageService } from '../app/signage.service';
+import { SignageContextService } from '../app/signage-context.service';
 import { templatesEnabledGuard } from '../app/templates-enabled.guard';
 
 describe('templatesEnabledGuard', () => {
@@ -39,7 +39,7 @@ describe('templatesEnabledGuard', () => {
                     },
                 },
                 {
-                    provide: SignageService,
+                    provide: SignageContextService,
                     useValue: {
                         features_ready,
                         templates_enabled,

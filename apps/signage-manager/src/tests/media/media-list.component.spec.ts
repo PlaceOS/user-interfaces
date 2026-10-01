@@ -2,7 +2,8 @@ import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { AiImageService } from '../../app/ai/ai-image.service';
 import { MediaListComponent } from '../../app/media/media-list.component';
-import { SignageService } from '../../app/signage.service';
+import { SignageMediaService } from '../../app/media/signage-media.service';
+import { SignageContextService } from '../../app/signage-context.service';
 
 function media(id: string, tags: string[]) {
     return { id, name: id, tags, media_type: 'image' } as any;
@@ -18,7 +19,20 @@ describe('MediaListComponent folders', () => {
     const can_update_media_tags = signal(true);
     const show_media_group_tabs = signal(true);
     const set_selected_group = vi.fn();
-    const service_stub = {
+    const context_stub = {
+        signage_groups,
+        selected_group_id: signal(''),
+        can_manage_all_groups,
+        can_update_media_tags,
+        can_update: signal(true),
+        can_create: signal(true),
+        can_delete: signal(true),
+        can_share: signal(true),
+        features: signal<string[]>(['ai-editing']),
+        hasFeature: (id: string) => context_stub.features().includes(id),
+        setSelectedGroup: set_selected_group,
+    };
+    const media_stub = {
         media: media_items,
         media_tags,
         media_tag_counts,
@@ -26,21 +40,10 @@ describe('MediaListComponent folders', () => {
         media_has_more: signal(false),
         media_loading: signal(false),
         media_error: signal(false),
-        signage_groups,
-        selected_group_id: signal(''),
-        can_manage_all_groups,
         show_media_group_tabs,
-        can_update_media_tags,
-        can_update: signal(true),
-        can_create: signal(true),
-        can_delete: signal(true),
-        can_share: signal(true),
-        features: signal<string[]>(['ai-editing']),
-        hasFeature: (id: string) => service_stub.features().includes(id),
         addMediaTags: vi.fn(),
         renameMediaTag: vi.fn(),
         removeMediaTag: vi.fn(),
-        setSelectedGroup: set_selected_group,
         loadMoreMedia: vi.fn(),
         retryMedia: vi.fn(),
     };
@@ -48,7 +51,8 @@ describe('MediaListComponent folders', () => {
     function make() {
         TestBed.configureTestingModule({
             providers: [
-                { provide: SignageService, useValue: service_stub },
+                { provide: SignageContextService, useValue: context_stub },
+                { provide: SignageMediaService, useValue: media_stub },
                 {
                     provide: AiImageService,
                     useValue: { can_edit: signal(true) },
@@ -59,7 +63,7 @@ describe('MediaListComponent folders', () => {
     }
 
     beforeEach(() => {
-        service_stub.features.set(['ai-editing']);
+        context_stub.features.set(['ai-editing']);
         window.matchMedia = vi.fn().mockReturnValue({
             matches: false,
             addListener: vi.fn(),
@@ -81,9 +85,9 @@ describe('MediaListComponent folders', () => {
         can_update_media_tags.set(true);
         show_media_group_tabs.set(true);
         set_selected_group.mockReset();
-        service_stub.media_has_more.set(false);
-        service_stub.media_error.set(false);
-        service_stub.loadMoreMedia.mockReset();
+        media_stub.media_has_more.set(false);
+        media_stub.media_error.set(false);
+        media_stub.loadMoreMedia.mockReset();
     });
 
     it('offers the group tabs only while the media group tabs are enabled', () => {
@@ -104,7 +108,7 @@ describe('MediaListComponent folders', () => {
         const component = make();
         expect(component.can_edit_with_ai()).toBe(true);
 
-        service_stub.can_create.set(false);
+        context_stub.can_create.set(false);
 
         expect(component.can_edit_with_ai()).toBe(false);
     });
@@ -112,7 +116,7 @@ describe('MediaListComponent folders', () => {
     it('hides AI edits when the group turns AI editing off', () => {
         const component = make();
 
-        service_stub.features.set([]);
+        context_stub.features.set([]);
 
         expect(component.can_edit_with_ai()).toBe(false);
     });
@@ -201,9 +205,9 @@ describe('MediaListComponent folders', () => {
 
         const checkbox = element.querySelector('input[type="checkbox"]');
         expect(checkbox.getAttribute('aria-label')).toBe('Select a');
-        const footer_names = [
-            ...element.querySelectorAll('footer button'),
-        ].map((button) => button.getAttribute('aria-label'));
+        const footer_names = [...element.querySelectorAll('footer button')].map(
+            (button) => button.getAttribute('aria-label'),
+        );
         expect(footer_names).toEqual([
             'Clear selected media',
             'Tags',
@@ -215,7 +219,7 @@ describe('MediaListComponent folders', () => {
 
     // Folders come from the tag counts, so they can show after media fails
     it('shows the load error and retry with the folders', () => {
-        service_stub.media_error.set(true);
+        media_stub.media_error.set(true);
         make();
         const fixture = TestBed.createComponent(MediaListComponent);
         fixture.detectChanges();
@@ -230,24 +234,24 @@ describe('MediaListComponent folders', () => {
 
         retry.click();
 
-        expect(service_stub.retryMedia).toHaveBeenCalled();
+        expect(media_stub.retryMedia).toHaveBeenCalled();
     });
 
     // A folder filters the loaded pages, and its items can be on any page
     it('loads every page while a folder is open', () => {
         const component = make();
-        service_stub.loadMoreMedia.mockImplementation(() => {
+        media_stub.loadMoreMedia.mockImplementation(() => {
             media_items.update((items) => [...items, media('d', ['news'])]);
-            service_stub.media_has_more.set(false);
+            media_stub.media_has_more.set(false);
         });
-        service_stub.media_has_more.set(true);
+        media_stub.media_has_more.set(true);
         TestBed.flushEffects();
-        expect(service_stub.loadMoreMedia).not.toHaveBeenCalled();
+        expect(media_stub.loadMoreMedia).not.toHaveBeenCalled();
 
         component.openFolder('news');
         TestBed.flushEffects();
 
-        expect(service_stub.loadMoreMedia).toHaveBeenCalledOnce();
+        expect(media_stub.loadMoreMedia).toHaveBeenCalledOnce();
         expect(component.display_media().map((m: any) => m.id)).toEqual([
             'a',
             'b',
@@ -266,14 +270,14 @@ describe('MediaListComponent folders', () => {
     });
 
     it('adds tags to every selected media item and clears the selection', async () => {
-        service_stub.addMediaTags.mockResolvedValue(true);
+        media_stub.addMediaTags.mockResolvedValue(true);
         const component = make();
         component.toggleSelection('a');
         component.toggleSelection('c');
 
         await component.addTagsToSelected();
 
-        expect(service_stub.addMediaTags).toHaveBeenCalledWith([
+        expect(media_stub.addMediaTags).toHaveBeenCalledWith([
             expect.objectContaining({ id: 'a' }),
             expect.objectContaining({ id: 'c' }),
         ]);
@@ -286,7 +290,7 @@ describe('MediaListComponent folders', () => {
         await component.renameTag('news', 2);
         await component.removeTag('news', 2);
 
-        expect(service_stub.renameMediaTag).toHaveBeenCalledWith('news', 2);
-        expect(service_stub.removeMediaTag).toHaveBeenCalledWith('news', 2);
+        expect(media_stub.renameMediaTag).toHaveBeenCalledWith('news', 2);
+        expect(media_stub.removeMediaTag).toHaveBeenCalledWith('news', 2);
     });
 });

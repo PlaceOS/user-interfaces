@@ -3,7 +3,7 @@ import { MatRippleModule } from '@angular/material/core';
 import { MatMenuModule } from '@angular/material/menu';
 import { RouterModule } from '@angular/router';
 import { IconComponent, TranslatePipe } from '@placeos/components';
-import { SignageService } from '../signage.service';
+import { SignageContextService } from '../signage-context.service';
 import { injectNavItems } from './nav-items';
 
 @Component({
@@ -123,7 +123,7 @@ import { injectNavItems } from './nav-items';
     ],
 })
 export class NavFooterComponent {
-    private readonly _service = inject(SignageService);
+    private readonly _context = inject(SignageContextService);
     private readonly _nav_items = injectNavItems();
 
     // Keep at most four navigation links in the primary row.
@@ -143,15 +143,15 @@ export class NavFooterComponent {
             this.MORE_MENU_ROUTES.includes(item.route),
         ),
     );
-    public readonly groups = this._service.signage_groups;
-    public readonly selected_group = this._service.selected_group;
-    public readonly can_manage_all_groups = this._service.can_manage_all_groups;
-    public readonly show_selector = this._service.show_group_selector;
+    public readonly groups = this._context.signage_groups;
+    public readonly selected_group = this._context.selected_group;
+    public readonly can_manage_all_groups = this._context.can_manage_all_groups;
+    public readonly show_selector = this._context.show_group_selector;
     public readonly selected_label = computed(
         () => this.selected_group()?.group.name || 'SIGNAGE_MANAGER.ALL_GROUPS',
     );
 
     public selectGroup() {
-        return this._service.selectGroup();
+        return this._context.selectGroup();
     }
 }

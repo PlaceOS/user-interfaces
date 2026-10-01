@@ -6,7 +6,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import { PlaceCurrentGroup } from '@placeos/ts-client';
-import { groupHierarchy } from '../signage.service';
+import { groupHierarchy } from '../signage-context.service';
 
 export interface GroupSelectModalData {
     title: string;

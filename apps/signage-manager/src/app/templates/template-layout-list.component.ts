@@ -37,13 +37,17 @@ import {
     SignageTemplateLayoutPosition,
     SignageTemplateMapping,
 } from '@placeos/ts-client';
+import { SignageDisplayService } from '../displays/signage-display.service';
+import { SignageContextService } from '../signage-context.service';
 import { playlistScheduleLabel } from '../signage-playlist.util';
+import { SignagePluginService } from '../signage-plugin.service';
 import {
     pluginName,
     pluginSchema,
     schemaDefaults,
 } from '../signage-plugin.util';
-import { SignageService } from '../signage.service';
+import { SignageZoneService } from '../zones/signage-zone.service';
+import { SignageTemplateService } from './signage-template.service';
 import {
     LAYOUT_POSITIONS,
     layoutAxisPercentage,
@@ -763,23 +767,28 @@ import {
     ],
 })
 export class TemplateLayoutListComponent {
-    private readonly _service = inject(SignageService);
+    private readonly _context = inject(SignageContextService);
+    private readonly _display_service = inject(SignageDisplayService);
+    private readonly _plugin_service = inject(SignagePluginService);
+    private readonly _template_service = inject(SignageTemplateService);
+    private readonly _zone_service = inject(SignageZoneService);
 
     /** Active inner tab. Below lg the parent drives it from its own tabs. */
     public readonly view_tab = model<'items' | 'details'>('items', {
         alias: 'tab',
     });
     public readonly positions = LAYOUT_POSITIONS;
-    public readonly layouts = this._service.template_layout_draft;
-    public readonly selected_template = this._service.selected_template;
+    public readonly layouts = this._template_service.template_layout_draft;
+    public readonly selected_template =
+        this._template_service.selected_template;
     public readonly selected_index =
-        this._service.selected_template_layout_index;
-    public readonly dirty = this._service.template_layout_dirty;
+        this._template_service.selected_template_layout_index;
+    public readonly dirty = this._template_service.template_layout_dirty;
     public readonly saving = signal(false);
-    public readonly can_update = this._service.can_update_templates;
-    public readonly widgets = this._service.widgets;
-    public readonly displays = this._service.displays;
-    public readonly zones = this._service.all_zones;
+    public readonly can_update = this._context.can_update_templates;
+    public readonly widgets = this._plugin_service.widgets;
+    public readonly displays = this._display_service.displays;
+    public readonly zones = this._zone_service.all_zones;
     public readonly background_url = computed(() => {
         const background_id = this.selected_template()?.background_item_id;
         return background_id ? mediaThumbnail(background_id) : '';
@@ -795,7 +804,7 @@ export class TemplateLayoutListComponent {
         }),
         loader: ({ params }) =>
             params.template_id
-                ? this._service.listTemplateMappings({
+                ? this._template_service.listTemplateMappings({
                       template_id: params.template_id,
                   })
                 : Promise.resolve([]),
@@ -1007,14 +1016,14 @@ export class TemplateLayoutListComponent {
         }
         this.saving.set(true);
         try {
-            await this._service.saveTemplateLayouts();
+            await this._template_service.saveTemplateLayouts();
         } finally {
             this.saving.set(false);
         }
     }
 
     public discard() {
-        this._service.discardTemplateLayoutDraft();
+        this._template_service.discardTemplateLayoutDraft();
     }
 
     /**

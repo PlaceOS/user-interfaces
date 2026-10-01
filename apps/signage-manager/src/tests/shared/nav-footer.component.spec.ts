@@ -1,20 +1,20 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { NavFooterComponent } from '../../app/shared/nav-footer.component';
-import { SignageService } from '../../app/signage.service';
+import { SignageContextService } from '../../app/signage-context.service';
 
 describe('NavFooterComponent', () => {
     const can_manage_all_groups = signal(false);
-    const manageable_signage_groups = signal<any[]>([]);
+    const can_manage_groups = signal(false);
     const signage_groups = signal<any[]>([]);
     const selected_group = signal<any>(null);
     const selectGroup = vi.fn();
     const show_group_selector = signal(true);
     const templates_enabled = signal(false);
-    const service = {
+    const context = {
+        can_manage_groups,
         templates_enabled,
         can_manage_all_groups,
-        manageable_signage_groups,
         signage_groups,
         selected_group,
         selectGroup,
@@ -24,9 +24,7 @@ describe('NavFooterComponent', () => {
     async function createComponent() {
         await TestBed.configureTestingModule({
             imports: [NavFooterComponent],
-            providers: [
-                { provide: SignageService, useValue: service },
-            ],
+            providers: [{ provide: SignageContextService, useValue: context }],
         })
             .overrideComponent(NavFooterComponent, {
                 set: { template: '', imports: [] },
@@ -38,7 +36,7 @@ describe('NavFooterComponent', () => {
     beforeEach(() => {
         vi.clearAllMocks();
         can_manage_all_groups.set(false);
-        manageable_signage_groups.set([]);
+        can_manage_groups.set(false);
         signage_groups.set([]);
         selected_group.set(null);
         show_group_selector.set(true);
@@ -90,7 +88,7 @@ describe('NavFooterComponent', () => {
     });
 
     it('shows the group management item once groups are manageable', async () => {
-        manageable_signage_groups.set([{ id: 'g1' }]);
+        can_manage_groups.set(true);
         const component = await createComponent();
 
         expect(component.more_nav_items().map((_) => _.route)).toContain(

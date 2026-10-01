@@ -4,7 +4,8 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { Router } from '@angular/router';
 import { IconComponent, TranslatePipe } from '@placeos/components';
-import { SignageService } from '../signage.service';
+import { SignageContextService } from '../signage-context.service';
+import { SignagePlaylistService } from './signage-playlist.service';
 
 /**
  * Action buttons for the selected playlist: approve or request approval,
@@ -145,45 +146,47 @@ import { SignageService } from '../signage.service';
     ],
 })
 export class PlaylistActionsComponent {
-    private readonly _service = inject(SignageService);
+    private readonly _context = inject(SignageContextService);
+    private readonly _playlist_service = inject(SignagePlaylistService);
     private readonly _router = inject(Router);
 
-    public readonly selected_playlist = this._service.selected_playlist;
+    public readonly selected_playlist =
+        this._playlist_service.selected_playlist;
     public readonly requires_approval =
-        this._service.selected_playlist_requires_approval;
-    public readonly can_approve = this._service.can_approve;
-    public readonly can_update = this._service.can_update;
-    public readonly can_create = this._service.can_create;
-    public readonly can_delete = this._service.can_delete;
-    public readonly can_share = this._service.can_share;
+        this._playlist_service.selected_playlist_requires_approval;
+    public readonly can_approve = this._context.can_approve;
+    public readonly can_update = this._context.can_update;
+    public readonly can_create = this._context.can_create;
+    public readonly can_delete = this._context.can_delete;
+    public readonly can_share = this._context.can_share;
     public readonly approval_request_loading =
-        this._service.playlist_approval_request_loading;
-    public readonly duplicating = this._service.playlist_duplicating;
+        this._playlist_service.playlist_approval_request_loading;
+    public readonly duplicating = this._playlist_service.playlist_duplicating;
 
     public editPlaylist() {
         const playlist = this.selected_playlist();
-        if (playlist) this._service.editPlaylist(playlist);
+        if (playlist) this._playlist_service.editPlaylist(playlist);
     }
 
     public removePlaylist() {
         const playlist = this.selected_playlist();
-        if (playlist) this._service.removePlaylist(playlist);
+        if (playlist) this._playlist_service.removePlaylist(playlist);
     }
 
     public approvePlaylist() {
         const playlist = this.selected_playlist();
-        if (playlist) this._service.approvePlaylist(playlist);
+        if (playlist) this._playlist_service.approvePlaylist(playlist);
     }
 
     public requestApproval() {
         const playlist = this.selected_playlist();
-        if (playlist) this._service.requestPlaylistApproval(playlist);
+        if (playlist) this._playlist_service.requestPlaylistApproval(playlist);
     }
 
     public async duplicatePlaylist() {
         const playlist = this.selected_playlist();
         if (!playlist) return;
-        const copy = await this._service.duplicatePlaylist(playlist);
+        const copy = await this._playlist_service.duplicatePlaylist(playlist);
         if (copy?.id) {
             void this._router.navigate(['/playlists', copy.id], {
                 queryParamsHandling: 'merge',
@@ -193,6 +196,6 @@ export class PlaylistActionsComponent {
 
     public sharePlaylist() {
         const playlist = this.selected_playlist();
-        if (playlist) this._service.sharePlaylist(playlist);
+        if (playlist) this._playlist_service.sharePlaylist(playlist);
     }
 }

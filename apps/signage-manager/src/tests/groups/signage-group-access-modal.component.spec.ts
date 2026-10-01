@@ -5,7 +5,7 @@ import {
     MatDialogRef,
 } from '@angular/material/dialog';
 import { SignageGroupAccessModalComponent } from '../../app/groups/signage-group-access-modal.component';
-import { SignageService } from '../../app/signage.service';
+import { SignageGroupAdminService } from '../../app/groups/signage-group-admin.service';
 
 describe('SignageGroupAccessModalComponent', () => {
     const dialog_ref = { close: vi.fn(), disableClose: false };
@@ -23,7 +23,7 @@ describe('SignageGroupAccessModalComponent', () => {
                 { provide: MAT_DIALOG_DATA, useValue: { group } },
                 { provide: MatDialogRef, useValue: dialog_ref },
                 { provide: MatDialog, useValue: dialog },
-                { provide: SignageService, useValue: service_stub },
+                { provide: SignageGroupAdminService, useValue: service_stub },
             ],
         }).overrideComponent(SignageGroupAccessModalComponent, {
             set: { template: '', imports: [] },

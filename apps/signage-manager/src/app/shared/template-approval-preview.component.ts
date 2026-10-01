@@ -10,8 +10,8 @@ import {
     SignageTemplate,
     SignageTemplateLayout,
 } from '@placeos/ts-client';
+import { SignagePluginService } from '../signage-plugin.service';
 import { pluginName } from '../signage-plugin.util';
-import { SignageService } from '../signage.service';
 import {
     computeTemplateLayoutRects,
     layoutAxisPercentage,
@@ -443,7 +443,7 @@ interface TemplateVersionPreview {
     ],
 })
 export class TemplateApprovalPreviewComponent {
-    private readonly _service = inject(SignageService);
+    private readonly _plugin_service = inject(SignagePluginService);
 
     public readonly versions = input<SignageTemplate[]>([]);
     public readonly versionComparison = computed(() => {
@@ -501,7 +501,7 @@ export class TemplateApprovalPreviewComponent {
     }
 
     public pluginName(plugin_id?: string) {
-        return pluginName(this._service.widgets(), plugin_id);
+        return pluginName(this._plugin_service.widgets(), plugin_id);
     }
 
     /** Build the view of `template` with its differences from `other`. */

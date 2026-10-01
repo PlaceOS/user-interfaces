@@ -6,7 +6,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import { PlaceSystem } from '@placeos/ts-client';
-import { SignageService } from '../signage.service';
+import { SignageDisplayService } from '../displays/signage-display.service';
 import { IntersectDirective } from './intersect.directive';
 import { byDisplayName, PagedSearch } from './paged-search';
 
@@ -114,10 +114,10 @@ import { byDisplayName, PagedSearch } from './paged-search';
     ],
 })
 export class DisplaySelectModalComponent {
-    private readonly _service = inject(SignageService);
+    private readonly _display_service = inject(SignageDisplayService);
 
     public readonly list = new PagedSearch<PlaceSystem>(
-        (search) => this._service.queryDisplays(search),
+        (search) => this._display_service.queryDisplays(search),
         byDisplayName,
     );
 }

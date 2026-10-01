@@ -9,8 +9,9 @@ import {
     SignagePlugin,
     showSignageMedia,
 } from '@placeos/ts-client';
+import { SignageMediaService } from '../../app/media/signage-media.service';
 import { MediaPreviewModalComponent } from '../../app/shared/media-preview-modal.component';
-import { SignageService } from '../../app/signage.service';
+import { SignageContextService } from '../../app/signage-context.service';
 
 vi.mock('@placeos/ts-client', { spy: true });
 
@@ -30,7 +31,7 @@ describe('MediaPreviewModalComponent', () => {
                     provide: MAT_DIALOG_DATA,
                     useValue: { media, plugin, group_id },
                 },
-                { provide: SignageService, useValue: service },
+                { provide: SignageMediaService, useValue: service },
             ],
         })
             .overrideComponent(MediaPreviewModalComponent, {
@@ -89,7 +90,9 @@ describe('MediaPreviewModalComponent', () => {
                     provide: MAT_DIALOG_DATA,
                     useValue: { media },
                 },
-                { provide: SignageService, useValue: service },
+                { provide: SignageMediaService, useValue: service },
+                // The rendered shared-with list injects the context
+                { provide: SignageContextService, useValue: {} },
             ],
         })
             .overrideComponent(MediaPreviewModalComponent, {

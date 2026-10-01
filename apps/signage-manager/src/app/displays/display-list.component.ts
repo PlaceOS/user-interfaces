@@ -22,8 +22,8 @@ import {
 } from '@placeos/components';
 import { isSameDay } from 'date-fns';
 import { IntersectDirective } from '../shared/intersect.directive';
-import { SignageService } from '../signage.service';
 import { isDisplayOnline } from './display-status.util';
+import { SignageDisplayService } from './signage-display.service';
 
 @Component({
     selector: 'display-list',
@@ -163,17 +163,17 @@ import { isDisplayOnline } from './display-status.util';
     ],
 })
 export class DisplayListComponent {
-    private readonly _service = inject(SignageService);
+    private readonly _display_service = inject(SignageDisplayService);
     private readonly _display_items =
         viewChildren<ElementRef<HTMLAnchorElement>>('display_item');
 
-    public readonly search = this._service.display_search_term;
-    public readonly displays = this._service.filtered_displays;
-    public readonly selected = this._service.selected_display;
+    public readonly search = this._display_service.display_search_term;
+    public readonly displays = this._display_service.filtered_displays;
+    public readonly selected = this._display_service.selected_display;
 
     // Backend pagination: fetches the next page as the sentinel scrolls in.
-    public readonly has_more = this._service.displays_has_more;
-    public readonly loading = this._service.displays_loading;
+    public readonly has_more = this._display_service.displays_has_more;
+    public readonly loading = this._display_service.displays_loading;
 
     // Ticks each minute so a display that stops checking in turns offline
     // without a reload.
@@ -205,7 +205,7 @@ export class DisplayListComponent {
     }
 
     public loadMore() {
-        this._service.loadMoreDisplays();
+        this._display_service.loadMoreDisplays();
     }
 
     public isOnline(display: { signage_last_seen?: number }) {

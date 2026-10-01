@@ -15,6 +15,7 @@ import {
     openConfirmModal,
     TranslatePipe,
 } from '@placeos/components';
+import { SignageContextService } from '../signage-context.service';
 import {
     listSignageSharedGroups,
     markSignageSharedGroupsChanged,
@@ -23,7 +24,6 @@ import {
     SignageSharedGroup,
     unshareSignageItem,
 } from '../signage-shared-groups.util';
-import { SignageService } from '../signage.service';
 
 @Component({
     // Existing signage-manager components use feature selectors without the app prefix.
@@ -83,7 +83,7 @@ import { SignageService } from '../signage.service';
 })
 export class SignageSharedWithComponent {
     private readonly _dialog = inject(MatDialog);
-    private readonly _service = inject(SignageService);
+    private readonly _context = inject(SignageContextService);
 
     public readonly type = input.required<SignageShareableType>();
     public readonly item_id = input('');
@@ -159,7 +159,7 @@ export class SignageSharedWithComponent {
             result.close();
             notifySuccess(i18n('SIGNAGE_MANAGER.SHARED_WITH_REMOVED'));
             markSignageSharedGroupsChanged();
-            this._service.changed();
+            this._context.changed();
         } catch (error) {
             result.close();
             notifyError(

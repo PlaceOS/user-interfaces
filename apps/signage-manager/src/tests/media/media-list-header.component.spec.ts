@@ -5,8 +5,10 @@ import { setNotifyOutlet } from '@placeos/common';
 import { SignagePlugin } from '@placeos/ts-client';
 import { AiImageService } from '../../app/ai/ai-image.service';
 import { MediaListHeaderComponent } from '../../app/media/media-list-header.component';
+import { SignageMediaService } from '../../app/media/signage-media.service';
 import { MediaAddModalComponent } from '../../app/shared/media-add-modal.component';
-import { SignageService } from '../../app/signage.service';
+import { SignageContextService } from '../../app/signage-context.service';
+import { SignagePluginService } from '../../app/signage-plugin.service';
 
 const notify_open = vi.fn(() => ({
     onAction: () => ({ subscribe: () => ({ unsubscribe: () => {} }) }),
@@ -31,27 +33,28 @@ describe('MediaListHeaderComponent', () => {
     const preview_file = vi.fn();
     const dialog_open = vi.fn();
 
-    const service_stub = {
+    const context_stub = { can_create: signal(true) };
+    const media_stub = {
         media_total,
         media,
         media_view,
         media_view_active,
-        plugins,
-        widgets,
         search_term,
         media_view_mode,
         media_upload_accept: 'image/*',
-        can_create: signal(true),
         addMediaFromLink: add_from_link,
         addMediaFromPlugin: add_from_plugin,
         previewFileFromInput: preview_file,
     };
+    const plugin_stub = { plugins, widgets };
 
     async function make() {
         await TestBed.configureTestingModule({
             imports: [MediaListHeaderComponent],
             providers: [
-                { provide: SignageService, useValue: service_stub },
+                { provide: SignageContextService, useValue: context_stub },
+                { provide: SignageMediaService, useValue: media_stub },
+                { provide: SignagePluginService, useValue: plugin_stub },
                 { provide: MatDialog, useValue: { open: dialog_open } },
                 {
                     provide: AiImageService,

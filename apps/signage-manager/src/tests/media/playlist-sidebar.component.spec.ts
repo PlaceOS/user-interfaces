@@ -1,7 +1,8 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { PlaylistSidebarComponent } from '../../app/media/playlist-sidebar.component';
-import { SignageService } from '../../app/signage.service';
+import { SignagePlaylistService } from '../../app/playlists/signage-playlist.service';
+import { SignageContextService } from '../../app/signage-context.service';
 
 describe('PlaylistSidebarComponent', () => {
     const playlists = signal<any[]>([]);
@@ -14,11 +15,11 @@ describe('PlaylistSidebarComponent', () => {
     const add_playlist = vi.fn();
     const add_media_to_playlist = vi.fn().mockResolvedValue(undefined);
 
-    const service_stub = {
+    const context_stub = { can_create: signal(true) };
+    const playlist_stub = {
         playlists,
         playlist_search_term: signal(''),
         filtered_playlists: playlists,
-        can_create: signal(true),
         playlists_loading: signal(false),
         playlist_thumbnail_media: signal<Record<string, string[]>>({}),
         playlist_approval_status,
@@ -32,7 +33,10 @@ describe('PlaylistSidebarComponent', () => {
     async function make() {
         await TestBed.configureTestingModule({
             imports: [PlaylistSidebarComponent],
-            providers: [{ provide: SignageService, useValue: service_stub }],
+            providers: [
+                { provide: SignageContextService, useValue: context_stub },
+                { provide: SignagePlaylistService, useValue: playlist_stub },
+            ],
         })
             .overrideComponent(PlaylistSidebarComponent, {
                 set: { template: '' },
@@ -45,7 +49,7 @@ describe('PlaylistSidebarComponent', () => {
     beforeEach(() => {
         vi.clearAllMocks();
         playlists.set([]);
-        service_stub.playlist_search_term.set('');
+        playlist_stub.playlist_search_term.set('');
         playlist_approval_status.set({});
         playlist_approval_requested_status.set({});
     });
@@ -62,7 +66,7 @@ describe('PlaylistSidebarComponent', () => {
     it('uses the service search state for backend searching', async () => {
         const component = await make();
         component.search.set('new');
-        expect(service_stub.playlist_search_term()).toBe('new');
+        expect(playlist_stub.playlist_search_term()).toBe('new');
     });
 
     it('derives an awaiting-review status once approval is requested', async () => {
@@ -88,7 +92,11 @@ describe('PlaylistSidebarComponent', () => {
             previousContainer: { data: [{ id: 'm-1' }] },
         } as any;
         await component.onDrop(playlist, event);
-        expect(add_media_to_playlist).toHaveBeenCalledWith('pl-1', 'm-1');
+        expect(add_media_to_playlist).toHaveBeenCalledWith(
+            'pl-1',
+            'm-1',
+            expect.objectContaining({ id: 'm-1' }),
+        );
     });
 
     it('ignores drops without a valid playlist or media', async () => {

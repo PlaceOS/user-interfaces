@@ -1,9 +1,10 @@
 import { Component, inject } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import { GroupBreadcrumbsComponent } from '../shared/group-breadcrumbs.component';
-import { SignageService } from '../signage.service';
-import { MatTooltipModule } from '@angular/material/tooltip';
+import { SignageContextService } from '../signage-context.service';
+import { SignagePlaylistService } from './signage-playlist.service';
 
 @Component({
     selector: 'playlist-header',
@@ -28,7 +29,8 @@ import { MatTooltipModule } from '@angular/material/tooltip';
             <div class="w-px flex-1"></div>
             @if (can_create()) {
                 <button
-                    icon default
+                    icon
+                    default
                     type="button"
                     matRipple
                     class="text-xl"
@@ -48,16 +50,17 @@ import { MatTooltipModule } from '@angular/material/tooltip';
         IconComponent,
         TranslatePipe,
         GroupBreadcrumbsComponent,
-        MatTooltipModule
+        MatTooltipModule,
     ],
 })
 export class PlaylistHeaderComponent {
-    private readonly _service = inject(SignageService);
+    private readonly _context = inject(SignageContextService);
+    private readonly _playlist_service = inject(SignagePlaylistService);
 
-    public readonly total_count = this._service.playlists_total;
-    public readonly can_create = this._service.can_create;
+    public readonly total_count = this._playlist_service.playlists_total;
+    public readonly can_create = this._context.can_create;
 
     public addPlaylist() {
-        this._service.addPlaylist();
+        this._playlist_service.addPlaylist();
     }
 }

@@ -5,7 +5,7 @@ import {
     OrganisationService,
     user_groups_loaded,
 } from '@placeos/common';
-import { SignageService } from './signage.service';
+import { SignageContextService } from './signage-context.service';
 
 export function canAccessSignageApp(
     can_manage_all_groups: boolean,
@@ -18,7 +18,7 @@ export function canAccessSignageApp(
 }
 
 export const signageAccessGuard: CanActivateChildFn = async () => {
-    const service = inject(SignageService);
+    const service = inject(SignageContextService);
     const router = inject(Router);
     const org = inject(OrganisationService);
     const injector = inject(Injector);

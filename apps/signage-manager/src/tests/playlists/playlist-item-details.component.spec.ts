@@ -1,8 +1,12 @@
 import { ApplicationRef, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { MediaAnimation } from '@placeos/ts-client';
+import { SignageDisplayService } from '../../app/displays/signage-display.service';
 import { PlaylistItemDetailsComponent } from '../../app/playlists/playlist-item-details.component';
-import { SignageService } from '../../app/signage.service';
+import { SignagePlaylistService } from '../../app/playlists/signage-playlist.service';
+import { SignageContextService } from '../../app/signage-context.service';
+import { SignageInventoryService } from '../../app/signage-inventory.service';
+import { SignageZoneService } from '../../app/zones/signage-zone.service';
 
 describe('PlaylistItemDetailsComponent', () => {
     const selected_playlist = signal<any>(null);
@@ -18,25 +22,34 @@ describe('PlaylistItemDetailsComponent', () => {
     // Pending unless a test resolves it, so the loaded pages are used
     const load_inventory = vi.fn(() => new Promise(() => {}));
 
-    const service_stub = {
-        selected_playlist,
-        playlist_media_items,
-        displays,
-        zones,
+    const context_stub = {
         can_update,
         selected_group,
-        addDisplayToPlaylist: add_display,
-        addZoneToPlaylist: add_zone,
-        removeDisplayFromPlaylist: remove_display,
-        removeZoneFromPlaylist: remove_zone,
         data_change: signal(0),
-        loadSignageInventory: load_inventory,
+    };
+    const display_stub = {
+        displays,
+        addDisplayToPlaylist: add_display,
+        removeDisplayFromPlaylist: remove_display,
+    };
+    const inventory_stub = { loadSignageInventory: load_inventory };
+    const playlist_stub = { selected_playlist, playlist_media_items };
+    const zone_stub = {
+        zones,
+        addZoneToPlaylist: add_zone,
+        removeZoneFromPlaylist: remove_zone,
     };
 
     async function make() {
         await TestBed.configureTestingModule({
             imports: [PlaylistItemDetailsComponent],
-            providers: [{ provide: SignageService, useValue: service_stub }],
+            providers: [
+                { provide: SignageContextService, useValue: context_stub },
+                { provide: SignageDisplayService, useValue: display_stub },
+                { provide: SignageInventoryService, useValue: inventory_stub },
+                { provide: SignagePlaylistService, useValue: playlist_stub },
+                { provide: SignageZoneService, useValue: zone_stub },
+            ],
         })
             .overrideComponent(PlaylistItemDetailsComponent, {
                 set: { template: '' },

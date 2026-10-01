@@ -13,7 +13,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import { PlaceGroup } from '@placeos/ts-client';
-import { SignageService } from '../signage.service';
+import { SignageGroupAdminService } from './signage-group-admin.service';
 
 interface GroupTreeNode {
     group: PlaceGroup;
@@ -262,13 +262,15 @@ interface GroupListRow extends GroupTreeNode {
     ],
 })
 export class SignageGroupListComponent {
-    private readonly _service = inject(SignageService);
+    private readonly _group_admin = inject(SignageGroupAdminService);
 
-    public readonly groups = this._service.manageable_signage_groups;
-    public readonly root_groups = this._service.root_manageable_signage_groups;
-    public readonly selected_group = this._service.managed_group;
+    public readonly groups = this._group_admin.manageable_signage_groups;
+    public readonly root_groups =
+        this._group_admin.root_manageable_signage_groups;
+    public readonly selected_group = this._group_admin.managed_group;
     public readonly search = signal('');
-    public readonly expanded_groups = this._service.signage_group_tree_expanded;
+    public readonly expanded_groups =
+        this._group_admin.signage_group_tree_expanded;
     public readonly tree_nodes = signal<GroupTreeNode[]>([]);
     public readonly show_search_results = computed(
         () => !!this.search().trim(),
@@ -373,7 +375,7 @@ export class SignageGroupListComponent {
     }
 
     public selectGroup(group: PlaceGroup) {
-        this._service.managed_group_id.set(group.id);
+        this._group_admin.managed_group_id.set(group.id);
     }
 
     private createNode(group: PlaceGroup): GroupTreeNode {
@@ -386,7 +388,7 @@ export class SignageGroupListComponent {
     }
 
     private async loadChildren(group_id: string) {
-        const children = await this._service
+        const children = await this._group_admin
             .groupChildren(group_id)
             .catch(() => this.child_lookup()[group_id] || []);
         this.applyLoadedChildren(group_id, children);

@@ -1,8 +1,8 @@
 import { Directive, input, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { AuthenticatedImageDirective } from '@placeos/components';
+import { SignagePlaylistService } from '../../app/playlists/signage-playlist.service';
 import { PlaylistThumbnailComponent } from '../../app/shared/playlist-thumbnail.component';
-import { SignageService } from '../../app/signage.service';
 
 @Directive({ selector: 'img[auth]' })
 class AuthenticatedImageStubDirective {
@@ -25,7 +25,9 @@ describe('PlaylistThumbnailComponent', () => {
     async function make() {
         await TestBed.configureTestingModule({
             imports: [PlaylistThumbnailComponent],
-            providers: [{ provide: SignageService, useValue: service_stub }],
+            providers: [
+                { provide: SignagePlaylistService, useValue: service_stub },
+            ],
         })
             .overrideComponent(PlaylistThumbnailComponent, {
                 remove: { imports: [AuthenticatedImageDirective] },

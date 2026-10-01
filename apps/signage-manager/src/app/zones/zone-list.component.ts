@@ -16,7 +16,7 @@ import { Router, RouterLink } from '@angular/router';
 import { OrganisationService } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import { PlaceZone } from '@placeos/ts-client';
-import { SignageService } from '../signage.service';
+import { SignageZoneService } from './signage-zone.service';
 
 interface ZoneTreeNode {
     zone: PlaceZone;
@@ -258,22 +258,23 @@ interface FlatZoneTreeNode extends ZoneTreeNode {
 export class ZoneListComponent {
     private readonly _org = inject(OrganisationService);
     private readonly _router = inject(Router);
-    private readonly _service = inject(SignageService);
+    private readonly _zone_service = inject(SignageZoneService);
 
     private readonly _org_initialised = this._org.initialised;
-    private readonly _all_zones = this._service.all_zones;
-    private readonly _root_zones = this._service.root_zones;
-    private readonly _children_cache = this._service.zone_tree_children_cache;
+    private readonly _all_zones = this._zone_service.all_zones;
+    private readonly _root_zones = this._zone_service.root_zones;
+    private readonly _children_cache =
+        this._zone_service.zone_tree_children_cache;
 
-    public readonly search = this._service.zone_search_term;
-    public readonly zones = this._service.filtered_zones;
-    public readonly selected = this._service.selected_zone;
+    public readonly search = this._zone_service.zone_search_term;
+    public readonly zones = this._zone_service.filtered_zones;
+    public readonly selected = this._zone_service.selected_zone;
     public readonly search_enabled = computed(() => !!this.selected()?.id);
     public readonly show_search_results = computed(
         () => this.search_enabled() && !!this.search().trim(),
     );
     public readonly tree_nodes = signal<ZoneTreeNode[]>([]);
-    public readonly expanded_zones = this._service.zone_tree_expanded;
+    public readonly expanded_zones = this._zone_service.zone_tree_expanded;
     public readonly flat_tree_nodes = computed(() => {
         const nodes: FlatZoneTreeNode[] = [];
         for (const node of this.tree_nodes()) {
@@ -481,7 +482,7 @@ export class ZoneListComponent {
             this.applyLoadedChildren(zone_id, cached_children);
             return;
         }
-        const children = await this._service
+        const children = await this._zone_service
             .zoneChildren(zone_id)
             .catch(() => null);
         if (!children) {

@@ -1,7 +1,7 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { SignageGroupAdminService } from '../../app/groups/signage-group-admin.service';
 import { SignageGroupTabsComponent } from '../../app/groups/signage-group-tabs.component';
-import { SignageService } from '../../app/signage.service';
 
 describe('SignageGroupTabsComponent', () => {
     const managed_group_tab = signal<'users' | 'zones'>('users');
@@ -11,7 +11,9 @@ describe('SignageGroupTabsComponent', () => {
 
     function make() {
         TestBed.configureTestingModule({
-            providers: [{ provide: SignageService, useValue: service_stub }],
+            providers: [
+                { provide: SignageGroupAdminService, useValue: service_stub },
+            ],
         }).overrideComponent(SignageGroupTabsComponent, {
             set: { template: '', imports: [] },
         });

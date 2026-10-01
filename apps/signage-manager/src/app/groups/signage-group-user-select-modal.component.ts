@@ -12,7 +12,7 @@ import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { IconComponent, TranslatePipe } from '@placeos/components';
-import { SignageService } from '../signage.service';
+import { SignageGroupAdminService } from './signage-group-admin.service';
 
 @Component({
     selector: 'signage-group-user-select-modal',
@@ -97,7 +97,7 @@ import { SignageService } from '../signage.service';
     ],
 })
 export class SignageGroupUserSelectModalComponent {
-    private readonly _service = inject(SignageService);
+    private readonly _group_admin = inject(SignageGroupAdminService);
     private readonly _data = inject<{ exclude_ids?: string[] }>(
         MAT_DIALOG_DATA,
     );
@@ -106,7 +106,7 @@ export class SignageGroupUserSelectModalComponent {
     private readonly _search_debounced = debounced(this.search, 300);
     private readonly _users = resource({
         params: () => this._search_debounced.value() ?? '',
-        loader: ({ params }) => this._service.searchGroupUsers(params),
+        loader: ({ params }) => this._group_admin.searchGroupUsers(params),
     });
     public readonly users = computed(() => {
         const exclude_ids = new Set(this._data.exclude_ids || []);

@@ -12,6 +12,7 @@ import {
     mediaThumbnail,
     type SignagePlaylistSchedule,
 } from '@placeos/ts-client';
+import { SignageContextService } from '../signage-context.service';
 import {
     playlistScheduleExpiryTooltip,
     playlistScheduleLabel,
@@ -21,8 +22,9 @@ import {
     HydratedSignageTemplateMapping,
     SignageTemplateMappingTarget,
 } from '../signage-template-mapping';
-import { SignageService } from '../signage.service';
+import { SignageTemplateService } from '../templates/signage-template.service';
 import { computeTemplateLayoutRects } from '../templates/template-layout.util';
+import { SignageZoneService } from '../zones/signage-zone.service';
 
 export type TemplateMappingTargetType = 'display' | 'zone';
 
@@ -159,7 +161,7 @@ export type TemplateMappingTargetType = 'display' | 'zone';
                                                 as zone_id
                                             ) {
                                                 <div
-                                                    class="text-base-content/60 text-xs flex items-center gap-1"
+                                                    class="text-base-content/60 flex items-center gap-1 text-xs"
                                                 >
                                                     <div>
                                                         {{
@@ -173,7 +175,9 @@ export type TemplateMappingTargetType = 'display' | 'zone';
                                                             '/zones',
                                                             zone_id,
                                                         ]"
-                                                        [queryParams]="{ tab: 'templates' }"
+                                                        [queryParams]="{
+                                                            tab: 'templates',
+                                                        }"
                                                     >
                                                         {{ card.zone_name }}
                                                     </a>
@@ -324,11 +328,13 @@ export type TemplateMappingTargetType = 'display' | 'zone';
     ],
 })
 export class TemplateMappingsComponent {
-    private readonly _service = inject(SignageService);
+    private readonly _context = inject(SignageContextService);
+    private readonly _template_service = inject(SignageTemplateService);
+    private readonly _zone_service = inject(SignageZoneService);
 
     public readonly target_type = input<TemplateMappingTargetType>('display');
     public readonly target_id = input('');
-    public readonly can_update = this._service.can_update;
+    public readonly can_update = this._context.can_update;
 
     private readonly _mappings = resource({
         params: () => ({
@@ -337,7 +343,7 @@ export class TemplateMappingsComponent {
         }),
         loader: ({ params }) =>
             params.target_id
-                ? this._service.listTemplateMappings(
+                ? this._template_service.listTemplateMappings(
                       this._target(params.target_type, params.target_id),
                   )
                 : Promise.resolve([]),
@@ -350,7 +356,7 @@ export class TemplateMappingsComponent {
     public readonly load_error = this._mappings.error;
     public readonly mapping_cards = computed(() => {
         const zone_names = new Map(
-            this._service
+            this._zone_service
                 .all_zones()
                 .map((zone) => [
                     zone.id,
@@ -399,7 +405,7 @@ export class TemplateMappingsComponent {
     public async editMapping(
         mapping: HydratedSignageTemplateMapping | null = null,
     ) {
-        const changed = await this._service.editTemplateMapping(
+        const changed = await this._template_service.editTemplateMapping(
             this._target(this.target_type(), this.target_id()),
             mapping,
         );
@@ -407,7 +413,7 @@ export class TemplateMappingsComponent {
     }
 
     public async removeMapping(mapping: HydratedSignageTemplateMapping) {
-        if (await this._service.removeTemplateMapping(mapping)) {
+        if (await this._template_service.removeTemplateMapping(mapping)) {
             this._mappings.reload();
         }
     }

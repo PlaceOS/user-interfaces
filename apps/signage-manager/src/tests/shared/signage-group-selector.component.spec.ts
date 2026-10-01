@@ -1,7 +1,7 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { SignageGroupSelectorComponent } from '../../app/shared/signage-group-selector.component';
-import { SignageService } from '../../app/signage.service';
+import { SignageContextService } from '../../app/signage-context.service';
 
 function group(id: string, name: string, parent_id?: string) {
     return { group: { id, name, parent_id }, permissions: 0 } as any;
@@ -24,9 +24,7 @@ describe('SignageGroupSelectorComponent', () => {
     async function createComponent() {
         await TestBed.configureTestingModule({
             imports: [SignageGroupSelectorComponent],
-            providers: [
-                { provide: SignageService, useValue: service },
-            ],
+            providers: [{ provide: SignageContextService, useValue: service }],
         })
             .overrideComponent(SignageGroupSelectorComponent, {
                 set: { template: '', imports: [] },

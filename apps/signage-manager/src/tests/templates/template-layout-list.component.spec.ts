@@ -1,8 +1,12 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { SignageService } from '../../app/signage.service';
+import { SignageDisplayService } from '../../app/displays/signage-display.service';
+import { SignageContextService } from '../../app/signage-context.service';
+import { SignagePluginService } from '../../app/signage-plugin.service';
+import { SignageTemplateService } from '../../app/templates/signage-template.service';
 import { TemplateLayoutListComponent } from '../../app/templates/template-layout-list.component';
 import { SIDEBAR_WIDTH_PC } from '../../app/templates/template-layout.util';
+import { SignageZoneService } from '../../app/zones/signage-zone.service';
 
 describe('TemplateLayoutListComponent', () => {
     const draft = signal<any[]>([]);
@@ -16,24 +20,30 @@ describe('TemplateLayoutListComponent', () => {
     const discard = vi.fn();
     const list_mappings = vi.fn();
 
-    const service_stub = {
+    const context_stub = { can_update_templates: can_update };
+    const display_stub = { displays };
+    const plugin_stub = { widgets };
+    const template_stub = {
         template_layout_draft: draft,
         selected_template_layout_index: selected_index,
         template_layout_dirty: signal(false),
         selected_template,
-        can_update_templates: can_update,
-        widgets,
-        displays,
-        all_zones: zones,
         listTemplateMappings: list_mappings,
         saveTemplateLayouts: save,
         discardTemplateLayoutDraft: discard,
     };
+    const zone_stub = { all_zones: zones };
 
     async function make() {
         await TestBed.configureTestingModule({
             imports: [TemplateLayoutListComponent],
-            providers: [{ provide: SignageService, useValue: service_stub }],
+            providers: [
+                { provide: SignageContextService, useValue: context_stub },
+                { provide: SignageDisplayService, useValue: display_stub },
+                { provide: SignagePluginService, useValue: plugin_stub },
+                { provide: SignageTemplateService, useValue: template_stub },
+                { provide: SignageZoneService, useValue: zone_stub },
+            ],
         })
             .overrideComponent(TemplateLayoutListComponent, {
                 set: { template: '' },

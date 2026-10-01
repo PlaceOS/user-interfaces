@@ -1,8 +1,8 @@
 import { TestBed } from '@angular/core/testing';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { SignageMedia } from '@placeos/ts-client';
+import { SignageMediaService } from '../../app/media/signage-media.service';
 import { MediaSelectModalComponent } from '../../app/shared/media-select-modal.component';
-import { SignageService } from '../../app/signage.service';
 
 describe('MediaSelectModalComponent', () => {
     const flush = () => new Promise((resolve) => setTimeout(resolve));
@@ -28,7 +28,7 @@ describe('MediaSelectModalComponent', () => {
                     useValue: { selected_id: 'media-2' },
                 },
                 {
-                    provide: SignageService,
+                    provide: SignageMediaService,
                     useValue: { queryMedia },
                 },
             ],

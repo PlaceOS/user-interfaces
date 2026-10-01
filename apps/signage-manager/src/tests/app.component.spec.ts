@@ -5,7 +5,7 @@ import { PlaceOS_Service, UploadsService } from '@placeos/common';
 import { AiImageService } from '../app/ai/ai-image.service';
 import { AppComponent } from '../app/app.component';
 import { CommandPaletteService } from '../app/shared/command-palette.service';
-import { SignageService } from '../app/signage.service';
+import { SignageContextService } from '../app/signage-context.service';
 
 describe('AppComponent', () => {
     const placeos = { init: vi.fn() };
@@ -16,7 +16,7 @@ describe('AppComponent', () => {
         loadRecent: vi.fn(),
     };
     const palette = { toggle: vi.fn() };
-    const signage = {
+    const context = {
         signage_groups_failed: signal(false),
         features_ready: signal(true),
         templates_enabled: signal(true),
@@ -26,8 +26,8 @@ describe('AppComponent', () => {
 
     beforeEach(async () => {
         vi.clearAllMocks();
-        signage.features_ready.set(true);
-        signage.templates_enabled.set(true);
+        context.features_ready.set(true);
+        context.templates_enabled.set(true);
         router.url = '/media';
         placeos.init.mockResolvedValue(undefined);
         ai.load.mockResolvedValue(undefined);
@@ -39,7 +39,7 @@ describe('AppComponent', () => {
                 { provide: UploadsService, useValue: uploads },
                 { provide: AiImageService, useValue: ai },
                 { provide: CommandPaletteService, useValue: palette },
-                { provide: SignageService, useValue: signage },
+                { provide: SignageContextService, useValue: context },
                 { provide: Router, useValue: router },
             ],
         })
@@ -102,7 +102,7 @@ describe('AppComponent', () => {
         TestBed.tick();
         expect(router.navigate).not.toHaveBeenCalled();
 
-        signage.templates_enabled.set(false);
+        context.templates_enabled.set(false);
         TestBed.tick();
 
         expect(router.navigate).toHaveBeenCalledWith(['/media']);
@@ -110,7 +110,7 @@ describe('AppComponent', () => {
 
     it('stays on other pages when templates turn off', () => {
         TestBed.createComponent(AppComponent);
-        signage.templates_enabled.set(false);
+        context.templates_enabled.set(false);
         TestBed.tick();
 
         expect(router.navigate).not.toHaveBeenCalled();

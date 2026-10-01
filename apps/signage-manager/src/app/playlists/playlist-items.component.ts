@@ -26,15 +26,17 @@ import {
     SignagePlaylistItemSchedule,
     type SignagePlaylistSchedule,
 } from '@placeos/ts-client';
+import { SignageMediaService } from '../media/signage-media.service';
 import { MediaThumbnailComponent } from '../shared/media-thumbnail.component';
+import { SignageContextService } from '../signage-context.service';
 import {
     playlistLoopDuration,
     playlistScheduleExpiryTooltip,
     playlistScheduleLabel,
     playlistScheduleNextPlayLabels,
 } from '../signage-playlist.util';
-import { SignageService } from '../signage.service';
 import { PlaylistActionsComponent } from './playlist-actions.component';
+import { SignagePlaylistService } from './signage-playlist.service';
 
 @Component({
     selector: 'playlist-items',
@@ -603,17 +605,23 @@ import { PlaylistActionsComponent } from './playlist-actions.component';
     ],
 })
 export class PlaylistItemsComponent {
-    private readonly _service = inject(SignageService);
+    private readonly _context = inject(SignageContextService);
+    private readonly _media_service = inject(SignageMediaService);
+    private readonly _playlist_service = inject(SignagePlaylistService);
 
-    public readonly selected_playlist = this._service.selected_playlist;
-    public readonly selected_item = this._service.selected_playlist_item;
+    public readonly selected_playlist =
+        this._playlist_service.selected_playlist;
+    public readonly selected_item =
+        this._playlist_service.selected_playlist_item;
     public readonly selected_item_index =
-        this._service.selected_playlist_item_index;
-    public readonly can_update = this._service.can_update;
-    public readonly items = this._service.playlist_media_items;
+        this._playlist_service.selected_playlist_item_index;
+    public readonly can_update = this._context.can_update;
+    public readonly items = this._playlist_service.playlist_media_items;
     /** Only show the spinner when there are no items to show yet */
     public readonly loading = computed(
-        () => this._service.playlist_media_loading() && !this.items().length,
+        () =>
+            this._playlist_service.playlist_media_loading() &&
+            !this.items().length,
     );
     /** Time in milliseconds to play each item once */
     public readonly loop_duration = computed(() =>
@@ -622,9 +630,10 @@ export class PlaylistItemsComponent {
             this.selected_playlist()?.default_duration,
         ),
     );
-    public readonly item_schedules = this._service.playlist_item_schedules;
+    public readonly item_schedules =
+        this._playlist_service.playlist_item_schedules;
     public readonly item_schedule_list =
-        this._service.playlist_item_schedule_list;
+        this._playlist_service.playlist_item_schedule_list;
     public readonly is_distribution = () =>
         !!this.selected_playlist()?.distribution;
     public readonly collapsed_schedules = signal<Record<string, boolean>>({});
@@ -643,8 +652,8 @@ export class PlaylistItemsComponent {
     );
 
     public selectItem(item: SignageMedia, index: number) {
-        this._service.selected_playlist_item.set(item);
-        this._service.selected_playlist_item_index.set(index);
+        this._playlist_service.selected_playlist_item.set(item);
+        this._playlist_service.selected_playlist_item_index.set(index);
     }
 
     public isItemSelected(item: SignageMedia, index: number) {
@@ -763,18 +772,18 @@ export class PlaylistItemsComponent {
     }
 
     public previewItem(item: SignageMedia) {
-        this._service.previewMedia(item);
+        this._media_service.previewMedia(item);
     }
 
     public editItemSchedule(schedule: SignagePlaylistItemSchedule) {
-        this._service.editPlaylistItemSchedule(schedule);
+        this._playlist_service.editPlaylistItemSchedules([schedule]);
     }
 
     public async applyScheduleToSelected() {
         const schedules = this.selected_items().map(({ item, index }) =>
             this.itemSchedule(item, index),
         );
-        if (await this._service.editPlaylistItemSchedules(schedules)) {
+        if (await this._playlist_service.editPlaylistItemSchedules(schedules)) {
             this.clearSelection();
         }
     }
@@ -786,14 +795,14 @@ export class PlaylistItemsComponent {
             ? this.itemSchedule(item, item_index)
             : null;
         const playlist_item_id = schedule?.id || schedule?.item_id || item.id;
-        await this._service.removeMediaFromPlaylist(
+        await this._playlist_service.removeMediaFromPlaylist(
             playlist.id,
             playlist_item_id,
             item_index,
         );
         if (this.isItemSelected(item, item_index)) {
-            this._service.selected_playlist_item.set(null);
-            this._service.selected_playlist_item_index.set(null);
+            this._playlist_service.selected_playlist_item.set(null);
+            this._playlist_service.selected_playlist_item_index.set(null);
         }
     }
 
@@ -810,7 +819,7 @@ export class PlaylistItemsComponent {
             };
         });
         if (
-            await this._service.removeMediaItemsFromPlaylist(
+            await this._playlist_service.removeMediaItemsFromPlaylist(
                 playlist.id,
                 selected_items,
             )
@@ -827,6 +836,9 @@ export class PlaylistItemsComponent {
         const current_items = [...this.items()];
         moveItemInArray(current_items, event.previousIndex, event.currentIndex);
         const media_ids = current_items.map((m) => m.id);
-        await this._service.reorderPlaylistMedia(playlist.id, media_ids);
+        await this._playlist_service.reorderPlaylistMedia(
+            playlist.id,
+            media_ids,
+        );
     }
 }

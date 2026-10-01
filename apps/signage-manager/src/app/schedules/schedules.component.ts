@@ -18,10 +18,11 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { i18n } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import { addDays, isSameDay, startOfDay } from 'date-fns';
+import { SignagePlaylistService } from '../playlists/signage-playlist.service';
 import { GroupBreadcrumbsComponent } from '../shared/group-breadcrumbs.component';
 import { NavFooterComponent } from '../shared/nav-footer.component';
 import { NavSidebarComponent } from '../shared/nav-sidebar.component';
-import { SignageService } from '../signage.service';
+import { SignageInventoryService } from '../signage-inventory.service';
 import { ScheduleTimelineComponent } from './schedule-timeline.component';
 import {
     ScheduleTimelineRow,
@@ -319,7 +320,8 @@ function filterRows(rows: ScheduleTimelineRow[], search_term: string) {
     ],
 })
 export class SchedulesSectionComponent {
-    private readonly _service = inject(SignageService);
+    private readonly _inventory_service = inject(SignageInventoryService);
+    private readonly _playlist_service = inject(SignagePlaylistService);
     private readonly _route = inject(ActivatedRoute);
     private readonly _router = inject(Router);
     private readonly _destroy_ref = inject(DestroyRef);
@@ -333,8 +335,8 @@ export class SchedulesSectionComponent {
     // The service lists only hold the pages loaded so far, so load every
     // display, zone and playlist in the group.
     private readonly _inventory = resource({
-        params: () => this._service.inventory_key(),
-        loader: () => this._service.loadSignageInventory(),
+        params: () => this._inventory_service.inventory_key(),
+        loader: () => this._inventory_service.loadSignageInventory(),
     });
     private readonly _inventory_value = computed(() =>
         this._inventory.hasValue() ? this._inventory.value() : undefined,
@@ -353,7 +355,7 @@ export class SchedulesSectionComponent {
     public readonly inventory_error = computed(() => !!this._inventory.error());
 
     public readonly playlist_approval_status =
-        this._service.playlist_approval_status;
+        this._playlist_service.playlist_approval_status;
     public readonly display_total = computed(() => this._displays().length);
     public readonly zone_total = computed(() => this._zones().length);
     public readonly search_placeholder = computed(() =>

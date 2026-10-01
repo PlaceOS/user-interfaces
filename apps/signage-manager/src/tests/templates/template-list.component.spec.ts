@@ -1,12 +1,12 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { SignageTemplate } from '@placeos/ts-client';
-import { SignageService } from '../../app/signage.service';
+import { SignageTemplateService } from '../../app/templates/signage-template.service';
 import { TemplateListComponent } from '../../app/templates/template-list.component';
 
 describe('TemplateListComponent', () => {
     const load_more = vi.fn();
-    const service_stub = {
+    const template_stub = {
         template_search_term: signal(''),
         templates: signal<SignageTemplate[]>([]),
         selected_template: signal<SignageTemplate | null>(null),
@@ -17,7 +17,9 @@ describe('TemplateListComponent', () => {
     async function make() {
         await TestBed.configureTestingModule({
             imports: [TemplateListComponent],
-            providers: [{ provide: SignageService, useValue: service_stub }],
+            providers: [
+                { provide: SignageTemplateService, useValue: template_stub },
+            ],
         })
             .overrideComponent(TemplateListComponent, {
                 set: { template: '' },

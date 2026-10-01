@@ -5,7 +5,9 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { AiImageModalComponent } from '../../app/ai/ai-image-modal.component';
 import { AiImageService } from '../../app/ai/ai-image.service';
 import { AiCapabilities, AiJob, AiJobImage } from '../../app/ai/ai.types';
-import { SignageService } from '../../app/signage.service';
+import { SignageMediaService } from '../../app/media/signage-media.service';
+import { SignagePlaylistService } from '../../app/playlists/signage-playlist.service';
+import { SignageContextService } from '../../app/signage-context.service';
 
 function job(
     id: string,
@@ -116,14 +118,16 @@ describe('AiImageModalComponent', () => {
             removeReference: vi.fn(),
             loadImage: vi.fn().mockResolvedValue(''),
         };
-        const signage = {
+        const context_stub = {
             is_sys_admin: signal(false),
             selected_group: signal({ group: { id: 'group-1' } }),
             hasFeature: vi.fn(() => true),
+        };
+        const media_stub = {
             addMediaFromUpload: vi.fn(),
-            addMediaToPlaylist: vi.fn(),
             discardCreatedMedia: vi.fn(),
         };
+        const playlist_stub = { addMediaToPlaylist: vi.fn() };
         const dialog_ref = { close: vi.fn(), disableClose: false };
         await TestBed.configureTestingModule({
             imports: [AiImageModalComponent],
@@ -131,7 +135,9 @@ describe('AiImageModalComponent', () => {
                 { provide: MAT_DIALOG_DATA, useValue: data },
                 { provide: MatDialogRef, useValue: dialog_ref },
                 { provide: AiImageService, useValue: ai },
-                { provide: SignageService, useValue: signage },
+                { provide: SignageContextService, useValue: context_stub },
+                { provide: SignageMediaService, useValue: media_stub },
+                { provide: SignagePlaylistService, useValue: playlist_stub },
             ],
         })
             .overrideComponent(AiImageModalComponent, {
@@ -141,7 +147,7 @@ describe('AiImageModalComponent', () => {
         const component = TestBed.createComponent(
             AiImageModalComponent,
         ).componentInstance;
-        return { ai, component, dialog_ref, signage };
+        return { ai, component, dialog_ref, media_stub, playlist_stub };
     }
 
     afterEach(() => {
@@ -253,12 +259,13 @@ describe('AiImageModalComponent', () => {
     });
 
     it('reuses the saved row when Save is retried after a playlist failure', async () => {
-        const { ai, component, dialog_ref, signage } = await make({
-            playlist_id: 'playlist-1',
-        });
+        const { ai, component, dialog_ref, media_stub, playlist_stub } =
+            await make({
+                playlist_id: 'playlist-1',
+            });
         const media = { id: 'media-1', thumbnail_id: '' };
-        signage.addMediaFromUpload.mockResolvedValue(media);
-        signage.addMediaToPlaylist
+        media_stub.addMediaFromUpload.mockResolvedValue(media);
+        playlist_stub.addMediaToPlaylist
             .mockRejectedValueOnce(new Error('offline'))
             .mockResolvedValueOnce(undefined);
         component.selected.set({
@@ -276,13 +283,13 @@ describe('AiImageModalComponent', () => {
         expect(component.claim_pending()).toBe(true);
         await component.save();
 
-        expect(signage.addMediaFromUpload).toHaveBeenCalledTimes(1);
-        expect(signage.addMediaFromUpload).toHaveBeenCalledWith(
+        expect(media_stub.addMediaFromUpload).toHaveBeenCalledTimes(1);
+        expect(media_stub.addMediaFromUpload).toHaveBeenCalledWith(
             'upload-1',
             expect.objectContaining({ orientation: 'portrait' }),
         );
         expect(ai.claim).toHaveBeenCalledTimes(1);
-        expect(signage.addMediaToPlaylist).toHaveBeenCalledTimes(2);
+        expect(playlist_stub.addMediaToPlaylist).toHaveBeenCalledTimes(2);
         expect(dialog_ref.close).toHaveBeenCalledWith(media);
         expect(dialog_ref.disableClose).toBe(false);
     });

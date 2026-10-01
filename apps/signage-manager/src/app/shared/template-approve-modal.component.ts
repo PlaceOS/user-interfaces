@@ -9,7 +9,8 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { i18n, notifyError, notifySuccess } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import { approveSignageTemplate, SignageTemplate } from '@placeos/ts-client';
-import { SignageService } from '../signage.service';
+import { SignageContextService } from '../signage-context.service';
+import { SignageTemplateService } from '../templates/signage-template.service';
 import { TemplateApprovalPreviewComponent } from './template-approval-preview.component';
 import { loadTemplateApprovalVersions } from './template-approval.util';
 
@@ -40,7 +41,9 @@ interface TemplateApproveModalData {
                 }
             </header>
             @if (!loading()) {
-                <main class="max-h-[60vh] min-w-xl max-w-[80vw]  gap-2 overflow-auto py-2">
+                <main
+                    class="max-h-[60vh] max-w-[80vw] min-w-xl gap-2 overflow-auto py-2"
+                >
                     @if (versions_error()) {
                         <p class="text-error p-8 text-center">
                             {{
@@ -106,10 +109,11 @@ export class TemplateApproveModalComponent {
     private readonly _dialog_ref = inject(
         MatDialogRef<TemplateApproveModalComponent>,
     );
-    private readonly _service = inject(SignageService);
+    private readonly _context = inject(SignageContextService);
+    private readonly _template_service = inject(SignageTemplateService);
 
     public readonly loading = signal('');
-    public readonly can_update = this._service.can_update_templates;
+    public readonly can_update = this._context.can_update_templates;
 
     private readonly _template_versions = resource({
         params: () => this._data?.template?.id || '',
@@ -138,7 +142,7 @@ export class TemplateApproveModalComponent {
         this.loading.set(i18n('SIGNAGE_MANAGER.UNDOING_CHANGES'));
         this._dialog_ref.disableClose = true;
         try {
-            const undone = await this._service.undoTemplateChanges(
+            const undone = await this._template_service.undoTemplateChanges(
                 this._data.template.id,
                 previous_version,
             );
@@ -158,10 +162,10 @@ export class TemplateApproveModalComponent {
             const template = await approveSignageTemplate(
                 this._data.template.id,
             );
-            this._service.updateCachedTemplate(template);
+            this._template_service.updateCachedTemplate(template);
             notifySuccess(i18n('SIGNAGE_MANAGER.TEMPLATE_APPROVED'));
             this._dialog_ref.close(true);
-            this._service.changed();
+            this._context.changed();
         } catch {
             notifyError(i18n('SIGNAGE_MANAGER.TEMPLATE_APPROVE_ERROR'));
         } finally {

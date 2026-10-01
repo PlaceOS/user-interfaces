@@ -19,7 +19,7 @@ import {
 import { SignagePlaylist } from '@placeos/ts-client';
 import { IntersectDirective } from '../shared/intersect.directive';
 import { PlaylistThumbnailComponent } from '../shared/playlist-thumbnail.component';
-import { SignageService } from '../signage.service';
+import { SignagePlaylistService } from './signage-playlist.service';
 
 type PlaylistStatus =
     | 'expired'
@@ -226,22 +226,22 @@ type PlaylistStatus =
     ],
 })
 export class PlaylistListComponent {
-    private readonly _service = inject(SignageService);
+    private readonly _playlist_service = inject(SignagePlaylistService);
     private readonly _playlist_items =
         viewChildren<ElementRef<HTMLAnchorElement>>('playlist_item');
 
-    public readonly search = this._service.playlist_search_term;
-    public readonly playlists = this._service.filtered_playlists;
-    public readonly selected = this._service.selected_playlist;
+    public readonly search = this._playlist_service.playlist_search_term;
+    public readonly playlists = this._playlist_service.filtered_playlists;
+    public readonly selected = this._playlist_service.selected_playlist;
     public readonly playlist_approval_status =
-        this._service.playlist_approval_status;
+        this._playlist_service.playlist_approval_status;
     public readonly playlist_approval_requested_status =
-        this._service.playlist_approval_requested_status;
+        this._playlist_service.playlist_approval_requested_status;
 
     // Backend pagination: fetches the next page as the sentinel scrolls in.
-    public readonly has_more = this._service.playlists_has_more;
-    public readonly loading = this._service.playlists_loading;
-    public readonly error = this._service.playlists_error;
+    public readonly has_more = this._playlist_service.playlists_has_more;
+    public readonly loading = this._playlist_service.playlists_loading;
+    public readonly error = this._playlist_service.playlists_error;
 
     constructor() {
         afterRenderEffect({
@@ -264,11 +264,11 @@ export class PlaylistListComponent {
     }
 
     public loadMore() {
-        this._service.loadMorePlaylists();
+        this._playlist_service.loadMorePlaylists();
     }
 
     public reload() {
-        this._service.reloadPlaylists();
+        this._playlist_service.reloadPlaylists();
     }
 
     public getStatus(playlist: SignagePlaylist): PlaylistStatus {

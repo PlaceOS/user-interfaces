@@ -11,20 +11,22 @@ import {
     PlaceSystem,
     query,
     querySignageMedia,
-    querySignageTemplates,
     querySignagePlaylists,
+    querySignageTemplates,
     querySystems,
     queryZones,
 } from '@placeos/ts-client';
 
-import { SignageService } from '../app/signage.service';
+import { SignageDisplayService } from '../app/displays/signage-display.service';
+import { CommandPaletteService } from '../app/shared/command-palette.service';
 
 vi.mock('@placeos/ts-client', { spy: true });
 
-type SignageServiceTestAccess = SignageService & Record<string, any>;
+type SignageDisplayServiceTestAccess = SignageDisplayService &
+    Record<string, any>;
 
 /** Display search runs on the backend so the results paginate like the list */
-describe('SignageService display search', () => {
+describe('SignageDisplayService display search', () => {
     const flush = () => new Promise((resolve) => setTimeout(resolve));
 
     const pageOf = (ids: string[], total = ids.length, next: any = null) => ({
@@ -65,7 +67,6 @@ describe('SignageService display search', () => {
         } as any);
         TestBed.configureTestingModule({
             providers: [
-                SignageService,
                 { provide: UploadsService, useValue: {} },
                 {
                     provide: SettingsService,
@@ -91,8 +92,8 @@ describe('SignageService display search', () => {
     const init = async () => {
         mockDisplayList(pageOf(['lobby', 'cafe']));
         const service = TestBed.inject(
-            SignageService,
-        ) as unknown as SignageServiceTestAccess;
+            SignageDisplayService,
+        ) as unknown as SignageDisplayServiceTestAccess;
         TestBed.tick();
         await flush();
         return service;
@@ -161,7 +162,8 @@ describe('SignageService display search', () => {
     });
 
     it('searches every signage type with a small limit for the command palette', async () => {
-        const service = await init();
+        await init();
+        const palette = TestBed.inject(CommandPaletteService);
         vi.clearAllMocks();
         (querySystems as any).mockResolvedValue(pageOf(['lobby']));
         for (const query of [
@@ -173,10 +175,10 @@ describe('SignageService display search', () => {
             (query as any).mockResolvedValue({ data: [], total: 0 });
         }
 
-        expect(await service.searchAll('  ')).toMatchObject({ displays: [] });
+        expect(await palette.searchAll('  ')).toMatchObject({ displays: [] });
         expect(querySystems).not.toHaveBeenCalled();
 
-        const results = await service.searchAll('lobby');
+        const results = await palette.searchAll('lobby');
 
         expect(results.displays.map(({ id }) => id)).toEqual(['lobby']);
         const params = (querySystems as any).mock.calls[0][0];

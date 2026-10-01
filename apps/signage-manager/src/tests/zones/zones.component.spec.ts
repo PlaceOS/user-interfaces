@@ -3,7 +3,11 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslatePipe } from '@placeos/components';
 import { PlaceZone, showZone } from '@placeos/ts-client';
-import { SignageService } from '../../app/signage.service';
+import { SignageDisplayService } from '../../app/displays/signage-display.service';
+import { SignagePlaylistService } from '../../app/playlists/signage-playlist.service';
+import { SignageContextService } from '../../app/signage-context.service';
+import { SignageTemplateService } from '../../app/templates/signage-template.service';
+import { SignageZoneService } from '../../app/zones/signage-zone.service';
 import { ZonesSectionComponent } from '../../app/zones/zones.component';
 
 vi.mock('@placeos/ts-client', { spy: true });
@@ -22,18 +26,23 @@ describe('ZonesSectionComponent', () => {
     const edit_zone = vi.fn();
     const remove_zone = vi.fn();
     const navigate = vi.fn();
-    const service_stub = {
-        selected_zone,
-        all_zones,
+    const context_stub = { templates_enabled, can_manage_zones };
+    const display_stub = {
+        selected_zone_displays,
+        selected_zone_displays_loading: related_loading,
+    };
+    const playlist_stub = {
         playlistsById: (ids: readonly string[]) =>
             playlists().filter(({ id }) => ids.includes(id)),
-        selected_zone_displays,
-        templates_enabled,
         playlists_loading,
-        selected_zone_displays_loading: related_loading,
+    };
+    const template_stub = {
         template_mappings_revision,
         listTemplateMappings: list_template_mappings,
-        can_manage_zones,
+    };
+    const zone_stub = {
+        selected_zone,
+        all_zones,
         editZone: edit_zone,
         removeZone: remove_zone,
     };
@@ -47,7 +56,11 @@ describe('ZonesSectionComponent', () => {
         await TestBed.configureTestingModule({
             imports: [ZonesSectionComponent],
             providers: [
-                { provide: SignageService, useValue: service_stub },
+                { provide: SignageContextService, useValue: context_stub },
+                { provide: SignageDisplayService, useValue: display_stub },
+                { provide: SignagePlaylistService, useValue: playlist_stub },
+                { provide: SignageTemplateService, useValue: template_stub },
+                { provide: SignageZoneService, useValue: zone_stub },
                 { provide: Router, useValue: router_stub },
                 { provide: ActivatedRoute, useValue: {} },
             ],

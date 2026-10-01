@@ -14,7 +14,7 @@ import { RouterLink } from '@angular/router';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import { SignageTemplate } from '@placeos/ts-client';
 import { IntersectDirective } from '../shared/intersect.directive';
-import { SignageService } from '../signage.service';
+import { SignageTemplateService } from './signage-template.service';
 
 type TemplateStatus = 'awaiting_approval' | 'awaiting_review' | null;
 
@@ -201,17 +201,17 @@ type TemplateStatus = 'awaiting_approval' | 'awaiting_review' | null;
     ],
 })
 export class TemplateListComponent {
-    private readonly _service = inject(SignageService);
+    private readonly _template_service = inject(SignageTemplateService);
     private readonly _template_items =
         viewChildren<ElementRef<HTMLAnchorElement>>('template_item');
 
-    public readonly search = this._service.template_search_term;
-    public readonly templates = this._service.templates;
-    public readonly selected = this._service.selected_template;
-    public readonly loading = this._service.templates_loading;
+    public readonly search = this._template_service.template_search_term;
+    public readonly templates = this._template_service.templates;
+    public readonly selected = this._template_service.selected_template;
+    public readonly loading = this._template_service.templates_loading;
 
     // Backend pagination: fetches the next page as the sentinel scrolls in.
-    public readonly has_more = this._service.templates_has_more;
+    public readonly has_more = this._template_service.templates_has_more;
 
     constructor() {
         afterRenderEffect({
@@ -234,7 +234,7 @@ export class TemplateListComponent {
     }
 
     public loadMore() {
-        this._service.loadMoreTemplates();
+        this._template_service.loadMoreTemplates();
     }
 
     public getStatus(template: SignageTemplate): TemplateStatus {

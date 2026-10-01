@@ -24,7 +24,7 @@ import {
 import { AiImageService } from '../ai/ai-image.service';
 import { errorMessage } from '../ai/ai-image.util';
 import { AiBrandKit, AiLogoSlot } from '../ai/ai.types';
-import { SignageService } from '../signage.service';
+import { SignageContextService } from '../signage-context.service';
 import { BRAND_FONTS, ensureBrandFont } from './brand-fonts';
 
 const COLOUR_NAMES = ['primary', 'secondary', 'accent'];
@@ -322,7 +322,7 @@ const COLOUR_NAMES = ['primary', 'secondary', 'accent'];
 })
 export class BrandingComponent implements OnInit {
     private readonly _ai = inject(AiImageService);
-    private readonly _service = inject(SignageService);
+    private readonly _context = inject(SignageContextService);
 
     public readonly fonts = BRAND_FONTS;
     public readonly enabled = this._ai.enabled;
@@ -331,7 +331,7 @@ export class BrandingComponent implements OnInit {
      * `app.features` setting turns branding edits off */
     public readonly branding_disabled = computed(
         () =>
-            !(this._service.global_features() || []).includes(
+            !(this._context.global_features() || []).includes(
                 'branding-editing',
             ),
     );
@@ -342,7 +342,7 @@ export class BrandingComponent implements OnInit {
     );
     public readonly can_edit = computed(
         () =>
-            this._service.is_sys_admin() &&
+            this._context.is_sys_admin() &&
             !this.branding_disabled() &&
             this.load_state() === 'ready',
     );

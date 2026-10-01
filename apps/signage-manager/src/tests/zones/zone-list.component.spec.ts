@@ -1,7 +1,7 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { OrganisationService } from '@placeos/common';
-import { SignageService } from '../../app/signage.service';
+import { SignageZoneService } from '../../app/zones/signage-zone.service';
 import { ZoneListComponent } from '../../app/zones/zone-list.component';
 
 describe('ZoneListComponent', () => {
@@ -15,7 +15,7 @@ describe('ZoneListComponent', () => {
     const zone_tree_children_cache = signal<Record<string, any[]>>({});
     const zone_children = vi.fn();
     const org_stub = { initialised };
-    const service_stub = {
+    const zone_stub = {
         all_zones,
         root_zones,
         filtered_zones,
@@ -30,7 +30,7 @@ describe('ZoneListComponent', () => {
         await TestBed.configureTestingModule({
             imports: [ZoneListComponent],
             providers: [
-                { provide: SignageService, useValue: service_stub },
+                { provide: SignageZoneService, useValue: zone_stub },
                 { provide: OrganisationService, useValue: org_stub },
             ],
         })

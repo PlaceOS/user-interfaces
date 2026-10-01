@@ -4,12 +4,12 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import { NavFooterComponent } from '../shared/nav-footer.component';
 import { NavSidebarComponent } from '../shared/nav-sidebar.component';
-import { SignageService } from '../signage.service';
 import { PlaylistActionsComponent } from './playlist-actions.component';
 import { PlaylistHeaderComponent } from './playlist-header.component';
 import { PlaylistItemDetailsComponent } from './playlist-item-details.component';
 import { PlaylistItemsComponent } from './playlist-items.component';
 import { PlaylistListComponent } from './playlist-list.component';
+import { SignagePlaylistService } from './signage-playlist.service';
 
 const TAB_QUERY_PARAM = 'tab';
 const ITEM_QUERY_PARAM = 'item';
@@ -190,7 +190,7 @@ function parsePlaylistTab(value: string | null): 'items' | 'details' {
     ],
 })
 export class PlaylistsSectionComponent {
-    private readonly _service = inject(SignageService);
+    private readonly _playlist_service = inject(SignagePlaylistService);
     private readonly _route = inject(ActivatedRoute);
     private readonly _router = inject(Router);
 
@@ -198,10 +198,12 @@ export class PlaylistsSectionComponent {
     public readonly tab = input<string | null>(null);
     public readonly item = input<string | null>(null);
     public readonly view_tab = signal<'items' | 'details'>('items');
-    public readonly selected_playlist = this._service.selected_playlist;
+    public readonly selected_playlist =
+        this._playlist_service.selected_playlist;
 
-    private readonly _playlists = this._service.playlists;
-    private readonly _playlist_items = this._service.playlist_media_items;
+    private readonly _playlists = this._playlist_service.playlists;
+    private readonly _playlist_items =
+        this._playlist_service.playlist_media_items;
 
     private _route_resolved = false;
     // Route id fetched on its own because the loaded pages do not include it
@@ -224,18 +226,23 @@ export class PlaylistsSectionComponent {
                 const match = list.find((p) => p.id === id);
                 if (!match && this._fetched_id !== id) {
                     this._fetched_id = id;
-                    void this._service.loadPlaylist(id);
+                    void this._playlist_service.loadPlaylist(id);
                 }
-                if (match && this._service.selected_playlist() !== match) {
-                    this._service.selected_playlist.set(match);
-                    this._service.selected_playlist_item.set(null);
-                    this._service.selected_playlist_item_index.set(null);
+                if (
+                    match &&
+                    this._playlist_service.selected_playlist() !== match
+                ) {
+                    this._playlist_service.selected_playlist.set(match);
+                    this._playlist_service.selected_playlist_item.set(null);
+                    this._playlist_service.selected_playlist_item_index.set(
+                        null,
+                    );
                 }
                 this._route_resolved = true;
             } else if (this._route_resolved) {
-                this._service.selected_playlist.set(null);
-                this._service.selected_playlist_item.set(null);
-                this._service.selected_playlist_item_index.set(null);
+                this._playlist_service.selected_playlist.set(null);
+                this._playlist_service.selected_playlist_item.set(null);
+                this._playlist_service.selected_playlist_item_index.set(null);
             }
         });
 
@@ -249,17 +256,19 @@ export class PlaylistsSectionComponent {
                 (item) => item.id === item_id,
             );
             const matched_item = items[matched_index];
-            this._service.selected_playlist_item.set(matched_item || null);
-            this._service.selected_playlist_item_index.set(
+            this._playlist_service.selected_playlist_item.set(
+                matched_item || null,
+            );
+            this._playlist_service.selected_playlist_item_index.set(
                 matched_item ? matched_index : null,
             );
         });
     }
 
     public deselectPlaylist() {
-        this._service.selected_playlist.set(null);
-        this._service.selected_playlist_item.set(null);
-        this._service.selected_playlist_item_index.set(null);
+        this._playlist_service.selected_playlist.set(null);
+        this._playlist_service.selected_playlist_item.set(null);
+        this._playlist_service.selected_playlist_item_index.set(null);
         this._router.navigate(['/playlists'], {});
     }
 
