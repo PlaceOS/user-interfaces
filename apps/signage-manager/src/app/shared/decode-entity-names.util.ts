@@ -16,12 +16,17 @@ export function decodeEntities(value: string): string {
 
 const NAME_FIELDS = ['name', 'display_name'];
 const NESTED_FIELDS = ['group', 'user', 'zone'];
+// Copies this module made. Some items pass the data boundary twice, such as
+// displays from `querySignageDisplays` read through `queryAll`, and a second
+// decode would turn a saved `&amp;` into `&`.
+const _decoded = new WeakSet<object>();
 
 /** Returns a shallow copy of `item` with name fields (and one nested level of
  * group/user/zone) HTML-entity decoded. The copy keeps the prototype of
- * `item`, so getters such as `SignageMedia.media_url` still work. */
+ * `item`, so getters such as `SignageMedia.media_url` still work. An item
+ * this function returned is returned as is, so names decode only once. */
 export function decodeEntityNames<T>(item: T): T {
-    if (!item || typeof item !== 'object') return item;
+    if (!item || typeof item !== 'object' || _decoded.has(item)) return item;
     const copy: T = Object.assign(
         Object.create(Object.getPrototypeOf(item)),
         item,
@@ -37,5 +42,6 @@ export function decodeEntityNames<T>(item: T): T {
             fields[field] = decodeEntityNames(value);
         }
     }
+    _decoded.add(fields);
     return copy;
 }

@@ -50,7 +50,7 @@ describe('SignageInventoryService', () => {
     }
 
     // The schedules timeline shows its online status from these displays
-    it('keeps a display that never checked in as never seen', async () => {
+    it('keeps a display that never checked in as never seen, its name decoded once', async () => {
         const service = createService();
         vi.spyOn(
             TestBed.inject(SignageContextService),
@@ -65,7 +65,8 @@ describe('SignageInventoryService', () => {
             fn: (raw: Partial<PlaceSystem>) => PlaceSystem;
         }) =>
             Promise.resolve({
-                data: [params.fn({ id: 'd1', name: 'New' })],
+                // A saved name of `R&amp;D`, encoded once by the backend
+                data: [params.fn({ id: 'd1', name: 'R&amp;amp;D' })],
                 total: 1,
                 next: null,
             })) as unknown as typeof query);
@@ -74,6 +75,7 @@ describe('SignageInventoryService', () => {
 
         expect(displays.map(({ id }) => id)).toEqual(['d1']);
         expect(displays[0].signage_last_seen).toBe(0);
+        expect(displays[0].name).toBe('R&amp;D');
     });
 
     describe('content report', () => {

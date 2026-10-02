@@ -49,6 +49,13 @@ describe('decodeEntityNames', () => {
         expect(media.media_url).toBe('/api/engine/v2/uploads/upload-1/url');
     });
 
+    // Some items pass the data boundary twice, e.g. displays through queryAll
+    it('decodes an item only once', () => {
+        const item = decodeEntityNames({ id: '1', name: 'A &amp;amp; B' });
+
+        expect(decodeEntityNames(item).name).toBe('A &amp; B');
+    });
+
     it('passes through non-objects', () => {
         expect(decodeEntityNames(null as any)).toBeNull();
         expect(decodeEntityNames('x' as any)).toBe('x');

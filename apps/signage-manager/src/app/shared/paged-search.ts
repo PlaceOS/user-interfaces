@@ -47,6 +47,9 @@ export class PagedSearch<T extends { id: string }> {
 
     /** Load the page that failed again, or the first page when it failed */
     public retry() {
+        // A new term waits for its debounce. Its search replaces the failed
+        // one, so a retry now would only show matches for the old term.
+        if (this.search() !== this._term) return;
         if (!this._list.retry()) this._list.reset(this._query(this._term));
     }
 }
