@@ -191,9 +191,18 @@ function playedRun(
         : start;
     // A single pass has no length, so it plays only when it starts in time
     if (!duration) return from === start ? blockBase(start, 0) : null;
-    const until = Number.isFinite(ends_at)
-        ? Math.min(start + duration, clockMinutes(day, new Date(ends_at)))
-        : start + duration;
+    // The player ends a run after the elapsed play length, so a run that
+    // spans a skipped clock hour ends an hour later on the clock. The
+    // timeline shows a repeated clock hour once, so a run is never shorter
+    // on the clock than its length.
+    const run_end = time + duration * 60_000;
+    let until = Math.max(
+        start + duration,
+        clockMinutes(day, new Date(run_end)),
+    );
+    if (ends_at < run_end) {
+        until = Math.min(until, clockMinutes(day, new Date(ends_at)));
+    }
     return until > from ? blockBase(from, until - from) : null;
 }
 

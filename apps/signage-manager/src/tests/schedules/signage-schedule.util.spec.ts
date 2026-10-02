@@ -405,6 +405,37 @@ describe('signage-schedule.util', () => {
 
                 expect(blocks.map(({ day_index }) => day_index)).toEqual([1]);
             });
+
+            it('ends a run after its elapsed length, then at its end date', () => {
+                // 01:30 plus 120 minutes is 04:30 after the clocks go forward
+                const end = (valid_until?: number) =>
+                    buildScheduleBlocks(
+                        [
+                            {
+                                playlist: new SignagePlaylist({
+                                    id: 'p',
+                                    schedules: [
+                                        {
+                                            play_cron: '30 1 * * *',
+                                            play_period: 120,
+                                            play_takeover: false,
+                                            valid_until,
+                                        },
+                                    ],
+                                }),
+                            },
+                        ],
+                        [new Date(2026, 9, 4)],
+                    ).map(
+                        ({ start_minutes, duration_minutes }) =>
+                            start_minutes + duration_minutes,
+                    );
+
+                expect(end()).toEqual([4 * 60 + 30]);
+                expect(end(getUnixTime(new Date(2026, 9, 4, 3, 45)))).toEqual([
+                    3 * 60 + 45,
+                ]);
+            });
         });
     });
 

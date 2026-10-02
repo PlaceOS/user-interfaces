@@ -250,5 +250,23 @@ describe('findTakeoverConflicts', () => {
             expect(conflicts[0].starts_at).toEqual(new Date(2026, 9, 4, 9));
             expect(conflicts[0].ends_at).toEqual(new Date(2026, 9, 4, 10));
         });
+
+        it('finds a takeover that starts in the extra clock hour of a run', () => {
+            // 01:30 plus 120 minutes plays until 04:30 on this day
+            const conflicts = findTakeoverConflicts({
+                displays: [lobby],
+                zones: [level],
+                playlists: [
+                    playlist('a', '30 1 4 10 *', 120),
+                    playlist('b', '30 3 4 10 *', 30),
+                ],
+                start: new Date(2026, 9, 4),
+                days: 1,
+            });
+
+            expect(conflicts.map(({ starts_at }) => starts_at)).toEqual([
+                new Date(2026, 9, 4, 3, 30),
+            ]);
+        });
     });
 });
