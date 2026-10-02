@@ -8,7 +8,7 @@ import {
     IconComponent,
     TranslatePipe,
 } from '@placeos/components';
-import { format, isSameDay, startOfDay } from 'date-fns';
+import { isSameDay } from 'date-fns';
 import { isDisplayOnline } from '../displays/display-status.util';
 import {
     MINUTES_PER_DAY,
@@ -89,7 +89,11 @@ function dayPercent(minutes: number) {
                         class="border-base-300 bg-base-100 flex h-14 items-end border-b"
                         [style.width.rem]="timeline_width"
                     >
-                        @for (hour of hours; track hour; let i = $index) {
+                        @for (
+                            hour_label of hour_labels;
+                            track $index;
+                            let i = $index
+                        ) {
                             <div
                                 class="relative flex h-full items-end pb-2"
                                 [style.width.rem]="block_width"
@@ -97,7 +101,7 @@ function dayPercent(minutes: number) {
                                 <div
                                     class="text-base-content/50 w-full text-center text-[10px] tabular-nums"
                                 >
-                                    {{ formatHour(hour) }}
+                                    {{ hour_label }}
                                 </div>
                                 @if (i !== 0) {
                                     <div
@@ -345,7 +349,8 @@ function dayPercent(minutes: number) {
 })
 export class ScheduleTimelineComponent {
     private readonly _date_from = new DateFromPipe();
-    private readonly _date = new DatePipe(inject(LOCALE_ID));
+    private readonly _locale = inject(LOCALE_ID);
+    private readonly _date = new DatePipe(this._locale);
 
     public readonly rows = input<ScheduleTimelineRow[]>([]);
     public readonly view_tab = input<'displays' | 'zones'>('displays');
@@ -357,8 +362,16 @@ export class ScheduleTimelineComponent {
 
     public readonly block_width = 6;
     public readonly lane_height = LANE_HEIGHT;
-    public readonly hours = Array.from({ length: 24 }, (_, index) => index);
-    public readonly timeline_width = this.hours.length * this.block_width;
+    /** Hour headings in the clock style of the locale, e.g. "9 AM" or "09" */
+    public readonly hour_labels = (() => {
+        const hour_format = new Intl.DateTimeFormat(this._locale, {
+            hour: 'numeric',
+        });
+        return Array.from({ length: 24 }, (_, hour) =>
+            hour_format.format(new Date(2000, 0, 1, hour)),
+        );
+    })();
+    public readonly timeline_width = this.hour_labels.length * this.block_width;
 
     /** Position of the current time line from the start of the day, in rem */
     public readonly current_offset = computed(
@@ -417,12 +430,6 @@ export class ScheduleTimelineComponent {
         return this._date.transform(last_seen, date_format) || '';
     }
 
-    public formatHour(hour: number) {
-        const date = startOfDay(new Date());
-        date.setHours(hour);
-        return format(date, 'haaa').replace('AM', 'am').replace('PM', 'pm');
-    }
-
     private _blockView(
         row: ScheduleTimelineRow,
         block: TimelineBlock,
@@ -456,6 +463,8 @@ export class ScheduleTimelineComponent {
         const approval = awaiting_approval
             ? i18n('SIGNAGE_MANAGER.AWAITING_APPROVAL')
             : '';
+        // Said in text too, so it is not shown by the line through only
+        const disabled = playlist.enabled ? '' : i18n('COMMON.DISABLED');
         const tooltip_source =
             show_source && block.source_label
                 ? i18n('SIGNAGE_MANAGER.TOOLTIP_SOURCE', {
@@ -487,6 +496,7 @@ export class ScheduleTimelineComponent {
                     name: playlist.name,
                 }),
                 i18n('SIGNAGE_MANAGER.TOOLTIP_TIME', { time }),
+                disabled,
                 takeover,
                 tooltip_source,
                 awaiting_approval
@@ -499,6 +509,7 @@ export class ScheduleTimelineComponent {
                 row.name,
                 playlist.name,
                 block.all_day ? i18n('SIGNAGE_MANAGER.ALL_DAY_LOWER') : time,
+                disabled,
                 takeover,
                 approval,
                 source,

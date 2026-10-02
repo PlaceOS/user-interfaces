@@ -1,6 +1,12 @@
 import { i18n } from '@placeos/common';
 import { SignagePlaylist } from '@placeos/ts-client';
-import { addDays, fromUnixTime, isSameDay, startOfDay } from 'date-fns';
+import {
+    addDays,
+    differenceInCalendarDays,
+    fromUnixTime,
+    isSameDay,
+    startOfDay,
+} from 'date-fns';
 import {
     cronDaySlots,
     cronParts,
@@ -84,25 +90,21 @@ export interface ScheduleItem {
     zones?: readonly string[];
 }
 
-function playlistSchedules(
-    playlist: SignagePlaylist,
+/** Schedule of a playlist with no schedules */
+const ALL_DAY_SCHEDULE: Partial<PlaylistSchedule> = {
+    play_cron: '0 0 * * *',
+    play_period: MINUTES_PER_DAY,
+};
+
+/**
+ * Schedules of a playlist. The player plays a playlist with no schedules all
+ * the time as normal content, so it gets one all day schedule that is not a
+ * takeover.
+ */
+export function playlistSchedules(
+    playlist: Pick<SignagePlaylist, 'schedules'>,
 ): Partial<PlaylistSchedule>[] {
-    const legacy_playlist = playlist as SignagePlaylist & {
-        play_at?: number;
-        play_cron?: string;
-        play_period?: number;
-        play_takeover?: boolean;
-    };
-    if (playlist.schedules?.length) return playlist.schedules;
-    return [
-        {
-            play_at: legacy_playlist.play_at,
-            play_cron: legacy_playlist.play_cron || '0 0 * * *',
-            play_period:
-                legacy_playlist.play_period ?? DEFAULT_PLAYLIST_DURATION,
-            play_takeover: !!legacy_playlist.play_takeover,
-        },
-    ];
+    return playlist.schedules?.length ? playlist.schedules : [ALL_DAY_SCHEDULE];
 }
 
 /** Whether any schedule of the playlist is a takeover */
@@ -131,44 +133,105 @@ function formatTimeRange(
     return `${formatTime(start_minutes)} – ${formatTime(start_minutes + duration_minutes)}`;
 }
 
-function isScheduleValidAt(schedule: Partial<PlaylistSchedule>, date: Date) {
-    const time = date.getTime();
+/** Label and all day flag of a block. A length of 0 plays the playlist once. */
+function blockBase(
+    start_minutes: number,
+    duration_minutes: number,
+): ScheduleBlockBase {
+    return {
+        start_minutes,
+        duration_minutes,
+        all_day: start_minutes === 0 && duration_minutes >= MINUTES_PER_DAY,
+        label: duration_minutes
+            ? formatTimeRange(start_minutes, duration_minutes)
+            : i18n('SIGNAGE_MANAGER.PLAY_THROUGH_ONCE'),
+    };
+}
+
+/** Clock minutes of a date from the start of `day`. Later days add 1440 each. */
+function clockMinutes(day: Date, date: Date) {
     return (
-        (!schedule.valid_from || time >= schedule.valid_from * 1000) &&
-        (!schedule.valid_until || time <= schedule.valid_until * 1000)
+        differenceInCalendarDays(date, day) * MINUTES_PER_DAY +
+        date.getHours() * 60 +
+        date.getMinutes()
     );
 }
 
-function isDayInRange(
-    day: Date,
-    valid_from?: number,
-    valid_until?: number,
-): boolean {
-    const day_start = startOfDay(day).getTime();
-    if (valid_from) {
-        const from_start = startOfDay(fromUnixTime(valid_from)).getTime();
-        if (day_start < from_start) return false;
-    }
-    if (valid_until) {
-        const until_start = startOfDay(fromUnixTime(valid_until)).getTime();
-        if (day_start > until_start) return false;
-    }
-    return true;
+/** Earliest of the end dates that are set, in milliseconds */
+function earliestEnd(...values: (number | undefined)[]) {
+    return Math.min(
+        Infinity,
+        ...values
+            .filter((value): value is number => !!value)
+            .map((value) => value * 1000),
+    );
 }
 
-function getCronBlocksForDay(
-    parts: readonly string[],
+/**
+ * Part of a run that plays, in clock minutes from the start of `day`, or
+ * null when nothing plays. Matches the player: a run starts only inside the
+ * schedule dates and before the playlist ends. It plays only after the
+ * playlist starts and until the schedule or the playlist ends.
+ */
+function playedRun(
+    day: Date,
+    starts_at: Date,
+    duration: number,
     schedule: Partial<PlaylistSchedule>,
-): ScheduleBlockBase[] {
-    const duration = playPeriodMinutes(schedule);
-    return cronDaySlots(parts).map((start_minutes) => ({
-        start_minutes,
-        duration_minutes: duration,
-        all_day: start_minutes === 0 && duration >= MINUTES_PER_DAY,
-        label: duration
-            ? formatTimeRange(start_minutes, duration)
-            : i18n('SIGNAGE_MANAGER.PLAY_THROUGH_ONCE'),
-    }));
+    playlist: Pick<SignagePlaylist, 'valid_from' | 'valid_until'>,
+) {
+    const time = starts_at.getTime();
+    const ends_at = earliestEnd(schedule.valid_until, playlist.valid_until);
+    if (time < (schedule.valid_from || 0) * 1000 || time > ends_at) {
+        return null;
+    }
+    const start = clockMinutes(day, starts_at);
+    const from = playlist.valid_from
+        ? Math.max(start, clockMinutes(day, fromUnixTime(playlist.valid_from)))
+        : start;
+    // A single pass has no length, so it plays only when it starts in time
+    if (!duration) return from === start ? blockBase(start, 0) : null;
+    // The player ends a run after the elapsed play length, so a run that
+    // spans a skipped clock hour ends an hour later on the clock. The
+    // timeline shows a repeated clock hour once, so a run is never shorter
+    // on the clock than its length.
+    const run_end = time + duration * 60_000;
+    let until = Math.max(
+        start + duration,
+        clockMinutes(day, new Date(run_end)),
+    );
+    if (ends_at < run_end) {
+        until = Math.min(until, clockMinutes(day, new Date(ends_at)));
+    }
+    return until > from ? blockBase(from, until - from) : null;
+}
+
+/** Start times of a schedule on a day, before the dates and mask apply */
+function scheduleStarts(
+    schedule: Partial<PlaylistSchedule>,
+    slots: readonly number[],
+    parts: readonly string[] | null,
+    day: Date,
+): Date[] {
+    if (isPlayOnceSchedule(schedule)) {
+        const at_date = playOnceStart(schedule);
+        return at_date && isSameDay(day, at_date) ? [at_date] : [];
+    }
+    if (!parts || !doesCronMatchDay(parts, day)) return [];
+    return slots
+        .map((slot) => {
+            const starts_at = new Date(day);
+            starts_at.setHours(0, slot, 0, 0);
+            return starts_at;
+        })
+        .filter(
+            // A clock time that a daylight saving change skips never plays.
+            // A repeated time plays once, at the first occurrence, which is
+            // the time that Date picks.
+            (starts_at, index) =>
+                starts_at.getHours() * 60 + starts_at.getMinutes() ===
+                slots[index],
+        );
 }
 
 export function buildScheduleBlocks(
@@ -188,62 +251,37 @@ function generateScheduleBlocks(
     const { playlist, source_label, source_type } = assignment;
     const colour = BLOCK_PALETTE[palette_index % BLOCK_PALETTE.length];
     const blocks: ScheduleBlock[] = [];
-    const { valid_from, valid_until } = playlist;
-    const schedules = playlistSchedules(playlist).map((schedule) => ({
-        schedule,
-        allows: createScheduleMaskFilter(schedule),
-    }));
+    const schedules = playlistSchedules(playlist).map((schedule) => {
+        const parts = cronParts(schedule.play_cron?.trim() || '0 0 * * *');
+        return {
+            schedule,
+            parts,
+            slots: parts ? cronDaySlots(parts) : [],
+            duration: playPeriodMinutes(schedule),
+            allows: createScheduleMaskFilter(schedule),
+        };
+    });
 
     for (let index = 0; index < days.length; index++) {
-        const day = days[index];
-        if (!isDayInRange(day, valid_from, valid_until)) continue;
-
-        for (const { schedule, allows } of schedules) {
-            const play_cron = schedule.play_cron?.trim() || '0 0 * * *';
-            const play_period = playPeriodMinutes(schedule);
-
-            if (isPlayOnceSchedule(schedule)) {
-                const at_date = playOnceStart(schedule);
-                if (
-                    !at_date ||
-                    !isSameDay(day, at_date) ||
-                    !isScheduleValidAt(schedule, at_date) ||
-                    !allows(at_date)
-                ) {
-                    continue;
-                }
-                const start_minutes =
-                    at_date.getHours() * 60 + at_date.getMinutes();
-                const duration_minutes = play_period;
-                blocks.push({
+        const day = startOfDay(days[index]);
+        for (const { schedule, parts, slots, duration, allows } of schedules) {
+            for (const starts_at of scheduleStarts(
+                schedule,
+                slots,
+                parts,
+                day,
+            )) {
+                if (!allows(starts_at)) continue;
+                const run = playedRun(
+                    day,
+                    starts_at,
+                    duration,
+                    schedule,
                     playlist,
-                    day_index: index,
-                    start_minutes,
-                    duration_minutes,
-                    all_day: false,
-                    takeover: !!schedule.play_takeover,
-                    bg_color: colour.bg,
-                    text_color: colour.text,
-                    label: formatTimeRange(start_minutes, duration_minutes),
-                    source_label,
-                    source_type,
-                });
-                continue;
-            }
-
-            const parts = cronParts(play_cron);
-            if (!parts || !doesCronMatchDay(parts, day)) continue;
-            const cron_blocks = getCronBlocksForDay(parts, schedule);
-            for (const block of cron_blocks) {
-                const starts_at = new Date(day);
-                starts_at.setHours(0, block.start_minutes, 0, 0);
-                if (
-                    !isScheduleValidAt(schedule, starts_at) ||
-                    !allows(starts_at)
-                )
-                    continue;
+                );
+                if (!run) continue;
                 blocks.push({
-                    ...block,
+                    ...run,
                     playlist,
                     day_index: index,
                     takeover: !!schedule.play_takeover,
@@ -276,7 +314,8 @@ export function visibleMinutes(block: ScheduleBlock) {
 function clipToDay(block: ScheduleBlock): ScheduleBlock[] {
     const start = (block.day_index - 1) * MINUTES_PER_DAY + block.start_minutes;
     const end = start + block.duration_minutes;
-    if (start < 0 && end <= 0) return [];
+    // A block can start on a later day when the playlist starts late
+    if (start < 0 ? end <= 0 : start >= MINUTES_PER_DAY) return [];
     const visible_start = Math.max(0, start);
     const visible_end = Math.min(MINUTES_PER_DAY, end);
     return [

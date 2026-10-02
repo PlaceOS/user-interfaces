@@ -117,12 +117,30 @@ describe('SchedulesSectionComponent', () => {
         );
     });
 
-    it('reads the search value out of the input event', async () => {
+    it('finds a display by the name of each of its zones', async () => {
+        playlists.set([{ id: 'p-1', name: 'News', enabled: true }]);
+        displays.set([
+            { id: 'd-1', name: 'Foyer', zones: ['z-1', 'z-2'] },
+            { id: 'd-2', name: 'Cafe', zones: ['z-3'] },
+        ]);
+        // Both zones give the same playlist, so its source is "2 zones"
+        zones.set([
+            { id: 'z-1', name: 'Level 1', playlists: ['p-1'] },
+            { id: 'z-2', name: 'Level 2', playlists: ['p-1'] },
+            { id: 'z-3', name: 'Basement', playlists: [] },
+        ]);
         const component = await make();
-        component.setSearch({ target: { value: 'cafe' } } as any);
-        expect(component.search_term()).toBe('cafe');
-        component.clearSearch();
-        expect(component.search_term()).toBe('');
+
+        component.search_term.set('level 1');
+        expect(component.rows().map((r) => r.id)).toEqual(['d-1']);
+        component.search_term.set('basement');
+        expect(component.rows().map((r) => r.id)).toEqual(['d-2']);
+    });
+
+    it('follows the tab in the route', async () => {
+        const component = await make();
+        fixture.componentRef.setInput('tab', 'zones');
+        expect(component.view_tab()).toBe('zones');
     });
 
     it('navigates the selected day forwards, backwards and to today', async () => {

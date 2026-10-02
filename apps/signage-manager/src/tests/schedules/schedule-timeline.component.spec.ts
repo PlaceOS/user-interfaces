@@ -1,4 +1,5 @@
 import { DatePipe } from '@angular/common';
+import { LOCALE_ID } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { SignagePlaylist } from '@placeos/ts-client';
@@ -204,9 +205,28 @@ describe('ScheduleTimelineComponent', () => {
         expect(component.row_status().size).toBe(0);
     });
 
-    it('formats an hour into a lowercase am/pm label', () => {
-        const component = make();
-        expect(component.formatHour(0).toLowerCase()).toContain('am');
-        expect(component.formatHour(13).toLowerCase()).toContain('pm');
+    it('labels hours in the clock style of the locale', () => {
+        TestBed.overrideProvider(LOCALE_ID, { useValue: 'en-GB' });
+        expect(make().hour_labels.slice(12, 14)).toEqual(['12', '13']);
+    });
+
+    it('says in text that a playlist is disabled', () => {
+        const component = make([
+            row({
+                blocks: [
+                    block({
+                        playlist: new SignagePlaylist({
+                            id: 'off',
+                            name: 'Off',
+                            enabled: false,
+                        }),
+                    }),
+                ],
+            }),
+        ]);
+        const [view] = component.view_rows()[0].blocks;
+
+        expect(view.aria_label).toBe('Foyer, Off, 09:00 – 11:00, Disabled');
+        expect(view.tooltip.split('\n')).toContain('Disabled');
     });
 });

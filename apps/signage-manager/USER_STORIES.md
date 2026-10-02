@@ -278,8 +278,9 @@ These stories cover the current app workflows:
 - Users can search schedules by display, zone, playlist, and source labels where applicable.
 - Timeline rows link to the related display or zone detail page.
 - Display rows show the same online, offline, or never seen status as the displays page.
+- Timeline blocks show only the times that the player plays. Blocks stop at the playlist and schedule dates, and clock times that daylight saving skips do not show. Blocks of disabled playlists say "Disabled" in text.
 - Empty and filtered states explain when no rows are available.
-- Users must confirm a change that makes two takeover playlists play at the same time on a display in the next 14 days. The check runs when users save playlist schedules and when they assign a playlist to a display or zone. The warning names the display, the other playlist, and the start time of the overlap.
+- Users must confirm a change that makes two takeover playlists play at the same time on a display in the next 14 days. The check runs when users save playlist schedules and when they assign a playlist to a display or zone. The warning names the display, the other playlist, and the start time of the overlap. Disabled playlists and overlaps that ended earlier today do not count. A single pass (play period 0) plays alone before timed takeovers, so it conflicts only with another single pass.
 
 ---
 
