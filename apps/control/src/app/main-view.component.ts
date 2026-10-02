@@ -28,7 +28,6 @@ import { NextMeetingComponent } from './ui/next-meeting.component';
                     name="splash"
                     class="absolute inset-0 flex flex-col items-center justify-center text-white"
                     (click)="powerOn()"
-                    (touchend)="powerOn()"
                 >
                     <h2 class="mb-4 text-4xl font-light">
                         {{ 'APP.CONTROL.TOUCH_TO_START' | translate }}
@@ -43,7 +42,9 @@ import { NextMeetingComponent } from './ui/next-meeting.component';
                             <button
                                 class="m-0 border-none bg-none p-0 text-xs underline"
                                 [disabled]="!changelog_available()"
-                                (click)="viewChangelog()"
+                                (click)="
+                                    $event.stopPropagation(); viewChangelog()
+                                "
                             >
                                 {{ version.hash }}
                             </button>

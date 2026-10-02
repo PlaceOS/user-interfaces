@@ -6,7 +6,6 @@ import { AsyncHandler, log } from '@placeos/common';
 import {
     BindingDirective,
     IconComponent,
-    SafePipe,
     TranslatePipe,
 } from '@placeos/components';
 import { map } from 'rxjs/operators';
@@ -157,9 +156,7 @@ import { TVControlsComponent } from './tv-controls.component';
                                 <div
                                     class="p-8"
                                     content
-                                    [innerHTML]="
-                                        help().content | markdown | safe
-                                    "
+                                    [innerHTML]="help().content | markdown"
                                 ></div>
                             }
                             @if (!help()) {
@@ -243,7 +240,6 @@ import { TVControlsComponent } from './tv-controls.component';
         DeviceOutputListComponent,
         TranslatePipe,
         MarkdownPipe,
-        SafePipe,
         TVControlsComponent,
         VideoCallDialViewComponent,
         CameraControlsComponent,

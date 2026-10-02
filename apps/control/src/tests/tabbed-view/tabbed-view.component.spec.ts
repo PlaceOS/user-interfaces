@@ -119,4 +119,13 @@ describe('ControlTabbedViewComponent', () => {
         spectator.component.viewChangelog();
         expect(changelog.view).toHaveBeenCalled();
     });
+
+    it('should not power on when the changelog button is tapped', () => {
+        const service: any = spectator.inject(ControlStateService);
+        service.system.set({ connected: true });
+        spectator.detectChanges();
+        service.powerOn.mockClear();
+        spectator.click('[name="splash"] button');
+        expect(service.powerOn).not.toHaveBeenCalled();
+    });
 });

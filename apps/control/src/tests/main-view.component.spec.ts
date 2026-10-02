@@ -18,8 +18,9 @@ import { NextMeetingComponent } from '../app/ui/next-meeting.component';
 describe('ControlMainViewComponent', () => {
     let spectator: SpectatorRouting<ControlMainViewComponent>;
     const system = signal<{ active?: boolean; connected?: boolean }>({});
+    const changelog_available = signal(false);
     const changelog = {
-        available: signal(false).asReadonly(),
+        available: changelog_available.asReadonly(),
         view: vi.fn(),
     };
     const createComponent = createRoutingFactory({
@@ -45,6 +46,7 @@ describe('ControlMainViewComponent', () => {
 
     beforeEach(() => {
         system.set({});
+        changelog_available.set(false);
         spectator = createComponent();
     });
 
@@ -79,5 +81,15 @@ describe('ControlMainViewComponent', () => {
         expect('topbar-header').toExist();
         expect('[control-page-view]').toExist();
         expect('control-status-bar').toExist();
+    });
+
+    it('should not power on when the changelog button is tapped', () => {
+        const service: any = spectator.inject(ControlStateService);
+        service.system.set({ connected: true });
+        changelog_available.set(true);
+        spectator.detectChanges();
+        service.powerOn.mockClear();
+        spectator.click('[name="splash"] button');
+        expect(service.powerOn).not.toHaveBeenCalled();
     });
 });

@@ -181,4 +181,41 @@ describe('CameraControlsComponent', () => {
         spectator.detectChanges();
         expect('joystick').not.toExist();
     });
+
+    it('should keep the camera select outside the selection overlay', () => {
+        camera_list.set([{ id: 'cam1', name: 'Camera 1', mod: 'Camera_1' }]);
+        spectator.detectChanges();
+        const overlay = spectator.query('[no-camera]');
+        expect(overlay).toExist();
+        expect(overlay.parentElement.querySelector('joystick')).toExist();
+        expect(
+            overlay.parentElement.querySelector('mat-form-field'),
+        ).toBeNull();
+    });
+
+    it('should stop zooming when the zoom button is released', async () => {
+        const cam = { id: 'cam1', name: 'Camera 1', mod: 'Camera_1' };
+        camera_list.set([cam]);
+        selected_camera.set('cam1');
+        spectator.detectChanges();
+        spectator.dispatchFakeEvent('button[zoom-in]', 'pointerdown');
+        expect(spectator.component.zoom()).toBe(ZoomDirection.In);
+        spectator.dispatchFakeEvent('button[zoom-in]', 'pointercancel');
+        await new Promise((r) => setTimeout(r, 70));
+        expect(execute_fn).toHaveBeenLastCalledWith('zoom', [
+            ZoomDirection.Stop,
+        ]);
+    });
+
+    it('should stop zooming when destroyed', async () => {
+        spectator.component.active_camera.set({
+            id: 'cam1',
+            name: 'Camera 1',
+            mod: 'Camera_1',
+        } as any);
+        spectator.component.zoom.set(ZoomDirection.Out);
+        spectator.fixture.destroy();
+        await new Promise((r) => setTimeout(r, 70));
+        expect(execute_fn).toHaveBeenCalledWith('zoom', [ZoomDirection.Stop]);
+    });
 });
