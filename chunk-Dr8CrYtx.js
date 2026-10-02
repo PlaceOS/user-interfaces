@@ -1,3 +1,0 @@
-import{Sl as wi}from"./chunk-C_jPQ7xO.js";function r(e){return`${e.id}:${e.instance||``}`}function E(e,t){let o=new Set(t);return e.filter(i=>o.has(r(i)))}function s(e,t){return{dialog:t,confirm:{title:wi(`APP.CONCIERGE.BULK_REJECT_TITLE`),content:wi(`APP.CONCIERGE.BULK_REJECT_MSG`,{count:e}),icon:`event_busy`}}}export{r as n,s as r,E as t};
-//# debugId=ca71afc3-3b78-509e-ab64-13e847cb5fc7
-//# sourceMappingURL=chunk-Dr8CrYtx.js.map

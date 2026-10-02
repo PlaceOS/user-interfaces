@@ -1,0 +1,3 @@
+import{ea as Zt,zn as NJ}from"./chunk-D2wWPK1K.js";var a=[];var o={};var s={identifier:`Unallocated`};var P=(()=>{class r{async transform(t){if(!t)return o;if(t.startsWith(`unallocated`))return s;let n=a.find(({id:p})=>p===t);if(n)return n;let e=await NJ(t).catch(()=>null);return e?(a.push(e),e):o}static{this.ɵfac=function(n){return new(n||r)}}static{this.ɵpipe=Zt({name:`parkingSpace`,type:r,pure:!0})}}return r})();export{P as t};
+//# debugId=8def3737-d62c-52e5-9ded-e5c7b451fcbb
+//# sourceMappingURL=chunk-Mwk1x-cX.js.map
