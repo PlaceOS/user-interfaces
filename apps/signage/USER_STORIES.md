@@ -349,6 +349,7 @@ The Signage app is a kiosk-style digital signage player. It bootstraps a device 
 - The override ends at the scheduled end time when `play_period` is greater than zero.
 - A scheduled takeover with `play_period` set to zero uses a short activation window, plays a single pass, and then clears.
 - A single-pass takeover continues after its activation window closes. It clears when the pass is complete, or when its playlist is removed, disabled, or no longer a single-pass takeover.
+- When single-pass takeovers share one override, the pass is complete when the playlist of the last valid item plays through.
 - Clearing a scheduled override records its schedule key so the same activation is not immediately retriggered.
 
 ---
@@ -435,7 +436,8 @@ The Signage app is a kiosk-style digital signage player. It bootstraps a device 
 - Only messages from the parent frame are accepted. Messages from other windows, such as webpage or plugin content on screen, are ignored.
 - A player that is not in a frame ignores all pause and resume messages.
 - A payload with `type: 'signage:pause'` pauses all player instances.
-- A payload with `type: 'signage:resume'` resumes all player instances.
+- A payload with `type: 'signage:resume'` resumes all player instances. The normal player stays paused while a takeover plays.
+- While paused, a takeover that starts stays paused, and the normal player stays paused when a takeover ends.
 - Unknown payloads are ignored.
 - The message listener is removed when the panel is destroyed.
 
