@@ -450,7 +450,10 @@ The Signage app is a kiosk-style digital signage player. It bootstraps a device 
 **Acceptance Criteria:**
 
 - Non-webpage and non-plugin media URLs are requested for local caching.
-- Media files are stored in IndexedDB in the `SignageMedia` database.
+- Media files are stored in IndexedDB in the `SignageMedia` database. The service worker does not keep a second copy.
+- Downloads stream to storage. They do not keep the full file in memory.
+- If the browser cannot store a streamed download, the cache downloads files up to 50 MB one more time into memory. Larger files play from the network, and the cache does not try them again until the app reloads.
+- A download has no total time limit. It stops when no data arrives for 60 seconds.
 - Cache metadata is persisted in localStorage under `PlaceOS.SIGNAGE.cached_files`.
 - Cache status moves through preparing, downloading, storing, and cached states.
 - Upload API media requests apply a short-lived authentication cookie before fetching.
@@ -469,7 +472,16 @@ The Signage app is a kiosk-style digital signage player. It bootstraps a device 
 
 - When display configuration changes, the app requests caching for current media URLs.
 - Cached URLs that are no longer referenced by the display are invalidated.
-- Cache pruning keeps the current display's priority URLs first and enforces a per-owner storage limit.
+- The cache budget is 80% of the storage that the browser gives the app, less the storage used outside the cache. If the browser cannot supply this value, the budget is 512 MB.
+- At startup, the app asks the browser for persistent storage.
+- Pruning never removes media in the current request. It removes files of other displays first (root players only), then the largest files.
+- Media that cannot fit in the budget is not downloaded. It plays from the network. The cache tries it again only when more space is available.
+- When the file size is known, the cache removes files to make room before it reads the download.
+- Playback downloads a missing file only if it fits in the space that is left in the budget. Playback never removes cached files. A full storage write during playback stops later playback downloads of that file.
+- A template background that the cache cannot supply plays from the network.
+- If storage becomes full during a write (`QuotaExceededError`, or a `DataError` from a failed blob write), the cache removes the files that the request does not need and tries one more time. If the write fails again, the media plays from the network.
+- If the cache database cannot be read, the cache does not download the file again. The sync tries again later.
+- Stored files that no cache entry uses (duplicates, empty files, and replaced files) are deleted.
 - Embedded signage players avoid pruning files owned by other displays.
 - Failed cache requests schedule a retry after 15 seconds.
 - Media currently preparing, downloading, or storing waits for a final cached or invalidated state before playback tries to use it.

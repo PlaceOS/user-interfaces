@@ -120,6 +120,19 @@ describe('SignageTemplateComponent', () => {
         shell_frame = null;
     });
 
+    it('plays the background from the server when the cache has no copy', async () => {
+        spectator = create_component({
+            params: { template_id: 'template-1', system_id: 'display-1' },
+        });
+        await vi.waitFor(() => {
+            expect(spectator.component.background_playlist()).toHaveLength(1);
+        });
+
+        await expect(
+            spectator.component.background_playlist()[0].getURL(),
+        ).resolves.toBe('/api/background');
+    });
+
     it('loads the template, background, and layout plugins', async () => {
         spectator = create_component({
             params: { template_id: 'template-1', system_id: 'display-1' },
