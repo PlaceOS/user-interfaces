@@ -15,6 +15,24 @@ import { environment } from '../environments/environment';
 import { routes } from './app.routes';
 import { recordFatalError } from './watchdog';
 
+/**
+ * Readable text for a thrown value. Errors are not always `Error` instances -
+ * HTTP failures and API client rejections are plain objects - so any string
+ * `message` is used before falling back to the value itself.
+ */
+function errorMessage(error: unknown): string {
+    if (
+        typeof error === 'object' &&
+        error !== null &&
+        'message' in error &&
+        typeof error.message === 'string' &&
+        error.message
+    ) {
+        return error.message;
+    }
+    return String(error);
+}
+
 export const appConfig: ApplicationConfig = {
     providers: [
         provideZonelessChangeDetection(),
@@ -35,11 +53,7 @@ export const appConfig: ApplicationConfig = {
                 });
                 return {
                     handleError: (error: unknown) => {
-                        recordFatalError(
-                            error instanceof Error
-                                ? error.message
-                                : String(error),
-                        );
+                        recordFatalError(errorMessage(error));
                         handler.handleError(error);
                     },
                 };
