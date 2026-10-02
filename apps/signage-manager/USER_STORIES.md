@@ -311,10 +311,11 @@ These stories cover the current app workflows:
 
 **Acceptance Criteria:**
 
-- The groups page is available only when the user can manage signage groups.
+- The groups page is available only when the user can manage signage groups. Other users who open its address go to the media library.
 - Manageable groups appear in a searchable tree.
-- Expanding a group loads and shows child groups.
-- Selecting a group opens its users and zones panels.
+- Expanding a group shows its child groups.
+- Selecting a group opens its users and zones panels. On mobile, the back button returns to the group list.
+- After a save, the selected group and the expanded groups stay as they were, also when the group list cannot load again. When the group list cannot load at all, the page shows an error.
 - Users with manage-all-groups permission can create a new group.
 - Selected groups can be edited or removed.
 
@@ -329,7 +330,7 @@ These stories cover the current app workflows:
 **Acceptance Criteria:**
 
 - The users panel lists assigned users with name, email, and permission labels.
-- Users can add a user not already assigned to the group. The user gets the default permissions of the group.
+- Users can add a user not already assigned to the group. The user gets the default permissions of the group. The user search shows a loading state, and an error when the search fails.
 - Users can edit an assigned user's signage permissions.
 - Users can remove an assigned user from the group.
 - Empty state appears when no users are assigned.

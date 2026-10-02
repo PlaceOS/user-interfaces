@@ -57,7 +57,7 @@ import { SignageGroupAdminService } from './signage-group-admin.service';
                     ></textarea>
                 </mat-form-field>
                 <label for="signage-group-parent"
-                    >Parent Group
+                    >{{ 'SIGNAGE_MANAGER.PARENT_GROUP' | translate }}
                     @if (!group.id) {
                         <span required>*</span>
                     }
@@ -181,18 +181,14 @@ export class SignageGroupEditModalComponent {
         await submit(this.form, async () => {
             this.loading.set(true);
             this._dialog_ref.disableClose = true;
-            try {
-                const result = await this._group_admin.saveSignageGroup(
-                    this.group,
-                    this.model(),
-                );
-                this._dialog_ref.disableClose = false;
-                if (result) this._dialog_ref.close(result);
-                else this.loading.set(false);
-            } catch {
-                this._dialog_ref.disableClose = false;
-                this.loading.set(false);
-            }
+            // The service shows the error and returns null when it fails
+            const result = await this._group_admin.saveSignageGroup(
+                this.group,
+                this.model(),
+            );
+            this._dialog_ref.disableClose = false;
+            if (result) this._dialog_ref.close(result);
+            else this.loading.set(false);
         });
     }
 }

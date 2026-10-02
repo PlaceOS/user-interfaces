@@ -11,6 +11,7 @@ import {
 import { MatDialog } from '@angular/material/dialog';
 import {
     i18n,
+    notifyError,
     notifySuccess,
     notifyWarn,
     OrganisationService,
@@ -128,6 +129,45 @@ export function sortGroups<T extends PlaceGroup>(groups: T[]) {
     return groups.map(decodeEntityNames).sort(byName);
 }
 
+/**
+ * Last loaded value of a resource. A resource clears its value while new
+ * params load, and has no value when the load fails, so a reload would blank
+ * every view that reads it. This keeps the old value until a new one loads,
+ * as long as `key` stays the same.
+ */
+export function lastLoaded<T>(
+    list: { hasValue(): boolean; value(): T | undefined },
+    key: () => unknown = () => '',
+) {
+    return linkedSignal<{ value: T | undefined; key: unknown }, T | undefined>({
+        // Reading the value of a failed resource throws
+        source: () => ({
+            value: list.hasValue() ? list.value() : undefined,
+            key: key(),
+        }),
+        computation: (source, previous) =>
+            source.value ??
+            (previous?.source.key === source.key ? previous.value : undefined),
+    });
+}
+
+/**
+ * Share one request per key, so resources that reload on the same change hit
+ * the endpoint once. A failed request is dropped, so a later key can retry.
+ */
+function sharedRequest<T>(load: () => Promise<T>) {
+    let last: { key: number; promise: Promise<T> } | null = null;
+    return (key: number) => {
+        if (last?.key === key) return last.promise;
+        const promise = load().catch((error: unknown) => {
+            if (last?.key === key) last = null;
+            throw error;
+        });
+        last = { key, promise };
+        return promise;
+    };
+}
+
 /** Group and its ancestors, root first. Stops on a repeated group so a broken
  * parent chain can't loop forever. */
 export function groupHierarchy(
@@ -225,7 +265,7 @@ export class SignageContextService {
             if (!params.user_email) return [] as PlaceCurrentGroup[];
             try {
                 const groups = params.sys_admin
-                    ? (await this.queryManageableGroups()).map(
+                    ? (await this.allSignageGroups(params.groups_change)).map(
                           (group) =>
                               ({
                                   group,
@@ -237,9 +277,10 @@ export class SignageContextService {
                 return groups
                     .map(decodeEntityNames)
                     .sort((a, b) => a.group.name.localeCompare(b.group.name));
-            } catch {
+            } catch (error) {
+                // Fails the resource, so the last loaded groups stay
                 this.signage_groups_failed.set(true);
-                return [] as PlaceCurrentGroup[];
+                throw error;
             }
         },
     });
@@ -250,8 +291,14 @@ export class SignageContextService {
     public reloadSignageGroups() {
         this._groups_change.set(Date.now());
     }
+    // Keeps the groups while a save reloads them, or when the reload fails,
+    // so the selected group and its permissions stay. A new user starts empty.
+    private readonly _loaded_signage_groups = lastLoaded(
+        this._signage_groups,
+        () => this.active_user()?.email,
+    );
     public readonly signage_groups = computed(
-        () => this._signage_groups.value() || [],
+        () => this._loaded_signage_groups() || [],
     );
     public readonly selected_group = computed(() => {
         const group_id = this.selected_group_id();
@@ -302,13 +349,16 @@ export class SignageContextService {
      * Stops after `MAX_GROUP_PAGES` pages.
      */
     public async queryManageableGroups(params: PlaceGroupQueryOptions = {}) {
+        // The groups index takes `subsystem`, which the client options do
+        // not type
+        const query_params: PlaceGroupQueryOptions & { subsystem: string } = {
+            limit: 200,
+            fields: SIGNAGE_GROUP_FIELDS,
+            subsystem: 'signage',
+            ...params,
+        };
         const groups = await queryAll(
-            queryGroups({
-                limit: 200,
-                fields: SIGNAGE_GROUP_FIELDS,
-                subsystem: 'signage',
-                ...params,
-            } as PlaceGroupQueryOptions),
+            queryGroups(query_params),
             MAX_GROUP_PAGES,
         );
         return groups
@@ -316,29 +366,16 @@ export class SignageContextService {
             .sort(byName);
     }
 
-    // Several resources need the current user's signage groups on page load.
-    // Share a single in-flight request per `groups_change` so we hit the
-    // endpoint once instead of three times.
-    private _current_groups_request: {
-        key: number;
-        promise: Promise<PlaceCurrentGroup[]>;
-    } | null = null;
-
+    // Several resources need the signage groups on page load and after a
+    // save. Share one request per `groups_change`.
     /** Signage groups of the current user, one request per `groups_change` */
-    public currentSignageGroups(groups_change: number) {
-        if (this._current_groups_request?.key === groups_change) {
-            return this._current_groups_request.promise;
-        }
-        const promise = currentGroups({ subsystem: 'signage' }).catch((err) => {
-            // Drop the cache on failure so a later trigger can retry.
-            if (this._current_groups_request?.key === groups_change) {
-                this._current_groups_request = null;
-            }
-            throw err;
-        });
-        this._current_groups_request = { key: groups_change, promise };
-        return promise;
-    }
+    public readonly currentSignageGroups = sharedRequest(() =>
+        currentGroups({ subsystem: 'signage' }),
+    );
+    /** Every signage group, for admins, one request per `groups_change` */
+    public readonly allSignageGroups = sharedRequest(() =>
+        this.queryManageableGroups(),
+    );
 
     /** ID of the selected group, empty for "All groups" */
     public readonly api_group_id = computed(
@@ -391,15 +428,11 @@ export class SignageContextService {
             ),
         }),
     });
-    // A resource clears its value while it loads. Keep the last result so a
-    // reload of the same group does not hide its features.
-    private readonly _loaded_group_features = linkedSignal<
-        LoadedGroupFeatures | undefined,
-        LoadedGroupFeatures | undefined
-    >({
-        source: () => this._group_features.value(),
-        computation: (value, previous) => value ?? previous?.value,
-    });
+    // Keep the last result so a reload of the same group does not hide its
+    // features
+    private readonly _loaded_group_features = lastLoaded<LoadedGroupFeatures>(
+        this._group_features,
+    );
     /** Flags of the selected group, or undefined while they load */
     private readonly _selected_group_features = computed(() => {
         const loaded = this._loaded_group_features();
@@ -592,6 +625,7 @@ export class SignageContextService {
 
     /**
      * Let the user pick another signage group and share items with it.
+     * Shows an error when the share fails.
      * @returns Whether the items were shared
      */
     public async shareItems(
@@ -620,7 +654,12 @@ export class SignageContextService {
         });
         if (!group_id) return false;
         const options = { items: item_ids.join(','), to: group_id };
-        await share_config.request(options);
+        try {
+            await share_config.request(options);
+        } catch {
+            notifyError(i18n('SIGNAGE_MANAGER.SVC_ERR_SHARE'));
+            return false;
+        }
         markSignageSharedGroupsChanged();
         notifySuccess(i18n(share_config.success));
         return true;

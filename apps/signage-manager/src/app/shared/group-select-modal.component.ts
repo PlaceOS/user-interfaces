@@ -95,8 +95,7 @@ export interface GroupSelectModalData {
                 <input
                     matInput
                     cdkFocusInitial
-                    [ngModel]="search()"
-                    (ngModelChange)="search.set($event)"
+                    [(ngModel)]="search"
                     [placeholder]="'SIGNAGE_MANAGER.SEARCH_GROUPS' | translate"
                     [attr.aria-label]="
                         'SIGNAGE_MANAGER.SEARCH_GROUPS' | translate

@@ -28,9 +28,9 @@ import { PlaceGroup, PlaceGroupAdMappings } from '@placeos/ts-client';
 import { adGroupKey } from '../signage-group-access';
 import { dialogClosed } from '../signage-service.util';
 import { SignageGroupAdminService } from './signage-group-admin.service';
+import { SignageGroupPermissionLabelsComponent } from './signage-group-permission-labels.component';
 import {
     GROUP_PERMISSION_FLAGS,
-    groupPermissionLabels,
     SignageGroupPermissionsModalComponent,
 } from './signage-group-permissions-modal.component';
 
@@ -133,26 +133,9 @@ interface AdGroupRow {
                                         <div
                                             class="text-base-content/70 mt-1 truncate text-xs"
                                         >
-                                            @let labels =
-                                                permissionLabels(
-                                                    row.permissions
-                                                );
-                                            @if (labels.length) {
-                                                @for (
-                                                    label of labels;
-                                                    track label
-                                                ) {
-                                                    {{ label | translate }}
-                                                    @if (!$last) {
-                                                        ,
-                                                    }
-                                                }
-                                            } @else {
-                                                <span class="italic">{{
-                                                    'SIGNAGE_MANAGER.DEFAULT_PERMISSIONS'
-                                                        | translate
-                                                }}</span>
-                                            }
+                                            <signage-group-permission-labels
+                                                [permissions]="row.permissions"
+                                            />
                                         </div>
                                     </div>
                                     <button
@@ -352,6 +335,7 @@ interface AdGroupRow {
         MatTooltipModule,
         SettingsToggleComponent,
         TranslatePipe,
+        SignageGroupPermissionLabelsComponent,
     ],
 })
 export class SignageGroupAccessModalComponent {
@@ -363,7 +347,6 @@ export class SignageGroupAccessModalComponent {
 
     public readonly group = this._data.group;
     public readonly permissions = GROUP_PERMISSION_FLAGS;
-    public readonly permissionLabels = groupPermissionLabels;
     public readonly loaded = signal(false);
     public readonly saving = signal(false);
     public readonly default_permissions = signal(0);
@@ -477,17 +460,13 @@ export class SignageGroupAccessModalComponent {
         if (this.saving() || !this.loaded()) return;
         this.saving.set(true);
         this._dialog_ref.disableClose = true;
-        try {
-            const result = await this._group_admin.saveGroupAccess(this.group, {
-                default_permissions: this.default_permissions(),
-                ad_group_mappings: this.mappings(),
-            });
-            this._dialog_ref.disableClose = false;
-            if (result) this._dialog_ref.close(result);
-            else this.saving.set(false);
-        } catch {
-            this._dialog_ref.disableClose = false;
-            this.saving.set(false);
-        }
+        // The service shows the error and returns null when it fails
+        const result = await this._group_admin.saveGroupAccess(this.group, {
+            default_permissions: this.default_permissions(),
+            ad_group_mappings: this.mappings(),
+        });
+        this._dialog_ref.disableClose = false;
+        if (result) this._dialog_ref.close(result);
+        else this.saving.set(false);
     }
 }
