@@ -37,6 +37,7 @@ describe('ZoneContentComponent', () => {
         playlistsById: (ids: readonly string[]) =>
             playlists().filter(({ id }) => ids.includes(id)),
         playlist_approval_status,
+        playlist_approval_requested_status: signal<Record<string, boolean>>({}),
         playlist_thumbnail_media,
         playlists_loading,
         playlists_error,

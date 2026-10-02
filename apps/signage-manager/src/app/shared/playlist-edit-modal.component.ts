@@ -33,6 +33,7 @@ import {
     updateSignagePlaylist,
 } from '@placeos/ts-client';
 import { endOfDay, getUnixTime, startOfDay } from 'date-fns';
+import { playlistAnimation } from '../signage-playlist.util';
 import {
     createPlaylistScheduleModel,
     PlaylistScheduleFormComponent,
@@ -55,6 +56,33 @@ export interface PlaylistEditModalData {
     /** Runs before an existing playlist is saved. Return false to stop the save. */
     beforeSave?: (data: Partial<SignagePlaylist>) => Promise<boolean>;
 }
+
+/** Focus targets where a plain key press belongs to the control, not a hotkey */
+const HOTKEY_BLOCKING_FOCUS =
+    'select, mat-select, [role="combobox"], [role="listbox"], [role="option"], [role="menu"], [role="menuitem"]';
+
+/** Animations the user can pick, with their label keys */
+const ANIMATION_OPTIONS: { value: MediaAnimation; label: string }[] = [
+    { value: MediaAnimation.Default, label: 'COMMON.DEFAULT' },
+    { value: MediaAnimation.Cut, label: 'SIGNAGE_MANAGER.ANIM_CUT' },
+    {
+        value: MediaAnimation.CrossFade,
+        label: 'SIGNAGE_MANAGER.ANIM_CROSS_FADE',
+    },
+    { value: MediaAnimation.SlideTop, label: 'SIGNAGE_MANAGER.ANIM_SLIDE_TOP' },
+    {
+        value: MediaAnimation.SlideLeft,
+        label: 'SIGNAGE_MANAGER.ANIM_SLIDE_LEFT',
+    },
+    {
+        value: MediaAnimation.SlideRight,
+        label: 'SIGNAGE_MANAGER.ANIM_SLIDE_RIGHT',
+    },
+    {
+        value: MediaAnimation.SlideBottom,
+        label: 'SIGNAGE_MANAGER.ANIM_SLIDE_BOTTOM',
+    },
+];
 
 export interface PlaylistEditFormModel {
     name: string;
@@ -213,31 +241,14 @@ export interface PlaylistEditFormModel {
                                         | translate
                                 "
                             >
-                                <mat-option [value]="0">{{
-                                    'COMMON.DEFAULT' | translate
-                                }}</mat-option>
-                                <mat-option [value]="1">{{
-                                    'SIGNAGE_MANAGER.ANIM_CUT' | translate
-                                }}</mat-option>
-                                <mat-option [value]="2">{{
-                                    'SIGNAGE_MANAGER.ANIM_CROSS_FADE'
-                                        | translate
-                                }}</mat-option>
-                                <mat-option [value]="3">{{
-                                    'SIGNAGE_MANAGER.ANIM_SLIDE_TOP' | translate
-                                }}</mat-option>
-                                <mat-option [value]="4">{{
-                                    'SIGNAGE_MANAGER.ANIM_SLIDE_LEFT'
-                                        | translate
-                                }}</mat-option>
-                                <mat-option [value]="5">{{
-                                    'SIGNAGE_MANAGER.ANIM_SLIDE_RIGHT'
-                                        | translate
-                                }}</mat-option>
-                                <mat-option [value]="6">{{
-                                    'SIGNAGE_MANAGER.ANIM_SLIDE_BOTTOM'
-                                        | translate
-                                }}</mat-option>
+                                @for (
+                                    option of animation_options;
+                                    track option.value
+                                ) {
+                                    <mat-option [value]="option.value">{{
+                                        option.label | translate
+                                    }}</mat-option>
+                                }
                             </mat-select>
                         </mat-form-field>
                     </div>
@@ -342,17 +353,19 @@ export class PlaylistEditModalComponent {
         inject<MatDialogRef<PlaylistEditModalComponent>>(MatDialogRef);
 
     public readonly loading = signal(false);
+    public readonly animation_options = ANIMATION_OPTIONS;
     public readonly active_schedule_index = signal<number | null>(0);
     public readonly playlist = this._data.playlist;
     public readonly group_id = this._data.group_id || '';
+    /** Default animation when the modal opened */
+    private readonly _loaded_animation = playlistAnimation(this.playlist);
     public readonly model = signal<PlaylistEditFormModel>({
         name: this.playlist.name || '',
         description: this.playlist.description || '',
         enabled: this.playlist.enabled ?? true,
         distribution: !!this.playlist.distribution,
         random: !!this.playlist.random,
-        default_animation:
-            this.playlist.default_animation ?? MediaAnimation.Default,
+        default_animation: this._loaded_animation,
         orientation: this.playlist.orientation || 'unspecified',
         default_duration: this.playlist.default_duration || 15000,
         schedules: playlistSchedules(this.playlist).map((schedule) =>
@@ -378,9 +391,13 @@ export class PlaylistEditModalComponent {
     });
 
     constructor() {
-        const save_hotkey = inject(HotkeysService).listen(['KeyS'], () =>
-            this.savePlaylist(),
-        );
+        // The save hotkey is a plain key, so a select or list that has focus
+        // keeps it, e.g. to jump to an option such as "Square"
+        const save_hotkey = inject(HotkeysService).listen(['KeyS'], () => {
+            if (!document.activeElement?.closest(HOTKEY_BLOCKING_FOCUS)) {
+                this.savePlaylist();
+            }
+        });
         inject(DestroyRef).onDestroy(() => save_hotkey?.unsubscribe());
         if (!this.model().distribution && !this.model().schedules.length) {
             this.addSchedule();
@@ -425,10 +442,21 @@ export class PlaylistEditModalComponent {
         await submit(this.form, async () => {
             this.loading.set(true);
             this._dialog_ref.disableClose = true;
-            const { schedules, valid_from, valid_until, ...fields } =
-                this.model();
+            const {
+                schedules,
+                valid_from,
+                valid_until,
+                default_animation,
+                ...fields
+            } = this.model();
             const data: Partial<SignagePlaylist> = {
                 ...fields,
+                // Send the animation only when the user changes it. The
+                // loaded value can be a guess (see `playlistAnimation`), and
+                // saving must not change it.
+                ...(default_animation !== this._loaded_animation
+                    ? { default_animation }
+                    : {}),
                 ...(fields.distribution
                     ? {}
                     : {
@@ -436,12 +464,14 @@ export class PlaylistEditModalComponent {
                               playlistSchedulePayload(schedule),
                           ),
                       }),
-                ...(valid_from
-                    ? { valid_from: getUnixTime(startOfDay(valid_from)) }
-                    : {}),
-                ...(valid_until
-                    ? { valid_until: getUnixTime(endOfDay(valid_until)) }
-                    : {}),
+                // Null clears a date. The update is a patch, so a missing
+                // date would keep the saved one.
+                valid_from: valid_from
+                    ? getUnixTime(startOfDay(valid_from))
+                    : null,
+                valid_until: valid_until
+                    ? getUnixTime(endOfDay(valid_until))
+                    : null,
             };
             if (
                 this.playlist.id &&
@@ -466,11 +496,10 @@ export class PlaylistEditModalComponent {
                 this._dialog_ref.disableClose = false;
                 this._dialog_ref.close(result);
                 notifySuccess(i18n('SIGNAGE_MANAGER.PLAYLIST_SAVED'));
-            } catch (e) {
+            } catch {
                 this._dialog_ref.disableClose = false;
                 this.loading.set(false);
                 notifyError(i18n('SIGNAGE_MANAGER.PLAYLIST_SAVE_ERROR'));
-                throw e;
             }
         });
     }

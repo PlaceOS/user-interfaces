@@ -5,6 +5,7 @@ import { setNotifyOutlet } from '@placeos/common';
 import {
     approveSignagePlaylist,
     listSignagePlaylistMediaRevisions,
+    SignagePlaylistMedia,
     updateSignagePlaylistMedia,
 } from '@placeos/ts-client';
 import { SignageMediaService } from '../../app/media/signage-media.service';
@@ -111,6 +112,46 @@ describe('PlaylistApproveModalComponent', () => {
             'Error approving playlist',
             expect.anything(),
             expect.objectContaining({ panelClass: ['error'] }),
+        );
+    });
+
+    it('approves when the shown version is still the latest', async () => {
+        vi.mocked(approveSignagePlaylist).mockResolvedValue({});
+        const fixture = await render();
+
+        await fixture.componentInstance.approve();
+
+        expect(listSignagePlaylistMediaRevisions).toHaveBeenLastCalledWith(
+            'playlist-1',
+            { limit: 1 },
+        );
+        expect(approveSignagePlaylist).toHaveBeenCalledWith('playlist-1');
+        expect(dialog_ref.close).toHaveBeenCalledWith(true);
+    });
+
+    it('does not approve a version that changed after it was shown', async () => {
+        const fixture = await render();
+        vi.mocked(listSignagePlaylistMediaRevisions).mockResolvedValue([
+            new SignagePlaylistMedia({
+                id: 'newer-version',
+                items: ['media-4'],
+                updated_at: 3,
+            }),
+        ]);
+
+        await fixture.componentInstance.approve();
+        fixture.detectChanges();
+        await fixture.whenStable();
+
+        expect(approveSignagePlaylist).not.toHaveBeenCalled();
+        expect(dialog_ref.close).not.toHaveBeenCalled();
+        expect(notify_open).toHaveBeenCalledWith(
+            expect.stringContaining('The playlist changed'),
+            expect.anything(),
+            expect.anything(),
+        );
+        expect(fixture.componentInstance.playlist_versions()[0].id).toBe(
+            'newer-version',
         );
     });
 

@@ -1,9 +1,11 @@
 import { Component, effect, inject, input, signal } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { ActivatedRoute, Router } from '@angular/router';
+import { i18n, notifyWarn } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import { NavFooterComponent } from '../shared/nav-footer.component';
 import { NavSidebarComponent } from '../shared/nav-sidebar.component';
+import { SignageContextService } from '../signage-context.service';
 import { PlaylistActionsComponent } from './playlist-actions.component';
 import { PlaylistHeaderComponent } from './playlist-header.component';
 import { PlaylistItemDetailsComponent } from './playlist-item-details.component';
@@ -190,6 +192,7 @@ function parsePlaylistTab(value: string | null): 'items' | 'details' {
     ],
 })
 export class PlaylistsSectionComponent {
+    private readonly _context = inject(SignageContextService);
     private readonly _playlist_service = inject(SignagePlaylistService);
     private readonly _route = inject(ActivatedRoute);
     private readonly _router = inject(Router);
@@ -221,17 +224,19 @@ export class PlaylistsSectionComponent {
         effect(() => {
             const id = this.id();
             const list = this._playlists();
-            if (!list.length) return;
-            if (id) {
-                const match = list.find((p) => p.id === id);
-                if (!match && this._fetched_id !== id) {
-                    this._fetched_id = id;
-                    void this._playlist_service.loadPlaylist(id);
+            if (!id) {
+                if (this._route_resolved) {
+                    this._playlist_service.selected_playlist.set(null);
+                    this._playlist_service.selected_playlist_item.set(null);
+                    this._playlist_service.selected_playlist_item_index.set(
+                        null,
+                    );
                 }
-                if (
-                    match &&
-                    this._playlist_service.selected_playlist() !== match
-                ) {
+                return;
+            }
+            const match = list.find((p) => p.id === id);
+            if (match) {
+                if (this._playlist_service.selected_playlist() !== match) {
                     this._playlist_service.selected_playlist.set(match);
                     this._playlist_service.selected_playlist_item.set(null);
                     this._playlist_service.selected_playlist_item_index.set(
@@ -239,11 +244,22 @@ export class PlaylistsSectionComponent {
                     );
                 }
                 this._route_resolved = true;
-            } else if (this._route_resolved) {
-                this._playlist_service.selected_playlist.set(null);
-                this._playlist_service.selected_playlist_item.set(null);
-                this._playlist_service.selected_playlist_item_index.set(null);
+                return;
             }
+            // Wait for the first page, which usually holds the playlist,
+            // before fetching it on its own. The page can also be empty,
+            // e.g. for a search with no results.
+            if (
+                !this._context.canQueryLists() ||
+                this._playlist_service.playlists_loading()
+            ) {
+                return;
+            }
+            if (this._fetched_id !== id) {
+                this._fetched_id = id;
+                void this._loadLinkedPlaylist(id);
+            }
+            this._route_resolved = true;
         });
 
         // Sync selected media item from query param
@@ -263,6 +279,20 @@ export class PlaylistsSectionComponent {
                 matched_item ? matched_index : null,
             );
         });
+    }
+
+    /**
+     * Fetch a linked playlist that the loaded pages lack. When it cannot
+     * load, warn and clear the selection, so no other playlist shows under
+     * its link. Does nothing when the user has opened another link since.
+     */
+    private async _loadLinkedPlaylist(id: string) {
+        if (await this._playlist_service.loadPlaylist(id)) return;
+        if (this.id() !== id) return;
+        notifyWarn(i18n('SIGNAGE_MANAGER.PLAYLIST_NOT_FOUND'));
+        this._playlist_service.selected_playlist.set(null);
+        this._playlist_service.selected_playlist_item.set(null);
+        this._playlist_service.selected_playlist_item_index.set(null);
     }
 
     public deselectPlaylist() {

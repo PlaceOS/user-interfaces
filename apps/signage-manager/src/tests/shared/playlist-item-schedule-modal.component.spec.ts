@@ -322,7 +322,7 @@ describe('PlaylistItemScheduleModalComponent', () => {
         save.mockRejectedValue(new Error('nope'));
         const component = await createComponent();
 
-        await component.saveSchedule().catch(() => undefined);
+        await expect(component.saveSchedule()).resolves.toBeUndefined();
 
         expect(component.loading()).toBe(false);
         expect(dialog_ref.disableClose).toBe(false);
