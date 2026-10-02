@@ -5,6 +5,7 @@ import {
     linkedSignal,
     model,
     OnChanges,
+    OnDestroy,
     OnInit,
     output,
     signal,
@@ -23,12 +24,15 @@ import {
 } from '@placeos/components';
 import { MediaAnimation, SignagePlugin } from '@placeos/ts-client';
 import { DebugOverlayComponent } from './debug-overlay.component';
-import { MediaControlsComponent } from './media-controls.component';
+import {
+    MediaControlEvent,
+    MediaControlsComponent,
+} from './media-controls.component';
 import {
     findValidPlaylistIndex,
+    isMediaValid,
     mockTimeState,
     time,
-    validateMedia,
 } from './media-helpers';
 import { PlaylistDisplayComponent } from './playlist-display.component';
 import { MediaEvent } from './signage.service';
@@ -99,6 +103,7 @@ const URL_RETRY_DELAY = 1000;
                 ></video>
                 <iframe
                     #web_el_0
+                    sandbox="allow-scripts allow-same-origin allow-forms"
                     class="absolute top-0 left-0 hidden h-full w-full border-0"
                     (load)="onWebpageLoad(0)"
                 ></iframe>
@@ -110,6 +115,7 @@ const URL_RETRY_DELAY = 1000;
                         [play]="output_plugin_plays()[0]"
                         (loaded)="onPluginLoad(0)"
                         (statusChange)="onPluginStatus($event, 0)"
+                        (finished)="onPluginFinished(0)"
                         (plugin_interaction)="onPluginInteraction($event, 0)"
                         (plugin_error)="onPluginError($event, 0)"
                     />
@@ -144,6 +150,7 @@ const URL_RETRY_DELAY = 1000;
                 ></video>
                 <iframe
                     #web_el_1
+                    sandbox="allow-scripts allow-same-origin allow-forms"
                     class="absolute top-0 left-0 h-full w-full border-0"
                     (load)="onWebpageLoad(1)"
                 ></iframe>
@@ -155,6 +162,7 @@ const URL_RETRY_DELAY = 1000;
                         [play]="output_plugin_plays()[1]"
                         (loaded)="onPluginLoad(1)"
                         (statusChange)="onPluginStatus($event, 1)"
+                        (finished)="onPluginFinished(1)"
                         (plugin_interaction)="onPluginInteraction($event, 1)"
                         (plugin_error)="onPluginError($event, 1)"
                     />
@@ -275,7 +283,7 @@ const URL_RETRY_DELAY = 1000;
 })
 export class MediaPlayerComponent
     extends AsyncHandler
-    implements OnInit, OnChanges
+    implements OnInit, OnChanges, OnDestroy
 {
     public readonly playlist = input<MediaPlayerItem[]>([]);
     public readonly controls = input(false);
@@ -307,16 +315,12 @@ export class MediaPlayerComponent
     public readonly progress = signal(0);
     public readonly progress_start = signal(0);
     public readonly progress_duration = signal(0);
-    public readonly hold_over_item = signal(true);
     public readonly in_animation = signal(false);
     public readonly defer_reveal = signal(false);
     public readonly waiting_for_item = signal(false);
     public readonly active_output = signal<0 | 1>(0);
     public readonly pending_output = signal<0 | 1>(0);
 
-    public readonly active_plugin = signal<SignagePlugin>(null);
-    public readonly plugin_config = signal<PluginConfigPayload>(null);
-    public readonly plugin_play = signal(0);
     public readonly output_plugins = signal<[SignagePlugin, SignagePlugin]>([
         null,
         null,
@@ -327,6 +331,8 @@ export class MediaPlayerComponent
     public readonly output_plugin_plays = signal<[number, number]>([0, 0]);
 
     private _plugin_finished = false;
+    /** Whether the lone item held on screen has been credited with a pass */
+    private _held_pass_reported = false;
     private _deferred_reveal_item_id = '';
     private _deferred_reveal_resume = true;
     private _deferred_reveal_transition = false;
@@ -340,8 +346,17 @@ export class MediaPlayerComponent
     /** Increments on every item (re)display; scopes load-error handling so a
      * looping playlist keeps skipping a broken item rather than freezing on it */
     private _display_generation = 0;
-    /** Media item ids whose URL is currently being fetched */
-    private _url_fetch_in_flight = new Set<string>();
+    /**
+     * The URL request in flight per item id. A result is only kept if its
+     * request is still the current one, so a request for a source that has
+     * since been edited or removed cannot save a stale URL.
+     */
+    private _url_requests = new Map<string, symbol>();
+    /**
+     * A plugin that failed while preloaded. It is not preloaded again, and
+     * loads afresh when its turn comes.
+     */
+    private _failed_preload_id = '';
     /** Id of the item we are currently waiting on a URL for, and when we began */
     private _url_wait_item_id = '';
     private _url_wait_started = 0;
@@ -354,7 +369,12 @@ export class MediaPlayerComponent
     private _item_playlist: MediaPlayerItem[] = [];
     private _playlist_signature = '';
 
-    private _item_urls: Record<string, URL> = {};
+    /**
+     * Resolved URL per item id, in the form the browser reports it back. Null
+     * marks a resolution that failed and may be retried.
+     */
+    private _item_urls: Record<string, string | null> = {};
+    private _destroyed = false;
     private _item_start = 0;
     private _item_progress = 0;
     private _item_real_start = 0;
@@ -389,8 +409,6 @@ export class MediaPlayerComponent
         viewChild<ElementRef<HTMLIFrameElement>>('web_el_0');
     private readonly _web_element_1 =
         viewChild<ElementRef<HTMLIFrameElement>>('web_el_1');
-
-    public readonly validateMedia = (i) => validateMedia(i);
 
     private _container(output: 0 | 1 = this.active_output()) {
         return output === 0 ? this._container_0() : this._container_1();
@@ -465,6 +483,12 @@ export class MediaPlayerComponent
         );
     }
 
+    public override ngOnDestroy() {
+        this._destroyed = true;
+        for (const id of Object.keys(this._item_urls)) this._dropItemURL(id);
+        super.ngOnDestroy();
+    }
+
     /**
      * Check in with the watchdog whenever this player is showing what it
      * should be: an item it managed to load, or nothing because it is paused
@@ -496,36 +520,15 @@ export class MediaPlayerComponent
     }
 
     public ngOnChanges(changes: SimpleChanges) {
-        if (changes.playlist) {
-            const next_playlist = this.playlist() || [];
-            const playlist_signature =
-                this._getPlaylistSignature(next_playlist);
-            if (playlist_signature !== this._playlist_signature) {
-                const was_playing = this.state() === 'PLAYING';
-                const current_item = this.active_item;
-                this._playlist_signature = playlist_signature;
-                this._clearItemURLs();
-                this.progress.set(0);
-                if (was_playing && next_playlist.length) this.togglePause();
-                this._item_playlist = [...next_playlist];
-                const current_index = this._item_playlist.findIndex(
-                    (_) => _.id === current_item?.id,
-                );
-                this.hold_over_item.set(false);
-                const target_index = current_index >= 0 ? current_index : 0;
-                this.setPlaylistItem(target_index, was_playing);
-                this._validatePlaylist();
-            }
-        }
+        if (changes.playlist) this._applyPlaylist(this.playlist() || []);
         if (changes.animation_time) {
             document.documentElement.style.setProperty(
                 '--transition-duration',
                 `${this.animation_time() || 3000}ms`,
             );
         }
-        if (changes.muted) {
-            this._video_element().nativeElement.muted = !!this.muted();
-        }
+        // Keyed by the property name, not the `muted` alias
+        if (changes.mutedInput) this._applyMuted();
         if (changes.override) {
             if (this.override()) {
                 if (this.state() === 'PLAYING') this.togglePause();
@@ -552,7 +555,64 @@ export class MediaPlayerComponent
         this.muted.set(!this.muted());
         const muted = this.muted();
         this.mutedChange.emit(muted);
-        this._video_element().nativeElement.muted = muted;
+        this._applyMuted();
+    }
+
+    /** Apply the mute state to both outputs. Fast debug time stays muted. */
+    private _applyMuted() {
+        const { active, speed } = mockTimeState();
+        const fast = active && speed >= 4;
+        for (const output of [0, 1] as const) {
+            this._video_element(output).nativeElement.muted =
+                this.muted() || fast;
+        }
+    }
+
+    /**
+     * Take on a new playlist. Items still in it unchanged keep their URL and
+     * output. If the item on screen is one of them it plays on uninterrupted,
+     * and the new playlist continues after it.
+     */
+    private _applyPlaylist(next_playlist: MediaPlayerItem[]) {
+        const playlist_signature = this._getPlaylistSignature(next_playlist);
+        if (playlist_signature === this._playlist_signature) return;
+        this._playlist_signature = playlist_signature;
+        const old_signatures = new Map(
+            this._item_playlist.map((item) => [
+                item.id,
+                this._itemSignature(item),
+            ]),
+        );
+        const unchanged = new Set(
+            next_playlist
+                .filter(
+                    (item) =>
+                        old_signatures.get(item.id) ===
+                        this._itemSignature(item),
+                )
+                .map((item) => item.id),
+        );
+        const current_item = this.active_item;
+        if (current_item && unchanged.has(current_item.id)) {
+            this._dropItemState(unchanged);
+            this._item_playlist = [...next_playlist];
+            const index = this._item_playlist.findIndex(
+                (_) => _.id === current_item.id,
+            );
+            this.index.set(index);
+            this.indexChange.emit(index);
+        } else {
+            const was_playing = this.state() === 'PLAYING';
+            this._dropItemState(new Set());
+            this.progress.set(0);
+            if (was_playing && next_playlist.length) this.togglePause();
+            this._item_playlist = [...next_playlist];
+            const current_index = this._item_playlist.findIndex(
+                (_) => _.id === current_item?.id,
+            );
+            this.setPlaylistItem(Math.max(current_index, 0), was_playing);
+        }
+        this._validatePlaylist();
     }
 
     public togglePause() {
@@ -591,26 +651,12 @@ export class MediaPlayerComponent
 
     public nextItem() {
         if (this._shouldHoldSingleInteractiveItem(this.active_item)) return;
-        if (this.hold_over_item()) {
-            const item = this._item_playlist.shift();
-            if (this.progress() > 50 && this.isValidMedia(item)) {
-                this.event.emit({ type: 'media_count', ref_id: item.id });
-            }
-            this.setPlaylistItem(0);
-            this.hold_over_item.set(false);
-            return;
-        }
-        let next_index = this.index() + 1;
+        const index = this.index();
         const loop = this.loop();
-        if (loop === 'ONE') next_index = this.index();
-        else if (loop === 'NONE' && next_index === this._item_playlist.length) {
-            // Playlist has ended; still credit the final item before pausing.
-            const last_index = this.index();
-            const last_item = this._item_playlist[last_index];
-            if (this.progress() > 50 && this.isValidMedia(last_item)) {
-                this.event.emit({ type: 'media_count', ref_id: last_item.id });
-            }
-            this._emitPlaylistMetrics(last_index);
+        // Credit the item being left, and its playlist if it ends one
+        this._emitItemMetrics(index);
+        if (loop === 'NONE' && index + 1 === this._item_playlist.length) {
+            // Playlist has ended
             this.index.set(-1);
             this.state.set('PAUSED');
             this._item_start = 0;
@@ -620,16 +666,13 @@ export class MediaPlayerComponent
             this.progress_start.set(0);
             return;
         }
-        const new_index = this._normalisePlaylistIndex(next_index);
-        const old_item = this._item_playlist[this.index()];
-        if (this.progress() > 50 && this.isValidMedia(old_item)) {
-            this.event.emit({ type: 'media_count', ref_id: old_item.id });
-        }
-        this.setPlaylistItem(new_index);
+        this.setPlaylistItem(
+            this._normalisePlaylistIndex(loop === 'ONE' ? index : index + 1),
+        );
     }
 
     public isValidMedia(item: MediaPlayerItem): boolean {
-        return validateMedia(item) === '';
+        return isMediaValid(item);
     }
 
     /**
@@ -666,10 +709,6 @@ export class MediaPlayerComponent
     public toggleShuffle() {
         this.shuffle.set(!this.shuffle());
         const current_item = this.active_item;
-        if (this.hold_over_item()) {
-            this._item_playlist.shift();
-            this.hold_over_item.set(false);
-        }
         if (this.shuffle()) {
             shuffleArrayWithFirstItem(this._item_playlist, this.index());
             this.setPlaylistItem(0);
@@ -685,7 +724,7 @@ export class MediaPlayerComponent
         }
     }
 
-    public handleControlEvent(event: any) {
+    public handleControlEvent(event: MediaControlEvent) {
         if (event === 'SHUFFLE') this.toggleShuffle();
         else if (event === 'PLAY') this.togglePause();
         else if (event === 'PAUSE') this.togglePause();
@@ -768,7 +807,13 @@ export class MediaPlayerComponent
             item.plugin?.playback_type === 'playsthrough'
         ) {
             if (this._plugin_finished) {
-                this.nextItem();
+                // Finishing is a full play, however early it came
+                this.progress.set(100);
+                if (this._shouldHoldSingleInteractiveItem(item)) {
+                    this._replayPlugin(item);
+                } else {
+                    this.nextItem();
+                }
             } else if (now > this._item_start + this._playThroughLimit(item)) {
                 this._handleOverrunPlugin(item);
             }
@@ -779,6 +824,7 @@ export class MediaPlayerComponent
             if (this._shouldHoldSingleInteractiveItem(item)) {
                 this.progress.set(100);
                 this.duration.set(Math.floor(playback_duration / 1000));
+                this._reportHeldPass();
                 return;
             }
             // Reaching full duration means the current item displayed fine, so
@@ -805,7 +851,6 @@ export class MediaPlayerComponent
         const item = this.active_item;
 
         const old_item = this._item_playlist[old_index];
-        this._emitPlaylistMetrics(old_index);
         if (!item) return;
         if (!this.isValidMedia(item)) {
             if (old_index !== index) this.nextItem();
@@ -834,7 +879,6 @@ export class MediaPlayerComponent
         } else {
             const ready = this._showMediaItem(
                 item,
-                index,
                 output,
                 resume_if_paused,
                 should_transition,
@@ -943,7 +987,18 @@ export class MediaPlayerComponent
         const output = this._item_output.get(item.id) ?? this.active_output();
         const value = time();
         this._setOutputPluginPlay(output, value);
-        this.plugin_play.set(value);
+    }
+
+    /**
+     * Start a lone play-through plugin over once it finishes. Nothing else is
+     * waiting for the screen, so it is played again in place rather than left
+     * on its final frame.
+     */
+    private _replayPlugin(item: MediaPlayerItem) {
+        this._emitItemMetrics(this.index());
+        this._plugin_finished = false;
+        this._resetPlayback();
+        this._playPreparedPlugin(item);
     }
 
     private _startDisplayAttempt(item: MediaPlayerItem, output: 0 | 1) {
@@ -967,6 +1022,8 @@ export class MediaPlayerComponent
         this.progress.set(0);
         this.duration.set(0);
         this._plugin_finished = false;
+        this._held_pass_reported = false;
+        if (item.id === this._failed_preload_id) this._failed_preload_id = '';
         this._last_video_speed.delete(output);
     }
 
@@ -993,30 +1050,28 @@ export class MediaPlayerComponent
 
     private _showMediaItem(
         item: MediaPlayerItem,
-        index: number,
         output: 0 | 1,
         resume_if_paused: boolean,
         should_transition: boolean,
     ) {
         const url = this.url(item.id);
         if (!url) {
-            return this._handleMissingMediaURL(item, index, resume_if_paused);
+            return this._handleMissingMediaURL(item, resume_if_paused);
         }
         this._url_wait_item_id = '';
         if (!this._shouldDeferReveal(item)) this.waiting_for_item.set(false);
         const active_el = this._activeMediaElement(item, output);
-        const url_string = url.toString();
         const keep_webpage_loaded =
             item.type === 'webpage' &&
             (this._shouldHoldSingleWebpage(item) ||
                 this._ready_output_items.has(this._outputKey(output, item))) &&
-            active_el.src === url_string;
+            active_el.src === url;
         this._item_output.set(item.id, output);
         if (keep_webpage_loaded) {
             this._web_waiting_item_id = '';
             this._finishDeferredReveal(item, 0);
         } else {
-            active_el.src = url_string;
+            active_el.src = url;
         }
         active_el.classList.remove('hidden');
         if (item.type === 'webpage' && !keep_webpage_loaded) {
@@ -1028,19 +1083,20 @@ export class MediaPlayerComponent
 
     private _handleMissingMediaURL(
         item: MediaPlayerItem,
-        index: number,
         resume_if_paused: boolean,
     ) {
         const fetched = this._item_urls[item.id] !== undefined;
-        const fetching = this._url_fetch_in_flight.has(item.id);
+        const fetching = this._url_requests.has(item.id);
         const still_loading = item.isLoading?.() ?? false;
         if (
             this._shouldWaitForMediaURL(item, fetched, fetching, still_loading)
         ) {
             this._ensureItemURL(item);
             this.waiting_for_item.set(true);
+            // Retry whatever is current then, as a playlist change may have
+            // moved this item to another index
             this.timeout('wait-for-url', () =>
-                this.setPlaylistItem(index, resume_if_paused),
+                this.setPlaylistItem(this.index(), resume_if_paused),
             );
             return false;
         }
@@ -1099,7 +1155,7 @@ export class MediaPlayerComponent
                 log(
                     'MediaPlayer',
                     `Webpage "${item.name}" did not load in time; continuing.`,
-                    [this.url(item.id)?.toString()],
+                    [this.url(item.id)],
                     'warn',
                 );
                 // Shown as far as this player can tell; a page the browser
@@ -1173,12 +1229,20 @@ export class MediaPlayerComponent
         if (status !== 'unknown') {
             this._responded_output_items.add(this._outputKey(output, item));
         }
-        if (status === 'ready') {
-            this._handlePluginReady(item, output);
-        } else if (status === 'finished' && this.active_item?.id === item.id) {
-            // A preloaded plugin finishing must not end the one on screen
-            this._plugin_finished = true;
-        }
+        if (status === 'ready') this._handlePluginReady(item, output);
+    }
+
+    /**
+     * Called for every `finished` message, not only on a status change, so a
+     * replayed plugin can finish again.
+     */
+    public onPluginFinished(output: 0 | 1 = this._activeItemOutput()) {
+        const item = this.active_item;
+        // A preloaded plugin finishing must not end the one on screen
+        if (item?.type !== 'plugin') return;
+        if (this._item_output.get(item.id) !== output) return;
+        log('MediaPlayer', 'Plugin finished', [item.name]);
+        this._plugin_finished = true;
     }
 
     public onPluginLoad(output: 0 | 1 = this.pending_output()) {
@@ -1206,19 +1270,23 @@ export class MediaPlayerComponent
         error: PluginErrorPayload,
         output: 0 | 1 = this._activeItemOutput(),
     ) {
+        log('MediaPlayer', `Plugin error: ${error?.message}`, [error], 'error');
+        if (!error?.fatal) return;
         const item = this.active_item;
         if (
             item?.type === 'plugin' &&
-            this._item_output.get(item.id) !== output
-        )
-            return;
-        log('MediaPlayer', `Plugin error: ${error.message}`, [error], 'error');
-        if (!error.fatal) return;
-        if (item?.type === 'plugin') {
+            this._item_output.get(item.id) === output
+        ) {
             this._failPluginItem(item, output);
-        } else {
-            this.nextItem();
+            return;
         }
+        // A plugin preloaded for later. Remove it without touching the item
+        // on screen, so it loads afresh when its turn comes.
+        const preloaded = this._output_items[output];
+        if (preloaded?.type !== 'plugin') return;
+        if (output === this.active_output()) return;
+        this._failed_preload_id = preloaded.id;
+        this._clearOutput(output);
     }
 
     /**
@@ -1252,7 +1320,9 @@ export class MediaPlayerComponent
         }
         // Already removed from screen and waiting for its retry
         const output = this._item_output.get(item.id);
-        if (output === undefined || this._pluginResponded(item, output)) {
+        if (output === undefined) return;
+        if (this._pluginResponded(item, output)) {
+            this._reportHeldPass();
             return;
         }
         log(
@@ -1268,8 +1338,10 @@ export class MediaPlayerComponent
         log('MediaPlayer', `Showing plugin: ${item.name}`, [item.plugin?.name]);
         this._item_output.set(item.id, output);
         this._setOutputPlugin(output, item.plugin);
-        this.active_plugin.set(item.plugin);
-        this._waitForPluginLoad(item, output);
+        // A plugin preloaded on this output may already have reported ready
+        if (!this._ready_output_items.has(this._outputKey(output, item))) {
+            this._waitForPluginLoad(item, output);
+        }
     }
 
     private _waitForPluginLoad(item: MediaPlayerItem, output: 0 | 1) {
@@ -1315,7 +1387,6 @@ export class MediaPlayerComponent
         this._ready_output_items.add(this._outputKey(output, item));
         if (this.active_item?.id !== item.id) return;
         this._markShown(item);
-        this.plugin_config.set(config);
         if (
             this._deferred_reveal_item_id === item.id &&
             this.pending_output() === output
@@ -1417,15 +1488,19 @@ export class MediaPlayerComponent
         log(
             'MediaPlayer',
             `Failed to load ${item.type} media "${item.name}"`,
-            [this.url(item.id)?.toString()],
+            [this.url(item.id)],
             'warn',
         );
         this._markNotShown(item);
         this._skipFailedMedia(this._item_start);
     }
 
+    /**
+     * Identifies the current display attempt. Keyed by item rather than index,
+     * as a playlist change can move the item on screen to another index.
+     */
     private _currentMediaCycle() {
-        return `${this.index()}:${this._display_generation}`;
+        return `${this.active_item?.id || ''}:${this._display_generation}`;
     }
 
     private _skipFailedMedia(wait_started = time()) {
@@ -1435,11 +1510,7 @@ export class MediaPlayerComponent
         this._consecutive_load_errors++;
         // Drop the cached URL so a transient failure can be re-fetched on retry.
         const failed = this.active_item;
-        if (failed) {
-            const url = this._item_urls[failed.id];
-            if (url) URL.revokeObjectURL(url.toString());
-            delete this._item_urls[failed.id];
-        }
+        if (failed) this._dropItemURL(failed.id);
         // If every playable item has failed to load, stop cycling (which would
         // peg the CPU) and retry the whole playlist after a short delay.
         if (valid_count <= 1 || this._consecutive_load_errors >= valid_count) {
@@ -1481,11 +1552,8 @@ export class MediaPlayerComponent
             this._ensureItemURL(item);
         }
         // Revoke old URLs
-        for (const key in this._item_urls) {
-            if (item_list.find((_) => _?.id === key)) continue;
-            const url = this._item_urls[key];
-            if (url) URL.revokeObjectURL(url.toString());
-            delete this._item_urls[key];
+        for (const id of Object.keys(this._item_urls)) {
+            if (!item_list.some((_) => _?.id === id)) this._dropItemURL(id);
         }
         this._preloadUpcomingInteractiveContent(current_index);
     }
@@ -1524,6 +1592,7 @@ export class MediaPlayerComponent
             return;
         }
         if (this._output_items[output]?.id === item.id) return;
+        if (item.id === this._failed_preload_id) return;
         this._clearOutput(output);
         this._output_items[output] = item;
         this._item_output.set(item.id, output);
@@ -1532,7 +1601,7 @@ export class MediaPlayerComponent
             const url = this.url(item.id);
             if (!url) return;
             const web_el = this._web_element(output).nativeElement;
-            web_el.src = url.toString();
+            web_el.src = url;
             web_el.classList.remove('hidden');
             return;
         }
@@ -1573,19 +1642,23 @@ export class MediaPlayerComponent
         // A truthy entry is already a usable URL; '' / null mark a previous
         // failure that we retry, undefined means we have not fetched it yet.
         if (this._item_urls[item.id]) return;
-        if (this._url_fetch_in_flight.has(item.id)) return;
+        if (this._url_requests.has(item.id)) return;
         // Failures are retried, but not on every 50ms tick
         if ((this._url_retry_after.get(item.id) || 0) > Date.now()) return;
         const id = item.id;
-        this._url_fetch_in_flight.add(id);
-        let settled = false;
+        const request = Symbol(id);
+        this._url_requests.set(id, request);
         const settle = (resolved: string | URL | null) => {
-            if (settled) return;
-            settled = true;
-            this.clearTimeout(`url-fetch-${id}`);
-            this._url_fetch_in_flight.delete(id);
-            this._item_urls[id] = (resolved ?? null) as any;
-            if (!resolved) {
+            const url = this._normaliseURL(resolved);
+            // Timed out, dropped by a playlist edit, or the player is gone.
+            // Release it so its file is freed.
+            if (this._url_requests.get(id) !== request || this._destroyed) {
+                if (url) URL.revokeObjectURL(url);
+                return;
+            }
+            this._cancelURLRequest(id);
+            this._item_urls[id] = url;
+            if (!url) {
                 this._url_retry_after.set(id, Date.now() + URL_RETRY_DELAY);
             } else {
                 this._url_retry_after.delete(id);
@@ -1597,6 +1670,32 @@ export class MediaPlayerComponent
         // A hung getURL() must not pin the in-flight flag, or the item could
         // never be re-fetched on later loops.
         this.timeout(`url-fetch-${id}`, () => settle(null), URL_FETCH_TIMEOUT);
+    }
+
+    /**
+     * The URL in the form an element reports back from `src`, so the two can
+     * be compared. Null when there is no URL.
+     */
+    private _normaliseURL(url: string | URL | null) {
+        if (!url) return null;
+        try {
+            return new URL(url, document.baseURI).href;
+        } catch {
+            return `${url}`;
+        }
+    }
+
+    /** Stop waiting on an item's URL request. A late result is released. */
+    private _cancelURLRequest(id: string) {
+        this.clearTimeout(`url-fetch-${id}`);
+        this._url_requests.delete(id);
+    }
+
+    /** Forget the URL resolved for an item, releasing it if it is a blob */
+    private _dropItemURL(id: string) {
+        const url = this._item_urls[id];
+        if (url) URL.revokeObjectURL(url);
+        delete this._item_urls[id];
     }
 
     private _transition(resume_on_end = true) {
@@ -1737,6 +1836,26 @@ export class MediaPlayerComponent
         return this._item_playlist.some((item) => this.isValidMedia(item));
     }
 
+    /**
+     * Credit a lone item held on screen with one pass, once, when it has run
+     * its time. Without this a single-pass override that holds its only item
+     * would never report `playlist_through`, and so would never end.
+     */
+    private _reportHeldPass() {
+        if (this._held_pass_reported) return;
+        this._held_pass_reported = true;
+        this._emitItemMetrics(this.index());
+    }
+
+    /** Credit the item at `idx` as it is left, and its playlist if it ends one */
+    private _emitItemMetrics(idx: number) {
+        const item = this._item_playlist[idx];
+        if (this.progress() > 50 && this.isValidMedia(item)) {
+            this.event.emit({ type: 'media_count', ref_id: item.id });
+        }
+        this._emitPlaylistMetrics(idx);
+    }
+
     private _emitPlaylistMetrics(idx: number) {
         const item = this._item_playlist[idx];
         if (!this._isLastValidPlaylistItem(idx) || !item?.playlist) return;
@@ -1764,23 +1883,26 @@ export class MediaPlayerComponent
     }
 
     private _getPlaylistSignature(playlist: MediaPlayerItem[]) {
-        return JSON.stringify(
-            playlist.map((item) => ({
-                id: item.id,
-                name: item.name,
-                playlist: item.playlist,
-                playlist_name: item.playlist_name,
-                type: item.type,
-                url: item.url,
-                animation: item.animation,
-                start_time: item.start_time,
-                duration: item.duration,
-                valid_from: item.valid_from,
-                valid_until: item.valid_until,
-                plugin_id: item.plugin?.id,
-                plugin_params: item.plugin_params,
-            })),
-        );
+        return playlist.map((item) => this._itemSignature(item)).join('\n');
+    }
+
+    /** Everything about an item that changes what or how it plays */
+    private _itemSignature(item: MediaPlayerItem) {
+        return JSON.stringify({
+            id: item.id,
+            name: item.name,
+            playlist: item.playlist,
+            playlist_name: item.playlist_name,
+            type: item.type,
+            url: item.url,
+            animation: item.animation,
+            start_time: item.start_time,
+            duration: item.duration,
+            valid_from: item.valid_from,
+            valid_until: item.valid_until,
+            plugin_id: item.plugin?.id,
+            plugin_params: item.plugin_params,
+        });
     }
 
     private _normalisePlaylistIndex(index: number) {
@@ -1788,19 +1910,27 @@ export class MediaPlayerComponent
         return length ? (index + length) % length : -1;
     }
 
-    private _clearItemURLs() {
-        for (const key in this._item_urls) {
-            const url = this._item_urls[key];
-            if (url) URL.revokeObjectURL(url.toString());
-            delete this._item_urls[key];
+    /** Forget the URL and prepared output of every item not in `keep` */
+    private _dropItemState(keep: Set<string>) {
+        for (const id of Object.keys(this._item_urls)) {
+            if (!keep.has(id)) this._dropItemURL(id);
         }
-        this._url_retry_after.clear();
-        this._shown_item_id = '';
-        this._item_output.clear();
-        this._output_items = [null, null];
-        this._ready_output_items.clear();
-        this._responded_output_items.clear();
-        this._setOutputPlugin(0, null);
-        this._setOutputPlugin(1, null);
+        for (const id of [...this._url_requests.keys()]) {
+            if (!keep.has(id)) this._cancelURLRequest(id);
+        }
+        for (const id of [...this._url_retry_after.keys()]) {
+            if (!keep.has(id)) this._url_retry_after.delete(id);
+        }
+        if (!keep.has(this._shown_item_id)) this._shown_item_id = '';
+        if (!keep.has(this._failed_preload_id)) this._failed_preload_id = '';
+        for (const output of [0, 1] as const) {
+            const item = this._output_items[output];
+            if (!item || keep.has(item.id)) continue;
+            this._item_output.delete(item.id);
+            this._ready_output_items.delete(this._outputKey(output, item));
+            this._responded_output_items.delete(this._outputKey(output, item));
+            this._output_items[output] = null;
+            this._setOutputPlugin(output, null);
+        }
     }
 }

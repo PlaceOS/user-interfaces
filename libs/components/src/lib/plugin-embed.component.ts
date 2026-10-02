@@ -143,6 +143,11 @@ export class PluginEmbedComponent
         'unknown',
     );
     public readonly loaded = output<void>();
+    /**
+     * Emits for every `finished` message. `statusChange` only emits when the
+     * status changes, so it misses a plugin that finishes again after a replay.
+     */
+    public readonly finished = output<void>();
     public readonly plugin_error = output<PluginErrorPayload>();
     public readonly plugin_interaction = output<PluginInteractionPayload>();
     private readonly _plugin_el =
@@ -297,6 +302,9 @@ export class PluginEmbedComponent
                 break;
             case 'error':
                 this.plugin_error.emit(msg.payload);
+                break;
+            case 'finished':
+                this.finished.emit();
                 break;
         }
     }

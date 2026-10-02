@@ -1,4 +1,8 @@
-import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
+import {
+    createComponentFactory,
+    createHostFactory,
+    Spectator,
+} from '@ngneat/spectator/vitest';
 import { MediaAnimation, SignagePlugin } from '@placeos/ts-client';
 
 import { setMockTime } from '../app/media-helpers';
@@ -118,7 +122,6 @@ describe('MediaPlayerComponent', () => {
     it('should pause playback when loop mode is NONE and the playlist ends', () => {
         load_playlist([create_item('media-1')]);
         spectator.component.index.set(0);
-        spectator.component.hold_over_item.set(false);
         spectator.component.loop.set('NONE');
         spectator.component.state.set('PLAYING');
 
@@ -131,7 +134,6 @@ describe('MediaPlayerComponent', () => {
     it('should not transition when looping the current item to itself', () => {
         load_playlist([create_item('media-1'), create_item('media-2')]);
         spectator.component.index.set(0);
-        spectator.component.hold_over_item.set(false);
         spectator.component.loop.set('ONE');
         const transition_spy = vi.spyOn(
             spectator.component as any,
@@ -184,13 +186,11 @@ describe('MediaPlayerComponent', () => {
         load_playlist(items);
         spectator.component.index.set(1);
         spectator.component.progress.set(60);
-        spectator.component.hold_over_item.set(false);
 
         load_playlist(items.map((item) => ({ ...item })));
 
         expect(spectator.component.index()).toBe(1);
         expect(spectator.component.progress()).toBe(60);
-        expect(spectator.component.hold_over_item()).toBe(false);
         expect(spectator.component.playlist_items.map((_) => _.id)).toEqual([
             'media-1',
             'media-2',
@@ -258,7 +258,7 @@ describe('MediaPlayerComponent', () => {
         spectator.component.index.set(0);
         spectator.component.progress.set(60);
         spectator.component['_item_urls'] = {
-            'media-1': 'blob:old-url' as any,
+            'media-1': 'blob:old-url',
         };
 
         load_playlist([create_item('media-1', { url: 'new-url' })]);
@@ -274,7 +274,6 @@ describe('MediaPlayerComponent', () => {
             create_item('media-3'),
         ]);
         spectator.component.index.set(0);
-        spectator.component.hold_over_item.set(false);
 
         await spectator.component.previousItem();
 
@@ -293,7 +292,7 @@ describe('MediaPlayerComponent', () => {
         spectator.component.index.set(0);
         spectator.component.progress.set(75);
 
-        await spectator.component.setPlaylistItem(1);
+        spectator.component.nextItem();
 
         expect(event_spy).toHaveBeenCalledWith({
             type: 'playlist_count',
@@ -313,7 +312,6 @@ describe('MediaPlayerComponent', () => {
         load_playlist([item]);
         spectator.component.index.set(0);
         spectator.component.state.set('PLAYING');
-        spectator.component.hold_over_item.set(false);
         spectator.component['_item_start'] = 1_000;
         const next_item_spy = vi.spyOn(spectator.component, 'nextItem');
 
@@ -329,7 +327,6 @@ describe('MediaPlayerComponent', () => {
         load_playlist([item]);
         spectator.component.index.set(0);
         spectator.component.state.set('PLAYING');
-        spectator.component.hold_over_item.set(false);
         spectator.component['_item_start'] = 1_000;
 
         spectator.component['_updateItem']();
@@ -349,7 +346,6 @@ describe('MediaPlayerComponent', () => {
         spectator.component.index.set(0);
         spectator.component.state.set('PLAYING');
         spectator.component.muted.set(false);
-        spectator.component.hold_over_item.set(false);
         spectator.component['_item_start'] = 1_000;
 
         spectator.component['_updateItem']();
@@ -366,7 +362,6 @@ describe('MediaPlayerComponent', () => {
         load_playlist([item]);
         spectator.component.index.set(0);
         spectator.component.state.set('PLAYING');
-        spectator.component.hold_over_item.set(false);
         spectator.component['_item_start'] = 1_000;
 
         spectator.component['_updateItem']();
@@ -407,7 +402,7 @@ describe('MediaPlayerComponent', () => {
         spectator.component.index.set(0);
         spectator.component.progress.set(75);
 
-        await spectator.component.setPlaylistItem(1);
+        spectator.component.nextItem();
 
         expect(event_spy).toHaveBeenCalledWith({
             type: 'playlist_count',
@@ -429,7 +424,7 @@ describe('MediaPlayerComponent', () => {
         spectator.component.index.set(1);
         spectator.component.progress.set(75);
 
-        await spectator.component.setPlaylistItem(0);
+        spectator.component.nextItem();
 
         expect(event_spy).toHaveBeenCalledWith({
             type: 'playlist_count',
@@ -447,7 +442,7 @@ describe('MediaPlayerComponent', () => {
         spectator.component.index.set(0);
         spectator.component.progress.set(75);
 
-        await spectator.component.setPlaylistItem(0);
+        spectator.component.nextItem();
 
         expect(event_spy).toHaveBeenCalledWith({
             type: 'playlist_count',
@@ -467,7 +462,6 @@ describe('MediaPlayerComponent', () => {
         ];
         load_playlist(items);
         spectator.component.index.set(1);
-        spectator.component.hold_over_item.set(false);
         spectator.component.loop.set('NONE');
         spectator.component.state.set('PLAYING');
         spectator.component.progress.set(75);
@@ -498,7 +492,6 @@ describe('MediaPlayerComponent', () => {
             }),
         ]);
         spectator.component.index.set(0);
-        spectator.component.hold_over_item.set(false);
 
         await spectator.component.setPlaylistItem(1);
 
@@ -513,7 +506,6 @@ describe('MediaPlayerComponent', () => {
             }),
         ]);
         spectator.component.index.set(0);
-        spectator.component.hold_over_item.set(false);
         const transition_spy = vi.spyOn(
             spectator.component as any,
             '_transition',
@@ -532,7 +524,6 @@ describe('MediaPlayerComponent', () => {
         });
         load_playlist([item]);
         spectator.component.index.set(0);
-        spectator.component.hold_over_item.set(false);
         const set_item_spy = vi.spyOn(spectator.component, 'setPlaylistItem');
         const transition_spy = vi.spyOn(
             spectator.component as any,
@@ -558,7 +549,6 @@ describe('MediaPlayerComponent', () => {
         });
         load_playlist([item]);
         spectator.component.index.set(0);
-        spectator.component.hold_over_item.set(false);
         const set_item_spy = vi.spyOn(spectator.component, 'setPlaylistItem');
         const transition_spy = vi.spyOn(
             spectator.component as any,
@@ -658,11 +648,10 @@ describe('MediaPlayerComponent', () => {
         ];
         load_playlist(items);
         spectator.component['_item_urls'] = {
-            'media-1': 'blob:media-1' as any,
-            'webpage-1': 'blob:webpage-1' as any,
+            'media-1': 'blob:media-1',
+            'webpage-1': 'blob:webpage-1',
         };
         spectator.component.index.set(0);
-        spectator.component.hold_over_item.set(false);
         spectator.component.state.set('PLAYING');
         spectator.component['clearTimeout']('wait-for-url');
         const transition_spy = vi.spyOn(
@@ -706,8 +695,8 @@ describe('MediaPlayerComponent', () => {
         spectator.component['_item_start'] = Date.now() - 4_000;
         spectator.component['_item_real_start'] = Date.now() - 4_000;
         spectator.component['_item_urls'] = {
-            'webpage-1': 'blob:webpage-1' as any,
-            'webpage-2': 'blob:webpage-2' as any,
+            'webpage-1': 'blob:webpage-1',
+            'webpage-2': 'blob:webpage-2',
         };
 
         spectator.component['_processURLs']();
@@ -739,8 +728,8 @@ describe('MediaPlayerComponent', () => {
         spectator.component['_item_start'] = -2_000;
         spectator.component['_item_real_start'] = 250;
         spectator.component['_item_urls'] = {
-            'webpage-1': 'blob:webpage-1' as any,
-            'webpage-2': 'blob:webpage-2' as any,
+            'webpage-1': 'blob:webpage-1',
+            'webpage-2': 'blob:webpage-2',
         };
 
         spectator.component['_processURLs']();
@@ -771,8 +760,8 @@ describe('MediaPlayerComponent', () => {
         spectator.component['_item_start'] = Date.now() - 6_000;
         spectator.component['_item_real_start'] = Date.now() - 6_000;
         spectator.component['_item_urls'] = {
-            'webpage-1': 'blob:webpage-1' as any,
-            'webpage-2': 'blob:webpage-2' as any,
+            'webpage-1': 'blob:webpage-1',
+            'webpage-2': 'blob:webpage-2',
         };
 
         spectator.component['_processURLs']();
@@ -792,12 +781,11 @@ describe('MediaPlayerComponent', () => {
         ];
         load_playlist(items);
         spectator.component['_item_urls'] = {
-            'media-1': 'blob:media-1' as any,
-            'webpage-1': 'blob:webpage-1' as any,
-            'webpage-2': 'blob:webpage-2' as any,
+            'media-1': 'blob:media-1',
+            'webpage-1': 'blob:webpage-1',
+            'webpage-2': 'blob:webpage-2',
         };
         spectator.component.index.set(0);
-        spectator.component.hold_over_item.set(false);
         spectator.component.state.set('PLAYING');
         spectator.component['clearTimeout']('wait-for-url');
 
@@ -839,8 +827,8 @@ describe('MediaPlayerComponent', () => {
         spectator.component['_item_start'] = Date.now() - 6_000;
         spectator.component['_item_real_start'] = Date.now() - 6_000;
         spectator.component['_item_urls'] = {
-            'webpage-1': 'blob:webpage-1' as any,
-            'webpage-2': 'blob:webpage-2' as any,
+            'webpage-1': 'blob:webpage-1',
+            'webpage-2': 'blob:webpage-2',
         };
 
         spectator.component['_processURLs']();
@@ -1012,7 +1000,6 @@ describe('MediaPlayerComponent', () => {
     it('should pause cleanly if replaying a looping video is blocked', async () => {
         load_playlist([create_item('video-1', { type: 'video' })]);
         spectator.component.index.set(0);
-        spectator.component.hold_over_item.set(false);
         spectator.component.loop.set('ONE');
         const next_item_spy = vi.spyOn(spectator.component, 'nextItem');
         Object.defineProperty(HTMLMediaElement.prototype, 'play', {
@@ -1038,22 +1025,21 @@ describe('MediaPlayerComponent', () => {
         });
         load_playlist([plugin_item]);
         spectator.component.index.set(0);
-        spectator.component.active_plugin.set(plugin_item.plugin);
 
         spectator.component.onPluginStatus('ready');
 
-        expect(spectator.component.plugin_config()).toEqual({
+        expect(spectator.component.output_plugin_configs()[0]).toEqual({
             instance_id: 'plugin-1',
             config: { theme: 'dark' },
             timing: { scheduled_duration_ms: 20000 },
         });
         expect(spectator.component.defer_reveal()).toBe(true);
-        expect(spectator.component.plugin_play()).toBe(0);
+        expect(spectator.component.output_plugin_plays()[0]).toBe(0);
 
         vi.advanceTimersByTime(2000);
         vi.advanceTimersToNextFrame();
         expect(spectator.component.defer_reveal()).toBe(false);
-        expect(spectator.component.plugin_play()).toBeGreaterThan(0);
+        expect(spectator.component.output_plugin_plays()[0]).toBeGreaterThan(0);
         vi.useRealTimers();
     });
 
@@ -1072,7 +1058,7 @@ describe('MediaPlayerComponent', () => {
 
         spectator.component.onPluginLoad();
 
-        expect(spectator.component.plugin_config()).toEqual({
+        expect(spectator.component.output_plugin_configs()[0]).toEqual({
             instance_id: 'plugin-1',
             config: { theme: 'dark' },
             timing: { scheduled_duration_ms: 20000 },
@@ -1081,7 +1067,7 @@ describe('MediaPlayerComponent', () => {
         vi.advanceTimersByTime(2000);
         vi.advanceTimersToNextFrame();
         expect(spectator.component.defer_reveal()).toBe(false);
-        expect(spectator.component.plugin_play()).toBeGreaterThan(0);
+        expect(spectator.component.output_plugin_plays()[0]).toBeGreaterThan(0);
         vi.useRealTimers();
     });
 
@@ -1104,7 +1090,7 @@ describe('MediaPlayerComponent', () => {
 
         vi.advanceTimersByTime(15_000);
 
-        expect(spectator.component.plugin_config()).toEqual({
+        expect(spectator.component.output_plugin_configs()[0]).toEqual({
             instance_id: 'plugin-1',
             config: { theme: 'dark' },
             timing: { scheduled_duration_ms: 20000 },
@@ -1113,7 +1099,7 @@ describe('MediaPlayerComponent', () => {
         vi.advanceTimersByTime(2000);
         vi.advanceTimersToNextFrame();
         expect(spectator.component.defer_reveal()).toBe(false);
-        expect(spectator.component.plugin_play()).toBeGreaterThan(0);
+        expect(spectator.component.output_plugin_plays()[0]).toBeGreaterThan(0);
         vi.useRealTimers();
     });
 
@@ -1239,7 +1225,7 @@ describe('MediaPlayerComponent', () => {
             spectator.component['_updateItem']();
             expect(next_item_spy).not.toHaveBeenCalled();
 
-            spectator.component.onPluginStatus('finished', output);
+            spectator.component.onPluginFinished(output);
             spectator.component['_updateItem']();
             expect(next_item_spy).toHaveBeenCalled();
         });
@@ -1356,8 +1342,8 @@ describe('MediaPlayerComponent', () => {
         const image_item = create_item('image-1');
         load_playlist([web_item, image_item]);
         spectator.component['_item_urls'] = {
-            'webpage-1': 'https://example.com/page' as any,
-            'image-1': 'blob:image-1' as any,
+            'webpage-1': 'https://example.com/page',
+            'image-1': 'blob:image-1',
         };
 
         spectator.component.setPlaylistItem(0);
@@ -1427,7 +1413,7 @@ describe('MediaPlayerComponent', () => {
                 },
             );
         spectator.component['_item_urls'] = {
-            'bad-1': 'blob:bad-1' as any,
+            'bad-1': 'blob:bad-1',
         };
 
         // Land on the broken item and fail during its first second.
@@ -1448,7 +1434,7 @@ describe('MediaPlayerComponent', () => {
         next_item_spy.mockClear();
         skip_callback = () => undefined;
         spectator.component['_item_urls'] = {
-            'bad-1': 'blob:bad-1' as any,
+            'bad-1': 'blob:bad-1',
         };
         spectator.component.setPlaylistItem(1);
         spectator.component['_item_start'] = 10_000;
@@ -1470,7 +1456,7 @@ describe('MediaPlayerComponent', () => {
             .spyOn(spectator.component as any, 'timeout')
             .mockImplementation(() => undefined);
         spectator.component['_item_urls'] = {
-            'bad-1': 'blob:bad-1' as any,
+            'bad-1': 'blob:bad-1',
         };
 
         spectator.component.setPlaylistItem(1);
@@ -1500,7 +1486,7 @@ describe('MediaPlayerComponent', () => {
             .mockImplementation(() => undefined);
 
         // The fetch for "a" has been in-flight far longer than the wait cap.
-        spectator.component['_url_fetch_in_flight'].add('a');
+        spectator.component['_url_requests'].set('a', Symbol('a'));
         spectator.component['_url_wait_item_id'] = 'a';
         spectator.component['_url_wait_started'] = 0;
         next_item_spy.mockClear();
@@ -1627,7 +1613,7 @@ describe('MediaPlayerComponent', () => {
         const show_item = (id: string) => {
             load_playlist([create_item(id)]);
             spectator.component['_item_urls'] = {
-                [id]: `blob:${id}` as any,
+                [id]: `blob:${id}`,
             };
             spectator.component.setPlaylistItem(0);
             spectator.component.state.set('PLAYING');
@@ -1675,7 +1661,7 @@ describe('MediaPlayerComponent', () => {
                 create_item('a', { getURL: async () => '' }),
                 create_item('b'),
             ]);
-            spectator.component['_item_urls'] = { a: 'blob:a' as any };
+            spectator.component['_item_urls'] = { a: 'blob:a' };
             spectator.component.setPlaylistItem(0);
             spectator.component.onMediaLoadSuccess();
             expect(checks_in()).toBe(true);
@@ -1685,7 +1671,7 @@ describe('MediaPlayerComponent', () => {
             );
 
             // The URL is gone and the wait for a new one has run out
-            spectator.component['_item_urls'] = { a: null as any };
+            spectator.component['_item_urls'] = { a: null };
             spectator.component['_url_wait_item_id'] = 'a';
             spectator.component['_url_wait_started'] = 0;
             spectator.component.setPlaylistItem(0);
@@ -1713,5 +1699,432 @@ describe('MediaPlayerComponent', () => {
 
         expect(early_calls).toBeLessThanOrEqual(2);
         expect(get_url.mock.calls.length).toBeLessThanOrEqual(early_calls + 6);
+    });
+
+    describe('object URL cleanup', () => {
+        it('should revoke cached object URLs when destroyed', () => {
+            load_playlist([create_item('a')]);
+            spectator.component['_item_urls'] = { a: 'blob:a' };
+
+            spectator.fixture.destroy();
+
+            expect(URL.revokeObjectURL).toHaveBeenCalledWith('blob:a');
+        });
+
+        it('should revoke an object URL that resolves after the fetch gave up', async () => {
+            vi.useFakeTimers();
+            let resolve_url: (url: string) => void = () => undefined;
+            load_playlist([
+                create_item('a', {
+                    getURL: () =>
+                        new Promise<string>(
+                            (resolve) => (resolve_url = resolve),
+                        ),
+                }),
+            ]);
+            await vi.advanceTimersByTimeAsync(30_000);
+
+            resolve_url('blob:late');
+            await vi.advanceTimersByTimeAsync(0);
+
+            expect(URL.revokeObjectURL).toHaveBeenCalledWith('blob:late');
+            expect(spectator.component.url('a')).toBe('');
+        });
+
+        it('should store resolved URLs in the form the browser reports them', async () => {
+            vi.useFakeTimers();
+            load_playlist([
+                create_item('web', {
+                    type: 'webpage',
+                    getURL: async () => 'https://example.com',
+                }),
+            ]);
+            await vi.advanceTimersByTimeAsync(100);
+
+            expect(spectator.component.url('web')).toBe('https://example.com/');
+        });
+    });
+
+    it('should keep a preloaded webpage loaded when its URL is not in canonical form', async () => {
+        vi.useFakeTimers();
+        const web_item = create_item('web', {
+            type: 'webpage',
+            getURL: async () => 'https://example.com',
+        });
+        load_playlist([create_item('image-1'), web_item]);
+        spectator.component['_ensureItemURL'](web_item);
+        await vi.advanceTimersByTimeAsync(0);
+        // The webpage has been preloaded and has loaded on the inactive output
+        const web_el = spectator.component['_web_element'](1).nativeElement;
+        web_el.src = 'https://example.com';
+        spectator.component['_output_items'][1] = web_item;
+        spectator.component['_item_output'].set('web', 1);
+        spectator.component['_ready_output_items'].add(
+            spectator.component['_outputKey'](1, web_item),
+        );
+
+        spectator.component.setPlaylistItem(1);
+
+        expect(spectator.component['_web_waiting_item_id']).toBe('');
+    });
+
+    describe('playlist changes', () => {
+        it('should keep playing the current item when the playlist changes around it', async () => {
+            vi.useFakeTimers();
+            load_playlist([create_item('a'), create_item('b')]);
+            await vi.advanceTimersByTimeAsync(500);
+            const image_el =
+                spectator.component['_image_element'](0).nativeElement;
+            expect(image_el.classList).not.toContain('hidden');
+            const item_start = spectator.component['_item_start'];
+            expect(item_start).toBeGreaterThan(0);
+
+            load_playlist([
+                create_item('c'),
+                create_item('a'),
+                create_item('b'),
+            ]);
+
+            expect(spectator.component.index()).toBe(1);
+            expect(spectator.component.active_item?.id).toBe('a');
+            expect(spectator.component['_item_start']).toBe(item_start);
+            expect(spectator.component.url('a')).toBe('blob:a');
+            expect(image_el.classList).not.toContain('hidden');
+            expect(URL.revokeObjectURL).not.toHaveBeenCalledWith('blob:a');
+        });
+    });
+
+    it('should not credit a playlist while waiting for an item URL', async () => {
+        vi.useFakeTimers();
+        const event_spy = vi.spyOn(spectator.component.event, 'emit');
+        load_playlist([
+            create_item('a', {
+                getURL: () => new Promise<string>(() => undefined),
+            }),
+        ]);
+
+        await vi.advanceTimersByTimeAsync(2_500);
+
+        expect(event_spy).not.toHaveBeenCalledWith({
+            type: 'playlist_count',
+            ref_id: 'playlist-1',
+        });
+    });
+
+    it('should ignore a fatal error from a preloaded plugin while another item plays', () => {
+        const plugin_item = create_item('plugin-1', {
+            type: 'plugin',
+            plugin: {
+                id: 'plugin-1',
+                name: 'Weather',
+                uri: 'https://plugins.example/weather',
+            } as SignagePlugin,
+        });
+        load_playlist([create_item('image-1'), plugin_item]);
+        spectator.component['_output_items'][1] = plugin_item;
+        spectator.component['_item_output'].set('plugin-1', 1);
+        const next_item_spy = vi.spyOn(spectator.component, 'nextItem');
+
+        spectator.component.onPluginError(
+            { code: 'boom', fatal: true, message: 'Boom' },
+            1,
+        );
+
+        expect(next_item_spy).not.toHaveBeenCalled();
+        expect(spectator.component.index()).toBe(0);
+    });
+
+    it('should play a lone play-through plugin again once it finishes', () => {
+        vi.useFakeTimers();
+        load_playlist([
+            create_item('plugin-1', {
+                type: 'plugin',
+                plugin: {
+                    id: 'plugin-1',
+                    name: 'Story',
+                    uri: 'https://plugins.example/story',
+                    playback_type: 'playsthrough',
+                } as SignagePlugin,
+            }),
+        ]);
+        spectator.component.state.set('PLAYING');
+        const output = spectator.component['_item_output'].get('plugin-1');
+        spectator.component.onPluginStatus('ready', output);
+        vi.advanceTimersByTime(2_000);
+        vi.advanceTimersToNextFrame();
+        spectator.component['_setOutputPluginPlay'](output, 0);
+
+        spectator.component.onPluginFinished(output);
+        spectator.component['_updateItem']();
+
+        expect(
+            spectator.component.output_plugin_plays()[output],
+        ).toBeGreaterThan(0);
+        expect(spectator.component['_plugin_finished']).toBe(false);
+    });
+
+    it('should load a preloaded plugin afresh after it failed', () => {
+        const plugin = {
+            id: 'plugin-1',
+            name: 'Weather',
+            uri: 'https://plugins.example/weather',
+        } as SignagePlugin;
+        const plugin_item = create_item('plugin-1', { type: 'plugin', plugin });
+        load_playlist([create_item('image-1'), plugin_item]);
+        spectator.component['_clearDeferredReveal']();
+        // Preloaded on the inactive output, where it reported ready
+        spectator.component['_output_items'][1] = plugin_item;
+        spectator.component['_item_output'].set('plugin-1', 1);
+        spectator.component.output_plugins.set([null, plugin]);
+        spectator.component.onPluginStatus('ready', 1);
+        const next_item_spy = vi.spyOn(spectator.component, 'nextItem');
+
+        spectator.component.onPluginError(
+            { code: 'boom', fatal: true, message: 'Boom' },
+            1,
+        );
+
+        expect(next_item_spy).not.toHaveBeenCalled();
+        expect(spectator.component.output_plugins()[1]).toBeNull();
+        // Not preloaded again in the final seconds of the current item
+        spectator.component['_item_real_start'] = Date.now() - 6_000;
+        spectator.component['_processURLs']();
+        expect(spectator.component.output_plugins()[1]).toBeNull();
+
+        // Its turn: loaded again rather than revealed from the failed frame
+        spectator.component.setPlaylistItem(1);
+        expect(spectator.component.output_plugins()[1]).toBe(plugin);
+        expect(
+            spectator.component['_ready_output_items'].has(
+                spectator.component['_outputKey'](1, plugin_item),
+            ),
+        ).toBe(false);
+    });
+
+    it('should use the new source when an edit changes it during a fetch', async () => {
+        vi.useFakeTimers();
+        let resolve_old: (url: string) => void = () => undefined;
+        load_playlist([
+            create_item('a', {
+                url: 'old-url',
+                getURL: () =>
+                    new Promise<string>((resolve) => (resolve_old = resolve)),
+            }),
+        ]);
+
+        load_playlist([
+            create_item('a', {
+                url: 'new-url',
+                getURL: async () => 'blob:new',
+            }),
+        ]);
+        await vi.advanceTimersByTimeAsync(0);
+        resolve_old('blob:old');
+        await vi.advanceTimersByTimeAsync(0);
+
+        expect(spectator.component.url('a')).toBe('blob:new');
+        expect(URL.revokeObjectURL).toHaveBeenCalledWith('blob:old');
+    });
+
+    it('should replay a lone play-through plugin every time it finishes', () => {
+        vi.useFakeTimers();
+        const origin = 'https://plugins.example';
+        load_playlist([
+            create_item('plugin-1', {
+                type: 'plugin',
+                plugin: {
+                    id: 'plugin-1',
+                    name: 'Story',
+                    uri: `${origin}/story`,
+                    playback_type: 'playsthrough',
+                } as SignagePlugin,
+            }),
+        ]);
+        spectator.component.state.set('PLAYING');
+        const output = spectator.component['_item_output'].get('plugin-1');
+        spectator.detectChanges();
+        const frame = spectator.query(
+            'plugin-embed iframe',
+        ) as HTMLIFrameElement;
+        /** Deliver a message through the real wrapper, as the plugin frame would */
+        const from_plugin = (type: string) =>
+            window.dispatchEvent(
+                new MessageEvent('message', {
+                    data: { api: 'signage-plugin/v1', type },
+                    origin,
+                    source: frame.contentWindow,
+                }),
+            );
+        from_plugin('ready');
+        vi.advanceTimersByTime(2_000);
+        vi.advanceTimersToNextFrame();
+
+        for (let round = 0; round < 3; round++) {
+            spectator.component['_setOutputPluginPlay'](output, 0);
+            from_plugin('finished');
+            spectator.component['_updateItem']();
+
+            expect(
+                spectator.component.output_plugin_plays()[output],
+            ).toBeGreaterThan(0);
+        }
+    });
+
+    describe('a lone item that is held on screen', () => {
+        const passes = (spy: { mock: { calls: unknown[][] } }) =>
+            spy.mock.calls.filter(
+                ([event]) =>
+                    (event as { type: string }).type === 'playlist_through',
+            ).length;
+
+        it('should report one pass of a lone webpage once its duration has passed', async () => {
+            vi.useFakeTimers();
+            const event_spy = vi.spyOn(spectator.component.event, 'emit');
+            load_playlist([create_item('web', { type: 'webpage' })]);
+            await vi.advanceTimersByTimeAsync(500);
+            spectator.component.onWebpageLoad(0);
+            vi.advanceTimersByTime(3_000);
+
+            vi.advanceTimersByTime(14_000);
+            spectator.component['_updateItem']();
+            expect(passes(event_spy)).toBe(0);
+
+            vi.advanceTimersByTime(1_001);
+            spectator.component['_updateItem']();
+            spectator.component['_updateItem']();
+            expect(passes(event_spy)).toBe(1);
+            // Still held, not reloaded
+            expect(spectator.component.index()).toBe(0);
+        });
+
+        it('should report one pass of a lone plugin once its duration has passed', () => {
+            vi.useFakeTimers();
+            const event_spy = vi.spyOn(spectator.component.event, 'emit');
+            load_playlist([
+                create_item('plugin-1', {
+                    type: 'plugin',
+                    plugin: {
+                        id: 'plugin-1',
+                        name: 'Weather',
+                        uri: 'https://plugins.example/weather',
+                        playback_type: 'interactive',
+                    } as SignagePlugin,
+                }),
+            ]);
+            spectator.component.state.set('PLAYING');
+            const output = spectator.component['_item_output'].get('plugin-1');
+            spectator.component.onPluginStatus('ready', output);
+            vi.advanceTimersByTime(2_000);
+            vi.advanceTimersToNextFrame();
+
+            vi.advanceTimersByTime(15_001);
+            spectator.component['_updateItem']();
+            spectator.component['_updateItem']();
+
+            expect(passes(event_spy)).toBe(1);
+        });
+
+        it('should report a pass of a lone play-through plugin that finishes early', () => {
+            vi.useFakeTimers();
+            const event_spy = vi.spyOn(spectator.component.event, 'emit');
+            load_playlist([
+                create_item('plugin-1', {
+                    type: 'plugin',
+                    plugin: {
+                        id: 'plugin-1',
+                        name: 'Story',
+                        uri: 'https://plugins.example/story',
+                        playback_type: 'playsthrough',
+                    } as SignagePlugin,
+                }),
+            ]);
+            spectator.component.state.set('PLAYING');
+            const output = spectator.component['_item_output'].get('plugin-1');
+            spectator.component.onPluginStatus('ready', output);
+            vi.advanceTimersByTime(2_000);
+            vi.advanceTimersToNextFrame();
+
+            // Well inside its 15 second scheduled duration
+            vi.advanceTimersByTime(3_000);
+            spectator.component.onPluginFinished(output);
+            spectator.component['_updateItem']();
+
+            expect(passes(event_spy)).toBe(1);
+        });
+    });
+
+    it('should not configure a plugin again when it was ready before it became active', async () => {
+        vi.useFakeTimers();
+        const plugin = {
+            id: 'plugin-2',
+            name: 'News',
+            uri: 'https://plugins.example/news',
+        } as SignagePlugin;
+        const plugin_item = create_item('plugin-2', { type: 'plugin', plugin });
+        load_playlist([create_item('image-1'), plugin_item]);
+        await vi.advanceTimersByTimeAsync(500);
+        // Preloaded on the inactive output, where it reported ready
+        spectator.component['_output_items'][1] = plugin_item;
+        spectator.component['_item_output'].set('plugin-2', 1);
+        spectator.component.output_plugins.set([null, plugin]);
+        spectator.component.onPluginStatus('ready', 1);
+
+        spectator.component.setPlaylistItem(1);
+        vi.advanceTimersByTime(2_000);
+        vi.advanceTimersToNextFrame();
+        const config = spectator.component.output_plugin_configs()[1];
+        const play = spectator.component.output_plugin_plays()[1];
+        expect(play).toBeGreaterThan(0);
+
+        vi.advanceTimersByTime(15_000);
+
+        expect(spectator.component.output_plugin_configs()[1]).toBe(config);
+        expect(spectator.component.output_plugin_plays()[1]).toBe(play);
+    });
+
+    it('should apply a muted input change to the video elements', () => {
+        spectator.setInput('muted', true);
+
+        expect(
+            spectator.component['_video_element'](0).nativeElement.muted,
+        ).toBe(true);
+        expect(
+            spectator.component['_video_element'](1).nativeElement.muted,
+        ).toBe(true);
+    });
+
+    it('should check media validity without formatting dates', () => {
+        const format_spy = vi.spyOn(Intl, 'DateTimeFormat');
+        const expired = create_item('expired', { valid_until: 1 });
+
+        expect(spectator.component.isValidMedia(expired)).toBe(false);
+        expect(format_spy).not.toHaveBeenCalled();
+    });
+
+    it('should sandbox webpage frames', () => {
+        for (const output of [0, 1] as const) {
+            const web_el =
+                spectator.component['_web_element'](output).nativeElement;
+            expect(web_el.getAttribute('sandbox')).toBe(
+                'allow-scripts allow-same-origin allow-forms',
+            );
+        }
+    });
+});
+
+describe('MediaPlayerComponent in a host', () => {
+    const create_host = createHostFactory({
+        component: MediaPlayerComponent,
+        shallow: true,
+    });
+
+    it('should start muted when first bound muted', () => {
+        const host = create_host(`<media-player [muted]="true" />`);
+
+        for (const output of [0, 1] as const) {
+            expect(
+                host.component['_video_element'](output).nativeElement.muted,
+            ).toBe(true);
+        }
     });
 });
