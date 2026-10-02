@@ -1,9 +1,17 @@
 import { i18n } from '@placeos/common';
+import { SignagePlaylist } from '@placeos/ts-client';
+import { addDays, fromUnixTime, isSameDay, startOfDay } from 'date-fns';
 import {
-    SignagePlaylist,
-    type SignagePlaylistSchedule,
-} from '@placeos/ts-client';
-import { fromUnixTime, isSameDay, startOfDay } from 'date-fns';
+    cronDaySlots,
+    cronParts,
+    doesCronMatchDay,
+} from '../signage-cron.util';
+import {
+    createScheduleMaskFilter,
+    isPlayOnceSchedule,
+    type PlaylistSchedule,
+    playOnceStart,
+} from '../signage-playlist.util';
 
 const BLOCK_PALETTE = [
     { bg: '#dbeafe', text: '#1e40af' },
@@ -17,6 +25,8 @@ const BLOCK_PALETTE = [
 
 export const DAY_COUNT = 7;
 export const MINUTES_PER_DAY = 1440;
+/** Shortest block length that the timeline shows, so short plays stay visible */
+export const MIN_VISIBLE_MINUTES = 15;
 const DEFAULT_PLAYLIST_DURATION = 24 * 60;
 
 export interface ScheduleBlock {
@@ -25,6 +35,8 @@ export interface ScheduleBlock {
     start_minutes: number;
     duration_minutes: number;
     all_day: boolean;
+    /** Whether the block comes from a takeover schedule */
+    takeover: boolean;
     bg_color: string;
     text_color: string;
     label: string;
@@ -38,17 +50,23 @@ export interface ScheduleAssignment {
     source_label?: string;
 }
 
+/** A block on the one-day timeline */
+export interface TimelineBlock extends ScheduleBlock {
+    /** Lane in the row, so blocks that overlap do not cover each other */
+    lane: number;
+}
+
 export interface ScheduleTimelineRow {
     id: string;
     name: string;
-    description: string;
     subtitle: string;
     icon: string;
     route: string[];
-    blocks: ScheduleBlock[];
+    blocks: TimelineBlock[];
+    /** Number of lanes that the blocks use. At least 1. */
+    lane_count: number;
     search_index: string;
     signage_last_seen?: number;
-    updated_at: number;
 }
 
 interface ScheduleBlockBase {
@@ -58,94 +76,17 @@ interface ScheduleBlockBase {
     label: string;
 }
 
-interface ScheduleItem {
+export interface ScheduleItem {
     id: string;
     name?: string;
     display_name?: string;
-    playlists?: string[];
-    zones?: string[];
+    playlists?: readonly string[];
+    zones?: readonly string[];
 }
 
-function parseCronNumber(value: string, min: number, max: number) {
-    if (!/^\d+$/.test(value || '')) return null;
-    const number_value = +value;
-    return number_value >= min && number_value <= max ? number_value : null;
-}
-
-function parseCronWeekOfMonthRange(value: string) {
-    const match = /^(\d+)-(\d+)$/.exec(value || '');
-    if (!match) return null;
-    const start = +match[1];
-    const end = +match[2];
-    if (start === 29 && end === 31) return 5;
-    if ((start - 1) % 7 !== 0 || end !== start + 6) return null;
-    const week = (start - 1) / 7 + 1;
-    return week >= 1 && week <= 4 ? week : null;
-}
-
-function parseCronWeeksOfMonth(value: string) {
-    if (!value?.trim() || value === '*') return null;
-    const weeks = new Set<number>();
-    for (const part of value.split(',')) {
-        const week = parseCronWeekOfMonthRange(part);
-        if (week === null) return null;
-        weeks.add(week);
-    }
-    return [...weeks];
-}
-
-function parseCronWeekdays(value: string) {
-    if (!value?.trim() || value === '*') return null;
-    const days = new Set<number>();
-    for (const part of value.split(',')) {
-        if (part.includes('-')) {
-            const [start, end] = part
-                .split('-')
-                .map((_) => parseCronNumber(_, 0, 6));
-            if (start === null || end === null || start > end) return null;
-            for (let day = start; day <= end; day++) days.add(day);
-        } else {
-            const day = parseCronNumber(part, 0, 6);
-            if (day === null) return null;
-            days.add(day);
-        }
-    }
-    return [...days];
-}
-
-function isCronMonthlyWeekday(day_part: string, weekday_part: string) {
-    return (
-        !!parseCronWeeksOfMonth(day_part)?.length &&
-        !!parseCronWeekdays(weekday_part)?.length
-    );
-}
-
-function matchesCronPart(value: number, cron_part: string): boolean {
-    if (cron_part === '*') return true;
-    if (cron_part.includes(',')) {
-        return cron_part
-            .split(',')
-            .some((item) => matchesCronPart(value, item));
-    }
-    if (cron_part.includes('/')) {
-        const [base, step] = cron_part.split('/');
-        const step_value = Number(step);
-        if (!step_value) return false;
-        if (base === '*') return value % step_value === 0;
-        if (base.includes('-')) {
-            const [start, end] = base.split('-').map(Number);
-            if (value < start || value > end) return false;
-            return (value - start) % step_value === 0;
-        }
-    }
-    if (cron_part.includes('-')) {
-        const [start, end] = cron_part.split('-').map(Number);
-        return value >= start && value <= end;
-    }
-    return Number(cron_part) === value;
-}
-
-function playlistSchedules(playlist: SignagePlaylist) {
+function playlistSchedules(
+    playlist: SignagePlaylist,
+): Partial<PlaylistSchedule>[] {
     const legacy_playlist = playlist as SignagePlaylist & {
         play_at?: number;
         play_cron?: string;
@@ -164,7 +105,14 @@ function playlistSchedules(playlist: SignagePlaylist) {
     ];
 }
 
-function playPeriodMinutes(schedule: Partial<SignagePlaylistSchedule>) {
+/** Whether any schedule of the playlist is a takeover */
+export function hasTakeoverSchedule(playlist: SignagePlaylist) {
+    return playlistSchedules(playlist).some(
+        (schedule) => !!schedule.play_takeover,
+    );
+}
+
+function playPeriodMinutes(schedule: Partial<PlaylistSchedule>) {
     return Number.isFinite(schedule.play_period)
         ? Math.max(0, schedule.play_period || 0)
         : DEFAULT_PLAYLIST_DURATION;
@@ -183,17 +131,11 @@ function formatTimeRange(
     return `${formatTime(start_minutes)} – ${formatTime(start_minutes + duration_minutes)}`;
 }
 
-function parsePlayAt(play_at: number): Date | null {
-    if (!play_at) return null;
-    return fromUnixTime(play_at);
-}
-
-function isScheduleValidAt(
-    schedule: Partial<SignagePlaylistSchedule>,
-    date: Date,
-) {
+function isScheduleValidAt(schedule: Partial<PlaylistSchedule>, date: Date) {
+    const time = date.getTime();
     return (
-        !schedule.valid_until || date.getTime() <= schedule.valid_until * 1000
+        (!schedule.valid_from || time >= schedule.valid_from * 1000) &&
+        (!schedule.valid_until || time <= schedule.valid_until * 1000)
     );
 }
 
@@ -215,57 +157,18 @@ function isDayInRange(
 }
 
 function getCronBlocksForDay(
-    cron: string,
-    schedule: Partial<SignagePlaylistSchedule>,
+    parts: readonly string[],
+    schedule: Partial<PlaylistSchedule>,
 ): ScheduleBlockBase[] {
-    const parts = cron.trim().split(/\s+/);
-    if (parts.length !== 5) return [];
-    const [minute_part, hour_part] = parts;
     const duration = playPeriodMinutes(schedule);
-    const blocks: ScheduleBlockBase[] = [];
-    for (let hours = 0; hours < 24; hours++) {
-        if (!matchesCronPart(hours, hour_part)) continue;
-        for (let minutes = 0; minutes < 60; minutes++) {
-            if (!matchesCronPart(minutes, minute_part)) continue;
-            const start_minutes = hours * 60 + minutes;
-            blocks.push({
-                start_minutes,
-                duration_minutes: duration,
-                all_day: duration >= MINUTES_PER_DAY,
-                label: duration
-                    ? formatTimeRange(start_minutes, duration)
-                    : i18n('SIGNAGE_MANAGER.PLAY_THROUGH_ONCE'),
-            });
-        }
-    }
-    return blocks;
-}
-
-function doesCronMatchDay(cron: string, day: Date): boolean {
-    const parts = cron.trim().split(/\s+/);
-    if (parts.length !== 5) return false;
-    const [, , dom_part, month_part, dow_part] = parts;
-    const month = day.getMonth() + 1;
-    const day_of_month = day.getDate();
-    const day_of_week = day.getDay();
-    if (!matchesCronPart(month, month_part)) return false;
-    if (dom_part === '*' && dow_part === '*') return true;
-    if (dom_part !== '*' && dow_part === '*') {
-        return matchesCronPart(day_of_month, dom_part);
-    }
-    if (dom_part === '*' && dow_part !== '*') {
-        return matchesCronPart(day_of_week, dow_part);
-    }
-    if (isCronMonthlyWeekday(dom_part, dow_part)) {
-        return (
-            matchesCronPart(day_of_month, dom_part) &&
-            matchesCronPart(day_of_week, dow_part)
-        );
-    }
-    return (
-        matchesCronPart(day_of_month, dom_part) ||
-        matchesCronPart(day_of_week, dow_part)
-    );
+    return cronDaySlots(parts).map((start_minutes) => ({
+        start_minutes,
+        duration_minutes: duration,
+        all_day: start_minutes === 0 && duration >= MINUTES_PER_DAY,
+        label: duration
+            ? formatTimeRange(start_minutes, duration)
+            : i18n('SIGNAGE_MANAGER.PLAY_THROUGH_ONCE'),
+    }));
 }
 
 export function buildScheduleBlocks(
@@ -286,22 +189,26 @@ function generateScheduleBlocks(
     const colour = BLOCK_PALETTE[palette_index % BLOCK_PALETTE.length];
     const blocks: ScheduleBlock[] = [];
     const { valid_from, valid_until } = playlist;
+    const schedules = playlistSchedules(playlist).map((schedule) => ({
+        schedule,
+        allows: createScheduleMaskFilter(schedule),
+    }));
 
     for (let index = 0; index < days.length; index++) {
         const day = days[index];
         if (!isDayInRange(day, valid_from, valid_until)) continue;
 
-        for (const schedule of playlistSchedules(playlist)) {
-            const { play_at } = schedule;
+        for (const { schedule, allows } of schedules) {
             const play_cron = schedule.play_cron?.trim() || '0 0 * * *';
             const play_period = playPeriodMinutes(schedule);
 
-            if (play_at) {
-                const at_date = parsePlayAt(play_at);
+            if (isPlayOnceSchedule(schedule)) {
+                const at_date = playOnceStart(schedule);
                 if (
                     !at_date ||
                     !isSameDay(day, at_date) ||
-                    !isScheduleValidAt(schedule, at_date)
+                    !isScheduleValidAt(schedule, at_date) ||
+                    !allows(at_date)
                 ) {
                     continue;
                 }
@@ -314,6 +221,7 @@ function generateScheduleBlocks(
                     start_minutes,
                     duration_minutes,
                     all_day: false,
+                    takeover: !!schedule.play_takeover,
                     bg_color: colour.bg,
                     text_color: colour.text,
                     label: formatTimeRange(start_minutes, duration_minutes),
@@ -323,16 +231,22 @@ function generateScheduleBlocks(
                 continue;
             }
 
-            if (!doesCronMatchDay(play_cron, day)) continue;
-            const cron_blocks = getCronBlocksForDay(play_cron, schedule);
+            const parts = cronParts(play_cron);
+            if (!parts || !doesCronMatchDay(parts, day)) continue;
+            const cron_blocks = getCronBlocksForDay(parts, schedule);
             for (const block of cron_blocks) {
                 const starts_at = new Date(day);
                 starts_at.setHours(0, block.start_minutes, 0, 0);
-                if (!isScheduleValidAt(schedule, starts_at)) continue;
+                if (
+                    !isScheduleValidAt(schedule, starts_at) ||
+                    !allows(starts_at)
+                )
+                    continue;
                 blocks.push({
                     ...block,
                     playlist,
                     day_index: index,
+                    takeover: !!schedule.play_takeover,
                     bg_color: colour.bg,
                     text_color: colour.text,
                     source_label,
@@ -343,6 +257,105 @@ function generateScheduleBlocks(
     }
 
     return blocks;
+}
+
+/** Minutes that a timeline block covers on screen */
+export function visibleMinutes(block: ScheduleBlock) {
+    return block.all_day
+        ? MINUTES_PER_DAY
+        : Math.max(
+              MIN_VISIBLE_MINUTES,
+              Math.min(
+                  block.duration_minutes,
+                  MINUTES_PER_DAY - block.start_minutes,
+              ),
+          );
+}
+
+/** Part of a block on the second day of the list, as minutes of that day */
+function clipToDay(block: ScheduleBlock): ScheduleBlock[] {
+    const start = (block.day_index - 1) * MINUTES_PER_DAY + block.start_minutes;
+    const end = start + block.duration_minutes;
+    if (start < 0 && end <= 0) return [];
+    const visible_start = Math.max(0, start);
+    const visible_end = Math.min(MINUTES_PER_DAY, end);
+    return [
+        {
+            ...block,
+            start_minutes: visible_start,
+            duration_minutes: visible_end - visible_start,
+            all_day: visible_start === 0 && visible_end >= MINUTES_PER_DAY,
+        },
+    ];
+}
+
+/** Join touching or overlapping blocks of one playlist. Blocks must be in start order. */
+function mergePlaylistBlocks(blocks: ScheduleBlock[]) {
+    const merged: ScheduleBlock[] = [];
+    const last_blocks = new Map<string, ScheduleBlock>();
+    // A block with no length plays the playlist once, so give it a minute.
+    const end = (block: ScheduleBlock) =>
+        block.start_minutes + Math.max(1, block.duration_minutes);
+    for (const block of blocks) {
+        const key = `${block.playlist.id}|${block.takeover}`;
+        const last = last_blocks.get(key);
+        if (last && block.start_minutes <= end(last)) {
+            const last_end = Math.min(
+                MINUTES_PER_DAY,
+                Math.max(end(last), end(block)),
+            );
+            last.duration_minutes = last_end - last.start_minutes;
+            last.all_day =
+                last.start_minutes === 0 && last_end >= MINUTES_PER_DAY;
+            last.label = formatTimeRange(
+                last.start_minutes,
+                last.duration_minutes,
+            );
+            continue;
+        }
+        const copy = { ...block };
+        merged.push(copy);
+        last_blocks.set(key, copy);
+    }
+    return merged;
+}
+
+/**
+ * Blocks for one day of the timeline. Adds the part of the previous day's
+ * blocks that runs past midnight and cuts blocks at midnight. Joins touching
+ * blocks of one playlist, then puts blocks that overlap on screen in
+ * separate lanes.
+ */
+export function buildDayTimelineBlocks(
+    assignments: ScheduleAssignment[],
+    day: Date,
+): { blocks: TimelineBlock[]; lane_count: number } {
+    const selected_day = startOfDay(day);
+    const blocks = buildScheduleBlocks(assignments, [
+        addDays(selected_day, -1),
+        selected_day,
+    ])
+        .flatMap(clipToDay)
+        .sort(
+            (left, right) =>
+                left.start_minutes - right.start_minutes ||
+                left.playlist.name.localeCompare(right.playlist.name),
+        );
+    // Greedy lanes: each block takes the first lane that is free at its start.
+    const lane_ends: number[] = [];
+    const timeline_blocks = mergePlaylistBlocks(blocks).map((block) => {
+        const block_end = block.start_minutes + visibleMinutes(block);
+        let lane = lane_ends.findIndex(
+            (lane_end) => lane_end <= block.start_minutes,
+        );
+        if (lane < 0) lane = lane_ends.push(block_end) - 1;
+        else lane_ends[lane] = block_end;
+        return { ...block, lane };
+    });
+    return {
+        blocks: timeline_blocks,
+        lane_count: Math.max(1, lane_ends.length),
+    };
 }
 
 export function buildDisplayScheduleAssignments(

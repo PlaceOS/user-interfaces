@@ -95,19 +95,26 @@ function withAppVersion<T extends { extension_data?: Record<string, any> }>(
 }
 
 /**
- * List events
+ * List events. Returns an empty list when the request fails.
  * @param q Parameters to pass to the API request
  */
 export async function queryEvents(
     q: CalendarEventQueryParams,
 ): Promise<CalendarEvent[]> {
+    return queryEventsOrThrow(q).catch(() => []);
+}
+
+/**
+ * List events. Throws when the request fails, so callers can tell
+ * an error apart from an empty list.
+ * @param q Parameters to pass to the API request
+ */
+export async function queryEventsOrThrow(
+    q: CalendarEventQueryParams,
+): Promise<CalendarEvent[]> {
     const query = toQueryString(q);
-    try {
-        const list = await get(`${EVENTS_ENDPOINT}${query ? '?' + query : ''}`);
-        return list.map((e) => new CalendarEvent(e));
-    } catch (_) {
-        return [];
-    }
+    const list = await get(`${EVENTS_ENDPOINT}${query ? '?' + query : ''}`);
+    return list.map((e) => new CalendarEvent(e));
 }
 
 export async function queryEventHistory(

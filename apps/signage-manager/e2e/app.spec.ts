@@ -282,6 +282,44 @@ test.describe('US-SGM-006: Browse and Create Playlists', () => {
         ).toBeVisible();
     });
 
+    test('edits and toggles the schedule validity start', async ({ page }) => {
+        await navigateWithMock(page, PLAYLISTS_URL);
+        await page.getByRole('button', { name: /create new playlist/i }).click();
+        const schedule = page.locator('playlist-schedule-form').first();
+        await expect(schedule.locator('[schedule-validity]').getByRole('combobox', { name: 'Timezone', exact: true })).toBeVisible();
+        const valid_from = schedule.getByRole('button', {
+            name: /^valid from$/i,
+        });
+        const time_field = schedule.locator('a-time-field button[time-field]');
+        await expect(time_field).toHaveCount(0);
+        await valid_from.click();
+        await expect(time_field).toBeVisible();
+        const initial_time = await time_field.innerText();
+        await time_field.click();
+        await page.getByRole('menuitem').last().click();
+        await expect(time_field).not.toHaveText(initial_time);
+        const selected_time = await time_field.innerText();
+        await valid_from.click();
+        await expect(time_field).toHaveCount(0);
+        await valid_from.click();
+        await expect(time_field).toHaveText(selected_time);
+
+        await schedule.getByRole('button', { name: /^valid until$/i }).click();
+        await expect(time_field).toHaveCount(2);
+        await time_field.last().click();
+        await page.getByRole('menuitem').first().click();
+        const validity_error = schedule.getByRole('alert');
+        await expect(validity_error).toHaveText('Valid From must be before Valid Until.');
+        await page.getByRole('textbox', { name: /playlist name/i }).fill('Validity check');
+        await page.getByRole('button', { name: /^save/i }).click();
+        await expect(page.getByRole('heading', { name: /new playlist/i })).toBeVisible();
+        await expect(validity_error).toBeVisible();
+        await valid_from.click();
+        await expect(validity_error).toHaveCount(0);
+
+        await closeDialog(page);
+    });
+
     test('covers playlist browse, search, create, select, and edit workflows', async ({
         page,
     }) => {

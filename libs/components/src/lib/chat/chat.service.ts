@@ -78,19 +78,21 @@ export class ChatService extends AsyncHandler {
             this._chat_id ? '&resume=' + encodeURIComponent(this._chat_id) : ''
         }`;
         log('CHAT', 'Starting chat connection.');
-        this._socket = new WebSocket(url);
-        this._socket.onmessage = (event) => {
+        const socket = new WebSocket(url);
+        this._socket = socket;
+        socket.onmessage = (event) => {
             let msg = event.data;
             try {
                 msg = JSON.parse(event.data);
             } catch (e) {}
             this._onMessage(msg);
         };
-        this._socket.onerror = (e) => {
+        socket.onerror = (e) => {
             log('CHAT', 'Connection error:', [e], 'error');
-            this._cleanup();
+            this._cleanup(socket);
         };
-        this._socket.onclose = () => this._cleanup();
+        // Only clear this socket. A newer chat may already be open.
+        socket.onclose = () => this._cleanup(socket);
         return () => this.endChat();
     }
 
@@ -110,7 +112,13 @@ export class ChatService extends AsyncHandler {
         if (!message) return;
 
         this._onMessage({ chat_id: '', message, user_id: currentUser().id });
-        this._socket?.send(message);
+        const socket = this._socket;
+        // Sending before the socket opens throws, so wait for it to open
+        if (socket?.readyState === WebSocket.CONNECTING) {
+            socket.addEventListener('open', () => socket.send(message), {
+                once: true,
+            });
+        } else socket?.send(message);
     }
 
     private _timeoutSocket(delay = 55 * 1000) {
@@ -130,7 +138,9 @@ export class ChatService extends AsyncHandler {
         );
     }
 
-    private _cleanup() {
+    /** Forget the socket. With a socket given, only if it is still the current one. */
+    private _cleanup(socket?: WebSocket) {
+        if (socket && socket !== this._socket) return;
         this._socket = null;
     }
 

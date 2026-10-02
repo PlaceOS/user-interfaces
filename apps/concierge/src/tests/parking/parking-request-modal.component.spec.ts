@@ -1,6 +1,7 @@
+import { inject, Injector } from '@angular/core';
 import { ComponentFixtureAutoDetect } from '@angular/core/testing';
-import { inject, Injector, signal } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import {
     BookingFormService,
@@ -10,12 +11,17 @@ import {
 import {
     OrganisationService,
     setCurrentUser,
+    setNotifyOutlet,
     SettingsService,
     StaffUser,
 } from '@placeos/common';
 import { MockProvider } from 'ng-mocks';
 
 import { ParkingRequestModalComponent } from '../../app/parking/parking-request-modal.component';
+
+vi.mock('@placeos/ts-client', { spy: true });
+
+import * as ts_client from '@placeos/ts-client';
 
 describe('ParkingRequestModalComponent', () => {
     let spectator: Spectator<ParkingRequestModalComponent>;
@@ -24,7 +30,18 @@ describe('ParkingRequestModalComponent', () => {
     let user_details: any;
     let model: BookingFormService['model'];
     let settings_service: SettingsService;
-    const post_form = vi.fn(async () => ({ id: 'req-1', status: 'approved' }));
+    const post_form = vi.fn(
+        async (): Promise<{ id: string; status: string }> => ({
+            id: 'req-1',
+            status: 'approved',
+        }),
+    );
+    const snackbar = {
+        open: vi.fn(() => ({
+            onAction: () => ({ subscribe: () => undefined }),
+            dismiss: () => undefined,
+        })),
+    };
     const clear_form = vi.fn();
     const close = vi.fn();
 
@@ -83,6 +100,9 @@ describe('ParkingRequestModalComponent', () => {
         post_form.mockClear();
         clear_form.mockClear();
         close.mockClear();
+        snackbar.open.mockClear();
+        setNotifyOutlet(snackbar as unknown as MatSnackBar, true);
+        vi.mocked(ts_client.post).mockReset();
     });
 
     it('should seed the form with parking request defaults', async () => {
@@ -150,5 +170,42 @@ describe('ParkingRequestModalComponent', () => {
         await spectator.component.postForm();
 
         expect(settings_service.saveUserSetting).not.toHaveBeenCalled();
+    });
+
+    it('should approve a new request that is not yet approved', async () => {
+        post_form.mockResolvedValueOnce({ id: 'req-1', status: 'tentative' });
+        vi.mocked(ts_client.post).mockResolvedValue({ id: 'req-1' } as any);
+        spectator = createComponent();
+        await spectator.component.ngOnInit();
+
+        await spectator.component.postForm();
+
+        expect(ts_client.post).toHaveBeenCalledWith(
+            expect.stringContaining('/req-1/approve'),
+            '',
+        );
+        expect(snackbar.open).toHaveBeenCalledWith(
+            expect.anything(),
+            expect.anything(),
+            expect.objectContaining({ panelClass: ['success'] }),
+        );
+        expect(close).toHaveBeenCalledWith('req-1');
+    });
+
+    it('should warn and close the dialog when approval fails after the request is saved', async () => {
+        post_form.mockResolvedValueOnce({ id: 'req-1', status: 'tentative' });
+        vi.mocked(ts_client.post).mockRejectedValue({ status: 403 });
+        spectator = createComponent();
+        await spectator.component.ngOnInit();
+
+        await spectator.component.postForm();
+
+        expect(snackbar.open).toHaveBeenCalledWith(
+            expect.anything(),
+            expect.anything(),
+            expect.objectContaining({ panelClass: ['warn'] }),
+        );
+        expect(clear_form).toHaveBeenCalled();
+        expect(close).toHaveBeenCalledWith('req-1');
     });
 });

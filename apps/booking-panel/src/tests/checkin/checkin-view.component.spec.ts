@@ -1,7 +1,11 @@
 import { signal } from '@angular/core';
-import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/vitest';
+import {
+    createRoutingFactory,
+    SpectatorRouting,
+} from '@ngneat/spectator/vitest';
 import { mockComponent } from '@placeos/common/tests';
-import { IconComponent } from '@placeos/components';
+import { IconComponent, TranslatePipe } from '@placeos/components';
+import { ngMocks } from 'ng-mocks';
 
 import { CheckinTimetableComponent } from '../../app/checkin/checkin-timetable.component';
 import { CheckinViewComponent } from '../../app/checkin/checkin-view.component';
@@ -175,5 +179,22 @@ describe('CheckinViewComponent', () => {
         next.set(null);
         spectator.detectChanges();
         expect(spectator.component.event_state().next).toBe('');
+    });
+
+    describe('with translation keys rendered', () => {
+        beforeAll(() =>
+            ngMocks.defaultMock(TranslatePipe, () => ({
+                transform: (key: string) => key,
+            })),
+        );
+        afterAll(() => ngMocks.defaultMock(TranslatePipe, undefined));
+
+        it('should show a single message when under a minute is free', () => {
+            next.set({ date: Date.now() + 30 * 1000, duration: 30 });
+            spectator.detectChanges();
+            const text = spectator.element.textContent;
+            expect(text).toContain('FREE_FOR_LESS_THAN_MINUTE');
+            expect(text).not.toContain('FREE_FOR_MINUTES');
+        });
     });
 });

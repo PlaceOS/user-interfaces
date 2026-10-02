@@ -13,6 +13,7 @@ import {
     i18n,
     notifyError,
     notifySuccess,
+    notifyWarn,
     OrganisationService,
     randomString,
     settingSignal,
@@ -235,16 +236,21 @@ export class ParkingRequestModalComponent
                 this._dialog_ref.disableClose = false;
                 throw e;
             });
+        // The request exists once it is saved. An approval failure must not
+        // look like a save failure, or staff can submit the request again.
+        let approved = true;
         if (!form_value.id && result?.id && result.status !== 'approved') {
-            await approveBookingApi(result.id).catch((e) => {
-                notifyError(e?.message || e?.error || e);
-                this.loading.set(false);
-                this._dialog_ref.disableClose = false;
-                throw e;
-            });
+            approved = await approveBookingApi(result.id).then(
+                () => true,
+                () => false,
+            );
         }
         if (save_plate_number) this._savePlateNumber(plate_number);
-        notifySuccess(i18n('APP.CONCIERGE.PARKING_REQUEST_SAVE'));
+        if (approved) {
+            notifySuccess(i18n('APP.CONCIERGE.PARKING_REQUEST_SAVE'));
+        } else {
+            notifyWarn(i18n('APP.CONCIERGE.PARKING_REQUEST_APPROVE_ERROR'));
+        }
         this._booking_form.clearForm();
         this._dialog_ref.close(result.id);
     }

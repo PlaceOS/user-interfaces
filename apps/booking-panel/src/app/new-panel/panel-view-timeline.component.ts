@@ -6,10 +6,10 @@ import {
     input,
     signal,
 } from '@angular/core';
-import { AsyncHandler } from '@placeos/common';
+import { AsyncHandler, notifyError } from '@placeos/common';
 import { TranslatePipe } from '@placeos/components';
 import { PanelStateService } from '../panel-state.service';
-import { timelineData, timelineStart } from './helpers';
+import { timelineData, timelineSlot, timelineStart } from './helpers';
 
 @Component({
     selector: 'panel-view-timeline',
@@ -22,7 +22,7 @@ import { timelineData, timelineStart } from './helpers';
             [attr.aria-label]="'APP.BOOKING_PANEL.SCHEDULE' | translate"
         >
             @let data = timeline();
-            <div timeline-track>
+            <div timeline-track (click)="bookAt($event)">
                 @for (block of data.blocks; track block.id) {
                     <div block [class.hour]="block.on_hour">
                         @if (block.on_hour) {
@@ -246,6 +246,41 @@ export class PanelViewTimelineComponent extends AsyncHandler {
         ),
     );
     public readonly horizontal = input(false);
+
+    /**
+     * Open the booking form at the tapped time.
+     * Needs the `timeline_booking` feature. Otherwise the tap goes to the panel.
+     */
+    public bookAt(event: MouseEvent) {
+        if (
+            !this._state.hasFeature('timeline_booking') ||
+            this._state.setting('disable_book_now') === true
+        ) {
+            return;
+        }
+        event.stopPropagation();
+        const rect = (
+            event.currentTarget as HTMLElement
+        ).getBoundingClientRect();
+        const fraction = this.horizontal()
+            ? (event.clientX - rect.left) / rect.width
+            : (event.clientY - rect.top) / rect.height;
+        const now = Date.now();
+        const date = timelineSlot(
+            fraction,
+            this._timeline_start(),
+            this._state.bookings(),
+            now,
+        );
+        if (date === null) {
+            return notifyError('This time is not available to book');
+        }
+        this._state.newBooking(
+            date,
+            this._state.setting('disable_book_now_host') !== false,
+            date > now,
+        );
+    }
 
     constructor() {
         super();

@@ -46,12 +46,17 @@ import {
     UserSearchFieldComponent,
 } from '@placeos/form-fields';
 import { differenceInMinutes, format, startOfDay } from 'date-fns';
+import { HasUnsavedChanges } from '../ui/unsaved-changes.guard';
 import { EventStateService } from './event-state.service';
 
 const EMPTY = [];
 
 @Component({
     selector: 'app-event-manage',
+    host: {
+        '(window:beforeunload)':
+            'hasUnsavedChanges() && $event.preventDefault()',
+    },
     template: `
         @if (!loading()) {
             <div class="bg-base-100 absolute inset-0 overflow-auto">
@@ -502,7 +507,10 @@ const EMPTY = [];
         RouterModule,
     ],
 })
-export class EventManageComponent extends AsyncHandler implements OnInit {
+export class EventManageComponent
+    extends AsyncHandler
+    implements OnInit, HasUnsavedChanges
+{
     private _form_state = inject(EventFormService);
     private _state = inject(EventStateService);
     private _route = inject(ActivatedRoute);
@@ -574,7 +582,13 @@ export class EventManageComponent extends AsyncHandler implements OnInit {
         })})`;
     };
 
+    public hasUnsavedChanges() {
+        return this.form().dirty();
+    }
+
     public async ngOnInit() {
+        // The form service outlives this page, so clear edits from a past visit
+        this.form().reset();
         await this._org.waitUntilInitialised();
         const space_pipe = new SpacePipe();
         this.model.update((m) => ({
@@ -669,6 +683,7 @@ export class EventManageComponent extends AsyncHandler implements OnInit {
         if ((value || '').trim()) {
             feature_list.push(value);
             this.model.update((m) => ({ ...m, tags: feature_list }));
+            this.form().markAsDirty();
         }
         if (input) input.value = '';
     }
@@ -685,6 +700,7 @@ export class EventManageComponent extends AsyncHandler implements OnInit {
         if (index >= 0) {
             tag_list.splice(index, 1);
             this.model.update((m) => ({ ...m, tags: tag_list }));
+            this.form().markAsDirty();
         }
     }
 
@@ -699,18 +715,22 @@ export class EventManageComponent extends AsyncHandler implements OnInit {
             );
         }
         this.loading.set(true);
-        let resources = this.model().resources;
+        // Build the list from the event calendar and the selected room only,
+        // so a room that was changed or removed is not kept.
+        // SpacePipe returns a placeholder space with no ID when the email
+        // is not a PlaceOS system, so check the ID.
         const space = await new SpacePipe().transform(this._state.calendar);
-        resources.push(
-            space ||
-                new Space({
-                    id: this._state.calendar,
-                    email: this._state.calendar,
-                }),
-        );
+        let resources: Space[] = [
+            space?.id
+                ? space
+                : new Space({
+                      id: this._state.calendar,
+                      email: this._state.calendar,
+                  }),
+        ];
         if (this.resource()) {
             const resource = await new SpacePipe().transform(this.resource());
-            resources.push(resource);
+            if (resource?.id) resources.push(resource);
         }
         resources = unique(resources, 'email');
         this.model.update((m) => ({
@@ -727,6 +747,7 @@ export class EventManageComponent extends AsyncHandler implements OnInit {
         this._state.changed();
         this.loading.set(false);
         if (res) {
+            this.form().reset();
             this._router.navigate(['/entertainment', 'events'], {
                 queryParams: { range: startOfDay(date).valueOf() },
             });

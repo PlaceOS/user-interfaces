@@ -9,7 +9,7 @@ import { MockComponent, MockProvider } from 'ng-mocks';
 
 import { LockersTopbarComponent } from '../../app/lockers/locker-topbar.component';
 import { LockerStateService } from '../../app/lockers/locker-state.service';
-import { DateOptionsComponent } from '../../app/ui/date-options.component';
+import { DateOptionsComponent } from '@placeos/form-fields';
 import { SearchbarComponent } from '../../app/ui/searchbar.component';
 
 describe('LockersTopbarComponent', () => {

@@ -217,4 +217,33 @@ describe('CateringStateService', () => {
         expect(updated_order.items).toHaveLength(1);
         expect(updated_order.items[0].quantity).toBe(2);
     });
+
+    it('should open a copy of an item without its ID', async () => {
+        const add = vi
+            .spyOn(spectator.service, 'addItem')
+            .mockResolvedValue(undefined);
+        await spectator.service.duplicateItem(
+            new CateringItem({ id: 'item-1', name: 'Coffee', unit_price: 400 }),
+        );
+
+        const copy = add.mock.calls[0][0];
+        expect(copy.id).toBe('');
+        expect(copy.unit_price).toBe(400);
+        expect(copy.name).not.toBe('Coffee');
+    });
+
+    it('should only save items that need a change for the zone', async () => {
+        const dialog = spectator.inject(MatDialog);
+        vi.mocked(dialog.open).mockImplementation(dialog_fn(false) as any);
+        const items = [
+            new CateringItem({ id: 'a', name: 'A', hide_for_zones: ['z1'] }),
+            new CateringItem({ id: 'b', name: 'B' }),
+        ];
+
+        await spectator.service.setItemsEnabled(items, 'z1', true);
+        await flush();
+
+        expect(ts_client.updateAsset).toHaveBeenCalledTimes(1);
+        expect(vi.mocked(ts_client.updateAsset).mock.calls[0][0]).toBe('a');
+    });
 });

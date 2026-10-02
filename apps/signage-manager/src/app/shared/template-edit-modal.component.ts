@@ -13,6 +13,7 @@ import {
     i18n,
     notifyError,
     notifySuccess,
+    removeEmptyFields,
 } from '@placeos/common';
 import {
     AuthenticatedImageDirective,
@@ -49,6 +50,7 @@ export interface TemplateEditFormModel {
     description: string;
     background_item_id: string;
     full_screen_takeover: boolean;
+    merge: boolean;
 }
 
 @Component({
@@ -190,14 +192,24 @@ export interface TemplateEditFormModel {
                                 | translate
                         "
                         [formField]="form.full_screen_takeover"
-                        info="When selected, takeover content will hide the template and takeover the entire screen"
+                        [info]="
+                            'SIGNAGE_MANAGER.TEMPLATE_FULLSCREEN_TAKEOVER_INFO'
+                                | translate
+                        "
                     >
                     </settings-toggle>
+                </div>
+                <div class="mb-4">
+                    <settings-toggle
+                        [label]="'SIGNAGE_MANAGER.TEMPLATE_MERGE' | translate"
+                        [formField]="form.merge"
+                    ></settings-toggle>
                 </div>
                 <signage-shared-with
                     type="templates"
                     [item_id]="template.id"
                     [group_id]="group_id"
+                    [allow_unshare]="true"
                 ></signage-shared-with>
             </form>
         </fullscreen-modal-shell>
@@ -229,6 +241,7 @@ export class TemplateEditModalComponent {
         description: this.template.description || '',
         background_item_id: this.template.background_item_id || '',
         full_screen_takeover: !!this.template.full_screen_takeover,
+        merge: !!this.template.merge,
     });
     public readonly selected_background = signal<SignageMedia | null>(null);
     public readonly background_url = computed(() => {
@@ -240,9 +253,9 @@ export class TemplateEditModalComponent {
     });
 
     constructor() {
-        const save_hotkey = inject(HotkeysService).listen(['KeyS'], () =>
-            this.saveTemplate(),
-        );
+        const save_hotkey = inject(HotkeysService).listen(['KeyS'], () => {
+            if (this._canUseSaveHotkey()) this.saveTemplate();
+        });
         inject(DestroyRef).onDestroy(() => save_hotkey?.unsubscribe());
     }
 
@@ -276,7 +289,15 @@ export class TemplateEditModalComponent {
         await submit(this.form, async () => {
             this.loading.set(true);
             this._dialog_ref.disableClose = true;
-            const data: Partial<SignageTemplate> = { ...this.model() };
+            const model = this.model();
+            // Send cleared fields as null so an edit clears them. The API
+            // rejects an empty background ID, as it is a foreign key.
+            const data: Partial<SignageTemplate> = {
+                ...model,
+                description: model.description || null,
+                background_item_id: model.background_item_id || null,
+            };
+            if (!this.template.id) removeEmptyFields(data);
             try {
                 let result: SignageTemplate;
                 if (this.template.id) {
@@ -294,5 +315,16 @@ export class TemplateEditModalComponent {
                 throw e;
             }
         });
+    }
+
+    /**
+     * Whether the "S" hotkey may save. Ignored while another dialog (e.g. the
+     * background picker) is on top, or while focus is in a select or list.
+     */
+    private _canUseSaveHotkey() {
+        if (this._dialog.openDialogs.at(-1) !== this._dialog_ref) return false;
+        return !document.activeElement?.closest(
+            'select, [role="combobox"], [role="listbox"], [role="option"]',
+        );
     }
 }

@@ -18,8 +18,8 @@ export interface TemplateLayoutRect {
  */
 export const EDGE_BAR_HEIGHT_PC = 15;
 export const SIDEBAR_WIDTH_PC = 20;
-export const FLOATING_DEFAULT_X_PC = 50;
-export const FLOATING_DEFAULT_Y_PC = 50;
+export const FLOATING_DEFAULT_X_PC = 0;
+export const FLOATING_DEFAULT_Y_PC = 0;
 
 export const LAYOUT_POSITIONS: SignageTemplateLayoutPosition[] = [
     'top',
@@ -66,6 +66,44 @@ export function layoutPercentageToRatio(value: number | null) {
         : clamp(value / 100, 0, 1);
 }
 
+/** Displayed percentage for a layout axis, with the default when unset. */
+export function layoutAxisPercentage(
+    layout: SignageTemplateLayout,
+    axis: 'x_pos' | 'y_pos',
+) {
+    const percentage = layoutRatioToPercentage(layout[axis]);
+    if (percentage !== null) return Math.round(percentage * 100) / 100;
+    if (layout.position === 'floating') {
+        return axis === 'x_pos' ? FLOATING_DEFAULT_X_PC : FLOATING_DEFAULT_Y_PC;
+    }
+    return axis === 'x_pos' ? SIDEBAR_WIDTH_PC : EDGE_BAR_HEIGHT_PC;
+}
+
+/** Position axes that have an effect for the given layout position. */
+export function layoutPositionAxes(layout: SignageTemplateLayout) {
+    const axes: ('x_pos' | 'y_pos')[] = [];
+    if (['left', 'right', 'floating'].includes(layout.position)) {
+        axes.push('x_pos');
+    }
+    if (['top', 'bottom', 'floating'].includes(layout.position)) {
+        axes.push('y_pos');
+    }
+    return axes;
+}
+
+/**
+ * Index of the tab that a key moves to in a tab list of `count` tabs.
+ * Home and End go to the ends, the arrow keys wrap around.
+ * @returns The new index, or null when the key does not move between tabs
+ */
+export function tabKeyIndex(key: string, index: number, count: number) {
+    if (key === 'Home') return 0;
+    if (key === 'End') return count - 1;
+    if (key === 'ArrowLeft') return (index - 1 + count) % count;
+    if (key === 'ArrowRight') return (index + 1) % count;
+    return null;
+}
+
 /** Add the displayed position defaults before sending a layout to the API. */
 export function applyLayoutPositionDefaults(
     layout: SignageTemplateLayout,
@@ -96,6 +134,20 @@ export function applyLayoutPositionDefaults(
                     layoutPercentageToRatio(FLOATING_DEFAULT_Y_PC),
             };
     }
+}
+
+/**
+ * Whether the API accepts the position of a layout once defaults are added.
+ * Edge panel sizes must be more than 0 and less than 1.
+ */
+export function layoutPositionValid(layout: SignageTemplateLayout) {
+    const { position, x_pos, y_pos } = applyLayoutPositionDefaults(layout);
+    if (position === 'floating') {
+        return x_pos !== undefined && y_pos !== undefined;
+    }
+    return [x_pos, y_pos].every(
+        (value) => value === undefined || (value > 0 && value < 1),
+    );
 }
 
 /**

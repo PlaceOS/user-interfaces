@@ -6,8 +6,10 @@ import {
     listSignagePlaylistMediaRevisions,
     updateSignagePlaylistMedia,
 } from '@placeos/ts-client';
+import { SignageMediaService } from '../../app/media/signage-media.service';
+import { SignagePlaylistService } from '../../app/playlists/signage-playlist.service';
 import { PlaylistRequestApprovalModalComponent } from '../../app/shared/playlist-request-approval-modal.component';
-import { SignageService } from '../../app/signage.service';
+import { SignageContextService } from '../../app/signage-context.service';
 
 vi.mock('@placeos/ts-client', { spy: true });
 
@@ -16,23 +18,29 @@ const notify_open = vi.fn(() => ({
     dismiss: vi.fn(),
 }));
 
+/** Let the versions request, which Angular does not track, settle */
+async function flushVersions(fixture: { whenStable: () => Promise<unknown> }) {
+    await fixture.whenStable();
+    await new Promise((resolve) => setTimeout(resolve));
+}
+
 describe('PlaylistRequestApprovalModalComponent', () => {
     const dialog_ref = {
         close: vi.fn(),
         disableClose: false,
     };
-    const service = {
+    const context = {
         can_update: signal(true),
         changed: vi.fn(),
-        previewMedia: vi.fn(),
-        setPlaylistApprovalStatus: vi.fn(),
     };
+    const media_service = { previewMedia: vi.fn() };
+    const playlist_service = { setPlaylistApprovalStatus: vi.fn() };
 
     beforeEach(async () => {
         vi.clearAllMocks();
         setNotifyOutlet({ open: notify_open } as any, true);
         dialog_ref.disableClose = false;
-        service.can_update.set(true);
+        context.can_update.set(true);
         (listSignagePlaylistMediaRevisions as any).mockResolvedValue([
             {
                 id: 'current-version',
@@ -55,6 +63,7 @@ describe('PlaylistRequestApprovalModalComponent', () => {
                 items: ['media-2'],
                 media: [{ id: 'media-2', name: 'Media 2' }],
                 updated_at: 2,
+                approved: true,
             },
         ]);
         (updateSignagePlaylistMedia as any).mockResolvedValue({});
@@ -72,7 +81,9 @@ describe('PlaylistRequestApprovalModalComponent', () => {
                     },
                 },
                 { provide: MatDialogRef, useValue: dialog_ref },
-                { provide: SignageService, useValue: service },
+                { provide: SignageContextService, useValue: context },
+                { provide: SignageMediaService, useValue: media_service },
+                { provide: SignagePlaylistService, useValue: playlist_service },
             ],
         }).compileComponents();
     });
@@ -118,7 +129,7 @@ describe('PlaylistRequestApprovalModalComponent', () => {
 
         component.togglePreview();
         fixture.detectChanges();
-        await fixture.whenStable();
+        await flushVersions(fixture);
         fixture.detectChanges();
 
         expect(fixture.nativeElement.textContent).toContain('New Version');
@@ -139,7 +150,7 @@ describe('PlaylistRequestApprovalModalComponent', () => {
 
         component.togglePreview();
         fixture.detectChanges();
-        await fixture.whenStable();
+        await flushVersions(fixture);
         fixture.detectChanges();
 
         expect(fixture.nativeElement.textContent).not.toContain('Approver');
@@ -153,6 +164,24 @@ describe('PlaylistRequestApprovalModalComponent', () => {
         expect(fixture.nativeElement.textContent).toContain('New Version');
     });
 
+    it('shows an error, not empty versions, when the versions fail to load', async () => {
+        (listSignagePlaylistMediaRevisions as any).mockRejectedValue(
+            new Error('Forbidden'),
+        );
+        const fixture = TestBed.createComponent(
+            PlaylistRequestApprovalModalComponent,
+        );
+        fixture.componentInstance.togglePreview();
+        fixture.detectChanges();
+        await flushVersions(fixture);
+        fixture.detectChanges();
+
+        const text = fixture.nativeElement.textContent;
+        expect(text).toContain('Could not load the playlist versions.');
+        expect(text).not.toContain('New Version');
+        expect(text).not.toContain('Undo Changes');
+    });
+
     it('shows fallback icons in preview lists', async () => {
         const fixture = TestBed.createComponent(
             PlaylistRequestApprovalModalComponent,
@@ -160,7 +189,7 @@ describe('PlaylistRequestApprovalModalComponent', () => {
         const component = fixture.componentInstance;
         component.togglePreview();
         fixture.detectChanges();
-        await fixture.whenStable();
+        await flushVersions(fixture);
         fixture.detectChanges();
 
         expect(fixture.nativeElement.textContent).toContain('extension');
@@ -173,28 +202,28 @@ describe('PlaylistRequestApprovalModalComponent', () => {
         const component = fixture.componentInstance;
         component.togglePreview();
         fixture.detectChanges();
-        await fixture.whenStable();
+        await flushVersions(fixture);
         fixture.detectChanges();
 
         expect(fixture.nativeElement.textContent).toContain('Undo Changes');
     });
 
     it('hides undo changes in preview when user does not have update permissions', async () => {
-        service.can_update.set(false);
+        context.can_update.set(false);
         const fixture = TestBed.createComponent(
             PlaylistRequestApprovalModalComponent,
         );
         const component = fixture.componentInstance;
         component.togglePreview();
         fixture.detectChanges();
-        await fixture.whenStable();
+        await flushVersions(fixture);
         fixture.detectChanges();
 
         expect(fixture.nativeElement.textContent).not.toContain('Undo Changes');
     });
 
     it('does not undo changes when user does not have update permissions', async () => {
-        service.can_update.set(false);
+        context.can_update.set(false);
         const fixture = TestBed.createComponent(
             PlaylistRequestApprovalModalComponent,
         );
@@ -222,11 +251,11 @@ describe('PlaylistRequestApprovalModalComponent', () => {
         expect(updateSignagePlaylistMedia).toHaveBeenCalledWith('playlist-1', [
             'media-2',
         ]);
-        expect(service.setPlaylistApprovalStatus).toHaveBeenCalledWith(
+        expect(playlist_service.setPlaylistApprovalStatus).toHaveBeenCalledWith(
             'playlist-1',
             false,
         );
         expect(dialog_ref.close).toHaveBeenCalledWith();
-        expect(service.changed).toHaveBeenCalled();
+        expect(context.changed).toHaveBeenCalled();
     });
 });

@@ -34,6 +34,7 @@ export interface ZoneEditModalData {
 }
 
 export interface ZoneEditFormModel {
+    name: string;
     display_name: string;
     description: string;
     parent_id: string;
@@ -66,14 +67,24 @@ export interface ZoneEditFormModel {
                             matInput
                             id="signage-zone-name"
                             [placeholder]="'FORM.NAME' | translate"
-                            [formField]="form.display_name"
-                            [attr.aria-label]="
-                                'SIGNAGE_MANAGER.ZONE_NAME_ARIA' | translate
-                            "
+                            [formField]="form.name"
                         />
                         <mat-error>{{
                             'FORM.NAME_REQUIRED' | translate
                         }}</mat-error>
+                    </mat-form-field>
+                </div>
+                <div>
+                    <label for="signage-zone-display-name">{{
+                        'FORM.DISPLAY_NAME' | translate
+                    }}</label>
+                    <mat-form-field appearance="outline" class="w-full">
+                        <input
+                            matInput
+                            id="signage-zone-display-name"
+                            [placeholder]="'FORM.DISPLAY_NAME' | translate"
+                            [formField]="form.display_name"
+                        />
                     </mat-form-field>
                 </div>
                 <div>
@@ -156,12 +167,13 @@ export class ZoneEditModalComponent {
         ...this._data.zones(),
     ]);
     public readonly model = signal<ZoneEditFormModel>({
-        display_name: this.zone.display_name || this.zone.name || '',
+        name: this.zone.name || '',
+        display_name: this.zone.display_name || '',
         description: this.zone.description || '',
         parent_id: this.zone.parent_id || this._data.default_parent_id || '',
     });
     public readonly form = form(this.model, (path) => {
-        required(path.display_name);
+        required(path.name);
         required(path.parent_id);
     });
     public readonly selected_parent = linkedSignal<

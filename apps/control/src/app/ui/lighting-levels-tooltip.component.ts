@@ -11,7 +11,7 @@ import { getModule } from '@placeos/ts-client';
 import { ControlStateService } from '../control-state.service';
 
 @Component({
-    selector: 'lighting-tooltip',
+    selector: 'lighting-levels-tooltip',
     template: `
         <div
             class="bg-base-100 my-2 flex flex-col items-center space-y-4 rounded-sm p-2 shadow-sm"

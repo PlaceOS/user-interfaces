@@ -6,8 +6,10 @@ import {
     setCurrentUser,
     Space,
     StaffUser,
+    User,
     VERSION,
 } from '@placeos/common';
+import { newBookingFromCalendarEvent } from '../lib/booking.utilities';
 import {
     approveBooking,
     bookedResourceList,
@@ -16,6 +18,7 @@ import {
     createBooking,
     createBookingsForEvent,
     queryBookings,
+    queryResourceAvailability,
     rejectBooking,
     removeBooking,
     removeBookingInstance,
@@ -62,6 +65,30 @@ describe('[Booking API]', () => {
             expect(ts_client.get).toHaveBeenCalledWith(
                 `/api/staff/v1/bookings?period_start=1&period_end=2&type=desk`,
             );
+            spy.mockReset();
+        });
+    });
+
+    describe('queryResourceAvailability', () => {
+        it('should mark every room held by a multi-room booking as unavailable', async () => {
+            const spy = vi.spyOn(ts_client, 'get');
+            spy.mockResolvedValue([
+                {
+                    id: 'held',
+                    asset_id: 'room-1',
+                    asset_ids: ['room-1', 'room-2'],
+                },
+            ] as any);
+            expect(
+                await queryResourceAvailability(
+                    ['room-1', 'room-2', 'room-3'],
+                    0,
+                    30,
+                ),
+            ).toEqual([false, false, true]);
+            expect(
+                await queryResourceAvailability(['room-2'], 0, 30, 'held'),
+            ).toEqual([true]);
             spy.mockReset();
         });
     });
@@ -320,6 +347,38 @@ describe('[Booking API]', () => {
     });
 
     describe('saveBooking', () => {
+        it('should send the selected room host separately from the creator', async () => {
+            const host = new User({
+                id: 'staff-colleague',
+                email: 'colleague@example.com',
+                name: 'Selected Colleague',
+            });
+            const event = new CalendarEvent({
+                host: host.email,
+                creator: user_email,
+                attendees: [host],
+            });
+            const post = vi
+                .spyOn(ts_client, 'post')
+                .mockResolvedValue(undefined);
+
+            await saveBooking(
+                newBookingFromCalendarEvent(event.toJSON() as CalendarEvent),
+            );
+
+            expect(post).toHaveBeenCalledWith(
+                expect.stringContaining('/api/staff/v1/bookings?'),
+                expect.objectContaining({
+                    user_id: host.id,
+                    user_email: host.email,
+                    user_name: host.name,
+                    extension_data: expect.objectContaining({
+                        creator: user_email,
+                    }),
+                }),
+            );
+        });
+
         it('should create new bookings', async () => {
             const spy = vi.spyOn(ts_client, 'post');
             spy.mockResolvedValue({} as any);

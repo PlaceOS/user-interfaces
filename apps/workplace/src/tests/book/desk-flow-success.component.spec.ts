@@ -11,9 +11,9 @@ import {
     OrganisationService,
     SettingsService,
 } from '@placeos/common';
-import { BuildingPipe, LevelPipe } from '@placeos/components';
+import { BuildingPipe, LevelPipe, TranslatePipe } from '@placeos/components';
 import * as ts_client_mod from '@placeos/ts-client';
-import { MockProvider } from 'ng-mocks';
+import { MockPipe, MockProvider } from 'ng-mocks';
 
 import { NewDeskFlowSuccessComponent } from '../../app/book/desk-flow/desk-flow-success.component';
 
@@ -69,6 +69,12 @@ describe('NewDeskFlowSuccessComponent', () => {
     let spectator: SpectatorRouting<NewDeskFlowSuccessComponent>;
     const createComponent = createRoutingFactory({
         component: NewDeskFlowSuccessComponent,
+        declarations: [
+            MockPipe(
+                TranslatePipe,
+                (key, details) => `${key} ${JSON.stringify(details)}`,
+            ),
+        ],
         providers: [
             MockProvider(BookingFormService, {
                 last_success: group_booking,
@@ -77,6 +83,7 @@ describe('NewDeskFlowSuccessComponent', () => {
             } as any),
             MockProvider(OrganisationService, {
                 initialised: signal(true),
+                waitUntilInitialised: () => Promise.resolve(),
                 buildings: [],
                 levelWithID: vi.fn(() => new BuildingLevel()),
                 buildingWithID: vi.fn(() => new Building()),
@@ -102,6 +109,7 @@ describe('NewDeskFlowSuccessComponent', () => {
         vi.clearAllMocks();
         localStorage.clear();
         spectator = createComponent();
+        spectator.component.last_event.set(group_booking);
     });
 
     it('should return the number of group_members from extension_data as group_size', () => {
@@ -152,6 +160,63 @@ describe('NewDeskFlowSuccessComponent', () => {
                 error: 'Save failed',
             }),
         ]);
+    });
+
+    it.each([false, true])(
+        'should show partial success for all_day=%s',
+        async (all_day) => {
+            spectator.component.last_event.set(
+                new Booking({
+                    ...group_booking,
+                    all_day,
+                }),
+            );
+            spectator.component.group_bookings.set([group_booking]);
+            spectator.component.group_loading.set(false);
+            spectator.component.group_failures.set([
+                {
+                    email: 'member.two@example.com',
+                    name: 'Member Two',
+                    error: 'Member refused',
+                },
+            ]);
+
+            await spectator.fixture.whenStable();
+
+            expect(spectator.query('main > p')?.textContent).toContain(
+                'BOOKINGS.DESK_SUCCESS_GROUP_PARTIAL',
+            );
+        },
+    );
+
+    it('should not report a success count when booking details cannot be loaded', async () => {
+        localStorage.setItem(
+            'PLACEOS.last_group_booking_ids',
+            JSON.stringify(['group-1', 'booking-1']),
+        );
+        localStorage.setItem(
+            'PLACEOS.last_group_booking_errors',
+            JSON.stringify([
+                {
+                    email: 'member.two@example.com',
+                    name: 'Member Two',
+                    error: 'Member refused',
+                },
+            ]),
+        );
+        vi.mocked(ts_client_mod.get).mockRejectedValue(
+            new Error('Network unavailable'),
+        );
+
+        await spectator.component['_loadGroupBookings']();
+        await spectator.fixture.whenStable();
+
+        expect(spectator.query('main > p')?.textContent).toContain(
+            'BOOKINGS.DESK_GROUP_RESULTS_ERROR',
+        );
+        expect(spectator.query('main > p')?.textContent).not.toContain(
+            'BOOKINGS.DESK_SUCCESS_GROUP',
+        );
     });
 
     it('should use current desk names for group booking details', async () => {

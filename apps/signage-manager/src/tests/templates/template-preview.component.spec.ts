@@ -1,7 +1,12 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
-import { SignageService } from '../../app/signage.service';
+import { settingSignal } from '@placeos/common';
+import { SignageTemplateLayout } from '@placeos/ts-client';
+
+import { SignageDisplayService } from '../../app/displays/signage-display.service';
+import { SignagePluginService } from '../../app/signage-plugin.service';
+import { SignageTemplateService } from '../../app/templates/signage-template.service';
 import { TemplatePreviewComponent } from '../../app/templates/template-preview.component';
 
 describe('TemplatePreviewComponent', () => {
@@ -13,18 +18,23 @@ describe('TemplatePreviewComponent', () => {
     const displays = signal<
         { id: string; display_name?: string; name?: string }[]
     >([]);
-    const service_stub = {
+    const display_stub = { displays };
+    const plugin_stub = { widgets: signal([]) };
+    const template_stub = {
         selected_template,
         selected_template_layout_index: signal<number | null>(null),
-        template_layout_draft: signal([]),
-        widgets: signal([]),
-        displays,
+        template_layout_draft: signal<SignageTemplateLayout[]>([]),
     };
+    const stub_providers = [
+        { provide: SignageDisplayService, useValue: display_stub },
+        { provide: SignagePluginService, useValue: plugin_stub },
+        { provide: SignageTemplateService, useValue: template_stub },
+    ];
 
     async function make() {
         await TestBed.configureTestingModule({
             imports: [TemplatePreviewComponent],
-            providers: [{ provide: SignageService, useValue: service_stub }],
+            providers: stub_providers,
         })
             .overrideComponent(TemplatePreviewComponent, {
                 set: { template: '' },
@@ -37,7 +47,7 @@ describe('TemplatePreviewComponent', () => {
     async function render() {
         await TestBed.configureTestingModule({
             imports: [TemplatePreviewComponent],
-            providers: [{ provide: SignageService, useValue: service_stub }],
+            providers: stub_providers,
         }).compileComponents();
         const fixture = TestBed.createComponent(TemplatePreviewComponent);
         await fixture.whenStable();
@@ -47,7 +57,71 @@ describe('TemplatePreviewComponent', () => {
     beforeEach(() => {
         selected_template.set(null);
         displays.set([]);
+        template_stub.template_layout_draft.set([]);
+        settingSignal('signage_path').set(undefined);
         TestBed.resetTestingModule();
+    });
+
+    it('posts the layout draft to the live preview when it changes', async () => {
+        selected_template.set({ id: 'template-1' });
+        displays.set([{ id: 'display-1' }]);
+        const fixture = await render();
+        const component = fixture.componentInstance;
+        component.selected_display_id.set('display-1');
+        component.live_mode.set(true);
+        await fixture.whenStable();
+        const frame = (fixture.nativeElement as HTMLElement).querySelector(
+            'iframe',
+        ) as HTMLIFrameElement;
+        const post = vi.spyOn(frame.contentWindow!, 'postMessage');
+
+        template_stub.template_layout_draft.set([
+            { position: 'top', plugin_id: 'plugin-1' } as SignageTemplateLayout,
+        ]);
+        await fixture.whenStable();
+
+        expect(post).toHaveBeenLastCalledWith(
+            {
+                type: 'signage:template-layouts',
+                layouts: [
+                    expect.objectContaining({
+                        position: 'top',
+                        plugin_id: 'plugin-1',
+                    }),
+                ],
+            },
+            location.origin,
+        );
+    });
+
+    it('posts the layout draft when the live preview requests it', async () => {
+        selected_template.set({ id: 'template-1' });
+        displays.set([{ id: 'display-1' }]);
+        const fixture = await render();
+        const component = fixture.componentInstance;
+        component.selected_display_id.set('display-1');
+        component.live_mode.set(true);
+        await fixture.whenStable();
+        const frame = (fixture.nativeElement as HTMLElement).querySelector(
+            'iframe',
+        ) as HTMLIFrameElement;
+        const post = vi.spyOn(frame.contentWindow!, 'postMessage');
+        const request = (source: Window) =>
+            window.dispatchEvent(
+                new MessageEvent('message', {
+                    data: { type: 'signage:template-preview-ready' },
+                    source,
+                }),
+            );
+
+        request(window);
+        expect(post).not.toHaveBeenCalled();
+
+        request(frame.contentWindow!);
+        expect(post).toHaveBeenCalledWith(
+            { type: 'signage:template-layouts', layouts: [] },
+            location.origin,
+        );
     });
 
     it('selects a display before enabling the live preview', async () => {
@@ -82,6 +156,44 @@ describe('TemplatePreviewComponent', () => {
         expect(component.live_preview_available()).toBe(true);
         expect(component.live_preview_url()).toBe(
             '/signage/#/template/template%201/display%201?debug=true',
+        );
+    });
+
+    it('refuses a signage path that is not a web URL', async () => {
+        selected_template.set({ id: 'template-1' });
+        const component = await make();
+        component.selected_display_id.set('display-1');
+
+        component.signage_path.set('javascript:alert(1)//');
+        expect(component.live_preview_url()).toBe(
+            '/signage/#/template/template-1/display-1?debug=true',
+        );
+
+        component.signage_path.set('https://player.example.com/signage/');
+        expect(component.live_preview_url()).toBe(
+            'https://player.example.com/signage/#/template/template-1/display-1?debug=true',
+        );
+    });
+
+    it('posts the layout draft only to the player origin', async () => {
+        selected_template.set({ id: 'template-1' });
+        displays.set([{ id: 'display-1' }]);
+        const fixture = await render();
+        const component = fixture.componentInstance;
+        component.signage_path.set('https://player.example.com/signage');
+        component.selected_display_id.set('display-1');
+        component.live_mode.set(true);
+        await fixture.whenStable();
+        const frame = (fixture.nativeElement as HTMLElement).querySelector(
+            'iframe',
+        ) as HTMLIFrameElement;
+        const post = vi.spyOn(frame.contentWindow!, 'postMessage');
+
+        component.postDraftLayouts();
+
+        expect(post).toHaveBeenCalledWith(
+            { type: 'signage:template-layouts', layouts: [] },
+            'https://player.example.com',
         );
     });
 

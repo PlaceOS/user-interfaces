@@ -5,7 +5,12 @@ import {
     provideZonelessChangeDetection,
 } from '@angular/core';
 import { bootstrapApplication } from '@angular/platform-browser';
-import { provideRouter, Router, withHashLocation } from '@angular/router';
+import {
+    provideRouter,
+    Router,
+    Routes,
+    withHashLocation,
+} from '@angular/router';
 import { provideServiceWorker } from '@angular/service-worker';
 
 import {
@@ -16,13 +21,14 @@ import * as Sentry from '@sentry/angular';
 
 import { AppComponent } from './app/app.component';
 import { BootstrapComponent } from './app/bootstrap.component';
+import { tabbedRouteMatcher } from './app/tabbed-view/tabbed-route';
 import { environment } from './environments/environment';
 
 if (environment.production) {
     enableProdMode();
 }
 
-const routes = [
+const routes: Routes = [
     { path: 'unauthorised', component: UnauthorisedComponent },
     {
         path: 'bootstrap',
@@ -38,15 +44,7 @@ const routes = [
         canActivate: [AuthorisedUserGuard],
     },
     {
-        path: 'tabbed/:system',
-        loadComponent: () =>
-            import('./app/tabbed-view/tabbed-view.component').then(
-                (m) => m.ControlTabbedViewComponent,
-            ),
-        canActivate: [AuthorisedUserGuard],
-    },
-    {
-        path: 'tabbed/:system/:tab',
+        matcher: tabbedRouteMatcher,
         loadComponent: () =>
             import('./app/tabbed-view/tabbed-view.component').then(
                 (m) => m.ControlTabbedViewComponent,

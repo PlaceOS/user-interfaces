@@ -1,6 +1,6 @@
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
-import { SettingsService, setNotifyOutlet } from '@placeos/common';
+import { setNotifyOutlet, SettingsService } from '@placeos/common';
 import { MockProvider } from 'ng-mocks';
 
 import { ItemListModalComponent } from '../../app/building-manager/item-list-modal.component';
@@ -54,6 +54,42 @@ describe('ItemListModalComponent', () => {
         ]);
     });
 
+    it('should load the concierge list when workplace has none', async () => {
+        (ts_client.showMetadata as any).mockImplementation((_id, key) =>
+            Promise.resolve({
+                details:
+                    key === 'concierge_app'
+                        ? { support_issue_types: [{ name: 'HR', email: 'hr@x' }] }
+                        : {},
+            }),
+        );
+
+        await spectator.component.ngOnInit();
+
+        expect(spectator.component.item_list()).toEqual([
+            { name: 'HR', email: 'hr@x' },
+        ]);
+    });
+
+    it('should ignore an empty workplace list when concierge has one', async () => {
+        (ts_client.showMetadata as any).mockImplementation((_id, key) =>
+            Promise.resolve({
+                details: {
+                    support_issue_types:
+                        key === 'concierge_app'
+                            ? [{ name: 'HR', email: 'hr@x' }]
+                            : [],
+                },
+            }),
+        );
+
+        await spectator.component.ngOnInit();
+
+        expect(spectator.component.item_list()).toEqual([
+            { name: 'HR', email: 'hr@x' },
+        ]);
+    });
+
     it('should add, update and remove items', () => {
         spectator.component.addItem();
         expect(spectator.component.item_list()).toEqual([
@@ -85,6 +121,22 @@ describe('ItemListModalComponent', () => {
         ]);
         expect(spectator.inject(MatDialogRef).close).toHaveBeenCalled();
         expect(spectator.component.loading()).toBe(false);
+    });
+
+    it('should keep the settings of each app key when saving', async () => {
+        (ts_client.showMetadata as any).mockImplementation((_id, key) =>
+            Promise.resolve({ details: { key }, description: '' }),
+        );
+
+        await spectator.component.save();
+
+        const bodies = (ts_client.updateMetadata as any).mock.calls.map(
+            ([, body]) => body,
+        );
+        expect(bodies.map((body) => [body.name, body.details.key])).toEqual([
+            ['workplace_app', 'workplace_app'],
+            ['concierge_app', 'concierge_app'],
+        ]);
     });
 
     it('should notify and not close when saving fails', async () => {

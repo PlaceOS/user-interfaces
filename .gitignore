@@ -79,3 +79,6 @@ refs
 .nx/polygraph
 
 .nx/migrate-runs
+
+.testers
+.reviewers

@@ -1,4 +1,5 @@
 import {
+    createScheduleMaskFilter,
     getLastCronRunTimestampInRange,
     getNextCronRunTimestampInRange,
 } from '../app/cron-helpers';
@@ -213,5 +214,125 @@ describe('cron helpers', () => {
                 localDate(2026, 3, 2, 10, 0).getTime(),
             ),
         ).toThrow('Invalid CRON string: Must have 5 parts.');
+    });
+});
+
+describe('schedule masking', () => {
+    const start = localDate(2026, 3, 2, 9);
+    const schedule = { valid_from: start.getTime() / 1000, mask: '101' };
+
+    it('repeats the mask and supports backwards clock changes', () => {
+        const allows = createScheduleMaskFilter('0 9 * * *', schedule);
+        expect(
+            Array.from({ length: 7 }, (_, index) =>
+                allows(localDate(2026, 3, 2 + index, 9)),
+            ),
+        ).toEqual([true, false, true, true, false, true, true]);
+        expect(allows(start)).toBe(true);
+        expect(allows(localDate(2026, 3, 1, 9))).toBe(false);
+    });
+
+    it('counts occurrences rather than days', () => {
+        const allows = createScheduleMaskFilter('0 9 * * 1,3,5', {
+            ...schedule,
+            mask: '10',
+        });
+        expect(allows(localDate(2026, 3, 4, 9))).toBe(false);
+        expect(allows(localDate(2026, 3, 6, 9))).toBe(true);
+        expect(allows(localDate(2026, 3, 9, 9))).toBe(false);
+    });
+
+    it('counts monthly weekday runs across month and year boundaries', () => {
+        const anchor = localDate(2025, 12, 1, 9);
+        const allows = createScheduleMaskFilter('0 9 1-7,15-21 * 1', {
+            valid_from: anchor.getTime() / 1000,
+            mask: '101',
+        });
+        expect(allows(localDate(2025, 12, 15, 9))).toBe(false);
+        expect(allows(localDate(2026, 1, 5, 9))).toBe(true);
+        expect(allows(localDate(2026, 1, 19, 9))).toBe(true);
+        expect(allows(localDate(2026, 2, 2, 9))).toBe(false);
+        expect(allows(anchor)).toBe(true);
+    });
+
+    it('does not count a nonexistent local time during daylight saving', () => {
+        const anchor = localDate(2026, 3, 7, 2, 30);
+        const transition = localDate(2026, 3, 8, 2, 30);
+        const allows = createScheduleMaskFilter('30 2 * * *', {
+            valid_from: anchor.getTime() / 1000,
+            mask: '10',
+        });
+        const skipped = transition.getHours() !== 2;
+        expect(allows(localDate(2026, 3, 9, 2, 30))).toBe(!skipped);
+        expect(allows(localDate(2026, 3, 10, 2, 30))).toBe(skipped);
+    });
+
+    it('starts after a partial minute and retains leading zeros across 128 bits', () => {
+        const allows = createScheduleMaskFilter('* * * * *', {
+            valid_from: schedule.valid_from + 30,
+            mask: '0'.repeat(127) + '1',
+        });
+        expect(allows(localDate(2026, 3, 2, 11, 7))).toBe(false);
+        expect(allows(localDate(2026, 3, 2, 11, 8))).toBe(true);
+        expect(allows(localDate(2026, 3, 2, 11, 9))).toBe(false);
+    });
+
+    it.each(['000', '10x', '1'.repeat(129), ' 1'])(
+        'rejects unplayable mask %s',
+        (mask) => {
+            expect(
+                getNextCronRunTimestampInRange(
+                    '0 9 * * *',
+                    86400,
+                    start.getTime(),
+                    { ...schedule, mask },
+                ),
+            ).toBeNull();
+        },
+    );
+
+    it('requires an anchor for a mask and honours an unmasked start limit', () => {
+        expect(
+            createScheduleMaskFilter('0 9 * * *', { mask: '1' })(start),
+        ).toBe(false);
+        expect(
+            createScheduleMaskFilter('0 9 * * *', {
+                valid_from: schedule.valid_from + 1,
+            })(start),
+        ).toBe(false);
+    });
+
+    it('stops playback when the latest overlapping run is masked', () => {
+        expect(
+            getLastCronRunTimestampInRange(
+                '0 9 * * *',
+                2 * 86400,
+                localDate(2026, 3, 3, 10).getTime(),
+                schedule,
+            ),
+        ).toBeNull();
+    });
+
+    it('skips masked upcoming runs and separates cached mask results', () => {
+        const now = start.getTime();
+        expectLocalDate(
+            getNextCronRunTimestampInRange(
+                '0 9 * * *',
+                3 * 86400,
+                now,
+                schedule,
+            ),
+            localDate(2026, 3, 4, 9),
+        );
+        expectLocalDate(
+            getNextCronRunTimestampInRange('0 9 * * *', 3 * 86400, now, {
+                ...schedule,
+                mask: '111',
+            }),
+            localDate(2026, 3, 3, 9),
+        );
+        expect(
+            getNextCronRunTimestampInRange('0 9 * * *', 86400, now, schedule),
+        ).toBeNull();
     });
 });

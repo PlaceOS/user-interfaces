@@ -1,7 +1,8 @@
+import { SIGNAGE_FEATURE_IDS } from '../app/signage-features';
 import { DEFAULT_SETTINGS } from '../environments/settings';
 
 describe('signage manager settings', () => {
-    it('should show template management by default', () => {
-        expect(DEFAULT_SETTINGS.app.templates_enabled).toBe(true);
+    it('should turn every signage feature on by default', () => {
+        expect(DEFAULT_SETTINGS.app.features).toEqual(SIGNAGE_FEATURE_IDS);
     });
 });

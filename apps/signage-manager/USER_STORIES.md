@@ -2,7 +2,7 @@
 
 ## Overview
 
-The Signage Manager app lets authorised users manage signage media, playlists, templates, display and zone playlist assignments, daily schedule visibility, and signage access groups. Navigation is permission-aware: media, playlists, templates, zones, schedules, and displays are available to users with signage access, while group management is shown only to users who can manage signage groups.
+The Signage Manager app lets authorised users manage signage media, playlists, templates, display and zone playlist assignments, daily schedule visibility, and signage access groups. Navigation is permission-aware: media, playlists, templates, zones, schedules, displays, and manage are available to users with signage access, while group management is shown only to users who can manage signage groups. The manage section shows the content report and branding as tabs. The branding tab shows only when image generation is enabled.
 
 ---
 
@@ -11,13 +11,14 @@ The Signage Manager app lets authorised users manage signage media, playlists, t
 These stories cover the current app workflows:
 
 - Access and navigation: authorised app load, unknown-route redirect, desktop navigation, mobile navigation, and active signage group selector.
-- Media library: search, filtered counts, grid/list/folder views backed by media tags, group tabs, file upload entry point, add from link, plugin catalogue selection, preview, edit, item share, item delete action, multi-select, bulk delete confirmation, bulk share, and bulk add to playlist.
+- Media library: backend search, result counts, grid/list/folder views backed by media tags, group tabs, file upload entry point, add from link, plugin catalogue selection, preview, edit, item share, item delete action, multi-select, bulk delete confirmation, bulk share, and bulk add to playlist.
 - Playlists: search, create, select, edit details, item preview, item schedules, approval request or approval, share group selection, delete confirmation, and display or zone assignment.
 - Templates: search, create, select, edit layouts, preview, approval request or approval, and delete confirmation.
 - Zones: search, direct selection, create, edit, delete, playlist tab, display tab, add playlist, and add display.
 - Displays: search, direct selection, player link when available, schedule tab, playlist tab, zone tab, and add playlist.
-- Schedules: display and zone timeline tabs, previous day, next day, today, search, clear search, empty states, and row links.
-- Signage groups: searchable group tree, create, edit, delete entry point, user assignment, user permission editing, zone assignment, zone permission editing, and deny-state editing.
+- Schedules: display and zone timeline tabs, previous day, next day, today, search, clear search, empty states, row links, and takeover conflict warnings.
+- Content report: takeover conflicts, displays with no playlists, unassigned playlists, expired playlists that are still assigned, and expired media in playlists.
+- Signage groups: searchable group tree, create, edit, delete entry point, user assignment, user permission editing, zone assignment, zone permission editing, deny-state editing, group feature flags, default permissions, and AD group sync.
 - Responsive workflows: compact media add menu and mobile footer navigation.
 
 ---
@@ -37,6 +38,9 @@ These stories cover the current app workflows:
 - The app waits for signage group loading before deciding access.
 - The default route opens the media library.
 - The group management route is hidden unless the user can manage signage groups.
+- Users can press Cmd+K (macOS) or Ctrl+K to open a command palette, including from a text field. The search button in the nav sidebar also opens it.
+- The palette lists the pages the user can open. Typing filters the pages and searches displays, playlists, templates, zones, and media, up to 5 of each.
+- Users can use the arrow keys and Enter to open a result. Media opens in the preview.
 
 ---
 
@@ -66,8 +70,8 @@ These stories cover the current app workflows:
 
 **Acceptance Criteria:**
 
-- The media page shows total media count and filtered count when searching.
-- Users can search media.
+- The media page shows the media count for the current group and search. While a sort or filter is active, it shows the filtered count.
+- Users can search all media in the group, including media that has not loaded yet.
 - Users can switch between grid, list, and folder views.
 - Folder view groups media by tag and includes an Untagged folder.
 - Users with update permission can rename tags or remove them from all media in the active group.
@@ -75,6 +79,9 @@ These stories cover the current app workflows:
 - System administrators and support users can manage tags across all groups from the All Groups view.
 - Media cards show type, thumbnail or fallback icon, duration, tags, and expired state where available.
 - The list loads additional media as the user scrolls.
+- Users can sort media by newest, oldest, name, or soonest expiry.
+- Users can filter media by type (image, video, webpage, plugin) and by expiry (expires within 7 days, expired).
+- While a sort or filter is active, the page loads all media in the group, because the API cannot sort or filter it.
 
 ---
 
@@ -109,6 +116,7 @@ These stories cover the current app workflows:
 - Users with update permission can add media to a playlist.
 - Users with share permission can share media.
 - Users with delete permission can remove media.
+- The delete confirmation lists the playlists that use the media. Deleting the media removes it from those playlists, including distribution playlists.
 - Share and delete actions open confirmation or group-selection dialogs before making changes.
 - Users can select multiple media items and bulk add tags, delete, share, or add them to a playlist when permitted.
 
@@ -129,6 +137,7 @@ These stories cover the current app workflows:
 - Playlist rows show disabled, expired, pending, awaiting review, and approval-required states.
 - Additional playlists load as the user scrolls.
 - Users with create permission can create a new playlist.
+- Users with create permission can duplicate a playlist. The copy has the same settings, items, and item schedules. It is not approved and is not assigned to displays or zones.
 - Selecting a playlist opens its items and details.
 
 ---
@@ -142,6 +151,7 @@ These stories cover the current app workflows:
 **Acceptance Criteria:**
 
 - Users can view media items in the selected playlist.
+- Non-distribution playlists show the item count and the time to play each item once. The time uses the same fallbacks as the player: item play time, video length, playlist default, then 15 seconds.
 - Users can preview a playlist item.
 - Users with update permission can reorder playlist items by drag and drop.
 - Distribution playlists cannot be reordered from the item list.
@@ -197,11 +207,13 @@ These stories cover the current app workflows:
 
 - The templates page shows a searchable template list and loads more templates as the user scrolls.
 - Users with create or update permission can create templates and edit their layout items.
+- Users with create permission can duplicate a template. The copy has the same settings and saved layouts. It is not approved and has no template mappings.
 - Template rows show approval-required and awaiting-review states.
 - Users with approval permission can review and approve a selected template.
 - Users without approval permission can select an approver and request template approval with a message.
 - The approval preview shows only changed layout items from the pending and approved templates, including the applicable X and Y values. It shows a no-older-version placeholder when no distinct approved version exists.
 - Users with update permission can discard pending changes when an approved version exists.
+- Users must confirm before they leave a template that has unsaved layout changes. Confirming discards the changes. The browser warns before a reload or tab close drops them.
 
 ---
 
@@ -236,6 +248,7 @@ These stories cover the current app workflows:
 **Acceptance Criteria:**
 
 - The displays page lists signage displays and supports direct routes to a selected display.
+- Each display in the list shows an online or offline status. A display is offline when its player has not checked in for more than 5 minutes. The tooltip shows when the player last checked in.
 - Selecting a display shows schedule, playlist, and zone tabs.
 - The display header includes a debug player link for the selected display.
 - The playlist tab shows playlists assigned directly to the display and their status.
@@ -260,6 +273,24 @@ These stories cover the current app workflows:
 - Users can search schedules by display, zone, playlist, and source labels where applicable.
 - Timeline rows link to the related display or zone detail page.
 - Empty and filtered states explain when no rows are available.
+- Users must confirm a change that makes two takeover playlists play at the same time on a display in the next 14 days. The check runs when users save playlist schedules and when they assign a playlist to a display or zone. The warning names the display, the other playlist, and the start time of the overlap.
+
+---
+
+### US-SGM-018: Review Content That Needs Attention
+
+**As a** signage administrator  
+**I want to** see content problems in one place  
+**So that** I can fix them before they show on screens
+
+**Acceptance Criteria:**
+
+- The report is the first tab of the Manage section. The old `/report` and `/branding` addresses open the matching Manage tab.
+- The report checks all displays, zones, playlists, and media in the selected group, not only the pages loaded in other views.
+- The report lists takeover conflicts in the next 14 days, displays with no playlist from the display or its zones, playlists not assigned to a display or zone, expired playlists that are still assigned, and expired media that is still in a playlist.
+- Display and playlist rows open the related detail page. Media rows open the media preview.
+- Each section shows a count, and shows a message when there is nothing to fix.
+- Users can refresh the report.
 
 ---
 
@@ -291,7 +322,7 @@ These stories cover the current app workflows:
 **Acceptance Criteria:**
 
 - The users panel lists assigned users with name, email, and permission labels.
-- Users can add a user not already assigned to the group.
+- Users can add a user not already assigned to the group. The user gets the default permissions of the group.
 - Users can edit an assigned user's signage permissions.
 - Users can remove an assigned user from the group.
 - Empty state appears when no users are assigned.
@@ -314,6 +345,47 @@ These stories cover the current app workflows:
 
 ---
 
+### US-SGM-019: Limit Group Features
+
+**As a** system administrator or manager of a parent group  
+**I want to** limit the signage features of a group  
+**So that** users of that group see only the tools they are allowed to use
+
+**Acceptance Criteria:**
+
+- The `app.features` setting sets the features for every group: `templates`, `template-editing`, `ai-generation`, `ai-editing` and `branding-editing`.
+- The group header shows a features button to system administrators and to managers of a parent group. Members and managers of only the group itself do not see it.
+- The editor shows only the features that `app.features` turns on, and the plugins by name. A group can turn a feature off, but it cannot add a feature that the settings do not have.
+- The group gets each list from its parent groups until it sets its own. A child group can turn a feature on again if the settings allow it. "Use parent value" removes the group's own list.
+- Saving removes plugin IDs that no longer match a plugin.
+- When a group is selected, the features that both the settings and the group allow apply:
+  - Without `templates`, the templates section is hidden.
+  - Without `template-editing`, template create, edit, duplicate, delete and layout changes are hidden. Template mappings stay available.
+  - Without `ai-generation`, the AI create actions are hidden.
+  - Without `ai-editing`, "Edit with AI" and refinement in the AI editor are hidden.
+  - Without `branding-editing`, the branding tab is read-only.
+- The All Groups view uses only `app.features`.
+
+---
+
+### US-SGM-020: Set Group Access Defaults and AD Group Sync
+
+**As a** system administrator or manager of a signage group  
+**I want to** set the default permissions of a group and map AD groups to it  
+**So that** new members and members of an AD group get the correct permissions automatically
+
+**Acceptance Criteria:**
+
+- The group header shows a group access button. Only system administrators and managers of the group can save changes.
+- The editor shows the default permissions of the group. A user that is added to the group without explicit permissions gets these permissions.
+- The editor lists the mapped AD groups with the name, ID, and permissions of each mapping. Users can change the permissions of a mapping or remove it.
+- When the domain has a staff API tenant that can list directory groups, users search `/api/staff/v1/groups` and select a group to map it.
+- When the directory search is not available, users type the AD group ID and an optional name.
+- A new mapping starts with the default permissions of the group.
+- Saving writes `default_permissions` and `ad_group_mappings` on the group. The backend adds and removes the members of mapped AD groups when it syncs AD groups.
+
+---
+
 ## Responsive Layouts
 
 ### US-SGM-016: Use Signage Manager on Mobile
@@ -325,6 +397,6 @@ These stories cover the current app workflows:
 **Acceptance Criteria:**
 
 - Mobile layout exposes the primary app navigation from the footer.
-- Overflow navigation shows less common sections, including schedules, when space is limited.
+- Overflow navigation shows less common sections, including schedules and manage, when space is limited.
 - Media creation actions remain available from a compact media actions menu.
 - Compact media actions include upload, add from link, and add plugin options.

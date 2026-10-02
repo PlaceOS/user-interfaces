@@ -5,6 +5,7 @@ import {
     effect,
     inject,
     signal,
+    untracked,
 } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { RouterModule } from '@angular/router';
@@ -15,6 +16,7 @@ import {
     currentUser,
     i18n,
     unique,
+    user_group_names,
 } from '@placeos/common';
 import { IconComponent } from '@placeos/components';
 
@@ -112,6 +114,12 @@ export class ApplicationSidebarComponent
             const building = this._org.active_building();
             if (!building) return;
             this.timeout('update_links', () => this.updateFilteredLinks(), 500);
+        });
+        // Feature access can depend on the current user's groups
+        effect(() => {
+            user_group_names();
+            if (!this.links.length) return;
+            untracked(() => this.updateFilteredLinks());
         });
     }
 

@@ -62,6 +62,11 @@ export function registerMockBookings() {
                 );
             }
 
+            // Real API hides soft-deleted bookings unless asked for them
+            if (!_.query_params.include_deleted && !_.query_params.deleted) {
+                events = events.filter((booking) => !booking.deleted);
+            }
+
             // Filter by type if provided
             if (_.query_params.type) {
                 events = events.filter(
@@ -332,15 +337,17 @@ export function registerMockBookings() {
         metadata: {},
         method: 'DELETE',
         callback: (req) => {
-            const index = ALL_BOOKINGS.findIndex(
+            const booking = ALL_BOOKINGS.find(
                 (e) => `${e.id}` === `${req.route_params.id}`,
             );
-            if (index < 0)
+            if (!booking)
                 throw {
                     status: 404,
                     message: `Unable to find booking with ID ${req.route_params.id}`,
                 };
-            ALL_BOOKINGS.splice(index, 1);
+            // Real API soft-deletes, so the booking stays queryable as cancelled
+            booking.deleted = true;
+            booking.deleted_at = Math.floor(Date.now() / 1000);
             return;
         },
     });

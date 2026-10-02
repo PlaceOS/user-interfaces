@@ -326,7 +326,12 @@ export class ScheduleComponent extends AsyncHandler implements OnInit {
             },
             this._dialog,
         );
-        if (item instanceof CalendarEvent && item.creator !== item.mailbox) {
+        if (resp.reason !== 'done') return;
+        if (
+            item instanceof CalendarEvent &&
+            !item.from_bookings &&
+            item.creator !== item.mailbox
+        ) {
             item =
                 (
                     await queryEvents({
@@ -338,7 +343,6 @@ export class ScheduleComponent extends AsyncHandler implements OnInit {
                     (_) => _.ical_uid === (item as CalendarEvent).ical_uid,
                 ) || item;
         }
-        if (resp.reason !== 'done') return;
         resp.loading(
             i18n(
                 remove_series
@@ -347,7 +351,9 @@ export class ScheduleComponent extends AsyncHandler implements OnInit {
             ),
         );
         const remove_result = (
-            item instanceof CalendarEvent ? removeEvent : removeBooking
+            item instanceof CalendarEvent && !item.from_bookings
+                ? removeEvent
+                : removeBooking
         )(
             remove_series
                 ? (item as any).recurring_event_id || item.id

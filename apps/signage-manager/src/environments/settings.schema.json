@@ -45,7 +45,7 @@
         "schedule_timezone_once_only": {
             "type": "boolean",
             "default": true,
-            "description": "Show the schedule timezone selector only for schedules that play once. Set to false to also show it for recurring schedules."
+            "description": "Show the timezone selector above the timing fields for schedules that play once at an exact time, and inside the validity block for other schedules. Set to false to show it above the timing fields for both schedule types."
         },
         "locales": {
             "type": "array",
@@ -64,9 +64,19 @@
             "type": "string",
             "description": "Base URL path of the signage viewer application, used to build display preview links. Defaults to `/signage`."
         },
-        "templates_enabled": {
-            "type": "boolean",
-            "description": "Whether the template management section is available. Defaults to `true`."
+        "features": {
+            "type": "array",
+            "description": "Signage features available to every group: `templates`, `template-editing`, `ai-generation`, `ai-editing`, `branding-editing`. Signage group feature flags can narrow this list. Defaults to all features.",
+            "items": {
+                "type": "string",
+                "enum": [
+                    "templates",
+                    "template-editing",
+                    "ai-generation",
+                    "ai-editing",
+                    "branding-editing"
+                ]
+            }
         }
     },
     "$defs": {

@@ -20,6 +20,7 @@ describe('PlaylistEditModalComponent', () => {
         disableClose: false,
     };
     const onEdit = vi.fn();
+    const before_save = vi.fn();
     const hotkey_listen = vi.fn();
     let hotkey_callback: () => void;
 
@@ -28,6 +29,7 @@ describe('PlaylistEditModalComponent', () => {
         setNotifyOutlet({ open: notify_open } as any, true);
         dialog_ref.disableClose = false;
         onEdit.mockResolvedValue({ id: 'playlist-1' });
+        before_save.mockResolvedValue(true);
         hotkey_listen.mockImplementation(
             (_combo: string[], callback: () => void) => {
                 hotkey_callback = callback;
@@ -55,6 +57,7 @@ describe('PlaylistEditModalComponent', () => {
                             ],
                         },
                         onEdit,
+                        beforeSave: before_save,
                     },
                 },
                 { provide: MatDialogRef, useValue: dialog_ref },
@@ -68,6 +71,78 @@ describe('PlaylistEditModalComponent', () => {
                 set: { template: '' },
             })
             .compileComponents();
+    });
+
+    it('keeps the modal open when the pre-save check says stop', async () => {
+        before_save.mockResolvedValue(false);
+        const component = TestBed.createComponent(
+            PlaylistEditModalComponent,
+        ).componentInstance;
+
+        await component.savePlaylist();
+
+        expect(before_save).toHaveBeenCalled();
+        expect(onEdit).not.toHaveBeenCalled();
+        expect(dialog_ref.close).not.toHaveBeenCalled();
+        expect(component.loading()).toBe(false);
+    });
+
+    it('blocks saving a schedule with reversed validity limits', async () => {
+        const component = TestBed.createComponent(
+            PlaylistEditModalComponent,
+        ).componentInstance;
+        component.model.update((value) => ({
+            ...value,
+            schedules: value.schedules.map((schedule) => ({
+                ...schedule,
+                has_valid_from: true,
+                valid_from: 2000,
+                has_valid_until: true,
+                valid_until: 1000,
+            })),
+        }));
+        await component.savePlaylist();
+        expect(onEdit).not.toHaveBeenCalled();
+        expect(dialog_ref.close).not.toHaveBeenCalled();
+        component.model.update((value) => ({ ...value, distribution: true }));
+        await component.savePlaylist();
+        expect(onEdit).toHaveBeenCalled();
+    });
+
+    it('requires a start before saving a binary mask', async () => {
+        const component = TestBed.createComponent(
+            PlaylistEditModalComponent,
+        ).componentInstance;
+        component.model.update((value) => ({
+            ...value,
+            schedules: value.schedules.map((schedule) => ({
+                ...schedule,
+                has_mask: true,
+                mask: '00101',
+            })),
+        }));
+        await component.savePlaylist();
+        expect(onEdit).not.toHaveBeenCalled();
+        component.model.update((value) => ({
+            ...value,
+            schedules: value.schedules.map((schedule) => ({
+                ...schedule,
+                has_valid_from: true,
+                valid_from: 1770000000000,
+            })),
+        }));
+        await component.savePlaylist();
+        expect(onEdit).toHaveBeenCalledWith(
+            'playlist-1',
+            expect.objectContaining({
+                schedules: [
+                    expect.objectContaining({
+                        mask: '00101',
+                        valid_from: 1770000000,
+                    }),
+                ],
+            }),
+        );
     });
 
     it('saves monthly weekday schedules with multiple month instances', async () => {
@@ -96,11 +171,13 @@ describe('PlaylistEditModalComponent', () => {
             expect.objectContaining({
                 schedules: [
                     {
-                        play_at: 0,
+                        play_at: undefined,
                         play_cron: '0 9 1-7,15-21 * 1,3',
                         play_period: 120,
                         play_takeover: false,
-                        valid_until: 0,
+                        valid_from: undefined,
+                        valid_until: undefined,
+                        mask: '',
                     },
                 ],
             }),
@@ -179,6 +256,9 @@ describe('PlaylistEditModalComponent', () => {
                           ...schedule,
                           schedule_type: 'play_at',
                           play_at,
+                          play_at_exact: true,
+                          has_valid_from: true,
+                          valid_from: play_at - 3600000,
                           play_period: 45,
                           play_takeover: true,
                       }
@@ -193,18 +273,22 @@ describe('PlaylistEditModalComponent', () => {
             expect.objectContaining({
                 schedules: [
                     {
-                        play_at: 0,
+                        play_at: undefined,
                         play_cron: '0 9 * * *',
                         play_period: 120,
                         play_takeover: false,
-                        valid_until: 0,
+                        valid_from: undefined,
+                        valid_until: undefined,
+                        mask: '',
                     },
                     {
                         play_at: Math.floor(play_at / 1000),
                         play_cron: '0 0 * * *',
                         play_period: 45,
                         play_takeover: true,
-                        valid_until: 0,
+                        valid_from: Math.floor(play_at / 1000) - 3600,
+                        valid_until: undefined,
+                        mask: '',
                     },
                 ],
             }),

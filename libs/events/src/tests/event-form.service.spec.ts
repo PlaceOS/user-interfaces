@@ -7,6 +7,7 @@ import {
     Building,
     CalendarEvent,
     currentUser,
+    EMPTY_USER,
     i18n,
     OrganisationService,
     setCurrentUser,
@@ -116,6 +117,153 @@ describe('EventFormService', () => {
         sessionStorage.clear();
     });
 
+    it.each([0, 1, 2, 3, 4, 5, 6])(
+        'should submit native weekly room recurrence for weekday %s',
+        async (weekday) => {
+            vi.spyOn(service, 'book_internal', 'get').mockReturnValue(true);
+            const date = new Date(2028, 5, 18 + weekday, 9).valueOf();
+            const end = new Date(2028, 7, 31, 23, 59).valueOf();
+            const room = new Space({
+                id: 'room-weekly',
+                email: 'room@example.com',
+                zones: ['bld-1'],
+            });
+            const event = new CalendarEvent({
+                date,
+                duration: 60,
+                resources: [room],
+                recurring: true,
+                recurrence: {
+                    pattern: 'weekly',
+                    interval: 1,
+                    days_of_week: [weekday],
+                    start: date,
+                    end,
+                },
+            });
+            const post = vi.mocked<
+                (url: string, data: object) => Promise<unknown>
+            >(ts_client.post);
+            post.mockClear();
+            post.mockImplementation(async (_, data) => ({
+                ...data,
+                id: 'booking-weekly',
+            }));
+
+            await (
+                service as unknown as {
+                    _performBooking: (
+                        event: CalendarEvent,
+                        query: Record<string, string | number>,
+                    ) => Promise<CalendarEvent>;
+                }
+            )._performBooking(event, {});
+
+            expect(post).toHaveBeenCalledWith(
+                expect.stringContaining('/api/staff/v1/bookings'),
+                expect.objectContaining({
+                    booking_type: 'room',
+                    asset_id: room.id,
+                    recurrence_type: 'daily',
+                    recurrence_days: 1 << weekday,
+                    recurrence_interval: 1,
+                    recurrence_end: end / 1000,
+                }),
+            );
+        },
+    );
+
+    it.each([EMPTY_USER.email, 'delegate@test.com'])(
+        'should exclude placeholder attendees and create only valid visitor bookings for host %s',
+        async (host) => {
+            const perform_booking_spy = vi
+                .spyOn(
+                    service as unknown as {
+                        _performBooking: (
+                            event: CalendarEvent,
+                        ) => Promise<CalendarEvent>;
+                    },
+                    '_performBooking',
+                )
+                .mockImplementation(
+                    async (event) =>
+                        new CalendarEvent({ ...event, id: 'event-1' }),
+                );
+            vi.mocked<(url: string) => Promise<unknown>>(
+                ts_client.get,
+            ).mockResolvedValue([]);
+            vi.mocked(ts_client.post).mockClear();
+            vi.mocked<(url: string, data: object) => Promise<unknown>>(
+                ts_client.post,
+            ).mockResolvedValue({
+                id: 'visitor-booking-1',
+            });
+            const guest = new User({
+                name: 'Test Visitor',
+                email: 'visitor@example.com',
+            });
+            const room = new Space({ id: 'space-1', email: 'room@test.com' });
+            const date = new Date(2028, 5, 16, 16).valueOf();
+            sessionStorage.setItem(
+                'PLACEOS.event',
+                JSON.stringify({
+                    id: 'event-1',
+                    date,
+                    duration: 60,
+                    resources: [room],
+                }),
+            );
+            sessionStorage.setItem(
+                'PLACEOS.event_form',
+                JSON.stringify({
+                    host,
+                    creator: EMPTY_USER.email,
+                    organiser: EMPTY_USER,
+                    title: 'Visitor meeting',
+                    date,
+                    duration: 60,
+                    attendees: [
+                        new User(EMPTY_USER),
+                        new User({ email: '@app.user' }),
+                        new User(),
+                        guest,
+                    ],
+                    resources: [room],
+                }),
+            );
+            service.loadForm();
+            await expect(service.postForm(true)).resolves.toMatchObject({
+                id: 'event-1',
+            });
+
+            const posted_event = perform_booking_spy.mock.calls[0][0];
+            expect(posted_event.attendees.map((user) => user.email)).toEqual([
+                guest.email,
+                host === EMPTY_USER.email ? currentUser().email : host,
+            ]);
+            expect(
+                posted_event.attendees.find(
+                    (user) => user.email === guest.email,
+                )?.name,
+            ).toBe(guest.name);
+            expect(ts_client.post).toHaveBeenCalledTimes(1);
+            expect(ts_client.post).toHaveBeenCalledWith(
+                expect.stringContaining('/bookings?'),
+                expect.objectContaining({
+                    booking_type: 'visitor',
+                    asset_id: guest.email,
+                    asset_name: guest.name,
+                    attendees: [
+                        expect.objectContaining({
+                            email: guest.email,
+                            name: guest.name,
+                        }),
+                    ],
+                }),
+            );
+        },
+    );
+
     it('should use the current user as booking rule host when enabled', async () => {
         const settings = TestBed.inject(SettingsService) as any;
         settings.get.mockImplementation((key: string) =>
@@ -165,6 +313,93 @@ describe('EventFormService', () => {
         expect(service.last_success()?.id).toBe('event-2');
         expect(service.last_success()?.title).toBe('Updated booking');
         expect(service.last_success()?.date_end).toBe(date + 60 * 60 * 1000);
+    });
+
+    it.each([0, 30])(
+        'should reject a new room booking overlapping a previously edited event by offset %s minutes',
+        async (offset) => {
+            const date = new Date(2028, 5, 15, 10).valueOf();
+            const space = new Space({
+                id: 'space-1',
+                email: 'space-1@test.com',
+                zones: ['bld-1'],
+                bookable: true,
+            });
+            const previous = new CalendarEvent({
+                id: 'event-1',
+                title: 'Existing meeting',
+                date,
+                duration: 60,
+                resources: [space],
+            });
+            vi.spyOn(service, 'book_internal', 'get').mockReturnValue(false);
+            vi.spyOn(
+                (
+                    service as unknown as {
+                        _space_pipe: {
+                            transform: (email: string) => Promise<Space>;
+                        };
+                    }
+                )._space_pipe,
+                'transform',
+            ).mockResolvedValue(space);
+            // The client overload includes text responses; these endpoints return JSON.
+            vi.mocked(ts_client.get).mockImplementation((async (
+                path: string,
+            ) =>
+                path.includes('/free_busy')
+                    ? [
+                          {
+                              id: space.email,
+                              resource: space,
+                              availability: [
+                                  { date, duration: 60, status: 'busy' },
+                              ],
+                          },
+                      ]
+                    : []) as unknown as typeof ts_client.get);
+            const save = vi
+                .spyOn(
+                    service as unknown as {
+                        _performBooking: (
+                            event: CalendarEvent,
+                        ) => Promise<CalendarEvent>;
+                    },
+                    '_performBooking',
+                )
+                .mockResolvedValue(previous);
+
+            service.newForm(previous);
+            service.newForm();
+            service.model.update((model) => ({
+                ...model,
+                title: 'Conflicting meeting',
+                date: date + offset * 60_000,
+                duration: 60,
+                resources: [space],
+            }));
+
+            await expect(service.postForm(true)).rejects.toEqual(
+                i18n('CALENDAR_EVENT.SPACE_UNAVAILABLE', {
+                    spaces: space.email,
+                }),
+            );
+            expect(save).not.toHaveBeenCalled();
+            expect(ts_client.get).not.toHaveBeenCalledWith(
+                expect.stringContaining('/free_busy'),
+            );
+        },
+    );
+
+    it('should clear the previous event when a new form is reloaded', () => {
+        service.newForm(
+            new CalendarEvent({ id: 'event-1', title: 'Old meeting' }),
+        );
+        service.newForm();
+        service.loadForm();
+
+        expect(service.model().id).toBeFalsy();
+        expect(service.model().title).not.toBe('Old meeting');
     });
 
     it('should keep custom all-day events marked all-day in the form', () => {

@@ -9,9 +9,10 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterLink } from '@angular/router';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import { SignagePlaylist } from '@placeos/ts-client';
+import { SignagePlaylistService } from '../playlists/signage-playlist.service';
 import { IntersectDirective } from '../shared/intersect.directive';
 import { PlaylistThumbnailComponent } from '../shared/playlist-thumbnail.component';
-import { SignageService } from '../signage.service';
+import { SignageContextService } from '../signage-context.service';
 
 type PlaylistStatus =
     | 'expired'
@@ -235,31 +236,37 @@ type PlaylistStatus =
     ],
 })
 export class PlaylistSidebarComponent {
-    private readonly _service = inject(SignageService);
+    private readonly _context = inject(SignageContextService);
+    private readonly _playlist_service = inject(SignagePlaylistService);
 
-    public readonly can_create = this._service.can_create;
-    public readonly loading = this._service.playlists_loading;
-    public readonly search = this._service.playlist_search_term;
+    public readonly can_create = this._context.can_create;
+    public readonly loading = this._playlist_service.playlists_loading;
+    public readonly search = this._playlist_service.playlist_search_term;
     public readonly playlist_approval_status =
-        this._service.playlist_approval_status;
+        this._playlist_service.playlist_approval_status;
     public readonly playlist_approval_requested_status =
-        this._service.playlist_approval_requested_status;
-    public readonly filtered_playlists = this._service.filtered_playlists;
+        this._playlist_service.playlist_approval_requested_status;
+    public readonly filtered_playlists =
+        this._playlist_service.filtered_playlists;
 
     // Backend pagination: fetches the next page as the sentinel scrolls in.
-    public readonly has_more = this._service.playlists_has_more;
+    public readonly has_more = this._playlist_service.playlists_has_more;
     public loadMore() {
-        this._service.loadMorePlaylists();
+        this._playlist_service.loadMorePlaylists();
     }
 
     public addPlaylist() {
-        this._service.addPlaylist();
+        this._playlist_service.addPlaylist();
     }
 
     public async onDrop(playlist: SignagePlaylist, event: CdkDragDrop<any>) {
         const media = event.previousContainer.data[event.previousIndex];
         if (!playlist?.id || !media?.id) return;
-        await this._service.addMediaToPlaylist(playlist.id, media.id);
+        await this._playlist_service.addMediaToPlaylist(
+            playlist.id,
+            media.id,
+            media,
+        );
     }
 
     public getStatus(playlist: SignagePlaylist): PlaylistStatus {

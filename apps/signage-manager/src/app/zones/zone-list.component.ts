@@ -11,17 +11,20 @@ import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { RouterLink } from '@angular/router';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { Router, RouterLink } from '@angular/router';
 import { OrganisationService } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import { PlaceZone } from '@placeos/ts-client';
-import { SignageService } from '../signage.service';
+import { SignageZoneService } from './signage-zone.service';
 
 interface ZoneTreeNode {
     zone: PlaceZone;
     children: ZoneTreeNode[];
     children_loaded: boolean;
     children_loading: boolean;
+    /** Loading the children failed. The node offers a retry. */
+    children_error: boolean;
 }
 
 interface FlatZoneTreeNode extends ZoneTreeNode {
@@ -73,6 +76,7 @@ interface FlatZoneTreeNode extends ZoneTreeNode {
                     class="zone-tree"
                     [dataSource]="flat_tree_nodes()"
                     [levelAccessor]="levelAccessor"
+                    [expansionKey]="expansionKey"
                     [trackBy]="trackByNode"
                 >
                     <cdk-tree-node
@@ -80,6 +84,10 @@ interface FlatZoneTreeNode extends ZoneTreeNode {
                         cdkTreeNodePadding
                         [cdkTreeNodePadding]="node.level"
                         [cdkTreeNodePaddingIndent]="8"
+                        [isExpandable]="canExpand(node)"
+                        [isExpanded]="isExpanded(node)"
+                        (expandedChange)="onExpandedChange(node, $event)"
+                        (activation)="openZone(node.zone)"
                         class="border-base-300 bg-base-200/30 relative flex min-h-0 items-center gap-2 border-b pr-2"
                         [class.bg-primary]="selected()?.id === node.zone.id"
                         [class.text-primary-content]="
@@ -94,10 +102,7 @@ interface FlatZoneTreeNode extends ZoneTreeNode {
                             [style.width]="0.25 * node.level + 'rem'"
                             [style.opacity]="0.1 * node.level"
                         ></div>
-                        @if (
-                            childCount(node) > 0 &&
-                            !(show_search_results() && node.level === 0)
-                        ) {
+                        @if (canExpand(node)) {
                             <button
                                 type="button"
                                 class="hover:bg-base-content/20 ml-1 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg transition-colors"
@@ -183,6 +188,36 @@ interface FlatZoneTreeNode extends ZoneTreeNode {
                                 }
                             </div>
                         </a>
+                        @if (node.children_error) {
+                            <button
+                                type="button"
+                                class="hover:bg-base-content/20 text-error flex h-7 w-7 shrink-0 items-center justify-center rounded-lg transition-colors"
+                                [matTooltip]="
+                                    'SIGNAGE_MANAGER.ZONE_CHILDREN_RETRY'
+                                        | translate
+                                            : {
+                                                  name:
+                                                      node.zone.display_name ||
+                                                      node.zone.name,
+                                              }
+                                "
+                                [attr.aria-label]="
+                                    'SIGNAGE_MANAGER.ZONE_CHILDREN_RETRY'
+                                        | translate
+                                            : {
+                                                  name:
+                                                      node.zone.display_name ||
+                                                      node.zone.name,
+                                              }
+                                "
+                                (click)="
+                                    retryChildren(node);
+                                    $event.stopPropagation()
+                                "
+                            >
+                                <icon class="text-xl">refresh</icon>
+                            </button>
+                        }
                     </cdk-tree-node>
                 </cdk-tree>
             } @else {
@@ -214,6 +249,7 @@ interface FlatZoneTreeNode extends ZoneTreeNode {
         MatRippleModule,
         MatFormFieldModule,
         MatInputModule,
+        MatTooltipModule,
         CdkTreeModule,
         IconComponent,
         TranslatePipe,
@@ -221,22 +257,24 @@ interface FlatZoneTreeNode extends ZoneTreeNode {
 })
 export class ZoneListComponent {
     private readonly _org = inject(OrganisationService);
-    private readonly _service = inject(SignageService);
+    private readonly _router = inject(Router);
+    private readonly _zone_service = inject(SignageZoneService);
 
     private readonly _org_initialised = this._org.initialised;
-    private readonly _all_zones = this._service.all_zones;
-    private readonly _root_zones = this._service.root_zones;
-    private readonly _children_cache = this._service.zone_tree_children_cache;
+    private readonly _all_zones = this._zone_service.all_zones;
+    private readonly _root_zones = this._zone_service.root_zones;
+    private readonly _children_cache =
+        this._zone_service.zone_tree_children_cache;
 
-    public readonly search = this._service.zone_search_term;
-    public readonly zones = this._service.filtered_zones;
-    public readonly selected = this._service.selected_zone;
+    public readonly search = this._zone_service.zone_search_term;
+    public readonly zones = this._zone_service.filtered_zones;
+    public readonly selected = this._zone_service.selected_zone;
     public readonly search_enabled = computed(() => !!this.selected()?.id);
     public readonly show_search_results = computed(
         () => this.search_enabled() && !!this.search().trim(),
     );
     public readonly tree_nodes = signal<ZoneTreeNode[]>([]);
-    public readonly expanded_zones = this._service.zone_tree_expanded;
+    public readonly expanded_zones = this._zone_service.zone_tree_expanded;
     public readonly flat_tree_nodes = computed(() => {
         const nodes: FlatZoneTreeNode[] = [];
         for (const node of this.tree_nodes()) {
@@ -247,6 +285,12 @@ export class ZoneListComponent {
     public readonly levelAccessor = (node: FlatZoneTreeNode) => node.level;
     public readonly trackByNode = (_: number, node: FlatZoneTreeNode) =>
         node.zone.id;
+    // Nodes are rebuilt on each change, so cdk-tree tracks expansion by id
+    public readonly expansionKey = (node: FlatZoneTreeNode) => node.zone.id;
+
+    private readonly _zone_map = computed(
+        () => new Map(this._all_zones().map((zone) => [zone.id, zone])),
+    );
 
     public readonly child_count_lookup = computed(() => {
         const lookup: Record<string, number> = {};
@@ -281,30 +325,15 @@ export class ZoneListComponent {
                 this.tree_nodes.set([
                     {
                         zone: selected_zone,
-                        children: root_zones.map((zone) => {
-                            const existing = existing_children.find(
-                                (node) => node.zone.id === zone.id,
-                            );
-                            return existing
-                                ? this.syncNode(existing)
-                                : this.createNode(zone);
-                        }),
+                        children: this.syncNodes(root_zones, existing_children),
                         children_loaded: true,
                         children_loading: false,
+                        children_error: false,
                     },
                 ]);
                 return;
             }
-            this.tree_nodes.set(
-                root_zones.map((zone) => {
-                    const existing = existing_roots.find(
-                        (node) => node.zone.id === zone.id,
-                    );
-                    return existing
-                        ? this.syncNode(existing)
-                        : this.createNode(zone);
-                }),
-            );
+            this.tree_nodes.set(this.syncNodes(root_zones, existing_roots));
         });
 
         effect(() => {
@@ -331,6 +360,7 @@ export class ZoneListComponent {
                 !this.isExpanded(root_node) ||
                 this.hasLoadedChildren(root_node) ||
                 root_node.children_loading ||
+                root_node.children_error ||
                 !this.childCount(root_node)
             ) {
                 return;
@@ -339,18 +369,30 @@ export class ZoneListComponent {
         });
     }
 
+    /**
+     * Expand or collapse a node, from the chevron or from the arrow keys of
+     * cdk-tree. Loads the children on the first expand.
+     */
     public onExpandedChange(node: ZoneTreeNode, expanded: boolean) {
+        // cdk-tree also reports the state it got from the isExpanded input
+        if (this.isExpanded(node) === expanded) return;
         this.expanded_zones.update((state) => ({
             ...state,
             [node.zone.id]: expanded,
         }));
+        const current = this.findTreeNode(this.tree_nodes(), node.zone.id);
         if (
             !expanded ||
-            this.hasLoadedChildren(node) ||
-            node.children_loading
+            !current ||
+            this.hasLoadedChildren(current) ||
+            current.children_loading
         ) {
             return;
         }
+        this.loadNodeChildren(current);
+    }
+
+    public retryChildren(node: ZoneTreeNode) {
         this.loadNodeChildren(node);
     }
 
@@ -359,6 +401,7 @@ export class ZoneListComponent {
             this.updateNode(nodes, node.zone.id, (item) => ({
                 ...item,
                 children_loading: true,
+                children_error: false,
             })),
         );
         this.loadChildren(node.zone.id);
@@ -367,6 +410,22 @@ export class ZoneListComponent {
     public selectZone(zone: PlaceZone) {
         this.search.set('');
         this.selected.set(zone);
+    }
+
+    /** Open a zone from the keyboard, as a click on its link does */
+    public openZone(zone: PlaceZone) {
+        this.selectZone(zone);
+        void this._router.navigate(['/zones', zone.id], {
+            queryParamsHandling: 'merge',
+        });
+    }
+
+    /** Whether the node shows an expand control */
+    public canExpand(node: FlatZoneTreeNode) {
+        return (
+            this.childCount(node) > 0 &&
+            !(this.show_search_results() && node.level === 0)
+        );
     }
 
     public isExpanded(zone_or_node: ZoneTreeNode | PlaceZone | string) {
@@ -413,6 +472,7 @@ export class ZoneListComponent {
                 : [],
             children_loaded: has_cached_children,
             children_loading: false,
+            children_error: false,
         };
     }
 
@@ -422,9 +482,20 @@ export class ZoneListComponent {
             this.applyLoadedChildren(zone_id, cached_children);
             return;
         }
-        const children = await this._service
+        const children = await this._zone_service
             .zoneChildren(zone_id)
-            .catch(() => this.children_lookup()[zone_id] || []);
+            .catch(() => null);
+        if (!children) {
+            // Keep the node unloaded so the user can retry
+            this.tree_nodes.update((nodes) =>
+                this.updateNode(nodes, zone_id, (item) => ({
+                    ...item,
+                    children_loading: false,
+                    children_error: true,
+                })),
+            );
+            return;
+        }
         this.cacheChildren(zone_id, children);
         this.applyLoadedChildren(zone_id, children);
     }
@@ -442,16 +513,24 @@ export class ZoneListComponent {
                 ...item,
                 children_loaded: true,
                 children_loading: false,
-                children: children.map((zone) => {
-                    const existing = item.children.find(
-                        (child) => child.zone.id === zone.id,
-                    );
-                    return existing
-                        ? this.syncNode(existing)
-                        : this.createNode(zone);
-                }),
+                children_error: false,
+                children: this.syncNodes(children, item.children),
             })),
         );
+    }
+
+    /**
+     * Nodes for a list of zones, keeping the state of existing nodes.
+     * Looks up existing nodes by id, as a zone can have thousands of children.
+     */
+    private syncNodes(zones: PlaceZone[], existing_nodes: ZoneTreeNode[]) {
+        const existing = new Map(
+            existing_nodes.map((node) => [node.zone.id, node]),
+        );
+        return zones.map((zone) => {
+            const node = existing.get(zone.id);
+            return node ? this.syncNode(node) : this.createNode(zone);
+        });
     }
 
     private syncNode(node: ZoneTreeNode): ZoneTreeNode {
@@ -465,17 +544,15 @@ export class ZoneListComponent {
             cached_children ||
             this.children_lookup()[node.zone.id] ||
             existing_children.map(({ zone }) => zone);
-        const children = zone_children.map((child_zone) => {
-            const child = existing_children.find(
-                ({ zone }) => zone.id === child_zone.id,
-            );
-            return child ? this.syncNode(child) : this.createNode(child_zone);
-        });
-        return { ...node, zone, children };
+        return {
+            ...node,
+            zone,
+            children: this.syncNodes(zone_children, existing_children),
+        };
     }
 
     private findZone(zone_id: string) {
-        return this._all_zones().find(({ id }) => id === zone_id);
+        return this._zone_map().get(zone_id);
     }
 
     private getZonePath(zone_id: string) {
@@ -483,8 +560,14 @@ export class ZoneListComponent {
         if (!zone_id || !root_ids.size) return [];
         if (root_ids.has(zone_id)) return [zone_id];
         const zone_path = [zone_id];
+        // Stop at a zone seen before, so a parent loop cannot hang the tab
+        const visited = new Set(zone_path);
         let current_zone = this.findZone(zone_id);
-        while (current_zone?.parent_id) {
+        while (
+            current_zone?.parent_id &&
+            !visited.has(current_zone.parent_id)
+        ) {
+            visited.add(current_zone.parent_id);
             zone_path.unshift(current_zone.parent_id);
             if (root_ids.has(current_zone.parent_id)) {
                 return zone_path;

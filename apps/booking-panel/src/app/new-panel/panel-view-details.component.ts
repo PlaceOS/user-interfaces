@@ -1,6 +1,7 @@
 import {
     ChangeDetectionStrategy,
     Component,
+    computed,
     effect,
     inject,
     OnInit,
@@ -13,6 +14,7 @@ import { AsyncHandler, generateQRCode } from '@placeos/common';
 import { CommonModule } from '@angular/common';
 import { TranslatePipe } from '@placeos/components';
 import { PanelStateService } from '../panel-state.service';
+import { endingSoon } from './helpers';
 
 @Component({
     selector: 'panel-view-details',
@@ -71,6 +73,18 @@ import { PanelStateService } from '../panel-state.service';
                         {{ cur?.organiser?.name || cur?.host }}
                     </p>
                 }
+                @if (ending_next(); as upcoming) {
+                    <p
+                        ending-warning
+                        class="bg-warning text-warning-content rounded-sm px-4 py-2 text-2xl"
+                    >
+                        {{
+                            'APP.BOOKING_PANEL.NEXT_STARTS_AT'
+                                | translate
+                                    : { time: upcoming.date | date: 'h:mm a' }
+                        }}
+                    </p>
+                }
             </div>
         </div>
     `,
@@ -92,6 +106,13 @@ export class PanelViewDetailsComponent extends AsyncHandler implements OnInit {
     public readonly qr_code = signal('');
 
     public readonly time = signal(Date.now());
+
+    /** Next booking when the `ending_warning` feature is on and the current booking ends soon */
+    public readonly ending_next = computed(() => {
+        const now = this._state.clock();
+        if (!this._state.hasFeature('ending_warning')) return null;
+        return endingSoon(this._state.current(), this._state.next(), now);
+    });
 
     public get hide_meeting_details() {
         return this._state.setting('hide_meeting_details');

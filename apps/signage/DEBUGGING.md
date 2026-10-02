@@ -32,7 +32,7 @@ questions without needing to reproduce anything.
 | `playlists.takeover`          | The override playlist, its media and when it ends                                                                                     |
 | `active_media`                | What the background playlist currently resolves to                                                                                    |
 | `upcoming_schedules`          | Every scheduled run in the next month, soonest first                                                                                  |
-| `media_cache`                 | Per file `status`, `size`, `owners`; plus totals, budget, `failed_sync_attempts`                                                      |
+| `media_cache`                 | Per file `status`, `size`, `owners`; plus totals, budget (`limit_bytes`), `too_large`, `failed_sync_attempts`                         |
 | `watchdog`                    | Heartbeats for `poll` / `schedule` / `playback`, which are `stalled`, the last fatal error, and the recovery count and throttle state |
 | `players`                     | Per player: `state`, `item_index`, `progress_percent`, `playing`, `queue`, `mid_play_through`                                         |
 
@@ -73,16 +73,22 @@ makes the display request use `?preview=true`.
 
 ## Symptom → what to check
 
-| Symptom                           | Check                                                                                                                                         |
-| --------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
-| Nothing on screen                 | `state().active_media` — empty means nothing is scheduled now; check `upcoming_schedules`                                                     |
-| Content scheduled but not showing | `active_media[].invalid_reason`, and `cached` / `loading` on the same entry                                                                   |
-| Stuck on old content              | `poll.last_success` and `poll.next_due`; run `signage.poll()`                                                                                 |
-| Not picking up new content        | `poll.last_success` vs now; if stale, look for `Display poll failed` in the console                                                           |
-| Media never appears               | `media_cache.files` for that URL — `invalidated` means the download failed; `failed_sync_attempts` shows the backoff                          |
-| Old version running               | `updates.new_version`, `updates.reload_pending` (a reload waits for the network and for play-through content to finish), `updates.last_check` |
-| Blank screen after a reboot       | Likely offline boot — check `online`, then whether cached credentials exist                                                                   |
-| Player reloading itself           | `watchdog.recent_reloads` and `watchdog.last_error` — something fatal stalled a core loop                                                     |
+| Symptom                            | Check                                                                                                                                                                       |
+| ---------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Nothing on screen                  | `state().active_media` — empty means nothing is scheduled now; check `upcoming_schedules`                                                                                   |
+| Content scheduled but not showing  | `active_media[].invalid_reason`, and `cached` / `loading` on the same entry                                                                                                 |
+| Takeover scheduled but not showing | A takeover with no valid media does not start. Compare the playlist and media `valid_from` / `valid_until` with `schedule.now`                                              |
+| Trigger did not start a takeover   | A trigger fires only when its value changes to true. A display update does not replay a trigger that is already true, and a trigger is ignored while another override plays |
+| Stuck on old content               | `poll.last_success` and `poll.next_due`; run `signage.poll()`                                                                                                               |
+| Not picking up new content         | `poll.last_success` vs now; if stale, look for `Display poll failed` in the console                                                                                         |
+| Media never appears                | `media_cache.files` for that URL — `invalidated` means the download failed; `failed_sync_attempts` shows the backoff                                                        |
+| Old version running                | `updates.new_version`, `updates.reload_pending` (a reload waits for the network and for play-through content to finish), `updates.last_check`                               |
+| Blank screen after a reboot        | Likely offline boot — check `online`, then whether cached credentials exist                                                                                                 |
+| Player reloading itself            | `watchdog.recent_reloads` and `watchdog.last_error` — something fatal stalled a core loop                                                                                   |
+| Paused and does not resume         | Pause and resume messages are obeyed only from the parent frame. Check what embeds the player and `players[].state`                                                         |
+| Plugin cut short, or held long     | A play-through plugin advances on `finished`, or after a limit. Look for `did not report finished in time` in the console                                                   |
+| Blank screen, no `window.signage`  | The application did not start. Look for `Application failed to start` in the console; it reloads with a backoff                                                             |
+| Media always streams               | `media_cache.too_large` — the file does not fit in `limit_bytes`; see [Media cache storage](#media-cache-storage)                                                           |
 
 ## Recovery watchdog
 
@@ -103,19 +109,24 @@ boot that never completes is most often a bad cached build. That deadline only
 applies once the device has been bootstrapped to a display — one sitting on the
 picker is waiting for a person, not broken.
 
-| Guard                    | Value                                                      |
-| ------------------------ | ---------------------------------------------------------- |
-| Stall thresholds         | poll 10 min, schedule 5 min, playback 3 min, visible 5 min |
-| Boot deadline            | 5 min from start with nothing on screen                    |
-| Grace before recovering  | 5 min                                                      |
-| Recoveries allowed       | 3 per hour, then 1 per hour                                |
-| Back to 3 per hour after | 2 hours with no recovery                                   |
+| Guard | Value |
+| Stall thresholds | poll 10 min, schedule 5 min, playback 3 min, visible 5 min |
+| Boot deadline | 5 min from start with nothing on screen |
+| Grace before recovering | 5 min |
+| Recoveries allowed | 3 per hour, then 1 per hour |
+| Back to 3 per hour after | 2 hours with no recovery |
 
 Once recoveries are throttled the next one clears the application cache first —
 unregistering the service worker and deleting its caches — in case the cached
 build is what is wrong. That only happens if `location.href` returns a 200, so a
 player is never left with no cached application and no way to fetch a new one;
-if the server cannot be reached it falls back to a plain reload.
+if the server cannot be reached it falls back to a plain reload. A server that
+does not answer within 15 seconds counts as unreachable.
+
+A recovery that has not replaced the page after 2 minutes counts as failed: a
+cache clear that hung, or a reload the server never answered. The watchdog then
+reloads again and starts its checks again, inside the same limits, so a failed
+recovery cannot stop the watchdog until someone restarts the device.
 
 A recovery reload does **not** wait for the network, unlike an update reload. A
 stalled player should restart whether or not the backend is up, and it can boot
@@ -130,6 +141,32 @@ Failed initialisation — the app giving up because it cannot load the current
 user — is routed through the same limits, so it cannot restart the player every
 thirty seconds on its own.
 
+The watchdog starts inside the application, so it cannot see a start that fails
+before the application exists. That case has its own retry: the player reloads
+after 10 seconds, and the wait doubles after each consecutive failure to a
+maximum of 5 minutes. The count is in `sessionStorage["SIGNAGE.boot_failures"]`
+and is removed after a successful start.
+
+### Content that holds the screen
+
+A play-through plugin advances when it reports `finished`. If it never sends a
+plugin message (for example, the page did not load), it advances after its
+configured duration, like a static plugin. If it sends messages but never
+reports `finished`, it advances after twice its configured duration, held
+between 5 and 60 minutes. After that limit, it also stops holding back an
+update reload.
+
+When the plugin is the only item, there is nothing to advance to. A lone
+play-through plugin that never sent a plugin message is then treated as a
+failed load: it is removed from the screen and loaded again after 30 seconds,
+until it responds. A lone plugin that responds but never reports `finished`
+stays on screen, as any single item does.
+
+Pause and resume messages (US-SIG-024) are obeyed only from the parent frame.
+Webpages and plugins on screen cannot pause the player. This is important
+because a paused player still checks in with the watchdog, so the watchdog does
+not recover it.
+
 `watchdog.booted`, `watchdog.recoveries_throttled` and `watchdog.last_recovery`
 show where in that sequence a player is.
 
@@ -143,15 +180,36 @@ recovered and you want to know what from.
 
 ## Storage
 
-| Location                                               | Holds                                     |
-| ------------------------------------------------------ | ----------------------------------------- |
-| `localStorage["PlaceOS.SIGNAGE.display_details.<id>"]` | Last known display payload, used offline  |
-| `localStorage["PlaceOS.SIGNAGE.cached_files"]`         | Media cache index (urls, sizes, owners)   |
-| `localStorage["PlaceOS.SIGNAGE.display"]`              | Bootstrapped display id                   |
-| `localStorage["PLACEOS.org.*"]`                        | Cached zone data and last known authority |
-| `localStorage["PlaceOS.SIGNAGE.watchdog_reloads"]`     | Timestamps of automatic recoveries        |
-| `sessionStorage["SIGNAGE.debug"]`, `["SIGNAGE.muted"]` | Debug and mute state                      |
-| IndexedDB `SignageMedia` → `files`                     | The cached media files themselves         |
+| Location | Holds |
+| `localStorage["PlaceOS.SIGNAGE.display_details.<id>"]` | Last known display payload, used offline |
+| `localStorage["PlaceOS.SIGNAGE.cached_files"]` | Media cache index (urls, sizes, owners) |
+| `localStorage["PlaceOS.SIGNAGE.display"]` | Bootstrapped display id |
+| `localStorage["PLACEOS.org.*"]` | Cached zone data and last known authority |
+| `localStorage["PlaceOS.SIGNAGE.watchdog_reloads"]` | Timestamps of automatic recoveries |
+| `sessionStorage["SIGNAGE.debug"]`, `["SIGNAGE.muted"]` | Debug and mute state |
+| `sessionStorage["SIGNAGE.boot_failures"]` | Consecutive failed starts, for the backoff |
+| IndexedDB `SignageMedia` → `files` | The cached media files themselves |
+
+## Media cache storage
+
+The cache budget (`limit_bytes`) is 80% of the storage quota, less the usage
+outside the cache. To see the values, run
+`await navigator.storage.estimate()`. If the browser cannot supply them, the
+budget is 512 MB. At startup the app requests persistent storage. To see the
+result, run `await navigator.storage.persisted()`.
+
+- The cache never removes media that the current playlist uses.
+- Media that cannot fit is not downloaded. Its URL shows in `too_large` and it
+  plays from the network. The cache tries it again only when more space is
+  available, or after a reload.
+- If a write fails because storage is full (`QuotaExceededError` or
+  `DataError`), the cache removes the files that the playlist does not use and
+  tries one more time.
+- On a small profile volume, the browser's blob storage can fill before the
+  disk does. The console then shows `Browser blob storage is full`. Files up to
+  50 MB are downloaded one more time into memory. Larger files go into
+  `too_large` until the next reload.
+- The service worker does not cache media. Cache Storage holds only the app.
 
 ## Resetting
 

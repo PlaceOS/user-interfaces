@@ -91,7 +91,10 @@ import { ParkingTopbarComponent } from './parking-topbar.component';
                 <div class="relative h-1/2 w-full flex-1 overflow-auto">
                     <router-outlet></router-outlet>
                 </div>
-                @if (org_initialised() && !levels().length) {
+                <!-- Cached org data can be stale until the refresh ends. -->
+                @if (
+                    org_initialised() && !org_refreshing() && !levels().length
+                ) {
                     <div
                         class="absolute inset-0 z-50 flex flex-col items-center justify-center"
                     >
@@ -149,6 +152,7 @@ export class ParkingComponent extends AsyncHandler implements OnInit {
     public readonly levels = this._state.levels;
     /** Whether the organisation data has finished loading */
     public readonly org_initialised = this._state.org_initialised;
+    public readonly org_refreshing = this._state.org_refreshing;
 
     public readonly section = signal<'events' | 'manage'>('events');
     public readonly view = signal<

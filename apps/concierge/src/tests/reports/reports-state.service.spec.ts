@@ -144,11 +144,19 @@ describe('ReportsStateService', () => {
         expect((spectator.service as any)._load_token).toBeGreaterThan(before);
     });
 
-    it('should ignore updates that do not change the start or end', () => {
+    it('should apply an update when any given option changes', () => {
         spectator.service.setOptions({ start: 1000, end: 2000 });
         spectator.service.setOptions({ start: 1000, end: 9999 });
-        // start unchanged => whole update rejected, end stays at 2000
-        expect(spectator.service.options().end).toBe(2000);
+        expect(spectator.service.options().end).toBe(9999);
+    });
+
+    it('should ignore updates where no given option changes', () => {
+        spectator.service.setOptions({ start: 1000, end: 2000 });
+        const token = (spectator.service as any)._load_token;
+
+        spectator.service.setOptions({ start: new Date(1000), end: 2000 });
+
+        expect((spectator.service as any)._load_token).toBe(token);
     });
 
     it('should count business days, excluding configured ignore days', () => {
@@ -160,9 +168,30 @@ describe('ReportsStateService', () => {
             end: wednesday,
         });
 
-        expect(spectator.service.duration).toBe(4);
-        settings_map['app.reports.ignore_days'] = ['wednesday'];
         expect(spectator.service.duration).toBe(3);
+        settings_map['app.reports.ignore_days'] = ['wednesday'];
+        expect(spectator.service.duration).toBe(2);
+    });
+
+    it('should clear loading when the options change during a load', async () => {
+        vi.mocked(ts_client_mod.query).mockReturnValue(
+            new Promise(() => undefined) as any,
+        );
+        spectator.service.setOptions({
+            type: 'desks',
+            zones: ['z1'],
+            start: new Date('2026-04-06T00:00:00').valueOf(),
+            end: new Date('2026-04-06T23:59:59').valueOf(),
+        });
+        void (spectator.service as any)._loadBookings();
+        expect(spectator.service.loading()).not.toBe('');
+
+        spectator.service.setOptions({
+            start: new Date('2026-04-07T00:00:00').valueOf(),
+            end: new Date('2026-04-07T23:59:59').valueOf(),
+        });
+
+        expect(spectator.service.loading()).toBe('');
     });
 
     it('should query desk bookings and store the filtered results', async () => {

@@ -1,4 +1,13 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import {
+    Component,
+    computed,
+    DestroyRef,
+    effect,
+    ElementRef,
+    inject,
+    signal,
+    viewChild,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -11,8 +20,12 @@ import {
     TranslatePipe,
 } from '@placeos/components';
 import { mediaThumbnail } from '@placeos/ts-client';
-import { SignageService } from '../signage.service';
+import { SignageDisplayService } from '../displays/signage-display.service';
+import { SignagePluginService } from '../signage-plugin.service';
+import { parseWebUrl } from '../signage-url.util';
+import { SignageTemplateService } from './signage-template.service';
 import {
+    applyLayoutPositionDefaults,
     computeTemplateLayoutRects,
     layoutPositionLabel,
 } from './template-layout.util';
@@ -22,6 +35,11 @@ interface AspectRatioOption {
     label: string;
     ratio: number;
 }
+
+/** Message type the signage player accepts to preview unsaved layouts */
+const PREVIEW_LAYOUTS_MESSAGE = 'signage:template-layouts';
+/** Message type the signage player posts to request the unsaved layouts */
+const PREVIEW_READY_MESSAGE = 'signage:template-preview-ready';
 
 const ASPECT_RATIOS: AspectRatioOption[] = [
     { id: '16:9', label: '16:9', ratio: 16 / 9 },
@@ -90,9 +108,7 @@ const ASPECT_RATIOS: AspectRatioOption[] = [
                 </mat-form-field>
                 <settings-toggle
                     [toggle]="true"
-                    [label]="
-                        'SIGNAGE_MANAGER.TEMPLATE_LIVE_MODE' | translate
-                    "
+                    [label]="'SIGNAGE_MANAGER.TEMPLATE_LIVE_MODE' | translate"
                     [info]="
                         'SIGNAGE_MANAGER.TEMPLATE_LIVE_MODE_HINT' | translate
                     "
@@ -100,9 +116,7 @@ const ASPECT_RATIOS: AspectRatioOption[] = [
                     [(ngModel)]="live_mode"
                     [class.opacity-50]="!live_preview_available()"
                     [attr.aria-disabled]="!live_preview_available()"
-                    [attr.inert]="
-                        !live_preview_available() ? '' : null
-                    "
+                    [attr.inert]="!live_preview_available() ? '' : null"
                 />
             </div>
             <div
@@ -114,8 +128,10 @@ const ASPECT_RATIOS: AspectRatioOption[] = [
                 >
                     @if (live_mode() && live_preview_available()) {
                         <iframe
+                            #live_frame
                             class="absolute inset-0 h-full w-full border-0"
                             [src]="live_preview_url() | safe: 'resource'"
+                            (load)="postDraftLayouts()"
                             [title]="
                                 'SIGNAGE_MANAGER.TEMPLATE_LIVE_PREVIEW'
                                     | translate
@@ -248,18 +264,48 @@ const ASPECT_RATIOS: AspectRatioOption[] = [
     ],
 })
 export class TemplatePreviewComponent {
-    private readonly _service = inject(SignageService);
+    private readonly _display_service = inject(SignageDisplayService);
+    private readonly _plugin_service = inject(SignagePluginService);
+    private readonly _template_service = inject(SignageTemplateService);
 
     public readonly aspect_ratios = ASPECT_RATIOS;
     public readonly aspect = signal(ASPECT_RATIOS[0]);
     public readonly selected_display_id = signal('');
     public readonly live_mode = signal(false);
-    public readonly displays = this._service.displays;
+    public readonly displays = this._display_service.displays;
     public readonly signage_path = settingSignal('signage_path');
 
     public readonly selected_index =
-        this._service.selected_template_layout_index;
-    private readonly _layouts = this._service.template_layout_draft;
+        this._template_service.selected_template_layout_index;
+    private readonly _layouts = this._template_service.template_layout_draft;
+    private readonly _live_frame =
+        viewChild<ElementRef<HTMLIFrameElement>>('live_frame');
+
+    // Keep the live player in sync with unsaved layout edits
+    private readonly _sync_draft = effect(() => {
+        this._layouts();
+        this.postDraftLayouts();
+    });
+
+    // The player requests the draft when its listener is ready. The iframe
+    // load event can fire before that, which loses the first draft message.
+    private readonly _preview_ready_handler = (event: MessageEvent) => {
+        const frame = this._live_frame()?.nativeElement;
+        if (
+            event.data?.type !== PREVIEW_READY_MESSAGE ||
+            !frame?.contentWindow ||
+            event.source !== frame.contentWindow
+        )
+            return;
+        this.postDraftLayouts();
+    };
+
+    constructor() {
+        window.addEventListener('message', this._preview_ready_handler);
+        inject(DestroyRef).onDestroy(() =>
+            window.removeEventListener('message', this._preview_ready_handler),
+        );
+    }
 
     public readonly layout_rects = computed(() => {
         const layouts = this._layouts();
@@ -272,12 +318,12 @@ export class TemplatePreviewComponent {
 
     public readonly background_url = computed(() => {
         const background_id =
-            this._service.selected_template()?.background_item_id;
+            this._template_service.selected_template()?.background_item_id;
         return background_id ? mediaThumbnail(background_id) : '';
     });
 
     public readonly live_template_id = computed(() => {
-        const template = this._service.selected_template();
+        const template = this._template_service.selected_template();
         return template?.live_template_id || template?.id || '';
     });
 
@@ -289,9 +335,33 @@ export class TemplatePreviewComponent {
         const template_id = this.live_template_id();
         const display_id = this.selected_display_id();
         if (!template_id || !display_id) return '';
-        const signage_path = this.signage_path() || '/signage';
+        // Zone metadata can override the path, so refuse schemes that would
+        // run script in this origin, such as `javascript:`
+        const setting = this.signage_path();
+        const signage_path =
+            setting && parseWebUrl(setting, document.baseURI)
+                ? setting
+                : '/signage';
         return `${signage_path.replace(/\/$/, '')}/#/template/${encodeURIComponent(template_id)}/${encodeURIComponent(display_id)}?debug=true`;
     });
+
+    /**
+     * Send the unsaved layout draft to the live player iframe. The message
+     * only goes to the player origin, so a page the frame navigates to on
+     * another origin does not get the draft.
+     */
+    public postDraftLayouts() {
+        const frame = this._live_frame()?.nativeElement;
+        const target = parseWebUrl(this.live_preview_url(), document.baseURI);
+        if (!frame?.contentWindow || !target) return;
+        frame.contentWindow.postMessage(
+            {
+                type: PREVIEW_LAYOUTS_MESSAGE,
+                layouts: this._layouts().map(applyLayoutPositionDefaults),
+            },
+            target.origin,
+        );
+    }
 
     public selectLayout(index: number) {
         this.selected_index.set(this.selected_index() === index ? null : index);
@@ -300,7 +370,7 @@ export class TemplatePreviewComponent {
     public pluginName(plugin_id?: string) {
         if (!plugin_id) return '';
         return (
-            this._service.widgets().find((item) => item.id === plugin_id)
+            this._plugin_service.widgets().find((item) => item.id === plugin_id)
                 ?.name || plugin_id
         );
     }

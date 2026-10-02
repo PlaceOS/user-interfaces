@@ -1,6 +1,9 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { createServiceFactory, SpectatorService } from '@ngneat/spectator/vitest';
+import {
+    createServiceFactory,
+    SpectatorService,
+} from '@ngneat/spectator/vitest';
 
 import { ControlStateService } from '../../app/control-state.service';
 import { VideoCallStateService } from '../../app/video-call/video-call-state.service';
@@ -51,6 +54,15 @@ describe('VideoCallStateService', () => {
             Status: 'Connected',
             RemoteNumber: '123',
         });
+    });
+
+    it('should not treat idle or disconnecting calls as active', () => {
+        variable_values.calls = {
+            a: { Status: 'Idle' },
+            b: { Status: 'Disconnecting' },
+        };
+        TestBed.flushEffects();
+        expect(spectator.service.call()).toBeNull();
     });
 
     it('should return null when no call has a status', () => {
@@ -127,5 +139,12 @@ describe('VideoCallStateService', () => {
         await spectator.service.hangup();
         await spectator.service.sendDTMF('1');
         expect(execute_spy).not.toHaveBeenCalled();
+    });
+
+    it('should resolve instead of throwing when a command fails', async () => {
+        execute_spy.mockRejectedValue(new Error('offline'));
+        await expect(spectator.service.muteMicrophone(true)).resolves.toBe(
+            false,
+        );
     });
 });

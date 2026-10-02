@@ -41,3 +41,20 @@ bun run nx -- show project <project>
 Run only a target listed in that project configuration.
 
 If hot module replacement causes browser errors, serve the project with `--no-hmr`.
+
+## Debugging panels
+
+Right-click within the bottom-left 32-pixel square of an application to open
+Settings, Driver bindings, or Console. The corner has no visible control and
+does not block normal left-clicks or taps. Keyboard users can focus the
+"Open debugging tools" button and press Enter.
+
+The menu opens one panel at a time. These shortcuts also toggle the panels:
+
+- Settings: `Ctrl + Alt + Shift + S`
+- Driver bindings: `Ctrl + Alt + Shift + B`
+- Console: `Ctrl + Backquote`
+
+Debug panels load when first opened. The Public app loads its menu launcher
+when the browser is idle after startup. Closing the driver panel does not
+clear local value overrides.

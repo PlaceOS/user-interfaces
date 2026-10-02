@@ -1,7 +1,7 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { SignageGroupAdminService } from '../../app/groups/signage-group-admin.service';
 import { SignageGroupListComponent } from '../../app/groups/signage-group-list.component';
-import { SignageService } from '../../app/signage.service';
 
 function group(id: string, extra: Record<string, unknown> = {}) {
     return { id, name: id, description: '', parent_id: '', ...extra } as any;
@@ -34,7 +34,9 @@ describe('SignageGroupListComponent', () => {
 
     function make() {
         TestBed.configureTestingModule({
-            providers: [{ provide: SignageService, useValue: service_stub }],
+            providers: [
+                { provide: SignageGroupAdminService, useValue: service_stub },
+            ],
         }).overrideComponent(SignageGroupListComponent, {
             set: { template: '', imports: [] },
         });
@@ -106,9 +108,9 @@ describe('SignageGroupListComponent', () => {
         const component = make();
         manageable_signage_groups.set([group('lonely', { children_count: 7 })]);
         // A bare group object (not a tree node) uses its reported count.
-        expect(component.childCount(group('lonely', { children_count: 7 }))).toBe(
-            7,
-        );
+        expect(
+            component.childCount(group('lonely', { children_count: 7 })),
+        ).toBe(7);
     });
 
     it('selects a group by writing its id to the shared service signal', () => {
@@ -164,6 +166,18 @@ describe('SignageGroupListComponent', () => {
         const loaded = component.tree_nodes()[0];
         expect(loaded.children_loading).toBe(false);
         expect(loaded.children_loaded).toBe(true);
+    });
+
+    it('stops the group path when the parents form a cycle', () => {
+        manageable_signage_groups.set([
+            group('root'),
+            group('loop-a', { parent_id: 'loop-b' }),
+            group('loop-b', { parent_id: 'loop-a' }),
+        ]);
+        const component = make();
+        component.tree_nodes.set([node(group('root'))]);
+
+        expect(component['getGroupPath']('loop-a')).toEqual([]);
     });
 
     it('does not reload children when collapsing a node', () => {

@@ -12,7 +12,7 @@ import {
     IconComponent,
 } from '@placeos/components';
 import { SignagePlaylist } from '@placeos/ts-client';
-import { SignageService } from '../signage.service';
+import { SignagePlaylistService } from '../playlists/signage-playlist.service';
 
 @Component({
     selector: 'playlist-thumbnail',
@@ -55,13 +55,13 @@ import { SignageService } from '../signage.service';
 })
 export class PlaylistThumbnailComponent implements AfterViewInit, OnDestroy {
     private readonly _element = inject(ElementRef<HTMLElement>);
-    private readonly _service = inject(SignageService);
+    private readonly _playlist_service = inject(SignagePlaylistService);
     private _observer?: IntersectionObserver;
 
     public readonly playlist = input.required<SignagePlaylist>();
     public readonly in_view = signal(false);
     public readonly playlist_thumbnail_media =
-        this._service.playlist_thumbnail_media;
+        this._playlist_service.playlist_thumbnail_media;
 
     public ngAfterViewInit() {
         if (typeof IntersectionObserver === 'undefined') {
@@ -71,7 +71,8 @@ export class PlaylistThumbnailComponent implements AfterViewInit, OnDestroy {
         this._observer = new IntersectionObserver((entries) => {
             const in_view = entries.some((entry) => entry.isIntersecting);
             this.in_view.set(in_view);
-            if (in_view) this._service.queuePlaylistMeta(this.playlist());
+            if (in_view)
+                this._playlist_service.queuePlaylistMeta(this.playlist());
         });
         this._observer.observe(this._element.nativeElement);
     }
@@ -82,6 +83,6 @@ export class PlaylistThumbnailComponent implements AfterViewInit, OnDestroy {
 
     private _showThumbnail() {
         this.in_view.set(true);
-        this._service.queuePlaylistMeta(this.playlist());
+        this._playlist_service.queuePlaylistMeta(this.playlist());
     }
 }

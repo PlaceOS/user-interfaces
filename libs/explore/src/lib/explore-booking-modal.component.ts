@@ -39,12 +39,11 @@ export interface ExploreBookingModalData {
     selector: 'explore-booking-modal',
     template: `
         <header
-            class="bg-base-200 sticky top-0 z-10 m-2 h-14 w-[calc(100%-1rem)] rounded-sm border-none p-2"
+            class="bg-base-200 sticky top-0 z-10 m-2 flex h-14 w-[calc(100%-1rem)] items-center justify-between rounded-sm border-none p-2"
         >
             <h2 class="px-2 text-xl font-medium">
                 {{ 'EXPLORE.BOOKING_HEADER' | translate }}
             </h2>
-            <div class="flex-1"></div>
             @if (!loading()) {
                 <button icon matRipple mat-dialog-close>
                     <icon>close</icon>
@@ -53,7 +52,7 @@ export interface ExploreBookingModalData {
         </header>
         @if (!loading()) {
             @if (form) {
-                <main class="max-w-[85vw] px-4">
+                <main class="w-[32rem] max-w-[85vw] px-4">
                     <div class="flex flex-col">
                         <label for="title">Title<span>*</span>:</label>
                         <mat-form-field appearance="outline">
@@ -113,7 +112,7 @@ export interface ExploreBookingModalData {
                             </div>
                         }
                     </div>
-                    <div class="flex flex-wrap sm:space-x-4">
+                    <div class="flex flex-col sm:flex-row sm:gap-4">
                         @if (form.date) {
                             <div
                                 class="flex w-full min-w-48 flex-1 flex-col sm:w-auto"
@@ -147,7 +146,7 @@ export interface ExploreBookingModalData {
                         }
                     </div>
                     @if (allow_all_day()) {
-                        <div class="-mt-2 mb-2 flex justify-end">
+                        <div class="mb-2 flex justify-end">
                             <mat-checkbox [formField]="form.all_day">
                                 {{ 'COMMON.ALL_DAY' | translate }}
                             </mat-checkbox>

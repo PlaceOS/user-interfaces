@@ -2,7 +2,7 @@ import { signal } from '@angular/core';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { MockComponent, MockPipe } from 'ng-mocks';
 
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, convertToParamMap, Router } from '@angular/router';
 import { OrganisationService, SettingsService } from '@placeos/common';
 import {
     BuildingPipe,
@@ -11,6 +11,7 @@ import {
 } from '@placeos/components';
 import { DateRangeFieldComponent } from '@placeos/form-fields';
 import { ReportsOptionsComponent } from 'apps/concierge/src/app/reports/reports-options.component';
+import { of } from 'rxjs';
 
 describe('ReportsOptionsComponent', () => {
     let spectator: Spectator<ReportsOptionsComponent>;
@@ -72,6 +73,24 @@ describe('ReportsOptionsComponent', () => {
         });
     });
 
+    it('should apply URL dates when the selected level is not loaded', async () => {
+        const route = spectator.inject(ActivatedRoute) as any;
+        route.queryParamMap = of(
+            convertToParamMap({
+                zone_ids: 'lvl-missing',
+                start: '1000',
+                end: '2000',
+            }),
+        );
+        const org = spectator.inject(OrganisationService) as any;
+        org.levelWithID = vi.fn(() => null);
+
+        await spectator.component.ngOnInit();
+
+        expect(spectator.component.start()).toBe(1000);
+        expect(spectator.component.end()).toBe(2000);
+    });
+
     it('should update the start date and merge it into the query params', () => {
         spectator.component.setStartDate(new Date('2026-04-06T00:00:00'));
         expect(spectator.component.start()).toBe(
@@ -82,10 +101,24 @@ describe('ReportsOptionsComponent', () => {
             expect.objectContaining({
                 queryParams: {
                     start: new Date('2026-04-06T00:00:00').valueOf(),
+                    end: spectator.component.end(),
                 },
                 queryParamsHandling: 'merge',
             }),
         );
+    });
+
+    it('should keep both dates when start and end change together', () => {
+        const start = new Date('2026-09-25T00:00:00').valueOf();
+
+        spectator.component.setStartDate(start);
+        spectator.component.setEndDate(start);
+
+        // Each URL update carries both dates, so the last one is complete.
+        expect(navigate.mock.calls.at(-1)[1].queryParams).toEqual({
+            start,
+            end: new Date('2026-09-25T23:59:59.999').valueOf(),
+        });
     });
 
     it('should snap the end date to the end of day', () => {

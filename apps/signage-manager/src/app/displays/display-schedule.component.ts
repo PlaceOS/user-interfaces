@@ -5,13 +5,17 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterLink } from '@angular/router';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import { addDays, format, isSameDay, startOfWeek } from 'date-fns';
+import { SignagePlaylistService } from '../playlists/signage-playlist.service';
 import {
     DAY_COUNT,
     ScheduleBlock,
+    buildDisplayScheduleAssignments,
     buildScheduleBlocks,
 } from '../schedules/signage-schedule.util';
-import { SignageService } from '../signage.service';
+import { SignageContextService } from '../signage-context.service';
+import { SignageTemplateService } from '../templates/signage-template.service';
 import { buildDisplayScheduleDays } from './display-schedule.util';
+import { SignageDisplayService } from './signage-display.service';
 
 @Component({
     selector: 'display-schedule',
@@ -320,10 +324,13 @@ import { buildDisplayScheduleDays } from './display-schedule.util';
     ],
 })
 export class DisplayScheduleComponent {
-    private readonly _service = inject(SignageService);
+    private readonly _context = inject(SignageContextService);
+    private readonly _display_service = inject(SignageDisplayService);
+    private readonly _playlist_service = inject(SignagePlaylistService);
+    private readonly _template_service = inject(SignageTemplateService);
 
-    public readonly selected_display = this._service.selected_display;
-    private readonly _playlists = this._service.playlists;
+    public readonly selected_display = this._display_service.selected_display;
+    private readonly _zones = this._display_service.selected_display_zones;
 
     public readonly week_offset = signal(0);
 
@@ -338,17 +345,17 @@ export class DisplayScheduleComponent {
         ),
     );
 
-    public readonly display_playlists = computed(() => {
+    /** Playlists of the display and of the zones it is in */
+    public readonly display_assignments = computed(() => {
         const display = this.selected_display();
         if (!display) return [];
-        return this._playlists().filter((p) =>
-            display.playlists?.includes(p.id),
-        );
+        const zones = this._zones();
+        const playlists = this._playlist_service.playlistsById([
+            ...(display.playlists || []),
+            ...zones.flatMap(({ playlists }) => playlists || []),
+        ]);
+        return buildDisplayScheduleAssignments(display, zones, playlists);
     });
-
-    public readonly display_assignments = computed(() =>
-        this.display_playlists().map((playlist) => ({ playlist })),
-    );
 
     public readonly schedule_entries = computed(() => {
         const days = this.days();
@@ -357,11 +364,13 @@ export class DisplayScheduleComponent {
 
     private readonly _template_mappings = resource({
         params: () =>
-            this._service.templates_enabled()
+            this._context.templates_enabled()
                 ? this.selected_display()?.id
                 : undefined,
         loader: ({ params }) =>
-            this._service.listTemplateMappings({ control_system_id: params }),
+            this._template_service.listTemplateMappings({
+                control_system_id: params,
+            }),
     });
     public readonly templates_loading = this._template_mappings.isLoading;
     public readonly templates_error = this._template_mappings.error;

@@ -53,6 +53,7 @@ describe('ZoneEditModalComponent', () => {
         const component = await make(new PlaceZone({}), 'building');
         component.model.update((model) => ({
             ...model,
+            name: 'SIGNAGE Reception',
             display_name: 'Reception',
             description: 'Reception displays',
         }));
@@ -62,6 +63,7 @@ describe('ZoneEditModalComponent', () => {
         expect(on_save).toHaveBeenCalledWith(
             expect.objectContaining({ id: '' }),
             {
+                name: 'SIGNAGE Reception',
                 display_name: 'Reception',
                 description: 'Reception displays',
                 parent_id: 'building',
@@ -93,6 +95,7 @@ describe('ZoneEditModalComponent', () => {
         const component = await make(
             new PlaceZone({
                 id: 'zone-1',
+                name: 'SIGNAGE Lobby',
                 display_name: 'Lobby',
                 description: 'Ground floor',
                 parent_id: 'building',
@@ -101,6 +104,7 @@ describe('ZoneEditModalComponent', () => {
         );
 
         expect(component.model()).toEqual({
+            name: 'SIGNAGE Lobby',
             display_name: 'Lobby',
             description: 'Ground floor',
             parent_id: 'building',

@@ -10,6 +10,7 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
+import { i18n, notifyError } from '@placeos/common';
 import {
     FullscreenModalShellComponent,
     IconComponent,
@@ -29,12 +30,15 @@ export interface DisplayEditModalData {
         search: string,
         parent_id: string,
     ) => QueryResponse<PlaceZone> | null;
+    /** Ids of a zone and its ancestors, parent first */
+    zone_ids: (zone: PlaceZone) => Promise<string[]>;
     onAdd: (data: Partial<PlaceSystem>) => Promise<PlaceSystem>;
     onEdit: (id: string, data: Partial<PlaceSystem>) => Promise<PlaceSystem>;
 }
 
 interface DisplayEditFormModel {
     name: string;
+    display_name: string;
     description: string;
     orientation: PlaceSystem['orientation'];
     zones: string[];
@@ -58,18 +62,16 @@ interface DisplayEditFormModel {
         >
             <form class="flex flex-col gap-4">
                 <div>
-                    <label for="name"
+                    <label for="signage-display-name"
                         >{{ 'FORM.NAME' | translate
                         }}<span required>*</span></label
                     >
                     <mat-form-field appearance="outline" class="w-full">
                         <input
                             matInput
+                            id="signage-display-name"
                             [placeholder]="'FORM.NAME' | translate"
                             [formField]="form.name"
-                            [attr.aria-label]="
-                                'SIGNAGE_MANAGER.DISPLAY_NAME_ARIA' | translate
-                            "
                         />
                         <mat-error>{{
                             'FORM.NAME_REQUIRED' | translate
@@ -77,12 +79,26 @@ interface DisplayEditFormModel {
                     </mat-form-field>
                 </div>
                 <div>
-                    <label for="description">{{
+                    <label for="signage-display-display-name">{{
+                        'FORM.DISPLAY_NAME' | translate
+                    }}</label>
+                    <mat-form-field appearance="outline" class="w-full">
+                        <input
+                            matInput
+                            id="signage-display-display-name"
+                            [placeholder]="'FORM.DISPLAY_NAME' | translate"
+                            [formField]="form.display_name"
+                        />
+                    </mat-form-field>
+                </div>
+                <div>
+                    <label for="signage-display-description">{{
                         'COMMON.DESCRIPTION' | translate
                     }}</label>
                     <mat-form-field appearance="outline" class="w-full">
                         <textarea
                             matInput
+                            id="signage-display-description"
                             class="min-h-24"
                             [placeholder]="'COMMON.DESCRIPTION' | translate"
                             [formField]="form.description"
@@ -212,7 +228,8 @@ export class DisplayEditModalComponent {
     }, byDisplayName);
     public readonly loadChildren = this._data.load_children;
     public readonly model = signal<DisplayEditFormModel>({
-        name: this.display.display_name || '',
+        name: this.display.name || '',
+        display_name: this.display.display_name || '',
         description: this.display.description || '',
         orientation: this.display.orientation || 'unspecified',
         zones: this.display.id
@@ -232,16 +249,16 @@ export class DisplayEditModalComponent {
         );
     });
 
-    public addZone(zone: PlaceZone) {
+    /** Add a zone and its ancestors, so playlists of a building reach the display */
+    public async addZone(zone: PlaceZone) {
         this._selected_zone_items.update((zones) => [
             ...zones.filter((item) => item.id !== zone.id),
             zone,
         ]);
+        const zone_ids = await this._data.zone_ids(zone).catch(() => [zone.id]);
         this.model.update((model) => ({
             ...model,
-            zones: model.zones.includes(zone.id)
-                ? model.zones
-                : [...model.zones, zone.id],
+            zones: [...new Set([...model.zones, ...zone_ids])],
         }));
     }
 
@@ -258,8 +275,8 @@ export class DisplayEditModalComponent {
             this._dialog_ref.disableClose = true;
             const form_value = this.model();
             const data: Partial<PlaceSystem> = {
-                name: `SIGNAGE ${form_value.name}`,
-                display_name: form_value.name,
+                name: form_value.name,
+                display_name: form_value.display_name,
                 description: form_value.description,
                 orientation: form_value.orientation,
                 signage: true,
@@ -272,6 +289,8 @@ export class DisplayEditModalComponent {
                     : await this._data.onAdd(data);
                 this._dialog_ref.disableClose = false;
                 this._dialog_ref.close(result);
+            } catch {
+                notifyError(i18n('SIGNAGE_MANAGER.SVC_DISPLAY_SAVE_ERROR'));
             } finally {
                 this.loading.set(false);
                 this._dialog_ref.disableClose = false;

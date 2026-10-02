@@ -2,13 +2,13 @@ import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { LocaleService, SettingsService } from '@placeos/common';
 import { NavSidebarComponent } from '../../app/shared/nav-sidebar.component';
-import { SignageService } from '../../app/signage.service';
+import { SignageContextService } from '../../app/signage-context.service';
 
 describe('NavSidebarComponent', () => {
     const locales_signal = signal<any[]>([]);
     const show_locale_signal = signal(false);
     const can_manage_all_groups = signal(false);
-    const manageable_signage_groups = signal<any[]>([]);
+    const can_manage_groups = signal(false);
     const settings = {
         signal: vi.fn((key: string) =>
             key === 'locales' ? locales_signal : show_locale_signal,
@@ -21,26 +21,53 @@ describe('NavSidebarComponent', () => {
         setLocale: vi.fn(),
     };
     const templates_enabled = signal(false);
-    const service = {
+    const context = {
+        can_manage_groups,
         can_manage_all_groups,
-        manageable_signage_groups,
         templates_enabled,
     };
 
-    async function createComponent() {
+    async function createFixture(template = '') {
         await TestBed.configureTestingModule({
             imports: [NavSidebarComponent],
             providers: [
                 { provide: SettingsService, useValue: settings },
                 { provide: LocaleService, useValue: locale },
-                { provide: SignageService, useValue: service },
+                { provide: SignageContextService, useValue: context },
             ],
         })
             .overrideComponent(NavSidebarComponent, {
-                set: { template: '', imports: [] },
+                set: { template, imports: [] },
             })
             .compileComponents();
-        return TestBed.createComponent(NavSidebarComponent).componentInstance;
+        return TestBed.createComponent(NavSidebarComponent);
+    }
+
+    async function createComponent() {
+        return (await createFixture()).componentInstance;
+    }
+
+    /** Render only the scroll list, with fixed metrics since jsdom has no layout. */
+    async function createScrollFixture(metrics: {
+        scrollTop: number;
+        clientHeight: number;
+        scrollHeight: number;
+    }) {
+        const fixture = await createFixture(
+            '<div #scroller><div #scroll_content></div></div>',
+        );
+        fixture.detectChanges();
+        const scroller = fixture.nativeElement.querySelector(
+            'div',
+        ) as HTMLElement;
+        scroller.scrollTop = metrics.scrollTop;
+        Object.defineProperty(scroller, 'clientHeight', {
+            value: metrics.clientHeight,
+        });
+        Object.defineProperty(scroller, 'scrollHeight', {
+            value: metrics.scrollHeight,
+        });
+        return { component: fixture.componentInstance, scroller };
     }
 
     beforeEach(() => {
@@ -48,7 +75,7 @@ describe('NavSidebarComponent', () => {
         locales_signal.set([]);
         show_locale_signal.set(false);
         can_manage_all_groups.set(false);
-        manageable_signage_groups.set([]);
+        can_manage_groups.set(false);
         templates_enabled.set(false);
         settings.theme = 'light';
         settings.get.mockReset();
@@ -65,7 +92,7 @@ describe('NavSidebarComponent', () => {
     });
 
     it('shows the group management item when groups are manageable', async () => {
-        manageable_signage_groups.set([{ id: 'g1' }]);
+        can_manage_groups.set(true);
         const component = await createComponent();
 
         expect(component.nav_items().map((_) => _.route)).toContain('/groups');
@@ -154,5 +181,97 @@ describe('NavSidebarComponent', () => {
         const component = await createComponent();
 
         expect(component.logo_src).toBe('dark.png');
+    });
+
+    describe('nav list overflow', () => {
+        beforeEach(() => {
+            vi.stubGlobal(
+                'ResizeObserver',
+                class {
+                    observe() {}
+                    disconnect() {}
+                },
+            );
+        });
+
+        afterEach(() => vi.unstubAllGlobals());
+
+        it('hides the scroll arrows when the items fit', async () => {
+            const { component } = await createScrollFixture({
+                scrollTop: 0,
+                clientHeight: 400,
+                scrollHeight: 400,
+            });
+
+            component.updateScrollState();
+
+            expect(component.overflowing()).toBe(false);
+        });
+
+        it('enables only the arrows that can move the list', async () => {
+            const { component } = await createScrollFixture({
+                scrollTop: 0,
+                clientHeight: 200,
+                scrollHeight: 500,
+            });
+
+            component.updateScrollState();
+            expect(component.can_scroll_up()).toBe(false);
+            expect(component.can_scroll_down()).toBe(true);
+        });
+
+        it('scrolls the list by a third of its height', async () => {
+            const { component, scroller } = await createScrollFixture({
+                scrollTop: 0,
+                clientHeight: 300,
+                scrollHeight: 900,
+            });
+            scroller.scrollBy = vi.fn();
+
+            component.scrollNav(1);
+
+            expect(scroller.scrollBy).toHaveBeenCalledWith({
+                top: 100,
+                behavior: 'smooth',
+            });
+        });
+
+        it('keeps the list position and arrows for the next page', async () => {
+            const { component, scroller } = await createScrollFixture({
+                scrollTop: 120,
+                clientHeight: 200,
+                scrollHeight: 500,
+            });
+            component.updateScrollState();
+
+            const next = TestBed.createComponent(NavSidebarComponent);
+            expect(next.componentInstance.can_scroll_up()).toBe(true);
+            expect(next.componentInstance.can_scroll_down()).toBe(true);
+            next.detectChanges();
+            await next.whenStable();
+
+            const next_scroller = next.nativeElement.querySelector(
+                'div',
+            ) as HTMLElement;
+            expect(next_scroller).not.toBe(scroller);
+            expect(next_scroller.scrollTop).toBe(120);
+        });
+
+        it('scrolls an active link below the list into view', async () => {
+            const { component, scroller } = await createScrollFixture({
+                scrollTop: 0,
+                clientHeight: 200,
+                scrollHeight: 800,
+            });
+            scroller.getBoundingClientRect = () =>
+                ({ top: 100, bottom: 300 }) as DOMRect;
+            const link = document.createElement('a');
+            link.getBoundingClientRect = () =>
+                ({ top: 500, bottom: 572 }) as DOMRect;
+
+            component.onActiveChange(true, link);
+
+            expect(scroller.scrollTop).toBe(280);
+        });
     });
 });

@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { SignageDisplayService } from '../../app/displays/signage-display.service';
 import { DisplaySelectModalComponent } from '../../app/shared/display-select-modal.component';
-import { SignageService } from '../../app/signage.service';
 
 describe('DisplaySelectModalComponent', () => {
     const flush = () => new Promise((resolve) => setTimeout(resolve));
@@ -24,7 +24,7 @@ describe('DisplaySelectModalComponent', () => {
             imports: [DisplaySelectModalComponent],
             providers: [
                 { provide: MAT_DIALOG_DATA, useValue: { zone_id: 'zone-1' } },
-                { provide: SignageService, useValue: service },
+                { provide: SignageDisplayService, useValue: service },
             ],
         })
             .overrideComponent(DisplaySelectModalComponent, {

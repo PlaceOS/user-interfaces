@@ -37,10 +37,11 @@ describe('LightingTooltipComponent', () => {
         spectator.detectChanges();
         expect('p').not.toExist();
         expect('button[state]').toExist();
-        expect('button[state].inverse').toContainText('One');
+        // Unselected states use the inverse (outlined) style
+        expect('button[state]:not(.inverse)').toContainText('One');
         spectator.component.light.state = 'Two';
         spectator.detectChanges();
-        expect('button[state].inverse').not.toContainText('One');
-        expect('button[state].inverse').toContainText('Two');
+        expect('button[state]:not(.inverse)').not.toContainText('One');
+        expect('button[state]:not(.inverse)').toContainText('Two');
     });
 });

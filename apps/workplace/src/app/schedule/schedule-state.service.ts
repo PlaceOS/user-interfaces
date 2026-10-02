@@ -389,11 +389,9 @@ export class ScheduleStateService extends AsyncHandler {
         return this._event_sources();
     }
 
+    /** Reload bookings. Drops in-flight requests so a change made just now is not masked by a stale response. */
     public triggerPoll() {
-        if (this._network_started) {
-            this._poll.set(Date.now());
-            return;
-        }
+        this._booking_query_requests.clear();
         this._poll.set(Date.now());
     }
 
@@ -707,6 +705,15 @@ export class ScheduleStateService extends AsyncHandler {
         const existing = this._booking_query_requests.get(key);
         if (existing) return existing;
         const request = queryBookings(query)
+            .then((list) =>
+                type === 'visitor'
+                    ? list.filter(
+                          (booking) =>
+                              booking.status !== 'cancelled' ||
+                              !booking.extension_data?.removed_from_group,
+                      )
+                    : list,
+            )
             .catch(() => [])
             .finally(() => this._booking_query_requests.delete(key));
         this._booking_query_requests.set(key, request);

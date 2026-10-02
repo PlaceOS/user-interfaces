@@ -1,6 +1,9 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { SignageService } from '../../app/signage.service';
+import { SignageDisplayService } from '../../app/displays/signage-display.service';
+import { SignagePlaylistService } from '../../app/playlists/signage-playlist.service';
+import { SignageContextService } from '../../app/signage-context.service';
+import { SignageZoneService } from '../../app/zones/signage-zone.service';
 import { ZoneContentComponent } from '../../app/zones/zone-content.component';
 
 const NOW_S = Math.floor(Date.now() / 1000);
@@ -8,29 +11,39 @@ const NOW_S = Math.floor(Date.now() / 1000);
 describe('ZoneContentComponent', () => {
     const selected_zone = signal<any>(null);
     const playlists = signal<any[]>([]);
-    const displays = signal<any[]>([]);
+    const selected_zone_displays = signal<any[]>([]);
     const playlist_approval_status = signal<Record<string, boolean>>({});
     const playlist_thumbnail_media = signal<Record<string, string[]>>({});
     const can_update = signal(true);
     const add_playlist = vi.fn();
     const remove_playlist = vi.fn();
     const add_display = vi.fn();
-    const service_stub = {
-        selected_zone,
-        playlists,
-        displays,
+    const context_stub = { can_update };
+    const display_stub = {
+        selected_zone_displays,
+        addDisplayToZone: add_display,
+    };
+    const playlist_stub = {
+        playlistsById: (ids: readonly string[]) =>
+            playlists().filter(({ id }) => ids.includes(id)),
         playlist_approval_status,
         playlist_thumbnail_media,
-        can_update,
+    };
+    const zone_stub = {
+        selected_zone,
         addPlaylistToZone: add_playlist,
         removePlaylistFromZone: remove_playlist,
-        addDisplayToZone: add_display,
     };
 
     async function make() {
         await TestBed.configureTestingModule({
             imports: [ZoneContentComponent],
-            providers: [{ provide: SignageService, useValue: service_stub }],
+            providers: [
+                { provide: SignageContextService, useValue: context_stub },
+                { provide: SignageDisplayService, useValue: display_stub },
+                { provide: SignagePlaylistService, useValue: playlist_stub },
+                { provide: SignageZoneService, useValue: zone_stub },
+            ],
         })
             .overrideComponent(ZoneContentComponent, {
                 set: { template: '' },
@@ -43,16 +56,13 @@ describe('ZoneContentComponent', () => {
         vi.clearAllMocks();
         selected_zone.set(null);
         playlists.set([]);
-        displays.set([]);
+        selected_zone_displays.set([]);
         playlist_approval_status.set({});
     });
 
-    it('filters playlists assigned to the zone and displays that reference it', async () => {
+    it('lists the playlists and the queried displays of the zone', async () => {
         playlists.set([{ id: 'p1' }, { id: 'p2' }]);
-        displays.set([
-            { id: 'd1', zones: ['z1'] },
-            { id: 'd2', zones: ['z9'] },
-        ]);
+        selected_zone_displays.set([{ id: 'd1', zones: ['z1'] }]);
         selected_zone.set({ id: 'z1', playlists: ['p2'] });
         const component = await make();
 

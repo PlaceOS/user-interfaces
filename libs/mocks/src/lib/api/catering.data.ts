@@ -1,5 +1,19 @@
-import { HashMap, predictableRandomInt } from '@placeos/common';
+import {
+    CateringOrderStatus,
+    HashMap,
+    predictableRandomInt,
+} from '@placeos/common';
 import { differenceInMinutes } from 'date-fns';
+
+/** Order statuses that the catering UIs can show */
+const ORDER_STATUSES: CateringOrderStatus[] = [
+    'pending',
+    'accepted',
+    'preparing',
+    'ready',
+    'delivered',
+    'cancelled',
+];
 
 export const DIETARY_RESTRICTIONS = [
     { id: 'vegetarian', name: 'Vegetarian', icon: '🌱' },
@@ -739,9 +753,7 @@ export function generateCateringOrder(event: HashMap) {
         invoice_number: `INV-${new Date().getFullYear()}-${String(predictableRandomInt(99999, 10000))}`,
         charge_code: `CC-${String(predictableRandomInt(9999, 1000))}`,
         order_type: orderType,
-        status: ['pending', 'confirmed', 'preparing', 'delivered'][
-            predictableRandomInt(4)
-        ],
+        status: ORDER_STATUSES[predictableRandomInt(ORDER_STATUSES.length)],
 
         // Timing
         order_date: new Date(

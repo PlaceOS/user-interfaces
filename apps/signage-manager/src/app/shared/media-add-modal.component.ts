@@ -9,19 +9,13 @@ import {
     FullscreenModalShellComponent,
     TranslatePipe,
 } from '@placeos/components';
-import { SignageService } from '../signage.service';
+import { SignagePlugin } from '@placeos/ts-client';
+import { SignageMediaService } from '../media/signage-media.service';
+import { SignagePluginService } from '../signage-plugin.service';
+import { normaliseWebPageUrl } from '../signage-url.util';
 
 export interface MediaAddModalData {
     mode: 'plugin' | 'link';
-}
-
-function isValidUrl(url: string): boolean {
-    try {
-        new URL(url);
-        return true;
-    } catch {
-        return false;
-    }
 }
 
 @Component({
@@ -90,15 +84,16 @@ function isValidUrl(url: string): boolean {
     ],
 })
 export class MediaAddModalComponent {
-    private readonly _service = inject(SignageService);
+    private readonly _media_service = inject(SignageMediaService);
+    private readonly _plugin_service = inject(SignagePluginService);
     private readonly _data = inject<MediaAddModalData>(MAT_DIALOG_DATA);
     private readonly _dialog_ref =
         inject<MatDialogRef<MediaAddModalComponent>>(MatDialogRef);
 
     public readonly mode = this._data.mode;
     public readonly link = signal('');
-    public readonly selected_plugin = signal<any>(null);
-    public readonly available_plugins = this._service.plugins;
+    public readonly selected_plugin = signal<SignagePlugin | null>(null);
+    public readonly available_plugins = this._plugin_service.plugins;
     public readonly can_add = computed(() =>
         this.mode === 'link'
             ? !!this.link().trim()
@@ -114,18 +109,18 @@ export class MediaAddModalComponent {
 
     public async add() {
         if (this.mode === 'link') {
-            const link = this.link().trim();
-            if (!isValidUrl(link)) {
+            const link = normaliseWebPageUrl(this.link().trim());
+            if (!link) {
                 notifyError(i18n('SIGNAGE_MANAGER.URL_INVALID'));
                 return;
             }
             this._dialog_ref.close();
-            await this._service.addMediaFromLink(link);
+            await this._media_service.addMediaFromLink(link);
         } else {
             const plugin = this.selectedMediaPlugin();
             if (!plugin) return;
             this._dialog_ref.close();
-            await this._service.addMediaFromPlugin(plugin);
+            await this._media_service.addMediaFromPlugin(plugin);
         }
     }
 }

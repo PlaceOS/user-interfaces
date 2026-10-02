@@ -1,5 +1,7 @@
 import { Component, DestroyRef, inject, signal } from '@angular/core';
 import {
+    applyEach,
+    applyWhen,
     form,
     FormField,
     minLength,
@@ -31,14 +33,15 @@ import {
     updateSignagePlaylist,
 } from '@placeos/ts-client';
 import { endOfDay, getUnixTime, startOfDay } from 'date-fns';
-import { SignageSharedWithComponent } from './signage-shared-with.component';
 import {
     createPlaylistScheduleModel,
     PlaylistScheduleFormComponent,
     PlaylistScheduleFormModel,
     playlistSchedulePayload,
     playlistSchedules,
+    playlistScheduleSchema,
 } from './playlist-schedule-form.component';
+import { SignageSharedWithComponent } from './signage-shared-with.component';
 
 export interface PlaylistEditModalData {
     playlist: SignagePlaylist;
@@ -49,6 +52,8 @@ export interface PlaylistEditModalData {
         id: string,
         data: Partial<SignagePlaylist>,
     ) => Promise<SignagePlaylist>;
+    /** Runs before an existing playlist is saved. Return false to stop the save. */
+    beforeSave?: (data: Partial<SignagePlaylist>) => Promise<boolean>;
 }
 
 export interface PlaylistEditFormModel {
@@ -281,9 +286,10 @@ export interface PlaylistEditFormModel {
                             'SIGNAGE_MANAGER.PLAYLIST_SCHEDULES' | translate
                         }}</label>
                         <div class="mt-2 flex flex-col gap-4">
+                            <!-- Track the field, so each form keeps its state when one before it is removed -->
                             @for (
                                 schedule of form.schedules;
-                                track index;
+                                track schedule;
                                 let index = $index
                             ) {
                                 <playlist-schedule-form
@@ -309,6 +315,7 @@ export interface PlaylistEditFormModel {
                     type="playlists"
                     [item_id]="playlist.id"
                     [group_id]="group_id"
+                    [allow_unshare]="true"
                 ></signage-shared-with>
             </form>
         </fullscreen-modal-shell>
@@ -361,6 +368,13 @@ export class PlaylistEditModalComponent {
     public readonly form = form(this.model, (path) => {
         required(path.name);
         minLength(path.schedules, 1);
+        applyWhen(
+            path.schedules,
+            ({ valueOf }) => !valueOf(path.distribution),
+            (schedules) => {
+                applyEach(schedules, playlistScheduleSchema);
+            },
+        );
     });
 
     constructor() {
@@ -411,21 +425,33 @@ export class PlaylistEditModalComponent {
         await submit(this.form, async () => {
             this.loading.set(true);
             this._dialog_ref.disableClose = true;
-            const form_value = this.model();
-            const data: any = { ...form_value };
-            if (data.distribution) {
-                delete data.schedules;
-            } else {
-                data.schedules = form_value.schedules.map((schedule) =>
-                    playlistSchedulePayload(schedule),
-                );
+            const { schedules, valid_from, valid_until, ...fields } =
+                this.model();
+            const data: Partial<SignagePlaylist> = {
+                ...fields,
+                ...(fields.distribution
+                    ? {}
+                    : {
+                          schedules: schedules.map((schedule) =>
+                              playlistSchedulePayload(schedule),
+                          ),
+                      }),
+                ...(valid_from
+                    ? { valid_from: getUnixTime(startOfDay(valid_from)) }
+                    : {}),
+                ...(valid_until
+                    ? { valid_until: getUnixTime(endOfDay(valid_until)) }
+                    : {}),
+            };
+            if (
+                this.playlist.id &&
+                this._data.beforeSave &&
+                !(await this._data.beforeSave(data))
+            ) {
+                this._dialog_ref.disableClose = false;
+                this.loading.set(false);
+                return;
             }
-            if (data.valid_from) {
-                data.valid_from = getUnixTime(startOfDay(data.valid_from));
-            } else delete data.valid_from;
-            if (data.valid_until) {
-                data.valid_until = getUnixTime(endOfDay(data.valid_until));
-            } else delete data.valid_until;
             try {
                 let result: SignagePlaylist;
                 if (this.playlist.id) {

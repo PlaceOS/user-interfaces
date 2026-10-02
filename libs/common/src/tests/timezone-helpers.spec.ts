@@ -48,6 +48,22 @@ describe('timezone all-day helpers', () => {
         expect(json.event_start).toBe(Math.floor(day_start / 1000));
         expect(json.event_end).toBe(Math.floor((day_end + 1) / 1000));
     });
+
+    it('should serialise an all-day event built from day bounds as a full day', () => {
+        const event = new CalendarEvent({
+            all_day: true,
+            date: day_start,
+            duration: 24 * 60 - 1,
+            date_end: day_end,
+            timezone,
+        });
+        const json = event.toJSON();
+
+        expect(json.all_day).toBe(true);
+        expect(json.extension_data.custom_all_day).toBeUndefined();
+        expect(json.event_start).toBe(day_start / 1000);
+        expect(json.event_end).toBe((day_end + 1) / 1000);
+    });
 });
 
 describe('timezone offset helpers', () => {

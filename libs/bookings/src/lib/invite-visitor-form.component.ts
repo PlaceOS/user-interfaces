@@ -1136,6 +1136,8 @@ export class InviteVisitorFormComponent {
         const value = this.model();
         this.model.update((m) => ({
             ...m,
+            // The edit form uses assets for visitors, not equipment requests.
+            assets: [],
             name: value.asset_name || value.asset_id,
             attendees: [
                 new User({

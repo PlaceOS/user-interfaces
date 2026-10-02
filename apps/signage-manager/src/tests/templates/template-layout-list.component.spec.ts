@@ -1,8 +1,12 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { SignageService } from '../../app/signage.service';
+import { SignageDisplayService } from '../../app/displays/signage-display.service';
+import { SignageContextService } from '../../app/signage-context.service';
+import { SignagePluginService } from '../../app/signage-plugin.service';
+import { SignageTemplateService } from '../../app/templates/signage-template.service';
 import { TemplateLayoutListComponent } from '../../app/templates/template-layout-list.component';
 import { SIDEBAR_WIDTH_PC } from '../../app/templates/template-layout.util';
+import { SignageZoneService } from '../../app/zones/signage-zone.service';
 
 describe('TemplateLayoutListComponent', () => {
     const draft = signal<any[]>([]);
@@ -16,24 +20,30 @@ describe('TemplateLayoutListComponent', () => {
     const discard = vi.fn();
     const list_mappings = vi.fn();
 
-    const service_stub = {
+    const context_stub = { can_update_templates: can_update };
+    const display_stub = { displays };
+    const plugin_stub = { widgets };
+    const template_stub = {
         template_layout_draft: draft,
         selected_template_layout_index: selected_index,
         template_layout_dirty: signal(false),
         selected_template,
-        can_update,
-        widgets,
-        displays,
-        all_zones: zones,
         listTemplateMappings: list_mappings,
         saveTemplateLayouts: save,
         discardTemplateLayoutDraft: discard,
     };
+    const zone_stub = { all_zones: zones };
 
     async function make() {
         await TestBed.configureTestingModule({
             imports: [TemplateLayoutListComponent],
-            providers: [{ provide: SignageService, useValue: service_stub }],
+            providers: [
+                { provide: SignageContextService, useValue: context_stub },
+                { provide: SignageDisplayService, useValue: display_stub },
+                { provide: SignagePluginService, useValue: plugin_stub },
+                { provide: SignageTemplateService, useValue: template_stub },
+                { provide: SignageZoneService, useValue: zone_stub },
+            ],
         })
             .overrideComponent(TemplateLayoutListComponent, {
                 set: { template: '' },
@@ -209,7 +219,7 @@ describe('TemplateLayoutListComponent', () => {
         });
     });
 
-    it('keeps existing params ahead of defaults when switching plugin', async () => {
+    it('replaces old params with defaults when switching plugin', async () => {
         widgets.set([
             {
                 id: 'plugin-1',
@@ -222,12 +232,53 @@ describe('TemplateLayoutListComponent', () => {
             {
                 position: 'top',
                 plugin_id: 'other',
-                plugin_params: { size: 4 },
+                plugin_params: { size: 4, obsolete_setting: true },
+                x_pos: 0.25,
             },
         ]);
         const component = await make();
         component.setPlugin(0, 'plugin-1');
+        expect(draft()[0]).toEqual({
+            position: 'top',
+            plugin_id: 'plugin-1',
+            plugin_params: { size: 2 },
+            x_pos: 0.25,
+        });
+    });
+
+    it('keeps edited params when selecting the same plugin', async () => {
+        widgets.set([{ id: 'plugin-1', defaults: { size: 2 } }]);
+        draft.set([
+            {
+                position: 'top',
+                plugin_id: 'plugin-1',
+                plugin_params: { size: 4 },
+            },
+        ]);
+        const component = await make();
+
+        component.setPlugin(0, 'plugin-1');
+
         expect(draft()[0].plugin_params).toEqual({ size: 4 });
+    });
+
+    it('clears params when removing the plugin', async () => {
+        draft.set([
+            {
+                position: 'top',
+                plugin_id: 'plugin-1',
+                plugin_params: { size: 4 },
+            },
+        ]);
+        const component = await make();
+
+        component.setPlugin(0, '');
+
+        expect(draft()[0]).toEqual({
+            position: 'top',
+            plugin_id: undefined,
+            plugin_params: {},
+        });
     });
 
     it('stores axis percentages as API ratios', async () => {
@@ -302,10 +353,87 @@ describe('TemplateLayoutListComponent', () => {
     });
 
     it('saves and discards through the service', async () => {
+        let finishSave: () => void = () => undefined;
+        save.mockReturnValue(
+            new Promise<void>((resolve) => (finishSave = resolve)),
+        );
         const component = await make();
-        component.save();
+
+        const saving = component.save();
+        expect(component.saving()).toBe(true);
+        await component.save();
+        finishSave();
+        await saving;
         component.discard();
+
+        expect(component.saving()).toBe(false);
         expect(save).toHaveBeenCalledTimes(1);
         expect(discard).toHaveBeenCalledTimes(1);
+    });
+
+    it('validates every layout against its plugin schema before saving', async () => {
+        widgets.set([
+            {
+                id: 'clock',
+                params: {
+                    type: 'object',
+                    required: ['format'],
+                    properties: { format: { type: 'string' } },
+                },
+            },
+        ]);
+        draft.set([
+            {
+                position: 'top',
+                plugin_id: 'clock',
+                plugin_params: { format: '24h' },
+            },
+            { position: 'left', plugin_id: 'clock', plugin_params: {} },
+        ]);
+        const component = await make();
+
+        await component.save();
+
+        expect(save).not.toHaveBeenCalled();
+        expect(selected_index()).toBe(1);
+
+        draft.update((layouts) => [
+            layouts[0],
+            { ...layouts[1], plugin_params: { format: '12h' } },
+        ]);
+        await component.save();
+
+        expect(save).toHaveBeenCalledTimes(1);
+    });
+
+    it('opens a layout with an emptied panel size instead of saving', async () => {
+        draft.set([
+            { position: 'top', plugin_params: {} },
+            { position: 'left', plugin_params: {} },
+        ]);
+        const component = await make();
+
+        // An emptied counter emits 0, which the API rejects for edge panels
+        component.setAxis(1, 'x_pos', 0);
+        await component.save();
+
+        expect(save).not.toHaveBeenCalled();
+        expect(selected_index()).toBe(1);
+
+        component.setAxis(1, 'x_pos', 25);
+        await component.save();
+
+        expect(save).toHaveBeenCalledTimes(1);
+    });
+
+    it('shows no mappings when they fail to load', async () => {
+        selected_template.set({ id: 'template-1' });
+        list_mappings.mockRejectedValue(new Error('Forbidden'));
+        const component = await make();
+        component.setViewTab('details');
+
+        await vi.waitFor(() => expect(component.mappings_error()).toBeTruthy());
+
+        expect(component.mappings()).toEqual([]);
     });
 });

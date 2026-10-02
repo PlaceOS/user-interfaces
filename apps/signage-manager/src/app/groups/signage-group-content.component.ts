@@ -1,6 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { IconComponent, TranslatePipe } from '@placeos/components';
-import { SignageService } from '../signage.service';
+import { SignageGroupAdminService } from './signage-group-admin.service';
 import { SignageGroupUsersComponent } from './signage-group-users.component';
 import { SignageGroupZonesComponent } from './signage-group-zones.component';
 
@@ -67,8 +67,8 @@ import { SignageGroupZonesComponent } from './signage-group-zones.component';
     ],
 })
 export class SignageGroupContentComponent {
-    private readonly _service = inject(SignageService);
+    private readonly _group_admin = inject(SignageGroupAdminService);
 
-    public readonly selected_group = this._service.managed_group;
-    public readonly active_tab = this._service.managed_group_tab;
+    public readonly selected_group = this._group_admin.managed_group;
+    public readonly active_tab = this._group_admin.managed_group_tab;
 }

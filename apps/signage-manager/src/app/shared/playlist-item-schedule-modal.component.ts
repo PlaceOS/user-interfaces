@@ -1,6 +1,6 @@
 import { DatePipe } from '@angular/common';
 import { Component, inject, signal } from '@angular/core';
-import { form, minLength, submit } from '@angular/forms/signals';
+import { applyEach, form, minLength, submit } from '@angular/forms/signals';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { i18n, notifyError, notifySuccess } from '@placeos/common';
 import {
@@ -18,6 +18,7 @@ import {
     PlaylistScheduleFormComponent,
     PlaylistScheduleFormModel,
     playlistSchedulePayload,
+    playlistScheduleSchema,
 } from './playlist-schedule-form.component';
 
 export interface PlaylistItemScheduleModalData {
@@ -71,9 +72,10 @@ export interface PlaylistItemScheduleModalData {
                         </div>
                     </div>
                 }
+                <!-- Track the field, so each form keeps its state when one before it is removed -->
                 @for (
                     schedule of form_model.schedules;
-                    track index;
+                    track schedule;
                     let index = $index
                 ) {
                     <playlist-schedule-form
@@ -121,6 +123,7 @@ export class PlaylistItemScheduleModalComponent {
     });
     public readonly form_model = form(this.model, (path) => {
         minLength(path.schedules, 1);
+        applyEach(path.schedules, playlistScheduleSchema);
     });
 
     public addSchedule() {
@@ -139,6 +142,10 @@ export class PlaylistItemScheduleModalComponent {
                 (_, item_index) => item_index !== index,
             ),
         }));
+        this.active_schedule_index.update((active_index) => {
+            if (active_index === index) return null;
+            return active_index > index ? active_index - 1 : active_index;
+        });
     }
 
     public openSchedule(index: number) {

@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { SurveyOutletComponent } from '@placeos/components';
+import { unsavedChangesGuard } from '../ui/unsaved-changes.guard';
 import { BuildingListComponent } from './building-list.component';
 import { SurveyBuilderComponent } from './survey-builder.component';
 import { SurveyListingsComponent } from './survey-listings.component';
@@ -21,11 +22,13 @@ export const ROUTES: Routes = [
                 path: 'builder',
                 component: SurveyBuilderComponent,
                 title: 'Survey Builder',
+                canDeactivate: [unsavedChangesGuard],
             },
             {
                 path: 'builder/:id',
                 component: SurveyBuilderComponent,
                 title: 'Survey Builder',
+                canDeactivate: [unsavedChangesGuard],
             },
             {
                 path: 'responses/:id',

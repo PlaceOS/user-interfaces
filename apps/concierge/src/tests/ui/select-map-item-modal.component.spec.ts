@@ -1,7 +1,7 @@
-import { ComponentFixtureAutoDetect } from '@angular/core/testing';
 import { signal } from '@angular/core';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
+import { ComponentFixtureAutoDetect } from '@angular/core/testing';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import {
     BuildingLevel,
     MapsPeopleService,
@@ -63,6 +63,22 @@ describe('SelectMapItemModalComponent', () => {
         const bounds = { 'poi-1': { x: 0, y: 0, w: 1, h: 1 } } as any;
         spectator.component.setMapInfo(bounds);
         expect(spectator.component.map_info()).toBe(bounds);
+    });
+
+    it('should select the smallest map item under the pointer', async () => {
+        vi.useFakeTimers();
+        spectator = withData({});
+        spectator.component.setMapInfo({
+            floor: { x: 0, y: 0, w: 1, h: 1 },
+            room: { x: 0.1, y: 0.1, w: 0.4, h: 0.4 },
+            desk: { x: 0.2, y: 0.2, w: 0.1, h: 0.1 },
+        } as any);
+
+        spectator.component.selectID({ x: 0.25, y: 0.25 });
+        vi.advanceTimersByTime(300);
+        vi.useRealTimers();
+
+        expect(spectator.component.selected()).toBe('desk');
     });
 
     it('should bump the changed marker on selection change', () => {

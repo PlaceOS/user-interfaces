@@ -99,21 +99,26 @@ function withAppVersion(data: Partial<Booking>): Partial<Booking> {
 }
 
 /**
- * Get a single page of bookings
+ * Get a single page of bookings. Returns an empty list when the request fails.
  * @param q Parameters to pass to the API request
  */
 export async function queryBookings(
     q: BookingsQueryParams,
 ): Promise<Booking[]> {
+    return queryBookingsOrThrow(q).catch(() => []);
+}
+
+/**
+ * Get a single page of bookings. Throws when the request fails, so callers
+ * can tell an error apart from an empty list.
+ * @param q Parameters to pass to the API request
+ */
+export async function queryBookingsOrThrow(
+    q: BookingsQueryParams,
+): Promise<Booking[]> {
     const query = toQueryString(q);
-    try {
-        const list = await get(
-            `${BOOKINGS_ENDPOINT}${query ? '?' + query : ''}`,
-        );
-        return list.map((item) => new Booking(item));
-    } catch (_) {
-        return [];
-    }
+    const list = await get(`${BOOKINGS_ENDPOINT}${query ? '?' + query : ''}`);
+    return list.map((item) => new Booking(item));
 }
 
 /**
@@ -713,7 +718,9 @@ export async function queryResourceAvailability(
     return id_list.map(
         (id) =>
             !bookings.find(
-                (b) => b.asset_id === id && (!ignore || ignore !== b.id),
+                (b) =>
+                    (b.asset_id === id || b.asset_ids.includes(id)) &&
+                    (!ignore || ignore !== b.id),
             ),
     );
 }
@@ -731,8 +738,11 @@ export async function isResourceAvailable(
         period_end: getUnixTime(addMinutes(start, duration)),
     });
     return (
-        bookings.filter((_) => _.asset_id === id && _.id !== ignore).length ===
-        0
+        bookings.filter(
+            (_) =>
+                (_.asset_id === id || _.asset_ids.includes(id)) &&
+                _.id !== ignore,
+        ).length === 0
     );
 }
 

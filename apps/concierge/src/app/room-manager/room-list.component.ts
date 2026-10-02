@@ -17,6 +17,8 @@ import { RoomManagementService } from './room-management.service';
     template: `
         <div class="absolute inset-0 overflow-auto px-8">
             <simple-table
+                [error]="load_error()"
+                (retry)="retryLoad()"
                 class="block min-w-6xl text-sm"
                 [data]="rooms()"
                 empty_message="No rooms for selected level or building"
@@ -214,6 +216,8 @@ import { RoomManagementService } from './room-management.service';
 })
 export class RoomListComponent {
     private _manager = inject(RoomManagementService);
+    public readonly load_error = this._manager.load_error;
+    public readonly retryLoad = () => this._manager.reload();
     private _clipboard = inject(Clipboard);
     private _settings = inject(SettingsService);
 

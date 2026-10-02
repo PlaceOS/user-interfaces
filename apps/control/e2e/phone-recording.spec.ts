@@ -18,7 +18,7 @@ async function ensurePoweredOn(page) {
         .waitFor({ timeout: LOAD_TIMEOUT });
 
     // Wait for system to be connected (splash or topbar visible)
-    const splash = page.locator('div[name="splash"]');
+    const splash = page.locator('[name="splash"]');
     const topbar = page.locator('topbar-header');
 
     await Promise.race([
@@ -167,16 +167,15 @@ test.describe('US-031: View Recording Status', () => {
         }
     });
 
-    test('should show recording indicator icon', async ({ page }) => {
+    test('should show stop recording button', async ({ page }) => {
         const statusBar = page.locator('control-status-bar');
         const recordingSection = statusBar.locator('[recording]');
 
         if (await recordingSection.isVisible().catch(() => false)) {
-            // Record icon (fiber_manual_record)
-            const recordIcon = recordingSection.locator(
-                'icon:has-text("fiber_manual_record")',
+            const stopButton = recordingSection.locator(
+                '[place-action="stop"]',
             );
-            await expect(recordIcon).toBeVisible();
+            await expect(stopButton).toBeVisible();
         }
     });
 });

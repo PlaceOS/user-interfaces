@@ -1,11 +1,13 @@
 import { Component, inject, signal } from '@angular/core';
-import { IconComponent } from '@placeos/components';
+import { IconComponent, TranslatePipe } from '@placeos/components';
+import { SignagePlaylistService } from '../playlists/signage-playlist.service';
 import { NavFooterComponent } from '../shared/nav-footer.component';
 import { NavSidebarComponent } from '../shared/nav-sidebar.component';
-import { SignageService } from '../signage.service';
+import { SignageContextService } from '../signage-context.service';
 import { MediaListHeaderComponent } from './media-list-header.component';
 import { MediaListComponent } from './media-list.component';
 import { PlaylistSidebarComponent } from './playlist-sidebar.component';
+import { SignageMediaService } from './signage-media.service';
 
 @Component({
     selector: 'media-section',
@@ -26,7 +28,7 @@ import { PlaylistSidebarComponent } from './playlist-sidebar.component';
                             class="relative z-0"
                             [playlist_count]="playlists()?.length"
                         />
-                        @if (show_dropzone()) {
+                        @if (show_dropzone() && can_create()) {
                             <div
                                 class="absolute inset-0 z-20"
                                 (dragenter)="handleDragEnter($event)"
@@ -43,10 +45,16 @@ import { PlaylistSidebarComponent } from './playlist-sidebar.component';
                                     <icon class="text-6xl">cloud_upload</icon>
                                     <div>
                                         <p class="text-lg font-medium">
-                                            Drop media to upload
+                                            {{
+                                                'SIGNAGE_MANAGER.DROP_MEDIA_TITLE'
+                                                    | translate
+                                            }}
                                         </p>
                                         <p class="text-sm opacity-80">
-                                            Images and supported video files
+                                            {{
+                                                'SIGNAGE_MANAGER.DROP_MEDIA_HINT'
+                                                    | translate
+                                            }}
                                         </p>
                                     </div>
                                 </div>
@@ -67,13 +75,18 @@ import { PlaylistSidebarComponent } from './playlist-sidebar.component';
         PlaylistSidebarComponent,
         NavFooterComponent,
         IconComponent,
+        TranslatePipe,
     ],
 })
 export class MediaSectionComponent {
-    private readonly _service = inject(SignageService);
+    private readonly _context = inject(SignageContextService);
+    private readonly _media_service = inject(SignageMediaService);
+    private readonly _playlist_service = inject(SignagePlaylistService);
     private _drag_counter = 0;
 
-    public readonly playlists = this._service.playlists;
+    public readonly playlists = this._playlist_service.playlists;
+    /** The drop overlay is only offered to users who can create media */
+    public readonly can_create = this._context.can_create;
     public readonly show_dropzone = signal(false);
 
     public handleDragEnter(event: DragEvent) {
@@ -105,7 +118,7 @@ export class MediaSectionComponent {
         event.preventDefault();
         event.stopPropagation();
         this.hideDropzone();
-        await this._service.previewFiles(event.dataTransfer?.files);
+        await this._media_service.previewFiles(event.dataTransfer?.files);
     }
 
     public hideDropzone() {

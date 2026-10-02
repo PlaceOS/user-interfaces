@@ -151,7 +151,10 @@ export class LandingStateService extends AsyncHandler {
                     .filtered_bookings()
                     .filter(
                         (i) =>
-                            i.state !== 'done' && isSameDay(i.date, Date.now()),
+                            i.status !== 'cancelled' &&
+                            i.type !== 'cancelled' &&
+                            i.state !== 'done' &&
+                            isSameDay(i.date, Date.now()),
                     ),
             );
         });

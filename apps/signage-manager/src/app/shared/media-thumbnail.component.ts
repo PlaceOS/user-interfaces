@@ -60,8 +60,12 @@ export class MediaThumbnailComponent implements AfterViewInit, OnDestroy {
             this.in_view.set(true);
             return;
         }
+        // Keep the image once shown, so scrolling back does not swap it for
+        // the icon while the cached image loads again.
         this._observer = new IntersectionObserver((entries) => {
-            this.in_view.set(entries.some((entry) => entry.isIntersecting));
+            if (!entries.some((entry) => entry.isIntersecting)) return;
+            this.in_view.set(true);
+            this._observer?.disconnect();
         });
         this._observer.observe(this._element.nativeElement);
     }

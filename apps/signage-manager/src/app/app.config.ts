@@ -21,6 +21,7 @@ import {
 import { environment } from '../environments/environment';
 import { signageAccessGuard } from './signage-access.guard';
 import { templatesEnabledGuard } from './templates-enabled.guard';
+import { templateUnsavedGuard } from './templates/template-unsaved.guard';
 
 const APP_ROUTES: Routes = [
     {
@@ -56,6 +57,7 @@ const APP_ROUTES: Routes = [
             {
                 path: 'templates/:id',
                 canActivate: [templatesEnabledGuard],
+                canDeactivate: [templateUnsavedGuard],
                 loadComponent: () =>
                     import('./templates/templates.component').then(
                         (m) => m.TemplatesSectionComponent,
@@ -91,12 +93,32 @@ const APP_ROUTES: Routes = [
                     ),
             },
             {
-                path: 'branding',
+                path: 'manage',
                 loadComponent: () =>
-                    import('./branding/branding.component').then(
-                        (m) => m.BrandingComponent,
+                    import('./manage/manage.component').then(
+                        (m) => m.ManageSectionComponent,
                     ),
+                children: [
+                    { path: '', pathMatch: 'full', redirectTo: 'report' },
+                    {
+                        path: 'report',
+                        loadComponent: () =>
+                            import('./report/content-report.component').then(
+                                (m) => m.ContentReportComponent,
+                            ),
+                    },
+                    {
+                        path: 'branding',
+                        loadComponent: () =>
+                            import('./branding/branding.component').then(
+                                (m) => m.BrandingComponent,
+                            ),
+                    },
+                ],
             },
+            // Old addresses of the pages now under Manage
+            { path: 'report', redirectTo: 'manage/report' },
+            { path: 'branding', redirectTo: 'manage/branding' },
             {
                 path: 'groups',
                 loadComponent: () =>
@@ -133,7 +155,11 @@ export const APP_CONFIG: ApplicationConfig = {
         provideAppInitializer(() =>
             registerActiveLocale(inject(LocaleService).locale),
         ),
-        provideRouter(APP_ROUTES, withHashLocation(), withComponentInputBinding()),
+        provideRouter(
+            APP_ROUTES,
+            withHashLocation(),
+            withComponentInputBinding(),
+        ),
         // {
         //     provide: ErrorHandler,
         //     useValue: Sentry.createErrorHandler({

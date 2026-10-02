@@ -126,6 +126,36 @@ describe('BookingCardComponent', () => {
         expect(spectator.component.resource_label()).toBe('Visitor One');
     });
 
+    it('should grey out a cancelled desk booking', () => {
+        spectator.setInput({
+            booking: new Booking({
+                booking_type: 'desk',
+                type: 'desk',
+                date: addHours(new Date(), 1).valueOf(),
+                deleted: true,
+            } as any),
+        });
+        spectator.detectChanges();
+
+        expect(spectator.component.is_cancelled()).toBe(true);
+        expect(spectator.component.status()).toBe('error');
+        expect('[name="view-booking-details"] .opacity-60').toExist();
+    });
+
+    it('should keep the cancelled status after the booking time has passed', () => {
+        spectator.setInput({
+            booking: new Booking({
+                booking_type: 'desk',
+                type: 'desk',
+                date: addHours(new Date(), -3).valueOf(),
+                duration: 60,
+                deleted: true,
+            } as any),
+        });
+
+        expect(spectator.component.status()).toBe('error');
+    });
+
     it('should show who an associated booking is for', () => {
         spectator.setInput({
             booking: new Booking({

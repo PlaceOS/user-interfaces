@@ -1,5 +1,9 @@
 import { TestBed } from '@angular/core/testing';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import {
+    MAT_DIALOG_DATA,
+    MatDialog,
+    MatDialogRef,
+} from '@angular/material/dialog';
 import { HotkeysService, setNotifyOutlet } from '@placeos/common';
 import { SignageMedia, SignagePlugin } from '@placeos/ts-client';
 import {
@@ -20,6 +24,7 @@ describe('MediaEditModalComponent', () => {
     const onAdd = vi.fn();
     const onEdit = vi.fn();
     const hotkey_listen = vi.fn();
+    const dialog = { openDialogs: [] as unknown[] };
     let hotkey_callback: () => void;
     let modal_data: MediaEditModalData;
 
@@ -27,6 +32,7 @@ describe('MediaEditModalComponent', () => {
         vi.clearAllMocks();
         setNotifyOutlet({ open: notify_open } as any, true);
         dialog_ref.disableClose = false;
+        dialog.openDialogs = [dialog_ref];
         onAdd.mockResolvedValue(new SignageMedia({ id: 'media-1' }));
         onEdit.mockResolvedValue(undefined);
         hotkey_listen.mockImplementation(
@@ -53,6 +59,7 @@ describe('MediaEditModalComponent', () => {
             providers: [
                 { provide: MAT_DIALOG_DATA, useValue: modal_data },
                 { provide: MatDialogRef, useValue: dialog_ref },
+                { provide: MatDialog, useValue: dialog },
                 {
                     provide: HotkeysService,
                     useValue: { listen: hotkey_listen },
@@ -99,6 +106,33 @@ describe('MediaEditModalComponent', () => {
             expect.any(Function),
         );
         expect(save).toHaveBeenCalled();
+    });
+
+    it('ignores the S hotkey while another dialog is on top', () => {
+        const fixture = TestBed.createComponent(MediaEditModalComponent);
+        const component = fixture.componentInstance;
+        const save = vi.spyOn(component, 'saveMedia').mockResolvedValue();
+        dialog.openDialogs = [dialog_ref, { id: 'preview' }];
+
+        hotkey_callback();
+
+        expect(save).not.toHaveBeenCalled();
+    });
+
+    it('ignores the S hotkey while a select has focus', () => {
+        const fixture = TestBed.createComponent(MediaEditModalComponent);
+        const component = fixture.componentInstance;
+        const save = vi.spyOn(component, 'saveMedia').mockResolvedValue();
+        const select = document.createElement('div');
+        select.setAttribute('role', 'combobox');
+        select.tabIndex = 0;
+        document.body.appendChild(select);
+        select.focus();
+
+        hotkey_callback();
+
+        expect(save).not.toHaveBeenCalled();
+        select.remove();
     });
 
     it('starts blank validity dates as empty values', () => {
@@ -320,6 +354,48 @@ describe('MediaEditModalComponent', () => {
 
             expect(component.custom_thumbnail()).toBe('');
             expect(component.thumbnail_loading()).toBe(false);
+        });
+    });
+
+    describe('webpage urls', () => {
+        beforeEach(() => {
+            modal_data.file = undefined;
+            modal_data.file_metadata = undefined;
+            modal_data.media = new SignageMedia({
+                id: 'media-1',
+                media_type: 'webpage',
+                media_uri: 'javascript:alert(1)',
+                name: 'Example',
+            });
+        });
+
+        it('does not load a stored non-web url in the preview frame', () => {
+            const component = TestBed.createComponent(
+                MediaEditModalComponent,
+            ).componentInstance;
+
+            expect(component.preview_url()).toBe('about:blank');
+        });
+
+        it('refuses to save a non-web url and saves a normalised one', async () => {
+            const component = TestBed.createComponent(
+                MediaEditModalComponent,
+            ).componentInstance;
+
+            await component.saveMedia();
+
+            expect(component.form.media_uri().invalid()).toBe(true);
+            expect(onEdit).not.toHaveBeenCalled();
+
+            component.model.update((model) => ({
+                ...model,
+                media_uri: 'https://example.com',
+            }));
+            await component.saveMedia();
+
+            expect(onEdit.mock.calls[0][1].media_uri).toBe(
+                'https://example.com/',
+            );
         });
     });
 });

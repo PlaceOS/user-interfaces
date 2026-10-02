@@ -153,12 +153,16 @@ export const routes: Routes = [
             import('./email-templates/email-templates.routes').then(
                 (m) => m.ROUTES,
             ),
+        canActivate: [AuthorisedUserGuard],
+        canLoad: [AuthorisedUserGuard],
     },
     {
         path: 'deals-n-offers',
         title: 'Deals & Offers',
         loadChildren: () =>
             import('./deals/deals.routes').then((m) => m.ROUTES),
+        canActivate: [AuthorisedUserGuard],
+        canLoad: [AuthorisedUserGuard],
     },
     {
         path: 'points-of-interest',

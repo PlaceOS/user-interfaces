@@ -4,6 +4,9 @@ import {
     Booking,
     CalendarEvent,
     fromBookingRecurrence,
+    getAllDayTimeRange,
+    Space,
+    User,
     WeekOfMonth,
 } from '@placeos/common';
 import {
@@ -210,6 +213,141 @@ describe('Booking Utilities', () => {
     });
 
     describe('newBookingFromCalendarEvent', () => {
+        it.each([30, 90, 120, 480])(
+            'should preserve a %s-minute interval in native booking payloads',
+            (duration) => {
+                const date = new Date(2028, 5, 15, 13, 25).valueOf();
+                const event = new CalendarEvent({ date, duration });
+
+                for (const input of [event, event.toJSON() as CalendarEvent]) {
+                    const payload = newBookingFromCalendarEvent(input).toJSON();
+
+                    expect(payload.booking_start).toBe(date / 1000);
+                    expect(payload.booking_end).toBe(
+                        date / 1000 + duration * 60,
+                    );
+                }
+            },
+        );
+
+        it('should reserve the full day for an all-day room booking', () => {
+            const period = getAllDayTimeRange(
+                new Date(2028, 5, 15, 13).valueOf(),
+                '',
+            );
+            const event = new CalendarEvent({ all_day: true, ...period });
+
+            const payload = newBookingFromCalendarEvent(
+                event.toJSON() as CalendarEvent,
+            ).toJSON();
+
+            expect(payload.booking_start).toBe(
+                new Date(2028, 5, 15).valueOf() / 1000,
+            );
+            expect(payload.booking_end).toBe(
+                new Date(2028, 5, 16).valueOf() / 1000,
+            );
+            expect(payload.all_day).toBe(true);
+            expect(payload.extension_data.custom_all_day).toBeUndefined();
+        });
+
+        it.each([false, true])(
+            'should preserve the delegated host identity, serialized event: %s',
+            (serialized) => {
+                const event = new CalendarEvent({
+                    host: 'colleague@example.com',
+                    creator: 'booker@example.com',
+                    attendees: [
+                        new User({
+                            id: 'staff-colleague',
+                            email: 'colleague@example.com',
+                            name: 'Selected Colleague',
+                        }),
+                    ],
+                });
+                const booking = newBookingFromCalendarEvent(
+                    serialized ? (event.toJSON() as CalendarEvent) : event,
+                );
+
+                expect(booking.toJSON()).toMatchObject({
+                    user_id: 'staff-colleague',
+                    user_email: 'colleague@example.com',
+                    user_name: 'Selected Colleague',
+                    extension_data: { creator: 'booker@example.com' },
+                });
+            },
+        );
+
+        it('should use the host email as the identity when staff details are unavailable', () => {
+            const booking = newBookingFromCalendarEvent(
+                new CalendarEvent({
+                    host: 'colleague@example.com',
+                    creator: 'booker@example.com',
+                }),
+            );
+
+            expect(booking.toJSON()).toMatchObject({
+                user_id: 'colleague@example.com',
+                user_email: 'colleague@example.com',
+            });
+        });
+
+        it.each([false, true])(
+            'should include the selected room zones in the booking payload, serialized event: %s',
+            (serialized) => {
+                const room = new Space({
+                    id: 'room-1',
+                    name: 'Meeting Room',
+                    email: 'room@example.com',
+                    zones: ['zone-building', 'zone-level'],
+                });
+                const event = new CalendarEvent({ resources: [room] });
+                const booking = newBookingFromCalendarEvent(
+                    serialized ? (event.toJSON() as CalendarEvent) : event,
+                );
+
+                expect(booking.toJSON()).toMatchObject({
+                    asset_id: room.id,
+                    booking_type: 'room',
+                    zones: ['zone-building', 'zone-level'],
+                });
+            },
+        );
+
+        it.each([false, true])(
+            'should hold every selected room in the booking payload, serialized event: %s',
+            (serialized) => {
+                const rooms = [
+                    new Space({
+                        id: 'room-1',
+                        email: 'room-1@example.com',
+                        zones: ['zone-building', 'zone-level-1'],
+                    }),
+                    new Space({
+                        id: 'room-2',
+                        email: 'room-2@example.com',
+                        zones: ['zone-building', 'zone-level-2'],
+                    }),
+                ];
+                const event = new CalendarEvent({ resources: rooms });
+                const booking = newBookingFromCalendarEvent(
+                    serialized ? (event.toJSON() as CalendarEvent) : event,
+                );
+
+                expect(booking.toJSON()).toMatchObject({
+                    asset_id: 'room-1',
+                    asset_ids: ['room-1', 'room-2'],
+                    zones: ['zone-building', 'zone-level-1', 'zone-level-2'],
+                });
+            },
+        );
+
+        it('should allow an event without a room', () => {
+            const booking = newBookingFromCalendarEvent(new CalendarEvent());
+
+            expect(booking.toJSON().zones).toEqual([]);
+        });
+
         it('should serialise monthly nth-weekday recurrence for room bookings', () => {
             const booking = newBookingFromCalendarEvent(
                 new CalendarEvent({

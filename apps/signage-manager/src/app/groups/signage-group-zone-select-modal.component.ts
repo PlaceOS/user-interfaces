@@ -9,7 +9,7 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
 import { PlaceZone } from '@placeos/ts-client';
 import { byDisplayName, PagedSearch } from '../shared/paged-search';
 import { ZoneSelectTreeComponent } from '../shared/zone-select-tree.component';
-import { SignageService } from '../signage.service';
+import { SignageGroupAdminService } from './signage-group-admin.service';
 
 @Component({
     selector: 'signage-group-zone-select-modal',
@@ -49,7 +49,7 @@ import { SignageService } from '../signage.service';
     ],
 })
 export class SignageGroupZoneSelectModalComponent {
-    private readonly _service = inject(SignageService);
+    private readonly _group_admin = inject(SignageGroupAdminService);
     private readonly _data = inject<{ exclude_ids?: string[] }>(
         MAT_DIALOG_DATA,
     );
@@ -58,7 +58,7 @@ export class SignageGroupZoneSelectModalComponent {
     );
 
     public readonly list = new PagedSearch<PlaceZone>(
-        (search) => this._service.queryGroupZones(search),
+        (search) => this._group_admin.queryGroupZones(search),
         byDisplayName,
         300,
     );

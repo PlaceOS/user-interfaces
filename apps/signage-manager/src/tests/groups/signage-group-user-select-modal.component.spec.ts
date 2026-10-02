@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { SignageGroupAdminService } from '../../app/groups/signage-group-admin.service';
 import { SignageGroupUserSelectModalComponent } from '../../app/groups/signage-group-user-select-modal.component';
-import { SignageService } from '../../app/signage.service';
 
 describe('SignageGroupUserSelectModalComponent', () => {
     const search_group_users = vi.fn();
@@ -11,7 +11,7 @@ describe('SignageGroupUserSelectModalComponent', () => {
     function make() {
         TestBed.configureTestingModule({
             providers: [
-                { provide: SignageService, useValue: service_stub },
+                { provide: SignageGroupAdminService, useValue: service_stub },
                 { provide: MAT_DIALOG_DATA, useValue: modal_data },
             ],
         }).overrideComponent(SignageGroupUserSelectModalComponent, {

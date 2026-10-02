@@ -130,7 +130,8 @@ export class SettingsService extends AsyncHandler {
     }
 
     public readonly theme_signal = computed(() => {
-        const allow_dark_mode = this.signal('allow_dark_mode', true)();
+        // Unset means disabled, matching `theme` and `_applyTheme`.
+        const allow_dark_mode = this.signal('allow_dark_mode', false)();
         return allow_dark_mode
             ? this.signal('theme', 'light', true)()
             : 'light';
@@ -179,6 +180,9 @@ export class SettingsService extends AsyncHandler {
 
     constructor() {
         super();
+        // Register early so setting signals created before init completes
+        // read current overrides instead of their default values.
+        _service = this;
         const now = new Date();
         const time = new Date(VERSION.time);
         const built = isSameDay(now, time)
@@ -210,6 +214,7 @@ export class SettingsService extends AsyncHandler {
         const user = await this._currentUser();
         const data = await showMetadata(user.id, 'settings');
         this._user_settings.set(data.details || {});
+        this._updateSignals();
         this.timeout(
             'init',
             () => {
@@ -220,7 +225,6 @@ export class SettingsService extends AsyncHandler {
             },
             1000,
         );
-        _service = this as any;
     }
 
     /** Whether settings service has initialised */

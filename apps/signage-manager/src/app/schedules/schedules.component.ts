@@ -6,25 +6,28 @@ import {
     effect,
     inject,
     input,
+    resource,
     signal,
 } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, Router } from '@angular/router';
 import { i18n } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import { addDays, isSameDay, startOfDay } from 'date-fns';
+import { SignagePlaylistService } from '../playlists/signage-playlist.service';
 import { GroupBreadcrumbsComponent } from '../shared/group-breadcrumbs.component';
 import { NavFooterComponent } from '../shared/nav-footer.component';
 import { NavSidebarComponent } from '../shared/nav-sidebar.component';
-import { SignageService } from '../signage.service';
+import { SignageInventoryService } from '../signage-inventory.service';
 import { ScheduleTimelineComponent } from './schedule-timeline.component';
 import {
     ScheduleTimelineRow,
+    buildDayTimelineBlocks,
     buildDisplayScheduleAssignments,
-    buildScheduleBlocks,
     buildZoneScheduleAssignments,
 } from './signage-schedule.util';
 
@@ -32,6 +35,14 @@ const TAB_QUERY_PARAM = 'tab';
 
 function parseScheduleTab(value: string | null): 'displays' | 'zones' {
     return value === 'zones' ? 'zones' : 'displays';
+}
+
+/** Rows whose name, description or playlists include the search term */
+function filterRows(rows: ScheduleTimelineRow[], search_term: string) {
+    const search = search_term.trim().toLowerCase();
+    return search
+        ? rows.filter((row) => row.search_index.includes(search))
+        : rows;
 }
 
 @Component({
@@ -60,10 +71,16 @@ function parseScheduleTab(value: string | null): 'displays' | 'zones' {
                             [attr.aria-label]="
                                 'SIGNAGE_MANAGER.SCHEDULE_TYPES' | translate
                             "
+                            (keydown)="onTabKeydown($event)"
                         >
                             <button
                                 type="button"
                                 role="tab"
+                                id="schedules-tab-displays"
+                                aria-controls="schedules-panel"
+                                [attr.tabindex]="
+                                    view_tab() === 'displays' ? 0 : -1
+                                "
                                 class="flex rounded-md p-2 font-medium transition-all duration-150"
                                 [class.bg-base-100]="view_tab() === 'displays'"
                                 [class.shadow-sm]="view_tab() === 'displays'"
@@ -87,6 +104,11 @@ function parseScheduleTab(value: string | null): 'displays' | 'zones' {
                             <button
                                 type="button"
                                 role="tab"
+                                id="schedules-tab-zones"
+                                aria-controls="schedules-panel"
+                                [attr.tabindex]="
+                                    view_tab() === 'zones' ? 0 : -1
+                                "
                                 class="flex rounded-md p-2 font-medium transition-all duration-150"
                                 [class.bg-base-100]="view_tab() === 'zones'"
                                 [class.shadow-sm]="view_tab() === 'zones'"
@@ -201,9 +223,40 @@ function parseScheduleTab(value: string | null): 'displays' | 'zones' {
 
                 <div class="min-h-0 flex-1 p-2">
                     <div
+                        id="schedules-panel"
+                        role="tabpanel"
                         class="bg-base-100 border-base-300 flex h-full min-h-0 flex-col overflow-hidden rounded-lg border"
+                        [attr.aria-labelledby]="'schedules-tab-' + view_tab()"
                     >
-                        @if (rows().length === 0) {
+                        @if (inventory_error()) {
+                            <div
+                                class="text-base-content/60 flex flex-1 flex-col items-center justify-center gap-3"
+                                role="alert"
+                            >
+                                <icon class="text-error text-4xl">error</icon>
+                                <p class="text-sm">
+                                    {{ 'COMMON.LOAD_ERROR' | translate }}
+                                </p>
+                                <button
+                                    btn
+                                    matRipple
+                                    type="button"
+                                    class="inverse"
+                                    (click)="reload()"
+                                >
+                                    {{ 'COMMON.RETRY' | translate }}
+                                </button>
+                            </div>
+                        } @else if (!rows().length && inventory_loading()) {
+                            <div
+                                class="flex flex-1 flex-col items-center justify-center gap-3 opacity-70"
+                            >
+                                <mat-spinner diameter="32" />
+                                <p class="text-sm">
+                                    {{ 'COMMON.LOADING' | translate }}
+                                </p>
+                            </div>
+                        } @else if (!rows().length) {
                             <div
                                 class="text-base-content/40 flex flex-1 flex-col items-center justify-center gap-3"
                             >
@@ -229,7 +282,6 @@ function parseScheduleTab(value: string | null): 'displays' | 'zones' {
                             <schedule-timeline
                                 [rows]="rows()"
                                 [view_tab]="view_tab()"
-                                [selected_date]="selected_date()"
                                 [current_minutes]="current_minutes()"
                                 [show_current_time]="show_current_time()"
                                 [playlist_approval_status]="
@@ -263,11 +315,13 @@ function parseScheduleTab(value: string | null): 'displays' | 'zones' {
         ScheduleTimelineComponent,
         MatFormFieldModule,
         MatInputModule,
+        MatProgressSpinnerModule,
         TranslatePipe,
     ],
 })
 export class SchedulesSectionComponent {
-    private readonly _service = inject(SignageService);
+    private readonly _inventory_service = inject(SignageInventoryService);
+    private readonly _playlist_service = inject(SignagePlaylistService);
     private readonly _route = inject(ActivatedRoute);
     private readonly _router = inject(Router);
     private readonly _destroy_ref = inject(DestroyRef);
@@ -278,12 +332,30 @@ export class SchedulesSectionComponent {
     public readonly selected_date = signal(startOfDay(new Date()));
     public readonly current_time = signal(new Date());
 
-    private readonly _playlists = this._service.playlists;
-    private readonly _displays = this._service.displays;
-    private readonly _zones = this._service.zones;
+    // The service lists only hold the pages loaded so far, so load every
+    // display, zone and playlist in the group.
+    private readonly _inventory = resource({
+        params: () => this._inventory_service.inventory_key(),
+        loader: () => this._inventory_service.loadSignageInventory(),
+    });
+    private readonly _inventory_value = computed(() =>
+        this._inventory.hasValue() ? this._inventory.value() : undefined,
+    );
+    private readonly _playlists = computed(
+        () => this._inventory_value()?.playlists || [],
+    );
+    private readonly _displays = computed(
+        () => this._inventory_value()?.displays || [],
+    );
+    private readonly _zones = computed(
+        () => this._inventory_value()?.zones || [],
+    );
+
+    public readonly inventory_loading = this._inventory.isLoading;
+    public readonly inventory_error = computed(() => !!this._inventory.error());
 
     public readonly playlist_approval_status =
-        this._service.playlist_approval_status;
+        this._playlist_service.playlist_approval_status;
     public readonly display_total = computed(() => this._displays().length);
     public readonly zone_total = computed(() => this._zones().length);
     public readonly search_placeholder = computed(() =>
@@ -299,117 +371,112 @@ export class SchedulesSectionComponent {
         isSameDay(this.selected_date(), this.current_time()),
     );
 
-    public readonly display_rows = computed<ScheduleTimelineRow[]>(() => {
+    private readonly _all_display_rows = computed<ScheduleTimelineRow[]>(() => {
         const playlists = this._playlists();
         const zones = this._zones();
         const date = this.selected_date();
-        const search = this.search_term().trim().toLowerCase();
 
-        return this._displays()
-            .map((display) => {
-                const assignments = buildDisplayScheduleAssignments(
-                    display,
-                    zones,
-                    playlists,
-                );
-                const blocks = buildScheduleBlocks(assignments, [date]).sort(
-                    (left, right) =>
-                        left.start_minutes - right.start_minutes ||
-                        left.playlist.name.localeCompare(right.playlist.name),
-                );
-                const zone_count = (display.zones || []).length;
-                const zone_label = zone_count
-                    ? ` · ${i18n(
-                          'SIGNAGE_MANAGER.ZONE_COUNT_LABEL',
-                          {
-                              count: zone_count,
-                          },
-                          zone_count,
-                      )}`
-                    : '';
-                const search_index = [
-                    display.display_name || display.name,
-                    display.description || '',
-                    ...assignments.map((item) => item.playlist.name),
-                    ...assignments.map((item) => item.source_label || ''),
-                ]
-                    .join(' ')
-                    .toLowerCase();
-                return {
-                    id: display.id,
-                    name: display.display_name || display.name,
-                    description: display.description || '',
-                    subtitle: `${i18n(
-                        'SIGNAGE_MANAGER.PLAYLIST_COUNT_LABEL',
-                        {
-                            count: assignments.length,
-                        },
-                        assignments.length,
-                    )}${zone_label}`,
-                    icon: 'tv',
-                    route: ['/displays', display.id],
-                    blocks,
-                    search_index,
-                    signage_last_seen: display.signage_last_seen,
-                    updated_at: display.updated_at,
-                };
-            })
-            .filter((row) => !search || row.search_index.includes(search));
+        return this._displays().map((display) => {
+            const assignments = buildDisplayScheduleAssignments(
+                display,
+                zones,
+                playlists,
+            );
+            const { blocks, lane_count } = buildDayTimelineBlocks(
+                assignments,
+                date,
+            );
+            const zone_count = (display.zones || []).length;
+            const zone_label = zone_count
+                ? ` · ${i18n(
+                      'SIGNAGE_MANAGER.ZONE_COUNT_LABEL',
+                      {
+                          count: zone_count,
+                      },
+                      zone_count,
+                  )}`
+                : '';
+            const search_index = [
+                display.display_name || display.name,
+                display.description || '',
+                ...assignments.map((item) => item.playlist.name),
+                ...assignments.map((item) => item.source_label || ''),
+            ]
+                .join(' ')
+                .toLowerCase();
+            return {
+                id: display.id,
+                name: display.display_name || display.name,
+                subtitle: `${i18n(
+                    'SIGNAGE_MANAGER.PLAYLIST_COUNT_LABEL',
+                    {
+                        count: assignments.length,
+                    },
+                    assignments.length,
+                )}${zone_label}`,
+                icon: 'tv',
+                route: ['/displays', display.id],
+                blocks,
+                lane_count,
+                search_index,
+                signage_last_seen: display.signage_last_seen,
+            };
+        });
     });
 
-    public readonly zone_rows = computed<ScheduleTimelineRow[]>(() => {
+    private readonly _all_zone_rows = computed<ScheduleTimelineRow[]>(() => {
         const playlists = this._playlists();
         const displays = this._displays();
         const date = this.selected_date();
-        const search = this.search_term().trim().toLowerCase();
 
-        return this._zones()
-            .map((zone) => {
-                const assignments = buildZoneScheduleAssignments(
-                    zone,
-                    playlists,
-                );
-                const blocks = buildScheduleBlocks(assignments, [date]).sort(
-                    (left, right) =>
-                        left.start_minutes - right.start_minutes ||
-                        left.playlist.name.localeCompare(right.playlist.name),
-                );
-                const display_count = displays.filter((display) =>
-                    display.zones?.includes(zone.id),
-                ).length;
-                const search_index = [
-                    zone.display_name || zone.name,
-                    zone.description || '',
-                    ...assignments.map((item) => item.playlist.name),
-                ]
-                    .join(' ')
-                    .toLowerCase();
-                return {
-                    id: zone.id,
-                    name: zone.display_name || zone.name,
-                    description: zone.description || '',
-                    subtitle: `${i18n(
-                        'SIGNAGE_MANAGER.PLAYLIST_COUNT_LABEL',
-                        {
-                            count: assignments.length,
-                        },
-                        assignments.length,
-                    )} · ${i18n(
-                        'SIGNAGE_MANAGER.DISPLAY_COUNT_LABEL',
-                        {
-                            count: display_count,
-                        },
-                        display_count,
-                    )}`,
-                    icon: 'layers',
-                    route: ['/zones', zone.id],
-                    blocks,
-                    search_index,
-                    updated_at: zone.updated_at,
-                };
-            })
-            .filter((row) => !search || row.search_index.includes(search));
+        return this._zones().map((zone) => {
+            const assignments = buildZoneScheduleAssignments(zone, playlists);
+            const { blocks, lane_count } = buildDayTimelineBlocks(
+                assignments,
+                date,
+            );
+            const display_count = displays.filter((display) =>
+                display.zones?.includes(zone.id),
+            ).length;
+            const search_index = [
+                zone.display_name || zone.name,
+                zone.description || '',
+                ...assignments.map((item) => item.playlist.name),
+            ]
+                .join(' ')
+                .toLowerCase();
+            return {
+                id: zone.id,
+                name: zone.display_name || zone.name,
+                subtitle: `${i18n(
+                    'SIGNAGE_MANAGER.PLAYLIST_COUNT_LABEL',
+                    {
+                        count: assignments.length,
+                    },
+                    assignments.length,
+                )} · ${i18n(
+                    'SIGNAGE_MANAGER.DISPLAY_COUNT_LABEL',
+                    {
+                        count: display_count,
+                    },
+                    display_count,
+                )}`,
+                icon: 'layers',
+                route: ['/zones', zone.id],
+                blocks,
+                lane_count,
+                search_index,
+            };
+        });
     });
+
+    // Filter in separate signals so typing does not rebuild the blocks
+    public readonly display_rows = computed(() =>
+        filterRows(this._all_display_rows(), this.search_term()),
+    );
+    public readonly zone_rows = computed(() =>
+        filterRows(this._all_zone_rows(), this.search_term()),
+    );
 
     public readonly rows = computed(() =>
         this.view_tab() === 'displays' ? this.display_rows() : this.zone_rows(),
@@ -430,6 +497,11 @@ export class SchedulesSectionComponent {
         this._destroy_ref.onDestroy(() => clearInterval(timer));
     }
 
+    /** Load the schedules again after an error */
+    public reload() {
+        this._inventory.reload();
+    }
+
     public setSearch(event: Event) {
         const target = event.target as HTMLInputElement | null;
         this.search_term.set(target?.value || '');
@@ -448,6 +520,21 @@ export class SchedulesSectionComponent {
             queryParamsHandling: 'merge',
             replaceUrl: true,
         });
+    }
+
+    /** Move between the tabs with the arrow, Home and End keys */
+    public onTabKeydown(event: KeyboardEvent) {
+        const keys: Record<string, 'displays' | 'zones'> = {
+            ArrowLeft: 'displays',
+            Home: 'displays',
+            ArrowRight: 'zones',
+            End: 'zones',
+        };
+        const tab = keys[event.key];
+        if (!tab) return;
+        event.preventDefault();
+        this.setViewTab(tab);
+        document.getElementById(`schedules-tab-${tab}`)?.focus();
     }
 
     public previousDay() {

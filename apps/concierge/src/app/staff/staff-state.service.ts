@@ -35,7 +35,7 @@ export class StaffStateService extends AsyncHandler {
     public readonly user_events = signal<Record<string, boolean>>({});
 
     public readonly filtered_users = computed(() => {
-        const filter = this.search();
+        const filter = this.search().toLowerCase();
         const users = this._users();
         const options = this.filters();
         return users.filter(

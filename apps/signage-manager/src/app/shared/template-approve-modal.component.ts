@@ -6,14 +6,11 @@ import {
     MatDialogRef,
 } from '@angular/material/dialog';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { i18n, notifyError, notifySuccess, notifyWarn } from '@placeos/common';
+import { i18n, notifyError, notifySuccess } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
-import {
-    approveSignageTemplate,
-    removeSignageTemplateDraft,
-    SignageTemplate,
-} from '@placeos/ts-client';
-import { SignageService } from '../signage.service';
+import { approveSignageTemplate, SignageTemplate } from '@placeos/ts-client';
+import { SignageContextService } from '../signage-context.service';
+import { SignageTemplateService } from '../templates/signage-template.service';
 import { TemplateApprovalPreviewComponent } from './template-approval-preview.component';
 import { loadTemplateApprovalVersions } from './template-approval.util';
 
@@ -44,10 +41,21 @@ interface TemplateApproveModalData {
                 }
             </header>
             @if (!loading()) {
-                <main class="max-h-[60vh] min-w-xl max-w-[80vw]  gap-2 overflow-auto py-2">
-                    <template-approval-preview
-                        [versions]="template_versions()"
-                    />
+                <main
+                    class="max-h-[60vh] max-w-[80vw] min-w-xl gap-2 overflow-auto py-2"
+                >
+                    @if (versions_error()) {
+                        <p class="text-error p-8 text-center">
+                            {{
+                                'SIGNAGE_MANAGER.TEMPLATE_VERSIONS_LOAD_ERROR'
+                                    | translate
+                            }}
+                        </p>
+                    } @else {
+                        <template-approval-preview
+                            [versions]="template_versions()"
+                        />
+                    }
                 </main>
                 <footer
                     class="bg-base-200 flex items-center justify-end space-x-2 rounded-sm p-2"
@@ -69,6 +77,7 @@ interface TemplateApproveModalData {
                         type="button"
                         matRipple
                         class="w-40"
+                        [disabled]="!!versions_error()"
                         (click)="approve()"
                     >
                         {{ 'COMMON.APPROVE' | translate }}
@@ -100,10 +109,11 @@ export class TemplateApproveModalComponent {
     private readonly _dialog_ref = inject(
         MatDialogRef<TemplateApproveModalComponent>,
     );
-    private readonly _service = inject(SignageService);
+    private readonly _context = inject(SignageContextService);
+    private readonly _template_service = inject(SignageTemplateService);
 
     public readonly loading = signal('');
-    public readonly can_update = this._service.can_update;
+    public readonly can_update = this._context.can_update_templates;
 
     private readonly _template_versions = resource({
         params: () => this._data?.template?.id || '',
@@ -117,45 +127,45 @@ export class TemplateApproveModalComponent {
             }
         },
     });
+    // value() throws while the resource is in error, so check hasValue first
     public readonly template_versions = () =>
-        this._template_versions.value() || [];
+        this._template_versions.hasValue()
+            ? this._template_versions.value()
+            : [];
+    public readonly versions_error = this._template_versions.error;
     public readonly has_previous_version = () =>
         this.template_versions().length > 1;
 
     public async undoChanges() {
-        if (!this.can_update()) {
-            notifyWarn(i18n('SIGNAGE_MANAGER.SVC_NO_UPDATE_TEMPLATES'));
-            return;
-        }
         const previous_version = this.template_versions()[1];
         if (!previous_version) return;
         this.loading.set(i18n('SIGNAGE_MANAGER.UNDOING_CHANGES'));
         this._dialog_ref.disableClose = true;
         try {
-            await removeSignageTemplateDraft(this._data.template.id);
-            this._service.updateCachedTemplate(previous_version);
-            notifySuccess(i18n('SIGNAGE_MANAGER.TEMPLATE_REVERTED'));
-            this._dialog_ref.close(true);
-            this._service.changed();
-        } catch {
-            notifyError(i18n('SIGNAGE_MANAGER.TEMPLATE_REVERT_ERROR'));
+            const undone = await this._template_service.undoTemplateChanges(
+                this._data.template.id,
+                previous_version,
+            );
+            if (undone) this._dialog_ref.close(true);
         } finally {
             this.loading.set('');
             this._dialog_ref.disableClose = false;
         }
     }
 
+    /** Approve the pending version. Blocked when the versions failed to load. */
     public async approve() {
+        if (this.versions_error()) return;
         this.loading.set(i18n('SIGNAGE_MANAGER.APPROVING_TEMPLATE'));
         this._dialog_ref.disableClose = true;
         try {
             const template = await approveSignageTemplate(
                 this._data.template.id,
             );
-            this._service.updateCachedTemplate(template);
+            this._template_service.updateCachedTemplate(template);
             notifySuccess(i18n('SIGNAGE_MANAGER.TEMPLATE_APPROVED'));
             this._dialog_ref.close(true);
-            this._service.changed();
+            this._context.changed();
         } catch {
             notifyError(i18n('SIGNAGE_MANAGER.TEMPLATE_APPROVE_ERROR'));
         } finally {

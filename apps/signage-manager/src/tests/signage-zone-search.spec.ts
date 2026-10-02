@@ -8,11 +8,11 @@ import {
     UploadsService,
 } from '@placeos/common';
 import { PlaceZone, queryZones } from '@placeos/ts-client';
-import { SignageService } from '../app/signage.service';
+import { SignageZoneService } from '../app/zones/signage-zone.service';
 
 vi.mock('@placeos/ts-client', { spy: true });
 
-describe('SignageService zone search', () => {
+describe('SignageZoneService zone search', () => {
     const flush = () => new Promise((resolve) => setTimeout(resolve));
 
     beforeEach(() => {
@@ -26,7 +26,6 @@ describe('SignageService zone search', () => {
         (queryZones as any).mockResolvedValue({ data: [], total: 0 });
         TestBed.configureTestingModule({
             providers: [
-                SignageService,
                 { provide: UploadsService, useValue: {} },
                 {
                     provide: SettingsService,
@@ -51,7 +50,7 @@ describe('SignageService zone search', () => {
     afterEach(() => vi.useRealTimers());
 
     it('queries zones by search term under the selected zone', async () => {
-        const service = TestBed.inject(SignageService);
+        const service = TestBed.inject(SignageZoneService);
         TestBed.tick();
         await flush();
         (queryZones as any).mockResolvedValue({
@@ -59,7 +58,7 @@ describe('SignageService zone search', () => {
             total: 1,
         });
 
-        service.selected_zone.set({ id: 'parent-1' });
+        service.selected_zone.set(new PlaceZone({ id: 'parent-1' }));
         service.zone_search_term.set(' lobby ');
         await vi.advanceTimersByTimeAsync(500);
         TestBed.tick();
@@ -77,7 +76,7 @@ describe('SignageService zone search', () => {
     });
 
     it('searches selectable zones beneath the selected zone', () => {
-        const service = TestBed.inject(SignageService);
+        const service = TestBed.inject(SignageZoneService);
 
         service.querySelectableZones(' lobby ', 'parent-1');
 
@@ -104,7 +103,7 @@ describe('SignageService zone search', () => {
                 total: params.parent_id === 'root' ? 1 : 0,
             }),
         );
-        const service = TestBed.inject(SignageService);
+        const service = TestBed.inject(SignageZoneService);
         TestBed.tick();
         await flush();
 

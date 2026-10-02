@@ -36,6 +36,7 @@ import {
     SettingsService,
     flatten,
     nextValueFrom,
+    notifyError,
     notifySuccess,
     unique,
 } from '@placeos/common';
@@ -43,6 +44,7 @@ import {
     AttachedResourceConfigModalComponent,
     AttachedResourceConfigModalData,
     AttachedResourceRuleset,
+    runBulkAction,
 } from '@placeos/components';
 import { SpacesService } from '@placeos/events';
 import {
@@ -53,6 +55,8 @@ import {
     updateMetadata,
 } from '@placeos/ts-client';
 import { endOfDay, getUnixTime, startOfDay } from 'date-fns';
+import { bulkRejectOptions } from '../ui/bulk-booking-actions';
+import { errorText } from '../ui/modal-actions';
 import { AssetCategoryFormComponent } from './asset-category-form.component';
 import { AssetCategoryManagementModalComponent } from './asset-category-management-modal.component';
 
@@ -82,6 +86,9 @@ export class AssetManagerStateService extends AsyncHandler {
     private _loading = signal(false);
     /** Whether asset list is loading */
     public readonly loading = this._loading.asReadonly();
+    private readonly _load_error = signal(false);
+    /** Whether the latest load of assets failed */
+    public readonly load_error = this._load_error.asReadonly();
     /** List of options set for the view */
     public readonly options = this._options.asReadonly();
     /** List of extra assets to display */
@@ -97,9 +104,14 @@ export class AssetManagerStateService extends AsyncHandler {
         loader: async () => {
             this._loading.set(true);
             try {
+                let failed = false;
                 const resp = await getGroupsWithAssets({
                     zone_id: this._org.building?.id,
-                }).catch(() => ({ data: [] }) as any);
+                }).catch(() => {
+                    failed = true;
+                    return { data: [] } as any;
+                });
+                this._load_error.set(failed);
                 return resp.data;
             } finally {
                 this._loading.set(false);
@@ -396,25 +408,56 @@ export class AssetManagerStateService extends AsyncHandler {
         this._options.update((current) => ({ ...current, ...options }));
     }
 
+    /** Load the list of assets again */
+    public reload() {
+        this._products.reload();
+    }
+
     public postChange() {
         this.timeout('change', () => this._change.set(Date.now()), 1000);
     }
 
+    /** Approve or decline a request. Shows an error and rethrows on failure. */
     public async setStatus(item: Booking, status: any) {
         let result = item;
-        if (status === 'declined') {
-            result = await rejectBooking(item.id);
-        } else if (status === 'approved') {
-            result = await approveBooking(item.id);
+        try {
+            if (status === 'declined') {
+                result = await rejectBooking(item.id);
+            } else if (status === 'approved') {
+                result = await approveBooking(item.id);
+            }
+        } catch (e) {
+            notifyError(`Failed to update request. ${errorText(e)}`);
+            throw e;
         }
         this._change.set(Date.now());
         return result;
     }
 
+    /**
+     * Approve or decline several requests. Asks before it declines.
+     * @returns `false` if the user cancelled
+     */
+    public async setRequestsApproval(items: Booking[], approve: boolean) {
+        const failed = await runBulkAction(
+            items,
+            (item) =>
+                approve ? approveBooking(item.id) : rejectBooking(item.id),
+            approve ? {} : bulkRejectOptions(items.length, this._dialog),
+        );
+        if (failed === null) return false;
+        this._change.set(Date.now());
+        return true;
+    }
+
+    /** Update a request's tracking. Shows an error and rethrows on failure. */
     public async setTracking(item: Booking, tracking: string) {
         const result = await updateBooking(item.id, {
             ...item.toJSON(),
             extension_data: { ...item.extension_data, tracking },
+        }).catch((e) => {
+            notifyError(`Failed to update request tracking. ${errorText(e)}`);
+            throw e;
         });
         this._change.set(Date.now());
         return result;

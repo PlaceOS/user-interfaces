@@ -5,6 +5,7 @@ import {
     setMocks,
     settingSignal,
     UploadsService,
+    watchUserGroupSync,
 } from '@placeos/common';
 import {
     GlobalBannerComponent,
@@ -52,6 +53,10 @@ export class AppComponent implements OnInit {
     public readonly has_chat = settingSignal('chat.enabled', false);
     public readonly load_settings_schema = () =>
         import('../environments/settings.schema.json');
+
+    constructor() {
+        watchUserGroupSync();
+    }
 
     public async ngOnInit() {
         setMocks(mocksInit);

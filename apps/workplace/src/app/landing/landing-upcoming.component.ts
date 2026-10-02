@@ -194,7 +194,9 @@ export class LandingUpcomingComponent
         if (resp.reason !== 'done') return;
         resp.loading(i18n('APP.WORKPLACE.SCHEDULE_REMOVE_LOADING'));
         const remove_result = (
-            item instanceof CalendarEvent ? removeEvent : removeBooking
+            item instanceof CalendarEvent && !item.from_bookings
+                ? removeEvent
+                : removeBooking
         )(item.id, {
             calendar: this._settings.get('app.events.use_bookings')
                 ? null

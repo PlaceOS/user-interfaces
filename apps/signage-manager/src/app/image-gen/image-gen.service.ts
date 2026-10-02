@@ -1,0 +1,503 @@
+import { computed, inject, Injectable, signal } from '@angular/core';
+import {
+    AsyncHandler,
+    i18n,
+    notifyError,
+    notifyInfo,
+    UploadsService,
+} from '@placeos/common';
+import { loadAuthenticatedImage } from '@placeos/components';
+import { showMetadata, updateMetadata } from '@placeos/ts-client';
+
+import { flipLightness, inkIsLight } from '../branding/logo-variant';
+import {
+    cancelSignageImageGenJob,
+    claimSignageImageGenImage,
+    editSignageImage,
+    generateSignageImage,
+    querySignageImageGenJobs,
+    removeSignageUpload,
+    showSignageImageGenJob,
+    signageImageGenCapabilities,
+} from './image-gen.fn';
+import {
+    ImageGenBrandKit,
+    ImageGenCapabilities,
+    ImageGenEditRequest,
+    ImageGenGenerateRequest,
+    ImageGenJob,
+    ImageGenLogoSlot,
+} from './image-gen.types';
+import { errorStatus } from './image-gen.util';
+
+const FINAL_STATES = ['done', 'failed', 'cancelled'];
+
+/** the brand kit key each slot is stored under */
+export function logoKey(
+    slot: ImageGenLogoSlot,
+): 'logo_upload_id' | 'logo_dark_upload_id' {
+    return slot === 'on_light' ? 'logo_upload_id' : 'logo_dark_upload_id';
+}
+
+/** how long a single long poll holds the connection open, server capped at 25 */
+const POLL_WAIT = 25;
+
+/** consecutive failures before a job is given up on */
+const POLL_RETRIES = 10;
+
+/** Fast retries keep a saved candidate from being left unclaimed on a blip. */
+const CLAIM_RETRY_DELAYS = [0, 500, 1500];
+
+/** A provider that cannot finish an image in this time has stopped responding. */
+export const MAX_JOB_WAIT_MS = 30 * 60 * 1000;
+
+/** background retries when the capabilities request fails at start up */
+const LOAD_RETRY_DELAYS = [5_000, 30_000, 120_000];
+
+export function isFinal(job?: ImageGenJob | null) {
+    return !!job && FINAL_STATES.includes(job.state);
+}
+
+/**
+ * Owns generation state for the app.
+ */
+@Injectable({ providedIn: 'root' })
+export class ImageGenService extends AsyncHandler {
+    /** null until asked; `enabled: false` hides every entry point */
+    public readonly capabilities = signal<ImageGenCapabilities | null>(null);
+    public readonly brand_kit = signal<ImageGenBrandKit | null>(null);
+    /** whether the kit above is what the server holds, or just an empty start */
+    public readonly brand_kit_read = signal<'pending' | 'ok' | 'failed'>(
+        'pending',
+    );
+    public readonly jobs = signal<Record<string, ImageGenJob>>({});
+
+    public readonly enabled = computed(() => !!this.capabilities()?.enabled);
+    public readonly default_provider = computed(() => {
+        const capabilities = this.capabilities();
+        if (!capabilities?.enabled) return null;
+        return (
+            capabilities.providers.find(
+                (provider) => provider.id === capabilities.default_provider_id,
+            ) ||
+            capabilities.providers[0] ||
+            null
+        );
+    });
+    public readonly default_model = computed(() => {
+        const provider = this.default_provider();
+        if (!provider) return null;
+        return (
+            provider.models.find(
+                (model) => model.id === provider.default_model,
+            ) ||
+            provider.models[0] ||
+            null
+        );
+    });
+    public readonly can_generate = computed(
+        () => !!this.default_model()?.generate,
+    );
+    public readonly can_edit = computed(() => !!this.default_model()?.edit);
+
+    private readonly _uploads = inject(UploadsService);
+
+    private _loaded = false;
+    private _load_attempts = 0;
+    private _org_zone = '';
+
+    /**
+     * Read what this domain can do. A failed read leaves image generation off and tries
+     * again in the background a few times.
+     */
+    public async load(org_zone_id?: string) {
+        if (this._loaded) return this.capabilities();
+        this._org_zone = org_zone_id || '';
+        const capabilities = await signageImageGenCapabilities().catch(
+            () => null,
+        );
+        if (this._loaded) return this.capabilities();
+        this._loaded = !!capabilities;
+        if (!capabilities) {
+            const delay = LOAD_RETRY_DELAYS[this._load_attempts++];
+            if (delay) {
+                this.timeout('load', () => this.load(org_zone_id), delay);
+            }
+        }
+        this.capabilities.set(
+            capabilities || {
+                enabled: false,
+                providers: [],
+                aspect_ratios: [],
+                qualities: [],
+                max_candidates: 1,
+                logo_layer: false,
+                quota: {
+                    user_remaining_today: null,
+                    domain_remaining_month: null,
+                },
+            },
+        );
+        if (capabilities?.enabled && org_zone_id) {
+            await this.reloadBrandKit();
+        }
+        return this.capabilities();
+    }
+
+    /**
+     * Store a logo for the domain and remember it.
+     */
+    public async uploadBrandLogo(file: File): Promise<ImageGenBrandKit> {
+        const slot: ImageGenLogoSlot = (await inkIsLight(file).catch(
+            () => false,
+        ))
+            ? 'on_dark'
+            : 'on_light';
+        return this.replaceBrandLogo(slot, file, true);
+    }
+
+    /**
+     * Put a file in one of the two slots. `derive_other` fills the empty
+     * counterpart from it; an explicit upload into one slot leaves the other
+     * alone.
+     */
+    public async replaceBrandLogo(
+        slot: ImageGenLogoSlot,
+        file: File,
+        derive_other = false,
+    ): Promise<ImageGenBrandKit> {
+        const upload_id = await this._uploads.uploadFileToCompletion(file);
+        const changes: Partial<ImageGenBrandKit> = {
+            [logoKey(slot)]: upload_id,
+        };
+
+        const other = slot === 'on_light' ? 'on_dark' : 'on_light';
+        const other_id = this.brand_kit()?.[logoKey(other)];
+        const derived = this.brand_kit()?.logo_derived;
+        if (derive_other && (!other_id || derived === other)) {
+            const flipped = await this._flip(file, other).catch(() => null);
+            if (flipped) {
+                changes[logoKey(other)] = flipped;
+                changes.logo_derived = other;
+            }
+        } else if (derived === slot) {
+            changes.logo_derived = undefined;
+        }
+
+        const kit = await this.saveBrandKit(changes);
+        // the capability is read once at start up; keep it honest for this session
+        this.capabilities.update((current) =>
+            current ? { ...current, logo_layer: true } : current,
+        );
+        return kit;
+    }
+
+    /** make one slot from the other, on request rather than on upload */
+    public async deriveBrandLogo(
+        target: ImageGenLogoSlot,
+    ): Promise<ImageGenBrandKit> {
+        const source_id =
+            this.brand_kit()?.[
+                logoKey(target === 'on_light' ? 'on_dark' : 'on_light')
+            ];
+        if (!source_id)
+            throw new Error(i18n('SIGNAGE_MANAGER.IMAGE_GEN_NO_LOGO_YET'));
+        const url = await this.loadImage(
+            `/api/engine/v2/uploads/${encodeURIComponent(source_id)}/url`,
+        );
+        const upload_id = await this._flip(url, target);
+        return this.saveBrandKit({
+            [logoKey(target)]: upload_id,
+            logo_derived: target,
+        });
+    }
+
+    private async _flip(
+        source: File | string,
+        target: ImageGenLogoSlot,
+    ): Promise<string> {
+        const stem =
+            typeof source === 'string'
+                ? 'logo'
+                : source.name.replace(/\.[^.]+$/, '');
+        const file = await flipLightness(
+            source,
+            `${stem}-${target.replace('_', '-')}.png`,
+        );
+        return this._uploads.uploadFileToCompletion(file);
+    }
+
+    /**
+     * Store an image the person wants a request to draw on.
+     */
+    public uploadReference(file: File): Promise<string> {
+        return this._uploads.uploadFileToCompletion(file);
+    }
+
+    /** done with, once the image it was for has been made */
+    public removeReference(id: string) {
+        return removeSignageUpload(id).catch(() => null);
+    }
+
+    /**
+     * Merge changes into the domain's brand kit.
+     */
+    public async saveBrandKit(
+        changes: Partial<ImageGenBrandKit>,
+    ): Promise<ImageGenBrandKit> {
+        if (!this._org_zone) {
+            throw new Error(i18n('SIGNAGE_MANAGER.IMAGE_GEN_NO_ORG_ZONE'));
+        }
+        if (this.brand_kit_read() !== 'ok') {
+            throw new Error(i18n('SIGNAGE_MANAGER.BRAND_NOT_LOADED'));
+        }
+        const details = { ...(this.brand_kit() || {}), ...changes };
+        for (const key of Object.keys(details)) {
+            if (details[key] === undefined) delete details[key];
+        }
+
+        // replace rather than merge: the API deep merges a PATCH, so a colour
+        // taken out of the palette would survive the save.
+        await updateMetadata(
+            this._org_zone,
+            {
+                name: 'signage_ai',
+                description: 'Brand kit used when generating signage artwork',
+                details: details as unknown as Record<string, unknown>,
+            },
+            'put',
+        );
+
+        this.brand_kit.set(details);
+        return details;
+    }
+
+    /** re-read the kit, for a page opened before start up finished */
+    public async reloadBrandKit(): Promise<ImageGenBrandKit | null> {
+        if (!this._org_zone) return null;
+        const metadata = await showMetadata(this._org_zone, 'signage_ai').catch(
+            () => null,
+        );
+        if (!metadata) {
+            this.brand_kit_read.set('failed');
+            return this.brand_kit();
+        }
+        const details = metadata.details;
+        if (details && !Array.isArray(details) && Object.keys(details).length) {
+            this.brand_kit.set(details as unknown as ImageGenBrandKit);
+        }
+        // an empty answer is a real answer: the organisation has set nothing
+        this.brand_kit_read.set('ok');
+        return this.brand_kit();
+    }
+
+    /**
+     * One key per thing a person asked for, held here rather than on the modal.
+     * A key is only reused to retry a submit that did not get a job back; once
+     * a job exists, the same request again is a new request.
+     */
+    private readonly _intents = new Map<string, string>();
+
+    public intentKey(kind: 'generate' | 'edit', request: object) {
+        const id = `${kind}:${JSON.stringify(request)}`;
+        let key = this._intents.get(id);
+        if (!key) {
+            key = crypto.randomUUID();
+            this._intents.set(id, key);
+        }
+        return key;
+    }
+
+    /** a job came back for this key, so the next identical request gets a new one */
+    private _forgetIntent(key?: string) {
+        for (const [id, value] of this._intents) {
+            if (value !== key) continue;
+            this._intents.delete(id);
+            return;
+        }
+    }
+
+    /** jobs started before a reload, so they still announce when they finish */
+    public async loadRecent() {
+        const jobs = await querySignageImageGenJobs({
+            mine: true,
+            limit: 20,
+        }).catch(() => [] as ImageGenJob[]);
+        this._merge(jobs);
+        jobs.filter((job) => !isFinal(job)).forEach((job) =>
+            this.watch(job.id),
+        );
+        return jobs;
+    }
+
+    public async generate(request: ImageGenGenerateRequest) {
+        const job = await generateSignageImage({
+            ...request,
+            idempotency_key: request.idempotency_key || crypto.randomUUID(),
+        });
+        this._forgetIntent(request.idempotency_key);
+        this._merge([job]);
+        this.watch(job.id);
+        return job;
+    }
+
+    public async edit(request: ImageGenEditRequest) {
+        const job = await editSignageImage({
+            ...request,
+            idempotency_key: request.idempotency_key || crypto.randomUUID(),
+        });
+        this._forgetIntent(request.idempotency_key);
+        this._merge([job]);
+        this.watch(job.id);
+        return job;
+    }
+
+    public async cancel(id: string) {
+        const job = await cancelSignageImageGenJob(id).catch(() => null);
+        if (job) this._merge([job]);
+        return job;
+    }
+
+    public async claim(id: string, upload_id: string, item_id: string) {
+        let last_error: unknown;
+        for (const delay of CLAIM_RETRY_DELAYS) {
+            if (delay) {
+                await new Promise<void>((resolve) =>
+                    setTimeout(resolve, delay),
+                );
+            }
+            try {
+                return await claimSignageImageGenImage(id, {
+                    upload_id,
+                    item_id,
+                });
+            } catch (error) {
+                last_error = error;
+            }
+        }
+        throw last_error;
+    }
+
+    /**
+     * Watch a job until it finishes, or mark it failed once it has run for
+     * longer than any provider should take.
+     */
+    public watch(id: string) {
+        if (this._watching.has(id)) return;
+        this._watching.set(id, Date.now() + MAX_JOB_WAIT_MS);
+        this._attempts.delete(id);
+        this.timeout(`watch-${id}`, () => this._poll(id), 1);
+    }
+
+    public unwatch(id: string) {
+        this._watching.delete(id);
+        this._attempts.delete(id);
+        this.clearTimeout(`watch-${id}`);
+    }
+
+    /** job id to the time it is given up on */
+    private readonly _watching = new Map<string, number>();
+    private readonly _attempts = new Map<string, number>();
+
+    private async _poll(id: string) {
+        const deadline = this._watching.get(id);
+        if (deadline === undefined) return;
+        if (Date.now() >= deadline) {
+            this._failJob(id);
+            this.unwatch(id);
+            return;
+        }
+
+        const known = this.jobs()[id]?.version ?? 0;
+        const result: ImageGenJob | { error: unknown } =
+            await showSignageImageGenJob(id, {
+                wait: POLL_WAIT,
+                since: known,
+            }).catch((error: unknown) => ({ error }));
+
+        if ('error' in result) {
+            const status = errorStatus(result.error);
+            const attempts = (this._attempts.get(id) || 0) + 1;
+            this._attempts.set(id, attempts);
+            if (status === 404 || status === 403 || attempts >= POLL_RETRIES) {
+                this._failJob(id);
+                this.unwatch(id);
+                return;
+            }
+            this.timeout(`watch-${id}`, () => this._poll(id), 2000);
+            return;
+        }
+
+        const job = result;
+        this._attempts.delete(id);
+        this._merge([job]);
+
+        if (isFinal(job)) {
+            this.unwatch(id);
+            this._announce(job);
+            this.refreshQuota();
+            return;
+        }
+
+        this.timeout(`watch-${id}`, () => this._poll(id), 1);
+    }
+
+    /**
+     * Re-read what is left of the allowance.
+     */
+    public async refreshQuota() {
+        const capabilities = await signageImageGenCapabilities().catch(
+            () => null,
+        );
+        if (capabilities?.quota) {
+            this.capabilities.update((current) =>
+                current ? { ...current, quota: capabilities.quota } : current,
+            );
+        }
+    }
+
+    /** told once, when a job the user may no longer be watching finishes */
+    private _announce(job: ImageGenJob) {
+        if (job.state === 'failed') {
+            notifyError(
+                job.error_message ||
+                    i18n('SIGNAGE_MANAGER.IMAGE_GEN_JOB_FAILED'),
+            );
+        } else if (job.state === 'done' && job.images_produced > 0) {
+            notifyInfo(i18n('SIGNAGE_MANAGER.IMAGE_GEN_JOB_DONE'));
+        }
+    }
+
+    private _failJob(id: string) {
+        const current = this.jobs()[id];
+        if (!current || isFinal(current)) return;
+        const failed: ImageGenJob = {
+            ...current,
+            state: 'failed',
+            version: current.version + 1,
+            error_message: i18n('SIGNAGE_MANAGER.IMAGE_GEN_JOB_FAILED'),
+        };
+        this._merge([failed]);
+        this._announce(failed);
+    }
+
+    private _merge(jobs: ImageGenJob[]) {
+        if (!jobs?.length) return;
+        this.jobs.update((existing) => {
+            const next = { ...existing };
+            for (const job of jobs) next[job.id] = job;
+            return next;
+        });
+    }
+
+    /**
+     * Read a generated image back out as something an <img> or a canvas can
+     * take.
+     */
+    public loadImage(url: string): Promise<string> {
+        const source = url.startsWith('http')
+            ? url
+            : `${location.origin}${url}`;
+        return loadAuthenticatedImage(source, '/api/engine/v2/uploads');
+    }
+}

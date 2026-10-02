@@ -1,36 +1,41 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
-import { SignageService } from '../../app/signage.service';
+import { SignageContextService } from '../../app/signage-context.service';
+import { SignageTemplateService } from '../../app/templates/signage-template.service';
 import { TemplatesSectionComponent } from '../../app/templates/templates.component';
 
 describe('TemplatesSectionComponent', () => {
     const navigate = vi.fn();
-    const service_stub = {
+    const template_stub = {
         selected_template: signal<{
             id: string;
             live_template_id?: string;
         } | null>(null),
         selected_template_layout_index: signal<number | null>(null),
+        template_layout_dirty: signal(false),
         templates: signal<{ id: string; live_template_id?: string }[]>([]),
         selected_template_requires_approval: signal(false),
         template_approval_request_loading: signal(false),
-        can_approve: signal(false),
-        can_update: signal(true),
-        can_delete: signal(true),
-        can_share: signal(true),
         editTemplate: vi.fn(),
         removeTemplate: vi.fn(),
         shareTemplate: vi.fn(),
         approveTemplate: vi.fn(),
         requestTemplateApproval: vi.fn(),
     };
+    const context_stub = {
+        can_approve: signal(false),
+        can_update_templates: signal(true),
+        can_delete_templates: signal(true),
+        can_share: signal(true),
+    };
 
     async function makeFixture() {
         await TestBed.configureTestingModule({
             imports: [TemplatesSectionComponent],
             providers: [
-                { provide: SignageService, useValue: service_stub },
+                { provide: SignageContextService, useValue: context_stub },
+                { provide: SignageTemplateService, useValue: template_stub },
                 { provide: Router, useValue: { navigate } },
             ],
         })
@@ -47,9 +52,10 @@ describe('TemplatesSectionComponent', () => {
 
     beforeEach(() => {
         vi.clearAllMocks();
-        service_stub.selected_template.set(null);
-        service_stub.selected_template_layout_index.set(null);
-        service_stub.templates.set([]);
+        template_stub.selected_template.set(null);
+        template_stub.selected_template_layout_index.set(null);
+        template_stub.template_layout_dirty.set(false);
+        template_stub.templates.set([]);
         TestBed.resetTestingModule();
     });
 
@@ -63,42 +69,64 @@ describe('TemplatesSectionComponent', () => {
 
     it('switches and focuses tabs with the arrow keys', async () => {
         const component = await make();
+        const layouts_tab = { focus: vi.fn() };
+        const details_tab = { focus: vi.fn() };
+        const tablist = {
+            querySelectorAll: () => [
+                { focus: vi.fn() },
+                layouts_tab,
+                details_tab,
+            ],
+        };
         const event = {
             key: 'ArrowRight',
             preventDefault: vi.fn(),
+            currentTarget: { parentElement: tablist },
         } as unknown as KeyboardEvent;
-        const preview_tab = { focus: vi.fn() } as unknown as HTMLButtonElement;
-        const layouts_tab = { focus: vi.fn() } as unknown as HTMLButtonElement;
 
-        component.handleTabKeydown(event, preview_tab, layouts_tab);
+        component.handleTabKeydown(event);
 
         expect(component.view_tab()).toBe('layouts');
         expect(event.preventDefault).toHaveBeenCalled();
         expect(layouts_tab.focus).toHaveBeenCalled();
+
+        component.handleTabKeydown(event);
+
+        expect(component.view_tab()).toBe('details');
+        expect(details_tab.focus).toHaveBeenCalled();
+    });
+
+    it('mirrors the layout list tab into the mobile tabs', async () => {
+        const component = await make();
+
+        component.setLayoutTab('details');
+        expect(component.view_tab()).toBe('details');
+        component.setLayoutTab('items');
+        expect(component.view_tab()).toBe('layouts');
     });
 
     it('delegates approval actions for the selected template', async () => {
         const template = { id: 'template-1' };
-        service_stub.selected_template.set(template);
+        template_stub.selected_template.set(template);
         const component = await make();
 
         component.approveTemplate();
         component.requestApproval();
 
-        expect(service_stub.approveTemplate).toHaveBeenCalledWith(template);
-        expect(service_stub.requestTemplateApproval).toHaveBeenCalledWith(
+        expect(template_stub.approveTemplate).toHaveBeenCalledWith(template);
+        expect(template_stub.requestTemplateApproval).toHaveBeenCalledWith(
             template,
         );
     });
 
     it('delegates sharing for the selected template', async () => {
         const template = { id: 'template-1' };
-        service_stub.selected_template.set(template);
+        template_stub.selected_template.set(template);
         const component = await make();
 
         component.shareTemplate();
 
-        expect(service_stub.shareTemplate).toHaveBeenCalledWith(template);
+        expect(template_stub.shareTemplate).toHaveBeenCalledWith(template);
     });
 
     it('selects a draft from an approved route and stores the draft ID', async () => {
@@ -107,11 +135,11 @@ describe('TemplatesSectionComponent', () => {
             id: 'template-draft',
             live_template_id: 'template-live',
         };
-        service_stub.templates.set([draft]);
+        template_stub.templates.set([draft]);
         fixture.componentRef.setInput('id', 'template-live');
         await fixture.whenStable();
 
-        expect(service_stub.selected_template()).toBe(draft);
+        expect(template_stub.selected_template()).toBe(draft);
         expect(navigate).toHaveBeenCalledWith(
             ['/templates', 'template-draft'],
             {
@@ -124,8 +152,8 @@ describe('TemplatesSectionComponent', () => {
     it('stores the approved ID after approving a draft', async () => {
         const fixture = await makeFixture();
         const approved = { id: 'template-live' };
-        service_stub.selected_template.set(approved);
-        service_stub.templates.set([approved]);
+        template_stub.selected_template.set(approved);
+        template_stub.templates.set([approved]);
         fixture.componentRef.setInput('id', 'template-draft');
         await fixture.whenStable();
 
@@ -133,5 +161,52 @@ describe('TemplatesSectionComponent', () => {
             queryParamsHandling: 'merge',
             replaceUrl: true,
         });
+    });
+
+    it('resets the layout selection when switching templates', async () => {
+        const fixture = await makeFixture();
+        const first = { id: 'template-1' };
+        const second = { id: 'template-2' };
+        template_stub.templates.set([first, second]);
+        template_stub.selected_template.set(first);
+        template_stub.selected_template_layout_index.set(1);
+        fixture.componentRef.setInput('id', 'template-2');
+        await fixture.whenStable();
+
+        expect(template_stub.selected_template()).toBe(second);
+        expect(template_stub.selected_template_layout_index()).toBeNull();
+    });
+
+    it('keeps the expanded row when a list reload refreshes the selection', async () => {
+        const fixture = await makeFixture();
+        const stale = { id: 'template-1' };
+        const fresh = { id: 'template-1' };
+        template_stub.templates.set([stale]);
+        template_stub.selected_template.set(stale);
+        template_stub.selected_template_layout_index.set(1);
+        fixture.componentRef.setInput('id', 'template-1');
+        await fixture.whenStable();
+
+        template_stub.templates.set([fresh]);
+        await fixture.whenStable();
+
+        expect(template_stub.selected_template()).toBe(fresh);
+        expect(template_stub.selected_template_layout_index()).toBe(1);
+    });
+
+    it('keeps unsaved layout edits when a list reload returns the same template', async () => {
+        const fixture = await makeFixture();
+        const stale = { id: 'template-1' };
+        const fresh = { id: 'template-1' };
+        template_stub.templates.set([stale]);
+        template_stub.selected_template.set(stale);
+        template_stub.template_layout_dirty.set(true);
+        fixture.componentRef.setInput('id', 'template-1');
+        await fixture.whenStable();
+
+        template_stub.templates.set([fresh]);
+        await fixture.whenStable();
+
+        expect(template_stub.selected_template()).toBe(stale);
     });
 });

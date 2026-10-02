@@ -1,8 +1,10 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { SignagePlaylistItemSchedule } from '@placeos/ts-client';
+import { SignageMediaService } from '../../app/media/signage-media.service';
 import { PlaylistItemsComponent } from '../../app/playlists/playlist-items.component';
-import { SignageService } from '../../app/signage.service';
+import { SignagePlaylistService } from '../../app/playlists/signage-playlist.service';
+import { SignageContextService } from '../../app/signage-context.service';
 
 function media(id: string, media_type = 'image') {
     return { id, name: id, media_type } as any;
@@ -20,43 +22,37 @@ describe('PlaylistItemsComponent', () => {
         [],
     );
     const can_update = signal(true);
+    const playlist_media_loading = signal(false);
     const reorder = vi.fn();
     const remove_media = vi.fn().mockResolvedValue(undefined);
     const remove_media_items = vi.fn().mockResolvedValue(true);
     const edit_item_schedules = vi.fn().mockResolvedValue(true);
     const preview_media = vi.fn();
 
-    const service_stub = {
+    const context_stub = { can_update };
+    const media_stub = { previewMedia: preview_media };
+    const playlist_stub = {
         selected_playlist,
         selected_playlist_item,
         selected_playlist_item_index,
-        selected_playlist_requires_approval: signal(false),
-        can_approve: signal(false),
-        can_update,
-        can_delete: signal(true),
-        can_share: signal(true),
-        playlist_media_loading: signal(false),
-        playlist_approval_request_loading: signal(false),
+        playlist_media_loading,
         playlist_media_items,
         playlist_item_schedules,
         playlist_item_schedule_list,
         reorderPlaylistMedia: reorder,
         removeMediaFromPlaylist: remove_media,
         removeMediaItemsFromPlaylist: remove_media_items,
-        previewMedia: preview_media,
-        editPlaylistItemSchedule: vi.fn(),
         editPlaylistItemSchedules: edit_item_schedules,
-        editPlaylist: vi.fn(),
-        removePlaylist: vi.fn(),
-        approvePlaylist: vi.fn(),
-        requestPlaylistApproval: vi.fn(),
-        sharePlaylist: vi.fn(),
     };
 
     async function make() {
         await TestBed.configureTestingModule({
             imports: [PlaylistItemsComponent],
-            providers: [{ provide: SignageService, useValue: service_stub }],
+            providers: [
+                { provide: SignageContextService, useValue: context_stub },
+                { provide: SignageMediaService, useValue: media_stub },
+                { provide: SignagePlaylistService, useValue: playlist_stub },
+            ],
         })
             .overrideComponent(PlaylistItemsComponent, {
                 set: { template: '' },
@@ -75,6 +71,16 @@ describe('PlaylistItemsComponent', () => {
         playlist_item_schedules.set(new Map());
         playlist_item_schedule_list.set([]);
         can_update.set(true);
+        playlist_media_loading.set(false);
+    });
+
+    it('keeps the items on screen while they reload', async () => {
+        const component = await make();
+        playlist_media_loading.set(true);
+        expect(component.loading()).toBe(true);
+
+        playlist_media_items.set([media('a')]);
+        expect(component.loading()).toBe(false);
     });
 
     it('selects an item through the shared service signal', async () => {

@@ -17,6 +17,7 @@ describe('AssetItemListComponent', () => {
         component: AssetItemListComponent,
         providers: [
             MockProvider(AssetManagerStateService, {
+                load_error: signal(false),
                 base_route: '/book/assets',
                 loading,
                 options: options_signal,

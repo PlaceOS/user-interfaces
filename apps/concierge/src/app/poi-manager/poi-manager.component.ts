@@ -28,7 +28,7 @@ import { POIManagementService } from './poi-management.service';
                     <h2 class="text-2xl font-medium">
                         {{ 'APP.CONCIERGE.POI_HEADER' | translate }}
                     </h2>
-                    <button btn matRipple (click)="new()">
+                    <button btn matRipple data-shortcut="new" (click)="new()">
                         {{ 'APP.CONCIERGE.POI_ADD' | translate }}
                     </button>
                 </header>

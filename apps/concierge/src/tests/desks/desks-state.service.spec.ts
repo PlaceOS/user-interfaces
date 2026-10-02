@@ -135,6 +135,98 @@ describe('DesksStateService', () => {
         expect(spectator.service).toBeTruthy();
     });
 
+    it.each([
+        { rejected: true },
+        { status: 'declined' as const },
+        { checked_out_at: getUnixTime(Date.now()) },
+        { deleted: true },
+        { booking_start: getUnixTime(addHours(Date.now(), -2)), duration: 60 },
+    ])(
+        'should not send status changes for a completed booking: %j',
+        async (state) => {
+            const booking = new Booking({
+                id: 'booking-1',
+                booking_start: getUnixTime(Date.now()),
+                duration: 60,
+                ...state,
+            });
+            await spectator.service.approveDesk(booking);
+            await spectator.service.rejectDesk(booking);
+            await spectator.service.checkinDesk(booking, true);
+            await spectator.service.checkinDesk(booking, false);
+            expect(posted_bookings()).toEqual([]);
+        },
+    );
+
+    it('should prevent repeated status changes after rejecting an active booking', async () => {
+        const booking = new Booking({
+            id: 'booking-1',
+            booking_start: getUnixTime(Date.now()),
+            duration: 60,
+        });
+        await spectator.service.rejectDesk(booking);
+        await spectator.service.approveDesk(booking);
+        await spectator.service.rejectDesk(booking);
+        await spectator.service.checkinDesk(booking);
+        expect(posted_bookings()).toHaveLength(1);
+        expect(booking.status).toBe('declined');
+    });
+
+    it.each([false, true])(
+        'should block cancellation after rejection, series: %s',
+        async (series) => {
+            const booking = new Booking({
+                id: 'booking-1',
+                booking_start: getUnixTime(Date.now()),
+                duration: 60,
+                rejected: true,
+            });
+            await spectator.service.cancelBooking(booking, series);
+            expect(spectator.inject(MatDialog).open).not.toHaveBeenCalled();
+            expect(del_urls()).toEqual([]);
+            expect(booking.status).toBe('declined');
+        },
+    );
+
+    it.each([false, true])(
+        'should retain check-out completion and block another check-in, recurring: %s',
+        async (recurring) => {
+            const booking = new Booking({
+                id: 'booking-1',
+                booking_start: getUnixTime(Date.now()),
+                duration: 60,
+                recurrence_type: recurring ? 'daily' : 'none',
+            });
+            const checked_in_at = getUnixTime(Date.now());
+            vi.mocked(ts_client_mod.post).mockResolvedValueOnce({
+                ...booking.toJSON(),
+                checked_in: true,
+                checked_in_at,
+            } as never);
+            await spectator.service.checkinDesk(booking);
+            expect(booking.checked_in).toBe(true);
+            const checked_out_at = checked_in_at + 1;
+            vi.mocked(ts_client_mod.post).mockResolvedValueOnce({
+                ...booking.toJSON(),
+                checked_in: false,
+                checked_in_at,
+                checked_out_at,
+            } as never);
+            await spectator.service.checkinDesk(booking, false);
+            expect(booking.checked_in).toBe(false);
+            expect(booking.checked_out_at).toBe(checked_out_at);
+            expect(booking.has_ended).toBe(true);
+            expect(booking.status).toBe('ended');
+            await spectator.service.checkinDesk(booking);
+            expect(posted_bookings()).toHaveLength(2);
+            expect(posted_bookings()[1][0]).toContain(
+                recurring
+                    ? `/check_in/${booking.booking_start}?state=false`
+                    : '/check_in?state=false',
+            );
+        },
+    );
+
     it('should manage desk resources through assets when enabled', async () => {
         settings_map['app.desks.use_assets'] = true;
         vi.mocked(ts_client_mod.queryAssetCategories).mockResolvedValue({
@@ -233,6 +325,86 @@ describe('DesksStateService', () => {
                     }),
                 ],
             }),
+        );
+    });
+
+    const newDeskDialogRef = () => ({
+        afterClosed: () =>
+            of({
+                reason: 'done',
+                metadata: {
+                    id: 'desk-new',
+                    name: 'New Desk',
+                    map_id: 'desk-new',
+                    zone_id: 'level-other',
+                },
+            }),
+        componentInstance: { event: NEVER, loading: { set: vi.fn() } },
+        close: vi.fn(),
+    });
+
+    it('should keep stored desks on a level that is not loaded when saving', async () => {
+        (spectator.inject(MatDialog).open as any).mockReturnValue(
+            newDeskDialogRef(),
+        );
+        vi.mocked(ts_client_mod.showMetadata).mockImplementation(
+            async (zone: string) =>
+                ({
+                    details:
+                        zone === 'level-other'
+                            ? [{ id: 'desk-stored', name: 'Stored Desk' }]
+                            : [],
+                }) as never,
+        );
+        spectator.service.setFilters({ zones: ['level-selected'] });
+
+        await spectator.service.editDesk();
+
+        expect(ts_client_mod.updateMetadata).toHaveBeenCalledWith(
+            'level-other',
+            expect.objectContaining({
+                details: [
+                    expect.objectContaining({ id: 'desk-stored' }),
+                    expect.objectContaining({ id: 'desk-new' }),
+                ],
+            }),
+        );
+    });
+
+    it('should not write desks when the stored list cannot be read', async () => {
+        (spectator.inject(MatDialog).open as any).mockReturnValue(
+            newDeskDialogRef(),
+        );
+        vi.mocked(ts_client_mod.showMetadata).mockRejectedValue('offline');
+        spectator.service.setFilters({ zones: ['level-selected'] });
+
+        await expect(spectator.service.editDesk()).rejects.toBe('offline');
+
+        expect(ts_client_mod.updateMetadata).not.toHaveBeenCalled();
+    });
+
+    it('should not add a desk with an ID already used on the level', async () => {
+        // Saves read the level's stored desk list.
+        vi.mocked(ts_client_mod.showMetadata).mockResolvedValue({
+            details: [{ id: 'desk-dup', name: 'Old' }],
+        } as never);
+        (spectator.inject(MatDialog).open as any).mockReturnValue({
+            afterClosed: () =>
+                of({
+                    reason: 'done',
+                    metadata: { id: 'desk-dup', name: 'New', zone_id: 'lvl-1' },
+                }),
+            componentInstance: { event: NEVER, loading: { set: vi.fn() } },
+            close: vi.fn(),
+        });
+
+        await spectator.service.editDesk();
+
+        expect(ts_client_mod.updateMetadata).not.toHaveBeenCalled();
+        expect(notify_open).toHaveBeenCalledWith(
+            'A desk with the ID "desk-dup" already exists.',
+            expect.anything(),
+            expect.objectContaining({ panelClass: ['error'] }),
         );
     });
 
@@ -531,8 +703,7 @@ describe('DesksStateService', () => {
         vi.spyOn(Date, 'now').mockReturnValue(mock_now);
         vi.mocked(ts_client_mod.post).mockResolvedValue({
             id: 'assigned-booking',
-            booking_start:
-                new Date('2026-08-18T03:00:00').valueOf() / 1000,
+            booking_start: new Date('2026-08-18T03:00:00').valueOf() / 1000,
             booking_end: new Date('2026-08-18T23:00:00').valueOf() / 1000,
             booking_type: 'desk',
             recurrence_type: 'daily',
@@ -543,10 +714,8 @@ describe('DesksStateService', () => {
         vi.mocked(ts_client_mod.get).mockResolvedValue([
             {
                 id: 'ad-hoc-booking',
-                booking_start:
-                    new Date('2026-08-18T16:45:00').valueOf() / 1000,
-                booking_end:
-                    new Date('2026-08-18T17:15:00').valueOf() / 1000,
+                booking_start: new Date('2026-08-18T16:45:00').valueOf() / 1000,
+                booking_end: new Date('2026-08-18T17:15:00').valueOf() / 1000,
                 booking_type: 'desk',
                 approved: true,
                 asset_id: 'F-010',

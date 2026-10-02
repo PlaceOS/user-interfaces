@@ -403,25 +403,45 @@ describe('InviteVisitorFormComponent', () => {
         expect(service.model().assets[1].email).toBe('visitor.two@example.com');
     });
 
-    it('should persist edited reason from title when sending invite', async () => {
+    it('should save a single visitor edit without treating the visitor as equipment', async () => {
         const service = spectator.inject(BookingFormService);
         const settings = spectator.inject(SettingsService);
         (settings.get as Mock).mockImplementation((key: string) =>
             key === 'app.bookings.multiple_visitors' ? false : undefined,
         );
-        await spectator.component.ngOnInit();
+        const visitor = {
+            email: 'visitor@example.com',
+            name: 'Visitor Name',
+        };
         service.model.update((m) => ({
             ...m,
-            asset_id: 'visitor@example.com',
-            asset_name: 'Visitor Name',
-            title: 'Vendor Interview',
+            id: 'booking-visitor',
+            booking_type: 'visitor',
+            asset_id: visitor.email,
+            asset_name: visitor.name,
+            attendees: [visitor],
+            assets: [],
+            title: 'Visit',
             description: 'Visit',
         }));
+        await spectator.component.ngOnInit();
+        expect(service.model().assets).toEqual([visitor]);
 
+        const done = vi.fn();
+        spectator.component.done.subscribe(done);
+        service.model.update((m) => ({ ...m, title: 'Vendor Interview' }));
         await spectator.component.sendInvite();
 
-        expect(service.postForm).toHaveBeenCalled();
+        expect(service.postForm).toHaveBeenCalledTimes(1);
+        expect(service.model().assets).toEqual([]);
+        expect(service.model().attendees).toEqual([
+            expect.objectContaining({
+                email: visitor.email,
+                name: visitor.name,
+            }),
+        ]);
         expect(service.model().title).toBe('Vendor Interview');
+        expect(done).toHaveBeenCalledTimes(1);
     });
 
     it('should set the multiple visitor placeholder email when the setting resolves after init', async () => {

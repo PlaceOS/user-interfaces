@@ -6,6 +6,7 @@ import type { CalendarEvent } from './event.class';
 
 // Event catering order interfaces
 export type CateringOrderStatus =
+    | 'pending'
     | 'accepted'
     | 'preparing'
     | 'ready'

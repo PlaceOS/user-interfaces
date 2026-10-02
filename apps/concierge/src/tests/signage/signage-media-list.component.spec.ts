@@ -41,9 +41,9 @@ describe('SignageMediaListComponent', () => {
             dismiss: () => undefined,
         }));
         setNotifyOutlet({ open: notify_open } as any, true);
-        (ts_client_mod.listSignagePlaylistMedia as any).mockResolvedValue(
-            { items: ['existing'] },
-        );
+        (ts_client_mod.listSignagePlaylistMedia as any).mockResolvedValue({
+            items: ['existing'],
+        });
         spectator = createComponent();
         state = spectator.inject(SignageStateService) as any;
     });
@@ -86,6 +86,12 @@ describe('SignageMediaListComponent', () => {
             expect.anything(),
             expect.objectContaining({ panelClass: ['error'] }),
         );
+        expect(state.addMediaFromLink).not.toHaveBeenCalled();
+    });
+
+    it('should reject a link that is not http or https', async () => {
+        await spectator.component.addFromLink('javascript:alert(1)');
+
         expect(state.addMediaFromLink).not.toHaveBeenCalled();
     });
 

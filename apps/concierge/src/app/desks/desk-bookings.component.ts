@@ -4,13 +4,19 @@ import { CommonModule } from '@angular/common';
 import { MatRippleModule } from '@angular/material/core';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { settingSignal, SettingsService } from '@placeos/common';
+import { Booking, settingSignal, SettingsService } from '@placeos/common';
 import {
     IconComponent,
     SimpleTableComponent,
     TranslatePipe,
 } from '@placeos/components';
 import { UserPipe } from '@placeos/users';
+import { BookingApprovalBarComponent } from '../ui/booking-approval-bar.component';
+import { bookingRowKey, selectedBookings } from '../ui/bulk-booking-actions';
+import {
+    canChangeDeskBooking,
+    isDeskBookingRejected,
+} from './desk-booking-actions';
 import { DesksStateService } from './desks-state.service';
 
 @Component({
@@ -18,6 +24,8 @@ import { DesksStateService } from './desks-state.service';
     template: `
         <div class="h-full w-full overflow-auto pb-16">
             <simple-table
+                [error]="load_error()"
+                (retry)="retryLoad()"
                 class="block min-w-368 text-sm"
                 [data]="bookings()"
                 [filter]="filters().search"
@@ -92,6 +100,10 @@ import { DesksStateService } from './desks-state.service';
                     ) | translate
                 "
                 [sortable]="true"
+                [selectable]="bulk_actions()"
+                [row_key]="rowKey"
+                [can_select]="canChangeBooking"
+                [(selected)]="selected"
             ></simple-table>
             <ng-template #date_template let-date="data">
                 <div
@@ -184,11 +196,7 @@ import { DesksStateService } from './desks-state.service';
                             row?.status === 'ended' || row?.has_ended
                         "
                         [matMenuTriggerFor]="menu"
-                        [disabled]="
-                            row?.status === 'ended' ||
-                            row?.has_ended ||
-                            row.deleted
-                        "
+                        [disabled]="!canChangeBooking(row) || !!loading()"
                     >
                         <div class="flex items-center space-x-2 pr-2 pl-4">
                             <div class="flex-1 text-left">
@@ -206,20 +214,18 @@ import { DesksStateService } from './desks-state.service';
                                     ) | translate
                                 }}
                             </div>
-                            @if (
-                                !(
-                                    row?.status === 'ended' ||
-                                    row?.has_ended ||
-                                    row.deleted
-                                )
-                            ) {
+                            @if (canChangeBooking(row)) {
                                 <icon class="text-2xl"> arrow_drop_down </icon>
                             }
                         </div>
                     </button>
                 </div>
                 <mat-menu #menu="matMenu">
-                    <button mat-menu-item (click)="approve(row)">
+                    <button
+                        mat-menu-item
+                        [disabled]="!canChangeBooking(row) || !!loading()"
+                        (click)="approve(row)"
+                    >
                         <div class="flex items-center space-x-2">
                             <icon class="text-2xl">event_available</icon>
                             <div class="pr-2">
@@ -230,7 +236,11 @@ import { DesksStateService } from './desks-state.service';
                             </div>
                         </div>
                     </button>
-                    <button mat-menu-item (click)="reject(row)">
+                    <button
+                        mat-menu-item
+                        [disabled]="!canChangeBooking(row) || !!loading()"
+                        (click)="reject(row)"
+                    >
                         <div class="flex items-center space-x-2">
                             <icon class="text-2xl">event_busy</icon>
                             <div class="pr-2">
@@ -253,8 +263,8 @@ import { DesksStateService } from './desks-state.service';
                         [class.text-neutral-content!]="!data"
                         [class.bg-success!]="data"
                         [class.text-success-content!]="data"
-                        [class.opacity-30]="row.status === 'ended'"
-                        [disabled]="row.status === 'ended'"
+                        [class.opacity-30]="!canChangeBooking(row)"
+                        [disabled]="!canChangeBooking(row) || !!loading()"
                         [matTooltip]="
                             row.status === 'ended'
                                 ? 'Desk booking has ended'
@@ -273,13 +283,29 @@ import { DesksStateService } from './desks-state.service';
                     </button>
                 </div>
                 <mat-menu #checkinMenu="matMenu">
-                    <button mat-menu-item (click)="checkin(row, true)">
+                    <button
+                        mat-menu-item
+                        [disabled]="
+                            !canChangeBooking(row) ||
+                            row.checked_in ||
+                            !!loading()
+                        "
+                        (click)="checkin(row, true)"
+                    >
                         <div class="flex items-center space-x-2">
                             <icon class="text-2xl">check</icon>
                             <div>{{ 'COMMON.CHECK_IN' | translate }}</div>
                         </div>
                     </button>
-                    <button mat-menu-item (click)="checkin(row, false)">
+                    <button
+                        mat-menu-item
+                        [disabled]="
+                            !canChangeBooking(row) ||
+                            !row.checked_in ||
+                            !!loading()
+                        "
+                        (click)="checkin(row, false)"
+                    >
                         <div class="flex items-center space-x-2">
                             <icon class="text-2xl">cancel</icon>
                             <div>{{ 'COMMON.CHECK_OUT' | translate }}</div>
@@ -304,7 +330,7 @@ import { DesksStateService } from './desks-state.service';
                     >
                         <icon>history</icon>
                     </button>
-                    @if (can_delete()) {
+                    @if (can_delete() && !isRejected(row)) {
                         <button
                             icon
                             default
@@ -374,11 +400,18 @@ import { DesksStateService } from './desks-state.service';
                 class="absolute top-1/2 -right-2 -translate-y-1/2"
                 [disabled]="state_loading()"
                 [matTooltip]="'COMMON.REFRESH' | translate"
+                data-shortcut="refresh"
                 (click)="refresh()"
             >
                 <icon>refresh</icon>
             </button>
         </div>
+        <booking-approval-bar
+            [count]="selected().length"
+            [busy]="!!loading()"
+            (setApproval)="setApproval($event)"
+            (clear)="selected.set([])"
+        />
     `,
     styles: [
         `
@@ -400,6 +433,7 @@ import { DesksStateService } from './desks-state.service';
         MatTooltipModule,
         SimpleTableComponent,
         UserPipe,
+        BookingApprovalBarComponent,
     ],
 })
 export class DeskBookingsComponent implements OnInit {
@@ -433,6 +467,8 @@ export class DeskBookingsComponent implements OnInit {
     public readonly last_updated = this._state.last_updated;
     public readonly state_loading = this._state.loading;
     public readonly refresh = () => this._state.refresh();
+    public readonly load_error = this._state.load_error;
+    public readonly retryLoad = this.refresh;
 
     public ngOnInit() {
         this._state.refresh();
@@ -451,11 +487,24 @@ export class DeskBookingsComponent implements OnInit {
         ];
     }
 
-    public readonly checkin = (d, s?) =>
-        this.runMethod('checkin', async () => {
-            await this._state.checkinDesk(d, s);
-            d.checked_in = s ?? true;
+    public readonly isRejected = isDeskBookingRejected;
+    public readonly canChangeBooking = canChangeDeskBooking;
+    public readonly rowKey = bookingRowKey;
+    /** Whether rows can be selected for bulk approval */
+    public readonly bulk_actions = settingSignal('bulk_actions', false);
+    /** Row keys of the selected bookings */
+    public readonly selected = signal<string[]>([]);
+
+    /** Approve or reject the selected bookings */
+    public setApproval(approve: boolean) {
+        const list = selectedBookings(this.bookings(), this.selected());
+        return this.runMethod('bulk', async () => {
+            const done = await this._state.setBookingsApproval(list, approve);
+            if (done) this.selected.set([]);
         });
+    }
+    public readonly checkin = (d: Booking, s = true) =>
+        this.runMethod('checkin', async () => this._state.checkinDesk(d, s));
     public readonly approve = (d) =>
         this.runMethod('approve', async () => this._state.approveDesk(d));
     public readonly reject = (d) =>

@@ -38,6 +38,7 @@ import {
     Space,
     unique,
     User,
+    user_group_names,
 } from '@placeos/common';
 import { showMetadata } from '@placeos/ts-client';
 
@@ -402,6 +403,8 @@ export class EventFormService extends AsyncHandler {
     private readonly _available_params = computed(() => ({
         spaces: this.filtered_spaces(),
         rules: this.booking_rules(),
+        // Booking rules can depend on the current user's groups
+        groups: user_group_names(),
         event: this._event(),
         options: this._options(),
     }));
@@ -725,12 +728,16 @@ export class EventFormService extends AsyncHandler {
         // snapshot after the duration settings are applied, as they clamp the
         // event times to the building's booking rules without any user input
         this._setInitialEvent(this._model());
-        if (!event.id) return;
+        // Only an existing event can be excluded from room availability checks.
+        this._event.set(event.id ? event : new CalendarEvent());
+        if (!event.id) {
+            sessionStorage.removeItem('PLACEOS.event');
+            return;
+        }
         sessionStorage.setItem(
             'PLACEOS.event',
             JSON.stringify(event?.toJSON() || {}),
         );
-        this._event.set(event);
     }
 
     public resetForm() {
@@ -806,16 +813,17 @@ export class EventFormService extends AsyncHandler {
         ignore_owner = false,
         force_calendar = false,
     ) {
+        await currentUserLoaded();
         const notify_new_attendees_only =
             this.notify_new_attendees_only() &&
             this.can_notify_new_attendees_only();
         // host/creator may have been seeded with the placeholder EMPTY_USER
         // before the signed-in user loaded. Refresh them from the now-loaded
         // current user so events are never saved against the empty user.
-        if (isEmptyUser({ email: this._model().host } as any)) {
+        if (isEmptyUser({ email: this._model().host })) {
             this._model.update((m) => ({ ...m, host: currentUser().email }));
         }
-        if (isEmptyUser({ email: this._model().creator } as any)) {
+        if (isEmptyUser({ email: this._model().creator })) {
             this._model.update((m) => ({ ...m, creator: currentUser().email }));
         }
         this._form().markAsTouched();
@@ -926,14 +934,25 @@ export class EventFormService extends AsyncHandler {
                     }),
                 ).catch(on_error);
             }
-            // Make sure host is an attendee
-            this._model.update((m) => ({
-                ...m,
-                attendees: unique(
-                    [...m.attendees, m.organiser || currentUser()],
-                    'email',
-                ),
-            }));
+            // Saved forms can contain the user placeholder from before login.
+            // Remove it before saving attendees or creating visitor bookings.
+            const valid_attendee = (user?: Partial<User>) =>
+                !isEmptyUser(user) && !!user.email.split('@')[0].trim();
+            this._model.update((m) => {
+                const organiser = valid_attendee(m.organiser)
+                    ? m.organiser
+                    : m.host === currentUser().email
+                      ? currentUser()
+                      : new User({ email: m.host });
+                return {
+                    ...m,
+                    organiser,
+                    attendees: unique(
+                        [...m.attendees, organiser].filter(valid_attendee),
+                        'email',
+                    ),
+                };
+            });
             // Prevent meeting with external users without a space set
             if (
                 !spaces.length &&
@@ -1464,6 +1483,8 @@ export class EventFormService extends AsyncHandler {
             ? saveBooking(
                   newBookingFromCalendarEvent({
                       ...event.toJSON(),
+                      // Native recurrence needs weekday indices and millisecond dates.
+                      recurrence: event.recurrence,
                       status:
                           this._settings.get('app.bookings.no_approval') ===
                           true

@@ -1,20 +1,12 @@
-import {
-    Component,
-    computed,
-    inject,
-    input,
-    output,
-    signal,
-} from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { ActivatedRoute, Router } from '@angular/router';
+import { i18n, notifyError } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
-import { getModule } from '@placeos/ts-client';
-import { ControlStateService } from '../control-state.service';
+import { errorText } from '../error-text';
 import { DialpadComponent } from '../ui/dialpad.component';
 import { VideoCallStateService } from './video-call-state.service';
 
@@ -25,7 +17,7 @@ import { VideoCallStateService } from './video-call-state.service';
             @if (!loading()) {
                 <ng-container class="">
                     <dialpad (pressed)="addDigit($event)"></dialpad>
-                    <div class="flex flex-col" [class.pt-8]="!redirect()">
+                    <div class="flex flex-col pt-8">
                         <p class="px-2 pt-4">
                             {{ 'APP.CONTROL.VC_ENTER_CODE' | translate }}
                         </p>
@@ -102,26 +94,15 @@ import { VideoCallStateService } from './video-call-state.service';
     ],
 })
 export class VideoCallDialViewComponent {
-    private _control = inject(ControlStateService);
     private _call = inject(VideoCallStateService);
-    private _router = inject(Router);
-    private _route = inject(ActivatedRoute);
-
-    public readonly redirect = input(true);
-    public readonly close = output<void>();
 
     public readonly dial_number = signal('');
     public readonly loading = signal(false);
-    public readonly call = this._call.call;
     private readonly _show_camera_pip = this._call.show_camera_pip;
     public readonly show_camera_pip = computed(() => !!this._show_camera_pip());
 
     public readonly toggleCamera = async () =>
         this._call.showCameraPIP(!this.show_camera_pip());
-
-    public get id() {
-        return this._control.id;
-    }
 
     public addDigit(digit: string) {
         digit && digit !== '\b'
@@ -132,15 +113,17 @@ export class VideoCallDialViewComponent {
     public async joinConference() {
         const dial_number = this.dial_number();
         if (!dial_number) return;
-        const system_id = this._control.id;
-        const mod = getModule(system_id, 'VidConf');
         this.loading.set(true);
-        await mod.execute('dial', [dial_number]);
-        this.loading.set(false);
-        if (this.redirect()) {
-            this._router.navigate(['call'], { relativeTo: this._route });
+        try {
+            await this._call.dial(dial_number);
+        } catch (error) {
+            notifyError(
+                i18n('APP.CONTROL.VC_DIAL_ERROR', { error: errorText(error) }),
+            );
+            return;
+        } finally {
+            this.loading.set(false);
         }
-        this.close.emit();
         this.dial_number.set('');
     }
 }

@@ -2,7 +2,9 @@ import { DatePipe } from '@angular/common';
 import { Component, Pipe, PipeTransform, input, output } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { By } from '@angular/platform-browser';
 import { setNotifyOutlet } from '@placeos/common';
+import { SignagePlaylistItemSchedule } from '@placeos/ts-client';
 import {
     PlaylistItemScheduleModalComponent,
     PlaylistItemScheduleModalData,
@@ -104,6 +106,23 @@ describe('PlaylistItemScheduleModalComponent', () => {
         TestBed.resetTestingModule();
     });
 
+    it('blocks saving an item schedule with equal validity limits', async () => {
+        const component = await createComponent();
+        component.model.update((value) => ({
+            ...value,
+            schedules: value.schedules.map((schedule) => ({
+                ...schedule,
+                has_valid_from: true,
+                valid_from: 2000,
+                has_valid_until: true,
+                valid_until: 2000,
+            })),
+        }));
+        await component.saveSchedule();
+        expect(save).not.toHaveBeenCalled();
+        expect(dialog_ref.close).not.toHaveBeenCalled();
+    });
+
     it('shows the media preview, name, description and expiry', async () => {
         const valid_until = Math.floor(Date.UTC(2026, 6, 28, 3) / 1000);
         modal_data.item = {
@@ -168,6 +187,36 @@ describe('PlaylistItemScheduleModalComponent', () => {
         expect(event.preventDefault).toHaveBeenCalled();
     });
 
+    it('keeps each schedule form and the open schedule after a removal', async () => {
+        const schedule = {
+            play_cron: '0 9 * * *',
+            play_period: 60,
+            play_takeover: false,
+        };
+        modal_data.item = new SignagePlaylistItemSchedule({
+            item_id: 'item-1',
+            schedules: [schedule, schedule, schedule],
+        });
+        const fixture = await renderComponent();
+        const component = fixture.componentInstance;
+        const forms = () =>
+            fixture.debugElement
+                .queryAll(By.directive(ScheduleFormStubComponent))
+                .map(({ componentInstance }) => componentInstance);
+        const [, second, third] = forms();
+        component.openSchedule(2);
+
+        component.removeSchedule(
+            { preventDefault() {}, stopPropagation() {} } as Event,
+            0,
+        );
+        await fixture.whenStable();
+
+        expect(forms()[0]).toBe(second);
+        expect(forms()[1]).toBe(third);
+        expect(component.isScheduleOpen(1)).toBe(true);
+    });
+
     it('collapses an open schedule when toggled again', async () => {
         const component = await createComponent();
 
@@ -176,6 +225,35 @@ describe('PlaylistItemScheduleModalComponent', () => {
 
         component.openSchedule(0);
         expect(component.isScheduleOpen(0)).toBe(true);
+    });
+
+    it('requires a start and preserves an item mask on save', async () => {
+        const component = await createComponent();
+        component.model.update((value) => ({
+            ...value,
+            schedules: value.schedules.map((schedule) => ({
+                ...schedule,
+                has_mask: true,
+                mask: '101',
+            })),
+        }));
+        await component.saveSchedule();
+        expect(save).not.toHaveBeenCalled();
+        component.model.update((value) => ({
+            ...value,
+            schedules: value.schedules.map((schedule) => ({
+                ...schedule,
+                has_valid_from: true,
+                valid_from: 1770000000000,
+            })),
+        }));
+        await component.saveSchedule();
+        expect(save).toHaveBeenCalledWith('item-1', [
+            expect.objectContaining({
+                mask: '101',
+                valid_from: 1770000000,
+            }),
+        ]);
     });
 
     it('saves schedule payloads and closes on success', async () => {
@@ -210,6 +288,7 @@ describe('PlaylistItemScheduleModalComponent', () => {
                     ...model.schedules[0],
                     schedule_type: 'play_at',
                     play_at,
+                    play_at_exact: true,
                     play_period: 45,
                 },
             ],

@@ -2,12 +2,11 @@ import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { setNotifyOutlet } from '@placeos/common';
-import {
-    removeSignageTemplateDraft,
-    SignageTemplate,
-} from '@placeos/ts-client';
+import { SignageTemplate } from '@placeos/ts-client';
 import { TemplateRequestApprovalModalComponent } from '../../app/shared/template-request-approval-modal.component';
-import { SignageService } from '../../app/signage.service';
+import { SignageContextService } from '../../app/signage-context.service';
+import { SignagePluginService } from '../../app/signage-plugin.service';
+import { SignageTemplateService } from '../../app/templates/signage-template.service';
 
 vi.mock('@placeos/ts-client', { spy: true });
 
@@ -21,11 +20,14 @@ describe('TemplateRequestApprovalModalComponent', () => {
         close: vi.fn(),
         disableClose: false,
     };
-    const service = {
-        can_update: signal(true),
-        widgets: signal([]),
+    const context = {
+        can_update_templates: signal(true),
         changed: vi.fn(),
+    };
+    const plugin_service = { widgets: signal([]) };
+    const template_service = {
         updateCachedTemplate: vi.fn(),
+        undoTemplateChanges: vi.fn(),
     };
 
     beforeEach(async () => {
@@ -46,7 +48,9 @@ describe('TemplateRequestApprovalModalComponent', () => {
                     },
                 },
                 { provide: MatDialogRef, useValue: dialog_ref },
-                { provide: SignageService, useValue: service },
+                { provide: SignageContextService, useValue: context },
+                { provide: SignagePluginService, useValue: plugin_service },
+                { provide: SignageTemplateService, useValue: template_service },
             ],
         }).compileComponents();
     });
@@ -66,13 +70,13 @@ describe('TemplateRequestApprovalModalComponent', () => {
         });
     });
 
-    it('discards the pending draft from the approval preview', async () => {
+    it('undoes the pending draft from the approval preview', async () => {
         const pending = new SignageTemplate({ id: 'template-1' });
         const approved = new SignageTemplate({
             id: 'template-1',
             approved: true,
         });
-        vi.mocked(removeSignageTemplateDraft).mockResolvedValue(undefined);
+        template_service.undoTemplateChanges.mockResolvedValue(true);
         const component = TestBed.createComponent(
             TemplateRequestApprovalModalComponent,
         ).componentInstance;
@@ -80,8 +84,10 @@ describe('TemplateRequestApprovalModalComponent', () => {
 
         await component.undoChanges();
 
-        expect(removeSignageTemplateDraft).toHaveBeenCalledWith('template-1');
-        expect(service.updateCachedTemplate).toHaveBeenCalledWith(approved);
+        expect(template_service.undoTemplateChanges).toHaveBeenCalledWith(
+            'template-1',
+            approved,
+        );
         expect(dialog_ref.close).toHaveBeenCalled();
     });
 });

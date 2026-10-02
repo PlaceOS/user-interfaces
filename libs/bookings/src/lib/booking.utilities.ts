@@ -29,6 +29,7 @@ import {
     settingSignal,
     setupFormTimeSync,
     toBookingRecurrence,
+    unique,
     User,
     type FormTimeSyncHandle,
     type SignalFormRef,
@@ -507,18 +508,36 @@ export async function findNearbyFeature(
     return closest;
 }
 
+/** Convert an event form value into a native room booking that holds every selected room. */
 export function newBookingFromCalendarEvent(event: CalendarEvent) {
     const date = event.date || event.event_start * 1000;
+    // Serialized events omit duration and store their start/end in seconds.
+    const duration =
+        event.duration ?? (event.event_end - event.event_start) / 60;
     const recurrence = event.recurrence?.pattern
         ? toBookingRecurrence(fromEventRecurrence(event.recurrence), date)
         : {};
+    const rooms = [event.system, ...(event.resources || [])].filter(
+        (_) => !!_?.id,
+    );
+    // Serialized events store the primary room as `system_id`.
+    const { system_id } = event as CalendarEvent & { system_id?: string };
+    const asset_ids = unique(
+        [...rooms.map((_) => _.id), system_id].filter((_) => !!_),
+    );
     return new Booking({
         id: event.id,
+        user_id: event.organiser?.id || event.host,
         user_email: event.host,
+        user_name: event.organiser?.name || event.host,
         date,
-        duration: event.duration,
-        asset_id: event.system?.id || (event as any).system_id,
+        duration,
+        all_day: event.all_day,
+        timezone: event.timezone,
+        asset_id: asset_ids[0],
+        asset_ids,
         asset_name: event.system?.display_name || event.system?.name,
+        zones: unique(rooms.flatMap((_) => _.zones || [])),
         booking_type: 'room',
         approved: event.status === 'approved',
         ...recurrence,

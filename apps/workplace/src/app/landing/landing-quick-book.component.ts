@@ -3,8 +3,9 @@ import { MatRippleModule } from '@angular/material/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { Router } from '@angular/router';
 import { BookingFormService } from '@placeos/bookings';
-import { notifyError, settingSignal, SettingsService } from '@placeos/common';
+import { notifyError, settingSignal } from '@placeos/common';
 import { TranslatePipe } from '@placeos/components';
+import { firstValueFrom, from, timeout } from 'rxjs';
 
 @Component({
     selector: 'landing-quick-book',
@@ -79,37 +80,47 @@ import { TranslatePipe } from '@placeos/components';
     imports: [TranslatePipe, MatRippleModule, MatProgressSpinnerModule],
 })
 export class LandingQuickBookComponent {
-    private _settings = inject(SettingsService);
     private _router = inject(Router);
     private _book_form = inject(BookingFormService);
 
     public readonly loading = signal('');
     public readonly features = settingSignal<string[]>('features', []);
 
-    public async book(type: string) {
-        if (this.loading()) return;
-        if (type === 'space') return;
+    public async book(type: 'desk' | 'parking' | 'space') {
+        if (this.loading() || type === 'space') return;
         this.loading.set(type);
-        this._book_form.newForm(type as any);
-        this._book_form.setOptions({ type: type as any });
-        const resources = await this._book_form.listAvailableResources();
-        if (!resources.length) {
-            notifyError(`No ${type} available for the current building`);
-            this.loading.set('');
-            return;
-        }
-        this._book_form.model.update((m) => ({
-            ...m,
-            resources: [resources[0]],
-            asset_id: resources[0].id,
-            asset_name: resources[0].name,
-        }));
-        console.log('Resource:', resources[0], type);
-        this.loading.set('');
         try {
-            await this._book_form.confirmPost();
-            this._router.navigate(['/book', type, 'success']);
-        } catch {}
-        this._book_form.resetForm();
+            this._book_form.newForm(type);
+            this._book_form.setOptions({ type });
+            const resources = await firstValueFrom(
+                from(this._book_form.listAvailableResources()).pipe(
+                    timeout(15_000),
+                ),
+            );
+            if (!resources.length) {
+                notifyError(`No ${type} available for the current building`);
+                return;
+            }
+            this._book_form.model.update((m) => ({
+                ...m,
+                resources: [resources[0]],
+                asset_id: resources[0].id,
+                asset_name: resources[0].name,
+            }));
+            try {
+                // Confirmation handles cancellation and reports booking errors.
+                await this._book_form.confirmPost();
+            } catch {
+                return;
+            }
+            await this._router.navigate(['/book', type, 'success']);
+        } catch {
+            notifyError(
+                `Unable to book a ${type}. Please try again or use Bookings.`,
+            );
+        } finally {
+            this._book_form.resetForm();
+            this.loading.set('');
+        }
     }
 }

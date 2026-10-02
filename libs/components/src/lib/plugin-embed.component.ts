@@ -175,13 +175,26 @@ export class PluginEmbedComponent
             this._pending_auto_config = this.auto_play() && !!this.config();
             this._setupChannels();
         }
-        if (changes.config && this.auto_play()) {
-            this._pending_auto_config = !!this.config();
-        }
         if (changes.play && this.play()) this.send('play');
-        if (changes.config && this.config() && !this.auto_play()) {
-            this.send('config', this.config());
+        if (changes.config && !changes.plugin) this._applyConfigChange();
+    }
+
+    /**
+     * Push a new config to the plugin. With auto_play the first config waits
+     * for the plugin to report loaded/ready, but later changes (e.g. unsaved
+     * parameter edits in the manager preview) go straight through.
+     */
+    private _applyConfigChange() {
+        const config = this.config();
+        if (!config) {
+            this._pending_auto_config = false;
+            return;
         }
+        if (this.auto_play() && this.status() === 'unknown') {
+            this._pending_auto_config = true;
+            return;
+        }
+        this.send('config', config);
     }
 
     public send(

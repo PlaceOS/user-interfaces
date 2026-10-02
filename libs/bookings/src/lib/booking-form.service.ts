@@ -6,6 +6,7 @@ import {
     Injectable,
     Injector,
     resource,
+    type ResourceStatus,
     signal,
     type Signal,
     untracked,
@@ -39,10 +40,12 @@ import {
     notifyError,
     notifyWarn,
     OrganisationService,
+    randomString,
     rulesForResource,
     SettingsService,
     unique,
     User,
+    user_group_names,
 } from '@placeos/common';
 import {
     cleanObject,
@@ -72,6 +75,7 @@ import {
     queryBookings,
     removeBooking,
     saveBooking,
+    updateBooking,
 } from './bookings.fn';
 import { DeskQuestionsModalComponent } from './desk-questions-modal.component';
 
@@ -114,6 +118,12 @@ export interface BookingFlowOptions {
     disable_date?: boolean;
     /** Whether resource has accessibility options */
     show_accessible?: boolean;
+}
+
+/** Whether a resource has finished loading for its current params */
+function resourceSettled(ref: { status: Signal<ResourceStatus> }) {
+    const status = ref.status();
+    return status === 'resolved' || status === 'local' || status === 'error';
 }
 
 function bookingOptionsMatch(a: BookingFlowOptions, b: BookingFlowOptions) {
@@ -264,7 +274,8 @@ function buildBookingExtensionData(
             ? {
                   requires_manual_approval: !!value.requires_manual_approval,
                   user_groups: [
-                      ...(value.user
+                      ...(value.user &&
+                      value.user.email !== currentUser()?.email
                           ? value.user.groups || []
                           : currentUser()?.groups || []),
                   ],
@@ -530,6 +541,8 @@ export class BookingFormService extends AsyncHandler {
                 options: this._options(),
                 resources: this.resources(),
                 rules: this.booking_rules(),
+                // Rules and resource groups can depend on the user's groups
+                groups: user_group_names(),
                 form: this._form_value_debounced.value(),
             };
         },
@@ -598,40 +611,51 @@ export class BookingFormService extends AsyncHandler {
     public async listResources(): Promise<BookingAsset[]> {
         this._startNetwork();
         await firstValueWhere(
-            this._requests_ready,
+            computed(() => this._resourcesReady()),
             (ready) => ready,
             this._injector,
         );
-        const params = this._resource_params();
-        await firstValueWhere(
-            this._resource_params_debounced.value,
-            (value) => value === params,
-            this._injector,
-        );
-        await this._whenSettled(this._resources_resource);
         return this.resources();
     }
 
     /** Resolve with the available resources for the current selection */
     public async listAvailableResources(): Promise<BookingAsset[]> {
         this._startNetwork();
-        const form = this.model();
-        this._form_value.set(form);
-        await this.listResources();
-        const rules_params = this._booking_rules_params();
+        this._form_value.set(this.model());
         await firstValueWhere(
-            this._booking_rules_params_debounced.value,
-            (value) => value === rules_params,
+            computed(
+                () =>
+                    this._resourcesReady() &&
+                    this._booking_rules_params_debounced.value() ===
+                        this._booking_rules_params() &&
+                    // Rules stay idle when there are no buildings to load.
+                    (!this._booking_rules_params() ||
+                        resourceSettled(this._booking_rules_resource)) &&
+                    // Form effects can replace the initial snapshot before the
+                    // debounce completes. Wait for the current model.
+                    this._form_value_debounced.value() === this.model() &&
+                    resourceSettled(this._available_resource),
+            ),
+            (ready) => ready,
             this._injector,
         );
-        await this._whenSettled(this._booking_rules_resource);
-        await firstValueWhere(
-            this._form_value_debounced.value,
-            (value) => value === form,
-            this._injector,
-        );
-        await this._whenSettled(this._available_resource);
         return this.available_resources();
+    }
+
+    /**
+     * Whether the resource list matches the current building and type.
+     *
+     * Callers check this with the other conditions in one pass. An org reload
+     * can make the requests unready after an earlier check passes, and that
+     * resets the resources to an idle, empty state.
+     */
+    private _resourcesReady() {
+        return (
+            this._requests_ready() &&
+            this._resource_params_debounced.value() ===
+                this._resource_params() &&
+            resourceSettled(this._resources_resource)
+        );
     }
 
     /** Resolve once the given resource has finished loading */
@@ -1461,20 +1485,23 @@ export class BookingFormService extends AsyncHandler {
                 ),
             }).toJSON(),
             q,
-        ).catch((e) => {
+        ).catch(async (e) => {
             this._loading.set('');
-            const error = e?.error || e;
-            if (e?.status) {
-                if (typeof error === 'object' && error !== null) {
-                    error.status = e.status;
-                } else {
-                    if (this._isPermissionError(e))
-                        this._clearSavedHostChange();
-                    throw { message: error, status: e.status };
-                }
+            let error = e?.error || e;
+            if (error instanceof Response) {
+                error = await error
+                    .clone()
+                    .json()
+                    .catch(() => null);
             }
-            if (this._isPermissionError(error)) this._clearSavedHostChange();
-            throw error;
+            const failure = e?.status
+                ? {
+                      message: this._error_message(error),
+                      status: e.status,
+                  }
+                : error;
+            if (this._isPermissionError(failure)) this._clearSavedHostChange();
+            throw failure;
         });
         if (value.assets?.length || booking.extension_data.assets?.length) {
             // The booking record exists by this point, so a failure here must
@@ -1899,7 +1926,29 @@ export class BookingFormService extends AsyncHandler {
                     },
                 );
             }
-            await removeBooking(booking.id);
+            if (is_visitor) {
+                // Distinguish removed invitees from ordinary cancellations.
+                await updateBooking(booking.id, {
+                    extension_data: {
+                        ...booking.extension_data,
+                        removed_from_group: true,
+                    },
+                });
+            }
+            try {
+                await removeBooking(booking.id);
+            } catch (error) {
+                if (is_visitor) {
+                    await updateBooking(booking.id, {
+                        extension_data: {
+                            removed_from_group:
+                                booking.extension_data?.removed_from_group ??
+                                false,
+                        },
+                    });
+                }
+                throw error;
+            }
         }
         const desk_resources =
             !is_visitor && type === 'desk'
@@ -1966,12 +2015,9 @@ export class BookingFormService extends AsyncHandler {
         return first_result;
     }
 
-    /** Build the group identifier, reusing an existing one when supplied. */
+    /** Give each new group its own asset ID and preserve it during edits. */
     private _groupName(existing?: string) {
-        return (
-            existing ||
-            `${currentUser().email}[${format(Date.now(), 'yyyy-MM-dd')}]`
-        );
+        return existing || `grp-${randomString(24)}`;
     }
 
     /** Form patch for a single visitor in a group flow. */
@@ -2460,9 +2506,16 @@ export class BookingFormService extends AsyncHandler {
     }
 
     private _bookingRulesHost(user?: User) {
-        return this._useCurrentUserForBookingRules()
-            ? currentUser()
-            : user || currentUser();
+        const current_user = currentUser();
+        // The form keeps a copy of the current user that can have old groups
+        if (
+            this._useCurrentUserForBookingRules() ||
+            !user ||
+            user.email === current_user.email
+        ) {
+            return current_user;
+        }
+        return user;
     }
 
     private async _loadBookingRulesHost(host: string) {

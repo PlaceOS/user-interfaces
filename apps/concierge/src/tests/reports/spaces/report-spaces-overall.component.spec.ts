@@ -1,8 +1,8 @@
 import { signal } from '@angular/core';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 
-import { ReportSpacesOverallComponent } from 'apps/concierge/src/app/reports/spaces/report-spaces-overall.component';
 import { ReportsStateService } from 'apps/concierge/src/app/reports/reports-state.service';
+import { ReportSpacesOverallComponent } from 'apps/concierge/src/app/reports/spaces/report-spaces-overall.component';
 
 describe('ReportSpacesOverallComponent', () => {
     let spectator: Spectator<ReportSpacesOverallComponent>;
@@ -72,6 +72,20 @@ describe('ReportSpacesOverallComponent', () => {
             ],
         });
         expect(spectator.component.attendance()).toBe(6);
+    });
+
+    it('should count only events where nobody was seen as no-shows', () => {
+        stats.set({
+            events: [
+                { extension_data: { people_count: { max: 0 } } },
+                { extension_data: { people_count: { max: 3 } } },
+                { extension_data: {} },
+                { extension_data: { people_count: { max: 0 } } },
+            ],
+        });
+
+        expect(spectator.component.no_shows()).toBe(2);
+        expect(spectator.component.no_show_percent()).toBe(50);
     });
 
     it('should flag attendance only when a people count is present', () => {

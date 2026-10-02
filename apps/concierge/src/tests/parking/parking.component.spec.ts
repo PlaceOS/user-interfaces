@@ -23,6 +23,7 @@ describe('ParkingComponent', () => {
             MockProvider(ParkingStateService, {
                 levels: signal([]),
                 org_initialised: signal(true),
+                org_refreshing: signal(false),
                 startPolling: vi.fn(),
                 setOptions: vi.fn(),
             } as any),
@@ -55,6 +56,19 @@ describe('ParkingComponent', () => {
     afterEach(() => {
         vi.restoreAllMocks();
         setCurrentUser(new StaffUser({ groups: ['staff'] } as any));
+    });
+
+    it('should not show the no parking floors message while org data refreshes', () => {
+        const state = spectator.inject(ParkingStateService) as any;
+        const overlay = () => spectator.query('main > .absolute.inset-0.z-50');
+
+        state.org_refreshing.set(true);
+        spectator.detectChanges();
+        expect(overlay()).toBeNull();
+
+        state.org_refreshing.set(false);
+        spectator.detectChanges();
+        expect(overlay()).not.toBeNull();
     });
 
     it('should hide requests from users outside the configured group', () => {
