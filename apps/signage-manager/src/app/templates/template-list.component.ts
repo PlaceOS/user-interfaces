@@ -11,7 +11,11 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { RouterLink } from '@angular/router';
-import { IconComponent, TranslatePipe } from '@placeos/components';
+import {
+    IconComponent,
+    LoadErrorComponent,
+    TranslatePipe,
+} from '@placeos/components';
 import { SignageTemplate } from '@placeos/ts-client';
 import { IntersectDirective } from '../shared/intersect.directive';
 import { SignageTemplateService } from './signage-template.service';
@@ -155,6 +159,8 @@ type TemplateStatus = 'awaiting_approval' | 'awaiting_review' | null;
                         intersect
                         (intersect)="loadMore()"
                     ></div>
+                } @else if (error()) {
+                    <load-error (retry)="reload()" />
                 } @else {
                     <div
                         class="text-base-content/50 bg-base-content/10 col-span-full my-2 p-2 text-center text-xs"
@@ -169,6 +175,8 @@ type TemplateStatus = 'awaiting_approval' | 'awaiting_review' | null;
                     <mat-spinner diameter="32" />
                     <p>{{ 'COMMON.LOADING' | translate }}</p>
                 </div>
+            } @else if (error()) {
+                <load-error class="flex-1" (retry)="reload()" />
             } @else {
                 <div
                     class="text-base-content/70 flex flex-1 flex-col items-center justify-center space-y-2 p-8"
@@ -196,6 +204,7 @@ type TemplateStatus = 'awaiting_approval' | 'awaiting_review' | null;
         MatInputModule,
         MatProgressSpinnerModule,
         IconComponent,
+        LoadErrorComponent,
         TranslatePipe,
         IntersectDirective,
     ],
@@ -209,6 +218,7 @@ export class TemplateListComponent {
     public readonly templates = this._template_service.templates;
     public readonly selected = this._template_service.selected_template;
     public readonly loading = this._template_service.templates_loading;
+    public readonly error = this._template_service.templates_error;
 
     // Backend pagination: fetches the next page as the sentinel scrolls in.
     public readonly has_more = this._template_service.templates_has_more;
@@ -235,6 +245,10 @@ export class TemplateListComponent {
 
     public loadMore() {
         this._template_service.loadMoreTemplates();
+    }
+
+    public reload() {
+        this._template_service.reloadTemplates();
     }
 
     public getStatus(template: SignageTemplate): TemplateStatus {

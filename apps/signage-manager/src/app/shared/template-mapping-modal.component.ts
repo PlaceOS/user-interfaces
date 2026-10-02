@@ -257,13 +257,12 @@ export class TemplateMappingModalComponent {
                 notifySuccess(
                     i18n('SIGNAGE_MANAGER.SVC_TEMPLATE_MAPPING_SAVED'),
                 );
-            } catch (error) {
+            } catch {
                 this._dialog_ref.disableClose = false;
                 this.loading.set(false);
                 notifyError(
                     i18n('SIGNAGE_MANAGER.SVC_TEMPLATE_MAPPING_SAVE_ERROR'),
                 );
-                throw error;
             }
         });
     }

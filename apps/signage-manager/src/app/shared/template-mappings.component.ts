@@ -1,5 +1,6 @@
 import { Component, computed, inject, input, resource } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterLink } from '@angular/router';
 import { i18n } from '@placeos/common';
@@ -52,11 +53,16 @@ export type TemplateMappingTargetType = 'display' | 'zone';
                             'SIGNAGE_MANAGER.APPLY_TEMPLATE' | translate
                         "
                         (click)="editMapping()"
+                        [disabled]="opening()"
                         [attr.aria-label]="
                             'SIGNAGE_MANAGER.APPLY_TEMPLATE' | translate
                         "
                     >
-                        <icon>add</icon>
+                        @if (opening()) {
+                            <mat-spinner diameter="20" />
+                        } @else {
+                            <icon>add</icon>
+                        }
                     </button>
                 }
             </div>
@@ -320,6 +326,7 @@ export type TemplateMappingTargetType = 'display' | 'zone';
     ],
     imports: [
         MatRippleModule,
+        MatProgressSpinnerModule,
         MatTooltipModule,
         AuthenticatedImageDirective,
         IconComponent,
@@ -335,6 +342,7 @@ export class TemplateMappingsComponent {
     public readonly target_type = input<TemplateMappingTargetType>('display');
     public readonly target_id = input('');
     public readonly can_update = this._context.can_update;
+    public readonly opening = this._template_service.template_mapping_opening;
 
     private readonly _mappings = resource({
         params: () => ({

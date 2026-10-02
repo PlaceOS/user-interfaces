@@ -802,6 +802,7 @@
         "TEMPLATE_REMOVE_LAYOUT": "Remove layout item",
         "TEMPLATE_REQUIRED": "Select a template",
         "TEMPLATE_REVERTED": "Template reverted to previous version",
+        "TEMPLATE_REVERT_CONFIRM": "Discard the pending changes and restore the approved version of {{ name }}? You cannot get the pending changes back.",
         "TEMPLATE_REVERT_ERROR": "Error reverting template changes",
         "TEMPLATE_SAVED": "Template saved",
         "TEMPLATE_SAVE_ERROR": "Error saving template",

@@ -213,13 +213,16 @@ These stories cover the current app workflows:
 **Acceptance Criteria:**
 
 - The templates page shows a searchable template list and loads more templates as the user scrolls.
+- The header shows the number of templates that match, including templates that are not loaded yet.
+- If the list cannot load, the page shows an error with a retry button, not an empty list.
+- A link to a template that is not in the loaded pages opens that template.
 - Users with create or update permission can create templates and edit their layout items.
 - Users with create permission can duplicate a template. The copy has the same settings and saved layouts. It is not approved and has no template mappings.
 - Template rows show approval-required and awaiting-review states.
 - Users with approval permission can review and approve a selected template.
 - Users without approval permission can select an approver and request template approval with a message.
 - The approval preview shows only changed layout items from the pending and approved templates, including the applicable X and Y values. It shows a no-older-version placeholder when no distinct approved version exists.
-- Users with update permission can discard pending changes when an approved version exists.
+- Users with update permission can discard pending changes when an approved version exists. They must confirm first.
 - Users must confirm before they leave a template that has unsaved layout changes. Confirming discards the changes. The browser warns before a reload or tab close drops them.
 
 ---

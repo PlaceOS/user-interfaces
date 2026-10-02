@@ -15,9 +15,14 @@ export interface TemplateLayoutRect {
  * The API stores `x_pos`/`y_pos` as ratios from 0 to 1. For edge panels they
  * are the panel's size on the relevant axis. For floating panels they are the
  * top-left corner, with the panel filling the frame from there.
+ *
+ * These defaults must stay in step with the player
+ * (`apps/signage/src/app/template-layout.ts`), so the preview shows what
+ * screens show and saving does not move a panel.
  */
 export const EDGE_BAR_HEIGHT_PC = 15;
 export const SIDEBAR_WIDTH_PC = 20;
+// A floating panel with no position fills the frame
 export const FLOATING_DEFAULT_X_PC = 0;
 export const FLOATING_DEFAULT_Y_PC = 0;
 

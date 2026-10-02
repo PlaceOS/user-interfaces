@@ -1,4 +1,4 @@
-import { Component, computed, inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { IconComponent, TranslatePipe } from '@placeos/components';
@@ -57,9 +57,7 @@ export class TemplateHeaderComponent {
     private readonly _context = inject(SignageContextService);
     private readonly _template_service = inject(SignageTemplateService);
 
-    public readonly total_count = computed(
-        () => this._template_service.templates().length,
-    );
+    public readonly total_count = this._template_service.templates_total;
     public readonly can_create = this._context.can_create_templates;
 
     public addTemplate() {

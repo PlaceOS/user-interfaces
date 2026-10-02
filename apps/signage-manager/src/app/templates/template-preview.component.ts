@@ -22,6 +22,7 @@ import {
 import { mediaThumbnail } from '@placeos/ts-client';
 import { SignageDisplayService } from '../displays/signage-display.service';
 import { SignagePluginService } from '../signage-plugin.service';
+import { pluginName } from '../signage-plugin.util';
 import { parseWebUrl } from '../signage-url.util';
 import { SignageTemplateService } from './signage-template.service';
 import {
@@ -368,11 +369,7 @@ export class TemplatePreviewComponent {
     }
 
     public pluginName(plugin_id?: string) {
-        if (!plugin_id) return '';
-        return (
-            this._plugin_service.widgets().find((item) => item.id === plugin_id)
-                ?.name || plugin_id
-        );
+        return pluginName(this._plugin_service.widgets(), plugin_id);
     }
 
     public positionLabel = layoutPositionLabel;
