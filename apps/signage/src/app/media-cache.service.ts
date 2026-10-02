@@ -433,13 +433,6 @@ export class MediaCacheService extends AsyncHandler {
         return failures;
     }
 
-    /** Download a file into the cache entry. Rejects unless it was stored. */
-    public async requestAndCacheFile(url: string, cache_item: CacheItem) {
-        const { file, stored } = await this._downloadAndStore(url, cache_item);
-        if (!stored) throw new Error('Unable to cache media file');
-        return file;
-    }
-
     /**
      * The file for a URL, from the cache when it has it and downloaded when it
      * does not. Unlike `requestFilesToCache` this hands back a download that
@@ -578,7 +571,6 @@ export class MediaCacheService extends AsyncHandler {
         max_size = this._budget_bytes,
         prune_other_owners = false,
     ) {
-        if (!this._cache_db_ready) return;
         // Sizes are tracked on the index, so the common case - comfortably
         // under budget - costs nothing. Metadata written before sizes were
         // recorded needs one pass over the store to fill them in.
@@ -606,21 +598,7 @@ export class MediaCacheService extends AsyncHandler {
         }
     }
 
-    public async invalidateStore() {
-        if (!this._cache_db_ready) return;
-        try {
-            await this._write((store) => store.clear(), 'clear');
-        } catch (e) {
-            log.error(`Error clearing all cached resources. ${e}`);
-            throw e;
-        }
-        log.debug(`Cleared all cached resources.`);
-        this._file_cache_index.set([]);
-        this._too_large.clear();
-    }
-
     public async invalidateFile(url: string, owner = '') {
-        if (!this._cache_db_ready) throw new Error('Cache DB not ready');
         const cache_item = this._cacheItem(url);
         if (cache_item?.status !== 'cached') {
             throw new Error('Cached item with URL not found');
@@ -712,12 +690,11 @@ export class MediaCacheService extends AsyncHandler {
     private async _downloadAndStore(
         url: string,
         cache_item: CacheItem,
-        fit: CacheFit = { max_bytes: Infinity },
+        fit: CacheFit,
     ): Promise<DownloadResult> {
         let file: File | null = null;
         try {
             cacheStatus(cache_item, 'downloading');
-            // If not an API call, just load the image
             if (url.includes(UPLOADS_PATH)) this.applyAuthenticationCookie();
             const blob = await this._download(url, fit);
             if (blob.size <= 0) {
@@ -1338,8 +1315,8 @@ export class MediaCacheService extends AsyncHandler {
                 log.error(`DB Error: ${e}.`);
                 return reject(e);
             }
-            request.onupgradeneeded = (event: any) => {
-                const db = event.target.result as IDBDatabase;
+            request.onupgradeneeded = () => {
+                const db = request.result;
                 if (!db.objectStoreNames.contains(DB_STORE)) {
                     db.createObjectStore(DB_STORE, { keyPath: 'name' });
                     log.debug(`Object store created successfully.`);
@@ -1347,8 +1324,8 @@ export class MediaCacheService extends AsyncHandler {
             };
             request.onblocked = () =>
                 log.warn(`Database open is blocked by another connection.`);
-            request.onerror = (event: any) => {
-                const error = event.target?.error;
+            request.onerror = () => {
+                const error = request.error;
                 log.error(`DB Error: ${error}.`);
                 if (!recreate_on_error) return reject(error);
                 log.warn(`Recreating the media database.`);
@@ -1356,8 +1333,8 @@ export class MediaCacheService extends AsyncHandler {
                     .then(() => this._openDatabase(false))
                     .then(resolve, reject);
             };
-            request.onsuccess = (event: any) => {
-                const db = event.target.result as IDBDatabase;
+            request.onsuccess = () => {
+                const db = request.result;
                 // Another context is upgrading or deleting the database; let
                 // go of it and come back once that has happened.
                 db.onversionchange = () => {
@@ -1435,8 +1412,8 @@ export class MediaCacheService extends AsyncHandler {
         return withTimeout(
             new Promise<T>((resolve, reject) => {
                 const request = run(transaction.objectStore(DB_STORE));
-                request.onerror = (event: any) =>
-                    reject(event.target?.error || new Error(`${label} failed`));
+                request.onerror = () =>
+                    reject(request.error || new Error(`${label} failed`));
                 request.onsuccess = () => resolve(request.result);
             }),
             DB_OPERATION_TIMEOUT_MS,
@@ -1452,12 +1429,14 @@ export class MediaCacheService extends AsyncHandler {
         const transaction = await this._transaction('readwrite');
         return withTimeout(
             new Promise<void>((resolve, reject) => {
-                const fail = (event: any) =>
-                    reject(event.target?.error || new Error(`${label} failed`));
+                const fail = (error: DOMException | null) =>
+                    reject(error || new Error(`${label} failed`));
                 const request = run(transaction.objectStore(DB_STORE));
-                request.onerror = fail;
-                transaction.onerror = fail;
-                transaction.onabort = fail;
+                // The request's error reaches the transaction too, before
+                // the transaction aborts with an error of its own
+                request.onerror = () => fail(request.error);
+                transaction.onerror = () => fail(request.error);
+                transaction.onabort = () => fail(transaction.error);
                 transaction.oncomplete = () => resolve();
             }),
             DB_OPERATION_TIMEOUT_MS,
