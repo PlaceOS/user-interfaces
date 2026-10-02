@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { i18n, setNotifyOutlet, UploadsService } from '@placeos/common';
-import { get, post, updateMetadata } from '@placeos/ts-client';
+import { del, get, post, updateMetadata } from '@placeos/ts-client';
 
 import {
     ImageGenService,
@@ -41,6 +41,21 @@ function kitService(kit: ImageGenBrandKit = {}) {
     return service;
 }
 
+/** route notices to a mock, so a test can see what was shown */
+function captureNotices() {
+    const notify_open = vi.fn(() => ({
+        onAction: () => ({ subscribe: () => ({ unsubscribe: () => {} }) }),
+        dismiss: vi.fn(),
+    }));
+    setNotifyOutlet(
+        { open: notify_open } as unknown as Parameters<
+            typeof setNotifyOutlet
+        >[0],
+        true,
+    );
+    return notify_open;
+}
+
 /** the details of each brand kit write, in order */
 function writtenKits() {
     return vi
@@ -72,7 +87,10 @@ describe('ImageGenService', () => {
         });
     });
 
-    afterEach(() => vi.useRealTimers());
+    afterEach(() => {
+        vi.useRealTimers();
+        setNotifyOutlet(null, true);
+    });
 
     beforeEach(() => {
         vi.mocked(updateMetadata).mockResolvedValue(
@@ -300,16 +318,7 @@ describe('ImageGenService', () => {
     });
 
     it('does not announce a finished job that an open screen shows', async () => {
-        const notify_open = vi.fn(() => ({
-            onAction: () => ({ subscribe: () => ({ unsubscribe: () => {} }) }),
-            dismiss: vi.fn(),
-        }));
-        setNotifyOutlet(
-            { open: notify_open } as unknown as Parameters<
-                typeof setNotifyOutlet
-            >[0],
-            true,
-        );
+        const notify_open = captureNotices();
         const done = { ...runningJob(), state: 'done' as const, version: 2 };
         json_get.mockResolvedValue({ ...done, images_produced: 1 });
         const service = TestBed.inject(ImageGenService);
@@ -320,7 +329,6 @@ describe('ImageGenService', () => {
         await (
             service as unknown as { _poll: (id: string) => Promise<void> }
         )._poll(done.id);
-        setNotifyOutlet(null, true);
 
         expect(service.jobs()[done.id].state).toBe('done');
         expect(notify_open).not.toHaveBeenCalledWith(
@@ -328,5 +336,54 @@ describe('ImageGenService', () => {
             expect.anything(),
             expect.anything(),
         );
+    });
+
+    it('keeps watching a job it could not cancel, then clears it quietly', async () => {
+        vi.useFakeTimers();
+        const notify_open = captureNotices();
+        json_post.mockRejectedValue(new Error('cancel refused'));
+        vi.mocked(del).mockResolvedValue(undefined);
+        const service = TestBed.inject(ImageGenService);
+        const job = runningJob();
+        service.jobs.set({ [job.id]: job });
+        service.watch(job.id);
+
+        await service.abandon(job.id, ['inc-1']);
+        json_get.mockResolvedValue({
+            ...job,
+            state: 'done',
+            images_produced: 1,
+            version: 2,
+        });
+        await (
+            service as unknown as { _poll: (id: string) => Promise<void> }
+        )._poll(job.id);
+
+        expect(del).toHaveBeenCalledWith(
+            expect.stringContaining('/uploads/inc-1'),
+            expect.anything(),
+        );
+        expect(notify_open).not.toHaveBeenCalled();
+    });
+
+    it('ignores a check that comes back after the job is unwatched', async () => {
+        const notify_open = captureNotices();
+        const job = runningJob();
+        let answer: (value: ImageGenJob) => void = () => undefined;
+        json_get.mockImplementation(
+            () => new Promise((resolve) => (answer = resolve)),
+        );
+        const service = TestBed.inject(ImageGenService);
+        service.jobs.set({ [job.id]: job });
+        service.watch(job.id);
+
+        const check = (
+            service as unknown as { _poll: (id: string) => Promise<void> }
+        )._poll(job.id);
+        service.unwatch(job.id);
+        answer({ ...job, state: 'done', images_produced: 1, version: 2 });
+        await check;
+
+        expect(notify_open).not.toHaveBeenCalled();
     });
 });

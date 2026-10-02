@@ -792,6 +792,8 @@ export class ImageGenModalComponent implements OnDestroy {
             }
             this._follow(job, token);
         } catch (error) {
+            // closed while waiting, and no job will read the images now
+            if (this._closed) return this._removeReferences();
             if (token !== this._job_token) return;
             this.state.set('compose');
             notifyError(
@@ -828,6 +830,8 @@ export class ImageGenModalComponent implements OnDestroy {
             });
             this._follow(job, token);
         } catch (error) {
+            // closed while waiting, and no job will read the images now
+            if (this._closed) return this._removeReferences();
             if (token !== this._job_token) return;
             this.state.set('review');
             notifyError(
@@ -974,18 +978,23 @@ export class ImageGenModalComponent implements OnDestroy {
         for (const id of this.job_ids()) {
             this._image_gen.setJobOnScreen(id, false);
         }
-        const references = this.references();
-        for (const item of references) URL.revokeObjectURL(item.url);
-        const reference_ids = references.map((item) => item.id);
-        if (this.state() !== 'generating') {
-            reference_ids.forEach((id) => this._image_gen.removeReference(id));
-            return;
-        }
+        for (const item of this.references()) URL.revokeObjectURL(item.url);
+        if (this.state() !== 'generating') return this._removeReferences();
         // nothing can show the result once this closes, so stop the job
-        // rather than spend the quota on images no one can reach. A job the
-        // server has not answered for yet is stopped by _follow.
+        // rather than spend the quota on images no one can reach. A request
+        // the server has not answered yet is dealt with by _follow, or by
+        // start and refine if it fails.
         const job = this._image_gen.jobs()[this.current_job_id()];
-        if (job && !isFinal(job)) this._abandon(job.id, reference_ids);
+        if (job && !isFinal(job)) {
+            this._image_gen.abandon(job.id, this.reference_ids());
+        }
+    }
+
+    /** nothing sends the attached images again, so their uploads can go */
+    private _removeReferences() {
+        this.reference_ids().forEach((id) =>
+            this._image_gen.removeReference(id),
+        );
     }
 
     public async uploadLogo(file: File) {
@@ -1136,24 +1145,16 @@ export class ImageGenModalComponent implements OnDestroy {
     /** follow a job the server accepted, unless it was cancelled on the way */
     private _follow(job: ImageGenJob, token: number) {
         if (this._closed || token !== this._job_token) {
-            this._abandon(job.id, this._closed ? this.reference_ids() : []);
+            this._image_gen.abandon(
+                job.id,
+                this._closed ? this.reference_ids() : [],
+            );
             return;
         }
         this.job_ids.update((ids) => [...ids, job.id]);
         // the modal shows the result, so the service need not announce it
         this._image_gen.setJobOnScreen(job.id, true);
         this._awaitJob(job.id);
-    }
-
-    /**
-     * Stop a job no one is waiting for, without a notice when it ends. The
-     * references it read can go once it has stopped.
-     */
-    private async _abandon(id: string, reference_ids: string[]) {
-        this._image_gen.unwatch(id);
-        const job = await this._image_gen.cancel(id);
-        if (!isFinal(job)) return;
-        reference_ids.forEach((item) => this._image_gen.removeReference(item));
     }
 
     private _stopAwaiting() {

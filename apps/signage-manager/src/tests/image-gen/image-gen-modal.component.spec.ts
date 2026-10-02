@@ -137,6 +137,7 @@ describe('ImageGenModalComponent', () => {
             cancel: vi.fn(),
             unwatch: vi.fn(),
             setJobOnScreen: vi.fn(),
+            abandon: vi.fn(),
             claim: vi.fn().mockResolvedValue({}),
             removeReference: vi.fn(),
             loadImage: vi.fn().mockResolvedValue('blob:artwork'),
@@ -538,13 +539,10 @@ describe('ImageGenModalComponent', () => {
         await component.start();
 
         component.ngOnDestroy();
-        // the stopped job no longer reads the reference, so it goes too
-        await vi.waitFor(() =>
-            expect(image_gen.removeReference).toHaveBeenCalledWith('inc-1'),
-        );
 
-        expect(image_gen.cancel).toHaveBeenCalledWith('job-1');
-        expect(image_gen.unwatch).toHaveBeenCalledWith('job-1');
+        // the service clears the reference once the job has stopped
+        expect(image_gen.abandon).toHaveBeenCalledWith('job-1', ['inc-1']);
+        expect(image_gen.removeReference).not.toHaveBeenCalled();
     });
 
     it('stops a job the server accepts after the modal closed', async () => {
@@ -560,8 +558,27 @@ describe('ImageGenModalComponent', () => {
         accept(job('job-1', { state: 'running' }));
         await started;
 
-        expect(image_gen.cancel).toHaveBeenCalledWith('job-1');
-        expect(image_gen.unwatch).toHaveBeenCalledWith('job-1');
+        expect(image_gen.abandon).toHaveBeenCalledWith('job-1', []);
+    });
+
+    it('clears the attached images when a request fails after the modal closed', async () => {
+        const { image_gen, component } = await make();
+        let refuse: (error: Error) => void = () => undefined;
+        image_gen.generate.mockImplementationOnce(
+            () => new Promise<ImageGenJob>((_, reject) => (refuse = reject)),
+        );
+        component.include_references.set([
+            { id: 'inc-1', name: 'one.png', url: 'blob:one' },
+        ]);
+        component.brief.set('A poster for the launch');
+
+        const started = component.start();
+        component.ngOnDestroy();
+        expect(image_gen.removeReference).not.toHaveBeenCalled();
+        refuse(new Error('offline'));
+        await started;
+
+        expect(image_gen.removeReference).toHaveBeenCalledWith('inc-1');
     });
 
     it('lets go of an option whose image cannot be read', async () => {

@@ -386,6 +386,30 @@ export class ImageGenService extends AsyncHandler {
         return job;
     }
 
+    /** jobs no screen will show, to the references to clear once each ends */
+    private readonly _abandoned = new Map<string, string[]>();
+
+    /**
+     * Stop a job no screen will show. It ends without a notice, and its
+     * references are cleared once it has stopped. If the server refuses to
+     * cancel, the job stays watched so the clean up still happens when it ends.
+     */
+    public async abandon(id: string, reference_ids: string[]) {
+        this._abandoned.set(id, reference_ids);
+        const job = await this.cancel(id);
+        if (!isFinal(job) || !this._abandoned.has(id)) return;
+        this.unwatch(id);
+        this._ended(job);
+    }
+
+    /** a job reached its end: tell the person, or clear what it was left */
+    private _ended(job: ImageGenJob) {
+        const references = this._abandoned.get(job.id);
+        if (!references) return this._announce(job);
+        this._abandoned.delete(job.id);
+        references.forEach((id) => this.removeReference(id));
+    }
+
     public async claim(id: string, upload_id: string, item_id: string) {
         let last_error: unknown;
         for (const delay of CLAIM_RETRY_DELAYS) {
@@ -442,6 +466,8 @@ export class ImageGenService extends AsyncHandler {
                 wait: POLL_WAIT,
                 since: known,
             }).catch((error: unknown) => ({ error }));
+        // unwatched while this check was waiting on the server
+        if (!this._watching.has(id)) return;
 
         if ('error' in result) {
             const status = errorStatus(result.error);
@@ -462,7 +488,7 @@ export class ImageGenService extends AsyncHandler {
 
         if (isFinal(job)) {
             this.unwatch(id);
-            this._announce(job);
+            this._ended(job);
             this.refreshQuota();
             return;
         }
@@ -522,7 +548,7 @@ export class ImageGenService extends AsyncHandler {
             error_message: i18n('SIGNAGE_MANAGER.IMAGE_GEN_JOB_FAILED'),
         };
         this._merge([failed]);
-        this._announce(failed);
+        this._ended(failed);
     }
 
     private _merge(jobs: ImageGenJob[]) {
