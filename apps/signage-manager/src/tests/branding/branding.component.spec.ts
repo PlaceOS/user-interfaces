@@ -49,7 +49,9 @@ describe('BrandingComponent', () => {
             target: input,
         } as unknown as Event);
 
-        expect(component.colours()).toEqual(['#123456']);
+        expect(component.colours()).toEqual([
+            { key: 'primary', value: '#123456' },
+        ]);
     });
 
     it('keeps palette colours past the three it shows when saving', async () => {
@@ -64,7 +66,11 @@ describe('BrandingComponent', () => {
         const component = await make();
         await component.ngOnInit();
 
-        expect(component.colours()).toEqual(['#111111', '#222222', '#333333']);
+        expect(component.colours().map((colour) => colour.value)).toEqual([
+            '#111111',
+            '#222222',
+            '#333333',
+        ]);
         await component.save();
 
         expect(image_gen_stub.saveBrandKit).toHaveBeenCalledWith(
@@ -88,5 +94,44 @@ describe('BrandingComponent', () => {
         expect(image_gen_stub.reloadBrandKit).toHaveBeenCalled();
         expect(component.load_state()).toBe('failed');
         expect(component.can_edit()).toBe(false);
+    });
+
+    it('saves each colour back under the key it was read from', async () => {
+        const palette = {
+            primary: '#111111',
+            accent: '#333333',
+            highlight: '#444444',
+            extra: '#555555',
+        };
+        image_gen_stub.brand_kit.set({ palette });
+        const component = await make();
+        await component.ngOnInit();
+
+        await component.save();
+
+        expect(image_gen_stub.saveBrandKit).toHaveBeenCalledWith(
+            expect.objectContaining({ palette }),
+        );
+    });
+
+    it('gives an added colour a key that is not in use', async () => {
+        image_gen_stub.brand_kit.set({
+            palette: { primary: '#111111', secondary: '#222222' },
+        });
+        const component = await make();
+        await component.ngOnInit();
+
+        component.addColour();
+        await component.save();
+
+        expect(image_gen_stub.saveBrandKit).toHaveBeenCalledWith(
+            expect.objectContaining({
+                palette: {
+                    primary: '#111111',
+                    secondary: '#222222',
+                    accent: '#1B2420',
+                },
+            }),
+        );
     });
 });

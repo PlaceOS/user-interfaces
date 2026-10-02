@@ -1,19 +1,25 @@
 import {
-    errorMessage,
+    actionError,
     errorStatus,
     orientationOf,
     perceivedLightness,
+    UserFacingError,
 } from '../../app/image-gen/image-gen.util';
 
 describe('image generation utilities', () => {
-    it('reads nested API errors without returning an object', () => {
+    it('names the action rather than a raw error, unless written for people', () => {
         expect(
-            errorMessage(
-                { error: { error: 'Provider rejected the request' } },
-                'Fallback',
+            actionError(
+                new Error('Creating upload for a.png failed with status 500'),
+                'The image could not be attached',
             ),
-        ).toBe('Provider rejected the request');
-        expect(errorMessage({ error: {} }, 'Fallback')).toBe('Fallback');
+        ).toBe('The image could not be attached');
+        expect(
+            actionError(
+                new UserFacingError('This domain has no organisation zone'),
+                'The logo could not be saved',
+            ),
+        ).toBe('This domain has no organisation zone');
     });
 
     it('reads direct and wrapped HTTP status codes', () => {

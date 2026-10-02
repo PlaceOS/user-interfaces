@@ -1,10 +1,12 @@
 import {
     Component,
     computed,
+    effect,
     inject,
     linkedSignal,
     OnDestroy,
     signal,
+    untracked,
     viewChild,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -29,6 +31,7 @@ import {
 } from '@placeos/components';
 import { SignageMedia } from '@placeos/ts-client';
 
+import { brandEditingOn, canEditBrandKit } from '../branding/brand-access';
 import { SignageMediaService } from '../media/signage-media.service';
 import { SignagePlaylistService } from '../playlists/signage-playlist.service';
 import { SignageContextService } from '../signage-context.service';
@@ -38,7 +41,7 @@ import {
 } from './image-gen-layer-controls.component';
 import { ImageGenLayerComponent } from './image-gen-layer.component';
 import { ImageGenReferencesComponent } from './image-gen-references.component';
-import { ImageGenService, isFinal, MAX_JOB_WAIT_MS } from './image-gen.service';
+import { ImageGenService, isFinal } from './image-gen.service';
 import {
     ImageGenEditRequest,
     ImageGenGenerateRequest,
@@ -46,7 +49,7 @@ import {
     ImageGenLayerState,
     ImageGenReference,
 } from './image-gen.types';
-import { errorMessage, orientationOf } from './image-gen.util';
+import { actionError, orientationOf } from './image-gen.util';
 
 export interface ImageGenModalData {
     /** pre-set from the playlist a user opened this from */
@@ -106,6 +109,10 @@ interface Candidate {
                                 (changed)="layer_state.set($event)"
                                 (failed)="onArtworkFailed()"
                             ></image-gen-layer>
+                        } @else if (selected()) {
+                            <!-- the pick is still being read; the source
+                                 image here would look like the result -->
+                            <mat-spinner diameter="32"></mat-spinner>
                         } @else if (source_url()) {
                             <img
                                 auth
@@ -164,7 +171,7 @@ interface Candidate {
                                 ) {
                                     <button
                                         type="button"
-                                        [disabled]="claim_pending()"
+                                        [disabled]="claim_pending() || saving()"
                                         class="border-base-content/10 h-16 w-28 shrink-0 overflow-hidden rounded border"
                                         [class.ring-2]="
                                             selected()?.upload_id ===
@@ -364,7 +371,8 @@ interface Candidate {
                                             !refinement().trim() ||
                                             !selected() ||
                                             state() === 'generating' ||
-                                            claim_pending()
+                                            claim_pending() ||
+                                            saving()
                                         "
                                         (click)="refine()"
                                     >
@@ -413,6 +421,7 @@ interface Candidate {
                                     [logo_on_dark]="logo_on_dark()"
                                     [brand]="applied_brand()"
                                     [can_set_logo]="can_set_logo()"
+                                    [branding_editing]="branding_editing()"
                                     [uploading]="uploading_logo()"
                                     (changed)="layer_state.set($event)"
                                     (logoPicked)="uploadLogo($event)"
@@ -461,7 +470,7 @@ interface Candidate {
                                 btn
                                 matRipple
                                 class="flex min-w-32 items-center justify-center gap-2"
-                                [disabled]="!selected() || saving()"
+                                [disabled]="!can_save()"
                                 (click)="save()"
                             >
                                 @if (saving()) {
@@ -585,10 +594,20 @@ export class ImageGenModalComponent implements OnDestroy {
         return style ? [style] : [];
     });
     public readonly claim_pending = signal(false);
+    /** only a pick that has loaded, so the person has seen what is saved */
+    public readonly can_save = computed(
+        () => !!this.selected_object_url() && !this.saving(),
+    );
 
     public readonly brand = this._image_gen.brand_kit;
 
-    public readonly can_set_logo = this._context.is_sys_admin;
+    /** the same rule as the branding page, as this writes the same kit */
+    public readonly can_set_logo = computed(() =>
+        canEditBrandKit(this._context),
+    );
+    public readonly branding_editing = computed(() =>
+        brandEditingOn(this._context),
+    );
 
     public readonly group_id = computed(
         () => this._context.selected_group()?.group.id || undefined,
@@ -773,10 +792,12 @@ export class ImageGenModalComponent implements OnDestroy {
             }
             this._follow(job, token);
         } catch (error) {
+            // closed while waiting, and no job will read the images now
+            if (this._closed) return this._removeReferences();
             if (token !== this._job_token) return;
             this.state.set('compose');
             notifyError(
-                errorMessage(
+                actionError(
                     error,
                     i18n('SIGNAGE_MANAGER.IMAGE_GEN_JOB_FAILED'),
                 ),
@@ -809,10 +830,12 @@ export class ImageGenModalComponent implements OnDestroy {
             });
             this._follow(job, token);
         } catch (error) {
+            // closed while waiting, and no job will read the images now
+            if (this._closed) return this._removeReferences();
             if (token !== this._job_token) return;
             this.state.set('review');
             notifyError(
-                errorMessage(
+                actionError(
                     error,
                     i18n('SIGNAGE_MANAGER.IMAGE_GEN_JOB_FAILED'),
                 ),
@@ -822,13 +845,15 @@ export class ImageGenModalComponent implements OnDestroy {
 
     private _select_token = 0;
 
+    /** the pick could not be read, so it is let go rather than saved unseen */
     public onArtworkFailed() {
+        this.selected.set(null);
         this.selected_object_url.set('');
         notifyError(i18n('SIGNAGE_MANAGER.IMAGE_GEN_IMAGE_UNREADABLE'));
     }
 
     public async select(candidate: Candidate) {
-        if (this.claim_pending()) return;
+        if (this.claim_pending() || this.saving()) return;
         const token = ++this._select_token;
         this.selected.set(candidate);
         this.selected_object_url.set('');
@@ -836,6 +861,7 @@ export class ImageGenModalComponent implements OnDestroy {
             .loadImage(candidate.url)
             .catch(() => '');
         if (token !== this._select_token) return;
+        if (!url) return this.onArtworkFailed();
         this.selected_object_url.set(url);
     }
 
@@ -923,9 +949,9 @@ export class ImageGenModalComponent implements OnDestroy {
             }
         } catch (error) {
             notifyError(
-                errorMessage(
+                actionError(
                     error,
-                    i18n('SIGNAGE_MANAGER.IMAGE_GEN_JOB_FAILED'),
+                    i18n('SIGNAGE_MANAGER.IMAGE_GEN_REFERENCE_UPLOAD_FAILED'),
                 ),
             );
         } finally {
@@ -949,13 +975,26 @@ export class ImageGenModalComponent implements OnDestroy {
         this._closed = true;
         this._stopAwaiting();
 
-        const running = this.state() === 'generating';
-        for (const item of this.references()) {
-            URL.revokeObjectURL(item.url);
-            // a running job reads the reference bytes server side, so those are
-            // left for the housekeeping sweep to clear
-            if (!running) this._image_gen.removeReference(item.id);
+        for (const id of this.job_ids()) {
+            this._image_gen.setJobOnScreen(id, false);
         }
+        for (const item of this.references()) URL.revokeObjectURL(item.url);
+        if (this.state() !== 'generating') return this._removeReferences();
+        // nothing can show the result once this closes, so stop the job
+        // rather than spend the quota on images no one can reach. A request
+        // the server has not answered yet is dealt with by _follow, or by
+        // start and refine if it fails.
+        const job = this._image_gen.jobs()[this.current_job_id()];
+        if (job && !isFinal(job)) {
+            this._image_gen.abandon(job.id, this.reference_ids());
+        }
+    }
+
+    /** nothing sends the attached images again, so their uploads can go */
+    private _removeReferences() {
+        this.reference_ids().forEach((id) =>
+            this._image_gen.removeReference(id),
+        );
     }
 
     public async uploadLogo(file: File) {
@@ -968,9 +1007,9 @@ export class ImageGenModalComponent implements OnDestroy {
             notifySuccess(i18n('SIGNAGE_MANAGER.IMAGE_GEN_LOGO_SAVED'));
         } catch (error) {
             notifyError(
-                errorMessage(
+                actionError(
                     error,
-                    i18n('SIGNAGE_MANAGER.IMAGE_GEN_JOB_FAILED'),
+                    i18n('SIGNAGE_MANAGER.IMAGE_GEN_LOGO_SAVE_FAILED'),
                 ),
             );
         } finally {
@@ -980,21 +1019,22 @@ export class ImageGenModalComponent implements OnDestroy {
 
     public async save() {
         const candidate = this.selected();
-        if (!candidate) return;
+        if (!candidate || !this.can_save()) return;
 
-        // Take the composited image before the button swaps to a spinner. A
-        // retry reuses the row the last attempt made, so needs no image.
-        const name = this._name();
-        const overlay = !this._pending && this.has_overlay();
-        const blob = overlay ? await this._layer()?.toBlob() : undefined;
-        if (overlay && !blob) {
-            notifyError(i18n('SIGNAGE_MANAGER.IMAGE_GEN_NO_IMAGE'));
-            return;
-        }
-
+        // set before the image is taken, so a second click cannot start a
+        // second save while the canvas is encoded
         this.saving.set(true);
         this._dialog_ref.disableClose = true;
         try {
+            // A retry reuses the row the last attempt made, so needs no image.
+            const name = this._name();
+            const overlay = !this._pending && this.has_overlay();
+            const blob = overlay ? await this._layer()?.toBlob() : undefined;
+            if (overlay && !blob) {
+                notifyError(i18n('SIGNAGE_MANAGER.IMAGE_GEN_NO_IMAGE'));
+                return;
+            }
+
             let pending = this._pending;
             if (!pending) {
                 const media = blob
@@ -1070,9 +1110,9 @@ export class ImageGenModalComponent implements OnDestroy {
             this._dialog_ref.close(media);
         } catch (error) {
             notifyError(
-                errorMessage(
+                actionError(
                     error,
-                    i18n('SIGNAGE_MANAGER.IMAGE_GEN_JOB_FAILED'),
+                    i18n('SIGNAGE_MANAGER.IMAGE_GEN_SAVE_FAILED'),
                 ),
             );
         } finally {
@@ -1087,63 +1127,60 @@ export class ImageGenModalComponent implements OnDestroy {
      * it rather than making a second. While it is set the pick is locked.
      */
     private _pending: { media: SignageMedia; claimed: boolean } | undefined;
-    private _await_timer: ReturnType<typeof setTimeout> | null = null;
     /** bumped to stop whichever job the modal was following */
     private _job_token = 0;
     private _logo_defaulted = false;
+    /** the job the modal waits on, empty once it ends or is let go */
+    private readonly _awaiting = signal('');
+
+    constructor() {
+        // the service polls the job, and marks it failed if it runs too long
+        effect(() => {
+            const id = this._awaiting();
+            const job = id ? this._image_gen.jobs()[id] : undefined;
+            if (job && isFinal(job)) untracked(() => this._finish(job));
+        });
+    }
 
     /** follow a job the server accepted, unless it was cancelled on the way */
     private _follow(job: ImageGenJob, token: number) {
-        if (this._closed) return;
-        if (token !== this._job_token) {
-            this._image_gen.cancel(job.id);
+        if (this._closed || token !== this._job_token) {
+            this._image_gen.abandon(
+                job.id,
+                this._closed ? this.reference_ids() : [],
+            );
             return;
         }
         this.job_ids.update((ids) => [...ids, job.id]);
+        // the modal shows the result, so the service need not announce it
+        this._image_gen.setJobOnScreen(job.id, true);
         this._awaitJob(job.id);
     }
 
     private _stopAwaiting() {
         this._job_token++;
-        if (this._await_timer) clearTimeout(this._await_timer);
-        this._await_timer = null;
+        this._awaiting.set('');
     }
 
-    /** poll until the job reaches a final state, then move on */
+    /** wait for the job to reach a final state, then move on */
     private _awaitJob(id: string) {
         this._stopAwaiting();
-        const token = this._job_token;
-        const deadline = Date.now() + MAX_JOB_WAIT_MS;
-        const check = () => {
-            this._await_timer = null;
-            if (this._closed || token !== this._job_token) return;
-            const job = this._image_gen.jobs()[id];
-            if (!job || !isFinal(job)) {
-                if (Date.now() >= deadline) {
-                    this._image_gen.unwatch(id);
-                    this.state.set(this.rail().length ? 'review' : 'compose');
-                    notifyError(i18n('SIGNAGE_MANAGER.IMAGE_GEN_JOB_FAILED'));
-                    return;
-                }
-                this._await_timer = setTimeout(check, 250);
-                return;
-            }
-            if (job.state === 'failed') {
-                this.state.set(this.rail().length ? 'review' : 'compose');
-                return;
-            }
-            if (job.state === 'cancelled') {
-                this.state.set(this.rail().length ? 'review' : 'compose');
-                return;
-            }
-            const newest = this.rail().filter(
-                (candidate) => candidate.job_id === id,
-            );
-            if (newest.length) this.select(newest[0]);
-            this._loadBrandLogos();
-            this.state.set('review');
-        };
-        check();
+        this._awaiting.set(id);
+    }
+
+    private _finish(job: ImageGenJob) {
+        this._awaiting.set('');
+        if (this._closed) return;
+        if (job.state !== 'done') {
+            this.state.set(this.rail().length ? 'review' : 'compose');
+            return;
+        }
+        const newest = this.rail().find(
+            (candidate) => candidate.job_id === job.id,
+        );
+        if (newest) this.select(newest);
+        this._loadBrandLogos();
+        this.state.set('review');
     }
 
     /** both saved logos, so the toggle in the sidebar has something to show */

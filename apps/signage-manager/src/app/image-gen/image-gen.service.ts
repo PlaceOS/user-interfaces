@@ -28,7 +28,7 @@ import {
     ImageGenJob,
     ImageGenLogoSlot,
 } from './image-gen.types';
-import { errorStatus } from './image-gen.util';
+import { errorStatus, UserFacingError } from './image-gen.util';
 
 const FINAL_STATES = ['done', 'failed', 'cancelled'];
 
@@ -166,6 +166,9 @@ export class ImageGenService extends AsyncHandler {
         file: File,
         derive_other = false,
     ): Promise<ImageGenBrandKit> {
+        // checked before uploading, so a kit that cannot be saved leaves no
+        // stray uploads behind
+        this._assertBrandKitWritable();
         const upload_id = await this._uploads.uploadFileToCompletion(file);
         const changes: Partial<ImageGenBrandKit> = {
             [logoKey(slot)]: upload_id,
@@ -196,12 +199,15 @@ export class ImageGenService extends AsyncHandler {
     public async deriveBrandLogo(
         target: ImageGenLogoSlot,
     ): Promise<ImageGenBrandKit> {
+        this._assertBrandKitWritable();
         const source_id =
             this.brand_kit()?.[
                 logoKey(target === 'on_light' ? 'on_dark' : 'on_light')
             ];
         if (!source_id)
-            throw new Error(i18n('SIGNAGE_MANAGER.IMAGE_GEN_NO_LOGO_YET'));
+            throw new UserFacingError(
+                i18n('SIGNAGE_MANAGER.IMAGE_GEN_NO_LOGO_YET'),
+            );
         const url = await this.loadImage(
             `/api/engine/v2/uploads/${encodeURIComponent(source_id)}/url`,
         );
@@ -239,20 +245,30 @@ export class ImageGenService extends AsyncHandler {
         return removeSignageUpload(id).catch(() => null);
     }
 
+    /** the last brand kit write, so the next one waits for it */
+    private _kit_write: Promise<unknown> = Promise.resolve();
+
     /**
-     * Merge changes into the domain's brand kit.
+     * Merge changes into the domain's brand kit. Writes run one at a time:
+     * each replaces the whole kit, so two at once would lose one's changes.
      */
-    public async saveBrandKit(
+    public saveBrandKit(
         changes: Partial<ImageGenBrandKit>,
     ): Promise<ImageGenBrandKit> {
-        if (!this._org_zone) {
-            throw new Error(i18n('SIGNAGE_MANAGER.IMAGE_GEN_NO_ORG_ZONE'));
-        }
-        if (this.brand_kit_read() !== 'ok') {
-            throw new Error(i18n('SIGNAGE_MANAGER.BRAND_NOT_LOADED'));
-        }
-        const details = { ...(this.brand_kit() || {}), ...changes };
-        for (const key of Object.keys(details)) {
+        const write = this._kit_write.then(() => this._writeBrandKit(changes));
+        this._kit_write = write.catch(() => null);
+        return write;
+    }
+
+    private async _writeBrandKit(
+        changes: Partial<ImageGenBrandKit>,
+    ): Promise<ImageGenBrandKit> {
+        this._assertBrandKitWritable();
+        const details: ImageGenBrandKit = {
+            ...(this.brand_kit() || {}),
+            ...changes,
+        };
+        for (const key of Object.keys(details) as (keyof ImageGenBrandKit)[]) {
             if (details[key] === undefined) delete details[key];
         }
 
@@ -270,6 +286,18 @@ export class ImageGenService extends AsyncHandler {
 
         this.brand_kit.set(details);
         return details;
+    }
+
+    /** a save needs the organisation zone and the stored kit to merge into */
+    private _assertBrandKitWritable() {
+        if (!this._org_zone) {
+            throw new UserFacingError(
+                i18n('SIGNAGE_MANAGER.IMAGE_GEN_NO_ORG_ZONE'),
+            );
+        }
+        if (this.brand_kit_read() !== 'ok') {
+            throw new UserFacingError(i18n('SIGNAGE_MANAGER.BRAND_NOT_LOADED'));
+        }
     }
 
     /** re-read the kit, for a page opened before start up finished */
@@ -358,6 +386,30 @@ export class ImageGenService extends AsyncHandler {
         return job;
     }
 
+    /** jobs no screen will show, to the references to clear once each ends */
+    private readonly _abandoned = new Map<string, string[]>();
+
+    /**
+     * Stop a job no screen will show. It ends without a notice, and its
+     * references are cleared once it has stopped. If the server refuses to
+     * cancel, the job stays watched so the clean up still happens when it ends.
+     */
+    public async abandon(id: string, reference_ids: string[]) {
+        this._abandoned.set(id, reference_ids);
+        const job = await this.cancel(id);
+        if (!isFinal(job) || !this._abandoned.has(id)) return;
+        this.unwatch(id);
+        this._ended(job);
+    }
+
+    /** a job reached its end: tell the person, or clear what it was left */
+    private _ended(job: ImageGenJob) {
+        const references = this._abandoned.get(job.id);
+        if (!references) return this._announce(job);
+        this._abandoned.delete(job.id);
+        references.forEach((id) => this.removeReference(id));
+    }
+
     public async claim(id: string, upload_id: string, item_id: string) {
         let last_error: unknown;
         for (const delay of CLAIM_RETRY_DELAYS) {
@@ -414,6 +466,8 @@ export class ImageGenService extends AsyncHandler {
                 wait: POLL_WAIT,
                 since: known,
             }).catch((error: unknown) => ({ error }));
+        // unwatched while this check was waiting on the server
+        if (!this._watching.has(id)) return;
 
         if ('error' in result) {
             const status = errorStatus(result.error);
@@ -434,7 +488,7 @@ export class ImageGenService extends AsyncHandler {
 
         if (isFinal(job)) {
             this.unwatch(id);
-            this._announce(job);
+            this._ended(job);
             this.refreshQuota();
             return;
         }
@@ -456,14 +510,30 @@ export class ImageGenService extends AsyncHandler {
         }
     }
 
-    /** told once, when a job the user may no longer be watching finishes */
+    /** jobs a screen is showing, so their results need no notice */
+    private readonly _on_screen = new Set<string>();
+
+    /** mark a job as shown, or no longer shown, by an open screen */
+    public setJobOnScreen(id: string, on_screen: boolean) {
+        if (on_screen) this._on_screen.add(id);
+        else this._on_screen.delete(id);
+    }
+
+    /**
+     * Told once, when a job the user may no longer be watching finishes. A
+     * failure is always told, as the screen showing it does not say why.
+     */
     private _announce(job: ImageGenJob) {
         if (job.state === 'failed') {
             notifyError(
                 job.error_message ||
                     i18n('SIGNAGE_MANAGER.IMAGE_GEN_JOB_FAILED'),
             );
-        } else if (job.state === 'done' && job.images_produced > 0) {
+        } else if (
+            job.state === 'done' &&
+            job.images_produced > 0 &&
+            !this._on_screen.has(job.id)
+        ) {
             notifyInfo(i18n('SIGNAGE_MANAGER.IMAGE_GEN_JOB_DONE'));
         }
     }
@@ -478,7 +548,7 @@ export class ImageGenService extends AsyncHandler {
             error_message: i18n('SIGNAGE_MANAGER.IMAGE_GEN_JOB_FAILED'),
         };
         this._merge([failed]);
-        this._announce(failed);
+        this._ended(failed);
     }
 
     private _merge(jobs: ImageGenJob[]) {
