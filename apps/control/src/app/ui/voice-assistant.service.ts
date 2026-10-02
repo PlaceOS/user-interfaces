@@ -1,4 +1,11 @@
-import { Injectable, computed, effect, inject, signal } from '@angular/core';
+import {
+    Injectable,
+    computed,
+    effect,
+    inject,
+    signal,
+    untracked,
+} from '@angular/core';
 import { AsyncHandler, currentUser, log, randomInt } from '@placeos/common';
 
 import { ChatService } from '@placeos/components';
@@ -49,6 +56,7 @@ interface SpeechRecognitionInstance {
     onend: (() => void) | null;
     start(): void;
     stop(): void;
+    abort(): void;
 }
 type SpeechRecognitionConstructor = new () => SpeechRecognitionInstance;
 type SpeechWindow = Window & {
@@ -104,9 +112,18 @@ export class VoiceAssistantService extends AsyncHandler {
 
     constructor() {
         super();
+        let bound_id = '';
         effect(() => {
             const id = this._system_id();
-            if (id) this._chat_service.setBinding(id);
+            if (!id || id === bound_id) return;
+            // Drop the chat and any pending command for the previous room,
+            // so commands only go to this one
+            if (bound_id) {
+                untracked(() => this._setIdle());
+                this._chat_service.close();
+            }
+            bound_id = id;
+            this._chat_service.setBinding(id);
         });
         effect(() => {
             const user_id = currentUser()?.id;
@@ -135,6 +152,7 @@ export class VoiceAssistantService extends AsyncHandler {
     }
 
     protected override destroy() {
+        this._teardownVoiceRecognition();
         this._mic_levels.close();
         super.destroy();
     }
@@ -144,8 +162,15 @@ export class VoiceAssistantService extends AsyncHandler {
         return this._mic_levels.read();
     }
 
+    /** Turning on is debounced. Turning off is immediate, so nothing is heard after the view goes away. */
     public setEnabled(is_enabled: boolean) {
-        this.timeout('set_enabled', () => this._enabled.set(is_enabled));
+        if (is_enabled) {
+            this.timeout('set_enabled', () => this._enabled.set(true));
+            return;
+        }
+        this.clearTimeout('set_enabled');
+        this._enabled.set(false);
+        this._teardownVoiceRecognition();
     }
 
     public setBinding(system_id: string) {
@@ -186,7 +211,20 @@ export class VoiceAssistantService extends AsyncHandler {
         const SpeechRecognition =
             speech_window.SpeechRecognition ||
             speech_window.webkitSpeechRecognition;
-        if (!SpeechRecognition || this._user_speech) return;
+        if (this._user_speech) return;
+        if (!SpeechRecognition) {
+            log(
+                'VOICE',
+                'Speech recognition is unavailable.',
+                undefined,
+                'warn',
+            );
+            this._error.update((error) => ({
+                ...error,
+                speech_recognition: true,
+            }));
+            return;
+        }
         log('VOICE', 'Initialising speech recognition.');
         // Load the voice list early. Some browsers load it asynchronously.
         window.speechSynthesis?.getVoices();
@@ -261,8 +299,12 @@ export class VoiceAssistantService extends AsyncHandler {
         this._setIdle();
         const speech = this._user_speech;
         if (!speech) return;
+        // Detach handlers first. `abort` drops any pending result, so no
+        // command is sent after voice control is turned off.
+        speech.onresult = null;
+        speech.onerror = null;
         speech.onend = null;
-        speech.stop();
+        speech.abort();
         this._user_speech = undefined;
     }
 

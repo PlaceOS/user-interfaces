@@ -121,4 +121,15 @@ describe('JoystickComponent', () => {
         spectator.fixture.destroy();
         expect(tilt).toHaveBeenLastCalledWith(JoystickTilt.Stop);
     });
+
+    it('should not move when pressed near the centre', () => {
+        const pan = vi.fn();
+        spectator.output('panChange').subscribe(pan);
+        pointer('pointerdown', 100, 100);
+        expect(spectator.component.pan()).toBe(JoystickPan.Stop);
+        expect(spectator.component.tilt()).toBe(JoystickTilt.Stop);
+        expect(pan).not.toHaveBeenCalled();
+        pointer('pointermove', 0, 96);
+        expect(spectator.component.pan()).toBe(JoystickPan.Left);
+    });
 });

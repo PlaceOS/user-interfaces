@@ -49,7 +49,7 @@ import { ControlStateService, RoomInput } from '../control-state.service';
                                         source
                                         class="w-48"
                                         [class.inverse]="
-                                            input.id === details()?.source
+                                            input.id !== details()?.source
                                         "
                                         (click)="selectSource(input)"
                                     >

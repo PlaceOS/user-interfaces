@@ -10,6 +10,9 @@ import {
 } from '@angular/core';
 import { IconComponent } from '@placeos/components';
 
+/** Distance from the centre, as a fraction of the radius, that does not move the camera */
+const DEAD_ZONE = 0.25;
+
 export enum JoystickTilt {
     Down = 'down',
     Up = 'up',
@@ -120,17 +123,24 @@ export class JoystickComponent implements OnDestroy {
 
     public handlePan(event: PointerEvent) {
         if (!this._box) return;
-        const point = { x: event.clientX, y: event.clientY };
-        const box_point = {
-            y: this._box.top + this._box.height / 2,
-            x: this._box.left + this._box.width / 2,
-        };
-        const angle =
-            (Math.atan2(point.y - box_point.y, point.x - box_point.x) * 180) /
-            Math.PI;
-        const { tilt: tiltInput, pan: panInput } = this;
-        const tilt = tiltInput();
-        const pan = panInput();
+        const dx = event.clientX - (this._box.left + this._box.width / 2);
+        const dy = event.clientY - (this._box.top + this._box.height / 2);
+        const tilt = this.tilt();
+        const pan = this.pan();
+        if (Math.hypot(dx, dy) < (this._box.width / 2) * DEAD_ZONE) {
+            this.tilt.set(JoystickTilt.Stop);
+            this.pan.set(JoystickPan.Stop);
+        } else {
+            this._setDirection((Math.atan2(dy, dx) * 180) / Math.PI);
+        }
+        const tiltValue = this.tilt();
+        if (tilt !== tiltValue) this.tiltChange.emit(tiltValue);
+        const panValue = this.pan();
+        if (pan !== panValue) this.panChange.emit(panValue);
+    }
+
+    /** Set pan and tilt from an angle in degrees, where 0 is right and 90 is down */
+    private _setDirection(angle: number) {
         this.tilt.set(
             angle >= 150 || angle <= -150 || (angle > -30 && angle < 30)
                 ? JoystickTilt.Stop
@@ -145,10 +155,6 @@ export class JoystickComponent implements OnDestroy {
                   ? JoystickPan.Left
                   : JoystickPan.Right,
         );
-        const tiltValue = this.tilt();
-        if (tilt !== tiltValue) this.tiltChange.emit(tiltValue);
-        const panValue = this.pan();
-        if (pan !== panValue) this.panChange.emit(panValue);
     }
 
     /** Never leave a camera moving when the joystick is removed mid-gesture */

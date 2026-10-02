@@ -128,4 +128,15 @@ describe('ControlTabbedViewComponent', () => {
         spectator.click('[name="splash"] button');
         expect(service.powerOn).not.toHaveBeenCalled();
     });
+
+    it('should open the meeting list once and clear the join parameter', () => {
+        const service: any = spectator.inject(ControlStateService);
+        spectator.setRouteQueryParam('join', 'true');
+        spectator.detectChanges();
+        expect(service.selectMeeting).toHaveBeenCalledTimes(1);
+        expect(spectator.router.navigate).toHaveBeenCalledWith(
+            [],
+            expect.objectContaining({ queryParams: { join: null } }),
+        );
+    });
 });

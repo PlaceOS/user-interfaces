@@ -24,14 +24,14 @@ import { TVControlsComponent } from './tv-controls.component';
     template: `
         <i
             binding
-            [sys]="id"
+            [sys]="id()"
             mod="HearingAugmentation"
             bind="join_code"
             [(model)]="join_code"
         ></i>
         <i
             binding
-            [sys]="id"
+            [sys]="id()"
             mod="HearingAugmentation"
             bind="has_t_coil"
             [(model)]="hearing_tloop"
@@ -45,8 +45,18 @@ import { TVControlsComponent } from './tv-controls.component';
                     <a
                         matRipple
                         class="bg-base-100 text-base-content mx-1 flex h-24 w-32 flex-col items-center justify-center overflow-hidden rounded-t rounded-b-none leading-tight opacity-60 shadow-sm"
-                        [routerLink]="['/tabbed', id, tab.id || tab.name]"
-                        routerLinkActive="opacity-100! text-secondary!"
+                        [routerLink]="['/tabbed', id(), tab.id || tab.name]"
+                        [class.opacity-100!]="
+                            (tab.id || tab.name) === active_tab()
+                        "
+                        [class.text-secondary!]="
+                            (tab.id || tab.name) === active_tab()
+                        "
+                        [attr.aria-current]="
+                            (tab.id || tab.name) === active_tab()
+                                ? 'page'
+                                : null
+                        "
                         queryParamsHandling="merge"
                         (click)="onAction()"
                     >
@@ -60,7 +70,7 @@ import { TVControlsComponent } from './tv-controls.component';
                 }
                 <div class="absolute top-0 right-0 bottom-2 flex space-x-2">
                     <voice-assistant
-                        [system_id]="id"
+                        [system_id]="id()"
                         [enabled]="system()?.voice_control"
                     ></voice-assistant>
                     @if (join_code) {
@@ -255,8 +265,7 @@ export class TabOutletComponent extends AsyncHandler {
     private _router = inject(Router);
 
     public hearing_tloop = false;
-    public readonly id = this._service.id;
-    public readonly active_tab = signal('');
+    public readonly id = this._service.system_id;
     public readonly hide_present_all = this._service.hide_present_all;
     public readonly outputs = this._service.output_list;
     /** Whether any visible output has a source routed to it */
@@ -283,6 +292,17 @@ export class TabOutletComponent extends AsyncHandler {
         );
     });
 
+    /** Route tab, then the driver's selected tab, then the first tab */
+    public readonly active_tab = computed(() => {
+        const first = this.tabs()[0];
+        return (
+            this._route_tab() ||
+            this._selected_tab() ||
+            first?.id ||
+            first?.name ||
+            ''
+        );
+    });
     private _user_action = signal(false);
     /** Driver's selected tab. A separate computed so other system changes do not re-run the tab sync. */
     private _selected_tab = computed(() => this.system()?.selected_tab);
@@ -306,18 +326,13 @@ export class TabOutletComponent extends AsyncHandler {
     constructor() {
         super();
         effect(() => {
-            const tab = this._route_tab();
-            if (tab) this.active_tab.set(tab);
-        });
-        effect(() => {
             const selected_tab = this._selected_tab();
             this.timeout(
                 'update_tab',
                 () => {
                     if (selected_tab) {
-                        this.active_tab.set(selected_tab);
                         this._router.navigate(
-                            ['/tabbed', this.id, selected_tab],
+                            ['/tabbed', this.id(), selected_tab],
                             {
                                 queryParamsHandling: 'merge',
                             },
@@ -331,7 +346,7 @@ export class TabOutletComponent extends AsyncHandler {
             const available_inputs = this._available_inputs();
             const tabs = this.tabs();
             const selected_input = this.system()?.selected_input;
-            const active_tab = this._route_tab();
+            const active_tab = this.active_tab();
             const user_action = this._user_action();
             this.timeout(
                 'inputs',

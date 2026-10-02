@@ -6,11 +6,12 @@ import {
     signal,
     Signal,
 } from '@angular/core';
-import { AsyncHandler } from '@placeos/common';
+import { AsyncHandler, i18n, notifyError } from '@placeos/common';
 import { getModule } from '@placeos/ts-client';
 import { ControlStateService } from '../control-state.service';
 
 export type VideoLayout = 'Auto' | 'Equal' | 'Overlay' | 'Prominent' | 'Single';
+export type PresentationMode = 'None' | 'Local' | 'Remote';
 export type CallStatus =
     | 'Idle'
     | 'Dialling'
@@ -29,7 +30,7 @@ export interface VideoCallDetails {
     CallbackNumber: string;
     DeviceType: string;
     Direction: string;
-    DisplayName: number;
+    DisplayName: string;
     Duration: number;
     'Encryption/Type': string;
     FacilityServiceId: number;
@@ -66,18 +67,11 @@ export class VideoCallStateService extends AsyncHandler {
         }
         return null;
     });
-    public readonly mic_mute = this._bindTo<VideoCallDetails | null>(
-        'mic_mute',
-    );
-    public readonly presentation_mode = this._bindTo<VideoCallDetails | null>(
-        'presentation_mode',
-    );
-    public readonly video_layout = this._bindTo<VideoCallDetails | null>(
-        'video_layout',
-    );
-    public readonly show_camera_pip = this._bindTo<VideoCallDetails | null>(
-        'selfview',
-    );
+    public readonly mic_mute = this._bindTo<boolean>('mic_mute');
+    public readonly presentation_mode =
+        this._bindTo<PresentationMode>('presentation_mode');
+    public readonly video_layout = this._bindTo<VideoLayout>('video_layout');
+    public readonly show_camera_pip = this._bindTo<boolean>('selfview');
     private readonly _speaker_track =
         this._bindTo<Record<string, boolean>>('speaker_track');
     public readonly speaker_track = computed(
@@ -87,28 +81,20 @@ export class VideoCallStateService extends AsyncHandler {
             ],
     );
 
-    public async showCameraPIP(state: boolean) {
-        const id = this._control.id;
-        if (!id) return;
-        return getModule(id, 'VidConf').execute('show_camera_pip', [state]);
+    public showCameraPIP(state: boolean) {
+        return this._exec('show_camera_pip', [state]);
     }
 
-    public async muteMicrophone(state: boolean) {
-        const id = this._control.id;
-        if (!id) return;
-        return getModule(id, 'VidConf').execute('mic_mute', [state]);
+    public muteMicrophone(state: boolean) {
+        return this._exec('mic_mute', [state]);
     }
 
-    public async setVideoLayout(layout: VideoLayout) {
-        const id = this._control.id;
-        if (!id) return;
-        return getModule(id, 'VidConf').execute('video_layout', [layout]);
+    public setVideoLayout(layout: VideoLayout) {
+        return this._exec('video_layout', [layout]);
     }
 
-    public async setPresentationMode(mod: 'None' | 'Local' | 'Remote') {
-        const id = this._control.id;
-        if (!id) return;
-        return getModule(id, 'VidConf').execute('presentation_mode', [mod]);
+    public setPresentationMode(mode: PresentationMode) {
+        return this._exec('presentation_mode', [mode]);
     }
 
     public async hangup() {
@@ -117,21 +103,27 @@ export class VideoCallStateService extends AsyncHandler {
         return getModule(id, 'VidConf').execute('hangup', []);
     }
 
-    public async sendDTMF(digit: string) {
-        const id = this._control.id;
-        if (!id) return;
-        return getModule(id, 'VidConf').execute('dtmf_send', [digit]);
+    public sendDTMF(digit: string) {
+        return this._exec('dtmf_send', [digit]);
     }
 
-    public async toggleCallOnHold() {
-        const id = this._control.id;
-        if (!id) return;
+    public toggleCallOnHold() {
         const call = this.call();
         if (!call) return;
-        return getModule(id, 'VidConf').execute(
+        return this._exec(
             call.Status === 'OnHold' ? 'call_resume' : 'call_place_on_hold',
-            [],
         );
+    }
+
+    /** Run a VidConf method. Shows an error and resolves when it fails. */
+    private async _exec(method: string, args: unknown[] = []) {
+        const id = this._control.id;
+        if (!id) return;
+        try {
+            return await getModule(id, 'VidConf').execute(method, args);
+        } catch (error) {
+            notifyError(i18n('APP.CONTROL.VC_COMMAND_ERROR', { error }));
+        }
     }
 
     /**

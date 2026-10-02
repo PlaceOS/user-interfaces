@@ -25,7 +25,11 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
 import { getModule } from '@placeos/ts-client';
 import { ControlStateService } from '../control-state.service';
 import { DialpadComponent } from '../ui/dialpad.component';
-import { VideoCallStateService, VideoLayout } from './video-call-state.service';
+import {
+    PresentationMode,
+    VideoCallStateService,
+    VideoLayout,
+} from './video-call-state.service';
 
 @Component({
     selector: '[video-call-page]',
@@ -252,12 +256,8 @@ export class VideoCallPageComponent extends AsyncHandler implements OnInit {
     public readonly show_camera_pip = computed(() => !!this._show_camera_pip());
     private readonly _mic_mute = this._state.mic_mute;
     public readonly mic_mute = computed(() => !!this._mic_mute());
-    public readonly video_layout = computed<VideoLayout | null>(
-        () => this._state.video_layout() as never,
-    );
-    public readonly presentation_mode = computed<
-        'None' | 'Local' | 'Remote' | null
-    >(() => this._state.presentation_mode() as never);
+    public readonly video_layout = this._state.video_layout;
+    public readonly presentation_mode = this._state.presentation_mode;
     public readonly presentables = this._control.presentables;
     /** List of available cameras to select from */
     public readonly camera_list = this._control.camera_list;
@@ -274,9 +274,10 @@ export class VideoCallPageComponent extends AsyncHandler implements OnInit {
     public readonly sentDTMF = (d) => this._state.sendDTMF(d);
     public readonly setPresentationSource = (i) =>
         this._control.setRoute(i.id, this.present_output(), false);
-    public readonly setPresentationMode = (d) =>
+    public readonly setPresentationMode = (d: PresentationMode) =>
         this._state.setPresentationMode(d);
-    public readonly setVideoLayout = (d) => this._state.setVideoLayout(d);
+    public readonly setVideoLayout = (d: VideoLayout) =>
+        this._state.setVideoLayout(d);
     public readonly toggleCamera = async () =>
         this._state.showCameraPIP(!this.show_camera_pip());
     public readonly toggleMute = async () =>
