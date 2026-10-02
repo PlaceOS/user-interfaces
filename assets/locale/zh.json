@@ -2313,7 +2313,6 @@
         "SOURCE_DISPLAY": "显示屏",
         "SOURCE_VIA": "通过 {{ source }}",
         "START": "开始",
-        "STATUS_AWAITING_APPROVAL": "等待审批",
         "STATUS_AWAITING_REVIEW": "等待审核",
         "STATUS_EXPIRED": "已过期",
         "SUMMARY_ADVANCED": "高级重复计划。请选择一个重复模式进行编辑。",
