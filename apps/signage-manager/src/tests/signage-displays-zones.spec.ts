@@ -205,7 +205,10 @@ describe('SignageDisplayService and SignageZoneService', () => {
             d1: new PlaceSystem({ id: 'd1', name: 'Edited' }),
             other: new PlaceSystem({ id: 'other', name: 'Other group' }),
         });
-        zones['_all_zone_list'].set([new PlaceZone({ id: 'z1' })]);
+        zones['_all_zone_list'].set({
+            zones: [new PlaceZone({ id: 'z1' })],
+            total: 1,
+        });
         zones['_zone_overrides'].set({
             other: new PlaceZone({ id: 'other', name: 'Other group' }),
         });

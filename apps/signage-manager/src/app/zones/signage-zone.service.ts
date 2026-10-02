@@ -5,6 +5,7 @@ import {
     inject,
     Injectable,
     linkedSignal,
+    type Resource,
     resource,
     signal,
     untracked,
@@ -33,6 +34,17 @@ import { decodeEntityNames } from '../shared/decode-entity-names.util';
 import { SignageContextService } from '../signage-context.service';
 import { dialogClosed, mergeItems } from '../signage-service.util';
 import type { ZoneEditFormModel } from './zone-edit-modal.component';
+
+/** One load of a zone list, with the number of zones the server has */
+interface ZoneList {
+    zones: PlaceZone[];
+    total: number;
+}
+
+/** Zones of a zone list resource, empty while it loads or after it fails */
+function loadedZones(list: Resource<ZoneList | undefined>) {
+    return list.hasValue() ? list.value().zones : [];
+}
 
 /** Signage zones, the selected zone, and the playlists assigned to zones */
 @Injectable({
@@ -77,13 +89,13 @@ export class SignageZoneService {
             parent_id,
             limit: 2500,
             include_children_count: true,
-        } as any);
+        });
     }
 
     /**
      * Zones of the debounced group, loaded again after each save. Empty when
-     * the lists cannot be queried, when `load` gives no query or when the
-     * query fails.
+     * the lists cannot be queried or when `load` gives no query. A failed
+     * query puts the resource in its error state.
      */
     private _zoneResource(
         load: (group_id: string) => QueryResponse<PlaceZone> | null,
@@ -95,13 +107,16 @@ export class SignageZoneService {
                 group_id: this._context.api_group_id_debounced.value(),
                 can_query: this._context.can_query_group_data(),
             }),
-            loader: async ({ params }) => {
+            loader: async ({ params }): Promise<ZoneList> => {
                 const query =
                     params.initialised && params.can_query
                         ? load(params.group_id)
                         : null;
-                const result = await query?.catch(() => null);
-                return (result?.data || []).map(decodeEntityNames);
+                const result = await query;
+                return {
+                    zones: (result?.data || []).map(decodeEntityNames),
+                    total: result?.total || 0,
+                };
             },
         });
     }
@@ -111,11 +126,18 @@ export class SignageZoneService {
             this._context.groupQueryParams(
                 { limit: 250, tags: 'signage' },
                 group_id,
-            ) as any,
+            ),
         ),
     );
     public readonly zones = computed(() =>
-        mergeItems(this._zone_list.value() || [], this._zone_overrides()),
+        mergeItems(loadedZones(this._zone_list), this._zone_overrides()),
+    );
+    /**
+     * Number of signage zones the server has, loaded or not. Null while the
+     * count loads or after it fails, as the count is not known.
+     */
+    public readonly signage_zone_count = computed(() =>
+        this._zone_list.hasValue() ? this._zone_list.value().total : null,
     );
 
     private readonly _all_zone_list = this._zoneResource((group_id) =>
@@ -127,7 +149,7 @@ export class SignageZoneService {
         ),
     );
     public readonly all_zones = computed(() =>
-        mergeItems(this._all_zone_list.value() || [], this._zone_overrides()),
+        mergeItems(loadedZones(this._all_zone_list), this._zone_overrides()),
     );
 
     // A selected group has its own zones as roots, which the all zones list
@@ -139,19 +161,52 @@ export class SignageZoneService {
                   limit: 500,
                   include_children_count: true,
                   parent_id: 'root',
-              } as any),
+              }),
     );
     public readonly root_zones = computed(() => {
         if (this._context.api_group_id_debounced.value()) {
             return this.all_zones();
         }
         const org_zone_id = this._org.organisation?.id;
-        const zones = this._org_root_list.value() || [];
+        const zones = loadedZones(this._org_root_list);
         return mergeItems(
             org_zone_id ? zones.filter(({ id }) => id === org_zone_id) : zones,
             this._zone_overrides(),
         );
     });
+
+    /** Whether the zone lists of the zones page are loading */
+    public readonly zones_loading = computed(
+        () =>
+            this._zone_list.isLoading() ||
+            this._all_zone_list.isLoading() ||
+            this._org_root_list.isLoading(),
+    );
+    /**
+     * Whether a zone list of the zones page failed to load. The tree can
+     * still show the lists that loaded, so it shows this beside them.
+     */
+    public readonly zones_error = computed(
+        () =>
+            !!this._zone_list.error() ||
+            !!this._all_zone_list.error() ||
+            !!this._org_root_list.error(),
+    );
+
+    /**
+     * Load the zone lists that failed again. Includes the signage zone list,
+     * which the header count and zone pickers read.
+     */
+    public reloadZones() {
+        const lists = [
+            this._zone_list,
+            this._all_zone_list,
+            this._org_root_list,
+        ];
+        for (const list of lists) {
+            if (list.error()) list.reload();
+        }
+    }
 
     /** Zone tree callbacks for the modals that pick zones */
     public zoneTreeData() {

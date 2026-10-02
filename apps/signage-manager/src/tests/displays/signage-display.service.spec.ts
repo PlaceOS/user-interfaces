@@ -6,9 +6,18 @@ import {
     setNotifyOutlet,
     SettingsService,
 } from '@placeos/common';
-import { PlaceSystem, show, SignagePlaylist, update } from '@placeos/ts-client';
+import {
+    PlaceSystem,
+    removeSystem,
+    show,
+    SignagePlaylist,
+    update,
+} from '@placeos/ts-client';
+import { NEVER, of } from 'rxjs';
 import { SignageDisplayService } from '../../app/displays/signage-display.service';
 import { SignageContextService } from '../../app/signage-context.service';
+import { HydratedSignageTemplateMapping } from '../../app/signage-template-mapping';
+import { SignageTemplateService } from '../../app/templates/signage-template.service';
 
 vi.mock('@placeos/ts-client', { spy: true });
 
@@ -148,5 +157,89 @@ describe('SignageDisplayService', () => {
         );
         expect(update).not.toHaveBeenCalled();
         expect(changed).not.toHaveBeenCalled();
+    });
+
+    /** The next confirm modal returns "done" */
+    function confirmNextDialog() {
+        dialog.open.mockReturnValue({
+            componentInstance: {
+                event: of({ reason: 'done' }),
+                loading: { set: vi.fn() },
+            },
+            afterClosed: () => NEVER,
+            close: vi.fn(),
+        });
+    }
+
+    // Zone, schedule and report views keep their own copies of displays
+    it('reloads the other views after a display is saved or removed', async () => {
+        const service = createService();
+        const changed = vi.spyOn(
+            TestBed.inject(SignageContextService),
+            'changed',
+        );
+        closeNextDialogWith(new PlaceSystem({ id: 'd1', name: 'Lobby' }));
+
+        await service.editDisplay(new PlaceSystem({ id: 'd1' }));
+        expect(changed).toHaveBeenCalledTimes(1);
+
+        vi.mocked(removeSystem).mockResolvedValue({});
+        confirmNextDialog();
+        await service.removeDisplay(new PlaceSystem({ id: 'd1' }));
+        expect(changed).toHaveBeenCalledTimes(2);
+    });
+
+    it('takes a display used outside signage off signage instead of deleting it', async () => {
+        const service = createService();
+        const display = new PlaceSystem({
+            id: 'room-1',
+            version: 4,
+            modules: ['mod-1'],
+        });
+        vi.mocked(update).mockResolvedValue(display);
+        confirmNextDialog();
+
+        expect(await service.removeDisplay(display)).toBe(true);
+
+        expect(removeSystem).not.toHaveBeenCalled();
+        expect(update).toHaveBeenCalledWith(
+            expect.objectContaining({
+                id: 'room-1',
+                form_data: { signage: false },
+                method: 'patch',
+            }),
+        );
+    });
+
+    it('loads the template mappings of the selected display once for its views', async () => {
+        vi.spyOn(
+            TestBed.inject(SignageContextService),
+            'hasFeature',
+        ).mockReturnValue(true);
+        const templates = TestBed.inject(SignageTemplateService);
+        const list = vi
+            .spyOn(templates, 'listTemplateMappings')
+            .mockResolvedValue([
+                new HydratedSignageTemplateMapping({ id: 'm1' }),
+            ]);
+        const service = createService();
+
+        service.selected_display.set(new PlaceSystem({ id: 'd1' }));
+        await vi.waitFor(() =>
+            expect(service.selected_display_template_mappings()).toHaveLength(
+                1,
+            ),
+        );
+        expect(list).toHaveBeenCalledExactlyOnceWith({
+            control_system_id: 'd1',
+        });
+
+        list.mockResolvedValue([]);
+        templates.template_mappings_revision.update((value) => value + 1);
+        TestBed.tick();
+        await vi.waitFor(() => expect(list).toHaveBeenCalledTimes(2));
+        await vi.waitFor(() =>
+            expect(service.selected_display_template_mappings()).toEqual([]),
+        );
     });
 });

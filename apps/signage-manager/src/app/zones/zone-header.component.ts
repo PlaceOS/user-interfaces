@@ -18,14 +18,15 @@ import { SignageZoneService } from './signage-zone.service';
                     {{ 'SIGNAGE_MANAGER.ZONES_TITLE' | translate }}
                 </h3>
                 <div class="flex flex-wrap items-center gap-2">
-                    <div class="text-sm opacity-60">
-                        {{
-                            'COMMON.ITEM_COUNT'
-                                | translate
-                                    : { count: total_count() }
-                                    : total_count()
-                        }}
-                    </div>
+                    @let count = total_count();
+                    @if (count !== null) {
+                        <div class="text-sm opacity-60">
+                            {{
+                                'COMMON.ITEM_COUNT'
+                                    | translate: { count } : count
+                            }}
+                        </div>
+                    }
                     <group-breadcrumbs />
                 </div>
             </div>
@@ -61,8 +62,14 @@ export class ZoneHeaderComponent {
     private readonly _zone_service = inject(SignageZoneService);
     private readonly _router = inject(Router);
 
-    public readonly total_count = computed(
-        () => this._zone_service.filtered_zones().length,
+    /** Search results while searching, otherwise the server total of
+     * signage zones, as the tree also shows untagged parent zones. Null
+     * when the total is not known. */
+    public readonly total_count = computed(() =>
+        this._zone_service.selected_zone()?.id &&
+        this._zone_service.zone_search_term().trim()
+            ? this._zone_service.filtered_zones().length
+            : this._zone_service.signage_zone_count(),
     );
     public readonly can_manage_zones = this._context.can_manage_zones;
 

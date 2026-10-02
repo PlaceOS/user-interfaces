@@ -14,7 +14,11 @@ import { MatInputModule } from '@angular/material/input';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { Router, RouterLink } from '@angular/router';
 import { OrganisationService } from '@placeos/common';
-import { IconComponent, TranslatePipe } from '@placeos/components';
+import {
+    IconComponent,
+    LoadErrorComponent,
+    TranslatePipe,
+} from '@placeos/components';
 import { PlaceZone } from '@placeos/ts-client';
 import { SignageZoneService } from './signage-zone.service';
 
@@ -55,8 +59,7 @@ interface FlatZoneTreeNode extends ZoneTreeNode {
                                               '',
                                       }
                         "
-                        [ngModel]="search()"
-                        (ngModelChange)="search.set($event)"
+                        [(ngModel)]="search"
                         [attr.aria-label]="
                             'SIGNAGE_MANAGER.SEARCH_IN_ZONE'
                                 | translate
@@ -72,6 +75,10 @@ interface FlatZoneTreeNode extends ZoneTreeNode {
             </div>
 
             @if (tree_nodes().length) {
+                @if (error()) {
+                    <!-- Some lists loaded, so the tree may lack zones -->
+                    <load-error (retry)="retry()" />
+                }
                 <cdk-tree
                     class="zone-tree"
                     [dataSource]="flat_tree_nodes()"
@@ -220,6 +227,15 @@ interface FlatZoneTreeNode extends ZoneTreeNode {
                         }
                     </cdk-tree-node>
                 </cdk-tree>
+            } @else if (loading()) {
+                <div
+                    class="text-base-content/70 flex flex-1 flex-col items-center justify-center p-8"
+                    role="status"
+                >
+                    {{ 'COMMON.LOADING' | translate }}
+                </div>
+            } @else if (error()) {
+                <load-error (retry)="retry()" />
             } @else {
                 <div
                     class="text-base-content/70 flex flex-1 flex-col items-center justify-center space-y-2 p-8"
@@ -252,6 +268,7 @@ interface FlatZoneTreeNode extends ZoneTreeNode {
         MatTooltipModule,
         CdkTreeModule,
         IconComponent,
+        LoadErrorComponent,
         TranslatePipe,
     ],
 })
@@ -269,6 +286,8 @@ export class ZoneListComponent {
     public readonly search = this._zone_service.zone_search_term;
     public readonly zones = this._zone_service.filtered_zones;
     public readonly selected = this._zone_service.selected_zone;
+    public readonly loading = this._zone_service.zones_loading;
+    public readonly error = this._zone_service.zones_error;
     public readonly search_enabled = computed(() => !!this.selected()?.id);
     public readonly show_search_results = computed(
         () => this.search_enabled() && !!this.search().trim(),
@@ -390,6 +409,10 @@ export class ZoneListComponent {
             return;
         }
         this.loadNodeChildren(current);
+    }
+
+    public retry() {
+        this._zone_service.reloadZones();
     }
 
     public retryChildren(node: ZoneTreeNode) {

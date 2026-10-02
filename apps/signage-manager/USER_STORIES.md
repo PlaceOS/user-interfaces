@@ -228,6 +228,7 @@ These stories cover the current app workflows:
 **Acceptance Criteria:**
 
 - The zones page lists signage zones and supports direct routes to a selected zone.
+- The header count shows the number of signage zones. When users search in a zone, it shows the number of results. If the count cannot load, the header does not show it.
 - System administrators and signage group managers can create, edit, and delete signage zones.
 - New and edited signage zones keep the `signage` tag and require a parent from the active group's accessible zone tree.
 - Zone management controls are not shown for untagged parent zones in the tree.
@@ -237,6 +238,7 @@ These stories cover the current app workflows:
 - The display tab shows displays assigned to the zone.
 - Users with update permission can add displays to the zone.
 - When the display or zone search in an add dialog fails, the dialog shows an error with a retry, not an empty result.
+- While the zone tree or a tab loads, it shows a loading state. If a zone list, the playlist tab, or the display tab cannot load, it shows an error with a retry button. The error shows above the zones that loaded.
 
 ---
 
@@ -255,6 +257,8 @@ These stories cover the current app workflows:
 - The playlist tab shows playlists assigned directly to the display and their status.
 - Users with update permission can add or remove direct playlist assignments.
 - The zone tab shows zones assigned to the display.
+- While the display list or a tab loads, it shows a loading state. If the list, the playlist tab, or the zone tab cannot load, it shows an error with a retry button.
+- If a link opens a display or zone that cannot load, an error message shows.
 
 ---
 

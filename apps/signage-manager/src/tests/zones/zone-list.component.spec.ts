@@ -1,5 +1,6 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
 import { OrganisationService } from '@placeos/common';
 import { SignageZoneService } from '../../app/zones/signage-zone.service';
 import { ZoneListComponent } from '../../app/zones/zone-list.component';
@@ -14,6 +15,9 @@ describe('ZoneListComponent', () => {
     const zone_tree_expanded = signal<Record<string, boolean>>({});
     const zone_tree_children_cache = signal<Record<string, any[]>>({});
     const zone_children = vi.fn();
+    const zones_loading = signal(false);
+    const zones_error = signal(false);
+    const reload_zones = vi.fn();
     const org_stub = { initialised };
     const zone_stub = {
         all_zones,
@@ -24,22 +28,29 @@ describe('ZoneListComponent', () => {
         zone_tree_expanded,
         zone_tree_children_cache,
         zoneChildren: zone_children,
+        zones_loading,
+        zones_error,
+        reloadZones: reload_zones,
     };
 
-    async function make() {
+    async function make(render_template = false) {
         await TestBed.configureTestingModule({
             imports: [ZoneListComponent],
             providers: [
+                provideRouter([]),
                 { provide: SignageZoneService, useValue: zone_stub },
                 { provide: OrganisationService, useValue: org_stub },
             ],
         })
-            .overrideComponent(ZoneListComponent, { set: { template: '' } })
+            .overrideComponent(
+                ZoneListComponent,
+                render_template ? {} : { set: { template: '' } },
+            )
             .compileComponents();
         const fixture = TestBed.createComponent(ZoneListComponent);
         fixture.detectChanges();
         TestBed.flushEffects();
-        return fixture.componentInstance;
+        return fixture;
     }
 
     beforeEach(() => {
@@ -53,10 +64,39 @@ describe('ZoneListComponent', () => {
         zone_tree_expanded.set({});
         zone_tree_children_cache.set({});
         zone_children.mockResolvedValue([]);
+        zones_loading.set(false);
+        zones_error.set(false);
+    });
+
+    it('shows that the zones are loading in place of the empty state', async () => {
+        zones_loading.set(true);
+        const element: HTMLElement = (await make(true)).nativeElement;
+
+        expect(element.querySelector('[role="status"]')).not.toBeNull();
+        expect(element.textContent).not.toContain('No zones');
+    });
+
+    it('offers a retry when the zones fail to load', async () => {
+        zones_error.set(true);
+        const element: HTMLElement = (await make(true)).nativeElement;
+
+        expect(element.textContent).not.toContain('No zones');
+        element.querySelector<HTMLButtonElement>('load-error button')?.click();
+        expect(reload_zones).toHaveBeenCalledTimes(1);
+    });
+
+    it('offers a retry beside the zones that loaded when a list fails', async () => {
+        root_zones.set([{ id: 'org-1', name: 'Organisation' }]);
+        zones_error.set(true);
+        const element: HTMLElement = (await make(true)).nativeElement;
+
+        expect(element.textContent).toContain('Organisation');
+        element.querySelector<HTMLButtonElement>('load-error button')?.click();
+        expect(reload_zones).toHaveBeenCalledTimes(1);
     });
 
     it('only enables search after selecting a zone', async () => {
-        const component = await make();
+        const component = (await make()).componentInstance;
         expect(component.search_enabled()).toBe(false);
         expect(component.show_search_results()).toBe(false);
 
@@ -72,7 +112,7 @@ describe('ZoneListComponent', () => {
         selected_zone.set({ id: 'r1' });
         zone_search_term.set('lobby');
         filtered_zones.set([{ id: 'z1', parent_id: 'r1', children_count: 2 }]);
-        const component = await make();
+        const component = (await make()).componentInstance;
 
         expect(
             component
@@ -95,7 +135,7 @@ describe('ZoneListComponent', () => {
             { id: 'c2', parent_id: 'r1' },
             { id: 'gc1', parent_id: 'c1' },
         ]);
-        const component = await make();
+        const component = (await make()).componentInstance;
 
         expect(component.child_count_lookup()).toEqual({ r1: 2, c1: 1 });
         expect(component.children_lookup()['r1'].map((z: any) => z.id)).toEqual(
@@ -105,14 +145,14 @@ describe('ZoneListComponent', () => {
 
     it('reports child count from the lookup for a known parent zone', async () => {
         all_zones.set([{ id: 'r1' }, { id: 'c1', parent_id: 'r1' }]);
-        const component = await make();
+        const component = (await make()).componentInstance;
 
         expect(component.childCount('r1')).toBe(1);
         expect(component.childCount('c1')).toBe(0);
     });
 
     it('falls back to a zone children_count when it has no lookup entry', async () => {
-        const component = await make();
+        const component = (await make()).componentInstance;
         expect(
             component.childCount({ id: 'x', children_count: 4 } as any),
         ).toBe(4);
@@ -121,7 +161,7 @@ describe('ZoneListComponent', () => {
     it('builds root tree nodes from the service root zones', async () => {
         root_zones.set([{ id: 'r1', name: 'Root 1' }]);
         all_zones.set([{ id: 'r1' }, { id: 'c1', parent_id: 'r1' }]);
-        const component = await make();
+        const component = (await make()).componentInstance;
 
         const flat = component.flat_tree_nodes();
         expect(flat.map((n) => n.zone.id)).toEqual(['r1']);
@@ -130,7 +170,7 @@ describe('ZoneListComponent', () => {
 
     it('selects a zone through the shared selection signal', async () => {
         zone_search_term.set('lobby');
-        const component = await make();
+        const component = (await make()).componentInstance;
         component.selectZone({ id: 'z9' } as any);
         expect(selected_zone()?.id).toBe('z9');
         expect(zone_search_term()).toBe('');
@@ -140,7 +180,7 @@ describe('ZoneListComponent', () => {
         root_zones.set([{ id: 'r1', name: 'Root 1', children_count: 1 }]);
         all_zones.set([{ id: 'r1' }, { id: 'c1', parent_id: 'r1' }]);
         zone_children.mockResolvedValue([{ id: 'c1', parent_id: 'r1' }]);
-        const component = await make();
+        const component = (await make()).componentInstance;
         const node = component.tree_nodes()[0];
 
         expect(component.isExpanded(node)).toBe(true);
@@ -150,7 +190,7 @@ describe('ZoneListComponent', () => {
     it('keeps a node unloaded with a retry when its children fail to load', async () => {
         root_zones.set([{ id: 'r1', name: 'Root 1', children_count: 1 }]);
         zone_children.mockRejectedValueOnce(new Error('Network'));
-        const component = await make();
+        const component = (await make()).componentInstance;
         await vi.waitFor(() =>
             expect(component.tree_nodes()[0].children_error).toBe(true),
         );
@@ -177,7 +217,7 @@ describe('ZoneListComponent', () => {
             { id: 'a', parent_id: 'b' },
             { id: 'b', parent_id: 'a' },
         ]);
-        const component = await make();
+        const component = (await make()).componentInstance;
 
         expect(component['getZonePath']('a')).toEqual([]);
     });
@@ -185,7 +225,7 @@ describe('ZoneListComponent', () => {
     it('allows the automatically expanded root to be collapsed', async () => {
         root_zones.set([{ id: 'r1', name: 'Root 1', children_count: 1 }]);
         all_zones.set([{ id: 'r1' }, { id: 'c1', parent_id: 'r1' }]);
-        const component = await make();
+        const component = (await make()).componentInstance;
         const node = component.tree_nodes()[0];
 
         component.onExpandedChange(node, false);

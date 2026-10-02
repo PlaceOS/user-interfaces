@@ -187,6 +187,28 @@ describe('ZonesSectionComponent', () => {
         expect(showZone).toHaveBeenCalledExactlyOnceWith('z-far');
     });
 
+    it('loads a linked zone again after going back to it', async () => {
+        all_zones.set([{ id: 'z1' }]);
+        vi.mocked(showZone).mockResolvedValue(
+            new PlaceZone({ id: 'z-far', name: 'Far' }),
+        );
+        const [, fixture] = await make();
+        const route = (id: string) => {
+            fixture.componentRef.setInput('id', id);
+            fixture.detectChanges();
+            TestBed.flushEffects();
+        };
+
+        route('z-far');
+        await vi.waitFor(() => expect(selected_zone()?.id).toBe('z-far'));
+        route('z1');
+        expect(selected_zone()?.id).toBe('z1');
+        route('z-far');
+
+        await vi.waitFor(() => expect(selected_zone()?.id).toBe('z-far'));
+        expect(showZone).toHaveBeenCalledTimes(2);
+    });
+
     it('clears the selection when navigating back to the list', async () => {
         all_zones.set([{ id: 'z1' }]);
         const [, fixture] = await make();
