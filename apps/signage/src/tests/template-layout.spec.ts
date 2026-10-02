@@ -47,14 +47,14 @@ describe('computeTemplateLayout', () => {
         });
     });
 
-    it('places a floating item without a position at the centre', () => {
+    it('fills the frame with a floating item that has no position', () => {
         const result = computeTemplateLayout([layout('floating')]);
 
         expect(result.items[0].rect).toEqual({
-            left: 50,
-            top: 50,
-            width: 50,
-            height: 50,
+            left: 0,
+            top: 0,
+            width: 100,
+            height: 100,
         });
     });
 
