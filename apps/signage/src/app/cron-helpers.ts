@@ -238,6 +238,35 @@ export function createScheduleMaskFilter(cron: string, schedule: ScheduleMask) {
 
 /** Search limit below which a lookup is too cheap and too precise to memoise */
 const MIN_CACHEABLE_SEARCH_LIMIT_SECONDS = 60;
+/** Longest search, so a lookup always ends whatever limit it is given */
+const MAX_SEARCH_LIMIT_SECONDS = 366 * 24 * 60 * 60;
+const MINUTE_MS = 60_000;
+
+/**
+ * Whether `date` is the first time its local wall-clock minute occurs. When the
+ * clocks go back, the repeated hour only counts once, at its first occurrence,
+ * as in the signage manager and the schedule mask count.
+ */
+function isFirstLocalOccurrence(date: Date) {
+    const wall_clock = new Date(
+        date.getFullYear(),
+        date.getMonth(),
+        date.getDate(),
+        date.getHours(),
+        date.getMinutes(),
+    );
+    return wall_clock.getTime() === date.getTime();
+}
+
+/** Whether a cron runs at `date`, a whole minute, in local time */
+function isCronRun(cron_parts: string[], date: Date) {
+    return doesCronMatchDate(cron_parts, date) && isFirstLocalOccurrence(date);
+}
+
+/** Search limit in milliseconds, capped to `MAX_SEARCH_LIMIT_SECONDS` */
+function searchLimitMs(search_limit_in_seconds: number) {
+    return Math.min(search_limit_in_seconds, MAX_SEARCH_LIMIT_SECONDS) * 1000;
+}
 
 const CRON_LOOKUP_CACHE = new Map<string, number | null>();
 let cron_lookup_second = 0;
@@ -297,21 +326,17 @@ export function getNextCronRunTimestampInRange(
     const mask_key = JSON.stringify([schedule.valid_from, schedule.mask]);
     const key = `next|${cron_string}|${search_limit_in_seconds}|${mask_key}`;
     return cachedCronLookup(key, now, search_limit_in_seconds, () => {
-        const searchLimitDate = new Date(now + search_limit_in_seconds * 1000);
-        const start_time = new Date(now);
-        start_time.setSeconds(0, 0);
-        start_time.setMinutes(start_time.getMinutes() + 1);
-
-        const current_date = new Date(start_time.getTime());
-
-        while (current_date <= searchLimitDate) {
-            if (
-                doesCronMatchDate(parts, current_date) &&
-                allows(current_date)
-            ) {
-                return Math.floor(current_date.getTime() / 1000);
+        // Steps in UTC, not local time: a local step resolves the hour that
+        // repeats when the clocks go back to its first occurrence, which
+        // would move the search an hour into the past.
+        const limit = now + searchLimitMs(search_limit_in_seconds);
+        const start = Math.floor(now / MINUTE_MS) * MINUTE_MS + MINUTE_MS;
+        const current_date = new Date(start);
+        for (let time = start; time <= limit; time += MINUTE_MS) {
+            current_date.setTime(time);
+            if (isCronRun(parts, current_date) && allows(current_date)) {
+                return Math.floor(time / 1000);
             }
-            current_date.setMinutes(current_date.getMinutes() + 1);
         }
         return null;
     });
@@ -345,23 +370,14 @@ export function getLastCronRunTimestampInRange(
     const mask_key = JSON.stringify([schedule.valid_from, schedule.mask]);
     const key = `last|${cron_string}|${search_limit_in_seconds}|${mask_key}`;
     return cachedCronLookup(key, now, search_limit_in_seconds, () => {
-        const search_limit_date = new Date(
-            now - search_limit_in_seconds * 1000,
-        );
-        const current_date = new Date(now);
-        current_date.setSeconds(0, 0);
-
-        while (current_date >= search_limit_date) {
-            if (doesCronMatchDate(parts, current_date)) {
-                return allows(current_date)
-                    ? Math.floor(current_date.getTime() / 1000)
-                    : null;
-            }
-            const previous = current_date.getTime();
-            current_date.setMinutes(current_date.getMinutes() - 1);
-            // A missing local hour can normalise a backwards step forwards.
-            if (current_date.getTime() >= previous) {
-                current_date.setTime(previous - 60_000);
+        // Steps in UTC for the same reason as the forwards search.
+        const limit = now - searchLimitMs(search_limit_in_seconds);
+        const start = Math.floor(now / MINUTE_MS) * MINUTE_MS;
+        const current_date = new Date(start);
+        for (let time = start; time >= limit; time -= MINUTE_MS) {
+            current_date.setTime(time);
+            if (isCronRun(parts, current_date)) {
+                return allows(current_date) ? Math.floor(time / 1000) : null;
             }
         }
         return null;

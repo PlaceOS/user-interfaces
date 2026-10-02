@@ -2683,4 +2683,224 @@ describe('SignageService', () => {
             play_through_counts: {},
         });
     });
+
+    it('should keep metrics recorded while a post is in flight', async () => {
+        let finishPost = () => undefined as void;
+        (ts_client.post as any).mockClear();
+        (ts_client.post as any).mockReturnValue(
+            new Promise<void>((resolve) => (finishPost = resolve)),
+        );
+        spectator.service.setDisplay('display-1');
+        await spectator.service.storeMetricEvent({
+            type: 'media_count',
+            ref_id: 'media-1',
+        });
+        (spectator.service as any)._postMetrics();
+        vi.advanceTimersByTime(60);
+        expect(ts_client.post).toHaveBeenCalledTimes(1);
+
+        await spectator.service.storeMetricEvent({
+            type: 'media_count',
+            ref_id: 'media-2',
+        });
+        finishPost();
+        await flush();
+
+        expect((spectator.service as any)._metrics.media_counts).toEqual({
+            'media-2': 1,
+        });
+    });
+
+    it('should keep metrics that fail to post for the next attempt', async () => {
+        (ts_client.post as any).mockReturnValueOnce(
+            Promise.reject(new Error('backend unavailable')),
+        );
+        spectator.service.setDisplay('display-1');
+        await spectator.service.storeMetricEvent({
+            type: 'media_count',
+            ref_id: 'media-1',
+        });
+        (spectator.service as any)._postMetrics();
+        vi.advanceTimersByTime(60);
+        await flush();
+        await spectator.service.storeMetricEvent({
+            type: 'media_count',
+            ref_id: 'media-1',
+        });
+
+        (spectator.service as any)._postMetrics();
+        vi.advanceTimersByTime(60);
+        await flush();
+
+        expect(ts_client.post).toHaveBeenLastCalledWith(
+            '/api/engine/v2/signage/display-1/metrics',
+            {
+                media_counts: { 'media-1': 2 },
+                playlist_counts: {},
+                play_through_counts: {},
+            },
+        );
+    });
+
+    it('should not keep the validators of a display that failed to apply', async () => {
+        (ts_client.responseHeaders as any).mockReturnValue({
+            etag: '"display-v1"',
+        });
+        vi.spyOn(
+            spectator.service as any,
+            '_checkScheduledOverrides',
+        ).mockImplementationOnce(() => {
+            throw new Error('schedule evaluation failed');
+        });
+        spectator.service.setDisplay('display-1');
+        await flush();
+
+        // A conditional request here would get a 304 for the payload that
+        // failed, and it would never be applied.
+        await (spectator.service as any)._reloadDisplay();
+        expect(ts_client.showSignage).toHaveBeenLastCalledWith(
+            'display-1',
+            {},
+            { headers: {}, cache: 'no-store' },
+        );
+
+        await (spectator.service as any)._reloadDisplay();
+        expect(ts_client.showSignage).toHaveBeenLastCalledWith(
+            'display-1',
+            {},
+            {
+                headers: { 'If-None-Match': '"display-v1"' },
+                cache: 'no-store',
+            },
+        );
+    });
+
+    it('should apply the display when it cannot be saved for offline use', async () => {
+        vi.spyOn(
+            Object.getPrototypeOf(localStorage),
+            'setItem',
+        ).mockImplementation(() => {
+            throw new DOMException('Storage is full', 'QuotaExceededError');
+        });
+
+        spectator.service.setDisplay('display-1');
+        await flush();
+
+        expect(spectator.service.display()?.id).toBe('display-1');
+    });
+
+    it('should ignore a saved display that cannot be read', async () => {
+        localStorage.setItem(
+            'PlaceOS.SIGNAGE.display_details.display-1',
+            '{not json',
+        );
+        (ts_client.showSignage as any).mockImplementation(() =>
+            Promise.reject(new Error('backend unavailable')),
+        );
+
+        spectator.service.setDisplay('display-1');
+        await flush();
+
+        expect(spectator.service.display()).toEqual(
+            expect.objectContaining({ playlist_media: [], plugins: [] }),
+        );
+    });
+
+    it('should only record a poll success when the backend answers', async () => {
+        (ts_client.showSignage as any).mockImplementationOnce(() =>
+            Promise.reject(new Error('backend unavailable')),
+        );
+        localStorage.setItem(
+            'PlaceOS.SIGNAGE.display_details.display-1',
+            JSON.stringify(create_display()),
+        );
+        spectator.service.setDisplay('display-1');
+        await flush();
+
+        expect(spectator.service.display()?.id).toBe('display-1');
+        expect(spectator.service.diagnostics().poll.last_success).toBe('never');
+
+        await spectator.service.refresh();
+
+        expect(spectator.service.diagnostics().poll.last_success).not.toBe(
+            'never',
+        );
+    });
+
+    it('should keep one schedule timer however often the display is set', async () => {
+        spectator.service.setDisplay('display-1');
+        await flush();
+        vi.advanceTimersByTime(15_000);
+        await flush();
+        spectator.service.setDisplay('display-1');
+        spectator.service.setDisplay('display-1');
+        const tick = vi.spyOn(spectator.service as any, '_checkPollHealth');
+
+        vi.advanceTimersByTime(15_000);
+        expect(tick).toHaveBeenCalledTimes(1);
+
+        spectator.service.ngOnDestroy();
+        vi.advanceTimersByTime(60_000);
+        expect(tick).toHaveBeenCalledTimes(1);
+    });
+
+    it('should forget a completed takeover run once its window has passed', async () => {
+        const now = new Date('2026-01-01T10:00:00Z').getTime();
+        vi.setSystemTime(now);
+        (ts_client.showSignage as any).mockReturnValue(
+            Promise.resolve(
+                create_display({
+                    playlist_config: {
+                        ...create_display().playlist_config,
+                        'scheduled-playlist': [
+                            {
+                                id: 'scheduled-playlist',
+                                name: 'Scheduled Playlist',
+                                enabled: true,
+                                default_animation: MediaAnimation.Cut,
+                                default_duration: 10000,
+                                schedules: [
+                                    {
+                                        play_at: Math.floor(now / 1000),
+                                        play_cron: '',
+                                        play_period: 0,
+                                        play_takeover: true,
+                                    },
+                                ],
+                            },
+                            ['media-3'],
+                        ],
+                    },
+                }) as any,
+            ),
+        );
+        spectator.service.setDisplay('display-1');
+        await flush();
+        spectator.service.clearPlaylistOverride();
+        const completed: Set<string> = (spectator.service as any)
+            ._completed_schedule_overrides;
+
+        vi.advanceTimersByTime(15_000);
+        await flush();
+        expect(completed.size).toBe(1);
+
+        vi.advanceTimersByTime(30_000);
+        await flush();
+        expect(completed.size).toBe(0);
+        expect(spectator.service.override_playlist().playlist).toHaveLength(0);
+    });
+
+    it('should not release media the cache has already evicted', async () => {
+        let cached = ['/stale-file.jpg'];
+        media_cache.availableFiles.mockImplementation(() => cached);
+        media_cache.requestFilesToCache.mockImplementation(() => {
+            cached = [];
+            return Promise.resolve(false);
+        });
+
+        spectator.service.setDisplay('display-1');
+        await flush();
+
+        expect(media_cache.invalidateFile).not.toHaveBeenCalled();
+    });
 });

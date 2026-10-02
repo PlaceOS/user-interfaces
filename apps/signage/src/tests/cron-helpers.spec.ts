@@ -336,3 +336,90 @@ describe('schedule masking', () => {
         ).toBeNull();
     });
 });
+
+describe('cron runs across daylight saving changes', () => {
+    const original_timezone = process.env.TZ;
+    const at = (iso: string) => Date.parse(iso);
+    const unix = (iso: string) => Date.parse(iso) / 1000;
+
+    afterEach(() => {
+        if (original_timezone === undefined) delete process.env.TZ;
+        else process.env.TZ = original_timezone;
+    });
+
+    describe('in New York', () => {
+        // Clocks go back from 02:00 EDT to 01:00 EST on 1 November 2026, so
+        // 01:00 to 01:59 happens twice: 05:00Z to 05:59Z, then 06:00Z to 06:59Z.
+        beforeEach(() => (process.env.TZ = 'America/New_York'));
+
+        it('finds a run from the first 1 am while in the repeated hour', () => {
+            expect(
+                getLastCronRunTimestampInRange(
+                    '45 1 * * *',
+                    60 * 60,
+                    at('2026-11-01T06:30:00Z'),
+                ),
+            ).toBe(unix('2026-11-01T05:45:00Z'));
+        });
+
+        it('never looks for the next run in the past during the repeated hour', () => {
+            expect(
+                getNextCronRunTimestampInRange(
+                    '*/15 * * * *',
+                    60 * 60,
+                    at('2026-11-01T06:10:00Z'),
+                ),
+            ).toBe(unix('2026-11-01T07:00:00Z'));
+        });
+
+        it('runs a repeated wall-clock time once', () => {
+            expect(
+                getNextCronRunTimestampInRange(
+                    '30 1 * * *',
+                    4 * 60 * 60,
+                    at('2026-11-01T04:00:00Z'),
+                ),
+            ).toBe(unix('2026-11-01T05:30:00Z'));
+            expect(
+                getLastCronRunTimestampInRange(
+                    '30 1 * * *',
+                    30,
+                    at('2026-11-01T06:30:10Z'),
+                ),
+            ).toBeNull();
+        });
+    });
+
+    describe('in Sydney', () => {
+        // Clocks go back from 03:00 AEDT to 02:00 AEST on 5 April 2026, and
+        // forward from 02:00 AEST to 03:00 AEDT on 4 October 2026.
+        beforeEach(() => (process.env.TZ = 'Australia/Sydney'));
+
+        it('finds a run from the first 2 am while in the repeated hour', () => {
+            expect(
+                getLastCronRunTimestampInRange(
+                    '45 2 * * *',
+                    60 * 60,
+                    at('2026-04-04T16:30:00Z'),
+                ),
+            ).toBe(unix('2026-04-04T15:45:00Z'));
+        });
+
+        it('skips a run in the hour the clocks go forward over', () => {
+            expect(
+                getNextCronRunTimestampInRange(
+                    '30 2 * * *',
+                    2 * 60 * 60,
+                    at('2026-10-03T15:50:00Z'),
+                ),
+            ).toBeNull();
+            expect(
+                getLastCronRunTimestampInRange(
+                    '0 1 * * *',
+                    3 * 60 * 60,
+                    at('2026-10-03T17:05:00Z'),
+                ),
+            ).toBe(unix('2026-10-03T15:00:00Z'));
+        });
+    });
+});

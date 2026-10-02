@@ -84,11 +84,12 @@ The Signage app is a kiosk-style digital signage player. It bootstraps a device 
 
 - The app calls the PlaceOS signage endpoint for the active display ID.
 - Requests include preview context when debug mode is enabled and include the currently playing item ID when available.
-- After a successful response, later requests send its `ETag` and `Last-Modified` values as `If-None-Match` and `If-Modified-Since`.
+- After a response has been applied, later requests send its `ETag` and `Last-Modified` values as `If-None-Match` and `If-Modified-Since`. A response that fails to apply is requested again in full.
 - Display requests bypass the browser cache, and a `304 Not Modified` response keeps the current display configuration.
 - The latest display configuration is cached in localStorage under a display-specific `PlaceOS.SIGNAGE.display_details.<display_id>` key.
 - Legacy cached configuration under `PlaceOS.SIGNAGE.display_details` can still be used as a fallback.
 - If the API request fails, the app falls back to the cached display configuration only when it matches the active display ID.
+- A cached copy that cannot be read or saved does not stop the display configuration from loading.
 - Unchanged responses keep the current parsed display, trigger bindings, media cache, and playlist state.
 - Display configuration refreshes every 60 seconds.
 
@@ -321,9 +322,10 @@ The Signage app is a kiosk-style digital signage player. It bootstraps a device 
 **Acceptance Criteria:**
 
 - A scheduled playlist with `play_takeover` disabled is included in normal playback only while its schedule is active.
-- `play_at` schedules support Unix timestamps in seconds or milliseconds.
+- `play_at` schedules use a Unix timestamp in seconds.
 - `play_at_local` schedules play once at a wall-clock time (for example `2027-01-01T00:00:00`) in the display's timezone.
-- `play_cron` schedules support recurring cron-based activation.
+- `play_cron` schedules support recurring cron-based activation in the display's local time.
+- When clocks go back, a repeated cron time runs once, at its first occurrence. A cron time skipped when clocks go forward does not run.
 - `play_period` controls the active window in minutes.
 - When `play_period` is missing, the default active window is 24 hours.
 - Schedule activation is re-evaluated every 15 seconds, or faster while debug time is accelerated.
@@ -536,7 +538,7 @@ The Signage app is a kiosk-style digital signage player. It bootstraps a device 
 - Empty metrics are not posted.
 - Non-empty metrics are posted to `/api/engine/v2/signage/:display_id/metrics`.
 - Metric posting is delayed by a random offset of up to 60 seconds to avoid synchronized device traffic.
-- Metrics are cleared only after a successful post.
+- Metrics recorded while a post is in flight are kept for the next post.
 - Failed posts leave metrics available for the next posting attempt.
 
 ---
