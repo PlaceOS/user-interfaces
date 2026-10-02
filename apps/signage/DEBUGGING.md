@@ -35,6 +35,7 @@ questions without needing to reproduce anything.
 | `media_cache`                 | Per file `status`, `size`, `owners`; plus totals, budget (`limit_bytes`), `too_large`, `failed_sync_attempts`                         |
 | `watchdog`                    | Heartbeats for `poll` / `schedule` / `playback`, which are `stalled`, the last fatal error, and the recovery count and throttle state |
 | `players`                     | Per player: `state`, `item_index`, `progress_percent`, `playing`, `queue`, `mid_play_through`                                         |
+| `remote_paused`               | Whether the parent frame has paused playback with `signage:pause`                                                                     |
 
 Timestamps are ISO strings; `"never"` means it has not happened yet.
 
@@ -85,7 +86,8 @@ makes the display request use `?preview=true`.
 | Old version running                | `updates.new_version`, `updates.reload_pending` (a reload waits for the network and for play-through content to finish), `updates.last_check`                               |
 | Blank screen after a reboot        | Likely offline boot — check `online`, then whether cached credentials exist                                                                                                 |
 | Player reloading itself            | `watchdog.recent_reloads` and `watchdog.last_error` — something fatal stalled a core loop                                                                                   |
-| Paused and does not resume         | Pause and resume messages are obeyed only from the parent frame. Check what embeds the player and `players[].state`                                                         |
+| Paused and does not resume         | Pause and resume messages are obeyed only from the parent frame. `remote_paused` stays true until it sends `signage:resume`                                                 |
+| Template or plugin bands missing   | A failed template, plugin or background load tries again after 15 s, doubling to 5 min. Look for `Unable to load template`                                                  |
 | Plugin cut short, or held long     | A play-through plugin advances on `finished`, or after a limit. Look for `did not report finished in time` in the console                                                   |
 | Blank screen, no `window.signage`  | The application did not start. Look for `Application failed to start` in the console; it reloads with a backoff                                                             |
 | Media always streams               | `media_cache.too_large` — the file does not fit in `limit_bytes`; see [Media cache storage](#media-cache-storage)                                                           |
@@ -180,15 +182,17 @@ recovered and you want to know what from.
 
 ## Storage
 
-| Location | Holds |
-| `localStorage["PlaceOS.SIGNAGE.display_details.<id>"]` | Last known display payload, used offline |
-| `localStorage["PlaceOS.SIGNAGE.cached_files"]` | Media cache index (urls, sizes, owners) |
-| `localStorage["PlaceOS.SIGNAGE.display"]` | Bootstrapped display id |
-| `localStorage["PLACEOS.org.*"]` | Cached zone data and last known authority |
-| `localStorage["PlaceOS.SIGNAGE.watchdog_reloads"]` | Timestamps of automatic recoveries |
-| `sessionStorage["SIGNAGE.debug"]`, `["SIGNAGE.muted"]` | Debug and mute state |
-| `sessionStorage["SIGNAGE.boot_failures"]` | Consecutive failed starts, for the backoff |
-| IndexedDB `SignageMedia` → `files` | The cached media files themselves |
+| Location                                               | Holds                                                |
+| ------------------------------------------------------ | ---------------------------------------------------- |
+| `localStorage["PlaceOS.SIGNAGE.display_details.<id>"]` | Last known display payload, used offline             |
+| `localStorage["PlaceOS.SIGNAGE.cached_files"]`         | Media cache index (urls, sizes, owners)              |
+| `localStorage["PlaceOS.SIGNAGE.display"]`              | Bootstrapped display id                              |
+| `localStorage["PLACEOS.org.*"]`                        | Cached zone data and last known authority            |
+| `localStorage["PlaceOS.SIGNAGE.watchdog_reloads"]`     | Timestamps of automatic recoveries                   |
+| `sessionStorage["SIGNAGE.debug"]`, `["SIGNAGE.muted"]` | Debug and mute state                                 |
+| `sessionStorage["SIGNAGE.boot_failures"]`              | Consecutive failed starts, for the backoff           |
+| `localStorage["SIGNAGE.debug-overlay.<id>"]`           | Debug overlay positions, kept after the session ends |
+| IndexedDB `SignageMedia` → `files`                     | The cached media files themselves                    |
 
 ## Media cache storage
 

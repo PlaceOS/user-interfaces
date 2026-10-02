@@ -478,4 +478,109 @@ describe('SignageTemplateComponent', () => {
             replaceUrl: true,
         });
     });
+    describe('when loading fails', () => {
+        const mapping = (template_id: string) =>
+            new SignageTemplateMapping({ template_id });
+        const showTemplate = vi.mocked(ts_client.showSignageTemplate);
+
+        /** A template request that the test settles by hand */
+        const deferred = () => {
+            let resolve: (template: ts_client.SignageTemplate) => void = () =>
+                undefined;
+            let reject: (error: Error) => void = () => undefined;
+            const promise = new Promise<ts_client.SignageTemplate>(
+                (res, rej) => ((resolve = res), (reject = rej)),
+            );
+            return { promise, resolve, reject };
+        };
+
+        /** Settle the pending requests without reaching the retry delay */
+        const flush = () => vi.advanceTimersByTimeAsync(10);
+
+        beforeEach(() => vi.useFakeTimers());
+        afterEach(() => vi.useRealTimers());
+
+        it('tries a failed template load again after a delay', async () => {
+            showTemplate.mockRejectedValueOnce(new Error('offline'));
+            spectator = create_component({
+                params: { template_id: 'template-1', system_id: 'display-1' },
+            });
+            await flush();
+            expect(spectator.component.template()).toBeNull();
+
+            await vi.advanceTimersByTimeAsync(15_000);
+
+            expect(showTemplate).toHaveBeenCalledTimes(2);
+            expect(spectator.component.template()?.id).toBe('template-1');
+        });
+
+        it('shows the templates that load when another fails', async () => {
+            const base = await showTemplate('template-1');
+            showTemplate.mockImplementation(async (id) => {
+                if (id === 'merge-1') throw new Error('server error');
+                return base;
+            });
+            active_templates.set([mapping('template-1'), mapping('merge-1')]);
+            spectator = create_component({
+                params: { system_id: 'display-1' },
+            });
+            await flush();
+
+            expect(spectator.component.template()?.id).toBe('template-1');
+        });
+
+        it('fills the plugin layout once a failed plugin query succeeds', async () => {
+            vi.mocked(ts_client.querySignagePlugins).mockRejectedValueOnce(
+                new Error('offline'),
+            );
+            spectator = create_component({
+                params: { template_id: 'template-1', system_id: 'display-1' },
+            });
+            await flush();
+            expect(spectator.component.template()?.id).toBe('template-1');
+            expect(spectator.component.layout_items()).toHaveLength(0);
+
+            await vi.advanceTimersByTimeAsync(15_000);
+
+            expect(spectator.component.layout_items()).toHaveLength(1);
+        });
+
+        it('ignores a load that finishes after the mappings changed', async () => {
+            const { promise, resolve } = deferred();
+            const second = new ts_client.SignageTemplate({
+                id: 'template-2',
+                layouts: [],
+            });
+            showTemplate.mockImplementation((id) =>
+                id === 'template-1' ? promise : Promise.resolve(second),
+            );
+            spectator = create_component({
+                params: { system_id: 'display-1' },
+            });
+            active_templates.set([mapping('template-1')]);
+            await flush();
+            active_templates.set([mapping('template-2')]);
+            await flush();
+
+            resolve(new ts_client.SignageTemplate({ id: 'template-1' }));
+            await flush();
+
+            expect(spectator.component.template()?.id).toBe('template-2');
+        });
+
+        it('does not try again after it is destroyed', async () => {
+            const { promise, reject } = deferred();
+            showTemplate.mockReturnValue(promise);
+            spectator = create_component({
+                params: { template_id: 'template-1', system_id: 'display-1' },
+            });
+            await flush();
+
+            spectator.fixture.destroy();
+            reject(new Error('offline'));
+            await vi.advanceTimersByTimeAsync(10 * 60_000);
+
+            expect(showTemplate).toHaveBeenCalledTimes(1);
+        });
+    });
 });
