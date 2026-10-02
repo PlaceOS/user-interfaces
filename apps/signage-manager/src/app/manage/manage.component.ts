@@ -1,7 +1,7 @@
 import { Component, computed, inject } from '@angular/core';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { TranslatePipe } from '@placeos/components';
-import { AiImageService } from '../ai/ai-image.service';
+import { ImageGenService } from '../image-gen/image-gen.service';
 import { NavFooterComponent } from '../shared/nav-footer.component';
 import { NavSidebarComponent } from '../shared/nav-sidebar.component';
 
@@ -48,12 +48,12 @@ import { NavSidebarComponent } from '../shared/nav-sidebar.component';
     ],
 })
 export class ManageSectionComponent {
-    private readonly _ai = inject(AiImageService);
+    private readonly _image_gen = inject(ImageGenService);
 
     /** Branding needs image generation, so its tab hides without it */
     public readonly tabs = computed(() => [
         { route: '/manage/report', label: 'SIGNAGE_MANAGER.NAV_REPORT' },
-        ...(this._ai.enabled()
+        ...(this._image_gen.enabled()
             ? [
                   {
                       route: '/manage/branding',

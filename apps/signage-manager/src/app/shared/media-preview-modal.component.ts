@@ -21,11 +21,12 @@ import {
     SignagePlaylist,
     SignagePlugin,
 } from '@placeos/ts-client';
+import { SignageMediaService } from '../media/signage-media.service';
 import {
     playlistMediaThumbnailUrl,
     playlistMediaUrl,
 } from '../signage-playlist.util';
-import { SignageService } from '../signage.service';
+import { webPageFrameUrl } from '../signage-url.util';
 import { SignageSharedWithComponent } from './signage-shared-with.component';
 
 interface MediaPreviewModalData {
@@ -77,7 +78,10 @@ interface MediaPreviewModalData {
                         >
                             <icon class="text-error text-6xl">error</icon>
                             <p class="text-base font-medium">
-                                Failed to load media preview.
+                                {{
+                                    'SIGNAGE_MANAGER.MEDIA_PREVIEW_LOAD_ERROR'
+                                        | translate
+                                }}
                             </p>
                             <p class="text-base-content/70 max-w-sm text-sm">
                                 {{
@@ -120,6 +124,7 @@ interface MediaPreviewModalData {
                         ></video>
                     } @else if (item.media_type === 'webpage') {
                         <iframe
+                            sandbox="allow-scripts allow-same-origin allow-forms"
                             [src]="safe_url()"
                             [title]="item.name"
                             class="h-full w-full border-0 bg-white"
@@ -151,18 +156,20 @@ interface MediaPreviewModalData {
                     class="border-base-300 bg-base-100 w-72 shrink-0 overflow-y-auto rounded-lg border max-md:w-full"
                 >
                     <div class="relative space-y-5 p-5">
-                        <button
-                            icon
-                            default
-                            class="absolute top-2 right-2"
-                            [matTooltip]="
-                                'SIGNAGE_MANAGER.MEDIA_EDIT' | translate
-                            "
-                            matTooltipPosition="left"
-                            (click)="edit()"
-                        >
-                            <icon>edit</icon>
-                        </button>
+                        @if (item.id) {
+                            <button
+                                icon
+                                default
+                                class="absolute top-2 right-2"
+                                [matTooltip]="
+                                    'SIGNAGE_MANAGER.MEDIA_EDIT' | translate
+                                "
+                                matTooltipPosition="left"
+                                (click)="edit()"
+                            >
+                                <icon>edit</icon>
+                            </button>
+                        }
                         @if (item.description) {
                             <div>
                                 <div
@@ -392,7 +399,7 @@ interface MediaPreviewModalData {
 })
 export class MediaPreviewModalComponent implements OnInit {
     private readonly _data: MediaPreviewModalData = inject(MAT_DIALOG_DATA);
-    private readonly _service = inject(SignageService);
+    private readonly _media_service = inject(SignageMediaService);
     private readonly _sanitizer = inject(DomSanitizer);
 
     public readonly item = this._data.media;
@@ -405,12 +412,13 @@ export class MediaPreviewModalComponent implements OnInit {
 
     public readonly containing_playlists = signal<SignagePlaylist[]>([]);
     public readonly loading_playlists = signal(true);
-    public readonly edit = () => this._service.editMedia(this.item);
+    public readonly edit = () => this._media_service.editMedia(this.item);
 
+    /** Webpage URL for the preview iframe. Only http and https URLs load. */
     public readonly safe_url = computed(() => {
         if (this.item.media_type === 'webpage') {
             return this._sanitizer.bypassSecurityTrustResourceUrl(
-                this.media_url,
+                webPageFrameUrl(this.media_url),
             );
         }
         return null;
@@ -464,12 +472,18 @@ export class MediaPreviewModalComponent implements OnInit {
     });
 
     public async ngOnInit() {
+        // Unsaved media, such as a preview from the edit modal, is in no
+        // playlist yet.
+        if (!this.item.id) {
+            this.loading_playlists.set(false);
+            return;
+        }
         try {
             const media = await showSignageMedia(
                 this.item.id,
                 this.group_id ? { group_id: this.group_id } : {},
             );
-            this.containing_playlists.set(media.playlists);
+            this.containing_playlists.set(media.playlists || []);
         } catch {
             this.containing_playlists.set([]);
         } finally {

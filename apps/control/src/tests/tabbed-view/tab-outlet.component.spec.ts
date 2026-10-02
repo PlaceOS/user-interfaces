@@ -4,15 +4,17 @@ import {
     SpectatorRouting,
 } from '@ngneat/spectator/vitest';
 import { mockComponent, mockDirective } from '@placeos/common/tests';
-import { MockPipe, MockProvider } from 'ng-mocks';
+import { MockPipe, MockProvider, ngMocks } from 'ng-mocks';
 
 import {
     BindingDirective,
     IconComponent,
-    SafePipe,
     TranslatePipe,
 } from '@placeos/components';
-import { ControlStateService } from '../../app/control-state.service';
+import {
+    ControlStateService,
+    RoomInput,
+} from '../../app/control-state.service';
 import { DeviceOutputListComponent } from '../../app/tabbed-view/output-list.component';
 import { TabOutletComponent } from '../../app/tabbed-view/tab-outlet.component';
 import { TVControlsComponent } from '../../app/tabbed-view/tv-controls.component';
@@ -39,11 +41,10 @@ describe('TabOutletComponent', () => {
             mockDirective(BindingDirective),
             MockPipe(TranslatePipe, (v) => v),
             MockPipe(MarkdownPipe, (v) => v),
-            MockPipe(SafePipe, (v) => v),
         ],
         providers: [
             MockProvider(ControlStateService, {
-                id: 'sys1',
+                system_id: signal('sys1'),
                 hide_present_all: signal(false),
                 output_list: signal([]),
                 system: signal({}),
@@ -123,7 +124,7 @@ describe('TabOutletComponent', () => {
 
     it('should set the output source when an input is chosen', () => {
         const service: any = spectator.inject(ControlStateService);
-        spectator.component.setInput({ id: 'i9' });
+        spectator.component.setInput({ id: 'i9' } as RoomInput);
         expect(service.setOutputSource).toHaveBeenCalledWith('i9');
     });
 
@@ -207,5 +208,72 @@ describe('TabOutletComponent', () => {
         service.output_list.set([{ id: 'o1' }, { id: 'o2' }]);
         spectator.detectChanges();
         expect(spectator.query('[output-actions]')).toExist();
+    });
+
+    it('should not jump back to the driver tab on unrelated system changes', () => {
+        vi.useFakeTimers();
+        const service: any = spectator.inject(ControlStateService);
+        const navigate = vi
+            .spyOn(spectator.router, 'navigate')
+            .mockResolvedValue(true);
+        service.system.set({ selected_tab: 'tab1' });
+        spectator.detectChanges();
+        vi.advanceTimersByTime(600);
+        expect(navigate).toHaveBeenCalledTimes(1);
+        service.system.set({ selected_tab: 'tab1', volume: 40 });
+        spectator.detectChanges();
+        vi.advanceTimersByTime(600);
+        expect(navigate).toHaveBeenCalledTimes(1);
+        vi.useRealTimers();
+    });
+
+    it('should fall back to the first tab when no tab is selected', () => {
+        spectator.setRouteParam('tab', '');
+        const service: any = spectator.inject(ControlStateService);
+        service.system.set({});
+        service.tabs.set([
+            { id: 'a', name: 'A', icon: 'tv' },
+            { id: 'b', name: 'B', icon: 'tv' },
+        ]);
+        spectator.detectChanges();
+        expect(spectator.component.active_tab()).toBe('a');
+        expect(spectator.query('a[aria-current="page"]')).toContainText('A');
+    });
+
+    it('should prefer the driver selected tab over the first tab', () => {
+        spectator.setRouteParam('tab', '');
+        const service: any = spectator.inject(ControlStateService);
+        service.tabs.set([{ id: 'a' }, { id: 'b' }]);
+        service.system.set({ selected_tab: 'b' });
+        expect(spectator.component.active_tab()).toBe('b');
+    });
+
+    it('should follow the driver tab on the current system', () => {
+        vi.useFakeTimers();
+        const service: any = spectator.inject(ControlStateService);
+        const navigate = vi
+            .spyOn(spectator.router, 'navigate')
+            .mockResolvedValue(true);
+        service.system_id.set('sys2');
+        service.system.set({ selected_tab: 'tab2' });
+        spectator.detectChanges();
+        vi.advanceTimersByTime(600);
+        expect(navigate).toHaveBeenCalledWith(
+            ['/tabbed', 'sys2', 'tab2'],
+            expect.anything(),
+        );
+        vi.useRealTimers();
+    });
+
+    it('should leave room for the help button above the call controls', () => {
+        const service: any = spectator.inject(ControlStateService);
+        const call_state: any = spectator.inject(VideoCallStateService);
+        service.tabs.set([
+            { id: 'tab1', controls: 'vidconf-controls', help: 'vc-help' },
+        ]);
+        call_state.call.set({ Status: 'Connected' });
+        spectator.detectChanges();
+        expect(ngMocks.input('[video-call-page]', 'reserve_top')).toBe(true);
+        call_state.call.set(null);
     });
 });

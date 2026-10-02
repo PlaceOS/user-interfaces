@@ -1,7 +1,8 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
-import { SignageService } from '../../app/signage.service';
+import { SignageContextService } from '../../app/signage-context.service';
+import { SignageZoneService } from '../../app/zones/signage-zone.service';
 import { ZoneHeaderComponent } from '../../app/zones/zone-header.component';
 
 describe('ZoneHeaderComponent', () => {
@@ -9,16 +10,17 @@ describe('ZoneHeaderComponent', () => {
     const can_manage_zones = signal(false);
     const add_zone = vi.fn();
     const navigate = vi.fn();
-    const service_stub = {
+    const context_stub = { can_manage_zones };
+    const zone_stub = {
         filtered_zones,
-        can_manage_zones,
         addZone: add_zone,
     };
 
     function make() {
         TestBed.configureTestingModule({
             providers: [
-                { provide: SignageService, useValue: service_stub },
+                { provide: SignageContextService, useValue: context_stub },
+                { provide: SignageZoneService, useValue: zone_stub },
                 { provide: Router, useValue: { navigate } },
             ],
         });

@@ -6,11 +6,10 @@ import { AsyncHandler, log } from '@placeos/common';
 import {
     BindingDirective,
     IconComponent,
-    SafePipe,
     TranslatePipe,
 } from '@placeos/components';
 import { map } from 'rxjs/operators';
-import { ControlStateService } from '../control-state.service';
+import { ControlStateService, RoomInput } from '../control-state.service';
 import { CameraControlsComponent } from '../ui/camera-controls.component';
 import { MarkdownPipe } from '../ui/markdown.pipe';
 import { VoiceAssistantComponent } from '../ui/voice-assistant.component';
@@ -25,14 +24,14 @@ import { TVControlsComponent } from './tv-controls.component';
     template: `
         <i
             binding
-            [sys]="id"
+            [sys]="id()"
             mod="HearingAugmentation"
             bind="join_code"
             [(model)]="join_code"
         ></i>
         <i
             binding
-            [sys]="id"
+            [sys]="id()"
             mod="HearingAugmentation"
             bind="has_t_coil"
             [(model)]="hearing_tloop"
@@ -46,8 +45,18 @@ import { TVControlsComponent } from './tv-controls.component';
                     <a
                         matRipple
                         class="bg-base-100 text-base-content mx-1 flex h-24 w-32 flex-col items-center justify-center overflow-hidden rounded-t rounded-b-none leading-tight opacity-60 shadow-sm"
-                        [routerLink]="['/tabbed', id, tab.id || tab.name]"
-                        routerLinkActive="opacity-100! text-secondary!"
+                        [routerLink]="['/tabbed', id(), tab.id || tab.name]"
+                        [class.opacity-100!]="
+                            (tab.id || tab.name) === active_tab()
+                        "
+                        [class.text-secondary!]="
+                            (tab.id || tab.name) === active_tab()
+                        "
+                        [attr.aria-current]="
+                            (tab.id || tab.name) === active_tab()
+                                ? 'page'
+                                : null
+                        "
                         queryParamsHandling="merge"
                         (click)="onAction()"
                     >
@@ -61,7 +70,7 @@ import { TVControlsComponent } from './tv-controls.component';
                 }
                 <div class="absolute top-0 right-0 bottom-2 flex space-x-2">
                     <voice-assistant
-                        [system_id]="id"
+                        [system_id]="id()"
                         [enabled]="system()?.voice_control"
                     ></voice-assistant>
                     @if (join_code) {
@@ -80,7 +89,7 @@ import { TVControlsComponent } from './tv-controls.component';
                                 <p
                                     class="text-base-content text-center font-mono text-xs"
                                 >
-                                    {{ join_code || '=CODE=' }}
+                                    {{ join_code }}
                                 </p>
                             </div>
                         </div>
@@ -111,16 +120,6 @@ import { TVControlsComponent } from './tv-controls.component';
                                 {{ input?.name }}
                             </button>
                         }
-                        @if (!inputs().length) {
-                            <div
-                                class="flex h-1/2 w-full flex-1 items-center justify-center p-8 opacity-30"
-                            >
-                                {{
-                                    'APP.CONTROL.INPUT_CATEGORY_EMPTY'
-                                        | translate
-                                }}
-                            </div>
-                        }
                     </div>
                 }
                 <div
@@ -132,6 +131,7 @@ import { TVControlsComponent } from './tv-controls.component';
                             @if (call()) {
                                 <div
                                     video-call-page
+                                    [reserve_top]="!!tab()?.help"
                                     [present_output]="
                                         tab()?.presentation_source
                                     "
@@ -144,7 +144,6 @@ import { TVControlsComponent } from './tv-controls.component';
                                     }
                                     <video-call-dial-view
                                         class="mt-4 block"
-                                        [redirect]="false"
                                     ></video-call-dial-view>
                                 </div>
                             }
@@ -157,9 +156,7 @@ import { TVControlsComponent } from './tv-controls.component';
                                 <div
                                     class="p-8"
                                     content
-                                    [innerHTML]="
-                                        help().content | markdown | safe
-                                    "
+                                    [innerHTML]="help().content | markdown"
                                 ></div>
                             }
                             @if (!help()) {
@@ -243,7 +240,6 @@ import { TVControlsComponent } from './tv-controls.component';
         DeviceOutputListComponent,
         TranslatePipe,
         MarkdownPipe,
-        SafePipe,
         TVControlsComponent,
         VideoCallDialViewComponent,
         CameraControlsComponent,
@@ -259,8 +255,7 @@ export class TabOutletComponent extends AsyncHandler {
     private _router = inject(Router);
 
     public hearing_tloop = false;
-    public readonly id = this._service.id;
-    public readonly active_tab = signal('');
+    public readonly id = this._service.system_id;
     public readonly hide_present_all = this._service.hide_present_all;
     public readonly outputs = this._service.output_list;
     /** Whether any visible output has a source routed to it */
@@ -272,22 +267,34 @@ export class TabOutletComponent extends AsyncHandler {
     public readonly call = this._vc_state.call;
     public readonly speaker_track = this._vc_state.speaker_track;
     public readonly tab = computed(() =>
-        this.tabs().find((t: any) => (t.id || t.name) === this.active_tab()),
+        this.tabs().find((t) => (t.id || t.name) === this.active_tab()),
     );
 
+    /** Inputs for the active tab: its listed inputs, or else inputs of its type */
     public readonly inputs = computed(() => {
-        const id = this.active_tab();
-        const tab = this.tabs().find((_: any) => (_.id || _.name) === id);
-        const inputs = this._available_inputs();
+        const tab = this.tab();
         if (!tab) return [];
-        return inputs.filter(
-            (_) =>
-                (!tab.inputs && (!tab.type || _.type === tab.type)) ||
-                (tab.inputs && tab.inputs.includes(_.id)),
+        return this._available_inputs().filter((_) =>
+            tab.inputs
+                ? tab.inputs.includes(_.id)
+                : !tab.type || _.type === tab.type,
         );
     });
 
+    /** Route tab, then the driver's selected tab, then the first tab */
+    public readonly active_tab = computed(() => {
+        const first = this.tabs()[0];
+        return (
+            this._route_tab() ||
+            this._selected_tab() ||
+            first?.id ||
+            first?.name ||
+            ''
+        );
+    });
     private _user_action = signal(false);
+    /** Driver's selected tab. A separate computed so other system changes do not re-run the tab sync. */
+    private _selected_tab = computed(() => this.system()?.selected_tab);
     private _available_inputs = this._service.available_inputs;
     private _route_tab = toSignal(
         this._route.paramMap.pipe(map((params) => params.get('tab') || '')),
@@ -302,24 +309,20 @@ export class TabOutletComponent extends AsyncHandler {
 
     public join_code = '';
 
-    public setInput = (s) => this._service.setOutputSource(s.id);
+    public setInput = (input: RoomInput) =>
+        this._service.setOutputSource(input.id);
     public viewHelp = () => this._service.viewHelp(this.tab()?.help);
 
     constructor() {
         super();
         effect(() => {
-            const tab = this._route_tab();
-            if (tab) this.active_tab.set(tab);
-        });
-        effect(() => {
-            const selected_tab = this.system()?.selected_tab;
+            const selected_tab = this._selected_tab();
             this.timeout(
                 'update_tab',
                 () => {
                     if (selected_tab) {
-                        this.active_tab.set(selected_tab);
                         this._router.navigate(
-                            ['/tabbed', this.id, selected_tab],
+                            ['/tabbed', this.id(), selected_tab],
                             {
                                 queryParamsHandling: 'merge',
                             },
@@ -329,26 +332,15 @@ export class TabOutletComponent extends AsyncHandler {
                 500,
             );
         });
+        // Select the first input of the tab when the user changes tab and
+        // the selected input is not on it
         effect(() => {
-            const available_inputs = this._available_inputs();
-            const tabs = this.tabs();
+            const input_list = this.inputs();
             const selected_input = this.system()?.selected_input;
-            const active_tab = this._route_tab();
             const user_action = this._user_action();
             this.timeout(
                 'inputs',
                 () => {
-                    const tab = tabs.find(
-                        (_: any) => (_.id || _.name) === active_tab,
-                    );
-                    const input_list = !tab
-                        ? []
-                        : available_inputs.filter(
-                              (_) =>
-                                  (!tab.inputs &&
-                                      (!tab.type || _.type === tab.type)) ||
-                                  (tab.inputs && tab.inputs.includes(_.id)),
-                          );
                     const has_selected = input_list.find(
                         (i) => (i.id || i.name) === selected_input,
                     );

@@ -62,7 +62,7 @@ import { DurationPipe } from './ui/duration.pipe';
                         [disabled]="!rec_status || rec_status === 'stopped'"
                         binding
                         [sys]="id"
-                        mod="Capture"
+                        [mod]="capture_mod()?.mod"
                         onEvent="click"
                         exec="stop"
                     >
@@ -79,7 +79,7 @@ import { DurationPipe } from './ui/duration.pipe';
                         class="rounded-none"
                         binding
                         [sys]="id"
-                        mod="Capture"
+                        [mod]="capture_mod()?.mod"
                         onEvent="click"
                         [exec]="rec_status === 'playing' ? 'pause' : 'start'"
                     >

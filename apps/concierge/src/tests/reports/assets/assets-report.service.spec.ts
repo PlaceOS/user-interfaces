@@ -1,7 +1,14 @@
 import { ApplicationRef } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { createServiceFactory, SpectatorService } from '@ngneat/spectator/vitest';
-import { OrganisationService, SettingsService, setNotifyOutlet } from '@placeos/common';
+import {
+    createServiceFactory,
+    SpectatorService,
+} from '@ngneat/spectator/vitest';
+import {
+    OrganisationService,
+    setNotifyOutlet,
+    SettingsService,
+} from '@placeos/common';
 import { MockProvider } from 'ng-mocks';
 
 import * as ts_client from '@placeos/ts-client';
@@ -129,6 +136,35 @@ describe('AssetsReportService', () => {
         expect(stats.booking_count).toBe(1);
         expect(stats.total_booked_items).toBe(1);
         expect(stats.cancelled_count).toBe(1);
+    });
+
+    it('should count every asset of a multi-asset booking', async () => {
+        (ts_client.get as any).mockResolvedValue([
+            makeBooking({ asset_ids: ['a1', 'a2'] }),
+        ]);
+        spectator.service.setOptions({ start: day_1, end: day_1 });
+        spectator.service.generateReport();
+        await settle();
+
+        expect(spectator.service.stats().products_booked).toEqual([
+            { name: 'Laptop', count: 2 },
+        ]);
+    });
+
+    it('should list purchase orders whose service ended before the start', async () => {
+        (ts_client.queryAssetPurchaseOrders as any).mockResolvedValue({
+            data: [
+                { id: 'expired', expected_service_end_date: 100 },
+                { id: 'current', expected_service_end_date: 9_999_999_999 },
+            ],
+        });
+        spectator.service.setOptions({ start: day_1, end: day_1 });
+        spectator.service.generateReport();
+        await settle();
+
+        expect(spectator.service.expired_items().map((_) => _.id)).toEqual([
+            'expired',
+        ]);
     });
 
     it('should notify when no bookings are returned', async () => {

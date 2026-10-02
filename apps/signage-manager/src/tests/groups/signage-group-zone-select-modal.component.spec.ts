@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { SignageGroupAdminService } from '../../app/groups/signage-group-admin.service';
 import { SignageGroupZoneSelectModalComponent } from '../../app/groups/signage-group-zone-select-modal.component';
-import { SignageService } from '../../app/signage.service';
 
 describe('SignageGroupZoneSelectModalComponent', () => {
     const flush = () => new Promise((resolve) => setTimeout(resolve));
@@ -13,7 +13,7 @@ describe('SignageGroupZoneSelectModalComponent', () => {
     function build() {
         TestBed.configureTestingModule({
             providers: [
-                { provide: SignageService, useValue: service_stub },
+                { provide: SignageGroupAdminService, useValue: service_stub },
                 { provide: MAT_DIALOG_DATA, useValue: modal_data },
                 { provide: MatDialogRef, useValue: dialog_ref },
             ],

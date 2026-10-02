@@ -1,10 +1,11 @@
 import { Component, computed, inject } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { Router } from '@angular/router';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import { GroupBreadcrumbsComponent } from '../shared/group-breadcrumbs.component';
-import { SignageService } from '../signage.service';
-import { MatTooltipModule } from '@angular/material/tooltip';
+import { SignageContextService } from '../signage-context.service';
+import { SignageZoneService } from './signage-zone.service';
 
 @Component({
     selector: 'zone-header',
@@ -31,7 +32,8 @@ import { MatTooltipModule } from '@angular/material/tooltip';
             <div class="w-px flex-1"></div>
             @if (can_manage_zones()) {
                 <button
-                    icon default
+                    icon
+                    default
                     type="button"
                     matRipple
                     class="text-xl"
@@ -39,7 +41,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
                     [attr.aria-label]="
                         'SIGNAGE_MANAGER.CREATE_NEW_ZONE' | translate
                     "
-                    [matTooltip]="'SIGNAGE_MANAGER.NEW_ZONE' | translate "
+                    [matTooltip]="'SIGNAGE_MANAGER.NEW_ZONE' | translate"
                 >
                     <icon>add</icon>
                 </button>
@@ -51,20 +53,21 @@ import { MatTooltipModule } from '@angular/material/tooltip';
         IconComponent,
         TranslatePipe,
         GroupBreadcrumbsComponent,
-        MatTooltipModule
+        MatTooltipModule,
     ],
 })
 export class ZoneHeaderComponent {
-    private readonly _service = inject(SignageService);
+    private readonly _context = inject(SignageContextService);
+    private readonly _zone_service = inject(SignageZoneService);
     private readonly _router = inject(Router);
 
     public readonly total_count = computed(
-        () => this._service.filtered_zones().length,
+        () => this._zone_service.filtered_zones().length,
     );
-    public readonly can_manage_zones = this._service.can_manage_zones;
+    public readonly can_manage_zones = this._context.can_manage_zones;
 
     public async addZone() {
-        const zone = await this._service.addZone();
+        const zone = await this._zone_service.addZone();
         if (zone?.id) await this._router.navigate(['/zones', zone.id]);
     }
 }

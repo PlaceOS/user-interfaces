@@ -219,23 +219,27 @@ export class ReportsOptionsComponent extends AsyncHandler implements OnInit {
     public readonly setStartDate = (date) => {
         if (date instanceof Date) date = date.valueOf();
         this.start.set(date);
-        this._router.navigate([], {
-            relativeTo: this._route,
-            queryParams: { start: date },
-            queryParamsHandling: 'merge',
-        });
+        this._navigateToDates();
     };
 
     public readonly setEndDate = (date) => {
         if (date instanceof Date) date = date.valueOf();
-        const end = endOfDay(date).valueOf();
-        this.end.set(end);
+        this.end.set(endOfDay(date).valueOf());
+        this._navigateToDates();
+    };
+
+    /**
+     * Write both dates to the URL. The date field can change the start and
+     * end in the same tick, and separate merges would each start from the
+     * old URL, so the second would restore the old value.
+     */
+    private _navigateToDates() {
         this._router.navigate([], {
             relativeTo: this._route,
-            queryParams: { end },
+            queryParams: { start: this.start(), end: this.end() },
             queryParamsHandling: 'merge',
         });
-    };
+    }
 
     public readonly setZones = (zones) => {
         this.zones.set(zones);
@@ -388,18 +392,16 @@ export class ReportsOptionsComponent extends AsyncHandler implements OnInit {
         this.subscription(
             'route.query',
             this._route.queryParamMap.subscribe((params) => {
-                if (params.has('zone_ids')) {
-                    const zones = params.get('zone_ids').split(',');
-                    if (zones.length) {
-                        const level = this._org.levelWithID(zones);
-                        if (!level) {
-                            return;
-                        }
-                        this._org.building = this._org.buildings.find(
-                            (bld) => bld.id === level.parent_id,
-                        );
-                        this.zones.set(zones);
-                    }
+                // Apply the dates even when the levels are not loaded yet.
+                const zones = params.get('zone_ids')?.split(',') || [];
+                const level = zones.length
+                    ? this._org.levelWithID(zones)
+                    : null;
+                if (level) {
+                    this._org.building = this._org.buildings.find(
+                        (bld) => bld.id === level.parent_id,
+                    );
+                    this.zones.set(zones);
                 }
                 if (params.has('start')) this.start.set(+params.get('start'));
                 if (params.has('end')) this.end.set(+params.get('end'));

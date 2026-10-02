@@ -181,31 +181,46 @@ function uploadErrorMessage(error: unknown) {
         >
             @if (uploading()) {
                 <div class="text-base-content/70 flex-1 text-sm">
-                    {{
-                        'SIGNAGE_MANAGER.BULK_UPLOAD_UPLOADING'
-                            | translate
-                                : {
-                                      current: done_count() + error_count() + 1,
-                                      total: rows().length,
-                                  }
-                    }}
+                    @if (stopping()) {
+                        {{ 'SIGNAGE_MANAGER.BULK_UPLOAD_STOPPING' | translate }}
+                    } @else {
+                        {{
+                            'SIGNAGE_MANAGER.BULK_UPLOAD_UPLOADING'
+                                | translate
+                                    : {
+                                          current:
+                                              done_count() + error_count() + 1,
+                                          total: rows().length,
+                                      }
+                        }}
+                    }
                 </div>
+                <button
+                    btn
+                    matRipple
+                    type="button"
+                    class="inverse w-32"
+                    [disabled]="stopping()"
+                    (click)="stop()"
+                >
+                    {{ 'COMMON.CANCEL' | translate }}
+                </button>
+            } @else {
+                <button
+                    btn
+                    matRipple
+                    type="button"
+                    class="inverse w-32"
+                    mat-dialog-close
+                >
+                    {{
+                        (done_count() || error_count()
+                            ? 'SIGNAGE_MANAGER.BULK_UPLOAD_CLOSE'
+                            : 'COMMON.CANCEL'
+                        ) | translate
+                    }}
+                </button>
             }
-            <button
-                btn
-                matRipple
-                type="button"
-                class="inverse w-32"
-                mat-dialog-close
-                [disabled]="uploading()"
-            >
-                {{
-                    (done_count() || error_count()
-                        ? 'SIGNAGE_MANAGER.BULK_UPLOAD_CLOSE'
-                        : 'COMMON.CANCEL'
-                    ) | translate
-                }}
-            </button>
             <button
                 btn
                 matRipple
@@ -252,6 +267,8 @@ export class BulkMediaUploadModalComponent {
     );
     public readonly permissions = signal<UploadPermissions>('none');
     public readonly uploading = signal(false);
+    /** Set by `stop()`. The upload loop ends after the current file. */
+    public readonly stopping = signal(false);
 
     public readonly done_count = computed(
         () => this.rows().filter((_) => _.status === 'done').length,
@@ -277,12 +294,18 @@ export class BulkMediaUploadModalComponent {
         );
     }
 
+    /** Stop the upload after the current file. The file in flight completes. */
+    public stop() {
+        if (this.uploading()) this.stopping.set(true);
+    }
+
     public async uploadAll() {
         if (this.uploading()) return;
         this.uploading.set(true);
         this._dialog_ref.disableClose = true;
         const permissions = this.permissions();
         for (const row of this.rows()) {
+            if (this.stopping()) break;
             if (row.status !== 'pending' && row.status !== 'error') continue;
             this._patchRow(row.id, {
                 status: 'uploading',
@@ -305,6 +328,8 @@ export class BulkMediaUploadModalComponent {
         }
         this._dialog_ref.disableClose = false;
         this.uploading.set(false);
+        const stopped = this.stopping();
+        this.stopping.set(false);
         const failed = this.error_count();
         if (failed) {
             notifyError(
@@ -312,6 +337,8 @@ export class BulkMediaUploadModalComponent {
             );
             return;
         }
+        // Files not yet uploaded stay in the list to start again or close
+        if (stopped && this.remaining_count()) return;
         notifySuccess(
             i18n('SIGNAGE_MANAGER.BULK_UPLOAD_SUCCESS', {
                 count: this.done_count(),

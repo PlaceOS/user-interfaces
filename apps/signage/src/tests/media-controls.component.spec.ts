@@ -18,15 +18,24 @@ describe('MediaControlsComponent', () => {
         spectator = create_component();
     });
 
+    it('should show a ripple on each control', () => {
+        const buttons = spectator.queryAll('button');
+
+        expect(buttons.length).toBeGreaterThan(0);
+        for (const button of buttons) {
+            expect(button.classList).toContain('mat-ripple');
+        }
+    });
+
     it('should show a spinner over the play/pause control while loading', () => {
-        spectator.component.loading.set(true);
+        spectator.setInput('loading', true);
         spectator.detectChanges();
 
         expect(spectator.query('mat-spinner')).toBeTruthy();
     });
 
     it('should hide the spinner when playback is not loading', () => {
-        spectator.component.loading.set(false);
+        spectator.setInput('loading', false);
         spectator.detectChanges();
 
         expect(spectator.query('mat-spinner')).toBeFalsy();
@@ -79,7 +88,7 @@ describe('MediaControlsComponent', () => {
 
     it('should emit PAUSE from the play/pause control while playing', () => {
         const emit_spy = vi.spyOn(spectator.component.event, 'emit');
-        spectator.component.state.set('PLAYING');
+        spectator.setInput('state', 'PLAYING');
         spectator.detectChanges();
         const buttons = spectator.queryAll('button') as HTMLButtonElement[];
 
@@ -90,7 +99,7 @@ describe('MediaControlsComponent', () => {
 
     it('should emit PLAY from the play/pause control while paused', () => {
         const emit_spy = vi.spyOn(spectator.component.event, 'emit');
-        spectator.component.state.set('PAUSED');
+        spectator.setInput('state', 'PAUSED');
         spectator.detectChanges();
         const buttons = spectator.queryAll('button') as HTMLButtonElement[];
 
@@ -102,7 +111,7 @@ describe('MediaControlsComponent', () => {
     it('should show the green animating overlay while animating', () => {
         expect(spectator.query('.bg-success')).toBeFalsy();
 
-        spectator.component.animating.set(true);
+        spectator.setInput('animating', true);
         spectator.detectChanges();
 
         expect(spectator.query('.bg-success')).toBeTruthy();
@@ -130,58 +139,58 @@ describe('MediaControlsComponent (icons)', () => {
     };
 
     it('should show the pause icon while playing', () => {
-        spectator.component.state.set('PLAYING');
+        spectator.setInput('state', 'PLAYING');
         spectator.detectChanges();
 
         expect(icon_text(1)).toBe('pause');
     });
 
     it('should show the play icon while paused', () => {
-        spectator.component.state.set('PAUSED');
+        spectator.setInput('state', 'PAUSED');
         spectator.detectChanges();
 
         expect(icon_text(1)).toBe('play_arrow');
     });
 
     it('should toggle the volume icon when muted', () => {
-        spectator.component.muted.set(false);
+        spectator.setInput('muted', false);
         spectator.detectChanges();
         expect(icon_text(3)).toBe('volume_up');
 
-        spectator.component.muted.set(true);
+        spectator.setInput('muted', true);
         spectator.detectChanges();
         expect(icon_text(3)).toBe('volume_off');
     });
 
     it('should show the repeat_one icon when looping a single item', () => {
-        spectator.component.loop.set('ONE');
+        spectator.setInput('loop', 'ONE');
         spectator.detectChanges();
 
         expect(icon_text(4)).toBe('repeat_one');
     });
 
     it('should dim the loop icon when looping is off', () => {
-        spectator.component.loop.set('NONE');
+        spectator.setInput('loop', 'NONE');
         spectator.detectChanges();
         const loop_icon = (
             spectator.queryAll('button')[4] as HTMLButtonElement
         ).querySelector('icon');
         expect(loop_icon?.classList).toContain('opacity-30');
 
-        spectator.component.loop.set('ALL');
+        spectator.setInput('loop', 'ALL');
         spectator.detectChanges();
         expect(loop_icon?.classList).not.toContain('opacity-30');
     });
 
     it('should dim the shuffle icon when shuffle is off', () => {
-        spectator.component.shuffle.set(false);
+        spectator.setInput('shuffle', false);
         spectator.detectChanges();
         const shuffle_icon = (
             spectator.queryAll('button')[5] as HTMLButtonElement
         ).querySelector('icon');
         expect(shuffle_icon?.classList).toContain('opacity-30');
 
-        spectator.component.shuffle.set(true);
+        spectator.setInput('shuffle', true);
         spectator.detectChanges();
         expect(shuffle_icon?.classList).not.toContain('opacity-30');
     });

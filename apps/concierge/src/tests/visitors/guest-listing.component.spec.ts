@@ -23,6 +23,7 @@ describe('GuestListingComponent', () => {
         detectChanges: false,
         providers: [
             MockProvider(VisitorsStateService, {
+                load_error: signal(false),
                 filtered_bookings,
                 filters,
                 search: '',
@@ -126,6 +127,21 @@ describe('GuestListingComponent', () => {
         );
 
         date_now.mockRestore();
+    });
+
+    it('should store the reserved parking booking on the visitor', async () => {
+        const booking = new Booking({ id: 'booking-1' });
+        vi.mocked(
+            spectator.inject(ParkingStateService).editReservation,
+        ).mockResolvedValue('parking-1' as any);
+
+        await spectator.component.reserveParking(booking);
+
+        expect(set_ext).toHaveBeenCalledWith(
+            booking,
+            'parking_booking_id',
+            'parking-1',
+        );
     });
 
     it('should assign a pass number to the visitor', async () => {

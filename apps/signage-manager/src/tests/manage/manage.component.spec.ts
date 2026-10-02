@@ -1,6 +1,6 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { AiImageService } from '../../app/ai/ai-image.service';
+import { ImageGenService } from '../../app/image-gen/image-gen.service';
 import { ManageSectionComponent } from '../../app/manage/manage.component';
 
 describe('ManageSectionComponent', () => {
@@ -8,7 +8,7 @@ describe('ManageSectionComponent', () => {
 
     function make() {
         TestBed.configureTestingModule({
-            providers: [{ provide: AiImageService, useValue: { enabled } }],
+            providers: [{ provide: ImageGenService, useValue: { enabled } }],
         }).overrideComponent(ManageSectionComponent, {
             set: { template: '', imports: [] },
         });

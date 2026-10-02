@@ -48,6 +48,22 @@ export const current_user = _current_user.asObservable();
 export const user_groups = signal<PlaceCurrentGroup[]>([]);
 export const user_groups_loaded = signal(false);
 const user_signal = signal(EMPTY_USER);
+_current_user.subscribe((u) => user_signal.set(u));
+
+/** True when both lists hold the same group names, in any order */
+function sameGroups(a: readonly string[], b: readonly string[]) {
+    if (a.length !== b.length) return false;
+    const set = new Set(a);
+    return b.every((group) => set.has(group));
+}
+
+/**
+ * Group names of the current user. Only changes when the set of groups
+ * changes, so read it to recompute group-based rules and views.
+ */
+export const user_group_names = computed(() => user_signal().groups || [], {
+    equal: sameGroups,
+});
 
 const PERMISSION_VALUES = [
     ['read', GroupPermission.Read],
@@ -217,7 +233,6 @@ async function loadUserGroups() {
 
 function initialiseUser() {
     if (isTestRuntime()) return;
-    _current_user.subscribe((u) => user_signal.set(u));
     const is_public_mode = isPublicMode();
     // Cached details are displayed immediately, then replaced by the request
     // below with the latest.
@@ -253,23 +268,22 @@ function initialiseUser() {
                 },
             }),
         )
-        .subscribe((user) => {
-            _current_user.next(user);
-            setDefaultCreator(user);
-            storeUserData();
-            loadUserGroups();
-        });
+        .subscribe((user) => applyUser(user));
+}
+
+/** Set the loaded user as the current user and load their group permissions */
+function applyUser(user: StaffUser) {
+    _current_user.next(user);
+    setDefaultCreator(user);
+    storeUserData();
+    return loadUserGroups();
 }
 
 export function reloadUserData() {
     setTimeout(async () => {
         try {
             const p_user = await showUser('current');
-            const user = new StaffUser(p_user);
-            _current_user.next(user);
-            setDefaultCreator(user);
-            storeUserData();
-            loadUserGroups();
+            applyUser(new StaffUser(p_user));
         } catch (error) {
             if (isPublicMode()) {
                 console.warn(
@@ -284,6 +298,27 @@ export function reloadUserData() {
     }, 300);
 }
 
+/**
+ * Load the current user again and apply the result if the groups changed.
+ * The group sync that runs after sign in can finish after the first user
+ * request, so a new sign in can start without the user's groups.
+ *
+ * Returns true if the groups changed.
+ */
+export async function checkUserGroupChanges(): Promise<boolean> {
+    const current = currentUser();
+    if (isPublicMode() || isEmptyUser(current)) return false;
+    try {
+        const user = new StaffUser(await showUser('current'));
+        if (sameGroups(current.groups || [], user.groups || [])) return false;
+        await applyUser(user);
+        return true;
+    } catch (error) {
+        console.warn('Failed to check for user group changes.', error);
+        return false;
+    }
+}
+
 /** Get the current user details */
 export function currentUser() {
     return _current_user.getValue() || EMPTY_USER;
@@ -292,7 +327,6 @@ export function currentUser() {
 /** Override the current user store. Intended for tests seeding a loaded user. */
 export function setCurrentUser(user: StaffUser) {
     _current_user.next(user);
-    user_signal.set(user);
 }
 
 export function currentUserIsLoaded() {

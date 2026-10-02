@@ -17,7 +17,7 @@ import {
     SettingsToggleComponent,
     TranslatePipe,
 } from '@placeos/components';
-import { DateOptionsComponent } from '../ui/date-options.component';
+import { DateOptionsComponent } from '@placeos/form-fields';
 import { BookingUIOptions, EventsStateService } from './events-state.service';
 
 @Component({

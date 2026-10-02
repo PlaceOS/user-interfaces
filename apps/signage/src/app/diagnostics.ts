@@ -9,7 +9,7 @@
  */
 export interface SignageDiagnostics {
     /** Log the current player state to the console and return it */
-    state: () => Record<string, any>;
+    state: () => Record<string, unknown>;
     /** The current player state as formatted JSON */
     json: () => string;
     /** Force an immediate display refresh */
@@ -19,7 +19,7 @@ export interface SignageDiagnostics {
 }
 
 export interface SignageDiagnosticActions {
-    getState: () => Record<string, any>;
+    getState: () => Record<string, unknown>;
     poll: () => void;
     reload?: () => void;
 }
@@ -53,7 +53,7 @@ export function registerSignageDiagnostics(
     };
 }
 
-function logState(state: Record<string, any>) {
+function logState(state: Record<string, unknown>) {
     /* eslint-disable no-console */
     console.groupCollapsed(
         `%cPlaceOS Signage%c ${state.display_id || 'no display'}`,

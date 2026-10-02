@@ -13,3 +13,12 @@ body {
     margin: 0;
     font-family: Roboto, 'Helvetica Neue', sans-serif;
 }
+
+/* E-ink panels take seconds to redraw. Remove motion to avoid partial frames */
+body.eink *,
+body.eink *::before,
+body.eink *::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+}

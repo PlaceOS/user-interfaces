@@ -1,14 +1,14 @@
-import { enableProdMode } from '@angular/core';
 import { bootstrapApplication } from '@angular/platform-browser';
 
 import { AppComponent } from './app/app.component';
 import { appConfig } from './app/app.config';
-import { environment } from './environments/environment';
+import { resetBootRetries, scheduleBootRetry } from './app/watchdog';
 
-if (environment.production) {
-    enableProdMode();
-}
-
-bootstrapApplication(AppComponent, appConfig).catch((err) =>
-    console.error(err),
-);
+// The recovery watchdog starts inside the application, so a failed start is
+// retried here or the display stays blank until someone power-cycles it.
+bootstrapApplication(AppComponent, appConfig)
+    .then(() => resetBootRetries())
+    .catch((err) => {
+        console.error(err);
+        scheduleBootRetry();
+    });

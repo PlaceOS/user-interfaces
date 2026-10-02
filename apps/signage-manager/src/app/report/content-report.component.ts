@@ -2,11 +2,14 @@ import { Component, computed, inject, resource } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { RouterLink } from '@angular/router';
+import { i18n } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import type { SignageMedia } from '@placeos/ts-client';
 import { format } from 'date-fns';
+import { SignageMediaService } from '../media/signage-media.service';
 import { CONFLICT_WINDOW_DAYS } from '../schedules/schedule-conflicts.util';
-import { SignageService } from '../signage.service';
+import { SignageInventoryService } from '../signage-inventory.service';
+import { playlistExpiredAt } from '../signage-playlist.util';
 
 /** Most rows shown in each report section */
 const MAX_ROWS = 50;
@@ -27,6 +30,8 @@ interface ReportSection {
     title: string;
     hint: string;
     rows: ReportRow[];
+    /** Warning that the section is not complete */
+    note?: string;
 }
 
 /**
@@ -108,6 +113,14 @@ interface ReportSection {
                                         | translate: { days: window_days }
                                 }}
                             </p>
+                            @if (section.note) {
+                                <p
+                                    class="text-warning flex items-center gap-2 px-4 pt-2 text-xs"
+                                >
+                                    <icon>warning</icon>
+                                    {{ section.note }}
+                                </p>
+                            }
                             @if (section.rows.length) {
                                 <ul class="p-2">
                                     @for (
@@ -162,7 +175,7 @@ interface ReportSection {
                                         </li>
                                     }
                                 </ul>
-                            } @else {
+                            } @else if (!section.note) {
                                 <p
                                     class="flex items-center gap-2 px-4 py-3 text-sm opacity-60"
                                 >
@@ -190,13 +203,16 @@ interface ReportSection {
     ],
 })
 export class ContentReportComponent {
-    private readonly _service = inject(SignageService);
+    private readonly _inventory_service = inject(SignageInventoryService);
+    private readonly _media_service = inject(SignageMediaService);
 
     public readonly max_rows = MAX_ROWS;
     public readonly window_days = CONFLICT_WINDOW_DAYS;
-    // Loads when the page opens. The refresh button loads it again.
+    // Loads when the page opens, when the group changes and after a save.
+    // The refresh button loads it again.
     public readonly report = resource({
-        loader: () => this._service.loadContentReport(),
+        params: () => this._inventory_service.inventory_key(),
+        loader: () => this._inventory_service.loadContentReport(),
     });
 
     public readonly sections = computed<ReportSection[]>(() => {
@@ -248,7 +264,7 @@ export class ContentReportComponent {
                     key: playlist.id,
                     label: playlist.name,
                     detail: format(
-                        (playlist.valid_until || 0) * 1000,
+                        playlistExpiredAt(playlist) * 1000,
                         'd MMM yyyy',
                     ),
                     route: ['/playlists', playlist.id],
@@ -265,6 +281,13 @@ export class ContentReportComponent {
                     detail: playlists.map(({ name }) => name).join(', '),
                     media,
                 })),
+                note: report.expired_media_unchecked
+                    ? i18n(
+                          'SIGNAGE_MANAGER.REPORT_EXPIRED_MEDIA_PARTIAL',
+                          { count: report.expired_media_unchecked },
+                          report.expired_media_unchecked,
+                      )
+                    : '',
             },
         ];
     });
@@ -274,6 +297,6 @@ export class ContentReportComponent {
     }
 
     public preview(media: SignageMedia) {
-        void this._service.previewMedia(media);
+        void this._media_service.previewMedia(media);
     }
 }

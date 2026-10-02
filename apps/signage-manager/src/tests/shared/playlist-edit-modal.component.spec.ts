@@ -256,6 +256,7 @@ describe('PlaylistEditModalComponent', () => {
                           ...schedule,
                           schedule_type: 'play_at',
                           play_at,
+                          play_at_exact: true,
                           has_valid_from: true,
                           valid_from: play_at - 3600000,
                           play_period: 45,

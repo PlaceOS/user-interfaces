@@ -71,7 +71,7 @@ const DENIED_FILE_TYPES = [
                     matAutocompleteOrigin
                     #origin="matAutocompleteOrigin"
                 >
-                    <mat-chip-grid #chipList aria-label="User Seleciom">
+                    <mat-chip-grid #chipList aria-label="User selection">
                         @for (item of active_list(); track $index) {
                             <mat-chip-row
                                 user
@@ -104,7 +104,7 @@ const DENIED_FILE_TYPES = [
                                         'COMMON.REMOVE_ITEM'
                                             | translate
                                                 : {
-                                                      name:
+                                                      item:
                                                           item.name ||
                                                           item.email,
                                                   }

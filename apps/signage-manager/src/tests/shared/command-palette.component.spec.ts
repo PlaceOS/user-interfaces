@@ -2,9 +2,11 @@ import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { MatDialogRef } from '@angular/material/dialog';
 import { Router } from '@angular/router';
-import { AiImageService } from '../../app/ai/ai-image.service';
+import { ImageGenService } from '../../app/image-gen/image-gen.service';
+import { SignageMediaService } from '../../app/media/signage-media.service';
 import { CommandPaletteComponent } from '../../app/shared/command-palette.component';
-import { SignageService } from '../../app/signage.service';
+import { CommandPaletteService } from '../../app/shared/command-palette.service';
+import { SignageContextService } from '../../app/signage-context.service';
 
 describe('CommandPaletteComponent', () => {
     const flush = () => new Promise((resolve) => setTimeout(resolve));
@@ -24,17 +26,22 @@ describe('CommandPaletteComponent', () => {
         TestBed.configureTestingModule({
             providers: [
                 {
-                    provide: SignageService,
+                    provide: CommandPaletteService,
+                    useValue: { searchAll: search_all },
+                },
+                {
+                    provide: SignageMediaService,
+                    useValue: { previewMedia: preview_media },
+                },
+                {
+                    provide: SignageContextService,
                     useValue: {
-                        searchAll: search_all,
-                        previewMedia: preview_media,
-                        can_manage_all_groups: signal(false),
-                        manageable_signage_groups: signal([]),
+                        can_manage_groups: signal(false),
                         templates_enabled: signal(false),
                     },
                 },
                 {
-                    provide: AiImageService,
+                    provide: ImageGenService,
                     useValue: { enabled: signal(false) },
                 },
                 { provide: Router, useValue: { navigate } },

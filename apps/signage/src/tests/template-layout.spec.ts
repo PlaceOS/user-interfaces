@@ -47,6 +47,17 @@ describe('computeTemplateLayout', () => {
         });
     });
 
+    it('places a floating item without a position at the centre', () => {
+        const result = computeTemplateLayout([layout('floating')]);
+
+        expect(result.items[0].rect).toEqual({
+            left: 50,
+            top: 50,
+            width: 50,
+            height: 50,
+        });
+    });
+
     it('uses defaults and constrains item dimensions to the available space', () => {
         const result = computeTemplateLayout([
             layout('right'),

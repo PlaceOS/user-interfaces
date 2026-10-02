@@ -1,6 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { TranslatePipe } from '@placeos/components';
-import { SignageService } from '../signage.service';
+import { SignageGroupAdminService } from './signage-group-admin.service';
 
 @Component({
     selector: 'signage-group-tabs',
@@ -30,9 +30,9 @@ import { SignageService } from '../signage.service';
     `,
 })
 export class SignageGroupTabsComponent {
-    private readonly _service = inject(SignageService);
+    private readonly _group_admin = inject(SignageGroupAdminService);
 
-    public readonly active_tab = this._service.managed_group_tab;
+    public readonly active_tab = this._group_admin.managed_group_tab;
     public readonly tabs = [
         { id: 'users' as const, label: 'SIGNAGE_MANAGER.TAB_USERS' },
         { id: 'zones' as const, label: 'SIGNAGE_MANAGER.TAB_ZONES' },

@@ -1,3 +1,4 @@
+import type { MockInstance } from 'vitest';
 import {
     SIGNAGE_MEDIA_FILE_ACCEPT,
     SIGNAGE_MEDIA_PICKER_ACCEPT,
@@ -200,6 +201,67 @@ describe('signage-media-upload util', () => {
 
         await expect(validateSignageMediaFile(file)).resolves.toMatchObject({
             valid: false,
+        });
+    });
+
+    // A large video must not be read into memory to check its codecs
+    describe('reading only the headers', () => {
+        const bytesRead = (file: File, slice: MockInstance<Blob['slice']>) =>
+            slice.mock.calls.reduce(
+                (total, [start, end]) =>
+                    total + Math.min(end, file.size) - start,
+                0,
+            );
+
+        it('finds an MP4 moov box after the media data without reading it', async () => {
+            const file = new File(
+                [
+                    box('ftyp', ascii('isom')),
+                    box('mdat', new Uint8Array(2 * 1024 * 1024)),
+                    createMp4File(['avc1', 'mp4a']),
+                ],
+                'clip.mp4',
+                { type: 'video/mp4' },
+            );
+            const slice = vi.spyOn(file, 'slice');
+
+            await expect(validateSignageMediaFile(file)).resolves.toEqual({
+                valid: true,
+                media_type: 'video',
+            });
+            expect(bytesRead(file, slice)).toBeLessThan(1024);
+        });
+
+        it('rejects an MP4 without a moov box', async () => {
+            const file = new File(
+                [box('ftyp', ascii('isom')), box('mdat', new Uint8Array(64))],
+                'clip.mp4',
+                { type: 'video/mp4' },
+            );
+
+            await expect(validateSignageMediaFile(file)).resolves.toMatchObject({
+                valid: false,
+            });
+        });
+
+        it('checks WEBM codecs in the first 1 MB only', async () => {
+            // Frame data can hold codec-like bytes; they must not reject it
+            const frames = concatUint8Arrays(
+                new Uint8Array(1024 * 1024),
+                ascii('A_AAC'),
+            );
+            const file = new File(
+                [createWebmFile(['V_VP9', 'A_OPUS']), frames],
+                'clip.webm',
+                { type: 'video/webm' },
+            );
+            const slice = vi.spyOn(file, 'slice');
+
+            await expect(validateSignageMediaFile(file)).resolves.toEqual({
+                valid: true,
+                media_type: 'video',
+            });
+            expect(slice).toHaveBeenCalledExactlyOnceWith(0, 1024 * 1024);
         });
     });
 });

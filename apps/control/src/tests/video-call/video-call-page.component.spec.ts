@@ -141,16 +141,34 @@ describe('VideoCallPageComponent', () => {
         expect(router_mock.navigate).toHaveBeenCalledWith(['/panel', 'sys-1']);
     });
 
+    it('should leave once when the call clears before hang-up resolves', async () => {
+        spectator.detectChanges();
+        call_state.hangup.mockImplementation(async () => {
+            call_state.call.set(null);
+            spectator.detectChanges();
+        });
+        await spectator.component.endCall();
+        expect(router_mock.navigate).toHaveBeenCalledTimes(1);
+    });
+
     it('should not navigate on end call when redirect is disabled', async () => {
         spectator.setInput({ redirect: false });
         await spectator.component.endCall();
         expect(call_state.hangup).toHaveBeenCalled();
         expect(router_mock.navigate).not.toHaveBeenCalled();
+        expect(spectator.component.loading()).toBe('');
+    });
+
+    it('should navigate back to the panel when the call ends remotely', () => {
+        spectator.detectChanges();
+        call_state.call.set(null);
+        spectator.detectChanges();
+        expect(router_mock.navigate).toHaveBeenCalledWith(['/panel', 'sys-1']);
     });
 
     it('should surface errors and stop loading when hangup fails', async () => {
         call_state.hangup.mockRejectedValue('boom');
-        await expect(spectator.component.endCall()).rejects.toBe('boom');
+        await expect(spectator.component.endCall()).resolves.toBeUndefined();
         expect(spectator.component.loading()).toBe('');
         expect(router_mock.navigate).not.toHaveBeenCalled();
     });
@@ -161,9 +179,35 @@ describe('VideoCallPageComponent', () => {
         expect(execute_spy).toHaveBeenCalledWith('selected_camera', ['cam-1']);
     });
 
-    it('should not execute when the System module is unavailable', () => {
-        (client.getModule as any).mockReturnValue(null);
-        spectator.component.selectCamera('cam-1');
-        expect(execute_spy).not.toHaveBeenCalled();
+    it('should reset the layout select when the change fails', async () => {
+        call_state.setVideoLayout.mockResolvedValue(false);
+        await spectator.component.setVideoLayout('Single');
+        expect(spectator.component.video_layout()).toBe('Auto');
+    });
+
+    it('should keep the new layout when the change succeeds', async () => {
+        call_state.setVideoLayout.mockResolvedValue(true);
+        await spectator.component.setVideoLayout('Single');
+        expect(spectator.component.video_layout()).toBe('Single');
+    });
+
+    it('should leave space above the call actions when asked', () => {
+        expect(spectator.query('[actions]')).not.toHaveClass('pt-14');
+        spectator.setInput({ reserve_top: true });
+        expect(spectator.query('[actions]')).toHaveClass('pt-14');
+    });
+
+    it('should keep a later layout when an earlier change fails last', async () => {
+        let fail_first: (ok: boolean) => void = () => null;
+        call_state.setVideoLayout
+            .mockImplementationOnce(
+                () => new Promise<boolean>((r) => (fail_first = r)),
+            )
+            .mockResolvedValueOnce(true);
+        const first = spectator.component.setVideoLayout('Single');
+        await spectator.component.setVideoLayout('Equal');
+        fail_first(false);
+        await first;
+        expect(spectator.component.video_layout()).toBe('Equal');
     });
 });

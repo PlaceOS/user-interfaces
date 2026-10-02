@@ -1,11 +1,13 @@
 import { Component, inject } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialog } from '@angular/material/dialog';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { i18n } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import { PlaceGroupZone } from '@placeos/ts-client';
-import { dialogClosed, SignageService } from '../signage.service';
+import { dialogClosed } from '../signage-service.util';
+import { SignageGroupAdminService } from './signage-group-admin.service';
 import {
     groupPermissionLabels,
     SignageGroupPermissionsModalComponent,
@@ -43,6 +45,7 @@ import { SignageGroupZoneSelectModalComponent } from './signage-group-zone-selec
                     [attr.aria-label]="
                         'SIGNAGE_MANAGER.ADD_ZONE_ARIA' | translate
                     "
+                    [disabled]="loading() || failed()"
                     (click)="addZone()"
                 >
                     <icon>add</icon>
@@ -128,6 +131,19 @@ import { SignageGroupZoneSelectModalComponent } from './signage-group-zone-selec
                             </button>
                         </div>
                     }
+                } @else if (loading()) {
+                    <div class="flex justify-center p-6">
+                        <mat-spinner diameter="32" />
+                    </div>
+                } @else if (failed()) {
+                    <div
+                        class="text-error flex flex-col items-center justify-center space-y-2 p-6"
+                    >
+                        <icon class="text-4xl">error</icon>
+                        <p class="text-sm">
+                            {{ 'SIGNAGE_MANAGER.ZONES_LOAD_ERROR' | translate }}
+                        </p>
+                    </div>
                 } @else {
                     <div
                         class="text-base-content/70 flex flex-col items-center justify-center space-y-2 p-6"
@@ -151,13 +167,21 @@ import { SignageGroupZoneSelectModalComponent } from './signage-group-zone-selec
             }
         `,
     ],
-    imports: [MatRippleModule, MatTooltipModule, IconComponent, TranslatePipe],
+    imports: [
+        MatProgressSpinnerModule,
+        MatRippleModule,
+        MatTooltipModule,
+        IconComponent,
+        TranslatePipe,
+    ],
 })
 export class SignageGroupZonesComponent {
-    private readonly _service = inject(SignageService);
+    private readonly _group_admin = inject(SignageGroupAdminService);
     private readonly _dialog = inject(MatDialog);
 
-    public readonly zones = this._service.managed_group_zones;
+    public readonly zones = this._group_admin.managed_group_zones;
+    public readonly loading = this._group_admin.managed_group_zones_loading;
+    public readonly failed = this._group_admin.managed_group_zones_failed;
     public readonly permissionLabels = groupPermissionLabels;
 
     public async addZone() {
@@ -169,7 +193,7 @@ export class SignageGroupZonesComponent {
                 panelClass: 'mobile-fullscreen',
             }),
         );
-        if (zone) await this._service.addManagedGroupZone(zone);
+        if (zone) await this._group_admin.addManagedGroupZone(zone);
     }
 
     public async editZonePermissions(row: PlaceGroupZone) {
@@ -184,7 +208,7 @@ export class SignageGroupZonesComponent {
             }),
         );
         if (result) {
-            await this._service.updateManagedGroupZone(
+            await this._group_admin.updateManagedGroupZone(
                 row,
                 result.permissions,
                 result.deny,
@@ -193,6 +217,6 @@ export class SignageGroupZonesComponent {
     }
 
     public removeZone(row: PlaceGroupZone) {
-        this._service.removeManagedGroupZone(row);
+        this._group_admin.removeManagedGroupZone(row);
     }
 }

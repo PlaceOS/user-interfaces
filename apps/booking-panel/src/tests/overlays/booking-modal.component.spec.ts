@@ -80,4 +80,13 @@ describe('BookingModalComponent', () => {
         spectator = createComponent();
         expect(spectator.component.model().duration).toBe(20);
     });
+
+    it('should mark the host field invalid until a host is set', () => {
+        expect(spectator.component.form.organiser().invalid()).toBe(true);
+        spectator.component.model.update((m) => ({
+            ...m,
+            organiser: { email: 'j@b.com' } as any,
+        }));
+        expect(spectator.component.form.organiser().invalid()).toBe(false);
+    });
 });

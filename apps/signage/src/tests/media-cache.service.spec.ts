@@ -7,6 +7,22 @@ import { Subject } from 'rxjs';
 
 import { MediaCacheService } from '../app/media-cache.service';
 
+/**
+ * Before Node 24, `Response.blob()` returns Node's own Blob. jsdom's File does
+ * not take that as a part and stores the text "[object Blob]" instead. A
+ * browser has a single Blob type, so hand the service jsdom's.
+ */
+class JsdomResponse extends Response {
+    override async blob() {
+        const blob = await super.blob();
+        if (blob instanceof Blob) return blob;
+        const node_blob = blob as unknown as Blob;
+        return new Blob([await node_blob.arrayBuffer()], {
+            type: node_blob.type,
+        });
+    }
+}
+
 describe('MediaCacheService', () => {
     let spectator: SpectatorService<MediaCacheService>;
     const stored_files = new Map<
@@ -124,11 +140,13 @@ describe('MediaCacheService', () => {
             transaction: vi.fn(create_transaction),
         } as any;
         spectator.service['_cache_db_ready'] = Promise.resolve();
+        vi.stubGlobal('Response', JsdomResponse);
     });
 
     afterEach(() => {
         spectator.service.ngOnDestroy();
         vi.restoreAllMocks();
+        vi.unstubAllGlobals();
     });
 
     it('should not read stored files when re-confirming a cached playlist', async () => {
@@ -490,6 +508,9 @@ describe('MediaCacheService', () => {
         await expect(spectator.service.getFile('/blank.png')).resolves.toEqual(
             expect.any(File),
         );
+        // The blank record is replaced, not left behind
+        expect(stored_files.has('blank-file')).toBe(false);
+        expect(stored_files.size).toBe(1);
     });
 
     it('should reject empty downloads instead of storing blank files', async () => {
@@ -532,8 +553,9 @@ describe('MediaCacheService', () => {
         const cache_promise = spectator.service.requestFilesToCache([
             '/waiting.png',
         ]);
-        await Promise.resolve();
-        await Promise.resolve();
+        for (let i = 0; i < 20 && !fetch_spy.mock.calls.length; i++) {
+            await Promise.resolve();
+        }
 
         expect(fetch_spy).toHaveBeenCalledWith(
             '/waiting.png',
@@ -639,7 +661,7 @@ describe('MediaCacheService', () => {
         ]);
     });
 
-    it('should keep earlier priority files when the owner cache is over size', async () => {
+    it('should not download a priority file that cannot fit', async () => {
         const fetch_spy = vi
             .fn()
             .mockResolvedValueOnce({
@@ -659,12 +681,14 @@ describe('MediaCacheService', () => {
             value: fetch_spy,
         });
 
-        await spectator.service.requestFilesToCache(
+        const has_failures = await spectator.service.requestFilesToCache(
             ['/first.png', '/second.png', '/third.png'],
             'display-1',
             { max_size: 8 },
         );
 
+        expect(has_failures).toBe(false);
+        expect(fetch_spy).toHaveBeenCalledTimes(2);
         expect(spectator.service.availableFiles('display-1')).toEqual([
             '/first.png',
             '/second.png',
@@ -672,6 +696,11 @@ describe('MediaCacheService', () => {
         expect([...stored_files.values()].map((_) => _.url)).toEqual([
             '/first.png',
             '/second.png',
+        ]);
+        // Plays from the network without waiting on a download
+        expect(spectator.service.isLoadingFile('/third.png')).toBe(false);
+        expect(spectator.service.cacheState().too_large).toEqual([
+            '/third.png',
         ]);
     });
 
@@ -832,6 +861,19 @@ describe('MediaCacheService', () => {
                     Promise.resolve(new Blob(['image'], { type: 'image/png' })),
             } as Response);
 
+        const streamed_response = (
+            body: ReadableStream<Uint8Array>,
+            length = 0,
+        ) =>
+            ({
+                ok: true,
+                headers: new Headers({
+                    'content-type': 'image/png',
+                    ...(length ? { 'content-length': `${length}` } : {}),
+                }),
+                body,
+            }) as Response;
+
         const cached_entry = (id: string, url: string) => ({
             id,
             url,
@@ -876,16 +918,10 @@ describe('MediaCacheService', () => {
                     const transaction: any = {
                         objectStore: () => ({
                             add: () => {
-                                const request: any = {};
-                                queueMicrotask(() =>
-                                    request.onerror?.({
-                                        target: {
-                                            error: new Error(
-                                                'QuotaExceededError',
-                                            ),
-                                        },
-                                    }),
-                                );
+                                const request: any = {
+                                    error: new Error('QuotaExceededError'),
+                                };
+                                queueMicrotask(() => request.onerror?.());
                                 return request;
                             },
                         }),
@@ -917,12 +953,10 @@ describe('MediaCacheService', () => {
                 transaction: vi.fn(() => ({
                     objectStore: () => ({
                         add: () => {
-                            const request: any = {};
-                            queueMicrotask(() =>
-                                request.onerror?.({
-                                    target: { error: new Error('nope') },
-                                }),
-                            );
+                            const request: any = {
+                                error: new Error('nope'),
+                            };
+                            queueMicrotask(() => request.onerror?.());
                             return request;
                         },
                     }),
@@ -1027,19 +1061,15 @@ describe('MediaCacheService', () => {
         it('should abandon a download that stops sending data', async () => {
             vi.useFakeTimers();
             try {
-                const cancel = vi.fn().mockResolvedValue(undefined);
                 Object.defineProperty(globalThis, 'fetch', {
                     configurable: true,
-                    value: vi.fn().mockResolvedValue({
-                        ok: true,
-                        headers: { get: () => 'image/png' },
-                        body: {
-                            getReader: () => ({
-                                read: () => new Promise(() => undefined),
-                                cancel,
+                    value: vi.fn().mockResolvedValue(
+                        streamed_response(
+                            new ReadableStream<Uint8Array>({
+                                pull: () => new Promise(() => undefined),
                             }),
-                        },
-                    }),
+                        ),
+                    ),
                 });
 
                 const cache_promise = spectator.service.requestFilesToCache([
@@ -1060,19 +1090,17 @@ describe('MediaCacheService', () => {
             const chunks = [new Uint8Array([1, 2]), new Uint8Array([3])];
             Object.defineProperty(globalThis, 'fetch', {
                 configurable: true,
-                value: vi.fn().mockResolvedValue({
-                    ok: true,
-                    headers: { get: () => 'image/png' },
-                    body: {
-                        getReader: () => ({
-                            read: async () =>
-                                chunks.length
-                                    ? { done: false, value: chunks.shift() }
-                                    : { done: true, value: undefined },
-                            cancel: vi.fn(),
+                value: vi.fn().mockResolvedValue(
+                    streamed_response(
+                        new ReadableStream<Uint8Array>({
+                            pull: (controller) => {
+                                const chunk = chunks.shift();
+                                if (chunk) controller.enqueue(chunk);
+                                else controller.close();
+                            },
                         }),
-                    },
-                }),
+                    ),
+                ),
             });
 
             const file = await spectator.service.fetchFile('/chunked.png');
@@ -1080,6 +1108,503 @@ describe('MediaCacheService', () => {
             expect(file?.size).toBe(3);
             expect(file?.type).toBe('image/png');
             expect(spectator.service.isCachedFile('/chunked.png')).toBe(true);
+        });
+
+        it('should let a slow download finish while data keeps arriving', async () => {
+            vi.useFakeTimers();
+            try {
+                // 40 chunks, 30 seconds apart: 20 minutes in all
+                let sent = 0;
+                Object.defineProperty(globalThis, 'fetch', {
+                    configurable: true,
+                    value: vi.fn().mockResolvedValue(
+                        streamed_response(
+                            new ReadableStream<Uint8Array>({
+                                pull: async (controller) => {
+                                    await new Promise((resolve) =>
+                                        setTimeout(resolve, 30_000),
+                                    );
+                                    controller.enqueue(new Uint8Array([1]));
+                                    if (++sent >= 40) controller.close();
+                                },
+                            }),
+                        ),
+                    ),
+                });
+
+                const cache_promise = spectator.service.requestFilesToCache([
+                    '/slow.mp4',
+                ]);
+                await vi.advanceTimersByTimeAsync(21 * 60_000);
+
+                await expect(cache_promise).resolves.toBe(false);
+                expect(spectator.service.cacheState().files[0].size).toBe(40);
+            } finally {
+                vi.useRealTimers();
+            }
+        });
+
+        it('should not download a file whose length cannot fit', async () => {
+            const body = new ReadableStream<Uint8Array>();
+            const fetch_spy = vi
+                .fn()
+                .mockResolvedValue(streamed_response(body, 100));
+            Object.defineProperty(globalThis, 'fetch', {
+                configurable: true,
+                value: fetch_spy,
+            });
+
+            const has_failures = await spectator.service.requestFilesToCache(
+                ['/huge.mp4'],
+                'display-1',
+                { max_size: 50 },
+            );
+            await spectator.service.requestFilesToCache(
+                ['/huge.mp4'],
+                'display-1',
+                { max_size: 50 },
+            );
+
+            // Refused on its headers, and not asked for again
+            expect(has_failures).toBe(false);
+            expect(fetch_spy).toHaveBeenCalledTimes(1);
+            expect(body.locked).toBe(false);
+            expect(spectator.service.isLoadingFile('/huge.mp4')).toBe(false);
+            // Playback streams it from the server instead
+            await expect(
+                spectator.service.fetchFile('/huge.mp4', 'display-1'),
+            ).resolves.toBeNull();
+            expect(fetch_spy).toHaveBeenCalledTimes(1);
+        });
+
+        it('should evict files outside the playlist to make room before storing', async () => {
+            Object.defineProperty(globalThis, 'fetch', {
+                configurable: true,
+                value: good_fetch(),
+            });
+            stored_files.set('stale', {
+                name: 'stale',
+                url: '/stale.png',
+                owner: 'display-1',
+                owners: ['display-1'],
+                file: new File(['12345'], 'stale'),
+            });
+            spectator.service['_file_cache_index'].set([
+                cached_entry('stale', '/stale.png'),
+            ]);
+
+            const has_failures = await spectator.service.requestFilesToCache(
+                ['/new.png'],
+                'display-1',
+                { max_size: 8 },
+            );
+
+            expect(has_failures).toBe(false);
+            expect(spectator.service.availableFiles()).toEqual(['/new.png']);
+            expect([...stored_files.values()].map((_) => _.url)).toEqual([
+                '/new.png',
+            ]);
+        });
+
+        it('should evict files outside the playlist before reading a body that needs the room', async () => {
+            stored_files.set('stale', {
+                name: 'stale',
+                url: '/stale.png',
+                owner: 'display-1',
+                owners: ['display-1'],
+                file: new File(['12345'], 'stale'),
+            });
+            spectator.service['_file_cache_index'].set([
+                cached_entry('stale', '/stale.png'),
+            ]);
+            let stale_kept_while_reading: boolean;
+            // A zero high-water mark: pulled only once the body is read
+            const body = new ReadableStream<Uint8Array>(
+                {
+                    pull: (controller) => {
+                        stale_kept_while_reading = stored_files.has('stale');
+                        controller.enqueue(new Uint8Array(5));
+                        controller.close();
+                    },
+                },
+                { highWaterMark: 0 },
+            );
+            Object.defineProperty(globalThis, 'fetch', {
+                configurable: true,
+                value: vi.fn().mockResolvedValue(streamed_response(body, 5)),
+            });
+
+            await spectator.service.requestFilesToCache(
+                ['/new.png'],
+                'display-1',
+                { max_size: 8 },
+            );
+
+            expect(stale_kept_while_reading).toBe(false);
+            expect(spectator.service.availableFiles()).toEqual(['/new.png']);
+        });
+
+        it('should keep playback downloads inside what the budget has left', async () => {
+            stored_files.set('playing', {
+                name: 'playing',
+                url: '/playing.png',
+                owner: 'display-1',
+                owners: ['display-1'],
+                file: new File(['12345'], 'playing'),
+            });
+            spectator.service['_file_cache_index'].set([
+                cached_entry('playing', '/playing.png'),
+            ]);
+            spectator.service['_budget_bytes'] = 8;
+            const body = new ReadableStream<Uint8Array>({
+                start: (controller) => {
+                    controller.enqueue(new Uint8Array(5));
+                    controller.close();
+                },
+            });
+            Object.defineProperty(globalThis, 'fetch', {
+                configurable: true,
+                value: vi.fn().mockResolvedValue(streamed_response(body, 5)),
+            });
+
+            const file = await spectator.service.fetchFile(
+                '/new.png',
+                'display-1',
+            );
+
+            // Plays from the network; nothing cached is evicted for it
+            expect(file).toBeNull();
+            expect([...stored_files.keys()]).toEqual(['playing']);
+            expect(spectator.service.availableFiles()).toEqual([
+                '/playing.png',
+            ]);
+        });
+
+        it('should not let two downloads spend the same room', async () => {
+            spectator.service['_budget_bytes'] = 8;
+            Object.defineProperty(globalThis, 'fetch', {
+                configurable: true,
+                value: vi.fn().mockImplementation(async () =>
+                    streamed_response(
+                        new ReadableStream<Uint8Array>({
+                            start: (controller) => {
+                                controller.enqueue(new Uint8Array(5));
+                                controller.close();
+                            },
+                        }),
+                        5,
+                    ),
+                ),
+            });
+
+            // Each fits on its own when it starts, but not both together
+            await Promise.all([
+                spectator.service.fetchFile('/a.png', 'display-1'),
+                spectator.service.fetchFile('/b.png', 'display-1'),
+            ]);
+
+            expect(stored_files.size).toBe(1);
+            expect(spectator.service.availableFiles()).toHaveLength(1);
+        });
+
+        it('should stop playback downloading a file that storage has no room for', async () => {
+            const fetch_spy = good_fetch();
+            Object.defineProperty(globalThis, 'fetch', {
+                configurable: true,
+                value: fetch_spy,
+            });
+            spectator.service['_storeFile'] = vi
+                .fn()
+                .mockRejectedValue(
+                    new DOMException('Storage is full', 'DataError'),
+                );
+
+            const first = await spectator.service.fetchFile(
+                '/full.png',
+                'display-1',
+            );
+            const second = await spectator.service.fetchFile(
+                '/full.png',
+                'display-1',
+            );
+
+            // The download is still handed back once, then it streams
+            expect(first).toEqual(expect.any(File));
+            expect(second).toBeNull();
+            expect(fetch_spy).toHaveBeenCalledTimes(1);
+            expect(spectator.service.cacheState().too_large).toEqual([
+                '/full.png',
+            ]);
+        });
+
+        it('should evict and retry once when storage is full', async () => {
+            Object.defineProperty(globalThis, 'fetch', {
+                configurable: true,
+                value: good_fetch(),
+            });
+            stored_files.set('stale', {
+                name: 'stale',
+                url: '/stale.png',
+                owner: 'display-1',
+                owners: ['display-1'],
+                file: new File(['12345'], 'stale'),
+            });
+            spectator.service['_file_cache_index'].set([
+                cached_entry('stale', '/stale.png'),
+            ]);
+            const store_file = spectator.service['_storeFile'].bind(
+                spectator.service,
+            );
+            spectator.service['_storeFile'] = vi
+                .fn()
+                .mockRejectedValueOnce(
+                    new DOMException('Storage is full', 'QuotaExceededError'),
+                )
+                .mockImplementation(store_file);
+
+            const has_failures = await spectator.service.requestFilesToCache(
+                ['/new.png'],
+                'display-1',
+            );
+
+            expect(has_failures).toBe(false);
+            expect(spectator.service.availableFiles()).toEqual(['/new.png']);
+            expect([...stored_files.values()].map((_) => _.url)).toEqual([
+                '/new.png',
+            ]);
+        });
+
+        // Chrome reports a disk filling during a blob write as a DataError
+        it.each(['QuotaExceededError', 'DataError'])(
+            'should stop retrying a file that storage has no room for (%s)',
+            async (error_name) => {
+                const fetch_spy = good_fetch();
+                Object.defineProperty(globalThis, 'fetch', {
+                    configurable: true,
+                    value: fetch_spy,
+                });
+                spectator.service['_storeFile'] = vi
+                    .fn()
+                    .mockRejectedValue(
+                        new DOMException('Storage is full', error_name),
+                    );
+
+                const has_failures =
+                    await spectator.service.requestFilesToCache(
+                        ['/full.png'],
+                        'display-1',
+                    );
+                await spectator.service.requestFilesToCache(
+                    ['/full.png'],
+                    'display-1',
+                );
+
+                // Not a failure: a retry would download it again to no end
+                expect(has_failures).toBe(false);
+                expect(fetch_spy).toHaveBeenCalledTimes(1);
+                expect(spectator.service.isLoadingFile('/full.png')).toBe(
+                    false,
+                );
+            },
+        );
+
+        describe('when the browser cannot build a Blob from a stream', () => {
+            const stream_of = (bytes: number) =>
+                new ReadableStream<Uint8Array>({
+                    start: (controller) => {
+                        controller.enqueue(new Uint8Array(bytes));
+                        controller.close();
+                    },
+                });
+
+            beforeEach(() => {
+                // Chrome rejects like this when its blob storage is full
+                vi.stubGlobal(
+                    'Response',
+                    class {
+                        blob() {
+                            return Promise.reject(
+                                new TypeError('Failed to fetch'),
+                            );
+                        }
+                    },
+                );
+            });
+
+            afterEach(() => vi.unstubAllGlobals());
+
+            it('should download a small file again into memory', async () => {
+                const fetch_spy = vi.fn(() =>
+                    Promise.resolve(streamed_response(stream_of(3), 3)),
+                );
+                Object.defineProperty(globalThis, 'fetch', {
+                    configurable: true,
+                    value: fetch_spy,
+                });
+
+                const has_failures =
+                    await spectator.service.requestFilesToCache(['/small.png']);
+
+                expect(has_failures).toBe(false);
+                expect(fetch_spy).toHaveBeenCalledTimes(2);
+                expect(spectator.service.isCachedFile('/small.png')).toBe(true);
+                expect(spectator.service.cacheState().files[0].size).toBe(3);
+            });
+
+            it('should stream a large file from the network without retrying', async () => {
+                // Too large to read into memory on a low-memory player
+                const length = 100 * 1024 * 1024;
+                const fetch_spy = vi.fn(() =>
+                    Promise.resolve(streamed_response(stream_of(3), length)),
+                );
+                Object.defineProperty(globalThis, 'fetch', {
+                    configurable: true,
+                    value: fetch_spy,
+                });
+
+                const has_failures =
+                    await spectator.service.requestFilesToCache(['/large.mp4']);
+                await spectator.service.requestFilesToCache(['/large.mp4']);
+
+                // The fallback is refused on its headers, and the file is
+                // not asked for again
+                expect(has_failures).toBe(false);
+                expect(fetch_spy).toHaveBeenCalledTimes(2);
+                expect(spectator.service.isLoadingFile('/large.mp4')).toBe(
+                    false,
+                );
+                await expect(
+                    spectator.service.fetchFile('/large.mp4'),
+                ).resolves.toBeNull();
+                expect(fetch_spy).toHaveBeenCalledTimes(2);
+            });
+        });
+
+        it('should not download a file that playback cached during the stagger delay', async () => {
+            vi.useFakeTimers();
+            try {
+                const fetch_spy = good_fetch();
+                Object.defineProperty(globalThis, 'fetch', {
+                    configurable: true,
+                    value: fetch_spy,
+                });
+
+                const cache_promise = spectator.service.requestFilesToCache(
+                    ['/first.png', '/second.png'],
+                    'display-1',
+                );
+                // The first file is cached; the sync waits before the second
+                await vi.advanceTimersByTimeAsync(100);
+                await spectator.service.fetchFile('/second.png', 'display-1');
+                await vi.advanceTimersByTimeAsync(1_000);
+
+                await expect(cache_promise).resolves.toBe(false);
+                expect(fetch_spy).toHaveBeenCalledTimes(2);
+            } finally {
+                vi.useRealTimers();
+            }
+        });
+
+        it('should not download a file that playback found too large during the stagger delay', async () => {
+            vi.useFakeTimers();
+            try {
+                const fetch_spy = good_fetch();
+                Object.defineProperty(globalThis, 'fetch', {
+                    configurable: true,
+                    value: fetch_spy,
+                });
+
+                const cache_promise = spectator.service.requestFilesToCache(
+                    ['/first.png', '/second.png'],
+                    'display-1',
+                );
+                // The first file is cached; the sync waits before the second
+                await vi.advanceTimersByTimeAsync(100);
+                spectator.service['_markTooLarge']('/second.png', 1e15);
+                await vi.advanceTimersByTimeAsync(1_000);
+
+                await expect(cache_promise).resolves.toBe(false);
+                expect(fetch_spy).toHaveBeenCalledTimes(1);
+            } finally {
+                vi.useRealTimers();
+            }
+        });
+
+        it('should not download a file again when the store cannot be read', async () => {
+            const fetch_spy = good_fetch();
+            Object.defineProperty(globalThis, 'fetch', {
+                configurable: true,
+                value: fetch_spy,
+            });
+            stored_files.set('kept', {
+                name: 'kept',
+                url: '/kept.png',
+                owner: 'display-1',
+                file: new File(['image'], 'kept'),
+            });
+            spectator.service['_file_cache_index'].set([
+                cached_entry('kept', '/kept.png'),
+            ]);
+            spectator.service['_storedFileExists'] = vi
+                .fn()
+                .mockRejectedValue(new Error('read failed'));
+
+            const has_failures = await spectator.service.requestFilesToCache(
+                ['/kept.png'],
+                'display-1',
+            );
+
+            // Retried later rather than orphaning the stored copy
+            expect(has_failures).toBe(true);
+            expect(fetch_spy).not.toHaveBeenCalled();
+            expect(spectator.service.isCachedFile('/kept.png')).toBe(true);
+            expect(stored_files.has('kept')).toBe(true);
+        });
+
+        it('should delete records no entry can use when loading the store', async () => {
+            const record = (name: string, url: string, content: string[]) => ({
+                name,
+                url,
+                owner: 'display-1',
+                file: new File(content, name),
+            });
+            stored_files.set('first', record('first', '/a.png', ['image']));
+            stored_files.set('copy', record('copy', '/a.png', ['image']));
+            stored_files.set('no-url', record('no-url', '', ['image']));
+            stored_files.set('blank', record('blank', '/b.png', []));
+
+            await spectator.service['_loadCacheMetadataFromStore']();
+
+            expect([...stored_files.keys()]).toEqual(['first']);
+            expect(spectator.service.availableFiles()).toEqual(['/a.png']);
+        });
+
+        it('should size the budget from the storage estimate', async () => {
+            const persist = vi.fn().mockResolvedValue(true);
+            Object.defineProperty(navigator, 'storage', {
+                configurable: true,
+                value: {
+                    estimate: () =>
+                        Promise.resolve({ quota: 1_000, usage: 110 }),
+                    persist,
+                },
+            });
+            const service = TestBed.runInInjectionContext(
+                () => new MediaCacheService(),
+            );
+            try {
+                service['_file_cache_index'].set([
+                    { ...cached_entry('a', '/a.png'), size: 10 },
+                ]);
+
+                // 80% of the quota, less 100 bytes used outside the cache
+                await expect(service['_storageBudget']()).resolves.toBe(720);
+                expect(service.cacheState().limit_bytes).toBe(720);
+                expect(persist).toHaveBeenCalledTimes(1);
+            } finally {
+                service.ngOnDestroy();
+                delete (navigator as { storage?: StorageManager }).storage;
+            }
         });
 
         it('should recreate the database when it cannot be opened', async () => {
@@ -1102,9 +1627,8 @@ describe('MediaCacheService', () => {
                 ),
             };
             try {
-                open_requests[0].onerror({
-                    target: { error: new Error('UnknownError') },
-                });
+                open_requests[0].error = new Error('UnknownError');
+                open_requests[0].onerror();
                 await Promise.resolve();
                 expect(indexedDB.deleteDatabase).toHaveBeenCalledWith(
                     'SignageMedia',
@@ -1116,7 +1640,8 @@ describe('MediaCacheService', () => {
 
                 expect(open_requests).toHaveLength(2);
                 const db = { onversionchange: null, onclose: null };
-                open_requests[1].onsuccess({ target: { result: db } });
+                open_requests[1].result = db;
+                open_requests[1].onsuccess();
                 await Promise.resolve();
 
                 expect(recovering.service['_cache_db']).toBe(db);
@@ -1145,7 +1670,8 @@ describe('MediaCacheService', () => {
             };
             try {
                 const db: any = { close: vi.fn(), transaction: vi.fn() };
-                open_requests[0].onsuccess({ target: { result: db } });
+                open_requests[0].result = db;
+                open_requests[0].onsuccess();
                 await Promise.resolve();
 
                 db.onclose();

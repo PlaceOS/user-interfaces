@@ -36,6 +36,7 @@ describe('RoomBookingsComponent', () => {
                 binding: vi.fn(),
             } as any),
             MockProvider(EventsStateService, {
+                load_error: signal(false),
                 zones,
                 period: signal('day'),
                 date: signal(Date.now()),

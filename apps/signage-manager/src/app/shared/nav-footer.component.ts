@@ -1,13 +1,10 @@
 import { Component, computed, inject } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
-import { MatDialog } from '@angular/material/dialog';
 import { MatMenuModule } from '@angular/material/menu';
 import { RouterModule } from '@angular/router';
-import { i18n } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
-import { dialogClosed, SignageService } from '../signage.service';
-import { GroupSelectModalComponent } from './group-select-modal.component';
-import { filterManageNavItems } from './nav-items';
+import { SignageContextService } from '../signage-context.service';
+import { injectNavItems } from './nav-items';
 
 @Component({
     selector: 'nav-footer',
@@ -64,7 +61,8 @@ import { filterManageNavItems } from './nav-items';
                         </a>
                     }
                     @if (
-                        show_selector() && (is_sys_admin() || groups().length)
+                        show_selector() &&
+                        (can_manage_all_groups() || groups().length)
                     ) {
                         <div
                             class="border-base-300 my-1 border-t"
@@ -125,14 +123,9 @@ import { filterManageNavItems } from './nav-items';
     ],
 })
 export class NavFooterComponent {
-    private readonly _service = inject(SignageService);
-    private readonly _dialog = inject(MatDialog);
+    private readonly _context = inject(SignageContextService);
+    private readonly _nav_items = injectNavItems();
 
-    private readonly can_manage_groups = computed(
-        () =>
-            this._service.can_manage_all_groups() ||
-            !!this._service.manageable_signage_groups().length,
-    );
     // Keep at most four navigation links in the primary row.
     private readonly MORE_MENU_ROUTES = [
         '/templates',
@@ -141,38 +134,24 @@ export class NavFooterComponent {
         '/groups',
     ];
     public readonly primary_nav_items = computed(() =>
-        filterManageNavItems(
-            this.can_manage_groups(),
-            this._service.templates_enabled(),
-        ).filter((item) => !this.MORE_MENU_ROUTES.includes(item.route)),
+        this._nav_items().filter(
+            (item) => !this.MORE_MENU_ROUTES.includes(item.route),
+        ),
     );
     public readonly more_nav_items = computed(() =>
-        filterManageNavItems(
-            this.can_manage_groups(),
-            this._service.templates_enabled(),
-        ).filter((item) => this.MORE_MENU_ROUTES.includes(item.route)),
+        this._nav_items().filter((item) =>
+            this.MORE_MENU_ROUTES.includes(item.route),
+        ),
     );
-    public readonly groups = this._service.signage_groups;
-    public readonly selected_group_id = this._service.selected_group_id;
-    public readonly selected_group = this._service.selected_group;
-    public readonly is_sys_admin = this._service.is_sys_admin;
-    public readonly show_selector = this._service.show_group_selector;
+    public readonly groups = this._context.signage_groups;
+    public readonly selected_group = this._context.selected_group;
+    public readonly can_manage_all_groups = this._context.can_manage_all_groups;
+    public readonly show_selector = this._context.show_group_selector;
     public readonly selected_label = computed(
         () => this.selected_group()?.group.name || 'SIGNAGE_MANAGER.ALL_GROUPS',
     );
 
-    public async selectGroup() {
-        const ref = this._dialog.open(GroupSelectModalComponent, {
-            data: {
-                title: i18n('SIGNAGE_MANAGER.SELECT_SIGNAGE_GROUP'),
-                groups: this.groups(),
-                selected_group_id: this.selected_group_id(),
-                show_all_groups: this.is_sys_admin(),
-            },
-            panelClass: 'mobile-fullscreen',
-        });
-        const group_id = await dialogClosed(ref);
-        if (group_id === undefined) return;
-        this._service.setSelectedGroup(group_id);
+    public selectGroup() {
+        return this._context.selectGroup();
     }
 }

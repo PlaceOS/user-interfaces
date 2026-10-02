@@ -2,12 +2,12 @@ import {
     Component,
     ElementRef,
     input,
-    model,
     OnDestroy,
     OnInit,
     output,
     viewChild,
 } from '@angular/core';
+import { MatRippleModule } from '@angular/material/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
 
@@ -20,7 +20,8 @@ import { time } from './media-helpers';
 import { MediaPlayerState } from './types';
 
 type MediaLoop = 'NONE' | 'ONE' | 'ALL';
-type MediaEvent =
+/** Commands the playback controls send to the player */
+export type MediaControlEvent =
     | 'PLAY'
     | 'PAUSE'
     | 'PREVIOUS'
@@ -232,6 +233,7 @@ export class MediaProgressBarComponent implements OnInit, OnDestroy {
     imports: [
         IconComponent,
         TranslatePipe,
+        MatRippleModule,
         MatTooltipModule,
         MatProgressSpinnerModule,
         MediaDurationPipe,
@@ -239,15 +241,15 @@ export class MediaProgressBarComponent implements OnInit, OnDestroy {
     ],
 })
 export class MediaControlsComponent {
-    public readonly animating = model(false);
-    public readonly duration = model(0);
-    public readonly progress = model(0);
-    public readonly playback_start = model(0);
-    public readonly playback_duration = model(0);
-    public readonly muted = model(false);
-    public readonly loading = model(false);
-    public readonly loop = model<MediaLoop>('NONE');
-    public readonly state = model<MediaPlayerState>('PAUSED');
-    public readonly shuffle = model(false);
-    public readonly event = output<MediaEvent>();
+    public readonly animating = input(false);
+    public readonly duration = input(0);
+    public readonly progress = input(0);
+    public readonly playback_start = input(0);
+    public readonly playback_duration = input(0);
+    public readonly muted = input(false);
+    public readonly loading = input(false);
+    public readonly loop = input<MediaLoop>('NONE');
+    public readonly state = input<MediaPlayerState>('PAUSED');
+    public readonly shuffle = input(false);
+    public readonly event = output<MediaControlEvent>();
 }

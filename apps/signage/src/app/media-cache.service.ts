@@ -17,7 +17,16 @@ const DB_VERSION = 1;
 const DB_STORE = 'files';
 const UPLOADS_PATH = '/api/engine/v2/uploads';
 const STAGGER_DELAY_MS = 500; // Delay between uncached resource requests
-const DEFAULT_OWNER_CACHE_LIMIT_BYTES = 512 * 1024 * 1024;
+/** Cache budget used when the browser cannot report its storage */
+const FALLBACK_CACHE_LIMIT_BYTES = 512 * 1024 * 1024;
+/**
+ * Share of the storage available to this origin that the cache may fill. The
+ * rest is headroom for the app itself, database overhead, and an estimate that
+ * lags behind recent writes.
+ */
+const STORAGE_BUDGET_SHARE = 0.8;
+/** Most URLs remembered as too large to cache, so the list stays bounded */
+const MAX_TOO_LARGE_URLS = 200;
 /**
  * How long a single database request may take before it counts as failed. A
  * request that never settles would otherwise hold the whole cache sync - and
@@ -26,11 +35,30 @@ const DEFAULT_OWNER_CACHE_LIMIT_BYTES = 512 * 1024 * 1024;
 const DB_OPERATION_TIMEOUT_MS = 30 * SECONDS;
 /** Minimum spacing between attempts to reopen a broken database connection */
 const DB_RECONNECT_INTERVAL_MS = 30 * SECONDS;
-/** How long a download may go without receiving any data before it is abandoned */
+/**
+ * How long a download may go without receiving any data before it is
+ * abandoned. A download that keeps receiving data has no overall deadline, so
+ * a large file on a slow link can always finish.
+ */
 const DOWNLOAD_STALL_MS = 60 * SECONDS;
-/** Longest a single download may run, however slowly it is progressing */
+/**
+ * Shortest deadline for a download that cannot be watched for progress (no
+ * streaming support). Longer files get time at `MIN_DOWNLOAD_BYTES_PER_SECOND`.
+ */
 const DOWNLOAD_TIMEOUT_MS = 15 * MINUTES;
-/** Longest anything waits on an in-progress download to reach a final state */
+/** Slowest link assumed when sizing that deadline: about 1 Mbps */
+const MIN_DOWNLOAD_BYTES_PER_SECOND = 128 * 1024;
+/**
+ * Largest file read into memory when the browser cannot build a Blob from a
+ * stream. That read holds about twice the file at its peak: about 100 MB here,
+ * which a 2 GB player can spare beside the video it is playing. Larger files
+ * play from the network instead.
+ */
+const IN_MEMORY_DOWNLOAD_LIMIT_BYTES = 50 * 1024 * 1024;
+/**
+ * Longest a caller waits on a download that is already in progress before it
+ * stops waiting. The download itself carries on.
+ */
 const DOWNLOAD_WAIT_MS = DOWNLOAD_TIMEOUT_MS + DB_OPERATION_TIMEOUT_MS;
 /** Lifetime of the cookie that lets media elements stream protected uploads */
 const DIRECT_URL_COOKIE_SECONDS = 60 * 60;
@@ -55,7 +83,9 @@ export interface CacheItem {
 }
 
 export interface CacheRequestOptions {
+    /** Bytes the whole cache may hold. Defaults to the storage budget. */
     max_size?: number;
+    /** Whether files of other owners may be evicted to make room */
     prune_other_owners?: boolean;
 }
 
@@ -72,6 +102,57 @@ interface DownloadResult {
     file: File | null;
     /** Whether the file is now in the cache store */
     stored: boolean;
+    /** The file does not fit in storage, so it plays from the network */
+    no_room?: boolean;
+}
+
+/** How much a download may store, and how to make room for it */
+interface CacheFit {
+    /** Largest file that may be stored */
+    max_bytes: number;
+    /**
+     * Evict entries the request does not need until `bytes` more fit in the
+     * budget. `Infinity` evicts every entry the request may evict.
+     */
+    make_room?: (bytes: number) => Promise<void>;
+    /**
+     * Whether `bytes` more fit in the budget now. Checked again just before
+     * storing, as another download may have used the room since `max_bytes`
+     * was worked out.
+     */
+    fits?: (bytes: number) => boolean;
+}
+
+/** A response body stream, typed as the browser hands it over */
+type ResponseBody = NonNullable<Response['body']>;
+
+/** A file that does not fit in the storage the cache may use */
+class NoRoomError extends Error {
+    /**
+     * @param bytes Room the file needs before it is worth trying again.
+     * `Infinity` means not until the player reloads.
+     */
+    constructor(public readonly bytes: number) {
+        super(`Media needs ${bytes} bytes of storage`);
+    }
+}
+
+/**
+ * The browser could not build a Blob from a download that arrived fine,
+ * usually because its blob storage is full. On a small profile volume that
+ * limit can be far below the free space.
+ */
+class BlobStorageError extends Error {}
+
+/**
+ * Whether a write failed because storage is full. Chrome reports a disk that
+ * fills during a blob write as a `DataError` ("Failed to write blobs"), not a
+ * quota error. The cache's keys are always valid, so no other `DataError` is
+ * expected from a write.
+ */
+function isStorageFullError(error: unknown) {
+    const name = (error as DOMException | null)?.name;
+    return name === 'QuotaExceededError' || name === 'DataError';
 }
 
 function isLoadingStatus(status: CacheItemStatus) {
@@ -130,6 +211,118 @@ function withTimeout<T>(
 }
 
 /**
+ * Read a response body into a Blob. Fails if no data arrives for
+ * `DOWNLOAD_STALL_MS`, or once the body grows past `max_bytes`. Chunks pass
+ * straight through into the Blob instead of being collected first, so the
+ * file is held once, and the browser can keep a large one on disk.
+ *
+ * The browser builds that Blob in its own blob storage, which has a limit of
+ * its own. When the Blob cannot be built while the network is fine, this
+ * rejects with a `BlobStorageError`.
+ */
+function streamToBlob(
+    body: ResponseBody,
+    type: string,
+    max_bytes: number,
+    abort: () => void,
+) {
+    return new Promise<Blob>((resolve, reject) => {
+        const reader = body.getReader();
+        let timer: ReturnType<typeof setTimeout>;
+        let received = 0;
+        // Set when the download itself failed, not the Blob it feeds
+        let source_error: unknown = null;
+        const fail = (error: unknown) => {
+            clearTimeout(timer);
+            abort();
+            // Also stops reading where the request cannot be aborted
+            reader.cancel(error).catch(() => undefined);
+            reject(error);
+        };
+        const watch = () => {
+            clearTimeout(timer);
+            timer = setTimeout(
+                () => fail(new Error('Download stalled')),
+                DOWNLOAD_STALL_MS,
+            );
+        };
+        const counted = new ReadableStream<Uint8Array>({
+            // Only a failed read or an oversized body counts as the source
+            // failing. `close` and `enqueue` throw once the Blob side has
+            // given up, and that is a blob storage failure.
+            pull: async (controller) => {
+                const { done, value } = await reader.read().catch((e) => {
+                    source_error = e || new Error('Download failed');
+                    throw source_error;
+                });
+                if (done) return controller.close();
+                received += value.byteLength;
+                if (received > max_bytes) {
+                    source_error = new NoRoomError(received);
+                    throw source_error;
+                }
+                watch();
+                controller.enqueue(value);
+            },
+            cancel: (reason) => reader.cancel(reason),
+        });
+        watch();
+        new Response(
+            counted,
+            type ? { headers: { 'content-type': type } } : undefined,
+        )
+            .blob()
+            .then(
+                (blob) => {
+                    clearTimeout(timer);
+                    resolve(blob);
+                },
+                (e) => fail(source_error || new BlobStorageError(`${e}`)),
+            );
+    });
+}
+
+/**
+ * Read a response body into memory, then into a Blob. Holds about twice the
+ * file at its peak, so it is only a fallback for small files when the browser
+ * cannot build a Blob from a stream. A file past `max_bytes`, or one the
+ * browser cannot hold, fails with a `NoRoomError` that is not retried.
+ */
+async function readToBlob(
+    body: ResponseBody,
+    type: string,
+    max_bytes: number,
+    abort: () => void,
+) {
+    const reader = body.getReader();
+    const chunks: BlobPart[] = [];
+    let received = 0;
+    // Ends when the body does, stalls, or passes `max_bytes`
+    for (;;) {
+        const { done, value } = await withTimeout(
+            reader.read(),
+            DOWNLOAD_STALL_MS,
+            'Download stalled',
+            abort,
+        );
+        if (done) break;
+        received += value.byteLength;
+        if (received > max_bytes) {
+            abort();
+            reader.cancel().catch(() => undefined);
+            throw new NoRoomError(Infinity);
+        }
+        chunks.push(value);
+    }
+    try {
+        return new Blob(chunks, { type });
+    } catch (e) {
+        log.warn(`Unable to hold downloaded media in memory. ${e}`);
+        throw new NoRoomError(Infinity);
+    }
+}
+
+/**
  * Local store of media files for offline playback.
  *
  * Nothing in here is allowed to leave the player without content. Every wait
@@ -152,6 +345,13 @@ export class MediaCacheService extends AsyncHandler {
     private readonly _unverified_ids = new Set<string>();
     /** Downloads currently running, keyed by URL, so they are never duplicated */
     private readonly _downloads = new Map<string, Promise<DownloadResult>>();
+    /**
+     * URLs that do not fit in storage, with the room they need before they
+     * are tried again. They play from the network until then.
+     */
+    private readonly _too_large = new Map<string, number>();
+    /** Bytes the cache may hold, as last worked out from the storage estimate */
+    private _budget_bytes = FALLBACK_CACHE_LIMIT_BYTES;
     private _last_reconnect = 0;
 
     private get _cache_index() {
@@ -162,17 +362,26 @@ export class MediaCacheService extends AsyncHandler {
         super();
         this._loadCacheMetadata();
         this._connectDatabase();
+        this._requestPersistentStorage();
         effect(() => {
             this._file_cache_index();
             this._saveCacheMetadata();
         });
     }
 
+    /**
+     * Cache the files in `url_list`, most important first. Other entries are
+     * evicted to make room for them, but entries in the list never are. A
+     * file that cannot fit is not downloaded; it plays from the network.
+     * Resolves true when a file failed in a way that is worth retrying.
+     */
     public async requestFilesToCache(
         url_list: string[],
         owner = '',
         options: CacheRequestOptions = {},
     ): Promise<boolean> {
+        const budget = options.max_size ?? (await this._storageBudget());
+        const prune_others = !!options.prune_other_owners;
         let failures = false;
         let uncached_count = 0;
         for (const url of url_list) {
@@ -185,49 +394,54 @@ export class MediaCacheService extends AsyncHandler {
                         await this._addOwner(existing, owner);
                         continue;
                     }
-                } else if (
-                    existing.status === 'cached' &&
-                    (await this._hasStoredFile(existing, url))
-                ) {
-                    await this._addOwner(existing, owner);
-                    continue;
+                } else if (existing.status === 'cached') {
+                    // A store that cannot be read says nothing about the
+                    // file. Downloading it again would orphan the old copy.
+                    const stored = await this._hasStoredFile(
+                        existing,
+                        url,
+                    ).catch(() => null);
+                    if (stored === null) {
+                        failures = true;
+                        continue;
+                    }
+                    if (stored) {
+                        await this._addOwner(existing, owner);
+                        continue;
+                    }
                 }
             }
+            let fit = this._cacheFit(owner, url_list, budget, prune_others);
+            if (!this._mayFit(url, fit.max_bytes)) continue;
             // Stagger requests for uncached resources to avoid overwhelming the network
             if (uncached_count > 0) await delay(STAGGER_DELAY_MS);
             uncached_count++;
-            const { stored } = await this._cacheFile(url, owner);
-            if (!stored) failures = true;
-            await this.pruneCache(
-                owner,
-                url_list,
-                options.max_size,
-                options.prune_other_owners,
-            );
+            // Playback may have cached the file, or found it too large, during
+            // the delay
+            const latest = this._cacheItem(url);
+            if (latest?.status === 'cached') {
+                await this._addOwner(latest, owner);
+                continue;
+            }
+            fit = this._cacheFit(owner, url_list, budget, prune_others);
+            if (!this._mayFit(url, fit.max_bytes)) continue;
+            const { stored, no_room } = await this._cacheFile(url, owner, fit);
+            if (!stored && !no_room) failures = true;
         }
         this._file_cache_index.set([...this._cache_index]);
-        await this.pruneCache(
-            owner,
-            url_list,
-            options.max_size,
-            options.prune_other_owners,
-        );
+        await this.pruneCache(owner, url_list, budget, prune_others);
         return failures;
-    }
-
-    /** Download a file into the cache entry. Rejects unless it was stored. */
-    public async requestAndCacheFile(url: string, cache_item: CacheItem) {
-        const { file, stored } = await this._downloadAndStore(url, cache_item);
-        if (!stored) throw new Error('Unable to cache media file');
-        return file;
     }
 
     /**
      * The file for a URL, from the cache when it has it and downloaded when it
      * does not. Unlike `requestFilesToCache` this hands back a download that
      * could not be stored, so a broken database never stops media playing.
-     * Waits at most `wait_ms` for a download that is already in progress and
-     * returns null if it has not finished by then.
+     * Resolves null for a file too large to cache, which plays from the
+     * network instead. Playback never evicts: the file must fit in what the
+     * budget has left, and only a sync makes more room. Waits at most
+     * `wait_ms` for a download that is already in progress and returns null
+     * if it has not finished by then.
      */
     public async fetchFile(
         url: string,
@@ -248,7 +462,16 @@ export class MediaCacheService extends AsyncHandler {
             );
             if (file) return file;
         }
-        const { file } = await this._cacheFile(url, owner);
+        if (this._too_large.has(url)) return null;
+        // Everything cached counts as needed, so nothing is evicted
+        const fit = this._cacheFit(
+            owner,
+            this._cache_index.map((_) => _.url),
+            this._budget_bytes,
+            false,
+        );
+        if (!this._mayFit(url, fit.max_bytes)) return null;
+        const { file } = await this._cacheFile(url, owner, fit);
         return file;
     }
 
@@ -279,8 +502,9 @@ export class MediaCacheService extends AsyncHandler {
             file_count: files.length,
             cached_count: files.filter((_) => _.status === 'cached').length,
             total_bytes: files.reduce((total, _) => total + _.size, 0),
-            limit_bytes: DEFAULT_OWNER_CACHE_LIMIT_BYTES,
+            limit_bytes: this._budget_bytes,
             downloads_in_flight: this._downloads.size,
+            too_large: [...this._too_large.keys()],
             files,
         };
     }
@@ -298,11 +522,11 @@ export class MediaCacheService extends AsyncHandler {
     /**
      * Whether a file is still being prepared/downloaded/stored, or has not yet
      * been registered for caching (i.e. queued). Returns false once the file is
-     * cached or has been invalidated.
+     * cached, has been invalidated, or is too large to cache.
      */
     public isLoadingFile(url: string): boolean {
         const item = this._cacheItem(url);
-        if (!item) return true;
+        if (!item) return !this._too_large.has(url);
         return isLoadingStatus(item.status);
     }
 
@@ -335,81 +559,46 @@ export class MediaCacheService extends AsyncHandler {
         return this._storedFile(cache_item, url);
     }
 
+    /**
+     * Evict cached files until the whole cache fits in `max_size` bytes.
+     * Files in `priority_urls` are never evicted, nor are files shared with
+     * other owners unless `prune_other_owners` is set. Other owners' files go
+     * first, then the largest.
+     */
     public async pruneCache(
         owner = '',
         priority_urls: string[] = [],
-        max_size = DEFAULT_OWNER_CACHE_LIMIT_BYTES,
+        max_size = this._budget_bytes,
         prune_other_owners = false,
     ) {
-        if (!this._cache_db_ready || max_size <= 0) return;
         // Sizes are tracked on the index, so the common case - comfortably
-        // under budget - costs nothing. Reading every record back out of the
-        // store to add up its size would pull every cached video into memory.
-        const candidates = this._cache_index.filter(
-            (item) =>
-                item.status === 'cached' &&
-                (!owner ||
-                    cacheOwners(item).includes(owner) ||
-                    prune_other_owners),
-        );
-        // Metadata written before sizes were recorded needs one pass over the
-        // store to fill them in; after that this stays in memory.
-        if (candidates.some((item) => !(item.size > 0))) {
+        // under budget - costs nothing. Metadata written before sizes were
+        // recorded needs one pass over the store to fill them in.
+        if (
+            this._cache_index.some(
+                (item) => item.status === 'cached' && !(item.size > 0),
+            )
+        ) {
             await this._recoverCachedSizes();
         }
-        const owner_items = candidates
-            .map((item) => {
-                const owners = cacheOwners(item);
-                return {
-                    item,
-                    owners,
-                    size: item.size || 0,
-                    priority: priority_urls.indexOf(item.url),
-                    owner_priority: !owner || owners.includes(owner) ? 1 : 0,
-                };
-            })
-            .filter((_) => _.size > 0);
-        let total_size = owner_items.reduce(
-            (total, item) => total + item.size,
-            0,
-        );
+        let total_size = this._cachedBytes();
         if (total_size <= max_size) return;
-        const eviction_list = owner_items.sort((a, b) => {
-            const a_priority =
-                a.priority >= 0 ? a.priority : Number.MAX_SAFE_INTEGER;
-            const b_priority =
-                b.priority >= 0 ? b.priority : Number.MAX_SAFE_INTEGER;
-            if (a.owner_priority !== b.owner_priority) {
-                return a.owner_priority - b.owner_priority;
-            }
-            if (a_priority !== b_priority) return b_priority - a_priority;
-            return b.size - a.size;
-        });
-        for (const { item, owners, size } of eviction_list) {
+        const eviction_list = this._evictable(
+            owner,
+            priority_urls,
+            prune_other_owners,
+        );
+        for (const item of eviction_list) {
             if (total_size <= max_size) break;
-            const is_owner_file = owner && owners.includes(owner);
-            await this.invalidateFile(
-                item.url,
-                is_owner_file ? owner : '',
-            ).catch(() => undefined);
-            total_size -= size;
+            const removed = await this.invalidateFile(item.url).then(
+                () => true,
+                () => false,
+            );
+            if (removed) total_size -= item.size || 0;
         }
-    }
-
-    public async invalidateStore() {
-        if (!this._cache_db_ready) return;
-        try {
-            await this._write((store) => store.clear(), 'clear');
-        } catch (e) {
-            log.error(`Error clearing all cached resources. ${e}`);
-            throw e;
-        }
-        log.debug(`Cleared all cached resources.`);
-        this._file_cache_index.set([]);
     }
 
     public async invalidateFile(url: string, owner = '') {
-        if (!this._cache_db_ready) throw new Error('Cache DB not ready');
         const cache_item = this._cacheItem(url);
         if (cache_item?.status !== 'cached') {
             throw new Error('Cached item with URL not found');
@@ -463,7 +652,11 @@ export class MediaCacheService extends AsyncHandler {
      * Download a URL into the cache, sharing the download with any other
      * caller asking for the same URL at the same time.
      */
-    private _cacheFile(url: string, owner: string): Promise<DownloadResult> {
+    private _cacheFile(
+        url: string,
+        owner: string,
+        fit: CacheFit,
+    ): Promise<DownloadResult> {
         const in_flight = this._downloads.get(url);
         if (in_flight) return in_flight;
         const cache_item: CacheItem = {
@@ -475,16 +668,21 @@ export class MediaCacheService extends AsyncHandler {
             on_change: new Subject(),
         };
         // One entry per URL: a stale duplicate left behind would be found
-        // before this one and reported missing on every lookup.
+        // before this one and reported missing on every lookup. The records
+        // of the entries replaced go too, as nothing would point at them.
+        const replaced = this._cache_index.filter((_) => _.url === url);
         this._file_cache_index.set([
             ...this._cache_index.filter((_) => _.url !== url),
             cache_item,
         ]);
-        const download = this._downloadAndStore(url, cache_item).finally(() => {
-            if (this._downloads.get(url) === download) {
-                this._downloads.delete(url);
-            }
-        });
+        this._deleteRecords(replaced.map((_) => _.id));
+        const download = this._downloadAndStore(url, cache_item, fit).finally(
+            () => {
+                if (this._downloads.get(url) === download) {
+                    this._downloads.delete(url);
+                }
+            },
+        );
         this._downloads.set(url, download);
         return download;
     }
@@ -492,41 +690,102 @@ export class MediaCacheService extends AsyncHandler {
     private async _downloadAndStore(
         url: string,
         cache_item: CacheItem,
+        fit: CacheFit,
     ): Promise<DownloadResult> {
         let file: File | null = null;
         try {
             cacheStatus(cache_item, 'downloading');
-            // If not an API call, just load the image
             if (url.includes(UPLOADS_PATH)) this.applyAuthenticationCookie();
-            const blob = await this._download(url);
+            const blob = await this._download(url, fit);
             if (blob.size <= 0) {
                 log.error(`Downloaded resource is empty.`, url);
                 throw new Error('Downloaded media file is empty');
             }
             cacheStatus(cache_item, 'storing');
-            // Create a File object (or you can use the blob directly)
+            // Wraps the blob without copying it
             file = new File([blob], cache_item.id, { type: blob.type });
-            await this._storeFile(cache_item, file, url);
+            await fit.make_room?.(file.size);
+            if (fit.fits && !fit.fits(file.size)) {
+                throw new NoRoomError(file.size);
+            }
+            // Claim the room before the store yields, so a download storing
+            // at the same time counts it
             cache_item.size = file.size;
+            try {
+                await this._storeFile(cache_item, file, url);
+            } catch (e) {
+                // The budget is an estimate, so storage can still run out.
+                // Evict everything the request does not need and try once
+                // more; past that the file plays from the network.
+                if (!isStorageFullError(e) || !fit.make_room) throw e;
+                log.warn(`Storage is full. Evicting media to retry.`, url);
+                await fit.make_room(Infinity);
+                try {
+                    await this._storeFile(cache_item, file, url);
+                } catch (retry_error) {
+                    if (!isStorageFullError(retry_error)) throw retry_error;
+                    throw new NoRoomError(fit.max_bytes + file.size);
+                }
+            }
+            cache_item.size = file.size;
+            this._too_large.delete(url);
             log.debug(`Cached resource.`, [cache_item.id, url]);
             cacheStatus(cache_item, 'cached');
             this._file_cache_index.set([...this._cache_index]);
             return { file, stored: true };
         } catch (e) {
-            log.error(`Error downloading resource.`, url, e);
+            const no_room = e instanceof NoRoomError;
+            if (no_room) {
+                log.warn(
+                    `Media does not fit in storage. It will play from the network.`,
+                    url,
+                    e,
+                );
+                this._markTooLarge(url, e.bytes);
+            } else {
+                log.error(`Error downloading resource.`, url, e);
+            }
             if (cache_item.status !== 'invalidated') {
                 this._markInvalidated(cache_item);
             }
-            return { file, stored: false };
+            return { file, stored: false, no_room };
         }
     }
 
     /**
-     * Fetch a URL, giving up if the response stops arriving. A download that
-     * hangs would otherwise leave its cache entry loading forever, with the
-     * player and every later cache sync waiting behind it.
+     * Fetch a URL, giving up if the response stops arriving or turns out
+     * larger than `max_bytes`. A download that hangs would otherwise leave
+     * its cache entry loading forever, with the player and every later cache
+     * sync waiting behind it. One that is still receiving data has no
+     * deadline, so a large file on a slow link can finish. If the browser
+     * cannot build a Blob from the stream, a small file is downloaded once
+     * more into memory; a large one fails with a `NoRoomError`.
      */
-    private async _download(url: string): Promise<Blob> {
+    private async _download(url: string, fit: CacheFit): Promise<Blob> {
+        try {
+            return await this._fetchBlob(url, fit, false);
+        } catch (e) {
+            if (!(e instanceof BlobStorageError)) throw e;
+            log.warn(
+                `Browser blob storage is full. Retrying in memory.`,
+                url,
+                e,
+            );
+            return this._fetchBlob(url, fit, true);
+        }
+    }
+
+    /**
+     * One attempt at `_download`. `in_memory` reads the body into memory
+     * instead of streaming it into a Blob, for files up to
+     * `IN_MEMORY_DOWNLOAD_LIMIT_BYTES`.
+     */
+    private async _fetchBlob(
+        url: string,
+        fit: CacheFit,
+        in_memory: boolean,
+    ): Promise<Blob> {
+        const { max_bytes } = fit;
         const controller =
             typeof AbortController === 'function'
                 ? new AbortController()
@@ -542,34 +801,206 @@ export class MediaCacheService extends AsyncHandler {
             log.error(`Error fetching resource. ${response.status}`, url);
             throw new Error(`Request failed with status ${response.status}`);
         }
-        const reader = response.body?.getReader?.();
-        if (!reader) {
-            return withTimeout(
-                response.blob(),
-                DOWNLOAD_TIMEOUT_MS,
-                'Timed out downloading resource',
-                abort,
-            );
+        // Refuse a file that cannot fit before downloading any of it
+        const length = Number(response.headers?.get?.('content-length')) || 0;
+        if (length > max_bytes) {
+            abort();
+            throw new NoRoomError(length);
         }
-        const deadline = Date.now() + DOWNLOAD_TIMEOUT_MS;
-        const chunks: BlobPart[] = [];
-        for (;;) {
-            const remaining = deadline - Date.now();
-            if (remaining <= 0) {
-                abort();
-                throw new Error('Timed out downloading resource');
-            }
-            const { done, value } = await withTimeout(
-                reader.read(),
-                Math.min(DOWNLOAD_STALL_MS, remaining),
-                'Download stalled',
-                abort,
-            );
-            if (done) break;
-            if (value) chunks.push(value);
-        }
+        // Make room before the body arrives. On a nearly full disk the
+        // browser can fail to build a large Blob that would fit once older
+        // files are gone.
+        if (length > 0) await fit.make_room?.(length);
         const type = response.headers?.get?.('content-type') || '';
-        return new Blob(chunks, { type });
+        const body = response.body;
+        if (in_memory) {
+            if (length > IN_MEMORY_DOWNLOAD_LIMIT_BYTES) {
+                abort();
+                throw new NoRoomError(Infinity);
+            }
+            return readToBlob(
+                body,
+                type,
+                Math.min(max_bytes, IN_MEMORY_DOWNLOAD_LIMIT_BYTES),
+                abort,
+            );
+        }
+        if (typeof body?.getReader === 'function') {
+            return streamToBlob(body, type, max_bytes, abort);
+        }
+        // Without streams progress cannot be watched, so allow for the whole
+        // file arriving at a slow but workable rate.
+        const blob = await withTimeout(
+            response.blob(),
+            Math.max(
+                DOWNLOAD_TIMEOUT_MS,
+                (length / MIN_DOWNLOAD_BYTES_PER_SECOND) * SECONDS,
+            ),
+            'Timed out downloading resource',
+            abort,
+        );
+        if (blob.size > max_bytes) throw new NoRoomError(blob.size);
+        return blob;
+    }
+
+    /**
+     * Whether a download of `url` could fit in `room` bytes. A URL refused
+     * before is only tried again once there is the room it needed.
+     */
+    private _mayFit(url: string, room: number) {
+        if (room >= (this._too_large.get(url) ?? 1)) return true;
+        if (!this._too_large.has(url)) this._markTooLarge(url, 1);
+        return false;
+    }
+
+    private _markTooLarge(url: string, bytes: number) {
+        this._too_large.delete(url);
+        this._too_large.set(url, bytes);
+        if (this._too_large.size > MAX_TOO_LARGE_URLS) {
+            const [oldest] = this._too_large.keys();
+            this._too_large.delete(oldest);
+        }
+    }
+
+    /** Bytes held by cached entries and those being stored */
+    private _claimedBytes() {
+        return this._cache_index
+            .filter((_) => _.status === 'cached' || _.status === 'storing')
+            .reduce((total, _) => total + (_.size || 0), 0);
+    }
+
+    private _cachedBytes() {
+        return this._cache_index
+            .filter((_) => _.status === 'cached')
+            .reduce((total, _) => total + (_.size || 0), 0);
+    }
+
+    /**
+     * Cached entries a request may evict, in the order to evict them: files
+     * of other owners first, then the largest. Entries the request lists are
+     * never evicted, and neither are files shared with owners it may not
+     * touch.
+     */
+    private _evictable(
+        owner: string,
+        priority_urls: string[],
+        prune_other_owners: boolean,
+    ) {
+        const own = (item: CacheItem) =>
+            !owner || cacheOwners(item).includes(owner) ? 1 : 0;
+        return this._cache_index
+            .filter(
+                (item) =>
+                    item.status === 'cached' &&
+                    !priority_urls.includes(item.url) &&
+                    (!owner ||
+                        prune_other_owners ||
+                        cacheOwners(item).every((_) => _ === owner)),
+            )
+            .sort((a, b) => own(a) - own(b) || (b.size || 0) - (a.size || 0));
+    }
+
+    /**
+     * How much a download for `owner` may store within `budget`, and how it
+     * makes room: by evicting cached entries outside `priority_urls`. Shared
+     * by cache syncs and playback so both keep to the same budget.
+     */
+    private _cacheFit(
+        owner: string,
+        priority_urls: string[],
+        budget: number,
+        prune_other_owners: boolean,
+    ): CacheFit {
+        return {
+            max_bytes:
+                budget -
+                this._pinnedBytes(owner, priority_urls, prune_other_owners),
+            make_room: (bytes) =>
+                this.pruneCache(
+                    owner,
+                    priority_urls,
+                    budget - bytes,
+                    prune_other_owners,
+                ),
+            fits: (bytes) => this._claimedBytes() + bytes <= budget,
+        };
+    }
+
+    /** Bytes held by cached entries that a request may not evict */
+    private _pinnedBytes(
+        owner: string,
+        priority_urls: string[],
+        prune_other_owners: boolean,
+    ) {
+        const evictable = this._evictable(
+            owner,
+            priority_urls,
+            prune_other_owners,
+        ).reduce((total, _) => total + (_.size || 0), 0);
+        return this._cachedBytes() - evictable;
+    }
+
+    /**
+     * Bytes the cache may hold: a share of the storage this origin may use,
+     * less what the app holds outside the cache. Falls back to a fixed budget
+     * when the browser cannot report its storage.
+     */
+    private async _storageBudget() {
+        const storage =
+            typeof navigator === 'undefined' ? undefined : navigator.storage;
+        if (typeof storage?.estimate !== 'function') {
+            this._budget_bytes = FALLBACK_CACHE_LIMIT_BYTES;
+            return this._budget_bytes;
+        }
+        const estimate = await withTimeout(
+            storage.estimate(),
+            DB_OPERATION_TIMEOUT_MS,
+            'Storage estimate timed out',
+        ).catch((e) => {
+            log.warn(`Unable to estimate storage. ${e}`);
+            return null;
+        });
+        if (!(estimate?.quota > 0)) {
+            this._budget_bytes = FALLBACK_CACHE_LIMIT_BYTES;
+            return this._budget_bytes;
+        }
+        const other_usage = Math.max(
+            0,
+            (estimate.usage || 0) - this._cachedBytes(),
+        );
+        this._budget_bytes = Math.max(
+            0,
+            Math.floor((estimate.quota - other_usage) * STORAGE_BUDGET_SHARE),
+        );
+        return this._budget_bytes;
+    }
+
+    /**
+     * Ask the browser not to clear stored media when the device runs low on
+     * space. A cleared cache leaves the player downloading everything again.
+     */
+    private _requestPersistentStorage() {
+        const storage =
+            typeof navigator === 'undefined' ? undefined : navigator.storage;
+        if (typeof storage?.persist !== 'function') return;
+        storage.persist().then(
+            (granted) =>
+                log.debug(
+                    `Persistent storage ${granted ? 'granted' : 'denied'}.`,
+                ),
+            (e) => log.warn(`Unable to request persistent storage. ${e}`),
+        );
+    }
+
+    /** Delete store records that no entry points at. Failures are logged. */
+    private _deleteRecords(ids: string[]) {
+        return Promise.all(
+            ids.map((id) =>
+                this._write((store) => store.delete(id), 'delete').catch((e) =>
+                    log.warn(`Unable to delete orphaned media. ${e}`, id),
+                ),
+            ),
+        );
     }
 
     /**
@@ -617,21 +1048,18 @@ export class MediaCacheService extends AsyncHandler {
     /**
      * Whether the file behind a cache entry is still in the store. Uses a key
      * count rather than reading the record, so confirming a cached playlist
-     * does not pull every one of its files into memory.
+     * does not pull every one of its files into memory. Rejects when the store
+     * cannot be read, as that says nothing about whether the file is there.
      */
     private async _hasStoredFile(cache_item: CacheItem, url: string) {
         if (!(cache_item.size > 0)) {
             // Size unknown - metadata written by an older build. Read the
             // record once to recover it; later checks are cheap.
-            const file = await this._storedFile(cache_item, url).catch(
-                () => null,
-            );
+            const file = await this._storedFile(cache_item, url);
             if (file) this._setCachedSize(cache_item, file.size);
             return !!file;
         }
-        const exists = await this._storedFileExists(cache_item.id).catch(
-            () => false,
-        );
+        const exists = await this._storedFileExists(cache_item.id);
         if (!exists) {
             this._markMissing(cache_item, url);
             return false;
@@ -701,49 +1129,68 @@ export class MediaCacheService extends AsyncHandler {
      * Rebuild the cached entries from what the store actually holds. The store
      * is authoritative: persisted metadata is only a head start until it has
      * answered, and any entry it does not hold is dropped so nothing keeps
-     * looking for a file that is not there.
+     * looking for a file that is not there. Records no entry can use - empty,
+     * without a URL, or a second copy of a URL - are deleted, as nothing else
+     * would ever remove them.
      */
     private async _loadCacheMetadataFromStore() {
         const records = await this._storedFileRecords().catch(() => null);
         if (!records) return;
-        const stored_items = records
-            .filter((record) => record.url && record.file?.size > 0)
-            .map((record) => ({
-                id: record.name,
-                url: record.url,
-                owner: record.owner || '',
-                owners: cacheOwners(record),
-                size: record.file.size,
-                status: 'cached' as const,
-                on_change: new Subject<CacheItemStatus>(),
-            }));
-        const stored_ids = new Set(stored_items.map((_) => _.id));
-        // Keep entries still in progress, and files cached by this session
-        // that the store snapshot may predate. Only entries restored from
-        // persisted metadata and never seen in the store are dropped.
-        const kept_items = this._cache_index.filter(
-            (item) =>
-                item.status !== 'cached' ||
-                stored_ids.has(item.id) ||
-                !this._unverified_ids.has(item.id),
+        const usable = records.filter(
+            (record) => record.url && record.file?.size > 0,
         );
+        const stored_ids = new Set(usable.map((_) => _.name));
+        // Keep entries still in progress, and files cached by this session
+        // that the store snapshot may predate. Entries restored from persisted
+        // metadata and never seen in the store are dropped, and so are failed
+        // entries for a URL the store holds a usable file for.
+        const kept_items = this._cache_index.filter((item) => {
+            if (item.status === 'cached') {
+                return (
+                    stored_ids.has(item.id) ||
+                    !this._unverified_ids.has(item.id)
+                );
+            }
+            if (item.status === 'invalidated') {
+                return !usable.some((_) => _.url === item.url);
+            }
+            return true;
+        });
         const dropped = this._cache_index.length - kept_items.length;
         if (dropped > 0) {
             log.warn(
                 `Dropped ${dropped} cached entries that have no stored file.`,
             );
         }
+        const stored_items: CacheItem[] = [];
+        const orphan_ids: string[] = [];
+        for (const record of records) {
+            const kept = kept_items.find((_) => _.url === record.url);
+            if (kept?.id === record.name) continue;
+            if (
+                !stored_ids.has(record.name) ||
+                kept ||
+                stored_items.some((_) => _.url === record.url)
+            ) {
+                orphan_ids.push(record.name);
+                continue;
+            }
+            stored_items.push({
+                id: record.name,
+                url: record.url,
+                owner: record.owner || '',
+                owners: cacheOwners(record),
+                size: record.file.size,
+                status: 'cached',
+                on_change: new Subject<CacheItemStatus>(),
+            });
+        }
         this._unverified_ids.clear();
-        this._file_cache_index.set([
-            ...kept_items,
-            ...stored_items.filter(
-                (stored) =>
-                    !kept_items.some(
-                        (item) =>
-                            item.id === stored.id || item.url === stored.url,
-                    ),
-            ),
-        ]);
+        this._file_cache_index.set([...kept_items, ...stored_items]);
+        if (orphan_ids.length) {
+            log.warn(`Deleting ${orphan_ids.length} orphaned media records.`);
+            await this._deleteRecords(orphan_ids);
+        }
     }
 
     private _storedFileRecords(): Promise<StoredCacheRecord[]> {
@@ -868,8 +1315,8 @@ export class MediaCacheService extends AsyncHandler {
                 log.error(`DB Error: ${e}.`);
                 return reject(e);
             }
-            request.onupgradeneeded = (event: any) => {
-                const db = event.target.result as IDBDatabase;
+            request.onupgradeneeded = () => {
+                const db = request.result;
                 if (!db.objectStoreNames.contains(DB_STORE)) {
                     db.createObjectStore(DB_STORE, { keyPath: 'name' });
                     log.debug(`Object store created successfully.`);
@@ -877,8 +1324,8 @@ export class MediaCacheService extends AsyncHandler {
             };
             request.onblocked = () =>
                 log.warn(`Database open is blocked by another connection.`);
-            request.onerror = (event: any) => {
-                const error = event.target?.error;
+            request.onerror = () => {
+                const error = request.error;
                 log.error(`DB Error: ${error}.`);
                 if (!recreate_on_error) return reject(error);
                 log.warn(`Recreating the media database.`);
@@ -886,8 +1333,8 @@ export class MediaCacheService extends AsyncHandler {
                     .then(() => this._openDatabase(false))
                     .then(resolve, reject);
             };
-            request.onsuccess = (event: any) => {
-                const db = event.target.result as IDBDatabase;
+            request.onsuccess = () => {
+                const db = request.result;
                 // Another context is upgrading or deleting the database; let
                 // go of it and come back once that has happened.
                 db.onversionchange = () => {
@@ -965,8 +1412,8 @@ export class MediaCacheService extends AsyncHandler {
         return withTimeout(
             new Promise<T>((resolve, reject) => {
                 const request = run(transaction.objectStore(DB_STORE));
-                request.onerror = (event: any) =>
-                    reject(event.target?.error || new Error(`${label} failed`));
+                request.onerror = () =>
+                    reject(request.error || new Error(`${label} failed`));
                 request.onsuccess = () => resolve(request.result);
             }),
             DB_OPERATION_TIMEOUT_MS,
@@ -982,12 +1429,14 @@ export class MediaCacheService extends AsyncHandler {
         const transaction = await this._transaction('readwrite');
         return withTimeout(
             new Promise<void>((resolve, reject) => {
-                const fail = (event: any) =>
-                    reject(event.target?.error || new Error(`${label} failed`));
+                const fail = (error: DOMException | null) =>
+                    reject(error || new Error(`${label} failed`));
                 const request = run(transaction.objectStore(DB_STORE));
-                request.onerror = fail;
-                transaction.onerror = fail;
-                transaction.onabort = fail;
+                // The request's error reaches the transaction too, before
+                // the transaction aborts with an error of its own
+                request.onerror = () => fail(request.error);
+                transaction.onerror = () => fail(request.error);
+                transaction.onabort = () => fail(transaction.error);
                 transaction.oncomplete = () => resolve();
             }),
             DB_OPERATION_TIMEOUT_MS,

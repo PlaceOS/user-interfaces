@@ -2,7 +2,9 @@ import { DatePipe } from '@angular/common';
 import { Component, Pipe, PipeTransform, input, output } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { By } from '@angular/platform-browser';
 import { setNotifyOutlet } from '@placeos/common';
+import { SignagePlaylistItemSchedule } from '@placeos/ts-client';
 import {
     PlaylistItemScheduleModalComponent,
     PlaylistItemScheduleModalData,
@@ -185,6 +187,36 @@ describe('PlaylistItemScheduleModalComponent', () => {
         expect(event.preventDefault).toHaveBeenCalled();
     });
 
+    it('keeps each schedule form and the open schedule after a removal', async () => {
+        const schedule = {
+            play_cron: '0 9 * * *',
+            play_period: 60,
+            play_takeover: false,
+        };
+        modal_data.item = new SignagePlaylistItemSchedule({
+            item_id: 'item-1',
+            schedules: [schedule, schedule, schedule],
+        });
+        const fixture = await renderComponent();
+        const component = fixture.componentInstance;
+        const forms = () =>
+            fixture.debugElement
+                .queryAll(By.directive(ScheduleFormStubComponent))
+                .map(({ componentInstance }) => componentInstance);
+        const [, second, third] = forms();
+        component.openSchedule(2);
+
+        component.removeSchedule(
+            { preventDefault() {}, stopPropagation() {} } as Event,
+            0,
+        );
+        await fixture.whenStable();
+
+        expect(forms()[0]).toBe(second);
+        expect(forms()[1]).toBe(third);
+        expect(component.isScheduleOpen(1)).toBe(true);
+    });
+
     it('collapses an open schedule when toggled again', async () => {
         const component = await createComponent();
 
@@ -256,6 +288,7 @@ describe('PlaylistItemScheduleModalComponent', () => {
                     ...model.schedules[0],
                     schedule_type: 'play_at',
                     play_at,
+                    play_at_exact: true,
                     play_period: 45,
                 },
             ],

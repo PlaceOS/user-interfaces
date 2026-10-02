@@ -1,8 +1,12 @@
-import { signal } from '@angular/core';
+import { ApplicationRef, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { MediaAnimation } from '@placeos/ts-client';
+import { SignageDisplayService } from '../../app/displays/signage-display.service';
 import { PlaylistItemDetailsComponent } from '../../app/playlists/playlist-item-details.component';
-import { SignageService } from '../../app/signage.service';
+import { SignagePlaylistService } from '../../app/playlists/signage-playlist.service';
+import { SignageContextService } from '../../app/signage-context.service';
+import { SignageInventoryService } from '../../app/signage-inventory.service';
+import { SignageZoneService } from '../../app/zones/signage-zone.service';
 
 describe('PlaylistItemDetailsComponent', () => {
     const selected_playlist = signal<any>(null);
@@ -15,24 +19,37 @@ describe('PlaylistItemDetailsComponent', () => {
     const add_zone = vi.fn();
     const remove_display = vi.fn();
     const remove_zone = vi.fn();
+    // Pending unless a test resolves it, so the loaded pages are used
+    const load_inventory = vi.fn(() => new Promise(() => {}));
 
-    const service_stub = {
-        selected_playlist,
-        playlist_media_items,
-        displays,
-        zones,
+    const context_stub = {
         can_update,
         selected_group,
+        data_change: signal(0),
+    };
+    const display_stub = {
+        displays,
         addDisplayToPlaylist: add_display,
-        addZoneToPlaylist: add_zone,
         removeDisplayFromPlaylist: remove_display,
+    };
+    const inventory_stub = { loadSignageInventory: load_inventory };
+    const playlist_stub = { selected_playlist, playlist_media_items };
+    const zone_stub = {
+        zones,
+        addZoneToPlaylist: add_zone,
         removeZoneFromPlaylist: remove_zone,
     };
 
     async function make() {
         await TestBed.configureTestingModule({
             imports: [PlaylistItemDetailsComponent],
-            providers: [{ provide: SignageService, useValue: service_stub }],
+            providers: [
+                { provide: SignageContextService, useValue: context_stub },
+                { provide: SignageDisplayService, useValue: display_stub },
+                { provide: SignageInventoryService, useValue: inventory_stub },
+                { provide: SignagePlaylistService, useValue: playlist_stub },
+                { provide: SignageZoneService, useValue: zone_stub },
+            ],
         })
             .overrideComponent(PlaylistItemDetailsComponent, {
                 set: { template: '' },
@@ -50,6 +67,30 @@ describe('PlaylistItemDetailsComponent', () => {
         zones.set([]);
         can_update.set(true);
         selected_group.set(null);
+    });
+
+    it('lists displays and zones outside the loaded pages', async () => {
+        selected_playlist.set({ id: 'pl-1', name: 'Lobby' });
+        displays.set([{ id: 'd-1', playlists: ['pl-1'] }]);
+        load_inventory.mockResolvedValueOnce({
+            displays: [
+                { id: 'd-1', playlists: ['pl-1'] },
+                { id: 'd-500', playlists: ['pl-1'] },
+            ],
+            zones: [{ id: 'z-300', playlists: ['pl-1'] }],
+            playlists: [],
+        });
+        const component = await make();
+        TestBed.tick();
+        await TestBed.inject(ApplicationRef).whenStable();
+
+        expect(component.playlist_displays().map(({ id }) => id)).toEqual([
+            'd-1',
+            'd-500',
+        ]);
+        expect(component.playlist_zones().map(({ id }) => id)).toEqual([
+            'z-300',
+        ]);
     });
 
     it('counts the loaded playlist media items', async () => {
@@ -178,6 +219,23 @@ describe('PlaylistItemDetailsComponent', () => {
         const sessions = component.next_play_sessions();
         expect(sessions.length).toBe(5);
         expect(sessions[0]).toContain('–');
+    });
+
+    it('applies the schedule mask to the label and upcoming sessions', async () => {
+        const valid_from = Math.floor(Date.now() / 1000) - 86_400;
+        selected_playlist.set({
+            id: 'pl-1',
+            schedules: [{ play_cron: '0 9 * * *', valid_from, mask: '10' }],
+        });
+        const component = await make();
+        expect(component.schedule_labels()[0]).toContain('mask 10');
+
+        // A mask that skips every occurrence never plays
+        selected_playlist.set({
+            id: 'pl-1',
+            schedules: [{ play_cron: '0 9 * * *', valid_from, mask: '00' }],
+        });
+        expect(component.next_play_sessions()).toEqual([]);
     });
 
     it.each([0, 1])(

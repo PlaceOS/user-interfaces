@@ -1,11 +1,16 @@
 import { signal } from '@angular/core';
-import { createServiceFactory, SpectatorService } from '@ngneat/spectator/vitest';
+import { MatDialog } from '@angular/material/dialog';
+import {
+    createServiceFactory,
+    SpectatorService,
+} from '@ngneat/spectator/vitest';
 import {
     OrganisationService,
-    SettingsService,
     setNotifyOutlet,
+    SettingsService,
 } from '@placeos/common';
 import { MockProvider } from 'ng-mocks';
+import { NEVER, of } from 'rxjs';
 
 import * as ts_client from '@placeos/ts-client';
 import {
@@ -15,9 +20,26 @@ import {
 
 vi.mock('@placeos/ts-client', { spy: true });
 
+/** Fake dialog refs that drive `openConfirmModal` through MatDialog */
+const makeConfirmRef = () => ({
+    componentInstance: {
+        event: of({ reason: 'done' }),
+        loading: { set: vi.fn() },
+    },
+    afterClosed: () => of({ reason: 'done' }),
+    close: vi.fn(),
+});
+
+const makeDismissRef = () => ({
+    componentInstance: { event: NEVER, loading: { set: vi.fn() } },
+    afterClosed: () => of({ reason: 'cancel' }),
+    close: vi.fn(),
+});
+
 describe('EmailTemplatesStateService', () => {
     let spectator: SpectatorService<EmailTemplatesStateService>;
     let notify_open: ReturnType<typeof vi.fn>;
+    let dialog_open: (...args: any[]) => unknown;
     const active_building = signal<any>({ id: 'bld-1' });
     const active_region = signal<any>(null);
 
@@ -30,6 +52,9 @@ describe('EmailTemplatesStateService', () => {
                 active_region,
             } as any),
             MockProvider(SettingsService, { get: vi.fn() } as any),
+            MockProvider(MatDialog, {
+                open: (...args: any[]) => dialog_open(...args),
+            } as any),
         ],
     });
 
@@ -40,6 +65,7 @@ describe('EmailTemplatesStateService', () => {
             dismiss: () => undefined,
         }));
         setNotifyOutlet({ open: notify_open } as any, true);
+        dialog_open = vi.fn(() => makeConfirmRef());
         active_building.set({ id: 'bld-1' });
         active_region.set(null);
         (ts_client.showMetadata as any).mockResolvedValue({
@@ -57,6 +83,24 @@ describe('EmailTemplatesStateService', () => {
         await expect(
             spectator.service.saveTemplate({ zone_id: '' } as EmailTemplate),
         ).rejects.toBe('A building is required');
+        expect(ts_client.updateMetadata).not.toHaveBeenCalled();
+    });
+
+    it('should show an error when reading templates fails on save', async () => {
+        (ts_client.showMetadata as any).mockRejectedValue('offline');
+
+        await expect(
+            spectator.service.saveTemplate({
+                zone_id: 'bld-1',
+                subject: 'New',
+            } as EmailTemplate),
+        ).rejects.toBe('offline');
+
+        expect(notify_open).toHaveBeenCalledWith(
+            expect.anything(),
+            expect.anything(),
+            expect.objectContaining({ panelClass: ['error'] }),
+        );
         expect(ts_client.updateMetadata).not.toHaveBeenCalled();
     });
 
@@ -138,6 +182,51 @@ describe('EmailTemplatesStateService', () => {
             expect.anything(),
             expect.objectContaining({ panelClass: ['success'] }),
         );
+    });
+
+    it('should write the new zone before removing a moved template from the old zone', async () => {
+        (ts_client.showMetadata as any).mockImplementation((zone) =>
+            Promise.resolve({
+                details:
+                    zone === 'bld-0'
+                        ? [{ id: 'template-1', zone_id: 'bld-0' }]
+                        : [],
+            }),
+        );
+
+        await spectator.service.saveTemplate(
+            { id: 'template-1', zone_id: 'bld-1' } as EmailTemplate,
+            'bld-0',
+        );
+
+        const zones = (ts_client.updateMetadata as any).mock.calls.map(
+            ([zone]) => zone,
+        );
+        expect(zones).toEqual(['bld-1', 'bld-0']);
+    });
+
+    it('should not write templates when the zone list cannot be read', async () => {
+        (ts_client.showMetadata as any).mockRejectedValue('offline');
+
+        await expect(
+            spectator.service.removeTemplate({
+                id: 'drop',
+                zone_id: 'bld-1',
+            } as EmailTemplate),
+        ).rejects.toBe('offline');
+
+        expect(ts_client.updateMetadata).not.toHaveBeenCalled();
+    });
+
+    it('should keep the template when removal is cancelled', async () => {
+        dialog_open = vi.fn(() => makeDismissRef());
+
+        await spectator.service.removeTemplate({
+            id: 'drop',
+            zone_id: 'bld-1',
+        } as EmailTemplate);
+
+        expect(ts_client.updateMetadata).not.toHaveBeenCalled();
     });
 
     it('should load a template by id from the merged zone list', async () => {

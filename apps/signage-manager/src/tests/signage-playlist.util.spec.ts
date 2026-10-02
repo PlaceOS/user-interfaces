@@ -1,14 +1,17 @@
 import { getUnixTime } from 'date-fns';
 import {
     createScheduleMaskFilter,
+    playEndTime,
     playlistItemScheduleMap,
     playlistLoopDuration,
     playlistMediaIds,
     playlistMediaItems,
+    playlistNextPlayLabels,
     playlistScheduleExpiryLabel,
     playlistScheduleExpiryTooltip,
     playlistScheduleLabel,
     playlistScheduleNextPlayLabels,
+    playOnceStart,
 } from '../app/signage-playlist.util';
 
 describe('signage playlist util', () => {
@@ -82,6 +85,33 @@ describe('signage playlist util', () => {
         expect(label).toContain('Plays once on');
         expect(label).toContain(play_at.toLocaleString());
         expect(label).toContain('for 30 minutes');
+    });
+
+    it('labels a local one-off schedule in the viewer timezone', () => {
+        const label = playlistScheduleLabel({
+            play_at_local: '2026-03-02T09:30:00',
+            // The API always sends a fallback cron with one-off schedules.
+            play_cron: '0 0 * * *',
+            play_period: 30,
+        });
+
+        expect(label).toContain(
+            `Plays once on ${new Date(2026, 2, 2, 9, 30).toLocaleString()} display local time`,
+        );
+    });
+
+    it('reads play_at_local only as a date time with no offset', () => {
+        expect(playOnceStart({ play_at_local: '2027-01-01T00:00:00' })).toEqual(
+            new Date(2027, 0, 1),
+        );
+        for (const value of [
+            '2027-01-01T00:00:00Z',
+            '2027-01-01T00:00',
+            '2027-02-30T00:00:00',
+            '2027-01-01T00:60:00',
+        ]) {
+            expect(playOnceStart({ play_at_local: value })).toBeNull();
+        }
     });
 
     it('labels cron schedules like playlist details', () => {
@@ -164,6 +194,43 @@ describe('signage playlist util', () => {
         });
 
         expect(labels).toEqual([]);
+    });
+});
+
+describe('play end times across a daylight saving change', () => {
+    const original_timezone = process.env.TZ;
+    // Pin the zone so the result does not depend on the machine
+    beforeAll(() => (process.env.TZ = 'Australia/Sydney'));
+    afterAll(() => {
+        if (original_timezone === undefined) delete process.env.TZ;
+        else process.env.TZ = original_timezone;
+    });
+
+    // Sydney clocks go from 02:00 to 03:00 on 4 October 2026. A 4 hour play
+    // from 22:00 ends when the clocks change, so its last second is 01:59:59.
+    // Adding clock time instead showed 03:59.
+    it('adds elapsed time to the start', () => {
+        const start = new Date('2026-10-03T12:00:00Z');
+
+        expect(playEndTime(start, 240).toISOString()).toBe(
+            '2026-10-03T15:59:59.000Z',
+        );
+        expect(playEndTime(start, 0)).toEqual(start);
+    });
+
+    it('labels the end of a play that crosses the change', () => {
+        const [label] = playlistNextPlayLabels(
+            [{ play_cron: '0 22 * * *', play_period: 240 }],
+            1,
+            Date.parse('2026-10-03T00:00:00Z'),
+        );
+        const end = new Date('2026-10-03T15:59:59Z').toLocaleTimeString(
+            undefined,
+            { hour: 'numeric', minute: '2-digit' },
+        );
+
+        expect(label.endsWith(end)).toBe(true);
+        expect(label).toContain('1:59');
     });
 });
 

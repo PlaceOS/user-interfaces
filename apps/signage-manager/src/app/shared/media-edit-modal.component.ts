@@ -9,8 +9,18 @@ import {
     viewChild,
     ViewChild,
 } from '@angular/core';
-import { form, FormField, required, submit } from '@angular/forms/signals';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import {
+    form,
+    FormField,
+    required,
+    submit,
+    validate,
+} from '@angular/forms/signals';
+import {
+    MAT_DIALOG_DATA,
+    MatDialog,
+    MatDialogRef,
+} from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -55,14 +65,24 @@ import {
     pluginSchema,
     schemaDefaults,
 } from '../signage-plugin.util';
+import {
+    isWebPageUrl,
+    normaliseWebPageUrl,
+    webPageFrameUrl,
+} from '../signage-url.util';
 import { SignageSharedWithComponent } from './signage-shared-with.component';
+
+/** Media fields the modal saves. `thumbnail_image` is a picked image as a
+ * data URL, which the service uploads before it saves the item. */
+export type MediaEditChanges = {
+    -readonly [K in keyof SignageMedia]?: SignageMedia[K];
+} & { thumbnail_image?: string };
 
 export interface MediaEditModalData {
     media: SignageMedia;
     file?: File;
     file_metadata?: SignageMediaMetadata;
     file_thumbnail?: string;
-    playlist_id?: string;
     /** Signage group the media is being viewed from */
     group_id?: string;
     plugin?: SignagePlugin;
@@ -75,10 +95,16 @@ export interface MediaEditModalData {
         m: SignageMedia,
         file_metadata?: SignageMediaMetadata,
         thumbnail?: string,
+        /** Supplies a thumbnail when the server screenshot fails */
+        fallback_thumbnail?: () => Promise<string>,
     ) => Promise<SignageMedia>;
-    onEdit: (id: string, data: any) => Promise<void>;
-    preview: (item: any) => void;
+    onEdit: (id: string, data: MediaEditChanges) => Promise<void>;
+    preview: (item: SignageMedia) => void;
 }
+
+/** Focus targets where a plain key press belongs to the control, not a hotkey */
+const HOTKEY_BLOCKING_FOCUS =
+    'select, mat-select, [role="combobox"], [role="listbox"], [role="option"], [role="menu"], [role="menuitem"]';
 
 interface MediaEditFormModel {
     name: string;
@@ -167,6 +193,7 @@ function mediaSaveErrorMessage(error: unknown) {
                                     'SIGNAGE_MANAGER.MEDIA_PREVIEW' | translate
                                 "
                                 class="h-screen w-full object-contain object-center"
+                                sandbox="allow-scripts allow-same-origin allow-forms"
                                 [src]="preview_url() | safe: 'resource'"
                             ></iframe>
                         } @else {
@@ -217,7 +244,10 @@ function mediaSaveErrorMessage(error: unknown) {
                                 "
                             />
                             <mat-error>{{
-                                'SIGNAGE_MANAGER.URL_REQUIRED' | translate
+                                (form.media_uri().value()
+                                    ? 'SIGNAGE_MANAGER.URL_INVALID'
+                                    : 'SIGNAGE_MANAGER.URL_REQUIRED'
+                                ) | translate
                             }}</mat-error>
                         </mat-form-field>
                     }
@@ -253,8 +283,10 @@ function mediaSaveErrorMessage(error: unknown) {
                                         class="text-base-content/50 flex h-full w-full items-center justify-center px-2 text-center text-xs"
                                     >
                                         {{
-                                            'SIGNAGE_MANAGER.THUMBNAIL_NONE'
-                                                | translate
+                                            (item.id
+                                                ? 'SIGNAGE_MANAGER.THUMBNAIL_NONE'
+                                                : 'SIGNAGE_MANAGER.THUMBNAIL_AUTO'
+                                            ) | translate
                                         }}
                                     </div>
                                 }
@@ -458,6 +490,7 @@ function mediaSaveErrorMessage(error: unknown) {
                         type="media"
                         [item_id]="item.id"
                         [group_id]="group_id"
+                        [allow_unshare]="true"
                     ></signage-shared-with>
                 </div>
             </form>
@@ -493,6 +526,7 @@ export class MediaEditModalComponent implements OnDestroy {
     private _data = inject<MediaEditModalData>(MAT_DIALOG_DATA);
     private _dialog_ref =
         inject<MatDialogRef<MediaEditModalComponent>>(MatDialogRef);
+    private readonly _dialog = inject(MatDialog);
 
     @ViewChild(SchemaFormComponent) public schema_form: SchemaFormComponent;
 
@@ -545,19 +579,30 @@ export class MediaEditModalComponent implements OnDestroy {
         required(path.media_uri, {
             when: () => this.media_type === 'webpage',
         });
+        validate(path.media_uri, ({ value }) =>
+            this.media_type === 'webpage' && value() && !isWebPageUrl(value())
+                ? {
+                      kind: 'web_url',
+                      message: i18n('SIGNAGE_MANAGER.URL_INVALID'),
+                  }
+                : undefined,
+        );
     });
 
     private _file_url: string;
     private _preview_url_timeout?: ReturnType<typeof setTimeout>;
 
     public readonly preview = () =>
-        this._data.preview({
-            media_uri: this.url,
-            media_type: this.media_type,
-            name: this.model().name,
-            plugin_id: this.item.plugin_id || this.plugin()?.id,
-            plugin_params: this.plugin_config(),
-        });
+        this._data.preview(
+            // No id: this previews the unsaved form, not the stored item
+            new SignageMedia({
+                media_uri: this.url,
+                media_type: this.media_type,
+                name: this.model().name,
+                plugin_id: this.item.plugin_id || this.plugin()?.id,
+                plugin_params: this.plugin_config(),
+            }),
+        );
 
     public readonly plugin_config = computed(() => ({
         ...(this.plugin()?.defaults || {}),
@@ -585,9 +630,9 @@ export class MediaEditModalComponent implements OnDestroy {
     }
 
     /**
-     * Webpages and plugins have no file to capture a frame from, and a cross
-     * origin page cannot be rendered to a canvas, so their thumbnail has to be
-     * supplied by hand.
+     * Webpages and plugins have no file to capture a frame from. A new item
+     * without a picked image gets a server screenshot of its URL on save, so
+     * the user only has to pick one to override it.
      */
     public get can_set_thumbnail() {
         return (
@@ -608,17 +653,19 @@ export class MediaEditModalComponent implements OnDestroy {
     }
 
     constructor() {
-        const save_hotkey = inject(HotkeysService).listen(['KeyS'], () =>
-            this.saveMedia(),
-        );
+        const save_hotkey = inject(HotkeysService).listen(['KeyS'], () => {
+            if (this._canUseSaveHotkey()) this.saveMedia();
+        });
         inject(DestroyRef).onDestroy(() => save_hotkey?.unsubscribe());
         if (this.media_type === 'webpage') {
-            this.preview_url.set(this.item.media_uri || this.item.media_url);
+            this.preview_url.set(
+                webPageFrameUrl(this.item.media_uri || this.item.media_url),
+            );
             effect((onCleanup) => {
                 const url = this.model().media_uri;
                 clearTimeout(this._preview_url_timeout);
                 this._preview_url_timeout = setTimeout(
-                    () => this.preview_url.set(url || ''),
+                    () => this.preview_url.set(webPageFrameUrl(url)),
                     1500,
                 );
                 onCleanup(() => clearTimeout(this._preview_url_timeout));
@@ -648,6 +695,16 @@ export class MediaEditModalComponent implements OnDestroy {
                 },
             }));
         });
+    }
+
+    /**
+     * The save hotkey is a plain key, so it only acts while this modal is the
+     * top-most dialog and focus is not on a control that takes key presses.
+     */
+    private _canUseSaveHotkey() {
+        const dialogs = this._dialog.openDialogs;
+        if (dialogs[dialogs.length - 1] !== this._dialog_ref) return false;
+        return !document.activeElement?.closest(HOTKEY_BLOCKING_FOCUS);
     }
 
     private _resolvePluginSchema(): Record<string, unknown> | null {
@@ -684,8 +741,9 @@ export class MediaEditModalComponent implements OnDestroy {
 
     /**
      * Ask the embedded plugin to render its own thumbnail. Captured from the
-     * live preview so it reflects the config the user just set. Plugins that
-     * predate the capability return nothing and are saved exactly as before.
+     * live preview so it reflects the config the user just set. Only used
+     * when the server screenshot fails. Plugins that predate the capability
+     * return nothing.
      */
     private async _capturePluginThumbnail() {
         if (this.media_type !== 'plugin') return '';
@@ -700,10 +758,15 @@ export class MediaEditModalComponent implements OnDestroy {
             this.loading.set(true);
             this._dialog_ref.disableClose = true;
             const form_value = this.model();
-            const new_media: any = {
+            const new_media: MediaEditChanges = {
                 ...this.item,
                 ...form_value,
             };
+            if (this.media_type === 'webpage') {
+                new_media.media_uri =
+                    normaliseWebPageUrl(form_value.media_uri) ??
+                    form_value.media_uri;
+            }
             if (this.plugin()) {
                 new_media.plugin_id = this.item.plugin_id || this.plugin().id;
             }
@@ -740,14 +803,12 @@ export class MediaEditModalComponent implements OnDestroy {
                     }
                     await this._data.onEdit(this.item.id, new_media);
                 } else {
-                    const thumbnail =
-                        this.custom_thumbnail() ||
-                        (await this._capturePluginThumbnail());
                     await this._data.onAdd(
                         this.file,
                         new SignageMedia(new_media),
                         this._data.file_metadata,
-                        thumbnail,
+                        this.custom_thumbnail(),
+                        () => this._capturePluginThumbnail(),
                     );
                 }
             } catch (error) {

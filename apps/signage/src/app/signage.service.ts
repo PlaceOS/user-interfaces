@@ -46,6 +46,8 @@ interface PlaylistOverride {
     ends_at: number;
     playlist: MediaPlayerItem[];
     schedule_keys?: string[];
+    /** When the last of its scheduled runs stops being detected as active */
+    schedule_window_end?: number;
 }
 
 interface SignageMetrics {
@@ -54,10 +56,18 @@ interface SignageMetrics {
     media_counts: Record<string, number>;
 }
 
+/**
+ * Background schedules join normal playback; takeover schedules override it.
+ * `single-pass` is the subset of takeovers that play once (`play_period` 0).
+ */
+type ScheduleKind = 'background' | 'takeover' | 'single-pass';
+
 interface PlaylistSchedule {
     readonly play_cron?: string;
     readonly play_period?: number;
     readonly play_at?: number;
+    /** Wall-clock play once time with no offset, e.g. "2027-01-01T00:00:00" */
+    readonly play_at_local?: string;
     readonly play_takeover?: boolean;
     readonly valid_until?: number;
     readonly valid_from?: number;
@@ -75,6 +85,24 @@ interface ActivePlaylistSchedule {
     key: string;
 }
 
+/** Raw display details as the API returns them */
+interface DisplayPayload {
+    readonly id?: string;
+    readonly [key: string]: unknown;
+}
+
+/** HTTP validators of a display response */
+interface DisplayValidators {
+    etag: string;
+    last_modified: string;
+}
+
+interface DisplayFetch {
+    payload: DisplayPayload;
+    /** Validators of the response; null when the backend could not be reached */
+    validators: DisplayValidators | null;
+}
+
 interface PlaylistMediaReference {
     id: string;
     playlist_id: string;
@@ -82,11 +110,16 @@ interface PlaylistMediaReference {
     valid_until: number;
 }
 
-const EMPTY_METRICS = JSON.stringify({
-    play_through_counts: {},
-    playlist_counts: {},
-    media_counts: {},
-});
+function emptyMetrics(): SignageMetrics {
+    return { play_through_counts: {}, playlist_counts: {}, media_counts: {} };
+}
+
+const EMPTY_METRICS = JSON.stringify(emptyMetrics());
+const METRIC_TYPES: readonly (keyof SignageMetrics)[] = [
+    'play_through_counts',
+    'playlist_counts',
+    'media_counts',
+];
 
 const DEFAULT_PLAY_PERIOD_MINUTES = 24 * 60;
 const SINGLE_PASS_TRIGGER_WINDOW_MS = 30 * 1000;
@@ -158,6 +191,10 @@ function isNestedPlayerWindow() {
     }
 }
 
+function isDisplayPayload(value: unknown): value is DisplayPayload {
+    return !!value && typeof value === 'object';
+}
+
 function displayCacheKey(id: string) {
     return `${DISPLAY_KEY}.${id}`;
 }
@@ -188,6 +225,40 @@ function parsePlayAtTimestamp(value: number) {
     return value * 1000;
 }
 
+const PLAY_AT_LOCAL_PATTERN =
+    /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})$/;
+
+/**
+ * Parse a `play_at_local` value in the display's timezone. Returns 0 when
+ * the value is not an ISO 8601 date time with no offset.
+ */
+function parsePlayAtLocalTimestamp(value = '') {
+    const match = PLAY_AT_LOCAL_PATTERN.exec(value);
+    if (!match) return 0;
+    const [year, month, day, hours, minutes, seconds] = match
+        .slice(1)
+        .map(Number);
+    const date = new Date(year, month - 1, day, hours, minutes, seconds);
+    // Reject values such as February 30 or 00:60 that roll over.
+    return date.getDate() === day &&
+        date.getMonth() === month - 1 &&
+        minutes < 60 &&
+        seconds < 60
+        ? date.getTime()
+        : 0;
+}
+
+function isPlayOnceSchedule(schedule: PlaylistSchedule) {
+    return !!schedule.play_at || !!schedule.play_at_local;
+}
+
+/** Start of a play once schedule in milliseconds; 0 when not valid */
+function playOnceTimestamp(schedule: PlaylistSchedule) {
+    return schedule.play_at
+        ? parsePlayAtTimestamp(schedule.play_at)
+        : parsePlayAtLocalTimestamp(schedule.play_at_local);
+}
+
 function parseValidUntilTimestamp(value: number | undefined) {
     if (!Number.isFinite(value) || !value || value <= 0) return 0;
     return value * 1000;
@@ -214,18 +285,14 @@ function scheduledPlaylistExpiry(starts_at: number, period_minutes: number) {
     return period_minutes ? starts_at + period_minutes * 60 * 1000 : 0;
 }
 
-function scheduledPlaylistWindow(
-    schedule: PlaylistSchedule,
-    now = time(),
-    trigger_window_seconds = 0,
-) {
+function scheduledPlaylistWindow(schedule: PlaylistSchedule, now = time()) {
     const period_minutes = playlistPlayPeriodMinutes(schedule);
-    const window_seconds = trigger_window_seconds || period_minutes * 60;
+    const window_seconds = period_minutes * 60;
     const valid_until = parseValidUntilTimestamp(schedule.valid_until);
     if (!hasPlayableScheduleMask(schedule)) return null;
     if (valid_until && now > valid_until) return null;
-    if (schedule.play_at) {
-        const starts_at = parsePlayAtTimestamp(schedule.play_at);
+    if (isPlayOnceSchedule(schedule)) {
+        const starts_at = playOnceTimestamp(schedule);
         if (
             !starts_at ||
             starts_at < (schedule.valid_from || 0) * 1000 ||
@@ -273,24 +340,31 @@ function scheduledPlaylistWindow(
     return null;
 }
 
+function isScheduleKind(schedule: PlaylistSchedule, kind?: ScheduleKind) {
+    if (!kind) return true;
+    if (kind === 'background') return !schedule.play_takeover;
+    if (!schedule.play_takeover) return false;
+    return kind === 'takeover' || playlistPlayPeriodMinutes(schedule) === 0;
+}
+
+/** Schedules of a playlist active at `now`, limited to `kind` when given */
 function activePlaylistSchedules(
     playlist: SignagePlaylist,
     now = time(),
-    trigger_window_seconds = 0,
+    kind?: ScheduleKind,
 ) {
     return playlistSchedules(playlist)
         .map((schedule, index) => {
-            const window = scheduledPlaylistWindow(
-                schedule,
-                now,
-                trigger_window_seconds,
-            );
+            if (!isScheduleKind(schedule, kind)) return null;
+            const window = scheduledPlaylistWindow(schedule, now);
             return window
                 ? {
                       playlist,
                       schedule,
                       ...window,
-                      key: `${playlist.id}:${index}:${window.starts_at}`,
+                      key:
+                          scheduleKeyPrefix(playlist.id, index) +
+                          window.starts_at,
                   }
                 : null;
         })
@@ -300,9 +374,14 @@ function activePlaylistSchedules(
 function activePlaylistSchedule(
     playlist: SignagePlaylist,
     now = time(),
-    trigger_window_seconds = 0,
+    kind?: ScheduleKind,
 ) {
-    return activePlaylistSchedules(playlist, now, trigger_window_seconds)[0];
+    return activePlaylistSchedules(playlist, now, kind)[0];
+}
+
+/** Start of the keys for every run of one schedule of a playlist */
+function scheduleKeyPrefix(playlist_id: string, index: number) {
+    return `${playlist_id}:${index}:`;
 }
 
 /**
@@ -317,8 +396,8 @@ function nextScheduledPlaylistStart(
     const valid_until = parseValidUntilTimestamp(schedule.valid_until);
     if (!hasPlayableScheduleMask(schedule)) return 0;
     if (valid_until && now > valid_until) return 0;
-    if (schedule.play_at) {
-        const starts_at = parsePlayAtTimestamp(schedule.play_at);
+    if (isPlayOnceSchedule(schedule)) {
+        const starts_at = playOnceTimestamp(schedule);
         if (
             !starts_at ||
             starts_at <= now ||
@@ -375,8 +454,10 @@ export class SignageService extends AsyncHandler {
     private readonly _display_data = signal<any>(null);
     /** Counter incremented on the schedule timer to re-evaluate time windows */
     private readonly _tick = signal(0);
+    /** Pending schedule tick; see `_scheduleTick` */
+    private _schedule_tick_timer?: ReturnType<typeof setTimeout>;
     private _display_signature = '';
-    /** Validators from the last successful display response */
+    /** Validators from the last display response that was applied */
     private _etag = '';
     private _last_modified = '';
     /** Signature of the media set the cache was last synced against */
@@ -393,19 +474,21 @@ export class SignageService extends AsyncHandler {
     private _poll_in_flight = false;
     /** Wall-clock time the last poll attempt started */
     private _last_poll_attempt = 0;
-    /** Wall-clock time the last poll completed without throwing */
+    /** Wall-clock time the last poll got an answer from the backend */
     private _last_poll_success = 0;
     /** Wall-clock time of the last recovery download, keyed by media URL */
     private _media_recovery = new Map<string, number>();
     private _playlists: SignagePlaylist[] = [];
     private _last_playlist: MediaPlayerItem[] = [];
     private _last_override_playlists: string[] = [];
-    private _metrics: SignageMetrics = {
-        play_through_counts: {},
-        playlist_counts: {},
-        media_counts: {},
-    };
-    private _completed_schedule_overrides = new Set<string>();
+    private _metrics = emptyMetrics();
+    /** Scheduled runs that have played, with when each can be forgotten */
+    private _completed_schedule_overrides = new Map<string, number>();
+    /** Shuffled order of each random playlist and the media list it is for */
+    private _shuffles = new Map<
+        string,
+        { signature: string; order: number[] }
+    >();
 
     public readonly override_playlist = signal<PlaylistOverride>({
         ends_at: 0,
@@ -462,12 +545,8 @@ export class SignageService extends AsyncHandler {
             const media = this._getPlaylistMedia(
                 item,
                 playlists,
-                (p) =>
-                    p.enabled &&
-                    (!playlistSchedules(p).length ||
-                        activePlaylistSchedules(p).some(
-                            ({ schedule }) => !schedule.play_takeover,
-                        )),
+                (p) => this._isBackgroundPlaylist(p),
+                'background',
             );
             this._last_playlist = media;
             return media;
@@ -519,6 +598,12 @@ export class SignageService extends AsyncHandler {
         this._scheduleTick();
     }
 
+    protected override destroy() {
+        clearTimeout(this._schedule_tick_timer);
+        this._schedule_tick_timer = undefined;
+        super.destroy();
+    }
+
     private _startPolling() {
         this.interval('poll', () => this._poll(), POLL_INTERVAL_MS);
     }
@@ -541,8 +626,8 @@ export class SignageService extends AsyncHandler {
         this._last_poll_attempt = now;
         recordHeartbeat('poll');
         try {
-            await this._reloadDisplay();
-            this._last_poll_success = Date.now();
+            const reached_backend = await this._reloadDisplay();
+            if (reached_backend) this._last_poll_success = Date.now();
         } catch (e) {
             log.error('Display poll failed.', e);
         } finally {
@@ -586,20 +671,26 @@ export class SignageService extends AsyncHandler {
         });
     }
 
-    /** Re-fetch the active display details and refresh derived player state. */
+    /**
+     * Re-fetch the active display details and refresh derived player state.
+     * Returns whether the backend answered.
+     */
     private async _reloadDisplay() {
         const id = this._display();
-        if (!id) return;
-        const value = await this._fetchDisplay(id);
-        if (value === null) return;
-        const display_signature = `${id}:${JSON.stringify(value || {})}`;
+        if (!id) return false;
+        const result = await this._fetchDisplay(id);
+        // Not modified since the last response that was applied
+        if (result === null) return true;
+        const { payload, validators } = result;
+        const display_signature = `${id}:${JSON.stringify(payload)}`;
         if (
             display_signature === this._display_signature &&
             this._display_data()
         ) {
-            return;
+            this._setValidators(validators);
+            return !!validators;
         }
-        const display = this._parseDisplay(value);
+        const display = this._parseDisplay(payload);
         display.plugins = await this._withTimeout(
             this._resolveDisplayPlugins(display),
             DISPLAY_FETCH_TIMEOUT_MS,
@@ -607,6 +698,9 @@ export class SignageService extends AsyncHandler {
             log.warn('Failed to resolve display plugins.', e);
             return display.plugins || [];
         });
+        for (const id of this._shuffles.keys()) {
+            if (!display.playlist_config?.[id]) this._shuffles.delete(id);
+        }
         this._display_data.set(display);
         try {
             this._bindTriggers(display);
@@ -620,10 +714,26 @@ export class SignageService extends AsyncHandler {
         // Recorded last. Marking the payload as handled before the work above
         // completes would make every later poll skip whatever did not finish,
         // leaving the display stuck until its configuration changed again.
+        // The validators too: sent early, they would get a 304 for the
+        // payload that failed, and it would never be applied.
         this._display_signature = display_signature;
+        this._setValidators(validators);
+        return !!validators;
     }
 
-    private async _fetchDisplay(id: string) {
+    /** Keep the validators to send with the next request, if there are any */
+    private _setValidators(validators: DisplayValidators | null) {
+        if (!validators) return;
+        this._etag = validators.etag;
+        this._last_modified = validators.last_modified;
+    }
+
+    /**
+     * Fetch the display details. Falls back to the copy saved for offline use
+     * when the backend cannot be reached. Returns null when the backend reports
+     * the details have not changed.
+     */
+    private async _fetchDisplay(id: string): Promise<DisplayFetch | null> {
         const query_params = cleanObject(
             {
                 preview: this.debug() || undefined,
@@ -643,34 +753,55 @@ export class SignageService extends AsyncHandler {
 
         // A request that never settles would otherwise leave the poll waiting
         // forever, so it is abandoned and retried on the next interval.
-        let d: any;
+        let payload: DisplayPayload | null = null;
+        let validators: DisplayValidators | null = null;
         try {
-            d = await this._withTimeout(
+            const response = await this._withTimeout(
                 showSignage(id, query_params, request_options),
                 DISPLAY_FETCH_TIMEOUT_MS,
             );
-            const response_headers = responseHeaders(
-                displayRequestURL(id, query_params),
-            );
-            this._etag = response_headers.etag || '';
-            this._last_modified = response_headers['last-modified'] || '';
+            if (isDisplayPayload(response)) {
+                payload = response;
+                const response_headers = responseHeaders(
+                    displayRequestURL(id, query_params),
+                );
+                validators = {
+                    etag: response_headers.etag || '',
+                    last_modified: response_headers['last-modified'] || '',
+                };
+            }
         } catch (e) {
             if (e instanceof Response && e.status === 304) return null;
             log.warn('Failed to fetch display details.', e);
         }
-        if (!d) {
-            const display_key = displayCacheKey(id);
-            d = JSON.parse(
-                localStorage.getItem(display_key) ||
+        if (!payload) payload = this._offlineDisplay(id);
+        if (payload.id === id) {
+            // Best effort: a full storage must not stop the display updating
+            try {
+                localStorage.setItem(
+                    displayCacheKey(id),
+                    JSON.stringify(payload),
+                );
+            } catch (e) {
+                log.warn('Unable to save display details for offline use.', e);
+            }
+        }
+        return { payload, validators };
+    }
+
+    /** The display details saved for offline use; empty when there are none */
+    private _offlineDisplay(id: string): DisplayPayload {
+        try {
+            const saved: unknown = JSON.parse(
+                localStorage.getItem(displayCacheKey(id)) ||
                     localStorage.getItem(DISPLAY_KEY) ||
-                    '{}',
+                    'null',
             );
-            if (d.id !== id) d = {};
+            return isDisplayPayload(saved) && saved.id === id ? saved : {};
+        } catch (e) {
+            log.warn('Unable to read saved display details.', e);
+            return {};
         }
-        if (d.id === id) {
-            localStorage.setItem(displayCacheKey(id), JSON.stringify(d));
-        }
-        return d;
     }
 
     private _bindTriggers(display: any) {
@@ -681,9 +812,18 @@ export class SignageService extends AsyncHandler {
         const mod = getModule(display.id, '_TRIGGER__1');
         for (const id of triggers) {
             const binding = mod.variable(id);
+            // Fire only when the value turns truthy. Subscribing emits the
+            // current value at once, and the bindings are rebuilt on every
+            // display change, so a held trigger would otherwise replay on
+            // each reload; a trigger resetting to false must not fire either.
+            let active = !!binding.value;
             this.subscription(
                 `trigger_listen-${id}`,
-                binding.bindThenSubscribe(() => this._handleTrigger(id)),
+                binding.bindThenSubscribe((value) => {
+                    const was_active = active;
+                    active = !!value;
+                    if (active && !was_active) this._handleTrigger(id);
+                }),
             );
         }
     }
@@ -691,6 +831,12 @@ export class SignageService extends AsyncHandler {
     /**
      * Re-evaluate time-based schedules on a recurring timer, speeding up when
      * debug time is fast-forwarding so scheduled playlists activate on time.
+     * Calling it again replaces the pending tick, so there is only ever one
+     * timer chain.
+     *
+     * The timer is held here, not with `this.timeout`: that forgets a timer
+     * once its callback returns, which loses the timer the callback re-arms,
+     * so a later call could not replace it and would start a second chain.
      */
     private _scheduleTick() {
         const { active, speed } = mockTimeState();
@@ -699,31 +845,28 @@ export class SignageService extends AsyncHandler {
             MIN_SCHEDULE_TICK_MS,
             Math.min(SCHEDULE_TICK_MS, SCHEDULE_TICK_MS / effective_speed),
         );
-        this.timeout(
-            'schedule_tick',
-            () => {
-                try {
-                    recordHeartbeat('schedule');
-                    this._checkPollHealth();
-                    this._tick.update((_) => _ + 1);
-                    const display = this._display_data();
-                    if (display) {
-                        this._checkScheduledOverrides(
-                            display,
-                            this.override_playlists(),
-                        );
-                        this._checkMediaCache(display);
-                    }
-                } catch (e) {
-                    log.error('Failed to evaluate playlist schedules.', e);
-                } finally {
-                    // Always re-arm; a single bad pass must not stop the player
-                    // evaluating schedules for the rest of its uptime.
-                    this._scheduleTick();
+        clearTimeout(this._schedule_tick_timer);
+        this._schedule_tick_timer = setTimeout(() => {
+            try {
+                recordHeartbeat('schedule');
+                this._checkPollHealth();
+                this._tick.update((_) => _ + 1);
+                const display = this._display_data();
+                if (display) {
+                    this._checkScheduledOverrides(
+                        display,
+                        this.override_playlists(),
+                    );
+                    this._checkMediaCache(display);
                 }
-            },
-            delay,
-        );
+            } catch (e) {
+                log.error('Failed to evaluate playlist schedules.', e);
+            } finally {
+                // Always re-arm; a single bad pass must not stop the player
+                // evaluating schedules for the rest of its uptime.
+                this._scheduleTick();
+            }
+        }, delay);
     }
 
     /** Force an immediate display refresh. Exposed for diagnostics. */
@@ -784,7 +927,11 @@ export class SignageService extends AsyncHandler {
             .map((id) => this._playlistConfig(display, id)?.[0])
             .filter((_) => !!_)
             .map((playlist) => {
-                const active = activePlaylistSchedule(playlist, now);
+                // A running takeover outranks a background schedule active
+                // at the same time, as it does in playback.
+                const active =
+                    activePlaylistSchedule(playlist, now, 'takeover') ||
+                    activePlaylistSchedule(playlist, now);
                 return {
                     id: playlist.id,
                     name: playlist.name,
@@ -824,6 +971,7 @@ export class SignageService extends AsyncHandler {
                     play_at: asTime(
                         parsePlayAtTimestamp(schedule.play_at || 0),
                     ),
+                    play_at_local: schedule.play_at_local || '',
                     period_minutes: period,
                     starts_at: asTime(starts_at),
                     ends_at: period
@@ -840,9 +988,15 @@ export class SignageService extends AsyncHandler {
     }
 
     public clearPlaylistOverride() {
-        const { schedule_keys } = this.override_playlist();
+        const { schedule_keys, schedule_window_end } = this.override_playlist();
+        // Remembered until the run can no longer be detected, so it does not
+        // play again. Scheduled overrides always record that time; the default
+        // play period is only a fallback.
+        const forget_after =
+            schedule_window_end ||
+            time() + DEFAULT_PLAY_PERIOD_MINUTES * MINUTES;
         for (const key of schedule_keys || []) {
-            this._completed_schedule_overrides.add(key);
+            this._completed_schedule_overrides.set(key, forget_after);
         }
         this.override_playlist.set({ playlist: [], ends_at: 0 });
     }
@@ -871,24 +1025,34 @@ export class SignageService extends AsyncHandler {
     }
 
     private _postMetrics() {
-        this.timeout(
-            'post-metrics',
-            async () => {
-                if (EMPTY_METRICS === JSON.stringify(this._metrics)) return;
-                const display_id = this._display();
-                await post(
-                    `/api/engine/v2/signage/${encodeURIComponent(display_id)}/metrics`,
-                    this._metrics,
-                );
-                log.debug('Posted metrics:', this._metrics);
-                this._metrics = {
-                    play_through_counts: {},
-                    playlist_counts: {},
-                    media_counts: {},
-                };
-            },
-            randomInt(60),
-        );
+        this.timeout('post-metrics', () => this._sendMetrics(), randomInt(60));
+    }
+
+    /**
+     * Post the counts recorded so far. Counting continues into a new set while
+     * the post is in flight; if the post fails, its counts are added back so
+     * the next attempt sends them.
+     */
+    private async _sendMetrics() {
+        if (EMPTY_METRICS === JSON.stringify(this._metrics)) return;
+        const metrics = this._metrics;
+        this._metrics = emptyMetrics();
+        const display_id = this._display();
+        try {
+            await post(
+                `/api/engine/v2/signage/${encodeURIComponent(display_id)}/metrics`,
+                metrics,
+            );
+            log.debug('Posted metrics:', metrics);
+        } catch (e) {
+            log.warn('Failed to post metrics. Retrying later.', e);
+            for (const type of METRIC_TYPES) {
+                for (const [ref_id, count] of Object.entries(metrics[type])) {
+                    this._metrics[type][ref_id] =
+                        (this._metrics[type][ref_id] || 0) + count;
+                }
+            }
+        }
     }
 
     private _mappedPlaylistIds(display: any) {
@@ -904,6 +1068,15 @@ export class SignageService extends AsyncHandler {
         this._playlists = playlist_ids
             .map((id) => display.playlist_config?.[id]?.[0])
             .filter((_) => !!_);
+    }
+
+    /** Whether a playlist currently belongs in normal playback */
+    private _isBackgroundPlaylist(playlist: SignagePlaylist, now = time()) {
+        return (
+            playlist.enabled &&
+            (!playlistSchedules(playlist).length ||
+                activePlaylistSchedules(playlist, now, 'background').length > 0)
+        );
     }
 
     private _isOverridePlaylist(display: any, id: string) {
@@ -942,10 +1115,10 @@ export class SignageService extends AsyncHandler {
     }
 
     private _mediaSignature(display: any) {
-        // Sorted, because a playlist with `random` set returns its media in a
-        // different order on every call. Comparing the raw order would report a
-        // change on every tick and re-run the whole cache sync - which reads
-        // every cached file back out of IndexedDB - fifteen seconds apart.
+        // Sorted, because only the set of files matters here. Comparing the raw
+        // order would report a change whenever a random playlist reshuffles
+        // and re-run the whole cache sync, which reads every cached file back
+        // out of IndexedDB.
         const media = [...this._activeCacheableMediaURLs(display)].sort();
         return `${display.id}:${media.join('|')}`;
     }
@@ -967,16 +1140,16 @@ export class SignageService extends AsyncHandler {
             const cache_owner = display.id || '';
             const media = this._activeCacheableMediaURLs(display);
             const known_media = this._cacheableMediaURLs(display);
-            const available_media =
-                this._media_cache.availableFiles(cache_owner);
-            const extra_media = available_media.filter(
-                (url) => !known_media.includes(url),
-            );
             const has_failures = await this._media_cache.requestFilesToCache(
                 media,
                 cache_owner,
                 { prune_other_owners: !this._isNestedPlayerWindow() },
             );
+            // Listed after caching, which can evict files: releasing a file
+            // that is already gone fails and only adds noise to the log.
+            const extra_media = this._media_cache
+                .availableFiles(cache_owner)
+                .filter((url) => !known_media.includes(url));
             for (const item of extra_media) {
                 Promise.resolve(
                     this._media_cache.invalidateFile(item, cache_owner),
@@ -1033,21 +1206,16 @@ export class SignageService extends AsyncHandler {
             ...this._getPlaylistMedia(
                 display,
                 playlists,
-                (p) =>
-                    p.enabled &&
-                    (!playlistSchedules(p).length ||
-                        activePlaylistSchedules(p, now).some(
-                            ({ schedule }) => !schedule.play_takeover,
-                        )),
+                (p) => this._isBackgroundPlaylist(p, now),
+                'background',
             ),
             ...this._getPlaylistMedia(
                 display,
                 playlists,
                 (p) =>
                     p.enabled &&
-                    activePlaylistSchedules(p, now).some(
-                        ({ schedule }) => schedule.play_takeover,
-                    ),
+                    activePlaylistSchedules(p, now, 'takeover').length > 0,
+                'takeover',
             ),
         ];
         // Media for playlists that start later is downloaded ahead of time, so
@@ -1079,36 +1247,82 @@ export class SignageService extends AsyncHandler {
             .filter((_) => !!_);
     }
 
+    /**
+     * Start, update or end the scheduled takeover. Runs on every display
+     * change and schedule tick.
+     *
+     * Single-pass runs play alone, ahead of timed runs. The player ends an
+     * override either at `ends_at` or after one pass, never both, so the two
+     * kinds cannot share one. A timed run is detected across its whole play
+     * period, so it starts or continues once the single pass is done, and still
+     * ends at its scheduled time.
+     */
     private _checkScheduledOverrides(display: any, playlist_ids: string[]) {
-        const active_schedules = this._activeOverrideSchedules(
-            display,
-            playlist_ids,
+        const active = this._activeOverrideSchedules(display, playlist_ids);
+        const held = this._heldSinglePassRuns(display, playlist_ids);
+        const single_pass = active.filter(
+            ({ schedule }) => playlistPlayPeriodMinutes(schedule) === 0,
         );
-        const active_playlists = active_schedules.map(
-            ({ playlist }) => playlist,
+        const has_single_pass = held.length > 0 || single_pass.length > 0;
+        const runs = [
+            ...held,
+            ...(has_single_pass ? single_pass : active).map(
+                ({ key, playlist }) => ({ key, playlist_id: playlist.id }),
+            ),
+        ].filter(
+            (run, index, list) =>
+                list.findIndex(({ key }) => key === run.key) === index,
         );
-        if (!active_playlists.length) {
+        if (!runs.length) {
             if (this.override_playlist().schedule_keys?.length) {
                 this.override_playlist.set({ playlist: [], ends_at: 0 });
             }
             return;
         }
-        if (this._hasCurrentOverrideFor(active_schedules)) return;
+        const keys = runs.map(({ key }) => key);
+        if (this._isCurrentOverride(keys)) return;
+        // A playlist can also have a timed takeover active; its window must
+        // not expire the media of a single pass
         const media = this._getPlaylistMedia(
             display,
-            active_playlists.map((_) => _.id),
+            [...new Set(runs.map(({ playlist_id }) => playlist_id))],
+            () => true,
+            has_single_pass ? 'single-pass' : 'takeover',
         );
-        const ends_at = this._scheduledOverrideEnd(active_schedules);
-        log.debug('Setting override playlist', media, ends_at || 0);
+        const ends_at = has_single_pass
+            ? 0
+            : Math.max(...active.map(({ ends_at }) => ends_at));
+        // Held runs come from the current override, so its window end is kept
+        const schedule_window_end = Math.max(
+            this.override_playlist().schedule_window_end || 0,
+            ...(has_single_pass ? single_pass : active).map(
+                ({ ends_at }) => ends_at,
+            ),
+        );
+        log.debug('Setting override playlist', media, ends_at);
         this.override_playlist.set({
             playlist: media,
             ends_at,
-            schedule_keys: active_schedules.map(({ key }) => key),
+            schedule_keys: keys,
+            schedule_window_end,
         });
     }
 
+    /**
+     * Active takeover schedules that have something to show. A run whose media
+     * is all outside its validity window is left out: it would pause normal
+     * playback behind a blank override for its whole play period.
+     */
     private _activeOverrideSchedules(display: any, playlist_ids: string[]) {
         const now = time();
+        // A key names one run, which is never detected again once its window
+        // has passed. Until then it is kept, even while its playlist is
+        // missing from the display, so that restoring it does not replay it.
+        for (const [key, forget_after] of this._completed_schedule_overrides) {
+            if (forget_after < now) {
+                this._completed_schedule_overrides.delete(key);
+            }
+        }
         return (
             playlist_ids
                 .map((id) => this._playlistConfig(display, id)?.[0])
@@ -1117,47 +1331,87 @@ export class SignageService extends AsyncHandler {
                 // the background playlist) so an in-progress cron takeover is picked
                 // up even if the display booted/ticked after it fired. Single-pass
                 // (period 0) schedules still resolve to a short ~30s window.
-                .flatMap((playlist) => activePlaylistSchedules(playlist, now))
+                .flatMap((playlist) =>
+                    activePlaylistSchedules(playlist, now, 'takeover'),
+                )
                 .filter(
-                    ({ key }) => !this._completed_schedule_overrides.has(key),
+                    ({ key, playlist }) =>
+                        !this._completed_schedule_overrides.has(key) &&
+                        this._hasValidTakeoverMedia(display, playlist.id),
                 )
         );
     }
 
-    private _hasCurrentOverrideFor(schedules: ActivePlaylistSchedule[]) {
-        const existing_keys = this.override_playlist().schedule_keys || [];
-        const active_keys = new Set(schedules.map(({ key }) => key));
-        return (
-            existing_keys.length === active_keys.size &&
-            existing_keys.every((key) => active_keys.has(key))
-        );
+    /**
+     * Single-pass runs in the current override that should keep playing. A
+     * single-pass run is only detected inside its short trigger window, so
+     * after that it is held until the player reports a full pass
+     * (`playlist_through`). The hold ends early when its playlist is removed,
+     * disabled, no longer a single-pass takeover, or has no valid media.
+     */
+    private _heldSinglePassRuns(display: any, playlist_ids: string[]) {
+        const keys = this.override_playlist().schedule_keys || [];
+        return keys
+            .map((key) => ({
+                key,
+                playlist_id: playlist_ids.find((id) => {
+                    const playlist = this._playlistConfig(display, id)?.[0];
+                    return (
+                        !!playlist &&
+                        playlistSchedules(playlist).some(
+                            (schedule, index) =>
+                                key.startsWith(scheduleKeyPrefix(id, index)) &&
+                                schedule.play_takeover &&
+                                playlistPlayPeriodMinutes(schedule) === 0,
+                        )
+                    );
+                }),
+            }))
+            .filter(
+                ({ playlist_id }) =>
+                    !!playlist_id &&
+                    this._hasValidTakeoverMedia(display, playlist_id),
+            );
     }
 
-    private _scheduledOverrideEnd(schedules: ActivePlaylistSchedule[]) {
-        const duration_minutes = schedules.reduce(
-            (duration, { schedule }) =>
-                Math.max(duration, playlistPlayPeriodMinutes(schedule)),
-            0,
+    private _hasValidTakeoverMedia(display: any, playlist_id: string) {
+        return this._getPlaylistMedia(
+            display,
+            [playlist_id],
+            () => true,
+            'takeover',
+        ).some((item) => !validateMedia(item));
+    }
+
+    /** Whether the current override is made of exactly these runs */
+    private _isCurrentOverride(keys: string[]) {
+        const existing_keys = this.override_playlist().schedule_keys || [];
+        return (
+            existing_keys.length === keys.length &&
+            keys.every((key) => existing_keys.includes(key))
         );
-        return duration_minutes
-            ? Math.max(...schedules.map(({ ends_at }) => ends_at))
-            : 0;
     }
 
     private _incrementMetric(metrics: Record<string, number>, ref_id: string) {
         metrics[ref_id] = (metrics[ref_id] || 0) + 1;
     }
 
+    /**
+     * Media items for the given playlists. `kind` picks which active schedule
+     * limits each playlist's validity window; any active schedule when unset.
+     */
     private _getPlaylistMedia(
         display: any,
         playlists: string[],
         filter_fn: (item: SignagePlaylist) => boolean = () => true,
+        kind?: ScheduleKind,
     ): MediaPlayerItem[] {
         const plugins: SignagePlugin[] = display.plugins || [];
         const playlist_media = this._playlistMediaReferences(
             display,
             playlists,
             filter_fn,
+            kind,
         );
         return playlist_media
             .map((media) =>
@@ -1230,6 +1484,7 @@ export class SignageService extends AsyncHandler {
         display: any,
         playlists: string[],
         filter_fn: (item: SignagePlaylist) => boolean,
+        kind?: ScheduleKind,
     ): PlaylistMediaReference[] {
         return playlists
             .map((id) => {
@@ -1237,21 +1492,47 @@ export class SignageService extends AsyncHandler {
                 if (!config) return [];
                 const [playlist, media_list] = config;
                 if (!playlist || !filter_fn(playlist)) return [];
-                const [valid_from, valid_until] =
-                    this._playlistValidityWindow(playlist);
+                const [valid_from, valid_until] = this._playlistValidityWindow(
+                    playlist,
+                    kind,
+                );
                 const media = media_list.map((media_id) => ({
                     id: media_id,
                     playlist_id: id,
                     valid_from,
                     valid_until,
                 }));
-                return playlist.random ? shuffleArray(media) : media;
+                return playlist.random ? this._shuffledMedia(id, media) : media;
             })
             .flat();
     }
 
-    private _playlistValidityWindow(playlist: SignagePlaylist) {
-        const schedule = activePlaylistSchedule(playlist);
+    /**
+     * Shuffled order of a random playlist. The order is kept until the
+     * playlist's media list changes: the playlist is rebuilt on every schedule
+     * tick, and a new order each time would restart the item on screen.
+     */
+    private _shuffledMedia<T extends { id: string }>(
+        playlist_id: string,
+        media: T[],
+    ) {
+        const signature = media.map(({ id }) => id).join('|');
+        let shuffle = this._shuffles.get(playlist_id);
+        if (shuffle?.signature !== signature) {
+            const order: number[] = shuffleArray(
+                media.map((_, index) => index),
+            );
+            shuffle = { signature, order };
+            this._shuffles.set(playlist_id, shuffle);
+        }
+        return shuffle.order.map((index) => media[index]);
+    }
+
+    private _playlistValidityWindow(
+        playlist: SignagePlaylist,
+        kind?: ScheduleKind,
+    ) {
+        const schedule = activePlaylistSchedule(playlist, time(), kind);
         const schedule_start = schedule
             ? Math.floor(schedule.starts_at / 1000)
             : 0;

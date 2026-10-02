@@ -1,36 +1,43 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { DisplayContentComponent } from '../../app/displays/display-content.component';
-import { SignageService } from '../../app/signage.service';
+import { SignageDisplayService } from '../../app/displays/signage-display.service';
+import { SignagePlaylistService } from '../../app/playlists/signage-playlist.service';
+import { SignageContextService } from '../../app/signage-context.service';
 
 const NOW_S = Math.floor(Date.now() / 1000);
 
 describe('DisplayContentComponent', () => {
     const selected_display = signal<any>(null);
     const playlists = signal<any[]>([]);
-    const zones = signal<any[]>([]);
-    const all_zones = signal<any[]>([]);
+    const selected_display_zones = signal<any[]>([]);
     const playlist_approval_status = signal<Record<string, boolean>>({});
     const playlist_thumbnail_media = signal<Record<string, string[]>>({});
     const can_update = signal(true);
     const add_playlist = vi.fn();
     const remove_playlist = vi.fn();
-    const service_stub = {
+    const context_stub = { can_update };
+    const display_stub = {
         selected_display,
-        playlists,
-        zones,
-        all_zones,
-        playlist_approval_status,
-        playlist_thumbnail_media,
-        can_update,
+        selected_display_zones,
         addPlaylistToDisplay: add_playlist,
         removePlaylistFromDisplay: remove_playlist,
+    };
+    const playlist_stub = {
+        playlistsById: (ids: readonly string[]) =>
+            playlists().filter(({ id }) => ids.includes(id)),
+        playlist_approval_status,
+        playlist_thumbnail_media,
     };
 
     async function make() {
         await TestBed.configureTestingModule({
             imports: [DisplayContentComponent],
-            providers: [{ provide: SignageService, useValue: service_stub }],
+            providers: [
+                { provide: SignageContextService, useValue: context_stub },
+                { provide: SignageDisplayService, useValue: display_stub },
+                { provide: SignagePlaylistService, useValue: playlist_stub },
+            ],
         })
             .overrideComponent(DisplayContentComponent, {
                 set: { template: '' },
@@ -44,15 +51,13 @@ describe('DisplayContentComponent', () => {
         vi.clearAllMocks();
         selected_display.set(null);
         playlists.set([]);
-        zones.set([]);
-        all_zones.set([]);
+        selected_display_zones.set([]);
         playlist_approval_status.set({});
     });
 
-    it('filters playlists and zones to the ones assigned to the display', async () => {
+    it('lists the playlists and the queried zones of the display', async () => {
         playlists.set([{ id: 'p1' }, { id: 'p2' }, { id: 'p3' }]);
-        zones.set([{ id: 'z1' }]);
-        all_zones.set([{ id: 'z1' }, { id: 'z2' }]);
+        selected_display_zones.set([{ id: 'z2' }]);
         selected_display.set({
             id: 'd1',
             playlists: ['p1', 'p3'],

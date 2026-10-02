@@ -8,8 +8,8 @@ import {
     SpectatorRouting,
 } from '@ngneat/spectator/vitest';
 import { OrganisationService } from '@placeos/common';
+import { DateOptionsComponent } from '@placeos/form-fields';
 import { MockComponent } from 'ng-mocks';
-import { DateOptionsComponent } from '../../app/ui/date-options.component';
 import { SearchbarComponent } from '../../app/ui/searchbar.component';
 import { VisitorsStateService } from '../../app/visitors/visitors-state.service';
 import { VisitorsTopbarComponent } from '../../app/visitors/visitors-topbar.component';

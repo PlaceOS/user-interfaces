@@ -51,6 +51,7 @@ export type { EmergencyContact } from './emergency-contacts.service';
                                 <icon class="text-2xl" matPrefix> search </icon>
                                 <input
                                     matInput
+                                    data-shortcut="search"
                                     [(ngModel)]="search"
                                     [placeholder]="
                                         'APP.CONCIERGE.CONTACTS_FILTER'
@@ -62,6 +63,7 @@ export type { EmergencyContact } from './emergency-contacts.service';
                                 btn
                                 matRipple
                                 class="space-x-2"
+                                data-shortcut="new"
                                 (click)="editContact()"
                             >
                                 <icon class="text-2xl">add</icon>

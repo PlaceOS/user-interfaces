@@ -2,23 +2,25 @@ import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
 import { DisplayHeaderComponent } from '../../app/displays/display-header.component';
-import { SignageService } from '../../app/signage.service';
+import { SignageDisplayService } from '../../app/displays/signage-display.service';
+import { SignageContextService } from '../../app/signage-context.service';
 
 describe('DisplayHeaderComponent', () => {
-    const filtered_displays = signal<any[]>([]);
+    const displays_total = signal(0);
     const can_create = signal(false);
     const add_display = vi.fn();
     const navigate = vi.fn();
-    const service_stub = {
-        filtered_displays,
-        can_create,
+    const context_stub = { can_create };
+    const display_stub = {
+        displays_total,
         addDisplay: add_display,
     };
 
     function make() {
         TestBed.configureTestingModule({
             providers: [
-                { provide: SignageService, useValue: service_stub },
+                { provide: SignageContextService, useValue: context_stub },
+                { provide: SignageDisplayService, useValue: display_stub },
                 { provide: Router, useValue: { navigate } },
             ],
         });
@@ -28,17 +30,18 @@ describe('DisplayHeaderComponent', () => {
 
     beforeEach(() => {
         vi.clearAllMocks();
-        filtered_displays.set([]);
+        displays_total.set(0);
         can_create.set(false);
         add_display.mockResolvedValue(null);
     });
 
-    it('reports the number of filtered displays', () => {
+    // The list holds only the loaded pages, so the count comes from the server
+    it('reports the server total of displays', () => {
         const component = make();
         expect(component.total_count()).toBe(0);
 
-        filtered_displays.set([{ id: 'a' }, { id: 'b' }, { id: 'c' }]);
-        expect(component.total_count()).toBe(3);
+        displays_total.set(450);
+        expect(component.total_count()).toBe(450);
     });
 
     it('creates displays only when the group allows it', () => {

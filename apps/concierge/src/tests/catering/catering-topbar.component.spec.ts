@@ -13,8 +13,8 @@ import { MockComponent, MockProvider } from 'ng-mocks';
 import { BehaviorSubject } from 'rxjs';
 
 import { SettingsService } from '@placeos/common';
+import { DateOptionsComponent } from '@placeos/form-fields';
 import { CateringTopbarComponent } from '../../app/catering/catering-topbar.component';
-import { DateOptionsComponent } from '../../app/ui/date-options.component';
 import { SearchbarComponent } from '../../app/ui/searchbar.component';
 
 describe('CateringTopbarComponent', () => {

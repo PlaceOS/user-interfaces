@@ -1,4 +1,4 @@
-import { WritableSignal, signal } from '@angular/core';
+import { EventEmitter, WritableSignal, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { MatDialog } from '@angular/material/dialog';
 import {
@@ -69,6 +69,7 @@ describe('ParkingStateService', () => {
         organisation: { id: 'org-1' },
         region: { id: 'region-1' },
         initialised: signal(true),
+        refreshing: signal(false),
         levels: [],
         buildingsForRegion: vi.fn(() => []),
         levelsForBuilding: vi.fn((bld) =>
@@ -411,8 +412,9 @@ describe('ParkingStateService', () => {
             'Australia/Sydney',
         );
         const dialog_ref = {
-            afterClosed: () =>
-                of({
+            afterClosed: () => NEVER,
+            componentInstance: {
+                event: of({
                     reason: 'done',
                     metadata: {
                         id: 'space-1',
@@ -420,8 +422,6 @@ describe('ParkingStateService', () => {
                         assigned_to: 'staff@example.com',
                     },
                 }),
-            componentInstance: {
-                event: of({ reason: 'done' }),
                 loading: { set: vi.fn() },
             },
             close: vi.fn(),
@@ -465,8 +465,9 @@ describe('ParkingStateService', () => {
             bookable: true,
         } as ParkingSpace;
         const dialog_ref = {
-            afterClosed: () =>
-                of({
+            afterClosed: () => NEVER,
+            componentInstance: {
+                event: of({
                     reason: 'done',
                     metadata: {
                         id: 'space-1',
@@ -476,8 +477,6 @@ describe('ParkingStateService', () => {
                         zones: ['lvl-selected'],
                     },
                 }),
-            componentInstance: {
-                event: NEVER,
                 loading: { set: vi.fn() },
             },
             close: vi.fn(),
@@ -514,8 +513,9 @@ describe('ParkingStateService', () => {
         });
         spectator.service.setOptions({ zones: [] });
         const dialog_ref = {
-            afterClosed: () =>
-                of({
+            afterClosed: () => NEVER,
+            componentInstance: {
+                event: of({
                     reason: 'done',
                     metadata: {
                         identifier: 'Bay 1',
@@ -523,8 +523,6 @@ describe('ParkingStateService', () => {
                         zone_id: 'lvl-chosen',
                     },
                 }),
-            componentInstance: {
-                event: NEVER,
                 loading: { set: vi.fn() },
             },
             close: vi.fn(),
@@ -546,6 +544,51 @@ describe('ParkingStateService', () => {
                 zones: ['org-1', 'region-1', 'bld-1', 'lvl-chosen'],
             }),
         );
+    });
+
+    it('should show a new parking space before the list query includes it', async () => {
+        const levels = [
+            { id: 'lvl-chosen', parent_id: 'bld-1', tags: ['parking'] },
+        ];
+        Object.defineProperty(spectator.service, 'levels', {
+            value: () => levels,
+            configurable: true,
+        });
+        spectator.service.setOptions({ zones: ['lvl-chosen'] });
+        await vi.waitFor(() =>
+            expect(
+                (spectator.service as any)._spaces_params_debounced.value(),
+            ).toEqual({ zone_ids: ['lvl-chosen'] }),
+        );
+        // The list query lags new records, so it keeps returning no spaces.
+        (ts_client.queryAssets as any).mockResolvedValue({
+            data: [],
+            total: 0,
+            next: null,
+        });
+        (ts_client.addAsset as any).mockResolvedValue({
+            id: 'space-new',
+            name: 'Bay 1',
+            zone_id: 'lvl-chosen',
+        });
+        (spectator.inject(MatDialog).open as any).mockReturnValue({
+            afterClosed: () => NEVER,
+            componentInstance: {
+                event: of({
+                    reason: 'done',
+                    metadata: { identifier: 'Bay 1', zone_id: 'lvl-chosen' },
+                }),
+                loading: { set: vi.fn() },
+            },
+            close: vi.fn(),
+        });
+
+        await spectator.service.editSpace();
+        await new Promise((resolve) => setTimeout(resolve, 50));
+
+        expect(spectator.service.spaces().map((_) => _.id)).toEqual([
+            'space-new',
+        ]);
     });
 
     it('should default a new parking space to the selected level', async () => {
@@ -1115,8 +1158,9 @@ describe('ParkingStateService', () => {
                 : Promise.resolve({ data: [], total: 0, next: null }),
         );
         const dialog_ref = {
-            afterClosed: () =>
-                of({
+            afterClosed: () => NEVER,
+            componentInstance: {
+                event: of({
                     reason: 'done',
                     metadata: {
                         id: 'space-new',
@@ -1125,17 +1169,17 @@ describe('ParkingStateService', () => {
                         assigned_name: 'Staff Name',
                     },
                 }),
-            componentInstance: {
-                event: of({ reason: 'done' }),
                 loading: { set: vi.fn() },
             },
             close: vi.fn(),
         };
         (spectator.inject(MatDialog).open as any).mockReturnValue(dialog_ref);
 
-        await spectator.service
-            .editSpace({ id: 'space-other' } as any)
-            .catch(() => undefined);
+        // A failed save keeps the modal open, so wait for the reset.
+        void spectator.service.editSpace({ id: 'space-other' } as any);
+        await vi.waitFor(() =>
+            expect(dialog_ref.componentInstance.loading.set).toHaveBeenCalled(),
+        );
 
         expect(notify_open).toHaveBeenCalledWith(
             'Users can only have 1 assigned parking space at a time.',
@@ -1153,6 +1197,37 @@ describe('ParkingStateService', () => {
         );
     });
 
+    it('should let the user save again after a failed save', async () => {
+        const events = new EventEmitter<any>();
+        const dialog_ref = {
+            afterClosed: () => NEVER,
+            componentInstance: { event: events, loading: { set: vi.fn() } },
+            close: vi.fn(),
+            disableClose: true,
+        };
+        (spectator.inject(MatDialog).open as any).mockReturnValue(dialog_ref);
+        (ts_client.updateAsset as any)
+            .mockRejectedValueOnce('offline')
+            .mockResolvedValueOnce({ id: 'space-1' });
+        const done = { reason: 'done', metadata: { id: 'space-1' } };
+
+        const saved = spectator.service.editSpace({ id: 'space-1' } as any);
+        events.emit(done);
+        await vi.waitFor(() =>
+            expect(
+                dialog_ref.componentInstance.loading.set,
+            ).toHaveBeenCalledWith(false),
+        );
+        expect(dialog_ref.disableClose).toBe(false);
+        expect(dialog_ref.close).not.toHaveBeenCalled();
+
+        events.emit(done);
+        await saved;
+
+        expect(ts_client.updateAsset).toHaveBeenCalledTimes(2);
+        expect(dialog_ref.close).toHaveBeenCalled();
+    });
+
     it('should restore the previous assigned parking booking when reassignment fails', async () => {
         const original_space = {
             id: 'space-1',
@@ -1163,8 +1238,9 @@ describe('ParkingStateService', () => {
             zones: ['org-1', 'region-1', 'bld-1', 'lvl-1'],
         } as any;
         const dialog_ref = {
-            afterClosed: () =>
-                of({
+            afterClosed: () => NEVER,
+            componentInstance: {
+                event: of({
                     reason: 'done',
                     metadata: {
                         ...original_space,
@@ -1172,8 +1248,6 @@ describe('ParkingStateService', () => {
                         assigned_name: 'New Staff',
                     },
                 }),
-            componentInstance: {
-                event: of({ reason: 'done' }),
                 loading: { set: vi.fn() },
             },
             close: vi.fn(),
@@ -1198,9 +1272,11 @@ describe('ParkingStateService', () => {
             name: 'Staff Name',
         } as any);
 
-        await spectator.service
-            .editSpace(original_space)
-            .catch(() => undefined);
+        // A failed save keeps the modal open, so wait for the reset.
+        void spectator.service.editSpace(original_space);
+        await vi.waitFor(() =>
+            expect(dialog_ref.componentInstance.loading.set).toHaveBeenCalled(),
+        );
 
         expect(ts_client.del).toHaveBeenCalledWith(
             expect.stringContaining('/bookings/booking-1'),
@@ -1259,6 +1335,28 @@ describe('ParkingStateService', () => {
                 features: ['Maximum Height 2.3m', 'Open Ground Level'],
                 notes: 'Car',
                 zone_id: 'lvl-1',
+            }),
+        );
+    });
+
+    it('should skip blank CSV lines and give new spaces their zones', async () => {
+        organisation_service.levels = [
+            { id: 'lvl-1', parent_id: 'bld-1', tags: ['parking'] },
+        ];
+        spectator.service.setOptions({ zones: ['lvl-1'] });
+        const csv = 'identifier,map_id,bookable\n' + 'A1,A1,true\n' + ',,\n';
+        const file = new File([csv], 'spaces.csv', { type: 'text/csv' });
+        const event = {
+            target: { files: [file], value: '' },
+        } as unknown as InputEvent;
+
+        await spectator.service.uploadSpacesCSV(event);
+
+        expect(ts_client.addAsset).toHaveBeenCalledTimes(1);
+        expect(ts_client.addAsset).toHaveBeenCalledWith(
+            expect.objectContaining({
+                identifier: 'A1',
+                zones: ['org-1', 'region-1', 'bld-1', 'lvl-1'],
             }),
         );
     });

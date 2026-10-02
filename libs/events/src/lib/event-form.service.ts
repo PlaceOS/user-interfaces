@@ -38,6 +38,7 @@ import {
     Space,
     unique,
     User,
+    user_group_names,
 } from '@placeos/common';
 import { showMetadata } from '@placeos/ts-client';
 
@@ -402,6 +403,8 @@ export class EventFormService extends AsyncHandler {
     private readonly _available_params = computed(() => ({
         spaces: this.filtered_spaces(),
         rules: this.booking_rules(),
+        // Booking rules can depend on the current user's groups
+        groups: user_group_names(),
         event: this._event(),
         options: this._options(),
     }));

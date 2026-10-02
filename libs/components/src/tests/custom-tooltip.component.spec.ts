@@ -126,6 +126,28 @@ describe('CustomTooltipComponent', () => {
         );
     });
 
+    it('should close when Escape is pressed', async () => {
+        spectator = createDirective(`
+            <div customTooltip [content]="content"></div>
+            <ng-template #content>Escape Template</ng-template>
+        `);
+        overlay_container = spectator.inject(OverlayContainer);
+        spectator.click(spectator.query('div'));
+        await settle();
+        expect(overlay_container.getContainerElement().textContent).toContain(
+            'Escape Template',
+        );
+
+        document.body.dispatchEvent(
+            new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }),
+        );
+        await settle();
+
+        expect(
+            overlay_container.getContainerElement().textContent,
+        ).not.toContain('Escape Template');
+    });
+
     it('should allow rendering HTML', async () => {
         spectator = createDirective(
             '<div customTooltip [content]="content"></div>',

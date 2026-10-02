@@ -10,14 +10,14 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
-import { i18n, notifyError, notifySuccess, notifyWarn } from '@placeos/common';
+import { i18n } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import {
-    removeSignageTemplateDraft,
     SignageTemplate,
     type SignageTemplateApprover,
 } from '@placeos/ts-client';
-import { SignageService } from '../signage.service';
+import { SignageContextService } from '../signage-context.service';
+import { SignageTemplateService } from '../templates/signage-template.service';
 import { TemplateApprovalPreviewComponent } from './template-approval-preview.component';
 import { loadTemplateApprovalVersions } from './template-approval.util';
 
@@ -211,7 +211,8 @@ export interface TemplateRequestApprovalModalResult {
     ],
 })
 export class TemplateRequestApprovalModalComponent {
-    private readonly _service = inject(SignageService);
+    private readonly _context = inject(SignageContextService);
+    private readonly _template_service = inject(SignageTemplateService);
     public readonly data =
         inject<TemplateRequestApprovalModalData>(MAT_DIALOG_DATA);
     private readonly _dialog_ref =
@@ -231,7 +232,7 @@ export class TemplateRequestApprovalModalComponent {
     public readonly template_versions = signal<SignageTemplate[]>([]);
     public readonly has_previous_version = () =>
         this.template_versions().length > 1;
-    public readonly can_update = this._service.can_update_templates;
+    public readonly can_update = this._context.can_update_templates;
 
     public togglePreview() {
         const show_preview = !this.show_preview();
@@ -261,22 +262,16 @@ export class TemplateRequestApprovalModalComponent {
     }
 
     public async undoChanges() {
-        if (!this.can_update()) {
-            notifyWarn(i18n('SIGNAGE_MANAGER.SVC_NO_UPDATE_TEMPLATES'));
-            return;
-        }
         const [, previous_version] = await this._loadTemplateVersions();
         if (!previous_version) return;
         this.loading.set(i18n('SIGNAGE_MANAGER.UNDOING_CHANGES'));
         this._dialog_ref.disableClose = true;
         try {
-            await removeSignageTemplateDraft(this.data.template.id);
-            this._service.updateCachedTemplate(previous_version);
-            notifySuccess(i18n('SIGNAGE_MANAGER.TEMPLATE_REVERTED'));
-            this._dialog_ref.close();
-            this._service.changed();
-        } catch {
-            notifyError(i18n('SIGNAGE_MANAGER.TEMPLATE_REVERT_ERROR'));
+            const undone = await this._template_service.undoTemplateChanges(
+                this.data.template.id,
+                previous_version,
+            );
+            if (undone) this._dialog_ref.close();
         } finally {
             this.loading.set('');
             this._dialog_ref.disableClose = false;

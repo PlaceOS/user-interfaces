@@ -6,7 +6,7 @@ import {
     canAccessSignageApp,
     signageAccessGuard,
 } from '../app/signage-access.guard';
-import { SignageService } from '../app/signage.service';
+import { SignageContextService } from '../app/signage-context.service';
 
 describe('canAccessSignageApp', () => {
     it('allows sys admins and support users without groups', () => {
@@ -60,7 +60,7 @@ describe('signageAccessGuard', () => {
                     },
                 },
                 {
-                    provide: SignageService,
+                    provide: SignageContextService,
                     useValue: {
                         signage_groups_loaded: loaded,
                         can_manage_all_groups,

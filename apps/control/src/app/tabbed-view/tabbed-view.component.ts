@@ -1,22 +1,21 @@
 import { Component, computed, effect, inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 
-import { SettingsService, VERSION } from '@placeos/common';
+import { SettingsService } from '@placeos/common';
 import {
     AuthenticatedImageDirective,
-    ChangelogService,
     IconComponent,
     TranslatePipe,
 } from '@placeos/components';
 
-import { DatePipe } from '@angular/common';
 import { OrganisationService } from '@placeos/common';
 import { ControlStateService } from '../control-state.service';
 import { ControlStatusBarComponent } from '../status-bar.component';
 import { TopbarHeaderComponent } from '../topbar-header.component';
 import { ControlConnectingComponent } from '../ui/connecting.component';
 import { NextMeetingComponent } from '../ui/next-meeting.component';
+import { SplashComponent } from '../ui/splash.component';
 import { VoiceAssistantComponent } from '../ui/voice-assistant.component';
 import { TabOutletComponent } from './tab-outlet.component';
 
@@ -33,40 +32,18 @@ import { TabOutletComponent } from './tab-outlet.component';
                     <control-status-bar></control-status-bar>
                 </div>
             } @else {
-                <div
-                    name="splash"
-                    class="absolute inset-0 flex flex-col items-center justify-center text-white"
-                    (click)="powerOn()"
-                    (touchend)="powerOn()"
-                >
-                    <h2 class="mb-4 text-4xl font-light">
-                        {{ 'APP.CONTROL.TOUCH_TO_START' | translate }}
-                    </h2>
-                    <p class="text-lg">{{ system()?.name }}</p>
+                <control-splash>
                     <next-meeting class="mt-8" />
-                    <div class="absolute bottom-0 left-0 p-2">
-                        <div class="w-full text-xs opacity-60">
-                            <ng-container>Version: </ng-container>
-                            <button
-                                class="m-0 border-none bg-none p-0 text-xs underline"
-                                [disabled]="!changelog_available()"
-                                (click)="viewChangelog()"
-                            >
-                                {{ version.hash }}
-                            </button>
-                        </div>
-                        <div class="w-full text-xs opacity-60">
-                            {{ version.time | date: 'longDate' }}
-                            ({{ version.time | date: 'shortTime' }})
-                        </div>
-                    </div>
-                    <div class="absolute right-4 bottom-4">
+                    <div
+                        class="absolute right-4 bottom-4"
+                        (click)="$event.stopPropagation()"
+                    >
                         <voice-assistant
                             [system_id]="id()"
                             [enabled]="system()?.voice_control"
                         ></voice-assistant>
                     </div>
-                </div>
+                </control-splash>
             }
             @if (!join_status()[0] && join_status()[1]) {
                 <div
@@ -105,11 +82,6 @@ import { TabOutletComponent } from './tab-outlet.component';
             :host > div {
                 color: #fff;
             }
-
-            [name='splash'] {
-                animation: crossfade 10s linear;
-                animation-iteration-count: infinite;
-            }
         `,
     ],
     imports: [
@@ -122,13 +94,13 @@ import { TabOutletComponent } from './tab-outlet.component';
         IconComponent,
         AuthenticatedImageDirective,
         VoiceAssistantComponent,
-        DatePipe,
+        SplashComponent,
     ],
 })
 export class ControlTabbedViewComponent {
     private _route = inject(ActivatedRoute);
+    private _router = inject(Router);
     private _state = inject(ControlStateService);
-    private _changelog = inject(ChangelogService);
     private _settings = inject(SettingsService);
     private _org = inject(OrganisationService);
 
@@ -142,11 +114,7 @@ export class ControlTabbedViewComponent {
     public readonly system = this._state.system;
     public readonly join_status = this._state.join_status;
 
-    public readonly powerOn = () => this._state.powerOn();
     public readonly id = this._state.system_id;
-    public readonly version = VERSION;
-    public readonly changelog_available = this._changelog.available;
-    public readonly viewChangelog = () => this._changelog.view();
 
     public readonly logo = computed(() => {
         this._org.active_building();
@@ -165,7 +133,15 @@ export class ControlTabbedViewComponent {
 
         effect(() => {
             const params = this._query_param_map();
-            if (params.get('join') === 'true') this._state.selectMeeting();
+            if (params.get('join') !== 'true') return;
+            this._state.selectMeeting();
+            // Open the meeting list once. Tab links merge query params.
+            this._router.navigate([], {
+                relativeTo: this._route,
+                queryParams: { join: null },
+                queryParamsHandling: 'merge',
+                replaceUrl: true,
+            });
         });
     }
 }

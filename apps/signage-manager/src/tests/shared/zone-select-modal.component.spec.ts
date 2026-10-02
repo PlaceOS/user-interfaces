@@ -2,7 +2,7 @@ import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { MatDialogRef } from '@angular/material/dialog';
 import { ZoneSelectModalComponent } from '../../app/shared/zone-select-modal.component';
-import { SignageService } from '../../app/signage.service';
+import { SignageZoneService } from '../../app/zones/signage-zone.service';
 
 describe('ZoneSelectModalComponent', () => {
     const flush = () => new Promise((resolve) => setTimeout(resolve));
@@ -29,7 +29,7 @@ describe('ZoneSelectModalComponent', () => {
         await TestBed.configureTestingModule({
             imports: [ZoneSelectModalComponent],
             providers: [
-                { provide: SignageService, useValue: service },
+                { provide: SignageZoneService, useValue: service },
                 { provide: MatDialogRef, useValue: dialog_ref },
             ],
         })
@@ -52,12 +52,15 @@ describe('ZoneSelectModalComponent', () => {
         expect(zoneChildren).toHaveBeenCalledWith('z1');
     });
 
-    it('defaults to the root zone', async () => {
+    // The root is the organisation, so a default would assign to every display
+    it('starts with no zone selected', async () => {
         const fixture = TestBed.createComponent(ZoneSelectModalComponent);
 
         await fixture.whenStable();
+        fixture.componentInstance.addZone();
 
-        expect(fixture.componentInstance.selected_zone()).toBe(root_zones()[0]);
+        expect(fixture.componentInstance.selected_zone()).toBeNull();
+        expect(dialog_ref.close).not.toHaveBeenCalled();
     });
 
     it('queries within the selected zone', async () => {

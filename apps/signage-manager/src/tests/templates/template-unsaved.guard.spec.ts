@@ -2,7 +2,7 @@ import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { MatDialog } from '@angular/material/dialog';
 import { NEVER, of } from 'rxjs';
-import { SignageService } from '../../app/signage.service';
+import { SignageTemplateService } from '../../app/templates/signage-template.service';
 import { templateUnsavedGuard } from '../../app/templates/template-unsaved.guard';
 
 /** Fake dialog ref shaped for `openConfirmModal` driven via MatDialog. */
@@ -35,7 +35,7 @@ describe('templateUnsavedGuard', () => {
         TestBed.configureTestingModule({
             providers: [
                 {
-                    provide: SignageService,
+                    provide: SignageTemplateService,
                     useValue: {
                         template_layout_dirty,
                         discardTemplateLayoutDraft: discard,

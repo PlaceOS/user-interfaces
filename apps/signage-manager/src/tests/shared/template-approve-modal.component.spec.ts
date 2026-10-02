@@ -4,11 +4,13 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { setNotifyOutlet } from '@placeos/common';
 import {
     approveSignageTemplate,
-    removeSignageTemplateDraft,
+    showSignageTemplate,
     SignageTemplate,
 } from '@placeos/ts-client';
 import { TemplateApproveModalComponent } from '../../app/shared/template-approve-modal.component';
-import { SignageService } from '../../app/signage.service';
+import { SignageContextService } from '../../app/signage-context.service';
+import { SignagePluginService } from '../../app/signage-plugin.service';
+import { SignageTemplateService } from '../../app/templates/signage-template.service';
 
 vi.mock('@placeos/ts-client', { spy: true });
 
@@ -22,11 +24,14 @@ describe('TemplateApproveModalComponent', () => {
         close: vi.fn(),
         disableClose: false,
     };
-    const service = {
+    const context = {
         can_update_templates: signal(true),
-        widgets: signal([]),
         changed: vi.fn(),
+    };
+    const plugin_service = { widgets: signal([]) };
+    const template_service = {
         updateCachedTemplate: vi.fn(),
+        undoTemplateChanges: vi.fn(),
     };
 
     beforeEach(async () => {
@@ -43,7 +48,9 @@ describe('TemplateApproveModalComponent', () => {
                     },
                 },
                 { provide: MatDialogRef, useValue: dialog_ref },
-                { provide: SignageService, useValue: service },
+                { provide: SignageContextService, useValue: context },
+                { provide: SignagePluginService, useValue: plugin_service },
+                { provide: SignageTemplateService, useValue: template_service },
             ],
         }).compileComponents();
     });
@@ -61,17 +68,19 @@ describe('TemplateApproveModalComponent', () => {
         await component.approve();
 
         expect(approveSignageTemplate).toHaveBeenCalledWith('template-1');
-        expect(service.updateCachedTemplate).toHaveBeenCalledWith(approved);
+        expect(template_service.updateCachedTemplate).toHaveBeenCalledWith(
+            approved,
+        );
         expect(dialog_ref.close).toHaveBeenCalledWith(true);
     });
 
-    it('discards the pending draft and restores the approved version', async () => {
+    it('undoes the pending draft through the service', async () => {
         const pending = new SignageTemplate({ id: 'template-1' });
         const approved = new SignageTemplate({
             id: 'template-1',
             approved: true,
         });
-        vi.mocked(removeSignageTemplateDraft).mockResolvedValue(undefined);
+        template_service.undoTemplateChanges.mockResolvedValue(true);
         const component = TestBed.createComponent(
             TemplateApproveModalComponent,
         ).componentInstance;
@@ -79,8 +88,33 @@ describe('TemplateApproveModalComponent', () => {
 
         await component.undoChanges();
 
-        expect(removeSignageTemplateDraft).toHaveBeenCalledWith('template-1');
-        expect(service.updateCachedTemplate).toHaveBeenCalledWith(approved);
+        expect(template_service.undoTemplateChanges).toHaveBeenCalledWith(
+            'template-1',
+            approved,
+        );
         expect(dialog_ref.close).toHaveBeenCalledWith(true);
+    });
+
+    it('shows an error and blocks approval when versions fail to load', async () => {
+        vi.mocked(showSignageTemplate).mockRejectedValueOnce(
+            new Error('Denied'),
+        );
+        const fixture = TestBed.createComponent(TemplateApproveModalComponent);
+        await fixture.whenStable();
+        fixture.detectChanges();
+        const component = fixture.componentInstance;
+
+        expect(component.template_versions()).toEqual([]);
+        expect(fixture.nativeElement.textContent).toContain(
+            'Unable to load template versions.',
+        );
+        const buttons: HTMLButtonElement[] = Array.from(
+            fixture.nativeElement.querySelectorAll('footer button'),
+        );
+        expect(buttons.at(-1)?.disabled).toBe(true);
+
+        await component.approve();
+
+        expect(approveSignageTemplate).not.toHaveBeenCalled();
     });
 });

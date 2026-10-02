@@ -14,6 +14,7 @@ import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import { PlaceZone } from '@placeos/ts-client';
 import { IntersectDirective } from './intersect.directive';
@@ -24,6 +25,8 @@ interface ZoneSelectTreeNode {
     children: ZoneSelectTreeNode[];
     children_loaded: boolean;
     children_loading: boolean;
+    /** Loading the children failed. The node offers a retry. */
+    children_error: boolean;
     level: number;
 }
 
@@ -72,6 +75,7 @@ interface ZoneSelectTreeNode {
                 class="zone-tree"
                 [dataSource]="flat_tree_nodes()"
                 [levelAccessor]="levelAccessor"
+                [expansionKey]="expansionKey"
                 [trackBy]="trackByNode"
             >
                 <cdk-tree-node
@@ -79,6 +83,10 @@ interface ZoneSelectTreeNode {
                     cdkTreeNodePadding
                     [cdkTreeNodePadding]="node.level"
                     [cdkTreeNodePaddingIndent]="16"
+                    [isExpandable]="canExpand(node)"
+                    [isExpanded]="isExpanded(node)"
+                    (expandedChange)="onExpandedChange(node, $event)"
+                    (activation)="selectZone(node.zone)"
                     class="border-base-300 bg-base-100 hover:bg-base-200/50 relative mb-2 flex min-h-0 items-center gap-1 overflow-hidden rounded-lg border pr-1 transition-colors"
                     [class.bg-primary]="selected()?.id === node.zone.id"
                     [class.text-primary-content]="
@@ -92,10 +100,7 @@ interface ZoneSelectTreeNode {
                         [style.width]="0.25 * node.level + 'rem'"
                         [style.opacity]="0.1 * node.level"
                     ></div>
-                    @if (
-                        childCount(node) &&
-                        !(show_search_results() && node.level === 0)
-                    ) {
+                    @if (canExpand(node)) {
                         <button
                             icon
                             default
@@ -161,6 +166,35 @@ interface ZoneSelectTreeNode {
                             }
                         </div>
                     </button>
+                    @if (node.children_error) {
+                        <button
+                            icon
+                            default
+                            type="button"
+                            class="text-error"
+                            [matTooltip]="
+                                'SIGNAGE_MANAGER.ZONE_CHILDREN_RETRY'
+                                    | translate
+                                        : {
+                                              name:
+                                                  node.zone.display_name ||
+                                                  node.zone.name,
+                                          }
+                            "
+                            [attr.aria-label]="
+                                'SIGNAGE_MANAGER.ZONE_CHILDREN_RETRY'
+                                    | translate
+                                        : {
+                                              name:
+                                                  node.zone.display_name ||
+                                                  node.zone.name,
+                                          }
+                            "
+                            (click)="loadChildren(node.zone.id)"
+                        >
+                            <icon class="text-xl">refresh</icon>
+                        </button>
+                    }
                 </cdk-tree-node>
             </cdk-tree>
             @if (list().has_more()) {
@@ -207,6 +241,7 @@ interface ZoneSelectTreeNode {
         MatRippleModule,
         MatFormFieldModule,
         MatInputModule,
+        MatTooltipModule,
         CdkTreeModule,
         IconComponent,
         TranslatePipe,
@@ -260,6 +295,7 @@ export class ZoneSelectTreeComponent {
                             .map((zone) => this.createNode(zone, false)),
                         children_loaded: true,
                         children_loading: false,
+                        children_error: false,
                         level: 0,
                     },
                 ];
@@ -275,6 +311,8 @@ export class ZoneSelectTreeComponent {
     public readonly levelAccessor = (node: ZoneSelectTreeNode) => node.level;
     public readonly trackByNode = (_: number, node: ZoneSelectTreeNode) =>
         node.zone.id;
+    // Nodes are rebuilt on each change, so cdk-tree tracks expansion by id
+    public readonly expansionKey = (node: ZoneSelectTreeNode) => node.zone.id;
 
     constructor() {
         effect(() => {
@@ -285,6 +323,7 @@ export class ZoneSelectTreeComponent {
                 !this.expansionRequested(root) ||
                 root.children_loaded ||
                 root.children_loading ||
+                root.children_error ||
                 !this.childCount(root) ||
                 !this.load_children()
             ) {
@@ -303,7 +342,25 @@ export class ZoneSelectTreeComponent {
     }
 
     public toggleNode(node: ZoneSelectTreeNode) {
-        const expanded = !this.expansionRequested(node);
+        this.setExpanded(node, !this.expansionRequested(node));
+    }
+
+    /** Expand or collapse a node from the arrow keys of cdk-tree */
+    public onExpandedChange(node: ZoneSelectTreeNode, expanded: boolean) {
+        // cdk-tree also reports the state it got from the isExpanded input
+        if (this.isExpanded(node) === expanded) return;
+        this.setExpanded(node, expanded);
+    }
+
+    /** Whether the node shows an expand control */
+    public canExpand(node: ZoneSelectTreeNode) {
+        return (
+            !!this.childCount(node) &&
+            !(this.show_search_results() && node.level === 0)
+        );
+    }
+
+    private setExpanded(node: ZoneSelectTreeNode, expanded: boolean) {
         this.expanded_zones.update((state) => ({
             ...state,
             [node.zone.id]: expanded,
@@ -369,17 +426,30 @@ export class ZoneSelectTreeComponent {
             children: [],
             children_loaded: !lazy,
             children_loading: false,
+            children_error: false,
             level: 0,
         };
     }
 
-    private async loadChildren(zone_id: string) {
+    public async loadChildren(zone_id: string) {
+        const load_children = this.load_children();
+        if (!load_children) return;
         this.updateNode(zone_id, (node) => ({
             ...node,
             children_loading: true,
+            children_error: false,
         }));
         const excluded_ids = new Set(this.exclude_ids());
-        const children = await this.load_children()!(zone_id).catch(() => []);
+        const children = await load_children(zone_id).catch(() => null);
+        if (!children) {
+            // Keep the node unloaded so the user can retry
+            this.updateNode(zone_id, (node) => ({
+                ...node,
+                children_loading: false,
+                children_error: true,
+            }));
+            return;
+        }
         this.updateNode(zone_id, (node) => ({
             ...node,
             children: this.buildTree(children, excluded_ids, true),

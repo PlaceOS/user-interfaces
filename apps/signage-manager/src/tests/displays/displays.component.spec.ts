@@ -2,15 +2,20 @@ import { NO_ERRORS_SCHEMA, signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslatePipe } from '@placeos/components';
+import { PlaceSystem, show } from '@placeos/ts-client';
 import { DisplaysSectionComponent } from '../../app/displays/displays.component';
-import { SignageService } from '../../app/signage.service';
+import { SignageDisplayService } from '../../app/displays/signage-display.service';
+import { SignagePlaylistService } from '../../app/playlists/signage-playlist.service';
+import { SignageContextService } from '../../app/signage-context.service';
+import { SignageTemplateService } from '../../app/templates/signage-template.service';
+
+vi.mock('@placeos/ts-client', { spy: true });
 
 describe('DisplaysSectionComponent', () => {
     const selected_display = signal<any>(null);
     const displays = signal<any[]>([]);
     const playlists = signal<any[]>([]);
-    const zones = signal<any[]>([]);
-    const all_zones = signal<any[]>([]);
+    const selected_display_zones = signal<any[]>([]);
     const can_update = signal(false);
     const can_delete_displays = signal(false);
     const templates_enabled = signal(true);
@@ -21,21 +26,27 @@ describe('DisplaysSectionComponent', () => {
     const navigate = vi.fn();
     const edit_display = vi.fn();
     const remove_display = vi.fn();
-    const service_stub = {
-        selected_display,
-        displays,
-        playlists,
-        zones,
-        all_zones,
+    const context_stub = {
         can_update,
         can_delete_displays,
         templates_enabled,
-        playlists_loading,
-        all_zones_loading: related_loading,
-        template_mappings_revision,
-        listTemplateMappings: list_template_mappings,
+    };
+    const display_stub = {
+        selected_display,
+        displays,
+        selected_display_zones,
+        selected_display_zones_loading: related_loading,
         editDisplay: edit_display,
         removeDisplay: remove_display,
+    };
+    const playlist_stub = {
+        playlistsById: (ids: readonly string[]) =>
+            playlists().filter(({ id }) => ids.includes(id)),
+        playlists_loading,
+    };
+    const template_stub = {
+        template_mappings_revision,
+        listTemplateMappings: list_template_mappings,
     };
     const router_stub = { navigate };
 
@@ -47,7 +58,10 @@ describe('DisplaysSectionComponent', () => {
         await TestBed.configureTestingModule({
             imports: [DisplaysSectionComponent],
             providers: [
-                { provide: SignageService, useValue: service_stub },
+                { provide: SignageContextService, useValue: context_stub },
+                { provide: SignageDisplayService, useValue: display_stub },
+                { provide: SignagePlaylistService, useValue: playlist_stub },
+                { provide: SignageTemplateService, useValue: template_stub },
                 { provide: Router, useValue: router_stub },
                 { provide: ActivatedRoute, useValue: {} },
             ],
@@ -67,8 +81,7 @@ describe('DisplaysSectionComponent', () => {
         selected_display.set(null);
         displays.set([]);
         playlists.set([]);
-        zones.set([]);
-        all_zones.set([]);
+        selected_display_zones.set([]);
         can_update.set(false);
         can_delete_displays.set(false);
         templates_enabled.set(true);
@@ -143,8 +156,7 @@ describe('DisplaysSectionComponent', () => {
 
     it('counts the playlists and zones attached to the selected display', async () => {
         playlists.set([{ id: 'p1' }, { id: 'p2' }]);
-        zones.set([{ id: 'z1' }]);
-        all_zones.set([{ id: 'z1' }, { id: 'z2' }, { id: 'z3' }]);
+        selected_display_zones.set([{ id: 'z2' }, { id: 'z3' }]);
         selected_display.set({
             id: 'd1',
             playlists: ['p1'],
@@ -178,6 +190,21 @@ describe('DisplaysSectionComponent', () => {
         TestBed.flushEffects();
 
         expect(selected_display()?.id).toBe('d2');
+    });
+
+    it('loads a routed display that the loaded pages do not include', async () => {
+        displays.set([{ id: 'd1' }]);
+        const display = new PlaceSystem({ id: 'd-far', name: 'Far' });
+        vi.mocked(show).mockResolvedValue(display);
+        const [, fixture] = await make();
+        fixture.componentRef.setInput('id', 'd-far');
+        fixture.detectChanges();
+        TestBed.flushEffects();
+
+        await vi.waitFor(() => expect(selected_display()).toBe(display));
+        expect(show).toHaveBeenCalledExactlyOnceWith(
+            expect.objectContaining({ id: 'd-far', path: 'systems' }),
+        );
     });
 
     it('clears the selection when navigating back to the list', async () => {

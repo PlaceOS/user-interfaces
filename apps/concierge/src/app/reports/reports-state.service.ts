@@ -68,22 +68,12 @@ export interface ReportOptions {
     zones?: string[];
 }
 
-const DAYS_OF_WEEK = {
-    sunday: 0,
-    monday: 1,
-    tuesday: 2,
-    wednesday: 3,
-    thurday: 4,
-    friday: 5,
-    saturday: 6,
-};
-
 const DAYS_OF_WEEK_INDEX = {
     0: 'sunday',
     1: 'monday',
     2: 'tuesday',
     3: 'wednesday',
-    4: 'thurday',
+    4: 'thursday',
     5: 'friday',
     6: 'saturday',
 };
@@ -382,7 +372,7 @@ export class ReportsStateService extends AsyncHandler {
         const opts = this._options();
         let start = startOfDay(opts.start);
         const end = endOfDay(opts.end).valueOf();
-        let count = 1;
+        let count = 0;
         while (start.valueOf() < end) {
             if (
                 !this._ignore_days.includes(DAYS_OF_WEEK_INDEX[start.getDay()])
@@ -446,6 +436,7 @@ export class ReportsStateService extends AsyncHandler {
         };
         const token = ++this._load_token;
         let list: (CalendarEvent | Booking)[] = [];
+        let failed = false;
         try {
             switch (options.type) {
                 case 'desks':
@@ -494,18 +485,23 @@ export class ReportsStateService extends AsyncHandler {
                         zone_ids: zones,
                         include_cancelled: true,
                         limit: 200,
-                    }).catch(() => []);
+                    });
                     break;
                 default:
                     list = [];
             }
         } catch (_) {
             list = [];
+            failed = true;
         }
         // Discard the response if the options changed before it completed
         if (token !== this._load_token) return;
         this._loading.set('');
-        if (!list?.length) {
+        if (failed) {
+            notifyError(i18n('COMMON.LOAD_ERROR'), i18n('COMMON.RETRY'), () =>
+                this.generateReport(),
+            );
+        } else if (!list?.length) {
             notifyError('No bookings for the selected levels and period');
         }
         list = list.filter((bkn) => {
@@ -531,14 +527,19 @@ export class ReportsStateService extends AsyncHandler {
         } else if (options.zones && current.zones?.includes('All')) {
             options.zones = [];
         }
-        if (
-            options.start?.valueOf() === current.start?.valueOf() ||
-            options.end?.valueOf() === current.end?.valueOf()
-        )
-            return;
-        // Clear stale bookings and cancel any in-flight load
+        // Skip only when every given option equals its current value.
+        const value = (v: unknown) =>
+            v instanceof Array ? v.join() : v instanceof Date ? v.valueOf() : v;
+        const unchanged = Object.entries(options).every(
+            ([key, v]) =>
+                value(v) === value(current[key as keyof ReportOptions]),
+        );
+        if (unchanged) return;
+        // Clear stale bookings and cancel any in-flight load. The cancelled
+        // load exits early, so clear its loading state here.
         this._active_bookings.set([]);
         this._load_token++;
+        this._loading.set('');
         this._options.set({ ...current, ...options });
     }
 

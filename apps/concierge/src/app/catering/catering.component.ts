@@ -6,6 +6,7 @@ import {
     CateringMenuComponent,
     CateringOrderListComponent,
 } from '@placeos/catering';
+import { settingSignal } from '@placeos/common';
 import { TranslatePipe } from '@placeos/components';
 import { ApplicationSidebarComponent } from '../ui/app-sidebar.component';
 import { ApplicationTopbarComponent } from '../ui/app-topbar.component';
@@ -32,6 +33,7 @@ import { CateringTopbarComponent } from './catering-topbar.component';
                             @case ('orders') {
                                 <catering-order-list
                                     class="flex-1"
+                                    [bulk_actions]="bulk_actions()"
                                 ></catering-order-list>
                             }
                             @case ('menu') {
@@ -139,6 +141,8 @@ export class CateringComponent implements OnDestroy {
     public readonly page = signal(
         this._route.snapshot.paramMap.get('view') || '',
     );
+    /** Whether orders can be selected to change their status in bulk */
+    public readonly bulk_actions = settingSignal('bulk_actions', false);
     private _sub = this._route.paramMap.subscribe((params) =>
         this.page.set(params.get('view') || ''),
     );

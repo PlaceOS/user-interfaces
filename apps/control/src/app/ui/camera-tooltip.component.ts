@@ -1,4 +1,11 @@
-import { Component, effect, inject, signal } from '@angular/core';
+import {
+    Component,
+    DestroyRef,
+    effect,
+    inject,
+    signal,
+    untracked,
+} from '@angular/core';
 import {
     BindingDirective,
     CustomTooltipData,
@@ -15,16 +22,17 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatSelectModule } from '@angular/material/select';
 import { ControlStateService, RoomInput } from '../control-state.service';
 import {
+    moveCamera,
+    selectCamera,
+    zoomCamera,
+    ZoomDirection,
+} from './camera-commands';
+import {
     JoystickComponent,
     JoystickPan,
     JoystickTilt,
 } from './joystick.component';
 
-export enum ZoomDirection {
-    In = 'in',
-    Out = 'out',
-    Stop = 'stop',
-}
 @Component({
     selector: 'camera-tooltip',
     template: `
@@ -60,7 +68,7 @@ export enum ZoomDirection {
                                         btn
                                         matRipple
                                         class="w-48"
-                                        [class.inverse]="preset !== name"
+                                        [class.inverse]="preset() !== name"
                                         (click)="recallPreset(name)"
                                     >
                                         {{ name }}
@@ -134,11 +142,7 @@ export enum ZoomDirection {
                         <h3 class="mb-2 text-xl font-medium">
                             {{ 'APP.CONTROL.CONTROLS' | translate }}
                         </h3>
-                        <div
-                            class="flex items-center space-x-2"
-                            (window:mouseup)="stopZoom()"
-                            (window:touchend)="stopZoom()"
-                        >
+                        <div class="flex items-center space-x-2">
                             <joystick
                                 [(pan)]="pan"
                                 [(tilt)]="tilt"
@@ -153,11 +157,12 @@ export enum ZoomDirection {
                                     zoom-in
                                     icon
                                     matRipple
-                                    class="rounded-sm"
-                                    (mousedown)="startZoom('in', $event)"
-                                    (touchstart)="startZoom('in', $event)"
+                                    class="touch-none rounded-sm select-none"
+                                    (pointerdown)="startZoom('in', $event)"
+                                    (pointerup)="stopZoom()"
+                                    (pointercancel)="stopZoom()"
+                                    (lostpointercapture)="stopZoom()"
                                     (contextmenu)="$event.preventDefault()"
-                                    (click)="stopZoom()"
                                 >
                                     <icon>add</icon>
                                 </button>
@@ -170,11 +175,12 @@ export enum ZoomDirection {
                                     zoom-out
                                     icon
                                     matRipple
-                                    class="rounded-sm"
-                                    (mousedown)="startZoom('out', $event)"
-                                    (touchstart)="startZoom('out', $event)"
+                                    class="touch-none rounded-sm select-none"
+                                    (pointerdown)="startZoom('out', $event)"
+                                    (pointerup)="stopZoom()"
+                                    (pointercancel)="stopZoom()"
+                                    (lostpointercapture)="stopZoom()"
                                     (contextmenu)="$event.preventDefault()"
-                                    (click)="stopZoom()"
                                 >
                                     <icon>remove</icon>
                                 </button>
@@ -183,7 +189,8 @@ export enum ZoomDirection {
                     </div>
                     @if (!active_camera()) {
                         <div
-                            class="bg-base-100 bg-opacity-75 absolute inset-0 flex items-center justify-center"
+                            no-camera
+                            class="bg-base-100/75 absolute inset-0 flex items-center justify-center"
                         >
                             <p>
                                 {{
@@ -239,15 +246,15 @@ export class CameraTooltipComponent {
     private _state = inject(ControlStateService);
     private _tooltip = inject(CustomTooltipData);
 
-    private _move_timeout: any;
-    private _stop_zoom_timeout: any;
+    private _move_timeout?: ReturnType<typeof setTimeout>;
+    private _stop_zoom_timeout?: ReturnType<typeof setTimeout>;
 
     /** Currently active camera */
     public readonly active_camera = signal<RoomInput | undefined>(undefined);
     /** List of available presets for the active camera */
     public readonly presets = signal<string[]>([]);
-    /** Currently active preset */
-    public preset = '';
+    /** Last preset recalled from this panel */
+    public readonly preset = signal('');
     /** Current zoom value for camera */
     public zoom: ZoomDirection = ZoomDirection.Stop;
     /** Current panning value for camera */
@@ -267,83 +274,63 @@ export class CameraTooltipComponent {
     }
 
     constructor() {
+        inject(DestroyRef).onDestroy(() => this.stopZoom());
         effect(() => {
-            const l = this.camera_list();
-            const cam = this._selected_camera();
-            this.active_camera.set(l?.find((_) => _.id === cam));
+            const id = this._selected_camera();
+            const camera = this.camera_list()?.find((_) => _.id === id);
+            // The recalled preset belongs to the previous camera
+            if (camera?.id !== untracked(this.active_camera)?.id) {
+                this.preset.set('');
+            }
+            this.active_camera.set(camera);
         });
     }
 
     public selectCamera(camera: RoomInput) {
         this.active_camera.set(camera);
-        const mod = getModule(this.id, 'System');
-        if (!mod) return;
-        mod.execute('selected_camera', [camera.id]);
+        this.preset.set('');
+        selectCamera(this.id, camera.id);
     }
 
     public recallPreset(preset: string) {
         const camera = this.active_camera();
         if (!camera?.mod) return;
-        const mod = getModule(this.id, camera.mod);
-        if (!mod) return;
-        mod.execute('recall', [preset]);
+        this.preset.set(preset);
+        getModule(this.id, camera.mod).execute('recall', [preset]);
     }
 
     public addPreset(preset: string) {
         const camera = this.active_camera();
         if (!camera) return;
-        const mod = getModule(this.id, 'System');
-        if (!mod) return;
-        mod.execute('add_preset', [preset, camera.id]);
+        getModule(this.id, 'System').execute('add_preset', [preset, camera.id]);
     }
 
     public removePreset(preset: string) {
         const camera = this.active_camera();
         if (!camera) return;
-        const mod = getModule(this.id, 'System');
-        if (!mod) return;
-        mod.execute('remove_preset', [preset, camera.id]);
+        getModule(this.id, 'System').execute('remove_preset', [
+            preset,
+            camera.id,
+        ]);
     }
 
     public moveCamera() {
         const camera = this.active_camera();
         if (!camera) return;
         clearTimeout(this._move_timeout);
-        this._move_timeout = setTimeout(async () => {
-            const { index } = camera;
-            const mod = getModule(this.id, camera.mod);
-            if (!mod) return;
-            if (this.tilt !== JoystickTilt.Stop) {
-                await mod.execute(
-                    'tilt',
-                    index ? [this.tilt, index] : [this.tilt],
-                );
-            }
-            if (this.pan !== JoystickPan.Stop) {
-                await mod.execute(
-                    'pan',
-                    index ? [this.pan, index] : [this.pan],
-                );
-            }
-            if (
-                this.tilt === JoystickTilt.Stop &&
-                this.pan === JoystickPan.Stop
-            ) {
-                await mod.execute('stop', index ? [index] : []);
-            }
-        }, 50);
+        this._move_timeout = setTimeout(
+            () => moveCamera(this.id, camera, this.pan, this.tilt),
+            50,
+        );
     }
 
-    public async startZoom(dir: 'in' | 'out', e: MouseEvent | TouchEvent) {
+    /** Start zooming. Pointer capture makes sure the button receives the release. */
+    public async startZoom(dir: 'in' | 'out', e: PointerEvent) {
+        (e.currentTarget as Element | null)?.setPointerCapture?.(e.pointerId);
         const camera = this.active_camera();
         if (!camera?.mod) return;
-        const mod = getModule(this.id, camera.mod);
-        if (!mod) return;
         this.zoom = dir === 'in' ? ZoomDirection.In : ZoomDirection.Out;
-        const { index } = camera;
-        await mod
-            .execute('zoom', index ? [this.zoom, index] : [this.zoom])
-            .catch();
+        await zoomCamera(this.id, camera, this.zoom).catch(() => null);
     }
 
     public stopZoom() {
@@ -352,11 +339,8 @@ export class CameraTooltipComponent {
             if (this.zoom === ZoomDirection.Stop) return;
             const camera = this.active_camera();
             if (!camera?.mod) return;
-            const mod = getModule(this.id, camera.mod);
-            if (!mod) return;
-            const { index } = camera;
             this.zoom = ZoomDirection.Stop;
-            mod.execute('zoom', index ? [this.zoom, index] : [this.zoom]);
+            zoomCamera(this.id, camera, ZoomDirection.Stop);
         }, 50);
     }
 }

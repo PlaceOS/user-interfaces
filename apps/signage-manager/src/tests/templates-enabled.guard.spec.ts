@@ -1,11 +1,15 @@
+import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter, Router, UrlTree } from '@angular/router';
-import { OrganisationService, SettingsService } from '@placeos/common';
+import { OrganisationService } from '@placeos/common';
+import { SignageContextService } from '../app/signage-context.service';
 import { templatesEnabledGuard } from '../app/templates-enabled.guard';
 
 describe('templatesEnabledGuard', () => {
-    const get = vi.fn();
     const wait_until_initialised = vi.fn().mockResolvedValue(undefined);
+    const features_ready = signal(true);
+    const templates_enabled = signal(true);
+    const signage_groups_failed = signal(false);
 
     function runGuard() {
         return TestBed.runInInjectionContext(
@@ -16,9 +20,15 @@ describe('templatesEnabledGuard', () => {
         );
     }
 
+    function redirectOf(result: boolean | UrlTree) {
+        return TestBed.inject(Router).serializeUrl(result as UrlTree);
+    }
+
     beforeEach(() => {
-        get.mockReset();
         wait_until_initialised.mockResolvedValue(undefined);
+        features_ready.set(true);
+        templates_enabled.set(true);
+        signage_groups_failed.set(false);
         TestBed.configureTestingModule({
             providers: [
                 provideRouter([]),
@@ -28,25 +38,42 @@ describe('templatesEnabledGuard', () => {
                         waitUntilInitialised: wait_until_initialised,
                     },
                 },
-                { provide: SettingsService, useValue: { get } },
+                {
+                    provide: SignageContextService,
+                    useValue: {
+                        features_ready,
+                        templates_enabled,
+                        signage_groups_failed,
+                    },
+                },
             ],
         });
     });
 
-    it('allows access when the templates feature is enabled', async () => {
-        get.mockReturnValue(['templates']);
-
+    it('allows access when the selected group has templates on', async () => {
         await expect(runGuard()).resolves.toBe(true);
-        expect(get).toHaveBeenCalledWith('app.features');
     });
 
-    it('redirects to media when the templates feature is disabled', async () => {
-        get.mockReturnValue(['ai-generation']);
+    it('redirects to media when the selected group has templates off', async () => {
+        templates_enabled.set(false);
 
-        const router = TestBed.inject(Router);
-        const result = await runGuard();
+        expect(redirectOf(await runGuard())).toBe('/media');
+    });
 
-        expect(router.serializeUrl(result as UrlTree)).toBe('/media');
+    it('waits for the flags of the selected group before checking', async () => {
+        features_ready.set(false);
+        templates_enabled.set(false);
+        let result: boolean | UrlTree | undefined;
+        runGuard().then((value) => (result = value));
+
+        await Promise.resolve();
+        TestBed.tick();
+        expect(result).toBeUndefined();
+
+        templates_enabled.set(true);
+        features_ready.set(true);
+        TestBed.tick();
+        await vi.waitFor(() => expect(result).toBe(true));
     });
 
     it('waits for the org (and its settings overrides) before checking', async () => {
@@ -57,17 +84,20 @@ describe('templatesEnabledGuard', () => {
                     resolve_init = resolve;
                 }),
         );
-        get.mockReturnValue(['templates']);
-
-        const guard_result = runGuard();
         let resolved = false;
+        const guard_result = runGuard();
         guard_result.then(() => (resolved = true));
 
         await Promise.resolve();
         expect(resolved).toBe(false);
-        expect(get).not.toHaveBeenCalled();
 
         resolve_init!();
         await expect(guard_result).resolves.toBe(true);
+    });
+
+    it('redirects to media when the group list failed to load', async () => {
+        signage_groups_failed.set(true);
+
+        expect(redirectOf(await runGuard())).toBe('/media');
     });
 });

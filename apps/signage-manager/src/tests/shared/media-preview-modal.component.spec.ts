@@ -1,6 +1,7 @@
-import { NO_ERRORS_SCHEMA } from '@angular/core';
+import { NO_ERRORS_SCHEMA, SecurityContext } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { DomSanitizer } from '@angular/platform-browser';
 import {
     MediaAnimation,
     SignageMedia,
@@ -8,8 +9,9 @@ import {
     SignagePlugin,
     showSignageMedia,
 } from '@placeos/ts-client';
+import { SignageMediaService } from '../../app/media/signage-media.service';
 import { MediaPreviewModalComponent } from '../../app/shared/media-preview-modal.component';
-import { SignageService } from '../../app/signage.service';
+import { SignageContextService } from '../../app/signage-context.service';
 
 vi.mock('@placeos/ts-client', { spy: true });
 
@@ -29,7 +31,7 @@ describe('MediaPreviewModalComponent', () => {
                     provide: MAT_DIALOG_DATA,
                     useValue: { media, plugin, group_id },
                 },
-                { provide: SignageService, useValue: service },
+                { provide: SignageMediaService, useValue: service },
             ],
         })
             .overrideComponent(MediaPreviewModalComponent, {
@@ -88,7 +90,9 @@ describe('MediaPreviewModalComponent', () => {
                     provide: MAT_DIALOG_DATA,
                     useValue: { media },
                 },
-                { provide: SignageService, useValue: service },
+                { provide: SignageMediaService, useValue: service },
+                // The rendered shared-with list injects the context
+                { provide: SignageContextService, useValue: {} },
             ],
         })
             .overrideComponent(MediaPreviewModalComponent, {
@@ -147,6 +151,23 @@ describe('MediaPreviewModalComponent', () => {
             }),
         );
         expect(webpage.safe_url()).not.toBeNull();
+    });
+
+    it('does not load a stored non-web url in the preview frame', async () => {
+        const component = await createComponent(
+            new SignageMedia({
+                id: 'm1',
+                media_type: 'webpage',
+                media_uri: 'javascript:alert(document.cookie)',
+            }),
+        );
+
+        expect(
+            TestBed.inject(DomSanitizer).sanitize(
+                SecurityContext.RESOURCE_URL,
+                component.safe_url(),
+            ),
+        ).toBe('about:blank');
     });
 
     it('merges plugin defaults with the media plugin params', async () => {
@@ -213,6 +234,18 @@ describe('MediaPreviewModalComponent', () => {
         await component.ngOnInit();
 
         expect(showSignageMedia).toHaveBeenCalledWith('m1', {});
+    });
+
+    // A preview from the edit modal is of media that is not saved yet
+    it('does not look up playlists for media without an id', async () => {
+        const component = await createComponent(
+            new SignageMedia({ media_type: 'image' }),
+        );
+
+        await component.ngOnInit();
+
+        expect(showSignageMedia).not.toHaveBeenCalled();
+        expect(component.loading_playlists()).toBe(false);
     });
 
     it('clears playlist loading when the media request fails', async () => {

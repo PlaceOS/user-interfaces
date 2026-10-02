@@ -9,13 +9,17 @@ import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { MatMenuModule } from '@angular/material/menu';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { RouterLink } from '@angular/router';
-import { IconComponent, TranslatePipe } from '@placeos/components';
+import {
+    IconComponent,
+    LoadErrorComponent,
+    TranslatePipe,
+} from '@placeos/components';
 import { SignagePlaylist } from '@placeos/ts-client';
 import { IntersectDirective } from '../shared/intersect.directive';
 import { PlaylistThumbnailComponent } from '../shared/playlist-thumbnail.component';
-import { SignageService } from '../signage.service';
+import { SignagePlaylistService } from './signage-playlist.service';
 
 type PlaylistStatus =
     | 'expired'
@@ -170,6 +174,8 @@ type PlaylistStatus =
                         intersect
                         (intersect)="loadMore()"
                     ></div>
+                } @else if (error()) {
+                    <load-error (retry)="reload()" />
                 } @else {
                     <div
                         class="text-base-content/50 bg-base-content/10 col-span-full my-2 p-2 text-center text-xs"
@@ -177,6 +183,15 @@ type PlaylistStatus =
                         {{ 'COMMON.END_OF_LIST' | translate }}
                     </div>
                 }
+            } @else if (loading()) {
+                <div
+                    class="text-base-content/70 flex flex-1 flex-col items-center justify-center space-y-2 p-8"
+                >
+                    <mat-spinner diameter="32" />
+                    <p>{{ 'COMMON.LOADING' | translate }}</p>
+                </div>
+            } @else if (error()) {
+                <load-error class="flex-1" (retry)="reload()" />
             } @else {
                 <div
                     class="text-base-content/70 flex flex-1 flex-col items-center justify-center space-y-2 p-8"
@@ -202,28 +217,31 @@ type PlaylistStatus =
         MatRippleModule,
         MatFormFieldModule,
         MatInputModule,
-        MatMenuModule,
+        MatProgressSpinnerModule,
         IconComponent,
+        LoadErrorComponent,
         TranslatePipe,
         IntersectDirective,
         PlaylistThumbnailComponent,
     ],
 })
 export class PlaylistListComponent {
-    private readonly _service = inject(SignageService);
+    private readonly _playlist_service = inject(SignagePlaylistService);
     private readonly _playlist_items =
         viewChildren<ElementRef<HTMLAnchorElement>>('playlist_item');
 
-    public readonly search = this._service.playlist_search_term;
-    public readonly playlists = this._service.filtered_playlists;
-    public readonly selected = this._service.selected_playlist;
+    public readonly search = this._playlist_service.playlist_search_term;
+    public readonly playlists = this._playlist_service.filtered_playlists;
+    public readonly selected = this._playlist_service.selected_playlist;
     public readonly playlist_approval_status =
-        this._service.playlist_approval_status;
+        this._playlist_service.playlist_approval_status;
     public readonly playlist_approval_requested_status =
-        this._service.playlist_approval_requested_status;
+        this._playlist_service.playlist_approval_requested_status;
 
     // Backend pagination: fetches the next page as the sentinel scrolls in.
-    public readonly has_more = this._service.playlists_has_more;
+    public readonly has_more = this._playlist_service.playlists_has_more;
+    public readonly loading = this._playlist_service.playlists_loading;
+    public readonly error = this._playlist_service.playlists_error;
 
     constructor() {
         afterRenderEffect({
@@ -246,7 +264,11 @@ export class PlaylistListComponent {
     }
 
     public loadMore() {
-        this._service.loadMorePlaylists();
+        this._playlist_service.loadMorePlaylists();
+    }
+
+    public reload() {
+        this._playlist_service.reloadPlaylists();
     }
 
     public getStatus(playlist: SignagePlaylist): PlaylistStatus {
@@ -266,13 +288,5 @@ export class PlaylistListComponent {
         if (playlist.id in approvals && !approvals[playlist.id])
             return 'awaiting_approval';
         return null;
-    }
-
-    public editPlaylist(playlist: SignagePlaylist) {
-        this._service.editPlaylist(playlist);
-    }
-
-    public removePlaylist(playlist: SignagePlaylist) {
-        this._service.removePlaylist(playlist);
     }
 }

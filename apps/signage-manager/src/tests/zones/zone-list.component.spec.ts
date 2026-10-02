@@ -1,7 +1,7 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { OrganisationService } from '@placeos/common';
-import { SignageService } from '../../app/signage.service';
+import { SignageZoneService } from '../../app/zones/signage-zone.service';
 import { ZoneListComponent } from '../../app/zones/zone-list.component';
 
 describe('ZoneListComponent', () => {
@@ -15,7 +15,7 @@ describe('ZoneListComponent', () => {
     const zone_tree_children_cache = signal<Record<string, any[]>>({});
     const zone_children = vi.fn();
     const org_stub = { initialised };
-    const service_stub = {
+    const zone_stub = {
         all_zones,
         root_zones,
         filtered_zones,
@@ -30,7 +30,7 @@ describe('ZoneListComponent', () => {
         await TestBed.configureTestingModule({
             imports: [ZoneListComponent],
             providers: [
-                { provide: SignageService, useValue: service_stub },
+                { provide: SignageZoneService, useValue: zone_stub },
                 { provide: OrganisationService, useValue: org_stub },
             ],
         })
@@ -145,6 +145,41 @@ describe('ZoneListComponent', () => {
 
         expect(component.isExpanded(node)).toBe(true);
         expect(zone_children).toHaveBeenCalledWith('r1');
+    });
+
+    it('keeps a node unloaded with a retry when its children fail to load', async () => {
+        root_zones.set([{ id: 'r1', name: 'Root 1', children_count: 1 }]);
+        zone_children.mockRejectedValueOnce(new Error('Network'));
+        const component = await make();
+        await vi.waitFor(() =>
+            expect(component.tree_nodes()[0].children_error).toBe(true),
+        );
+        const node = component.tree_nodes()[0];
+        expect(node.children_loaded).toBe(false);
+        expect(component.childCount(node)).toBe(1);
+        TestBed.flushEffects();
+        expect(zone_children).toHaveBeenCalledOnce();
+
+        zone_children.mockResolvedValueOnce([{ id: 'c1', parent_id: 'r1' }]);
+        component.retryChildren(node);
+
+        await vi.waitFor(() =>
+            expect(
+                component.flat_tree_nodes().map(({ zone }) => zone.id),
+            ).toEqual(['r1', 'c1']),
+        );
+        expect(component.tree_nodes()[0].children_error).toBe(false);
+    });
+
+    it('stops finding the path of a zone at a parent loop', async () => {
+        root_zones.set([{ id: 'r1', name: 'Root 1' }]);
+        all_zones.set([
+            { id: 'a', parent_id: 'b' },
+            { id: 'b', parent_id: 'a' },
+        ]);
+        const component = await make();
+
+        expect(component['getZonePath']('a')).toEqual([]);
     });
 
     it('allows the automatically expanded root to be collapsed', async () => {

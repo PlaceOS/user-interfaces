@@ -116,7 +116,30 @@ describe('ControlTabbedViewComponent', () => {
     });
 
     it('should open the deployed changelog', () => {
-        spectator.component.viewChangelog();
+        const service: any = spectator.inject(ControlStateService);
+        service.system.set({ connected: true });
+        spectator.detectChanges();
+        spectator.click('[name="splash"] button');
         expect(changelog.view).toHaveBeenCalled();
+    });
+
+    it('should not power on when the changelog button is tapped', () => {
+        const service: any = spectator.inject(ControlStateService);
+        service.system.set({ connected: true });
+        spectator.detectChanges();
+        service.powerOn.mockClear();
+        spectator.click('[name="splash"] button');
+        expect(service.powerOn).not.toHaveBeenCalled();
+    });
+
+    it('should open the meeting list once and clear the join parameter', () => {
+        const service: any = spectator.inject(ControlStateService);
+        spectator.setRouteQueryParam('join', 'true');
+        spectator.detectChanges();
+        expect(service.selectMeeting).toHaveBeenCalledTimes(1);
+        expect(spectator.router.navigate).toHaveBeenCalledWith(
+            [],
+            expect.objectContaining({ queryParams: { join: null } }),
+        );
     });
 });

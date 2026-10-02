@@ -20,6 +20,7 @@ The Signage app is a kiosk-style digital signage player. It bootstraps a device 
 - The display selector lists signage-enabled systems returned from PlaceOS.
 - Each display option shows the display name plus its building and level when available.
 - The submit action is disabled until a display is selected.
+- If the display list fails to load, the screen shows an error with a Retry button instead of an empty selector.
 - Selecting a display and submitting stores the display ID in localStorage under `PlaceOS.SIGNAGE.display`.
 - After bootstrap, the app navigates to `/#/signage/:system_id`.
 
@@ -35,9 +36,11 @@ The Signage app is a kiosk-style digital signage player. It bootstraps a device 
 
 - On bootstrap, the app checks localStorage for `PlaceOS.SIGNAGE.display`.
 - If a stored display ID exists, the app navigates automatically to `/#/signage/:system_id`.
+- While it opens the stored display, the screen shows a loading message, not the display selector. The selector shows only if that navigation does not complete.
 - The app also reads `OSK.enabled` from localStorage and enables the virtual keyboard when the value is `true`.
 - The bootstrap screen can clear stored signage bootstrap data when opened with `?clear=true`.
 - Clearing removes both the current display key and the legacy `PlaceOS.SIGNAGE.building` key.
+- If the application fails to start, it reloads after 10 seconds. The wait doubles after each consecutive failure, to a maximum of 5 minutes, and resets after a successful start.
 
 ---
 
@@ -83,11 +86,12 @@ The Signage app is a kiosk-style digital signage player. It bootstraps a device 
 
 - The app calls the PlaceOS signage endpoint for the active display ID.
 - Requests include preview context when debug mode is enabled and include the currently playing item ID when available.
-- After a successful response, later requests send its `ETag` and `Last-Modified` values as `If-None-Match` and `If-Modified-Since`.
+- After a response has been applied, later requests send its `ETag` and `Last-Modified` values as `If-None-Match` and `If-Modified-Since`. A response that fails to apply is requested again in full.
 - Display requests bypass the browser cache, and a `304 Not Modified` response keeps the current display configuration.
 - The latest display configuration is cached in localStorage under a display-specific `PlaceOS.SIGNAGE.display_details.<display_id>` key.
 - Legacy cached configuration under `PlaceOS.SIGNAGE.display_details` can still be used as a fallback.
 - If the API request fails, the app falls back to the cached display configuration only when it matches the active display ID.
+- A cached copy that cannot be read or saved does not stop the display configuration from loading.
 - Unchanged responses keep the current parsed display, trigger bindings, media cache, and playlist state.
 - Display configuration refreshes every 60 seconds.
 
@@ -104,7 +108,7 @@ The Signage app is a kiosk-style digital signage player. It bootstraps a device 
 - The active playlist includes enabled playlists mapped directly to the display.
 - The active playlist also includes enabled playlists mapped to the display's zones.
 - Playlist media is ordered by the playlist media list unless the playlist is configured as random.
-- Random playlists are shuffled before playback.
+- Random playlists are shuffled before playback. The order stays the same until the playlist's media list changes, so the schedule re-evaluation does not restart the current item.
 - Disabled playlists are excluded.
 - Scheduled playlists are included in normal playback only when they have an active non-takeover schedule.
 - Takeover schedules are excluded from normal playback and handled as overrides.
@@ -155,12 +159,13 @@ The Signage app is a kiosk-style digital signage player. It bootstraps a device 
 
 **Acceptance Criteria:**
 
-- Webpage items render in an iframe.
-- Playback timing starts after the iframe load event plus a 2 second reveal delay.
+- Webpage items render in a sandboxed iframe. The page can run scripts, use its own origin and submit forms. It cannot navigate the player, open popups or show dialogs.
+- Playback timing starts after the iframe load event plus a 3 second reveal delay.
 - If a webpage never reports load, playback continues after a 15 second wait.
 - Webpage items play for their configured effective duration.
 - A single valid webpage item remains loaded instead of reloading on every loop.
 - Upcoming webpage items can be preloaded on the inactive output shortly before transition.
+- Preloading does not start while the current item is still waiting to be revealed or is in transition.
 - Webpage media is not cached as a local file.
 
 ---
@@ -178,10 +183,13 @@ The Signage app is a kiosk-style digital signage player. It bootstraps a device 
 - When a plugin reports `ready`, the player sends config and then a play signal.
 - If a plugin does not report load or ready, the player sends config after a 15 second wait.
 - Static plugins follow the configured effective duration.
-- Play-through plugins advance when they report `finished`.
+- Play-through plugins advance when they report `finished`. If the plugin is the only item, the player sends it a new play signal instead.
+- A play-through plugin that never sends a plugin message advances after its configured duration, like a static plugin.
+- If that plugin is the only item, it is removed from the screen and loaded again after 30 seconds.
+- A play-through plugin that does not report `finished` advances after twice its configured duration, but not before 5 minutes and not after 60 minutes.
 - Interactive plugins can request a new playback duration through plugin interaction events.
 - Upcoming plugin items can be preloaded on the inactive output shortly before transition.
-- Fatal plugin errors advance to the next media item.
+- Fatal plugin errors from the plugin on screen advance to the next media item. Errors from a plugin that is preloaded for later do not change the item on screen.
 
 ---
 
@@ -215,7 +223,7 @@ The Signage app is a kiosk-style digital signage player. It bootstraps a device 
 - Playback starts at the first valid item when the player has a playlist.
 - Items advance automatically when their effective duration expires.
 - The player skips media that is not currently valid.
-- When a changed playlist still contains the currently playing item, the current item is held over before the updated playlist continues.
+- When a changed playlist still contains the currently playing item unchanged, that item keeps playing without a restart, and the updated playlist continues after it. If the item changed (for example, a new source), it starts again.
 - If no valid items exist, the player retries item selection every 5 seconds.
 - If media URL resolution hangs or fails, the player waits briefly, skips the failed item when possible, and retries the playlist after a short delay when every valid item has failed.
 
@@ -263,7 +271,7 @@ The Signage app is a kiosk-style digital signage player. It bootstraps a device 
 - Debug mode shows play or pause, previous, next, mute, loop, and shuffle controls.
 - Play and pause preserve current item progress.
 - Previous and next move to valid playlist items.
-- Mute and unmute update the active video element.
+- Mute and unmute update the video elements of the player and of any other player on the display, such as an override.
 - A progress bar shows playback progress and exposes elapsed duration through its tooltip.
 
 ---
@@ -316,8 +324,10 @@ The Signage app is a kiosk-style digital signage player. It bootstraps a device 
 **Acceptance Criteria:**
 
 - A scheduled playlist with `play_takeover` disabled is included in normal playback only while its schedule is active.
-- `play_at` schedules support Unix timestamps in seconds or milliseconds.
-- `play_cron` schedules support recurring cron-based activation.
+- `play_at` schedules use a Unix timestamp in seconds.
+- `play_at_local` schedules play once at a wall-clock time (for example `2027-01-01T00:00:00`) in the display's timezone.
+- `play_cron` schedules support recurring cron-based activation in the display's local time.
+- When clocks go back, a repeated cron time runs once, at its first occurrence. A cron time skipped when clocks go forward does not run.
 - `play_period` controls the active window in minutes.
 - When `play_period` is missing, the default active window is 24 hours.
 - Schedule activation is re-evaluated every 15 seconds, or faster while debug time is accelerated.
@@ -333,10 +343,15 @@ The Signage app is a kiosk-style digital signage player. It bootstraps a device 
 **Acceptance Criteria:**
 
 - A scheduled playlist with `play_takeover` enabled is rendered as an override player above normal playback.
+- Only schedules with `play_takeover` enabled start an override. Other schedules of the same playlist add it to normal playback.
+- A takeover does not start when none of its media is currently valid. An active takeover ends when none of its media stays valid. The player checks this on each schedule re-evaluation.
 - The normal player is paused while an override is active.
-- Multiple active takeover playlists can be combined into the override playlist.
+- Multiple active takeover playlists can be combined into the override playlist. Timed takeovers combine with other timed takeovers, and single-pass takeovers combine with other single-pass takeovers.
+- A single-pass takeover plays ahead of timed takeovers. It interrupts a timed takeover that is playing, and a timed takeover that starts during the pass waits until the pass is complete. The timed takeover then plays until its scheduled end time.
 - The override ends at the scheduled end time when `play_period` is greater than zero.
 - A scheduled takeover with `play_period` set to zero uses a short activation window, plays a single pass, and then clears.
+- A single-pass takeover continues after its activation window closes. It clears when the pass is complete, or when its playlist is removed, disabled, or no longer a single-pass takeover.
+- When single-pass takeovers share one override, the pass is complete when the playlist of the last valid item plays through.
 - Clearing a scheduled override records its schedule key so the same activation is not immediately retriggered.
 
 ---
@@ -351,6 +366,7 @@ The Signage app is a kiosk-style digital signage player. It bootstraps a device 
 
 - Playlist mappings whose keys start with `trig-` are treated as trigger mappings.
 - The app subscribes to matching variables on the display's `_TRIGGER__1` module.
+- A trigger fires when its variable changes from a falsy value to a truthy value. The value that the binding has when the app subscribes does not fire the trigger, and a change to a falsy value does not fire it. After a page load the binding has no value, so the first truthy value from PlaceOS fires the trigger once.
 - When a trigger fires and no override is active, the mapped enabled playlists are converted to override media.
 - Trigger overrides are ignored when an override is already active.
 - Trigger overrides play once and clear after the override playlist completes.
@@ -419,8 +435,11 @@ The Signage app is a kiosk-style digital signage player. It bootstraps a device 
 **Acceptance Criteria:**
 
 - The signage panel listens for object postMessage payloads.
+- Only messages from the parent frame are accepted. Messages from other windows, such as webpage or plugin content on screen, are ignored.
+- A player that is not in a frame ignores all pause and resume messages.
 - A payload with `type: 'signage:pause'` pauses all player instances.
-- A payload with `type: 'signage:resume'` resumes all player instances.
+- A payload with `type: 'signage:resume'` resumes all player instances. The normal player stays paused while a takeover plays.
+- While paused, a takeover that starts stays paused, and the normal player stays paused when a takeover ends.
 - Unknown payloads are ignored.
 - The message listener is removed when the panel is destroyed.
 
@@ -437,7 +456,10 @@ The Signage app is a kiosk-style digital signage player. It bootstraps a device 
 **Acceptance Criteria:**
 
 - Non-webpage and non-plugin media URLs are requested for local caching.
-- Media files are stored in IndexedDB in the `SignageMedia` database.
+- Media files are stored in IndexedDB in the `SignageMedia` database. The service worker does not keep a second copy.
+- Downloads stream to storage. They do not keep the full file in memory.
+- If the browser cannot store a streamed download, the cache downloads files up to 50 MB one more time into memory. Larger files play from the network, and the cache does not try them again until the app reloads.
+- A download has no total time limit. It stops when no data arrives for 60 seconds.
 - Cache metadata is persisted in localStorage under `PlaceOS.SIGNAGE.cached_files`.
 - Cache status moves through preparing, downloading, storing, and cached states.
 - Upload API media requests apply a short-lived authentication cookie before fetching.
@@ -456,7 +478,16 @@ The Signage app is a kiosk-style digital signage player. It bootstraps a device 
 
 - When display configuration changes, the app requests caching for current media URLs.
 - Cached URLs that are no longer referenced by the display are invalidated.
-- Cache pruning keeps the current display's priority URLs first and enforces a per-owner storage limit.
+- The cache budget is 80% of the storage that the browser gives the app, less the storage used outside the cache. If the browser cannot supply this value, the budget is 512 MB.
+- At startup, the app asks the browser for persistent storage.
+- Pruning never removes media in the current request. It removes files of other displays first (root players only), then the largest files.
+- Media that cannot fit in the budget is not downloaded. It plays from the network. The cache tries it again only when more space is available.
+- When the file size is known, the cache removes files to make room before it reads the download.
+- Playback downloads a missing file only if it fits in the space that is left in the budget. Playback never removes cached files. A full storage write during playback stops later playback downloads of that file.
+- A template background that the cache cannot supply plays from the network.
+- If storage becomes full during a write (`QuotaExceededError`, or a `DataError` from a failed blob write), the cache removes the files that the request does not need and tries one more time. If the write fails again, the media plays from the network.
+- If the cache database cannot be read, the cache does not download the file again. The sync tries again later.
+- Stored files that no cache entry uses (duplicates, empty files, and replaced files) are deleted.
 - Embedded signage players avoid pruning files owned by other displays.
 - Failed cache requests schedule a retry after 15 seconds.
 - Media currently preparing, downloading, or storing waits for a final cached or invalidated state before playback tries to use it.
@@ -477,6 +508,7 @@ The Signage app is a kiosk-style digital signage player. It bootstraps a device 
 - Object URLs outside the nearby window are revoked.
 - If an active item's URL is not ready, the player waits and retries item selection.
 - Webpage and plugin outputs are prepared on the inactive layer near the end of the current item so they can be revealed after loading.
+- An item that is still waiting to be revealed keeps its output. The next item is not prepared until the current item is on screen.
 
 ---
 
@@ -492,6 +524,9 @@ The Signage app is a kiosk-style digital signage player. It bootstraps a device 
 
 - A media count is recorded when a valid item advances after more than 50% progress.
 - A playlist count is recorded when playback advances beyond the last valid item for a playlist.
+- Counts are recorded only when playback moves on. Retries of the same item, such as while it waits for its media, and selecting an item or going back in debug mode, record nothing.
+- A lone webpage or plugin that is held on screen is credited with one pass when its duration has passed, and is not credited again while it stays. A single-pass takeover whose only item is held therefore ends after one pass.
+- A play-through plugin that reports `finished` is credited as fully played, however early it finished.
 - A playlist play-through count is recorded when the last valid item for a playlist advances after more than 50% progress.
 - Playlist counts and play-through counts are not stored for random playlists.
 - Metrics are tracked separately for media counts, playlist counts, and play-through counts.
@@ -510,7 +545,7 @@ The Signage app is a kiosk-style digital signage player. It bootstraps a device 
 - Empty metrics are not posted.
 - Non-empty metrics are posted to `/api/engine/v2/signage/:display_id/metrics`.
 - Metric posting is delayed by a random offset of up to 60 seconds to avoid synchronized device traffic.
-- Metrics are cleared only after a successful post.
+- Metrics recorded while a post is in flight are kept for the next post.
 - Failed posts leave metrics available for the next posting attempt.
 
 ---

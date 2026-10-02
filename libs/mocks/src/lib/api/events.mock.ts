@@ -117,7 +117,13 @@ export function registerMockEvents() {
                 (event) => event.id === request.route_params.id,
             );
             if (index >= 0) {
-                return MOCK_EVENTS.splice(index, 1, request.body);
+                const event = { ...MOCK_EVENTS[index], ...request.body };
+                MOCK_EVENTS.splice(index, 1, event);
+                const system = mockSystem(
+                    request.query_params.system_id || event.system?.id,
+                );
+                system?.Bookings?.[0]?.$poll_bookings();
+                return event;
             }
             throw { status: 404, message: 'Event not found' };
         },

@@ -13,10 +13,13 @@ import {
     IconComponent,
     TranslatePipe,
 } from '@placeos/components';
-import { AiImageService } from '../ai/ai-image.service';
+import { SignagePlugin } from '@placeos/ts-client';
+import { ImageGenService } from '../image-gen/image-gen.service';
 import { GroupBreadcrumbsComponent } from '../shared/group-breadcrumbs.component';
 import { MediaAddModalComponent } from '../shared/media-add-modal.component';
-import { SignageService } from '../signage.service';
+import { SignageContextService } from '../signage-context.service';
+import { SignagePluginService } from '../signage-plugin.service';
+import { normaliseWebPageUrl } from '../signage-url.util';
 import {
     DEFAULT_MEDIA_VIEW,
     MEDIA_EXPIRY_FILTERS,
@@ -27,15 +30,7 @@ import {
     type MediaTypeFilter,
     type MediaViewOptions,
 } from './media-view.util';
-
-function isValidUrl(url: string): boolean {
-    try {
-        new URL(url);
-        return true;
-    } catch {
-        return false;
-    }
-}
+import { SignageMediaService } from './signage-media.service';
 
 @Component({
     selector: 'media-list-header',
@@ -183,7 +178,7 @@ function isValidUrl(url: string): boolean {
                 />
             </mat-form-field>
             @if (can_create()) {
-                @if (ai_enabled()) {
+                @if (image_gen_enabled()) {
                     <button
                         icon
                         default
@@ -191,13 +186,13 @@ function isValidUrl(url: string): boolean {
                         matRipple
                         class="text-xl max-sm:hidden"
                         [matTooltip]="
-                            'SIGNAGE_MANAGER.AI_CREATE_IMAGE' | translate
+                            'SIGNAGE_MANAGER.IMAGE_GEN_CREATE_IMAGE' | translate
                         "
                         matTooltipPosition="left"
                         [attr.aria-label]="
-                            'SIGNAGE_MANAGER.AI_CREATE_IMAGE' | translate
+                            'SIGNAGE_MANAGER.IMAGE_GEN_CREATE_IMAGE' | translate
                         "
-                        (click)="generateWithAI()"
+                        (click)="generateWithImageGen()"
                     >
                         <icon>auto_awesome</icon>
                     </button>
@@ -342,17 +337,17 @@ function isValidUrl(url: string): boolean {
                     <icon>add</icon>
                 </button>
                 <mat-menu #actions_menu="matMenu">
-                    @if (ai_enabled()) {
+                    @if (image_gen_enabled()) {
                         <button
                             mat-menu-item
                             type="button"
-                            (click)="generateWithAI()"
+                            (click)="generateWithImageGen()"
                         >
                             <div class="flex items-center gap-2">
                                 <icon class="text-2xl">auto_awesome</icon>
                                 <div>
                                     {{
-                                        'SIGNAGE_MANAGER.AI_CREATE_IMAGE'
+                                        'SIGNAGE_MANAGER.IMAGE_GEN_CREATE_IMAGE'
                                             | translate
                                     }}
                                 </div>
@@ -427,20 +422,22 @@ function isValidUrl(url: string): boolean {
     ],
 })
 export class MediaListHeaderComponent {
-    private readonly _service = inject(SignageService);
+    private readonly _context = inject(SignageContextService);
+    private readonly _media_service = inject(SignageMediaService);
+    private readonly _plugin_service = inject(SignagePluginService);
     private readonly _dialog = inject(MatDialog);
-    private readonly _ai = inject(AiImageService);
+    private readonly _image_gen = inject(ImageGenService);
     public readonly link = signal('');
-    public readonly selected_plugin = signal<any>(null);
-    public readonly available_plugins = this._service.plugins;
-    public readonly view = this._service.media_view;
-    public readonly view_active = this._service.media_view_active;
+    public readonly selected_plugin = signal<SignagePlugin | null>(null);
+    public readonly available_plugins = this._plugin_service.plugins;
+    public readonly view = this._media_service.media_view;
+    public readonly view_active = this._media_service.media_view_active;
     // Filters run in the browser, so count the filtered items instead of the
     // backend total while one is active.
     public readonly total_count = computed(() =>
         this.view_active()
-            ? this._service.media().length
-            : this._service.media_total(),
+            ? this._media_service.media().length
+            : this._media_service.media_total(),
     );
     public readonly sorts = MEDIA_SORTS;
     public readonly type_filters = MEDIA_TYPE_FILTERS;
@@ -462,8 +459,8 @@ export class MediaListHeaderComponent {
         expiring: 'SIGNAGE_MANAGER.MEDIA_FILTER_EXPIRING',
         expired: 'SIGNAGE_MANAGER.STATUS_EXPIRED',
     };
-    public readonly search = this._service.search_term;
-    public readonly view_mode = this._service.media_view_mode;
+    public readonly search = this._media_service.search_term;
+    public readonly view_mode = this._media_service.media_view_mode;
     public readonly view_options = [
         { mode: 'grid', icon: 'grid_view', label: 'SIGNAGE_MANAGER.VIEW_GRID' },
         {
@@ -477,16 +474,16 @@ export class MediaListHeaderComponent {
             label: 'SIGNAGE_MANAGER.VIEW_FOLDER',
         },
     ] as const;
-    public readonly file_accept = this._service.media_upload_accept;
-    public readonly can_create = this._service.can_create;
+    public readonly file_accept = this._media_service.media_upload_accept;
+    public readonly can_create = this._context.can_create;
 
-    public readonly previewFile = (event) =>
-        this._service.previewFileFromInput(event);
+    public readonly previewFile = (event: Event) =>
+        this._media_service.previewFileFromInput(event);
 
-    public readonly ai_enabled = computed(
+    public readonly image_gen_enabled = computed(
         () =>
-            this._ai.can_generate() &&
-            this._service.hasFeature('ai-generation'),
+            this._image_gen.can_generate() &&
+            this._context.hasFeature('ai-generation'),
     );
 
     /** Change part of the media sort and filters */
@@ -498,8 +495,8 @@ export class MediaListHeaderComponent {
         this.view.set(DEFAULT_MEDIA_VIEW);
     }
 
-    public generateWithAI() {
-        this._service.generateMediaWithAI();
+    public generateWithImageGen() {
+        this._media_service.generateMediaWithImageGen();
     }
 
     public openAdd(mode: 'plugin' | 'link') {
@@ -512,12 +509,12 @@ export class MediaListHeaderComponent {
     public async addFromLink() {
         const link = this.link().trim();
         if (!link) return;
-        const is_valid = isValidUrl(link);
-        if (!is_valid) {
+        const url = normaliseWebPageUrl(link);
+        if (!url) {
             notifyError(i18n('SIGNAGE_MANAGER.URL_INVALID'));
             return;
         }
-        await this._service.addMediaFromLink(link);
+        await this._media_service.addMediaFromLink(url);
         this.link.set('');
     }
 
@@ -527,7 +524,7 @@ export class MediaListHeaderComponent {
             ({ id }) => id === selected_plugin?.id,
         );
         if (!plugin) return;
-        await this._service.addMediaFromPlugin(plugin);
+        await this._media_service.addMediaFromPlugin(plugin);
         this.selected_plugin.set(null);
     }
 }

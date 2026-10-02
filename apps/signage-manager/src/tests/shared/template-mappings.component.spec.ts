@@ -2,8 +2,10 @@ import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { TemplateMappingsComponent } from '../../app/shared/template-mappings.component';
+import { SignageContextService } from '../../app/signage-context.service';
 import { HydratedSignageTemplateMapping } from '../../app/signage-template-mapping';
-import { SignageService } from '../../app/signage.service';
+import { SignageTemplateService } from '../../app/templates/signage-template.service';
+import { SignageZoneService } from '../../app/zones/signage-zone.service';
 
 describe('TemplateMappingsComponent', () => {
     const mapping = new HydratedSignageTemplateMapping({
@@ -33,11 +35,13 @@ describe('TemplateMappingsComponent', () => {
     const list_mappings = vi.fn();
     const edit_mapping = vi.fn();
     const remove_mapping = vi.fn();
-    const service_stub = {
-        can_update: signal(true),
+    const context_stub = { can_update: signal(true) };
+    const zone_stub = {
         all_zones: signal([
             { id: 'zone-1', name: 'Level 1', display_name: 'First floor' },
         ]),
+    };
+    const template_stub = {
         listTemplateMappings: list_mappings,
         editTemplateMapping: edit_mapping,
         removeTemplateMapping: remove_mapping,
@@ -52,7 +56,9 @@ describe('TemplateMappingsComponent', () => {
             imports: [TemplateMappingsComponent],
             providers: [
                 provideRouter([]),
-                { provide: SignageService, useValue: service_stub },
+                { provide: SignageContextService, useValue: context_stub },
+                { provide: SignageTemplateService, useValue: template_stub },
+                { provide: SignageZoneService, useValue: zone_stub },
             ],
         });
         if (!render_template) {
@@ -130,6 +136,24 @@ describe('TemplateMappingsComponent', () => {
         expect(
             fixture.nativeElement.querySelector('button[error]'),
         ).toBeTruthy();
+    });
+
+    it('renders the error branch when mappings fail to load', async () => {
+        list_mappings.mockRejectedValue(new Error('Forbidden'));
+
+        const { fixture, component } = await setup(
+            'display',
+            'display-1',
+            true,
+        );
+        await fixture.whenStable();
+        fixture.detectChanges();
+
+        expect(component.mappings()).toEqual([]);
+        expect(fixture.nativeElement.textContent).toContain('(0)');
+        expect(fixture.nativeElement.textContent).toContain(
+            'Unable to load template mappings.',
+        );
     });
 
     it('opens a new zone mapping and reloads after save', async () => {

@@ -48,6 +48,7 @@ import { EventStateService } from './event-state.service';
                 <a
                     btn
                     matRipple
+                    data-shortcut="new"
                     [routerLink]="['/entertainment', 'events', 'manage']"
                 >
                     <div class="ml-2">

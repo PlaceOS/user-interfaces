@@ -279,13 +279,12 @@ export class TopbarHeaderComponent extends AsyncHandler {
         actions[TOOLTIP.CAMERA].show = cams?.length > 0 && !speaker_track;
         actions[TOOLTIP.HELP].show = help_items?.length > 0;
         actions[TOOLTIP.LIGHT_LEVELS].show = light_levels != null;
-        actions[TOOLTIP.LIGHT_SCENES].show = l_scenes != null;
+        actions[TOOLTIP.LIGHT_SCENES].show = l_scenes?.length > 0;
 
         return actions;
     });
 
     public readonly viewHelp = () => this._state.viewHelp();
-    public readonly powerOff = () => this._state.powerOff();
 
     public readonly logo = computed(() => {
         this._org.active_building();

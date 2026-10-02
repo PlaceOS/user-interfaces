@@ -30,6 +30,7 @@ import {
     SetupBreakdownModalComponent,
     declineEvent,
 } from '@placeos/events';
+import { DateOptionsComponent } from '@placeos/form-fields';
 import {
     addHours,
     differenceInMinutes,
@@ -39,7 +40,6 @@ import {
     startOfDay,
     startOfMinute,
 } from 'date-fns';
-import { DateOptionsComponent } from '../ui/date-options.component';
 import { EventsStateService } from './events-state.service';
 import { RoomBookingSearchComponent } from './room-booking-search.component';
 import { isActiveRoomTimelineEvent } from './room-timeline.utilities';

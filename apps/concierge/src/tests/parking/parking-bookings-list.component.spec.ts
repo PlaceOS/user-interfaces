@@ -25,6 +25,7 @@ describe('ParkingBookingsListComponent', () => {
         component: ParkingBookingsListComponent,
         providers: [
             MockProvider(ParkingStateService, {
+                load_error: signal(false),
                 bookings: (() => bookings) as any,
                 options: (() => ({
                     date: selected_date,

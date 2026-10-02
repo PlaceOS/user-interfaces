@@ -102,18 +102,53 @@ describe('SimpleTableComponent', () => {
         expect(spectator.query('[role="table"]')).toContainText('Carol');
     });
 
-    it('should allow selecting rows and selecting all rows', () => {
+    it('should select rows by key and select all rows', () => {
         spectator.setInput({ columns: COLUMNS, data: DATA, selectable: true });
-        spectator.component.select(1, true);
-        expect(spectator.component.selected()).toEqual([1]);
-        spectator.component.select(2, true);
-        expect(spectator.component.selected()).toEqual([1, 2]);
-        spectator.component.select(1, false);
-        expect(spectator.component.selected()).toEqual([2]);
+        spectator.component.select('2', true);
+        spectator.component.select('3', true);
+        expect(spectator.component.selected()).toEqual(['2', '3']);
+        spectator.component.select('2', false);
+        expect(spectator.component.selected()).toEqual(['3']);
         spectator.component.selectAll(true);
-        expect(spectator.component.selected()).toEqual([0, 1, 2]);
+        expect(spectator.component.selected()).toEqual(['3', '1', '2']);
+        expect(spectator.component.all_selected()).toBe(true);
         spectator.component.selectAll(false);
         expect(spectator.component.selected()).toEqual([]);
+    });
+
+    it('should skip rows that cannot be selected when selecting all', () => {
+        spectator.setInput({
+            columns: COLUMNS,
+            data: DATA,
+            selectable: true,
+            can_select: (row) => row.age < 35,
+        });
+        spectator.component.selectAll(true);
+        expect(spectator.component.selected()).toEqual(['1', '2']);
+        expect(spectator.component.all_selected()).toBe(true);
+    });
+
+    it('should keep the selection when the data refreshes', () => {
+        spectator.setInput({ columns: COLUMNS, data: DATA, selectable: true });
+        spectator.component.selectAll(true);
+        spectator.setInput({ data: DATA.map((_) => ({ ..._ })) });
+        expect(spectator.component.selected()).toEqual(['1', '2', '3']);
+        spectator.setInput({ data: DATA.slice(1) });
+        expect(spectator.component.selected()).toEqual(['2', '3']);
+    });
+
+    it('should show a load error with a retry action', () => {
+        const spy = vi.spyOn(spectator.component.retry, 'emit');
+        spectator.setInput({
+            columns: COLUMNS,
+            data: [],
+            error: true,
+            empty_message: 'Nothing here',
+        });
+        expect('[role="alert"]').toExist();
+        expect('[role="table"]').not.toContainText('Nothing here');
+        spectator.click('[role="alert"] button');
+        expect(spy).toHaveBeenCalled();
     });
 
     it('should handle observable data sources', () => {

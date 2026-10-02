@@ -1,21 +1,28 @@
+import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { SignageMediaService } from '../../app/media/signage-media.service';
 import { ContentReportComponent } from '../../app/report/content-report.component';
-import { SignageService } from '../../app/signage.service';
+import { SignageInventoryService } from '../../app/signage-inventory.service';
 
 describe('ContentReportComponent', () => {
     const flush = () => new Promise((resolve) => setTimeout(resolve));
     const load_report = vi.fn();
     const preview_media = vi.fn();
+    const inventory_key = signal({ group_id: 'g-1', change: 1 });
 
     async function make() {
         TestBed.configureTestingModule({
             providers: [
                 {
-                    provide: SignageService,
+                    provide: SignageInventoryService,
                     useValue: {
+                        inventory_key,
                         loadContentReport: load_report,
-                        previewMedia: preview_media,
                     },
+                },
+                {
+                    provide: SignageMediaService,
+                    useValue: { previewMedia: preview_media },
                 },
             ],
         }).overrideComponent(ContentReportComponent, {
@@ -31,7 +38,9 @@ describe('ContentReportComponent', () => {
 
     beforeEach(() => {
         vi.clearAllMocks();
+        inventory_key.set({ group_id: 'g-1', change: 1 });
         load_report.mockResolvedValue({
+            expired_media_unchecked: 0,
             empty_displays: [
                 { id: 'd1', name: 'SIGNAGE 1', display_name: 'Lobby' },
             ],
@@ -91,5 +100,30 @@ describe('ContentReportComponent', () => {
             id: 'm1',
             name: 'Poster',
         });
+    });
+
+    it('loads again when the group changes', async () => {
+        await make();
+        inventory_key.set({ group_id: 'g-2', change: 1 });
+        TestBed.tick();
+        await flush();
+
+        expect(load_report).toHaveBeenCalledTimes(2);
+    });
+
+    it('warns when some expired media was not checked', async () => {
+        load_report.mockResolvedValue({
+            ...(await load_report()),
+            expired_media: [],
+            expired_media_unchecked: 3,
+        });
+        const component = await make();
+        const expired_media = component
+            .sections()
+            .find(({ id }) => id === 'expired-media');
+
+        expect(expired_media?.note).toBe(
+            'The report did not check 3 more expired media items.',
+        );
     });
 });

@@ -2,14 +2,21 @@ import { NO_ERRORS_SCHEMA, signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslatePipe } from '@placeos/components';
-import { SignageService } from '../../app/signage.service';
+import { PlaceZone, showZone } from '@placeos/ts-client';
+import { SignageDisplayService } from '../../app/displays/signage-display.service';
+import { SignagePlaylistService } from '../../app/playlists/signage-playlist.service';
+import { SignageContextService } from '../../app/signage-context.service';
+import { SignageTemplateService } from '../../app/templates/signage-template.service';
+import { SignageZoneService } from '../../app/zones/signage-zone.service';
 import { ZonesSectionComponent } from '../../app/zones/zones.component';
+
+vi.mock('@placeos/ts-client', { spy: true });
 
 describe('ZonesSectionComponent', () => {
     const selected_zone = signal<any>(null);
     const all_zones = signal<any[]>([]);
     const playlists = signal<any[]>([]);
-    const displays = signal<any[]>([]);
+    const selected_zone_displays = signal<any[]>([]);
     const templates_enabled = signal(true);
     const playlists_loading = signal(false);
     const related_loading = signal(false);
@@ -19,17 +26,23 @@ describe('ZonesSectionComponent', () => {
     const edit_zone = vi.fn();
     const remove_zone = vi.fn();
     const navigate = vi.fn();
-    const service_stub = {
-        selected_zone,
-        all_zones,
-        playlists,
-        displays,
-        templates_enabled,
+    const context_stub = { templates_enabled, can_manage_zones };
+    const display_stub = {
+        selected_zone_displays,
+        selected_zone_displays_loading: related_loading,
+    };
+    const playlist_stub = {
+        playlistsById: (ids: readonly string[]) =>
+            playlists().filter(({ id }) => ids.includes(id)),
         playlists_loading,
-        displays_loading: related_loading,
+    };
+    const template_stub = {
         template_mappings_revision,
         listTemplateMappings: list_template_mappings,
-        can_manage_zones,
+    };
+    const zone_stub = {
+        selected_zone,
+        all_zones,
         editZone: edit_zone,
         removeZone: remove_zone,
     };
@@ -43,7 +56,11 @@ describe('ZonesSectionComponent', () => {
         await TestBed.configureTestingModule({
             imports: [ZonesSectionComponent],
             providers: [
-                { provide: SignageService, useValue: service_stub },
+                { provide: SignageContextService, useValue: context_stub },
+                { provide: SignageDisplayService, useValue: display_stub },
+                { provide: SignagePlaylistService, useValue: playlist_stub },
+                { provide: SignageTemplateService, useValue: template_stub },
+                { provide: SignageZoneService, useValue: zone_stub },
                 { provide: Router, useValue: router_stub },
                 { provide: ActivatedRoute, useValue: {} },
             ],
@@ -63,7 +80,7 @@ describe('ZonesSectionComponent', () => {
         selected_zone.set(null);
         all_zones.set([]);
         playlists.set([]);
-        displays.set([]);
+        selected_zone_displays.set([]);
         templates_enabled.set(true);
         playlists_loading.set(false);
         related_loading.set(false);
@@ -137,10 +154,7 @@ describe('ZonesSectionComponent', () => {
 
     it('counts playlists on the zone and displays that reference it', async () => {
         playlists.set([{ id: 'p1' }, { id: 'p2' }]);
-        displays.set([
-            { id: 'd1', zones: ['z1'] },
-            { id: 'd2', zones: ['z2'] },
-        ]);
+        selected_zone_displays.set([{ id: 'd1', zones: ['z1'] }]);
         selected_zone.set({ id: 'z1', playlists: ['p1', 'p2'] });
         const [component] = await make();
 
@@ -156,6 +170,21 @@ describe('ZonesSectionComponent', () => {
         TestBed.flushEffects();
 
         expect(selected_zone()?.id).toBe('z2');
+    });
+
+    it('loads a routed zone that the zone list does not include', async () => {
+        all_zones.set([{ id: 'z1' }]);
+        vi.mocked(showZone).mockResolvedValue(
+            new PlaceZone({ id: 'z-far', name: 'R&amp;D' }),
+        );
+        const [, fixture] = await make();
+        fixture.componentRef.setInput('id', 'z-far');
+        fixture.detectChanges();
+        TestBed.flushEffects();
+
+        await vi.waitFor(() => expect(selected_zone()?.id).toBe('z-far'));
+        expect(selected_zone().name).toBe('R&D');
+        expect(showZone).toHaveBeenCalledExactlyOnceWith('z-far');
     });
 
     it('clears the selection when navigating back to the list', async () => {

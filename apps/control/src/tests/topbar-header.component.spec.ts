@@ -88,4 +88,12 @@ describe('TopbarHeaderComponent', () => {
             spectator.inject(ControlStateService).changeRoom,
         ).not.toHaveBeenCalled();
     });
+
+    it('should hide the lighting scenes action when the room has no scenes', () => {
+        spectator = createComponent();
+        const action = spectator.component
+            .action_list()
+            .find((_) => _.id === 'lighting_scenes');
+        expect(action.show).toBe(false);
+    });
 });

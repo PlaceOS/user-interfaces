@@ -3,7 +3,7 @@ import { FormsModule } from '@angular/forms';
 import { MatSliderModule } from '@angular/material/slider';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { mockComponent, mockDirective } from '@placeos/common/tests';
-import { MockModule, MockPipe, MockProvider } from 'ng-mocks';
+import { MockModule, MockPipe, MockProvider, ngMocks } from 'ng-mocks';
 import { ControlStateService } from '../app/control-state.service';
 
 import {
@@ -26,7 +26,6 @@ describe('ControlStatusBarComponent', () => {
         ],
         providers: [
             MockProvider(ControlStateService, {
-                volume: signal(0),
                 system: signal({}),
                 capture_list: signal([]),
                 has_master_audio: signal(true),
@@ -77,5 +76,14 @@ describe('ControlStatusBarComponent', () => {
         spectator.component.setVolume(30);
         expect(service.setMute).toHaveBeenCalledWith(false);
         expect(service.setVolume).toHaveBeenCalledWith(30);
+    });
+
+    it('should send recording commands to the bound capture module', () => {
+        const service = spectator.inject(ControlStateService);
+        (service as any).capture_list.set([{ mod: 'Recorder_1' }]);
+        spectator.detectChanges();
+        expect(ngMocks.input('[place-action="start"]', 'mod')).toBe(
+            'Recorder_1',
+        );
     });
 });

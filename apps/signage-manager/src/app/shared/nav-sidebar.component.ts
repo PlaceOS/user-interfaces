@@ -1,4 +1,14 @@
-import { Component, computed, inject } from '@angular/core';
+import {
+    afterNextRender,
+    Component,
+    computed,
+    DestroyRef,
+    ElementRef,
+    inject,
+    Injectable,
+    signal,
+    viewChild,
+} from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -12,6 +22,18 @@ import {
 import { CommandPaletteService } from './command-palette.service';
 import { injectNavItems } from './nav-items';
 import { SignageGroupSelectorComponent } from './signage-group-selector.component';
+
+/**
+ * Nav list scroll state, shared across sidebar instances. Each page mounts
+ * its own sidebar, so without this the list jumps to the top and the arrows
+ * appear one frame late on every navigation.
+ */
+@Injectable({ providedIn: 'root' })
+class NavScrollState {
+    public top = 0;
+    public readonly can_scroll_up = signal(false);
+    public readonly can_scroll_down = signal(false);
+}
 
 @Component({
     selector: 'nav-sidebar',
@@ -55,28 +77,62 @@ import { SignageGroupSelectorComponent } from './signage-group-selector.componen
             >
                 <icon class="text-2xl">search</icon>
             </button>
+            @if (overflowing()) {
+                <button
+                    type="button"
+                    matRipple
+                    scroll-up
+                    class="hover:bg-base-100/30 mx-auto mt-2 flex h-6 w-18 shrink-0 items-center justify-center rounded-lg disabled:opacity-30"
+                    aria-hidden="true"
+                    tabindex="-1"
+                    [disabled]="!can_scroll_up()"
+                    (click)="scrollNav(-1)"
+                >
+                    <icon class="text-2xl">keyboard_arrow_up</icon>
+                </button>
+            }
             <div
-                class="flex min-h-0 w-[calc(100%+0.5rem)] flex-1 flex-col gap-4 overflow-x-hidden overflow-y-auto p-2"
+                #scroller
+                class="no-scrollbar min-h-0 w-[calc(100%+0.5rem)] flex-1 overflow-x-hidden overflow-y-auto p-2"
+                (scroll)="updateScrollState()"
             >
-                @for (item of nav_items(); track item.route) {
-                    <a
-                        class="hover:bg-base-100/30 focus-visible:bg-base-100/30 relative flex h-18 w-18 shrink-0 flex-col items-center justify-center rounded-xl"
-                        [routerLink]="item.route"
-                        routerLinkActive="active bg-primary/30"
-                        [attr.aria-label]="item.label | translate"
-                        ariaCurrentWhenActive="page"
-                    >
-                        <icon class="text-3xl">{{ item.icon }}</icon>
-                        <div class="text-center text-xs font-medium">
-                            {{ item.label | translate }}
-                        </div>
-                        <div
-                            active
-                            class="bg-base-100 absolute inset-y-0 top-0 -right-4 w-2 rounded-l-lg"
-                        ></div>
-                    </a>
-                }
+                <div #scroll_content class="flex flex-col gap-4">
+                    @for (item of nav_items(); track item.route) {
+                        <a
+                            #nav_link
+                            class="hover:bg-base-100/30 focus-visible:bg-base-100/30 relative flex h-18 w-18 shrink-0 flex-col items-center justify-center rounded-xl"
+                            [routerLink]="item.route"
+                            routerLinkActive="active bg-primary/30"
+                            (isActiveChange)="onActiveChange($event, nav_link)"
+                            [attr.aria-label]="item.label | translate"
+                            ariaCurrentWhenActive="page"
+                        >
+                            <icon class="text-3xl">{{ item.icon }}</icon>
+                            <div class="text-center text-xs font-medium">
+                                {{ item.label | translate }}
+                            </div>
+                            <div
+                                active
+                                class="bg-base-100 absolute inset-y-0 top-0 -right-4 w-2 rounded-l-lg"
+                            ></div>
+                        </a>
+                    }
+                </div>
             </div>
+            @if (overflowing()) {
+                <button
+                    type="button"
+                    matRipple
+                    scroll-down
+                    class="hover:bg-base-100/30 mx-auto mb-2 flex h-6 w-18 shrink-0 items-center justify-center rounded-lg disabled:opacity-30"
+                    aria-hidden="true"
+                    tabindex="-1"
+                    [disabled]="!can_scroll_down()"
+                    (click)="scrollNav(1)"
+                >
+                    <icon class="text-2xl">keyboard_arrow_down</icon>
+                </button>
+            }
             <div class="shrink-0 p-2">
                 @if (show_locale_selector() && locales().length > 1) {
                     <button
@@ -152,6 +208,13 @@ import { SignageGroupSelectorComponent } from './signage-group-selector.componen
             a.active [active] {
                 opacity: 1;
             }
+
+            .no-scrollbar {
+                scrollbar-width: none;
+            }
+            .no-scrollbar::-webkit-scrollbar {
+                display: none;
+            }
         `,
     ],
     imports: [
@@ -177,6 +240,17 @@ export class NavSidebarComponent {
     );
 
     public readonly nav_items = injectNavItems();
+    private readonly _scroller = viewChild<ElementRef<HTMLElement>>('scroller');
+    private readonly _scroll_content =
+        viewChild<ElementRef<HTMLElement>>('scroll_content');
+    private _active_link?: HTMLElement;
+    private readonly _scroll_state = inject(NavScrollState);
+    public readonly can_scroll_up = this._scroll_state.can_scroll_up;
+    public readonly can_scroll_down = this._scroll_state.can_scroll_down;
+    /** Show the scroll arrows when the nav items do not fit. */
+    public readonly overflowing = computed(
+        () => this.can_scroll_up() || this.can_scroll_down(),
+    );
     private readonly _palette = inject(CommandPaletteService);
     private readonly _is_apple = /Mac|iPhone|iPad/.test(navigator.userAgent);
     public readonly palette_shortcut = this._is_apple ? '⌘K' : 'Ctrl+K';
@@ -196,6 +270,74 @@ export class NavSidebarComponent {
             ? this.localeDetails(locale)
             : `${i18n('COMMON.LANGUAGE')}: ${active_locale}`;
     });
+
+    constructor() {
+        const destroy_ref = inject(DestroyRef);
+        afterNextRender(() => {
+            const scroller = this._scroller()?.nativeElement;
+            const content = this._scroll_content()?.nativeElement;
+            if (!scroller || !content) return;
+            // Continue from where the previous page left the list.
+            scroller.scrollTop = this._scroll_state.top;
+            this.updateScrollState();
+            this.revealActiveLink();
+            // Arrows and item changes resize the list, which can hide the
+            // active link or change overflow.
+            const observer = new ResizeObserver(() => {
+                this.updateScrollState();
+                this.revealActiveLink();
+            });
+            observer.observe(scroller);
+            observer.observe(content);
+            destroy_ref.onDestroy(() => observer.disconnect());
+        });
+    }
+
+    /** Sync arrow state with the scroll position of the nav list. */
+    public updateScrollState() {
+        const el = this._scroller()?.nativeElement;
+        if (!el) return;
+        this._scroll_state.top = el.scrollTop;
+        // 1px tolerance for fractional scroll positions.
+        this.can_scroll_up.set(el.scrollTop > 1);
+        this.can_scroll_down.set(
+            el.scrollTop + el.clientHeight < el.scrollHeight - 1,
+        );
+    }
+
+    /** Scroll the nav list by a third of its height, like mat-tabs. */
+    public scrollNav(direction: 1 | -1) {
+        const el = this._scroller()?.nativeElement;
+        if (!el) return;
+        el.scrollBy({
+            top: (direction * el.clientHeight) / 3,
+            behavior: 'smooth',
+        });
+    }
+
+    public onActiveChange(active: boolean, link: HTMLElement) {
+        if (active) this._active_link = link;
+        else if (this._active_link === link) this._active_link = undefined;
+        this.revealActiveLink();
+    }
+
+    /**
+     * Scroll the nav list the minimum distance to show the active link.
+     * Sets scrollTop on the list only, so parent containers do not move.
+     */
+    private revealActiveLink() {
+        const scroller = this._scroller()?.nativeElement;
+        const link = this._active_link;
+        if (!scroller || !link) return;
+        const outer = scroller.getBoundingClientRect();
+        const inner = link.getBoundingClientRect();
+        const padding = 8;
+        if (inner.top < outer.top + padding) {
+            scroller.scrollTop -= outer.top + padding - inner.top;
+        } else if (inner.bottom > outer.bottom - padding) {
+            scroller.scrollTop += inner.bottom - outer.bottom + padding;
+        }
+    }
 
     public localeDetails(locale: { id: string; name: string; local?: string }) {
         const name = i18n(locale.name);

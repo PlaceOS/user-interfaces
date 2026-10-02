@@ -99,21 +99,26 @@ function withAppVersion(data: Partial<Booking>): Partial<Booking> {
 }
 
 /**
- * Get a single page of bookings
+ * Get a single page of bookings. Returns an empty list when the request fails.
  * @param q Parameters to pass to the API request
  */
 export async function queryBookings(
     q: BookingsQueryParams,
 ): Promise<Booking[]> {
+    return queryBookingsOrThrow(q).catch(() => []);
+}
+
+/**
+ * Get a single page of bookings. Throws when the request fails, so callers
+ * can tell an error apart from an empty list.
+ * @param q Parameters to pass to the API request
+ */
+export async function queryBookingsOrThrow(
+    q: BookingsQueryParams,
+): Promise<Booking[]> {
     const query = toQueryString(q);
-    try {
-        const list = await get(
-            `${BOOKINGS_ENDPOINT}${query ? '?' + query : ''}`,
-        );
-        return list.map((item) => new Booking(item));
-    } catch (_) {
-        return [];
-    }
+    const list = await get(`${BOOKINGS_ENDPOINT}${query ? '?' + query : ''}`);
+    return list.map((item) => new Booking(item));
 }
 
 /**

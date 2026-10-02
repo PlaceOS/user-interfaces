@@ -30,7 +30,18 @@ describe('StaffStateService', () => {
     it.todo('should allow for polling');
     it.todo('should load user list');
     it.todo('should load user checkin events');
-    it.todo('should allow filtering users');
+    it('should filter users without matching case', () => {
+        (spectator.service as any)._users.set([
+            { name: 'Jane Doe', email: 'jane@place.tech' },
+            { name: 'John Smith', email: 'john@place.tech' },
+        ]);
+
+        spectator.service.setSearchString('JOHN');
+
+        expect(
+            spectator.service.filtered_users().map((_) => _.name),
+        ).toEqual(['John Smith']);
+    });
     it.todo('should allow checking in users');
     it.todo('should allow checking out users');
 });

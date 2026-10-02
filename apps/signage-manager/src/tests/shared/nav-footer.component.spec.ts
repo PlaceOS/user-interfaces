@@ -1,49 +1,30 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { MatDialog } from '@angular/material/dialog';
 import { NavFooterComponent } from '../../app/shared/nav-footer.component';
-import { SignageService } from '../../app/signage.service';
+import { SignageContextService } from '../../app/signage-context.service';
 
 describe('NavFooterComponent', () => {
-    let closed_value: unknown;
-    const setSelectedGroup = vi.fn();
     const can_manage_all_groups = signal(false);
-    const manageable_signage_groups = signal<any[]>([]);
+    const can_manage_groups = signal(false);
     const signage_groups = signal<any[]>([]);
-    const selected_group_id = signal('');
     const selected_group = signal<any>(null);
-    const is_sys_admin = signal(false);
+    const selectGroup = vi.fn();
     const show_group_selector = signal(true);
     const templates_enabled = signal(false);
-    const service = {
+    const context = {
+        can_manage_groups,
         templates_enabled,
         can_manage_all_groups,
-        manageable_signage_groups,
         signage_groups,
-        selected_group_id,
         selected_group,
-        is_sys_admin,
+        selectGroup,
         show_group_selector,
-        setSelectedGroup,
-    };
-    const dialog = {
-        open: vi.fn().mockReturnValue({
-            afterClosed: () => ({
-                subscribe: (handler: (value: unknown) => void) => {
-                    Promise.resolve().then(() => handler(closed_value));
-                    return { unsubscribe: vi.fn() };
-                },
-            }),
-        }),
     };
 
     async function createComponent() {
         await TestBed.configureTestingModule({
             imports: [NavFooterComponent],
-            providers: [
-                { provide: SignageService, useValue: service },
-                { provide: MatDialog, useValue: dialog },
-            ],
+            providers: [{ provide: SignageContextService, useValue: context }],
         })
             .overrideComponent(NavFooterComponent, {
                 set: { template: '', imports: [] },
@@ -54,13 +35,10 @@ describe('NavFooterComponent', () => {
 
     beforeEach(() => {
         vi.clearAllMocks();
-        closed_value = undefined;
         can_manage_all_groups.set(false);
-        manageable_signage_groups.set([]);
+        can_manage_groups.set(false);
         signage_groups.set([]);
-        selected_group_id.set('');
         selected_group.set(null);
-        is_sys_admin.set(false);
         show_group_selector.set(true);
         templates_enabled.set(false);
         TestBed.resetTestingModule();
@@ -110,7 +88,7 @@ describe('NavFooterComponent', () => {
     });
 
     it('shows the group management item once groups are manageable', async () => {
-        manageable_signage_groups.set([{ id: 'g1' }]);
+        can_manage_groups.set(true);
         const component = await createComponent();
 
         expect(component.more_nav_items().map((_) => _.route)).toContain(
@@ -131,22 +109,11 @@ describe('NavFooterComponent', () => {
         expect(component.selected_label()).toBe('SIGNAGE_MANAGER.ALL_GROUPS');
     });
 
-    it('applies the chosen group after the selector closes', async () => {
-        closed_value = 'g2';
+    it('opens the shared group selector', async () => {
         const component = await createComponent();
 
         await component.selectGroup();
 
-        expect(dialog.open).toHaveBeenCalled();
-        expect(setSelectedGroup).toHaveBeenCalledWith('g2');
-    });
-
-    it('leaves the selection untouched when the selector is dismissed', async () => {
-        closed_value = undefined;
-        const component = await createComponent();
-
-        await component.selectGroup();
-
-        expect(setSelectedGroup).not.toHaveBeenCalled();
+        expect(selectGroup).toHaveBeenCalledTimes(1);
     });
 });

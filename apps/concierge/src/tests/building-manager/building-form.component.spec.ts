@@ -80,9 +80,9 @@ describe('BuildingFormComponent', () => {
         spectator.component.model.update((m) => ({ ...m, timezone: 'sydney' }));
         const filtered = spectator.component.filtered_timezones();
         expect(filtered.length).toBeGreaterThan(0);
-        expect(
-            filtered.every((_) => _.toLowerCase().includes('sydney')),
-        ).toBe(true);
+        expect(filtered.every((_) => _.toLowerCase().includes('sydney'))).toBe(
+            true,
+        );
     });
 
     it('should block saving and notify when required fields are missing', async () => {
@@ -139,6 +139,19 @@ describe('BuildingFormComponent', () => {
             'b1',
             expect.objectContaining({ name: 'BLD ACME Edited Tower' }),
         );
+        expect(ts_client.addZone).not.toHaveBeenCalled();
+    });
+
+    it('should not save again on later edits after a blocked save', async () => {
+        spectator.setInput('save', 1);
+        await flush();
+
+        spectator.component.model.update((m) => ({
+            ...m,
+            display_name: 'Tower',
+        }));
+        await flush();
+
         expect(ts_client.addZone).not.toHaveBeenCalled();
     });
 

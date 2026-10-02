@@ -1,11 +1,13 @@
 import { Component, inject } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialog } from '@angular/material/dialog';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { i18n } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import { PlaceGroupUser } from '@placeos/ts-client';
-import { dialogClosed, SignageService } from '../signage.service';
+import { dialogClosed } from '../signage-service.util';
+import { SignageGroupAdminService } from './signage-group-admin.service';
 import {
     groupPermissionLabels,
     SignageGroupPermissionsModalComponent,
@@ -43,6 +45,7 @@ import { SignageGroupUserSelectModalComponent } from './signage-group-user-selec
                     [attr.aria-label]="
                         'SIGNAGE_MANAGER.ADD_USER_ARIA' | translate
                     "
+                    [disabled]="loading() || failed()"
                     (click)="addUser()"
                 >
                     <icon>add</icon>
@@ -123,6 +126,19 @@ import { SignageGroupUserSelectModalComponent } from './signage-group-user-selec
                             </button>
                         </div>
                     }
+                } @else if (loading()) {
+                    <div class="flex justify-center p-6">
+                        <mat-spinner diameter="32" />
+                    </div>
+                } @else if (failed()) {
+                    <div
+                        class="text-error flex flex-col items-center justify-center space-y-2 p-6"
+                    >
+                        <icon class="text-4xl">error</icon>
+                        <p class="text-sm">
+                            {{ 'SIGNAGE_MANAGER.USERS_LOAD_ERROR' | translate }}
+                        </p>
+                    </div>
                 } @else {
                     <div
                         class="text-base-content/70 flex flex-col items-center justify-center space-y-2 p-6"
@@ -146,13 +162,21 @@ import { SignageGroupUserSelectModalComponent } from './signage-group-user-selec
             }
         `,
     ],
-    imports: [MatRippleModule, MatTooltipModule, IconComponent, TranslatePipe],
+    imports: [
+        MatProgressSpinnerModule,
+        MatRippleModule,
+        MatTooltipModule,
+        IconComponent,
+        TranslatePipe,
+    ],
 })
 export class SignageGroupUsersComponent {
-    private readonly _service = inject(SignageService);
+    private readonly _group_admin = inject(SignageGroupAdminService);
     private readonly _dialog = inject(MatDialog);
 
-    public readonly users = this._service.managed_group_users;
+    public readonly users = this._group_admin.managed_group_users;
+    public readonly loading = this._group_admin.managed_group_users_loading;
+    public readonly failed = this._group_admin.managed_group_users_failed;
     public readonly permissionLabels = groupPermissionLabels;
 
     public async addUser() {
@@ -164,7 +188,7 @@ export class SignageGroupUsersComponent {
                 panelClass: 'mobile-fullscreen',
             }),
         );
-        if (user) await this._service.addManagedGroupUser(user);
+        if (user) await this._group_admin.addManagedGroupUser(user);
     }
 
     public async editUserPermissions(row: PlaceGroupUser) {
@@ -177,11 +201,14 @@ export class SignageGroupUsersComponent {
             }),
         );
         if (result) {
-            await this._service.updateManagedGroupUser(row, result.permissions);
+            await this._group_admin.updateManagedGroupUser(
+                row,
+                result.permissions,
+            );
         }
     }
 
     public removeUser(row: PlaceGroupUser) {
-        this._service.removeManagedGroupUser(row);
+        this._group_admin.removeManagedGroupUser(row);
     }
 }

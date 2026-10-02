@@ -106,6 +106,15 @@ describe('PluginEmbedComponent thumbnails', () => {
         );
     });
 
+    it('should emit finished for every finished message', () => {
+        const finished_spy = vi.spyOn(spectator.component.finished, 'emit');
+
+        fromPlugin({ type: 'finished' });
+        fromPlugin({ type: 'finished' });
+
+        expect(finished_spy).toHaveBeenCalledTimes(2);
+    });
+
     it('should not let a thumbnail reply change the plugin status', async () => {
         declareCapabilities(true);
         fromPlugin({ type: 'ready' });

@@ -1,4 +1,5 @@
 import { computed, inject, Injectable, resource, signal } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
 import {
     AsyncHandler,
     i18n,
@@ -9,12 +10,14 @@ import {
     SettingsService,
     unique,
 } from '@placeos/common';
+import { openConfirmModal } from '@placeos/components';
 import {
     PlaceMetadata,
     showMetadata,
     updateMetadata,
 } from '@placeos/ts-client';
 import { getUnixTime } from 'date-fns';
+import { errorText } from '../ui/modal-actions';
 
 export interface EmailTemplate {
     id: string;
@@ -52,6 +55,7 @@ export interface EmailTemplatesFilters {
 export class EmailTemplatesStateService extends AsyncHandler {
     private _org = inject(OrganisationService);
     private _settings = inject(SettingsService);
+    private _dialog = inject(MatDialog);
 
     private _filters = signal<EmailTemplatesFilters>({});
     private _change = signal(0);
@@ -105,6 +109,24 @@ export class EmailTemplatesStateService extends AsyncHandler {
         return ((data instanceof Array ? data : '') || []).map(
             (template) => ({ ...template, zone_id }) as EmailTemplate,
         );
+    }
+
+    /**
+     * Read a zone's stored templates, apply `update` and write the result.
+     * Read errors are not caught, so a failed read never becomes an empty
+     * list that is written back.
+     */
+    private async _writeZoneTemplates(
+        zone_id: string,
+        update: (list: EmailTemplate[]) => EmailTemplate[],
+    ) {
+        const metadata = await showMetadata(zone_id, 'email_templates');
+        const list = metadata.details instanceof Array ? metadata.details : [];
+        await updateMetadata(zone_id, {
+            name: 'email_templates',
+            details: update(list),
+            description: metadata.description || 'Email Templates for Zone',
+        });
     }
 
     /** Query the merged list of templates for the given building/region */
@@ -164,79 +186,65 @@ export class EmailTemplatesStateService extends AsyncHandler {
 
     public async saveTemplate(template: EmailTemplate, old_zone = '') {
         if (!template.zone_id) throw 'A building is required';
-        if (template.id && old_zone) {
-            const old_metadata = await showMetadata(
-                old_zone,
-                'email_templates',
-            );
-            if (old_metadata.details instanceof Array) {
-                await updateMetadata(old_zone, {
-                    name: 'email_templates',
-                    details: old_metadata.details.filter(
-                        (_) => _.id !== template.id,
-                    ),
-                    description: old_metadata.description,
-                });
-            }
-        }
+        const moved =
+            !!template.id && !!old_zone && old_zone !== template.zone_id;
         if (!template.id) {
             template.id = `template-${randomString(8)}`;
             template.created_at = getUnixTime(Date.now());
         }
         template.updated_at = getUnixTime(Date.now());
-
-        const metadata = await showMetadata(
-            template.zone_id,
-            'email_templates',
-        );
-        const template_list =
-            metadata.details instanceof Array ? metadata.details : [];
-        const zone_templates = template_list.filter(
-            (_) => _.zone_id === template.zone_id,
-        );
-        const new_template_list = [
-            ...zone_templates.filter((_) => _.id !== template.id),
-            template,
-        ];
-        await updateMetadata(template.zone_id, {
-            name: `email_templates`,
-            details: new_template_list,
-            description: 'Email Templates for Zone',
-        }).catch((e) => {
+        try {
+            // Write the new zone before removing from the old zone, so a
+            // failed write never loses the template.
+            await this._writeZoneTemplates(template.zone_id, (list) => [
+                ...list.filter((_) => _.id !== template.id),
+                template,
+            ]);
+            if (moved) {
+                await this._writeZoneTemplates(old_zone, (list) =>
+                    list.filter((_) => _.id !== template.id),
+                );
+            }
+        } catch (e) {
             notifyError(
                 i18n('APP.CONCIERGE.EMAIL_TEMPLATES_SAVE_ERROR', {
-                    error: e,
+                    error: errorText(e),
                 }),
             );
             throw e;
-        });
+        }
         notifySuccess(i18n('APP.CONCIERGE.EMAIL_TEMPLATES_SAVE_SUCCESS'));
         this.timeout('changed', () => this._change.set(Date.now()));
     }
 
     public async removeTemplate(template: EmailTemplate) {
-        const template_list = await this._queryTemplates(
-            this._org.active_building()?.id,
-            this._org.active_region()?.id,
+        const ref = await openConfirmModal(
+            {
+                title: i18n('APP.CONCIERGE.EMAIL_TEMPLATES_REMOVE_TITLE'),
+                content: i18n('APP.CONCIERGE.EMAIL_TEMPLATES_REMOVE_MSG', {
+                    name: template.subject,
+                }),
+                icon: { content: 'delete_forever' },
+                confirm_text: i18n('COMMON.REMOVE'),
+            },
+            this._dialog,
         );
-        const zone_templates = template_list.filter(
-            (_) => _.zone_id === template.zone_id,
-        );
-        const new_template_list = zone_templates.filter(
-            (_) => _.id !== template.id,
-        );
-        await updateMetadata(template.zone_id, {
-            name: `email_templates`,
-            details: new_template_list,
-            description: 'Email Templates for Zone',
-        }).catch((e) => {
+        if (ref.reason !== 'done') return ref.close();
+        ref.loading(i18n('APP.CONCIERGE.EMAIL_TEMPLATES_REMOVE_LOADING'));
+        try {
+            await this._writeZoneTemplates(template.zone_id, (list) =>
+                list.filter((_) => _.id !== template.id),
+            );
+        } catch (e) {
             notifyError(
                 i18n('APP.CONCIERGE.EMAIL_TEMPLATES_REMOVE_ERROR', {
-                    error: e,
+                    error: errorText(e),
                 }),
             );
             throw e;
-        });
+        } finally {
+            ref.close();
+        }
         notifySuccess(i18n('APP.CONCIERGE.EMAIL_TEMPLATES_REMOVE_SUCCESS'));
         this.timeout('changed', () => this._change.set(Date.now()));
     }

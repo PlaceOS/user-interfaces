@@ -1,5 +1,5 @@
 import { computed, inject } from '@angular/core';
-import { SignageService } from '../signage.service';
+import { SignageContextService } from '../signage-context.service';
 
 const NAV_ITEMS = [
     {
@@ -54,12 +54,11 @@ export function filterManageNavItems(
  * context. Used by the nav sidebar and the command palette.
  */
 export function injectNavItems() {
-    const service = inject(SignageService);
+    const context = inject(SignageContextService);
     return computed(() =>
         filterManageNavItems(
-            service.can_manage_all_groups() ||
-                !!service.manageable_signage_groups().length,
-            service.templates_enabled(),
+            context.can_manage_groups(),
+            context.templates_enabled(),
         ),
     );
 }

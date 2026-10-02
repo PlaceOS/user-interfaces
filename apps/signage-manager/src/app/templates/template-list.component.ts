@@ -9,11 +9,12 @@ import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { RouterLink } from '@angular/router';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import { SignageTemplate } from '@placeos/ts-client';
 import { IntersectDirective } from '../shared/intersect.directive';
-import { SignageService } from '../signage.service';
+import { SignageTemplateService } from './signage-template.service';
 
 type TemplateStatus = 'awaiting_approval' | 'awaiting_review' | null;
 
@@ -161,6 +162,13 @@ type TemplateStatus = 'awaiting_approval' | 'awaiting_review' | null;
                         {{ 'COMMON.END_OF_LIST' | translate }}
                     </div>
                 }
+            } @else if (loading()) {
+                <div
+                    class="text-base-content/70 flex flex-1 flex-col items-center justify-center space-y-3 p-8"
+                >
+                    <mat-spinner diameter="32" />
+                    <p>{{ 'COMMON.LOADING' | translate }}</p>
+                </div>
             } @else {
                 <div
                     class="text-base-content/70 flex flex-1 flex-col items-center justify-center space-y-2 p-8"
@@ -186,22 +194,24 @@ type TemplateStatus = 'awaiting_approval' | 'awaiting_review' | null;
         MatRippleModule,
         MatFormFieldModule,
         MatInputModule,
+        MatProgressSpinnerModule,
         IconComponent,
         TranslatePipe,
         IntersectDirective,
     ],
 })
 export class TemplateListComponent {
-    private readonly _service = inject(SignageService);
+    private readonly _template_service = inject(SignageTemplateService);
     private readonly _template_items =
         viewChildren<ElementRef<HTMLAnchorElement>>('template_item');
 
-    public readonly search = this._service.template_search_term;
-    public readonly templates = this._service.templates;
-    public readonly selected = this._service.selected_template;
+    public readonly search = this._template_service.template_search_term;
+    public readonly templates = this._template_service.templates;
+    public readonly selected = this._template_service.selected_template;
+    public readonly loading = this._template_service.templates_loading;
 
     // Backend pagination: fetches the next page as the sentinel scrolls in.
-    public readonly has_more = this._service.templates_has_more;
+    public readonly has_more = this._template_service.templates_has_more;
 
     constructor() {
         afterRenderEffect({
@@ -224,7 +234,7 @@ export class TemplateListComponent {
     }
 
     public loadMore() {
-        this._service.loadMoreTemplates();
+        this._template_service.loadMoreTemplates();
     }
 
     public getStatus(template: SignageTemplate): TemplateStatus {

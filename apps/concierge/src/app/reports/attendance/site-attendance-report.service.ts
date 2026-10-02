@@ -157,8 +157,10 @@ export class SiteAttendanceReportService {
     public readonly report = this._report.asReadonly();
 
     public setOptions(options: Partial<ReportOptions>) {
-        // Cancel any in-flight load when the options change
+        // Cancel any in-flight load when the options change. The cancelled
+        // load exits early, so clear its loading state here.
         this._load_token++;
+        this._loading.set(false);
         this._options.set({ ...this._options(), ...options });
     }
 

@@ -6,14 +6,15 @@ import { MatSelectModule } from '@angular/material/select';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import {
     OrganisationService,
-    SettingsService,
+    setCurrentUser,
     setNotifyOutlet,
+    SettingsService,
 } from '@placeos/common';
 import { MockComponent, MockProvider } from 'ng-mocks';
 
-import * as ts_client from '@placeos/ts-client';
 import { FullscreenModalShellComponent } from '@placeos/components';
 import { UserListFieldComponent } from '@placeos/form-fields';
+import * as ts_client from '@placeos/ts-client';
 import { BroadcastEmailModalComponent } from '../../app/email-templates/broadcast-email-modal.component';
 
 // `queryAllEvents` (from the inlined `@placeos/events` lib) resolves through the
@@ -179,12 +180,20 @@ describe('BroadcastEmailModalComponent', () => {
             recipients: [{ email: 'user@example.com' }] as any,
         }));
 
+        setCurrentUser({ email: 'sender@example.com' } as any);
+
         await spectator.component.sendEmail();
 
+        // Recipients are sent as BCC so they cannot see each other.
         expect(module_execute).toHaveBeenCalledWith('send_mail', [
-            'user@example.com',
+            'sender@example.com',
             'Hello',
             'Body',
+            null,
+            [],
+            [],
+            [],
+            ['user@example.com'],
         ]);
         expect(notify_open).toHaveBeenCalledWith(
             expect.anything(),

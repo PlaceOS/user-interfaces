@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -54,12 +54,7 @@ import { DialpadComponent } from './dialpad.component';
 export class PhoneDiallingTooltipComponent {
     private _state = inject(ControlStateService);
 
-    public readonly phone = signal('');
     public readonly system = this._state.system;
-
-    public get sys_id() {
-        return this._state.id;
-    }
 
     public async handleInput(char: string) {
         const mod = getModule(this._state.id, 'System');

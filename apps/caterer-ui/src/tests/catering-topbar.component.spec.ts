@@ -9,6 +9,8 @@ import {
     SpectatorRouting,
 } from '@ngneat/spectator/vitest';
 import {
+    CateringDocketsService,
+    CateringOrderAlertsService,
     CateringOrdersService,
     CateringStateService,
     ChargeCodeListModalComponent,
@@ -18,11 +20,12 @@ import { AvailableRoomsStateModalComponent } from '@placeos/components';
 import { MockComponent } from 'ng-mocks';
 import { Subject } from 'rxjs';
 
-import { DateOptionsComponent } from 'apps/concierge/src/app/ui/date-options.component';
+import { DateOptionsComponent } from '@placeos/form-fields';
 import { CateringTopbarComponent } from '../app/catering-topbar.component';
 
 class OrdersServiceStub {
     private readonly _filters = signal<any>({});
+    public readonly filtered = signal<any[]>([]);
     public readonly order_filters = this._filters.asReadonly();
     public get filters() {
         return this._filters();
@@ -69,6 +72,11 @@ describe('CateringTopbarComponent', () => {
             { provide: CateringOrdersService, useClass: OrdersServiceStub },
             { provide: CateringStateService, useClass: StateServiceStub },
             { provide: OrganisationService, useClass: OrgServiceStub },
+            {
+                provide: CateringOrderAlertsService,
+                useValue: { enabled: signal(false), setEnabled: vi.fn() },
+            },
+            { provide: CateringDocketsService, useValue: { print: vi.fn() } },
             { provide: MatDialog, useFactory: () => dialog },
         ],
     });
@@ -130,6 +138,24 @@ describe('CateringTopbarComponent', () => {
     it('should update search filters via setSearch', () => {
         spectator.component.setSearch('coffee');
         expect(orders.filters).toEqual({ search: 'coffee' });
+    });
+
+    it('should save search and caterer filters to the URL', () => {
+        const navigate = vi.spyOn(spectator.inject(Router), 'navigate');
+        spectator.component.setSearch('tea');
+        spectator.component.setCaterer('');
+
+        expect(navigate).toHaveBeenCalledWith(
+            [],
+            expect.objectContaining({
+                queryParams: { search: 'tea' },
+                replaceUrl: true,
+            }),
+        );
+        expect(navigate).toHaveBeenCalledWith(
+            [],
+            expect.objectContaining({ queryParams: { caterer: null } }),
+        );
     });
 
     it('should update date filters via setDate', () => {
@@ -263,5 +289,32 @@ describe('CateringTopbarComponent', () => {
         spectator.setRouteParam('view', 'menu');
         spectator.detectChanges();
         expect(spectator.query('date-options')).toBeFalsy();
+    });
+});
+
+describe('CateringTopbarComponent with filters in the URL', () => {
+    const create_component = createRoutingFactory({
+        component: CateringTopbarComponent,
+        declarations: [MockComponent(DateOptionsComponent)],
+        imports: [MatFormFieldModule, MatSelectModule, FormsModule],
+        queryParams: { search: 'tea', caterer: 'Cafe' },
+        providers: [
+            { provide: CateringOrdersService, useClass: OrdersServiceStub },
+            { provide: CateringStateService, useClass: StateServiceStub },
+            { provide: OrganisationService, useClass: OrgServiceStub },
+            {
+                provide: CateringOrderAlertsService,
+                useValue: { enabled: signal(false), setEnabled: vi.fn() },
+            },
+            { provide: CateringDocketsService, useValue: { print: vi.fn() } },
+            { provide: MatDialog, useValue: {} },
+        ],
+    });
+
+    it('should restore search and caterer filters from the URL', () => {
+        const spectator = create_component();
+        const orders = spectator.inject(CateringOrdersService);
+
+        expect(orders.filters).toEqual({ search: 'tea', caterer: 'Cafe' });
     });
 });

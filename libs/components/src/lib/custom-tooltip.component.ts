@@ -20,6 +20,7 @@ import {
     viewChild,
 } from '@angular/core';
 import { AsyncHandler } from '@placeos/common';
+import { filter } from 'rxjs/operators';
 import { SanitizePipe } from './sanitise.pipe';
 
 @Injectable()
@@ -229,6 +230,13 @@ export class CustomTooltipComponent<T = any>
                         ]),
                 });
                 this._overlay_ref.attach(portal);
+                this.subscription(
+                    'escape',
+                    this._overlay_ref
+                        .keydownEvents()
+                        .pipe(filter((e) => e.key === 'Escape'))
+                        .subscribe(() => this.close()),
+                );
                 if (this.backdrop()) {
                     this.subscription(
                         'backdrop',

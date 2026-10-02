@@ -3,12 +3,18 @@ import {
     notifyError,
     OrganisationService,
     PlaceOS_Service,
+    requestInitReload,
+    setInitReloadHandler,
     setNotifyFilter,
     setNotifyOutlet,
 } from '@placeos/common';
+import * as ts_client from '@placeos/ts-client';
 import { MockProvider } from 'ng-mocks';
 
 import { AppComponent } from '../app/app.component';
+import { resetWatchdog, watchdogState } from '../app/watchdog';
+
+vi.mock('@placeos/ts-client', { spy: true });
 
 describe('AppComponent', () => {
     let spectator: Spectator<AppComponent>;
@@ -30,6 +36,13 @@ describe('AppComponent', () => {
         sessionStorage.clear();
         placeos_service.init.mockResolvedValue(undefined);
         spectator = create_component();
+    });
+
+    afterEach(() => {
+        resetWatchdog();
+        setInitReloadHandler(null);
+        vi.useRealTimers();
+        vi.unstubAllGlobals();
     });
 
     it('should hide the loading overlay when signing in with an api key', () => {
@@ -55,6 +68,50 @@ describe('AppComponent', () => {
         spectator.component.ngOnInit();
 
         expect(placeos_service.init).toHaveBeenCalledTimes(1);
+    });
+
+    describe('recovery', () => {
+        const BOOT_DEADLINE_MS = 6 * 60 * 1000;
+
+        beforeEach(() => {
+            vi.useFakeTimers();
+            // Recovery checks whether the server is reachable before it
+            // clears the application cache.
+            vi.stubGlobal(
+                'fetch',
+                vi.fn(() => Promise.reject(new Error('offline'))),
+            );
+        });
+
+        it('should recover a bootstrapped display that never shows content', () => {
+            localStorage.setItem('PlaceOS.SIGNAGE.display', 'display-1');
+            spectator.component.ngOnInit();
+
+            vi.advanceTimersByTime(BOOT_DEADLINE_MS);
+
+            expect(watchdogState().last_recovery_detail?.reasons).toEqual([
+                'boot',
+            ]);
+        });
+
+        it('should leave a display that was never bootstrapped on the picker', () => {
+            spectator.component.ngOnInit();
+
+            vi.advanceTimersByTime(BOOT_DEADLINE_MS);
+
+            expect(watchdogState().last_recovery_detail).toBeNull();
+        });
+
+        it('should route a failed initialisation through the watchdog', () => {
+            vi.mocked(ts_client.isOnline).mockReturnValue(true);
+            spectator.component.ngOnInit();
+
+            requestInitReload();
+
+            expect(watchdogState().last_recovery_detail?.reasons).toEqual([
+                'init-error',
+            ]);
+        });
     });
 
     describe('notifications', () => {
