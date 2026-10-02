@@ -378,6 +378,9 @@ export class TemplatesSectionComponent {
         effect(() => {
             const id = this.id();
             const list = this._templates();
+            // A list retry also tries a link whose fetch failed, even when
+            // the list itself does not change
+            this._template_service.templates_retries();
             // Wait for the list, but a link still opens when it has no rows
             if (!list.length && !this._template_service.templates_ready()) {
                 return;

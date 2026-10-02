@@ -113,6 +113,9 @@ export class SignageTemplateService {
     /** Number of templates that match the query, loaded or not */
     public readonly templates_total = this._template_list.total;
     private readonly _templates_retry = signal(0);
+    private readonly _user_retries = signal(0);
+    /** Counts the user's list retries, so a view can try its own failed load again */
+    public readonly templates_retries = this._user_retries.asReadonly();
     private readonly _templates_queried = signal(false);
     /** Whether the list was queried and no page of it is loading */
     public readonly templates_ready = computed(
@@ -166,6 +169,7 @@ export class SignageTemplateService {
 
     /** Load the failed page again, or the whole list when the first page failed */
     public reloadTemplates() {
+        this._user_retries.update((count) => count + 1);
         if (!this._template_list.retry()) {
             this._templates_retry.update((count) => count + 1);
         }

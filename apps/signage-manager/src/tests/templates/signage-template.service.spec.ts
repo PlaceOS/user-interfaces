@@ -798,6 +798,14 @@ describe('SignageTemplateService', () => {
             ]);
         });
 
+        it('counts the user retries of the list', () => {
+            const service = createService();
+
+            service.reloadTemplates();
+
+            expect(service.templates_retries()).toBe(1);
+        });
+
         it('shows a load error and reloads the list on retry', async () => {
             vi.mocked(querySignageTemplates).mockRejectedValue(
                 new Error('Offline'),

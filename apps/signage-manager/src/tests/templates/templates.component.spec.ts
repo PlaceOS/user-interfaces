@@ -24,6 +24,7 @@ describe('TemplatesSectionComponent', () => {
         requestTemplateApproval: vi.fn(),
         loadTemplate: vi.fn(),
         templates_ready: signal(false),
+        templates_retries: signal(0),
     };
     const context_stub = {
         can_approve: signal(false),
@@ -60,6 +61,7 @@ describe('TemplatesSectionComponent', () => {
         template_stub.templates.set([]);
         template_stub.loadTemplate.mockResolvedValue(null);
         template_stub.templates_ready.set(false);
+        template_stub.templates_retries.set(0);
         TestBed.resetTestingModule();
     });
 
@@ -282,6 +284,30 @@ describe('TemplatesSectionComponent', () => {
 
         expect(template_stub.loadTemplate).not.toHaveBeenCalled();
         expect(template_stub.selected_template()).toBe(selected);
+    });
+
+    it('tries a failed link again when the user retries the list', async () => {
+        const fixture = await makeFixture();
+        let fail: (value: null) => void = () => {};
+        template_stub.loadTemplate.mockReturnValueOnce(
+            new Promise((done) => (fail = done)),
+        );
+        template_stub.templates.set([{ id: 'template-1' }]);
+        fixture.componentRef.setInput('id', 'template-300');
+        await fixture.whenStable();
+        // The list reloads while the link is still loading
+        template_stub.templates.set([{ id: 'template-1' }, { id: 'other' }]);
+        await fixture.whenStable();
+        fail(null);
+        await vi.waitFor(() =>
+            expect(template_stub.loadTemplate).toHaveBeenCalledTimes(1),
+        );
+        await fixture.whenStable();
+
+        template_stub.templates_retries.update((count) => count + 1);
+        await fixture.whenStable();
+
+        expect(template_stub.loadTemplate).toHaveBeenCalledTimes(2);
     });
 
     it('fetches a linked template that is not in the loaded pages once', async () => {
