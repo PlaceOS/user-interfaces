@@ -10,6 +10,7 @@ import {
 describe('ZoneEditModalComponent', () => {
     const roots = signal<PlaceZone[]>([]);
     const zones = signal<PlaceZone[]>([]);
+    const query_zones = vi.fn();
     const on_save = vi.fn();
     const dialog_ref = { close: vi.fn(), disableClose: false };
 
@@ -20,7 +21,7 @@ describe('ZoneEditModalComponent', () => {
             roots,
             zones,
             load_children: vi.fn().mockResolvedValue([]),
-            query_zones: vi.fn().mockReturnValue(null),
+            query_zones,
             onSave: on_save,
         };
         await TestBed.configureTestingModule({
@@ -40,6 +41,7 @@ describe('ZoneEditModalComponent', () => {
 
     beforeEach(() => {
         vi.clearAllMocks();
+        query_zones.mockReturnValue(null);
         dialog_ref.disableClose = false;
         roots.set([new PlaceZone({ id: 'org', name: 'Organisation' })]);
         zones.set([
@@ -47,6 +49,15 @@ describe('ZoneEditModalComponent', () => {
             new PlaceZone({ id: 'building', name: 'Building' }),
         ]);
         on_save.mockResolvedValue(new PlaceZone({ id: 'zone-new' }));
+    });
+
+    it('searches without a parent selection', async () => {
+        const component = await make();
+        component.selected_parent.set(null);
+        TestBed.tick();
+        component.zone_list.search.set('lobby');
+        await new Promise((resolve) => setTimeout(resolve, 450));
+        expect(query_zones).toHaveBeenCalledWith('lobby', '');
     });
 
     it('creates a zone under the supplied default parent', async () => {

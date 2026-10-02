@@ -55,15 +55,27 @@ export class SignageZoneService {
         untracked(() => this._zone_overrides.set({}));
     });
 
-    /** Search the zones under a parent. Null when there is nothing to search. */
+    /** Search reachable zones, or the direct children of a selected parent. */
     public querySelectableZones(
         search: string,
-        parent_id: string,
+        parent_id = '',
+        group_id = this._context.api_group_id_debounced.value(),
     ): QueryResponse<PlaceZone> | null {
-        if (!this._context.canQueryLists() || !parent_id || !search.trim()) {
+        if (!this._context.canQueryLists() || !search.trim()) {
             return null;
         }
-        return this._queryChildZones(parent_id, search.trim());
+        if (parent_id) return this._queryChildZones(parent_id, search.trim());
+        return queryZones(
+            this._context.groupQueryParams(
+                {
+                    q: search.trim(),
+                    limit: 2500,
+                    include_children_count: true,
+                    ...(group_id ? { descendants: true } : {}),
+                },
+                group_id,
+            ) as any,
+        );
     }
 
     public async zoneChildren(parent_id: string) {
@@ -199,19 +211,21 @@ export class SignageZoneService {
             initialised: this._org.initialised(),
             can_query: this._context.can_query_group_data(),
             parent_id: this.selected_zone()?.id || '',
+            group_id: this._context.api_group_id_debounced.value(),
             search: this._zone_search_debounced.value().trim(),
         }),
         loader: async ({ params }) => {
             const result = await this.querySelectableZones(
                 params.search,
                 params.parent_id,
+                params.group_id,
             )?.catch(() => null);
             return (result?.data || []).map(decodeEntityNames);
         },
     });
 
     public readonly filtered_zones = computed(() => {
-        if (!this.selected_zone()?.id || !this.zone_search_term().trim()) {
+        if (!this.zone_search_term().trim()) {
             return this.all_zones();
         }
         const overrides = this._zone_overrides();
