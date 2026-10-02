@@ -27,6 +27,7 @@ import { NEVER, of } from 'rxjs';
 import { SignageMediaService } from '../../app/media/signage-media.service';
 import { SignagePlaylistService } from '../../app/playlists/signage-playlist.service';
 import type { BulkMediaUploadModalData } from '../../app/shared/bulk-media-upload-modal.component';
+import { MediaEditModalComponent } from '../../app/shared/media-edit-modal.component';
 import { MediaPreviewModalComponent } from '../../app/shared/media-preview-modal.component';
 import { MediaTagModalComponent } from '../../app/shared/media-tag-modal.component';
 import { MediaTagsModalComponent } from '../../app/shared/media-tags-modal.component';
@@ -43,7 +44,6 @@ const notify_open = vi.fn(() => ({
 
 describe('SignageMediaService', () => {
     const uploads = {
-        uploadFileWithPermissionsToCompletion: vi.fn(),
         uploadFileToCompletion: vi.fn(),
     };
     const settings = {
@@ -61,9 +61,6 @@ describe('SignageMediaService', () => {
     beforeEach(() => {
         vi.clearAllMocks();
         setNotifyOutlet({ open: notify_open } as any, true);
-        uploads.uploadFileWithPermissionsToCompletion.mockResolvedValue(
-            'media-upload-1',
-        );
         uploads.uploadFileToCompletion.mockResolvedValue('thumbnail-upload-1');
         settings.get.mockReturnValue(false);
         (addSignageMedia as any).mockImplementation((data) =>
@@ -164,7 +161,7 @@ describe('SignageMediaService', () => {
     });
 
     it('does not create signage media when the media upload fails', async () => {
-        uploads.uploadFileWithPermissionsToCompletion.mockRejectedValue({
+        uploads.uploadFileToCompletion.mockRejectedValue({
             error: 'Upload failed',
         });
         const service = createService();
@@ -192,9 +189,10 @@ describe('SignageMediaService', () => {
         (test_service['_generateThumbnail'] as any).mockResolvedValue(
             'data:image/jpeg;base64,aW1hZ2U=',
         );
-        uploads.uploadFileToCompletion.mockRejectedValue({
-            error: 'Thumbnail failed',
-        });
+        // The media file stores, then its thumbnail fails
+        uploads.uploadFileToCompletion
+            .mockResolvedValueOnce('media-upload-1')
+            .mockRejectedValueOnce({ error: 'Thumbnail failed' });
 
         await service.addMedia(
             new File(['image'], 'poster.png', { type: 'image/png' }),
@@ -734,6 +732,115 @@ describe('SignageMediaService', () => {
         expect(service.media()[0].name).toBe('New name');
     });
 
+    describe('a single file upload', () => {
+        const metadata = {
+            is_landscape: true,
+            duration: 12.5,
+            width: 1920,
+            height: 1080,
+        };
+        const poster = () =>
+            new File(['image'], 'poster.png', { type: 'image/png' });
+
+        it('opens the edit modal when no thumbnail can be made of the file', async () => {
+            const service = createService();
+            const test_service =
+                service as unknown as SignageMediaServiceTestAccess;
+            test_service['_generateThumbnail'] = vi
+                .fn()
+                .mockRejectedValue(new Error('Timed out'));
+
+            await service.editMedia(new SignageMedia({}), poster(), metadata);
+
+            expect(dialog.open).toHaveBeenCalledWith(
+                MediaEditModalComponent,
+                expect.anything(),
+            );
+            const { data } = dialog.open.mock.calls.at(-1)[1];
+            await expect(data.file_thumbnail).resolves.toBe('');
+        });
+
+        // A video frame can take up to the 15 second timeout
+        it('opens the edit modal before the thumbnail of the file renders', async () => {
+            const service = createService();
+            const test_service =
+                service as unknown as SignageMediaServiceTestAccess;
+            test_service['_generateThumbnail'] = vi.fn(
+                () => new Promise<string>(() => undefined),
+            );
+
+            void service.editMedia(new SignageMedia({}), poster(), metadata);
+
+            await vi.waitFor(() =>
+                expect(dialog.open).toHaveBeenCalledWith(
+                    MediaEditModalComponent,
+                    expect.anything(),
+                ),
+            );
+        });
+
+        it('uploads the thumbnail that rendered for the edit modal', async () => {
+            const service = createService();
+            const test_service =
+                service as unknown as SignageMediaServiceTestAccess;
+            test_service['_generateThumbnail'] = vi
+                .fn()
+                .mockResolvedValue('data:image/jpeg;base64,aW1hZ2U=');
+            uploads.uploadFileToCompletion
+                .mockResolvedValueOnce('media-upload-1')
+                .mockResolvedValueOnce('thumbnail-upload-1');
+
+            await service.editMedia(new SignageMedia({}), poster(), metadata);
+            const { data } = dialog.open.mock.calls.at(-1)[1];
+            await data.onAdd(poster(), new SignageMedia({}), metadata);
+
+            expect(test_service['_generateThumbnail']).toHaveBeenCalledOnce();
+            expect(addSignageMedia).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    thumbnail_id: 'thumbnail-upload-1',
+                }),
+                {},
+            );
+        });
+
+        it('gives the new media the video length of the file', async () => {
+            const service = createService();
+            const test_service =
+                service as unknown as SignageMediaServiceTestAccess;
+            test_service['_getMediaMetadata'] = vi
+                .fn()
+                .mockResolvedValue(metadata);
+
+            await service.previewFiles([poster()]);
+
+            const { data } = dialog.open.mock.calls.at(-1)[1];
+            expect(data.media.video_length).toBe(12500);
+        });
+
+        it('uploads with the file permissions picked in the edit modal', async () => {
+            const service = createService();
+
+            await service.editMedia(new SignageMedia({}), poster(), metadata);
+            const { data } = dialog.open.mock.calls.at(-1)[1];
+            const file = poster();
+            await data.onAdd(
+                file,
+                new SignageMedia({ name: 'Poster' }),
+                metadata,
+                '',
+                undefined,
+                'admin',
+            );
+
+            expect(uploads.uploadFileToCompletion).toHaveBeenCalledWith(
+                file,
+                false,
+                'admin',
+                undefined,
+            );
+        });
+    });
+
     it('passes the selected group to the media preview', async () => {
         const service = createService();
         selectApiGroup('group-1');
@@ -801,10 +908,59 @@ describe('SignageMediaService', () => {
 
         const content = dialog.open.mock.calls.at(-1)[1].data.content;
         expect(content).toContain('Lobby, Cafe');
+        expect(content).toContain('Deleting it removes it');
         expect(remove_from_playlists).toHaveBeenCalledWith(
             ['media-1'],
             ['pl-1', 'pl-2'],
         );
+    });
+
+    it('still lists the playlists of the lookups that succeed', async () => {
+        confirmNextDialog();
+        vi.mocked(showSignageMedia).mockImplementation(async (id) => {
+            if (id === 'media-gone') throw { status: 404 };
+            return new SignageMedia({
+                id,
+                playlists: [new SignagePlaylist({ id: 'pl-1', name: 'Lobby' })],
+            });
+        });
+        const service = createService();
+        stubRemoveMediaFromPlaylists();
+
+        await service.removeMediaItems([
+            new SignageMedia({ id: 'media-1' }),
+            new SignageMedia({ id: 'media-gone' }),
+        ]);
+
+        const content = dialog.open.mock.calls.at(-1)[1].data.content;
+        expect(content).toContain('Lobby');
+        // Two items are selected, so the usage text is plural
+        expect(content).toContain('Deleting them removes them');
+    });
+
+    it('looks up the playlists of at most 4 media items at once', async () => {
+        confirmNextDialog();
+        let active = 0;
+        let most_active = 0;
+        vi.mocked(showSignageMedia).mockImplementation(async (id) => {
+            active += 1;
+            most_active = Math.max(most_active, active);
+            await new Promise((resolve) => setTimeout(resolve));
+            active -= 1;
+            return new SignageMedia({ id });
+        });
+        const service = createService();
+        stubRemoveMediaFromPlaylists();
+
+        await service.removeMediaItems(
+            Array.from(
+                { length: 10 },
+                (_, index) => new SignageMedia({ id: `media-${index}` }),
+            ),
+        );
+
+        expect(showSignageMedia).toHaveBeenCalledTimes(10);
+        expect(most_active).toBe(4);
     });
 
     it('deletes the media before it edits the playlists', async () => {
@@ -977,6 +1133,60 @@ describe('SignageMediaService', () => {
                 'media-new-1',
                 'media-old',
             ]);
+        });
+
+        /** Open the bulk modal and return the items it was given */
+        async function bulkItems(service: SignageMediaService, files: File[]) {
+            let data: BulkMediaUploadModalData | undefined;
+            dialog.open.mockImplementation((_component, config) => {
+                data = config.data;
+                return { afterClosed: () => NEVER };
+            });
+            void service.bulkUploadMedia(files);
+            await vi.waitFor(() => expect(data).toBeDefined());
+            return data.items;
+        }
+
+        it('leaves out a file it cannot read and keeps the others', async () => {
+            const service = createBulkService();
+            const test_service =
+                service as unknown as SignageMediaServiceTestAccess;
+            test_service['_getMediaMetadata'] = vi.fn(async (file: File) => {
+                if (file.name === 'one.png') throw new Error('broken');
+                return { is_landscape: true, duration: 0, width: 1, height: 1 };
+            });
+
+            const items = await bulkItems(service, pickedFiles());
+
+            expect(items.map(({ file }) => file.name)).toEqual(['two.png']);
+            expect(notify_open).toHaveBeenCalledWith(
+                expect.stringContaining('Could not read one.png'),
+                expect.anything(),
+                expect.objectContaining({ panelClass: ['error'] }),
+            );
+        });
+
+        it('warns about a file larger than 4K', async () => {
+            const service = createBulkService();
+            const test_service =
+                service as unknown as SignageMediaServiceTestAccess;
+            test_service['_getMediaMetadata'] = vi.fn().mockResolvedValue({
+                is_landscape: true,
+                duration: 0,
+                width: 7680,
+                height: 4320,
+            });
+
+            const items = await bulkItems(service, pickedFiles());
+
+            expect(items).toHaveLength(2);
+            expect(notify_open).toHaveBeenCalledWith(
+                expect.stringMatching(
+                    /^one\.png, two\.png: Maximum supported resolution/,
+                ),
+                expect.anything(),
+                expect.anything(),
+            );
         });
 
         it('retries only the record create when that step failed', async () => {

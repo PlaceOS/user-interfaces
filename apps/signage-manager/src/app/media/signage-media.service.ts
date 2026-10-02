@@ -79,6 +79,51 @@ import {
 
 /** Backoff between attempts at creating a media record, in milliseconds */
 const MEDIA_RETRY_DELAYS = [500, 1500, 4500];
+/** Most media lookups or file reads to run at once */
+const MEDIA_CONCURRENCY = 4;
+
+/**
+ * Run `task` for each item, at most `MEDIA_CONCURRENCY` at a time. Like
+ * `Promise.allSettled`, one failure does not stop the others, and the results
+ * keep the order of `items`.
+ */
+async function settleEach<T, R>(items: T[], task: (item: T) => Promise<R>) {
+    const results: PromiseSettledResult<R>[] = new Array(items.length);
+    let next = 0;
+    const worker = async () => {
+        // Each pass takes a new index, so this ends after `items.length` passes
+        while (next < items.length) {
+            const index = next++;
+            try {
+                results[index] = {
+                    status: 'fulfilled',
+                    value: await task(items[index]),
+                };
+            } catch (reason) {
+                results[index] = { status: 'rejected', reason };
+            }
+        }
+    };
+    const workers = Math.min(MEDIA_CONCURRENCY, items.length);
+    await Promise.all(Array.from({ length: workers }, worker));
+    return results;
+}
+
+/** First three names, then a count of the others, such as "a, b, c +2" */
+function shortList(names: string[]) {
+    const hidden_count = names.length - 3;
+    return (
+        names.slice(0, 3).join(', ') +
+        (hidden_count > 0 ? ` +${hidden_count}` : '')
+    );
+}
+
+/** Video length in milliseconds from file metadata. 0 when it is unknown. */
+function videoLength(metadata: SignageMediaMetadata) {
+    return Number.isFinite(metadata.duration)
+        ? Math.floor(metadata.duration * 1000)
+        : 0;
+}
 
 /**
  * Absolute URL of a page the server can screenshot. Plugin URIs can be
@@ -143,6 +188,8 @@ interface SignageUploadOptions {
     stored?: StoredMediaUpload;
     /** Called when the file and thumbnail are stored */
     on_stored?: (stored: StoredMediaUpload) => void;
+    /** Thumbnail already rendering for the file, such as for its edit modal */
+    thumbnail?: Promise<string | null>;
 }
 
 const SIGNAGE_VIEW_MODE_STORAGE_KEY = 'PlaceOS.SIGNAGE:media-view-mode:v1';
@@ -356,39 +403,55 @@ export class SignageMediaService {
 
     /**
      * Playlists that include any of the media items, read from the media
-     * show route. Returns an empty list when the lookup fails.
+     * show route. A failed lookup only leaves out the playlists of that item.
      */
     private async _playlistsUsingMedia(media_ids: string[]) {
         const query_params = this._context.groupQueryParams({});
-        try {
-            const items = await Promise.all(
-                media_ids.map((id) => showSignageMedia(id, query_params)),
-            );
-            const by_id = new Map<string, SignagePlaylist>();
-            for (const playlist of items.flatMap(
-                (item) => item.playlists || [],
-            )) {
+        const results = await settleEach(media_ids, (id) =>
+            showSignageMedia(id, query_params),
+        );
+        const by_id = new Map<string, SignagePlaylist>();
+        for (const result of results) {
+            if (result.status !== 'fulfilled') continue;
+            for (const playlist of result.value?.playlists || []) {
                 if (playlist?.id) by_id.set(playlist.id, playlist);
             }
-            return [...by_id.values()];
-        } catch {
-            return [] as SignagePlaylist[];
         }
+        return [...by_id.values()];
     }
 
-    /** Add the playlists that use the media to a delete confirmation message */
-    private _withMediaUsage(content: string, playlists: SignagePlaylist[]) {
+    /**
+     * Add the playlists that use the media to a delete confirmation message
+     * @param item_count Number of media items to delete
+     */
+    private _withMediaUsage(
+        content: string,
+        playlists: SignagePlaylist[],
+        item_count = 1,
+    ) {
         if (!playlists.length) return content;
-        const shown = playlists.slice(0, 3).map(({ name }) => name);
-        const hidden_count = playlists.length - shown.length;
-        const names =
-            shown.join(', ') + (hidden_count > 0 ? ` +${hidden_count}` : '');
+        const names = shortList(playlists.map(({ name }) => name));
         const usage = i18n(
-            'SIGNAGE_MANAGER.SVC_MEDIA_USED_IN',
+            item_count > 1
+                ? 'SIGNAGE_MANAGER.SVC_MEDIA_ITEMS_USED_IN'
+                : 'SIGNAGE_MANAGER.SVC_MEDIA_USED_IN',
             { count: playlists.length, names },
             playlists.length,
         );
         return `${content} ${usage}`;
+    }
+
+    /** Warn about bulk upload files larger than 4K, by name. A single file
+     * shows the warning in its edit modal instead. */
+    private _warnLargeMedia(items: BulkMediaUploadItem[]) {
+        const large = items.filter(
+            ({ metadata }) => !validateSignageMediaDimensions(metadata).valid,
+        );
+        if (!large.length) return;
+        const { error } = validateSignageMediaDimensions(large[0].metadata);
+        notifyWarn(
+            `${shortList(large.map(({ file }) => file.name))}: ${error}`,
+        );
     }
 
     public async previewMedia(item: SignageMedia) {
@@ -433,15 +496,14 @@ export class SignageMediaService {
         if (upload_files.length > 1) {
             return this.bulkUploadMedia(upload_files);
         }
-        for (const file of upload_files) {
-            const prepared = await this._prepareUploadMedia(file);
-            if (!prepared) continue;
-            await this.editMedia(
-                new SignageMedia({}),
-                prepared.file,
-                prepared.metadata,
-            );
-        }
+        const [file] = upload_files;
+        const prepared = file ? await this._prepareUploadMedia(file) : null;
+        if (!prepared) return;
+        await this.editMedia(
+            new SignageMedia({ video_length: videoLength(prepared.metadata) }),
+            prepared.file,
+            prepared.metadata,
+        );
     }
 
     /**
@@ -457,12 +519,14 @@ export class SignageMediaService {
             )
         )
             return;
-        const items: BulkMediaUploadItem[] = [];
-        for (const file of files) {
-            const prepared = await this._prepareUploadMedia(file);
-            if (prepared) items.push(prepared);
-        }
+        const prepared = await settleEach(files, (file) =>
+            this._prepareUploadMedia(file),
+        );
+        const items: BulkMediaUploadItem[] = prepared.flatMap((result) =>
+            result.status === 'fulfilled' && result.value ? [result.value] : [],
+        );
         if (!items.length) return;
+        this._warnLargeMedia(items);
         // A retry reuses the stored file, so only the failed step runs again
         const stored = new Map<BulkMediaUploadItem, StoredMediaUpload>();
         const data: BulkMediaUploadModalData = {
@@ -663,18 +727,15 @@ export class SignageMediaService {
                   width: 0,
                   height: 0,
               };
-        const dimensions_validation =
-            validateSignageMediaDimensions(file_metadata);
-        if (!dimensions_validation.valid) {
-            notifyWarn(dimensions_validation.error);
-        }
         const load_plugin = media.plugin_id
             ? () => this._plugin_service.resolvePlugin(media.plugin_id)
             : undefined;
-        let file_thumbnail = '';
-        if (file) {
-            file_thumbnail = await this._generateThumbnail(file, 1024, 720);
-        }
+        // The thumbnail renders while the modal is open, as a video frame can
+        // take a while. The modal shows it when it is ready, and the upload
+        // uses it.
+        const file_thumbnail = file
+            ? this._generateThumbnail(file, 1280, 720).catch(() => '')
+            : undefined;
         const { MediaEditModalComponent } =
             await import('../shared/media-edit-modal.component');
         const ref = this._dialog.open(MediaEditModalComponent, {
@@ -694,13 +755,17 @@ export class SignageMediaService {
                     file_metadata?: SignageMediaMetadata,
                     thumbnail?: string,
                     fallback_thumbnail?: () => Promise<string>,
+                    permissions?: UploadPermissions,
                 ) =>
                     this._addMedia(
                         f,
                         m,
                         file_metadata,
-                        thumbnail || file_thumbnail,
-                        undefined,
+                        thumbnail,
+                        {
+                            permissions: permissions ?? 'none',
+                            thumbnail: file_thumbnail,
+                        },
                         fallback_thumbnail,
                     ),
                 onEdit: async (id: string, data: MediaEditChanges) => {
@@ -849,26 +914,18 @@ export class SignageMediaService {
         upload_options?: SignageUploadOptions,
     ): Promise<StoredMediaUpload> {
         // The thumbnail renders while the file uploads
-        const thumbnail_request = this._generateThumbnail(
-            file,
-            1280,
-            720,
-        ).catch(() => null);
+        const thumbnail_request =
+            upload_options?.thumbnail ??
+            this._generateThumbnail(file, 1280, 720).catch(() => null);
         // Resolves only once the upload is committed. Watching progress reach
         // 100 is not enough: the last chunk lands before finalisation and the
         // commit run, so a failure there would otherwise look like success.
-        let media_id: string;
-        if (upload_options) {
-            media_id = await this._uploads.uploadFileToCompletion(
-                file,
-                false,
-                upload_options.permissions,
-                upload_options.on_progress,
-            );
-        } else {
-            media_id =
-                await this._uploads.uploadFileWithPermissionsToCompletion(file);
-        }
+        const media_id = await this._uploads.uploadFileToCompletion(
+            file,
+            false,
+            upload_options?.permissions ?? 'none',
+            upload_options?.on_progress,
+        );
         const thumbnail_image = await thumbnail_request;
         let thumbnail_id = '';
         if (thumbnail_image) {
@@ -882,7 +939,10 @@ export class SignageMediaService {
         return { media_id, thumbnail_id };
     }
 
-    /** Normalise, validate and measure a picked file, once per upload. */
+    /**
+     * Normalise, validate and measure a picked file, once per upload. Null,
+     * with an error shown, when the file cannot be used.
+     */
     private async _prepareUploadMedia(
         file: File | null,
     ): Promise<PreparedUploadMedia | null> {
@@ -899,10 +959,21 @@ export class SignageMediaService {
             notifyError(validation.error);
             return null;
         }
+        let metadata: SignageMediaMetadata;
+        try {
+            metadata = await this._getMediaMetadata(normalized_file);
+        } catch {
+            notifyError(
+                i18n('SIGNAGE_MANAGER.SVC_ERR_READ_MEDIA', {
+                    name: normalized_file.name,
+                }),
+            );
+            return null;
+        }
         return {
             file: normalized_file,
             media_type: validation.media_type,
-            metadata: await this._getMediaMetadata(normalized_file),
+            metadata,
         };
     }
 
@@ -1011,6 +1082,7 @@ export class SignageMediaService {
                         media_items.length,
                     ),
                     playlists,
+                    media_items.length,
                 ),
                 icon: { content: 'delete' },
             },
@@ -1241,13 +1313,6 @@ export class SignageMediaService {
             });
     }
 
-    /**
-     * Make a thumbnail for a webpage or plugin from a server side screenshot
-     * of its URL. The full size screenshot is only the source of the
-     * thumbnail, so it is deleted again after use. Returns the thumbnail
-     * upload ID, or an empty string when the page cannot be captured. The
-     * server only renders https pages.
-     */
     /** Read an upload, with the auth the uploads route needs */
     private async _fetchUpload(upload_id: string) {
         const source = await loadAuthenticatedImage(
@@ -1257,6 +1322,13 @@ export class SignageMediaService {
         return (await fetch(source)).blob();
     }
 
+    /**
+     * Make a thumbnail for a webpage or plugin from a server side screenshot
+     * of its URL. The full size screenshot is only the source of the
+     * thumbnail, so it is deleted again after use. Returns the thumbnail
+     * upload ID, or an empty string when the page cannot be captured. The
+     * server only renders https pages.
+     */
     private async _screenshotThumbnail(url: string, name: string) {
         const page = screenshotPageURL(url);
         if (!page) return '';

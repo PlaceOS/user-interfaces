@@ -72,7 +72,7 @@ function uploadErrorMessage(error: unknown) {
                     type="button"
                     matRipple
                     mat-dialog-close
-                    [attr.aria-label]="
+                    [aria-label]="
                         'SIGNAGE_MANAGER.BULK_UPLOAD_CLOSE_ARIA' | translate
                     "
                 >
@@ -84,18 +84,17 @@ function uploadErrorMessage(error: unknown) {
             class="max-h-[65vh] w-[32rem] max-w-full space-y-2 overflow-auto px-4 pt-2 pb-4 max-md:h-auto max-md:w-auto max-md:flex-1"
         >
             <div class="flex flex-col">
-                <label for="permissions">
+                <!-- A mat-select names itself from the label by its id -->
+                <label id="bulk-permissions-label" for="bulk-permissions">
                     {{ 'SIGNAGE_MANAGER.BULK_UPLOAD_PERMISSIONS' | translate }}
                 </label>
                 <mat-form-field appearance="outline" class="no-subscript">
                     <mat-select
+                        id="bulk-permissions"
                         name="permissions"
+                        aria-labelledby="bulk-permissions-label"
                         [(ngModel)]="permissions"
                         [disabled]="uploading()"
-                        [attr.aria-label]="
-                            'SIGNAGE_MANAGER.BULK_UPLOAD_PERMISSIONS'
-                                | translate
-                        "
                     >
                         <mat-option value="none">
                             {{

@@ -1,20 +1,3 @@
-export const SIGNAGE_MEDIA_FILE_ACCEPT = [
-    '.png',
-    '.jpg',
-    '.jpeg',
-    '.webp',
-    '.svg',
-    'image/png',
-    'image/jpeg',
-    'image/webp',
-    'image/svg+xml',
-    '.webm',
-    'video/webm',
-    '.mp4',
-    'video/mp4',
-    '.mov',
-    'video/quicktime',
-].join(',');
 export const SIGNAGE_MEDIA_PICKER_ACCEPT = [
     'image/*',
     '.heic',
@@ -117,7 +100,7 @@ const SUPPORTED_FORMATS_ERROR =
     'Supported image formats: PNG, JPEG, WEBP, SVG. Supported video formats: WEBM, MP4, and MOV.';
 const VIDEO_CODEC_ERROR =
     'Unsupported video codec. Use MP4 or MOV with H.264 video and AAC audio, or WEBM with VP8/VP9 video and Vorbis/Opus audio for broad browser support.';
-const MEDIA_DIMENSIONS_ERROR = `Maximum supported resolution is ${SIGNAGE_MEDIA_MAX_WIDTH}x${SIGNAGE_MEDIA_MAX_HEIGHT} (4K).`;
+const MEDIA_DIMENSIONS_ERROR = `Maximum supported resolution is ${SIGNAGE_MEDIA_MAX_WIDTH}x${SIGNAGE_MEDIA_MAX_HEIGHT} (4K), or ${SIGNAGE_MEDIA_MAX_HEIGHT}x${SIGNAGE_MEDIA_MAX_WIDTH} in portrait.`;
 
 type VideoContainer = 'mp4' | 'mov' | 'webm';
 
@@ -170,11 +153,17 @@ export function isImageSourceFile(file: File) {
     );
 }
 
+/**
+ * Whether media fits in 4K, in landscape or portrait. The long side must fit
+ * the 4K width and the short side the 4K height.
+ */
 export function validateSignageMediaDimensions(
     dimensions: SignageMediaDimensions,
 ): UploadValidationResult {
-    return dimensions.width <= SIGNAGE_MEDIA_MAX_WIDTH &&
-        dimensions.height <= SIGNAGE_MEDIA_MAX_HEIGHT
+    const long_side = Math.max(dimensions.width, dimensions.height);
+    const short_side = Math.min(dimensions.width, dimensions.height);
+    return long_side <= SIGNAGE_MEDIA_MAX_WIDTH &&
+        short_side <= SIGNAGE_MEDIA_MAX_HEIGHT
         ? { valid: true }
         : { valid: false, error: MEDIA_DIMENSIONS_ERROR };
 }

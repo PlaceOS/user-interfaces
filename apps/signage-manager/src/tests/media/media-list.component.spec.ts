@@ -85,6 +85,7 @@ describe('MediaListComponent folders', () => {
         can_update_media_tags.set(true);
         show_media_group_tabs.set(true);
         set_selected_group.mockReset();
+        context_stub.selected_group_id.set('');
         media_stub.media_has_more.set(false);
         media_stub.media_error.set(false);
         media_stub.loadMoreMedia.mockReset();
@@ -267,6 +268,18 @@ describe('MediaListComponent folders', () => {
         expect(component.selected_folder()).toBeNull();
         // grid/list views always show the full filtered set
         expect(component.display_media().length).toBe(3);
+    });
+
+    // The nav selector and breadcrumbs switch group without this component
+    it('clears the selection and open folder when the group changes', () => {
+        const component = make();
+        component.toggleSelection('a');
+        component.openFolder('news');
+
+        context_stub.selected_group_id.set('group-2');
+
+        expect(component.selected_count()).toBe(0);
+        expect(component.selected_folder()).toBeNull();
     });
 
     it('adds tags to every selected media item and clears the selection', async () => {
