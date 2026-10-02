@@ -15,7 +15,11 @@ import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { IconComponent, TranslatePipe } from '@placeos/components';
+import {
+    IconComponent,
+    LoadErrorComponent,
+    TranslatePipe,
+} from '@placeos/components';
 import { PlaceZone } from '@placeos/ts-client';
 import { IntersectDirective } from './intersect.directive';
 import { PagedSearch } from './paged-search';
@@ -203,6 +207,8 @@ interface ZoneSelectTreeNode {
                     intersect
                     (intersect)="list().loadMore()"
                 ></div>
+            } @else if (list().error()) {
+                <load-error (retry)="list().retry()" />
             }
         } @else if (list().loading()) {
             <div
@@ -212,6 +218,8 @@ interface ZoneSelectTreeNode {
                     {{ 'COMMON.LOADING' | translate }}
                 </div>
             </div>
+        } @else if (list().error()) {
+            <load-error (retry)="list().retry()" />
         } @else {
             <div
                 class="bg-base-200 flex h-[calc(100%-3.5rem)] w-full flex-col items-center justify-center space-y-4 rounded-lg p-16"
@@ -244,6 +252,7 @@ interface ZoneSelectTreeNode {
         MatTooltipModule,
         CdkTreeModule,
         IconComponent,
+        LoadErrorComponent,
         TranslatePipe,
         IntersectDirective,
     ],

@@ -15,10 +15,14 @@ export class PagedSearch<T extends { id: string }> {
     public readonly items: Signal<T[]>;
     public readonly loading: Signal<boolean>;
     public readonly has_more: Signal<boolean>;
+    /** Whether the last page failed to load. `retry` loads it again. */
+    public readonly error: Signal<boolean>;
+    // Term of the current query, so a retry can run it again
+    private _term = '';
 
     constructor(
         /** Builds the first page of results, null when the user may not query */
-        query: (search: string) => QueryResponse<T> | null,
+        private readonly _query: (search: string) => QueryResponse<T> | null,
         sort?: (a: T, b: T) => number,
         debounce_ms = 400,
     ) {
@@ -26,20 +30,32 @@ export class PagedSearch<T extends { id: string }> {
         this.items = this._list.items;
         this.loading = this._list.loading;
         this.has_more = this._list.has_more;
+        this.error = this._list.error;
         const search_debounced = debounced(this.search, debounce_ms);
         effect(() => {
             const term = search_debounced.value();
-            untracked(() => this._list.reset(query(term)));
+            untracked(() => {
+                this._term = term;
+                this._list.reset(this._query(term));
+            });
         });
     }
 
     public loadMore() {
         this._list.loadMore();
     }
+
+    /** Load the page that failed again, or the first page when it failed */
+    public retry() {
+        if (!this._list.retry()) this._list.reset(this._query(this._term));
+    }
 }
 
 /** Displays and zones show a display_name in preference to their name */
-export function byDisplayName(a: any, b: any) {
+export function byDisplayName(
+    a: { name: string; display_name?: string },
+    b: { name: string; display_name?: string },
+) {
     return (a.display_name || a.name).localeCompare(b.display_name || b.name);
 }
 

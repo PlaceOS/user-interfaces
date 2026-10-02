@@ -4,7 +4,10 @@ import { MatDialog } from '@angular/material/dialog';
 import { OrganisationService, SettingsService } from '@placeos/common';
 import {
     PlaceSystem,
+    query,
     querySignageMedia,
+    querySignagePlaylists,
+    queryZones,
     showSignageMedia,
     SignageMedia,
     SignagePlaylist,
@@ -45,6 +48,33 @@ describe('SignageInventoryService', () => {
     function createService() {
         return TestBed.inject(SignageInventoryService);
     }
+
+    // The schedules timeline shows its online status from these displays
+    it('keeps a display that never checked in as never seen', async () => {
+        const service = createService();
+        vi.spyOn(
+            TestBed.inject(SignageContextService),
+            'canQueryLists',
+        ).mockReturnValue(true);
+        const empty_page = { data: [], total: 0, next: null };
+        vi.mocked(querySignagePlaylists).mockResolvedValue(
+            empty_page as never,
+        );
+        vi.mocked(queryZones).mockResolvedValue(empty_page as never);
+        vi.mocked(query).mockImplementation(((params: {
+            fn: (raw: Partial<PlaceSystem>) => PlaceSystem;
+        }) =>
+            Promise.resolve({
+                data: [params.fn({ id: 'd1', name: 'New' })],
+                total: 1,
+                next: null,
+            })) as unknown as typeof query);
+
+        const { displays } = await service.loadSignageInventory();
+
+        expect(displays.map(({ id }) => id)).toEqual(['d1']);
+        expect(displays[0].signage_last_seen).toBe(0);
+    });
 
     describe('content report', () => {
         const takeover = (id: string, play_cron: string) =>

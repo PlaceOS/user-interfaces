@@ -18,18 +18,23 @@ const NAME_FIELDS = ['name', 'display_name'];
 const NESTED_FIELDS = ['group', 'user', 'zone'];
 
 /** Returns a shallow copy of `item` with name fields (and one nested level of
- * group/user/zone) HTML-entity decoded. Idempotent for already-decoded values. */
+ * group/user/zone) HTML-entity decoded. The copy keeps the prototype of
+ * `item`, so getters such as `SignageMedia.media_url` still work. */
 export function decodeEntityNames<T>(item: T): T {
     if (!item || typeof item !== 'object') return item;
-    const copy: any = { ...item };
+    const copy: T = Object.assign(
+        Object.create(Object.getPrototypeOf(item)),
+        item,
+    );
+    const fields = copy as Record<string, unknown>;
     for (const field of NAME_FIELDS) {
-        if (typeof copy[field] === 'string') {
-            copy[field] = decodeEntities(copy[field]);
-        }
+        const value = fields[field];
+        if (typeof value === 'string') fields[field] = decodeEntities(value);
     }
     for (const field of NESTED_FIELDS) {
-        if (copy[field] && typeof copy[field] === 'object') {
-            copy[field] = decodeEntityNames(copy[field]);
+        const value = fields[field];
+        if (value && typeof value === 'object') {
+            fields[field] = decodeEntityNames(value);
         }
     }
     return copy;

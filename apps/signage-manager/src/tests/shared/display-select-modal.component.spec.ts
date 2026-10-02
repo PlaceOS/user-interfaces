@@ -44,3 +44,50 @@ describe('DisplaySelectModalComponent', () => {
         ).toEqual(['d2', 'd1']);
     });
 });
+
+// The real template, so a failed search shows an error and not "no displays"
+describe('DisplaySelectModalComponent errors', () => {
+    const flush = () => new Promise((resolve) => setTimeout(resolve));
+    const queryDisplays = vi.fn();
+
+    beforeEach(async () => {
+        vi.clearAllMocks();
+        await TestBed.configureTestingModule({
+            imports: [DisplaySelectModalComponent],
+            providers: [
+                { provide: MAT_DIALOG_DATA, useValue: {} },
+                { provide: SignageDisplayService, useValue: { queryDisplays } },
+            ],
+        }).compileComponents();
+    });
+
+    it('shows a load error with a retry that queries again', async () => {
+        queryDisplays
+            .mockReturnValueOnce(Promise.reject(new Error('offline')))
+            .mockReturnValueOnce(
+                Promise.resolve({
+                    data: [{ id: 'd1', name: 'Lobby' }],
+                    total: 1,
+                    next: null,
+                }),
+            );
+        const fixture = TestBed.createComponent(DisplaySelectModalComponent);
+        fixture.detectChanges();
+        await flush();
+        fixture.detectChanges();
+
+        const element: HTMLElement = fixture.nativeElement;
+        const retry = element.querySelector<HTMLButtonElement>(
+            'load-error button',
+        );
+        expect(retry).toBeTruthy();
+
+        retry?.click();
+        await flush();
+        fixture.detectChanges();
+
+        expect(queryDisplays).toHaveBeenCalledTimes(2);
+        expect(element.querySelector('load-error')).toBeNull();
+        expect(element.textContent).toContain('Lobby');
+    });
+});

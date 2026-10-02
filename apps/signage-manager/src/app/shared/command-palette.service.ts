@@ -7,12 +7,12 @@ import {
     querySignageMedia,
     querySignagePlaylists,
     querySignageTemplates,
-    querySystems,
     queryZones,
     SignageMedia,
     SignagePlaylist,
     SignageTemplate,
 } from '@placeos/ts-client';
+import { querySignageDisplays } from '../displays/signage-display';
 import { SignageContextService } from '../signage-context.service';
 import { searchParam } from '../signage-service.util';
 import { decodeEntityNames } from './decode-entity-names.util';
@@ -90,16 +90,12 @@ export class CommandPaletteService {
         };
         const [displays, playlists, templates, zones, media] =
             await Promise.all([
-                settle<PlaceSystem>(
-                    querySystems({ ...params, signage: true } as any),
-                ),
+                settle(querySignageDisplays({ ...params, signage: true })),
                 settle(querySignagePlaylists(params)),
                 this._context.templates_enabled()
                     ? settle(querySignageTemplates(group_params))
                     : Promise.resolve([] as SignageTemplate[]),
-                settle<PlaceZone>(
-                    queryZones({ ...group_params, tags: 'signage' } as any),
-                ),
+                settle(queryZones({ ...group_params, tags: 'signage' })),
                 settle(querySignageMedia(params)),
             ]);
         return { displays, playlists, templates, zones, media };

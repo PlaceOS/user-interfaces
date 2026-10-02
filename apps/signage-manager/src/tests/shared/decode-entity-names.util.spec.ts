@@ -1,3 +1,4 @@
+import { SignageMedia } from '@placeos/ts-client';
 import {
     decodeEntities,
     decodeEntityNames,
@@ -35,6 +36,17 @@ describe('decodeEntityNames', () => {
             user: { id: 'u', name: 'Tom &amp; Jerry' },
         });
         expect(result.user.name).toBe('Tom & Jerry');
+    });
+
+    // Edit and preview build the media address from these getters
+    it('keeps the class of the item, so its getters still work', () => {
+        const media = decodeEntityNames(
+            new SignageMedia({ name: 'R&amp;D', media_id: 'upload-1' }),
+        );
+
+        expect(media).toBeInstanceOf(SignageMedia);
+        expect(media.name).toBe('R&D');
+        expect(media.media_url).toBe('/api/engine/v2/uploads/upload-1/url');
     });
 
     it('passes through non-objects', () => {

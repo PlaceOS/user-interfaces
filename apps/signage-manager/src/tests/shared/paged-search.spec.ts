@@ -119,6 +119,20 @@ describe('PagedSearch', () => {
         expect(list.loading()).toBe(false);
     });
 
+    it('flags a failed first page and runs the query again on retry', async () => {
+        query.mockReturnValueOnce(Promise.reject(new Error('offline')));
+        const list = await make();
+        expect(list.error()).toBe(true);
+
+        list.retry();
+        await flush();
+
+        expect(query).toHaveBeenCalledTimes(2);
+        expect(query).toHaveBeenLastCalledWith('');
+        expect(list.error()).toBe(false);
+        expect(list.items().map((_) => _.id)).toEqual(['b', 'a']);
+    });
+
     it('stays empty when the query is not allowed', async () => {
         query.mockReturnValue(null);
         const list = await make();

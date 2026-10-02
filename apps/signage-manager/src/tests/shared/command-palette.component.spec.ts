@@ -97,6 +97,20 @@ describe('CommandPaletteComponent', () => {
         ]);
     });
 
+    // Enter before the debounce ends would open a match for the old term
+    it('hides matches for the previous term while the new term waits', async () => {
+        search_all.mockResolvedValue({
+            ...EMPTY,
+            displays: [{ id: 'd1', name: 'SIGNAGE 1', display_name: 'Lobby' }],
+        });
+        const component = make();
+        await type(component, 'lob');
+
+        component.search.set('xyz');
+
+        expect(labels(component)).toEqual([]);
+    });
+
     it('moves the highlight with the arrow keys and wraps', async () => {
         const component = make();
         const key = (key: string) =>
