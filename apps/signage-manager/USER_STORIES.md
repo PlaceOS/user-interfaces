@@ -236,6 +236,7 @@ These stories cover the current app workflows:
 - Users with update permission can add or remove playlists from the zone.
 - The display tab shows displays assigned to the zone.
 - Users with update permission can add displays to the zone.
+- When the display or zone search in an add dialog fails, the dialog shows an error with a retry, not an empty result.
 
 ---
 
@@ -272,6 +273,7 @@ These stories cover the current app workflows:
 - The current time indicator appears when the selected date is today.
 - Users can search schedules by display, zone, playlist, and source labels where applicable.
 - Timeline rows link to the related display or zone detail page.
+- Display rows show the same online, offline, or never seen status as the displays page.
 - Empty and filtered states explain when no rows are available.
 - Users must confirm a change that makes two takeover playlists play at the same time on a display in the next 14 days. The check runs when users save playlist schedules and when they assign a playlist to a display or zone. The warning names the display, the other playlist, and the start time of the overlap.
 

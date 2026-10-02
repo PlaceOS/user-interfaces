@@ -30,6 +30,7 @@ describe('ZoneSelectTreeComponent', () => {
             items: signal(zones),
             loading: signal(false),
             has_more: signal(false),
+            error: signal(false),
             loadMore: vi.fn(),
         } as unknown as PagedSearch<PlaceZone>;
         fixture.componentRef.setInput('list', list);
@@ -86,6 +87,7 @@ describe('ZoneSelectTreeComponent', () => {
             ]),
             loading: signal(false),
             has_more: signal(false),
+            error: signal(false),
             loadMore: vi.fn(),
         } as unknown as PagedSearch<PlaceZone>);
         const selected = vi.fn();
@@ -241,5 +243,32 @@ describe('ZoneSelectTreeComponent', () => {
             ['root', 0],
             ['result', 1],
         ]);
+    });
+});
+
+// The real template, so a failed search shows an error and not "no zones"
+describe('ZoneSelectTreeComponent errors', () => {
+    it('shows a load error that retries the search', async () => {
+        await TestBed.configureTestingModule({
+            imports: [ZoneSelectTreeComponent],
+        }).compileComponents();
+        const fixture = TestBed.createComponent(ZoneSelectTreeComponent);
+        const retry = vi.fn();
+        const list = {
+            search: signal(''),
+            items: signal<PlaceZone[]>([]),
+            loading: signal(false),
+            has_more: signal(false),
+            error: signal(true),
+            loadMore: vi.fn(),
+            retry,
+        } as unknown as PagedSearch<PlaceZone>;
+        fixture.componentRef.setInput('list', list);
+        fixture.detectChanges();
+
+        const element: HTMLElement = fixture.nativeElement;
+        element.querySelector<HTMLButtonElement>('load-error button')?.click();
+
+        expect(retry).toHaveBeenCalledTimes(1);
     });
 });

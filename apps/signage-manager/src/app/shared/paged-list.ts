@@ -65,6 +65,9 @@ export class PagedList<T extends { id: string }> {
         this._next = null;
         this._has_more.set(false);
         this._error.set(false);
+        // A page of the old query may still be in flight. It will not clear
+        // the flag, as its token is stale.
+        this._loading.set(false);
         this._replace = !!query && keep_items;
         if (!this._replace) {
             this._items.set([]);

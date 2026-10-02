@@ -140,6 +140,22 @@ describe('PagedList', () => {
         expect(idsOf(list)).toEqual(['fresh']);
     });
 
+    // The stale page does not clear the flag, so the list would show
+    // loading forever
+    it('stops loading when cleared while a page is in flight', async () => {
+        const list = new PagedList<Row>();
+        let resolveStale: (page: unknown) => void = () => {};
+        list.reset(new Promise((resolve) => (resolveStale = resolve)));
+        expect(list.loading()).toBe(true);
+
+        list.reset(null);
+        resolveStale(pageOf(['stale'], 1));
+        await flush();
+
+        expect(list.loading()).toBe(false);
+        expect(idsOf(list)).toEqual([]);
+    });
+
     it('keeps the items on screen until a reload of the same query lands', async () => {
         const list = await load(pageOf(['a', 'b'], 2));
         let resolveReload: (page: unknown) => void = () => {};

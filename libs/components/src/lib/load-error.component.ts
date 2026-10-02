@@ -18,7 +18,14 @@ import { TranslatePipe } from './translate.pipe';
         >
             <icon class="text-error text-3xl">error</icon>
             <p>{{ 'COMMON.LOAD_ERROR' | translate }}</p>
-            <button btn matRipple class="inverse" (click)="retry.emit()">
+            <!-- type="button": inside a form the default submits it -->
+            <button
+                btn
+                matRipple
+                type="button"
+                class="inverse"
+                (click)="retry.emit()"
+            >
                 {{ 'COMMON.RETRY' | translate }}
             </button>
         </div>

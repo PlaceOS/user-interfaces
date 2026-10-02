@@ -13,7 +13,6 @@ import {
     querySignageMedia,
     querySignagePlaylists,
     querySignageTemplates,
-    querySystems,
     queryZones,
 } from '@placeos/ts-client';
 
@@ -165,7 +164,7 @@ describe('SignageDisplayService display search', () => {
         await init();
         const palette = TestBed.inject(CommandPaletteService);
         vi.clearAllMocks();
-        (querySystems as any).mockResolvedValue(pageOf(['lobby']));
+        mockDisplayList(pageOf(['lobby']));
         for (const query of [
             querySignagePlaylists,
             querySignageMedia,
@@ -176,12 +175,15 @@ describe('SignageDisplayService display search', () => {
         }
 
         expect(await palette.searchAll('  ')).toMatchObject({ displays: [] });
-        expect(querySystems).not.toHaveBeenCalled();
+        expect(query).not.toHaveBeenCalled();
 
         const results = await palette.searchAll('lobby');
 
         expect(results.displays.map(({ id }) => id)).toEqual(['lobby']);
-        const params = (querySystems as any).mock.calls[0][0];
-        expect(params).toMatchObject({ q: 'lobby', limit: 5, signage: true });
+        expect(lastDisplayQuery()).toMatchObject({
+            q: 'lobby',
+            limit: 5,
+            signage: true,
+        });
     });
 });
