@@ -1,3 +1,0 @@
-import{Sl as wi}from"./chunk-486QHi-s.js";function r(e){return`${e.id}:${e.instance||``}`}function E(e,t){let o=new Set(t);return e.filter(i=>o.has(r(i)))}function s(e,t){return{dialog:t,confirm:{title:wi(`APP.CONCIERGE.BULK_REJECT_TITLE`),content:wi(`APP.CONCIERGE.BULK_REJECT_MSG`,{count:e}),icon:`event_busy`}}}export{r as n,s as r,E as t};
-//# debugId=d5fff339-c5b4-5a71-a7c2-c3379c0e2698
-//# sourceMappingURL=chunk-DI0MyDhD.js.map
