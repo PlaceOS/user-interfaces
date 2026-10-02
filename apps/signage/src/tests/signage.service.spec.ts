@@ -136,6 +136,30 @@ describe('SignageService', () => {
         ...overrides,
     });
 
+    /** A display whose `scheduled-playlist` uses the given schedules and media */
+    const display_with_schedules = (
+        schedules: Record<string, unknown>[],
+        media = ['media-3'],
+        playlist: Record<string, unknown> = {},
+    ) =>
+        create_display({
+            playlist_config: {
+                ...create_display().playlist_config,
+                'scheduled-playlist': [
+                    {
+                        id: 'scheduled-playlist',
+                        name: 'Scheduled Playlist',
+                        enabled: true,
+                        default_animation: MediaAnimation.Cut,
+                        default_duration: 15000,
+                        schedules,
+                        ...playlist,
+                    },
+                    media,
+                ],
+            },
+        });
+
     beforeEach(() => {
         vi.useFakeTimers();
         localStorage.clear();
@@ -1182,6 +1206,45 @@ describe('SignageService', () => {
         expect(media_cache.requestFilesToCache).not.toHaveBeenCalled();
     });
 
+    it('should keep the order of a random playlist across schedule ticks', async () => {
+        (ts_client.showSignage as any).mockReturnValue(
+            Promise.resolve(
+                create_display({
+                    playlist_mappings: { 'display-1': ['random-playlist'] },
+                    playlist_config: {
+                        'random-playlist': [
+                            {
+                                ...create_display().playlist_config[
+                                    'random-playlist'
+                                ][0],
+                            },
+                            ['media-1', 'media-2', 'media-3', 'media-5'],
+                        ],
+                    },
+                }) as any,
+            ),
+        );
+        spectator.service.setDisplay('display-1');
+        await flush();
+        const order = spectator.service.playlist().map((_) => _.id);
+
+        // A reshuffle on each tick keeps four items in the same order across
+        // four ticks about once in 330,000 runs.
+        for (let i = 0; i < 4; i++) {
+            vi.advanceTimersByTime(15_000);
+            await flush();
+            expect(spectator.service.playlist().map((_) => _.id)).toEqual(
+                order,
+            );
+        }
+        expect([...order].sort()).toEqual([
+            'media-1',
+            'media-2',
+            'media-3',
+            'media-5',
+        ]);
+    });
+
     it('should not cache media for playlists scheduled beyond the look-ahead', async () => {
         vi.setSystemTime(new Date('2026-01-01T22:00:00'));
         (ts_client.showSignage as any).mockReturnValue(
@@ -1428,6 +1491,34 @@ describe('SignageService', () => {
         expect(trigger_binding.bindThenSubscribe).toHaveBeenCalledWith(
             expect.any(Function),
         );
+    });
+
+    it('should only fire a trigger when its value turns true', async () => {
+        let emit: (value: unknown) => void = () => undefined;
+        // A trigger already held true when the display binds to it.
+        trigger_binding.value = true;
+        trigger_binding.bindThenSubscribe.mockImplementation(
+            (next: (value: unknown) => void) => {
+                emit = next;
+                next(trigger_binding.value);
+                return () => undefined;
+            },
+        );
+        const handle_trigger = vi.spyOn(
+            spectator.service as any,
+            '_handleTrigger',
+        );
+        spectator.service.setDisplay('display-1');
+        await flush();
+
+        expect(handle_trigger).not.toHaveBeenCalled();
+        emit(false);
+        expect(handle_trigger).not.toHaveBeenCalled();
+        emit(true);
+        expect(handle_trigger).toHaveBeenCalledTimes(1);
+        expect(handle_trigger).toHaveBeenCalledWith('trig-fire');
+        emit(false);
+        expect(handle_trigger).toHaveBeenCalledTimes(1);
     });
 
     it('should resolve plugin media URLs from the plugin catalogue', async () => {
@@ -2211,6 +2302,292 @@ describe('SignageService', () => {
         await flush();
 
         expect(spectator.service.override_playlist().playlist).toHaveLength(0);
+    });
+
+    it('should not treat background schedules of a takeover playlist as takeovers', async () => {
+        const day = (time: string) => new Date(`2026-01-05T${time}`).getTime();
+        vi.setSystemTime(day('12:02:00'));
+        (ts_client.showSignage as any).mockReturnValue(
+            Promise.resolve(
+                // Background first, so it is not picked just by coming first
+                display_with_schedules([
+                    { play_cron: '0 9 * * *', play_period: 8 * 60 },
+                    {
+                        play_cron: '0 12 * * *',
+                        play_period: 10,
+                        play_takeover: true,
+                    },
+                ]) as any,
+            ),
+        );
+        spectator.service.setDisplay('display-1');
+        await flush();
+        const background = () =>
+            spectator.service.playlist().find(({ id }) => id === 'media-3');
+
+        const override = spectator.service.override_playlist();
+        expect(override.ends_at).toBe(day('12:10:00'));
+        expect(override.playlist[0].valid_until * 1000).toBe(day('12:10:00'));
+        expect(background()?.valid_until * 1000).toBe(day('17:00:00'));
+        const summary = () =>
+            spectator.service
+                .diagnostics()
+                .playlists.active.find(({ id }) => id === 'scheduled-playlist');
+        expect(summary()?.takeover).toBe(true);
+
+        vi.advanceTimersByTime(13 * 60 * 1000);
+        await flush();
+
+        expect(spectator.service.override_playlist().playlist).toHaveLength(0);
+        expect(background()?.valid_until * 1000).toBe(day('17:00:00'));
+        expect(summary()?.takeover).toBe(false);
+    });
+
+    it('should play a single-pass takeover through after its trigger window', async () => {
+        const fired_at = new Date('2026-01-05T06:00:00').getTime();
+        vi.setSystemTime(fired_at + 2000);
+        const media = [
+            'media-1',
+            'media-2',
+            'media-3',
+            'media-5',
+            'media-6',
+            'media-7',
+        ];
+        const display = (enabled: boolean) => ({
+            ...display_with_schedules(
+                [
+                    {
+                        play_cron: '0 6 * * *',
+                        play_period: 0,
+                        play_takeover: true,
+                    },
+                ],
+                media,
+                { enabled },
+            ),
+            playlist_media: [
+                ...create_display().playlist_media,
+                { id: 'media-6', name: 'Six', media_type: 'image' },
+                { id: 'media-7', name: 'Seven', media_type: 'image' },
+            ],
+        });
+        (ts_client.showSignage as any).mockResolvedValue(display(true));
+        spectator.service.setDisplay('display-1');
+        await flush();
+        const override_ids = () =>
+            spectator.service.override_playlist().playlist.map((_) => _.id);
+        expect(override_ids()).toEqual(media);
+
+        // Six 15 second items take 90 seconds, well past the trigger window.
+        vi.advanceTimersByTime(60_000);
+        await flush();
+        expect(override_ids()).toEqual(media);
+
+        // What the player does once it reports `playlist_through`.
+        spectator.service.clearPlaylistOverride();
+        vi.advanceTimersByTime(15_000);
+        await flush();
+        expect(override_ids()).toEqual([]);
+
+        // The hold also ends when the playlist stops being a takeover.
+        vi.setSystemTime(fired_at + 24 * 60 * 60 * 1000 + 2000);
+        vi.advanceTimersByTime(15_000);
+        await flush();
+        expect(override_ids()).toEqual(media);
+        vi.advanceTimersByTime(45_000);
+        await flush();
+        (ts_client.showSignage as any).mockResolvedValue(display(false));
+        await (spectator.service as any)._reloadDisplay();
+        await flush();
+        expect(override_ids()).toEqual([]);
+    });
+
+    describe('single-pass and timed takeovers', () => {
+        const day = (time: string) => new Date(`2026-01-05T${time}`).getTime();
+        /** A single-pass takeover (media-3) and a timed takeover (media-5) */
+        const display = (
+            single_cron: string,
+            timed_cron: string,
+            timed_period: number,
+            timed_enabled = true,
+        ) => {
+            const base = display_with_schedules([
+                { play_cron: single_cron, play_period: 0, play_takeover: true },
+            ]);
+            return {
+                ...base,
+                playlist_mappings: {
+                    ...base.playlist_mappings,
+                    'display-1': [
+                        'base-playlist',
+                        'scheduled-playlist',
+                        'timed-takeover',
+                    ],
+                },
+                playlist_config: {
+                    ...base.playlist_config,
+                    'timed-takeover': [
+                        {
+                            id: 'timed-takeover',
+                            name: 'Timed Takeover',
+                            enabled: timed_enabled,
+                            default_animation: MediaAnimation.Cut,
+                            default_duration: 15000,
+                            schedules: [
+                                {
+                                    play_cron: timed_cron,
+                                    play_period: timed_period,
+                                    play_takeover: true,
+                                },
+                            ],
+                        },
+                        ['media-5'],
+                    ],
+                },
+            };
+        };
+        const override_ids = () =>
+            spectator.service.override_playlist().playlist.map((_) => _.id);
+        const tick = async (ms = 15_000) => {
+            vi.advanceTimersByTime(ms);
+            await flush();
+        };
+
+        it('should not keep playing a disabled timed takeover beside a single pass', async () => {
+            vi.setSystemTime(day('10:00:02'));
+            (ts_client.showSignage as any).mockResolvedValue(
+                display('0 10 * * *', '0 10 * * *', 60),
+            );
+            spectator.service.setDisplay('display-1');
+            await flush();
+            await tick(60_000);
+
+            (ts_client.showSignage as any).mockResolvedValue(
+                display('0 10 * * *', '0 10 * * *', 60, false),
+            );
+            await (spectator.service as any)._reloadDisplay();
+            await flush();
+            expect(override_ids()).toEqual(['media-3']);
+
+            spectator.service.clearPlaylistOverride();
+            await tick();
+            expect(override_ids()).toEqual([]);
+        });
+
+        it('should let a single pass outlast the end of a timed takeover', async () => {
+            vi.setSystemTime(day('09:59:02'));
+            (ts_client.showSignage as any).mockResolvedValue(
+                display('59 9 * * *', '50 9 * * *', 10),
+            );
+            spectator.service.setDisplay('display-1');
+            await flush();
+            expect(override_ids()).toEqual(['media-3']);
+            expect(spectator.service.override_playlist().ends_at).toBe(0);
+
+            await tick(2 * 60 * 1000);
+            expect(override_ids()).toEqual(['media-3']);
+            expect(spectator.service.override_playlist().ends_at).toBe(0);
+        });
+
+        it('should not expire single-pass media with a timed run on the same playlist', async () => {
+            vi.setSystemTime(day('09:59:02'));
+            (ts_client.showSignage as any).mockResolvedValue(
+                // The timed run is listed first and ends at 10:00
+                display_with_schedules([
+                    {
+                        play_cron: '50 9 * * *',
+                        play_period: 10,
+                        play_takeover: true,
+                    },
+                    {
+                        play_cron: '59 9 * * *',
+                        play_period: 0,
+                        play_takeover: true,
+                    },
+                ]),
+            );
+            spectator.service.setDisplay('display-1');
+            await flush();
+
+            const [item] = spectator.service.override_playlist().playlist;
+            expect(item.id).toBe('media-3');
+            expect(item.valid_until * 1000).not.toBe(day('10:00:00'));
+        });
+
+        it('should start a timed takeover once a held single pass finishes', async () => {
+            vi.setSystemTime(day('10:00:02'));
+            (ts_client.showSignage as any).mockResolvedValue(
+                display('0 10 * * *', '1 10 * * *', 10),
+            );
+            spectator.service.setDisplay('display-1');
+            await flush();
+            await tick(75_000);
+            expect(override_ids()).toEqual(['media-3']);
+
+            // What the player does once it reports `playlist_through`.
+            spectator.service.clearPlaylistOverride();
+            await tick();
+            expect(override_ids()).toEqual(['media-5']);
+            expect(spectator.service.override_playlist().ends_at).toBe(
+                day('10:11:00'),
+            );
+        });
+    });
+
+    it('should not start a takeover whose playlist has expired', async () => {
+        const now = new Date('2026-01-05T09:05:00').getTime();
+        vi.setSystemTime(now);
+        (ts_client.showSignage as any).mockReturnValue(
+            Promise.resolve(
+                display_with_schedules(
+                    [
+                        {
+                            play_cron: '0 9 * * *',
+                            play_period: 60,
+                            play_takeover: true,
+                        },
+                    ],
+                    ['media-3'],
+                    { valid_until: Math.floor(now / 1000) - 24 * 60 * 60 },
+                ) as any,
+            ),
+        );
+        spectator.service.setDisplay('display-1');
+        await flush();
+
+        expect(spectator.service.override_playlist().playlist).toHaveLength(0);
+        expect(spectator.service.playlist().map((_) => _.id)).toContain(
+            'media-1',
+        );
+    });
+
+    it('should start a takeover once its media becomes valid', async () => {
+        const now = new Date('2026-01-05T09:05:00').getTime();
+        vi.setSystemTime(now);
+        const display = display_with_schedules([
+            { play_cron: '0 9 * * *', play_period: 60, play_takeover: true },
+        ]);
+        (ts_client.showSignage as any).mockReturnValue(
+            Promise.resolve({
+                ...display,
+                playlist_media: display.playlist_media.map((item) =>
+                    item.id === 'media-3'
+                        ? { ...item, valid_from: Math.floor(now / 1000) + 300 }
+                        : item,
+                ),
+            } as any),
+        );
+        spectator.service.setDisplay('display-1');
+        await flush();
+        expect(spectator.service.override_playlist().playlist).toHaveLength(0);
+
+        vi.advanceTimersByTime(6 * 60 * 1000);
+        await flush();
+
+        expect(
+            spectator.service.override_playlist().playlist.map((_) => _.id),
+        ).toEqual(['media-3']);
     });
 
     it('should keep evaluating schedules after a failed tick', async () => {

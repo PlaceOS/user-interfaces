@@ -73,16 +73,18 @@ makes the display request use `?preview=true`.
 
 ## Symptom → what to check
 
-| Symptom                           | Check                                                                                                                                         |
-| --------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
-| Nothing on screen                 | `state().active_media` — empty means nothing is scheduled now; check `upcoming_schedules`                                                     |
-| Content scheduled but not showing | `active_media[].invalid_reason`, and `cached` / `loading` on the same entry                                                                   |
-| Stuck on old content              | `poll.last_success` and `poll.next_due`; run `signage.poll()`                                                                                 |
-| Not picking up new content        | `poll.last_success` vs now; if stale, look for `Display poll failed` in the console                                                           |
-| Media never appears               | `media_cache.files` for that URL — `invalidated` means the download failed; `failed_sync_attempts` shows the backoff                          |
-| Old version running               | `updates.new_version`, `updates.reload_pending` (a reload waits for the network and for play-through content to finish), `updates.last_check` |
-| Blank screen after a reboot       | Likely offline boot — check `online`, then whether cached credentials exist                                                                   |
-| Player reloading itself           | `watchdog.recent_reloads` and `watchdog.last_error` — something fatal stalled a core loop                                                     |
+| Symptom                            | Check                                                                                                                                                                       |
+| ---------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Nothing on screen                  | `state().active_media` — empty means nothing is scheduled now; check `upcoming_schedules`                                                                                   |
+| Content scheduled but not showing  | `active_media[].invalid_reason`, and `cached` / `loading` on the same entry                                                                                                 |
+| Takeover scheduled but not showing | A takeover with no valid media does not start. Compare the playlist and media `valid_from` / `valid_until` with `schedule.now`                                              |
+| Trigger did not start a takeover   | A trigger fires only when its value changes to true. A display update does not replay a trigger that is already true, and a trigger is ignored while another override plays |
+| Stuck on old content               | `poll.last_success` and `poll.next_due`; run `signage.poll()`                                                                                                               |
+| Not picking up new content         | `poll.last_success` vs now; if stale, look for `Display poll failed` in the console                                                                                         |
+| Media never appears                | `media_cache.files` for that URL — `invalidated` means the download failed; `failed_sync_attempts` shows the backoff                                                        |
+| Old version running                | `updates.new_version`, `updates.reload_pending` (a reload waits for the network and for play-through content to finish), `updates.last_check`                               |
+| Blank screen after a reboot        | Likely offline boot — check `online`, then whether cached credentials exist                                                                                                 |
+| Player reloading itself            | `watchdog.recent_reloads` and `watchdog.last_error` — something fatal stalled a core loop                                                                                   |
 
 ## Recovery watchdog
 
