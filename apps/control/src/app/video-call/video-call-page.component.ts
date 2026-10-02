@@ -3,9 +3,11 @@ import {
     Injector,
     OnInit,
     computed,
+    effect,
     inject,
     input,
     signal,
+    untracked,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
@@ -239,6 +241,9 @@ export class VideoCallPageComponent extends AsyncHandler implements OnInit {
     private _router = inject(Router);
     private _injector = inject(Injector);
 
+    /** Whether the page has already left for the ended call */
+    private _left = false;
+
     public readonly redirect = input(true);
     public readonly present_output = input('');
     public readonly loading = signal('');
@@ -287,6 +292,17 @@ export class VideoCallPageComponent extends AsyncHandler implements OnInit {
         this._onCallEnded();
     };
 
+    constructor() {
+        super();
+        // Leave the page when the call ends remotely (far-end hang-up or drop)
+        let had_call = false;
+        effect(() => {
+            const has_call = !!this.call();
+            if (had_call && !has_call) untracked(() => this._onCallEnded());
+            had_call = has_call;
+        });
+    }
+
     public async ngOnInit() {
         this.loading.set(i18n('APP.CONTROL.VC_LOADING'));
         this.timeout(
@@ -308,7 +324,11 @@ export class VideoCallPageComponent extends AsyncHandler implements OnInit {
         mod.execute('selected_camera', [camera]);
     }
 
+    /** Leave the page once. A local hang-up and the call status clearing both end up here. */
     private _onCallEnded() {
+        this.loading.set('');
+        if (this._left) return;
+        this._left = true;
         if (this.redirect())
             this._router.navigate(['/panel', this._control.id]);
     }

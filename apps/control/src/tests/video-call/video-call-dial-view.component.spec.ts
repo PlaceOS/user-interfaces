@@ -130,4 +130,12 @@ describe('VideoCallDialViewComponent', () => {
         await spectator.component.toggleCamera();
         expect(call_state.showCameraPIP).toHaveBeenLastCalledWith(false);
     });
+
+    it('should clear the joining state when dialling fails', async () => {
+        execute_spy.mockRejectedValue(new Error('busy'));
+        spectator.component.dial_number.set('1234');
+        await spectator.component.joinConference();
+        expect(spectator.component.loading()).toBe(false);
+        expect(spectator.component.dial_number()).toBe('1234');
+    });
 });

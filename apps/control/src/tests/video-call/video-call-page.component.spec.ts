@@ -141,11 +141,29 @@ describe('VideoCallPageComponent', () => {
         expect(router_mock.navigate).toHaveBeenCalledWith(['/panel', 'sys-1']);
     });
 
+    it('should leave once when the call clears before hang-up resolves', async () => {
+        spectator.detectChanges();
+        call_state.hangup.mockImplementation(async () => {
+            call_state.call.set(null);
+            spectator.detectChanges();
+        });
+        await spectator.component.endCall();
+        expect(router_mock.navigate).toHaveBeenCalledTimes(1);
+    });
+
     it('should not navigate on end call when redirect is disabled', async () => {
         spectator.setInput({ redirect: false });
         await spectator.component.endCall();
         expect(call_state.hangup).toHaveBeenCalled();
         expect(router_mock.navigate).not.toHaveBeenCalled();
+        expect(spectator.component.loading()).toBe('');
+    });
+
+    it('should navigate back to the panel when the call ends remotely', () => {
+        spectator.detectChanges();
+        call_state.call.set(null);
+        spectator.detectChanges();
+        expect(router_mock.navigate).toHaveBeenCalledWith(['/panel', 'sys-1']);
     });
 
     it('should surface errors and stop loading when hangup fails', async () => {

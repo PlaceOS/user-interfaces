@@ -9,7 +9,6 @@ import { MockPipe, MockProvider } from 'ng-mocks';
 import {
     BindingDirective,
     IconComponent,
-    SafePipe,
     TranslatePipe,
 } from '@placeos/components';
 import { ControlStateService } from '../../app/control-state.service';
@@ -39,7 +38,6 @@ describe('TabOutletComponent', () => {
             mockDirective(BindingDirective),
             MockPipe(TranslatePipe, (v) => v),
             MockPipe(MarkdownPipe, (v) => v),
-            MockPipe(SafePipe, (v) => v),
         ],
         providers: [
             MockProvider(ControlStateService, {
@@ -207,5 +205,22 @@ describe('TabOutletComponent', () => {
         service.output_list.set([{ id: 'o1' }, { id: 'o2' }]);
         spectator.detectChanges();
         expect(spectator.query('[output-actions]')).toExist();
+    });
+
+    it('should not jump back to the driver tab on unrelated system changes', () => {
+        vi.useFakeTimers();
+        const service: any = spectator.inject(ControlStateService);
+        const navigate = vi
+            .spyOn(spectator.router, 'navigate')
+            .mockResolvedValue(true);
+        service.system.set({ selected_tab: 'tab1' });
+        spectator.detectChanges();
+        vi.advanceTimersByTime(600);
+        expect(navigate).toHaveBeenCalledTimes(1);
+        service.system.set({ selected_tab: 'tab1', volume: 40 });
+        spectator.detectChanges();
+        vi.advanceTimersByTime(600);
+        expect(navigate).toHaveBeenCalledTimes(1);
+        vi.useRealTimers();
     });
 });

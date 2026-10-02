@@ -284,6 +284,8 @@ export class TabOutletComponent extends AsyncHandler {
     });
 
     private _user_action = signal(false);
+    /** Driver's selected tab. A separate computed so other system changes do not re-run the tab sync. */
+    private _selected_tab = computed(() => this.system()?.selected_tab);
     private _available_inputs = this._service.available_inputs;
     private _route_tab = toSignal(
         this._route.paramMap.pipe(map((params) => params.get('tab') || '')),
@@ -308,7 +310,7 @@ export class TabOutletComponent extends AsyncHandler {
             if (tab) this.active_tab.set(tab);
         });
         effect(() => {
-            const selected_tab = this.system()?.selected_tab;
+            const selected_tab = this._selected_tab();
             this.timeout(
                 'update_tab',
                 () => {

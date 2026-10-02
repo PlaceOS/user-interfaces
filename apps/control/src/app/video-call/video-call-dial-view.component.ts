@@ -12,6 +12,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ActivatedRoute, Router } from '@angular/router';
+import { i18n, notifyError } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import { getModule } from '@placeos/ts-client';
 import { ControlStateService } from '../control-state.service';
@@ -135,8 +136,14 @@ export class VideoCallDialViewComponent {
         const system_id = this._control.id;
         const mod = getModule(system_id, 'VidConf');
         this.loading.set(true);
-        await mod.execute('dial', [dial_number]);
-        this.loading.set(false);
+        try {
+            await mod.execute('dial', [dial_number]);
+        } catch (error) {
+            notifyError(i18n('APP.CONTROL.VC_DIAL_ERROR', { error }));
+            return;
+        } finally {
+            this.loading.set(false);
+        }
         if (this.redirect()) {
             this._router.navigate(['call'], { relativeTo: this._route });
         }

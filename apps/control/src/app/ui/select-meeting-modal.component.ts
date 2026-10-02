@@ -6,7 +6,12 @@ import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
-import { CalendarEvent, i18n, notifySuccess } from '@placeos/common';
+import {
+    CalendarEvent,
+    i18n,
+    notifyError,
+    notifySuccess,
+} from '@placeos/common';
 import {
     IconComponent,
     openConfirmModal,
@@ -133,9 +138,16 @@ export class SelectMeetingModalComponent {
             },
             this._dialog,
         );
-        details.loading(i18n('APP.CONTROL.MEETING_JOIN_LOADING'));
         if (details.reason !== 'done') return;
-        await this._service.setEvent(e);
+        details.loading(i18n('APP.CONTROL.MEETING_JOIN_LOADING'));
+        try {
+            await this._service.setEvent(e);
+        } catch (error) {
+            notifyError(i18n('APP.CONTROL.MEETING_JOIN_ERROR', { error }));
+            return;
+        } finally {
+            details.close();
+        }
         notifySuccess(i18n('APP.CONTROL.MEETING_JOIN_SUCCESS'));
         this._dialog_ref.close();
     };

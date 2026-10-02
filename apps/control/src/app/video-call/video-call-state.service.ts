@@ -43,6 +43,9 @@ export interface VideoCallDetails {
     Ice: string;
 }
 
+/** Statuses that do not count as a live call */
+const INACTIVE_STATUSES: readonly CallStatus[] = ['Idle', 'Disconnecting'];
+
 @Injectable({
     providedIn: 'root',
 })
@@ -57,7 +60,9 @@ export class VideoCallStateService extends AsyncHandler {
     public readonly call = computed<VideoCallDetails | null>(() => {
         const calls = this._calls();
         for (const key in calls) {
-            if (calls[key].Status) return calls[key];
+            const status = calls[key]?.Status;
+            if (status && !INACTIVE_STATUSES.includes(status))
+                return calls[key];
         }
         return null;
     });
