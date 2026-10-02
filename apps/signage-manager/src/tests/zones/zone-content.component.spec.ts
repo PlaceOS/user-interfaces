@@ -188,4 +188,19 @@ describe('ZoneContentComponent', () => {
         panel.querySelector<HTMLButtonElement>('load-error button')?.click();
         expect(reload_playlists).toHaveBeenCalledTimes(1);
     });
+
+    // The shared playlist list does not feed a tab with no playlist ids
+    it.each(['loading', 'error'] as const)(
+        'keeps the empty state of a zone with no playlists while the playlist list is in %s',
+        async (state) => {
+            selected_zone.set({ id: 'z1', playlists: [] });
+            playlists_loading.set(state === 'loading');
+            playlists_error.set(state === 'error');
+            const panel = await render('playlists');
+
+            expect(panel.textContent).toContain('playlist_remove');
+            expect(panel.querySelector('load-error')).toBeNull();
+            expect(panel.querySelector('[role="status"]')).toBeNull();
+        },
+    );
 });

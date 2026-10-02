@@ -219,14 +219,20 @@ type PlaylistStatus = 'expired' | 'pending' | 'awaiting_approval' | null;
                                             }
                                         </div>
                                     }
-                                } @else if (playlists_loading()) {
+                                } @else if (
+                                    has_assigned_playlists() &&
+                                    playlists_loading()
+                                ) {
                                     <div
                                         class="text-base-content/70 p-6 text-center"
                                         role="status"
                                     >
                                         {{ 'COMMON.LOADING' | translate }}
                                     </div>
-                                } @else if (playlists_error()) {
+                                } @else if (
+                                    has_assigned_playlists() &&
+                                    playlists_error()
+                                ) {
                                     <load-error (retry)="reloadPlaylists()" />
                                 } @else {
                                     <div
@@ -398,6 +404,11 @@ export class DisplayContentComponent {
     public readonly playlists_loading =
         this._playlist_service.playlists_loading;
     public readonly playlists_error = this._playlist_service.playlists_error;
+    // The tab reads the playlist ids of the display and resolves them from the
+    // shared playlist list. The list state matters only when there are ids.
+    public readonly has_assigned_playlists = computed(
+        () => !!this.selected_display()?.playlists?.length,
+    );
 
     public reloadPlaylists() {
         this._playlist_service.reloadPlaylists();

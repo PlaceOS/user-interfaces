@@ -211,4 +211,19 @@ describe('DisplayContentComponent', () => {
         element.querySelector<HTMLButtonElement>('load-error button')?.click();
         expect(reload_playlists).toHaveBeenCalledTimes(1);
     });
+
+    // The shared playlist list does not feed a tab with no playlist ids
+    it.each(['loading', 'error'] as const)(
+        'keeps the empty state of a display with no playlists while the playlist list is in %s',
+        async (state) => {
+            selected_display.set({ id: 'd1', playlists: [] });
+            playlists_loading.set(state === 'loading');
+            playlists_error.set(state === 'error');
+            const element = await render('playlists');
+
+            expect(element.textContent).toContain('playlist_remove');
+            expect(element.querySelector('load-error')).toBeNull();
+            expect(element.querySelector('[role="status"]')).toBeNull();
+        },
+    );
 });
