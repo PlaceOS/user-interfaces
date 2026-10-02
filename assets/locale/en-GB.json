@@ -1973,7 +1973,7 @@
             "VC_PIP_SHOW": "Show Camera PIP",
             "VC_PIP_HIDE": "Hide Camera PIP",
             "VC_JOIN_ERROR": "Unable to find active video conference",
-            "VC_LEAVE_ERROR": "Failed to hung up call. Error: {{ error }}",
+            "VC_LEAVE_ERROR": "Could not hang up the call. Error: {{ error }}",
             "VC_DIAL_ERROR": "Could not dial the call. Error: {{ error }}",
             "VC_COMMAND_ERROR": "Video conference command failed. Error: {{ error }}",
             "VC_LEAVE_LOADING": "Hanging up call...",
