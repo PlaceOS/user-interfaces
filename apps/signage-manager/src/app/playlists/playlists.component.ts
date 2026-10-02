@@ -283,12 +283,13 @@ export class PlaylistsSectionComponent {
 
     /**
      * Fetch a linked playlist that the loaded pages lack. When it cannot
-     * load, clear the selection, so no other playlist shows under its link.
+     * load, warn and clear the selection, so no other playlist shows under
+     * its link. Does nothing when the user has opened another link since.
      */
     private async _loadLinkedPlaylist(id: string) {
         if (await this._playlist_service.loadPlaylist(id)) return;
-        notifyWarn(i18n('SIGNAGE_MANAGER.PLAYLIST_NOT_FOUND'));
         if (this.id() !== id) return;
+        notifyWarn(i18n('SIGNAGE_MANAGER.PLAYLIST_NOT_FOUND'));
         this._playlist_service.selected_playlist.set(null);
         this._playlist_service.selected_playlist_item.set(null);
         this._playlist_service.selected_playlist_item_index.set(null);

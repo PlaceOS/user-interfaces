@@ -199,9 +199,14 @@ export class SignagePlaylistService {
         });
     });
 
-    /** Load the playlist list again from the first page, e.g. after an error */
+    /**
+     * Load the playlist page that failed again: the next page when some
+     * pages are loaded, so they stay, otherwise the first page.
+     */
     public reloadPlaylists() {
-        this._playlists_retry.update((count) => count + 1);
+        if (!this._playlist_list.retry()) {
+            this._playlists_retry.update((count) => count + 1);
+        }
     }
 
     public loadMorePlaylists() {

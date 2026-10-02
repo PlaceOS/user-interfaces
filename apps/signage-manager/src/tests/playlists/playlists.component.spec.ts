@@ -160,6 +160,26 @@ describe('PlaylistsSectionComponent', () => {
         expect(selected_playlist()).toBeNull();
     });
 
+    it('does not warn about a link the user has already left', async () => {
+        let resolveLoad: (value: null) => void = () => {};
+        load_playlist.mockReturnValueOnce(
+            new Promise((resolve) => (resolveLoad = resolve)),
+        );
+        const open = { id: 'pl-1' };
+        playlists.set([open]);
+        await make();
+        fixture.componentRef.setInput('id', 'deleted');
+        fixture.detectChanges();
+
+        fixture.componentRef.setInput('id', 'pl-1');
+        fixture.detectChanges();
+        resolveLoad(null);
+        await fixture.whenStable();
+
+        expect(notify_open).not.toHaveBeenCalled();
+        expect(selected_playlist()).toBe(open);
+    });
+
     it('clears the selection once the route id is removed', async () => {
         const match = { id: 'pl-1' };
         playlists.set([match]);
