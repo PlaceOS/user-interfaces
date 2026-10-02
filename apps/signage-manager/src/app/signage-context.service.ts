@@ -7,6 +7,7 @@ import {
     linkedSignal,
     resource,
     signal,
+    untracked,
 } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import {
@@ -152,19 +153,25 @@ export function lastLoaded<T>(
 }
 
 /**
- * Share one request per key, so resources that reload on the same change hit
- * the endpoint once. A failed request is dropped, so a later key can retry.
+ * Share one request per key and user, so resources that reload on the same
+ * change hit the endpoint once. A new user gets a new request. A failed
+ * request is dropped, so a later key can retry.
+ * @param user Signed in user, read when a request starts
  */
-function sharedRequest<T>(load: () => Promise<T>) {
-    let last: { key: number; promise: Promise<T> } | null = null;
+function sharedRequest<T>(load: () => Promise<T>, user: () => unknown) {
+    let last: { key: number; user: unknown; promise: Promise<T> } | null = null;
     return (key: number) => {
-        if (last?.key === key) return last.promise;
-        const promise = load().catch((error: unknown) => {
-            if (last?.key === key) last = null;
+        const current_user = user();
+        if (last?.key === key && last.user === current_user) {
+            return last.promise;
+        }
+        const request = { key, user: current_user, promise: load() };
+        request.promise = request.promise.catch((error: unknown) => {
+            if (last === request) last = null;
             throw error;
         });
-        last = { key, promise };
-        return promise;
+        last = request;
+        return request.promise;
     };
 }
 
@@ -367,14 +374,16 @@ export class SignageContextService {
     }
 
     // Several resources need the signage groups on page load and after a
-    // save. Share one request per `groups_change`.
+    // save. Share one request per `groups_change` and user.
     /** Signage groups of the current user, one request per `groups_change` */
-    public readonly currentSignageGroups = sharedRequest(() =>
-        currentGroups({ subsystem: 'signage' }),
+    public readonly currentSignageGroups = sharedRequest(
+        () => currentGroups({ subsystem: 'signage' }),
+        () => untracked(this.active_user)?.email,
     );
     /** Every signage group, for admins, one request per `groups_change` */
-    public readonly allSignageGroups = sharedRequest(() =>
-        this.queryManageableGroups(),
+    public readonly allSignageGroups = sharedRequest(
+        () => this.queryManageableGroups(),
+        () => untracked(this.active_user)?.email,
     );
 
     /** ID of the selected group, empty for "All groups" */

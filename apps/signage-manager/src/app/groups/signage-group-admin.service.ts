@@ -6,6 +6,7 @@ import {
     Injectable,
     resource,
     signal,
+    untracked,
 } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { i18n, notifyError, notifySuccess, notifyWarn } from '@placeos/common';
@@ -129,21 +130,28 @@ export class SignageGroupAdminService {
             (group) => group.id === group_id,
         );
     });
-    // Set once the first group opens. After that an empty selection is the
-    // user's choice, such as the back button on mobile.
-    private _first_group_opened = false;
+    // Email of the user the first group opened for. After that an empty
+    // selection is the user's choice, such as the back button on mobile. A
+    // new user gets their first group opened again.
+    private _first_group_opened_for?: string;
 
     constructor() {
         effect(() => {
             const groups = this.manageable_signage_groups();
             const group_id = this.managed_group_id();
+            const email = this._context.active_user()?.email;
             if (group_id) {
                 // The group was removed or the user lost access to it
                 if (!groups.some((group) => group.id === group_id)) {
                     this.managed_group_id.set('');
+                } else {
+                    this._first_group_opened_for = email;
                 }
-            } else if (groups.length && !this._first_group_opened) {
-                this._first_group_opened = true;
+            } else if (
+                groups.length &&
+                this._first_group_opened_for !== email
+            ) {
+                this._first_group_opened_for = email;
                 this.managed_group_id.set(groups[0].id);
             }
         });
@@ -167,16 +175,28 @@ export class SignageGroupAdminService {
                 group_id: this._managed_group_id_debounced.value(),
                 groups_change: this._context.groups_change(),
             }),
-            loader: async ({ params: { group_id } }) => {
+            loader: async ({
+                params: { group_id },
+            }): Promise<ManagedGroupList<T>> => {
                 if (!group_id) return managedGroupList<T>('');
                 return load(group_id).then(
                     (items) => managedGroupList(group_id, items),
-                    () => managedGroupList<T>(group_id, [], true),
+                    () => {
+                        // Keep the rows already shown for the group, and
+                        // mark the list as failed so the panel shows an error
+                        const shown = untracked(rows);
+                        return managedGroupList<T>(
+                            group_id,
+                            shown?.group_id === group_id ? shown.items : [],
+                            true,
+                        );
+                    },
                 );
             },
         });
         // A save reloads the list. Keep the rows until the new ones arrive.
-        return lastLoaded(list);
+        const rows = lastLoaded(list);
+        return rows;
     }
 
     private readonly _managed_group_users = this._managedGroupResource(

@@ -513,6 +513,40 @@ describe('SignageGroupAdminService', () => {
             expect(queryGroups).toHaveBeenCalledTimes(1);
         });
 
+        it('opens the first group again for a new user', async () => {
+            const service = createService();
+            await settle();
+            service.managed_group_id.set('');
+            await settle();
+
+            vi.mocked(currentGroups).mockResolvedValue([manager('c')]);
+            setCurrentUser(
+                new StaffUser({ id: 'other', email: 'other@place.tech' }),
+            );
+            await settle();
+
+            expect(
+                service.manageable_signage_groups().map(({ id }) => id),
+            ).toEqual(['c']);
+            expect(service.managed_group_id()).toBe('c');
+        });
+
+        it('keeps the users on screen when their reload fails', async () => {
+            const service = createService();
+            await settle();
+            service.managed_group_id.set('b');
+            await settle();
+            const [row] = service.managed_group_users();
+
+            vi.mocked(updateGroupUser).mockResolvedValue(row);
+            vi.mocked(queryGroupUsers).mockRejectedValue(new Error('down'));
+            await service.updateManagedGroupUser(row, READ | MANAGE);
+            await settle();
+
+            expect(service.managed_group_users()).toEqual([row]);
+            expect(service.managed_group_users_failed()).toBe(true);
+        });
+
         it('reads every page of the group users', async () => {
             vi.mocked(queryGroupUsers).mockReturnValue(
                 page([member('user-1', 'a')], () =>

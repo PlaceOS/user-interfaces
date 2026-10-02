@@ -50,6 +50,15 @@ import { SignageGroupZoneSelectModalComponent } from './signage-group-zone-selec
                 </button>
             </div>
             <div class="gap-2 p-2">
+                @if (failed() && zones().length) {
+                    <p
+                        class="text-error mb-2 flex items-center gap-2 px-2 text-sm"
+                        role="alert"
+                    >
+                        <icon class="text-lg">error</icon>
+                        {{ 'SIGNAGE_MANAGER.ZONES_LOAD_ERROR' | translate }}
+                    </p>
+                }
                 @if (zones().length) {
                     @for (row of zones(); track row.zone_id) {
                         <div

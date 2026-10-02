@@ -50,6 +50,15 @@ import { SignageGroupUserSelectModalComponent } from './signage-group-user-selec
                 </button>
             </div>
             <div class="gap-2 p-2">
+                @if (failed() && users().length) {
+                    <p
+                        class="text-error mb-2 flex items-center gap-2 px-2 text-sm"
+                        role="alert"
+                    >
+                        <icon class="text-lg">error</icon>
+                        {{ 'SIGNAGE_MANAGER.USERS_LOAD_ERROR' | translate }}
+                    </p>
+                }
                 @if (users().length) {
                     @for (row of users(); track row.user_id) {
                         <div
