@@ -132,9 +132,12 @@ export class SignageZoneService {
     public readonly zones = computed(() =>
         mergeItems(loadedZones(this._zone_list), this._zone_overrides()),
     );
-    /** Number of signage zones the server has, loaded or not */
+    /**
+     * Number of signage zones the server has, loaded or not. Null while the
+     * count loads or after it fails, as the count is not known.
+     */
     public readonly signage_zone_count = computed(() =>
-        this._zone_list.hasValue() ? this._zone_list.value().total : 0,
+        this._zone_list.hasValue() ? this._zone_list.value().total : null,
     );
 
     private readonly _all_zone_list = this._zoneResource((group_id) =>
@@ -172,14 +175,22 @@ export class SignageZoneService {
         );
     });
 
-    /** Whether the zones of the zone tree are loading */
+    /** Whether the zone lists of the zones page are loading */
     public readonly zones_loading = computed(
         () =>
-            this._all_zone_list.isLoading() || this._org_root_list.isLoading(),
+            this._zone_list.isLoading() ||
+            this._all_zone_list.isLoading() ||
+            this._org_root_list.isLoading(),
     );
-    /** Whether the zones of the zone tree failed to load */
+    /**
+     * Whether a zone list of the zones page failed to load. The tree can
+     * still show the lists that loaded, so it shows this beside them.
+     */
     public readonly zones_error = computed(
-        () => !!this._all_zone_list.error() || !!this._org_root_list.error(),
+        () =>
+            !!this._zone_list.error() ||
+            !!this._all_zone_list.error() ||
+            !!this._org_root_list.error(),
     );
 
     /**

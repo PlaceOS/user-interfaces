@@ -22,6 +22,8 @@ describe('ZoneContentComponent', () => {
     const displays_loading = signal(false);
     const displays_error = signal(false);
     const playlists_loading = signal(false);
+    const playlists_error = signal(false);
+    const reload_playlists = vi.fn();
     const reload_displays = vi.fn();
     const context_stub = { can_update };
     const display_stub = {
@@ -37,6 +39,8 @@ describe('ZoneContentComponent', () => {
         playlist_approval_status,
         playlist_thumbnail_media,
         playlists_loading,
+        playlists_error,
+        reloadPlaylists: reload_playlists,
     };
     const zone_stub = {
         selected_zone,
@@ -90,6 +94,7 @@ describe('ZoneContentComponent', () => {
         displays_loading.set(false);
         displays_error.set(false);
         playlists_loading.set(false);
+        playlists_error.set(false);
     });
 
     it('lists the playlists and the queried displays of the zone', async () => {
@@ -172,5 +177,15 @@ describe('ZoneContentComponent', () => {
 
         expect(panel.querySelector('[role="status"]')).not.toBeNull();
         expect(panel.textContent).not.toContain('playlist_remove');
+    });
+
+    it('offers a retry when the playlists fail to load', async () => {
+        selected_zone.set({ id: 'z1', playlists: ['p1'] });
+        playlists_error.set(true);
+        const panel = await render('playlists');
+
+        expect(panel.textContent).not.toContain('playlist_remove');
+        panel.querySelector<HTMLButtonElement>('load-error button')?.click();
+        expect(reload_playlists).toHaveBeenCalledTimes(1);
     });
 });

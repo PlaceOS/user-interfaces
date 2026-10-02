@@ -114,6 +114,36 @@ describe('SignageZoneService zone search', () => {
         );
     });
 
+    // The tree loads from other lists, so it can look complete without it
+    it('reports a failed signage zone count and loads it again on retry', async () => {
+        let fail_count = true;
+        vi.mocked(queryZones).mockImplementation(async (params) => {
+            if (params?.tags === 'signage' && fail_count) {
+                throw new Error('offline');
+            }
+            return {
+                data: [new PlaceZone({ id: 'z1', tags: ['signage'] })],
+                total: 7,
+                next: null,
+            };
+        });
+        const service = TestBed.inject(SignageZoneService);
+        TestBed.tick();
+        await flush();
+
+        expect(service.all_zones().map(({ id }) => id)).toEqual(['z1']);
+        expect(service.signage_zone_count()).toBeNull();
+        expect(service.zones_error()).toBe(true);
+
+        fail_count = false;
+        service.reloadZones();
+        TestBed.tick();
+        await flush();
+
+        expect(service.signage_zone_count()).toBe(7);
+        expect(service.zones_error()).toBe(false);
+    });
+
     it('searches selectable zones beneath the selected zone', () => {
         const service = TestBed.inject(SignageZoneService);
 

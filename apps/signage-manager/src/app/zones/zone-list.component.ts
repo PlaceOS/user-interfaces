@@ -75,6 +75,10 @@ interface FlatZoneTreeNode extends ZoneTreeNode {
             </div>
 
             @if (tree_nodes().length) {
+                @if (error()) {
+                    <!-- Some lists loaded, so the tree may lack zones -->
+                    <load-error (retry)="retry()" />
+                }
                 <cdk-tree
                     class="zone-tree"
                     [dataSource]="flat_tree_nodes()"

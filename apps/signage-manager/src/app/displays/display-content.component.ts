@@ -226,6 +226,8 @@ type PlaylistStatus = 'expired' | 'pending' | 'awaiting_approval' | null;
                                     >
                                         {{ 'COMMON.LOADING' | translate }}
                                     </div>
+                                } @else if (playlists_error()) {
+                                    <load-error (retry)="reloadPlaylists()" />
                                 } @else {
                                     <div
                                         class="text-base-content/70 flex flex-col items-center justify-center space-y-2 p-6"
@@ -395,6 +397,12 @@ export class DisplayContentComponent {
     );
     public readonly playlists_loading =
         this._playlist_service.playlists_loading;
+    public readonly playlists_error = this._playlist_service.playlists_error;
+
+    public reloadPlaylists() {
+        this._playlist_service.reloadPlaylists();
+    }
+
     public readonly display_zones =
         this._display_service.selected_display_zones;
     public readonly display_zones_loading =

@@ -20,6 +20,8 @@ describe('DisplayContentComponent', () => {
     const zones_loading = signal(false);
     const zones_error = signal(false);
     const playlists_loading = signal(false);
+    const playlists_error = signal(false);
+    const reload_playlists = vi.fn();
     const reload_zones = vi.fn();
     const context_stub = { can_update };
     const display_stub = {
@@ -37,6 +39,8 @@ describe('DisplayContentComponent', () => {
         playlist_approval_status,
         playlist_thumbnail_media,
         playlists_loading,
+        playlists_error,
+        reloadPlaylists: reload_playlists,
     };
 
     async function make() {
@@ -83,6 +87,7 @@ describe('DisplayContentComponent', () => {
         zones_loading.set(false);
         zones_error.set(false);
         playlists_loading.set(false);
+        playlists_error.set(false);
     });
 
     it('lists the playlists and the queried zones of the display', async () => {
@@ -195,5 +200,15 @@ describe('DisplayContentComponent', () => {
 
         expect(element.querySelector('[role="status"]')).not.toBeNull();
         expect(element.textContent).not.toContain('playlist_remove');
+    });
+
+    it('offers a retry when the playlists fail to load', async () => {
+        selected_display.set({ id: 'd1', playlists: ['p1'] });
+        playlists_error.set(true);
+        const element = await render('playlists');
+
+        expect(element.textContent).not.toContain('playlist_remove');
+        element.querySelector<HTMLButtonElement>('load-error button')?.click();
+        expect(reload_playlists).toHaveBeenCalledTimes(1);
     });
 });

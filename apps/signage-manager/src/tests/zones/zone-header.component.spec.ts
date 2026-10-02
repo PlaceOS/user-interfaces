@@ -7,7 +7,7 @@ import { ZoneHeaderComponent } from '../../app/zones/zone-header.component';
 
 describe('ZoneHeaderComponent', () => {
     const filtered_zones = signal<{ id: string }[]>([]);
-    const signage_zone_count = signal(0);
+    const signage_zone_count = signal<number | null>(0);
     const selected_zone = signal<{ id: string } | null>(null);
     const zone_search_term = signal('');
     const can_manage_zones = signal(false);

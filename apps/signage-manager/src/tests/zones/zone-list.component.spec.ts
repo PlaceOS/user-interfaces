@@ -1,5 +1,6 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
 import { OrganisationService } from '@placeos/common';
 import { SignageZoneService } from '../../app/zones/signage-zone.service';
 import { ZoneListComponent } from '../../app/zones/zone-list.component';
@@ -36,6 +37,7 @@ describe('ZoneListComponent', () => {
         await TestBed.configureTestingModule({
             imports: [ZoneListComponent],
             providers: [
+                provideRouter([]),
                 { provide: SignageZoneService, useValue: zone_stub },
                 { provide: OrganisationService, useValue: org_stub },
             ],
@@ -79,6 +81,16 @@ describe('ZoneListComponent', () => {
         const element: HTMLElement = (await make(true)).nativeElement;
 
         expect(element.textContent).not.toContain('No zones');
+        element.querySelector<HTMLButtonElement>('load-error button')?.click();
+        expect(reload_zones).toHaveBeenCalledTimes(1);
+    });
+
+    it('offers a retry beside the zones that loaded when a list fails', async () => {
+        root_zones.set([{ id: 'org-1', name: 'Organisation' }]);
+        zones_error.set(true);
+        const element: HTMLElement = (await make(true)).nativeElement;
+
+        expect(element.textContent).toContain('Organisation');
         element.querySelector<HTMLButtonElement>('load-error button')?.click();
         expect(reload_zones).toHaveBeenCalledTimes(1);
     });
