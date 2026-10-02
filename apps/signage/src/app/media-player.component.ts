@@ -114,6 +114,7 @@ const URL_RETRY_DELAY = 1000;
                         [config]="output_plugin_configs()[0]"
                         [play]="output_plugin_plays()[0]"
                         (loaded)="onPluginLoad(0)"
+                        (playing)="onPluginPlaying($event, 0)"
                         (statusChange)="onPluginStatus($event, 0)"
                         (finished)="onPluginFinished(0)"
                         (plugin_interaction)="onPluginInteraction($event, 0)"
@@ -161,6 +162,7 @@ const URL_RETRY_DELAY = 1000;
                         [config]="output_plugin_configs()[1]"
                         [play]="output_plugin_plays()[1]"
                         (loaded)="onPluginLoad(1)"
+                        (playing)="onPluginPlaying($event, 1)"
                         (statusChange)="onPluginStatus($event, 1)"
                         (finished)="onPluginFinished(1)"
                         (plugin_interaction)="onPluginInteraction($event, 1)"
@@ -336,6 +338,7 @@ export class MediaPlayerComponent
     private _deferred_reveal_item_id = '';
     private _deferred_reveal_resume = true;
     private _deferred_reveal_transition = false;
+    private _plugin_reveal_started = false;
     private _playback_duration = 0;
     private _web_waiting_item_id = '';
     private _web_waiting_output: 0 | 1 = 0;
@@ -773,7 +776,11 @@ export class MediaPlayerComponent
     ) {
         const playback_duration = this._effectivePlaybackDuration(item);
         const duration = now - this._item_start;
-        if (this._item_start && this._web_waiting_item_id !== item?.id) {
+        if (
+            this._item_start &&
+            this._web_waiting_item_id !== item?.id &&
+            this._deferred_reveal_item_id !== item?.id
+        ) {
             this.progress.set((duration / playback_duration) * 100);
             this.duration.set(Math.floor(duration / 1000));
         } else {
@@ -799,6 +806,7 @@ export class MediaPlayerComponent
             this.progress_start.set(0);
             this.setPlaylistItem(0);
         }
+        if (item?.type === 'plugin' && this.defer_reveal()) return;
         // For playsthrough plugins, advance when plugin signals finished, or
         // once it has overrun its limit so a hung plugin cannot hold the
         // screen forever
@@ -903,6 +911,7 @@ export class MediaPlayerComponent
         this._deferred_reveal_item_id = this.active_item?.id || '';
         this._deferred_reveal_resume = resume_if_paused;
         this._deferred_reveal_transition = should_transition;
+        this._plugin_reveal_started = false;
     }
 
     private _clearDeferredReveal() {
@@ -910,11 +919,12 @@ export class MediaPlayerComponent
         this._deferred_reveal_item_id = '';
         this._deferred_reveal_resume = true;
         this._deferred_reveal_transition = false;
+        this._plugin_reveal_started = false;
         this.defer_reveal.set(false);
         this.waiting_for_item.set(false);
     }
 
-    private _finishDeferredReveal(item: MediaPlayerItem, delay = 2000) {
+    private _finishDeferredReveal(item: MediaPlayerItem, delay = 0) {
         if (this._deferred_reveal_item_id !== item.id) return;
         const reveal = () => {
             if (
@@ -943,21 +953,21 @@ export class MediaPlayerComponent
         should_transition: boolean,
     ) {
         if (item.type === 'plugin') {
-            this._playPreparedPlugin(item);
-            // Keep the old output visible until Angular forwards `play` to the
-            // prepared plugin on the next render frame.
+            if (this._plugin_reveal_started) return;
+            this._plugin_reveal_started = true;
+            const generation = this._display_generation;
+            // Forward config before play. Keep the old output until the embed
+            // confirms this play request, including the legacy settle period.
             requestAnimationFrame(() => {
                 if (
+                    this._destroyed ||
+                    generation !== this._display_generation ||
                     this.active_item?.id !== item.id ||
                     this._deferred_reveal_item_id !== item.id
                 ) {
                     return;
                 }
-                this._activatePreparedItem(
-                    item,
-                    resume_if_paused,
-                    should_transition,
-                );
+                this._playPreparedPlugin(item);
             });
             return;
         }
@@ -985,7 +995,7 @@ export class MediaPlayerComponent
     private _playPreparedPlugin(item: MediaPlayerItem) {
         if (item.type !== 'plugin') return;
         const output = this._item_output.get(item.id) ?? this.active_output();
-        const value = time();
+        const value = Math.max(time(), this.output_plugin_plays()[output] + 1);
         this._setOutputPluginPlay(output, value);
     }
 
@@ -1252,6 +1262,29 @@ export class MediaPlayerComponent
         this._handlePluginReady(item, output);
     }
 
+    public onPluginPlaying(
+        value: number,
+        output: 0 | 1 = this.pending_output(),
+    ) {
+        const item = this.active_item;
+        if (
+            this._destroyed ||
+            !this._plugin_reveal_started ||
+            item?.type !== 'plugin' ||
+            this._deferred_reveal_item_id !== item.id ||
+            this._item_output.get(item.id) !== output ||
+            output !== this.pending_output() ||
+            value !== this.output_plugin_plays()[output]
+        )
+            return;
+        this._resetPlayback();
+        this._activatePreparedItem(
+            item,
+            this._deferred_reveal_resume,
+            this._deferred_reveal_transition,
+        );
+    }
+
     public onPluginInteraction(
         interaction: PluginInteractionPayload,
         output: 0 | 1 = this._activeItemOutput(),
@@ -1373,6 +1406,9 @@ export class MediaPlayerComponent
     }
 
     private _configurePluginOutput(item: MediaPlayerItem, output: 0 | 1) {
+        // Iframe load and ready can both arrive. Reconfiguring an in-flight
+        // play would cancel its paint confirmation and could restart rendering.
+        if (this._ready_output_items.has(this._outputKey(output, item))) return;
         const config = {
             instance_id: item.id,
             config: item.plugin_params || {},

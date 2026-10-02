@@ -1,4 +1,21 @@
+import { MediaAnimation } from '@placeos/ts-client';
 import { MediaPlayerItem } from './types';
+
+/** The API returns animation indexes as well as names. */
+export function mediaAnimation(value: unknown): MediaAnimation {
+    const animations = Object.values(MediaAnimation);
+    if (typeof value === 'number') {
+        return Number.isInteger(value) &&
+            value >= 0 &&
+            value < animations.length
+            ? animations[value]
+            : MediaAnimation.Default;
+    }
+    return (
+        animations.find((animation) => animation === value) ||
+        MediaAnimation.Default
+    );
+}
 
 let _time_override = 0;
 let _time_anchor: number | null = null;

@@ -26,7 +26,12 @@ import {
     hasPlayableScheduleMask,
 } from './cron-helpers';
 import { MediaCacheService } from './media-cache.service';
-import { mockTimeState, time, validateMedia } from './media-helpers';
+import {
+    mediaAnimation,
+    mockTimeState,
+    time,
+    validateMedia,
+} from './media-helpers';
 import { MediaPlayerItem } from './types';
 import { recordHeartbeat, watchdogState } from './watchdog';
 
@@ -1585,7 +1590,9 @@ export class SignageService extends AsyncHandler {
             id,
             url: media_ref.media_url,
             name: media_ref.name,
-            animation: media_ref.animation || playlist?.default_animation,
+            animation: mediaAnimation(
+                media_ref.animation || playlist?.default_animation,
+            ),
             playlist: playlist_id || '',
             playlist_name: playlist?.name || '',
             type: media_ref.media_type,

@@ -204,6 +204,57 @@ describe('SignageService', () => {
         vi.restoreAllMocks();
     });
 
+    it('converts API animation indexes before items reach the player', async () => {
+        const display = create_display({
+            playlist_mappings: { 'display-1': ['base-playlist'] },
+            playlist_config: {
+                'base-playlist': [
+                    {
+                        id: 'base-playlist',
+                        enabled: true,
+                        default_animation: 3,
+                    },
+                    ['media-1', 'media-2', 'media-3'],
+                ],
+            },
+            playlist_media: [
+                {
+                    id: 'media-1',
+                    name: 'Cut',
+                    media_type: 'image',
+                    animation: 1,
+                },
+                {
+                    id: 'media-2',
+                    name: 'Fade',
+                    media_type: 'image',
+                    animation: 2,
+                },
+                {
+                    id: 'media-3',
+                    name: 'Playlist default',
+                    media_type: 'image',
+                    animation: 0,
+                },
+            ],
+        });
+        vi.mocked(ts_client.showSignage).mockResolvedValue(display);
+        spectator.service.setDisplay('display-1');
+        await flush();
+        expect(
+            spectator.service.playlist().find((item) => item.id === 'media-1')
+                .animation,
+        ).toBe(MediaAnimation.Cut);
+        expect(
+            spectator.service.playlist().find((item) => item.id === 'media-2')
+                .animation,
+        ).toBe(MediaAnimation.CrossFade);
+        expect(
+            spectator.service.playlist().find((item) => item.id === 'media-3')
+                .animation,
+        ).toBe(MediaAnimation.SlideTop);
+    });
+
     it('should report scheduling and cache state for diagnostics', async () => {
         spectator.service.setDisplay('display-1');
         await flush();

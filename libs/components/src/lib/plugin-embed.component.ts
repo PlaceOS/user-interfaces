@@ -19,6 +19,7 @@ const API_VERSION = 'signage-plugin/v1';
 export type SignagePluginMessageType =
     | 'loaded'
     | 'ready'
+    | 'playing'
     | 'interaction'
     | 'finished'
     | 'error'
@@ -59,6 +60,8 @@ export type PluginLoadedPayload = {
         static_media: boolean;
         /** Absent on plugins built before thumbnails existed */
         can_thumbnail?: boolean;
+        /** Reports `playing` after the first frame for a play request is painted. */
+        can_report_playing?: boolean;
     };
     config_schema: Record<string, unknown>;
 };
@@ -143,6 +146,8 @@ export class PluginEmbedComponent
         'unknown',
     );
     public readonly loaded = output<void>();
+    /** Play input confirmed by the plugin, or released by the legacy timeout. */
+    public readonly playing = output<number>();
     /**
      * Emits for every `finished` message. `statusChange` only emits when the
      * status changes, so it misses a plugin that finishes again after a replay.
@@ -164,7 +169,8 @@ export class PluginEmbedComponent
     });
 
     private _handle_messages = (e) => this._handleMessage(e);
-    private _play_timer: ReturnType<typeof setTimeout> | null = null;
+    private _play_count = 0;
+    private _pending_play: { request_id: string; value: number } | null = null;
     private _pending_auto_config = false;
     private _thumbnail_requests = new Map<string, (image: string) => void>();
     private _thumbnail_count = 0;
@@ -176,12 +182,17 @@ export class PluginEmbedComponent
     public ngOnChanges(changes: SimpleChanges) {
         if (changes.plugin) {
             this.status.set('unknown');
+            this.details.set(null);
             this._clearPlayTimer();
+            this._cancelPendingPlay();
             this._pending_auto_config = this.auto_play() && !!this.config();
             this._setupChannels();
         }
-        if (changes.play && this.play()) this.send('play');
-        if (changes.config && !changes.plugin) this._applyConfigChange();
+        if (changes.config && !changes.plugin) {
+            this._cancelPendingPlay();
+            if (!changes.play || !this.play()) this._applyConfigChange();
+        }
+        if (changes.play && this.play()) this._sendPlay();
     }
 
     /**
@@ -251,6 +262,7 @@ export class PluginEmbedComponent
     }
 
     public onIframeError() {
+        this._cancelPendingPlay();
         this.plugin_error.emit({
             code: 'iframe_load_error',
             message: 'Plugin iframe failed to load.',
@@ -280,6 +292,17 @@ export class PluginEmbedComponent
             return;
         }
 
+        if (msg.type === 'playing') {
+            if (
+                !this._pending_play ||
+                msg.request_id !== this._pending_play.request_id
+            )
+                return;
+            this.status.set('playing');
+            this._confirmPlaying();
+            return;
+        }
+
         // Answering a request is not a lifecycle change, so this has to be
         // handled before `status` is updated below.
         if (msg.type === 'thumbnail') {
@@ -301,6 +324,7 @@ export class PluginEmbedComponent
                 this._autoConfigure();
                 break;
             case 'error':
+                if (msg.payload?.fatal) this._cancelPendingPlay();
                 this.plugin_error.emit(msg.payload);
                 break;
             case 'finished':
@@ -316,15 +340,40 @@ export class PluginEmbedComponent
         this._pending_auto_config = false;
         this.send('config', this.config());
         this._clearPlayTimer();
-        this._play_timer = setTimeout(
-            () => this.send('play'),
-            this.play_delay(),
-        );
+        this.timeout('auto-play', () => this._sendPlay(), this.play_delay());
     }
 
     private _clearPlayTimer() {
-        if (!this._play_timer) return;
-        clearTimeout(this._play_timer);
-        this._play_timer = null;
+        this.clearTimeout('auto-play');
+    }
+
+    private _sendPlay() {
+        this._cancelPendingPlay();
+        // Plugin and config inputs can arrive together before the iframe exists.
+        // Send the current config at playback start so that batch is not lost.
+        if (this.config()) this.send('config', this.config());
+        const request_id = `play-${++this._play_count}`;
+        this._pending_play = { request_id, value: this.play() };
+        // Older plugins do not confirm paint. Give them the existing settle
+        // period after play, when they actually start to render. Opt-in plugins
+        // have a longer bound so a missing reply cannot hold the player forever.
+        this.timeout(
+            'plugin-playing',
+            () => this._confirmPlaying(),
+            this.details()?.capabilities?.can_report_playing ? 15_000 : 2_000,
+        );
+        this.send('play', null, request_id);
+    }
+
+    private _confirmPlaying() {
+        const pending = this._pending_play;
+        if (!pending) return;
+        this._cancelPendingPlay();
+        this.playing.emit(pending.value);
+    }
+
+    private _cancelPendingPlay() {
+        this.clearTimeout('plugin-playing');
+        this._pending_play = null;
     }
 }

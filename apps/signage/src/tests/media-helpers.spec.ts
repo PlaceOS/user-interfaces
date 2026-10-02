@@ -2,6 +2,7 @@ import { MediaAnimation } from '@placeos/ts-client';
 import {
     findValidPlaylistIndex,
     isMediaValid,
+    mediaAnimation,
     mockTimeState,
     setMockTime,
     time,
@@ -25,6 +26,22 @@ const create_item = (
     valid_from: valid ? 0 : Math.floor(Date.now() / 1000) + 3600,
     valid_until: 0,
     getURL: async () => '',
+});
+
+describe('API media animations', () => {
+    it.each([
+        [1, MediaAnimation.Cut],
+        [2, MediaAnimation.CrossFade],
+        [0, MediaAnimation.Default],
+        [MediaAnimation.Cut, MediaAnimation.Cut],
+        [MediaAnimation.CrossFade, MediaAnimation.CrossFade],
+        [-1, MediaAnimation.Default],
+        [1.5, MediaAnimation.Default],
+        [999, MediaAnimation.Default],
+        [undefined, MediaAnimation.Default],
+    ])('converts %s to %s', (value, expected) => {
+        expect(mediaAnimation(value)).toBe(expected);
+    });
 });
 
 function formatTestTime(date: number) {

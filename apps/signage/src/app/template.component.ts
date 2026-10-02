@@ -16,6 +16,7 @@ import {
 } from '@placeos/ts-client';
 import { isDebugEnabled } from './debug-state';
 import { MediaCacheService } from './media-cache.service';
+import { mediaAnimation } from './media-helpers';
 import { MediaPlayerComponent } from './media-player.component';
 import { SignagePanelComponent } from './signage.component';
 import { SignageService } from './signage.service';
@@ -59,7 +60,7 @@ function backgroundPlayerItem(
         name: media.name,
         playlist: '',
         playlist_name: '',
-        animation: media.animation || MediaAnimation.Cut,
+        animation: mediaAnimation(media.animation || MediaAnimation.Cut),
         type: media.media_type,
         url: media.media_url,
         start_time: media.start_time,
