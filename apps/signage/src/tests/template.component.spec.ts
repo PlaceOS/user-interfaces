@@ -95,7 +95,30 @@ describe('SignageTemplateComponent', () => {
         });
     });
 
-    afterEach(() => vi.restoreAllMocks());
+    let shell_frame: HTMLIFrameElement | null = null;
+
+    /** Embed the player in a stand-in manager preview, its parent frame */
+    const embedInShell = () => {
+        shell_frame = document.createElement('iframe');
+        document.body.appendChild(shell_frame);
+        const shell = shell_frame.contentWindow as Window;
+        vi.spyOn(window, 'parent', 'get').mockReturnValue(shell);
+        return shell;
+    };
+
+    const postLayouts = (layouts: unknown, source: Window) =>
+        window.dispatchEvent(
+            new MessageEvent('message', {
+                data: { type: 'signage:template-layouts', layouts },
+                source,
+            }),
+        );
+
+    afterEach(() => {
+        vi.restoreAllMocks();
+        shell_frame?.remove();
+        shell_frame = null;
+    });
 
     it('loads the template, background, and layout plugins', async () => {
         spectator = create_component({
@@ -307,18 +330,14 @@ describe('SignageTemplateComponent', () => {
     });
 
     it('previews posted layouts only in debug mode', async () => {
+        const shell = embedInShell();
         spectator = create_component({
             params: { template_id: 'template-1', system_id: 'display-1' },
         });
         await vi.waitFor(() => {
             expect(spectator.component.layout_items()).toHaveLength(1);
         });
-        const post = (layouts: unknown) =>
-            window.dispatchEvent(
-                new MessageEvent('message', {
-                    data: { type: 'signage:template-layouts', layouts },
-                }),
-            );
+        const post = (layouts: unknown) => postLayouts(layouts, shell);
 
         post([]);
         expect(spectator.component.layout_items()).toHaveLength(1);
@@ -351,6 +370,7 @@ describe('SignageTemplateComponent', () => {
                     ? Promise.reject(new Error('Not found'))
                     : Promise.resolve(pending),
         );
+        const shell = embedInShell();
         spectator = create_component({
             params: { template_id: 'template-1', system_id: 'display-1' },
             queryParams: { debug: 'true' },
@@ -363,15 +383,9 @@ describe('SignageTemplateComponent', () => {
             {},
         );
 
-        window.dispatchEvent(
-            new MessageEvent('message', {
-                data: {
-                    type: 'signage:template-layouts',
-                    layouts: [
-                        { position: 'top', y_pos: 0.2, plugin_id: 'plugin-1' },
-                    ],
-                },
-            }),
+        postLayouts(
+            [{ position: 'top', y_pos: 0.2, plugin_id: 'plugin-1' }],
+            shell,
         );
         await spectator.fixture.whenStable();
 
@@ -381,6 +395,53 @@ describe('SignageTemplateComponent', () => {
             top: 20,
             width: 100,
             height: 80,
+        });
+    });
+
+    it('ignores preview layouts from any window but the parent', async () => {
+        embedInShell();
+        debug.set(true);
+        spectator = create_component({
+            params: { template_id: 'template-1', system_id: 'display-1' },
+        });
+        await vi.waitFor(() => {
+            expect(spectator.component.layout_items()).toHaveLength(1);
+        });
+        const content_frame = document.createElement('iframe');
+        document.body.appendChild(content_frame);
+
+        postLayouts([], content_frame.contentWindow as Window);
+        postLayouts([], window);
+
+        expect(spectator.component.layout_items()).toHaveLength(1);
+        content_frame.remove();
+    });
+
+    it('does not ask the parent for preview layouts outside debug mode', async () => {
+        const ask = vi.spyOn(embedInShell(), 'postMessage');
+        spectator = create_component({
+            params: { template_id: 'template-1', system_id: 'display-1' },
+        });
+
+        await vi.waitFor(() => {
+            expect(spectator.component.template()?.id).toBe('template-1');
+        });
+
+        expect(ask).not.toHaveBeenCalled();
+    });
+
+    it('asks the parent for preview layouts in debug mode', async () => {
+        const ask = vi.spyOn(embedInShell(), 'postMessage');
+        spectator = create_component({
+            params: { template_id: 'template-1', system_id: 'display-1' },
+            queryParams: { debug: 'true' },
+        });
+
+        await vi.waitFor(() => {
+            expect(ask).toHaveBeenCalledWith(
+                { type: 'signage:template-preview-ready' },
+                '*',
+            );
         });
     });
 

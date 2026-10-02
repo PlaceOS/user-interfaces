@@ -50,6 +50,12 @@ const INTERACTIVE_PRELOAD_LEAD_TIME = 10 * 1000;
 const WEBPAGE_REVEAL_DELAY = 3 * 1000;
 /** Max wait for plugin load/ready before continuing playback anyway */
 const PLUGIN_LOAD_TIMEOUT = 15 * 1000;
+/**
+ * Bounds on how long a play-through plugin may run without reporting that it
+ * finished. It gets twice its scheduled duration, held between these.
+ */
+const PLAY_THROUGH_MIN_LIMIT = 5 * 60 * 1000;
+const PLAY_THROUGH_MAX_LIMIT = 60 * 60 * 1000;
 /** Minimum spacing between attempts to resolve a URL that failed to resolve */
 const URL_RETRY_DELAY = 1000;
 
@@ -356,6 +362,8 @@ export class MediaPlayerComponent
     private _item_output = new Map<string, 0 | 1>();
     private _output_items: [MediaPlayerItem, MediaPlayerItem] = [null, null];
     private _ready_output_items = new Set<string>();
+    /** Plugin outputs that have sent at least one plugin protocol message */
+    private _responded_output_items = new Set<string>();
 
     public get playlist_items() {
         return this._item_playlist;
@@ -628,7 +636,8 @@ export class MediaPlayerComponent
      * Whether the item on screen plays to completion, so interrupting it now
      * would be noticed. Images and webpages hold a static frame and can be
      * replaced without anyone seeing a difference; videos and plugins that
-     * report when they finish cannot.
+     * report when they finish cannot. A plugin held on screen past its limit,
+     * as a lone item is, is not about to finish and does not count.
      */
     public isMidPlayThroughItem() {
         const item = this.active_item;
@@ -636,7 +645,13 @@ export class MediaPlayerComponent
         if (item.type === 'video') return true;
         if (item.type === 'plugin') {
             const playback = item.plugin?.playback_type;
-            return playback === 'playsthrough' || playback === 'interactive';
+            const limit =
+                playback === 'playsthrough'
+                    ? this._playThroughLimit(item)
+                    : playback === 'interactive'
+                      ? this._effectivePlaybackDuration(item)
+                      : 0;
+            return time() - this._item_start < limit;
         }
         return false;
     }
@@ -745,13 +760,17 @@ export class MediaPlayerComponent
             this.progress_start.set(0);
             this.setPlaylistItem(0);
         }
-        // For playsthrough plugins, advance when plugin signals finished
+        // For playsthrough plugins, advance when plugin signals finished, or
+        // once it has overrun its limit so a hung plugin cannot hold the
+        // screen forever
         if (
             item?.type === 'plugin' &&
             item.plugin?.playback_type === 'playsthrough'
         ) {
             if (this._plugin_finished) {
                 this.nextItem();
+            } else if (now > this._item_start + this._playThroughLimit(item)) {
+                this._handleOverrunPlugin(item);
             }
             return;
         }
@@ -967,6 +986,7 @@ export class MediaPlayerComponent
         if (item) {
             this._item_output.delete(item.id);
             this._ready_output_items.delete(this._outputKey(output, item));
+            this._responded_output_items.delete(this._outputKey(output, item));
         }
         this._output_items[output] = null;
     }
@@ -1150,9 +1170,13 @@ export class MediaPlayerComponent
         if (!item || item.type !== 'plugin') return;
         if (this._item_output.get(item.id) !== output) return;
         log('MediaPlayer', `Plugin status: ${status}`, [item.name]);
+        if (status !== 'unknown') {
+            this._responded_output_items.add(this._outputKey(output, item));
+        }
         if (status === 'ready') {
             this._handlePluginReady(item, output);
-        } else if (status === 'finished') {
+        } else if (status === 'finished' && this.active_item?.id === item.id) {
+            // A preloaded plugin finishing must not end the one on screen
             this._plugin_finished = true;
         }
     }
@@ -1191,14 +1215,53 @@ export class MediaPlayerComponent
         log('MediaPlayer', `Plugin error: ${error.message}`, [error], 'error');
         if (!error.fatal) return;
         if (item?.type === 'plugin') {
-            this._markNotShown(item);
-            this._handled_error_cycle = this._currentMediaCycle();
-            this._clearDeferredReveal();
-            this._clearOutput(output);
-            this._skipFailedMedia(this._item_start || time());
+            this._failPluginItem(item, output);
         } else {
             this.nextItem();
         }
+    }
+
+    /**
+     * Treat a plugin as failed to load: remove it from screen and skip it, or
+     * retry it after a delay when there is nothing else to show.
+     */
+    private _failPluginItem(item: MediaPlayerItem, output: 0 | 1) {
+        this._markNotShown(item);
+        this._handled_error_cycle = this._currentMediaCycle();
+        this._clearDeferredReveal();
+        this._clearOutput(output);
+        this._skipFailedMedia(this._item_start || time());
+    }
+
+    /**
+     * A play-through plugin that has overrun its limit. With other items to
+     * show, move on. A lone one is held like any single item, unless it never
+     * sent a plugin message: then it can never finish and is most likely an
+     * error page, so it is retried the same way as a fatal plugin error.
+     */
+    private _handleOverrunPlugin(item: MediaPlayerItem) {
+        if (!this._shouldHoldSingleInteractiveItem(item)) {
+            log(
+                'MediaPlayer',
+                `Plugin "${item.name}" did not report finished in time; continuing.`,
+                [item.plugin?.uri],
+                'warn',
+            );
+            this.nextItem();
+            return;
+        }
+        // Already removed from screen and waiting for its retry
+        const output = this._item_output.get(item.id);
+        if (output === undefined || this._pluginResponded(item, output)) {
+            return;
+        }
+        log(
+            'MediaPlayer',
+            `Plugin "${item.name}" never responded; retrying.`,
+            [item.plugin?.uri],
+            'warn',
+        );
+        this._failPluginItem(item, output);
     }
 
     private _showPlugin(item: MediaPlayerItem, output: 0 | 1) {
@@ -1267,6 +1330,29 @@ export class MediaPlayerComponent
         item: MediaPlayerItem = this.active_item,
     ) {
         return this._playback_duration || item?.duration || 15 * 1000;
+    }
+
+    /** Whether the plugin on `output` has sent any plugin protocol message */
+    private _pluginResponded(item: MediaPlayerItem, output: 0 | 1) {
+        return this._responded_output_items.has(this._outputKey(output, item));
+    }
+
+    /**
+     * How long a play-through plugin may hold the screen without reporting
+     * that it finished. One that never sent a plugin message - a page that
+     * failed to load, or not a plugin at all - cannot report it, so it gets
+     * its scheduled duration like a static item. One that did gets twice
+     * that, within bounds, so a long run is not cut short but a hung plugin
+     * cannot hold the screen forever.
+     */
+    private _playThroughLimit(item: MediaPlayerItem) {
+        const duration = this._effectivePlaybackDuration(item);
+        const output = this._item_output.get(item.id) ?? this.active_output();
+        if (!this._pluginResponded(item, output)) return duration;
+        return Math.min(
+            Math.max(duration * 2, PLAY_THROUGH_MIN_LIMIT),
+            PLAY_THROUGH_MAX_LIMIT,
+        );
     }
 
     private _resetPlayback(playback_duration = 0) {
@@ -1457,6 +1543,15 @@ export class MediaPlayerComponent
 
     private _shouldPreloadUpcomingInteractiveContent() {
         if (!this._item_real_start) return false;
+        // Until the current item is revealed it occupies the inactive output,
+        // and preloading there would replace it with the next item
+        if (
+            this.defer_reveal() ||
+            this.in_animation() ||
+            this.pending_output() !== this.active_output()
+        ) {
+            return false;
+        }
         const item = this.active_item;
         const remaining =
             this._effectivePlaybackDuration(item) -
@@ -1704,6 +1799,7 @@ export class MediaPlayerComponent
         this._item_output.clear();
         this._output_items = [null, null];
         this._ready_output_items.clear();
+        this._responded_output_items.clear();
         this._setOutputPlugin(0, null);
         this._setOutputPlugin(1, null);
     }

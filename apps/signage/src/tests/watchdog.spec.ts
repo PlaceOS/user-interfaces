@@ -1,9 +1,11 @@
 import {
-    clearCachesAndReload,
+    clearApplicationCache,
     recordFatalError,
     recordHeartbeat,
     requestRecovery,
+    resetBootRetries,
     resetWatchdog,
+    scheduleBootRetry,
     stalledSignals,
     startWatchdog,
     watchdogState,
@@ -13,7 +15,7 @@ const MINUTE = 60 * 1000;
 
 describe('recovery watchdog', () => {
     let reload: any;
-    let hard_reload: any;
+    let clear_cache: any;
     let stop: () => void;
 
     let expected_to_run: boolean;
@@ -22,7 +24,7 @@ describe('recovery watchdog', () => {
         stop?.();
         stop = startWatchdog({
             reload,
-            hardReload: hard_reload,
+            clearCache: clear_cache,
             isExpectedToRun: () => expected_to_run,
         });
     };
@@ -64,8 +66,9 @@ describe('recovery watchdog', () => {
         vi.useFakeTimers();
         localStorage.clear();
         resetWatchdog();
-        reload = vi.fn();
-        hard_reload = vi.fn(async () => true);
+        // A reload that works ends the page, and the watchdog with it
+        reload = vi.fn(() => stop());
+        clear_cache = vi.fn(async () => true);
         expected_to_run = true;
         stop = () => undefined;
         start();
@@ -83,14 +86,15 @@ describe('recovery watchdog', () => {
 
         // A failed boot is most often a bad cached build, so it goes straight
         // to clearing the cache rather than spending plain reloads first
-        expect(hard_reload).toHaveBeenCalledTimes(1);
-        expect(reload).not.toHaveBeenCalled();
+        expect(clear_cache).toHaveBeenCalledTimes(1);
+        expect(clear_cache).toHaveBeenCalledBefore(reload);
+        expect(reload).toHaveBeenCalledTimes(1);
     });
 
     it('should give the player time to boot before recovering', async () => {
         await vi.advanceTimersByTimeAsync(4 * MINUTE);
 
-        expect(hard_reload).not.toHaveBeenCalled();
+        expect(clear_cache).not.toHaveBeenCalled();
         expect(reload).not.toHaveBeenCalled();
     });
 
@@ -99,7 +103,7 @@ describe('recovery watchdog', () => {
 
         await vi.advanceTimersByTimeAsync(60 * MINUTE);
 
-        expect(hard_reload).not.toHaveBeenCalled();
+        expect(clear_cache).not.toHaveBeenCalled();
         expect(reload).not.toHaveBeenCalled();
     });
 
@@ -110,7 +114,7 @@ describe('recovery watchdog', () => {
 
         await vi.advanceTimersByTimeAsync(4 * MINUTE);
 
-        expect(hard_reload).not.toHaveBeenCalled();
+        expect(clear_cache).not.toHaveBeenCalled();
     });
 
     it('should recover when content stops being visible', async () => {
@@ -156,12 +160,12 @@ describe('recovery watchdog', () => {
     });
 
     it('should fall back to a plain reload when a failed boot cannot clear the cache', async () => {
-        hard_reload = vi.fn(async () => false);
+        clear_cache = vi.fn(async () => false);
         start();
 
         await vi.advanceTimersByTimeAsync(6 * MINUTE);
 
-        expect(hard_reload).toHaveBeenCalledTimes(1);
+        expect(clear_cache).toHaveBeenCalledTimes(1);
         expect(reload).toHaveBeenCalledTimes(1);
     });
 
@@ -235,7 +239,7 @@ describe('recovery watchdog', () => {
         for (let attempt = 0; attempt < 4; attempt++) await stallAgain();
         expect(watchdogState().recoveries_throttled).toBe(true);
         reload.mockClear();
-        hard_reload.mockClear();
+        clear_cache.mockClear();
 
         // Half an hour later, still stalled
         resetWatchdog();
@@ -246,12 +250,12 @@ describe('recovery watchdog', () => {
         await runStalled();
 
         expect(reload).not.toHaveBeenCalled();
-        expect(hard_reload).not.toHaveBeenCalled();
+        expect(clear_cache).not.toHaveBeenCalled();
     });
 
     it('should clear the application cache once recoveries are throttled', async () => {
         for (let attempt = 0; attempt < 4; attempt++) await stallAgain();
-        expect(hard_reload).not.toHaveBeenCalled();
+        expect(clear_cache).not.toHaveBeenCalled();
         expect(watchdogState().recoveries_throttled).toBe(true);
 
         resetWatchdog();
@@ -261,11 +265,11 @@ describe('recovery watchdog', () => {
         beat();
         await runStalled();
 
-        expect(hard_reload).toHaveBeenCalledTimes(1);
+        expect(clear_cache).toHaveBeenCalledTimes(1);
     });
 
     it('should fall back to a plain reload when the cache cannot be cleared', async () => {
-        hard_reload = vi.fn(async () => false);
+        clear_cache = vi.fn(async () => false);
         for (let attempt = 0; attempt < 4; attempt++) await stallAgain();
         reload.mockClear();
 
@@ -276,7 +280,7 @@ describe('recovery watchdog', () => {
         beat();
         await runStalled();
 
-        expect(hard_reload).toHaveBeenCalledTimes(1);
+        expect(clear_cache).toHaveBeenCalledTimes(1);
         expect(reload).toHaveBeenCalledTimes(1);
     });
 
@@ -296,7 +300,60 @@ describe('recovery watchdog', () => {
         expect(watchdogState().recoveries_in_last_hour).toBe(1);
         // Back to plain reloads rather than cache clearing
         expect(reload).toHaveBeenCalledTimes(4);
-        expect(hard_reload).not.toHaveBeenCalled();
+        expect(clear_cache).not.toHaveBeenCalled();
+    });
+
+    it('should reload anyway when clearing the cache never finishes', async () => {
+        clear_cache = vi.fn(() => new Promise<boolean>(() => undefined));
+        // Nor does the reload that follows: the server never answers it
+        reload = vi.fn();
+        start();
+
+        // The failed boot is recovered at five minutes and never completes
+        await vi.advanceTimersByTimeAsync(6 * MINUTE);
+        expect(clear_cache).toHaveBeenCalledTimes(1);
+        expect(reload).not.toHaveBeenCalled();
+        expect(watchdogState().recovering).toBe(true);
+
+        // Two minutes after it started, it reloads anyway and lets go
+        await vi.advanceTimersByTimeAsync(MINUTE);
+        expect(reload).toHaveBeenCalledTimes(1);
+        expect(watchdogState().recovering).toBe(false);
+
+        // So the next check can try again instead of waiting forever
+        await vi.advanceTimersByTimeAsync(30 * 1000);
+        expect(clear_cache).toHaveBeenCalledTimes(2);
+    });
+
+    it('should not reload again when an abandoned cache clear finishes late', async () => {
+        let finish: (cleared: boolean) => void = () => undefined;
+        clear_cache = vi.fn(
+            () => new Promise<boolean>((resolve) => (finish = resolve)),
+        );
+        // The reload never completes either, so this page stays
+        reload = vi.fn();
+        start();
+
+        await vi.advanceTimersByTimeAsync(7 * MINUTE);
+        expect(reload).toHaveBeenCalledTimes(1);
+
+        // The first attempt finally gives up while the fallback reload is
+        // still loading; it must not start a competing reload
+        finish(false);
+        await vi.advanceTimersByTimeAsync(0);
+
+        expect(reload).toHaveBeenCalledTimes(1);
+    });
+
+    it('should fall back to a plain reload when clearing the cache throws', async () => {
+        clear_cache = vi.fn(async () => {
+            throw new Error('denied');
+        });
+        start();
+
+        await vi.advanceTimersByTimeAsync(6 * MINUTE);
+
+        expect(reload).toHaveBeenCalledTimes(1);
     });
 
     it('should allow a recovery to be requested directly', () => {
@@ -449,26 +506,22 @@ describe('cache clearing recovery', () => {
         vi.unstubAllGlobals();
     });
 
-    it('should reload the current url, keeping the route it displays', async () => {
-        // The display to show, and whether to show it in debug mode, live in
-        // the hash, so recovering must not navigate to the base path
-        expect(await clearCachesAndReload()).toBe(true);
+    it('should remove the service worker and its caches, leaving the reload to the caller', async () => {
+        expect(await clearApplicationCache()).toBe(true);
 
         expect(unregister).toHaveBeenCalledTimes(1);
         expect(delete_cache).toHaveBeenCalledTimes(2);
-        expect(reload).toHaveBeenCalledTimes(1);
+        expect(reload).not.toHaveBeenCalled();
     });
 
-    it('should still reload when the cache cannot be cleared', async () => {
+    it('should carry on when the caches cannot be deleted', async () => {
         vi.stubGlobal('caches', {
             keys: async () => {
                 throw new Error('denied');
             },
         });
 
-        expect(await clearCachesAndReload()).toBe(true);
-
-        expect(reload).toHaveBeenCalledTimes(1);
+        expect(await clearApplicationCache()).toBe(true);
     });
 
     it('should not clear the cache when the server cannot be reached', async () => {
@@ -479,11 +532,34 @@ describe('cache clearing recovery', () => {
             }),
         );
 
-        expect(await clearCachesAndReload()).toBe(false);
+        expect(await clearApplicationCache()).toBe(false);
 
         expect(unregister).not.toHaveBeenCalled();
         expect(delete_cache).not.toHaveBeenCalled();
         expect(reload).not.toHaveBeenCalled();
+    });
+
+    it('should not clear the cache when the server never answers', async () => {
+        vi.useFakeTimers();
+        vi.stubGlobal(
+            'fetch',
+            vi.fn(
+                (_: string, init: RequestInit) =>
+                    new Promise((_resolve, reject) =>
+                        init.signal?.addEventListener('abort', () =>
+                            reject(new Error('aborted')),
+                        ),
+                    ),
+            ),
+        );
+
+        const result = clearApplicationCache();
+        await vi.advanceTimersByTimeAsync(15 * 1000);
+
+        expect(await result).toBe(false);
+        expect(unregister).not.toHaveBeenCalled();
+        expect(reload).not.toHaveBeenCalled();
+        vi.useRealTimers();
     });
 
     it('should not clear the cache when the server errors', async () => {
@@ -492,9 +568,54 @@ describe('cache clearing recovery', () => {
             vi.fn(async () => ({ ok: false })),
         );
 
-        expect(await clearCachesAndReload()).toBe(false);
+        expect(await clearApplicationCache()).toBe(false);
 
         expect(unregister).not.toHaveBeenCalled();
         expect(reload).not.toHaveBeenCalled();
+    });
+});
+
+describe('boot retry', () => {
+    let console_error: ReturnType<typeof vi.spyOn>;
+
+    beforeEach(() => {
+        vi.useFakeTimers();
+        sessionStorage.clear();
+        console_error = vi.spyOn(console, 'error').mockImplementation(() => {});
+    });
+
+    afterEach(() => {
+        sessionStorage.clear();
+        console_error.mockRestore();
+        vi.useRealTimers();
+    });
+
+    it('should reload after a failed start, waiting longer each time up to a cap', () => {
+        const reload = vi.fn();
+
+        const delays = Array.from({ length: 8 }, () =>
+            scheduleBootRetry(reload),
+        );
+
+        expect(delays).toEqual([
+            10_000, 20_000, 40_000, 80_000, 160_000, 300_000, 300_000, 300_000,
+        ]);
+        vi.advanceTimersByTime(300_000);
+        expect(reload).toHaveBeenCalledTimes(8);
+        // Printed without debug mode, which needs settings that never loaded
+        expect(console_error).toHaveBeenCalledWith(
+            expect.stringContaining(
+                'Application failed to start; reloading in 10s',
+            ),
+        );
+    });
+
+    it('should start from the shortest wait again after a successful start', () => {
+        scheduleBootRetry(vi.fn());
+        scheduleBootRetry(vi.fn());
+
+        resetBootRetries();
+
+        expect(scheduleBootRetry(vi.fn())).toBe(10_000);
     });
 });

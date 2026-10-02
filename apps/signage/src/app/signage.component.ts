@@ -250,7 +250,14 @@ export class SignagePanelComponent extends AsyncHandler implements OnInit {
         sessionStorage.setItem(MUTE_STORAGE_KEY, `${muted}`);
     }
 
+    /**
+     * Pause and resume commands from the shell that embeds the player. Only
+     * the parent frame is obeyed: webpages and plugins on screen post messages
+     * to this window too, and a paused player looks healthy to the watchdog,
+     * so one that paused it would freeze the display for good.
+     */
     private readonly _remote_message_handler = (event: MessageEvent) => {
+        if (window.parent === window || event?.source !== window.parent) return;
         const data = event?.data;
         if (!data || typeof data !== 'object') return;
         if (data.type === REMOTE_PAUSE) this._setPlaybackState('PAUSED');
