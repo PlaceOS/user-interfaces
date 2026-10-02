@@ -346,8 +346,17 @@ export class MediaPlayerComponent
     /** Increments on every item (re)display; scopes load-error handling so a
      * looping playlist keeps skipping a broken item rather than freezing on it */
     private _display_generation = 0;
-    /** Media item ids whose URL is currently being fetched */
-    private _url_fetch_in_flight = new Set<string>();
+    /**
+     * The URL request in flight per item id. A result is only kept if its
+     * request is still the current one, so a request for a source that has
+     * since been edited or removed cannot save a stale URL.
+     */
+    private _url_requests = new Map<string, symbol>();
+    /**
+     * A plugin that failed while preloaded. It is not preloaded again, and
+     * loads afresh when its turn comes.
+     */
+    private _failed_preload_id = '';
     /** Id of the item we are currently waiting on a URL for, and when we began */
     private _url_wait_item_id = '';
     private _url_wait_started = 0;
@@ -1014,6 +1023,7 @@ export class MediaPlayerComponent
         this.duration.set(0);
         this._plugin_finished = false;
         this._held_pass_reported = false;
+        if (item.id === this._failed_preload_id) this._failed_preload_id = '';
         this._last_video_speed.delete(output);
     }
 
@@ -1076,7 +1086,7 @@ export class MediaPlayerComponent
         resume_if_paused: boolean,
     ) {
         const fetched = this._item_urls[item.id] !== undefined;
-        const fetching = this._url_fetch_in_flight.has(item.id);
+        const fetching = this._url_requests.has(item.id);
         const still_loading = item.isLoading?.() ?? false;
         if (
             this._shouldWaitForMediaURL(item, fetched, fetching, still_loading)
@@ -1262,12 +1272,21 @@ export class MediaPlayerComponent
     ) {
         log('MediaPlayer', `Plugin error: ${error?.message}`, [error], 'error');
         if (!error?.fatal) return;
-        // Only the plugin on screen is failed. One preloaded for later is
-        // loaded again when its turn comes.
         const item = this.active_item;
-        if (item?.type !== 'plugin') return;
-        if (this._item_output.get(item.id) !== output) return;
-        this._failPluginItem(item, output);
+        if (
+            item?.type === 'plugin' &&
+            this._item_output.get(item.id) === output
+        ) {
+            this._failPluginItem(item, output);
+            return;
+        }
+        // A plugin preloaded for later. Remove it without touching the item
+        // on screen, so it loads afresh when its turn comes.
+        const preloaded = this._output_items[output];
+        if (preloaded?.type !== 'plugin') return;
+        if (output === this.active_output()) return;
+        this._failed_preload_id = preloaded.id;
+        this._clearOutput(output);
     }
 
     /**
@@ -1573,6 +1592,7 @@ export class MediaPlayerComponent
             return;
         }
         if (this._output_items[output]?.id === item.id) return;
+        if (item.id === this._failed_preload_id) return;
         this._clearOutput(output);
         this._output_items[output] = item;
         this._item_output.set(item.id, output);
@@ -1622,22 +1642,21 @@ export class MediaPlayerComponent
         // A truthy entry is already a usable URL; '' / null mark a previous
         // failure that we retry, undefined means we have not fetched it yet.
         if (this._item_urls[item.id]) return;
-        if (this._url_fetch_in_flight.has(item.id)) return;
+        if (this._url_requests.has(item.id)) return;
         // Failures are retried, but not on every 50ms tick
         if ((this._url_retry_after.get(item.id) || 0) > Date.now()) return;
         const id = item.id;
-        this._url_fetch_in_flight.add(id);
-        let settled = false;
+        const request = Symbol(id);
+        this._url_requests.set(id, request);
         const settle = (resolved: string | URL | null) => {
             const url = this._normaliseURL(resolved);
-            // Resolved too late to be used. Release it so its file is freed.
-            if (settled || this._destroyed) {
+            // Timed out, dropped by a playlist edit, or the player is gone.
+            // Release it so its file is freed.
+            if (this._url_requests.get(id) !== request || this._destroyed) {
                 if (url) URL.revokeObjectURL(url);
                 return;
             }
-            settled = true;
-            this.clearTimeout(`url-fetch-${id}`);
-            this._url_fetch_in_flight.delete(id);
+            this._cancelURLRequest(id);
             this._item_urls[id] = url;
             if (!url) {
                 this._url_retry_after.set(id, Date.now() + URL_RETRY_DELAY);
@@ -1664,6 +1683,12 @@ export class MediaPlayerComponent
         } catch {
             return `${url}`;
         }
+    }
+
+    /** Stop waiting on an item's URL request. A late result is released. */
+    private _cancelURLRequest(id: string) {
+        this.clearTimeout(`url-fetch-${id}`);
+        this._url_requests.delete(id);
     }
 
     /** Forget the URL resolved for an item, releasing it if it is a blob */
@@ -1890,10 +1915,14 @@ export class MediaPlayerComponent
         for (const id of Object.keys(this._item_urls)) {
             if (!keep.has(id)) this._dropItemURL(id);
         }
+        for (const id of [...this._url_requests.keys()]) {
+            if (!keep.has(id)) this._cancelURLRequest(id);
+        }
         for (const id of [...this._url_retry_after.keys()]) {
             if (!keep.has(id)) this._url_retry_after.delete(id);
         }
         if (!keep.has(this._shown_item_id)) this._shown_item_id = '';
+        if (!keep.has(this._failed_preload_id)) this._failed_preload_id = '';
         for (const output of [0, 1] as const) {
             const item = this._output_items[output];
             if (!item || keep.has(item.id)) continue;

@@ -1486,7 +1486,7 @@ describe('MediaPlayerComponent', () => {
             .mockImplementation(() => undefined);
 
         // The fetch for "a" has been in-flight far longer than the wait cap.
-        spectator.component['_url_fetch_in_flight'].add('a');
+        spectator.component['_url_requests'].set('a', Symbol('a'));
         spectator.component['_url_wait_item_id'] = 'a';
         spectator.component['_url_wait_started'] = 0;
         next_item_spy.mockClear();
@@ -1861,6 +1861,69 @@ describe('MediaPlayerComponent', () => {
             spectator.component.output_plugin_plays()[output],
         ).toBeGreaterThan(0);
         expect(spectator.component['_plugin_finished']).toBe(false);
+    });
+
+    it('should load a preloaded plugin afresh after it failed', () => {
+        const plugin = {
+            id: 'plugin-1',
+            name: 'Weather',
+            uri: 'https://plugins.example/weather',
+        } as SignagePlugin;
+        const plugin_item = create_item('plugin-1', { type: 'plugin', plugin });
+        load_playlist([create_item('image-1'), plugin_item]);
+        spectator.component['_clearDeferredReveal']();
+        // Preloaded on the inactive output, where it reported ready
+        spectator.component['_output_items'][1] = plugin_item;
+        spectator.component['_item_output'].set('plugin-1', 1);
+        spectator.component.output_plugins.set([null, plugin]);
+        spectator.component.onPluginStatus('ready', 1);
+        const next_item_spy = vi.spyOn(spectator.component, 'nextItem');
+
+        spectator.component.onPluginError(
+            { code: 'boom', fatal: true, message: 'Boom' },
+            1,
+        );
+
+        expect(next_item_spy).not.toHaveBeenCalled();
+        expect(spectator.component.output_plugins()[1]).toBeNull();
+        // Not preloaded again in the final seconds of the current item
+        spectator.component['_item_real_start'] = Date.now() - 6_000;
+        spectator.component['_processURLs']();
+        expect(spectator.component.output_plugins()[1]).toBeNull();
+
+        // Its turn: loaded again rather than revealed from the failed frame
+        spectator.component.setPlaylistItem(1);
+        expect(spectator.component.output_plugins()[1]).toBe(plugin);
+        expect(
+            spectator.component['_ready_output_items'].has(
+                spectator.component['_outputKey'](1, plugin_item),
+            ),
+        ).toBe(false);
+    });
+
+    it('should use the new source when an edit changes it during a fetch', async () => {
+        vi.useFakeTimers();
+        let resolve_old: (url: string) => void = () => undefined;
+        load_playlist([
+            create_item('a', {
+                url: 'old-url',
+                getURL: () =>
+                    new Promise<string>((resolve) => (resolve_old = resolve)),
+            }),
+        ]);
+
+        load_playlist([
+            create_item('a', {
+                url: 'new-url',
+                getURL: async () => 'blob:new',
+            }),
+        ]);
+        await vi.advanceTimersByTimeAsync(0);
+        resolve_old('blob:old');
+        await vi.advanceTimersByTimeAsync(0);
+
+        expect(spectator.component.url('a')).toBe('blob:new');
+        expect(URL.revokeObjectURL).toHaveBeenCalledWith('blob:old');
     });
 
     it('should replay a lone play-through plugin every time it finishes', () => {
