@@ -11,6 +11,7 @@ import {
 describe('DisplayEditModalComponent', () => {
     const roots = signal<PlaceZone[]>([]);
     const zones = signal<PlaceZone[]>([]);
+    const query_zones = vi.fn();
     const on_add = vi.fn();
     const on_edit = vi.fn();
     // A zone with the organisation as its only ancestor
@@ -31,7 +32,7 @@ describe('DisplayEditModalComponent', () => {
             roots,
             zones,
             load_children: vi.fn().mockResolvedValue([]),
-            query_zones: vi.fn().mockReturnValue(null),
+            query_zones,
             zone_ids,
             onAdd: on_add,
             onEdit: on_edit,
@@ -53,6 +54,7 @@ describe('DisplayEditModalComponent', () => {
 
     beforeEach(() => {
         vi.clearAllMocks();
+        query_zones.mockReturnValue(null);
         setNotifyOutlet({ open: notify_open } as any, true);
         dialog_ref.disableClose = false;
         roots.set([new PlaceZone({ id: 'org', name: 'Organisation' })]);
@@ -62,6 +64,15 @@ describe('DisplayEditModalComponent', () => {
         ]);
         on_add.mockResolvedValue(new PlaceSystem({ id: 'display-new' }));
         on_edit.mockResolvedValue(new PlaceSystem({ id: 'display-1' }));
+    });
+
+    it('searches without a parent selection', async () => {
+        const component = await make();
+        component.selected_zone.set(null);
+        TestBed.tick();
+        component.zone_list.search.set('lobby');
+        await new Promise((resolve) => setTimeout(resolve, 450));
+        expect(query_zones).toHaveBeenCalledWith('lobby', '');
     });
 
     it('creates a display with its default zones and orientation', async () => {

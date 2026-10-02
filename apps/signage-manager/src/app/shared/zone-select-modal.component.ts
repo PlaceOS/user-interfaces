@@ -69,8 +69,8 @@ export class ZoneSelectModalComponent {
     public readonly selected_zone = signal<PlaceZone | null>(null);
     public readonly list = new PagedSearch<PlaceZone>((search) => {
         const parent_id = this.selected_zone()?.id;
-        return parent_id && search.trim()
-            ? this._zone_service.querySelectableZones(search, parent_id)
+        return search.trim()
+            ? this._zone_service.querySelectableZones(search, parent_id || '')
             : null;
     }, byDisplayName);
     public readonly loadChildren = (parent_id: string) =>
