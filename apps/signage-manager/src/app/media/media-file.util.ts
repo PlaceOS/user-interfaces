@@ -9,6 +9,8 @@ import {
 const VIDEO_THUMBNAIL_OFFSET = 0.1;
 /** How long to wait for a paintable video frame, in milliseconds */
 const VIDEO_THUMBNAIL_TIMEOUT = 15 * 1000;
+/** How long to wait for the size and duration of a file, in milliseconds */
+const MEDIA_METADATA_TIMEOUT = 15 * 1000;
 
 /** File from a data URL, such as a generated thumbnail */
 export function dataURLtoFile(data_url: string, filename: string) {
@@ -23,34 +25,46 @@ export function dataURLtoFile(data_url: string, filename: string) {
     return new File([uint8_array], filename, { type: mime_type });
 }
 
-/** Orientation, size and duration of an image or video file */
+/**
+ * Orientation, size and duration of an image or video file. Rejects when the
+ * browser cannot decode the file, or does not read it within the timeout.
+ */
 export function getMediaMetadata(file: File) {
-    return new Promise<SignageMediaMetadata>((resolve) => {
+    return new Promise<SignageMediaMetadata>((resolve, reject) => {
         const url = URL.createObjectURL(file);
+        let settled = false;
+        const settle = (metadata: SignageMediaMetadata | null) => {
+            if (settled) return;
+            settled = true;
+            clearTimeout(timer);
+            URL.revokeObjectURL(url);
+            if (metadata) resolve(metadata);
+            else reject(new Error(i18n('SIGNAGE_MANAGER.SVC_ERR_LOAD_IMAGE')));
+        };
+        // A file the browser cannot read may never fire an event at all
+        const timer = setTimeout(() => settle(null), MEDIA_METADATA_TIMEOUT);
         if (getVideoContainer(file)) {
             const video = document.createElement('video');
-            video.src = url;
-            video.addEventListener('loadedmetadata', () => {
-                resolve({
+            video.preload = 'metadata';
+            video.onloadedmetadata = () =>
+                settle({
                     is_landscape: video.videoWidth > video.videoHeight,
                     duration: video.duration,
                     width: video.videoWidth,
                     height: video.videoHeight,
                 });
-                URL.revokeObjectURL(url);
-            });
-            video.load();
+            video.onerror = () => settle(null);
+            video.src = url;
         } else {
             const img = new Image();
-            img.onload = () => {
-                resolve({
+            img.onload = () =>
+                settle({
                     is_landscape: img.width > img.height,
                     duration: 0,
                     width: img.width,
                     height: img.height,
                 });
-                URL.revokeObjectURL(url);
-            };
+            img.onerror = () => settle(null);
             img.src = url;
         }
     });

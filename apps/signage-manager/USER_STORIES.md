@@ -94,6 +94,9 @@ These stories cover the current app workflows:
 **Acceptance Criteria:**
 
 - Users with create permission can upload one or more supported media files.
+- Users choose the file access permissions of an upload, for one file or many.
+- A file that the browser cannot read shows an error. The other files of a bulk upload continue.
+- Media larger than 4K (3840x2160, or 2160x3840 in portrait) shows a warning: in the edit dialog for one file, and with the file names for a bulk upload.
 - Users can drag files onto the media page to start upload preview.
 - Users can add webpage media from a valid URL.
 - Invalid URLs are rejected before creating media.
@@ -116,7 +119,7 @@ These stories cover the current app workflows:
 - Users with update permission can add media to a playlist.
 - Users with share permission can share media.
 - Users with delete permission can remove media.
-- The delete confirmation lists the playlists that use the media. Deleting the media removes it from those playlists, including distribution playlists.
+- The delete confirmation lists the playlists that use the media. Deleting the media removes it from those playlists, including distribution playlists. If the playlists of some items cannot be read, the confirmation still lists the playlists of the other items.
 - Share and delete actions open confirmation or group-selection dialogs before making changes.
 - Users can select multiple media items and bulk add tags, delete, share, or add them to a playlist when permitted.
 

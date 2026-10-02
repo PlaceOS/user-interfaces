@@ -170,8 +170,7 @@ import { SignageMediaService } from './signage-media.service';
                 <input
                     matInput
                     [placeholder]="'SIGNAGE_MANAGER.MEDIA_SEARCH' | translate"
-                    [ngModel]="search()"
-                    (ngModelChange)="search.set($event)"
+                    [(ngModel)]="search"
                     [attr.aria-label]="
                         'SIGNAGE_MANAGER.SEARCH_MEDIA_ARIA' | translate
                     "

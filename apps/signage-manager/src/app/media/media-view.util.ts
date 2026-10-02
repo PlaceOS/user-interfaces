@@ -1,4 +1,4 @@
-import type { SignageMedia } from '@placeos/ts-client';
+import { MediaAnimation, type SignageMedia } from '@placeos/ts-client';
 
 export const MEDIA_SORTS = ['newest', 'oldest', 'name', 'expiry'] as const;
 export const MEDIA_TYPE_FILTERS = [
@@ -47,6 +47,23 @@ export function mediaTypeGroup(item: Pick<SignageMedia, 'media_type'>) {
         default:
             return 'video';
     }
+}
+
+const MEDIA_ANIMATIONS = Object.values(MediaAnimation);
+
+/**
+ * Animation of a media item as the enum. The API takes the animation name,
+ * but returns the index of the name, such as 2 for cross fade. Anything
+ * else is the default animation.
+ */
+export function mediaAnimation(value: unknown): MediaAnimation {
+    if (typeof value === 'number') {
+        return MEDIA_ANIMATIONS[value] ?? MediaAnimation.Default;
+    }
+    return (
+        MEDIA_ANIMATIONS.find((animation) => animation === value) ??
+        MediaAnimation.Default
+    );
 }
 
 /** Whether the options differ from the default newest-first, unfiltered view */

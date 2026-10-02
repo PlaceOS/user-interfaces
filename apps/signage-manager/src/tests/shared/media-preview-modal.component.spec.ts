@@ -108,6 +108,60 @@ describe('MediaPreviewModalComponent', () => {
         expect(preview_text).toContain('news');
     });
 
+    /** Render the real template, without the media itself */
+    async function renderPreview(media: SignageMedia) {
+        await TestBed.configureTestingModule({
+            imports: [MediaPreviewModalComponent],
+            providers: [
+                { provide: MAT_DIALOG_DATA, useValue: { media } },
+                { provide: SignageMediaService, useValue: service },
+                // The rendered shared-with list injects the context
+                { provide: SignageContextService, useValue: {} },
+            ],
+        })
+            .overrideComponent(MediaPreviewModalComponent, {
+                set: { schemas: [NO_ERRORS_SCHEMA] },
+            })
+            .compileComponents();
+        const fixture = TestBed.createComponent(MediaPreviewModalComponent);
+        await fixture.whenStable();
+        fixture.detectChanges();
+        return fixture.nativeElement as HTMLElement;
+    }
+
+    // A failed lookup must not claim the media is in no playlist
+    it('offers a retry when the playlists of the media fail to load', async () => {
+        vi.mocked(showSignageMedia).mockRejectedValue(new Error('boom'));
+        const element = await renderPreview(
+            new SignageMedia({ id: 'm1', media_type: 'unknown' }),
+        );
+
+        expect(element.textContent).not.toContain('Not in any playlists');
+        // The shared-with list reads the media as well
+        const calls = vi.mocked(showSignageMedia).mock.calls.length;
+        element.querySelector<HTMLButtonElement>('load-error button').click();
+
+        expect(showSignageMedia).toHaveBeenCalledTimes(calls + 1);
+    });
+
+    it('names the close button', async () => {
+        const element = await renderPreview(
+            new SignageMedia({ id: 'm1', media_type: 'unknown' }),
+        );
+
+        const close = element.querySelector('header button[icon]');
+        expect(close.getAttribute('aria-label')).toBe('Close media preview');
+    });
+
+    it('names the icon-only edit button', async () => {
+        const element = await renderPreview(
+            new SignageMedia({ id: 'm1', media_type: 'unknown' }),
+        );
+
+        const edit = element.querySelector('aside button[icon]');
+        expect(edit.getAttribute('aria-label')).toBeTruthy();
+    });
+
     it('uses the signage group passed to the modal', async () => {
         const component = await createComponent(
             new SignageMedia({ id: 'm1', media_type: 'image' }),
@@ -124,6 +178,20 @@ describe('MediaPreviewModalComponent', () => {
                 id: 'm1',
                 media_type: 'image',
                 animation: MediaAnimation.CrossFade,
+            }),
+        );
+
+        expect(component.animation_label()).toBe(
+            'SIGNAGE_MANAGER.ANIM_CROSS_FADE',
+        );
+    });
+
+    it('maps an animation index from the API to its label', async () => {
+        const component = await createComponent(
+            new SignageMedia({
+                id: 'm1',
+                media_type: 'image',
+                animation: 2 as unknown as MediaAnimation,
             }),
         );
 

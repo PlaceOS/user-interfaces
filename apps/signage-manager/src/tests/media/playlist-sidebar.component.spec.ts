@@ -14,6 +14,7 @@ describe('PlaylistSidebarComponent', () => {
     const load_more = vi.fn();
     const add_playlist = vi.fn();
     const add_media_to_playlist = vi.fn().mockResolvedValue(undefined);
+    const reload_playlists = vi.fn();
 
     const context_stub = { can_create: signal(true) };
     const playlist_stub = {
@@ -21,6 +22,7 @@ describe('PlaylistSidebarComponent', () => {
         playlist_search_term: signal(''),
         filtered_playlists: playlists,
         playlists_loading: signal(false),
+        playlists_error: signal(false),
         playlist_thumbnail_media: signal<Record<string, string[]>>({}),
         playlist_approval_status,
         playlist_approval_requested_status,
@@ -28,6 +30,7 @@ describe('PlaylistSidebarComponent', () => {
         loadMorePlaylists: load_more,
         addPlaylist: add_playlist,
         addMediaToPlaylist: add_media_to_playlist,
+        reloadPlaylists: reload_playlists,
     };
 
     async function make() {
@@ -50,6 +53,7 @@ describe('PlaylistSidebarComponent', () => {
         vi.clearAllMocks();
         playlists.set([]);
         playlist_stub.playlist_search_term.set('');
+        playlist_stub.playlists_error.set(false);
         playlist_approval_status.set({});
         playlist_approval_requested_status.set({});
     });
@@ -115,5 +119,24 @@ describe('PlaylistSidebarComponent', () => {
         component.addPlaylist();
         expect(load_more).toHaveBeenCalledTimes(1);
         expect(add_playlist).toHaveBeenCalledTimes(1);
+    });
+
+    // A failed load must not look like a group with no playlists
+    it('offers a retry instead of the empty state when loading fails', async () => {
+        playlist_stub.playlists_error.set(true);
+        await TestBed.configureTestingModule({
+            imports: [PlaylistSidebarComponent],
+            providers: [
+                { provide: SignageContextService, useValue: context_stub },
+                { provide: SignagePlaylistService, useValue: playlist_stub },
+            ],
+        }).compileComponents();
+        const fixture = TestBed.createComponent(PlaylistSidebarComponent);
+        fixture.detectChanges();
+        const element: HTMLElement = fixture.nativeElement;
+
+        element.querySelector<HTMLButtonElement>('load-error button').click();
+
+        expect(reload_playlists).toHaveBeenCalledTimes(1);
     });
 });

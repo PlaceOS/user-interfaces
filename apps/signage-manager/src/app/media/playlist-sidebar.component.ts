@@ -7,8 +7,12 @@ import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterLink } from '@angular/router';
-import { IconComponent, TranslatePipe } from '@placeos/components';
-import { SignagePlaylist } from '@placeos/ts-client';
+import {
+    IconComponent,
+    LoadErrorComponent,
+    TranslatePipe,
+} from '@placeos/components';
+import { SignageMedia, SignagePlaylist } from '@placeos/ts-client';
 import { SignagePlaylistService } from '../playlists/signage-playlist.service';
 import { IntersectDirective } from '../shared/intersect.directive';
 import { PlaylistThumbnailComponent } from '../shared/playlist-thumbnail.component';
@@ -60,8 +64,7 @@ import { playlistStatus } from '../signage-playlist.util';
                         [placeholder]="
                             'SIGNAGE_MANAGER.SEARCH_PLAYLISTS' | translate
                         "
-                        [ngModel]="search()"
-                        (ngModelChange)="search.set($event)"
+                        [(ngModel)]="search"
                         [attr.aria-label]="
                             'SIGNAGE_MANAGER.SEARCH_PLAYLISTS' | translate
                         "
@@ -171,6 +174,8 @@ import { playlistStatus } from '../signage-playlist.util';
                             intersect
                             (intersect)="loadMore()"
                         ></div>
+                    } @else if (error()) {
+                        <load-error (retry)="retry()" />
                     } @else {
                         <div
                             class="text-base-content/50 bg-base-content/10 col-span-full rounded-lg p-2 text-center text-xs"
@@ -182,6 +187,8 @@ import { playlistStatus } from '../signage-playlist.util';
                     <div class="flex items-center justify-center p-8">
                         <mat-spinner diameter="32" />
                     </div>
+                } @else if (error()) {
+                    <load-error (retry)="retry()" />
                 } @else {
                     <div
                         class="text-base-content/70 flex flex-col items-center justify-center p-8"
@@ -226,6 +233,7 @@ import { playlistStatus } from '../signage-playlist.util';
         TranslatePipe,
         MatTooltipModule,
         IntersectDirective,
+        LoadErrorComponent,
         PlaylistThumbnailComponent,
     ],
 })
@@ -235,6 +243,8 @@ export class PlaylistSidebarComponent {
 
     public readonly can_create = this._context.can_create;
     public readonly loading = this._playlist_service.playlists_loading;
+    /** Whether the last page of playlists failed to load */
+    public readonly error = this._playlist_service.playlists_error;
     public readonly search = this._playlist_service.playlist_search_term;
     public readonly playlist_approval_status =
         this._playlist_service.playlist_approval_status;
@@ -249,11 +259,19 @@ export class PlaylistSidebarComponent {
         this._playlist_service.loadMorePlaylists();
     }
 
+    /** Load the playlists again from the first page */
+    public retry() {
+        this._playlist_service.reloadPlaylists();
+    }
+
     public addPlaylist() {
         this._playlist_service.addPlaylist();
     }
 
-    public async onDrop(playlist: SignagePlaylist, event: CdkDragDrop<any>) {
+    public async onDrop(
+        playlist: SignagePlaylist,
+        event: CdkDragDrop<SignagePlaylist, SignageMedia[]>,
+    ) {
         const media = event.previousContainer.data[event.previousIndex];
         if (!playlist?.id || !media?.id) return;
         await this._playlist_service.addMediaToPlaylist(

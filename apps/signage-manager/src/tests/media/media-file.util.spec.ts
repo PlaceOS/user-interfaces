@@ -1,6 +1,7 @@
 import {
     generateThumbnailFromResource,
     generateVideoThumbnail,
+    getMediaMetadata,
     imageSourceSize,
 } from '../../app/media/media-file.util';
 
@@ -161,5 +162,68 @@ describe('media file thumbnails', () => {
 
             expect(context.drawImage).toHaveBeenCalled();
         });
+    });
+});
+
+describe('getMediaMetadata', () => {
+    const create_url = URL.createObjectURL;
+    const revoke_url = URL.revokeObjectURL;
+    /** Element events the function listens to, fired by each test */
+    let element: {
+        onload?: () => void;
+        onloadedmetadata?: () => void;
+        onerror?: () => void;
+        src?: string;
+        preload?: string;
+    };
+
+    beforeEach(() => {
+        element = {};
+        URL.createObjectURL = vi.fn(() => 'blob:media');
+        URL.revokeObjectURL = vi.fn();
+        vi.spyOn(document, 'createElement').mockReturnValue(
+            element as unknown as HTMLElement,
+        );
+        vi.stubGlobal(
+            'Image',
+            vi.fn(function () {
+                return element;
+            }),
+        );
+    });
+
+    afterEach(() => {
+        URL.createObjectURL = create_url;
+        URL.revokeObjectURL = revoke_url;
+        vi.unstubAllGlobals();
+        vi.restoreAllMocks();
+        vi.useRealTimers();
+    });
+
+    it.each([
+        ['an image', new File(['x'], 'broken.png', { type: 'image/png' })],
+        ['a video', new File(['x'], 'broken.mp4', { type: 'video/mp4' })],
+    ])(
+        'rejects and frees the file URL when %s cannot be decoded',
+        async (_name, file) => {
+            const pending = getMediaMetadata(file);
+            element.onerror!();
+
+            await expect(pending).rejects.toThrow();
+            expect(URL.revokeObjectURL).toHaveBeenCalledWith('blob:media');
+        },
+    );
+
+    it('rejects when the browser never reads the file', async () => {
+        vi.useFakeTimers();
+        const pending = getMediaMetadata(
+            new File(['x'], 'clip.mp4', { type: 'video/mp4' }),
+        );
+        const result = expect(pending).rejects.toThrow();
+
+        await vi.advanceTimersByTimeAsync(15 * 1000);
+
+        await result;
+        expect(URL.revokeObjectURL).toHaveBeenCalledWith('blob:media');
     });
 });
