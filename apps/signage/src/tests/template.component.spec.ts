@@ -529,6 +529,46 @@ describe('SignageTemplateComponent', () => {
             expect(spectator.component.template()?.id).toBe('template-1');
         });
 
+        it('keeps the template on screen when a retry fails', async () => {
+            const base = await showTemplate('template-1');
+            showTemplate.mockImplementation(async (id) => {
+                if (id === 'merge-1') throw new Error('server error');
+                return base;
+            });
+            active_templates.set([mapping('template-1'), mapping('merge-1')]);
+            spectator = create_component({
+                params: { system_id: 'display-1' },
+            });
+            await flush();
+            expect(spectator.component.template()?.id).toBe('template-1');
+
+            showTemplate.mockRejectedValue(new Error('offline'));
+            await vi.advanceTimersByTimeAsync(15_000);
+
+            expect(showTemplate).toHaveBeenCalledTimes(5);
+            expect(spectator.component.template()?.id).toBe('template-1');
+            expect(spectator.component.background_playlist()).toHaveLength(1);
+        });
+
+        it('keeps the background on screen when a retry cannot load it', async () => {
+            vi.mocked(ts_client.querySignagePlugins).mockRejectedValueOnce(
+                new Error('offline'),
+            );
+            spectator = create_component({
+                params: { template_id: 'template-1', system_id: 'display-1' },
+            });
+            await flush();
+            expect(spectator.component.background_playlist()).toHaveLength(1);
+
+            vi.mocked(ts_client.showSignageMedia).mockRejectedValue(
+                new Error('offline'),
+            );
+            await vi.advanceTimersByTimeAsync(15_000);
+
+            expect(ts_client.showSignageMedia).toHaveBeenCalledTimes(2);
+            expect(spectator.component.background_playlist()).toHaveLength(1);
+        });
+
         it('fills the plugin layout once a failed plugin query succeeds', async () => {
             vi.mocked(ts_client.querySignagePlugins).mockRejectedValueOnce(
                 new Error('offline'),
