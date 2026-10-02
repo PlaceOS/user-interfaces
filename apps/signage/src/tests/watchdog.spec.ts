@@ -505,6 +505,34 @@ describe('recovery watchdog', () => {
         ]);
     });
 
+    it('should keep the recovery limit through a small clock correction', () => {
+        // The allowance is used up, then the clock is set back a minute
+        const now = Date.now();
+        localStorage.setItem(
+            'PlaceOS.SIGNAGE.watchdog_reloads',
+            JSON.stringify({
+                at: [now - 2 * MINUTE, now - MINUTE, now + MINUTE],
+                throttled: false,
+                last: null,
+            }),
+        );
+
+        expect(requestRecovery('init-error')).toBe(false);
+
+        expect(reload).not.toHaveBeenCalled();
+        expect(watchdogState().recoveries_throttled).toBe(true);
+    });
+
+    it('should show heartbeats in device time after the clock is corrected', () => {
+        recordHeartbeat('poll');
+
+        vi.setSystemTime(Date.now() - 24 * 60 * MINUTE);
+
+        expect(watchdogState().heartbeats.poll).toBe(
+            new Date(Date.now()).toISOString(),
+        );
+    });
+
     it('should read recovery history written by an earlier build', () => {
         localStorage.setItem(
             'PlaceOS.SIGNAGE.watchdog_reloads',

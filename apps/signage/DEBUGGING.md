@@ -118,9 +118,11 @@ the full five-minute boot deadline.
 
 Heartbeats use a clock that a change to the device time does not move. Thus a
 clock set back cannot hide a stall. The recovery history uses the device time,
-because it must stay after a reload. If the history has a recovery later than
-the device time, the watchdog forgets the history. Otherwise a device that
-starts with its clock behind refuses all recoveries.
+because it must stay after a reload. If the history has a recovery more than
+one hour later than the device time, the watchdog forgets the history.
+Otherwise a device that starts with its clock behind refuses all recoveries. A
+smaller correction keeps the limits. `state()` shows heartbeat times in device
+time, so they agree with the other times after a correction.
 
 | Guard                    | Value                                                                      |
 | ------------------------ | -------------------------------------------------------------------------- |

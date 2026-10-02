@@ -23,8 +23,9 @@ import { MINUTES, scoped_log, SECONDS } from '@placeos/common';
  *
  * Heartbeats are timed on a clock that setting the device time cannot move, so
  * a clock corrected backwards cannot hide a stall. The recovery history has to
- * survive reloads, so it uses the device time and ignores entries from its
- * future.
+ * survive reloads, so it uses the device time. It is forgotten when it holds
+ * an entry more than an hour in that time's future, and diagnostics show
+ * heartbeats in device time.
  *
  * Fatal errors are recorded for context but are not required. Most stalls worth
  * recovering from - a promise that never settles, a timer chain that quietly
@@ -78,6 +79,12 @@ const MAX_RECOVERIES_PER_WINDOW = 3;
 const RECOVERY_THROTTLE_MS = 60 * MINUTES;
 /** Quiet period after which the recovery history is forgotten */
 const RECOVERY_RESET_MS = 2 * 60 * MINUTES;
+/**
+ * How far ahead of the device clock a recorded recovery may be before the
+ * history is forgotten. Smaller corrections keep the limits: the entries just
+ * count as recent for a little longer.
+ */
+const FUTURE_HISTORY_MS = RECOVERY_THROTTLE_MS;
 /** Longest wait for the server check before clearing the application cache */
 const REACHABLE_TIMEOUT_MS = 15 * SECONDS;
 /**
@@ -197,14 +204,14 @@ function writeHistory(history: RecoveryHistory) {
 
 /**
  * The recovery history, forgotten entirely after a long quiet period. Also
- * forgotten when it holds a recovery later than `now`: the device clock has
- * been set back, for example on a device that starts with no time source.
+ * forgotten when it holds a recovery well after `now`: the device clock has
+ * been set far back, for example on a device that starts with no time source.
  * Kept, it would refuse every recovery until the clock caught up.
  */
 function recoveryHistory(now: number): RecoveryHistory {
     const history = readHistory();
     const last = history.at[history.at.length - 1] || 0;
-    const from_future = history.at.some((at) => at > now);
+    const from_future = history.at.some((at) => at - now > FUTURE_HISTORY_MS);
     if (from_future || (last && now - last >= RECOVERY_RESET_MS)) {
         // Only the rate limiting is forgotten; why it last recovered is still
         // worth knowing when someone finally looks at the player.
@@ -485,13 +492,19 @@ export function watchdogState() {
     const history = readHistory();
     const asTime = (value: number) =>
         value ? new Date(value).toISOString() : 'never';
+    // Heartbeats and their timers are on the monotonic clock. Shown as the
+    // same age before the device time, so they line up with the other times
+    // here after the device clock has been corrected.
+    const monotonic_now = monotonicNow();
+    const asMonotonicTime = (value: number) =>
+        asTime(value ? now - (monotonic_now - value) : 0);
     return {
         running: !!_timer,
         recovering: _recovering,
         error_count: _error_count,
         last_error: _last_error,
         stalled: stalledSignals(),
-        stalled_since: asTime(_stalled_since),
+        stalled_since: asMonotonicTime(_stalled_since),
         recoveries_in_last_hour: history.at.filter(
             (at) => now - at < RECOVERY_WINDOW_MS,
         ).length,
@@ -511,14 +524,14 @@ export function watchdogState() {
                       : null,
               }
             : null,
-        started_at: asTime(_started_at),
+        started_at: asMonotonicTime(_started_at),
         booted: !!heartbeats.visible,
         heartbeats: {
-            poll: asTime(heartbeats.poll),
-            schedule: asTime(heartbeats.schedule),
-            playback: asTime(heartbeats.playback),
-            visible: asTime(heartbeats.visible),
-            content: asTime(heartbeats.content),
+            poll: asMonotonicTime(heartbeats.poll),
+            schedule: asMonotonicTime(heartbeats.schedule),
+            playback: asMonotonicTime(heartbeats.playback),
+            visible: asMonotonicTime(heartbeats.visible),
+            content: asMonotonicTime(heartbeats.content),
         },
     };
 }
