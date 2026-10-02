@@ -156,8 +156,8 @@ The Signage app is a kiosk-style digital signage player. It bootstraps a device 
 
 **Acceptance Criteria:**
 
-- Webpage items render in an iframe.
-- Playback timing starts after the iframe load event plus a 2 second reveal delay.
+- Webpage items render in a sandboxed iframe. The page can run scripts, use its own origin and submit forms. It cannot navigate the player, open popups or show dialogs.
+- Playback timing starts after the iframe load event plus a 3 second reveal delay.
 - If a webpage never reports load, playback continues after a 15 second wait.
 - Webpage items play for their configured effective duration.
 - A single valid webpage item remains loaded instead of reloading on every loop.
@@ -180,13 +180,13 @@ The Signage app is a kiosk-style digital signage player. It bootstraps a device 
 - When a plugin reports `ready`, the player sends config and then a play signal.
 - If a plugin does not report load or ready, the player sends config after a 15 second wait.
 - Static plugins follow the configured effective duration.
-- Play-through plugins advance when they report `finished`.
+- Play-through plugins advance when they report `finished`. If the plugin is the only item, the player sends it a new play signal instead.
 - A play-through plugin that never sends a plugin message advances after its configured duration, like a static plugin.
 - If that plugin is the only item, it is removed from the screen and loaded again after 30 seconds.
 - A play-through plugin that does not report `finished` advances after twice its configured duration, but not before 5 minutes and not after 60 minutes.
 - Interactive plugins can request a new playback duration through plugin interaction events.
 - Upcoming plugin items can be preloaded on the inactive output shortly before transition.
-- Fatal plugin errors advance to the next media item.
+- Fatal plugin errors from the plugin on screen advance to the next media item. Errors from a plugin that is preloaded for later do not change the item on screen.
 
 ---
 
@@ -220,7 +220,7 @@ The Signage app is a kiosk-style digital signage player. It bootstraps a device 
 - Playback starts at the first valid item when the player has a playlist.
 - Items advance automatically when their effective duration expires.
 - The player skips media that is not currently valid.
-- When a changed playlist still contains the currently playing item, the current item is held over before the updated playlist continues.
+- When a changed playlist still contains the currently playing item unchanged, that item keeps playing without a restart, and the updated playlist continues after it. If the item changed (for example, a new source), it starts again.
 - If no valid items exist, the player retries item selection every 5 seconds.
 - If media URL resolution hangs or fails, the player waits briefly, skips the failed item when possible, and retries the playlist after a short delay when every valid item has failed.
 
@@ -268,7 +268,7 @@ The Signage app is a kiosk-style digital signage player. It bootstraps a device 
 - Debug mode shows play or pause, previous, next, mute, loop, and shuffle controls.
 - Play and pause preserve current item progress.
 - Previous and next move to valid playlist items.
-- Mute and unmute update the active video element.
+- Mute and unmute update the video elements of the player and of any other player on the display, such as an override.
 - A progress bar shows playback progress and exposes elapsed duration through its tooltip.
 
 ---
@@ -518,6 +518,9 @@ The Signage app is a kiosk-style digital signage player. It bootstraps a device 
 
 - A media count is recorded when a valid item advances after more than 50% progress.
 - A playlist count is recorded when playback advances beyond the last valid item for a playlist.
+- Counts are recorded only when playback moves on. Retries of the same item, such as while it waits for its media, and selecting an item or going back in debug mode, record nothing.
+- A lone webpage or plugin that is held on screen is credited with one pass when its duration has passed, and is not credited again while it stays. A single-pass takeover whose only item is held therefore ends after one pass.
+- A play-through plugin that reports `finished` is credited as fully played, however early it finished.
 - A playlist play-through count is recorded when the last valid item for a playlist advances after more than 50% progress.
 - Playlist counts and play-through counts are not stored for random playlists.
 - Metrics are tracked separately for media counts, playlist counts, and play-through counts.

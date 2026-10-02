@@ -1,6 +1,7 @@
 import { MediaAnimation } from '@placeos/ts-client';
 import {
     findValidPlaylistIndex,
+    isMediaValid,
     mockTimeState,
     setMockTime,
     time,
@@ -94,6 +95,25 @@ describe('time helpers', () => {
 
         expect(mockTimeState().active).toBe(true);
         expect(mockTimeState().speed).toBe(0.5);
+    });
+});
+
+describe('isMediaValid', () => {
+    it('agrees with validateMedia', () => {
+        const now = Date.now();
+        const expired = create_item('expired', true);
+        expired.valid_until = Math.floor((now - 60 * 1000) / 1000);
+        const items = [
+            create_item('valid', true),
+            create_item('future', false),
+            expired,
+            create_item('', true),
+            null,
+        ];
+
+        for (const item of items) {
+            expect(isMediaValid(item)).toBe(validateMedia(item) === '');
+        }
     });
 });
 
