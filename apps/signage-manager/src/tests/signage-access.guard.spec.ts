@@ -1,9 +1,16 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { provideRouter, Router, UrlTree } from '@angular/router';
+import {
+    ActivatedRouteSnapshot,
+    provideRouter,
+    Router,
+    RouterStateSnapshot,
+    UrlTree,
+} from '@angular/router';
 import { OrganisationService, user_groups_loaded } from '@placeos/common';
 import {
     canAccessSignageApp,
+    manageGroupsGuard,
     signageAccessGuard,
 } from '../app/signage-access.guard';
 import { SignageContextService } from '../app/signage-context.service';
@@ -138,5 +145,71 @@ describe('signageAccessGuard', () => {
         const result = await runGuard();
 
         expect(router.serializeUrl(result as UrlTree)).toBe('/unauthorised');
+    });
+});
+
+describe('manageGroupsGuard', () => {
+    const loaded = signal(false);
+    const can_manage_groups = signal(false);
+    const groups_failed = signal(false);
+
+    function runGuard() {
+        return TestBed.runInInjectionContext(
+            () =>
+                manageGroupsGuard(
+                    {} as ActivatedRouteSnapshot,
+                    {} as RouterStateSnapshot,
+                ) as Promise<boolean | UrlTree>,
+        );
+    }
+
+    beforeEach(() => {
+        loaded.set(false);
+        can_manage_groups.set(false);
+        groups_failed.set(false);
+        user_groups_loaded.set(true);
+        TestBed.configureTestingModule({
+            providers: [
+                provideRouter([]),
+                {
+                    provide: OrganisationService,
+                    useValue: { waitUntilInitialised: async () => undefined },
+                },
+                {
+                    provide: SignageContextService,
+                    useValue: {
+                        signage_groups_loaded: loaded,
+                        can_manage_groups,
+                        signage_groups_failed: groups_failed,
+                    },
+                },
+            ],
+        });
+    });
+
+    it('opens the groups page once the user can manage a group', async () => {
+        can_manage_groups.set(true);
+        const guard_result = runGuard();
+        loaded.set(true);
+        TestBed.flushEffects();
+
+        await expect(guard_result).resolves.toBe(true);
+    });
+
+    it('opens the groups page when the groups failed to load, so it can retry', async () => {
+        groups_failed.set(true);
+        loaded.set(true);
+
+        await expect(runGuard()).resolves.toBe(true);
+    });
+
+    it('sends users who cannot manage a group to the media library', async () => {
+        loaded.set(true);
+
+        const result = await runGuard();
+
+        expect(TestBed.inject(Router).serializeUrl(result as UrlTree)).toBe(
+            '/media',
+        );
     });
 });

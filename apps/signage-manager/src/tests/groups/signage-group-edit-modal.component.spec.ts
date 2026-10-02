@@ -195,24 +195,9 @@ describe('SignageGroupEditModalComponent', () => {
         expect(dialog_ref.close).not.toHaveBeenCalled();
     });
 
-    it('keeps the dialog open and resets loading when saving fails', async () => {
-        save_signage_group.mockRejectedValue(new Error('nope'));
-        const component = make();
-        component.model.set({
-            name: 'New Group',
-            description: '',
-            parent_id: 'group-1',
-        });
-
-        await component.save();
-
-        expect(component.loading()).toBe(false);
-        expect(dialog_ref.disableClose).toBe(false);
-        expect(dialog_ref.close).not.toHaveBeenCalled();
-    });
-
-    it('does not close when the service reports no saved group', async () => {
-        save_signage_group.mockResolvedValue(undefined);
+    it('stays open and resets loading when the save fails', async () => {
+        // The service shows the error and returns null
+        save_signage_group.mockResolvedValue(null);
         const component = make();
         component.model.set({
             name: 'New Group',
@@ -225,5 +210,6 @@ describe('SignageGroupEditModalComponent', () => {
         expect(save_signage_group).toHaveBeenCalled();
         expect(dialog_ref.close).not.toHaveBeenCalled();
         expect(component.loading()).toBe(false);
+        expect(dialog_ref.disableClose).toBe(false);
     });
 });

@@ -11,6 +11,7 @@ import { MatRippleModule } from '@angular/material/core';
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import { SignageGroupAdminService } from './signage-group-admin.service';
 
@@ -49,7 +50,21 @@ import { SignageGroupAdminService } from './signage-group-admin.service';
                     "
                 />
             </mat-form-field>
-            @if (users().length > 0) {
+            @if (loading()) {
+                <div class="flex justify-center p-8">
+                    <mat-spinner diameter="32" />
+                </div>
+            } @else if (failed()) {
+                <div
+                    class="text-error flex flex-col items-center justify-center space-y-2 p-8"
+                    role="alert"
+                >
+                    <icon class="text-4xl">error</icon>
+                    <p class="text-sm">
+                        {{ 'SIGNAGE_MANAGER.USER_SEARCH_ERROR' | translate }}
+                    </p>
+                </div>
+            } @else if (users().length > 0) {
                 @for (user of users(); track user.id || user.email) {
                     <button
                         type="button"
@@ -92,6 +107,7 @@ import { SignageGroupAdminService } from './signage-group-admin.service';
         MatDialogModule,
         MatFormFieldModule,
         MatInputModule,
+        MatProgressSpinnerModule,
         IconComponent,
         TranslatePipe,
     ],
@@ -108,10 +124,17 @@ export class SignageGroupUserSelectModalComponent {
         params: () => this._search_debounced.value() ?? '',
         loader: ({ params }) => this._group_admin.searchGroupUsers(params),
     });
+    public readonly loading = computed(() => this._users.isLoading());
+    /** The search failed. Reading the value of a failed resource throws. */
+    public readonly failed = computed(() => !!this._users.error());
     public readonly users = computed(() => {
+        if (!this._users.hasValue()) return [];
         const exclude_ids = new Set(this._data.exclude_ids || []);
-        return (this._users.value() || []).filter(
-            (user) => !exclude_ids.has(user.id) && !exclude_ids.has(user.email),
-        );
+        return this._users
+            .value()
+            .filter(
+                (user) =>
+                    !exclude_ids.has(user.id) && !exclude_ids.has(user.email),
+            );
     });
 }

@@ -17,6 +17,9 @@ import { SignageContextService } from '../signage-context.service';
                     type="button"
                     matRipple
                     class="hover:border-base-300 border-base-200 m-0 mr-0.5 flex shrink-0 items-center justify-center rounded-full border p-0 text-sm"
+                    [attr.aria-label]="
+                        'SIGNAGE_MANAGER.SELECT_SIGNAGE_GROUP' | translate
+                    "
                     (click)="selectGroup()"
                 >
                     <icon>{{ show_all_groups() ? 'public' : 'group' }}</icon>
