@@ -206,6 +206,18 @@ describe('cron helpers', () => {
         ).toBeNull();
     });
 
+    it('finds a run that started more than a year ago', () => {
+        // A 29 February run with a 368 day play period is still active on
+        // 2 March of the next year.
+        const result = getLastCronRunTimestampInRange(
+            '0 0 29 2 *',
+            368 * 24 * 60 * 60,
+            localDate(2025, 3, 2, 12, 0).getTime(),
+        );
+
+        expectLocalDate(result, localDate(2024, 2, 29, 0, 0));
+    });
+
     it('rejects last-run cron strings that are not five fields', () => {
         expect(() =>
             getLastCronRunTimestampInRange(

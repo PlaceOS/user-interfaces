@@ -163,7 +163,7 @@ export function createScheduleMaskFilter(cron: string, schedule: ScheduleMask) {
                 slots.push(hour * 60 + minute);
         }
     }
-    const calendar_parts = ['*', '*', ...parts.slice(2)];
+    const calendar_parts = cronDayParts(parts);
     const first_day = new Date(anchor);
     first_day.setHours(0, 0, 0, 0);
     const month_totals = new Map<number, number[]>();
@@ -238,8 +238,14 @@ export function createScheduleMaskFilter(cron: string, schedule: ScheduleMask) {
 
 /** Search limit below which a lookup is too cheap and too precise to memoise */
 const MIN_CACHEABLE_SEARCH_LIMIT_SECONDS = 60;
-/** Longest search, so a lookup always ends whatever limit it is given */
-const MAX_SEARCH_LIMIT_SECONDS = 366 * 24 * 60 * 60;
+/**
+ * Longest search, so a lookup always ends whatever limit it is given. A search
+ * as long as a play period must find the run that started it, and the manager
+ * sets no upper limit on play periods, so this is ten years: far above any
+ * real period. Days the cron cannot match are skipped whole, so a search costs
+ * at most about 3,700 day checks plus the minutes of the days it does match.
+ */
+const MAX_SEARCH_LIMIT_SECONDS = 10 * 366 * 24 * 60 * 60;
 const MINUTE_MS = 60_000;
 
 /**
@@ -261,6 +267,31 @@ function isFirstLocalOccurrence(date: Date) {
 /** Whether a cron runs at `date`, a whole minute, in local time */
 function isCronRun(cron_parts: string[], date: Date) {
     return doesCronMatchDate(cron_parts, date) && isFirstLocalOccurrence(date);
+}
+
+/** Whether a cron can run at some time of day; `61 * * * *` never can */
+function hasCronTimeOfDay([minute_part, hour_part]: string[]) {
+    for (let hour = 0; hour < 24; hour++) {
+        if (!matchesCronPart(hour, hour_part)) continue;
+        for (let minute = 0; minute < 60; minute++) {
+            if (matchesCronPart(minute, minute_part)) return true;
+        }
+    }
+    return false;
+}
+
+/** Cron fields that match any time on the days the cron runs */
+function cronDayParts(cron_parts: string[]) {
+    return ['*', '*', ...cron_parts.slice(2)];
+}
+
+/** Start of the local day `offset_days` from the day of `date` */
+function localDayStart(date: Date, offset_days = 0) {
+    return new Date(
+        date.getFullYear(),
+        date.getMonth(),
+        date.getDate() + offset_days,
+    ).getTime();
 }
 
 /** Search limit in milliseconds, capped to `MAX_SEARCH_LIMIT_SECONDS` */
@@ -329,14 +360,22 @@ export function getNextCronRunTimestampInRange(
         // Steps in UTC, not local time: a local step resolves the hour that
         // repeats when the clocks go back to its first occurrence, which
         // would move the search an hour into the past.
+        if (!hasCronTimeOfDay(parts)) return null;
+        const day_parts = cronDayParts(parts);
         const limit = now + searchLimitMs(search_limit_in_seconds);
         const start = Math.floor(now / MINUTE_MS) * MINUTE_MS + MINUTE_MS;
         const current_date = new Date(start);
-        for (let time = start; time <= limit; time += MINUTE_MS) {
+        // Every step moves forwards, by a minute or to the next day
+        for (let time = start; time <= limit; ) {
             current_date.setTime(time);
+            if (!doesCronMatchDate(day_parts, current_date)) {
+                time = localDayStart(current_date, 1);
+                continue;
+            }
             if (isCronRun(parts, current_date) && allows(current_date)) {
                 return Math.floor(time / 1000);
             }
+            time += MINUTE_MS;
         }
         return null;
     });
@@ -371,14 +410,22 @@ export function getLastCronRunTimestampInRange(
     const key = `last|${cron_string}|${search_limit_in_seconds}|${mask_key}`;
     return cachedCronLookup(key, now, search_limit_in_seconds, () => {
         // Steps in UTC for the same reason as the forwards search.
+        if (!hasCronTimeOfDay(parts)) return null;
+        const day_parts = cronDayParts(parts);
         const limit = now - searchLimitMs(search_limit_in_seconds);
         const start = Math.floor(now / MINUTE_MS) * MINUTE_MS;
         const current_date = new Date(start);
-        for (let time = start; time >= limit; time -= MINUTE_MS) {
+        // Every step moves backwards, by a minute or to the day before
+        for (let time = start; time >= limit; ) {
             current_date.setTime(time);
+            if (!doesCronMatchDate(day_parts, current_date)) {
+                time = localDayStart(current_date) - MINUTE_MS;
+                continue;
+            }
             if (isCronRun(parts, current_date)) {
                 return allows(current_date) ? Math.floor(time / 1000) : null;
             }
+            time -= MINUTE_MS;
         }
         return null;
     });

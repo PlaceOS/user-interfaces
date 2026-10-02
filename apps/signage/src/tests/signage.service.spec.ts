@@ -2877,7 +2877,7 @@ describe('SignageService', () => {
         spectator.service.setDisplay('display-1');
         await flush();
         spectator.service.clearPlaylistOverride();
-        const completed: Set<string> = (spectator.service as any)
+        const completed: Map<string, number> = (spectator.service as any)
             ._completed_schedule_overrides;
 
         vi.advanceTimersByTime(15_000);
@@ -2887,6 +2887,52 @@ describe('SignageService', () => {
         vi.advanceTimersByTime(30_000);
         await flush();
         expect(completed.size).toBe(0);
+        expect(spectator.service.override_playlist().playlist).toHaveLength(0);
+    });
+
+    it('should not replay a completed takeover when its playlist briefly leaves the display', async () => {
+        const now = new Date('2026-01-01T10:00:00Z').getTime();
+        vi.setSystemTime(now);
+        const display = create_display({
+            playlist_config: {
+                ...create_display().playlist_config,
+                'scheduled-playlist': [
+                    {
+                        id: 'scheduled-playlist',
+                        name: 'Scheduled Playlist',
+                        enabled: true,
+                        default_animation: MediaAnimation.Cut,
+                        default_duration: 10000,
+                        schedules: [
+                            {
+                                play_at: Math.floor(now / 1000),
+                                play_cron: '',
+                                play_period: 0,
+                                play_takeover: true,
+                            },
+                        ],
+                    },
+                    ['media-3'],
+                ],
+            },
+        });
+        (ts_client.showSignage as any).mockReturnValue(
+            Promise.resolve(display),
+        );
+        spectator.service.setDisplay('display-1');
+        await flush();
+        spectator.service.clearPlaylistOverride();
+
+        (ts_client.showSignage as any).mockReturnValueOnce(
+            Promise.resolve({
+                ...display,
+                playlist_mappings: { 'display-1': ['base-playlist'] },
+            }),
+        );
+        await (spectator.service as any)._reloadDisplay();
+        vi.setSystemTime(now + 10_000);
+        await (spectator.service as any)._reloadDisplay();
+
         expect(spectator.service.override_playlist().playlist).toHaveLength(0);
     });
 

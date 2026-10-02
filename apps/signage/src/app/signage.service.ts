@@ -46,6 +46,8 @@ interface PlaylistOverride {
     ends_at: number;
     playlist: MediaPlayerItem[];
     schedule_keys?: string[];
+    /** When the last of its scheduled runs stops being detected as active */
+    schedule_window_end?: number;
 }
 
 interface SignageMetrics {
@@ -480,7 +482,8 @@ export class SignageService extends AsyncHandler {
     private _last_playlist: MediaPlayerItem[] = [];
     private _last_override_playlists: string[] = [];
     private _metrics = emptyMetrics();
-    private _completed_schedule_overrides = new Set<string>();
+    /** Scheduled runs that have played, with when each can be forgotten */
+    private _completed_schedule_overrides = new Map<string, number>();
     /** Shuffled order of each random playlist and the media list it is for */
     private _shuffles = new Map<
         string,
@@ -985,9 +988,15 @@ export class SignageService extends AsyncHandler {
     }
 
     public clearPlaylistOverride() {
-        const { schedule_keys } = this.override_playlist();
+        const { schedule_keys, schedule_window_end } = this.override_playlist();
+        // Remembered until the run can no longer be detected, so it does not
+        // play again. Scheduled overrides always record that time; the default
+        // play period is only a fallback.
+        const forget_after =
+            schedule_window_end ||
+            time() + DEFAULT_PLAY_PERIOD_MINUTES * MINUTES;
         for (const key of schedule_keys || []) {
-            this._completed_schedule_overrides.add(key);
+            this._completed_schedule_overrides.set(key, forget_after);
         }
         this.override_playlist.set({ playlist: [], ends_at: 0 });
     }
@@ -1283,11 +1292,19 @@ export class SignageService extends AsyncHandler {
         const ends_at = has_single_pass
             ? 0
             : Math.max(...active.map(({ ends_at }) => ends_at));
+        // Held runs come from the current override, so its window end is kept
+        const schedule_window_end = Math.max(
+            this.override_playlist().schedule_window_end || 0,
+            ...(has_single_pass ? single_pass : active).map(
+                ({ ends_at }) => ends_at,
+            ),
+        );
         log.debug('Setting override playlist', media, ends_at);
         this.override_playlist.set({
             playlist: media,
             ends_at,
             schedule_keys: keys,
+            schedule_window_end,
         });
     }
 
@@ -1298,28 +1315,30 @@ export class SignageService extends AsyncHandler {
      */
     private _activeOverrideSchedules(display: any, playlist_ids: string[]) {
         const now = time();
-        const active = playlist_ids
-            .map((id) => this._playlistConfig(display, id)?.[0])
-            .filter((_) => !!_)
-            // Detect across each schedule's full play period (like `play_at` and
-            // the background playlist) so an in-progress cron takeover is picked
-            // up even if the display booted/ticked after it fired. Single-pass
-            // (period 0) schedules still resolve to a short ~30s window.
-            .flatMap((playlist) =>
-                activePlaylistSchedules(playlist, now, 'takeover'),
-            );
-        // A key names one run, which is never active again once its window
-        // has passed, so completed runs are only remembered while active.
-        const active_keys = new Set(active.map(({ key }) => key));
-        for (const key of this._completed_schedule_overrides) {
-            if (!active_keys.has(key)) {
+        // A key names one run, which is never detected again once its window
+        // has passed. Until then it is kept, even while its playlist is
+        // missing from the display, so that restoring it does not replay it.
+        for (const [key, forget_after] of this._completed_schedule_overrides) {
+            if (forget_after < now) {
                 this._completed_schedule_overrides.delete(key);
             }
         }
-        return active.filter(
-            ({ key, playlist }) =>
-                !this._completed_schedule_overrides.has(key) &&
-                this._hasValidTakeoverMedia(display, playlist.id),
+        return (
+            playlist_ids
+                .map((id) => this._playlistConfig(display, id)?.[0])
+                .filter((_) => !!_)
+                // Detect across each schedule's full play period (like `play_at` and
+                // the background playlist) so an in-progress cron takeover is picked
+                // up even if the display booted/ticked after it fired. Single-pass
+                // (period 0) schedules still resolve to a short ~30s window.
+                .flatMap((playlist) =>
+                    activePlaylistSchedules(playlist, now, 'takeover'),
+                )
+                .filter(
+                    ({ key, playlist }) =>
+                        !this._completed_schedule_overrides.has(key) &&
+                        this._hasValidTakeoverMedia(display, playlist.id),
+                )
         );
     }
 
