@@ -754,9 +754,52 @@ describe('SignageMediaService', () => {
 
             expect(dialog.open).toHaveBeenCalledWith(
                 MediaEditModalComponent,
+                expect.anything(),
+            );
+            const { data } = dialog.open.mock.calls.at(-1)[1];
+            await expect(data.file_thumbnail).resolves.toBe('');
+        });
+
+        // A video frame can take up to the 15 second timeout
+        it('opens the edit modal before the thumbnail of the file renders', async () => {
+            const service = createService();
+            const test_service =
+                service as unknown as SignageMediaServiceTestAccess;
+            test_service['_generateThumbnail'] = vi.fn(
+                () => new Promise<string>(() => undefined),
+            );
+
+            void service.editMedia(new SignageMedia({}), poster(), metadata);
+
+            await vi.waitFor(() =>
+                expect(dialog.open).toHaveBeenCalledWith(
+                    MediaEditModalComponent,
+                    expect.anything(),
+                ),
+            );
+        });
+
+        it('uploads the thumbnail that rendered for the edit modal', async () => {
+            const service = createService();
+            const test_service =
+                service as unknown as SignageMediaServiceTestAccess;
+            test_service['_generateThumbnail'] = vi
+                .fn()
+                .mockResolvedValue('data:image/jpeg;base64,aW1hZ2U=');
+            uploads.uploadFileToCompletion
+                .mockResolvedValueOnce('media-upload-1')
+                .mockResolvedValueOnce('thumbnail-upload-1');
+
+            await service.editMedia(new SignageMedia({}), poster(), metadata);
+            const { data } = dialog.open.mock.calls.at(-1)[1];
+            await data.onAdd(poster(), new SignageMedia({}), metadata);
+
+            expect(test_service['_generateThumbnail']).toHaveBeenCalledOnce();
+            expect(addSignageMedia).toHaveBeenCalledWith(
                 expect.objectContaining({
-                    data: expect.objectContaining({ file_thumbnail: '' }),
+                    thumbnail_id: 'thumbnail-upload-1',
                 }),
+                {},
             );
         });
 

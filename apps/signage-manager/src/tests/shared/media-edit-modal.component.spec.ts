@@ -164,6 +164,22 @@ describe('MediaEditModalComponent', () => {
         expect(values).toEqual(Object.values(MediaAnimation));
     });
 
+    it('shows the file thumbnail once it renders', async () => {
+        let renderThumbnail: (image: string) => void;
+        modal_data.file_thumbnail = new Promise<string>((resolve) => {
+            renderThumbnail = resolve;
+        });
+        const component = TestBed.createComponent(
+            MediaEditModalComponent,
+        ).componentInstance;
+
+        expect(component.thumbnail()).toBe('');
+        renderThumbnail('data:image/jpeg;base64,aW1hZ2U=');
+        await modal_data.file_thumbnail;
+
+        expect(component.thumbnail()).toBe('data:image/jpeg;base64,aW1hZ2U=');
+    });
+
     it('starts blank validity dates as empty values', () => {
         const fixture = TestBed.createComponent(MediaEditModalComponent);
         const component = fixture.componentInstance;

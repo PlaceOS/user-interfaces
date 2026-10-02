@@ -188,6 +188,8 @@ interface SignageUploadOptions {
     stored?: StoredMediaUpload;
     /** Called when the file and thumbnail are stored */
     on_stored?: (stored: StoredMediaUpload) => void;
+    /** Thumbnail already rendering for the file, such as for its edit modal */
+    thumbnail?: Promise<string | null>;
 }
 
 const SIGNAGE_VIEW_MODE_STORAGE_KEY = 'PlaceOS.SIGNAGE:media-view-mode:v1';
@@ -728,11 +730,12 @@ export class SignageMediaService {
         const load_plugin = media.plugin_id
             ? () => this._plugin_service.resolvePlugin(media.plugin_id)
             : undefined;
-        // A file the browser cannot render a frame of still opens the modal,
-        // with the fallback preview
+        // The thumbnail renders while the modal is open, as a video frame can
+        // take a while. The modal shows it when it is ready, and the upload
+        // uses it.
         const file_thumbnail = file
-            ? await this._generateThumbnail(file, 1024, 720).catch(() => '')
-            : '';
+            ? this._generateThumbnail(file, 1280, 720).catch(() => '')
+            : undefined;
         const { MediaEditModalComponent } =
             await import('../shared/media-edit-modal.component');
         const ref = this._dialog.open(MediaEditModalComponent, {
@@ -758,8 +761,11 @@ export class SignageMediaService {
                         f,
                         m,
                         file_metadata,
-                        thumbnail || file_thumbnail,
-                        permissions ? { permissions } : undefined,
+                        thumbnail,
+                        {
+                            permissions: permissions ?? 'none',
+                            thumbnail: file_thumbnail,
+                        },
                         fallback_thumbnail,
                     ),
                 onEdit: async (id: string, data: MediaEditChanges) => {
@@ -908,11 +914,9 @@ export class SignageMediaService {
         upload_options?: SignageUploadOptions,
     ): Promise<StoredMediaUpload> {
         // The thumbnail renders while the file uploads
-        const thumbnail_request = this._generateThumbnail(
-            file,
-            1280,
-            720,
-        ).catch(() => null);
+        const thumbnail_request =
+            upload_options?.thumbnail ??
+            this._generateThumbnail(file, 1280, 720).catch(() => null);
         // Resolves only once the upload is committed. Watching progress reach
         // 100 is not enough: the last chunk lands before finalisation and the
         // commit run, so a failure there would otherwise look like success.

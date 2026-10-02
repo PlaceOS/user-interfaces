@@ -35,6 +35,7 @@ import {
 import {
     AuthenticatedImageDirective,
     FullscreenModalShellComponent,
+    IconComponent,
     MediaDurationPipe,
     PluginConfigPayload,
     PluginEmbedComponent,
@@ -82,7 +83,8 @@ export interface MediaEditModalData {
     media: SignageMedia;
     file?: File;
     file_metadata?: SignageMediaMetadata;
-    file_thumbnail?: string;
+    /** Thumbnail of a new file. It can arrive after the modal opens. */
+    file_thumbnail?: Promise<string>;
     /** Signage group the media is being viewed from */
     group_id?: string;
     plugin?: SignagePlugin;
@@ -221,11 +223,22 @@ function mediaSaveErrorMessage(error: unknown) {
                                 sandbox="allow-scripts allow-same-origin allow-forms"
                                 [src]="preview_url() | safe: 'resource'"
                             ></iframe>
+                        } @else if (
+                            file && media_type === 'video' && !thumbnail()
+                        ) {
+                            <!-- An img cannot show a video before its frame renders -->
+                            <div
+                                class="flex h-full w-full items-center justify-center"
+                            >
+                                <icon class="text-base-content/30 text-6xl"
+                                    >movie</icon
+                                >
+                            </div>
                         } @else {
                             <img
                                 class="h-full w-full object-contain object-center"
                                 auth
-                                [source]="thumbnail || url"
+                                [source]="thumbnail() || url"
                                 [alt]="
                                     model().name ||
                                     ('SIGNAGE_MANAGER.MEDIA_PREVIEW'
@@ -309,7 +322,7 @@ function mediaSaveErrorMessage(error: unknown) {
                                     <img
                                         class="h-full w-full object-contain"
                                         auth
-                                        [source]="thumbnail"
+                                        [source]="thumbnail()"
                                         [alt]="
                                             'SIGNAGE_MANAGER.THUMBNAIL'
                                                 | translate
@@ -573,6 +586,7 @@ function mediaSaveErrorMessage(error: unknown) {
     imports: [
         FullscreenModalShellComponent,
         FormField,
+        IconComponent,
         DateFieldComponent,
         TranslatePipe,
         SafePipe,
@@ -620,9 +634,9 @@ export class MediaEditModalComponent implements OnDestroy {
             !!this._data.loadPlugin &&
             !this._data.plugin,
     );
-    public readonly thumbnail =
-        this._data.file_thumbnail ||
-        playlistMediaThumbnailUrl(this._data.media);
+    public readonly thumbnail = signal(
+        playlistMediaThumbnailUrl(this._data.media),
+    );
     public readonly plugin_embed_schema = signal<Record<
         string,
         unknown
@@ -751,6 +765,9 @@ export class MediaEditModalComponent implements OnDestroy {
         if (this.plugin_loading()) {
             this._loadPluginDetails();
         }
+        this._data.file_thumbnail?.then((image) => {
+            if (image) this.thumbnail.set(image);
+        });
         // Plugin and embed schema resolve asynchronously, so seed the form
         // with their default values whenever they change
         effect(() => {
