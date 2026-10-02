@@ -143,8 +143,8 @@ describe('VideoCallStateService', () => {
 
     it('should resolve instead of throwing when a command fails', async () => {
         execute_spy.mockRejectedValue(new Error('offline'));
-        await expect(
-            spectator.service.muteMicrophone(true),
-        ).resolves.toBeUndefined();
+        await expect(spectator.service.muteMicrophone(true)).resolves.toBe(
+            false,
+        );
     });
 });

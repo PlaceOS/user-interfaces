@@ -1,11 +1,12 @@
+import { effect, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { MatDialog } from '@angular/material/dialog';
 import {
     createServiceFactory,
     SpectatorService,
 } from '@ngneat/spectator/vitest';
+import { Calendar } from '@placeos/common';
 import { CalendarService, SpacesService } from '@placeos/events';
-import { of } from 'rxjs';
 
 vi.mock('@placeos/ts-client', { spy: true });
 
@@ -23,11 +24,21 @@ describe('ControlStateService', () => {
     /** Names of bindings that were released */
     let released: string[];
     const loadSpace = vi.fn();
+    const calendar_list = signal<Calendar[]>([]);
+    // Reads the list before awaiting, like CalendarService.loadCalendars
+    const loadCalendars = vi.fn(async () => {
+        if (calendar_list().length) return;
+        await Promise.resolve();
+        calendar_list.set([{ id: 'cal-1' } as Calendar]);
+    });
     const createService = createServiceFactory({
         service: ControlStateService,
         providers: [
             { provide: MatDialog, useValue: { open: vi.fn() } },
-            { provide: CalendarService, useValue: { calendars: of([]) } },
+            {
+                provide: CalendarService,
+                useValue: { calendar_list, loadCalendars },
+            },
             {
                 provide: SpacesService,
                 useValue: { loadSpaces: vi.fn(), loadSpace },
@@ -103,5 +114,28 @@ describe('ControlStateService', () => {
         await new Promise((r) => setTimeout(r));
         expect(navigate).not.toHaveBeenCalled();
         expect(localStorage.getItem(CONTROL_STORE_KEY)).toBe('sys-1');
+    });
+
+    it('should load calendars and pick the first when selecting a meeting', async () => {
+        calendar_list.set([]);
+        await spectator.service.selectMeeting();
+        expect(loadCalendars).toHaveBeenCalled();
+        expect(spectator.service.calendar()?.id).toBe('cal-1');
+    });
+
+    it('should not open the meeting list again when calendars load', async () => {
+        const dialog = spectator.inject(MatDialog);
+        vi.mocked(dialog.open).mockClear();
+        calendar_list.set([]);
+        const ref = TestBed.runInInjectionContext(() =>
+            effect(() => {
+                spectator.service.selectMeeting();
+            }),
+        );
+        TestBed.tick();
+        await new Promise((r) => setTimeout(r));
+        TestBed.tick();
+        expect(dialog.open).toHaveBeenCalledTimes(1);
+        ref.destroy();
     });
 });

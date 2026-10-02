@@ -168,7 +168,7 @@ describe('VideoCallPageComponent', () => {
 
     it('should surface errors and stop loading when hangup fails', async () => {
         call_state.hangup.mockRejectedValue('boom');
-        await expect(spectator.component.endCall()).rejects.toBe('boom');
+        await expect(spectator.component.endCall()).resolves.toBeUndefined();
         expect(spectator.component.loading()).toBe('');
         expect(router_mock.navigate).not.toHaveBeenCalled();
     });
@@ -177,5 +177,37 @@ describe('VideoCallPageComponent', () => {
         spectator.component.selectCamera('cam-1');
         expect(client.getModule).toHaveBeenCalledWith('sys-1', 'System');
         expect(execute_spy).toHaveBeenCalledWith('selected_camera', ['cam-1']);
+    });
+
+    it('should reset the layout select when the change fails', async () => {
+        call_state.setVideoLayout.mockResolvedValue(false);
+        await spectator.component.setVideoLayout('Single');
+        expect(spectator.component.video_layout()).toBe('Auto');
+    });
+
+    it('should keep the new layout when the change succeeds', async () => {
+        call_state.setVideoLayout.mockResolvedValue(true);
+        await spectator.component.setVideoLayout('Single');
+        expect(spectator.component.video_layout()).toBe('Single');
+    });
+
+    it('should leave space above the call actions when asked', () => {
+        expect(spectator.query('[actions]')).not.toHaveClass('pt-14');
+        spectator.setInput({ reserve_top: true });
+        expect(spectator.query('[actions]')).toHaveClass('pt-14');
+    });
+
+    it('should keep a later layout when an earlier change fails last', async () => {
+        let fail_first: (ok: boolean) => void = () => null;
+        call_state.setVideoLayout
+            .mockImplementationOnce(
+                () => new Promise<boolean>((r) => (fail_first = r)),
+            )
+            .mockResolvedValueOnce(true);
+        const first = spectator.component.setVideoLayout('Single');
+        await spectator.component.setVideoLayout('Equal');
+        fail_first(false);
+        await first;
+        expect(spectator.component.video_layout()).toBe('Equal');
     });
 });

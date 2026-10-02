@@ -6,6 +6,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { i18n, notifyError } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
+import { errorText } from '../error-text';
 import { DialpadComponent } from '../ui/dialpad.component';
 import { VideoCallStateService } from './video-call-state.service';
 
@@ -116,7 +117,9 @@ export class VideoCallDialViewComponent {
         try {
             await this._call.dial(dial_number);
         } catch (error) {
-            notifyError(i18n('APP.CONTROL.VC_DIAL_ERROR', { error }));
+            notifyError(
+                i18n('APP.CONTROL.VC_DIAL_ERROR', { error: errorText(error) }),
+            );
             return;
         } finally {
             this.loading.set(false);

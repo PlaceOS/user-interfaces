@@ -541,11 +541,14 @@ export class ControlStateService extends AsyncHandler {
 
     /** Open select meeting modal */
     public async selectMeeting(input?: string) {
-        const cals = this.calendars();
-        if (cals?.length) this.setCalendar(cals[0]);
         this._dialog.open(SelectMeetingModalComponent, {
             data: { input },
         });
+        // Untracked so an effect that calls this does not re-run when the
+        // calendars load, which would open the list again
+        await untracked(() => this._cal.loadCalendars());
+        const first = untracked(this.calendars)[0];
+        if (!untracked(this._calendar) && first) this.setCalendar(first);
     }
 
     /** Open view help modal */

@@ -6,6 +6,7 @@ import {
     effect,
     inject,
     input,
+    linkedSignal,
     signal,
     untracked,
 } from '@angular/core';
@@ -23,6 +24,7 @@ import {
 } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import { ControlStateService } from '../control-state.service';
+import { errorText } from '../error-text';
 import { selectCamera } from '../ui/camera-commands';
 import { DialpadComponent } from '../ui/dialpad.component';
 import {
@@ -133,7 +135,9 @@ import {
                         ></dialpad>
                     </div>
                     <div
+                        actions
                         class="flex flex-1 flex-col items-center justify-center space-y-4 p-2"
+                        [class.pt-14]="reserve_top()"
                     >
                         <button
                             btn
@@ -245,19 +249,30 @@ export class VideoCallPageComponent extends AsyncHandler implements OnInit {
     private _router = inject(Router);
     private _injector = inject(Injector);
 
+    /** Latest layout and presentation mode change requests */
+    private _layout_request = 0;
+    private _mode_request = 0;
     /** Whether the page has already left for the ended call */
     private _left = false;
 
     public readonly redirect = input(true);
     public readonly present_output = input('');
+    /** Leave space above the call actions for a button placed over the page */
+    public readonly reserve_top = input(false);
     public readonly loading = signal('');
     public readonly call = this._state.call;
     private readonly _show_camera_pip = this._state.show_camera_pip;
     public readonly show_camera_pip = computed(() => !!this._show_camera_pip());
     private readonly _mic_mute = this._state.mic_mute;
     public readonly mic_mute = computed(() => !!this._mic_mute());
-    public readonly video_layout = this._state.video_layout;
-    public readonly presentation_mode = this._state.presentation_mode;
+    /** Selected layout. Set on change, and reset to the codec value when the change fails. */
+    public readonly video_layout = linkedSignal(() =>
+        this._state.video_layout(),
+    );
+    /** Selected presentation mode. Reset to the codec value when a change fails. */
+    public readonly presentation_mode = linkedSignal(() =>
+        this._state.presentation_mode(),
+    );
     public readonly presentables = this._control.presentables;
     /** List of available cameras to select from */
     public readonly camera_list = this._control.camera_list;
@@ -274,10 +289,21 @@ export class VideoCallPageComponent extends AsyncHandler implements OnInit {
     public readonly sentDTMF = (d) => this._state.sendDTMF(d);
     public readonly setPresentationSource = (i) =>
         this._control.setRoute(i.id, this.present_output(), false);
-    public readonly setPresentationMode = (d: PresentationMode) =>
-        this._state.setPresentationMode(d);
-    public readonly setVideoLayout = (d: VideoLayout) =>
-        this._state.setVideoLayout(d);
+    /** Reset on failure only if no newer change started, so a later choice is kept */
+    public readonly setPresentationMode = async (d: PresentationMode) => {
+        const request = ++this._mode_request;
+        this.presentation_mode.set(d);
+        if (await this._state.setPresentationMode(d)) return;
+        if (request !== this._mode_request) return;
+        this.presentation_mode.set(this._state.presentation_mode());
+    };
+    public readonly setVideoLayout = async (d: VideoLayout) => {
+        const request = ++this._layout_request;
+        this.video_layout.set(d);
+        if (await this._state.setVideoLayout(d)) return;
+        if (request !== this._layout_request) return;
+        this.video_layout.set(this._state.video_layout());
+    };
     public readonly toggleCamera = async () =>
         this._state.showCameraPIP(!this.show_camera_pip());
     public readonly toggleMute = async () =>
@@ -285,11 +311,15 @@ export class VideoCallPageComponent extends AsyncHandler implements OnInit {
     public readonly toggleOnHold = () => this._state.toggleCallOnHold();
     public readonly endCall = async () => {
         this.loading.set(i18n('APP.CONTROL.VC_LEAVE_LOADING'));
-        await this._state.hangup().catch((_) => {
+        try {
+            await this._state.hangup();
+        } catch (error) {
             this.loading.set('');
-            notifyError(i18n('APP.CONTROL.VC_LEAVE_ERROR', { error: _ }));
-            throw _;
-        });
+            notifyError(
+                i18n('APP.CONTROL.VC_LEAVE_ERROR', { error: errorText(error) }),
+            );
+            return;
+        }
         this._onCallEnded();
     };
 

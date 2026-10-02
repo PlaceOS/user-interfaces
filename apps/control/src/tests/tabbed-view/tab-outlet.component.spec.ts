@@ -4,7 +4,7 @@ import {
     SpectatorRouting,
 } from '@ngneat/spectator/vitest';
 import { mockComponent, mockDirective } from '@placeos/common/tests';
-import { MockPipe, MockProvider } from 'ng-mocks';
+import { MockPipe, MockProvider, ngMocks } from 'ng-mocks';
 
 import {
     BindingDirective,
@@ -263,5 +263,17 @@ describe('TabOutletComponent', () => {
             expect.anything(),
         );
         vi.useRealTimers();
+    });
+
+    it('should leave room for the help button above the call controls', () => {
+        const service: any = spectator.inject(ControlStateService);
+        const call_state: any = spectator.inject(VideoCallStateService);
+        service.tabs.set([
+            { id: 'tab1', controls: 'vidconf-controls', help: 'vc-help' },
+        ]);
+        call_state.call.set({ Status: 'Connected' });
+        spectator.detectChanges();
+        expect(ngMocks.input('[video-call-page]', 'reserve_top')).toBe(true);
+        call_state.call.set(null);
     });
 });
