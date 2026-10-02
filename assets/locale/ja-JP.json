@@ -1890,7 +1890,6 @@
             "VC_JOIN_ERROR": "アクティブなビデオ会議が見つかりません",
             "VC_LEAVE_ERROR": "通話の切断に失敗しました。エラー: {{ error }}",
             "VC_DIAL_ERROR": "発信できませんでした。エラー: {{ error }}",
-            "VC_COMMAND_ERROR": "ビデオ会議のコマンドに失敗しました。エラー: {{ error }}",
             "VC_LEAVE_LOADING": "通話を切断中...",
             "VC_LOADING": "通話詳細を読み込み中...",
             "ROUTE_ERROR": "ソースを切り替えられませんでした。エラー: {{ error }}",

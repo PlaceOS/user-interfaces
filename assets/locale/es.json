@@ -1890,7 +1890,6 @@
             "VC_JOIN_ERROR": "No se puede encontrar una videoconferencia activa",
             "VC_LEAVE_ERROR": "No se pudo colgar la llamada. Error: {{ error }}",
             "VC_DIAL_ERROR": "No se pudo realizar la llamada. Error: {{ error }}",
-            "VC_COMMAND_ERROR": "Falló el comando de la videoconferencia. Error: {{ error }}",
             "VC_LEAVE_LOADING": "Colgando llamada...",
             "VC_LOADING": "Cargando detalles de la llamada...",
             "ROUTE_ERROR": "No se pudo cambiar la fuente. Error: {{ error }}",
