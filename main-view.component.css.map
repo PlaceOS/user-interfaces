@@ -1,7 +1,7 @@
 {
   "version": 3,
   "sources": ["main-view.component.ts"],
-  "sourcesContent": ["\n            :host {\n                display: block;\n                position: relative;\n                width: 100%;\n                height: 100%;\n            }\n\n            :host > div {\n                color: #fff;\n            }\n\n            [name='splash'] {\n                animation: crossfade 10s linear;\n                animation-iteration-count: infinite;\n            }\n        "],
-  "mappings": "AACY,MACI,QAAA,MACA,SAAA,SACA,MAAA,KACA,OAAA,IACJ,CAEA,KAAA,CAAA,IACI,MAAA,IACJ,CAEA,CAAA,aACI,UAAA,UAAA,IAAA,OACA,0BAAA,QACJ",
+  "sourcesContent": ["\n            :host {\n                display: block;\n                position: relative;\n                width: 100%;\n                height: 100%;\n            }\n\n            :host > div {\n                color: #fff;\n            }\n        "],
+  "mappings": "AACY,MACI,QAAA,MACA,SAAA,SACA,MAAA,KACA,OAAA,IACJ,CAEA,KAAA,CAAA,IACI,MAAA,IACJ",
   "names": []
 }
