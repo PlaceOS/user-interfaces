@@ -749,7 +749,8 @@ export async function isResourceAvailable(
 /**
  * Bookings of the given type that this app linked to the event. The API
  * ignores the period when given an event id, so bookings are found wherever
- * they sit in time; the period is only used by the mock API
+ * they sit in time; the period is only used by the mock API. Rejects when the
+ * request fails
  * @param event Event the bookings are linked to
  * @param type Type of the linked bookings
  */
@@ -757,7 +758,7 @@ async function linkedBookingsForEvent(
     event: CalendarEvent,
     type: BookingType,
 ): Promise<Booking[]> {
-    const bookings = await queryBookings({
+    const bookings = await queryBookingsOrThrow({
         type,
         event_id: event.id,
         period_start: getUnixTime(event.date),

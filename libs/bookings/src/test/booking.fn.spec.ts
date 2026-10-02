@@ -398,6 +398,20 @@ describe('[Booking API]', () => {
             expect(delete_spy).not.toHaveBeenCalled();
         });
 
+        it('should not create bookings when the linked bookings fail to load', async () => {
+            const error = new Error('Unable to load bookings');
+            vi.spyOn(ts_client, 'get').mockRejectedValueOnce(error);
+            const post_spy = vi.spyOn(ts_client, 'post');
+            const delete_spy = vi.spyOn(ts_client, 'del');
+
+            await expect(
+                createBookingsForEvent(event, 'visitor', visitors),
+            ).rejects.toBe(error);
+
+            expect(post_spy).not.toHaveBeenCalled();
+            expect(delete_spy).not.toHaveBeenCalled();
+        });
+
         it('should recreate the linked bookings of an event moved to a new host', async () => {
             const new_host = 'new.host@example.com';
             const old_booking = linked_visitor();

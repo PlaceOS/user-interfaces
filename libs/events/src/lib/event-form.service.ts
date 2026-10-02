@@ -1107,12 +1107,14 @@ export class EventFormService extends AsyncHandler {
                     ),
                 );
             }
-            // Sync bookings for each catering order in the event
-            if (this._model().catering?.length || event.id) {
+            // Sync bookings for each catering order in the event. The edit
+            // form can hold no orders for an event that has them, so an
+            // empty list is not taken as a removal
+            if (this._model().catering?.length) {
                 await createBookingsForEvent(
                     created_event,
                     'catering-order',
-                    (this._model().catering || []) as any,
+                    this._model().catering as any,
                 ).catch((e) =>
                     this._removeBookingAfterError(
                         !event.id,
