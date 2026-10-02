@@ -162,6 +162,8 @@ export class SignageTemplateComponent extends AsyncHandler implements OnInit {
     private readonly _plugins = signal<SignagePlugin[]>([]);
     private readonly _route_template_id = signal('');
     private _load_id = 0;
+    /** The load whose template is on screen; changes when mappings change */
+    private _shown_load_id = 0;
 
     public readonly debug = this._signage.debug;
     public readonly template = signal<SignageTemplate | null>(null);
@@ -308,8 +310,8 @@ export class SignageTemplateComponent extends AsyncHandler implements OnInit {
      * tries again, with the delay doubling up to `RETRY_MAX_MS`, until it
      * succeeds or the mappings change. A display that boots offline, or hits
      * a passing server error, then gets its template once the server answers.
-     * A failed attempt keeps what is already on screen; only newer content
-     * replaces it, and only mappings changing to none clear it.
+     * A failed retry keeps what it already showed for these mappings, but
+     * content left from mappings that no longer apply is cleared.
      */
     private async _fetchTemplates(
         mappings: SignageTemplateMapping[],
@@ -322,6 +324,10 @@ export class SignageTemplateComponent extends AsyncHandler implements OnInit {
         } catch (error) {
             if (load_id !== this._load_id) return;
             log('SIGNAGE', 'Unable to show templates', [error], 'error');
+            if (this._shown_load_id !== load_id) {
+                this.template.set(null);
+                this.background_playlist.set([]);
+            }
         }
         if (complete || load_id !== this._load_id) return;
         const delay = Math.min(
@@ -338,7 +344,8 @@ export class SignageTemplateComponent extends AsyncHandler implements OnInit {
     /**
      * Show what loads of the templates for `mappings`. Each template is loaded
      * on its own, so one that fails does not hide the others. A part that
-     * fails to load leaves the current content of that part on screen.
+     * fails to load keeps its content on screen only while that content still
+     * belongs to `mappings`.
      * @returns Whether everything loaded, including plugins and background
      */
     private async _showTemplates(
@@ -380,7 +387,13 @@ export class SignageTemplateComponent extends AsyncHandler implements OnInit {
             non_merge.filter(({ mapping }) => mapping.schedule).at(-1) ||
             non_merge[0] ||
             merge.shift();
-        if (!base) return false;
+        if (!base) {
+            if (this._shown_load_id !== load_id) {
+                this.template.set(null);
+                this.background_playlist.set([]);
+            }
+            return false;
+        }
         const template = merge.length
             ? new SignageTemplate({
                   ...base.template,
@@ -409,6 +422,7 @@ export class SignageTemplateComponent extends AsyncHandler implements OnInit {
             : this._plugins();
         this._plugins.set(plugins);
         this.template.set(template);
+        this._shown_load_id = load_id;
         if (background) {
             this.background_playlist.set([
                 backgroundPlayerItem(
@@ -418,7 +432,10 @@ export class SignageTemplateComponent extends AsyncHandler implements OnInit {
                     `template:${template.id}`,
                 ),
             ]);
-        } else if (!template.background_item_id) {
+        } else if (
+            this.background_playlist()[0]?.id !== template.background_item_id
+        ) {
+            // No background, or the one on screen is not this template's
             this.background_playlist.set([]);
         }
         return (

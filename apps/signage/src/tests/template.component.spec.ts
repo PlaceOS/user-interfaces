@@ -569,6 +569,49 @@ describe('SignageTemplateComponent', () => {
             expect(spectator.component.background_playlist()).toHaveLength(1);
         });
 
+        it('clears a template that is no longer assigned when the new one fails', async () => {
+            spectator = create_component({
+                params: { system_id: 'display-1' },
+            });
+            active_templates.set([mapping('template-1')]);
+            await flush();
+            expect(spectator.component.template()?.id).toBe('template-1');
+
+            showTemplate.mockRejectedValue(new Error('offline'));
+            active_templates.set([mapping('template-2')]);
+            await flush();
+
+            expect(spectator.component.template()).toBeNull();
+            expect(spectator.component.background_playlist()).toEqual([]);
+        });
+
+        it('clears the old background when the new template background fails', async () => {
+            spectator = create_component({
+                params: { system_id: 'display-1' },
+            });
+            active_templates.set([mapping('template-1')]);
+            await flush();
+            expect(spectator.component.background_playlist()[0]?.id).toBe(
+                'background-1',
+            );
+
+            showTemplate.mockResolvedValue(
+                new ts_client.SignageTemplate({
+                    id: 'template-2',
+                    background_item_id: 'background-2',
+                    layouts: [],
+                }),
+            );
+            vi.mocked(ts_client.showSignageMedia).mockRejectedValue(
+                new Error('offline'),
+            );
+            active_templates.set([mapping('template-2')]);
+            await flush();
+
+            expect(spectator.component.template()?.id).toBe('template-2');
+            expect(spectator.component.background_playlist()).toEqual([]);
+        });
+
         it('fills the plugin layout once a failed plugin query succeeds', async () => {
             vi.mocked(ts_client.querySignagePlugins).mockRejectedValueOnce(
                 new Error('offline'),
