@@ -101,8 +101,10 @@ idle. No error is required — most stalls worth recovering from raise none — 
 any fatal error is recorded and reported alongside the stall.
 
 The heartbeats measure the player's own machinery, not the backend. The poll
-signal beats when a fetch is _attempted_, so a backend that has been down for
-hours never triggers a recovery.
+signal beats when a fetch is _attempted_, so it does not stop when the backend
+is down. The `content` signal is different. It stops when the player has
+nothing it can show, for example when nothing is cached and the server is
+down. A backend outage can therefore cause recoveries, at the usual limits.
 
 It starts at application bootstrap, before any routing, so a startup that never
 completes is covered too: if nothing has been on screen five minutes after
@@ -111,12 +113,26 @@ boot that never completes is most often a bad cached build. That deadline only
 applies once the device has been bootstrapped to a display — one sitting on the
 picker is waiting for a person, not broken.
 
-| Guard | Value |
-| Stall thresholds | poll 10 min, schedule 5 min, playback 3 min, visible 5 min |
-| Boot deadline | 5 min from start with nothing on screen |
-| Grace before recovering | 5 min |
-| Recoveries allowed | 3 per hour, then 1 per hour |
-| Back to 3 per hour after | 2 hours with no recovery |
+When the display is cleared (`/#/bootstrap?clear=true`) or a display is
+bootstrapped, the watchdog forgets all heartbeats. Thus the picker is not
+reloaded for the player that was on screen before. A display picked later gets
+the full five-minute boot deadline.
+
+Heartbeats use a clock that a change to the device time does not move. Thus a
+clock set back cannot hide a stall. The recovery history uses the device time,
+because it must stay after a reload. If the history has a recovery more than
+one hour later than the device time, the watchdog forgets the history.
+Otherwise a device that starts with its clock behind refuses all recoveries. A
+smaller correction keeps the limits. `state()` shows heartbeat times in device
+time, so they agree with the other times after a correction.
+
+| Guard                    | Value                                                                      |
+| ------------------------ | -------------------------------------------------------------------------- |
+| Stall thresholds         | poll 10 min, schedule 5 min, playback 3 min, visible 5 min, content 10 min |
+| Boot deadline            | 5 min from start with nothing on screen                                    |
+| Grace before recovering  | 5 min                                                                      |
+| Recoveries allowed       | 3 per hour, then 1 per hour                                                |
+| Back to 3 per hour after | 2 hours with no recovery                                                   |
 
 Once recoveries are throttled the next one clears the application cache first —
 unregistering the service worker and deleting its caches — in case the cached

@@ -918,16 +918,10 @@ describe('MediaCacheService', () => {
                     const transaction: any = {
                         objectStore: () => ({
                             add: () => {
-                                const request: any = {};
-                                queueMicrotask(() =>
-                                    request.onerror?.({
-                                        target: {
-                                            error: new Error(
-                                                'QuotaExceededError',
-                                            ),
-                                        },
-                                    }),
-                                );
+                                const request: any = {
+                                    error: new Error('QuotaExceededError'),
+                                };
+                                queueMicrotask(() => request.onerror?.());
                                 return request;
                             },
                         }),
@@ -959,12 +953,10 @@ describe('MediaCacheService', () => {
                 transaction: vi.fn(() => ({
                     objectStore: () => ({
                         add: () => {
-                            const request: any = {};
-                            queueMicrotask(() =>
-                                request.onerror?.({
-                                    target: { error: new Error('nope') },
-                                }),
-                            );
+                            const request: any = {
+                                error: new Error('nope'),
+                            };
+                            queueMicrotask(() => request.onerror?.());
                             return request;
                         },
                     }),
@@ -1635,9 +1627,8 @@ describe('MediaCacheService', () => {
                 ),
             };
             try {
-                open_requests[0].onerror({
-                    target: { error: new Error('UnknownError') },
-                });
+                open_requests[0].error = new Error('UnknownError');
+                open_requests[0].onerror();
                 await Promise.resolve();
                 expect(indexedDB.deleteDatabase).toHaveBeenCalledWith(
                     'SignageMedia',
@@ -1649,7 +1640,8 @@ describe('MediaCacheService', () => {
 
                 expect(open_requests).toHaveLength(2);
                 const db = { onversionchange: null, onclose: null };
-                open_requests[1].onsuccess({ target: { result: db } });
+                open_requests[1].result = db;
+                open_requests[1].onsuccess();
                 await Promise.resolve();
 
                 expect(recovering.service['_cache_db']).toBe(db);
@@ -1678,7 +1670,8 @@ describe('MediaCacheService', () => {
             };
             try {
                 const db: any = { close: vi.fn(), transaction: vi.fn() };
-                open_requests[0].onsuccess({ target: { result: db } });
+                open_requests[0].result = db;
+                open_requests[0].onsuccess();
                 await Promise.resolve();
 
                 db.onclose();

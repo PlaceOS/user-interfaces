@@ -54,6 +54,16 @@ describe('recovery watchdog', () => {
         await vi.advanceTimersByTimeAsync(minutes * MINUTE);
     };
 
+    /**
+     * The device sleeps: the clocks move on, but no timer runs. Moves the
+     * clock the heartbeats use as well as the device time.
+     */
+    const suspend = (ms: number) => {
+        const now = performance.now.bind(performance);
+        vi.spyOn(performance, 'now').mockImplementation(() => now() + ms);
+        vi.setSystemTime(Date.now() + ms);
+    };
+
     /** A fresh stall, as though the player had restarted and stalled again */
     const stallAgain = async () => {
         resetWatchdog();
@@ -77,6 +87,7 @@ describe('recovery watchdog', () => {
     afterEach(() => {
         stop();
         resetWatchdog();
+        vi.restoreAllMocks();
         vi.useRealTimers();
     });
 
@@ -105,6 +116,30 @@ describe('recovery watchdog', () => {
 
         expect(clear_cache).not.toHaveBeenCalled();
         expect(reload).not.toHaveBeenCalled();
+    });
+
+    it('should not reload the display picker after the display is cleared', async () => {
+        await runHealthy(2);
+
+        // Someone clears the display and stays on the picker; the player
+        // that was checking in has gone
+        expected_to_run = false;
+        await vi.advanceTimersByTimeAsync(30 * MINUTE);
+
+        expect(reload).not.toHaveBeenCalled();
+        expect(watchdogState().stalled).toEqual([]);
+    });
+
+    it('should give a display picked later the full boot deadline', async () => {
+        expected_to_run = false;
+        await vi.advanceTimersByTimeAsync(20 * MINUTE);
+
+        expected_to_run = true;
+        await vi.advanceTimersByTimeAsync(4 * MINUTE);
+        expect(clear_cache).not.toHaveBeenCalled();
+
+        await vi.advanceTimersByTimeAsync(2 * MINUTE);
+        expect(clear_cache).toHaveBeenCalledTimes(1);
     });
 
     it('should stop watching for a failed boot once content is visible', async () => {
@@ -187,7 +222,8 @@ describe('recovery watchdog', () => {
     it('should ignore signals that have never checked in', () => {
         recordHeartbeat('poll');
 
-        expect(stalledSignals(Date.now() + 30 * MINUTE)).toEqual(['poll']);
+        const now = performance.timeOrigin + performance.now();
+        expect(stalledSignals(now + 30 * MINUTE)).toEqual(['poll']);
     });
 
     it('should not reload if the stall recovers within the grace period', async () => {
@@ -207,7 +243,7 @@ describe('recovery watchdog', () => {
     it('should skip a round when the watchdog itself was delayed', async () => {
         beat();
         // The device suspends: no timers run, then everything resumes at once
-        vi.setSystemTime(Date.now() + 4 * 60 * MINUTE);
+        suspend(4 * 60 * MINUTE);
         await vi.advanceTimersByTimeAsync(30 * 1000);
 
         expect(reload).not.toHaveBeenCalled();
@@ -217,12 +253,41 @@ describe('recovery watchdog', () => {
 
     it('should still recover if the stall continues after a delay', async () => {
         beat();
-        vi.setSystemTime(Date.now() + 4 * 60 * MINUTE);
+        suspend(4 * 60 * MINUTE);
         await vi.advanceTimersByTimeAsync(30 * 1000);
 
         await runStalled();
 
         expect(reload).toHaveBeenCalledTimes(1);
+    });
+
+    it('should still notice a stall after the device clock is set back', async () => {
+        beat();
+        // The clock is corrected a day back as the player stops
+        vi.setSystemTime(Date.now() - 24 * 60 * MINUTE);
+
+        await runStalled();
+
+        expect(reload).toHaveBeenCalledTimes(1);
+    });
+
+    it('should recover when the history is ahead of the device clock', () => {
+        // Recoveries recorded while the clock was right, before the device
+        // started again with its clock days behind
+        const later = Date.now() + 3 * 24 * 60 * MINUTE;
+        localStorage.setItem(
+            'PlaceOS.SIGNAGE.watchdog_reloads',
+            JSON.stringify({
+                at: [later, later + MINUTE, later + 2 * MINUTE],
+                throttled: true,
+                last: null,
+            }),
+        );
+
+        expect(requestRecovery('init-error')).toBe(true);
+
+        expect(reload).toHaveBeenCalledTimes(1);
+        expect(watchdogState().recoveries_in_last_hour).toBe(1);
     });
 
     it('should allow three recoveries in an hour and no more', async () => {
@@ -438,6 +503,34 @@ describe('recovery watchdog', () => {
         expect(watchdogState().last_recovery_detail?.reasons).toEqual([
             'init-error',
         ]);
+    });
+
+    it('should keep the recovery limit through a small clock correction', () => {
+        // The allowance is used up, then the clock is set back a minute
+        const now = Date.now();
+        localStorage.setItem(
+            'PlaceOS.SIGNAGE.watchdog_reloads',
+            JSON.stringify({
+                at: [now - 2 * MINUTE, now - MINUTE, now + MINUTE],
+                throttled: false,
+                last: null,
+            }),
+        );
+
+        expect(requestRecovery('init-error')).toBe(false);
+
+        expect(reload).not.toHaveBeenCalled();
+        expect(watchdogState().recoveries_throttled).toBe(true);
+    });
+
+    it('should show heartbeats in device time after the clock is corrected', () => {
+        recordHeartbeat('poll');
+
+        vi.setSystemTime(Date.now() - 24 * 60 * MINUTE);
+
+        expect(watchdogState().heartbeats.poll).toBe(
+            new Date(Date.now()).toISOString(),
+        );
     });
 
     it('should read recovery history written by an earlier build', () => {

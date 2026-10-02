@@ -15,9 +15,17 @@ import { MINUTES, scoped_log, SECONDS } from '@placeos/common';
  *
  * The heartbeats measure the player's own machinery, not the backend. The poll
  * signal checks in when a fetch is *attempted*, so a backend that has been down
- * for hours still beats normally and never triggers a recovery. That is what
- * makes acting on a stall alone safe: the only thing that goes quiet is code
- * that has stopped running.
+ * for hours still beats normally. That is what makes acting on a stall alone
+ * safe: apart from content, the only thing that goes quiet is code that has
+ * stopped running. Content can go quiet because of the backend - a player with
+ * nothing cached cannot show anything while the server is down - so an outage
+ * can cause recoveries, held to the same limits as every other.
+ *
+ * Heartbeats are timed on a clock that setting the device time cannot move, so
+ * a clock corrected backwards cannot hide a stall. The recovery history has to
+ * survive reloads, so it uses the device time. It is forgotten when it holds
+ * an entry more than an hour in that time's future, and diagnostics show
+ * heartbeats in device time.
  *
  * Fatal errors are recorded for context but are not required. Most stalls worth
  * recovering from - a promise that never settles, a timer chain that quietly
@@ -71,6 +79,12 @@ const MAX_RECOVERIES_PER_WINDOW = 3;
 const RECOVERY_THROTTLE_MS = 60 * MINUTES;
 /** Quiet period after which the recovery history is forgotten */
 const RECOVERY_RESET_MS = 2 * 60 * MINUTES;
+/**
+ * How far ahead of the device clock a recorded recovery may be before the
+ * history is forgotten. Smaller corrections keep the limits: the entries just
+ * count as recent for a little longer.
+ */
+const FUTURE_HISTORY_MS = RECOVERY_THROTTLE_MS;
 /** Longest wait for the server check before clearing the application cache */
 const REACHABLE_TIMEOUT_MS = 15 * SECONDS;
 /**
@@ -129,12 +143,22 @@ let _recovery_timer: ReturnType<typeof setTimeout> | undefined;
 let _recovery_generation = 0;
 let _listening = false;
 let _recovering = false;
+/** Whether the device was expected to show content at the last check */
+let _was_expected_to_run = false;
 let _reload: () => void = () => location.reload();
 let _clear_cache: () => Promise<boolean> = () => clearApplicationCache();
 
+/**
+ * Milliseconds on a clock that only moves forward. Setting the device time
+ * does not move it. Reads as a timestamp, for diagnostics.
+ */
+function monotonicNow() {
+    return performance.timeOrigin + performance.now();
+}
+
 /** Record that a piece of core machinery is still running */
 export function recordHeartbeat(signal: WatchdogSignal) {
-    heartbeats[signal] = Date.now();
+    heartbeats[signal] = monotonicNow();
 }
 
 /** Record an error serious enough to be worth reporting alongside a stall */
@@ -144,7 +168,7 @@ export function recordFatalError(message: string) {
 }
 
 /** Signals that have not checked in recently enough */
-export function stalledSignals(now = Date.now()): WatchdogSignal[] {
+export function stalledSignals(now = monotonicNow()): WatchdogSignal[] {
     return (Object.keys(heartbeats) as WatchdogSignal[]).filter((signal) => {
         const last = heartbeats[signal];
         // A signal that has never checked in is not yet expected to
@@ -178,11 +202,17 @@ function writeHistory(history: RecoveryHistory) {
     }
 }
 
-/** The recovery history, forgotten entirely after a long quiet period */
+/**
+ * The recovery history, forgotten entirely after a long quiet period. Also
+ * forgotten when it holds a recovery well after `now`: the device clock has
+ * been set far back, for example on a device that starts with no time source.
+ * Kept, it would refuse every recovery until the clock caught up.
+ */
 function recoveryHistory(now: number): RecoveryHistory {
     const history = readHistory();
     const last = history.at[history.at.length - 1] || 0;
-    if (last && now - last >= RECOVERY_RESET_MS) {
+    const from_future = history.at.some((at) => at - now > FUTURE_HISTORY_MS);
+    if (from_future || (last && now - last >= RECOVERY_RESET_MS)) {
         // Only the rate limiting is forgotten; why it last recovered is still
         // worth knowing when someone finally looks at the player.
         const reset = { at: [], throttled: false, last: history.last };
@@ -229,6 +259,13 @@ function resetHeartbeats(now: number) {
     }
 }
 
+/** Forget every heartbeat, as though no signal had ever checked in */
+function clearHeartbeats() {
+    for (const signal of Object.keys(heartbeats) as WatchdogSignal[]) {
+        heartbeats[signal] = 0;
+    }
+}
+
 /**
  * Clear the application cache before a recovery reload. Used once plain
  * reloads have failed to shift the problem, in case the cached build is what
@@ -272,7 +309,7 @@ export async function clearApplicationCache(): Promise<boolean> {
 }
 
 function check(expected_to_run: () => boolean) {
-    const now = Date.now();
+    const now = monotonicNow();
     const since_last_check = _last_check ? now - _last_check : 0;
     _last_check = now;
     // The watchdog itself did not run, so every heartbeat looks stale
@@ -286,13 +323,25 @@ function check(expected_to_run: () => boolean) {
     }
     // A recovery has been asked for; the page is on its way out
     if (_recovering) return;
+    const expected = expected_to_run();
+    if (expected !== _was_expected_to_run) {
+        // Bootstrapped to a display, or cleared back to the display picker.
+        // The heartbeats belong to a screen that has gone: left in place they
+        // would read as a stall and reload the picker under whoever is using
+        // it. A display picked now gets the full boot deadline, however long
+        // the picker was up.
+        _was_expected_to_run = expected;
+        clearHeartbeats();
+        _stalled_since = 0;
+        _started_at = now;
+    }
     // Boot never completed. Nothing has ever been on screen, so none of the
     // stall signals apply - this is the only thing watching startup.
-    if (!heartbeats.visible && expected_to_run()) {
+    if (!heartbeats.visible && expected) {
         if (now - _started_at < BOOT_TIMEOUT_MS) return;
         // A boot that never completes is most often a bad cached build,
         // especially straight after an update, so skip the plain reloads.
-        recover(now, ['boot'], true);
+        recover(['boot'], true);
         return;
     }
     const stalled = stalledSignals(now);
@@ -306,7 +355,7 @@ function check(expected_to_run: () => boolean) {
         return;
     }
     if (now - _stalled_since < RECOVERY_GRACE_MS) return;
-    if (!recover(now, stalled, false)) _stalled_since = now;
+    if (!recover(stalled, false)) _stalled_since = now;
 }
 
 /**
@@ -314,7 +363,9 @@ function check(expected_to_run: () => boolean) {
  * the application cache; otherwise that only happens once plain reloads have
  * been tried and throttled.
  */
-function recover(now: number, reasons: string[], prefer_hard: boolean) {
+function recover(reasons: string[], prefer_hard: boolean) {
+    // The history outlives the page, so it is kept in device time
+    const now = Date.now();
     const throttled = recoveryHistory(now).throttled;
     const record: RecoveryRecord = {
         at: now,
@@ -374,7 +425,7 @@ function recover(now: number, reasons: string[], prefer_hard: boolean) {
  */
 export function requestRecovery(reason: string, prefer_hard = false) {
     if (_recovering) return false;
-    return recover(Date.now(), [reason], prefer_hard);
+    return recover([reason], prefer_hard);
 }
 
 export interface WatchdogActions {
@@ -394,13 +445,14 @@ export function startWatchdog(actions: WatchdogActions = {}) {
     _clear_cache = actions.clearCache || clearApplicationCache;
     const expectedToRun = actions.isExpectedToRun || (() => false);
     stopWatchdog();
+    _was_expected_to_run = expectedToRun();
     if (!_listening) {
         _listening = true;
         window.addEventListener('error', onWindowError);
         window.addEventListener('unhandledrejection', onRejection);
     }
-    _last_check = Date.now();
-    _started_at = Date.now();
+    _last_check = monotonicNow();
+    _started_at = _last_check;
     _timer = setInterval(() => check(expectedToRun), CHECK_INTERVAL_MS);
     return () => stopWatchdog();
 }
@@ -424,11 +476,8 @@ export function stopWatchdog() {
 /** Reset all in-memory watchdog state. Intended for tests. */
 export function resetWatchdog() {
     stopWatchdog();
-    heartbeats.poll = 0;
-    heartbeats.schedule = 0;
-    heartbeats.playback = 0;
-    heartbeats.visible = 0;
-    heartbeats.content = 0;
+    clearHeartbeats();
+    _was_expected_to_run = false;
     _last_error = null;
     _error_count = 0;
     _stalled_since = 0;
@@ -443,13 +492,19 @@ export function watchdogState() {
     const history = readHistory();
     const asTime = (value: number) =>
         value ? new Date(value).toISOString() : 'never';
+    // Heartbeats and their timers are on the monotonic clock. Shown as the
+    // same age before the device time, so they line up with the other times
+    // here after the device clock has been corrected.
+    const monotonic_now = monotonicNow();
+    const asMonotonicTime = (value: number) =>
+        asTime(value ? now - (monotonic_now - value) : 0);
     return {
         running: !!_timer,
         recovering: _recovering,
         error_count: _error_count,
         last_error: _last_error,
-        stalled: stalledSignals(now),
-        stalled_since: asTime(_stalled_since),
+        stalled: stalledSignals(),
+        stalled_since: asMonotonicTime(_stalled_since),
         recoveries_in_last_hour: history.at.filter(
             (at) => now - at < RECOVERY_WINDOW_MS,
         ).length,
@@ -469,14 +524,14 @@ export function watchdogState() {
                       : null,
               }
             : null,
-        started_at: asTime(_started_at),
+        started_at: asMonotonicTime(_started_at),
         booted: !!heartbeats.visible,
         heartbeats: {
-            poll: asTime(heartbeats.poll),
-            schedule: asTime(heartbeats.schedule),
-            playback: asTime(heartbeats.playback),
-            visible: asTime(heartbeats.visible),
-            content: asTime(heartbeats.content),
+            poll: asMonotonicTime(heartbeats.poll),
+            schedule: asMonotonicTime(heartbeats.schedule),
+            playback: asMonotonicTime(heartbeats.playback),
+            visible: asMonotonicTime(heartbeats.visible),
+            content: asMonotonicTime(heartbeats.content),
         },
     };
 }
