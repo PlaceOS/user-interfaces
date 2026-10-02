@@ -148,6 +148,7 @@ describe('BootstrapComponent', () => {
     it('should store the selected display and navigate to signage', async () => {
         build_component();
         const router = spectator.inject(Router);
+        vi.mocked(router.navigate).mockResolvedValue(true);
         const set_item_spy = vi.spyOn(Storage.prototype, 'setItem');
         spectator.component.active_display.set('display-1');
 
@@ -158,7 +159,39 @@ describe('BootstrapComponent', () => {
             'display-1',
         );
         expect(router.navigate).toHaveBeenCalledWith(['/signage', 'display-1']);
+        expect(spectator.component.loading()).toBeTruthy();
+    });
+
+    it('should show the picker again when the player cannot be opened', async () => {
+        build_component();
+        const router = spectator.inject(Router);
+        vi.mocked(router.navigate).mockResolvedValue(false);
+        spectator.component.active_display.set('display-1');
+
+        await spectator.component.bootstrapPanel();
+
         expect(spectator.component.loading()).toBe('');
+    });
+
+    it('should show an error with a retry when displays fail to load', async () => {
+        vi.mocked(ts_client.querySystems).mockRejectedValueOnce(
+            new Error('Service unavailable'),
+        );
+        build_component();
+        await vi.waitFor(() => {
+            spectator.detectChanges();
+            expect(spectator.query('load-error')).not.toBeNull();
+        });
+        expect(spectator.query('main')).toBeNull();
+
+        spectator.click('load-error button');
+
+        await vi.waitFor(() => {
+            expect(spectator.component.displays()).toHaveLength(1);
+        });
+        spectator.detectChanges();
+        expect(spectator.query('load-error')).toBeNull();
+        expect(spectator.query('main')).not.toBeNull();
     });
 
     it('should store and open a template bootstrap', async () => {
@@ -228,6 +261,39 @@ describe('BootstrapComponent', () => {
 
         expect(router.navigate).toHaveBeenCalledWith(['/signage', 'display-3']);
         expect(VirtualKeyboardComponent.enabled).toBe(true);
+        vi.useRealTimers();
+    });
+
+    it('should keep the loading state while opening a stored display', async () => {
+        vi.useFakeTimers();
+        localStorage.setItem('PlaceOS.SIGNAGE.display', 'display-3');
+        build_component();
+        const router = spectator.inject(Router);
+        // The route guard is still waiting on the backend
+        vi.mocked(router.navigate).mockReturnValue(new Promise(() => {}));
+        spectator.detectChanges();
+        expect(spectator.query('main')).toBeNull();
+
+        vi.advanceTimersByTime(1001);
+        spectator.detectChanges();
+
+        expect(router.navigate).toHaveBeenCalledWith(['/signage', 'display-3']);
+        expect(spectator.component.loading()).toBeTruthy();
+        expect(spectator.query('main')).toBeNull();
+        vi.useRealTimers();
+    });
+
+    it('should not navigate again after bootstrapping from the URL', async () => {
+        vi.useFakeTimers();
+        build_component();
+        const router = spectator.inject(Router);
+        vi.mocked(router.navigate).mockReturnValue(new Promise(() => {}));
+
+        spectator.setRouteQueryParam('display', 'display-2');
+        vi.advanceTimersByTime(1001);
+
+        expect(router.navigate).toHaveBeenCalledTimes(1);
+        expect(router.navigate).toHaveBeenCalledWith(['/signage', 'display-2']);
         vi.useRealTimers();
     });
 

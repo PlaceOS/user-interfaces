@@ -34,8 +34,12 @@ export const appConfig: ApplicationConfig = {
                     showDialog: false,
                 });
                 return {
-                    handleError: (error: any) => {
-                        recordFatalError(error?.message || error);
+                    handleError: (error: unknown) => {
+                        recordFatalError(
+                            error instanceof Error
+                                ? error.message
+                                : String(error),
+                        );
                         handler.handleError(error);
                     },
                 };

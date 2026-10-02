@@ -1,4 +1,5 @@
-const STORE_DISPLAY_KEY = 'PlaceOS.SIGNAGE.display';
+/** Local storage key holding the id of the display this device shows */
+export const STORE_DISPLAY_KEY = 'PlaceOS.SIGNAGE.display';
 
 /**
  * Whether this device has been bootstrapped to a display, and so is expected to
