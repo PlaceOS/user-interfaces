@@ -1083,7 +1083,8 @@ export class EventFormService extends AsyncHandler {
                     ),
                 );
             }
-            // Create visitor bookings for external attendees
+            // Sync visitor bookings for external attendees. Always sync an
+            // existing event so bookings for removed visitors are removed
             const domain = (currentUser()?.email || '@').split('@')[1];
             const visitors = this._model().attendees.filter(
                 (user) =>
@@ -1092,7 +1093,7 @@ export class EventFormService extends AsyncHandler {
                     !user.email.includes(domain) &&
                     user.visit_expected,
             );
-            if (visitors.length) {
+            if (visitors.length || event.id) {
                 await createBookingsForEvent(
                     created_event,
                     'visitor',
@@ -1106,7 +1107,9 @@ export class EventFormService extends AsyncHandler {
                     ),
                 );
             }
-            // Create bookings for each catering order in the event
+            // Sync bookings for each catering order in the event. The edit
+            // form can hold no orders for an event that has them, so an
+            // empty list is not taken as a removal
             if (this._model().catering?.length) {
                 await createBookingsForEvent(
                     created_event,

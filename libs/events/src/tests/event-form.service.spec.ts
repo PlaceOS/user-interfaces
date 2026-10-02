@@ -264,6 +264,214 @@ describe('EventFormService', () => {
         },
     );
 
+    it('should remove the visitor booking when the last visitor leaves an event', async () => {
+        vi.spyOn(
+            service as unknown as {
+                _performBooking: (
+                    event: CalendarEvent,
+                ) => Promise<CalendarEvent>;
+            },
+            '_performBooking',
+        ).mockImplementation(async (event) => new CalendarEvent(event));
+        vi.mocked<(url: string) => Promise<unknown>>(
+            ts_client.get,
+        ).mockImplementation(async (url) =>
+            url.includes('type=visitor')
+                ? [
+                      {
+                          id: 'visitor-booking-1',
+                          booking_type: 'visitor',
+                          extension_data: { parent_id: 'event-1' },
+                      },
+                  ]
+                : [],
+        );
+        vi.mocked<(url: string, data: object) => Promise<unknown>>(
+            ts_client.post,
+        ).mockResolvedValue([]);
+        vi.mocked(ts_client.del).mockClear();
+        vi.mocked(ts_client.del).mockResolvedValue(undefined as never);
+        const room = new Space({ id: 'space-1', email: 'room@test.com' });
+        const date = new Date(2028, 5, 16, 16).valueOf();
+        sessionStorage.setItem(
+            'PLACEOS.event',
+            JSON.stringify({
+                id: 'event-1',
+                date,
+                duration: 60,
+                resources: [room],
+            }),
+        );
+        sessionStorage.setItem(
+            'PLACEOS.event_form',
+            JSON.stringify({
+                id: 'event-1',
+                host: 'host@test.com',
+                title: 'Visitor meeting',
+                date,
+                duration: 60,
+                attendees: [],
+                resources: [room],
+            }),
+        );
+        service.loadForm();
+
+        await service.postForm(true);
+
+        expect(ts_client.del).toHaveBeenCalledWith(
+            expect.stringContaining('/bookings/visitor-booking-1?'),
+            expect.anything(),
+        );
+    });
+
+    it('should leave catering bookings alone when the edit form holds no orders', async () => {
+        vi.spyOn(
+            service as unknown as {
+                _performBooking: (
+                    event: CalendarEvent,
+                ) => Promise<CalendarEvent>;
+            },
+            '_performBooking',
+        ).mockImplementation(async (event) => new CalendarEvent(event));
+        const get = vi.mocked<(url: string) => Promise<unknown>>(ts_client.get);
+        get.mockClear();
+        get.mockImplementation(async (url) =>
+            url.includes('type=catering-order')
+                ? [
+                      {
+                          id: 'catering-booking-1',
+                          booking_type: 'catering-order',
+                          extension_data: { parent_id: 'event-1' },
+                      },
+                  ]
+                : [],
+        );
+        vi.mocked<(url: string, data: object) => Promise<unknown>>(
+            ts_client.post,
+        ).mockResolvedValue([]);
+        vi.mocked(ts_client.del).mockClear();
+        vi.mocked(ts_client.del).mockResolvedValue(undefined as never);
+        const room = new Space({ id: 'space-1', email: 'room@test.com' });
+        const date = new Date(2028, 5, 16, 16).valueOf();
+        sessionStorage.setItem(
+            'PLACEOS.event',
+            JSON.stringify({
+                id: 'event-1',
+                date,
+                duration: 60,
+                resources: [room],
+            }),
+        );
+        sessionStorage.setItem(
+            'PLACEOS.event_form',
+            JSON.stringify({
+                id: 'event-1',
+                host: 'host@test.com',
+                title: 'Catered meeting',
+                date,
+                duration: 60,
+                attendees: [],
+                catering: [],
+                resources: [room],
+            }),
+        );
+        service.loadForm();
+
+        await service.postForm(true);
+
+        expect(
+            get.mock.calls.some(([url]) => url.includes('type=visitor')),
+        ).toBe(true);
+        expect(
+            get.mock.calls.some(([url]) => url.includes('type=catering-order')),
+        ).toBe(false);
+        expect(ts_client.del).not.toHaveBeenCalled();
+    });
+
+    it('should recreate the visitor booking when the host change moves the event', async () => {
+        const old_booking = {
+            id: 'visitor-booking-1',
+            booking_type: 'visitor',
+            user_email: 'host@test.com',
+            extension_data: { parent_id: 'event-1' },
+        };
+        vi.spyOn(
+            service as unknown as {
+                _performBooking: (
+                    event: CalendarEvent,
+                ) => Promise<CalendarEvent>;
+            },
+            '_performBooking',
+        ).mockImplementation(
+            async (event) =>
+                new CalendarEvent({
+                    ...event,
+                    id: 'event-2',
+                    ical_uid: 'event-2@test.com',
+                    linked_bookings: [old_booking] as never,
+                }),
+        );
+        vi.mocked<(url: string) => Promise<unknown>>(
+            ts_client.get,
+        ).mockImplementation(async (url) =>
+            url.includes('type=visitor') ? [old_booking] : [],
+        );
+        const post = vi.mocked<(url: string, data: object) => Promise<unknown>>(
+            ts_client.post,
+        );
+        post.mockClear();
+        post.mockResolvedValue({ id: 'visitor-booking-2' });
+        vi.mocked(ts_client.del).mockClear();
+        vi.mocked(ts_client.del).mockResolvedValue(undefined as never);
+        const room = new Space({ id: 'space-1', email: 'room@test.com' });
+        const date = new Date(2028, 5, 16, 16).valueOf();
+        sessionStorage.setItem(
+            'PLACEOS.event',
+            JSON.stringify({
+                id: 'event-1',
+                host: 'host@test.com',
+                date,
+                duration: 60,
+                resources: [room],
+            }),
+        );
+        sessionStorage.setItem(
+            'PLACEOS.event_form',
+            JSON.stringify({
+                id: 'event-1',
+                host: 'new.host@test.com',
+                title: 'Visitor meeting',
+                date,
+                duration: 60,
+                attendees: [
+                    {
+                        email: 'visitor@external.com',
+                        name: 'Visitor',
+                        is_external: true,
+                        visit_expected: true,
+                    },
+                ],
+                resources: [room],
+            }),
+        );
+        service.loadForm();
+
+        await service.postForm(true);
+
+        expect(ts_client.del).toHaveBeenCalledWith(
+            expect.stringContaining('/bookings/visitor-booking-1?'),
+            expect.anything(),
+        );
+        const created = post.mock.calls.find(([url]) =>
+            url.includes('event_id=event-2'),
+        );
+        expect(created?.[1]).toMatchObject({
+            booking_type: 'visitor',
+            user_email: 'new.host@test.com',
+            extension_data: { parent_id: 'event-2' },
+        });
+    });
+
     it('should use the current user as booking rule host when enabled', async () => {
         const settings = TestBed.inject(SettingsService) as any;
         settings.get.mockImplementation((key: string) =>
