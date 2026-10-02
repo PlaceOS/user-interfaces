@@ -124,6 +124,16 @@ describe('computeTemplateLayoutRects', () => {
         expect(footer.width).toBe(100);
     });
 
+    it('places floating panels without a position where the player does', () => {
+        // apps/signage/src/app/template-layout.ts FLOATING_POSITION
+        const [rect] = computeTemplateLayoutRects([layout('floating')]);
+        expect(rect).toEqual({ left: 50, top: 50, width: 50, height: 50 });
+        expect(applyLayoutPositionDefaults(layout('floating'))).toMatchObject({
+            x_pos: 0.5,
+            y_pos: 0.5,
+        });
+    });
+
     it('uses the default corner for floating panels without a position', () => {
         const [rect] = computeTemplateLayoutRects([layout('floating')]);
         expect(rect).toEqual({

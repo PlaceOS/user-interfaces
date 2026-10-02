@@ -22,6 +22,7 @@ describe('TemplatesSectionComponent', () => {
         shareTemplate: vi.fn(),
         approveTemplate: vi.fn(),
         requestTemplateApproval: vi.fn(),
+        loadTemplate: vi.fn(),
     };
     const context_stub = {
         can_approve: signal(false),
@@ -56,6 +57,7 @@ describe('TemplatesSectionComponent', () => {
         template_stub.selected_template_layout_index.set(null);
         template_stub.template_layout_dirty.set(false);
         template_stub.templates.set([]);
+        template_stub.loadTemplate.mockResolvedValue(null);
         TestBed.resetTestingModule();
     });
 
@@ -129,7 +131,7 @@ describe('TemplatesSectionComponent', () => {
         expect(template_stub.shareTemplate).toHaveBeenCalledWith(template);
     });
 
-    it('selects a draft from an approved route and stores the draft ID', async () => {
+    it('keeps the live ID when the list holds a draft record', async () => {
         const fixture = await makeFixture();
         const draft = {
             id: 'template-draft',
@@ -140,13 +142,38 @@ describe('TemplatesSectionComponent', () => {
         await fixture.whenStable();
 
         expect(template_stub.selected_template()).toBe(draft);
-        expect(navigate).toHaveBeenCalledWith(
-            ['/templates', 'template-draft'],
-            {
-                queryParamsHandling: 'merge',
-                replaceUrl: true,
-            },
-        );
+        expect(navigate).not.toHaveBeenCalled();
+    });
+
+    it('leaves the route of a template once it is deleted', async () => {
+        const component = await make();
+        template_stub.selected_template.set({ id: 'template-1' });
+        template_stub.removeTemplate.mockResolvedValueOnce(false);
+
+        await component.removeTemplate();
+        expect(navigate).not.toHaveBeenCalled();
+
+        template_stub.removeTemplate.mockResolvedValueOnce(true);
+        await component.removeTemplate();
+        expect(navigate).toHaveBeenCalledWith(['/templates'], {
+            queryParamsHandling: 'merge',
+        });
+    });
+
+    it('routes a draft ID link to the live ID', async () => {
+        const fixture = await makeFixture();
+        const draft = {
+            id: 'template-draft',
+            live_template_id: 'template-live',
+        };
+        template_stub.templates.set([draft]);
+        fixture.componentRef.setInput('id', 'template-draft');
+        await fixture.whenStable();
+
+        expect(navigate).toHaveBeenCalledWith(['/templates', 'template-live'], {
+            queryParamsHandling: 'merge',
+            replaceUrl: true,
+        });
     });
 
     it('stores the approved ID after approving a draft', async () => {
@@ -192,6 +219,55 @@ describe('TemplatesSectionComponent', () => {
 
         expect(template_stub.selected_template()).toBe(fresh);
         expect(template_stub.selected_template_layout_index()).toBe(1);
+    });
+
+    it('selects a fetched template that a search keeps out of the list', async () => {
+        const fixture = await makeFixture();
+        const fetched = { id: 'template-300' };
+        template_stub.loadTemplate.mockResolvedValue(fetched);
+        template_stub.templates.set([{ id: 'match-1' }]);
+        fixture.componentRef.setInput('id', 'template-300');
+        await fixture.whenStable();
+
+        await vi.waitFor(() =>
+            expect(template_stub.selected_template()).toBe(fetched),
+        );
+        expect(template_stub.templates()).toEqual([{ id: 'match-1' }]);
+    });
+
+    it('does not fetch the selected template when a search hides it', async () => {
+        const fixture = await makeFixture();
+        const selected = { id: 'template-req' };
+        template_stub.selected_template.set(selected);
+        template_stub.templates.set([{ id: 'bulk-19' }]);
+        fixture.componentRef.setInput('id', 'template-req');
+        await fixture.whenStable();
+
+        expect(template_stub.loadTemplate).not.toHaveBeenCalled();
+        expect(template_stub.selected_template()).toBe(selected);
+    });
+
+    it('fetches a linked template that is not in the loaded pages once', async () => {
+        const fixture = await makeFixture();
+        template_stub.templates.set([{ id: 'template-1' }]);
+        fixture.componentRef.setInput('id', 'template-300');
+        await fixture.whenStable();
+
+        template_stub.templates.set([{ id: 'template-1' }, { id: 'other' }]);
+        await fixture.whenStable();
+
+        expect(template_stub.loadTemplate).toHaveBeenCalledExactlyOnceWith(
+            'template-300',
+        );
+    });
+
+    it('gives the layout list panel an ID apart from the preview panel', async () => {
+        const component = await make();
+
+        expect(component.view_tab()).toBe('preview');
+        expect(component.layout_tab()).toBe('layouts');
+        component.setViewTab('details');
+        expect(component.layout_tab()).toBe('details');
     });
 
     it('keeps unsaved layout edits when a list reload returns the same template', async () => {

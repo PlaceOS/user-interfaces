@@ -28,6 +28,7 @@ import {
     removeSignageTemplateDraft,
     removeSignageTemplateMapping,
     requestApprovalSignageTemplate,
+    showSignageTemplate,
     type SignagePlaylistSchedule,
     SignageTemplate,
     type SignageTemplateApprover,
@@ -59,6 +60,18 @@ export function isSameSignageTemplate(
     );
 }
 
+/**
+ * The template under its live ID. The API returns a template with pending
+ * changes as a draft record with its own ID, but routes and every template
+ * call (update, approve, draft discard) use the live ID.
+ */
+export function liveSignageTemplate(template: SignageTemplate) {
+    return template.live_template_id &&
+        template.live_template_id !== template.id
+        ? new SignageTemplate({ ...template, id: template.live_template_id })
+        : template;
+}
+
 /** Signage templates, the selected template and its layout draft, and template mappings */
 @Injectable({
     providedIn: 'root',
@@ -80,9 +93,28 @@ export class SignageTemplateService {
         sort: byName,
     });
 
-    public readonly templates = this._template_list.items;
+    // Drafts this session made or fetched, by live ID. The template index
+    // returns only the live (approved) record, so a page or reload would
+    // replace a held draft and hide its pending changes. A held draft stays
+    // until it is approved, undone or deleted, or the group changes. A draft
+    // made outside this session still shows as approved in the list, as the
+    // index gives no sign of it.
+    private readonly _held_drafts = signal<Record<string, SignageTemplate>>({});
+
+    /** Loaded templates, with the drafts this session holds in place of their live records */
+    public readonly templates = computed(() => {
+        const held = this._held_drafts();
+        return this._template_list.items().map((item) => held[item.id] ?? item);
+    });
     public readonly templates_loading = this._template_list.loading;
     public readonly templates_has_more = this._template_list.has_more;
+    /** Whether the last page of templates failed to load */
+    public readonly templates_error = this._template_list.error;
+    /** Number of templates that match the query, loaded or not */
+    public readonly templates_total = this._template_list.total;
+    private readonly _templates_retry = signal(0);
+    // Query of the loaded list, so a data change can keep its rows on screen
+    private _template_query: { group_id: string; search: string } | null = null;
 
     private readonly _reload_templates = effect(() => {
         const enabled = this._context.templates_enabled();
@@ -91,22 +123,75 @@ export class SignageTemplateService {
         const group_id = this._context.api_group_id_debounced.value();
         const search = this._template_search_debounced.value().trim();
         this._context.data_change();
-        untracked(() =>
+        this._templates_retry();
+        untracked(() => {
+            const active = enabled && initialised && can_query;
+            if (this._template_query?.group_id !== group_id) {
+                this._held_drafts.set({});
+            }
+            // A data change on the same query keeps the loaded rows on screen
+            // and reloads as many rows as were loaded, so the list does not
+            // empty or drop the pages the user scrolled to.
+            const same_query =
+                active &&
+                this._template_query?.group_id === group_id &&
+                this._template_query.search === search;
+            const limit = same_query
+                ? Math.max(PAGE_SIZE, this._template_list.loaded_rows)
+                : PAGE_SIZE;
+            this._template_query = active ? { group_id, search } : null;
             this._template_list.reset(
-                enabled && initialised && can_query
+                active
                     ? querySignageTemplates(
                           this._context.groupQueryParams(
-                              { limit: PAGE_SIZE, ...searchParam(search) },
+                              { limit, ...searchParam(search) },
                               group_id,
                           ),
                       )
                     : null,
-            ),
-        );
+                { keep_items: same_query },
+            );
+        });
     });
 
     public loadMoreTemplates() {
         this._template_list.loadMore();
+    }
+
+    /** Load the failed page again, or the whole list when the first page failed */
+    public reloadTemplates() {
+        if (!this._template_list.retry()) {
+            this._templates_retry.update((count) => count + 1);
+        }
+    }
+
+    /**
+     * Fetch a template that is not in the loaded pages, e.g. for a link to
+     * it. It joins the loaded templates only when no search filters them,
+     * so search results hold only matches.
+     * @returns The template under its live ID, or null when it cannot be loaded
+     */
+    public async loadTemplate(template_id: string) {
+        if (!template_id) return null;
+        try {
+            const template = liveSignageTemplate(
+                decodeEntityNames(await showSignageTemplate(template_id)),
+            );
+            this._holdDraft(template);
+            if (!this._template_query?.search) {
+                this._template_list.update((items) =>
+                    [
+                        ...items.filter(
+                            (item) => !isSameSignageTemplate(item, template),
+                        ),
+                        template,
+                    ].sort(byName),
+                );
+            }
+            return template;
+        } catch {
+            return null;
+        }
     }
 
     public async listApprovedTemplates() {
@@ -117,13 +202,15 @@ export class SignageTemplateService {
                 approved: true,
                 limit: 10_000,
             }),
-            fn: (data) => new SignageTemplate(data),
+            fn: (data) => new SignageTemplate(decodeEntityNames(data)),
         });
         return result.data;
     }
 
     /** Refresh assignment counts after template mappings change. */
     public readonly template_mappings_revision = signal(0);
+    /** Whether the template mapping modal is loading its templates */
+    public readonly template_mapping_opening = signal(false);
 
     public async listTemplateMappings(
         query_params: SignageTemplateMappingQuery,
@@ -132,7 +219,11 @@ export class SignageTemplateService {
         const result = await query<HydratedSignageTemplateMapping>({
             path: 'signage/template_mappings',
             query_params: { ...query_params, limit: 10_000 },
-            fn: (data) => new HydratedSignageTemplateMapping(data),
+            fn: (data) =>
+                new HydratedSignageTemplateMapping({
+                    ...data,
+                    template_details: decodeEntityNames(data.template_details),
+                }),
         });
         return result.data;
     }
@@ -235,7 +326,17 @@ export class SignageTemplateService {
             )
         )
             return false;
-        const templates = mapping ? [] : await this.listApprovedTemplates();
+        if (this.template_mapping_opening()) return false;
+        let templates: SignageTemplate[] = [];
+        this.template_mapping_opening.set(true);
+        try {
+            if (!mapping) templates = await this.listApprovedTemplates();
+        } catch {
+            notifyError(i18n('COMMON.LOAD_ERROR'));
+            return false;
+        } finally {
+            this.template_mapping_opening.set(false);
+        }
         const { TemplateMappingModalComponent } =
             await import('../shared/template-mapping-modal.component');
         const ref = this._dialog.open(TemplateMappingModalComponent, {
@@ -293,12 +394,12 @@ export class SignageTemplateService {
             result.close();
             notifySuccess(i18n('SIGNAGE_MANAGER.SVC_TEMPLATE_MAPPING_REMOVED'));
             return true;
-        } catch (error) {
+        } catch {
             result.close();
             notifyError(
                 i18n('SIGNAGE_MANAGER.SVC_TEMPLATE_MAPPING_REMOVE_ERROR'),
             );
-            throw error;
+            return false;
         }
     }
 
@@ -374,15 +475,19 @@ export class SignageTemplateService {
         notifySuccess(i18n('SIGNAGE_MANAGER.SVC_TEMPLATE_APPROVAL_REQUESTED'));
     }
 
+    /**
+     * Delete a template after confirmation.
+     * @returns Whether the template was deleted
+     */
     public async removeTemplate(template: SignageTemplate) {
-        if (!template?.id) return;
+        if (!template?.id) return false;
         if (
             !this._context.requirePermission(
                 this._context.can_delete_templates(),
                 'SIGNAGE_MANAGER.SVC_NO_DELETE_TEMPLATES',
             )
         )
-            return;
+            return false;
         const result = await openConfirmModal(
             {
                 title: i18n('SIGNAGE_MANAGER.SVC_REMOVE_TEMPLATE_TITLE'),
@@ -393,7 +498,7 @@ export class SignageTemplateService {
             },
             this._dialog,
         );
-        if (result.reason !== 'done') return;
+        if (result.reason !== 'done') return false;
         try {
             await removeSignageTemplate(
                 template.id,
@@ -402,8 +507,14 @@ export class SignageTemplateService {
         } catch {
             result.close();
             notifyError(i18n('SIGNAGE_MANAGER.SVC_TEMPLATE_REMOVE_ERROR'));
-            return;
+            return false;
         }
+        this._releaseDraft(template.id);
+        // The reload keeps the loaded rows on screen, so drop this one now
+        this._template_list.update((items) =>
+            items.filter((item) => !isSameSignageTemplate(item, template)),
+        );
+        this._template_list.adjustTotal(-1);
         if (this.selected_template()?.id === template.id) {
             this.selected_template.set(null);
             this.selected_template_layout_index.set(null);
@@ -411,6 +522,7 @@ export class SignageTemplateService {
         this._context.changed();
         notifySuccess(i18n('SIGNAGE_MANAGER.SVC_TEMPLATE_REMOVED'));
         result.close();
+        return true;
     }
 
     /**
@@ -493,7 +605,7 @@ export class SignageTemplateService {
 
     /**
      * Discard the pending draft of a template and restore its previous
-     * version. Used by the approval modals.
+     * version, after the user confirms. Used by the approval modals.
      * @returns Whether the draft was discarded
      */
     public async undoTemplateChanges(
@@ -507,11 +619,26 @@ export class SignageTemplateService {
             )
         )
             return false;
+        const result = await openConfirmModal(
+            {
+                title: i18n('SIGNAGE_MANAGER.UNDO_CHANGES'),
+                content: i18n('SIGNAGE_MANAGER.TEMPLATE_REVERT_CONFIRM', {
+                    name: previous_version.name,
+                }),
+                confirm_text: i18n('SIGNAGE_MANAGER.UNDO_CHANGES'),
+                icon: { content: 'undo' },
+            },
+            this._dialog,
+        );
+        if (result.reason !== 'done') return false;
+        result.loading(i18n('SIGNAGE_MANAGER.UNDOING_CHANGES'));
         try {
             await removeSignageTemplateDraft(template_id);
         } catch {
             notifyError(i18n('SIGNAGE_MANAGER.TEMPLATE_REVERT_ERROR'));
             return false;
+        } finally {
+            result.close();
         }
         this.updateCachedTemplate(previous_version);
         notifySuccess(i18n('SIGNAGE_MANAGER.TEMPLATE_REVERTED'));
@@ -537,7 +664,10 @@ export class SignageTemplateService {
         );
     }
 
-    public updateCachedTemplate(template: SignageTemplate) {
+    /** Replace the loaded copies of a template. Stores it under its live ID. */
+    public updateCachedTemplate(changed: SignageTemplate) {
+        const template = liveSignageTemplate(changed);
+        this._holdDraft(template);
         this._template_list.update((items) =>
             items.map((item) =>
                 isSameSignageTemplate(item, template) ? template : item,
@@ -550,6 +680,35 @@ export class SignageTemplateService {
         ) {
             this.selected_template.set(template);
         }
+    }
+
+    /**
+     * Keep a draft over its live record in the list. An approved version
+     * releases it. An unapproved record without a draft, such as a template
+     * that was never approved, is held only when it replaces a held draft.
+     * @param template A template under its live ID
+     */
+    private _holdDraft(template: SignageTemplate) {
+        if (template.approved) {
+            this._releaseDraft(template.id);
+            return;
+        }
+        if (!template.live_template_id && !this._held_drafts()[template.id]) {
+            return;
+        }
+        this._held_drafts.update((held) => ({
+            ...held,
+            [template.id]: template,
+        }));
+    }
+
+    private _releaseDraft(template_id: string) {
+        if (!this._held_drafts()[template_id]) return;
+        this._held_drafts.update((held) => {
+            const next = { ...held };
+            delete next[template_id];
+            return next;
+        });
     }
 
     /** Warn and return true when `template` has unsaved layout edits */

@@ -12,10 +12,13 @@ import {
     listSignageTemplateApprovers,
     PlaceCurrentGroup,
     query,
+    querySignageTemplates,
     removeSignageTemplate,
     removeSignageTemplateDraft,
+    removeSignageTemplateMapping,
     requestApprovalSignageTemplate,
     shareSignageTemplates,
+    showSignageTemplate,
     SignageTemplate,
     updateSignageTemplate,
     updateSignageTemplateMapping,
@@ -144,6 +147,20 @@ describe('SignageTemplateService', () => {
         expect(removeSignageTemplate).toHaveBeenCalledWith('template-1', {
             group_id: 'group-1',
         });
+    });
+
+    it('drops a deleted template from the loaded list at once', async () => {
+        confirmNextDialog();
+        const service = createService();
+        vi.mocked(removeSignageTemplate).mockResolvedValue({});
+        const deleted = new SignageTemplate({ id: 'template-1' });
+        const kept = new SignageTemplate({ id: 'template-2' });
+        (service as any)._template_list.update(() => [deleted, kept]);
+
+        const removed = await service.removeTemplate(deleted);
+
+        expect(removed).toBe(true);
+        expect(service.templates().map(({ id }) => id)).toEqual(['template-2']);
     });
 
     it('shows an error and closes the confirm modal when delete fails', async () => {
@@ -355,6 +372,7 @@ describe('SignageTemplateService', () => {
         });
         service.selected_template.set(draft);
         vi.mocked(removeSignageTemplateDraft).mockResolvedValue(undefined);
+        confirmNextDialog();
 
         const undone = await service.undoTemplateChanges(draft.id, approved);
 
@@ -363,6 +381,26 @@ describe('SignageTemplateService', () => {
             'template-draft',
         );
         expect(service.selected_template()).toBe(approved);
+    });
+
+    it('keeps the pending draft when the user cancels undo', async () => {
+        const service = createService();
+        const draft = new SignageTemplate({ id: 'template-1' });
+        service.selected_template.set(draft);
+        dialog.open.mockReturnValue({
+            componentInstance: { event: NEVER, loading: { set: vi.fn() } },
+            afterClosed: () => of(undefined),
+            close: vi.fn(),
+        });
+
+        const undone = await service.undoTemplateChanges(
+            draft.id,
+            new SignageTemplate({ id: 'template-1', approved: true }),
+        );
+
+        expect(undone).toBe(false);
+        expect(removeSignageTemplateDraft).not.toHaveBeenCalled();
+        expect(service.selected_template()).toBe(draft);
     });
 
     it('updates template approval state in the list and selection', () => {
@@ -383,7 +421,7 @@ describe('SignageTemplateService', () => {
         expect(service.selected_template_requires_approval()).toBe(false);
     });
 
-    it('replaces an approved template with its new draft ID', () => {
+    it('keeps an approved template under its live ID when it gets a draft', () => {
         const service = createService();
         const test_service =
             service as unknown as SignageTemplateServiceTestAccess;
@@ -400,8 +438,13 @@ describe('SignageTemplateService', () => {
 
         service.updateCachedTemplate(draft);
 
-        expect(service.templates()).toEqual([draft]);
-        expect(service.selected_template()).toBe(draft);
+        expect(service.templates().map(({ id }) => id)).toEqual([
+            'template-live',
+        ]);
+        expect(service.selected_template()?.id).toBe('template-live');
+        expect(service.selected_template()?.live_template_id).toBe(
+            'template-live',
+        );
     });
 
     it('replaces a draft with its approved template', () => {
@@ -448,11 +491,41 @@ describe('SignageTemplateService', () => {
                 {
                     position: 'floating',
                     plugin_params: {},
-                    x_pos: 0,
-                    y_pos: 0,
+                    x_pos: 0.5,
+                    y_pos: 0.5,
                 },
             ],
         });
+    });
+
+    it('keeps the live ID when a layout save returns a draft', async () => {
+        const service = createService();
+        const test_service =
+            service as unknown as SignageTemplateServiceTestAccess;
+        const approved = new SignageTemplate({
+            id: 'template-live',
+            approved: true,
+            layouts: [],
+        });
+        test_service['_template_list'].update(() => [approved]);
+        service.selected_template.set(approved);
+        service.template_layout_draft.set([
+            { position: 'top', plugin_params: {} },
+        ]);
+        vi.mocked(updateSignageTemplate).mockResolvedValue(
+            new SignageTemplate({
+                id: 'template-draft',
+                live_template_id: 'template-live',
+            }),
+        );
+
+        await service.saveTemplateLayouts();
+
+        expect(service.selected_template()?.id).toBe('template-live');
+        expect(service.templates().map(({ id }) => id)).toEqual([
+            'template-live',
+        ]);
+        expect(service.template_layout_dirty()).toBe(false);
     });
 
     it('keeps saved plugin details when the update response omits them', async () => {
@@ -509,7 +582,7 @@ describe('SignageTemplateService', () => {
             data: [
                 options.fn({
                     id: 'template-1',
-                    name: 'Welcome',
+                    name: 'Sales &amp; Marketing',
                     approved: true,
                 }),
             ],
@@ -518,6 +591,7 @@ describe('SignageTemplateService', () => {
         const templates = await service.listApprovedTemplates();
 
         expect(templates[0]).toBeInstanceOf(SignageTemplate);
+        expect(templates[0].name).toBe('Sales & Marketing');
         expect(query).toHaveBeenCalledWith(
             expect.objectContaining({
                 path: 'signage/templates',
@@ -543,7 +617,7 @@ describe('SignageTemplateService', () => {
                     id: 'mapping-1',
                     zone_id: 'zone-1',
                     template_id: 'template-1',
-                    template_details: { name: 'Welcome' },
+                    template_details: { name: 'Sales &amp; Marketing' },
                 }),
             ],
         }));
@@ -553,13 +627,51 @@ describe('SignageTemplateService', () => {
         });
 
         expect(mappings[0]).toBeInstanceOf(HydratedSignageTemplateMapping);
-        expect(mappings[0].template_details.name).toBe('Welcome');
+        expect(mappings[0].template_details.name).toBe('Sales & Marketing');
+        expect(mappings[0].template_details.id).toBe('template-1');
         expect(query).toHaveBeenCalledWith(
             expect.objectContaining({
                 path: 'signage/template_mappings',
                 query_params: expect.objectContaining({ zone_id: 'zone-1' }),
             }),
         );
+    });
+
+    it('shows an error instead of the mapping modal when templates fail to load', async () => {
+        const service = createService();
+        vi.spyOn(service, 'listApprovedTemplates').mockRejectedValue(
+            new Error('Offline'),
+        );
+
+        const changed = await service.editTemplateMapping({
+            control_system_id: 'display-1',
+        });
+
+        expect(changed).toBe(false);
+        expect(dialog.open).not.toHaveBeenCalled();
+        expect(service.template_mapping_opening()).toBe(false);
+        expect(notify_open).toHaveBeenCalledWith(
+            expect.any(String),
+            expect.anything(),
+            expect.objectContaining({ panelClass: ['error'] }),
+        );
+    });
+
+    it('returns false when removing a mapping fails', async () => {
+        const service = createService();
+        vi.mocked(removeSignageTemplateMapping).mockRejectedValue(
+            new Error('Denied'),
+        );
+        confirmNextDialog();
+
+        const removed = await service.removeTemplateMapping(
+            new HydratedSignageTemplateMapping({
+                id: 'mapping-1',
+                template_details: { name: 'Welcome' },
+            }),
+        );
+
+        expect(removed).toBe(false);
     });
 
     it('creates a mapping with its target and updates only its schedule', async () => {
@@ -609,6 +721,234 @@ describe('SignageTemplateService', () => {
 
         expect(updateSignageTemplateMapping).toHaveBeenCalledWith('mapping-1', {
             schedule: null,
+        });
+    });
+
+    describe('template list', () => {
+        type TemplatePage = Awaited<ReturnType<typeof querySignageTemplates>>;
+
+        function page(ids: string[], total = ids.length): TemplatePage {
+            return {
+                data: ids.map((id) => new SignageTemplate({ id, name: id })),
+                total,
+                next: () => null,
+            } as unknown as TemplatePage;
+        }
+
+        async function loadedService() {
+            const service = createService();
+            const context = TestBed.inject(SignageContextService);
+            Object.defineProperty(context, 'can_manage_all_groups', {
+                value: () => true,
+            });
+            await vi.waitFor(() =>
+                expect(context.templates_enabled()).toBe(true),
+            );
+            TestBed.flushEffects();
+            return { service, context };
+        }
+
+        it('keeps the loaded templates on screen while a data change reloads them', async () => {
+            vi.mocked(querySignageTemplates).mockResolvedValue(
+                page(['template-1'], 450),
+            );
+            const { service, context } = await loadedService();
+            await vi.waitFor(() => expect(service.templates()).toHaveLength(1));
+            expect(service.templates_total()).toBe(450);
+
+            vi.mocked(querySignageTemplates).mockReturnValue(
+                new Promise<TemplatePage>(() => {}),
+            );
+            context.changed();
+            TestBed.flushEffects();
+
+            expect(querySignageTemplates).toHaveBeenCalledTimes(2);
+            expect(service.templates().map(({ id }) => id)).toEqual([
+                'template-1',
+            ]);
+        });
+
+        it('shows a load error and reloads the list on retry', async () => {
+            vi.mocked(querySignageTemplates).mockRejectedValue(
+                new Error('Offline'),
+            );
+            const { service } = await loadedService();
+            await vi.waitFor(() =>
+                expect(service.templates_error()).toBe(true),
+            );
+
+            vi.mocked(querySignageTemplates).mockResolvedValue(
+                page(['template-1']),
+            );
+            service.reloadTemplates();
+            TestBed.flushEffects();
+
+            await vi.waitFor(() => expect(service.templates()).toHaveLength(1));
+            expect(service.templates_error()).toBe(false);
+        });
+
+        function livePage(): TemplatePage {
+            return {
+                data: [
+                    new SignageTemplate({
+                        id: 'template-live',
+                        name: 'A',
+                        approved: true,
+                    }),
+                    new SignageTemplate({ id: 'other', name: 'B' }),
+                ],
+                total: 2,
+                next: () => null,
+            } as unknown as TemplatePage;
+        }
+
+        const draft = () =>
+            new SignageTemplate({
+                id: 'template-draft',
+                live_template_id: 'template-live',
+                name: 'A',
+            });
+
+        /** Reload the list after a data change, with the live record in the page */
+        async function reloadWithLiveRecord(
+            service: SignageTemplateService,
+            context: SignageContextService,
+        ) {
+            const calls = vi.mocked(querySignageTemplates).mock.calls.length;
+            vi.mocked(querySignageTemplates).mockResolvedValue(livePage());
+            context.changed();
+            TestBed.flushEffects();
+            expect(querySignageTemplates).toHaveBeenCalledTimes(calls + 1);
+            await vi.waitFor(() => {
+                expect(service.templates_loading()).toBe(false);
+                expect(service.templates()).toHaveLength(2);
+            });
+        }
+
+        it('keeps a fetched draft when a page returns its live record', async () => {
+            vi.mocked(querySignageTemplates).mockResolvedValue(page(['other']));
+            const { service, context } = await loadedService();
+            await vi.waitFor(() => expect(service.templates()).toHaveLength(1));
+            vi.mocked(showSignageTemplate).mockResolvedValue(draft());
+            await service.loadTemplate('template-live');
+
+            await reloadWithLiveRecord(service, context);
+
+            const row = service
+                .templates()
+                .find(({ id }) => id === 'template-live');
+            expect(row?.approved).toBe(false);
+            expect(row?.live_template_id).toBe('template-live');
+        });
+
+        it('keeps a saved layout draft when the list reloads', async () => {
+            vi.mocked(querySignageTemplates).mockResolvedValue(livePage());
+            const { service, context } = await loadedService();
+            await vi.waitFor(() => expect(service.templates()).toHaveLength(2));
+            service.selected_template.set(service.templates()[0]);
+            service.template_layout_draft.set([
+                { position: 'top', plugin_params: {} },
+            ]);
+            vi.mocked(updateSignageTemplate).mockResolvedValue(draft());
+            await service.saveTemplateLayouts();
+
+            await reloadWithLiveRecord(service, context);
+
+            expect(service.templates()[0].approved).toBe(false);
+            expect(service.templates()[0].layouts).toEqual([
+                { position: 'top', plugin_params: {}, y_pos: 0.15 },
+            ]);
+        });
+
+        it('shows the live record again once the draft is approved', async () => {
+            vi.mocked(querySignageTemplates).mockResolvedValue(livePage());
+            const { service, context } = await loadedService();
+            await vi.waitFor(() => expect(service.templates()).toHaveLength(2));
+            service.updateCachedTemplate(draft());
+            expect(service.templates()[0].approved).toBe(false);
+
+            service.updateCachedTemplate(
+                new SignageTemplate({
+                    id: 'template-live',
+                    name: 'A (approved)',
+                    approved: true,
+                }),
+            );
+            await reloadWithLiveRecord(service, context);
+
+            // The reloaded record wins, as nothing is held any more
+            expect(service.templates()[0].name).toBe('A');
+            expect(service.templates()[0].approved).toBe(true);
+        });
+
+        it('stores a fetched draft under its live ID as one row', async () => {
+            const service = createService();
+            const test_service =
+                service as unknown as SignageTemplateServiceTestAccess;
+            test_service['_template_list'].update(() => [
+                new SignageTemplate({ id: 'template-live', name: 'A' }),
+            ]);
+            vi.mocked(showSignageTemplate).mockResolvedValue(
+                new SignageTemplate({
+                    id: 'template-draft',
+                    live_template_id: 'template-live',
+                    name: 'A',
+                }),
+            );
+
+            const template = await service.loadTemplate('template-live');
+
+            expect(template?.id).toBe('template-live');
+            expect(service.templates().map(({ id }) => id)).toEqual([
+                'template-live',
+            ]);
+        });
+
+        it('keeps a fetched template out of search results', async () => {
+            vi.mocked(querySignageTemplates).mockResolvedValue(
+                page(['bulk-19']),
+            );
+            const { service } = await loadedService();
+            service.template_search_term.set('bulk-19');
+            await vi.waitFor(() => {
+                TestBed.flushEffects();
+                expect(querySignageTemplates).toHaveBeenLastCalledWith(
+                    expect.objectContaining({ q: 'bulk-19' }),
+                );
+            });
+            await vi.waitFor(() =>
+                expect(service.templates_loading()).toBe(false),
+            );
+            vi.mocked(showSignageTemplate).mockResolvedValue(
+                new SignageTemplate({ id: 'template-req', name: 'req' }),
+            );
+
+            const template = await service.loadTemplate('template-req');
+
+            expect(template?.id).toBe('template-req');
+            expect(service.templates().map(({ id }) => id)).toEqual([
+                'bulk-19',
+            ]);
+        });
+
+        it('adds a template fetched by ID to the loaded templates', async () => {
+            const service = createService();
+            const test_service =
+                service as unknown as SignageTemplateServiceTestAccess;
+            test_service['_template_list'].update(() => [
+                new SignageTemplate({ id: 'template-1', name: 'B' }),
+            ]);
+            vi.mocked(showSignageTemplate).mockResolvedValue(
+                new SignageTemplate({ id: 'template-300', name: 'A &amp; Z' }),
+            );
+
+            const template = await service.loadTemplate('template-300');
+
+            expect(template?.name).toBe('A & Z');
+            expect(service.templates().map(({ id }) => id)).toEqual([
+                'template-300',
+                'template-1',
+            ]);
         });
     });
 });

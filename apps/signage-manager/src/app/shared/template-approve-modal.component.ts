@@ -136,21 +136,15 @@ export class TemplateApproveModalComponent {
     public readonly has_previous_version = () =>
         this.template_versions().length > 1;
 
+    /** Discard the pending version. The service asks the user to confirm. */
     public async undoChanges() {
         const previous_version = this.template_versions()[1];
         if (!previous_version) return;
-        this.loading.set(i18n('SIGNAGE_MANAGER.UNDOING_CHANGES'));
-        this._dialog_ref.disableClose = true;
-        try {
-            const undone = await this._template_service.undoTemplateChanges(
-                this._data.template.id,
-                previous_version,
-            );
-            if (undone) this._dialog_ref.close(true);
-        } finally {
-            this.loading.set('');
-            this._dialog_ref.disableClose = false;
-        }
+        const undone = await this._template_service.undoTemplateChanges(
+            this._data.template.id,
+            previous_version,
+        );
+        if (undone) this._dialog_ref.close(true);
     }
 
     /** Approve the pending version. Blocked when the versions failed to load. */

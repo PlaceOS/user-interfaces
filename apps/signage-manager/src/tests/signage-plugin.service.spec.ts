@@ -106,4 +106,33 @@ describe('SignagePluginService', () => {
         expect(service.plugins().map(({ id }) => id)).toEqual(['plugin-2']);
         expect(service.all_plugins()).toHaveLength(2);
     });
+
+    it('resolves a loaded plugin without querying again', async () => {
+        vi.mocked(querySignagePlugins).mockResolvedValue({
+            data: [
+                new SignagePlugin({
+                    id: 'plugin-1',
+                    name: 'Clock',
+                    plugin_type: 'plugin',
+                    enabled: true,
+                }),
+            ],
+        } as Awaited<ReturnType<typeof querySignagePlugins>>);
+        const service = createService();
+        Object.defineProperty(
+            TestBed.inject(SignageContextService),
+            'can_manage_all_groups',
+            { value: () => true },
+        );
+        TestBed.flushEffects();
+        await vi.waitFor(() => expect(service.all_plugins()).toHaveLength(1));
+        const calls = vi.mocked(querySignagePlugins).mock.calls.length;
+
+        const plugin = await service.resolvePlugin('plugin-1');
+
+        expect(plugin?.name).toBe('Clock');
+        expect(querySignagePlugins).toHaveBeenCalledTimes(calls);
+        expect(await service.resolvePlugin('plugin-2')).toBeUndefined();
+        expect(querySignagePlugins).toHaveBeenCalledTimes(calls + 1);
+    });
 });

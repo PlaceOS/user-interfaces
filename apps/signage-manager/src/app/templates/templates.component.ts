@@ -1,4 +1,11 @@
-import { Component, effect, inject, input, signal } from '@angular/core';
+import {
+    Component,
+    computed,
+    effect,
+    inject,
+    input,
+    signal,
+} from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -246,9 +253,9 @@ type TemplateViewTab = 'preview' | 'layouts' | 'details';
                                 <template-layout-list
                                     role="tabpanel"
                                     class="h-full shrink-0"
-                                    [id]="'template-' + view_tab() + '-panel'"
+                                    [id]="'template-' + layout_tab() + '-panel'"
                                     [attr.aria-labelledby]="
-                                        'template-' + view_tab() + '-tab'
+                                        'template-' + layout_tab() + '-tab'
                                     "
                                     [class.tablet-hidden]="
                                         view_tab() === 'preview'
@@ -257,7 +264,7 @@ type TemplateViewTab = 'preview' | 'layouts' | 'details';
                                         view_tab() !== 'preview'
                                     "
                                     [tab]="
-                                        view_tab() === 'details'
+                                        layout_tab() === 'details'
                                             ? 'details'
                                             : 'items'
                                     "
@@ -341,6 +348,13 @@ export class TemplatesSectionComponent {
         { id: 'details', label: 'COMMON.DETAILS' },
     ];
     public readonly view_tab = signal<TemplateViewTab>('preview');
+    /**
+     * Mobile tab of the layout list panel. It is never 'preview', so the
+     * panel does not share its ID with the preview panel.
+     */
+    public readonly layout_tab = computed(() =>
+        this.view_tab() === 'details' ? 'details' : 'layouts',
+    );
     public readonly selected_template =
         this._template_service.selected_template;
     public readonly requires_approval =
@@ -356,6 +370,8 @@ export class TemplatesSectionComponent {
     private readonly _templates = this._template_service.templates;
 
     private _route_resolved = false;
+    // Route id fetched on its own because the loaded pages do not include it
+    private _fetched_id = '';
 
     constructor() {
         // Sync selected template from route param
@@ -391,11 +407,10 @@ export class TemplatesSectionComponent {
                         );
                     }
                 }
-                if (match?.id && match.id !== id) {
-                    void this._router.navigate(['/templates', match.id], {
-                        queryParamsHandling: 'merge',
-                        replaceUrl: true,
-                    });
+                // Route by the live ID. A draft ID fails template calls.
+                const match_id = match?.live_template_id || match?.id;
+                if (match_id && match_id !== id) {
+                    this._replaceRoute(match_id);
                 } else if (!match) {
                     const selected_template =
                         this._template_service.selected_template();
@@ -405,13 +420,21 @@ export class TemplatesSectionComponent {
                             (template) => template.id === selected_template.id,
                         )
                     ) {
-                        void this._router.navigate(
-                            ['/templates', selected_template.id],
-                            {
-                                queryParamsHandling: 'merge',
-                                replaceUrl: true,
-                            },
-                        );
+                        this._replaceRoute(selected_template.id);
+                    } else if (
+                        this._fetched_id !== id &&
+                        !(
+                            selected_template &&
+                            (selected_template.id === id ||
+                                selected_template.live_template_id === id)
+                        )
+                    ) {
+                        // The loaded pages do not hold it, e.g. a link to a
+                        // template past the first page. Fetch it once. A
+                        // search can also hide the selected template, which
+                        // needs no fetch.
+                        this._fetched_id = id;
+                        void this._selectFetchedTemplate(id);
                     }
                 }
                 this._route_resolved = true;
@@ -427,9 +450,15 @@ export class TemplatesSectionComponent {
         if (template) this._template_service.editTemplate(template);
     }
 
-    public removeTemplate() {
+    public async removeTemplate() {
         const template = this.selected_template();
-        if (template) this._template_service.removeTemplate(template);
+        if (!template) return;
+        if (await this._template_service.removeTemplate(template)) {
+            // Leave the deleted template's route, or it would be selected again
+            void this._router.navigate(['/templates'], {
+                queryParamsHandling: 'merge',
+            });
+        }
     }
 
     public async duplicateTemplate() {
@@ -494,5 +523,27 @@ export class TemplatesSectionComponent {
         (event.currentTarget as HTMLElement | null)?.parentElement
             ?.querySelectorAll<HTMLButtonElement>('[role="tab"]')
             [next]?.focus();
+    }
+
+    /**
+     * Fetch the template of the route and select it. The service lists it
+     * unless a search is active, so it is selected here directly.
+     */
+    private async _selectFetchedTemplate(id: string) {
+        const template = await this._template_service.loadTemplate(id);
+        if (!template || this.id() !== id) return;
+        const selected = this._template_service.selected_template();
+        if (!selected || !isSameSignageTemplate(selected, template)) {
+            this._template_service.selected_template.set(template);
+            this._template_service.selected_template_layout_index.set(null);
+        }
+        if (template.id !== id) this._replaceRoute(template.id);
+    }
+
+    private _replaceRoute(id: string) {
+        void this._router.navigate(['/templates', id], {
+            queryParamsHandling: 'merge',
+            replaceUrl: true,
+        });
     }
 }
