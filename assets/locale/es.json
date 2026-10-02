@@ -2312,7 +2312,6 @@
         "SOURCE_DISPLAY": "Pantalla",
         "SOURCE_VIA": "mediante {{ source }}",
         "START": "Inicio",
-        "STATUS_AWAITING_APPROVAL": "Pendiente de aprobación",
         "STATUS_AWAITING_REVIEW": "Pendiente de revisión",
         "STATUS_EXPIRED": "Vencido",
         "SUMMARY_ADVANCED": "Programación recurrente avanzada. Elige un patrón de repetición para editarla.",
