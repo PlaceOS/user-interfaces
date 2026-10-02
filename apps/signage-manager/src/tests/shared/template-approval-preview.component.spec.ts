@@ -185,12 +185,12 @@ describe('TemplateApprovalPreviewComponent', () => {
             {
                 axis: 'x_pos',
                 label: 'SIGNAGE_MANAGER.TEMPLATE_X_POS',
-                value: 50,
+                value: 0,
             },
             {
                 axis: 'y_pos',
                 label: 'SIGNAGE_MANAGER.TEMPLATE_Y_POS',
-                value: 50,
+                value: 0,
             },
         ]);
     });

@@ -124,13 +124,13 @@ describe('computeTemplateLayoutRects', () => {
         expect(footer.width).toBe(100);
     });
 
-    it('places floating panels without a position where the player does', () => {
+    it('fills the frame with a floating panel that has no position, as the player does', () => {
         // apps/signage/src/app/template-layout.ts FLOATING_POSITION
         const [rect] = computeTemplateLayoutRects([layout('floating')]);
-        expect(rect).toEqual({ left: 50, top: 50, width: 50, height: 50 });
+        expect(rect).toEqual({ left: 0, top: 0, width: 100, height: 100 });
         expect(applyLayoutPositionDefaults(layout('floating'))).toMatchObject({
-            x_pos: 0.5,
-            y_pos: 0.5,
+            x_pos: 0,
+            y_pos: 0,
         });
     });
 
