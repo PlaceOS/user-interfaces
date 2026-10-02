@@ -1,19 +1,19 @@
-/** Return the API's string error without leaking response objects to the UI. */
-export function errorMessage(error: unknown, fallback: string): string {
-    if (typeof error === 'string') return error;
-    if (!isRecord(error)) return fallback;
+import { log } from '@placeos/common';
 
-    const nested = error['error'];
-    if (typeof nested === 'string') return nested;
-    if (isRecord(nested)) {
-        const detail = nested['error'];
-        if (typeof detail === 'string') return detail;
-        const nested_message = nested['message'];
-        if (typeof nested_message === 'string') return nested_message;
-    }
+/** An error whose message is written for the person, already translated. */
+export class UserFacingError extends Error {}
 
-    const message = error['message'];
-    return typeof message === 'string' ? message : fallback;
+/**
+ * The text to show when a user action fails. Raw API and upload errors read
+ * as noise ("Creating upload ... failed with status 500"), so the action's own
+ * message shows and the raw error goes to the console. Only a UserFacingError
+ * keeps its message. A failed job's server message is shown elsewhere, as
+ * that one is written for the person.
+ */
+export function actionError(error: unknown, fallback: string): string {
+    if (error instanceof UserFacingError) return error.message;
+    log('ImageGen', fallback, error, 'error', true);
+    return fallback;
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {

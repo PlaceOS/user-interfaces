@@ -1,6 +1,7 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { i18n, setNotifyOutlet } from '@placeos/common';
 
 import { ImageGenModalComponent } from '../../app/image-gen/image-gen-modal.component';
 import { ImageGenService } from '../../app/image-gen/image-gen.service';
@@ -74,10 +75,25 @@ function capabilities(
 }
 
 describe('ImageGenModalComponent', () => {
+    const notify_open = vi.fn(() => ({
+        onAction: () => ({ subscribe: () => ({ unsubscribe: () => {} }) }),
+        dismiss: vi.fn(),
+    }));
+
     // jsdom has no object URL support and the modal revokes on removal
     beforeAll(() => {
         URL.createObjectURL ??= vi.fn(() => 'blob:mock');
         URL.revokeObjectURL ??= vi.fn();
+    });
+
+    beforeEach(() => {
+        notify_open.mockClear();
+        setNotifyOutlet(
+            { open: notify_open } as unknown as Parameters<
+                typeof setNotifyOutlet
+            >[0],
+            true,
+        );
     });
 
     async function make(data: Record<string, string> = {}) {
@@ -120,16 +136,19 @@ describe('ImageGenModalComponent', () => {
             generate,
             cancel: vi.fn(),
             unwatch: vi.fn(),
+            setJobOnScreen: vi.fn(),
             claim: vi.fn().mockResolvedValue({}),
             removeReference: vi.fn(),
-            loadImage: vi.fn().mockResolvedValue(''),
+            loadImage: vi.fn().mockResolvedValue('blob:artwork'),
         };
         const context_stub = {
             is_sys_admin: signal(false),
+            global_features: signal<string[]>(['branding-editing']),
             selected_group: signal({ group: { id: 'group-1' } }),
             hasFeature: vi.fn(() => true),
         };
         const media_stub = {
+            addMedia: vi.fn(),
             addMediaFromUpload: vi.fn(),
             discardCreatedMedia: vi.fn(),
         };
@@ -153,13 +172,31 @@ describe('ImageGenModalComponent', () => {
         const component = TestBed.createComponent(
             ImageGenModalComponent,
         ).componentInstance;
-        return { image_gen, component, dialog_ref, media_stub, playlist_stub };
+        return {
+            image_gen,
+            component,
+            context_stub,
+            dialog_ref,
+            media_stub,
+            playlist_stub,
+        };
     }
 
     afterEach(() => {
         vi.useRealTimers();
         TestBed.resetTestingModule();
+        setNotifyOutlet(null, true);
     });
+
+    const pick = {
+        job_id: 'job-1',
+        index: 0,
+        upload_id: 'upload-1',
+        url: '/uploads/upload-1',
+        width: 1024,
+        height: 1536,
+        version: 1,
+    };
 
     it('does not let a cancelled job take over when it finishes later', async () => {
         vi.useFakeTimers();
@@ -190,7 +227,7 @@ describe('ImageGenModalComponent', () => {
             ...jobs,
             'job-1': job('job-1', {}, [image('upload-1')]),
         }));
-        await vi.advanceTimersByTimeAsync(1_000);
+        TestBed.tick();
 
         expect(component.state()).toBe('generating');
         expect(component.selected()).toBeNull();
@@ -211,7 +248,7 @@ describe('ImageGenModalComponent', () => {
         expect(component.state()).toBe('generating');
 
         image_gen.jobs.set({ 'job-1': job('job-1', {}, [image('upload-1')]) });
-        await vi.advanceTimersByTimeAsync(1_000);
+        TestBed.tick();
 
         expect(component.state()).toBe('review');
     });
@@ -243,8 +280,10 @@ describe('ImageGenModalComponent', () => {
             );
         component.brief.set('A poster for the launch');
         await component.start();
+        TestBed.tick();
         component.refinement.set('Darker');
         await component.refine();
+        TestBed.tick();
 
         // refine option 2 of version 1 after version 2 exists
         await component.select(component.rail()[1]);
@@ -275,18 +314,11 @@ describe('ImageGenModalComponent', () => {
             });
         const media = { id: 'media-1', thumbnail_id: '' };
         media_stub.addMediaFromUpload.mockResolvedValue(media);
+        component.selected_object_url.set('blob:artwork');
         playlist_stub.addMediaToPlaylist
             .mockRejectedValueOnce(new Error('offline'))
             .mockResolvedValueOnce(undefined);
-        component.selected.set({
-            job_id: 'job-1',
-            index: 0,
-            upload_id: 'upload-1',
-            url: '/uploads/upload-1',
-            width: 1024,
-            height: 1536,
-            version: 1,
-        });
+        component.selected.set(pick);
 
         await component.save();
         expect(dialog_ref.close).not.toHaveBeenCalled();
@@ -418,5 +450,141 @@ describe('ImageGenModalComponent', () => {
         expect(image_gen.edit).toHaveBeenCalledWith(
             expect.not.objectContaining({ aspect_ratio: expect.anything() }),
         );
+    });
+
+    it('starts one save when Save is clicked again while the image is encoded', async () => {
+        const { component, media_stub } = await make();
+        media_stub.addMedia.mockResolvedValue({ id: 'media-1' });
+        let encoded: (blob: Blob) => void = () => undefined;
+        const toBlob = vi.fn(
+            () => new Promise<Blob>((resolve) => (encoded = resolve)),
+        );
+        Object.assign(component, { _layer: () => ({ toBlob }) });
+        component.layer_state.update((state) => ({
+            ...state,
+            blocks: [{ ...state.blocks[0], text: 'Launch party' }],
+        }));
+        component.selected.set(pick);
+        component.selected_object_url.set('blob:artwork');
+
+        const first = component.save();
+        const second = component.save();
+        encoded(new Blob(['png']));
+        await Promise.all([first, second]);
+
+        expect(toBlob).toHaveBeenCalledTimes(1);
+        expect(media_stub.addMedia).toHaveBeenCalledTimes(1);
+    });
+
+    it('names the action that failed, not the raw upload error', async () => {
+        const { image_gen, component, context_stub, media_stub } = await make();
+        const raw = new Error('Creating upload failed with status 500: {}');
+        const shown = () =>
+            notify_open.mock.calls.map((call: unknown[]) => call[0]);
+        Object.assign(image_gen, {
+            uploadReference: vi.fn().mockRejectedValue(raw),
+            uploadBrandLogo: vi.fn().mockRejectedValue(raw),
+        });
+        media_stub.addMediaFromUpload.mockRejectedValue(raw);
+        context_stub.is_sys_admin.set(true);
+        component.selected.set(pick);
+        component.selected_object_url.set('blob:artwork');
+
+        await component.addReferences([new File([], 'a.png')], 'include');
+        await component.uploadLogo(new File([], 'logo.png'));
+        await component.save();
+
+        expect(shown()).toEqual([
+            i18n('SIGNAGE_MANAGER.IMAGE_GEN_REFERENCE_UPLOAD_FAILED'),
+            i18n('SIGNAGE_MANAGER.IMAGE_GEN_LOGO_SAVE_FAILED'),
+            i18n('SIGNAGE_MANAGER.IMAGE_GEN_SAVE_FAILED'),
+        ]);
+    });
+
+    it('saves nothing until the picked option has loaded', async () => {
+        const { component, media_stub } = await make();
+        component.selected.set(pick);
+
+        expect(component.can_save()).toBe(false);
+        await component.save();
+
+        expect(media_stub.addMediaFromUpload).not.toHaveBeenCalled();
+    });
+
+    it('tells the service which jobs it shows while open', async () => {
+        const { image_gen, component } = await make();
+        component.brief.set('A poster for the launch');
+        await component.start();
+        expect(image_gen.setJobOnScreen).toHaveBeenCalledWith('job-1', true);
+
+        component.ngOnDestroy();
+
+        expect(image_gen.setJobOnScreen).toHaveBeenCalledWith('job-1', false);
+    });
+
+    it('stops the running job when the modal closes', async () => {
+        const { image_gen, component } = await make();
+        image_gen.generate.mockImplementationOnce(async () => {
+            image_gen.jobs.set({ 'job-1': job('job-1', { state: 'running' }) });
+            return image_gen.jobs()['job-1'];
+        });
+        image_gen.cancel.mockResolvedValue(
+            job('job-1', { state: 'cancelled' }),
+        );
+        component.include_references.set([
+            { id: 'inc-1', name: 'one.png', url: 'blob:one' },
+        ]);
+        component.brief.set('A poster for the launch');
+        await component.start();
+
+        component.ngOnDestroy();
+        // the stopped job no longer reads the reference, so it goes too
+        await vi.waitFor(() =>
+            expect(image_gen.removeReference).toHaveBeenCalledWith('inc-1'),
+        );
+
+        expect(image_gen.cancel).toHaveBeenCalledWith('job-1');
+        expect(image_gen.unwatch).toHaveBeenCalledWith('job-1');
+    });
+
+    it('stops a job the server accepts after the modal closed', async () => {
+        const { image_gen, component } = await make();
+        let accept: (job: ImageGenJob) => void = () => undefined;
+        image_gen.generate.mockImplementationOnce(
+            () => new Promise<ImageGenJob>((resolve) => (accept = resolve)),
+        );
+        component.brief.set('A poster for the launch');
+
+        const started = component.start();
+        component.ngOnDestroy();
+        accept(job('job-1', { state: 'running' }));
+        await started;
+
+        expect(image_gen.cancel).toHaveBeenCalledWith('job-1');
+        expect(image_gen.unwatch).toHaveBeenCalledWith('job-1');
+    });
+
+    it('lets go of an option whose image cannot be read', async () => {
+        const { image_gen, component } = await make();
+        image_gen.loadImage.mockRejectedValueOnce(new Error('offline'));
+
+        await component.select(pick);
+
+        expect(component.selected()).toBeNull();
+        expect(notify_open).toHaveBeenCalledWith(
+            i18n('SIGNAGE_MANAGER.IMAGE_GEN_IMAGE_UNREADABLE'),
+            expect.anything(),
+            expect.anything(),
+        );
+    });
+
+    it('offers logo changes only when branding editing is on', async () => {
+        const { component, context_stub } = await make();
+        context_stub.is_sys_admin.set(true);
+        expect(component.can_set_logo()).toBe(true);
+
+        context_stub.global_features.set([]);
+
+        expect(component.can_set_logo()).toBe(false);
     });
 });

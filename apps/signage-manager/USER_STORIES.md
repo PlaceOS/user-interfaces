@@ -381,7 +381,7 @@ These stories cover the current app workflows:
   - Without `template-editing`, template create, edit, duplicate, delete and layout changes are hidden. Template mappings stay available.
   - Without `ai-generation`, the AI create actions are hidden.
   - Without `ai-editing`, "Edit with AI" and refinement in the AI editor are hidden.
-  - Without `branding-editing`, the branding tab is read-only.
+  - Without `branding-editing`, the branding tab is read-only, and the AI editor cannot change the logo.
 - The All Groups view uses only `app.features`.
 
 ---

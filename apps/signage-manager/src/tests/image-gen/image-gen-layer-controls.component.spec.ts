@@ -38,4 +38,25 @@ describe('ImageGenLayerControlsComponent', () => {
             }),
         );
     });
+
+    it('does not point at the branding page when branding changes are off', async () => {
+        await TestBed.configureTestingModule({
+            imports: [ImageGenLayerControlsComponent],
+        })
+            .overrideComponent(ImageGenLayerControlsComponent, {
+                set: { template: '' },
+            })
+            .compileComponents();
+        const fixture = TestBed.createComponent(ImageGenLayerControlsComponent);
+        fixture.componentRef.setInput('can_set_logo', false);
+        expect(fixture.componentInstance.no_logo_note()).toBe(
+            'SIGNAGE_MANAGER.IMAGE_GEN_NO_LOGO_ADMIN',
+        );
+
+        fixture.componentRef.setInput('branding_editing', false);
+
+        expect(fixture.componentInstance.no_logo_note()).toBe(
+            'SIGNAGE_MANAGER.IMAGE_GEN_NO_LOGO_LOCKED',
+        );
+    });
 });

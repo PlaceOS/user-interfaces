@@ -131,6 +131,23 @@ export class ImageGenLayerComponent {
         return typeof font === 'string' ? font : font?.family || '';
     });
 
+    /**
+     * Every face in use. Equal by content, so a drag, which makes new blocks
+     * with the same fonts, does not ask for the faces again.
+     */
+    private readonly _families = computed(
+        () =>
+            [
+                ...new Set(
+                    [
+                        this._brand_family(),
+                        ...this.state().blocks.map((block) => block.font),
+                    ].filter(Boolean),
+                ),
+            ].sort(),
+        { equal: (a, b) => a.join('\n') === b.join('\n') },
+    );
+
     constructor() {
         effect(() => {
             const url = this.image_url();
@@ -146,13 +163,7 @@ export class ImageGenLayerComponent {
         });
         effect(() => {
             // a face has to be in the document before a canvas can draw with it
-            const families = new Set(
-                [
-                    this._brand_family(),
-                    ...this.state().blocks.map((block) => block.font),
-                ].filter(Boolean),
-            );
-            for (const family of families) {
+            for (const family of this._families()) {
                 ensureBrandFont(family).then(() => this._draw());
             }
         });
@@ -546,7 +557,11 @@ export class ImageGenLayerComponent {
     }
 
     private _isLight(hex: string) {
-        const value = hex.replace('#', '');
+        let value = hex.replace('#', '');
+        // #rgb is short for #rrggbb
+        if (value.length === 3) {
+            value = [...value].map((digit) => digit + digit).join('');
+        }
         if (value.length < 6) return true;
         const r = parseInt(value.slice(0, 2), 16);
         const g = parseInt(value.slice(2, 4), 16);

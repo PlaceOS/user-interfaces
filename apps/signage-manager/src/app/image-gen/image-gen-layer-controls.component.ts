@@ -233,10 +233,7 @@ export function newTextBlock(
             >
                 @if (!has_logo()) {
                     <span class="text-sm">{{
-                        (can_set_logo()
-                            ? 'SIGNAGE_MANAGER.IMAGE_GEN_NO_LOGO_YET'
-                            : 'SIGNAGE_MANAGER.IMAGE_GEN_NO_LOGO_ADMIN'
-                        ) | translate
+                        no_logo_note() | translate
                     }}</span>
                     @if (can_set_logo()) {
                         <button
@@ -361,6 +358,8 @@ export class ImageGenLayerControlsComponent {
     public readonly brand = input<ImageGenBrandKit | null>(null);
     public readonly uploading = input(false);
     public readonly can_set_logo = input(true);
+    /** whether the brand kit can be changed by anyone */
+    public readonly branding_editing = input(true);
 
     public readonly changed = output<ImageGenLayerState>();
     public readonly logo_picked = output<File>({ alias: 'logoPicked' });
@@ -370,6 +369,15 @@ export class ImageGenLayerControlsComponent {
     );
     public readonly has_both_logos = computed(
         () => !!this.logo_on_light() && !!this.logo_on_dark(),
+    );
+
+    /** points at the branding page only when someone can use it */
+    public readonly no_logo_note = computed(() =>
+        this.can_set_logo()
+            ? 'SIGNAGE_MANAGER.IMAGE_GEN_NO_LOGO_YET'
+            : this.branding_editing()
+              ? 'SIGNAGE_MANAGER.IMAGE_GEN_NO_LOGO_ADMIN'
+              : 'SIGNAGE_MANAGER.IMAGE_GEN_NO_LOGO_LOCKED',
     );
 
     public readonly fonts = BRAND_FONTS;
