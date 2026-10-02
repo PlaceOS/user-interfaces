@@ -1,7 +1,6 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import {
-    OrganisationService,
     PlaceOS_Service,
     setInitReloadHandler,
     setMocks,
@@ -60,7 +59,6 @@ export class AppComponent implements OnInit {
     public readonly uses_api_key = hasStoredApiKey();
 
     private _placeos = inject(PlaceOS_Service);
-    private _org = inject(OrganisationService);
 
     public ngOnInit(): void {
         // Started before anything else so it covers startup itself. The route

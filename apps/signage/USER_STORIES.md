@@ -20,6 +20,7 @@ The Signage app is a kiosk-style digital signage player. It bootstraps a device 
 - The display selector lists signage-enabled systems returned from PlaceOS.
 - Each display option shows the display name plus its building and level when available.
 - The submit action is disabled until a display is selected.
+- If the display list fails to load, the screen shows an error with a Retry button instead of an empty selector.
 - Selecting a display and submitting stores the display ID in localStorage under `PlaceOS.SIGNAGE.display`.
 - After bootstrap, the app navigates to `/#/signage/:system_id`.
 
@@ -35,6 +36,7 @@ The Signage app is a kiosk-style digital signage player. It bootstraps a device 
 
 - On bootstrap, the app checks localStorage for `PlaceOS.SIGNAGE.display`.
 - If a stored display ID exists, the app navigates automatically to `/#/signage/:system_id`.
+- While it opens the stored display, the screen shows a loading message, not the display selector. The selector shows only if that navigation does not complete.
 - The app also reads `OSK.enabled` from localStorage and enables the virtual keyboard when the value is `true`.
 - The bootstrap screen can clear stored signage bootstrap data when opened with `?clear=true`.
 - Clearing removes both the current display key and the legacy `PlaceOS.SIGNAGE.building` key.
