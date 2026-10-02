@@ -378,7 +378,10 @@ export class TemplatesSectionComponent {
         effect(() => {
             const id = this.id();
             const list = this._templates();
-            if (!list.length) return;
+            // Wait for the list, but a link still opens when it has no rows
+            if (!list.length && !this._template_service.templates_ready()) {
+                return;
+            }
             if (id) {
                 const match = list.find(
                     (template) =>
@@ -411,31 +414,20 @@ export class TemplatesSectionComponent {
                 const match_id = match?.live_template_id || match?.id;
                 if (match_id && match_id !== id) {
                     this._replaceRoute(match_id);
-                } else if (!match) {
-                    const selected_template =
-                        this._template_service.selected_template();
-                    if (
-                        selected_template?.id &&
-                        list.some(
-                            (template) => template.id === selected_template.id,
-                        )
-                    ) {
-                        this._replaceRoute(selected_template.id);
-                    } else if (
-                        this._fetched_id !== id &&
-                        !(
-                            selected_template &&
-                            (selected_template.id === id ||
-                                selected_template.live_template_id === id)
-                        )
-                    ) {
-                        // The loaded pages do not hold it, e.g. a link to a
-                        // template past the first page. Fetch it once. A
-                        // search can also hide the selected template, which
-                        // needs no fetch.
-                        this._fetched_id = id;
-                        void this._selectFetchedTemplate(id);
-                    }
+                } else if (
+                    !match &&
+                    this._fetched_id !== id &&
+                    !(
+                        selected &&
+                        (selected.id === id || selected.live_template_id === id)
+                    )
+                ) {
+                    // The loaded pages do not hold it, e.g. a link to a
+                    // template past the first page. Fetch it once. A search
+                    // can also hide the selected template, which needs no
+                    // fetch.
+                    this._fetched_id = id;
+                    void this._selectFetchedTemplate(id);
                 }
                 this._route_resolved = true;
             } else if (this._route_resolved) {
@@ -531,7 +523,12 @@ export class TemplatesSectionComponent {
      */
     private async _selectFetchedTemplate(id: string) {
         const template = await this._template_service.loadTemplate(id);
-        if (!template || this.id() !== id) return;
+        if (!template) {
+            // Let a later list change try the link again
+            if (this._fetched_id === id) this._fetched_id = '';
+            return;
+        }
+        if (this.id() !== id) return;
         const selected = this._template_service.selected_template();
         if (!selected || !isSameSignageTemplate(selected, template)) {
             this._template_service.selected_template.set(template);

@@ -6,6 +6,7 @@ import {
     setNotifyOutlet,
     SettingsService,
 } from '@placeos/common';
+import { ConfirmModalComponent } from '@placeos/components';
 import {
     addSignageTemplate,
     addSignageTemplateMapping,
@@ -52,10 +53,12 @@ describe('SignageTemplateService', () => {
     };
     const dialog = {
         open: vi.fn(),
+        openDialogs: [] as unknown[],
     };
 
     beforeEach(() => {
         vi.clearAllMocks();
+        dialog.openDialogs = [];
         setNotifyOutlet({ open: notify_open } as any, true);
         settings.get.mockReturnValue(false);
         dialog.open.mockReturnValue({
@@ -381,6 +384,33 @@ describe('SignageTemplateService', () => {
             'template-draft',
         );
         expect(service.selected_template()).toBe(approved);
+    });
+
+    it('keeps the undo confirmation open until the draft is removed', async () => {
+        const service = createService();
+        const confirm_ref = {
+            componentInstance: Object.assign(
+                Object.create(ConfirmModalComponent.prototype),
+                { event: of({ reason: 'done' }), loading: { set: vi.fn() } },
+            ),
+            afterClosed: () => NEVER,
+            close: vi.fn(),
+            disableClose: false,
+        };
+        dialog.open.mockReturnValue(confirm_ref);
+        dialog.openDialogs = [confirm_ref];
+        let locked_during_request = false;
+        vi.mocked(removeSignageTemplateDraft).mockImplementation(async () => {
+            locked_during_request = confirm_ref.disableClose;
+        });
+
+        await service.undoTemplateChanges(
+            'template-1',
+            new SignageTemplate({ id: 'template-1', approved: true }),
+        );
+
+        expect(locked_during_request).toBe(true);
+        expect(confirm_ref.close).toHaveBeenCalled();
     });
 
     it('keeps the pending draft when the user cancels undo', async () => {
@@ -879,6 +909,27 @@ describe('SignageTemplateService', () => {
             // The reloaded record wins, as nothing is held any more
             expect(service.templates()[0].name).toBe('A');
             expect(service.templates()[0].approved).toBe(true);
+        });
+
+        it('drops a fetched template when the group changes while it loads', async () => {
+            const service = createService();
+            let group_id = 'group-1';
+            Object.defineProperty(
+                TestBed.inject(SignageContextService),
+                'api_group_id',
+                { value: () => group_id },
+            );
+            let resolve: (template: SignageTemplate) => void = () => {};
+            vi.mocked(showSignageTemplate).mockReturnValue(
+                new Promise((done) => (resolve = done)),
+            );
+
+            const loading = service.loadTemplate('template-old');
+            group_id = 'group-2';
+            resolve(new SignageTemplate({ id: 'template-old', name: 'Old' }));
+
+            expect(await loading).toBeNull();
+            expect(service.templates()).toEqual([]);
         });
 
         it('stores a fetched draft under its live ID as one row', async () => {

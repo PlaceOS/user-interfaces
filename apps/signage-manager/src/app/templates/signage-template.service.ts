@@ -16,7 +16,7 @@ import {
     notifyWarn,
     OrganisationService,
 } from '@placeos/common';
-import { openConfirmModal } from '@placeos/components';
+import { ConfirmModalComponent, openConfirmModal } from '@placeos/components';
 import {
     addSignageTemplate,
     addSignageTemplateMapping,
@@ -113,6 +113,11 @@ export class SignageTemplateService {
     /** Number of templates that match the query, loaded or not */
     public readonly templates_total = this._template_list.total;
     private readonly _templates_retry = signal(0);
+    private readonly _templates_queried = signal(false);
+    /** Whether the list was queried and no page of it is loading */
+    public readonly templates_ready = computed(
+        () => this._templates_queried() && !this._template_list.loading(),
+    );
     // Query of the loaded list, so a data change can keep its rows on screen
     private _template_query: { group_id: string; search: string } | null = null;
 
@@ -140,6 +145,7 @@ export class SignageTemplateService {
                 ? Math.max(PAGE_SIZE, this._template_list.loaded_rows)
                 : PAGE_SIZE;
             this._template_query = active ? { group_id, search } : null;
+            this._templates_queried.set(active);
             this._template_list.reset(
                 active
                     ? querySignageTemplates(
@@ -173,10 +179,13 @@ export class SignageTemplateService {
      */
     public async loadTemplate(template_id: string) {
         if (!template_id) return null;
+        const group_id = this._context.api_group_id();
         try {
             const template = liveSignageTemplate(
                 decodeEntityNames(await showSignageTemplate(template_id)),
             );
+            // The group changed while it loaded, so it may be the old group's
+            if (this._context.api_group_id() !== group_id) return null;
             this._holdDraft(template);
             if (!this._template_query?.search) {
                 this._template_list.update((items) =>
@@ -632,6 +641,12 @@ export class SignageTemplateService {
         );
         if (result.reason !== 'done') return false;
         result.loading(i18n('SIGNAGE_MANAGER.UNDOING_CHANGES'));
+        // Keep the confirmation open until the draft is gone. Closing it
+        // would not stop the request.
+        const confirm_ref = this._dialog.openDialogs.at(-1);
+        if (confirm_ref?.componentInstance instanceof ConfirmModalComponent) {
+            confirm_ref.disableClose = true;
+        }
         try {
             await removeSignageTemplateDraft(template_id);
         } catch {

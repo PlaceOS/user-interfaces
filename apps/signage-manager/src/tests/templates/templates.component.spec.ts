@@ -23,6 +23,7 @@ describe('TemplatesSectionComponent', () => {
         approveTemplate: vi.fn(),
         requestTemplateApproval: vi.fn(),
         loadTemplate: vi.fn(),
+        templates_ready: signal(false),
     };
     const context_stub = {
         can_approve: signal(false),
@@ -58,6 +59,7 @@ describe('TemplatesSectionComponent', () => {
         template_stub.template_layout_dirty.set(false);
         template_stub.templates.set([]);
         template_stub.loadTemplate.mockResolvedValue(null);
+        template_stub.templates_ready.set(false);
         TestBed.resetTestingModule();
     });
 
@@ -176,18 +178,53 @@ describe('TemplatesSectionComponent', () => {
         });
     });
 
-    it('stores the approved ID after approving a draft', async () => {
+    it('fetches a linked template instead of returning to the selected one', async () => {
         const fixture = await makeFixture();
-        const approved = { id: 'template-live' };
-        template_stub.selected_template.set(approved);
-        template_stub.templates.set([approved]);
-        fixture.componentRef.setInput('id', 'template-draft');
+        const selected = { id: 'template-1' };
+        const linked = { id: 'template-300' };
+        template_stub.loadTemplate.mockResolvedValue(linked);
+        template_stub.selected_template.set(selected);
+        template_stub.templates.set([selected]);
+        fixture.componentRef.setInput('id', 'template-300');
         await fixture.whenStable();
 
-        expect(navigate).toHaveBeenCalledWith(['/templates', 'template-live'], {
-            queryParamsHandling: 'merge',
-            replaceUrl: true,
-        });
+        await vi.waitFor(() =>
+            expect(template_stub.selected_template()).toBe(linked),
+        );
+        expect(template_stub.loadTemplate).toHaveBeenCalledWith('template-300');
+        expect(navigate).not.toHaveBeenCalled();
+    });
+
+    it('opens a linked template when the loaded list has no rows', async () => {
+        const fixture = await makeFixture();
+        template_stub.templates_ready.set(true);
+        fixture.componentRef.setInput('id', 'template-300');
+        await fixture.whenStable();
+
+        expect(template_stub.loadTemplate).toHaveBeenCalledWith('template-300');
+    });
+
+    it('waits for the first page before it fetches a linked template', async () => {
+        const fixture = await makeFixture();
+        fixture.componentRef.setInput('id', 'template-300');
+        await fixture.whenStable();
+
+        expect(template_stub.loadTemplate).not.toHaveBeenCalled();
+    });
+
+    it('tries a failed link again when the list changes', async () => {
+        const fixture = await makeFixture();
+        template_stub.templates.set([{ id: 'template-1' }]);
+        fixture.componentRef.setInput('id', 'template-300');
+        await fixture.whenStable();
+        await vi.waitFor(() =>
+            expect(template_stub.loadTemplate).toHaveBeenCalledTimes(1),
+        );
+
+        template_stub.templates.set([{ id: 'template-1' }, { id: 'other' }]);
+        await fixture.whenStable();
+
+        expect(template_stub.loadTemplate).toHaveBeenCalledTimes(2);
     });
 
     it('resets the layout selection when switching templates', async () => {
@@ -249,6 +286,8 @@ describe('TemplatesSectionComponent', () => {
 
     it('fetches a linked template that is not in the loaded pages once', async () => {
         const fixture = await makeFixture();
+        // Still loading when the list changes
+        template_stub.loadTemplate.mockReturnValue(new Promise(() => {}));
         template_stub.templates.set([{ id: 'template-1' }]);
         fixture.componentRef.setInput('id', 'template-300');
         await fixture.whenStable();
