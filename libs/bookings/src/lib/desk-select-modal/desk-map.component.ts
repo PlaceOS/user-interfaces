@@ -108,8 +108,15 @@ export class DeskMapComponent {
     public readonly is_displayed = input(false);
     public readonly active = input('');
     public readonly onSelect = output<BookingAsset>();
+    /**
+     * Desks to show as available. Defaults to the booking form service
+     * results. Set it to show a list that the host has filtered.
+     */
+    public readonly available = input<BookingAsset[] | null>(null);
 
-    public readonly desks = this._state.available_resources;
+    public readonly desks = computed(
+        () => this.available() ?? this._state.available_resources(),
+    );
     public readonly loading = this._state.loading;
 
     public readonly zoom = model(1);
@@ -148,7 +155,7 @@ export class DeskMapComponent {
     public readonly map_url = computed(() => this.level()?.map_id || '');
 
     public readonly actions = computed(() =>
-        this._state.available_resources().map((desk) => ({
+        this.desks().map((desk) => ({
             id: desk.map_id || desk.id,
             action: ['touchend', 'mouseup'],
             callback: () => this.selectDesk(desk as any),
@@ -185,7 +192,7 @@ export class DeskMapComponent {
         });
         effect(() => {
             const desks = this._state.resources();
-            const free_desks = this._state.available_resources();
+            const free_desks = this.desks();
             this._change();
             const styles = desks.reduce((styles, desk) => {
                 const colours = this._settings.get('app.explore.colors') || {};
