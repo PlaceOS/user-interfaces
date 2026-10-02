@@ -1,4 +1,5 @@
 import {
+    MediaAnimation,
     SignageMedia,
     type SignagePlaylistItemSchedule,
     type SignagePlaylistSchedule,
@@ -79,7 +80,8 @@ export function playOnceStart(schedule: Partial<PlaylistSchedule>) {
     return parsePlayAtLocal(schedule.play_at_local);
 }
 
-const DEFAULT_PLAY_PERIOD_MINUTES = 24 * 60;
+/** Play period of a schedule that does not set one: the whole day */
+export const DEFAULT_PLAY_PERIOD_MINUTES = 24 * 60;
 const WEEKDAY_NAMES = [
     'Sunday',
     'Monday',
@@ -89,6 +91,40 @@ const WEEKDAY_NAMES = [
     'Friday',
     'Saturday',
 ];
+
+/**
+ * Animation as a `MediaAnimation` value. The API accepts animation names
+ * but stores and returns the index of the name in `MediaAnimation`, e.g.
+ * 2 for `cross_fade`. Names are kept as they are.
+ * @returns The default animation for an index out of range or no value
+ */
+export function mediaAnimation(
+    value: MediaAnimation | number | null | undefined,
+): MediaAnimation {
+    if (typeof value !== 'number') return value || MediaAnimation.Default;
+    const animations = Object.values(MediaAnimation);
+    return Number.isInteger(value) && value >= 0 && value < animations.length
+        ? animations[value]
+        : MediaAnimation.Default;
+}
+
+/**
+ * Default animation of a playlist that ts-client loaded. The API returns
+ * the index of the animation, and `SignagePlaylist` replaces a falsy value
+ * with `cut`. So index 0 (`default`) arrives as the name `cut`, while a
+ * saved Cut arrives as the index 1. Read the name `cut` as the default.
+ *
+ * The player treats the default as its own transition, not as a cut, so
+ * the two must not be merged.
+ */
+export function playlistAnimation(playlist: {
+    default_animation?: MediaAnimation | number;
+}): MediaAnimation {
+    const value = playlist.default_animation;
+    return value === MediaAnimation.Cut
+        ? MediaAnimation.Default
+        : mediaAnimation(value);
+}
 
 export function playlistMediaThumbnailUrl(item: SignageMedia) {
     // `SignageMedia.thumbnail_url` builds an uploads URL whether or not a
@@ -182,7 +218,8 @@ export function playlistItemScheduleMap(list: {
     return map;
 }
 
-function ordinal(value: number) {
+/** English ordinal of a number, e.g. "1st" or "12th" */
+export function ordinal(value: number) {
     if (value >= 11 && value <= 13) return `${value}th`;
     switch (value % 10) {
         case 1:
@@ -220,7 +257,7 @@ function durationLabel(duration_minutes: number) {
 }
 
 /** Days of the month in a plain list such as "1,15". Empty for other values. */
-function parseCronMonthDays(value: string) {
+export function parseCronMonthDays(value: string) {
     if (!value || value === '*') return [];
     const days = value.split(',').map((part) => parseCronNumber(part, 1, 31));
     return days.every((day) => day !== null)
@@ -382,6 +419,40 @@ export function playlistExpiredAt(
     return Math.max(...ends);
 }
 
+/** Status badge of a playlist in a list. Null when it needs no badge. */
+export type PlaylistStatus =
+    | 'expired'
+    | 'pending'
+    | 'awaiting_approval'
+    | 'awaiting_review'
+    | null;
+
+/**
+ * Status of a playlist for list badges. Expiry uses `playlistExpiredAt`, so
+ * lists agree with the content report.
+ * @param approvals Approval state by playlist ID. A playlist that is not in
+ * it has no approval state, e.g. it does not need approval.
+ * @param requests Whether approval was requested, by playlist ID
+ */
+export function playlistStatus(
+    playlist: {
+        id: string;
+        valid_from?: number;
+        valid_until?: number;
+        schedules?: readonly Partial<PlaylistSchedule>[];
+    },
+    approvals: Record<string, boolean>,
+    requests: Record<string, boolean>,
+    now = Date.now(),
+): PlaylistStatus {
+    if (playlistExpiredAt(playlist, now)) return 'expired';
+    if (playlist.valid_from && playlist.valid_from * 1000 > now) {
+        return 'pending';
+    }
+    if (!(playlist.id in approvals) || approvals[playlist.id]) return null;
+    return requests[playlist.id] ? 'awaiting_review' : 'awaiting_approval';
+}
+
 export function playlistScheduleLabel(schedule: Partial<PlaylistSchedule>) {
     const period = schedulePeriod(schedule);
     const expiry = playlistScheduleExpiryLabel(schedule);
@@ -502,8 +573,13 @@ export function createScheduleMaskFilter(
     };
 }
 
-function formatPlayDateTime(date: Date) {
+/**
+ * Date and time of a play, e.g. "Mon, Jan 5, 9:00 AM".
+ * @param timeZone IANA timezone. The viewer's timezone when not set.
+ */
+export function formatPlayDateTime(date: Date, timeZone?: string) {
     return date.toLocaleString(undefined, {
+        timeZone,
         weekday: 'short',
         month: 'short',
         day: 'numeric',
@@ -512,8 +588,9 @@ function formatPlayDateTime(date: Date) {
     });
 }
 
-function formatPlayTime(date: Date) {
+function formatPlayTime(date: Date, timeZone?: string) {
     return date.toLocaleTimeString(undefined, {
+        timeZone,
         hour: 'numeric',
         minute: '2-digit',
     });
@@ -531,13 +608,24 @@ export function playEndTime(start: Date, duration_minutes: number) {
     );
 }
 
-function formatPlayDateTimeRange(start: Date, duration_minutes: number) {
+/**
+ * Time range of a play. The end shows only its time when the play ends on
+ * the day it starts.
+ * @param timeZone IANA timezone. The viewer's timezone when not set.
+ */
+export function formatPlayDateTimeRange(
+    start: Date,
+    duration_minutes: number,
+    timeZone?: string,
+) {
     const end = playEndTime(start, duration_minutes);
+    const day = (date: Date) =>
+        (timeZone ? toZonedTime(date, timeZone) : date).toDateString();
     const end_text =
-        start.toDateString() === end.toDateString()
-            ? formatPlayTime(end)
-            : formatPlayDateTime(end);
-    return `${formatPlayDateTime(start)} – ${end_text}`;
+        day(start) === day(end)
+            ? formatPlayTime(end, timeZone)
+            : formatPlayDateTime(end, timeZone);
+    return `${formatPlayDateTime(start, timeZone)} – ${end_text}`;
 }
 
 interface PlaySession {

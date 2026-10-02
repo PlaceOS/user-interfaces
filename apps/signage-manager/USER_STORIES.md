@@ -134,11 +134,12 @@ These stories cover the current app workflows:
 
 - The playlists page shows a searchable playlist list.
 - Playlist rows show thumbnail previews when available.
-- Playlist rows show disabled, expired, pending, awaiting review, and approval-required states.
+- Playlist rows show disabled, expired, pending, awaiting review, and approval-required states. A playlist is expired when its end date has passed or all its schedules have ended. Playlist lists on the media, zone, and display pages show the same states.
 - Additional playlists load as the user scrolls.
 - Users with create permission can create a new playlist.
 - Users with create permission can duplicate a playlist. The copy has the same settings, items, and item schedules. It is not approved and is not assigned to displays or zones.
 - Selecting a playlist opens its items and details.
+- A link to a playlist opens it, also when the loaded list does not include it. When the playlist cannot load, a warning shows and no playlist is selected.
 
 ---
 
@@ -150,14 +151,15 @@ These stories cover the current app workflows:
 
 **Acceptance Criteria:**
 
-- Users can view media items in the selected playlist.
+- Users can view media items in the selected playlist. When the items cannot load, the list shows an error with a retry action.
 - Non-distribution playlists show the item count and the time to play each item once. The time uses the same fallbacks as the player: item play time, video length, playlist default, then 15 seconds.
 - Users can preview a playlist item.
-- Users with update permission can reorder playlist items by drag and drop.
+- Users with update permission can reorder playlist items by drag and drop, or with the move up and move down actions in the item menu.
 - Distribution playlists cannot be reordered from the item list.
 - Users with update permission can remove media from the playlist.
+- Adding media to a distribution playlist always asks for the item schedule first. When adding media fails, an error shows.
 - Users can expand, collapse, and edit item schedules.
-- Keyboard selection is supported for playlist items.
+- Keyboard selection is supported for playlist items. Enter and Space on the checkbox or the actions button of a row operate that control.
 
 ---
 
@@ -170,7 +172,7 @@ These stories cover the current app workflows:
 **Acceptance Criteria:**
 
 - Users can view playlist item count, enabled state, description, validity dates, animation, schedules, and next play sessions.
-- Users with update permission can edit playlist details.
+- Users with update permission can edit playlist details. Clearing a validity date removes it.
 - Users with update permission can add or remove display assignments.
 - Users with update permission can add or remove zone assignments.
 - Users with share permission can share playlists.
@@ -192,6 +194,8 @@ These stories cover the current app workflows:
 - Users without approval permission can request approval for a selected playlist.
 - Approval request actions show a loading state while submitting.
 - Approval preview shows changed media versions and allows media preview.
+- Approval applies only to the version that the reviewer saw. When the playlist changed after the preview loaded, the preview shows the new version with a warning, and the playlist is not approved.
+- A playlist that is awaiting review keeps that state when the user selects it.
 
 ---
 

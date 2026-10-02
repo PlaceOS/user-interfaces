@@ -24,3 +24,19 @@ export async function loadPlaylistApprovalVersions(
     const approved = older.find((revision) => revision.approved);
     return approved ? [latest, approved] : [latest];
 }
+
+/**
+ * Whether the media list of a playlist has changed since a revision was
+ * loaded. The approve action approves the latest revision, so check this
+ * first to approve only what the approver saw.
+ * @param shown Latest revision when the approver loaded the changes
+ */
+export async function playlistChangedSince(
+    playlist_id: string,
+    shown: SignagePlaylistMedia | undefined,
+) {
+    const [latest] = await listSignagePlaylistMediaRevisions(playlist_id, {
+        limit: 1,
+    });
+    return latest?.id !== shown?.id || latest?.updated_at !== shown?.updated_at;
+}

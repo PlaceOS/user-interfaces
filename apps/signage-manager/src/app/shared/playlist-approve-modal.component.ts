@@ -20,7 +20,10 @@ import { SignagePlaylistService } from '../playlists/signage-playlist.service';
 import { SignageContextService } from '../signage-context.service';
 import { playlistMediaItems } from '../signage-playlist.util';
 import { PlaylistApprovalPreviewComponent } from './playlist-approval-preview.component';
-import { loadPlaylistApprovalVersions } from './playlist-approval.util';
+import {
+    loadPlaylistApprovalVersions,
+    playlistChangedSince,
+} from './playlist-approval.util';
 
 interface PlaylistApproveModalData {
     playlist: SignagePlaylist;
@@ -189,7 +192,7 @@ export class PlaylistApproveModalComponent {
             notifySuccess(i18n('SIGNAGE_MANAGER.PLAYLIST_REVERTED'));
             this._dialog_ref.close(true);
             this._playlist_service.refreshPlaylist(this._data.playlist.id);
-        } catch (e) {
+        } catch {
             notifyError(i18n('SIGNAGE_MANAGER.PLAYLIST_REVERT_ERROR'));
         } finally {
             this.loading.set('');
@@ -197,20 +200,31 @@ export class PlaylistApproveModalComponent {
         }
     }
 
+    /**
+     * Approve the playlist. When it changed after the changes were loaded,
+     * show the new changes and a warning instead, as the server approves
+     * the latest version.
+     */
     public async approve() {
         if (!this.versions_loaded()) return;
+        const playlist_id = this._data.playlist.id;
         this.loading.set(i18n('SIGNAGE_MANAGER.APPROVING_PLAYLIST'));
         this._dialog_ref.disableClose = true;
         try {
-            await approveSignagePlaylist(this._data.playlist.id);
-            this._playlist_service.setPlaylistApprovalStatus(
-                this._data.playlist.id,
-                true,
-            );
+            const [shown] = this.playlist_versions();
+            if (await playlistChangedSince(playlist_id, shown)) {
+                notifyWarn(
+                    i18n('SIGNAGE_MANAGER.PLAYLIST_CHANGED_BEFORE_APPROVAL'),
+                );
+                this._playlist_versions.reload();
+                return;
+            }
+            await approveSignagePlaylist(playlist_id);
+            this._playlist_service.setPlaylistApprovalStatus(playlist_id, true);
             notifySuccess(i18n('SIGNAGE_MANAGER.PLAYLIST_APPROVED'));
             this._dialog_ref.close(true);
             this._context.changed();
-        } catch (e) {
+        } catch {
             notifyError(i18n('SIGNAGE_MANAGER.PLAYLIST_APPROVE_ERROR'));
         } finally {
             this.loading.set('');

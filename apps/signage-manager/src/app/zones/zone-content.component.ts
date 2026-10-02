@@ -13,9 +13,8 @@ import { SignagePlaylistService } from '../playlists/signage-playlist.service';
 import { PlaylistThumbnailComponent } from '../shared/playlist-thumbnail.component';
 import { TemplateMappingsComponent } from '../shared/template-mappings.component';
 import { SignageContextService } from '../signage-context.service';
+import { playlistStatus } from '../signage-playlist.util';
 import { SignageZoneService } from './signage-zone.service';
-
-type PlaylistStatus = 'expired' | 'pending' | 'awaiting_approval' | null;
 
 @Component({
     selector: 'zone-content',
@@ -134,12 +133,22 @@ type PlaylistStatus = 'expired' | 'pending' | 'awaiting_approval' | null;
                                                                 }}
                                                             </span>
                                                         }
+                                                        @case ('awaiting_review') {
+                                                            <span
+                                                                class="bg-warning text-warning-content shrink-0 rounded px-1.5 py-0.5 text-[10px] font-bold uppercase"
+                                                            >
+                                                                {{
+                                                                    'SIGNAGE_MANAGER.STATUS_AWAITING_REVIEW'
+                                                                        | translate
+                                                                }}
+                                                            </span>
+                                                        }
                                                         @case ('awaiting_approval') {
                                                             <span
                                                                 class="bg-secondary text-secondary-content shrink-0 rounded px-1.5 py-0.5 text-[10px] font-bold uppercase"
                                                             >
                                                                 {{
-                                                                    'SIGNAGE_MANAGER.STATUS_AWAITING_APPROVAL'
+                                                                    'COMMON.APPROVAL_REQUIRED'
                                                                         | translate
                                                                 }}
                                                             </span>
@@ -431,15 +440,11 @@ export class ZoneContentComponent {
         if (zone) this._display_service.addDisplayToZone(zone);
     }
 
-    public getStatus(playlist: SignagePlaylist): PlaylistStatus {
-        const now_s = Math.floor(Date.now() / 1000);
-        if (playlist.valid_until && playlist.valid_until < now_s)
-            return 'expired';
-        if (playlist.valid_from && playlist.valid_from > now_s)
-            return 'pending';
-        const approvals = this.playlist_approval_status();
-        if (playlist.id in approvals && !approvals[playlist.id])
-            return 'awaiting_approval';
-        return null;
+    public getStatus(playlist: SignagePlaylist) {
+        return playlistStatus(
+            playlist,
+            this.playlist_approval_status(),
+            this._playlist_service.playlist_approval_requested_status(),
+        );
     }
 }

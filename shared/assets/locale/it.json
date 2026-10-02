@@ -2312,7 +2312,6 @@
         "SOURCE_DISPLAY": "Schermo",
         "SOURCE_VIA": "tramite {{ source }}",
         "START": "Inizio",
-        "STATUS_AWAITING_APPROVAL": "In attesa di approvazione",
         "STATUS_AWAITING_REVIEW": "In attesa di revisione",
         "STATUS_EXPIRED": "Scaduto",
         "SUMMARY_ADVANCED": "Pianificazione ricorrente avanzata. Scegli un modello di ripetizione per modificarla.",

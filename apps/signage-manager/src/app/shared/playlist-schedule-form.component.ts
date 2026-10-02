@@ -52,12 +52,16 @@ import {
 } from '../signage-cron.util';
 import {
     createScheduleMaskFilter,
+    DEFAULT_PLAY_PERIOD_MINUTES,
     formatPlayAtLocal,
+    formatPlayDateTime,
+    formatPlayDateTimeRange,
     hasPlayableScheduleMask,
     isPlayOnceSchedule,
     isValidScheduleMask,
+    ordinal,
+    parseCronMonthDays,
     parsePlayAtLocal,
-    playEndTime,
     playlistScheduleExpiryLabel,
     type PlaylistSchedule,
 } from '../signage-playlist.util';
@@ -102,7 +106,6 @@ const FULL_DAY_START_MINUTES = 0;
 const FULL_DAY_END_MINUTES = 23 * 60 + 59;
 const DEFAULT_RECURRING_TIME = '00:00';
 const DEFAULT_RECURRING_CRON = '0 0 * * *';
-const DEFAULT_PLAY_PERIOD_MINUTES = 24 * 60;
 const WEEKDAY_OPTIONS = [
     { value: 1 },
     { value: 2 },
@@ -132,20 +135,6 @@ function timeToMinutes(value: string) {
         FULL_DAY_START_MINUTES,
         Math.min(FULL_DAY_END_MINUTES, hours * 60 + minutes),
     );
-}
-
-function ordinal(value: number) {
-    if (value >= 11 && value <= 13) return `${value}th`;
-    switch (value % 10) {
-        case 1:
-            return `${value}st`;
-        case 2:
-            return `${value}nd`;
-        case 3:
-            return `${value}rd`;
-        default:
-            return `${value}th`;
-    }
 }
 
 function normaliseWeekdays(value: number[] | null | undefined) {
@@ -188,17 +177,6 @@ function dayRangeForWeekOfMonth(value: number | null | undefined) {
     if (week === 5) return '29-31';
     const start = (week - 1) * 7 + 1;
     return `${start}-${start + 6}`;
-}
-
-function parseCronMonthDays(value: string) {
-    if (!value?.trim() || value === '*') return null;
-    const days = new Set<number>();
-    for (const part of value.split(',')) {
-        const day = parseCronNumber(part, 1, 31);
-        if (day === null) return null;
-        days.add(day);
-    }
-    return normaliseMonthDays([...days]);
 }
 
 function parseRecurringCron(value: string | null | undefined) {
@@ -361,39 +339,6 @@ function currentPlaylistSchedule(playlist: SignagePlaylist) {
 export function playlistSchedules(playlist: SignagePlaylist) {
     const schedule = currentPlaylistSchedule(playlist);
     return playlist.schedules?.length ? playlist.schedules : [schedule];
-}
-
-function formatPlayDateTime(date: Date, timeZone = LOCAL_TIMEZONE) {
-    return date.toLocaleString(undefined, {
-        timeZone,
-        weekday: 'short',
-        month: 'short',
-        day: 'numeric',
-        hour: 'numeric',
-        minute: '2-digit',
-    });
-}
-
-function formatPlayTime(date: Date, timeZone = LOCAL_TIMEZONE) {
-    return date.toLocaleTimeString(undefined, {
-        timeZone,
-        hour: 'numeric',
-        minute: '2-digit',
-    });
-}
-
-function formatPlayDateTimeRange(
-    start: Date,
-    duration_minutes: number,
-    timezone = LOCAL_TIMEZONE,
-) {
-    const end = playEndTime(start, duration_minutes);
-    const end_text =
-        toZonedTime(start, timezone).toDateString() ===
-        toZonedTime(end, timezone).toDateString()
-            ? formatPlayTime(end, timezone)
-            : formatPlayDateTime(end, timezone);
-    return `${formatPlayDateTime(start, timezone)} – ${end_text}`;
 }
 
 function formatMinutes(value: number | null | undefined) {

@@ -40,8 +40,7 @@ import { byName, PagedSearch } from './paged-search';
             >
                 <input
                     matInput
-                    [ngModel]="list.search()"
-                    (ngModelChange)="list.search.set($event)"
+                    [(ngModel)]="list.search"
                     [placeholder]="
                         'SIGNAGE_MANAGER.SEARCH_PLAYLISTS' | translate
                     "

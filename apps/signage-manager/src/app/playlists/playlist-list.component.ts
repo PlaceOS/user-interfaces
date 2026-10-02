@@ -19,14 +19,8 @@ import {
 import { SignagePlaylist } from '@placeos/ts-client';
 import { IntersectDirective } from '../shared/intersect.directive';
 import { PlaylistThumbnailComponent } from '../shared/playlist-thumbnail.component';
+import { playlistStatus } from '../signage-playlist.util';
 import { SignagePlaylistService } from './signage-playlist.service';
-
-type PlaylistStatus =
-    | 'expired'
-    | 'pending'
-    | 'awaiting_approval'
-    | 'awaiting_review'
-    | null;
 
 @Component({
     selector: 'playlist-list',
@@ -46,8 +40,7 @@ type PlaylistStatus =
                         [placeholder]="
                             'SIGNAGE_MANAGER.SEARCH_PLAYLISTS' | translate
                         "
-                        [ngModel]="search()"
-                        (ngModelChange)="search.set($event)"
+                        [(ngModel)]="search"
                         [attr.aria-label]="
                             'SIGNAGE_MANAGER.SEARCH_PLAYLISTS' | translate
                         "
@@ -271,22 +264,11 @@ export class PlaylistListComponent {
         this._playlist_service.reloadPlaylists();
     }
 
-    public getStatus(playlist: SignagePlaylist): PlaylistStatus {
-        const now_s = Math.floor(Date.now() / 1000);
-        if (playlist.valid_until && playlist.valid_until < now_s)
-            return 'expired';
-        if (playlist.valid_from && playlist.valid_from > now_s)
-            return 'pending';
-        const approvals = this.playlist_approval_status();
-        const approval_requests = this.playlist_approval_requested_status();
-        if (
-            playlist.id in approvals &&
-            !approvals[playlist.id] &&
-            approval_requests[playlist.id]
-        )
-            return 'awaiting_review';
-        if (playlist.id in approvals && !approvals[playlist.id])
-            return 'awaiting_approval';
-        return null;
+    public getStatus(playlist: SignagePlaylist) {
+        return playlistStatus(
+            playlist,
+            this.playlist_approval_status(),
+            this.playlist_approval_requested_status(),
+        );
     }
 }

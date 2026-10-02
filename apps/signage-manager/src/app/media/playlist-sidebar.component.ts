@@ -13,13 +13,7 @@ import { SignagePlaylistService } from '../playlists/signage-playlist.service';
 import { IntersectDirective } from '../shared/intersect.directive';
 import { PlaylistThumbnailComponent } from '../shared/playlist-thumbnail.component';
 import { SignageContextService } from '../signage-context.service';
-
-type PlaylistStatus =
-    | 'expired'
-    | 'pending'
-    | 'awaiting_approval'
-    | 'awaiting_review'
-    | null;
+import { playlistStatus } from '../signage-playlist.util';
 
 @Component({
     selector: 'playlist-sidebar',
@@ -269,22 +263,11 @@ export class PlaylistSidebarComponent {
         );
     }
 
-    public getStatus(playlist: SignagePlaylist): PlaylistStatus {
-        const now_s = Math.floor(Date.now() / 1000);
-        if (playlist.valid_until && playlist.valid_until < now_s)
-            return 'expired';
-        if (playlist.valid_from && playlist.valid_from > now_s)
-            return 'pending';
-        const approvals = this.playlist_approval_status();
-        const approval_requests = this.playlist_approval_requested_status();
-        if (
-            playlist.id in approvals &&
-            !approvals[playlist.id] &&
-            approval_requests[playlist.id]
-        )
-            return 'awaiting_review';
-        if (playlist.id in approvals && !approvals[playlist.id])
-            return 'awaiting_approval';
-        return null;
+    public getStatus(playlist: SignagePlaylist) {
+        return playlistStatus(
+            playlist,
+            this.playlist_approval_status(),
+            this.playlist_approval_requested_status(),
+        );
     }
 }
