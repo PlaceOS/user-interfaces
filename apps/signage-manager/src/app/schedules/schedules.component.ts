@@ -3,12 +3,13 @@ import {
     Component,
     DestroyRef,
     computed,
-    effect,
     inject,
     input,
+    linkedSignal,
     resource,
     signal,
 } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -37,7 +38,7 @@ function parseScheduleTab(value: string | null): 'displays' | 'zones' {
     return value === 'zones' ? 'zones' : 'displays';
 }
 
-/** Rows whose name, description or playlists include the search term */
+/** Rows whose name, description, zones, playlists or sources include the search term */
 function filterRows(rows: ScheduleTimelineRow[], search_term: string) {
     const search = search_term.trim().toLowerCase();
     return search
@@ -195,9 +196,8 @@ function filterRows(rows: ScheduleTimelineRow[], search_term: string) {
                             <input
                                 matInput
                                 type="search"
-                                [value]="search_term()"
+                                [(ngModel)]="search_term"
                                 [placeholder]="search_placeholder() | translate"
-                                (input)="setSearch($event)"
                                 [attr.aria-label]="
                                     search_placeholder() | translate
                                 "
@@ -306,6 +306,7 @@ function filterRows(rows: ScheduleTimelineRow[], search_term: string) {
     ],
     imports: [
         DatePipe,
+        FormsModule,
         MatRippleModule,
         MatTooltipModule,
         IconComponent,
@@ -327,7 +328,8 @@ export class SchedulesSectionComponent {
     private readonly _destroy_ref = inject(DestroyRef);
 
     public readonly tab = input<string | null>(null);
-    public readonly view_tab = signal<'displays' | 'zones'>('displays');
+    /** Follows the route, and changes at once when users pick a tab */
+    public readonly view_tab = linkedSignal(() => parseScheduleTab(this.tab()));
     public readonly search_term = signal('');
     public readonly selected_date = signal(startOfDay(new Date()));
     public readonly current_time = signal(new Date());
@@ -375,6 +377,9 @@ export class SchedulesSectionComponent {
         const playlists = this._playlists();
         const zones = this._zones();
         const date = this.selected_date();
+        const zone_names = new Map(
+            zones.map((zone) => [zone.id, zone.display_name || zone.name]),
+        );
 
         return this._displays().map((display) => {
             const assignments = buildDisplayScheduleAssignments(
@@ -399,6 +404,7 @@ export class SchedulesSectionComponent {
             const search_index = [
                 display.display_name || display.name,
                 display.description || '',
+                ...(display.zones || []).map((id) => zone_names.get(id) || ''),
                 ...assignments.map((item) => item.playlist.name),
                 ...assignments.map((item) => item.source_label || ''),
             ]
@@ -483,13 +489,6 @@ export class SchedulesSectionComponent {
     );
 
     constructor() {
-        effect(() => {
-            const route_tab = parseScheduleTab(this.tab());
-            if (route_tab !== this.view_tab()) {
-                this.view_tab.set(route_tab);
-            }
-        });
-
         const timer = setInterval(
             () => this.current_time.set(new Date()),
             60_000,
@@ -500,11 +499,6 @@ export class SchedulesSectionComponent {
     /** Load the schedules again after an error */
     public reload() {
         this._inventory.reload();
-    }
-
-    public setSearch(event: Event) {
-        const target = event.target as HTMLInputElement | null;
-        this.search_term.set(target?.value || '');
     }
 
     public clearSearch() {

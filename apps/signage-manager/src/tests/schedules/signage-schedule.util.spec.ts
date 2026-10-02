@@ -5,6 +5,7 @@ import {
     buildDisplayScheduleAssignments,
     buildScheduleBlocks,
     buildZoneScheduleAssignments,
+    hasTakeoverSchedule,
 } from '../../app/schedules/signage-schedule.util';
 import { type PlaylistSchedule } from '../../app/signage-playlist.util';
 
@@ -145,7 +146,7 @@ describe('signage-schedule.util', () => {
                     play_period: 30,
                     play_takeover: false,
                     valid_from: timestamp + offset,
-                    valid_until: timestamp,
+                    valid_until: timestamp + 30 * 60,
                 };
                 const blocks = buildScheduleBlocks(
                     [
@@ -279,6 +280,132 @@ describe('signage-schedule.util', () => {
             'Beta',
         ]);
         expect(assignments[0].source_label).toBe('Lobby');
+    });
+
+    describe('dates and kinds that match the player', () => {
+        const day = new Date(2026, 2, 2);
+        const at = (hours: number) => getUnixTime(new Date(2026, 2, 2, hours));
+        const blocksOf = (
+            schedule: Partial<PlaylistSchedule>,
+            dates: { valid_from?: number; valid_until?: number } = {},
+        ) =>
+            buildScheduleBlocks(
+                [
+                    {
+                        playlist: new SignagePlaylist({
+                            id: 'p',
+                            name: 'P',
+                            schedules: [
+                                {
+                                    play_cron: '',
+                                    play_period: 60,
+                                    play_takeover: false,
+                                    ...schedule,
+                                },
+                            ],
+                            ...dates,
+                        }),
+                    },
+                ],
+                [day],
+            ).map(({ start_minutes, duration_minutes, all_day, label }) => ({
+                start_minutes,
+                duration_minutes,
+                all_day,
+                label,
+            }));
+
+        it('plays only inside playlist dates shorter than a day', () => {
+            expect(
+                blocksOf(
+                    { play_cron: '0 0 * * *', play_period: 1440 },
+                    { valid_from: at(12), valid_until: at(15) },
+                ),
+            ).toEqual([
+                {
+                    start_minutes: 720,
+                    duration_minutes: 180,
+                    all_day: false,
+                    label: '12:00 – 15:00',
+                },
+            ]);
+        });
+
+        it('ends a run when its schedule ends', () => {
+            expect(
+                blocksOf({
+                    play_cron: '0 9 * * *',
+                    play_period: 180,
+                    valid_until: at(10),
+                }),
+            ).toEqual([
+                expect.objectContaining({
+                    start_minutes: 540,
+                    duration_minutes: 60,
+                }),
+            ]);
+        });
+
+        it('labels a single pass and marks a whole day play once', () => {
+            expect(blocksOf({ play_at: at(9), play_period: 0 })[0].label).toBe(
+                'Play through once',
+            );
+            expect(
+                blocksOf({ play_at: at(0), play_period: 1440 })[0].all_day,
+            ).toBe(true);
+        });
+
+        it('plays a playlist with no schedules all day, never as a takeover', () => {
+            // Old playlists can still carry schedule fields on the playlist
+            const playlist = {
+                id: 'old',
+                name: 'Old',
+                enabled: true,
+                schedules: [],
+                play_cron: '0 9 * * *',
+                play_period: 60,
+                play_takeover: true,
+            } as unknown as SignagePlaylist;
+            const blocks = buildScheduleBlocks([{ playlist }], [day]);
+
+            expect(hasTakeoverSchedule(playlist)).toBe(false);
+            expect(blocks).toEqual([
+                expect.objectContaining({ all_day: true, takeover: false }),
+            ]);
+        });
+
+        describe('across a daylight saving change', () => {
+            const original_timezone = process.env.TZ;
+            // Pin the zone so the result does not depend on the machine
+            beforeAll(() => (process.env.TZ = 'Australia/Sydney'));
+            afterAll(() => {
+                if (original_timezone === undefined) delete process.env.TZ;
+                else process.env.TZ = original_timezone;
+            });
+
+            it('does not draw a clock time that the change skips', () => {
+                // Sydney clocks go from 02:00 to 03:00 on 4 October 2026
+                const blocks = buildScheduleBlocks(
+                    [
+                        {
+                            playlist: new SignagePlaylist({
+                                id: 'p',
+                                schedules: [
+                                    {
+                                        play_cron: '30 2 * * *',
+                                        play_period: 60,
+                                        play_takeover: false,
+                                    },
+                                ],
+                            }),
+                        },
+                    ],
+                    [new Date(2026, 9, 4), new Date(2026, 9, 5)],
+                );
+
+                expect(blocks.map(({ day_index }) => day_index)).toEqual([1]);
+            });
+        });
     });
 
     describe('day timeline', () => {

@@ -17,6 +17,7 @@ import {
 } from '@placeos/components';
 import { MediaAnimation, SignagePlaylist } from '@placeos/ts-client';
 import { SignageDisplayService } from '../displays/signage-display.service';
+import { playlistSchedules } from '../schedules/signage-schedule.util';
 import { SignageSharedWithComponent } from '../shared/signage-shared-with.component';
 import { SignageContextService } from '../signage-context.service';
 import { SignageInventoryService } from '../signage-inventory.service';
@@ -27,27 +28,6 @@ import {
 } from '../signage-playlist.util';
 import { SignageZoneService } from '../zones/signage-zone.service';
 import { SignagePlaylistService } from './signage-playlist.service';
-
-const DEFAULT_PLAY_PERIOD_MINUTES = 24 * 60;
-
-function playlistSchedules(playlist: SignagePlaylist) {
-    const legacy_playlist = playlist as SignagePlaylist & {
-        play_at?: number;
-        play_cron?: string;
-        play_period?: number;
-        play_takeover?: boolean;
-    };
-    if (playlist.schedules?.length) return playlist.schedules;
-    return [
-        {
-            play_at: legacy_playlist.play_at,
-            play_cron: legacy_playlist.play_cron || '0 0 * * *',
-            play_period:
-                legacy_playlist.play_period ?? DEFAULT_PLAY_PERIOD_MINUTES,
-            play_takeover: !!legacy_playlist.play_takeover,
-        },
-    ];
-}
 
 @Component({
     selector: 'playlist-item-details',
