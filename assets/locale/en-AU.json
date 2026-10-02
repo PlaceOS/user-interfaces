@@ -2982,6 +2982,7 @@
             "VC_JOIN_ERROR": "Unable to find active video conference",
             "VC_LEAVE_ERROR": "Failed to hung up call. Error: {{ error }}",
             "VC_DIAL_ERROR": "Could not dial the call. Error: {{ error }}",
+            "VC_COMMAND_ERROR": "Video conference command failed. Error: {{ error }}",
             "VC_LEAVE_LOADING": "Hanging up call...",
             "VC_LOADING": "Loading call details...",
             "ROUTE_ERROR": "Could not switch the source. Error: {{ error }}",

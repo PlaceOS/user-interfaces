@@ -1890,6 +1890,7 @@
             "VC_JOIN_ERROR": "Impossibile trovare una videoconferenza attiva",
             "VC_LEAVE_ERROR": "Impossibile chiudere la chiamata. Errore: {{ error }}",
             "VC_DIAL_ERROR": "Impossibile effettuare la chiamata. Errore: {{ error }}",
+            "VC_COMMAND_ERROR": "Comando della videoconferenza non riuscito. Errore: {{ error }}",
             "VC_LEAVE_LOADING": "Chiusura chiamata in corso...",
             "VC_LOADING": "Caricamento dettagli chiamata...",
             "ROUTE_ERROR": "Impossibile cambiare la sorgente. Errore: {{ error }}",
