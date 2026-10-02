@@ -2312,7 +2312,6 @@
         "SOURCE_DISPLAY": "ディスプレイ",
         "SOURCE_VIA": "{{ source }} 経由",
         "START": "開始",
-        "STATUS_AWAITING_APPROVAL": "承認待ち",
         "STATUS_AWAITING_REVIEW": "レビュー待ち",
         "STATUS_EXPIRED": "期限切れ",
         "SUMMARY_ADVANCED": "高度な繰り返しスケジュールです。編集するには繰り返しパターンを選択してください。",
