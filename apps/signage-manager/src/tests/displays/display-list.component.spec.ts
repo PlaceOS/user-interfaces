@@ -1,5 +1,6 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
 import { DisplayListComponent } from '../../app/displays/display-list.component';
 import { signageDisplay } from '../../app/displays/signage-display';
 import { SignageDisplayService } from '../../app/displays/signage-display.service';
@@ -10,19 +11,24 @@ describe('DisplayListComponent', () => {
     const selected_display = signal<any>(null);
     const displays_has_more = signal(false);
     const displays_loading = signal(false);
+    const displays_error = signal(false);
     const load_more = vi.fn();
+    const retry_displays = vi.fn();
     const display_stub = {
         display_search_term,
         filtered_displays,
         selected_display,
         displays_has_more,
         displays_loading,
+        displays_error,
         loadMoreDisplays: load_more,
+        retryDisplays: retry_displays,
     };
 
     function make() {
         TestBed.configureTestingModule({
             providers: [
+                provideRouter([]),
                 { provide: SignageDisplayService, useValue: display_stub },
             ],
         });
@@ -33,6 +39,8 @@ describe('DisplayListComponent', () => {
 
     beforeEach(() => {
         load_more.mockReset();
+        retry_displays.mockReset();
+        displays_error.set(false);
         display_search_term.set('');
         filtered_displays.set([]);
         selected_display.set(null);
@@ -110,4 +118,28 @@ describe('DisplayListComponent', () => {
         component.loadMore();
         expect(load_more).toHaveBeenCalledTimes(1);
     });
+
+    it.each([
+        ['no displays loaded', []],
+        ['some displays loaded', [{ id: 'd1', name: 'Lobby' }]],
+    ])(
+        'offers a retry in place of the list end when a page fails with %s',
+        (_, items) => {
+            filtered_displays.set(items);
+            displays_error.set(true);
+            make();
+            const fixture = TestBed.createComponent(DisplayListComponent);
+            fixture.detectChanges();
+            const element: HTMLElement = fixture.nativeElement;
+
+            expect(element.querySelector('load-error')).not.toBeNull();
+            expect(element.textContent).not.toContain('No displays');
+            expect(element.textContent).not.toContain('End of list');
+
+            element
+                .querySelector<HTMLButtonElement>('load-error button')!
+                .click();
+            expect(retry_displays).toHaveBeenCalledTimes(1);
+        },
+    );
 });

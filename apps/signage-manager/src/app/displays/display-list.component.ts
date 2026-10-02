@@ -18,6 +18,7 @@ import { RouterLink } from '@angular/router';
 import {
     DateFromPipe,
     IconComponent,
+    LoadErrorComponent,
     TranslatePipe,
 } from '@placeos/components';
 import { isSameDay } from 'date-fns';
@@ -41,8 +42,7 @@ import { SignageDisplayService } from './signage-display.service';
                         [placeholder]="
                             'SIGNAGE_MANAGER.SEARCH_DISPLAYS' | translate
                         "
-                        [ngModel]="search()"
-                        (ngModelChange)="search.set($event)"
+                        [(ngModel)]="search"
                         [attr.aria-label]="
                             'SIGNAGE_MANAGER.SEARCH_DISPLAYS' | translate
                         "
@@ -119,6 +119,8 @@ import { SignageDisplayService } from './signage-display.service';
                         intersect
                         (intersect)="loadMore()"
                     ></div>
+                } @else if (error()) {
+                    <load-error (retry)="retry()" />
                 } @else if (!loading()) {
                     <div class="text-base-content/50 p-3 text-center text-xs">
                         {{ 'COMMON.END_OF_LIST' | translate }}
@@ -131,6 +133,8 @@ import { SignageDisplayService } from './signage-display.service';
                 >
                     {{ 'COMMON.LOADING' | translate }}
                 </div>
+            } @else if (error()) {
+                <load-error (retry)="retry()" />
             } @else {
                 <div
                     class="text-base-content/70 flex flex-1 flex-col items-center justify-center space-y-2 p-8"
@@ -158,6 +162,7 @@ import { SignageDisplayService } from './signage-display.service';
         MatInputModule,
         MatTooltipModule,
         IconComponent,
+        LoadErrorComponent,
         TranslatePipe,
         IntersectDirective,
     ],
@@ -174,6 +179,7 @@ export class DisplayListComponent {
     // Backend pagination: fetches the next page as the sentinel scrolls in.
     public readonly has_more = this._display_service.displays_has_more;
     public readonly loading = this._display_service.displays_loading;
+    public readonly error = this._display_service.displays_error;
 
     // Ticks each minute so a display that stops checking in turns offline
     // without a reload.
@@ -206,6 +212,10 @@ export class DisplayListComponent {
 
     public loadMore() {
         this._display_service.loadMoreDisplays();
+    }
+
+    public retry() {
+        this._display_service.retryDisplays();
     }
 
     public isOnline(display: { signage_last_seen?: number }) {

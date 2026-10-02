@@ -2,7 +2,11 @@ import { Component, computed, inject, input } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterLink } from '@angular/router';
-import { IconComponent, TranslatePipe } from '@placeos/components';
+import {
+    IconComponent,
+    LoadErrorComponent,
+    TranslatePipe,
+} from '@placeos/components';
 import { SignagePlaylist } from '@placeos/ts-client';
 import { SignageDisplayService } from '../displays/signage-display.service';
 import { SignagePlaylistService } from '../playlists/signage-playlist.service';
@@ -185,6 +189,13 @@ type PlaylistStatus = 'expired' | 'pending' | 'awaiting_approval' | null;
                                         }
                                     </div>
                                 }
+                            } @else if (playlists_loading()) {
+                                <div
+                                    class="text-base-content/70 p-6 text-center"
+                                    role="status"
+                                >
+                                    {{ 'COMMON.LOADING' | translate }}
+                                </div>
                             } @else {
                                 <div
                                     class="text-base-content/70 flex flex-col items-center justify-center space-y-2 p-6"
@@ -286,6 +297,15 @@ type PlaylistStatus = 'expired' | 'pending' | 'awaiting_approval' | null;
                                         </div>
                                     </a>
                                 }
+                            } @else if (zone_displays_loading()) {
+                                <div
+                                    class="text-base-content/70 p-6 text-center"
+                                    role="status"
+                                >
+                                    {{ 'COMMON.LOADING' | translate }}
+                                </div>
+                            } @else if (zone_displays_error()) {
+                                <load-error (retry)="reloadDisplays()" />
                             } @else {
                                 <div
                                     class="text-base-content/70 flex flex-col items-center justify-center space-y-2 p-6"
@@ -339,6 +359,7 @@ type PlaylistStatus = 'expired' | 'pending' | 'awaiting_approval' | null;
         MatTooltipModule,
         RouterLink,
         IconComponent,
+        LoadErrorComponent,
         TranslatePipe,
         PlaylistThumbnailComponent,
         TemplateMappingsComponent,
@@ -363,8 +384,18 @@ export class ZoneContentComponent {
             this.selected_zone()?.playlists || [],
         ),
     );
+    public readonly playlists_loading =
+        this._playlist_service.playlists_loading;
     public readonly zone_displays =
         this._display_service.selected_zone_displays;
+    public readonly zone_displays_loading =
+        this._display_service.selected_zone_displays_loading;
+    public readonly zone_displays_error =
+        this._display_service.selected_zone_displays_error;
+
+    public reloadDisplays() {
+        this._display_service.reloadSelectedZoneDisplays();
+    }
 
     public addPlaylist() {
         const zone = this.selected_zone();

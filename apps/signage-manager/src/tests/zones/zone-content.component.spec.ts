@@ -1,5 +1,6 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
 import { SignageDisplayService } from '../../app/displays/signage-display.service';
 import { SignagePlaylistService } from '../../app/playlists/signage-playlist.service';
 import { SignageContextService } from '../../app/signage-context.service';
@@ -18,9 +19,16 @@ describe('ZoneContentComponent', () => {
     const add_playlist = vi.fn();
     const remove_playlist = vi.fn();
     const add_display = vi.fn();
+    const displays_loading = signal(false);
+    const displays_error = signal(false);
+    const playlists_loading = signal(false);
+    const reload_displays = vi.fn();
     const context_stub = { can_update };
     const display_stub = {
         selected_zone_displays,
+        selected_zone_displays_loading: displays_loading,
+        selected_zone_displays_error: displays_error,
+        reloadSelectedZoneDisplays: reload_displays,
         addDisplayToZone: add_display,
     };
     const playlist_stub = {
@@ -28,6 +36,7 @@ describe('ZoneContentComponent', () => {
             playlists().filter(({ id }) => ids.includes(id)),
         playlist_approval_status,
         playlist_thumbnail_media,
+        playlists_loading,
     };
     const zone_stub = {
         selected_zone,
@@ -52,12 +61,35 @@ describe('ZoneContentComponent', () => {
         return TestBed.createComponent(ZoneContentComponent).componentInstance;
     }
 
+    /** Render a tab of the selected zone */
+    async function render(tab: 'playlists' | 'displays') {
+        await TestBed.configureTestingModule({
+            imports: [ZoneContentComponent],
+            providers: [
+                provideRouter([]),
+                { provide: SignageContextService, useValue: context_stub },
+                { provide: SignageDisplayService, useValue: display_stub },
+                { provide: SignagePlaylistService, useValue: playlist_stub },
+                { provide: SignageZoneService, useValue: zone_stub },
+            ],
+        }).compileComponents();
+        const fixture = TestBed.createComponent(ZoneContentComponent);
+        fixture.componentRef.setInput('activeTab', tab);
+        fixture.detectChanges();
+        return fixture.nativeElement.querySelector(
+            `#zone-${tab}-panel`,
+        ) as HTMLElement;
+    }
+
     beforeEach(() => {
         vi.clearAllMocks();
         selected_zone.set(null);
         playlists.set([]);
         selected_zone_displays.set([]);
         playlist_approval_status.set({});
+        displays_loading.set(false);
+        displays_error.set(false);
+        playlists_loading.set(false);
     });
 
     it('lists the playlists and the queried displays of the zone', async () => {
@@ -111,5 +143,34 @@ describe('ZoneContentComponent', () => {
         expect(add_display).toHaveBeenCalledWith(zone);
         expect(remove_playlist).toHaveBeenCalledWith(zone, 'p1');
         expect(event.preventDefault).toHaveBeenCalled();
+    });
+
+    // The empty states use these icons
+    it('shows that the displays are loading in place of the empty state', async () => {
+        selected_zone.set({ id: 'z1' });
+        displays_loading.set(true);
+        const panel = await render('displays');
+
+        expect(panel.querySelector('[role="status"]')).not.toBeNull();
+        expect(panel.textContent).not.toContain('tv_off');
+    });
+
+    it('offers a retry when the displays of the zone fail to load', async () => {
+        selected_zone.set({ id: 'z1' });
+        displays_error.set(true);
+        const panel = await render('displays');
+
+        expect(panel.textContent).not.toContain('tv_off');
+        panel.querySelector<HTMLButtonElement>('load-error button')?.click();
+        expect(reload_displays).toHaveBeenCalledTimes(1);
+    });
+
+    it('shows that the playlists are loading in place of the empty state', async () => {
+        selected_zone.set({ id: 'z1', playlists: ['p1'] });
+        playlists_loading.set(true);
+        const panel = await render('playlists');
+
+        expect(panel.querySelector('[role="status"]')).not.toBeNull();
+        expect(panel.textContent).not.toContain('playlist_remove');
     });
 });

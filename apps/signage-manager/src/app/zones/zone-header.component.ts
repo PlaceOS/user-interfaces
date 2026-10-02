@@ -61,8 +61,13 @@ export class ZoneHeaderComponent {
     private readonly _zone_service = inject(SignageZoneService);
     private readonly _router = inject(Router);
 
-    public readonly total_count = computed(
-        () => this._zone_service.filtered_zones().length,
+    /** Search results while searching, otherwise the server total of
+     * signage zones, as the tree also shows untagged parent zones */
+    public readonly total_count = computed(() =>
+        this._zone_service.selected_zone()?.id &&
+        this._zone_service.zone_search_term().trim()
+            ? this._zone_service.filtered_zones().length
+            : this._zone_service.signage_zone_count(),
     );
     public readonly can_manage_zones = this._context.can_manage_zones;
 

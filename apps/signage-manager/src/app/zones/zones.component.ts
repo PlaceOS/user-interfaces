@@ -6,13 +6,13 @@ import {
     input,
     resource,
     signal,
-    untracked,
 } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, Router } from '@angular/router';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import { showZone } from '@placeos/ts-client';
+import { selectRoutedItem } from '../displays/routed-selection.util';
 import { SignageDisplayService } from '../displays/signage-display.service';
 import { SignagePlaylistService } from '../playlists/signage-playlist.service';
 import { decodeEntityNames } from '../shared/decode-entity-names.util';
@@ -316,11 +316,9 @@ export class ZonesSectionComponent {
         );
     });
 
-    private readonly _zones = this._zone_service.all_zones;
-
     private readonly _template_mappings = resource({
         params: () => {
-            const id: string = this.selected_zone()?.id;
+            const id = this.selected_zone()?.id;
             return this.templates_enabled() && id
                 ? {
                       id,
@@ -354,10 +352,6 @@ export class ZonesSectionComponent {
         () => this._display_service.selected_zone_displays().length,
     );
 
-    private _route_resolved = false;
-    // Last zone id fetched for a link, so a missing id is fetched once
-    private _requested_id = '';
-
     constructor() {
         effect(() => {
             const route_tab = parseZoneTab(this.tab());
@@ -370,42 +364,13 @@ export class ZonesSectionComponent {
             }
         });
 
-        effect(() => {
-            const id = this.id();
-            const list = this._zones();
-            if (id) {
-                const match = list.find((z) => z.id === id);
-                if (match) {
-                    if (this._zone_service.selected_zone()?.id !== match.id) {
-                        this._zone_service.selected_zone.set(match);
-                    }
-                    this._route_resolved = true;
-                } else if (
-                    untracked(this._zone_service.selected_zone)?.id !== id
-                ) {
-                    // `all_zones` holds only the first 500 zones of the group
-                    untracked(() => this._loadZone(id));
-                }
-            } else if (this._route_resolved) {
-                this._zone_service.selected_zone.set(null);
-            }
+        selectRoutedItem({
+            id: this.id,
+            list: this._zone_service.all_zones,
+            selected: this._zone_service.selected_zone,
+            // `all_zones` holds only the first 500 zones of the group
+            load: async (id) => decodeEntityNames(await showZone(id)),
         });
-    }
-
-    /** Select a zone from a link that the loaded zones do not include */
-    private async _loadZone(id: string) {
-        if (this._requested_id === id) return;
-        this._requested_id = id;
-        const zone = await showZone(id).catch(() => null);
-        if (
-            !zone ||
-            this.id() !== id ||
-            this._zone_service.selected_zone()?.id === id
-        ) {
-            return;
-        }
-        this._zone_service.selected_zone.set(decodeEntityNames(zone));
-        this._route_resolved = true;
     }
 
     public deselectZone() {

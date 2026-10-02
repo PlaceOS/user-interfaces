@@ -36,6 +36,7 @@ import {
     queryAll,
     searchParam,
 } from '../signage-service.util';
+import { SignageTemplateService } from '../templates/signage-template.service';
 import { SignageZoneService } from '../zones/signage-zone.service';
 import { type ZoneNode } from './display-zones.util';
 import {
@@ -58,6 +59,7 @@ export class SignageDisplayService {
     private readonly _context = inject(SignageContextService);
     private readonly _zone_service = inject(SignageZoneService);
     private readonly _playlist_service = inject(SignagePlaylistService);
+    private readonly _template_service = inject(SignageTemplateService);
 
     private readonly _display_overrides = signal<Record<string, PlaceSystem>>(
         {},
@@ -96,8 +98,11 @@ export class SignageDisplayService {
     );
     public readonly displays_loading = this._display_list.loading;
     public readonly displays_has_more = this._display_list.has_more;
+    /** Whether the last page of displays failed to load */
+    public readonly displays_error = this._display_list.error;
     /** Number of displays the server has for the current query */
     public readonly displays_total = this._display_list.total;
+    private readonly _displays_reload = signal(0);
 
     private readonly _reload_displays = effect(() => {
         const initialised = this._org.initialised();
@@ -105,6 +110,7 @@ export class SignageDisplayService {
         const group_id = this._context.api_group_id_debounced.value();
         const search = this._display_search_debounced.value().trim();
         this._context.data_change();
+        this._displays_reload();
         untracked(() => {
             // A data change on the same query keeps the loaded rows on screen
             // and reloads as many rows as were loaded, so the list does not
@@ -163,6 +169,14 @@ export class SignageDisplayService {
         this._display_list.loadMore();
     }
 
+    /** Load the display page that failed again: the next page when some
+     * pages are loaded, otherwise the first page. */
+    public retryDisplays() {
+        if (!this._display_list.retry()) {
+            this._displays_reload.update((count) => count + 1);
+        }
+    }
+
     // Cleared when the user switches group
     public readonly selected_display = linkedSignal<number, PlaceSystem | null>(
         {
@@ -214,6 +228,13 @@ export class SignageDisplayService {
     );
     public readonly selected_display_zones_loading =
         this._selected_display_zones.isLoading;
+    public readonly selected_display_zones_error = computed(
+        () => !!this._selected_display_zones.error(),
+    );
+
+    public reloadSelectedDisplayZones() {
+        this._selected_display_zones.reload();
+    }
 
     /**
      * Displays in the selected zone. Queried by zone, as the display list
@@ -244,6 +265,44 @@ export class SignageDisplayService {
     });
     public readonly selected_zone_displays_loading =
         this._selected_zone_displays.isLoading;
+    public readonly selected_zone_displays_error = computed(
+        () => !!this._selected_zone_displays.error(),
+    );
+
+    public reloadSelectedZoneDisplays() {
+        this._selected_zone_displays.reload();
+    }
+
+    /**
+     * Template mappings of the selected display, loaded once for the tab
+     * count and the schedule. Empty when templates are off.
+     */
+    private readonly _selected_display_template_mappings = resource({
+        params: () => {
+            const id = this.selected_display()?.id;
+            return this._context.templates_enabled() && id
+                ? {
+                      id,
+                      revision:
+                          this._template_service.template_mappings_revision(),
+                  }
+                : undefined;
+        },
+        loader: ({ params }) =>
+            this._template_service.listTemplateMappings({
+                control_system_id: params.id,
+            }),
+    });
+    public readonly selected_display_template_mappings = computed(() =>
+        this._selected_display_template_mappings.hasValue()
+            ? this._selected_display_template_mappings.value()
+            : [],
+    );
+    public readonly selected_display_template_mappings_loading =
+        this._selected_display_template_mappings.isLoading;
+    public readonly selected_display_template_mappings_error = computed(
+        () => !!this._selected_display_template_mappings.error(),
+    );
 
     /**
      * Keep a saved display until the lists reload.
@@ -344,6 +403,8 @@ export class SignageDisplayService {
         if (!result) return null;
         const saved = this._addDisplayToList(result);
         this.selected_display.set(saved);
+        // Zone, schedule and report views hold their own copies of displays
+        this._context.changed();
         notifySuccess(i18n('SIGNAGE_MANAGER.SVC_DISPLAY_SAVED'));
         return saved;
     }
@@ -390,6 +451,7 @@ export class SignageDisplayService {
         if (this.selected_display()?.id === display.id) {
             this.selected_display.set(null);
         }
+        this._context.changed();
         notifySuccess(i18n('SIGNAGE_MANAGER.SVC_DISPLAY_REMOVED'));
         return true;
     }
@@ -404,11 +466,12 @@ export class SignageDisplayService {
               ? [active_zone]
               : [];
         if (group_id && !roots.length) {
-            const result = await queryZones({
-                group_id,
-                limit: 500,
-                include_children_count: true,
-            } as any).catch(() => null);
+            const result = await queryZones(
+                this._context.groupQueryParams(
+                    { limit: 500, include_children_count: true },
+                    group_id,
+                ),
+            ).catch(() => null);
             roots = (result?.data || []).map(decodeEntityNames);
         }
         return this._zone_service.zoneIdsWithAncestors(roots);

@@ -75,6 +75,45 @@ describe('SignageZoneService zone search', () => {
         ]);
     });
 
+    it('reports a failed zone load and loads it again on retry', async () => {
+        vi.mocked(queryZones).mockRejectedValue(new Error('offline'));
+        const service = TestBed.inject(SignageZoneService);
+        TestBed.tick();
+        await flush();
+        expect(service.zones_error()).toBe(true);
+        expect(service.all_zones()).toEqual([]);
+
+        vi.mocked(queryZones).mockResolvedValue({
+            data: [new PlaceZone({ id: 'z1', tags: ['signage'] })],
+            total: 7,
+            next: null,
+        });
+        service.reloadZones();
+        TestBed.tick();
+        await flush();
+
+        expect(service.zones_error()).toBe(false);
+        expect(service.all_zones().map(({ id }) => id)).toEqual(['z1']);
+        // The header count reads the signage zone list, so it reloads too
+        expect(service.signage_zone_count()).toBe(7);
+    });
+
+    it('counts signage zones from the server total', async () => {
+        vi.mocked(queryZones).mockResolvedValue({
+            data: [new PlaceZone({ id: 'z1', tags: ['signage'] })],
+            total: 7,
+            next: null,
+        });
+        const service = TestBed.inject(SignageZoneService);
+        TestBed.tick();
+        await flush();
+
+        expect(service.signage_zone_count()).toBe(7);
+        expect(queryZones).toHaveBeenCalledWith(
+            expect.objectContaining({ tags: 'signage' }),
+        );
+    });
+
     it('searches selectable zones beneath the selected zone', () => {
         const service = TestBed.inject(SignageZoneService);
 

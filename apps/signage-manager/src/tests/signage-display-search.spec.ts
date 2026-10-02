@@ -116,6 +116,24 @@ describe('SignageDisplayService display search', () => {
         ]);
     });
 
+    it('loads the first page again after it failed', async () => {
+        mockDisplayList(pageOf(['lobby'], 1));
+        vi.mocked(query).mockRejectedValueOnce(new Error('offline'));
+        const service = TestBed.inject(SignageDisplayService);
+        TestBed.tick();
+        await flush();
+        expect(service.displays_error()).toBe(true);
+
+        service.retryDisplays();
+        TestBed.tick();
+        await flush();
+
+        expect(service.displays_error()).toBe(false);
+        expect(service.filtered_displays().map(({ id }) => id)).toEqual([
+            'lobby',
+        ]);
+    });
+
     it('should page the search results', async () => {
         const service = await init();
         mockDisplayList(pageOf(['lobby-1'], 2, pageOf(['lobby-2'], 2)));
