@@ -1,14 +1,8 @@
-import {
-    computed,
-    effect,
-    inject,
-    Injectable,
-    signal,
-    Signal,
-} from '@angular/core';
-import { AsyncHandler, i18n, notifyError } from '@placeos/common';
+import { computed, inject, Injectable, Signal } from '@angular/core';
+import { i18n, notifyError } from '@placeos/common';
 import { getModule } from '@placeos/ts-client';
 import { ControlStateService } from '../control-state.service';
+import { systemBinding } from '../system-binding';
 
 export type VideoLayout = 'Auto' | 'Equal' | 'Overlay' | 'Prominent' | 'Single';
 export type PresentationMode = 'None' | 'Local' | 'Remote';
@@ -50,7 +44,7 @@ const INACTIVE_STATUSES: readonly CallStatus[] = ['Idle', 'Disconnecting'];
 @Injectable({
     providedIn: 'root',
 })
-export class VideoCallStateService extends AsyncHandler {
+export class VideoCallStateService {
     private _control = inject(ControlStateService);
 
     public readonly connected = this._bindTo<VideoCallDetails | null>(
@@ -97,6 +91,13 @@ export class VideoCallStateService extends AsyncHandler {
         return this._exec('presentation_mode', [mode]);
     }
 
+    /** Dial a number. Rejects when the codec fails to dial. */
+    public async dial(number: string) {
+        const id = this._control.id;
+        if (!id) return;
+        return getModule(id, 'VidConf').execute('dial', [number]);
+    }
+
     public async hangup() {
         const id = this._control.id;
         if (!id) return;
@@ -126,29 +127,13 @@ export class VideoCallStateService extends AsyncHandler {
         }
     }
 
-    /**
-     * Create an Angular signal that mirrors a video conferencing status
-     * variable binding, rebinding whenever the active system changes.
-     */
-    private _bindTo<T>(name: string, mod_name = 'VidConf'): Signal<T | null> {
-        const value = signal<T | null>(null);
-        effect((onCleanup) => {
-            const id = this._control.system_id();
-            if (!id) {
-                value.set(null);
-                return;
-            }
-            const binding = getModule(id, mod_name).variable(name);
-            const unbind = binding.bind();
-            const listener = binding.listen();
-            const update = () => value.set(listener() ?? null);
-            update();
-            const unsubscribe = listener.subscribe(() => update());
-            onCleanup(() => {
-                unsubscribe();
-                unbind();
-            });
-        });
-        return value.asReadonly();
+    /** Signal that mirrors a VidConf status variable on the active system */
+    private _bindTo<T>(name: string): Signal<T | null> {
+        return systemBinding<T | null>(
+            this._control.system_id,
+            'VidConf',
+            name,
+            null,
+        );
     }
 }

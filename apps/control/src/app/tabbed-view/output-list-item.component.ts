@@ -1,11 +1,8 @@
 import { Component, computed, inject, input } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
-import { AsyncHandler } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import { ControlStateService, RoomOutput } from '../control-state.service';
 import { ICON_MAP } from '../ui/output-display.component';
-
-const STATUS = {};
 
 @Component({
     selector: 'device-output-list-item',
@@ -77,17 +74,11 @@ const STATUS = {};
     ],
     imports: [TranslatePipe, MatRippleModule, IconComponent],
 })
-export class DeviceOutputListItemComponent extends AsyncHandler {
+export class DeviceOutputListItemComponent {
     private _state = inject(ControlStateService);
 
     public readonly item = input<RoomOutput>(undefined);
     public readonly active = input<boolean>(undefined);
-    /** Current volume level for output */
-    public volume: number;
-    /** Current mute state of the output */
-    public mute: boolean;
-    public last_input: string;
-
     public readonly icons = ICON_MAP;
     private readonly _available_inputs = this._state.available_inputs;
     private readonly _system = this._state.system;
@@ -99,12 +90,6 @@ export class DeviceOutputListItemComponent extends AsyncHandler {
         );
     });
 
-    public readonly setVolume = (v) =>
-        this.timeout('volume', () => this._state.setVolume(v, this.item()?.id));
-    public readonly setMute = (i, s) => {
-        this._state.setRoute(s ? 'mute' : this.last_input, this.item()?.id);
-        this.last_input = i;
-    };
     public readonly setActiveOutput = () => {
         const { selected_input } = this._system() || {};
         const input = this.input();

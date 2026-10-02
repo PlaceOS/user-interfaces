@@ -240,12 +240,4 @@ describe('VoiceAssistantService', () => {
         recognition.onerror({ error: 'not-allowed' });
         expect(spectator.service.error().speech_recognition).toBe(true);
     });
-
-    it('should report waiting when the last message is from the current user', () => {
-        expect(spectator.service.waiting()).toBe(false);
-        messages.set([{ id: 'm1', user_id: 'user-1', message: 'hi' }]);
-        expect(spectator.service.waiting()).toBe(true);
-        messages.set([{ id: 'm2', user_id: 'other', message: 'reply' }]);
-        expect(spectator.service.waiting()).toBe(false);
-    });
 });

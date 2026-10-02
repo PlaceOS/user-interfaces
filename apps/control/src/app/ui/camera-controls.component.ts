@@ -1,12 +1,4 @@
-import {
-    Component,
-    DestroyRef,
-    effect,
-    inject,
-    OnInit,
-    signal,
-} from '@angular/core';
-import { getModule } from '@placeos/ts-client';
+import { Component, DestroyRef, effect, inject, signal } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
@@ -15,16 +7,16 @@ import { MatSelectModule } from '@angular/material/select';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import { ControlStateService, RoomInput } from '../control-state.service';
 import {
+    moveCamera,
+    selectCamera,
+    zoomCamera,
+    ZoomDirection,
+} from './camera-commands';
+import {
     JoystickComponent,
     JoystickPan,
     JoystickTilt,
 } from './joystick.component';
-
-export enum ZoomDirection {
-    In = 'in',
-    Out = 'out',
-    Stop = 'stop',
-}
 
 @Component({
     selector: 'camera-controls',
@@ -119,15 +111,11 @@ export enum ZoomDirection {
         FormsModule,
     ],
 })
-export class CameraControlsComponent implements OnInit {
+export class CameraControlsComponent {
     private _state = inject(ControlStateService);
 
     /** Currently active camera */
     public readonly active_camera = signal<RoomInput | undefined>(undefined);
-    /** List of available presets for the active camera */
-    public readonly presets = signal<string[]>([]);
-    /** Currently active preset */
-    public readonly preset = signal('');
     /** Current zoom value for camera */
     public readonly zoom = signal<ZoomDirection>(ZoomDirection.Stop);
     /** Current panning value for camera */
@@ -139,8 +127,8 @@ export class CameraControlsComponent implements OnInit {
 
     private readonly _selected_camera = this._state.selected_camera;
 
-    private _move_timeout: any;
-    private _zoom_timeout: any;
+    private _move_timeout?: ReturnType<typeof setTimeout>;
+    private _zoom_timeout?: ReturnType<typeof setTimeout>;
 
     public get id(): string {
         return this._state.id;
@@ -155,61 +143,19 @@ export class CameraControlsComponent implements OnInit {
         });
     }
 
-    public ngOnInit() {
-        // Effect handles camera selection
-    }
-
     public selectCamera(camera: RoomInput) {
         this.active_camera.set(camera);
-        const mod = getModule(this.id, 'System');
-        if (!mod) return;
-        mod.execute('selected_camera', [camera.id]);
-    }
-
-    public recallPreset(preset: string) {
-        const cam = this.active_camera();
-        if (!cam) return;
-        const mod = getModule(this.id, cam.mod);
-        if (!mod) return;
-        mod.execute('recall', [preset]);
-    }
-
-    public addPreset(preset: string) {
-        const cam = this.active_camera();
-        if (!cam) return;
-        const mod = getModule(this.id, 'System');
-        if (!mod) return;
-        mod.execute('add_preset', [preset, cam.id]);
-    }
-
-    public removePreset(preset: string) {
-        const cam = this.active_camera();
-        if (!cam) return;
-        const mod = getModule(this.id, 'System');
-        if (!mod) return;
-        mod.execute('remove_preset', [preset, cam.id]);
+        selectCamera(this.id, camera.id);
     }
 
     public moveCamera() {
         const cam = this.active_camera();
         if (!cam) return;
         clearTimeout(this._move_timeout);
-        this._move_timeout = setTimeout(async () => {
-            const { index } = cam;
-            const mod = getModule(this.id, cam.mod);
-            if (!mod) return;
-            await mod.execute('stop', index ? [index] : []);
-            if (this.tilt() !== JoystickTilt.Stop)
-                await mod.execute(
-                    'tilt',
-                    index ? [this.tilt(), index] : [this.tilt()],
-                );
-            if (this.pan() !== JoystickPan.Stop)
-                await mod.execute(
-                    'pan',
-                    index ? [this.pan(), index] : [this.pan()],
-                );
-        }, 50);
+        this._move_timeout = setTimeout(
+            () => moveCamera(this.id, cam, this.pan(), this.tilt()),
+            50,
+        );
     }
 
     /** Start zooming. Pointer capture makes sure the button receives the release. */
@@ -217,13 +163,8 @@ export class CameraControlsComponent implements OnInit {
         (e.currentTarget as Element | null)?.setPointerCapture?.(e.pointerId);
         const cam = this.active_camera();
         if (!cam) return;
-        const mod = getModule(this.id, cam.mod);
-        if (!mod) return;
         this.zoom.set(dir === 'in' ? ZoomDirection.In : ZoomDirection.Out);
-        const { index } = cam;
-        await mod
-            .execute('zoom', index ? [this.zoom(), index] : [this.zoom()])
-            .catch();
+        await zoomCamera(this.id, cam, this.zoom()).catch(() => null);
     }
 
     public stopZoom() {
@@ -232,11 +173,8 @@ export class CameraControlsComponent implements OnInit {
             if (this.zoom() === ZoomDirection.Stop) return;
             const cam = this.active_camera();
             if (!cam) return;
-            const mod = getModule(this.id, cam.mod);
-            if (!mod) return;
-            const { index } = cam;
             this.zoom.set(ZoomDirection.Stop);
-            mod.execute('zoom', index ? [this.zoom(), index] : [this.zoom()]);
+            zoomCamera(this.id, cam, ZoomDirection.Stop);
         }, 50);
     }
 }

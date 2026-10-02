@@ -181,10 +181,6 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
     public loading = signal('');
     /** ID of the system to bootstrap */
     public system_id = signal('');
-    /** Selected system to bootstrap */
-    public selected_system: Space = null;
-    /** Whether input field is focused */
-    public input_focus = signal(false);
 
     private readonly _debounced_search = debounced(this.system_id, 300);
     private readonly _space_list = resource({
@@ -243,20 +239,18 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
         // takes precedence over previously stored bootstrap settings.
         await syncNativeManagedConfig();
         if (this.system_id()) return;
-        if (localStorage) {
-            const system_id = localStorage.getItem(CONTROL_STORE_KEY);
-            // A system pushed via MDM managed config overrides the stored one
-            const mdm_system_id = getNativeSystemId();
-            if (mdm_system_id && mdm_system_id !== system_id) {
-                this.system_id.set(mdm_system_id);
-                return this.configure(mdm_system_id);
-            }
-            if (system_id) {
-                this._router.navigate(['/tabbed', system_id], {
-                    queryParamsHandling: 'preserve',
-                });
-                return;
-            }
+        const system_id = localStorage.getItem(CONTROL_STORE_KEY);
+        // A system pushed via MDM managed config overrides the stored one
+        const mdm_system_id = getNativeSystemId();
+        if (mdm_system_id && mdm_system_id !== system_id) {
+            this.system_id.set(mdm_system_id);
+            return this.configure(mdm_system_id);
+        }
+        if (system_id) {
+            this._router.navigate(['/tabbed', system_id], {
+                queryParamsHandling: 'preserve',
+            });
+            return;
         }
         this.loading.set('');
     }
@@ -266,16 +260,12 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
      * @param system_id System to bootstrap
      */
     private configure(system_id: string): void {
-        this.loading.set('Setup');
-        if (localStorage) {
-            localStorage.setItem(CONTROL_STORE_KEY, system_id);
-            localStorage.setItem('trust', 'true');
-            localStorage.setItem('fixed_device', 'true');
-        }
+        localStorage.setItem(CONTROL_STORE_KEY, system_id);
+        localStorage.setItem('trust', 'true');
+        localStorage.setItem('fixed_device', 'true');
         this._router.navigate(['/tabbed', system_id], {
             queryParamsHandling: 'preserve',
         });
-        this.loading.set('');
     }
 
     /**

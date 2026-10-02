@@ -10,7 +10,7 @@ import { MatRippleModule } from '@angular/material/core';
 import { ControlStateService } from '../control-state.service';
 
 @Component({
-    selector: 'lighting-tooltip',
+    selector: 'lighting-scene-tooltip',
     template: `
         <div
             class="bg-base-100 my-2 flex flex-col items-center space-y-2 rounded-sm px-2 pt-2 pb-4 shadow-sm"

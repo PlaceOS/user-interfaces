@@ -1,5 +1,5 @@
 import { DatePipe } from '@angular/common';
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
@@ -120,7 +120,7 @@ export class SelectMeetingModalComponent {
     public readonly calendars = this._service.calendars;
     public readonly events = this._service.events;
 
-    public readonly loading = signal(false);
+    public readonly loading = this._service.events_loading;
 
     public readonly calendar = this._service.calendar;
 

@@ -22,8 +22,6 @@ describe('DeviceOutputListItemComponent', () => {
                 useValue: {
                     available_inputs: signal([]),
                     system: signal({}),
-                    setVolume: vi.fn(),
-                    setRoute: vi.fn(),
                     unroute: vi.fn(),
                     setOutput: vi.fn(),
                 },
@@ -104,15 +102,5 @@ describe('DeviceOutputListItemComponent', () => {
         spectator.click('button');
         expect(service.unroute).toHaveBeenCalledWith('o1');
         expect(service.setOutput).not.toHaveBeenCalled();
-    });
-
-    it('should route to input when setting mute state off', () => {
-        const service: any = spectator.inject(ControlStateService);
-        spectator.setInput('item', { id: 'o1', name: 'o1' } as any);
-        spectator.detectChanges();
-        spectator.component.last_input = 'i5';
-        spectator.component.setMute('i7', false);
-        expect(service.setRoute).toHaveBeenCalledWith('i5', 'o1');
-        expect(spectator.component.last_input).toBe('i7');
     });
 });

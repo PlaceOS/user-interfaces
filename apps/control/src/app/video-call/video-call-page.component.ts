@@ -22,8 +22,8 @@ import {
     notifyError,
 } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
-import { getModule } from '@placeos/ts-client';
 import { ControlStateService } from '../control-state.service';
+import { selectCamera } from '../ui/camera-commands';
 import { DialpadComponent } from '../ui/dialpad.component';
 import {
     PresentationMode,
@@ -320,9 +320,7 @@ export class VideoCallPageComponent extends AsyncHandler implements OnInit {
     }
 
     public selectCamera(camera: string) {
-        const mod = getModule(this._control.id, 'System');
-        if (!mod) return;
-        mod.execute('selected_camera', [camera]);
+        selectCamera(this._control.id, camera);
     }
 
     /** Leave the page once. A local hang-up and the call status clearing both end up here. */

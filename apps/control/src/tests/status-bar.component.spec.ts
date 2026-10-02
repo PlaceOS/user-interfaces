@@ -26,7 +26,6 @@ describe('ControlStatusBarComponent', () => {
         ],
         providers: [
             MockProvider(ControlStateService, {
-                volume: signal(0),
                 system: signal({}),
                 capture_list: signal([]),
                 has_master_audio: signal(true),

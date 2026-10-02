@@ -9,8 +9,12 @@ import { of } from 'rxjs';
 
 vi.mock('@placeos/ts-client', { spy: true });
 
+import { Router } from '@angular/router';
 import * as client from '@placeos/ts-client';
-import { ControlStateService } from '../app/control-state.service';
+import {
+    CONTROL_STORE_KEY,
+    ControlStateService,
+} from '../app/control-state.service';
 
 describe('ControlStateService', () => {
     let spectator: SpectatorService<ControlStateService>;
@@ -18,6 +22,7 @@ describe('ControlStateService', () => {
     let bindings: Record<string, (value: unknown) => void>;
     /** Names of bindings that were released */
     let released: string[];
+    const loadSpace = vi.fn();
     const createService = createServiceFactory({
         service: ControlStateService,
         providers: [
@@ -25,12 +30,14 @@ describe('ControlStateService', () => {
             { provide: CalendarService, useValue: { calendars: of([]) } },
             {
                 provide: SpacesService,
-                useValue: { loadSpaces: vi.fn(), loadSpace: vi.fn() },
+                useValue: { loadSpaces: vi.fn(), loadSpace },
             },
         ],
     });
 
     beforeEach(() => {
+        loadSpace.mockReset().mockResolvedValue(null);
+        localStorage.clear();
         bindings = {};
         released = [];
         vi.mocked(client.getModule).mockImplementation(
@@ -74,5 +81,27 @@ describe('ControlStateService', () => {
         bindings['inputs'](['b']);
         TestBed.tick();
         expect(released).toContain('input/a');
+    });
+
+    it('should return to bootstrap and forget the system when it does not exist', async () => {
+        const router = spectator.inject(Router);
+        const navigate = vi.spyOn(router, 'navigate').mockResolvedValue(true);
+        localStorage.setItem(CONTROL_STORE_KEY, 'missing');
+        loadSpace.mockRejectedValue({ status: 404 });
+        spectator.service.setID('missing');
+        await new Promise((r) => setTimeout(r));
+        expect(navigate).toHaveBeenCalledWith(['/bootstrap']);
+        expect(localStorage.getItem(CONTROL_STORE_KEY)).toBeNull();
+    });
+
+    it('should stay on the system when loading fails for another reason', async () => {
+        const router = spectator.inject(Router);
+        const navigate = vi.spyOn(router, 'navigate').mockResolvedValue(true);
+        localStorage.setItem(CONTROL_STORE_KEY, 'sys-1');
+        loadSpace.mockRejectedValue({ status: 500 });
+        spectator.service.setID('sys-1');
+        await new Promise((r) => setTimeout(r));
+        expect(navigate).not.toHaveBeenCalled();
+        expect(localStorage.getItem(CONTROL_STORE_KEY)).toBe('sys-1');
     });
 });

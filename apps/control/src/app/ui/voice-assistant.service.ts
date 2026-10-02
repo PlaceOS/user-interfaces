@@ -1,11 +1,4 @@
-import {
-    Injectable,
-    computed,
-    effect,
-    inject,
-    signal,
-    untracked,
-} from '@angular/core';
+import { Injectable, effect, inject, signal, untracked } from '@angular/core';
 import { AsyncHandler, currentUser, log, randomInt } from '@placeos/common';
 
 import { ChatService } from '@placeos/components';
@@ -93,13 +86,6 @@ export class VoiceAssistantService extends AsyncHandler {
     public readonly error = this._error.asReadonly();
     public readonly state = this._state.asReadonly();
     public readonly progress = this._chat_service.progress;
-    public readonly waiting = computed(() => {
-        const list = this._chat_service.messages();
-        return (
-            list.length !== 0 &&
-            list[list.length - 1]?.user_id === currentUser()?.id
-        );
-    });
 
     private _mic_levels = new MicLevels();
     /** True when `readLevels()` returns live microphone levels */

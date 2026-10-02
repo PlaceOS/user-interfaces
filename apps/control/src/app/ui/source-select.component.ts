@@ -15,11 +15,7 @@ import { ControlStateService, RoomInput } from '../control-state.service';
 @Component({
     selector: 'source-select',
     template: `
-        <div
-            class="flex flex-col items-center text-black"
-            [class.p-2]="simple()"
-            [class.p-4]="!simple()"
-        >
+        <div class="flex flex-col items-center p-4 text-black">
             @let source = details();
             <h3 class="mb-2 text-xl font-medium">
                 {{
@@ -29,11 +25,7 @@ import { ControlStateService, RoomInput } from '../control-state.service';
             </h3>
             @if (!loading()) {
                 @if (input_types().length) {
-                    <div
-                        class="divide flex"
-                        [class.flex-col]="simple()"
-                        [class.flex-wrap]="!simple()"
-                    >
+                    <div class="divide flex flex-wrap">
                         @for (type of input_types(); track type) {
                             <div group class="flex flex-col space-y-2 p-2">
                                 <h4 class="text-center underline">
@@ -89,8 +81,6 @@ import { ControlStateService, RoomInput } from '../control-state.service';
 export class SourceSelectComponent {
     private _state = inject(ControlStateService);
 
-    // Whether to use the simple display
-    public readonly simple = input(false);
     // ID of the selected output
     public readonly output = input<string>(undefined);
     /** Emitter for changes to the selected input source */

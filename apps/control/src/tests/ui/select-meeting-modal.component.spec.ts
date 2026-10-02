@@ -15,6 +15,7 @@ describe('SelectMeetingModalComponent', () => {
     let calendars: ReturnType<typeof signal<any[]>>;
     let events: ReturnType<typeof signal<any[]>>;
     let calendar: ReturnType<typeof signal<any>>;
+    let events_loading: ReturnType<typeof signal<boolean>>;
     let service: any;
     let dialog_ref: { close: any };
     let dialog_open: any;
@@ -38,9 +39,11 @@ describe('SelectMeetingModalComponent', () => {
             { title: 'Standup', date: Date.now(), organiser: { name: 'Ada' } },
         ]);
         calendar = signal<any>(calendars()[0]);
+        events_loading = signal(false);
         service = {
             calendars,
             events,
+            events_loading,
             calendar,
             setCalendar: vi.fn((c) => calendar.set(c)),
             setEvent: vi.fn(async () => undefined),
@@ -82,7 +85,7 @@ describe('SelectMeetingModalComponent', () => {
     });
 
     it('should show a loading spinner while loading', () => {
-        spectator.component.loading.set(true);
+        events_loading.set(true);
         spectator.detectChanges();
         expect('mat-spinner').toExist();
         expect(spectator.query('button[btn]')).not.toExist();
