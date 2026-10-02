@@ -46,6 +46,8 @@ interface PlaylistOverride {
     ends_at: number;
     playlist: MediaPlayerItem[];
     schedule_keys?: string[];
+    /** When the last of its scheduled runs stops being detected as active */
+    schedule_window_end?: number;
 }
 
 interface SignageMetrics {
@@ -83,6 +85,24 @@ interface ActivePlaylistSchedule {
     key: string;
 }
 
+/** Raw display details as the API returns them */
+interface DisplayPayload {
+    readonly id?: string;
+    readonly [key: string]: unknown;
+}
+
+/** HTTP validators of a display response */
+interface DisplayValidators {
+    etag: string;
+    last_modified: string;
+}
+
+interface DisplayFetch {
+    payload: DisplayPayload;
+    /** Validators of the response; null when the backend could not be reached */
+    validators: DisplayValidators | null;
+}
+
 interface PlaylistMediaReference {
     id: string;
     playlist_id: string;
@@ -90,11 +110,16 @@ interface PlaylistMediaReference {
     valid_until: number;
 }
 
-const EMPTY_METRICS = JSON.stringify({
-    play_through_counts: {},
-    playlist_counts: {},
-    media_counts: {},
-});
+function emptyMetrics(): SignageMetrics {
+    return { play_through_counts: {}, playlist_counts: {}, media_counts: {} };
+}
+
+const EMPTY_METRICS = JSON.stringify(emptyMetrics());
+const METRIC_TYPES: readonly (keyof SignageMetrics)[] = [
+    'play_through_counts',
+    'playlist_counts',
+    'media_counts',
+];
 
 const DEFAULT_PLAY_PERIOD_MINUTES = 24 * 60;
 const SINGLE_PASS_TRIGGER_WINDOW_MS = 30 * 1000;
@@ -164,6 +189,10 @@ function isNestedPlayerWindow() {
     } catch {
         return true;
     }
+}
+
+function isDisplayPayload(value: unknown): value is DisplayPayload {
+    return !!value && typeof value === 'object';
 }
 
 function displayCacheKey(id: string) {
@@ -256,13 +285,9 @@ function scheduledPlaylistExpiry(starts_at: number, period_minutes: number) {
     return period_minutes ? starts_at + period_minutes * 60 * 1000 : 0;
 }
 
-function scheduledPlaylistWindow(
-    schedule: PlaylistSchedule,
-    now = time(),
-    trigger_window_seconds = 0,
-) {
+function scheduledPlaylistWindow(schedule: PlaylistSchedule, now = time()) {
     const period_minutes = playlistPlayPeriodMinutes(schedule);
-    const window_seconds = trigger_window_seconds || period_minutes * 60;
+    const window_seconds = period_minutes * 60;
     const valid_until = parseValidUntilTimestamp(schedule.valid_until);
     if (!hasPlayableScheduleMask(schedule)) return null;
     if (valid_until && now > valid_until) return null;
@@ -429,8 +454,10 @@ export class SignageService extends AsyncHandler {
     private readonly _display_data = signal<any>(null);
     /** Counter incremented on the schedule timer to re-evaluate time windows */
     private readonly _tick = signal(0);
+    /** Pending schedule tick; see `_scheduleTick` */
+    private _schedule_tick_timer?: ReturnType<typeof setTimeout>;
     private _display_signature = '';
-    /** Validators from the last successful display response */
+    /** Validators from the last display response that was applied */
     private _etag = '';
     private _last_modified = '';
     /** Signature of the media set the cache was last synced against */
@@ -447,19 +474,16 @@ export class SignageService extends AsyncHandler {
     private _poll_in_flight = false;
     /** Wall-clock time the last poll attempt started */
     private _last_poll_attempt = 0;
-    /** Wall-clock time the last poll completed without throwing */
+    /** Wall-clock time the last poll got an answer from the backend */
     private _last_poll_success = 0;
     /** Wall-clock time of the last recovery download, keyed by media URL */
     private _media_recovery = new Map<string, number>();
     private _playlists: SignagePlaylist[] = [];
     private _last_playlist: MediaPlayerItem[] = [];
     private _last_override_playlists: string[] = [];
-    private _metrics: SignageMetrics = {
-        play_through_counts: {},
-        playlist_counts: {},
-        media_counts: {},
-    };
-    private _completed_schedule_overrides = new Set<string>();
+    private _metrics = emptyMetrics();
+    /** Scheduled runs that have played, with when each can be forgotten */
+    private _completed_schedule_overrides = new Map<string, number>();
     /** Shuffled order of each random playlist and the media list it is for */
     private _shuffles = new Map<
         string,
@@ -574,6 +598,12 @@ export class SignageService extends AsyncHandler {
         this._scheduleTick();
     }
 
+    protected override destroy() {
+        clearTimeout(this._schedule_tick_timer);
+        this._schedule_tick_timer = undefined;
+        super.destroy();
+    }
+
     private _startPolling() {
         this.interval('poll', () => this._poll(), POLL_INTERVAL_MS);
     }
@@ -596,8 +626,8 @@ export class SignageService extends AsyncHandler {
         this._last_poll_attempt = now;
         recordHeartbeat('poll');
         try {
-            await this._reloadDisplay();
-            this._last_poll_success = Date.now();
+            const reached_backend = await this._reloadDisplay();
+            if (reached_backend) this._last_poll_success = Date.now();
         } catch (e) {
             log.error('Display poll failed.', e);
         } finally {
@@ -641,20 +671,26 @@ export class SignageService extends AsyncHandler {
         });
     }
 
-    /** Re-fetch the active display details and refresh derived player state. */
+    /**
+     * Re-fetch the active display details and refresh derived player state.
+     * Returns whether the backend answered.
+     */
     private async _reloadDisplay() {
         const id = this._display();
-        if (!id) return;
-        const value = await this._fetchDisplay(id);
-        if (value === null) return;
-        const display_signature = `${id}:${JSON.stringify(value || {})}`;
+        if (!id) return false;
+        const result = await this._fetchDisplay(id);
+        // Not modified since the last response that was applied
+        if (result === null) return true;
+        const { payload, validators } = result;
+        const display_signature = `${id}:${JSON.stringify(payload)}`;
         if (
             display_signature === this._display_signature &&
             this._display_data()
         ) {
-            return;
+            this._setValidators(validators);
+            return !!validators;
         }
-        const display = this._parseDisplay(value);
+        const display = this._parseDisplay(payload);
         display.plugins = await this._withTimeout(
             this._resolveDisplayPlugins(display),
             DISPLAY_FETCH_TIMEOUT_MS,
@@ -678,10 +714,26 @@ export class SignageService extends AsyncHandler {
         // Recorded last. Marking the payload as handled before the work above
         // completes would make every later poll skip whatever did not finish,
         // leaving the display stuck until its configuration changed again.
+        // The validators too: sent early, they would get a 304 for the
+        // payload that failed, and it would never be applied.
         this._display_signature = display_signature;
+        this._setValidators(validators);
+        return !!validators;
     }
 
-    private async _fetchDisplay(id: string) {
+    /** Keep the validators to send with the next request, if there are any */
+    private _setValidators(validators: DisplayValidators | null) {
+        if (!validators) return;
+        this._etag = validators.etag;
+        this._last_modified = validators.last_modified;
+    }
+
+    /**
+     * Fetch the display details. Falls back to the copy saved for offline use
+     * when the backend cannot be reached. Returns null when the backend reports
+     * the details have not changed.
+     */
+    private async _fetchDisplay(id: string): Promise<DisplayFetch | null> {
         const query_params = cleanObject(
             {
                 preview: this.debug() || undefined,
@@ -701,34 +753,55 @@ export class SignageService extends AsyncHandler {
 
         // A request that never settles would otherwise leave the poll waiting
         // forever, so it is abandoned and retried on the next interval.
-        let d: any;
+        let payload: DisplayPayload | null = null;
+        let validators: DisplayValidators | null = null;
         try {
-            d = await this._withTimeout(
+            const response = await this._withTimeout(
                 showSignage(id, query_params, request_options),
                 DISPLAY_FETCH_TIMEOUT_MS,
             );
-            const response_headers = responseHeaders(
-                displayRequestURL(id, query_params),
-            );
-            this._etag = response_headers.etag || '';
-            this._last_modified = response_headers['last-modified'] || '';
+            if (isDisplayPayload(response)) {
+                payload = response;
+                const response_headers = responseHeaders(
+                    displayRequestURL(id, query_params),
+                );
+                validators = {
+                    etag: response_headers.etag || '',
+                    last_modified: response_headers['last-modified'] || '',
+                };
+            }
         } catch (e) {
             if (e instanceof Response && e.status === 304) return null;
             log.warn('Failed to fetch display details.', e);
         }
-        if (!d) {
-            const display_key = displayCacheKey(id);
-            d = JSON.parse(
-                localStorage.getItem(display_key) ||
+        if (!payload) payload = this._offlineDisplay(id);
+        if (payload.id === id) {
+            // Best effort: a full storage must not stop the display updating
+            try {
+                localStorage.setItem(
+                    displayCacheKey(id),
+                    JSON.stringify(payload),
+                );
+            } catch (e) {
+                log.warn('Unable to save display details for offline use.', e);
+            }
+        }
+        return { payload, validators };
+    }
+
+    /** The display details saved for offline use; empty when there are none */
+    private _offlineDisplay(id: string): DisplayPayload {
+        try {
+            const saved: unknown = JSON.parse(
+                localStorage.getItem(displayCacheKey(id)) ||
                     localStorage.getItem(DISPLAY_KEY) ||
-                    '{}',
+                    'null',
             );
-            if (d.id !== id) d = {};
+            return isDisplayPayload(saved) && saved.id === id ? saved : {};
+        } catch (e) {
+            log.warn('Unable to read saved display details.', e);
+            return {};
         }
-        if (d.id === id) {
-            localStorage.setItem(displayCacheKey(id), JSON.stringify(d));
-        }
-        return d;
     }
 
     private _bindTriggers(display: any) {
@@ -758,6 +831,12 @@ export class SignageService extends AsyncHandler {
     /**
      * Re-evaluate time-based schedules on a recurring timer, speeding up when
      * debug time is fast-forwarding so scheduled playlists activate on time.
+     * Calling it again replaces the pending tick, so there is only ever one
+     * timer chain.
+     *
+     * The timer is held here, not with `this.timeout`: that forgets a timer
+     * once its callback returns, which loses the timer the callback re-arms,
+     * so a later call could not replace it and would start a second chain.
      */
     private _scheduleTick() {
         const { active, speed } = mockTimeState();
@@ -766,31 +845,28 @@ export class SignageService extends AsyncHandler {
             MIN_SCHEDULE_TICK_MS,
             Math.min(SCHEDULE_TICK_MS, SCHEDULE_TICK_MS / effective_speed),
         );
-        this.timeout(
-            'schedule_tick',
-            () => {
-                try {
-                    recordHeartbeat('schedule');
-                    this._checkPollHealth();
-                    this._tick.update((_) => _ + 1);
-                    const display = this._display_data();
-                    if (display) {
-                        this._checkScheduledOverrides(
-                            display,
-                            this.override_playlists(),
-                        );
-                        this._checkMediaCache(display);
-                    }
-                } catch (e) {
-                    log.error('Failed to evaluate playlist schedules.', e);
-                } finally {
-                    // Always re-arm; a single bad pass must not stop the player
-                    // evaluating schedules for the rest of its uptime.
-                    this._scheduleTick();
+        clearTimeout(this._schedule_tick_timer);
+        this._schedule_tick_timer = setTimeout(() => {
+            try {
+                recordHeartbeat('schedule');
+                this._checkPollHealth();
+                this._tick.update((_) => _ + 1);
+                const display = this._display_data();
+                if (display) {
+                    this._checkScheduledOverrides(
+                        display,
+                        this.override_playlists(),
+                    );
+                    this._checkMediaCache(display);
                 }
-            },
-            delay,
-        );
+            } catch (e) {
+                log.error('Failed to evaluate playlist schedules.', e);
+            } finally {
+                // Always re-arm; a single bad pass must not stop the player
+                // evaluating schedules for the rest of its uptime.
+                this._scheduleTick();
+            }
+        }, delay);
     }
 
     /** Force an immediate display refresh. Exposed for diagnostics. */
@@ -912,9 +988,15 @@ export class SignageService extends AsyncHandler {
     }
 
     public clearPlaylistOverride() {
-        const { schedule_keys } = this.override_playlist();
+        const { schedule_keys, schedule_window_end } = this.override_playlist();
+        // Remembered until the run can no longer be detected, so it does not
+        // play again. Scheduled overrides always record that time; the default
+        // play period is only a fallback.
+        const forget_after =
+            schedule_window_end ||
+            time() + DEFAULT_PLAY_PERIOD_MINUTES * MINUTES;
         for (const key of schedule_keys || []) {
-            this._completed_schedule_overrides.add(key);
+            this._completed_schedule_overrides.set(key, forget_after);
         }
         this.override_playlist.set({ playlist: [], ends_at: 0 });
     }
@@ -943,24 +1025,34 @@ export class SignageService extends AsyncHandler {
     }
 
     private _postMetrics() {
-        this.timeout(
-            'post-metrics',
-            async () => {
-                if (EMPTY_METRICS === JSON.stringify(this._metrics)) return;
-                const display_id = this._display();
-                await post(
-                    `/api/engine/v2/signage/${encodeURIComponent(display_id)}/metrics`,
-                    this._metrics,
-                );
-                log.debug('Posted metrics:', this._metrics);
-                this._metrics = {
-                    play_through_counts: {},
-                    playlist_counts: {},
-                    media_counts: {},
-                };
-            },
-            randomInt(60),
-        );
+        this.timeout('post-metrics', () => this._sendMetrics(), randomInt(60));
+    }
+
+    /**
+     * Post the counts recorded so far. Counting continues into a new set while
+     * the post is in flight; if the post fails, its counts are added back so
+     * the next attempt sends them.
+     */
+    private async _sendMetrics() {
+        if (EMPTY_METRICS === JSON.stringify(this._metrics)) return;
+        const metrics = this._metrics;
+        this._metrics = emptyMetrics();
+        const display_id = this._display();
+        try {
+            await post(
+                `/api/engine/v2/signage/${encodeURIComponent(display_id)}/metrics`,
+                metrics,
+            );
+            log.debug('Posted metrics:', metrics);
+        } catch (e) {
+            log.warn('Failed to post metrics. Retrying later.', e);
+            for (const type of METRIC_TYPES) {
+                for (const [ref_id, count] of Object.entries(metrics[type])) {
+                    this._metrics[type][ref_id] =
+                        (this._metrics[type][ref_id] || 0) + count;
+                }
+            }
+        }
     }
 
     private _mappedPlaylistIds(display: any) {
@@ -1048,16 +1140,16 @@ export class SignageService extends AsyncHandler {
             const cache_owner = display.id || '';
             const media = this._activeCacheableMediaURLs(display);
             const known_media = this._cacheableMediaURLs(display);
-            const available_media =
-                this._media_cache.availableFiles(cache_owner);
-            const extra_media = available_media.filter(
-                (url) => !known_media.includes(url),
-            );
             const has_failures = await this._media_cache.requestFilesToCache(
                 media,
                 cache_owner,
                 { prune_other_owners: !this._isNestedPlayerWindow() },
             );
+            // Listed after caching, which can evict files: releasing a file
+            // that is already gone fails and only adds noise to the log.
+            const extra_media = this._media_cache
+                .availableFiles(cache_owner)
+                .filter((url) => !known_media.includes(url));
             for (const item of extra_media) {
                 Promise.resolve(
                     this._media_cache.invalidateFile(item, cache_owner),
@@ -1200,11 +1292,19 @@ export class SignageService extends AsyncHandler {
         const ends_at = has_single_pass
             ? 0
             : Math.max(...active.map(({ ends_at }) => ends_at));
+        // Held runs come from the current override, so its window end is kept
+        const schedule_window_end = Math.max(
+            this.override_playlist().schedule_window_end || 0,
+            ...(has_single_pass ? single_pass : active).map(
+                ({ ends_at }) => ends_at,
+            ),
+        );
         log.debug('Setting override playlist', media, ends_at);
         this.override_playlist.set({
             playlist: media,
             ends_at,
             schedule_keys: keys,
+            schedule_window_end,
         });
     }
 
@@ -1215,6 +1315,14 @@ export class SignageService extends AsyncHandler {
      */
     private _activeOverrideSchedules(display: any, playlist_ids: string[]) {
         const now = time();
+        // A key names one run, which is never detected again once its window
+        // has passed. Until then it is kept, even while its playlist is
+        // missing from the display, so that restoring it does not replay it.
+        for (const [key, forget_after] of this._completed_schedule_overrides) {
+            if (forget_after < now) {
+                this._completed_schedule_overrides.delete(key);
+            }
+        }
         return (
             playlist_ids
                 .map((id) => this._playlistConfig(display, id)?.[0])

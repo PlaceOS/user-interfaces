@@ -80,7 +80,7 @@ makes the display request use `?preview=true`.
 | Takeover scheduled but not showing | A takeover with no valid media does not start. Compare the playlist and media `valid_from` / `valid_until` with `schedule.now`                                              |
 | Trigger did not start a takeover   | A trigger fires only when its value changes to true. A display update does not replay a trigger that is already true, and a trigger is ignored while another override plays |
 | Stuck on old content               | `poll.last_success` and `poll.next_due`; run `signage.poll()`                                                                                                               |
-| Not picking up new content         | `poll.last_success` vs now; if stale, look for `Display poll failed` in the console                                                                                         |
+| Not picking up new content         | `poll.last_success` is when the backend last answered; if stale, look for `Failed to fetch display details` or `Display poll failed`                                        |
 | Media never appears                | `media_cache.files` for that URL — `invalidated` means the download failed; `failed_sync_attempts` shows the backoff                                                        |
 | Old version running                | `updates.new_version`, `updates.reload_pending` (a reload waits for the network and for play-through content to finish), `updates.last_check`                               |
 | Blank screen after a reboot        | Likely offline boot — check `online`, then whether cached credentials exist                                                                                                 |
