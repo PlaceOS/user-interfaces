@@ -14,18 +14,22 @@
  * OFFERED. "A three-hour meeting is rejected" would be testing something the
  * form never lets you attempt.
  */
-import { test, expect } from '../../../../e2e/support/fixtures';
-import { deleteBooking, getBooking, uniqueTitle } from '../../../../e2e/support/api';
-import { ROOM_SLOTS, slotFor } from '../../../../e2e/support/room/room.env';
-import { roomForWorker } from '../../../../e2e/support/room/room.seed';
+import {
+    deleteBooking,
+    getBooking,
+    uniqueTitle,
+} from '../../../../e2e/support/api';
+import { expect, test } from '../../../../e2e/support/fixtures';
+import { MeetingForm } from '../../../../e2e/support/room/meeting-form.page';
 import { releaseRoom } from '../../../../e2e/support/room/room.api';
+import { ROOM_SLOTS, slotFor } from '../../../../e2e/support/room/room.env';
+import { bookRoomViaUI } from '../../../../e2e/support/room/room.flows';
+import { roomForWorker } from '../../../../e2e/support/room/room.seed';
 import {
     LIMITED_HOURS,
     ROOM_BASE_SETTINGS,
     useSettings,
 } from '../../../../e2e/support/room/room.settings';
-import { bookRoomViaUI } from '../../../../e2e/support/room/room.flows';
-import { MeetingForm } from '../../../../e2e/support/room/meeting-form.page';
 
 const DAY = 86_400;
 const window_from = () => Math.floor(Date.now() / 1000) - 2 * DAY;
@@ -67,13 +71,20 @@ test.describe('room booking times', () => {
             ).toBeGreaterThan(1);
             const lengths = await form.durationOptions();
             const chosen_time = times[1];
-            const chosen_length = lengths.find((m) => m >= 90) ?? lengths[lengths.length - 1];
+            const chosen_length =
+                lengths.find((m) => m >= 90) ?? lengths[lengths.length - 1];
 
-            const created = await bookRoomViaUI(staffPage, staffApi, room, title, {
-                date: slot.date_ms,
-                startTime: chosen_time,
-                duration: chosen_length,
-            });
+            const created = await bookRoomViaUI(
+                staffPage,
+                staffApi,
+                room,
+                title,
+                {
+                    date: slot.date_ms,
+                    startTime: chosen_time,
+                    duration: chosen_length,
+                },
+            );
             booking_id = created.id;
 
             const stored = await getBooking(staffApi, booking_id);
@@ -101,7 +112,10 @@ test.describe('room booking times', () => {
     test('a maximum length and bookable hours limit what can be chosen', async ({
         staffPage,
     }) => {
-        await useSettings(staffPage, { ...ROOM_BASE_SETTINGS, ...LIMITED_HOURS });
+        await useSettings(staffPage, {
+            ...ROOM_BASE_SETTINGS,
+            ...LIMITED_HOURS,
+        });
 
         const form = new MeetingForm(staffPage);
         await form.open();
@@ -158,7 +172,7 @@ test.describe('room booking times', () => {
      * `fixme`, so it costs nothing per run. Drop the marker once the app carries
      * the chosen length through, and fold it back into the test above.
      */
-    test.fixme('the meeting length chosen on the form is what gets booked', async ({
+    test('the meeting length chosen on the form is what gets booked', async ({
         staffPage,
         staffApi,
     }, testInfo) => {
@@ -171,10 +185,16 @@ test.describe('room booking times', () => {
         await useSettings(staffPage, ROOM_BASE_SETTINGS);
 
         try {
-            const created = await bookRoomViaUI(staffPage, staffApi, room, title, {
-                date: slot.date_ms,
-                duration: 90,
-            });
+            const created = await bookRoomViaUI(
+                staffPage,
+                staffApi,
+                room,
+                title,
+                {
+                    date: slot.date_ms,
+                    duration: 90,
+                },
+            );
             booking_id = created.id;
             const stored = await getBooking(staffApi, booking_id);
             expect(

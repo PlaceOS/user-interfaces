@@ -456,7 +456,24 @@ export class DeskForm {
             `no ${minutes} minute option — lengths come on a fixed step up to ` +
                 '`max_duration`',
         ).toBeVisible({ timeout: 10_000 });
+        // CDK places this menu's backdrop immediately before its overlay host.
+        const backdrop = await option.evaluateHandle(
+            (el) =>
+                el.closest('.cdk-overlay-pane')!.parentElement!
+                    .previousElementSibling,
+        );
         await option.click();
+        if (
+            (await this.durationTrigger.getAttribute('aria-expanded')) ===
+            'true'
+        ) {
+            await this.page.keyboard.press('Escape');
+        }
+        await expect(option).toBeHidden();
+        await expect
+            .poll(() => backdrop.evaluate((el) => el?.isConnected ?? false))
+            .toBe(false);
+        await backdrop.dispose();
     }
 
     /** Every start time on offer, read from `data-time` rather than the label. */

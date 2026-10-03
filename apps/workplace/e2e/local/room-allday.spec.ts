@@ -31,17 +31,25 @@
  * `newBookingFromCalendarEvent` takes `duration` from the event instead. Fixing
  * ROOM-B3 properly would most likely fix this too.
  */
-import { test, expect } from '../../../../e2e/support/fixtures';
-import { deleteBooking, getBooking, uniqueTitle } from '../../../../e2e/support/api';
-import { ROOM_SLOTS_2, SECOND_DAY, slotFor } from '../../../../e2e/support/room/room.env';
-import { roomForWorker } from '../../../../e2e/support/room/room.seed';
+import {
+    deleteBooking,
+    getBooking,
+    uniqueTitle,
+} from '../../../../e2e/support/api';
+import { expect, test } from '../../../../e2e/support/fixtures';
 import { releaseRoom } from '../../../../e2e/support/room/room.api';
+import {
+    ROOM_SLOTS_2,
+    SECOND_DAY,
+    slotFor,
+} from '../../../../e2e/support/room/room.env';
+import { bookRoomViaUI } from '../../../../e2e/support/room/room.flows';
+import { roomForWorker } from '../../../../e2e/support/room/room.seed';
 import {
     ALLOW_ALL_DAY,
     ROOM_BASE_SETTINGS,
     useSettings,
 } from '../../../../e2e/support/room/room.settings';
-import { bookRoomViaUI } from '../../../../e2e/support/room/room.flows';
 
 const DAY = 86_400;
 const HOUR = 3600;
@@ -49,7 +57,7 @@ const window_from = () => Math.floor(Date.now() / 1000) - 2 * DAY;
 const window_to = () => Math.floor(Date.now() / 1000) + 7 * DAY;
 
 test.describe('an all-day meeting', () => {
-    test.fixme('an all-day meeting holds the room for the day, not for an hour', async ({
+    test('an all-day meeting holds the room for the day, not for an hour', async ({
         staffPage,
         staffApi,
     }, testInfo) => {
@@ -59,16 +67,29 @@ test.describe('an all-day meeting', () => {
         let booking_id: number | undefined;
 
         await releaseRoom(staffApi, room.id, window_from(), window_to());
-        await useSettings(staffPage, { ...ROOM_BASE_SETTINGS, ...ALLOW_ALL_DAY });
+        await useSettings(staffPage, {
+            ...ROOM_BASE_SETTINGS,
+            ...ALLOW_ALL_DAY,
+        });
 
         try {
-            const created = await bookRoomViaUI(staffPage, staffApi, room, title, {
-                date: slot.date_ms,
-                allDay: true,
-            });
+            const created = await bookRoomViaUI(
+                staffPage,
+                staffApi,
+                room,
+                title,
+                {
+                    date: slot.date_ms,
+                    allDay: true,
+                },
+            );
             booking_id = created.id;
 
             const stored: any = await getBooking(staffApi, booking_id!);
+            expect(
+                stored.all_day,
+                'the backend must record the room booking as all-day',
+            ).toBe(true);
             const hours = (stored.booking_end - stored.booking_start) / HOUR;
             expect(
                 hours,

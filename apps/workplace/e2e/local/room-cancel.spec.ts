@@ -14,14 +14,24 @@
  * Both read the backend afterwards. The card leaving the screen proves nothing —
  * the app removes it optimistically either way.
  */
-import { test, expect } from '../../../../e2e/support/fixtures';
-import { deleteBooking, listBookings, uniqueTitle } from '../../../../e2e/support/api';
+import type { APIRequestContext } from '@playwright/test';
+import {
+    deleteBooking,
+    listBookings,
+    uniqueTitle,
+} from '../../../../e2e/support/api';
+import { expect, test } from '../../../../e2e/support/fixtures';
+import {
+    createRoomBookingViaApi,
+    releaseRoom,
+} from '../../../../e2e/support/room/room.api';
 import { ROOM_SLOTS, slotFor } from '../../../../e2e/support/room/room.env';
 import { roomForWorker } from '../../../../e2e/support/room/room.seed';
-import { createRoomBookingViaApi, releaseRoom } from '../../../../e2e/support/room/room.api';
-import { ROOM_BASE_SETTINGS, useSettings } from '../../../../e2e/support/room/room.settings';
+import {
+    ROOM_BASE_SETTINGS,
+    useSettings,
+} from '../../../../e2e/support/room/room.settings';
 import { RoomSchedulePage } from '../../../../e2e/support/room/schedule.page';
-import type { APIRequestContext } from '@playwright/test';
 
 const DAY = 86_400;
 const window_from = () => Math.floor(Date.now() / 1000) - 2 * DAY;
@@ -34,38 +44,25 @@ async function isLive(api: APIRequestContext, id: number): Promise<boolean> {
 }
 
 test.describe('cancelling a room booking from the app', () => {
-    /**
-     * ROOM-11, blocked by ROOM-B4 — cancelling a room booking from the schedule
-     * does not work.
-     *
-     * `fixme`, because the app is broken here and the test is right. Measured:
-     * pressing Cancel and confirming fires
-     *
-     *   DELETE /api/staff/v1/events/1087  ->  500
-     *
-     * and the booking is still live afterwards. In `use_bookings` mode the room
-     * booking IS a staff-api booking, but the schedule deletes whatever it is
-     * showing as an EVENT (`schedule.component.ts`: `item instanceof CalendarEvent
-     * ? removeEvent : removeBooking`) — and a room booking is rebuilt into a
-     * CalendarEvent for display, so it takes the calendar path and fails.
-     *
-     * Worse than a cosmetic bug: the room stays held by a booking the user
-     * believes they cancelled, so it refuses everyone else while looking free on
-     * their own screen.
-     *
-     * The decline half below passes, so the menu, the dialog and the wiring are
-     * all fine — it is specifically the delete that goes to the wrong place.
-     */
-    test.fixme('cancelling from the booking menu removes it for real', async ({
+    // ROOM-11 / ROOM-B4: native booking cancellation; assert persisted state.
+    // Keep active so a fix can be verified rather than hidden by test.fixme.
+    test('cancelling from the booking menu removes it for real', async ({
         staffPage,
         staffApi,
     }, testInfo) => {
         const room = await roomForWorker(testInfo.parallelIndex);
         const slot = slotFor(ROOM_SLOTS.cancel.fromApp);
         const title = uniqueTitle('E2E Room Cancel');
+        const cancellation_responses: object[] = [];
+        staffPage.on('response', (response) => {
+            if (response.request().method() === 'DELETE')
+                cancellation_responses.push({
+                    path: new URL(response.url()).pathname,
+                    status: response.status(),
+                });
+        });
         let booking_id: number | undefined;
 
-        await releaseRoom(staffApi, room.id, window_from(), window_to());
         await useSettings(staffPage, ROOM_BASE_SETTINGS);
 
         try {
@@ -105,7 +102,22 @@ test.describe('cancelling a room booking from the app', () => {
                 'and its card must leave the schedule',
             ).toBeHidden({ timeout: 30_000 });
         } finally {
-            if (booking_id != null) await deleteBooking(staffApi, booking_id).catch(() => null);
+            await staffPage
+                .screenshot({ path: testInfo.outputPath('room-cancel.png') })
+                .catch(() => null);
+            await testInfo.attach('cancellation-evidence', {
+                body: JSON.stringify({
+                    booking_id,
+                    cancellation_responses,
+                    live_before_cleanup:
+                        booking_id != null
+                            ? await isLive(staffApi, booking_id)
+                            : null,
+                }),
+                contentType: 'application/json',
+            });
+            if (booking_id != null)
+                await deleteBooking(staffApi, booking_id).catch(() => null);
         }
     });
 
@@ -146,7 +158,8 @@ test.describe('cancelling a room booking from the app', () => {
                 'walking away from the confirmation must not cancel anything',
             ).toBe(true);
         } finally {
-            if (booking_id != null) await deleteBooking(staffApi, booking_id).catch(() => null);
+            if (booking_id != null)
+                await deleteBooking(staffApi, booking_id).catch(() => null);
         }
     });
 });

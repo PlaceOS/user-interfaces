@@ -95,8 +95,8 @@ test.describe('room booking approval', () => {
      * `fixme`, so it costs nothing per run. This is also why `NO_APPROVAL` is
      * not in `ROOM_BASE_SETTINGS` — switching it on breaks every room spec.
      */
-    test.fixme('a room booked with approval skipped is stored approved', async ({
-        staffPage,
+test.fixme('a room booked with approval skipped is stored approved', async ({
+                staffPage,
         staffApi,
     }, testInfo) => {
         const room = await roomForWorker(testInfo.parallelIndex);

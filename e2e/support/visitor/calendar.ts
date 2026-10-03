@@ -87,6 +87,63 @@ export async function pickCalendarDay(
             'once its date button has been clicked',
     ).toBeVisible({ timeout: 30_000 });
 
+    // Navigate to the target month before resolving the day cell.
+    // Note: the app's month button names are reversed:
+    // schedule-next-month goes backwards and schedule-previous-month goes forwards.
+    const target = new Date(timestamp_ms);
+    target.setHours(0, 0, 0, 0);
+
+    for (let attempts = 0; attempts < 24; attempts++) {
+        const month_label = (
+            (await calendar.locator('button').first().textContent()) ?? ''
+        ).trim();
+
+        const displayed = new Date(Date.parse(`1 ${month_label}`));
+
+        if (Number.isNaN(displayed.valueOf())) {
+            throw new Error(
+                `the calendar month header is not a parseable month: "${month_label}"`,
+            );
+        }
+
+        if (
+            displayed.getFullYear() === target.getFullYear() &&
+            displayed.getMonth() === target.getMonth()
+        ) {
+            break;
+        }
+
+        const button =
+            displayed < target
+                ? calendar.locator(
+                      'button[name="schedule-previous-month"]',
+                  )
+                : calendar.locator(
+                      'button[name="schedule-next-month"]',
+                  );
+
+        await expect(
+            button,
+            'the required month navigation is disabled',
+        ).toBeEnabled();
+
+        await button.click();
+
+        await expect(async () => {
+            const next_label = (
+                (await calendar.locator('button').first().textContent()) ?? ''
+            ).trim();
+
+            expect(next_label).not.toBe(month_label);
+        }).toPass({ timeout: 5_000 });
+
+        if (attempts === 23) {
+            throw new Error(
+                `could not navigate the calendar to ${target.toDateString()}`,
+            );
+        }
+    }
+
     const cells = calendar.locator('button[name="schedule-set-date"]');
     const count = await cells.count();
     const index = await calendarIndexForDate(calendar, timestamp_ms);

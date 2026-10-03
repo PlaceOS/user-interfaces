@@ -19,11 +19,13 @@
  * the exception escaping, which would happen on a misconfigured tenant in
  * production exactly as it does here.
  */
-import { test, expect } from '../../../../e2e/support/fixtures';
+import { expect, test } from '../../../../e2e/support/fixtures';
 import { LandingPage } from '../../../../e2e/support/home/landing.page';
 
 test.describe('home page — loading cleanly', () => {
-    test.fixme('the home page loads with no uncaught exception', async ({ staffPage }) => {
+    test('the home page loads with no uncaught exception', async ({
+        staffPage,
+    }) => {
         const thrown: string[] = [];
         const server_errors: string[] = [];
         staffPage.on('pageerror', (error) => thrown.push(error.message));

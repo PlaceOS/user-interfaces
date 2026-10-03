@@ -42,6 +42,13 @@ async function listSystems(api: APIRequestContext): Promise<any[]> {
     return Array.isArray(body) ? body : (body?.results ?? []);
 }
 
+/** Does this error body mean another worker already created the row? */
+function alreadyExists(body: string): boolean {
+    return /already (exists|taken)|has already been taken|must be unique|should be unique|duplicate/i.test(
+        body,
+    );
+}
+
 /** Every room this suite owns, keyed by variant then worker index. */
 export type RoomSet = Record<RoomVariant, RoomIdentity[]>;
 
@@ -131,9 +138,26 @@ export async function ensureRooms(): Promise<RoomSet> {
                     },
                 });
                 if (!res.ok()) {
-                    throw new Error(
-                        `create room ${want.name} failed: HTTP ${res.status()} ${await res.text()}`,
+                    const body = await res.text();
+                    if (!alreadyExists(body)) {
+                        throw new Error(
+                            `create room ${want.name} failed: HTTP ${res.status()} ${body}`,
+                        );
+                    }
+
+                    // Another worker created it after our initial list. Re-read it.
+                    const refreshed = await listSystems(admin);
+                    const raced = refreshed.find(
+                        (s) => `${s.email}`.toLowerCase() === want.email.toLowerCase(),
                     );
+                    if (!raced) {
+                        throw new Error(
+                            `room ${want.name} already exists but could not be re-read`,
+                        );
+                    }
+
+                    rooms[variant].push({ ...want, id: raced.id });
+                    continue;
                 }
                 rooms[variant].push({ ...want, id: (await res.json()).id });
             }
@@ -233,7 +257,7 @@ export async function setRoomBookingRules(
         for (const zone of [building, ...targets]) {
             const res = await admin.put(`${ENGINE_API}/metadata/${zone.id}`, {
                 data: {
-                    name: 'booking_rules',
+                    name: 'room_booking_rules',
                     description: 'Booking rules owned by the e2e suite',
                     details,
                 },

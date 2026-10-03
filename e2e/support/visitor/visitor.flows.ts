@@ -326,6 +326,10 @@ export async function inviteVisitorsViaUI(
         host?: { email: string; name: string };
         /** Put the visit on another day. Defaults to whatever the form offers. */
         date?: number;
+        /** Start the visit at "HH:mm". Must be an option the form lists. */
+        startTime?: string;
+        /** How long the visit runs, in minutes. Must be an option the form lists. */
+        duration?: number;
         /**
          * Add these, then take them off again before sending. Modelling the
          * everyday "wrong person from the lookup" correction — and it has to
@@ -358,6 +362,8 @@ export async function inviteVisitorsViaUI(
         }
         for (const visitor of removing) await form.removeVisitorChip(visitor.email);
         if (options.date !== undefined) await form.setDate(options.date);
+        if (options.startTime) await form.setStartTime(options.startTime);
+        if (options.duration !== undefined) await form.setDuration(options.duration);
         await form.reason.fill(reason);
         expect(await form.chips.count()).toBe(expected.length);
         expect(await form.reason.inputValue()).toBe(reason);

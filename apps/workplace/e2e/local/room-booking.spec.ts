@@ -26,21 +26,24 @@
  *    until the second. A spec that clicks Confirm once and looks for a booking
  *    will find none and blame the backend.
  */
-import { test, expect } from '../../../../e2e/support/fixtures';
 import {
     deleteBooking,
     getBooking,
     listBookings,
     uniqueTitle,
 } from '../../../../e2e/support/api';
+import { expect, test } from '../../../../e2e/support/fixtures';
+import {
+    releaseRoom,
+    type RoomBooking,
+} from '../../../../e2e/support/room/room.api';
 import { ROOM_SLOTS, slotFor } from '../../../../e2e/support/room/room.env';
+import { bookRoomViaUI } from '../../../../e2e/support/room/room.flows';
 import { roomForWorker } from '../../../../e2e/support/room/room.seed';
-import { releaseRoom, type RoomBooking } from '../../../../e2e/support/room/room.api';
 import {
     ROOM_BASE_SETTINGS,
     useSettings,
 } from '../../../../e2e/support/room/room.settings';
-import { bookRoomViaUI } from '../../../../e2e/support/room/room.flows';
 
 const DAY = 86_400;
 const window_from = () => Math.floor(Date.now() / 1000) - 2 * DAY;
@@ -59,23 +62,42 @@ test.describe('room booking', () => {
         // Sweep first, not just after. A run that died between booking and
         // cleanup leaves the room held, and every later run then fails with
         // "no room called ... in the picker" — which looks nothing like the cause.
-        const swept = await releaseRoom(staffApi, room.id, window_from(), window_to());
-        if (swept) console.log(`  swept ${swept} stale booking(s) off ${room.name}`);
+        const swept = await releaseRoom(
+            staffApi,
+            room.id,
+            window_from(),
+            window_to(),
+        );
+        if (swept)
+            console.log(`  swept ${swept} stale booking(s) off ${room.name}`);
         await useSettings(staffPage, ROOM_BASE_SETTINGS);
 
         try {
-            const created = await bookRoomViaUI(staffPage, staffApi, room, title, {
-                date: slot.date_ms,
-                duration: 60,
-            });
+            const created = await bookRoomViaUI(
+                staffPage,
+                staffApi,
+                room,
+                title,
+                {
+                    date: slot.date_ms,
+                    duration: 60,
+                },
+            );
             booking_id = created.id;
 
             expect(created.id, 'the API returned a booking id').toBeTruthy();
 
             // Read it back rather than trusting the response we just parsed.
-            const stored = (await getBooking(staffApi, booking_id)) as RoomBooking;
-            expect(stored.booking_type, 'stored as a room booking').toBe('room');
-            expect(stored.asset_id, 'against the room this worker owns').toBe(room.id);
+            const stored = (await getBooking(
+                staffApi,
+                booking_id,
+            )) as RoomBooking;
+            expect(stored.booking_type, 'stored as a room booking').toBe(
+                'room',
+            );
+            expect(stored.asset_id, 'against the room this worker owns').toBe(
+                room.id,
+            );
 
             // The meeting name lives in `extension_data`, NOT in the booking's own
             // `title`. `newBookingFromCalendarEvent` spreads the whole event into
@@ -101,7 +123,12 @@ test.describe('room booking', () => {
 
             // ...and is discoverable through the listing the app itself uses,
             // not only by direct id lookup.
-            const listed = await listBookings(staffApi, 'room', window_from(), window_to());
+            const listed = await listBookings(
+                staffApi,
+                'room',
+                window_from(),
+                window_to(),
+            );
             expect(
                 listed.map((b) => b.id),
                 'the new booking appears in the room listing',
@@ -127,14 +154,18 @@ test.describe('room booking', () => {
             duration: 60,
         });
         expect(
-            (await listBookings(staffApi, 'room', window_from(), window_to())).map((b) => b.id),
+            (
+                await listBookings(staffApi, 'room', window_from(), window_to())
+            ).map((b) => b.id),
             'precondition: the booking is in the listing before we delete it',
         ).toContain(created.id);
 
         await deleteBooking(staffApi, created.id);
 
         expect(
-            (await listBookings(staffApi, 'room', window_from(), window_to())).map((b) => b.id),
+            (
+                await listBookings(staffApi, 'room', window_from(), window_to())
+            ).map((b) => b.id),
             'a deleted booking must not come back in the listing — otherwise every ' +
                 'spec teardown silently leaks state into the next run, and a room is ' +
                 'exclusive, so a leak holds it for everyone',
@@ -158,7 +189,7 @@ test.describe('room booking', () => {
      * A third test in a two-test file, on purpose, and `fixme` so it costs
      * nothing per run. Fold it into the first test once the app populates zones.
      */
-    test.fixme('a room booking carries its zone hierarchy', async ({
+    test('a room booking carries its zone hierarchy', async ({
         staffPage,
         staffApi,
     }, testInfo) => {
@@ -171,10 +202,16 @@ test.describe('room booking', () => {
         await useSettings(staffPage, ROOM_BASE_SETTINGS);
 
         try {
-            const created = await bookRoomViaUI(staffPage, staffApi, room, title, {
-                date: slot.date_ms,
-                duration: 60,
-            });
+            const created = await bookRoomViaUI(
+                staffPage,
+                staffApi,
+                room,
+                title,
+                {
+                    date: slot.date_ms,
+                    duration: 60,
+                },
+            );
             booking_id = created.id;
             const stored = await getBooking(staffApi, booking_id);
             expect(

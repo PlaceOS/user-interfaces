@@ -22,12 +22,16 @@
  *  - it inherits everything the schedule's query does — including
  *    `include_deleted: true`. See HOME-B1 on the third test.
  */
-import { test, expect } from '../../../../e2e/support/fixtures';
-import { deleteBooking, releaseAsset, uniqueTitle } from '../../../../e2e/support/api';
+import {
+    deleteBooking,
+    releaseAsset,
+    uniqueTitle,
+} from '../../../../e2e/support/api';
+import { SchedulePage } from '../../../../e2e/support/bookings/schedule.page';
 import { WORKERS, deskFor } from '../../../../e2e/support/env';
+import { expect, test } from '../../../../e2e/support/fixtures';
 import { createBookingViaApi } from '../../../../e2e/support/home/home.api';
 import { LandingPage } from '../../../../e2e/support/home/landing.page';
-import { SchedulePage } from '../../../../e2e/support/bookings/schedule.page';
 
 const MINUTE = 60;
 
@@ -41,13 +45,17 @@ const MINUTE = 60;
  * worker.
  */
 function laterToday(workerIndex: number) {
-    const start = Math.floor(Date.now() / 1000) + (90 + 20 * workerIndex) * MINUTE;
+    const start =
+        Math.floor(Date.now() / 1000) + (90 + 20 * workerIndex) * MINUTE;
     return { start, end: start + 15 * MINUTE };
 }
 
 /** Is that window still today, locally? Late-evening runs cannot use it. */
 function stillToday(unix_seconds: number): boolean {
-    return new Date(unix_seconds * 1000).toDateString() === new Date().toDateString();
+    return (
+        new Date(unix_seconds * 1000).toDateString() ===
+        new Date().toDateString()
+    );
 }
 
 test.describe('home page — the Upcoming panel', () => {
@@ -65,7 +73,7 @@ test.describe('home page — the Upcoming panel', () => {
      * and their presence can hide a real booking. Neither needs changing when
      * the panel starts excluding deleted bookings — they will simply go green.
      */
-    test.fixme('a booking later today is listed on the panel', async ({
+    test('a booking later today is listed on the panel', async ({
         staffPage,
         staffApi,
     }, testInfo) => {
@@ -79,7 +87,13 @@ test.describe('home page — the Upcoming panel', () => {
 
         // Only this worker's own window: the spare desk is shared, so a wider
         // sweep would delete another worker's booking mid-test.
-        await releaseAsset(staffApi, 'desk', desk.id, slot.start - 60, slot.end + 60);
+        await releaseAsset(
+            staffApi,
+            'desk',
+            desk.id,
+            slot.start - 60,
+            slot.end + 60,
+        );
 
         try {
             const booking = await createBookingViaApi(staffApi, {
@@ -114,7 +128,13 @@ test.describe('home page — the Upcoming panel', () => {
             }
         } finally {
             if (booking_id != null) await deleteBooking(staffApi, booking_id);
-            await releaseAsset(staffApi, 'desk', desk.id, slot.start - 60, slot.end + 60);
+            await releaseAsset(
+                staffApi,
+                'desk',
+                desk.id,
+                slot.start - 60,
+                slot.end + 60,
+            );
         }
     });
 
@@ -124,7 +144,9 @@ test.describe('home page — the Upcoming panel', () => {
     }, testInfo) => {
         const desk = deskFor(WORKERS);
         // Well clear of the first test's window, still today.
-        const start = Math.floor(Date.now() / 1000) + (200 + 20 * testInfo.parallelIndex) * MINUTE;
+        const start =
+            Math.floor(Date.now() / 1000) +
+            (200 + 20 * testInfo.parallelIndex) * MINUTE;
         const slot = { start, end: start + 15 * MINUTE };
         test.skip(
             !stillToday(slot.start),
@@ -132,7 +154,13 @@ test.describe('home page — the Upcoming panel', () => {
         );
         let booking_id: number | undefined;
 
-        await releaseAsset(staffApi, 'desk', desk.id, slot.start - 60, slot.end + 60);
+        await releaseAsset(
+            staffApi,
+            'desk',
+            desk.id,
+            slot.start - 60,
+            slot.end + 60,
+        );
 
         try {
             const booking = await createBookingViaApi(staffApi, {
@@ -167,7 +195,13 @@ test.describe('home page — the Upcoming panel', () => {
             ).toBeVisible({ timeout: 30_000 });
         } finally {
             if (booking_id != null) await deleteBooking(staffApi, booking_id);
-            await releaseAsset(staffApi, 'desk', desk.id, slot.start - 60, slot.end + 60);
+            await releaseAsset(
+                staffApi,
+                'desk',
+                desk.id,
+                slot.start - 60,
+                slot.end + 60,
+            );
         }
     });
 
@@ -193,17 +227,25 @@ test.describe('home page — the Upcoming panel', () => {
      * notes, surfacing on the first screen users see. `fixme` until the panel
      * either excludes deleted bookings or the schedule stops asking for them.
      */
-    test.fixme('a cancelled booking leaves the panel', async ({
+    test('a cancelled booking leaves the panel', async ({
         staffPage,
         staffApi,
     }, testInfo) => {
         const desk = deskFor(WORKERS);
-        const start = Math.floor(Date.now() / 1000) + (300 + 20 * testInfo.parallelIndex) * MINUTE;
+        const start =
+            Math.floor(Date.now() / 1000) +
+            (300 + 20 * testInfo.parallelIndex) * MINUTE;
         const slot = { start, end: start + 15 * MINUTE };
         test.skip(!stillToday(slot.start), 'this window has crossed midnight');
         let booking_id: number | undefined;
 
-        await releaseAsset(staffApi, 'desk', desk.id, slot.start - 60, slot.end + 60);
+        await releaseAsset(
+            staffApi,
+            'desk',
+            desk.id,
+            slot.start - 60,
+            slot.end + 60,
+        );
 
         try {
             const booking = await createBookingViaApi(staffApi, {
@@ -235,7 +277,13 @@ test.describe('home page — the Upcoming panel', () => {
             ).toBeHidden({ timeout: 30_000 });
         } finally {
             if (booking_id != null) await deleteBooking(staffApi, booking_id);
-            await releaseAsset(staffApi, 'desk', desk.id, slot.start - 60, slot.end + 60);
+            await releaseAsset(
+                staffApi,
+                'desk',
+                desk.id,
+                slot.start - 60,
+                slot.end + 60,
+            );
         }
     });
 });

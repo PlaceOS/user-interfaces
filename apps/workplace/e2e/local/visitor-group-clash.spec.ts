@@ -1,39 +1,30 @@
 /**
- * VIS-25 — a host makes two group invites on the same day.
+ * VIS-25 — a host makes two group invites for the same time through the UI.
  *
- * ## `fixme` — VIS-B9, and this test is the guard for the fix
- *
- * A host cannot make two group invites that overlap, whoever the visitors are.
- * The app names a group container `${host_email}[${date the invite was
- * CREATED}]`, so every group invite that host makes on a given day shares ONE
- * asset id — and the backend rightly refuses overlapping bookings on one asset.
- * The second invite fails with `409 Conflicting booking` pointing at a `group`
- * row.
- *
- * What shows it is accidental rather than intended: the same two visits booked
- * at different TIMES, or on different days, are accepted — measured while
- * writing this file, which is why the test overlaps them deliberately. A
- * receptionist booking two nine-o'clock groups for two different teams is an
- * ordinary thing to do, and today the second is refused with a message about a
- * conflicting booking that names nothing the user recognises.
- *
- * The finding has lived in a reproducer since the visitor work
- * (`e2e/support/repro/vis-b9-group-clash.ts`). This is the guard: two
- * non-overlapping group invites on one day, which should both be accepted.
- *
- * API-only: the subject is the container's naming and the backend's rule, and
- * driving the invite form twice would add unrelated ways to fail.
+ * Each invite must get its own application-generated `grp-` container ID so
+ * different visitor groups can overlap without an accidental container clash.
  */
-import { test, expect } from '../../../../e2e/support/fixtures';
 import {
-    STAFF_API,
     currentUser,
     deleteBooking,
+    getBooking,
+    listBookings,
     uniqueTitle,
-    zonesWithTag,
 } from '../../../../e2e/support/api';
-import { VISITOR_SLOTS, visitorFor } from '../../../../e2e/support/visitor/visitor.env';
-import { deleteGuest, releaseVisitor } from '../../../../e2e/support/visitor/visitor.api';
+import { expect, test } from '../../../../e2e/support/fixtures';
+import {
+    deleteGuest,
+    releaseVisitor,
+} from '../../../../e2e/support/visitor/visitor.api';
+import {
+    VISITOR_SLOTS,
+    visitorFor,
+} from '../../../../e2e/support/visitor/visitor.env';
+import { inviteVisitorsViaUI } from '../../../../e2e/support/visitor/visitor.flows';
+import {
+    GROUP_VISITOR_MODE,
+    useSettings,
+} from '../../../../e2e/support/visitor/visitor.settings';
 
 const DAY = 86_400;
 const window_from = () => Math.floor(Date.now() / 1000) - 2 * DAY;
@@ -47,7 +38,8 @@ function tomorrowAt(hour: number): number {
 }
 
 test.describe('two group invites on one day', () => {
-    test.fixme('a host can make two group invites for the SAME time', async ({
+    test('a host can make two group invites for the SAME time', async ({
+        staffPage,
         staffApi,
     }, testInfo) => {
         const worker = testInfo.parallelIndex;
@@ -60,85 +52,98 @@ test.describe('two group invites on one day', () => {
             visitorFor(worker, VISITOR_SLOTS.group_clash.afternoon_b),
         ];
         const me = await currentUser(staffApi);
-        const zones = (
-            await Promise.all(
-                ['org', 'building', 'level'].map((t) => zonesWithTag(staffApi, t)),
-            )
-        )
-            .flat()
-            .map((z) => z.id);
+        const start = tomorrowAt(9);
+        const reasons = [
+            uniqueTitle('E2E Group AM'),
+            uniqueTitle('E2E Group AM-2'),
+        ];
         const ids: number[] = [];
+        const containers: string[] = [];
 
         for (const visitor of [...morning, ...afternoon]) {
-            await releaseVisitor(staffApi, visitor.email, window_from(), window_to());
+            await releaseVisitor(
+                staffApi,
+                visitor.email,
+                window_from(),
+                window_to(),
+            );
         }
-
-        /**
-         * A group invite, shaped the way the app builds one: a `group` container
-         * named after the host and the day it was created, plus one `visitor`
-         * booking per person linked by `parent_id`.
-         */
-        const groupInvite = async (
-            people: { email: string; name: string }[],
-            start: number,
-            label: string,
-        ) => {
-            // The app's own format, measured from a real group invite:
-            // `${host}[${YYYY-MM-DD}]`. An earlier draft used
-            // `Date.toDateString()` ("Wed Sep 16 2026"), which demonstrated the
-            // same clash but did not mirror what the app writes.
-            const today = new Date();
-            const iso =
-                `${today.getFullYear()}-` +
-                `${`${today.getMonth() + 1}`.padStart(2, '0')}-` +
-                `${`${today.getDate()}`.padStart(2, '0')}`;
-            const container_asset = `${me.email}[${iso}]`;
-            const container = await staffApi.post(`${STAFF_API}/bookings`, {
-                data: {
-                    booking_type: 'group',
-                    asset_id: container_asset,
-                    asset_name: container_asset,
-                    booking_start: start,
-                    booking_end: start + 3600,
-                    timezone: 'Etc/UTC',
-                    user_email: me.email,
-                    user_id: me.id,
-                    user_name: me.name,
-                    title: uniqueTitle(`E2E Group ${label}`),
-                    zones,
-                },
-            });
-            const body = await container.text();
-            if (container.ok()) ids.push(JSON.parse(body).id);
-            return { status: container.status(), body };
-        };
+        await useSettings(staffPage, GROUP_VISITOR_MODE);
 
         try {
-            const first = await groupInvite(morning, tomorrowAt(9), 'AM');
-            expect(
-                first.status,
-                `precondition: the first group invite of the day is accepted. Got ` +
-                    `${first.status}: ${first.body.slice(0, 200)}`,
-            ).toBe(201);
+            for (const [index, visitors] of [morning, afternoon].entries()) {
+                const bookings = await inviteVisitorsViaUI(
+                    staffPage,
+                    staffApi,
+                    visitors,
+                    reasons[index],
+                    { date: start * 1000, startTime: '09:00', duration: 60 },
+                );
+                ids.push(...bookings.map((booking) => booking.id));
 
-            // A different set of visitors, the SAME hour, the same host. Two
-            // teams arriving at nine is an ordinary thing for a receptionist to
-            // book, and this is the case VIS-B9 refuses.
-            const second = await groupInvite(afternoon, tomorrowAt(9), 'AM-2');
+                // Read both invites back: reaching the success screen alone
+                // does not prove every container and member was persisted.
+                const stored = await Promise.all(
+                    bookings.map((booking) => getBooking(staffApi, booking.id)),
+                );
+                const groups = stored.filter(
+                    (booking) => booking.booking_type === 'group',
+                );
+                const members = stored.filter(
+                    (booking) => booking.booking_type === 'visitor',
+                );
+                expect(
+                    groups,
+                    'each invite creates one group container',
+                ).toHaveLength(1);
+                expect(
+                    members,
+                    'each visitor has a persisted booking',
+                ).toHaveLength(visitors.length);
+                expect(
+                    members.map((booking) => booking.asset_id).sort(),
+                ).toEqual(visitors.map((visitor) => visitor.email).sort());
+                expect(groups[0].asset_id).toMatch(/^grp-/);
+                containers.push(groups[0].asset_id);
+                for (const booking of stored) {
+                    expect(booking.user_email).toBe(me.email);
+                    expect(booking.booking_start).toBe(start);
+                    expect(booking.booking_end).toBe(start + 3600);
+                    expect(booking.deleted).toBeFalsy();
+                    expect(booking.rejected).toBeFalsy();
+                }
+                for (const member of members)
+                    expect(member.parent_id).toBe(groups[0].id);
+            }
             expect(
-                second.status,
-                `a second group invite for the same hour, with DIFFERENT visitors, ` +
-                    `must be accepted. Got ${second.status}: ${second.body.slice(0, 200)}. ` +
-                    `A 409 here is VIS-B9: the container is named ` +
-                    `\`\${host}[\${creation date}]\`, so both invites share one asset id ` +
-                    `and the backend refuses the overlap — nothing about the VISITORS ` +
-                    `conflicts at all`,
-            ).toBe(201);
+                containers,
+                'overlapping groups have different container assets',
+            ).toHaveLength(2);
+            expect(new Set(containers).size).toBe(2);
         } finally {
-            for (const id of ids) await deleteBooking(staffApi, id);
+            // Include partial results if the UI helper failed before returning.
+            for (const type of ['visitor', 'group']) {
+                const bookings = await listBookings(
+                    staffApi,
+                    type,
+                    window_from(),
+                    window_to(),
+                );
+                ids.push(
+                    ...bookings
+                        .filter((booking) => reasons.includes(booking.title))
+                        .map((booking) => booking.id),
+                );
+            }
+            for (const id of new Set(ids)) await deleteBooking(staffApi, id);
             for (const visitor of [...morning, ...afternoon]) {
+                await releaseVisitor(
+                    staffApi,
+                    visitor.email,
+                    window_from(),
+                    window_to(),
+                );
                 await deleteGuest(staffApi, visitor.email);
-                await releaseVisitor(staffApi, visitor.email, window_from(), window_to());
             }
         }
     });

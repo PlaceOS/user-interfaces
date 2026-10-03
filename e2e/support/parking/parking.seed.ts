@@ -68,6 +68,13 @@ async function listAll(
     return (Array.isArray(body) ? body : (body?.data ?? body?.results ?? [])) as any[];
 }
 
+/** Does this error body mean another worker already created the row? */
+function alreadyExists(body: string): boolean {
+    return /already (exists|taken)|has already been taken|must be unique|should be unique|duplicate/i.test(
+        body,
+    );
+}
+
 async function create(
     api: APIRequestContext,
     path: string,
@@ -147,13 +154,43 @@ export async function ensureParking(): Promise<ParkingSeed> {
                 spaces.push({ id: found.id, name: want.name });
                 continue;
             }
-            const asset = await create(admin, 'assets', {
-                name: want.name,
-                identifier: want.name,
-                zone_id,
-                asset_type_id: type_id,
-                description: `${PARKING_PREFIX}${i}`,
+            const res = await admin.post(`${ENGINE_API}/assets`, {
+                data: {
+                    name: want.name,
+                    identifier: want.name,
+                    zone_id,
+                    asset_type_id: type_id,
+                    description: `${PARKING_PREFIX}${i}`,
+                },
             });
+
+            if (!res.ok()) {
+                const body = await res.text();
+
+                if (!alreadyExists(body)) {
+                    throw new Error(
+                        `create parking space ${want.name} failed: HTTP ${res.status()} ${body}`,
+                    );
+                }
+
+                // Another worker created it after our initial list. Re-read it.
+                const refreshed = await listAll(admin, 'assets', {
+                    zone_id,
+                    type_id,
+                });
+                const raced = refreshed.find((a) => a.name === want.name);
+
+                if (!raced) {
+                    throw new Error(
+                        `parking space ${want.name} already exists but could not be re-read`,
+                    );
+                }
+
+                spaces.push({ id: raced.id, name: want.name });
+                continue;
+            }
+
+            const asset = await res.json();
             spaces.push({ id: asset.id, name: want.name });
         }
         return { zone_id, type_id, spaces };

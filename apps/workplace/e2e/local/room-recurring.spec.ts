@@ -71,6 +71,7 @@ import {
 } from '../../../../e2e/support/room/room.settings';
 import { MeetingForm } from '../../../../e2e/support/room/meeting-form.page';
 import { setDate } from '../../../../e2e/support/room/room.flows';
+import { fromZonedTime } from 'date-fns-tz';
 
 const DAY = 86_400;
 
@@ -109,7 +110,7 @@ test.describe('recurring room bookings', () => {
      * `fixme` on ROOM-B10. The assertions are what SHOULD happen; drop the
      * `fixme` once the form puts the chosen weekday into the model.
      */
-    test.fixme('ROOM-25: a recurring meeting stores its pattern and its instances appear', async ({
+    test('ROOM-25: a recurring meeting stores its pattern and its instances appear', async ({
         staffPage,
         staffApi,
     }) => {
@@ -144,7 +145,9 @@ test.describe('recurring room bookings', () => {
                 'set? See ROOM_RECURRENCE_MODE',
         ).toBeVisible({ timeout: 20_000 });
         await recurrence.click();
-        const weekly = staffPage.locator('mat-option').filter({ hasText: /^Weekly on/ });
+        // Match the accessible name: the option's raw text starts with template
+        // whitespace, so a `^` anchor on `hasText` never matches it.
+        const weekly = staffPage.getByRole('option', { name: /^Weekly on/ });
         await expect(
             weekly.first(),
             'the recurrence menu offered no "Weekly on <day>" option',
@@ -256,11 +259,17 @@ test.describe('recurring room bookings', () => {
         // Two days clear of the fixme test's slot, so the two cannot contend for
         // the same room.
         const days_ahead = THIRD_DAY + 1;
-        const start = new Date();
-        start.setDate(start.getDate() + days_ahead);
-        start.setHours(14, 0, 0, 0);
-        const booking_start = Math.floor(start.valueOf() / 1000);
-        const weekday_bit = 1 << start.getDay();
+const sydney_now = new Date(
+    new Date().toLocaleString('en-US', {
+        timeZone: 'Australia/Sydney',
+    }),
+);
+sydney_now.setDate(sydney_now.getDate() + days_ahead);
+sydney_now.setHours(14, 0, 0, 0);
+
+const start = fromZonedTime(sydney_now, 'Australia/Sydney');
+const booking_start = Math.floor(start.valueOf() / 1000);
+const weekday_bit = 1 << sydney_now.getDay();
         const title = uniqueTitle('E2E Recurring API');
 
         await releaseRoom(

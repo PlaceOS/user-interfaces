@@ -267,7 +267,12 @@ export class InviteVisitorForm {
 
     /** Open the form and wait for it to render. */
     async open(): Promise<void> {
-        await this.page.goto('/#/book/visitor/form');
+        // A goto to the route the page is already on only touches the hash, so
+        // Angular keeps the component — still on its sent screen after an
+        // earlier invite. Reload instead so it starts from a fresh form.
+        const route = new URL(this.page.url()).hash.split('?')[0];
+        if (route === '#/book/visitor/form') await this.page.reload();
+        else await this.page.goto('/#/book/visitor/form');
         await expect(
             this.root,
             'the visitor invite form never rendered — is the `visitor-invite` feature enabled?',

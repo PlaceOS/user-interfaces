@@ -104,7 +104,7 @@ test.describe('group desk bookings', () => {
             );
             await group.ui.submit();
             await expect(
-                group.ui.page.locator('mat-snack-bar-container'),
+                group.ui.page.locator('mat-snack-bar-container:not([mat-exit])'),
             ).toBeVisible();
             await expect(group.ui.form.confirmButton).toBeVisible();
             expect(
@@ -121,7 +121,7 @@ test.describe('group desk bookings', () => {
 
     // Known product defect: the UI reports the read-only Response.status error
     // instead of displaying the member refusal reason.
-    test.fixme('DESK-GROUP-04: reports partial success when a member write is refused', async ({
+    test('DESK-GROUP-04: reports partial success when a member write is refused', async ({
         groupScenario: group,
         staffApi,
     }) => {

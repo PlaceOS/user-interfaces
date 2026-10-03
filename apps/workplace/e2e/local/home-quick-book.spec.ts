@@ -1,14 +1,11 @@
 /**
- * HOME-09 — the one-click quick-book tile.
+ * HOME-09 — the quick-book tile with confirmation.
  *
  * ## It does not open the form
  *
- * The name suggests a shortcut INTO the booking flow. It is not:
  * `landing-quick-book.component.ts::book()` picks the first available resource,
- * calls `confirmPost()` and navigates to `/book/<type>/success`. One click, one
- * booking, no confirmation step. That makes it the most dangerous control on the
- * page and the only one with no coverage — a user cannot preview what they are
- * about to book, so if it books the wrong thing there is nothing to catch it.
+ * then `confirmPost()` opens the shared confirmation modal. Accepting creates
+ * the booking and navigates to `/book/<type>/success`.
  *
  * So this asserts on what reached the BACKEND, not on the success screen.
  *
@@ -20,29 +17,6 @@
  * Worth knowing if this ever flakes next to another desk spec: a brief 409 in a
  * neighbouring test is this test holding a desk for a second or two.
  *
- * ## `fixme` — HOME-B2: the tile spins for ever and books nothing
- *
- * Measured on this stack, with `app.show_quick_book` on so the tiles render:
- * clicking the desk tile puts the tile into its loading state and it NEVER
- * leaves it. No booking is sent, no message is shown, and the page raises an
- * unhandled rejection whose value is a `Response`.
- *
- * The failing request is **`GET /api/staff/v1/calendars` → 500**, twice. That is
- * the calendar-backed surface this suite deliberately does not cover: it needs
- * real Microsoft/Google credentials and 500s here, exactly like `/events`. So
- * the trigger is our placeholder tenant rather than a defect.
- *
- * What IS a defect is the handling. `landing-quick-book.component.ts::book()`
- * awaits `listAvailableResources()` outside any try/catch, so a rejection there
- * kills the handler after `loading` has been set — leaving a permanent spinner
- * and no way for the user to know anything went wrong. A misconfigured tenant
- * would look like this in production.
- *
- * (Also seen on that page load, and worth a look on its own: a non-admin's
- * browser issues `POST /api/engine/v2/asset_types` and gets a 403.)
- *
- * The assertions below are what should happen. They need either real tenant
- * credentials or the tile not to depend on `/calendars`.
  */
 import { test, expect } from '../../../../e2e/support/fixtures';
 import { STAFF_API, deleteBooking } from '../../../../e2e/support/api';
@@ -55,7 +29,7 @@ import {
 const DAY = 86_400;
 
 test.describe('home page — quick book', () => {
-    test.fixme('the desk tile books a desk in one click, and the backend stores it', async ({
+    test.fixme('the desk tile books a desk after confirmation, and the backend stores it', async ({
         staffPage,
         staffApi,
     }) => {
@@ -79,6 +53,12 @@ test.describe('home page — quick book', () => {
 
         let booking_id: number | undefined;
         try {
+            await tile.click();
+            const confirmation = staffPage.locator('confirm-modal');
+            await expect(confirmation).toBeVisible();
+            const accept = confirmation.locator('button[name="accept"]');
+            await expect(accept).toBeVisible();
+
             // The booking POST is the assertion. The success screen only tells
             // us the app thinks it worked.
             const sent = staffPage
@@ -89,7 +69,7 @@ test.describe('home page — quick book', () => {
                     { timeout: 30_000 },
                 )
                 .catch(() => null);
-            await tile.click();
+            await accept.click();
             const response = await sent;
             if (!response) {
                 // The flow refuses locally when it can find no free resource,
@@ -100,7 +80,7 @@ test.describe('home page — quick book', () => {
                     .innerText()
                     .catch(() => '');
                 throw new Error(
-                    `the tile was clicked and no booking was sent. On screen: ` +
+                    `the confirmation was accepted and no booking was sent. On screen: ` +
                         `"${message.replace(/\s+/g, ' ').trim().slice(0, 300)}". The tile ` +
                         `books the first AVAILABLE desk, so every desk being held — by ` +
                         `another spec, or by a leftover all-day booking — leaves it ` +
@@ -110,7 +90,7 @@ test.describe('home page — quick book', () => {
             const body = await response.text();
             expect(
                 response.status(),
-                `one-click booking failed: ${body.slice(0, 300)}`,
+                `quick-book booking failed: ${body.slice(0, 300)}`,
             ).toBeLessThan(300);
 
             const created = JSON.parse(body);

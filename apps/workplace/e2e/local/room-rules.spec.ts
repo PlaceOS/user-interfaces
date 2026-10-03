@@ -53,7 +53,7 @@ import { ROOM_BASE_SETTINGS, useSettings } from '../../../../e2e/support/room/ro
 import { MeetingForm } from '../../../../e2e/support/room/meeting-form.page';
 
 test.describe('zone booking rules', () => {
-    test.fixme('a room hidden by a booking rule is not offered, and the others still are', async ({
+    test('a room hidden by a booking rule is not offered, and the others still are', async ({
         staffPage,
     }, testInfo) => {
         const hidden = await roomForWorker(testInfo.parallelIndex, 'alt');

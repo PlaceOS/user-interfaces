@@ -111,7 +111,7 @@ test.describe('concierge parking', () => {
         expect(
             row[columnIndex(snapshot, 'booked_by_name')],
             'and the concierge who booked it',
-        ).toContain('support@place.tech');
+        ).toContain(roleFor('admin').email);
 
         // The row is proof the screen shows it; this is proof it is the booking
         // we made, and that the listing is not showing a stale copy.

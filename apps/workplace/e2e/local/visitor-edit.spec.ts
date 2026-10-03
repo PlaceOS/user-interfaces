@@ -42,7 +42,6 @@
  * Editing is off by default (`visitors.allow_editing`), which is why the Edit
  * action simply is not in the menu unless a spec turns it on.
  */
-import { test, expect } from '../../../../e2e/support/fixtures';
 import {
     currentUser,
     deleteBooking,
@@ -51,12 +50,21 @@ import {
     uniqueTitle,
 } from '../../../../e2e/support/api';
 import { WORKERS, staffEmail } from '../../../../e2e/support/env';
-import { VISITOR_SLOTS, visitorFor } from '../../../../e2e/support/visitor/visitor.env';
+import { expect, test } from '../../../../e2e/support/fixtures';
+import { InviteVisitorForm } from '../../../../e2e/support/visitor/invite-form.page';
 import {
     deleteGuest,
     releaseGroupContainers,
     releaseVisitor,
 } from '../../../../e2e/support/visitor/visitor.api';
+import {
+    VISITOR_SLOTS,
+    visitorFor,
+} from '../../../../e2e/support/visitor/visitor.env';
+import {
+    inviteVisitorViaUI,
+    inviteVisitorsViaUI,
+} from '../../../../e2e/support/visitor/visitor.flows';
 import {
     ALLOW_EDITING,
     BOOK_FOR_ANYONE,
@@ -64,11 +72,6 @@ import {
     SINGLE_VISITOR_MODE,
     useSettings,
 } from '../../../../e2e/support/visitor/visitor.settings';
-import {
-    inviteVisitorViaUI,
-    inviteVisitorsViaUI,
-} from '../../../../e2e/support/visitor/visitor.flows';
-import { InviteVisitorForm } from '../../../../e2e/support/visitor/invite-form.page';
 import { YourBookingsPage } from '../../../../e2e/support/visitor/your-bookings.page';
 
 const DAY = 86_400;
@@ -93,9 +96,15 @@ test.describe('editing a visitor invite', () => {
     }, testInfo) => {
         const mine = testInfo.parallelIndex;
         const other = (mine + 1) % WORKERS;
-        test.skip(other === mine, 'needs at least two workers for a second identity');
+        test.skip(
+            other === mine,
+            'needs at least two workers for a second identity',
+        );
 
-        const host = { email: staffEmail(other), name: `E2E Staff ${other} (non-admin)` };
+        const host = {
+            email: staffEmail(other),
+            name: `E2E Staff ${other} (non-admin)`,
+        };
         const visitor = visitorFor(mine, VISITOR_SLOTS.edit.details);
         const reason = uniqueTitle('E2E Edit Host');
         const new_reason = uniqueTitle('E2E Edit Host Updated');
@@ -106,7 +115,12 @@ test.describe('editing a visitor invite', () => {
         let booking_id: number | undefined;
         const created_ids: number[] = [];
 
-        await releaseVisitor(staffApi, visitor.email, window_from(), window_to());
+        await releaseVisitor(
+            staffApi,
+            visitor.email,
+            window_from(),
+            window_to(),
+        );
         await releaseGroupContainers(staffApi, window_from(), window_to());
         await useSettings(staffPage, {
             ...GROUP_VISITOR_MODE,
@@ -127,7 +141,10 @@ test.describe('editing a visitor invite', () => {
             );
             created_ids.push(...created.map((b) => b.id));
             const member = created.find((b) => b.booking_type === 'visitor');
-            expect(member, 'the invite created a visitor booking to edit').toBeTruthy();
+            expect(
+                member,
+                'the invite created a visitor booking to edit',
+            ).toBeTruthy();
             booking_id = member!.id;
 
             const stored = await getBooking(staffApi, booking_id);
@@ -157,7 +174,9 @@ test.describe('editing a visitor invite', () => {
 
             await expect(async () => {
                 const updated = await getBooking(staffApi, booking_id!);
-                expect(updated.title, 'the new reason was saved').toBe(new_reason);
+                expect(updated.title, 'the new reason was saved').toBe(
+                    new_reason,
+                );
             }).toPass({ timeout: 30_000 });
 
             const updated = await getBooking(staffApi, booking_id);
@@ -166,15 +185,17 @@ test.describe('editing a visitor invite', () => {
                 'the host must survive the edit — it must NOT become whoever had the ' +
                     'form open, which is the regression this test exists for',
             ).toBe(host.email);
-            expect(updated.user_email, 'and still differ from the editor').not.toBe(
-                me.email,
-            );
+            expect(
+                updated.user_email,
+                'and still differ from the editor',
+            ).not.toBe(me.email);
             expect(
                 new Date(updated.booking_start * 1000).toDateString(),
                 'and the visit must still be on the day it was booked for',
             ).toBe(new Date(visit_day).toDateString());
         } finally {
-            for (const id of created_ids) await deleteBooking(staffApi, id).catch(() => null);
+            for (const id of created_ids)
+                await deleteBooking(staffApi, id).catch(() => null);
             await releaseGroupContainers(staffApi, window_from(), window_to());
             await deleteGuest(staffApi, visitor.email);
         }
@@ -184,8 +205,14 @@ test.describe('editing a visitor invite', () => {
         staffPage,
         staffApi,
     }, testInfo) => {
-        const kept = visitorFor(testInfo.parallelIndex, VISITOR_SLOTS.edit.memberA);
-        const removed = visitorFor(testInfo.parallelIndex, VISITOR_SLOTS.edit.memberB);
+        const kept = visitorFor(
+            testInfo.parallelIndex,
+            VISITOR_SLOTS.edit.memberA,
+        );
+        const removed = visitorFor(
+            testInfo.parallelIndex,
+            VISITOR_SLOTS.edit.memberB,
+        );
         const reason = uniqueTitle('E2E Edit Group');
         const created_ids: number[] = [];
 
@@ -193,7 +220,10 @@ test.describe('editing a visitor invite', () => {
             await releaseVisitor(staffApi, v.email, window_from(), window_to());
         }
         await releaseGroupContainers(staffApi, window_from(), window_to());
-        await useSettings(staffPage, { ...GROUP_VISITOR_MODE, ...ALLOW_EDITING });
+        await useSettings(staffPage, {
+            ...GROUP_VISITOR_MODE,
+            ...ALLOW_EDITING,
+        });
 
         try {
             const bookings = await inviteVisitorsViaUI(
@@ -204,11 +234,21 @@ test.describe('editing a visitor invite', () => {
             );
             created_ids.push(...bookings.map((b) => b.id));
 
-            const members = bookings.filter((b) => b.booking_type === 'visitor');
+            const members = bookings.filter(
+                (b) => b.booking_type === 'visitor',
+            );
             const kept_booking = members.find((b) => b.asset_id === kept.email);
-            const removed_booking = members.find((b) => b.asset_id === removed.email);
-            expect(kept_booking, 'precondition: both visitors were booked').toBeTruthy();
-            expect(removed_booking, 'precondition: both visitors were booked').toBeTruthy();
+            const removed_booking = members.find(
+                (b) => b.asset_id === removed.email,
+            );
+            expect(
+                kept_booking,
+                'precondition: both visitors were booked',
+            ).toBeTruthy();
+            expect(
+                removed_booking,
+                'precondition: both visitors were booked',
+            ).toBeTruthy();
 
             // Edit the group from either member — they share a container.
             const bookings_page = new YourBookingsPage(staffPage);
@@ -226,7 +266,10 @@ test.describe('editing a visitor invite', () => {
             // part before the @, so that matched nothing and read as a broken
             // remove button. `removeVisitorChip` matches what is really shown.
             await form.removeVisitorChip(removed.email);
-            await expect(form.chips, 'one visitor was removed from the list').toHaveCount(1);
+            await expect(
+                form.chips,
+                'one visitor was removed from the list',
+            ).toHaveCount(1);
 
             await form.sendButton.click();
 
@@ -234,7 +277,12 @@ test.describe('editing a visitor invite', () => {
             // rows and the screen shows only what the form thinks it did.
             await expect(async () => {
                 const live = (
-                    await listBookings(staffApi, 'visitor', window_from(), window_to())
+                    await listBookings(
+                        staffApi,
+                        'visitor',
+                        window_from(),
+                        window_to(),
+                    )
                 ).filter((b) => !b.deleted);
                 const addresses = live.map((b) => b.asset_id);
                 expect(
@@ -260,7 +308,8 @@ test.describe('editing a visitor invite', () => {
                 }
             }
             for (const id of created_ids) await deleteBooking(staffApi, id);
-            for (const v of [kept, removed]) await deleteGuest(staffApi, v.email);
+            for (const v of [kept, removed])
+                await deleteGuest(staffApi, v.email);
             await releaseGroupContainers(staffApi, window_from(), window_to());
         }
     });
@@ -275,20 +324,36 @@ test.describe('editing a visitor invite', () => {
      * Evidence it is the mode and not anything else: the first test above does
      * the same thing in multi-visitor mode and is green.
      */
-    test.fixme('an invite made in single-visitor mode can be re-saved', async ({
+    test('an invite made in single-visitor mode can be re-saved', async ({
         staffPage,
         staffApi,
     }, testInfo) => {
-        const visitor = visitorFor(testInfo.parallelIndex, VISITOR_SLOTS.edit.details);
+        const visitor = visitorFor(
+            testInfo.parallelIndex,
+            VISITOR_SLOTS.edit.details,
+        );
         const reason = uniqueTitle('E2E Edit Single');
         const new_reason = uniqueTitle('E2E Edit Single Updated');
         let booking_id: number | undefined;
 
-        await releaseVisitor(staffApi, visitor.email, window_from(), window_to());
-        await useSettings(staffPage, { ...SINGLE_VISITOR_MODE, ...ALLOW_EDITING });
+        await releaseVisitor(
+            staffApi,
+            visitor.email,
+            window_from(),
+            window_to(),
+        );
+        await useSettings(staffPage, {
+            ...SINGLE_VISITOR_MODE,
+            ...ALLOW_EDITING,
+        });
 
         try {
-            const created = await inviteVisitorViaUI(staffPage, staffApi, visitor, reason);
+            const created = await inviteVisitorViaUI(
+                staffPage,
+                staffApi,
+                visitor,
+                reason,
+            );
             booking_id = created.id;
 
             const bookings_page = new YourBookingsPage(staffPage);

@@ -58,9 +58,10 @@ import { roleFor } from '../../../../e2e/support/env';
  * The listing only shows today (see the header), so these cannot use the
  * day-offset slots the other areas use. 16:00 is chosen to sit clear of the
  * workplace desk specs, which work in today +1 to +4 hours from whenever they
- * run. The hour may already have passed on a late run; that is fine, because
- * nothing here depends on the booking being in the future — a past booking is
- * still listed, approved and checked in.
+ * run. The hour may already have passed on a late run. A past booking is still
+ * listed, so this is fine for tests that only read the listing — but it cannot
+ * be approved or checked in: since PPT-2698 the row actions are disabled once a
+ * booking has ended. Tests that act on a row use `windowAroundNow()` instead.
  */
 function todayAt(hour: number, minutes = 60) {
     const start = new Date();
@@ -126,7 +127,7 @@ test.describe('concierge desk bookings', () => {
         expect(
             row[columnIndex(snapshot, 'booked_by_email')],
             'the "Booked By" column must name the concierge who made it',
-        ).toContain('support@place.tech');
+        ).toContain(roleFor('admin').email);
         expect(
             row[columnIndex(snapshot, 'asset_name')],
             'and the desk it is against',
@@ -140,7 +141,7 @@ test.describe('concierge desk bookings', () => {
         const desks = await seededDesks(adminApi);
         const desk = desks[desks.length - 1];
         const title = uniqueTitle('CON-DESK-07');
-        const { start, end } = todayAt(17);
+        const { start, end } = windowAroundNow();
 
         const booking = await createBookingFor(adminApi, {
             type: 'desk',
@@ -183,7 +184,7 @@ test.describe('concierge desk bookings', () => {
         expect(
             (await getBooking(adminApi, booking.id)).approver_email,
             'and it should record WHO approved it — the concierge, not the holder',
-        ).toBe('support@place.tech');
+        ).toBe(roleFor('admin').email);
     });
 
     test('CON-DESK-08: rejecting another user\'s desk booking is stored on the backend', async ({
