@@ -174,6 +174,7 @@ export async function openBookingModal(
                         btn
                         matRipple
                         name="save"
+                        type="button"
                         class="w-32"
                         (click)="save()"
                     >
