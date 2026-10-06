@@ -1,7 +1,7 @@
 {
     "name": "Outlook Rooms Addin",
     "short_name": "Outlook Rooms Addin",
-    "theme_color": "#1346A8",
+    "theme_color": "#1E40AF",
     "background_color": "#fafafa",
     "display": "standalone",
     "scope": "./",
