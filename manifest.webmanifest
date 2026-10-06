@@ -1,7 +1,7 @@
 {
     "name": "Stagehand",
     "short_name": "Stagehand",
-    "theme_color": "#DB2777",
+    "theme_color": "#18181B",
     "background_color": "#fafafa",
     "display": "standalone",
     "scope": "./",
