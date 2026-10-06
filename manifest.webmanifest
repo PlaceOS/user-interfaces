@@ -1,7 +1,7 @@
 {
     "name": "Visitor Kiosk",
     "short_name": "Visitor Kiosk",
-    "theme_color": "#2563EB",
+    "theme_color": "#1E3A8A",
     "background_color": "#fafafa",
     "display": "standalone",
     "scope": "./",
