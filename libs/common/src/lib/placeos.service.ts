@@ -543,9 +543,15 @@ export class PlaceOS_Service extends AsyncHandler {
         const tracking_id = this._settings.get('app.analytics.tracking_id');
         if (!tracking_id) return;
         setLoadingMessage('Initialising analytics...');
-        this._analytics.init(tracking_id);
-        this._analytics.load(tracking_id);
-        this._analytics.setUser(currentUser().id);
+        try {
+            this._analytics.init(tracking_id);
+            this._analytics.load(tracking_id);
+            this._analytics.setUser(currentUser().id);
+        } catch (error) {
+            // Startup gates on `markInitialisationComplete()`, so a throw here
+            // would strand the loading screen on this message for good.
+            log('APP', 'Failed to initialise analytics.', error, 'warn');
+        }
     }
 
     private _initLocale() {
