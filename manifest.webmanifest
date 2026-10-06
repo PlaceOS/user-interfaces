@@ -1,7 +1,7 @@
 {
     "name": "Map Kiosk",
     "short_name": "Map Kiosk",
-    "theme_color": "#0B5FFF",
+    "theme_color": "#075985",
     "background_color": "#fafafa",
     "display": "standalone",
     "scope": "./",
