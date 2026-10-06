@@ -127,15 +127,29 @@ describe('CheckinViewComponent', () => {
     it('should start a new booking when the book button is used', () => {
         status.set('free');
         setting.mockReturnValue(undefined); // book allowed
-        // a future "next" event hides the second (no-upcoming) book button
-        next.set({ date: Date.now() + 2 * 60 * 60 * 1000, duration: 30 });
         spectator.detectChanges();
+        // first book button is on the "now" card
         spectator.click('button.w-24');
         expect(new_booking).toHaveBeenCalledTimes(1);
         const args = new_booking.mock.calls[0];
         expect(args[1]).toBe(true); // has_user
         expect(args[2]).toBe(false); // not future
         expect(args[3]).toBe(true); // force api
+    });
+
+    it('should book the next free slot when an upcoming event exists', () => {
+        status.set('busy');
+        const now = Date.now();
+        const current_event = { date: now - 10 * 60 * 1000, duration: 30 };
+        const next_event = { date: now + 20 * 60 * 1000, duration: 30 };
+        current.set(current_event);
+        next.set(next_event);
+        bookings.set([current_event, next_event]);
+        spectator.detectChanges();
+        const free_start = next_event.date + 30 * 60 * 1000;
+        expect(spectator.component.start()).toBe(free_start);
+        spectator.click('button.w-24');
+        expect(new_booking).toHaveBeenCalledWith(free_start, true, true, true);
     });
 
     it('should not offer booking when book now is disabled', () => {

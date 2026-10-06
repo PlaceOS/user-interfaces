@@ -142,12 +142,12 @@ import { CheckinTimetableComponent } from './checkin-timetable.component';
                         }}
                     </div>
                 </div>
-                @if (!event_state()?.next && can_book()) {
+                @if (can_book()) {
                     <button
                         btn
                         matRipple
                         class="w-24"
-                        (click)="newBooking(start(), true)"
+                        (click)="bookSlot(start())"
                     >
                         {{ 'COMMON.BOOK' | translate }}
                     </button>
@@ -249,6 +249,7 @@ export class CheckinViewComponent extends AsyncHandler implements OnInit {
     public readonly state = this._state.status;
     public readonly system = this._state.space;
     public readonly bookings = this._state.bookings;
+    /** Start of the next free slot. Can be in the past when the room is free now. */
     public start = signal<number>(Date.now());
 
     public readonly can_book = computed(
@@ -260,7 +261,7 @@ export class CheckinViewComponent extends AsyncHandler implements OnInit {
         if (!this.can_book()) return;
         this._state.newBooking(d, this.has_user(), future, true);
     };
-    // Timetable emits the absolute start time of the tapped slot; treat any
+    // Timetable and next free slot pass an absolute start time; treat any
     // slot past now as a future booking so the chosen time isn't overwritten.
     public readonly bookSlot = (d: number) =>
         this.newBooking(d, d > Date.now());
