@@ -1,7 +1,7 @@
 {
     "name": "Signage Manager",
     "short_name": "Signage Manager",
-    "theme_color": "#FF5A5F",
+    "theme_color": "#78350F",
     "background_color": "#fafafa",
     "display": "standalone",
     "scope": "./",
