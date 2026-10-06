@@ -192,8 +192,8 @@ export class ZoneEditModalComponent {
     });
     public readonly zone_list = new PagedSearch<PlaceZone>((search) => {
         const parent_id = this.selected_parent()?.id;
-        return parent_id && search.trim()
-            ? this._data.query_zones(search, parent_id)
+        return search.trim()
+            ? this._data.query_zones(search, parent_id || '')
             : null;
     }, byDisplayName);
     public readonly loadChildren = this._data.load_children;
