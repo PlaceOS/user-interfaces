@@ -1,7 +1,7 @@
 {
     "name": "Concierge",
     "short_name": "Concierge",
-    "theme_color": "#127E5C",
+    "theme_color": "#15803D",
     "background_color": "#fafafa",
     "display": "standalone",
     "scope": "./",
