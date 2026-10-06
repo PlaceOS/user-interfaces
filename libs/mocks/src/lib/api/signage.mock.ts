@@ -1968,7 +1968,7 @@ function registerMockSignageImageGen() {
             state: 'queued',
             kind,
             provider: 'OPENAI',
-            model: 'gpt-image-2',
+            model: 'gpt-image-2.5-sunburst',
             candidates: count,
             images_produced: 0,
             parent_job_id: request.parent_job_id,
@@ -2031,11 +2031,11 @@ function registerMockSignageImageGen() {
                     id: 'signage-ai-provider-1',
                     name: 'Mock provider',
                     provider: 'OPENAI',
-                    default_model: 'gpt-image-2',
+                    default_model: 'gpt-image-2.5-sunburst',
                     models: [
                         {
-                            id: 'gpt-image-2',
-                            name: 'GPT Image 2',
+                            id: 'gpt-image-2.5-sunburst',
+                            name: 'GPT Image 2.5 Sunburst',
                             generate: true,
                             edit: true,
                             enhance: true,
