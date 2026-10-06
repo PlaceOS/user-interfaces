@@ -336,8 +336,11 @@ export class ImageGenService extends AsyncHandler {
         return key;
     }
 
-    /** a job came back for this key, so the next identical request gets a new one */
-    private _forgetIntent(key?: string) {
+    /**
+     * Retire a key, so the next identical request gets a new one: a job came
+     * back for it, or the person let go of the request before it did.
+     */
+    public forgetIntent(key?: string) {
         for (const [id, value] of this._intents) {
             if (value !== key) continue;
             this._intents.delete(id);
@@ -363,7 +366,7 @@ export class ImageGenService extends AsyncHandler {
             ...request,
             idempotency_key: request.idempotency_key || crypto.randomUUID(),
         });
-        this._forgetIntent(request.idempotency_key);
+        this.forgetIntent(request.idempotency_key);
         this._merge([job]);
         this.watch(job.id);
         return job;
@@ -374,7 +377,7 @@ export class ImageGenService extends AsyncHandler {
             ...request,
             idempotency_key: request.idempotency_key || crypto.randomUUID(),
         });
-        this._forgetIntent(request.idempotency_key);
+        this.forgetIntent(request.idempotency_key);
         this._merge([job]);
         this.watch(job.id);
         return job;

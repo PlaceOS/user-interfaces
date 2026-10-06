@@ -39,6 +39,26 @@ describe('ImageGenLayerControlsComponent', () => {
         );
     });
 
+    it('offers each palette colour once, however the brand kit wrote it', async () => {
+        await TestBed.configureTestingModule({
+            imports: [ImageGenLayerControlsComponent],
+        })
+            .overrideComponent(ImageGenLayerControlsComponent, {
+                set: { template: '' },
+            })
+            .compileComponents();
+        const fixture = TestBed.createComponent(ImageGenLayerControlsComponent);
+        fixture.componentRef.setInput('brand', {
+            palette: { primary: '#FFF', secondary: '#0E6E52' },
+        });
+
+        expect(fixture.componentInstance.palette()).toEqual([
+            '#ffffff',
+            '#1b2420',
+            '#0e6e52',
+        ]);
+    });
+
     it('does not point at the branding page when branding changes are off', async () => {
         await TestBed.configureTestingModule({
             imports: [ImageGenLayerControlsComponent],

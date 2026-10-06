@@ -15,6 +15,12 @@ interface Box {
 interface LayerInternals {
     _panelColour: (text_colour: string) => string;
     _draw: () => void;
+    _drawBlocks: (
+        context: CanvasRenderingContext2D,
+        width: number,
+        height: number,
+        state: ImageGenLayerState,
+    ) => void;
     _boxes: Map<string, Box>;
     _logos: Record<'on_light' | 'on_dark', HTMLImageElement | null>;
     _logoFor: (
@@ -110,6 +116,37 @@ describe('ImageGenLayerComponent', () => {
             expect.objectContaining({
                 blocks: [expect.objectContaining({ x: 0.5, y: 0 })],
             }),
+        );
+    });
+
+    it('draws a block that outgrew its spot back inside the artwork', async () => {
+        const fixture = await make('');
+        const layer = fixture.componentInstance as unknown as LayerInternals;
+        // ten pixels a character, so the text is 190 wide
+        const context = {
+            measureText: (text: string) => ({ width: text.length * 10 }),
+            fillText: vi.fn(),
+        } as unknown as CanvasRenderingContext2D;
+        const block = {
+            id: 'block-1',
+            text: 'Spring launch party',
+            role: 'headline' as const,
+            x: 0.9,
+            y: 0.95,
+            align: 'left' as const,
+            colour: '#ffffff',
+            font: '',
+            panel: false,
+        };
+
+        layer._drawBlocks(context, 1000, 500, layerState({ blocks: [block] }));
+
+        // a 55px headline pads its panel by 19px, so the panel ends at the
+        // artwork's right and bottom edges
+        const box = layer._boxes.get(block.id);
+        expect((box?.left ?? 0) + (box?.width ?? 0) + 19).toBe(1000);
+        expect((box?.top ?? 0) + (box?.height ?? 0) + 19 * 0.6).toBeCloseTo(
+            500,
         );
     });
 

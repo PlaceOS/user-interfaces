@@ -8,7 +8,7 @@ import {
     viewChild,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { MatButtonModule } from '@angular/material/button';
+import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -59,20 +59,26 @@ interface BrandColour {
                 </div>
             } @else if (load_state() === 'failed') {
                 <div
-                    class="border-error/40 bg-error/10 flex items-center gap-3 rounded border p-3 text-sm"
+                    class="border-error/40 bg-error/10 flex items-center gap-3 rounded-lg border p-3 text-sm"
                 >
                     <icon class="text-error">error</icon>
                     <span class="flex-1">{{
                         'SIGNAGE_MANAGER.BRAND_LOAD_ERROR' | translate
                     }}</span>
-                    <button mat-stroked-button type="button" (click)="load()">
+                    <button
+                        btn
+                        matRipple
+                        type="button"
+                        class="inverse"
+                        (click)="load()"
+                    >
                         {{ 'COMMON.RETRY' | translate }}
                     </button>
                 </div>
             } @else {
                 @if (!can_edit()) {
                     <p
-                        class="border-base-300 bg-base-200 mb-6 flex items-center gap-2 rounded border p-3 text-sm"
+                        class="border-base-300 bg-base-200 mb-6 flex items-center gap-2 rounded-lg border p-3 text-sm"
                     >
                         <icon class="text-base-content/60">lock</icon>
                         {{
@@ -107,7 +113,7 @@ interface BrandColour {
                         <div class="flex items-center gap-3">
                             <input
                                 type="color"
-                                class="border-base-content/20 h-10 w-14 rounded border bg-transparent disabled:cursor-not-allowed disabled:opacity-60"
+                                class="border-base-300 h-10 w-14 rounded border bg-transparent disabled:cursor-not-allowed disabled:opacity-60"
                                 [class.cursor-pointer]="can_edit()"
                                 [disabled]="!can_edit()"
                                 [value]="colour.value"
@@ -118,8 +124,7 @@ interface BrandColour {
                             />
                             <mat-form-field
                                 appearance="outline"
-                                class="w-40"
-                                subscriptSizing="dynamic"
+                                class="no-subscript w-40"
                             >
                                 <input
                                     matInput
@@ -157,8 +162,10 @@ interface BrandColour {
                     }
                     @if (can_edit() && colours().length < max_colours) {
                         <button
-                            mat-stroked-button
+                            btn
+                            matRipple
                             type="button"
+                            class="inverse"
                             (click)="addColour()"
                         >
                             {{ 'SIGNAGE_MANAGER.BRAND_ADD_COLOUR' | translate }}
@@ -186,7 +193,7 @@ interface BrandColour {
                     </mat-select>
                 </mat-form-field>
                 <p
-                    class="border-base-content/10 bg-base-200 mb-2 rounded border p-4 text-2xl"
+                    class="border-base-300 bg-base-200 mb-2 rounded-lg border p-4 text-2xl"
                     [style.font-family]="font_stack()"
                 >
                     {{ 'SIGNAGE_MANAGER.BRAND_FONT_SAMPLE' | translate }}
@@ -203,7 +210,7 @@ interface BrandColour {
                 <div class="flex flex-col gap-4 sm:flex-row">
                     @for (slot of slots; track slot.id) {
                         <div
-                            class="border-base-content/10 flex min-w-0 flex-1 flex-col gap-3 rounded border p-4"
+                            class="border-base-300 flex min-w-0 flex-1 flex-col gap-3 rounded-lg border p-4"
                         >
                             <div
                                 class="flex items-baseline justify-between gap-2"
@@ -250,8 +257,10 @@ interface BrandColour {
                             @if (can_edit()) {
                                 <div class="flex flex-wrap gap-2">
                                     <button
-                                        mat-stroked-button
+                                        btn
+                                        matRipple
                                         type="button"
+                                        class="inverse"
                                         [disabled]="!!busy()"
                                         (click)="pick(slot.id)"
                                     >
@@ -269,8 +278,10 @@ interface BrandColour {
                                         logoId(other(slot.id))
                                     ) {
                                         <button
-                                            mat-stroked-button
+                                            btn
+                                            matRipple
                                             type="button"
+                                            class="inverse"
                                             [disabled]="!!busy()"
                                             (click)="derive(slot.id)"
                                         >
@@ -301,6 +312,7 @@ interface BrandColour {
                         <button
                             btn
                             matRipple
+                            type="button"
                             class="w-40"
                             [disabled]="saving()"
                             (click)="save()"
@@ -324,7 +336,7 @@ interface BrandColour {
         AuthenticatedImageDirective,
         FormsModule,
         IconComponent,
-        MatButtonModule,
+        MatRippleModule,
         MatFormFieldModule,
         MatInputModule,
         MatProgressSpinnerModule,

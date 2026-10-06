@@ -1,6 +1,7 @@
 import {
     actionError,
     errorStatus,
+    hexColour,
     orientationOf,
     perceivedLightness,
     UserFacingError,
@@ -31,6 +32,12 @@ describe('image generation utilities', () => {
     it('uses one luminance calculation for black and white', () => {
         expect(perceivedLightness(0, 0, 0)).toBe(0);
         expect(perceivedLightness(255, 255, 255)).toBe(255);
+    });
+
+    it('writes colours the way a colour input reports them', () => {
+        expect(hexColour('#FFF')).toBe('#ffffff');
+        expect(hexColour('#0E6E52')).toBe('#0e6e52');
+        expect(hexColour('rgb(0, 0, 0)')).toBe('');
     });
 
     it('labels orientation from the image size, then the aspect ratio', () => {

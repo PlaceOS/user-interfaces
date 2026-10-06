@@ -19,7 +19,7 @@ import {
     ImageGenTextBlock,
     ImageGenTextRole,
 } from './image-gen.types';
-import { perceivedLightness } from './image-gen.util';
+import { hexColour, perceivedLightness } from './image-gen.util';
 
 /** share of the artwork's height each role is drawn at */
 const ROLE_SIZE: Record<ImageGenTextRole, number> = {
@@ -38,6 +38,9 @@ const ROLE_LEADING: Record<ImageGenTextRole, number> = {
 /** how far an arrow key moves a block, as a share of the artwork */
 const NUDGE = 0.005;
 const NUDGE_FAST = 0.02;
+
+/** the type and quality the composited poster is saved as */
+export const COMPOSITE_TYPE = ['image/jpeg', 0.9] as const;
 
 interface Box {
     left: number;
@@ -176,7 +179,11 @@ export class ImageGenLayerComponent {
         });
     }
 
-    /** the composited image, at the artwork's native size */
+    /**
+     * The composited image, at the artwork's native size. A JPEG, as the
+     * artwork is opaque: a 1536x1024 poster is about 400 KB this way and
+     * 3 to 4 MB as a PNG, and every display downloads it.
+     */
     public toBlob(): Promise<Blob | null> {
         const canvas = this._canvas()?.nativeElement;
         // without artwork the canvas is still its default 300x150 and toBlob
@@ -193,7 +200,7 @@ export class ImageGenLayerComponent {
                 this.hover_id.set(hovered);
                 this.selected_id.set(selected);
                 resolve(blob);
-            }, 'image/png'),
+            }, ...COMPOSITE_TYPE),
         );
     }
 
@@ -267,9 +274,13 @@ export class ImageGenLayerComponent {
         const block = this.state().blocks.find((item) => item.id === id);
         if (!box || !block) return;
 
+        const canvas = this._canvas()?.nativeElement;
+        if (!canvas) return;
         const step = event.shiftKey ? NUDGE_FAST : NUDGE;
-        let x = block.x;
-        let y = block.y;
+        // from where the block is drawn, which can differ from where it was
+        // left once its text outgrew that spot
+        let x = box.left / canvas.width;
+        let y = box.top / canvas.height;
         if (event.key === 'ArrowLeft') x -= step;
         else if (event.key === 'ArrowRight') x += step;
         else if (event.key === 'ArrowUp') y -= step;
@@ -398,18 +409,30 @@ export class ImageGenLayerComponent {
             const lines = this._wrap(context, text, wrap_at);
             const leading = Math.round(size * ROLE_LEADING[block.role]);
             const line_height = Math.round(size * 1.2);
+            const box_width = Math.max(
+                ...lines.map((line) => context.measureText(line).width),
+            );
+            const box_height = line_height + leading * (lines.length - 1);
+            // the panel and the outline reach this far past the words
+            const pad = Math.round(size * 0.35);
+            // Longer text or a larger role can outgrow the spot the block was
+            // dragged to, so it is drawn back inside the artwork, panel and
+            // all, rather than cut off at the edge of the saved image.
             const box: Box = {
-                left: block.x * width,
-                top: block.y * height,
-                width: Math.max(
-                    ...lines.map((line) => context.measureText(line).width),
+                left: Math.max(
+                    pad,
+                    Math.min(block.x * width, width - box_width - pad),
                 ),
-                height: line_height + leading * (lines.length - 1),
+                top: Math.max(
+                    pad * 0.6,
+                    Math.min(block.y * height, height - box_height - pad * 0.6),
+                ),
+                width: box_width,
+                height: box_height,
             };
             this._boxes.set(block.id, box);
 
             if (block.panel) {
-                const pad = Math.round(size * 0.35);
                 context.fillStyle = this._panelColour(block.colour);
                 context.fillRect(
                     box.left - pad,
@@ -440,7 +463,7 @@ export class ImageGenLayerComponent {
                 this.drag_id() === block.id ||
                 this.selected_id() === block.id
             ) {
-                this._outline(context, box, Math.round(size * 0.35));
+                this._outline(context, box, pad);
             }
         }
     }
@@ -556,16 +579,12 @@ export class ImageGenLayerComponent {
             : 'rgba(255, 255, 255, 0.6)';
     }
 
-    private _isLight(hex: string) {
-        let value = hex.replace('#', '');
-        // #rgb is short for #rrggbb
-        if (value.length === 3) {
-            value = [...value].map((digit) => digit + digit).join('');
-        }
-        if (value.length < 6) return true;
-        const r = parseInt(value.slice(0, 2), 16);
-        const g = parseInt(value.slice(2, 4), 16);
-        const b = parseInt(value.slice(4, 6), 16);
+    private _isLight(colour: string) {
+        const hex = hexColour(colour);
+        if (!hex) return true;
+        const r = parseInt(hex.slice(1, 3), 16);
+        const g = parseInt(hex.slice(3, 5), 16);
+        const b = parseInt(hex.slice(5, 7), 16);
         return perceivedLightness(r, g, b) > 140;
     }
 

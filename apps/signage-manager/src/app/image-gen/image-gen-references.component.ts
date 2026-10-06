@@ -1,5 +1,5 @@
 import { Component, input, output } from '@angular/core';
-import { MatButtonModule } from '@angular/material/button';
+import { MatRippleModule } from '@angular/material/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { i18n } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
@@ -28,7 +28,7 @@ import { ImageGenReference } from './image-gen.types';
             <div class="flex flex-wrap gap-2">
                 @for (item of items(); track item.id; let index = $index) {
                     <div
-                        class="border-base-content/10 bg-base-200 relative h-16 w-16 overflow-hidden rounded border"
+                        class="border-base-300 bg-base-200 relative h-16 w-16 overflow-hidden rounded-lg border"
                     >
                         <img
                             [src]="item.url"
@@ -64,9 +64,10 @@ import { ImageGenReference } from './image-gen.types';
         }
 
         <button
-            mat-stroked-button
+            btn
+            matRipple
             type="button"
-            class="self-start"
+            class="inverse self-start"
             [disabled]="uploading() || items().length >= max()"
             (click)="picker.click()"
         >
@@ -87,7 +88,7 @@ import { ImageGenReference } from './image-gen.types';
             (change)="pick($event)"
         />
     `,
-    imports: [IconComponent, MatButtonModule, MatTooltipModule, TranslatePipe],
+    imports: [IconComponent, MatRippleModule, MatTooltipModule, TranslatePipe],
 })
 export class ImageGenReferencesComponent {
     public readonly items = input.required<ImageGenReference[]>();

@@ -41,6 +41,21 @@ export function perceivedLightness(
 }
 
 /**
+ * A colour as lowercase `#rrggbb`, the only form an `<input type="color">`
+ * takes and reports, so swatches and the picker compare equal. Empty when the
+ * value is not `#rgb` or `#rrggbb`.
+ */
+export function hexColour(value: string): string {
+    const match = /^#?([0-9a-f]{3}|[0-9a-f]{6})$/i.exec(value.trim());
+    if (!match) return '';
+    const digits =
+        match[1].length === 3
+            ? [...match[1]].map((digit) => digit + digit).join('')
+            : match[1];
+    return `#${digits.toLowerCase()}`;
+}
+
+/**
  * How a media item is labelled for an image of this size. The aspect ratio,
  * as `width:height`, stands in when the size is not known.
  */

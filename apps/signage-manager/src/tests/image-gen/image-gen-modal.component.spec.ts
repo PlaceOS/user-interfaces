@@ -132,6 +132,7 @@ describe('ImageGenModalComponent', () => {
             brand_kit: signal(null),
             jobs,
             intentKey: vi.fn(() => 'intent-1'),
+            forgetIntent: vi.fn(),
             edit,
             generate,
             cancel: vi.fn(),
@@ -593,6 +594,98 @@ describe('ImageGenModalComponent', () => {
             expect.anything(),
             expect.anything(),
         );
+    });
+
+    it('keeps the name of the item an edit was made from', async () => {
+        const { component, media_stub } = await make({
+            source_upload_id: 'source-1',
+            source_name: 'Lobby poster',
+        });
+        media_stub.addMediaFromUpload.mockResolvedValue({ id: '' });
+        component.brief.set('Make the sky darker');
+        component.selected.set(pick);
+        component.selected_object_url.set('blob:artwork');
+
+        await component.save();
+
+        expect(media_stub.addMediaFromUpload).toHaveBeenCalledWith(
+            'upload-1',
+            expect.objectContaining({ name: 'Lobby poster' }),
+        );
+    });
+
+    it('says so when a job ends with no images', async () => {
+        const { component } = await make();
+        component.brief.set('A poster for the launch');
+
+        await component.start();
+        TestBed.tick();
+
+        expect(component.state()).toBe('compose');
+        expect(notify_open).toHaveBeenCalledWith(
+            i18n('SIGNAGE_MANAGER.IMAGE_GEN_NO_IMAGES'),
+            expect.anything(),
+            expect.anything(),
+        );
+    });
+
+    it('asks for logo space only when a logo can be drawn', async () => {
+        const { image_gen, component } = await make();
+        component.brief.set('A poster for the launch');
+
+        await component.start();
+        image_gen.capabilities.set(capabilities({ logo_layer: true }));
+        TestBed.tick();
+        await component.start();
+
+        expect(
+            image_gen.generate.mock.calls.map(([request]) => request.include_logo),
+        ).toEqual([false, true]);
+    });
+
+    it('gives up the request key when cancelled before the server answers', async () => {
+        const { image_gen, component } = await make();
+        image_gen.generate.mockImplementationOnce(
+            () => new Promise<ImageGenJob>(() => undefined),
+        );
+        component.brief.set('A poster for the launch');
+
+        void component.start();
+        await component.cancel();
+
+        expect(image_gen.forgetIntent).toHaveBeenCalledWith('intent-1');
+        expect(component.state()).toBe('compose');
+    });
+
+    it('keeps every version when a new brief is generated', async () => {
+        const { image_gen, component } = await make();
+        const respond = (next: ImageGenJob) => async () => {
+            image_gen.jobs.update((jobs) => ({ ...jobs, [next.id]: next }));
+            return next;
+        };
+        image_gen.generate
+            .mockImplementationOnce(
+                respond(job('job-1', {}, [image('upload-1')])),
+            )
+            .mockImplementationOnce(
+                respond(job('job-2', {}, [image('upload-2')])),
+            );
+        component.brief.set('A poster for the launch');
+        await component.start();
+        TestBed.tick();
+
+        component.composing.set(true);
+        expect(component.show_compose()).toBe(true);
+        component.brief.set('A poster for the after party');
+        await component.start();
+        TestBed.tick();
+
+        expect(component.show_compose()).toBe(false);
+        expect(component.rail().map(({ upload_id }) => upload_id)).toEqual([
+            'upload-1',
+            'upload-2',
+        ]);
+        expect(component.selected()?.upload_id).toBe('upload-2');
     });
 
     it('offers logo changes only when branding editing is on', async () => {
