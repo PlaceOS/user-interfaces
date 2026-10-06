@@ -462,26 +462,21 @@ export class PanelStateService extends AsyncHandler {
             this._dialog,
         );
         if (details.reason !== 'done') return details.close();
-        this._events.newForm();
-        this._events.model.update((m) => ({
-            ...m,
+        const booking: Partial<CalendarEvent> = {
             ...details.metadata,
             host: details.metadata.organiser?.email,
             resources: [space],
             system: space,
-        }));
-        await this.makeBooking(
-            this._events.model() as Partial<CalendarEvent>,
-            force_api,
-        ).catch((e) => {
+        };
+        try {
+            await this.makeBooking(booking, force_api);
+        } catch (e) {
             notifyError(`Error creating meeting. ${e}`);
-            this._events.clearForm();
-            details.close();
             throw e;
-        });
-        this._events.clearForm();
-        details.close();
-        this.clearTimeout('reset_view');
+        } finally {
+            details.close();
+            this.clearTimeout('reset_view');
+        }
     }
 
     public async confirmBookNow() {
@@ -588,7 +583,15 @@ export class PanelStateService extends AsyncHandler {
         force_api = false,
     ) {
         if (isAfter(details.date, addMinutes(Date.now(), 5)) || force_api) {
-            await this._events.postForm(true);
+            // The shared form starts staff API queries. Driver bookings do
+            // not need them, and their auth errors can redirect API key panels.
+            this._events.newForm();
+            this._events.model.update((m) => ({ ...m, ...details }));
+            try {
+                await this._events.postForm(true);
+            } finally {
+                this._events.clearForm();
+            }
         } else {
             const module = getModule(this.system, 'Bookings');
             if (!details || !module) return;
