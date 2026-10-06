@@ -1,7 +1,7 @@
 {
     "name": "Signage",
     "short_name": "Signage",
-    "theme_color": "#FF7F3F",
+    "theme_color": "#B45309",
     "background_color": "#fafafa",
     "display": "standalone",
     "scope": "./",
