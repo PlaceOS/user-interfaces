@@ -1,7 +1,7 @@
 {
     "name": "Catering",
     "short_name": "Catering",
-    "theme_color": "#B83B5E",
+    "theme_color": "#B91C1C",
     "background_color": "#fafafa",
     "display": "standalone",
     "scope": "./",
