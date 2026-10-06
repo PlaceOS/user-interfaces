@@ -586,7 +586,13 @@ export class PanelStateService extends AsyncHandler {
             // The shared form starts staff API queries. Driver bookings do
             // not need them, and their auth errors can redirect API key panels.
             this._events.newForm();
-            this._events.model.update((m) => ({ ...m, ...details }));
+            // newForm() sets a default end time, which takes precedence over
+            // duration when saving. Replace it so the event ends on time.
+            this._events.model.update((m) => ({
+                ...m,
+                ...details,
+                date_end: addMinutes(details.date, details.duration).valueOf(),
+            }));
             try {
                 await this._events.postForm(true);
             } finally {

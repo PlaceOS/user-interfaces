@@ -112,12 +112,15 @@ describe('PanelStateService booking submission', () => {
         'uses the event form for future=$future and force_api=$force_api',
         async ({ future, force_api, offset }) => {
             const date = Date.now() + offset;
+            // newForm() leaves a default end time in the model
+            event_form.model.set({ date_end: date - 60 * 60 * 1000 });
             await submitBooking(date, future, force_api);
 
             expect(event_form.newForm).toHaveBeenCalledOnce();
             expect(event_form.model()).toMatchObject({
                 date,
                 duration: 30,
+                date_end: date + 30 * 60 * 1000,
                 title: 'Panel meeting',
                 host: host.email,
                 resources: [room],
