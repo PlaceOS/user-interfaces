@@ -1,46 +1,42 @@
 /**
  * CON-DAY-01 … CON-DAY-08 — concierge's Room Bookings day view, `/#/`.
  *
- * This is concierge's DEFAULT page and its headline screen, and on this stack
- * almost none of it can be tested. That is a deliberate, recorded scope cut
- * rather than an oversight, so this file is mostly an explanation.
+ * This is concierge's DEFAULT page and its headline screen. The day view reads
+ * room bookings from `GET /api/staff/v1/events`, which is the Microsoft/Google
+ * calendar surface: there is no native-booking switch in concierge
+ * (`events-state.service.ts` calls `queryEvents()` unconditionally), so what
+ * the timeline shows is whatever is on the rooms' calendars.
  *
- * ## Why six of the eight rows are `fixme`
+ * ## Two stacks, two groups of rows
  *
- * The day view reads room bookings from `GET /api/staff/v1/events`, which is
- * the Microsoft/Google calendar surface. `e2e/support/seed.ts` creates an
- * **office365 tenant with placeholder credentials on purpose**
- * (`tenant: 'e2e-local-placeholder'`), so every calendar call leaves the stack
- * and dies at Microsoft:
+ * Without the Microsoft 365 tenant (`e2e/support/calendar/calendar.env.ts`)
+ * the tenant row carries placeholder credentials and the calendar call dies at
+ * Microsoft; the rows that need a booking skip, and the two that do not still
+ * run: the shell renders (CON-DAY-01) and the empty timeline is a clean empty
+ * state rather than a crash (CON-DAY-08).
  *
- *     POST /api/staff/v1/events  status=500
- *     AADSTS900023: Specified tenant identifier 'e2e-local-placeholder' is
- *     neither a valid DNS name, nor a valid external domain
+ * With it, `E2E Calendar Room` (`calendar.seed.ts`) has a real room mailbox,
+ * events the CALENDAR identity creates through staff-api land on it, and the
+ * timeline rows run for real. The admin who views the day view is a different
+ * user from the one who made the booking, which is the point of a concierge
+ * view (CON-DAY-04).
  *
- * Re-measured on 2026-09-17 from the browser: loading `/#/` fires
- * `GET /api/staff/v1/events` and it answers **500**.
- *
- * The workplace room specs dodge this with `app.events.use_bookings = true`,
- * which switches room booking to native PlaceOS bookings. **Concierge has no
- * such switch** — `events-state.service.ts` calls `queryEvents()`
- * unconditionally, and `apps/concierge/src/environments/settings.ts` sets only
- * `catering.use_bookings`, never `events.use_bookings`. So no booking can ever
- * appear on this timeline here. The page renders; it is permanently empty.
- *
- * **Decision taken 2026-09-17:** leave the concierge room-booking screens out
- * of scope on this stack, and keep these rows as failing-by-default `fixme`s so
- * they turn green the day a switch or real credentials arrive. The alternatives
- * considered were asking the developers for the same `use_bookings` switch, or
- * getting real Microsoft test credentials for the local stack.
- *
- * ## What IS tested here
- *
- * The two rows that do not need a booking: the shell renders (CON-DAY-01), and
- * the empty timeline is a clean empty state rather than a crash (CON-DAY-08).
- * CON-DAY-08 is the odd one out — normally the hardest state to arrange, and
- * here the only one available.
+ * The native rooms the workplace specs seed carry `@place.tech` addresses that
+ * are not mailboxes, so the listing for the building answers 206 with those
+ * calendars named in `X-Calendar-Issue`; the app treats that as success and
+ * shows what came back.
  */
 import { expect, test } from '../../../../e2e/support/concierge/fixtures';
+import { CALENDAR_ENABLED } from '../../../../e2e/support/calendar/calendar.env';
+import {
+    calendarSlot,
+    createRoomEvent,
+    deleteRoomEvent,
+    ensureCalendarRoom,
+    listZoneEvents,
+    sweepRoomEvents,
+} from '../../../../e2e/support/concierge/calendar.seed';
+import { uniqueTitle } from '../../../../e2e/support/api';
 
 /** The calendar surface every blocked test below is waiting on. */
 const CALENDAR_ENDPOINT = '/api/staff/v1/events';
@@ -116,19 +112,16 @@ test.describe('concierge day view', () => {
             })
             .not.toBeNull();
 
-        // Recording rather than asserting the 500: this test is about the app
-        // surviving it, and pinning the status would make the row fail on the
-        // good day the stack gets real credentials.
+        // Recording rather than asserting the status: this test is about the
+        // app surviving whatever comes back. 500 on the placeholder tenant, 206
+        // on the real one (the native rooms' addresses are not mailboxes).
         // eslint-disable-next-line no-console
-        console.log(
-            `CON-DAY-08: ${CALENDAR_ENDPOINT} answered ${calendar_status} ` +
-                `(500 is expected on this stack — see the file header)`,
-        );
-
+        console.log(`CON-DAY-08: ${CALENDAR_ENDPOINT} answered ${calendar_status}`);
         expect(
             crashes,
-            'the day view must survive its calendar query failing. An empty timeline ' +
-                'is the correct outcome here; an uncaught exception is not',
+            'the day view must survive its calendar query failing or coming back ' +
+                'partial. An empty timeline is a correct outcome; an uncaught ' +
+                'exception is not',
         ).toEqual([]);
 
         await expect(
@@ -138,11 +131,7 @@ test.describe('concierge day view', () => {
     });
 
     /**
-     * CON-DAY-02 … CON-DAY-07 — blocked by the placeholder calendar.
-     *
-     * Written as one `fixme` rather than six near-identical stubs: they all fail
-     * at the same first step, for the same reason, and six copies of that
-     * explanation would rot independently. The scenarios they stand for:
+     * CON-DAY-02 … CON-DAY-07 — bookings on the timeline, against the tenant.
      *
      *   CON-DAY-02  a room booking made through the API appears on the timeline
      *   CON-DAY-03  changing the day moves the timeline with it
@@ -151,31 +140,115 @@ test.describe('concierge day view', () => {
      *   CON-DAY-06  a tentative booking can be APPROVED from the approvals list
      *   CON-DAY-07  rejecting from the approvals list records the rejection
      *
-     * CON-DAY-04 is the one worth regretting: "another user's booking is
-     * visible" is the entire difference between a concierge view and the
-     * workplace one, and it is the single most valuable assertion in this area.
+     * 02, 03 and 04 are below. 05 drives the booking modal and is not written
+     * yet. 06 and 07 need the approvals panel, which only renders when the org
+     * has an `approvals` module binding (`room-bookings.component.ts`,
+     * `has_approvals`), a driver the stack does not run; they stay `fixme`.
      *
-     * To revive these: give concierge an `app.events.use_bookings` switch (then
-     * these become ordinary native-booking tests, like the workplace room
-     * specs), or point the stack at a real Microsoft tenant.
+     * Every event is created days out, in a slot nothing else uses, and
+     * deleted in `finally`; the slot's day is swept first so an aborted run
+     * cannot leave a conflicting event behind.
      */
-    test.fixme(
-        'CON-DAY-02..07: bookings on the timeline — blocked by the placeholder calendar',
-        async ({ adminPage, adminApi }) => {
-            await adminPage.goto('/#/');
-            const res = await adminApi.get(`${CALENDAR_ENDPOINT}`, {
-                params: {
-                    period_start: String(Math.floor(Date.now() / 1000)),
-                    period_end: String(Math.floor(Date.now() / 1000) + 86_400),
-                },
-            });
-            // The precondition for every scenario listed above. While this is a
-            // 500 none of them can be written honestly.
-            expect(
-                res.status(),
-                `${CALENDAR_ENDPOINT} must answer before any booking can appear on ` +
-                    `the concierge timeline`,
-            ).toBe(200);
-        },
-    );
+    test.describe('with the Microsoft 365 tenant', () => {
+        test.skip(
+            !CALENDAR_ENABLED,
+            'needs the Microsoft 365 tenant: set E2E_O365_TENANT, E2E_O365_CLIENT_ID ' +
+                'and E2E_O365_CLIENT_SECRET before up.sh',
+        );
+
+        /** Day-view navigation: today plus this many days, by the next-day arrow. */
+        const DAYS_AHEAD = 6;
+
+        async function goToDay(page, days_ahead: number) {
+            await page.goto('/#/');
+            await expect(page.locator('room-bookings > div')).toBeVisible({ timeout: 45_000 });
+            const next = page.locator('date-options [data-shortcut="next"]').first();
+            for (let i = 0; i < days_ahead; i++) await next.click();
+        }
+
+        test('CON-DAY-02/04: a booking another user made through the API appears on the timeline', async ({
+            adminPage,
+            adminApi,
+            calendarApi,
+        }) => {
+            const room = await ensureCalendarRoom(adminApi);
+            const slot = calendarSlot(DAYS_AHEAD, 10);
+            await sweepRoomEvents(calendarApi, room, slot.day_start, slot.day_end);
+            const title = uniqueTitle('E2E Day View');
+            const event = await createRoomEvent(calendarApi, room, { ...slot, title });
+            try {
+                // The API side first, so a UI failure below is known to be the UI's.
+                await expect
+                    .poll(
+                        async () =>
+                            (await listZoneEvents(adminApi, room.building_id, slot.day_start, slot.day_end))
+                                .filter((e) => e.title === title && e.system?.id === room.id).length,
+                        {
+                            message: `the building listing must return "${title}" against ${room.name}`,
+                            timeout: 30_000,
+                        },
+                    )
+                    .toBe(1);
+
+                // The viewer is support@place.tech; the booking is Adele's.
+                await goToDay(adminPage, DAYS_AHEAD);
+                await expect(
+                    adminPage.locator('room-bookings').getByText(title),
+                    `${title} should be on the timeline for ${room.name}, ${DAYS_AHEAD} days out. ` +
+                        `It was made by the calendar identity, not by the user viewing the page`,
+                ).toBeVisible({ timeout: 30_000 });
+            } finally {
+                await deleteRoomEvent(calendarApi, room, event.id);
+            }
+        });
+
+        test('CON-DAY-03: changing the day moves the timeline with it', async ({
+            adminPage,
+            adminApi,
+            calendarApi,
+        }) => {
+            const room = await ensureCalendarRoom(adminApi);
+            // A later hour than CON-DAY-02/04 on the same day, so the two
+            // events cannot be declined for overlapping.
+            const slot = calendarSlot(DAYS_AHEAD, 12);
+            const title = uniqueTitle('E2E Day Change');
+            const event = await createRoomEvent(calendarApi, room, { ...slot, title });
+            try {
+                await goToDay(adminPage, DAYS_AHEAD);
+                const shown = adminPage.locator('room-bookings').getByText(title);
+                await expect(shown).toBeVisible({ timeout: 30_000 });
+
+                await adminPage.locator('date-options [data-shortcut="next"]').first().click();
+                await expect(
+                    shown,
+                    'the day after must not show a booking that is on the day before',
+                ).toHaveCount(0, { timeout: 15_000 });
+
+                await adminPage.locator('date-options [data-shortcut="previous"]').first().click();
+                await expect(shown, 'and going back must show it again').toBeVisible({
+                    timeout: 30_000,
+                });
+            } finally {
+                await deleteRoomEvent(calendarApi, room, event.id);
+            }
+        });
+
+        test.fixme(
+            'CON-DAY-05: booking a room from the day view stores it correctly',
+            async () => {
+                // Not written: the booking modal (event-book-modal) with its
+                // space picker and time fields has not been mapped yet. Must
+                // run as the calendar identity (`calendarPage`), since staff-api
+                // creates the event on the signed-in user's own calendar.
+            },
+        );
+
+        test.fixme(
+            'CON-DAY-06/07: approving and rejecting from the approvals list',
+            async () => {
+                // The approvals panel renders only with an `approvals` org
+                // binding, which is a driver module the stack does not run.
+            },
+        );
+    });
 });

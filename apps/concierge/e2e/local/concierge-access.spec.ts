@@ -166,14 +166,13 @@ test.describe('concierge access', () => {
     });
 
     /**
-     * CON-B1 — the finding, written as the test that will pass once it is fixed.
+     * CON-B1 — the default configuration admits admin and support users only.
      *
-     * `fixme`, in the same style as the ROOM-B* specs: the assertion below
-     * states the behaviour we believe is correct, so this turns green the day
-     * the default changes and stays a standing record until then.
-     *
-     * What was measured on 2026-09-17, on the default configuration
-     * (`app.allow_access_groups` unset):
+     * Concierge declares `placeos_admin` and `placeos_support` as the groups
+     * that gate it while `app.allow_access_groups` is unset (`app.config.ts`,
+     * `PLACEOS_APP_ACCESS.default_groups`); a configured list replaces them,
+     * which CON-AUTH-02 covers. Before that default, this is what was measured
+     * on 2026-09-17 with `app.allow_access_groups` unset:
      *
      *  - `e2e-staff-0@place.tech` — `sys_admin: false`, `support: false`,
      *    `groups: []` — loaded concierge and got the full shell and 13 sidebar
@@ -189,16 +188,12 @@ test.describe('concierge access', () => {
      *    scope by default — but concierge lists by zone, which is exactly the
      *    shape that reads straight through.
      *
-     * Cause, in one line: `authorised-user.guard.ts:111-113` takes the
-     * `!groups.length` branch and sets `can_activate = true` for everybody when
-     * no access group is configured, and no group is configured by default.
-     *
-     * Worth saying plainly in review: a deployment that never sets
-     * `app.allow_access_groups` gives every authenticated staff member the
-     * concierge front desk.
+     * Cause, in one line: `authorised-user.guard.ts` took the `!groups.length`
+     * branch and set `can_activate = true` for everybody when no access group
+     * was configured, and none was configured by default.
      */
-    test.fixme(
-        'CON-B1: by default a plain staff user is still given the concierge app',
+    test(
+        'CON-B1: by default a plain staff user is not given the concierge app',
         async ({ browser, conciergeStaffState }) => {
             const context = await browser.newContext({
                 storageState: conciergeStaffState,
@@ -209,10 +204,15 @@ test.describe('concierge access', () => {
                 const page = await context.newPage();
                 // No settings override on purpose. This is the DEFAULT.
                 await page.goto('/#/');
-                await expect(
-                    page.locator('app-topbar').or(page.locator('app-sidebar')).first(),
-                ).toBeVisible({ timeout: 45_000 });
-
+                // The guard bounces a refused user before the shell renders, so
+                // wait for whichever comes first.
+                const shell = page.locator('app-topbar').or(page.locator('app-sidebar')).first();
+                await Promise.race([
+                    page.waitForURL(/unauthorised|unauthorized|misconfigured/, {
+                        timeout: 45_000,
+                    }),
+                    shell.waitFor({ state: 'visible', timeout: 45_000 }),
+                ]);
                 const url = page.url();
                 const refused = /unauthorised|unauthorized|misconfigured/.test(url);
                 const links = await page.locator('app-sidebar a').count();
@@ -221,9 +221,9 @@ test.describe('concierge access', () => {
                     refused || links === 0,
                     `a plain non-admin staff user must not be given the concierge app ` +
                         `on the default configuration. They landed on "${url}" with ` +
-                        `${links} sidebar link(s). Fix is either a shipped default for ` +
-                        `app.allow_access_groups or a guard that refuses when no group ` +
-                        `is configured (fail closed), rather than admitting everyone`,
+                        `${links} sidebar link(s). Concierge's default groups are ` +
+                        `placeos_admin and placeos_support (app.config.ts); check ` +
+                        `nothing has set app.allow_access_groups on this stack`,
                 ).toBe(true);
             } finally {
                 await context.close();

@@ -33,6 +33,7 @@ import { ENGINE_API } from '../api';
 import { buildStorageState, mintToken } from '../auth';
 import { CONCIERGE_URL, assertConciergeLocal } from './concierge.env';
 import { ensureConciergeOAuthApp } from './concierge.seed';
+import { CALENDAR_ENABLED } from '../calendar/calendar.env';
 
 interface ConciergeWorkerFixtures {
     /** storageState path for the admin identity, bound to the CONCIERGE origin. */
@@ -47,6 +48,14 @@ interface ConciergeWorkerFixtures {
      * should not be allowed in — nothing else should use it.
      */
     conciergeStaffState: string;
+    /**
+     * storageState path and bearer for the CALENDAR identity: an admin whose
+     * address is a mailbox in the Microsoft 365 tenant, so events it creates
+     * land on real calendars. Empty when the stack has no tenant
+     * (`CALENDAR_ENABLED`); the specs that use them skip first.
+     */
+    conciergeCalendarState: string;
+    conciergeCalendarToken: string;
 }
 
 interface ConciergeTestFixtures {
@@ -56,6 +65,10 @@ interface ConciergeTestFixtures {
     adminApi: APIRequestContext;
     /** An API context as a plain non-admin staff user. */
     staffApi: APIRequestContext;
+    /** A page signed in as the calendar identity, on the concierge app. */
+    calendarPage: Page;
+    /** An API context as the calendar identity. */
+    calendarApi: APIRequestContext;
 }
 
 /** Mint for a role and write a storage state bound to the CONCIERGE origin. */
@@ -84,7 +97,7 @@ async function mintForConcierge(role: RoleName, workerIndex: number) {
             );
         }
         const user = await res.json();
-        if (role === 'admin' && !(user.sys_admin || user.support)) {
+        if ((role === 'admin' || role === 'calendar') && !(user.sys_admin || user.support)) {
             throw new Error(
                 `${r.email} is NOT an admin, and the concierge specs assume admin ` +
                     `rights for the management pages. Re-run e2e/support/seed.ts.`,
@@ -166,8 +179,44 @@ export const test = base.extend<ConciergeTestFixtures, ConciergeWorkerFixtures>(
         { scope: 'worker' },
     ],
 
+    conciergeCalendarState: [
+        async ({}, use) => {
+            if (!CALENDAR_ENABLED) return use('');
+            const { state_path } = await mintForConcierge(
+                'calendar',
+                test.info().parallelIndex,
+            );
+            await use(state_path);
+        },
+        { scope: 'worker' },
+    ],
+    conciergeCalendarToken: [
+        async ({}, use) => {
+            if (!CALENDAR_ENABLED) return use('');
+            const { token } = await mintForConcierge('calendar', test.info().parallelIndex);
+            await use(token);
+        },
+        { scope: 'worker' },
+    ],
     adminPage: async ({ page }, use) => {
         await use(page);
+    },
+    calendarPage: async ({ browser, conciergeCalendarState }, use) => {
+        if (!conciergeCalendarState) return use(undefined as unknown as Page);
+        const context = await browser.newContext({
+            storageState: conciergeCalendarState,
+            ignoreHTTPSErrors: true,
+            baseURL: CONCIERGE_URL,
+        });
+        const page = await context.newPage();
+        await use(page);
+        await context.close();
+    },
+    calendarApi: async ({ conciergeCalendarToken }, use) => {
+        if (!conciergeCalendarToken) return use(undefined as unknown as APIRequestContext);
+        const api = await apiWithToken(conciergeCalendarToken);
+        await use(api);
+        await api.dispose();
     },
 
     adminApi: async ({ conciergeAdminToken }, use) => {

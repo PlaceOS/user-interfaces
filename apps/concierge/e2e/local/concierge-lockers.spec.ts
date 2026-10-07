@@ -140,9 +140,8 @@ test.describe('concierge lockers', () => {
         // Then prove the concierge listing actually surfaces it, because an
         // allocation nobody at the front desk can see is not much use.
         //
-        // Matched on the HOLDER, not the locker name — see CON-B3 below: the
-        // Locker column renders a raw asset id, so `locker.name` is not on the
-        // row at all.
+        // Matched on the HOLDER rather than the locker name, so this test and
+        // CON-B3 below cannot fail for the same reason.
         await adminPage.goto(LOCKER_BOOKINGS_ROUTE);
         const snapshot = await waitForAnyRow(adminPage);
         const person_col = columnIndex(snapshot, 'user_name');
@@ -157,30 +156,25 @@ test.describe('concierge lockers', () => {
         ).toBeTruthy();
         expect(
             (row as string[])[asset_col],
-            'and the row must identify the locker somehow — by id today, by name ' +
-                'once CON-B3 is fixed',
-        ).toContain(locker.id);
+            'and the row must name the locker (CON-B3)',
+        ).toContain(locker.name);
     });
 
     /**
-     * CON-B3 — the locker bookings listing shows a raw asset id, not the locker's
-     * name.
+     * CON-B3 — the locker bookings listing names the locker.
      *
-     * Found 2026-09-17 while writing CON-LOCK-03. Low severity, but it lands on
-     * the screen a concierge actually works from: the Locker column renders
-     * `asset-KpaBMkGOPR` where it should say "E2E Locker 0".
+     * Found 2026-09-17 while writing CON-LOCK-03: the Locker column rendered
+     * `asset-KpaBMkGOPR` where it should say "E2E Locker 0". A booking has no
+     * `asset_name` column (staff-api's Booking model stores `asset_id` and
+     * `asset_ids` only; the field goes in on the POST and never comes back), so
+     * the listing now resolves the name from the lockers it has loaded for the
+     * building (`locker-bookings.component.ts`, `lockerName`), the way the desk
+     * listing does from desk metadata.
      *
-     * Cause, as far as it was measured: `asset_name` is **not stored** on a
-     * locker booking. It was sent in the POST and comes back absent from
-     * `GET /bookings/<id>`, so the column falls back to the id. Desk bookings
-     * DO keep theirs — CON-DESK-01 asserts on `asset_name` and passes — so this
-     * is specific to the locker type rather than a general rule.
-     *
-     * Not chased further: whether staff-api drops the field for this type, or
-     * the app never really sends it, was not established. Either way the screen
-     * is unusable for its purpose, which is what the test records.
+     * The booking is still created with `asset_name` because that is what the
+     * app sends; nothing here asserts it is stored.
      */
-    test.fixme('CON-B3: the locker listing names the locker rather than showing its id', async ({
+    test('CON-B3: the locker listing names the locker rather than showing its id', async ({
         adminPage,
         adminApi,
     }) => {
@@ -198,12 +192,6 @@ test.describe('concierge lockers', () => {
             holder: { email: HOLDER.email },
         });
         created.push(booking.id);
-
-        expect(
-            (await getBooking(adminApi, booking.id)).asset_name,
-            'a locker booking should keep the locker name it was given, as a desk ' +
-                'booking does',
-        ).toBe(locker.name);
 
         await adminPage.goto(LOCKER_BOOKINGS_ROUTE);
         const snapshot = await waitForAnyRow(adminPage);
