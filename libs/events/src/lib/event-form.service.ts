@@ -17,6 +17,7 @@ import {
     BookingRuleset,
     CalendarEvent,
     currentUser,
+    currentUserCanApprove,
     currentUserIsLoaded,
     currentUserLoaded,
     DEFAULT_SETTINGS,
@@ -1527,7 +1528,7 @@ export class EventFormService extends AsyncHandler {
                       recurrence: event.recurrence,
                       status:
                           this._settings.get('app.bookings.no_approval') ===
-                          true
+                              true && currentUserCanApprove()
                               ? 'approved'
                               : 'tentative',
                   } as any),
