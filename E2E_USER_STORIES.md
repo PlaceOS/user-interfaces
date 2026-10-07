@@ -211,8 +211,8 @@ menu, which is made of **assets**, not settings — see ROOM-22.
 a real tenant (WP-E2E-15). Email of any kind has no mail server in the stack. Room panels,
 signage and recurring meetings are other apps or the calendar path. As with §1a, a second
 building cannot be exercised — the stack seeds one org, one building, one level. **Checking in
-to a room booking (ROOM-23) is blocked by the stack, not by effort** — it is the one room row
-that needs something the local deployment does not have; the reason is in its row.
+to a room booking (ROOM-23) has no spec yet**; the stack now runs the `Bookings` driver it
+needs, and its row says what the spec has to set up.
 
 | ID | P | Story | Status |
 |----|---|-------|--------|
@@ -238,7 +238,7 @@ that needs something the local deployment does not have; the reason is in its ro
 | ROOM-20 | P1 | A room booked with the default settings is stored **unapproved** (`tentative`), and still holds the room. | **done** — `local/room-approval.spec.ts`. Also the control for ROOM-21. |
 | ROOM-21 | P2 | With `app.bookings.no_approval`, the booking is stored **approved**. | **blocked** — `local/room-approval.spec.ts`, `test.fixme`. ROOM-B1 below, **re-measured 2026-09-16**: the booking POST is still a `500`. |
 | ROOM-22 | P1 | **Catering** ordered on the form reaches the backend as its own `catering-order` booking, linked to the meeting. | **blocked** — `local/room-catering.spec.ts`, `test.fixme`. ROOM-B5 below. The menu seeding works and the form offers catering; it is the order that cannot be saved in this mode. |
-| ROOM-23 | P1 | **Checking in** to a room booking. | **blocked — by the stack, not by a bug.** No spec, deliberately. The check-in button only renders when a websocket `binding` to a **`Bookings` driver module** on the room's System reports a status (`event-details-modal.component.ts`: `mod="Bookings" bind="status"`, and the button also needs `room_status() !== 'free'`). This stack has one driver (`spec_helper`) and one module (`PrivateHelper`) — measured — so no room can ever have that module, and the control can never appear. Unblocking it means building and running a real driver in the e2e stack, which is a stack change, not a spec. Contrast VIS-11, where visitor check-in is a plain API call and is covered. |
+| ROOM-23 | P1 | **Checking in** to a room booking. | **unblocked, no spec yet.** The check-in button only renders when a websocket `binding` to a **`Bookings` driver module** on the room's System reports a status (`event-details-modal.component.ts`: `mod="Bookings" bind="status"`, and the button also needs `room_status() !== 'free'`). The stack now runs core, and every seeded room carries `Place::Bookings` polling a demo calendar in the same system (`e2e/support/room/room.seed.ts`); `home-availability.spec.ts` (HOME-10) proves that chain end to end, since the home page lists a room only while its module reports `free`. A spec here has to put an event covering now into the room's `Calendar_1` (`create_event`, through the module exec route) so the module reports a meeting, then the control renders. Contrast VIS-11, where visitor check-in is a plain API call and is covered. |
 
 ### Findings from building this coverage
 
@@ -330,9 +330,9 @@ Config gaps caused several production incidents, and they are invisible to UI sp
 - **Nine rows are blocked on product fixes, not on test effort** (REG-08, REG-09, REG-10,
   VIS-15, ROOM-11, ROOM-13, ROOM-14, ROOM-21, ROOM-22). All were found by this suite. Leaving them visible here is the point — a blocked row is coverage
   information, a deleted row is not.
-- **Two rows are blocked by the environment rather than by a bug** (AUTH-E2E-08, ROOM-23), and
-  both say what would unblock them. ROOM-23 needs a real `Bookings` driver running in the e2e
-  stack; there is no amount of spec work that substitutes for it.
+- **One row is blocked by the environment rather than by a bug** (AUTH-E2E-08), and it says
+  what would unblock it. ROOM-23 was the other until the stack gained core and a `Bookings`
+  driver on every seeded room; it is now only unwritten.
 - **Run hygiene: cancelled bookings accumulate, and the schedule counts them.** Every run leaves
   soft-deleted rows behind; `GET /bookings` defaults to `limit=100` and the schedule sends
   `include_deleted=true`, so once a user passes 100 their *new* bookings stop appearing and

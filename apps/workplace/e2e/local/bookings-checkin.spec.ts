@@ -9,8 +9,10 @@
  *                by this test.
  *   visitor .... the same call. Covered by `visitor-checkin.spec.ts`.
  *   room ....... a websocket binding to a `Bookings` DRIVER module on the room's
- *                System. This stack has no such driver, so the control can never
- *                render (ROOM-23 in the coverage doc). Not testable here.
+ *                System, which every seeded room now runs (`room.seed.ts`). The
+ *                control only renders while that module reports a meeting, so
+ *                it needs an event in the room's demo calendar first. ROOM-23 in
+ *                the coverage doc; not written yet.
  *
  * ## Why this booking is minutes away and not days
  *

@@ -12,30 +12,27 @@
  * path as the meeting form, which is covered properly by the room specs, and in
  * the default mode it reaches the calendar and 500s on this stack.
  *
- * ## `fixme` — blocked by the stack, not by a bug
+ * ## Where the rooms on the panel come from
  *
  * The panel does not list every bookable room. It lists the ones a LIVE STATUS
  * BINDING reports as free (`landing-state.service.ts`):
  *
  *   free_space_list = space_list().filter((_, i) => space_statuses()[i] === 'free')
  *
- * and those statuses come from websocket bindings to a driver module on each
- * room's System. This stack has one driver (`spec_helper`) and one module
- * (`PrivateHelper`), so no room ever reports a status, `free_space_list` is
- * always empty, and the panel renders with nothing in it. Measured: the panel
- * was present and offered zero rooms while four bookable rooms existed on the
- * building.
- *
- * Same blocker as ROOM-23 (room check-in), and the same fix: a real driver
- * running in the e2e stack. The assertions below are right; nothing about them
- * needs changing when that happens.
+ * and a status comes from a websocket binding to the `Bookings` module on each
+ * room's System. The stack runs core, and every room `room.seed.ts` creates
+ * gets a `Place::Bookings` module polling a demo calendar in the same system
+ * (`ensureRoomModules`), so a seeded room reports `free` as long as nothing is
+ * put in that calendar. A room on the panel is therefore the whole chain
+ * working: driver process, redis, the rest-api websocket, the app. Room
+ * check-in (ROOM-23) binds the same module.
  */
 import { test, expect } from '../../../../e2e/support/fixtures';
 import { roomForWorker } from '../../../../e2e/support/room/room.seed';
 import { LandingPage } from '../../../../e2e/support/home/landing.page';
 
 test.describe('home page — room availability', () => {
-    test.fixme('the panel lists a seeded room, and its button opens the booking modal', async ({
+    test('the panel lists a seeded room, and its button opens the booking modal', async ({
         staffPage,
     }, testInfo) => {
         // The rooms the room specs seed are the only ones this org has.

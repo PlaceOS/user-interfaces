@@ -16,7 +16,10 @@
  */
 import { APIRequestContext } from '@playwright/test';
 import { ENGINE_API, apiFor, zonesWithTag } from '../api';
+import { ensureLogicModule, waitForModuleState } from '../drivers/drivers.api';
+import { ensureDrivers } from '../drivers/drivers.seed';
 import { WORKERS } from '../env';
+import { adminApi } from '../seed';
 import {
     ALT_ROOM_FEATURE,
     ROOM_VARIANTS,
@@ -63,9 +66,16 @@ export type RoomSet = Record<RoomVariant, RoomIdentity[]>;
  * Rooms are placed on BOTH the building and the level zone: the app asks for
  * systems by zone and different screens ask with different zones, so a room on
  * only one of them appears in some places and not others.
+ *
+ * A room this call creates also gets its modules (`ensureRoomModules`). Only the
+ * creator does that: workers racing to seed the same room all list it, one
+ * creates it, and a module has no natural key to collapse duplicates on.
+ *
+ * Pass `api` when there is no worker token to read, as at bring-up.
  */
-export async function ensureRooms(): Promise<RoomSet> {
-    const admin = await apiFor('admin', 0);
+export async function ensureRooms(api?: APIRequestContext): Promise<RoomSet> {
+    const admin = api ?? (await apiFor('admin', 0));
+    const created: RoomIdentity[] = [];
     try {
         const [building] = await zonesWithTag(admin, 'building');
         const [level] = await zonesWithTag(admin, 'level');
@@ -159,13 +169,51 @@ export async function ensureRooms(): Promise<RoomSet> {
                     rooms[variant].push({ ...want, id: raced.id });
                     continue;
                 }
-                rooms[variant].push({ ...want, id: (await res.json()).id });
+                const room = { ...want, id: (await res.json()).id };
+                rooms[variant].push(room);
+                created.push(room);
             }
         }
+        await ensureRoomModules(admin, created);
         return rooms;
     } finally {
-        await admin.dispose();
+        if (!api) await admin.dispose();
     }
+}
+
+/**
+ * The modules a seeded room runs, so the apps see a live status for it.
+ *
+ * `Place::Bookings` is what the workplace app binds (`Bookings` / `status`): the
+ * home page lists a room only while that reads `free`, and the room check-in
+ * control only renders while it does not. It polls `Calendar_1` in the same
+ * system, which here is the demo calendar, so a room reports `free` until an
+ * event is put in that calendar. The driver rows are created, and their
+ * binaries fetched, by `e2e/support/drivers/drivers.seed.ts` at bring-up; this
+ * only finds them.
+ *
+ * Idempotent: a module already on the room is found, not re-created. Returns
+ * once every room's `Bookings` module has published a status.
+ */
+export async function ensureRoomModules(
+    api: APIRequestContext,
+    rooms: RoomIdentity[],
+): Promise<void> {
+    if (!rooms.length) return;
+    const { drivers } = await ensureDrivers(api);
+    const bookings: { room: RoomIdentity; module_id: string }[] = [];
+    for (const room of rooms) {
+        await ensureLogicModule(api, room.id, drivers.calendar.id);
+        const mod = await ensureLogicModule(api, room.id, drivers.bookings.id);
+        bookings.push({ room, module_id: mod.id });
+    }
+    await Promise.all(
+        bookings.map(({ room, module_id }) =>
+            waitForModuleState(api, module_id, 'status', 120_000).catch((error) => {
+                throw new Error(`${room.name}: ${error.message}`);
+            }),
+        ),
+    );
 }
 
 /**
@@ -272,4 +320,29 @@ export async function setRoomBookingRules(
     } finally {
         await admin.dispose();
     }
+}
+
+/**
+ * Bring-up entry: `up.sh` runs this after `seed.ts`, so every worker's rooms
+ * exist with their modules reporting before any spec starts. Rooms seeded
+ * before the modules existed are brought up to date too.
+ */
+if (require.main === module) {
+    (async () => {
+        const api = await adminApi();
+        try {
+            const rooms = await ensureRooms(api);
+            const all = ROOM_VARIANTS.flatMap((variant) => rooms[variant]);
+            await ensureRoomModules(api, all);
+            console.log(
+                `  rooms      ${all.length} (${ROOM_VARIANTS.length} per worker, ${WORKERS} workers), ` +
+                    `each with Calendar + Bookings modules reporting`,
+            );
+        } finally {
+            await api.dispose();
+        }
+    })().catch((e) => {
+        console.error(e.message);
+        process.exit(1);
+    });
 }

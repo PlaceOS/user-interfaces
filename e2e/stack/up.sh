@@ -115,6 +115,7 @@ dc run --rm init start
 step "seeding e2e fixtures"
 cd ../..
 E2E_BACKEND_URL="https://localhost:${HTTPS_PORT}" bunx tsx e2e/support/seed.ts
+E2E_BACKEND_URL="https://localhost:${HTTPS_PORT}" bunx tsx e2e/support/room/room.seed.ts
 
 printf '\n\033[32mstack ready\033[0m  backend=https://localhost:%s  project=%s\n' "$HTTPS_PORT" "$PROJECT"
 printf 'run the suite with:\n  E2E_BACKEND_URL=https://localhost:%s bunx playwright test --config apps/workplace/playwright.config.ts\n' "$HTTPS_PORT"
