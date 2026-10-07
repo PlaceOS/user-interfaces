@@ -7,6 +7,7 @@
 #
 #   ./up.sh              bring up (reuses volumes if present)
 #   ./up.sh --fresh      destroy volumes first — a genuine cold start
+#   ./up.sh --pull       pull the current images first (CI does this every run)
 #   ./down.sh            stop
 # -E (errtrace) is load-bearing: without it the ERR trap below is NOT inherited by
 # shell functions, so a failure inside `dc()` would exit silently and the
@@ -26,7 +27,14 @@ export E2E_DOMAIN=${E2E_DOMAIN:-localhost:${HTTPS_PORT}}
 dc() { docker compose -p "$PROJECT" "$@"; }
 
 fresh=false
-[[ "${1:-}" == "--fresh" ]] && fresh=true
+pull=false
+for arg in "$@"; do
+    case "$arg" in
+        --fresh) fresh=true ;;
+        --pull) pull=true ;;
+        *) echo "unknown option: $arg" >&2; exit 64 ;;
+    esac
+done
 
 step() { printf '\n\033[1m== %s\033[0m\n' "$1"; }
 
@@ -77,6 +85,17 @@ diagnose() {
     dc logs --tail 60 || true
 }
 trap 'rc=$?; [[ $rc -ne 0 ]] && diagnose; exit $rc' ERR
+
+if [[ "$pull" == true ]]; then
+    step "pulling images"
+    # A failed pull is not fatal: the images already present still run, and
+    # CI's "Record backend inputs" step shows which ones did.
+    if dc pull --quiet; then
+        docker image prune -f >/dev/null 2>&1 || true
+    else
+        echo "::warning::image pull failed; running with the images already present"
+    fi
+fi
 
 step "starting services"
 # Bounded so a stuck container fails with a clear message rather than hanging
