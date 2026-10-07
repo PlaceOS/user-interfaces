@@ -575,9 +575,12 @@ export async function loadLockersForScope(
     const assets = await queryLockerAssetsForZones([scope_id]).catch(() => []);
     const lockers = assets.map((_) => lockerFromAsset(_, banks));
     for (const bank of banks) {
+        // Lockers listed under a bank carry a copy of the bank without its
+        // list: the booking model is walked recursively and must stay acyclic
+        const parent = { ...bank, lockers: [] as Locker[] };
         bank.lockers = lockers
             .filter((_) => _.bank_id === bank.id)
-            .map((_) => ({ ..._ }));
+            .map((_) => ({ ..._, bank: parent }));
     }
     return lockers.filter((_) => _.bank);
 }

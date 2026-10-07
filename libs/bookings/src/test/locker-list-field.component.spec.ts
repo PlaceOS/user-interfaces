@@ -52,6 +52,14 @@ describe('LockerListFieldComponent', () => {
         expect(spectator.inject(MatDialog).open).toHaveBeenCalledTimes(1);
     });
 
+    it('should hand the selected lockers to the modal as a list', () => {
+        spectator.component.setValue([{ id: 'a' }, { id: 'b' }] as any);
+        spectator.click('button[name="add-locker"]');
+        const [, config] = (spectator.inject(MatDialog).open as Mock).mock
+            .lastCall;
+        expect(config.data.items).toEqual([{ id: 'a' }, { id: 'b' }]);
+    });
+
     it('should display selected lockers', () => {
         expect(spectator.query('div[locker]')).not.toExist();
         spectator.component.setValue([{ id: 'a' }] as any);
