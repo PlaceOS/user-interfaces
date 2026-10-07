@@ -227,12 +227,17 @@ function formBookingData(value: Record<string, any>) {
     return data;
 }
 
+/** A booking type, or `undefined` for the blank `' '` placeholder that
+ * `new Booking()` sets when no type is given. */
+function knownBookingType(type: BookingType | undefined) {
+    return type?.trim() ? type : undefined;
+}
+
 /** Whether a booking carries edit state from a different booking type, i.e. an
  * existing booking being opened in the wrong type's form. */
 function isCrossTypeEdit(booking: Booking, type: BookingType) {
-    return (
-        !!booking?.id && !!booking.booking_type && booking.booking_type !== type
-    );
+    const booking_type = knownBookingType(booking?.booking_type);
+    return !!booking?.id && !!booking_type && booking_type !== type;
 }
 
 /** Build the `extension_data` payload saved with a booking. Only fields that
@@ -959,6 +964,10 @@ export class BookingFormService extends AsyncHandler {
         if (user_edits && Object.keys(user_edits).length) {
             this._patch(user_edits, { emitEvent: false });
         }
+        // Give an untyped form the flow type, so validators that depend on
+        // the type (e.g. parking plate number) run for callers that do not
+        // set it themselves.
+        this._patch({ booking_type: this._formBookingType() });
         this.applyDurationSettings();
         this._syncAssetOptions();
         const form_change = effect(
@@ -1315,6 +1324,8 @@ export class BookingFormService extends AsyncHandler {
             );
             this._patch({ date, duration, date_end });
         }
+        // Before validation, so type-dependent validators see the real type.
+        this._patch({ booking_type: this._formBookingType() });
         if (!this.form().valid()) {
             const invalid_fields = getInvalidSignalFields(
                 this.form,
@@ -1325,10 +1336,6 @@ export class BookingFormService extends AsyncHandler {
                 field_list: invalid_fields.join(', '),
             });
         }
-        this._patch({
-            booking_type:
-                this.model().booking_type?.trim() || this._options().type,
-        });
         const value = this.model() as any;
         const effective_timezone = this.timezone || value.timezone;
         const booking = this._booking() || new Booking();
@@ -2198,13 +2205,15 @@ export class BookingFormService extends AsyncHandler {
         };
     }
 
+    /** The form's booking type, or the flow type when the form has none. */
+    private _formBookingType(): BookingType {
+        return (
+            knownBookingType(this.model().booking_type) || this._options().type
+        );
+    }
+
     private _resource_type_label(): string {
-        const form_booking_type = this.model().booking_type;
-        const booking_type =
-            form_booking_type && form_booking_type !== ' '
-                ? form_booking_type
-                : this._options().type;
-        switch (booking_type) {
+        switch (this._formBookingType()) {
             case 'desk':
                 return 'Desk';
             case 'parking':
