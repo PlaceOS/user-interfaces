@@ -44,7 +44,7 @@
  * spec and wrong for this one — a retry would hide the very thing being
  * measured. These writes go straight at the API.
  *
- * ## Both are `fixme`, and the plan's own caution was correct
+ * ## Why these were `fixme` until the staff-api fix shipped
  *
  * The plan's note on this row said "a burst spec would encode REG-09 flakiness;
  * the reproducer stays the record until the image is fixed". I tried to design
@@ -60,9 +60,10 @@
  * note was right: left active, this file would be red about 25% of the time,
  * which is how a real finding gets trained out of a team's attention.
  *
- * Both tests are therefore `test.fixme`, in the same style as the ROOM-B* and
- * VIS-B* specs: written, disabled, and turning green the day the defect is
- * fixed. Two things worth taking from the measurement even so:
+ * Both tests were `test.fixme` until the stack ran a staff-api with the fix
+ * (placeos-2.2609.6, pg-orm 2.2.4): four consecutive runs held the invariant
+ * with 2 of 8 writes accepted each time. Two things worth taking from the
+ * measurement even so:
  *
  *  - Only **2 or 3 of 8** concurrent writes are accepted at all. The other five
  *    or six are refused `400 Expected BeginObject but was EOF` — staff-api
@@ -72,11 +73,11 @@
  *  - When a write IS accepted, it is usually real. The phantom 201 is the rarer
  *    and more dangerous case.
  *
- * **This is the row that decides when the REG-09 retry can be deleted.** Drop
- * both `fixme`s and run this file repeatedly: once it is reliably green, the
- * retries in the visitor, desk and parking helpers are no longer earning their
- * keep. Until then `e2e/support/repro/reg09-concurrent-bookings.ts` and
- * `vis-b6-burst.ts` remain the record.
+ * **This is the row that decides when the REG-09 retry can be deleted.** Once
+ * it is reliably green on the CI runner's images, the retries in the visitor,
+ * desk and parking helpers are no longer earning their keep. Until then
+ * `e2e/support/repro/reg09-concurrent-bookings.ts` and `vis-b6-burst.ts`
+ * remain the record.
  */
 import { test, expect } from '../../../../e2e/support/fixtures';
 import { STAFF_API, deleteBooking, uniqueTitle } from '../../../../e2e/support/api';
@@ -106,7 +107,7 @@ interface Attempt {
 }
 
 test.describe('concurrent visitor writes', () => {
-    test.fixme('VIS-28: every accepted write is stored, and every refused one leaves nothing', async ({
+    test('VIS-28: every accepted write is stored, and every refused one leaves nothing', async ({
         staffApi,
     }) => {
         const me = await (await staffApi.get('/api/engine/v2/users/current')).json();
@@ -249,7 +250,7 @@ test.describe('concurrent visitor writes', () => {
         }
     });
 
-    test.fixme('VIS-28b: a group container is never left holding fewer members than were written', async ({
+    test('VIS-28b: a group container is never left holding fewer members than were written', async ({
         staffApi,
     }) => {
         const me = await (await staffApi.get('/api/engine/v2/users/current')).json();

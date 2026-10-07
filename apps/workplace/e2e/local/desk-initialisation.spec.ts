@@ -7,7 +7,7 @@ import { DeskForm } from '../../../../e2e/support/desk/desk-form.page';
 import { expect, test } from '../../../../e2e/support/fixtures';
 
 test.describe('desk form initialisation', () => {
-    test.fixme('preserves values entered while organisation data is pending', async ({
+    test('preserves values entered while organisation data is pending', async ({
         staffPage,
     }, testInfo) => {
         let release_metadata!: () => void;

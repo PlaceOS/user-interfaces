@@ -2,10 +2,9 @@ import { zonesWithTag } from '../../../../e2e/support/api';
 import { expect, test } from '../../../../e2e/support/concierge/fixtures';
 import { runName } from '../../../../e2e/support/concierge/management.api';
 
-/** CON-B4, measured 2026-09-18: the new-survey form sends id: ''.
- * staff-api rejects it because Survey.id must be Int64 or null. Keep the
- * intended form scenario until the app omits the empty id on creation. */
-test.fixme('CON-SURV-01: a survey created through the builder persists and is listed', async ({
+/** CON-B4, measured 2026-09-18: the new-survey form sent id: '' and
+ * staff-api rejected it. The builder now omits the id for a new survey. */
+test('CON-SURV-01: a survey created through the builder persists and is listed', async ({
     adminPage,
     adminApi,
 }) => {

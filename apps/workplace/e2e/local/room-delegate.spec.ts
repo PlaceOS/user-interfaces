@@ -18,7 +18,7 @@
  * without it the field searches `/api/staff/v1/people`, the calendar directory,
  * which 500s on this stack. So this covers the PlaceOS path only.
  *
- * ## `fixme` — ROOM-B8: the chosen host is discarded
+ * ## ROOM-B8 (PPT-2805): the chosen host was discarded — fixed on develop
  *
  * Measured: the colleague was picked from the host field, **the field was proven
  * to still show them at the moment the meeting was confirmed**, and the stored
@@ -56,7 +56,7 @@ const window_from = () => Math.floor(Date.now() / 1000) - 2 * DAY;
 const window_to = () => Math.floor(Date.now() / 1000) + 7 * DAY;
 
 test.describe('booking a room for a colleague', () => {
-    test.fixme('the chosen colleague is stored as the host, and you as the booker', async ({
+    test('the chosen colleague is stored as the host, and you as the booker', async ({
         staffPage,
         staffApi,
     }, testInfo) => {

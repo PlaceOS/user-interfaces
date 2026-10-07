@@ -116,10 +116,9 @@ async function ourAssetRequests(
 }
 
 test.describe('room booking equipment requests', () => {
-    // `fixme` on ROOM-B9 — see the file header. The assertions below are what
-    // SHOULD happen; drop the `fixme` once an asset request can be linked to a
-    // booking rather than only to a calendar event.
-    test.fixme('ROOM-24: equipment requested on a meeting is stored as its own booking, linked to it', async ({
+    // ROOM-B9 — see the file header. The request is now linked to the native
+    // booking by `parent_id`.
+    test('ROOM-24: equipment requested on a meeting is stored as its own booking, linked to it', async ({
         staffPage,
         staffApi,
     }) => {
