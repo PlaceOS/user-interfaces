@@ -352,7 +352,7 @@ export function differenceBetweenAssetRequests(
 }
 
 export async function validateAssetRequestsForResource(
-    { id, ical_uid, from_booking }: any,
+    { id, ical_uid, from_booking, from_bookings }: any,
     {
         date,
         duration,
@@ -381,15 +381,16 @@ export async function validateAssetRequestsForResource(
         type: 'asset-request',
         zones: zones.join(','),
     });
+    const native = !!(from_booking || from_bookings);
     const bookings =
-        id && ical_uid
+        id && (ical_uid || native)
             ? await queryBookings({
                   period_start: getUnixTime(startOfDay(date)),
                   period_end: getUnixTime(endOfDay(date)),
                   type: 'asset-request',
                   email: host,
-                  event_id: from_booking ? '' : id,
-                  booking_id: from_booking ? id : '',
+                  event_id: native ? '' : id,
+                  booking_id: native ? id : '',
                   ical_uid,
               })
             : [];
@@ -504,11 +505,12 @@ export async function validateAssetRequestsForResource(
             },
             zones: zones || [],
         };
-        if (from_booking) (asset_data as any).parent_id = id;
+        // staff-api reads parent_id as an integer
+        if (native) (asset_data as any).parent_id = Number(id);
         return () =>
             createBooking(new Booking(asset_data), {
                 ical_uid,
-                event_id: from_booking ? '' : id,
+                event_id: native ? '' : id,
             });
     });
     return async () => {

@@ -398,6 +398,30 @@ describe('[Booking API]', () => {
             expect(delete_spy).not.toHaveBeenCalled();
         });
 
+        it('should link the bookings of a native booking event by parent id', async () => {
+            const native_event = new CalendarEvent({
+                ...event.toJSON(),
+                id: '1138',
+                ical_uid: '',
+                from_bookings: true,
+            } as any);
+            const get_spy = vi
+                .spyOn(ts_client, 'get')
+                .mockResolvedValue([] as never);
+            const post_spy = vi
+                .spyOn(ts_client, 'post')
+                .mockResolvedValue({ id: 'visitor-booking-1' } as never);
+
+            await createBookingsForEvent(native_event, 'visitor', [visitors[0]]);
+
+            expect(get_spy.mock.calls[0][0]).not.toContain('event_id=');
+            const [url, body] = post_spy.mock.calls[0] as [string, any];
+            expect(url).not.toContain('event_id=');
+            expect(url).not.toContain('ical_uid=');
+            expect(body.parent_id).toBe(1138);
+            expect(body.extension_data.parent_id).toBe('1138');
+        });
+
         it('should not create bookings when the linked bookings fail to load', async () => {
             const error = new Error('Unable to load bookings');
             vi.spyOn(ts_client, 'get').mockRejectedValueOnce(error);

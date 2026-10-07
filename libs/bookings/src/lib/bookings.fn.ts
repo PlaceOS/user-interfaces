@@ -760,7 +760,7 @@ async function linkedBookingsForEvent(
 ): Promise<Booking[]> {
     const bookings = await queryBookingsOrThrow({
         type,
-        event_id: event.id,
+        ...(event.from_bookings ? {} : { event_id: event.id }),
         period_start: getUnixTime(event.date),
         period_end: getUnixTime(addMinutes(event.date, event.duration)),
         limit: 500,
@@ -957,10 +957,16 @@ export async function createBookingsForEvent(
                 continue;
             }
             created_bookings.push(
-                await createBooking(desired.toJSON(), {
-                    ical_uid: event.ical_uid,
-                    event_id: event.id,
-                }),
+                event.from_bookings
+                    ? await createBooking({
+                          ...desired.toJSON(),
+                          // staff-api reads parent_id as an integer
+                          parent_id: Number(event.id) as any,
+                      })
+                    : await createBooking(desired.toJSON(), {
+                          ical_uid: event.ical_uid,
+                          event_id: event.id,
+                      }),
             );
         }
         for (const booking of existing) {
