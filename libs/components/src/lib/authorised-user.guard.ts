@@ -56,7 +56,13 @@ function resolvedWithin(promise: Promise<unknown>, delay: number) {
 }
 
 export abstract class PLACEOS_APP_ACCESS {
-    public readonly group: string;
+    /** A single group that gates the app, regardless of settings. */
+    public readonly group?: string;
+    /**
+     * Groups that gate the app while `app.allow_access_groups` is not set.
+     * Without them an unconfigured app admits every signed-in user.
+     */
+    public readonly default_groups?: string[];
 }
 
 @Injectable({
@@ -98,9 +104,13 @@ export class AuthorisedUserGuard {
             ]),
         );
         if (!state_ready) return this.offlineAccess();
+        const configured: string[] =
+            this._settings.get('app.allow_access_groups') || [];
         const groups = this._access?.group
             ? [this._access.group]
-            : this._settings.get('app.allow_access_groups') || [];
+            : configured.length
+              ? configured
+              : this._access?.default_groups || [];
         const use_group_subsystem_access = await this.useGroupSubsystemAccess();
         let can_activate = false;
         if (use_group_subsystem_access) {

@@ -30,6 +30,8 @@ import { routes } from './app.routes';
 
 import * as Sentry from '@sentry/angular';
 
+import { PLACEOS_APP_ACCESS } from '@placeos/components';
+
 import {
     LocaleService,
     registerActiveLocale,
@@ -74,6 +76,15 @@ export const appConfig: ApplicationConfig = {
             useFactory: (localeService: LocaleService) => localeService.locale,
         },
         { provide: TitleStrategy, useClass: SettingsTitleStrategy },
+        {
+            provide: PLACEOS_APP_ACCESS,
+            useValue: {
+                // Concierge shows everyone's bookings, visitors and the staff
+                // directory, so without `app.allow_access_groups` it is for
+                // admin and support users only.
+                default_groups: ['placeos_admin', 'placeos_support'],
+            },
+        },
         provideHttpClient(withXhr(), withInterceptorsFromDi()),
     ],
 };

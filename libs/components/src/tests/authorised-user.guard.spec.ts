@@ -25,7 +25,9 @@ import {
 
 describe('AuthorisedUserGuard', () => {
     let spectator: SpectatorService<AuthorisedUserGuard>;
-    const access_mock = { group: '' };
+    const access_mock: { group: string; default_groups?: string[] } = {
+        group: '',
+    };
     const settings_mock = {
         app_name: 'workplace',
         get: vi.fn((key: string): any => []),
@@ -54,6 +56,7 @@ describe('AuthorisedUserGuard', () => {
     beforeEach(() => {
         vi.clearAllMocks();
         access_mock.group = '';
+        delete access_mock.default_groups;
         settings_mock.app_name = 'workplace';
         settings_mock.get.mockImplementation((key) =>
             key === 'app.allow_access_groups' ? [] : undefined,
@@ -182,6 +185,31 @@ describe('AuthorisedUserGuard', () => {
 
         // Reset
         access_mock.group = '';
+    });
+
+    it('should fall back to the app default groups when none are configured', async () => {
+        access_mock.default_groups = ['placeos_admin', 'placeos_support'];
+        const router = spectator.inject(Router);
+
+        setCurrentUser({ groups: [] } as any);
+        await expect(spectator.service.canActivate()).resolves.toBe(false);
+        expect(router.navigate).toHaveBeenCalledWith(['/unauthorised']);
+
+        setCurrentUser({ groups: ['placeos_support'] } as any);
+        await expect(spectator.service.canActivate()).resolves.toBe(true);
+    });
+
+    it('should prefer configured access groups over the app default groups', async () => {
+        access_mock.default_groups = ['placeos_admin'];
+        settings_mock.get.mockImplementation((key) =>
+            key === 'app.allow_access_groups' ? ['front_desk'] : undefined,
+        );
+
+        setCurrentUser({ groups: ['front_desk'] } as any);
+        await expect(spectator.service.canActivate()).resolves.toBe(true);
+
+        setCurrentUser({ groups: ['placeos_admin'] } as any);
+        await expect(spectator.service.canActivate()).resolves.toBe(false);
     });
 
     it('waits for user groups and app settings to load', async () => {

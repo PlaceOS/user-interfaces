@@ -57,6 +57,7 @@ Each locale entry requires an `id` and `name`:
 | `features` | string[] | All features enabled (see below) | List of features enabled in the app. Available values: `spaces`, `zones`, `desks`, `parking`, `visitors`, `assets`, `facilities`, `internal-users`, `points`, `surveys`, `catering`, `events`, `booking-report`, `attendance-report`, `contact-tracing-report`, `signage`, `email-templates`. |
 | `feature_groups` | object | – | Maps feature names to the user groups allowed to access them, e.g. `parking-requests`. Features without an entry are available to all users. |
 | `admin_group` | string | `"concierge_admins"` | Name of the user group that grants access to admin sections of the app. Members of `placeos_admin` and `placeos_support` are always allowed. |
+| `allow_access_groups` | string[] | – | User groups allowed to open the app at all. When unset, only members of `placeos_admin` and `placeos_support` (admin and support users) are admitted; set it to open the app to a front-desk group. |
 | `delegated` | boolean | `false` | Set when your PlaceOS instance uses delegated calendar access. Hides event actions from the event details view. |
 | `has_uploads` | boolean | `true` | Whether file upload support (S3/cloud storage) is available in the app. |
 | `bulk_actions` | boolean | `false` | Let staff select several rows and apply one action to all of them. Desk, parking and locker bookings, parking requests and asset requests get approve and reject actions. Catering orders get a status action. |
