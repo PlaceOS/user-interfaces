@@ -367,6 +367,10 @@ export class MeetingFormDetailsComponent extends AsyncHandler {
         'events.can_book_for_anyone',
         false,
     );
+    private readonly _use_bookings = this._settings.signal(
+        'events.use_bookings',
+        false,
+    );
     private readonly _allow_all_day = this._settings.signal(
         'events.allow_all_day',
         false,
@@ -475,8 +479,13 @@ export class MeetingFormDetailsComponent extends AsyncHandler {
         this.model.update((model) => ({ ...model, timezone }));
     }
 
+    /**
+     * Confirm the current user can write to the selected host's calendar.
+     * Native bookings do not write to calendars, so they skip this check.
+     */
     private async _checkCalendarPermission(user: User) {
         if (!user?.email || !this.can_book_for_anyone()) return;
+        if (this._use_bookings()) return;
         const current = currentUser();
         if (user.email.toLowerCase() === current?.email?.toLowerCase()) return;
         this.permission_error.set('');
