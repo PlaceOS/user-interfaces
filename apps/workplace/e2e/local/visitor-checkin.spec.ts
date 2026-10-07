@@ -95,6 +95,69 @@ async function inviteAt(
 }
 
 test.describe('visitor check-in', () => {
+    test('a visitor can book an overlapping visit after checking out early', async ({
+        staffApi,
+    }, testInfo) => {
+        const visitor = visitorFor(testInfo.parallelIndex, VISITOR_SLOTS.checkin.earlyCheckout);
+        const ids: number[] = [];
+        // Already started, but still inside the check-in window. No clock waits
+        // are needed, and the original scheduled end leaves room for visit two.
+        const start = Math.floor(Date.now() / 1000) - 10 * 60;
+
+        try {
+            await releaseVisitor(staffApi, visitor.email, window_from(), window_to());
+            const first = await inviteAt(
+                staffApi, visitor, uniqueTitle('E2E Visit Early Checkout'), start,
+            );
+            ids.push(first.id);
+            const original = await getBooking(staffApi, first.id);
+            expect(original.asset_id).toBe(visitor.email);
+            expect(original.booking_start).toBe(start);
+            expect(original.booking_end).toBe(start + 3600);
+
+            const check_in = await checkInViaApi(staffApi, first.id);
+            expect(check_in.status, `check-in: HTTP ${check_in.status} ${check_in.body}`)
+                .toBeGreaterThanOrEqual(200);
+            expect(check_in.status, check_in.body).toBeLessThan(300);
+            expect((await getBooking(staffApi, first.id)).checked_in).toBe(true);
+
+            const check_out = await checkInViaApi(staffApi, first.id, false);
+            expect(check_out.status, `check-out: HTTP ${check_out.status} ${check_out.body}`)
+                .toBeGreaterThanOrEqual(200);
+            expect(check_out.status, check_out.body).toBeLessThan(300);
+            const completed = await getBooking(staffApi, first.id);
+            expect(completed.checked_in).toBeFalsy();
+            expect(typeof completed.checked_out_at).toBe('number');
+            const checked_out_at = completed.checked_out_at as number;
+            expect(checked_out_at).toBeGreaterThan(0);
+            expect(checked_out_at).toBeLessThan(original.booking_end);
+
+            const second_start = Math.max(
+                checked_out_at, Math.floor(Date.now() / 1000),
+            ) + 10 * 60;
+            expect(second_start).toBeGreaterThan(checked_out_at);
+            expect(second_start).toBeLessThan(original.booking_end);
+            const second = await inviteAt(
+                staffApi, visitor, uniqueTitle('E2E Visit After Checkout'), second_start,
+            );
+            ids.push(second.id);
+
+            const stored = await getBooking(staffApi, second.id);
+            expect(stored.id).not.toBe(first.id);
+            expect(stored.asset_id).toBe(original.asset_id);
+            expect(stored.booking_type).toBe('visitor');
+            expect(stored.deleted).toBeFalsy();
+            expect(stored.booking_start).toBe(second_start);
+            expect(stored.booking_start).toBeGreaterThan(checked_out_at);
+            expect(stored.booking_start).toBeLessThan(original.booking_end);
+            expect(stored.booking_end).toBe(second_start + 3600);
+            expect(stored.booking_end).toBeGreaterThan(original.booking_start);
+        } finally {
+            for (const id of ids) await deleteBooking(staffApi, id);
+            await deleteGuest(staffApi, visitor.email);
+        }
+    });
+
     test('a visitor can be checked in and back out again', async ({
         staffPage,
         staffApi,

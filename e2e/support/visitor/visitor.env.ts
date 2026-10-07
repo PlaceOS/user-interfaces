@@ -31,7 +31,7 @@ export const VISITOR_SLOTS = {
     /** visitor-delegate.spec.ts */
     delegate: { single: 5, groupA: 6, groupB: 7 },
     /** visitor-checkin.spec.ts */
-    checkin: { checkIn: 8, tooEarly: 9 },
+    checkin: { checkIn: 8, tooEarly: 9, earlyCheckout: 30 },
     /** visitor-edit.spec.ts */
     edit: { details: 10, memberA: 11, memberB: 12 },
     /** visitor-settings.spec.ts */
