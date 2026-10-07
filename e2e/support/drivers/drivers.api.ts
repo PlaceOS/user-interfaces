@@ -129,10 +129,13 @@ export async function ensureDriver(
  * Wait until core holds a binary for the driver.
  *
  * `GET /drivers/:id/compiled` goes through core: 200 once the binary is on
- * core's disk (core downloads it from the farm while answering), 404 while it is
- * not, and 200 with `compilation_output` when the farm refused to build it. The
- * driver row carries the same output, and is checked as well because core
- * writes it there whether or not anyone asks.
+ * core's disk, 404 while it is not, and 200 with `compilation_output` when the
+ * farm refused to build it. core downloads the binary from the farm's S3 while
+ * answering, and a request that lands during that download waits for it, so the
+ * request gets the whole remaining budget rather than Playwright's 30 s default.
+ * The driver row carries the same output, and is checked as well because core
+ * writes it there whether or not anyone asks; `compilation_status=false` keeps
+ * that read from asking core too.
  */
 export async function waitForDriverCompiled(
     api: APIRequestContext,
@@ -146,7 +149,9 @@ export async function waitForDriverCompiled(
     let last = '';
     let reported = 0;
     for (;;) {
-        const row = await getJson(api, `${ENGINE_API}/drivers/${driver_id}`);
+        const row = await getJson(api, `${ENGINE_API}/drivers/${driver_id}`, {
+            compilation_status: 'false',
+        });
         if (row.compilation_output) {
             throw new Error(
                 `${label} failed to build:\n${row.compilation_output}`,
@@ -154,6 +159,7 @@ export async function waitForDriverCompiled(
         }
         const res = await api.get(
             `${ENGINE_API}/drivers/${driver_id}/compiled`,
+            { timeout: Math.max(deadline - Date.now(), 10_000) },
         );
         const body = await res.text();
         if (res.ok()) {
