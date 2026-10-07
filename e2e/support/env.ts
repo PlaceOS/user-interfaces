@@ -68,7 +68,7 @@ export function assertLocalOnly(...urls: string[]): void {
     }
 }
 
-export type RoleName = 'admin' | 'staff';
+export type RoleName = 'admin' | 'staff' | 'calendar';
 
 export interface Role {
     name: RoleName;
@@ -83,6 +83,13 @@ export interface Role {
 const ADMIN_EMAIL = process.env.E2E_ADMIN_EMAIL ?? 'support@place.tech';
 const ADMIN_PASSWORD = process.env.E2E_ADMIN_PASSWORD ?? 'development';
 const STAFF_PASSWORD = process.env.E2E_STAFF_PASSWORD ?? 'e2e-staff-development';
+/**
+ * The admin whose address is a mailbox in the Microsoft 365 tenant, when the
+ * stack is backed by one (`e2e/support/calendar/calendar.env.ts`). Seeded only
+ * then; `roleFor('calendar')` on a stack without it has no user behind it.
+ */
+const CALENDAR_EMAIL = process.env.E2E_CALENDAR_USER ?? 'AdeleV@0cbfs.onmicrosoft.com';
+const CALENDAR_PASSWORD = process.env.E2E_CALENDAR_PASSWORD ?? 'e2e-calendar-development';
 
 /** Per-worker non-admin address. Seeded by seed.ts for 0..WORKERS-1. */
 export function staffEmail(workerIndex: number): string {
@@ -115,6 +122,15 @@ export function roleFor(name: RoleName, workerIndex = 0): Role {
             password: ADMIN_PASSWORD,
             storagePath: path.join(AUTH_DIR, `admin-${workerIndex}.json`),
             tokenPath: path.join(AUTH_DIR, `admin-${workerIndex}.token.json`),
+        };
+    }
+    if (name === 'calendar') {
+        return {
+            name,
+            email: CALENDAR_EMAIL,
+            password: CALENDAR_PASSWORD,
+            storagePath: path.join(AUTH_DIR, `calendar-${workerIndex}.json`),
+            tokenPath: path.join(AUTH_DIR, `calendar-${workerIndex}.token.json`),
         };
     }
     return {

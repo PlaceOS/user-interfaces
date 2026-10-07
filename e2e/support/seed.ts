@@ -27,6 +27,7 @@ import {
 import { mintToken, clientId, redirectUriFor } from './auth';
 import { ENGINE_API, STAFF_API } from './api';
 import { describeDrivers, ensureDrivers } from './drivers/drivers.seed';
+import { CALENDAR_ENABLED, CALENDAR_USER_EMAIL, O365 } from './calendar/calendar.env';
 
 /** The app `init` guarantees exists — our way in before anything else is registered. */
 const BOOTSTRAP_APP_URL = `${BACKEND_URL}/backoffice`;
@@ -151,31 +152,80 @@ async function ensureAbsoluteLoginUrl(api: APIRequestContext) {
  * for the calendar-backed routes (/calendars, /events) and nothing else — so a
  * placeholder tenant unblocks the whole PlaceOS-native booking surface (desks,
  * lockers, parking, visitors) with ZERO external calls. That is what keeps this
- * suite genuinely local. Real calendar credentials are opt-in; see e2e/README.md.
+ * suite genuinely local. Real credentials are opt-in through the `E2E_O365_*`
+ * variables (`e2e/support/calendar/calendar.env.ts`); with them the row is
+ * app-only (no delegated access, no service account) so staff-api acts as the
+ * signed-in user, and a row left over from a placeholder run is updated.
  */
 async function ensureTenant(api: APIRequestContext) {
     const domain = new URL(BACKEND_URL).hostname;
+    const credentials = CALENDAR_ENABLED
+        ? { tenant: O365.tenant, client_id: O365.client_id, client_secret: O365.client_secret }
+        : {
+              tenant: 'e2e-local-placeholder',
+              client_id: 'e2e-local-placeholder',
+              client_secret: 'e2e-local-placeholder',
+          };
     const existing = await json(api, `${STAFF_API}/tenants`);
     const list = Array.isArray(existing) ? existing : (existing.results ?? []);
-    if (list.some((t: { domain?: string }) => t.domain === domain)) {
-        return { domain, created: false };
+    const found = list.find((t: { domain?: string }) => t.domain === domain);
+    if (found && !CALENDAR_ENABLED) return { domain, created: false, calendar: false };
+    if (found) {
+        // Credentials are never returned, so the row is re-sent every time the
+        // calendar is on; staff-api encrypts them on save.
+        const res = await api.put(`${STAFF_API}/tenants/${found.id}`, {
+            data: { ...found, platform: 'office365', delegated: false, credentials },
+        });
+        if (!res.ok()) {
+            throw new Error(`update tenant failed: HTTP ${res.status()} ${await res.text()}`);
+        }
+        return { domain, created: false, calendar: true };
     }
     const res = await api.post(`${STAFF_API}/tenants`, {
         data: {
             name: 'E2E Local',
             domain,
             platform: 'office365',
-            credentials: {
-                tenant: 'e2e-local-placeholder',
-                client_id: 'e2e-local-placeholder',
-                client_secret: 'e2e-local-placeholder',
-            },
+            delegated: false,
+            credentials,
         },
     });
     if (!res.ok()) {
         throw new Error(`create tenant failed: HTTP ${res.status()} ${await res.text()}`);
     }
-    return { domain, created: true };
+    return { domain, created: true, calendar: CALENDAR_ENABLED };
+}
+
+/**
+ * The admin whose address is a mailbox in the tenant (`roleFor('calendar')`).
+ *
+ * A sys_admin, because the concierge calendar specs sign in as this user and
+ * concierge admits admin and support users by default.
+ */
+async function ensureCalendarUser(api: APIRequestContext) {
+    const role = roleFor('calendar');
+    const authority_id = (await authority(api)).id;
+    const found = await json(api, `${ENGINE_API}/users`, { q: role.email, limit: '50' });
+    const list = Array.isArray(found) ? found : (found.results ?? []);
+    if (list.some((u: { email?: string }) => u.email?.toLowerCase() === role.email.toLowerCase())) {
+        return { email: role.email, created: false };
+    }
+    const res = await api.post(`${ENGINE_API}/users`, {
+        data: {
+            name: 'E2E Calendar Admin',
+            email: role.email,
+            password: role.password,
+            authority_id,
+            sys_admin: true,
+            support: false,
+        },
+    });
+    if (!res.ok()) {
+        const body = await res.text();
+        if (alreadyExists(body)) return { email: role.email, created: false };
+        throw new Error(`create user ${role.email} failed: HTTP ${res.status()} ${body}`);
+    }
+    return { email: role.email, created: true };
 }
 
 /**
@@ -278,7 +328,16 @@ export async function seed(): Promise<void> {
         const login = await ensureAbsoluteLoginUrl(api);
         console.log(`  login_url  ${login.changed ? 'patched' : 'ok'}       ${login.login_url}`);
         const tenant = await ensureTenant(api);
-        console.log(`  tenant     ${tenant.created ? 'created' : 'present'}  domain=${tenant.domain}`);
+        console.log(
+            `  tenant     ${tenant.created ? 'created' : 'present'}  domain=${tenant.domain}  ` +
+                `calendar=${tenant.calendar ? `microsoft 365 (${O365.tenant})` : 'placeholder'}`,
+        );
+        if (CALENDAR_ENABLED) {
+            const calendar_user = await ensureCalendarUser(api);
+            console.log(
+                `  calendar   ${calendar_user.created ? 'created' : 'present'}  admin ${CALENDAR_USER_EMAIL}`,
+            );
+        }
         const desks = await ensureDesks(api);
         console.log(`  desks      ${desks.count} on ${desks.zone}`);
         const users = await ensureStaffUsers(api);

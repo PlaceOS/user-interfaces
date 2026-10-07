@@ -54,6 +54,16 @@ search-ingest, frontend-loader, auth, rest-api, staff-api, core, nginx, init.
 Dropped from PlaceOS/local: edge, triggers, dispatch, source, influx, chronograf,
 mosquitto, minio and the loki/grafana profile — roughly half the containers.
 
+The calendar and directory can be backed by the PlaceOS Microsoft 365 sandbox
+tenant. Set `E2E_O365_TENANT`, `E2E_O365_CLIENT_ID` and `E2E_O365_CLIENT_SECRET`
+before `up.sh` (CI takes them from the repository variables and secret of the
+same names) and the seed writes app-only credentials to the tenant row, creates
+a local admin whose address is a mailbox there (`roleFor('calendar')`), and
+`/api/staff/v1/events` and `/api/staff/v1/people` answer from the tenant.
+Without them the tenant row carries placeholders, those routes answer 500 at
+Microsoft, and the specs that need them skip. See
+`e2e/support/calendar/calendar.env.ts`.
+
 core runs real drivers from PlaceOS/drivers, pinned to a commit in
 `e2e/support/drivers/drivers.env.ts`. It compiles nothing itself: binaries come
 from the PlaceOS build farm (build.placeos.run), which builds a commit it has not
