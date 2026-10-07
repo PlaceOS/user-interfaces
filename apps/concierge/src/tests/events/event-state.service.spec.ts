@@ -96,4 +96,12 @@ describe('EventStateService', () => {
         await wait(350);
         expect(eventQueryCount()).toBe(2);
     });
+
+    it('should not request events before the period is set', async () => {
+        spectator.service.setOptions({ period: 'month' });
+
+        TestBed.flushEffects();
+        await wait(350);
+        expect(eventQueryCount()).toBe(0);
+    });
 });

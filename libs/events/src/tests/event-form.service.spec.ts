@@ -1558,6 +1558,222 @@ describe('EventFormService', () => {
         });
     });
 
+    it('should save a changed view access over the stored permission', async () => {
+        const events_calendar = new Space({
+            id: 'sys-events',
+            email: 'group-events@test.com',
+            zones: ['bld-1'],
+        });
+        const event = new CalendarEvent({
+            id: 'event-1',
+            host: 'group-events@test.com',
+            calendar: 'group-events@test.com',
+            date: new Date(2028, 5, 15, 10).valueOf(),
+            duration: 60,
+            resources: [events_calendar],
+            permission: 'public',
+            extension_data: { view_access: 'PUBLIC' },
+        });
+        const perform_booking_spy = vi
+            .spyOn(service as any, '_performBooking')
+            .mockResolvedValue(event);
+
+        service.newForm(event);
+        // Concierge copies the stored metadata, permission included, into the form.
+        service.model.update(
+            (model) =>
+                ({
+                    ...model,
+                    permission: 'PUBLIC',
+                    view_access: 'OPEN',
+                }) as any,
+        );
+
+        await service.postForm(true, ['group-events@test.com'], true, true);
+
+        const [saved_event] = perform_booking_spy.mock.calls[0] as [
+            CalendarEvent,
+        ];
+        expect(saved_event.toJSON()).toMatchObject({
+            permission: 'OPEN',
+            extension_data: { view_access: 'OPEN' },
+        });
+    });
+
+    it('should not check an ignored events calendar for availability', async () => {
+        const events_calendar = new Space({
+            id: 'sys-events',
+            email: 'group-events@test.com',
+            zones: ['bld-1'],
+        });
+        // Staff API returns the events calendar as an attendee, not a resource.
+        const event = new CalendarEvent({
+            id: 'event-1',
+            host: 'group-events@test.com',
+            calendar: 'group-events@test.com',
+            date: new Date(2028, 5, 15, 10).valueOf(),
+            duration: 60,
+            resources: [],
+        });
+        const availability_spy = vi
+            .spyOn(service as any, '_checkResourcesAvailable')
+            .mockResolvedValue(true);
+        vi.spyOn(service as any, '_checkResourceRules').mockResolvedValue(
+            undefined,
+        );
+        const perform_booking_spy = vi
+            .spyOn(service as any, '_performBooking')
+            .mockResolvedValue(event);
+
+        service.newForm(event);
+        service.model.update((model) => ({
+            ...model,
+            resources: [events_calendar],
+        }));
+
+        await service.postForm(true, ['group-events@test.com'], true, true);
+
+        expect(availability_spy).not.toHaveBeenCalled();
+        const [, query] = perform_booking_spy.mock.calls[0] as [
+            CalendarEvent,
+            Record<string, string>,
+        ];
+        expect(query).toMatchObject({ system_id: 'sys-events' });
+    });
+
+    /** Save a new event with building timezones on. London is the default active building. */
+    async function saveWithBuildingTimezones(
+        resources: Space[],
+        {
+            ignore_space_check = [] as string[],
+            all_day = false,
+            active_building = 'bld-london',
+            date = new Date(2028, 5, 15, 10).valueOf(),
+        } = {},
+    ) {
+        const org = TestBed.inject(OrganisationService) as any;
+        const settings = TestBed.inject(SettingsService);
+        const building_timezones: Record<string, string> = {
+            'bld-sydney': 'Australia/Sydney',
+            'bld-london': 'Europe/London',
+        };
+        org.building = {
+            id: active_building,
+            timezone: building_timezones[active_building],
+        };
+        vi.mocked(org.loadBuildingsForZones).mockImplementation(
+            async (zone_lists: string[][]) =>
+                zone_lists.map(
+                    ([id]) =>
+                        new Building({ id, timezone: building_timezones[id] }),
+                ),
+        );
+        vi.mocked(settings.get).mockImplementation(((key: string) =>
+            key === 'app.events.use_building_timezone'
+                ? true
+                : undefined) as any);
+        vi.spyOn(service as any, '_checkResourcesAvailable').mockResolvedValue(
+            true,
+        );
+        vi.spyOn(service as any, '_checkResourceRules').mockResolvedValue(
+            undefined,
+        );
+        const perform_booking_spy = vi
+            .spyOn(service as any, '_performBooking')
+            .mockImplementation(
+                async (event) =>
+                    new CalendarEvent({ ...(event as any), id: 'event-1' }),
+            );
+        vi.mocked<(url: string) => Promise<unknown>>(
+            ts_client.get,
+        ).mockResolvedValue([]);
+        vi.mocked<(url: string, data: object) => Promise<unknown>>(
+            ts_client.post,
+        ).mockResolvedValue({});
+        vi.spyOn((service as any)._space_pipe, 'transform').mockImplementation(
+            async (email: string) => resources.find((_) => _.email === email),
+        );
+
+        service.newForm();
+        service.model.update((model) => ({
+            ...model,
+            host: 'host@test.com',
+            organiser: { email: 'host@test.com' } as any,
+            creator: 'host@test.com',
+            title: 'Sydney event',
+            date,
+            duration: 60,
+            all_day,
+            attendees: [],
+            resources,
+        }));
+
+        await service.postForm(true, ignore_space_check);
+
+        return (perform_booking_spy.mock.calls[0] as [CalendarEvent])[0];
+    }
+
+    const sydney_room = new Space({
+        id: 'sys-sydney',
+        email: 'sydney@test.com',
+        zones: ['bld-sydney'],
+    });
+
+    it('should save the timezone of the room building with building timezones on', async () => {
+        const saved_event = await saveWithBuildingTimezones([sydney_room]);
+
+        expect(saved_event.timezone).toBe('Australia/Sydney');
+    });
+
+    it('should use the room building over an ignored events calendar', async () => {
+        const events_calendar = new Space({
+            id: 'sys-events',
+            email: 'group-events@test.com',
+            zones: ['bld-london'],
+        });
+
+        const saved_event = await saveWithBuildingTimezones(
+            [events_calendar, sydney_room],
+            { ignore_space_check: ['Group-Events@test.com'] },
+        );
+
+        expect(saved_event.timezone).toBe('Australia/Sydney');
+    });
+
+    it('should keep an all day event in the room building timezone', async () => {
+        const saved_event = await saveWithBuildingTimezones([sydney_room], {
+            all_day: true,
+        });
+
+        expect(saved_event.toJSON()).toMatchObject({
+            all_day: true,
+            timezone: 'Australia/Sydney',
+        });
+        expect(saved_event.toJSON().extension_data.custom_all_day).toBeFalsy();
+    });
+
+    it('should keep the picked all day date when the form timezone is ahead', async () => {
+        const london_room = new Space({
+            id: 'sys-london',
+            email: 'london@test.com',
+            zones: ['bld-london'],
+        });
+        // 15 June midnight in Sydney is still 14 June in London.
+        const sydney_midnight = Date.UTC(2028, 5, 14, 14);
+
+        const saved_event = await saveWithBuildingTimezones([london_room], {
+            all_day: true,
+            active_building: 'bld-sydney',
+            date: sydney_midnight,
+        });
+
+        const json = saved_event.toJSON();
+        expect(json.timezone).toBe('Europe/London');
+        expect(json.all_day).toBe(true);
+        // 15 June midnight in London (UTC+1 in June).
+        expect(json.event_start).toBe(Date.UTC(2028, 5, 14, 23) / 1000);
+    });
+
     it('should clear saved host changes after a permission error', async () => {
         const current_user = currentUser();
         const perform_booking_spy = vi

@@ -153,6 +153,26 @@ describe('CalendarEvent', () => {
         expect(event.guests[0].email).toBe('guest@external.com');
     });
 
+    it('should use the selected view access over a stale permission', () => {
+        const event = new CalendarEvent({
+            permission: 'PUBLIC',
+            view_access: 'OPEN',
+            extension_data: { permission: 'PUBLIC' },
+        } as any);
+        expect(event.permission).toBe('OPEN');
+        expect(event.view_access).toBe('OPEN');
+        expect(event.extension_data.permission).toBe('OPEN');
+    });
+
+    it('should keep the stored permission of a loaded event', () => {
+        const event = new CalendarEvent({
+            permission: 'public',
+            extension_data: { view_access: 'PUBLIC' },
+        } as any);
+        expect(event.permission).toBe('public');
+        expect(event.view_access).toBe('PUBLIC');
+    });
+
     it('should strip hidden content from the body', () => {
         const event = new CalendarEvent({
             body: 'Notes &lt;&lt;&lt;hidden&gt;&gt;&gt; more',

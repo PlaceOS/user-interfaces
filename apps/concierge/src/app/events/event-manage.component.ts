@@ -16,6 +16,7 @@ import {
     Building,
     BuildingLevel,
     CalendarEvent,
+    EventExtensionData,
     OrganisationService,
     SettingsService,
     Space,
@@ -608,14 +609,20 @@ export class EventManageComponent
                     let booking = await showEvent(params.get('id'), {
                         calendar: this._state.calendar,
                     });
-                    const space = await space_pipe.transform(
-                        this._state.calendar,
-                    );
-                    const metadata = await showEventMetadata(
-                        params.get('id'),
-                        space?.id || booking.system?.id,
-                        { ical_uid: booking.ical_uid },
-                    ).catch(() => ({}));
+                    // Staff API can keep more than one metadata record for an
+                    // event, and the metadata route can return an old one.
+                    // Group events already include their current metadata.
+                    let metadata: Partial<EventExtensionData> = {};
+                    if (!booking.extension_data?.shared_event) {
+                        const space = await space_pipe.transform(
+                            this._state.calendar,
+                        );
+                        metadata = await showEventMetadata(
+                            params.get('id'),
+                            space?.id || booking.system?.id,
+                            { ical_uid: booking.ical_uid },
+                        ).catch(() => ({}));
+                    }
                     booking = new CalendarEvent({
                         ...booking,
                         extension_data: {

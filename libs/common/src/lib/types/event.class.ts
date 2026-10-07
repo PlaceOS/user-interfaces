@@ -97,6 +97,8 @@ export interface EventExtensionData {
     shared_event?: boolean;
     /** Access level of the event */
     view_access: 'PRIVATE' | 'OPEN' | 'PUBLIC';
+    /** Copy of the event permission kept in the stored metadata */
+    permission?: string;
 }
 
 export interface EventListQueryParams {
@@ -533,7 +535,15 @@ export class CalendarEvent {
             data.view_access ||
             (data.permission?.toUpperCase() as any) ||
             'OPEN';
-        this.permission = data.permission || this.extension_data.view_access;
+        // A selected view access decides the permission. Edit forms can also
+        // carry the stored permission, which is stale after the user changes it.
+        this.permission =
+            data.view_access ||
+            data.permission ||
+            this.extension_data.view_access;
+        if (this.extension_data.permission) {
+            this.extension_data.permission = this.permission;
+        }
         this.extension_data.assets = asset_requests.map(
             (i) => new AssetRequest({ ...i, event: simple_event } as any),
         );
