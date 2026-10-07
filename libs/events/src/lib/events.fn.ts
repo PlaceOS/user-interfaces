@@ -6,7 +6,15 @@ import {
     toQueryString,
     VERSION,
 } from '@placeos/common';
-import { del, get, patch, post, put, query } from '@placeos/ts-client';
+import {
+    del,
+    get,
+    patch,
+    post,
+    put,
+    query,
+    responseHeaders,
+} from '@placeos/ts-client';
 import { addMinutes, getUnixTime } from 'date-fns';
 
 import { queryCalendarAvailability, querySpaceFreeBusy } from './calendar.fn';
@@ -112,9 +120,41 @@ export async function queryEvents(
 export async function queryEventsOrThrow(
     q: CalendarEventQueryParams,
 ): Promise<CalendarEvent[]> {
+    return (await queryEventListOrThrow(q)).events;
+}
+
+/** Events from a list request, with the calendars that did not load */
+export interface CalendarEventList {
+    events: CalendarEvent[];
+    /** Lower case IDs of the calendars that the API could not read */
+    failed_calendars: string[];
+}
+
+/**
+ * List events and the calendars that did not load. When the API cannot
+ * read some calendars, it returns the other events with HTTP 206 and
+ * lists the failed calendars in the `x-calendar-issue` header.
+ * Throws when the request fails.
+ * @param q Parameters to pass to the API request
+ */
+export async function queryEventListOrThrow(
+    q: CalendarEventQueryParams,
+): Promise<CalendarEventList> {
     const query = toQueryString(q);
-    const list = await get(`${EVENTS_ENDPOINT}${query ? '?' + query : ''}`);
-    return list.map((e) => new CalendarEvent(e));
+    const url = `${EVENTS_ENDPOINT}${query ? '?' + query : ''}`;
+    const list = await get(url);
+    // The client stores headers by the absolute URL of the response
+    const issues =
+        responseHeaders(new URL(url, document.baseURI).href)[
+            'x-calendar-issue'
+        ] || '';
+    return {
+        events: list.map((e) => new CalendarEvent(e)),
+        failed_calendars: issues
+            .split(',')
+            .map((id) => id.trim().toLowerCase())
+            .filter(Boolean),
+    };
 }
 
 export async function queryEventHistory(

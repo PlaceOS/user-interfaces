@@ -37,6 +37,7 @@ describe('RoomBookingsComponent', () => {
             } as any),
             MockProvider(EventsStateService, {
                 load_error: signal(false),
+                failed_spaces: signal([]),
                 zones,
                 period: signal('day'),
                 date: signal(Date.now()),
