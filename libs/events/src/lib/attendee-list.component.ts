@@ -65,6 +65,14 @@ import { UserAvatarComponent } from 'libs/components/src/lib/user-avatar.compone
                                     {{ 'FORM.HOST' | translate }}
                                 </div>
                             }
+                            @if (mark_external() && user.is_external) {
+                                <div
+                                    external
+                                    class="bg-warning-light rounded px-2 py-1 font-mono text-xs shadow"
+                                >
+                                    {{ 'COMMON.TYPE_EXTERNAL' | translate }}
+                                </div>
+                            }
                             <div class="p-2">
                                 <div
                                     class="h-3 w-3 rounded-full"
@@ -111,6 +119,8 @@ export class AttendeeListComponent {
         return [new User({ email: host }), ...attendee_list];
     });
     public readonly hide_close = input(false);
+    /** Label attendees from outside the organisation, e.g. public event guests */
+    public readonly mark_external = input(false);
     public readonly custom_title = input('');
     public readonly close = output();
 }

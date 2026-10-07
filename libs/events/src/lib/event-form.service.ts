@@ -33,6 +33,7 @@ import {
     notifyWarn,
     onFieldChange,
     rulesForResource,
+    sameDayInTimezone,
     setDefaultCreator,
     SettingsService,
     Space,
@@ -566,16 +567,11 @@ export class EventFormService extends AsyncHandler {
         });
     }
 
-    private _allDayTimeRange(date: number) {
+    private _allDayTimeRange(date: number, timezone = this.timezone) {
         const period = this._settings.get<{ start?: number; end?: number }>(
             'app.events.all_day_period',
         );
-        return getAllDayTimeRange(
-            date,
-            this.timezone,
-            period?.start,
-            period?.end,
-        );
+        return getAllDayTimeRange(date, timezone, period?.start, period?.end);
     }
 
     /** Resolve the bookable space list for the given zone */
@@ -863,8 +859,30 @@ export class EventFormService extends AsyncHandler {
                 event.resources.some(
                     (space) => !spaces.some((_) => _.id === space.id),
                 );
+            // Callers can list a space by email (e.g. a shared events
+            // calendar). It is not a room the event is booked in.
+            const ignored_emails = ignore_space_check.map((_) =>
+                _.toLowerCase(),
+            );
+            const isIgnored = (space: Space) =>
+                ignored_emails.includes(space.email?.toLowerCase());
+            const rooms = spaces.filter((_) => !isIgnored(_));
+            const organiser_timezone = await this._organiserTimezone(
+                rooms.length ? rooms : spaces,
+                raw_value.timezone,
+            );
+            // The form picks dates in its own timezone. Keep a newly picked
+            // all-day date on that calendar day in the event timezone.
+            const has_date_changed = !event.id || event.date !== raw_value.date;
+            const all_day_date = has_date_changed
+                ? sameDayInTimezone(
+                      raw_value.date,
+                      this.timezone,
+                      organiser_timezone,
+                  )
+                : raw_value.date;
             const all_day_period = raw_value.all_day
-                ? this._allDayTimeRange(raw_value.date)
+                ? this._allDayTimeRange(all_day_date, organiser_timezone)
                 : {
                       date: raw_value.date,
                       duration: raw_value.duration,
@@ -874,7 +892,6 @@ export class EventFormService extends AsyncHandler {
                 !event.id ||
                 event.date !== raw_value.date ||
                 event.duration !== raw_value.duration;
-            const organiser_timezone = this.timezone || raw_value.timezone;
             this._model.update((m) => ({
                 ...m,
                 timezone: organiser_timezone,
@@ -896,9 +913,10 @@ export class EventFormService extends AsyncHandler {
                 const duration = raw_value.all_day
                     ? all_day_period.duration
                     : raw_value.duration;
-                const availability_candidates = has_time_changed
-                    ? spaces
-                    : changed_spaces;
+                // An ignored calendar's own events must not block the save.
+                const availability_candidates = (
+                    has_time_changed ? spaces : changed_spaces
+                ).filter((_) => !isIgnored(_));
                 if (availability_candidates.length) {
                     const availability_spaces = await Promise.all(
                         availability_candidates.map((space) =>
@@ -1290,6 +1308,24 @@ export class EventFormService extends AsyncHandler {
                         : 'declined'),
             });
         });
+    }
+
+    /**
+     * Timezone to save with the event. With building timezones on, the
+     * building of the event's rooms decides it before the active building.
+     */
+    private async _organiserTimezone(spaces: Space[], fallback: string) {
+        if (
+            spaces.length &&
+            !multipleSpacesEnabled(this._settings) &&
+            this._settings.get('app.events.use_building_timezone')
+        ) {
+            const [building] = await this._org.loadBuildingsForZones(
+                spaces.map((space) => space.zones || []),
+            );
+            if (building?.timezone) return building.timezone;
+        }
+        return this.timezone || fallback;
     }
 
     /** Check the event instant against every selected building's local hours. */

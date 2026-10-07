@@ -128,6 +128,26 @@ export function getTimeInTimezone(
 }
 
 /**
+ * Get noon, in `to_tz`, of the calendar day that `date` falls on in `from_tz`.
+ * Use it to move a picked day to another timezone. Midnight in one timezone
+ * can be the previous day in another.
+ */
+export function sameDayInTimezone(
+    date: Date | number,
+    from_tz: string,
+    to_tz: string,
+): number {
+    const day = toZonedTime(date, from_tz || LOCAL_TIMEZONE);
+    const noon = set(day, {
+        hours: 12,
+        minutes: 0,
+        seconds: 0,
+        milliseconds: 0,
+    });
+    return fromZonedTime(noon, to_tz || LOCAL_TIMEZONE).valueOf();
+}
+
+/**
  * Format a date's time as 'HH:mm' in a target timezone.
  * If no timezone is provided, uses the local timezone.
  */

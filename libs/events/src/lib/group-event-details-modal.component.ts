@@ -454,6 +454,7 @@ import {
                         [list]="event().attendees"
                         [host]="event().host"
                         [show_host]="false"
+                        [mark_external]="!!concierge()"
                         (click)="show_attendees.set(false)"
                     ></attendee-list>
                 </div>
