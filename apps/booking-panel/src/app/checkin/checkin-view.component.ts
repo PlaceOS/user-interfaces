@@ -253,7 +253,7 @@ export class CheckinViewComponent extends AsyncHandler implements OnInit {
     public start = signal<number>(Date.now());
 
     public readonly can_book = computed(
-        () => this._state.setting('disable_book_now') !== true,
+        () => this._state.setting('disable_qr_booking') !== true,
     );
 
     public readonly checkInCurrent = () => this._state.startMeeting();

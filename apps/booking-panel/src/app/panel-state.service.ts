@@ -96,6 +96,8 @@ export interface PanelSettings {
     pending_period?: number;
     /** Whether user is allowed to interact with the interface */
     disable_book_now?: boolean;
+    /** Whether users are blocked from booking on the QR checkin view */
+    disable_qr_booking?: boolean;
     /** URL to the control UI for this space */
     control_ui?: string;
     /** URI to the catering UI for this space */
@@ -257,6 +259,7 @@ export class PanelStateService extends AsyncHandler {
             'custom_qr_url',
             'custom_qr_color',
             'disable_book_now',
+            'disable_qr_booking',
             'hide_meeting_details',
             'hide_meeting_title',
             'disable_book_now_host',

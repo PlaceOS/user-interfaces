@@ -152,9 +152,9 @@ describe('CheckinViewComponent', () => {
         expect(new_booking).toHaveBeenCalledWith(free_start, true, true, true);
     });
 
-    it('should not offer booking when book now is disabled', () => {
+    it('should not offer booking when QR booking is disabled', () => {
         status.set('free');
-        setting.mockReturnValue(true); // disable_book_now
+        setting.mockImplementation((k) => k === 'disable_qr_booking');
         spectator.detectChanges();
         expect(spectator.component.can_book()).toBe(false);
         expect('button.w-24').not.toExist();
