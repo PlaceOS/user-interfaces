@@ -1,0 +1,3 @@
+import{no as nu}from"./chunk-2x5VF5y8.js";import{G as Rh,u as C6}from"./chunk-JDoQNLEs.js";var r=`/api/staff/v1/guests`;async function C(t){let s=C6({q:t});return(await nu(`${r}${t?`?`+s:``}`)).map(c=>new Rh(c))}async function I(t){return new Rh(await nu(`${r}/${encodeURIComponent(t)}`))}export{I as n,C as t};
+//# debugId=270ddbfe-b6c8-574f-9015-7aba20e8921e
+//# sourceMappingURL=chunk-BeQ9TcY_.js.map
