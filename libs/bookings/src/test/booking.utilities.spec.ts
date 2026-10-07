@@ -278,6 +278,24 @@ describe('Booking Utilities', () => {
             },
         );
 
+        it.each([false, true])(
+            'should keep the meeting title, serialized event: %s',
+            (serialized) => {
+                const event = new CalendarEvent({ title: 'Team Sync' });
+                const booking = newBookingFromCalendarEvent(
+                    serialized ? (event.toJSON() as CalendarEvent) : event,
+                );
+
+                expect(booking.toJSON().title).toBe('Team Sync');
+            },
+        );
+
+        it('should use the default title for an untitled meeting', () => {
+            const booking = newBookingFromCalendarEvent(new CalendarEvent());
+
+            expect(booking.title).toBe('Room Booking');
+        });
+
         it('should use the host email as the identity when staff details are unavailable', () => {
             const booking = newBookingFromCalendarEvent(
                 new CalendarEvent({

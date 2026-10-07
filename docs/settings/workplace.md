@@ -216,7 +216,7 @@ These settings override the matching `bookings.*` settings for visitor invites.
 | `events.multiple_spaces` | boolean | `false` | Allow users to book multiple spaces in a single meeting. |
 | `events.allow_multiple_spaces` | boolean | – | Legacy alias for `events.multiple_spaces`. Either key set to `true` enables multiple room selection. Use `events.multiple_spaces` for new configuration. |
 | `events.desk_start` | number | `9` | Default start time (hour of the day) for desk bookings made from the meeting flow. |
-| `events.can_book_for_others` | boolean | `false` | Allow users to create meetings on behalf of another host. |
+| `events.can_book_for_others` | boolean | `false` | Allow users to create meetings on behalf of another host. The host list shows the calendars that the user can edit. If the calendar API is not available, the list shows only the current user. For native bookings without calendar access, use `events.can_book_for_anyone`. |
 | `events.can_book_for_anyone` | boolean | – | Allow users to select any user as the meeting host. The default is `false`. The form checks that the user can edit the host's calendar. If the check fails, the form sets the host back to the current user. When `events.use_bookings` is `true`, the form does not do this check. |
 | `events.has_catering` | boolean | `true` | Show the catering step in the meeting booking flow. |
 | `events.has_assets` | boolean | `true` | Make asset requests available in the meeting booking flow. |

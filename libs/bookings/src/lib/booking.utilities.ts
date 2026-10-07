@@ -530,6 +530,8 @@ export function newBookingFromCalendarEvent(event: CalendarEvent) {
         user_id: event.organiser?.id || event.host,
         user_email: event.host,
         user_name: event.organiser?.name || event.host,
+        // An empty title uses the booking type default.
+        title: event.title || undefined,
         date,
         duration,
         all_day: event.all_day,
