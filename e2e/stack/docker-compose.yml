@@ -7,11 +7,10 @@
 #     with a running one. Everything here is project-scoped (no container_name,
 #     no fixed network name), so it can run alongside a developer's own stack
 #     without touching it.
-#  2. It is what CI needs. This is a trimmed stack — only what the workplace e2e
-#     path actually exercises. Dropped from PlaceOS/local: core, edge, triggers,
-#     dispatch, source, frontend-loader, influx, chronograf, mosquitto, minio and
-#     the loki/promtail/grafana profile. That is roughly half the containers and
-#     most of the RAM.
+#  2. It is what CI needs. This is a trimmed stack — only what the e2e path
+#     actually exercises. Dropped from PlaceOS/local: edge, triggers, dispatch,
+#     source, influx, chronograf, mosquitto, minio and the loki/promtail/grafana
+#     profile. That is roughly half the containers and most of the RAM.
 #
 # frontend-loader IS required, despite the SPA being served by the Angular dev
 # server. It does not only deploy app builds: on startup it clones
@@ -19,6 +18,14 @@
 # own /login page, /scripts and /styles come from. Without it nginx serves a bare
 # 404 at /login and the real-login spec dead-ends. (Consequence for CI: bringing
 # this stack up needs network access to GitHub once, to populate the volume.)
+#
+# core runs the drivers. It compiles nothing itself: a driver binary comes from
+# the PlaceOS build farm (`BUILD_URL`, build.placeos.run unless overridden with
+# E2E_BUILD_URL), keyed by repository, branch, commit, file and CPU architecture,
+# and lands in the `core-drivers` volume. The farm builds a key it has not seen
+# on first request, which is why `e2e/support/drivers/drivers.env.ts` pins the
+# commit. Bring-up needs the farm reachable, and the S3 bucket the farm hands
+# out presigned links to (placeos-drivers.s3-ap-southeast-2.amazonaws.com).
 #
 # Bring it up with ./up.sh — it generates secrets and seeds before returning.
 
@@ -28,6 +35,7 @@ volumes:
   redis-data:
   nginx-data:
   www:
+  core-drivers:
 
 x-deployment-env: &deployment-env
   PLACE_LOG_FORMAT: JSON
@@ -245,6 +253,28 @@ services:
           *redis-client-env,
           *search-ingest-client-env,
         ]
+
+  core:
+    image: placeos/core:${PLACEOS_TAG:-latest}
+    hostname: core # load-bearing: rest-api reaches it by the name it registers in redis
+    restart: always
+    # Reaps driver processes, which are children of core.
+    init: true
+    <<: *std-logging
+    depends_on:
+      postgres: { condition: service_healthy }
+      redis: { condition: service_started }
+    volumes:
+      - core-drivers:/app/bin/drivers
+    env_file:
+      - .secrets/.env.secret_key
+    ulimits:
+      nofile: 40000
+    environment:
+      <<: [*deployment-env, *postgresdb-client-env, *redis-client-env]
+      BUILD_URL: ${E2E_BUILD_URL:-https://build.placeos.run}
+      # The User-Agent core sends the farm, so its logs can tell this stack apart.
+      CLUSTER_NAME: ${E2E_STACK_PROJECT:-placeos-e2e}
 
   staff-api:
     image: placeos/staff-api:${PLACEOS_TAG:-latest}

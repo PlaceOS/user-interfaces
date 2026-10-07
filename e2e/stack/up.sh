@@ -131,6 +131,15 @@ echo "  /login -> 200"
 step "seeding platform entities (init)"
 dc run --rm init start
 
+# After init: core subscribes to the driver and module tables as it starts, and
+# a core that comes up before the migrations have created them stops managing
+# drivers for good while still answering HTTP.
+step "starting core"
+dc up -d core
+
+# The last step of the seed waits for core to hold the suite's driver binaries.
+# A commit the build farm has already built for this CPU architecture is a
+# download; one it has not takes a few minutes.
 step "seeding e2e fixtures"
 cd ../..
 E2E_BACKEND_URL="https://localhost:${HTTPS_PORT}" bunx tsx e2e/support/seed.ts

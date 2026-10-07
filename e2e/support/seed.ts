@@ -26,11 +26,12 @@ import {
 } from './env';
 import { mintToken, clientId, redirectUriFor } from './auth';
 import { ENGINE_API, STAFF_API } from './api';
+import { describeDrivers, ensureDrivers } from './drivers/drivers.seed';
 
 /** The app `init` guarantees exists — our way in before anything else is registered. */
 const BOOTSTRAP_APP_URL = `${BACKEND_URL}/backoffice`;
 
-async function adminApi(): Promise<APIRequestContext> {
+export async function adminApi(): Promise<APIRequestContext> {
     const admin = roleFor('admin');
     const mint = await mintToken(BACKEND_URL, BOOTSTRAP_APP_URL, admin.email, admin.password);
     return pwRequest.newContext({
@@ -285,6 +286,8 @@ export async function seed(): Promise<void> {
             `  staff users ${users.created.length} created, ${users.present.length} present ` +
                 `(${WORKERS} workers: ${staffEmail(0)} … ${staffEmail(WORKERS - 1)})`,
         );
+        const drivers = await ensureDrivers(api, (message) => console.log(`  drivers    ${message}`));
+        console.log(`  drivers    ${describeDrivers(drivers)}`);
     } finally {
         await api.dispose();
     }

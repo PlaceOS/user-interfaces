@@ -50,9 +50,17 @@ e2e/stack/down.sh            # stop        (--volumes to wipe)
 ```
 
 It is trimmed to what the e2e path exercises: postgres, elasticsearch, redis,
-search-ingest, frontend-loader, auth, rest-api, staff-api, nginx, init. Dropped
-from PlaceOS/local: core, edge, triggers, dispatch, source, influx, chronograf,
+search-ingest, frontend-loader, auth, rest-api, staff-api, core, nginx, init.
+Dropped from PlaceOS/local: edge, triggers, dispatch, source, influx, chronograf,
 mosquitto, minio and the loki/grafana profile — roughly half the containers.
+
+core runs real drivers from PlaceOS/drivers, pinned to a commit in
+`e2e/support/drivers/drivers.env.ts`. It compiles nothing itself: binaries come
+from the PlaceOS build farm (build.placeos.run), which builds a commit it has not
+seen for the CPU architecture on first request and serves a download after that.
+`seed.ts` creates the driver rows and waits for core to hold the binaries, so a
+spec never waits on the farm. To test a drivers branch against the suite, set
+`E2E_DRIVERS_URI`, `E2E_DRIVERS_BRANCH` and `E2E_DRIVERS_COMMIT` before `up.sh`.
 
 Two things a cold start taught us that a long-lived stack hides:
 
@@ -238,6 +246,7 @@ CI-specific choices worth knowing:
 | Reclaim step | A self-hosted machine is not a fresh VM; a previous aborted run can leave the stack up or port 4214 held. |
 | No `vm.max_map_count` bump | Needed on GitHub-hosted Linux, meaningless on macOS — the value lives inside Colima's VM, which already sets it to 1048576. Restore it if reverting to `ubuntu-latest`. |
 | Network access to GitHub | `up.sh` clones `PlaceOS/www-core` into the `www` volume once — that is where the platform `/login` page comes from. |
+| Network access to the build farm | core fetches driver binaries from build.placeos.run and the S3 bucket it hands out links to. A commit the farm has not built for the runner's architecture is compiled there on the first run that asks. |
 
 ## Booking specs: what the backend actually does
 

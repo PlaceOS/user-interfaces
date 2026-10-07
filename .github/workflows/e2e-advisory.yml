@@ -157,7 +157,8 @@ jobs:
             # Brings up an isolated PlaceOS stack (its own compose project, own
             # volumes, ports 9443/9080) and seeds it. Needs network access to
             # GitHub once, to clone PlaceOS/www-core into the www volume — that is
-            # where the platform /login page comes from.
+            # where the platform /login page comes from — and to the build farm,
+            # which core fetches the suite's driver binaries from.
             #
             # `--pull`: on this persistent machine `latest` otherwise stays
             # whatever was pulled the day the runner was set up.
