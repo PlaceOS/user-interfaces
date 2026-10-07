@@ -129,9 +129,9 @@ test.describe('concierge staff directory', () => {
      * so a real deployment whose directory is briefly unavailable shows the user
      * nothing at all rather than a message.
      *
-     * Remove the `.fixme` once the directory call has a `catch`.
+     * The directory call now has a `catch`, which is what this verifies.
      */
-    test.fixme(
+    test(
         'CON-B2: the staff page handles a failing directory call without an unhandled rejection',
         async ({ adminPage }) => {
             const crashes: string[] = [];

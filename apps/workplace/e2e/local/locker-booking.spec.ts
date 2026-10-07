@@ -37,7 +37,7 @@ async function createLockerBooking(
 }
 
 test.describe('Workplace locker booking', () => {
-    test.fixme('LOCK-01: opens the Locker booking flow and loads its controls', async ({
+    test('LOCK-01: opens the Locker booking flow and loads its controls', async ({
         staffPage,
     }, testInfo) => {
         const fixture = await lockerForWorker(testInfo.parallelIndex);
@@ -56,7 +56,7 @@ test.describe('Workplace locker booking', () => {
         ).toBeVisible();
     });
 
-    test.fixme('LOCK-03: creates a Locker booking through the UI', async ({
+    test('LOCK-03: creates a Locker booking through the UI', async ({
         staffPage,
         staffApi,
     }, testInfo) => {
@@ -81,7 +81,7 @@ test.describe('Workplace locker booking', () => {
         }
     });
 
-    test.fixme('LOCK-04: independently verifies the created Locker booking through the API', async ({
+    test('LOCK-04: independently verifies the created Locker booking through the API', async ({
         staffPage,
         staffApi,
     }, testInfo) => {

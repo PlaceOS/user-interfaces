@@ -99,20 +99,15 @@ test.describe('room booking', () => {
                 room.id,
             );
 
-            // The meeting name lives in `extension_data`, NOT in the booking's own
-            // `title`. `newBookingFromCalendarEvent` spreads the whole event into
-            // extension_data and sets no title, so every room booking is called
-            // "Room Booking" at this level. Not a bug — the schedule rebuilds the
-            // event from extension_data and shows the real name — but asserting
-            // on `stored.title` fails against a booking that is perfectly correct.
             expect(
                 stored.extension_data?.title,
                 'the meeting name we typed reached the backend',
             ).toBe(title);
             expect(
                 stored.title,
-                'and the booking itself carries the generic room title',
-            ).toBe('Room Booking');
+                'and the booking itself carries the meeting name, not the ' +
+                    'generic "Room Booking" default',
+            ).toBe(title);
             expect(stored.deleted, 'not soft-deleted').toBeFalsy();
             expect(stored.rejected, 'not rejected').toBeFalsy();
             // Zones are deliberately NOT asserted here — see the `fixme` below.

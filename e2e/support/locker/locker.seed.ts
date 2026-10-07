@@ -5,8 +5,10 @@ import { WORKERS } from '../env';
 const LOCKER_CATEGORY = '_LOCKERS_';
 const LOCKER_BANK_TYPE = '_LOCKER_BANKS_';
 const LOCKER_TYPE = '_LOCKERS_';
-const BANK_PREFIX = 'E2E Locker Bank';
-const LOCKER_PREFIX = 'E2E Locker';
+// Distinct from the concierge seeder's `E2E Locker Bank` / `E2E Locker <n>`,
+// which lives on the same building zone
+const BANK_PREFIX = 'E2E Workplace Locker Bank';
+const LOCKER_PREFIX = 'E2E Workplace Locker';
 
 export interface LockerIdentity {
     id: string;

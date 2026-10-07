@@ -29,7 +29,7 @@ import {
 const DAY = 86_400;
 
 test.describe('home page — quick book', () => {
-    test.fixme('the desk tile books a desk after confirmation, and the backend stores it', async ({
+    test('the desk tile books a desk after confirmation, and the backend stores it', async ({
         staffPage,
         staffApi,
     }) => {

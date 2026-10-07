@@ -23,7 +23,7 @@
  * obvious order, and `MeetingForm.addCateringItem` says so where somebody will
  * read it.
  *
- * ## `fixme` — ROOM-B5, and it is the worst of the room findings
+ * ## ROOM-B5, the worst of the room findings — fixed in the app
  *
  * Ordering catering with a PlaceOS-native room booking cannot work at all. The
  * meeting is created (`201`), and the catering order that follows is refused:
@@ -44,8 +44,8 @@
  * ordered. `postForm` does call `_removeBookingAfterError` on a catering
  * failure, and it did not roll the room booking back.
  *
- * The assertions below are what SHOULD happen. Drop the `fixme` when the order
- * can be linked to a booking rather than only to a calendar event.
+ * The order is now linked to the native booking by `parent_id`, which is what
+ * the assertions below check.
  */
 import { test, expect } from '../../../../e2e/support/fixtures';
 import {
@@ -66,7 +66,7 @@ const window_from = () => Math.floor(Date.now() / 1000) - 2 * DAY;
 const window_to = () => Math.floor(Date.now() / 1000) + 7 * DAY;
 
 test.describe('room booking catering', () => {
-    test.fixme('catering ordered on the form is stored as its own booking', async ({
+    test('catering ordered on the form is stored as its own booking', async ({
         staffPage,
         staffApi,
     }, testInfo) => {
@@ -100,8 +100,16 @@ test.describe('room booking catering', () => {
                     window_from(),
                     window_to(),
                 )) as RoomBooking[];
+                // A native booking links its order by `parent_id`; a calendar
+                // event links by `extension_data.event_id`.
                 const mine = orders.filter(
-                    (o) => !o.deleted && `${o.extension_data?.event_id ?? ''}` === `${booking_id}`,
+                    (o) =>
+                        !o.deleted &&
+                        [
+                            (o as Record<string, unknown>).parent_id,
+                            o.extension_data?.parent_id,
+                            o.extension_data?.event_id,
+                        ].some((link) => `${link ?? ''}` === `${booking_id}`),
                 );
                 expect(
                     mine.length,
@@ -110,6 +118,7 @@ test.describe('room booking catering', () => {
                         `${JSON.stringify(
                             orders.map((o) => ({
                                 id: o.id,
+                                parent: (o as Record<string, unknown>).parent_id,
                                 event: o.extension_data?.event_id,
                                 deleted: o.deleted,
                             })),
