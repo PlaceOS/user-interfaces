@@ -1326,7 +1326,8 @@ export class BookingFormService extends AsyncHandler {
             });
         }
         this._patch({
-            booking_type: this.model().booking_type || this._options().type,
+            booking_type:
+                this.model().booking_type?.trim() || this._options().type,
         });
         const value = this.model() as any;
         const effective_timezone = this.timezone || value.timezone;

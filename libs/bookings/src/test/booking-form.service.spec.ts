@@ -854,6 +854,23 @@ describe('BookingFormService', () => {
         );
     });
 
+    it('should post the flow type when the form has no booking type', async () => {
+        (spectator.inject(PaymentsService) as any).enabled = false;
+        spectator.service.newForm('desk');
+        spectator.service.model.update((m) => ({
+            ...m,
+            asset_id: 'desk-1',
+            asset_name: 'Desk 1',
+            date: Date.now() + 60 * 60 * 1000,
+            duration: 60,
+        }));
+
+        await spectator.service.postForm(true);
+
+        expect(savedBookings().length).toBe(1);
+        expect((savedBookings()[0] as Booking).booking_type).toBe('desk');
+    });
+
     it('should keep the host when editing a delegated visitor booking', async () => {
         (spectator.inject(PaymentsService) as any).enabled = false;
         spectator.service.newForm(
