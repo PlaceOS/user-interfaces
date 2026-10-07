@@ -3,6 +3,10 @@ import { createServiceFactory, SpectatorService } from '@ngneat/spectator/vitest
 import { OrganisationService } from '@placeos/common';
 import { StaffStateService } from '../../app/staff/staff-state.service';
 
+vi.mock('@placeos/ts-client', { spy: true });
+
+import * as ts_client from '@placeos/ts-client';
+
 describe('StaffStateService', () => {
     let spectator: SpectatorService<StaffStateService>;
     const createService = createServiceFactory({
@@ -28,7 +32,13 @@ describe('StaffStateService', () => {
     });
 
     it.todo('should allow for polling');
-    it.todo('should load user list');
+    it('should keep an empty user list when the directory call fails', async () => {
+        vi.spyOn(ts_client, 'get').mockRejectedValue(new Error('500'));
+
+        await (spectator.service as any).loadUsers();
+
+        expect(spectator.service.filtered_users()).toEqual([]);
+    });
     it.todo('should load user checkin events');
     it('should filter users without matching case', () => {
         (spectator.service as any)._users.set([

@@ -5,7 +5,9 @@ import { checkinBooking, queryBookings, saveBooking } from '@placeos/bookings';
 import {
     AsyncHandler,
     Booking,
+    i18n,
     MINUTES,
+    notifyError,
     OrganisationService,
     StaffUser,
     timePeriodsIntersect,
@@ -136,7 +138,10 @@ export class StaffStateService extends AsyncHandler {
     }
 
     private async loadUsers() {
-        const user_list = await searchStaff('');
+        const user_list = await searchStaff('').catch(() => {
+            notifyError(i18n('COMMON.LOAD_ERROR'));
+            return [] as StaffUser[];
+        });
         user_list.sort((a, b) => a.name.localeCompare(b.name));
         this._users.set(user_list);
     }
