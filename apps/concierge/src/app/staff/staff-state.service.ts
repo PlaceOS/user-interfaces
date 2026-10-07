@@ -32,6 +32,8 @@ export class StaffStateService extends AsyncHandler {
     private readonly _poll = signal(0);
 
     public readonly loading = signal<boolean>(false);
+    /** True when the last staff directory load failed. */
+    public readonly users_error = signal<boolean>(false);
     public readonly filters = signal<StaffFilters>({});
     public readonly search = signal<string>('');
     public readonly user_events = signal<Record<string, boolean>>({});
@@ -116,7 +118,15 @@ export class StaffStateService extends AsyncHandler {
             period_start: getUnixTime(startOfDay(Date.now())),
             period_end: getUnixTime(endOfDay(Date.now())),
             type: 'staff',
+        }).catch((err) => {
+            console.error('Staff check-in load failed:', err);
+            notifyError(i18n('COMMON.LOAD_ERROR'));
+            return null;
         });
+        if (!bookings) {
+            this.loading.set(false);
+            return;
+        }
         const checkin_map = {};
         const now = new Date().valueOf();
         for (const bkn of bookings) {
@@ -137,12 +147,16 @@ export class StaffStateService extends AsyncHandler {
         this.loading.set(false);
     }
 
-    private async loadUsers() {
-        const user_list = await searchStaff('').catch(() => {
-            notifyError(i18n('COMMON.LOAD_ERROR'));
-            return [] as StaffUser[];
-        });
-        user_list.sort((a, b) => a.name.localeCompare(b.name));
-        this._users.set(user_list);
+    /** Loads the staff directory. Call it again to retry after a failure. */
+    public async loadUsers() {
+        this.users_error.set(false);
+        try {
+            const user_list = await searchStaff('');
+            user_list.sort((a, b) => a.name.localeCompare(b.name));
+            this._users.set(user_list);
+        } catch (err) {
+            console.error('Staff directory load failed:', err);
+            this.users_error.set(true);
+        }
     }
 }
