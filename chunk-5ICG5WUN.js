@@ -55320,15 +55320,15 @@ setTimeout(() => initialiseUser(), 50);
 // libs/common/src/lib/version.ts
 var VERSION3 = {
   "dirty": false,
-  "raw": "307f1d2",
-  "hash": "307f1d2",
+  "raw": "95da5d0",
+  "hash": "95da5d0",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "307f1d2",
+  "suffix": "95da5d0",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1791427258761
+  "time": 1791428038519
 };
 
 // libs/common/src/lib/settings.service.ts
@@ -80408,5 +80408,5 @@ export {
   SafePipe,
   IconComponent
 };
-//# debugId=611420c3-8778-5a9a-8e32-43aae0a0daf6
-//# sourceMappingURL=chunk-LY6S4I7C.js.map
+//# debugId=18e58566-14d1-55a8-9254-f70812602222
+//# sourceMappingURL=chunk-5ICG5WUN.js.map

@@ -1,10 +1,10 @@
 import {
   DebugPanelResize
-} from "./chunk-NHIYYNS3.js";
+} from "./chunk-2E6HTK2J.js";
 import {
   MatTooltip,
   MatTooltipModule
-} from "./chunk-ROQQMN6A.js";
+} from "./chunk-6OXZO2NE.js";
 import {
   AsyncHandler,
   Clipboard,
@@ -61,7 +61,7 @@ import {
   ɵɵtwoWayBindingSet,
   ɵɵtwoWayListener,
   ɵɵtwoWayProperty
-} from "./chunk-LY6S4I7C.js";
+} from "./chunk-5ICG5WUN.js";
 import {
   __spreadProps,
   __spreadValues
@@ -1865,4 +1865,4 @@ export {
   pairExecuteMessages
 };
 //# debugId=f86a38ec-c8bc-570a-a808-ad3a21f66eba
-//# sourceMappingURL=binding-debug-panel.component-CXD2XAOY.js.map
+//# sourceMappingURL=binding-debug-panel.component-3233MR4L.js.map
