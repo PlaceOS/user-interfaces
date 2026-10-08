@@ -1,6 +1,6 @@
 # Outlook add-in
 
-The add-in adds PlaceOS rooms and desks to Outlook calendar events. It opens as a task pane from the **PlaceOS** button on the event organizer form.
+The add-in adds PlaceOS rooms, desks and parking to Outlook calendar events. It opens as a task pane from the **PlaceOS** button on the event organizer form.
 
 Serve and build the app with the Nx targets in `project.json`. Outside Outlook, the app uses the normal PlaceOS login. Use `?mock=true` to use mock data.
 
@@ -58,8 +58,9 @@ The manifest opens `#/calendar` from the Outlook event organizer form. The pane 
 
 - Rooms: "Add to meeting" adds the room to the event as an Exchange room resource. Exchange books the room when the user sends the invitation.
 - Desks: "Add to event" reserves the desk at once. It saves a new event first (Outlook does not send invitations for this save). The booking ID is kept in an item custom property. The Outlook item ID and iCalUId are kept in the booking `extension_data`.
+- Parking: works like desks. "Add to event" books a parking space. "Request parking" makes a booking with no space, and the parking team assigns a space later. The `features` setting turns on each option (`parking` and `parking-requests`). The booking ID is kept in a separate item custom property.
 - All day: the pane uses the Office.js preview flag when the client supports it. Otherwise it uses the saved event from PlaceOS when the saved times match. It never infers All day from the duration.
-- Map: each tab has a List and Map view. The map view uses the shared `space-map` and `desk-map` components. Select a room or desk on the map to show its card and Add button.
+- Map: the Rooms and Desks tabs have a List and Map view. The map view uses the shared `space-map` and `desk-map` components. Select a room or desk on the map to show its card and Add button.
 - Outside Outlook the pane uses a sample event, so you can use it in the browser with `?mock=true`.
 
 The code is in `src/app/calendar/`. The manifest requires Mailbox 1.8.

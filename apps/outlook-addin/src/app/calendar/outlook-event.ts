@@ -66,18 +66,22 @@ export function roomWindow(event: OutlookEvent): WindowResult {
 }
 
 /**
- * Desk booking window. A timed event uses its exact interval. An all-day
- * event books the desk for the whole day under the site all-day policy.
+ * Booking window for a desk or a parking space. A timed event uses its exact
+ * interval. An all-day event books the whole day under the site all-day
+ * policy. `resource` names the resource in messages, for example `a desk`.
  */
-export function deskWindow(event: OutlookEvent): WindowResult {
+export function bookingWindow(
+    event: OutlookEvent,
+    resource = 'a desk',
+): WindowResult {
     if (event.is_recurring) {
         return windowError(
-            'Desk booking for recurring events is not available yet. Book a desk for each occurrence from the workplace app.',
+            `Booking ${resource} for recurring events is not available yet. Book ${resource} for each occurrence from the workplace app.`,
         );
     }
     if (event.all_day && allDayCount(event) > 1) {
         return windowError(
-            'Desk booking for multi-day all-day events is not available yet. Book each day from the workplace app.',
+            `Booking ${resource} for multi-day all-day events is not available yet. Book each day from the workplace app.`,
         );
     }
     const result = roomWindow(event);
@@ -88,7 +92,7 @@ export function deskWindow(event: OutlookEvent): WindowResult {
     };
 }
 
-/** Whether a desk booking still covers the given booking window. */
+/** Whether a booking still covers the given booking window. */
 export function bookingMatchesWindow(
     booking: Pick<Booking, 'date' | 'duration' | 'all_day'>,
     window: BookingWindow,

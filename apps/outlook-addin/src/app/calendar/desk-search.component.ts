@@ -19,8 +19,9 @@ import {
 } from '@placeos/bookings';
 import { OrganisationService } from '@placeos/common';
 import { IconComponent } from '@placeos/components';
-import { DeskLinkService } from './desk-link.service';
-import { deskWindow, formatEventPeriod } from './outlook-event';
+import { DeskLinkService } from './booking-link.service';
+import { LinkedBookingComponent } from './linked-booking.component';
+import { bookingWindow, formatEventPeriod } from './outlook-event';
 import { OutlookEventService } from './outlook-event.service';
 import { ResultView, ViewToggleComponent } from './view-toggle.component';
 
@@ -40,78 +41,7 @@ function hourLabel(hour: number) {
     selector: 'desk-search',
     template: `
         <div class="flex flex-col gap-3 p-3">
-            @if (link.booking(); as booking) {
-                <section
-                    class="border-base-300 space-y-2 rounded-lg border p-3"
-                    aria-label="Desk on this event"
-                >
-                    <div class="flex items-start gap-2">
-                        <div class="min-w-0 flex-1">
-                            <div class="text-xs opacity-60">On this event</div>
-                            <h3 class="truncate font-medium">
-                                {{ booking.asset_name || booking.asset_id }}
-                            </h3>
-                            <div
-                                class="text-sm"
-                                [class.text-success]="booking.approved"
-                                [class.text-warning]="!booking.approved"
-                            >
-                                {{
-                                    booking.approved
-                                        ? 'Reserved'
-                                        : 'Reserved. Approval pending.'
-                                }}
-                            </div>
-                        </div>
-                        <button
-                            btn
-                            matRipple
-                            class="inverse h-9 min-h-0 text-sm"
-                            [disabled]="saving()"
-                            (click)="link.remove()"
-                        >
-                            Remove
-                        </button>
-                    </div>
-                    @if (link.out_of_sync()) {
-                        <div
-                            class="bg-warning-light flex items-center gap-2 rounded p-2 text-sm"
-                        >
-                            <icon class="text-warning">warning</icon>
-                            <span class="flex-1">
-                                The event time changed. The desk is still booked
-                                for the old time.
-                            </span>
-                            <button
-                                btn
-                                matRipple
-                                class="h-8 min-h-0 text-sm"
-                                [disabled]="saving()"
-                                (click)="link.update()"
-                            >
-                                Update
-                            </button>
-                        </div>
-                    }
-                </section>
-            }
-            @if (link.error()) {
-                <div
-                    role="alert"
-                    class="text-error flex items-start gap-2 text-sm"
-                >
-                    <icon>error</icon>
-                    <span class="flex-1">{{ link.error() }}</span>
-                    <button
-                        icon
-                        matRipple
-                        aria-label="Close message"
-                        (click)="link.clearError()"
-                    >
-                        <icon>close</icon>
-                    </button>
-                </div>
-            }
+            <linked-booking [link]="link" />
             @if (window_error()) {
                 <p class="bg-base-200 rounded p-3 text-sm">
                     {{ window_error() }}
@@ -270,6 +200,7 @@ function hourLabel(hour: number) {
         NgTemplateOutlet,
         IconComponent,
         DeskMapComponent,
+        LinkedBookingComponent,
         ViewToggleComponent,
     ],
 })
@@ -330,7 +261,7 @@ export class DeskSearchComponent {
 
     private readonly _window = computed(() => {
         const event = this._outlook.event();
-        return event ? deskWindow(event) : null;
+        return event ? bookingWindow(event, this.link.resource) : null;
     });
     public readonly window_error = computed(() => {
         const result = this._window();

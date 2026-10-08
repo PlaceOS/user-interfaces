@@ -1,21 +1,26 @@
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
+import { SettingsService } from '@placeos/common';
 import { IconComponent } from '@placeos/components';
 import { DeskSearchComponent } from './desk-search.component';
 import { formatEventPeriod, localTimezoneLabel } from './outlook-event';
 import { OutlookEventService } from './outlook-event.service';
+import { parkingModes, ParkingSearchComponent } from './parking-search.component';
 import { RoomSearchComponent } from './room-search.component';
 
-type PaneTab = 'rooms' | 'desks';
+type PaneTab = 'rooms' | 'desks' | 'parking';
 
 const TABS: { id: PaneTab; name: string }[] = [
     { id: 'rooms', name: 'Rooms' },
     { id: 'desks', name: 'Desks' },
+    { id: 'parking', name: 'Parking' },
 ];
 
 /**
  * Task pane opened from an Outlook calendar event. Shows the event details
- * from Outlook as read-only context and lets the user add a room or a desk.
+ * from Outlook as read-only context and lets the user add a room, a desk or
+ * parking. The Parking tab shows when the `app.features` setting turns on
+ * parking or parking requests.
  */
 @Component({
     selector: 'calendar-pane',
@@ -27,7 +32,7 @@ const TABS: { id: PaneTab; name: string }[] = [
                     aria-label="Resource type"
                     class="border-base-300 flex rounded-lg border p-1"
                 >
-                    @for (tab of tabs; track tab.id) {
+                    @for (tab of tabs(); track tab.id) {
                         <button
                             role="tab"
                             matRipple
@@ -87,6 +92,9 @@ const TABS: { id: PaneTab; name: string }[] = [
                         @case ('desks') {
                             <desk-search />
                         }
+                        @case ('parking') {
+                            <parking-search />
+                        }
                     }
                 }
             </main>
@@ -97,12 +105,18 @@ const TABS: { id: PaneTab; name: string }[] = [
         IconComponent,
         RoomSearchComponent,
         DeskSearchComponent,
+        ParkingSearchComponent,
     ],
 })
 export class CalendarPaneComponent implements OnInit {
     private _outlook = inject(OutlookEventService);
+    private _settings = inject(SettingsService);
 
-    public readonly tabs = TABS;
+    public readonly tabs = computed(() =>
+        parkingModes(this._settings.get('app.features')).length
+            ? TABS
+            : TABS.filter((_) => _.id !== 'parking'),
+    );
     public readonly active_tab = signal<PaneTab>('rooms');
     public readonly event = this._outlook.event;
     public readonly loading = this._outlook.loading;

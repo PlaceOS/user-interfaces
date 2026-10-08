@@ -1,6 +1,6 @@
 import {
     bookingMatchesWindow,
-    deskWindow,
+    bookingWindow,
     OutlookEvent,
     roomStateFromResponse,
     roomWindow,
@@ -23,9 +23,9 @@ function event(details: Partial<OutlookEvent> = {}): OutlookEvent {
     };
 }
 
-describe('deskWindow', () => {
+describe('bookingWindow', () => {
     it('uses the exact Outlook interval for a timed event', () => {
-        expect(deskWindow(event()).window).toEqual({
+        expect(bookingWindow(event()).window).toEqual({
             date: START,
             duration: 180,
             all_day: false,
@@ -38,7 +38,7 @@ describe('deskWindow', () => {
             end: MIDNIGHT + 24 * HOUR,
             all_day: true,
         });
-        expect(deskWindow(all_day).window).toEqual({
+        expect(bookingWindow(all_day).window).toEqual({
             date: MIDNIGHT,
             duration: 24 * 60,
             all_day: true,
@@ -51,7 +51,7 @@ describe('deskWindow', () => {
             end: MIDNIGHT + 24 * HOUR,
             all_day: null,
         });
-        expect(deskWindow(unknown).window?.all_day).toBe(false);
+        expect(bookingWindow(unknown).window?.all_day).toBe(false);
     });
 
     it('blocks multi-day all-day and recurring events with a reason', () => {
@@ -60,9 +60,9 @@ describe('deskWindow', () => {
             end: MIDNIGHT + 48 * HOUR,
             all_day: true,
         });
-        expect(deskWindow(multi_day).window).toBeNull();
-        expect(deskWindow(multi_day).reason).toContain('multi-day');
-        expect(deskWindow(event({ is_recurring: true })).window).toBeNull();
+        expect(bookingWindow(multi_day).window).toBeNull();
+        expect(bookingWindow(multi_day).reason).toContain('multi-day');
+        expect(bookingWindow(event({ is_recurring: true })).window).toBeNull();
     });
 });
 
