@@ -1,7 +1,7 @@
 import { signal } from '@angular/core';
 import { ComponentFixtureAutoDetect } from '@angular/core/testing';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
-import { TIMEZONES_IANA } from '@placeos/common';
+import { TIMEZONES_IANA } from '@placeos/common/timezones';
 import { TriggerTimeConditionType } from '@placeos/ts-client';
 
 import {

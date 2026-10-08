@@ -10,8 +10,8 @@ import {
     notifyError,
     OrganisationService,
     Region,
-    TIMEZONES_IANA,
 } from '@placeos/common';
+import { TIMEZONES_IANA } from '@placeos/common/timezones';
 import {
     FullscreenModalShellComponent,
     IconComponent,

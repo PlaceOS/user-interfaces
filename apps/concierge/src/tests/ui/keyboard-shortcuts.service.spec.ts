@@ -1,27 +1,14 @@
-import { MatDialog } from '@angular/material/dialog';
 import {
     createServiceFactory,
     SpectatorService,
 } from '@ngneat/spectator/vitest';
-import { MockProvider } from 'ng-mocks';
 
 import { KeyboardShortcutsService } from '../../app/ui/keyboard-shortcuts.service';
 
 describe('KeyboardShortcutsService', () => {
     let spectator: SpectatorService<KeyboardShortcutsService>;
-    let open_dialogs: unknown[];
 
-    const createService = createServiceFactory({
-        service: KeyboardShortcutsService,
-        providers: [
-            MockProvider(MatDialog, {
-                get openDialogs() {
-                    return open_dialogs;
-                },
-                open: vi.fn(),
-            } as any),
-        ],
-    });
+    const createService = createServiceFactory(KeyboardShortcutsService);
 
     /** Add markup to the page and return the element with the given id */
     const addElement = (html: string, id: string) => {
@@ -45,7 +32,6 @@ describe('KeyboardShortcutsService', () => {
     };
 
     beforeEach(() => {
-        open_dialogs = [];
         spectator = createService();
     });
 
@@ -156,9 +142,12 @@ describe('KeyboardShortcutsService', () => {
         const click = vi.fn();
         button.addEventListener('click', click);
 
-        open_dialogs = [{}];
+        const dialog = addElement(
+            '<div id="dialog" class="mat-mdc-dialog-container"></div>',
+            'dialog',
+        );
         press('n');
-        open_dialogs = [];
+        dialog.remove();
         addElement(
             '<div id="backdrop" class="cdk-overlay-backdrop"></div>',
             'backdrop',

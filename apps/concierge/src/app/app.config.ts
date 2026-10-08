@@ -19,9 +19,6 @@ import {
 } from '@angular/router';
 import { provideServiceWorker } from '@angular/service-worker';
 
-import { COMMA, ENTER } from '@angular/cdk/keycodes';
-import { MAT_CHIPS_DEFAULT_OPTIONS } from '@angular/material/chips';
-
 import { environment } from '../environments/environment';
 import { routes } from './app.routes';
 
@@ -47,12 +44,6 @@ export const appConfig: ApplicationConfig = {
             withHashLocation(),
             withNavigationErrorHandler((e) => reloadOnChunkLoadError(e.error)),
         ),
-        {
-            provide: MAT_CHIPS_DEFAULT_OPTIONS,
-            useValue: {
-                separatorKeyCodes: [ENTER, COMMA],
-            },
-        },
         {
             provide: ErrorHandler,
             useClass: LazySentryErrorHandler,

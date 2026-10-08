@@ -24,8 +24,8 @@ import {
     LocaleService,
     setTimeInTimezone,
     settingSignal,
-    TIMEZONES_IANA,
 } from '@placeos/common';
+import { TIMEZONES_IANA } from '@placeos/common/timezones';
 import {
     IconComponent,
     SettingsToggleComponent,

@@ -17,6 +17,5 @@ export * from './placeos';
 export * from './settings';
 export * from './signal.utilities';
 export * from './spec-helpers';
-export * from './timezones';
 export * from './types';
 export * from './user-state';
