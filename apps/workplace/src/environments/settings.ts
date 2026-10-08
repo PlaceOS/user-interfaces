@@ -156,7 +156,7 @@ const app = {
     name: 'Workplace',
     title: 'Workplace Application',
     description: 'PlaceOS Workplace UI written with Angular Framework',
-    short_name: 'WorkMate',
+    short_name: 'Workplace',
     logo_light: 'assets/logo-light.svg',
     logo_dark: 'assets/logo-dark.svg',
     locales: [

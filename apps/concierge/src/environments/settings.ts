@@ -4,7 +4,7 @@ const app = {
     name: 'Concierge',
     title: 'PlaceOS',
     description: 'Concierge UI',
-    short_name: 'PlaceOS',
+    short_name: 'Concierge',
     logo_light: 'assets/logo-light.svg',
     logo_dark: 'assets/logo-dark.svg',
     default_route: '/book/rooms',
