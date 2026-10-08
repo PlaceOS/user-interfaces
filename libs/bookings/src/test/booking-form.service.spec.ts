@@ -17,6 +17,7 @@ import {
     i18n,
     OrganisationService,
     setCurrentUser,
+    settingSignal,
     StaffUser,
     User,
 } from '@placeos/common';
@@ -852,6 +853,83 @@ describe('BookingFormService', () => {
         expect((savedBookings()[0] as Booking).description).toBe(
             'Vendor Interview',
         );
+    });
+
+    it('should post the flow type when the form has no booking type', async () => {
+        (spectator.inject(PaymentsService) as any).enabled = false;
+        spectator.service.newForm('desk');
+        spectator.service.model.update((m) => ({
+            ...m,
+            booking_type: ' ',
+            asset_id: 'desk-1',
+            asset_name: 'Desk 1',
+            date: Date.now() + 60 * 60 * 1000,
+            duration: 60,
+        }));
+
+        await spectator.service.postForm(true);
+
+        expect(savedBookings().length).toBe(1);
+        expect((savedBookings()[0] as Booking).booking_type).toBe('desk');
+    });
+
+    it('should keep an untyped stored booking when the flow loads it', () => {
+        sessionStorage.setItem(
+            'PLACEOS.booking_form',
+            JSON.stringify({
+                id: 'untyped-1',
+                booking_type: ' ',
+                asset_id: 'desk-1',
+                date: Date.now() + 60 * 60 * 1000,
+                duration: 60,
+            }),
+        );
+
+        spectator.service.loadForm('desk');
+
+        expect(spectator.service.model().id).toBe('untyped-1');
+        expect(spectator.service.model().booking_type).toBe('desk');
+    });
+
+    it('should validate an untyped parking form as parking', async () => {
+        (spectator.inject(PaymentsService) as any).enabled = false;
+        const require_plate_number = settingSignal(
+            'parking.require_plate_number',
+            false,
+        );
+        require_plate_number.set(true);
+        try {
+            spectator.service.newForm('parking');
+            spectator.service.model.update((m) => ({
+                ...m,
+                asset_id: 'parking-1',
+                asset_name: 'Parking 1',
+                date: Date.now() + 60 * 60 * 1000,
+                duration: 60,
+            }));
+
+            await expect(spectator.service.postForm(true)).rejects.toBe(
+                'FORM.INVALID_FIELDS',
+            );
+            expect(savedBookings().length).toBe(0);
+        } finally {
+            require_plate_number.set(false);
+        }
+    });
+
+    it('should keep an untyped booking when it is opened for editing', () => {
+        spectator.service.newForm(
+            'desk',
+            new Booking({
+                id: 'untyped-1',
+                asset_id: 'desk-1',
+                date: Date.now() + 60 * 60 * 1000,
+                duration: 60,
+            }),
+        );
+
+        expect(spectator.service.model().id).toBe('untyped-1');
+        expect(spectator.service.model().booking_type).toBe('desk');
     });
 
     it('should keep the host when editing a delegated visitor booking', async () => {
