@@ -43,7 +43,7 @@ timeouts, not 200s.
   checkout, the runner tarball, and cloning `PlaceOS/www-core` during bring-up.
 - **registry-1.docker.io / auth.docker.io / production.cloudflare.docker.com** —
   pulling the PlaceOS images. The one people forget; without it the stack cannot start.
-  Every run pulls (`up.sh --pull`), so this needs to stay open, not just work once.
+  Every run pulls (`up.sh --pull-only`, its own bounded step), so this needs to stay open, not just work once.
 - **login.microsoftonline.com / graph.microsoft.com** — the Microsoft 365 sandbox
   tenant behind the stack's calendar and directory, reached by staff-api with the
   app-only credentials the workflow passes in (`E2E_O365_*`).

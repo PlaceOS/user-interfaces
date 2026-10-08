@@ -4,31 +4,24 @@
  * Needs ADMIN: only an admin may create any of these.
  */
 import { APIRequestContext } from '@playwright/test';
-import { ENGINE_API } from '../api';
+import { ENGINE_API, alreadyExists, asList, getJson } from '../api';
 import { DRIVERS_COMMIT, DRIVERS_REPOSITORY, DriverSpec } from './drivers.env';
 
-function asList(body: unknown): any[] {
-    return Array.isArray(body) ? body : ((body as any)?.results ?? []);
+interface RepositoryRow {
+    id: string;
+    folder_name: string;
+    repo_type: string;
+    uri: string;
+    branch: string;
 }
 
-/** Does this error body mean the row is already there? */
-function alreadyExists(body: string): boolean {
-    return /already (exists|taken)|has already been taken|must be unique|should be unique|duplicate/i.test(
-        body,
-    );
-}
-
-async function getJson(
-    api: APIRequestContext,
-    path: string,
-    params?: Record<string, string>,
-) {
-    const res = await api.get(path, { params });
-    if (!res.ok())
-        throw new Error(
-            `GET ${path} failed: HTTP ${res.status()} ${await res.text()}`,
-        );
-    return res.json();
+interface DriverRow {
+    id: string;
+    file_name: string;
+    module_name: string;
+    commit: string;
+    repository_id: string;
+    compilation_output?: string | null;
 }
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
@@ -39,13 +32,15 @@ const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
  * `init` seeds its own `Drivers` row pointing at master; this one carries the
  * branch the suite is pinned to and is left alone by everything else.
  * `folder_name` is unique per repository type, so a second creator gets a
- * uniqueness error rather than a second row.
+ * uniqueness error rather than a second row. A row left by an earlier pin or
+ * `E2E_DRIVERS_*` override is moved to the current uri and branch, because the
+ * build farm resolves a driver's commit on its repository's branch.
  */
 export async function ensureDriversRepository(
     api: APIRequestContext,
 ): Promise<{ id: string; created: boolean }> {
     const find = async () =>
-        asList(
+        asList<RepositoryRow>(
             await getJson(api, `${ENGINE_API}/repositories`, { limit: '500' }),
         ).find(
             (r) =>
@@ -54,7 +49,10 @@ export async function ensureDriversRepository(
         );
 
     const found = await find();
-    if (found) return { id: found.id, created: false };
+    if (found) {
+        await syncRepository(api, found);
+        return { id: found.id, created: false };
+    }
 
     const res = await api.post(`${ENGINE_API}/repositories`, {
         data: {
@@ -75,7 +73,10 @@ export async function ensureDriversRepository(
     // The listing is search-backed and can lag a create by a moment.
     for (let i = 0; i < 15; i++) {
         const raced = await find();
-        if (raced) return { id: raced.id, created: false };
+        if (raced) {
+            await syncRepository(api, raced);
+            return { id: raced.id, created: false };
+        }
         await sleep(2000);
     }
     throw new Error(
@@ -83,28 +84,56 @@ export async function ensureDriversRepository(
     );
 }
 
+/** Point an existing repository row at the configured uri and branch. */
+async function syncRepository(
+    api: APIRequestContext,
+    row: RepositoryRow,
+): Promise<void> {
+    const { uri, branch } = DRIVERS_REPOSITORY;
+    if (row.uri === uri && row.branch === branch) return;
+    const res = await api.patch(`${ENGINE_API}/repositories/${row.id}`, {
+        data: { uri, branch },
+    });
+    if (!res.ok()) {
+        throw new Error(
+            `update repository ${row.id} to ${uri}@${branch} failed: HTTP ` +
+                `${res.status()} ${await res.text()}`,
+        );
+    }
+}
+
 /**
  * A driver row for `spec` at the pinned commit, which is what makes core fetch
  * (or have the farm build) its binary.
  *
  * Keyed on file, commit and repository: a row for another commit of the same
- * file is a different driver, and nothing stops two rows for one file.
+ * file is a different driver, and nothing stops two rows for one file. The
+ * listing is search-backed, so when the repository already existed a miss is
+ * re-checked for a few seconds before creating: a seed re-run right after the
+ * first would otherwise add a second row.
  */
 export async function ensureDriver(
     api: APIRequestContext,
     repository_id: string,
     spec: DriverSpec,
+    repositoryIsNew: boolean,
 ): Promise<{ id: string; created: boolean }> {
-    const existing = asList(
-        await getJson(api, `${ENGINE_API}/drivers`, { limit: '500' }),
-    );
-    const found = existing.find(
-        (d) =>
-            d.file_name === spec.file_name &&
-            d.commit === DRIVERS_COMMIT &&
-            d.repository_id === repository_id,
-    );
-    if (found) return { id: found.id, created: false };
+    const find = async () =>
+        asList<DriverRow>(
+            await getJson(api, `${ENGINE_API}/drivers`, { limit: '500' }),
+        ).find(
+            (d) =>
+                d.file_name === spec.file_name &&
+                d.commit === DRIVERS_COMMIT &&
+                d.repository_id === repository_id,
+        );
+
+    const attempts = repositoryIsNew ? 1 : 5;
+    for (let i = 0; i < attempts; i++) {
+        if (i) await sleep(2000);
+        const found = await find();
+        if (found) return { id: found.id, created: false };
+    }
 
     const res = await api.post(`${ENGINE_API}/drivers`, {
         data: {
@@ -133,9 +162,13 @@ export async function ensureDriver(
  * farm refused to build it. core downloads the binary from the farm's S3 while
  * answering, and a request that lands during that download waits for it, so the
  * request gets the whole remaining budget rather than Playwright's 30 s default.
+ * A request that fails outright (core still starting, a reset during the
+ * download) is retried like a 404.
+ *
  * The driver row carries the same output, and is checked as well because core
  * writes it there whether or not anyone asks; `compilation_status=false` keeps
- * that read from asking core too.
+ * that read from asking core too. Output already on the row when the wait
+ * starts is from an earlier attempt, and only a change to it counts.
  */
 export async function waitForDriverCompiled(
     api: APIRequestContext,
@@ -144,61 +177,79 @@ export async function waitForDriverCompiled(
     timeoutMs: number,
     onProgress: (message: string) => void = () => {},
 ): Promise<void> {
-    const deadline = Date.now() + timeoutMs;
-    const started = Date.now();
-    let last = '';
-    let reported = 0;
-    for (;;) {
-        const row = await getJson(api, `${ENGINE_API}/drivers/${driver_id}`, {
+    const readRow = async (): Promise<DriverRow> =>
+        getJson(api, `${ENGINE_API}/drivers/${driver_id}`, {
             compilation_status: 'false',
         });
-        if (row.compilation_output) {
-            throw new Error(
-                `${label} failed to build:\n${row.compilation_output}`,
-            );
+    const deadline = Date.now() + timeoutMs;
+    const started = Date.now();
+    const stale = (await readRow()).compilation_output ?? null;
+    let last = '';
+    let reported = 0;
+    while (Date.now() <= deadline) {
+        const output = (await readRow()).compilation_output ?? null;
+        if (output && output !== stale) {
+            throw new Error(`${label} failed to build:\n${output}`);
         }
-        const res = await api.get(
-            `${ENGINE_API}/drivers/${driver_id}/compiled`,
-            { timeout: Math.max(deadline - Date.now(), 10_000) },
-        );
-        const body = await res.text();
-        if (res.ok()) {
-            let parsed: any = null;
-            try {
-                parsed = body ? JSON.parse(body) : null;
-            } catch {
-                parsed = null;
-            }
-            if (parsed?.compilation_output) {
-                throw new Error(
-                    `${label} failed to build:\n${parsed.compilation_output}`,
-                );
-            }
+        const compiled = await api
+            .get(`${ENGINE_API}/drivers/${driver_id}/compiled`, {
+                timeout: Math.max(deadline - Date.now(), 10_000),
+            })
+            .then(async (res) => ({
+                ok: res.ok(),
+                status: res.status(),
+                body: await res.text(),
+            }))
+            .catch((error: unknown) => ({
+                ok: false,
+                status: 0,
+                body: `${error}`,
+            }));
+        if (compiled.ok) {
+            const failure = compilationOutput(compiled.body);
+            if (failure)
+                throw new Error(`${label} failed to build:\n${failure}`);
             return;
         }
-        last = `HTTP ${res.status()} ${body.slice(0, 200)}`;
+        last = `${compiled.status ? `HTTP ${compiled.status} ` : ''}${compiled.body.slice(0, 200)}`;
         const elapsed = Math.round((Date.now() - started) / 1000);
         if (elapsed - reported >= 30) {
             reported = elapsed;
             onProgress(`${label}: not loaded after ${elapsed}s (${last})`);
         }
-        if (Date.now() > deadline) {
-            throw new Error(
-                `${label} was not loaded by core within ${Math.round(timeoutMs / 1000)}s ` +
-                    `(last: ${last}). core fetches binaries from the build farm, which ` +
-                    `compiles a commit it has not seen for this CPU architecture on first ` +
-                    `request; that takes a few minutes and needs the farm reachable. ` +
-                    `Check: docker compose -p placeos-e2e logs core`,
-            );
-        }
         await sleep(5000);
     }
+    throw new Error(
+        `${label} was not loaded by core within ${Math.round(timeoutMs / 1000)}s ` +
+            `(last: ${last}). core fetches binaries from the build farm, which ` +
+            `compiles a commit it has not seen for this CPU architecture on first ` +
+            `request; that takes a few minutes and needs the farm reachable. ` +
+            `Check: docker compose -p placeos-e2e logs core`,
+    );
+}
+
+/** The `compilation_output` in a `/compiled` body, if it has one. */
+function compilationOutput(body: string): string | null {
+    try {
+        const parsed: unknown = body ? JSON.parse(body) : null;
+        if (
+            parsed &&
+            typeof parsed === 'object' &&
+            'compilation_output' in parsed
+        ) {
+            return `${parsed.compilation_output ?? ''}` || null;
+        }
+    } catch {
+        /* not JSON: a plain success body */
+    }
+    return null;
 }
 
 export interface ModuleRow {
     id: string;
     driver_id: string;
     control_system_id?: string;
+    name: string;
     running: boolean;
     [k: string]: unknown;
 }
@@ -208,7 +259,7 @@ export async function modulesInSystem(
     api: APIRequestContext,
     control_system_id: string,
 ): Promise<ModuleRow[]> {
-    return asList(
+    return asList<ModuleRow>(
         await getJson(api, `${ENGINE_API}/modules`, { control_system_id }),
     );
 }
@@ -219,15 +270,36 @@ export async function modulesInSystem(
  * Creating a logic module adds it to the system's module list on the backend
  * (`Module#add_logic_module`), so nothing has to patch the system. A module is
  * created stopped; `start` flips `running`, and core launches it on that change.
+ *
+ * A module with the same name from another driver is a leftover from an earlier
+ * pin, and is deleted first. Kept, it would stay `<name>_1` and the new module
+ * would be `<name>_2`, which nothing binds. Only call this on systems the suite
+ * owns.
  */
 export async function ensureLogicModule(
     api: APIRequestContext,
     control_system_id: string,
     driver_id: string,
 ): Promise<{ id: string; created: boolean }> {
-    let mod = (await modulesInSystem(api, control_system_id)).find(
-        (m) => m.driver_id === driver_id,
+    const driver: DriverRow = await getJson(
+        api,
+        `${ENGINE_API}/drivers/${driver_id}`,
+        { compilation_status: 'false' },
     );
+    const named = (await modulesInSystem(api, control_system_id)).filter(
+        (m) => m.name === driver.module_name,
+    );
+    for (const stale of named.filter((m) => m.driver_id !== driver_id)) {
+        const res = await api.delete(`${ENGINE_API}/modules/${stale.id}`);
+        if (!res.ok()) {
+            throw new Error(
+                `delete stale module ${stale.id} on ${control_system_id} failed: HTTP ` +
+                    `${res.status()} ${await res.text()}`,
+            );
+        }
+    }
+
+    let mod = named.find((m) => m.driver_id === driver_id);
     let created = false;
     if (!mod) {
         const res = await api.post(`${ENGINE_API}/modules`, {
@@ -239,18 +311,18 @@ export async function ensureLogicModule(
                     `${res.status()} ${await res.text()}`,
             );
         }
-        mod = await res.json();
+        mod = (await res.json()) as ModuleRow;
         created = true;
     }
-    if (!mod!.running) {
-        const res = await api.post(`${ENGINE_API}/modules/${mod!.id}/start`);
+    if (!mod.running) {
+        const res = await api.post(`${ENGINE_API}/modules/${mod.id}/start`);
         if (!res.ok()) {
             throw new Error(
-                `start module ${mod!.id} failed: HTTP ${res.status()} ${await res.text()}`,
+                `start module ${mod.id} failed: HTTP ${res.status()} ${await res.text()}`,
             );
         }
     }
-    return { id: mod!.id, created };
+    return { id: mod.id, created };
 }
 
 /**
