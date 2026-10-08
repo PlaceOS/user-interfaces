@@ -11,9 +11,14 @@ import {
 } from '@placeos/common';
 import {
     generateBookingForm,
+    loadLockersForScope,
     newBookingFromCalendarEvent,
     parkingRequestStatus,
 } from '../lib/booking.utilities';
+
+vi.mock('@placeos/ts-client', { spy: true });
+
+import * as ts_client from '@placeos/ts-client';
 
 describe('Booking Utilities', () => {
     let injector: Injector;
@@ -209,6 +214,49 @@ describe('Booking Utilities', () => {
             );
 
             expect(typeof form.date().disabled()).toBe('boolean');
+        });
+    });
+
+    describe('loadLockersForScope', () => {
+        it('should list lockers under their bank without a reference cycle', async () => {
+            vi.spyOn(ts_client, 'queryAssetCategories').mockResolvedValue({
+                total: 1,
+                next: null,
+                data: [{ id: 'category-1', name: '_LOCKERS_', hidden: true }],
+            } as any);
+            vi.spyOn(ts_client, 'queryAssetTypes').mockResolvedValue({
+                total: 1,
+                next: null,
+                data: [{ id: 'type-1', name: '_LOCKERS_' }],
+            } as any);
+            vi.spyOn(ts_client, 'queryAssets').mockResolvedValue({
+                total: 1,
+                next: null,
+                data: [
+                    {
+                        id: 'locker-1',
+                        identifier: 'Locker 1',
+                        parent_id: 'bank-1',
+                        zone_id: 'level-1',
+                        asset_type_id: 'type-1',
+                        other_data: {},
+                    },
+                ],
+            } as any);
+            const bank = { id: 'bank-1', name: 'Bank 1', lockers: [] } as any;
+
+            const lockers = await loadLockersForScope(
+                { levelWithID: () => null } as any,
+                'building-1',
+                [bank],
+            );
+
+            expect(lockers.map((_) => _.id)).toEqual(['locker-1']);
+            expect(lockers[0].bank).toBe(bank);
+            expect(bank.lockers.map((_) => _.id)).toEqual(['locker-1']);
+            expect(bank.lockers[0].bank.id).toBe('bank-1');
+            expect(bank.lockers[0].bank.lockers).toEqual([]);
+            expect(() => JSON.stringify(bank)).not.toThrow();
         });
     });
 

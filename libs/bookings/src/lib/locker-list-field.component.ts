@@ -182,7 +182,7 @@ export class LockerListFieldComponent implements ControlValueAccessor {
     public changeResources() {
         const ref = this._dialog.open(LockerSelectModalComponent, {
             data: {
-                items: this.items,
+                items: this.items(),
                 options: { capacity: this.room_size() },
             },
         });
