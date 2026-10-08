@@ -5,11 +5,11 @@ import {
   generateMockSpace,
   setInternalUserDomain,
   setMinutes
-} from "./chunk-BV3MXTRA.js";
+} from "./chunk-TCAWVAY4.js";
 import {
   setHours
 } from "./chunk-2V5E5YSO.js";
-import "./chunk-TZFDKIHN.js";
+import "./chunk-ECJGJ4ZQ.js";
 import {
   TranslatePipe
 } from "./chunk-IMJV7HID.js";
@@ -43,7 +43,7 @@ import {
   setupPlace,
   userSignal,
   user_groups_loaded
-} from "./chunk-Z6BRIM5R.js";
+} from "./chunk-L5Q3WJVC.js";
 import {
   AsyncHandler,
   Cn,
@@ -521,7 +521,7 @@ var ServiceWorkerUpdateCardComponent = class _ServiceWorkerUpdateCardComponent {
 // libs/components/src/lib/global-loading.component.ts
 var NativeDomainOverlayLoaderComponent_Conditional_0_Defer_1_DepsFn = () => [
   /* @ts-ignore */
-  import("./native-domain-overlay.component-PJPVYSMZ.js").then((m) => m.NativeDomainOverlayComponent)
+  import("./native-domain-overlay.component-67QT2LKX.js").then((m) => m.NativeDomainOverlayComponent)
 ];
 function NativeDomainOverlayLoaderComponent_Conditional_0_Defer_0_Template(rf, ctx) {
   if (rf & 1) {
@@ -635,7 +635,7 @@ var NativeDomainOverlayLoaderComponent = class _NativeDomainOverlayLoaderCompone
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(NativeDomainOverlayLoaderComponent, () => [
     /* @ts-ignore */
-    import("./native-domain-overlay.component-PJPVYSMZ.js").then((m) => m.NativeDomainOverlayComponent)
+    import("./native-domain-overlay.component-67QT2LKX.js").then((m) => m.NativeDomainOverlayComponent)
   ], (NativeDomainOverlayComponent) => {
     setClassMetadata(NativeDomainOverlayLoaderComponent, [{
       type: Component,
@@ -9270,7 +9270,7 @@ async function authority() {
 // apps/outlook-addin/src/app/app.component.ts
 var AppComponent_Defer_1_DepsFn = () => [
   /* @ts-ignore */
-  import("./settings-debug-panel-launcher.component-REJIB2YO.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+  import("./settings-debug-panel-launcher.component-2HFNUJC7.js").then((m) => m.SettingsDebugPanelLauncherComponent)
 ];
 function AppComponent_Defer_0_Template(rf, ctx) {
   if (rf & 1) {
@@ -9479,7 +9479,7 @@ var AppComponent = class _AppComponent extends AsyncHandler {
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(AppComponent, () => [
     /* @ts-ignore */
-    import("./settings-debug-panel-launcher.component-REJIB2YO.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+    import("./settings-debug-panel-launcher.component-2HFNUJC7.js").then((m) => m.SettingsDebugPanelLauncherComponent)
   ], (SettingsDebugPanelLauncherComponent) => {
     setClassMetadata(AppComponent, [{
       type: Component,
@@ -9516,7 +9516,7 @@ var routes = [
   },
   {
     path: "find",
-    loadComponent: () => import("./find-space.component-SZSZP3SY.js").then((m) => m.FindSpaceComponent)
+    loadComponent: () => import("./find-space.component-VFOLTVU3.js").then((m) => m.FindSpaceComponent)
   },
   {
     path: "",
@@ -9525,48 +9525,48 @@ var routes = [
     children: [
       {
         path: "calendar",
-        loadComponent: () => import("./calendar-pane.component-7EKPYMLW.js").then((m) => m.CalendarPaneComponent)
+        loadComponent: () => import("./calendar-pane.component-TJUJ4UIU.js").then((m) => m.CalendarPaneComponent)
       },
       {
         path: "book",
         children: [
           {
             path: "spaces",
-            loadComponent: () => import("./room-booking.component-AOB3X2PX.js").then((m) => m.RoomBookingComponent)
+            loadComponent: () => import("./room-booking.component-IN67TYKH.js").then((m) => m.RoomBookingComponent)
           },
           {
             path: "spaces/success",
-            loadComponent: () => import("./booking-confirmed.component-EB46JOQH.js").then((m) => m.BookingConfirmedComponent)
+            loadComponent: () => import("./booking-confirmed.component-7CFEVMBK.js").then((m) => m.BookingConfirmedComponent)
           },
           {
             path: "meeting",
-            loadComponent: () => import("./meeting-booking.component-LXGCVR6Q.js").then((m) => m.MeetingBookingComponent)
+            loadComponent: () => import("./meeting-booking.component-73TEXSHE.js").then((m) => m.MeetingBookingComponent)
           },
           {
             path: "meeting/success",
-            loadComponent: () => import("./meeting-success.component-DFIPEICO.js").then((m) => m.MeetingBookingSuccessComponent)
+            loadComponent: () => import("./meeting-success.component-LEVC2IDG.js").then((m) => m.MeetingBookingSuccessComponent)
           },
           {
             path: "desks",
-            loadComponent: () => import("./desk-booking.component-HXZEX4R7.js").then((m) => m.DeskBookingComponent)
+            loadComponent: () => import("./desk-booking.component-TEMZAYUJ.js").then((m) => m.DeskBookingComponent)
           },
           {
             path: "desks/success",
-            loadComponent: () => import("./desk-success.component-2Y2WLX6F.js").then((m) => m.DeskBookingSuccessComponent)
+            loadComponent: () => import("./desk-success.component-3QYFI2OK.js").then((m) => m.DeskBookingSuccessComponent)
           }
         ]
       },
       {
         path: "schedule/view",
-        loadComponent: () => import("./find-space.component-SZSZP3SY.js").then((m) => m.FindSpaceComponent)
+        loadComponent: () => import("./find-space.component-VFOLTVU3.js").then((m) => m.FindSpaceComponent)
       },
       {
         path: "confirm/success",
-        loadComponent: () => import("./booking-confirmed.component-EB46JOQH.js").then((m) => m.BookingConfirmedComponent)
+        loadComponent: () => import("./booking-confirmed.component-7CFEVMBK.js").then((m) => m.BookingConfirmedComponent)
       },
       {
         path: "upcoming",
-        loadComponent: () => import("./upcoming-bookings.component-5EDL4ZCU.js").then((m) => m.UpcomingBookingsComponent)
+        loadComponent: () => import("./upcoming-bookings.component-BMCEZOUA.js").then((m) => m.UpcomingBookingsComponent)
       },
       { path: "**", redirectTo: "calendar" }
     ]
