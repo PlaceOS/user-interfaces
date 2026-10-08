@@ -41,7 +41,15 @@ import { EnrolmentStateService } from './enrolment-state.service';
                             <enrolment-event-details></enrolment-event-details>
                         }
                         @case ('guest') {
-                            <enrolment-guest-confirm></enrolment-guest-confirm>
+                            <!-- Form, Material inputs and upload fields load on demand -->
+                            @defer (on immediate) {
+                                <enrolment-guest-confirm></enrolment-guest-confirm>
+                            } @placeholder {
+                                <mat-spinner
+                                    class="m-16"
+                                    [diameter]="32"
+                                ></mat-spinner>
+                            }
                         }
                         @case ('complete') {
                             <div

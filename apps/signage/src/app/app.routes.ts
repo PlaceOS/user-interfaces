@@ -3,7 +3,6 @@ import {
     AuthorisedUserGuard,
     UnauthorisedComponent,
 } from '@placeos/components';
-import { BootstrapComponent } from './bootstrap.component';
 
 const loadSignageTemplate = () =>
     import('./template.component').then((m) => m.SignageTemplateComponent);
@@ -15,7 +14,8 @@ export const routes: Routes = [
     },
     {
         path: 'bootstrap',
-        component: BootstrapComponent,
+        loadComponent: () =>
+            import('./bootstrap.component').then((m) => m.BootstrapComponent),
         canActivate: [AuthorisedUserGuard],
     },
     {

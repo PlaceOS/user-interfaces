@@ -1,4 +1,11 @@
-import { Component, effect, inject, OnInit, untracked } from '@angular/core';
+import {
+    Component,
+    effect,
+    inject,
+    Injector,
+    OnInit,
+    untracked,
+} from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { Router, RouterOutlet } from '@angular/router';
 import { PlaceOS_Service, setMocks, UploadsService } from '@placeos/common';
@@ -12,7 +19,6 @@ import { SettingsDebugPanelLauncherComponent } from '@placeos/components/setting
 import { mocksInit } from '@placeos/mocks';
 import { authority } from '@placeos/ts-client';
 
-import { ImageGenService } from './image-gen/image-gen.service';
 import { CommandPaletteService } from './shared/command-palette.service';
 import { SignageContextService } from './signage-context.service';
 
@@ -51,7 +57,11 @@ import { SignageContextService } from './signage-context.service';
             <router-outlet></router-outlet>
         </main>
         <global-loading />
-        <settings-debug-panel-launcher [loadSchema]="load_settings_schema" />
+        @defer (on idle) {
+            <settings-debug-panel-launcher
+                [loadSchema]="load_settings_schema"
+            />
+        }
     `,
     host: { '(document:keydown)': 'onKeydown($event)' },
     styles: [
@@ -80,7 +90,7 @@ export class AppComponent implements OnInit {
 
     private _placeos = inject(PlaceOS_Service);
     private _uploads = inject(UploadsService);
-    private _image_gen = inject(ImageGenService);
+    private _injector = inject(Injector);
     private _palette = inject(CommandPaletteService);
     private _context = inject(SignageContextService);
     private _router = inject(Router);
@@ -127,8 +137,12 @@ export class AppComponent implements OnInit {
         this._uploads.init();
 
         // asks the backend once whether image generation is available here, so
-        // the entry points can hide themselves on a domain without a provider
-        await this._image_gen.load(authority()?.config?.org_zone);
-        if (this._image_gen.enabled()) await this._image_gen.loadRecent();
+        // the entry points can hide themselves on a domain without a provider.
+        // Loaded on demand to keep the service out of the initial bundle.
+        const { ImageGenService } =
+            await import('./image-gen/image-gen.service');
+        const image_gen = this._injector.get(ImageGenService);
+        await image_gen.load(authority()?.config?.org_zone);
+        if (image_gen.enabled()) await image_gen.loadRecent();
     }
 }

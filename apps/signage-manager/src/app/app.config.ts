@@ -1,12 +1,15 @@
 import {
     ApplicationConfig,
     inject,
+    Injector,
     LOCALE_ID,
     provideAppInitializer,
     provideBrowserGlobalErrorListeners,
     provideZonelessChangeDetection,
+    runInInjectionContext,
 } from '@angular/core';
 import {
+    CanDeactivateFn,
     provideRouter,
     Routes,
     withComponentInputBinding,
@@ -18,10 +21,24 @@ import {
     AuthorisedUserGuard,
     UnauthorisedComponent,
 } from '@placeos/components';
+import { firstValueFrom, isObservable } from 'rxjs';
 import { environment } from '../environments/environment';
 import { manageGroupsGuard, signageAccessGuard } from './signage-access.guard';
 import { templatesEnabledGuard } from './templates-enabled.guard';
-import { templateUnsavedGuard } from './templates/template-unsaved.guard';
+
+/**
+ * Loads the unsaved template guard on first use. A static import pulls the
+ * template service and the confirm modal into the initial bundle.
+ */
+const lazyTemplateUnsavedGuard: CanDeactivateFn<unknown> = async (...args) => {
+    const injector = inject(Injector);
+    const { templateUnsavedGuard } =
+        await import('./templates/template-unsaved.guard');
+    const result = runInInjectionContext(injector, () =>
+        templateUnsavedGuard(...args),
+    );
+    return isObservable(result) ? firstValueFrom(result) : result;
+};
 
 const APP_ROUTES: Routes = [
     {
@@ -57,7 +74,7 @@ const APP_ROUTES: Routes = [
             {
                 path: 'templates/:id',
                 canActivate: [templatesEnabledGuard],
-                canDeactivate: [templateUnsavedGuard],
+                canDeactivate: [lazyTemplateUnsavedGuard],
                 loadComponent: () =>
                     import('./templates/templates.component').then(
                         (m) => m.TemplatesSectionComponent,

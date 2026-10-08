@@ -2,13 +2,6 @@ import { Clipboard } from '@angular/cdk/clipboard';
 import { Component, inject, OnInit } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { SwUpdate } from '@angular/service-worker';
-import {
-    Amazon,
-    Azure,
-    Google,
-    initialiseUploadService,
-    OpenStack,
-} from '@placeos/cloud-uploads';
 import { SettingsDebugPanelLauncherComponent } from '@placeos/components/settings-debug';
 
 import {
@@ -30,10 +23,11 @@ import {
 import { setInternalUserDomain } from '@placeos/users';
 
 import { RouterOutlet } from '@angular/router';
-import {
-    GlobalBannerComponent,
-    ServiceWorkerUpdateCardComponent,
-} from '@placeos/components';
+import { GlobalBannerComponent } from '@placeos/components';
+// Imported by file, not from the barrel, so the deferred block below can
+// split it (and its Material tooltip) out of the initial bundle.
+// eslint-disable-next-line @nx/enforce-module-boundaries
+import { ServiceWorkerUpdateCardComponent } from 'libs/components/src/lib/service-worker-update-card.component';
 
 import { SpacesService } from '@placeos/events';
 
@@ -58,7 +52,9 @@ export function initSentry(dsn: string, sample_rate: number = 0.2) {
         ServiceWorkerUpdateCardComponent,
     ],
     template: `
-        <settings-debug-panel-launcher />
+        @defer (on idle) {
+            <settings-debug-panel-launcher />
+        }
 
         <global-banner />
         @if (initialisation_error()) {
@@ -81,7 +77,9 @@ export function initSentry(dsn: string, sample_rate: number = 0.2) {
                 <router-outlet></router-outlet>
             </div>
         }
-        <placeos-service-worker-update-card />
+        @defer (on idle) {
+            <placeos-service-worker-update-card />
+        }
     `,
     styles: [
         `
@@ -155,7 +153,15 @@ export class AppComponent extends AsyncHandler implements OnInit {
                 `@${currentUser()?.email?.split('@')[1]}`,
         );
         this._settings.setOverrides([authority.config?.enrolment || {}]);
-        this.timeout('init_uploads', () => {
+        this.timeout('init_uploads', async () => {
+            // Loaded on demand to keep the upload library out of the initial bundle
+            const {
+                initialiseUploadService,
+                Amazon,
+                Azure,
+                Google,
+                OpenStack,
+            } = await import('@placeos/cloud-uploads');
             initialiseUploadService({
                 auto_start: true,
                 token: token(),

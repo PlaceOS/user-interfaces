@@ -20,7 +20,6 @@ import {
 import * as Sentry from '@sentry/angular';
 
 import { AppComponent } from './app/app.component';
-import { BootstrapComponent } from './app/bootstrap.component';
 import { tabbedRouteMatcher } from './app/tabbed-view/tabbed-route';
 import { environment } from './environments/environment';
 
@@ -32,7 +31,10 @@ const routes: Routes = [
     { path: 'unauthorised', component: UnauthorisedComponent },
     {
         path: 'bootstrap',
-        component: BootstrapComponent,
+        loadComponent: () =>
+            import('./app/bootstrap.component').then(
+                (m) => m.BootstrapComponent,
+            ),
         canActivate: [AuthorisedUserGuard],
     },
     {

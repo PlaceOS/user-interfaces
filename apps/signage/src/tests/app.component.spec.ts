@@ -1,3 +1,4 @@
+import { DeferBlockState } from '@angular/core/testing';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import {
     notifyError,
@@ -150,8 +151,12 @@ describe('AppComponent', () => {
         });
     });
 
-    it('should render the banner, router outlet and loading shells', () => {
+    it('should render the banner, router outlet and loading shells', async () => {
         spectator.detectChanges();
+        // The loading overlay and debug launcher are deferred blocks.
+        for (const block of await spectator.fixture.getDeferBlocks()) {
+            await block.render(DeferBlockState.Complete);
+        }
 
         expect(spectator.query('global-banner')).toBeTruthy();
         expect(spectator.query('router-outlet')).toBeTruthy();

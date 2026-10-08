@@ -21,13 +21,15 @@ import {
 import * as Sentry from '@sentry/angular';
 
 import { environment } from '../environments/environment';
-import { AppTimetableComponent } from './timetable.component';
 
 const routes: Routes = [
     { path: 'unauthorised', component: UnauthorisedComponent },
     {
         path: '',
-        component: AppTimetableComponent,
+        loadComponent: () =>
+            import('./timetable.component').then(
+                (m) => m.AppTimetableComponent,
+            ),
         canActivate: [AuthorisedUserGuard],
     },
     { path: '**', redirectTo: '' },

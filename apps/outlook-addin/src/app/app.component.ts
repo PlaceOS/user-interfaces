@@ -39,7 +39,9 @@ interface OfficeAccessTokenResult {
 @Component({
     selector: 'app-root',
     template: `
-        <settings-debug-panel-launcher />
+        @defer (on idle) {
+            <settings-debug-panel-launcher />
+        }
 
         <router-outlet />
         <global-loading />

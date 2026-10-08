@@ -12,10 +12,8 @@ vi.mock('@placeos/ts-client', { spy: true });
 
 import { Router } from '@angular/router';
 import * as client from '@placeos/ts-client';
-import {
-    CONTROL_STORE_KEY,
-    ControlStateService,
-} from '../app/control-state.service';
+import { ControlStateService } from '../app/control-state.service';
+import { CONTROL_STORE_KEY } from '../app/control-store-key';
 
 describe('ControlStateService', () => {
     let spectator: SpectatorService<ControlStateService>;
