@@ -11,7 +11,8 @@ import { createSettingsServiceMock } from '@placeos/common/tests';
 import { MockComponent, MockModule, MockProvider } from 'ng-mocks';
 
 import { IconComponent } from 'libs/components/src/lib/icon.component';
-import { BookingAsset, BookingFormService } from '../lib/booking-form.service';
+import { BookingFormService } from '../lib/booking-form.service';
+import { BookingAsset } from '../lib/booking-form.types';
 import { ParkingDetailsComponent } from '../lib/parking-select-modal/parking-details.component';
 import { ParkingFiltersDisplayComponent } from '../lib/parking-select-modal/parking-filters-display.component';
 import { ParkingFiltersComponent } from '../lib/parking-select-modal/parking-filters.component';

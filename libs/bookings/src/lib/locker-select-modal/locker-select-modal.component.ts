@@ -11,11 +11,8 @@ import { isMobileSafari, SettingsService } from '@placeos/common';
 
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
-import {
-    BookingAsset,
-    BookingFlowOptions,
-    BookingFormService,
-} from '../booking-form.service';
+import { BookingFormService } from '../booking-form.service';
+import { BookingAsset, BookingFlowOptions } from '../booking-form.types';
 import { LockerGridComponent } from '../locker-grid.component';
 import { LockerBank } from '../locker.class';
 import { LockerBankListComponent } from './locker-bank-list.component';

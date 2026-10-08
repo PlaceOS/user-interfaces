@@ -3,7 +3,7 @@ import { Component, inject, Injectable, signal } from '@angular/core';
 import { CateringOrder, SettingsService } from '@placeos/common';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 
-import { orderHost, orderLocation } from './catering-order-tools';
+import { orderHost, orderLocation } from './catering-order-details';
 
 /**
  * Prints order dockets. Needs a `catering-order-dockets` element in the app

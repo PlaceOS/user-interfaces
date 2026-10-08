@@ -8,8 +8,8 @@ import {
     SettingsService,
 } from '@placeos/common';
 
+import { generateBookingForm } from 'libs/bookings/src/lib/booking-form.model';
 import { BookingFormService } from 'libs/bookings/src/lib/booking-form.service';
-import { generateBookingForm } from 'libs/bookings/src/lib/booking.utilities';
 import { DesksService } from 'libs/bookings/src/lib/desk.service';
 
 import { ExploreDesksService } from '../lib/explore-desks.service';

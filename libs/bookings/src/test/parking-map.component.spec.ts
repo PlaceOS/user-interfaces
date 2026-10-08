@@ -9,10 +9,8 @@ import { createSettingsServiceMock } from '@placeos/common/tests';
 import { MockComponent, MockModule, MockProvider } from 'ng-mocks';
 
 import { InteractiveMapComponent } from 'libs/components/src/lib/interactive-map.component';
-import {
-    BookingAsset,
-    BookingFormService,
-} from '../lib/booking-form.service';
+import { BookingFormService } from '../lib/booking-form.service';
+import { BookingAsset } from '../lib/booking-form.types';
 import { ParkingMapComponent } from '../lib/parking-select-modal/parking-map.component';
 
 const asset = (over: Partial<BookingAsset> = {}): BookingAsset =>

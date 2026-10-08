@@ -9,8 +9,8 @@ import {
     User,
     WeekOfMonth,
 } from '@placeos/common';
+import { generateBookingForm } from '../lib/booking-form.model';
 import {
-    generateBookingForm,
     loadLockersForScope,
     newBookingFromCalendarEvent,
     parkingRequestStatus,

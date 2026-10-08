@@ -16,8 +16,8 @@ import { SettingsToggleComponent } from 'libs/components/src/lib/settings-toggle
 import { DateFieldComponent } from 'libs/form-fields/src/lib/date-field.component';
 import { DurationFieldComponent } from 'libs/form-fields/src/lib/duration-field.component';
 import { TimeFieldComponent } from 'libs/form-fields/src/lib/time-field.component';
+import { generateBookingForm } from '../lib/booking-form.model';
 import { BookingFormService } from '../lib/booking-form.service';
-import { generateBookingForm } from '../lib/booking.utilities';
 import { LockerFiltersComponent } from '../lib/locker-select-modal/locker-filters.component';
 
 describe('LockerFiltersComponent', () => {

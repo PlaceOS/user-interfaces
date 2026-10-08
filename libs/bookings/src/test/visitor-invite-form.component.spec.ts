@@ -19,8 +19,8 @@ import { createSettingsServiceMock } from '@placeos/common/tests';
 import { MockModule, MockProvider, MockService } from 'ng-mocks';
 import type { Mock } from 'vitest';
 
+import { generateBookingForm } from '../lib/booking-form.model';
 import { BookingFormService } from '../lib/booking-form.service';
-import { generateBookingForm } from '../lib/booking.utilities';
 import { VisitorInviteFormComponent } from '../lib/visitor-invite-form.component';
 
 describe('VisitorInviteFormComponent', () => {

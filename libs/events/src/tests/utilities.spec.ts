@@ -2,8 +2,8 @@ import { Injector } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { CalendarEvent } from '@placeos/common';
 
+import { generateEventForm } from '../lib/event-form';
 import { generateSystemsFormFields } from '../lib/space.utilities';
-import { generateEventForm } from '../lib/utilities';
 
 describe('utilities', () => {
     let injector: Injector;
