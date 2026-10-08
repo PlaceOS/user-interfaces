@@ -240,11 +240,15 @@ export class GoogleAnalyticsService {
                 () => {
                     log('Analytics', 'Service', `Page: ${route}`);
                     if (this._ga4) {
+                        const path = route || location.pathname;
                         this.service('event', 'page_view', {
-                            page_path: route || location.pathname,
-                            page_location: origin
-                                ? `${location.origin}${route}`
-                                : location.href,
+                            page_title: document.title,
+                            page_path: path,
+                            // Hash-routed SPAs hide the route in the URL
+                            // fragment, which GA4 strips when deriving the
+                            // page path. Send a full URL on the route so
+                            // each page has a distinct, reportable path.
+                            page_location: `${location.origin}${path}`,
                         });
                         return;
                     }
