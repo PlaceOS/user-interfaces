@@ -252,7 +252,11 @@ export class SignageZoneService {
         source: this._context.group_switch,
         computation: () => null,
     });
-    public readonly zone_search_term = signal('');
+    // Cleared when the selected zone changes, as the search is within it
+    public readonly zone_search_term = linkedSignal({
+        source: () => this.selected_zone()?.id,
+        computation: () => '',
+    });
     public readonly zone_tree_expanded = signal<Record<string, boolean>>({});
     public readonly zone_tree_children_cache = signal<
         Record<string, PlaceZone[]>
@@ -507,6 +511,14 @@ export class SignageZoneService {
         ) {
             return null;
         }
+        if (
+            zone.id &&
+            data.parent_id !== zone.parent_id &&
+            (await this._isDescendant(data.parent_id, zone.id))
+        ) {
+            notifyError(i18n('SIGNAGE_MANAGER.SVC_ZONE_PARENT_LOOP'));
+            return null;
+        }
         const form_data: Partial<PlaceZone> = {
             name: data.name,
             display_name: data.display_name,
@@ -528,6 +540,24 @@ export class SignageZoneService {
         this._context.changed();
         notifySuccess(i18n('SIGNAGE_MANAGER.SVC_SIGNAGE_ZONE_SAVED'));
         return saved;
+    }
+
+    /**
+     * Whether a zone is below another zone. A zone cannot take one of its
+     * descendants as its parent, as that makes a parent loop.
+     */
+    private async _isDescendant(zone_id: string, ancestor_id: string) {
+        const known = new Map(this.all_zones().map((zone) => [zone.id, zone]));
+        let current_id = zone_id;
+        // Limit the walk, so an existing parent loop cannot hang the save
+        for (let depth = 0; current_id && depth < 64; depth++) {
+            if (current_id === ancestor_id) return true;
+            const zone =
+                known.get(current_id) ||
+                (await showZone(current_id).catch(() => null));
+            current_id = zone?.parent_id || '';
+        }
+        return false;
     }
 
     public async removeZone(zone: PlaceZone) {

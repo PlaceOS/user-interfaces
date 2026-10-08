@@ -17,8 +17,8 @@ export class PagedSearch<T extends { id: string }> {
     public readonly has_more: Signal<boolean>;
     /** Whether the last page failed to load. `retry` loads it again. */
     public readonly error: Signal<boolean>;
-    // Term of the current query, so a retry can run it again
-    private _term = '';
+    /** Term of the current query. Lags `search` by the debounce. */
+    public readonly term = signal('');
 
     constructor(
         /** Builds the first page of results, null when the user may not query */
@@ -35,7 +35,7 @@ export class PagedSearch<T extends { id: string }> {
         effect(() => {
             const term = search_debounced.value();
             untracked(() => {
-                this._term = term;
+                this.term.set(term);
                 this._list.reset(this._query(term));
             });
         });
@@ -49,8 +49,13 @@ export class PagedSearch<T extends { id: string }> {
     public retry() {
         // A new term waits for its debounce. Its search replaces the failed
         // one, so a retry now would only show matches for the old term.
-        if (this.search() !== this._term) return;
-        if (!this._list.retry()) this._list.reset(this._query(this._term));
+        if (this.search() !== this.term()) return;
+        if (!this._list.retry()) this.refresh();
+    }
+
+    /** Run the current query again, as when its scope changes */
+    public refresh() {
+        this._list.reset(this._query(this.term()));
     }
 }
 
