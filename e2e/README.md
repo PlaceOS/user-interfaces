@@ -63,8 +63,9 @@ same names) and the seed writes app-only credentials to the tenant row, creates
 a local admin whose address is a mailbox there (`roleFor('calendar')`), and
 `/api/staff/v1/events` and `/api/staff/v1/people` answer from the tenant.
 Without them the tenant row carries placeholders, those routes answer 500 at
-Microsoft, and the specs that need them skip. See
-`e2e/support/calendar/calendar.env.ts`.
+Microsoft, and the specs that need them skip. Only the seed reads the variables:
+specs ask the stack (`calendarBacked` in `e2e/support/calendar/calendar.api.ts`).
+See `e2e/support/calendar/calendar.env.ts`.
 
 core runs real drivers from PlaceOS/drivers, pinned to a commit in
 `e2e/support/drivers/drivers.env.ts`. It compiles nothing itself: binaries come

@@ -105,12 +105,6 @@ jobs:
             # matters more here than shaving a minute off the run.
             E2E_WORKERS: '2'
             TZ: 'Etc/UTC'
-            # The Microsoft 365 sandbox tenant behind the stack's calendar and
-            # directory (e2e/support/calendar/calendar.env.ts). Without these the
-            # calendar-backed concierge specs skip; nothing else changes.
-            E2E_O365_TENANT: ${{ vars.E2E_O365_TENANT }}
-            E2E_O365_CLIENT_ID: ${{ vars.E2E_O365_CLIENT_ID }}
-            E2E_O365_CLIENT_SECRET: ${{ secrets.E2E_O365_CLIENT_SECRET }}
         steps:
             # persist-credentials: false — checkout otherwise leaves the token in
             # .git/config. Nothing here pushes, and this runner is not a fresh VM.
@@ -178,8 +172,18 @@ jobs:
             # GitHub once, to clone PlaceOS/www-core into the www volume — that is
             # where the platform /login page comes from — and to the build farm,
             # which core fetches the suite's driver binaries from.
+            #
+            # The Microsoft 365 sandbox tenant behind the stack's calendar and
+            # directory (e2e/support/calendar/calendar.env.ts) is set on this step
+            # only: the seed is the one consumer, and the job-level env would hand
+            # the secret to `bun install` scripts and the dev server too. Without
+            # these the calendar-backed specs skip; nothing else changes.
             - name: Bring up the local PlaceOS stack
               run: e2e/stack/up.sh
+              env:
+                  E2E_O365_TENANT: ${{ vars.E2E_O365_TENANT }}
+                  E2E_O365_CLIENT_ID: ${{ vars.E2E_O365_CLIENT_ID }}
+                  E2E_O365_CLIENT_SECRET: ${{ secrets.E2E_O365_CLIENT_SECRET }}
 
             # What backend did this run actually test?
             #
