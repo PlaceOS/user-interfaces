@@ -19,7 +19,7 @@ import {
   signal,
   ɵɵdefineInjectable,
   ɵɵdefinePipe
-} from "./chunk-ZX7PA44E.js";
+} from "./chunk-XJ4YXUDK.js";
 import {
   __spreadProps,
   __spreadValues
@@ -2379,8 +2379,9 @@ var ChatService = class _ChatService extends AsyncHandler {
     const auth = J() !== "x-api-key" ? `bearer_token=${encodeURIComponent(J())}` : `x-api-key=${et()}`;
     const url = `ws${location.origin.replace("http", "")}/api/engine/v2/chatgpt/chat/${encodeURIComponent(id)}?${auth}${this._chat_id ? "&resume=" + encodeURIComponent(this._chat_id) : ""}`;
     log("CHAT", "Starting chat connection.");
-    this._socket = new WebSocket(url);
-    this._socket.onmessage = (event) => {
+    const socket = new WebSocket(url);
+    this._socket = socket;
+    socket.onmessage = (event) => {
       let msg = event.data;
       try {
         msg = JSON.parse(event.data);
@@ -2388,11 +2389,11 @@ var ChatService = class _ChatService extends AsyncHandler {
       }
       this._onMessage(msg);
     };
-    this._socket.onerror = (e) => {
+    socket.onerror = (e) => {
       log("CHAT", "Connection error:", [e], "error");
-      this._cleanup();
+      this._cleanup(socket);
     };
-    this._socket.onclose = () => this._cleanup();
+    socket.onclose = () => this._cleanup(socket);
     return () => this.endChat();
   }
   endChat() {
@@ -2426,7 +2427,10 @@ var ChatService = class _ChatService extends AsyncHandler {
       this.endChat();
     }, delay);
   }
-  _cleanup() {
+  /** Forget the socket. With a socket given, only if it is still the current one. */
+  _cleanup(socket) {
+    if (socket && socket !== this._socket)
+      return;
     this._socket = null;
   }
   _onMessage(msg) {
@@ -2491,5 +2495,5 @@ export {
   DateFromPipe,
   ChatService
 };
-//# debugId=a2e8f408-224f-5ece-9bab-578442a96e80
-//# sourceMappingURL=chunk-TZ32BJ2Y.js.map
+//# debugId=16189450-7d70-52e2-8c54-0950cb73a13f
+//# sourceMappingURL=chunk-FH75AV6O.js.map
