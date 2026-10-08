@@ -130,7 +130,7 @@ export interface ZoneEditFormModel {
                             [load_children]="loadChildren"
                             [exclude_ids]="zone.id ? [zone.id] : []"
                             [scoped_search]="true"
-                            [(selected)]="selected_parent"
+                            [(selected)]="search_scope"
                             (zoneSelected)="selectParent($event)"
                         />
                     </div>
@@ -190,8 +190,10 @@ export class ZoneEditModalComponent {
             );
         },
     });
+    // The tree can clear its search scope, but that keeps the parent
+    public readonly search_scope = linkedSignal(() => this.selected_parent());
     public readonly zone_list = new PagedSearch<PlaceZone>((search) => {
-        const parent_id = this.selected_parent()?.id;
+        const parent_id = this.search_scope()?.id;
         return search.trim()
             ? this._data.query_zones(search, parent_id || '')
             : null;
@@ -199,6 +201,7 @@ export class ZoneEditModalComponent {
     public readonly loadChildren = this._data.load_children;
 
     public selectParent(zone: PlaceZone) {
+        this.selected_parent.set(zone);
         this.model.update((model) => ({ ...model, parent_id: zone.id }));
     }
 

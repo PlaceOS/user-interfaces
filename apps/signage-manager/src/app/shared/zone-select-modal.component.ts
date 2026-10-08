@@ -37,7 +37,11 @@ import { ZoneSelectTreeComponent } from './zone-select-tree.component';
                 [(selected)]="selected_zone"
             />
         </main>
-        <footer class="border-base-300 flex justify-end border-t p-2">
+        <footer class="border-base-300 flex items-center gap-2 border-t p-2">
+            <!-- A zone picked from the search can be hidden in the tree -->
+            <div class="min-w-0 flex-1 truncate px-2">
+                {{ selected_zone()?.display_name || selected_zone()?.name }}
+            </div>
             <button
                 btn
                 type="button"

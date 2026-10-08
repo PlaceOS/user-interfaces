@@ -34,9 +34,21 @@ interface ZoneSelectTreeNode {
     level: number;
 }
 
+/** Placeholder of a zone search: within the zone, or every reachable zone */
+export function zoneSearchLabel(zone: PlaceZone | null) {
+    return zone?.id
+        ? {
+              key: 'SIGNAGE_MANAGER.SEARCH_IN_ZONE',
+              params: { name: zone.display_name || zone.name || zone.id },
+          }
+        : { key: 'SIGNAGE_MANAGER.SEARCH_ZONES', params: {} };
+}
+
 @Component({
     selector: 'zone-select-tree',
     template: `
+        @let search_text =
+            search_label().key | translate: search_label().params;
         <mat-form-field
             appearance="outline"
             class="no-subscript bg-base-100 sticky top-0 z-10 w-full pb-2"
@@ -45,13 +57,25 @@ interface ZoneSelectTreeNode {
                 matInput
                 [ngModel]="list().search()"
                 (ngModelChange)="list().search.set($event)"
-                [placeholder]="
-                    search_label_key() | translate: search_label_params()
-                "
-                [attr.aria-label]="
-                    search_label_key() | translate: search_label_params()
-                "
+                [placeholder]="search_text"
+                [attr.aria-label]="search_text"
             />
+            @if (search_scope()) {
+                <button
+                    icon
+                    matSuffix
+                    type="button"
+                    [matTooltip]="
+                        'SIGNAGE_MANAGER.SEARCH_ALL_ZONES' | translate
+                    "
+                    [attr.aria-label]="
+                        'SIGNAGE_MANAGER.SEARCH_ALL_ZONES' | translate
+                    "
+                    (click)="clearScope()"
+                >
+                    <icon class="text-xl">close</icon>
+                </button>
+            }
         </mat-form-field>
         @if (flat_tree_nodes().length) {
             <cdk-tree
@@ -247,17 +271,16 @@ export class ZoneSelectTreeComponent {
     public readonly selected = model<PlaceZone | null>(null);
     public readonly zoneSelected = output<PlaceZone>();
     public readonly expanded_zones = signal<Record<string, boolean>>({});
-    /** Placeholder key: within the selected zone, or every reachable zone */
-    public readonly search_label_key = computed(() =>
-        this.scoped_search() && this.selected()?.id
-            ? 'SIGNAGE_MANAGER.SEARCH_IN_ZONE'
-            : 'SIGNAGE_MANAGER.SEARCH_ZONES',
+    /** Zone the search is limited to. Null searches every reachable zone. */
+    public readonly search_scope = computed(() =>
+        this.scoped_search() && this.selected()?.id ? this.selected() : null,
     );
-    public readonly search_label_params = computed(() => ({
-        name: this.selected()?.display_name || this.selected()?.name || '',
-    }));
+    public readonly search_label = computed(() =>
+        zoneSearchLabel(this.search_scope()),
+    );
+    // Results arrive after the debounce. Until then the tree stays as it is.
     public readonly show_search_results = computed(
-        () => !!this.list().search().trim(),
+        () => !!this.list().search().trim() && !!this.list().term().trim(),
     );
 
     private readonly _tree_source = computed(() => {
@@ -276,25 +299,25 @@ export class ZoneSelectTreeComponent {
         source: this._tree_source,
         computation: ({ zones, exclude_ids, lazy, searching, selected }) => {
             const excluded = new Set(exclude_ids);
-            if (searching && selected && !excluded.has(selected.id)) {
-                return [
-                    {
-                        zone: selected,
-                        children: zones
-                            .filter(
-                                (zone) =>
-                                    zone.id !== selected.id &&
-                                    !excluded.has(zone.id),
-                            )
-                            .map((zone) => this.createNode(zone, false)),
-                        children_loaded: true,
-                        children_loading: false,
-                        children_error: false,
-                        level: 0,
-                    },
-                ];
-            }
-            return this.buildTree(zones, excluded, lazy);
+            if (!searching) return this.buildTree(zones, excluded, lazy);
+            // Matches do not form a tree, so they show as a flat list
+            const results = zones
+                .filter(
+                    (zone) =>
+                        zone.id !== selected?.id && !excluded.has(zone.id),
+                )
+                .map((zone) => this.createNode(zone, false));
+            if (!selected || excluded.has(selected.id)) return results;
+            return [
+                {
+                    zone: selected,
+                    children: results,
+                    children_loaded: true,
+                    children_loading: false,
+                    children_error: false,
+                    level: 0,
+                },
+            ];
         },
     });
     public readonly flat_tree_nodes = computed(() => {
@@ -333,6 +356,13 @@ export class ZoneSelectTreeComponent {
             this.selected.set(zone);
         }
         this.zoneSelected.emit(zone);
+    }
+
+    /** Search every reachable zone, not only the selected zone */
+    public clearScope() {
+        this.selected.set(null);
+        // The query reads the selected zone, so run it again without it
+        this.list().refresh();
     }
 
     public toggleNode(node: ZoneSelectTreeNode) {

@@ -97,7 +97,7 @@ describe('ZoneListComponent', () => {
 
     it('searches every zone until one is selected, then within it', async () => {
         const component = (await make()).componentInstance;
-        expect(component.search_label_key()).toBe(
+        expect(component.search_label().key).toBe(
             'SIGNAGE_MANAGER.SEARCH_ZONES',
         );
         expect(component.show_search_results()).toBe(false);
@@ -106,10 +106,10 @@ describe('ZoneListComponent', () => {
         expect(component.show_search_results()).toBe(true);
 
         selected_zone.set({ id: 'r1', display_name: 'Root 1' });
-        expect(component.search_label_key()).toBe(
-            'SIGNAGE_MANAGER.SEARCH_IN_ZONE',
-        );
-        expect(component.search_label_params()).toEqual({ name: 'Root 1' });
+        expect(component.search_label()).toEqual({
+            key: 'SIGNAGE_MANAGER.SEARCH_IN_ZONE',
+            params: { name: 'Root 1' },
+        });
         expect(component.show_search_results()).toBe(true);
     });
 
@@ -126,6 +126,29 @@ describe('ZoneListComponent', () => {
                 .map((node) => [node.zone.id, node.level]),
         ).toEqual([['z1', 0]]);
         expect(component.childCount(component.tree_nodes()[0])).toBe(2);
+    });
+
+    it('opens a matching root zone only on request', async () => {
+        const child = { id: 'c1', parent_id: 'r1' };
+        root_zones.set([{ id: 'r1', name: 'Root 1' }]);
+        all_zones.set([{ id: 'r1' }, child]);
+        zone_tree_children_cache.set({ r1: [child] });
+        const component = (await make()).componentInstance;
+        const ids = () =>
+            component.flat_tree_nodes().map(({ zone }) => zone.id);
+        expect(ids()).toEqual(['r1', 'c1']);
+
+        zone_search_term.set('root');
+        filtered_zones.set([{ id: 'r1', name: 'Root 1' }]);
+        TestBed.flushEffects();
+
+        expect(ids()).toEqual(['r1']);
+        const root = component.flat_tree_nodes()[0];
+        expect(component.canExpand(root)).toBe(true);
+
+        component.onExpandedChange(root, true);
+
+        expect(ids()).toEqual(['r1', 'c1']);
     });
 
     it('presents search results beneath the selected zone', async () => {
