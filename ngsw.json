@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1791419677340,
+  "timestamp": 1791426961000,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -222,13 +222,13 @@
     "./index.html": "70b11158dfde10493423963bf57d9e4a7b61dbc9",
     "./it-CKncUqxZ.js": "b6b3105a4193fa883d8713fdecce08a8a4b7f301",
     "./ja-DngrQVLH.js": "38c64a0491a1e79c09fdc76f03eb35ef1f1a7d45",
-    "./main.js": "b5c3c059beb44de6b63f2d4e229fc11923b340f7",
+    "./main.js": "72617c3b4844f5f6f9fac30d6d5fd40eea5502ff",
     "./manifest.webmanifest": "39df451c6d81fb831c7cf7df6ea3fade21510647",
     "./settings-debug-panel.component-BL41cbvE.js": "c3f92d7669b4b98f82f064d0b33d0bf56a4e7240",
     "./settings.schema-9bIc9nld.js": "1dd4a18629da1a68db4a42f36b06b440f8e59af3",
     "./squire-7BCJDNZA.js": "94e1264d3bba40b17587c819229731d20b5a6776",
     "./styles.css": "605e4df7713b54123ab3bf6049d86259f4c2f385",
-    "./template.component-DaKSshOh.js": "64ca879d38e69c9ec03295c2fba4dab6572c148d",
+    "./template.component-DaKSshOh.js": "8298d9ac01d7047754e7b0071dab073aa031e49a",
     "./zh-CenHhTig.js": "350af1e42f2c690622d92d2d3b846a75a2f2dc44"
   },
   "navigationUrls": [
