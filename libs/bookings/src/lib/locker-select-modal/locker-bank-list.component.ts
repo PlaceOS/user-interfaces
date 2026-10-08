@@ -183,6 +183,7 @@ export class LockerBankListComponent {
     private _org = inject(OrganisationService);
     private _settings = inject(SettingsService);
 
+    // fallow-ignore-next-line unused-component-input -- read in a [class.!x] binding fallow does not parse
     public readonly active = input('');
     public readonly selected = input('');
     public readonly favorites = input<string[]>([]);

@@ -131,6 +131,7 @@ import { BookingAsset, BookingFormService } from '../booking-form.service';
 export class ParkingListComponent {
     private _form = inject(BookingFormService);
 
+    // fallow-ignore-next-line unused-component-input -- read in a [class.x!] binding fallow does not parse
     public readonly active = input('');
     public readonly selected = input('');
     public readonly favorites = input<string[]>([]);
