@@ -67,7 +67,7 @@ const CHARS = '#abcdefghijklmnopqrstuvwxyz'.split('');
                         }
                     }
                 }
-            } @else {
+            } @else if (!users_loading()) {
                 <div
                     class="absolute inset-0 flex flex-col items-center justify-center"
                 >
@@ -77,7 +77,7 @@ const CHARS = '#abcdefghijklmnopqrstuvwxyz'.split('');
                 </div>
             }
         </div>
-        @if (loading()) {
+        @if (loading() || users_loading()) {
             <mat-progress-bar mode="indeterminate" />
         }
     `,
@@ -128,6 +128,7 @@ export class StaffListingComponent extends AsyncHandler {
     public readonly groups = CHARS;
     public readonly events = this._state.user_events;
     public readonly loading = this._state.loading;
+    public readonly users_loading = this._state.users_loading;
     public readonly users_error = this._state.users_error;
     public readonly filtered_users = this._state.filtered_users;
 
