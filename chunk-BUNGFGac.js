@@ -1,0 +1,1 @@
+import{b as L}from"./main-ZW345KQF.js";function u(o,r,n){return L(o,-r,n)}export{u as t};

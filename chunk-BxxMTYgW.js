@@ -1,0 +1,1 @@
+import{Wt}from"./chunk-X3cpMRkL.js";function r(e){return`${e.id}:${e.instance||``}`}function E(e,t){let o=new Set(t);return e.filter(i=>o.has(r(i)))}function s(e,t){return{dialog:t,confirm:{title:Wt(`APP.CONCIERGE.BULK_REJECT_TITLE`),content:Wt(`APP.CONCIERGE.BULK_REJECT_MSG`,{count:e}),icon:`event_busy`}}}export{r as n,s as r,E as t};

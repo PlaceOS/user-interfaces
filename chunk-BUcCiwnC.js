@@ -1,0 +1,1 @@
+import{X as Ks}from"./chunk-X3cpMRkL.js";function u(t,o,a){return Ks(t,-o,a)}export{u as t};
