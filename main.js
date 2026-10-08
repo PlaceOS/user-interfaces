@@ -1,36 +1,36 @@
 import {
   subMinutes
-} from "./chunk-TS3CQIPF.js";
+} from "./chunk-DNHM6LTQ.js";
 import {
   MatInput,
   MatInputModule
-} from "./chunk-BHG3CJMD.js";
+} from "./chunk-532PDRWS.js";
 import {
   MatMenu,
   MatMenuItem,
   MatMenuModule,
   MatMenuTrigger
-} from "./chunk-VVX3BEJO.js";
+} from "./chunk-CGO5LAYD.js";
 import {
   generateMockSpace,
   setInternalUserDomain,
   setMinutes
-} from "./chunk-L5OCX2GK.js";
+} from "./chunk-DS467RST.js";
 import {
   MatFormField,
   MatFormFieldModule,
   MatPrefix
-} from "./chunk-G6X5MS4N.js";
+} from "./chunk-B3RTZX5E.js";
 import {
   setHours
-} from "./chunk-TCFN7OH3.js";
+} from "./chunk-AQ3OC2N2.js";
 import {
   MatTooltip,
   MatTooltipModule
-} from "./chunk-TWHMX4A7.js";
+} from "./chunk-BASNB4VF.js";
 import {
   TranslatePipe
-} from "./chunk-GXXCVTEJ.js";
+} from "./chunk-6THXIFMF.js";
 import {
   AsyncHandler,
   BidiModule,
@@ -116,7 +116,7 @@ import {
   wp,
   yi,
   ɵNgNoValidate
-} from "./chunk-QRWCXLIH.js";
+} from "./chunk-UTZWK66H.js";
 import {
   ChangeDetectorRef,
   Component,
@@ -1296,15 +1296,15 @@ var GlobalLoadingComponent = class _GlobalLoadingComponent extends AsyncHandler 
 // libs/components/src/lib/settings-debug-panel-launcher.component.ts
 var SettingsDebugPanelLauncherComponent_Defer_25_DepsFn = () => [
   /* @ts-ignore */
-  import("./settings-debug-panel.component-HJZL27GO.js").then((m) => m.SettingsDebugPanelComponent)
+  import("./settings-debug-panel.component-E4BW5WOJ.js").then((m) => m.SettingsDebugPanelComponent)
 ];
 var SettingsDebugPanelLauncherComponent_Defer_28_DepsFn = () => [
   /* @ts-ignore */
-  import("./binding-debug-panel.component-KF6RBFNT.js").then((m) => m.BindingDebugPanelComponent)
+  import("./binding-debug-panel.component-ASEIFWZA.js").then((m) => m.BindingDebugPanelComponent)
 ];
 var SettingsDebugPanelLauncherComponent_Defer_31_DepsFn = () => [
   /* @ts-ignore */
-  import("./debug-console.component-LHOLV2FT.js").then((m) => m.DebugConsoleComponent)
+  import("./debug-console.component-JPIW3Y7Y.js").then((m) => m.DebugConsoleComponent)
 ];
 function SettingsDebugPanelLauncherComponent_Defer_24_Conditional_0_Template(rf, ctx) {
   if (rf & 1) {
@@ -1539,11 +1539,11 @@ var SettingsDebugPanelLauncherComponent = class _SettingsDebugPanelLauncherCompo
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(SettingsDebugPanelLauncherComponent, () => [
     /* @ts-ignore */
-    import("./settings-debug-panel.component-HJZL27GO.js").then((m) => m.SettingsDebugPanelComponent),
+    import("./settings-debug-panel.component-E4BW5WOJ.js").then((m) => m.SettingsDebugPanelComponent),
     /* @ts-ignore */
-    import("./binding-debug-panel.component-KF6RBFNT.js").then((m) => m.BindingDebugPanelComponent),
+    import("./binding-debug-panel.component-ASEIFWZA.js").then((m) => m.BindingDebugPanelComponent),
     /* @ts-ignore */
-    import("./debug-console.component-LHOLV2FT.js").then((m) => m.DebugConsoleComponent)
+    import("./debug-console.component-JPIW3Y7Y.js").then((m) => m.DebugConsoleComponent)
   ], (SettingsDebugPanelComponent, BindingDebugPanelComponent, DebugConsoleComponent) => {
     setClassMetadata(SettingsDebugPanelLauncherComponent, [{
       type: Component,
@@ -7121,6 +7121,23 @@ function registerMockSignage() {
     callback: () => ({})
   });
   co({
+    path: "/api/engine/v2/uploads/screenshot",
+    metadata: {},
+    method: "POST",
+    callback: (request) => ({
+      id: `upload-screenshot-${Date.now()}`,
+      file_name: `screenshot-${new URL(request.body.url).host}.jpg`,
+      file_mime: "image/jpeg",
+      tags: ["screenshot"]
+    })
+  });
+  co({
+    path: "/api/engine/v2/uploads/:id",
+    metadata: {},
+    method: "DELETE",
+    callback: () => ({})
+  });
+  co({
     path: "/api/engine/v2/signage/media/share",
     metadata: {},
     method: "POST",
@@ -7492,20 +7509,20 @@ function registerMockSignage() {
       };
     }
   });
-  registerMockSignageAI();
+  registerMockSignageImageGen();
 }
-function registerMockSignageAI() {
-  const AI_JOBS = {};
+function registerMockSignageImageGen() {
+  const IMAGE_GEN_JOBS = {};
   const SAMPLE_IMAGES = MOCK_MEDIA.slice(0, 4).map((item) => item.id);
   const now = () => Math.floor(Date.now() / 1e3);
   function makeJob(request, kind) {
     const count = Math.min(Math.max(request.candidates || 2, 1), 4);
     const job = {
-      id: `signage-ai-job-${Object.keys(AI_JOBS).length + 1}`,
+      id: `signage-ai-job-${Object.keys(IMAGE_GEN_JOBS).length + 1}`,
       state: "queued",
       kind,
       provider: "OPENAI",
-      model: "gpt-image-2",
+      model: "gpt-image-2.5-sunburst",
       candidates: count,
       images_produced: 0,
       parent_job_id: request.parent_job_id,
@@ -7514,7 +7531,7 @@ function registerMockSignageAI() {
       images: Array.from({ length: count }, () => null),
       created_at: now()
     };
-    AI_JOBS[job.id] = job;
+    IMAGE_GEN_JOBS[job.id] = job;
     if (`${request.prompt}`.includes("trigger-moderation")) {
       setTimeout(() => {
         job.state = "failed";
@@ -7559,11 +7576,11 @@ function registerMockSignageAI() {
           id: "signage-ai-provider-1",
           name: "Mock provider",
           provider: "OPENAI",
-          default_model: "gpt-image-2",
+          default_model: "gpt-image-2.5-sunburst",
           models: [
             {
-              id: "gpt-image-2",
-              name: "GPT Image 2",
+              id: "gpt-image-2.5-sunburst",
+              name: "GPT Image 2.5 Sunburst",
               generate: true,
               edit: true,
               enhance: true,
@@ -7599,14 +7616,14 @@ function registerMockSignageAI() {
     path: "/api/engine/v2/signage/ai/jobs",
     metadata: {},
     method: "GET",
-    callback: () => Object.values(AI_JOBS)
+    callback: () => Object.values(IMAGE_GEN_JOBS)
   });
   co({
     path: "/api/engine/v2/signage/ai/jobs/:id",
     metadata: {},
     method: "GET",
     callback: (request) => {
-      const job = AI_JOBS[request.route_params.id];
+      const job = IMAGE_GEN_JOBS[request.route_params.id];
       if (!job)
         throw { status: 404, message: "No such job" };
       return job;
@@ -7617,7 +7634,7 @@ function registerMockSignageAI() {
     metadata: {},
     method: "POST",
     callback: (request) => {
-      const job = AI_JOBS[request.route_params.id];
+      const job = IMAGE_GEN_JOBS[request.route_params.id];
       if (!job)
         throw { status: 404, message: "No such job" };
       if (job.state === "queued" || job.state === "running") {
@@ -7632,7 +7649,7 @@ function registerMockSignageAI() {
     metadata: {},
     method: "POST",
     callback: (request) => {
-      const job = AI_JOBS[request.route_params.id];
+      const job = IMAGE_GEN_JOBS[request.route_params.id];
       if (!job)
         throw { status: 404, message: "No such job" };
       const entry = job.images.find((image) => image?.upload_id === request.body?.upload_id);
@@ -10305,7 +10322,7 @@ var routes = [
   },
   {
     path: "find",
-    loadComponent: () => import("./find-space.component-KBUIKQUC.js").then((m) => m.FindSpaceComponent)
+    loadComponent: () => import("./find-space.component-4T7DNNNF.js").then((m) => m.FindSpaceComponent)
   },
   {
     path: "",
@@ -10314,48 +10331,48 @@ var routes = [
     children: [
       {
         path: "calendar",
-        loadComponent: () => import("./calendar-pane.component-DHQ5IQMX.js").then((m) => m.CalendarPaneComponent)
+        loadComponent: () => import("./calendar-pane.component-23HPW5RB.js").then((m) => m.CalendarPaneComponent)
       },
       {
         path: "book",
         children: [
           {
             path: "spaces",
-            loadComponent: () => import("./room-booking.component-KKBAA24H.js").then((m) => m.RoomBookingComponent)
+            loadComponent: () => import("./room-booking.component-7B56MAA2.js").then((m) => m.RoomBookingComponent)
           },
           {
             path: "spaces/success",
-            loadComponent: () => import("./booking-confirmed.component-MBRSFNEQ.js").then((m) => m.BookingConfirmedComponent)
+            loadComponent: () => import("./booking-confirmed.component-N5NQ6FHE.js").then((m) => m.BookingConfirmedComponent)
           },
           {
             path: "meeting",
-            loadComponent: () => import("./meeting-booking.component-UBYEOOG6.js").then((m) => m.MeetingBookingComponent)
+            loadComponent: () => import("./meeting-booking.component-UORWTVLT.js").then((m) => m.MeetingBookingComponent)
           },
           {
             path: "meeting/success",
-            loadComponent: () => import("./meeting-success.component-5RT5LW26.js").then((m) => m.MeetingBookingSuccessComponent)
+            loadComponent: () => import("./meeting-success.component-LAQYEWYK.js").then((m) => m.MeetingBookingSuccessComponent)
           },
           {
             path: "desks",
-            loadComponent: () => import("./desk-booking.component-PKHLSREN.js").then((m) => m.DeskBookingComponent)
+            loadComponent: () => import("./desk-booking.component-2Z6WTWE4.js").then((m) => m.DeskBookingComponent)
           },
           {
             path: "desks/success",
-            loadComponent: () => import("./desk-success.component-XJNBLC2Y.js").then((m) => m.DeskBookingSuccessComponent)
+            loadComponent: () => import("./desk-success.component-3CJ5WGKH.js").then((m) => m.DeskBookingSuccessComponent)
           }
         ]
       },
       {
         path: "schedule/view",
-        loadComponent: () => import("./find-space.component-KBUIKQUC.js").then((m) => m.FindSpaceComponent)
+        loadComponent: () => import("./find-space.component-4T7DNNNF.js").then((m) => m.FindSpaceComponent)
       },
       {
         path: "confirm/success",
-        loadComponent: () => import("./booking-confirmed.component-MBRSFNEQ.js").then((m) => m.BookingConfirmedComponent)
+        loadComponent: () => import("./booking-confirmed.component-N5NQ6FHE.js").then((m) => m.BookingConfirmedComponent)
       },
       {
         path: "upcoming",
-        loadComponent: () => import("./upcoming-bookings.component-LVVV2YX5.js").then((m) => m.UpcomingBookingsComponent)
+        loadComponent: () => import("./upcoming-bookings.component-KKDVQALY.js").then((m) => m.UpcomingBookingsComponent)
       },
       { path: "**", redirectTo: "calendar" }
     ]
@@ -10381,5 +10398,5 @@ if (environment.production) {
   enableProdMode();
 }
 bootstrapApplication(AppComponent, appConfig).catch((err) => console.error(err));
-//# debugId=2a50f17a-7a1e-5caf-88b6-cea318c3bd95
+//# debugId=929344ce-7d9e-545b-8395-fccdd7d4ec87
 //# sourceMappingURL=main.js.map
