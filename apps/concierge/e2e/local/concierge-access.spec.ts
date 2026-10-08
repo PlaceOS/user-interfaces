@@ -1,33 +1,17 @@
 /**
- * CON-AUTH-01 / 02 / 03 — who may open concierge at all.
+ * CON-AUTH-01 / 02 / 03 and CON-B1 — who may open concierge.
  *
- * The most important file in this app, and the reason it is the first one
- * written. Concierge reads and writes EVERYBODY's bookings and the org
- * hierarchy: who is allowed in is the whole security boundary, and every other
- * concierge spec signs in as an admin — so without these, the boundary would be
- * the one thing never exercised.
+ * Concierge reads and writes everybody's bookings and the org hierarchy, and
+ * every other concierge spec signs in as an admin, so this file is the only
+ * place the access boundary is exercised.
  *
- * ## Rewritten 2026-09-17, because the first version was a false pass
- *
- * The original CON-AUTH-02 asserted `refused || !shell || noManagementLinks`
- * and went green on its first run. It was measured afterwards, and it passed on
- * the third clause only — a plain staff user was NOT refused. They were given
- * the concierge app:
- *
- *   admin  -> 21 sidebar links, zone-management present
- *   staff  -> 13 sidebar links, zone-management absent
- *
- * The 13 they keep include everybody's desk and parking bookings, the visitor
- * list, catering orders, the staff directory and all three reports — including
- * contact tracing. Losing the eight admin-group links is not a refusal, so the
- * old assertion was reporting a pass over a genuine hole. That hole is CON-B1
- * below.
- *
- * So the file now separates two different questions that the first version had
- * collapsed into one:
- *
- *   CON-AUTH-02 — does the guard work AT ALL, when it is switched on?
- *   CON-B1      — what happens on the default configuration, where it is off?
+ * The boundary is `AuthorisedUserGuard`, driven by one setting,
+ * `app.allow_access_groups`. With a group named, a user outside it is sent to
+ * `/unauthorised` (CON-AUTH-02). With none named, which is the default and the
+ * state of this stack, every signed-in user is admitted (CON-B1). The open
+ * default is the intended behaviour, confirmed on PlaceOS/user-interfaces#551.
+ * The management pages are withheld from non-admins either way: the sidebar's
+ * `is_admin` reads the user's flags and groups, not the access setting.
  */
 import { test, expect } from '../../../../e2e/support/concierge/fixtures';
 import { CONCIERGE_URL } from '../../../../e2e/support/concierge/concierge.env';
@@ -64,8 +48,9 @@ test.describe('concierge access', () => {
             adminPage,
             'and an authorised admin must not be bounced to /unauthorised',
         ).not.toHaveURL(/unauthorised/, { timeout: 10_000 });
-        // The positive half of CON-B1's comparison: an admin really does get the
-        // management surfaces, so their absence for staff means something.
+        // The admin half of the comparison CON-B1 completes: an admin is
+        // offered the management pages, so their absence for staff means
+        // something.
         await expect(
             adminPage.locator(ADMIN_ONLY).first(),
             'an admin should be offered the org-management pages',
@@ -76,10 +61,10 @@ test.describe('concierge access', () => {
         browser,
         conciergeStaffState,
     }) => {
-        // This is the guard's real test, and it only means anything with the
-        // group configured — see REQUIRE_ACCESS_GROUP for why. Applied to this
-        // context alone: the override would refuse the admin too, because the
-        // group branch has no sys_admin bypass.
+        // The guard only compares groups once one is named, so the override
+        // is what makes this a test of the guard. Applied to this context
+        // alone: the group branch has no sys_admin bypass, so suite-wide it
+        // would refuse the admin too (see REQUIRE_ACCESS_GROUP).
         const context = await browser.newContext({
             storageState: conciergeStaffState,
             ignoreHTTPSErrors: true,
@@ -90,15 +75,12 @@ test.describe('concierge access', () => {
             await useSettings(page, REQUIRE_ACCESS_GROUP);
             await page.goto('/#/');
 
-            // Now there IS one expected outcome to converge on, so this
-            // asserts rather than sampling: the guard calls
-            // `router.navigate(['/unauthorised'])`.
+            // The guard calls `router.navigate(['/unauthorised'])`.
             await expect(
                 page,
                 'with app.allow_access_groups set to a group this user is not in, ' +
                     'AuthorisedUserGuard must send them to /unauthorised. If this ' +
-                    'fails, the guard is not refusing anyone under ANY configuration, ' +
-                    'which is a much bigger problem than CON-B1',
+                    'fails, the guard is not refusing anyone under ANY configuration',
             ).toHaveURL(/unauthorised/, { timeout: 45_000 });
             await expect(
                 page.locator(ADMIN_ONLY),
@@ -126,7 +108,7 @@ test.describe('concierge access', () => {
         // app" — while actually exercising the admin. A false FAILURE rather
         // than a false pass, which is luckier than it deserved.
         //
-        // The other two tests here pass `conciergeStaffState` explicitly, so an
+        // The other tests here pass `conciergeStaffState` explicitly, so an
         // explicit value wins and they were never affected.
         const context = await browser.newContext({
             storageState: undefined,
@@ -166,68 +148,48 @@ test.describe('concierge access', () => {
     });
 
     /**
-     * CON-B1 — the default configuration admits admin and support users only.
+     * CON-B1 — the default configuration admits any signed-in user.
      *
-     * Concierge declares `placeos_admin` and `placeos_support` as the groups
-     * that gate it while `app.allow_access_groups` is unset (`app.config.ts`,
-     * `PLACEOS_APP_ACCESS.default_groups`); a configured list replaces them,
-     * which CON-AUTH-02 covers. Before that default, this is what was measured
-     * on 2026-09-17 with `app.allow_access_groups` unset:
-     *
-     *  - `e2e-staff-0@place.tech` — `sys_admin: false`, `support: false`,
-     *    `groups: []` — loaded concierge and got the full shell and 13 sidebar
-     *    links, among them everyone's desk and parking bookings, the visitor
-     *    list, catering orders, the staff directory and the contact-tracing
-     *    report.
-     *  - It is not only the nav. With that user's own token:
-     *      GET /api/engine/v2/users                               -> 200, 5 rows
-     *      GET /bookings?type=desk&zones=<zone>                   -> 200, and it
-     *        returned a desk booking belonging to support@place.tech
-     *      GET /bookings?type=desk&email=support@place.tech        -> 200, same
-     *    A plain `?type=desk` with no filter returns 0 rows, so the backend does
-     *    scope by default — but concierge lists by zone, which is exactly the
-     *    shape that reads straight through.
-     *
-     * Cause, in one line: `authorised-user.guard.ts` took the `!groups.length`
-     * branch and set `can_activate = true` for everybody when no access group
-     * was configured, and none was configured by default.
+     * `e2e-staff-0@place.tech` has `sys_admin: false`, `support: false` and
+     * `groups: []`. With `app.allow_access_groups` unset the guard admits it;
+     * the sidebar still drops the management block, because `is_admin` reads
+     * the user's flags and groups.
      */
-    test(
-        'CON-B1: by default a plain staff user is not given the concierge app',
-        async ({ browser, conciergeStaffState }) => {
-            const context = await browser.newContext({
-                storageState: conciergeStaffState,
-                ignoreHTTPSErrors: true,
-                baseURL: CONCIERGE_URL,
-            });
-            try {
-                const page = await context.newPage();
-                // No settings override on purpose. This is the DEFAULT.
-                await page.goto('/#/');
-                // The guard bounces a refused user before the shell renders, so
-                // wait for whichever comes first.
-                const shell = page.locator('app-topbar').or(page.locator('app-sidebar')).first();
-                await Promise.race([
-                    page.waitForURL(/unauthorised|unauthorized|misconfigured/, {
-                        timeout: 45_000,
-                    }),
-                    shell.waitFor({ state: 'visible', timeout: 45_000 }),
-                ]);
-                const url = page.url();
-                const refused = /unauthorised|unauthorized|misconfigured/.test(url);
-                const links = await page.locator('app-sidebar a').count();
-
-                expect(
-                    refused || links === 0,
-                    `a plain non-admin staff user must not be given the concierge app ` +
-                        `on the default configuration. They landed on "${url}" with ` +
-                        `${links} sidebar link(s). Concierge's default groups are ` +
-                        `placeos_admin and placeos_support (app.config.ts); check ` +
-                        `nothing has set app.allow_access_groups on this stack`,
-                ).toBe(true);
-            } finally {
-                await context.close();
-            }
-        },
-    );
+    test('CON-B1: with no access group configured, a staff user is admitted without the management pages', async ({
+        browser,
+        conciergeStaffState,
+    }) => {
+        const context = await browser.newContext({
+            storageState: conciergeStaffState,
+            ignoreHTTPSErrors: true,
+            baseURL: CONCIERGE_URL,
+        });
+        try {
+            const page = await context.newPage();
+            // No settings override: this is the default configuration.
+            await page.goto('/#/');
+            await expect(
+                page.locator('app-topbar'),
+                'a signed-in staff user must be given the concierge shell when no ' +
+                    'access group is configured. If this fails, check nothing has ' +
+                    'set app.allow_access_groups on this stack before reading the ' +
+                    'guard: the open default is intended (PlaceOS/user-interfaces#551)',
+            ).toBeVisible({ timeout: 45_000 });
+            await expect(
+                page.locator('app-sidebar a').first(),
+                'and the sidebar carries the booking areas for an admitted user',
+            ).toBeVisible({ timeout: 30_000 });
+            await expect(
+                page,
+                'an admitted user must not be bounced to /unauthorised',
+            ).not.toHaveURL(/unauthorised/);
+            await expect(
+                page.locator(ADMIN_ONLY),
+                'the management pages stay admin-only: app-sidebar hides the ' +
+                    'facilities block for anyone without the admin flag or groups',
+            ).toHaveCount(0);
+        } finally {
+            await context.close();
+        }
+    });
 });
