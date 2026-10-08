@@ -12,15 +12,17 @@ import {
   isDebugMode,
   recordFatalError,
   requestRecovery,
+  resetBootRetries,
+  scheduleBootRetry,
   startWatchdog
-} from "./chunk-GQAC24RB.js";
+} from "./chunk-JX2LC3U4.js";
 import {
   MatTooltip,
   MatTooltipModule
-} from "./chunk-KTIWMXAL.js";
+} from "./chunk-ROQQMN6A.js";
 import {
   TranslatePipe
-} from "./chunk-2JUMPQH3.js";
+} from "./chunk-M3SPUUYV.js";
 import {
   A,
   ActivatedRoute,
@@ -140,7 +142,6 @@ import {
   defer,
   differenceInMinutes,
   effect,
-  enableProdMode,
   eo,
   filter,
   firstTruthyValueFrom,
@@ -259,7 +260,6 @@ import {
   ɵɵreference,
   ɵɵrepeater,
   ɵɵrepeaterCreate,
-  ɵɵrepeaterTrackByIdentity,
   ɵɵresetView,
   ɵɵresolveDocument,
   ɵɵresolveWindow,
@@ -275,7 +275,7 @@ import {
   ɵɵtwoWayProperty,
   ɵɵviewQuery,
   ɵɵviewQuerySignal
-} from "./chunk-RHCT4JIC.js";
+} from "./chunk-LY6S4I7C.js";
 import {
   __spreadProps,
   __spreadValues
@@ -4349,18 +4349,87 @@ var GlobalLoadingComponent = class _GlobalLoadingComponent extends AsyncHandler 
   (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(GlobalLoadingComponent, { className: "GlobalLoadingComponent", filePath: "libs/components/src/lib/global-loading.component.ts", lineNumber: 98 });
 })();
 
+// libs/components/src/lib/load-error.component.ts
+var LoadErrorComponent = class _LoadErrorComponent {
+  constructor() {
+    this.retry = output();
+  }
+  static {
+    this.\u0275fac = function LoadErrorComponent_Factory(__ngFactoryType__) {
+      return new (__ngFactoryType__ || _LoadErrorComponent)();
+    };
+  }
+  static {
+    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _LoadErrorComponent, selectors: [["load-error"]], outputs: { retry: "retry" }, decls: 9, vars: 6, consts: [["role", "alert", 1, "flex", "flex-col", "items-center", "justify-center", "gap-2", "p-8", "text-center"], [1, "text-error", "text-3xl"], ["btn", "", "matRipple", "", "type", "button", 1, "inverse", 3, "click"]], template: function LoadErrorComponent_Template(rf, ctx) {
+      if (rf & 1) {
+        \u0275\u0275elementStart(0, "div", 0)(1, "icon", 1);
+        \u0275\u0275text(2, "error");
+        \u0275\u0275elementEnd();
+        \u0275\u0275elementStart(3, "p");
+        \u0275\u0275text(4);
+        \u0275\u0275pipe(5, "translate");
+        \u0275\u0275elementEnd();
+        \u0275\u0275elementStart(6, "button", 2);
+        \u0275\u0275listener("click", function LoadErrorComponent_Template_button_click_6_listener() {
+          return ctx.retry.emit();
+        });
+        \u0275\u0275text(7);
+        \u0275\u0275pipe(8, "translate");
+        \u0275\u0275elementEnd()();
+      }
+      if (rf & 2) {
+        \u0275\u0275advance(4);
+        \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(5, 2, "COMMON.LOAD_ERROR"));
+        \u0275\u0275advance(3);
+        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(8, 4, "COMMON.RETRY"), " ");
+      }
+    }, dependencies: [MatRippleModule, MatRipple, IconComponent, TranslatePipe], encapsulation: 2 });
+  }
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(LoadErrorComponent, [{
+    type: Component,
+    args: [{
+      selector: "load-error",
+      template: `
+        <div
+            role="alert"
+            class="flex flex-col items-center justify-center gap-2 p-8 text-center"
+        >
+            <icon class="text-error text-3xl">error</icon>
+            <p>{{ 'COMMON.LOAD_ERROR' | translate }}</p>
+            <!-- type="button": inside a form the default submits it -->
+            <button
+                btn
+                matRipple
+                type="button"
+                class="inverse"
+                (click)="retry.emit()"
+            >
+                {{ 'COMMON.RETRY' | translate }}
+            </button>
+        </div>
+    `,
+      imports: [MatRippleModule, IconComponent, TranslatePipe]
+    }]
+  }], null, { retry: [{ type: Output, args: ["retry"] }] });
+})();
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(LoadErrorComponent, { className: "LoadErrorComponent", filePath: "libs/components/src/lib/load-error.component.ts", lineNumber: 35 });
+})();
+
 // libs/components/src/lib/settings-debug-panel-launcher.component.ts
 var SettingsDebugPanelLauncherComponent_Defer_25_DepsFn = () => [
   /* @ts-ignore */
-  import("./settings-debug-panel.component-QA3N4U6O.js").then((m) => m.SettingsDebugPanelComponent)
+  import("./settings-debug-panel.component-FNSHTEFX.js").then((m) => m.SettingsDebugPanelComponent)
 ];
 var SettingsDebugPanelLauncherComponent_Defer_28_DepsFn = () => [
   /* @ts-ignore */
-  import("./binding-debug-panel.component-GSLEW66K.js").then((m) => m.BindingDebugPanelComponent)
+  import("./binding-debug-panel.component-CXD2XAOY.js").then((m) => m.BindingDebugPanelComponent)
 ];
 var SettingsDebugPanelLauncherComponent_Defer_31_DepsFn = () => [
   /* @ts-ignore */
-  import("./debug-console.component-RDXGNLU5.js").then((m) => m.DebugConsoleComponent)
+  import("./debug-console.component-FHMHYFO3.js").then((m) => m.DebugConsoleComponent)
 ];
 function SettingsDebugPanelLauncherComponent_Defer_24_Conditional_0_Template(rf, ctx) {
   if (rf & 1) {
@@ -4595,11 +4664,11 @@ var SettingsDebugPanelLauncherComponent = class _SettingsDebugPanelLauncherCompo
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(SettingsDebugPanelLauncherComponent, () => [
     /* @ts-ignore */
-    import("./settings-debug-panel.component-QA3N4U6O.js").then((m) => m.SettingsDebugPanelComponent),
+    import("./settings-debug-panel.component-FNSHTEFX.js").then((m) => m.SettingsDebugPanelComponent),
     /* @ts-ignore */
-    import("./binding-debug-panel.component-GSLEW66K.js").then((m) => m.BindingDebugPanelComponent),
+    import("./binding-debug-panel.component-CXD2XAOY.js").then((m) => m.BindingDebugPanelComponent),
     /* @ts-ignore */
-    import("./debug-console.component-RDXGNLU5.js").then((m) => m.DebugConsoleComponent)
+    import("./debug-console.component-FHMHYFO3.js").then((m) => m.DebugConsoleComponent)
   ], (SettingsDebugPanelComponent, BindingDebugPanelComponent, DebugConsoleComponent) => {
     setClassMetadata(SettingsDebugPanelLauncherComponent, [{
       type: Component,
@@ -10507,6 +10576,23 @@ function registerMockSignage() {
     callback: () => ({})
   });
   co({
+    path: "/api/engine/v2/uploads/screenshot",
+    metadata: {},
+    method: "POST",
+    callback: (request) => ({
+      id: `upload-screenshot-${Date.now()}`,
+      file_name: `screenshot-${new URL(request.body.url).host}.jpg`,
+      file_mime: "image/jpeg",
+      tags: ["screenshot"]
+    })
+  });
+  co({
+    path: "/api/engine/v2/uploads/:id",
+    metadata: {},
+    method: "DELETE",
+    callback: () => ({})
+  });
+  co({
     path: "/api/engine/v2/signage/media/share",
     metadata: {},
     method: "POST",
@@ -10878,20 +10964,20 @@ function registerMockSignage() {
       };
     }
   });
-  registerMockSignageAI();
+  registerMockSignageImageGen();
 }
-function registerMockSignageAI() {
-  const AI_JOBS = {};
+function registerMockSignageImageGen() {
+  const IMAGE_GEN_JOBS = {};
   const SAMPLE_IMAGES = MOCK_MEDIA.slice(0, 4).map((item) => item.id);
   const now = () => Math.floor(Date.now() / 1e3);
   function makeJob(request, kind) {
     const count = Math.min(Math.max(request.candidates || 2, 1), 4);
     const job = {
-      id: `signage-ai-job-${Object.keys(AI_JOBS).length + 1}`,
+      id: `signage-ai-job-${Object.keys(IMAGE_GEN_JOBS).length + 1}`,
       state: "queued",
       kind,
       provider: "OPENAI",
-      model: "gpt-image-2",
+      model: "gpt-image-2.5-sunburst",
       candidates: count,
       images_produced: 0,
       parent_job_id: request.parent_job_id,
@@ -10900,7 +10986,7 @@ function registerMockSignageAI() {
       images: Array.from({ length: count }, () => null),
       created_at: now()
     };
-    AI_JOBS[job.id] = job;
+    IMAGE_GEN_JOBS[job.id] = job;
     if (`${request.prompt}`.includes("trigger-moderation")) {
       setTimeout(() => {
         job.state = "failed";
@@ -10945,11 +11031,11 @@ function registerMockSignageAI() {
           id: "signage-ai-provider-1",
           name: "Mock provider",
           provider: "OPENAI",
-          default_model: "gpt-image-2",
+          default_model: "gpt-image-2.5-sunburst",
           models: [
             {
-              id: "gpt-image-2",
-              name: "GPT Image 2",
+              id: "gpt-image-2.5-sunburst",
+              name: "GPT Image 2.5 Sunburst",
               generate: true,
               edit: true,
               enhance: true,
@@ -10985,14 +11071,14 @@ function registerMockSignageAI() {
     path: "/api/engine/v2/signage/ai/jobs",
     metadata: {},
     method: "GET",
-    callback: () => Object.values(AI_JOBS)
+    callback: () => Object.values(IMAGE_GEN_JOBS)
   });
   co({
     path: "/api/engine/v2/signage/ai/jobs/:id",
     metadata: {},
     method: "GET",
     callback: (request) => {
-      const job = AI_JOBS[request.route_params.id];
+      const job = IMAGE_GEN_JOBS[request.route_params.id];
       if (!job)
         throw { status: 404, message: "No such job" };
       return job;
@@ -11003,7 +11089,7 @@ function registerMockSignageAI() {
     metadata: {},
     method: "POST",
     callback: (request) => {
-      const job = AI_JOBS[request.route_params.id];
+      const job = IMAGE_GEN_JOBS[request.route_params.id];
       if (!job)
         throw { status: 404, message: "No such job" };
       if (job.state === "queued" || job.state === "running") {
@@ -11018,7 +11104,7 @@ function registerMockSignageAI() {
     metadata: {},
     method: "POST",
     callback: (request) => {
-      const job = AI_JOBS[request.route_params.id];
+      const job = IMAGE_GEN_JOBS[request.route_params.id];
       if (!job)
         throw { status: 404, message: "No such job" };
       const entry = job.images.find((image) => image?.upload_id === request.body?.upload_id);
@@ -13457,7 +13543,6 @@ var AppComponent = class _AppComponent {
     this.load_settings_schema = () => import("./settings.schema-RUFB44OF.js");
     this.uses_api_key = hasStoredApiKey();
     this._placeos = inject(PlaceOS_Service);
-    this._org = inject(OrganisationService);
   }
   ngOnInit() {
     startWatchdog({ isExpectedToRun: hasBootstrappedDisplay });
@@ -13516,7 +13601,7 @@ var AppComponent = class _AppComponent {
   }], null, null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(AppComponent, { className: "AppComponent", filePath: "apps/signage/src/app/app.component.ts", lineNumber: 51 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(AppComponent, { className: "AppComponent", filePath: "apps/signage/src/app/app.component.ts", lineNumber: 50 });
 })();
 
 // apps/signage/src/environments/environment.ts
@@ -13526,140 +13611,151 @@ var environment = {
 
 // apps/signage/src/app/bootstrap.component.ts
 var _forTrack0 = ($index, $item) => $item.id;
-function BootstrapComponent_Conditional_5_For_9_Template(rf, ctx) {
+function BootstrapComponent_Conditional_5_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "mat-option", 11)(1, "div", 13)(2, "div");
+    \u0275\u0275elementStart(0, "div", 4);
+    \u0275\u0275element(1, "mat-spinner", 8);
+    \u0275\u0275elementStart(2, "p");
+    \u0275\u0275text(3);
+    \u0275\u0275elementEnd()();
+  }
+  if (rf & 2) {
+    const ctx_r0 = \u0275\u0275nextContext();
+    \u0275\u0275advance();
+    \u0275\u0275property("diameter", 32);
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate(ctx_r0.loading());
+  }
+}
+function BootstrapComponent_Conditional_6_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r2 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "load-error", 9);
+    \u0275\u0275listener("retry", function BootstrapComponent_Conditional_6_Template_load_error_retry_0_listener() {
+      \u0275\u0275restoreView(_r2);
+      const ctx_r0 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r0.reloadDisplays());
+    });
+    \u0275\u0275elementEnd();
+  }
+}
+function BootstrapComponent_Conditional_7_For_9_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "mat-option", 13)(1, "div", 15)(2, "div");
     \u0275\u0275text(3);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(4, "div", 14);
+    \u0275\u0275elementStart(4, "div", 16);
     \u0275\u0275text(5);
     \u0275\u0275elementEnd()()();
   }
   if (rf & 2) {
-    const option_r3 = ctx.$implicit;
-    const ctx_r1 = \u0275\u0275nextContext(2);
-    \u0275\u0275property("value", option_r3.id);
+    const option_r4 = ctx.$implicit;
+    const ctx_r0 = \u0275\u0275nextContext(2);
+    \u0275\u0275property("value", option_r4.id);
     \u0275\u0275advance(3);
-    \u0275\u0275textInterpolate(option_r3.name);
+    \u0275\u0275textInterpolate(option_r4.name);
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate2(" ", ctx_r1.building(option_r3)?.display_name || ctx_r1.building(option_r3)?.name || "Unknown Building", " - ", ctx_r1.level(option_r3)?.display_name || ctx_r1.level(option_r3)?.name || "Unknown Level", " ");
+    \u0275\u0275textInterpolate2(" ", ctx_r0.building(option_r4)?.display_name || ctx_r0.building(option_r4)?.name || "Unknown Building", " - ", ctx_r0.level(option_r4)?.display_name || ctx_r0.level(option_r4)?.name || "Unknown Level", " ");
   }
 }
-function BootstrapComponent_Conditional_5_Conditional_10_For_9_Template(rf, ctx) {
+function BootstrapComponent_Conditional_7_Conditional_10_For_9_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "mat-option", 11);
+    \u0275\u0275elementStart(0, "mat-option", 13);
     \u0275\u0275text(1);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
-    const option_r5 = ctx.$implicit;
-    \u0275\u0275property("value", option_r5.id);
+    const option_r6 = ctx.$implicit;
+    \u0275\u0275property("value", option_r6.id);
     \u0275\u0275advance();
-    \u0275\u0275textInterpolate1(" ", option_r5.name, " ");
+    \u0275\u0275textInterpolate1(" ", option_r6.name, " ");
   }
 }
-function BootstrapComponent_Conditional_5_Conditional_10_Template(rf, ctx) {
+function BootstrapComponent_Conditional_7_Conditional_10_Template(rf, ctx) {
   if (rf & 1) {
-    const _r4 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "label", 15);
+    const _r5 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "label", 17);
     \u0275\u0275text(1);
     \u0275\u0275pipe(2, "translate");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(3, "mat-form-field", 9)(4, "mat-select", 16);
-    \u0275\u0275twoWayListener("ngModelChange", function BootstrapComponent_Conditional_5_Conditional_10_Template_mat_select_ngModelChange_4_listener($event) {
-      \u0275\u0275restoreView(_r4);
-      const ctx_r1 = \u0275\u0275nextContext(2);
-      \u0275\u0275twoWayBindingSet(ctx_r1.active_template, $event) || (ctx_r1.active_template = $event);
+    \u0275\u0275elementStart(3, "mat-form-field", 11)(4, "mat-select", 18);
+    \u0275\u0275twoWayListener("ngModelChange", function BootstrapComponent_Conditional_7_Conditional_10_Template_mat_select_ngModelChange_4_listener($event) {
+      \u0275\u0275restoreView(_r5);
+      const ctx_r0 = \u0275\u0275nextContext(2);
+      \u0275\u0275twoWayBindingSet(ctx_r0.active_template, $event) || (ctx_r0.active_template = $event);
       return \u0275\u0275resetView($event);
     });
-    \u0275\u0275elementStart(5, "mat-option", 17);
+    \u0275\u0275elementStart(5, "mat-option", 19);
     \u0275\u0275text(6);
     \u0275\u0275pipe(7, "translate");
     \u0275\u0275elementEnd();
-    \u0275\u0275repeaterCreate(8, BootstrapComponent_Conditional_5_Conditional_10_For_9_Template, 2, 2, "mat-option", 11, _forTrack0);
+    \u0275\u0275repeaterCreate(8, BootstrapComponent_Conditional_7_Conditional_10_For_9_Template, 2, 2, "mat-option", 13, _forTrack0);
     \u0275\u0275elementEnd();
     \u0275\u0275controlCreate();
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
-    const ctx_r1 = \u0275\u0275nextContext(2);
+    const ctx_r0 = \u0275\u0275nextContext(2);
     \u0275\u0275advance();
     \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(2, 3, "APP.SIGNAGE.BOOTSTRAP_TEMPLATE"), " ");
     \u0275\u0275advance(3);
-    \u0275\u0275twoWayProperty("ngModel", ctx_r1.active_template);
+    \u0275\u0275twoWayProperty("ngModel", ctx_r0.active_template);
     \u0275\u0275control();
     \u0275\u0275advance(2);
     \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(7, 5, "APP.SIGNAGE.BOOTSTRAP_TEMPLATE_NONE"), " ");
     \u0275\u0275advance(2);
-    \u0275\u0275repeater(ctx_r1.templates());
+    \u0275\u0275repeater(ctx_r0.templates());
   }
 }
-function BootstrapComponent_Conditional_5_Template(rf, ctx) {
+function BootstrapComponent_Conditional_7_Template(rf, ctx) {
   if (rf & 1) {
-    const _r1 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "main", 4)(1, "label", 8);
+    const _r3 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "main", 5)(1, "label", 10);
     \u0275\u0275text(2);
     \u0275\u0275pipe(3, "translate");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(4, "mat-form-field", 9)(5, "mat-select", 10, 0);
+    \u0275\u0275elementStart(4, "mat-form-field", 11)(5, "mat-select", 12, 0);
     \u0275\u0275pipe(7, "translate");
-    \u0275\u0275twoWayListener("ngModelChange", function BootstrapComponent_Conditional_5_Template_mat_select_ngModelChange_5_listener($event) {
-      \u0275\u0275restoreView(_r1);
-      const ctx_r1 = \u0275\u0275nextContext();
-      \u0275\u0275twoWayBindingSet(ctx_r1.active_display, $event) || (ctx_r1.active_display = $event);
+    \u0275\u0275twoWayListener("ngModelChange", function BootstrapComponent_Conditional_7_Template_mat_select_ngModelChange_5_listener($event) {
+      \u0275\u0275restoreView(_r3);
+      const ctx_r0 = \u0275\u0275nextContext();
+      \u0275\u0275twoWayBindingSet(ctx_r0.active_display, $event) || (ctx_r0.active_display = $event);
       return \u0275\u0275resetView($event);
     });
-    \u0275\u0275repeaterCreate(8, BootstrapComponent_Conditional_5_For_9_Template, 6, 4, "mat-option", 11, \u0275\u0275repeaterTrackByIdentity);
+    \u0275\u0275repeaterCreate(8, BootstrapComponent_Conditional_7_For_9_Template, 6, 4, "mat-option", 13, _forTrack0);
     \u0275\u0275elementEnd();
     \u0275\u0275controlCreate();
     \u0275\u0275elementEnd();
-    \u0275\u0275conditionalCreate(10, BootstrapComponent_Conditional_5_Conditional_10_Template, 10, 7);
-    \u0275\u0275elementStart(11, "button", 12);
-    \u0275\u0275listener("click", function BootstrapComponent_Conditional_5_Template_button_click_11_listener() {
-      \u0275\u0275restoreView(_r1);
-      const ctx_r1 = \u0275\u0275nextContext();
-      return \u0275\u0275resetView(ctx_r1.bootstrapPanel());
+    \u0275\u0275conditionalCreate(10, BootstrapComponent_Conditional_7_Conditional_10_Template, 10, 7);
+    \u0275\u0275elementStart(11, "button", 14);
+    \u0275\u0275listener("click", function BootstrapComponent_Conditional_7_Template_button_click_11_listener() {
+      \u0275\u0275restoreView(_r3);
+      const ctx_r0 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r0.bootstrapPanel());
     });
     \u0275\u0275text(12);
     \u0275\u0275pipe(13, "translate");
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
-    const ctx_r1 = \u0275\u0275nextContext();
+    const ctx_r0 = \u0275\u0275nextContext();
     \u0275\u0275advance(2);
     \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(3, 7, "APP.SIGNAGE.BOOTSTRAP_DISPLAY"), " ");
     \u0275\u0275advance(3);
-    \u0275\u0275twoWayProperty("ngModel", ctx_r1.active_display);
-    \u0275\u0275property("placeholder", \u0275\u0275pipeBind1(7, 9, "APP.SIGNAGE.BOOTSTRAP_DISPLAY_SELECT"))("disabled", !ctx_r1.displays().length);
+    \u0275\u0275twoWayProperty("ngModel", ctx_r0.active_display);
+    \u0275\u0275property("placeholder", \u0275\u0275pipeBind1(7, 9, "APP.SIGNAGE.BOOTSTRAP_DISPLAY_SELECT"))("disabled", !ctx_r0.displays().length);
     \u0275\u0275control();
     \u0275\u0275advance(3);
-    \u0275\u0275repeater(ctx_r1.displays());
+    \u0275\u0275repeater(ctx_r0.displays());
     \u0275\u0275advance(2);
-    \u0275\u0275conditional(ctx_r1.templates_enabled() ? 10 : -1);
+    \u0275\u0275conditional(ctx_r0.templates_enabled() ? 10 : -1);
     \u0275\u0275advance();
-    \u0275\u0275property("disabled", !ctx_r1.active_display());
+    \u0275\u0275property("disabled", !ctx_r0.active_display());
     \u0275\u0275advance();
     \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(13, 11, "COMMON.BOOTSTRAP_SUBMIT"), " ");
   }
 }
-function BootstrapComponent_Conditional_6_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 5);
-    \u0275\u0275element(1, "mat-spinner", 18);
-    \u0275\u0275elementStart(2, "p");
-    \u0275\u0275text(3);
-    \u0275\u0275elementEnd()();
-  }
-  if (rf & 2) {
-    const ctx_r1 = \u0275\u0275nextContext();
-    \u0275\u0275advance();
-    \u0275\u0275property("diameter", 32);
-    \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate(ctx_r1.loading());
-  }
-}
 var STORE_PREFIX = "PlaceOS.SIGNAGE";
-var STORE_DISPLAY_KEY2 = `${STORE_PREFIX}.display`;
 var STORE_BUILDING_KEY = `${STORE_PREFIX}.building`;
 var STORE_TEMPLATE_KEY = `${STORE_PREFIX}.template`;
 var BootstrapComponent = class _BootstrapComponent extends AsyncHandler {
@@ -13670,7 +13766,7 @@ var BootstrapComponent = class _BootstrapComponent extends AsyncHandler {
     this._router = inject(Router);
     this._settings = inject(SettingsService);
     this.loading = signal(
-      "",
+      hasBootstrappedDisplay() ? i18n("APP.SIGNAGE.BOOTSTRAP_LOADING_CHECK") : "",
       ...ngDevMode ? [{ debugName: "loading" }] : (
         /* istanbul ignore next */
         []
@@ -13691,6 +13787,7 @@ var BootstrapComponent = class _BootstrapComponent extends AsyncHandler {
       )
     );
     this.templates_enabled = this._settings.signal("templates_enabled", false);
+    this._opening = false;
     this._displays = resource(__spreadProps(__spreadValues({}, ngDevMode ? { debugName: "_displays" } : (
       /* istanbul ignore next */
       {}
@@ -13704,7 +13801,7 @@ var BootstrapComponent = class _BootstrapComponent extends AsyncHandler {
           limit: 500,
           fields: ["id", "name", "display_name", "email", "zones"].join(","),
           signage: true
-        }).catch(() => ({ data: [] }));
+        });
         return result.data.sort((a, b) => (a.display_name || a.name).localeCompare(b.display_name || b.name));
       }
     }));
@@ -13721,8 +13818,15 @@ var BootstrapComponent = class _BootstrapComponent extends AsyncHandler {
       }
     }));
     this.displays = computed(
-      () => this._displays.value() ?? [],
+      () => this._displays.hasValue() ? this._displays.value() : [],
       ...ngDevMode ? [{ debugName: "displays" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.displays_failed = computed(
+      () => !!this._displays.error(),
+      ...ngDevMode ? [{ debugName: "displays_failed" }] : (
         /* istanbul ignore next */
         []
       )
@@ -13739,19 +13843,23 @@ var BootstrapComponent = class _BootstrapComponent extends AsyncHandler {
     return VERSION;
   }
   level(system) {
-    return this._org.levelWithID(system.zones || []);
+    return this._org.levelWithID([...system.zones || []]);
   }
   building(system) {
     const zones = system.zones || [];
     return this._org.buildings.find(({ id }) => zones.includes(id));
   }
-  async ngOnInit() {
+  /** Fetch the display list again after it failed to load */
+  reloadDisplays() {
+    this._displays.reload();
+  }
+  ngOnInit() {
     this._org.limit_init = true;
     log("BOOTSTRAP", "Initialising...");
     this.subscription("route.query", this._route.queryParamMap.subscribe((params) => {
       if (params.has("clear") && params.get("clear") === "true") {
         log("BOOTSTRAP", "Bootstrapped data clear");
-        localStorage.removeItem(STORE_DISPLAY_KEY2);
+        localStorage.removeItem(STORE_DISPLAY_KEY);
         localStorage.removeItem(STORE_BUILDING_KEY);
         localStorage.removeItem(STORE_TEMPLATE_KEY);
       }
@@ -13763,7 +13871,6 @@ var BootstrapComponent = class _BootstrapComponent extends AsyncHandler {
       }
     }));
     this.timeout("check", () => this.checkBootstrap(), 1e3);
-    await this._org.waitUntilInitialised();
   }
   /**
    * Store bootstrapped values and navigate to the main page
@@ -13776,7 +13883,7 @@ var BootstrapComponent = class _BootstrapComponent extends AsyncHandler {
       this.loading.set("");
       return;
     }
-    localStorage.setItem(STORE_DISPLAY_KEY2, active_display);
+    localStorage.setItem(STORE_DISPLAY_KEY, active_display);
     const template_id = this.templates_enabled() ? this.active_template() : "";
     if (template_id) {
       localStorage.setItem(STORE_TEMPLATE_KEY, template_id);
@@ -13784,25 +13891,45 @@ var BootstrapComponent = class _BootstrapComponent extends AsyncHandler {
       localStorage.removeItem(STORE_TEMPLATE_KEY);
     }
     log("BOOTSTRAP", `Bootstrapped panel to display ${active_display}`);
-    this._router.navigate(template_id ? ["/template", template_id, active_display] : ["/signage", active_display]);
-    this.loading.set("");
+    await this.openPlayer(active_display, template_id);
   }
   /**
    * Check for any existing bootstrapped values
    */
   checkBootstrap() {
-    this.loading.set(i18n("APP.SIGNAGE.BOOTSTRAP_LOADING_CHECK"));
-    const display_id = localStorage?.getItem(STORE_DISPLAY_KEY2);
-    if (display_id) {
-      const template_id = this.templates_enabled() && (this.active_template() || localStorage.getItem(STORE_TEMPLATE_KEY)) || "";
-      if (this.active_template() && this.templates_enabled()) {
-        localStorage.setItem(STORE_TEMPLATE_KEY, template_id);
-      }
-      log("BOOTSTRAP", `Application already bootstrapped to display ${display_id}`);
-      this._router.navigate(template_id ? ["/template", template_id, display_id] : ["/signage", display_id]);
-    }
     VirtualKeyboardComponent.enabled = localStorage.getItem("OSK.enabled") === "true";
-    log("BOOTSTRAP", `No bootstrap details found for system`);
+    if (this._opening)
+      return;
+    const display_id = localStorage.getItem(STORE_DISPLAY_KEY);
+    if (!display_id) {
+      log("BOOTSTRAP", `No bootstrap details found for system`);
+      this.loading.set("");
+      return;
+    }
+    this.loading.set(i18n("APP.SIGNAGE.BOOTSTRAP_LOADING_CHECK"));
+    const template_id = this.templates_enabled() && (this.active_template() || localStorage.getItem(STORE_TEMPLATE_KEY)) || "";
+    if (this.active_template() && this.templates_enabled()) {
+      localStorage.setItem(STORE_TEMPLATE_KEY, template_id);
+    }
+    log("BOOTSTRAP", `Application already bootstrapped to display ${display_id}`);
+    this.openPlayer(display_id, template_id);
+  }
+  /**
+   * Navigate to the player. The loading state stays up while the route
+   * guard runs, which can take a while offline, and the picker only comes
+   * back if the navigation does not go through.
+   */
+  async openPlayer(display_id, template_id) {
+    this._opening = true;
+    let opened = false;
+    try {
+      opened = await this._router.navigate(template_id ? ["/template", template_id, display_id] : ["/signage", display_id]);
+    } catch (error) {
+      log("BOOTSTRAP", "Failed to open the player", error, "warn");
+    }
+    if (opened)
+      return;
+    this._opening = false;
     this.loading.set("");
   }
   static {
@@ -13814,33 +13941,33 @@ var BootstrapComponent = class _BootstrapComponent extends AsyncHandler {
     })();
   }
   static {
-    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _BootstrapComponent, selectors: [["", "bootstrap", ""]], features: [\u0275\u0275InheritDefinitionFeature], decls: 15, vars: 16, consts: [["select", ""], [1, "bg-base-200", "absolute", "inset-0"], ["form", "", 1, "bg-base-100", "absolute", "top-2", "left-1/2", "flex", "w-120", "max-w-[calc(100vw-2rem)]", "-translate-x-1/2", "transform", "flex-col", "items-center", "overflow-hidden", "rounded-sm", "shadow-sm"], [1, "bg-secondary", "text-secondary-content", "mb-2", "w-full", "px-4", "py-3", "text-lg", "font-medium"], [1, "px-4", "py-2"], [1, "m-auto", "flex", "flex-col", "items-center", "p-8"], [1, "absolute", "right-0", "bottom-0", "z-10", "p-2", "text-right"], [1, "text-xs", "opacity-40"], ["for", "display"], ["appearance", "outline"], ["name", "display", 3, "ngModelChange", "ngModel", "placeholder", "disabled"], [3, "value"], ["btn", "", "matRipple", "", 1, "mb-2", "w-full", 3, "click", "disabled"], [1, "flex", "flex-col", "leading-tight"], [1, "text-xs", "opacity-30"], ["for", "template"], ["name", "template", 3, "ngModelChange", "ngModel"], ["value", ""], [3, "diameter"]], template: function BootstrapComponent_Template(rf, ctx) {
+    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _BootstrapComponent, selectors: [["", "bootstrap", ""]], features: [\u0275\u0275InheritDefinitionFeature], decls: 16, vars: 16, consts: [["select", ""], [1, "bg-base-200", "absolute", "inset-0"], ["form", "", 1, "bg-base-100", "absolute", "top-2", "left-1/2", "flex", "w-120", "max-w-[calc(100vw-2rem)]", "-translate-x-1/2", "transform", "flex-col", "items-center", "overflow-hidden", "rounded-sm", "shadow-sm"], [1, "bg-secondary", "text-secondary-content", "mb-2", "w-full", "px-4", "py-3", "text-lg", "font-medium"], [1, "m-auto", "flex", "flex-col", "items-center", "p-8"], [1, "px-4", "py-2"], [1, "absolute", "right-0", "bottom-0", "z-10", "p-2", "text-right"], [1, "text-xs", "opacity-40"], [3, "diameter"], [3, "retry"], ["for", "display"], ["appearance", "outline"], ["name", "display", 3, "ngModelChange", "ngModel", "placeholder", "disabled"], [3, "value"], ["btn", "", "matRipple", "", 1, "mb-2", "w-full", 3, "click", "disabled"], [1, "flex", "flex-col", "leading-tight"], [1, "text-xs", "opacity-30"], ["for", "template"], ["name", "template", 3, "ngModelChange", "ngModel"], ["value", ""]], template: function BootstrapComponent_Template(rf, ctx) {
       if (rf & 1) {
         \u0275\u0275elementStart(0, "div", 1)(1, "div", 2)(2, "header", 3);
         \u0275\u0275text(3);
         \u0275\u0275pipe(4, "translate");
         \u0275\u0275elementEnd();
-        \u0275\u0275conditionalCreate(5, BootstrapComponent_Conditional_5_Template, 14, 13, "main", 4)(6, BootstrapComponent_Conditional_6_Template, 4, 2, "div", 5);
+        \u0275\u0275conditionalCreate(5, BootstrapComponent_Conditional_5_Template, 4, 2, "div", 4)(6, BootstrapComponent_Conditional_6_Template, 1, 0, "load-error")(7, BootstrapComponent_Conditional_7_Template, 14, 13, "main", 5);
         \u0275\u0275elementEnd();
-        \u0275\u0275elementStart(7, "div", 6)(8, "div", 7);
-        \u0275\u0275text(9);
-        \u0275\u0275pipe(10, "translate");
+        \u0275\u0275elementStart(8, "div", 6)(9, "div", 7);
+        \u0275\u0275text(10);
+        \u0275\u0275pipe(11, "translate");
         \u0275\u0275elementEnd();
-        \u0275\u0275elementStart(11, "div", 7);
-        \u0275\u0275text(12);
-        \u0275\u0275pipe(13, "date");
+        \u0275\u0275elementStart(12, "div", 7);
+        \u0275\u0275text(13);
         \u0275\u0275pipe(14, "date");
+        \u0275\u0275pipe(15, "date");
         \u0275\u0275elementEnd()()();
       }
       if (rf & 2) {
         \u0275\u0275advance(3);
         \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(4, 6, "APP.SIGNAGE.BOOTSTRAP_TITLE"), " ");
         \u0275\u0275advance(2);
-        \u0275\u0275conditional(!ctx.loading() ? 5 : 6);
-        \u0275\u0275advance(4);
-        \u0275\u0275textInterpolate2(" ", \u0275\u0275pipeBind1(10, 8, "COMMON.CONTROLS_VERSION"), ": ", ctx.version.hash, " ");
+        \u0275\u0275conditional(ctx.loading() ? 5 : ctx.displays_failed() ? 6 : 7);
+        \u0275\u0275advance(5);
+        \u0275\u0275textInterpolate2(" ", \u0275\u0275pipeBind1(11, 8, "COMMON.CONTROLS_VERSION"), ": ", ctx.version.hash, " ");
         \u0275\u0275advance(3);
-        \u0275\u0275textInterpolate2(" ", \u0275\u0275pipeBind2(13, 10, ctx.version.time, "longDate"), " (", \u0275\u0275pipeBind2(14, 13, ctx.version.time, "shortTime"), ") ");
+        \u0275\u0275textInterpolate2(" ", \u0275\u0275pipeBind2(14, 10, ctx.version.time, "longDate"), " (", \u0275\u0275pipeBind2(15, 13, ctx.version.time, "shortTime"), ") ");
       }
     }, dependencies: [
       CommonModule,
@@ -13856,6 +13983,7 @@ var BootstrapComponent = class _BootstrapComponent extends AsyncHandler {
       FormsModule,
       NgControlStatus,
       NgModel,
+      LoadErrorComponent,
       DatePipe,
       TranslatePipe
     ], styles: ["\nmat-form-field[_ngcontent-%COMP%] {\n  width: 100%;\n}\n[form][_ngcontent-%COMP%]    > div[_ngcontent-%COMP%] {\n  padding: 0 1em;\n}\n/*# sourceMappingURL=bootstrap.component.css.map */"] });
@@ -13875,7 +14003,14 @@ var BootstrapComponent = class _BootstrapComponent extends AsyncHandler {
                 >
                     {{ 'APP.SIGNAGE.BOOTSTRAP_TITLE' | translate }}
                 </header>
-                @if (!loading()) {
+                @if (loading()) {
+                    <div class="m-auto flex flex-col items-center p-8">
+                        <mat-spinner [diameter]="32"></mat-spinner>
+                        <p>{{ loading() }}</p>
+                    </div>
+                } @else if (displays_failed()) {
+                    <load-error (retry)="reloadDisplays()" />
+                } @else {
                     <main class="px-4 py-2">
                         <label for="display">
                             {{ 'APP.SIGNAGE.BOOTSTRAP_DISPLAY' | translate }}
@@ -13891,7 +14026,7 @@ var BootstrapComponent = class _BootstrapComponent extends AsyncHandler {
                                 "
                                 [disabled]="!displays().length"
                             >
-                                @for (option of displays(); track option) {
+                                @for (option of displays(); track option.id) {
                                     <mat-option [value]="option.id">
                                         <div
                                             class="flex flex-col leading-tight"
@@ -13956,11 +14091,6 @@ var BootstrapComponent = class _BootstrapComponent extends AsyncHandler {
                             {{ 'COMMON.BOOTSTRAP_SUBMIT' | translate }}
                         </button>
                     </main>
-                } @else {
-                    <div class="m-auto flex flex-col items-center p-8">
-                        <mat-spinner [diameter]="32"></mat-spinner>
-                        <p>{{ loading() }}</p>
-                    </div>
                 }
             </div>
             <div class="absolute right-0 bottom-0 z-10 p-2 text-right">
@@ -13981,16 +14111,17 @@ var BootstrapComponent = class _BootstrapComponent extends AsyncHandler {
       MatProgressSpinnerModule,
       MatFormFieldModule,
       MatSelectModule,
-      FormsModule
+      FormsModule,
+      LoadErrorComponent
     ], styles: ["/* angular:styles/component:css;baf1acba23f052fee0d31e6c1de13c7184721b4de5e2eed7d009b1a704666123;/home/runner/work/user-interfaces/user-interfaces/apps/signage/src/app/bootstrap.component.ts */\nmat-form-field {\n  width: 100%;\n}\n[form] > div {\n  padding: 0 1em;\n}\n/*# sourceMappingURL=bootstrap.component.css.map */\n"] }]
   }], null, null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(BootstrapComponent, { className: "BootstrapComponent", filePath: "apps/signage/src/app/bootstrap.component.ts", lineNumber: 174 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(BootstrapComponent, { className: "BootstrapComponent", filePath: "apps/signage/src/app/bootstrap.component.ts", lineNumber: 181 });
 })();
 
 // apps/signage/src/app/app.routes.ts
-var loadSignageTemplate = () => import("./template.component-EZQSQVYG.js").then((m) => m.SignageTemplateComponent);
+var loadSignageTemplate = () => import("./template.component-5C6UPCPH.js").then((m) => m.SignageTemplateComponent);
 var routes = [
   {
     path: "unauthorised",
@@ -14025,6 +14156,12 @@ var routes = [
 ];
 
 // apps/signage/src/app/app.config.ts
+function errorMessage(error) {
+  if (typeof error === "object" && error !== null && "message" in error && typeof error.message === "string" && error.message) {
+    return error.message;
+  }
+  return String(error);
+}
 var appConfig = {
   providers: [
     provideZonelessChangeDetection(),
@@ -14043,7 +14180,7 @@ var appConfig = {
         });
         return {
           handleError: (error) => {
-            recordFatalError(error?.message || error);
+            recordFatalError(errorMessage(error));
             handler.handleError(error);
           }
         };
@@ -14062,9 +14199,9 @@ var appConfig = {
 };
 
 // apps/signage/src/main.ts
-if (environment.production) {
-  enableProdMode();
-}
-bootstrapApplication(AppComponent, appConfig).catch((err) => console.error(err));
-//# debugId=0f12b1e8-220d-5ff3-a7f1-99132b4f3f83
+bootstrapApplication(AppComponent, appConfig).then(() => resetBootRetries()).catch((err) => {
+  console.error(err);
+  scheduleBootRetry();
+});
+//# debugId=d442895e-81cb-543d-a36a-6a71bac557f3
 //# sourceMappingURL=main.js.map

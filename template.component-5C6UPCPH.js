@@ -1,7 +1,8 @@
 import {
   CustomTooltipComponent
-} from "./chunk-GYVTUK6P.js";
+} from "./chunk-DSAYUTQV.js";
 import {
+  DEBUG_STORAGE_KEY,
   MatFormField,
   MatFormFieldModule,
   MatInput,
@@ -11,14 +12,14 @@ import {
   isDebugEnabled,
   recordHeartbeat,
   watchdogState
-} from "./chunk-GQAC24RB.js";
+} from "./chunk-JX2LC3U4.js";
 import {
   MatTooltip,
   MatTooltipModule
-} from "./chunk-KTIWMXAL.js";
+} from "./chunk-ROQQMN6A.js";
 import {
   TranslatePipe
-} from "./chunk-2JUMPQH3.js";
+} from "./chunk-M3SPUUYV.js";
 import {
   $r,
   ActivatedRoute,
@@ -62,6 +63,7 @@ import {
   addDays,
   addMonths,
   addYears,
+  afterRenderEffect,
   assertInInjectionContext,
   computed,
   dl,
@@ -168,7 +170,7 @@ import {
   ɵɵtwoWayListener,
   ɵɵtwoWayProperty,
   ɵɵviewQuerySignal
-} from "./chunk-RHCT4JIC.js";
+} from "./chunk-LY6S4I7C.js";
 import {
   __spreadProps,
   __spreadValues
@@ -378,6 +380,8 @@ var PluginEmbedComponent = class _PluginEmbedComponent extends AsyncHandler {
       )
     );
     this.loaded = output();
+    this.playing = output();
+    this.finished = output();
     this.plugin_error = output();
     this.plugin_interaction = output();
     this._plugin_el = viewChild(
@@ -404,7 +408,8 @@ var PluginEmbedComponent = class _PluginEmbedComponent extends AsyncHandler {
       )
     );
     this._handle_messages = (e) => this._handleMessage(e);
-    this._play_timer = null;
+    this._play_count = 0;
+    this._pending_play = null;
     this._pending_auto_config = false;
     this._thumbnail_requests = /* @__PURE__ */ new Map();
     this._thumbnail_count = 0;
@@ -415,14 +420,19 @@ var PluginEmbedComponent = class _PluginEmbedComponent extends AsyncHandler {
   ngOnChanges(changes) {
     if (changes.plugin) {
       this.status.set("unknown");
+      this.details.set(null);
       this._clearPlayTimer();
+      this._cancelPendingPlay();
       this._pending_auto_config = this.auto_play() && !!this.config();
       this._setupChannels();
     }
+    if (changes.config && !changes.plugin) {
+      this._cancelPendingPlay();
+      if (!changes.play || !this.play())
+        this._applyConfigChange();
+    }
     if (changes.play && this.play())
-      this.send("play");
-    if (changes.config && !changes.plugin)
-      this._applyConfigChange();
+      this._sendPlay();
   }
   /**
    * Push a new config to the plugin. With auto_play the first config waits
@@ -477,6 +487,7 @@ var PluginEmbedComponent = class _PluginEmbedComponent extends AsyncHandler {
     });
   }
   onIframeError() {
+    this._cancelPendingPlay();
     this.plugin_error.emit({
       code: "iframe_load_error",
       message: "Plugin iframe failed to load.",
@@ -501,6 +512,13 @@ var PluginEmbedComponent = class _PluginEmbedComponent extends AsyncHandler {
       this.plugin_interaction.emit(msg.payload);
       return;
     }
+    if (msg.type === "playing") {
+      if (!this._pending_play || msg.request_id !== this._pending_play.request_id)
+        return;
+      this.status.set("playing");
+      this._confirmPlaying();
+      return;
+    }
     if (msg.type === "thumbnail") {
       const handler = this._thumbnail_requests.get(msg.request_id);
       if (!handler)
@@ -520,7 +538,12 @@ var PluginEmbedComponent = class _PluginEmbedComponent extends AsyncHandler {
         this._autoConfigure();
         break;
       case "error":
+        if (msg.payload?.fatal)
+          this._cancelPendingPlay();
         this.plugin_error.emit(msg.payload);
+        break;
+      case "finished":
+        this.finished.emit();
         break;
     }
   }
@@ -531,13 +554,30 @@ var PluginEmbedComponent = class _PluginEmbedComponent extends AsyncHandler {
     this._pending_auto_config = false;
     this.send("config", this.config());
     this._clearPlayTimer();
-    this._play_timer = setTimeout(() => this.send("play"), this.play_delay());
+    this.timeout("auto-play", () => this._sendPlay(), this.play_delay());
   }
   _clearPlayTimer() {
-    if (!this._play_timer)
+    this.clearTimeout("auto-play");
+  }
+  _sendPlay() {
+    this._cancelPendingPlay();
+    if (this.config())
+      this.send("config", this.config());
+    const request_id = `play-${++this._play_count}`;
+    this._pending_play = { request_id, value: this.play() };
+    this.timeout("plugin-playing", () => this._confirmPlaying(), this.details()?.capabilities?.can_report_playing ? 15e3 : 2e3);
+    this.send("play", null, request_id);
+  }
+  _confirmPlaying() {
+    const pending = this._pending_play;
+    if (!pending)
       return;
-    clearTimeout(this._play_timer);
-    this._play_timer = null;
+    this._cancelPendingPlay();
+    this.playing.emit(pending.value);
+  }
+  _cancelPendingPlay() {
+    this.clearTimeout("plugin-playing");
+    this._pending_play = null;
   }
   static {
     this.\u0275fac = /* @__PURE__ */ (() => {
@@ -555,7 +595,7 @@ var PluginEmbedComponent = class _PluginEmbedComponent extends AsyncHandler {
       if (rf & 2) {
         \u0275\u0275queryAdvance();
       }
-    }, inputs: { plugin: [1, "plugin"], config: [1, "config"], play: [1, "play"], auto_play: [1, "auto_play"], play_delay: [1, "play_delay"], details: [1, "details"], schema: [1, "schema"], status: [1, "status"] }, outputs: { details: "detailsChange", schema: "schemaChange", status: "statusChange", loaded: "loaded", plugin_error: "plugin_error", plugin_interaction: "plugin_interaction" }, features: [\u0275\u0275InheritDefinitionFeature, \u0275\u0275NgOnChangesFeature], decls: 1, vars: 1, consts: [["plugin_el", ""], ["sandbox", "allow-scripts allow-same-origin", "referrerpolicy", "no-referrer", 3, "src"], ["sandbox", "allow-scripts allow-same-origin", "referrerpolicy", "no-referrer", 3, "load", "error", "src"]], template: function PluginEmbedComponent_Template(rf, ctx) {
+    }, inputs: { plugin: [1, "plugin"], config: [1, "config"], play: [1, "play"], auto_play: [1, "auto_play"], play_delay: [1, "play_delay"], details: [1, "details"], schema: [1, "schema"], status: [1, "status"] }, outputs: { details: "detailsChange", schema: "schemaChange", status: "statusChange", loaded: "loaded", playing: "playing", finished: "finished", plugin_error: "plugin_error", plugin_interaction: "plugin_interaction" }, features: [\u0275\u0275InheritDefinitionFeature, \u0275\u0275NgOnChangesFeature], decls: 1, vars: 1, consts: [["plugin_el", ""], ["sandbox", "allow-scripts allow-same-origin", "referrerpolicy", "no-referrer", 3, "src"], ["sandbox", "allow-scripts allow-same-origin", "referrerpolicy", "no-referrer", 3, "load", "error", "src"]], template: function PluginEmbedComponent_Template(rf, ctx) {
       if (rf & 1) {
         \u0275\u0275conditionalCreate(0, PluginEmbedComponent_Conditional_0_Template, 3, 4, "iframe", 1);
       }
@@ -581,10 +621,10 @@ var PluginEmbedComponent = class _PluginEmbedComponent extends AsyncHandler {
             </iframe>
         }
     `, imports: [SafePipe], styles: ["/* angular:styles/component:css;5c38d2afd4718f43078bd3971d0ccbbcc4ff11b3de0233f512e4525ba7baa5f1;/home/runner/work/user-interfaces/user-interfaces/libs/components/src/lib/plugin-embed.component.ts */\n:host {\n  display: block;\n  width: 100%;\n  height: 100%;\n}\niframe {\n  width: 100%;\n  height: 100%;\n  border: 0;\n}\n/*# sourceMappingURL=plugin-embed.component.css.map */\n"] }]
-  }], null, { plugin: [{ type: Input, args: [{ isSignal: true, alias: "plugin", required: false }] }], config: [{ type: Input, args: [{ isSignal: true, alias: "config", required: false }] }], play: [{ type: Input, args: [{ isSignal: true, alias: "play", required: false }] }], auto_play: [{ type: Input, args: [{ isSignal: true, alias: "auto_play", required: false }] }], play_delay: [{ type: Input, args: [{ isSignal: true, alias: "play_delay", required: false }] }], details: [{ type: Input, args: [{ isSignal: true, alias: "details", required: false }] }, { type: Output, args: ["detailsChange"] }], schema: [{ type: Input, args: [{ isSignal: true, alias: "schema", required: false }] }, { type: Output, args: ["schemaChange"] }], status: [{ type: Input, args: [{ isSignal: true, alias: "status", required: false }] }, { type: Output, args: ["statusChange"] }], loaded: [{ type: Output, args: ["loaded"] }], plugin_error: [{ type: Output, args: ["plugin_error"] }], plugin_interaction: [{ type: Output, args: ["plugin_interaction"] }], _plugin_el: [{ type: ViewChild, args: ["plugin_el", { isSignal: true }] }] });
+  }], null, { plugin: [{ type: Input, args: [{ isSignal: true, alias: "plugin", required: false }] }], config: [{ type: Input, args: [{ isSignal: true, alias: "config", required: false }] }], play: [{ type: Input, args: [{ isSignal: true, alias: "play", required: false }] }], auto_play: [{ type: Input, args: [{ isSignal: true, alias: "auto_play", required: false }] }], play_delay: [{ type: Input, args: [{ isSignal: true, alias: "play_delay", required: false }] }], details: [{ type: Input, args: [{ isSignal: true, alias: "details", required: false }] }, { type: Output, args: ["detailsChange"] }], schema: [{ type: Input, args: [{ isSignal: true, alias: "schema", required: false }] }, { type: Output, args: ["schemaChange"] }], status: [{ type: Input, args: [{ isSignal: true, alias: "status", required: false }] }, { type: Output, args: ["statusChange"] }], loaded: [{ type: Output, args: ["loaded"] }], playing: [{ type: Output, args: ["playing"] }], finished: [{ type: Output, args: ["finished"] }], plugin_error: [{ type: Output, args: ["plugin_error"] }], plugin_interaction: [{ type: Output, args: ["plugin_interaction"] }], _plugin_el: [{ type: ViewChild, args: ["plugin_el", { isSignal: true }] }] });
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(PluginEmbedComponent, { className: "PluginEmbedComponent", filePath: "libs/components/src/lib/plugin-embed.component.ts", lineNumber: 131 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(PluginEmbedComponent, { className: "PluginEmbedComponent", filePath: "libs/components/src/lib/plugin-embed.component.ts", lineNumber: 134 });
 })();
 
 // libs/components/src/lib/media-duration.pipe.ts
@@ -627,14 +667,34 @@ var DB_VERSION = 1;
 var DB_STORE = "files";
 var UPLOADS_PATH = "/api/engine/v2/uploads";
 var STAGGER_DELAY_MS = 500;
-var DEFAULT_OWNER_CACHE_LIMIT_BYTES = 512 * 1024 * 1024;
+var FALLBACK_CACHE_LIMIT_BYTES = 512 * 1024 * 1024;
+var STORAGE_BUDGET_SHARE = 0.8;
+var MAX_TOO_LARGE_URLS = 200;
 var DB_OPERATION_TIMEOUT_MS = 30 * SECONDS;
 var DB_RECONNECT_INTERVAL_MS = 30 * SECONDS;
 var DOWNLOAD_STALL_MS = 60 * SECONDS;
 var DOWNLOAD_TIMEOUT_MS = 15 * MINUTES;
+var MIN_DOWNLOAD_BYTES_PER_SECOND = 128 * 1024;
+var IN_MEMORY_DOWNLOAD_LIMIT_BYTES = 50 * 1024 * 1024;
 var DOWNLOAD_WAIT_MS = DOWNLOAD_TIMEOUT_MS + DB_OPERATION_TIMEOUT_MS;
 var DIRECT_URL_COOKIE_SECONDS = 60 * 60;
 var log2 = scoped_log("MediaCache");
+var NoRoomError = class extends Error {
+  /**
+   * @param bytes Room the file needs before it is worth trying again.
+   * `Infinity` means not until the player reloads.
+   */
+  constructor(bytes) {
+    super(`Media needs ${bytes} bytes of storage`);
+    this.bytes = bytes;
+  }
+};
+var BlobStorageError = class extends Error {
+};
+function isStorageFullError(error) {
+  const name = error?.name;
+  return name === "QuotaExceededError" || name === "DataError";
+}
 function isLoadingStatus(status) {
   return status === "preparing" || status === "downloading" || status === "storing";
 }
@@ -666,6 +726,73 @@ function withTimeout(promise, timeout_ms, message, on_timeout) {
     });
   });
 }
+function streamToBlob(body, type, max_bytes, abort) {
+  return new Promise((resolve, reject) => {
+    const reader = body.getReader();
+    let timer;
+    let received = 0;
+    let source_error = null;
+    const fail = (error) => {
+      clearTimeout(timer);
+      abort();
+      reader.cancel(error).catch(() => void 0);
+      reject(error);
+    };
+    const watch = () => {
+      clearTimeout(timer);
+      timer = setTimeout(() => fail(new Error("Download stalled")), DOWNLOAD_STALL_MS);
+    };
+    const counted = new ReadableStream({
+      // Only a failed read or an oversized body counts as the source
+      // failing. `close` and `enqueue` throw once the Blob side has
+      // given up, and that is a blob storage failure.
+      pull: async (controller) => {
+        const { done, value } = await reader.read().catch((e) => {
+          source_error = e || new Error("Download failed");
+          throw source_error;
+        });
+        if (done)
+          return controller.close();
+        received += value.byteLength;
+        if (received > max_bytes) {
+          source_error = new NoRoomError(received);
+          throw source_error;
+        }
+        watch();
+        controller.enqueue(value);
+      },
+      cancel: (reason) => reader.cancel(reason)
+    });
+    watch();
+    new Response(counted, type ? { headers: { "content-type": type } } : void 0).blob().then((blob) => {
+      clearTimeout(timer);
+      resolve(blob);
+    }, (e) => fail(source_error || new BlobStorageError(`${e}`)));
+  });
+}
+async function readToBlob(body, type, max_bytes, abort) {
+  const reader = body.getReader();
+  const chunks = [];
+  let received = 0;
+  for (; ; ) {
+    const { done, value } = await withTimeout(reader.read(), DOWNLOAD_STALL_MS, "Download stalled", abort);
+    if (done)
+      break;
+    received += value.byteLength;
+    if (received > max_bytes) {
+      abort();
+      reader.cancel().catch(() => void 0);
+      throw new NoRoomError(Infinity);
+    }
+    chunks.push(value);
+  }
+  try {
+    return new Blob(chunks, { type });
+  } catch (e) {
+    log2.warn(`Unable to hold downloaded media in memory. ${e}`);
+    throw new NoRoomError(Infinity);
+  }
+}
 var MediaCacheService = class _MediaCacheService extends AsyncHandler {
   get _cache_index() {
     return this._file_cache_index();
@@ -681,15 +808,26 @@ var MediaCacheService = class _MediaCacheService extends AsyncHandler {
     );
     this._unverified_ids = /* @__PURE__ */ new Set();
     this._downloads = /* @__PURE__ */ new Map();
+    this._too_large = /* @__PURE__ */ new Map();
+    this._budget_bytes = FALLBACK_CACHE_LIMIT_BYTES;
     this._last_reconnect = 0;
     this._loadCacheMetadata();
     this._connectDatabase();
+    this._requestPersistentStorage();
     effect(() => {
       this._file_cache_index();
       this._saveCacheMetadata();
     });
   }
+  /**
+   * Cache the files in `url_list`, most important first. Other entries are
+   * evicted to make room for them, but entries in the list never are. A
+   * file that cannot fit is not downloaded; it plays from the network.
+   * Resolves true when a file failed in a way that is worth retrying.
+   */
   async requestFilesToCache(url_list, owner = "", options = {}) {
+    const budget = options.max_size ?? await this._storageBudget();
+    const prune_others = !!options.prune_other_owners;
     let failures = false;
     let uncached_count = 0;
     for (const url of url_list) {
@@ -703,36 +841,49 @@ var MediaCacheService = class _MediaCacheService extends AsyncHandler {
             await this._addOwner(existing, owner);
             continue;
           }
-        } else if (existing.status === "cached" && await this._hasStoredFile(existing, url)) {
-          await this._addOwner(existing, owner);
-          continue;
+        } else if (existing.status === "cached") {
+          const stored2 = await this._hasStoredFile(existing, url).catch(() => null);
+          if (stored2 === null) {
+            failures = true;
+            continue;
+          }
+          if (stored2) {
+            await this._addOwner(existing, owner);
+            continue;
+          }
         }
       }
+      let fit = this._cacheFit(owner, url_list, budget, prune_others);
+      if (!this._mayFit(url, fit.max_bytes))
+        continue;
       if (uncached_count > 0)
         await delay(STAGGER_DELAY_MS);
       uncached_count++;
-      const { stored } = await this._cacheFile(url, owner);
-      if (!stored)
+      const latest = this._cacheItem(url);
+      if (latest?.status === "cached") {
+        await this._addOwner(latest, owner);
+        continue;
+      }
+      fit = this._cacheFit(owner, url_list, budget, prune_others);
+      if (!this._mayFit(url, fit.max_bytes))
+        continue;
+      const { stored, no_room } = await this._cacheFile(url, owner, fit);
+      if (!stored && !no_room)
         failures = true;
-      await this.pruneCache(owner, url_list, options.max_size, options.prune_other_owners);
     }
     this._file_cache_index.set([...this._cache_index]);
-    await this.pruneCache(owner, url_list, options.max_size, options.prune_other_owners);
+    await this.pruneCache(owner, url_list, budget, prune_others);
     return failures;
-  }
-  /** Download a file into the cache entry. Rejects unless it was stored. */
-  async requestAndCacheFile(url, cache_item) {
-    const { file, stored } = await this._downloadAndStore(url, cache_item);
-    if (!stored)
-      throw new Error("Unable to cache media file");
-    return file;
   }
   /**
    * The file for a URL, from the cache when it has it and downloaded when it
    * does not. Unlike `requestFilesToCache` this hands back a download that
    * could not be stored, so a broken database never stops media playing.
-   * Waits at most `wait_ms` for a download that is already in progress and
-   * returns null if it has not finished by then.
+   * Resolves null for a file too large to cache, which plays from the
+   * network instead. Playback never evicts: the file must fit in what the
+   * budget has left, and only a sync makes more room. Waits at most
+   * `wait_ms` for a download that is already in progress and returns null
+   * if it has not finished by then.
    */
   async fetchFile(url, owner = "", wait_ms = DOWNLOAD_WAIT_MS) {
     if (!url)
@@ -750,7 +901,12 @@ var MediaCacheService = class _MediaCacheService extends AsyncHandler {
       if (file2)
         return file2;
     }
-    const { file } = await this._cacheFile(url, owner);
+    if (this._too_large.has(url))
+      return null;
+    const fit = this._cacheFit(owner, this._cache_index.map((_) => _.url), this._budget_bytes, false);
+    if (!this._mayFit(url, fit.max_bytes))
+      return null;
+    const { file } = await this._cacheFile(url, owner, fit);
     return file;
   }
   /**
@@ -778,8 +934,9 @@ var MediaCacheService = class _MediaCacheService extends AsyncHandler {
       file_count: files.length,
       cached_count: files.filter((_) => _.status === "cached").length,
       total_bytes: files.reduce((total, _) => total + _.size, 0),
-      limit_bytes: DEFAULT_OWNER_CACHE_LIMIT_BYTES,
+      limit_bytes: this._budget_bytes,
       downloads_in_flight: this._downloads.size,
+      too_large: [...this._too_large.keys()],
       files
     };
   }
@@ -789,12 +946,12 @@ var MediaCacheService = class _MediaCacheService extends AsyncHandler {
   /**
    * Whether a file is still being prepared/downloaded/stored, or has not yet
    * been registered for caching (i.e. queued). Returns false once the file is
-   * cached or has been invalidated.
+   * cached, has been invalidated, or is too large to cache.
    */
   isLoadingFile(url) {
     const item = this._cacheItem(url);
     if (!item)
-      return true;
+      return !this._too_large.has(url);
     return isLoadingStatus(item.status);
   }
   isCachedFile(url) {
@@ -817,59 +974,29 @@ var MediaCacheService = class _MediaCacheService extends AsyncHandler {
     }
     return this._storedFile(cache_item, url);
   }
-  async pruneCache(owner = "", priority_urls = [], max_size = DEFAULT_OWNER_CACHE_LIMIT_BYTES, prune_other_owners = false) {
-    if (!this._cache_db_ready || max_size <= 0)
-      return;
-    const candidates = this._cache_index.filter((item) => item.status === "cached" && (!owner || cacheOwners(item).includes(owner) || prune_other_owners));
-    if (candidates.some((item) => !(item.size > 0))) {
+  /**
+   * Evict cached files until the whole cache fits in `max_size` bytes.
+   * Files in `priority_urls` are never evicted, nor are files shared with
+   * other owners unless `prune_other_owners` is set. Other owners' files go
+   * first, then the largest.
+   */
+  async pruneCache(owner = "", priority_urls = [], max_size = this._budget_bytes, prune_other_owners = false) {
+    if (this._cache_index.some((item) => item.status === "cached" && !(item.size > 0))) {
       await this._recoverCachedSizes();
     }
-    const owner_items = candidates.map((item) => {
-      const owners = cacheOwners(item);
-      return {
-        item,
-        owners,
-        size: item.size || 0,
-        priority: priority_urls.indexOf(item.url),
-        owner_priority: !owner || owners.includes(owner) ? 1 : 0
-      };
-    }).filter((_) => _.size > 0);
-    let total_size = owner_items.reduce((total, item) => total + item.size, 0);
+    let total_size = this._cachedBytes();
     if (total_size <= max_size)
       return;
-    const eviction_list = owner_items.sort((a, b) => {
-      const a_priority = a.priority >= 0 ? a.priority : Number.MAX_SAFE_INTEGER;
-      const b_priority = b.priority >= 0 ? b.priority : Number.MAX_SAFE_INTEGER;
-      if (a.owner_priority !== b.owner_priority) {
-        return a.owner_priority - b.owner_priority;
-      }
-      if (a_priority !== b_priority)
-        return b_priority - a_priority;
-      return b.size - a.size;
-    });
-    for (const { item, owners, size } of eviction_list) {
+    const eviction_list = this._evictable(owner, priority_urls, prune_other_owners);
+    for (const item of eviction_list) {
       if (total_size <= max_size)
         break;
-      const is_owner_file = owner && owners.includes(owner);
-      await this.invalidateFile(item.url, is_owner_file ? owner : "").catch(() => void 0);
-      total_size -= size;
+      const removed = await this.invalidateFile(item.url).then(() => true, () => false);
+      if (removed)
+        total_size -= item.size || 0;
     }
-  }
-  async invalidateStore() {
-    if (!this._cache_db_ready)
-      return;
-    try {
-      await this._write((store) => store.clear(), "clear");
-    } catch (e) {
-      log2.error(`Error clearing all cached resources. ${e}`);
-      throw e;
-    }
-    log2.debug(`Cleared all cached resources.`);
-    this._file_cache_index.set([]);
   }
   async invalidateFile(url, owner = "") {
-    if (!this._cache_db_ready)
-      throw new Error("Cache DB not ready");
     const cache_item = this._cacheItem(url);
     if (cache_item?.status !== "cached") {
       throw new Error("Cached item with URL not found");
@@ -910,7 +1037,7 @@ var MediaCacheService = class _MediaCacheService extends AsyncHandler {
    * Download a URL into the cache, sharing the download with any other
    * caller asking for the same URL at the same time.
    */
-  _cacheFile(url, owner) {
+  _cacheFile(url, owner, fit) {
     const in_flight = this._downloads.get(url);
     if (in_flight)
       return in_flight;
@@ -922,11 +1049,13 @@ var MediaCacheService = class _MediaCacheService extends AsyncHandler {
       status: "preparing",
       on_change: new Subject()
     };
+    const replaced = this._cache_index.filter((_) => _.url === url);
     this._file_cache_index.set([
       ...this._cache_index.filter((_) => _.url !== url),
       cache_item
     ]);
-    const download = this._downloadAndStore(url, cache_item).finally(() => {
+    this._deleteRecords(replaced.map((_) => _.id));
+    const download = this._downloadAndStore(url, cache_item, fit).finally(() => {
       if (this._downloads.get(url) === download) {
         this._downloads.delete(url);
       }
@@ -934,39 +1063,85 @@ var MediaCacheService = class _MediaCacheService extends AsyncHandler {
     this._downloads.set(url, download);
     return download;
   }
-  async _downloadAndStore(url, cache_item) {
+  async _downloadAndStore(url, cache_item, fit) {
     let file = null;
     try {
       cacheStatus(cache_item, "downloading");
       if (url.includes(UPLOADS_PATH))
         this.applyAuthenticationCookie();
-      const blob = await this._download(url);
+      const blob = await this._download(url, fit);
       if (blob.size <= 0) {
         log2.error(`Downloaded resource is empty.`, url);
         throw new Error("Downloaded media file is empty");
       }
       cacheStatus(cache_item, "storing");
       file = new File([blob], cache_item.id, { type: blob.type });
-      await this._storeFile(cache_item, file, url);
+      await fit.make_room?.(file.size);
+      if (fit.fits && !fit.fits(file.size)) {
+        throw new NoRoomError(file.size);
+      }
       cache_item.size = file.size;
+      try {
+        await this._storeFile(cache_item, file, url);
+      } catch (e) {
+        if (!isStorageFullError(e) || !fit.make_room)
+          throw e;
+        log2.warn(`Storage is full. Evicting media to retry.`, url);
+        await fit.make_room(Infinity);
+        try {
+          await this._storeFile(cache_item, file, url);
+        } catch (retry_error) {
+          if (!isStorageFullError(retry_error))
+            throw retry_error;
+          throw new NoRoomError(fit.max_bytes + file.size);
+        }
+      }
+      cache_item.size = file.size;
+      this._too_large.delete(url);
       log2.debug(`Cached resource.`, [cache_item.id, url]);
       cacheStatus(cache_item, "cached");
       this._file_cache_index.set([...this._cache_index]);
       return { file, stored: true };
     } catch (e) {
-      log2.error(`Error downloading resource.`, url, e);
+      const no_room = e instanceof NoRoomError;
+      if (no_room) {
+        log2.warn(`Media does not fit in storage. It will play from the network.`, url, e);
+        this._markTooLarge(url, e.bytes);
+      } else {
+        log2.error(`Error downloading resource.`, url, e);
+      }
       if (cache_item.status !== "invalidated") {
         this._markInvalidated(cache_item);
       }
-      return { file, stored: false };
+      return { file, stored: false, no_room };
     }
   }
   /**
-   * Fetch a URL, giving up if the response stops arriving. A download that
-   * hangs would otherwise leave its cache entry loading forever, with the
-   * player and every later cache sync waiting behind it.
+   * Fetch a URL, giving up if the response stops arriving or turns out
+   * larger than `max_bytes`. A download that hangs would otherwise leave
+   * its cache entry loading forever, with the player and every later cache
+   * sync waiting behind it. One that is still receiving data has no
+   * deadline, so a large file on a slow link can finish. If the browser
+   * cannot build a Blob from the stream, a small file is downloaded once
+   * more into memory; a large one fails with a `NoRoomError`.
    */
-  async _download(url) {
+  async _download(url, fit) {
+    try {
+      return await this._fetchBlob(url, fit, false);
+    } catch (e) {
+      if (!(e instanceof BlobStorageError))
+        throw e;
+      log2.warn(`Browser blob storage is full. Retrying in memory.`, url, e);
+      return this._fetchBlob(url, fit, true);
+    }
+  }
+  /**
+   * One attempt at `_download`. `in_memory` reads the body into memory
+   * instead of streaming it into a Blob, for files up to
+   * `IN_MEMORY_DOWNLOAD_LIMIT_BYTES`.
+   */
+  async _fetchBlob(url, fit, in_memory) {
+    const { max_bytes } = fit;
     const controller = typeof AbortController === "function" ? new AbortController() : null;
     const abort = () => controller?.abort();
     const response = await withTimeout(fetch(url, controller ? { signal: controller.signal } : void 0), DOWNLOAD_STALL_MS, "Timed out waiting for the server to respond", abort);
@@ -974,26 +1149,119 @@ var MediaCacheService = class _MediaCacheService extends AsyncHandler {
       log2.error(`Error fetching resource. ${response.status}`, url);
       throw new Error(`Request failed with status ${response.status}`);
     }
-    const reader = response.body?.getReader?.();
-    if (!reader) {
-      return withTimeout(response.blob(), DOWNLOAD_TIMEOUT_MS, "Timed out downloading resource", abort);
+    const length = Number(response.headers?.get?.("content-length")) || 0;
+    if (length > max_bytes) {
+      abort();
+      throw new NoRoomError(length);
     }
-    const deadline = Date.now() + DOWNLOAD_TIMEOUT_MS;
-    const chunks = [];
-    for (; ; ) {
-      const remaining = deadline - Date.now();
-      if (remaining <= 0) {
-        abort();
-        throw new Error("Timed out downloading resource");
-      }
-      const { done, value } = await withTimeout(reader.read(), Math.min(DOWNLOAD_STALL_MS, remaining), "Download stalled", abort);
-      if (done)
-        break;
-      if (value)
-        chunks.push(value);
-    }
+    if (length > 0)
+      await fit.make_room?.(length);
     const type = response.headers?.get?.("content-type") || "";
-    return new Blob(chunks, { type });
+    const body = response.body;
+    if (in_memory) {
+      if (length > IN_MEMORY_DOWNLOAD_LIMIT_BYTES) {
+        abort();
+        throw new NoRoomError(Infinity);
+      }
+      return readToBlob(body, type, Math.min(max_bytes, IN_MEMORY_DOWNLOAD_LIMIT_BYTES), abort);
+    }
+    if (typeof body?.getReader === "function") {
+      return streamToBlob(body, type, max_bytes, abort);
+    }
+    const blob = await withTimeout(response.blob(), Math.max(DOWNLOAD_TIMEOUT_MS, length / MIN_DOWNLOAD_BYTES_PER_SECOND * SECONDS), "Timed out downloading resource", abort);
+    if (blob.size > max_bytes)
+      throw new NoRoomError(blob.size);
+    return blob;
+  }
+  /**
+   * Whether a download of `url` could fit in `room` bytes. A URL refused
+   * before is only tried again once there is the room it needed.
+   */
+  _mayFit(url, room) {
+    if (room >= (this._too_large.get(url) ?? 1))
+      return true;
+    if (!this._too_large.has(url))
+      this._markTooLarge(url, 1);
+    return false;
+  }
+  _markTooLarge(url, bytes) {
+    this._too_large.delete(url);
+    this._too_large.set(url, bytes);
+    if (this._too_large.size > MAX_TOO_LARGE_URLS) {
+      const [oldest] = this._too_large.keys();
+      this._too_large.delete(oldest);
+    }
+  }
+  /** Bytes held by cached entries and those being stored */
+  _claimedBytes() {
+    return this._cache_index.filter((_) => _.status === "cached" || _.status === "storing").reduce((total, _) => total + (_.size || 0), 0);
+  }
+  _cachedBytes() {
+    return this._cache_index.filter((_) => _.status === "cached").reduce((total, _) => total + (_.size || 0), 0);
+  }
+  /**
+   * Cached entries a request may evict, in the order to evict them: files
+   * of other owners first, then the largest. Entries the request lists are
+   * never evicted, and neither are files shared with owners it may not
+   * touch.
+   */
+  _evictable(owner, priority_urls, prune_other_owners) {
+    const own = (item) => !owner || cacheOwners(item).includes(owner) ? 1 : 0;
+    return this._cache_index.filter((item) => item.status === "cached" && !priority_urls.includes(item.url) && (!owner || prune_other_owners || cacheOwners(item).every((_) => _ === owner))).sort((a, b) => own(a) - own(b) || (b.size || 0) - (a.size || 0));
+  }
+  /**
+   * How much a download for `owner` may store within `budget`, and how it
+   * makes room: by evicting cached entries outside `priority_urls`. Shared
+   * by cache syncs and playback so both keep to the same budget.
+   */
+  _cacheFit(owner, priority_urls, budget, prune_other_owners) {
+    return {
+      max_bytes: budget - this._pinnedBytes(owner, priority_urls, prune_other_owners),
+      make_room: (bytes) => this.pruneCache(owner, priority_urls, budget - bytes, prune_other_owners),
+      fits: (bytes) => this._claimedBytes() + bytes <= budget
+    };
+  }
+  /** Bytes held by cached entries that a request may not evict */
+  _pinnedBytes(owner, priority_urls, prune_other_owners) {
+    const evictable = this._evictable(owner, priority_urls, prune_other_owners).reduce((total, _) => total + (_.size || 0), 0);
+    return this._cachedBytes() - evictable;
+  }
+  /**
+   * Bytes the cache may hold: a share of the storage this origin may use,
+   * less what the app holds outside the cache. Falls back to a fixed budget
+   * when the browser cannot report its storage.
+   */
+  async _storageBudget() {
+    const storage = typeof navigator === "undefined" ? void 0 : navigator.storage;
+    if (typeof storage?.estimate !== "function") {
+      this._budget_bytes = FALLBACK_CACHE_LIMIT_BYTES;
+      return this._budget_bytes;
+    }
+    const estimate = await withTimeout(storage.estimate(), DB_OPERATION_TIMEOUT_MS, "Storage estimate timed out").catch((e) => {
+      log2.warn(`Unable to estimate storage. ${e}`);
+      return null;
+    });
+    if (!(estimate?.quota > 0)) {
+      this._budget_bytes = FALLBACK_CACHE_LIMIT_BYTES;
+      return this._budget_bytes;
+    }
+    const other_usage = Math.max(0, (estimate.usage || 0) - this._cachedBytes());
+    this._budget_bytes = Math.max(0, Math.floor((estimate.quota - other_usage) * STORAGE_BUDGET_SHARE));
+    return this._budget_bytes;
+  }
+  /**
+   * Ask the browser not to clear stored media when the device runs low on
+   * space. A cleared cache leaves the player downloading everything again.
+   */
+  _requestPersistentStorage() {
+    const storage = typeof navigator === "undefined" ? void 0 : navigator.storage;
+    if (typeof storage?.persist !== "function")
+      return;
+    storage.persist().then((granted) => log2.debug(`Persistent storage ${granted ? "granted" : "denied"}.`), (e) => log2.warn(`Unable to request persistent storage. ${e}`));
+  }
+  /** Delete store records that no entry points at. Failures are logged. */
+  _deleteRecords(ids) {
+    return Promise.all(ids.map((id) => this._write((store) => store.delete(id), "delete").catch((e) => log2.warn(`Unable to delete orphaned media. ${e}`, id))));
   }
   /**
    * Wait for a loading entry to settle. Resolves with the entry's current
@@ -1026,16 +1294,17 @@ var MediaCacheService = class _MediaCacheService extends AsyncHandler {
   /**
    * Whether the file behind a cache entry is still in the store. Uses a key
    * count rather than reading the record, so confirming a cached playlist
-   * does not pull every one of its files into memory.
+   * does not pull every one of its files into memory. Rejects when the store
+   * cannot be read, as that says nothing about whether the file is there.
    */
   async _hasStoredFile(cache_item, url) {
     if (!(cache_item.size > 0)) {
-      const file = await this._storedFile(cache_item, url).catch(() => null);
+      const file = await this._storedFile(cache_item, url);
       if (file)
         this._setCachedSize(cache_item, file.size);
       return !!file;
     }
-    const exists = await this._storedFileExists(cache_item.id).catch(() => false);
+    const exists = await this._storedFileExists(cache_item.id);
     if (!exists) {
       this._markMissing(cache_item, url);
       return false;
@@ -1096,32 +1365,55 @@ var MediaCacheService = class _MediaCacheService extends AsyncHandler {
    * Rebuild the cached entries from what the store actually holds. The store
    * is authoritative: persisted metadata is only a head start until it has
    * answered, and any entry it does not hold is dropped so nothing keeps
-   * looking for a file that is not there.
+   * looking for a file that is not there. Records no entry can use - empty,
+   * without a URL, or a second copy of a URL - are deleted, as nothing else
+   * would ever remove them.
    */
   async _loadCacheMetadataFromStore() {
     const records = await this._storedFileRecords().catch(() => null);
     if (!records)
       return;
-    const stored_items = records.filter((record) => record.url && record.file?.size > 0).map((record) => ({
-      id: record.name,
-      url: record.url,
-      owner: record.owner || "",
-      owners: cacheOwners(record),
-      size: record.file.size,
-      status: "cached",
-      on_change: new Subject()
-    }));
-    const stored_ids = new Set(stored_items.map((_) => _.id));
-    const kept_items = this._cache_index.filter((item) => item.status !== "cached" || stored_ids.has(item.id) || !this._unverified_ids.has(item.id));
+    const usable = records.filter((record) => record.url && record.file?.size > 0);
+    const stored_ids = new Set(usable.map((_) => _.name));
+    const kept_items = this._cache_index.filter((item) => {
+      if (item.status === "cached") {
+        return stored_ids.has(item.id) || !this._unverified_ids.has(item.id);
+      }
+      if (item.status === "invalidated") {
+        return !usable.some((_) => _.url === item.url);
+      }
+      return true;
+    });
     const dropped = this._cache_index.length - kept_items.length;
     if (dropped > 0) {
       log2.warn(`Dropped ${dropped} cached entries that have no stored file.`);
     }
+    const stored_items = [];
+    const orphan_ids = [];
+    for (const record of records) {
+      const kept = kept_items.find((_) => _.url === record.url);
+      if (kept?.id === record.name)
+        continue;
+      if (!stored_ids.has(record.name) || kept || stored_items.some((_) => _.url === record.url)) {
+        orphan_ids.push(record.name);
+        continue;
+      }
+      stored_items.push({
+        id: record.name,
+        url: record.url,
+        owner: record.owner || "",
+        owners: cacheOwners(record),
+        size: record.file.size,
+        status: "cached",
+        on_change: new Subject()
+      });
+    }
     this._unverified_ids.clear();
-    this._file_cache_index.set([
-      ...kept_items,
-      ...stored_items.filter((stored) => !kept_items.some((item) => item.id === stored.id || item.url === stored.url))
-    ]);
+    this._file_cache_index.set([...kept_items, ...stored_items]);
+    if (orphan_ids.length) {
+      log2.warn(`Deleting ${orphan_ids.length} orphaned media records.`);
+      await this._deleteRecords(orphan_ids);
+    }
   }
   _storedFileRecords() {
     return this._read((store) => store.getAll(), "getAll").then((records) => records || []).catch((e) => {
@@ -1219,24 +1511,24 @@ var MediaCacheService = class _MediaCacheService extends AsyncHandler {
         log2.error(`DB Error: ${e}.`);
         return reject(e);
       }
-      request.onupgradeneeded = (event) => {
-        const db = event.target.result;
+      request.onupgradeneeded = () => {
+        const db = request.result;
         if (!db.objectStoreNames.contains(DB_STORE)) {
           db.createObjectStore(DB_STORE, { keyPath: "name" });
           log2.debug(`Object store created successfully.`);
         }
       };
       request.onblocked = () => log2.warn(`Database open is blocked by another connection.`);
-      request.onerror = (event) => {
-        const error = event.target?.error;
+      request.onerror = () => {
+        const error = request.error;
         log2.error(`DB Error: ${error}.`);
         if (!recreate_on_error)
           return reject(error);
         log2.warn(`Recreating the media database.`);
         this._deleteDatabase().then(() => this._openDatabase(false)).then(resolve, reject);
       };
-      request.onsuccess = (event) => {
-        const db = event.target.result;
+      request.onsuccess = () => {
+        const db = request.result;
         db.onversionchange = () => {
           try {
             db.close();
@@ -1303,7 +1595,7 @@ var MediaCacheService = class _MediaCacheService extends AsyncHandler {
     const transaction = await this._transaction("readonly");
     return withTimeout(new Promise((resolve, reject) => {
       const request = run(transaction.objectStore(DB_STORE));
-      request.onerror = (event) => reject(event.target?.error || new Error(`${label} failed`));
+      request.onerror = () => reject(request.error || new Error(`${label} failed`));
       request.onsuccess = () => resolve(request.result);
     }), DB_OPERATION_TIMEOUT_MS, `Database ${label} timed out`);
   }
@@ -1311,11 +1603,11 @@ var MediaCacheService = class _MediaCacheService extends AsyncHandler {
   async _write(run, label) {
     const transaction = await this._transaction("readwrite");
     return withTimeout(new Promise((resolve, reject) => {
-      const fail = (event) => reject(event.target?.error || new Error(`${label} failed`));
+      const fail = (error) => reject(error || new Error(`${label} failed`));
       const request = run(transaction.objectStore(DB_STORE));
-      request.onerror = fail;
-      transaction.onerror = fail;
-      transaction.onabort = fail;
+      request.onerror = () => fail(request.error);
+      transaction.onerror = () => fail(request.error);
+      transaction.onabort = () => fail(transaction.error);
       transaction.oncomplete = () => resolve();
     }), DB_OPERATION_TIMEOUT_MS, `Database ${label} timed out`, () => {
       try {
@@ -1341,6 +1633,93 @@ var MediaCacheService = class _MediaCacheService extends AsyncHandler {
     }]
   }], () => [], null);
 })();
+
+// apps/signage/src/app/media-helpers.ts
+function mediaAnimation(value) {
+  const animations = Object.values(Os);
+  if (typeof value === "number") {
+    return Number.isInteger(value) && value >= 0 && value < animations.length ? animations[value] : Os.Default;
+  }
+  return animations.find((animation) => animation === value) || Os.Default;
+}
+var _time_override = 0;
+var _time_anchor = null;
+var _time_speed = 0;
+function setMockTime(date, speed = 0) {
+  _time_override = date;
+  _time_anchor = date ? Date.now() : null;
+  _time_speed = typeof speed === "boolean" ? speed ? 1 : 0 : speed;
+  if (!date)
+    _time_speed = 0;
+}
+function time() {
+  const offset = _time_anchor !== null ? (Date.now() - _time_anchor) * _time_speed : 0;
+  return (_time_override || Date.now()) + offset;
+}
+function mockTimeState() {
+  return {
+    active: !!_time_override,
+    speed: _time_override ? _time_speed : 1,
+    time: time()
+  };
+}
+function isMediaValid(item, now = time()) {
+  if (!item?.id)
+    return false;
+  if (item.valid_from && item.valid_from * 1e3 > now)
+    return false;
+  if (item.valid_until && item.valid_until * 1e3 < now)
+    return false;
+  return true;
+}
+function validateMedia(item) {
+  if (!item)
+    return "Invalid media: missing media data.";
+  if (!item.id)
+    return "Invalid media: missing media ID.";
+  const now = time();
+  if (item.valid_from && item.valid_from * 1e3 > now) {
+    const source = validitySourceLabel(item.validity?.valid_from_source);
+    return `${source} not valid yet. Starts at ${formatMediaTime(item.valid_from)}. Current player time is ${formatMediaTime(now / 1e3)}.`;
+  }
+  if (item.valid_until && item.valid_until * 1e3 < now) {
+    const source = validitySourceLabel(item.validity?.valid_until_source);
+    return `${source} expired. Ended at ${formatMediaTime(item.valid_until)}. Current player time is ${formatMediaTime(now / 1e3)}.`;
+  }
+  return "";
+}
+function validitySourceLabel(source) {
+  if (source === "playlist")
+    return "Playlist";
+  if (source === "media")
+    return "Media item";
+  if (source === "playlist_media")
+    return "Playlist and media item";
+  return "Media";
+}
+function formatMediaTime(seconds) {
+  return new Intl.DateTimeFormat(void 0, {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+    hour: "numeric",
+    minute: "2-digit"
+  }).format(new Date(seconds * 1e3));
+}
+function findValidPlaylistIndex(playlist, start_index, step, include_start = false) {
+  if (!playlist?.length)
+    return -1;
+  let index = start_index;
+  let checked = 0;
+  while (checked < playlist.length) {
+    if ((include_start || checked > 0) && isMediaValid(playlist[index])) {
+      return index;
+    }
+    index = (index + step + playlist.length) % playlist.length;
+    checked += 1;
+  }
+  return -1;
+}
 
 // apps/signage/src/app/debug-overlay.component.ts
 var _c02 = ["*"];
@@ -1862,77 +2241,6 @@ var DebugOverlayComponent = class _DebugOverlayComponent {
   (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(DebugOverlayComponent, { className: "DebugOverlayComponent", filePath: "apps/signage/src/app/debug-overlay.component.ts", lineNumber: 190 });
 })();
 
-// apps/signage/src/app/media-helpers.ts
-var _time_override = 0;
-var _time_anchor = null;
-var _time_speed = 0;
-function setMockTime(date, speed = 0) {
-  _time_override = date;
-  _time_anchor = date ? Date.now() : null;
-  _time_speed = typeof speed === "boolean" ? speed ? 1 : 0 : speed;
-  if (!date)
-    _time_speed = 0;
-}
-function time() {
-  const offset = _time_anchor !== null ? (Date.now() - _time_anchor) * _time_speed : 0;
-  return (_time_override || Date.now()) + offset;
-}
-function mockTimeState() {
-  return {
-    active: !!_time_override,
-    speed: _time_override ? _time_speed : 1,
-    time: time()
-  };
-}
-function validateMedia(item) {
-  if (!item)
-    return "Invalid media: missing media data.";
-  if (!item.id)
-    return "Invalid media: missing media ID.";
-  const now = time();
-  if (item.valid_from && item.valid_from * 1e3 > now) {
-    const source = validitySourceLabel(item.validity?.valid_from_source);
-    return `${source} not valid yet. Starts at ${formatMediaTime(item.valid_from)}. Current player time is ${formatMediaTime(now / 1e3)}.`;
-  }
-  if (item.valid_until && item.valid_until * 1e3 < now) {
-    const source = validitySourceLabel(item.validity?.valid_until_source);
-    return `${source} expired. Ended at ${formatMediaTime(item.valid_until)}. Current player time is ${formatMediaTime(now / 1e3)}.`;
-  }
-  return "";
-}
-function validitySourceLabel(source) {
-  if (source === "playlist")
-    return "Playlist";
-  if (source === "media")
-    return "Media item";
-  if (source === "playlist_media")
-    return "Playlist and media item";
-  return "Media";
-}
-function formatMediaTime(seconds) {
-  return new Intl.DateTimeFormat(void 0, {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-    hour: "numeric",
-    minute: "2-digit"
-  }).format(new Date(seconds * 1e3));
-}
-function findValidPlaylistIndex(playlist, start_index, step, include_start = false) {
-  if (!playlist?.length)
-    return -1;
-  let index = start_index;
-  let checked = 0;
-  while (checked < playlist.length) {
-    if ((include_start || checked > 0) && validateMedia(playlist[index]) === "") {
-      return index;
-    }
-    index = (index + step + playlist.length) % playlist.length;
-    checked += 1;
-  }
-  return -1;
-}
-
 // apps/signage/src/app/media-controls.component.ts
 var _c03 = ["bar"];
 var _c1 = (a0) => ({ state: a0 });
@@ -2067,74 +2375,74 @@ var MediaProgressBarComponent = class _MediaProgressBarComponent {
   }], null, { progress: [{ type: Input, args: [{ isSignal: true, alias: "progress", required: false }] }], playback_start: [{ type: Input, args: [{ isSignal: true, alias: "playback_start", required: false }] }], playback_duration: [{ type: Input, args: [{ isSignal: true, alias: "playback_duration", required: false }] }], state: [{ type: Input, args: [{ isSignal: true, alias: "state", required: false }] }], waiting: [{ type: Input, args: [{ isSignal: true, alias: "waiting", required: false }] }], _bar: [{ type: ViewChild, args: ["bar", { isSignal: true }] }] });
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(MediaProgressBarComponent, { className: "MediaProgressBarComponent", filePath: "apps/signage/src/app/media-controls.component.ts", lineNumber: 54 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(MediaProgressBarComponent, { className: "MediaProgressBarComponent", filePath: "apps/signage/src/app/media-controls.component.ts", lineNumber: 55 });
 })();
 var MediaControlsComponent = class _MediaControlsComponent {
   constructor() {
-    this.animating = model(
+    this.animating = input(
       false,
       ...ngDevMode ? [{ debugName: "animating" }] : (
         /* istanbul ignore next */
         []
       )
     );
-    this.duration = model(
+    this.duration = input(
       0,
       ...ngDevMode ? [{ debugName: "duration" }] : (
         /* istanbul ignore next */
         []
       )
     );
-    this.progress = model(
+    this.progress = input(
       0,
       ...ngDevMode ? [{ debugName: "progress" }] : (
         /* istanbul ignore next */
         []
       )
     );
-    this.playback_start = model(
+    this.playback_start = input(
       0,
       ...ngDevMode ? [{ debugName: "playback_start" }] : (
         /* istanbul ignore next */
         []
       )
     );
-    this.playback_duration = model(
+    this.playback_duration = input(
       0,
       ...ngDevMode ? [{ debugName: "playback_duration" }] : (
         /* istanbul ignore next */
         []
       )
     );
-    this.muted = model(
+    this.muted = input(
       false,
       ...ngDevMode ? [{ debugName: "muted" }] : (
         /* istanbul ignore next */
         []
       )
     );
-    this.loading = model(
+    this.loading = input(
       false,
       ...ngDevMode ? [{ debugName: "loading" }] : (
         /* istanbul ignore next */
         []
       )
     );
-    this.loop = model(
+    this.loop = input(
       "NONE",
       ...ngDevMode ? [{ debugName: "loop" }] : (
         /* istanbul ignore next */
         []
       )
     );
-    this.state = model(
+    this.state = input(
       "PAUSED",
       ...ngDevMode ? [{ debugName: "state" }] : (
         /* istanbul ignore next */
         []
       )
     );
-    this.shuffle = model(
+    this.shuffle = input(
       false,
       ...ngDevMode ? [{ debugName: "shuffle" }] : (
         /* istanbul ignore next */
@@ -2149,7 +2457,7 @@ var MediaControlsComponent = class _MediaControlsComponent {
     };
   }
   static {
-    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _MediaControlsComponent, selectors: [["media-controls"]], inputs: { animating: [1, "animating"], duration: [1, "duration"], progress: [1, "progress"], playback_start: [1, "playback_start"], playback_duration: [1, "playback_duration"], muted: [1, "muted"], loading: [1, "loading"], loop: [1, "loop"], state: [1, "state"], shuffle: [1, "shuffle"] }, outputs: { animating: "animatingChange", duration: "durationChange", progress: "progressChange", playback_start: "playback_startChange", playback_duration: "playback_durationChange", muted: "mutedChange", loading: "loadingChange", loop: "loopChange", state: "stateChange", shuffle: "shuffleChange", event: "event" }, decls: 33, vars: 47, consts: [[1, "flex", "flex-col", "items-center", "justify-center", "p-2"], ["matTooltipPosition", "above", 1, "border-base-300", "bg-base-100", "relative", "top-2", "z-20", "w-56", "overflow-hidden", "rounded-full", "border", "px-2", "py-1", 3, "matTooltip"], [3, "progress", "playback_start", "playback_duration", "state", "waiting"], [1, "bg-success", "absolute", "inset-x-2", "inset-y-1", "rounded-full"], [1, "border-base-300", "bg-base-100", "flex", "items-center", "space-x-2", "overflow-hidden", "rounded-full", "border", "p-2", "text-lg"], ["icon", "", "matRipple", "", 1, "hover:bg-base-200", 3, "click", "matTooltip"], ["icon", "", "matRipple", "", 1, "hover:bg-base-200", "relative", 3, "click", "matTooltip"], [1, "absolute", "inset-0", "m-auto", 3, "diameter"]], template: function MediaControlsComponent_Template(rf, ctx) {
+    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _MediaControlsComponent, selectors: [["media-controls"]], inputs: { animating: [1, "animating"], duration: [1, "duration"], progress: [1, "progress"], playback_start: [1, "playback_start"], playback_duration: [1, "playback_duration"], muted: [1, "muted"], loading: [1, "loading"], loop: [1, "loop"], state: [1, "state"], shuffle: [1, "shuffle"] }, outputs: { event: "event" }, decls: 33, vars: 47, consts: [[1, "flex", "flex-col", "items-center", "justify-center", "p-2"], ["matTooltipPosition", "above", 1, "border-base-300", "bg-base-100", "relative", "top-2", "z-20", "w-56", "overflow-hidden", "rounded-full", "border", "px-2", "py-1", 3, "matTooltip"], [3, "progress", "playback_start", "playback_duration", "state", "waiting"], [1, "bg-success", "absolute", "inset-x-2", "inset-y-1", "rounded-full"], [1, "border-base-300", "bg-base-100", "flex", "items-center", "space-x-2", "overflow-hidden", "rounded-full", "border", "p-2", "text-lg"], ["icon", "", "matRipple", "", 1, "hover:bg-base-200", 3, "click", "matTooltip"], ["icon", "", "matRipple", "", 1, "hover:bg-base-200", "relative", 3, "click", "matTooltip"], [1, "absolute", "inset-0", "m-auto", 3, "diameter"]], template: function MediaControlsComponent_Template(rf, ctx) {
       if (rf & 1) {
         \u0275\u0275elementStart(0, "div", 0)(1, "div", 1);
         \u0275\u0275pipe(2, "mediaDuration");
@@ -2245,6 +2553,8 @@ var MediaControlsComponent = class _MediaControlsComponent {
       }
     }, dependencies: [
       IconComponent,
+      MatRippleModule,
+      MatRipple,
       MatTooltipModule,
       MatTooltip,
       MatProgressSpinnerModule,
@@ -2388,15 +2698,16 @@ var MediaControlsComponent = class _MediaControlsComponent {
     `, imports: [
       IconComponent,
       TranslatePipe,
+      MatRippleModule,
       MatTooltipModule,
       MatProgressSpinnerModule,
       MediaDurationPipe,
       MediaProgressBarComponent
     ] }]
-  }], null, { animating: [{ type: Input, args: [{ isSignal: true, alias: "animating", required: false }] }, { type: Output, args: ["animatingChange"] }], duration: [{ type: Input, args: [{ isSignal: true, alias: "duration", required: false }] }, { type: Output, args: ["durationChange"] }], progress: [{ type: Input, args: [{ isSignal: true, alias: "progress", required: false }] }, { type: Output, args: ["progressChange"] }], playback_start: [{ type: Input, args: [{ isSignal: true, alias: "playback_start", required: false }] }, { type: Output, args: ["playback_startChange"] }], playback_duration: [{ type: Input, args: [{ isSignal: true, alias: "playback_duration", required: false }] }, { type: Output, args: ["playback_durationChange"] }], muted: [{ type: Input, args: [{ isSignal: true, alias: "muted", required: false }] }, { type: Output, args: ["mutedChange"] }], loading: [{ type: Input, args: [{ isSignal: true, alias: "loading", required: false }] }, { type: Output, args: ["loadingChange"] }], loop: [{ type: Input, args: [{ isSignal: true, alias: "loop", required: false }] }, { type: Output, args: ["loopChange"] }], state: [{ type: Input, args: [{ isSignal: true, alias: "state", required: false }] }, { type: Output, args: ["stateChange"] }], shuffle: [{ type: Input, args: [{ isSignal: true, alias: "shuffle", required: false }] }, { type: Output, args: ["shuffleChange"] }], event: [{ type: Output, args: ["event"] }] });
+  }], null, { animating: [{ type: Input, args: [{ isSignal: true, alias: "animating", required: false }] }], duration: [{ type: Input, args: [{ isSignal: true, alias: "duration", required: false }] }], progress: [{ type: Input, args: [{ isSignal: true, alias: "progress", required: false }] }], playback_start: [{ type: Input, args: [{ isSignal: true, alias: "playback_start", required: false }] }], playback_duration: [{ type: Input, args: [{ isSignal: true, alias: "playback_duration", required: false }] }], muted: [{ type: Input, args: [{ isSignal: true, alias: "muted", required: false }] }], loading: [{ type: Input, args: [{ isSignal: true, alias: "loading", required: false }] }], loop: [{ type: Input, args: [{ isSignal: true, alias: "loop", required: false }] }], state: [{ type: Input, args: [{ isSignal: true, alias: "state", required: false }] }], shuffle: [{ type: Input, args: [{ isSignal: true, alias: "shuffle", required: false }] }], event: [{ type: Output, args: ["event"] }] });
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(MediaControlsComponent, { className: "MediaControlsComponent", filePath: "apps/signage/src/app/media-controls.component.ts", lineNumber: 241 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(MediaControlsComponent, { className: "MediaControlsComponent", filePath: "apps/signage/src/app/media-controls.component.ts", lineNumber: 243 });
 })();
 
 // apps/signage/src/app/playlist-display.component.ts
@@ -3982,10 +4293,13 @@ var TimeControlsComponent = class _TimeControlsComponent extends AsyncHandler {
   shiftTime(minutes) {
     this.edited_time.update((value) => value + minutes * 60 * 1e3);
   }
+  /** Set the edited time of day from a `HH:MM` value; ignore a cleared input */
   setEditedTime(value) {
-    const [hours, minutes] = value.split(":").map(Number);
+    const match = /^(\d{1,2}):(\d{2})/.exec(value || "");
+    if (!match)
+      return;
     const date = new Date(this.edited_time());
-    date.setHours(hours || 0, minutes || 0, 0, 0);
+    date.setHours(Number(match[1]), Number(match[2]), 0, 0);
     this.edited_time.set(date.valueOf());
   }
   clear() {
@@ -4274,10 +4588,18 @@ function MediaPlayerComponent_Conditional_9_Template(rf, ctx) {
       \u0275\u0275restoreView(_r1);
       const ctx_r1 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r1.onPluginLoad(0));
+    })("playing", function MediaPlayerComponent_Conditional_9_Template_plugin_embed_playing_0_listener($event) {
+      \u0275\u0275restoreView(_r1);
+      const ctx_r1 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r1.onPluginPlaying($event, 0));
     })("statusChange", function MediaPlayerComponent_Conditional_9_Template_plugin_embed_statusChange_0_listener($event) {
       \u0275\u0275restoreView(_r1);
       const ctx_r1 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r1.onPluginStatus($event, 0));
+    })("finished", function MediaPlayerComponent_Conditional_9_Template_plugin_embed_finished_0_listener() {
+      \u0275\u0275restoreView(_r1);
+      const ctx_r1 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r1.onPluginFinished(0));
     })("plugin_interaction", function MediaPlayerComponent_Conditional_9_Template_plugin_embed_plugin_interaction_0_listener($event) {
       \u0275\u0275restoreView(_r1);
       const ctx_r1 = \u0275\u0275nextContext();
@@ -4302,10 +4624,18 @@ function MediaPlayerComponent_Conditional_18_Template(rf, ctx) {
       \u0275\u0275restoreView(_r3);
       const ctx_r1 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r1.onPluginLoad(1));
+    })("playing", function MediaPlayerComponent_Conditional_18_Template_plugin_embed_playing_0_listener($event) {
+      \u0275\u0275restoreView(_r3);
+      const ctx_r1 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r1.onPluginPlaying($event, 1));
     })("statusChange", function MediaPlayerComponent_Conditional_18_Template_plugin_embed_statusChange_0_listener($event) {
       \u0275\u0275restoreView(_r3);
       const ctx_r1 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r1.onPluginStatus($event, 1));
+    })("finished", function MediaPlayerComponent_Conditional_18_Template_plugin_embed_finished_0_listener() {
+      \u0275\u0275restoreView(_r3);
+      const ctx_r1 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r1.onPluginFinished(1));
     })("plugin_interaction", function MediaPlayerComponent_Conditional_18_Template_plugin_embed_plugin_interaction_0_listener($event) {
       \u0275\u0275restoreView(_r3);
       const ctx_r1 = \u0275\u0275nextContext();
@@ -4392,6 +4722,8 @@ var MIN_FAILED_MEDIA_WAIT = 1e3;
 var INTERACTIVE_PRELOAD_LEAD_TIME = 10 * 1e3;
 var WEBPAGE_REVEAL_DELAY = 3 * 1e3;
 var PLUGIN_LOAD_TIMEOUT = 15 * 1e3;
+var PLAY_THROUGH_MIN_LIMIT = 5 * 60 * 1e3;
+var PLAY_THROUGH_MAX_LIMIT = 60 * 60 * 1e3;
 var URL_RETRY_DELAY = 1e3;
 var MediaPlayerComponent = class _MediaPlayerComponent extends AsyncHandler {
   constructor() {
@@ -4533,13 +4865,6 @@ var MediaPlayerComponent = class _MediaPlayerComponent extends AsyncHandler {
         []
       )
     );
-    this.hold_over_item = signal(
-      true,
-      ...ngDevMode ? [{ debugName: "hold_over_item" }] : (
-        /* istanbul ignore next */
-        []
-      )
-    );
     this.in_animation = signal(
       false,
       ...ngDevMode ? [{ debugName: "in_animation" }] : (
@@ -4575,27 +4900,6 @@ var MediaPlayerComponent = class _MediaPlayerComponent extends AsyncHandler {
         []
       )
     );
-    this.active_plugin = signal(
-      null,
-      ...ngDevMode ? [{ debugName: "active_plugin" }] : (
-        /* istanbul ignore next */
-        []
-      )
-    );
-    this.plugin_config = signal(
-      null,
-      ...ngDevMode ? [{ debugName: "plugin_config" }] : (
-        /* istanbul ignore next */
-        []
-      )
-    );
-    this.plugin_play = signal(
-      0,
-      ...ngDevMode ? [{ debugName: "plugin_play" }] : (
-        /* istanbul ignore next */
-        []
-      )
-    );
     this.output_plugins = signal(
       [
         null,
@@ -4621,16 +4925,19 @@ var MediaPlayerComponent = class _MediaPlayerComponent extends AsyncHandler {
       )
     );
     this._plugin_finished = false;
+    this._held_pass_reported = false;
     this._deferred_reveal_item_id = "";
     this._deferred_reveal_resume = true;
     this._deferred_reveal_transition = false;
+    this._plugin_reveal_started = false;
     this._playback_duration = 0;
     this._web_waiting_item_id = "";
     this._web_waiting_output = 0;
     this._consecutive_load_errors = 0;
     this._handled_error_cycle = "";
     this._display_generation = 0;
-    this._url_fetch_in_flight = /* @__PURE__ */ new Set();
+    this._url_requests = /* @__PURE__ */ new Map();
+    this._failed_preload_id = "";
     this._url_wait_item_id = "";
     this._url_wait_started = 0;
     this._url_retry_after = /* @__PURE__ */ new Map();
@@ -4639,6 +4946,7 @@ var MediaPlayerComponent = class _MediaPlayerComponent extends AsyncHandler {
     this._item_playlist = [];
     this._playlist_signature = "";
     this._item_urls = {};
+    this._destroyed = false;
     this._item_start = 0;
     this._item_progress = 0;
     this._item_real_start = 0;
@@ -4646,6 +4954,7 @@ var MediaPlayerComponent = class _MediaPlayerComponent extends AsyncHandler {
     this._item_output = /* @__PURE__ */ new Map();
     this._output_items = [null, null];
     this._ready_output_items = /* @__PURE__ */ new Set();
+    this._responded_output_items = /* @__PURE__ */ new Set();
     this._container_0 = viewChild(
       "media_container_0",
       ...ngDevMode ? [{ debugName: "_container_0" }] : (
@@ -4702,7 +5011,6 @@ var MediaPlayerComponent = class _MediaPlayerComponent extends AsyncHandler {
         []
       )
     );
-    this.validateMedia = (i) => validateMedia(i);
   }
   get playlist_items() {
     return this._item_playlist;
@@ -4757,6 +5065,12 @@ var MediaPlayerComponent = class _MediaPlayerComponent extends AsyncHandler {
       this._recordContentHeartbeat();
     }, 50);
   }
+  ngOnDestroy() {
+    this._destroyed = true;
+    for (const id of Object.keys(this._item_urls))
+      this._dropItemURL(id);
+    super.ngOnDestroy();
+  }
   /**
    * Check in with the watchdog whenever this player is showing what it
    * should be: an item it managed to load, or nothing because it is paused
@@ -4782,31 +5096,13 @@ var MediaPlayerComponent = class _MediaPlayerComponent extends AsyncHandler {
     }
   }
   ngOnChanges(changes) {
-    if (changes.playlist) {
-      const next_playlist = this.playlist() || [];
-      const playlist_signature = this._getPlaylistSignature(next_playlist);
-      if (playlist_signature !== this._playlist_signature) {
-        const was_playing = this.state() === "PLAYING";
-        const current_item = this.active_item;
-        this._playlist_signature = playlist_signature;
-        this._clearItemURLs();
-        this.progress.set(0);
-        if (was_playing && next_playlist.length)
-          this.togglePause();
-        this._item_playlist = [...next_playlist];
-        const current_index = this._item_playlist.findIndex((_) => _.id === current_item?.id);
-        this.hold_over_item.set(false);
-        const target_index = current_index >= 0 ? current_index : 0;
-        this.setPlaylistItem(target_index, was_playing);
-        this._validatePlaylist();
-      }
-    }
+    if (changes.playlist)
+      this._applyPlaylist(this.playlist() || []);
     if (changes.animation_time) {
       document.documentElement.style.setProperty("--transition-duration", `${this.animation_time() || 3e3}ms`);
     }
-    if (changes.muted) {
-      this._video_element().nativeElement.muted = !!this.muted();
-    }
+    if (changes.mutedInput)
+      this._applyMuted();
     if (changes.override) {
       if (this.override()) {
         if (this.state() === "PLAYING")
@@ -4830,7 +5126,49 @@ var MediaPlayerComponent = class _MediaPlayerComponent extends AsyncHandler {
     this.muted.set(!this.muted());
     const muted = this.muted();
     this.mutedChange.emit(muted);
-    this._video_element().nativeElement.muted = muted;
+    this._applyMuted();
+  }
+  /** Apply the mute state to both outputs. Fast debug time stays muted. */
+  _applyMuted() {
+    const { active, speed } = mockTimeState();
+    const fast = active && speed >= 4;
+    for (const output2 of [0, 1]) {
+      this._video_element(output2).nativeElement.muted = this.muted() || fast;
+    }
+  }
+  /**
+   * Take on a new playlist. Items still in it unchanged keep their URL and
+   * output. If the item on screen is one of them it plays on uninterrupted,
+   * and the new playlist continues after it.
+   */
+  _applyPlaylist(next_playlist) {
+    const playlist_signature = this._getPlaylistSignature(next_playlist);
+    if (playlist_signature === this._playlist_signature)
+      return;
+    this._playlist_signature = playlist_signature;
+    const old_signatures = new Map(this._item_playlist.map((item) => [
+      item.id,
+      this._itemSignature(item)
+    ]));
+    const unchanged = new Set(next_playlist.filter((item) => old_signatures.get(item.id) === this._itemSignature(item)).map((item) => item.id));
+    const current_item = this.active_item;
+    if (current_item && unchanged.has(current_item.id)) {
+      this._dropItemState(unchanged);
+      this._item_playlist = [...next_playlist];
+      const index = this._item_playlist.findIndex((_) => _.id === current_item.id);
+      this.index.set(index);
+      this.indexChange.emit(index);
+    } else {
+      const was_playing = this.state() === "PLAYING";
+      this._dropItemState(/* @__PURE__ */ new Set());
+      this.progress.set(0);
+      if (was_playing && next_playlist.length)
+        this.togglePause();
+      this._item_playlist = [...next_playlist];
+      const current_index = this._item_playlist.findIndex((_) => _.id === current_item?.id);
+      this.setPlaylistItem(Math.max(current_index, 0), was_playing);
+    }
+    this._validatePlaylist();
   }
   togglePause() {
     this.clearTimeout("re-start");
@@ -4863,26 +5201,10 @@ var MediaPlayerComponent = class _MediaPlayerComponent extends AsyncHandler {
   nextItem() {
     if (this._shouldHoldSingleInteractiveItem(this.active_item))
       return;
-    if (this.hold_over_item()) {
-      const item = this._item_playlist.shift();
-      if (this.progress() > 50 && this.isValidMedia(item)) {
-        this.event.emit({ type: "media_count", ref_id: item.id });
-      }
-      this.setPlaylistItem(0);
-      this.hold_over_item.set(false);
-      return;
-    }
-    let next_index = this.index() + 1;
+    const index = this.index();
     const loop = this.loop();
-    if (loop === "ONE")
-      next_index = this.index();
-    else if (loop === "NONE" && next_index === this._item_playlist.length) {
-      const last_index = this.index();
-      const last_item = this._item_playlist[last_index];
-      if (this.progress() > 50 && this.isValidMedia(last_item)) {
-        this.event.emit({ type: "media_count", ref_id: last_item.id });
-      }
-      this._emitPlaylistMetrics(last_index);
+    this._emitItemMetrics(index);
+    if (loop === "NONE" && index + 1 === this._item_playlist.length) {
       this.index.set(-1);
       this.state.set("PAUSED");
       this._item_start = 0;
@@ -4892,21 +5214,17 @@ var MediaPlayerComponent = class _MediaPlayerComponent extends AsyncHandler {
       this.progress_start.set(0);
       return;
     }
-    const new_index = this._normalisePlaylistIndex(next_index);
-    const old_item = this._item_playlist[this.index()];
-    if (this.progress() > 50 && this.isValidMedia(old_item)) {
-      this.event.emit({ type: "media_count", ref_id: old_item.id });
-    }
-    this.setPlaylistItem(new_index);
+    this.setPlaylistItem(this._normalisePlaylistIndex(loop === "ONE" ? index : index + 1));
   }
   isValidMedia(item) {
-    return validateMedia(item) === "";
+    return isMediaValid(item);
   }
   /**
    * Whether the item on screen plays to completion, so interrupting it now
    * would be noticed. Images and webpages hold a static frame and can be
    * replaced without anyone seeing a difference; videos and plugins that
-   * report when they finish cannot.
+   * report when they finish cannot. A plugin held on screen past its limit,
+   * as a lone item is, is not about to finish and does not count.
    */
   isMidPlayThroughItem() {
     const item = this.active_item;
@@ -4916,7 +5234,8 @@ var MediaPlayerComponent = class _MediaPlayerComponent extends AsyncHandler {
       return true;
     if (item.type === "plugin") {
       const playback = item.plugin?.playback_type;
-      return playback === "playsthrough" || playback === "interactive";
+      const limit = playback === "playsthrough" ? this._playThroughLimit(item) : playback === "interactive" ? this._effectivePlaybackDuration(item) : 0;
+      return time() - this._item_start < limit;
     }
     return false;
   }
@@ -4932,10 +5251,6 @@ var MediaPlayerComponent = class _MediaPlayerComponent extends AsyncHandler {
   toggleShuffle() {
     this.shuffle.set(!this.shuffle());
     const current_item = this.active_item;
-    if (this.hold_over_item()) {
-      this._item_playlist.shift();
-      this.hold_over_item.set(false);
-    }
     if (this.shuffle()) {
       shuffleArrayWithFirstItem(this._item_playlist, this.index());
       this.setPlaylistItem(0);
@@ -4983,7 +5298,7 @@ var MediaPlayerComponent = class _MediaPlayerComponent extends AsyncHandler {
   _updateProgress(item = this.active_item, now = time()) {
     const playback_duration = this._effectivePlaybackDuration(item);
     const duration = now - this._item_start;
-    if (this._item_start && this._web_waiting_item_id !== item?.id) {
+    if (this._item_start && this._web_waiting_item_id !== item?.id && this._deferred_reveal_item_id !== item?.id) {
       this.progress.set(duration / playback_duration * 100);
       this.duration.set(Math.floor(duration / 1e3));
     } else {
@@ -5009,9 +5324,18 @@ var MediaPlayerComponent = class _MediaPlayerComponent extends AsyncHandler {
       this.progress_start.set(0);
       this.setPlaylistItem(0);
     }
+    if (item?.type === "plugin" && this.defer_reveal())
+      return;
     if (item?.type === "plugin" && item.plugin?.playback_type === "playsthrough") {
       if (this._plugin_finished) {
-        this.nextItem();
+        this.progress.set(100);
+        if (this._shouldHoldSingleInteractiveItem(item)) {
+          this._replayPlugin(item);
+        } else {
+          this.nextItem();
+        }
+      } else if (now > this._item_start + this._playThroughLimit(item)) {
+        this._handleOverrunPlugin(item);
       }
       return;
     }
@@ -5021,6 +5345,7 @@ var MediaPlayerComponent = class _MediaPlayerComponent extends AsyncHandler {
       if (this._shouldHoldSingleInteractiveItem(item)) {
         this.progress.set(100);
         this.duration.set(Math.floor(playback_duration / 1e3));
+        this._reportHeldPass();
         return;
       }
       this._consecutive_load_errors = 0;
@@ -5039,7 +5364,6 @@ var MediaPlayerComponent = class _MediaPlayerComponent extends AsyncHandler {
     this.indexChange.emit(index);
     const item = this.active_item;
     const old_item = this._item_playlist[old_index];
-    this._emitPlaylistMetrics(old_index);
     if (!item)
       return;
     if (!this.isValidMedia(item)) {
@@ -5064,7 +5388,7 @@ var MediaPlayerComponent = class _MediaPlayerComponent extends AsyncHandler {
         this._finishDeferredReveal(item);
       }
     } else {
-      const ready = this._showMediaItem(item, index, output2, resume_if_paused, should_transition);
+      const ready = this._showMediaItem(item, output2, resume_if_paused, should_transition);
       if (!ready)
         return;
     }
@@ -5082,16 +5406,18 @@ var MediaPlayerComponent = class _MediaPlayerComponent extends AsyncHandler {
     this._deferred_reveal_item_id = this.active_item?.id || "";
     this._deferred_reveal_resume = resume_if_paused;
     this._deferred_reveal_transition = should_transition;
+    this._plugin_reveal_started = false;
   }
   _clearDeferredReveal() {
     this.clearTimeout("deferred-reveal");
     this._deferred_reveal_item_id = "";
     this._deferred_reveal_resume = true;
     this._deferred_reveal_transition = false;
+    this._plugin_reveal_started = false;
     this.defer_reveal.set(false);
     this.waiting_for_item.set(false);
   }
-  _finishDeferredReveal(item, delay2 = 2e3) {
+  _finishDeferredReveal(item, delay2 = 0) {
     if (this._deferred_reveal_item_id !== item.id)
       return;
     const reveal = () => {
@@ -5109,12 +5435,15 @@ var MediaPlayerComponent = class _MediaPlayerComponent extends AsyncHandler {
   }
   _revealPreparedItem(item, resume_if_paused, should_transition) {
     if (item.type === "plugin") {
-      this._playPreparedPlugin(item);
+      if (this._plugin_reveal_started)
+        return;
+      this._plugin_reveal_started = true;
+      const generation = this._display_generation;
       requestAnimationFrame(() => {
-        if (this.active_item?.id !== item.id || this._deferred_reveal_item_id !== item.id) {
+        if (this._destroyed || generation !== this._display_generation || this.active_item?.id !== item.id || this._deferred_reveal_item_id !== item.id) {
           return;
         }
-        this._activatePreparedItem(item, resume_if_paused, should_transition);
+        this._playPreparedPlugin(item);
       });
       return;
     }
@@ -5137,9 +5466,19 @@ var MediaPlayerComponent = class _MediaPlayerComponent extends AsyncHandler {
     if (item.type !== "plugin")
       return;
     const output2 = this._item_output.get(item.id) ?? this.active_output();
-    const value = time();
+    const value = Math.max(time(), this.output_plugin_plays()[output2] + 1);
     this._setOutputPluginPlay(output2, value);
-    this.plugin_play.set(value);
+  }
+  /**
+   * Start a lone play-through plugin over once it finishes. Nothing else is
+   * waiting for the screen, so it is played again in place rather than left
+   * on its final frame.
+   */
+  _replayPlugin(item) {
+    this._emitItemMetrics(this.index());
+    this._plugin_finished = false;
+    this._resetPlayback();
+    this._playPreparedPlugin(item);
   }
   _startDisplayAttempt(item, output2) {
     this.clearTimeout("webpage-hold-delay");
@@ -5162,6 +5501,9 @@ var MediaPlayerComponent = class _MediaPlayerComponent extends AsyncHandler {
     this.progress.set(0);
     this.duration.set(0);
     this._plugin_finished = false;
+    this._held_pass_reported = false;
+    if (item.id === this._failed_preload_id)
+      this._failed_preload_id = "";
     this._last_video_speed.delete(output2);
   }
   _hideMediaElements(output2) {
@@ -5180,26 +5522,26 @@ var MediaPlayerComponent = class _MediaPlayerComponent extends AsyncHandler {
     if (item) {
       this._item_output.delete(item.id);
       this._ready_output_items.delete(this._outputKey(output2, item));
+      this._responded_output_items.delete(this._outputKey(output2, item));
     }
     this._output_items[output2] = null;
   }
-  _showMediaItem(item, index, output2, resume_if_paused, should_transition) {
+  _showMediaItem(item, output2, resume_if_paused, should_transition) {
     const url = this.url(item.id);
     if (!url) {
-      return this._handleMissingMediaURL(item, index, resume_if_paused);
+      return this._handleMissingMediaURL(item, resume_if_paused);
     }
     this._url_wait_item_id = "";
     if (!this._shouldDeferReveal(item))
       this.waiting_for_item.set(false);
     const active_el = this._activeMediaElement(item, output2);
-    const url_string = url.toString();
-    const keep_webpage_loaded = item.type === "webpage" && (this._shouldHoldSingleWebpage(item) || this._ready_output_items.has(this._outputKey(output2, item))) && active_el.src === url_string;
+    const keep_webpage_loaded = item.type === "webpage" && (this._shouldHoldSingleWebpage(item) || this._ready_output_items.has(this._outputKey(output2, item))) && active_el.src === url;
     this._item_output.set(item.id, output2);
     if (keep_webpage_loaded) {
       this._web_waiting_item_id = "";
       this._finishDeferredReveal(item, 0);
     } else {
-      active_el.src = url_string;
+      active_el.src = url;
     }
     active_el.classList.remove("hidden");
     if (item.type === "webpage" && !keep_webpage_loaded) {
@@ -5208,14 +5550,14 @@ var MediaPlayerComponent = class _MediaPlayerComponent extends AsyncHandler {
     this._startNativeMediaPlayback(item, output2, should_transition);
     return true;
   }
-  _handleMissingMediaURL(item, index, resume_if_paused) {
+  _handleMissingMediaURL(item, resume_if_paused) {
     const fetched = this._item_urls[item.id] !== void 0;
-    const fetching = this._url_fetch_in_flight.has(item.id);
+    const fetching = this._url_requests.has(item.id);
     const still_loading = item.isLoading?.() ?? false;
     if (this._shouldWaitForMediaURL(item, fetched, fetching, still_loading)) {
       this._ensureItemURL(item);
       this.waiting_for_item.set(true);
-      this.timeout("wait-for-url", () => this.setPlaylistItem(index, resume_if_paused));
+      this.timeout("wait-for-url", () => this.setPlaylistItem(this.index(), resume_if_paused));
       return false;
     }
     this._url_wait_item_id = "";
@@ -5248,7 +5590,7 @@ var MediaPlayerComponent = class _MediaPlayerComponent extends AsyncHandler {
     this.timeout("webpage-load-timeout", () => {
       if (this._web_waiting_item_id !== item.id)
         return;
-      log("MediaPlayer", `Webpage "${item.name}" did not load in time; continuing.`, [this.url(item.id)?.toString()], "warn");
+      log("MediaPlayer", `Webpage "${item.name}" did not load in time; continuing.`, [this.url(item.id)], "warn");
       this._markShown(item);
       this._web_waiting_item_id = "";
       this._resetPlayback();
@@ -5299,11 +5641,24 @@ var MediaPlayerComponent = class _MediaPlayerComponent extends AsyncHandler {
     if (this._item_output.get(item.id) !== output2)
       return;
     log("MediaPlayer", `Plugin status: ${status}`, [item.name]);
-    if (status === "ready") {
-      this._handlePluginReady(item, output2);
-    } else if (status === "finished") {
-      this._plugin_finished = true;
+    if (status !== "unknown") {
+      this._responded_output_items.add(this._outputKey(output2, item));
     }
+    if (status === "ready")
+      this._handlePluginReady(item, output2);
+  }
+  /**
+   * Called for every `finished` message, not only on a status change, so a
+   * replayed plugin can finish again.
+   */
+  onPluginFinished(output2 = this._activeItemOutput()) {
+    const item = this.active_item;
+    if (item?.type !== "plugin")
+      return;
+    if (this._item_output.get(item.id) !== output2)
+      return;
+    log("MediaPlayer", "Plugin finished", [item.name]);
+    this._plugin_finished = true;
   }
   onPluginLoad(output2 = this.pending_output()) {
     const item = this._output_items[output2] || this.active_item;
@@ -5312,6 +5667,13 @@ var MediaPlayerComponent = class _MediaPlayerComponent extends AsyncHandler {
     if (this._item_output.get(item.id) !== output2)
       return;
     this._handlePluginReady(item, output2);
+  }
+  onPluginPlaying(value, output2 = this.pending_output()) {
+    const item = this.active_item;
+    if (this._destroyed || !this._plugin_reveal_started || item?.type !== "plugin" || this._deferred_reveal_item_id !== item.id || this._item_output.get(item.id) !== output2 || output2 !== this.pending_output() || value !== this.output_plugin_plays()[output2])
+      return;
+    this._resetPlayback();
+    this._activatePreparedItem(item, this._deferred_reveal_resume, this._deferred_reveal_transition);
   }
   onPluginInteraction(interaction, output2 = this._activeItemOutput()) {
     const item = this.active_item;
@@ -5324,28 +5686,62 @@ var MediaPlayerComponent = class _MediaPlayerComponent extends AsyncHandler {
     this._resetPlayback(Number.isFinite(value) && value > 0 ? value : 0);
   }
   onPluginError(error, output2 = this._activeItemOutput()) {
+    log("MediaPlayer", `Plugin error: ${error?.message}`, [error], "error");
+    if (!error?.fatal)
+      return;
     const item = this.active_item;
-    if (item?.type === "plugin" && this._item_output.get(item.id) !== output2)
+    if (item?.type === "plugin" && this._item_output.get(item.id) === output2) {
+      this._failPluginItem(item, output2);
       return;
-    log("MediaPlayer", `Plugin error: ${error.message}`, [error], "error");
-    if (!error.fatal)
-      return;
-    if (item?.type === "plugin") {
-      this._markNotShown(item);
-      this._handled_error_cycle = this._currentMediaCycle();
-      this._clearDeferredReveal();
-      this._clearOutput(output2);
-      this._skipFailedMedia(this._item_start || time());
-    } else {
-      this.nextItem();
     }
+    const preloaded = this._output_items[output2];
+    if (preloaded?.type !== "plugin")
+      return;
+    if (output2 === this.active_output())
+      return;
+    this._failed_preload_id = preloaded.id;
+    this._clearOutput(output2);
+  }
+  /**
+   * Treat a plugin as failed to load: remove it from screen and skip it, or
+   * retry it after a delay when there is nothing else to show.
+   */
+  _failPluginItem(item, output2) {
+    this._markNotShown(item);
+    this._handled_error_cycle = this._currentMediaCycle();
+    this._clearDeferredReveal();
+    this._clearOutput(output2);
+    this._skipFailedMedia(this._item_start || time());
+  }
+  /**
+   * A play-through plugin that has overrun its limit. With other items to
+   * show, move on. A lone one is held like any single item, unless it never
+   * sent a plugin message: then it can never finish and is most likely an
+   * error page, so it is retried the same way as a fatal plugin error.
+   */
+  _handleOverrunPlugin(item) {
+    if (!this._shouldHoldSingleInteractiveItem(item)) {
+      log("MediaPlayer", `Plugin "${item.name}" did not report finished in time; continuing.`, [item.plugin?.uri], "warn");
+      this.nextItem();
+      return;
+    }
+    const output2 = this._item_output.get(item.id);
+    if (output2 === void 0)
+      return;
+    if (this._pluginResponded(item, output2)) {
+      this._reportHeldPass();
+      return;
+    }
+    log("MediaPlayer", `Plugin "${item.name}" never responded; retrying.`, [item.plugin?.uri], "warn");
+    this._failPluginItem(item, output2);
   }
   _showPlugin(item, output2) {
     log("MediaPlayer", `Showing plugin: ${item.name}`, [item.plugin?.name]);
     this._item_output.set(item.id, output2);
     this._setOutputPlugin(output2, item.plugin);
-    this.active_plugin.set(item.plugin);
-    this._waitForPluginLoad(item, output2);
+    if (!this._ready_output_items.has(this._outputKey(output2, item))) {
+      this._waitForPluginLoad(item, output2);
+    }
   }
   _waitForPluginLoad(item, output2) {
     const timeout_name = this._pluginLoadTimeoutName(output2);
@@ -5365,6 +5761,8 @@ var MediaPlayerComponent = class _MediaPlayerComponent extends AsyncHandler {
     return `plugin-load-timeout-${output2}`;
   }
   _configurePluginOutput(item, output2) {
+    if (this._ready_output_items.has(this._outputKey(output2, item)))
+      return;
     const config = {
       instance_id: item.id,
       config: item.plugin_params || {},
@@ -5377,7 +5775,6 @@ var MediaPlayerComponent = class _MediaPlayerComponent extends AsyncHandler {
     if (this.active_item?.id !== item.id)
       return;
     this._markShown(item);
-    this.plugin_config.set(config);
     if (this._deferred_reveal_item_id === item.id && this.pending_output() === output2) {
       this._finishDeferredReveal(item);
     } else {
@@ -5386,6 +5783,25 @@ var MediaPlayerComponent = class _MediaPlayerComponent extends AsyncHandler {
   }
   _effectivePlaybackDuration(item = this.active_item) {
     return this._playback_duration || item?.duration || 15 * 1e3;
+  }
+  /** Whether the plugin on `output` has sent any plugin protocol message */
+  _pluginResponded(item, output2) {
+    return this._responded_output_items.has(this._outputKey(output2, item));
+  }
+  /**
+   * How long a play-through plugin may hold the screen without reporting
+   * that it finished. One that never sent a plugin message - a page that
+   * failed to load, or not a plugin at all - cannot report it, so it gets
+   * its scheduled duration like a static item. One that did gets twice
+   * that, within bounds, so a long run is not cut short but a hung plugin
+   * cannot hold the screen forever.
+   */
+  _playThroughLimit(item) {
+    const duration = this._effectivePlaybackDuration(item);
+    const output2 = this._item_output.get(item.id) ?? this.active_output();
+    if (!this._pluginResponded(item, output2))
+      return duration;
+    return Math.min(Math.max(duration * 2, PLAY_THROUGH_MIN_LIMIT), PLAY_THROUGH_MAX_LIMIT);
   }
   _resetPlayback(playback_duration = 0) {
     if (playback_duration > 0) {
@@ -5434,23 +5850,23 @@ var MediaPlayerComponent = class _MediaPlayerComponent extends AsyncHandler {
     if (cycle === this._handled_error_cycle)
       return;
     this._handled_error_cycle = cycle;
-    log("MediaPlayer", `Failed to load ${item.type} media "${item.name}"`, [this.url(item.id)?.toString()], "warn");
+    log("MediaPlayer", `Failed to load ${item.type} media "${item.name}"`, [this.url(item.id)], "warn");
     this._markNotShown(item);
     this._skipFailedMedia(this._item_start);
   }
+  /**
+   * Identifies the current display attempt. Keyed by item rather than index,
+   * as a playlist change can move the item on screen to another index.
+   */
   _currentMediaCycle() {
-    return `${this.index()}:${this._display_generation}`;
+    return `${this.active_item?.id || ""}:${this._display_generation}`;
   }
   _skipFailedMedia(wait_started = time()) {
     const valid_count = this._item_playlist.filter((item) => this.isValidMedia(item)).length;
     this._consecutive_load_errors++;
     const failed = this.active_item;
-    if (failed) {
-      const url = this._item_urls[failed.id];
-      if (url)
-        URL.revokeObjectURL(url.toString());
-      delete this._item_urls[failed.id];
-    }
+    if (failed)
+      this._dropItemURL(failed.id);
     if (valid_count <= 1 || this._consecutive_load_errors >= valid_count) {
       this._consecutive_load_errors = 0;
       this.timeout("retry-failed-media", () => {
@@ -5482,13 +5898,9 @@ var MediaPlayerComponent = class _MediaPlayerComponent extends AsyncHandler {
     for (const item of item_list) {
       this._ensureItemURL(item);
     }
-    for (const key in this._item_urls) {
-      if (item_list.find((_) => _?.id === key))
-        continue;
-      const url = this._item_urls[key];
-      if (url)
-        URL.revokeObjectURL(url.toString());
-      delete this._item_urls[key];
+    for (const id of Object.keys(this._item_urls)) {
+      if (!item_list.some((_) => _?.id === id))
+        this._dropItemURL(id);
     }
     this._preloadUpcomingInteractiveContent(current_index);
   }
@@ -5520,6 +5932,8 @@ var MediaPlayerComponent = class _MediaPlayerComponent extends AsyncHandler {
     }
     if (this._output_items[output2]?.id === item.id)
       return;
+    if (item.id === this._failed_preload_id)
+      return;
     this._clearOutput(output2);
     this._output_items[output2] = item;
     this._item_output.set(item.id, output2);
@@ -5529,7 +5943,7 @@ var MediaPlayerComponent = class _MediaPlayerComponent extends AsyncHandler {
       if (!url)
         return;
       const web_el = this._web_element(output2).nativeElement;
-      web_el.src = url.toString();
+      web_el.src = url;
       web_el.classList.remove("hidden");
       return;
     }
@@ -5540,6 +5954,9 @@ var MediaPlayerComponent = class _MediaPlayerComponent extends AsyncHandler {
   _shouldPreloadUpcomingInteractiveContent() {
     if (!this._item_real_start)
       return false;
+    if (this.defer_reveal() || this.in_animation() || this.pending_output() !== this.active_output()) {
+      return false;
+    }
     const item = this.active_item;
     const remaining = this._effectivePlaybackDuration(item) - (Date.now() - this._item_real_start);
     return remaining <= INTERACTIVE_PRELOAD_LEAD_TIME;
@@ -5556,21 +5973,23 @@ var MediaPlayerComponent = class _MediaPlayerComponent extends AsyncHandler {
       return;
     if (this._item_urls[item.id])
       return;
-    if (this._url_fetch_in_flight.has(item.id))
+    if (this._url_requests.has(item.id))
       return;
     if ((this._url_retry_after.get(item.id) || 0) > Date.now())
       return;
     const id = item.id;
-    this._url_fetch_in_flight.add(id);
-    let settled = false;
+    const request = Symbol(id);
+    this._url_requests.set(id, request);
     const settle = (resolved) => {
-      if (settled)
+      const url = this._normaliseURL(resolved);
+      if (this._url_requests.get(id) !== request || this._destroyed) {
+        if (url)
+          URL.revokeObjectURL(url);
         return;
-      settled = true;
-      this.clearTimeout(`url-fetch-${id}`);
-      this._url_fetch_in_flight.delete(id);
-      this._item_urls[id] = resolved ?? null;
-      if (!resolved) {
+      }
+      this._cancelURLRequest(id);
+      this._item_urls[id] = url;
+      if (!url) {
         this._url_retry_after.set(id, Date.now() + URL_RETRY_DELAY);
       } else {
         this._url_retry_after.delete(id);
@@ -5578,6 +5997,31 @@ var MediaPlayerComponent = class _MediaPlayerComponent extends AsyncHandler {
     };
     item.getURL().then((resolved) => settle(resolved ?? null)).catch(() => settle(null));
     this.timeout(`url-fetch-${id}`, () => settle(null), URL_FETCH_TIMEOUT);
+  }
+  /**
+   * The URL in the form an element reports back from `src`, so the two can
+   * be compared. Null when there is no URL.
+   */
+  _normaliseURL(url) {
+    if (!url)
+      return null;
+    try {
+      return new URL(url, document.baseURI).href;
+    } catch {
+      return `${url}`;
+    }
+  }
+  /** Stop waiting on an item's URL request. A late result is released. */
+  _cancelURLRequest(id) {
+    this.clearTimeout(`url-fetch-${id}`);
+    this._url_requests.delete(id);
+  }
+  /** Forget the URL resolved for an item, releasing it if it is a blob */
+  _dropItemURL(id) {
+    const url = this._item_urls[id];
+    if (url)
+      URL.revokeObjectURL(url);
+    delete this._item_urls[id];
   }
   _transition(resume_on_end = true) {
     if (!this.active_item)
@@ -5693,6 +6137,25 @@ var MediaPlayerComponent = class _MediaPlayerComponent extends AsyncHandler {
   _hasValidPlaylistItem() {
     return this._item_playlist.some((item) => this.isValidMedia(item));
   }
+  /**
+   * Credit a lone item held on screen with one pass, once, when it has run
+   * its time. Without this a single-pass override that holds its only item
+   * would never report `playlist_through`, and so would never end.
+   */
+  _reportHeldPass() {
+    if (this._held_pass_reported)
+      return;
+    this._held_pass_reported = true;
+    this._emitItemMetrics(this.index());
+  }
+  /** Credit the item at `idx` as it is left, and its playlist if it ends one */
+  _emitItemMetrics(idx) {
+    const item = this._item_playlist[idx];
+    if (this.progress() > 50 && this.isValidMedia(item)) {
+      this.event.emit({ type: "media_count", ref_id: item.id });
+    }
+    this._emitPlaylistMetrics(idx);
+  }
   _emitPlaylistMetrics(idx) {
     const item = this._item_playlist[idx];
     if (!this._isLastValidPlaylistItem(idx) || !item?.playlist)
@@ -5721,7 +6184,11 @@ var MediaPlayerComponent = class _MediaPlayerComponent extends AsyncHandler {
     return item.playlist !== next_item.playlist;
   }
   _getPlaylistSignature(playlist) {
-    return JSON.stringify(playlist.map((item) => ({
+    return playlist.map((item) => this._itemSignature(item)).join("\n");
+  }
+  /** Everything about an item that changes what or how it plays */
+  _itemSignature(item) {
+    return JSON.stringify({
       id: item.id,
       name: item.name,
       playlist: item.playlist,
@@ -5735,26 +6202,40 @@ var MediaPlayerComponent = class _MediaPlayerComponent extends AsyncHandler {
       valid_until: item.valid_until,
       plugin_id: item.plugin?.id,
       plugin_params: item.plugin_params
-    })));
+    });
   }
   _normalisePlaylistIndex(index) {
     const length = this._item_playlist.length;
     return length ? (index + length) % length : -1;
   }
-  _clearItemURLs() {
-    for (const key in this._item_urls) {
-      const url = this._item_urls[key];
-      if (url)
-        URL.revokeObjectURL(url.toString());
-      delete this._item_urls[key];
+  /** Forget the URL and prepared output of every item not in `keep` */
+  _dropItemState(keep) {
+    for (const id of Object.keys(this._item_urls)) {
+      if (!keep.has(id))
+        this._dropItemURL(id);
     }
-    this._url_retry_after.clear();
-    this._shown_item_id = "";
-    this._item_output.clear();
-    this._output_items = [null, null];
-    this._ready_output_items.clear();
-    this._setOutputPlugin(0, null);
-    this._setOutputPlugin(1, null);
+    for (const id of [...this._url_requests.keys()]) {
+      if (!keep.has(id))
+        this._cancelURLRequest(id);
+    }
+    for (const id of [...this._url_retry_after.keys()]) {
+      if (!keep.has(id))
+        this._url_retry_after.delete(id);
+    }
+    if (!keep.has(this._shown_item_id))
+      this._shown_item_id = "";
+    if (!keep.has(this._failed_preload_id))
+      this._failed_preload_id = "";
+    for (const output2 of [0, 1]) {
+      const item = this._output_items[output2];
+      if (!item || keep.has(item.id))
+        continue;
+      this._item_output.delete(item.id);
+      this._ready_output_items.delete(this._outputKey(output2, item));
+      this._responded_output_items.delete(this._outputKey(output2, item));
+      this._output_items[output2] = null;
+      this._setOutputPlugin(output2, null);
+    }
   }
   static {
     this.\u0275fac = /* @__PURE__ */ (() => {
@@ -5776,7 +6257,7 @@ var MediaPlayerComponent = class _MediaPlayerComponent extends AsyncHandler {
       if (rf & 2) {
         \u0275\u0275classProp("transparent", ctx.transparent());
       }
-    }, inputs: { playlist: [1, "playlist"], controls: [1, "controls"], layout_editing: [1, "layout_editing"], layout_reset_count: [1, "layout_reset_count"], transparent: [1, "transparent"], override: [1, "override"], can_close: [1, "can_close"], loop: [1, "loop"], shuffle: [1, "shuffle"], indexInput: [1, "index", "indexInput"], animation_time: [1, "animation_time"], mutedInput: [1, "muted", "mutedInput"], stateInput: [1, "state", "stateInput"] }, outputs: { loop: "loopChange", shuffle: "shuffleChange", stateChange: "stateChange", indexChange: "indexChange", mutedChange: "mutedChange", playing_id: "playing_id", event: "event", closed: "closed" }, features: [\u0275\u0275InheritDefinitionFeature, \u0275\u0275NgOnChangesFeature], decls: 20, vars: 23, consts: [["media_container_0", ""], ["img_el_0", ""], ["video_el_0", ""], ["web_el_0", ""], ["media_container_1", ""], ["img_el_1", ""], ["video_el_1", ""], ["web_el_1", ""], [1, "absolute", "inset-0"], [1, "pointer-events-none", "absolute", "top-0", "left-0", "h-full", "w-full"], [1, "absolute", "top-0", "left-0", "hidden", "h-full", "w-full", "object-contain", "object-center", 3, "load", "error"], [1, "absolute", "top-0", "left-0", "hidden", "h-full", "w-full", "object-contain", "object-center", 3, "loadeddata", "error"], [1, "absolute", "top-0", "left-0", "hidden", "h-full", "w-full", "border-0", 3, "load"], [1, "absolute", "top-0", "left-0", "h-full", "w-full", 3, "plugin", "config", "play"], [1, "absolute", "top-0", "left-0", "h-full", "w-full", "object-contain", "object-center", 3, "load", "error"], [1, "absolute", "top-0", "left-0", "h-full", "w-full", "object-contain", "object-center", 3, "loadeddata", "error"], [1, "absolute", "top-0", "left-0", "h-full", "w-full", "border-0", 3, "load"], [1, "absolute", "top-0", "left-0", "h-full", "w-full", 3, "loaded", "statusChange", "plugin_interaction", "plugin_error", "plugin", "config", "play"], ["label", "debug time", "icon", "event", 3, "overlay_id", "editing", "reset_count", "initial_position"], ["label", "playback controls", "icon", "play_circle", 3, "overlay_id", "editing", "reset_count", "initial_position"], [3, "event", "state", "loop", "muted", "shuffle", "progress", "duration", "playback_start", "playback_duration", "animating", "loading"], ["overlay_id", "override-details", "label", "override details", "icon", "priority_high", 3, "editing", "reset_count", "initial_position"], ["label", "playlist", "icon", "queue_music", 3, "overlay_id", "editing", "reset_count", "initial_position"], [3, "selected", "index", "playlist"], [1, "border-base-200", "bg-base-100", "flex", "items-center", "space-x-4", "rounded-full", "border", "p-2"], [1, "max-w-[30vw]", "truncate", "py-2", "pl-4"], [1, "bg-base-200", "rounded-sm", "px-2", "py-1", "font-mono", "text-[0.625rem]"], ["icon", "", "default", "", "matRipple", "", 3, "click"]], template: function MediaPlayerComponent_Template(rf, ctx) {
+    }, inputs: { playlist: [1, "playlist"], controls: [1, "controls"], layout_editing: [1, "layout_editing"], layout_reset_count: [1, "layout_reset_count"], transparent: [1, "transparent"], override: [1, "override"], can_close: [1, "can_close"], loop: [1, "loop"], shuffle: [1, "shuffle"], indexInput: [1, "index", "indexInput"], animation_time: [1, "animation_time"], mutedInput: [1, "muted", "mutedInput"], stateInput: [1, "state", "stateInput"] }, outputs: { loop: "loopChange", shuffle: "shuffleChange", stateChange: "stateChange", indexChange: "indexChange", mutedChange: "mutedChange", playing_id: "playing_id", event: "event", closed: "closed" }, features: [\u0275\u0275InheritDefinitionFeature, \u0275\u0275NgOnChangesFeature], decls: 20, vars: 23, consts: [["media_container_0", ""], ["img_el_0", ""], ["video_el_0", ""], ["web_el_0", ""], ["media_container_1", ""], ["img_el_1", ""], ["video_el_1", ""], ["web_el_1", ""], [1, "absolute", "inset-0"], [1, "pointer-events-none", "absolute", "top-0", "left-0", "h-full", "w-full"], [1, "absolute", "top-0", "left-0", "hidden", "h-full", "w-full", "object-contain", "object-center", 3, "load", "error"], [1, "absolute", "top-0", "left-0", "hidden", "h-full", "w-full", "object-contain", "object-center", 3, "loadeddata", "error"], ["sandbox", "allow-scripts allow-same-origin allow-forms", 1, "absolute", "top-0", "left-0", "hidden", "h-full", "w-full", "border-0", 3, "load"], [1, "absolute", "top-0", "left-0", "h-full", "w-full", 3, "plugin", "config", "play"], [1, "absolute", "top-0", "left-0", "h-full", "w-full", "object-contain", "object-center", 3, "load", "error"], [1, "absolute", "top-0", "left-0", "h-full", "w-full", "object-contain", "object-center", 3, "loadeddata", "error"], ["sandbox", "allow-scripts allow-same-origin allow-forms", 1, "absolute", "top-0", "left-0", "h-full", "w-full", "border-0", 3, "load"], [1, "absolute", "top-0", "left-0", "h-full", "w-full", 3, "loaded", "playing", "statusChange", "finished", "plugin_interaction", "plugin_error", "plugin", "config", "play"], ["label", "debug time", "icon", "event", 3, "overlay_id", "editing", "reset_count", "initial_position"], ["label", "playback controls", "icon", "play_circle", 3, "overlay_id", "editing", "reset_count", "initial_position"], [3, "event", "state", "loop", "muted", "shuffle", "progress", "duration", "playback_start", "playback_duration", "animating", "loading"], ["overlay_id", "override-details", "label", "override details", "icon", "priority_high", 3, "editing", "reset_count", "initial_position"], ["label", "playlist", "icon", "queue_music", 3, "overlay_id", "editing", "reset_count", "initial_position"], [3, "selected", "index", "playlist"], [1, "border-base-200", "bg-base-100", "flex", "items-center", "space-x-4", "rounded-full", "border", "p-2"], [1, "max-w-[30vw]", "truncate", "py-2", "pl-4"], [1, "bg-base-200", "rounded-sm", "px-2", "py-1", "font-mono", "text-[0.625rem]"], ["icon", "", "default", "", "matRipple", "", 3, "click"]], template: function MediaPlayerComponent_Template(rf, ctx) {
       if (rf & 1) {
         \u0275\u0275elementStart(0, "div", 8)(1, "div", 9, 0)(3, "img", 10, 1);
         \u0275\u0275listener("load", function MediaPlayerComponent_Template_img_load_3_listener() {
@@ -5889,6 +6370,7 @@ var MediaPlayerComponent = class _MediaPlayerComponent extends AsyncHandler {
                 ></video>
                 <iframe
                     #web_el_0
+                    sandbox="allow-scripts allow-same-origin allow-forms"
                     class="absolute top-0 left-0 hidden h-full w-full border-0"
                     (load)="onWebpageLoad(0)"
                 ></iframe>
@@ -5899,7 +6381,9 @@ var MediaPlayerComponent = class _MediaPlayerComponent extends AsyncHandler {
                         [config]="output_plugin_configs()[0]"
                         [play]="output_plugin_plays()[0]"
                         (loaded)="onPluginLoad(0)"
+                        (playing)="onPluginPlaying($event, 0)"
                         (statusChange)="onPluginStatus($event, 0)"
+                        (finished)="onPluginFinished(0)"
                         (plugin_interaction)="onPluginInteraction($event, 0)"
                         (plugin_error)="onPluginError($event, 0)"
                     />
@@ -5934,6 +6418,7 @@ var MediaPlayerComponent = class _MediaPlayerComponent extends AsyncHandler {
                 ></video>
                 <iframe
                     #web_el_1
+                    sandbox="allow-scripts allow-same-origin allow-forms"
                     class="absolute top-0 left-0 h-full w-full border-0"
                     (load)="onWebpageLoad(1)"
                 ></iframe>
@@ -5944,7 +6429,9 @@ var MediaPlayerComponent = class _MediaPlayerComponent extends AsyncHandler {
                         [config]="output_plugin_configs()[1]"
                         [play]="output_plugin_plays()[1]"
                         (loaded)="onPluginLoad(1)"
+                        (playing)="onPluginPlaying($event, 1)"
                         (statusChange)="onPluginStatus($event, 1)"
+                        (finished)="onPluginFinished(1)"
                         (plugin_interaction)="onPluginInteraction($event, 1)"
                         (plugin_error)="onPluginError($event, 1)"
                     />
@@ -6049,7 +6536,7 @@ var MediaPlayerComponent = class _MediaPlayerComponent extends AsyncHandler {
   }], null, { playlist: [{ type: Input, args: [{ isSignal: true, alias: "playlist", required: false }] }], controls: [{ type: Input, args: [{ isSignal: true, alias: "controls", required: false }] }], layout_editing: [{ type: Input, args: [{ isSignal: true, alias: "layout_editing", required: false }] }], layout_reset_count: [{ type: Input, args: [{ isSignal: true, alias: "layout_reset_count", required: false }] }], transparent: [{ type: Input, args: [{ isSignal: true, alias: "transparent", required: false }] }], override: [{ type: Input, args: [{ isSignal: true, alias: "override", required: false }] }], can_close: [{ type: Input, args: [{ isSignal: true, alias: "can_close", required: false }] }], loop: [{ type: Input, args: [{ isSignal: true, alias: "loop", required: false }] }, { type: Output, args: ["loopChange"] }], shuffle: [{ type: Input, args: [{ isSignal: true, alias: "shuffle", required: false }] }, { type: Output, args: ["shuffleChange"] }], indexInput: [{ type: Input, args: [{ isSignal: true, alias: "index", required: false }] }], animation_time: [{ type: Input, args: [{ isSignal: true, alias: "animation_time", required: false }] }], mutedInput: [{ type: Input, args: [{ isSignal: true, alias: "muted", required: false }] }], stateInput: [{ type: Input, args: [{ isSignal: true, alias: "state", required: false }] }], stateChange: [{ type: Output, args: ["stateChange"] }], indexChange: [{ type: Output, args: ["indexChange"] }], mutedChange: [{ type: Output, args: ["mutedChange"] }], playing_id: [{ type: Output, args: ["playing_id"] }], event: [{ type: Output, args: ["event"] }], closed: [{ type: Output, args: ["closed"] }], _container_0: [{ type: ViewChild, args: ["media_container_0", { isSignal: true }] }], _container_1: [{ type: ViewChild, args: ["media_container_1", { isSignal: true }] }], _image_element_0: [{ type: ViewChild, args: ["img_el_0", { isSignal: true }] }], _image_element_1: [{ type: ViewChild, args: ["img_el_1", { isSignal: true }] }], _video_element_0: [{ type: ViewChild, args: ["video_el_0", { isSignal: true }] }], _video_element_1: [{ type: ViewChild, args: ["video_el_1", { isSignal: true }] }], _web_element_0: [{ type: ViewChild, args: ["web_el_0", { isSignal: true }] }], _web_element_1: [{ type: ViewChild, args: ["web_el_1", { isSignal: true }] }] });
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(MediaPlayerComponent, { className: "MediaPlayerComponent", filePath: "apps/signage/src/app/media-player.component.ts", lineNumber: 270 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(MediaPlayerComponent, { className: "MediaPlayerComponent", filePath: "apps/signage/src/app/media-player.component.ts", lineNumber: 286 });
 })();
 
 // apps/signage/src/app/diagnostics.ts
@@ -6222,7 +6709,7 @@ function createScheduleMaskFilter(cron, schedule) {
         slots.push(hour * 60 + minute);
     }
   }
-  const calendar_parts = ["*", "*", ...parts.slice(2)];
+  const calendar_parts = cronDayParts(parts);
   const first_day = new Date(anchor);
   first_day.setHours(0, 0, 0, 0);
   const month_totals = /* @__PURE__ */ new Map();
@@ -6287,6 +6774,35 @@ function createScheduleMaskFilter(cron, schedule) {
   return allows;
 }
 var MIN_CACHEABLE_SEARCH_LIMIT_SECONDS = 60;
+var MAX_SEARCH_LIMIT_SECONDS = 10 * 366 * 24 * 60 * 60;
+var MINUTE_MS = 6e4;
+function isFirstLocalOccurrence(date) {
+  const wall_clock = new Date(date.getFullYear(), date.getMonth(), date.getDate(), date.getHours(), date.getMinutes());
+  return wall_clock.getTime() === date.getTime();
+}
+function isCronRun(cron_parts, date) {
+  return doesCronMatchDate(cron_parts, date) && isFirstLocalOccurrence(date);
+}
+function hasCronTimeOfDay([minute_part, hour_part]) {
+  for (let hour = 0; hour < 24; hour++) {
+    if (!matchesCronPart(hour, hour_part))
+      continue;
+    for (let minute = 0; minute < 60; minute++) {
+      if (matchesCronPart(minute, minute_part))
+        return true;
+    }
+  }
+  return false;
+}
+function cronDayParts(cron_parts) {
+  return ["*", "*", ...cron_parts.slice(2)];
+}
+function localDayStart(date, offset_days = 0) {
+  return new Date(date.getFullYear(), date.getMonth(), date.getDate() + offset_days).getTime();
+}
+function searchLimitMs(search_limit_in_seconds) {
+  return Math.min(search_limit_in_seconds, MAX_SEARCH_LIMIT_SECONDS) * 1e3;
+}
 var CRON_LOOKUP_CACHE = /* @__PURE__ */ new Map();
 var cron_lookup_second = 0;
 function cachedCronLookup(key, now, search_limit_in_seconds, lookup) {
@@ -6312,16 +6828,22 @@ function getNextCronRunTimestampInRange(cron_string, search_limit_in_seconds, no
   const mask_key = JSON.stringify([schedule.valid_from, schedule.mask]);
   const key = `next|${cron_string}|${search_limit_in_seconds}|${mask_key}`;
   return cachedCronLookup(key, now, search_limit_in_seconds, () => {
-    const searchLimitDate = new Date(now + search_limit_in_seconds * 1e3);
-    const start_time = new Date(now);
-    start_time.setSeconds(0, 0);
-    start_time.setMinutes(start_time.getMinutes() + 1);
-    const current_date = new Date(start_time.getTime());
-    while (current_date <= searchLimitDate) {
-      if (doesCronMatchDate(parts, current_date) && allows(current_date)) {
-        return Math.floor(current_date.getTime() / 1e3);
+    if (!hasCronTimeOfDay(parts))
+      return null;
+    const day_parts = cronDayParts(parts);
+    const limit = now + searchLimitMs(search_limit_in_seconds);
+    const start = Math.floor(now / MINUTE_MS) * MINUTE_MS + MINUTE_MS;
+    const current_date = new Date(start);
+    for (let time2 = start; time2 <= limit; ) {
+      current_date.setTime(time2);
+      if (!doesCronMatchDate(day_parts, current_date)) {
+        time2 = localDayStart(current_date, 1);
+        continue;
       }
-      current_date.setMinutes(current_date.getMinutes() + 1);
+      if (isCronRun(parts, current_date) && allows(current_date)) {
+        return Math.floor(time2 / 1e3);
+      }
+      time2 += MINUTE_MS;
     }
     return null;
   });
@@ -6334,18 +6856,22 @@ function getLastCronRunTimestampInRange(cron_string, search_limit_in_seconds, no
   const mask_key = JSON.stringify([schedule.valid_from, schedule.mask]);
   const key = `last|${cron_string}|${search_limit_in_seconds}|${mask_key}`;
   return cachedCronLookup(key, now, search_limit_in_seconds, () => {
-    const search_limit_date = new Date(now - search_limit_in_seconds * 1e3);
-    const current_date = new Date(now);
-    current_date.setSeconds(0, 0);
-    while (current_date >= search_limit_date) {
-      if (doesCronMatchDate(parts, current_date)) {
-        return allows(current_date) ? Math.floor(current_date.getTime() / 1e3) : null;
+    if (!hasCronTimeOfDay(parts))
+      return null;
+    const day_parts = cronDayParts(parts);
+    const limit = now - searchLimitMs(search_limit_in_seconds);
+    const start = Math.floor(now / MINUTE_MS) * MINUTE_MS;
+    const current_date = new Date(start);
+    for (let time2 = start; time2 >= limit; ) {
+      current_date.setTime(time2);
+      if (!doesCronMatchDate(day_parts, current_date)) {
+        time2 = localDayStart(current_date) - MINUTE_MS;
+        continue;
       }
-      const previous = current_date.getTime();
-      current_date.setMinutes(current_date.getMinutes() - 1);
-      if (current_date.getTime() >= previous) {
-        current_date.setTime(previous - 6e4);
+      if (isCronRun(parts, current_date)) {
+        return allows(current_date) ? Math.floor(time2 / 1e3) : null;
       }
+      time2 -= MINUTE_MS;
     }
     return null;
   });
@@ -6355,11 +6881,15 @@ function getLastCronRunTimestampInRange(cron_string, search_limit_in_seconds, no
 var SCHEDULE_TICK_MS = 15 * SECONDS;
 var MIN_SCHEDULE_TICK_MS = 250;
 var DISPLAY_KEY = "PlaceOS.SIGNAGE.display_details";
-var EMPTY_METRICS = JSON.stringify({
-  play_through_counts: {},
-  playlist_counts: {},
-  media_counts: {}
-});
+function emptyMetrics() {
+  return { play_through_counts: {}, playlist_counts: {}, media_counts: {} };
+}
+var EMPTY_METRICS = JSON.stringify(emptyMetrics());
+var METRIC_TYPES = [
+  "play_through_counts",
+  "playlist_counts",
+  "media_counts"
+];
 var DEFAULT_PLAY_PERIOD_MINUTES = 24 * 60;
 var SINGLE_PASS_TRIGGER_WINDOW_MS = 30 * 1e3;
 var MEDIA_CACHE_LOOK_AHEAD_SECONDS = 24 * 60 * 60;
@@ -6410,6 +6940,9 @@ function isNestedPlayerWindow() {
     return true;
   }
 }
+function isDisplayPayload(value) {
+  return !!value && typeof value === "object";
+}
 function displayCacheKey(id) {
   return `${DISPLAY_KEY}.${id}`;
 }
@@ -6459,9 +6992,9 @@ function scheduledPlaylistEnd(starts_at, period_minutes) {
 function scheduledPlaylistExpiry(starts_at, period_minutes) {
   return period_minutes ? starts_at + period_minutes * 60 * 1e3 : 0;
 }
-function scheduledPlaylistWindow(schedule, now = time(), trigger_window_seconds = 0) {
+function scheduledPlaylistWindow(schedule, now = time()) {
   const period_minutes = playlistPlayPeriodMinutes(schedule);
-  const window_seconds = trigger_window_seconds || period_minutes * 60;
+  const window_seconds = period_minutes * 60;
   const valid_until = parseValidUntilTimestamp(schedule.valid_until);
   if (!hasPlayableScheduleMask(schedule))
     return null;
@@ -6490,19 +7023,33 @@ function scheduledPlaylistWindow(schedule, now = time(), trigger_window_seconds 
   }
   return null;
 }
-function activePlaylistSchedules(playlist, now = time(), trigger_window_seconds = 0) {
+function isScheduleKind(schedule, kind) {
+  if (!kind)
+    return true;
+  if (kind === "background")
+    return !schedule.play_takeover;
+  if (!schedule.play_takeover)
+    return false;
+  return kind === "takeover" || playlistPlayPeriodMinutes(schedule) === 0;
+}
+function activePlaylistSchedules(playlist, now = time(), kind) {
   return playlistSchedules(playlist).map((schedule, index) => {
-    const window2 = scheduledPlaylistWindow(schedule, now, trigger_window_seconds);
+    if (!isScheduleKind(schedule, kind))
+      return null;
+    const window2 = scheduledPlaylistWindow(schedule, now);
     return window2 ? __spreadProps(__spreadValues({
       playlist,
       schedule
     }, window2), {
-      key: `${playlist.id}:${index}:${window2.starts_at}`
+      key: scheduleKeyPrefix(playlist.id, index) + window2.starts_at
     }) : null;
   }).filter((_) => !!_);
 }
-function activePlaylistSchedule(playlist, now = time(), trigger_window_seconds = 0) {
-  return activePlaylistSchedules(playlist, now, trigger_window_seconds)[0];
+function activePlaylistSchedule(playlist, now = time(), kind) {
+  return activePlaylistSchedules(playlist, now, kind)[0];
+}
+function scheduleKeyPrefix(playlist_id, index) {
+  return `${playlist_id}:${index}:`;
 }
 function nextScheduledPlaylistStart(schedule, now, horizon_seconds) {
   const valid_until = parseValidUntilTimestamp(schedule.valid_until);
@@ -6599,12 +7146,9 @@ var SignageService = class _SignageService extends AsyncHandler {
     this._playlists = [];
     this._last_playlist = [];
     this._last_override_playlists = [];
-    this._metrics = {
-      play_through_counts: {},
-      playlist_counts: {},
-      media_counts: {}
-    };
-    this._completed_schedule_overrides = /* @__PURE__ */ new Set();
+    this._metrics = emptyMetrics();
+    this._completed_schedule_overrides = /* @__PURE__ */ new Map();
+    this._shuffles = /* @__PURE__ */ new Map();
     this.override_playlist = signal(
       {
         ends_at: 0,
@@ -6643,7 +7187,7 @@ var SignageService = class _SignageService extends AsyncHandler {
           }
           const playlists = this._mappedPlaylistIds(item);
           this._setActivePlaylistConfigs(item, playlists);
-          const media = this._getPlaylistMedia(item, playlists, (p) => p.enabled && (!playlistSchedules(p).length || activePlaylistSchedules(p).some(({ schedule }) => !schedule.play_takeover)));
+          const media = this._getPlaylistMedia(item, playlists, (p) => this._isBackgroundPlaylist(p), "background");
           this._last_playlist = media;
           return media;
         } catch (e) {
@@ -6683,6 +7227,11 @@ var SignageService = class _SignageService extends AsyncHandler {
     this.interval("metrics", () => this._postMetrics(), 10 * MINUTES);
     this._scheduleTick();
   }
+  destroy() {
+    clearTimeout(this._schedule_tick_timer);
+    this._schedule_tick_timer = void 0;
+    super.destroy();
+  }
   _startPolling() {
     this.interval("poll", () => this._poll(), POLL_INTERVAL_MS);
   }
@@ -6704,8 +7253,9 @@ var SignageService = class _SignageService extends AsyncHandler {
     this._last_poll_attempt = now;
     recordHeartbeat("poll");
     try {
-      await this._reloadDisplay();
-      this._last_poll_success = Date.now();
+      const reached_backend = await this._reloadDisplay();
+      if (reached_backend)
+        this._last_poll_success = Date.now();
     } catch (e) {
       log3.error("Display poll failed.", e);
     } finally {
@@ -6742,23 +7292,32 @@ var SignageService = class _SignageService extends AsyncHandler {
       });
     });
   }
-  /** Re-fetch the active display details and refresh derived player state. */
+  /**
+   * Re-fetch the active display details and refresh derived player state.
+   * Returns whether the backend answered.
+   */
   async _reloadDisplay() {
     const id = this._display();
     if (!id)
-      return;
-    const value = await this._fetchDisplay(id);
-    if (value === null)
-      return;
-    const display_signature = `${id}:${JSON.stringify(value || {})}`;
+      return false;
+    const result = await this._fetchDisplay(id);
+    if (result === null)
+      return true;
+    const { payload, validators } = result;
+    const display_signature = `${id}:${JSON.stringify(payload)}`;
     if (display_signature === this._display_signature && this._display_data()) {
-      return;
+      this._setValidators(validators);
+      return !!validators;
     }
-    const display = this._parseDisplay(value);
+    const display = this._parseDisplay(payload);
     display.plugins = await this._withTimeout(this._resolveDisplayPlugins(display), DISPLAY_FETCH_TIMEOUT_MS).catch((e) => {
       log3.warn("Failed to resolve display plugins.", e);
       return display.plugins || [];
     });
+    for (const id2 of this._shuffles.keys()) {
+      if (!display.playlist_config?.[id2])
+        this._shuffles.delete(id2);
+    }
     this._display_data.set(display);
     try {
       this._bindTriggers(display);
@@ -6768,7 +7327,21 @@ var SignageService = class _SignageService extends AsyncHandler {
     this._syncMediaCache(display);
     this._checkScheduledOverrides(display, this.override_playlists());
     this._display_signature = display_signature;
+    this._setValidators(validators);
+    return !!validators;
   }
+  /** Keep the validators to send with the next request, if there are any */
+  _setValidators(validators) {
+    if (!validators)
+      return;
+    this._etag = validators.etag;
+    this._last_modified = validators.last_modified;
+  }
+  /**
+   * Fetch the display details. Falls back to the copy saved for offline use
+   * when the backend cannot be reached. Returns null when the backend reports
+   * the details have not changed.
+   */
   async _fetchDisplay(id) {
     const query_params = oi({
       preview: this.debug() || void 0,
@@ -6784,27 +7357,43 @@ var SignageService = class _SignageService extends AsyncHandler {
       headers,
       cache: "no-store"
     };
-    let d;
+    let payload = null;
+    let validators = null;
     try {
-      d = await this._withTimeout(Ch(id, query_params, request_options), DISPLAY_FETCH_TIMEOUT_MS);
-      const response_headers = Fi(displayRequestURL(id, query_params));
-      this._etag = response_headers.etag || "";
-      this._last_modified = response_headers["last-modified"] || "";
+      const response = await this._withTimeout(Ch(id, query_params, request_options), DISPLAY_FETCH_TIMEOUT_MS);
+      if (isDisplayPayload(response)) {
+        payload = response;
+        const response_headers = Fi(displayRequestURL(id, query_params));
+        validators = {
+          etag: response_headers.etag || "",
+          last_modified: response_headers["last-modified"] || ""
+        };
+      }
     } catch (e) {
       if (e instanceof Response && e.status === 304)
         return null;
       log3.warn("Failed to fetch display details.", e);
     }
-    if (!d) {
-      const display_key = displayCacheKey(id);
-      d = JSON.parse(localStorage.getItem(display_key) || localStorage.getItem(DISPLAY_KEY) || "{}");
-      if (d.id !== id)
-        d = {};
+    if (!payload)
+      payload = this._offlineDisplay(id);
+    if (payload.id === id) {
+      try {
+        localStorage.setItem(displayCacheKey(id), JSON.stringify(payload));
+      } catch (e) {
+        log3.warn("Unable to save display details for offline use.", e);
+      }
     }
-    if (d.id === id) {
-      localStorage.setItem(displayCacheKey(id), JSON.stringify(d));
+    return { payload, validators };
+  }
+  /** The display details saved for offline use; empty when there are none */
+  _offlineDisplay(id) {
+    try {
+      const saved = JSON.parse(localStorage.getItem(displayCacheKey(id)) || localStorage.getItem(DISPLAY_KEY) || "null");
+      return isDisplayPayload(saved) && saved.id === id ? saved : {};
+    } catch (e) {
+      log3.warn("Unable to read saved display details.", e);
+      return {};
     }
-    return d;
   }
   _bindTriggers(display) {
     const triggers = Object.keys(display.playlist_mappings || {}).filter((_) => _.startsWith("trig-"));
@@ -6812,18 +7401,31 @@ var SignageService = class _SignageService extends AsyncHandler {
     const mod = Fp(display.id, "_TRIGGER__1");
     for (const id of triggers) {
       const binding = mod.variable(id);
-      this.subscription(`trigger_listen-${id}`, binding.bindThenSubscribe(() => this._handleTrigger(id)));
+      let active = !!binding.value;
+      this.subscription(`trigger_listen-${id}`, binding.bindThenSubscribe((value) => {
+        const was_active = active;
+        active = !!value;
+        if (active && !was_active)
+          this._handleTrigger(id);
+      }));
     }
   }
   /**
    * Re-evaluate time-based schedules on a recurring timer, speeding up when
    * debug time is fast-forwarding so scheduled playlists activate on time.
+   * Calling it again replaces the pending tick, so there is only ever one
+   * timer chain.
+   *
+   * The timer is held here, not with `this.timeout`: that forgets a timer
+   * once its callback returns, which loses the timer the callback re-arms,
+   * so a later call could not replace it and would start a second chain.
    */
   _scheduleTick() {
     const { active, speed } = mockTimeState();
     const effective_speed = active && speed > 1 ? speed : 1;
     const delay2 = Math.max(MIN_SCHEDULE_TICK_MS, Math.min(SCHEDULE_TICK_MS, SCHEDULE_TICK_MS / effective_speed));
-    this.timeout("schedule_tick", () => {
+    clearTimeout(this._schedule_tick_timer);
+    this._schedule_tick_timer = setTimeout(() => {
       try {
         recordHeartbeat("schedule");
         this._checkPollHealth();
@@ -6891,7 +7493,7 @@ var SignageService = class _SignageService extends AsyncHandler {
       return [];
     const now = time();
     return this._mappedPlaylistIds(display).map((id) => this._playlistConfig(display, id)?.[0]).filter((_) => !!_).map((playlist) => {
-      const active = activePlaylistSchedule(playlist, now);
+      const active = activePlaylistSchedule(playlist, now, "takeover") || activePlaylistSchedule(playlist, now);
       return {
         id: playlist.id,
         name: playlist.name,
@@ -6940,9 +7542,10 @@ var SignageService = class _SignageService extends AsyncHandler {
     this.override_playlist.set({ playlist: media, ends_at });
   }
   clearPlaylistOverride() {
-    const { schedule_keys } = this.override_playlist();
+    const { schedule_keys, schedule_window_end } = this.override_playlist();
+    const forget_after = schedule_window_end || time() + DEFAULT_PLAY_PERIOD_MINUTES * MINUTES;
     for (const key of schedule_keys || []) {
-      this._completed_schedule_overrides.add(key);
+      this._completed_schedule_overrides.set(key, forget_after);
     }
     this.override_playlist.set({ playlist: [], ends_at: 0 });
   }
@@ -6961,18 +7564,30 @@ var SignageService = class _SignageService extends AsyncHandler {
     }
   }
   _postMetrics() {
-    this.timeout("post-metrics", async () => {
-      if (EMPTY_METRICS === JSON.stringify(this._metrics))
-        return;
-      const display_id = this._display();
-      await v(`/api/engine/v2/signage/${encodeURIComponent(display_id)}/metrics`, this._metrics);
-      log3.debug("Posted metrics:", this._metrics);
-      this._metrics = {
-        play_through_counts: {},
-        playlist_counts: {},
-        media_counts: {}
-      };
-    }, randomInt(60));
+    this.timeout("post-metrics", () => this._sendMetrics(), randomInt(60));
+  }
+  /**
+   * Post the counts recorded so far. Counting continues into a new set while
+   * the post is in flight; if the post fails, its counts are added back so
+   * the next attempt sends them.
+   */
+  async _sendMetrics() {
+    if (EMPTY_METRICS === JSON.stringify(this._metrics))
+      return;
+    const metrics = this._metrics;
+    this._metrics = emptyMetrics();
+    const display_id = this._display();
+    try {
+      await v(`/api/engine/v2/signage/${encodeURIComponent(display_id)}/metrics`, metrics);
+      log3.debug("Posted metrics:", metrics);
+    } catch (e) {
+      log3.warn("Failed to post metrics. Retrying later.", e);
+      for (const type of METRIC_TYPES) {
+        for (const [ref_id, count] of Object.entries(metrics[type])) {
+          this._metrics[type][ref_id] = (this._metrics[type][ref_id] || 0) + count;
+        }
+      }
+    }
   }
   _mappedPlaylistIds(display) {
     let playlists = [...display.playlist_mappings[display.id]];
@@ -6985,6 +7600,10 @@ var SignageService = class _SignageService extends AsyncHandler {
   }
   _setActivePlaylistConfigs(display, playlist_ids) {
     this._playlists = playlist_ids.map((id) => display.playlist_config?.[id]?.[0]).filter((_) => !!_);
+  }
+  /** Whether a playlist currently belongs in normal playback */
+  _isBackgroundPlaylist(playlist, now = time()) {
+    return playlist.enabled && (!playlistSchedules(playlist).length || activePlaylistSchedules(playlist, now, "background").length > 0);
   }
   _isOverridePlaylist(display, id) {
     const playlist = this._playlistConfig(display, id)?.[0];
@@ -7035,9 +7654,8 @@ var SignageService = class _SignageService extends AsyncHandler {
       const cache_owner = display.id || "";
       const media = this._activeCacheableMediaURLs(display);
       const known_media = this._cacheableMediaURLs(display);
-      const available_media = this._media_cache.availableFiles(cache_owner);
-      const extra_media = available_media.filter((url) => !known_media.includes(url));
       const has_failures = await this._media_cache.requestFilesToCache(media, cache_owner, { prune_other_owners: !this._isNestedPlayerWindow() });
+      const extra_media = this._media_cache.availableFiles(cache_owner).filter((url) => !known_media.includes(url));
       for (const item of extra_media) {
         Promise.resolve(this._media_cache.invalidateFile(item, cache_owner)).catch((e) => log3.warn("Unable to release cached media.", item, e));
       }
@@ -7076,8 +7694,8 @@ var SignageService = class _SignageService extends AsyncHandler {
     const now = time();
     const playlists = this._mappedPlaylistIds(display);
     const active_media = [
-      ...this._getPlaylistMedia(display, playlists, (p) => p.enabled && (!playlistSchedules(p).length || activePlaylistSchedules(p, now).some(({ schedule }) => !schedule.play_takeover))),
-      ...this._getPlaylistMedia(display, playlists, (p) => p.enabled && activePlaylistSchedules(p, now).some(({ schedule }) => schedule.play_takeover))
+      ...this._getPlaylistMedia(display, playlists, (p) => this._isBackgroundPlaylist(p, now), "background"),
+      ...this._getPlaylistMedia(display, playlists, (p) => p.enabled && activePlaylistSchedules(p, now, "takeover").length > 0, "takeover")
     ];
     const upcoming_media = this._getPlaylistMedia(display, playlists, (p) => p.enabled && playlistStartsWithin(p, now, MEDIA_CACHE_LOOK_AHEAD_SECONDS));
     const urls = [...active_media, ...upcoming_media].filter(({ type }) => type !== "webpage" && type !== "plugin").map(({ url }) => url).filter((_) => !!_);
@@ -7089,45 +7707,94 @@ var SignageService = class _SignageService extends AsyncHandler {
       return type !== "webpage" && type !== "plugin";
     }).map((item) => item.media_url).filter((_) => !!_);
   }
+  /**
+   * Start, update or end the scheduled takeover. Runs on every display
+   * change and schedule tick.
+   *
+   * Single-pass runs play alone, ahead of timed runs. The player ends an
+   * override either at `ends_at` or after one pass, never both, so the two
+   * kinds cannot share one. A timed run is detected across its whole play
+   * period, so it starts or continues once the single pass is done, and still
+   * ends at its scheduled time.
+   */
   _checkScheduledOverrides(display, playlist_ids) {
-    const active_schedules = this._activeOverrideSchedules(display, playlist_ids);
-    const active_playlists = active_schedules.map(({ playlist }) => playlist);
-    if (!active_playlists.length) {
+    const active = this._activeOverrideSchedules(display, playlist_ids);
+    const held = this._heldSinglePassRuns(display, playlist_ids);
+    const single_pass = active.filter(({ schedule }) => playlistPlayPeriodMinutes(schedule) === 0);
+    const has_single_pass = held.length > 0 || single_pass.length > 0;
+    const runs = [
+      ...held,
+      ...(has_single_pass ? single_pass : active).map(({ key, playlist }) => ({ key, playlist_id: playlist.id }))
+    ].filter((run, index, list) => list.findIndex(({ key }) => key === run.key) === index);
+    if (!runs.length) {
       if (this.override_playlist().schedule_keys?.length) {
         this.override_playlist.set({ playlist: [], ends_at: 0 });
       }
       return;
     }
-    if (this._hasCurrentOverrideFor(active_schedules))
+    const keys = runs.map(({ key }) => key);
+    if (this._isCurrentOverride(keys))
       return;
-    const media = this._getPlaylistMedia(display, active_playlists.map((_) => _.id));
-    const ends_at = this._scheduledOverrideEnd(active_schedules);
-    log3.debug("Setting override playlist", media, ends_at || 0);
+    const media = this._getPlaylistMedia(display, [...new Set(runs.map(({ playlist_id }) => playlist_id))], () => true, has_single_pass ? "single-pass" : "takeover");
+    const ends_at = has_single_pass ? 0 : Math.max(...active.map(({ ends_at: ends_at2 }) => ends_at2));
+    const schedule_window_end = Math.max(this.override_playlist().schedule_window_end || 0, ...(has_single_pass ? single_pass : active).map(({ ends_at: ends_at2 }) => ends_at2));
+    log3.debug("Setting override playlist", media, ends_at);
     this.override_playlist.set({
       playlist: media,
       ends_at,
-      schedule_keys: active_schedules.map(({ key }) => key)
+      schedule_keys: keys,
+      schedule_window_end
     });
   }
+  /**
+   * Active takeover schedules that have something to show. A run whose media
+   * is all outside its validity window is left out: it would pause normal
+   * playback behind a blank override for its whole play period.
+   */
   _activeOverrideSchedules(display, playlist_ids) {
     const now = time();
-    return playlist_ids.map((id) => this._playlistConfig(display, id)?.[0]).filter((_) => !!_).flatMap((playlist) => activePlaylistSchedules(playlist, now)).filter(({ key }) => !this._completed_schedule_overrides.has(key));
+    for (const [key, forget_after] of this._completed_schedule_overrides) {
+      if (forget_after < now) {
+        this._completed_schedule_overrides.delete(key);
+      }
+    }
+    return playlist_ids.map((id) => this._playlistConfig(display, id)?.[0]).filter((_) => !!_).flatMap((playlist) => activePlaylistSchedules(playlist, now, "takeover")).filter(({ key, playlist }) => !this._completed_schedule_overrides.has(key) && this._hasValidTakeoverMedia(display, playlist.id));
   }
-  _hasCurrentOverrideFor(schedules) {
+  /**
+   * Single-pass runs in the current override that should keep playing. A
+   * single-pass run is only detected inside its short trigger window, so
+   * after that it is held until the player reports a full pass
+   * (`playlist_through`). The hold ends early when its playlist is removed,
+   * disabled, no longer a single-pass takeover, or has no valid media.
+   */
+  _heldSinglePassRuns(display, playlist_ids) {
+    const keys = this.override_playlist().schedule_keys || [];
+    return keys.map((key) => ({
+      key,
+      playlist_id: playlist_ids.find((id) => {
+        const playlist = this._playlistConfig(display, id)?.[0];
+        return !!playlist && playlistSchedules(playlist).some((schedule, index) => key.startsWith(scheduleKeyPrefix(id, index)) && schedule.play_takeover && playlistPlayPeriodMinutes(schedule) === 0);
+      })
+    })).filter(({ playlist_id }) => !!playlist_id && this._hasValidTakeoverMedia(display, playlist_id));
+  }
+  _hasValidTakeoverMedia(display, playlist_id) {
+    return this._getPlaylistMedia(display, [playlist_id], () => true, "takeover").some((item) => !validateMedia(item));
+  }
+  /** Whether the current override is made of exactly these runs */
+  _isCurrentOverride(keys) {
     const existing_keys = this.override_playlist().schedule_keys || [];
-    const active_keys = new Set(schedules.map(({ key }) => key));
-    return existing_keys.length === active_keys.size && existing_keys.every((key) => active_keys.has(key));
-  }
-  _scheduledOverrideEnd(schedules) {
-    const duration_minutes = schedules.reduce((duration, { schedule }) => Math.max(duration, playlistPlayPeriodMinutes(schedule)), 0);
-    return duration_minutes ? Math.max(...schedules.map(({ ends_at }) => ends_at)) : 0;
+    return existing_keys.length === keys.length && keys.every((key) => existing_keys.includes(key));
   }
   _incrementMetric(metrics, ref_id) {
     metrics[ref_id] = (metrics[ref_id] || 0) + 1;
   }
-  _getPlaylistMedia(display, playlists, filter_fn = () => true) {
+  /**
+   * Media items for the given playlists. `kind` picks which active schedule
+   * limits each playlist's validity window; any active schedule when unset.
+   */
+  _getPlaylistMedia(display, playlists, filter_fn = () => true, kind) {
     const plugins = display.plugins || [];
-    const playlist_media = this._playlistMediaReferences(display, playlists, filter_fn);
+    const playlist_media = this._playlistMediaReferences(display, playlists, filter_fn, kind);
     return playlist_media.map((media) => this._createMediaPlayerItem(display, media, plugins)).filter((_) => !!_);
   }
   /**
@@ -7174,7 +7841,7 @@ var SignageService = class _SignageService extends AsyncHandler {
   _playlistConfig(display, id) {
     return display.playlist_config?.[id];
   }
-  _playlistMediaReferences(display, playlists, filter_fn) {
+  _playlistMediaReferences(display, playlists, filter_fn, kind) {
     return playlists.map((id) => {
       const config = this._playlistConfig(display, id);
       if (!config)
@@ -7182,18 +7849,33 @@ var SignageService = class _SignageService extends AsyncHandler {
       const [playlist, media_list] = config;
       if (!playlist || !filter_fn(playlist))
         return [];
-      const [valid_from, valid_until] = this._playlistValidityWindow(playlist);
+      const [valid_from, valid_until] = this._playlistValidityWindow(playlist, kind);
       const media = media_list.map((media_id) => ({
         id: media_id,
         playlist_id: id,
         valid_from,
         valid_until
       }));
-      return playlist.random ? shuffleArray(media) : media;
+      return playlist.random ? this._shuffledMedia(id, media) : media;
     }).flat();
   }
-  _playlistValidityWindow(playlist) {
-    const schedule = activePlaylistSchedule(playlist);
+  /**
+   * Shuffled order of a random playlist. The order is kept until the
+   * playlist's media list changes: the playlist is rebuilt on every schedule
+   * tick, and a new order each time would restart the item on screen.
+   */
+  _shuffledMedia(playlist_id, media) {
+    const signature = media.map(({ id }) => id).join("|");
+    let shuffle = this._shuffles.get(playlist_id);
+    if (shuffle?.signature !== signature) {
+      const order = shuffleArray(media.map((_, index) => index));
+      shuffle = { signature, order };
+      this._shuffles.set(playlist_id, shuffle);
+    }
+    return shuffle.order.map((index) => media[index]);
+  }
+  _playlistValidityWindow(playlist, kind) {
+    const schedule = activePlaylistSchedule(playlist, time(), kind);
     const schedule_start = schedule ? Math.floor(schedule.starts_at / 1e3) : 0;
     const schedule_end = schedule?.expires_at ? Math.ceil(schedule.expires_at / 1e3) : 0;
     const valid_from = playlist?.valid_from && schedule_start ? Math.max(playlist.valid_from, schedule_start) : playlist?.valid_from || schedule_start;
@@ -7218,7 +7900,7 @@ var SignageService = class _SignageService extends AsyncHandler {
       id,
       url: media_ref.media_url,
       name: media_ref.name,
-      animation: media_ref.animation || playlist?.default_animation,
+      animation: mediaAnimation(media_ref.animation || playlist?.default_animation),
       playlist: playlist_id || "",
       playlist_name: playlist?.name || "",
       type: media_ref.media_type,
@@ -7516,6 +8198,13 @@ var SignagePanelComponent = class _SignagePanelComponent extends AsyncHandler {
         []
       )
     );
+    this.remote_paused = signal(
+      false,
+      ...ngDevMode ? [{ debugName: "remote_paused" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
     this.debug_layout_editing = signal(
       false,
       ...ngDevMode ? [{ debugName: "debug_layout_editing" }] : (
@@ -7546,15 +8235,25 @@ var SignagePanelComponent = class _SignagePanelComponent extends AsyncHandler {
         []
       )
     );
+    this._hold_remote_pause = afterRenderEffect(() => {
+      if (!this.remote_paused())
+        return;
+      for (const player of this._players()) {
+        if (player.state() === "PLAYING")
+          player.togglePause();
+      }
+    });
     this.clearOverridePlaylist = () => this._signage.clearPlaylistOverride();
     this._remote_message_handler = (event) => {
+      if (window.parent === window || event?.source !== window.parent)
+        return;
       const data = event?.data;
       if (!data || typeof data !== "object")
         return;
       if (data.type === REMOTE_PAUSE)
-        this._setPlaybackState("PAUSED");
+        this._setRemotePaused(true);
       else if (data.type === REMOTE_RESUME)
-        this._setPlaybackState("PLAYING");
+        this._setRemotePaused(false);
     };
   }
   resetDebugLayout() {
@@ -7565,8 +8264,12 @@ var SignagePanelComponent = class _SignagePanelComponent extends AsyncHandler {
     this.muted.set(muted);
     sessionStorage.setItem(MUTE_STORAGE_KEY, `${muted}`);
   }
-  _setPlaybackState(target) {
+  _setRemotePaused(paused) {
+    this.remote_paused.set(paused);
+    const target = paused ? "PAUSED" : "PLAYING";
     for (const player of this._players()) {
+      if (!paused && player.override())
+        continue;
       if (player.state() !== target)
         player.togglePause();
     }
@@ -7591,7 +8294,7 @@ var SignagePanelComponent = class _SignagePanelComponent extends AsyncHandler {
       log("SIGNAGE", "Panel not bootstrapped after 3 seconds. Redirecting...");
       this._router.navigate(["/bootstrap"]);
     }, 3e3);
-    const debug = sessionStorage.getItem("SIGNAGE.debug");
+    const debug = sessionStorage.getItem(DEBUG_STORAGE_KEY);
     if (debug !== null)
       this.debug.set(isDebugEnabled(debug));
     const muted = sessionStorage.getItem(MUTE_STORAGE_KEY);
@@ -7601,7 +8304,7 @@ var SignagePanelComponent = class _SignagePanelComponent extends AsyncHandler {
       if (params.has("debug")) {
         const enabled = isDebugEnabled(params.get("debug"));
         this.debug.set(enabled);
-        sessionStorage.setItem("SIGNAGE.debug", `${enabled}`);
+        sessionStorage.setItem(DEBUG_STORAGE_KEY, `${enabled}`);
       }
     }));
     this.subscription("route.params", this._route.paramMap.subscribe((params) => {
@@ -7626,7 +8329,8 @@ var SignagePanelComponent = class _SignagePanelComponent extends AsyncHandler {
         built: new Date(VERSION.time).toISOString()
       },
       online: eo(),
-      updates: updateCheckState()
+      updates: updateCheckState(),
+      remote_paused: this.remote_paused()
     }, this._signage.diagnostics()), {
       players: this._players().map((player, index) => ({
         role: index === 0 ? "background" : "takeover",
@@ -7649,10 +8353,22 @@ var SignagePanelComponent = class _SignagePanelComponent extends AsyncHandler {
   handlePlayerEvent(e, overridden = false) {
     if (overridden && e.type === "playlist_through") {
       const { ends_at } = this.override_playlist();
-      if (!ends_at)
+      if (!ends_at && this._isOverridePassDone(e.ref_id)) {
         this._signage.clearPlaylistOverride();
+      }
     }
     this._signage.storeMetricEvent(e);
+  }
+  /**
+   * Whether a `playlist_through` ends the pass of the override. Overlapping
+   * single-pass runs share one override, and the player reports each of
+   * their playlists as it passes, so the pass is done when the playlist of
+   * the last valid item finishes. With no valid item there is nothing left
+   * to play.
+   */
+  _isOverridePassDone(playlist_id) {
+    const last_valid = this.override_playlist().playlist.filter((item) => !validateMedia(item)).at(-1);
+    return !last_valid || last_valid.playlist === playlist_id;
   }
   static {
     this.\u0275fac = /* @__PURE__ */ (() => {
@@ -7845,13 +8561,13 @@ var SignagePanelComponent = class _SignagePanelComponent extends AsyncHandler {
   }], null, { transparent: [{ type: Input, args: [{ isSignal: true, alias: "transparent", required: false }] }], _players: [{ type: ViewChildren, args: [forwardRef(() => MediaPlayerComponent), { isSignal: true }] }] });
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(SignagePanelComponent, { className: "SignagePanelComponent", filePath: "apps/signage/src/app/signage.component.ts", lineNumber: 221 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(SignagePanelComponent, { className: "SignagePanelComponent", filePath: "apps/signage/src/app/signage.component.ts", lineNumber: 222 });
 })();
 
 // apps/signage/src/app/template-layout.ts
 var EDGE_BAR_SIZE = 15;
 var SIDE_BAR_SIZE = 20;
-var FLOATING_POSITION = 50;
+var FLOATING_POSITION = 0;
 var clamp2 = (value, max = 100) => Math.min(Math.max(value, 0), Math.max(max, 0));
 function percentage(value, fallback) {
   return value === void 0 ? fallback : clamp2(value * 100);
@@ -7941,6 +8657,8 @@ function SignageTemplateComponent_Conditional_2_Template(rf, ctx) {
 var STORE_DISPLAY_KEY = "PlaceOS.SIGNAGE.display";
 var PREVIEW_LAYOUTS_MESSAGE = "signage:template-layouts";
 var PREVIEW_READY_MESSAGE = "signage:template-preview-ready";
+var RETRY_BASE_MS = 15e3;
+var RETRY_MAX_MS = 5 * 6e4;
 function backgroundPlayerItem(media, plugins, media_cache, cache_owner) {
   const plugin = plugins.find((item) => item.id === media.plugin_id);
   const cacheable = media.media_type !== "webpage" && media.media_type !== "plugin";
@@ -7954,7 +8672,7 @@ function backgroundPlayerItem(media, plugins, media_cache, cache_owner) {
     name: media.name,
     playlist: "",
     playlist_name: "",
-    animation: media.animation || Os.Cut,
+    animation: mediaAnimation(media.animation || Os.Cut),
     type: media.media_type,
     url: media.media_url,
     start_time: media.start_time,
@@ -7974,10 +8692,11 @@ function backgroundPlayerItem(media, plugins, media_cache, cache_owner) {
         file = await media_cache.getFile(media.media_url).catch(() => null);
       }
       try {
-        return file ? URL.createObjectURL(file) : "";
+        if (file)
+          return URL.createObjectURL(file);
       } catch {
-        return "";
       }
+      return media_cache.directURL(media.media_url);
     },
     isLoading: cacheable ? () => media_cache.isLoadingFile(media.media_url) : () => false,
     isCached: cacheable ? () => media_cache.isCachedFile(media.media_url) : () => false
@@ -8005,6 +8724,7 @@ var SignageTemplateComponent = class _SignageTemplateComponent extends AsyncHand
       )
     );
     this._load_id = 0;
+    this._shown_load_id = 0;
     this.debug = this._signage.debug;
     this.template = signal(
       null,
@@ -8074,6 +8794,8 @@ var SignageTemplateComponent = class _SignageTemplateComponent extends AsyncHand
       )
     );
     this._preview_message_handler = (event) => {
+      if (window.parent === window || event?.source !== window.parent)
+        return;
       const data = event?.data;
       if (!this.debug() || data?.type !== PREVIEW_LAYOUTS_MESSAGE)
         return;
@@ -8097,13 +8819,16 @@ var SignageTemplateComponent = class _SignageTemplateComponent extends AsyncHand
     this.subscription("template", this._template_mappings$.subscribe((mappings) => this._loadTemplates(mappings)));
     window.addEventListener("message", this._preview_message_handler);
     this.subscription("preview-message", () => window.removeEventListener("message", this._preview_message_handler));
+    this.subscription("stale-loads", () => this._load_id++);
   }
   /**
    * Ask the embedding manager preview for its unsaved layouts. The manager
    * cannot know when this listener is ready, so the player asks first.
+   * Only previews run in debug mode, so a player embedded anywhere else
+   * says nothing to its parent.
    */
   _requestPreviewLayouts() {
-    if (window.parent === window)
+    if (!this.debug() || window.parent === window)
       return;
     window.parent.postMessage({ type: PREVIEW_READY_MESSAGE }, "*");
   }
@@ -8120,8 +8845,9 @@ var SignageTemplateComponent = class _SignageTemplateComponent extends AsyncHand
       replaceUrl: true
     });
   }
-  async _loadTemplates(mappings) {
+  _loadTemplates(mappings) {
     const load_id = ++this._load_id;
+    this.clearTimeout("retry-templates");
     this._preview_layouts.set(null);
     this._requestPreviewLayouts();
     if (!mappings.length) {
@@ -8130,41 +8856,91 @@ var SignageTemplateComponent = class _SignageTemplateComponent extends AsyncHand
       this.background_playlist.set([]);
       return;
     }
+    return this._fetchTemplates(mappings, load_id, 0);
+  }
+  /**
+   * Load and show the templates for `mappings`. While any part fails it
+   * tries again, with the delay doubling up to `RETRY_MAX_MS`, until it
+   * succeeds or the mappings change. A display that boots offline, or hits
+   * a passing server error, then gets its template once the server answers.
+   * A failed retry keeps what it already showed for these mappings, but
+   * content left from mappings that no longer apply is cleared.
+   */
+  async _fetchTemplates(mappings, load_id, attempt) {
+    let complete = false;
     try {
-      const candidates = await Promise.all(mappings.map(async (mapping) => ({
-        mapping,
-        template: await dl(mapping.template_id, this.debug() ? {} : { approved: true })
-      })));
-      const non_merge = candidates.filter(({ template: template2 }) => !template2.merge);
-      const merge = candidates.filter(({ template: template2 }) => template2.merge);
-      const base = non_merge.filter(({ mapping }) => mapping.schedule).at(-1) || non_merge[0] || merge.shift();
-      if (!base || load_id !== this._load_id)
-        return;
-      const template = merge.length ? new yr(__spreadProps(__spreadValues({}, base.template), {
-        layouts: [
-          ...base.template.layouts,
-          ...merge.flatMap(({ template: template2 }) => template2.layouts)
-        ]
-      })) : base.template;
-      const [plugin_result, background] = await Promise.all([
-        ul({ limit: 500 }).catch(() => ({ data: [] })),
-        template.background_item_id ? Fh(template.background_item_id).catch(() => null) : null
-      ]);
-      const plugins = plugin_result.data || [];
-      if (load_id !== this._load_id)
-        return;
-      this._plugins.set(plugins);
-      this.template.set(template);
-      this.background_playlist.set(background ? [
-        backgroundPlayerItem(background, plugins, this._media_cache, `template:${template.id}`)
-      ] : []);
+      complete = await this._showTemplates(mappings, load_id);
     } catch (error) {
       if (load_id !== this._load_id)
         return;
-      log("SIGNAGE", `Unable to load templates "${mappings.map((mapping) => mapping.template_id).join(", ")}"`, [error], "error");
-      this.template.set(null);
+      log("SIGNAGE", "Unable to show templates", [error], "error");
+      if (this._shown_load_id !== load_id) {
+        this.template.set(null);
+        this.background_playlist.set([]);
+      }
+    }
+    if (complete || load_id !== this._load_id)
+      return;
+    const delay2 = Math.min(RETRY_BASE_MS * 2 ** Math.min(attempt, 10), RETRY_MAX_MS);
+    this.timeout("retry-templates", () => this._fetchTemplates(mappings, load_id, attempt + 1), delay2);
+  }
+  /**
+   * Show what loads of the templates for `mappings`. Each template is loaded
+   * on its own, so one that fails does not hide the others. A part that
+   * fails to load keeps its content on screen only while that content still
+   * belongs to `mappings`.
+   * @returns Whether everything loaded, including plugins and background
+   */
+  async _showTemplates(mappings, load_id) {
+    const results = await Promise.allSettled(mappings.map((mapping) => dl(mapping.template_id, this.debug() ? {} : { approved: true })));
+    if (load_id !== this._load_id)
+      return false;
+    const failed = mappings.filter((_, index) => results[index].status === "rejected");
+    if (failed.length) {
+      log("SIGNAGE", `Unable to load templates "${failed.map((mapping) => mapping.template_id).join(", ")}"`, results.flatMap((result) => result.status === "rejected" ? [result.reason] : []), "error");
+    }
+    const candidates = mappings.flatMap((mapping, index) => {
+      const result = results[index];
+      return result.status === "fulfilled" ? [{ mapping, template: result.value }] : [];
+    });
+    const non_merge = candidates.filter(({ template: template2 }) => !template2.merge);
+    const merge = candidates.filter(({ template: template2 }) => template2.merge);
+    const base = non_merge.filter(({ mapping }) => mapping.schedule).at(-1) || non_merge[0] || merge.shift();
+    if (!base) {
+      if (this._shown_load_id !== load_id) {
+        this.template.set(null);
+        this.background_playlist.set([]);
+      }
+      return false;
+    }
+    const template = merge.length ? new yr(__spreadProps(__spreadValues({}, base.template), {
+      layouts: [
+        ...base.template.layouts,
+        ...merge.flatMap(({ template: template2 }) => template2.layouts)
+      ]
+    })) : base.template;
+    const failedPart = (part) => (error) => {
+      log("SIGNAGE", `Unable to load template ${part}`, [error], "error");
+      return null;
+    };
+    const [plugin_result, background] = await Promise.all([
+      ul({ limit: 500 }).catch(failedPart("plugins")),
+      template.background_item_id ? Fh(template.background_item_id).catch(failedPart("background")) : null
+    ]);
+    if (load_id !== this._load_id)
+      return false;
+    const plugins = plugin_result ? plugin_result.data || [] : this._plugins();
+    this._plugins.set(plugins);
+    this.template.set(template);
+    this._shown_load_id = load_id;
+    if (background) {
+      this.background_playlist.set([
+        backgroundPlayerItem(background, plugins, this._media_cache, `template:${template.id}`)
+      ]);
+    } else if (this.background_playlist()[0]?.id !== template.background_item_id) {
       this.background_playlist.set([]);
     }
+    return !failed.length && !!plugin_result && (!template.background_item_id || !!background);
   }
   static {
     this.\u0275fac = /* @__PURE__ */ (() => {
@@ -8247,5 +9023,5 @@ var SignageTemplateComponent = class _SignageTemplateComponent extends AsyncHand
 export {
   SignageTemplateComponent
 };
-//# debugId=730f0088-74d9-572a-902c-a768f142f43d
-//# sourceMappingURL=template.component-EZQSQVYG.js.map
+//# debugId=b902bf7d-85ab-5dfd-ac2d-c965619cdc4c
+//# sourceMappingURL=template.component-5C6UPCPH.js.map

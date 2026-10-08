@@ -124,14 +124,14 @@ import {
   ɵɵtextInterpolate,
   ɵɵviewQuery,
   ɵɵviewQuerySignal
-} from "./chunk-RHCT4JIC.js";
+} from "./chunk-LY6S4I7C.js";
 import {
   __spreadProps,
   __spreadValues
 } from "./chunk-653SOEEV.js";
 
 // apps/signage/src/app/debug-state.ts
-var DEBUG_KEY = "SIGNAGE.debug";
+var DEBUG_STORAGE_KEY = "SIGNAGE.debug";
 function isDebugEnabled(value) {
   return value !== null && value !== "false";
 }
@@ -141,7 +141,7 @@ function isDebugMode() {
     const params = new URLSearchParams(query);
     if (params.has("debug"))
       return isDebugEnabled(params.get("debug"));
-    return isDebugEnabled(sessionStorage.getItem(DEBUG_KEY));
+    return isDebugEnabled(sessionStorage.getItem(DEBUG_STORAGE_KEY));
   } catch {
     return false;
   }
@@ -171,7 +171,13 @@ var RECOVERY_WINDOW_MS = 60 * MINUTES;
 var MAX_RECOVERIES_PER_WINDOW = 3;
 var RECOVERY_THROTTLE_MS = 60 * MINUTES;
 var RECOVERY_RESET_MS = 2 * 60 * MINUTES;
+var FUTURE_HISTORY_MS = RECOVERY_THROTTLE_MS;
+var REACHABLE_TIMEOUT_MS = 15 * SECONDS;
+var RECOVERY_TIMEOUT_MS = 2 * MINUTES;
 var RECOVERY_KEY = "PlaceOS.SIGNAGE.watchdog_reloads";
+var BOOT_FAILURES_KEY = "SIGNAGE.boot_failures";
+var BOOT_RETRY_BASE_MS = 10 * SECONDS;
+var BOOT_RETRY_MAX_MS = 5 * MINUTES;
 var log = scoped_log("Watchdog");
 var heartbeats = {
   poll: 0,
@@ -186,18 +192,24 @@ var _stalled_since = 0;
 var _last_check = 0;
 var _started_at = 0;
 var _timer;
+var _recovery_timer;
+var _recovery_generation = 0;
 var _listening = false;
 var _recovering = false;
+var _was_expected_to_run = false;
 var _reload = () => location.reload();
-var _hard_reload = () => clearCachesAndReload();
+var _clear_cache = () => clearApplicationCache();
+function monotonicNow() {
+  return performance.timeOrigin + performance.now();
+}
 function recordHeartbeat(signal2) {
-  heartbeats[signal2] = Date.now();
+  heartbeats[signal2] = monotonicNow();
 }
 function recordFatalError(message) {
   _error_count++;
   _last_error = { at: Date.now(), message: `${message}`.slice(0, 500) };
 }
-function stalledSignals(now = Date.now()) {
+function stalledSignals(now = monotonicNow()) {
   return Object.keys(heartbeats).filter((signal2) => {
     const last = heartbeats[signal2];
     if (!last)
@@ -229,7 +241,8 @@ function writeHistory(history) {
 function recoveryHistory(now) {
   const history = readHistory();
   const last = history.at[history.at.length - 1] || 0;
-  if (last && now - last >= RECOVERY_RESET_MS) {
+  const from_future = history.at.some((at) => at - now > FUTURE_HISTORY_MS);
+  if (from_future || last && now - last >= RECOVERY_RESET_MS) {
     const reset = { at: [], throttled: false, last: history.last };
     writeHistory(reset);
     return reset;
@@ -268,13 +281,25 @@ function resetHeartbeats(now) {
       heartbeats[signal2] = now;
   }
 }
-async function clearCachesAndReload() {
+function clearHeartbeats() {
+  for (const signal2 of Object.keys(heartbeats)) {
+    heartbeats[signal2] = 0;
+  }
+}
+async function clearApplicationCache() {
   let reachable = false;
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), REACHABLE_TIMEOUT_MS);
   try {
-    const response = await fetch(location.href, { cache: "reload" });
+    const response = await fetch(location.href, {
+      cache: "reload",
+      signal: controller.signal
+    });
     reachable = response.ok;
   } catch {
     reachable = false;
+  } finally {
+    clearTimeout(timeout);
   }
   if (!reachable) {
     log.warn("Server unreachable; not clearing the application cache.");
@@ -289,11 +314,10 @@ async function clearCachesAndReload() {
   } catch (error) {
     log.warn("Failed to clear the application cache.", error);
   }
-  _reload();
   return true;
 }
 function check(expected_to_run) {
-  const now = Date.now();
+  const now = monotonicNow();
   const since_last_check = _last_check ? now - _last_check : 0;
   _last_check = now;
   if (since_last_check > CLOCK_JUMP_MS) {
@@ -306,10 +330,17 @@ function check(expected_to_run) {
   }
   if (_recovering)
     return;
-  if (!heartbeats.visible && expected_to_run()) {
+  const expected = expected_to_run();
+  if (expected !== _was_expected_to_run) {
+    _was_expected_to_run = expected;
+    clearHeartbeats();
+    _stalled_since = 0;
+    _started_at = now;
+  }
+  if (!heartbeats.visible && expected) {
     if (now - _started_at < BOOT_TIMEOUT_MS)
       return;
-    recover(now, ["boot"], true);
+    recover(["boot"], true);
     return;
   }
   const stalled = stalledSignals(now);
@@ -324,10 +355,11 @@ function check(expected_to_run) {
   }
   if (now - _stalled_since < RECOVERY_GRACE_MS)
     return;
-  if (!recover(now, stalled, false))
+  if (!recover(stalled, false))
     _stalled_since = now;
 }
-function recover(now, reasons, prefer_hard) {
+function recover(reasons, prefer_hard) {
+  const now = Date.now();
   const throttled = recoveryHistory(now).throttled;
   const record = {
     at: now,
@@ -349,12 +381,20 @@ function recover(now, reasons, prefer_hard) {
     last_error: _last_error
   });
   _recovering = true;
+  const generation = ++_recovery_generation;
+  clearTimeout(_recovery_timer);
+  _recovery_timer = setTimeout(() => {
+    log.error("Recovery did not reload the page; trying again.");
+    _recovery_generation++;
+    _recovering = false;
+    _reload();
+  }, RECOVERY_TIMEOUT_MS);
   if (!prefer_hard && !throttled) {
     _reload();
     return true;
   }
-  _hard_reload().then((cleared) => {
-    if (!cleared)
+  _clear_cache().catch(() => false).then(() => {
+    if (generation === _recovery_generation)
       _reload();
   });
   return true;
@@ -362,20 +402,21 @@ function recover(now, reasons, prefer_hard) {
 function requestRecovery(reason, prefer_hard = false) {
   if (_recovering)
     return false;
-  return recover(Date.now(), [reason], prefer_hard);
+  return recover([reason], prefer_hard);
 }
 function startWatchdog(actions = {}) {
   _reload = actions.reload || (() => location.reload());
-  _hard_reload = actions.hardReload || clearCachesAndReload;
+  _clear_cache = actions.clearCache || clearApplicationCache;
   const expectedToRun = actions.isExpectedToRun || (() => false);
   stopWatchdog();
+  _was_expected_to_run = expectedToRun();
   if (!_listening) {
     _listening = true;
     window.addEventListener("error", onWindowError);
     window.addEventListener("unhandledrejection", onRejection);
   }
-  _last_check = Date.now();
-  _started_at = Date.now();
+  _last_check = monotonicNow();
+  _started_at = _last_check;
   _timer = setInterval(() => check(expectedToRun), CHECK_INTERVAL_MS);
   return () => stopWatchdog();
 }
@@ -383,6 +424,10 @@ function stopWatchdog() {
   if (_timer)
     clearInterval(_timer);
   _timer = void 0;
+  clearTimeout(_recovery_timer);
+  _recovery_timer = void 0;
+  _recovery_generation++;
+  _recovering = false;
   if (_listening) {
     _listening = false;
     window.removeEventListener("error", onWindowError);
@@ -393,13 +438,15 @@ function watchdogState() {
   const now = Date.now();
   const history = readHistory();
   const asTime = (value) => value ? new Date(value).toISOString() : "never";
+  const monotonic_now = monotonicNow();
+  const asMonotonicTime = (value) => asTime(value ? now - (monotonic_now - value) : 0);
   return {
     running: !!_timer,
     recovering: _recovering,
     error_count: _error_count,
     last_error: _last_error,
-    stalled: stalledSignals(now),
-    stalled_since: asTime(_stalled_since),
+    stalled: stalledSignals(),
+    stalled_since: asMonotonicTime(_stalled_since),
     recoveries_in_last_hour: history.at.filter((at) => now - at < RECOVERY_WINDOW_MS).length,
     recoveries_throttled: history.throttled,
     last_recovery: asTime(history.at[history.at.length - 1] || 0),
@@ -411,16 +458,34 @@ function watchdogState() {
         at: asTime(history.last.error.at)
       }) : null
     }) : null,
-    started_at: asTime(_started_at),
+    started_at: asMonotonicTime(_started_at),
     booted: !!heartbeats.visible,
     heartbeats: {
-      poll: asTime(heartbeats.poll),
-      schedule: asTime(heartbeats.schedule),
-      playback: asTime(heartbeats.playback),
-      visible: asTime(heartbeats.visible),
-      content: asTime(heartbeats.content)
+      poll: asMonotonicTime(heartbeats.poll),
+      schedule: asMonotonicTime(heartbeats.schedule),
+      playback: asMonotonicTime(heartbeats.playback),
+      visible: asMonotonicTime(heartbeats.visible),
+      content: asMonotonicTime(heartbeats.content)
     }
   };
+}
+function scheduleBootRetry(reload = () => location.reload()) {
+  let failures = 0;
+  try {
+    failures = Number(sessionStorage.getItem(BOOT_FAILURES_KEY)) || 0;
+    sessionStorage.setItem(BOOT_FAILURES_KEY, `${failures + 1}`);
+  } catch {
+  }
+  const delay = Math.min(BOOT_RETRY_BASE_MS * 2 ** Math.min(failures, 10), BOOT_RETRY_MAX_MS);
+  console.error(`[Watchdog] Application failed to start; reloading in ${delay / 1e3}s.`);
+  setTimeout(reload, delay);
+  return delay;
+}
+function resetBootRetries() {
+  try {
+    sessionStorage.removeItem(BOOT_FAILURES_KEY);
+  } catch {
+  }
 }
 function onWindowError(event) {
   recordFatalError(event.message || "Unhandled error");
@@ -4015,13 +4080,16 @@ export {
   FORM_FIELD,
   MatInput,
   MatInputModule,
+  DEBUG_STORAGE_KEY,
   isDebugEnabled,
   isDebugMode,
   recordHeartbeat,
   recordFatalError,
   requestRecovery,
   startWatchdog,
-  watchdogState
+  watchdogState,
+  scheduleBootRetry,
+  resetBootRetries
 };
-//# debugId=7ef1299f-10ef-5e06-b18f-c5281efab9dd
-//# sourceMappingURL=chunk-GQAC24RB.js.map
+//# debugId=4db11205-9251-5769-81c3-5bfcc91a2be8
+//# sourceMappingURL=chunk-JX2LC3U4.js.map
