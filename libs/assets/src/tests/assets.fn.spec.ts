@@ -16,7 +16,9 @@ describe('validateAssetRequestsForResource', () => {
     };
     const request = new AssetRequest({
         id: 'request-1',
-        items: [{ id: 'group-1', name: 'Projector', quantity: 1, item_ids: [] }],
+        items: [
+            { id: 'group-1', name: 'Projector', quantity: 1, item_ids: [] },
+        ],
     });
 
     beforeEach(() => {
@@ -40,7 +42,9 @@ describe('validateAssetRequestsForResource', () => {
             data: [{ id: 'unit-1', asset_type_id: 'group-1' }],
         } as never);
         vi.spyOn(ts_client, 'get').mockResolvedValue([] as never);
-        vi.spyOn(ts_client, 'post').mockResolvedValue({ id: 'booking-1' } as never);
+        vi.spyOn(ts_client, 'post').mockResolvedValue({
+            id: 'booking-1',
+        } as never);
     });
 
     afterEach(() => vi.useRealTimers());
@@ -60,6 +64,33 @@ describe('validateAssetRequestsForResource', () => {
         expect(url).not.toMatch(/event_id=\d/);
         expect(body.parent_id).toBe(1138);
         expect(body.asset_ids).toEqual(['unit-1']);
+    });
+
+    it('should keep the asset requests of other native bookings', async () => {
+        vi.spyOn(ts_client, 'get').mockResolvedValue([
+            {
+                id: 'other-asset-booking',
+                booking_type: 'asset-request',
+                user_email: period.host,
+                approved: true,
+                asset_ids: ['unit-1'],
+                extension_data: {
+                    parent_id: '9999',
+                    request_id: 'other-request',
+                    request: { id: 'other-request', items: [] },
+                },
+            },
+        ] as never);
+        const delete_spy = vi.spyOn(ts_client, 'del');
+
+        const create = await validateAssetRequestsForResource(
+            { id: '1138', ical_uid: '', from_bookings: true },
+            { ...period, reset_state: true },
+            [],
+        );
+        await create();
+
+        expect(delete_spy).not.toHaveBeenCalled();
     });
 
     it('should link a request to a calendar event by event id', async () => {

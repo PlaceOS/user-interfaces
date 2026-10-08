@@ -50,6 +50,7 @@ import { newBookingFromCalendarEvent } from 'libs/bookings/src/lib/booking.utili
 import {
     createBookingsForEvent,
     queryResourceAvailability,
+    removeBooking,
     saveBooking,
 } from 'libs/bookings/src/lib/bookings.fn';
 import { openRecurringClashModal } from 'libs/components/src/lib/recurring-clash-modal.component';
@@ -1543,15 +1544,19 @@ export class EventFormService extends AsyncHandler {
         e,
     ) {
         if (is_new) {
-            await removeEvent(
-                event.id,
-                event.resources.length
-                    ? {
-                          calendar: this._model().host || currentUser()?.email,
-                          system_id: event.resources[0].id,
-                      }
-                    : {},
-            );
+            // A native room booking is a staff-api booking, not an event
+            await (event.from_bookings
+                ? removeBooking(event.id)
+                : removeEvent(
+                      event.id,
+                      event.resources.length
+                          ? {
+                                calendar:
+                                    this._model().host || currentUser()?.email,
+                                system_id: event.resources[0].id,
+                            }
+                          : {},
+                  ));
             throw e?.status === 409
                 ? i18n('CALENDAR_EVENT.ASSETS_CLASH_ERROR')
                 : i18n('CALENDAR_EVENT.ASSETS_ERROR');

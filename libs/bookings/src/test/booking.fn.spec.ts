@@ -412,14 +412,58 @@ describe('[Booking API]', () => {
                 .spyOn(ts_client, 'post')
                 .mockResolvedValue({ id: 'visitor-booking-1' } as never);
 
-            await createBookingsForEvent(native_event, 'visitor', [visitors[0]]);
+            await createBookingsForEvent(native_event, 'visitor', [
+                visitors[0],
+            ]);
 
-            expect(get_spy.mock.calls[0][0]).not.toContain('event_id=');
+            expect(get_spy).not.toHaveBeenCalled();
             const [url, body] = post_spy.mock.calls[0] as [string, any];
             expect(url).not.toContain('event_id=');
             expect(url).not.toContain('ical_uid=');
             expect(body.parent_id).toBe(1138);
             expect(body.extension_data.parent_id).toBe('1138');
+        });
+
+        it('should update the child of a native booking that another user hosts', async () => {
+            const host = 'host@example.com';
+            const native_event = new CalendarEvent({
+                ...event.toJSON(),
+                id: '1138',
+                host,
+                ical_uid: '',
+                from_bookings: true,
+                linked_bookings: [
+                    linked_visitor({
+                        parent_id: '1138',
+                        user_email: host,
+                        booking_start: 1_799_990_000,
+                        booking_end: 1_799_993_600,
+                        extension_data: {
+                            parent_id: '1138',
+                            name: 'Visitor One',
+                            details: visitors[0],
+                        },
+                    }),
+                ],
+            } as any);
+            // The API only lists the current user's bookings without filters
+            vi.spyOn(ts_client, 'get').mockResolvedValue([] as never);
+            const patch_spy = vi
+                .spyOn(ts_client, 'patch')
+                .mockResolvedValue({ id: 'visitor-booking-1' } as never);
+            const post_spy = vi.spyOn(ts_client, 'post');
+            const delete_spy = vi.spyOn(ts_client, 'del');
+
+            await createBookingsForEvent(native_event, 'visitor', [
+                visitors[0],
+            ]);
+
+            expect(patch_spy).toHaveBeenCalledTimes(1);
+            expect(patch_spy.mock.calls[0][0]).toBe(
+                '/api/staff/v1/bookings/visitor-booking-1',
+            );
+            expect(post_spy).not.toHaveBeenCalled();
+            expect(delete_spy).not.toHaveBeenCalled();
         });
 
         it('should not create bookings when the linked bookings fail to load', async () => {

@@ -2,6 +2,7 @@ import {
     AssetGroup,
     AssetRequest,
     Booking,
+    CalendarEvent,
     flatten,
     unique,
 } from '@placeos/common';
@@ -31,6 +32,7 @@ import {
     bookedResourceList,
     BookingsQueryParams,
     createBooking,
+    parentBookingId,
     queryBookings,
     removeBooking,
 } from 'libs/bookings/src/lib/bookings.fn';
@@ -351,8 +353,21 @@ export function differenceBetweenAssetRequests(
     return changed;
 }
 
+/**
+ * Check the asset requests of a parent against asset availability. Returns a
+ * function that removes the changed asset bookings and creates the new ones.
+ * The parent is a calendar event, or a native booking when `from_booking` or
+ * `from_bookings` is set
+ */
 export async function validateAssetRequestsForResource(
-    { id, ical_uid, from_booking, from_bookings }: any,
+    {
+        id,
+        ical_uid,
+        from_booking,
+        from_bookings,
+    }: Partial<Pick<CalendarEvent, 'id' | 'ical_uid' | 'from_bookings'>> & {
+        from_booking?: boolean;
+    },
     {
         date,
         duration,
@@ -382,17 +397,24 @@ export async function validateAssetRequestsForResource(
         zones: zones.join(','),
     });
     const native = !!(from_booking || from_bookings);
+    // The API has no filter for the parent booking, so a native query returns
+    // every asset request of the host on the day. Keep only this parent's
     const bookings =
         id && (ical_uid || native)
-            ? await queryBookings({
-                  period_start: getUnixTime(startOfDay(date)),
-                  period_end: getUnixTime(endOfDay(date)),
-                  type: 'asset-request',
-                  email: host,
-                  event_id: native ? '' : id,
-                  booking_id: native ? id : '',
-                  ical_uid,
-              })
+            ? (
+                  await queryBookings({
+                      period_start: getUnixTime(startOfDay(date)),
+                      period_end: getUnixTime(endOfDay(date)),
+                      type: 'asset-request',
+                      email: host,
+                      event_id: native ? '' : id,
+                      ical_uid,
+                  })
+              ).filter(
+                  (_) =>
+                      !native ||
+                      String(_.extension_data?.parent_id) === String(id),
+              )
             : [];
     const booking_list: [string, AssetRequest][] = bookings.map((_) => [
         _.id,
@@ -505,13 +527,16 @@ export async function validateAssetRequestsForResource(
             },
             zones: zones || [],
         };
-        // staff-api reads parent_id as an integer
-        if (native) (asset_data as any).parent_id = Number(id);
         return () =>
-            createBooking(new Booking(asset_data), {
-                ical_uid,
-                event_id: native ? '' : id,
-            });
+            native
+                ? createBooking({
+                      ...new Booking(asset_data).toJSON(),
+                      parent_id: parentBookingId(id),
+                  })
+                : createBooking(new Booking(asset_data), {
+                      ical_uid,
+                      event_id: id,
+                  });
     });
     return async () => {
         await Promise.all(changed_requests.map(([id]) => removeBooking(id)));
