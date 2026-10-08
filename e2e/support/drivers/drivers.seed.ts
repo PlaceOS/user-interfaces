@@ -43,6 +43,7 @@ export async function ensureDrivers(
             api,
             repository.id,
             ROOM_DRIVERS[key],
+            repository.created,
         );
     }
     await Promise.all(

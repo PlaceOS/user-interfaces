@@ -25,7 +25,7 @@ import {
     staffEmail,
 } from './env';
 import { mintToken, clientId, redirectUriFor } from './auth';
-import { ENGINE_API, STAFF_API } from './api';
+import { ENGINE_API, STAFF_API, alreadyExists, getJson as json } from './api';
 import { describeDrivers, ensureDrivers } from './drivers/drivers.seed';
 
 /** The app `init` guarantees exists — our way in before anything else is registered. */
@@ -39,19 +39,6 @@ export async function adminApi(): Promise<APIRequestContext> {
         ignoreHTTPSErrors: true,
         extraHTTPHeaders: { Authorization: `Bearer ${mint.accessToken}` },
     });
-}
-
-/** Does this error body mean "the row is already there"? */
-function alreadyExists(body: string): boolean {
-    return /already (exists|taken)|has already been taken|must be unique|should be unique|duplicate/i.test(
-        body,
-    );
-}
-
-async function json(api: APIRequestContext, path: string, params?: Record<string, string>) {
-    const res = await api.get(path, { params });
-    if (!res.ok()) throw new Error(`GET ${path} failed: HTTP ${res.status()} ${await res.text()}`);
-    return res.json();
 }
 
 /**
@@ -286,8 +273,17 @@ export async function seed(): Promise<void> {
             `  staff users ${users.created.length} created, ${users.present.length} present ` +
                 `(${WORKERS} workers: ${staffEmail(0)} … ${staffEmail(WORKERS - 1)})`,
         );
-        const drivers = await ensureDrivers(api, (message) => console.log(`  drivers    ${message}`));
-        console.log(`  drivers    ${describeDrivers(drivers)}`);
+        // Only specs that bind a room's status need the drivers, so a build farm
+        // that is down or slow is reported here instead of failing every spec.
+        try {
+            const drivers = await ensureDrivers(api, (message) => console.log(`  drivers    ${message}`));
+            console.log(`  drivers    ${describeDrivers(drivers)}`);
+        } catch (error) {
+            console.warn(
+                `  drivers    NOT LOADED; specs that need a room status will fail.\n` +
+                    `${error instanceof Error ? error.message : error}`,
+            );
+        }
     } finally {
         await api.dispose();
     }

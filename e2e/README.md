@@ -59,7 +59,8 @@ core runs real drivers from PlaceOS/drivers, pinned to a commit in
 from the PlaceOS build farm (build.placeos.run), which builds a commit it has not
 seen for the CPU architecture on first request and serves a download after that.
 `seed.ts` creates the driver rows and waits for core to hold the binaries, so a
-spec never waits on the farm. To test a drivers branch against the suite, set
+spec never waits on the farm. If the drivers do not load, the seed logs a warning
+and continues: only the specs that need a room status fail. To test a drivers branch against the suite, set
 `E2E_DRIVERS_URI`, `E2E_DRIVERS_BRANCH` and `E2E_DRIVERS_COMMIT` before `up.sh`.
 
 Two things a cold start taught us that a long-lived stack hides:
