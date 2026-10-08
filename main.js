@@ -1,13 +1,13 @@
 import {
   AiImageService
-} from "./chunk-QXZK7PWN.js";
+} from "./chunk-7HUC57DN.js";
 import {
   SignageService
-} from "./chunk-WDYM7PDF.js";
+} from "./chunk-7RMK7NEX.js";
 import "./chunk-OZEEJTZM.js";
 import "./chunk-XASXFKEM.js";
 import "./chunk-2SQ7BBBV.js";
-import "./chunk-2KM254EA.js";
+import "./chunk-3NN6DBLU.js";
 import {
   MatMenu,
   MatMenuItem,
@@ -68,7 +68,7 @@ import {
   setNativeEmail,
   settingSignal,
   user_groups_loaded
-} from "./chunk-VK7CM6JR.js";
+} from "./chunk-EXEF26OU.js";
 import {
   Router,
   RouterLink,
@@ -1499,15 +1499,15 @@ var GlobalLoadingComponent = class _GlobalLoadingComponent extends AsyncHandler 
 // libs/components/src/lib/settings-debug-panel-launcher.component.ts
 var SettingsDebugPanelLauncherComponent_Defer_25_DepsFn = () => [
   /* @ts-ignore */
-  import("./settings-debug-panel.component-LLESQOLR.js").then((m) => m.SettingsDebugPanelComponent)
+  import("./settings-debug-panel.component-G2YI6PFB.js").then((m) => m.SettingsDebugPanelComponent)
 ];
 var SettingsDebugPanelLauncherComponent_Defer_28_DepsFn = () => [
   /* @ts-ignore */
-  import("./binding-debug-panel.component-DM4SY2Z6.js").then((m) => m.BindingDebugPanelComponent)
+  import("./binding-debug-panel.component-57O4KDLJ.js").then((m) => m.BindingDebugPanelComponent)
 ];
 var SettingsDebugPanelLauncherComponent_Defer_31_DepsFn = () => [
   /* @ts-ignore */
-  import("./debug-console.component-CBA6ZFTJ.js").then((m) => m.DebugConsoleComponent)
+  import("./debug-console.component-FNB7O2AO.js").then((m) => m.DebugConsoleComponent)
 ];
 function SettingsDebugPanelLauncherComponent_Defer_24_Conditional_0_Template(rf, ctx) {
   if (rf & 1) {
@@ -1742,11 +1742,11 @@ var SettingsDebugPanelLauncherComponent = class _SettingsDebugPanelLauncherCompo
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(SettingsDebugPanelLauncherComponent, () => [
     /* @ts-ignore */
-    import("./settings-debug-panel.component-LLESQOLR.js").then((m) => m.SettingsDebugPanelComponent),
+    import("./settings-debug-panel.component-G2YI6PFB.js").then((m) => m.SettingsDebugPanelComponent),
     /* @ts-ignore */
-    import("./binding-debug-panel.component-DM4SY2Z6.js").then((m) => m.BindingDebugPanelComponent),
+    import("./binding-debug-panel.component-57O4KDLJ.js").then((m) => m.BindingDebugPanelComponent),
     /* @ts-ignore */
-    import("./debug-console.component-CBA6ZFTJ.js").then((m) => m.DebugConsoleComponent)
+    import("./debug-console.component-FNB7O2AO.js").then((m) => m.DebugConsoleComponent)
   ], (SettingsDebugPanelComponent, BindingDebugPanelComponent, DebugConsoleComponent) => {
     setClassMetadata(SettingsDebugPanelLauncherComponent, [{
       type: Component,
@@ -10242,53 +10242,53 @@ var APP_ROUTES = [
     children: [
       {
         path: "media",
-        loadComponent: () => import("./media.component-CTSOWAKR.js").then((m) => m.MediaSectionComponent)
+        loadComponent: () => import("./media.component-PPACDTPB.js").then((m) => m.MediaSectionComponent)
       },
       {
         path: "playlists/:id",
-        loadComponent: () => import("./playlists.component-STSQZSV4.js").then((m) => m.PlaylistsSectionComponent)
+        loadComponent: () => import("./playlists.component-LG3GJEDL.js").then((m) => m.PlaylistsSectionComponent)
       },
       {
         path: "playlists",
-        loadComponent: () => import("./playlists.component-STSQZSV4.js").then((m) => m.PlaylistsSectionComponent)
+        loadComponent: () => import("./playlists.component-LG3GJEDL.js").then((m) => m.PlaylistsSectionComponent)
       },
       {
         path: "templates/:id",
         canActivate: [templatesEnabledGuard],
-        loadComponent: () => import("./templates.component-4CEO2FDI.js").then((m) => m.TemplatesSectionComponent)
+        loadComponent: () => import("./templates.component-H4HDIKRN.js").then((m) => m.TemplatesSectionComponent)
       },
       {
         path: "templates",
         canActivate: [templatesEnabledGuard],
-        loadComponent: () => import("./templates.component-4CEO2FDI.js").then((m) => m.TemplatesSectionComponent)
+        loadComponent: () => import("./templates.component-H4HDIKRN.js").then((m) => m.TemplatesSectionComponent)
       },
       {
         path: "schedules",
-        loadComponent: () => import("./schedules.component-YEXCBL2Z.js").then((m) => m.SchedulesSectionComponent)
+        loadComponent: () => import("./schedules.component-EFIE4CBU.js").then((m) => m.SchedulesSectionComponent)
       },
       {
         path: "displays/:id",
-        loadComponent: () => import("./displays.component-32KTGXEU.js").then((m) => m.DisplaysSectionComponent)
+        loadComponent: () => import("./displays.component-EQPQ4DTN.js").then((m) => m.DisplaysSectionComponent)
       },
       {
         path: "displays",
-        loadComponent: () => import("./displays.component-32KTGXEU.js").then((m) => m.DisplaysSectionComponent)
+        loadComponent: () => import("./displays.component-EQPQ4DTN.js").then((m) => m.DisplaysSectionComponent)
       },
       {
         path: "branding",
-        loadComponent: () => import("./branding.component-U22MRSZB.js").then((m) => m.BrandingComponent)
+        loadComponent: () => import("./branding.component-FZPATFHV.js").then((m) => m.BrandingComponent)
       },
       {
         path: "groups",
-        loadComponent: () => import("./groups.component-MZR35B3P.js").then((m) => m.GroupsSectionComponent)
+        loadComponent: () => import("./groups.component-WPB6I5IL.js").then((m) => m.GroupsSectionComponent)
       },
       {
         path: "zones/:id",
-        loadComponent: () => import("./zones.component-SY3AEV2Q.js").then((m) => m.ZonesSectionComponent)
+        loadComponent: () => import("./zones.component-ON7SAXDK.js").then((m) => m.ZonesSectionComponent)
       },
       {
         path: "zones",
-        loadComponent: () => import("./zones.component-SY3AEV2Q.js").then((m) => m.ZonesSectionComponent)
+        loadComponent: () => import("./zones.component-ON7SAXDK.js").then((m) => m.ZonesSectionComponent)
       },
       { path: "**", redirectTo: "media" }
     ]
