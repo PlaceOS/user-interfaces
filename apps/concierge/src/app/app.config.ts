@@ -6,7 +6,6 @@ import {
 import {
     ApplicationConfig,
     ErrorHandler,
-    importProvidersFrom,
     inject,
     LOCALE_ID,
     provideAppInitializer,
@@ -14,7 +13,6 @@ import {
 } from '@angular/core';
 import {
     provideRouter,
-    Router,
     TitleStrategy,
     withHashLocation,
     withNavigationErrorHandler,
@@ -23,14 +21,12 @@ import { provideServiceWorker } from '@angular/service-worker';
 
 import { COMMA, ENTER } from '@angular/cdk/keycodes';
 import { MAT_CHIPS_DEFAULT_OPTIONS } from '@angular/material/chips';
-import { MatSnackBarModule } from '@angular/material/snack-bar';
 
 import { environment } from '../environments/environment';
 import { routes } from './app.routes';
 
-import * as Sentry from '@sentry/angular';
-
 import {
+    LazySentryErrorHandler,
     LocaleService,
     registerActiveLocale,
     reloadOnChunkLoadError,
@@ -43,7 +39,6 @@ export const appConfig: ApplicationConfig = {
         provideAppInitializer(() =>
             registerActiveLocale(inject(LocaleService).locale),
         ),
-        importProvidersFrom(MatSnackBarModule),
         provideServiceWorker('ngsw-worker.js', {
             enabled: environment.production,
         }),
@@ -60,13 +55,7 @@ export const appConfig: ApplicationConfig = {
         },
         {
             provide: ErrorHandler,
-            useValue: Sentry.createErrorHandler({
-                showDialog: false,
-            }),
-        },
-        {
-            provide: Sentry.TraceService,
-            deps: [Router],
+            useClass: LazySentryErrorHandler,
         },
         {
             provide: LOCALE_ID,

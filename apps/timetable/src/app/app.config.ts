@@ -1,16 +1,9 @@
 import {
     ApplicationConfig,
     ErrorHandler,
-    importProvidersFrom,
     provideZonelessChangeDetection,
 } from '@angular/core';
-import { MatSnackBarModule } from '@angular/material/snack-bar';
-import {
-    provideRouter,
-    Router,
-    Routes,
-    withHashLocation,
-} from '@angular/router';
+import { provideRouter, Routes, withHashLocation } from '@angular/router';
 import { provideServiceWorker } from '@angular/service-worker';
 
 import {
@@ -18,8 +11,7 @@ import {
     UnauthorisedComponent,
 } from '@placeos/components';
 
-import * as Sentry from '@sentry/angular';
-
+import { LazySentryErrorHandler } from '@placeos/common';
 import { environment } from '../environments/environment';
 
 const routes: Routes = [
@@ -38,7 +30,6 @@ const routes: Routes = [
 export const appConfig: ApplicationConfig = {
     providers: [
         provideZonelessChangeDetection(),
-        importProvidersFrom(MatSnackBarModule),
         provideRouter(routes, withHashLocation()),
         provideServiceWorker('ngsw-worker.js', {
             enabled: environment.production,
@@ -48,13 +39,7 @@ export const appConfig: ApplicationConfig = {
         }),
         {
             provide: ErrorHandler,
-            useValue: Sentry.createErrorHandler({
-                showDialog: false,
-            }),
-        },
-        {
-            provide: Sentry.TraceService,
-            deps: [Router],
+            useClass: LazySentryErrorHandler,
         },
     ],
 };

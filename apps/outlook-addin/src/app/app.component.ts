@@ -1,5 +1,4 @@
 import { Component, computed, inject, OnInit } from '@angular/core';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { RouterOutlet } from '@angular/router';
 import { SwUpdate } from '@angular/service-worker';
 import {
@@ -7,6 +6,7 @@ import {
     current_user,
     failInitialisation,
     firstTruthyValueFrom,
+    lazySnackbar,
     LocaleService,
     log,
     markInitialisationComplete,
@@ -57,7 +57,7 @@ export class AppComponent extends AsyncHandler implements OnInit {
     private _settings = inject(SettingsService);
     private _org = inject(OrganisationService);
     private _cache = inject(SwUpdate);
-    private _snackbar = inject(MatSnackBar);
+    private _snackbar = lazySnackbar();
     private _locales = inject(LocaleService);
     private _uploads = inject(UploadsService);
     private _current_user = userSignal();

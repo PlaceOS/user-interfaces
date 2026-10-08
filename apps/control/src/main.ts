@@ -5,19 +5,14 @@ import {
     provideZonelessChangeDetection,
 } from '@angular/core';
 import { bootstrapApplication } from '@angular/platform-browser';
-import {
-    provideRouter,
-    Router,
-    Routes,
-    withHashLocation,
-} from '@angular/router';
+import { provideRouter, Routes, withHashLocation } from '@angular/router';
 import { provideServiceWorker } from '@angular/service-worker';
+import { LazySentryErrorHandler } from '@placeos/common';
 
 import {
     AuthorisedUserGuard,
     UnauthorisedComponent,
 } from '@placeos/components';
-import * as Sentry from '@sentry/angular';
 
 import { AppComponent } from './app/app.component';
 import { tabbedRouteMatcher } from './app/tabbed-view/tabbed-route';
@@ -74,13 +69,7 @@ bootstrapApplication(AppComponent, {
         }),
         {
             provide: ErrorHandler,
-            useValue: Sentry.createErrorHandler({
-                showDialog: false,
-            }),
-        },
-        {
-            provide: Sentry.TraceService,
-            deps: [Router],
+            useClass: LazySentryErrorHandler,
         },
     ],
 }).catch((err) => console.error(err));

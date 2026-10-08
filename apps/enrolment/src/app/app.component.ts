@@ -1,6 +1,5 @@
 import { Clipboard } from '@angular/cdk/clipboard';
 import { Component, inject, OnInit } from '@angular/core';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { SwUpdate } from '@angular/service-worker';
 import { SettingsDebugPanelLauncherComponent } from '@placeos/components/settings-debug';
 
@@ -10,6 +9,8 @@ import {
     failInitialisation,
     firstTruthyValueFrom,
     initialisationFailure,
+    initSentry,
+    lazySnackbar,
     log,
     markInitialisationComplete,
     OrganisationService,
@@ -22,7 +23,7 @@ import {
 } from '@placeos/common';
 import { setInternalUserDomain } from '@placeos/users';
 
-import { RouterOutlet } from '@angular/router';
+import { Router, RouterOutlet } from '@angular/router';
 import {
     GlobalBannerComponent,
     ServiceWorkerUpdateCardComponent,
@@ -32,16 +33,6 @@ import { SpacesService } from '@placeos/events';
 
 import * as MOCKS from '@placeos/mocks';
 import { PlaceAuthority, token } from '@placeos/ts-client';
-import * as Sentry from '@sentry/angular';
-
-export function initSentry(dsn: string, sample_rate: number = 0.2) {
-    if (!dsn) return;
-    Sentry.init({
-        dsn,
-        tracesSampleRate: sample_rate,
-    });
-}
-
 @Component({
     selector: 'app-root',
     imports: [
@@ -90,12 +81,12 @@ export function initSentry(dsn: string, sample_rate: number = 0.2) {
     ],
 })
 export class AppComponent extends AsyncHandler implements OnInit {
-    private _tracing = inject(Sentry.TraceService);
+    private _router = inject(Router);
     private _settings = inject(SettingsService);
     private _org = inject(OrganisationService);
     private _spaces = inject(SpacesService);
     private _cache = inject(SwUpdate);
-    private _snackbar = inject(MatSnackBar);
+    private _snackbar = lazySnackbar();
     private _clipboard = inject(Clipboard);
     public readonly initialisation_error = initialisationFailure();
 
@@ -168,7 +159,11 @@ export class AppComponent extends AsyncHandler implements OnInit {
             });
         });
 
-        initSentry(this._settings.get('app.sentry_dsn'));
+        void initSentry(
+            this._settings.get('app.sentry_dsn'),
+            this._router,
+            0.2,
+        );
         markInitialisationComplete();
     }
 }
