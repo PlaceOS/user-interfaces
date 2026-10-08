@@ -128,7 +128,7 @@ import { LockerStateService } from './locker-state.service';
             </ng-template>
             <ng-template #locker_template let-row="row">
                 <div class="p-4">
-                    {{ row.asset_name || row.asset_id }}
+                    {{ lockerName(row) }}
                 </div>
             </ng-template>
             <ng-template #user_template let-row="row">
@@ -305,6 +305,24 @@ export class LockerBookingsComponent {
     private _state = inject(LockerStateService);
     public readonly load_error = this._state.load_error;
     public readonly retryLoad = () => this._state.refresh();
+    /** Locker names by asset id, from the lockers loaded for the building. */
+    private readonly _locker_names = computed(() => {
+        const names: Record<string, string> = {};
+        for (const locker of this._state.lockers()) {
+            names[locker.id] = locker.name;
+        }
+        return names;
+    });
+
+    /**
+     * A booking stores only the locker's id, so the name comes from the
+     * lockers the state has loaded; the id is shown when it is not among them.
+     */
+    public lockerName(row: Booking): string {
+        return (
+            this._locker_names()[row.asset_id] || row.asset_name || row.asset_id
+        );
+    }
     public readonly rowKey = bookingRowKey;
     public readonly canSelect = (
         row: BookingRowKeyFields & Pick<Booking, 'status' | 'deleted'>,
