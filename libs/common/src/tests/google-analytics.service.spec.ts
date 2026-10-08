@@ -69,16 +69,21 @@ describe('GoogleAnalyticsService', () => {
 
     it('should emit a page_view command on navigation for GA4', () => {
         vi.useFakeTimers();
+        document.title = 'Workplace | Desk Booking';
         service.init('G-S6TDS95BDH');
         service.load('G-S6TDS95BDH');
-        service.page('/landing');
+        service.page('/book/desks/booking');
         vi.advanceTimersByTime(200);
 
         const commands = dataLayerCommands();
         const page_view = commands.find((cmd) => cmd[0] === 'event');
         expect(page_view).toBeTruthy();
         expect(page_view?.[1]).toBe('page_view');
-        expect(page_view?.[2]).toMatchObject({ page_path: '/landing' });
+        expect(page_view?.[2]).toMatchObject({
+            page_title: 'Workplace | Desk Booking',
+            page_path: '/book/desks/booking',
+            page_location: `${location.origin}/book/desks/booking`,
+        });
     });
 
     it('should emit custom events for GA4', () => {
