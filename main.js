@@ -1,14 +1,14 @@
 import {
   MatTooltip,
   MatTooltipModule
-} from "./chunk-RK2XUKYW.js";
+} from "./chunk-IVUEISBY.js";
 import {
   TranslatePipe
-} from "./chunk-L4VO5UAU.js";
+} from "./chunk-HZDOOXBB.js";
 import {
   CustomTooltipComponent
-} from "./chunk-MJ5CIGZG.js";
-import "./chunk-GQQTPO6N.js";
+} from "./chunk-BPERC53I.js";
+import "./chunk-XKAAJDQO.js";
 import {
   A,
   A11yModule,
@@ -60,6 +60,7 @@ import {
   ErrorHandler,
   ErrorStateMatcher,
   EventEmitter,
+  Fi,
   FocusKeyManager,
   FocusMonitor,
   FocusTrapFactory,
@@ -424,7 +425,7 @@ import {
   ɵɵtwoWayProperty,
   ɵɵviewQuery,
   ɵɵviewQuerySignal
-} from "./chunk-CXXKAYEO.js";
+} from "./chunk-HYEE3MLJ.js";
 import {
   __objRest,
   __spreadProps,
@@ -5653,9 +5654,17 @@ async function updateBooking(id, data, method = "patch") {
 var EVENTS_ENDPOINT = `/api/staff/v1/events`;
 var APP_VERSION2 = VERSION.raw || VERSION.version || VERSION.hash;
 async function queryEventsOrThrow(q2) {
+  return (await queryEventListOrThrow(q2)).events;
+}
+async function queryEventListOrThrow(q2) {
   const query = toQueryString(q2);
-  const list = await _(`${EVENTS_ENDPOINT}${query ? "?" + query : ""}`);
-  return list.map((e) => new CalendarEvent(e));
+  const url = `${EVENTS_ENDPOINT}${query ? "?" + query : ""}`;
+  const list = await _(url);
+  const issues = Fi(new URL(url, document.baseURI).href)["x-calendar-issue"] || "";
+  return {
+    events: list.map((e) => new CalendarEvent(e)),
+    failed_calendars: issues.split(",").map((id) => id.trim().toLowerCase()).filter(Boolean)
+  };
 }
 async function showEventMetadata(id, system_id, query = {}) {
   const q2 = toQueryString(__spreadValues({}, query));
@@ -17305,7 +17314,7 @@ var LoadErrorComponent = class _LoadErrorComponent {
     };
   }
   static {
-    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _LoadErrorComponent, selectors: [["load-error"]], outputs: { retry: "retry" }, decls: 9, vars: 6, consts: [["role", "alert", 1, "flex", "flex-col", "items-center", "justify-center", "gap-2", "p-8", "text-center"], [1, "text-error", "text-3xl"], ["btn", "", "matRipple", "", 1, "inverse", 3, "click"]], template: function LoadErrorComponent_Template(rf, ctx) {
+    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _LoadErrorComponent, selectors: [["load-error"]], outputs: { retry: "retry" }, decls: 9, vars: 6, consts: [["role", "alert", 1, "flex", "flex-col", "items-center", "justify-center", "gap-2", "p-8", "text-center"], [1, "text-error", "text-3xl"], ["btn", "", "matRipple", "", "type", "button", 1, "inverse", 3, "click"]], template: function LoadErrorComponent_Template(rf, ctx) {
       if (rf & 1) {
         \u0275\u0275elementStart(0, "div", 0)(1, "icon", 1);
         \u0275\u0275text(2, "error");
@@ -17343,7 +17352,14 @@ var LoadErrorComponent = class _LoadErrorComponent {
         >
             <icon class="text-error text-3xl">error</icon>
             <p>{{ 'COMMON.LOAD_ERROR' | translate }}</p>
-            <button btn matRipple class="inverse" (click)="retry.emit()">
+            <!-- type="button": inside a form the default submits it -->
+            <button
+                btn
+                matRipple
+                type="button"
+                class="inverse"
+                (click)="retry.emit()"
+            >
                 {{ 'COMMON.RETRY' | translate }}
             </button>
         </div>
@@ -17353,7 +17369,7 @@ var LoadErrorComponent = class _LoadErrorComponent {
   }], null, { retry: [{ type: Output, args: ["retry"] }] });
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(LoadErrorComponent, { className: "LoadErrorComponent", filePath: "libs/components/src/lib/load-error.component.ts", lineNumber: 28 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(LoadErrorComponent, { className: "LoadErrorComponent", filePath: "libs/components/src/lib/load-error.component.ts", lineNumber: 35 });
 })();
 
 // libs/components/src/lib/simple-table.component.ts
@@ -30432,15 +30448,15 @@ var GlobalLoadingComponent = class _GlobalLoadingComponent extends AsyncHandler 
 // libs/components/src/lib/settings-debug-panel-launcher.component.ts
 var SettingsDebugPanelLauncherComponent_Defer_25_DepsFn = () => [
   /* @ts-ignore */
-  import("./settings-debug-panel.component-A6B3QPA5.js").then((m) => m.SettingsDebugPanelComponent)
+  import("./settings-debug-panel.component-W7IZC6PT.js").then((m) => m.SettingsDebugPanelComponent)
 ];
 var SettingsDebugPanelLauncherComponent_Defer_28_DepsFn = () => [
   /* @ts-ignore */
-  import("./binding-debug-panel.component-SQLLYNMF.js").then((m) => m.BindingDebugPanelComponent)
+  import("./binding-debug-panel.component-62NVGEOZ.js").then((m) => m.BindingDebugPanelComponent)
 ];
 var SettingsDebugPanelLauncherComponent_Defer_31_DepsFn = () => [
   /* @ts-ignore */
-  import("./debug-console.component-GS2MZ44H.js").then((m) => m.DebugConsoleComponent)
+  import("./debug-console.component-SPHNNC7X.js").then((m) => m.DebugConsoleComponent)
 ];
 function SettingsDebugPanelLauncherComponent_Defer_24_Conditional_0_Template(rf, ctx) {
   if (rf & 1) {
@@ -30675,11 +30691,11 @@ var SettingsDebugPanelLauncherComponent = class _SettingsDebugPanelLauncherCompo
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(SettingsDebugPanelLauncherComponent, () => [
     /* @ts-ignore */
-    import("./settings-debug-panel.component-A6B3QPA5.js").then((m) => m.SettingsDebugPanelComponent),
+    import("./settings-debug-panel.component-W7IZC6PT.js").then((m) => m.SettingsDebugPanelComponent),
     /* @ts-ignore */
-    import("./binding-debug-panel.component-SQLLYNMF.js").then((m) => m.BindingDebugPanelComponent),
+    import("./binding-debug-panel.component-62NVGEOZ.js").then((m) => m.BindingDebugPanelComponent),
     /* @ts-ignore */
-    import("./debug-console.component-GS2MZ44H.js").then((m) => m.DebugConsoleComponent)
+    import("./debug-console.component-SPHNNC7X.js").then((m) => m.DebugConsoleComponent)
   ], (SettingsDebugPanelComponent, BindingDebugPanelComponent, DebugConsoleComponent) => {
     setClassMetadata(SettingsDebugPanelLauncherComponent, [{
       type: Component,
@@ -36602,6 +36618,23 @@ function registerMockSignage() {
     callback: () => ({})
   });
   co({
+    path: "/api/engine/v2/uploads/screenshot",
+    metadata: {},
+    method: "POST",
+    callback: (request) => ({
+      id: `upload-screenshot-${Date.now()}`,
+      file_name: `screenshot-${new URL(request.body.url).host}.jpg`,
+      file_mime: "image/jpeg",
+      tags: ["screenshot"]
+    })
+  });
+  co({
+    path: "/api/engine/v2/uploads/:id",
+    metadata: {},
+    method: "DELETE",
+    callback: () => ({})
+  });
+  co({
     path: "/api/engine/v2/signage/media/share",
     metadata: {},
     method: "POST",
@@ -36973,20 +37006,20 @@ function registerMockSignage() {
       };
     }
   });
-  registerMockSignageAI();
+  registerMockSignageImageGen();
 }
-function registerMockSignageAI() {
-  const AI_JOBS = {};
+function registerMockSignageImageGen() {
+  const IMAGE_GEN_JOBS = {};
   const SAMPLE_IMAGES = MOCK_MEDIA.slice(0, 4).map((item) => item.id);
   const now = () => Math.floor(Date.now() / 1e3);
   function makeJob(request, kind) {
     const count = Math.min(Math.max(request.candidates || 2, 1), 4);
     const job = {
-      id: `signage-ai-job-${Object.keys(AI_JOBS).length + 1}`,
+      id: `signage-ai-job-${Object.keys(IMAGE_GEN_JOBS).length + 1}`,
       state: "queued",
       kind,
       provider: "OPENAI",
-      model: "gpt-image-2",
+      model: "gpt-image-2.5-sunburst",
       candidates: count,
       images_produced: 0,
       parent_job_id: request.parent_job_id,
@@ -36995,7 +37028,7 @@ function registerMockSignageAI() {
       images: Array.from({ length: count }, () => null),
       created_at: now()
     };
-    AI_JOBS[job.id] = job;
+    IMAGE_GEN_JOBS[job.id] = job;
     if (`${request.prompt}`.includes("trigger-moderation")) {
       setTimeout(() => {
         job.state = "failed";
@@ -37040,11 +37073,11 @@ function registerMockSignageAI() {
           id: "signage-ai-provider-1",
           name: "Mock provider",
           provider: "OPENAI",
-          default_model: "gpt-image-2",
+          default_model: "gpt-image-2.5-sunburst",
           models: [
             {
-              id: "gpt-image-2",
-              name: "GPT Image 2",
+              id: "gpt-image-2.5-sunburst",
+              name: "GPT Image 2.5 Sunburst",
               generate: true,
               edit: true,
               enhance: true,
@@ -37080,14 +37113,14 @@ function registerMockSignageAI() {
     path: "/api/engine/v2/signage/ai/jobs",
     metadata: {},
     method: "GET",
-    callback: () => Object.values(AI_JOBS)
+    callback: () => Object.values(IMAGE_GEN_JOBS)
   });
   co({
     path: "/api/engine/v2/signage/ai/jobs/:id",
     metadata: {},
     method: "GET",
     callback: (request) => {
-      const job = AI_JOBS[request.route_params.id];
+      const job = IMAGE_GEN_JOBS[request.route_params.id];
       if (!job)
         throw { status: 404, message: "No such job" };
       return job;
@@ -37098,7 +37131,7 @@ function registerMockSignageAI() {
     metadata: {},
     method: "POST",
     callback: (request) => {
-      const job = AI_JOBS[request.route_params.id];
+      const job = IMAGE_GEN_JOBS[request.route_params.id];
       if (!job)
         throw { status: 404, message: "No such job" };
       if (job.state === "queued" || job.state === "running") {
@@ -37113,7 +37146,7 @@ function registerMockSignageAI() {
     metadata: {},
     method: "POST",
     callback: (request) => {
-      const job = AI_JOBS[request.route_params.id];
+      const job = IMAGE_GEN_JOBS[request.route_params.id];
       if (!job)
         throw { status: 404, message: "No such job" };
       const entry = job.images.find((image) => image?.upload_id === request.body?.upload_id);
@@ -39519,7 +39552,7 @@ function mocksInit() {
 // apps/caterer-ui/src/app/app.component.ts
 var AppComponent_Defer_5_DepsFn = () => [
   /* @ts-ignore */
-  import("./chat.component-BEXLCYJ2.js").then((m) => m.ChatComponent)
+  import("./chat.component-3MWM2MBX.js").then((m) => m.ChatComponent)
 ];
 function AppComponent_Defer_4_Template(rf, ctx) {
   if (rf & 1) {
@@ -39571,7 +39604,7 @@ var AppComponent = class _AppComponent {
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(AppComponent, () => [
     /* @ts-ignore */
-    import("./chat.component-BEXLCYJ2.js").then((m) => m.ChatComponent)
+    import("./chat.component-3MWM2MBX.js").then((m) => m.ChatComponent)
   ], (ChatComponent) => {
     setClassMetadata(AppComponent, [{
       type: Component,
@@ -41232,5 +41265,5 @@ if (environment.production) {
   enableProdMode();
 }
 bootstrapApplication(AppComponent, appConfig).catch((err) => console.error(err));
-//# debugId=e3bdce5c-6f60-5c06-8789-caf53ad09a39
+//# debugId=7a43b33e-1bab-552f-b14c-c270eae5be18
 //# sourceMappingURL=main.js.map
