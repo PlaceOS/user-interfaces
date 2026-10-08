@@ -50743,9 +50743,15 @@ var GoogleAnalyticsService = class _GoogleAnalyticsService {
       this.timeout(`page|${route}`, () => {
         log("Analytics", "Service", `Page: ${route}`);
         if (this._ga4) {
+          const path = route || location.pathname;
           this.service("event", "page_view", {
-            page_path: route || location.pathname,
-            page_location: origin ? `${location.origin}${route}` : location.href
+            page_title: document.title,
+            page_path: path,
+            // Hash-routed SPAs hide the route in the URL
+            // fragment, which GA4 strips when deriving the
+            // page path. Send a full URL on the route so
+            // each page has a distinct, reportable path.
+            page_location: `${location.origin}${path}`
           });
           return;
         }
@@ -50828,15 +50834,15 @@ var GoogleAnalyticsService = class _GoogleAnalyticsService {
 // libs/common/src/lib/version.ts
 var VERSION3 = {
   "dirty": false,
-  "raw": "29943ae",
-  "hash": "29943ae",
+  "raw": "c8e9a89",
+  "hash": "c8e9a89",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "29943ae",
+  "suffix": "c8e9a89",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1790132435816
+  "time": 1791451601030
 };
 
 // libs/common/src/lib/settings.service.ts
@@ -81823,5 +81829,5 @@ export {
   SafePipe,
   IconComponent
 };
-//# debugId=38181fc3-ecfa-5e3c-905d-47fcd2e15ad7
-//# sourceMappingURL=chunk-D4E7PIZL.js.map
+//# debugId=28ea4e8d-55d1-5f5e-adde-9103ced3401e
+//# sourceMappingURL=chunk-ISSKAIBC.js.map
