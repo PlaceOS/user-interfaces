@@ -932,6 +932,52 @@ describe('BookingFormService', () => {
         expect(spectator.service.model().booking_type).toBe('desk');
     });
 
+    it('should leave approval to the backend for a standard user when approval is skipped', async () => {
+        (spectator.inject(PaymentsService) as any).enabled = false;
+        (spectator.inject(SettingsService).get as Mock).mockImplementation(
+            (key: string) => key === 'app.bookings.no_approval' || undefined,
+        );
+        spectator.service.newForm('desk');
+        spectator.service.model.update((m) => ({
+            ...m,
+            asset_id: 'desk-1',
+            asset_name: 'Desk 1',
+            date: Date.now() + 60 * 60 * 1000,
+            duration: 60,
+        }));
+
+        await spectator.service.postForm(true);
+
+        expect((savedBookings()[0] as Booking).approved).toBe(false);
+    });
+
+    it('should send approved for a support user when approval is skipped', async () => {
+        (spectator.inject(PaymentsService) as any).enabled = false;
+        (spectator.inject(SettingsService).get as Mock).mockImplementation(
+            (key: string) => key === 'app.bookings.no_approval' || undefined,
+        );
+        setCurrentUser(
+            new StaffUser({
+                id: 'support-user',
+                email: 'support.user@example.com',
+                name: 'Support User',
+                groups: ['placeos_support'],
+            }),
+        );
+        spectator.service.newForm('desk');
+        spectator.service.model.update((m) => ({
+            ...m,
+            asset_id: 'desk-1',
+            asset_name: 'Desk 1',
+            date: Date.now() + 60 * 60 * 1000,
+            duration: 60,
+        }));
+
+        await spectator.service.postForm(true);
+
+        expect((savedBookings()[0] as Booking).approved).toBe(true);
+    });
+
     it('should keep the host when editing a delegated visitor booking', async () => {
         (spectator.inject(PaymentsService) as any).enabled = false;
         spectator.service.newForm(

@@ -117,6 +117,69 @@ describe('EventFormService', () => {
         sessionStorage.clear();
     });
 
+    describe('approval of native room bookings when approval is skipped', () => {
+        const performBooking = (service_under_test: EventFormService) =>
+            (
+                service_under_test as unknown as {
+                    _performBooking: (
+                        event: CalendarEvent,
+                        query: Record<string, string | number>,
+                    ) => Promise<CalendarEvent>;
+                }
+            )._performBooking(
+                new CalendarEvent({
+                    date: new Date(2028, 5, 18, 9).valueOf(),
+                    duration: 60,
+                    resources: [
+                        new Space({
+                            id: 'room-1',
+                            email: 'room@example.com',
+                            zones: ['bld-1'],
+                        }),
+                    ],
+                }),
+                {},
+            );
+
+        beforeEach(() => {
+            vi.spyOn(service, 'book_internal', 'get').mockReturnValue(true);
+            vi.mocked(TestBed.inject(SettingsService).get).mockImplementation(
+                (key: string) =>
+                    key === 'app.bookings.no_approval' || undefined,
+            );
+            vi.mocked<(url: string, data: object) => Promise<unknown>>(
+                ts_client.post,
+            ).mockImplementation(async (_, data) => ({
+                ...data,
+                id: 'booking-1',
+            }));
+        });
+
+        it('should leave approval to the backend for a standard user', async () => {
+            await performBooking(service);
+
+            expect(ts_client.post).toHaveBeenCalledWith(
+                expect.stringContaining('/api/staff/v1/bookings'),
+                expect.objectContaining({ approved: false }),
+            );
+        });
+
+        it('should send approved for a support user', async () => {
+            setCurrentUser({
+                email: 'support@test.com',
+                name: 'Support',
+                groups: ['placeos_support'],
+            } as any);
+
+            await performBooking(service);
+
+            expect(ts_client.post).toHaveBeenCalledWith(
+                expect.stringContaining('/api/staff/v1/bookings'),
+                expect.objectContaining({ approved: true }),
+            );
+        });
+    });
+
     it.each([0, 1, 2, 3, 4, 5, 6])(
         'should submit native weekly room recurrence for weekday %s',
         async (weekday) => {

@@ -25,6 +25,7 @@ import {
     BookingRuleset,
     BookingType,
     currentUser,
+    currentUserCanApprove,
     currentUserIsLoaded,
     currentUserLoaded,
     Desk,
@@ -1498,7 +1499,8 @@ export class BookingFormService extends AsyncHandler {
                 user_email: value.user?.email || value.user_email,
                 extension_data: buildBookingExtensionData(value, group_members),
                 approved:
-                    this._settings.get('app.bookings.no_approval') === true,
+                    this._settings.get('app.bookings.no_approval') === true &&
+                    currentUserCanApprove(),
                 zones: unique([...zones, ...(value.zones || [])]).filter(
                     (_) => _,
                 ),
@@ -2162,7 +2164,8 @@ export class BookingFormService extends AsyncHandler {
                 user_email: form.user?.email || form.user_email,
                 user_id: form.user?.id || form.user_id,
                 approved:
-                    this._settings.get('app.bookings.no_approval') === true,
+                    this._settings.get('app.bookings.no_approval') === true &&
+                    currentUserCanApprove(),
                 zones,
                 extension_data: {
                     ...formExtensionData(form.extension_data),

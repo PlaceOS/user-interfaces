@@ -177,7 +177,7 @@ These apply to all resource booking flows (desks, parking, lockers). Most can be
 
 | Setting | Type | Default | Description |
 |---------|------|---------|-------------|
-| `bookings.no_approval` | boolean | `false` | Skip the approval process — new bookings are created already approved. |
+| `bookings.no_approval` | boolean | `false` | Create new bookings already approved. Only an admin or support user's bookings are sent approved; staff-api refuses `approved` from other users, whose bookings are left for an approver or the auto-approval driver. |
 | `bookings.all_day_default` | boolean | `false` | Turn the "all day" option on by default for new bookings. |
 | `bookings.allow_all_day` | boolean | – | Make the "all day" option available in resource booking flows. |
 | `bookings.allowed_daily_visitor_count` | number | `100` | Maximum number of visitor invites allowed for a single day. |
