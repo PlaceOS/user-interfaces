@@ -1,10 +1,10 @@
 import {
   MatTooltip,
   MatTooltipModule
-} from "./chunk-7MTJY2GS.js";
+} from "./chunk-2L7OGUUR.js";
 import {
   subMinutes
-} from "./chunk-U6W6AMYL.js";
+} from "./chunk-6QX5NB2C.js";
 import {
   MatAutocomplete,
   MatAutocompleteModule,
@@ -25,10 +25,10 @@ import {
   generateMockSpace,
   setHours,
   setMinutes
-} from "./chunk-MOQDFEKP.js";
+} from "./chunk-AVLCZYMP.js";
 import {
   TranslatePipe
-} from "./chunk-NTDTHHWW.js";
+} from "./chunk-LSSGSND6.js";
 import {
   ActivatedRoute,
   AsyncHandler,
@@ -197,7 +197,7 @@ import {
   ɵɵtwoWayListener,
   ɵɵtwoWayProperty,
   ɵɵviewQuerySignal
-} from "./chunk-K6U75NDO.js";
+} from "./chunk-MCWNSMLK.js";
 import {
   __spreadProps,
   __spreadValues
@@ -1448,15 +1448,15 @@ var GlobalLoadingComponent = _GlobalLoadingComponent;
 // libs/components/src/lib/settings-debug-panel-launcher.component.ts
 var SettingsDebugPanelLauncherComponent_Defer_25_DepsFn = () => [
   /* @ts-ignore */
-  import("./settings-debug-panel.component-CZZLZ64O.js").then((m) => m.SettingsDebugPanelComponent)
+  import("./settings-debug-panel.component-RGVETANB.js").then((m) => m.SettingsDebugPanelComponent)
 ];
 var SettingsDebugPanelLauncherComponent_Defer_28_DepsFn = () => [
   /* @ts-ignore */
-  import("./binding-debug-panel.component-QSLXAUX5.js").then((m) => m.BindingDebugPanelComponent)
+  import("./binding-debug-panel.component-4HZF66GZ.js").then((m) => m.BindingDebugPanelComponent)
 ];
 var SettingsDebugPanelLauncherComponent_Defer_31_DepsFn = () => [
   /* @ts-ignore */
-  import("./debug-console.component-X2AO4GCK.js").then((m) => m.DebugConsoleComponent)
+  import("./debug-console.component-IJKTBRXM.js").then((m) => m.DebugConsoleComponent)
 ];
 function SettingsDebugPanelLauncherComponent_Defer_24_Conditional_0_Template(rf, ctx) {
   if (rf & 1) {
@@ -1689,11 +1689,11 @@ var SettingsDebugPanelLauncherComponent = _SettingsDebugPanelLauncherComponent;
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(SettingsDebugPanelLauncherComponent, () => [
     /* @ts-ignore */
-    import("./settings-debug-panel.component-CZZLZ64O.js").then((m) => m.SettingsDebugPanelComponent),
+    import("./settings-debug-panel.component-RGVETANB.js").then((m) => m.SettingsDebugPanelComponent),
     /* @ts-ignore */
-    import("./binding-debug-panel.component-QSLXAUX5.js").then((m) => m.BindingDebugPanelComponent),
+    import("./binding-debug-panel.component-4HZF66GZ.js").then((m) => m.BindingDebugPanelComponent),
     /* @ts-ignore */
-    import("./debug-console.component-X2AO4GCK.js").then((m) => m.DebugConsoleComponent)
+    import("./debug-console.component-IJKTBRXM.js").then((m) => m.DebugConsoleComponent)
   ], (SettingsDebugPanelComponent, BindingDebugPanelComponent, DebugConsoleComponent) => {
     setClassMetadata(SettingsDebugPanelLauncherComponent, [{
       type: Component,
@@ -7303,6 +7303,23 @@ function registerMockSignage() {
     callback: () => ({})
   });
   co({
+    path: "/api/engine/v2/uploads/screenshot",
+    metadata: {},
+    method: "POST",
+    callback: (request) => ({
+      id: `upload-screenshot-${Date.now()}`,
+      file_name: `screenshot-${new URL(request.body.url).host}.jpg`,
+      file_mime: "image/jpeg",
+      tags: ["screenshot"]
+    })
+  });
+  co({
+    path: "/api/engine/v2/uploads/:id",
+    metadata: {},
+    method: "DELETE",
+    callback: () => ({})
+  });
+  co({
     path: "/api/engine/v2/signage/media/share",
     metadata: {},
     method: "POST",
@@ -7695,20 +7712,20 @@ function registerMockSignage() {
       };
     }
   });
-  registerMockSignageAI();
+  registerMockSignageImageGen();
 }
-function registerMockSignageAI() {
-  const AI_JOBS = {};
+function registerMockSignageImageGen() {
+  const IMAGE_GEN_JOBS = {};
   const SAMPLE_IMAGES = MOCK_MEDIA.slice(0, 4).map((item) => item.id);
   const now = () => Math.floor(Date.now() / 1e3);
   function makeJob(request, kind) {
     const count = Math.min(Math.max(request.candidates || 2, 1), 4);
     const job = {
-      id: `signage-ai-job-${Object.keys(AI_JOBS).length + 1}`,
+      id: `signage-ai-job-${Object.keys(IMAGE_GEN_JOBS).length + 1}`,
       state: "queued",
       kind,
       provider: "OPENAI",
-      model: "gpt-image-2",
+      model: "gpt-image-2.5-sunburst",
       candidates: count,
       images_produced: 0,
       parent_job_id: request.parent_job_id,
@@ -7717,7 +7734,7 @@ function registerMockSignageAI() {
       images: Array.from({ length: count }, () => null),
       created_at: now()
     };
-    AI_JOBS[job.id] = job;
+    IMAGE_GEN_JOBS[job.id] = job;
     if (`${request.prompt}`.includes("trigger-moderation")) {
       setTimeout(() => {
         job.state = "failed";
@@ -7762,11 +7779,11 @@ function registerMockSignageAI() {
           id: "signage-ai-provider-1",
           name: "Mock provider",
           provider: "OPENAI",
-          default_model: "gpt-image-2",
+          default_model: "gpt-image-2.5-sunburst",
           models: [
             {
-              id: "gpt-image-2",
-              name: "GPT Image 2",
+              id: "gpt-image-2.5-sunburst",
+              name: "GPT Image 2.5 Sunburst",
               generate: true,
               edit: true,
               enhance: true,
@@ -7802,14 +7819,14 @@ function registerMockSignageAI() {
     path: "/api/engine/v2/signage/ai/jobs",
     metadata: {},
     method: "GET",
-    callback: () => Object.values(AI_JOBS)
+    callback: () => Object.values(IMAGE_GEN_JOBS)
   });
   co({
     path: "/api/engine/v2/signage/ai/jobs/:id",
     metadata: {},
     method: "GET",
     callback: (request) => {
-      const job = AI_JOBS[request.route_params.id];
+      const job = IMAGE_GEN_JOBS[request.route_params.id];
       if (!job)
         throw { status: 404, message: "No such job" };
       return job;
@@ -7820,7 +7837,7 @@ function registerMockSignageAI() {
     metadata: {},
     method: "POST",
     callback: (request) => {
-      const job = AI_JOBS[request.route_params.id];
+      const job = IMAGE_GEN_JOBS[request.route_params.id];
       if (!job)
         throw { status: 404, message: "No such job" };
       if (job.state === "queued" || job.state === "running") {
@@ -7836,7 +7853,7 @@ function registerMockSignageAI() {
     method: "POST",
     callback: (request) => {
       var _a;
-      const job = AI_JOBS[request.route_params.id];
+      const job = IMAGE_GEN_JOBS[request.route_params.id];
       if (!job)
         throw { status: 404, message: "No such job" };
       const entry = job.images.find((image) => {
@@ -10255,7 +10272,7 @@ function mocksInit() {
 // apps/booking-panel/src/app/app.component.ts
 var AppComponent_Defer_4_DepsFn = () => [
   /* @ts-ignore */
-  import("./chat.component-ATTXRWWP.js").then((m) => m.ChatComponent)
+  import("./chat.component-ZU6UFL7Q.js").then((m) => m.ChatComponent)
 ];
 function AppComponent_Defer_3_Template(rf, ctx) {
   if (rf & 1) {
@@ -10304,7 +10321,7 @@ var AppComponent = _AppComponent;
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(AppComponent, () => [
     /* @ts-ignore */
-    import("./chat.component-ATTXRWWP.js").then((m) => m.ChatComponent)
+    import("./chat.component-ZU6UFL7Q.js").then((m) => m.ChatComponent)
   ], (ChatComponent) => {
     setClassMetadata(AppComponent, [{
       type: Component,
@@ -10790,17 +10807,17 @@ var routes = [
   },
   {
     path: "panel/:system_id",
-    loadComponent: () => import("./panel-view.component-A2F5XGJQ.js").then((m) => m.PanelViewComponent),
+    loadComponent: () => import("./panel-view.component-F37MCEZM.js").then((m) => m.PanelViewComponent),
     canActivate: [AuthorisedUserGuard]
   },
   {
     path: "checkin/:system_id",
-    loadComponent: () => import("./checkin-view.component-PA2APFUV.js").then((m) => m.CheckinViewComponent),
+    loadComponent: () => import("./checkin-view.component-2L42CZFL.js").then((m) => m.CheckinViewComponent),
     canActivate: [AuthorisedUserGuard]
   },
   {
     path: "events/:system_id",
-    loadComponent: () => import("./event-panel.component-2XVKFJJX.js").then((m) => m.EventPanelComponent),
+    loadComponent: () => import("./event-panel.component-QRYDGUGI.js").then((m) => m.EventPanelComponent),
     canActivate: [AuthorisedUserGuard]
   },
   { path: "**", redirectTo: "bootstrap" }
@@ -10838,5 +10855,5 @@ if (environment.production) {
   enableProdMode();
 }
 bootstrapApplication(AppComponent, appConfig).catch((err) => console.error(err));
-//# debugId=91ba0f72-403a-54a0-b56e-c7a2a3b69e9e
+//# debugId=dfaf6f73-185a-5420-932c-f19d39c404ca
 //# sourceMappingURL=main.js.map

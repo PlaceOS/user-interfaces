@@ -1,9 +1,9 @@
 import {
   SanitizePipe
-} from "./chunk-AGPOD3XT.js";
+} from "./chunk-WMT6WS52.js";
 import {
   TranslatePipe
-} from "./chunk-NTDTHHWW.js";
+} from "./chunk-LSSGSND6.js";
 import {
   AsyncHandler,
   Component,
@@ -73,7 +73,7 @@ import {
   ɵɵtwoWayListener,
   ɵɵtwoWayProperty,
   ɵɵviewQuerySignal
-} from "./chunk-K6U75NDO.js";
+} from "./chunk-MCWNSMLK.js";
 import {
   __privateAdd,
   __privateMethod,
@@ -2439,8 +2439,9 @@ var _ChatService = class _ChatService extends AsyncHandler {
     const auth = J() !== "x-api-key" ? `bearer_token=${encodeURIComponent(J())}` : `x-api-key=${et()}`;
     const url = `ws${location.origin.replace("http", "")}/api/engine/v2/chatgpt/chat/${encodeURIComponent(id)}?${auth}${this._chat_id ? "&resume=" + encodeURIComponent(this._chat_id) : ""}`;
     log("CHAT", "Starting chat connection.");
-    this._socket = new WebSocket(url);
-    this._socket.onmessage = (event) => {
+    const socket = new WebSocket(url);
+    this._socket = socket;
+    socket.onmessage = (event) => {
       let msg = event.data;
       try {
         msg = JSON.parse(event.data);
@@ -2448,11 +2449,11 @@ var _ChatService = class _ChatService extends AsyncHandler {
       }
       this._onMessage(msg);
     };
-    this._socket.onerror = (e) => {
+    socket.onerror = (e) => {
       log("CHAT", "Connection error:", [e], "error");
-      this._cleanup();
+      this._cleanup(socket);
     };
-    this._socket.onclose = () => this._cleanup();
+    socket.onclose = () => this._cleanup(socket);
     return () => this.endChat();
   }
   endChat() {
@@ -2487,7 +2488,10 @@ var _ChatService = class _ChatService extends AsyncHandler {
       this.endChat();
     }, delay);
   }
-  _cleanup() {
+  /** Forget the socket. With a socket given, only if it is still the current one. */
+  _cleanup(socket) {
+    if (socket && socket !== this._socket)
+      return;
     this._socket = null;
   }
   _onMessage(msg) {
@@ -3131,5 +3135,5 @@ var ChatComponent = _ChatComponent;
 export {
   ChatComponent
 };
-//# debugId=93720087-0847-5214-bd75-523b1bc3b6d4
-//# sourceMappingURL=chat.component-ATTXRWWP.js.map
+//# debugId=25e58f88-fc78-57d4-be93-9545a1e34422
+//# sourceMappingURL=chat.component-ZU6UFL7Q.js.map

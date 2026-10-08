@@ -4,15 +4,15 @@ import {
   getNextFreeTimeSlot,
   nextPeriod,
   subHours
-} from "./chunk-UL5H5UAY.js";
-import "./chunk-AGPOD3XT.js";
+} from "./chunk-JF4SGKL7.js";
+import "./chunk-WMT6WS52.js";
 import {
   subMinutes
-} from "./chunk-U6W6AMYL.js";
-import "./chunk-MOQDFEKP.js";
+} from "./chunk-6QX5NB2C.js";
+import "./chunk-AVLCZYMP.js";
 import {
   TranslatePipe
-} from "./chunk-NTDTHHWW.js";
+} from "./chunk-LSSGSND6.js";
 import {
   ActivatedRoute,
   AsyncHandler,
@@ -71,7 +71,7 @@ import {
   ɵɵtext,
   ɵɵtextInterpolate,
   ɵɵtextInterpolate1
-} from "./chunk-K6U75NDO.js";
+} from "./chunk-MCWNSMLK.js";
 import "./chunk-KUGYOAP2.js";
 
 // apps/booking-panel/src/app/checkin/checkin-timetable.component.ts
@@ -469,7 +469,7 @@ function CheckinViewComponent_Conditional_30_Template(rf, ctx) {
     \u0275\u0275listener("click", function CheckinViewComponent_Conditional_30_Template_button_click_0_listener() {
       \u0275\u0275restoreView(_r5);
       const ctx_r0 = \u0275\u0275nextContext();
-      return \u0275\u0275resetView(ctx_r0.newBooking(ctx_r0.start(), true));
+      return \u0275\u0275resetView(ctx_r0.bookSlot(ctx_r0.start()));
     });
     \u0275\u0275text(1);
     \u0275\u0275pipe(2, "translate");
@@ -565,7 +565,7 @@ var _CheckinViewComponent = class _CheckinViewComponent extends AsyncHandler {
       )
     );
     this.can_book = computed(
-      () => this._state.setting("disable_book_now") !== true,
+      () => this._state.setting("disable_qr_booking") !== true,
       ...ngDevMode ? [{ debugName: "can_book" }] : (
         /* istanbul ignore next */
         []
@@ -613,7 +613,7 @@ _CheckinViewComponent.\u0275fac = function CheckinViewComponent_Factory(__ngFact
   return new (__ngFactoryType__ || _CheckinViewComponent)();
 };
 _CheckinViewComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _CheckinViewComponent, selectors: [["checkin-view"]], features: [\u0275\u0275ProvidersFeature([PanelStateService]), \u0275\u0275InheritDefinitionFeature], decls: 38, vars: 35, consts: [[1, "relative", "h-32", "bg-black", "p-4", "text-white"], [1, "absolute", "inset-0", "bg-cover", "bg-center", 3, "background-image"], [1, "absolute", "inset-0", "bg-black", "opacity-50"], ["name", "", 1, "absolute", "bottom-4", "left-4", "z-10", "text-3xl", "font-medium"], [1, "px-4", "pt-4", "text-xl", "font-medium"], [1, "bg-base-100", "space-y-2", "p-2"], [1, "border-base-300", "flex", "items-center", "rounded-sm", "border", "p-2", "shadow-sm"], [1, "h-full", "min-h-12", "w-2", "rounded-sm"], [1, "flex-1", "px-2", "text-sm"], [1, "text-lg", "font-medium", "uppercase"], [1, ""], ["btn", "", "matRipple", "", 1, "w-24"], [1, "bg-error", "h-full", "min-h-12", "w-2", "rounded-sm"], [1, "px-4", "pt-4", "pb-2", "text-xl", "font-medium"], [1, "border-base-300", "mx-2", "flex", "items-center", "overflow-auto", "rounded-sm", "border", "shadow-sm"], [3, "event", "events"], [1, "p-4", "text-xl", "font-medium"], [1, "divide-base-200", "bg-base-100", "h-px", "flex-1", "divide-y", "overflow-auto"], [1, "absolute", "inset-0", "bg-cover", "bg-center"], ["btn", "", "matRipple", "", 1, "w-24", 3, "click"], ["btn", "", "matRipple", "", 1, "flex", "w-full", "items-center", "p-4"], [1, "bg-neutral", "rounded-full", "p-2", "text-2xl", "text-black/40"], [1, "flex-1", "px-4", "text-left", "font-medium"], [1, "text-2xl", "opacity-40"]], template: function CheckinViewComponent_Template(rf, ctx) {
-  var _a, _b, _c, _d, _e, _f, _g;
+  var _a, _b, _c, _d, _e, _f;
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 0);
     \u0275\u0275conditionalCreate(1, CheckinViewComponent_Conditional_1_Template, 1, 2, "div", 1);
@@ -688,7 +688,7 @@ _CheckinViewComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ 
     \u0275\u0275advance(3);
     \u0275\u0275textInterpolate1(" ", ((_f = ctx.event_state()) == null ? void 0 : _f.next) || \u0275\u0275pipeBind1(29, 31, "APP.BOOKING_PANEL.NO_UPCOMING"), " ");
     \u0275\u0275advance(2);
-    \u0275\u0275conditional(!((_g = ctx.event_state()) == null ? void 0 : _g.next) && ctx.can_book() ? 30 : -1);
+    \u0275\u0275conditional(ctx.can_book() ? 30 : -1);
     \u0275\u0275advance(2);
     \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(33, 33, "APP.BOOKING_PANEL.SCHEDULE"), " ");
     \u0275\u0275advance(3);
@@ -832,12 +832,12 @@ var CheckinViewComponent = _CheckinViewComponent;
                         }}
                     </div>
                 </div>
-                @if (!event_state()?.next && can_book()) {
+                @if (can_book()) {
                     <button
                         btn
                         matRipple
                         class="w-24"
-                        (click)="newBooking(start(), true)"
+                        (click)="bookSlot(start())"
                     >
                         {{ 'COMMON.BOOK' | translate }}
                     </button>
@@ -924,5 +924,5 @@ var CheckinViewComponent = _CheckinViewComponent;
 export {
   CheckinViewComponent
 };
-//# debugId=17b1b213-c106-5556-ab53-6deba3e58778
-//# sourceMappingURL=checkin-view.component-PA2APFUV.js.map
+//# debugId=b824a968-1aad-5f4d-8f1a-6d78c23a8487
+//# sourceMappingURL=checkin-view.component-2L42CZFL.js.map

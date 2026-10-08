@@ -51202,89 +51202,96 @@ var SIGNAGE_MANAGER = {
   ADD_ZONE_TOOLTIP: "Add zone",
   ADD_ZONE_TO_PLAYLIST_ARIA: "Add zone to playlist",
   ADVANCED_SCHEDULE_WARNING: "This playlist uses an advanced schedule that cannot be edited with the simple recurrence controls. Choose one of the repeat patterns above to replace it.",
-  AI_ADD_LOGO: "Add your logo",
-  AI_ADD_TEXT: "Add another block of text",
-  AI_ADD_WORDS: "Add the words",
-  AI_ADD_WORDS_LAYER: "Add the words myself afterwards",
-  AI_ADD_WORDS_LAYER_HINT: "The image is generated without any text, then you type the headline over it. This keeps the words sharp and spelt correctly.",
-  AI_ALIGN_CENTRE: "Centre",
-  AI_ALIGN_LEFT: "Left",
-  AI_ALIGN_RIGHT: "Right",
-  AI_BODY_TEXT: "Smaller detail",
-  AI_BRIEF: "What should the image show?",
-  AI_BRIEF_HINT: "A poster for our office Christmas party on Friday 10 December",
-  AI_CHANGING_THIS: "Changing this image",
-  AI_CREATE_IMAGE: "Create image with AI",
-  AI_DEFAULT_NAME: "AI image",
-  AI_EDIT_IMAGE: "Change image with AI",
-  AI_ENGINE: "Images made by {{ model }}, via {{ provider }}",
-  AI_GENERATE: "Generate",
-  AI_HEADLINE: "Headline",
-  AI_INSTRUCTION: "What should change?",
-  AI_INSTRUCTION_HINT: "Make the background darker and move the tree to the left",
-  AI_JOB_DONE: "Your images are ready",
-  AI_JOB_FAILED: "The image could not be generated",
-  AI_LAYER_PREVIEW: "Preview of the finished image",
-  AI_IMAGE_UNREADABLE: "That image could not be loaded, so it cannot be saved. Pick another option or generate again.",
-  AI_LEAVE_LOGO_SPACE: "Leave room for our logo",
-  AI_LOGO_POSITION: "Logo position",
-  AI_LOGO_AUTO: "Choose for me",
-  AI_LOGO_VERSION: "Logo version",
-  AI_LOGO_SAVED: "Logo saved. It will be used on future posters too.",
-  AI_LOGO_UPLOADING: "Saving logo...",
-  AI_NO_IMAGE: "There is no image to save",
-  AI_NO_LOGO_YET: "No logo saved for this organisation yet.",
-  AI_NO_LOGO_ADMIN: "No logo saved for this organisation yet. An administrator can add one on the branding page.",
-  AI_NO_ORG_ZONE: "This domain has no organisation zone, so a logo cannot be saved",
-  AI_OPTION: "Generated option",
-  AI_OPTIONS_COUNT: "Options to generate",
-  AI_PICK_ONE: "Pick one",
-  AI_POS_BOTTOM: "Bottom",
-  AI_POS_BOTTOM_LEFT: "Bottom left",
-  AI_POS_BOTTOM_RIGHT: "Bottom right",
-  AI_POS_CENTRE: "Centre",
-  AI_POS_TOP: "Top",
-  AI_POS_TOP_LEFT: "Top left",
-  AI_POS_TOP_RIGHT: "Top right",
-  AI_PREVIEW_EMPTY: "Your image will show here once it is made.",
-  AI_QUOTA_LEFT: "{{ count }} images left today",
-  AI_REFINE: "Ask for a change",
-  AI_REFINE_ACTION: "Refine",
-  AI_REFINE_HINT: "Make the background darker",
-  AI_REFINE_NOTE: "Every version stays available above, so you can always go back to one you liked.",
-  AI_INCLUDE_IMAGES: "Images to include",
-  AI_INCLUDE_IMAGES_HINT: "Attach pictures that should appear in the artwork. They are arranged to look good on their own; name them in your words above as image 1, image 2 and so on for finer control.",
-  AI_STYLE_REFERENCE: "Style reference",
-  AI_STYLE_REFERENCE_HINT: "Attach one picture to set the look and feel. Its colours, mood and composition guide the artwork without appearing in it.",
-  AI_REFERENCE_ADD_ONE: "Attach image",
-  AI_REFERENCE_ADD: "Attach images",
-  AI_REFERENCE_NUMBER: "Image {{ number }}",
-  AI_REFERENCE_REMOVE: "Remove this image",
-  AI_REFERENCE_UPLOADING: "Attaching...",
-  AI_REMOVE_TEXT: "Remove this block",
-  AI_REPLACE_LOGO: "Replace logo",
-  AI_ROLE_BODY: "Detail",
-  AI_ROLE_HEADLINE: "Headline",
-  AI_ROLE_SUBHEADING: "Subheading",
-  AI_SAVING: "Saving",
-  AI_SHAPE: "Shape",
-  AI_SHOW_LOGO: "Show our logo",
-  AI_SUBHEADING: "Second line",
-  AI_TEXT_ALIGN: "Text alignment",
-  AI_TEXT_ANY_COLOUR: "Pick any colour",
-  AI_TEXT_BRAND_FONT: "Default",
-  AI_TEXT_DRAG_HINT: "Drag the words on the image to put them where you want them. Arrow keys nudge, hold shift to move further. Enter starts a new line.",
-  AI_TEXT_FONT: "Font",
-  AI_TEXT_COLOUR: "Colour",
-  AI_TEXT_PANEL: "Shade behind the text",
-  AI_TEXT_POSITION: "Text position",
-  AI_TEXT_SIZE: "Size",
-  AI_USE_BRANDING: "Use our branding",
-  AI_USE_BRANDING_HINT: "The organisation's colours, font and tone shape the image, and its palette is offered for the words. Turn it off for a poster that is not meant to look like us.",
-  AI_VERSIONS: "Options and versions",
-  AI_VERSION_LABEL: "Version {{ version }}, option {{ option }}",
-  AI_WORKING: "Making your images",
-  AI_WORDS_AND_LOGO: "Words and logo",
+  IMAGE_GEN_ADD_LOGO: "Add your logo",
+  IMAGE_GEN_ADD_TEXT: "Add another block of text",
+  IMAGE_GEN_ADD_WORDS: "Add the words",
+  IMAGE_GEN_ADD_WORDS_LAYER: "Add the words myself afterwards",
+  IMAGE_GEN_ADD_WORDS_LAYER_HINT: "The image is generated without any text, then you type the headline over it. This keeps the words sharp and spelt correctly.",
+  IMAGE_GEN_ALIGN_CENTRE: "Centre",
+  IMAGE_GEN_ALIGN_LEFT: "Left",
+  IMAGE_GEN_ALIGN_RIGHT: "Right",
+  IMAGE_GEN_BODY_TEXT: "Smaller detail",
+  IMAGE_GEN_BRIEF: "What should the image show?",
+  IMAGE_GEN_BRIEF_HINT: "A poster for our office Christmas party on Friday 10 December",
+  IMAGE_GEN_CANCEL_FAILED: "The image could not be stopped and is still being generated",
+  IMAGE_GEN_CHANGING_THIS: "Changing this image",
+  IMAGE_GEN_CREATE_IMAGE: "Create image with AI",
+  IMAGE_GEN_DEFAULT_NAME: "AI image",
+  IMAGE_GEN_EDIT_IMAGE: "Change image with AI",
+  IMAGE_GEN_ENGINE: "Images made by {{ model }}, via {{ provider }}",
+  IMAGE_GEN_GENERATE: "Generate",
+  IMAGE_GEN_HEADLINE: "Headline",
+  IMAGE_GEN_INSTRUCTION: "What should change?",
+  IMAGE_GEN_INSTRUCTION_HINT: "Make the background darker and move the tree to the left",
+  IMAGE_GEN_NEW_BRIEF: "New brief",
+  IMAGE_GEN_JOB_DONE: "Your images are ready",
+  IMAGE_GEN_JOB_FAILED: "The image could not be generated",
+  IMAGE_GEN_NO_IMAGES: "No images came back. Change the brief and try again.",
+  IMAGE_GEN_LAYER_PREVIEW: "Preview of the finished image",
+  IMAGE_GEN_IMAGE_UNREADABLE: "That image could not be loaded, so it cannot be saved. Pick another option or generate again.",
+  IMAGE_GEN_LEAVE_LOGO_SPACE: "Leave room for our logo",
+  IMAGE_GEN_LOGO_POSITION: "Logo position",
+  IMAGE_GEN_LOGO_AUTO: "Choose for me",
+  IMAGE_GEN_LOGO_VERSION: "Logo version",
+  IMAGE_GEN_LOGO_SAVED: "Logo saved. It will be used on future posters too.",
+  IMAGE_GEN_LOGO_SAVE_FAILED: "The logo could not be saved",
+  IMAGE_GEN_LOGO_UPLOADING: "Saving logo...",
+  IMAGE_GEN_NO_IMAGE: "There is no image to save",
+  IMAGE_GEN_NO_LOGO_YET: "No logo saved for this organisation yet.",
+  IMAGE_GEN_NO_LOGO_ADMIN: "No logo saved for this organisation yet. An administrator can add one on the branding page.",
+  IMAGE_GEN_NO_LOGO_LOCKED: "No logo saved for this organisation yet. Branding changes are turned off.",
+  IMAGE_GEN_NO_ORG_ZONE: "This domain has no organisation zone, so a logo cannot be saved",
+  IMAGE_GEN_OPTION: "Generated option",
+  IMAGE_GEN_OPTIONS_COUNT: "Options to generate",
+  IMAGE_GEN_PICK_ONE: "Pick one",
+  IMAGE_GEN_POS_BOTTOM: "Bottom",
+  IMAGE_GEN_POS_BOTTOM_LEFT: "Bottom left",
+  IMAGE_GEN_POS_BOTTOM_RIGHT: "Bottom right",
+  IMAGE_GEN_POS_CENTRE: "Centre",
+  IMAGE_GEN_POS_TOP: "Top",
+  IMAGE_GEN_POS_TOP_LEFT: "Top left",
+  IMAGE_GEN_POS_TOP_RIGHT: "Top right",
+  IMAGE_GEN_PREVIEW_EMPTY: "Your image will show here once it is made.",
+  IMAGE_GEN_QUOTA_LEFT: "{{ count }} images left today",
+  IMAGE_GEN_REFINE: "Ask for a change",
+  IMAGE_GEN_REFINE_ACTION: "Refine",
+  IMAGE_GEN_REFINE_HINT: "Make the background darker",
+  IMAGE_GEN_REFINE_NOTE: "Every version stays available above, so you can always go back to one you liked.",
+  IMAGE_GEN_INCLUDE_IMAGES: "Images to include",
+  IMAGE_GEN_INCLUDE_IMAGES_HINT: "Attach pictures that should appear in the artwork. They are arranged to look good on their own; name them in your words above as image 1, image 2 and so on for finer control.",
+  IMAGE_GEN_STYLE_REFERENCE: "Style reference",
+  IMAGE_GEN_STYLE_REFERENCE_HINT: "Attach one picture to set the look and feel. Its colours, mood and composition guide the artwork without appearing in it.",
+  IMAGE_GEN_REFERENCE_ADD_ONE: "Attach image",
+  IMAGE_GEN_REFERENCE_ADD: "Attach images",
+  IMAGE_GEN_REFERENCE_NUMBER: "Image {{ number }}",
+  IMAGE_GEN_REFERENCE_REMOVE: "Remove this image",
+  IMAGE_GEN_REFERENCE_UPLOADING: "Attaching...",
+  IMAGE_GEN_REFERENCE_UPLOAD_FAILED: "The image could not be attached",
+  IMAGE_GEN_REMOVE_TEXT: "Remove this block",
+  IMAGE_GEN_REPLACE_LOGO: "Replace logo",
+  IMAGE_GEN_ROLE_BODY: "Detail",
+  IMAGE_GEN_ROLE_HEADLINE: "Headline",
+  IMAGE_GEN_ROLE_SUBHEADING: "Subheading",
+  IMAGE_GEN_SAVING: "Saving",
+  IMAGE_GEN_SAVE_FAILED: "The image could not be saved",
+  IMAGE_GEN_SHAPE: "Shape",
+  IMAGE_GEN_SHOW_LOGO: "Show our logo",
+  IMAGE_GEN_SUBHEADING: "Second line",
+  IMAGE_GEN_TEXT_ALIGN: "Text alignment",
+  IMAGE_GEN_TEXT_ANY_COLOUR: "Pick any colour",
+  IMAGE_GEN_TEXT_BRAND_FONT: "Default",
+  IMAGE_GEN_TEXT_DRAG_HINT: "Drag the words on the image to put them where you want them. Arrow keys nudge, hold shift to move further. Enter starts a new line.",
+  IMAGE_GEN_TEXT_FONT: "Font",
+  IMAGE_GEN_TEXT_COLOUR: "Colour",
+  IMAGE_GEN_TEXT_PANEL: "Shade behind the text",
+  IMAGE_GEN_TEXT_POSITION: "Text position",
+  IMAGE_GEN_TEXT_SIZE: "Size",
+  IMAGE_GEN_USE_BRANDING: "Use our branding",
+  IMAGE_GEN_USE_BRANDING_HINT: "The organisation's colours, font and tone shape the image, and its palette is offered for the words. Turn it off for a poster that is not meant to look like us.",
+  IMAGE_GEN_VERSIONS: "Options and versions",
+  IMAGE_GEN_VERSION_LABEL: "Version {{ version }}, option {{ option }}",
+  IMAGE_GEN_WORKING: "Making your images",
+  IMAGE_GEN_WORDS_AND_LOGO: "Words and logo",
   ALL_DAY: "All day",
   ALL_DAY_LOWER: "all day",
   ALL_GROUPS: "All Groups",
@@ -51316,7 +51323,7 @@ var SIGNAGE_MANAGER = {
   BACK_TO_TEMPLATES: "Back to templates list",
   BACK_TO_ZONES: "Back to zones list",
   BRAND_ADD_COLOUR: "Add a colour",
-  BRAND_AI_OFF: "Image generation is not switched on for this domain, so this is not used yet.",
+  BRAND_IMAGE_GEN_OFF: "Image generation is not switched on for this domain, so this is not used yet.",
   BRAND_COLOURS: "Brand colours",
   BRAND_COLOUR_INVALID: "A brand colour must be a hex value like #0E6E52.",
   BRAND_FONT: "Brand font",
@@ -51324,6 +51331,7 @@ var SIGNAGE_MANAGER = {
   BRAND_FONT_SYSTEM: "System default",
   BRAND_HEADER: "Branding",
   BRAND_HINT: "Used whenever artwork is generated for this organisation, so posters come back in your colours rather than the model's.",
+  BRAND_LOAD_ERROR: "Could not load the brand kit.",
   BRAND_LOGO: "Logo",
   BRAND_LOGO_DERIVED: "Made from your other logo",
   BRAND_LOGO_HINT: "Upload one and the other version is made from it, keeping your colours. Replace either with your own file whenever you have one.",
@@ -51348,6 +51356,7 @@ var SIGNAGE_MANAGER = {
   BULK_UPLOAD_REMOVE_ARIA: "Remove file from upload list",
   BULK_UPLOAD_RETRY: "Retry failed ({{ count }})",
   BULK_UPLOAD_START: "Upload files ({{ count }})",
+  BULK_UPLOAD_STOPPING: "Stopping after the current file...",
   BULK_UPLOAD_SUCCESS: "Successfully uploaded {{ count }} media files.",
   BULK_UPLOAD_TITLE: "Upload Media Files",
   BULK_UPLOAD_UPLOADING: "Uploading {{ current }} of {{ total }}...",
@@ -51369,6 +51378,7 @@ var SIGNAGE_MANAGER = {
   CREATE_NEW_PLAYLIST: "Create new playlist",
   CREATE_NEW_TEMPLATE: "Create new template",
   CREATE_NEW_ZONE: "Create new zone",
+  CURRENT_PARENT_GROUP: "Current parent group",
   CUSTOM_SCHEDULE: "Custom schedule",
   DAYS_OF_MONTH_ARIA: "Recurring schedule days of month",
   DAYS_OF_WEEK_ARIA: "Recurring schedule days of week",
@@ -51403,6 +51413,8 @@ var SIGNAGE_MANAGER = {
   DISPLAY_ZONES: "Display zones",
   DISPLAY_ZONES_HINT: "Select a zone to add it to this display.",
   DRAG_MEDIA_HINT: "Drag media onto a playlist to add it",
+  DROP_MEDIA_HINT: "Images and supported video files",
+  DROP_MEDIA_TITLE: "Drop media to upload",
   DURATION_DAY: "{{ count }} days",
   DURATION_DAY_1: "{{ count }} day",
   DURATION_HOUR: "{{ count }} hours",
@@ -51426,6 +51438,7 @@ var SIGNAGE_MANAGER = {
   EXPAND_GROUP: "Expand group {{ name }}",
   EXPAND_ZONE: "Expand zone {{ name }}",
   EXPIRED: "EXPIRED",
+  GROUPS_LOAD_ERROR: "Could not load your signage groups. Check your connection, then try again.",
   GROUPS_NEW_TOOLTIP: "New group",
   GROUPS_SEARCH_ARIA: "Search signage groups",
   GROUPS_SELECT_PROMPT: "Select a signage group to manage it.",
@@ -51459,8 +51472,8 @@ var SIGNAGE_MANAGER = {
   AD_GROUP_EDIT_PERMS: "Edit AD group permissions",
   AD_GROUP_REMOVE: "Remove AD group",
   AD_GROUP_PERMISSIONS: "Permissions for {{ name }}",
-  FEATURE_AI_GENERATION: "AI image generation",
-  FEATURE_AI_EDITING: "AI image editing",
+  FEATURE_IMAGE_GENERATION: "AI image generation",
+  FEATURE_IMAGE_EDITING: "AI image editing",
   FEATURE_BRANDING_EDITING: "Branding editing",
   FEATURE_TEMPLATE_EDITING: "Template editing",
   FEATURE_PLUGINS: "Available plugins",
@@ -51488,6 +51501,7 @@ var SIGNAGE_MANAGER = {
   MEDIA_NEW: "New Media Item",
   MEDIA_PLAY_TIME: "Play Time",
   MEDIA_PREVIEW: "Media preview",
+  MEDIA_PREVIEW_LOAD_ERROR: "Could not load the media preview.",
   MEDIA_SAVE_ERROR: "Failed to save media item. Error: {{ error }}",
   MEDIA_SAVE_SUCCESS: "Successfully saved media item.",
   MEDIA_SAVING: "Saving Media Item...",
@@ -51535,9 +51549,11 @@ var SIGNAGE_MANAGER = {
   REPORT_UNASSIGNED_PLAYLISTS: "Unassigned playlists",
   REPORT_UNASSIGNED_PLAYLISTS_HINT: "Playlists that are not assigned to a display or a zone.",
   REPORT_EXPIRED_PLAYLISTS: "Expired playlists that are still assigned",
-  REPORT_EXPIRED_PLAYLISTS_HINT: "Playlists after their end date that are still assigned to a display or a zone.",
+  REPORT_EXPIRED_PLAYLISTS_HINT: "Playlists that are still assigned to a display or a zone after their end date, or after the end date of all their schedules.",
   REPORT_EXPIRED_MEDIA: "Expired media in playlists",
   REPORT_EXPIRED_MEDIA_HINT: "Media after its end date that is still in a playlist.",
+  REPORT_EXPIRED_MEDIA_PARTIAL: "The report did not check {{ count }} more expired media items.",
+  REPORT_EXPIRED_MEDIA_PARTIAL_1: "The report did not check 1 more expired media item.",
   SVC_TAKEOVER_CONFLICT_TITLE: "Takeover conflict",
   SVC_TAKEOVER_CONFLICT_CONTENT: "This change causes {{ count }} takeover conflicts in the next {{ days }} days:",
   SVC_TAKEOVER_CONFLICT_CONTENT_1: "This change causes a takeover conflict in the next {{ days }} days:",
@@ -51546,6 +51562,8 @@ var SIGNAGE_MANAGER = {
   PALETTE_OPEN: "Search",
   PALETTE_SEARCH: "Search pages, displays, playlists, and media",
   PALETTE_RESULTS: "Search results",
+  PALETTE_RESULT_COUNT: "{{ count }} results",
+  PALETTE_RESULT_COUNT_1: "{{ count }} result",
   PALETTE_PAGES: "Pages",
   PALETTE_NO_RESULTS: "No results",
   COPY_NAME: "{{ name }} (copy)",
@@ -51557,6 +51575,8 @@ var SIGNAGE_MANAGER = {
   SVC_PLAYLIST_DUPLICATE_ERROR: "Could not duplicate the playlist",
   SVC_TEMPLATE_DUPLICATED: "Template duplicated",
   SVC_TEMPLATE_DUPLICATE_ERROR: "Could not duplicate the template",
+  SVC_MEDIA_ITEMS_USED_IN: "The selected items are used in {{ count }} playlists: {{ names }}. Deleting them removes them from these playlists.",
+  SVC_MEDIA_ITEMS_USED_IN_1: "The selected items are used in 1 playlist: {{ names }}. Deleting them removes them from this playlist.",
   SVC_MEDIA_USED_IN: "It is used in {{ count }} playlists: {{ names }}. Deleting it removes it from these playlists.",
   SVC_MEDIA_USED_IN_1: "It is used in 1 playlist: {{ names }}. Deleting it removes it from this playlist.",
   MEDIA_SORT_FILTER: "Sort and filter",
@@ -51576,6 +51596,7 @@ var SIGNAGE_MANAGER = {
   PLAYLIST_LOOP_TOOLTIP: "Time to play each item once. Item schedules can skip items.",
   TEMPLATE_UNSAVED_TITLE: "Unsaved layout changes",
   TEMPLATE_UNSAVED_CONTENT: "This template has layout changes that are not saved. Discard the changes?",
+  TEMPLATE_VERSIONS_LOAD_ERROR: "Unable to load template versions.",
   NO_DISPLAYS_AVAILABLE: "No displays available.",
   NO_DISPLAYS_USE_PLAYLIST: "No displays use this playlist.",
   NO_DISPLAYS_ZONE: "No displays in this zone.",
@@ -51616,6 +51637,7 @@ var SIGNAGE_MANAGER = {
   ORIENTATION_PORTRAIT: "Portrait",
   ORIENTATION_SQUARE: "Square",
   ORIENTATION_UNSPECIFIED: "Unspecified",
+  PARENT_GROUP: "Parent group",
   PARENT_REQUIRED: "Parent group is required",
   PERMISSIONS: "Permissions",
   PERM_CREATE: "Create",
@@ -51631,14 +51653,18 @@ var SIGNAGE_MANAGER = {
   PLAYLISTS_PAGE_TITLE: "Signage Playlists",
   PLAYLIST_APPROVED: "Playlist approved",
   PLAYLIST_APPROVE_ERROR: "Error approving playlist",
+  PLAYLIST_CHANGED_BEFORE_APPROVAL: "The playlist changed while you reviewed it. Check the new version, then approve it.",
   PLAYLIST_COUNT_LABEL: "{{ count }} playlists",
   PLAYLIST_COUNT_LABEL_1: "{{ count }} playlist",
   PLAYLIST_DESCRIPTION_ARIA: "Playlist description",
   PLAYLIST_DETAILS_TABS: "Playlist details tabs",
   PLAYLIST_DISTRIBUTION: "Distribution Playlist",
   PLAYLIST_EDIT: "Edit Playlist",
+  PLAYLIST_ITEM_MOVE_DOWN: "Move down",
+  PLAYLIST_ITEM_MOVE_UP: "Move up",
   PLAYLIST_LABEL: "Playlist",
   PLAYLIST_NAME_ARIA: "Playlist name",
+  PLAYLIST_NOT_FOUND: "Could not open the playlist. It may have been deleted.",
   PLAYLIST_ORIENTATION_ARIA: "Playlist orientation",
   PLAYLIST_REVERTED: "Playlist reverted to previous version",
   PLAYLIST_REVERT_ERROR: "Error reverting playlist changes",
@@ -51647,6 +51673,7 @@ var SIGNAGE_MANAGER = {
   PLAYLIST_SAVING: "Saving Playlist...",
   PLAYLIST_SCHEDULES: "Playlist Schedules",
   PLAYLIST_SHUFFLE: "Shuffle Playlist",
+  PLAYLIST_VERSIONS_LOAD_ERROR: "Could not load the playlist versions.",
   PLAY_AT: "Play At",
   PLAY_AT_EXACT_TIME: "Play at exact time",
   PLAY_AT_EXACT_TIME_HINT: "All displays play at the same moment in the selected timezone.",
@@ -51660,7 +51687,7 @@ var SIGNAGE_MANAGER = {
   PLAY_THROUGH_ONCE: "Play through once",
   PLUGIN_PARAMETERS: "Plugin Parameters",
   PREVIEW_CHANGES: "Preview changes",
-  PREVIEW_CHANGES_HINT: "Compare the pending version with the previous version.",
+  PREVIEW_CHANGES_HINT: "Compare the pending version with the last approved version.",
   PREVIEW_MEDIA: "Preview {{ name }}",
   PREVIEW_MEDIA_ARIA: "Preview media",
   PREVIEW_UNAVAILABLE: "Preview not available",
@@ -51723,6 +51750,7 @@ var SIGNAGE_MANAGER = {
   SEQUENTIAL: "Sequential",
   SHARE: "Share",
   SHARED_WITH: "Shared with",
+  SHARED_WITH_LIST_CHANGED: "The groups that hold this item changed. Check the list, then try again.",
   SHARED_WITH_REMOVE: "Remove from group",
   SHARED_WITH_REMOVED: "Removed from group",
   SHARED_WITH_REMOVE_CONTENT: "Remove this item from <strong>{{ name }}</strong>? It stays available in the other groups it is shared with.",
@@ -51744,7 +51772,6 @@ var SIGNAGE_MANAGER = {
   SOURCE_DISPLAY: "Display",
   SOURCE_VIA: "via {{ source }}",
   START: "Start",
-  STATUS_AWAITING_APPROVAL: "Awaiting Approval",
   STATUS_AWAITING_REVIEW: "Awaiting Review",
   STATUS_EXPIRED: "Expired",
   SUMMARY_ADVANCED: "Advanced recurring schedule. Choose a repeat pattern to edit it.",
@@ -51762,6 +51789,7 @@ var SIGNAGE_MANAGER = {
   SVC_ADD_DUPLICATE_CONTENT: "This media is already in the playlist. Add another copy?",
   SVC_ADD_DUPLICATE_TITLE: "Add duplicate media?",
   SVC_APPROVAL_REQUESTED: "Playlist approval requested",
+  SVC_ASSIGNMENT_ERROR: "Could not update the assignment. Please try again.",
   SVC_CONVERTED_MEDIA: "Converted {{ from }} to {{ to }} for browser compatibility.",
   SVC_DELETE_NAMED: 'Delete "{{ name }}"?',
   SVC_DELETE_NAMED_PLAIN: "Delete {{ name }}?",
@@ -51773,15 +51801,27 @@ var SIGNAGE_MANAGER = {
   SVC_DISPLAY_REMOVED: "Display removed",
   SVC_DISPLAY_REMOVED_PLAYLIST: "Display removed from playlist",
   SVC_DISPLAY_REMOVED_ZONE: "Display removed from zone",
+  SVC_DISPLAY_REMOVE_ERROR: "Could not remove the display. Please try again.",
   SVC_DISPLAY_SAVED: "Display saved",
+  SVC_DISPLAY_SAVE_ERROR: "Could not save the display. Please try again.",
+  SVC_ERR_ADD_PLAYLIST_ITEMS: "Error adding media to the playlist",
   SVC_ERR_ADD_USER: "Error adding group user",
   SVC_ERR_ADD_ZONE: "Error adding group zone",
   SVC_ERR_CONVERT_IMAGE: "Unable to convert image",
   SVC_ERR_LOAD_IMAGE: "Unable to load image",
+  SVC_ERR_MEDIA_TAGS: "Could not add tags to {{ count }} media items.",
+  SVC_ERR_MEDIA_TAGS_1: "Could not add tags to 1 media item.",
+  SVC_ERR_READ_MEDIA: "Could not read {{ name }}. The file can be damaged, or in a format that this browser cannot open.",
   SVC_ERR_REMOVE_GROUP: "Error removing signage group",
+  SVC_ERR_REMOVE_MEDIA: "Error removing media",
+  SVC_ERR_REMOVE_PLAYLIST: "Error removing playlist",
+  SVC_ERR_REMOVE_PLAYLIST_ITEMS: "Error removing playlist items",
   SVC_ERR_REMOVE_USER: "Error removing group user",
   SVC_ERR_REMOVE_ZONE: "Error removing group zone",
+  SVC_ERR_REORDER_PLAYLIST: "Error saving the playlist order",
+  SVC_ERR_REQUEST_APPROVAL: "Error requesting approval",
   SVC_ERR_SAVE_GROUP: "Error saving signage group",
+  SVC_ERR_SHARE: "Error sharing items",
   SVC_ERR_UPDATE_USER: "Error updating group user",
   SVC_ERR_UPDATE_ZONE: "Error updating group zone",
   SVC_GROUP_REMOVED: "Signage group removed",
@@ -51789,12 +51829,14 @@ var SIGNAGE_MANAGER = {
   SVC_GROUP_FEATURES_SAVED: "Group features saved",
   SVC_GROUP_ACCESS_SAVED: "Group access saved",
   SVC_NO_EDIT_GROUP_FEATURES: "Only system admins and managers of a parent group can change the features of this group.",
-  SVC_AI_DISABLED: "AI images are turned off.",
+  SVC_IMAGE_GEN_DISABLED: "AI images are turned off.",
   SVC_ITEMS_REMOVED: "{{ count }} items removed from playlist",
   SVC_ITEMS_REMOVED_1: "{{ count }} item removed from playlist",
   SVC_ITEM_REMOVED: "Item removed from playlist",
   SVC_MEDIA_ALREADY_IN: "Selected media is already in this playlist.",
+  SVC_MEDIA_PLAYLISTS_NOT_UPDATED: "The media was removed, but some playlists could not be updated.",
   SVC_MEDIA_REMOVED: "Media removed",
+  SVC_MEDIA_REMOVING: "Removing media...",
   SVC_MEDIA_TAG_ERROR: "Unable to update tag: {{ error }}",
   SVC_MEDIA_TAG_REMOVED: "Tag removed",
   SVC_MEDIA_TAG_RENAMED: "Tag renamed",
@@ -51809,6 +51851,7 @@ var SIGNAGE_MANAGER = {
   SVC_NO_CREATE_PLAYLISTS: "You cannot create playlists in this group.",
   SVC_NO_CREATE_TEMPLATES: "You cannot create templates in this group.",
   SVC_NO_MANAGE_ZONES: "Only system administrators and signage group managers can manage zones.",
+  SVC_NO_MOVE_GROUP: "You cannot move this group there. Only system admins and managers of the current and the new parent group can move a group.",
   SVC_NO_DELETE_DISPLAYS: "Only system administrators can delete displays.",
   SVC_NO_DELETE_MEDIA: "You cannot delete media in this group.",
   SVC_NO_DELETE_PLAYLISTS: "You cannot delete playlists in this group.",
@@ -51840,10 +51883,13 @@ var SIGNAGE_MANAGER = {
   SVC_REMOVE_SIGNAGE_ZONE_TITLE: "Remove signage zone?",
   SVC_REMOVE_MEDIA_TITLE: "Remove media?",
   SVC_REMOVE_NAMED_FROM_GROUP: 'Remove "{{ name }}" from this group?',
+  SVC_REMOVE_OWN_MANAGE: "After you save, you cannot manage this group. Another manager must give the permission back to you.",
+  SVC_REMOVE_OWN_MANAGE_TITLE: "Remove your manage permission?",
   SVC_REMOVE_PLAYLIST_ITEMS_TITLE: "Remove playlist items?",
   SVC_REMOVE_PLAYLIST_TITLE: "Remove playlist?",
   SVC_REMOVE_SELECTED_PLAYLIST_ITEMS: "Remove {{ count }} selected items from this playlist?",
   SVC_REMOVE_SELECTED_PLAYLIST_ITEMS_1: "Remove {{ count }} selected item from this playlist?",
+  SVC_REMOVE_SELF_FROM_GROUP: "Remove yourself from this group? You can lose access to the group and its content.",
   SVC_REMOVE_TEMPLATE_MAPPING_CONTENT: "Remove {{ name }} from this item?",
   SVC_REMOVE_TEMPLATE_MAPPING_TITLE: "Remove applied template?",
   SVC_REMOVE_TEMPLATE_TITLE: "Remove template?",
@@ -51854,12 +51900,15 @@ var SIGNAGE_MANAGER = {
   SVC_SHARE_PLAYLIST_TITLE: "Share playlist with group",
   SVC_SHARE_TEMPLATE_TITLE: "Share template with group",
   SVC_TEMPLATE_APPROVAL_REQUESTED: "Template approval requested",
+  SVC_TEMPLATE_APPROVAL_REQUEST_ERROR: "Error requesting template approval",
   SVC_TEMPLATE_LAYOUTS_SAVED: "Template layout saved",
+  SVC_TEMPLATE_LAYOUTS_UNSAVED: "Save or discard the layout changes first.",
   SVC_TEMPLATE_MAPPING_REMOVED: "Template removed from item",
   SVC_TEMPLATE_MAPPING_REMOVE_ERROR: "Error removing template from item",
   SVC_TEMPLATE_MAPPING_SAVED: "Applied template saved",
   SVC_TEMPLATE_MAPPING_SAVE_ERROR: "Error saving applied template",
   SVC_TEMPLATE_REMOVED: "Template removed",
+  SVC_TEMPLATE_REMOVE_ERROR: "Error removing template",
   SVC_TEMPLATE_SAVE_ERROR: "Error saving template layout",
   SVC_TEMPLATE_SHARED: "Template shared",
   SVC_THUMBNAIL_FAILED: "Could not generate a thumbnail from the selected image.",
@@ -51874,7 +51923,9 @@ var SIGNAGE_MANAGER = {
   SVC_ZONE_REMOVED_PLAYLIST: "Zone removed from playlist",
   SVC_ZONE_UPDATED: "Group zone updated",
   SVC_SIGNAGE_ZONE_REMOVED: "Signage zone removed",
+  SVC_SIGNAGE_ZONE_REMOVE_ERROR: "Could not remove the signage zone. Please try again.",
   SVC_SIGNAGE_ZONE_SAVED: "Signage zone saved",
+  SVC_SIGNAGE_ZONE_SAVE_ERROR: "Could not save the signage zone. Please try again.",
   TAB_ITEMS: "Items",
   TAB_USERS: "Users",
   TAB_ZONES: "Zones",
@@ -51900,15 +51951,19 @@ var SIGNAGE_MANAGER = {
   TEMPLATE_DISCARD: "Discard",
   TEMPLATE_EDIT: "Edit Template",
   TEMPLATE_FULLSCREEN_TAKEOVER: "Full screen takeover",
+  TEMPLATE_FULLSCREEN_TAKEOVER_INFO: "When on, takeover content hides the template and fills the full screen.",
   TEMPLATE_MERGE: "Merge",
   TEMPLATE_LABEL: "Template",
   TEMPLATE_LAYOUT_COUNT: "{{ count }} layouts",
   TEMPLATE_LAYOUT_ITEMS: "Layout Items",
+  TEMPLATE_LAYOUT_PARAMS_REQUIRED: "Fill in the required plugin parameters for each layout.",
+  TEMPLATE_LAYOUT_POSITION_INVALID: "Panel size must be more than 0% and less than 100%.",
   TEMPLATE_LIVE_MODE: "Live",
   TEMPLATE_LIVE_MODE_HINT: "Show the template plugins and live display",
   TEMPLATE_LIVE_PREVIEW: "Live template preview",
   TEMPLATE_MAPPINGS: "Mappings",
   TEMPLATE_MAPPINGS_LOAD_ERROR: "Unable to load template mappings.",
+  TEMPLATE_MAPPING_CONFIGURED_ON_ZONE: "Configured on zone:",
   TEMPLATE_MAPPING_DEFAULT_HINT: "Turn this off to make the template the default for this item.",
   TEMPLATE_MAPPING_DISPLAY: "Display",
   TEMPLATE_MAPPING_EDIT: "Edit template schedule",
@@ -51934,6 +51989,7 @@ var SIGNAGE_MANAGER = {
   TEMPLATE_REMOVE_LAYOUT: "Remove layout item",
   TEMPLATE_REQUIRED: "Select a template",
   TEMPLATE_REVERTED: "Template reverted to previous version",
+  TEMPLATE_REVERT_CONFIRM: "Discard the pending changes and restore the approved version of {{ name }}? You cannot get the pending changes back.",
   TEMPLATE_REVERT_ERROR: "Error reverting template changes",
   TEMPLATE_SAVED: "Template saved",
   TEMPLATE_SAVE_ERROR: "Error saving template",
@@ -51943,6 +51999,7 @@ var SIGNAGE_MANAGER = {
   TEMPLATE_Y_POS: "Y position",
   THIS_WEEK_ARIA: "Show this week",
   THUMBNAIL: "Thumbnail",
+  THUMBNAIL_AUTO: "Automatic",
   THUMBNAIL_CHOOSE: "Choose image",
   THUMBNAIL_LOADING: "Loading image...",
   THUMBNAIL_NONE: "No thumbnail",
@@ -51964,7 +52021,9 @@ var SIGNAGE_MANAGER = {
   URL_REQUIRED: "URL is required",
   USERS_COUNT: "Users ({{ count }})",
   USERS_COUNT_1: "User ({{ count }})",
+  USERS_LOAD_ERROR: "Could not load the users of this group.",
   USER_PERMISSIONS: "User permissions",
+  USER_SEARCH_ERROR: "Could not search users.",
   VALID_FROM: "Valid From",
   SCHEDULE_MASK_RANGE: "Enter 1 to 128 characters using only 0 and 1.",
   SCHEDULE_MASK_VALID_FROM: "Set Valid From to use a repeat mask.",
@@ -51996,7 +52055,9 @@ var SIGNAGE_MANAGER = {
   WEEK_OF_MONTH_ARIA: "Recurring schedule week of month",
   ZONES_COUNT: "Zones ({{ count }})",
   ZONES_COUNT_1: "Zone ({{ count }})",
+  ZONES_LOAD_ERROR: "Could not load the zones of this group.",
   ZONES_TITLE: "Signage Zones",
+  ZONE_CHILDREN_RETRY: "Could not load the zones in {{ name }}. Select to try again.",
   ZONE_COUNT_LABEL: "{{ count }} zones",
   ZONE_COUNT_LABEL_1: "{{ count }} zone",
   ZONE_DETAILS_TABS: "Zone details tabs",
@@ -53085,6 +53146,7 @@ var APP = {
     BOOKING_REMOVE_SUCCESS: "Successfully cancelled booking.",
     BOOKING_REMOVE_ERROR: "Failed to cancel booking. Error: {{ error }}",
     BOOKING_REMOVE_LOADING: "Cancelling booking...",
+    BOOKINGS_CALENDAR_ERROR: "Bookings did not load for {{ names }}.",
     ROOMS_PENDING_HEADER: "Pending Approval",
     ROOMS_PENDING_EMPTY: "No pending requests",
     ROOMS_PENDING_SHOW: "Show Pending Approvals",
@@ -54117,9 +54179,12 @@ var APP = {
     VC_PIP_SHOW: "Show Camera PIP",
     VC_PIP_HIDE: "Hide Camera PIP",
     VC_JOIN_ERROR: "Unable to find active video conference",
-    VC_LEAVE_ERROR: "Failed to hung up call. Error: {{ error }}",
+    VC_LEAVE_ERROR: "Could not hang up the call. Error: {{ error }}",
+    VC_DIAL_ERROR: "Could not dial the call. Error: {{ error }}",
+    VC_COMMAND_ERROR: "Video conference command failed. Error: {{ error }}",
     VC_LEAVE_LOADING: "Hanging up call...",
     VC_LOADING: "Loading call details...",
+    ROUTE_ERROR: "Could not switch the source. Error: {{ error }}",
     CONTROLS: "Controls",
     ZOOM: "Zoom",
     CAMERA_SELECT: "Select Camera",
@@ -54155,6 +54220,7 @@ var APP = {
     MEETING_JOIN_MSG: "Are you sure you wish to join {{ name }}'s meeting starting at {{ time }}?",
     MEETING_JOIN_LOADING: "Joining meeting...",
     MEETING_JOIN_SUCCESS: "Successfully joined meeting.",
+    MEETING_JOIN_ERROR: "Could not join the meeting. Error: {{ error }}",
     SOURCE_INPUT_SELECT: "Select input source for {{ name }}",
     SOURCE_INPUTS_EMPTY: "No input sources available for the selected output({{ name }})",
     SOURCE_SWITCHING: "Switching input source...",
@@ -54619,6 +54685,16 @@ function getTimeInTimezone(date, tz) {
   }
   const zoned = toZonedTime(date, tz);
   return { hours: zoned.getHours(), minutes: zoned.getMinutes() };
+}
+function sameDayInTimezone(date, from_tz, to_tz) {
+  const day = toZonedTime(date, from_tz || LOCAL_TIMEZONE);
+  const noon = set(day, {
+    hours: 12,
+    minutes: 0,
+    seconds: 0,
+    milliseconds: 0
+  });
+  return fromZonedTime(noon, to_tz || LOCAL_TIMEZONE).valueOf();
 }
 function formatTimeInTimezone(date, tz) {
   const { hours, minutes } = getTimeInTimezone(date, tz);
@@ -56219,7 +56295,10 @@ var CalendarEvent = class _CalendarEvent {
     const asset_requests = (linked_assets.length ? linked_assets : this.extension_data.assets) || [];
     this.extension_data.images = this.extension_data.images || data.images || [];
     this.extension_data.view_access = this.extension_data.view_access || data.view_access || ((_h = data.permission) == null ? void 0 : _h.toUpperCase()) || "OPEN";
-    this.permission = data.permission || this.extension_data.view_access;
+    this.permission = data.view_access || data.permission || this.extension_data.view_access;
+    if (this.extension_data.permission) {
+      this.extension_data.permission = this.permission;
+    }
     this.extension_data.assets = asset_requests.map((i) => new AssetRequest(__spreadProps(__spreadValues({}, i), { event: simple_event })));
   }
   /** List of external attendees associated with the event */
@@ -56601,15 +56680,15 @@ setTimeout(() => initialiseUser(), 50);
 // libs/common/src/lib/version.ts
 var VERSION3 = {
   "dirty": false,
-  "raw": "f46a920",
-  "hash": "f46a920",
+  "raw": "307f1d2",
+  "hash": "307f1d2",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "f46a920",
+  "suffix": "307f1d2",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1790834678625
+  "time": 1791427173445
 };
 
 // libs/common/src/lib/google-analytics.service.ts
@@ -79247,9 +79326,13 @@ var _PlaceOS_Service = class _PlaceOS_Service extends AsyncHandler {
     if (!tracking_id)
       return;
     setLoadingMessage("Initialising analytics...");
-    this._analytics.init(tracking_id);
-    this._analytics.load(tracking_id);
-    this._analytics.setUser(currentUser().id);
+    try {
+      this._analytics.init(tracking_id);
+      this._analytics.load(tracking_id);
+      this._analytics.setUser(currentUser().id);
+    } catch (error2) {
+      log("APP", "Failed to initialise analytics.", error2, "warn");
+    }
   }
   _initLocale() {
     var _a8, _b3;
@@ -79383,9 +79466,8 @@ function cachedAuthority() {
   }
 }
 var _OrganisationService = class _OrganisationService {
-  /** Whether cached data is being replaced with the latest from the API */
   get _refreshing() {
-    return this._refresh_count > 0;
+    return this.refreshing();
   }
   /** Mapping of organisation settings overrides */
   get settings() {
@@ -79580,7 +79662,20 @@ var _OrganisationService = class _OrganisationService {
     );
     this._loaded_data = {};
     this._served_cache = false;
-    this._refresh_count = 0;
+    this._refresh_count = signal(
+      0,
+      ...ngDevMode ? [{ debugName: "_refresh_count" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.refreshing = computed(
+      () => this._refresh_count() > 0,
+      ...ngDevMode ? [{ debugName: "refreshing" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
     this._loaded_buildings = signal(
       [],
       ...ngDevMode ? [{ debugName: "_loaded_buildings" }] : (
@@ -79841,9 +79936,9 @@ var _OrganisationService = class _OrganisationService {
    * displayed data is replaced with the latest. Runs in the background.
    */
   async _refresh(load2) {
-    this._refresh_count++;
+    this._refresh_count.update((count) => count + 1);
     await load2().catch((err) => console.warn("Failed to refresh organisation data.", err));
-    this._refresh_count--;
+    this._refresh_count.update((count) => count - 1);
   }
   _setPublicData() {
     const region_id = localStorage.getItem("PLACEOS.region") || "public";
@@ -81951,6 +82046,7 @@ export {
   endOfDayInTimezone,
   getTimezoneOffsetString,
   getTimeInTimezone,
+  sameDayInTimezone,
   formatTimeInTimezone,
   setTimeInTimezone,
   markUserDateChange,
@@ -82104,5 +82200,5 @@ export {
   SafePipe,
   IconComponent
 };
-//# debugId=f746c857-088c-5f14-a720-5ebd01f1477f
-//# sourceMappingURL=chunk-K6U75NDO.js.map
+//# debugId=f0e1611f-065e-55b5-844e-e9bc3d86aec8
+//# sourceMappingURL=chunk-MCWNSMLK.js.map

@@ -1,6 +1,6 @@
 import {
   SanitizePipe
-} from "./chunk-AGPOD3XT.js";
+} from "./chunk-WMT6WS52.js";
 import {
   FormField,
   MatAutocomplete,
@@ -28,10 +28,10 @@ import {
   setMinutes,
   submit,
   validate
-} from "./chunk-MOQDFEKP.js";
+} from "./chunk-AVLCZYMP.js";
 import {
   TranslatePipe
-} from "./chunk-NTDTHHWW.js";
+} from "./chunk-LSSGSND6.js";
 import {
   A11yModule,
   AssetRequest,
@@ -188,6 +188,7 @@ import {
   removeEmptyFields,
   resource,
   roundToNearestMinutes,
+  sameDayInTimezone,
   set,
   setClassMetadata,
   setDefaultCreator,
@@ -269,7 +270,7 @@ import {
   ɵɵtextInterpolate3,
   ɵɵviewQuery,
   ɵɵviewQuerySignal
-} from "./chunk-K6U75NDO.js";
+} from "./chunk-MCWNSMLK.js";
 import {
   __objRest,
   __spreadProps,
@@ -4467,25 +4468,26 @@ var _UserSearchFieldComponent = class _UserSearchFieldComponent extends AsyncHan
     )), {
       params: () => ({ term: this._debounced_term.value() }),
       loader: async ({ params: { term } }) => {
-        var _a, _b;
+        var _a;
         if (term && typeof term !== "string") {
           const user = term;
           return user.email === EMPTY_USER.email ? [] : [user];
         }
-        if (term === ((_a = this.user()) == null ? void 0 : _a.name))
-          return [this.user()];
+        const selected = this.user();
+        if (selected && term === selected.name)
+          return [selected];
         if (this.disable_search())
           return [];
         const s = `${term || ""}`.toLowerCase();
-        if ((_b = this.options()) == null ? void 0 : _b.length) {
+        if ((_a = this.options()) == null ? void 0 : _a.length) {
           return this.options().filter((_2) => _2.email !== EMPTY_USER.email && (_2.name.toLowerCase().includes(s) || _2.email.toLowerCase().includes(s)));
         }
         if (s.length <= 2)
           return [];
         const list = await this.query_fn()(s).catch(() => []);
         return list.filter((_2) => !!_2 && _2.email !== EMPTY_USER.email).sort((a, b) => {
-          var _a2, _b2;
-          return (((_a2 = a.name) == null ? void 0 : _a2.toLowerCase()) || "").localeCompare((_b2 = b.name) == null ? void 0 : _b2.toLowerCase());
+          var _a2, _b;
+          return (((_a2 = a.name) == null ? void 0 : _a2.toLowerCase()) || "").localeCompare((_b = b.name) == null ? void 0 : _b.toLowerCase());
         });
       }
     }));
@@ -4985,30 +4987,100 @@ async function queryResourceAvailability(id_list, start, duration, ignore, type 
   });
   return id_list.map((id) => !bookings.find((b) => (b.asset_id === id || b.asset_ids.includes(id)) && (!ignore || ignore !== b.id)));
 }
+async function linkedBookingsForEvent(event, type) {
+  const bookings = await queryBookingsOrThrow({
+    type,
+    event_id: event.id,
+    period_start: getUnixTime(event.date),
+    period_end: getUnixTime(addMinutes(event.date, event.duration)),
+    limit: 500
+  });
+  return bookings.filter((_2) => {
+    var _a;
+    return ((_a = _2.extension_data) == null ? void 0 : _a.parent_id) === event.id;
+  });
+}
+function replacedEventBookingIds(event, type) {
+  return (event.linked_bookings || []).filter((_2) => {
+    var _a;
+    const parent_id = (_a = _2.extension_data) == null ? void 0 : _a.parent_id;
+    return _2.booking_type === type && !!parent_id && parent_id !== event.id;
+  }).map((_2) => _2.id);
+}
+function bookingMatchesResource(booking, item) {
+  var _a, _b, _c, _d;
+  if (item.id && ((_b = (_a = booking.extension_data) == null ? void 0 : _a.details) == null ? void 0 : _b.id) === item.id) {
+    return true;
+  }
+  if (item.email && ((_c = booking.attendees) == null ? void 0 : _c.find((_2) => _2.email === item.email))) {
+    return true;
+  }
+  return !!((_d = booking.asset_ids) == null ? void 0 : _d.find((id) => {
+    var _a2;
+    return (_a2 = item.items) == null ? void 0 : _a2.find((i) => {
+      var _a3;
+      return (_a3 = i.item_ids) == null ? void 0 : _a3.includes(id);
+    });
+  }));
+}
+function detailsKey(details) {
+  const data = JSON.parse(JSON.stringify(details ?? null));
+  if (data && typeof data === "object")
+    delete data.deliver_at_time;
+  return JSON.stringify(data, (_2, value) => value && typeof value === "object" && !Array.isArray(value) ? Object.fromEntries(Object.entries(value).sort(([a], [b]) => a < b ? -1 : 1)) : value);
+}
+function attendeeEmails(list = []) {
+  return list.map((_2) => {
+    var _a;
+    return (_a = _2.email) == null ? void 0 : _a.toLowerCase();
+  }).sort().join(",");
+}
+function linkedBookingChanges(booking, desired) {
+  var _a, _b;
+  const changes = {};
+  if (booking.booking_start !== desired.booking_start || booking.booking_end !== desired.booking_end) {
+    changes.booking_start = desired.booking_start;
+    changes.booking_end = desired.booking_end;
+    changes.all_day = desired.all_day;
+  }
+  for (const key of ["title", "description", "asset_name"]) {
+    if (booking[key] !== desired[key])
+      changes[key] = desired[key];
+  }
+  if (booking.user_email.toLowerCase() !== desired.user_email.toLowerCase()) {
+    changes.user_email = desired.user_email;
+  }
+  if (booking.asset_id !== desired.asset_id) {
+    changes.asset_id = desired.asset_id;
+    changes.asset_ids = desired.asset_ids;
+  }
+  if ([...booking.zones].sort().join() !== [...desired.zones].sort().join()) {
+    changes.zones = desired.zones;
+  }
+  if (attendeeEmails(booking.attendees) !== attendeeEmails(desired.attendees)) {
+    changes.attendees = desired.attendees;
+  }
+  const details_changed = detailsKey((_a = booking.extension_data) == null ? void 0 : _a.details) !== detailsKey((_b = desired.extension_data) == null ? void 0 : _b.details);
+  if (!details_changed && !Object.keys(changes).length)
+    return null;
+  return __spreadProps(__spreadValues({}, changes), { extension_data: desired.extension_data });
+}
 async function createBookingsForEvent(event, type, resources) {
   var _a;
-  const bookings = (await queryBookings({
-    type,
-    period_start: getUnixTime(event.date),
-    period_end: getUnixTime(addMinutes(event.date, event.duration))
-  })).filter((_2) => _2.parent_id === event.id);
-  await Promise.all(bookings.map((_2) => removeBooking(_2.id)));
-  await Promise.all(event.linked_bookings.filter((_2) => _2.booking_type === type).map((_2) => removeBooking(_2.id)));
+  const existing = await linkedBookingsForEvent(event, type);
   const zones = ((_a = event.system) == null ? void 0 : _a.zones) || unique(flatten(event.resources.map((_2) => _2.zones))) || [];
+  const kept = /* @__PURE__ */ new Set();
   const created_bookings = [];
   try {
+    for (const id of replacedEventBookingIds(event, type)) {
+      await removeBooking(id);
+    }
     for (const item of resources) {
-      const booking = bookings.find((_2) => {
-        var _a2, _b;
-        return ((_b = (_a2 = _2.extension_data) == null ? void 0 : _a2.details) == null ? void 0 : _b.id) === item.id || _2.asset_ids.find((id) => {
-          var _a3;
-          return (_a3 = item.items) == null ? void 0 : _a3.find((i) => i.item_ids.includes(id));
-        });
-      });
+      const booking = existing.find((_2) => !kept.has(_2.id) && bookingMatchesResource(_2, item));
       const assigned_space = type === "catering-order" && item.system_id ? event.resources.find((_2) => _2.id === item.system_id || _2.email === item.system_id) : void 0;
       const resource_id = (assigned_space == null ? void 0 : assigned_space.id) || item.system_id || item.email || item.id;
       const resource_name = (assigned_space == null ? void 0 : assigned_space.display_name) || (assigned_space == null ? void 0 : assigned_space.name) || item.name;
-      created_bookings.push(await createBooking(new Booking({
+      const desired = new Booking({
         type,
         booking_type: type,
         date: event.date,
@@ -5019,8 +5091,6 @@ async function createBookingsForEvent(event, type, resources) {
         asset_name: resource_name,
         title: event.title,
         attendees: item.email ? [new User(item)] : [],
-        approved: (booking == null ? void 0 : booking.approved) && !item._changed,
-        rejected: (booking == null ? void 0 : booking.rejected) && !item._changed,
         extension_data: {
           parent_id: event.id,
           name: resource_name,
@@ -5028,7 +5098,22 @@ async function createBookingsForEvent(event, type, resources) {
           details: item
         },
         zones: (assigned_space == null ? void 0 : assigned_space.zones) || zones
-      }).toJSON(), { ical_uid: event.ical_uid, event_id: event.id }));
+      });
+      if (booking) {
+        kept.add(booking.id);
+        const changes = linkedBookingChanges(booking, desired);
+        if (changes)
+          await updateBooking(booking.id, changes);
+        continue;
+      }
+      created_bookings.push(await createBooking(desired.toJSON(), {
+        ical_uid: event.ical_uid,
+        event_id: event.id
+      }));
+    }
+    for (const booking of existing) {
+      if (!kept.has(booking.id))
+        await removeBooking(booking.id);
     }
   } catch (error) {
     await Promise.all(created_bookings.filter((booking) => !!booking.id).map((booking) => removeBooking(booking.id).catch(() => void 0)));
@@ -6429,6 +6514,8 @@ function newBookingFromCalendarEvent(event) {
     user_id: ((_b = event.organiser) == null ? void 0 : _b.id) || event.host,
     user_email: event.host,
     user_name: ((_c = event.organiser) == null ? void 0 : _c.name) || event.host,
+    // An empty title uses the booking type default.
+    title: event.title || void 0,
     date,
     duration,
     all_day: event.all_day,
@@ -7485,9 +7572,9 @@ var _EventFormService = class _EventFormService extends AsyncHandler {
       all_day_end: period == null ? void 0 : period.end
     });
   }
-  _allDayTimeRange(date) {
+  _allDayTimeRange(date, timezone = this.timezone) {
     const period = this._settings.get("app.events.all_day_period");
-    return getAllDayTimeRange(date, this.timezone, period == null ? void 0 : period.start, period == null ? void 0 : period.end);
+    return getAllDayTimeRange(date, timezone, period == null ? void 0 : period.start, period == null ? void 0 : period.end);
   }
   /** Resolve the bookable space list for the given zone */
   _requestSpaces(zone_id) {
@@ -7667,13 +7754,21 @@ var _EventFormService = class _EventFormService extends AsyncHandler {
       }
       const changed_spaces = spaces.filter((_2) => !event.resources.find((s) => s.id === _2.id));
       const resources_changed = !!changed_spaces.length || event.resources.some((space) => !spaces.some((_2) => _2.id === space.id));
-      const all_day_period = raw_value.all_day ? this._allDayTimeRange(raw_value.date) : {
+      const ignored_emails = ignore_space_check.map((_2) => _2.toLowerCase());
+      const isIgnored = (space) => {
+        var _a2;
+        return ignored_emails.includes((_a2 = space.email) == null ? void 0 : _a2.toLowerCase());
+      };
+      const rooms = spaces.filter((_2) => !isIgnored(_2));
+      const organiser_timezone = await this._organiserTimezone(rooms.length ? rooms : spaces, raw_value.timezone);
+      const has_date_changed = !event.id || event.date !== raw_value.date;
+      const all_day_date = has_date_changed ? sameDayInTimezone(raw_value.date, this.timezone, organiser_timezone) : raw_value.date;
+      const all_day_period = raw_value.all_day ? this._allDayTimeRange(all_day_date, organiser_timezone) : {
         date: raw_value.date,
         duration: raw_value.duration,
         date_end: raw_value.date_end
       };
       const has_time_changed = !event.id || event.date !== raw_value.date || event.duration !== raw_value.duration;
-      const organiser_timezone = this.timezone || raw_value.timezone;
       this._model.update((m) => __spreadProps(__spreadValues({}, m), {
         timezone: organiser_timezone
       }));
@@ -7681,7 +7776,7 @@ var _EventFormService = class _EventFormService extends AsyncHandler {
       if (spaces.length && (has_time_changed || resources_changed)) {
         const date = raw_value.all_day ? all_day_period.date : raw_value.date;
         const duration = raw_value.all_day ? all_day_period.duration : raw_value.duration;
-        const availability_candidates = has_time_changed ? spaces : changed_spaces;
+        const availability_candidates = (has_time_changed ? spaces : changed_spaces).filter((_2) => !isIgnored(_2));
         if (availability_candidates.length) {
           const availability_spaces = await Promise.all(availability_candidates.map((space) => this._space_pipe.transform(space.email)));
           await this._checkResourcesAvailable(availability_spaces, date, duration, event.ical_uid || event.id || "").catch(on_error);
@@ -7790,7 +7885,7 @@ var _EventFormService = class _EventFormService extends AsyncHandler {
       }
       const domain = (((_j = currentUser()) == null ? void 0 : _j.email) || "@").split("@")[1];
       const visitors = this._model().attendees.filter((user) => user.is_external && user.email !== event.host && !user.email.includes(domain) && user.visit_expected);
-      if (visitors.length) {
+      if (visitors.length || event.id) {
         await createBookingsForEvent(created_event, "visitor", visitors).catch((e) => this._removeBookingAfterError(!event.id, created_event, false, e));
       }
       if ((_k = this._model().catering) == null ? void 0 : _k.length) {
@@ -7906,6 +8001,18 @@ var _EventFormService = class _EventFormService extends AsyncHandler {
         response_status: (response == null ? void 0 : response.response_status) || (response || !require_saved_resource ? space.response_status : "declined")
       }));
     });
+  }
+  /**
+   * Timezone to save with the event. With building timezones on, the
+   * building of the event's rooms decides it before the active building.
+   */
+  async _organiserTimezone(spaces, fallback) {
+    if (spaces.length && !multipleSpacesEnabled(this._settings) && this._settings.get("app.events.use_building_timezone")) {
+      const [building] = await this._org.loadBuildingsForZones(spaces.map((space) => space.zones || []));
+      if (building == null ? void 0 : building.timezone)
+        return building.timezone;
+    }
+    return this.timezone || fallback;
   }
   /** Check the event instant against every selected building's local hours. */
   async _checkBuildingBookableHours(spaces, date, date_end, organiser_timezone) {
@@ -8605,7 +8712,7 @@ _BookingModalComponent.\u0275fac = /* @__PURE__ */ (() => {
     return (\u0275BookingModalComponent_BaseFactory || (\u0275BookingModalComponent_BaseFactory = \u0275\u0275getInheritedFactory(_BookingModalComponent)))(__ngFactoryType__ || _BookingModalComponent);
   };
 })();
-_BookingModalComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _BookingModalComponent, selectors: [["booking-modal"]], outputs: { event: "event" }, features: [\u0275\u0275InheritDefinitionFeature], decls: 9, vars: 6, consts: [[1, "bg-base-100", "mx-auto", "h-full", "w-full", "overflow-auto", "rounded-sm", "sm:h-auto", "sm:w-lg"], [1, "bg-base-200", "sticky", "top-0", "z-10", "m-2", "w-[calc(100%-1rem)]", "rounded-sm", "border-none", "p-2"], [1, "px-2", "text-xl", "font-medium"], ["icon", "", "matRipple", ""], ["form", "", 1, "max-h-[calc(100vh-12rem)]", "w-full", "overflow-auto", "px-4"], [1, "flex", "h-64", "flex-col", "items-center", "justify-center", "space-y-4", "p-8"], [1, "bg-base-200", "sticky", "bottom-0", "z-10", "m-2", "flex", "w-[calc(100%-1rem)]", "justify-end", "rounded-sm", "border-none", "p-2"], ["icon", "", "matRipple", "", 3, "click"], [1, "field"], [1, "flex", "space-x-2"], [1, "flex-1"], ["for", "duration"], ["name", "duration", 3, "min", "max", "step", "formField"], [1, "flex", "flex-col"], ["for", "title"], ["appearance", "outline", 1, "w-full"], ["matInput", "", 3, "placeholder", "formField"], ["for", "host"], ["name", "host", 1, "mb-2", 3, "query_fn", "formField", "error"], ["for", "start-time"], ["name", "start-time", 3, "formField"], [3, "diameter"], ["btn", "", "matRipple", "", "name", "save", 1, "w-32", 3, "click"]], template: function BookingModalComponent_Template(rf, ctx) {
+_BookingModalComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _BookingModalComponent, selectors: [["booking-modal"]], outputs: { event: "event" }, features: [\u0275\u0275InheritDefinitionFeature], decls: 9, vars: 6, consts: [[1, "bg-base-100", "mx-auto", "h-full", "w-full", "overflow-auto", "rounded-sm", "sm:h-auto", "sm:w-lg"], [1, "bg-base-200", "sticky", "top-0", "z-10", "m-2", "w-[calc(100%-1rem)]", "rounded-sm", "border-none", "p-2"], [1, "px-2", "text-xl", "font-medium"], ["icon", "", "matRipple", ""], ["form", "", 1, "max-h-[calc(100vh-12rem)]", "w-full", "overflow-auto", "px-4"], [1, "flex", "h-64", "flex-col", "items-center", "justify-center", "space-y-4", "p-8"], [1, "bg-base-200", "sticky", "bottom-0", "z-10", "m-2", "flex", "w-[calc(100%-1rem)]", "justify-end", "rounded-sm", "border-none", "p-2"], ["icon", "", "matRipple", "", 3, "click"], [1, "field"], [1, "flex", "space-x-2"], [1, "flex-1"], ["for", "duration"], ["name", "duration", 3, "min", "max", "step", "formField"], [1, "flex", "flex-col"], ["for", "title"], ["appearance", "outline", 1, "w-full"], ["matInput", "", 3, "placeholder", "formField"], ["for", "host"], ["name", "host", 1, "mb-2", 3, "query_fn", "formField", "error"], ["for", "start-time"], ["name", "start-time", 3, "formField"], [3, "diameter"], ["btn", "", "matRipple", "", "name", "save", "type", "button", 1, "w-32", 3, "click"]], template: function BookingModalComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 0)(1, "header", 1)(2, "h2", 2);
     \u0275\u0275text(3);
@@ -8742,6 +8849,7 @@ var BookingModalComponent = _BookingModalComponent;
                         btn
                         matRipple
                         name="save"
+                        type="button"
                         class="w-32"
                         (click)="save()"
                     >
@@ -8766,7 +8874,7 @@ var BookingModalComponent = _BookingModalComponent;
   }], null, { event: [{ type: Output, args: ["event"] }] });
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(BookingModalComponent, { className: "BookingModalComponent", filePath: "apps/booking-panel/src/app/overlays/booking-modal.component.ts", lineNumber: 202 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(BookingModalComponent, { className: "BookingModalComponent", filePath: "apps/booking-panel/src/app/overlays/booking-modal.component.ts", lineNumber: 203 });
 })();
 
 // apps/booking-panel/src/app/overlays/embedded-control-modal.component.ts
@@ -9047,6 +9155,7 @@ var _PanelStateService = class _PanelStateService extends AsyncHandler {
       "custom_qr_url",
       "custom_qr_color",
       "disable_book_now",
+      "disable_qr_booking",
       "hide_meeting_details",
       "hide_meeting_title",
       "disable_book_now_host",
@@ -9156,6 +9265,7 @@ var _PanelStateService = class _PanelStateService extends AsyncHandler {
    * @param date Start time of the new booking
    */
   async newBooking(date = Date.now(), user = false, future = false, force_api = false) {
+    var _a;
     const current = this._current();
     if (current && isAfter(date, current.date) && isBefore(date, addMinutes(current.date, current.duration)))
       return notifyError("Booking already exists for this time");
@@ -9188,24 +9298,20 @@ var _PanelStateService = class _PanelStateService extends AsyncHandler {
     }), this._dialog);
     if (details.reason !== "done")
       return details.close();
-    this._events.newForm();
-    this._events.model.update((m) => {
-      var _a;
-      return __spreadProps(__spreadValues(__spreadValues({}, m), details.metadata), {
-        host: (_a = details.metadata.organiser) == null ? void 0 : _a.email,
-        resources: [space],
-        system: space
-      });
+    const booking = __spreadProps(__spreadValues({}, details.metadata), {
+      host: (_a = details.metadata.organiser) == null ? void 0 : _a.email,
+      resources: [space],
+      system: space
     });
-    await this.makeBooking(this._events.model(), force_api).catch((e) => {
+    try {
+      await this.makeBooking(booking, force_api);
+    } catch (e) {
       notifyError(`Error creating meeting. ${e}`);
-      this._events.clearForm();
-      details.close();
       throw e;
-    });
-    this._events.clearForm();
-    details.close();
-    this.clearTimeout("reset_view");
+    } finally {
+      details.close();
+      this.clearTimeout("reset_view");
+    }
   }
   async confirmBookNow() {
     this.timeout("reset_view", () => this._dialog.closeAll(), 2 * 60 * 1e3);
@@ -9289,7 +9395,15 @@ var _PanelStateService = class _PanelStateService extends AsyncHandler {
    */
   async makeBooking(details, force_api = false) {
     if (isAfter(details.date, addMinutes(Date.now(), 5)) || force_api) {
-      await this._events.postForm(true);
+      this._events.newForm();
+      this._events.model.update((m) => __spreadProps(__spreadValues(__spreadValues({}, m), details), {
+        date_end: addMinutes(details.date, details.duration).valueOf()
+      }));
+      try {
+        await this._events.postForm(true);
+      } finally {
+        this._events.clearForm();
+      }
     } else {
       const module = Fp(this.system, "Bookings");
       if (!details || !module)
@@ -9486,5 +9600,5 @@ export {
   burnInOffset,
   PanelStateService
 };
-//# debugId=c8ee1e42-0160-51fd-98c6-0d4b7d520f0b
-//# sourceMappingURL=chunk-UL5H5UAY.js.map
+//# debugId=11411514-a20e-560d-a92e-5582f1080293
+//# sourceMappingURL=chunk-JF4SGKL7.js.map
