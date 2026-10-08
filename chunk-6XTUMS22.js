@@ -4,7 +4,7 @@ import {
   inject,
   setClassMetadata,
   ɵɵdefinePipe
-} from "./chunk-MCWNSMLK.js";
+} from "./chunk-IPUOZUZU.js";
 
 // libs/components/src/lib/translate.pipe.ts
 var _TranslatePipe = class _TranslatePipe {
@@ -34,4 +34,4 @@ export {
   TranslatePipe
 };
 //# debugId=3f122a02-e7c5-533e-a347-7d686cdcfbcd
-//# sourceMappingURL=chunk-LSSGSND6.js.map
+//# sourceMappingURL=chunk-6XTUMS22.js.map
