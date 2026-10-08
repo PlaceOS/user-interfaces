@@ -1,17 +1,17 @@
 import {
   ChatService,
   DateFromPipe
-} from "./chunk-FH75AV6O.js";
+} from "./chunk-M6MNH355.js";
 import {
   MatTooltip,
   MatTooltipModule
-} from "./chunk-XHGAUNY7.js";
+} from "./chunk-KTHXME2V.js";
 import {
   TranslatePipe
-} from "./chunk-LLVAAOMH.js";
+} from "./chunk-KUYVRZJF.js";
 import {
   SanitizePipe
-} from "./chunk-AXXJB55O.js";
+} from "./chunk-RO2V5MHO.js";
 import {
   A,
   ActivatedRoute,
@@ -293,7 +293,7 @@ import {
   ɵɵtwoWayProperty,
   ɵɵviewQuery,
   ɵɵviewQuerySignal
-} from "./chunk-XJ4YXUDK.js";
+} from "./chunk-POXEOJIB.js";
 import {
   __spreadProps,
   __spreadValues
@@ -8115,15 +8115,15 @@ var GlobalLoadingComponent = class _GlobalLoadingComponent extends AsyncHandler 
 // libs/components/src/lib/settings-debug-panel-launcher.component.ts
 var SettingsDebugPanelLauncherComponent_Defer_25_DepsFn = () => [
   /* @ts-ignore */
-  import("./settings-debug-panel.component-LTXIS3HU.js").then((m) => m.SettingsDebugPanelComponent)
+  import("./settings-debug-panel.component-7KOETEVX.js").then((m) => m.SettingsDebugPanelComponent)
 ];
 var SettingsDebugPanelLauncherComponent_Defer_28_DepsFn = () => [
   /* @ts-ignore */
-  import("./binding-debug-panel.component-QGZAWOQR.js").then((m) => m.BindingDebugPanelComponent)
+  import("./binding-debug-panel.component-3U2IEJAM.js").then((m) => m.BindingDebugPanelComponent)
 ];
 var SettingsDebugPanelLauncherComponent_Defer_31_DepsFn = () => [
   /* @ts-ignore */
-  import("./debug-console.component-ILTKJVM3.js").then((m) => m.DebugConsoleComponent)
+  import("./debug-console.component-YJZFMIWF.js").then((m) => m.DebugConsoleComponent)
 ];
 function SettingsDebugPanelLauncherComponent_Defer_24_Conditional_0_Template(rf, ctx) {
   if (rf & 1) {
@@ -8358,11 +8358,11 @@ var SettingsDebugPanelLauncherComponent = class _SettingsDebugPanelLauncherCompo
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(SettingsDebugPanelLauncherComponent, () => [
     /* @ts-ignore */
-    import("./settings-debug-panel.component-LTXIS3HU.js").then((m) => m.SettingsDebugPanelComponent),
+    import("./settings-debug-panel.component-7KOETEVX.js").then((m) => m.SettingsDebugPanelComponent),
     /* @ts-ignore */
-    import("./binding-debug-panel.component-QGZAWOQR.js").then((m) => m.BindingDebugPanelComponent),
+    import("./binding-debug-panel.component-3U2IEJAM.js").then((m) => m.BindingDebugPanelComponent),
     /* @ts-ignore */
-    import("./debug-console.component-ILTKJVM3.js").then((m) => m.DebugConsoleComponent)
+    import("./debug-console.component-YJZFMIWF.js").then((m) => m.DebugConsoleComponent)
   ], (SettingsDebugPanelComponent, BindingDebugPanelComponent, DebugConsoleComponent) => {
     setClassMetadata(SettingsDebugPanelLauncherComponent, [{
       type: Component,
@@ -8769,7 +8769,7 @@ var AuthorisedUserGuard = class _AuthorisedUserGuard {
 // apps/assistant-panel/src/app/app.component.ts
 var AppComponent_Defer_4_DepsFn = () => [
   /* @ts-ignore */
-  import("./chat.component-UX36JOY3.js").then((m) => m.ChatComponent)
+  import("./chat.component-EM2FFIJR.js").then((m) => m.ChatComponent)
 ];
 function AppComponent_Defer_3_Template(rf, ctx) {
   if (rf & 1) {
@@ -8819,7 +8819,7 @@ var AppComponent = class _AppComponent {
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(AppComponent, () => [
     /* @ts-ignore */
-    import("./chat.component-UX36JOY3.js").then((m) => m.ChatComponent)
+    import("./chat.component-EM2FFIJR.js").then((m) => m.ChatComponent)
   ], (ChatComponent) => {
     setClassMetadata(AppComponent, [{
       type: Component,

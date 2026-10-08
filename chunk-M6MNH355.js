@@ -19,7 +19,7 @@ import {
   signal,
   ɵɵdefineInjectable,
   ɵɵdefinePipe
-} from "./chunk-XJ4YXUDK.js";
+} from "./chunk-POXEOJIB.js";
 import {
   __spreadProps,
   __spreadValues
@@ -2496,4 +2496,4 @@ export {
   ChatService
 };
 //# debugId=16189450-7d70-52e2-8c54-0950cb73a13f
-//# sourceMappingURL=chunk-FH75AV6O.js.map
+//# sourceMappingURL=chunk-M6MNH355.js.map

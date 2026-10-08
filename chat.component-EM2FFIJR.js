@@ -1,13 +1,13 @@
 import {
   ChatService,
   DateFromPipe
-} from "./chunk-FH75AV6O.js";
+} from "./chunk-M6MNH355.js";
 import {
   TranslatePipe
-} from "./chunk-LLVAAOMH.js";
+} from "./chunk-KUYVRZJF.js";
 import {
   SanitizePipe
-} from "./chunk-AXXJB55O.js";
+} from "./chunk-RO2V5MHO.js";
 import {
   AsyncHandler,
   Component,
@@ -64,7 +64,7 @@ import {
   ɵɵtwoWayListener,
   ɵɵtwoWayProperty,
   ɵɵviewQuerySignal
-} from "./chunk-XJ4YXUDK.js";
+} from "./chunk-POXEOJIB.js";
 import "./chunk-653SOEEV.js";
 
 // libs/components/src/lib/chat/chat.component.ts
@@ -656,4 +656,4 @@ export {
   ChatComponent
 };
 //# debugId=2723d124-538c-5412-aaa5-6e5577e1c240
-//# sourceMappingURL=chat.component-UX36JOY3.js.map
+//# sourceMappingURL=chat.component-EM2FFIJR.js.map
