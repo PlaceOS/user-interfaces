@@ -1,10 +1,10 @@
 import {
   ICON_MAP,
   NextMeetingComponent
-} from "./chunk-A2ZI4VG3.js";
+} from "./chunk-6FCLBXGG.js";
 import {
   VideoCallPageComponent
-} from "./chunk-VQCQDBUE.js";
+} from "./chunk-VT2AWSMW.js";
 import {
   BindingDirective,
   ControlConnectingComponent,
@@ -20,8 +20,8 @@ import {
   moveCamera,
   selectCamera,
   zoomCamera
-} from "./chunk-JXLW22HW.js";
-import "./chunk-XTWSGQ6H.js";
+} from "./chunk-LRMKYHLV.js";
+import "./chunk-E4W5K7JE.js";
 import {
   AuthenticatedImageDirective,
   ControlStateService,
@@ -37,11 +37,11 @@ import {
   marked,
   parse,
   toSignal
-} from "./chunk-UTHE6AYJ.js";
-import "./chunk-RHOXWFSX.js";
+} from "./chunk-UL6NDOAC.js";
+import "./chunk-L2W5ECAR.js";
 import {
   TranslatePipe
-} from "./chunk-U4V525AH.js";
+} from "./chunk-KUOPNTYV.js";
 import {
   ActivatedRoute,
   AsyncHandler,
@@ -123,7 +123,7 @@ import {
   ɵɵtwoWayListener,
   ɵɵtwoWayProperty,
   ɵɵviewQuerySignal
-} from "./chunk-WRMJ73SH.js";
+} from "./chunk-CE5NOWRL.js";
 import {
   __spreadProps,
   __spreadValues
@@ -2865,4 +2865,4 @@ export {
   ControlTabbedViewComponent
 };
 //# debugId=d1d4d765-56cd-5642-846f-02d5df4a3b3e
-//# sourceMappingURL=tabbed-view.component-S2YSWTLV.js.map
+//# sourceMappingURL=tabbed-view.component-FR5VIQXE.js.map

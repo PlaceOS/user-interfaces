@@ -62382,15 +62382,15 @@ setTimeout(() => initialiseUser(), 50);
 // libs/common/src/lib/version.ts
 var VERSION4 = {
   "dirty": false,
-  "raw": "307f1d2",
-  "hash": "307f1d2",
+  "raw": "95da5d0",
+  "hash": "95da5d0",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "307f1d2",
+  "suffix": "95da5d0",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1791427174440
+  "time": 1791428073790
 };
 
 // libs/common/src/lib/settings.service.ts
@@ -81366,5 +81366,5 @@ export {
   PlaceOS_Service,
   OrganisationService
 };
-//# debugId=0553a6b9-bce3-541d-b3be-e581e436b724
-//# sourceMappingURL=chunk-WRMJ73SH.js.map
+//# debugId=0e336ba5-3527-50c2-8caa-dd2f0222b489
+//# sourceMappingURL=chunk-CE5NOWRL.js.map

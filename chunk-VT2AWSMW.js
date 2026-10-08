@@ -2,7 +2,7 @@ import {
   DialpadComponent,
   VideoCallStateService,
   selectCamera
-} from "./chunk-JXLW22HW.js";
+} from "./chunk-LRMKYHLV.js";
 import {
   ControlStateService,
   MatFormField,
@@ -12,10 +12,10 @@ import {
   MatSelect,
   MatSelectModule,
   errorText
-} from "./chunk-UTHE6AYJ.js";
+} from "./chunk-UL6NDOAC.js";
 import {
   TranslatePipe
-} from "./chunk-U4V525AH.js";
+} from "./chunk-KUOPNTYV.js";
 import {
   AsyncHandler,
   Component,
@@ -66,7 +66,7 @@ import {
   ɵɵtext,
   ɵɵtextInterpolate,
   ɵɵtextInterpolate1
-} from "./chunk-WRMJ73SH.js";
+} from "./chunk-CE5NOWRL.js";
 
 // apps/control/src/app/video-call/video-call-page.component.ts
 function VideoCallPageComponent_Conditional_0_Conditional_3_For_3_Template(rf, ctx) {
@@ -709,4 +709,4 @@ export {
   VideoCallPageComponent
 };
 //# debugId=3cf95837-4a26-5f1d-8533-09c6ac1328bb
-//# sourceMappingURL=chunk-VQCQDBUE.js.map
+//# sourceMappingURL=chunk-VT2AWSMW.js.map
