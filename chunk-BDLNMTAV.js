@@ -1,9 +1,9 @@
 import {
   CustomTooltipComponent
-} from "./chunk-EF4NAGON.js";
+} from "./chunk-PCBEKCLS.js";
 import {
   SanitizePipe
-} from "./chunk-H555XVLZ.js";
+} from "./chunk-BRRP35NE.js";
 import {
   FormField,
   MAT_FORM_FIELD,
@@ -35,14 +35,14 @@ import {
   setHours,
   setMinutes,
   validate
-} from "./chunk-VEMYLE4M.js";
+} from "./chunk-HEX2DQXI.js";
 import {
   MatTooltip,
   MatTooltipModule
-} from "./chunk-UP47BWY4.js";
+} from "./chunk-AM7COT3W.js";
 import {
   TranslatePipe
-} from "./chunk-X5XNDVI5.js";
+} from "./chunk-QX7T554J.js";
 import {
   $,
   A11yModule,
@@ -251,6 +251,7 @@ import {
   resource,
   roundToNearestMinutes,
   rp,
+  sameDayInTimezone,
   set,
   setClassMetadata,
   setDefaultCreator,
@@ -349,7 +350,7 @@ import {
   ɵɵtwoWayProperty,
   ɵɵviewQuery,
   ɵɵviewQuerySignal
-} from "./chunk-OFMU64MF.js";
+} from "./chunk-SJGS6LJW.js";
 import {
   __objRest,
   __spreadProps,
@@ -8514,8 +8515,9 @@ var UserSearchFieldComponent = class _UserSearchFieldComponent extends AsyncHand
           const user = term;
           return user.email === EMPTY_USER.email ? [] : [user];
         }
-        if (term === this.user()?.name)
-          return [this.user()];
+        const selected = this.user();
+        if (selected && term === selected.name)
+          return [selected];
         if (this.disable_search())
           return [];
         const s = `${term || ""}`.toLowerCase();
@@ -9078,23 +9080,84 @@ async function queryResourceAvailability(id_list, start, duration, ignore, type 
   });
   return id_list.map((id) => !bookings.find((b) => (b.asset_id === id || b.asset_ids.includes(id)) && (!ignore || ignore !== b.id)));
 }
-async function createBookingsForEvent(event, type, resources) {
-  const bookings = (await queryBookings({
+async function linkedBookingsForEvent(event, type) {
+  const bookings = await queryBookingsOrThrow({
     type,
+    event_id: event.id,
     period_start: getUnixTime(event.date),
-    period_end: getUnixTime(addMinutes(event.date, event.duration))
-  })).filter((_2) => _2.parent_id === event.id);
-  await Promise.all(bookings.map((_2) => removeBooking(_2.id)));
-  await Promise.all(event.linked_bookings.filter((_2) => _2.booking_type === type).map((_2) => removeBooking(_2.id)));
+    period_end: getUnixTime(addMinutes(event.date, event.duration)),
+    limit: 500
+  });
+  return bookings.filter((_2) => _2.extension_data?.parent_id === event.id);
+}
+function replacedEventBookingIds(event, type) {
+  return (event.linked_bookings || []).filter((_2) => {
+    const parent_id = _2.extension_data?.parent_id;
+    return _2.booking_type === type && !!parent_id && parent_id !== event.id;
+  }).map((_2) => _2.id);
+}
+function bookingMatchesResource(booking, item) {
+  if (item.id && booking.extension_data?.details?.id === item.id) {
+    return true;
+  }
+  if (item.email && booking.attendees?.find((_2) => _2.email === item.email)) {
+    return true;
+  }
+  return !!booking.asset_ids?.find((id) => item.items?.find((i) => i.item_ids?.includes(id)));
+}
+function detailsKey(details) {
+  const data = JSON.parse(JSON.stringify(details ?? null));
+  if (data && typeof data === "object")
+    delete data.deliver_at_time;
+  return JSON.stringify(data, (_2, value) => value && typeof value === "object" && !Array.isArray(value) ? Object.fromEntries(Object.entries(value).sort(([a], [b]) => a < b ? -1 : 1)) : value);
+}
+function attendeeEmails(list = []) {
+  return list.map((_2) => _2.email?.toLowerCase()).sort().join(",");
+}
+function linkedBookingChanges(booking, desired) {
+  const changes = {};
+  if (booking.booking_start !== desired.booking_start || booking.booking_end !== desired.booking_end) {
+    changes.booking_start = desired.booking_start;
+    changes.booking_end = desired.booking_end;
+    changes.all_day = desired.all_day;
+  }
+  for (const key of ["title", "description", "asset_name"]) {
+    if (booking[key] !== desired[key])
+      changes[key] = desired[key];
+  }
+  if (booking.user_email.toLowerCase() !== desired.user_email.toLowerCase()) {
+    changes.user_email = desired.user_email;
+  }
+  if (booking.asset_id !== desired.asset_id) {
+    changes.asset_id = desired.asset_id;
+    changes.asset_ids = desired.asset_ids;
+  }
+  if ([...booking.zones].sort().join() !== [...desired.zones].sort().join()) {
+    changes.zones = desired.zones;
+  }
+  if (attendeeEmails(booking.attendees) !== attendeeEmails(desired.attendees)) {
+    changes.attendees = desired.attendees;
+  }
+  const details_changed = detailsKey(booking.extension_data?.details) !== detailsKey(desired.extension_data?.details);
+  if (!details_changed && !Object.keys(changes).length)
+    return null;
+  return __spreadProps(__spreadValues({}, changes), { extension_data: desired.extension_data });
+}
+async function createBookingsForEvent(event, type, resources) {
+  const existing = await linkedBookingsForEvent(event, type);
   const zones = event.system?.zones || unique(flatten(event.resources.map((_2) => _2.zones))) || [];
+  const kept = /* @__PURE__ */ new Set();
   const created_bookings = [];
   try {
+    for (const id of replacedEventBookingIds(event, type)) {
+      await removeBooking(id);
+    }
     for (const item of resources) {
-      const booking = bookings.find((_2) => _2.extension_data?.details?.id === item.id || _2.asset_ids.find((id) => item.items?.find((i) => i.item_ids.includes(id))));
+      const booking = existing.find((_2) => !kept.has(_2.id) && bookingMatchesResource(_2, item));
       const assigned_space = type === "catering-order" && item.system_id ? event.resources.find((_2) => _2.id === item.system_id || _2.email === item.system_id) : void 0;
       const resource_id = assigned_space?.id || item.system_id || item.email || item.id;
       const resource_name = assigned_space?.display_name || assigned_space?.name || item.name;
-      created_bookings.push(await createBooking(new Booking({
+      const desired = new Booking({
         type,
         booking_type: type,
         date: event.date,
@@ -9105,8 +9168,6 @@ async function createBookingsForEvent(event, type, resources) {
         asset_name: resource_name,
         title: event.title,
         attendees: item.email ? [new User(item)] : [],
-        approved: booking?.approved && !item._changed,
-        rejected: booking?.rejected && !item._changed,
         extension_data: {
           parent_id: event.id,
           name: resource_name,
@@ -9114,7 +9175,22 @@ async function createBookingsForEvent(event, type, resources) {
           details: item
         },
         zones: assigned_space?.zones || zones
-      }).toJSON(), { ical_uid: event.ical_uid, event_id: event.id }));
+      });
+      if (booking) {
+        kept.add(booking.id);
+        const changes = linkedBookingChanges(booking, desired);
+        if (changes)
+          await updateBooking(booking.id, changes);
+        continue;
+      }
+      created_bookings.push(await createBooking(desired.toJSON(), {
+        ical_uid: event.ical_uid,
+        event_id: event.id
+      }));
+    }
+    for (const booking of existing) {
+      if (!kept.has(booking.id))
+        await removeBooking(booking.id);
     }
   } catch (error) {
     await Promise.all(created_bookings.filter((booking) => !!booking.id).map((booking) => removeBooking(booking.id).catch(() => void 0)));
@@ -11052,6 +11128,8 @@ function newBookingFromCalendarEvent(event) {
     user_id: event.organiser?.id || event.host,
     user_email: event.host,
     user_name: event.organiser?.name || event.host,
+    // An empty title uses the booking type default.
+    title: event.title || void 0,
     date,
     duration,
     all_day: event.all_day,
@@ -11082,7 +11160,8 @@ async function loadLockersForScope(org, scope_id, banks) {
   const assets = await queryLockerAssetsForZones([scope_id]).catch(() => []);
   const lockers = assets.map((_2) => lockerFromAsset(_2, banks));
   for (const bank of banks) {
-    bank.lockers = lockers.filter((_2) => _2.bank_id === bank.id).map((_2) => __spreadValues({}, _2));
+    const parent = __spreadProps(__spreadValues({}, bank), { lockers: [] });
+    bank.lockers = lockers.filter((_2) => _2.bank_id === bank.id).map((_2) => __spreadProps(__spreadValues({}, _2), { bank: parent }));
   }
   return lockers.filter((_2) => _2.bank);
 }
@@ -12358,9 +12437,9 @@ var EventFormService = class _EventFormService extends AsyncHandler {
       all_day_end: period?.end
     });
   }
-  _allDayTimeRange(date) {
+  _allDayTimeRange(date, timezone = this.timezone) {
     const period = this._settings.get("app.events.all_day_period");
-    return getAllDayTimeRange(date, this.timezone, period?.start, period?.end);
+    return getAllDayTimeRange(date, timezone, period?.start, period?.end);
   }
   /** Resolve the bookable space list for the given zone */
   _requestSpaces(zone_id) {
@@ -12538,13 +12617,18 @@ var EventFormService = class _EventFormService extends AsyncHandler {
       }
       const changed_spaces = spaces.filter((_2) => !event.resources.find((s) => s.id === _2.id));
       const resources_changed = !!changed_spaces.length || event.resources.some((space) => !spaces.some((_2) => _2.id === space.id));
-      const all_day_period = raw_value.all_day ? this._allDayTimeRange(raw_value.date) : {
+      const ignored_emails = ignore_space_check.map((_2) => _2.toLowerCase());
+      const isIgnored = (space) => ignored_emails.includes(space.email?.toLowerCase());
+      const rooms = spaces.filter((_2) => !isIgnored(_2));
+      const organiser_timezone = await this._organiserTimezone(rooms.length ? rooms : spaces, raw_value.timezone);
+      const has_date_changed = !event.id || event.date !== raw_value.date;
+      const all_day_date = has_date_changed ? sameDayInTimezone(raw_value.date, this.timezone, organiser_timezone) : raw_value.date;
+      const all_day_period = raw_value.all_day ? this._allDayTimeRange(all_day_date, organiser_timezone) : {
         date: raw_value.date,
         duration: raw_value.duration,
         date_end: raw_value.date_end
       };
       const has_time_changed = !event.id || event.date !== raw_value.date || event.duration !== raw_value.duration;
-      const organiser_timezone = this.timezone || raw_value.timezone;
       this._model.update((m) => __spreadProps(__spreadValues({}, m), {
         timezone: organiser_timezone
       }));
@@ -12552,7 +12636,7 @@ var EventFormService = class _EventFormService extends AsyncHandler {
       if (spaces.length && (has_time_changed || resources_changed)) {
         const date = raw_value.all_day ? all_day_period.date : raw_value.date;
         const duration = raw_value.all_day ? all_day_period.duration : raw_value.duration;
-        const availability_candidates = has_time_changed ? spaces : changed_spaces;
+        const availability_candidates = (has_time_changed ? spaces : changed_spaces).filter((_2) => !isIgnored(_2));
         if (availability_candidates.length) {
           const availability_spaces = await Promise.all(availability_candidates.map((space) => this._space_pipe.transform(space.email)));
           await this._checkResourcesAvailable(availability_spaces, date, duration, event.ical_uid || event.id || "").catch(on_error);
@@ -12658,7 +12742,7 @@ var EventFormService = class _EventFormService extends AsyncHandler {
       }
       const domain = (currentUser()?.email || "@").split("@")[1];
       const visitors = this._model().attendees.filter((user) => user.is_external && user.email !== event.host && !user.email.includes(domain) && user.visit_expected);
-      if (visitors.length) {
+      if (visitors.length || event.id) {
         await createBookingsForEvent(created_event, "visitor", visitors).catch((e) => this._removeBookingAfterError(!event.id, created_event, false, e));
       }
       if (this._model().catering?.length) {
@@ -12771,6 +12855,18 @@ var EventFormService = class _EventFormService extends AsyncHandler {
         response_status: response?.response_status || (response || !require_saved_resource ? space.response_status : "declined")
       }));
     });
+  }
+  /**
+   * Timezone to save with the event. With building timezones on, the
+   * building of the event's rooms decides it before the active building.
+   */
+  async _organiserTimezone(spaces, fallback) {
+    if (spaces.length && !multipleSpacesEnabled(this._settings) && this._settings.get("app.events.use_building_timezone")) {
+      const [building] = await this._org.loadBuildingsForZones(spaces.map((space) => space.zones || []));
+      if (building?.timezone)
+        return building.timezone;
+    }
+    return this.timezone || fallback;
   }
   /** Check the event instant against every selected building's local hours. */
   async _checkBuildingBookableHours(spaces, date, date_end, organiser_timezone) {
@@ -18350,5 +18446,5 @@ export {
   BookingFormService,
   ExploreParkingService
 };
-//# debugId=8258778f-ad9e-5284-b4b8-ea5827f623b3
-//# sourceMappingURL=chunk-ROCPL7B3.js.map
+//# debugId=718139a1-a6d2-5a64-afc4-cbf1e85a9901
+//# sourceMappingURL=chunk-BDLNMTAV.js.map
