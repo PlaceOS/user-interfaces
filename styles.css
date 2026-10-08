@@ -4664,6 +4664,14 @@ input:where([type=button], [type=reset], [type=submit]),
 #placeos .border-warning {
   border-color: var(--warn);
 }
+#placeos .border-warning\/30 {
+  border-color: var(--warn);
+}
+@supports (color: color-mix(in lab, red, red)) {
+  #placeos .border-warning\/30 {
+    border-color: color-mix(in oklab, var(--warn) 30%, transparent);
+  }
+}
 #placeos .border-white {
   border-color: #ffffff;
 }
