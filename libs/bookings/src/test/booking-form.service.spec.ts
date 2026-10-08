@@ -3654,6 +3654,14 @@ describe('BookingFormService', () => {
 
         it('should keep an existing booking when its asset requests fail', async () => {
             postBookings({ status: 422, error: 'Asset unavailable' });
+            for (const method of [ts_client.patch, ts_client.put]) {
+                vi.mocked(method).mockImplementation(
+                    async (_url: string, body: any) => ({
+                        ...body,
+                        id: 'bkn-1',
+                    }),
+                );
+            }
             useDeskFormWithAssets(
                 new Booking({
                     id: 'bkn-1',

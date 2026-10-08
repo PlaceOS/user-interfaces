@@ -83,7 +83,7 @@ function bookingUtmSource() {
     return `${appName()}_${VERSION.hash}_${currentUser().email || ''}`;
 }
 
-function withAppVersion(data: Partial<Booking>): Partial<Booking> {
+function withAppVersion(data: NewBookingData): NewBookingData {
     const booking_data = {
         ...(data instanceof Booking ? data.toJSON() : data),
     };
@@ -236,11 +236,31 @@ export async function showBooking(id: string): Promise<Booking> {
 }
 
 /**
+ * Fields sent to create a booking. staff-api stores `parent_id` as an
+ * integer, while booking ids are typed as strings in this app
+ */
+export type NewBookingData = Omit<Partial<Booking>, 'parent_id'> & {
+    parent_id?: string | number;
+};
+
+/**
+ * `parent_id` value that links a new booking to a parent booking. A numeric
+ * id is sent as the integer that staff-api reads. Other ids, such as the ones
+ * from the mock API, are sent unchanged
+ * @param id Id of the parent booking
+ */
+export function parentBookingId(id: string | number): string | number {
+    if (!id) throw new Error('Missing parent booking id');
+    const parent_id = Number(id);
+    return Number.isSafeInteger(parent_id) ? parent_id : id;
+}
+
+/**
  * Create new booking and add it to the database
  * @param data New booking fields
  */
 export async function createBooking(
-    data: Partial<Booking>,
+    data: NewBookingData,
     q?: { event_id?: string; ical_uid?: string },
 ): Promise<Booking> {
     const query = toQueryString({ ...q, utm_source: bookingUtmSource() });
@@ -747,10 +767,11 @@ export async function isResourceAvailable(
 }
 
 /**
- * Bookings of the given type that this app linked to the event. The API
- * ignores the period when given an event id, so bookings are found wherever
- * they sit in time; the period is only used by the mock API. Rejects when the
- * request fails
+ * Bookings of the given type that this app linked to the event. A native
+ * booking event already holds its child bookings from the API. For a calendar
+ * event, the API ignores the period when given an event id, so bookings are
+ * found wherever they sit in time; the period is only used by the mock API.
+ * Rejects when the request fails
  * @param event Event the bookings are linked to
  * @param type Type of the linked bookings
  */
@@ -758,6 +779,11 @@ async function linkedBookingsForEvent(
     event: CalendarEvent,
     type: BookingType,
 ): Promise<Booking[]> {
+    if (event.from_bookings) {
+        return event.linked_bookings
+            .filter((_) => _.booking_type === type)
+            .map((_) => new Booking(_ as unknown as Partial<Booking>));
+    }
     const bookings = await queryBookingsOrThrow({
         type,
         event_id: event.id,
@@ -771,7 +797,8 @@ async function linkedBookingsForEvent(
 /**
  * Ids of the linked bookings of the given type that were made for an earlier
  * copy of the event. A host change moves the event to the new host's calendar
- * under a new id, and the API keeps the old host's bookings linked to it
+ * under a new id, and the API keeps the old host's bookings linked to it. A
+ * native booking keeps its id, so it has none
  * @param event Parent event
  * @param type Type of the linked bookings
  */
@@ -779,6 +806,7 @@ function replacedEventBookingIds(
     event: CalendarEvent,
     type: BookingType,
 ): string[] {
+    if (event.from_bookings) return [];
     return (event.linked_bookings || [])
         .filter((_) => {
             const parent_id = _.extension_data?.parent_id;
@@ -957,10 +985,15 @@ export async function createBookingsForEvent(
                 continue;
             }
             created_bookings.push(
-                await createBooking(desired.toJSON(), {
-                    ical_uid: event.ical_uid,
-                    event_id: event.id,
-                }),
+                event.from_bookings
+                    ? await createBooking({
+                          ...desired.toJSON(),
+                          parent_id: parentBookingId(event.id),
+                      })
+                    : await createBooking(desired.toJSON(), {
+                          ical_uid: event.ical_uid,
+                          event_id: event.id,
+                      }),
             );
         }
         for (const booking of existing) {
