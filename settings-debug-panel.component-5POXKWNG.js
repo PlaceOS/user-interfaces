@@ -1,13 +1,13 @@
 import {
   DebugPanelResize
-} from "./chunk-IWXQHU26.js";
+} from "./chunk-S4QZXD2Y.js";
 import {
   CustomTooltipComponent
-} from "./chunk-N2TOJUFO.js";
+} from "./chunk-ZMEBMZTT.js";
 import {
   MatTooltip,
   MatTooltipModule
-} from "./chunk-INE7Z23C.js";
+} from "./chunk-YCJWGSCU.js";
 import {
   Clipboard,
   Component,
@@ -68,7 +68,7 @@ import {
   ɵɵtwoWayBindingSet,
   ɵɵtwoWayListener,
   ɵɵtwoWayProperty
-} from "./chunk-V4TW6CZT.js";
+} from "./chunk-5IPC6ELG.js";
 import {
   __spreadProps,
   __spreadValues
@@ -1233,4 +1233,4 @@ export {
   SettingsDebugPanelComponent
 };
 //# debugId=479d2554-b3cf-5c4e-942f-68e9a680234e
-//# sourceMappingURL=settings-debug-panel.component-GRV5DUIY.js.map
+//# sourceMappingURL=settings-debug-panel.component-5POXKWNG.js.map
