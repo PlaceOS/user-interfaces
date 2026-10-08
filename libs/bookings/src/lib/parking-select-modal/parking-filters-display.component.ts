@@ -1,13 +1,5 @@
 import { CommonModule } from '@angular/common';
-import {
-    Component,
-    computed,
-    effect,
-    inject,
-    input,
-    output,
-    signal,
-} from '@angular/core';
+import { Component, computed, effect, inject, signal } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { OrganisationService, SettingsService } from '@placeos/common';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
@@ -76,8 +68,6 @@ export class ParkingFiltersDisplayComponent {
     private _org = inject(OrganisationService);
     private _settings = inject(SettingsService);
 
-    public readonly view = input<'map' | 'list'>('list');
-    public readonly viewChange = output<'map' | 'list'>();
     public readonly options = this._event_form.options;
     public readonly location = signal('');
     private readonly _model = this._event_form.model;

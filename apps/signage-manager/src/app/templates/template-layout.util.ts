@@ -61,7 +61,7 @@ export function layoutPositionLabel(position: SignageTemplateLayoutPosition) {
 const clamp = (value: number, min: number, max: number) =>
     Math.min(Math.max(value, min), Math.max(min, max));
 
-export function layoutRatioToPercentage(value?: number) {
+function layoutRatioToPercentage(value?: number) {
     return value === undefined ? null : clamp(value, 0, 1) * 100;
 }
 
@@ -172,8 +172,7 @@ export function computeTemplateLayoutRects(
         switch (layout.position) {
             case 'top': {
                 const height = Math.min(
-                    layoutRatioToPercentage(layout.y_pos) ??
-                        EDGE_BAR_HEIGHT_PC,
+                    layoutRatioToPercentage(layout.y_pos) ?? EDGE_BAR_HEIGHT_PC,
                     rem.height,
                 );
                 const rect = { ...rem, height };
@@ -183,8 +182,7 @@ export function computeTemplateLayoutRects(
             }
             case 'bottom': {
                 const height = Math.min(
-                    layoutRatioToPercentage(layout.y_pos) ??
-                        EDGE_BAR_HEIGHT_PC,
+                    layoutRatioToPercentage(layout.y_pos) ?? EDGE_BAR_HEIGHT_PC,
                     rem.height,
                 );
                 const rect = {

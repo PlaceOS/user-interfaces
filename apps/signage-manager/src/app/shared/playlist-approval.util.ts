@@ -4,7 +4,7 @@ import {
 } from '@placeos/ts-client';
 
 /** Most revisions to read when looking for the last approved revision */
-export const PLAYLIST_REVISION_LIMIT = 25;
+const PLAYLIST_REVISION_LIMIT = 25;
 
 /**
  * Load the latest revision of the media of a playlist and the last approved

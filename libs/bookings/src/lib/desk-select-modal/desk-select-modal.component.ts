@@ -96,9 +96,7 @@ export const FAV_DESK_KEY = 'favourite_desks';
                     "
                 >
                     @if (view() === 'list') {
-                        <desk-filters-display
-                            [(view)]="view"
-                        ></desk-filters-display>
+                        <desk-filters-display></desk-filters-display>
                     }
                     @if (view() === 'list') {
                         <desk-list
@@ -111,7 +109,6 @@ export const FAV_DESK_KEY = 'favourite_desks';
                     } @else {
                         <desk-map
                             class="h-full min-h-[60vh] w-full"
-                            [is_displayed]="!!displayed()"
                             [active]="displayed()?.id"
                             (onSelect)="displayed.set($event)"
                         >
@@ -137,14 +134,7 @@ export const FAV_DESK_KEY = 'favourite_desks';
                     }
                     <desk-details
                         [desk]="displayed()"
-                        [active]="selected_ids().includes(displayed()?.id)"
                         [hide_map]="view() === 'map'"
-                        (activeChange)="
-                            setSelected(
-                                displayed(),
-                                !isSelected(displayed()?.id)
-                            )
-                        "
                         [fav]="
                             displayed() &&
                             this.favorites().includes(displayed()?.id)

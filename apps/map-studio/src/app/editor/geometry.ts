@@ -32,7 +32,7 @@ export function pointInPolygon(px: number, py: number, poly: Point[]): boolean {
     return inside;
 }
 
-export function rectCornersInsidePolygon(
+function rectCornersInsidePolygon(
     x: number,
     y: number,
     width: number,

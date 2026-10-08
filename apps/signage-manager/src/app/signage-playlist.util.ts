@@ -66,7 +66,7 @@ export function formatPlayAtLocal(date: Date | number) {
 }
 
 /** Play once start time for labels. Local times note the display timezone. */
-export function playOnceLabel(schedule: Partial<PlaylistSchedule>) {
+function playOnceLabel(schedule: Partial<PlaylistSchedule>) {
     const start = playOnceStart(schedule)?.toLocaleString() ?? '';
     return schedule.play_at ? start : `${start} display local time`;
 }

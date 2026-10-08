@@ -9,9 +9,7 @@ const LIGHT_INK = 0.55;
 
 const MAX_EDGE = 1024;
 
-export async function loadBitmap(
-    source: Blob | string,
-): Promise<HTMLImageElement> {
+async function loadBitmap(source: Blob | string): Promise<HTMLImageElement> {
     const url =
         typeof source === 'string' ? source : URL.createObjectURL(source);
     try {

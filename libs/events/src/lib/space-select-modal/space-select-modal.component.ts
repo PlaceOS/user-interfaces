@@ -100,9 +100,7 @@ export const FAV_DESK_KEY = 'favourite_spaces';
                     "
                 >
                     @if (view() === 'list') {
-                        <space-filters-display
-                            [(view)]="view"
-                        ></space-filters-display>
+                        <space-filters-display></space-filters-display>
                     }
                     @if (view() === 'list') {
                         <space-list
@@ -120,7 +118,6 @@ export const FAV_DESK_KEY = 'favourite_spaces';
                         <space-map
                             map
                             class="h-full min-h-[60vh] w-full"
-                            [is_displayed]="!!displayed()"
                             [active]="displayed()?.id"
                             (onSelect)="displayed.set($event)"
                         >
@@ -147,9 +144,7 @@ export const FAV_DESK_KEY = 'favourite_spaces';
                     <space-details
                         details
                         [space]="displayed()"
-                        [active]="selected_ids().includes(displayed()?.id)"
                         [hide_map]="view() === 'map'"
-                        (activeChange)="setSelected(displayed(), $event)"
                         [fav]="
                             displayed() && favorites().includes(displayed()?.id)
                         "

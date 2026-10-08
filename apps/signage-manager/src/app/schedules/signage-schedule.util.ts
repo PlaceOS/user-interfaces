@@ -32,7 +32,7 @@ const BLOCK_PALETTE = [
 export const DAY_COUNT = 7;
 export const MINUTES_PER_DAY = 1440;
 /** Shortest block length that the timeline shows, so short plays stay visible */
-export const MIN_VISIBLE_MINUTES = 15;
+const MIN_VISIBLE_MINUTES = 15;
 const DEFAULT_PLAYLIST_DURATION = 24 * 60;
 
 export interface ScheduleBlock {
