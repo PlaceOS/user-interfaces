@@ -1,0 +1,1 @@
+import{un as Zs,x as D}from"./chunk-C_VdZe0z.js";import{f as Df}from"./chunk-DpVxtbfE.js";var f=(()=>{class t{constructor(){this._locale=D(Df)}transform(e,r={},s){return this._locale.get(e,r,s)||e}static{this.ɵfac=function(r){return new(r||t)}}static{this.ɵpipe=Zs({name:`translate`,type:t,pure:!1})}}return t})();export{f as t};
