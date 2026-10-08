@@ -8,6 +8,7 @@
 #   ./up.sh              bring up (reuses volumes if present)
 #   ./up.sh --fresh      destroy volumes first — a genuine cold start
 #   ./up.sh --pull       pull the current images first (CI does this every run)
+#   ./up.sh --pull-only  pull and stop (CI runs this as its own bounded step)
 #   ./down.sh            stop
 # -E (errtrace) is load-bearing: without it the ERR trap below is NOT inherited by
 # shell functions, so a failure inside `dc()` would exit silently and the
@@ -28,10 +29,12 @@ dc() { docker compose -p "$PROJECT" "$@"; }
 
 fresh=false
 pull=false
+pull_only=false
 for arg in "$@"; do
     case "$arg" in
         --fresh) fresh=true ;;
         --pull) pull=true ;;
+        --pull-only) pull=true; pull_only=true ;;
         *) echo "unknown option: $arg" >&2; exit 64 ;;
     esac
 done
@@ -44,12 +47,25 @@ if [[ "$fresh" == true ]]; then
 fi
 
 # ---------------------------------------------------------------------------
-# Secrets. Generated locally, never committed — the init image's generator is
-# the same one PlaceOS/local uses, so the key material is shaped identically.
-# It is idempotent: existing values are kept, not rotated.
-step "secrets"
+# Secrets live in .secrets/, generated below and never committed. The env files
+# are created empty first: compose refuses to load the project while an
+# env_file is missing, and the pull needs the project loaded.
 mkdir -p .secrets
 touch .secrets/.env.secret_key .secrets/.env.public_key
+
+if [[ "$pull" == true ]]; then
+    step "pulling images"
+    # Each image pulls on its own: one that fails is reported and the rest still
+    # update. The stack then runs on whatever is present, and CI's "Record
+    # backend inputs" step shows which images that was.
+    dc pull --ignore-pull-failures
+    if [[ "$pull_only" == true ]]; then exit 0; fi
+fi
+
+# The init image's generator is the same one PlaceOS/local uses, so the key
+# material is shaped identically. Idempotent: existing values are kept, not
+# rotated.
+step "secrets"
 if ! grep -q 'JWT_SECRET' .secrets/.env.secret_key 2>/dev/null; then
     printf 'PLACE_EMAIL=%s\nPLACE_PASSWORD=%s\n' \
         "${E2E_ADMIN_EMAIL:-support@place.tech}" \
@@ -85,17 +101,6 @@ diagnose() {
     dc logs --tail 60 || true
 }
 trap 'rc=$?; [[ $rc -ne 0 ]] && diagnose; exit $rc' ERR
-
-if [[ "$pull" == true ]]; then
-    step "pulling images"
-    # A failed pull is not fatal: the images already present still run, and
-    # CI's "Record backend inputs" step shows which ones did.
-    if dc pull --quiet; then
-        docker image prune -f >/dev/null 2>&1 || true
-    else
-        echo "::warning::image pull failed; running with the images already present"
-    fi
-fi
 
 step "starting services"
 # Bounded so a stuck container fails with a clear message rather than hanging
