@@ -229,8 +229,10 @@ function formBookingData(value: Record<string, any>) {
 
 /** A booking type, or `undefined` for the blank `' '` placeholder that
  * `new Booking()` sets when no type is given. */
-function knownBookingType(type: BookingType | undefined) {
-    return type?.trim() ? type : undefined;
+function knownBookingType(
+    type: BookingType | undefined,
+): Exclude<BookingType, ' '> | undefined {
+    return type && type !== ' ' ? type : undefined;
 }
 
 /** Whether a booking carries edit state from a different booking type, i.e. an
@@ -1225,6 +1227,15 @@ export class BookingFormService extends AsyncHandler {
         // time-sync window — same ordering as `newForm`.
         if (user_edits && Object.keys(user_edits).length) {
             this._patch(user_edits, { emitEvent: false });
+        }
+        // Give an untyped booking the flow type. Otherwise the flow sees a
+        // type mismatch and replaces the booking with a new form.
+        if (expected_type) {
+            this._patch({
+                booking_type:
+                    knownBookingType(this.model().booking_type) ||
+                    expected_type,
+            });
         }
         this.applyDurationSettings();
         this._form_value.set(this.model());

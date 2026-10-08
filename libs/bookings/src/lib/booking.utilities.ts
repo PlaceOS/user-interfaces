@@ -18,6 +18,7 @@ import {
 } from '@placeos/assets';
 import {
     Booking,
+    BookingType,
     CalendarEvent,
     current_user,
     currentUser,
@@ -192,7 +193,7 @@ export interface BookingFormValue {
     all_day: boolean;
     name: string;
     duration: number;
-    booking_type: any;
+    booking_type: BookingType;
     zones: string[];
     title: string;
     description: string;
@@ -288,7 +289,7 @@ export function bookingFormValue(
         all_day: booking.all_day ?? false,
         name: extension_data.name || booking.asset_name || '',
         duration: booking.duration ?? 0,
-        booking_type: booking.booking_type || '',
+        booking_type: booking.booking_type,
         zones: booking.zones || [],
         title: booking.title || '',
         description: booking.description || '',

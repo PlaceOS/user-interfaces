@@ -860,6 +860,7 @@ describe('BookingFormService', () => {
         spectator.service.newForm('desk');
         spectator.service.model.update((m) => ({
             ...m,
+            booking_type: ' ',
             asset_id: 'desk-1',
             asset_name: 'Desk 1',
             date: Date.now() + 60 * 60 * 1000,
@@ -870,6 +871,24 @@ describe('BookingFormService', () => {
 
         expect(savedBookings().length).toBe(1);
         expect((savedBookings()[0] as Booking).booking_type).toBe('desk');
+    });
+
+    it('should keep an untyped stored booking when the flow loads it', () => {
+        sessionStorage.setItem(
+            'PLACEOS.booking_form',
+            JSON.stringify({
+                id: 'untyped-1',
+                booking_type: ' ',
+                asset_id: 'desk-1',
+                date: Date.now() + 60 * 60 * 1000,
+                duration: 60,
+            }),
+        );
+
+        spectator.service.loadForm('desk');
+
+        expect(spectator.service.model().id).toBe('untyped-1');
+        expect(spectator.service.model().booking_type).toBe('desk');
     });
 
     it('should validate an untyped parking form as parking', async () => {
