@@ -11,7 +11,7 @@ import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticat
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { LevelPipe } from 'libs/components/src/lib/level.pipe';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
-import { BookingAsset } from './booking-form.service';
+import { BookingAsset } from './booking-form.types';
 import { LockerSelectModalComponent } from './locker-select-modal/locker-select-modal.component';
 
 const EMPTY_FAVS: string[] = [];

@@ -1,7 +1,7 @@
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { Spectator, createComponentFactory } from '@ngneat/spectator/vitest';
 import { SettingsService } from '@placeos/common';
-import { BookingAsset } from 'libs/bookings/src/lib/booking-form.service';
+import { BookingAsset } from 'libs/bookings/src/lib/booking-form.types';
 import { MockPipe, MockProvider, ngMocks } from 'ng-mocks';
 
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';

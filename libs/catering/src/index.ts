@@ -2,6 +2,7 @@ export * from './lib/catering-kitchen-board.component';
 export * from './lib/catering-list-field.component';
 export * from './lib/catering-menu.component';
 export * from './lib/catering-order-alerts.service';
+export * from './lib/catering-order-details';
 export * from './lib/catering-order-dockets.component';
 export * from './lib/catering-order-list.component';
 export * from './lib/catering-order-modal/catering-order-state.service';

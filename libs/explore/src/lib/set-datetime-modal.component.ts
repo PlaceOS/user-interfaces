@@ -17,7 +17,7 @@ import {
     User,
 } from '@placeos/common';
 
-import { BookingAsset } from 'libs/bookings/src/lib/booking-form.service';
+import { BookingAsset } from 'libs/bookings/src/lib/booking-form.types';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { DateFieldComponent } from 'libs/form-fields/src/lib/date-field.component';

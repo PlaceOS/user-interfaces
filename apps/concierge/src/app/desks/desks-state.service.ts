@@ -8,7 +8,7 @@ import {
     Signal,
     signal,
 } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import {
     deleteDeskAsset,
     deskFromAsset,
@@ -37,7 +37,6 @@ import {
     getTimezoneDifferenceInHours,
     i18n,
     jsonToCsv,
-    nextValueFrom,
     notifyError,
     notifyInfo,
     notifySuccess,
@@ -51,6 +50,7 @@ import {
 import { generateQRCode } from '@placeos/common/qr-code';
 import {
     listChildMetadata,
+    PlaceZone,
     QueryResponse,
     showMetadata,
     updateMetadata,
@@ -71,6 +71,12 @@ import {
     canChangeDeskBooking,
     isDeskBookingRejected,
 } from './desk-booking-actions';
+import {
+    assignmentChanged,
+    deskModalResult,
+    isConflict,
+    upsertDesk,
+} from './desk-edit';
 import { DeskModalComponent } from './desk-modal.component';
 
 function addQRCodeToBooking(booking: Booking): Booking {
@@ -526,24 +532,19 @@ export class DesksStateService extends AsyncHandler {
         this._change.set(Date.now());
     }
 
+    /**
+     * Open the desk modal and save the result. Moves the desk's assigned
+     * booking when the assignee or ID changes, and rolls back the desk save
+     * when that fails.
+     */
     public async editDesk(desk: Desk = new Desk()) {
         const levels = this._currentLevelList();
-        const selected_zones = this._getSelectedZones();
         const zone_id =
-            desk.zone?.id || selected_zones[0] || levels[0]?.id || '';
+            desk.zone?.id || this._getSelectedZones()[0] || levels[0]?.id || '';
         const ref = this._dialog.open(DeskModalComponent, {
             data: { desk, levels, zone_id },
         });
-        const state = await Promise.race([
-            nextValueFrom(ref.afterClosed()),
-            new Promise<any>((resolve) => {
-                const sub = ref.componentInstance.event.subscribe((event) => {
-                    if (event?.reason !== 'done') return;
-                    sub.unsubscribe();
-                    resolve(event);
-                });
-            }),
-        ]);
+        const state = await deskModalResult(ref);
         if (state?.reason !== 'done') return;
         const { zone_id: selected_zone_id, ...desk_metadata } = state.metadata;
         const zone = desk.zone?.id || selected_zone_id || zone_id;
@@ -552,32 +553,17 @@ export class DesksStateService extends AsyncHandler {
             return;
         }
         const use_assets = this._settings.get('app.desks.use_assets');
-        let new_desk = new Desk({
-            ...(use_assets ? desk : {}),
-            ...desk_metadata,
-            id:
-                (use_assets && desk['asset_type_id']
-                    ? desk.id
-                    : desk_metadata.id) ||
-                `desk-${zone.slice(-3)}.${randomInt(999_999)}`,
-            zone: this._org.levelWithID([zone]),
-        });
-        // Only this desk's level is written. Read its stored list so desks
-        // that are not loaded in the current view are kept.
-        let original_desk_list: Desk[] = [];
-        try {
-            original_desk_list = use_assets
-                ? this.desks().filter((_) => (_.zone?.id || zone) === zone)
-                : await this._storedDeskList(zone);
-        } catch (e) {
-            notifyError(i18n('APP.CONCIERGE.DESKS_SAVE_ERROR', { error: e }));
-            ref.componentInstance.loading.set(false);
-            throw e;
-        }
-        const desk_list = [...original_desk_list];
-        const idx = desk_list.findIndex((_) => _.id === desk.id);
-        if (idx >= 0) desk_list[idx] = new_desk;
-        else desk_list.push(new_desk);
+        const new_desk = this._editedDesk(
+            desk,
+            desk_metadata,
+            zone,
+            use_assets,
+        );
+        const original_desk_list = await this._levelDeskList(
+            zone,
+            use_assets,
+        ).catch((e) => this._failDeskSave(ref, e));
+        const desk_list = upsertDesk(original_desk_list, desk.id, new_desk);
         // Saving would store two desks with the same ID on this level.
         if (desk_list.filter((_) => _.id === new_desk.id).length > 1) {
             notifyError(`A desk with the ID "${new_desk.id}" already exists.`);
@@ -585,111 +571,54 @@ export class DesksStateService extends AsyncHandler {
             ref.close();
             return;
         }
-        if (
-            new_desk.assigned_to &&
-            (desk.assigned_to !== new_desk.assigned_to ||
-                desk.id !== new_desk.id)
-        ) {
-            try {
-                await this._checkAssignedDeskLimit(
-                    new_desk.assigned_to,
-                    desk.id,
-                );
-            } catch (error) {
+        if (new_desk.assigned_to && assignmentChanged(desk, new_desk)) {
+            await this._checkAssignedDeskLimit(
+                new_desk.assigned_to,
+                desk.id,
+            ).catch((error) => {
                 notifyError(
                     error instanceof Error ? error.message : `${error}`,
                 );
                 ref.componentInstance.loading.set(false);
                 ref.close();
                 throw error;
-            }
+            });
         }
-        try {
-            if (use_assets) {
-                const saved = await saveDeskAsset(
-                    new_desk,
-                    zone,
-                    this._deskAssetZones(zone),
-                );
-                new_desk = deskFromAsset(saved, this._org.levelWithID([zone]));
-            } else {
-                await updateMetadata(zone, {
-                    name: 'desks',
-                    details: desk_list,
-                    description: 'List of available desks',
-                });
-            }
-        } catch (e) {
-            notifyError(i18n('APP.CONCIERGE.DESKS_SAVE_ERROR', { error: e }));
-            ref.componentInstance.loading.set(false);
-            throw e;
-        }
+        const saved_desk = await this._saveEditedDesk(
+            new_desk,
+            zone,
+            desk_list,
+            use_assets,
+        ).catch((e) => this._failDeskSave(ref, e));
+        const rollback = () =>
+            this._rollbackDeskSave(zone, original_desk_list, desk, saved_desk);
         let recreate = false;
-        if (
-            desk.assigned_to &&
-            (desk.assigned_to !== new_desk.assigned_to ||
-                desk.id !== new_desk.id)
-        ) {
-            try {
-                await this._clearAssignedBooking(desk);
-            } catch (e) {
-                await this._rollbackDeskSave(
-                    zone,
-                    original_desk_list,
-                    desk,
-                    new_desk,
-                );
-                notifyError(
-                    i18n('APP.CONCIERGE.DESKS_SAVE_ERROR', { error: e }),
-                );
-                ref.componentInstance.loading.set(false);
-                throw e;
-            }
+        if (desk.assigned_to && assignmentChanged(desk, saved_desk)) {
+            await this._clearAssignedBooking(desk).catch(async (e) => {
+                await rollback();
+                return this._failDeskSave(ref, e);
+            });
             recreate = true;
         }
         if (
-            (desk.assigned_to !== new_desk.assigned_to || recreate) &&
-            new_desk.assigned_to
+            saved_desk.assigned_to &&
+            (recreate || desk.assigned_to !== saved_desk.assigned_to)
         ) {
-            const created = await saveBooking(
-                this._createAssignedBooking(new_desk, zone).toJSON(),
-            ).catch(async (e) => {
-                await this._rollbackDeskSave(
-                    zone,
-                    original_desk_list,
-                    desk,
-                    new_desk,
-                );
-                if (recreate) {
-                    await this._restoreAssignedBooking(desk, zone).catch(
-                        (restore_err) =>
-                            console.error(
-                                'Failed to restore assigned booking during rollback',
-                                restore_err,
-                            ),
-                    );
-                }
-                if (e?.status === 409) {
-                    notifyError(
-                        i18n('APP.CONCIERGE.DESKS_ASSIGN_CONFLICT_ERROR'),
-                    );
-                } else {
-                    notifyError(
-                        i18n('APP.CONCIERGE.DESKS_SAVE_ERROR', {
-                            error: e,
-                        }),
-                    );
-                }
-                ref.componentInstance.loading.set(false);
-                throw e;
-            });
-            // Cancel the assignee's overlapping ad-hoc desk bookings over the
-            // next 4 weeks so a later approval cannot reactivate them.
-            if (created?.id) {
-                await cancelOverlappingRecurringBookings(created, 'desk').catch(
-                    () => [],
-                );
-            }
+            await this._saveAssignedBooking(
+                desk,
+                saved_desk,
+                zone,
+                recreate,
+                rollback,
+            ).catch((e) =>
+                this._failDeskSave(
+                    ref,
+                    e,
+                    isConflict(e)
+                        ? i18n('APP.CONCIERGE.DESKS_ASSIGN_CONFLICT_ERROR')
+                        : undefined,
+                ),
+            );
         }
         this._change.set(Date.now());
         ref.close();
@@ -989,6 +918,116 @@ export class DesksStateService extends AsyncHandler {
         return (details instanceof Array ? details : []).map(
             (item) => new Desk({ ...item, zone: { id: zone } }),
         );
+    }
+
+    /**
+     * Build the desk to save from the modal values. Asset desks keep their
+     * stored fields and ID. New desks without an ID get a random one.
+     */
+    private _editedDesk(
+        desk: Desk,
+        metadata: Partial<Desk>,
+        zone: string,
+        use_assets: boolean,
+    ): Desk {
+        return new Desk({
+            ...(use_assets ? desk : {}),
+            ...metadata,
+            id:
+                (use_assets && desk['asset_type_id'] ? desk.id : metadata.id) ||
+                `desk-${zone.slice(-3)}.${randomInt(999_999)}`,
+            // Desks store the level as their zone. Desk types its zone as a
+            // PlaceZone, which BuildingLevel does not match.
+            zone: this._org.levelWithID([zone]) as unknown as PlaceZone,
+        });
+    }
+
+    /**
+     * Desks currently on a level. Only this level is written on save, so for
+     * metadata the stored list is read to keep desks that are not loaded in
+     * the current view.
+     */
+    private async _levelDeskList(
+        zone: string,
+        use_assets: boolean,
+    ): Promise<Desk[]> {
+        return use_assets
+            ? this.desks().filter((_) => (_.zone?.id || zone) === zone)
+            : this._storedDeskList(zone);
+    }
+
+    /**
+     * Write an edited desk. Asset desks are saved one at a time. Metadata
+     * desks are saved as the level's full `desk_list`.
+     * @returns The desk as stored
+     */
+    private async _saveEditedDesk(
+        desk: Desk,
+        zone: string,
+        desk_list: Desk[],
+        use_assets: boolean,
+    ): Promise<Desk> {
+        if (use_assets) {
+            const saved = await saveDeskAsset(
+                desk,
+                zone,
+                this._deskAssetZones(zone),
+            );
+            return deskFromAsset(saved, this._org.levelWithID([zone]));
+        }
+        await updateMetadata(zone, {
+            name: 'desks',
+            details: desk_list,
+            description: 'List of available desks',
+        });
+        return desk;
+    }
+
+    /**
+     * Create the assigned booking for a saved desk and cancel the assignee's
+     * overlapping desk bookings. On failure, roll back the desk save, restore
+     * the previous assigned booking when it was cleared, and rethrow.
+     */
+    private async _saveAssignedBooking(
+        previous: Desk,
+        desk: Desk,
+        zone: string,
+        restore_previous: boolean,
+        rollback: () => Promise<void>,
+    ) {
+        const created = await saveBooking(
+            this._createAssignedBooking(desk, zone).toJSON(),
+        ).catch(async (e) => {
+            await rollback();
+            if (restore_previous) {
+                await this._restoreAssignedBooking(previous, zone).catch(
+                    (restore_err) =>
+                        console.error(
+                            'Failed to restore assigned booking during rollback',
+                            restore_err,
+                        ),
+                );
+            }
+            throw e;
+        });
+        // Cancel the assignee's overlapping ad-hoc desk bookings over the
+        // next 4 weeks so a later approval cannot reactivate them.
+        if (created?.id) {
+            await cancelOverlappingRecurringBookings(created, 'desk').catch(
+                () => [],
+            );
+        }
+    }
+
+    /** Show a desk save error, stop the modal's loading state, and rethrow. */
+    private _failDeskSave(
+        ref: MatDialogRef<DeskModalComponent>,
+        error: unknown,
+        message = i18n('APP.CONCIERGE.DESKS_SAVE_ERROR', { error }),
+    ): never {
+        notifyError(message);
+        ref.componentInstance.loading.set(false);
+        throw error;
     }
 
     private async _rollbackDeskSave(
