@@ -33,6 +33,7 @@ export class OutlookEventService extends AsyncHandler {
     private readonly _saved_event = signal<CalendarEvent | null>(null);
     private readonly _loading = signal(false);
     private readonly _error = signal('');
+    private readonly _item_version = signal(0);
 
     /** Current details of the Outlook event */
     public readonly event = this._event.asReadonly();
@@ -40,6 +41,11 @@ export class OutlookEventService extends AsyncHandler {
     public readonly saved_event = this._saved_event.asReadonly();
     public readonly loading = this._loading.asReadonly();
     public readonly error = this._error.asReadonly();
+    /**
+     * Number that changes when a pinned task pane moves to a different
+     * Outlook item. State that belongs to one item resets on a change.
+     */
+    public readonly item_version = this._item_version.asReadonly();
     /** Whether the pane runs inside Outlook, not the in-memory sample */
     public readonly is_outlook = !(this._adapter instanceof MemoryItemAdapter);
     /** Room response status from Exchange, grouped by lower-case email */
@@ -65,6 +71,10 @@ export class OutlookEventService extends AsyncHandler {
             this._adapter.onChange(() =>
                 this.timeout('outlook-change', () => this.refresh(), 200),
             );
+            this._adapter.onItemChange(() => {
+                this._item_version.update((v) => v + 1);
+                this.timeout('outlook-change', () => this.refresh(), 200);
+            });
             // Outlook has no event for subject changes. Read again when the
             // user returns to the task pane.
             window.addEventListener('focus', () =>
@@ -74,7 +84,10 @@ export class OutlookEventService extends AsyncHandler {
         await this.refresh();
     }
 
-    /** Read the latest event details from Outlook */
+    /**
+     * Read the latest event details from Outlook. Returns `null` when Outlook
+     * cannot read the event, so callers never act on old details.
+     */
     public async refresh(): Promise<OutlookEvent | null> {
         const count = ++this._refresh_count;
         this._loading.set(true);
@@ -84,13 +97,14 @@ export class OutlookEventService extends AsyncHandler {
                 this._adapter.itemId(),
             ]);
             const saved = item_id ? await this._loadSaved(item_id) : null;
-            // A newer refresh started while this one waited. Keep its result.
-            if (count !== this._refresh_count) return this._event();
             const event: OutlookEvent = {
                 ...details,
                 item_id,
                 all_day: details.all_day ?? savedAllDay(saved, details),
             };
+            // A newer refresh started while this one waited. Return this read
+            // to the caller, but let the newer refresh set the state.
+            if (count !== this._refresh_count) return event;
             this._saved_event.set(saved);
             this._event.set(event);
             this._error.set('');
@@ -100,7 +114,7 @@ export class OutlookEventService extends AsyncHandler {
             this._error.set(
                 errorMessage(error) || 'Unable to read the Outlook event.',
             );
-            return this._event();
+            return null;
         } finally {
             if (count === this._refresh_count) this._loading.set(false);
         }

@@ -25,6 +25,8 @@ export interface OutlookItemAdapter {
     setProperty(key: string, value: string): Promise<void>;
     /** Call the handler when Outlook reports a change to the item */
     onChange(handler: () => void): void;
+    /** Call the handler when a pinned task pane moves to a different item */
+    onItemChange(handler: () => void): void;
 }
 
 /** Office.js API that is in preview and not in the published typings. */
@@ -50,6 +52,7 @@ function officeCall<T>(
 /** Adapter for an appointment open in the Outlook organizer form. */
 export class OfficeItemAdapter implements OutlookItemAdapter {
     private _properties: Office.CustomProperties | null = null;
+    private _on_change: (() => void) | null = null;
 
     private get _item() {
         return Office.context.mailbox.item as Office.AppointmentCompose &
@@ -143,6 +146,27 @@ export class OfficeItemAdapter implements OutlookItemAdapter {
     }
 
     public onChange(handler: () => void) {
+        this._on_change = handler;
+        this._watchItem();
+    }
+
+    public onItemChange(handler: () => void) {
+        Office.context.mailbox.addHandlerAsync?.(
+            Office.EventType.ItemChanged,
+            () => {
+                this._properties = null;
+                // Item handlers belong to the previous item. Add them again.
+                this._watchItem();
+                handler();
+            },
+            () => null,
+        );
+    }
+
+    /** Add the change handler to the events of the current item */
+    private _watchItem() {
+        const handler = this._on_change;
+        if (!handler || !this._item) return;
         const events = [
             Office.EventType.AppointmentTimeChanged,
             Office.EventType.RecurrenceChanged,
@@ -151,15 +175,6 @@ export class OfficeItemAdapter implements OutlookItemAdapter {
         for (const type of events) {
             this._item.addHandlerAsync(type, handler, () => null);
         }
-        // Fired when a pinned task pane moves to a different item.
-        Office.context.mailbox.addHandlerAsync?.(
-            Office.EventType.ItemChanged,
-            () => {
-                this._properties = null;
-                handler();
-            },
-            () => null,
-        );
     }
 
     private async _loadProperties() {
@@ -227,6 +242,9 @@ export class MemoryItemAdapter implements OutlookItemAdapter {
     public onChange(handler: () => void) {
         this._handlers.push(handler);
     }
+
+    /** The in-memory item never changes to a different item */
+    public onItemChange() {}
 
     /** Change the in-memory event, as a user would in Outlook */
     public update(details: Partial<OutlookItemDetails>) {

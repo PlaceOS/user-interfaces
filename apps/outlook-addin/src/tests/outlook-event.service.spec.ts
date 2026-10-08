@@ -45,6 +45,13 @@ describe('OutlookEventService', () => {
         );
     });
 
+    it('returns no event when Outlook cannot read the item', async () => {
+        await spectator.service.refresh();
+        vi.spyOn(adapter, 'read').mockRejectedValue('Item not available');
+        expect(await spectator.service.refresh()).toBeNull();
+        expect(spectator.service.error()).toBe('Item not available');
+    });
+
     it('keeps All day unknown for an unsaved event', async () => {
         await spectator.service.refresh();
         expect(spectator.service.event()?.all_day).toBeNull();

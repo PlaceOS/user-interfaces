@@ -35,16 +35,26 @@ export class DeskLinkService {
     private _org = inject(OrganisationService);
 
     private readonly _booking = signal<Booking | null>(null);
+    /** Outlook item version that `_booking` belongs to */
+    private readonly _booking_version = signal(-1);
     private readonly _state = signal<DeskLinkState>('idle');
     private readonly _error = signal('');
 
-    /** Desk booking linked to the Outlook event */
-    public readonly booking = this._booking.asReadonly();
+    /**
+     * Desk booking linked to the Outlook event. Empty as soon as a pinned
+     * pane moves to a different item, so actions never use the previous
+     * item's booking.
+     */
+    public readonly booking = computed(() =>
+        this._booking_version() === this._outlook.item_version()
+            ? this._booking()
+            : null,
+    );
     public readonly state = this._state.asReadonly();
     public readonly error = this._error.asReadonly();
     /** Whether the linked booking no longer matches the Outlook event time */
     public readonly out_of_sync = computed(() => {
-        const booking = this._booking();
+        const booking = this.booking();
         const event = this._outlook.event();
         if (!booking || !event) return false;
         const result = deskWindow(event);
@@ -53,16 +63,20 @@ export class DeskLinkService {
 
     /** Load the booking linked to the current Outlook item */
     public async load() {
+        const version = this._outlook.item_version();
         const id = await this._outlook.getProperty(DESK_BOOKING_PROPERTY);
-        if (!id) return this._booking.set(null);
-        const booking = await showBooking(id).catch(() => null);
+        const booking = id ? await showBooking(id).catch(() => null) : null;
         const active =
             booking && !booking.deleted && booking.status !== 'cancelled';
-        this._booking.set(active ? booking : null);
+        this._setBooking(active ? booking : null, version);
     }
 
-    /** Reserve the desk for the Outlook event */
+    /**
+     * Reserve the desk for the Outlook event. Cancels the booking again when
+     * Outlook cannot store the link, because nothing could find it later.
+     */
     public async add(desk: BookingAsset) {
+        const version = this._outlook.item_version();
         await this._run(async () => {
             const item_id = await this._outlook.ensureSaved();
             const booking = await this._post(desk);
@@ -74,29 +88,39 @@ export class DeskLinkService {
                     ...(saved?.ical_uid ? { ical_uid: saved.ical_uid } : {}),
                 },
             }).catch(() => booking);
-            await this._outlook.setProperty(DESK_BOOKING_PROPERTY, linked.id);
-            this._booking.set(linked);
+            try {
+                await this._outlook.setProperty(
+                    DESK_BOOKING_PROPERTY,
+                    linked.id,
+                );
+            } catch (error) {
+                await removeBooking(linked.id).catch(() => null);
+                throw error;
+            }
+            this._setBooking(linked, version);
         });
     }
 
     /** Move the linked booking to the current Outlook event time */
     public async update() {
-        const booking = this._booking();
+        const booking = this.booking();
         if (!booking) return;
+        const version = this._outlook.item_version();
         await this._run(async () => {
             const desk = this._deskFromBooking(booking);
-            this._booking.set(await this._post(desk, booking));
+            this._setBooking(await this._post(desk, booking), version);
         });
     }
 
     /** Cancel the linked booking and remove the link from the event */
     public async remove() {
-        const booking = this._booking();
+        const booking = this.booking();
         if (!booking) return;
+        const version = this._outlook.item_version();
         await this._run(async () => {
             await removeBooking(booking.id);
             await this._outlook.setProperty(DESK_BOOKING_PROPERTY, '');
-            this._booking.set(null);
+            this._setBooking(null, version);
         });
     }
 
@@ -113,7 +137,8 @@ export class DeskLinkService {
      */
     private async _post(desk: BookingAsset, existing?: Booking) {
         const event = await this._outlook.refresh();
-        if (!event) throw 'Unable to read the Outlook event.';
+        if (!event)
+            throw this._outlook.error() || 'Unable to read the Outlook event.';
         const result = deskWindow(event);
         if (!result.window) throw result.reason;
         const { date, duration, all_day } = result.window;
@@ -143,6 +168,13 @@ export class DeskLinkService {
                 : m.zones,
         }));
         return this._form.postForm(false, false);
+    }
+
+    /** Keep the booking only when the Outlook item did not change */
+    private _setBooking(booking: Booking | null, version: number) {
+        if (version !== this._outlook.item_version()) return;
+        this._booking.set(booking);
+        this._booking_version.set(version);
     }
 
     private _deskFromBooking(booking: Booking): BookingAsset {

@@ -179,12 +179,12 @@ function hourLabel(hour: number) {
                     <desk-map
                         class="border-base-300 h-[26rem] overflow-hidden rounded-lg border"
                         [active]="
-                            selected_desk()?.id || link.booking()?.asset_id
+                            map_selection()?.id || link.booking()?.asset_id
                         "
                         [available]="map_desks()"
                         (onSelect)="selected_desk.set($event)"
                     />
-                    @if (selected_desk(); as desk) {
+                    @if (map_selection(); as desk) {
                         <ng-container
                             [ngTemplateOutlet]="desk_card"
                             [ngTemplateOutletContext]="{ $implicit: desk }"
@@ -304,6 +304,15 @@ export class DeskSearchComponent {
             );
     });
 
+    /**
+     * Desk chosen on the map, while it is still in the available list. A
+     * change to the event time or the filters can remove it.
+     */
+    public readonly map_selection = computed(() => {
+        const id = this.selected_desk()?.id;
+        return id ? this.map_desks().find((_) => _.id === id) || null : null;
+    });
+
     /** Desks for the list view: also filtered by floor */
     public readonly desks = computed(() => {
         const level_id = this.level_id();
@@ -351,7 +360,12 @@ export class DeskSearchComponent {
 
     constructor() {
         this._form.newForm('desk');
-        this.link.load();
+        // Load the linked desk again when a pinned pane moves to a different
+        // Outlook item.
+        effect(() => {
+            this._outlook.item_version();
+            untracked(() => this.link.load());
+        });
         // Apply the event time to the desk search. Runs again after a save
         // because saving replaces the booking form.
         effect(() => {
