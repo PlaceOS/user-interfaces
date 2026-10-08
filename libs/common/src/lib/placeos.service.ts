@@ -515,6 +515,14 @@ export class PlaceOS_Service extends AsyncHandler {
             );
         }
         this._setZones();
+        // Translations are fetched, so give them a moment to land before the
+        // loading screen is removed. Untranslated keys are shown otherwise.
+        if (this._locale) {
+            await Promise.race([
+                this._locale.loaded(),
+                new Promise((resolve) => setTimeout(resolve, 5_000)),
+            ]);
+        }
         markInitialisationComplete();
     }
 

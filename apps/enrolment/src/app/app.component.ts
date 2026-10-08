@@ -23,11 +23,10 @@ import {
 import { setInternalUserDomain } from '@placeos/users';
 
 import { RouterOutlet } from '@angular/router';
-import { GlobalBannerComponent } from '@placeos/components';
-// Imported by file, not from the barrel, so the deferred block below can
-// split it (and its Material tooltip) out of the initial bundle.
-// eslint-disable-next-line @nx/enforce-module-boundaries
-import { ServiceWorkerUpdateCardComponent } from 'libs/components/src/lib/service-worker-update-card.component';
+import {
+    GlobalBannerComponent,
+    ServiceWorkerUpdateCardComponent,
+} from '@placeos/components';
 
 import { SpacesService } from '@placeos/events';
 
@@ -77,9 +76,7 @@ export function initSentry(dsn: string, sample_rate: number = 0.2) {
                 <router-outlet></router-outlet>
             </div>
         }
-        @defer (on idle) {
-            <placeos-service-worker-update-card />
-        }
+        <placeos-service-worker-update-card />
     `,
     styles: [
         `

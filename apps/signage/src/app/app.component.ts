@@ -6,13 +6,12 @@ import {
     setMocks,
     setNotifyFilter,
 } from '@placeos/common';
-import { GlobalBannerComponent } from '@placeos/components';
+import {
+    GlobalBannerComponent,
+    GlobalLoadingComponent,
+} from '@placeos/components';
 import { SettingsDebugPanelLauncherComponent } from '@placeos/components/settings-debug';
 import { mocksInit } from '@placeos/mocks';
-// Imported by file, not from the barrel, so the deferred block below can
-// split it (and its Material form fields) out of the initial bundle.
-// eslint-disable-next-line @nx/enforce-module-boundaries
-import { GlobalLoadingComponent } from 'libs/components/src/lib/global-loading.component';
 
 import { hasStoredApiKey } from './api-key';
 import { hasBootstrappedDisplay } from './bootstrap-state';
@@ -33,11 +32,7 @@ import { requestRecovery, startWatchdog } from './watchdog';
             <router-outlet></router-outlet>
         </div>
         @if (!uses_api_key) {
-            <!-- Loaded right after start-up. Its state lives in shared signals,
-                 and the domain form inside it is heavy and rarely shown. -->
-            @defer (on immediate) {
-                <global-loading />
-            }
+            <global-loading />
         }
         @defer (on idle) {
             <settings-debug-panel-launcher
