@@ -1,10 +1,11 @@
-import { PlaceAuthOptions, setup } from '@placeos/ts-client';
+import { PlaceAuthOptions, setAppHeaders, setup } from '@placeos/ts-client';
 import {
     getNativeRedirectUri,
     isNativeApp,
     storeNativePkceVerifier,
 } from './native-app';
 import { notifyInfo } from './notifications';
+import { VERSION } from './version';
 
 const NATIVE_CREDENTIAL_FETCH_KEY = '__placeos_native_credential_fetch__';
 
@@ -174,6 +175,14 @@ export async function setupPlace(
     if (mock) {
         notifyInfo('Application in mock mode.');
     }
+    // Identify the app and build on every API request
+    setAppHeaders(
+        settings.app_name ||
+            location.pathname.split('/').find(Boolean) ||
+            'PlaceOS',
+        new Date(VERSION.time).toISOString(),
+        VERSION.hash,
+    );
     const setup_promise = setup(config);
     if (timeout_ms <= 0) return setup_promise;
     return new Promise<void>((resolve, reject) => {
