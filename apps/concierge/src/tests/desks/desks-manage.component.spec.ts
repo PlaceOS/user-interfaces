@@ -82,7 +82,7 @@ describe('DesksManageComponent', () => {
         const timeout = vi
             .spyOn(spectator.component as any, 'timeout')
             .mockImplementation((_name: string, fn: () => void) => fn());
-        // generateQRCode (@placeos/common) can't be spied under the bundling
+        // generateQRCode (@placeos/common/qr-code) can't be spied under the bundling
         // builder; assert on its real output shape (a data URL) instead.
         const desk = { id: 'desk-1', name: 'Desk 1' };
 

@@ -9,7 +9,8 @@ import {
 } from '@angular/core';
 import { startOfMinute } from 'date-fns';
 
-import { AsyncHandler, generateQRCode } from '@placeos/common';
+import { AsyncHandler } from '@placeos/common';
+import { generateQRCode } from '@placeos/common/qr-code';
 
 import { CommonModule } from '@angular/common';
 import { TranslatePipe } from '@placeos/components';

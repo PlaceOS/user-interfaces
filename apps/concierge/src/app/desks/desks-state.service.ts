@@ -34,7 +34,6 @@ import {
     BuildingLevel,
     Desk,
     downloadFile,
-    generateQRCode,
     getTimezoneDifferenceInHours,
     i18n,
     jsonToCsv,
@@ -49,6 +48,7 @@ import {
     SettingsService,
     unique,
 } from '@placeos/common';
+import { generateQRCode } from '@placeos/common/qr-code';
 import {
     listChildMetadata,
     QueryResponse,

@@ -1,11 +1,13 @@
 import { Injector, signal, WritableSignal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { FormArray, FormControl, FormGroup, Validators } from '@angular/forms';
 import { addMinutes, differenceInMinutes } from 'date-fns';
 import {
     alignDateToBookableHours,
     csvToJson,
     downloadFile,
     errorMessage,
+    getInvalidFields,
     getItemWithKeys,
     getNextBookableTime,
     isWithinBookableHours,
@@ -1480,6 +1482,23 @@ describe('General Methods', () => {
             expect(errorMessage({})).toBe('');
             expect(errorMessage(null)).toBe('');
             expect(errorMessage({ error: { status: 409 } })).toBe('');
+        });
+    });
+
+    describe('getInvalidFields', () => {
+        it('should list invalid fields inside nested groups but not arrays', () => {
+            const form = new FormGroup({
+                name: new FormControl('', Validators.required),
+                host: new FormGroup({
+                    email: new FormControl('', Validators.required),
+                }),
+                guests: new FormArray([
+                    new FormControl('', Validators.required),
+                ]),
+            });
+            expect(
+                getInvalidFields(form, { 'host.email': 'Host email' }),
+            ).toEqual(['name', 'Host email', 'guests']);
         });
     });
 });
