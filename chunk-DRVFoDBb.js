@@ -1,3 +1,0 @@
-import{Wo as ru}from"./chunk-CewIR1w8.js";import{B as Oh,W as R6}from"./chunk-w9rr-C5d.js";var r=`/api/staff/v1/guests`;async function C(t){let s=R6({q:t});return(await ru(`${r}${t?`?`+s:``}`)).map(c=>new Oh(c))}async function I(t){return new Oh(await ru(`${r}/${encodeURIComponent(t)}`))}export{I as n,C as t};
-//# debugId=9a1e128a-8754-51bc-b286-38632f35257e
-//# sourceMappingURL=chunk-DRVFoDBb.js.map
