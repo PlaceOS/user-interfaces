@@ -1,0 +1,13 @@
+import{Ai as xS,Ir as oe,Jt as XD,O as Fe,Oi as x$1,Pi as y,S as De,Sr as m,U as It,_i as ve,mr as ks,sr as io}from"./chunk-BQGEwb__.js";function U(n){n||(n=y(De));let e=new x$1(t=>{if(n.destroyed){t.next();return}return n.onDestroy(t.next.bind(t))});return t=>t.pipe(XD(e))}function T(n){let e=xS(n);return new x$1(t=>{let o=e?.onDestroy(()=>t.complete()),i=n.subscribe(r=>t.next(r));return()=>{i.unsubscribe(),o?.()}})}function F(n,e){let t=e?.injector??y(ve),o=new io(1),i=ks(()=>{let r;try{r=n()}catch(u){oe(()=>o.error(u));return}oe(()=>o.next(r))},{injector:t,manualCleanup:!0});return t.get(De).onDestroy(()=>{i.destroy(),o.complete()}),o.asObservable()}function L(n,e){let o=!e?.manualCleanup?e?.injector?.get(De)??y(De):null,i=x(e?.equal),r;e?.requireSync?r=It({kind:0},{equal:i}):r=It({kind:1,value:e?.initialValue},{equal:i});let u,f=n.subscribe({next:s=>r.set({kind:1,value:s}),error:s=>{r.set({kind:2,error:s}),u?.()},complete:()=>{u?.()}});if(e?.requireSync&&r().kind===0)throw new m(601,!1);return u=o?.onDestroy(f.unsubscribe.bind(f)),Fe(()=>{let s=r();switch(s.kind){case 1:return s.value;case 2:throw s.error;case 0:throw new m(601,!1)}},{equal:e?.equal})}function x(n=Object.is){return(e,t)=>e.kind===1&&t.kind===1&&n(e.value,t.value)}
+/*! Bundled license information:
+
+@angular/core/fesm2022/rxjs-interop.mjs:
+(**
+* @license Angular v22.1.5
+* (c) 2010-2026 Google LLC. https://angular.dev/
+* License: MIT
+*)
+*/
+export{U as i,L as n,T as r,F as t};
+//# debugId=8f608ee2-672f-592e-9709-364f1bbae870
+//# sourceMappingURL=chunk-DZsV57J5.js.map
