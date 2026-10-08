@@ -12,7 +12,7 @@ import {
   saveAssetCategory,
   saveAssetType,
   validateAssetRequestsForResource
-} from "./chunk-5T3B5CHY.js";
+} from "./chunk-4GDWWHSK.js";
 import {
   Booking,
   FormField,
@@ -43,13 +43,13 @@ import {
   updateBooking,
   updateSpaceList,
   validate
-} from "./chunk-YXGNVCD6.js";
+} from "./chunk-RUXLMUO7.js";
 import {
   TranslatePipe
-} from "./chunk-2ICR73UQ.js";
+} from "./chunk-JCIZ7A4K.js";
 import {
   SanitizePipe
-} from "./chunk-BDS7FGAR.js";
+} from "./chunk-WBAU73DE.js";
 import {
   A11yModule,
   ActiveDescendantKeyManager,
@@ -337,7 +337,7 @@ import {
   ɵɵtwoWayProperty,
   ɵɵviewQuery,
   ɵɵviewQuerySignal
-} from "./chunk-OQVSHQAY.js";
+} from "./chunk-OOV3QGMP.js";
 import {
   __objRest,
   __spreadProps,
@@ -7785,6 +7785,8 @@ function newBookingFromCalendarEvent(event) {
     user_id: event.organiser?.id || event.host,
     user_email: event.host,
     user_name: event.organiser?.name || event.host,
+    // An empty title uses the booking type default.
+    title: event.title || void 0,
     date,
     duration,
     all_day: event.all_day,
@@ -7815,7 +7817,8 @@ async function loadLockersForScope(org, scope_id, banks) {
   const assets = await queryLockerAssetsForZones([scope_id]).catch(() => []);
   const lockers = assets.map((_2) => lockerFromAsset(_2, banks));
   for (const bank of banks) {
-    bank.lockers = lockers.filter((_2) => _2.bank_id === bank.id).map((_2) => __spreadValues({}, _2));
+    const parent = __spreadProps(__spreadValues({}, bank), { lockers: [] });
+    bank.lockers = lockers.filter((_2) => _2.bank_id === bank.id).map((_2) => __spreadProps(__spreadValues({}, _2), { bank: parent }));
   }
   return lockers.filter((_2) => _2.bank);
 }
@@ -11171,8 +11174,9 @@ var UserSearchFieldComponent = class _UserSearchFieldComponent extends AsyncHand
           const user = term;
           return user.email === EMPTY_USER.email ? [] : [user];
         }
-        if (term === this.user()?.name)
-          return [this.user()];
+        const selected = this.user();
+        if (selected && term === selected.name)
+          return [selected];
         if (this.disable_search())
           return [];
         const s = `${term || ""}`.toLowerCase();
@@ -11596,5 +11600,5 @@ export {
   generateMicrosoftCalendarLink,
   BookingFormService
 };
-//# debugId=57ba7b6b-30f7-5fd0-a91f-b08eef7da9ae
-//# sourceMappingURL=chunk-CH6U6HX4.js.map
+//# debugId=23233627-0c77-5893-8b75-3f219ae52530
+//# sourceMappingURL=chunk-7JICCYGR.js.map

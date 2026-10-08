@@ -1,9 +1,9 @@
 import {
   TranslatePipe
-} from "./chunk-2ICR73UQ.js";
+} from "./chunk-JCIZ7A4K.js";
 import {
   SanitizePipe
-} from "./chunk-BDS7FGAR.js";
+} from "./chunk-WBAU73DE.js";
 import {
   AsyncHandler,
   Component,
@@ -73,7 +73,7 @@ import {
   ɵɵtwoWayListener,
   ɵɵtwoWayProperty,
   ɵɵviewQuerySignal
-} from "./chunk-OQVSHQAY.js";
+} from "./chunk-OOV3QGMP.js";
 import {
   __spreadProps,
   __spreadValues
@@ -2433,8 +2433,9 @@ var ChatService = class _ChatService extends AsyncHandler {
     const auth = J() !== "x-api-key" ? `bearer_token=${encodeURIComponent(J())}` : `x-api-key=${et()}`;
     const url = `ws${location.origin.replace("http", "")}/api/engine/v2/chatgpt/chat/${encodeURIComponent(id)}?${auth}${this._chat_id ? "&resume=" + encodeURIComponent(this._chat_id) : ""}`;
     log("CHAT", "Starting chat connection.");
-    this._socket = new WebSocket(url);
-    this._socket.onmessage = (event) => {
+    const socket = new WebSocket(url);
+    this._socket = socket;
+    socket.onmessage = (event) => {
       let msg = event.data;
       try {
         msg = JSON.parse(event.data);
@@ -2442,11 +2443,11 @@ var ChatService = class _ChatService extends AsyncHandler {
       }
       this._onMessage(msg);
     };
-    this._socket.onerror = (e) => {
+    socket.onerror = (e) => {
       log("CHAT", "Connection error:", [e], "error");
-      this._cleanup();
+      this._cleanup(socket);
     };
-    this._socket.onclose = () => this._cleanup();
+    socket.onclose = () => this._cleanup(socket);
     return () => this.endChat();
   }
   endChat() {
@@ -2480,7 +2481,10 @@ var ChatService = class _ChatService extends AsyncHandler {
       this.endChat();
     }, delay);
   }
-  _cleanup() {
+  /** Forget the socket. With a socket given, only if it is still the current one. */
+  _cleanup(socket) {
+    if (socket && socket !== this._socket)
+      return;
     this._socket = null;
   }
   _onMessage(msg) {
@@ -3129,5 +3133,5 @@ var ChatComponent = class _ChatComponent extends AsyncHandler {
 export {
   ChatComponent
 };
-//# debugId=e8acf7e6-ffbd-5ca3-a462-4b94bc1c79a7
-//# sourceMappingURL=chat.component-AGKOZ7AD.js.map
+//# debugId=976ec6c8-a044-5548-a53c-87a18c445a76
+//# sourceMappingURL=chat.component-7M7Q46MW.js.map

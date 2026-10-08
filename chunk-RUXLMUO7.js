@@ -179,7 +179,7 @@ import {
   ɵɵtextInterpolate,
   ɵɵviewQuery,
   ɵɵviewQuerySignal
-} from "./chunk-OQVSHQAY.js";
+} from "./chunk-OOV3QGMP.js";
 import {
   __spreadProps,
   __spreadValues
@@ -6790,23 +6790,84 @@ async function queryResourceAvailability(id_list, start, duration, ignore, type 
   });
   return id_list.map((id) => !bookings.find((b) => (b.asset_id === id || b.asset_ids.includes(id)) && (!ignore || ignore !== b.id)));
 }
-async function createBookingsForEvent(event, type, resources) {
-  const bookings = (await queryBookings({
+async function linkedBookingsForEvent(event, type) {
+  const bookings = await queryBookingsOrThrow({
     type,
+    event_id: event.id,
     period_start: getUnixTime(event.date),
-    period_end: getUnixTime(addMinutes(event.date, event.duration))
-  })).filter((_2) => _2.parent_id === event.id);
-  await Promise.all(bookings.map((_2) => removeBooking(_2.id)));
-  await Promise.all(event.linked_bookings.filter((_2) => _2.booking_type === type).map((_2) => removeBooking(_2.id)));
+    period_end: getUnixTime(addMinutes(event.date, event.duration)),
+    limit: 500
+  });
+  return bookings.filter((_2) => _2.extension_data?.parent_id === event.id);
+}
+function replacedEventBookingIds(event, type) {
+  return (event.linked_bookings || []).filter((_2) => {
+    const parent_id = _2.extension_data?.parent_id;
+    return _2.booking_type === type && !!parent_id && parent_id !== event.id;
+  }).map((_2) => _2.id);
+}
+function bookingMatchesResource(booking, item) {
+  if (item.id && booking.extension_data?.details?.id === item.id) {
+    return true;
+  }
+  if (item.email && booking.attendees?.find((_2) => _2.email === item.email)) {
+    return true;
+  }
+  return !!booking.asset_ids?.find((id) => item.items?.find((i) => i.item_ids?.includes(id)));
+}
+function detailsKey(details) {
+  const data = JSON.parse(JSON.stringify(details ?? null));
+  if (data && typeof data === "object")
+    delete data.deliver_at_time;
+  return JSON.stringify(data, (_2, value) => value && typeof value === "object" && !Array.isArray(value) ? Object.fromEntries(Object.entries(value).sort(([a], [b]) => a < b ? -1 : 1)) : value);
+}
+function attendeeEmails(list = []) {
+  return list.map((_2) => _2.email?.toLowerCase()).sort().join(",");
+}
+function linkedBookingChanges(booking, desired) {
+  const changes = {};
+  if (booking.booking_start !== desired.booking_start || booking.booking_end !== desired.booking_end) {
+    changes.booking_start = desired.booking_start;
+    changes.booking_end = desired.booking_end;
+    changes.all_day = desired.all_day;
+  }
+  for (const key of ["title", "description", "asset_name"]) {
+    if (booking[key] !== desired[key])
+      changes[key] = desired[key];
+  }
+  if (booking.user_email.toLowerCase() !== desired.user_email.toLowerCase()) {
+    changes.user_email = desired.user_email;
+  }
+  if (booking.asset_id !== desired.asset_id) {
+    changes.asset_id = desired.asset_id;
+    changes.asset_ids = desired.asset_ids;
+  }
+  if ([...booking.zones].sort().join() !== [...desired.zones].sort().join()) {
+    changes.zones = desired.zones;
+  }
+  if (attendeeEmails(booking.attendees) !== attendeeEmails(desired.attendees)) {
+    changes.attendees = desired.attendees;
+  }
+  const details_changed = detailsKey(booking.extension_data?.details) !== detailsKey(desired.extension_data?.details);
+  if (!details_changed && !Object.keys(changes).length)
+    return null;
+  return __spreadProps(__spreadValues({}, changes), { extension_data: desired.extension_data });
+}
+async function createBookingsForEvent(event, type, resources) {
+  const existing = await linkedBookingsForEvent(event, type);
   const zones = event.system?.zones || unique(flatten(event.resources.map((_2) => _2.zones))) || [];
+  const kept = /* @__PURE__ */ new Set();
   const created_bookings = [];
   try {
+    for (const id of replacedEventBookingIds(event, type)) {
+      await removeBooking(id);
+    }
     for (const item of resources) {
-      const booking = bookings.find((_2) => _2.extension_data?.details?.id === item.id || _2.asset_ids.find((id) => item.items?.find((i) => i.item_ids.includes(id))));
+      const booking = existing.find((_2) => !kept.has(_2.id) && bookingMatchesResource(_2, item));
       const assigned_space = type === "catering-order" && item.system_id ? event.resources.find((_2) => _2.id === item.system_id || _2.email === item.system_id) : void 0;
       const resource_id = assigned_space?.id || item.system_id || item.email || item.id;
       const resource_name = assigned_space?.display_name || assigned_space?.name || item.name;
-      created_bookings.push(await createBooking(new Booking({
+      const desired = new Booking({
         type,
         booking_type: type,
         date: event.date,
@@ -6817,8 +6878,6 @@ async function createBookingsForEvent(event, type, resources) {
         asset_name: resource_name,
         title: event.title,
         attendees: item.email ? [new User(item)] : [],
-        approved: booking?.approved && !item._changed,
-        rejected: booking?.rejected && !item._changed,
         extension_data: {
           parent_id: event.id,
           name: resource_name,
@@ -6826,7 +6885,22 @@ async function createBookingsForEvent(event, type, resources) {
           details: item
         },
         zones: assigned_space?.zones || zones
-      }).toJSON(), { ical_uid: event.ical_uid, event_id: event.id }));
+      });
+      if (booking) {
+        kept.add(booking.id);
+        const changes = linkedBookingChanges(booking, desired);
+        if (changes)
+          await updateBooking(booking.id, changes);
+        continue;
+      }
+      created_bookings.push(await createBooking(desired.toJSON(), {
+        ical_uid: event.ical_uid,
+        event_id: event.id
+      }));
+    }
+    for (const booking of existing) {
+      if (!kept.has(booking.id))
+        await removeBooking(booking.id);
     }
   } catch (error) {
     await Promise.all(created_bookings.filter((booking) => !!booking.id).map((booking) => removeBooking(booking.id).catch(() => void 0)));
@@ -6881,5 +6955,5 @@ export {
   queryResourceAvailability,
   createBookingsForEvent
 };
-//# debugId=9d49bbbd-830f-5d09-956a-a96574fe0cfa
-//# sourceMappingURL=chunk-YXGNVCD6.js.map
+//# debugId=55bf3d54-4d20-5aa0-a9bb-82f1d7ddc00e
+//# sourceMappingURL=chunk-RUXLMUO7.js.map

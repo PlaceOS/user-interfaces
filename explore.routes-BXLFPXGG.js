@@ -1,6 +1,6 @@
 import {
   CustomTooltipComponent
-} from "./chunk-KQIUYPEY.js";
+} from "./chunk-FTEQ3GMD.js";
 import {
   generateQRCode
 } from "./chunk-MJCQM3JL.js";
@@ -48,16 +48,16 @@ import {
   setHours,
   setMinutes,
   showStaff
-} from "./chunk-CH6U6HX4.js";
+} from "./chunk-7JICCYGR.js";
 import {
   MatTooltip,
   MatTooltipModule
-} from "./chunk-CWR7QACH.js";
+} from "./chunk-3Z7TGCJX.js";
 import {
   MatCheckbox,
   MatCheckboxModule,
   validateAssetRequestsForResource
-} from "./chunk-5T3B5CHY.js";
+} from "./chunk-4GDWWHSK.js";
 import {
   AuthenticatedImageDirective,
   Booking,
@@ -83,13 +83,13 @@ import {
   saveBooking,
   showGuest,
   validate
-} from "./chunk-YXGNVCD6.js";
+} from "./chunk-RUXLMUO7.js";
 import {
   TranslatePipe
-} from "./chunk-2ICR73UQ.js";
+} from "./chunk-JCIZ7A4K.js";
 import {
   SanitizePipe
-} from "./chunk-BDS7FGAR.js";
+} from "./chunk-WBAU73DE.js";
 import {
   ActivatedRoute,
   AssetRequest,
@@ -229,6 +229,7 @@ import {
   output,
   resource,
   roundToNearestMinutes,
+  sameDayInTimezone,
   set,
   setClassMetadata,
   setDefaultCreator,
@@ -319,7 +320,7 @@ import {
   ɵɵtwoWayProperty,
   ɵɵviewQuery,
   ɵɵviewQuerySignal
-} from "./chunk-OQVSHQAY.js";
+} from "./chunk-OOV3QGMP.js";
 import {
   __spreadProps,
   __spreadValues
@@ -4847,9 +4848,9 @@ var EventFormService = class _EventFormService extends AsyncHandler {
       all_day_end: period?.end
     });
   }
-  _allDayTimeRange(date) {
+  _allDayTimeRange(date, timezone = this.timezone) {
     const period = this._settings.get("app.events.all_day_period");
-    return getAllDayTimeRange(date, this.timezone, period?.start, period?.end);
+    return getAllDayTimeRange(date, timezone, period?.start, period?.end);
   }
   /** Resolve the bookable space list for the given zone */
   _requestSpaces(zone_id) {
@@ -5027,13 +5028,18 @@ var EventFormService = class _EventFormService extends AsyncHandler {
       }
       const changed_spaces = spaces.filter((_2) => !event.resources.find((s) => s.id === _2.id));
       const resources_changed = !!changed_spaces.length || event.resources.some((space) => !spaces.some((_2) => _2.id === space.id));
-      const all_day_period = raw_value.all_day ? this._allDayTimeRange(raw_value.date) : {
+      const ignored_emails = ignore_space_check.map((_2) => _2.toLowerCase());
+      const isIgnored = (space) => ignored_emails.includes(space.email?.toLowerCase());
+      const rooms = spaces.filter((_2) => !isIgnored(_2));
+      const organiser_timezone = await this._organiserTimezone(rooms.length ? rooms : spaces, raw_value.timezone);
+      const has_date_changed = !event.id || event.date !== raw_value.date;
+      const all_day_date = has_date_changed ? sameDayInTimezone(raw_value.date, this.timezone, organiser_timezone) : raw_value.date;
+      const all_day_period = raw_value.all_day ? this._allDayTimeRange(all_day_date, organiser_timezone) : {
         date: raw_value.date,
         duration: raw_value.duration,
         date_end: raw_value.date_end
       };
       const has_time_changed = !event.id || event.date !== raw_value.date || event.duration !== raw_value.duration;
-      const organiser_timezone = this.timezone || raw_value.timezone;
       this._model.update((m) => __spreadProps(__spreadValues({}, m), {
         timezone: organiser_timezone
       }));
@@ -5041,7 +5047,7 @@ var EventFormService = class _EventFormService extends AsyncHandler {
       if (spaces.length && (has_time_changed || resources_changed)) {
         const date = raw_value.all_day ? all_day_period.date : raw_value.date;
         const duration = raw_value.all_day ? all_day_period.duration : raw_value.duration;
-        const availability_candidates = has_time_changed ? spaces : changed_spaces;
+        const availability_candidates = (has_time_changed ? spaces : changed_spaces).filter((_2) => !isIgnored(_2));
         if (availability_candidates.length) {
           const availability_spaces = await Promise.all(availability_candidates.map((space) => this._space_pipe.transform(space.email)));
           await this._checkResourcesAvailable(availability_spaces, date, duration, event.ical_uid || event.id || "").catch(on_error);
@@ -5147,7 +5153,7 @@ var EventFormService = class _EventFormService extends AsyncHandler {
       }
       const domain = (currentUser()?.email || "@").split("@")[1];
       const visitors = this._model().attendees.filter((user) => user.is_external && user.email !== event.host && !user.email.includes(domain) && user.visit_expected);
-      if (visitors.length) {
+      if (visitors.length || event.id) {
         await createBookingsForEvent(created_event, "visitor", visitors).catch((e) => this._removeBookingAfterError(!event.id, created_event, false, e));
       }
       if (this._model().catering?.length) {
@@ -5260,6 +5266,18 @@ var EventFormService = class _EventFormService extends AsyncHandler {
         response_status: response?.response_status || (response || !require_saved_resource ? space.response_status : "declined")
       }));
     });
+  }
+  /**
+   * Timezone to save with the event. With building timezones on, the
+   * building of the event's rooms decides it before the active building.
+   */
+  async _organiserTimezone(spaces, fallback) {
+    if (spaces.length && !multipleSpacesEnabled(this._settings) && this._settings.get("app.events.use_building_timezone")) {
+      const [building] = await this._org.loadBuildingsForZones(spaces.map((space) => space.zones || []));
+      if (building?.timezone)
+        return building.timezone;
+    }
+    return this.timezone || fallback;
   }
   /** Check the event instant against every selected building's local hours. */
   async _checkBuildingBookableHours(spaces, date, date_end, organiser_timezone) {
@@ -12103,5 +12121,5 @@ var ROUTES = [
 export {
   ROUTES
 };
-//# debugId=f481499a-c4fd-58c6-af28-46d1b76da2d8
-//# sourceMappingURL=explore.routes-SNFI2PEZ.js.map
+//# debugId=b45056a3-4eb8-5943-84ce-f68cb407a705
+//# sourceMappingURL=explore.routes-BXLFPXGG.js.map

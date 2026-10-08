@@ -9,24 +9,24 @@ import {
   generateMockSpace,
   setHours,
   setMinutes
-} from "./chunk-CH6U6HX4.js";
+} from "./chunk-7JICCYGR.js";
 import {
   MatTooltip,
   MatTooltipModule
-} from "./chunk-CWR7QACH.js";
+} from "./chunk-3Z7TGCJX.js";
 import {
   parseTokenFromUrl
 } from "./chunk-FZ3XJSQC.js";
 import {
   CheckinStateService
-} from "./chunk-X2RZITIG.js";
+} from "./chunk-DXT6J4GI.js";
 import {
   MatCheckbox,
   MatCheckboxModule,
   MatSelect,
   MatSelectModule,
   MatSelectTrigger
-} from "./chunk-5T3B5CHY.js";
+} from "./chunk-4GDWWHSK.js";
 import {
   AuthenticatedImageDirective,
   FormField,
@@ -39,13 +39,13 @@ import {
   MatProgressSpinner,
   MatProgressSpinnerModule,
   VirtualKeyboardComponent
-} from "./chunk-YXGNVCD6.js";
+} from "./chunk-RUXLMUO7.js";
 import {
   TranslatePipe
-} from "./chunk-2ICR73UQ.js";
+} from "./chunk-JCIZ7A4K.js";
 import {
   SanitizePipe
-} from "./chunk-BDS7FGAR.js";
+} from "./chunk-WBAU73DE.js";
 import {
   ActivatedRoute,
   AsyncHandler,
@@ -223,7 +223,7 @@ import {
   ɵɵtwoWayListener,
   ɵɵtwoWayProperty,
   ɵɵviewQuerySignal
-} from "./chunk-OQVSHQAY.js";
+} from "./chunk-OOV3QGMP.js";
 import {
   __spreadProps,
   __spreadValues
@@ -1545,15 +1545,15 @@ var GlobalLoadingComponent = class _GlobalLoadingComponent extends AsyncHandler 
 // libs/components/src/lib/settings-debug-panel-launcher.component.ts
 var SettingsDebugPanelLauncherComponent_Defer_25_DepsFn = () => [
   /* @ts-ignore */
-  import("./settings-debug-panel.component-UXDE4ATT.js").then((m) => m.SettingsDebugPanelComponent)
+  import("./settings-debug-panel.component-RDGT3ZYT.js").then((m) => m.SettingsDebugPanelComponent)
 ];
 var SettingsDebugPanelLauncherComponent_Defer_28_DepsFn = () => [
   /* @ts-ignore */
-  import("./binding-debug-panel.component-HSRN36XX.js").then((m) => m.BindingDebugPanelComponent)
+  import("./binding-debug-panel.component-3ADE4CR5.js").then((m) => m.BindingDebugPanelComponent)
 ];
 var SettingsDebugPanelLauncherComponent_Defer_31_DepsFn = () => [
   /* @ts-ignore */
-  import("./debug-console.component-DHJUV4ZJ.js").then((m) => m.DebugConsoleComponent)
+  import("./debug-console.component-JKSCEM2E.js").then((m) => m.DebugConsoleComponent)
 ];
 function SettingsDebugPanelLauncherComponent_Defer_24_Conditional_0_Template(rf, ctx) {
   if (rf & 1) {
@@ -1788,11 +1788,11 @@ var SettingsDebugPanelLauncherComponent = class _SettingsDebugPanelLauncherCompo
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(SettingsDebugPanelLauncherComponent, () => [
     /* @ts-ignore */
-    import("./settings-debug-panel.component-UXDE4ATT.js").then((m) => m.SettingsDebugPanelComponent),
+    import("./settings-debug-panel.component-RDGT3ZYT.js").then((m) => m.SettingsDebugPanelComponent),
     /* @ts-ignore */
-    import("./binding-debug-panel.component-HSRN36XX.js").then((m) => m.BindingDebugPanelComponent),
+    import("./binding-debug-panel.component-3ADE4CR5.js").then((m) => m.BindingDebugPanelComponent),
     /* @ts-ignore */
-    import("./debug-console.component-DHJUV4ZJ.js").then((m) => m.DebugConsoleComponent)
+    import("./debug-console.component-JKSCEM2E.js").then((m) => m.DebugConsoleComponent)
   ], (SettingsDebugPanelComponent, BindingDebugPanelComponent, DebugConsoleComponent) => {
     setClassMetadata(SettingsDebugPanelLauncherComponent, [{
       type: Component,
@@ -7370,6 +7370,23 @@ function registerMockSignage() {
     callback: () => ({})
   });
   co({
+    path: "/api/engine/v2/uploads/screenshot",
+    metadata: {},
+    method: "POST",
+    callback: (request) => ({
+      id: `upload-screenshot-${Date.now()}`,
+      file_name: `screenshot-${new URL(request.body.url).host}.jpg`,
+      file_mime: "image/jpeg",
+      tags: ["screenshot"]
+    })
+  });
+  co({
+    path: "/api/engine/v2/uploads/:id",
+    metadata: {},
+    method: "DELETE",
+    callback: () => ({})
+  });
+  co({
     path: "/api/engine/v2/signage/media/share",
     metadata: {},
     method: "POST",
@@ -7741,20 +7758,20 @@ function registerMockSignage() {
       };
     }
   });
-  registerMockSignageAI();
+  registerMockSignageImageGen();
 }
-function registerMockSignageAI() {
-  const AI_JOBS = {};
+function registerMockSignageImageGen() {
+  const IMAGE_GEN_JOBS = {};
   const SAMPLE_IMAGES = MOCK_MEDIA.slice(0, 4).map((item) => item.id);
   const now = () => Math.floor(Date.now() / 1e3);
   function makeJob(request, kind) {
     const count = Math.min(Math.max(request.candidates || 2, 1), 4);
     const job = {
-      id: `signage-ai-job-${Object.keys(AI_JOBS).length + 1}`,
+      id: `signage-ai-job-${Object.keys(IMAGE_GEN_JOBS).length + 1}`,
       state: "queued",
       kind,
       provider: "OPENAI",
-      model: "gpt-image-2",
+      model: "gpt-image-2.5-sunburst",
       candidates: count,
       images_produced: 0,
       parent_job_id: request.parent_job_id,
@@ -7763,7 +7780,7 @@ function registerMockSignageAI() {
       images: Array.from({ length: count }, () => null),
       created_at: now()
     };
-    AI_JOBS[job.id] = job;
+    IMAGE_GEN_JOBS[job.id] = job;
     if (`${request.prompt}`.includes("trigger-moderation")) {
       setTimeout(() => {
         job.state = "failed";
@@ -7808,11 +7825,11 @@ function registerMockSignageAI() {
           id: "signage-ai-provider-1",
           name: "Mock provider",
           provider: "OPENAI",
-          default_model: "gpt-image-2",
+          default_model: "gpt-image-2.5-sunburst",
           models: [
             {
-              id: "gpt-image-2",
-              name: "GPT Image 2",
+              id: "gpt-image-2.5-sunburst",
+              name: "GPT Image 2.5 Sunburst",
               generate: true,
               edit: true,
               enhance: true,
@@ -7848,14 +7865,14 @@ function registerMockSignageAI() {
     path: "/api/engine/v2/signage/ai/jobs",
     metadata: {},
     method: "GET",
-    callback: () => Object.values(AI_JOBS)
+    callback: () => Object.values(IMAGE_GEN_JOBS)
   });
   co({
     path: "/api/engine/v2/signage/ai/jobs/:id",
     metadata: {},
     method: "GET",
     callback: (request) => {
-      const job = AI_JOBS[request.route_params.id];
+      const job = IMAGE_GEN_JOBS[request.route_params.id];
       if (!job)
         throw { status: 404, message: "No such job" };
       return job;
@@ -7866,7 +7883,7 @@ function registerMockSignageAI() {
     metadata: {},
     method: "POST",
     callback: (request) => {
-      const job = AI_JOBS[request.route_params.id];
+      const job = IMAGE_GEN_JOBS[request.route_params.id];
       if (!job)
         throw { status: 404, message: "No such job" };
       if (job.state === "queued" || job.state === "running") {
@@ -7881,7 +7898,7 @@ function registerMockSignageAI() {
     metadata: {},
     method: "POST",
     callback: (request) => {
-      const job = AI_JOBS[request.route_params.id];
+      const job = IMAGE_GEN_JOBS[request.route_params.id];
       if (!job)
         throw { status: 404, message: "No such job" };
       const entry = job.images.find((image) => image?.upload_id === request.body?.upload_id);
@@ -10287,7 +10304,7 @@ function mocksInit() {
 // apps/visitor-kiosk/src/app/app.component.ts
 var AppComponent_Defer_4_DepsFn = () => [
   /* @ts-ignore */
-  import("./chat.component-AGKOZ7AD.js").then((m) => m.ChatComponent)
+  import("./chat.component-7M7Q46MW.js").then((m) => m.ChatComponent)
 ];
 function AppComponent_Defer_3_Template(rf, ctx) {
   if (rf & 1) {
@@ -10351,7 +10368,7 @@ var AppComponent = class _AppComponent {
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(AppComponent, () => [
     /* @ts-ignore */
-    import("./chat.component-AGKOZ7AD.js").then((m) => m.ChatComponent)
+    import("./chat.component-7M7Q46MW.js").then((m) => m.ChatComponent)
   ], (ChatComponent) => {
     setClassMetadata(AppComponent, [{
       type: Component,
@@ -12563,17 +12580,17 @@ var routes = [
   {
     path: "explore",
     canActivate: [AuthorisedUserGuard],
-    loadChildren: () => import("./explore.routes-SNFI2PEZ.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./explore.routes-BXLFPXGG.js").then((m) => m.ROUTES)
   },
   {
     path: "checkin",
     canActivate: [AuthorisedUserGuard],
-    loadChildren: () => import("./checkin.routes-XWXO3ZTV.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./checkin.routes-EOCXM5AA.js").then((m) => m.ROUTES)
   },
   {
     path: "checkout",
     canActivate: [AuthorisedUserGuard],
-    loadChildren: () => import("./checkout.routes-AFAPXOWV.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./checkout.routes-BNJA6LZU.js").then((m) => m.ROUTES)
   },
   { path: "**", redirectTo: "bootstrap" }
 ];
@@ -12611,5 +12628,5 @@ if (environment.production) {
   enableProdMode();
 }
 bootstrapApplication(AppComponent, appConfig).catch((err) => console.error(err));
-//# debugId=22e1830a-19f2-5bde-bbc5-d5351db385d7
+//# debugId=bfde4381-82d1-5f29-8b3b-d11ecd18eb14
 //# sourceMappingURL=main.js.map
