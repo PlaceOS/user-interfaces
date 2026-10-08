@@ -104,7 +104,6 @@ export class LockerMapComponent {
     private _settings = inject(SettingsService);
     private _org = inject(OrganisationService);
 
-    public readonly is_displayed = input(false);
     public readonly active = input('');
     public readonly onSelect = output<BookingAsset>();
     private readonly _use_region = this._settings.signal('use_region', false);

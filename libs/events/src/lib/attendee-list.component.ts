@@ -121,6 +121,7 @@ export class AttendeeListComponent {
     public readonly hide_close = input(false);
     /** Label attendees from outside the organisation, e.g. public event guests */
     public readonly mark_external = input(false);
+    // fallow-ignore-next-line unused-component-input -- read in a template pipe expression fallow does not parse
     public readonly custom_title = input('');
     public readonly close = output();
 }

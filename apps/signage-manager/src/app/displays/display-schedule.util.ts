@@ -7,7 +7,7 @@ import {
 } from '../schedules/signage-schedule.util';
 import { HydratedSignageTemplateMapping } from '../signage-template-mapping';
 
-export interface DisplayScheduleBlock extends ScheduleBlock {
+interface DisplayScheduleBlock extends ScheduleBlock {
     mapping?: HydratedSignageTemplateMapping;
     children: ScheduleBlock[];
 }

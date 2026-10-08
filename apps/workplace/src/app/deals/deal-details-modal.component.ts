@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, output } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import {
     MAT_DIALOG_DATA,
@@ -39,15 +39,6 @@ import {
             <header class="flex space-x-2 p-2">
                 <h3 class="w-auto px-2 text-xl font-medium">{{ deal.name }}</h3>
                 <div class="flex-1"></div>
-                <!-- <button
-                    btn
-                    matRipple
-                    class="inverse error space-x-2"
-                    (click)="remove.emit()"
-                >
-                    <icon class="text-2xl text-error">delete</icon>
-                    <div class="pr-2">{{ 'COMMON.REMOVE' | translate }}</div>
-                </button> -->
             </header>
             <div class="max-h-[60vh] space-y-2 overflow-auto p-4">
                 <h4 class="font-medium">
@@ -85,8 +76,6 @@ import {
 export class DealDetailsModalComponent {
     public readonly deal = inject(MAT_DIALOG_DATA);
     private _dialog_ref = inject(MatDialogRef<DealDetailsModalComponent>);
-
-    public readonly remove = output();
 
     public close() {
         this._dialog_ref.close();

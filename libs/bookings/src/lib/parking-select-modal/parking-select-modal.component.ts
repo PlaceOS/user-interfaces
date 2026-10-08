@@ -89,9 +89,7 @@ export const FAV_PARKING_KEY = 'favourite_parking_spaces';
                     [class.p-2]="view() === 'list'"
                 >
                     @if (view() === 'list') {
-                        <parking-space-filters-display
-                            [(view)]="view"
-                        ></parking-space-filters-display>
+                        <parking-space-filters-display></parking-space-filters-display>
                     }
                     @if (view() === 'list') {
                         <parking-space-list
@@ -104,7 +102,6 @@ export const FAV_PARKING_KEY = 'favourite_parking_spaces';
                     } @else {
                         <parking-space-map
                             class="h-full min-h-[60vh] w-full"
-                            [is_displayed]="!!displayed()"
                             [active]="displayed()?.id || ''"
                             (onSelect)="displayed.set($event)"
                         >
@@ -119,9 +116,7 @@ export const FAV_PARKING_KEY = 'favourite_parking_spaces';
                 >
                     <parking-space-details
                         [space]="displayed()"
-                        [active]="isSelected(displayed()?.id)"
                         [hide_map]="view() === 'map'"
-                        (activeChange)="setSelected(displayed(), $event)"
                         [fav]="
                             displayed()
                                 ? favorites().includes(displayed()?.id)

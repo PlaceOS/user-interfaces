@@ -158,12 +158,10 @@ import { BookingAsset } from '../booking-form.service';
 export class DeskDetailsComponent {
     public readonly desk = input<BookingAsset>(undefined);
     public readonly fav = input(false);
-    public readonly active = input(false);
     public readonly hide_map = input(false);
 
     public readonly close = output<void>();
     public readonly toggleFav = output<void>();
-    public readonly activeChange = output<void>();
 
     public readonly map_url = computed(() => this.desk()?.zone?.map_id || '');
     public readonly features = computed<ViewerFeature[]>(() => {

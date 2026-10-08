@@ -7,7 +7,7 @@
  * call, and `window.signage.json()` gives the same thing as text to paste into
  * a ticket.
  */
-export interface SignageDiagnostics {
+interface SignageDiagnostics {
     /** Log the current player state to the console and return it */
     state: () => Record<string, unknown>;
     /** The current player state as formatted JSON */

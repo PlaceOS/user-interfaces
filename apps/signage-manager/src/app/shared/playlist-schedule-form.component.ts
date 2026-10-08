@@ -1447,6 +1447,7 @@ export class PlaylistScheduleFormComponent {
 
     public readonly schedule =
         input.required<FieldTree<PlaylistScheduleFormModel>>();
+    // fallow-ignore-next-line unused-component-input -- read in a template pipe expression fallow does not parse
     public readonly index = input.required<number>();
     public readonly open = input(false);
     public readonly can_remove = input(false);

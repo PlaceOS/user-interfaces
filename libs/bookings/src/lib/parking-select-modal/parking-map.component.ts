@@ -3,7 +3,6 @@ import {
     computed,
     effect,
     inject,
-    input,
     model,
     OnInit,
     output,
@@ -101,7 +100,6 @@ export class ParkingMapComponent implements OnInit {
     private _org = inject(OrganisationService);
     private readonly _use_region = this._settings.signal('use_region', false);
 
-    public readonly is_displayed = input(false);
     public readonly active = model('');
     public readonly onSelect = output<BookingAsset>();
 

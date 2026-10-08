@@ -27,7 +27,7 @@ export const DEFAULT_MEDIA_VIEW: MediaViewOptions = {
 };
 
 /** Media expiring within this many days counts as expiring soon */
-export const MEDIA_EXPIRING_DAYS = 7;
+const MEDIA_EXPIRING_DAYS = 7;
 
 type ViewableMedia = Pick<
     SignageMedia,
@@ -38,7 +38,7 @@ type ViewableMedia = Pick<
  * Type group of a media item. Matches the type badge on media cards, which
  * shows every other type as video.
  */
-export function mediaTypeGroup(item: Pick<SignageMedia, 'media_type'>) {
+function mediaTypeGroup(item: Pick<SignageMedia, 'media_type'>) {
     switch (item.media_type) {
         case 'image':
         case 'webpage':

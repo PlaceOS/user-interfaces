@@ -110,11 +110,9 @@ import { CounterComponent } from 'libs/form-fields/src/lib/counter.component';
 })
 export class AssetDetailsComponent {
     public readonly item = input<AssetGroup>(undefined);
-    public readonly active = input(false);
     public readonly fav = input(false);
 
     public readonly toggleFav = output<void>();
-    public readonly activeChange = output<boolean>();
     public readonly countChange = output<number>();
     public readonly close = output<void>();
 

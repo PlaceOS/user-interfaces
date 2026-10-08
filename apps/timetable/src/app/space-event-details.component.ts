@@ -29,6 +29,7 @@ export class SpaceEventDetailsComponent {
     /** Current time in ms */
     public readonly now = input<number>(0);
     /** Date pipe format for times */
+    // fallow-ignore-next-line unused-component-input -- read in a template pipe expression fallow does not parse
     public readonly time_format = input<string>('h:mm a');
     /** Whether to replace the title with a generic label */
     public readonly hide_title = input<boolean>(false);

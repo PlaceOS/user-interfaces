@@ -27,16 +27,16 @@ export interface PanelTimelineBooking {
 }
 
 /** Length of the panel timeline in minutes */
-export const TIMELINE_SPAN = 12 * 60;
+const TIMELINE_SPAN = 12 * 60;
 
 /** Durations in minutes offered by the quick book buttons */
-export const QUICK_BOOK_DURATIONS = [15, 30, 60];
+const QUICK_BOOK_DURATIONS = [15, 30, 60];
 
 /** Minutes the extend button adds to the current booking */
 export const EXTEND_MINUTES = 15;
 
 /** Minutes before the end of a booking to warn about the next booking */
-export const ENDING_WARNING_MINUTES = 5;
+const ENDING_WARNING_MINUTES = 5;
 
 function bookingEnd(booking: CalendarEvent) {
     return addMinutes(booking.date, booking.duration).valueOf();
@@ -260,7 +260,7 @@ export function isNightTime(
 }
 
 /** Pixel offsets the panel moves through to prevent screen burn-in */
-export const BURN_IN_OFFSETS: [number, number][] = [
+const BURN_IN_OFFSETS: [number, number][] = [
     [0, 0],
     [2, 0],
     [2, 2],

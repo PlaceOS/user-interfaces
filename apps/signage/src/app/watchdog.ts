@@ -457,7 +457,7 @@ export function startWatchdog(actions: WatchdogActions = {}) {
     return () => stopWatchdog();
 }
 
-export function stopWatchdog() {
+function stopWatchdog() {
     if (_timer) clearInterval(_timer);
     _timer = undefined;
     // The latch must not outlive the timer that releases it, and a stopped
