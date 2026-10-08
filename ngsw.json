@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1791353362220,
+  "timestamp": 1791419765260,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -225,7 +225,7 @@
     "./chunk-nH_a0b2q.js": "1a3a4cce0e4db8d028a7e3e722895eb13f3cbff3",
     "./favicon.ico": "d80ec6579af2b478d033f3a00b069261be9a2ae9",
     "./index.html": "81df7ef61d5035509387a41e2b4f982e6fb40617",
-    "./main.js": "b96e2b5981b7d294b71e312ec8c682368e66f98b",
+    "./main.js": "92ab066e86afbbdac4ef0e8023e2c6f47f90b0dd",
     "./manifest.webmanifest": "f7f5cebd1d24ba58516589850f4c2f02d3afaee6",
     "./styles.css": "f910fc22ddfa8b59295d384b228f19817b53537f"
   },
