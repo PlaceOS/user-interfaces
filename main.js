@@ -1,44 +1,45 @@
 import {
+  SignageTemplateService
+} from "./chunk-VHG5CUDZ.js";
+import "./chunk-M3RPYBOW.js";
+import {
   CommandPaletteService
-} from "./chunk-EHZTDCMG.js";
+} from "./chunk-4625PWRO.js";
 import {
-  AiImageService
-} from "./chunk-JTF2U6I2.js";
-import {
-  SIGNAGE_FEATURE_IDS,
-  SignageService
-} from "./chunk-O53Q6NO3.js";
-import "./chunk-OZEEJTZM.js";
-import "./chunk-F3MXSL3K.js";
-import "./chunk-M7S5BKB7.js";
-import {
-  openConfirmModal
-} from "./chunk-C73HJTAK.js";
+  ImageGenService
+} from "./chunk-G3VFXKPX.js";
 import {
   MatMenu,
   MatMenuItem,
   MatMenuModule,
   MatMenuTrigger
-} from "./chunk-GPD2BVBF.js";
+} from "./chunk-GBUKG7S5.js";
 import {
   MatTooltip,
   MatTooltipModule
-} from "./chunk-KPDVPN6G.js";
+} from "./chunk-BUXOUYWY.js";
 import {
   MatInput,
   MatInputModule
-} from "./chunk-SSYGLRD3.js";
+} from "./chunk-BZ7UY2RA.js";
 import {
   MatFormField,
   MatFormFieldModule,
   MatPrefix
-} from "./chunk-6ZADWJYR.js";
-import "./chunk-MIU7RGQI.js";
-import "./chunk-RIDGEBIK.js";
-import "./chunk-VQMEEY5G.js";
+} from "./chunk-G4RAFQJW.js";
+import "./chunk-DKQ77FMR.js";
+import "./chunk-Y465EEIV.js";
+import {
+  openConfirmModal
+} from "./chunk-CANWIIRQ.js";
+import "./chunk-WEGWBEFP.js";
+import {
+  SignageContextService
+} from "./chunk-IC6PDIJY.js";
+import "./chunk-P5YDCKEY.js";
 import {
   TranslatePipe
-} from "./chunk-DP5CYN2A.js";
+} from "./chunk-4R7BTQAK.js";
 import {
   AsyncHandler,
   GroupPermission,
@@ -74,7 +75,7 @@ import {
   setNativeEmail,
   settingSignal,
   user_groups_loaded
-} from "./chunk-MNHTUKSZ.js";
+} from "./chunk-DQYXLEKZ.js";
 import {
   Router,
   RouterLink,
@@ -82,7 +83,7 @@ import {
   provideRouter,
   withComponentInputBinding,
   withHashLocation
-} from "./chunk-MTHSXWL7.js";
+} from "./chunk-VCQ7GNNO.js";
 import {
   BidiModule,
   ChangeDetectorRef,
@@ -199,7 +200,7 @@ import {
   ɵɵtwoWayListener,
   ɵɵtwoWayProperty,
   ɵɵviewQuerySignal
-} from "./chunk-SQCVFJN7.js";
+} from "./chunk-VC4MJRPT.js";
 import {
   __spreadProps,
   __spreadValues
@@ -1496,15 +1497,15 @@ var GlobalLoadingComponent = class _GlobalLoadingComponent extends AsyncHandler 
 // libs/components/src/lib/settings-debug-panel-launcher.component.ts
 var SettingsDebugPanelLauncherComponent_Defer_25_DepsFn = () => [
   /* @ts-ignore */
-  import("./settings-debug-panel.component-RVK6VRVJ.js").then((m) => m.SettingsDebugPanelComponent)
+  import("./settings-debug-panel.component-SNAPYHLS.js").then((m) => m.SettingsDebugPanelComponent)
 ];
 var SettingsDebugPanelLauncherComponent_Defer_28_DepsFn = () => [
   /* @ts-ignore */
-  import("./binding-debug-panel.component-LU66VNBJ.js").then((m) => m.BindingDebugPanelComponent)
+  import("./binding-debug-panel.component-NJK5KNWM.js").then((m) => m.BindingDebugPanelComponent)
 ];
 var SettingsDebugPanelLauncherComponent_Defer_31_DepsFn = () => [
   /* @ts-ignore */
-  import("./debug-console.component-QL6BUXTG.js").then((m) => m.DebugConsoleComponent)
+  import("./debug-console.component-V7CI5OPS.js").then((m) => m.DebugConsoleComponent)
 ];
 function SettingsDebugPanelLauncherComponent_Defer_24_Conditional_0_Template(rf, ctx) {
   if (rf & 1) {
@@ -1739,11 +1740,11 @@ var SettingsDebugPanelLauncherComponent = class _SettingsDebugPanelLauncherCompo
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(SettingsDebugPanelLauncherComponent, () => [
     /* @ts-ignore */
-    import("./settings-debug-panel.component-RVK6VRVJ.js").then((m) => m.SettingsDebugPanelComponent),
+    import("./settings-debug-panel.component-SNAPYHLS.js").then((m) => m.SettingsDebugPanelComponent),
     /* @ts-ignore */
-    import("./binding-debug-panel.component-LU66VNBJ.js").then((m) => m.BindingDebugPanelComponent),
+    import("./binding-debug-panel.component-NJK5KNWM.js").then((m) => m.BindingDebugPanelComponent),
     /* @ts-ignore */
-    import("./debug-console.component-QL6BUXTG.js").then((m) => m.DebugConsoleComponent)
+    import("./debug-console.component-V7CI5OPS.js").then((m) => m.DebugConsoleComponent)
   ], (SettingsDebugPanelComponent, BindingDebugPanelComponent, DebugConsoleComponent) => {
     setClassMetadata(SettingsDebugPanelLauncherComponent, [{
       type: Component,
@@ -7321,6 +7322,23 @@ function registerMockSignage() {
     callback: () => ({})
   });
   co({
+    path: "/api/engine/v2/uploads/screenshot",
+    metadata: {},
+    method: "POST",
+    callback: (request) => ({
+      id: `upload-screenshot-${Date.now()}`,
+      file_name: `screenshot-${new URL(request.body.url).host}.jpg`,
+      file_mime: "image/jpeg",
+      tags: ["screenshot"]
+    })
+  });
+  co({
+    path: "/api/engine/v2/uploads/:id",
+    metadata: {},
+    method: "DELETE",
+    callback: () => ({})
+  });
+  co({
     path: "/api/engine/v2/signage/media/share",
     metadata: {},
     method: "POST",
@@ -7692,20 +7710,20 @@ function registerMockSignage() {
       };
     }
   });
-  registerMockSignageAI();
+  registerMockSignageImageGen();
 }
-function registerMockSignageAI() {
-  const AI_JOBS = {};
+function registerMockSignageImageGen() {
+  const IMAGE_GEN_JOBS = {};
   const SAMPLE_IMAGES = MOCK_MEDIA.slice(0, 4).map((item) => item.id);
   const now = () => Math.floor(Date.now() / 1e3);
   function makeJob(request, kind) {
     const count = Math.min(Math.max(request.candidates || 2, 1), 4);
     const job = {
-      id: `signage-ai-job-${Object.keys(AI_JOBS).length + 1}`,
+      id: `signage-ai-job-${Object.keys(IMAGE_GEN_JOBS).length + 1}`,
       state: "queued",
       kind,
       provider: "OPENAI",
-      model: "gpt-image-2",
+      model: "gpt-image-2.5-sunburst",
       candidates: count,
       images_produced: 0,
       parent_job_id: request.parent_job_id,
@@ -7714,7 +7732,7 @@ function registerMockSignageAI() {
       images: Array.from({ length: count }, () => null),
       created_at: now()
     };
-    AI_JOBS[job.id] = job;
+    IMAGE_GEN_JOBS[job.id] = job;
     if (`${request.prompt}`.includes("trigger-moderation")) {
       setTimeout(() => {
         job.state = "failed";
@@ -7759,11 +7777,11 @@ function registerMockSignageAI() {
           id: "signage-ai-provider-1",
           name: "Mock provider",
           provider: "OPENAI",
-          default_model: "gpt-image-2",
+          default_model: "gpt-image-2.5-sunburst",
           models: [
             {
-              id: "gpt-image-2",
-              name: "GPT Image 2",
+              id: "gpt-image-2.5-sunburst",
+              name: "GPT Image 2.5 Sunburst",
               generate: true,
               edit: true,
               enhance: true,
@@ -7799,14 +7817,14 @@ function registerMockSignageAI() {
     path: "/api/engine/v2/signage/ai/jobs",
     metadata: {},
     method: "GET",
-    callback: () => Object.values(AI_JOBS)
+    callback: () => Object.values(IMAGE_GEN_JOBS)
   });
   co({
     path: "/api/engine/v2/signage/ai/jobs/:id",
     metadata: {},
     method: "GET",
     callback: (request) => {
-      const job = AI_JOBS[request.route_params.id];
+      const job = IMAGE_GEN_JOBS[request.route_params.id];
       if (!job)
         throw { status: 404, message: "No such job" };
       return job;
@@ -7817,7 +7835,7 @@ function registerMockSignageAI() {
     metadata: {},
     method: "POST",
     callback: (request) => {
-      const job = AI_JOBS[request.route_params.id];
+      const job = IMAGE_GEN_JOBS[request.route_params.id];
       if (!job)
         throw { status: 404, message: "No such job" };
       if (job.state === "queued" || job.state === "running") {
@@ -7832,7 +7850,7 @@ function registerMockSignageAI() {
     metadata: {},
     method: "POST",
     callback: (request) => {
-      const job = AI_JOBS[request.route_params.id];
+      const job = IMAGE_GEN_JOBS[request.route_params.id];
       if (!job)
         throw { status: 404, message: "No such job" };
       const entry = job.images.find((image) => image?.upload_id === request.body?.upload_id);
@@ -10236,13 +10254,58 @@ function mocksInit() {
 }
 
 // apps/signage-manager/src/app/app.component.ts
+function AppComponent_Conditional_4_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r1 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "div", 1)(1, "icon", 4);
+    \u0275\u0275text(2, "error");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(3, "p", 5);
+    \u0275\u0275text(4);
+    \u0275\u0275pipe(5, "translate");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(6, "button", 6);
+    \u0275\u0275listener("click", function AppComponent_Conditional_4_Template_button_click_6_listener() {
+      \u0275\u0275restoreView(_r1);
+      const ctx_r1 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r1.retryGroups());
+    });
+    \u0275\u0275text(7);
+    \u0275\u0275pipe(8, "translate");
+    \u0275\u0275elementEnd()();
+  }
+  if (rf & 2) {
+    \u0275\u0275advance(4);
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(5, 2, "SIGNAGE_MANAGER.GROUPS_LOAD_ERROR"), " ");
+    \u0275\u0275advance(3);
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(8, 4, "COMMON.RETRY"), " ");
+  }
+}
 var AppComponent = class _AppComponent {
   constructor() {
     this.load_settings_schema = () => import("./settings.schema-R62LTHBV.js");
     this._placeos = inject(PlaceOS_Service);
     this._uploads = inject(UploadsService);
-    this._ai = inject(AiImageService);
+    this._image_gen = inject(ImageGenService);
     this._palette = inject(CommandPaletteService);
+    this._context = inject(SignageContextService);
+    this._router = inject(Router);
+    this.groups_failed = this._context.signage_groups_failed;
+    effect(() => {
+      if (!this._context.features_ready())
+        return;
+      if (this._context.templates_enabled() && !this._context.signage_groups_failed()) {
+        return;
+      }
+      untracked(() => {
+        if (/^\/templates(\/|\?|#|$)/.test(this._router.url)) {
+          void this._router.navigate(["/media"]);
+        }
+      });
+    });
+  }
+  retryGroups() {
+    this._context.reloadSignageGroups();
   }
   /** Open the command palette on Cmd+K or Ctrl+K, even from a text field */
   onKeydown(event) {
@@ -10258,9 +10321,9 @@ var AppComponent = class _AppComponent {
     setMocks(mocksInit);
     await this._placeos.init();
     this._uploads.init();
-    await this._ai.load(Mt()?.config?.org_zone);
-    if (this._ai.enabled())
-      await this._ai.loadRecent();
+    await this._image_gen.load(Mt()?.config?.org_zone);
+    if (this._image_gen.enabled())
+      await this._image_gen.loadRecent();
   }
   static {
     this.\u0275fac = function AppComponent_Factory(__ngFactoryType__) {
@@ -10274,26 +10337,32 @@ var AppComponent = class _AppComponent {
           return ctx.onKeydown($event);
         }, \u0275\u0275resolveDocument);
       }
-    }, decls: 8, vars: 4, consts: [["href", "#main-content", 1, "skip-link"], ["id", "main-content", "tabindex", "-1", 1, "relative", "h-1/2", "w-full", "flex-1"], [3, "loadSchema"]], template: function AppComponent_Template(rf, ctx) {
+    }, decls: 9, vars: 5, consts: [["href", "#main-content", 1, "skip-link"], ["role", "alert", 1, "bg-error/10", "border-error/30", "flex", "items-center", "gap-3", "border-b", "px-4", "py-2", "text-sm"], ["id", "main-content", "tabindex", "-1", 1, "relative", "h-1/2", "w-full", "flex-1"], [3, "loadSchema"], [1, "text-error", "text-xl"], [1, "min-w-0", "flex-1"], ["btn", "", "matRipple", "", "type", "button", 1, "inverse", 3, "click"]], template: function AppComponent_Template(rf, ctx) {
       if (rf & 1) {
         \u0275\u0275elementStart(0, "a", 0);
         \u0275\u0275text(1);
         \u0275\u0275pipe(2, "translate");
         \u0275\u0275elementEnd();
         \u0275\u0275element(3, "global-banner");
-        \u0275\u0275elementStart(4, "main", 1);
-        \u0275\u0275element(5, "router-outlet");
+        \u0275\u0275conditionalCreate(4, AppComponent_Conditional_4_Template, 9, 6, "div", 1);
+        \u0275\u0275elementStart(5, "main", 2);
+        \u0275\u0275element(6, "router-outlet");
         \u0275\u0275elementEnd();
-        \u0275\u0275element(6, "global-loading")(7, "settings-debug-panel-launcher", 2);
+        \u0275\u0275element(7, "global-loading")(8, "settings-debug-panel-launcher", 3);
       }
       if (rf & 2) {
         \u0275\u0275advance();
-        \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(2, 2, "SIGNAGE_MANAGER.SKIP_TO_CONTENT"));
-        \u0275\u0275advance(6);
+        \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(2, 3, "SIGNAGE_MANAGER.SKIP_TO_CONTENT"));
+        \u0275\u0275advance(3);
+        \u0275\u0275conditional(ctx.groups_failed() ? 4 : -1);
+        \u0275\u0275advance(4);
         \u0275\u0275property("loadSchema", ctx.load_settings_schema);
       }
     }, dependencies: [
       GlobalBannerComponent,
+      MatRippleModule,
+      MatRipple,
+      IconComponent,
       RouterOutlet,
       GlobalLoadingComponent,
       SettingsDebugPanelLauncherComponent,
@@ -10309,6 +10378,26 @@ var AppComponent = class _AppComponent {
             'SIGNAGE_MANAGER.SKIP_TO_CONTENT' | translate
         }}</a>
         <global-banner />
+        @if (groups_failed()) {
+            <div
+                role="alert"
+                class="bg-error/10 border-error/30 flex items-center gap-3 border-b px-4 py-2 text-sm"
+            >
+                <icon class="text-error text-xl">error</icon>
+                <p class="min-w-0 flex-1">
+                    {{ 'SIGNAGE_MANAGER.GROUPS_LOAD_ERROR' | translate }}
+                </p>
+                <button
+                    btn
+                    matRipple
+                    type="button"
+                    class="inverse"
+                    (click)="retryGroups()"
+                >
+                    {{ 'COMMON.RETRY' | translate }}
+                </button>
+            </div>
+        }
         <main
             id="main-content"
             tabindex="-1"
@@ -10320,15 +10409,17 @@ var AppComponent = class _AppComponent {
         <settings-debug-panel-launcher [loadSchema]="load_settings_schema" />
     `, host: { "(document:keydown)": "onKeydown($event)" }, imports: [
       GlobalBannerComponent,
+      MatRippleModule,
+      IconComponent,
       RouterOutlet,
       GlobalLoadingComponent,
       SettingsDebugPanelLauncherComponent,
       TranslatePipe
     ], styles: ["/* angular:styles/component:css;2c590c9e56511a088a1469fe4b227d8190323c208f95620a03712f1a8f5bae8d;/home/runner/work/user-interfaces/user-interfaces/apps/signage-manager/src/app/app.component.ts */\n:host {\n  display: flex;\n  flex-direction: column;\n  height: 100%;\n  width: 100%;\n}\n/*# sourceMappingURL=app.component.css.map */\n"] }]
-  }], null, null);
+  }], () => [], null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(AppComponent, { className: "AppComponent", filePath: "apps/signage-manager/src/app/app.component.ts", lineNumber: 52 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(AppComponent, { className: "AppComponent", filePath: "apps/signage-manager/src/app/app.component.ts", lineNumber: 77 });
 })();
 
 // apps/signage-manager/src/environments/environment.ts
@@ -10341,7 +10432,7 @@ function canAccessSignageApp(can_manage_all_groups, group_count, groups_failed =
   return can_manage_all_groups || group_count > 0 || groups_failed;
 }
 var signageAccessGuard = async () => {
-  const service = inject(SignageService);
+  const service = inject(SignageContextService);
   const router = inject(Router);
   const org = inject(OrganisationService);
   const injector = inject(Injector);
@@ -10352,20 +10443,35 @@ var signageAccessGuard = async () => {
   ]);
   return canAccessSignageApp(service.can_manage_all_groups(), service.signage_groups().length, service.signage_groups_failed()) ? true : router.parseUrl("/unauthorised");
 };
+var manageGroupsGuard = async () => {
+  const service = inject(SignageContextService);
+  const router = inject(Router);
+  const org = inject(OrganisationService);
+  const injector = inject(Injector);
+  await Promise.all([
+    org.waitUntilInitialised(),
+    firstValueWhere(user_groups_loaded, Boolean, injector),
+    firstValueWhere(service.signage_groups_loaded, Boolean, injector)
+  ]);
+  return service.can_manage_groups() || service.signage_groups_failed() ? true : router.parseUrl("/media");
+};
 
 // apps/signage-manager/src/app/templates-enabled.guard.ts
 var templatesEnabledGuard = async () => {
-  const settings = inject(SettingsService);
+  const service = inject(SignageContextService);
   const router = inject(Router);
   const org = inject(OrganisationService);
-  await org.waitUntilInitialised();
-  const features = settings.get("app.features") ?? SIGNAGE_FEATURE_IDS;
-  return features.includes("templates") ? true : router.parseUrl("/media");
+  const injector = inject(Injector);
+  await Promise.all([
+    org.waitUntilInitialised(),
+    firstValueWhere(service.features_ready, Boolean, injector)
+  ]);
+  return service.templates_enabled() && !service.signage_groups_failed() ? true : router.parseUrl("/media");
 };
 
 // apps/signage-manager/src/app/templates/template-unsaved.guard.ts
 var templateUnsavedGuard = async () => {
-  const service = inject(SignageService);
+  const service = inject(SignageTemplateService);
   const dialog = inject(MatDialog);
   if (!service.template_layout_dirty())
     return true;
@@ -10395,51 +10501,51 @@ var APP_ROUTES = [
     children: [
       {
         path: "media",
-        loadComponent: () => import("./media.component-FG4X6QUY.js").then((m) => m.MediaSectionComponent)
+        loadComponent: () => import("./media.component-MNQAOWJM.js").then((m) => m.MediaSectionComponent)
       },
       {
         path: "playlists/:id",
-        loadComponent: () => import("./playlists.component-3KXCM4WK.js").then((m) => m.PlaylistsSectionComponent)
+        loadComponent: () => import("./playlists.component-YYNKPNPV.js").then((m) => m.PlaylistsSectionComponent)
       },
       {
         path: "playlists",
-        loadComponent: () => import("./playlists.component-3KXCM4WK.js").then((m) => m.PlaylistsSectionComponent)
+        loadComponent: () => import("./playlists.component-YYNKPNPV.js").then((m) => m.PlaylistsSectionComponent)
       },
       {
         path: "templates/:id",
         canActivate: [templatesEnabledGuard],
         canDeactivate: [templateUnsavedGuard],
-        loadComponent: () => import("./templates.component-J2HXOZDD.js").then((m) => m.TemplatesSectionComponent)
+        loadComponent: () => import("./templates.component-BS77CH5C.js").then((m) => m.TemplatesSectionComponent)
       },
       {
         path: "templates",
         canActivate: [templatesEnabledGuard],
-        loadComponent: () => import("./templates.component-J2HXOZDD.js").then((m) => m.TemplatesSectionComponent)
+        loadComponent: () => import("./templates.component-BS77CH5C.js").then((m) => m.TemplatesSectionComponent)
       },
       {
         path: "schedules",
-        loadComponent: () => import("./schedules.component-6MHYISWW.js").then((m) => m.SchedulesSectionComponent)
+        loadComponent: () => import("./schedules.component-MA7DV5ZC.js").then((m) => m.SchedulesSectionComponent)
       },
       {
         path: "displays/:id",
-        loadComponent: () => import("./displays.component-NA5WUT37.js").then((m) => m.DisplaysSectionComponent)
+        loadComponent: () => import("./displays.component-5QXD4VXN.js").then((m) => m.DisplaysSectionComponent)
       },
       {
         path: "displays",
-        loadComponent: () => import("./displays.component-NA5WUT37.js").then((m) => m.DisplaysSectionComponent)
+        loadComponent: () => import("./displays.component-5QXD4VXN.js").then((m) => m.DisplaysSectionComponent)
       },
       {
         path: "manage",
-        loadComponent: () => import("./manage.component-4GNYWHQK.js").then((m) => m.ManageSectionComponent),
+        loadComponent: () => import("./manage.component-A36O3HAO.js").then((m) => m.ManageSectionComponent),
         children: [
           { path: "", pathMatch: "full", redirectTo: "report" },
           {
             path: "report",
-            loadComponent: () => import("./content-report.component-5OEPHLQA.js").then((m) => m.ContentReportComponent)
+            loadComponent: () => import("./content-report.component-CV35XVXR.js").then((m) => m.ContentReportComponent)
           },
           {
             path: "branding",
-            loadComponent: () => import("./branding.component-R5Q4XGBZ.js").then((m) => m.BrandingComponent)
+            loadComponent: () => import("./branding.component-STTMQYEA.js").then((m) => m.BrandingComponent)
           }
         ]
       },
@@ -10448,15 +10554,16 @@ var APP_ROUTES = [
       { path: "branding", redirectTo: "manage/branding" },
       {
         path: "groups",
-        loadComponent: () => import("./groups.component-CTCUU3CT.js").then((m) => m.GroupsSectionComponent)
+        canActivate: [manageGroupsGuard],
+        loadComponent: () => import("./groups.component-F32CJMRR.js").then((m) => m.GroupsSectionComponent)
       },
       {
         path: "zones/:id",
-        loadComponent: () => import("./zones.component-JOUUR2IS.js").then((m) => m.ZonesSectionComponent)
+        loadComponent: () => import("./zones.component-GLSCYZVL.js").then((m) => m.ZonesSectionComponent)
       },
       {
         path: "zones",
-        loadComponent: () => import("./zones.component-JOUUR2IS.js").then((m) => m.ZonesSectionComponent)
+        loadComponent: () => import("./zones.component-GLSCYZVL.js").then((m) => m.ZonesSectionComponent)
       },
       { path: "**", redirectTo: "media" }
     ]
@@ -10491,5 +10598,5 @@ var APP_CONFIG = {
 
 // apps/signage-manager/src/main.ts
 bootstrapApplication(AppComponent, APP_CONFIG).catch((err) => console.error(err));
-//# debugId=ab93c8f3-7630-58eb-9e35-201d9084c3fc
+//# debugId=3b0b52b6-6932-56da-9440-e60856518dcc
 //# sourceMappingURL=main.js.map

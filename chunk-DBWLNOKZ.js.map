@@ -1,0 +1,12 @@
+{
+  "version": 3,
+  "sources": [
+    "apps/signage-manager/src/app/signage-plugin.util.ts"
+  ],
+  "sourcesContent": [
+    "type PluginSchema = Record<string, unknown>;\n\nfunction isRecord(value: unknown): value is PluginSchema {\n    return !!value && typeof value === 'object' && !Array.isArray(value);\n}\n\nexport function objectHasKeys(value: unknown): value is PluginSchema {\n    return isRecord(value) && Object.keys(value).length > 0;\n}\n\n/** Convert catalogue parameter definitions into the JSON Schema shape used by schema-form. */\nexport function pluginSchema(schema: unknown): PluginSchema | null {\n    if (!objectHasKeys(schema)) return null;\n    if ('properties' in schema) return schema;\n    if (!Object.values(schema).every(isRecord)) return null;\n    return { type: 'object', properties: schema };\n}\n\nexport function schemaDefaults(schema: PluginSchema | null | undefined) {\n    const properties = schema?.properties;\n    if (!isRecord(properties)) return {};\n    return Object.entries(properties).reduce(\n        (defaults, [key, property]) => {\n            if (isRecord(property) && 'default' in property) {\n                defaults[key] = property.default;\n            }\n            return defaults;\n        },\n        {} as Record<string, unknown>,\n    );\n}\n\n/** Display name of a plugin, falling back to its ID when it is not loaded. */\nexport function pluginName(\n    plugins: { id: string; name: string }[],\n    plugin_id?: string,\n) {\n    if (!plugin_id) return '';\n    return plugins.find(({ id }) => id === plugin_id)?.name || plugin_id;\n}\n"
+  ],
+  "mappings": ";AAEA,SAAS,SAAS,OAAc;AAC5B,SAAO,CAAC,CAAC,SAAS,OAAO,UAAU,YAAY,CAAC,MAAM,QAAQ,KAAK;AACvE;AAEM,SAAU,cAAc,OAAc;AACxC,SAAO,SAAS,KAAK,KAAK,OAAO,KAAK,KAAK,EAAE,SAAS;AAC1D;AAGM,SAAU,aAAa,QAAe;AACxC,MAAI,CAAC,cAAc,MAAM;AAAG,WAAO;AACnC,MAAI,gBAAgB;AAAQ,WAAO;AACnC,MAAI,CAAC,OAAO,OAAO,MAAM,EAAE,MAAM,QAAQ;AAAG,WAAO;AACnD,SAAO,EAAE,MAAM,UAAU,YAAY,OAAM;AAC/C;AAEM,SAAU,eAAe,QAAuC;AAClE,QAAM,aAAa,QAAQ;AAC3B,MAAI,CAAC,SAAS,UAAU;AAAG,WAAO,CAAA;AAClC,SAAO,OAAO,QAAQ,UAAU,EAAE,OAC9B,CAAC,UAAU,CAAC,KAAK,QAAQ,MAAK;AAC1B,QAAI,SAAS,QAAQ,KAAK,aAAa,UAAU;AAC7C,eAAS,GAAG,IAAI,SAAS;IAC7B;AACA,WAAO;EACX,GACA,CAAA,CAA6B;AAErC;AAGM,SAAU,WACZ,SACA,WAAkB;AAElB,MAAI,CAAC;AAAW,WAAO;AACvB,SAAO,QAAQ,KAAK,CAAC,EAAE,GAAE,MAAO,OAAO,SAAS,GAAG,QAAQ;AAC/D;",
+  "names": [],
+  "debugId": "08640164-1d68-5339-930e-f77d9ac7d9ab"
+}
