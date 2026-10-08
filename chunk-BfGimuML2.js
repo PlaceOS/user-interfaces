@@ -1,0 +1,13 @@
+import{Nt as Te,Qr as ut,g as Ce,m as Bv,ni as v_,ot as N,pr as m$1,w as E}from"./chunk--4xhlkem.js";function U(n){n||(n=E(Ce));let e=new N(t=>{if(n.destroyed){t.next();return}return n.onDestroy(t.next.bind(t))});return t=>t.pipe(Bv(e))}function T(n){let e=v_(n);return new N(t=>{let s=e?.onDestroy(()=>t.complete()),i=n.subscribe(r=>t.next(r));return()=>{i.unsubscribe(),s?.()}})}function F(n,e){let s=!e?.manualCleanup?e?.injector?.get(Ce)??E(Ce):null,i=m(e?.equal),r;e?.requireSync?r=ut({kind:0},{equal:i}):r=ut({kind:1,value:e?.initialValue},{equal:i});let c,v=n.subscribe({next:o=>r.set({kind:1,value:o}),error:o=>{r.set({kind:2,error:o}),c?.()},complete:()=>{c?.()}});if(e?.requireSync&&r().kind===0)throw new m$1(601,!1);return c=s?.onDestroy(v.unsubscribe.bind(v)),Te(()=>{let o=r();switch(o.kind){case 1:return o.value;case 2:throw o.error;case 0:throw new m$1(601,!1)}},{equal:e?.equal})}function m(n=Object.is){return(e,t)=>e.kind===1&&t.kind===1&&n(e.value,t.value)}
+/*! Bundled license information:
+
+@angular/core/fesm2022/rxjs-interop.mjs:
+(**
+* @license Angular v22.1.5
+* (c) 2010-2026 Google LLC. https://angular.dev/
+* License: MIT
+*)
+*/
+export{T as n,U as r,F as t};
+//# debugId=014fb827-f9a6-53f6-ab79-cca1a8443054
+//# sourceMappingURL=chunk-BfGimuML2.js.map
