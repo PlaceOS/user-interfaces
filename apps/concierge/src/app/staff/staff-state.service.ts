@@ -1,11 +1,17 @@
 import { computed, effect, inject, Injectable, signal } from '@angular/core';
 import { searchStaff } from '@placeos/users';
 
-import { checkinBooking, queryBookings, saveBooking } from '@placeos/bookings';
+import {
+    checkinBooking,
+    queryBookingsOrThrow,
+    saveBooking,
+} from '@placeos/bookings';
 import {
     AsyncHandler,
     Booking,
+    i18n,
     MINUTES,
+    notifyError,
     OrganisationService,
     StaffUser,
     timePeriodsIntersect,
@@ -26,10 +32,16 @@ export class StaffStateService extends AsyncHandler {
 
     private _onsite: Record<string, boolean> = {};
     private _events: Record<string, Booking> = {};
+    /** Set after a failed check-in load; one notice per run of failures. */
+    private _events_failed = false;
     private readonly _users = signal<StaffUser[]>([]);
     private readonly _poll = signal(0);
 
     public readonly loading = signal<boolean>(false);
+    /** True while the staff directory is loading. */
+    public readonly users_loading = signal<boolean>(false);
+    /** True when the last staff directory load failed. */
+    public readonly users_error = signal<boolean>(false);
     public readonly filters = signal<StaffFilters>({});
     public readonly search = signal<string>('');
     public readonly user_events = signal<Record<string, boolean>>({});
@@ -110,34 +122,56 @@ export class StaffStateService extends AsyncHandler {
 
     private async _loadEvents() {
         this.loading.set(true);
-        const bookings = await queryBookings({
-            period_start: getUnixTime(startOfDay(Date.now())),
-            period_end: getUnixTime(endOfDay(Date.now())),
-            type: 'staff',
-        });
-        const checkin_map = {};
-        const now = new Date().valueOf();
-        for (const bkn of bookings) {
-            if (
-                timePeriodsIntersect(
-                    now,
-                    now,
-                    bkn.date,
-                    bkn.date + bkn.duration * 60 * 1000,
-                )
-            ) {
-                checkin_map[bkn.asset_id] = bkn.checked_in;
-                this._events[bkn.asset_id] = bkn;
+        try {
+            const bookings = await queryBookingsOrThrow({
+                period_start: getUnixTime(startOfDay(Date.now())),
+                period_end: getUnixTime(endOfDay(Date.now())),
+                type: 'staff',
+            });
+            const checkin_map = {};
+            const now = new Date().valueOf();
+            for (const bkn of bookings) {
+                if (
+                    timePeriodsIntersect(
+                        now,
+                        now,
+                        bkn.date,
+                        bkn.date + bkn.duration * 60 * 1000,
+                    )
+                ) {
+                    checkin_map[bkn.asset_id] = bkn.checked_in;
+                    this._events[bkn.asset_id] = bkn;
+                }
             }
+            this._onsite = checkin_map;
+            this.user_events.set(checkin_map);
+            this._events_failed = false;
+        } catch (err) {
+            console.error('Staff check-in load failed:', err);
+            if (!this._events_failed) notifyError(i18n('COMMON.LOAD_ERROR'));
+            this._events_failed = true;
+        } finally {
+            this.loading.set(false);
         }
-        this._onsite = checkin_map;
-        this.user_events.set(checkin_map);
-        this.loading.set(false);
     }
 
-    private async loadUsers() {
-        const user_list = await searchStaff('');
-        user_list.sort((a, b) => a.name.localeCompare(b.name));
-        this._users.set(user_list);
+    /**
+     * Loads the staff directory. Call it again to retry after a failure; a call
+     * while a load is in progress does nothing.
+     */
+    public async loadUsers() {
+        if (this.users_loading()) return;
+        this.users_loading.set(true);
+        this.users_error.set(false);
+        try {
+            const user_list = await searchStaff('');
+            user_list.sort((a, b) => a.name.localeCompare(b.name));
+            this._users.set(user_list);
+        } catch (err) {
+            console.error('Staff directory load failed:', err);
+            this.users_error.set(true);
+        } finally {
+            this.users_loading.set(false);
+        }
     }
 }
