@@ -3,7 +3,7 @@ import {
   computed,
   inject,
   signal
-} from "./chunk-LO646HYG.js";
+} from "./chunk-LQWTO7UZ.js";
 
 // libs/components/src/lib/debug-panel-resize.ts
 var DebugPanelResize = class {
@@ -68,4 +68,4 @@ export {
   DebugPanelResize
 };
 //# debugId=c63b1cec-f609-5d40-847f-6b39b59b8a26
-//# sourceMappingURL=chunk-SP3QVIBY.js.map
+//# sourceMappingURL=chunk-GENWWRQT.js.map
