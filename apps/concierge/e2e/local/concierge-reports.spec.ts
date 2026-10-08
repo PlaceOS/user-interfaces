@@ -31,7 +31,6 @@
  * directory-backed picker.
  */
 import { expect, test } from '../../../../e2e/support/concierge/fixtures';
-import { CALENDAR_ENABLED } from '../../../../e2e/support/calendar/calendar.env';
 import {
     calendarSlot,
     createRoomEvent,
@@ -128,11 +127,13 @@ test.describe('concierge reports', () => {
      * report reads its window and zones from the URL (`report-spaces.component.ts`).
      */
     test.describe('with the Microsoft 365 tenant', () => {
-        test.skip(
-            !CALENDAR_ENABLED,
-            'needs the Microsoft 365 tenant: set E2E_O365_TENANT, E2E_O365_CLIENT_ID ' +
-                'and E2E_O365_CLIENT_SECRET before up.sh',
-        );
+        test.beforeEach(({ conciergeCalendarBacked }) => {
+            test.skip(
+                !conciergeCalendarBacked,
+                'needs the Microsoft 365 tenant: set E2E_O365_TENANT, E2E_O365_CLIENT_ID ' +
+                    'and E2E_O365_CLIENT_SECRET before up.sh',
+            );
+        });
 
         test('CON-REP-02: the rooms report total matches the API for the same window', async ({
             adminPage,

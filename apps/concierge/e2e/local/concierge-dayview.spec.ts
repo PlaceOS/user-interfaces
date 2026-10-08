@@ -27,7 +27,6 @@
  * shows what came back.
  */
 import { expect, test } from '../../../../e2e/support/concierge/fixtures';
-import { CALENDAR_ENABLED } from '../../../../e2e/support/calendar/calendar.env';
 import {
     calendarSlot,
     createRoomEvent,
@@ -150,11 +149,13 @@ test.describe('concierge day view', () => {
      * cannot leave a conflicting event behind.
      */
     test.describe('with the Microsoft 365 tenant', () => {
-        test.skip(
-            !CALENDAR_ENABLED,
-            'needs the Microsoft 365 tenant: set E2E_O365_TENANT, E2E_O365_CLIENT_ID ' +
-                'and E2E_O365_CLIENT_SECRET before up.sh',
-        );
+        test.beforeEach(({ conciergeCalendarBacked }) => {
+            test.skip(
+                !conciergeCalendarBacked,
+                'needs the Microsoft 365 tenant: set E2E_O365_TENANT, E2E_O365_CLIENT_ID ' +
+                    'and E2E_O365_CLIENT_SECRET before up.sh',
+            );
+        });
 
         /** Day-view navigation: today plus this many days, by the next-day arrow. */
         const DAYS_AHEAD = 6;

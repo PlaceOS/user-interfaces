@@ -33,7 +33,7 @@ import { ENGINE_API } from '../api';
 import { buildStorageState, mintToken } from '../auth';
 import { CONCIERGE_URL, assertConciergeLocal } from './concierge.env';
 import { ensureConciergeOAuthApp } from './concierge.seed';
-import { CALENDAR_ENABLED } from '../calendar/calendar.env';
+import { calendarBacked } from '../calendar/calendar.api';
 
 interface ConciergeWorkerFixtures {
     /** storageState path for the admin identity, bound to the CONCIERGE origin. */
@@ -42,6 +42,8 @@ interface ConciergeWorkerFixtures {
     conciergeAdminToken: string;
     /** A bearer token for a plain staff identity, for the access tests. */
     conciergeStaffToken: string;
+    /** Whether the stack was seeded with the Microsoft 365 tenant (`calendarBacked`). */
+    conciergeCalendarBacked: boolean;
     /**
      * storageState path for a PLAIN STAFF identity, bound to the CONCIERGE
      * origin. Exists only so the access test can open concierge as somebody who
@@ -52,7 +54,7 @@ interface ConciergeWorkerFixtures {
      * storageState path and bearer for the CALENDAR identity: an admin whose
      * address is a mailbox in the Microsoft 365 tenant, so events it creates
      * land on real calendars. Empty when the stack has no tenant
-     * (`CALENDAR_ENABLED`); the specs that use them skip first.
+     * (`conciergeCalendarBacked`); the specs that use them skip first.
      */
     conciergeCalendarState: string;
     conciergeCalendarToken: string;
@@ -179,9 +181,20 @@ export const test = base.extend<ConciergeTestFixtures, ConciergeWorkerFixtures>(
         { scope: 'worker' },
     ],
 
+    conciergeCalendarBacked: [
+        async ({ conciergeAdminToken }, use) => {
+            const api = await apiWithToken(conciergeAdminToken);
+            try {
+                await use(await calendarBacked(api));
+            } finally {
+                await api.dispose();
+            }
+        },
+        { scope: 'worker' },
+    ],
     conciergeCalendarState: [
-        async ({}, use) => {
-            if (!CALENDAR_ENABLED) return use('');
+        async ({ conciergeCalendarBacked }, use) => {
+            if (!conciergeCalendarBacked) return use('');
             const { state_path } = await mintForConcierge(
                 'calendar',
                 test.info().parallelIndex,
@@ -191,8 +204,8 @@ export const test = base.extend<ConciergeTestFixtures, ConciergeWorkerFixtures>(
         { scope: 'worker' },
     ],
     conciergeCalendarToken: [
-        async ({}, use) => {
-            if (!CALENDAR_ENABLED) return use('');
+        async ({ conciergeCalendarBacked }, use) => {
+            if (!conciergeCalendarBacked) return use('');
             const { token } = await mintForConcierge('calendar', test.info().parallelIndex);
             await use(token);
         },

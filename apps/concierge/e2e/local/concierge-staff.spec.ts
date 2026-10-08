@@ -20,7 +20,7 @@
  * tenant's mailboxes.
  */
 import { expect, test } from '../../../../e2e/support/concierge/fixtures';
-import { CALENDAR_ENABLED, CALENDAR_USER_EMAIL } from '../../../../e2e/support/calendar/calendar.env';
+import { CALENDAR_USER_EMAIL } from '../../../../e2e/support/calendar/calendar.env';
 import { listBookings } from '../../../../e2e/support/api';
 
 const STAFF_ROUTE = '/#/users/staff';
@@ -156,11 +156,13 @@ test.describe('concierge staff directory', () => {
      * and check-out ends it. That is CON-STAFF-02 here.
      */
     test.describe('with the Microsoft 365 tenant', () => {
-        test.skip(
-            !CALENDAR_ENABLED,
-            'needs the Microsoft 365 tenant: set E2E_O365_TENANT, E2E_O365_CLIENT_ID ' +
-                'and E2E_O365_CLIENT_SECRET before up.sh',
-        );
+        test.beforeEach(({ conciergeCalendarBacked }) => {
+            test.skip(
+                !conciergeCalendarBacked,
+                'needs the Microsoft 365 tenant: set E2E_O365_TENANT, E2E_O365_CLIENT_ID ' +
+                    'and E2E_O365_CLIENT_SECRET before up.sh',
+            );
+        });
 
         const email = CALENDAR_USER_EMAIL;
         const row = (page) =>
