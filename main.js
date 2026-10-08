@@ -1,13 +1,13 @@
 import {
   SignageTemplateService
-} from "./chunk-VHG5CUDZ.js";
+} from "./chunk-FE7WTGNW.js";
 import "./chunk-M3RPYBOW.js";
 import {
   CommandPaletteService
-} from "./chunk-4625PWRO.js";
+} from "./chunk-FSCAGWOU.js";
 import {
   ImageGenService
-} from "./chunk-G3VFXKPX.js";
+} from "./chunk-AOMGWXLL.js";
 import {
   MatMenu,
   MatMenuItem,
@@ -31,11 +31,11 @@ import "./chunk-DKQ77FMR.js";
 import "./chunk-Y465EEIV.js";
 import {
   openConfirmModal
-} from "./chunk-CANWIIRQ.js";
+} from "./chunk-Q3SROXQF.js";
 import "./chunk-WEGWBEFP.js";
 import {
   SignageContextService
-} from "./chunk-IC6PDIJY.js";
+} from "./chunk-RUR53MNN.js";
 import "./chunk-P5YDCKEY.js";
 import {
   TranslatePipe
@@ -75,7 +75,7 @@ import {
   setNativeEmail,
   settingSignal,
   user_groups_loaded
-} from "./chunk-DQYXLEKZ.js";
+} from "./chunk-IDK2QKPP.js";
 import {
   Router,
   RouterLink,
@@ -1497,15 +1497,15 @@ var GlobalLoadingComponent = class _GlobalLoadingComponent extends AsyncHandler 
 // libs/components/src/lib/settings-debug-panel-launcher.component.ts
 var SettingsDebugPanelLauncherComponent_Defer_25_DepsFn = () => [
   /* @ts-ignore */
-  import("./settings-debug-panel.component-SNAPYHLS.js").then((m) => m.SettingsDebugPanelComponent)
+  import("./settings-debug-panel.component-DLOCH74L.js").then((m) => m.SettingsDebugPanelComponent)
 ];
 var SettingsDebugPanelLauncherComponent_Defer_28_DepsFn = () => [
   /* @ts-ignore */
-  import("./binding-debug-panel.component-NJK5KNWM.js").then((m) => m.BindingDebugPanelComponent)
+  import("./binding-debug-panel.component-RWK6TMAR.js").then((m) => m.BindingDebugPanelComponent)
 ];
 var SettingsDebugPanelLauncherComponent_Defer_31_DepsFn = () => [
   /* @ts-ignore */
-  import("./debug-console.component-V7CI5OPS.js").then((m) => m.DebugConsoleComponent)
+  import("./debug-console.component-FSBNTFKC.js").then((m) => m.DebugConsoleComponent)
 ];
 function SettingsDebugPanelLauncherComponent_Defer_24_Conditional_0_Template(rf, ctx) {
   if (rf & 1) {
@@ -1740,11 +1740,11 @@ var SettingsDebugPanelLauncherComponent = class _SettingsDebugPanelLauncherCompo
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(SettingsDebugPanelLauncherComponent, () => [
     /* @ts-ignore */
-    import("./settings-debug-panel.component-SNAPYHLS.js").then((m) => m.SettingsDebugPanelComponent),
+    import("./settings-debug-panel.component-DLOCH74L.js").then((m) => m.SettingsDebugPanelComponent),
     /* @ts-ignore */
-    import("./binding-debug-panel.component-NJK5KNWM.js").then((m) => m.BindingDebugPanelComponent),
+    import("./binding-debug-panel.component-RWK6TMAR.js").then((m) => m.BindingDebugPanelComponent),
     /* @ts-ignore */
-    import("./debug-console.component-V7CI5OPS.js").then((m) => m.DebugConsoleComponent)
+    import("./debug-console.component-FSBNTFKC.js").then((m) => m.DebugConsoleComponent)
   ], (SettingsDebugPanelComponent, BindingDebugPanelComponent, DebugConsoleComponent) => {
     setClassMetadata(SettingsDebugPanelLauncherComponent, [{
       type: Component,
@@ -10501,51 +10501,51 @@ var APP_ROUTES = [
     children: [
       {
         path: "media",
-        loadComponent: () => import("./media.component-MNQAOWJM.js").then((m) => m.MediaSectionComponent)
+        loadComponent: () => import("./media.component-WLSX5NLF.js").then((m) => m.MediaSectionComponent)
       },
       {
         path: "playlists/:id",
-        loadComponent: () => import("./playlists.component-YYNKPNPV.js").then((m) => m.PlaylistsSectionComponent)
+        loadComponent: () => import("./playlists.component-FMF3B2WI.js").then((m) => m.PlaylistsSectionComponent)
       },
       {
         path: "playlists",
-        loadComponent: () => import("./playlists.component-YYNKPNPV.js").then((m) => m.PlaylistsSectionComponent)
+        loadComponent: () => import("./playlists.component-FMF3B2WI.js").then((m) => m.PlaylistsSectionComponent)
       },
       {
         path: "templates/:id",
         canActivate: [templatesEnabledGuard],
         canDeactivate: [templateUnsavedGuard],
-        loadComponent: () => import("./templates.component-BS77CH5C.js").then((m) => m.TemplatesSectionComponent)
+        loadComponent: () => import("./templates.component-WINPUCMB.js").then((m) => m.TemplatesSectionComponent)
       },
       {
         path: "templates",
         canActivate: [templatesEnabledGuard],
-        loadComponent: () => import("./templates.component-BS77CH5C.js").then((m) => m.TemplatesSectionComponent)
+        loadComponent: () => import("./templates.component-WINPUCMB.js").then((m) => m.TemplatesSectionComponent)
       },
       {
         path: "schedules",
-        loadComponent: () => import("./schedules.component-MA7DV5ZC.js").then((m) => m.SchedulesSectionComponent)
+        loadComponent: () => import("./schedules.component-AOKC7L6O.js").then((m) => m.SchedulesSectionComponent)
       },
       {
         path: "displays/:id",
-        loadComponent: () => import("./displays.component-5QXD4VXN.js").then((m) => m.DisplaysSectionComponent)
+        loadComponent: () => import("./displays.component-X6VDTOOB.js").then((m) => m.DisplaysSectionComponent)
       },
       {
         path: "displays",
-        loadComponent: () => import("./displays.component-5QXD4VXN.js").then((m) => m.DisplaysSectionComponent)
+        loadComponent: () => import("./displays.component-X6VDTOOB.js").then((m) => m.DisplaysSectionComponent)
       },
       {
         path: "manage",
-        loadComponent: () => import("./manage.component-A36O3HAO.js").then((m) => m.ManageSectionComponent),
+        loadComponent: () => import("./manage.component-4L3TBC6Z.js").then((m) => m.ManageSectionComponent),
         children: [
           { path: "", pathMatch: "full", redirectTo: "report" },
           {
             path: "report",
-            loadComponent: () => import("./content-report.component-CV35XVXR.js").then((m) => m.ContentReportComponent)
+            loadComponent: () => import("./content-report.component-NTFDB3AE.js").then((m) => m.ContentReportComponent)
           },
           {
             path: "branding",
-            loadComponent: () => import("./branding.component-STTMQYEA.js").then((m) => m.BrandingComponent)
+            loadComponent: () => import("./branding.component-SAWOBRPB.js").then((m) => m.BrandingComponent)
           }
         ]
       },
@@ -10555,15 +10555,15 @@ var APP_ROUTES = [
       {
         path: "groups",
         canActivate: [manageGroupsGuard],
-        loadComponent: () => import("./groups.component-F32CJMRR.js").then((m) => m.GroupsSectionComponent)
+        loadComponent: () => import("./groups.component-SNNRX73E.js").then((m) => m.GroupsSectionComponent)
       },
       {
         path: "zones/:id",
-        loadComponent: () => import("./zones.component-GLSCYZVL.js").then((m) => m.ZonesSectionComponent)
+        loadComponent: () => import("./zones.component-UKTJYCO2.js").then((m) => m.ZonesSectionComponent)
       },
       {
         path: "zones",
-        loadComponent: () => import("./zones.component-GLSCYZVL.js").then((m) => m.ZonesSectionComponent)
+        loadComponent: () => import("./zones.component-UKTJYCO2.js").then((m) => m.ZonesSectionComponent)
       },
       { path: "**", redirectTo: "media" }
     ]
