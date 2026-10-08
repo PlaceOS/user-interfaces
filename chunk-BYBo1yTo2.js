@@ -1,0 +1,1 @@
+import{M as Kt}from"./chunk-CMmxNyUB.js";import{B as e_,o as As}from"./main-HUQIH4AP.js";var r=`/api/staff/v1/guests`;async function C(t){let s=e_({q:t});return(await Kt(`${r}${t?`?`+s:``}`)).map(c=>new As(c))}async function I(t){return new As(await Kt(`${r}/${encodeURIComponent(t)}`))}export{I as n,C as t};
