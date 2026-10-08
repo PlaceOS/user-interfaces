@@ -20,14 +20,14 @@ import {
   setHours,
   setMinutes,
   toSignal
-} from "./chunk-HEX2DQXI.js";
+} from "./chunk-4MZETLSC.js";
 import {
   MatTooltip,
   MatTooltipModule
-} from "./chunk-AM7COT3W.js";
+} from "./chunk-NKAULN4Y.js";
 import {
   TranslatePipe
-} from "./chunk-QX7T554J.js";
+} from "./chunk-IRP5XPUR.js";
 import {
   ActivatedRoute,
   AsyncHandler,
@@ -192,7 +192,7 @@ import {
   ɵɵtwoWayListener,
   ɵɵtwoWayProperty,
   ɵɵviewQuerySignal
-} from "./chunk-SJGS6LJW.js";
+} from "./chunk-4H7XC2MQ.js";
 import {
   __spreadProps,
   __spreadValues
@@ -1675,15 +1675,15 @@ var GlobalLoadingComponent = class _GlobalLoadingComponent extends AsyncHandler 
 // libs/components/src/lib/settings-debug-panel-launcher.component.ts
 var SettingsDebugPanelLauncherComponent_Defer_25_DepsFn = () => [
   /* @ts-ignore */
-  import("./settings-debug-panel.component-KV7KC53C.js").then((m) => m.SettingsDebugPanelComponent)
+  import("./settings-debug-panel.component-MPQFKP6V.js").then((m) => m.SettingsDebugPanelComponent)
 ];
 var SettingsDebugPanelLauncherComponent_Defer_28_DepsFn = () => [
   /* @ts-ignore */
-  import("./binding-debug-panel.component-M2R6D7I7.js").then((m) => m.BindingDebugPanelComponent)
+  import("./binding-debug-panel.component-6B27743I.js").then((m) => m.BindingDebugPanelComponent)
 ];
 var SettingsDebugPanelLauncherComponent_Defer_31_DepsFn = () => [
   /* @ts-ignore */
-  import("./debug-console.component-67RORMD3.js").then((m) => m.DebugConsoleComponent)
+  import("./debug-console.component-SBSHQ6CY.js").then((m) => m.DebugConsoleComponent)
 ];
 function SettingsDebugPanelLauncherComponent_Defer_24_Conditional_0_Template(rf, ctx) {
   if (rf & 1) {
@@ -1918,11 +1918,11 @@ var SettingsDebugPanelLauncherComponent = class _SettingsDebugPanelLauncherCompo
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(SettingsDebugPanelLauncherComponent, () => [
     /* @ts-ignore */
-    import("./settings-debug-panel.component-KV7KC53C.js").then((m) => m.SettingsDebugPanelComponent),
+    import("./settings-debug-panel.component-MPQFKP6V.js").then((m) => m.SettingsDebugPanelComponent),
     /* @ts-ignore */
-    import("./binding-debug-panel.component-M2R6D7I7.js").then((m) => m.BindingDebugPanelComponent),
+    import("./binding-debug-panel.component-6B27743I.js").then((m) => m.BindingDebugPanelComponent),
     /* @ts-ignore */
-    import("./debug-console.component-67RORMD3.js").then((m) => m.DebugConsoleComponent)
+    import("./debug-console.component-SBSHQ6CY.js").then((m) => m.DebugConsoleComponent)
   ], (SettingsDebugPanelComponent, BindingDebugPanelComponent, DebugConsoleComponent) => {
     setClassMetadata(SettingsDebugPanelLauncherComponent, [{
       type: Component,
@@ -10434,7 +10434,7 @@ function mocksInit() {
 // apps/map-kiosk/src/app/app.component.ts
 var AppComponent_Defer_4_DepsFn = () => [
   /* @ts-ignore */
-  import("./chat.component-GJEQPQ3E.js").then((m) => m.ChatComponent)
+  import("./chat.component-KNNEUSZ5.js").then((m) => m.ChatComponent)
 ];
 function AppComponent_Defer_3_Template(rf, ctx) {
   if (rf & 1) {
@@ -10484,7 +10484,7 @@ var AppComponent = class _AppComponent {
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(AppComponent, () => [
     /* @ts-ignore */
-    import("./chat.component-GJEQPQ3E.js").then((m) => m.ChatComponent)
+    import("./chat.component-KNNEUSZ5.js").then((m) => m.ChatComponent)
   ], (ChatComponent) => {
     setClassMetadata(AppComponent, [{
       type: Component,
@@ -11480,17 +11480,17 @@ var routes = [
   },
   {
     path: "explore",
-    loadComponent: () => import("./explore.component-6A7XTOAY.js").then((m) => m.ExploreComponent),
+    loadComponent: () => import("./explore.component-KDW2DO2S.js").then((m) => m.ExploreComponent),
     canActivate: [AuthorisedUserGuard]
   },
   {
     path: "desks",
-    loadComponent: () => import("./desk-booking.component-HKZ6QZHU.js").then((m) => m.DeskBookingComponent),
+    loadComponent: () => import("./desk-booking.component-DT4UNUIX.js").then((m) => m.DeskBookingComponent),
     canActivate: [AuthorisedUserGuard]
   },
   {
     path: "parking",
-    loadComponent: () => import("./parking.component-67ELPRVN.js").then((m) => m.ParkingComponent),
+    loadComponent: () => import("./parking.component-BLOJ4YLW.js").then((m) => m.ParkingComponent),
     canActivate: [AuthorisedUserGuard]
   },
   { path: "**", redirectTo: "bootstrap" }
