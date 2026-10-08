@@ -48,27 +48,14 @@ interface FlatZoneTreeNode extends ZoneTreeNode {
                 >
                     <input
                         matInput
-                        [disabled]="!search_enabled()"
                         [placeholder]="
-                            'SIGNAGE_MANAGER.SEARCH_IN_ZONE'
-                                | translate
-                                    : {
-                                          name:
-                                              selected()?.display_name ||
-                                              selected()?.name ||
-                                              '',
-                                      }
+                            search_label_key()
+                                | translate: search_label_params()
                         "
                         [(ngModel)]="search"
                         [attr.aria-label]="
-                            'SIGNAGE_MANAGER.SEARCH_IN_ZONE'
-                                | translate
-                                    : {
-                                          name:
-                                              selected()?.display_name ||
-                                              selected()?.name ||
-                                              '',
-                                      }
+                            search_label_key()
+                                | translate: search_label_params()
                         "
                     />
                 </mat-form-field>
@@ -288,9 +275,17 @@ export class ZoneListComponent {
     public readonly selected = this._zone_service.selected_zone;
     public readonly loading = this._zone_service.zones_loading;
     public readonly error = this._zone_service.zones_error;
-    public readonly search_enabled = computed(() => !!this.selected()?.id);
+    /** Placeholder key: within the selected zone, or every reachable zone */
+    public readonly search_label_key = computed(() =>
+        this.selected()?.id
+            ? 'SIGNAGE_MANAGER.SEARCH_IN_ZONE'
+            : 'SIGNAGE_MANAGER.SEARCH_ZONES',
+    );
+    public readonly search_label_params = computed(() => ({
+        name: this.selected()?.display_name || this.selected()?.name || '',
+    }));
     public readonly show_search_results = computed(
-        () => this.search_enabled() && !!this.search().trim(),
+        () => !!this.search().trim(),
     );
     public readonly tree_nodes = signal<ZoneTreeNode[]>([]);
     public readonly expanded_zones = this._zone_service.zone_tree_expanded;

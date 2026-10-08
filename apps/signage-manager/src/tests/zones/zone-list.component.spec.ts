@@ -95,17 +95,37 @@ describe('ZoneListComponent', () => {
         expect(reload_zones).toHaveBeenCalledTimes(1);
     });
 
-    it('only enables search after selecting a zone', async () => {
+    it('searches every zone until one is selected, then within it', async () => {
         const component = (await make()).componentInstance;
-        expect(component.search_enabled()).toBe(false);
+        expect(component.search_label_key()).toBe(
+            'SIGNAGE_MANAGER.SEARCH_ZONES',
+        );
         expect(component.show_search_results()).toBe(false);
 
         zone_search_term.set('  lobby ');
-        expect(component.show_search_results()).toBe(false);
+        expect(component.show_search_results()).toBe(true);
 
         selected_zone.set({ id: 'r1', display_name: 'Root 1' });
-        expect(component.search_enabled()).toBe(true);
+        expect(component.search_label_key()).toBe(
+            'SIGNAGE_MANAGER.SEARCH_IN_ZONE',
+        );
+        expect(component.search_label_params()).toEqual({ name: 'Root 1' });
         expect(component.show_search_results()).toBe(true);
+    });
+
+    it('presents search results at the root when no zone is selected', async () => {
+        zone_search_term.set('lobby');
+        filtered_zones.set([
+            { id: 'z1', parent_id: 'elsewhere', children_count: 2 },
+        ]);
+        const component = (await make()).componentInstance;
+
+        expect(
+            component
+                .flat_tree_nodes()
+                .map((node) => [node.zone.id, node.level]),
+        ).toEqual([['z1', 0]]);
+        expect(component.childCount(component.tree_nodes()[0])).toBe(2);
     });
 
     it('presents search results beneath the selected zone', async () => {

@@ -210,18 +210,44 @@ describe('ZoneSelectTreeComponent', () => {
         expect(component.isExpanded(component.tree_nodes()[0])).toBe(false);
     });
 
-    it('enables scoped search only after selecting a zone', async () => {
+    it('searches every zone until one is selected, then within it', async () => {
         const root = { id: 'root', name: 'Root' } as PlaceZone;
         const component = await make([], [], [root], null, true);
 
-        expect(component.search_enabled()).toBe(false);
+        expect(component.search_label_key()).toBe(
+            'SIGNAGE_MANAGER.SEARCH_ZONES',
+        );
 
         component.list().search.set('old search');
+
+        expect(component.show_search_results()).toBe(true);
+
         component.selectZone(root);
 
         expect(component.selected()).toBe(root);
         expect(component.list().search()).toBe('');
-        expect(component.search_enabled()).toBe(true);
+        expect(component.search_label_key()).toBe(
+            'SIGNAGE_MANAGER.SEARCH_IN_ZONE',
+        );
+        expect(component.search_label_params()).toEqual({ name: 'Root' });
+    });
+
+    it('lists scoped search results when no zone is selected', async () => {
+        const root = { id: 'root', name: 'Root' } as PlaceZone;
+        const result = {
+            id: 'result',
+            name: 'Result',
+            parent_id: 'nested-parent',
+        } as PlaceZone;
+        const component = await make([result], [], [root], null, true);
+
+        component.list().search.set('result');
+
+        expect(
+            component
+                .flat_tree_nodes()
+                .map((node) => [node.zone.id, node.level]),
+        ).toEqual([['result', 0]]);
     });
 
     it('shows scoped search results beneath the selected zone', async () => {

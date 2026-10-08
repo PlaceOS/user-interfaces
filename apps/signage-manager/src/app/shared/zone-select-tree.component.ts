@@ -43,34 +43,13 @@ interface ZoneSelectTreeNode {
         >
             <input
                 matInput
-                [disabled]="!search_enabled()"
                 [ngModel]="list().search()"
                 (ngModelChange)="list().search.set($event)"
                 [placeholder]="
-                    (scoped_search()
-                        ? 'SIGNAGE_MANAGER.SEARCH_IN_ZONE'
-                        : 'SIGNAGE_MANAGER.SEARCH_ZONES'
-                    )
-                        | translate
-                            : {
-                                  name:
-                                      selected()?.display_name ||
-                                      selected()?.name ||
-                                      '',
-                              }
+                    search_label_key() | translate: search_label_params()
                 "
                 [attr.aria-label]="
-                    (scoped_search()
-                        ? 'SIGNAGE_MANAGER.SEARCH_IN_ZONE'
-                        : 'SIGNAGE_MANAGER.SEARCH_ZONES'
-                    )
-                        | translate
-                            : {
-                                  name:
-                                      selected()?.display_name ||
-                                      selected()?.name ||
-                                      '',
-                              }
+                    search_label_key() | translate: search_label_params()
                 "
             />
         </mat-form-field>
@@ -268,11 +247,17 @@ export class ZoneSelectTreeComponent {
     public readonly selected = model<PlaceZone | null>(null);
     public readonly zoneSelected = output<PlaceZone>();
     public readonly expanded_zones = signal<Record<string, boolean>>({});
-    public readonly search_enabled = computed(
-        () => !this.scoped_search() || !!this.selected()?.id,
+    /** Placeholder key: within the selected zone, or every reachable zone */
+    public readonly search_label_key = computed(() =>
+        this.scoped_search() && this.selected()?.id
+            ? 'SIGNAGE_MANAGER.SEARCH_IN_ZONE'
+            : 'SIGNAGE_MANAGER.SEARCH_ZONES',
     );
+    public readonly search_label_params = computed(() => ({
+        name: this.selected()?.display_name || this.selected()?.name || '',
+    }));
     public readonly show_search_results = computed(
-        () => this.search_enabled() && !!this.list().search().trim(),
+        () => !!this.list().search().trim(),
     );
 
     private readonly _tree_source = computed(() => {
