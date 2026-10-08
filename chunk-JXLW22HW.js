@@ -2,10 +2,14 @@ import {
   CustomTooltipComponent,
   CustomTooltipData,
   SanitizePipe
-} from "./chunk-4OHWCYHL.js";
+} from "./chunk-XTWSGQ6H.js";
 import {
   AuthenticatedImageDirective,
   ControlStateService,
+  MAT_DIALOG_DATA,
+  MatDialog,
+  MatDialogClose,
+  MatDialogModule,
   MatFormField,
   MatFormFieldModule,
   MatInput,
@@ -14,25 +18,34 @@ import {
   MatMenuItem,
   MatMenuModule,
   MatMenuTrigger,
+  MatProgressSpinner,
+  MatProgressSpinnerModule,
   MatSelect,
   MatSelectModule,
-  MatSuffix
-} from "./chunk-2EQX7Z2A.js";
+  MatSuffix,
+  errorText,
+  marked,
+  systemBinding
+} from "./chunk-UTHE6AYJ.js";
 import {
   MatTooltip,
   MatTooltipModule
-} from "./chunk-EIUEOGAT.js";
+} from "./chunk-RHOXWFSX.js";
 import {
   TranslatePipe
-} from "./chunk-G63XENND.js";
+} from "./chunk-U4V525AH.js";
 import {
   AsyncHandler,
   BidiModule,
+  CdkScrollable,
   ChangeDetectorRef,
   Component,
   ContentChild,
   ContentChildren,
+  DOCUMENT,
+  DatePipe,
   DefaultValueAccessor,
+  DestroyRef,
   Directionality,
   Directive,
   ElementRef,
@@ -62,8 +75,12 @@ import {
   Platform,
   Renderer2,
   RippleState,
+  RouterLink,
+  RouterModule,
+  SafePipe,
   SettingsService,
   Subject,
+  VERSION,
   ViewChild,
   ViewChildren,
   ViewEncapsulation,
@@ -81,11 +98,13 @@ import {
   inject,
   input,
   linkedSignal,
+  notifyError,
   numberAttribute,
   output,
   setClassMetadata,
   signal,
   to,
+  untracked,
   viewChild,
   ɵsetClassDebugInfo,
   ɵɵInheritDefinitionFeature,
@@ -106,6 +125,9 @@ import {
   ɵɵdefineInjector,
   ɵɵdefineNgModule,
   ɵɵdefinePipe,
+  ɵɵdomElementEnd,
+  ɵɵdomElementStart,
+  ɵɵdomListener,
   ɵɵdomProperty,
   ɵɵelement,
   ɵɵelementEnd,
@@ -119,9 +141,11 @@ import {
   ɵɵnextContext,
   ɵɵpipe,
   ɵɵpipeBind1,
+  ɵɵpipeBind2,
   ɵɵprojection,
   ɵɵprojectionDef,
   ɵɵproperty,
+  ɵɵpureFunction1,
   ɵɵpureFunction2,
   ɵɵqueryAdvance,
   ɵɵqueryRefresh,
@@ -131,19 +155,19 @@ import {
   ɵɵrepeaterTrackByIdentity,
   ɵɵrepeaterTrackByIndex,
   ɵɵresetView,
-  ɵɵresolveWindow,
   ɵɵrestoreView,
   ɵɵsanitizeHtml,
   ɵɵstyleProp,
   ɵɵtext,
   ɵɵtextInterpolate,
   ɵɵtextInterpolate1,
+  ɵɵtextInterpolate2,
   ɵɵtwoWayBindingSet,
   ɵɵtwoWayListener,
   ɵɵtwoWayProperty,
   ɵɵviewQuery,
   ɵɵviewQuerySignal
-} from "./chunk-YX4P66OA.js";
+} from "./chunk-WRMJ73SH.js";
 import {
   __spreadProps,
   __spreadValues
@@ -2712,6 +2736,455 @@ var SettingsToggleComponent = _SettingsToggleComponent;
   (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(SettingsToggleComponent, { className: "SettingsToggleComponent", filePath: "libs/components/src/lib/settings-toggle.component.ts", lineNumber: 87 });
 })();
 
+// libs/components/src/lib/fullscreen-modal-shell.component.ts
+var _c04 = ["*"];
+function FullscreenModalShellComponent_Conditional_5_Conditional_0_Conditional_0_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "button", 7)(1, "icon");
+    \u0275\u0275text(2, "close");
+    \u0275\u0275elementEnd()();
+  }
+}
+function FullscreenModalShellComponent_Conditional_5_Conditional_0_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275conditionalCreate(0, FullscreenModalShellComponent_Conditional_5_Conditional_0_Conditional_0_Template, 3, 0, "button", 7);
+  }
+  if (rf & 2) {
+    const ctx_r0 = \u0275\u0275nextContext(2);
+    \u0275\u0275conditional(!ctx_r0.loading() ? 0 : -1);
+  }
+}
+function FullscreenModalShellComponent_Conditional_5_Conditional_1_Conditional_0_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "a", 8)(1, "icon");
+    \u0275\u0275text(2, "close");
+    \u0275\u0275elementEnd()();
+  }
+  if (rf & 2) {
+    const ctx_r0 = \u0275\u0275nextContext(3);
+    \u0275\u0275property("routerLink", ctx_r0.close());
+  }
+}
+function FullscreenModalShellComponent_Conditional_5_Conditional_1_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275conditionalCreate(0, FullscreenModalShellComponent_Conditional_5_Conditional_1_Conditional_0_Template, 3, 1, "a", 8);
+  }
+  if (rf & 2) {
+    const ctx_r0 = \u0275\u0275nextContext(2);
+    \u0275\u0275conditional(!ctx_r0.loading() ? 0 : -1);
+  }
+}
+function FullscreenModalShellComponent_Conditional_5_Template(rf, ctx) {
+  var _a;
+  if (rf & 1) {
+    \u0275\u0275conditionalCreate(0, FullscreenModalShellComponent_Conditional_5_Conditional_0_Template, 1, 1)(1, FullscreenModalShellComponent_Conditional_5_Conditional_1_Template, 1, 1);
+  }
+  if (rf & 2) {
+    const ctx_r0 = \u0275\u0275nextContext();
+    \u0275\u0275conditional(!((_a = ctx_r0.close()) == null ? void 0 : _a.length) ? 0 : 1);
+  }
+}
+function FullscreenModalShellComponent_Conditional_7_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275projection(0);
+    \u0275\u0275element(1, "div", 9);
+  }
+}
+function FullscreenModalShellComponent_Conditional_8_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 5);
+    \u0275\u0275element(1, "mat-spinner", 10);
+    \u0275\u0275elementStart(2, "p", 11);
+    \u0275\u0275text(3);
+    \u0275\u0275elementEnd()();
+  }
+  if (rf & 2) {
+    const ctx_r0 = \u0275\u0275nextContext();
+    \u0275\u0275advance();
+    \u0275\u0275property("diameter", 32);
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate(ctx_r0.loading());
+  }
+}
+function FullscreenModalShellComponent_Conditional_9_Conditional_4_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "kbd", 14);
+    \u0275\u0275text(1);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const ctx_r0 = \u0275\u0275nextContext(2);
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate(ctx_r0.confirm_hotkey());
+  }
+}
+function FullscreenModalShellComponent_Conditional_9_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r2 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "footer", 12)(1, "button", 13);
+    \u0275\u0275listener("click", function FullscreenModalShellComponent_Conditional_9_Template_button_click_1_listener() {
+      \u0275\u0275restoreView(_r2);
+      const ctx_r0 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r0.confirm.emit());
+    });
+    \u0275\u0275text(2);
+    \u0275\u0275pipe(3, "translate");
+    \u0275\u0275conditionalCreate(4, FullscreenModalShellComponent_Conditional_9_Conditional_4_Template, 2, 1, "kbd", 14);
+    \u0275\u0275elementEnd()();
+  }
+  if (rf & 2) {
+    const ctx_r0 = \u0275\u0275nextContext();
+    \u0275\u0275classProp("max-w-156", !ctx_r0.full_width());
+    \u0275\u0275advance();
+    \u0275\u0275property("disabled", ctx_r0.confirm_disabled());
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate1(" ", ctx_r0.confirm_text() || \u0275\u0275pipeBind1(3, 5, "COMMON.SAVE"), " ");
+    \u0275\u0275advance(2);
+    \u0275\u0275conditional(ctx_r0.confirm_hotkey() ? 4 : -1);
+  }
+}
+var _FullscreenModalShellComponent = class _FullscreenModalShellComponent {
+  constructor() {
+    this.loading = input(
+      "",
+      ...ngDevMode ? [{ debugName: "loading" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.heading = input(
+      "Fullscreen Modal",
+      ...ngDevMode ? [{ debugName: "heading" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.confirm_text = input(
+      "",
+      ...ngDevMode ? [{ debugName: "confirm_text" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.confirm_hotkey = input(
+      "",
+      ...ngDevMode ? [{ debugName: "confirm_hotkey" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.confirm_disabled = input(
+      false,
+      ...ngDevMode ? [{ debugName: "confirm_disabled" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.close = input(
+      [],
+      ...ngDevMode ? [{ debugName: "close" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.hide_confirm = input(
+      false,
+      ...ngDevMode ? [{ debugName: "hide_confirm" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.hide_close = input(
+      false,
+      ...ngDevMode ? [{ debugName: "hide_close" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.full_width = input(
+      false,
+      ...ngDevMode ? [{ debugName: "full_width" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.confirm = output();
+  }
+};
+_FullscreenModalShellComponent.\u0275fac = function FullscreenModalShellComponent_Factory(__ngFactoryType__) {
+  return new (__ngFactoryType__ || _FullscreenModalShellComponent)();
+};
+_FullscreenModalShellComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _FullscreenModalShellComponent, selectors: [["fullscreen-modal-shell"], ["", "fs-modal-shell", ""]], inputs: { loading: [1, "loading"], heading: [1, "heading"], confirm_text: [1, "confirm_text"], confirm_hotkey: [1, "confirm_hotkey"], confirm_disabled: [1, "confirm_disabled"], close: [1, "close"], hide_confirm: [1, "hide_confirm"], hide_close: [1, "hide_close"], full_width: [1, "full_width"] }, outputs: { confirm: "confirm" }, ngContentSelectors: _c04, decls: 10, vars: 14, consts: [["cdkScrollable", "", 1, "bg-base-200", "fixed", "inset-0", "flex", "flex-col", "items-center", "overflow-auto", "px-2"], [1, "border-base-300", "bg-base-100", "fixed", "top-0", "mx-auto", "h-screen", "max-w-full", "border-x"], [1, "bg-base-200", "sticky", "top-0", "z-10", "mx-auto", "my-2", "flex", "h-14", "w-full", "items-center", "justify-between", "rounded-sm", "border-none", "px-4", "py-2"], [1, "flex", "items-center", "text-xl", "font-medium", "capitalize", 3, "innerHTML"], [1, "z-0", "mx-auto", "h-1/2", "w-full", "flex-1", "space-y-8", "p-2"], [1, "flex", "h-1/2", "w-full", "flex-1", "flex-col", "items-center", "justify-center", "space-y-4", "p-12"], [1, "bg-base-200", "fixed", "bottom-0", "left-1/2", "z-10", "mx-auto", "my-2", "flex", "w-full", "-translate-x-1/2", "items-center", "justify-end", "rounded-sm", "border-none", "px-4", "py-2", 3, "max-w-156"], ["icon", "", "matRipple", "", "mat-dialog-close", ""], ["icon", "", "matRipple", "", 3, "routerLink"], [1, "h-24", "w-full"], [3, "diameter"], [1, "text-center", "opacity-50"], [1, "bg-base-200", "fixed", "bottom-0", "left-1/2", "z-10", "mx-auto", "my-2", "flex", "w-full", "-translate-x-1/2", "items-center", "justify-end", "rounded-sm", "border-none", "px-4", "py-2"], ["btn", "", "matRipple", "", 1, "flex", "min-w-32", "items-center", "justify-center", "gap-2", 3, "click", "disabled"], [1, "border-base-300", "bg-base-100", "text-base-content", "rounded", "border", "px-2", "py-1", "text-xs", "leading-none", "shadow-sm"]], template: function FullscreenModalShellComponent_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275projectionDef();
+    \u0275\u0275elementStart(0, "div", 0);
+    \u0275\u0275element(1, "div", 1);
+    \u0275\u0275elementStart(2, "header", 2);
+    \u0275\u0275element(3, "h2", 3);
+    \u0275\u0275pipe(4, "sanitize");
+    \u0275\u0275conditionalCreate(5, FullscreenModalShellComponent_Conditional_5_Template, 2, 1);
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(6, "main", 4);
+    \u0275\u0275conditionalCreate(7, FullscreenModalShellComponent_Conditional_7_Template, 2, 0)(8, FullscreenModalShellComponent_Conditional_8_Template, 4, 2, "div", 5);
+    \u0275\u0275elementEnd();
+    \u0275\u0275conditionalCreate(9, FullscreenModalShellComponent_Conditional_9_Template, 5, 7, "footer", 6);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    \u0275\u0275advance();
+    \u0275\u0275classProp("w-160", !ctx.full_width())("w-full", ctx.full_width());
+    \u0275\u0275advance();
+    \u0275\u0275classProp("max-w-156", !ctx.full_width());
+    \u0275\u0275advance();
+    \u0275\u0275property("innerHTML", \u0275\u0275pipeBind1(4, 12, ctx.heading()), \u0275\u0275sanitizeHtml);
+    \u0275\u0275advance(2);
+    \u0275\u0275conditional(!ctx.hide_close() ? 5 : -1);
+    \u0275\u0275advance();
+    \u0275\u0275classProp("max-w-156", !ctx.full_width());
+    \u0275\u0275advance();
+    \u0275\u0275conditional(!ctx.loading() ? 7 : 8);
+    \u0275\u0275advance(2);
+    \u0275\u0275conditional(!ctx.loading() && !ctx.hide_confirm() ? 9 : -1);
+  }
+}, dependencies: [
+  CdkScrollable,
+  MatProgressSpinnerModule,
+  MatProgressSpinner,
+  IconComponent,
+  MatDialogModule,
+  MatDialogClose,
+  MatRippleModule,
+  MatRipple,
+  RouterModule,
+  RouterLink,
+  TranslatePipe,
+  SanitizePipe
+], styles: ["\nmain[_ngcontent-%COMP%] {\n  scroll-margin-top: 60px;\n}\n/*# sourceMappingURL=fullscreen-modal-shell.component.css.map */"] });
+var FullscreenModalShellComponent = _FullscreenModalShellComponent;
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(FullscreenModalShellComponent, [{
+    type: Component,
+    args: [{ selector: "fullscreen-modal-shell,[fs-modal-shell]", template: `
+        <div
+            cdkScrollable
+            class="bg-base-200 fixed inset-0 flex flex-col items-center overflow-auto px-2"
+        >
+            <div
+                class="border-base-300 bg-base-100 fixed top-0 mx-auto h-screen max-w-full border-x"
+                [class.w-160]="!full_width()"
+                [class.w-full]="full_width()"
+            ></div>
+            <header
+                class="bg-base-200 sticky top-0 z-10 mx-auto my-2 flex h-14 w-full items-center justify-between rounded-sm border-none px-4 py-2"
+                [class.max-w-156]="!full_width()"
+            >
+                <h2
+                    class="flex items-center text-xl font-medium capitalize"
+                    [innerHTML]="heading() | sanitize"
+                ></h2>
+                @if (!hide_close()) {
+                    @if (!close()?.length) {
+                        @if (!loading()) {
+                            <button icon matRipple mat-dialog-close>
+                                <icon>close</icon>
+                            </button>
+                        }
+                    } @else {
+                        @if (!loading()) {
+                            <a icon matRipple [routerLink]="close()">
+                                <icon>close</icon>
+                            </a>
+                        }
+                    }
+                }
+            </header>
+            <main
+                class="z-0 mx-auto h-1/2 w-full flex-1 space-y-8 p-2"
+                [class.max-w-156]="!full_width()"
+            >
+                @if (!loading()) {
+                    <ng-content></ng-content>
+                    <div class="h-24 w-full"></div>
+                } @else {
+                    <div
+                        class="flex h-1/2 w-full flex-1 flex-col items-center justify-center space-y-4 p-12"
+                    >
+                        <mat-spinner [diameter]="32"></mat-spinner>
+                        <p class="text-center opacity-50">{{ loading() }}</p>
+                    </div>
+                }
+            </main>
+            @if (!loading() && !hide_confirm()) {
+                <footer
+                    class="bg-base-200 fixed bottom-0 left-1/2 z-10 mx-auto my-2 flex w-full -translate-x-1/2 items-center justify-end rounded-sm border-none px-4 py-2"
+                    [class.max-w-156]="!full_width()"
+                >
+                    <button
+                        btn
+                        matRipple
+                        class="flex min-w-32 items-center justify-center gap-2"
+                        [disabled]="confirm_disabled()"
+                        (click)="confirm.emit()"
+                    >
+                        {{ confirm_text() || ('COMMON.SAVE' | translate) }}
+                        @if (confirm_hotkey()) {
+                            <kbd
+                                class="border-base-300 bg-base-100 text-base-content rounded border px-2 py-1 text-xs leading-none shadow-sm"
+                                >{{ confirm_hotkey() }}</kbd
+                            >
+                        }
+                    </button>
+                </footer>
+            }
+        </div>
+    `, imports: [
+      CdkScrollable,
+      TranslatePipe,
+      MatProgressSpinnerModule,
+      IconComponent,
+      MatDialogModule,
+      MatRippleModule,
+      RouterModule,
+      SanitizePipe
+    ], styles: ["/* angular:styles/component:css;9cba738a8b61f6e8c0fc50691e933d058b687b91fec8fff6415921963f4014b6;/home/runner/work/user-interfaces/user-interfaces/libs/components/src/lib/fullscreen-modal-shell.component.ts */\nmain {\n  scroll-margin-top: 60px;\n}\n/*# sourceMappingURL=fullscreen-modal-shell.component.css.map */\n"] }]
+  }], null, { loading: [{ type: Input, args: [{ isSignal: true, alias: "loading", required: false }] }], heading: [{ type: Input, args: [{ isSignal: true, alias: "heading", required: false }] }], confirm_text: [{ type: Input, args: [{ isSignal: true, alias: "confirm_text", required: false }] }], confirm_hotkey: [{ type: Input, args: [{ isSignal: true, alias: "confirm_hotkey", required: false }] }], confirm_disabled: [{ type: Input, args: [{ isSignal: true, alias: "confirm_disabled", required: false }] }], close: [{ type: Input, args: [{ isSignal: true, alias: "close", required: false }] }], hide_confirm: [{ type: Input, args: [{ isSignal: true, alias: "hide_confirm", required: false }] }], hide_close: [{ type: Input, args: [{ isSignal: true, alias: "hide_close", required: false }] }], full_width: [{ type: Input, args: [{ isSignal: true, alias: "full_width", required: false }] }], confirm: [{ type: Output, args: ["confirm"] }] });
+})();
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(FullscreenModalShellComponent, { className: "FullscreenModalShellComponent", filePath: "libs/components/src/lib/fullscreen-modal-shell.component.ts", lineNumber: 105 });
+})();
+
+// libs/components/src/lib/changelog-modal.component.ts
+function ChangelogModalComponent_Conditional_1_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275element(0, "div", 1);
+    \u0275\u0275pipe(1, "safe");
+  }
+  if (rf & 2) {
+    const ctx_r0 = \u0275\u0275nextContext();
+    \u0275\u0275property("innerHTML", \u0275\u0275pipeBind2(1, 1, ctx_r0.changelog(), "html"), \u0275\u0275sanitizeHtml);
+  }
+}
+function ChangelogModalComponent_Conditional_2_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 2)(1, "icon", 3);
+    \u0275\u0275text(2, "close");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(3, "div", 4);
+    \u0275\u0275text(4, "No changelog");
+    \u0275\u0275elementEnd()();
+  }
+}
+var _ChangelogModalComponent = class _ChangelogModalComponent {
+  constructor() {
+    this._data = inject(MAT_DIALOG_DATA);
+    this.loading = signal(
+      false,
+      ...ngDevMode ? [{ debugName: "loading" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.changelog = computed(
+      () => marked(this._data.changelog || "", { async: false }),
+      ...ngDevMode ? [{ debugName: "changelog" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+  }
+};
+_ChangelogModalComponent.\u0275fac = function ChangelogModalComponent_Factory(__ngFactoryType__) {
+  return new (__ngFactoryType__ || _ChangelogModalComponent)();
+};
+_ChangelogModalComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _ChangelogModalComponent, selectors: [["changelog-modal"]], decls: 3, vars: 3, consts: [[3, "heading", "hide_confirm"], [1, "markdown", 3, "innerHTML"], [1, "flex", "flex-col", "items-center", "justify-center", "space-y-2"], [1, "text-3xl"], [1, "text"]], template: function ChangelogModalComponent_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "fullscreen-modal-shell", 0);
+    \u0275\u0275conditionalCreate(1, ChangelogModalComponent_Conditional_1_Template, 2, 4, "div", 1)(2, ChangelogModalComponent_Conditional_2_Template, 5, 0, "div", 2);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    \u0275\u0275property("heading", "Changelog")("hide_confirm", true);
+    \u0275\u0275advance();
+    \u0275\u0275conditional(ctx.changelog() ? 1 : 2);
+  }
+}, dependencies: [FullscreenModalShellComponent, IconComponent, SafePipe], encapsulation: 2 });
+var ChangelogModalComponent = _ChangelogModalComponent;
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(ChangelogModalComponent, [{
+    type: Component,
+    args: [{ selector: "changelog-modal", template: `
+        <fullscreen-modal-shell [heading]="'Changelog'" [hide_confirm]="true">
+            @if (changelog()) {
+                <div
+                    class="markdown"
+                    [innerHTML]="changelog() | safe: 'html'"
+                ></div>
+            } @else {
+                <div
+                    class="flex flex-col items-center justify-center space-y-2"
+                >
+                    <icon class="text-3xl">close</icon>
+                    <div class="text">No changelog</div>
+                </div>
+            }
+        </fullscreen-modal-shell>
+    `, imports: [FullscreenModalShellComponent, SafePipe, IconComponent] }]
+  }], null, null);
+})();
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(ChangelogModalComponent, { className: "ChangelogModalComponent", filePath: "libs/components/src/lib/changelog-modal.component.ts", lineNumber: 35 });
+})();
+
+// libs/components/src/lib/changelog.service.ts
+var _ChangelogService = class _ChangelogService {
+  constructor() {
+    this._document = inject(DOCUMENT);
+    this._dialog = inject(MatDialog);
+    this._changelog = signal(
+      null,
+      ...ngDevMode ? [{ debugName: "_changelog" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.available = computed(
+      () => this._changelog() !== null,
+      ...ngDevMode ? [{ debugName: "available" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    void this._load();
+  }
+  view() {
+    const changelog = this._changelog();
+    if (changelog === null)
+      return;
+    this._dialog.open(ChangelogModalComponent, { data: { changelog } });
+  }
+  async _load() {
+    try {
+      const url = new URL("CHANGELOG.md", this._document.baseURI);
+      const response = await fetch(url);
+      if (!response.ok)
+        return;
+      this._changelog.set(await response.text());
+    } catch {
+    }
+  }
+};
+_ChangelogService.\u0275fac = function ChangelogService_Factory(__ngFactoryType__) {
+  return new (__ngFactoryType__ || _ChangelogService)();
+};
+_ChangelogService.\u0275prov = /* @__PURE__ */ \u0275\u0275defineInjectable({ token: _ChangelogService, factory: _ChangelogService.\u0275fac, providedIn: "root" });
+var ChangelogService = _ChangelogService;
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(ChangelogService, [{
+    type: Injectable,
+    args: [{ providedIn: "root" }]
+  }], () => [], null);
+})();
+
 // libs/components/src/lib/binding.directive.ts
 var _BindingDirective = class _BindingDirective extends AsyncHandler {
   constructor() {
@@ -2898,7 +3371,7 @@ var DurationPipe = _DurationPipe;
 
 // apps/control/src/app/status-bar.component.ts
 function ControlStatusBarComponent_Conditional_0_Template(rf, ctx) {
-  var _a, _b, _c, _d;
+  var _a, _b, _c, _d, _e, _f;
   if (rf & 1) {
     const _r1 = \u0275\u0275getCurrentView();
     \u0275\u0275elementStart(0, "div", 0)(1, "div", 3)(2, "i", 4);
@@ -2980,24 +3453,24 @@ function ControlStatusBarComponent_Conditional_0_Template(rf, ctx) {
     \u0275\u0275advance(2);
     \u0275\u0275textInterpolate1(" ", ctx_r1.rec_title || "~Unnamed Recording~", " ");
     \u0275\u0275advance(2);
-    \u0275\u0275property("disabled", !ctx_r1.rec_status || ctx_r1.rec_status === "stopped")("sys", ctx_r1.id);
+    \u0275\u0275property("disabled", !ctx_r1.rec_status || ctx_r1.rec_status === "stopped")("sys", ctx_r1.id)("mod", (_e = ctx_r1.capture_mod()) == null ? void 0 : _e.mod);
     \u0275\u0275advance(4);
-    \u0275\u0275property("sys", ctx_r1.id)("exec", ctx_r1.rec_status === "playing" ? "pause" : "start");
+    \u0275\u0275property("sys", ctx_r1.id)("mod", (_f = ctx_r1.capture_mod()) == null ? void 0 : _f.mod)("exec", ctx_r1.rec_status === "playing" ? "pause" : "start");
     \u0275\u0275attribute("place-action", ctx_r1.rec_status === "playing" ? "pause" : "start");
     \u0275\u0275advance(2);
     \u0275\u0275textInterpolate(ctx_r1.rec_status === "playing" ? "pause" : "play_arrow");
     \u0275\u0275advance(2);
     \u0275\u0275classProp("bg-error", ctx_r1.rec_status === "playing")("text-error-content", ctx_r1.rec_status === "playing")("bg-warning", ctx_r1.rec_status === "paused")("text-warning-content", ctx_r1.rec_status === "paused")("bg-base-300", ctx_r1.rec_status === "stopped");
     \u0275\u0275advance();
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(19, 34, ctx_r1.rec_status === "playing" ? "APP.CONTROL.STATE_RECORDING" : ctx_r1.rec_status === "paused" ? "APP.CONTROL.STATE_PAUSED" : "APP.CONTROL.STATE_IDLE"), " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(19, 36, ctx_r1.rec_status === "playing" ? "APP.CONTROL.STATE_RECORDING" : ctx_r1.rec_status === "paused" ? "APP.CONTROL.STATE_PAUSED" : "APP.CONTROL.STATE_IDLE"), " ");
     \u0275\u0275advance(4);
-    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(23, 36, "APP.CONTROL.REMAINING"));
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(23, 38, "APP.CONTROL.REMAINING"));
     \u0275\u0275advance(3);
-    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(26, 38, ctx_r1.rec_remaining));
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(26, 40, ctx_r1.rec_remaining));
     \u0275\u0275advance(4);
-    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(30, 40, "APP.CONTROL.NEXT_RECORDING"));
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(30, 42, "APP.CONTROL.NEXT_RECORDING"));
     \u0275\u0275advance(3);
-    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(33, 42, ctx_r1.rec_next));
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(33, 44, ctx_r1.rec_next));
   }
 }
 function ControlStatusBarComponent_Conditional_2_Template(rf, ctx) {
@@ -3081,9 +3554,9 @@ var _ControlStatusBarComponent = class _ControlStatusBarComponent {
 _ControlStatusBarComponent.\u0275fac = function ControlStatusBarComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _ControlStatusBarComponent)();
 };
-_ControlStatusBarComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _ControlStatusBarComponent, selectors: [["control-status-bar"]], decls: 3, vars: 2, consts: [["recording", "", 1, "divide-base-200", "text-base-content", "flex", "items-center", "divide-x", "text-xs"], [1, "flex-1"], [1, "text-base-content", "flex", "w-lg", "max-w-[50%]", "items-center", "space-x-2", "px-4", "py-2"], ["hidden", ""], ["binding", "", "bind", "status", 3, "modelChange", "model", "sys", "mod"], ["binding", "", "bind", "title", 3, "modelChange", "model", "sys", "mod"], ["binding", "", "bind", "remaining", 3, "modelChange", "model", "sys", "mod"], ["binding", "", "bind", "next", 3, "modelChange", "model", "sys", "mod"], [1, "flex", "h-12", "w-24", "items-center", "justify-center", "p-2", "text-center"], [1, "flex", "h-12", "w-12", "items-center", "justify-center"], ["place-action", "stop", "icon", "", "matRipple", "", "binding", "", "mod", "Capture", "onEvent", "click", "exec", "stop", 1, "rounded-none", 3, "disabled", "sys"], ["icon", "", "matRipple", "", "binding", "", "mod", "Capture", "onEvent", "click", 1, "rounded-none", 3, "sys", "exec"], [1, "flex", "h-12", "w-32", "flex-col", "p-2"], [1, "rounded-sm", "p-2", "text-center", "uppercase"], [1, "h-12", "p-2"], [1, ""], ["icon", "", "matRipple", "", "mute", "", 3, "click"], ["matSliderThumb", "", 3, "ngModelChange", "ngModel"], ["volume-level", "", 1, "w-12", "text-right", "tabular-nums"]], template: function ControlStatusBarComponent_Template(rf, ctx) {
+_ControlStatusBarComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _ControlStatusBarComponent, selectors: [["control-status-bar"]], decls: 3, vars: 2, consts: [["recording", "", 1, "divide-base-200", "text-base-content", "flex", "items-center", "divide-x", "text-xs"], [1, "flex-1"], [1, "text-base-content", "flex", "w-lg", "max-w-[50%]", "items-center", "space-x-2", "px-4", "py-2"], ["hidden", ""], ["binding", "", "bind", "status", 3, "modelChange", "model", "sys", "mod"], ["binding", "", "bind", "title", 3, "modelChange", "model", "sys", "mod"], ["binding", "", "bind", "remaining", 3, "modelChange", "model", "sys", "mod"], ["binding", "", "bind", "next", 3, "modelChange", "model", "sys", "mod"], [1, "flex", "h-12", "w-24", "items-center", "justify-center", "p-2", "text-center"], [1, "flex", "h-12", "w-12", "items-center", "justify-center"], ["place-action", "stop", "icon", "", "matRipple", "", "binding", "", "onEvent", "click", "exec", "stop", 1, "rounded-none", 3, "disabled", "sys", "mod"], ["icon", "", "matRipple", "", "binding", "", "onEvent", "click", 1, "rounded-none", 3, "sys", "mod", "exec"], [1, "flex", "h-12", "w-32", "flex-col", "p-2"], [1, "rounded-sm", "p-2", "text-center", "uppercase"], [1, "h-12", "p-2"], [1, ""], ["icon", "", "matRipple", "", "mute", "", 3, "click"], ["matSliderThumb", "", 3, "ngModelChange", "ngModel"], ["volume-level", "", 1, "w-12", "text-right", "tabular-nums"]], template: function ControlStatusBarComponent_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275conditionalCreate(0, ControlStatusBarComponent_Conditional_0_Template, 34, 44, "div", 0);
+    \u0275\u0275conditionalCreate(0, ControlStatusBarComponent_Conditional_0_Template, 34, 46, "div", 0);
     \u0275\u0275element(1, "div", 1);
     \u0275\u0275conditionalCreate(2, ControlStatusBarComponent_Conditional_2_Template, 8, 5, "div", 2);
   }
@@ -3161,7 +3634,7 @@ var ControlStatusBarComponent = _ControlStatusBarComponent;
                         [disabled]="!rec_status || rec_status === 'stopped'"
                         binding
                         [sys]="id"
-                        mod="Capture"
+                        [mod]="capture_mod()?.mod"
                         onEvent="click"
                         exec="stop"
                     >
@@ -3178,7 +3651,7 @@ var ControlStatusBarComponent = _ControlStatusBarComponent;
                         class="rounded-none"
                         binding
                         [sys]="id"
-                        mod="Capture"
+                        [mod]="capture_mod()?.mod"
                         onEvent="click"
                         [exec]="rec_status === 'playing' ? 'pause' : 'start'"
                     >
@@ -3253,16 +3726,8 @@ var ControlStatusBarComponent = _ControlStatusBarComponent;
 })();
 
 // apps/control/src/app/ui/joystick.component.ts
-var _c04 = ["panning_control"];
-function eventToPoint(event) {
-  if (!event) {
-    return { x: -1, y: -1 };
-  }
-  if (event instanceof MouseEvent) {
-    return { x: event.clientX, y: event.clientY };
-  }
-  return event.touches && event.touches.length > 0 ? { x: event.touches[0].clientX, y: event.touches[0].clientY } : { x: -1, y: -1 };
-}
+var _c05 = ["panning_control"];
+var DEAD_ZONE = 0.25;
 var JoystickTilt;
 (function(JoystickTilt2) {
   JoystickTilt2["Down"] = "down";
@@ -3275,10 +3740,8 @@ var JoystickPan;
   JoystickPan2["Right"] = "right";
   JoystickPan2["Stop"] = "stop";
 })(JoystickPan || (JoystickPan = {}));
-var _JoystickComponent = class _JoystickComponent extends AsyncHandler {
+var _JoystickComponent = class _JoystickComponent {
   constructor() {
-    super(...arguments);
-    this._renderer = inject(Renderer2);
     this.panInput = input(JoystickPan.Stop, __spreadProps(__spreadValues({}, ngDevMode ? { debugName: "panInput" } : (
       /* istanbul ignore next */
       {}
@@ -3322,33 +3785,32 @@ var _JoystickComponent = class _JoystickComponent extends AsyncHandler {
       )
     );
   }
+  /** Start a pan gesture. Pointer capture keeps move and end events on this element. */
   startPan(event) {
-    const move_event = event instanceof MouseEvent ? "mousemove" : "touchmove";
-    const end_event = event instanceof MouseEvent ? "mouseup" : "touchend";
-    this._box = this._panning_el().nativeElement.getBoundingClientRect();
+    var _a;
+    const el = this._panning_el().nativeElement;
+    (_a = el.setPointerCapture) == null ? void 0 : _a.call(el, event.pointerId);
+    this._box = el.getBoundingClientRect();
     this.handlePan(event);
-    this.subscription("on_move", this._renderer.listen("window", move_event, (e) => this.handlePan(e)));
-    this.subscription("on_end", this._renderer.listen("window", end_event, (_) => {
-      this.unsub("on_move");
-      this.unsub("on_end");
-      this.tilt.set(JoystickTilt.Stop);
-      this.pan.set(JoystickPan.Stop);
-      this.tiltChange.emit(this.tilt());
-      this.panChange.emit(this.pan());
-    }));
+  }
+  /** Update the direction while a pan gesture is active */
+  movePan(event) {
+    if (this._box)
+      this.handlePan(event);
   }
   handlePan(event) {
-    const point = eventToPoint(event);
-    const box_point = {
-      y: this._box.top + this._box.height / 2,
-      x: this._box.left + this._box.width / 2
-    };
-    const angle = Math.atan2(point.y - box_point.y, point.x - box_point.x) * 180 / Math.PI;
-    const { tilt: tiltInput, pan: panInput } = this;
-    const tilt = tiltInput();
-    const pan = panInput();
-    this.tilt.set(angle >= 150 || angle <= -150 || angle > -30 && angle < 30 ? JoystickTilt.Stop : angle > 0 ? JoystickTilt.Down : JoystickTilt.Up);
-    this.pan.set(angle >= 60 && angle <= 120 || angle <= -60 && angle >= -120 ? JoystickPan.Stop : angle > 90 || angle < -90 ? JoystickPan.Left : JoystickPan.Right);
+    if (!this._box)
+      return;
+    const dx = event.clientX - (this._box.left + this._box.width / 2);
+    const dy = event.clientY - (this._box.top + this._box.height / 2);
+    const tilt = this.tilt();
+    const pan = this.pan();
+    if (Math.hypot(dx, dy) < this._box.width / 2 * DEAD_ZONE) {
+      this.tilt.set(JoystickTilt.Stop);
+      this.pan.set(JoystickPan.Stop);
+    } else {
+      this._setDirection(Math.atan2(dy, dx) * 180 / Math.PI);
+    }
     const tiltValue = this.tilt();
     if (tilt !== tiltValue)
       this.tiltChange.emit(tiltValue);
@@ -3356,37 +3818,51 @@ var _JoystickComponent = class _JoystickComponent extends AsyncHandler {
     if (pan !== panValue)
       this.panChange.emit(panValue);
   }
+  /** Set pan and tilt from an angle in degrees, where 0 is right and 90 is down */
+  _setDirection(angle) {
+    this.tilt.set(angle >= 150 || angle <= -150 || angle > -30 && angle < 30 ? JoystickTilt.Stop : angle > 0 ? JoystickTilt.Down : JoystickTilt.Up);
+    this.pan.set(angle >= 60 && angle <= 120 || angle <= -60 && angle >= -120 ? JoystickPan.Stop : angle > 90 || angle < -90 ? JoystickPan.Left : JoystickPan.Right);
+  }
+  /** Never leave a camera moving when the joystick is removed mid-gesture */
+  ngOnDestroy() {
+    this.stopPan();
+  }
+  /** End the pan gesture and emit a stop. Does nothing when no gesture is active. */
   stopPan() {
+    if (!this._box)
+      return;
+    this._box = void 0;
     this.tilt.set(JoystickTilt.Stop);
     this.pan.set(JoystickPan.Stop);
-    this.tiltChange.emit(this.tilt());
-    this.panChange.emit(this.pan());
+    this.tiltChange.emit(JoystickTilt.Stop);
+    this.panChange.emit(JoystickPan.Stop);
   }
 };
-_JoystickComponent.\u0275fac = /* @__PURE__ */ (() => {
-  let \u0275JoystickComponent_BaseFactory;
-  return function JoystickComponent_Factory(__ngFactoryType__) {
-    return (\u0275JoystickComponent_BaseFactory || (\u0275JoystickComponent_BaseFactory = \u0275\u0275getInheritedFactory(_JoystickComponent)))(__ngFactoryType__ || _JoystickComponent);
-  };
-})();
+_JoystickComponent.\u0275fac = function JoystickComponent_Factory(__ngFactoryType__) {
+  return new (__ngFactoryType__ || _JoystickComponent)();
+};
 _JoystickComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _JoystickComponent, selectors: [["joystick"]], viewQuery: function JoystickComponent_Query(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275viewQuerySignal(ctx._panning_el, _c04, 5);
+    \u0275\u0275viewQuerySignal(ctx._panning_el, _c05, 5);
   }
   if (rf & 2) {
     \u0275\u0275queryAdvance();
   }
-}, inputs: { panInput: [1, "pan", "panInput"], tiltInput: [1, "tilt", "tiltInput"] }, outputs: { panChange: "panChange", tiltChange: "tiltChange" }, features: [\u0275\u0275InheritDefinitionFeature], decls: 16, vars: 2, consts: [["panning_control", ""], ["joystick", "", 1, "bg-base-300", "relative", "h-48", "w-48", "rounded-full", "text-white", 3, "mousedown", "touchstart", "contextmenu", "click"], [1, "absolute", "inset-0", "flex", "items-center", "text-5xl"], [2, "transform", "translateX(-.5rem)"], [1, "absolute", "inset-0", "flex", "items-center", "justify-end", "text-5xl"], [2, "transform", "translateX(.5rem)"], [1, "absolute", "inset-0", "flex", "justify-center", "text-5xl"], [2, "transform", "translateY(-.5rem)"], [1, "absolute", "inset-0", "flex", "items-end", "justify-center", "text-5xl"], [2, "transform", "translateY(.5rem)"], [1, "bg-base-100", "absolute", "top-12", "right-12", "bottom-12", "left-12", "flex", "items-center", "justify-center", "rounded-full"], ["thumb", "", 1, "bg-neutral", "h-12", "w-12", "rounded-full"]], template: function JoystickComponent_Template(rf, ctx) {
+}, inputs: { panInput: [1, "pan", "panInput"], tiltInput: [1, "tilt", "tiltInput"] }, outputs: { panChange: "panChange", tiltChange: "tiltChange" }, decls: 16, vars: 2, consts: [["panning_control", ""], ["joystick", "", 1, "bg-base-300", "relative", "h-48", "w-48", "touch-none", "rounded-full", "text-white", "select-none", 3, "pointerdown", "pointermove", "pointerup", "pointercancel", "lostpointercapture", "contextmenu"], [1, "absolute", "inset-0", "flex", "items-center", "text-5xl"], [2, "transform", "translateX(-.5rem)"], [1, "absolute", "inset-0", "flex", "items-center", "justify-end", "text-5xl"], [2, "transform", "translateX(.5rem)"], [1, "absolute", "inset-0", "flex", "justify-center", "text-5xl"], [2, "transform", "translateY(-.5rem)"], [1, "absolute", "inset-0", "flex", "items-end", "justify-center", "text-5xl"], [2, "transform", "translateY(.5rem)"], [1, "bg-base-100", "absolute", "top-12", "right-12", "bottom-12", "left-12", "flex", "items-center", "justify-center", "rounded-full"], ["thumb", "", 1, "bg-neutral", "h-12", "w-12", "rounded-full"]], template: function JoystickComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 1, 0);
-    \u0275\u0275listener("mousedown", function JoystickComponent_Template_div_mousedown_0_listener($event) {
+    \u0275\u0275listener("pointerdown", function JoystickComponent_Template_div_pointerdown_0_listener($event) {
       return ctx.startPan($event);
-    })("touchstart", function JoystickComponent_Template_div_touchstart_0_listener($event) {
-      return ctx.startPan($event);
+    })("pointermove", function JoystickComponent_Template_div_pointermove_0_listener($event) {
+      return ctx.movePan($event);
+    })("pointerup", function JoystickComponent_Template_div_pointerup_0_listener() {
+      return ctx.stopPan();
+    })("pointercancel", function JoystickComponent_Template_div_pointercancel_0_listener() {
+      return ctx.stopPan();
+    })("lostpointercapture", function JoystickComponent_Template_div_lostpointercapture_0_listener() {
+      return ctx.stopPan();
     })("contextmenu", function JoystickComponent_Template_div_contextmenu_0_listener($event) {
       return $event.preventDefault();
-    })("click", function JoystickComponent_Template_div_click_0_listener() {
-      return ctx.stopPan();
     });
     \u0275\u0275elementStart(2, "div", 2)(3, "icon", 3);
     \u0275\u0275text(4, " chevron_left ");
@@ -3417,11 +3893,13 @@ var JoystickComponent = _JoystickComponent;
         <div
             #panning_control
             joystick
-            (mousedown)="startPan($event)"
-            (touchstart)="startPan($event)"
+            (pointerdown)="startPan($event)"
+            (pointermove)="movePan($event)"
+            (pointerup)="stopPan()"
+            (pointercancel)="stopPan()"
+            (lostpointercapture)="stopPan()"
             (contextmenu)="$event.preventDefault()"
-            (click)="stopPan()"
-            class="bg-base-300 relative h-48 w-48 rounded-full text-white"
+            class="bg-base-300 relative h-48 w-48 touch-none rounded-full text-white select-none"
         >
             <div class="absolute inset-0 flex items-center text-5xl">
                 <icon style="transform: translateX(-.5rem)">
@@ -3455,8 +3933,37 @@ var JoystickComponent = _JoystickComponent;
   }], null, { panInput: [{ type: Input, args: [{ isSignal: true, alias: "pan", required: false }] }], tiltInput: [{ type: Input, args: [{ isSignal: true, alias: "tilt", required: false }] }], panChange: [{ type: Output, args: ["panChange"] }], tiltChange: [{ type: Output, args: ["tiltChange"] }], _panning_el: [{ type: ViewChild, args: ["panning_control", { isSignal: true }] }] });
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(JoystickComponent, { className: "JoystickComponent", filePath: "apps/control/src/app/ui/joystick.component.ts", lineNumber: 87 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(JoystickComponent, { className: "JoystickComponent", filePath: "apps/control/src/app/ui/joystick.component.ts", lineNumber: 74 });
 })();
+
+// apps/control/src/app/ui/camera-commands.ts
+var ZoomDirection;
+(function(ZoomDirection2) {
+  ZoomDirection2["In"] = "in";
+  ZoomDirection2["Out"] = "out";
+  ZoomDirection2["Stop"] = "stop";
+})(ZoomDirection || (ZoomDirection = {}));
+function withIndex(camera, args) {
+  return camera.index ? [...args, camera.index] : args;
+}
+function selectCamera(system_id, camera_id) {
+  return Fp(system_id, "System").execute("selected_camera", [
+    camera_id
+  ]);
+}
+async function moveCamera(system_id, camera, pan, tilt) {
+  const mod = Fp(system_id, camera.mod);
+  await mod.execute("stop", withIndex(camera, []));
+  if (tilt !== JoystickTilt.Stop) {
+    await mod.execute("tilt", withIndex(camera, [tilt]));
+  }
+  if (pan !== JoystickPan.Stop) {
+    await mod.execute("pan", withIndex(camera, [pan]));
+  }
+}
+function zoomCamera(system_id, camera, zoom) {
+  return Fp(system_id, camera.mod).execute("zoom", withIndex(camera, [zoom]));
+}
 
 // apps/control/src/app/ui/camera-tooltip.component.ts
 function CameraTooltipComponent_Conditional_0_For_5_Template(rf, ctx) {
@@ -3475,7 +3982,7 @@ function CameraTooltipComponent_Conditional_0_For_5_Template(rf, ctx) {
 function CameraTooltipComponent_Conditional_0_Conditional_11_For_1_Conditional_3_Template(rf, ctx) {
   if (rf & 1) {
     const _r6 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 28);
+    \u0275\u0275elementStart(0, "button", 27);
     \u0275\u0275listener("click", function CameraTooltipComponent_Conditional_0_Conditional_11_For_1_Conditional_3_Template_button_click_0_listener() {
       \u0275\u0275restoreView(_r6);
       const name_r5 = \u0275\u0275nextContext().$implicit;
@@ -3490,7 +3997,7 @@ function CameraTooltipComponent_Conditional_0_Conditional_11_For_1_Conditional_3
 function CameraTooltipComponent_Conditional_0_Conditional_11_For_1_Template(rf, ctx) {
   if (rf & 1) {
     const _r4 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "div", 25)(1, "button", 26);
+    \u0275\u0275elementStart(0, "div", 18)(1, "button", 25);
     \u0275\u0275listener("click", function CameraTooltipComponent_Conditional_0_Conditional_11_For_1_Template_button_click_1_listener() {
       const name_r5 = \u0275\u0275restoreView(_r4).$implicit;
       const ctx_r1 = \u0275\u0275nextContext(3);
@@ -3498,14 +4005,14 @@ function CameraTooltipComponent_Conditional_0_Conditional_11_For_1_Template(rf, 
     });
     \u0275\u0275text(2);
     \u0275\u0275elementEnd();
-    \u0275\u0275conditionalCreate(3, CameraTooltipComponent_Conditional_0_Conditional_11_For_1_Conditional_3_Template, 3, 0, "button", 27);
+    \u0275\u0275conditionalCreate(3, CameraTooltipComponent_Conditional_0_Conditional_11_For_1_Conditional_3_Template, 3, 0, "button", 26);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
     const name_r5 = ctx.$implicit;
     const ctx_r1 = \u0275\u0275nextContext(3);
     \u0275\u0275advance();
-    \u0275\u0275classProp("inverse", ctx_r1.preset !== name_r5);
+    \u0275\u0275classProp("inverse", ctx_r1.preset() !== name_r5);
     \u0275\u0275advance();
     \u0275\u0275textInterpolate1(" ", name_r5, " ");
     \u0275\u0275advance();
@@ -3514,7 +4021,7 @@ function CameraTooltipComponent_Conditional_0_Conditional_11_For_1_Template(rf, 
 }
 function CameraTooltipComponent_Conditional_0_Conditional_11_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275repeaterCreate(0, CameraTooltipComponent_Conditional_0_Conditional_11_For_1_Template, 4, 4, "div", 25, \u0275\u0275repeaterTrackByIdentity);
+    \u0275\u0275repeaterCreate(0, CameraTooltipComponent_Conditional_0_Conditional_11_For_1_Template, 4, 4, "div", 18, \u0275\u0275repeaterTrackByIdentity);
   }
   if (rf & 2) {
     const ctx_r1 = \u0275\u0275nextContext(2);
@@ -3595,17 +4102,7 @@ function CameraTooltipComponent_Conditional_0_Template(rf, ctx) {
     \u0275\u0275text(27);
     \u0275\u0275pipe(28, "translate");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(29, "div", 18);
-    \u0275\u0275listener("mouseup", function CameraTooltipComponent_Conditional_0_Template_div_mouseup_29_listener() {
-      \u0275\u0275restoreView(_r1);
-      const ctx_r1 = \u0275\u0275nextContext();
-      return \u0275\u0275resetView(ctx_r1.stopZoom());
-    }, \u0275\u0275resolveWindow)("touchend", function CameraTooltipComponent_Conditional_0_Template_div_touchend_29_listener() {
-      \u0275\u0275restoreView(_r1);
-      const ctx_r1 = \u0275\u0275nextContext();
-      return \u0275\u0275resetView(ctx_r1.stopZoom());
-    }, \u0275\u0275resolveWindow);
-    \u0275\u0275elementStart(30, "joystick", 19);
+    \u0275\u0275elementStart(29, "div", 18)(30, "joystick", 19);
     \u0275\u0275twoWayListener("panChange", function CameraTooltipComponent_Conditional_0_Template_joystick_panChange_30_listener($event) {
       \u0275\u0275restoreView(_r1);
       const ctx_r1 = \u0275\u0275nextContext();
@@ -3628,20 +4125,24 @@ function CameraTooltipComponent_Conditional_0_Template(rf, ctx) {
     });
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(31, "div", 20)(32, "button", 21);
-    \u0275\u0275listener("mousedown", function CameraTooltipComponent_Conditional_0_Template_button_mousedown_32_listener($event) {
+    \u0275\u0275listener("pointerdown", function CameraTooltipComponent_Conditional_0_Template_button_pointerdown_32_listener($event) {
       \u0275\u0275restoreView(_r1);
       const ctx_r1 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r1.startZoom("in", $event));
-    })("touchstart", function CameraTooltipComponent_Conditional_0_Template_button_touchstart_32_listener($event) {
-      \u0275\u0275restoreView(_r1);
-      const ctx_r1 = \u0275\u0275nextContext();
-      return \u0275\u0275resetView(ctx_r1.startZoom("in", $event));
-    })("contextmenu", function CameraTooltipComponent_Conditional_0_Template_button_contextmenu_32_listener($event) {
-      return $event.preventDefault();
-    })("click", function CameraTooltipComponent_Conditional_0_Template_button_click_32_listener() {
+    })("pointerup", function CameraTooltipComponent_Conditional_0_Template_button_pointerup_32_listener() {
       \u0275\u0275restoreView(_r1);
       const ctx_r1 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r1.stopZoom());
+    })("pointercancel", function CameraTooltipComponent_Conditional_0_Template_button_pointercancel_32_listener() {
+      \u0275\u0275restoreView(_r1);
+      const ctx_r1 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r1.stopZoom());
+    })("lostpointercapture", function CameraTooltipComponent_Conditional_0_Template_button_lostpointercapture_32_listener() {
+      \u0275\u0275restoreView(_r1);
+      const ctx_r1 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r1.stopZoom());
+    })("contextmenu", function CameraTooltipComponent_Conditional_0_Template_button_contextmenu_32_listener($event) {
+      return $event.preventDefault();
     });
     \u0275\u0275elementStart(33, "icon");
     \u0275\u0275text(34, "add");
@@ -3651,20 +4152,24 @@ function CameraTooltipComponent_Conditional_0_Template(rf, ctx) {
     \u0275\u0275pipe(37, "translate");
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(38, "button", 23);
-    \u0275\u0275listener("mousedown", function CameraTooltipComponent_Conditional_0_Template_button_mousedown_38_listener($event) {
+    \u0275\u0275listener("pointerdown", function CameraTooltipComponent_Conditional_0_Template_button_pointerdown_38_listener($event) {
       \u0275\u0275restoreView(_r1);
       const ctx_r1 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r1.startZoom("out", $event));
-    })("touchstart", function CameraTooltipComponent_Conditional_0_Template_button_touchstart_38_listener($event) {
-      \u0275\u0275restoreView(_r1);
-      const ctx_r1 = \u0275\u0275nextContext();
-      return \u0275\u0275resetView(ctx_r1.startZoom("out", $event));
-    })("contextmenu", function CameraTooltipComponent_Conditional_0_Template_button_contextmenu_38_listener($event) {
-      return $event.preventDefault();
-    })("click", function CameraTooltipComponent_Conditional_0_Template_button_click_38_listener() {
+    })("pointerup", function CameraTooltipComponent_Conditional_0_Template_button_pointerup_38_listener() {
       \u0275\u0275restoreView(_r1);
       const ctx_r1 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r1.stopZoom());
+    })("pointercancel", function CameraTooltipComponent_Conditional_0_Template_button_pointercancel_38_listener() {
+      \u0275\u0275restoreView(_r1);
+      const ctx_r1 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r1.stopZoom());
+    })("lostpointercapture", function CameraTooltipComponent_Conditional_0_Template_button_lostpointercapture_38_listener() {
+      \u0275\u0275restoreView(_r1);
+      const ctx_r1 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r1.stopZoom());
+    })("contextmenu", function CameraTooltipComponent_Conditional_0_Template_button_contextmenu_38_listener($event) {
+      return $event.preventDefault();
     });
     \u0275\u0275elementStart(39, "icon");
     \u0275\u0275text(40, "remove");
@@ -3719,7 +4224,7 @@ function CameraTooltipComponent_Conditional_2_Template(rf, ctx) {
   var _a, _b;
   if (rf & 1) {
     const _r8 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "div", 3)(1, "i", 29);
+    \u0275\u0275elementStart(0, "div", 3)(1, "i", 28);
     \u0275\u0275listener("modelChange", function CameraTooltipComponent_Conditional_2_Template_i_modelChange_1_listener($event) {
       var _a2, _b2;
       \u0275\u0275restoreView(_r8);
@@ -3734,12 +4239,6 @@ function CameraTooltipComponent_Conditional_2_Template(rf, ctx) {
     \u0275\u0275property("sys", ctx_r1.id)("mod", (_a = ctx_r1.active_camera()) == null ? void 0 : _a.mod)("bind", ((_b = ctx_r1.active_camera()) == null ? void 0 : _b.index) ? "camera_presets" : "presets");
   }
 }
-var ZoomDirection;
-(function(ZoomDirection2) {
-  ZoomDirection2["In"] = "in";
-  ZoomDirection2["Out"] = "out";
-  ZoomDirection2["Stop"] = "stop";
-})(ZoomDirection || (ZoomDirection = {}));
 var _CameraTooltipComponent = class _CameraTooltipComponent {
   get id() {
     return this._state.id;
@@ -3761,7 +4260,13 @@ var _CameraTooltipComponent = class _CameraTooltipComponent {
         []
       )
     );
-    this.preset = "";
+    this.preset = signal(
+      "",
+      ...ngDevMode ? [{ debugName: "preset" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
     this.zoom = ZoomDirection.Stop;
     this.pan = JoystickPan.Stop;
     this.tilt = JoystickTilt.Stop;
@@ -3775,77 +4280,60 @@ var _CameraTooltipComponent = class _CameraTooltipComponent {
     this.camera_list = this._state.available_cameras;
     this._selected_camera = this._state.selected_camera;
     this.close = () => this._tooltip.close();
+    inject(DestroyRef).onDestroy(() => this.stopZoom());
     effect(() => {
-      const l = this.camera_list();
-      const cam = this._selected_camera();
-      this.active_camera.set(l == null ? void 0 : l.find((_) => _.id === cam));
+      var _a, _b;
+      const id = this._selected_camera();
+      const camera = (_a = this.camera_list()) == null ? void 0 : _a.find((_) => _.id === id);
+      if ((camera == null ? void 0 : camera.id) !== ((_b = untracked(this.active_camera)) == null ? void 0 : _b.id)) {
+        this.preset.set("");
+      }
+      this.active_camera.set(camera);
     });
   }
   selectCamera(camera) {
     this.active_camera.set(camera);
-    const mod = Fp(this.id, "System");
-    if (!mod)
-      return;
-    mod.execute("selected_camera", [camera.id]);
+    this.preset.set("");
+    selectCamera(this.id, camera.id);
   }
   recallPreset(preset) {
     const camera = this.active_camera();
     if (!(camera == null ? void 0 : camera.mod))
       return;
-    const mod = Fp(this.id, camera.mod);
-    if (!mod)
-      return;
-    mod.execute("recall", [preset]);
+    this.preset.set(preset);
+    Fp(this.id, camera.mod).execute("recall", [preset]);
   }
   addPreset(preset) {
     const camera = this.active_camera();
     if (!camera)
       return;
-    const mod = Fp(this.id, "System");
-    if (!mod)
-      return;
-    mod.execute("add_preset", [preset, camera.id]);
+    Fp(this.id, "System").execute("add_preset", [preset, camera.id]);
   }
   removePreset(preset) {
     const camera = this.active_camera();
     if (!camera)
       return;
-    const mod = Fp(this.id, "System");
-    if (!mod)
-      return;
-    mod.execute("remove_preset", [preset, camera.id]);
+    Fp(this.id, "System").execute("remove_preset", [
+      preset,
+      camera.id
+    ]);
   }
   moveCamera() {
     const camera = this.active_camera();
     if (!camera)
       return;
     clearTimeout(this._move_timeout);
-    this._move_timeout = setTimeout(async () => {
-      const { index } = camera;
-      const mod = Fp(this.id, camera.mod);
-      if (!mod)
-        return;
-      if (this.tilt !== JoystickTilt.Stop) {
-        await mod.execute("tilt", index ? [this.tilt, index] : [this.tilt]);
-      }
-      if (this.pan !== JoystickPan.Stop) {
-        await mod.execute("pan", index ? [this.pan, index] : [this.pan]);
-      }
-      if (this.tilt === JoystickTilt.Stop && this.pan === JoystickPan.Stop) {
-        await mod.execute("stop", index ? [index] : []);
-      }
-    }, 50);
+    this._move_timeout = setTimeout(() => moveCamera(this.id, camera, this.pan, this.tilt), 50);
   }
+  /** Start zooming. Pointer capture makes sure the button receives the release. */
   async startZoom(dir, e) {
+    var _a, _b;
+    (_b = (_a = e.currentTarget) == null ? void 0 : _a.setPointerCapture) == null ? void 0 : _b.call(_a, e.pointerId);
     const camera = this.active_camera();
     if (!(camera == null ? void 0 : camera.mod))
       return;
-    const mod = Fp(this.id, camera.mod);
-    if (!mod)
-      return;
     this.zoom = dir === "in" ? ZoomDirection.In : ZoomDirection.Out;
-    const { index } = camera;
-    await mod.execute("zoom", index ? [this.zoom, index] : [this.zoom]).catch();
+    await zoomCamera(this.id, camera, this.zoom).catch(() => null);
   }
   stopZoom() {
     clearTimeout(this._stop_zoom_timeout);
@@ -3855,19 +4343,15 @@ var _CameraTooltipComponent = class _CameraTooltipComponent {
       const camera = this.active_camera();
       if (!(camera == null ? void 0 : camera.mod))
         return;
-      const mod = Fp(this.id, camera.mod);
-      if (!mod)
-        return;
-      const { index } = camera;
       this.zoom = ZoomDirection.Stop;
-      mod.execute("zoom", index ? [this.zoom, index] : [this.zoom]);
+      zoomCamera(this.id, camera, ZoomDirection.Stop);
     }, 50);
   }
 };
 _CameraTooltipComponent.\u0275fac = function CameraTooltipComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _CameraTooltipComponent)();
 };
-_CameraTooltipComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _CameraTooltipComponent, selectors: [["camera-tooltip"]], decls: 3, vars: 2, consts: [["menu", "matMenu"], [1, "bg-base-100", "my-2", "flex", "flex-col", "rounded-sm", "shadow-sm"], [1, "bg-base-100", "my-2", "flex", "flex-col", "rounded-sm", "p-8", "text-center", "shadow-sm"], ["hidden", ""], ["appearance", "outline", 1, "no-subscript", "m-2"], [3, "ngModelChange", "ngModel", "placeholder"], [3, "value"], [1, "border-base-200", "relative", "mt-1", "flex", "flex-col", "border-t", "sm:flex-row"], [1, "border-base-200", "relative", "flex", "flex-col", "items-center", "space-y-2", "border-b", "p-4", "sm:border-r", "sm:border-b-0"], [1, "mb-2", "w-full", "pr-12", "text-xl", "font-medium"], [1, "bg-base-300", "w-full", "rounded-sm", "p-8", "opacity-30"], ["icon", "", "matRipple", "", 1, "absolute", "top-1", "right-4", 3, "matMenuTriggerFor"], [1, "flex", "w-full", "flex-col", "px-2"], ["appearance", "outline", 1, "h-14", "w-full", 3, "click"], ["matInput", "", 3, "ngModelChange", "ngModel", "placeholder"], ["btn", "", "matRipple", "", 1, "w-full", 3, "click", "disabled"], [1, "p-4"], [1, "mb-2", "text-xl", "font-medium"], [1, "flex", "items-center", "space-x-2", 3, "mouseup", "touchend"], [3, "panChange", "tiltChange", "pan", "tilt"], ["zoom", "", 1, "border-base-200", "flex", "flex-col", "items-center", "rounded-sm", "border"], ["zoom-in", "", "icon", "", "matRipple", "", 1, "rounded-sm", 3, "mousedown", "touchstart", "contextmenu", "click"], [1, "border-base-200", "flex", "h-10", "w-10", "items-center", "justify-center", "border-t", "border-b", "text-xs"], ["zoom-out", "", "icon", "", "matRipple", "", 1, "rounded-sm", 3, "mousedown", "touchstart", "contextmenu", "click"], [1, "bg-base-100", "bg-opacity-75", "absolute", "inset-0", "flex", "items-center", "justify-center"], [1, "flex", "items-center", "space-x-2"], ["preset", "", "btn", "", "matRipple", "", 1, "w-48", 3, "click"], ["icon", "", "matRipple", "", 1, "border-error", "bg-base-100", "text-error", "h-12", "w-12", "rounded-sm", "border"], ["icon", "", "matRipple", "", 1, "border-error", "bg-base-100", "text-error", "h-12", "w-12", "rounded-sm", "border", 3, "click"], ["binding", "", 3, "modelChange", "sys", "mod", "bind"]], template: function CameraTooltipComponent_Template(rf, ctx) {
+_CameraTooltipComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _CameraTooltipComponent, selectors: [["camera-tooltip"]], decls: 3, vars: 2, consts: [["menu", "matMenu"], [1, "bg-base-100", "my-2", "flex", "flex-col", "rounded-sm", "shadow-sm"], [1, "bg-base-100", "my-2", "flex", "flex-col", "rounded-sm", "p-8", "text-center", "shadow-sm"], ["hidden", ""], ["appearance", "outline", 1, "no-subscript", "m-2"], [3, "ngModelChange", "ngModel", "placeholder"], [3, "value"], [1, "border-base-200", "relative", "mt-1", "flex", "flex-col", "border-t", "sm:flex-row"], [1, "border-base-200", "relative", "flex", "flex-col", "items-center", "space-y-2", "border-b", "p-4", "sm:border-r", "sm:border-b-0"], [1, "mb-2", "w-full", "pr-12", "text-xl", "font-medium"], [1, "bg-base-300", "w-full", "rounded-sm", "p-8", "opacity-30"], ["icon", "", "matRipple", "", 1, "absolute", "top-1", "right-4", 3, "matMenuTriggerFor"], [1, "flex", "w-full", "flex-col", "px-2"], ["appearance", "outline", 1, "h-14", "w-full", 3, "click"], ["matInput", "", 3, "ngModelChange", "ngModel", "placeholder"], ["btn", "", "matRipple", "", 1, "w-full", 3, "click", "disabled"], [1, "p-4"], [1, "mb-2", "text-xl", "font-medium"], [1, "flex", "items-center", "space-x-2"], [3, "panChange", "tiltChange", "pan", "tilt"], ["zoom", "", 1, "border-base-200", "flex", "flex-col", "items-center", "rounded-sm", "border"], ["zoom-in", "", "icon", "", "matRipple", "", 1, "touch-none", "rounded-sm", "select-none", 3, "pointerdown", "pointerup", "pointercancel", "lostpointercapture", "contextmenu"], [1, "border-base-200", "flex", "h-10", "w-10", "items-center", "justify-center", "border-t", "border-b", "text-xs"], ["zoom-out", "", "icon", "", "matRipple", "", 1, "touch-none", "rounded-sm", "select-none", 3, "pointerdown", "pointerup", "pointercancel", "lostpointercapture", "contextmenu"], ["no-camera", "", 1, "bg-base-100/75", "absolute", "inset-0", "flex", "items-center", "justify-center"], ["preset", "", "btn", "", "matRipple", "", 1, "w-48", 3, "click"], ["icon", "", "matRipple", "", 1, "border-error", "bg-base-100", "text-error", "h-12", "w-12", "rounded-sm", "border"], ["icon", "", "matRipple", "", 1, "border-error", "bg-base-100", "text-error", "h-12", "w-12", "rounded-sm", "border", 3, "click"], ["binding", "", 3, "modelChange", "sys", "mod", "bind"]], template: function CameraTooltipComponent_Template(rf, ctx) {
   var _a, _b;
   if (rf & 1) {
     \u0275\u0275conditionalCreate(0, CameraTooltipComponent_Conditional_0_Template, 42, 26, "div", 1)(1, CameraTooltipComponent_Conditional_1_Template, 4, 3, "div", 2);
@@ -3937,7 +4421,7 @@ var CameraTooltipComponent = _CameraTooltipComponent;
                                         btn
                                         matRipple
                                         class="w-48"
-                                        [class.inverse]="preset !== name"
+                                        [class.inverse]="preset() !== name"
                                         (click)="recallPreset(name)"
                                     >
                                         {{ name }}
@@ -4011,11 +4495,7 @@ var CameraTooltipComponent = _CameraTooltipComponent;
                         <h3 class="mb-2 text-xl font-medium">
                             {{ 'APP.CONTROL.CONTROLS' | translate }}
                         </h3>
-                        <div
-                            class="flex items-center space-x-2"
-                            (window:mouseup)="stopZoom()"
-                            (window:touchend)="stopZoom()"
-                        >
+                        <div class="flex items-center space-x-2">
                             <joystick
                                 [(pan)]="pan"
                                 [(tilt)]="tilt"
@@ -4030,11 +4510,12 @@ var CameraTooltipComponent = _CameraTooltipComponent;
                                     zoom-in
                                     icon
                                     matRipple
-                                    class="rounded-sm"
-                                    (mousedown)="startZoom('in', $event)"
-                                    (touchstart)="startZoom('in', $event)"
+                                    class="touch-none rounded-sm select-none"
+                                    (pointerdown)="startZoom('in', $event)"
+                                    (pointerup)="stopZoom()"
+                                    (pointercancel)="stopZoom()"
+                                    (lostpointercapture)="stopZoom()"
                                     (contextmenu)="$event.preventDefault()"
-                                    (click)="stopZoom()"
                                 >
                                     <icon>add</icon>
                                 </button>
@@ -4047,11 +4528,12 @@ var CameraTooltipComponent = _CameraTooltipComponent;
                                     zoom-out
                                     icon
                                     matRipple
-                                    class="rounded-sm"
-                                    (mousedown)="startZoom('out', $event)"
-                                    (touchstart)="startZoom('out', $event)"
+                                    class="touch-none rounded-sm select-none"
+                                    (pointerdown)="startZoom('out', $event)"
+                                    (pointerup)="stopZoom()"
+                                    (pointercancel)="stopZoom()"
+                                    (lostpointercapture)="stopZoom()"
                                     (contextmenu)="$event.preventDefault()"
-                                    (click)="stopZoom()"
                                 >
                                     <icon>remove</icon>
                                 </button>
@@ -4060,7 +4542,8 @@ var CameraTooltipComponent = _CameraTooltipComponent;
                     </div>
                     @if (!active_camera()) {
                         <div
-                            class="bg-base-100 bg-opacity-75 absolute inset-0 flex items-center justify-center"
+                            no-camera
+                            class="bg-base-100/75 absolute inset-0 flex items-center justify-center"
                         >
                             <p>
                                 {{
@@ -4112,7 +4595,7 @@ var CameraTooltipComponent = _CameraTooltipComponent;
   }], () => [], null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(CameraTooltipComponent, { className: "CameraTooltipComponent", filePath: "apps/control/src/app/ui/camera-tooltip.component.ts", lineNumber: 238 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(CameraTooltipComponent, { className: "CameraTooltipComponent", filePath: "apps/control/src/app/ui/camera-tooltip.component.ts", lineNumber: 245 });
 })();
 
 // apps/control/src/app/ui/join-room-tooltip.component.ts
@@ -4297,7 +4780,7 @@ var _LightingLevelsTooltipComponent = class _LightingLevelsTooltipComponent {
 _LightingLevelsTooltipComponent.\u0275fac = function LightingLevelsTooltipComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _LightingLevelsTooltipComponent)();
 };
-_LightingLevelsTooltipComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _LightingLevelsTooltipComponent, selectors: [["lighting-tooltip"]], decls: 6, vars: 4, consts: [[1, "bg-base-100", "my-2", "flex", "flex-col", "items-center", "space-y-4", "rounded-sm", "p-2", "shadow-sm"], [1, "bg-base-200", "w-full", "rounded-sm", "px-4", "py-2", "text-xl", "font-medium"], [1, "flex", "items-center", "justify-center", "p-8"], [1, "border-base-300", "relative", "min-w-[20rem]", "rounded-sm", "border", "px-4"], [1, "bg-base-100", "absolute", "top-0", "left-2", "-translate-y-1/2", "rounded-sm", "px-2", "py-1", "text-sm", "font-medium"], ["binding", "", "mod", "Lighting", 1, "hidden", 3, "modelChange", "model", "sys", "bind"], [1, "mt-2", "w-[calc(100%-1rem)]"], ["matSliderThumb", "", 3, "ngModelChange", "ngModel"]], template: function LightingLevelsTooltipComponent_Template(rf, ctx) {
+_LightingLevelsTooltipComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _LightingLevelsTooltipComponent, selectors: [["lighting-levels-tooltip"]], decls: 6, vars: 4, consts: [[1, "bg-base-100", "my-2", "flex", "flex-col", "items-center", "space-y-4", "rounded-sm", "p-2", "shadow-sm"], [1, "bg-base-200", "w-full", "rounded-sm", "px-4", "py-2", "text-xl", "font-medium"], [1, "flex", "items-center", "justify-center", "p-8"], [1, "border-base-300", "relative", "min-w-[20rem]", "rounded-sm", "border", "px-4"], [1, "bg-base-100", "absolute", "top-0", "left-2", "-translate-y-1/2", "rounded-sm", "px-2", "py-1", "text-sm", "font-medium"], ["binding", "", "mod", "Lighting", 1, "hidden", 3, "modelChange", "model", "sys", "bind"], [1, "mt-2", "w-[calc(100%-1rem)]"], ["matSliderThumb", "", 3, "ngModelChange", "ngModel"]], template: function LightingLevelsTooltipComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 0)(1, "h3", 1);
     \u0275\u0275text(2);
@@ -4317,7 +4800,7 @@ var LightingLevelsTooltipComponent = _LightingLevelsTooltipComponent;
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(LightingLevelsTooltipComponent, [{
     type: Component,
-    args: [{ selector: "lighting-tooltip", template: `
+    args: [{ selector: "lighting-levels-tooltip", template: `
         <div
             class="bg-base-100 my-2 flex flex-col items-center space-y-4 rounded-sm p-2 shadow-sm"
         >
@@ -4437,7 +4920,7 @@ var _LightingSceneTooltipComponent = class _LightingSceneTooltipComponent {
 _LightingSceneTooltipComponent.\u0275fac = function LightingSceneTooltipComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _LightingSceneTooltipComponent)();
 };
-_LightingSceneTooltipComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _LightingSceneTooltipComponent, selectors: [["lighting-tooltip"]], decls: 6, vars: 4, consts: [[1, "bg-base-100", "my-2", "flex", "flex-col", "items-center", "space-y-2", "rounded-sm", "px-2", "pt-2", "pb-4", "shadow-sm"], [1, "bg-base-200", "w-full", "rounded-sm", "px-4", "py-2", "text-xl", "font-medium"], [1, "flex", "items-center", "justify-center", "p-8"], ["state", "", "btn", "", "matRipple", "", 1, "mx-2", "w-64", 3, "inverse"], ["state", "", "btn", "", "matRipple", "", 1, "mx-2", "w-64", 3, "click"], [1, "flex", "flex-1", "items-center", "space-x-4"], [1, "flex-1"]], template: function LightingSceneTooltipComponent_Template(rf, ctx) {
+_LightingSceneTooltipComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _LightingSceneTooltipComponent, selectors: [["lighting-scene-tooltip"]], decls: 6, vars: 4, consts: [[1, "bg-base-100", "my-2", "flex", "flex-col", "items-center", "space-y-2", "rounded-sm", "px-2", "pt-2", "pb-4", "shadow-sm"], [1, "bg-base-200", "w-full", "rounded-sm", "px-4", "py-2", "text-xl", "font-medium"], [1, "flex", "items-center", "justify-center", "p-8"], ["state", "", "btn", "", "matRipple", "", 1, "mx-2", "w-64", 3, "inverse"], ["state", "", "btn", "", "matRipple", "", 1, "mx-2", "w-64", 3, "click"], [1, "flex", "flex-1", "items-center", "space-x-4"], [1, "flex-1"]], template: function LightingSceneTooltipComponent_Template(rf, ctx) {
   var _a;
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 0)(1, "h3", 1);
@@ -4458,7 +4941,7 @@ var LightingSceneTooltipComponent = _LightingSceneTooltipComponent;
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(LightingSceneTooltipComponent, [{
     type: Component,
-    args: [{ selector: "lighting-tooltip", template: `
+    args: [{ selector: "lighting-scene-tooltip", template: `
         <div
             class="bg-base-100 my-2 flex flex-col items-center space-y-2 rounded-sm px-2 pt-2 pb-4 shadow-sm"
         >
@@ -4499,7 +4982,7 @@ var LightingSceneTooltipComponent = _LightingSceneTooltipComponent;
 })();
 
 // apps/control/src/app/ui/lighting-tooltip.component.ts
-var _c05 = (a0, a1) => [a0, a1];
+var _c06 = (a0, a1) => [a0, a1];
 function LightingTooltipComponent_Conditional_1_Template(rf, ctx) {
   if (rf & 1) {
     const _r1 = \u0275\u0275getCurrentView();
@@ -4528,8 +5011,8 @@ function LightingTooltipComponent_Conditional_5_For_1_Template(rf, ctx) {
   if (rf & 2) {
     const state_r3 = ctx.$implicit;
     const ctx_r1 = \u0275\u0275nextContext(2);
-    \u0275\u0275classProp("inverse", state_r3 === ctx_r1.light.state);
-    \u0275\u0275property("sys", ctx_r1.id)("params", \u0275\u0275pureFunction2(5, _c05, ctx_r1.lights()[0], state_r3));
+    \u0275\u0275classProp("inverse", state_r3 !== ctx_r1.light.state);
+    \u0275\u0275property("sys", ctx_r1.id)("params", \u0275\u0275pureFunction2(5, _c06, ctx_r1.lights()[0], state_r3));
     \u0275\u0275advance();
     \u0275\u0275textInterpolate1(" ", state_r3, " ");
   }
@@ -4619,7 +5102,7 @@ var LightingTooltipComponent = _LightingTooltipComponent;
                         btn
                         matRipple
                         class="w-64"
-                        [class.inverse]="state === light.state"
+                        [class.inverse]="state !== light.state"
                         binding
                         onEvent="click"
                         [sys]="id"
@@ -4644,7 +5127,7 @@ var LightingTooltipComponent = _LightingTooltipComponent;
 })();
 
 // apps/control/src/app/ui/microphone-tooltip.component.ts
-var _c06 = (a0, a1) => [a0, a1];
+var _c07 = (a0, a1) => [a0, a1];
 var _forTrack02 = ($index, $item) => $item.name;
 function MicrophoneTooltipComponent_Conditional_4_For_1_Conditional_3_For_2_Template(rf, ctx) {
   if (rf & 1) {
@@ -4848,10 +5331,10 @@ function MicrophoneTooltipComponent_Conditional_4_For_3_Conditional_10_Template(
     const \u0275$index_43_r11 = ctx_r12.$index;
     const ctx_r4 = \u0275\u0275nextContext(2);
     \u0275\u0275advance();
-    \u0275\u0275property("sys", ctx_r4.id)("mod", mic_r10.module_id)("bind", mic_r10.level_feedback)("ignore", ctx_r4.changing())("params", \u0275\u0275pureFunction2(11, _c06, mic_r10.level_id, ctx_r4.volume[\u0275$index_43_r11]));
+    \u0275\u0275property("sys", ctx_r4.id)("mod", mic_r10.module_id)("bind", mic_r10.level_feedback)("ignore", ctx_r4.changing())("params", \u0275\u0275pureFunction2(11, _c07, mic_r10.level_id, ctx_r4.volume[\u0275$index_43_r11]));
     \u0275\u0275twoWayProperty("model", ctx_r4.volume[\u0275$index_43_r11]);
     \u0275\u0275advance();
-    \u0275\u0275property("sys", ctx_r4.id)("mod", mic_r10.module_id)("bind", mic_r10.mute_feedback)("params", \u0275\u0275pureFunction2(14, _c06, mic_r10.mute_id, ctx_r4.mute[\u0275$index_43_r11]));
+    \u0275\u0275property("sys", ctx_r4.id)("mod", mic_r10.module_id)("bind", mic_r10.mute_feedback)("params", \u0275\u0275pureFunction2(14, _c07, mic_r10.mute_id, ctx_r4.mute[\u0275$index_43_r11]));
     \u0275\u0275twoWayProperty("model", ctx_r4.mute[\u0275$index_43_r11]);
   }
 }
@@ -5418,20 +5901,10 @@ function PhoneDiallingTooltipComponent_Conditional_7_Template(rf, ctx) {
 var _PhoneDiallingTooltipComponent = class _PhoneDiallingTooltipComponent {
   constructor() {
     this._state = inject(ControlStateService);
-    this.phone = signal(
-      "",
-      ...ngDevMode ? [{ debugName: "phone" }] : (
-        /* istanbul ignore next */
-        []
-      )
-    );
     this.system = this._state.system;
     this.dialPhone = () => this.action("qsc_dial_makecall");
     this.hangup = () => this.action("qsc_dial_hangup");
     this.clear = () => this.action("qsc_dial_pad_clear");
-  }
-  get sys_id() {
-    return this._state.id;
   }
   async handleInput(char) {
     const mod = Fp(this._state.id, "System");
@@ -5547,7 +6020,6 @@ var _PowerTooltipComponent = class _PowerTooltipComponent {
     this._tooltip = inject(CustomTooltipData);
     this.shutdown = (t = false) => this._state.powerOff(t);
     this.close = () => this._tooltip.close();
-    this.joined = this._state.joined;
   }
 };
 _PowerTooltipComponent.\u0275fac = function PowerTooltipComponent_Factory(__ngFactoryType__) {
@@ -5754,17 +6226,19 @@ var RoomAccessoryTooltipComponent = _RoomAccessoryTooltipComponent;
 })();
 
 // apps/control/src/app/video-call/video-call-state.service.ts
-var _VideoCallStateService = class _VideoCallStateService extends AsyncHandler {
+var INACTIVE_STATUSES = ["Idle", "Disconnecting"];
+var _VideoCallStateService = class _VideoCallStateService {
   constructor() {
-    super(...arguments);
     this._control = inject(ControlStateService);
     this.connected = this._bindTo("connected");
     this._calls = this._bindTo("calls");
     this.call = computed(
       () => {
+        var _a;
         const calls = this._calls();
         for (const key in calls) {
-          if (calls[key].Status)
+          const status = (_a = calls[key]) == null ? void 0 : _a.Status;
+          if (status && !INACTIVE_STATUSES.includes(status))
             return calls[key];
         }
         return null;
@@ -5787,29 +6261,24 @@ var _VideoCallStateService = class _VideoCallStateService extends AsyncHandler {
       )
     );
   }
-  async showCameraPIP(state) {
-    const id = this._control.id;
-    if (!id)
-      return;
-    return Fp(id, "VidConf").execute("show_camera_pip", [state]);
+  showCameraPIP(state) {
+    return this._exec("show_camera_pip", [state]);
   }
-  async muteMicrophone(state) {
-    const id = this._control.id;
-    if (!id)
-      return;
-    return Fp(id, "VidConf").execute("mic_mute", [state]);
+  muteMicrophone(state) {
+    return this._exec("mic_mute", [state]);
   }
-  async setVideoLayout(layout) {
-    const id = this._control.id;
-    if (!id)
-      return;
-    return Fp(id, "VidConf").execute("video_layout", [layout]);
+  setVideoLayout(layout) {
+    return this._exec("video_layout", [layout]);
   }
-  async setPresentationMode(mod) {
+  setPresentationMode(mode) {
+    return this._exec("presentation_mode", [mode]);
+  }
+  /** Dial a number. Rejects when the codec fails to dial. */
+  async dial(number) {
     const id = this._control.id;
     if (!id)
       return;
-    return Fp(id, "VidConf").execute("presentation_mode", [mod]);
+    return Fp(id, "VidConf").execute("dial", [number]);
   }
   async hangup() {
     const id = this._control.id;
@@ -5817,59 +6286,38 @@ var _VideoCallStateService = class _VideoCallStateService extends AsyncHandler {
       return;
     return Fp(id, "VidConf").execute("hangup", []);
   }
-  async sendDTMF(digit) {
-    const id = this._control.id;
-    if (!id)
-      return;
-    return Fp(id, "VidConf").execute("dtmf_send", [digit]);
+  sendDTMF(digit) {
+    return this._exec("dtmf_send", [digit]);
   }
   async toggleCallOnHold() {
-    const id = this._control.id;
-    if (!id)
-      return;
     const call = this.call();
     if (!call)
-      return;
-    return Fp(id, "VidConf").execute(call.Status === "OnHold" ? "call_resume" : "call_place_on_hold", []);
+      return false;
+    return this._exec(call.Status === "OnHold" ? "call_resume" : "call_place_on_hold");
   }
-  /**
-   * Create an Angular signal that mirrors a video conferencing status
-   * variable binding, rebinding whenever the active system changes.
-   */
-  _bindTo(name, mod_name = "VidConf") {
-    const value = signal(
-      null,
-      ...ngDevMode ? [{ debugName: "value" }] : (
-        /* istanbul ignore next */
-        []
-      )
-    );
-    effect((onCleanup) => {
-      const id = this._control.system_id();
-      if (!id) {
-        value.set(null);
-        return;
-      }
-      const binding = Fp(id, mod_name).variable(name);
-      const unbind = binding.bind();
-      const listener = binding.listen();
-      const update = () => value.set(listener() ?? null);
-      update();
-      const unsubscribe = listener.subscribe(() => update());
-      onCleanup(() => {
-        unsubscribe();
-        unbind();
-      });
-    });
-    return value.asReadonly();
+  /** Run a VidConf method. Shows an error when it fails. Resolves `true` on success. */
+  async _exec(method, args = []) {
+    const id = this._control.id;
+    if (!id)
+      return false;
+    try {
+      await Fp(id, "VidConf").execute(method, args);
+      return true;
+    } catch (error) {
+      notifyError(i18n("APP.CONTROL.VC_COMMAND_ERROR", {
+        error: errorText(error)
+      }));
+      return false;
+    }
+  }
+  /** Signal that mirrors a VidConf status variable on the active system */
+  _bindTo(name) {
+    return systemBinding(this._control.system_id, "VidConf", name, null);
   }
 };
-_VideoCallStateService.\u0275fac = /* @__PURE__ */ (() => {
-  let \u0275VideoCallStateService_BaseFactory;
-  return function VideoCallStateService_Factory(__ngFactoryType__) {
-    return (\u0275VideoCallStateService_BaseFactory || (\u0275VideoCallStateService_BaseFactory = \u0275\u0275getInheritedFactory(_VideoCallStateService)))(__ngFactoryType__ || _VideoCallStateService);
-  };
-})();
+_VideoCallStateService.\u0275fac = function VideoCallStateService_Factory(__ngFactoryType__) {
+  return new (__ngFactoryType__ || _VideoCallStateService)();
+};
 _VideoCallStateService.\u0275prov = /* @__PURE__ */ \u0275\u0275defineInjectable({ token: _VideoCallStateService, factory: _VideoCallStateService.\u0275fac, providedIn: "root" });
 var VideoCallStateService = _VideoCallStateService;
 (() => {
@@ -6101,7 +6549,7 @@ var _TopbarHeaderComponent = class _TopbarHeaderComponent extends AsyncHandler {
         actions[TOOLTIP.CAMERA].show = (cams == null ? void 0 : cams.length) > 0 && !speaker_track;
         actions[TOOLTIP.HELP].show = (help_items == null ? void 0 : help_items.length) > 0;
         actions[TOOLTIP.LIGHT_LEVELS].show = light_levels != null;
-        actions[TOOLTIP.LIGHT_SCENES].show = l_scenes != null;
+        actions[TOOLTIP.LIGHT_SCENES].show = (l_scenes == null ? void 0 : l_scenes.length) > 0;
         return actions;
       },
       ...ngDevMode ? [{ debugName: "action_list" }] : (
@@ -6110,7 +6558,6 @@ var _TopbarHeaderComponent = class _TopbarHeaderComponent extends AsyncHandler {
       )
     );
     this.viewHelp = () => this._state.viewHelp();
-    this.powerOff = () => this._state.powerOff();
     this.logo = computed(
       () => {
         this._org.active_building();
@@ -6283,6 +6730,250 @@ var TopbarHeaderComponent = _TopbarHeaderComponent;
   (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(TopbarHeaderComponent, { className: "TopbarHeaderComponent", filePath: "apps/control/src/app/topbar-header.component.ts", lineNumber: 146 });
 })();
 
+// apps/control/src/app/ui/connecting.component.ts
+var _c08 = (a0) => ({ id: a0 });
+function ControlConnectingComponent_Conditional_5_Conditional_7_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r3 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "button", 7);
+    \u0275\u0275listener("click", function ControlConnectingComponent_Conditional_5_Conditional_7_Template_button_click_0_listener() {
+      \u0275\u0275restoreView(_r3);
+      const ctx_r1 = \u0275\u0275nextContext(2);
+      return \u0275\u0275resetView(ctx_r1.changeRoom());
+    });
+    \u0275\u0275text(1);
+    \u0275\u0275pipe(2, "translate");
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(2, 1, "APP.CONTROL.CHANGE_ROOM"), " ");
+  }
+}
+function ControlConnectingComponent_Conditional_5_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r1 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "p", 3);
+    \u0275\u0275text(1);
+    \u0275\u0275pipe(2, "translate");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(3, "div", 4)(4, "button", 5);
+    \u0275\u0275listener("click", function ControlConnectingComponent_Conditional_5_Template_button_click_4_listener() {
+      \u0275\u0275restoreView(_r1);
+      const ctx_r1 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r1.retry());
+    });
+    \u0275\u0275text(5);
+    \u0275\u0275pipe(6, "translate");
+    \u0275\u0275elementEnd();
+    \u0275\u0275conditionalCreate(7, ControlConnectingComponent_Conditional_5_Conditional_7_Template, 3, 3, "button", 6);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const ctx_r1 = \u0275\u0275nextContext();
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(2, 3, "APP.CONTROL.CONNECTING_SLOW"), " ");
+    \u0275\u0275advance(4);
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(6, 5, "APP.CONTROL.RETRY"), " ");
+    \u0275\u0275advance(2);
+    \u0275\u0275conditional(ctx_r1.can_change_room ? 7 : -1);
+  }
+}
+var SLOW_CONNECT_MS = 30 * 1e3;
+var _ControlConnectingComponent = class _ControlConnectingComponent extends AsyncHandler {
+  constructor() {
+    super();
+    this._state = inject(ControlStateService);
+    this.id = this._state.system_id;
+    this.can_change_room = this._state.canChangeRoom();
+    this.slow = signal(
+      false,
+      ...ngDevMode ? [{ debugName: "slow" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.retry = () => window.location.reload();
+    this.changeRoom = () => this._state.changeRoom();
+    this.timeout("slow", () => this.slow.set(true), SLOW_CONNECT_MS);
+  }
+};
+_ControlConnectingComponent.\u0275fac = function ControlConnectingComponent_Factory(__ngFactoryType__) {
+  return new (__ngFactoryType__ || _ControlConnectingComponent)();
+};
+_ControlConnectingComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _ControlConnectingComponent, selectors: [["control-connecting"]], features: [\u0275\u0275InheritDefinitionFeature], decls: 6, vars: 8, consts: [["name", "loader", 1, "bg-base-100", "text-base-content", "absolute", "inset-0", "flex", "flex-col", "items-center", "justify-center"], [1, "mb-4", 3, "diameter"], [1, "my-4", "text-2xl"], [1, "mb-4", "text-base", "opacity-60"], [1, "flex", "space-x-2"], ["btn", "", "matRipple", "", 1, "w-40", 3, "click"], ["btn", "", "matRipple", "", "change-room", "", 1, "inverse", "w-40"], ["btn", "", "matRipple", "", "change-room", "", 1, "inverse", "w-40", 3, "click"]], template: function ControlConnectingComponent_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 0);
+    \u0275\u0275element(1, "mat-spinner", 1);
+    \u0275\u0275elementStart(2, "div", 2);
+    \u0275\u0275text(3);
+    \u0275\u0275pipe(4, "translate");
+    \u0275\u0275elementEnd();
+    \u0275\u0275conditionalCreate(5, ControlConnectingComponent_Conditional_5_Template, 8, 7);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    \u0275\u0275advance();
+    \u0275\u0275property("diameter", 64);
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(4, 3, "APP.CONTROL.CONNECTING", \u0275\u0275pureFunction1(6, _c08, ctx.id())), " ");
+    \u0275\u0275advance(2);
+    \u0275\u0275conditional(ctx.slow() ? 5 : -1);
+  }
+}, dependencies: [MatProgressSpinnerModule, MatProgressSpinner, MatRippleModule, MatRipple, TranslatePipe], styles: [`
+[name=loader][_ngcontent-%COMP%] {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 304 304' width='304' height='304'%3E%3Cpath fill='%23000' fill-opacity='0.05' d='M44.1 224a5 5 0 1 1 0 2H0v-2h44.1zm160 48a5 5 0 1 1 0 2H82v-2h122.1zm57.8-46a5 5 0 1 1 0-2H304v2h-42.1zm0 16a5 5 0 1 1 0-2H304v2h-42.1zm6.2-114a5 5 0 1 1 0 2h-86.2a5 5 0 1 1 0-2h86.2zm-256-48a5 5 0 1 1 0 2H0v-2h12.1zm185.8 34a5 5 0 1 1 0-2h86.2a5 5 0 1 1 0 2h-86.2zM258 12.1a5 5 0 1 1-2 0V0h2v12.1zm-64 208a5 5 0 1 1-2 0v-54.2a5 5 0 1 1 2 0v54.2zm48-198.2V80h62v2h-64V21.9a5 5 0 1 1 2 0zm16 16V64h46v2h-48V37.9a5 5 0 1 1 2 0zm-128 96V208h16v12.1a5 5 0 1 1-2 0V210h-16v-76.1a5 5 0 1 1 2 0zm-5.9-21.9a5 5 0 1 1 0 2H114v48H85.9a5 5 0 1 1 0-2H112v-48h12.1zm-6.2 130a5 5 0 1 1 0-2H176v-74.1a5 5 0 1 1 2 0V242h-60.1zm-16-64a5 5 0 1 1 0-2H114v48h10.1a5 5 0 1 1 0 2H112v-48h-10.1zM66 284.1a5 5 0 1 1-2 0V274H50v30h-2v-32h18v12.1zM236.1 176a5 5 0 1 1 0 2H226v94h48v32h-2v-30h-48v-98h12.1zm25.8-30a5 5 0 1 1 0-2H274v44.1a5 5 0 1 1-2 0V146h-10.1zm-64 96a5 5 0 1 1 0-2H208v-80h16v-14h-42.1a5 5 0 1 1 0-2H226v18h-16v80h-12.1zm86.2-210a5 5 0 1 1 0 2H272V0h2v32h10.1zM98 101.9V146H53.9a5 5 0 1 1 0-2H96v-42.1a5 5 0 1 1 2 0zM53.9 34a5 5 0 1 1 0-2H80V0h2v34H53.9zm60.1 3.9V66H82v64H69.9a5 5 0 1 1 0-2H80V64h32V37.9a5 5 0 1 1 2 0zM101.9 82a5 5 0 1 1 0-2H128V37.9a5 5 0 1 1 2 0V82h-28.1zm16-64a5 5 0 1 1 0-2H146v44.1a5 5 0 1 1-2 0V18h-26.1zm102.2 270a5 5 0 1 1 0 2H98v14h-2v-16h124.1zM242 149.9V160h16v34h-16v62h48v48h-2v-46h-48v-66h16v-30h-16v-12.1a5 5 0 1 1 2 0zM53.9 18a5 5 0 1 1 0-2H64V2H48V0h18v18H53.9zm112 32a5 5 0 1 1 0-2H192V0h50v2h-48v48h-28.1zm-48-48a5 5 0 0 1-9.8-2h2.07a3 3 0 1 0 5.66 0H178v34h-18V21.9a5 5 0 1 1 2 0V32h14V2h-58.1zm0 96a5 5 0 1 1 0-2H137l32-32h39V21.9a5 5 0 1 1 2 0V66h-40.17l-32 32H117.9zm28.1 90.1a5 5 0 1 1-2 0v-76.51L175.59 80H224V21.9a5 5 0 1 1 2 0V82h-49.59L146 112.41v75.69zm16 32a5 5 0 1 1-2 0v-99.51L184.59 96H300.1a5 5 0 0 1 3.9-3.9v2.07a3 3 0 0 0 0 5.66v2.07a5 5 0 0 1-3.9-3.9H185.41L162 121.41v98.69zm-144-64a5 5 0 1 1-2 0v-3.51l48-48V48h32V0h2v50H66v55.41l-48 48v2.69zM50 53.9v43.51l-48 48V208h26.1a5 5 0 1 1 0 2H0v-65.41l48-48V53.9a5 5 0 1 1 2 0zm-16 16V89.41l-34 34v-2.82l32-32V69.9a5 5 0 1 1 2 0zM12.1 32a5 5 0 1 1 0 2H9.41L0 43.41V40.6L8.59 32h3.51zm265.8 18a5 5 0 1 1 0-2h18.69l7.41-7.41v2.82L297.41 50H277.9zm-16 160a5 5 0 1 1 0-2H288v-71.41l16-16v2.82l-14 14V210h-28.1zm-208 32a5 5 0 1 1 0-2H64v-22.59L40.59 194H21.9a5 5 0 1 1 0-2H41.41L66 216.59V242H53.9zm150.2 14a5 5 0 1 1 0 2H96v-56.6L56.6 162H37.9a5 5 0 1 1 0-2h19.5L98 200.6V256h106.1zm-150.2 2a5 5 0 1 1 0-2H80v-46.59L48.59 178H21.9a5 5 0 1 1 0-2H49.41L82 208.59V258H53.9zM34 39.8v1.61L9.41 66H0v-2h8.59L32 40.59V0h2v39.8zM2 300.1a5 5 0 0 1 3.9 3.9H3.83A3 3 0 0 0 0 302.17V256h18v48h-2v-46H2v42.1zM34 241v63h-2v-62H0v-2h34v1zM17 18H0v-2h16V0h2v18h-1zm273-2h14v2h-16V0h2v16zm-32 273v15h-2v-14h-14v14h-2v-16h18v1zM0 92.1A5.02 5.02 0 0 1 6 97a5 5 0 0 1-6 4.9v-2.07a3 3 0 1 0 0-5.66V92.1zM80 272h2v32h-2v-32zm37.9 32h-2.07a3 3 0 0 0-5.66 0h-2.07a5 5 0 0 1 9.8 0zM5.9 0A5.02 5.02 0 0 1 0 5.9V3.83A3 3 0 0 0 3.83 0H5.9zm294.2 0h2.07A3 3 0 0 0 304 3.83V5.9a5 5 0 0 1-3.9-5.9zm3.9 300.1v2.07a3 3 0 0 0-1.83 1.83h-2.07a5 5 0 0 1 3.9-3.9zM97 100a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm0-16a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm16 16a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm16 16a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm0 16a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm-48 32a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm16 16a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm32 48a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm-16 16a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm32-16a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm0-32a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm16 32a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm32 16a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm0-16a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm-16-64a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm16 0a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm16 96a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm0 16a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm16 16a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm16-144a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm0 32a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm16-32a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm16-16a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm-96 0a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm0 16a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm16-32a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm96 0a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm-16-64a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm16-16a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm-32 0a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm0-16a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm-16 0a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm-16 0a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm-16 0a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM49 36a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm-32 0a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm32 16a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM33 68a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm16-48a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm0 240a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm16 32a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm-16-64a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm0 16a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm-16-32a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm80-176a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm16 0a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm-16-16a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm32 48a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm16-16a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm0-32a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm112 176a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm-16 16a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm0 16a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm0 16a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM17 180a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm0 16a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm0-32a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm16 0a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM17 84a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm32 64a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm16-16a3 3 0 1 0 0-6 3 3 0 0 0 0 6z'%3E%3C/path%3E%3C/svg%3E");
+}
+/*# sourceMappingURL=connecting.component.css.map */`] });
+var ControlConnectingComponent = _ControlConnectingComponent;
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(ControlConnectingComponent, [{
+    type: Component,
+    args: [{ selector: "control-connecting", template: `
+        <div
+            name="loader"
+            class="bg-base-100 text-base-content absolute inset-0 flex flex-col items-center justify-center"
+        >
+            <mat-spinner class="mb-4" [diameter]="64"></mat-spinner>
+            <div class="my-4 text-2xl">
+                {{ 'APP.CONTROL.CONNECTING' | translate: { id: id() } }}
+            </div>
+            @if (slow()) {
+                <p class="mb-4 text-base opacity-60">
+                    {{ 'APP.CONTROL.CONNECTING_SLOW' | translate }}
+                </p>
+                <div class="flex space-x-2">
+                    <button btn matRipple class="w-40" (click)="retry()">
+                        {{ 'APP.CONTROL.RETRY' | translate }}
+                    </button>
+                    @if (can_change_room) {
+                        <button
+                            btn
+                            matRipple
+                            change-room
+                            class="inverse w-40"
+                            (click)="changeRoom()"
+                        >
+                            {{ 'APP.CONTROL.CHANGE_ROOM' | translate }}
+                        </button>
+                    }
+                </div>
+            }
+        </div>
+    `, imports: [MatProgressSpinnerModule, MatRippleModule, TranslatePipe], styles: [`/* angular:styles/component:css;754df31f511b02eb97f1a68b04c4447bf4e083500e2275f0555f7f3724af6914;/home/runner/work/user-interfaces/user-interfaces/apps/control/src/app/ui/connecting.component.ts */
+[name=loader] {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 304 304' width='304' height='304'%3E%3Cpath fill='%23000' fill-opacity='0.05' d='M44.1 224a5 5 0 1 1 0 2H0v-2h44.1zm160 48a5 5 0 1 1 0 2H82v-2h122.1zm57.8-46a5 5 0 1 1 0-2H304v2h-42.1zm0 16a5 5 0 1 1 0-2H304v2h-42.1zm6.2-114a5 5 0 1 1 0 2h-86.2a5 5 0 1 1 0-2h86.2zm-256-48a5 5 0 1 1 0 2H0v-2h12.1zm185.8 34a5 5 0 1 1 0-2h86.2a5 5 0 1 1 0 2h-86.2zM258 12.1a5 5 0 1 1-2 0V0h2v12.1zm-64 208a5 5 0 1 1-2 0v-54.2a5 5 0 1 1 2 0v54.2zm48-198.2V80h62v2h-64V21.9a5 5 0 1 1 2 0zm16 16V64h46v2h-48V37.9a5 5 0 1 1 2 0zm-128 96V208h16v12.1a5 5 0 1 1-2 0V210h-16v-76.1a5 5 0 1 1 2 0zm-5.9-21.9a5 5 0 1 1 0 2H114v48H85.9a5 5 0 1 1 0-2H112v-48h12.1zm-6.2 130a5 5 0 1 1 0-2H176v-74.1a5 5 0 1 1 2 0V242h-60.1zm-16-64a5 5 0 1 1 0-2H114v48h10.1a5 5 0 1 1 0 2H112v-48h-10.1zM66 284.1a5 5 0 1 1-2 0V274H50v30h-2v-32h18v12.1zM236.1 176a5 5 0 1 1 0 2H226v94h48v32h-2v-30h-48v-98h12.1zm25.8-30a5 5 0 1 1 0-2H274v44.1a5 5 0 1 1-2 0V146h-10.1zm-64 96a5 5 0 1 1 0-2H208v-80h16v-14h-42.1a5 5 0 1 1 0-2H226v18h-16v80h-12.1zm86.2-210a5 5 0 1 1 0 2H272V0h2v32h10.1zM98 101.9V146H53.9a5 5 0 1 1 0-2H96v-42.1a5 5 0 1 1 2 0zM53.9 34a5 5 0 1 1 0-2H80V0h2v34H53.9zm60.1 3.9V66H82v64H69.9a5 5 0 1 1 0-2H80V64h32V37.9a5 5 0 1 1 2 0zM101.9 82a5 5 0 1 1 0-2H128V37.9a5 5 0 1 1 2 0V82h-28.1zm16-64a5 5 0 1 1 0-2H146v44.1a5 5 0 1 1-2 0V18h-26.1zm102.2 270a5 5 0 1 1 0 2H98v14h-2v-16h124.1zM242 149.9V160h16v34h-16v62h48v48h-2v-46h-48v-66h16v-30h-16v-12.1a5 5 0 1 1 2 0zM53.9 18a5 5 0 1 1 0-2H64V2H48V0h18v18H53.9zm112 32a5 5 0 1 1 0-2H192V0h50v2h-48v48h-28.1zm-48-48a5 5 0 0 1-9.8-2h2.07a3 3 0 1 0 5.66 0H178v34h-18V21.9a5 5 0 1 1 2 0V32h14V2h-58.1zm0 96a5 5 0 1 1 0-2H137l32-32h39V21.9a5 5 0 1 1 2 0V66h-40.17l-32 32H117.9zm28.1 90.1a5 5 0 1 1-2 0v-76.51L175.59 80H224V21.9a5 5 0 1 1 2 0V82h-49.59L146 112.41v75.69zm16 32a5 5 0 1 1-2 0v-99.51L184.59 96H300.1a5 5 0 0 1 3.9-3.9v2.07a3 3 0 0 0 0 5.66v2.07a5 5 0 0 1-3.9-3.9H185.41L162 121.41v98.69zm-144-64a5 5 0 1 1-2 0v-3.51l48-48V48h32V0h2v50H66v55.41l-48 48v2.69zM50 53.9v43.51l-48 48V208h26.1a5 5 0 1 1 0 2H0v-65.41l48-48V53.9a5 5 0 1 1 2 0zm-16 16V89.41l-34 34v-2.82l32-32V69.9a5 5 0 1 1 2 0zM12.1 32a5 5 0 1 1 0 2H9.41L0 43.41V40.6L8.59 32h3.51zm265.8 18a5 5 0 1 1 0-2h18.69l7.41-7.41v2.82L297.41 50H277.9zm-16 160a5 5 0 1 1 0-2H288v-71.41l16-16v2.82l-14 14V210h-28.1zm-208 32a5 5 0 1 1 0-2H64v-22.59L40.59 194H21.9a5 5 0 1 1 0-2H41.41L66 216.59V242H53.9zm150.2 14a5 5 0 1 1 0 2H96v-56.6L56.6 162H37.9a5 5 0 1 1 0-2h19.5L98 200.6V256h106.1zm-150.2 2a5 5 0 1 1 0-2H80v-46.59L48.59 178H21.9a5 5 0 1 1 0-2H49.41L82 208.59V258H53.9zM34 39.8v1.61L9.41 66H0v-2h8.59L32 40.59V0h2v39.8zM2 300.1a5 5 0 0 1 3.9 3.9H3.83A3 3 0 0 0 0 302.17V256h18v48h-2v-46H2v42.1zM34 241v63h-2v-62H0v-2h34v1zM17 18H0v-2h16V0h2v18h-1zm273-2h14v2h-16V0h2v16zm-32 273v15h-2v-14h-14v14h-2v-16h18v1zM0 92.1A5.02 5.02 0 0 1 6 97a5 5 0 0 1-6 4.9v-2.07a3 3 0 1 0 0-5.66V92.1zM80 272h2v32h-2v-32zm37.9 32h-2.07a3 3 0 0 0-5.66 0h-2.07a5 5 0 0 1 9.8 0zM5.9 0A5.02 5.02 0 0 1 0 5.9V3.83A3 3 0 0 0 3.83 0H5.9zm294.2 0h2.07A3 3 0 0 0 304 3.83V5.9a5 5 0 0 1-3.9-5.9zm3.9 300.1v2.07a3 3 0 0 0-1.83 1.83h-2.07a5 5 0 0 1 3.9-3.9zM97 100a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm0-16a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm16 16a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm16 16a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm0 16a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm-48 32a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm16 16a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm32 48a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm-16 16a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm32-16a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm0-32a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm16 32a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm32 16a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm0-16a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm-16-64a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm16 0a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm16 96a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm0 16a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm16 16a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm16-144a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm0 32a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm16-32a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm16-16a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm-96 0a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm0 16a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm16-32a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm96 0a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm-16-64a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm16-16a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm-32 0a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm0-16a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm-16 0a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm-16 0a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm-16 0a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM49 36a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm-32 0a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm32 16a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM33 68a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm16-48a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm0 240a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm16 32a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm-16-64a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm0 16a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm-16-32a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm80-176a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm16 0a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm-16-16a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm32 48a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm16-16a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm0-32a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm112 176a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm-16 16a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm0 16a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm0 16a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM17 180a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm0 16a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm0-32a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm16 0a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM17 84a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm32 64a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm16-16a3 3 0 1 0 0-6 3 3 0 0 0 0 6z'%3E%3C/path%3E%3C/svg%3E");
+}
+/*# sourceMappingURL=connecting.component.css.map */
+`] }]
+  }], () => [], null);
+})();
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(ControlConnectingComponent, { className: "ControlConnectingComponent", filePath: "apps/control/src/app/ui/connecting.component.ts", lineNumber: 59 });
+})();
+
+// apps/control/src/app/ui/splash.component.ts
+var _c09 = ["*"];
+var _SplashComponent = class _SplashComponent {
+  constructor() {
+    this._state = inject(ControlStateService);
+    this._changelog = inject(ChangelogService);
+    this.system = this._state.system;
+    this.version = VERSION;
+    this.changelog_available = this._changelog.available;
+    this.viewChangelog = () => this._changelog.view();
+    this.powerOn = () => this._state.powerOn();
+  }
+};
+_SplashComponent.\u0275fac = function SplashComponent_Factory(__ngFactoryType__) {
+  return new (__ngFactoryType__ || _SplashComponent)();
+};
+_SplashComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _SplashComponent, selectors: [["control-splash"]], hostAttrs: ["name", "splash", 1, "absolute", "inset-0", "flex", "flex-col", "items-center", "justify-center", "text-white"], hostBindings: function SplashComponent_HostBindings(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275listener("click", function SplashComponent_click_HostBindingHandler() {
+      return ctx.powerOn();
+    });
+  }
+}, ngContentSelectors: _c09, decls: 16, vars: 17, consts: [[1, "mb-4", "text-4xl", "font-light"], [1, "text-lg"], [1, "absolute", "bottom-0", "left-0", "p-2"], [1, "w-full", "text-xs", "opacity-60"], [1, "m-0", "border-none", "bg-none", "p-0", "text-xs", "underline", 3, "click", "disabled"]], template: function SplashComponent_Template(rf, ctx) {
+  var _a;
+  if (rf & 1) {
+    \u0275\u0275projectionDef();
+    \u0275\u0275domElementStart(0, "h2", 0);
+    \u0275\u0275text(1);
+    \u0275\u0275pipe(2, "translate");
+    \u0275\u0275domElementEnd();
+    \u0275\u0275domElementStart(3, "p", 1);
+    \u0275\u0275text(4);
+    \u0275\u0275domElementEnd();
+    \u0275\u0275projection(5);
+    \u0275\u0275domElementStart(6, "div", 2)(7, "div", 3);
+    \u0275\u0275text(8);
+    \u0275\u0275pipe(9, "translate");
+    \u0275\u0275domElementStart(10, "button", 4);
+    \u0275\u0275domListener("click", function SplashComponent_Template_button_click_10_listener($event) {
+      $event.stopPropagation();
+      return ctx.viewChangelog();
+    });
+    \u0275\u0275text(11);
+    \u0275\u0275domElementEnd()();
+    \u0275\u0275domElementStart(12, "div", 3);
+    \u0275\u0275text(13);
+    \u0275\u0275pipe(14, "date");
+    \u0275\u0275pipe(15, "date");
+    \u0275\u0275domElementEnd()();
+  }
+  if (rf & 2) {
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(2, 7, "APP.CONTROL.TOUCH_TO_START"), " ");
+    \u0275\u0275advance(3);
+    \u0275\u0275textInterpolate((_a = ctx.system()) == null ? void 0 : _a.name);
+    \u0275\u0275advance(4);
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(9, 9, "COMMON.CONTROLS_VERSION"), ": ");
+    \u0275\u0275advance(2);
+    \u0275\u0275domProperty("disabled", !ctx.changelog_available());
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate1(" ", ctx.version.hash, " ");
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate2(" ", \u0275\u0275pipeBind2(14, 11, ctx.version.time, "longDate"), " (", \u0275\u0275pipeBind2(15, 14, ctx.version.time, "shortTime"), ") ");
+  }
+}, dependencies: [TranslatePipe, DatePipe], styles: ["\n[_nghost-%COMP%] {\n  animation: crossfade 10s linear;\n  animation-iteration-count: infinite;\n}\n/*# sourceMappingURL=splash.component.css.map */"] });
+var SplashComponent = _SplashComponent;
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(SplashComponent, [{
+    type: Component,
+    args: [{ selector: "control-splash", template: `
+        <h2 class="mb-4 text-4xl font-light">
+            {{ 'APP.CONTROL.TOUCH_TO_START' | translate }}
+        </h2>
+        <p class="text-lg">{{ system()?.name }}</p>
+        <ng-content />
+        <div class="absolute bottom-0 left-0 p-2">
+            <div class="w-full text-xs opacity-60">
+                {{ 'COMMON.CONTROLS_VERSION' | translate }}:
+                <button
+                    class="m-0 border-none bg-none p-0 text-xs underline"
+                    [disabled]="!changelog_available()"
+                    (click)="$event.stopPropagation(); viewChangelog()"
+                >
+                    {{ version.hash }}
+                </button>
+            </div>
+            <div class="w-full text-xs opacity-60">
+                {{ version.time | date: 'longDate' }}
+                ({{ version.time | date: 'shortTime' }})
+            </div>
+        </div>
+    `, host: {
+      name: "splash",
+      class: "absolute inset-0 flex flex-col items-center justify-center text-white",
+      "(click)": "powerOn()"
+    }, imports: [TranslatePipe, DatePipe], styles: ["/* angular:styles/component:css;d7609a01a1828ef75b7bfd3b9a2122cd1aa892bb7aebcbaa86103ab8c94c5948;/home/runner/work/user-interfaces/user-interfaces/apps/control/src/app/ui/splash.component.ts */\n:host {\n  animation: crossfade 10s linear;\n  animation-iteration-count: infinite;\n}\n/*# sourceMappingURL=splash.component.css.map */\n"] }]
+  }], null, null);
+})();
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(SplashComponent, { className: "SplashComponent", filePath: "apps/control/src/app/ui/splash.component.ts", lineNumber: 51 });
+})();
+
 export {
   MatSlider,
   MatSliderThumb,
@@ -6292,9 +6983,15 @@ export {
   JoystickTilt,
   JoystickPan,
   JoystickComponent,
+  ZoomDirection,
+  selectCamera,
+  moveCamera,
+  zoomCamera,
   DialpadComponent,
   VideoCallStateService,
-  TopbarHeaderComponent
+  TopbarHeaderComponent,
+  ControlConnectingComponent,
+  SplashComponent
 };
-//# debugId=d4609024-fd09-58ea-96e2-02258a375a23
-//# sourceMappingURL=chunk-5ZTCMKOH.js.map
+//# debugId=acf76022-1a14-5351-848e-6c8c369ff296
+//# sourceMappingURL=chunk-JXLW22HW.js.map

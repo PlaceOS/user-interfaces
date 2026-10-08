@@ -1,7 +1,7 @@
 {
     "name": "AV Control",
     "short_name": "AV Control",
-    "theme_color": "#1B1F77",
+    "theme_color": "#3730A3",
     "background_color": "#fafafa",
     "display": "standalone",
     "scope": "./",

@@ -1,7 +1,8 @@
 import {
   DialpadComponent,
-  VideoCallStateService
-} from "./chunk-5ZTCMKOH.js";
+  VideoCallStateService,
+  selectCamera
+} from "./chunk-JXLW22HW.js";
 import {
   ControlStateService,
   MatFormField,
@@ -9,16 +10,16 @@ import {
   MatProgressSpinner,
   MatProgressSpinnerModule,
   MatSelect,
-  MatSelectModule
-} from "./chunk-2EQX7Z2A.js";
+  MatSelectModule,
+  errorText
+} from "./chunk-UTHE6AYJ.js";
 import {
   TranslatePipe
-} from "./chunk-G63XENND.js";
+} from "./chunk-U4V525AH.js";
 import {
   AsyncHandler,
   Component,
   FormsModule,
-  Fp,
   IconComponent,
   Injector,
   Input,
@@ -29,13 +30,16 @@ import {
   NgModel,
   Router,
   computed,
+  effect,
   firstValueWhere,
   i18n,
   inject,
   input,
+  linkedSignal,
   notifyError,
   setClassMetadata,
   signal,
+  untracked,
   ɵsetClassDebugInfo,
   ɵɵInheritDefinitionFeature,
   ɵɵadvance,
@@ -49,7 +53,6 @@ import {
   ɵɵelementEnd,
   ɵɵelementStart,
   ɵɵgetCurrentView,
-  ɵɵgetInheritedFactory,
   ɵɵlistener,
   ɵɵnextContext,
   ɵɵpipe,
@@ -63,7 +66,7 @@ import {
   ɵɵtext,
   ɵɵtextInterpolate,
   ɵɵtextInterpolate1
-} from "./chunk-YX4P66OA.js";
+} from "./chunk-WRMJ73SH.js";
 
 // apps/control/src/app/video-call/video-call-page.component.ts
 function VideoCallPageComponent_Conditional_0_Conditional_3_For_3_Template(rf, ctx) {
@@ -263,45 +266,47 @@ function VideoCallPageComponent_Conditional_0_Template(rf, ctx) {
     \u0275\u0275advance();
     \u0275\u0275conditional(ctx_r2.present_output() && ctx_r2.presentables() ? 4 : -1);
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(7, 24, "APP.CONTROL.VC_CONTENT_DEST"), " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(7, 26, "APP.CONTROL.VC_CONTENT_DEST"), " ");
     \u0275\u0275advance(3);
     \u0275\u0275property("ngModel", ctx_r2.presentation_mode());
     \u0275\u0275control();
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(12, 26, "APP.CONTROL.VC_CONTENT_DEST_HIDE"));
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(12, 28, "APP.CONTROL.VC_CONTENT_DEST_HIDE"));
     \u0275\u0275advance(3);
-    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(15, 28, "APP.CONTROL.VC_CONTENT_DEST_LOCAL"));
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(15, 30, "APP.CONTROL.VC_CONTENT_DEST_LOCAL"));
     \u0275\u0275advance(3);
-    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(18, 30, "APP.CONTROL.VC_CONTENT_DEST_ALL"));
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(18, 32, "APP.CONTROL.VC_CONTENT_DEST_ALL"));
     \u0275\u0275advance(3);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(21, 32, "APP.CONTROL.VC_LAYOUT"), " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(21, 34, "APP.CONTROL.VC_LAYOUT"), " ");
     \u0275\u0275advance(3);
-    \u0275\u0275property("ngModel", ctx_r2.video_layout())("placeholder", \u0275\u0275pipeBind1(24, 34, "APP.CONTROL.VC_LAYOUT_SELECT"));
+    \u0275\u0275property("ngModel", ctx_r2.video_layout())("placeholder", \u0275\u0275pipeBind1(24, 36, "APP.CONTROL.VC_LAYOUT_SELECT"));
     \u0275\u0275control();
     \u0275\u0275advance(2);
     \u0275\u0275repeater(ctx_r2.video_layouts);
     \u0275\u0275advance(3);
     \u0275\u0275property("backspace", false);
-    \u0275\u0275advance(7);
-    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(36, 36, "APP.CONTROL.VC_END_CALL"));
+    \u0275\u0275advance();
+    \u0275\u0275classProp("pt-14", ctx_r2.reserve_top());
+    \u0275\u0275advance(6);
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(36, 38, "APP.CONTROL.VC_END_CALL"));
     \u0275\u0275advance(2);
     \u0275\u0275classProp("inverse", !ctx_r2.mic_mute());
     \u0275\u0275advance(3);
     \u0275\u0275textInterpolate(ctx_r2.mic_mute() ? "mic_off" : "mic");
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(43, 38, ctx_r2.mic_mute() ? "APP.CONTROL.VC_MICS_UNMUTE" : "APP.CONTROL.VC_MICS_MUTE"));
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(43, 40, ctx_r2.mic_mute() ? "APP.CONTROL.VC_MICS_UNMUTE" : "APP.CONTROL.VC_MICS_MUTE"));
     \u0275\u0275advance(2);
     \u0275\u0275classProp("inverse", ((_b = ctx_r2.call()) == null ? void 0 : _b.Status) !== "OnHold");
     \u0275\u0275advance(3);
     \u0275\u0275textInterpolate(((_c = ctx_r2.call()) == null ? void 0 : _c.Status) !== "OnHold" ? "stop" : "play_arrow");
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(50, 40, ((_d = ctx_r2.call()) == null ? void 0 : _d.Status) !== "OnHold" ? "APP.CONTROL.VC_ON_HOLD" : "APP.CONTROL.VC_RESUME"));
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(50, 42, ((_d = ctx_r2.call()) == null ? void 0 : _d.Status) !== "OnHold" ? "APP.CONTROL.VC_ON_HOLD" : "APP.CONTROL.VC_RESUME"));
     \u0275\u0275advance(2);
     \u0275\u0275classProp("inverse", ctx_r2.show_camera_pip());
     \u0275\u0275advance(3);
     \u0275\u0275textInterpolate(!ctx_r2.show_camera_pip() ? "visibility_off" : "visibility");
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(57, 42, ctx_r2.show_camera_pip() ? "APP.CONTROL.VC_PIP_HIDE" : "APP.CONTROL.VC_PIP_SHOW"));
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(57, 44, ctx_r2.show_camera_pip() ? "APP.CONTROL.VC_PIP_HIDE" : "APP.CONTROL.VC_PIP_SHOW"));
   }
 }
 function VideoCallPageComponent_Conditional_1_Template(rf, ctx) {
@@ -322,11 +327,14 @@ function VideoCallPageComponent_Conditional_1_Template(rf, ctx) {
 }
 var _VideoCallPageComponent = class _VideoCallPageComponent extends AsyncHandler {
   constructor() {
-    super(...arguments);
+    super();
     this._state = inject(VideoCallStateService);
     this._control = inject(ControlStateService);
     this._router = inject(Router);
     this._injector = inject(Injector);
+    this._layout_request = 0;
+    this._mode_request = 0;
+    this._left = false;
     this.redirect = input(
       true,
       ...ngDevMode ? [{ debugName: "redirect" }] : (
@@ -337,6 +345,13 @@ var _VideoCallPageComponent = class _VideoCallPageComponent extends AsyncHandler
     this.present_output = input(
       "",
       ...ngDevMode ? [{ debugName: "present_output" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.reserve_top = input(
+      false,
+      ...ngDevMode ? [{ debugName: "reserve_top" }] : (
         /* istanbul ignore next */
         []
       )
@@ -365,14 +380,14 @@ var _VideoCallPageComponent = class _VideoCallPageComponent extends AsyncHandler
         []
       )
     );
-    this.video_layout = computed(
+    this.video_layout = linkedSignal(
       () => this._state.video_layout(),
       ...ngDevMode ? [{ debugName: "video_layout" }] : (
         /* istanbul ignore next */
         []
       )
     );
-    this.presentation_mode = computed(
+    this.presentation_mode = linkedSignal(
       () => this._state.presentation_mode(),
       ...ngDevMode ? [{ debugName: "presentation_mode" }] : (
         /* istanbul ignore next */
@@ -391,20 +406,45 @@ var _VideoCallPageComponent = class _VideoCallPageComponent extends AsyncHandler
     this.selected_camera = this._control.selected_camera;
     this.sentDTMF = (d) => this._state.sendDTMF(d);
     this.setPresentationSource = (i) => this._control.setRoute(i.id, this.present_output(), false);
-    this.setPresentationMode = (d) => this._state.setPresentationMode(d);
-    this.setVideoLayout = (d) => this._state.setVideoLayout(d);
+    this.setPresentationMode = async (d) => {
+      const request = ++this._mode_request;
+      this.presentation_mode.set(d);
+      if (await this._state.setPresentationMode(d))
+        return;
+      if (request !== this._mode_request)
+        return;
+      this.presentation_mode.set(this._state.presentation_mode());
+    };
+    this.setVideoLayout = async (d) => {
+      const request = ++this._layout_request;
+      this.video_layout.set(d);
+      if (await this._state.setVideoLayout(d))
+        return;
+      if (request !== this._layout_request)
+        return;
+      this.video_layout.set(this._state.video_layout());
+    };
     this.toggleCamera = async () => this._state.showCameraPIP(!this.show_camera_pip());
     this.toggleMute = async () => this._state.muteMicrophone(!this.mic_mute());
     this.toggleOnHold = () => this._state.toggleCallOnHold();
     this.endCall = async () => {
       this.loading.set(i18n("APP.CONTROL.VC_LEAVE_LOADING"));
-      await this._state.hangup().catch((_) => {
+      try {
+        await this._state.hangup();
+      } catch (error) {
         this.loading.set("");
-        notifyError(i18n("APP.CONTROL.VC_LEAVE_ERROR", { error: _ }));
-        throw _;
-      });
+        notifyError(i18n("APP.CONTROL.VC_LEAVE_ERROR", { error: errorText(error) }));
+        return;
+      }
       this._onCallEnded();
     };
+    let had_call = false;
+    effect(() => {
+      const has_call = !!this.call();
+      if (had_call && !has_call)
+        untracked(() => this._onCallEnded());
+      had_call = has_call;
+    });
   }
   async ngOnInit() {
     this.loading.set(i18n("APP.CONTROL.VC_LOADING"));
@@ -417,25 +457,24 @@ var _VideoCallPageComponent = class _VideoCallPageComponent extends AsyncHandler
     this.clearTimeout("check_call");
   }
   selectCamera(camera) {
-    const mod = Fp(this._control.id, "System");
-    if (!mod)
-      return;
-    mod.execute("selected_camera", [camera]);
+    selectCamera(this._control.id, camera);
   }
+  /** Leave the page once. A local hang-up and the call status clearing both end up here. */
   _onCallEnded() {
+    this.loading.set("");
+    if (this._left)
+      return;
+    this._left = true;
     if (this.redirect())
       this._router.navigate(["/panel", this._control.id]);
   }
 };
-_VideoCallPageComponent.\u0275fac = /* @__PURE__ */ (() => {
-  let \u0275VideoCallPageComponent_BaseFactory;
-  return function VideoCallPageComponent_Factory(__ngFactoryType__) {
-    return (\u0275VideoCallPageComponent_BaseFactory || (\u0275VideoCallPageComponent_BaseFactory = \u0275\u0275getInheritedFactory(_VideoCallPageComponent)))(__ngFactoryType__ || _VideoCallPageComponent);
-  };
-})();
-_VideoCallPageComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _VideoCallPageComponent, selectors: [["", "video-call-page", ""]], inputs: { redirect: [1, "redirect"], present_output: [1, "present_output"] }, features: [\u0275\u0275InheritDefinitionFeature], decls: 2, vars: 1, consts: [[1, "h-full", "w-full", "p-2"], [1, "flex", "h-full", "w-full", "flex-col", "items-center", "justify-center", "space-y-2", "p-24", "text-black"], [1, "flex", "h-1/2", "flex-1"], [1, "flex", "flex-1", "flex-col", "items-center", "justify-center", "space-y-2", "p-2"], ["appearance", "outline", 1, "h-12", "w-full"], ["appearance", "outline", 1, "h-14", "w-full"], [1, "pb-2"], ["placeholder", "Select HDMI content destination", 3, "ngModelChange", "ngModel"], ["value", "None"], ["value", "Local"], ["value", "Remote"], [3, "ngModelChange", "ngModel", "placeholder"], [3, "value"], [1, "flex", "flex-1", "items-center", "justify-center", "p-2"], [3, "pressed", "backspace"], [1, "flex", "flex-1", "flex-col", "items-center", "justify-center", "space-y-4", "p-2"], ["btn", "", "matRipple", "", 1, "error", "w-full", 3, "click"], [1, "flex", "items-center", "space-x-4"], ["btn", "", "matRipple", "", 1, "w-full", 3, "click"], ["placeholder", "Select Camera", 3, "ngModelChange", "ngModel"], ["ngModel", "", "placeholder", "Select presentation source", 3, "ngModelChange"], [3, "diameter"]], template: function VideoCallPageComponent_Template(rf, ctx) {
+_VideoCallPageComponent.\u0275fac = function VideoCallPageComponent_Factory(__ngFactoryType__) {
+  return new (__ngFactoryType__ || _VideoCallPageComponent)();
+};
+_VideoCallPageComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _VideoCallPageComponent, selectors: [["", "video-call-page", ""]], inputs: { redirect: [1, "redirect"], present_output: [1, "present_output"], reserve_top: [1, "reserve_top"] }, features: [\u0275\u0275InheritDefinitionFeature], decls: 2, vars: 1, consts: [[1, "h-full", "w-full", "p-2"], [1, "flex", "h-full", "w-full", "flex-col", "items-center", "justify-center", "space-y-2", "p-24", "text-black"], [1, "flex", "h-1/2", "flex-1"], [1, "flex", "flex-1", "flex-col", "items-center", "justify-center", "space-y-2", "p-2"], ["appearance", "outline", 1, "h-12", "w-full"], ["appearance", "outline", 1, "h-14", "w-full"], [1, "pb-2"], ["placeholder", "Select HDMI content destination", 3, "ngModelChange", "ngModel"], ["value", "None"], ["value", "Local"], ["value", "Remote"], [3, "ngModelChange", "ngModel", "placeholder"], [3, "value"], [1, "flex", "flex-1", "items-center", "justify-center", "p-2"], [3, "pressed", "backspace"], ["actions", "", 1, "flex", "flex-1", "flex-col", "items-center", "justify-center", "space-y-4", "p-2"], ["btn", "", "matRipple", "", 1, "error", "w-full", 3, "click"], [1, "flex", "items-center", "space-x-4"], ["btn", "", "matRipple", "", 1, "w-full", 3, "click"], ["placeholder", "Select Camera", 3, "ngModelChange", "ngModel"], ["ngModel", "", "placeholder", "Select presentation source", 3, "ngModelChange"], [3, "diameter"]], template: function VideoCallPageComponent_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275conditionalCreate(0, VideoCallPageComponent_Conditional_0_Template, 58, 44, "div", 0)(1, VideoCallPageComponent_Conditional_1_Template, 4, 2, "div", 1);
+    \u0275\u0275conditionalCreate(0, VideoCallPageComponent_Conditional_0_Template, 58, 46, "div", 0)(1, VideoCallPageComponent_Conditional_1_Template, 4, 2, "div", 1);
   }
   if (rf & 2) {
     \u0275\u0275conditional(!ctx.loading() ? 0 : 1);
@@ -561,7 +600,9 @@ var VideoCallPageComponent = _VideoCallPageComponent;
                         ></dialpad>
                     </div>
                     <div
+                        actions
                         class="flex flex-1 flex-col items-center justify-center space-y-4 p-2"
+                        [class.pt-14]="reserve_top()"
                     >
                         <button
                             btn
@@ -658,14 +699,14 @@ var VideoCallPageComponent = _VideoCallPageComponent;
       MatSelectModule,
       DialpadComponent
     ], styles: ["/* angular:styles/component:css;726748c2414197d0b1210ead97f5552a150ccdc9b0475e0053e8ed5e76b597ad;/home/runner/work/user-interfaces/user-interfaces/apps/control/src/app/video-call/video-call-page.component.ts */\n:host {\n  position: relative;\n}\n/*# sourceMappingURL=video-call-page.component.css.map */\n"] }]
-  }], null, { redirect: [{ type: Input, args: [{ isSignal: true, alias: "redirect", required: false }] }], present_output: [{ type: Input, args: [{ isSignal: true, alias: "present_output", required: false }] }] });
+  }], () => [], { redirect: [{ type: Input, args: [{ isSignal: true, alias: "redirect", required: false }] }], present_output: [{ type: Input, args: [{ isSignal: true, alias: "present_output", required: false }] }], reserve_top: [{ type: Input, args: [{ isSignal: true, alias: "reserve_top", required: false }] }] });
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(VideoCallPageComponent, { className: "VideoCallPageComponent", filePath: "apps/control/src/app/video-call/video-call-page.component.ts", lineNumber: 236 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(VideoCallPageComponent, { className: "VideoCallPageComponent", filePath: "apps/control/src/app/video-call/video-call-page.component.ts", lineNumber: 246 });
 })();
 
 export {
   VideoCallPageComponent
 };
-//# debugId=3a22a5c6-0635-5973-96fb-aa820bbd52dc
-//# sourceMappingURL=chunk-EF5N4DO7.js.map
+//# debugId=3cf95837-4a26-5f1d-8533-09c6ac1328bb
+//# sourceMappingURL=chunk-VQCQDBUE.js.map

@@ -4255,6 +4255,9 @@ input:where([type=button], [type=reset], [type=submit]),
 #placeos .border-white\/40 {
   border-color: color-mix(in oklab, #ffffff 40%, transparent);
 }
+#placeos .bg-\[\#f0f0f0\] {
+  background-color: #f0f0f0;
+}
 #placeos .bg-approval-light {
   background-color: var(--approval-light);
 }
@@ -4267,6 +4270,14 @@ input:where([type=button], [type=reset], [type=submit]),
 @supports (color: color-mix(in lab, red, red)) {
   #placeos .bg-base-100\/10 {
     background-color: color-mix(in oklab, var(--base-100) 10%, transparent);
+  }
+}
+#placeos .bg-base-100\/75 {
+  background-color: var(--base-100);
+}
+@supports (color: color-mix(in lab, red, red)) {
+  #placeos .bg-base-100\/75 {
+    background-color: color-mix(in oklab, var(--base-100) 75%, transparent);
   }
 }
 #placeos .bg-base-200 {
@@ -4528,6 +4539,9 @@ input:where([type=button], [type=reset], [type=submit]),
 #placeos .pt-8 {
   padding-top: calc(var(--spacing) * 8);
 }
+#placeos .pt-14 {
+  padding-top: calc(var(--spacing) * 14);
+}
 #placeos .pt-\[calc\(env\(safe-area-inset-top\)\+1rem\)\] {
   padding-top: calc(env(safe-area-inset-top) + 1rem);
 }
@@ -4767,6 +4781,9 @@ input:where([type=button], [type=reset], [type=submit]),
 }
 #placeos .text-black {
   color: #000000;
+}
+#placeos .text-black\/85 {
+  color: color-mix(in oklab, #000000 85%, transparent);
 }
 #placeos .text-error {
   color: var(--error);

@@ -1,6 +1,6 @@
 import {
   TranslatePipe
-} from "./chunk-G63XENND.js";
+} from "./chunk-U4V525AH.js";
 import {
   A,
   A11yModule,
@@ -35,6 +35,7 @@ import {
   ElementRef,
   ErrorStateMatcher,
   EventEmitter,
+  Fi,
   FocusKeyManager,
   FocusMonitor,
   FocusTrapFactory,
@@ -85,10 +86,8 @@ import {
   RendererFactory2,
   ReplaySubject,
   Router,
-  Rs,
   RuntimeError,
   SPACE,
-  SafePipe,
   ScrollDispatcher,
   Service,
   SettingsService,
@@ -135,13 +134,13 @@ import {
   createOverlayRef,
   createRepositionScrollStrategy,
   currentUser,
-  debounced,
   defer,
   differenceInMinutes,
   ds,
   effect,
   elementAcceptsMinMax,
   endOfDay,
+  errorMessage,
   et,
   filter,
   first,
@@ -166,6 +165,7 @@ import {
   log,
   map,
   merge,
+  notifyError,
   notifySuccess,
   numberAttribute,
   of,
@@ -258,267 +258,11 @@ import {
   ɵɵtextInterpolate1,
   ɵɵviewQuery,
   ɵɵviewQuerySignal
-} from "./chunk-YX4P66OA.js";
+} from "./chunk-WRMJ73SH.js";
 import {
   __spreadProps,
   __spreadValues
 } from "./chunk-653SOEEV.js";
-
-// node_modules/@angular/material/fesm2022/progress-spinner.mjs
-var _c0 = ["determinateSpinner"];
-function MatProgressSpinner_ng_template_0_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275namespaceSVG();
-    \u0275\u0275elementStart(0, "svg", 11);
-    \u0275\u0275element(1, "circle", 12);
-    \u0275\u0275elementEnd();
-  }
-  if (rf & 2) {
-    const ctx_r0 = \u0275\u0275nextContext();
-    \u0275\u0275attribute("viewBox", ctx_r0._viewBox());
-    \u0275\u0275advance();
-    \u0275\u0275styleProp("stroke-dasharray", ctx_r0._strokeCircumference(), "px")("stroke-dashoffset", ctx_r0._strokeCircumference() / 2, "px")("stroke-width", ctx_r0._circleStrokeWidth(), "%");
-    \u0275\u0275attribute("r", ctx_r0._circleRadius());
-  }
-}
-var MAT_PROGRESS_SPINNER_DEFAULT_OPTIONS = new InjectionToken("mat-progress-spinner-default-options", {
-  providedIn: "root",
-  factory: () => ({
-    diameter: BASE_SIZE
-  })
-});
-var BASE_SIZE = 100;
-var BASE_STROKE_WIDTH = 10;
-var MatProgressSpinner = class _MatProgressSpinner {
-  _elementRef = inject(ElementRef);
-  _noopAnimations;
-  get color() {
-    return this._color || this._defaultColor;
-  }
-  set color(value) {
-    this._color = value;
-  }
-  _color;
-  _defaultColor = "primary";
-  _determinateCircle;
-  constructor() {
-    const defaults = inject(MAT_PROGRESS_SPINNER_DEFAULT_OPTIONS);
-    const animationsState = _getAnimationsState();
-    const element = this._elementRef.nativeElement;
-    this._noopAnimations = animationsState === "di-disabled" && !!defaults && !defaults._forceAnimations;
-    this.mode = element.nodeName.toLowerCase() === "mat-spinner" ? "indeterminate" : "determinate";
-    if (!this._noopAnimations && animationsState === "reduced-motion") {
-      element.classList.add("mat-progress-spinner-reduced-motion");
-    }
-    if (defaults) {
-      if (defaults.color) {
-        this.color = this._defaultColor = defaults.color;
-      }
-      if (defaults.diameter) {
-        this.diameter = defaults.diameter;
-      }
-      if (defaults.strokeWidth) {
-        this.strokeWidth = defaults.strokeWidth;
-      }
-    }
-  }
-  mode;
-  get value() {
-    return this.mode === "determinate" ? this._value : 0;
-  }
-  set value(v2) {
-    this._value = Math.max(0, Math.min(100, v2 || 0));
-  }
-  _value = 0;
-  get diameter() {
-    return this._diameter;
-  }
-  set diameter(size) {
-    this._diameter = size || 0;
-  }
-  _diameter = BASE_SIZE;
-  get strokeWidth() {
-    return this._strokeWidth ?? this.diameter / 10;
-  }
-  set strokeWidth(value) {
-    this._strokeWidth = value || 0;
-  }
-  _strokeWidth;
-  _circleRadius() {
-    return (this.diameter - BASE_STROKE_WIDTH) / 2;
-  }
-  _viewBox() {
-    const viewBox = this._circleRadius() * 2 + this.strokeWidth;
-    return `0 0 ${viewBox} ${viewBox}`;
-  }
-  _strokeCircumference() {
-    return 2 * Math.PI * this._circleRadius();
-  }
-  _strokeDashOffset() {
-    if (this.mode === "determinate") {
-      return this._strokeCircumference() * (100 - this._value) / 100;
-    }
-    return null;
-  }
-  _circleStrokeWidth() {
-    return this.strokeWidth / this.diameter * 100;
-  }
-  static \u0275fac = function MatProgressSpinner_Factory(__ngFactoryType__) {
-    return new (__ngFactoryType__ || _MatProgressSpinner)();
-  };
-  static \u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({
-    type: _MatProgressSpinner,
-    selectors: [["mat-progress-spinner"], ["mat-spinner"]],
-    viewQuery: function MatProgressSpinner_Query(rf, ctx) {
-      if (rf & 1) {
-        \u0275\u0275viewQuery(_c0, 5);
-      }
-      if (rf & 2) {
-        let _t;
-        \u0275\u0275queryRefresh(_t = \u0275\u0275loadQuery()) && (ctx._determinateCircle = _t.first);
-      }
-    },
-    hostAttrs: ["role", "progressbar", "tabindex", "-1", 1, "mat-mdc-progress-spinner", "mdc-circular-progress"],
-    hostVars: 18,
-    hostBindings: function MatProgressSpinner_HostBindings(rf, ctx) {
-      if (rf & 2) {
-        \u0275\u0275attribute("aria-valuemin", 0)("aria-valuemax", 100)("aria-valuenow", ctx.mode === "determinate" ? ctx.value : null)("mode", ctx.mode);
-        \u0275\u0275classMap("mat-" + ctx.color);
-        \u0275\u0275styleProp("width", ctx.diameter, "px")("height", ctx.diameter, "px")("--%NS%mat-progress-spinner-size", ctx.diameter + "px")("--%NS%mat-progress-spinner-active-indicator-width", ctx.diameter + "px");
-        \u0275\u0275classProp("_mat-animation-noopable", ctx._noopAnimations)("mdc-circular-progress--indeterminate", ctx.mode === "indeterminate");
-      }
-    },
-    inputs: {
-      color: "color",
-      mode: "mode",
-      value: [2, "value", "value", numberAttribute],
-      diameter: [2, "diameter", "diameter", numberAttribute],
-      strokeWidth: [2, "strokeWidth", "strokeWidth", numberAttribute]
-    },
-    exportAs: ["matProgressSpinner"],
-    decls: 14,
-    vars: 11,
-    consts: [["circle", ""], ["determinateSpinner", ""], ["aria-hidden", "true", 1, "mdc-circular-progress__determinate-container"], ["xmlns", "http://www.w3.org/2000/svg", "focusable", "false", 1, "mdc-circular-progress__determinate-circle-graphic"], ["cx", "50%", "cy", "50%", 1, "mdc-circular-progress__determinate-circle"], ["aria-hidden", "true", 1, "mdc-circular-progress__indeterminate-container"], [1, "mdc-circular-progress__spinner-layer"], [1, "mdc-circular-progress__circle-clipper", "mdc-circular-progress__circle-left"], [3, "ngTemplateOutlet"], [1, "mdc-circular-progress__gap-patch"], [1, "mdc-circular-progress__circle-clipper", "mdc-circular-progress__circle-right"], ["xmlns", "http://www.w3.org/2000/svg", "focusable", "false", 1, "mdc-circular-progress__indeterminate-circle-graphic"], ["cx", "50%", "cy", "50%"]],
-    template: function MatProgressSpinner_Template(rf, ctx) {
-      if (rf & 1) {
-        \u0275\u0275template(0, MatProgressSpinner_ng_template_0_Template, 2, 8, "ng-template", null, 0, \u0275\u0275templateRefExtractor);
-        \u0275\u0275elementStart(2, "div", 2, 1);
-        \u0275\u0275namespaceSVG();
-        \u0275\u0275elementStart(4, "svg", 3);
-        \u0275\u0275element(5, "circle", 4);
-        \u0275\u0275elementEnd()();
-        \u0275\u0275namespaceHTML();
-        \u0275\u0275elementStart(6, "div", 5)(7, "div", 6)(8, "div", 7);
-        \u0275\u0275elementContainer(9, 8);
-        \u0275\u0275elementEnd();
-        \u0275\u0275elementStart(10, "div", 9);
-        \u0275\u0275elementContainer(11, 8);
-        \u0275\u0275elementEnd();
-        \u0275\u0275elementStart(12, "div", 10);
-        \u0275\u0275elementContainer(13, 8);
-        \u0275\u0275elementEnd()()();
-      }
-      if (rf & 2) {
-        const circle_r2 = \u0275\u0275reference(1);
-        \u0275\u0275advance(4);
-        \u0275\u0275attribute("viewBox", ctx._viewBox());
-        \u0275\u0275advance();
-        \u0275\u0275styleProp("stroke-dasharray", ctx._strokeCircumference(), "px")("stroke-dashoffset", ctx._strokeDashOffset(), "px")("stroke-width", ctx._circleStrokeWidth(), "%");
-        \u0275\u0275attribute("r", ctx._circleRadius());
-        \u0275\u0275advance(4);
-        \u0275\u0275property("ngTemplateOutlet", circle_r2);
-        \u0275\u0275advance(2);
-        \u0275\u0275property("ngTemplateOutlet", circle_r2);
-        \u0275\u0275advance(2);
-        \u0275\u0275property("ngTemplateOutlet", circle_r2);
-      }
-    },
-    dependencies: [NgTemplateOutlet],
-    styles: [".mat-mdc-progress-spinner {\n  --%NS%mat-progress-spinner-animation-multiplier: 1;\n  display: block;\n  overflow: hidden;\n  line-height: 0;\n  position: relative;\n  direction: ltr;\n  transition: opacity 250ms cubic-bezier(0.4, 0, 0.6, 1);\n}\n.mat-mdc-progress-spinner circle {\n  stroke-width: var(--%NS%mat-progress-spinner-active-indicator-width, 4px);\n}\n.mat-mdc-progress-spinner._mat-animation-noopable, .mat-mdc-progress-spinner._mat-animation-noopable .mdc-circular-progress__determinate-circle {\n  transition: none !important;\n}\n.mat-mdc-progress-spinner._mat-animation-noopable .mdc-circular-progress__indeterminate-circle-graphic,\n.mat-mdc-progress-spinner._mat-animation-noopable .mdc-circular-progress__spinner-layer,\n.mat-mdc-progress-spinner._mat-animation-noopable .mdc-circular-progress__indeterminate-container {\n  animation: none !important;\n}\n.mat-mdc-progress-spinner._mat-animation-noopable .mdc-circular-progress__indeterminate-container circle {\n  stroke-dasharray: 0 !important;\n}\n@media (forced-colors: active) {\n  .mat-mdc-progress-spinner .mdc-circular-progress__indeterminate-circle-graphic,\n  .mat-mdc-progress-spinner .mdc-circular-progress__determinate-circle {\n    stroke: currentColor;\n    stroke: CanvasText;\n  }\n}\n\n.mat-progress-spinner-reduced-motion {\n  --%NS%mat-progress-spinner-animation-multiplier: 1.25;\n}\n\n.mdc-circular-progress__determinate-container,\n.mdc-circular-progress__indeterminate-circle-graphic,\n.mdc-circular-progress__indeterminate-container,\n.mdc-circular-progress__spinner-layer {\n  position: absolute;\n  width: 100%;\n  height: 100%;\n}\n\n.mdc-circular-progress__determinate-container {\n  transform: rotate(-90deg);\n}\n.mdc-circular-progress--indeterminate .mdc-circular-progress__determinate-container {\n  opacity: 0;\n}\n\n.mdc-circular-progress__indeterminate-container {\n  font-size: 0;\n  letter-spacing: 0;\n  white-space: nowrap;\n  opacity: 0;\n}\n.mdc-circular-progress--indeterminate .mdc-circular-progress__indeterminate-container {\n  opacity: 1;\n  animation: mdc-circular-progress-container-rotate calc(1568.2352941176ms * var(--%NS%mat-progress-spinner-animation-multiplier)) linear infinite;\n}\n\n.mdc-circular-progress__determinate-circle-graphic,\n.mdc-circular-progress__indeterminate-circle-graphic {\n  fill: transparent;\n}\n\n.mat-mdc-progress-spinner .mdc-circular-progress__determinate-circle,\n.mat-mdc-progress-spinner .mdc-circular-progress__indeterminate-circle-graphic {\n  stroke: var(--%NS%mat-progress-spinner-active-indicator-color, var(--%NS%mat-sys-primary));\n}\n@media (forced-colors: active) {\n  .mat-mdc-progress-spinner .mdc-circular-progress__determinate-circle,\n  .mat-mdc-progress-spinner .mdc-circular-progress__indeterminate-circle-graphic {\n    stroke: CanvasText;\n  }\n}\n\n.mdc-circular-progress__determinate-circle {\n  transition: stroke-dashoffset 500ms cubic-bezier(0, 0, 0.2, 1);\n}\n\n.mdc-circular-progress__gap-patch {\n  position: absolute;\n  top: 0;\n  left: 47.5%;\n  box-sizing: border-box;\n  width: 5%;\n  height: 100%;\n  overflow: hidden;\n}\n\n.mdc-circular-progress__gap-patch .mdc-circular-progress__indeterminate-circle-graphic {\n  left: -900%;\n  width: 2000%;\n  transform: rotate(180deg);\n}\n.mdc-circular-progress__circle-clipper .mdc-circular-progress__indeterminate-circle-graphic {\n  width: 200%;\n}\n.mdc-circular-progress__circle-right .mdc-circular-progress__indeterminate-circle-graphic {\n  left: -100%;\n}\n.mdc-circular-progress--indeterminate .mdc-circular-progress__circle-left .mdc-circular-progress__indeterminate-circle-graphic {\n  animation: mdc-circular-progress-left-spin calc(1333ms * var(--%NS%mat-progress-spinner-animation-multiplier)) cubic-bezier(0.4, 0, 0.2, 1) infinite both;\n}\n.mdc-circular-progress--indeterminate .mdc-circular-progress__circle-right .mdc-circular-progress__indeterminate-circle-graphic {\n  animation: mdc-circular-progress-right-spin calc(1333ms * var(--%NS%mat-progress-spinner-animation-multiplier)) cubic-bezier(0.4, 0, 0.2, 1) infinite both;\n}\n\n.mdc-circular-progress__circle-clipper {\n  display: inline-flex;\n  position: relative;\n  width: 50%;\n  height: 100%;\n  overflow: hidden;\n}\n\n.mdc-circular-progress--indeterminate .mdc-circular-progress__spinner-layer {\n  animation: mdc-circular-progress-spinner-layer-rotate calc(5332ms * var(--%NS%mat-progress-spinner-animation-multiplier)) cubic-bezier(0.4, 0, 0.2, 1) infinite both;\n}\n\n@keyframes mdc-circular-progress-container-rotate {\n  to {\n    transform: rotate(360deg);\n  }\n}\n@keyframes mdc-circular-progress-spinner-layer-rotate {\n  12.5% {\n    transform: rotate(135deg);\n  }\n  25% {\n    transform: rotate(270deg);\n  }\n  37.5% {\n    transform: rotate(405deg);\n  }\n  50% {\n    transform: rotate(540deg);\n  }\n  62.5% {\n    transform: rotate(675deg);\n  }\n  75% {\n    transform: rotate(810deg);\n  }\n  87.5% {\n    transform: rotate(945deg);\n  }\n  100% {\n    transform: rotate(1080deg);\n  }\n}\n@keyframes mdc-circular-progress-left-spin {\n  from {\n    transform: rotate(265deg);\n  }\n  50% {\n    transform: rotate(130deg);\n  }\n  to {\n    transform: rotate(265deg);\n  }\n}\n@keyframes mdc-circular-progress-right-spin {\n  from {\n    transform: rotate(-265deg);\n  }\n  50% {\n    transform: rotate(-130deg);\n  }\n  to {\n    transform: rotate(-265deg);\n  }\n}\n"],
-    encapsulation: 2
-  });
-};
-(() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(MatProgressSpinner, [{
-    type: Component,
-    args: [{
-      selector: "mat-progress-spinner, mat-spinner",
-      exportAs: "matProgressSpinner",
-      host: {
-        "role": "progressbar",
-        "class": "mat-mdc-progress-spinner mdc-circular-progress",
-        "tabindex": "-1",
-        "[class]": '"mat-" + color',
-        "[class._mat-animation-noopable]": `_noopAnimations`,
-        "[class.mdc-circular-progress--indeterminate]": 'mode === "indeterminate"',
-        "[style.width.px]": "diameter",
-        "[style.height.px]": "diameter",
-        "[style.--mat-progress-spinner-size]": 'diameter + "px"',
-        "[style.--mat-progress-spinner-active-indicator-width]": 'diameter + "px"',
-        "[attr.aria-valuemin]": "0",
-        "[attr.aria-valuemax]": "100",
-        "[attr.aria-valuenow]": 'mode === "determinate" ? value : null',
-        "[attr.mode]": "mode"
-      },
-      encapsulation: ViewEncapsulation.None,
-      imports: [NgTemplateOutlet],
-      template: '<ng-template #circle>\n  <svg [attr.viewBox]="_viewBox()" class="mdc-circular-progress__indeterminate-circle-graphic"\n       xmlns="http://www.w3.org/2000/svg" focusable="false">\n    <circle [attr.r]="_circleRadius()"\n            [style.stroke-dasharray.px]="_strokeCircumference()"\n            [style.stroke-dashoffset.px]="_strokeCircumference() / 2"\n            [style.stroke-width.%]="_circleStrokeWidth()"\n            cx="50%" cy="50%"/>\n  </svg>\n</ng-template>\n\n<!--\n  All children need to be hidden for screen readers in order to support ChromeVox.\n  More context in the issue: https://github.com/angular/components/issues/22165.\n-->\n<div class="mdc-circular-progress__determinate-container" aria-hidden="true" #determinateSpinner>\n  <svg [attr.viewBox]="_viewBox()" class="mdc-circular-progress__determinate-circle-graphic"\n       xmlns="http://www.w3.org/2000/svg" focusable="false">\n    <circle [attr.r]="_circleRadius()"\n            [style.stroke-dasharray.px]="_strokeCircumference()"\n            [style.stroke-dashoffset.px]="_strokeDashOffset()"\n            [style.stroke-width.%]="_circleStrokeWidth()"\n            class="mdc-circular-progress__determinate-circle"\n            cx="50%" cy="50%"/>\n  </svg>\n</div>\n<!--TODO: figure out why there are 3 separate svgs-->\n<div class="mdc-circular-progress__indeterminate-container" aria-hidden="true">\n  <div class="mdc-circular-progress__spinner-layer">\n    <div class="mdc-circular-progress__circle-clipper mdc-circular-progress__circle-left">\n      <ng-container [ngTemplateOutlet]="circle"></ng-container>\n    </div>\n    <div class="mdc-circular-progress__gap-patch">\n      <ng-container [ngTemplateOutlet]="circle"></ng-container>\n    </div>\n    <div class="mdc-circular-progress__circle-clipper mdc-circular-progress__circle-right">\n      <ng-container [ngTemplateOutlet]="circle"></ng-container>\n    </div>\n  </div>\n</div>\n',
-      styles: [".mat-mdc-progress-spinner {\n  --mat-progress-spinner-animation-multiplier: 1;\n  display: block;\n  overflow: hidden;\n  line-height: 0;\n  position: relative;\n  direction: ltr;\n  transition: opacity 250ms cubic-bezier(0.4, 0, 0.6, 1);\n}\n.mat-mdc-progress-spinner circle {\n  stroke-width: var(--mat-progress-spinner-active-indicator-width, 4px);\n}\n.mat-mdc-progress-spinner._mat-animation-noopable, .mat-mdc-progress-spinner._mat-animation-noopable .mdc-circular-progress__determinate-circle {\n  transition: none !important;\n}\n.mat-mdc-progress-spinner._mat-animation-noopable .mdc-circular-progress__indeterminate-circle-graphic,\n.mat-mdc-progress-spinner._mat-animation-noopable .mdc-circular-progress__spinner-layer,\n.mat-mdc-progress-spinner._mat-animation-noopable .mdc-circular-progress__indeterminate-container {\n  animation: none !important;\n}\n.mat-mdc-progress-spinner._mat-animation-noopable .mdc-circular-progress__indeterminate-container circle {\n  stroke-dasharray: 0 !important;\n}\n@media (forced-colors: active) {\n  .mat-mdc-progress-spinner .mdc-circular-progress__indeterminate-circle-graphic,\n  .mat-mdc-progress-spinner .mdc-circular-progress__determinate-circle {\n    stroke: currentColor;\n    stroke: CanvasText;\n  }\n}\n\n.mat-progress-spinner-reduced-motion {\n  --mat-progress-spinner-animation-multiplier: 1.25;\n}\n\n.mdc-circular-progress__determinate-container,\n.mdc-circular-progress__indeterminate-circle-graphic,\n.mdc-circular-progress__indeterminate-container,\n.mdc-circular-progress__spinner-layer {\n  position: absolute;\n  width: 100%;\n  height: 100%;\n}\n\n.mdc-circular-progress__determinate-container {\n  transform: rotate(-90deg);\n}\n.mdc-circular-progress--indeterminate .mdc-circular-progress__determinate-container {\n  opacity: 0;\n}\n\n.mdc-circular-progress__indeterminate-container {\n  font-size: 0;\n  letter-spacing: 0;\n  white-space: nowrap;\n  opacity: 0;\n}\n.mdc-circular-progress--indeterminate .mdc-circular-progress__indeterminate-container {\n  opacity: 1;\n  animation: mdc-circular-progress-container-rotate calc(1568.2352941176ms * var(--mat-progress-spinner-animation-multiplier)) linear infinite;\n}\n\n.mdc-circular-progress__determinate-circle-graphic,\n.mdc-circular-progress__indeterminate-circle-graphic {\n  fill: transparent;\n}\n\n.mat-mdc-progress-spinner .mdc-circular-progress__determinate-circle,\n.mat-mdc-progress-spinner .mdc-circular-progress__indeterminate-circle-graphic {\n  stroke: var(--mat-progress-spinner-active-indicator-color, var(--mat-sys-primary));\n}\n@media (forced-colors: active) {\n  .mat-mdc-progress-spinner .mdc-circular-progress__determinate-circle,\n  .mat-mdc-progress-spinner .mdc-circular-progress__indeterminate-circle-graphic {\n    stroke: CanvasText;\n  }\n}\n\n.mdc-circular-progress__determinate-circle {\n  transition: stroke-dashoffset 500ms cubic-bezier(0, 0, 0.2, 1);\n}\n\n.mdc-circular-progress__gap-patch {\n  position: absolute;\n  top: 0;\n  left: 47.5%;\n  box-sizing: border-box;\n  width: 5%;\n  height: 100%;\n  overflow: hidden;\n}\n\n.mdc-circular-progress__gap-patch .mdc-circular-progress__indeterminate-circle-graphic {\n  left: -900%;\n  width: 2000%;\n  transform: rotate(180deg);\n}\n.mdc-circular-progress__circle-clipper .mdc-circular-progress__indeterminate-circle-graphic {\n  width: 200%;\n}\n.mdc-circular-progress__circle-right .mdc-circular-progress__indeterminate-circle-graphic {\n  left: -100%;\n}\n.mdc-circular-progress--indeterminate .mdc-circular-progress__circle-left .mdc-circular-progress__indeterminate-circle-graphic {\n  animation: mdc-circular-progress-left-spin calc(1333ms * var(--mat-progress-spinner-animation-multiplier)) cubic-bezier(0.4, 0, 0.2, 1) infinite both;\n}\n.mdc-circular-progress--indeterminate .mdc-circular-progress__circle-right .mdc-circular-progress__indeterminate-circle-graphic {\n  animation: mdc-circular-progress-right-spin calc(1333ms * var(--mat-progress-spinner-animation-multiplier)) cubic-bezier(0.4, 0, 0.2, 1) infinite both;\n}\n\n.mdc-circular-progress__circle-clipper {\n  display: inline-flex;\n  position: relative;\n  width: 50%;\n  height: 100%;\n  overflow: hidden;\n}\n\n.mdc-circular-progress--indeterminate .mdc-circular-progress__spinner-layer {\n  animation: mdc-circular-progress-spinner-layer-rotate calc(5332ms * var(--mat-progress-spinner-animation-multiplier)) cubic-bezier(0.4, 0, 0.2, 1) infinite both;\n}\n\n@keyframes mdc-circular-progress-container-rotate {\n  to {\n    transform: rotate(360deg);\n  }\n}\n@keyframes mdc-circular-progress-spinner-layer-rotate {\n  12.5% {\n    transform: rotate(135deg);\n  }\n  25% {\n    transform: rotate(270deg);\n  }\n  37.5% {\n    transform: rotate(405deg);\n  }\n  50% {\n    transform: rotate(540deg);\n  }\n  62.5% {\n    transform: rotate(675deg);\n  }\n  75% {\n    transform: rotate(810deg);\n  }\n  87.5% {\n    transform: rotate(945deg);\n  }\n  100% {\n    transform: rotate(1080deg);\n  }\n}\n@keyframes mdc-circular-progress-left-spin {\n  from {\n    transform: rotate(265deg);\n  }\n  50% {\n    transform: rotate(130deg);\n  }\n  to {\n    transform: rotate(265deg);\n  }\n}\n@keyframes mdc-circular-progress-right-spin {\n  from {\n    transform: rotate(-265deg);\n  }\n  50% {\n    transform: rotate(-130deg);\n  }\n  to {\n    transform: rotate(-265deg);\n  }\n}\n"]
-    }]
-  }], () => [], {
-    color: [{
-      type: Input
-    }],
-    _determinateCircle: [{
-      type: ViewChild,
-      args: ["determinateSpinner"]
-    }],
-    mode: [{
-      type: Input
-    }],
-    value: [{
-      type: Input,
-      args: [{
-        transform: numberAttribute
-      }]
-    }],
-    diameter: [{
-      type: Input,
-      args: [{
-        transform: numberAttribute
-      }]
-    }],
-    strokeWidth: [{
-      type: Input,
-      args: [{
-        transform: numberAttribute
-      }]
-    }]
-  });
-})();
-var MatSpinner = MatProgressSpinner;
-var MatProgressSpinnerModule = class _MatProgressSpinnerModule {
-  static \u0275fac = function MatProgressSpinnerModule_Factory(__ngFactoryType__) {
-    return new (__ngFactoryType__ || _MatProgressSpinnerModule)();
-  };
-  static \u0275mod = /* @__PURE__ */ \u0275\u0275defineNgModule({
-    type: _MatProgressSpinnerModule,
-    imports: [MatProgressSpinner, MatSpinner],
-    exports: [MatProgressSpinner, MatSpinner, BidiModule]
-  });
-  static \u0275inj = /* @__PURE__ */ \u0275\u0275defineInjector({
-    imports: [BidiModule]
-  });
-};
-(() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(MatProgressSpinnerModule, [{
-    type: NgModule,
-    args: [{
-      imports: [MatProgressSpinner, MatSpinner],
-      exports: [MatProgressSpinner, MatSpinner, BidiModule]
-    }]
-  }], null, null);
-})();
 
 // node_modules/@angular/cdk/fesm2022/dialog.mjs
 function CdkDialogContainer_ng_template_0_Template(rf, ctx) {
@@ -2249,6 +1993,262 @@ function createDebugNameObject(toSignalDebugName, internalSignalDebugName) {
     debugName: `toSignal${toSignalDebugName ? "#" + toSignalDebugName : ""}.${internalSignalDebugName}`
   };
 }
+
+// node_modules/@angular/material/fesm2022/progress-spinner.mjs
+var _c0 = ["determinateSpinner"];
+function MatProgressSpinner_ng_template_0_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275namespaceSVG();
+    \u0275\u0275elementStart(0, "svg", 11);
+    \u0275\u0275element(1, "circle", 12);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const ctx_r0 = \u0275\u0275nextContext();
+    \u0275\u0275attribute("viewBox", ctx_r0._viewBox());
+    \u0275\u0275advance();
+    \u0275\u0275styleProp("stroke-dasharray", ctx_r0._strokeCircumference(), "px")("stroke-dashoffset", ctx_r0._strokeCircumference() / 2, "px")("stroke-width", ctx_r0._circleStrokeWidth(), "%");
+    \u0275\u0275attribute("r", ctx_r0._circleRadius());
+  }
+}
+var MAT_PROGRESS_SPINNER_DEFAULT_OPTIONS = new InjectionToken("mat-progress-spinner-default-options", {
+  providedIn: "root",
+  factory: () => ({
+    diameter: BASE_SIZE
+  })
+});
+var BASE_SIZE = 100;
+var BASE_STROKE_WIDTH = 10;
+var MatProgressSpinner = class _MatProgressSpinner {
+  _elementRef = inject(ElementRef);
+  _noopAnimations;
+  get color() {
+    return this._color || this._defaultColor;
+  }
+  set color(value) {
+    this._color = value;
+  }
+  _color;
+  _defaultColor = "primary";
+  _determinateCircle;
+  constructor() {
+    const defaults = inject(MAT_PROGRESS_SPINNER_DEFAULT_OPTIONS);
+    const animationsState = _getAnimationsState();
+    const element = this._elementRef.nativeElement;
+    this._noopAnimations = animationsState === "di-disabled" && !!defaults && !defaults._forceAnimations;
+    this.mode = element.nodeName.toLowerCase() === "mat-spinner" ? "indeterminate" : "determinate";
+    if (!this._noopAnimations && animationsState === "reduced-motion") {
+      element.classList.add("mat-progress-spinner-reduced-motion");
+    }
+    if (defaults) {
+      if (defaults.color) {
+        this.color = this._defaultColor = defaults.color;
+      }
+      if (defaults.diameter) {
+        this.diameter = defaults.diameter;
+      }
+      if (defaults.strokeWidth) {
+        this.strokeWidth = defaults.strokeWidth;
+      }
+    }
+  }
+  mode;
+  get value() {
+    return this.mode === "determinate" ? this._value : 0;
+  }
+  set value(v2) {
+    this._value = Math.max(0, Math.min(100, v2 || 0));
+  }
+  _value = 0;
+  get diameter() {
+    return this._diameter;
+  }
+  set diameter(size) {
+    this._diameter = size || 0;
+  }
+  _diameter = BASE_SIZE;
+  get strokeWidth() {
+    return this._strokeWidth ?? this.diameter / 10;
+  }
+  set strokeWidth(value) {
+    this._strokeWidth = value || 0;
+  }
+  _strokeWidth;
+  _circleRadius() {
+    return (this.diameter - BASE_STROKE_WIDTH) / 2;
+  }
+  _viewBox() {
+    const viewBox = this._circleRadius() * 2 + this.strokeWidth;
+    return `0 0 ${viewBox} ${viewBox}`;
+  }
+  _strokeCircumference() {
+    return 2 * Math.PI * this._circleRadius();
+  }
+  _strokeDashOffset() {
+    if (this.mode === "determinate") {
+      return this._strokeCircumference() * (100 - this._value) / 100;
+    }
+    return null;
+  }
+  _circleStrokeWidth() {
+    return this.strokeWidth / this.diameter * 100;
+  }
+  static \u0275fac = function MatProgressSpinner_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _MatProgressSpinner)();
+  };
+  static \u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({
+    type: _MatProgressSpinner,
+    selectors: [["mat-progress-spinner"], ["mat-spinner"]],
+    viewQuery: function MatProgressSpinner_Query(rf, ctx) {
+      if (rf & 1) {
+        \u0275\u0275viewQuery(_c0, 5);
+      }
+      if (rf & 2) {
+        let _t;
+        \u0275\u0275queryRefresh(_t = \u0275\u0275loadQuery()) && (ctx._determinateCircle = _t.first);
+      }
+    },
+    hostAttrs: ["role", "progressbar", "tabindex", "-1", 1, "mat-mdc-progress-spinner", "mdc-circular-progress"],
+    hostVars: 18,
+    hostBindings: function MatProgressSpinner_HostBindings(rf, ctx) {
+      if (rf & 2) {
+        \u0275\u0275attribute("aria-valuemin", 0)("aria-valuemax", 100)("aria-valuenow", ctx.mode === "determinate" ? ctx.value : null)("mode", ctx.mode);
+        \u0275\u0275classMap("mat-" + ctx.color);
+        \u0275\u0275styleProp("width", ctx.diameter, "px")("height", ctx.diameter, "px")("--%NS%mat-progress-spinner-size", ctx.diameter + "px")("--%NS%mat-progress-spinner-active-indicator-width", ctx.diameter + "px");
+        \u0275\u0275classProp("_mat-animation-noopable", ctx._noopAnimations)("mdc-circular-progress--indeterminate", ctx.mode === "indeterminate");
+      }
+    },
+    inputs: {
+      color: "color",
+      mode: "mode",
+      value: [2, "value", "value", numberAttribute],
+      diameter: [2, "diameter", "diameter", numberAttribute],
+      strokeWidth: [2, "strokeWidth", "strokeWidth", numberAttribute]
+    },
+    exportAs: ["matProgressSpinner"],
+    decls: 14,
+    vars: 11,
+    consts: [["circle", ""], ["determinateSpinner", ""], ["aria-hidden", "true", 1, "mdc-circular-progress__determinate-container"], ["xmlns", "http://www.w3.org/2000/svg", "focusable", "false", 1, "mdc-circular-progress__determinate-circle-graphic"], ["cx", "50%", "cy", "50%", 1, "mdc-circular-progress__determinate-circle"], ["aria-hidden", "true", 1, "mdc-circular-progress__indeterminate-container"], [1, "mdc-circular-progress__spinner-layer"], [1, "mdc-circular-progress__circle-clipper", "mdc-circular-progress__circle-left"], [3, "ngTemplateOutlet"], [1, "mdc-circular-progress__gap-patch"], [1, "mdc-circular-progress__circle-clipper", "mdc-circular-progress__circle-right"], ["xmlns", "http://www.w3.org/2000/svg", "focusable", "false", 1, "mdc-circular-progress__indeterminate-circle-graphic"], ["cx", "50%", "cy", "50%"]],
+    template: function MatProgressSpinner_Template(rf, ctx) {
+      if (rf & 1) {
+        \u0275\u0275template(0, MatProgressSpinner_ng_template_0_Template, 2, 8, "ng-template", null, 0, \u0275\u0275templateRefExtractor);
+        \u0275\u0275elementStart(2, "div", 2, 1);
+        \u0275\u0275namespaceSVG();
+        \u0275\u0275elementStart(4, "svg", 3);
+        \u0275\u0275element(5, "circle", 4);
+        \u0275\u0275elementEnd()();
+        \u0275\u0275namespaceHTML();
+        \u0275\u0275elementStart(6, "div", 5)(7, "div", 6)(8, "div", 7);
+        \u0275\u0275elementContainer(9, 8);
+        \u0275\u0275elementEnd();
+        \u0275\u0275elementStart(10, "div", 9);
+        \u0275\u0275elementContainer(11, 8);
+        \u0275\u0275elementEnd();
+        \u0275\u0275elementStart(12, "div", 10);
+        \u0275\u0275elementContainer(13, 8);
+        \u0275\u0275elementEnd()()();
+      }
+      if (rf & 2) {
+        const circle_r2 = \u0275\u0275reference(1);
+        \u0275\u0275advance(4);
+        \u0275\u0275attribute("viewBox", ctx._viewBox());
+        \u0275\u0275advance();
+        \u0275\u0275styleProp("stroke-dasharray", ctx._strokeCircumference(), "px")("stroke-dashoffset", ctx._strokeDashOffset(), "px")("stroke-width", ctx._circleStrokeWidth(), "%");
+        \u0275\u0275attribute("r", ctx._circleRadius());
+        \u0275\u0275advance(4);
+        \u0275\u0275property("ngTemplateOutlet", circle_r2);
+        \u0275\u0275advance(2);
+        \u0275\u0275property("ngTemplateOutlet", circle_r2);
+        \u0275\u0275advance(2);
+        \u0275\u0275property("ngTemplateOutlet", circle_r2);
+      }
+    },
+    dependencies: [NgTemplateOutlet],
+    styles: [".mat-mdc-progress-spinner {\n  --%NS%mat-progress-spinner-animation-multiplier: 1;\n  display: block;\n  overflow: hidden;\n  line-height: 0;\n  position: relative;\n  direction: ltr;\n  transition: opacity 250ms cubic-bezier(0.4, 0, 0.6, 1);\n}\n.mat-mdc-progress-spinner circle {\n  stroke-width: var(--%NS%mat-progress-spinner-active-indicator-width, 4px);\n}\n.mat-mdc-progress-spinner._mat-animation-noopable, .mat-mdc-progress-spinner._mat-animation-noopable .mdc-circular-progress__determinate-circle {\n  transition: none !important;\n}\n.mat-mdc-progress-spinner._mat-animation-noopable .mdc-circular-progress__indeterminate-circle-graphic,\n.mat-mdc-progress-spinner._mat-animation-noopable .mdc-circular-progress__spinner-layer,\n.mat-mdc-progress-spinner._mat-animation-noopable .mdc-circular-progress__indeterminate-container {\n  animation: none !important;\n}\n.mat-mdc-progress-spinner._mat-animation-noopable .mdc-circular-progress__indeterminate-container circle {\n  stroke-dasharray: 0 !important;\n}\n@media (forced-colors: active) {\n  .mat-mdc-progress-spinner .mdc-circular-progress__indeterminate-circle-graphic,\n  .mat-mdc-progress-spinner .mdc-circular-progress__determinate-circle {\n    stroke: currentColor;\n    stroke: CanvasText;\n  }\n}\n\n.mat-progress-spinner-reduced-motion {\n  --%NS%mat-progress-spinner-animation-multiplier: 1.25;\n}\n\n.mdc-circular-progress__determinate-container,\n.mdc-circular-progress__indeterminate-circle-graphic,\n.mdc-circular-progress__indeterminate-container,\n.mdc-circular-progress__spinner-layer {\n  position: absolute;\n  width: 100%;\n  height: 100%;\n}\n\n.mdc-circular-progress__determinate-container {\n  transform: rotate(-90deg);\n}\n.mdc-circular-progress--indeterminate .mdc-circular-progress__determinate-container {\n  opacity: 0;\n}\n\n.mdc-circular-progress__indeterminate-container {\n  font-size: 0;\n  letter-spacing: 0;\n  white-space: nowrap;\n  opacity: 0;\n}\n.mdc-circular-progress--indeterminate .mdc-circular-progress__indeterminate-container {\n  opacity: 1;\n  animation: mdc-circular-progress-container-rotate calc(1568.2352941176ms * var(--%NS%mat-progress-spinner-animation-multiplier)) linear infinite;\n}\n\n.mdc-circular-progress__determinate-circle-graphic,\n.mdc-circular-progress__indeterminate-circle-graphic {\n  fill: transparent;\n}\n\n.mat-mdc-progress-spinner .mdc-circular-progress__determinate-circle,\n.mat-mdc-progress-spinner .mdc-circular-progress__indeterminate-circle-graphic {\n  stroke: var(--%NS%mat-progress-spinner-active-indicator-color, var(--%NS%mat-sys-primary));\n}\n@media (forced-colors: active) {\n  .mat-mdc-progress-spinner .mdc-circular-progress__determinate-circle,\n  .mat-mdc-progress-spinner .mdc-circular-progress__indeterminate-circle-graphic {\n    stroke: CanvasText;\n  }\n}\n\n.mdc-circular-progress__determinate-circle {\n  transition: stroke-dashoffset 500ms cubic-bezier(0, 0, 0.2, 1);\n}\n\n.mdc-circular-progress__gap-patch {\n  position: absolute;\n  top: 0;\n  left: 47.5%;\n  box-sizing: border-box;\n  width: 5%;\n  height: 100%;\n  overflow: hidden;\n}\n\n.mdc-circular-progress__gap-patch .mdc-circular-progress__indeterminate-circle-graphic {\n  left: -900%;\n  width: 2000%;\n  transform: rotate(180deg);\n}\n.mdc-circular-progress__circle-clipper .mdc-circular-progress__indeterminate-circle-graphic {\n  width: 200%;\n}\n.mdc-circular-progress__circle-right .mdc-circular-progress__indeterminate-circle-graphic {\n  left: -100%;\n}\n.mdc-circular-progress--indeterminate .mdc-circular-progress__circle-left .mdc-circular-progress__indeterminate-circle-graphic {\n  animation: mdc-circular-progress-left-spin calc(1333ms * var(--%NS%mat-progress-spinner-animation-multiplier)) cubic-bezier(0.4, 0, 0.2, 1) infinite both;\n}\n.mdc-circular-progress--indeterminate .mdc-circular-progress__circle-right .mdc-circular-progress__indeterminate-circle-graphic {\n  animation: mdc-circular-progress-right-spin calc(1333ms * var(--%NS%mat-progress-spinner-animation-multiplier)) cubic-bezier(0.4, 0, 0.2, 1) infinite both;\n}\n\n.mdc-circular-progress__circle-clipper {\n  display: inline-flex;\n  position: relative;\n  width: 50%;\n  height: 100%;\n  overflow: hidden;\n}\n\n.mdc-circular-progress--indeterminate .mdc-circular-progress__spinner-layer {\n  animation: mdc-circular-progress-spinner-layer-rotate calc(5332ms * var(--%NS%mat-progress-spinner-animation-multiplier)) cubic-bezier(0.4, 0, 0.2, 1) infinite both;\n}\n\n@keyframes mdc-circular-progress-container-rotate {\n  to {\n    transform: rotate(360deg);\n  }\n}\n@keyframes mdc-circular-progress-spinner-layer-rotate {\n  12.5% {\n    transform: rotate(135deg);\n  }\n  25% {\n    transform: rotate(270deg);\n  }\n  37.5% {\n    transform: rotate(405deg);\n  }\n  50% {\n    transform: rotate(540deg);\n  }\n  62.5% {\n    transform: rotate(675deg);\n  }\n  75% {\n    transform: rotate(810deg);\n  }\n  87.5% {\n    transform: rotate(945deg);\n  }\n  100% {\n    transform: rotate(1080deg);\n  }\n}\n@keyframes mdc-circular-progress-left-spin {\n  from {\n    transform: rotate(265deg);\n  }\n  50% {\n    transform: rotate(130deg);\n  }\n  to {\n    transform: rotate(265deg);\n  }\n}\n@keyframes mdc-circular-progress-right-spin {\n  from {\n    transform: rotate(-265deg);\n  }\n  50% {\n    transform: rotate(-130deg);\n  }\n  to {\n    transform: rotate(-265deg);\n  }\n}\n"],
+    encapsulation: 2
+  });
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(MatProgressSpinner, [{
+    type: Component,
+    args: [{
+      selector: "mat-progress-spinner, mat-spinner",
+      exportAs: "matProgressSpinner",
+      host: {
+        "role": "progressbar",
+        "class": "mat-mdc-progress-spinner mdc-circular-progress",
+        "tabindex": "-1",
+        "[class]": '"mat-" + color',
+        "[class._mat-animation-noopable]": `_noopAnimations`,
+        "[class.mdc-circular-progress--indeterminate]": 'mode === "indeterminate"',
+        "[style.width.px]": "diameter",
+        "[style.height.px]": "diameter",
+        "[style.--mat-progress-spinner-size]": 'diameter + "px"',
+        "[style.--mat-progress-spinner-active-indicator-width]": 'diameter + "px"',
+        "[attr.aria-valuemin]": "0",
+        "[attr.aria-valuemax]": "100",
+        "[attr.aria-valuenow]": 'mode === "determinate" ? value : null',
+        "[attr.mode]": "mode"
+      },
+      encapsulation: ViewEncapsulation.None,
+      imports: [NgTemplateOutlet],
+      template: '<ng-template #circle>\n  <svg [attr.viewBox]="_viewBox()" class="mdc-circular-progress__indeterminate-circle-graphic"\n       xmlns="http://www.w3.org/2000/svg" focusable="false">\n    <circle [attr.r]="_circleRadius()"\n            [style.stroke-dasharray.px]="_strokeCircumference()"\n            [style.stroke-dashoffset.px]="_strokeCircumference() / 2"\n            [style.stroke-width.%]="_circleStrokeWidth()"\n            cx="50%" cy="50%"/>\n  </svg>\n</ng-template>\n\n<!--\n  All children need to be hidden for screen readers in order to support ChromeVox.\n  More context in the issue: https://github.com/angular/components/issues/22165.\n-->\n<div class="mdc-circular-progress__determinate-container" aria-hidden="true" #determinateSpinner>\n  <svg [attr.viewBox]="_viewBox()" class="mdc-circular-progress__determinate-circle-graphic"\n       xmlns="http://www.w3.org/2000/svg" focusable="false">\n    <circle [attr.r]="_circleRadius()"\n            [style.stroke-dasharray.px]="_strokeCircumference()"\n            [style.stroke-dashoffset.px]="_strokeDashOffset()"\n            [style.stroke-width.%]="_circleStrokeWidth()"\n            class="mdc-circular-progress__determinate-circle"\n            cx="50%" cy="50%"/>\n  </svg>\n</div>\n<!--TODO: figure out why there are 3 separate svgs-->\n<div class="mdc-circular-progress__indeterminate-container" aria-hidden="true">\n  <div class="mdc-circular-progress__spinner-layer">\n    <div class="mdc-circular-progress__circle-clipper mdc-circular-progress__circle-left">\n      <ng-container [ngTemplateOutlet]="circle"></ng-container>\n    </div>\n    <div class="mdc-circular-progress__gap-patch">\n      <ng-container [ngTemplateOutlet]="circle"></ng-container>\n    </div>\n    <div class="mdc-circular-progress__circle-clipper mdc-circular-progress__circle-right">\n      <ng-container [ngTemplateOutlet]="circle"></ng-container>\n    </div>\n  </div>\n</div>\n',
+      styles: [".mat-mdc-progress-spinner {\n  --mat-progress-spinner-animation-multiplier: 1;\n  display: block;\n  overflow: hidden;\n  line-height: 0;\n  position: relative;\n  direction: ltr;\n  transition: opacity 250ms cubic-bezier(0.4, 0, 0.6, 1);\n}\n.mat-mdc-progress-spinner circle {\n  stroke-width: var(--mat-progress-spinner-active-indicator-width, 4px);\n}\n.mat-mdc-progress-spinner._mat-animation-noopable, .mat-mdc-progress-spinner._mat-animation-noopable .mdc-circular-progress__determinate-circle {\n  transition: none !important;\n}\n.mat-mdc-progress-spinner._mat-animation-noopable .mdc-circular-progress__indeterminate-circle-graphic,\n.mat-mdc-progress-spinner._mat-animation-noopable .mdc-circular-progress__spinner-layer,\n.mat-mdc-progress-spinner._mat-animation-noopable .mdc-circular-progress__indeterminate-container {\n  animation: none !important;\n}\n.mat-mdc-progress-spinner._mat-animation-noopable .mdc-circular-progress__indeterminate-container circle {\n  stroke-dasharray: 0 !important;\n}\n@media (forced-colors: active) {\n  .mat-mdc-progress-spinner .mdc-circular-progress__indeterminate-circle-graphic,\n  .mat-mdc-progress-spinner .mdc-circular-progress__determinate-circle {\n    stroke: currentColor;\n    stroke: CanvasText;\n  }\n}\n\n.mat-progress-spinner-reduced-motion {\n  --mat-progress-spinner-animation-multiplier: 1.25;\n}\n\n.mdc-circular-progress__determinate-container,\n.mdc-circular-progress__indeterminate-circle-graphic,\n.mdc-circular-progress__indeterminate-container,\n.mdc-circular-progress__spinner-layer {\n  position: absolute;\n  width: 100%;\n  height: 100%;\n}\n\n.mdc-circular-progress__determinate-container {\n  transform: rotate(-90deg);\n}\n.mdc-circular-progress--indeterminate .mdc-circular-progress__determinate-container {\n  opacity: 0;\n}\n\n.mdc-circular-progress__indeterminate-container {\n  font-size: 0;\n  letter-spacing: 0;\n  white-space: nowrap;\n  opacity: 0;\n}\n.mdc-circular-progress--indeterminate .mdc-circular-progress__indeterminate-container {\n  opacity: 1;\n  animation: mdc-circular-progress-container-rotate calc(1568.2352941176ms * var(--mat-progress-spinner-animation-multiplier)) linear infinite;\n}\n\n.mdc-circular-progress__determinate-circle-graphic,\n.mdc-circular-progress__indeterminate-circle-graphic {\n  fill: transparent;\n}\n\n.mat-mdc-progress-spinner .mdc-circular-progress__determinate-circle,\n.mat-mdc-progress-spinner .mdc-circular-progress__indeterminate-circle-graphic {\n  stroke: var(--mat-progress-spinner-active-indicator-color, var(--mat-sys-primary));\n}\n@media (forced-colors: active) {\n  .mat-mdc-progress-spinner .mdc-circular-progress__determinate-circle,\n  .mat-mdc-progress-spinner .mdc-circular-progress__indeterminate-circle-graphic {\n    stroke: CanvasText;\n  }\n}\n\n.mdc-circular-progress__determinate-circle {\n  transition: stroke-dashoffset 500ms cubic-bezier(0, 0, 0.2, 1);\n}\n\n.mdc-circular-progress__gap-patch {\n  position: absolute;\n  top: 0;\n  left: 47.5%;\n  box-sizing: border-box;\n  width: 5%;\n  height: 100%;\n  overflow: hidden;\n}\n\n.mdc-circular-progress__gap-patch .mdc-circular-progress__indeterminate-circle-graphic {\n  left: -900%;\n  width: 2000%;\n  transform: rotate(180deg);\n}\n.mdc-circular-progress__circle-clipper .mdc-circular-progress__indeterminate-circle-graphic {\n  width: 200%;\n}\n.mdc-circular-progress__circle-right .mdc-circular-progress__indeterminate-circle-graphic {\n  left: -100%;\n}\n.mdc-circular-progress--indeterminate .mdc-circular-progress__circle-left .mdc-circular-progress__indeterminate-circle-graphic {\n  animation: mdc-circular-progress-left-spin calc(1333ms * var(--mat-progress-spinner-animation-multiplier)) cubic-bezier(0.4, 0, 0.2, 1) infinite both;\n}\n.mdc-circular-progress--indeterminate .mdc-circular-progress__circle-right .mdc-circular-progress__indeterminate-circle-graphic {\n  animation: mdc-circular-progress-right-spin calc(1333ms * var(--mat-progress-spinner-animation-multiplier)) cubic-bezier(0.4, 0, 0.2, 1) infinite both;\n}\n\n.mdc-circular-progress__circle-clipper {\n  display: inline-flex;\n  position: relative;\n  width: 50%;\n  height: 100%;\n  overflow: hidden;\n}\n\n.mdc-circular-progress--indeterminate .mdc-circular-progress__spinner-layer {\n  animation: mdc-circular-progress-spinner-layer-rotate calc(5332ms * var(--mat-progress-spinner-animation-multiplier)) cubic-bezier(0.4, 0, 0.2, 1) infinite both;\n}\n\n@keyframes mdc-circular-progress-container-rotate {\n  to {\n    transform: rotate(360deg);\n  }\n}\n@keyframes mdc-circular-progress-spinner-layer-rotate {\n  12.5% {\n    transform: rotate(135deg);\n  }\n  25% {\n    transform: rotate(270deg);\n  }\n  37.5% {\n    transform: rotate(405deg);\n  }\n  50% {\n    transform: rotate(540deg);\n  }\n  62.5% {\n    transform: rotate(675deg);\n  }\n  75% {\n    transform: rotate(810deg);\n  }\n  87.5% {\n    transform: rotate(945deg);\n  }\n  100% {\n    transform: rotate(1080deg);\n  }\n}\n@keyframes mdc-circular-progress-left-spin {\n  from {\n    transform: rotate(265deg);\n  }\n  50% {\n    transform: rotate(130deg);\n  }\n  to {\n    transform: rotate(265deg);\n  }\n}\n@keyframes mdc-circular-progress-right-spin {\n  from {\n    transform: rotate(-265deg);\n  }\n  50% {\n    transform: rotate(-130deg);\n  }\n  to {\n    transform: rotate(-265deg);\n  }\n}\n"]
+    }]
+  }], () => [], {
+    color: [{
+      type: Input
+    }],
+    _determinateCircle: [{
+      type: ViewChild,
+      args: ["determinateSpinner"]
+    }],
+    mode: [{
+      type: Input
+    }],
+    value: [{
+      type: Input,
+      args: [{
+        transform: numberAttribute
+      }]
+    }],
+    diameter: [{
+      type: Input,
+      args: [{
+        transform: numberAttribute
+      }]
+    }],
+    strokeWidth: [{
+      type: Input,
+      args: [{
+        transform: numberAttribute
+      }]
+    }]
+  });
+})();
+var MatSpinner = MatProgressSpinner;
+var MatProgressSpinnerModule = class _MatProgressSpinnerModule {
+  static \u0275fac = function MatProgressSpinnerModule_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _MatProgressSpinnerModule)();
+  };
+  static \u0275mod = /* @__PURE__ */ \u0275\u0275defineNgModule({
+    type: _MatProgressSpinnerModule,
+    imports: [MatProgressSpinner, MatSpinner],
+    exports: [MatProgressSpinner, MatSpinner, BidiModule]
+  });
+  static \u0275inj = /* @__PURE__ */ \u0275\u0275defineInjector({
+    imports: [BidiModule]
+  });
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(MatProgressSpinnerModule, [{
+    type: NgModule,
+    args: [{
+      imports: [MatProgressSpinner, MatSpinner],
+      exports: [MatProgressSpinner, MatSpinner, BidiModule]
+    }]
+  }], null, null);
+})();
 
 // node_modules/@angular/cdk/fesm2022/observers-private.mjs
 var loopLimitExceededErrorHandler = (e) => {
@@ -11020,9 +11020,17 @@ async function queryEvents(q) {
   return queryEventsOrThrow(q).catch(() => []);
 }
 async function queryEventsOrThrow(q) {
+  return (await queryEventListOrThrow(q)).events;
+}
+async function queryEventListOrThrow(q) {
   const query = toQueryString(q);
-  const list2 = await _(`${EVENTS_ENDPOINT}${query ? "?" + query : ""}`);
-  return list2.map((e) => new CalendarEvent(e));
+  const url = `${EVENTS_ENDPOINT}${query ? "?" + query : ""}`;
+  const list2 = await _(url);
+  const issues = Fi(new URL(url, document.baseURI).href)["x-calendar-issue"] || "";
+  return {
+    events: list2.map((e) => new CalendarEvent(e)),
+    failed_calendars: issues.split(",").map((id) => id.trim().toLowerCase()).filter(Boolean)
+  };
 }
 
 // libs/events/src/lib/calendar.service.ts
@@ -11237,6 +11245,35 @@ var SpacesService = _SpacesService;
   }], () => [], null);
 })();
 
+// apps/control/src/app/system-binding.ts
+function systemBinding(system_id, mod, name, initial) {
+  const value = signal(
+    initial,
+    ...ngDevMode ? [{ debugName: "value" }] : (
+      /* istanbul ignore next */
+      []
+    )
+  );
+  effect((onCleanup) => {
+    const id = system_id();
+    if (!id) {
+      value.set(initial);
+      return;
+    }
+    const binding = Fp(id, mod).variable(name);
+    const unbind = binding.bind();
+    const listener = binding.listen();
+    const update = () => value.set(listener() ?? initial);
+    update();
+    const unsubscribe = listener.subscribe(() => update());
+    onCleanup(() => {
+      unsubscribe();
+      unbind();
+    });
+  });
+  return value.asReadonly();
+}
+
 // apps/control/src/app/ui/help-modal.component.ts
 function HelpModalComponent_For_5_Conditional_1_Template(rf, ctx) {
   if (rf & 1) {
@@ -11328,7 +11365,7 @@ var _HelpModalComponent = class _HelpModalComponent {
 _HelpModalComponent.\u0275fac = function HelpModalComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _HelpModalComponent)();
 };
-_HelpModalComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _HelpModalComponent, selectors: [["help-modal"]], decls: 16, vars: 5, consts: [[1, "bg-base-100", "flex", "h-screen", "w-screen", "flex-col", "items-center", "overflow-hidden", "rounded-sm", "sm:h-[80vh]", "sm:w-[80vw]", "sm:flex-row"], ["sidebar", "", 1, "bg-base-300", "w-full", "sm:h-full", "sm:w-64"], ["auth", "", 1, "mx-auto", "my-2", "w-48", "sm:mt-6", "sm:mb-8", "sm:w-32", 3, "source"], [1, "hidden", "list-none", "space-y-2", "p-0", "pl-4", "sm:block"], [1, "relative", "flex", "items-center", "rounded-l-3xl", "py-2", "pl-4", 3, "active"], [1, "dark", "w-full", "px-2", "pb-2"], ["appearance", "outline", 1, "block", "h-12", "w-full", "sm:hidden"], [3, "ngModelChange", "ngModel"], [3, "value"], ["content", "", 1, "bg-base-100", "h-1/2", "w-full", "flex-1", "overflow-auto", "p-4", "sm:h-full", "sm:w-1/2", "sm:p-8", 3, "innerHTML"], ["icon", "", "matRipple", "", "mat-dialog-close", "", 1, "absolute", "top-2", "right-2"], [1, "relative", "flex", "items-center", "rounded-l-3xl", "py-2", "pl-4", 3, "click"], [1, "bg-base-100", "absolute", "top-1/2", "right-0", "h-22", "w-6", "-translate-y-1/2", "overflow-hidden"], [1, "ml-4"], ["matRipple", "", 1, "absolute", "inset-0", "overflow-hidden", "rounded-3xl"], [1, "bg-base-300", "absolute", "top-0", "right-0", "h-12", "w-12", "-translate-y-1/2", "rounded-full"], [1, "bg-base-300", "absolute", "right-0", "bottom-0", "h-12", "w-12", "translate-y-1/2", "rounded-full"]], template: function HelpModalComponent_Template(rf, ctx) {
+_HelpModalComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _HelpModalComponent, selectors: [["help-modal"]], decls: 15, vars: 3, consts: [[1, "bg-base-100", "flex", "h-screen", "w-screen", "flex-col", "items-center", "overflow-hidden", "rounded-sm", "sm:h-[80vh]", "sm:w-[80vw]", "sm:flex-row"], ["sidebar", "", 1, "bg-base-300", "w-full", "sm:h-full", "sm:w-64"], ["auth", "", 1, "mx-auto", "my-2", "w-48", "sm:mt-6", "sm:mb-8", "sm:w-32", 3, "source"], [1, "hidden", "list-none", "space-y-2", "p-0", "pl-4", "sm:block"], [1, "relative", "flex", "items-center", "rounded-l-3xl", "py-2", "pl-4", 3, "active"], [1, "dark", "w-full", "px-2", "pb-2"], ["appearance", "outline", 1, "block", "h-12", "w-full", "sm:hidden"], [3, "ngModelChange", "ngModel"], [3, "value"], ["content", "", 1, "bg-base-100", "h-1/2", "w-full", "flex-1", "overflow-auto", "p-4", "sm:h-full", "sm:w-1/2", "sm:p-8", 3, "innerHTML"], ["icon", "", "matRipple", "", "mat-dialog-close", "", 1, "absolute", "top-2", "right-2"], [1, "relative", "flex", "items-center", "rounded-l-3xl", "py-2", "pl-4", 3, "click"], [1, "bg-base-100", "absolute", "top-1/2", "right-0", "h-22", "w-6", "-translate-y-1/2", "overflow-hidden"], [1, "ml-4"], ["matRipple", "", 1, "absolute", "inset-0", "overflow-hidden", "rounded-3xl"], [1, "bg-base-300", "absolute", "top-0", "right-0", "h-12", "w-12", "-translate-y-1/2", "rounded-full"], [1, "bg-base-300", "absolute", "right-0", "bottom-0", "h-12", "w-12", "translate-y-1/2", "rounded-full"]], template: function HelpModalComponent_Template(rf, ctx) {
   var _a2;
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 0)(1, "div", 1);
@@ -11345,9 +11382,8 @@ _HelpModalComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ ty
     \u0275\u0275controlCreate();
     \u0275\u0275elementEnd()()();
     \u0275\u0275element(11, "div", 9);
-    \u0275\u0275pipe(12, "safe");
-    \u0275\u0275elementStart(13, "button", 10)(14, "icon");
-    \u0275\u0275text(15, "close");
+    \u0275\u0275elementStart(12, "button", 10)(13, "icon");
+    \u0275\u0275text(14, "close");
     \u0275\u0275elementEnd()()();
   }
   if (rf & 2) {
@@ -11361,7 +11397,7 @@ _HelpModalComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ ty
     \u0275\u0275advance();
     \u0275\u0275repeater(ctx.items);
     \u0275\u0275advance(2);
-    \u0275\u0275property("innerHTML", \u0275\u0275pipeBind1(12, 3, ctx.content()), \u0275\u0275sanitizeHtml);
+    \u0275\u0275property("innerHTML", ctx.content(), \u0275\u0275sanitizeHtml);
   }
 }, dependencies: [
   MatDialogModule,
@@ -11377,8 +11413,7 @@ _HelpModalComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ ty
   MatRippleModule,
   MatRipple,
   IconComponent,
-  AuthenticatedImageDirective,
-  SafePipe
+  AuthenticatedImageDirective
 ], styles: ["\nli.active[_ngcontent-%COMP%] {\n  background-color: var(--%NS%base-100);\n  color: var(--%NS%base-content);\n  overflow: visible !important;\n}\n/*# sourceMappingURL=help-modal.component.css.map */"] });
 var HelpModalComponent = _HelpModalComponent;
 (() => {
@@ -11443,7 +11478,7 @@ var HelpModalComponent = _HelpModalComponent;
             <div
                 content
                 class="bg-base-100 h-1/2 w-full flex-1 overflow-auto p-4 sm:h-full sm:w-1/2 sm:p-8"
-                [innerHTML]="content() | safe"
+                [innerHTML]="content()"
             ></div>
             <button
                 icon
@@ -11456,7 +11491,6 @@ var HelpModalComponent = _HelpModalComponent;
         </div>
     `, imports: [
       MatDialogModule,
-      SafePipe,
       MatFormFieldModule,
       MatSelectModule,
       FormsModule,
@@ -11467,8 +11501,19 @@ var HelpModalComponent = _HelpModalComponent;
   }], null, null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(HelpModalComponent, { className: "HelpModalComponent", filePath: "apps/control/src/app/ui/help-modal.component.ts", lineNumber: 109 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(HelpModalComponent, { className: "HelpModalComponent", filePath: "apps/control/src/app/ui/help-modal.component.ts", lineNumber: 107 });
 })();
+
+// apps/control/src/app/error-text.ts
+function errorText(error) {
+  const message = errorMessage(error);
+  if (message)
+    return message;
+  const { msg, code, status } = error ?? {};
+  if (typeof msg === "string" && msg)
+    return msg;
+  return `${code ?? status ?? "unknown"}`;
+}
 
 // apps/control/src/app/ui/select-meeting-modal.component.ts
 var _c05 = (a0) => ({ count: a0 });
@@ -11567,13 +11612,7 @@ var _SelectMeetingModalComponent = class _SelectMeetingModalComponent {
     this._dialog_ref = inject(MatDialogRef);
     this.calendars = this._service.calendars;
     this.events = this._service.events;
-    this.loading = signal(
-      false,
-      ...ngDevMode ? [{ debugName: "loading" }] : (
-        /* istanbul ignore next */
-        []
-      )
-    );
+    this.loading = this._service.events_loading;
     this.calendar = this._service.calendar;
     this.setCalendar = (c) => this._service.setCalendar(c);
     this.select = async (e) => {
@@ -11586,10 +11625,19 @@ var _SelectMeetingModalComponent = class _SelectMeetingModalComponent {
         }),
         icon: { content: "login" }
       }, this._dialog);
-      details.loading(i18n("APP.CONTROL.MEETING_JOIN_LOADING"));
       if (details.reason !== "done")
         return;
-      await this._service.setEvent(e);
+      details.loading(i18n("APP.CONTROL.MEETING_JOIN_LOADING"));
+      try {
+        await this._service.setEvent(e);
+      } catch (error) {
+        notifyError(i18n("APP.CONTROL.MEETING_JOIN_ERROR", {
+          error: errorText(error)
+        }));
+        return;
+      } finally {
+        details.close();
+      }
       notifySuccess(i18n("APP.CONTROL.MEETING_JOIN_SUCCESS"));
       this._dialog_ref.close();
     };
@@ -11755,7 +11803,7 @@ var SelectMeetingModalComponent = _SelectMeetingModalComponent;
   }], null, null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(SelectMeetingModalComponent, { className: "SelectMeetingModalComponent", filePath: "apps/control/src/app/ui/select-meeting-modal.component.ts", lineNumber: 109 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(SelectMeetingModalComponent, { className: "SelectMeetingModalComponent", filePath: "apps/control/src/app/ui/select-meeting-modal.component.ts", lineNumber: 115 });
 })();
 
 // apps/control/src/app/ui/source-select.component.ts
@@ -11765,30 +11813,30 @@ function SourceSelectComponent_Conditional_5_Conditional_0_For_2_For_4_Template(
   var _a2;
   if (rf & 1) {
     const _r1 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 9);
+    \u0275\u0275elementStart(0, "button", 8);
     \u0275\u0275listener("click", function SourceSelectComponent_Conditional_5_Conditional_0_For_2_For_4_Template_button_click_0_listener() {
       const input_r2 = \u0275\u0275restoreView(_r1).$implicit;
       const ctx_r2 = \u0275\u0275nextContext(4);
       return \u0275\u0275resetView(ctx_r2.selectSource(input_r2));
     });
-    \u0275\u0275elementStart(1, "div", 10);
+    \u0275\u0275elementStart(1, "div", 9);
     \u0275\u0275text(2);
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
     const input_r2 = ctx.$implicit;
     const ctx_r2 = \u0275\u0275nextContext(4);
-    \u0275\u0275classProp("inverse", input_r2.id === ((_a2 = ctx_r2.details()) == null ? void 0 : _a2.source));
+    \u0275\u0275classProp("inverse", input_r2.id !== ((_a2 = ctx_r2.details()) == null ? void 0 : _a2.source));
     \u0275\u0275advance(2);
     \u0275\u0275textInterpolate1(" ", input_r2.name, " ");
   }
 }
 function SourceSelectComponent_Conditional_5_Conditional_0_For_2_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 6)(1, "h4", 7);
+    \u0275\u0275elementStart(0, "div", 5)(1, "h4", 6);
     \u0275\u0275text(2);
     \u0275\u0275elementEnd();
-    \u0275\u0275repeaterCreate(3, SourceSelectComponent_Conditional_5_Conditional_0_For_2_For_4_Template, 3, 3, "button", 8, _forTrack0);
+    \u0275\u0275repeaterCreate(3, SourceSelectComponent_Conditional_5_Conditional_0_For_2_For_4_Template, 3, 3, "button", 7, _forTrack0);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
@@ -11802,13 +11850,12 @@ function SourceSelectComponent_Conditional_5_Conditional_0_For_2_Template(rf, ct
 }
 function SourceSelectComponent_Conditional_5_Conditional_0_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 5);
-    \u0275\u0275repeaterCreate(1, SourceSelectComponent_Conditional_5_Conditional_0_For_2_Template, 5, 1, "div", 6, \u0275\u0275repeaterTrackByIdentity);
+    \u0275\u0275elementStart(0, "div", 3);
+    \u0275\u0275repeaterCreate(1, SourceSelectComponent_Conditional_5_Conditional_0_For_2_Template, 5, 1, "div", 5, \u0275\u0275repeaterTrackByIdentity);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
     const ctx_r2 = \u0275\u0275nextContext(2);
-    \u0275\u0275classProp("flex-col", ctx_r2.simple())("flex-wrap", !ctx_r2.simple());
     \u0275\u0275advance();
     \u0275\u0275repeater(ctx_r2.input_types());
   }
@@ -11829,7 +11876,7 @@ function SourceSelectComponent_Conditional_5_Conditional_1_Template(rf, ctx) {
 }
 function SourceSelectComponent_Conditional_5_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275conditionalCreate(0, SourceSelectComponent_Conditional_5_Conditional_0_Template, 3, 4, "div", 3)(1, SourceSelectComponent_Conditional_5_Conditional_1_Template, 4, 6, "div", 4);
+    \u0275\u0275conditionalCreate(0, SourceSelectComponent_Conditional_5_Conditional_0_Template, 3, 0, "div", 3)(1, SourceSelectComponent_Conditional_5_Conditional_1_Template, 4, 6, "div", 4);
   }
   if (rf & 2) {
     const ctx_r2 = \u0275\u0275nextContext();
@@ -11839,7 +11886,7 @@ function SourceSelectComponent_Conditional_5_Template(rf, ctx) {
 function SourceSelectComponent_Conditional_6_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 2);
-    \u0275\u0275element(1, "mat-spinner", 11);
+    \u0275\u0275element(1, "mat-spinner", 10);
     \u0275\u0275elementStart(2, "p");
     \u0275\u0275text(3);
     \u0275\u0275pipe(4, "translate");
@@ -11855,13 +11902,6 @@ function SourceSelectComponent_Conditional_6_Template(rf, ctx) {
 var _SourceSelectComponent = class _SourceSelectComponent {
   constructor() {
     this._state = inject(ControlStateService);
-    this.simple = input(
-      false,
-      ...ngDevMode ? [{ debugName: "simple" }] : (
-        /* istanbul ignore next */
-        []
-      )
-    );
     this.output = input(
       void 0,
       ...ngDevMode ? [{ debugName: "output" }] : (
@@ -11929,15 +11969,21 @@ var _SourceSelectComponent = class _SourceSelectComponent {
   }
   async selectSource(input2) {
     this.loading.set(true);
-    await this._state.setRoute(input2.id, this.output());
-    this.loading.set(false);
+    try {
+      await this._state.setRoute(input2.id, this.output());
+    } catch (error) {
+      notifyError(i18n("APP.CONTROL.ROUTE_ERROR", { error: errorText(error) }));
+      return;
+    } finally {
+      this.loading.set(false);
+    }
     this.source.emit(input2);
   }
 };
 _SourceSelectComponent.\u0275fac = function SourceSelectComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _SourceSelectComponent)();
 };
-_SourceSelectComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _SourceSelectComponent, selectors: [["source-select"]], inputs: { simple: [1, "simple"], output: [1, "output"] }, outputs: { source: "source" }, decls: 7, vars: 12, consts: [[1, "flex", "flex-col", "items-center", "text-black"], [1, "mb-2", "text-xl", "font-medium"], [1, "m-auto", "flex", "flex-col", "items-center", "justify-center", "space-y-2", "p-8"], [1, "divide", "flex", 3, "flex-col", "flex-wrap"], [1, "m-auto", "flex", "flex-col", "items-center", "justify-center", "p-8"], [1, "divide", "flex"], ["group", "", 1, "flex", "flex-col", "space-y-2", "p-2"], [1, "text-center", "underline"], ["btn", "", "matRipple", "", "source", "", 1, "w-48", 3, "inverse"], ["btn", "", "matRipple", "", "source", "", 1, "w-48", 3, "click"], [1, "truncate"], [3, "diameter"]], template: function SourceSelectComponent_Template(rf, ctx) {
+_SourceSelectComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _SourceSelectComponent, selectors: [["source-select"]], inputs: { output: [1, "output"] }, outputs: { source: "source" }, decls: 7, vars: 8, consts: [[1, "flex", "flex-col", "items-center", "p-4", "text-black"], [1, "mb-2", "text-xl", "font-medium"], [1, "m-auto", "flex", "flex-col", "items-center", "justify-center", "space-y-2", "p-8"], [1, "divide", "flex", "flex-wrap"], [1, "m-auto", "flex", "flex-col", "items-center", "justify-center", "p-8"], ["group", "", 1, "flex", "flex-col", "space-y-2", "p-2"], [1, "text-center", "underline"], ["btn", "", "matRipple", "", "source", "", 1, "w-48", 3, "inverse"], ["btn", "", "matRipple", "", "source", "", 1, "w-48", 3, "click"], [1, "truncate"], [3, "diameter"]], template: function SourceSelectComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 0);
     \u0275\u0275declareLet(1);
@@ -11949,11 +11995,10 @@ _SourceSelectComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
-    \u0275\u0275classProp("p-2", ctx.simple())("p-4", !ctx.simple());
     \u0275\u0275advance();
     const source_r6 = \u0275\u0275storeLet(ctx.details());
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(4, 7, "APP.CONTROL.SOURCE_INPUT_SELECT", \u0275\u0275pureFunction1(10, _c06, (source_r6 == null ? void 0 : source_r6.name) || "= No Name =")), " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(4, 3, "APP.CONTROL.SOURCE_INPUT_SELECT", \u0275\u0275pureFunction1(6, _c06, (source_r6 == null ? void 0 : source_r6.name) || "= No Name =")), " ");
     \u0275\u0275advance(2);
     \u0275\u0275conditional(!ctx.loading() ? 5 : 6);
   }
@@ -11965,11 +12010,7 @@ var SourceSelectComponent = _SourceSelectComponent;
     args: [{
       selector: "source-select",
       template: `
-        <div
-            class="flex flex-col items-center text-black"
-            [class.p-2]="simple()"
-            [class.p-4]="!simple()"
-        >
+        <div class="flex flex-col items-center p-4 text-black">
             @let source = details();
             <h3 class="mb-2 text-xl font-medium">
                 {{
@@ -11979,11 +12020,7 @@ var SourceSelectComponent = _SourceSelectComponent;
             </h3>
             @if (!loading()) {
                 @if (input_types().length) {
-                    <div
-                        class="divide flex"
-                        [class.flex-col]="simple()"
-                        [class.flex-wrap]="!simple()"
-                    >
+                    <div class="divide flex flex-wrap">
                         @for (type of input_types(); track type) {
                             <div group class="flex flex-col space-y-2 p-2">
                                 <h4 class="text-center underline">
@@ -11999,7 +12036,7 @@ var SourceSelectComponent = _SourceSelectComponent;
                                         source
                                         class="w-48"
                                         [class.inverse]="
-                                            input.id === details()?.source
+                                            input.id !== details()?.source
                                         "
                                         (click)="selectSource(input)"
                                     >
@@ -12036,10 +12073,10 @@ var SourceSelectComponent = _SourceSelectComponent;
     `,
       imports: [TranslatePipe, MatProgressSpinnerModule, MatRippleModule]
     }]
-  }], null, { simple: [{ type: Input, args: [{ isSignal: true, alias: "simple", required: false }] }], output: [{ type: Input, args: [{ isSignal: true, alias: "output", required: false }] }], source: [{ type: Output, args: ["source"] }] });
+  }], null, { output: [{ type: Input, args: [{ isSignal: true, alias: "output", required: false }] }], source: [{ type: Output, args: ["source"] }] });
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(SourceSelectComponent, { className: "SourceSelectComponent", filePath: "apps/control/src/app/ui/source-select.component.ts", lineNumber: 89 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(SourceSelectComponent, { className: "SourceSelectComponent", filePath: "apps/control/src/app/ui/source-select.component.ts", lineNumber: 82 });
 })();
 
 // apps/control/src/app/ui/source-select-modal.component.ts
@@ -12047,7 +12084,6 @@ var _SourceSelectModalComponent = class _SourceSelectModalComponent {
   constructor() {
     this._data = inject(MAT_DIALOG_DATA);
     this._dialog_ref = inject(MatDialogRef);
-    this.simple = false;
     this.output = this._data.output;
   }
   close() {
@@ -12057,7 +12093,7 @@ var _SourceSelectModalComponent = class _SourceSelectModalComponent {
 _SourceSelectModalComponent.\u0275fac = function SourceSelectModalComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _SourceSelectModalComponent)();
 };
-_SourceSelectModalComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _SourceSelectModalComponent, selectors: [["source-select-modal"]], decls: 5, vars: 20, consts: [[1, "bg-base-100", "flex", "flex-col", "items-center", "overflow-auto", "px-8", "py-16"], [3, "source", "simple", "output"], ["icon", "", "matRipple", "", "mat-dialog-close", "", 1, "absolute"]], template: function SourceSelectModalComponent_Template(rf, ctx) {
+_SourceSelectModalComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _SourceSelectModalComponent, selectors: [["source-select-modal"]], decls: 5, vars: 1, consts: [[1, "bg-base-100", "fixed", "inset-0", "flex", "flex-col", "items-center", "overflow-auto", "px-8", "py-16"], [3, "source", "output"], ["icon", "", "matRipple", "", "mat-dialog-close", "", 1, "absolute", "top-8", "right-8"]], template: function SourceSelectModalComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 0)(1, "source-select", 1);
     \u0275\u0275listener("source", function SourceSelectModalComponent_Template_source_select_source_1_listener() {
@@ -12069,12 +12105,8 @@ _SourceSelectModalComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineCompon
     \u0275\u0275elementEnd()()();
   }
   if (rf & 2) {
-    \u0275\u0275styleProp("max-height", ctx.simple ? "80vh" : "");
-    \u0275\u0275classProp("fixed", !ctx.simple)("inset-0", !ctx.simple)("relative", ctx.simple)("rounded", ctx.simple);
     \u0275\u0275advance();
-    \u0275\u0275property("simple", ctx.simple)("output", ctx.output);
-    \u0275\u0275advance();
-    \u0275\u0275classProp("top-8", !ctx.simple)("right-8", !ctx.simple)("top-2", ctx.simple)("right-2", ctx.simple);
+    \u0275\u0275property("output", ctx.output);
   }
 }, dependencies: [
   MatDialogModule,
@@ -12092,27 +12124,14 @@ var SourceSelectModalComponent = _SourceSelectModalComponent;
       selector: "source-select-modal",
       template: `
         <div
-            class="bg-base-100 flex flex-col items-center overflow-auto px-8 py-16"
-            [style.max-height]="simple ? '80vh' : ''"
-            [class.fixed]="!simple"
-            [class.inset-0]="!simple"
-            [class.relative]="simple"
-            [class.rounded]="simple"
+            class="bg-base-100 fixed inset-0 flex flex-col items-center overflow-auto px-8 py-16"
         >
-            <source-select
-                [simple]="simple"
-                [output]="output"
-                (source)="close()"
-            ></source-select>
+            <source-select [output]="output" (source)="close()"></source-select>
             <button
                 icon
                 matRipple
                 mat-dialog-close
-                class="absolute"
-                [class.top-8]="!simple"
-                [class.right-8]="!simple"
-                [class.top-2]="simple"
-                [class.right-2]="simple"
+                class="absolute top-8 right-8"
             >
                 <icon>close</icon>
             </button>
@@ -12128,7 +12147,7 @@ var SourceSelectModalComponent = _SourceSelectModalComponent;
   }], null, null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(SourceSelectModalComponent, { className: "SourceSelectModalComponent", filePath: "apps/control/src/app/ui/source-select-modal.component.ts", lineNumber: 52 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(SourceSelectModalComponent, { className: "SourceSelectModalComponent", filePath: "apps/control/src/app/ui/source-select-modal.component.ts", lineNumber: 39 });
 })();
 
 // apps/control/src/app/control-state.service.ts
@@ -12179,20 +12198,6 @@ var _ControlStateService = class _ControlStateService extends AsyncHandler {
         []
       )
     );
-    this._volume = signal(
-      0,
-      ...ngDevMode ? [{ debugName: "_volume" }] : (
-        /* istanbul ignore next */
-        []
-      )
-    );
-    this._mute = signal(
-      false,
-      ...ngDevMode ? [{ debugName: "_mute" }] : (
-        /* istanbul ignore next */
-        []
-      )
-    );
     this._input_data = signal(
       [],
       ...ngDevMode ? [{ debugName: "_input_data" }] : (
@@ -12210,20 +12215,6 @@ var _ControlStateService = class _ControlStateService extends AsyncHandler {
     this._lights = signal(
       [],
       ...ngDevMode ? [{ debugName: "_lights" }] : (
-        /* istanbul ignore next */
-        []
-      )
-    );
-    this._blinds = signal(
-      [],
-      ...ngDevMode ? [{ debugName: "_blinds" }] : (
-        /* istanbul ignore next */
-        []
-      )
-    );
-    this._screens = signal(
-      [],
-      ...ngDevMode ? [{ debugName: "_screens" }] : (
         /* istanbul ignore next */
         []
       )
@@ -12254,42 +12245,7 @@ var _ControlStateService = class _ControlStateService extends AsyncHandler {
     this.system = this._system.asReadonly();
     this.calendar = this._calendar.asReadonly();
     this.lights = this._lights.asReadonly();
-    this.blinds = this._blinds.asReadonly();
-    this.screens = this._screens.asReadonly();
-    this.volume = this._volume.asReadonly();
-    this.mute = this._mute.asReadonly();
     this.active_output = this._active_output.asReadonly();
-    this._debounced_id = debounced(this._id, 1e3, {
-      injector: this._injector
-    });
-    this._space = resource(__spreadProps(__spreadValues({}, ngDevMode ? { debugName: "_space" } : (
-      /* istanbul ignore next */
-      {}
-    )), {
-      params: () => this._debounced_id.value(),
-      loader: async ({ params: id }) => {
-        if (!id)
-          return new Space(new Rs());
-        log("Panel", `Loading system "${id}"...`);
-        try {
-          const system = await ka(id);
-          return new Space(system);
-        } catch (error) {
-          const { status, message } = error || {};
-          log("Control", "Error loading system details:", [status, message], "error");
-          if (status === 404)
-            this._router.navigate(["/bootstrap"]);
-          return new Space(new Rs());
-        }
-      }
-    }));
-    this.space = computed(
-      () => this._space.value(),
-      ...ngDevMode ? [{ debugName: "space" }] : (
-        /* istanbul ignore next */
-        []
-      )
-    );
     this.input_list = computed(
       () => this._input_data().filter((_2) => !_2.hidden),
       ...ngDevMode ? [{ debugName: "input_list" }] : (
@@ -12462,12 +12418,13 @@ var _ControlStateService = class _ControlStateService extends AsyncHandler {
       }
     }));
     this.events = computed(
-      () => this._events.value() ?? [],
+      () => this._events.hasValue() ? this._events.value() : [],
       ...ngDevMode ? [{ debugName: "events" }] : (
         /* istanbul ignore next */
         []
       )
     );
+    this.events_loading = this._events.isLoading;
     effect(() => {
       const id = this._id();
       untracked(() => this.bindToState(id));
@@ -12484,8 +12441,22 @@ var _ControlStateService = class _ControlStateService extends AsyncHandler {
   setID(id) {
     if (id !== this._id()) {
       this._id.set(id);
-      this._spaces.loadSpace(id);
+      this._spaces.loadSpace(id).catch((error) => this._onSystemLoadError(id, error));
     }
+  }
+  /**
+   * Send the panel back to bootstrap when the system does not exist.
+   * Clears the stored ID first so bootstrap does not open it again.
+   */
+  _onSystemLoadError(id, error) {
+    const status = error == null ? void 0 : error.status;
+    log("Control", "Error loading system details:", [id, status], "error");
+    if (status !== 404 || id !== this._id())
+      return;
+    if (localStorage.getItem(CONTROL_STORE_KEY) === id) {
+      localStorage.removeItem(CONTROL_STORE_KEY);
+    }
+    this._router.navigate(["/bootstrap"]);
   }
   /** Power on the active system */
   join(id) {
@@ -12561,10 +12532,8 @@ var _ControlStateService = class _ControlStateService extends AsyncHandler {
   setMute(state = true, source = "") {
     var _a2;
     const outputs = this._output_data();
-    if (!source) {
-      this._mute.set(state);
+    if (!source)
       source = ((_a2 = outputs[0]) == null ? void 0 : _a2.id) || "";
-    }
     if (source) {
       const data = outputs.find((_2) => _2.id === source);
       if (data) {
@@ -12581,7 +12550,6 @@ var _ControlStateService = class _ControlStateService extends AsyncHandler {
       value = Math.floor(value);
       const outputs = this._output_data();
       if (!source) {
-        this._volume.set(value);
         this._system.update((s) => __spreadProps(__spreadValues({}, s), { volume: value }));
         source = ((_a2 = outputs[0]) == null ? void 0 : _a2.id) || "";
       }
@@ -12639,12 +12607,13 @@ var _ControlStateService = class _ControlStateService extends AsyncHandler {
   }
   /** Open select meeting modal */
   async selectMeeting(input2) {
-    const cals = this.calendars();
-    if (cals == null ? void 0 : cals.length)
-      this.setCalendar(cals[0]);
     this._dialog.open(SelectMeetingModalComponent, {
       data: { input: input2 }
     });
+    await untracked(() => this._cal.loadCalendars());
+    const first2 = untracked(this.calendars)[0];
+    if (!untracked(this._calendar) && first2)
+      this.setCalendar(first2);
   }
   /** Open view help modal */
   async viewHelp(id) {
@@ -12676,8 +12645,6 @@ var _ControlStateService = class _ControlStateService extends AsyncHandler {
     this.bindTo(id, "available_inputs", void 0, (l) => this._available_inputs.set(l || []));
     this.bindTo(id, "available_outputs", void 0, (l) => this._outputs.set(l));
     this.bindTo(id, "lights", void 0, (l) => this._lights.set(l));
-    this.bindTo(id, "blinds", void 0, (l) => this._blinds.set(l));
-    this.bindTo(id, "screen", void 0, (l) => this._screens.set(l));
     this.bindTo(id, "qsc_dial_number", void 0, (v2) => this.updateProperty("phone", v2));
     this.bindTo(id, "qsc_dial_bindings", void 0, (v2) => {
       if (v2) {
@@ -12692,6 +12659,7 @@ var _ControlStateService = class _ControlStateService extends AsyncHandler {
     const id = this._id();
     if (!id)
       return;
+    this.unsubWith(`listen:${type}/`);
     if (type === "input")
       this._input_data.set([]);
     else
@@ -12710,10 +12678,6 @@ var _ControlStateService = class _ControlStateService extends AsyncHandler {
     } else {
       list2.push(__spreadValues({ id }, data));
     }
-    if (type === "output") {
-      this._volume.set(list2[0].volume || 0);
-      this._mute.set(!!list2[0].mute);
-    }
     list_signal.set(list2);
   }
   /** List to binding */
@@ -12727,36 +12691,9 @@ var _ControlStateService = class _ControlStateService extends AsyncHandler {
       return;
     this._system.update((item) => __spreadProps(__spreadValues({}, item), { [name]: value }));
   }
-  /**
-   * Create an Angular signal that mirrors a status variable binding on the
-   * active system, rebinding whenever the active system changes.
-   */
+  /** Signal that mirrors a status variable on the active system */
   _systemBinding(name, mod = "System", initial = void 0) {
-    const value = signal(
-      initial,
-      ...ngDevMode ? [{ debugName: "value" }] : (
-        /* istanbul ignore next */
-        []
-      )
-    );
-    effect((onCleanup) => {
-      const id = this._id();
-      if (!id) {
-        value.set(initial);
-        return;
-      }
-      const binding = Fp(id, mod).variable(name);
-      const unbind = binding.bind();
-      const listener = binding.listen();
-      const update = () => value.set(listener() ?? initial);
-      update();
-      const unsubscribe = listener.subscribe(() => update());
-      onCleanup(() => {
-        unsubscribe();
-        unbind();
-      });
-    });
-    return value.asReadonly();
+    return systemBinding(this._id, mod, name, initial);
   }
 };
 _ControlStateService.\u0275fac = function ControlStateService_Factory(__ngFactoryType__) {
@@ -12799,9 +12736,10 @@ export {
   marked,
   parse,
   queryEvents,
-  SourceSelectComponent,
+  systemBinding,
+  errorText,
   CONTROL_STORE_KEY,
   ControlStateService
 };
-//# debugId=336ff4ec-c142-5ee6-b197-04edd990de1d
-//# sourceMappingURL=chunk-2EQX7Z2A.js.map
+//# debugId=578eccc3-512c-54e5-9f41-93e8fc7cb9d1
+//# sourceMappingURL=chunk-UTHE6AYJ.js.map

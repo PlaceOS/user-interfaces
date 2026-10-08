@@ -18,6 +18,7 @@ import {
   ViewContainerRef,
   computed,
   effect,
+  filter,
   inject,
   input,
   setClassMetadata,
@@ -47,7 +48,7 @@ import {
   ɵɵtemplate,
   ɵɵtemplateRefExtractor,
   ɵɵviewQuerySignal
-} from "./chunk-YX4P66OA.js";
+} from "./chunk-WRMJ73SH.js";
 import {
   __spreadProps,
   __spreadValues
@@ -326,6 +327,7 @@ var _CustomTooltipComponent = class _CustomTooltipComponent extends AsyncHandler
         ])
       });
       this._overlay_ref.attach(portal);
+      this.subscription("escape", this._overlay_ref.keydownEvents().pipe(filter((e) => e.key === "Escape")).subscribe(() => this.close()));
       if (this.backdrop()) {
         this.subscription("backdrop", this._overlay_ref.backdropClick().subscribe(() => this.close()));
       }
@@ -395,7 +397,7 @@ var CustomTooltipComponent = _CustomTooltipComponent;
   }), { isSignal: true })] }] });
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(CustomTooltipComponent, { className: "CustomTooltipComponent", filePath: "libs/components/src/lib/custom-tooltip.component.ts", lineNumber: 64 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(CustomTooltipComponent, { className: "CustomTooltipComponent", filePath: "libs/components/src/lib/custom-tooltip.component.ts", lineNumber: 65 });
 })();
 
 export {
@@ -403,5 +405,5 @@ export {
   CustomTooltipData,
   CustomTooltipComponent
 };
-//# debugId=fa1ced3e-4116-5d6a-a1ff-5da0b86af6a4
-//# sourceMappingURL=chunk-4OHWCYHL.js.map
+//# debugId=125f70ec-d316-5c95-8c93-d75570497d6d
+//# sourceMappingURL=chunk-XTWSGQ6H.js.map

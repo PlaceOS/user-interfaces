@@ -1,23 +1,27 @@
 import {
-  ChangelogService,
-  ControlConnectingComponent,
   ICON_MAP,
   NextMeetingComponent
-} from "./chunk-IUGZWYSY.js";
+} from "./chunk-A2ZI4VG3.js";
 import {
   VideoCallPageComponent
-} from "./chunk-EF5N4DO7.js";
+} from "./chunk-VQCQDBUE.js";
 import {
   BindingDirective,
+  ControlConnectingComponent,
   ControlStatusBarComponent,
   DialpadComponent,
   JoystickComponent,
   JoystickPan,
   JoystickTilt,
+  SplashComponent,
   TopbarHeaderComponent,
-  VideoCallStateService
-} from "./chunk-5ZTCMKOH.js";
-import "./chunk-4OHWCYHL.js";
+  VideoCallStateService,
+  ZoomDirection,
+  moveCamera,
+  selectCamera,
+  zoomCamera
+} from "./chunk-JXLW22HW.js";
+import "./chunk-XTWSGQ6H.js";
 import {
   AuthenticatedImageDirective,
   ControlStateService,
@@ -29,19 +33,19 @@ import {
   MatProgressSpinnerModule,
   MatSelect,
   MatSelectModule,
+  errorText,
   marked,
   parse,
   toSignal
-} from "./chunk-2EQX7Z2A.js";
-import "./chunk-EIUEOGAT.js";
+} from "./chunk-UTHE6AYJ.js";
+import "./chunk-RHOXWFSX.js";
 import {
   TranslatePipe
-} from "./chunk-G63XENND.js";
+} from "./chunk-U4V525AH.js";
 import {
   ActivatedRoute,
   AsyncHandler,
   Component,
-  DatePipe,
   DefaultValueAccessor,
   DestroyRef,
   FormsModule,
@@ -56,29 +60,27 @@ import {
   NgControlStatus,
   NgModel,
   OrganisationService,
-  Output,
   Pipe,
   Router,
   RouterLink,
-  RouterLinkActive,
   RouterModule,
-  SafePipe,
   SettingsService,
-  VERSION,
   ViewChildren,
   computed,
   currentUser,
   effect,
   et,
+  i18n,
   inject,
   input,
   log,
   map,
-  output,
+  notifyError,
   randomInt,
   randomString,
   setClassMetadata,
   signal,
+  untracked,
   viewChildren,
   ɵsetClassDebugInfo,
   ɵɵInheritDefinitionFeature,
@@ -98,12 +100,10 @@ import {
   ɵɵelementEnd,
   ɵɵelementStart,
   ɵɵgetCurrentView,
-  ɵɵgetInheritedFactory,
   ɵɵlistener,
   ɵɵnextContext,
   ɵɵpipe,
   ɵɵpipeBind1,
-  ɵɵpipeBind2,
   ɵɵproperty,
   ɵɵpureFunction2,
   ɵɵqueryAdvance,
@@ -112,7 +112,6 @@ import {
   ɵɵrepeaterTrackByIdentity,
   ɵɵrepeaterTrackByIndex,
   ɵɵresetView,
-  ɵɵresolveWindow,
   ɵɵrestoreView,
   ɵɵsanitizeHtml,
   ɵɵsanitizeUrl,
@@ -120,12 +119,11 @@ import {
   ɵɵtext,
   ɵɵtextInterpolate,
   ɵɵtextInterpolate1,
-  ɵɵtextInterpolate2,
   ɵɵtwoWayBindingSet,
   ɵɵtwoWayListener,
   ɵɵtwoWayProperty,
   ɵɵviewQuerySignal
-} from "./chunk-YX4P66OA.js";
+} from "./chunk-WRMJ73SH.js";
 import {
   __spreadProps,
   __spreadValues
@@ -204,8 +202,9 @@ var _ChatService = class _ChatService extends AsyncHandler {
     const auth = J() !== "x-api-key" ? `bearer_token=${encodeURIComponent(J())}` : `x-api-key=${et()}`;
     const url = `ws${location.origin.replace("http", "")}/api/engine/v2/chatgpt/chat/${encodeURIComponent(id)}?${auth}${this._chat_id ? "&resume=" + encodeURIComponent(this._chat_id) : ""}`;
     log("CHAT", "Starting chat connection.");
-    this._socket = new WebSocket(url);
-    this._socket.onmessage = (event) => {
+    const socket = new WebSocket(url);
+    this._socket = socket;
+    socket.onmessage = (event) => {
       let msg = event.data;
       try {
         msg = JSON.parse(event.data);
@@ -213,11 +212,11 @@ var _ChatService = class _ChatService extends AsyncHandler {
       }
       this._onMessage(msg);
     };
-    this._socket.onerror = (e) => {
+    socket.onerror = (e) => {
       log("CHAT", "Connection error:", [e], "error");
-      this._cleanup();
+      this._cleanup(socket);
     };
-    this._socket.onclose = () => this._cleanup();
+    socket.onclose = () => this._cleanup(socket);
     return () => this.endChat();
   }
   endChat() {
@@ -252,7 +251,10 @@ var _ChatService = class _ChatService extends AsyncHandler {
       this.endChat();
     }, delay);
   }
-  _cleanup() {
+  /** Forget the socket. With a socket given, only if it is still the current one. */
+  _cleanup(socket) {
+    if (socket && socket !== this._socket)
+      return;
     this._socket = null;
   }
   _onMessage(msg) {
@@ -480,26 +482,22 @@ var _VoiceAssistantService = class _VoiceAssistantService extends AsyncHandler {
     this.error = this._error.asReadonly();
     this.state = this._state.asReadonly();
     this.progress = this._chat_service.progress;
-    this.waiting = computed(
-      () => {
-        var _a, _b;
-        const list = this._chat_service.messages();
-        return list.length !== 0 && ((_a = list[list.length - 1]) == null ? void 0 : _a.user_id) === ((_b = currentUser()) == null ? void 0 : _b.id);
-      },
-      ...ngDevMode ? [{ debugName: "waiting" }] : (
-        /* istanbul ignore next */
-        []
-      )
-    );
     this._mic_levels = new MicLevels();
     this.levels_ready = this._mic_levels.ready;
     this._last_message_id = "";
     this._speaking_until = 0;
     this._restart_delay = 0;
+    let bound_id = "";
     effect(() => {
       const id = this._system_id();
-      if (id)
-        this._chat_service.setBinding(id);
+      if (!id || id === bound_id)
+        return;
+      if (bound_id) {
+        untracked(() => this._setIdle());
+        this._chat_service.close();
+      }
+      bound_id = id;
+      this._chat_service.setBinding(id);
     });
     effect(() => {
       var _a;
@@ -529,6 +527,7 @@ var _VoiceAssistantService = class _VoiceAssistantService extends AsyncHandler {
     });
   }
   destroy() {
+    this._teardownVoiceRecognition();
     this._mic_levels.close();
     super.destroy();
   }
@@ -536,8 +535,15 @@ var _VoiceAssistantService = class _VoiceAssistantService extends AsyncHandler {
   readLevels() {
     return this._mic_levels.read();
   }
+  /** Turning on is debounced. Turning off is immediate, so nothing is heard after the view goes away. */
   setEnabled(is_enabled) {
-    this.timeout("set_enabled", () => this._enabled.set(is_enabled));
+    if (is_enabled) {
+      this.timeout("set_enabled", () => this._enabled.set(true));
+      return;
+    }
+    this.clearTimeout("set_enabled");
+    this._enabled.set(false);
+    this._teardownVoiceRecognition();
   }
   setBinding(system_id) {
     this._system_id.set(system_id);
@@ -572,8 +578,15 @@ var _VoiceAssistantService = class _VoiceAssistantService extends AsyncHandler {
     var _a;
     const speech_window = window;
     const SpeechRecognition = speech_window.SpeechRecognition || speech_window.webkitSpeechRecognition;
-    if (!SpeechRecognition || this._user_speech)
+    if (this._user_speech)
       return;
+    if (!SpeechRecognition) {
+      log("VOICE", "Speech recognition is unavailable.", void 0, "warn");
+      this._error.update((error) => __spreadProps(__spreadValues({}, error), {
+        speech_recognition: true
+      }));
+      return;
+    }
     log("VOICE", "Initialising speech recognition.");
     (_a = window.speechSynthesis) == null ? void 0 : _a.getVoices();
     const speech = new SpeechRecognition();
@@ -642,9 +655,12 @@ var _VoiceAssistantService = class _VoiceAssistantService extends AsyncHandler {
     const speech = this._user_speech;
     if (!speech)
       return;
+    speech.onresult = null;
+    speech.onerror = null;
     speech.onend = null;
-    speech.stop();
+    speech.abort();
     this._user_speech = void 0;
+    this._chat_service.endChat();
   }
   _sendCommand(command, attempt = 0) {
     this._state.set("processing");
@@ -869,6 +885,7 @@ var _VoiceAssistantComponent = class _VoiceAssistantComponent {
       if (typeof enabled === "boolean")
         this._service.setEnabled(enabled);
     });
+    inject(DestroyRef).onDestroy(() => this._service.setEnabled(false));
     effect((onCleanup) => {
       const bar_els = this._bar_els();
       if (!this.show_bars() || !bar_els.length)
@@ -975,7 +992,7 @@ var VoiceAssistantComponent = _VoiceAssistantComponent;
   }], () => [], { system_id: [{ type: Input, args: [{ isSignal: true, alias: "system_id", required: false }] }], enabled: [{ type: Input, args: [{ isSignal: true, alias: "enabled", required: false }] }], _bar_els: [{ type: ViewChildren, args: ["bar", { isSignal: true }] }] });
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(VoiceAssistantComponent, { className: "VoiceAssistantComponent", filePath: "apps/control/src/app/ui/voice-assistant.component.ts", lineNumber: 103 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(VoiceAssistantComponent, { className: "VoiceAssistantComponent", filePath: "apps/control/src/app/ui/voice-assistant.component.ts", lineNumber: 104 });
 })();
 
 // apps/control/src/app/ui/camera-controls.component.ts
@@ -1001,7 +1018,7 @@ function CameraControlsComponent_Conditional_0_Conditional_22_Template(rf, ctx) 
   }
   if (rf & 2) {
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(3, 1, "APP.CONTROL.CAMERA_SELECT_MSG"));
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(3, 1, "APP.CONTROL.CAMERA_SELECT_MSG"), " ");
   }
 }
 function CameraControlsComponent_Conditional_0_Template(rf, ctx) {
@@ -1036,14 +1053,22 @@ function CameraControlsComponent_Conditional_0_Template(rf, ctx) {
     });
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(12, "div", 8)(13, "button", 9);
-    \u0275\u0275listener("mousedown", function CameraControlsComponent_Conditional_0_Template_button_mousedown_13_listener($event) {
+    \u0275\u0275listener("pointerdown", function CameraControlsComponent_Conditional_0_Template_button_pointerdown_13_listener($event) {
       \u0275\u0275restoreView(_r1);
       const ctx_r1 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r1.startZoom("in", $event));
-    })("touchstart", function CameraControlsComponent_Conditional_0_Template_button_touchstart_13_listener($event) {
+    })("pointerup", function CameraControlsComponent_Conditional_0_Template_button_pointerup_13_listener() {
       \u0275\u0275restoreView(_r1);
       const ctx_r1 = \u0275\u0275nextContext();
-      return \u0275\u0275resetView(ctx_r1.startZoom("in", $event));
+      return \u0275\u0275resetView(ctx_r1.stopZoom());
+    })("pointercancel", function CameraControlsComponent_Conditional_0_Template_button_pointercancel_13_listener() {
+      \u0275\u0275restoreView(_r1);
+      const ctx_r1 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r1.stopZoom());
+    })("lostpointercapture", function CameraControlsComponent_Conditional_0_Template_button_lostpointercapture_13_listener() {
+      \u0275\u0275restoreView(_r1);
+      const ctx_r1 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r1.stopZoom());
     })("contextmenu", function CameraControlsComponent_Conditional_0_Template_button_contextmenu_13_listener($event) {
       return $event.preventDefault();
     });
@@ -1055,30 +1080,30 @@ function CameraControlsComponent_Conditional_0_Template(rf, ctx) {
     \u0275\u0275pipe(18, "translate");
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(19, "button", 11);
-    \u0275\u0275listener("mousedown", function CameraControlsComponent_Conditional_0_Template_button_mousedown_19_listener($event) {
+    \u0275\u0275listener("pointerdown", function CameraControlsComponent_Conditional_0_Template_button_pointerdown_19_listener($event) {
       \u0275\u0275restoreView(_r1);
       const ctx_r1 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r1.startZoom("out", $event));
-    })("touchstart", function CameraControlsComponent_Conditional_0_Template_button_touchstart_19_listener($event) {
+    })("pointerup", function CameraControlsComponent_Conditional_0_Template_button_pointerup_19_listener() {
       \u0275\u0275restoreView(_r1);
       const ctx_r1 = \u0275\u0275nextContext();
-      return \u0275\u0275resetView(ctx_r1.startZoom("out", $event));
+      return \u0275\u0275resetView(ctx_r1.stopZoom());
+    })("pointercancel", function CameraControlsComponent_Conditional_0_Template_button_pointercancel_19_listener() {
+      \u0275\u0275restoreView(_r1);
+      const ctx_r1 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r1.stopZoom());
+    })("lostpointercapture", function CameraControlsComponent_Conditional_0_Template_button_lostpointercapture_19_listener() {
+      \u0275\u0275restoreView(_r1);
+      const ctx_r1 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r1.stopZoom());
     })("contextmenu", function CameraControlsComponent_Conditional_0_Template_button_contextmenu_19_listener($event) {
       return $event.preventDefault();
-    })("mouseup", function CameraControlsComponent_Conditional_0_Template_button_mouseup_19_listener() {
-      \u0275\u0275restoreView(_r1);
-      const ctx_r1 = \u0275\u0275nextContext();
-      return \u0275\u0275resetView(ctx_r1.stopZoom());
-    }, \u0275\u0275resolveWindow)("touchend", function CameraControlsComponent_Conditional_0_Template_button_touchend_19_listener() {
-      \u0275\u0275restoreView(_r1);
-      const ctx_r1 = \u0275\u0275nextContext();
-      return \u0275\u0275resetView(ctx_r1.stopZoom());
-    }, \u0275\u0275resolveWindow);
+    });
     \u0275\u0275elementStart(20, "icon");
     \u0275\u0275text(21, "remove");
-    \u0275\u0275elementEnd()()()()();
+    \u0275\u0275elementEnd()()()();
     \u0275\u0275conditionalCreate(22, CameraControlsComponent_Conditional_0_Conditional_22_Template, 4, 3, "div", 12);
-    \u0275\u0275elementEnd();
+    \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
     const ctx_r1 = \u0275\u0275nextContext();
@@ -1097,36 +1122,15 @@ function CameraControlsComponent_Conditional_0_Template(rf, ctx) {
     \u0275\u0275conditional(!ctx_r1.active_camera() ? 22 : -1);
   }
 }
-var ZoomDirection;
-(function(ZoomDirection2) {
-  ZoomDirection2["In"] = "in";
-  ZoomDirection2["Out"] = "out";
-  ZoomDirection2["Stop"] = "stop";
-})(ZoomDirection || (ZoomDirection = {}));
 var _CameraControlsComponent = class _CameraControlsComponent {
   get id() {
     return this._state.id;
   }
   constructor() {
     this._state = inject(ControlStateService);
-    this._destroyRef = inject(DestroyRef);
     this.active_camera = signal(
       void 0,
       ...ngDevMode ? [{ debugName: "active_camera" }] : (
-        /* istanbul ignore next */
-        []
-      )
-    );
-    this.presets = signal(
-      [],
-      ...ngDevMode ? [{ debugName: "presets" }] : (
-        /* istanbul ignore next */
-        []
-      )
-    );
-    this.preset = signal(
-      "",
-      ...ngDevMode ? [{ debugName: "preset" }] : (
         /* istanbul ignore next */
         []
       )
@@ -1154,75 +1158,33 @@ var _CameraControlsComponent = class _CameraControlsComponent {
     );
     this.camera_list = this._state.camera_list;
     this._selected_camera = this._state.selected_camera;
+    inject(DestroyRef).onDestroy(() => this.stopZoom());
     effect(() => {
       const list = this.camera_list();
       const cam = this._selected_camera();
       this.active_camera.set(list == null ? void 0 : list.find((_) => _.id === cam));
     });
   }
-  ngOnInit() {
-  }
   selectCamera(camera) {
     this.active_camera.set(camera);
-    const mod = Fp(this.id, "System");
-    if (!mod)
-      return;
-    mod.execute("selected_camera", [camera.id]);
-  }
-  recallPreset(preset) {
-    const cam = this.active_camera();
-    if (!cam)
-      return;
-    const mod = Fp(this.id, cam.mod);
-    if (!mod)
-      return;
-    mod.execute("recall", [preset]);
-  }
-  addPreset(preset) {
-    const cam = this.active_camera();
-    if (!cam)
-      return;
-    const mod = Fp(this.id, "System");
-    if (!mod)
-      return;
-    mod.execute("add_preset", [preset, cam.id]);
-  }
-  removePreset(preset) {
-    const cam = this.active_camera();
-    if (!cam)
-      return;
-    const mod = Fp(this.id, "System");
-    if (!mod)
-      return;
-    mod.execute("remove_preset", [preset, cam.id]);
+    selectCamera(this.id, camera.id);
   }
   moveCamera() {
     const cam = this.active_camera();
     if (!cam)
       return;
     clearTimeout(this._move_timeout);
-    this._move_timeout = setTimeout(async () => {
-      const { index } = cam;
-      const mod = Fp(this.id, cam.mod);
-      if (!mod)
-        return;
-      await mod.execute("stop", index ? [index] : []);
-      if (this.tilt() !== JoystickTilt.Stop)
-        await mod.execute("tilt", index ? [this.tilt(), index] : [this.tilt()]);
-      if (this.pan() !== JoystickPan.Stop)
-        await mod.execute("pan", index ? [this.pan(), index] : [this.pan()]);
-    }, 50);
+    this._move_timeout = setTimeout(() => moveCamera(this.id, cam, this.pan(), this.tilt()), 50);
   }
+  /** Start zooming. Pointer capture makes sure the button receives the release. */
   async startZoom(dir, e) {
+    var _a, _b;
+    (_b = (_a = e.currentTarget) == null ? void 0 : _a.setPointerCapture) == null ? void 0 : _b.call(_a, e.pointerId);
     const cam = this.active_camera();
     if (!cam)
       return;
-    const mod = Fp(this.id, cam.mod);
-    if (!mod)
-      return;
     this.zoom.set(dir === "in" ? ZoomDirection.In : ZoomDirection.Out);
-    const { index } = cam;
-    await mod.execute("zoom", index ? [this.zoom(), index] : [this.zoom()]).catch();
+    await zoomCamera(this.id, cam, this.zoom()).catch(() => null);
   }
   stopZoom() {
     clearTimeout(this._zoom_timeout);
@@ -1232,19 +1194,15 @@ var _CameraControlsComponent = class _CameraControlsComponent {
       const cam = this.active_camera();
       if (!cam)
         return;
-      const mod = Fp(this.id, cam.mod);
-      if (!mod)
-        return;
-      const { index } = cam;
       this.zoom.set(ZoomDirection.Stop);
-      mod.execute("zoom", index ? [this.zoom(), index] : [this.zoom()]);
+      zoomCamera(this.id, cam, ZoomDirection.Stop);
     }, 50);
   }
 };
 _CameraControlsComponent.\u0275fac = function CameraControlsComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _CameraControlsComponent)();
 };
-_CameraControlsComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _CameraControlsComponent, selectors: [["camera-controls"]], decls: 1, vars: 1, consts: [[1, "flex", "flex-col"], ["appearance", "outline", 1, "m-4", "h-12"], [3, "ngModelChange", "ngModel", "placeholder"], [3, "value"], [1, "p-4"], [1, "mb-2", "text-xl", "font-medium"], [1, "flex", "items-center", "space-x-2"], [3, "panChange", "tiltChange", "pan", "tilt"], ["zoom", "", 1, "border-base-200", "flex", "flex-col", "items-center", "rounded-sm", "border"], ["zoom-in", "", "icon", "", "matRipple", "", 1, "rounded-sm", 3, "mousedown", "touchstart", "contextmenu"], [1, "border-base-200", "flex", "h-10", "w-10", "items-center", "justify-center", "border-t", "border-b", "text-xs"], ["zoom-out", "", "icon", "", "matRipple", "", 1, "rounded-sm", 3, "mousedown", "touchstart", "contextmenu", "mouseup", "touchend"], [1, "bg-base-100", "bg-opacity-75", "absolute", "inset-0", "flex", "items-center", "justify-center"]], template: function CameraControlsComponent_Template(rf, ctx) {
+_CameraControlsComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _CameraControlsComponent, selectors: [["camera-controls"]], decls: 1, vars: 1, consts: [[1, "flex", "flex-col"], ["appearance", "outline", 1, "m-4", "h-12"], [3, "ngModelChange", "ngModel", "placeholder"], [3, "value"], [1, "relative", "p-4"], [1, "mb-2", "text-xl", "font-medium"], [1, "flex", "items-center", "space-x-2"], [3, "panChange", "tiltChange", "pan", "tilt"], ["zoom", "", 1, "border-base-200", "flex", "flex-col", "items-center", "rounded-sm", "border"], ["zoom-in", "", "icon", "", "matRipple", "", 1, "touch-none", "rounded-sm", "select-none", 3, "pointerdown", "pointerup", "pointercancel", "lostpointercapture", "contextmenu"], [1, "border-base-200", "flex", "h-10", "w-10", "items-center", "justify-center", "border-t", "border-b", "text-xs"], ["zoom-out", "", "icon", "", "matRipple", "", 1, "touch-none", "rounded-sm", "select-none", 3, "pointerdown", "pointerup", "pointercancel", "lostpointercapture", "contextmenu"], ["no-camera", "", 1, "bg-base-100/75", "absolute", "inset-0", "flex", "items-center", "justify-center"]], template: function CameraControlsComponent_Template(rf, ctx) {
   var _a;
   if (rf & 1) {
     \u0275\u0275conditionalCreate(0, CameraControlsComponent_Conditional_0_Template, 23, 13, "div", 0);
@@ -1287,7 +1245,7 @@ var CameraControlsComponent = _CameraControlsComponent;
                         }
                     </mat-select>
                 </mat-form-field>
-                <div class="p-4">
+                <div class="relative p-4">
                     <h3 class="mb-2 text-xl font-medium">
                         {{ 'APP.CONTROL.CONTROLS' | translate }}
                     </h3>
@@ -1306,9 +1264,11 @@ var CameraControlsComponent = _CameraControlsComponent;
                                 zoom-in
                                 icon
                                 matRipple
-                                class="rounded-sm"
-                                (mousedown)="startZoom('in', $event)"
-                                (touchstart)="startZoom('in', $event)"
+                                class="touch-none rounded-sm select-none"
+                                (pointerdown)="startZoom('in', $event)"
+                                (pointerup)="stopZoom()"
+                                (pointercancel)="stopZoom()"
+                                (lostpointercapture)="stopZoom()"
                                 (contextmenu)="$event.preventDefault()"
                             >
                                 <icon>add</icon>
@@ -1322,25 +1282,30 @@ var CameraControlsComponent = _CameraControlsComponent;
                                 zoom-out
                                 icon
                                 matRipple
-                                class="rounded-sm"
-                                (mousedown)="startZoom('out', $event)"
-                                (touchstart)="startZoom('out', $event)"
+                                class="touch-none rounded-sm select-none"
+                                (pointerdown)="startZoom('out', $event)"
+                                (pointerup)="stopZoom()"
+                                (pointercancel)="stopZoom()"
+                                (lostpointercapture)="stopZoom()"
                                 (contextmenu)="$event.preventDefault()"
-                                (window:mouseup)="stopZoom()"
-                                (window:touchend)="stopZoom()"
                             >
                                 <icon>remove</icon>
                             </button>
                         </div>
                     </div>
+                    @if (!active_camera()) {
+                        <div
+                            no-camera
+                            class="bg-base-100/75 absolute inset-0 flex items-center justify-center"
+                        >
+                            <p>
+                                {{
+                                    'APP.CONTROL.CAMERA_SELECT_MSG' | translate
+                                }}
+                            </p>
+                        </div>
+                    }
                 </div>
-                @if (!active_camera()) {
-                    <div
-                        class="bg-base-100 bg-opacity-75 absolute inset-0 flex items-center justify-center"
-                    >
-                        <p>{{ 'APP.CONTROL.CAMERA_SELECT_MSG' | translate }}</p>
-                    </div>
-                }
             </div>
         }
     `, imports: [
@@ -1355,7 +1320,7 @@ var CameraControlsComponent = _CameraControlsComponent;
   }], () => [], null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(CameraControlsComponent, { className: "CameraControlsComponent", filePath: "apps/control/src/app/ui/camera-controls.component.ts", lineNumber: 115 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(CameraControlsComponent, { className: "CameraControlsComponent", filePath: "apps/control/src/app/ui/camera-controls.component.ts", lineNumber: 114 });
 })();
 
 // apps/control/src/app/ui/markdown.pipe.ts
@@ -1430,18 +1395,16 @@ function VideoCallDialViewComponent_Conditional_1_Template(rf, ctx) {
   }
   if (rf & 2) {
     const ctx_r1 = \u0275\u0275nextContext();
-    \u0275\u0275advance(2);
-    \u0275\u0275classProp("pt-8", !ctx_r1.redirect());
-    \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(5, 11, "APP.CONTROL.VC_ENTER_CODE"), " ");
+    \u0275\u0275advance(4);
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(5, 9, "APP.CONTROL.VC_ENTER_CODE"), " ");
     \u0275\u0275advance(4);
     \u0275\u0275twoWayProperty("ngModel", ctx_r1.dial_number);
-    \u0275\u0275property("placeholder", \u0275\u0275pipeBind1(9, 13, "APP.CONTROL.VC_DIAL"));
+    \u0275\u0275property("placeholder", \u0275\u0275pipeBind1(9, 11, "APP.CONTROL.VC_DIAL"));
     \u0275\u0275control();
     \u0275\u0275advance(3);
     \u0275\u0275property("disabled", !ctx_r1.dial_number());
     \u0275\u0275advance();
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(13, 15, "APP.CONTROL.JOIN"), " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(13, 13, "APP.CONTROL.JOIN"), " ");
     const show_pip_r3 = ctx_r1.show_camera_pip();
     \u0275\u0275advance(3);
     \u0275\u0275classProp("inverse", show_pip_r3);
@@ -1469,18 +1432,7 @@ function VideoCallDialViewComponent_Conditional_2_Template(rf, ctx) {
 }
 var _VideoCallDialViewComponent = class _VideoCallDialViewComponent {
   constructor() {
-    this._control = inject(ControlStateService);
     this._call = inject(VideoCallStateService);
-    this._router = inject(Router);
-    this._route = inject(ActivatedRoute);
-    this.redirect = input(
-      true,
-      ...ngDevMode ? [{ debugName: "redirect" }] : (
-        /* istanbul ignore next */
-        []
-      )
-    );
-    this.close = output();
     this.dial_number = signal(
       "",
       ...ngDevMode ? [{ debugName: "dial_number" }] : (
@@ -1495,7 +1447,6 @@ var _VideoCallDialViewComponent = class _VideoCallDialViewComponent {
         []
       )
     );
-    this.call = this._call.call;
     this._show_camera_pip = this._call.show_camera_pip;
     this.show_camera_pip = computed(
       () => !!this._show_camera_pip(),
@@ -1506,9 +1457,6 @@ var _VideoCallDialViewComponent = class _VideoCallDialViewComponent {
     );
     this.toggleCamera = async () => this._call.showCameraPIP(!this.show_camera_pip());
   }
-  get id() {
-    return this._control.id;
-  }
   addDigit(digit) {
     digit && digit !== "\b" ? this.dial_number.update((v) => v + digit) : this.dial_number.update((v) => v.substr(0, v.length - 1));
   }
@@ -1516,25 +1464,25 @@ var _VideoCallDialViewComponent = class _VideoCallDialViewComponent {
     const dial_number = this.dial_number();
     if (!dial_number)
       return;
-    const system_id = this._control.id;
-    const mod = Fp(system_id, "VidConf");
     this.loading.set(true);
-    await mod.execute("dial", [dial_number]);
-    this.loading.set(false);
-    if (this.redirect()) {
-      this._router.navigate(["call"], { relativeTo: this._route });
+    try {
+      await this._call.dial(dial_number);
+    } catch (error) {
+      notifyError(i18n("APP.CONTROL.VC_DIAL_ERROR", { error: errorText(error) }));
+      return;
+    } finally {
+      this.loading.set(false);
     }
-    this.close.emit();
     this.dial_number.set("");
   }
 };
 _VideoCallDialViewComponent.\u0275fac = function VideoCallDialViewComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _VideoCallDialViewComponent)();
 };
-_VideoCallDialViewComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _VideoCallDialViewComponent, selectors: [["video-call-dial-view"]], inputs: { redirect: [1, "redirect"] }, outputs: { close: "close" }, decls: 3, vars: 1, consts: [[1, "flex", "justify-center"], [1, ""], [1, "flex", "flex-col", "items-center", "justify-center", "space-y-2", "p-16"], [3, "pressed"], [1, "flex", "flex-col"], [1, "px-2", "pt-4"], [1, "w-full", "p-2"], ["appearance", "outline", 1, "h-12", "w-full"], ["matInput", "", 3, "ngModelChange", "ngModel", "placeholder"], ["btn", "", "matRipple", "", 1, "w-full", 3, "click", "disabled"], [1, "w-full", "px-2"], ["btn", "", "matRipple", "", 1, "w-full", 3, "click"], [1, "flex", "items-center", "space-x-4"], [3, "diameter"]], template: function VideoCallDialViewComponent_Template(rf, ctx) {
+_VideoCallDialViewComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _VideoCallDialViewComponent, selectors: [["video-call-dial-view"]], decls: 3, vars: 1, consts: [[1, "flex", "justify-center"], [1, ""], [1, "flex", "flex-col", "items-center", "justify-center", "space-y-2", "p-16"], [3, "pressed"], [1, "flex", "flex-col", "pt-8"], [1, "px-2", "pt-4"], [1, "w-full", "p-2"], ["appearance", "outline", 1, "h-12", "w-full"], ["matInput", "", 3, "ngModelChange", "ngModel", "placeholder"], ["btn", "", "matRipple", "", 1, "w-full", 3, "click", "disabled"], [1, "w-full", "px-2"], ["btn", "", "matRipple", "", 1, "w-full", 3, "click"], [1, "flex", "items-center", "space-x-4"], [3, "diameter"]], template: function VideoCallDialViewComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 0);
-    \u0275\u0275conditionalCreate(1, VideoCallDialViewComponent_Conditional_1_Template, 21, 17, "ng-container", 1)(2, VideoCallDialViewComponent_Conditional_2_Template, 5, 4, "div", 2);
+    \u0275\u0275conditionalCreate(1, VideoCallDialViewComponent_Conditional_1_Template, 21, 15, "ng-container", 1)(2, VideoCallDialViewComponent_Conditional_2_Template, 5, 4, "div", 2);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
@@ -1567,7 +1515,7 @@ var VideoCallDialViewComponent = _VideoCallDialViewComponent;
             @if (!loading()) {
                 <ng-container class="">
                     <dialpad (pressed)="addDigit($event)"></dialpad>
-                    <div class="flex flex-col" [class.pt-8]="!redirect()">
+                    <div class="flex flex-col pt-8">
                         <p class="px-2 pt-4">
                             {{ 'APP.CONTROL.VC_ENTER_CODE' | translate }}
                         </p>
@@ -1640,10 +1588,10 @@ var VideoCallDialViewComponent = _VideoCallDialViewComponent;
       MatRippleModule,
       DialpadComponent
     ] }]
-  }], null, { redirect: [{ type: Input, args: [{ isSignal: true, alias: "redirect", required: false }] }], close: [{ type: Output, args: ["close"] }] });
+  }], null, null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(VideoCallDialViewComponent, { className: "VideoCallDialViewComponent", filePath: "apps/control/src/app/video-call/video-call-dial-view.component.ts", lineNumber: 104 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(VideoCallDialViewComponent, { className: "VideoCallDialViewComponent", filePath: "apps/control/src/app/video-call/video-call-dial-view.component.ts", lineNumber: 96 });
 })();
 
 // apps/control/src/app/tabbed-view/output-list-item.component.ts
@@ -1703,9 +1651,8 @@ function DeviceOutputListItemComponent_Conditional_0_Template(rf, ctx) {
     \u0275\u0275textInterpolate1(" ", (source_r3 == null ? void 0 : source_r3.name) || \u0275\u0275pipeBind1(9, 20, "APP.CONTROL.INPUT_EMPTY"), " ");
   }
 }
-var _DeviceOutputListItemComponent = class _DeviceOutputListItemComponent extends AsyncHandler {
+var _DeviceOutputListItemComponent = class _DeviceOutputListItemComponent {
   constructor() {
-    super(...arguments);
     this._state = inject(ControlStateService);
     this.item = input(
       void 0,
@@ -1735,15 +1682,6 @@ var _DeviceOutputListItemComponent = class _DeviceOutputListItemComponent extend
         []
       )
     );
-    this.setVolume = (v) => this.timeout("volume", () => {
-      var _a;
-      return this._state.setVolume(v, (_a = this.item()) == null ? void 0 : _a.id);
-    });
-    this.setMute = (i, s) => {
-      var _a;
-      this._state.setRoute(s ? "mute" : this.last_input, (_a = this.item()) == null ? void 0 : _a.id);
-      this.last_input = i;
-    };
     this.setActiveOutput = () => {
       const { selected_input } = this._system() || {};
       const input2 = this.input();
@@ -1752,13 +1690,10 @@ var _DeviceOutputListItemComponent = class _DeviceOutputListItemComponent extend
     };
   }
 };
-_DeviceOutputListItemComponent.\u0275fac = /* @__PURE__ */ (() => {
-  let \u0275DeviceOutputListItemComponent_BaseFactory;
-  return function DeviceOutputListItemComponent_Factory(__ngFactoryType__) {
-    return (\u0275DeviceOutputListItemComponent_BaseFactory || (\u0275DeviceOutputListItemComponent_BaseFactory = \u0275\u0275getInheritedFactory(_DeviceOutputListItemComponent)))(__ngFactoryType__ || _DeviceOutputListItemComponent);
-  };
-})();
-_DeviceOutputListItemComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _DeviceOutputListItemComponent, selectors: [["device-output-list-item"]], inputs: { item: [1, "item"], active: [1, "active"] }, features: [\u0275\u0275InheritDefinitionFeature], decls: 1, vars: 1, consts: [[1, "bg-base-100", "relative", "m-2", "h-40", "w-full", "flex-1", "rounded-sm", "border", "p-2", "shadow-sm", 3, "border-base-200", "border-primary"], [1, "bg-base-100", "relative", "m-2", "h-40", "w-full", "flex-1", "rounded-sm", "border", "p-2", "shadow-sm"], ["matRipple", "", 1, "bg-info", "relative", "z-0", "flex", "h-full", "w-full", "flex-col", "items-center", "justify-center", "rounded-sm", 3, "click"], [1, "border-base-300", "bg-base-100", "text-base-content", "absolute", "top-1", "left-1", "rounded-full", "border", "px-2", "py-1", "text-xs"], ["power", "", 1, "border-base-100", "absolute", "top-2", "right-2", "size-3", "rounded-full", "border", 3, "bg-success", "bg-base-300"], [1, "text-5xl"], [1, "text-sm"], ["power", "", 1, "border-base-100", "absolute", "top-2", "right-2", "size-3", "rounded-full", "border"]], template: function DeviceOutputListItemComponent_Template(rf, ctx) {
+_DeviceOutputListItemComponent.\u0275fac = function DeviceOutputListItemComponent_Factory(__ngFactoryType__) {
+  return new (__ngFactoryType__ || _DeviceOutputListItemComponent)();
+};
+_DeviceOutputListItemComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _DeviceOutputListItemComponent, selectors: [["device-output-list-item"]], inputs: { item: [1, "item"], active: [1, "active"] }, decls: 1, vars: 1, consts: [[1, "bg-base-100", "relative", "m-2", "h-40", "w-full", "flex-1", "rounded-sm", "border", "p-2", "shadow-sm", 3, "border-base-200", "border-primary"], [1, "bg-base-100", "relative", "m-2", "h-40", "w-full", "flex-1", "rounded-sm", "border", "p-2", "shadow-sm"], ["matRipple", "", 1, "bg-info", "relative", "z-0", "flex", "h-full", "w-full", "flex-col", "items-center", "justify-center", "rounded-sm", 3, "click"], [1, "border-base-300", "bg-base-100", "text-base-content", "absolute", "top-1", "left-1", "rounded-full", "border", "px-2", "py-1", "text-xs"], ["power", "", 1, "border-base-100", "absolute", "top-2", "right-2", "size-3", "rounded-full", "border", 3, "bg-success", "bg-base-300"], [1, "text-5xl"], [1, "text-sm"], ["power", "", 1, "border-base-100", "absolute", "top-2", "right-2", "size-3", "rounded-full", "border"]], template: function DeviceOutputListItemComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275conditionalCreate(0, DeviceOutputListItemComponent_Conditional_0_Template, 10, 22, "div", 0);
   }
@@ -1832,7 +1767,7 @@ var DeviceOutputListItemComponent = _DeviceOutputListItemComponent;
   }], null, { item: [{ type: Input, args: [{ isSignal: true, alias: "item", required: false }] }], active: [{ type: Input, args: [{ isSignal: true, alias: "active", required: false }] }] });
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(DeviceOutputListItemComponent, { className: "DeviceOutputListItemComponent", filePath: "apps/control/src/app/tabbed-view/output-list-item.component.ts", lineNumber: 80 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(DeviceOutputListItemComponent, { className: "DeviceOutputListItemComponent", filePath: "apps/control/src/app/tabbed-view/output-list-item.component.ts", lineNumber: 77 });
 })();
 
 // apps/control/src/app/tabbed-view/output-list.component.ts
@@ -1948,9 +1883,8 @@ function TVControlsComponent_Conditional_3_Template(rf, ctx) {
     \u0275\u0275repeater(ctx_r2.channel_list);
   }
 }
-var _TVControlsComponent = class _TVControlsComponent extends AsyncHandler {
+var _TVControlsComponent = class _TVControlsComponent {
   constructor() {
-    super(...arguments);
     this._state = inject(ControlStateService);
     this.mod = input(
       "",
@@ -1970,13 +1904,10 @@ var _TVControlsComponent = class _TVControlsComponent extends AsyncHandler {
     mod.execute("channel", [url]);
   }
 };
-_TVControlsComponent.\u0275fac = /* @__PURE__ */ (() => {
-  let \u0275TVControlsComponent_BaseFactory;
-  return function TVControlsComponent_Factory(__ngFactoryType__) {
-    return (\u0275TVControlsComponent_BaseFactory || (\u0275TVControlsComponent_BaseFactory = \u0275\u0275getInheritedFactory(_TVControlsComponent)))(__ngFactoryType__ || _TVControlsComponent);
-  };
-})();
-_TVControlsComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _TVControlsComponent, selectors: [["tv-controls"]], inputs: { mod: [1, "mod"] }, features: [\u0275\u0275InheritDefinitionFeature], decls: 4, vars: 8, consts: [["hidden", ""], ["binding", "", "bind", "channel_details", 3, "modelChange", "model", "sys", "mod"], ["binding", "", "bind", "current_channel", 3, "modelChange", "model", "sys", "mod"], [1, "flex", "flex-wrap", "items-center", "justify-center", "p-8"], ["matRipple", "", 1, "border-base-200", "m-2", "flex", "h-28", "w-32", "flex-col", "items-center", "justify-center", "space-y-2", "rounded-sm", "border", 3, "bg-base-200", "bg-primary", "text-white"], ["matRipple", "", 1, "border-base-200", "m-2", "flex", "h-28", "w-32", "flex-col", "items-center", "justify-center", "space-y-2", "rounded-sm", "border", 3, "click"], ["auth", "", 1, "max-h-14", "max-w-14", 3, "source"], [1, ""]], template: function TVControlsComponent_Template(rf, ctx) {
+_TVControlsComponent.\u0275fac = function TVControlsComponent_Factory(__ngFactoryType__) {
+  return new (__ngFactoryType__ || _TVControlsComponent)();
+};
+_TVControlsComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _TVControlsComponent, selectors: [["tv-controls"]], inputs: { mod: [1, "mod"] }, decls: 4, vars: 8, consts: [["hidden", ""], ["binding", "", "bind", "channel_details", 3, "modelChange", "model", "sys", "mod"], ["binding", "", "bind", "current_channel", 3, "modelChange", "model", "sys", "mod"], [1, "flex", "flex-wrap", "items-center", "justify-center", "p-8"], ["matRipple", "", 1, "border-base-200", "m-2", "flex", "h-28", "w-32", "flex-col", "items-center", "justify-center", "space-y-2", "rounded-sm", "border", 3, "bg-base-200", "bg-primary", "text-white"], ["matRipple", "", 1, "border-base-200", "m-2", "flex", "h-28", "w-32", "flex-col", "items-center", "justify-center", "space-y-2", "rounded-sm", "border", 3, "click"], ["auth", "", 1, "max-h-14", "max-w-14", 3, "source"], [1, ""]], template: function TVControlsComponent_Template(rf, ctx) {
   var _a;
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 0)(1, "i", 1);
@@ -2057,7 +1988,7 @@ var TVControlsComponent = _TVControlsComponent;
   }], null, { mod: [{ type: Input, args: [{ isSignal: true, alias: "mod", required: false }] }] });
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(TVControlsComponent, { className: "TVControlsComponent", filePath: "apps/control/src/app/tabbed-view/tv-controls.component.ts", lineNumber: 56 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(TVControlsComponent, { className: "TVControlsComponent", filePath: "apps/control/src/app/tabbed-view/tv-controls.component.ts", lineNumber: 55 });
 })();
 
 // apps/control/src/app/tabbed-view/tab-outlet.component.ts
@@ -2081,7 +2012,9 @@ function TabOutletComponent_For_5_Template(rf, ctx) {
   if (rf & 2) {
     const tab_r3 = ctx.$implicit;
     const ctx_r1 = \u0275\u0275nextContext();
-    \u0275\u0275property("routerLink", \u0275\u0275pureFunction2(3, _c02, ctx_r1.id, tab_r3.id || tab_r3.name));
+    \u0275\u0275classProp("opacity-100!", (tab_r3.id || tab_r3.name) === ctx_r1.active_tab())("text-secondary!", (tab_r3.id || tab_r3.name) === ctx_r1.active_tab());
+    \u0275\u0275property("routerLink", \u0275\u0275pureFunction2(8, _c02, ctx_r1.id(), tab_r3.id || tab_r3.name));
+    \u0275\u0275attribute("aria-current", (tab_r3.id || tab_r3.name) === ctx_r1.active_tab() ? "page" : null);
     \u0275\u0275advance(2);
     \u0275\u0275textInterpolate(tab_r3.icon);
     \u0275\u0275advance(2);
@@ -2101,14 +2034,14 @@ function TabOutletComponent_Conditional_8_Template(rf, ctx) {
     \u0275\u0275advance(2);
     \u0275\u0275property("src", ctx_r1.hearing_tloop ? "assets/loop_t.png" : "assets/loop.png", \u0275\u0275sanitizeUrl);
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate1(" ", ctx_r1.join_code || "=CODE=", " ");
+    \u0275\u0275textInterpolate1(" ", ctx_r1.join_code, " ");
   }
 }
 function TabOutletComponent_Conditional_10_For_5_Template(rf, ctx) {
   var _a;
   if (rf & 1) {
     const _r4 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 24);
+    \u0275\u0275elementStart(0, "button", 23);
     \u0275\u0275listener("click", function TabOutletComponent_Conditional_10_For_5_Template_button_click_0_listener() {
       const input_r5 = \u0275\u0275restoreView(_r4).$implicit;
       const ctx_r1 = \u0275\u0275nextContext(2);
@@ -2125,18 +2058,6 @@ function TabOutletComponent_Conditional_10_For_5_Template(rf, ctx) {
     \u0275\u0275textInterpolate1(" ", input_r5 == null ? void 0 : input_r5.name, " ");
   }
 }
-function TabOutletComponent_Conditional_10_Conditional_6_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 23);
-    \u0275\u0275text(1);
-    \u0275\u0275pipe(2, "translate");
-    \u0275\u0275elementEnd();
-  }
-  if (rf & 2) {
-    \u0275\u0275advance();
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(2, 1, "APP.CONTROL.INPUT_CATEGORY_EMPTY"), " ");
-  }
-}
 function TabOutletComponent_Conditional_10_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 9)(1, "h3", 21);
@@ -2144,27 +2065,24 @@ function TabOutletComponent_Conditional_10_Template(rf, ctx) {
     \u0275\u0275pipe(3, "translate");
     \u0275\u0275elementEnd();
     \u0275\u0275repeaterCreate(4, TabOutletComponent_Conditional_10_For_5_Template, 2, 3, "button", 22, \u0275\u0275repeaterTrackByIdentity);
-    \u0275\u0275conditionalCreate(6, TabOutletComponent_Conditional_10_Conditional_6_Template, 3, 3, "div", 23);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
     const ctx_r1 = \u0275\u0275nextContext();
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(3, 2, "APP.CONTROL.INPUTS_AVAILABLE"), " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(3, 1, "APP.CONTROL.INPUTS_AVAILABLE"), " ");
     \u0275\u0275advance(2);
     \u0275\u0275repeater(ctx_r1.inputs());
-    \u0275\u0275advance(2);
-    \u0275\u0275conditional(!ctx_r1.inputs().length ? 6 : -1);
   }
 }
 function TabOutletComponent_Case_12_Conditional_0_Template(rf, ctx) {
-  var _a;
+  var _a, _b;
   if (rf & 1) {
-    \u0275\u0275element(0, "div", 25);
+    \u0275\u0275element(0, "div", 24);
   }
   if (rf & 2) {
     const ctx_r1 = \u0275\u0275nextContext(2);
-    \u0275\u0275property("present_output", (_a = ctx_r1.tab()) == null ? void 0 : _a.presentation_source)("redirect", false);
+    \u0275\u0275property("reserve_top", !!((_a = ctx_r1.tab()) == null ? void 0 : _a.help))("present_output", (_b = ctx_r1.tab()) == null ? void 0 : _b.presentation_source)("redirect", false);
   }
 }
 function TabOutletComponent_Case_12_Conditional_1_Conditional_1_Template(rf, ctx) {
@@ -2174,22 +2092,20 @@ function TabOutletComponent_Case_12_Conditional_1_Conditional_1_Template(rf, ctx
 }
 function TabOutletComponent_Case_12_Conditional_1_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 26);
+    \u0275\u0275elementStart(0, "div", 25);
     \u0275\u0275conditionalCreate(1, TabOutletComponent_Case_12_Conditional_1_Conditional_1_Template, 1, 0, "camera-controls");
-    \u0275\u0275element(2, "video-call-dial-view", 27);
+    \u0275\u0275element(2, "video-call-dial-view", 26);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
     const ctx_r1 = \u0275\u0275nextContext(2);
     \u0275\u0275advance();
     \u0275\u0275conditional(!ctx_r1.speaker_track() ? 1 : -1);
-    \u0275\u0275advance();
-    \u0275\u0275property("redirect", false);
   }
 }
 function TabOutletComponent_Case_12_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275conditionalCreate(0, TabOutletComponent_Case_12_Conditional_0_Template, 1, 2, "div", 25)(1, TabOutletComponent_Case_12_Conditional_1_Template, 3, 2, "div", 26);
+    \u0275\u0275conditionalCreate(0, TabOutletComponent_Case_12_Conditional_0_Template, 1, 3, "div", 24)(1, TabOutletComponent_Case_12_Conditional_1_Template, 3, 1, "div", 25);
   }
   if (rf & 2) {
     const ctx_r1 = \u0275\u0275nextContext();
@@ -2208,18 +2124,17 @@ function TabOutletComponent_Case_13_Template(rf, ctx) {
 }
 function TabOutletComponent_Case_14_Conditional_0_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275element(0, "div", 28);
+    \u0275\u0275element(0, "div", 27);
     \u0275\u0275pipe(1, "markdown");
-    \u0275\u0275pipe(2, "safe");
   }
   if (rf & 2) {
     const ctx_r1 = \u0275\u0275nextContext(2);
-    \u0275\u0275property("innerHTML", \u0275\u0275pipeBind1(2, 3, \u0275\u0275pipeBind1(1, 1, ctx_r1.help().content)), \u0275\u0275sanitizeHtml);
+    \u0275\u0275property("innerHTML", \u0275\u0275pipeBind1(1, 1, ctx_r1.help().content), \u0275\u0275sanitizeHtml);
   }
 }
 function TabOutletComponent_Case_14_Conditional_1_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 29)(1, "p");
+    \u0275\u0275elementStart(0, "div", 28)(1, "p");
     \u0275\u0275text(2);
     \u0275\u0275pipe(3, "translate");
     \u0275\u0275elementEnd()();
@@ -2231,8 +2146,8 @@ function TabOutletComponent_Case_14_Conditional_1_Template(rf, ctx) {
 }
 function TabOutletComponent_Case_14_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275conditionalCreate(0, TabOutletComponent_Case_14_Conditional_0_Template, 3, 5, "div", 28);
-    \u0275\u0275conditionalCreate(1, TabOutletComponent_Case_14_Conditional_1_Template, 4, 3, "div", 29);
+    \u0275\u0275conditionalCreate(0, TabOutletComponent_Case_14_Conditional_0_Template, 2, 3, "div", 27);
+    \u0275\u0275conditionalCreate(1, TabOutletComponent_Case_14_Conditional_1_Template, 4, 3, "div", 28);
   }
   if (rf & 2) {
     const ctx_r1 = \u0275\u0275nextContext();
@@ -2244,16 +2159,16 @@ function TabOutletComponent_Case_14_Template(rf, ctx) {
 function TabOutletComponent_Conditional_15_Template(rf, ctx) {
   if (rf & 1) {
     const _r6 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 30);
+    \u0275\u0275elementStart(0, "button", 29);
     \u0275\u0275listener("click", function TabOutletComponent_Conditional_15_Template_button_click_0_listener() {
       \u0275\u0275restoreView(_r6);
       const ctx_r1 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r1.viewHelp());
     });
-    \u0275\u0275elementStart(1, "div", 31)(2, "icon");
+    \u0275\u0275elementStart(1, "div", 30)(2, "icon");
     \u0275\u0275text(3, "help");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(4, "div", 32);
+    \u0275\u0275elementStart(4, "div", 31);
     \u0275\u0275text(5);
     \u0275\u0275pipe(6, "translate");
     \u0275\u0275elementEnd()()();
@@ -2266,16 +2181,16 @@ function TabOutletComponent_Conditional_15_Template(rf, ctx) {
 function TabOutletComponent_Conditional_18_Conditional_1_Template(rf, ctx) {
   if (rf & 1) {
     const _r8 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 37);
+    \u0275\u0275elementStart(0, "button", 36);
     \u0275\u0275listener("click", function TabOutletComponent_Conditional_18_Conditional_1_Template_button_click_0_listener() {
       \u0275\u0275restoreView(_r8);
       const ctx_r1 = \u0275\u0275nextContext(2);
       return \u0275\u0275resetView(ctx_r1.presentToAll());
     });
-    \u0275\u0275elementStart(1, "icon", 35);
+    \u0275\u0275elementStart(1, "icon", 34);
     \u0275\u0275text(2, "output");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(3, "div", 36);
+    \u0275\u0275elementStart(3, "div", 35);
     \u0275\u0275text(4);
     \u0275\u0275pipe(5, "translate");
     \u0275\u0275elementEnd()();
@@ -2289,17 +2204,17 @@ function TabOutletComponent_Conditional_18_Template(rf, ctx) {
   if (rf & 1) {
     const _r7 = \u0275\u0275getCurrentView();
     \u0275\u0275elementStart(0, "div", 15);
-    \u0275\u0275conditionalCreate(1, TabOutletComponent_Conditional_18_Conditional_1_Template, 6, 3, "button", 33);
-    \u0275\u0275elementStart(2, "button", 34);
+    \u0275\u0275conditionalCreate(1, TabOutletComponent_Conditional_18_Conditional_1_Template, 6, 3, "button", 32);
+    \u0275\u0275elementStart(2, "button", 33);
     \u0275\u0275listener("click", function TabOutletComponent_Conditional_18_Template_button_click_2_listener() {
       \u0275\u0275restoreView(_r7);
       const ctx_r1 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r1.clearAll());
     });
-    \u0275\u0275elementStart(3, "icon", 35);
+    \u0275\u0275elementStart(3, "icon", 34);
     \u0275\u0275text(4, "cancel_presentation");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(5, "div", 36);
+    \u0275\u0275elementStart(5, "div", 35);
     \u0275\u0275text(6);
     \u0275\u0275pipe(7, "translate");
     \u0275\u0275elementEnd()()();
@@ -2322,14 +2237,7 @@ var _TabOutletComponent = class _TabOutletComponent extends AsyncHandler {
     this._route = inject(ActivatedRoute);
     this._router = inject(Router);
     this.hearing_tloop = false;
-    this.id = this._service.id;
-    this.active_tab = signal(
-      "",
-      ...ngDevMode ? [{ debugName: "active_tab" }] : (
-        /* istanbul ignore next */
-        []
-      )
-    );
+    this.id = this._service.system_id;
     this.hide_present_all = this._service.hide_present_all;
     this.outputs = this._service.output_list;
     this.has_routes = computed(
@@ -2352,14 +2260,22 @@ var _TabOutletComponent = class _TabOutletComponent extends AsyncHandler {
     );
     this.inputs = computed(
       () => {
-        const id = this.active_tab();
-        const tab = this.tabs().find((_) => (_.id || _.name) === id);
-        const inputs = this._available_inputs();
+        const tab = this.tab();
         if (!tab)
           return [];
-        return inputs.filter((_) => !tab.inputs && (!tab.type || _.type === tab.type) || tab.inputs && tab.inputs.includes(_.id));
+        return this._available_inputs().filter((_) => tab.inputs ? tab.inputs.includes(_.id) : !tab.type || _.type === tab.type);
       },
       ...ngDevMode ? [{ debugName: "inputs" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.active_tab = computed(
+      () => {
+        const first = this.tabs()[0];
+        return this._route_tab() || this._selected_tab() || (first == null ? void 0 : first.id) || (first == null ? void 0 : first.name) || "";
+      },
+      ...ngDevMode ? [{ debugName: "active_tab" }] : (
         /* istanbul ignore next */
         []
       )
@@ -2367,6 +2283,16 @@ var _TabOutletComponent = class _TabOutletComponent extends AsyncHandler {
     this._user_action = signal(
       false,
       ...ngDevMode ? [{ debugName: "_user_action" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this._selected_tab = computed(
+      () => {
+        var _a;
+        return (_a = this.system()) == null ? void 0 : _a.selected_tab;
+      },
+      ...ngDevMode ? [{ debugName: "_selected_tab" }] : (
         /* istanbul ignore next */
         []
       )
@@ -2385,23 +2311,16 @@ var _TabOutletComponent = class _TabOutletComponent extends AsyncHandler {
     );
     this._help_items = this._service.help_items;
     this.join_code = "";
-    this.setInput = (s) => this._service.setOutputSource(s.id);
+    this.setInput = (input2) => this._service.setOutputSource(input2.id);
     this.viewHelp = () => {
       var _a;
       return this._service.viewHelp((_a = this.tab()) == null ? void 0 : _a.help);
     };
     effect(() => {
-      const tab = this._route_tab();
-      if (tab)
-        this.active_tab.set(tab);
-    });
-    effect(() => {
-      var _a;
-      const selected_tab = (_a = this.system()) == null ? void 0 : _a.selected_tab;
+      const selected_tab = this._selected_tab();
       this.timeout("update_tab", () => {
         if (selected_tab) {
-          this.active_tab.set(selected_tab);
-          this._router.navigate(["/tabbed", this.id, selected_tab], {
+          this._router.navigate(["/tabbed", this.id(), selected_tab], {
             queryParamsHandling: "merge"
           });
         }
@@ -2409,14 +2328,10 @@ var _TabOutletComponent = class _TabOutletComponent extends AsyncHandler {
     });
     effect(() => {
       var _a;
-      const available_inputs = this._available_inputs();
-      const tabs = this.tabs();
+      const input_list = this.inputs();
       const selected_input = (_a = this.system()) == null ? void 0 : _a.selected_input;
-      const active_tab = this._route_tab();
       const user_action = this._user_action();
       this.timeout("inputs", () => {
-        const tab = tabs.find((_) => (_.id || _.name) === active_tab);
-        const input_list = !tab ? [] : available_inputs.filter((_) => !tab.inputs && (!tab.type || _.type === tab.type) || tab.inputs && tab.inputs.includes(_.id));
         const has_selected = input_list.find((i) => (i.id || i.name) === selected_input);
         if (has_selected || !user_action)
           return;
@@ -2443,7 +2358,7 @@ var _TabOutletComponent = class _TabOutletComponent extends AsyncHandler {
 _TabOutletComponent.\u0275fac = function TabOutletComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _TabOutletComponent)();
 };
-_TabOutletComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _TabOutletComponent, selectors: [["tab-outlet"], ["", "tab-outlet", ""]], features: [\u0275\u0275InheritDefinitionFeature], decls: 19, vars: 13, consts: [["binding", "", "mod", "HearingAugmentation", "bind", "join_code", 3, "modelChange", "sys", "model"], ["binding", "", "mod", "HearingAugmentation", "bind", "has_t_coil", 3, "modelChange", "sys", "model"], [1, "flex", "h-full", "w-full", "flex-col", "items-center", "p-1"], [1, "relative", "flex", "w-[calc(100%-1rem)]", "items-center", "overflow-hidden", "px-1", "pt-2"], ["matRipple", "", "routerLinkActive", "opacity-100! text-secondary!", "queryParamsHandling", "merge", 1, "bg-base-100", "text-base-content", "mx-1", "flex", "h-24", "w-32", "flex-col", "items-center", "justify-center", "overflow-hidden", "rounded-t", "rounded-b-none", "leading-tight", "opacity-60", "shadow-sm", 3, "routerLink"], [1, "absolute", "top-0", "right-0", "bottom-2", "flex", "space-x-2"], [3, "system_id", "enabled"], [1, "max-h-full", "w-16"], [1, "divide-base-200", "bg-base-100", "text-base-content", "mb-1", "flex", "h-1/2", "w-[calc(100%-1rem)]", "flex-1", "items-center", "divide-x", "overflow-auto", "rounded-sm", "shadow-sm"], [1, "h-full", "w-64", "min-w-64", "space-y-2", "overflow-auto", "px-4", "pt-2", "pb-4", "sm:min-w-0"], [1, "relative", "h-full", "min-h-full", "min-w-full", "overflow-auto", "sm:min-w-0", 2, "flex", "2"], [3, "mod"], ["btn", "", "matRipple", "", 1, "inverse", "black", "absolute", "top-4", "right-4", "w-32"], [1, "flex", "w-full", "items-center"], [1, "min-w-0", "flex-1"], ["output-actions", "", 1, "flex", "flex-col", "space-y-2", "px-4"], ["matRipple", "", "routerLinkActive", "opacity-100! text-secondary!", "queryParamsHandling", "merge", 1, "bg-base-100", "text-base-content", "mx-1", "flex", "h-24", "w-32", "flex-col", "items-center", "justify-center", "overflow-hidden", "rounded-t", "rounded-b-none", "leading-tight", "opacity-60", "shadow-sm", 3, "click", "routerLink"], ["className", "material-symbols-outlined", 1, "text-5xl"], [1, "bg-base-100", "space-y-1", "rounded-sm", "p-2", "shadow-sm"], [1, "w-16", "overflow-hidden", "rounded-sm", "border", "border-[hsl(217,62%,38%)]", 3, "src"], [1, "text-base-content", "text-center", "font-mono", "text-xs"], [1, "p-2", "text-center", "text-lg", "font-medium"], ["btn", "", "matRipple", "", 1, "w-full", 3, "inverse"], [1, "flex", "h-1/2", "w-full", "flex-1", "items-center", "justify-center", "p-8", "opacity-30"], ["btn", "", "matRipple", "", 1, "w-full", 3, "click"], ["video-call-page", "", 3, "present_output", "redirect"], [1, "flex", "justify-center", "space-x-8"], [1, "mt-4", "block", 3, "redirect"], ["content", "", 1, "p-8", 3, "innerHTML"], [1, "flex", "h-full", "w-full", "items-center", "justify-center", "opacity-60"], ["btn", "", "matRipple", "", 1, "inverse", "black", "absolute", "top-4", "right-4", "w-32", 3, "click"], [1, "mr-2", "flex", "items-center", "justify-center"], [1, "mx-2"], ["btn", "", "matRipple", "", "present-all", "", 1, "space-x-2"], ["btn", "", "matRipple", "", "clear-all", "", 1, "inverse", "space-x-2", 3, "click", "disabled"], [1, "text-2xl"], [1, "pr-4"], ["btn", "", "matRipple", "", "present-all", "", 1, "space-x-2", 3, "click"]], template: function TabOutletComponent_Template(rf, ctx) {
+_TabOutletComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _TabOutletComponent, selectors: [["tab-outlet"], ["", "tab-outlet", ""]], features: [\u0275\u0275InheritDefinitionFeature], decls: 19, vars: 13, consts: [["binding", "", "mod", "HearingAugmentation", "bind", "join_code", 3, "modelChange", "sys", "model"], ["binding", "", "mod", "HearingAugmentation", "bind", "has_t_coil", 3, "modelChange", "sys", "model"], [1, "flex", "h-full", "w-full", "flex-col", "items-center", "p-1"], [1, "relative", "flex", "w-[calc(100%-1rem)]", "items-center", "overflow-hidden", "px-1", "pt-2"], ["matRipple", "", "queryParamsHandling", "merge", 1, "bg-base-100", "text-base-content", "mx-1", "flex", "h-24", "w-32", "flex-col", "items-center", "justify-center", "overflow-hidden", "rounded-t", "rounded-b-none", "leading-tight", "opacity-60", "shadow-sm", 3, "routerLink", "opacity-100!", "text-secondary!"], [1, "absolute", "top-0", "right-0", "bottom-2", "flex", "space-x-2"], [3, "system_id", "enabled"], [1, "max-h-full", "w-16"], [1, "divide-base-200", "bg-base-100", "text-base-content", "mb-1", "flex", "h-1/2", "w-[calc(100%-1rem)]", "flex-1", "items-center", "divide-x", "overflow-auto", "rounded-sm", "shadow-sm"], [1, "h-full", "w-64", "min-w-64", "space-y-2", "overflow-auto", "px-4", "pt-2", "pb-4", "sm:min-w-0"], [1, "relative", "h-full", "min-h-full", "min-w-full", "overflow-auto", "sm:min-w-0", 2, "flex", "2"], [3, "mod"], ["btn", "", "matRipple", "", 1, "inverse", "black", "absolute", "top-4", "right-4", "w-32"], [1, "flex", "w-full", "items-center"], [1, "min-w-0", "flex-1"], ["output-actions", "", 1, "flex", "flex-col", "space-y-2", "px-4"], ["matRipple", "", "queryParamsHandling", "merge", 1, "bg-base-100", "text-base-content", "mx-1", "flex", "h-24", "w-32", "flex-col", "items-center", "justify-center", "overflow-hidden", "rounded-t", "rounded-b-none", "leading-tight", "opacity-60", "shadow-sm", 3, "click", "routerLink"], ["className", "material-symbols-outlined", 1, "text-5xl"], [1, "bg-base-100", "space-y-1", "rounded-sm", "p-2", "shadow-sm"], [1, "w-16", "overflow-hidden", "rounded-sm", "border", "border-[hsl(217,62%,38%)]", 3, "src"], [1, "text-base-content", "text-center", "font-mono", "text-xs"], [1, "p-2", "text-center", "text-lg", "font-medium"], ["btn", "", "matRipple", "", 1, "w-full", 3, "inverse"], ["btn", "", "matRipple", "", 1, "w-full", 3, "click"], ["video-call-page", "", 3, "reserve_top", "present_output", "redirect"], [1, "flex", "justify-center", "space-x-8"], [1, "mt-4", "block"], ["content", "", 1, "p-8", 3, "innerHTML"], [1, "flex", "h-full", "w-full", "items-center", "justify-center", "opacity-60"], ["btn", "", "matRipple", "", 1, "inverse", "black", "absolute", "top-4", "right-4", "w-32", 3, "click"], [1, "mr-2", "flex", "items-center", "justify-center"], [1, "mx-2"], ["btn", "", "matRipple", "", "present-all", "", 1, "space-x-2"], ["btn", "", "matRipple", "", "clear-all", "", 1, "inverse", "space-x-2", 3, "click", "disabled"], [1, "text-2xl"], [1, "pr-4"], ["btn", "", "matRipple", "", "present-all", "", 1, "space-x-2", 3, "click"]], template: function TabOutletComponent_Template(rf, ctx) {
   var _a, _b, _c, _d;
   if (rf & 1) {
     \u0275\u0275elementStart(0, "i", 0);
@@ -2459,13 +2374,13 @@ _TabOutletComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ ty
     });
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(2, "div", 2)(3, "div", 3);
-    \u0275\u0275repeaterCreate(4, TabOutletComponent_For_5_Template, 5, 6, "a", 4, \u0275\u0275repeaterTrackByIdentity);
+    \u0275\u0275repeaterCreate(4, TabOutletComponent_For_5_Template, 5, 11, "a", 4, \u0275\u0275repeaterTrackByIdentity);
     \u0275\u0275elementStart(6, "div", 5);
     \u0275\u0275element(7, "voice-assistant", 6);
     \u0275\u0275conditionalCreate(8, TabOutletComponent_Conditional_8_Template, 5, 2, "div", 7);
     \u0275\u0275elementEnd()();
     \u0275\u0275elementStart(9, "div", 8);
-    \u0275\u0275conditionalCreate(10, TabOutletComponent_Conditional_10_Template, 7, 4, "div", 9);
+    \u0275\u0275conditionalCreate(10, TabOutletComponent_Conditional_10_Template, 6, 3, "div", 9);
     \u0275\u0275elementStart(11, "div", 10);
     \u0275\u0275conditionalCreate(12, TabOutletComponent_Case_12_Template, 2, 1)(13, TabOutletComponent_Case_13_Template, 1, 1, "tv-controls", 11)(14, TabOutletComponent_Case_14_Template, 2, 2);
     \u0275\u0275conditionalCreate(15, TabOutletComponent_Conditional_15_Template, 7, 3, "button", 12);
@@ -2477,17 +2392,17 @@ _TabOutletComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ ty
   }
   if (rf & 2) {
     let tmp_10_0;
-    \u0275\u0275property("sys", ctx.id);
+    \u0275\u0275property("sys", ctx.id());
     \u0275\u0275twoWayProperty("model", ctx.join_code);
     \u0275\u0275advance();
-    \u0275\u0275property("sys", ctx.id);
+    \u0275\u0275property("sys", ctx.id());
     \u0275\u0275twoWayProperty("model", ctx.hearing_tloop);
     \u0275\u0275advance(2);
     \u0275\u0275styleProp("padding-right", (ctx.join_code ? 6 : 0) + "rem");
     \u0275\u0275advance();
     \u0275\u0275repeater(ctx.tabs());
     \u0275\u0275advance(3);
-    \u0275\u0275property("system_id", ctx.id)("enabled", (_a = ctx.system()) == null ? void 0 : _a.voice_control);
+    \u0275\u0275property("system_id", ctx.id())("enabled", (_a = ctx.system()) == null ? void 0 : _a.voice_control);
     \u0275\u0275advance();
     \u0275\u0275conditional(ctx.join_code ? 8 : -1);
     \u0275\u0275advance(2);
@@ -2512,10 +2427,8 @@ _TabOutletComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ ty
   VoiceAssistantComponent,
   RouterModule,
   RouterLink,
-  RouterLinkActive,
   TranslatePipe,
-  MarkdownPipe,
-  SafePipe
+  MarkdownPipe
 ], styles: ["\na[_ngcontent-%COMP%] {\n  color: #000;\n}\n/*# sourceMappingURL=tab-outlet.component.css.map */"] });
 var TabOutletComponent = _TabOutletComponent;
 (() => {
@@ -2524,14 +2437,14 @@ var TabOutletComponent = _TabOutletComponent;
     args: [{ selector: "tab-outlet,[tab-outlet]", template: `
         <i
             binding
-            [sys]="id"
+            [sys]="id()"
             mod="HearingAugmentation"
             bind="join_code"
             [(model)]="join_code"
         ></i>
         <i
             binding
-            [sys]="id"
+            [sys]="id()"
             mod="HearingAugmentation"
             bind="has_t_coil"
             [(model)]="hearing_tloop"
@@ -2545,8 +2458,18 @@ var TabOutletComponent = _TabOutletComponent;
                     <a
                         matRipple
                         class="bg-base-100 text-base-content mx-1 flex h-24 w-32 flex-col items-center justify-center overflow-hidden rounded-t rounded-b-none leading-tight opacity-60 shadow-sm"
-                        [routerLink]="['/tabbed', id, tab.id || tab.name]"
-                        routerLinkActive="opacity-100! text-secondary!"
+                        [routerLink]="['/tabbed', id(), tab.id || tab.name]"
+                        [class.opacity-100!]="
+                            (tab.id || tab.name) === active_tab()
+                        "
+                        [class.text-secondary!]="
+                            (tab.id || tab.name) === active_tab()
+                        "
+                        [attr.aria-current]="
+                            (tab.id || tab.name) === active_tab()
+                                ? 'page'
+                                : null
+                        "
                         queryParamsHandling="merge"
                         (click)="onAction()"
                     >
@@ -2560,7 +2483,7 @@ var TabOutletComponent = _TabOutletComponent;
                 }
                 <div class="absolute top-0 right-0 bottom-2 flex space-x-2">
                     <voice-assistant
-                        [system_id]="id"
+                        [system_id]="id()"
                         [enabled]="system()?.voice_control"
                     ></voice-assistant>
                     @if (join_code) {
@@ -2579,7 +2502,7 @@ var TabOutletComponent = _TabOutletComponent;
                                 <p
                                     class="text-base-content text-center font-mono text-xs"
                                 >
-                                    {{ join_code || '=CODE=' }}
+                                    {{ join_code }}
                                 </p>
                             </div>
                         </div>
@@ -2610,16 +2533,6 @@ var TabOutletComponent = _TabOutletComponent;
                                 {{ input?.name }}
                             </button>
                         }
-                        @if (!inputs().length) {
-                            <div
-                                class="flex h-1/2 w-full flex-1 items-center justify-center p-8 opacity-30"
-                            >
-                                {{
-                                    'APP.CONTROL.INPUT_CATEGORY_EMPTY'
-                                        | translate
-                                }}
-                            </div>
-                        }
                     </div>
                 }
                 <div
@@ -2631,6 +2544,7 @@ var TabOutletComponent = _TabOutletComponent;
                             @if (call()) {
                                 <div
                                     video-call-page
+                                    [reserve_top]="!!tab()?.help"
                                     [present_output]="
                                         tab()?.presentation_source
                                     "
@@ -2643,7 +2557,6 @@ var TabOutletComponent = _TabOutletComponent;
                                     }
                                     <video-call-dial-view
                                         class="mt-4 block"
-                                        [redirect]="false"
                                     ></video-call-dial-view>
                                 </div>
                             }
@@ -2656,9 +2569,7 @@ var TabOutletComponent = _TabOutletComponent;
                                 <div
                                     class="p-8"
                                     content
-                                    [innerHTML]="
-                                        help().content | markdown | safe
-                                    "
+                                    [innerHTML]="help().content | markdown"
                                 ></div>
                             }
                             @if (!help()) {
@@ -2734,7 +2645,6 @@ var TabOutletComponent = _TabOutletComponent;
       DeviceOutputListComponent,
       TranslatePipe,
       MarkdownPipe,
-      SafePipe,
       TVControlsComponent,
       VideoCallDialViewComponent,
       CameraControlsComponent,
@@ -2745,94 +2655,53 @@ var TabOutletComponent = _TabOutletComponent;
   }], () => [], null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(TabOutletComponent, { className: "TabOutletComponent", filePath: "apps/control/src/app/tabbed-view/tab-outlet.component.ts", lineNumber: 255 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(TabOutletComponent, { className: "TabOutletComponent", filePath: "apps/control/src/app/tabbed-view/tab-outlet.component.ts", lineNumber: 251 });
 })();
 
 // apps/control/src/app/tabbed-view/tabbed-view.component.ts
 function ControlTabbedViewComponent_Conditional_0_Conditional_0_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 0);
-    \u0275\u0275element(1, "topbar-header")(2, "div", 3)(3, "control-status-bar");
+    \u0275\u0275element(1, "topbar-header")(2, "div", 2)(3, "control-status-bar");
     \u0275\u0275elementEnd();
   }
 }
 function ControlTabbedViewComponent_Conditional_0_Conditional_1_Template(rf, ctx) {
-  var _a, _b;
+  var _a;
   if (rf & 1) {
-    const _r1 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "div", 4);
-    \u0275\u0275listener("click", function ControlTabbedViewComponent_Conditional_0_Conditional_1_Template_div_click_0_listener() {
-      \u0275\u0275restoreView(_r1);
-      const ctx_r1 = \u0275\u0275nextContext(2);
-      return \u0275\u0275resetView(ctx_r1.powerOn());
-    })("touchend", function ControlTabbedViewComponent_Conditional_0_Conditional_1_Template_div_touchend_0_listener() {
-      \u0275\u0275restoreView(_r1);
-      const ctx_r1 = \u0275\u0275nextContext(2);
-      return \u0275\u0275resetView(ctx_r1.powerOn());
+    \u0275\u0275elementStart(0, "control-splash");
+    \u0275\u0275element(1, "next-meeting", 3);
+    \u0275\u0275elementStart(2, "div", 4);
+    \u0275\u0275listener("click", function ControlTabbedViewComponent_Conditional_0_Conditional_1_Template_div_click_2_listener($event) {
+      return $event.stopPropagation();
     });
-    \u0275\u0275elementStart(1, "h2", 5);
-    \u0275\u0275text(2);
-    \u0275\u0275pipe(3, "translate");
-    \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(4, "p", 6);
-    \u0275\u0275text(5);
-    \u0275\u0275elementEnd();
-    \u0275\u0275element(6, "next-meeting", 7);
-    \u0275\u0275elementStart(7, "div", 8)(8, "div", 9);
-    \u0275\u0275elementContainerStart(9);
-    \u0275\u0275text(10, "Version: ");
-    \u0275\u0275elementContainerEnd();
-    \u0275\u0275elementStart(11, "button", 10);
-    \u0275\u0275listener("click", function ControlTabbedViewComponent_Conditional_0_Conditional_1_Template_button_click_11_listener() {
-      \u0275\u0275restoreView(_r1);
-      const ctx_r1 = \u0275\u0275nextContext(2);
-      return \u0275\u0275resetView(ctx_r1.viewChangelog());
-    });
-    \u0275\u0275text(12);
-    \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(13, "div", 9);
-    \u0275\u0275text(14);
-    \u0275\u0275pipe(15, "date");
-    \u0275\u0275pipe(16, "date");
-    \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(17, "div", 11);
-    \u0275\u0275element(18, "voice-assistant", 12);
+    \u0275\u0275element(3, "voice-assistant", 5);
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
-    const ctx_r1 = \u0275\u0275nextContext(2);
-    \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(3, 8, "APP.CONTROL.TOUCH_TO_START"), " ");
+    const ctx_r0 = \u0275\u0275nextContext(2);
     \u0275\u0275advance(3);
-    \u0275\u0275textInterpolate((_a = ctx_r1.system()) == null ? void 0 : _a.name);
-    \u0275\u0275advance(6);
-    \u0275\u0275property("disabled", !ctx_r1.changelog_available());
-    \u0275\u0275advance();
-    \u0275\u0275textInterpolate1(" ", ctx_r1.version.hash, " ");
-    \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate2(" ", \u0275\u0275pipeBind2(15, 10, ctx_r1.version.time, "longDate"), " (", \u0275\u0275pipeBind2(16, 13, ctx_r1.version.time, "shortTime"), ") ");
-    \u0275\u0275advance(4);
-    \u0275\u0275property("system_id", ctx_r1.id())("enabled", (_b = ctx_r1.system()) == null ? void 0 : _b.voice_control);
+    \u0275\u0275property("system_id", ctx_r0.id())("enabled", (_a = ctx_r0.system()) == null ? void 0 : _a.voice_control);
   }
 }
 function ControlTabbedViewComponent_Conditional_0_Conditional_2_Template(rf, ctx) {
   var _a;
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 2)(1, "div", 13);
-    \u0275\u0275element(2, "img", 14);
+    \u0275\u0275elementStart(0, "div", 1)(1, "div", 6);
+    \u0275\u0275element(2, "img", 7);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(3, "icon", 15);
+    \u0275\u0275elementStart(3, "icon", 8);
     \u0275\u0275text(4, "lock");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(5, "p", 16);
+    \u0275\u0275elementStart(5, "p", 9);
     \u0275\u0275text(6);
     \u0275\u0275pipe(7, "translate");
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
-    const ctx_r1 = \u0275\u0275nextContext(2);
+    const ctx_r0 = \u0275\u0275nextContext(2);
     \u0275\u0275advance(2);
-    \u0275\u0275property("source", ((_a = ctx_r1.logo()) == null ? void 0 : _a.src) || ctx_r1.logo());
+    \u0275\u0275property("source", ((_a = ctx_r0.logo()) == null ? void 0 : _a.src) || ctx_r0.logo());
     \u0275\u0275advance(4);
     \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(7, 2, "APP.CONTROL.ROOMS_JOINED"), " ");
   }
@@ -2840,14 +2709,14 @@ function ControlTabbedViewComponent_Conditional_0_Conditional_2_Template(rf, ctx
 function ControlTabbedViewComponent_Conditional_0_Template(rf, ctx) {
   var _a;
   if (rf & 1) {
-    \u0275\u0275conditionalCreate(0, ControlTabbedViewComponent_Conditional_0_Conditional_0_Template, 4, 0, "div", 0)(1, ControlTabbedViewComponent_Conditional_0_Conditional_1_Template, 19, 16, "div", 1);
-    \u0275\u0275conditionalCreate(2, ControlTabbedViewComponent_Conditional_0_Conditional_2_Template, 8, 4, "div", 2);
+    \u0275\u0275conditionalCreate(0, ControlTabbedViewComponent_Conditional_0_Conditional_0_Template, 4, 0, "div", 0)(1, ControlTabbedViewComponent_Conditional_0_Conditional_1_Template, 4, 2, "control-splash");
+    \u0275\u0275conditionalCreate(2, ControlTabbedViewComponent_Conditional_0_Conditional_2_Template, 8, 4, "div", 1);
   }
   if (rf & 2) {
-    const ctx_r1 = \u0275\u0275nextContext();
-    \u0275\u0275conditional(((_a = ctx_r1.system()) == null ? void 0 : _a.active) ? 0 : 1);
+    const ctx_r0 = \u0275\u0275nextContext();
+    \u0275\u0275conditional(((_a = ctx_r0.system()) == null ? void 0 : _a.active) ? 0 : 1);
     \u0275\u0275advance(2);
-    \u0275\u0275conditional(!ctx_r1.join_status()[0] && ctx_r1.join_status()[1] ? 2 : -1);
+    \u0275\u0275conditional(!ctx_r0.join_status()[0] && ctx_r0.join_status()[1] ? 2 : -1);
   }
 }
 function ControlTabbedViewComponent_Conditional_1_Template(rf, ctx) {
@@ -2858,8 +2727,8 @@ function ControlTabbedViewComponent_Conditional_1_Template(rf, ctx) {
 var _ControlTabbedViewComponent = class _ControlTabbedViewComponent {
   constructor() {
     this._route = inject(ActivatedRoute);
+    this._router = inject(Router);
     this._state = inject(ControlStateService);
-    this._changelog = inject(ChangelogService);
     this._settings = inject(SettingsService);
     this._org = inject(OrganisationService);
     this._param_map = toSignal(this._route.paramMap, {
@@ -2870,11 +2739,7 @@ var _ControlTabbedViewComponent = class _ControlTabbedViewComponent {
     });
     this.system = this._state.system;
     this.join_status = this._state.join_status;
-    this.powerOn = () => this._state.powerOn();
     this.id = this._state.system_id;
-    this.version = VERSION;
-    this.changelog_available = this._changelog.available;
-    this.viewChangelog = () => this._changelog.view();
     this.logo = computed(
       () => {
         this._org.active_building();
@@ -2892,15 +2757,22 @@ var _ControlTabbedViewComponent = class _ControlTabbedViewComponent {
     });
     effect(() => {
       const params = this._query_param_map();
-      if (params.get("join") === "true")
-        this._state.selectMeeting();
+      if (params.get("join") !== "true")
+        return;
+      this._state.selectMeeting();
+      this._router.navigate([], {
+        relativeTo: this._route,
+        queryParams: { join: null },
+        queryParamsHandling: "merge",
+        replaceUrl: true
+      });
     });
   }
 };
 _ControlTabbedViewComponent.\u0275fac = function ControlTabbedViewComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _ControlTabbedViewComponent)();
 };
-_ControlTabbedViewComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _ControlTabbedViewComponent, selectors: [["app-control-tabbed-view"]], decls: 2, vars: 1, consts: [[1, "divide", "divide-base-200", "bg-base-100", "relative", "flex", "h-full", "w-full", "flex-col"], ["name", "splash", 1, "absolute", "inset-0", "flex", "flex-col", "items-center", "justify-center", "text-white"], ["lockout", "", 1, "bg-base-100", "absolute", "inset-0", "flex", "flex-col", "items-center", "justify-center", "space-y-2", "p-16"], ["tab-outlet", "", 1, "bg-base-200", "h-1/2", "flex-1"], ["name", "splash", 1, "absolute", "inset-0", "flex", "flex-col", "items-center", "justify-center", "text-white", 3, "click", "touchend"], [1, "mb-4", "text-4xl", "font-light"], [1, "text-lg"], [1, "mt-8"], [1, "absolute", "bottom-0", "left-0", "p-2"], [1, "w-full", "text-xs", "opacity-60"], [1, "m-0", "border-none", "bg-none", "p-0", "text-xs", "underline", 3, "click", "disabled"], [1, "absolute", "right-4", "bottom-4"], [3, "system_id", "enabled"], [1, "absolute", "top-4", "left-4", "z-0"], ["auth", "", "alt", "Logo", 1, "h-10", 3, "source"], [1, "text-base-content", "relative", "z-10", "text-8xl"], [1, "text-base-content", "relative", "z-10", "text-2xl"]], template: function ControlTabbedViewComponent_Template(rf, ctx) {
+_ControlTabbedViewComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _ControlTabbedViewComponent, selectors: [["app-control-tabbed-view"]], decls: 2, vars: 1, consts: [[1, "divide", "divide-base-200", "bg-base-100", "relative", "flex", "h-full", "w-full", "flex-col"], ["lockout", "", 1, "bg-base-100", "absolute", "inset-0", "flex", "flex-col", "items-center", "justify-center", "space-y-2", "p-16"], ["tab-outlet", "", 1, "bg-base-200", "h-1/2", "flex-1"], [1, "mt-8"], [1, "absolute", "right-4", "bottom-4", 3, "click"], [3, "system_id", "enabled"], [1, "absolute", "top-4", "left-4", "z-0"], ["auth", "", "alt", "Logo", 1, "h-10", 3, "source"], [1, "text-base-content", "relative", "z-10", "text-8xl"], [1, "text-base-content", "relative", "z-10", "text-2xl"]], template: function ControlTabbedViewComponent_Template(rf, ctx) {
   var _a;
   if (rf & 1) {
     \u0275\u0275conditionalCreate(0, ControlTabbedViewComponent_Conditional_0_Template, 3, 2)(1, ControlTabbedViewComponent_Conditional_1_Template, 1, 0, "control-connecting");
@@ -2917,9 +2789,9 @@ _ControlTabbedViewComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineCompon
   IconComponent,
   AuthenticatedImageDirective,
   VoiceAssistantComponent,
-  TranslatePipe,
-  DatePipe
-], styles: ["\n[_nghost-%COMP%] {\n  display: block;\n  position: relative;\n  width: 100%;\n  height: 100%;\n}\n[_nghost-%COMP%]    > div[_ngcontent-%COMP%] {\n  color: #fff;\n}\n[name=splash][_ngcontent-%COMP%] {\n  animation: crossfade 10s linear;\n  animation-iteration-count: infinite;\n}\n/*# sourceMappingURL=tabbed-view.component.css.map */"] });
+  SplashComponent,
+  TranslatePipe
+], styles: ["\n[_nghost-%COMP%] {\n  display: block;\n  position: relative;\n  width: 100%;\n  height: 100%;\n}\n[_nghost-%COMP%]    > div[_ngcontent-%COMP%] {\n  color: #fff;\n}\n/*# sourceMappingURL=tabbed-view.component.css.map */"] });
 var ControlTabbedViewComponent = _ControlTabbedViewComponent;
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(ControlTabbedViewComponent, [{
@@ -2935,40 +2807,18 @@ var ControlTabbedViewComponent = _ControlTabbedViewComponent;
                     <control-status-bar></control-status-bar>
                 </div>
             } @else {
-                <div
-                    name="splash"
-                    class="absolute inset-0 flex flex-col items-center justify-center text-white"
-                    (click)="powerOn()"
-                    (touchend)="powerOn()"
-                >
-                    <h2 class="mb-4 text-4xl font-light">
-                        {{ 'APP.CONTROL.TOUCH_TO_START' | translate }}
-                    </h2>
-                    <p class="text-lg">{{ system()?.name }}</p>
+                <control-splash>
                     <next-meeting class="mt-8" />
-                    <div class="absolute bottom-0 left-0 p-2">
-                        <div class="w-full text-xs opacity-60">
-                            <ng-container>Version: </ng-container>
-                            <button
-                                class="m-0 border-none bg-none p-0 text-xs underline"
-                                [disabled]="!changelog_available()"
-                                (click)="viewChangelog()"
-                            >
-                                {{ version.hash }}
-                            </button>
-                        </div>
-                        <div class="w-full text-xs opacity-60">
-                            {{ version.time | date: 'longDate' }}
-                            ({{ version.time | date: 'shortTime' }})
-                        </div>
-                    </div>
-                    <div class="absolute right-4 bottom-4">
+                    <div
+                        class="absolute right-4 bottom-4"
+                        (click)="$event.stopPropagation()"
+                    >
                         <voice-assistant
                             [system_id]="id()"
                             [enabled]="system()?.voice_control"
                         ></voice-assistant>
                     </div>
-                </div>
+                </control-splash>
             }
             @if (!join_status()[0] && join_status()[1]) {
                 <div
@@ -3004,15 +2854,15 @@ var ControlTabbedViewComponent = _ControlTabbedViewComponent;
       IconComponent,
       AuthenticatedImageDirective,
       VoiceAssistantComponent,
-      DatePipe
-    ], styles: ["/* angular:styles/component:css;5c9c66d69eb2d754cb71ce22bb6ef0ab9a2fd4d711316fd0e8b0d54cb6c6db5b;/home/runner/work/user-interfaces/user-interfaces/apps/control/src/app/tabbed-view/tabbed-view.component.ts */\n:host {\n  display: block;\n  position: relative;\n  width: 100%;\n  height: 100%;\n}\n:host > div {\n  color: #fff;\n}\n[name=splash] {\n  animation: crossfade 10s linear;\n  animation-iteration-count: infinite;\n}\n/*# sourceMappingURL=tabbed-view.component.css.map */\n"] }]
+      SplashComponent
+    ], styles: ["/* angular:styles/component:css;5653e8145a7eb9e9062a6b756348b23fd47695d22bf14c8a0efd20507a877107;/home/runner/work/user-interfaces/user-interfaces/apps/control/src/app/tabbed-view/tabbed-view.component.ts */\n:host {\n  display: block;\n  position: relative;\n  width: 100%;\n  height: 100%;\n}\n:host > div {\n  color: #fff;\n}\n/*# sourceMappingURL=tabbed-view.component.css.map */\n"] }]
   }], () => [], null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(ControlTabbedViewComponent, { className: "ControlTabbedViewComponent", filePath: "apps/control/src/app/tabbed-view/tabbed-view.component.ts", lineNumber: 128 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(ControlTabbedViewComponent, { className: "ControlTabbedViewComponent", filePath: "apps/control/src/app/tabbed-view/tabbed-view.component.ts", lineNumber: 100 });
 })();
 export {
   ControlTabbedViewComponent
 };
-//# debugId=8b578e05-2901-5b85-8e3a-1df68d40c3da
-//# sourceMappingURL=tabbed-view.component-LBWWWJO7.js.map
+//# debugId=d1d4d765-56cd-5642-846f-02d5df4a3b3e
+//# sourceMappingURL=tabbed-view.component-S2YSWTLV.js.map

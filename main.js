@@ -15,14 +15,14 @@ import {
   MatProgressSpinnerModule,
   MatSuffix,
   toSignal
-} from "./chunk-2EQX7Z2A.js";
+} from "./chunk-UTHE6AYJ.js";
 import {
   MatTooltip,
   MatTooltipModule
-} from "./chunk-EIUEOGAT.js";
+} from "./chunk-RHOXWFSX.js";
 import {
   TranslatePipe
-} from "./chunk-G63XENND.js";
+} from "./chunk-U4V525AH.js";
 import {
   ActivatedRoute,
   ActiveDescendantKeyManager,
@@ -251,7 +251,7 @@ import {
   ɵɵtwoWayProperty,
   ɵɵviewQuery,
   ɵɵviewQuerySignal
-} from "./chunk-YX4P66OA.js";
+} from "./chunk-WRMJ73SH.js";
 import {
   __spreadProps,
   __spreadValues
@@ -1540,15 +1540,15 @@ var GlobalLoadingComponent = _GlobalLoadingComponent;
 // libs/components/src/lib/settings-debug-panel-launcher.component.ts
 var SettingsDebugPanelLauncherComponent_Defer_25_DepsFn = () => [
   /* @ts-ignore */
-  import("./settings-debug-panel.component-MP7BSGVM.js").then((m) => m.SettingsDebugPanelComponent)
+  import("./settings-debug-panel.component-BTECM432.js").then((m) => m.SettingsDebugPanelComponent)
 ];
 var SettingsDebugPanelLauncherComponent_Defer_28_DepsFn = () => [
   /* @ts-ignore */
-  import("./binding-debug-panel.component-YYB4APTT.js").then((m) => m.BindingDebugPanelComponent)
+  import("./binding-debug-panel.component-MMG7SGEU.js").then((m) => m.BindingDebugPanelComponent)
 ];
 var SettingsDebugPanelLauncherComponent_Defer_31_DepsFn = () => [
   /* @ts-ignore */
-  import("./debug-console.component-UOZ2VFCO.js").then((m) => m.DebugConsoleComponent)
+  import("./debug-console.component-C6ZDEDOW.js").then((m) => m.DebugConsoleComponent)
 ];
 function SettingsDebugPanelLauncherComponent_Defer_24_Conditional_0_Template(rf, ctx) {
   if (rf & 1) {
@@ -1781,11 +1781,11 @@ var SettingsDebugPanelLauncherComponent = _SettingsDebugPanelLauncherComponent;
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(SettingsDebugPanelLauncherComponent, () => [
     /* @ts-ignore */
-    import("./settings-debug-panel.component-MP7BSGVM.js").then((m) => m.SettingsDebugPanelComponent),
+    import("./settings-debug-panel.component-BTECM432.js").then((m) => m.SettingsDebugPanelComponent),
     /* @ts-ignore */
-    import("./binding-debug-panel.component-YYB4APTT.js").then((m) => m.BindingDebugPanelComponent),
+    import("./binding-debug-panel.component-MMG7SGEU.js").then((m) => m.BindingDebugPanelComponent),
     /* @ts-ignore */
-    import("./debug-console.component-UOZ2VFCO.js").then((m) => m.DebugConsoleComponent)
+    import("./debug-console.component-C6ZDEDOW.js").then((m) => m.DebugConsoleComponent)
   ], (SettingsDebugPanelComponent, BindingDebugPanelComponent, DebugConsoleComponent) => {
     setClassMetadata(SettingsDebugPanelLauncherComponent, [{
       type: Component,
@@ -8392,6 +8392,23 @@ function registerMockSignage() {
     callback: () => ({})
   });
   co({
+    path: "/api/engine/v2/uploads/screenshot",
+    metadata: {},
+    method: "POST",
+    callback: (request) => ({
+      id: `upload-screenshot-${Date.now()}`,
+      file_name: `screenshot-${new URL(request.body.url).host}.jpg`,
+      file_mime: "image/jpeg",
+      tags: ["screenshot"]
+    })
+  });
+  co({
+    path: "/api/engine/v2/uploads/:id",
+    metadata: {},
+    method: "DELETE",
+    callback: () => ({})
+  });
+  co({
     path: "/api/engine/v2/signage/media/share",
     metadata: {},
     method: "POST",
@@ -8784,20 +8801,20 @@ function registerMockSignage() {
       };
     }
   });
-  registerMockSignageAI();
+  registerMockSignageImageGen();
 }
-function registerMockSignageAI() {
-  const AI_JOBS = {};
+function registerMockSignageImageGen() {
+  const IMAGE_GEN_JOBS = {};
   const SAMPLE_IMAGES = MOCK_MEDIA.slice(0, 4).map((item) => item.id);
   const now = () => Math.floor(Date.now() / 1e3);
   function makeJob(request, kind) {
     const count = Math.min(Math.max(request.candidates || 2, 1), 4);
     const job = {
-      id: `signage-ai-job-${Object.keys(AI_JOBS).length + 1}`,
+      id: `signage-ai-job-${Object.keys(IMAGE_GEN_JOBS).length + 1}`,
       state: "queued",
       kind,
       provider: "OPENAI",
-      model: "gpt-image-2",
+      model: "gpt-image-2.5-sunburst",
       candidates: count,
       images_produced: 0,
       parent_job_id: request.parent_job_id,
@@ -8806,7 +8823,7 @@ function registerMockSignageAI() {
       images: Array.from({ length: count }, () => null),
       created_at: now()
     };
-    AI_JOBS[job.id] = job;
+    IMAGE_GEN_JOBS[job.id] = job;
     if (`${request.prompt}`.includes("trigger-moderation")) {
       setTimeout(() => {
         job.state = "failed";
@@ -8851,11 +8868,11 @@ function registerMockSignageAI() {
           id: "signage-ai-provider-1",
           name: "Mock provider",
           provider: "OPENAI",
-          default_model: "gpt-image-2",
+          default_model: "gpt-image-2.5-sunburst",
           models: [
             {
-              id: "gpt-image-2",
-              name: "GPT Image 2",
+              id: "gpt-image-2.5-sunburst",
+              name: "GPT Image 2.5 Sunburst",
               generate: true,
               edit: true,
               enhance: true,
@@ -8891,14 +8908,14 @@ function registerMockSignageAI() {
     path: "/api/engine/v2/signage/ai/jobs",
     metadata: {},
     method: "GET",
-    callback: () => Object.values(AI_JOBS)
+    callback: () => Object.values(IMAGE_GEN_JOBS)
   });
   co({
     path: "/api/engine/v2/signage/ai/jobs/:id",
     metadata: {},
     method: "GET",
     callback: (request) => {
-      const job = AI_JOBS[request.route_params.id];
+      const job = IMAGE_GEN_JOBS[request.route_params.id];
       if (!job)
         throw { status: 404, message: "No such job" };
       return job;
@@ -8909,7 +8926,7 @@ function registerMockSignageAI() {
     metadata: {},
     method: "POST",
     callback: (request) => {
-      const job = AI_JOBS[request.route_params.id];
+      const job = IMAGE_GEN_JOBS[request.route_params.id];
       if (!job)
         throw { status: 404, message: "No such job" };
       if (job.state === "queued" || job.state === "running") {
@@ -8925,7 +8942,7 @@ function registerMockSignageAI() {
     method: "POST",
     callback: (request) => {
       var _a2;
-      const job = AI_JOBS[request.route_params.id];
+      const job = IMAGE_GEN_JOBS[request.route_params.id];
       if (!job)
         throw { status: 404, message: "No such job" };
       const entry = job.images.find((image) => {
@@ -11547,14 +11564,6 @@ var _BootstrapComponent = class _BootstrapComponent extends AsyncHandler {
         []
       )
     );
-    this.selected_system = null;
-    this.input_focus = signal(
-      false,
-      ...ngDevMode ? [{ debugName: "input_focus" }] : (
-        /* istanbul ignore next */
-        []
-      )
-    );
     this._debounced_search = debounced(this.system_id, 300);
     this._space_list = resource(__spreadProps(__spreadValues({}, ngDevMode ? { debugName: "_space_list" } : (
       /* istanbul ignore next */
@@ -11580,7 +11589,7 @@ var _BootstrapComponent = class _BootstrapComponent extends AsyncHandler {
       }
     }));
     this.space_list = computed(
-      () => this._space_list.value() ?? [],
+      () => this._space_list.hasValue() ? this._space_list.value() : [],
       ...ngDevMode ? [{ debugName: "space_list" }] : (
         /* istanbul ignore next */
         []
@@ -11613,19 +11622,17 @@ var _BootstrapComponent = class _BootstrapComponent extends AsyncHandler {
     await syncNativeManagedConfig();
     if (this.system_id())
       return;
-    if (localStorage) {
-      const system_id = localStorage.getItem(CONTROL_STORE_KEY);
-      const mdm_system_id = getNativeSystemId();
-      if (mdm_system_id && mdm_system_id !== system_id) {
-        this.system_id.set(mdm_system_id);
-        return this.configure(mdm_system_id);
-      }
-      if (system_id) {
-        this._router.navigate(["/tabbed", system_id], {
-          queryParamsHandling: "preserve"
-        });
-        return;
-      }
+    const system_id = localStorage.getItem(CONTROL_STORE_KEY);
+    const mdm_system_id = getNativeSystemId();
+    if (mdm_system_id && mdm_system_id !== system_id) {
+      this.system_id.set(mdm_system_id);
+      return this.configure(mdm_system_id);
+    }
+    if (system_id) {
+      this._router.navigate(["/tabbed", system_id], {
+        queryParamsHandling: "preserve"
+      });
+      return;
     }
     this.loading.set("");
   }
@@ -11634,16 +11641,12 @@ var _BootstrapComponent = class _BootstrapComponent extends AsyncHandler {
    * @param system_id System to bootstrap
    */
   configure(system_id) {
-    this.loading.set("Setup");
-    if (localStorage) {
-      localStorage.setItem(CONTROL_STORE_KEY, system_id);
-      localStorage.setItem("trust", "true");
-      localStorage.setItem("fixed_device", "true");
-    }
+    localStorage.setItem(CONTROL_STORE_KEY, system_id);
+    localStorage.setItem("trust", "true");
+    localStorage.setItem("fixed_device", "true");
     this._router.navigate(["/tabbed", system_id], {
       queryParamsHandling: "preserve"
     });
-    this.loading.set("");
   }
 };
 _BootstrapComponent.\u0275fac = function BootstrapComponent_Factory(__ngFactoryType__) {
@@ -11838,6 +11841,18 @@ var BootstrapComponent = _BootstrapComponent;
   (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(BootstrapComponent, { className: "BootstrapComponent", filePath: "apps/control/src/app/bootstrap.component.ts", lineNumber: 170 });
 })();
 
+// apps/control/src/app/tabbed-view/tabbed-route.ts
+function tabbedRouteMatcher(segments) {
+  const [root, system, tab] = segments;
+  if ((root == null ? void 0 : root.path) !== "tabbed" || !system || segments.length > 3) {
+    return null;
+  }
+  return {
+    consumed: segments,
+    posParams: tab ? { system, tab } : { system }
+  };
+}
+
 // apps/control/src/environments/environment.ts
 var environment = {
   production: false,
@@ -11857,22 +11872,17 @@ var routes = [
   },
   {
     path: "panel/:system",
-    loadComponent: () => import("./main-view.component-YPNMXWXV.js").then((m) => m.ControlMainViewComponent),
+    loadComponent: () => import("./main-view.component-QHB6DIFC.js").then((m) => m.ControlMainViewComponent),
     canActivate: [AuthorisedUserGuard]
   },
   {
-    path: "tabbed/:system",
-    loadComponent: () => import("./tabbed-view.component-LBWWWJO7.js").then((m) => m.ControlTabbedViewComponent),
-    canActivate: [AuthorisedUserGuard]
-  },
-  {
-    path: "tabbed/:system/:tab",
-    loadComponent: () => import("./tabbed-view.component-LBWWWJO7.js").then((m) => m.ControlTabbedViewComponent),
+    matcher: tabbedRouteMatcher,
+    loadComponent: () => import("./tabbed-view.component-S2YSWTLV.js").then((m) => m.ControlTabbedViewComponent),
     canActivate: [AuthorisedUserGuard]
   },
   {
     path: "panel/:system/call",
-    loadComponent: () => import("./video-call-view.component-JHBAW4B3.js").then((m) => m.ControlVideoCallViewComponent),
+    loadComponent: () => import("./video-call-view.component-YYU4TTPZ.js").then((m) => m.ControlVideoCallViewComponent),
     canActivate: [AuthorisedUserGuard]
   },
   { path: "**", redirectTo: "bootstrap" }
@@ -11897,5 +11907,5 @@ bootstrapApplication(AppComponent, {
     }
   ]
 }).catch((err) => console.error(err));
-//# debugId=f71df4f1-f7e1-5d1e-a3e7-6af28b96e0a3
+//# debugId=e5b2579f-2713-5756-9abd-59a20852b501
 //# sourceMappingURL=main.js.map
