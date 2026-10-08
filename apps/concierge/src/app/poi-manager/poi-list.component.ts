@@ -2,7 +2,8 @@ import { Component, effect, inject, signal, untracked } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { AsyncHandler, generateQRCode, SettingsService } from '@placeos/common';
+import { AsyncHandler, SettingsService } from '@placeos/common';
+import { generateQRCode } from '@placeos/common/qr-code';
 import {
     CustomTooltipComponent,
     IconComponent,

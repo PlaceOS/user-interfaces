@@ -26,13 +26,11 @@ import {
 import { openConfirmModal } from '@placeos/components';
 import { CalendarService, queryEvents, SpacesService } from '@placeos/events';
 import { endOfDay, getUnixTime } from 'date-fns';
+import { CONTROL_STORE_KEY } from './control-store-key';
 import { systemBinding } from './system-binding';
 import { HelpModalComponent } from './ui/help-modal.component';
 import { SelectMeetingModalComponent } from './ui/select-meeting-modal.component';
 import { SourceSelectModalComponent } from './ui/source-select-modal.component';
-
-/** Local storage key for the system ID that this panel controls */
-export const CONTROL_STORE_KEY = 'PLACEOS.CONTROL.system';
 
 export interface EnvironmentSource {
     name: string;

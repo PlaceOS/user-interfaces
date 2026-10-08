@@ -3,19 +3,19 @@ import {
     AuthorisedUserGuard,
     UnauthorisedComponent,
 } from '@placeos/components';
-import { BootstrapComponent } from './bootstrap.component';
-import { PanelViewComponent } from './panel-view.component';
 
 export const routes: Routes = [
     { path: 'unauthorised', component: UnauthorisedComponent },
     {
         path: 'bootstrap',
-        component: BootstrapComponent,
+        loadComponent: () =>
+            import('./bootstrap.component').then((m) => m.BootstrapComponent),
         canActivate: [AuthorisedUserGuard],
     },
     {
         path: 'panel/:system_id',
-        component: PanelViewComponent,
+        loadComponent: () =>
+            import('./panel-view.component').then((m) => m.PanelViewComponent),
         canActivate: [AuthorisedUserGuard],
     },
     { path: '**', redirectTo: 'bootstrap' },

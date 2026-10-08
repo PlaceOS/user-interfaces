@@ -32,7 +32,6 @@ import {
     AsyncHandler,
     OrganisationService,
     Space,
-    TIMEZONES_IANA,
     getInvalidSignalFields,
     getItemWithKeys,
     i18n,
@@ -42,6 +41,7 @@ import {
     patchSignalModel,
     unique,
 } from '@placeos/common';
+import { TIMEZONES_IANA } from '@placeos/common/timezones';
 import {
     FullscreenModalShellComponent,
     IconComponent,

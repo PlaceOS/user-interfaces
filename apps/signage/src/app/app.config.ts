@@ -6,10 +6,13 @@ import {
     provideAppInitializer,
     provideZonelessChangeDetection,
 } from '@angular/core';
-import { provideRouter, Router, withHashLocation } from '@angular/router';
+import { provideRouter, withHashLocation } from '@angular/router';
 import { provideServiceWorker } from '@angular/service-worker';
-import { LocaleService, registerActiveLocale } from '@placeos/common';
-import * as Sentry from '@sentry/angular';
+import {
+    LazySentryErrorHandler,
+    LocaleService,
+    registerActiveLocale,
+} from '@placeos/common';
 
 import { environment } from '../environments/environment';
 import { routes } from './app.routes';
@@ -48,9 +51,7 @@ export const appConfig: ApplicationConfig = {
             // the recovery watchdog is told about them here as well.
             provide: ErrorHandler,
             useFactory: () => {
-                const handler = Sentry.createErrorHandler({
-                    showDialog: false,
-                });
+                const handler = new LazySentryErrorHandler();
                 return {
                     handleError: (error: unknown) => {
                         recordFatalError(errorMessage(error));
@@ -58,10 +59,6 @@ export const appConfig: ApplicationConfig = {
                     },
                 };
             },
-        },
-        {
-            provide: Sentry.TraceService,
-            deps: [Router],
         },
 
         {

@@ -2,14 +2,11 @@ import {
     ApplicationConfig,
     ErrorHandler,
     LOCALE_ID,
-    importProvidersFrom,
     inject,
     provideAppInitializer,
     provideZonelessChangeDetection,
 } from '@angular/core';
-import { MatSnackBarModule } from '@angular/material/snack-bar';
 import {
-    Router,
     TitleStrategy,
     provideRouter,
     withHashLocation,
@@ -19,6 +16,7 @@ import {
 import { provideServiceWorker } from '@angular/service-worker';
 
 import {
+    LazySentryErrorHandler,
     LocaleService,
     SettingsTitleStrategy,
     registerActiveLocale,
@@ -27,8 +25,6 @@ import {
 
 import { environment } from '../environments/environment';
 import { routes } from './app.routes';
-
-import * as Sentry from '@sentry/angular';
 
 export const appConfig: ApplicationConfig = {
     providers: [
@@ -42,19 +38,12 @@ export const appConfig: ApplicationConfig = {
             withRouterConfig({ paramsInheritanceStrategy: 'always' }),
             withNavigationErrorHandler((e) => reloadOnChunkLoadError(e.error)),
         ),
-        importProvidersFrom(MatSnackBarModule),
         provideServiceWorker('ngsw-worker.js', {
             enabled: environment.production && environment.service_worker,
         }),
         {
             provide: ErrorHandler,
-            useValue: Sentry.createErrorHandler({
-                showDialog: false,
-            }),
-        },
-        {
-            provide: Sentry.TraceService,
-            deps: [Router],
+            useClass: LazySentryErrorHandler,
         },
         {
             provide: LOCALE_ID,

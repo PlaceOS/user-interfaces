@@ -21,13 +21,13 @@ import {
     SettingsService,
     Space,
     StaffUser,
-    TIMEZONES_IANA,
     currentUser,
     formatDuration,
     getInvalidSignalFields,
     notifyError,
     unique,
 } from '@placeos/common';
+import { TIMEZONES_IANA } from '@placeos/common/timezones';
 import {
     IconComponent,
     SettingsToggleComponent,

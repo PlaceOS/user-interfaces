@@ -1,5 +1,6 @@
+import { DeferBlockBehavior } from '@angular/core/testing';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
-import { MockComponent, MockProvider } from 'ng-mocks';
+import { MockProvider } from 'ng-mocks';
 import { of } from 'rxjs';
 
 vi.mock('@placeos/ts-client', { spy: true });
@@ -17,15 +18,17 @@ import {
 import { authority, isOnline, token } from '@placeos/ts-client';
 
 import { LocaleService } from 'libs/common/src/lib/locale.service';
-import { GlobalLoadingComponent } from '../lib/global-loading.component';
-import { NativeDomainOverlayComponent } from '../lib/native-domain-overlay.component';
-import { ServiceWorkerUpdateCardComponent } from '../lib/service-worker-update-card.component';
+import {
+    GlobalLoadingComponent,
+    NativeDomainOverlayLoaderComponent,
+} from '../lib/global-loading.component';
 
 describe('GlobalLoadingComponent', () => {
     let spectator: Spectator<GlobalLoadingComponent>;
     const createComponent = createComponentFactory({
         component: GlobalLoadingComponent,
         detectChanges: false,
+        deferBlockBehavior: DeferBlockBehavior.Manual,
         providers: [
             MockProvider(OrganisationService, {
                 waitUntilInitialised: vi.fn().mockResolvedValue(undefined),
@@ -35,25 +38,6 @@ describe('GlobalLoadingComponent', () => {
                 onNativeDomainSet: vi.fn(),
             } as any),
             MockProvider(LocaleService),
-        ],
-        overrideComponents: [
-            [
-                GlobalLoadingComponent,
-                {
-                    remove: {
-                        imports: [
-                            NativeDomainOverlayComponent,
-                            ServiceWorkerUpdateCardComponent,
-                        ],
-                    },
-                    add: {
-                        imports: [
-                            MockComponent(NativeDomainOverlayComponent),
-                            MockComponent(ServiceWorkerUpdateCardComponent),
-                        ],
-                    },
-                },
-            ],
         ],
     });
 
@@ -150,16 +134,17 @@ describe('GlobalLoadingComponent', () => {
         expect('button').toHaveText('Try again');
     });
 
-    it('should show the native domain overlay when required', () => {
+    it('should load the native domain overlay when required', async () => {
         spectator.detectChanges();
-        expect('native-domain-overlay').not.toExist();
+        expect(await spectator.fixture.getDeferBlocks()).toHaveLength(0);
         needsNativeDomain().set(true);
         spectator.detectChanges();
-        expect('native-domain-overlay').toExist();
+        expect(await spectator.fixture.getDeferBlocks()).toHaveLength(1);
     });
 
     it('should notify PlaceOS service when the native domain is set', () => {
-        spectator.component.onDomainSet();
+        spectator.detectChanges();
+        spectator.query(NativeDomainOverlayLoaderComponent).onDomainSet();
         expect(
             spectator.inject(PlaceOS_Service).onNativeDomainSet,
         ).toHaveBeenCalled();

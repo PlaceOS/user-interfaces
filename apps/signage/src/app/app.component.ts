@@ -34,7 +34,11 @@ import { requestRecovery, startWatchdog } from './watchdog';
         @if (!uses_api_key) {
             <global-loading />
         }
-        <settings-debug-panel-launcher [loadSchema]="load_settings_schema" />
+        @defer (on idle) {
+            <settings-debug-panel-launcher
+                [loadSchema]="load_settings_schema"
+            />
+        }
     `,
     styles: [
         `

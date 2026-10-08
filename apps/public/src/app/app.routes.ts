@@ -1,13 +1,16 @@
 import { Route } from '@angular/router';
-import { PublicEventsComponent } from './public-events.component';
 import { PublicGuestDetailsComponent } from './public-guest-details.component';
+
+/** Guest details is the landing page. The events pages load on demand. */
+const loadEvents = () =>
+    import('./public-events.component').then((m) => m.PublicEventsComponent);
 
 export const appRoutes: Route[] = [
     { path: '', redirectTo: 'guest-details', pathMatch: 'full' },
     { path: 'guest-details', component: PublicGuestDetailsComponent },
-    { path: 'events', component: PublicEventsComponent },
-    { path: 'events/:system_id', component: PublicEventsComponent },
-    { path: 'events/:system_id/:event_id', component: PublicEventsComponent },
-    { path: 'event/:system_id/:event_id', component: PublicEventsComponent },
+    { path: 'events', loadComponent: loadEvents },
+    { path: 'events/:system_id', loadComponent: loadEvents },
+    { path: 'events/:system_id/:event_id', loadComponent: loadEvents },
+    { path: 'event/:system_id/:event_id', loadComponent: loadEvents },
     { path: '**', redirectTo: 'guest-details' },
 ];

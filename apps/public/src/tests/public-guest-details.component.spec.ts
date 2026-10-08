@@ -82,11 +82,9 @@ describe('PublicGuestDetailsComponent', () => {
         const button = fixture.nativeElement.querySelector('form button');
         expect(button.disabled).toBe(true);
 
-        fixture.componentInstance.guest_form.setValue({
-            name: 'Guest User',
-            email: 'guest@example.com',
-            remember: false,
-        });
+        fixture.componentInstance.guest_name.set('Guest User');
+        fixture.componentInstance.guest_email.set('guest@example.com');
+        fixture.componentInstance.remember.set(false);
         fixture.detectChanges();
         expect(button.disabled).toBe(false);
     });
@@ -94,11 +92,9 @@ describe('PublicGuestDetailsComponent', () => {
     it('requests guest access and navigates to events on submit', async () => {
         service.default_system_id.set('sys-1');
         const fixture = await init();
-        fixture.componentInstance.guest_form.setValue({
-            name: 'Guest User',
-            email: 'guest@example.com',
-            remember: true,
-        });
+        fixture.componentInstance.guest_name.set('Guest User');
+        fixture.componentInstance.guest_email.set('guest@example.com');
+        fixture.componentInstance.remember.set(true);
         fixture.detectChanges();
 
         fixture.nativeElement.querySelector('form button').click();

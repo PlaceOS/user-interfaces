@@ -28,7 +28,7 @@ import {
     VERSION,
 } from '@placeos/common';
 import { TranslatePipe } from '@placeos/components';
-import { CONTROL_STORE_KEY } from './control-state.service';
+import { CONTROL_STORE_KEY } from './control-store-key';
 
 @Component({
     selector: '[app-bootstrap]',
