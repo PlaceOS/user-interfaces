@@ -1,0 +1,3 @@
+import{un as Zs,x as D}from"./chunk-C9v1OJ00.js";import{et as Rf}from"./chunk-DKWhygLe.js";var f=(()=>{class t{constructor(){this._locale=D(Rf)}transform(e,r={},s){return this._locale.get(e,r,s)||e}static{this.ɵfac=function(r){return new(r||t)}}static{this.ɵpipe=Zs({name:`translate`,type:t,pure:!1})}}return t})();export{f as t};
+//# debugId=40864b9d-8b6c-539c-ba4c-c071971000cd
+//# sourceMappingURL=chunk-DYotKh5z.js.map
