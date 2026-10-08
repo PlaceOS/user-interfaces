@@ -41,7 +41,7 @@ timeouts, not 200s.
   checkout, the runner tarball, and cloning `PlaceOS/www-core` during bring-up.
 - **registry-1.docker.io / auth.docker.io / production.cloudflare.docker.com** —
   pulling the PlaceOS images. The one people forget; without it the stack cannot start.
-  Every run pulls (`up.sh --pull`), so this needs to stay open, not just work once.
+  Every run pulls (`up.sh --pull-only`, its own bounded step), so this needs to stay open, not just work once.
 
 > A slow link looks like a block. Colima's first VM image download failed here with a
 > timeout that read like a firewall; the host was fine, just slow. Retry before

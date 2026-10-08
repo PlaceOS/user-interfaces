@@ -46,6 +46,8 @@ developer's own stack and cannot disturb it.
 ```bash
 e2e/stack/up.sh              # bring up + seed (reuses volumes)
 e2e/stack/up.sh --fresh      # destroy volumes first — a genuine cold start
+e2e/stack/up.sh --pull       # pull the current images first (what CI does every run)
+e2e/stack/up.sh --pull-only  # pull and stop; CI runs this as its own bounded step
 e2e/stack/down.sh            # stop        (--volumes to wipe)
 ```
 
@@ -238,6 +240,7 @@ CI-specific choices worth knowing:
 | Reclaim step | A self-hosted machine is not a fresh VM; a previous aborted run can leave the stack up or port 4214 held. |
 | No `vm.max_map_count` bump | Needed on GitHub-hosted Linux, meaningless on macOS — the value lives inside Colima's VM, which already sets it to 1048576. Restore it if reverting to `ubuntu-latest`. |
 | Network access to GitHub | `up.sh` clones `PlaceOS/www-core` into the `www` volume once — that is where the platform `/login` page comes from. |
+| Network access to Docker Hub, every run | `up.sh --pull-only` runs first as its own step, bounded to 20 minutes and advisory, so `latest` tracks the registry rather than the day the runner was set up. Each image pulls on its own; one that fails or stalls leaves the stack on the image already present, and "Record backend inputs" shows which. `SELF_HOSTED_RUNNER.md` lists the hosts. |
 
 ## Booking specs: what the backend actually does
 

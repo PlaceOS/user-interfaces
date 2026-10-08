@@ -141,6 +141,9 @@ jobs:
                   e2e/stack/down.sh --volumes || true
                   # Playwright refuses to start its webServer if 4214 is held.
                   lsof -nP -iTCP:4214 -sTCP:LISTEN -t 2>/dev/null | xargs -r kill -9 || true
+                  # Images the previous run's pull replaced. The runner is dedicated
+                  # to this job, so nothing else on the host owns a dangling image.
+                  docker image prune -f || true
                   docker system df || true
 
             # NOTE: no `sysctl -w vm.max_map_count=262144` here.
@@ -154,20 +157,27 @@ jobs:
             - name: Install Playwright browser
               run: bunx playwright install --with-deps chromium
 
+            # On this persistent machine `latest` otherwise stays whatever was
+            # pulled the day the runner was set up. A pull that fails or stalls
+            # must not cost the run, so it has its own clock and is advisory: the
+            # stack then starts on the images already present, and "Record backend
+            # inputs" shows which those were.
+            - name: Pull the current backend images
+              timeout-minutes: 20
+              continue-on-error: true
+              run: e2e/stack/up.sh --pull-only
+
             # Brings up an isolated PlaceOS stack (its own compose project, own
             # volumes, ports 9443/9080) and seeds it. Needs network access to
             # GitHub once, to clone PlaceOS/www-core into the www volume — that is
             # where the platform /login page comes from.
-            #
-            # `--pull`: on this persistent machine `latest` otherwise stays
-            # whatever was pulled the day the runner was set up.
             - name: Bring up the local PlaceOS stack
-              run: e2e/stack/up.sh --pull
+              run: e2e/stack/up.sh
 
             # What backend did this run actually test?
             #
             # The PlaceOS services track ${PLACEOS_TAG:-latest} on purpose, and
-            # the bring-up pulls it every run — an advisory nightly against
+            # the pull step refreshes it every run — an advisory nightly against
             # current backends is worth having, and pinning them would make the
             # suite blind to the regressions it is best placed to catch. The cost
             # is that a result can change with no frontend commit, so record the
