@@ -2639,6 +2639,9 @@ input:where([type=button], [type=reset], [type=submit]),
 #placeos .-inset-0\.5 {
   inset: calc(var(--spacing) * -0.5);
 }
+#placeos .-inset-2 {
+  inset: calc(var(--spacing) * -2);
+}
 #placeos .-inset-\[3px\] {
   inset: calc(3px * -1);
 }
@@ -2857,6 +2860,9 @@ input:where([type=button], [type=reset], [type=submit]),
 }
 #placeos .z-9999 {
   z-index: 9999;
+}
+#placeos .z-\[60\] {
+  z-index: 60;
 }
 #placeos .order-1 {
   order: 1;
@@ -3438,6 +3444,9 @@ input:where([type=button], [type=reset], [type=submit]),
 #placeos .w-28 {
   width: calc(var(--spacing) * 28);
 }
+#placeos .w-30 {
+  width: calc(var(--spacing) * 30);
+}
 #placeos .w-32 {
   width: calc(var(--spacing) * 32);
 }
@@ -3467,6 +3476,9 @@ input:where([type=button], [type=reset], [type=submit]),
 }
 #placeos .w-74 {
   width: calc(var(--spacing) * 74);
+}
+#placeos .w-76 {
+  width: calc(var(--spacing) * 76);
 }
 #placeos .w-80 {
   width: calc(var(--spacing) * 80);
@@ -3542,6 +3554,9 @@ input:where([type=button], [type=reset], [type=submit]),
 }
 #placeos .w-auto {
   width: auto;
+}
+#placeos .w-fit {
+  width: fit-content;
 }
 #placeos .w-full {
   width: 100%;
@@ -3801,11 +3816,18 @@ input:where([type=button], [type=reset], [type=submit]),
 #placeos .list-none {
   list-style-type: none;
 }
+#placeos .break-after-page {
+  page-break-after: always;
+  break-after: page;
+}
 #placeos .grid-cols-1 {
   grid-template-columns: repeat(1, minmax(0, 1fr));
 }
 #placeos .grid-cols-2 {
   grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+#placeos .grid-cols-4 {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
 }
 #placeos .grid-cols-5 {
   grid-template-columns: repeat(5, minmax(0, 1fr));
@@ -3827,6 +3849,9 @@ input:where([type=button], [type=reset], [type=submit]),
 }
 #placeos .flex-wrap {
   flex-wrap: wrap;
+}
+#placeos .items-baseline {
+  align-items: baseline;
 }
 #placeos .items-center {
   align-items: center;
@@ -3858,6 +3883,9 @@ input:where([type=button], [type=reset], [type=submit]),
 #placeos .gap-3 {
   gap: calc(var(--spacing) * 3);
 }
+#placeos .gap-4 {
+  gap: calc(var(--spacing) * 4);
+}
 #placeos .gap-\[8px\] {
   gap: 8px;
 }
@@ -3873,6 +3901,11 @@ input:where([type=button], [type=reset], [type=submit]),
   --tw-space-y-reverse: 0;
   margin-block-start: calc(calc(var(--spacing) * 2) * var(--tw-space-y-reverse));
   margin-block-end: calc(calc(var(--spacing) * 2) * calc(1 - var(--tw-space-y-reverse)));
+}
+:where(#placeos .space-y-3 > :not(:last-child)) {
+  --tw-space-y-reverse: 0;
+  margin-block-start: calc(calc(var(--spacing) * 3) * var(--tw-space-y-reverse));
+  margin-block-end: calc(calc(var(--spacing) * 3) * calc(1 - var(--tw-space-y-reverse)));
 }
 :where(#placeos .space-y-4 > :not(:last-child)) {
   --tw-space-y-reverse: 0;
@@ -4163,6 +4196,9 @@ input:where([type=button], [type=reset], [type=submit]),
 #placeos .border-secondary {
   border-color: var(--secondary);
 }
+#placeos .border-transparent {
+  border-color: transparent;
+}
 #placeos .border-white {
   border-color: #ffffff;
 }
@@ -4217,6 +4253,9 @@ input:where([type=button], [type=reset], [type=submit]),
 }
 #placeos .bg-black {
   background-color: #000000;
+}
+#placeos .bg-black\/20 {
+  background-color: color-mix(in oklab, #000000 20%, transparent);
 }
 #placeos .bg-black\/80 {
   background-color: color-mix(in oklab, #000000 80%, transparent);
@@ -4293,6 +4332,14 @@ input:where([type=button], [type=reset], [type=submit]),
 }
 #placeos .bg-warning-light {
   background-color: var(--warn-light);
+}
+#placeos .bg-warning\/20 {
+  background-color: var(--warn);
+}
+@supports (color: color-mix(in lab, red, red)) {
+  #placeos .bg-warning\/20 {
+    background-color: color-mix(in oklab, var(--warn) 20%, transparent);
+  }
 }
 #placeos .bg-warning\/50 {
   background-color: var(--warn);
@@ -4476,8 +4523,14 @@ input:where([type=button], [type=reset], [type=submit]),
 #placeos .pb-4 {
   padding-bottom: calc(var(--spacing) * 4);
 }
+#placeos .pb-6 {
+  padding-bottom: calc(var(--spacing) * 6);
+}
 #placeos .pb-8 {
   padding-bottom: calc(var(--spacing) * 8);
+}
+#placeos .pb-32 {
+  padding-bottom: calc(var(--spacing) * 32);
 }
 #placeos .pb-\[env\(safe-area-inset-bottom\)\] {
   padding-bottom: env(safe-area-inset-bottom);
@@ -4823,8 +4876,23 @@ input:where([type=button], [type=reset], [type=submit]),
     var(--tw-ring-shadow),
     var(--tw-shadow);
 }
+#placeos .ring-4 {
+  --tw-ring-shadow: var(--tw-ring-inset,) 0 0 0 calc(4px + var(--tw-ring-offset-width)) var(--tw-ring-color, currentcolor);
+  box-shadow:
+    var(--tw-inset-shadow),
+    var(--tw-inset-ring-shadow),
+    var(--tw-ring-offset-shadow),
+    var(--tw-ring-shadow),
+    var(--tw-shadow);
+}
+#placeos .ring-error {
+  --tw-ring-color: var(--error);
+}
 #placeos .ring-info {
   --tw-ring-color: var(--info);
+}
+#placeos .ring-warning {
+  --tw-ring-color: var(--warn);
 }
 #placeos .outline-hidden {
   --tw-outline-style: none;

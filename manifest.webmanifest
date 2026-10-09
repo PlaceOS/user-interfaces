@@ -1,7 +1,7 @@
 {
     "name": "Bookings",
     "short_name": "Bookings",
-    "theme_color": "#F04E5E",
+    "theme_color": "#C2410C",
     "background_color": "#fafafa",
     "display": "standalone",
     "scope": "./",
