@@ -8,6 +8,7 @@ import {
     HotkeysService,
     LocaleService,
     OrganisationService,
+    PlaceOS_Service,
     SettingsService,
 } from '@placeos/common';
 import {
@@ -67,6 +68,9 @@ describe('AppComponent', () => {
             { provide: SettingsService, useValue: settings },
             { provide: LocaleService, useValue: locale },
             MockProvider(OrganisationService),
+            // The real global-loading shell injects this; the real service
+            // starts map effects that the mocked organisation cannot satisfy.
+            MockProvider(PlaceOS_Service),
             MockProvider(SwUpdate),
             { provide: MatSnackBar, useValue: snackbar },
         ],

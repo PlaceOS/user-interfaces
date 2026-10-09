@@ -2,7 +2,6 @@
  * @vitest-environment jsdom
  * @vitest-environment-options { "url": "https://demo.place.tech/" }
  */
-import { ActivatedRoute } from '@angular/router';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { setCurrentUser, SettingsService } from '@placeos/common';
 import { authority, setup } from '@placeos/ts-client';
@@ -24,21 +23,9 @@ const settings_mock = {
 
 describe('AppComponent (demo domain)', () => {
     let spectator: Spectator<AppComponent>;
-    const route_stub: any = {
-        snapshot: {
-            queryParamMap: {
-                has: () => false,
-                get: () => null,
-                getAll: () => [],
-                keys: [],
-            },
-        },
-    };
-
     const create_component = createComponentFactory({
         component: AppComponent,
         detectChanges: false,
-        providers: [{ provide: ActivatedRoute, useValue: route_stub }],
         componentProviders: [
             { provide: SettingsService, useValue: settings_mock },
         ],

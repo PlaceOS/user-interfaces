@@ -8,9 +8,10 @@ import {
     viewChild,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { MatButtonModule } from '@angular/material/button';
+import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { i18n, notifyError, notifySuccess } from '@placeos/common';
@@ -20,37 +21,72 @@ import {
     TranslatePipe,
 } from '@placeos/components';
 
-import { AiImageService } from '../ai/ai-image.service';
-import { errorMessage } from '../ai/ai-image.util';
-import { AiBrandKit, AiLogoSlot } from '../ai/ai.types';
-import { NavFooterComponent } from '../shared/nav-footer.component';
-import { NavSidebarComponent } from '../shared/nav-sidebar.component';
-import { SignageService } from '../signage.service';
+import { ImageGenService } from '../image-gen/image-gen.service';
+import {
+    ImageGenBrandKit,
+    ImageGenLogoSlot,
+} from '../image-gen/image-gen.types';
+import { actionError } from '../image-gen/image-gen.util';
+import { SignageContextService } from '../signage-context.service';
+import { brandEditingOn, canEditBrandKit } from './brand-access';
 import { BRAND_FONTS, ensureBrandFont } from './brand-fonts';
 
 const COLOUR_NAMES = ['primary', 'secondary', 'accent'];
 
+/** how many palette colours the page shows and edits */
+const MAX_COLOURS = 3;
+
+/** a palette colour and the key it is stored under */
+interface BrandColour {
+    key: string;
+    value: string;
+}
+
 @Component({
     selector: 'app-branding',
     template: `
-        <div class="bg-base-200 absolute inset-0 flex flex-col sm:flex-row">
-            <nav-sidebar class="sm:h-full" />
-            <main
-                class="bg-base-100 mx-auto flex min-h-0 w-full min-w-0 flex-1 flex-col overflow-auto p-6"
-            >
-                <h1 class="mb-1 text-2xl">
-                    {{ 'SIGNAGE_MANAGER.BRAND_HEADER' | translate }}
-                </h1>
-                <p class="text-base-content/60 mb-6 text-sm">
-                    {{ 'SIGNAGE_MANAGER.BRAND_HINT' | translate }}
-                </p>
+        <div class="absolute inset-0 flex flex-col overflow-auto p-6">
+            <h1 class="mb-1 text-2xl">
+                {{ 'SIGNAGE_MANAGER.BRAND_HEADER' | translate }}
+            </h1>
+            <p class="text-base-content/60 mb-6 text-sm">
+                {{ 'SIGNAGE_MANAGER.BRAND_HINT' | translate }}
+            </p>
 
+            @if (load_state() === 'loading') {
+                <div class="flex justify-center p-8">
+                    <mat-spinner diameter="32" />
+                </div>
+            } @else if (load_state() === 'failed') {
+                <div
+                    class="border-error/40 bg-error/10 flex items-center gap-3 rounded-lg border p-3 text-sm"
+                >
+                    <icon class="text-error">error</icon>
+                    <span class="flex-1">{{
+                        'SIGNAGE_MANAGER.BRAND_LOAD_ERROR' | translate
+                    }}</span>
+                    <button
+                        btn
+                        matRipple
+                        type="button"
+                        class="inverse"
+                        (click)="load()"
+                    >
+                        {{ 'COMMON.RETRY' | translate }}
+                    </button>
+                </div>
+            } @else {
                 @if (!can_edit()) {
                     <p
-                        class="border-base-300 bg-base-200 mb-6 flex items-center gap-2 rounded border p-3 text-sm"
+                        class="border-base-300 bg-base-200 mb-6 flex items-center gap-2 rounded-lg border p-3 text-sm"
                     >
                         <icon class="text-base-content/60">lock</icon>
-                        {{ 'SIGNAGE_MANAGER.BRAND_READ_ONLY' | translate }}
+                        {{
+                            (branding_disabled()
+                                ? 'SIGNAGE_MANAGER.BRAND_DISABLED'
+                                : 'SIGNAGE_MANAGER.BRAND_READ_ONLY'
+                            ) | translate
+                        }}
                     </p>
                 }
 
@@ -77,10 +113,10 @@ const COLOUR_NAMES = ['primary', 'secondary', 'accent'];
                         <div class="flex items-center gap-3">
                             <input
                                 type="color"
-                                class="border-base-content/20 h-10 w-14 rounded border bg-transparent disabled:cursor-not-allowed disabled:opacity-60"
+                                class="border-base-300 h-10 w-14 rounded border bg-transparent disabled:cursor-not-allowed disabled:opacity-60"
                                 [class.cursor-pointer]="can_edit()"
                                 [disabled]="!can_edit()"
-                                [value]="colour"
+                                [value]="colour.value"
                                 (input)="setColourFromInput($index, $event)"
                                 [attr.aria-label]="
                                     'SIGNAGE_MANAGER.BRAND_COLOURS' | translate
@@ -88,12 +124,11 @@ const COLOUR_NAMES = ['primary', 'secondary', 'accent'];
                             />
                             <mat-form-field
                                 appearance="outline"
-                                class="w-40"
-                                subscriptSizing="dynamic"
+                                class="no-subscript w-40"
                             >
                                 <input
                                     matInput
-                                    [ngModel]="colour"
+                                    [ngModel]="colour.value"
                                     (ngModelChange)="setColour($index, $event)"
                                     [disabled]="!can_edit()"
                                     [class.text-error]="colour_errors()[$index]"
@@ -105,7 +140,7 @@ const COLOUR_NAMES = ['primary', 'secondary', 'accent'];
                             </mat-form-field>
                             <span
                                 class="text-base-content/60 text-xs uppercase"
-                                >{{ colourName($index) }}</span
+                                >{{ colour.key }}</span
                             >
                             @if (can_edit()) {
                                 <button
@@ -125,10 +160,12 @@ const COLOUR_NAMES = ['primary', 'secondary', 'accent'];
                             }
                         </div>
                     }
-                    @if (can_edit() && colours().length < 3) {
+                    @if (can_edit() && colours().length < max_colours) {
                         <button
-                            mat-stroked-button
+                            btn
+                            matRipple
                             type="button"
+                            class="inverse"
                             (click)="addColour()"
                         >
                             {{ 'SIGNAGE_MANAGER.BRAND_ADD_COLOUR' | translate }}
@@ -156,7 +193,7 @@ const COLOUR_NAMES = ['primary', 'secondary', 'accent'];
                     </mat-select>
                 </mat-form-field>
                 <p
-                    class="border-base-content/10 bg-base-200 mb-2 rounded border p-4 text-2xl"
+                    class="border-base-300 bg-base-200 mb-2 rounded-lg border p-4 text-2xl"
                     [style.font-family]="font_stack()"
                 >
                     {{ 'SIGNAGE_MANAGER.BRAND_FONT_SAMPLE' | translate }}
@@ -173,7 +210,7 @@ const COLOUR_NAMES = ['primary', 'secondary', 'accent'];
                 <div class="flex flex-col gap-4 sm:flex-row">
                     @for (slot of slots; track slot.id) {
                         <div
-                            class="border-base-content/10 flex min-w-0 flex-1 flex-col gap-3 rounded border p-4"
+                            class="border-base-300 flex min-w-0 flex-1 flex-col gap-3 rounded-lg border p-4"
                         >
                             <div
                                 class="flex items-baseline justify-between gap-2"
@@ -210,7 +247,7 @@ const COLOUR_NAMES = ['primary', 'secondary', 'accent'];
                                         class="text-xs"
                                         [style.color]="slot.faded"
                                         >{{
-                                            'SIGNAGE_MANAGER.AI_NO_LOGO_YET'
+                                            'SIGNAGE_MANAGER.IMAGE_GEN_NO_LOGO_YET'
                                                 | translate
                                         }}</span
                                     >
@@ -220,17 +257,19 @@ const COLOUR_NAMES = ['primary', 'secondary', 'accent'];
                             @if (can_edit()) {
                                 <div class="flex flex-wrap gap-2">
                                     <button
-                                        mat-stroked-button
+                                        btn
+                                        matRipple
                                         type="button"
+                                        class="inverse"
                                         [disabled]="!!busy()"
                                         (click)="pick(slot.id)"
                                     >
                                         {{
                                             (busy() === slot.id
-                                                ? 'SIGNAGE_MANAGER.AI_LOGO_UPLOADING'
+                                                ? 'SIGNAGE_MANAGER.IMAGE_GEN_LOGO_UPLOADING'
                                                 : logoId(slot.id)
-                                                  ? 'SIGNAGE_MANAGER.AI_REPLACE_LOGO'
-                                                  : 'SIGNAGE_MANAGER.AI_ADD_LOGO'
+                                                  ? 'SIGNAGE_MANAGER.IMAGE_GEN_REPLACE_LOGO'
+                                                  : 'SIGNAGE_MANAGER.IMAGE_GEN_ADD_LOGO'
                                             ) | translate
                                         }}
                                     </button>
@@ -239,8 +278,10 @@ const COLOUR_NAMES = ['primary', 'secondary', 'accent'];
                                         logoId(other(slot.id))
                                     ) {
                                         <button
-                                            mat-stroked-button
+                                            btn
+                                            matRipple
                                             type="button"
+                                            class="inverse"
                                             [disabled]="!!busy()"
                                             (click)="derive(slot.id)"
                                         >
@@ -260,7 +301,7 @@ const COLOUR_NAMES = ['primary', 'secondary', 'accent'];
                         class="sr-only"
                         accept="image/png,image/jpeg,image/webp,image/svg+xml"
                         [attr.aria-label]="
-                            'SIGNAGE_MANAGER.AI_ADD_LOGO' | translate
+                            'SIGNAGE_MANAGER.IMAGE_GEN_ADD_LOGO' | translate
                         "
                         (change)="pickLogo($event)"
                     />
@@ -271,6 +312,7 @@ const COLOUR_NAMES = ['primary', 'secondary', 'accent'];
                         <button
                             btn
                             matRipple
+                            type="button"
                             class="w-40"
                             [disabled]="saving()"
                             (click)="save()"
@@ -283,59 +325,73 @@ const COLOUR_NAMES = ['primary', 'secondary', 'accent'];
                     }
                     @if (!enabled()) {
                         <span class="text-base-content/60 text-sm">{{
-                            'SIGNAGE_MANAGER.BRAND_AI_OFF' | translate
+                            'SIGNAGE_MANAGER.BRAND_IMAGE_GEN_OFF' | translate
                         }}</span>
                     }
                 </div>
-            </main>
-            <nav-footer />
+            }
         </div>
     `,
     imports: [
         AuthenticatedImageDirective,
-        NavFooterComponent,
-        NavSidebarComponent,
         FormsModule,
         IconComponent,
-        MatButtonModule,
+        MatRippleModule,
         MatFormFieldModule,
         MatInputModule,
+        MatProgressSpinnerModule,
         MatSelectModule,
         MatTooltipModule,
         TranslatePipe,
     ],
 })
 export class BrandingComponent implements OnInit {
-    private readonly _ai = inject(AiImageService);
-    private readonly _service = inject(SignageService);
+    private readonly _image_gen = inject(ImageGenService);
+    private readonly _context = inject(SignageContextService);
 
     public readonly fonts = BRAND_FONTS;
-    public readonly enabled = this._ai.enabled;
+    public readonly enabled = this._image_gen.enabled;
 
-    public readonly can_edit = this._service.is_sys_admin;
+    public readonly branding_disabled = computed(
+        () => !brandEditingOn(this._context),
+    );
+    /** Whether the stored brand kit is read. The form shows only after a
+     * read works, so its defaults cannot replace the stored kit. */
+    public readonly load_state = signal<'loading' | 'ready' | 'failed'>(
+        'loading',
+    );
+    public readonly can_edit = computed(
+        () => canEditBrandKit(this._context) && this.load_state() === 'ready',
+    );
 
     public readonly organisation = signal('');
-    public readonly colours = signal<string[]>(['#0E6E52']);
+    public readonly colours = signal<BrandColour[]>([
+        { key: 'primary', value: '#0E6E52' },
+    ]);
+    public readonly max_colours = MAX_COLOURS;
     public readonly font = signal('');
     public readonly saving = signal(false);
 
     /** which slot is mid upload or mid conversion, so only one runs at a time */
-    public readonly busy = signal<AiLogoSlot | ''>('');
-    public readonly logos = signal<Record<AiLogoSlot, string>>({
+    public readonly busy = signal<ImageGenLogoSlot | ''>('');
+    public readonly logos = signal<Record<ImageGenLogoSlot, string>>({
         on_light: '',
         on_dark: '',
     });
-    public readonly derived = signal<AiLogoSlot | ''>('');
+    public readonly derived = signal<ImageGenLogoSlot | ''>('');
+    /** Palette colours after the ones that the page edits. A save replaces
+     * the whole kit, so they are saved back as they are. */
+    private _extra_palette: Record<string, string> = {};
 
     public readonly slots = [
         {
-            id: 'on_light' as AiLogoSlot,
+            id: 'on_light' as ImageGenLogoSlot,
             label: 'SIGNAGE_MANAGER.BRAND_LOGO_ON_LIGHT',
             ground: '#FFFFFF',
             faded: 'rgba(0, 0, 0, 0.45)',
         },
         {
-            id: 'on_dark' as AiLogoSlot,
+            id: 'on_dark' as ImageGenLogoSlot,
             label: 'SIGNAGE_MANAGER.BRAND_LOGO_ON_DARK',
             ground: '#1B2420',
             faded: 'rgba(255, 255, 255, 0.55)',
@@ -344,7 +400,7 @@ export class BrandingComponent implements OnInit {
 
     private readonly _logo_input =
         viewChild<ElementRef<HTMLInputElement>>('logo_input');
-    private _target: AiLogoSlot = 'on_light';
+    private _target: ImageGenLogoSlot = 'on_light';
 
     public readonly font_stack = computed(() => {
         const family = this.font();
@@ -354,23 +410,50 @@ export class BrandingComponent implements OnInit {
     });
 
     public async ngOnInit() {
-        const brand = this._ai.brand_kit();
-        if (brand) this._apply(brand);
-        if (!brand) {
-            await this._ai.reloadBrandKit();
-            const loaded = this._ai.brand_kit();
-            if (loaded) this._apply(loaded);
-        }
+        await this.load();
         this.previewFont();
     }
 
-    public colourName(index: number) {
-        return COLOUR_NAMES[index] || `colour ${index + 1}`;
+    /** Read the brand kit, unless an earlier read already worked */
+    public async load() {
+        this.load_state.set('loading');
+        if (this._image_gen.brand_kit_read() !== 'ok') {
+            await this._image_gen.reloadBrandKit();
+        }
+        if (this._image_gen.brand_kit_read() !== 'ok') {
+            this.load_state.set('failed');
+            return;
+        }
+        const brand = this._image_gen.brand_kit();
+        if (brand) this._apply(brand);
+        this.load_state.set('ready');
     }
 
     public addColour() {
-        if (this.colours().length >= 3) return;
-        this.colours.update((list) => [...list, '#1B2420']);
+        if (this.colours().length >= MAX_COLOURS) return;
+        this.colours.update((list) => [
+            ...list,
+            { key: this._freeKey(), value: '#1B2420' },
+        ]);
+    }
+
+    /** the first palette key not in use, so a new colour replaces nothing */
+    private _freeKey() {
+        const used = new Set([
+            ...this.colours().map((colour) => colour.key),
+            ...Object.keys(this._extra_palette),
+        ]);
+        // one more numbered name than keys in use, so one is always free
+        const names = [
+            ...COLOUR_NAMES,
+            ...Array.from(
+                { length: used.size + 1 },
+                (_, index) => `colour ${index + 1}`,
+            ),
+        ];
+        return (
+            names.find((name) => !used.has(name)) || `colour ${used.size + 1}`
+        );
     }
 
     public removeColour(index: number) {
@@ -382,12 +465,16 @@ export class BrandingComponent implements OnInit {
     public static readonly COLOUR = /^#([0-9a-f]{3}|[0-9a-f]{6})$/i;
 
     public readonly colour_errors = computed(() =>
-        this.colours().map((colour) => !BrandingComponent.COLOUR.test(colour)),
+        this.colours().map(
+            (colour) => !BrandingComponent.COLOUR.test(colour.value),
+        ),
     );
 
     public setColour(index: number, value: string) {
         this.colours.update((list) =>
-            list.map((colour, i) => (i === index ? value : colour)),
+            list.map((colour, i) =>
+                i === index ? { ...colour, value } : colour,
+            ),
         );
     }
 
@@ -402,20 +489,20 @@ export class BrandingComponent implements OnInit {
         ensureBrandFont(this.font());
     }
 
-    public logoId(slot: AiLogoSlot) {
+    public logoId(slot: ImageGenLogoSlot) {
         return this.logos()[slot];
     }
 
-    public logoUrl(slot: AiLogoSlot) {
+    public logoUrl(slot: ImageGenLogoSlot) {
         const id = this.logos()[slot];
         return id ? `/api/engine/v2/uploads/${encodeURIComponent(id)}/url` : '';
     }
 
-    public other(slot: AiLogoSlot): AiLogoSlot {
+    public other(slot: ImageGenLogoSlot): ImageGenLogoSlot {
         return slot === 'on_light' ? 'on_dark' : 'on_light';
     }
 
-    public pick(slot: AiLogoSlot) {
+    public pick(slot: ImageGenLogoSlot) {
         if (!this.can_edit()) return;
         this._target = slot;
         this._logo_input()?.nativeElement.click();
@@ -430,16 +517,16 @@ export class BrandingComponent implements OnInit {
         const slot = this._target;
         this.busy.set(slot);
         try {
-            const kit = await this._ai.replaceBrandLogo(
+            const kit = await this._image_gen.replaceBrandLogo(
                 slot,
                 file,
                 !this.logoId(this.other(slot)),
             );
             this._applyLogos(kit);
-            notifySuccess(i18n('SIGNAGE_MANAGER.AI_LOGO_SAVED'));
+            notifySuccess(i18n('SIGNAGE_MANAGER.IMAGE_GEN_LOGO_SAVED'));
         } catch (error) {
             notifyError(
-                errorMessage(error, i18n('SIGNAGE_MANAGER.BRAND_SAVE_FAILED')),
+                actionError(error, i18n('SIGNAGE_MANAGER.BRAND_SAVE_FAILED')),
             );
         } finally {
             this.busy.set('');
@@ -447,16 +534,16 @@ export class BrandingComponent implements OnInit {
     }
 
     /** make this slot from the other one */
-    public async derive(slot: AiLogoSlot) {
+    public async derive(slot: ImageGenLogoSlot) {
         if (!this.can_edit()) return;
         this.busy.set(slot);
         try {
-            const kit = await this._ai.deriveBrandLogo(slot);
+            const kit = await this._image_gen.deriveBrandLogo(slot);
             this._applyLogos(kit);
             notifySuccess(i18n('SIGNAGE_MANAGER.BRAND_LOGO_MADE'));
         } catch (error) {
             notifyError(
-                errorMessage(error, i18n('SIGNAGE_MANAGER.BRAND_SAVE_FAILED')),
+                actionError(error, i18n('SIGNAGE_MANAGER.BRAND_SAVE_FAILED')),
             );
         } finally {
             this.busy.set('');
@@ -471,11 +558,12 @@ export class BrandingComponent implements OnInit {
         }
         this.saving.set(true);
         try {
-            const palette: Record<string, string> = {};
-            this.colours().forEach((colour, index) => {
-                palette[this.colourName(index)] = colour;
-            });
-            await this._ai.saveBrandKit({
+            // each colour keeps the key it was read from
+            const palette = { ...this._extra_palette };
+            for (const colour of this.colours()) {
+                palette[colour.key] = colour.value;
+            }
+            await this._image_gen.saveBrandKit({
                 organisation: this.organisation().trim() || undefined,
                 palette,
                 font: this.font() ? { family: this.font() } : undefined,
@@ -483,29 +571,38 @@ export class BrandingComponent implements OnInit {
             notifySuccess(i18n('SIGNAGE_MANAGER.BRAND_SAVED'));
         } catch (error) {
             notifyError(
-                errorMessage(error, i18n('SIGNAGE_MANAGER.BRAND_SAVE_FAILED')),
+                actionError(error, i18n('SIGNAGE_MANAGER.BRAND_SAVE_FAILED')),
             );
         } finally {
             this.saving.set(false);
         }
     }
 
-    private _apply(brand: AiBrandKit) {
+    private _apply(brand: ImageGenBrandKit) {
         this.organisation.set(brand.organisation || '');
         const palette = brand.palette || {};
         const ordered = [
-            ...COLOUR_NAMES.map((name) => palette[name]).filter(Boolean),
-            ...Object.keys(palette)
-                .filter((key) => !COLOUR_NAMES.includes(key))
-                .map((key) => palette[key]),
-        ] as string[];
-        if (ordered.length) this.colours.set(ordered.slice(0, 3));
+            ...COLOUR_NAMES.filter((name) => palette[name]),
+            ...Object.keys(palette).filter(
+                (key) => !COLOUR_NAMES.includes(key),
+            ),
+        ];
+        if (ordered.length) {
+            this.colours.set(
+                ordered
+                    .slice(0, MAX_COLOURS)
+                    .map((key) => ({ key, value: palette[key] })),
+            );
+        }
+        this._extra_palette = Object.fromEntries(
+            ordered.slice(MAX_COLOURS).map((key) => [key, palette[key]]),
+        );
         const font = brand.font;
         this.font.set(typeof font === 'string' ? font : font?.family || '');
         this._applyLogos(brand);
     }
 
-    private _applyLogos(brand: AiBrandKit) {
+    private _applyLogos(brand: ImageGenBrandKit) {
         this.logos.set({
             on_light: brand.logo_upload_id || '',
             on_dark: brand.logo_dark_upload_id || '',

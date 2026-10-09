@@ -1,11 +1,12 @@
 import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
-import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
+import { MatDialogModule } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { IconComponent, TranslatePipe } from '@placeos/components';
-import { SignageService } from '../signage.service';
+import { SignagePlaylist } from '@placeos/ts-client';
+import { SignagePlaylistService } from '../playlists/signage-playlist.service';
 import { IntersectDirective } from './intersect.directive';
 import { byName, PagedSearch } from './paged-search';
 
@@ -39,8 +40,7 @@ import { byName, PagedSearch } from './paged-search';
             >
                 <input
                     matInput
-                    [ngModel]="list.search()"
-                    (ngModelChange)="list.search.set($event)"
+                    [(ngModel)]="list.search"
                     [placeholder]="
                         'SIGNAGE_MANAGER.SEARCH_PLAYLISTS' | translate
                     "
@@ -115,11 +115,10 @@ import { byName, PagedSearch } from './paged-search';
     ],
 })
 export class PlaylistSelectModalComponent {
-    private readonly _data: { media_id: string } = inject(MAT_DIALOG_DATA);
-    private readonly _service = inject(SignageService);
+    private readonly _playlist_service = inject(SignagePlaylistService);
 
-    public readonly list = new PagedSearch<any>(
-        (search) => this._service.queryPlaylists(search),
+    public readonly list = new PagedSearch<SignagePlaylist>(
+        (search) => this._playlist_service.queryPlaylists(search),
         byName,
     );
 }

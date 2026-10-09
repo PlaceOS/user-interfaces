@@ -6,7 +6,7 @@ import {
     resource,
     signal,
 } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { OrganisationService, SettingsService } from '@placeos/common';
 import { PlaceSystem, querySystems, showMetadata } from '@placeos/ts-client';
 import { queryAllPages } from '../query-all-pages';
@@ -49,6 +49,10 @@ export class RoomManagementService {
         () => this._room_alerts.value() ?? {},
     );
 
+    private readonly _load_error = signal(false);
+    /** Whether the latest load of rooms failed */
+    public readonly load_error = this._load_error.asReadonly();
+
     private readonly _room_list = resource({
         params: () => {
             const alerts = this._room_alerts.value();
@@ -67,9 +71,14 @@ export class RoomManagementService {
             const zone_id =
                 (this._settings.get('app.use_region') ? params.region : '') ||
                 params.building;
+            let failed = false;
             const list: any[] = await queryAllPages(
                 querySystems({ zone_id, limit: 200 }),
-            ).catch(() => []);
+            ).catch(() => {
+                failed = true;
+                return [];
+            });
+            this._load_error.set(failed);
             const alerts = params.alerts;
             for (const id in alerts) {
                 const [status, message] = alerts[id];
@@ -100,6 +109,11 @@ export class RoomManagementService {
         return list;
     });
 
+    /** Load the list of rooms again */
+    public reload() {
+        this._room_list.reload();
+    }
+
     public setFilters(options: Partial<RoomListOptions>) {
         this._options.update((current) => ({ ...current, ...options }));
     }
@@ -109,20 +123,16 @@ export class RoomManagementService {
     }
 
     public editRoom(room: PlaceSystem = new PlaceSystem()) {
-        const ref = this._dialog.open(RoomModalComponent, { data: { room } });
-        ref.afterClosed().subscribe((data) => {
-            if (data) setTimeout(() => this._change.update((c) => c + 1), 300);
-        });
+        this._refreshAfterSave(
+            this._dialog.open(RoomModalComponent, { data: { room } }),
+        );
     }
 
     public setRoomAlert(room: PlaceSystem) {
         if (!room) return;
-        const ref = this._dialog.open(RoomAlertModalComponent, {
-            data: { room },
-        });
-        ref.afterClosed().subscribe((data) => {
-            if (data) setTimeout(() => this._change.update((c) => c + 1), 300);
-        });
+        this._refreshAfterSave(
+            this._dialog.open(RoomAlertModalComponent, { data: { room } }),
+        );
     }
 
     public viewBookingHistory(room: PlaceSystem) {
@@ -134,6 +144,13 @@ export class RoomManagementService {
             maxHeight: '100vh',
             width: '100vw',
             height: '100vh',
+        });
+    }
+
+    /** Load room alerts and rooms again after the dialog closes with a result. */
+    private _refreshAfterSave(ref: MatDialogRef<unknown>) {
+        ref.afterClosed().subscribe((data) => {
+            if (data) setTimeout(() => this._change.update((c) => c + 1), 300);
         });
     }
 }

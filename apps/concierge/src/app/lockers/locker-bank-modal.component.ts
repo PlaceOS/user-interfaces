@@ -309,13 +309,15 @@ export class LockerBankModalComponent {
         if (!this.form().valid()) return;
         this.loading.set(true);
         const value: any = { ...this.model() };
+        // The level may not be loaded (e.g. a bank saved on a building), and
+        // there may be no region, so do not assume either exists.
         const level = this._org.levelWithID([value.level_id]);
         value.zones = unique(
             [
-                level.id,
+                level?.id || value.level_id,
                 this._org.organisation.id,
-                this._org.region.id,
-                level.parent_id,
+                this._org.region?.id,
+                level?.parent_id || this._org.building?.id,
             ].filter((_) => _),
         );
         this._dialog_ref.disableClose = true;

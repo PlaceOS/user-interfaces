@@ -32,7 +32,11 @@ import { mocksInit } from '@placeos/mocks';
             <global-chat />
         }
         <global-loading />
-        <settings-debug-panel-launcher [loadSchema]="load_settings_schema" />
+        @defer (on idle) {
+            <settings-debug-panel-launcher
+                [loadSchema]="load_settings_schema"
+            />
+        }
     `,
     styles: [
         `

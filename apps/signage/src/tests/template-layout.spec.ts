@@ -47,6 +47,17 @@ describe('computeTemplateLayout', () => {
         });
     });
 
+    it('fills the frame with a floating item that has no position', () => {
+        const result = computeTemplateLayout([layout('floating')]);
+
+        expect(result.items[0].rect).toEqual({
+            left: 0,
+            top: 0,
+            width: 100,
+            height: 100,
+        });
+    });
+
     it('uses defaults and constrains item dimensions to the available space', () => {
         const result = computeTemplateLayout([
             layout('right'),

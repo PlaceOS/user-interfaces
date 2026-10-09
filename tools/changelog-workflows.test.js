@@ -36,12 +36,8 @@ for (const workflowFile of workflowFiles) {
         const installCheckout = installSteps.find(
             (step) => step.uses === 'actions/checkout@v6',
         );
-        const historyFetch = installSteps.find(
-            (step) => step.name === 'Fetch changelog history',
-        );
 
-        assert.equal(installCheckout.with?.['fetch-depth'], '2');
-        assert.match(historyFetch.run, /origin "\$\{GITHUB_REF\}"/);
+        assert.equal(installCheckout.with?.['fetch-depth'], 0);
         assert.ok(
             installSteps.some(
                 (step) =>

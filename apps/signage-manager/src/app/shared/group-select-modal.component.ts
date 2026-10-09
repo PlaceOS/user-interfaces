@@ -6,6 +6,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import { PlaceCurrentGroup } from '@placeos/ts-client';
+import { groupHierarchy } from '../signage-context.service';
 
 export interface GroupSelectModalData {
     title: string;
@@ -27,7 +28,7 @@ export interface GroupSelectModalData {
                 icon
                 type="button"
                 matRipple
-                mat-dialog-close
+                [mat-dialog-close]="undefined"
                 [attr.aria-label]="
                     'SIGNAGE_MANAGER.CLOSE_GROUP_SELECT' | translate
                 "
@@ -94,8 +95,7 @@ export interface GroupSelectModalData {
                 <input
                     matInput
                     cdkFocusInitial
-                    [ngModel]="search()"
-                    (ngModelChange)="search.set($event)"
+                    [(ngModel)]="search"
                     [placeholder]="'SIGNAGE_MANAGER.SEARCH_GROUPS' | translate"
                     [attr.aria-label]="
                         'SIGNAGE_MANAGER.SEARCH_GROUPS' | translate
@@ -193,19 +193,10 @@ export class GroupSelectModalComponent {
         );
     });
     public readonly selected_hierarchy = computed(() => {
-        const selected_group_id = this.data.selected_group_id;
-        if (!selected_group_id) return [];
-        const groups = new Map(
-            this.data.groups.map((item) => [item.group.id, item.group]),
-        );
-        const hierarchy: PlaceCurrentGroup['group'][] = [];
-        const seen = new Set<string>();
-        let group = groups.get(selected_group_id);
-        while (group?.id && !seen.has(group.id)) {
-            hierarchy.unshift(group);
-            seen.add(group.id);
-            group = group.parent_id ? groups.get(group.parent_id) : undefined;
-        }
-        return hierarchy;
+        const groups = this.data.groups.map((item) => item.group);
+        const selected = this.data.selected_group_id
+            ? groups.find((group) => group.id === this.data.selected_group_id)
+            : undefined;
+        return groupHierarchy(selected, groups);
     });
 }

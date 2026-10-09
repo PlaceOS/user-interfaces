@@ -2,7 +2,7 @@ import { expect, test } from '@playwright/test';
 
 /**
  * E2E Tests for Additional Features
- * Tests US-038 to US-051: Voice assistant, accessories, help, navigation, accessibility, and system status
+ * Tests US-038 to US-050: Voice assistant, accessories, help, navigation, accessibility, and system status
  */
 
 const MOCK_SYSTEM_ID = 'space-1';
@@ -18,7 +18,7 @@ async function ensurePoweredOn(page) {
         .waitFor({ timeout: LOAD_TIMEOUT });
 
     // Wait for system to be connected (splash or topbar visible)
-    const splash = page.locator('div[name="splash"]');
+    const splash = page.locator('[name="splash"]');
     const topbar = page.locator('topbar-header');
 
     await Promise.race([
@@ -65,7 +65,7 @@ test.describe('US-038: Activate Voice Control', () => {
             .locator('app-control-tabbed-view')
             .waitFor({ timeout: LOAD_TIMEOUT });
 
-        const splash = page.locator('div[name="splash"]');
+        const splash = page.locator('[name="splash"]');
 
         if (await splash.isVisible().catch(() => false)) {
             const voiceAssistant = splash.locator('voice-assistant');
@@ -347,7 +347,7 @@ test.describe('US-049: Touch-Friendly Interface', () => {
     });
 });
 
-// US-050 to US-051: System Status
+// US-050: System Status
 test.describe('US-050: View System Status', () => {
     test.beforeEach(async ({ page }) => {
         await ensurePoweredOn(page);
@@ -377,20 +377,6 @@ test.describe('US-050: View System Status', () => {
         // Room name should be displayed
         const roomName = topbar.locator('.text-lg');
         await expect(roomName).toBeVisible();
-    });
-});
-
-test.describe('US-051: View Current Meeting Information', () => {
-    test.beforeEach(async ({ page }) => {
-        await ensurePoweredOn(page);
-    });
-
-    test('should have meeting join capability', async ({ page }) => {
-        // Meeting info is available via join meeting button
-        const meetButton = page.locator('button[type="meet"]');
-        const isVisible = await meetButton.isVisible().catch(() => false);
-
-        // Button visibility depends on meeting_url configuration
     });
 });
 

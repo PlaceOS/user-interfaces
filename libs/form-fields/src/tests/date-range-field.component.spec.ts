@@ -47,6 +47,28 @@ describe('DateRangeFieldComponent', () => {
         expect(spectator.query('button[role="date-picker"]')).toBeDisabled();
     });
 
+    it('should show dates set on the bound model', async () => {
+        spectator.setHostInput({
+            start: new Date(2026, 8, 1).valueOf(),
+            end: new Date(2026, 8, 5).valueOf(),
+        });
+        spectator.detectChanges();
+        await spectator.fixture.whenStable();
+        spectator.detectChanges();
+
+        const button = spectator.query('button[role="date-picker"]');
+        expect(button).toContainText('Sep 1, 2026');
+        expect(button).toContainText('Sep 5, 2026');
+    });
+
+    it('should move the end to the new start when the start passes it', () => {
+        const new_start = new Date(2026, 5, 10).valueOf();
+
+        spectator.component.setStartDate(new_start);
+
+        expect(spectator.component.end_date().value).toBe(new_start);
+    });
+
     it('should render the selected start and end dates', () => {
         spectator.component.setStartDate(new Date(2026, 5, 1).valueOf());
         spectator.component.setEndDate(new Date(2026, 5, 5).valueOf());

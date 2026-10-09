@@ -38,6 +38,25 @@ describe('DateRangeCalendarComponent', () => {
         expect(start_change).toHaveBeenCalledWith(day);
     });
 
+    it('should start a new range on the first click when a range is shown', () => {
+        spectator.setInput({
+            start: addDays(month, 1).valueOf(),
+            end: addDays(month, 5).valueOf(),
+        } as any);
+        const start_change = vi.fn();
+        const end_change = vi.fn();
+        spectator.component.startChange.subscribe(start_change);
+        spectator.component.endChange.subscribe(end_change);
+        const new_start = addDays(month, 20).valueOf();
+        const new_end = addDays(month, 24).valueOf();
+
+        spectator.component.selectDate(new_start);
+        spectator.component.selectDate(new_end);
+
+        expect(start_change).toHaveBeenCalledWith(new_start);
+        expect(end_change).toHaveBeenCalledWith(new_end);
+    });
+
     it('should set the end date on a later second selection', () => {
         const end_change = vi.fn();
         spectator.component.endChange.subscribe(end_change);

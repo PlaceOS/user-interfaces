@@ -4,13 +4,12 @@ import {
     UnauthorisedComponent,
 } from '@placeos/components';
 
-import { BootstrapComponent } from './bootstrap.component';
-
 export const routes: Routes = [
     { path: 'unauthorised', component: UnauthorisedComponent },
     {
         path: 'bootstrap',
-        component: BootstrapComponent,
+        loadComponent: () =>
+            import('./bootstrap.component').then((m) => m.BootstrapComponent),
         canActivate: [AuthorisedUserGuard],
     },
     {

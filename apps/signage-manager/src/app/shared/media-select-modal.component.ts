@@ -6,7 +6,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import { SignageMedia } from '@placeos/ts-client';
-import { SignageService } from '../signage.service';
+import { SignageMediaService } from '../media/signage-media.service';
 import { IntersectDirective } from './intersect.directive';
 import { MediaThumbnailComponent } from './media-thumbnail.component';
 import { byName, PagedSearch } from './paged-search';
@@ -29,7 +29,7 @@ export interface MediaSelectModalData {
                 type="button"
                 matRipple
                 mat-dialog-close
-                [attr.aria-label]="'COMMON.CLOSE' | translate"
+                [aria-label]="'COMMON.CLOSE' | translate"
             >
                 <icon>close</icon>
             </button>
@@ -43,8 +43,7 @@ export interface MediaSelectModalData {
             >
                 <input
                     matInput
-                    [ngModel]="list.search()"
-                    (ngModelChange)="list.search.set($event)"
+                    [(ngModel)]="list.search"
                     [placeholder]="
                         'SIGNAGE_MANAGER.TEMPLATE_BACKGROUND_SEARCH' | translate
                     "
@@ -123,11 +122,11 @@ export interface MediaSelectModalData {
 })
 export class MediaSelectModalComponent {
     private readonly _data = inject<MediaSelectModalData>(MAT_DIALOG_DATA);
-    private readonly _service = inject(SignageService);
+    private readonly _media_service = inject(SignageMediaService);
 
     public readonly selected_id = this._data.selected_id;
     public readonly list = new PagedSearch<SignageMedia>(
-        (search) => this._service.queryMedia(search),
+        (search) => this._media_service.queryMedia(search),
         byName,
     );
 }

@@ -1,41 +1,51 @@
 import { NO_ERRORS_SCHEMA, signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router } from '@angular/router';
+import { setNotifyOutlet } from '@placeos/common';
 import { TranslatePipe } from '@placeos/components';
+import { PlaceSystem, show } from '@placeos/ts-client';
 import { DisplaysSectionComponent } from '../../app/displays/displays.component';
-import { SignageService } from '../../app/signage.service';
+import { SignageDisplayService } from '../../app/displays/signage-display.service';
+import { SignagePlaylistService } from '../../app/playlists/signage-playlist.service';
+import { SignageContextService } from '../../app/signage-context.service';
+
+vi.mock('@placeos/ts-client', { spy: true });
 
 describe('DisplaysSectionComponent', () => {
     const selected_display = signal<any>(null);
     const displays = signal<any[]>([]);
     const playlists = signal<any[]>([]);
-    const zones = signal<any[]>([]);
-    const all_zones = signal<any[]>([]);
+    const selected_display_zones = signal<any[]>([]);
     const can_update = signal(false);
     const can_delete_displays = signal(false);
     const templates_enabled = signal(true);
     const playlists_loading = signal(false);
     const related_loading = signal(false);
-    const template_mappings_revision = signal(0);
-    const list_template_mappings = vi.fn();
+    const template_mappings = signal<{ id: string }[]>([]);
+    const template_mappings_loading = signal(false);
     const navigate = vi.fn();
     const edit_display = vi.fn();
     const remove_display = vi.fn();
-    const service_stub = {
-        selected_display,
-        displays,
-        playlists,
-        zones,
-        all_zones,
+    const context_stub = {
         can_update,
         can_delete_displays,
         templates_enabled,
-        playlists_loading,
-        all_zones_loading: related_loading,
-        template_mappings_revision,
-        listTemplateMappings: list_template_mappings,
+    };
+    const display_stub = {
+        selected_display,
+        displays,
+        selected_display_zones,
+        selected_display_zones_loading: related_loading,
+        selected_display_template_mappings: template_mappings,
+        selected_display_template_mappings_loading: template_mappings_loading,
         editDisplay: edit_display,
         removeDisplay: remove_display,
+    };
+    const playlist_stub = {
+        playlistsById: (ids: readonly string[]) =>
+            playlists().filter(({ id }) => ids.includes(id)),
+        playlists_loading,
     };
     const router_stub = { navigate };
 
@@ -47,7 +57,9 @@ describe('DisplaysSectionComponent', () => {
         await TestBed.configureTestingModule({
             imports: [DisplaysSectionComponent],
             providers: [
-                { provide: SignageService, useValue: service_stub },
+                { provide: SignageContextService, useValue: context_stub },
+                { provide: SignageDisplayService, useValue: display_stub },
+                { provide: SignagePlaylistService, useValue: playlist_stub },
                 { provide: Router, useValue: router_stub },
                 { provide: ActivatedRoute, useValue: {} },
             ],
@@ -67,26 +79,20 @@ describe('DisplaysSectionComponent', () => {
         selected_display.set(null);
         displays.set([]);
         playlists.set([]);
-        zones.set([]);
-        all_zones.set([]);
+        selected_display_zones.set([]);
         can_update.set(false);
         can_delete_displays.set(false);
         templates_enabled.set(true);
         playlists_loading.set(false);
         related_loading.set(false);
-        template_mappings_revision.set(0);
-        list_template_mappings.mockResolvedValue([]);
+        template_mappings.set([]);
+        template_mappings_loading.set(false);
         remove_display.mockResolvedValue(false);
     });
 
     it('shows question marks in count badges while data loads', async () => {
         selected_display.set({ id: 'target-1' });
-        let finish_loading!: (value: []) => void;
-        list_template_mappings.mockReturnValue(
-            new Promise<[]>((resolve) => {
-                finish_loading = resolve;
-            }),
-        );
+        template_mappings_loading.set(true);
         playlists_loading.set(true);
         related_loading.set(true);
         const [, fixture] = await make(true);
@@ -101,7 +107,7 @@ describe('DisplaysSectionComponent', () => {
             }
         });
 
-        finish_loading([]);
+        template_mappings_loading.set(false);
         playlists_loading.set(false);
         related_loading.set(false);
         await fixture.whenStable();
@@ -111,40 +117,21 @@ describe('DisplaysSectionComponent', () => {
         }
     });
 
-    it('counts template mappings and refreshes after assignment changes', async () => {
+    it('counts the template mappings of the selected display', async () => {
         selected_display.set({ id: 'target-1' });
-        list_template_mappings.mockResolvedValue([{ id: 'm1' }, { id: 'm2' }]);
+        template_mappings.set([{ id: 'm1' }, { id: 'm2' }]);
         const [component, fixture] = await make(true);
         await fixture.whenStable();
 
-        expect(list_template_mappings).toHaveBeenCalledWith({
-            control_system_id: 'target-1',
-        });
         expect(component.template_count()).toBe(2);
         const element: HTMLElement = fixture.nativeElement;
         const tab = element.querySelector('#display-templates-tab span');
         expect(tab?.textContent?.trim()).toBe('2');
-
-        list_template_mappings.mockResolvedValue([{ id: 'm1' }]);
-        template_mappings_revision.update((value) => value + 1);
-        await fixture.whenStable();
-        expect(component.template_count()).toBe(1);
-        expect(tab?.textContent?.trim()).toBe('1');
-
-        selected_display.set({ id: 'target-2' });
-        list_template_mappings.mockResolvedValue([]);
-        await fixture.whenStable();
-        expect(list_template_mappings).toHaveBeenLastCalledWith({
-            control_system_id: 'target-2',
-        });
-        expect(component.template_count()).toBe(0);
-        expect(tab?.textContent?.trim()).toBe('0');
     });
 
     it('counts the playlists and zones attached to the selected display', async () => {
         playlists.set([{ id: 'p1' }, { id: 'p2' }]);
-        zones.set([{ id: 'z1' }]);
-        all_zones.set([{ id: 'z1' }, { id: 'z2' }, { id: 'z3' }]);
+        selected_display_zones.set([{ id: 'z2' }, { id: 'z3' }]);
         selected_display.set({
             id: 'd1',
             playlists: ['p1'],
@@ -178,6 +165,64 @@ describe('DisplaysSectionComponent', () => {
         TestBed.flushEffects();
 
         expect(selected_display()?.id).toBe('d2');
+    });
+
+    it('loads a routed display that the loaded pages do not include', async () => {
+        displays.set([{ id: 'd1' }]);
+        const display = new PlaceSystem({ id: 'd-far', name: 'Far' });
+        vi.mocked(show).mockResolvedValue(display);
+        const [, fixture] = await make();
+        fixture.componentRef.setInput('id', 'd-far');
+        fixture.detectChanges();
+        TestBed.flushEffects();
+
+        await vi.waitFor(() => expect(selected_display()).toBe(display));
+        expect(show).toHaveBeenCalledExactlyOnceWith(
+            expect.objectContaining({ id: 'd-far', path: 'systems' }),
+        );
+    });
+
+    it('loads a linked display again after going back to it', async () => {
+        displays.set([{ id: 'd1' }]);
+        const far = new PlaceSystem({ id: 'd-far', name: 'Far' });
+        vi.mocked(show).mockResolvedValue(far);
+        const [, fixture] = await make();
+        const route = (id: string) => {
+            fixture.componentRef.setInput('id', id);
+            fixture.detectChanges();
+            TestBed.flushEffects();
+        };
+
+        route('d-far');
+        await vi.waitFor(() => expect(selected_display()).toBe(far));
+        route('d1');
+        expect(selected_display()?.id).toBe('d1');
+        route('d-far');
+
+        await vi.waitFor(() => expect(selected_display()).toBe(far));
+        expect(show).toHaveBeenCalledTimes(2);
+    });
+
+    it('shows an error when a linked display cannot be loaded', async () => {
+        const notify_open = vi.fn(() => ({
+            onAction: () => ({ subscribe: () => ({ unsubscribe: () => {} }) }),
+            dismiss: vi.fn(),
+        }));
+        setNotifyOutlet({ open: notify_open } as unknown as MatSnackBar, true);
+        vi.mocked(show).mockRejectedValue(new Error('Not found'));
+        const [, fixture] = await make();
+        fixture.componentRef.setInput('id', 'd-gone');
+        fixture.detectChanges();
+        TestBed.flushEffects();
+
+        await vi.waitFor(() =>
+            expect(notify_open).toHaveBeenCalledWith(
+                expect.any(String),
+                expect.anything(),
+                expect.objectContaining({ panelClass: ['error'] }),
+            ),
+        );
+        expect(selected_display()).toBeNull();
     });
 
     it('clears the selection when navigating back to the list', async () => {

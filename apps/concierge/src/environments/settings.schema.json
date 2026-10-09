@@ -81,6 +81,10 @@
             "type": "boolean",
             "description": "Whether file upload support (S3/cloud storage) is available in the app"
         },
+        "bulk_actions": {
+            "type": "boolean",
+            "description": "Whether staff can select several rows to approve or reject bookings and requests, or to change the status of catering orders"
+        },
         "guests": {
             "type": "object",
             "description": "Settings associated with guest users",

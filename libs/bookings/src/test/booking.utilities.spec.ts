@@ -4,15 +4,21 @@ import {
     Booking,
     CalendarEvent,
     fromBookingRecurrence,
+    getAllDayTimeRange,
     Space,
     User,
     WeekOfMonth,
 } from '@placeos/common';
+import { generateBookingForm } from '../lib/booking-form.model';
 import {
-    generateBookingForm,
+    loadLockersForScope,
     newBookingFromCalendarEvent,
     parkingRequestStatus,
 } from '../lib/booking.utilities';
+
+vi.mock('@placeos/ts-client', { spy: true });
+
+import * as ts_client from '@placeos/ts-client';
 
 describe('Booking Utilities', () => {
     let injector: Injector;
@@ -211,6 +217,49 @@ describe('Booking Utilities', () => {
         });
     });
 
+    describe('loadLockersForScope', () => {
+        it('should list lockers under their bank without a reference cycle', async () => {
+            vi.spyOn(ts_client, 'queryAssetCategories').mockResolvedValue({
+                total: 1,
+                next: null,
+                data: [{ id: 'category-1', name: '_LOCKERS_', hidden: true }],
+            } as any);
+            vi.spyOn(ts_client, 'queryAssetTypes').mockResolvedValue({
+                total: 1,
+                next: null,
+                data: [{ id: 'type-1', name: '_LOCKERS_' }],
+            } as any);
+            vi.spyOn(ts_client, 'queryAssets').mockResolvedValue({
+                total: 1,
+                next: null,
+                data: [
+                    {
+                        id: 'locker-1',
+                        identifier: 'Locker 1',
+                        parent_id: 'bank-1',
+                        zone_id: 'level-1',
+                        asset_type_id: 'type-1',
+                        other_data: {},
+                    },
+                ],
+            } as any);
+            const bank = { id: 'bank-1', name: 'Bank 1', lockers: [] } as any;
+
+            const lockers = await loadLockersForScope(
+                { levelWithID: () => null } as any,
+                'building-1',
+                [bank],
+            );
+
+            expect(lockers.map((_) => _.id)).toEqual(['locker-1']);
+            expect(lockers[0].bank).toBe(bank);
+            expect(bank.lockers.map((_) => _.id)).toEqual(['locker-1']);
+            expect(bank.lockers[0].bank.id).toBe('bank-1');
+            expect(bank.lockers[0].bank.lockers).toEqual([]);
+            expect(() => JSON.stringify(bank)).not.toThrow();
+        });
+    });
+
     describe('newBookingFromCalendarEvent', () => {
         it.each([30, 90, 120, 480])(
             'should preserve a %s-minute interval in native booking payloads',
@@ -228,6 +277,27 @@ describe('Booking Utilities', () => {
                 }
             },
         );
+
+        it('should reserve the full day for an all-day room booking', () => {
+            const period = getAllDayTimeRange(
+                new Date(2028, 5, 15, 13).valueOf(),
+                '',
+            );
+            const event = new CalendarEvent({ all_day: true, ...period });
+
+            const payload = newBookingFromCalendarEvent(
+                event.toJSON() as CalendarEvent,
+            ).toJSON();
+
+            expect(payload.booking_start).toBe(
+                new Date(2028, 5, 15).valueOf() / 1000,
+            );
+            expect(payload.booking_end).toBe(
+                new Date(2028, 5, 16).valueOf() / 1000,
+            );
+            expect(payload.all_day).toBe(true);
+            expect(payload.extension_data.custom_all_day).toBeUndefined();
+        });
 
         it.each([false, true])(
             'should preserve the delegated host identity, serialized event: %s',
@@ -255,6 +325,24 @@ describe('Booking Utilities', () => {
                 });
             },
         );
+
+        it.each([false, true])(
+            'should keep the meeting title, serialized event: %s',
+            (serialized) => {
+                const event = new CalendarEvent({ title: 'Team Sync' });
+                const booking = newBookingFromCalendarEvent(
+                    serialized ? (event.toJSON() as CalendarEvent) : event,
+                );
+
+                expect(booking.toJSON().title).toBe('Team Sync');
+            },
+        );
+
+        it('should use the default title for an untitled meeting', () => {
+            const booking = newBookingFromCalendarEvent(new CalendarEvent());
+
+            expect(booking.title).toBe('Room Booking');
+        });
 
         it('should use the host email as the identity when staff details are unavailable', () => {
             const booking = newBookingFromCalendarEvent(
@@ -288,6 +376,34 @@ describe('Booking Utilities', () => {
                     asset_id: room.id,
                     booking_type: 'room',
                     zones: ['zone-building', 'zone-level'],
+                });
+            },
+        );
+
+        it.each([false, true])(
+            'should hold every selected room in the booking payload, serialized event: %s',
+            (serialized) => {
+                const rooms = [
+                    new Space({
+                        id: 'room-1',
+                        email: 'room-1@example.com',
+                        zones: ['zone-building', 'zone-level-1'],
+                    }),
+                    new Space({
+                        id: 'room-2',
+                        email: 'room-2@example.com',
+                        zones: ['zone-building', 'zone-level-2'],
+                    }),
+                ];
+                const event = new CalendarEvent({ resources: rooms });
+                const booking = newBookingFromCalendarEvent(
+                    serialized ? (event.toJSON() as CalendarEvent) : event,
+                );
+
+                expect(booking.toJSON()).toMatchObject({
+                    asset_id: 'room-1',
+                    asset_ids: ['room-1', 'room-2'],
+                    zones: ['zone-building', 'zone-level-1', 'zone-level-2'],
                 });
             },
         );

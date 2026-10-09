@@ -72,9 +72,10 @@ export interface PlaylistItemScheduleModalData {
                         </div>
                     </div>
                 }
+                <!-- Track the field, so each form keeps its state when one before it is removed -->
                 @for (
                     schedule of form_model.schedules;
-                    track index;
+                    track schedule;
                     let index = $index
                 ) {
                     <playlist-schedule-form
@@ -141,6 +142,10 @@ export class PlaylistItemScheduleModalComponent {
                 (_, item_index) => item_index !== index,
             ),
         }));
+        this.active_schedule_index.update((active_index) => {
+            if (active_index === index) return null;
+            return active_index > index ? active_index - 1 : active_index;
+        });
     }
 
     public openSchedule(index: number) {
@@ -167,11 +172,10 @@ export class PlaylistItemScheduleModalComponent {
                 this._dialog_ref.disableClose = false;
                 this._dialog_ref.close(true);
                 notifySuccess(i18n('SIGNAGE_MANAGER.SVC_PLAYLIST_UPDATED'));
-            } catch (e) {
+            } catch {
                 this._dialog_ref.disableClose = false;
                 this.loading.set(false);
                 notifyError(i18n('SIGNAGE_MANAGER.PLAYLIST_SAVE_ERROR'));
-                throw e;
             }
         });
     }

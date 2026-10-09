@@ -8,7 +8,7 @@ import { SettingsService } from 'libs/common/src/lib/settings.service';
 import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticated-image.directive';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
-import { BookingAsset } from './booking-form.service';
+import { BookingAsset } from './booking-form.types';
 import { ParkingSelectModalComponent } from './parking-select-modal/parking-select-modal.component';
 
 const EMPTY_FAVS: string[] = [];

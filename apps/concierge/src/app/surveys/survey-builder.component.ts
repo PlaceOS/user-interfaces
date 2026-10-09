@@ -6,6 +6,7 @@ import {
     inject,
     OnInit,
     signal,
+    untracked,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { form, FormField, required } from '@angular/forms/signals';
@@ -44,13 +45,17 @@ import {
     SurveyOutletComponent,
     TranslatePipe,
 } from '@placeos/components';
-import { NewSurveyService } from './new-survey.service';
+import { HasUnsavedChanges } from '../ui/unsaved-changes.guard';
+import { NewSurveyService, QuestionFilters } from './new-survey.service';
 import { QuestionComponent } from './question.component';
-import { QuestionPipe } from './question.pipe';
 import { QuestionTypeMap, QuestionTypeOptions, TriggerOptions } from './types';
 
 @Component({
     selector: 'survey-builder',
+    host: {
+        '(window:beforeunload)':
+            'hasUnsavedChanges() && $event.preventDefault()',
+    },
     template: `
         <div class="sticky top-0 mb-2 px-8">
             <div header class="flex items-center py-4">
@@ -253,7 +258,7 @@ import { QuestionTypeMap, QuestionTypeOptions, TriggerOptions } from './types';
                                 track q_id;
                                 let idx = $index
                             ) {
-                                @let quest = $any(q_id) | question;
+                                @let quest = questionFor(q_id);
                                 @if (quest) {
                                     <div cdkDrag class="relative -ml-px flex">
                                         <div
@@ -526,11 +531,13 @@ import { QuestionTypeMap, QuestionTypeOptions, TriggerOptions } from './types';
         DragDropModule,
         MatMenuModule,
         MatTabsModule,
-        QuestionPipe,
         QuestionComponent,
     ],
 })
-export class SurveyBuilderComponent extends AsyncHandler implements OnInit {
+export class SurveyBuilderComponent
+    extends AsyncHandler
+    implements OnInit, HasUnsavedChanges
+{
     private _org = inject(OrganisationService);
     private _service = inject(NewSurveyService);
     private _route = inject(ActivatedRoute);
@@ -538,12 +545,20 @@ export class SurveyBuilderComponent extends AsyncHandler implements OnInit {
     public readonly view = signal<'builder' | 'preview'>('builder');
     public readonly active_page = signal(0);
     public readonly loading = signal(false);
-    public readonly selected_type = signal('');
+    public readonly selected_type = signal<QuestionFilters['type'] | ''>('');
     public readonly search_text = signal('');
 
     public readonly buildings = this._org.building_list;
     public readonly levels = this._org.active_levels;
     public readonly questions = this._service.filtered_questions;
+    /** All loaded questions by ID, for rendering a page's question order. */
+    private readonly _question_map = computed(
+        () => new Map(this._service.questions().map((q) => [`${q.id}`, q])),
+    );
+
+    public questionFor(id: string | number) {
+        return this._question_map().get(`${id}`);
+    }
     public readonly trigger_types = TriggerOptions;
     public readonly question_types = QuestionTypeMap;
     public readonly question_options = QuestionTypeOptions;
@@ -551,7 +566,7 @@ export class SurveyBuilderComponent extends AsyncHandler implements OnInit {
         id: '' as string | number,
         title: '',
         description: '',
-        trigger: '',
+        trigger: 'NONE',
         building_id: '',
         zone_id: '',
         pages: [
@@ -561,6 +576,8 @@ export class SurveyBuilderComponent extends AsyncHandler implements OnInit {
     public readonly form = form(this.model, (p) => {
         required(p.title);
     });
+    /** Model as it was when last loaded or saved */
+    private _saved_model = JSON.stringify(this.model());
 
     /** The page currently being edited. */
     public readonly active_page_value = computed(
@@ -581,22 +598,35 @@ export class SurveyBuilderComponent extends AsyncHandler implements OnInit {
             id: survey.id ?? m.id,
             title: survey.title ?? m.title,
             description: survey.description ?? m.description,
-            trigger: survey.trigger ?? m.trigger,
+            // The API stores the trigger in lower case, but options are upper.
+            trigger: survey.trigger?.toUpperCase() ?? m.trigger,
             building_id: survey.building_id ?? m.building_id,
             zone_id: survey.zone_id ?? m.zone_id,
             pages: survey.pages?.length ? survey.pages : m.pages,
         }));
+        this._saved_model = JSON.stringify(untracked(this.model));
     });
+
+    public hasUnsavedChanges() {
+        return JSON.stringify(this.model()) !== this._saved_model;
+    }
 
     public ngOnInit(): void {
         this.subscription(
             'route.params',
             this._route.paramMap.subscribe((params) => {
-                if (params.has('id')) {
-                    this._service.setSurvey(params.get('id'));
-                }
+                // The service is shared app-wide. Always reset it so a new
+                // survey never loads (and then saves over) a previous one.
+                this._service.setSurvey(params.get('id') || '');
             }),
         );
+        // The survey list links here with the building to create it in.
+        const building_id =
+            this._route.snapshot?.queryParamMap?.get('building_id');
+        if (building_id && !this.model().building_id) {
+            this.model.update((m) => ({ ...m, building_id }));
+            this._saved_model = JSON.stringify(this.model());
+        }
     }
 
     /** Apply a patch to the page currently being edited. */
@@ -672,7 +702,7 @@ export class SurveyBuilderComponent extends AsyncHandler implements OnInit {
         this.search_text.set(search_text);
         this._service.setQuestionFilters({
             search_text,
-            type: this.selected_type as any,
+            type: this.selected_type() || undefined,
         });
     }
 
@@ -689,14 +719,23 @@ export class SurveyBuilderComponent extends AsyncHandler implements OnInit {
         if (!this.form().valid()) return;
         this.loading.set(true);
         const survey = this.model();
-        const call = survey.id
-            ? updateSurvey(`${survey.id}`, survey as any)
-            : addSurvey(survey as any);
-        await call.catch((error) => {
-            notifyError('Failed to save survey details. Error: ', error);
-            throw error;
-        });
+        // The API rejects an empty ID or trigger, so leave out the ID for
+        // new surveys and default the trigger.
+        const { id: survey_id, ...details } = survey;
+        const body = { ...details, trigger: details.trigger || 'NONE' };
+        const call = survey_id
+            ? updateSurvey(`${survey_id}`, { ...body, id: survey_id } as any)
+            : addSurvey(body as any);
+        const saved = await call
+            .catch((error) => {
+                notifyError('Failed to save survey details. Error: ', error);
+                throw error;
+            })
+            .finally(() => this.loading.set(false));
+        // Keep the new ID so a second save updates instead of duplicating.
+        const id = survey.id || saved?.id || '';
+        if (id !== survey.id) this.model.update((m) => ({ ...m, id }));
+        this._saved_model = JSON.stringify({ ...survey, id });
         notifySuccess('Successfully saved survey details.');
-        this.loading.set(false);
     }
 }

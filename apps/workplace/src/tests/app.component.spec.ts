@@ -1,3 +1,4 @@
+import { DeferBlockBehavior } from '@angular/core/testing';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { MockProvider } from 'ng-mocks';
 
@@ -13,6 +14,8 @@ describe('AppComponent', () => {
     const createComponent = createComponentFactory({
         component: AppComponent,
         detectChanges: false,
+        // Keeps the idle-deferred debug launcher from loading after teardown
+        deferBlockBehavior: DeferBlockBehavior.Manual,
         providers: [
             MockProvider(PlaceOS_Service, {
                 init: vi.fn(() => Promise.resolve()),

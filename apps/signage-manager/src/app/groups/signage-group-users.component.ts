@@ -1,15 +1,15 @@
 import { Component, inject } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialog } from '@angular/material/dialog';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { i18n } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import { PlaceGroupUser } from '@placeos/ts-client';
-import { dialogClosed, SignageService } from '../signage.service';
-import {
-    groupPermissionLabels,
-    SignageGroupPermissionsModalComponent,
-} from './signage-group-permissions-modal.component';
+import { dialogClosed } from '../signage-service.util';
+import { SignageGroupAdminService } from './signage-group-admin.service';
+import { SignageGroupPermissionLabelsComponent } from './signage-group-permission-labels.component';
+import { SignageGroupPermissionsModalComponent } from './signage-group-permissions-modal.component';
 import { SignageGroupUserSelectModalComponent } from './signage-group-user-select-modal.component';
 
 @Component({
@@ -43,12 +43,22 @@ import { SignageGroupUserSelectModalComponent } from './signage-group-user-selec
                     [attr.aria-label]="
                         'SIGNAGE_MANAGER.ADD_USER_ARIA' | translate
                     "
+                    [disabled]="loading() || failed()"
                     (click)="addUser()"
                 >
                     <icon>add</icon>
                 </button>
             </div>
             <div class="gap-2 p-2">
+                @if (failed() && users().length) {
+                    <p
+                        class="text-error mb-2 flex items-center gap-2 px-2 text-sm"
+                        role="alert"
+                    >
+                        <icon class="text-lg">error</icon>
+                        {{ 'SIGNAGE_MANAGER.USERS_LOAD_ERROR' | translate }}
+                    </p>
+                }
                 @if (users().length) {
                     @for (row of users(); track row.user_id) {
                         <div
@@ -71,21 +81,9 @@ import { SignageGroupUserSelectModalComponent } from './signage-group-user-selec
                                 <div
                                     class="text-base-content/70 mt-1 truncate text-xs"
                                 >
-                                    @let labels =
-                                        permissionLabels(row.permissions);
-                                    @if (labels.length) {
-                                        @for (label of labels; track label) {
-                                            {{ label | translate }}
-                                            @if (!$last) {
-                                                ,
-                                            }
-                                        }
-                                    } @else {
-                                        <span class="italic">{{
-                                            'SIGNAGE_MANAGER.DEFAULT_PERMISSIONS'
-                                                | translate
-                                        }}</span>
-                                    }
+                                    <signage-group-permission-labels
+                                        [permissions]="row.permissions"
+                                    />
                                 </div>
                             </div>
                             <button
@@ -123,6 +121,19 @@ import { SignageGroupUserSelectModalComponent } from './signage-group-user-selec
                             </button>
                         </div>
                     }
+                } @else if (loading()) {
+                    <div class="flex justify-center p-6">
+                        <mat-spinner diameter="32" />
+                    </div>
+                } @else if (failed()) {
+                    <div
+                        class="text-error flex flex-col items-center justify-center space-y-2 p-6"
+                    >
+                        <icon class="text-4xl">error</icon>
+                        <p class="text-sm">
+                            {{ 'SIGNAGE_MANAGER.USERS_LOAD_ERROR' | translate }}
+                        </p>
+                    </div>
                 } @else {
                     <div
                         class="text-base-content/70 flex flex-col items-center justify-center space-y-2 p-6"
@@ -146,14 +157,22 @@ import { SignageGroupUserSelectModalComponent } from './signage-group-user-selec
             }
         `,
     ],
-    imports: [MatRippleModule, MatTooltipModule, IconComponent, TranslatePipe],
+    imports: [
+        MatProgressSpinnerModule,
+        MatRippleModule,
+        MatTooltipModule,
+        IconComponent,
+        TranslatePipe,
+        SignageGroupPermissionLabelsComponent,
+    ],
 })
 export class SignageGroupUsersComponent {
-    private readonly _service = inject(SignageService);
+    private readonly _group_admin = inject(SignageGroupAdminService);
     private readonly _dialog = inject(MatDialog);
 
-    public readonly users = this._service.managed_group_users;
-    public readonly permissionLabels = groupPermissionLabels;
+    public readonly users = this._group_admin.managed_group_users;
+    public readonly loading = this._group_admin.managed_group_users_loading;
+    public readonly failed = this._group_admin.managed_group_users_failed;
 
     public async addUser() {
         const user = await dialogClosed(
@@ -164,7 +183,7 @@ export class SignageGroupUsersComponent {
                 panelClass: 'mobile-fullscreen',
             }),
         );
-        if (user) await this._service.addManagedGroupUser(user);
+        if (user) await this._group_admin.addManagedGroupUser(user);
     }
 
     public async editUserPermissions(row: PlaceGroupUser) {
@@ -177,11 +196,14 @@ export class SignageGroupUsersComponent {
             }),
         );
         if (result) {
-            await this._service.updateManagedGroupUser(row, result.permissions);
+            await this._group_admin.updateManagedGroupUser(
+                row,
+                result.permissions,
+            );
         }
     }
 
     public removeUser(row: PlaceGroupUser) {
-        this._service.removeManagedGroupUser(row);
+        this._group_admin.removeManagedGroupUser(row);
     }
 }

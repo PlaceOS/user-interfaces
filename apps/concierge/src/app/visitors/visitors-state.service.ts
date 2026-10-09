@@ -55,6 +55,8 @@ export class VisitorsStateService extends AsyncHandler {
     private readonly _search = signal<string>('');
 
     public readonly loading = signal<boolean>(false);
+    /** Whether the latest load of visitors failed */
+    public readonly load_error = signal(false);
 
     public readonly filters = signal<VisitorFilters>({});
 
@@ -115,6 +117,7 @@ export class VisitorsStateService extends AsyncHandler {
         const date = filters.date ? new Date(filters.date) : new Date();
         const start = addMinutes(startOfDay(date), this.tz_offset * 60);
         const end = addDays(start, filters.period || 1);
+        let failed = false;
         const list = await queryAllBookings({
             type: 'visitor',
             period_start: getUnixTime(start),
@@ -123,7 +126,11 @@ export class VisitorsStateService extends AsyncHandler {
             include_checked_out: true,
             include_deleted: true,
             limit: 200,
-        }).catch((_) => [] as Booking[]);
+        }).catch(() => {
+            failed = true;
+            return [] as Booking[];
+        });
+        this.load_error.set(failed);
         this.bookings.set(
             list.filter(
                 (booking) =>

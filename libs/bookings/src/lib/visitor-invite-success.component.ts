@@ -159,6 +159,7 @@ export class VisitorInviteSuccessComponent implements OnInit {
     private _org = inject(OrganisationService);
     private _settings = inject(SettingsService);
 
+    // fallow-ignore-next-line unused-component-input -- read in a template pipe expression fallow does not parse
     public readonly last_count = input(1);
     public readonly done = output<void>();
     public readonly another = output<void>();

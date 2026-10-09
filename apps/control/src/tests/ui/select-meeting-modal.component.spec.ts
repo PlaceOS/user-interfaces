@@ -5,7 +5,7 @@ import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { setNotifyOutlet } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import { MockComponent, MockPipe } from 'ng-mocks';
-import { NEVER, of } from 'rxjs';
+import { NEVER, of, tap } from 'rxjs';
 
 import { ControlStateService } from '../../app/control-state.service';
 import { SelectMeetingModalComponent } from '../../app/ui/select-meeting-modal.component';
@@ -15,6 +15,7 @@ describe('SelectMeetingModalComponent', () => {
     let calendars: ReturnType<typeof signal<any[]>>;
     let events: ReturnType<typeof signal<any[]>>;
     let calendar: ReturnType<typeof signal<any>>;
+    let events_loading: ReturnType<typeof signal<boolean>>;
     let service: any;
     let dialog_ref: { close: any };
     let dialog_open: any;
@@ -38,9 +39,11 @@ describe('SelectMeetingModalComponent', () => {
             { title: 'Standup', date: Date.now(), organiser: { name: 'Ada' } },
         ]);
         calendar = signal<any>(calendars()[0]);
+        events_loading = signal(false);
         service = {
             calendars,
             events,
+            events_loading,
             calendar,
             setCalendar: vi.fn((c) => calendar.set(c)),
             setEvent: vi.fn(async () => undefined),
@@ -82,7 +85,7 @@ describe('SelectMeetingModalComponent', () => {
     });
 
     it('should show a loading spinner while loading', () => {
-        spectator.component.loading.set(true);
+        events_loading.set(true);
         spectator.detectChanges();
         expect('mat-spinner').toExist();
         expect(spectator.query('button[btn]')).not.toExist();
@@ -93,32 +96,49 @@ describe('SelectMeetingModalComponent', () => {
         expect(service.setCalendar).toHaveBeenCalledWith(calendars()[1]);
     });
 
+    /** Confirm modal ref that resolves as confirmed */
+    const confirmedRef = () => ({
+        componentInstance: {
+            event: of({ reason: 'done' }),
+            loading: signal(''),
+        },
+        afterClosed: () => NEVER,
+        close: vi.fn(),
+    });
+
     it('should join a meeting when the confirmation is completed', async () => {
-        dialog_open.mockReturnValue({
-            componentInstance: {
-                event: of({ reason: 'done' }),
-                loading: signal(''),
-            },
-            afterClosed: () => NEVER,
-            close: vi.fn(),
-        });
+        const confirm_ref = confirmedRef();
+        dialog_open.mockReturnValue(confirm_ref);
         const event = events()[0];
         await spectator.component.select(event);
         expect(dialog_open).toHaveBeenCalled();
         expect(service.setEvent).toHaveBeenCalledWith(event);
         expect(notify_open).toHaveBeenCalled();
+        expect(confirm_ref.close).toHaveBeenCalled();
         expect(dialog_ref.close).toHaveBeenCalled();
     });
 
+    it('should close the confirmation and keep the list open when joining fails', async () => {
+        const confirm_ref = confirmedRef();
+        dialog_open.mockReturnValue(confirm_ref);
+        service.setEvent.mockRejectedValue(new Error('offline'));
+        await spectator.component.select(events()[0]);
+        expect(notify_open).toHaveBeenCalled();
+        expect(confirm_ref.close).toHaveBeenCalled();
+        expect(dialog_ref.close).not.toHaveBeenCalled();
+    });
+
     it('should not join a meeting when the confirmation is dismissed', async () => {
-        dialog_open.mockReturnValue({
-            componentInstance: {
-                event: NEVER,
-                loading: signal(''),
-            },
-            afterClosed: () => of({ reason: 'close' }),
+        // Like MatDialogRef, the component instance is cleared once closed
+        const confirm_ref = {
+            componentInstance: { event: NEVER, loading: signal('') },
+            afterClosed: () =>
+                of(undefined).pipe(
+                    tap(() => (confirm_ref.componentInstance = null)),
+                ),
             close: vi.fn(),
-        });
+        };
+        dialog_open.mockReturnValue(confirm_ref);
         await spectator.component.select(events()[0]);
         expect(service.setEvent).not.toHaveBeenCalled();
         expect(notify_open).not.toHaveBeenCalled();

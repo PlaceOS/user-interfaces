@@ -105,6 +105,15 @@ describe('AutoReleaseSettingsModalComponent', () => {
         expect(getHours(prefs[0].blocks[0].end)).toBe(17);
     });
 
+    it('should close when the existing settings fail to load', async () => {
+        (ts_client.querySettings as any).mockRejectedValue('offline');
+
+        await spectator.component.loadSettings('bld-1');
+
+        expect(spectator.inject(MatDialogRef).close).toHaveBeenCalled();
+        expect(spectator.component.loading()).toBe('');
+    });
+
     it('should load existing auto_release settings from unencrypted yaml', async () => {
         (ts_client.querySettings as any).mockResolvedValue({
             data: [

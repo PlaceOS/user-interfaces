@@ -5,6 +5,7 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { RouterModule } from '@angular/router';
 import {
     AuthenticatedImageDirective,
+    LoadErrorComponent,
     TranslatePipe,
 } from '@placeos/components';
 import { AssetManagerStateService } from './asset-manager-state.service';
@@ -152,6 +153,12 @@ import { AssetManagerStateService } from './asset-manager-state.service';
         </div>
         <mat-progress-bar *ngIf="loading()" mode="indeterminate" />
         <ng-template #empty_state>
+            <load-error
+                *ngIf="load_error(); else no_assets"
+                (retry)="reload()"
+            />
+        </ng-template>
+        <ng-template #no_assets>
             <div
                 class="flex h-full w-full flex-col items-center justify-center space-y-4 p-8"
             >
@@ -189,12 +196,15 @@ import { AssetManagerStateService } from './asset-manager-state.service';
         RouterModule,
         TranslatePipe,
         AuthenticatedImageDirective,
+        LoadErrorComponent,
     ],
 })
 export class AssetItemListComponent {
     private _state = inject(AssetManagerStateService);
 
     public readonly loading = this._state.loading;
+    public readonly load_error = this._state.load_error;
+    public readonly reload = () => this._state.reload();
     public readonly options = this._state.options;
     public readonly categories = this._state.categories;
     public readonly products = this._state.product_mapping;

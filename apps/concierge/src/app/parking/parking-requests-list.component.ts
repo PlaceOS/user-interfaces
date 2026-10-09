@@ -1,16 +1,23 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, computed, inject } from '@angular/core';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { AsyncHandler, Booking, SettingsService } from '@placeos/common';
+import {
+    AsyncHandler,
+    Booking,
+    SettingsService,
+    settingSignal,
+} from '@placeos/common';
 import {
     IconComponent,
     SimpleTableComponent,
     TranslatePipe,
 } from '@placeos/components';
+import { BookingApprovalBarComponent } from '../ui/booking-approval-bar.component';
+import { bookingRowKey, selectedBookings } from '../ui/bulk-booking-actions';
 import { ParkingRequestsWeekViewComponent } from './parking-requests-week-view.component';
 import { ParkingSpecialRequestModalComponent } from './parking-special-request-modal.component';
 import {
@@ -47,6 +54,7 @@ import {
                     matRipple
                     [disabled]="loading().includes('[BOOKINGS]')"
                     [matTooltip]="'COMMON.REFRESH' | translate"
+                    data-shortcut="refresh"
                     (click)="refresh()"
                 >
                     <icon>refresh</icon>
@@ -60,6 +68,12 @@ import {
                     class="sticky left-0 w-full"
                 />
                 <simple-table
+                    [error]="load_error()"
+                    (retry)="retryLoad()"
+                    [selectable]="bulk_actions()"
+                    [row_key]="rowKey"
+                    [can_select]="canSelect"
+                    [(selected)]="selected"
                     class="block min-w-304 text-sm"
                     [data]="filtered_events()"
                     [columns]="[
@@ -387,12 +401,19 @@ import {
                 </button>
             }
         </div>
+        <booking-approval-bar
+            [count]="selected().length"
+            [busy]="bulk_busy()"
+            (setApproval)="setApproval($event)"
+            (clear)="selected.set([])"
+        />
     `,
     styles: [``],
     imports: [
         CommonModule,
         MatProgressBarModule,
         SimpleTableComponent,
+        BookingApprovalBarComponent,
         TranslatePipe,
         MatRippleModule,
         IconComponent,
@@ -417,6 +438,25 @@ export class ParkingRequestsListComponent
     public readonly last_updated = this._state.last_updated;
     public readonly loadMore = () => this._state.nextPage();
     public readonly refresh = () => this._state.refresh();
+    public readonly load_error = this._state.load_error;
+    public readonly retryLoad = this.refresh;
+    public readonly rowKey = bookingRowKey;
+    public readonly canSelect = (e: Booking) => this.canApproveBooking(e);
+    /** Whether rows can be selected for bulk approval */
+    public readonly bulk_actions = settingSignal('bulk_actions', false);
+    /** Row keys of the selected bookings */
+    public readonly selected = signal<string[]>([]);
+    public readonly bulk_busy = signal(false);
+
+    /** Approve or reject the selected bookings */
+    public async setApproval(approve: boolean) {
+        const list = selectedBookings(this.filtered_events(), this.selected());
+        this.bulk_busy.set(true);
+        const done = await this._state
+            .setBookingsApproval(list, approve)
+            .finally(() => this.bulk_busy.set(false));
+        if (done) this.selected.set([]);
+    }
 
     public readonly filtered_events = computed(() => {
         const { search, request_filter } = this.options();

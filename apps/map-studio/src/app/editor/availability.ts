@@ -13,7 +13,7 @@ export const STATE_COLORS: Record<AvailabilityState, string> = {
     unavailable: '#9E9E9E',
 };
 
-export const DESK_STATES: AvailabilityState[] = [
+const DESK_STATES: AvailabilityState[] = [
     'available',
     'booked',
     'occupied',
@@ -21,7 +21,7 @@ export const DESK_STATES: AvailabilityState[] = [
     'unavailable',
 ];
 
-export const ROOM_STATES: AvailabilityState[] = [
+const ROOM_STATES: AvailabilityState[] = [
     'free',
     'checked-in',
     'pending',

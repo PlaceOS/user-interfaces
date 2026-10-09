@@ -3,25 +3,34 @@ import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { addDays, isSameDay, startOfWeek } from 'date-fns';
 import { DisplayScheduleComponent } from '../../app/displays/display-schedule.component';
+import { SignageDisplayService } from '../../app/displays/signage-display.service';
+import { SignagePlaylistService } from '../../app/playlists/signage-playlist.service';
 import { HydratedSignageTemplateMapping } from '../../app/signage-template-mapping';
-import { SignageService } from '../../app/signage.service';
 
 describe('DisplayScheduleComponent', () => {
     const selected_display = signal<any>(null);
+    const selected_display_zones = signal<any[]>([]);
     const playlists = signal<any[]>([]);
-    const service_stub = {
+    const template_mappings = signal<HydratedSignageTemplateMapping[]>([]);
+    const display_stub = {
         selected_display,
-        playlists,
-        templates_enabled: signal(false),
-        listTemplateMappings: vi.fn(),
+        selected_display_zones,
+        selected_display_template_mappings: template_mappings,
+        selected_display_template_mappings_loading: signal(false),
+        selected_display_template_mappings_error: signal(false),
     };
+    const playlist_stub = {
+        playlistsById: (ids: readonly string[]) =>
+            playlists().filter(({ id }) => ids.includes(id)),
+    };
+    const stub_providers = [
+        { provide: SignageDisplayService, useValue: display_stub },
+        { provide: SignagePlaylistService, useValue: playlist_stub },
+    ];
 
     function make() {
         TestBed.configureTestingModule({
-            providers: [
-                provideRouter([]),
-                { provide: SignageService, useValue: service_stub },
-            ],
+            providers: [provideRouter([]), ...stub_providers],
         });
         return TestBed.createComponent(DisplayScheduleComponent)
             .componentInstance;
@@ -29,9 +38,9 @@ describe('DisplayScheduleComponent', () => {
 
     beforeEach(() => {
         selected_display.set(null);
+        selected_display_zones.set([]);
         playlists.set([]);
-        service_stub.templates_enabled.set(false);
-        service_stub.listTemplateMappings.mockReset().mockResolvedValue([]);
+        template_mappings.set([]);
     });
 
     it('renders a full seven-day week starting on the current Monday', () => {
@@ -65,12 +74,41 @@ describe('DisplayScheduleComponent', () => {
     });
 
     it('only lists playlists assigned to the selected display', () => {
-        playlists.set([{ id: 'p1' }, { id: 'p2' }, { id: 'p3' }]);
+        playlists.set([
+            { id: 'p1', name: 'One' },
+            { id: 'p2', name: 'Two' },
+            { id: 'p3', name: 'Three' },
+        ]);
         selected_display.set({ id: 'd1', playlists: ['p2'] });
         const component = make();
 
-        expect(component.display_playlists().map((p: any) => p.id)).toEqual([
-            'p2',
+        expect(
+            component.display_assignments().map(({ playlist }) => playlist.id),
+        ).toEqual(['p2']);
+    });
+
+    it('includes playlists of the zones the display is in', () => {
+        playlists.set([
+            { id: 'p1', name: 'Direct' },
+            { id: 'p2', name: 'Building' },
+        ]);
+        selected_display.set({
+            id: 'd1',
+            playlists: ['p1'],
+            zones: ['building'],
+        });
+        selected_display_zones.set([
+            { id: 'building', name: 'Building', playlists: ['p2'] },
+        ]);
+        const component = make();
+
+        expect(
+            component
+                .display_assignments()
+                .map(({ playlist, source_type }) => [playlist.id, source_type]),
+        ).toEqual([
+            ['p2', 'zone'],
+            ['p1', 'display'],
         ]);
     });
 
@@ -106,15 +144,14 @@ describe('DisplayScheduleComponent', () => {
         selected_display.set({ id: 'd1', playlists: [] });
         const component = make();
 
-        expect(component.display_playlists()).toEqual([]);
+        expect(component.display_assignments()).toEqual([]);
         for (const day of component.day_blocks()) {
             expect(day.all_day).toEqual([]);
             expect(day.timed).toEqual([]);
         }
     });
 
-    it('loads display mappings and renders linked playlists inside templates', async () => {
-        service_stub.templates_enabled.set(true);
+    it('renders linked playlists inside the templates of the display', async () => {
         selected_display.set({ id: 'd1', playlists: ['p1'] });
         playlists.set([
             {
@@ -124,7 +161,7 @@ describe('DisplayScheduleComponent', () => {
                 schedules: [{ play_cron: '0 9 * * *', play_period: 60 }],
             },
         ]);
-        service_stub.listTemplateMappings.mockResolvedValue([
+        template_mappings.set([
             new HydratedSignageTemplateMapping({
                 id: 'm1',
                 template_id: 't1',
@@ -133,10 +170,7 @@ describe('DisplayScheduleComponent', () => {
             }),
         ]);
         TestBed.configureTestingModule({
-            providers: [
-                provideRouter([]),
-                { provide: SignageService, useValue: service_stub },
-            ],
+            providers: [provideRouter([]), ...stub_providers],
         });
         const fixture = TestBed.createComponent(DisplayScheduleComponent);
         await fixture.whenStable();
@@ -148,16 +182,10 @@ describe('DisplayScheduleComponent', () => {
         expect(
             parent?.querySelector('ul a[href="/playlists/p1"]')?.textContent,
         ).toContain('Morning playlist');
-        expect(service_stub.listTemplateMappings).toHaveBeenCalledWith({
-            control_system_id: 'd1',
-        });
 
         selected_display.set({ id: 'd2', playlists: [] });
-        service_stub.listTemplateMappings.mockResolvedValue([]);
+        template_mappings.set([]);
         await fixture.whenStable();
-        expect(service_stub.listTemplateMappings).toHaveBeenLastCalledWith({
-            control_system_id: 'd2',
-        });
         expect(element.querySelector('a[href="/templates/t1"]')).toBeNull();
     });
 

@@ -1,7 +1,15 @@
 import { TestBed } from '@angular/core/testing';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import {
+    MAT_DIALOG_DATA,
+    MatDialog,
+    MatDialogRef,
+} from '@angular/material/dialog';
 import { HotkeysService, setNotifyOutlet } from '@placeos/common';
-import { SignageMedia, SignagePlugin } from '@placeos/ts-client';
+import {
+    MediaAnimation,
+    SignageMedia,
+    SignagePlugin,
+} from '@placeos/ts-client';
 import {
     MediaEditModalComponent,
     MediaEditModalData,
@@ -20,6 +28,7 @@ describe('MediaEditModalComponent', () => {
     const onAdd = vi.fn();
     const onEdit = vi.fn();
     const hotkey_listen = vi.fn();
+    const dialog = { openDialogs: [] as unknown[] };
     let hotkey_callback: () => void;
     let modal_data: MediaEditModalData;
 
@@ -27,6 +36,7 @@ describe('MediaEditModalComponent', () => {
         vi.clearAllMocks();
         setNotifyOutlet({ open: notify_open } as any, true);
         dialog_ref.disableClose = false;
+        dialog.openDialogs = [dialog_ref];
         onAdd.mockResolvedValue(new SignageMedia({ id: 'media-1' }));
         onEdit.mockResolvedValue(undefined);
         hotkey_listen.mockImplementation(
@@ -53,6 +63,7 @@ describe('MediaEditModalComponent', () => {
             providers: [
                 { provide: MAT_DIALOG_DATA, useValue: modal_data },
                 { provide: MatDialogRef, useValue: dialog_ref },
+                { provide: MatDialog, useValue: dialog },
                 {
                     provide: HotkeysService,
                     useValue: { listen: hotkey_listen },
@@ -99,6 +110,74 @@ describe('MediaEditModalComponent', () => {
             expect.any(Function),
         );
         expect(save).toHaveBeenCalled();
+    });
+
+    it('ignores the S hotkey while another dialog is on top', () => {
+        const fixture = TestBed.createComponent(MediaEditModalComponent);
+        const component = fixture.componentInstance;
+        const save = vi.spyOn(component, 'saveMedia').mockResolvedValue();
+        dialog.openDialogs = [dialog_ref, { id: 'preview' }];
+
+        hotkey_callback();
+
+        expect(save).not.toHaveBeenCalled();
+    });
+
+    it('ignores the S hotkey while a select has focus', () => {
+        const fixture = TestBed.createComponent(MediaEditModalComponent);
+        const component = fixture.componentInstance;
+        const save = vi.spyOn(component, 'saveMedia').mockResolvedValue();
+        const select = document.createElement('div');
+        select.setAttribute('role', 'combobox');
+        select.tabIndex = 0;
+        document.body.appendChild(select);
+        select.focus();
+
+        hotkey_callback();
+
+        expect(save).not.toHaveBeenCalled();
+        select.remove();
+    });
+
+    it('uploads a new file with the picked permissions', async () => {
+        const fixture = TestBed.createComponent(MediaEditModalComponent);
+        const component = fixture.componentInstance;
+        component.permissions.set('admin');
+
+        await component.saveMedia();
+
+        expect(onAdd.mock.calls[0][5]).toBe('admin');
+    });
+
+    // The animation is stored as a name, such as "cut", not a number
+    it('offers the saved animation of the media as an option', () => {
+        modal_data.media = new SignageMedia({
+            id: 'media-1',
+            name: 'Poster',
+            animation: MediaAnimation.Cut,
+        });
+        const fixture = TestBed.createComponent(MediaEditModalComponent);
+        const component = fixture.componentInstance;
+
+        const values = component.animation_options.map(({ value }) => value);
+        expect(values).toContain(component.model().animation);
+        expect(values).toEqual(Object.values(MediaAnimation));
+    });
+
+    it('shows the file thumbnail once it renders', async () => {
+        let renderThumbnail: (image: string) => void;
+        modal_data.file_thumbnail = new Promise<string>((resolve) => {
+            renderThumbnail = resolve;
+        });
+        const component = TestBed.createComponent(
+            MediaEditModalComponent,
+        ).componentInstance;
+
+        expect(component.thumbnail()).toBe('');
+        renderThumbnail('data:image/jpeg;base64,aW1hZ2U=');
+        await modal_data.file_thumbnail;
+
+        expect(component.thumbnail()).toBe('data:image/jpeg;base64,aW1hZ2U=');
     });
 
     it('starts blank validity dates as empty values', () => {
@@ -321,5 +400,170 @@ describe('MediaEditModalComponent', () => {
             expect(component.custom_thumbnail()).toBe('');
             expect(component.thumbnail_loading()).toBe(false);
         });
+    });
+
+    describe('webpage urls', () => {
+        beforeEach(() => {
+            modal_data.file = undefined;
+            modal_data.file_metadata = undefined;
+            modal_data.media = new SignageMedia({
+                id: 'media-1',
+                media_type: 'webpage',
+                media_uri: 'javascript:alert(1)',
+                name: 'Example',
+            });
+        });
+
+        it('does not load a stored non-web url in the preview frame', () => {
+            const component = TestBed.createComponent(
+                MediaEditModalComponent,
+            ).componentInstance;
+
+            expect(component.preview_url()).toBe('about:blank');
+        });
+
+        it('refuses to save a non-web url and saves a normalised one', async () => {
+            const component = TestBed.createComponent(
+                MediaEditModalComponent,
+            ).componentInstance;
+
+            await component.saveMedia();
+
+            expect(component.form.media_uri().invalid()).toBe(true);
+            expect(onEdit).not.toHaveBeenCalled();
+
+            component.model.update((model) => ({
+                ...model,
+                media_uri: 'https://example.com',
+            }));
+            await component.saveMedia();
+
+            expect(onEdit.mock.calls[0][1].media_uri).toBe(
+                'https://example.com/',
+            );
+        });
+    });
+
+    /** Render the real template, with changes to the modal data */
+    async function renderModal(data: Partial<MediaEditModalData>) {
+        TestBed.resetTestingModule();
+        await TestBed.configureTestingModule({
+            imports: [MediaEditModalComponent],
+            providers: [
+                {
+                    provide: MAT_DIALOG_DATA,
+                    useValue: { ...modal_data, file: undefined, ...data },
+                },
+                { provide: MatDialogRef, useValue: dialog_ref },
+                { provide: MatDialog, useValue: dialog },
+                {
+                    provide: HotkeysService,
+                    useValue: { listen: hotkey_listen },
+                },
+            ],
+        }).compileComponents();
+        const fixture = TestBed.createComponent(MediaEditModalComponent);
+        // The shared-with list keeps a request open, so the fixture never
+        // becomes stable. A select shows its value a task after its options.
+        fixture.detectChanges();
+        await new Promise((resolve) => setTimeout(resolve));
+        fixture.detectChanges();
+        return fixture.nativeElement as HTMLElement;
+    }
+
+    describe('default play time hint', () => {
+        /** Hint next to the play time label, for media without a play time */
+        async function renderHint(media: SignageMedia) {
+            const element = await renderModal({ media });
+            const label = element.querySelector('label[for="media-play-time"]');
+            return label.nextElementSibling.textContent.trim();
+        }
+
+        // The playlist default, else 15 seconds, applies to an image
+        it('shows no fixed length for an image', async () => {
+            const hint = await renderHint(
+                new SignageMedia({
+                    id: 'm-1',
+                    name: 'Poster',
+                    media_type: 'image',
+                }),
+            );
+
+            expect(hint).toMatch(/default/i);
+            expect(hint).not.toMatch(/\d/);
+        });
+
+        it('shows the video length for a video', async () => {
+            const hint = await renderHint(
+                new SignageMedia({
+                    id: 'm-1',
+                    name: 'Clip',
+                    media_type: 'video',
+                    video_length: 12000,
+                }),
+            );
+
+            expect(hint).toMatch(/12/);
+        });
+    });
+
+    // The API stores an animation name but returns its index
+    it.each([2, 'cross_fade'])(
+        'shows a saved animation of %s by name',
+        async (animation) => {
+            const element = await renderModal({
+                media: new SignageMedia({
+                    id: 'm-1',
+                    name: 'Poster',
+                    media_type: 'image',
+                    animation: animation as MediaAnimation,
+                }),
+            });
+
+            expect(
+                element.querySelector('#media-animation').textContent,
+            ).toContain('Cross Fade');
+        },
+    );
+
+    // A notification would sit under the full screen modal
+    it('shows the 4K warning for a large new file in the modal', async () => {
+        const create_url = URL.createObjectURL;
+        URL.createObjectURL = vi.fn(() => 'blob:poster');
+        try {
+            const element = await renderModal({
+                file: new File(['image'], 'poster.png', { type: 'image/png' }),
+                file_metadata: {
+                    is_landscape: true,
+                    duration: 0,
+                    width: 7680,
+                    height: 4320,
+                },
+            });
+
+            expect(
+                element.querySelector('[role="alert"]').textContent,
+            ).toContain('Maximum supported resolution');
+        } finally {
+            URL.createObjectURL = create_url;
+        }
+    });
+
+    it('points every label at a control', async () => {
+        const element = await renderModal({
+            media: new SignageMedia({
+                id: 'm-1',
+                name: 'Clip',
+                media_type: 'video',
+            }),
+        });
+
+        const missing = [...element.querySelectorAll('label[for]')]
+            .map((label) => label.getAttribute('for'))
+            .filter((id) => !element.querySelector(`#${id}`));
+        expect(missing).toEqual([]);
+        const animation = element.querySelector('#media-animation');
+        const label_ids = animation.getAttribute('aria-labelledby').split(' ');
+        expect(label_ids).toContain('media-animation-label');
     });
 });

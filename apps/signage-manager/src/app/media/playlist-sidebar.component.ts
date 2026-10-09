@@ -7,18 +7,17 @@ import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterLink } from '@angular/router';
-import { IconComponent, TranslatePipe } from '@placeos/components';
-import { SignagePlaylist } from '@placeos/ts-client';
+import {
+    IconComponent,
+    LoadErrorComponent,
+    TranslatePipe,
+} from '@placeos/components';
+import { SignageMedia, SignagePlaylist } from '@placeos/ts-client';
+import { SignagePlaylistService } from '../playlists/signage-playlist.service';
 import { IntersectDirective } from '../shared/intersect.directive';
 import { PlaylistThumbnailComponent } from '../shared/playlist-thumbnail.component';
-import { SignageService } from '../signage.service';
-
-type PlaylistStatus =
-    | 'expired'
-    | 'pending'
-    | 'awaiting_approval'
-    | 'awaiting_review'
-    | null;
+import { SignageContextService } from '../signage-context.service';
+import { playlistStatus } from '../signage-playlist.util';
 
 @Component({
     selector: 'playlist-sidebar',
@@ -65,8 +64,7 @@ type PlaylistStatus =
                         [placeholder]="
                             'SIGNAGE_MANAGER.SEARCH_PLAYLISTS' | translate
                         "
-                        [ngModel]="search()"
-                        (ngModelChange)="search.set($event)"
+                        [(ngModel)]="search"
                         [attr.aria-label]="
                             'SIGNAGE_MANAGER.SEARCH_PLAYLISTS' | translate
                         "
@@ -176,6 +174,8 @@ type PlaylistStatus =
                             intersect
                             (intersect)="loadMore()"
                         ></div>
+                    } @else if (error()) {
+                        <load-error (retry)="retry()" />
                     } @else {
                         <div
                             class="text-base-content/50 bg-base-content/10 col-span-full rounded-lg p-2 text-center text-xs"
@@ -187,6 +187,8 @@ type PlaylistStatus =
                     <div class="flex items-center justify-center p-8">
                         <mat-spinner diameter="32" />
                     </div>
+                } @else if (error()) {
+                    <load-error (retry)="retry()" />
                 } @else {
                     <div
                         class="text-base-content/70 flex flex-col items-center justify-center p-8"
@@ -231,53 +233,59 @@ type PlaylistStatus =
         TranslatePipe,
         MatTooltipModule,
         IntersectDirective,
+        LoadErrorComponent,
         PlaylistThumbnailComponent,
     ],
 })
 export class PlaylistSidebarComponent {
-    private readonly _service = inject(SignageService);
+    private readonly _context = inject(SignageContextService);
+    private readonly _playlist_service = inject(SignagePlaylistService);
 
-    public readonly can_create = this._service.can_create;
-    public readonly loading = this._service.playlists_loading;
-    public readonly search = this._service.playlist_search_term;
+    public readonly can_create = this._context.can_create;
+    public readonly loading = this._playlist_service.playlists_loading;
+    /** Whether the last page of playlists failed to load */
+    public readonly error = this._playlist_service.playlists_error;
+    public readonly search = this._playlist_service.playlist_search_term;
     public readonly playlist_approval_status =
-        this._service.playlist_approval_status;
+        this._playlist_service.playlist_approval_status;
     public readonly playlist_approval_requested_status =
-        this._service.playlist_approval_requested_status;
-    public readonly filtered_playlists = this._service.filtered_playlists;
+        this._playlist_service.playlist_approval_requested_status;
+    public readonly filtered_playlists =
+        this._playlist_service.filtered_playlists;
 
     // Backend pagination: fetches the next page as the sentinel scrolls in.
-    public readonly has_more = this._service.playlists_has_more;
+    public readonly has_more = this._playlist_service.playlists_has_more;
     public loadMore() {
-        this._service.loadMorePlaylists();
+        this._playlist_service.loadMorePlaylists();
+    }
+
+    /** Load the playlists again from the first page */
+    public retry() {
+        this._playlist_service.reloadPlaylists();
     }
 
     public addPlaylist() {
-        this._service.addPlaylist();
+        this._playlist_service.addPlaylist();
     }
 
-    public async onDrop(playlist: SignagePlaylist, event: CdkDragDrop<any>) {
+    public async onDrop(
+        playlist: SignagePlaylist,
+        event: CdkDragDrop<SignagePlaylist, SignageMedia[]>,
+    ) {
         const media = event.previousContainer.data[event.previousIndex];
         if (!playlist?.id || !media?.id) return;
-        await this._service.addMediaToPlaylist(playlist.id, media.id);
+        await this._playlist_service.addMediaToPlaylist(
+            playlist.id,
+            media.id,
+            media,
+        );
     }
 
-    public getStatus(playlist: SignagePlaylist): PlaylistStatus {
-        const now_s = Math.floor(Date.now() / 1000);
-        if (playlist.valid_until && playlist.valid_until < now_s)
-            return 'expired';
-        if (playlist.valid_from && playlist.valid_from > now_s)
-            return 'pending';
-        const approvals = this.playlist_approval_status();
-        const approval_requests = this.playlist_approval_requested_status();
-        if (
-            playlist.id in approvals &&
-            !approvals[playlist.id] &&
-            approval_requests[playlist.id]
-        )
-            return 'awaiting_review';
-        if (playlist.id in approvals && !approvals[playlist.id])
-            return 'awaiting_approval';
-        return null;
+    public getStatus(playlist: SignagePlaylist) {
+        return playlistStatus(
+            playlist,
+            this.playlist_approval_status(),
+            this.playlist_approval_requested_status(),
+        );
     }
 }

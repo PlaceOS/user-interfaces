@@ -27,8 +27,8 @@ import {
     IconComponent,
     TranslatePipe,
 } from '@placeos/components';
+import { DateOptionsComponent } from '@placeos/form-fields';
 import { BookingRulesModalComponent } from '../ui/booking-rules-modal.component';
-import { DateOptionsComponent } from '../ui/date-options.component';
 import { SearchbarComponent } from '../ui/searchbar.component';
 import { loadPersistedZones, persistZones } from '../ui/zone-persistence';
 import { LockerStateService } from './locker-state.service';
@@ -64,6 +64,7 @@ import { LockerStateService } from './locker-state.service';
                         btn
                         matRipple
                         class="w-40 space-x-2"
+                        data-shortcut="new"
                         (click)="newLockerBank()"
                         [disabled]="!levels().length"
                     >
@@ -79,6 +80,7 @@ import { LockerStateService } from './locker-state.service';
                     btn
                     matRipple
                     class="w-48 space-x-2"
+                    data-shortcut="new"
                     (click)="newBooking()"
                 >
                     <div class="pl-2">

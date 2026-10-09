@@ -10,10 +10,8 @@ vi.mock('@placeos/ts-client', { spy: true });
 import { IconComponent } from '@placeos/components';
 import * as client from '@placeos/ts-client';
 import { ControlStateService } from '../../app/control-state.service';
-import {
-    CameraControlsComponent,
-    ZoomDirection,
-} from '../../app/ui/camera-controls.component';
+import { ZoomDirection } from '../../app/ui/camera-commands';
+import { CameraControlsComponent } from '../../app/ui/camera-controls.component';
 import {
     JoystickComponent,
     JoystickPan,
@@ -85,23 +83,6 @@ describe('CameraControlsComponent', () => {
         });
         expect(client.getModule).toHaveBeenCalledWith('sys-1', 'System');
         expect(execute_fn).toHaveBeenCalledWith('selected_camera', ['cam3']);
-    });
-
-    it('should recall a preset on the active camera module', () => {
-        spectator.component.active_camera.set({
-            id: 'cam1',
-            name: 'Camera 1',
-            mod: 'Camera_1',
-        } as any);
-        spectator.component.recallPreset('preset-1');
-        expect(client.getModule).toHaveBeenCalledWith('sys-1', 'Camera_1');
-        expect(execute_fn).toHaveBeenCalledWith('recall', ['preset-1']);
-    });
-
-    it('should not recall a preset when no active camera', () => {
-        spectator.component.active_camera.set(undefined);
-        spectator.component.recallPreset('preset-1');
-        expect(execute_fn).not.toHaveBeenCalled();
     });
 
     it('should stop then pan/tilt when moving the camera', async () => {
@@ -180,5 +161,42 @@ describe('CameraControlsComponent', () => {
     it('should not render controls when camera list is empty', () => {
         spectator.detectChanges();
         expect('joystick').not.toExist();
+    });
+
+    it('should keep the camera select outside the selection overlay', () => {
+        camera_list.set([{ id: 'cam1', name: 'Camera 1', mod: 'Camera_1' }]);
+        spectator.detectChanges();
+        const overlay = spectator.query('[no-camera]');
+        expect(overlay).toExist();
+        expect(overlay.parentElement.querySelector('joystick')).toExist();
+        expect(
+            overlay.parentElement.querySelector('mat-form-field'),
+        ).toBeNull();
+    });
+
+    it('should stop zooming when the zoom button is released', async () => {
+        const cam = { id: 'cam1', name: 'Camera 1', mod: 'Camera_1' };
+        camera_list.set([cam]);
+        selected_camera.set('cam1');
+        spectator.detectChanges();
+        spectator.dispatchFakeEvent('button[zoom-in]', 'pointerdown');
+        expect(spectator.component.zoom()).toBe(ZoomDirection.In);
+        spectator.dispatchFakeEvent('button[zoom-in]', 'pointercancel');
+        await new Promise((r) => setTimeout(r, 70));
+        expect(execute_fn).toHaveBeenLastCalledWith('zoom', [
+            ZoomDirection.Stop,
+        ]);
+    });
+
+    it('should stop zooming when destroyed', async () => {
+        spectator.component.active_camera.set({
+            id: 'cam1',
+            name: 'Camera 1',
+            mod: 'Camera_1',
+        } as any);
+        spectator.component.zoom.set(ZoomDirection.Out);
+        spectator.fixture.destroy();
+        await new Promise((r) => setTimeout(r, 70));
+        expect(execute_fn).toHaveBeenCalledWith('zoom', [ZoomDirection.Stop]);
     });
 });

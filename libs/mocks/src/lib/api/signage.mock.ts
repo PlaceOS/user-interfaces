@@ -809,6 +809,30 @@ const SIGNAGE_GROUP_USERS: any[] = [
     },
 ];
 
+/** Organisation directory groups returned by the staff API */
+const MOCK_DIRECTORY_GROUPS = [
+    {
+        id: '6a1c9a4e-0000-4000-8000-000000000001',
+        name: 'All Staff',
+        email: 'all-staff@place.tech',
+    },
+    {
+        id: '6a1c9a4e-0000-4000-8000-000000000002',
+        name: 'Facilities Team',
+        email: 'facilities@place.tech',
+    },
+    {
+        id: '6a1c9a4e-0000-4000-8000-000000000003',
+        name: 'Marketing Team',
+        email: 'marketing@place.tech',
+    },
+    {
+        id: '6a1c9a4e-0000-4000-8000-000000000004',
+        name: 'Reception',
+        email: 'reception@place.tech',
+    },
+];
+
 const SIGNAGE_GROUP_ZONES: any[] = [
     {
         group_id: 'signage-group-facilities',
@@ -1044,6 +1068,49 @@ export function registerMockSignage() {
     registerMockEndpoint({
         path: '/api/engine/v2/groups/:id',
         metadata: {},
+        method: 'GET',
+        callback: (request) => {
+            const item = SIGNAGE_GROUPS.find(
+                ({ group }) => group.id === request.route_params.id,
+            );
+            if (!item) throw { status: 404, message: 'Group not found' };
+            return item.group;
+        },
+    });
+
+    // Effective features: each group's own flags merged over its ancestors'
+    registerMockEndpoint({
+        path: '/api/engine/v2/groups/:id/features',
+        metadata: {},
+        method: 'GET',
+        callback: (request) => {
+            const groups = SIGNAGE_GROUPS.map(({ group }) => group);
+            const chain: any[] = [];
+            let group = groups.find(({ id }) => id === request.route_params.id);
+            while (group && !chain.includes(group)) {
+                chain.unshift(group);
+                group = groups.find(({ id }) => id === group.parent_id);
+            }
+            if (!chain.length) throw { status: 404, message: 'Not found' };
+            const features: Record<string, Record<string, unknown>> = {};
+            for (const { features: own = {} } of chain) {
+                for (const [subsystem, flags] of Object.entries(own)) {
+                    features[subsystem] = {
+                        ...features[subsystem],
+                        ...(flags as Record<string, unknown>),
+                    };
+                }
+            }
+            const subsystem = request.query_params?.subsystem;
+            return subsystem
+                ? { [subsystem]: features[subsystem] || {} }
+                : features;
+        },
+    });
+
+    registerMockEndpoint({
+        path: '/api/engine/v2/groups/:id',
+        metadata: {},
         method: 'DELETE',
         callback: (request) => {
             const index = SIGNAGE_GROUPS.findIndex(
@@ -1051,6 +1118,21 @@ export function registerMockSignage() {
             );
             if (index >= 0) SIGNAGE_GROUPS.splice(index, 1);
             return {};
+        },
+    });
+
+    registerMockEndpoint({
+        path: '/api/staff/v1/groups',
+        metadata: {},
+        method: 'GET',
+        callback: (request) => {
+            const q = (request.query_params?.q || '').toLowerCase();
+            return MOCK_DIRECTORY_GROUPS.filter(
+                (group) =>
+                    !q ||
+                    group.name.toLowerCase().includes(q) ||
+                    group.email.toLowerCase().includes(q),
+            );
         },
     });
 
@@ -1074,10 +1156,15 @@ export function registerMockSignage() {
                     item.email === request.body.user_id ||
                     item.id === request.body.user_id,
             );
+            const group = SIGNAGE_GROUPS.find(
+                (item) => item.group.id === request.body.group_id,
+            )?.group;
+            // Like the backend, omitted permissions use the group defaults
             const item = {
                 ...request.body,
                 user_id: request.body.user_id,
-                permissions: request.body.permissions || 0,
+                permissions:
+                    request.body.permissions ?? group?.default_permissions ?? 0,
                 user,
                 created_at: new Date().toISOString(),
                 updated_at: new Date().toISOString(),
@@ -1274,6 +1361,26 @@ export function registerMockSignage() {
         path: '/api/engine/v2/signage/media/:id/thumbnail',
         metadata: {},
         method: 'GET',
+        callback: () => ({}),
+    });
+
+    // Webpage and plugin thumbnails start from a server side screenshot
+    registerMockEndpoint({
+        path: '/api/engine/v2/uploads/screenshot',
+        metadata: {},
+        method: 'POST',
+        callback: (request) => ({
+            id: `upload-screenshot-${Date.now()}`,
+            file_name: `screenshot-${new URL(request.body.url).host}.jpg`,
+            file_mime: 'image/jpeg',
+            tags: ['screenshot'],
+        }),
+    });
+
+    registerMockEndpoint({
+        path: '/api/engine/v2/uploads/:id',
+        metadata: {},
+        method: 'DELETE',
         callback: () => ({}),
     });
 
@@ -1802,7 +1909,7 @@ export function registerMockSignage() {
         },
     });
 
-    registerMockSignageAI();
+    registerMockSignageImageGen();
 }
 
 /**
@@ -1813,13 +1920,13 @@ export function registerMockSignage() {
  * moment later. Images point at media already in the mock library, so the
  * modal renders something real.
  */
-interface MockAiRequest {
+interface MockImageGenRequest {
     candidates?: number;
     parent_job_id?: string;
     prompt?: string;
 }
 
-interface MockAiJobImage {
+interface MockImageGenJobImage {
     state: 'done';
     index: number;
     upload_id: string;
@@ -1830,7 +1937,7 @@ interface MockAiJobImage {
     item_id?: string;
 }
 
-interface MockAiJob {
+interface MockImageGenJob {
     id: string;
     state: 'queued' | 'running' | 'done' | 'failed' | 'cancelled';
     kind: 'generate' | 'edit';
@@ -1841,27 +1948,27 @@ interface MockAiJob {
     parent_job_id?: string;
     version: number;
     prompt?: string;
-    images: (MockAiJobImage | null)[];
+    images: (MockImageGenJobImage | null)[];
     error_kind?: string;
     error_message?: string;
     created_at: number;
     finished_at?: number;
 }
 
-function registerMockSignageAI() {
-    const AI_JOBS: Record<string, MockAiJob> = {};
+function registerMockSignageImageGen() {
+    const IMAGE_GEN_JOBS: Record<string, MockImageGenJob> = {};
     const SAMPLE_IMAGES = MOCK_MEDIA.slice(0, 4).map((item) => item.id);
 
     const now = () => Math.floor(Date.now() / 1000);
 
-    function makeJob(request: MockAiRequest, kind: 'generate' | 'edit') {
+    function makeJob(request: MockImageGenRequest, kind: 'generate' | 'edit') {
         const count = Math.min(Math.max(request.candidates || 2, 1), 4);
-        const job: MockAiJob = {
-            id: `signage-ai-job-${Object.keys(AI_JOBS).length + 1}`,
+        const job: MockImageGenJob = {
+            id: `signage-ai-job-${Object.keys(IMAGE_GEN_JOBS).length + 1}`,
             state: 'queued',
             kind,
             provider: 'OPENAI',
-            model: 'gpt-image-2',
+            model: 'gpt-image-2.5-sunburst',
             candidates: count,
             images_produced: 0,
             parent_job_id: request.parent_job_id,
@@ -1870,7 +1977,7 @@ function registerMockSignageAI() {
             images: Array.from({ length: count }, () => null),
             created_at: now(),
         };
-        AI_JOBS[job.id] = job;
+        IMAGE_GEN_JOBS[job.id] = job;
 
         if (`${request.prompt}`.includes('trigger-moderation')) {
             setTimeout(() => {
@@ -1924,11 +2031,11 @@ function registerMockSignageAI() {
                     id: 'signage-ai-provider-1',
                     name: 'Mock provider',
                     provider: 'OPENAI',
-                    default_model: 'gpt-image-2',
+                    default_model: 'gpt-image-2.5-sunburst',
                     models: [
                         {
-                            id: 'gpt-image-2',
-                            name: 'GPT Image 2',
+                            id: 'gpt-image-2.5-sunburst',
+                            name: 'GPT Image 2.5 Sunburst',
                             generate: true,
                             edit: true,
                             enhance: true,
@@ -1967,7 +2074,7 @@ function registerMockSignageAI() {
         path: '/api/engine/v2/signage/ai/jobs',
         metadata: {},
         method: 'GET',
-        callback: () => Object.values(AI_JOBS),
+        callback: () => Object.values(IMAGE_GEN_JOBS),
     });
 
     registerMockEndpoint({
@@ -1975,7 +2082,7 @@ function registerMockSignageAI() {
         metadata: {},
         method: 'GET',
         callback: (request) => {
-            const job = AI_JOBS[request.route_params.id];
+            const job = IMAGE_GEN_JOBS[request.route_params.id];
             if (!job) throw { status: 404, message: 'No such job' };
             return job;
         },
@@ -1986,7 +2093,7 @@ function registerMockSignageAI() {
         metadata: {},
         method: 'POST',
         callback: (request) => {
-            const job = AI_JOBS[request.route_params.id];
+            const job = IMAGE_GEN_JOBS[request.route_params.id];
             if (!job) throw { status: 404, message: 'No such job' };
             if (job.state === 'queued' || job.state === 'running') {
                 job.state = 'cancelled';
@@ -2001,7 +2108,7 @@ function registerMockSignageAI() {
         metadata: {},
         method: 'POST',
         callback: (request) => {
-            const job = AI_JOBS[request.route_params.id];
+            const job = IMAGE_GEN_JOBS[request.route_params.id];
             if (!job) throw { status: 404, message: 'No such job' };
             const entry = job.images.find(
                 (image) => image?.upload_id === request.body?.upload_id,

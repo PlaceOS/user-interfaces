@@ -11,11 +11,8 @@ import { isMobileSafari, SETTING_KEYS, SettingsService } from '@placeos/common';
 
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
-import {
-    BookingAsset,
-    BookingFlowOptions,
-    BookingFormService,
-} from '../booking-form.service';
+import { BookingFormService } from '../booking-form.service';
+import { BookingAsset, BookingFlowOptions } from '../booking-form.types';
 import { LockerGridComponent } from '../locker-grid.component';
 import { LockerBank } from '../locker.class';
 import { LockerBankListComponent } from './locker-bank-list.component';
@@ -86,9 +83,7 @@ import { LockerMapComponent } from './locker-map.component';
                 >
                     @if (!bank()) {
                         @if (view() === 'list') {
-                            <locker-filters-display
-                                [(view)]="view"
-                            ></locker-filters-display>
+                            <locker-filters-display></locker-filters-display>
                         }
                         @if (view() === 'list') {
                             <locker-bank-list
@@ -101,7 +96,6 @@ import { LockerMapComponent } from './locker-map.component';
                         } @else {
                             <locker-map
                                 class="h-full min-h-[60vh] w-full"
-                                [is_displayed]="!!displayed()"
                                 [active]="displayed()?.id || ''"
                                 (onSelect)="displayed.set($event)"
                             >

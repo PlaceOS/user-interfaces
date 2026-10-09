@@ -27,8 +27,9 @@ import {
     timePeriodsIntersect,
 } from '@placeos/common';
 import {
+    CalendarEventList,
     declineEvent,
-    queryEvents,
+    queryEventListOrThrow,
     requestSpacesForZone,
 } from '@placeos/events';
 import { getModule } from '@placeos/ts-client';
@@ -252,6 +253,12 @@ export class EventsStateService extends AsyncHandler {
         },
     );
 
+    private readonly _load_error = signal(false);
+    /** Whether the latest load of bookings from the API failed */
+    public readonly load_error = this._load_error.asReadonly();
+    /** Calendars that the API could not read in the latest load */
+    private readonly _failed_calendars = signal<string[]>([]);
+
     /** Bookings fetched from the API for spaces without a booking driver */
     private readonly _api_events = resource({
         params: () => this._api_events_params_debounced.value(),
@@ -271,13 +278,19 @@ export class EventsStateService extends AsyncHandler {
                 this.tz_offset,
                 this._week_start,
             );
-            const events = await queryEvents({
+            let failed = false;
+            const { events, failed_calendars } = await queryEventListOrThrow({
                 strict: 'limit',
                 zone_ids: zones.join(','),
                 period_start: getUnixTime(start),
                 period_end: getUnixTime(end),
-            }).catch(() => [] as CalendarEvent[]);
-            return (events || []).filter((event) =>
+            }).catch((): CalendarEventList => {
+                failed = true;
+                return { events: [], failed_calendars: [] };
+            });
+            this._load_error.set(failed);
+            this._failed_calendars.set(failed_calendars);
+            return events.filter((event) =>
                 event.resources?.some((resource) =>
                     spaces_without_driver.some(
                         (space) =>
@@ -287,6 +300,20 @@ export class EventsStateService extends AsyncHandler {
                 ),
             );
         },
+    });
+
+    /**
+     * Shown rooms whose bookings did not load from the API.
+     * Ignores other calendars in the zones, such as group event calendars.
+     */
+    public readonly failed_spaces: Signal<Space[]> = computed(() => {
+        const failed = this._failed_calendars();
+        if (!failed.length) return [];
+        return this.spaces().filter(
+            (space) =>
+                !space.room_booking_url &&
+                failed.includes(space.email?.toLowerCase()),
+        );
     });
 
     /** Combined list of bookings from the API and booking drivers */
@@ -446,6 +473,11 @@ export class EventsStateService extends AsyncHandler {
         this._poll.set(Date.now());
         this.interval('polling', () => this._poll.set(Date.now()), poll_delay);
         return () => this.stopPolling();
+    }
+
+    /** Load the bookings from the API again */
+    public reload() {
+        this._api_events.reload();
     }
 
     public stopPolling() {

@@ -6,7 +6,7 @@ import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { ImageCarouselComponent } from 'libs/components/src/lib/image-carousel.component';
 import { InteractiveMapComponent } from 'libs/components/src/lib/interactive-map.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
-import { BookingAsset } from '../booking-form.service';
+import { BookingAsset } from '../booking-form.types';
 
 @Component({
     selector: `parking-space-details`,
@@ -121,9 +121,7 @@ export class ParkingDetailsComponent {
     public readonly hide_map = input(false);
     public readonly space = input<BookingAsset>(undefined);
     public readonly fav = input(false);
-    public readonly active = input(false);
 
-    public readonly activeChange = output<boolean>();
     public readonly close = output<void>();
     public readonly toggleFav = output<void>();
 

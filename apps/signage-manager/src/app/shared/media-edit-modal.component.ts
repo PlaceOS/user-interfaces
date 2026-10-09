@@ -7,10 +7,19 @@ import {
     OnDestroy,
     signal,
     viewChild,
-    ViewChild,
 } from '@angular/core';
-import { form, FormField, required, submit } from '@angular/forms/signals';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import {
+    form,
+    FormField,
+    required,
+    submit,
+    validate,
+} from '@angular/forms/signals';
+import {
+    MAT_DIALOG_DATA,
+    MatDialog,
+    MatDialogRef,
+} from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -21,11 +30,12 @@ import {
     i18n,
     notifyError,
     notifySuccess,
-    UPLOAD_PERMISSIONS_MODAL,
+    UploadPermissions,
 } from '@placeos/common';
 import {
     AuthenticatedImageDirective,
     FullscreenModalShellComponent,
+    IconComponent,
     MediaDurationPipe,
     PluginConfigPayload,
     PluginEmbedComponent,
@@ -43,11 +53,12 @@ import {
     SignagePlugin,
 } from '@placeos/ts-client';
 import { endOfDay, getUnixTime, startOfDay } from 'date-fns';
-import { UploadPermissionsModalComponent } from 'libs/components/src/lib/upload-permissions-modal.component';
+import { mediaAnimation } from '../media/media-view.util';
 import {
     getVideoContainer,
     isSupportedImageFile,
     SignageMediaMetadata,
+    validateSignageMediaDimensions,
 } from '../signage-media-upload.util';
 import { playlistMediaThumbnailUrl } from '../signage-playlist.util';
 import {
@@ -55,14 +66,25 @@ import {
     pluginSchema,
     schemaDefaults,
 } from '../signage-plugin.util';
+import {
+    isWebPageUrl,
+    normaliseWebPageUrl,
+    webPageFrameUrl,
+} from '../signage-url.util';
 import { SignageSharedWithComponent } from './signage-shared-with.component';
+
+/** Media fields the modal saves. `thumbnail_image` is a picked image as a
+ * data URL, which the service uploads before it saves the item. */
+export type MediaEditChanges = {
+    -readonly [K in keyof SignageMedia]?: SignageMedia[K];
+} & { thumbnail_image?: string };
 
 export interface MediaEditModalData {
     media: SignageMedia;
     file?: File;
     file_metadata?: SignageMediaMetadata;
-    file_thumbnail?: string;
-    playlist_id?: string;
+    /** Thumbnail of a new file. It can arrive after the modal opens. */
+    file_thumbnail?: Promise<string>;
     /** Signage group the media is being viewed from */
     group_id?: string;
     plugin?: SignagePlugin;
@@ -75,10 +97,41 @@ export interface MediaEditModalData {
         m: SignageMedia,
         file_metadata?: SignageMediaMetadata,
         thumbnail?: string,
+        /** Supplies a thumbnail when the server screenshot fails */
+        fallback_thumbnail?: () => Promise<string>,
+        /** Who can read the uploaded file */
+        permissions?: UploadPermissions,
     ) => Promise<SignageMedia>;
-    onEdit: (id: string, data: any) => Promise<void>;
-    preview: (item: any) => void;
+    onEdit: (id: string, data: MediaEditChanges) => Promise<void>;
+    preview: (item: SignageMedia) => void;
 }
+
+/** Animations the user can pick, with their label keys */
+const ANIMATION_OPTIONS: { value: MediaAnimation; label: string }[] = [
+    { value: MediaAnimation.Default, label: 'COMMON.DEFAULT' },
+    { value: MediaAnimation.Cut, label: 'SIGNAGE_MANAGER.ANIM_CUT' },
+    {
+        value: MediaAnimation.CrossFade,
+        label: 'SIGNAGE_MANAGER.ANIM_CROSS_FADE',
+    },
+    { value: MediaAnimation.SlideTop, label: 'SIGNAGE_MANAGER.ANIM_SLIDE_TOP' },
+    {
+        value: MediaAnimation.SlideLeft,
+        label: 'SIGNAGE_MANAGER.ANIM_SLIDE_LEFT',
+    },
+    {
+        value: MediaAnimation.SlideRight,
+        label: 'SIGNAGE_MANAGER.ANIM_SLIDE_RIGHT',
+    },
+    {
+        value: MediaAnimation.SlideBottom,
+        label: 'SIGNAGE_MANAGER.ANIM_SLIDE_BOTTOM',
+    },
+];
+
+/** Focus targets where a plain key press belongs to the control, not a hotkey */
+const HOTKEY_BLOCKING_FOCUS =
+    'select, mat-select, [role="combobox"], [role="listbox"], [role="option"], [role="menu"], [role="menuitem"]';
 
 interface MediaEditFormModel {
     name: string;
@@ -167,13 +220,25 @@ function mediaSaveErrorMessage(error: unknown) {
                                     'SIGNAGE_MANAGER.MEDIA_PREVIEW' | translate
                                 "
                                 class="h-screen w-full object-contain object-center"
+                                sandbox="allow-scripts allow-same-origin allow-forms"
                                 [src]="preview_url() | safe: 'resource'"
                             ></iframe>
+                        } @else if (
+                            file && media_type === 'video' && !thumbnail()
+                        ) {
+                            <!-- An img cannot show a video before its frame renders -->
+                            <div
+                                class="flex h-full w-full items-center justify-center"
+                            >
+                                <icon class="text-base-content/30 text-6xl"
+                                    >movie</icon
+                                >
+                            </div>
                         } @else {
                             <img
                                 class="h-full w-full object-contain object-center"
                                 auth
-                                [source]="thumbnail || url"
+                                [source]="thumbnail() || url"
                                 [alt]="
                                     model().name ||
                                     ('SIGNAGE_MANAGER.MEDIA_PREVIEW'
@@ -187,10 +252,21 @@ function mediaSaveErrorMessage(error: unknown) {
                             {{ media_type }}
                         </div>
                     </button>
-                    <label for="name">{{ 'FORM.NAME' | translate }}</label>
+                    @if (dimensions_warning) {
+                        <p
+                            class="bg-warning text-warning-content mb-4 rounded-lg px-4 py-2 text-sm"
+                            role="alert"
+                        >
+                            {{ dimensions_warning }}
+                        </p>
+                    }
+                    <label for="media-name">{{
+                        'FORM.NAME' | translate
+                    }}</label>
                     <mat-form-field appearance="outline">
                         <input
                             matInput
+                            id="media-name"
                             [formField]="form.name"
                             [placeholder]="'FORM.NAME' | translate"
                             [attr.aria-label]="
@@ -208,6 +284,7 @@ function mediaSaveErrorMessage(error: unknown) {
                         <mat-form-field appearance="outline">
                             <input
                                 matInput
+                                id="media-uri"
                                 type="url"
                                 [formField]="form.media_uri"
                                 placeholder="https://example.com"
@@ -217,12 +294,15 @@ function mediaSaveErrorMessage(error: unknown) {
                                 "
                             />
                             <mat-error>{{
-                                'SIGNAGE_MANAGER.URL_REQUIRED' | translate
+                                (form.media_uri().value()
+                                    ? 'SIGNAGE_MANAGER.URL_INVALID'
+                                    : 'SIGNAGE_MANAGER.URL_REQUIRED'
+                                ) | translate
                             }}</mat-error>
                         </mat-form-field>
                     }
                     @if (can_set_thumbnail) {
-                        <label for="thumbnail">{{
+                        <label for="media-thumbnail">{{
                             'SIGNAGE_MANAGER.THUMBNAIL' | translate
                         }}</label>
                         <div class="mb-4 flex items-center gap-4">
@@ -242,7 +322,7 @@ function mediaSaveErrorMessage(error: unknown) {
                                     <img
                                         class="h-full w-full object-contain"
                                         auth
-                                        [source]="thumbnail"
+                                        [source]="thumbnail()"
                                         [alt]="
                                             'SIGNAGE_MANAGER.THUMBNAIL'
                                                 | translate
@@ -253,8 +333,10 @@ function mediaSaveErrorMessage(error: unknown) {
                                         class="text-base-content/50 flex h-full w-full items-center justify-center px-2 text-center text-xs"
                                     >
                                         {{
-                                            'SIGNAGE_MANAGER.THUMBNAIL_NONE'
-                                                | translate
+                                            (item.id
+                                                ? 'SIGNAGE_MANAGER.THUMBNAIL_NONE'
+                                                : 'SIGNAGE_MANAGER.THUMBNAIL_AUTO'
+                                            ) | translate
                                         }}
                                     </div>
                                 }
@@ -285,6 +367,7 @@ function mediaSaveErrorMessage(error: unknown) {
                             }
                             <input
                                 #thumbnail_input
+                                id="media-thumbnail"
                                 type="file"
                                 class="sr-only"
                                 accept="image/*"
@@ -299,7 +382,7 @@ function mediaSaveErrorMessage(error: unknown) {
                     @if (media_type === 'video') {
                         <div class="flex items-center space-x-4">
                             <label
-                                for="start-time"
+                                for="media-start-time"
                                 class="m-0 w-auto min-w-0"
                                 >{{ 'FORM.TIME_START' | translate }}</label
                             >
@@ -317,12 +400,13 @@ function mediaSaveErrorMessage(error: unknown) {
                         >
                             <input
                                 matSliderThumb
+                                id="media-start-time"
                                 [formField]="form.start_time"
                             />
                         </mat-slider>
                     }
                     <div class="flex items-center gap-4">
-                        <label for="play-time" class="m-0 w-auto min-w-0">
+                        <label for="media-play-time" class="m-0 w-auto min-w-0">
                             {{
                                 'SIGNAGE_MANAGER.MEDIA_PLAY_TIME' | translate
                             }}</label
@@ -333,14 +417,17 @@ function mediaSaveErrorMessage(error: unknown) {
                                     model().play_time / 1000
                                         | mediaDuration: true
                                 }}
-                            } @else {
+                            } @else if (item.video_length) {
                                 <span class="text-base-content/70">
-                                    {{ 'COMMON.DEFAULT' | translate }}({{
-                                        (item.video_length
-                                            ? item.video_length / 1000
-                                            : 5
-                                        ) | mediaDuration
+                                    {{ 'COMMON.DEFAULT' | translate }} ({{
+                                        item.video_length / 1000
+                                            | mediaDuration
                                     }})
+                                </span>
+                            } @else {
+                                <!-- Set by the playlist default, else 15 seconds -->
+                                <span class="text-base-content/70">
+                                    {{ 'COMMON.DEFAULT' | translate }}
                                 </span>
                             }
                         </div>
@@ -350,48 +437,41 @@ function mediaSaveErrorMessage(error: unknown) {
                         [max]="item.video_length || 300000"
                         step="100"
                     >
-                        <input matSliderThumb [formField]="form.play_time" />
+                        <input
+                            matSliderThumb
+                            id="media-play-time"
+                            [formField]="form.play_time"
+                        />
                     </mat-slider>
-                    <label for="animation">{{
+                    <!-- A mat-select is not a labelable element, so it names
+                        itself from the label through aria-labelledby -->
+                    <label id="media-animation-label" for="media-animation">{{
                         'SIGNAGE_MANAGER.ANIMATION' | translate
                     }}</label>
                     <mat-form-field appearance="outline">
                         <mat-select
+                            id="media-animation"
+                            aria-labelledby="media-animation-label"
                             [formField]="form.animation"
                             [placeholder]="'COMMON.DEFAULT' | translate"
-                            [attr.aria-label]="
-                                'SIGNAGE_MANAGER.ANIMATION' | translate
-                            "
                         >
-                            <mat-option [value]="0">{{
-                                'COMMON.DEFAULT' | translate
-                            }}</mat-option>
-                            <mat-option [value]="1">{{
-                                'SIGNAGE_MANAGER.ANIM_CUT' | translate
-                            }}</mat-option>
-                            <mat-option [value]="2">{{
-                                'SIGNAGE_MANAGER.ANIM_CROSS_FADE' | translate
-                            }}</mat-option>
-                            <mat-option [value]="3">{{
-                                'SIGNAGE_MANAGER.ANIM_SLIDE_TOP' | translate
-                            }}</mat-option>
-                            <mat-option [value]="4">{{
-                                'SIGNAGE_MANAGER.ANIM_SLIDE_LEFT' | translate
-                            }}</mat-option>
-                            <mat-option [value]="5">{{
-                                'SIGNAGE_MANAGER.ANIM_SLIDE_RIGHT' | translate
-                            }}</mat-option>
-                            <mat-option [value]="6">{{
-                                'SIGNAGE_MANAGER.ANIM_SLIDE_BOTTOM' | translate
-                            }}</mat-option>
+                            @for (
+                                option of animation_options;
+                                track option.value
+                            ) {
+                                <mat-option [value]="option.value">{{
+                                    option.label | translate
+                                }}</mat-option>
+                            }
                         </mat-select>
                     </mat-form-field>
-                    <label for="description">{{
+                    <label for="media-description">{{
                         'COMMON.DESCRIPTION' | translate
                     }}</label>
                     <mat-form-field appearance="outline" class="w-full">
                         <textarea
                             matInput
+                            id="media-description"
                             [placeholder]="'COMMON.DESCRIPTION' | translate"
                             [formField]="form.description"
                             class="min-h-32"
@@ -401,8 +481,13 @@ function mediaSaveErrorMessage(error: unknown) {
                             "
                         ></textarea>
                     </mat-form-field>
-                    <label for="tags">{{ 'COMMON.TAGS' | translate }}</label>
+                    <label for="media-tags">{{
+                        'COMMON.TAGS' | translate
+                    }}</label>
+                    <!-- The form field components keep their inputs inside, so
+                        these ids name the component, not its inner control -->
                     <item-list-field
+                        id="media-tags"
                         name="tags"
                         [formField]="form.tags"
                         [options]="tag_options"
@@ -433,20 +518,22 @@ function mediaSaveErrorMessage(error: unknown) {
                     }
                     <div class="flex space-x-4">
                         <div class="flex-1">
-                            <label for="valid-from">{{
+                            <label for="media-valid-from">{{
                                 'SIGNAGE_MANAGER.VALID_FROM' | translate
                             }}</label>
                             <a-date-field
+                                id="media-valid-from"
                                 name="valid-from"
                                 [formField]="form.valid_from"
                                 [clear]="true"
                             ></a-date-field>
                         </div>
                         <div class="flex-1">
-                            <label for="valid-until">{{
+                            <label for="media-valid-until">{{
                                 'FORM.EXPIRES_AT' | translate
                             }}</label>
                             <a-date-field
+                                id="media-valid-until"
                                 name="valid-until"
                                 [from]="model().valid_from"
                                 [formField]="form.valid_until"
@@ -454,25 +541,52 @@ function mediaSaveErrorMessage(error: unknown) {
                             ></a-date-field>
                         </div>
                     </div>
+                    @if (file) {
+                        <label
+                            id="upload-permissions-label"
+                            for="upload-permissions"
+                            >{{
+                                'SIGNAGE_MANAGER.BULK_UPLOAD_PERMISSIONS'
+                                    | translate
+                            }}</label
+                        >
+                        <mat-form-field appearance="outline">
+                            <mat-select
+                                id="upload-permissions"
+                                aria-labelledby="upload-permissions-label"
+                                [value]="permissions()"
+                                (valueChange)="permissions.set($event)"
+                            >
+                                <mat-option value="none">{{
+                                    'SIGNAGE_MANAGER.BULK_UPLOAD_PERMISSION_NONE'
+                                        | translate
+                                }}</mat-option>
+                                <mat-option value="support">{{
+                                    'SIGNAGE_MANAGER.BULK_UPLOAD_PERMISSION_SUPPORT'
+                                        | translate
+                                }}</mat-option>
+                                <mat-option value="admin">{{
+                                    'SIGNAGE_MANAGER.BULK_UPLOAD_PERMISSION_ADMIN'
+                                        | translate
+                                }}</mat-option>
+                            </mat-select>
+                        </mat-form-field>
+                    }
                     <signage-shared-with
                         type="media"
                         [item_id]="item.id"
                         [group_id]="group_id"
+                        [allow_unshare]="true"
                     ></signage-shared-with>
                 </div>
             </form>
         </fullscreen-modal-shell>
     `,
     styles: [``],
-    providers: [
-        {
-            provide: UPLOAD_PERMISSIONS_MODAL,
-            useValue: UploadPermissionsModalComponent,
-        },
-    ],
     imports: [
         FullscreenModalShellComponent,
         FormField,
+        IconComponent,
         DateFieldComponent,
         TranslatePipe,
         SafePipe,
@@ -493,10 +607,21 @@ export class MediaEditModalComponent implements OnDestroy {
     private _data = inject<MediaEditModalData>(MAT_DIALOG_DATA);
     private _dialog_ref =
         inject<MatDialogRef<MediaEditModalComponent>>(MatDialogRef);
+    private readonly _dialog = inject(MatDialog);
 
-    @ViewChild(SchemaFormComponent) public schema_form: SchemaFormComponent;
+    private readonly _schema_form = viewChild(SchemaFormComponent);
 
     public readonly loading = signal(false);
+    public readonly animation_options = ANIMATION_OPTIONS;
+    /** Who can read a new file once it is uploaded */
+    public readonly permissions = signal<UploadPermissions>('none');
+    /** Warning for a new file larger than 4K. Shown in the modal, as the
+     * modal covers notifications. */
+    public readonly dimensions_warning =
+        this._data.file && this._data.file_metadata
+            ? validateSignageMediaDimensions(this._data.file_metadata).error ||
+              ''
+            : '';
     public readonly item = this._data.media;
     public readonly tag_options = this._data.tag_options || [];
     public readonly group_id = this._data.group_id || '';
@@ -509,9 +634,9 @@ export class MediaEditModalComponent implements OnDestroy {
             !!this._data.loadPlugin &&
             !this._data.plugin,
     );
-    public readonly thumbnail =
-        this._data.file_thumbnail ||
-        playlistMediaThumbnailUrl(this._data.media);
+    public readonly thumbnail = signal(
+        playlistMediaThumbnailUrl(this._data.media),
+    );
     public readonly plugin_embed_schema = signal<Record<
         string,
         unknown
@@ -528,7 +653,7 @@ export class MediaEditModalComponent implements OnDestroy {
         name: this._data.file?.name || this._data.media.name || '',
         media_uri: this._data.media.media_uri || '',
         description: this._data.media.description || '',
-        animation: this._data.media.animation ?? MediaAnimation.Default,
+        animation: mediaAnimation(this._data.media.animation),
         start_time: this._data.media.start_time || 0,
         play_time: this._data.media.play_time || 0,
         tags: this._data.media.tags || [],
@@ -545,19 +670,30 @@ export class MediaEditModalComponent implements OnDestroy {
         required(path.media_uri, {
             when: () => this.media_type === 'webpage',
         });
+        validate(path.media_uri, ({ value }) =>
+            this.media_type === 'webpage' && value() && !isWebPageUrl(value())
+                ? {
+                      kind: 'web_url',
+                      message: i18n('SIGNAGE_MANAGER.URL_INVALID'),
+                  }
+                : undefined,
+        );
     });
 
     private _file_url: string;
     private _preview_url_timeout?: ReturnType<typeof setTimeout>;
 
     public readonly preview = () =>
-        this._data.preview({
-            media_uri: this.url,
-            media_type: this.media_type,
-            name: this.model().name,
-            plugin_id: this.item.plugin_id || this.plugin()?.id,
-            plugin_params: this.plugin_config(),
-        });
+        this._data.preview(
+            // No id: this previews the unsaved form, not the stored item
+            new SignageMedia({
+                media_uri: this.url,
+                media_type: this.media_type,
+                name: this.model().name,
+                plugin_id: this.item.plugin_id || this.plugin()?.id,
+                plugin_params: this.plugin_config(),
+            }),
+        );
 
     public readonly plugin_config = computed(() => ({
         ...(this.plugin()?.defaults || {}),
@@ -585,9 +721,9 @@ export class MediaEditModalComponent implements OnDestroy {
     }
 
     /**
-     * Webpages and plugins have no file to capture a frame from, and a cross
-     * origin page cannot be rendered to a canvas, so their thumbnail has to be
-     * supplied by hand.
+     * Webpages and plugins have no file to capture a frame from. A new item
+     * without a picked image gets a server screenshot of its URL on save, so
+     * the user only has to pick one to override it.
      */
     public get can_set_thumbnail() {
         return (
@@ -608,30 +744,30 @@ export class MediaEditModalComponent implements OnDestroy {
     }
 
     constructor() {
-        const save_hotkey = inject(HotkeysService).listen(['KeyS'], () =>
-            this.saveMedia(),
-        );
+        const save_hotkey = inject(HotkeysService).listen(['KeyS'], () => {
+            if (this._canUseSaveHotkey()) this.saveMedia();
+        });
         inject(DestroyRef).onDestroy(() => save_hotkey?.unsubscribe());
         if (this.media_type === 'webpage') {
-            this.preview_url.set(this.item.media_uri || this.item.media_url);
+            this.preview_url.set(
+                webPageFrameUrl(this.item.media_uri || this.item.media_url),
+            );
             effect((onCleanup) => {
                 const url = this.model().media_uri;
                 clearTimeout(this._preview_url_timeout);
                 this._preview_url_timeout = setTimeout(
-                    () => this.preview_url.set(url || ''),
+                    () => this.preview_url.set(webPageFrameUrl(url)),
                     1500,
                 );
                 onCleanup(() => clearTimeout(this._preview_url_timeout));
             });
         }
-        if (this._data.file_metadata) {
-            (this.item as any).video_length = Math.floor(
-                this._data.file_metadata.duration * 1000,
-            );
-        }
         if (this.plugin_loading()) {
             this._loadPluginDetails();
         }
+        this._data.file_thumbnail?.then((image) => {
+            if (image) this.thumbnail.set(image);
+        });
         // Plugin and embed schema resolve asynchronously, so seed the form
         // with their default values whenever they change
         effect(() => {
@@ -648,6 +784,16 @@ export class MediaEditModalComponent implements OnDestroy {
                 },
             }));
         });
+    }
+
+    /**
+     * The save hotkey is a plain key, so it only acts while this modal is the
+     * top-most dialog and focus is not on a control that takes key presses.
+     */
+    private _canUseSaveHotkey() {
+        const dialogs = this._dialog.openDialogs;
+        if (dialogs[dialogs.length - 1] !== this._dialog_ref) return false;
+        return !document.activeElement?.closest(HOTKEY_BLOCKING_FOCUS);
     }
 
     private _resolvePluginSchema(): Record<string, unknown> | null {
@@ -684,8 +830,9 @@ export class MediaEditModalComponent implements OnDestroy {
 
     /**
      * Ask the embedded plugin to render its own thumbnail. Captured from the
-     * live preview so it reflects the config the user just set. Plugins that
-     * predate the capability return nothing and are saved exactly as before.
+     * live preview so it reflects the config the user just set. Only used
+     * when the server screenshot fails. Plugins that predate the capability
+     * return nothing.
      */
     private async _capturePluginThumbnail() {
         if (this.media_type !== 'plugin') return '';
@@ -696,14 +843,20 @@ export class MediaEditModalComponent implements OnDestroy {
 
     public async saveMedia() {
         await submit(this.form, async () => {
-            if (this.schema_form && !this.schema_form.isValid()) return;
+            const schema_form = this._schema_form();
+            if (schema_form && !schema_form.isValid()) return;
             this.loading.set(true);
             this._dialog_ref.disableClose = true;
             const form_value = this.model();
-            const new_media: any = {
+            const new_media: MediaEditChanges = {
                 ...this.item,
                 ...form_value,
             };
+            if (this.media_type === 'webpage') {
+                new_media.media_uri =
+                    normaliseWebPageUrl(form_value.media_uri) ??
+                    form_value.media_uri;
+            }
             if (this.plugin()) {
                 new_media.plugin_id = this.item.plugin_id || this.plugin().id;
             }
@@ -740,14 +893,13 @@ export class MediaEditModalComponent implements OnDestroy {
                     }
                     await this._data.onEdit(this.item.id, new_media);
                 } else {
-                    const thumbnail =
-                        this.custom_thumbnail() ||
-                        (await this._capturePluginThumbnail());
                     await this._data.onAdd(
                         this.file,
                         new SignageMedia(new_media),
                         this._data.file_metadata,
-                        thumbnail,
+                        this.custom_thumbnail(),
+                        () => this._capturePluginThumbnail(),
+                        this.permissions(),
                     );
                 }
             } catch (error) {

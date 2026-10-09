@@ -3,10 +3,17 @@ import {
     Component,
     computed,
     inject,
+    signal,
 } from '@angular/core';
+import { AsyncHandler } from '@placeos/common';
 import { IconComponent, SafePipe, TranslatePipe } from '@placeos/components';
 import { PanelStateService } from '../panel-state.service';
-import { currentPeriod, nextPeriod } from './helpers';
+import {
+    currentPeriod,
+    formatCountdown,
+    nextPeriod,
+    releaseCountdown,
+} from './helpers';
 
 @Component({
     selector: 'panel-view-status',
@@ -26,17 +33,20 @@ import { currentPeriod, nextPeriod } from './helpers';
                 [class.text-error-content]="s === 'busy'"
                 [class.text-success-content]="s === 'free'"
                 [class.text-warning-content]="s === 'pending'"
+                [class.pb-32]="reserve_actions"
             >
-                <div
-                    [innerHTML]="
-                        (s === 'busy'
-                            ? in_use_svg
-                            : s === 'pending'
-                              ? pending_svg
-                              : free_svg
-                        ) | safe
-                    "
-                ></div>
+                @if (!reserve_actions) {
+                    <div
+                        [innerHTML]="
+                            (s === 'busy'
+                                ? in_use_svg
+                                : s === 'pending'
+                                  ? pending_svg
+                                  : free_svg
+                            ) | safe
+                        "
+                    ></div>
+                }
                 <h3 class="mt-4 text-4xl font-medium uppercase">
                     {{ 'APP.BOOKING_PANEL.NOW' | translate }}
                 </h3>
@@ -111,6 +121,26 @@ import { currentPeriod, nextPeriod } from './helpers';
                         {{ 'APP.BOOKING_PANEL.NO_CURRENT' | translate }}
                     }
                 </p>
+                @let release = release_in();
+                @if (release !== null) {
+                    <p checkin-countdown class="mt-2 text-2xl font-medium">
+                        {{
+                            'APP.BOOKING_PANEL.RELEASES_IN'
+                                | translate: { time: countdown(release) }
+                        }}
+                    </p>
+                }
+                @if (people_detected) {
+                    <p
+                        presence
+                        class="mt-4 flex items-center space-x-2 rounded-full bg-black/20 px-4 py-1 text-xl"
+                    >
+                        <icon>groups</icon>
+                        <span>{{
+                            'APP.BOOKING_PANEL.PEOPLE_DETECTED' | translate
+                        }}</span>
+                    </p>
+                }
                 @if (s === 'pending' && can_book) {
                     <div
                         class="absolute inset-x-0 top-0 flex items-center justify-center space-x-4 bg-[#0008] p-4 text-2xl"
@@ -189,8 +219,57 @@ import { currentPeriod, nextPeriod } from './helpers';
     changeDetection: ChangeDetectionStrategy.Eager,
     imports: [TranslatePipe, SafePipe, IconComponent],
 })
-export class PanelViewStatusComponent {
+export class PanelViewStatusComponent extends AsyncHandler {
     private _state = inject(PanelStateService);
+    private _now = signal(Date.now());
+
+    public readonly countdown = formatCountdown;
+
+    /**
+     * Milliseconds until the pending booking is released.
+     * `null` unless the `checkin_countdown` feature is on and the
+     * panel will release the booking.
+     */
+    public readonly release_in = computed(() => {
+        const current = this._state.current();
+        const settings = this._state.settings();
+        if (
+            !this._state.hasFeature('checkin_countdown') ||
+            this._state.status() !== 'pending' ||
+            !current ||
+            current.body?.includes('main_event_id') ||
+            settings.disable_end_meeting === true
+        ) {
+            return null;
+        }
+        return releaseCountdown(current, settings.pending_period, this._now());
+    });
+
+    constructor() {
+        super();
+        this.interval('now', () => this._now.set(Date.now()), 1000);
+    }
+
+    /**
+     * Whether to keep space for the action bar at the bottom of this column.
+     * The status icon is hidden to make room.
+     */
+    public get reserve_actions() {
+        return (
+            this._state.hasFeature('quick_book') ||
+            this._state.hasFeature('extend_meeting') ||
+            this._state.hasFeature('room_services')
+        );
+    }
+
+    /** Whether to show that sensors detect people in a free room */
+    public get people_detected() {
+        return (
+            this._state.hasFeature('presence_status') &&
+            this._state.status() === 'free' &&
+            this._state.setting('presence') === true
+        );
+    }
 
     public readonly state = this._state.status;
 

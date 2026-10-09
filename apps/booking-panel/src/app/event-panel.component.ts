@@ -15,10 +15,10 @@ import {
     OrganisationService,
     SettingsService,
 } from '@placeos/common';
+import { generateQRCode } from '@placeos/common/qr-code';
 
 import { CommonModule } from '@angular/common';
 import { MatRippleModule } from '@angular/material/core';
-import { generateQRCode } from '@placeos/common';
 import {
     AuthenticatedImageDirective,
     SafePipe,
@@ -62,8 +62,15 @@ import { PanelStateService } from './panel-state.service';
                             </h2>
                         }
                         <p class="mb-4 text-2xl lowercase">
-                            ending &#64;
-                            {{ current_bkn?.event_end * 1000 | date: 'h:mma' }}
+                            {{
+                                'APP.BOOKING_PANEL.ENDING_AT'
+                                    | translate
+                                        : {
+                                              time:
+                                                  current_bkn?.event_end * 1000
+                                                  | date: 'h:mma',
+                                          }
+                            }}
                         </p>
                         @if (!hide_meeting_details) {
                             <p class="text-xl">
@@ -99,8 +106,15 @@ import { PanelStateService } from './panel-state.service';
                             </h2>
                         }
                         <p class="text-2xl lowercase">
-                            starting &#64;
-                            {{ next_bkn?.event_start * 1000 | date: 'h:mma' }}
+                            {{
+                                'APP.BOOKING_PANEL.STARTING_AT'
+                                    | translate
+                                        : {
+                                              time:
+                                                  next_bkn?.event_start * 1000
+                                                  | date: 'h:mma',
+                                          }
+                            }}
                         </p>
                     } @else {
                         <p class="text-2xl font-medium opacity-60">

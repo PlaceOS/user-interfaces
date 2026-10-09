@@ -1,9 +1,10 @@
-import { Component, computed, inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import { GroupBreadcrumbsComponent } from '../shared/group-breadcrumbs.component';
-import { SignageService } from '../signage.service';
-import { MatTooltipModule } from '@angular/material/tooltip';
+import { SignageContextService } from '../signage-context.service';
+import { SignageTemplateService } from './signage-template.service';
 
 @Component({
     selector: 'template-header',
@@ -28,7 +29,8 @@ import { MatTooltipModule } from '@angular/material/tooltip';
             <div class="w-px flex-1"></div>
             @if (can_create()) {
                 <button
-                    icon default
+                    icon
+                    default
                     type="button"
                     matRipple
                     class="text-xl"
@@ -48,18 +50,17 @@ import { MatTooltipModule } from '@angular/material/tooltip';
         IconComponent,
         TranslatePipe,
         GroupBreadcrumbsComponent,
-        MatTooltipModule
+        MatTooltipModule,
     ],
 })
 export class TemplateHeaderComponent {
-    private readonly _service = inject(SignageService);
+    private readonly _context = inject(SignageContextService);
+    private readonly _template_service = inject(SignageTemplateService);
 
-    public readonly total_count = computed(
-        () => this._service.templates().length,
-    );
-    public readonly can_create = this._service.can_create;
+    public readonly total_count = this._template_service.templates_total;
+    public readonly can_create = this._context.can_create_templates;
 
     public addTemplate() {
-        this._service.addTemplate();
+        this._template_service.addTemplate();
     }
 }

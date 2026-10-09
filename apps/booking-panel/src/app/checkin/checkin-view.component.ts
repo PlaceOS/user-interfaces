@@ -57,66 +57,45 @@ import { CheckinTimetableComponent } from './checkin-timetable.component';
                         {{ 'APP.BOOKING_PANEL.NOW' | translate }}
                     </div>
                     <div class="">
-                        @if (event_state()?.current?.length) {
-                            @if (event_state()?.current[0]) {
-                                @if (event_state()?.current[1] > 0) {
+                        @let cur = event_state()?.current;
+                        @if (cur?.length) {
+                            @if (cur[0]) {
+                                @if (cur[1] > 0) {
                                     {{
                                         'APP.BOOKING_PANEL.FREE_IN_HOURS_AND_MINUTES'
                                             | translate
                                                 : {
-                                                      hour: event_state()
-                                                          ?.current[1],
-                                                      minute: event_state()
-                                                          ?.current[2],
+                                                      hour: cur[1],
+                                                      minute: cur[2],
                                                   }
                                     }}
-                                }
-                                @if (event_state()?.current[1] <= 0) {
+                                } @else if (cur[2] > 1) {
                                     {{
                                         'APP.BOOKING_PANEL.FREE_IN_MINUTES'
-                                            | translate
-                                                : {
-                                                      minute: event_state()
-                                                          ?.current[2],
-                                                  }
+                                            | translate: { minute: cur[2] }
                                     }}
-                                }
-                                @if (
-                                    event_state()?.current[1] <= 0 &&
-                                    event_state()?.current[2] <= 1
-                                ) {
+                                } @else {
                                     {{
                                         'APP.BOOKING_PANEL.FREE_IN_LESS_THAN_MINUTE'
                                             | translate
                                     }}
                                 }
                             } @else {
-                                @if (event_state()?.current[1]) {
+                                @if (cur[1] > 0) {
                                     {{
                                         'APP.BOOKING_PANEL.FREE_FOR_HOURS_AND_MINUTES'
                                             | translate
                                                 : {
-                                                      hour: event_state()
-                                                          ?.current[1],
-                                                      minute: event_state()
-                                                          ?.current[2],
+                                                      hour: cur[1],
+                                                      minute: cur[2],
                                                   }
                                     }}
-                                }
-                                @if (!event_state()?.current[1]) {
+                                } @else if (cur[2] > 1) {
                                     {{
                                         'APP.BOOKING_PANEL.FREE_FOR_MINUTES'
-                                            | translate
-                                                : {
-                                                      minute: event_state()
-                                                          ?.current[2],
-                                                  }
+                                            | translate: { minute: cur[2] }
                                     }}
-                                }
-                                @if (
-                                    !event_state()?.current[1] &&
-                                    event_state()?.current[2] < 1
-                                ) {
+                                } @else {
                                     {{
                                         'APP.BOOKING_PANEL.FREE_FOR_LESS_THAN_MINUTE'
                                             | translate
@@ -157,15 +136,18 @@ import { CheckinTimetableComponent } from './checkin-timetable.component';
                         {{ 'COMMON.NEXT' | translate }}
                     </div>
                     <div class="">
-                        {{ event_state()?.next || 'No upcoming event' }}
+                        {{
+                            event_state()?.next ||
+                                ('APP.BOOKING_PANEL.NO_UPCOMING' | translate)
+                        }}
                     </div>
                 </div>
-                @if (!event_state()?.next && can_book()) {
+                @if (can_book()) {
                     <button
                         btn
                         matRipple
                         class="w-24"
-                        (click)="newBooking(start(), true)"
+                        (click)="bookSlot(start())"
                     >
                         {{ 'COMMON.BOOK' | translate }}
                     </button>
@@ -267,10 +249,11 @@ export class CheckinViewComponent extends AsyncHandler implements OnInit {
     public readonly state = this._state.status;
     public readonly system = this._state.space;
     public readonly bookings = this._state.bookings;
+    /** Start of the next free slot. Can be in the past when the room is free now. */
     public start = signal<number>(Date.now());
 
     public readonly can_book = computed(
-        () => this._state.setting('disable_book_now') !== true,
+        () => this._state.setting('disable_qr_booking') !== true,
     );
 
     public readonly checkInCurrent = () => this._state.startMeeting();
@@ -278,7 +261,7 @@ export class CheckinViewComponent extends AsyncHandler implements OnInit {
         if (!this.can_book()) return;
         this._state.newBooking(d, this.has_user(), future, true);
     };
-    // Timetable emits the absolute start time of the tapped slot; treat any
+    // Timetable and next free slot pass an absolute start time; treat any
     // slot past now as a future booking so the chosen time isn't overwritten.
     public readonly bookSlot = (d: number) =>
         this.newBooking(d, d > Date.now());

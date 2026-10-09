@@ -1,6 +1,5 @@
 import { Clipboard } from '@angular/cdk/clipboard';
 import { inject, Injectable, signal } from '@angular/core';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import { SwUpdate } from '@angular/service-worker';
 import {
@@ -15,7 +14,6 @@ import {
     setToken,
     token,
 } from '@placeos/ts-client';
-import * as Sentry from '@sentry/angular';
 import { addHours } from 'date-fns';
 import { filter } from 'rxjs/operators';
 
@@ -57,9 +55,10 @@ import {
     setNativeEmail,
     syncNativeManagedConfig,
 } from './native-app';
-import { notifySuccess, setNotifyOutlet } from './notifications';
+import { lazySnackbar, notifySuccess, setNotifyOutlet } from './notifications';
 import { OrganisationService } from './org/organisation.service';
 import { createNativeAuthUrl, setupPlace } from './placeos';
+import { initSentry } from './sentry';
 import { SettingsService } from './settings.service';
 import { setInternalUserDomain } from './types/user.class';
 import { current_user, currentUser } from './user-state';
@@ -106,26 +105,6 @@ export function autoConfirmNativeDomain() {
     return AUTO_CONFIRM_DOMAIN;
 }
 
-export function initSentry(dsn: string) {
-    if (!dsn) return;
-    // Session Replay (rrweb, ~123KB) is intentionally omitted to keep it out of
-    // the initial bundle and avoid any external CDN dependency for firewalled /
-    // private-intranet deployments. Error reporting and performance tracing are
-    // unaffected.
-    Sentry.init({
-        dsn,
-        integrations: [Sentry.browserTracingIntegration()],
-        // Performance Monitoring
-        tracesSampleRate: 1.0, //  Capture 100% of the transactions
-        // Set 'tracePropagationTargets' to control for which URLs distributed tracing should be enabled
-        tracePropagationTargets: [
-            'localhost',
-            /^https:\/\/[a-zA-Z0-9_-]*\.[a-zA-Z0-9]*\/api/,
-            /^https:\/\/[a-zA-Z0-9_-]*\.placeos\.run*\/api/,
-        ],
-    });
-}
-
 let _mocks: (() => void) | null = null;
 
 export function setMocks(value: () => void) {
@@ -141,13 +120,12 @@ export class PlaceOS_Service extends AsyncHandler {
     private _settings = inject(SettingsService);
     private _org = inject(OrganisationService); // For init
     private _cache = inject(SwUpdate);
-    private _snackbar = inject(MatSnackBar);
+    private _snackbar = lazySnackbar();
     private _hotkey = inject(HotkeysService);
     private _clipboard = inject(Clipboard);
     private _route = inject(ActivatedRoute);
     private _router = inject(Router);
     private _maps = inject(MapsPeopleService);
-    private _tracing = inject(Sentry.TraceService);
 
     private _zone = '';
     private _region = '';
@@ -504,7 +482,7 @@ export class PlaceOS_Service extends AsyncHandler {
                 `@${currentUser()?.email?.split('@')[1]}`,
         );
         this._initAnalytics();
-        initSentry(this._settings.get('app.sentry_dsn'));
+        void initSentry(this._settings.get('app.sentry_dsn'), this._router);
         try {
             this._initFixedDevice();
         } catch {
@@ -516,6 +494,14 @@ export class PlaceOS_Service extends AsyncHandler {
             );
         }
         this._setZones();
+        // Translations are fetched, so give them a moment to land before the
+        // loading screen is removed. Untranslated keys are shown otherwise.
+        if (this._locale) {
+            await Promise.race([
+                this._locale.loaded(),
+                new Promise((resolve) => setTimeout(resolve, 5_000)),
+            ]);
+        }
         markInitialisationComplete();
     }
 
@@ -547,9 +533,16 @@ export class PlaceOS_Service extends AsyncHandler {
             this._settings.get('app.analytics.enabled') !== false;
         if (!tracking_id || !this._analytics.enabled) return;
         setLoadingMessage('Initialising analytics...');
-        this._analytics.init(tracking_id);
-        this._analytics.load(tracking_id);
-        this._analytics.setUser(currentUser().id);
+        try {
+            this._analytics.init(tracking_id);
+            this._analytics.load(tracking_id);
+            this._analytics.setUser(currentUser().id);
+        } catch (error) {
+            // Startup gates on `markInitialisationComplete()`, so a throw here
+            // would strand the loading screen on this message for good.
+            log('APP', 'Failed to initialise analytics.', error, 'warn');
+            return;
+        }
         // Navigation may have completed while startup waited for user data.
         if (tracking_id.startsWith('G-') && this._router.navigated) {
             this._analytics.page(this._router.url);

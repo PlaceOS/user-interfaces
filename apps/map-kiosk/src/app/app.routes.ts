@@ -3,7 +3,6 @@ import {
     AuthorisedUserGuard,
     UnauthorisedComponent,
 } from '@placeos/components';
-import { BootstrapComponent } from './bootstrap.component';
 
 export const routes: Routes = [
     {
@@ -12,7 +11,8 @@ export const routes: Routes = [
     },
     {
         path: 'bootstrap',
-        component: BootstrapComponent,
+        loadComponent: () =>
+            import('./bootstrap.component').then((m) => m.BootstrapComponent),
         canActivate: [AuthorisedUserGuard],
     },
     {

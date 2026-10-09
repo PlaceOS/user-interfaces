@@ -46,13 +46,35 @@ developer's own stack and cannot disturb it.
 ```bash
 e2e/stack/up.sh              # bring up + seed (reuses volumes)
 e2e/stack/up.sh --fresh      # destroy volumes first — a genuine cold start
+e2e/stack/up.sh --pull       # pull the current images first (what CI does every run)
+e2e/stack/up.sh --pull-only  # pull and stop; CI runs this as its own bounded step
 e2e/stack/down.sh            # stop        (--volumes to wipe)
 ```
 
 It is trimmed to what the e2e path exercises: postgres, elasticsearch, redis,
-search-ingest, frontend-loader, auth, rest-api, staff-api, nginx, init. Dropped
-from PlaceOS/local: core, edge, triggers, dispatch, source, influx, chronograf,
+search-ingest, frontend-loader, auth, rest-api, staff-api, core, nginx, init.
+Dropped from PlaceOS/local: edge, triggers, dispatch, source, influx, chronograf,
 mosquitto, minio and the loki/grafana profile — roughly half the containers.
+
+The calendar and directory can be backed by the PlaceOS Microsoft 365 sandbox
+tenant. Set `E2E_O365_TENANT`, `E2E_O365_CLIENT_ID` and `E2E_O365_CLIENT_SECRET`
+before `up.sh` (CI takes them from the repository variables and secret of the
+same names) and the seed writes app-only credentials to the tenant row, creates
+a local admin whose address is a mailbox there (`roleFor('calendar')`), and
+`/api/staff/v1/events` and `/api/staff/v1/people` answer from the tenant.
+Without them the tenant row carries placeholders, those routes answer 500 at
+Microsoft, and the specs that need them skip. Only the seed reads the variables:
+specs ask the stack (`calendarBacked` in `e2e/support/calendar/calendar.api.ts`).
+See `e2e/support/calendar/calendar.env.ts`.
+
+core runs real drivers from PlaceOS/drivers, pinned to a commit in
+`e2e/support/drivers/drivers.env.ts`. It compiles nothing itself: binaries come
+from the PlaceOS build farm (build.placeos.run), which builds a commit it has not
+seen for the CPU architecture on first request and serves a download after that.
+`seed.ts` creates the driver rows and waits for core to hold the binaries, so a
+spec never waits on the farm. If the drivers do not load, the seed logs a warning
+and continues: only the specs that need a room status fail. To test a drivers branch against the suite, set
+`E2E_DRIVERS_URI`, `E2E_DRIVERS_BRANCH` and `E2E_DRIVERS_COMMIT` before `up.sh`.
 
 Two things a cold start taught us that a long-lived stack hides:
 
@@ -238,6 +260,8 @@ CI-specific choices worth knowing:
 | Reclaim step | A self-hosted machine is not a fresh VM; a previous aborted run can leave the stack up or port 4214 held. |
 | No `vm.max_map_count` bump | Needed on GitHub-hosted Linux, meaningless on macOS — the value lives inside Colima's VM, which already sets it to 1048576. Restore it if reverting to `ubuntu-latest`. |
 | Network access to GitHub | `up.sh` clones `PlaceOS/www-core` into the `www` volume once — that is where the platform `/login` page comes from. |
+| Network access to the build farm | core fetches driver binaries from build.placeos.run and the S3 bucket it hands out links to. A commit the farm has not built for the runner's architecture is compiled there on the first run that asks. |
+| Network access to Docker Hub, every run | `up.sh --pull-only` runs first as its own step, bounded to 20 minutes and advisory, so `latest` tracks the registry rather than the day the runner was set up. Each image pulls on its own; one that fails or stalls leaves the stack on the image already present, and "Record backend inputs" shows which. `SELF_HOSTED_RUNNER.md` lists the hosts. |
 
 ## Booking specs: what the backend actually does
 

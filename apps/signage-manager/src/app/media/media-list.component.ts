@@ -1,4 +1,5 @@
-import { DragDropModule } from '@angular/cdk/drag-drop';
+import { CdkDragDrop, DragDropModule } from '@angular/cdk/drag-drop';
+import { NgTemplateOutlet } from '@angular/common';
 
 import {
     Component,
@@ -7,8 +8,10 @@ import {
     effect,
     inject,
     input,
+    linkedSignal,
     OnInit,
     signal,
+    untracked,
 } from '@angular/core';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatRippleModule } from '@angular/material/core';
@@ -22,11 +25,12 @@ import {
     TranslatePipe,
 } from '@placeos/components';
 import { SignageMedia } from '@placeos/ts-client';
-import { AiImageService } from '../ai/ai-image.service';
+import { ImageGenService } from '../image-gen/image-gen.service';
 import { IntersectDirective } from '../shared/intersect.directive';
 import { MediaThumbnailComponent } from '../shared/media-thumbnail.component';
+import { SignageContextService } from '../signage-context.service';
 import { playlistMediaThumbnailUrl } from '../signage-playlist.util';
-import { SignageService } from '../signage.service';
+import { SignageMediaService } from './signage-media.service';
 
 // Sentinel folder for media items without any tags.
 const UNTAGGED = '\0untagged';
@@ -69,6 +73,10 @@ const UNTAGGED = '\0untagged';
 
         <!-- Folder view: show tag folders until one is opened -->
         @if (view_mode() === 'folder' && selected_folder() === null) {
+            <!-- Folders can still come from the tag counts after media fails -->
+            @if (error()) {
+                <ng-container [ngTemplateOutlet]="load_error" />
+            }
             @if (folders().length > 0) {
                 <div
                     class="grid w-full grid-cols-2 gap-4 p-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6"
@@ -139,7 +147,7 @@ const UNTAGGED = '\0untagged';
                 >
                     <mat-spinner diameter="32" />
                 </div>
-            } @else {
+            } @else if (!error()) {
                 <div
                     class="text-base-content/70 mx-auto flex flex-1 flex-col items-center justify-center space-y-2 p-8"
                 >
@@ -215,7 +223,7 @@ const UNTAGGED = '\0untagged';
                                 </div>
                                 <mat-checkbox
                                     [checked]="isSelected(media_item.id)"
-                                    [attr.aria-label]="
+                                    [aria-label]="
                                         'SIGNAGE_MANAGER.SELECT_MEDIA'
                                             | translate
                                                 : { name: media_item.name }
@@ -354,7 +362,7 @@ const UNTAGGED = '\0untagged';
                                 <mat-checkbox
                                     class="absolute top-4 right-4 z-20 rounded"
                                     [checked]="isSelected(media_item.id)"
-                                    [attr.aria-label]="
+                                    [aria-label]="
                                         'SIGNAGE_MANAGER.SELECT_MEDIA'
                                             | translate
                                                 : { name: media_item.name }
@@ -485,6 +493,10 @@ const UNTAGGED = '\0untagged';
                             intersect
                             (intersect)="loadMore()"
                         ></div>
+                    } @else if (error()) {
+                        <div class="col-span-full">
+                            <ng-container [ngTemplateOutlet]="load_error" />
+                        </div>
                     } @else {
                         <div
                             class="text-base-content/50 bg-base-content/10 col-span-full rounded-lg p-2 text-center text-xs"
@@ -499,6 +511,8 @@ const UNTAGGED = '\0untagged';
                 >
                     <mat-spinner diameter="32" />
                 </div>
+            } @else if (error()) {
+                <ng-container [ngTemplateOutlet]="load_error" />
             } @else {
                 <div
                     class="text-base-content/70 mx-auto flex flex-1 flex-col items-center justify-center space-y-2 p-8"
@@ -508,6 +522,19 @@ const UNTAGGED = '\0untagged';
                 </div>
             }
         }
+
+        <ng-template #load_error>
+            <div
+                class="text-base-content/70 mx-auto flex flex-1 flex-col items-center justify-center space-y-2 p-8 text-center"
+                role="alert"
+            >
+                <icon class="text-error text-6xl">cloud_off</icon>
+                <p>{{ 'COMMON.LOAD_ERROR' | translate }}</p>
+                <button btn matRipple type="button" (click)="retry()">
+                    {{ 'COMMON.RETRY' | translate }}
+                </button>
+            </div>
+        </ng-template>
 
         <mat-menu #folder_menu="matMenu">
             <ng-template matMenuContent let-folder="folder">
@@ -555,17 +582,18 @@ const UNTAGGED = '\0untagged';
                         </div>
                     </button>
                 }
-                @if (can_edit_with_ai() && isImage(media_item)) {
+                @if (can_edit_with_image_gen() && isImage(media_item)) {
                     <button
                         type="button"
                         mat-menu-item
-                        (click)="editItemWithAI(media_item)"
+                        (click)="editItemWithImageGen(media_item)"
                     >
                         <div class="flex items-center space-x-2">
                             <icon class="text-2xl">auto_awesome</icon>
                             <div class="pr-2">
                                 {{
-                                    'SIGNAGE_MANAGER.AI_EDIT_IMAGE' | translate
+                                    'SIGNAGE_MANAGER.IMAGE_GEN_EDIT_IMAGE'
+                                        | translate
                                 }}
                             </div>
                         </div>
@@ -679,6 +707,7 @@ const UNTAGGED = '\0untagged';
                             error
                             (click)="deleteSelected()"
                             [matTooltip]="'COMMON.DELETE' | translate"
+                            [attr.aria-label]="'COMMON.DELETE' | translate"
                         >
                             <icon>delete</icon>
                         </button>
@@ -692,6 +721,9 @@ const UNTAGGED = '\0untagged';
                             [matTooltip]="
                                 'SIGNAGE_MANAGER.ADD_TO_PLAYLIST' | translate
                             "
+                            [attr.aria-label]="
+                                'SIGNAGE_MANAGER.ADD_TO_PLAYLIST' | translate
+                            "
                         >
                             <icon>playlist_add</icon>
                         </button>
@@ -703,6 +735,9 @@ const UNTAGGED = '\0untagged';
                             matRipple
                             (click)="shareSelected()"
                             [matTooltip]="'SIGNAGE_MANAGER.SHARE' | translate"
+                            [attr.aria-label]="
+                                'SIGNAGE_MANAGER.SHARE' | translate
+                            "
                         >
                             <icon>ios_share</icon>
                         </button>
@@ -726,6 +761,7 @@ const UNTAGGED = '\0untagged';
     ],
     imports: [
         DragDropModule,
+        NgTemplateOutlet,
         MatCheckboxModule,
         MatRippleModule,
         MatMenuModule,
@@ -740,8 +776,9 @@ const UNTAGGED = '\0untagged';
     ],
 })
 export class MediaListComponent implements OnInit {
-    private readonly _service = inject(SignageService);
-    private readonly _ai = inject(AiImageService);
+    private readonly _context = inject(SignageContextService);
+    private readonly _media_service = inject(SignageMediaService);
+    private readonly _image_gen = inject(ImageGenService);
     private readonly _destroy = inject(DestroyRef);
 
     public readonly playlist_count = input(0);
@@ -751,7 +788,11 @@ export class MediaListComponent implements OnInit {
             .fill(0)
             .map((_, idx) => `playlist-${idx}`),
     );
-    public readonly selected_ids = signal(new Set<string>());
+    /** Selected media. A group switch from any control starts it empty. */
+    public readonly selected_ids = linkedSignal({
+        source: this._context.selected_group_id,
+        computation: () => new Set<string>(),
+    });
     public readonly selected_media = computed(() => {
         const selected_ids = this.selected_ids();
         return this.media().filter((item) => selected_ids.has(item.id));
@@ -765,9 +806,14 @@ export class MediaListComponent implements OnInit {
         this.sidebar_hidden.set(e.matches);
 
     constructor() {
-        // Leaving folder view (or switching group) closes any open folder.
+        // An open folder filters the loaded pages, and its items can be on
+        // any page, so load every page while it is open. Paging stops on the
+        // last page, an empty page or an error.
         effect(() => {
-            if (this.view_mode() !== 'folder') this.selected_folder.set(null);
+            if (this.view_mode() !== 'folder') return;
+            if (this.selected_folder() === null) return;
+            if (!this.has_more() || this.loading()) return;
+            untracked(() => this.loadMore());
         });
     }
 
@@ -779,24 +825,35 @@ export class MediaListComponent implements OnInit {
         );
     }
 
-    public readonly media = this._service.filtered_media;
-    public readonly media_tags = this._service.media_tags;
-    public readonly media_tag_counts = this._service.media_tag_counts;
-    public readonly loading = this._service.media_loading;
-    public readonly view_mode = this._service.media_view_mode;
-    public readonly groups = this._service.signage_groups;
-    public readonly selected_group_id = this._service.selected_group_id;
-    public readonly can_manage_all_groups = this._service.can_manage_all_groups;
+    public readonly media = this._media_service.media;
+    public readonly media_tags = this._media_service.media_tags;
+    public readonly media_tag_counts = this._media_service.media_tag_counts;
+    public readonly loading = this._media_service.media_loading;
+    public readonly error = this._media_service.media_error;
+    public readonly view_mode = this._media_service.media_view_mode;
+    public readonly groups = this._context.signage_groups;
+    public readonly selected_group_id = this._context.selected_group_id;
+    public readonly can_manage_all_groups = this._context.can_manage_all_groups;
     public readonly can_switch_groups = computed(
         () =>
-            this._service.show_media_group_tabs() &&
+            this._media_service.show_media_group_tabs() &&
             (this.can_manage_all_groups()
                 ? this.groups().length > 0
                 : this.groups().length > 1),
     );
 
-    // Currently opened tag folder (null = showing the folder grid).
-    public readonly selected_folder = signal<string | null>(null);
+    /** Opened tag folder, or null for the folder grid. Leaving folder view
+     * or switching group closes it. */
+    public readonly selected_folder = linkedSignal<
+        { group_id: string; folder_view: boolean },
+        string | null
+    >({
+        source: () => ({
+            group_id: this._context.selected_group_id(),
+            folder_view: this.view_mode() === 'folder',
+        }),
+        computation: () => null,
+    });
     public readonly untagged_id = UNTAGGED;
 
     // An always-present "Untagged" bucket shown first, then one folder per
@@ -849,9 +906,13 @@ export class MediaListComponent implements OnInit {
     });
 
     // Backend pagination: fetches the next page as the sentinel scrolls in.
-    public readonly has_more = this._service.media_has_more;
+    public readonly has_more = this._media_service.media_has_more;
     public loadMore() {
-        this._service.loadMoreMedia();
+        this._media_service.loadMoreMedia();
+    }
+
+    public retry() {
+        this._media_service.retryMedia();
     }
 
     public openFolder(folder_id: string) {
@@ -863,9 +924,7 @@ export class MediaListComponent implements OnInit {
     }
 
     public selectGroup(group_id: string) {
-        this.clearSelection();
-        this.selected_folder.set(null);
-        this._service.setSelectedGroup(group_id);
+        this._context.setSelectedGroup(group_id);
     }
 
     public isSelected(id: string) {
@@ -930,72 +989,72 @@ export class MediaListComponent implements OnInit {
         return this.remainingTags(item).length;
     }
 
-    public readonly previewFile = (event: Event) =>
-        this._service.previewFileFromInput(event);
-
     public readonly previewItem = (item: SignageMedia) =>
-        this._service.previewMedia(item);
+        this._media_service.previewMedia(item);
 
     public readonly editItem = (item: SignageMedia) =>
-        this._service.editMedia(item);
+        this._media_service.editMedia(item);
 
-    public readonly can_edit_with_ai = computed(
-        () => this._service.can_create() && this._ai.can_edit(),
+    public readonly can_edit_with_image_gen = computed(
+        () =>
+            this._context.can_create() &&
+            this._image_gen.can_edit() &&
+            this._context.hasFeature('ai-editing'),
     );
 
     /** only an uploaded still can be sent back through the model */
     public readonly isImage = (item: SignageMedia) =>
         item?.media_type === 'image' && !!item?.media_id;
 
-    public readonly editItemWithAI = (item: SignageMedia) =>
-        this._service.editMediaWithAI(item);
+    public readonly editItemWithImageGen = (item: SignageMedia) =>
+        this._media_service.editMediaWithImageGen(item);
 
     public readonly removeItem = (item: SignageMedia) =>
-        this._service.removeMedia(item);
+        this._media_service.removeMedia(item);
 
     public readonly renameTag = (tag: string, count: number) =>
-        this._service.renameMediaTag(tag, count);
+        this._media_service.renameMediaTag(tag, count);
 
     public readonly removeTag = (tag: string, count: number) =>
-        this._service.removeMediaTag(tag, count);
+        this._media_service.removeMediaTag(tag, count);
 
     public readonly addToPlaylist = (media_id: string) =>
-        this._service.openPlaylistSelectModal(media_id);
+        this._media_service.openPlaylistSelectModal(media_id);
 
     public readonly shareItem = (item: SignageMedia) =>
-        this._service.shareMedia(item);
+        this._media_service.shareMediaItems([item]);
 
     public async deleteSelected() {
-        if (await this._service.removeMediaItems(this.selected_media())) {
+        if (await this._media_service.removeMediaItems(this.selected_media())) {
             this.clearSelection();
         }
     }
 
     public async addSelectedToPlaylist() {
         const media_ids = this.selected_media().map((item) => item.id);
-        if (await this._service.openBulkPlaylistSelectModal(media_ids)) {
+        if (await this._media_service.openBulkPlaylistSelectModal(media_ids)) {
             this.clearSelection();
         }
     }
 
     public async shareSelected() {
-        if (await this._service.shareMediaItems(this.selected_media())) {
+        if (await this._media_service.shareMediaItems(this.selected_media())) {
             this.clearSelection();
         }
     }
 
     public async addTagsToSelected() {
-        if (await this._service.addMediaTags(this.selected_media())) {
+        if (await this._media_service.addMediaTags(this.selected_media())) {
             this.clearSelection();
         }
     }
 
-    public readonly can_update = this._service.can_update;
-    public readonly can_update_media_tags = this._service.can_update_media_tags;
-    public readonly can_delete = this._service.can_delete;
-    public readonly can_share = this._service.can_share;
+    public readonly can_update = this._context.can_update;
+    public readonly can_update_media_tags = this._context.can_update_media_tags;
+    public readonly can_delete = this._context.can_delete;
+    public readonly can_share = this._context.can_share;
 
-    public drop(_event: any) {
+    public drop(_event: CdkDragDrop<SignageMedia[]>) {
         // No-op for media list drops
     }
 }

@@ -16,6 +16,7 @@ describe('DeskBookingsComponent', () => {
         component: DeskBookingsComponent,
         providers: [
             MockProvider(DesksStateService, {
+                load_error: signal(false),
                 setFilters: vi.fn(),
                 bookings,
                 filters: signal({}),

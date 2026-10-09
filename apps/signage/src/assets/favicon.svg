@@ -1,8 +1,8 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
     <defs>
         <linearGradient id="bg" x1="10" y1="6" x2="54" y2="58" gradientUnits="userSpaceOnUse">
-            <stop stop-color="#FFD05A" />
-            <stop offset="1" stop-color="#FF7F3F" />
+            <stop stop-color="#F59E0B" />
+            <stop offset="1" stop-color="#B45309" />
         </linearGradient>
         <radialGradient id="sheen" cx="0" cy="0" r="1" gradientTransform="matrix(42 0 0 32 32 4)" gradientUnits="userSpaceOnUse">
             <stop stop-color="#FFF" stop-opacity=".3" />
@@ -15,14 +15,17 @@
         <filter id="lift" x="-20%" y="-20%" width="140%" height="140%">
             <feDropShadow dx="0" dy=".75" stdDeviation=".75" flood-color="#000" flood-opacity=".3" />
         </filter>
+        <mask id="cut" maskUnits="userSpaceOnUse" x="0" y="0" width="64" height="64">
+            <rect width="64" height="64" fill="#FFF" />
+            <path d="M28 22.5L39 29L28 35.5Z" fill="#000" stroke="#000" stroke-width="2" stroke-linejoin="round" />
+        </mask>
     </defs>
     <rect width="64" height="64" rx="15" fill="url(#bg)" />
     <rect width="64" height="64" rx="15" fill="url(#sheen)" />
     <rect width="64" height="64" rx="15" fill="url(#depth)" />
     <rect x=".5" y=".5" width="63" height="63" rx="14.5" stroke="#FFF" stroke-opacity=".2" />
-    <g filter="url(#lift)" transform="matrix(1.1 0 0 1.1 -3.2 -3.2)">
-        <rect x="18" y="21" width="28" height="18" rx="4" stroke="#FFF" stroke-width="3.25" />
-        <path d="M28 27L36 30L28 33V27Z" fill="#FFF" />
-        <path d="M24 44H40" stroke="#FFF" stroke-width="3.25" stroke-linecap="round" />
+    <g filter="url(#lift)">
+        <rect x="12" y="15" width="40" height="28" rx="5" fill="#FFF" mask="url(#cut)" />
+        <path d="M32 43V49M23 50H41" stroke="#FFF" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" />
     </g>
 </svg>

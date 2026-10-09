@@ -5,7 +5,8 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticated-image.directive';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
-import { BookingAsset, BookingFormService } from '../booking-form.service';
+import { BookingFormService } from '../booking-form.service';
+import { BookingAsset } from '../booking-form.types';
 
 @Component({
     selector: `parking-space-list`,
@@ -131,6 +132,7 @@ import { BookingAsset, BookingFormService } from '../booking-form.service';
 export class ParkingListComponent {
     private _form = inject(BookingFormService);
 
+    // fallow-ignore-next-line unused-component-input -- read in a [class.x!] binding fallow does not parse
     public readonly active = input('');
     public readonly selected = input('');
     public readonly favorites = input<string[]>([]);

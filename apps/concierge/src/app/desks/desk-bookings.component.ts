@@ -11,6 +11,8 @@ import {
     TranslatePipe,
 } from '@placeos/components';
 import { UserPipe } from '@placeos/users';
+import { BookingApprovalBarComponent } from '../ui/booking-approval-bar.component';
+import { bookingRowKey, selectedBookings } from '../ui/bulk-booking-actions';
 import {
     canChangeDeskBooking,
     isDeskBookingRejected,
@@ -22,6 +24,8 @@ import { DesksStateService } from './desks-state.service';
     template: `
         <div class="h-full w-full overflow-auto pb-16">
             <simple-table
+                [error]="load_error()"
+                (retry)="retryLoad()"
                 class="block min-w-368 text-sm"
                 [data]="bookings()"
                 [filter]="filters().search"
@@ -96,6 +100,10 @@ import { DesksStateService } from './desks-state.service';
                     ) | translate
                 "
                 [sortable]="true"
+                [selectable]="bulk_actions()"
+                [row_key]="rowKey"
+                [can_select]="canChangeBooking"
+                [(selected)]="selected"
             ></simple-table>
             <ng-template #date_template let-date="data">
                 <div
@@ -392,11 +400,18 @@ import { DesksStateService } from './desks-state.service';
                 class="absolute top-1/2 -right-2 -translate-y-1/2"
                 [disabled]="state_loading()"
                 [matTooltip]="'COMMON.REFRESH' | translate"
+                data-shortcut="refresh"
                 (click)="refresh()"
             >
                 <icon>refresh</icon>
             </button>
         </div>
+        <booking-approval-bar
+            [count]="selected().length"
+            [busy]="!!loading()"
+            (setApproval)="setApproval($event)"
+            (clear)="selected.set([])"
+        />
     `,
     styles: [
         `
@@ -418,6 +433,7 @@ import { DesksStateService } from './desks-state.service';
         MatTooltipModule,
         SimpleTableComponent,
         UserPipe,
+        BookingApprovalBarComponent,
     ],
 })
 export class DeskBookingsComponent implements OnInit {
@@ -451,6 +467,8 @@ export class DeskBookingsComponent implements OnInit {
     public readonly last_updated = this._state.last_updated;
     public readonly state_loading = this._state.loading;
     public readonly refresh = () => this._state.refresh();
+    public readonly load_error = this._state.load_error;
+    public readonly retryLoad = this.refresh;
 
     public ngOnInit() {
         this._state.refresh();
@@ -471,6 +489,20 @@ export class DeskBookingsComponent implements OnInit {
 
     public readonly isRejected = isDeskBookingRejected;
     public readonly canChangeBooking = canChangeDeskBooking;
+    public readonly rowKey = bookingRowKey;
+    /** Whether rows can be selected for bulk approval */
+    public readonly bulk_actions = settingSignal('bulk_actions', false);
+    /** Row keys of the selected bookings */
+    public readonly selected = signal<string[]>([]);
+
+    /** Approve or reject the selected bookings */
+    public setApproval(approve: boolean) {
+        const list = selectedBookings(this.bookings(), this.selected());
+        return this.runMethod('bulk', async () => {
+            const done = await this._state.setBookingsApproval(list, approve);
+            if (done) this.selected.set([]);
+        });
+    }
     public readonly checkin = (d: Booking, s = true) =>
         this.runMethod('checkin', async () => this._state.checkinDesk(d, s));
     public readonly approve = (d) =>

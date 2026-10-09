@@ -240,7 +240,18 @@ Plug your laptop into the HDMI to stream it to the screen, or access the CMS to 
      * Predominantly intended for outputs that support more than one simultaneous input source
      * (mixed audio zone, or display capable of compositing multiple video sources).
      **/
-    $unroute() {}
+    $unroute(output: string) {
+        const input = this.output_list[output]?.source;
+        if (!input) return;
+        if (this.input_list[input]) {
+            this.$updateState(input, {
+                routes: (this.input_list[input].routes || []).filter(
+                    (_) => _ !== output,
+                ),
+            });
+        }
+        this.$updateState(output, { source: '', following: '' });
+    }
     /**
      * Establish a call (either phone or video) with a remote participant.
      * This may be a peer-to-peer connection or a wider group via an external bridging service.
@@ -280,12 +291,16 @@ Plug your laptop into the HDMI to stream it to the screen, or access the CMS to 
      * output node.
      **/
     $volume(value: number, source: string = 'all') {
-        if (source === 'all') {
+        if (source === 'all' || source === this.outputs[0]) {
             this.volume = value;
         }
+        this.$updateState(source, { volume: value });
     }
     /** Interact with audio muting on supporting signal nodes within the space. */
     $mute(state: boolean = true, source: string = 'all') {
+        if (source === 'all' || source === this.outputs[0]) {
+            this.mute = state;
+        }
         this.$updateState(source, { mute: state });
     }
     /**

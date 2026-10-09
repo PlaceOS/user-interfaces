@@ -15,6 +15,7 @@ import {
     PlaceModuleBinding,
     PlaceSystem,
     showSystem,
+    status as websocketStatus,
 } from '@placeos/ts-client';
 
 import {
@@ -29,7 +30,7 @@ import {
     Space,
     timePeriodsIntersect,
 } from '@placeos/common';
-import { EventFormService, SpacesService } from '@placeos/events';
+import { EventFormService, SpacesService, updateEvent } from '@placeos/events';
 
 import { openConfirmModal } from '@placeos/components';
 import { SpacePipe } from '@placeos/events';
@@ -41,6 +42,7 @@ import {
     isBefore,
     startOfMinute,
 } from 'date-fns';
+import { canExtend, EXTEND_MINUTES, freeMinutes } from './new-panel/helpers';
 import { openBookingModal } from './overlays/booking-modal.component';
 import { EmbeddedControlModalComponent } from './overlays/embedded-control-modal.component';
 
@@ -50,6 +52,24 @@ export type PanelTimelinePosition =
     | 'bottom'
     | 'floating-left'
     | 'floating-bottom';
+
+/**
+ * Opt-in panel features. Enable them with the `features` app setting.
+ * All features are off by default.
+ */
+export type PanelFeature =
+    | 'checkin_countdown'
+    | 'connection_badge'
+    | 'quick_book'
+    | 'extend_meeting'
+    | 'ending_warning'
+    | 'presence_status'
+    | 'presence_release'
+    | 'timeline_booking'
+    | 'room_services'
+    | 'hide_version'
+    | 'night_mode'
+    | 'burn_in_protection';
 
 export interface PanelSettings {
     /** Name of the room */
@@ -72,10 +92,12 @@ export interface PanelSettings {
     min_duration?: number;
     /** Maximum duration for a booking */
     max_duration?: number;
-    /** Duration in seconds after the start with which to cancel pending bookings */
+    /** Duration in minutes after the start with which to cancel pending bookings */
     pending_period?: number;
     /** Whether user is allowed to interact with the interface */
     disable_book_now?: boolean;
+    /** Whether users are blocked from booking on the QR checkin view */
+    disable_qr_booking?: boolean;
     /** URL to the control UI for this space */
     control_ui?: string;
     /** URI to the catering UI for this space */
@@ -150,6 +172,12 @@ export class PanelStateService extends AsyncHandler {
     private _system = signal<string>('');
     private _clock = signal(Date.now());
     private _load_id = 0;
+    /** Current time. Updates every 5 seconds */
+    public readonly clock = this._clock.asReadonly();
+    /** Whether the websocket to the PlaceOS backend is connected */
+    public readonly connected = signal(true);
+    /** Time the websocket disconnected. `0` while connected */
+    public readonly offline_since = signal(0);
     private _bound_system = '';
     /** Mapping of current settings for the active system */
     public readonly settings = this._settings.asReadonly();
@@ -167,6 +195,18 @@ export class PanelStateService extends AsyncHandler {
 
     public setting<K extends keyof PanelSettings>(name: K): PanelSettings[K] {
         return this._settings()[name];
+    }
+
+    /** Value of the app setting `app.<key>` */
+    public appSetting<T>(key: string): T | undefined {
+        return this._app_settings.get(`app.${key}`);
+    }
+
+    /** Whether the given opt-in feature is enabled in the app settings */
+    public hasFeature(feature: PanelFeature) {
+        const features: PanelFeature[] =
+            this._app_settings.get('app.features') || [];
+        return features.includes(feature);
     }
     /** List of current bookings for active system */
     public readonly bookings = signal<CalendarEvent[]>([]);
@@ -219,6 +259,7 @@ export class PanelStateService extends AsyncHandler {
             'custom_qr_url',
             'custom_qr_color',
             'disable_book_now',
+            'disable_qr_booking',
             'hide_meeting_details',
             'hide_meeting_title',
             'disable_book_now_host',
@@ -276,14 +317,44 @@ export class PanelStateService extends AsyncHandler {
         ) {
             return;
         }
+        if (this._isUnattended(current)) {
+            this.endCurrent('No presence detected.').catch((e) =>
+                log('Panel', 'Error releasing empty meeting:', e, 'error'),
+            );
+            return;
+        }
         const pending_period = this.setting('pending_period');
         if (!pending_period || pending_period < 1) return;
         const diff = differenceInMinutes(Date.now(), current.date);
         if (diff <= pending_period) return;
-        this.endCurrent('Pending period expired.');
+        this.endCurrent('Pending period expired.').catch((e) =>
+            log('Panel', 'Error auto-ending pending meeting:', e, 'error'),
+        );
+    }
+
+    /**
+     * Whether a pending booking has had no presence detected for
+     * `presence_release_after` minutes (default 5) since it started.
+     * Needs the `presence_release` feature.
+     */
+    private _isUnattended(current: CalendarEvent) {
+        if (!this.hasFeature('presence_release')) return false;
+        if (this.setting('presence') !== false) return false;
+        const after: number =
+            this._app_settings.get('app.presence_release_after') ?? 5;
+        return differenceInMinutes(Date.now(), current.date) >= after;
     }
 
     private async _init() {
+        this.subscription(
+            'websocket-status',
+            websocketStatus().subscribe((online) => {
+                this.connected.set(online);
+                if (online) this.offline_since.set(0);
+                else if (!this.offline_since())
+                    this.offline_since.set(Date.now());
+            }),
+        );
         await this._org.waitUntilInitialised();
         if (this._app_settings.get('app.refresh_when_websocket_unstable')) {
             let count = 0;
@@ -358,6 +429,10 @@ export class PanelStateService extends AsyncHandler {
             const diff = Math.abs(differenceInMinutes(next.date, date));
             const max = this._settings().max_duration || 480;
             max_duration = diff < max ? diff : max;
+        } else if (future) {
+            const max = this._settings().max_duration || 480;
+            const free = freeMinutes(this.bookings(), date, max);
+            if (free < max) max_duration = free;
         }
         if (max_duration != null && max_duration < 15) {
             return notifyError(
@@ -390,26 +465,21 @@ export class PanelStateService extends AsyncHandler {
             this._dialog,
         );
         if (details.reason !== 'done') return details.close();
-        this._events.newForm();
-        this._events.model.update((m) => ({
-            ...m,
+        const booking: Partial<CalendarEvent> = {
             ...details.metadata,
             host: details.metadata.organiser?.email,
             resources: [space],
             system: space,
-        }));
-        await this.makeBooking(
-            this._events.model() as Partial<CalendarEvent>,
-            force_api,
-        ).catch((e) => {
+        };
+        try {
+            await this.makeBooking(booking, force_api);
+        } catch (e) {
             notifyError(`Error creating meeting. ${e}`);
-            this._events.clearForm();
-            details.close();
             throw e;
-        });
-        this._events.clearForm();
-        details.close();
-        this.clearTimeout('reset_view');
+        } finally {
+            details.close();
+            this.clearTimeout('reset_view');
+        }
     }
 
     public async confirmBookNow() {
@@ -468,6 +538,46 @@ export class PanelStateService extends AsyncHandler {
     }
 
     /**
+     * Book the room from now for `minutes` without the booking form.
+     * The signed-in user is the host.
+     */
+    public async quickBook(minutes: number) {
+        const max = this._settings().max_duration || 480;
+        const free = freeMinutes(this.bookings(), Date.now(), max);
+        if (this._current() || minutes > free) {
+            return notifyError('Booking already exists for this time');
+        }
+        await this.makeBooking({
+            date: Date.now(),
+            duration: minutes,
+            title: this._settings().default_title || 'Ad-Hoc Panel Booking',
+            host: currentUser()?.email,
+        });
+    }
+
+    /**
+     * Extend the current booking with the staff API.
+     * Fails when the extra time clashes with another booking.
+     */
+    public async extendMeeting(minutes = EXTEND_MINUTES) {
+        const current = this._current();
+        if (!current?.id) return;
+        if (!canExtend(current, this.bookings(), minutes)) {
+            return notifyError('Unable to extend. The room is booked after.');
+        }
+        try {
+            await updateEvent(
+                current.id,
+                { ...current, event_end: current.event_end + minutes * 60 },
+                { system_id: this.system },
+            );
+            notifySuccess(`Extended meeting by ${minutes} minutes.`);
+        } catch (e) {
+            notifyError(`Error extending meeting. ${e}`);
+        }
+    }
+
+    /**
      * Create new booking with the given details
      * @param details
      */
@@ -476,7 +586,21 @@ export class PanelStateService extends AsyncHandler {
         force_api = false,
     ) {
         if (isAfter(details.date, addMinutes(Date.now(), 5)) || force_api) {
-            await this._events.postForm(true);
+            // The shared form starts staff API queries. Driver bookings do
+            // not need them, and their auth errors can redirect API key panels.
+            this._events.newForm();
+            // newForm() sets a default end time, which takes precedence over
+            // duration when saving. Replace it so the event ends on time.
+            this._events.model.update((m) => ({
+                ...m,
+                ...details,
+                date_end: addMinutes(details.date, details.duration).valueOf(),
+            }));
+            try {
+                await this._events.postForm(true);
+            } finally {
+                this._events.clearForm();
+            }
         } else {
             const module = getModule(this.system, 'Bookings');
             if (!details || !module) return;
@@ -506,7 +630,7 @@ export class PanelStateService extends AsyncHandler {
             {
                 title: 'Do you wish to start your meeting?',
                 content: `If you don't start your meeting it will be cancelled ${
-                    this._settings().pending_period / 60
+                    this._settings().pending_period
                 } minutes after the start time.`,
                 icon: {
                     class: 'material-symbols-rounded',
@@ -532,9 +656,11 @@ export class PanelStateService extends AsyncHandler {
         const meeting = this._current() || this._next();
         const mod = getModule(this.system, 'Bookings');
         if (!meeting || !mod) return;
-        await mod
-            .execute('start_meeting', [getUnixTime(meeting.date)])
-            .catch((e) => notifyError(`Error starting meeting. ${e}`));
+        try {
+            await mod.execute('start_meeting', [getUnixTime(meeting.date)]);
+        } catch (e) {
+            return notifyError(`Error starting meeting. ${e}`);
+        }
         this.updateProperty('status', 'busy');
     }
 
@@ -561,37 +687,38 @@ export class PanelStateService extends AsyncHandler {
         );
         if (details.reason !== 'done') return;
         details.loading('Ending Meeting...');
-        await this.endCurrent().catch();
+        await this.endCurrent().catch((e) =>
+            notifyError(`Error ending meeting. ${e?.message || e}`),
+        );
         details.close();
         this.clearTimeout('reset_view');
     }
 
     /**
-     * End the current meeting
+     * End the current meeting. Rejects when the driver call fails.
      * @param reason Reason for ending the meeting early
      */
     public async endCurrent(reason = 'user_input') {
         const current = this._current();
         const module = getModule(this.system, 'Bookings');
-        if (current && module) {
-            await module
-                .execute('end_meeting', [
-                    getUnixTime(current.date),
-                    true,
-                    reason,
-                ])
-                .catch((e) => {
-                    // notifyError(
-                    //     `Error ending meeting. ${e.message || e.error || e}`
-                    // )
-                });
-        }
+        if (!current || !module) return;
+        await module.execute('end_meeting', [
+            getUnixTime(current.date),
+            true,
+            reason,
+        ]);
     }
-    /**
-     * Open confirmation modal for calling waiter
-     */
-    public async viewControl() {
-        const control_url = this._settings().control_ui;
+    /** Open the room control UI in an embedded modal */
+    public viewControl() {
+        this._openEmbedded(this._settings().control_ui);
+    }
+
+    /** Open the catering UI in an embedded modal */
+    public viewCatering() {
+        this._openEmbedded(this._settings().catering_ui);
+    }
+
+    private _openEmbedded(control_url?: string) {
         if (!control_url) return;
         this._dialog.open(EmbeddedControlModalComponent, {
             data: { control_url },

@@ -5,7 +5,7 @@ import {
     type Signal,
     type WritableSignal,
 } from '@angular/core';
-import { FormGroup } from '@angular/forms';
+import type { AbstractControl, FormGroup } from '@angular/forms';
 import { Signal as TSSignal } from '@placeos/ts-client';
 import {
     addDays,
@@ -451,6 +451,18 @@ export function is24HourTime(): boolean {
     return localeString.indexOf('am') < 0 && localeString.indexOf('pm') < 0;
 }
 
+/**
+ * Structural `instanceof FormGroup` check, so this file does not load
+ * `@angular/forms` into every app's initial bundle. A `FormArray` has an
+ * array of controls and is not treated as a group.
+ */
+function isFormGroup(control: AbstractControl): control is FormGroup {
+    const controls = (control as FormGroup).controls;
+    return (
+        !!controls && typeof controls === 'object' && !Array.isArray(controls)
+    );
+}
+
 export function getInvalidFields(
     form: FormGroup,
     mappings: Record<string, string> = {},
@@ -458,7 +470,7 @@ export function getInvalidFields(
 ) {
     let invalid = [];
     for (const key in form.controls) {
-        if (form.controls[key] instanceof FormGroup) {
+        if (isFormGroup(form.controls[key])) {
             invalid = [
                 ...invalid,
                 ...getInvalidFields(

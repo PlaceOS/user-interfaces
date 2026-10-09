@@ -1,8 +1,11 @@
-import { signal } from '@angular/core';
+import { NO_ERRORS_SCHEMA, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { SignagePlaylistItemSchedule } from '@placeos/ts-client';
+import { SignageMediaService } from '../../app/media/signage-media.service';
+import { PlaylistActionsComponent } from '../../app/playlists/playlist-actions.component';
 import { PlaylistItemsComponent } from '../../app/playlists/playlist-items.component';
-import { SignageService } from '../../app/signage.service';
+import { SignagePlaylistService } from '../../app/playlists/signage-playlist.service';
+import { SignageContextService } from '../../app/signage-context.service';
 
 function media(id: string, media_type = 'image') {
     return { id, name: id, media_type } as any;
@@ -20,43 +23,41 @@ describe('PlaylistItemsComponent', () => {
         [],
     );
     const can_update = signal(true);
+    const playlist_media_loading = signal(false);
+    const playlist_media_error = signal(false);
+    const reload_media = vi.fn();
     const reorder = vi.fn();
     const remove_media = vi.fn().mockResolvedValue(undefined);
     const remove_media_items = vi.fn().mockResolvedValue(true);
     const edit_item_schedules = vi.fn().mockResolvedValue(true);
     const preview_media = vi.fn();
 
-    const service_stub = {
+    const context_stub = { can_update };
+    const media_stub = { previewMedia: preview_media };
+    const playlist_stub = {
         selected_playlist,
         selected_playlist_item,
         selected_playlist_item_index,
-        selected_playlist_requires_approval: signal(false),
-        can_approve: signal(false),
-        can_update,
-        can_delete: signal(true),
-        can_share: signal(true),
-        playlist_media_loading: signal(false),
-        playlist_approval_request_loading: signal(false),
+        playlist_media_loading,
+        playlist_media_error,
+        reloadPlaylistMedia: reload_media,
         playlist_media_items,
         playlist_item_schedules,
         playlist_item_schedule_list,
         reorderPlaylistMedia: reorder,
         removeMediaFromPlaylist: remove_media,
         removeMediaItemsFromPlaylist: remove_media_items,
-        previewMedia: preview_media,
-        editPlaylistItemSchedule: vi.fn(),
         editPlaylistItemSchedules: edit_item_schedules,
-        editPlaylist: vi.fn(),
-        removePlaylist: vi.fn(),
-        approvePlaylist: vi.fn(),
-        requestPlaylistApproval: vi.fn(),
-        sharePlaylist: vi.fn(),
     };
 
     async function make() {
         await TestBed.configureTestingModule({
             imports: [PlaylistItemsComponent],
-            providers: [{ provide: SignageService, useValue: service_stub }],
+            providers: [
+                { provide: SignageContextService, useValue: context_stub },
+                { provide: SignageMediaService, useValue: media_stub },
+                { provide: SignagePlaylistService, useValue: playlist_stub },
+            ],
         })
             .overrideComponent(PlaylistItemsComponent, {
                 set: { template: '' },
@@ -75,6 +76,37 @@ describe('PlaylistItemsComponent', () => {
         playlist_item_schedules.set(new Map());
         playlist_item_schedule_list.set([]);
         can_update.set(true);
+        playlist_media_loading.set(false);
+        playlist_media_error.set(false);
+    });
+
+    /** Render the real template, without the playlist action buttons */
+    async function render() {
+        await TestBed.configureTestingModule({
+            imports: [PlaylistItemsComponent],
+            providers: [
+                { provide: SignageContextService, useValue: context_stub },
+                { provide: SignageMediaService, useValue: media_stub },
+                { provide: SignagePlaylistService, useValue: playlist_stub },
+            ],
+        })
+            .overrideComponent(PlaylistItemsComponent, {
+                remove: { imports: [PlaylistActionsComponent] },
+                add: { schemas: [NO_ERRORS_SCHEMA] },
+            })
+            .compileComponents();
+        const fixture = TestBed.createComponent(PlaylistItemsComponent);
+        fixture.detectChanges();
+        return fixture;
+    }
+
+    it('keeps the items on screen while they reload', async () => {
+        const component = await make();
+        playlist_media_loading.set(true);
+        expect(component.loading()).toBe(true);
+
+        playlist_media_items.set([media('a')]);
+        expect(component.loading()).toBe(false);
     });
 
     it('selects an item through the shared service signal', async () => {
@@ -198,6 +230,78 @@ describe('PlaylistItemsComponent', () => {
         await component.onDrop({ previousIndex: 0, currentIndex: 2 } as any);
 
         expect(reorder).toHaveBeenCalledWith('pl-1', ['b', 'c', 'a']);
+    });
+
+    it('moves an item one place for keyboard users', async () => {
+        playlist_media_items.set([media('a'), media('b'), media('c')]);
+        selected_playlist.set({ id: 'pl-1' });
+        const component = await make();
+
+        await component.moveItem(1, -1);
+        expect(reorder).toHaveBeenLastCalledWith('pl-1', ['b', 'a', 'c']);
+
+        await component.moveItem(1, 1);
+        expect(reorder).toHaveBeenLastCalledWith('pl-1', ['a', 'c', 'b']);
+
+        reorder.mockClear();
+        await component.moveItem(0, -1);
+        await component.moveItem(2, 1);
+        expect(reorder).not.toHaveBeenCalled();
+    });
+
+    it('renders items as list items', async () => {
+        playlist_media_items.set([media('a'), media('b')]);
+        selected_playlist.set({ id: 'pl-1' });
+        const fixture = await render();
+        const element: HTMLElement = fixture.nativeElement;
+
+        const list = element.querySelector('[role="list"]');
+        expect(list?.children).toHaveLength(2);
+        for (const child of Array.from(list?.children || [])) {
+            expect(child.getAttribute('role')).toBe('listitem');
+        }
+    });
+
+    it('leaves Enter and Space to the controls inside a row', async () => {
+        const item = media('a');
+        playlist_media_items.set([item]);
+        selected_playlist.set({ id: 'pl-1' });
+        const fixture = await render();
+        const element: HTMLElement = fixture.nativeElement;
+        const press = (target: Element, key: string) => {
+            const event = new KeyboardEvent('keydown', {
+                key,
+                bubbles: true,
+                cancelable: true,
+            });
+            target.dispatchEvent(event);
+            return event;
+        };
+
+        // A default action that is not prevented lets the browser click
+        // the actions button, which opens the menu, or toggle the checkbox
+        const menu_trigger = element.querySelector('.mat-mdc-menu-trigger');
+        expect(press(menu_trigger, 'Enter').defaultPrevented).toBe(false);
+        const checkbox = element.querySelector('mat-checkbox input');
+        expect(press(checkbox, ' ').defaultPrevented).toBe(false);
+        expect(selected_playlist_item()).toBeNull();
+
+        const row = element.querySelector('[role="button"]');
+        expect(press(row, 'Enter').defaultPrevented).toBe(true);
+        expect(selected_playlist_item()).toBe(item);
+    });
+
+    it('shows a load error with retry when the items fail to load', async () => {
+        selected_playlist.set({ id: 'pl-1' });
+        playlist_media_error.set(true);
+        const fixture = await render();
+        const element: HTMLElement = fixture.nativeElement;
+
+        expect(element.textContent).not.toContain('No items');
+        const retry =
+            element.querySelector<HTMLButtonElement>('load-error button');
+        retry?.click();
+        expect(reload_media).toHaveBeenCalled();
     });
 
     it('does not reorder distribution playlists or without update rights', async () => {

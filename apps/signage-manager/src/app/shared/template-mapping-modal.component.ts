@@ -109,7 +109,10 @@ interface TemplateMappingFormModel {
                         </label>
                         <mat-form-field appearance="outline" class="w-full">
                             <mat-select
-                                placeholder="Select a template"
+                                [placeholder]="
+                                    'SIGNAGE_MANAGER.TEMPLATE_REQUIRED'
+                                        | translate
+                                "
                                 [formField]="form_model.template_id"
                                 [attr.aria-label]="
                                     'SIGNAGE_MANAGER.SELECT_APPROVED_TEMPLATE'
@@ -254,13 +257,12 @@ export class TemplateMappingModalComponent {
                 notifySuccess(
                     i18n('SIGNAGE_MANAGER.SVC_TEMPLATE_MAPPING_SAVED'),
                 );
-            } catch (error) {
+            } catch {
                 this._dialog_ref.disableClose = false;
                 this.loading.set(false);
                 notifyError(
                     i18n('SIGNAGE_MANAGER.SVC_TEMPLATE_MAPPING_SAVE_ERROR'),
                 );
-                throw error;
             }
         });
     }

@@ -13,16 +13,12 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import { PlaceGroup } from '@placeos/ts-client';
-import { SignageService } from '../signage.service';
+import { groupHierarchy } from '../signage-context.service';
+import { SignageGroupAdminService } from './signage-group-admin.service';
 
-interface GroupTreeNode {
+/** Group in the flat tree, with its depth */
+interface GroupListRow {
     group: PlaceGroup;
-    children: GroupTreeNode[];
-    children_loaded: boolean;
-    children_loading: boolean;
-}
-
-interface GroupListRow extends GroupTreeNode {
     level: number;
 }
 
@@ -127,6 +123,7 @@ interface GroupListRow extends GroupTreeNode {
                         [dataSource]="visible_group_rows()"
                         [levelAccessor]="levelAccessor"
                         [trackBy]="trackByRow"
+                        [expansionKey]="expansionKey"
                     >
                         <cdk-tree-node
                             *cdkTreeNodeDef="let row"
@@ -153,6 +150,7 @@ interface GroupListRow extends GroupTreeNode {
                                 <button
                                     type="button"
                                     class="hover:bg-base-content/20 ml-1 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg transition-colors"
+                                    [attr.aria-expanded]="isExpanded(row.group)"
                                     [attr.aria-label]="
                                         (isExpanded(row.group)
                                             ? 'SIGNAGE_MANAGER.COLLAPSE_GROUP'
@@ -166,7 +164,10 @@ interface GroupListRow extends GroupTreeNode {
                                                   }
                                     "
                                     (click)="
-                                        onExpandedChange(row, !isExpanded(row));
+                                        setExpanded(
+                                            row.group,
+                                            !isExpanded(row.group)
+                                        );
                                         $event.stopPropagation()
                                     "
                                 >
@@ -205,11 +206,6 @@ interface GroupListRow extends GroupTreeNode {
                                                 {{ childCount(row.group) }}
                                             </span>
                                         }
-                                        @if (row.children_loading) {
-                                            <icon class="animate-spin text-lg"
-                                                >autorenew</icon
-                                            >
-                                        }
                                     </div>
                                     @if (row.group.description) {
                                         <div
@@ -230,6 +226,10 @@ interface GroupListRow extends GroupTreeNode {
                             </button>
                         </cdk-tree-node>
                     </cdk-tree>
+                } @else if (groups_failed()) {
+                    <div class="text-error p-6 text-center" role="alert">
+                        {{ 'SIGNAGE_MANAGER.GROUPS_LOAD_ERROR' | translate }}
+                    </div>
                 } @else {
                     <div class="p-6 text-center opacity-60">
                         {{ 'SIGNAGE_MANAGER.NO_MANAGEABLE_GROUPS' | translate }}
@@ -262,19 +262,24 @@ interface GroupListRow extends GroupTreeNode {
     ],
 })
 export class SignageGroupListComponent {
-    private readonly _service = inject(SignageService);
+    private readonly _group_admin = inject(SignageGroupAdminService);
 
-    public readonly groups = this._service.manageable_signage_groups;
-    public readonly root_groups = this._service.root_manageable_signage_groups;
-    public readonly selected_group = this._service.managed_group;
+    public readonly groups = this._group_admin.manageable_signage_groups;
+    public readonly groups_failed =
+        this._group_admin.manageable_signage_groups_failed;
+    public readonly selected_group = this._group_admin.managed_group;
     public readonly search = signal('');
-    public readonly expanded_groups = this._service.signage_group_tree_expanded;
-    public readonly tree_nodes = signal<GroupTreeNode[]>([]);
+    public readonly expanded_groups =
+        this._group_admin.signage_group_tree_expanded;
     public readonly show_search_results = computed(
         () => !!this.search().trim(),
     );
     public readonly levelAccessor = (row: GroupListRow) => row.level;
     public readonly trackByRow = (_: number, row: GroupListRow) => row.group.id;
+    // The tree caches levels by this key. Rows are new objects on every
+    // rebuild, so keying by object would lose the level of reused rows.
+    public readonly expansionKey = (row: GroupListRow) => row.group.id;
+    /** Child groups of each group, sorted by name */
     public readonly child_lookup = computed(() => {
         const lookup: Record<string, PlaceGroup[]> = {};
         for (const group of this.groups()) {
@@ -298,238 +303,70 @@ export class SignageGroupListComponent {
                 group.id.toLowerCase().includes(search),
         );
     });
+    /**
+     * Rows of the group tree, built from the full list of manageable groups.
+     * Groups whose parent is not in the list are roots. Children show when
+     * their parent is expanded.
+     */
     public readonly visible_group_rows = computed(() => {
+        const groups = this.groups();
+        const lookup = this.child_lookup();
+        const expanded = this.expanded_groups();
+        const ids = new Set(groups.map(({ id }) => id));
         const rows: GroupListRow[] = [];
-        for (const node of this.tree_nodes()) {
-            this.flattenNode(node, 0, rows);
+        // Each group shows once, so a parent cycle cannot loop forever
+        const seen = new Set<string>();
+        const visit = (group: PlaceGroup, level: number) => {
+            if (seen.has(group.id)) return;
+            seen.add(group.id);
+            rows.push({ group, level });
+            if (!expanded[group.id]) return;
+            for (const child of lookup[group.id] || []) visit(child, level + 1);
+        };
+        for (const group of groups) {
+            if (!group.parent_id || !ids.has(group.parent_id)) visit(group, 0);
         }
         return rows;
     });
 
     constructor() {
+        // Open the branches down to the selected group, so it is visible
         effect(() => {
-            const root_groups = this.root_groups();
-            const existing_roots = untracked(() => this.tree_nodes());
-            this.tree_nodes.set(
-                root_groups.map((group) => {
-                    const existing = existing_roots.find(
-                        (node) => node.group.id === group.id,
-                    );
-                    return existing
-                        ? this.syncNode(existing)
-                        : this.createNode(group);
-                }),
-            );
-        });
-
-        effect(() => {
-            this.groups();
+            const groups = this.groups();
             const selected_group = this.selected_group();
             if (this.show_search_results() || !selected_group?.id) return;
-            untracked(() => this.syncSelectedPath(selected_group.id));
+            untracked(() => this._expandPath(selected_group, groups));
         });
     }
 
-    public onExpandedChange(node: GroupTreeNode, expanded: boolean) {
+    public setExpanded(group: PlaceGroup, expanded: boolean) {
         this.expanded_groups.update((state) => ({
             ...state,
-            [node.group.id]: expanded,
+            [group.id]: expanded,
         }));
-        if (
-            !expanded ||
-            this.hasLoadedChildren(node) ||
-            node.children_loading
-        ) {
-            return;
-        }
-        this.tree_nodes.update((nodes) =>
-            this.updateNode(nodes, node.group.id, (item) => ({
-                ...item,
-                children_loading: true,
-            })),
-        );
-        this.loadChildren(node.group.id);
     }
 
-    public isExpanded(group_or_node: GroupTreeNode | PlaceGroup | string) {
-        return !!this.expanded_groups()[this.getGroupId(group_or_node)];
+    public isExpanded(group: PlaceGroup) {
+        return !!this.expanded_groups()[group.id];
     }
 
-    public childCount(group_or_id: GroupTreeNode | PlaceGroup | string) {
-        if (
-            typeof group_or_id !== 'string' &&
-            'children_loaded' in group_or_id
-        ) {
-            if (group_or_id.children_loaded) return group_or_id.children.length;
-            group_or_id = group_or_id.group;
-        }
-        const group_id = this.getGroupId(group_or_id);
-        return (
-            this.child_lookup()[group_id]?.length ||
-            (typeof group_or_id === 'string'
-                ? 0
-                : group_or_id.children_count || 0)
-        );
+    public childCount(group: PlaceGroup) {
+        return this.child_lookup()[group.id]?.length || 0;
     }
 
     public selectGroup(group: PlaceGroup) {
-        this._service.managed_group_id.set(group.id);
+        this._group_admin.managed_group_id.set(group.id);
     }
 
-    private createNode(group: PlaceGroup): GroupTreeNode {
-        return {
-            group,
-            children: [],
-            children_loaded: false,
-            children_loading: false,
-        };
-    }
-
-    private async loadChildren(group_id: string) {
-        const children = await this._service
-            .groupChildren(group_id)
-            .catch(() => this.child_lookup()[group_id] || []);
-        this.applyLoadedChildren(group_id, children);
-    }
-
-    private applyLoadedChildren(group_id: string, children: PlaceGroup[]) {
-        this.tree_nodes.update((nodes) =>
-            this.updateNode(nodes, group_id, (item) => ({
-                ...item,
-                children_loaded: true,
-                children_loading: false,
-                children: children.map((group) => {
-                    const existing = item.children.find(
-                        (child) => child.group.id === group.id,
-                    );
-                    return existing
-                        ? this.syncNode(existing)
-                        : this.createNode(group);
-                }),
-            })),
-        );
-    }
-
-    private syncNode(node: GroupTreeNode): GroupTreeNode {
-        const group = this.findGroup(node.group.id) || node.group;
-        if (!node.children_loaded) return { ...node, group };
-        const children = node.children.map((child) => this.syncNode(child));
-        return { ...node, group, children };
-    }
-
-    private findGroup(group_id: string) {
-        return this.groups().find(({ id }) => id === group_id);
-    }
-
-    private getGroupPath(group_id: string) {
-        const groups = this.groups();
-        const root_ids = new Set(
-            this.tree_nodes().map(({ group }) => group.id),
-        );
-        if (!group_id || !root_ids.size) return [];
-        if (root_ids.has(group_id)) return [group_id];
-        const group_path = [group_id];
-        let current_group = groups.find((group) => group.id === group_id);
-        while (current_group?.parent_id) {
-            group_path.unshift(current_group.parent_id);
-            if (root_ids.has(current_group.parent_id)) {
-                return group_path;
-            }
-            current_group = groups.find(
-                (group) => group.id === current_group.parent_id,
-            );
-        }
-        return root_ids.has(group_path[0]) ? group_path : [];
-    }
-
-    private getExpansionPath(group_id: string) {
-        const group_path = this.getGroupPath(group_id);
-        if (!group_path.length) return [];
-        return this.childCount(group_id) > 0
-            ? group_path
-            : group_path.slice(0, -1);
-    }
-
-    private syncSelectedPath(group_id: string) {
-        this.ensureGroupPathLoaded(group_id);
-        this.expandGroupPath(group_id);
-    }
-
-    private ensureGroupPathLoaded(group_id: string) {
-        for (const current_group_id of this.getExpansionPath(group_id)) {
-            const node = this.findTreeNode(this.tree_nodes(), current_group_id);
-            if (node?.children_loaded) continue;
-            this.loadChildren(current_group_id);
-        }
-    }
-
-    private expandGroupPath(group_id: string) {
-        const expansion_path = this.getExpansionPath(group_id);
-        if (!expansion_path.length) return;
-        const state = untracked(() => this.expanded_groups());
-        let changed = false;
+    // Expands the ancestors of the group, and the group itself when it has
+    // children
+    private _expandPath(group: PlaceGroup, groups: PlaceGroup[]) {
+        const path = groupHierarchy(group, groups);
+        if (!this.childCount(group)) path.pop();
+        const state = this.expanded_groups();
+        if (path.every(({ id }) => state[id])) return;
         const next_state = { ...state };
-        for (const current_group_id of expansion_path) {
-            if (next_state[current_group_id]) continue;
-            next_state[current_group_id] = true;
-            changed = true;
-        }
-        if (changed) {
-            this.expanded_groups.set(next_state);
-        }
-    }
-
-    private getGroupId(group_or_node: GroupTreeNode | PlaceGroup | string) {
-        if (typeof group_or_node === 'string') return group_or_node;
-        return 'children_loaded' in group_or_node
-            ? group_or_node.group.id
-            : group_or_node.id;
-    }
-
-    private hasLoadedChildren(node: GroupTreeNode) {
-        return (
-            node.children_loaded &&
-            (node.children.length > 0 || this.childCount(node.group.id) === 0)
-        );
-    }
-
-    private findTreeNode(
-        nodes: GroupTreeNode[],
-        group_id: string,
-    ): GroupTreeNode | null {
-        for (const node of nodes) {
-            if (node.group.id === group_id) return node;
-            if (!node.children.length) continue;
-            const child_node = this.findTreeNode(node.children, group_id);
-            if (child_node) return child_node;
-        }
-        return null;
-    }
-
-    private updateNode(
-        nodes: GroupTreeNode[],
-        group_id: string,
-        callback: (node: GroupTreeNode) => GroupTreeNode,
-    ): GroupTreeNode[] {
-        return nodes.map((node) => {
-            if (node.group.id === group_id) return callback(node);
-            if (!node.children.length) return node;
-            return {
-                ...node,
-                children: this.updateNode(node.children, group_id, callback),
-            };
-        });
-    }
-
-    private flattenNode(
-        node: GroupTreeNode,
-        level: number,
-        flat_nodes: GroupListRow[],
-    ) {
-        flat_nodes.push({ ...node, level });
-        if (!this.isExpanded(node)) return;
-        for (const child of node.children) {
-            this.flattenNode(child, level + 1, flat_nodes);
-        }
+        for (const { id } of path) next_state[id] = true;
+        this.expanded_groups.set(next_state);
     }
 }

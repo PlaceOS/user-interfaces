@@ -416,8 +416,11 @@ export class DeskModalComponent implements OnInit {
 
     public async ngOnInit() {
         if (this.desk?.assigned_to) {
-            const user = await showStaff(this.desk.assigned_to);
+            const user = await showStaff(this.desk.assigned_to).catch(
+                () => null,
+            );
             if (user) {
+                this._user_loaded = true;
                 this.model.update((m) => ({
                     ...m,
                     assigned_user: user,
@@ -427,6 +430,9 @@ export class DeskModalComponent implements OnInit {
             }
         }
     }
+
+    /** True once the stored assignee was loaded into the search field. */
+    private _user_loaded = false;
 
     public clearUser() {
         this.model.update((m) => ({
@@ -446,10 +452,13 @@ export class DeskModalComponent implements OnInit {
             value.assigned_to = value.assigned_user?.email || value.assigned_to;
             value.assigned_name =
                 value.assigned_user?.name || value.assigned_name;
-        } else {
-            delete value.assigned_to;
-            delete value.assigned_name;
+        } else if (this._user_loaded) {
+            // The loaded assignee was removed from the search field.
+            value.assigned_to = '';
+            value.assigned_name = '';
         }
+        // Otherwise keep the stored assignee. The staff lookup may have
+        // failed or not finished, and that must not clear the assignment.
         delete value.assigned_user;
 
         this._dialog_ref.disableClose = true;
@@ -470,7 +479,7 @@ export class DeskModalComponent implements OnInit {
         const ref = this._dialog.open(SelectMapItemModalComponent, {
             data: {
                 location: this.model().map_id,
-                level_id: this.form,
+                level_id: this.model().zone_id || this.desk?.zone?.id,
             },
         });
         ref.afterClosed().subscribe((d) => {

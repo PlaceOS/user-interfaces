@@ -17,16 +17,42 @@ import { NativeDomainOverlayComponent } from './native-domain-overlay.component'
 import { ServiceWorkerUpdateCardComponent } from './service-worker-update-card.component';
 import { TranslatePipe } from './translate.pipe';
 
+/**
+ * Shows the native domain form when the app needs a domain. Only native apps
+ * without a domain need it, so its Material form fields load on demand. The
+ * defer block lives here so `GlobalLoadingComponent` stays easy to mock.
+ */
+@Component({
+    selector: 'native-domain-overlay-loader',
+    template: `
+        @if (show()) {
+            @defer (on immediate) {
+                <native-domain-overlay
+                    [serverError]="domain_error()"
+                    [autoAccept]="auto_confirm()"
+                    (domainSet)="onDomainSet()"
+                ></native-domain-overlay>
+            }
+        }
+    `,
+    imports: [NativeDomainOverlayComponent],
+})
+export class NativeDomainOverlayLoaderComponent {
+    private _placeos = inject(PlaceOS_Service);
+
+    public readonly show = needsNativeDomain();
+    public readonly domain_error = nativeDomainError();
+    public readonly auto_confirm = autoConfirmNativeDomain();
+
+    public onDomainSet(): void {
+        this._placeos.onNativeDomainSet();
+    }
+}
+
 @Component({
     selector: 'global-loading',
     template: `
-        @if (show_domain_overlay()) {
-            <native-domain-overlay
-                [serverError]="domain_error()"
-                [autoAccept]="auto_confirm()"
-                (domainSet)="onDomainSet()"
-            ></native-domain-overlay>
-        }
+        <native-domain-overlay-loader />
         @if (connection_checked() && !online()) {
             <div
                 class="bg-error fixed top-2 left-1/2 z-9999 -translate-x-1/2 rounded-3xl px-4 py-2 text-xs text-white shadow-sm"
@@ -90,30 +116,21 @@ import { TranslatePipe } from './translate.pipe';
     ],
     imports: [
         MatProgressBarModule,
-        NativeDomainOverlayComponent,
+        NativeDomainOverlayLoaderComponent,
         ServiceWorkerUpdateCardComponent,
         TranslatePipe,
     ],
 })
 export class GlobalLoadingComponent extends AsyncHandler implements OnInit {
-    private _placeos = inject(PlaceOS_Service);
-
     public readonly online = signal(true);
     public readonly connection_checked = signal(false);
     public readonly message = getLoadingMessage();
-    public readonly show_domain_overlay = needsNativeDomain();
-    public readonly domain_error = nativeDomainError();
-    public readonly auto_confirm = autoConfirmNativeDomain();
     public readonly initialisation_error = initialisationFailure();
     public readonly initialisation_complete = initialisationComplete();
     public readonly loading = computed(() => !this.initialisation_complete());
 
     public retry(): void {
         retryInitialisation();
-    }
-
-    public onDomainSet(): void {
-        this._placeos.onNativeDomainSet();
     }
 
     public ngOnInit() {

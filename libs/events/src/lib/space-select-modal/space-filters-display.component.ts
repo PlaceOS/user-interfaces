@@ -1,13 +1,5 @@
 import { CommonModule } from '@angular/common';
-import {
-    Component,
-    computed,
-    effect,
-    inject,
-    input,
-    output,
-    signal,
-} from '@angular/core';
+import { Component, computed, effect, inject, signal } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { OrganisationService, settingSignal } from '@placeos/common';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
@@ -100,15 +92,11 @@ import { EventFormService } from 'libs/events/src/lib/event-form.service';
 export class SpaceFiltersDisplayComponent {
     private _event_form = inject(EventFormService);
     private _org = inject(OrganisationService);
-    public readonly view = input<'map' | 'list'>('list');
-    public readonly viewChange = output<'map' | 'list'>();
     public readonly options = this._event_form.options;
     public readonly filters = this._event_form.filters;
     public readonly location = signal('');
 
-    public readonly all_day = computed(
-        () => this._event_form.model().all_day,
-    );
+    public readonly all_day = computed(() => this._event_form.model().all_day);
 
     public readonly start = computed(() => this._event_form.model().date);
 

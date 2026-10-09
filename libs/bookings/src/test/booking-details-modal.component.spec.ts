@@ -93,6 +93,11 @@ describe('BookingDetailsModalComponent', () => {
 
     it('should show title', () => expect('[title]').toExist());
 
+    const hasMenuTrigger = () =>
+        spectator
+            .queryAll('[actions] button')
+            .some((_) => _.textContent?.includes('more_horiz'));
+
     it('should not delete ended bookings', () => {
         const booking = new Booking({
             id: 'booking-1',
@@ -127,6 +132,36 @@ describe('BookingDetailsModalComponent', () => {
         spectator.component.remove(booking, false);
 
         expect(remove_fn).not.toHaveBeenCalled();
+    });
+
+    it('should hide the action menu for a booking checked in before its start', () => {
+        const booking = new Booking({
+            id: 'desk-booking-1',
+            booking_type: 'desk',
+            type: 'desk',
+            asset_id: 'desk-1',
+            checked_in: true,
+            date: Date.now() + 10 * 60 * 1000,
+            duration: 60,
+            status: 'approved',
+        } as any);
+        spectator.component.booking.set(booking);
+        spectator.detectChanges();
+
+        expect('[actions]').toExist();
+        expect(spectator.component.has_menu_actions()).toBe(false);
+        expect(hasMenuTrigger()).toBe(false);
+
+        spectator.component.booking.set(
+            new Booking({
+                ...booking.toJSON(),
+                date: Date.now() - 10 * 60 * 1000,
+            } as any),
+        );
+        spectator.detectChanges();
+
+        expect(spectator.component.has_menu_actions()).toBe(true);
+        expect(hasMenuTrigger()).toBe(true);
     });
 
     it('should allow cancelling a visitor booking before check-in', () => {

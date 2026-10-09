@@ -17,6 +17,7 @@ describe('RoomListComponent', () => {
         component: RoomListComponent,
         providers: [
             MockProvider(RoomManagementService, {
+                load_error: signal(false),
                 filtered_rooms: signal([]),
                 editRoom: vi.fn(),
                 setRoomAlert: vi.fn(),

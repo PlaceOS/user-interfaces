@@ -1,13 +1,21 @@
+import { MediaAnimation } from '@placeos/ts-client';
 import { getUnixTime } from 'date-fns';
 import {
     createScheduleMaskFilter,
+    mediaAnimation,
+    playEndTime,
+    playlistAnimation,
     playlistItemScheduleMap,
+    playlistLoopDuration,
     playlistMediaIds,
     playlistMediaItems,
+    playlistNextPlayLabels,
     playlistScheduleExpiryLabel,
     playlistScheduleExpiryTooltip,
     playlistScheduleLabel,
     playlistScheduleNextPlayLabels,
+    playlistStatus,
+    playOnceStart,
 } from '../app/signage-playlist.util';
 
 describe('signage playlist util', () => {
@@ -81,6 +89,33 @@ describe('signage playlist util', () => {
         expect(label).toContain('Plays once on');
         expect(label).toContain(play_at.toLocaleString());
         expect(label).toContain('for 30 minutes');
+    });
+
+    it('labels a local one-off schedule in the viewer timezone', () => {
+        const label = playlistScheduleLabel({
+            play_at_local: '2026-03-02T09:30:00',
+            // The API always sends a fallback cron with one-off schedules.
+            play_cron: '0 0 * * *',
+            play_period: 30,
+        });
+
+        expect(label).toContain(
+            `Plays once on ${new Date(2026, 2, 2, 9, 30).toLocaleString()} display local time`,
+        );
+    });
+
+    it('reads play_at_local only as a date time with no offset', () => {
+        expect(playOnceStart({ play_at_local: '2027-01-01T00:00:00' })).toEqual(
+            new Date(2027, 0, 1),
+        );
+        for (const value of [
+            '2027-01-01T00:00:00Z',
+            '2027-01-01T00:00',
+            '2027-02-30T00:00:00',
+            '2027-01-01T00:60:00',
+        ]) {
+            expect(playOnceStart({ play_at_local: value })).toBeNull();
+        }
     });
 
     it('labels cron schedules like playlist details', () => {
@@ -163,6 +198,43 @@ describe('signage playlist util', () => {
         });
 
         expect(labels).toEqual([]);
+    });
+});
+
+describe('play end times across a daylight saving change', () => {
+    const original_timezone = process.env.TZ;
+    // Pin the zone so the result does not depend on the machine
+    beforeAll(() => (process.env.TZ = 'Australia/Sydney'));
+    afterAll(() => {
+        if (original_timezone === undefined) delete process.env.TZ;
+        else process.env.TZ = original_timezone;
+    });
+
+    // Sydney clocks go from 02:00 to 03:00 on 4 October 2026. A 4 hour play
+    // from 22:00 ends when the clocks change, so its last second is 01:59:59.
+    // Adding clock time instead showed 03:59.
+    it('adds elapsed time to the start', () => {
+        const start = new Date('2026-10-03T12:00:00Z');
+
+        expect(playEndTime(start, 240).toISOString()).toBe(
+            '2026-10-03T15:59:59.000Z',
+        );
+        expect(playEndTime(start, 0)).toEqual(start);
+    });
+
+    it('labels the end of a play that crosses the change', () => {
+        const [label] = playlistNextPlayLabels(
+            [{ play_cron: '0 22 * * *', play_period: 240 }],
+            1,
+            Date.parse('2026-10-03T00:00:00Z'),
+        );
+        const end = new Date('2026-10-03T15:59:59Z').toLocaleTimeString(
+            undefined,
+            { hour: 'numeric', minute: '2-digit' },
+        );
+
+        expect(label.endsWith(end)).toBe(true);
+        expect(label).toContain('1:59');
     });
 });
 
@@ -254,5 +326,111 @@ describe('schedule masks', () => {
         expect(allows(new Date('2026-03-07T07:30:00Z'))).toBe(true);
         expect(allows(new Date('2026-03-09T06:30:00Z'))).toBe(false);
         expect(allows(new Date('2026-03-10T06:30:00Z'))).toBe(true);
+    });
+
+    it('sums loop time with the same fallbacks as the player', () => {
+        const items = [
+            { play_time: 10_000, video_length: 99_000 },
+            { play_time: 0, video_length: 42_000 },
+            { play_time: 0, video_length: 0 },
+        ];
+
+        expect(playlistLoopDuration(items, 20_000)).toBe(72_000);
+        expect(playlistLoopDuration(items)).toBe(67_000);
+    });
+});
+
+describe('playlist status', () => {
+    const now = Date.UTC(2026, 0, 10);
+    const seconds = (time: number) => Math.floor(time / 1000);
+    const day = 86_400_000;
+
+    it('marks a playlist expired when it or all its schedules have ended', () => {
+        expect(
+            playlistStatus(
+                { id: 'a', valid_until: seconds(now - day) },
+                {},
+                {},
+                now,
+            ),
+        ).toBe('expired');
+        expect(
+            playlistStatus(
+                {
+                    id: 'b',
+                    schedules: [{ valid_until: seconds(now - day) }],
+                },
+                {},
+                {},
+                now,
+            ),
+        ).toBe('expired');
+    });
+
+    it('marks a playlist pending before it starts', () => {
+        expect(
+            playlistStatus(
+                { id: 'a', valid_from: seconds(now + day) },
+                {},
+                {},
+                now,
+            ),
+        ).toBe('pending');
+    });
+
+    it('separates approval required from awaiting review', () => {
+        const approvals = { a: false, b: false, c: true };
+        const requests = { b: true };
+
+        expect(playlistStatus({ id: 'a' }, approvals, requests, now)).toBe(
+            'awaiting_approval',
+        );
+        expect(playlistStatus({ id: 'b' }, approvals, requests, now)).toBe(
+            'awaiting_review',
+        );
+        expect(playlistStatus({ id: 'c' }, approvals, requests, now)).toBe(
+            null,
+        );
+        expect(playlistStatus({ id: 'd' }, approvals, requests, now)).toBe(
+            null,
+        );
+    });
+});
+
+describe('media animation', () => {
+    it('maps a saved index to its animation', () => {
+        expect(mediaAnimation(0)).toBe(MediaAnimation.Default);
+        expect(mediaAnimation(2)).toBe(MediaAnimation.CrossFade);
+        expect(mediaAnimation(6)).toBe(MediaAnimation.SlideBottom);
+    });
+
+    it('keeps animation names', () => {
+        expect(mediaAnimation(MediaAnimation.SlideTop)).toBe(
+            MediaAnimation.SlideTop,
+        );
+    });
+
+    it('uses the default for an index out of range or no value', () => {
+        for (const value of [-1, 7, 1.5, Number.NaN, null, undefined]) {
+            expect(mediaAnimation(value)).toBe(MediaAnimation.Default);
+        }
+    });
+});
+
+describe('playlist animation', () => {
+    it('reads the cut that ts-client puts in place of index 0 as the default', () => {
+        expect(
+            playlistAnimation({ default_animation: MediaAnimation.Cut }),
+        ).toBe(MediaAnimation.Default);
+        expect(playlistAnimation({})).toBe(MediaAnimation.Default);
+    });
+
+    it('reads a saved cut and other indexes as their animation', () => {
+        expect(playlistAnimation({ default_animation: 1 })).toBe(
+            MediaAnimation.Cut,
+        );
+        expect(playlistAnimation({ default_animation: 2 })).toBe(
+            MediaAnimation.CrossFade,
+        );
     });
 });

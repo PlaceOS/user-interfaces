@@ -32,11 +32,13 @@ import {
     rulesForResource,
     SettingsService,
     StaffUser,
+    user_group_names,
 } from '@placeos/common';
 import { BookingFormService } from 'libs/bookings/src/lib/booking-form.service';
 
 import { queryBookings } from 'libs/bookings/src/lib/bookings.fn';
 import { SetDatetimeModalComponent } from 'libs/explore/src/lib/set-datetime-modal.component';
+import { loadBookingRules } from './explore-booking-rules';
 import { ExploreDeskInfoComponent } from './explore-desk-info.component';
 import { ExploreDeviceInfoComponent } from './explore-device-info.component';
 import { DEFAULT_COLOURS } from './explore-spaces.service';
@@ -86,14 +88,7 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
 
     private _booking_rules = resource({
         params: () => this._building() || undefined,
-        loader: ({ params: bld }) =>
-            showMetadata(bld.id, `desk_booking_rules`)
-                .then((_) =>
-                    _?.details instanceof Array
-                        ? (_.details as any as BookingRuleset[])
-                        : [],
-                )
-                .catch(() => [] as BookingRuleset[]),
+        loader: ({ params: bld }) => loadBookingRules(bld.id, 'desk'),
     });
     public readonly booking_rules = computed<BookingRuleset[]>(
         () => this._booking_rules.value() ?? [],
@@ -172,6 +167,7 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
             const signs = this._signs_of_life();
             const restrictions = this.booking_rules();
             this._options();
+            user_group_names();
             this.timeout(
                 'state_change',
                 () =>

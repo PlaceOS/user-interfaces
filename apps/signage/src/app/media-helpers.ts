@@ -1,4 +1,21 @@
+import { MediaAnimation } from '@placeos/ts-client';
 import { MediaPlayerItem } from './types';
+
+/** The API returns animation indexes as well as names. */
+export function mediaAnimation(value: unknown): MediaAnimation {
+    const animations = Object.values(MediaAnimation);
+    if (typeof value === 'number') {
+        return Number.isInteger(value) &&
+            value >= 0 &&
+            value < animations.length
+            ? animations[value]
+            : MediaAnimation.Default;
+    }
+    return (
+        animations.find((animation) => animation === value) ||
+        MediaAnimation.Default
+    );
+}
 
 let _time_override = 0;
 let _time_anchor: number | null = null;
@@ -25,6 +42,18 @@ export function mockTimeState() {
     };
 }
 
+/**
+ * Whether an item can play now. Use this rather than `validateMedia` where only
+ * the answer is needed: it builds no message, so it is cheap in hot paths.
+ */
+export function isMediaValid(item: MediaPlayerItem, now = time()) {
+    if (!item?.id) return false;
+    if (item.valid_from && item.valid_from * 1000 > now) return false;
+    if (item.valid_until && item.valid_until * 1000 < now) return false;
+    return true;
+}
+
+/** Why an item cannot play now, for display. Empty when it can play. */
 export function validateMedia(item: MediaPlayerItem) {
     if (!item) return 'Invalid media: missing media data.';
     if (!item.id) return 'Invalid media: missing media ID.';
@@ -69,10 +98,7 @@ export function findValidPlaylistIndex(
     let index = start_index;
     let checked = 0;
     while (checked < playlist.length) {
-        if (
-            (include_start || checked > 0) &&
-            validateMedia(playlist[index]) === ''
-        ) {
+        if ((include_start || checked > 0) && isMediaValid(playlist[index])) {
             return index;
         }
         index = (index + step + playlist.length) % playlist.length;

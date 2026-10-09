@@ -182,11 +182,9 @@ export class SpaceDetailsComponent {
 
     public readonly space = input<Space>(undefined);
     public readonly fav = input(false);
-    public readonly active = input(false);
     public readonly hide_map = input(false);
     public readonly alert = input<[string, string]>(undefined);
 
-    public readonly activeChange = output<boolean>();
     public readonly close = output<void>();
     public readonly toggleFav = output<void>();
 

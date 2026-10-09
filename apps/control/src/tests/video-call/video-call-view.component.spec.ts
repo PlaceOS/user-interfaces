@@ -4,12 +4,13 @@ import {
     createRoutingFactory,
     SpectatorRouting,
 } from '@ngneat/spectator/vitest';
-import { MockComponent, MockPipe } from 'ng-mocks';
+import { MockComponent, MockPipe, MockProvider } from 'ng-mocks';
 
-import { TranslatePipe } from '@placeos/components';
+import { ChangelogService, TranslatePipe } from '@placeos/components';
 import { ControlStateService } from '../../app/control-state.service';
 import { ControlStatusBarComponent } from '../../app/status-bar.component';
 import { TopbarHeaderComponent } from '../../app/topbar-header.component';
+import { ControlConnectingComponent } from '../../app/ui/connecting.component';
 import { VideoCallPageComponent } from '../../app/video-call/video-call-page.component';
 import { ControlVideoCallViewComponent } from '../../app/video-call/video-call-view.component';
 
@@ -30,10 +31,17 @@ describe('ControlVideoCallViewComponent', () => {
             MockComponent(TopbarHeaderComponent),
             MockComponent(VideoCallPageComponent),
             MockComponent(ControlStatusBarComponent),
+            MockComponent(ControlConnectingComponent),
             MockPipe(TranslatePipe, (v) => v),
         ],
         imports: [MatProgressSpinnerModule],
-        providers: [{ provide: ControlStateService, useValue: state_mock }],
+        providers: [
+            { provide: ControlStateService, useValue: state_mock },
+            MockProvider(ChangelogService, {
+                available: signal(false).asReadonly(),
+                view: vi.fn(),
+            }),
+        ],
     });
 
     beforeEach(() => {
@@ -49,10 +57,10 @@ describe('ControlVideoCallViewComponent', () => {
     });
 
     it('should show the loader until the system is connected', () => {
-        expect('[name="loader"]').toExist();
+        expect('control-connecting').toExist();
         state_mock.system.set({ connected: true });
         spectator.detectChanges();
-        expect('[name="loader"]').not.toExist();
+        expect('control-connecting').not.toExist();
     });
 
     it('should show the splash screen and power on when tapped', () => {

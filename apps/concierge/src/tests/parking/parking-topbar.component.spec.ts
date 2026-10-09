@@ -11,9 +11,9 @@ import {
 import { OrganisationService, SettingsService } from '@placeos/common';
 import { MockComponent, MockProvider } from 'ng-mocks';
 
+import { DateOptionsComponent } from '@placeos/form-fields';
 import { ParkingStateService } from '../../app/parking/parking-state.service';
 import { ParkingTopbarComponent } from '../../app/parking/parking-topbar.component';
-import { DateOptionsComponent } from '../../app/ui/date-options.component';
 import { SearchbarComponent } from '../../app/ui/searchbar.component';
 
 describe('ParkingTopbarComponent', () => {

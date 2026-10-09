@@ -36,7 +36,7 @@ import { RoomManagementService } from './room-management.service';
             </h2>
             <div class="w-2 flex-1"></div>
             <searchbar (modelChange)="setSearch($event)"></searchbar>
-            <button btn (click)="newRoom()" class="w-40">
+            <button btn data-shortcut="new" (click)="newRoom()" class="w-40">
                 {{ 'APP.CONCIERGE.ROOMS_ADD' | translate }}
             </button>
         </div>

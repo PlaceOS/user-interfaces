@@ -59,6 +59,7 @@ Each locale entry requires an `id` and `name`:
 | `admin_group` | string | `"concierge_admins"` | Name of the user group that grants access to admin sections of the app. Members of `placeos_admin` and `placeos_support` are always allowed. |
 | `delegated` | boolean | `false` | Set when your PlaceOS instance uses delegated calendar access. Hides event actions from the event details view. |
 | `has_uploads` | boolean | `true` | Whether file upload support (S3/cloud storage) is available in the app. |
+| `bulk_actions` | boolean | `false` | Let staff select several rows and apply one action to all of them. Desk, parking and locker bookings, parking requests and asset requests get approve and reject actions. Catering orders get a status action. |
 
 ```json
 {
@@ -112,7 +113,7 @@ These act as fallbacks for the desk, parking and locker booking flows — a valu
 | `desks.use_assets` | boolean | `false` | Read and manage desk resources through the assets API. When `false`, Concierge uses the legacy `desks` zone metadata. |
 | `desks.can_book_for_others` | boolean | `true` | Allow concierge users to create desk bookings on behalf of other users. |
 | `desks.max_assigned_count` | number | `0` | Maximum number of desks that can be assigned to a single user. `0` for unlimited. |
-| `desks.hide_user_list_download` | boolean | `true` | Hide the desk booking user list download action on the desks view. |
+| `desks.hide_user_list_download` | boolean | `false` | Hide the desk booking user list download action on the desks view. |
 | `desks.default_duration` | number | – | Default duration in minutes for new desk bookings. Defaults to `60`. |
 | `desks.all_day_default` | boolean | – | Pre-select the all day option for new desk bookings. Falls back to `bookings.all_day_default`. |
 | `desks.allow_deleting` | boolean | – | Allow desk bookings to be deleted from the desk bookings list. Defaults to `false`. |

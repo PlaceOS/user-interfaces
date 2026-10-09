@@ -119,6 +119,40 @@ describe('PagedSearch', () => {
         expect(list.loading()).toBe(false);
     });
 
+    it('flags a failed first page and runs the query again on retry', async () => {
+        query.mockReturnValueOnce(Promise.reject(new Error('offline')));
+        const list = await make();
+        expect(list.error()).toBe(true);
+
+        list.retry();
+        await flush();
+
+        expect(query).toHaveBeenCalledTimes(2);
+        expect(query).toHaveBeenLastCalledWith('');
+        expect(list.error()).toBe(false);
+        expect(list.items().map((_) => _.id)).toEqual(['b', 'a']);
+    });
+
+    // The new term's search replaces the failed one, so a retry would only
+    // show matches for the old term under the new text
+    it('does not retry the old term while a new term waits', async () => {
+        query.mockReturnValueOnce(Promise.reject(new Error('offline')));
+        const list = await make();
+        query.mockReturnValue(Promise.resolve(pageOf(['lobby'], 1)));
+
+        list.search.set('lobby');
+        list.retry();
+        await flush();
+
+        expect(query).toHaveBeenCalledTimes(1);
+
+        await vi.advanceTimersByTimeAsync(500);
+        await flush();
+
+        expect(query).toHaveBeenLastCalledWith('lobby');
+        expect(list.items().map((_) => _.id)).toEqual(['lobby']);
+    });
+
     it('stays empty when the query is not allowed', async () => {
         query.mockReturnValue(null);
         const list = await make();

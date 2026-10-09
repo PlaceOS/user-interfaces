@@ -24,9 +24,19 @@ import { GroupEventDetailsModalComponent } from '../../../events/src/lib/group-e
 import { BookingDetailsModalComponent } from './booking-details-modal.component';
 import {
     bookingLocationString,
+    formatEmailName,
     parkingRequestStatus,
+    visitorDisplayNameFor,
 } from './booking.utilities';
 import { ParkingService } from './parking.service';
+
+/** Icon and tooltip translation key for each booking type with its own icon */
+const TYPE_ICONS = new Map<string, { icon: string; tooltip: string }>([
+    ['desk', { icon: 'desk', tooltip: 'RESOURCE.DESK' }],
+    ['locker', { icon: 'lock', tooltip: 'RESOURCE.LOCKER' }],
+    ['parking', { icon: 'drive_eta', tooltip: 'RESOURCE.PARKING' }],
+    ['visitor', { icon: 'people', tooltip: 'RESOURCE.VISITOR' }],
+]);
 
 @Component({
     selector: 'booking-card',
@@ -104,25 +114,7 @@ import { ParkingService } from './parking.service';
                         class="divide-base-200-500 flex flex-col flex-wrap space-y-2 py-2 sm:flex-row sm:space-y-0 sm:divide-x"
                     >
                         <div class="flex max-w-[33%] items-center px-4">
-                            <icon>
-                                @switch (type()) {
-                                    @case ('desk') {
-                                        desk
-                                    }
-                                    @case ('locker') {
-                                        lock
-                                    }
-                                    @case ('parking') {
-                                        drive_eta
-                                    }
-                                    @case ('visitor') {
-                                        people
-                                    }
-                                    @default {
-                                        book
-                                    }
-                                }
-                            </icon>
+                            <icon>{{ type_icon().icon }}</icon>
                             <div class="mx-2 w-1/2 flex-1 truncate">
                                 {{ resource_label() }}
                             </div>
@@ -150,39 +142,11 @@ import { ParkingService } from './parking.service';
                             <span>{{ 'COMMON.CHECKED_IN' | translate }}</span>
                         </div>
                     }
-                    @if (
-                        !booking()?.checked_in &&
-                        !for_current_user() &&
-                        booking()?.booking_type !== 'group-event'
-                    ) {
+                    @for (badge of warning_badges(); track badge) {
                         <div
                             class="bg-warning/50 absolute top-14 right-2 rounded-xl px-2 py-1 text-xs"
                         >
-                            {{ 'BOOKINGS.ASSOCIATE' | translate }}
-                        </div>
-                    }
-                    @if (
-                        !booking()?.checked_in &&
-                        booking()?.booking_type === 'group-event'
-                    ) {
-                        <div
-                            class="bg-warning/50 absolute top-14 right-2 rounded-xl px-2 py-1 text-xs"
-                        >
-                            {{ 'RESOURCE.EVENT' | translate }}
-                        </div>
-                    }
-                    @if (
-                        !booking()?.checked_in && is_reserved_parking_space()
-                    ) {
-                        <div
-                            class="bg-warning/50 absolute top-14 right-2 rounded-xl px-2 py-1 text-xs"
-                        >
-                            {{
-                                (booking().status !== 'declined'
-                                    ? 'COMMON.STATUS_RESERVED'
-                                    : 'BOOKINGS.RELEASED'
-                                ) | translate
-                            }}
+                            {{ badge | translate }}
                         </div>
                     }
                 </div>
@@ -250,7 +214,7 @@ export class BookingCardComponent {
         if (!booking) return '';
         return (
             `${booking.user_name || ''}`.trim() ||
-            this._formatEmailName(`${booking.user_email || ''}`.trim())
+            formatEmailName(`${booking.user_email || ''}`.trim())
         );
     });
 
@@ -346,6 +310,32 @@ export class BookingCardComponent {
         return BOOKING_TYPE_COLORS[type] || ['#E5E7EB', '#1F2937'];
     }
 
+    /** Icon and tooltip key for the booking type. Other types show a book
+     * icon with no tooltip. */
+    public readonly type_icon = computed(
+        () => TYPE_ICONS.get(this.type()) ?? { icon: 'book', tooltip: '' },
+    );
+
+    /** Translation keys of the warning badges shown until check-in */
+    public readonly warning_badges = computed(() => {
+        const booking = this.booking();
+        if (!booking || booking.checked_in) return [];
+        const is_group_event = booking.booking_type === 'group-event';
+        const badges: string[] = [];
+        if (!this.for_current_user() && !is_group_event) {
+            badges.push('BOOKINGS.ASSOCIATE');
+        }
+        if (is_group_event) badges.push('RESOURCE.EVENT');
+        if (this.is_reserved_parking_space()) {
+            badges.push(
+                booking.status !== 'declined'
+                    ? 'COMMON.STATUS_RESERVED'
+                    : 'BOOKINGS.RELEASED',
+            );
+        }
+        return badges;
+    });
+
     public readonly day = computed(() => {
         const date = this.booking()?.date || Date.now();
         const is_today = isSameDay(Date.now(), date);
@@ -398,7 +388,7 @@ export class BookingCardComponent {
             }
             return label;
         }
-        return this._visitorDisplayNameFor(booking);
+        return visitorDisplayNameFor(booking);
     });
 
     public removeHtmlTags(html = '') {
@@ -428,54 +418,5 @@ export class BookingCardComponent {
             };
             this._dialog.open(view_component, { data });
         }, 300);
-    }
-    private _visitorDisplayNameFor(booking: Booking) {
-        const asset_id = `${booking?.asset_id || ''}`.trim();
-        const group_member_name = this._visitorGroupMemberName(booking);
-        if (group_member_name) return group_member_name;
-        const attendee_name = this._visitorAttendeeName(booking);
-        if (attendee_name) return attendee_name;
-        const asset_name =
-            `${booking?.extension_data?.visitor_name || booking?.asset_name || ''}`.trim();
-        const reason_values = [
-            `${booking?.title || ''}`.trim().toLowerCase(),
-            `${booking?.description || ''}`.trim().toLowerCase(),
-        ].filter((_) => !!_);
-        if (
-            asset_name &&
-            asset_name.toLowerCase() !== asset_id.toLowerCase() &&
-            !reason_values.includes(asset_name.toLowerCase())
-        ) {
-            return asset_name;
-        }
-        return this._formatEmailName(asset_id || asset_name || 'Visitor');
-    }
-
-    private _visitorGroupMemberName(booking: Booking) {
-        const member = (booking.extension_data?.group_members || []).find(
-            (item) => item?.email === booking.asset_id,
-        );
-        const name = `${member?.name || ''}`.trim();
-        return name || '';
-    }
-
-    private _visitorAttendeeName(booking: Booking) {
-        const attendee =
-            (booking.attendees || []).find(
-                (item) => item?.email === booking.asset_id,
-            ) || booking.attendees?.[0];
-        const name = `${attendee?.name || ''}`.trim();
-        return name || '';
-    }
-
-    private _formatEmailName(value: string) {
-        if (!value.includes('@')) return value;
-        const [local_part] = value.split('@');
-        const formatted_local = local_part
-            .replace(/[._-]+/g, ' ')
-            .replace(/\s+/g, ' ')
-            .trim();
-        if (!formatted_local) return value;
-        return formatted_local.replace(/\b\w/g, (char) => char.toUpperCase());
     }
 }

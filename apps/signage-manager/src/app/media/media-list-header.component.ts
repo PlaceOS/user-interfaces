@@ -13,19 +13,24 @@ import {
     IconComponent,
     TranslatePipe,
 } from '@placeos/components';
-import { AiImageService } from '../ai/ai-image.service';
+import { SignagePlugin } from '@placeos/ts-client';
+import { ImageGenService } from '../image-gen/image-gen.service';
 import { GroupBreadcrumbsComponent } from '../shared/group-breadcrumbs.component';
 import { MediaAddModalComponent } from '../shared/media-add-modal.component';
-import { SignageService } from '../signage.service';
-
-function isValidUrl(url: string): boolean {
-    try {
-        new URL(url);
-        return true;
-    } catch {
-        return false;
-    }
-}
+import { SignageContextService } from '../signage-context.service';
+import { SignagePluginService } from '../signage-plugin.service';
+import { normaliseWebPageUrl } from '../signage-url.util';
+import {
+    DEFAULT_MEDIA_VIEW,
+    MEDIA_EXPIRY_FILTERS,
+    MEDIA_SORTS,
+    MEDIA_TYPE_FILTERS,
+    type MediaExpiryFilter,
+    type MediaSort,
+    type MediaTypeFilter,
+    type MediaViewOptions,
+} from './media-view.util';
+import { SignageMediaService } from './signage-media.service';
 
 @Component({
     selector: 'media-list-header',
@@ -39,19 +44,10 @@ function isValidUrl(url: string): boolean {
                 </h3>
                 <div class="flex flex-wrap items-center gap-2">
                     <div class="text-sm opacity-60">
-                        @if (search()) {
-                            {{
-                                item_count() +
-                                    ' of ' +
-                                    ('COMMON.ITEM_COUNT'
-                                        | translate: { count: total_count() })
-                            }}
-                        } @else {
-                            {{
-                                'COMMON.ITEM_COUNT'
-                                    | translate: { count: total_count() }
-                            }}
-                        }
+                        {{
+                            'COMMON.ITEM_COUNT'
+                                | translate: { count: total_count() }
+                        }}
                     </div>
                     <group-breadcrumbs />
                 </div>
@@ -84,6 +80,89 @@ function isValidUrl(url: string): boolean {
                     </button>
                 }
             </div>
+            <button
+                icon
+                default
+                type="button"
+                matRipple
+                class="relative text-xl"
+                [matMenuTriggerFor]="view_menu"
+                [matTooltip]="'SIGNAGE_MANAGER.MEDIA_SORT_FILTER' | translate"
+                [attr.aria-label]="
+                    'SIGNAGE_MANAGER.MEDIA_SORT_FILTER' | translate
+                "
+            >
+                <icon>filter_list</icon>
+                @if (view_active()) {
+                    <span
+                        class="bg-primary absolute top-1.5 right-1.5 h-2 w-2 rounded-full"
+                    ></span>
+                }
+            </button>
+            <mat-menu #view_menu="matMenu">
+                <div class="px-4 pt-2 text-xs font-medium opacity-60">
+                    {{ 'SIGNAGE_MANAGER.MEDIA_SORT' | translate }}
+                </div>
+                @for (sort of sorts; track sort) {
+                    <button mat-menu-item (click)="setView({ sort })">
+                        <div class="flex items-center gap-2">
+                            <icon class="text-xl">{{
+                                view().sort === sort ? 'check' : ''
+                            }}</icon>
+                            {{ sort_labels[sort] | translate }}
+                        </div>
+                    </button>
+                }
+                <div class="px-4 pt-2 text-xs font-medium opacity-60">
+                    {{ 'SIGNAGE_MANAGER.MEDIA_FILTER_TYPE' | translate }}
+                </div>
+                @for (type of type_filters; track type) {
+                    <button
+                        mat-menu-item
+                        (click)="
+                            setView({
+                                type: view().type === type ? null : type,
+                            })
+                        "
+                    >
+                        <div class="flex items-center gap-2">
+                            <icon class="text-xl">{{
+                                view().type === type ? 'check' : ''
+                            }}</icon>
+                            {{ type_labels[type] | translate }}
+                        </div>
+                    </button>
+                }
+                <div class="px-4 pt-2 text-xs font-medium opacity-60">
+                    {{ 'SIGNAGE_MANAGER.MEDIA_FILTER_EXPIRY' | translate }}
+                </div>
+                @for (expiry of expiry_filters; track expiry) {
+                    <button
+                        mat-menu-item
+                        (click)="
+                            setView({
+                                expiry:
+                                    view().expiry === expiry ? null : expiry,
+                            })
+                        "
+                    >
+                        <div class="flex items-center gap-2">
+                            <icon class="text-xl">{{
+                                view().expiry === expiry ? 'check' : ''
+                            }}</icon>
+                            {{ expiry_labels[expiry] | translate }}
+                        </div>
+                    </button>
+                }
+                @if (view_active()) {
+                    <button mat-menu-item (click)="resetView()">
+                        <div class="flex items-center gap-2">
+                            <icon class="text-xl">restart_alt</icon>
+                            {{ 'SIGNAGE_MANAGER.MEDIA_VIEW_RESET' | translate }}
+                        </div>
+                    </button>
+                }
+            </mat-menu>
             <mat-form-field
                 appearance="outline"
                 class="no-subscript toolbar-field white order-last w-full sm:order-0 sm:w-80"
@@ -91,15 +170,14 @@ function isValidUrl(url: string): boolean {
                 <input
                     matInput
                     [placeholder]="'SIGNAGE_MANAGER.MEDIA_SEARCH' | translate"
-                    [ngModel]="search()"
-                    (ngModelChange)="search.set($event)"
+                    [(ngModel)]="search"
                     [attr.aria-label]="
                         'SIGNAGE_MANAGER.SEARCH_MEDIA_ARIA' | translate
                     "
                 />
             </mat-form-field>
             @if (can_create()) {
-                @if (ai_enabled()) {
+                @if (image_gen_enabled()) {
                     <button
                         icon
                         default
@@ -107,13 +185,13 @@ function isValidUrl(url: string): boolean {
                         matRipple
                         class="text-xl max-sm:hidden"
                         [matTooltip]="
-                            'SIGNAGE_MANAGER.AI_CREATE_IMAGE' | translate
+                            'SIGNAGE_MANAGER.IMAGE_GEN_CREATE_IMAGE' | translate
                         "
                         matTooltipPosition="left"
                         [attr.aria-label]="
-                            'SIGNAGE_MANAGER.AI_CREATE_IMAGE' | translate
+                            'SIGNAGE_MANAGER.IMAGE_GEN_CREATE_IMAGE' | translate
                         "
-                        (click)="generateWithAI()"
+                        (click)="generateWithImageGen()"
                     >
                         <icon>auto_awesome</icon>
                     </button>
@@ -258,17 +336,17 @@ function isValidUrl(url: string): boolean {
                     <icon>add</icon>
                 </button>
                 <mat-menu #actions_menu="matMenu">
-                    @if (ai_enabled()) {
+                    @if (image_gen_enabled()) {
                         <button
                             mat-menu-item
                             type="button"
-                            (click)="generateWithAI()"
+                            (click)="generateWithImageGen()"
                         >
                             <div class="flex items-center gap-2">
                                 <icon class="text-2xl">auto_awesome</icon>
                                 <div>
                                     {{
-                                        'SIGNAGE_MANAGER.AI_CREATE_IMAGE'
+                                        'SIGNAGE_MANAGER.IMAGE_GEN_CREATE_IMAGE'
                                             | translate
                                     }}
                                 </div>
@@ -343,18 +421,45 @@ function isValidUrl(url: string): boolean {
     ],
 })
 export class MediaListHeaderComponent {
-    private readonly _service = inject(SignageService);
+    private readonly _context = inject(SignageContextService);
+    private readonly _media_service = inject(SignageMediaService);
+    private readonly _plugin_service = inject(SignagePluginService);
     private readonly _dialog = inject(MatDialog);
-    private readonly _ai = inject(AiImageService);
-    private readonly _media = this._service.filtered_media;
-    private readonly _all_media = this._service.media;
+    private readonly _image_gen = inject(ImageGenService);
     public readonly link = signal('');
-    public readonly selected_plugin = signal<any>(null);
-    public readonly available_plugins = this._service.plugins;
-    public readonly item_count = computed(() => this._media().length);
-    public readonly total_count = computed(() => this._all_media().length);
-    public readonly search = this._service.search_term;
-    public readonly view_mode = this._service.media_view_mode;
+    public readonly selected_plugin = signal<SignagePlugin | null>(null);
+    public readonly available_plugins = this._plugin_service.plugins;
+    public readonly view = this._media_service.media_view;
+    public readonly view_active = this._media_service.media_view_active;
+    // Filters run in the browser, so count the filtered items instead of the
+    // backend total while one is active.
+    public readonly total_count = computed(() =>
+        this.view_active()
+            ? this._media_service.media().length
+            : this._media_service.media_total(),
+    );
+    public readonly sorts = MEDIA_SORTS;
+    public readonly type_filters = MEDIA_TYPE_FILTERS;
+    public readonly expiry_filters = MEDIA_EXPIRY_FILTERS;
+    public readonly sort_labels: Record<MediaSort, string> = {
+        newest: 'SIGNAGE_MANAGER.MEDIA_SORT_NEWEST',
+        oldest: 'SIGNAGE_MANAGER.MEDIA_SORT_OLDEST',
+        name: 'SIGNAGE_MANAGER.MEDIA_SORT_NAME',
+        expiry: 'SIGNAGE_MANAGER.MEDIA_SORT_EXPIRY',
+    };
+    // Same labels as the type badge on media cards
+    public readonly type_labels: Record<MediaTypeFilter, string> = {
+        image: 'COMMON.IMAGE',
+        video: 'COMMON.VIDEO',
+        webpage: 'COMMON.WEBPAGE',
+        plugin: 'SIGNAGE_MANAGER.TYPE_PLUGIN',
+    };
+    public readonly expiry_labels: Record<MediaExpiryFilter, string> = {
+        expiring: 'SIGNAGE_MANAGER.MEDIA_FILTER_EXPIRING',
+        expired: 'SIGNAGE_MANAGER.STATUS_EXPIRED',
+    };
+    public readonly search = this._media_service.search_term;
+    public readonly view_mode = this._media_service.media_view_mode;
     public readonly view_options = [
         { mode: 'grid', icon: 'grid_view', label: 'SIGNAGE_MANAGER.VIEW_GRID' },
         {
@@ -368,16 +473,29 @@ export class MediaListHeaderComponent {
             label: 'SIGNAGE_MANAGER.VIEW_FOLDER',
         },
     ] as const;
-    public readonly file_accept = this._service.media_upload_accept;
-    public readonly can_create = this._service.can_create;
+    public readonly file_accept = this._media_service.media_upload_accept;
+    public readonly can_create = this._context.can_create;
 
-    public readonly previewFile = (event) =>
-        this._service.previewFileFromInput(event);
+    public readonly previewFile = (event: Event) =>
+        this._media_service.previewFileFromInput(event);
 
-    public readonly ai_enabled = this._ai.can_generate;
+    public readonly image_gen_enabled = computed(
+        () =>
+            this._image_gen.can_generate() &&
+            this._context.hasFeature('ai-generation'),
+    );
 
-    public generateWithAI() {
-        this._service.generateMediaWithAI();
+    /** Change part of the media sort and filters */
+    public setView(change: Partial<MediaViewOptions>) {
+        this.view.update((view) => ({ ...view, ...change }));
+    }
+
+    public resetView() {
+        this.view.set(DEFAULT_MEDIA_VIEW);
+    }
+
+    public generateWithImageGen() {
+        this._media_service.generateMediaWithImageGen();
     }
 
     public openAdd(mode: 'plugin' | 'link') {
@@ -390,12 +508,12 @@ export class MediaListHeaderComponent {
     public async addFromLink() {
         const link = this.link().trim();
         if (!link) return;
-        const is_valid = isValidUrl(link);
-        if (!is_valid) {
+        const url = normaliseWebPageUrl(link);
+        if (!url) {
             notifyError(i18n('SIGNAGE_MANAGER.URL_INVALID'));
             return;
         }
-        await this._service.addMediaFromLink(link);
+        await this._media_service.addMediaFromLink(url);
         this.link.set('');
     }
 
@@ -405,7 +523,7 @@ export class MediaListHeaderComponent {
             ({ id }) => id === selected_plugin?.id,
         );
         if (!plugin) return;
-        await this._service.addMediaFromPlugin(plugin);
+        await this._media_service.addMediaFromPlugin(plugin);
         this.selected_plugin.set(null);
     }
 }

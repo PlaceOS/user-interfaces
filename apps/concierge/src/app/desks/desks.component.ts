@@ -47,11 +47,11 @@ import {
     SafePipe,
     TranslatePipe,
 } from '@placeos/components';
+import { DateOptionsComponent } from '@placeos/form-fields';
 import { showMetadata } from '@placeos/ts-client';
 import { ApplicationSidebarComponent } from '../ui/app-sidebar.component';
 import { ApplicationTopbarComponent } from '../ui/app-topbar.component';
 import { BookingRulesModalComponent } from '../ui/booking-rules-modal.component';
-import { DateOptionsComponent } from '../ui/date-options.component';
 import { SearchbarComponent } from '../ui/searchbar.component';
 import { loadPersistedZones, persistZones } from '../ui/zone-persistence';
 import { DeskBookModalComponent } from './desk-book-modal.component';
@@ -85,6 +85,7 @@ import { DesksStateService } from './desks-state.service';
                             btn
                             matRipple
                             class="w-44 space-x-2"
+                            data-shortcut="new"
                             (click)="newDeskBooking()"
                         >
                             <div class="pl-2">
@@ -98,6 +99,7 @@ import { DesksStateService } from './desks-state.service';
                             btn
                             matRipple
                             class="w-44 space-x-2"
+                            data-shortcut="new"
                             (click)="editDesk()"
                         >
                             <div class="pl-2">
@@ -159,7 +161,7 @@ import { DesksStateService } from './desks-state.service';
                         >
                             <icon>event_busy</icon>
                         </button>
-                        @if (hide_user_list_download()) {
+                        @if (!hide_user_list_download()) {
                             <button
                                 icon
                                 default

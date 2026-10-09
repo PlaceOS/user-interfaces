@@ -1,6 +1,11 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { PlaceOS_Service, setMocks, UploadsService } from '@placeos/common';
+import {
+    PlaceOS_Service,
+    setMocks,
+    UploadsService,
+    watchUserGroupSync,
+} from '@placeos/common';
 import {
     GlobalBannerComponent,
     GlobalLoadingComponent,
@@ -8,6 +13,8 @@ import {
 import { ChatComponent } from '@placeos/components/chat';
 import { SettingsDebugPanelLauncherComponent } from '@placeos/components/settings-debug';
 import { mocksInit } from '@placeos/mocks';
+
+import { KeyboardShortcutsService } from './ui/keyboard-shortcuts.service';
 
 @Component({
     selector: 'app-root',
@@ -27,8 +34,15 @@ import { mocksInit } from '@placeos/mocks';
             <global-chat />
         }
         <global-loading />
-        <settings-debug-panel-launcher [loadSchema]="load_settings_schema" />
+        @defer (on idle) {
+            <settings-debug-panel-launcher
+                [loadSchema]="load_settings_schema"
+            />
+        }
     `,
+    host: {
+        '(window:keydown)': 'shortcuts.handleKeydown($event)',
+    },
     styles: [
         `
             :host {
@@ -46,11 +60,17 @@ export class AppComponent implements OnInit {
 
     private _placeos = inject(PlaceOS_Service);
     private _uploads = inject(UploadsService);
+    protected readonly shortcuts = inject(KeyboardShortcutsService);
     public readonly has_chat = signal(this._placeos.has_chat);
+
+    constructor() {
+        watchUserGroupSync();
+    }
 
     public async ngOnInit() {
         setMocks(mocksInit);
         await this._placeos.init();
+
         this.has_chat.set(this._placeos.has_chat);
         if (this._placeos.has_uploads) this._uploads.init();
     }

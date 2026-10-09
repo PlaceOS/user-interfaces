@@ -1,10 +1,7 @@
 import { Component, computed, inject } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
-import { MatDialog } from '@angular/material/dialog';
-import { i18n } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
-import { dialogClosed, SignageService } from '../signage.service';
-import { GroupSelectModalComponent } from './group-select-modal.component';
+import { SignageContextService } from '../signage-context.service';
 
 @Component({
     // Existing signage-manager components use feature selectors without the app prefix.
@@ -16,14 +13,22 @@ import { GroupSelectModalComponent } from './group-select-modal.component';
                 class="border-base-300 bg-base-200 text-base-content/70 flex min-w-0 items-center gap-0.5 overflow-hidden rounded-full border px-2 py-0.5 text-xs"
                 [attr.aria-label]="'SIGNAGE_MANAGER.GROUPS_TITLE' | translate"
             >
-                <button type="button" matRipple class="hover:border-base-300 border border-base-200 mr-0.5 shrink-0 text-sm p-0 m-0 flex items-center justify-center rounded-full" (click)="selectGroup()">
+                <button
+                    type="button"
+                    matRipple
+                    class="hover:border-base-300 border-base-200 m-0 mr-0.5 flex shrink-0 items-center justify-center rounded-full border p-0 text-sm"
+                    [attr.aria-label]="
+                        'SIGNAGE_MANAGER.SELECT_SIGNAGE_GROUP' | translate
+                    "
+                    (click)="selectGroup()"
+                >
                     <icon>{{ show_all_groups() ? 'public' : 'group' }}</icon>
                 </button>
                 @if (show_all_groups()) {
                     <button
                         type="button"
                         matRipple
-                        class="text-base-content hover:underline cursor-pointer truncate rounded-full px-1 font-medium"
+                        class="text-base-content cursor-pointer truncate rounded-full px-1 font-medium hover:underline"
                         aria-current="true"
                         (click)="selectGroup()"
                     >
@@ -34,7 +39,7 @@ import { GroupSelectModalComponent } from './group-select-modal.component';
                     <button
                         type="button"
                         matRipple
-                        class="hover:underline cursor-pointer truncate rounded-full px-1"
+                        class="cursor-pointer truncate rounded-full px-1 hover:underline"
                         [class.text-base-content]="last"
                         [class.font-medium]="last"
                         [attr.aria-current]="last ? 'true' : null"
@@ -59,35 +64,24 @@ import { GroupSelectModalComponent } from './group-select-modal.component';
     imports: [MatRippleModule, IconComponent, TranslatePipe],
 })
 export class GroupBreadcrumbsComponent {
-    private readonly _service = inject(SignageService);
-    private readonly _dialog = inject(MatDialog);
+    private readonly _context = inject(SignageContextService);
 
     /** The active signage group and its ancestors, root first. */
-    public readonly hierarchy = this._service.selected_group_hierarchy;
-    /** Sys admins can view every group at once; that state has no hierarchy. */
+    public readonly hierarchy = this._context.selected_group_hierarchy;
+    /** Admins and support can view every group at once; that state has no
+     * hierarchy. */
     public readonly show_all_groups = computed(
         () =>
-            this._service.is_sys_admin() &&
-            !this._service.selected_group_id() &&
+            this._context.can_manage_all_groups() &&
+            !this._context.selected_group_id() &&
             !this.hierarchy().length,
     );
 
     public applyGroup(group_id: string) {
-        this._service.setSelectedGroup(group_id);
+        this._context.setSelectedGroup(group_id);
     }
 
-    public async selectGroup() {
-        const ref = this._dialog.open(GroupSelectModalComponent, {
-            data: {
-                title: i18n('SIGNAGE_MANAGER.SELECT_SIGNAGE_GROUP'),
-                groups: this._service.signage_groups(),
-                selected_group_id: this._service.selected_group_id(),
-                show_all_groups: this._service.is_sys_admin(),
-            },
-            panelClass: 'mobile-fullscreen',
-        });
-        const group_id = await dialogClosed<string>(ref);
-        if (group_id === undefined) return;
-        this.applyGroup(group_id);
+    public selectGroup() {
+        return this._context.selectGroup();
     }
 }

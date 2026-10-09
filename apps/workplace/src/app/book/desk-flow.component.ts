@@ -1,6 +1,10 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { BookingFormService, findNearbyFeature } from '@placeos/bookings';
+import {
+    BookingAsset,
+    BookingFormService,
+    findNearbyFeature,
+} from '@placeos/bookings';
 import {
     AsyncHandler,
     Booking,
@@ -133,20 +137,19 @@ export class NewDeskFlowComponent extends AsyncHandler implements OnInit {
             booking_type: 'desk',
             user: currentUser(),
         }));
+        if (!level?.map_id)
+            return notifyError(i18n('APP.WORKPLACE.MEETING_DESK_ERROR'));
         const resources = await this._state.listAvailableResources();
-        const bookable_desks = resources
-            .map((_) => _.map_id || _.id)
-            .filter((i) => i);
+        // Desk metadata often omits `map_id` because the desk ID is the map element ID.
+        const mapID = (resource: BookingAsset) =>
+            resource.map_id || resource.id;
+        const bookable_desks = resources.map(mapID).filter((i) => i);
         const nearby = await findNearbyFeature(
             level.map_id,
             space?.map_id,
             bookable_desks,
         );
-        if (!nearby)
-            return notifyError(i18n('APP.WORKPLACE.MEETING_DESK_ERROR'));
-        const resource = resources.find(
-            (_) => _.map_id === nearby || _.id === nearby,
-        );
+        const resource = resources.find((_) => mapID(_) === nearby);
         if (!resource)
             return notifyError(i18n('APP.WORKPLACE.MEETING_DESK_ERROR'));
         this._state.model.update((m) => ({

@@ -187,8 +187,15 @@ export class AssetLocationModalComponent {
 
     public async setTracking(item: any, state: string) {
         this.loading.update((loading) => ({ ...loading, [item.id]: true }));
-        await this._state.setTracking(item, state);
-        this.loading.update((loading) => ({ ...loading, [item.id]: false }));
+        await this._state
+            .setTracking(item, state)
+            .catch(() => undefined)
+            .finally(() =>
+                this.loading.update((loading) => ({
+                    ...loading,
+                    [item.id]: false,
+                })),
+            );
     }
 
     public level(zones) {

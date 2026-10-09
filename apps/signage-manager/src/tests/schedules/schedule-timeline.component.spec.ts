@@ -1,35 +1,42 @@
+import { DatePipe } from '@angular/common';
+import { LOCALE_ID } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
+import { SignagePlaylist } from '@placeos/ts-client';
 import { ScheduleTimelineComponent } from '../../app/schedules/schedule-timeline.component';
 import {
-    ScheduleBlock,
     ScheduleTimelineRow,
+    TimelineBlock,
 } from '../../app/schedules/signage-schedule.util';
 
-function block(overrides: Partial<ScheduleBlock> = {}): ScheduleBlock {
+function block(overrides: Partial<TimelineBlock> = {}): TimelineBlock {
     return {
         playlist: { id: 'pl-1', name: 'News', enabled: true } as any,
-        day_index: 0,
+        day_index: 1,
         start_minutes: 540,
         duration_minutes: 120,
         all_day: false,
+        takeover: false,
         bg_color: '#dbeafe',
         text_color: '#1e40af',
-        label: '9:00am - 11:00am',
+        label: '09:00 – 11:00',
+        lane: 0,
         ...overrides,
     };
 }
 
-function row(overrides: Partial<ScheduleTimelineRow> = {}): ScheduleTimelineRow {
+function row(
+    overrides: Partial<ScheduleTimelineRow> = {},
+): ScheduleTimelineRow {
     return {
         id: 'd-1',
         name: 'Foyer',
-        description: '',
         subtitle: '',
         icon: 'tv',
         route: ['/displays', 'd-1'],
         blocks: [],
+        lane_count: 1,
         search_index: '',
-        updated_at: 0,
         ...overrides,
     };
 }
@@ -37,128 +44,189 @@ function row(overrides: Partial<ScheduleTimelineRow> = {}): ScheduleTimelineRow 
 describe('ScheduleTimelineComponent', () => {
     let fixture: ComponentFixture<ScheduleTimelineComponent>;
 
-    function make() {
+    function make(rows: ScheduleTimelineRow[] = []) {
         fixture = TestBed.createComponent(ScheduleTimelineComponent);
-        fixture.componentRef.setInput('selected_date', new Date());
+        fixture.componentRef.setInput('rows', rows);
         return fixture.componentInstance;
     }
 
     beforeEach(async () => {
         await TestBed.configureTestingModule({
             imports: [ScheduleTimelineComponent],
-        })
-            .overrideComponent(ScheduleTimelineComponent, {
-                set: { template: '' },
-            })
-            .compileComponents();
+            providers: [provideRouter([])],
+        }).compileComponents();
     });
 
-    it('converts minutes-into-day to a horizontal percentage', () => {
-        const component = make();
-        expect(component.timeToOffset(720)).toBe(50);
-        expect(component.timeToOffset(0)).toBe(0);
-        expect(component.timeToOffset(-30)).toBe(0);
+    afterEach(() => fixture?.destroy());
+
+    it('places blocks in their lanes and grows the row to fit', () => {
+        const component = make([
+            row({
+                lane_count: 3,
+                blocks: [
+                    block({ lane: 0 }),
+                    block({
+                        lane: 1,
+                        playlist: new SignagePlaylist({ id: 'b' }),
+                    }),
+                    block({
+                        lane: 2,
+                        playlist: new SignagePlaylist({ id: 'c' }),
+                    }),
+                ],
+            }),
+        ]);
+        const [view] = component.view_rows();
+
+        expect(view.blocks.map(({ top }) => top)).toEqual([
+            0.375, 3.625, 6.875,
+        ]);
+        expect(view.height).toBe(10.5);
     });
 
-    it('clamps a block duration to a single day when converting width', () => {
-        const component = make();
-        expect(component.durationToOffset(720)).toBe(50);
-        expect(component.durationToOffset(3000)).toBe(100);
-        expect(component.durationToOffset(-10)).toBe(0);
+    it('sizes blocks by the minutes they cover on screen', () => {
+        const component = make([
+            row({
+                blocks: [
+                    block({ start_minutes: 720, duration_minutes: 5 }),
+                    block({ start_minutes: 0, all_day: true }),
+                ],
+            }),
+        ]);
+        const [short, all_day] = component.view_rows()[0].blocks;
+
+        expect(short.left).toBe(50);
+        expect(short.width).toBe(1.04);
+        expect(all_day.width).toBe(100);
     });
 
-    it('renders all-day blocks across the whole timeline', () => {
-        const component = make();
-        expect(component.visibleDuration(block({ all_day: true }))).toBe(1440);
-    });
-
-    it('enforces a minimum visible duration and trims overrun past midnight', () => {
-        const component = make();
-        expect(
-            component.visibleDuration(
-                block({ start_minutes: 600, duration_minutes: 5 }),
-            ),
-        ).toBe(15);
-        expect(
-            component.visibleDuration(
-                block({ start_minutes: 1380, duration_minutes: 120 }),
-            ),
-        ).toBe(60);
-    });
-
-    it('detects blocks awaiting approval', () => {
-        const component = make();
+    it('describes takeover, approval and source in text, not colour only', () => {
+        const component = make([
+            row({
+                blocks: [
+                    block({
+                        takeover: true,
+                        source_type: 'zone',
+                        source_label: 'Level 1',
+                    }),
+                ],
+            }),
+        ]);
         fixture.componentRef.setInput('playlist_approval_status', {
             'pl-1': false,
         });
-        expect(component.requiresApproval(block())).toBe(true);
+        const [view] = component.view_rows()[0].blocks;
 
-        fixture.componentRef.setInput('playlist_approval_status', {
-            'pl-1': true,
-        });
-        expect(component.requiresApproval(block())).toBe(false);
+        expect(view.bg_color).toBe('#fef3c7');
+        expect(view.aria_label).toBe(
+            'Foyer, News, 09:00 – 11:00, Takeover playback, Awaiting approval, via Level 1',
+        );
     });
 
-    it('uses amber colours for blocks awaiting approval, else the block palette', () => {
-        const component = make();
-        const item = block({ bg_color: '#d1fae5', text_color: '#065f46' });
+    it('shows a takeover label on takeover blocks', async () => {
+        make([
+            row({
+                blocks: [
+                    block(),
+                    block({
+                        takeover: true,
+                        playlist: new SignagePlaylist({ id: 'b' }),
+                    }),
+                ],
+            }),
+        ]);
+        await fixture.whenStable();
+        const blocks: HTMLElement[] = Array.from(
+            fixture.nativeElement.querySelectorAll('[schedule-block]'),
+        );
 
-        fixture.componentRef.setInput('playlist_approval_status', {
-            'pl-1': false,
-        });
-        expect(component.blockBackgroundColor(item)).toBe('#fef3c7');
-        expect(component.blockTextColor(item)).toBe('#92400e');
-        expect(component.blockBorderColor(item)).toBe('#f59e0b');
-
-        fixture.componentRef.setInput('playlist_approval_status', {});
-        expect(component.blockBackgroundColor(item)).toBe('#d1fae5');
-        expect(component.blockTextColor(item)).toBe('#065f46');
-        expect(component.blockBorderColor(item)).toBe('#065f46');
+        expect(
+            blocks.map((item) =>
+                item.textContent.includes('Takeover playback'),
+            ),
+        ).toEqual([false, true]);
     });
 
-    it('reports display connectivity from the last-seen timestamp', () => {
-        const component = make();
-        fixture.componentRef.setInput('view_tab', 'displays');
-        const recent = row({ signage_last_seen: Math.floor(Date.now() / 1000) });
-        const stale = row({
-            signage_last_seen: Math.floor(Date.now() / 1000) - 3600,
-        });
-        expect(component.displayRowStatus(recent)).toBe('success');
-        expect(component.displayRowStatus(stale)).toBe('error');
+    it('describes display status in text and never shows an invalid date', async () => {
+        const now = Math.floor(Date.now() / 1000);
+        const component = make([
+            row({ id: 'online', signage_last_seen: now }),
+            row({ id: 'offline', signage_last_seen: now - 3600 }),
+            row({ id: 'never' }),
+        ]);
+        const statuses = component.row_status();
+        await fixture.whenStable();
+
+        expect(statuses.get('online')?.online).toBe(true);
+        expect(statuses.get('offline')?.online).toBe(false);
+        expect(statuses.get('never')?.label).toBe('Offline · Never seen');
+        const status = fixture.nativeElement.querySelector('[row-status]');
+        expect(status.getAttribute('tabindex')).toBe('0');
+        expect(status.getAttribute('aria-label')).toBeTruthy();
+    });
+
+    it('shows how long ago a display was seen, with the date before today', () => {
+        const now = new Date(2026, 9, 2, 15, 0).getTime();
+        const clock = vi.spyOn(Date, 'now').mockReturnValue(now);
+        try {
+            const seconds = (date: Date) => Math.floor(date.getTime() / 1000);
+            const component = make([
+                row({
+                    id: 'recent',
+                    signage_last_seen: seconds(new Date(2026, 9, 2, 14, 50)),
+                }),
+                row({
+                    id: 'today',
+                    signage_last_seen: seconds(new Date(2026, 9, 2, 9, 30)),
+                }),
+                row({
+                    id: 'yesterday',
+                    signage_last_seen: seconds(new Date(2026, 9, 1, 21, 3)),
+                }),
+            ]);
+            const date = new DatePipe('en-US');
+            const label = (id: string) => component.row_status().get(id)?.label;
+
+            expect(label('recent')).toBe('Offline · Last seen: 10 min');
+            expect(label('today')).toBe(
+                `Offline · Last seen: ${date.transform(new Date(2026, 9, 2, 9, 30), 'shortTime')}`,
+            );
+            expect(label('yesterday')).toBe(
+                `Offline · Last seen: ${date.transform(new Date(2026, 9, 1, 21, 3), 'short')}`,
+            );
+        } finally {
+            clock.mockRestore();
+        }
     });
 
     it('does not report connectivity in the zones view', () => {
-        const component = make();
+        const component = make([row({ signage_last_seen: 1 })]);
         fixture.componentRef.setInput('view_tab', 'zones');
-        expect(
-            component.displayRowStatus(
-                row({ signage_last_seen: Math.floor(Date.now() / 1000) }),
-            ),
-        ).toBe('');
+        expect(component.row_status().size).toBe(0);
     });
 
-    it('builds an aria label from the row, playlist and time', () => {
-        const component = make();
-        expect(component.blockAriaLabel(row(), block())).toBe(
-            'Foyer, News, 9:00am - 11:00am',
-        );
-        expect(
-            component.blockAriaLabel(row(), block({ all_day: true })),
-        ).toContain('Foyer, News,');
+    it('labels hours in the clock style of the locale', () => {
+        TestBed.overrideProvider(LOCALE_ID, { useValue: 'en-GB' });
+        expect(make().hour_labels.slice(12, 14)).toEqual(['12', '13']);
     });
 
-    it('only clears the hovered row when it matches the leaving row', () => {
-        const component = make();
-        component.hovered_row.set(2);
-        component.clearHoveredRow(1);
-        expect(component.hovered_row()).toBe(2);
-        component.clearHoveredRow(2);
-        expect(component.hovered_row()).toBe(-1);
-    });
+    it('says in text that a playlist is disabled', () => {
+        const component = make([
+            row({
+                blocks: [
+                    block({
+                        playlist: new SignagePlaylist({
+                            id: 'off',
+                            name: 'Off',
+                            enabled: false,
+                        }),
+                    }),
+                ],
+            }),
+        ]);
+        const [view] = component.view_rows()[0].blocks;
 
-    it('formats an hour into a lowercase am/pm label', () => {
-        const component = make();
-        expect(component.formatHour(0).toLowerCase()).toContain('am');
-        expect(component.formatHour(13).toLowerCase()).toContain('pm');
+        expect(view.aria_label).toBe('Foyer, Off, 09:00 – 11:00, Disabled');
+        expect(view.tooltip.split('\n')).toContain('Disabled');
     });
 });

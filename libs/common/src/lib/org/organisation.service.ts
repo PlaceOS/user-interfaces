@@ -146,10 +146,11 @@ export class OrganisationService {
     /** Whether any cached data was used during the initial load */
     private _served_cache = false;
     /** Number of background refreshes currently in flight */
-    private _refresh_count = 0;
+    private readonly _refresh_count = signal(0);
     /** Whether cached data is being replaced with the latest from the API */
+    public readonly refreshing = computed(() => this._refresh_count() > 0);
     private get _refreshing() {
-        return this._refresh_count > 0;
+        return this.refreshing();
     }
     /** Ids of buildings whose settings metadata has finished loading */
     private readonly _loaded_buildings = signal<string[]>([]);
@@ -628,11 +629,11 @@ export class OrganisationService {
      * displayed data is replaced with the latest. Runs in the background.
      */
     private async _refresh(load: () => Promise<void>) {
-        this._refresh_count++;
+        this._refresh_count.update((count) => count + 1);
         await load().catch((err) =>
             console.warn('Failed to refresh organisation data.', err),
         );
-        this._refresh_count--;
+        this._refresh_count.update((count) => count - 1);
     }
 
     private _setPublicData() {

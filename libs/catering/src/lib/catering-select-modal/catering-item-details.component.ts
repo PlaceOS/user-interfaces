@@ -236,6 +236,7 @@ export class CateringItemDetailsComponent implements OnChanges {
     public readonly item = input<OrderCateringItem>(undefined);
     public readonly active = input(false);
     public readonly fav = input(false);
+    // fallow-ignore-next-line unused-component-input -- read in a template pipe expression fallow does not parse
     public readonly code = input('USD');
 
     public readonly toggleFav = output<void>();

@@ -2,7 +2,7 @@ import { Component, inject } from '@angular/core';
 import { TranslatePipe } from '@placeos/components';
 import { NavFooterComponent } from '../shared/nav-footer.component';
 import { NavSidebarComponent } from '../shared/nav-sidebar.component';
-import { SignageService } from '../signage.service';
+import { SignageGroupAdminService } from './signage-group-admin.service';
 import { SignageGroupContentComponent } from './signage-group-content.component';
 import { SignageGroupDetailHeaderComponent } from './signage-group-detail-header.component';
 import { SignageGroupHeaderComponent } from './signage-group-header.component';
@@ -63,7 +63,7 @@ import { SignageGroupTabsComponent } from './signage-group-tabs.component';
     ],
 })
 export class GroupsSectionComponent {
-    private readonly _service = inject(SignageService);
+    private readonly _group_admin = inject(SignageGroupAdminService);
 
-    public readonly selected_group = this._service.managed_group;
+    public readonly selected_group = this._group_admin.managed_group;
 }

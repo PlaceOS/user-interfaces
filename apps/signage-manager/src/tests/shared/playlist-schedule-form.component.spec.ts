@@ -103,12 +103,14 @@ describe('playlist-schedule-form helpers', () => {
             ...createPlaylistScheduleModel(),
             schedule_type: 'play_at',
             play_at,
+            play_at_exact: true,
             play_period: 45,
             play_takeover: true,
         });
 
         expect(payload).toEqual({
             play_at: getUnixTime(new Date(play_at)),
+            play_at_local: undefined,
             play_cron: '0 0 * * *',
             play_period: 45,
             play_takeover: true,
@@ -163,6 +165,25 @@ describe('playlist-schedule-form helpers', () => {
         const request: unknown = JSON.parse(JSON.stringify(payload));
 
         expect(request).not.toHaveProperty('play_at');
+        expect(request).not.toHaveProperty('play_at_local');
+    });
+
+    it('defaults a new one-off schedule to a local play time', () => {
+        expect(createPlaylistScheduleModel().play_at_exact).toBe(false);
+    });
+
+    it('round trips a local one-off schedule as play_at_local only', () => {
+        const model = createPlaylistScheduleModel({
+            play_at_local: '2027-01-01T00:00:00',
+        });
+        const request: unknown = JSON.parse(
+            JSON.stringify(playlistSchedulePayload(model)),
+        );
+
+        expect(model.schedule_type).toBe('play_at');
+        expect(model.play_at_exact).toBe(false);
+        expect(request).toMatchObject({ play_at_local: '2027-01-01T00:00:00' });
+        expect(request).not.toHaveProperty('play_at');
     });
 
     it('builds a recurring payload with a generated cron and no play_at', () => {
@@ -176,7 +197,10 @@ describe('playlist-schedule-form helpers', () => {
         });
 
         expect(payload.play_at).toBeUndefined();
-        expect(JSON.parse(JSON.stringify(payload))).not.toHaveProperty('play_at');
+        expect(JSON.parse(JSON.stringify(payload))).not.toHaveProperty(
+            'play_at',
+        );
+        expect(payload.play_at_local).toBeUndefined();
         expect(payload.play_cron).toBe('0 9 * * 1,3');
         expect(payload.play_period).toBe(60);
     });
@@ -499,6 +523,47 @@ describe('PlaylistScheduleFormComponent', () => {
         }
     });
 
+    it('switches between local and exact play times and keeps the wall-clock time', async () => {
+        const { fixture, component, model } = setup({
+            schedule_type: 'play_at',
+            play_at: new Date(2027, 0, 1).getTime(),
+        });
+        fixture.componentRef.setInput('open', true);
+        component.timezone.set('Asia/Tokyo');
+        await fixture.whenStable();
+        const timeFieldZones = () =>
+            fixture.debugElement
+                .queryAll(By.directive(TimeFieldComponent))
+                .map((field) => field.componentInstance.timezone());
+        const validityTimezone = () =>
+            fixture.debugElement.query(
+                By.css('[schedule-validity] mat-select[name="timezone"]'),
+            );
+
+        expect(playlistSchedulePayload(model()).play_at_local).toBe(
+            '2027-01-01T00:00:00',
+        );
+        expect(timeFieldZones()).toEqual(['']);
+        expect(validityTimezone()).not.toBeNull();
+        expect(component.scheduleSummary()).toContain('display local time');
+
+        component.setPlayAtExact(true);
+        await fixture.whenStable();
+        expect(playlistSchedulePayload(model())).toMatchObject({
+            play_at: Date.UTC(2026, 11, 31, 15) / 1000,
+            play_at_local: undefined,
+        });
+        expect(timeFieldZones()).toEqual(['Asia/Tokyo']);
+        expect(validityTimezone()).toBeNull();
+        expect(component.scheduleSummary()).toContain('Asia/Tokyo');
+
+        component.setPlayAtExact(false);
+        expect(playlistSchedulePayload(model())).toMatchObject({
+            play_at: undefined,
+            play_at_local: '2027-01-01T00:00:00',
+        });
+    });
+
     it.each(['play_at', 'play_cron'] as const)(
         'changes the displayed timezone without changing stored timestamps for %s',
         async (schedule_type) => {
@@ -506,6 +571,7 @@ describe('PlaylistScheduleFormComponent', () => {
             const { fixture, component, model } = setup({
                 schedule_type,
                 play_at,
+                play_at_exact: true,
                 has_valid_from: true,
                 valid_from: play_at,
                 has_valid_until: true,
@@ -606,29 +672,51 @@ describe('PlaylistScheduleFormComponent', () => {
             recurrence_type: 'daily',
             play_start: 9 * 60,
         });
+        // The conversion only shows when the selected timezone differs from
+        // the local one, so each step picks a whole-hour zone that is not
+        // local.
+        const [first, first_label] =
+            LOCAL_TIMEZONE === 'Asia/Tokyo'
+                ? ['Asia/Dubai', 'GMT+4']
+                : ['Asia/Tokyo', 'GMT+9'];
         fixture.componentRef.setInput('open', true);
-        component.timezone.set('Asia/Tokyo');
+        component.timezone.set(first);
         await fixture.whenStable();
         const input: HTMLInputElement = fixture.debugElement.query(
             By.css('input[type="time"]'),
         ).nativeElement;
         const field = input.closest('mat-form-field').parentElement;
         expect(field.textContent).toContain('9 : 00');
-        expect(field.textContent).toContain('GMT+9');
-        component.timezone.set('UTC');
+        expect(field.textContent).toContain(first_label);
+        const [target, target_offset] =
+            LOCAL_TIMEZONE === 'UTC'
+                ? ['Asia/Dubai', '+0400']
+                : ['UTC', '+0000'];
+        component.timezone.set(target);
         await fixture.whenStable();
         const expected = new Date(component.recurringPlayStartTime());
         expected.setHours(10, 37, 0, 0);
+        const target_hour = Number(
+            new Intl.DateTimeFormat('en-GB', {
+                timeZone: target,
+                hour: '2-digit',
+                hourCycle: 'h23',
+            }).format(expected),
+        );
         input.value = '10:37';
         input.dispatchEvent(new Event('input'));
         await fixture.whenStable();
         expect(input.value).toBe('10:37');
-        expect(model().play_start).toBe(expected.getUTCHours() * 60 + 37);
+        expect(model().play_start).toBe(target_hour * 60 + 37);
         expect(playlistSchedulePayload(model()).play_cron).toBe(
-            `37 ${expected.getUTCHours()} * * *`,
+            `37 ${target_hour} * * *`,
         );
         expect(field.textContent).toContain(
-            new DatePipe('en-AU').transform(expected, 'h : mm a (z)', '+0000'),
+            new DatePipe('en-AU').transform(
+                expected,
+                'h : mm a (z)',
+                target_offset,
+            ),
         );
         input.value = '';
         input.dispatchEvent(new Event('input'));

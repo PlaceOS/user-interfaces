@@ -22,7 +22,6 @@ import {
     CalendarEvent,
     currentUser,
     notifyError,
-    scanForQRCode,
 } from '@placeos/common';
 import {
     checkinEventGuest,
@@ -37,6 +36,7 @@ import { MatRippleModule } from '@angular/material/core';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { OrganisationService } from '@placeos/common';
+import { scanForQRCode } from '@placeos/common/qr-code';
 
 @Component({
     selector: 'book-code-flow',

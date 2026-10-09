@@ -1,6 +1,8 @@
 @import '../../../shared/styles/tailwind.css';
 @source './';
-@source '../../../libs';
+/* Scan only the libraries that this app renders. Add a library here if the app starts to use its components */
+@source '../../../libs/common';
+@source '../../../libs/components';
 @source '../../../shared';
 
 /* You can add global styles to this file, and also import other style files */
@@ -12,4 +14,13 @@ body {
 body {
     margin: 0;
     font-family: Roboto, 'Helvetica Neue', sans-serif;
+}
+
+/* E-ink panels take seconds to redraw. Remove motion to avoid partial frames */
+body.eink *,
+body.eink *::before,
+body.eink *::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
 }

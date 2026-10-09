@@ -9,14 +9,15 @@ import {
 } from '@placeos/common';
 import { querySignagePlaylists, SignagePlaylist } from '@placeos/ts-client';
 
-import { SignageService } from '../app/signage.service';
+import { SignagePlaylistService } from '../app/playlists/signage-playlist.service';
 
 vi.mock('@placeos/ts-client', { spy: true });
 
-type SignageServiceTestAccess = SignageService & Record<string, any>;
+type SignagePlaylistServiceTestAccess = SignagePlaylistService &
+    Record<string, any>;
 
 /** Playlist search runs on the backend so the results paginate like displays. */
-describe('SignageService playlist search', () => {
+describe('SignagePlaylistService playlist search', () => {
     const flush = () => new Promise((resolve) => setTimeout(resolve));
 
     const pageOf = (ids: string[], total = ids.length, next: any = null) => ({
@@ -35,7 +36,6 @@ describe('SignageService playlist search', () => {
         } as any);
         TestBed.configureTestingModule({
             providers: [
-                SignageService,
                 { provide: UploadsService, useValue: {} },
                 {
                     provide: SettingsService,
@@ -64,8 +64,8 @@ describe('SignageService playlist search', () => {
             pageOf(['news', 'events']),
         );
         const service = TestBed.inject(
-            SignageService,
-        ) as unknown as SignageServiceTestAccess;
+            SignagePlaylistService,
+        ) as unknown as SignagePlaylistServiceTestAccess;
         TestBed.tick();
         await flush();
         return service;
@@ -108,6 +108,53 @@ describe('SignageService playlist search', () => {
             service.filtered_playlists().map((item: any) => item.id),
         ).toEqual(['news-1', 'news-2']);
         expect(service.playlists_has_more()).toBe(false);
+    });
+
+    it('loads the list again after a failed request', async () => {
+        (querySignagePlaylists as any).mockRejectedValue(new Error('offline'));
+        const service = TestBed.inject(SignagePlaylistService);
+        TestBed.tick();
+        await flush();
+        expect(service.playlists_error()).toBe(true);
+
+        (querySignagePlaylists as any).mockResolvedValue(pageOf(['news']));
+        service.reloadPlaylists();
+        TestBed.tick();
+        await flush();
+
+        expect(service.playlists_error()).toBe(false);
+        expect(service.filtered_playlists().map(({ id }) => id)).toEqual([
+            'news',
+        ]);
+    });
+
+    it('loads a later page again on retry and keeps the loaded pages', async () => {
+        let fail = true;
+        (querySignagePlaylists as any).mockResolvedValue({
+            ...pageOf(['events'], 2),
+            next: () =>
+                fail
+                    ? Promise.reject(new Error('offline'))
+                    : Promise.resolve(pageOf(['news'], 2)),
+        });
+        const service = TestBed.inject(SignagePlaylistService);
+        TestBed.tick();
+        await flush();
+        service.loadMorePlaylists();
+        await flush();
+        expect(service.playlists_error()).toBe(true);
+
+        fail = false;
+        service.reloadPlaylists();
+        TestBed.tick();
+        await flush();
+
+        expect(querySignagePlaylists).toHaveBeenCalledTimes(1);
+        expect(service.playlists_error()).toBe(false);
+        expect(service.filtered_playlists().map(({ id }) => id)).toEqual([
+            'events',
+            'news',
+        ]);
     });
 
     it('keeps loaded playlists available for id lookups while searching', async () => {

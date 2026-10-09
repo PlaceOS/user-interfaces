@@ -170,6 +170,25 @@ describe('MeetingFormDetailsComponent', () => {
         );
     });
 
+    it('should keep the selected host without a calendar check for native bookings', async () => {
+        setting_signals['events.can_book_for_anyone'].set(true);
+        setting_signals['events.use_bookings'].set(true);
+        vi.mocked(ts_client.get).mockRejectedValue('error');
+        spectator.component.model.update((m) => ({
+            ...m,
+            organiser: { email: 'other@place.tech' } as any,
+        }));
+        await flush();
+        expect(ts_client.get).not.toHaveBeenCalledWith(
+            expect.stringContaining('/permission'),
+        );
+        expect(spectator.component.permission_error()).toBe('');
+        expect(spectator.component.model().organiser.email).toBe(
+            'other@place.tech',
+        );
+        expect(spectator.component.model().host).toBe('other@place.tech');
+    });
+
     it('should keep the selected host when they have shared their calendar', async () => {
         setting_signals['events.can_book_for_anyone'].set(true);
         vi.mocked(ts_client.get).mockResolvedValue({

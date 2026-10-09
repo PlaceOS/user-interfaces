@@ -28,7 +28,9 @@ What it *does* need is outbound 443. Check that first:
 for host in github.com api.github.com codeload.github.com \
             objects.githubusercontent.com release-assets.githubusercontent.com \
             pipelines.actions.githubusercontent.com \
-            registry-1.docker.io auth.docker.io production.cloudflare.docker.com; do
+            registry-1.docker.io auth.docker.io production.cloudflare.docker.com \
+            build.placeos.run placeos-drivers.s3-ap-southeast-2.amazonaws.com \
+            login.microsoftonline.com graph.microsoft.com; do
     printf '%-48s ' "$host"
     curl -sS -o /dev/null -m 10 -w '%{http_code}\n' "https://$host" 2>&1 | tail -1
 done
@@ -41,6 +43,14 @@ timeouts, not 200s.
   checkout, the runner tarball, and cloning `PlaceOS/www-core` during bring-up.
 - **registry-1.docker.io / auth.docker.io / production.cloudflare.docker.com** —
   pulling the PlaceOS images. The one people forget; without it the stack cannot start.
+  Every run pulls (`up.sh --pull-only`, its own bounded step), so this needs to stay open, not just work once.
+- **login.microsoftonline.com / graph.microsoft.com** — the Microsoft 365 sandbox
+  tenant behind the stack's calendar and directory, reached by staff-api with the
+  app-only credentials the workflow passes in (`E2E_O365_*`).
+- **build.placeos.run / placeos-drivers.s3-ap-southeast-2.amazonaws.com** — the
+  build farm core fetches driver binaries from, and the bucket its download links
+  point at. The stack is torn down with its volumes after every run, so every run
+  downloads them again.
 
 > A slow link looks like a block. Colima's first VM image download failed here with a
 > timeout that read like a firewall; the host was fine, just slow. Retry before

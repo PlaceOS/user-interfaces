@@ -23,7 +23,8 @@ import { InteractiveMapComponent } from 'libs/components/src/lib/interactive-map
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { ExploreDeskInfoComponent } from 'libs/explore/src/lib/explore-desk-info.component';
 import { DEFAULT_COLOURS } from 'libs/explore/src/lib/explore-spaces.service';
-import { BookingAsset, BookingFormService } from '../booking-form.service';
+import { BookingFormService } from '../booking-form.service';
+import { BookingAsset } from '../booking-form.types';
 
 @Component({
     selector: 'desk-map',
@@ -105,7 +106,6 @@ export class DeskMapComponent {
     private _org = inject(OrganisationService);
     private readonly _use_region = this._settings.signal('use_region', false);
 
-    public readonly is_displayed = input(false);
     public readonly active = input('');
     public readonly onSelect = output<BookingAsset>();
 

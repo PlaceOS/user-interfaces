@@ -15,9 +15,17 @@ import { MINUTES, scoped_log, SECONDS } from '@placeos/common';
  *
  * The heartbeats measure the player's own machinery, not the backend. The poll
  * signal checks in when a fetch is *attempted*, so a backend that has been down
- * for hours still beats normally and never triggers a recovery. That is what
- * makes acting on a stall alone safe: the only thing that goes quiet is code
- * that has stopped running.
+ * for hours still beats normally. That is what makes acting on a stall alone
+ * safe: apart from content, the only thing that goes quiet is code that has
+ * stopped running. Content can go quiet because of the backend - a player with
+ * nothing cached cannot show anything while the server is down - so an outage
+ * can cause recoveries, held to the same limits as every other.
+ *
+ * Heartbeats are timed on a clock that setting the device time cannot move, so
+ * a clock corrected backwards cannot hide a stall. The recovery history has to
+ * survive reloads, so it uses the device time. It is forgotten when it holds
+ * an entry more than an hour in that time's future, and diagnostics show
+ * heartbeats in device time.
  *
  * Fatal errors are recorded for context but are not required. Most stalls worth
  * recovering from - a promise that never settles, a timer chain that quietly
@@ -71,7 +79,25 @@ const MAX_RECOVERIES_PER_WINDOW = 3;
 const RECOVERY_THROTTLE_MS = 60 * MINUTES;
 /** Quiet period after which the recovery history is forgotten */
 const RECOVERY_RESET_MS = 2 * 60 * MINUTES;
+/**
+ * How far ahead of the device clock a recorded recovery may be before the
+ * history is forgotten. Smaller corrections keep the limits: the entries just
+ * count as recent for a little longer.
+ */
+const FUTURE_HISTORY_MS = RECOVERY_THROTTLE_MS;
+/** Longest wait for the server check before clearing the application cache */
+const REACHABLE_TIMEOUT_MS = 15 * SECONDS;
+/**
+ * How long a recovery may take before it counts as failed. A reload that
+ * works replaces the page well before this.
+ */
+const RECOVERY_TIMEOUT_MS = 2 * MINUTES;
 const RECOVERY_KEY = 'PlaceOS.SIGNAGE.watchdog_reloads';
+/** Consecutive failed application starts, for the boot retry backoff */
+const BOOT_FAILURES_KEY = 'SIGNAGE.boot_failures';
+/** First wait before reloading after a failed start; doubles each time */
+const BOOT_RETRY_BASE_MS = 10 * SECONDS;
+const BOOT_RETRY_MAX_MS = 5 * MINUTES;
 
 const log = scoped_log('Watchdog');
 
@@ -112,14 +138,27 @@ let _stalled_since = 0;
 let _last_check = 0;
 let _started_at = 0;
 let _timer: ReturnType<typeof setInterval> | undefined;
+let _recovery_timer: ReturnType<typeof setTimeout> | undefined;
+/** Increments for each recovery; only the newest one may reload the page */
+let _recovery_generation = 0;
 let _listening = false;
 let _recovering = false;
+/** Whether the device was expected to show content at the last check */
+let _was_expected_to_run = false;
 let _reload: () => void = () => location.reload();
-let _hard_reload: () => Promise<boolean> = () => clearCachesAndReload();
+let _clear_cache: () => Promise<boolean> = () => clearApplicationCache();
+
+/**
+ * Milliseconds on a clock that only moves forward. Setting the device time
+ * does not move it. Reads as a timestamp, for diagnostics.
+ */
+function monotonicNow() {
+    return performance.timeOrigin + performance.now();
+}
 
 /** Record that a piece of core machinery is still running */
 export function recordHeartbeat(signal: WatchdogSignal) {
-    heartbeats[signal] = Date.now();
+    heartbeats[signal] = monotonicNow();
 }
 
 /** Record an error serious enough to be worth reporting alongside a stall */
@@ -129,7 +168,7 @@ export function recordFatalError(message: string) {
 }
 
 /** Signals that have not checked in recently enough */
-export function stalledSignals(now = Date.now()): WatchdogSignal[] {
+export function stalledSignals(now = monotonicNow()): WatchdogSignal[] {
     return (Object.keys(heartbeats) as WatchdogSignal[]).filter((signal) => {
         const last = heartbeats[signal];
         // A signal that has never checked in is not yet expected to
@@ -163,11 +202,17 @@ function writeHistory(history: RecoveryHistory) {
     }
 }
 
-/** The recovery history, forgotten entirely after a long quiet period */
+/**
+ * The recovery history, forgotten entirely after a long quiet period. Also
+ * forgotten when it holds a recovery well after `now`: the device clock has
+ * been set far back, for example on a device that starts with no time source.
+ * Kept, it would refuse every recovery until the clock caught up.
+ */
 function recoveryHistory(now: number): RecoveryHistory {
     const history = readHistory();
     const last = history.at[history.at.length - 1] || 0;
-    if (last && now - last >= RECOVERY_RESET_MS) {
+    const from_future = history.at.some((at) => at - now > FUTURE_HISTORY_MS);
+    if (from_future || (last && now - last >= RECOVERY_RESET_MS)) {
         // Only the rate limiting is forgotten; why it last recovered is still
         // worth knowing when someone finally looks at the player.
         const reset = { at: [], throttled: false, last: history.last };
@@ -214,24 +259,35 @@ function resetHeartbeats(now: number) {
     }
 }
 
+/** Forget every heartbeat, as though no signal had ever checked in */
+function clearHeartbeats() {
+    for (const signal of Object.keys(heartbeats) as WatchdogSignal[]) {
+        heartbeats[signal] = 0;
+    }
+}
+
 /**
- * Reload, clearing the application cache first. Used once plain reloads have
- * failed to shift the problem, in case the cached build is what is wrong.
- * Only clears the cache when the server can be reached, so a player is never
- * left with no cached application and no way to fetch a new one.
- *
- * Reloads the current URL rather than navigating to the base path: the route
- * that says which display to show, and whether to show it in debug mode, is in
- * the hash. Dropping it leaves the player on the display picker instead of
- * back on its content.
+ * Clear the application cache before a recovery reload. Used once plain
+ * reloads have failed to shift the problem, in case the cached build is what
+ * is wrong. Only clears the cache when the server can be reached, so a player
+ * is never left with no cached application and no way to fetch a new one. A
+ * server that accepts the request but never answers counts as unreachable.
+ * Returns whether the cache was cleared; the caller reloads either way.
  */
-export async function clearCachesAndReload(): Promise<boolean> {
+export async function clearApplicationCache(): Promise<boolean> {
     let reachable = false;
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), REACHABLE_TIMEOUT_MS);
     try {
-        const response = await fetch(location.href, { cache: 'reload' });
+        const response = await fetch(location.href, {
+            cache: 'reload',
+            signal: controller.signal,
+        });
         reachable = response.ok;
     } catch {
         reachable = false;
+    } finally {
+        clearTimeout(timeout);
     }
     if (!reachable) {
         log.warn('Server unreachable; not clearing the application cache.');
@@ -249,12 +305,11 @@ export async function clearCachesAndReload(): Promise<boolean> {
     } catch (error) {
         log.warn('Failed to clear the application cache.', error);
     }
-    _reload();
     return true;
 }
 
 function check(expected_to_run: () => boolean) {
-    const now = Date.now();
+    const now = monotonicNow();
     const since_last_check = _last_check ? now - _last_check : 0;
     _last_check = now;
     // The watchdog itself did not run, so every heartbeat looks stale
@@ -268,13 +323,25 @@ function check(expected_to_run: () => boolean) {
     }
     // A recovery has been asked for; the page is on its way out
     if (_recovering) return;
+    const expected = expected_to_run();
+    if (expected !== _was_expected_to_run) {
+        // Bootstrapped to a display, or cleared back to the display picker.
+        // The heartbeats belong to a screen that has gone: left in place they
+        // would read as a stall and reload the picker under whoever is using
+        // it. A display picked now gets the full boot deadline, however long
+        // the picker was up.
+        _was_expected_to_run = expected;
+        clearHeartbeats();
+        _stalled_since = 0;
+        _started_at = now;
+    }
     // Boot never completed. Nothing has ever been on screen, so none of the
     // stall signals apply - this is the only thing watching startup.
-    if (!heartbeats.visible && expected_to_run()) {
+    if (!heartbeats.visible && expected) {
         if (now - _started_at < BOOT_TIMEOUT_MS) return;
         // A boot that never completes is most often a bad cached build,
         // especially straight after an update, so skip the plain reloads.
-        recover(now, ['boot'], true);
+        recover(['boot'], true);
         return;
     }
     const stalled = stalledSignals(now);
@@ -288,7 +355,7 @@ function check(expected_to_run: () => boolean) {
         return;
     }
     if (now - _stalled_since < RECOVERY_GRACE_MS) return;
-    if (!recover(now, stalled, false)) _stalled_since = now;
+    if (!recover(stalled, false)) _stalled_since = now;
 }
 
 /**
@@ -296,7 +363,9 @@ function check(expected_to_run: () => boolean) {
  * the application cache; otherwise that only happens once plain reloads have
  * been tried and throttled.
  */
-function recover(now: number, reasons: string[], prefer_hard: boolean) {
+function recover(reasons: string[], prefer_hard: boolean) {
+    // The history outlives the page, so it is kept in device time
+    const now = Date.now();
     const throttled = recoveryHistory(now).throttled;
     const record: RecoveryRecord = {
         at: now,
@@ -318,15 +387,34 @@ function recover(now: number, reasons: string[], prefer_hard: boolean) {
         last_error: _last_error,
     });
     _recovering = true;
-    // Only clear the application cache when the server can serve a
-    // replacement; `hardReload` checks that and reports back.
+    const generation = ++_recovery_generation;
+    // If the page is still here after the timeout, the reload never happened:
+    // a cache clear that hung, or a navigation the server never answered.
+    // Reload again and let the checks run, so a failed recovery cannot leave
+    // the watchdog latched off until someone power-cycles the device.
+    clearTimeout(_recovery_timer);
+    _recovery_timer = setTimeout(() => {
+        log.error('Recovery did not reload the page; trying again.');
+        // A cache clear still running belongs to the abandoned attempt and
+        // must not start a second reload when it finishes
+        _recovery_generation++;
+        _recovering = false;
+        _reload();
+    }, RECOVERY_TIMEOUT_MS);
+    // Reloads the current URL rather than navigating to the base path: the
+    // route that says which display to show, and whether in debug mode, is
+    // in the hash. Dropping it leaves the player on the display picker.
     if (!prefer_hard && !throttled) {
         _reload();
         return true;
     }
-    _hard_reload().then((cleared) => {
-        if (!cleared) _reload();
-    });
+    // Reload whether or not the cache could be cleared; the clear itself
+    // only goes ahead when the server can serve a replacement
+    _clear_cache()
+        .catch(() => false)
+        .then(() => {
+            if (generation === _recovery_generation) _reload();
+        });
     return true;
 }
 
@@ -337,12 +425,12 @@ function recover(now: number, reasons: string[], prefer_hard: boolean) {
  */
 export function requestRecovery(reason: string, prefer_hard = false) {
     if (_recovering) return false;
-    return recover(Date.now(), [reason], prefer_hard);
+    return recover([reason], prefer_hard);
 }
 
 export interface WatchdogActions {
     reload?: () => void;
-    hardReload?: () => Promise<boolean>;
+    clearCache?: () => Promise<boolean>;
     /**
      * Whether this device is supposed to be showing content. A player that has
      * never been bootstrapped is legitimately waiting for someone to pick a
@@ -354,23 +442,30 @@ export interface WatchdogActions {
 /** Start watching. Returns a callback that stops it again. */
 export function startWatchdog(actions: WatchdogActions = {}) {
     _reload = actions.reload || (() => location.reload());
-    _hard_reload = actions.hardReload || clearCachesAndReload;
+    _clear_cache = actions.clearCache || clearApplicationCache;
     const expectedToRun = actions.isExpectedToRun || (() => false);
     stopWatchdog();
+    _was_expected_to_run = expectedToRun();
     if (!_listening) {
         _listening = true;
         window.addEventListener('error', onWindowError);
         window.addEventListener('unhandledrejection', onRejection);
     }
-    _last_check = Date.now();
-    _started_at = Date.now();
+    _last_check = monotonicNow();
+    _started_at = _last_check;
     _timer = setInterval(() => check(expectedToRun), CHECK_INTERVAL_MS);
     return () => stopWatchdog();
 }
 
-export function stopWatchdog() {
+function stopWatchdog() {
     if (_timer) clearInterval(_timer);
     _timer = undefined;
+    // The latch must not outlive the timer that releases it, and a stopped
+    // watchdog must not reload when an earlier cache clear finishes
+    clearTimeout(_recovery_timer);
+    _recovery_timer = undefined;
+    _recovery_generation++;
+    _recovering = false;
     if (_listening) {
         _listening = false;
         window.removeEventListener('error', onWindowError);
@@ -381,11 +476,8 @@ export function stopWatchdog() {
 /** Reset all in-memory watchdog state. Intended for tests. */
 export function resetWatchdog() {
     stopWatchdog();
-    heartbeats.poll = 0;
-    heartbeats.schedule = 0;
-    heartbeats.playback = 0;
-    heartbeats.visible = 0;
-    heartbeats.content = 0;
+    clearHeartbeats();
+    _was_expected_to_run = false;
     _last_error = null;
     _error_count = 0;
     _stalled_since = 0;
@@ -400,13 +492,19 @@ export function watchdogState() {
     const history = readHistory();
     const asTime = (value: number) =>
         value ? new Date(value).toISOString() : 'never';
+    // Heartbeats and their timers are on the monotonic clock. Shown as the
+    // same age before the device time, so they line up with the other times
+    // here after the device clock has been corrected.
+    const monotonic_now = monotonicNow();
+    const asMonotonicTime = (value: number) =>
+        asTime(value ? now - (monotonic_now - value) : 0);
     return {
         running: !!_timer,
         recovering: _recovering,
         error_count: _error_count,
         last_error: _last_error,
-        stalled: stalledSignals(now),
-        stalled_since: asTime(_stalled_since),
+        stalled: stalledSignals(),
+        stalled_since: asMonotonicTime(_stalled_since),
         recoveries_in_last_hour: history.at.filter(
             (at) => now - at < RECOVERY_WINDOW_MS,
         ).length,
@@ -426,16 +524,55 @@ export function watchdogState() {
                       : null,
               }
             : null,
-        started_at: asTime(_started_at),
+        started_at: asMonotonicTime(_started_at),
         booted: !!heartbeats.visible,
         heartbeats: {
-            poll: asTime(heartbeats.poll),
-            schedule: asTime(heartbeats.schedule),
-            playback: asTime(heartbeats.playback),
-            visible: asTime(heartbeats.visible),
-            content: asTime(heartbeats.content),
+            poll: asMonotonicTime(heartbeats.poll),
+            schedule: asMonotonicTime(heartbeats.schedule),
+            playback: asMonotonicTime(heartbeats.playback),
+            visible: asMonotonicTime(heartbeats.visible),
+            content: asMonotonicTime(heartbeats.content),
         },
     };
+}
+
+/**
+ * Reload after the application failed to start. The watchdog starts inside
+ * the application, so a start that fails never reaches it and nothing else
+ * would recover the blank screen. The wait doubles with each consecutive
+ * failure, up to a cap, and the count lives in session storage so it survives
+ * the reloads it causes. Returns the wait in milliseconds.
+ */
+export function scheduleBootRetry(
+    reload: () => void = () => location.reload(),
+) {
+    let failures = 0;
+    try {
+        failures = Number(sessionStorage.getItem(BOOT_FAILURES_KEY)) || 0;
+        sessionStorage.setItem(BOOT_FAILURES_KEY, `${failures + 1}`);
+    } catch {
+        // Ignore privacy-mode failures; retry at the base delay.
+    }
+    const delay = Math.min(
+        BOOT_RETRY_BASE_MS * 2 ** Math.min(failures, 10),
+        BOOT_RETRY_MAX_MS,
+    );
+    // Not the scoped log: it prints only once settings enable debug, and
+    // settings never load when the application fails to start.
+    console.error(
+        `[Watchdog] Application failed to start; reloading in ${delay / 1000}s.`,
+    );
+    setTimeout(reload, delay);
+    return delay;
+}
+
+/** Forget earlier failed starts. Called once the application has started. */
+export function resetBootRetries() {
+    try {
+        sessionStorage.removeItem(BOOT_FAILURES_KEY);
+    } catch {
+        // Ignore privacy-mode failures.
+    }
 }
 
 function onWindowError(event: ErrorEvent) {

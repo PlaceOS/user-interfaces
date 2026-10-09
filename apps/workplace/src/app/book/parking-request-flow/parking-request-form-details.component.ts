@@ -40,6 +40,7 @@ import {
     SettingsService,
     startOfDayInTimezone,
     UploadsService,
+    user_group_names,
 } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import {
@@ -1564,7 +1565,7 @@ export class ParkingRequestFormDetailsComponent
     public readonly is_auto_approved = computed(() => {
         const auto_groups = this.auto_approved_groups_setting();
         if (!auto_groups?.length) return false;
-        const user_groups = currentUser()?.groups || [];
+        const user_groups = user_group_names();
         return auto_groups.some((g) => user_groups.includes(g));
     });
 
@@ -1591,7 +1592,7 @@ export class ParkingRequestFormDetailsComponent
     public readonly custom_start_time_mins = signal<number>(480);
     public readonly custom_end_time_mins = signal<number>(600);
     public readonly shift_options = computed(() => {
-        const user_groups = currentUser()?.groups || [];
+        const user_groups = user_group_names();
         return this._normaliseShiftOptions(this.shift_options_setting()).filter(
             (option) => {
                 if (option.groups?.length) {
@@ -1764,7 +1765,7 @@ export class ParkingRequestFormDetailsComponent
             custom_types?.length > 0
                 ? custom_types
                 : this._default_request_types;
-        const user_groups = currentUser()?.groups || [];
+        const user_groups = user_group_names();
         return all_types.filter((t) => {
             if (t.groups?.length)
                 return t.groups.some((g) => user_groups.includes(g));

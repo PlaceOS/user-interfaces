@@ -1,9 +1,11 @@
 import {
-    clearCachesAndReload,
+    clearApplicationCache,
     recordFatalError,
     recordHeartbeat,
     requestRecovery,
+    resetBootRetries,
     resetWatchdog,
+    scheduleBootRetry,
     stalledSignals,
     startWatchdog,
     watchdogState,
@@ -13,7 +15,7 @@ const MINUTE = 60 * 1000;
 
 describe('recovery watchdog', () => {
     let reload: any;
-    let hard_reload: any;
+    let clear_cache: any;
     let stop: () => void;
 
     let expected_to_run: boolean;
@@ -22,7 +24,7 @@ describe('recovery watchdog', () => {
         stop?.();
         stop = startWatchdog({
             reload,
-            hardReload: hard_reload,
+            clearCache: clear_cache,
             isExpectedToRun: () => expected_to_run,
         });
     };
@@ -52,6 +54,16 @@ describe('recovery watchdog', () => {
         await vi.advanceTimersByTimeAsync(minutes * MINUTE);
     };
 
+    /**
+     * The device sleeps: the clocks move on, but no timer runs. Moves the
+     * clock the heartbeats use as well as the device time.
+     */
+    const suspend = (ms: number) => {
+        const now = performance.now.bind(performance);
+        vi.spyOn(performance, 'now').mockImplementation(() => now() + ms);
+        vi.setSystemTime(Date.now() + ms);
+    };
+
     /** A fresh stall, as though the player had restarted and stalled again */
     const stallAgain = async () => {
         resetWatchdog();
@@ -64,8 +76,9 @@ describe('recovery watchdog', () => {
         vi.useFakeTimers();
         localStorage.clear();
         resetWatchdog();
-        reload = vi.fn();
-        hard_reload = vi.fn(async () => true);
+        // A reload that works ends the page, and the watchdog with it
+        reload = vi.fn(() => stop());
+        clear_cache = vi.fn(async () => true);
         expected_to_run = true;
         stop = () => undefined;
         start();
@@ -74,6 +87,7 @@ describe('recovery watchdog', () => {
     afterEach(() => {
         stop();
         resetWatchdog();
+        vi.restoreAllMocks();
         vi.useRealTimers();
     });
 
@@ -83,14 +97,15 @@ describe('recovery watchdog', () => {
 
         // A failed boot is most often a bad cached build, so it goes straight
         // to clearing the cache rather than spending plain reloads first
-        expect(hard_reload).toHaveBeenCalledTimes(1);
-        expect(reload).not.toHaveBeenCalled();
+        expect(clear_cache).toHaveBeenCalledTimes(1);
+        expect(clear_cache).toHaveBeenCalledBefore(reload);
+        expect(reload).toHaveBeenCalledTimes(1);
     });
 
     it('should give the player time to boot before recovering', async () => {
         await vi.advanceTimersByTimeAsync(4 * MINUTE);
 
-        expect(hard_reload).not.toHaveBeenCalled();
+        expect(clear_cache).not.toHaveBeenCalled();
         expect(reload).not.toHaveBeenCalled();
     });
 
@@ -99,8 +114,32 @@ describe('recovery watchdog', () => {
 
         await vi.advanceTimersByTimeAsync(60 * MINUTE);
 
-        expect(hard_reload).not.toHaveBeenCalled();
+        expect(clear_cache).not.toHaveBeenCalled();
         expect(reload).not.toHaveBeenCalled();
+    });
+
+    it('should not reload the display picker after the display is cleared', async () => {
+        await runHealthy(2);
+
+        // Someone clears the display and stays on the picker; the player
+        // that was checking in has gone
+        expected_to_run = false;
+        await vi.advanceTimersByTimeAsync(30 * MINUTE);
+
+        expect(reload).not.toHaveBeenCalled();
+        expect(watchdogState().stalled).toEqual([]);
+    });
+
+    it('should give a display picked later the full boot deadline', async () => {
+        expected_to_run = false;
+        await vi.advanceTimersByTimeAsync(20 * MINUTE);
+
+        expected_to_run = true;
+        await vi.advanceTimersByTimeAsync(4 * MINUTE);
+        expect(clear_cache).not.toHaveBeenCalled();
+
+        await vi.advanceTimersByTimeAsync(2 * MINUTE);
+        expect(clear_cache).toHaveBeenCalledTimes(1);
     });
 
     it('should stop watching for a failed boot once content is visible', async () => {
@@ -110,7 +149,7 @@ describe('recovery watchdog', () => {
 
         await vi.advanceTimersByTimeAsync(4 * MINUTE);
 
-        expect(hard_reload).not.toHaveBeenCalled();
+        expect(clear_cache).not.toHaveBeenCalled();
     });
 
     it('should recover when content stops being visible', async () => {
@@ -156,12 +195,12 @@ describe('recovery watchdog', () => {
     });
 
     it('should fall back to a plain reload when a failed boot cannot clear the cache', async () => {
-        hard_reload = vi.fn(async () => false);
+        clear_cache = vi.fn(async () => false);
         start();
 
         await vi.advanceTimersByTimeAsync(6 * MINUTE);
 
-        expect(hard_reload).toHaveBeenCalledTimes(1);
+        expect(clear_cache).toHaveBeenCalledTimes(1);
         expect(reload).toHaveBeenCalledTimes(1);
     });
 
@@ -183,7 +222,8 @@ describe('recovery watchdog', () => {
     it('should ignore signals that have never checked in', () => {
         recordHeartbeat('poll');
 
-        expect(stalledSignals(Date.now() + 30 * MINUTE)).toEqual(['poll']);
+        const now = performance.timeOrigin + performance.now();
+        expect(stalledSignals(now + 30 * MINUTE)).toEqual(['poll']);
     });
 
     it('should not reload if the stall recovers within the grace period', async () => {
@@ -203,7 +243,7 @@ describe('recovery watchdog', () => {
     it('should skip a round when the watchdog itself was delayed', async () => {
         beat();
         // The device suspends: no timers run, then everything resumes at once
-        vi.setSystemTime(Date.now() + 4 * 60 * MINUTE);
+        suspend(4 * 60 * MINUTE);
         await vi.advanceTimersByTimeAsync(30 * 1000);
 
         expect(reload).not.toHaveBeenCalled();
@@ -213,12 +253,41 @@ describe('recovery watchdog', () => {
 
     it('should still recover if the stall continues after a delay', async () => {
         beat();
-        vi.setSystemTime(Date.now() + 4 * 60 * MINUTE);
+        suspend(4 * 60 * MINUTE);
         await vi.advanceTimersByTimeAsync(30 * 1000);
 
         await runStalled();
 
         expect(reload).toHaveBeenCalledTimes(1);
+    });
+
+    it('should still notice a stall after the device clock is set back', async () => {
+        beat();
+        // The clock is corrected a day back as the player stops
+        vi.setSystemTime(Date.now() - 24 * 60 * MINUTE);
+
+        await runStalled();
+
+        expect(reload).toHaveBeenCalledTimes(1);
+    });
+
+    it('should recover when the history is ahead of the device clock', () => {
+        // Recoveries recorded while the clock was right, before the device
+        // started again with its clock days behind
+        const later = Date.now() + 3 * 24 * 60 * MINUTE;
+        localStorage.setItem(
+            'PlaceOS.SIGNAGE.watchdog_reloads',
+            JSON.stringify({
+                at: [later, later + MINUTE, later + 2 * MINUTE],
+                throttled: true,
+                last: null,
+            }),
+        );
+
+        expect(requestRecovery('init-error')).toBe(true);
+
+        expect(reload).toHaveBeenCalledTimes(1);
+        expect(watchdogState().recoveries_in_last_hour).toBe(1);
     });
 
     it('should allow three recoveries in an hour and no more', async () => {
@@ -235,7 +304,7 @@ describe('recovery watchdog', () => {
         for (let attempt = 0; attempt < 4; attempt++) await stallAgain();
         expect(watchdogState().recoveries_throttled).toBe(true);
         reload.mockClear();
-        hard_reload.mockClear();
+        clear_cache.mockClear();
 
         // Half an hour later, still stalled
         resetWatchdog();
@@ -246,12 +315,12 @@ describe('recovery watchdog', () => {
         await runStalled();
 
         expect(reload).not.toHaveBeenCalled();
-        expect(hard_reload).not.toHaveBeenCalled();
+        expect(clear_cache).not.toHaveBeenCalled();
     });
 
     it('should clear the application cache once recoveries are throttled', async () => {
         for (let attempt = 0; attempt < 4; attempt++) await stallAgain();
-        expect(hard_reload).not.toHaveBeenCalled();
+        expect(clear_cache).not.toHaveBeenCalled();
         expect(watchdogState().recoveries_throttled).toBe(true);
 
         resetWatchdog();
@@ -261,11 +330,11 @@ describe('recovery watchdog', () => {
         beat();
         await runStalled();
 
-        expect(hard_reload).toHaveBeenCalledTimes(1);
+        expect(clear_cache).toHaveBeenCalledTimes(1);
     });
 
     it('should fall back to a plain reload when the cache cannot be cleared', async () => {
-        hard_reload = vi.fn(async () => false);
+        clear_cache = vi.fn(async () => false);
         for (let attempt = 0; attempt < 4; attempt++) await stallAgain();
         reload.mockClear();
 
@@ -276,7 +345,7 @@ describe('recovery watchdog', () => {
         beat();
         await runStalled();
 
-        expect(hard_reload).toHaveBeenCalledTimes(1);
+        expect(clear_cache).toHaveBeenCalledTimes(1);
         expect(reload).toHaveBeenCalledTimes(1);
     });
 
@@ -296,7 +365,60 @@ describe('recovery watchdog', () => {
         expect(watchdogState().recoveries_in_last_hour).toBe(1);
         // Back to plain reloads rather than cache clearing
         expect(reload).toHaveBeenCalledTimes(4);
-        expect(hard_reload).not.toHaveBeenCalled();
+        expect(clear_cache).not.toHaveBeenCalled();
+    });
+
+    it('should reload anyway when clearing the cache never finishes', async () => {
+        clear_cache = vi.fn(() => new Promise<boolean>(() => undefined));
+        // Nor does the reload that follows: the server never answers it
+        reload = vi.fn();
+        start();
+
+        // The failed boot is recovered at five minutes and never completes
+        await vi.advanceTimersByTimeAsync(6 * MINUTE);
+        expect(clear_cache).toHaveBeenCalledTimes(1);
+        expect(reload).not.toHaveBeenCalled();
+        expect(watchdogState().recovering).toBe(true);
+
+        // Two minutes after it started, it reloads anyway and lets go
+        await vi.advanceTimersByTimeAsync(MINUTE);
+        expect(reload).toHaveBeenCalledTimes(1);
+        expect(watchdogState().recovering).toBe(false);
+
+        // So the next check can try again instead of waiting forever
+        await vi.advanceTimersByTimeAsync(30 * 1000);
+        expect(clear_cache).toHaveBeenCalledTimes(2);
+    });
+
+    it('should not reload again when an abandoned cache clear finishes late', async () => {
+        let finish: (cleared: boolean) => void = () => undefined;
+        clear_cache = vi.fn(
+            () => new Promise<boolean>((resolve) => (finish = resolve)),
+        );
+        // The reload never completes either, so this page stays
+        reload = vi.fn();
+        start();
+
+        await vi.advanceTimersByTimeAsync(7 * MINUTE);
+        expect(reload).toHaveBeenCalledTimes(1);
+
+        // The first attempt finally gives up while the fallback reload is
+        // still loading; it must not start a competing reload
+        finish(false);
+        await vi.advanceTimersByTimeAsync(0);
+
+        expect(reload).toHaveBeenCalledTimes(1);
+    });
+
+    it('should fall back to a plain reload when clearing the cache throws', async () => {
+        clear_cache = vi.fn(async () => {
+            throw new Error('denied');
+        });
+        start();
+
+        await vi.advanceTimersByTimeAsync(6 * MINUTE);
+
+        expect(reload).toHaveBeenCalledTimes(1);
     });
 
     it('should allow a recovery to be requested directly', () => {
@@ -383,6 +505,34 @@ describe('recovery watchdog', () => {
         ]);
     });
 
+    it('should keep the recovery limit through a small clock correction', () => {
+        // The allowance is used up, then the clock is set back a minute
+        const now = Date.now();
+        localStorage.setItem(
+            'PlaceOS.SIGNAGE.watchdog_reloads',
+            JSON.stringify({
+                at: [now - 2 * MINUTE, now - MINUTE, now + MINUTE],
+                throttled: false,
+                last: null,
+            }),
+        );
+
+        expect(requestRecovery('init-error')).toBe(false);
+
+        expect(reload).not.toHaveBeenCalled();
+        expect(watchdogState().recoveries_throttled).toBe(true);
+    });
+
+    it('should show heartbeats in device time after the clock is corrected', () => {
+        recordHeartbeat('poll');
+
+        vi.setSystemTime(Date.now() - 24 * 60 * MINUTE);
+
+        expect(watchdogState().heartbeats.poll).toBe(
+            new Date(Date.now()).toISOString(),
+        );
+    });
+
     it('should read recovery history written by an earlier build', () => {
         localStorage.setItem(
             'PlaceOS.SIGNAGE.watchdog_reloads',
@@ -449,26 +599,22 @@ describe('cache clearing recovery', () => {
         vi.unstubAllGlobals();
     });
 
-    it('should reload the current url, keeping the route it displays', async () => {
-        // The display to show, and whether to show it in debug mode, live in
-        // the hash, so recovering must not navigate to the base path
-        expect(await clearCachesAndReload()).toBe(true);
+    it('should remove the service worker and its caches, leaving the reload to the caller', async () => {
+        expect(await clearApplicationCache()).toBe(true);
 
         expect(unregister).toHaveBeenCalledTimes(1);
         expect(delete_cache).toHaveBeenCalledTimes(2);
-        expect(reload).toHaveBeenCalledTimes(1);
+        expect(reload).not.toHaveBeenCalled();
     });
 
-    it('should still reload when the cache cannot be cleared', async () => {
+    it('should carry on when the caches cannot be deleted', async () => {
         vi.stubGlobal('caches', {
             keys: async () => {
                 throw new Error('denied');
             },
         });
 
-        expect(await clearCachesAndReload()).toBe(true);
-
-        expect(reload).toHaveBeenCalledTimes(1);
+        expect(await clearApplicationCache()).toBe(true);
     });
 
     it('should not clear the cache when the server cannot be reached', async () => {
@@ -479,11 +625,34 @@ describe('cache clearing recovery', () => {
             }),
         );
 
-        expect(await clearCachesAndReload()).toBe(false);
+        expect(await clearApplicationCache()).toBe(false);
 
         expect(unregister).not.toHaveBeenCalled();
         expect(delete_cache).not.toHaveBeenCalled();
         expect(reload).not.toHaveBeenCalled();
+    });
+
+    it('should not clear the cache when the server never answers', async () => {
+        vi.useFakeTimers();
+        vi.stubGlobal(
+            'fetch',
+            vi.fn(
+                (_: string, init: RequestInit) =>
+                    new Promise((_resolve, reject) =>
+                        init.signal?.addEventListener('abort', () =>
+                            reject(new Error('aborted')),
+                        ),
+                    ),
+            ),
+        );
+
+        const result = clearApplicationCache();
+        await vi.advanceTimersByTimeAsync(15 * 1000);
+
+        expect(await result).toBe(false);
+        expect(unregister).not.toHaveBeenCalled();
+        expect(reload).not.toHaveBeenCalled();
+        vi.useRealTimers();
     });
 
     it('should not clear the cache when the server errors', async () => {
@@ -492,9 +661,54 @@ describe('cache clearing recovery', () => {
             vi.fn(async () => ({ ok: false })),
         );
 
-        expect(await clearCachesAndReload()).toBe(false);
+        expect(await clearApplicationCache()).toBe(false);
 
         expect(unregister).not.toHaveBeenCalled();
         expect(reload).not.toHaveBeenCalled();
+    });
+});
+
+describe('boot retry', () => {
+    let console_error: ReturnType<typeof vi.spyOn>;
+
+    beforeEach(() => {
+        vi.useFakeTimers();
+        sessionStorage.clear();
+        console_error = vi.spyOn(console, 'error').mockImplementation(() => {});
+    });
+
+    afterEach(() => {
+        sessionStorage.clear();
+        console_error.mockRestore();
+        vi.useRealTimers();
+    });
+
+    it('should reload after a failed start, waiting longer each time up to a cap', () => {
+        const reload = vi.fn();
+
+        const delays = Array.from({ length: 8 }, () =>
+            scheduleBootRetry(reload),
+        );
+
+        expect(delays).toEqual([
+            10_000, 20_000, 40_000, 80_000, 160_000, 300_000, 300_000, 300_000,
+        ]);
+        vi.advanceTimersByTime(300_000);
+        expect(reload).toHaveBeenCalledTimes(8);
+        // Printed without debug mode, which needs settings that never loaded
+        expect(console_error).toHaveBeenCalledWith(
+            expect.stringContaining(
+                'Application failed to start; reloading in 10s',
+            ),
+        );
+    });
+
+    it('should start from the shortest wait again after a successful start', () => {
+        scheduleBootRetry(vi.fn());
+        scheduleBootRetry(vi.fn());
+
+        resetBootRetries();
+
+        expect(scheduleBootRetry(vi.fn())).toBe(10_000);
     });
 });

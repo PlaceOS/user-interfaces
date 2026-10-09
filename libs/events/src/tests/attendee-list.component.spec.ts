@@ -137,6 +137,22 @@ describe('AttendeeListComponent', () => {
         expect(spectator.component.final_list()).toEqual([attendee]);
     });
 
+    it('should label external attendees only when asked', () => {
+        spectator.setInput({
+            list: [
+                new User({ email: 'staff@dev.place.tech' }),
+                new User({ email: 'guest@example.com' }),
+            ],
+        });
+        expect('[external]').not.toExist();
+
+        spectator.setInput({ mark_external: true });
+
+        expect('[external]').toHaveLength(1);
+        const [, guest_row] = spectator.queryAll('[attendee]');
+        expect(guest_row.querySelector('[external]')).toExist();
+    });
+
     it('should allow closing the component', () =>
         new Promise<void>((done) => {
             expect('button[close]').toExist();

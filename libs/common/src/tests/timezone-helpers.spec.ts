@@ -3,6 +3,7 @@ import {
     endOfDayInTimezone,
     getTimezoneOffsetInMinutes,
     getTimezoneOffsetString,
+    sameDayInTimezone,
     startOfDayInTimezone,
 } from '../lib/timezone-helpers';
 import { Booking } from '../lib/types/booking.class';
@@ -48,6 +49,22 @@ describe('timezone all-day helpers', () => {
         expect(json.event_start).toBe(Math.floor(day_start / 1000));
         expect(json.event_end).toBe(Math.floor((day_end + 1) / 1000));
     });
+
+    it('should serialise an all-day event built from day bounds as a full day', () => {
+        const event = new CalendarEvent({
+            all_day: true,
+            date: day_start,
+            duration: 24 * 60 - 1,
+            date_end: day_end,
+            timezone,
+        });
+        const json = event.toJSON();
+
+        expect(json.all_day).toBe(true);
+        expect(json.extension_data.custom_all_day).toBeUndefined();
+        expect(json.event_start).toBe(day_start / 1000);
+        expect(json.event_end).toBe((day_end + 1) / 1000);
+    });
 });
 
 describe('timezone offset helpers', () => {
@@ -88,5 +105,20 @@ describe('timezone offset helpers', () => {
                 new Date('2026-01-15T00:00:00Z'),
             ),
         ).toBe(11 * 60);
+    });
+});
+
+describe('sameDayInTimezone', () => {
+    it('should keep the calendar day picked in another timezone', () => {
+        // 15 June 00:00 in Sydney is 14 June 15:00 in London.
+        const sydney_midnight = Date.UTC(2028, 5, 14, 14);
+
+        expect(
+            sameDayInTimezone(
+                sydney_midnight,
+                'Australia/Sydney',
+                'Europe/London',
+            ),
+        ).toBe(Date.UTC(2028, 5, 15, 11));
     });
 });

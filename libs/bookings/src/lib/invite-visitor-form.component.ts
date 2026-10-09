@@ -52,7 +52,7 @@ import { TimeFieldComponent } from 'libs/form-fields/src/lib/time-field.componen
 import { UserListFieldComponent } from 'libs/form-fields/src/lib/user-list-field.component';
 import { UserSearchFieldComponent } from 'libs/form-fields/src/lib/user-search-field.component';
 import { BookingFormService } from './booking-form.service';
-import { bookingHostUser } from './booking.utilities';
+import { bookingHostUser } from './booking-form.model';
 
 @Component({
     selector: `invite-visitor-form`,

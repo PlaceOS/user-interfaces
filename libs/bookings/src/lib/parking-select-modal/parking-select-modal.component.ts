@@ -11,11 +11,8 @@ import { isMobileSafari, SETTING_KEYS, SettingsService } from '@placeos/common';
 
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
-import {
-    BookingAsset,
-    BookingFlowOptions,
-    BookingFormService,
-} from '../booking-form.service';
+import { BookingFormService } from '../booking-form.service';
+import { BookingAsset, BookingFlowOptions } from '../booking-form.types';
 
 import { ParkingDetailsComponent } from './parking-details.component';
 import { ParkingFiltersDisplayComponent } from './parking-filters-display.component';
@@ -87,9 +84,7 @@ import { ParkingMapComponent } from './parking-map.component';
                     [class.p-2]="view() === 'list'"
                 >
                     @if (view() === 'list') {
-                        <parking-space-filters-display
-                            [(view)]="view"
-                        ></parking-space-filters-display>
+                        <parking-space-filters-display></parking-space-filters-display>
                     }
                     @if (view() === 'list') {
                         <parking-space-list
@@ -102,7 +97,6 @@ import { ParkingMapComponent } from './parking-map.component';
                     } @else {
                         <parking-space-map
                             class="h-full min-h-[60vh] w-full"
-                            [is_displayed]="!!displayed()"
                             [active]="displayed()?.id || ''"
                             (onSelect)="displayed.set($event)"
                         >
@@ -117,9 +111,7 @@ import { ParkingMapComponent } from './parking-map.component';
                 >
                     <parking-space-details
                         [space]="displayed()"
-                        [active]="isSelected(displayed()?.id)"
                         [hide_map]="view() === 'map'"
-                        (activeChange)="setSelected(displayed(), $event)"
                         [fav]="
                             displayed()
                                 ? favorites().includes(displayed()?.id)

@@ -1,5 +1,6 @@
 import {
     Component,
+    computed,
     effect,
     inject,
     OnInit,
@@ -29,6 +30,7 @@ import {
 import {
     BuildingPipe,
     IconComponent,
+    LoadErrorComponent,
     SettingsToggleComponent,
     TranslatePipe,
 } from '@placeos/components';
@@ -82,7 +84,13 @@ const EMPTY = [];
                         <icon class="text-2xl">download</icon>
                     }
                 </button>
-                <button btn matRipple class="space-x-2" (click)="newBooking()">
+                <button
+                    btn
+                    matRipple
+                    class="space-x-2"
+                    data-shortcut="new"
+                    (click)="newBooking()"
+                >
                     <div class="pl-2">
                         {{ 'APP.CONCIERGE.ROOMS_BOOK_ADD' | translate }}
                     </div>
@@ -219,6 +227,34 @@ const EMPTY = [];
                     </mat-menu>
                 </div>
             </div>
+            @if (load_error() && view() === 'timeline') {
+                <load-error
+                    class="border-error/30 mx-8 mt-4 block rounded-lg border"
+                    (retry)="retryLoad()"
+                />
+            } @else if (failed_space_names()) {
+                <div
+                    role="alert"
+                    class="border-warning/30 bg-warning/10 mx-8 mt-4 flex items-center gap-2 rounded-lg border p-2 pl-4 text-sm"
+                >
+                    <icon class="text-warning text-xl">warning</icon>
+                    <p class="flex-1">
+                        {{
+                            'APP.CONCIERGE.BOOKINGS_CALENDAR_ERROR'
+                                | translate: { names: failed_space_names() }
+                        }}
+                    </p>
+                    <button
+                        btn
+                        matRipple
+                        type="button"
+                        class="inverse"
+                        (click)="retryLoad()"
+                    >
+                        {{ 'COMMON.RETRY' | translate }}
+                    </button>
+                </div>
+            }
             <div class="border-base-200 mt-4 flex h-px w-full flex-1 border-t">
                 @if (view() === 'timeline') {
                     @if (period() === 'day') {
@@ -265,6 +301,7 @@ const EMPTY = [];
         RoomBookingsApprovalsComponent,
         SettingsToggleComponent,
         BuildingPipe,
+        LoadErrorComponent,
     ],
 })
 export class RoomBookingsComponent extends AsyncHandler implements OnInit {
@@ -281,6 +318,15 @@ export class RoomBookingsComponent extends AsyncHandler implements OnInit {
 
     public readonly zones = this._state.zones;
     public readonly period = this._state.period;
+    public readonly load_error = this._state.load_error;
+    /** Names of shown rooms whose bookings did not load */
+    public readonly failed_space_names = computed(() =>
+        this._state
+            .failed_spaces()
+            .map((space) => space.display_name || space.name)
+            .join(', '),
+    );
+    public readonly retryLoad = () => this._state.reload();
     public readonly downloading = signal(false);
     public readonly view = signal<'timeline' | 'list'>('timeline');
     public readonly ui_options = this._state.options;

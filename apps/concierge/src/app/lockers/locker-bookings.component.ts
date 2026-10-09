@@ -4,12 +4,18 @@ import { CommonModule } from '@angular/common';
 import { MatRippleModule } from '@angular/material/core';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { SettingsService } from '@placeos/common';
+import { Booking, settingSignal, SettingsService } from '@placeos/common';
 import {
     IconComponent,
     SimpleTableComponent,
     TranslatePipe,
 } from '@placeos/components';
+import { BookingApprovalBarComponent } from '../ui/booking-approval-bar.component';
+import {
+    bookingRowKey,
+    BookingRowKeyFields,
+    selectedBookings,
+} from '../ui/bulk-booking-actions';
 import { LockerStateService } from './locker-state.service';
 
 @Component({
@@ -23,6 +29,12 @@ import { LockerStateService } from './locker-state.service';
             [class.pb-4]="!(!loading() && more_pages)"
         >
             <simple-table
+                [error]="load_error()"
+                (retry)="retryLoad()"
+                [selectable]="bulk_actions()"
+                [row_key]="rowKey"
+                [can_select]="canSelect"
+                [(selected)]="selected"
                 class="mr-4 block w-full min-w-6xl flex-1 overflow-auto text-sm"
                 [data]="bookings()"
                 [columns]="[
@@ -116,7 +128,7 @@ import { LockerStateService } from './locker-state.service';
             </ng-template>
             <ng-template #locker_template let-row="row">
                 <div class="p-4">
-                    {{ row.asset_name || row.asset_id }}
+                    {{ lockerName(row) }}
                 </div>
             </ng-template>
             <ng-template #user_template let-row="row">
@@ -260,6 +272,12 @@ import { LockerStateService } from './locker-state.service';
                 {{ 'COMMON.LOAD_MORE' | translate }}
             </button>
         }
+        <booking-approval-bar
+            [count]="selected().length"
+            [busy]="bulk_busy()"
+            (setApproval)="setApproval($event)"
+            (clear)="selected.set([])"
+        />
     `,
     styles: [
         `
@@ -280,10 +298,53 @@ import { LockerStateService } from './locker-state.service';
         IconComponent,
         TranslatePipe,
         SimpleTableComponent,
+        BookingApprovalBarComponent,
     ],
 })
 export class LockerBookingsComponent {
     private _state = inject(LockerStateService);
+    public readonly load_error = this._state.load_error;
+    public readonly retryLoad = () => this._state.refresh();
+    /** Locker names by asset id, from the lockers loaded for the building. */
+    private readonly _locker_names = computed(() => {
+        const names: Record<string, string> = {};
+        for (const locker of this._state.lockers()) {
+            names[locker.id] = locker.name;
+        }
+        return names;
+    });
+
+    /**
+     * A booking stores only the locker's id, so the name comes from the
+     * lockers the state has loaded; the id is shown when it is not among them.
+     */
+    public lockerName(row: Booking): string {
+        return (
+            this._locker_names()[row.asset_id] || row.asset_name || row.asset_id
+        );
+    }
+    public readonly rowKey = bookingRowKey;
+    public readonly canSelect = (
+        row: BookingRowKeyFields & Pick<Booking, 'status' | 'deleted'>,
+    ) => row.status !== 'ended' && !row.deleted;
+    /** Whether rows can be selected for bulk approval */
+    public readonly bulk_actions = settingSignal('bulk_actions', false);
+    /** Row keys of the selected bookings */
+    public readonly selected = signal<string[]>([]);
+    public readonly bulk_busy = signal(false);
+
+    /** Approve or reject the selected bookings */
+    public async setApproval(approve: boolean) {
+        const list = selectedBookings(
+            this._state.filtered_bookings(),
+            this.selected(),
+        );
+        this.bulk_busy.set(true);
+        const done = await this._state
+            .setBookingsApproval(list, approve)
+            .finally(() => this.bulk_busy.set(false));
+        if (done) this.selected.set([]);
+    }
     private _settings = inject(SettingsService);
 
     public readonly loading = signal('');

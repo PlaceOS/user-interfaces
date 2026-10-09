@@ -100,6 +100,23 @@ describe('BulkMediaUploadModalComponent', () => {
         expect(dialog_ref.close).toHaveBeenCalledWith(2);
     });
 
+    it('stops after the current file when cancelled', async () => {
+        const fixture = TestBed.createComponent(BulkMediaUploadModalComponent);
+        const component = fixture.componentInstance;
+        onUpload.mockImplementationOnce(async () => {
+            component.stop();
+            return new SignageMedia({ id: 'media-1' });
+        });
+
+        await component.uploadAll();
+
+        expect(onUpload).toHaveBeenCalledOnce();
+        expect(component.done_count()).toBe(1);
+        expect(component.remaining_count()).toBe(1);
+        expect(component.stopping()).toBe(false);
+        expect(dialog_ref.close).not.toHaveBeenCalled();
+    });
+
     it('tracks upload progress for the active row', async () => {
         onUpload.mockImplementation(
             async (_item, _permissions, on_progress) => {
@@ -137,5 +154,23 @@ describe('BulkMediaUploadModalComponent', () => {
 
         expect(component.rows().length).toBe(0);
         expect(dialog_ref.close).toHaveBeenCalled();
+    });
+
+    it('labels the permissions select', async () => {
+        TestBed.resetTestingModule();
+        await TestBed.configureTestingModule({
+            imports: [BulkMediaUploadModalComponent],
+            providers: [
+                { provide: MAT_DIALOG_DATA, useValue: modal_data },
+                { provide: MatDialogRef, useValue: dialog_ref },
+            ],
+        }).compileComponents();
+        const fixture = TestBed.createComponent(BulkMediaUploadModalComponent);
+        fixture.detectChanges();
+        const element: HTMLElement = fixture.nativeElement;
+
+        const label = element.querySelector('label');
+        const select = element.querySelector(`#${label.htmlFor}`);
+        expect(select.getAttribute('aria-labelledby')).toContain(label.id);
     });
 });

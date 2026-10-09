@@ -110,6 +110,15 @@ describe('TimeControlsComponent', () => {
         ).toBe('14:37');
     });
 
+    it('should keep the edited time when the time input is cleared', () => {
+        const edited = new Date(2026, 4, 29, 10, 15).valueOf();
+        spectator.component.edited_time.set(edited);
+
+        spectator.component.setEditedTime('');
+
+        expect(spectator.component.edited_time()).toBe(edited);
+    });
+
     it('should refresh the displayed time on the polling interval', () => {
         vi.useFakeTimers();
         const set_interval_spy = vi.spyOn(window, 'setInterval');

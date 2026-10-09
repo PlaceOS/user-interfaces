@@ -79,6 +79,131 @@ export interface LinkedCalendarEvent {
     ical_uid?: string;
 }
 
+const DAY_MINUTES = 24 * 60;
+
+/** Start, length and end of a booking in milliseconds and minutes */
+interface BookingWindow {
+    date: number;
+    duration: number;
+    date_end: number;
+}
+
+/** Display name of the booked asset. Visitor bookings prefer the visitor name. */
+function resolveAssetName(
+    data: Partial<BookingComplete>,
+    booking_type: string,
+): string {
+    const ext = data.extension_data;
+    const name = data.asset_name || ext?.asset_name || ext?.name;
+    if (booking_type === 'visitor') {
+        return ext?.visitor_name || name || data.asset_id || '';
+    }
+    return name || data.description || data.asset_id || '';
+}
+
+/**
+ * Start and end of the booking in unix seconds.
+ * Without a start, the booking starts on the next 5 minute mark after now + 5 minutes.
+ */
+function resolveUnixWindow(data: Partial<BookingComplete>): {
+    start: number;
+    end: number;
+} {
+    const duration = data.duration || 60;
+    // `date`/`duration` are the source of truth for the booking window.
+    // Both ends must derive from the same source so we never pair a fresh
+    // start (from `date`) with a stale `booking_end` (which can invert the
+    // window and send booking_end before booking_start to the API).
+    if (data.date) {
+        const start = Math.floor(data.date / 1000);
+        return { start, end: start + duration * 60 };
+    }
+    const start =
+        data.booking_start ||
+        getUnixTime(
+            roundToNearestMinutes(addMinutes(Date.now(), 5), {
+                nearestTo: 5,
+            }),
+        );
+    return {
+        start,
+        end:
+            data.booking_end || getUnixTime(addMinutes(start * 1000, duration)),
+    };
+}
+
+/** Booking window in milliseconds from `date`/`duration`, else from the unix window */
+function toBookingWindow(
+    data: Partial<BookingComplete>,
+    start: number,
+    end: number,
+): BookingWindow {
+    const date = data.date || start * 1000 || Date.now();
+    const span = Math.abs(differenceInMinutes(start * 1000, end * 1000));
+    // An explicit end is the source of truth over a stored duration.
+    const duration = data.booking_end
+        ? span || 60
+        : data.duration || span || 60;
+    return {
+        date,
+        duration,
+        date_end: end * 1000 || date + duration * 60 * 1000,
+    };
+}
+
+/** Whether the raw data flags the booking as a custom all day booking */
+function isCustomAllDay(data: Partial<BookingComplete>): boolean {
+    return !!(
+        data.extension_data?.custom_all_day ||
+        (data as Record<string, unknown>).custom_all_day
+    );
+}
+
+/**
+ * Snap the window of an all day booking to whole days in `timezone`.
+ * Only applies when the data has no explicit length, or the length is whole days.
+ */
+function snapToWholeDays(
+    data: Partial<BookingComplete>,
+    window: BookingWindow,
+    timezone: string,
+): BookingWindow {
+    const has_length = !!(data.duration || data.date_end || data.booking_end);
+    if (has_length && window.duration % DAY_MINUTES !== 0) return window;
+    const date = startOfDayInTimezone(window.date, timezone);
+    return {
+        date,
+        duration: has_length
+            ? Math.max(1, window.duration - 1)
+            : DAY_MINUTES - 1,
+        date_end: endOfDayInTimezone(date, timezone),
+    };
+}
+
+/** Booking status from local flags first, then the status sent by the server */
+function resolveStatus(
+    booking: Pick<Booking, 'deleted' | 'rejected' | 'approved' | 'has_ended'>,
+    status: Booking['status'] | undefined,
+): Booking['status'] {
+    if (booking.deleted || status === 'cancelled') return 'cancelled';
+    if (booking.rejected || status === 'declined') return 'declined';
+    if (booking.has_ended) return 'ended';
+    if (booking.approved || status === 'approved') return 'approved';
+    return 'tentative';
+}
+
+/** Copy truthy fields that the booking does not define into its extension data */
+function copyUnknownFields(
+    booking: Booking,
+    data: Partial<BookingComplete>,
+): void {
+    for (const key in data) {
+        if (!(key in booking) && !IGNORE_EXT_KEYS.includes(key) && data[key]) {
+            booking.extension_data[key] = data[key];
+        }
+    }
+}
+
 /** General purpose booking class */
 export class Booking {
     /** Unique Identifier of the object */
@@ -237,70 +362,34 @@ export class Booking {
     }
 
     constructor(data: Partial<BookingComplete> = {}) {
-        const custom_all_day = !!(
-            data.extension_data?.custom_all_day || (data as any).custom_all_day
-        );
         this.id = data.id || '';
         this.parent_id = data.parent_id || '';
         this.asset_id = data.asset_id || '';
         this.asset_ids = data.asset_ids || [data.asset_id].filter((_) => _);
-        const booking_type = data.booking_type || data.type || ' ';
-        this.asset_name =
-            booking_type === 'visitor'
-                ? data.extension_data?.visitor_name ||
-                  data.asset_name ||
-                  data.extension_data?.asset_name ||
-                  data.extension_data?.name ||
-                  data.asset_id ||
-                  ''
-                : data.asset_name ||
-                  data.extension_data?.asset_name ||
-                  data.extension_data?.name ||
-                  data.description ||
-                  data.asset_id ||
-                  '';
+        this.asset_name = resolveAssetName(
+            data,
+            data.booking_type || data.type || ' ',
+        );
         this.zones = data.zones || [];
-        // `date`/`duration` are the source of truth for the booking window.
-        // Both ends must derive from the same source so we never pair a fresh
-        // start (from `date`) with a stale `booking_end` (which can invert the
-        // window and send booking_end before booking_start to the API).
-        const has_date = !!data.date;
-        this.booking_start = has_date
-            ? Math.floor(data.date / 1000)
-            : data.booking_start ||
-              getUnixTime(
-                  roundToNearestMinutes(addMinutes(Date.now(), 5), {
-                      nearestTo: 5,
-                  }),
-              );
-        this.booking_end = has_date
-            ? this.booking_start + (data.duration || 60) * 60
-            : data.booking_end ||
-              getUnixTime(
-                  addMinutes(this.booking_start * 1000, data.duration || 60),
-              );
+        const { start, end } = resolveUnixWindow(data);
+        this.booking_start = start;
+        this.booking_end = end;
         this.booking_type = data.booking_type || ' ';
         this.type = data.type || data.booking_type || 'booking';
-        this.date = data.date || this.booking_start * 1000 || Date.now();
-        this.duration = data.booking_end
-            ? Math.abs(
-                  differenceInMinutes(
-                      this.booking_start * 1000,
-                      this.booking_end * 1000,
-                  ),
-              ) || 60
-            : data.duration ||
-              Math.abs(
-                  differenceInMinutes(
-                      this.booking_start * 1000,
-                      this.booking_end * 1000,
-                  ),
-              ) ||
-              60;
-        this.date_end =
-            this.booking_end * 1000 || this.date + this.duration * 60 * 1000;
-        this.timezone =
+        const timezone =
             data.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone;
+        const base_window = toBookingWindow(data, start, end);
+        const all_day =
+            !!data.all_day ||
+            isCustomAllDay(data) ||
+            base_window.duration >= DAY_MINUTES;
+        const window = all_day
+            ? snapToWholeDays(data, base_window, timezone)
+            : base_window;
+        this.date = window.date;
+        this.duration = window.duration;
+        this.date_end = window.date_end;
+        this.timezone = timezone;
         this.user_email = data.user_email || '';
         this.user_id = data.user_id || '';
         this.user_name = data.user_name || '';
@@ -323,55 +412,22 @@ export class Booking {
         this.extension_data = data.extension_data || {};
         this.access = !!data.extension_data?.access;
         this.event_id = data.event_id;
-        this.permission = (data.permission || 'PRIVATE').toUpperCase() as any;
+        this.permission = (
+            data.permission || 'PRIVATE'
+        ).toUpperCase() as Booking['permission'];
         this.attendees = data.attendees || data.guests || data.members || [];
         this.tags = data.tags || data.extension_data?.tags || [];
         this.images = data.images || [];
-        this.all_day =
-            !!data.all_day || custom_all_day || this.duration >= 24 * 60;
+        this.all_day = all_day;
         this.induction = data.induction || undefined;
         this.created_at = data.created_at || Date.now();
         this.history = data.history || [];
-        if (this.all_day) {
-            if (!data.duration && !data.date_end && !data.booking_end) {
-                (this as any).date = startOfDayInTimezone(
-                    this.date,
-                    this.timezone,
-                );
-                (this as any).duration = 24 * 60 - 1;
-                (this as any).date_end = endOfDayInTimezone(
-                    this.date,
-                    this.timezone,
-                );
-            } else if (this.duration % (24 * 60) === 0) {
-                (this as any).date = startOfDayInTimezone(
-                    this.date,
-                    this.timezone,
-                );
-                (this as any).duration = Math.max(1, this.duration - 1);
-                (this as any).date_end = endOfDayInTimezone(
-                    this.date,
-                    this.timezone,
-                );
-            }
-        }
         this.checked_out_at = data.checked_out_at;
         this.checked_in_at = data.checked_in_at;
         this.linked_event = data.linked_event || null;
         this.linked_bookings = data.linked_bookings || [];
         this.linked_parent_booking = data.linked_parent_booking || null;
-        this.images = data.images || [];
-        this.status =
-            this.deleted || data.status === 'cancelled'
-                ? 'cancelled'
-                : this.rejected || data.status === 'declined'
-                  ? 'declined'
-                  : this.checked_out_at > 0 ||
-                      isAfter(Date.now(), this.date_end)
-                    ? 'ended'
-                    : this.approved || data.status === 'approved'
-                      ? 'approved'
-                      : 'tentative';
+        this.status = resolveStatus(this, data.status);
         this.process_state = data.process_state || 'pending';
 
         this.recurrence_type = data.recurrence_type || 'none';
@@ -381,12 +437,7 @@ export class Booking {
         this.recurrence_end = data.recurrence_end;
         this.instance = data.instance;
 
-        for (const key in data) {
-            if (!(key in this) && !IGNORE_EXT_KEYS.includes(key) && data[key]) {
-                this.extension_data[key] =
-                    data[key] || this.extension_data[key];
-            }
-        }
+        copyUnknownFields(this, data);
         this.extension_data.assets = (this.extension_data.assets || []).map(
             (i) =>
                 new AssetRequest({ ...i, event: this, date: this.date } as any),

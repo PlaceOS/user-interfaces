@@ -1,10 +1,14 @@
-import { PlaceZone } from '@placeos/ts-client';
+/** Zone fields needed to walk up to the ancestors of a zone */
+export interface ZoneNode {
+    id: string;
+    parent_id?: string;
+}
 
 /** Return each selected zone with its ancestors, ordered parent first. */
 export async function displayZoneIds(
-    selected_zones: PlaceZone[],
-    known_zones: PlaceZone[],
-    load_zone: (zone_id: string) => Promise<PlaceZone | null>,
+    selected_zones: ZoneNode[],
+    known_zones: ZoneNode[],
+    load_zone: (zone_id: string) => Promise<ZoneNode | null>,
 ) {
     const zones = new Map(known_zones.map((zone) => [zone.id, zone]));
     for (const zone of selected_zones) zones.set(zone.id, zone);
@@ -14,7 +18,7 @@ export async function displayZoneIds(
     for (const selected_zone of selected_zones) {
         const path: string[] = [];
         const visited = new Set<string>();
-        let zone: PlaceZone | null = selected_zone;
+        let zone: ZoneNode | null = selected_zone;
         while (zone?.id && !visited.has(zone.id)) {
             path.unshift(zone.id);
             visited.add(zone.id);

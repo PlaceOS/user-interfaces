@@ -21,7 +21,7 @@ import { UrlManagementService } from './url-management.service';
                     <h2 class="text-2xl font-medium">
                         {{ 'APP.CONCIERGE.URLS_HEADER' | translate }}
                     </h2>
-                    <button btn matRipple (click)="new()">
+                    <button btn matRipple data-shortcut="new" (click)="new()">
                         {{ 'APP.CONCIERGE.URLS_ADD' | translate }}
                     </button>
                 </header>
@@ -29,6 +29,7 @@ import { UrlManagementService } from './url-management.service';
                     <mat-form-field appearance="outline" class="no-subscript">
                         <input
                             matInput
+                            data-shortcut="search"
                             placeholder="Search"
                             [(ngModel)]="search_term"
                             (ngModelChange)="updateSearch($event)"

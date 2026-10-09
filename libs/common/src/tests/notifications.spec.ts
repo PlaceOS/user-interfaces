@@ -120,4 +120,27 @@ describe('notifications', () => {
             expect.anything(),
         );
     });
+
+    it('should load a lazy outlet once and show queued notifications', async () => {
+        const loader = vi.fn(async () => snackbar);
+        setNotifyOutlet(loader, true);
+
+        notifyInfo('First');
+        notifyInfo('Second');
+        expect(snackbar.open).not.toHaveBeenCalled();
+        await loader.mock.results[0].value;
+        await Promise.resolve();
+
+        expect(loader).toHaveBeenCalledTimes(1);
+        expect(snackbar.open).toHaveBeenCalledWith(
+            'First',
+            'OK',
+            expect.anything(),
+        );
+        expect(snackbar.open).toHaveBeenCalledWith(
+            'Second',
+            'OK',
+            expect.anything(),
+        );
+    });
 });

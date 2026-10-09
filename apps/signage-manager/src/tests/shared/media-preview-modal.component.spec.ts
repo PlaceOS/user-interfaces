@@ -1,6 +1,7 @@
-import { NO_ERRORS_SCHEMA } from '@angular/core';
+import { NO_ERRORS_SCHEMA, SecurityContext } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { DomSanitizer } from '@angular/platform-browser';
 import {
     MediaAnimation,
     SignageMedia,
@@ -8,8 +9,9 @@ import {
     SignagePlugin,
     showSignageMedia,
 } from '@placeos/ts-client';
+import { SignageMediaService } from '../../app/media/signage-media.service';
 import { MediaPreviewModalComponent } from '../../app/shared/media-preview-modal.component';
-import { SignageService } from '../../app/signage.service';
+import { SignageContextService } from '../../app/signage-context.service';
 
 vi.mock('@placeos/ts-client', { spy: true });
 
@@ -29,7 +31,7 @@ describe('MediaPreviewModalComponent', () => {
                     provide: MAT_DIALOG_DATA,
                     useValue: { media, plugin, group_id },
                 },
-                { provide: SignageService, useValue: service },
+                { provide: SignageMediaService, useValue: service },
             ],
         })
             .overrideComponent(MediaPreviewModalComponent, {
@@ -88,7 +90,9 @@ describe('MediaPreviewModalComponent', () => {
                     provide: MAT_DIALOG_DATA,
                     useValue: { media },
                 },
-                { provide: SignageService, useValue: service },
+                { provide: SignageMediaService, useValue: service },
+                // The rendered shared-with list injects the context
+                { provide: SignageContextService, useValue: {} },
             ],
         })
             .overrideComponent(MediaPreviewModalComponent, {
@@ -102,6 +106,60 @@ describe('MediaPreviewModalComponent', () => {
         const preview_text = fixture.nativeElement.textContent;
         expect(preview_text).toContain('lobby');
         expect(preview_text).toContain('news');
+    });
+
+    /** Render the real template, without the media itself */
+    async function renderPreview(media: SignageMedia) {
+        await TestBed.configureTestingModule({
+            imports: [MediaPreviewModalComponent],
+            providers: [
+                { provide: MAT_DIALOG_DATA, useValue: { media } },
+                { provide: SignageMediaService, useValue: service },
+                // The rendered shared-with list injects the context
+                { provide: SignageContextService, useValue: {} },
+            ],
+        })
+            .overrideComponent(MediaPreviewModalComponent, {
+                set: { schemas: [NO_ERRORS_SCHEMA] },
+            })
+            .compileComponents();
+        const fixture = TestBed.createComponent(MediaPreviewModalComponent);
+        await fixture.whenStable();
+        fixture.detectChanges();
+        return fixture.nativeElement as HTMLElement;
+    }
+
+    // A failed lookup must not claim the media is in no playlist
+    it('offers a retry when the playlists of the media fail to load', async () => {
+        vi.mocked(showSignageMedia).mockRejectedValue(new Error('boom'));
+        const element = await renderPreview(
+            new SignageMedia({ id: 'm1', media_type: 'unknown' }),
+        );
+
+        expect(element.textContent).not.toContain('Not in any playlists');
+        // The shared-with list reads the media as well
+        const calls = vi.mocked(showSignageMedia).mock.calls.length;
+        element.querySelector<HTMLButtonElement>('load-error button').click();
+
+        expect(showSignageMedia).toHaveBeenCalledTimes(calls + 1);
+    });
+
+    it('names the close button', async () => {
+        const element = await renderPreview(
+            new SignageMedia({ id: 'm1', media_type: 'unknown' }),
+        );
+
+        const close = element.querySelector('header button[icon]');
+        expect(close.getAttribute('aria-label')).toBe('Close media preview');
+    });
+
+    it('names the icon-only edit button', async () => {
+        const element = await renderPreview(
+            new SignageMedia({ id: 'm1', media_type: 'unknown' }),
+        );
+
+        const edit = element.querySelector('aside button[icon]');
+        expect(edit.getAttribute('aria-label')).toBeTruthy();
     });
 
     it('uses the signage group passed to the modal', async () => {
@@ -120,6 +178,20 @@ describe('MediaPreviewModalComponent', () => {
                 id: 'm1',
                 media_type: 'image',
                 animation: MediaAnimation.CrossFade,
+            }),
+        );
+
+        expect(component.animation_label()).toBe(
+            'SIGNAGE_MANAGER.ANIM_CROSS_FADE',
+        );
+    });
+
+    it('maps an animation index from the API to its label', async () => {
+        const component = await createComponent(
+            new SignageMedia({
+                id: 'm1',
+                media_type: 'image',
+                animation: 2 as unknown as MediaAnimation,
             }),
         );
 
@@ -147,6 +219,23 @@ describe('MediaPreviewModalComponent', () => {
             }),
         );
         expect(webpage.safe_url()).not.toBeNull();
+    });
+
+    it('does not load a stored non-web url in the preview frame', async () => {
+        const component = await createComponent(
+            new SignageMedia({
+                id: 'm1',
+                media_type: 'webpage',
+                media_uri: 'javascript:alert(document.cookie)',
+            }),
+        );
+
+        expect(
+            TestBed.inject(DomSanitizer).sanitize(
+                SecurityContext.RESOURCE_URL,
+                component.safe_url(),
+            ),
+        ).toBe('about:blank');
     });
 
     it('merges plugin defaults with the media plugin params', async () => {
@@ -213,6 +302,18 @@ describe('MediaPreviewModalComponent', () => {
         await component.ngOnInit();
 
         expect(showSignageMedia).toHaveBeenCalledWith('m1', {});
+    });
+
+    // A preview from the edit modal is of media that is not saved yet
+    it('does not look up playlists for media without an id', async () => {
+        const component = await createComponent(
+            new SignageMedia({ media_type: 'image' }),
+        );
+
+        await component.ngOnInit();
+
+        expect(showSignageMedia).not.toHaveBeenCalled();
+        expect(component.loading_playlists()).toBe(false);
     });
 
     it('clears playlist loading when the media request fails', async () => {

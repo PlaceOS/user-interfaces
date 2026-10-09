@@ -10,6 +10,7 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
+import { i18n, notifyError } from '@placeos/common';
 import {
     FullscreenModalShellComponent,
     IconComponent,
@@ -29,6 +30,8 @@ export interface DisplayEditModalData {
         search: string,
         parent_id: string,
     ) => QueryResponse<PlaceZone> | null;
+    /** Ids of a zone and its ancestors, parent first */
+    zone_ids: (zone: PlaceZone) => Promise<string[]>;
     onAdd: (data: Partial<PlaceSystem>) => Promise<PlaceSystem>;
     onEdit: (id: string, data: Partial<PlaceSystem>) => Promise<PlaceSystem>;
 }
@@ -219,8 +222,8 @@ export class DisplayEditModalComponent {
     );
     public readonly zone_list = new PagedSearch<PlaceZone>((search) => {
         const parent_id = this.selected_zone()?.id;
-        return parent_id && search.trim()
-            ? this._data.query_zones(search, parent_id)
+        return search.trim()
+            ? this._data.query_zones(search, parent_id || '')
             : null;
     }, byDisplayName);
     public readonly loadChildren = this._data.load_children;
@@ -246,16 +249,16 @@ export class DisplayEditModalComponent {
         );
     });
 
-    public addZone(zone: PlaceZone) {
+    /** Add a zone and its ancestors, so playlists of a building reach the display */
+    public async addZone(zone: PlaceZone) {
         this._selected_zone_items.update((zones) => [
             ...zones.filter((item) => item.id !== zone.id),
             zone,
         ]);
+        const zone_ids = await this._data.zone_ids(zone).catch(() => [zone.id]);
         this.model.update((model) => ({
             ...model,
-            zones: model.zones.includes(zone.id)
-                ? model.zones
-                : [...model.zones, zone.id],
+            zones: [...new Set([...model.zones, ...zone_ids])],
         }));
     }
 
@@ -286,6 +289,8 @@ export class DisplayEditModalComponent {
                     : await this._data.onAdd(data);
                 this._dialog_ref.disableClose = false;
                 this._dialog_ref.close(result);
+            } catch {
+                notifyError(i18n('SIGNAGE_MANAGER.SVC_DISPLAY_SAVE_ERROR'));
             } finally {
                 this.loading.set(false);
                 this._dialog_ref.disableClose = false;

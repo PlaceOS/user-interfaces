@@ -1,11 +1,16 @@
 import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
-import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
+import { MatDialogModule } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { IconComponent, TranslatePipe } from '@placeos/components';
-import { SignageService } from '../signage.service';
+import {
+    IconComponent,
+    LoadErrorComponent,
+    TranslatePipe,
+} from '@placeos/components';
+import { PlaceSystem } from '@placeos/ts-client';
+import { SignageDisplayService } from '../displays/signage-display.service';
 import { IntersectDirective } from './intersect.directive';
 import { byDisplayName, PagedSearch } from './paged-search';
 
@@ -80,6 +85,8 @@ import { byDisplayName, PagedSearch } from './paged-search';
                         intersect
                         (intersect)="list.loadMore()"
                     ></div>
+                } @else if (list.error()) {
+                    <load-error (retry)="list.retry()" />
                 }
             } @else if (list.loading()) {
                 <div
@@ -89,6 +96,8 @@ import { byDisplayName, PagedSearch } from './paged-search';
                         {{ 'COMMON.LOADING' | translate }}
                     </div>
                 </div>
+            } @else if (list.error()) {
+                <load-error (retry)="list.retry()" />
             } @else {
                 <div
                     class="bg-base-200 flex h-[calc(100%-3.5rem)] w-full flex-col items-center justify-center space-y-4 rounded-lg p-16"
@@ -108,16 +117,16 @@ import { byDisplayName, PagedSearch } from './paged-search';
         MatFormFieldModule,
         MatInputModule,
         IconComponent,
+        LoadErrorComponent,
         TranslatePipe,
         IntersectDirective,
     ],
 })
 export class DisplaySelectModalComponent {
-    private readonly _data: { zone_id: string } = inject(MAT_DIALOG_DATA);
-    private readonly _service = inject(SignageService);
+    private readonly _display_service = inject(SignageDisplayService);
 
-    public readonly list = new PagedSearch<any>(
-        (search) => this._service.queryDisplays(search),
+    public readonly list = new PagedSearch<PlaceSystem>(
+        (search) => this._display_service.queryDisplays(search),
         byDisplayName,
     );
 }

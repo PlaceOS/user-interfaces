@@ -1,20 +1,27 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { HotkeysService } from '@placeos/common';
+import { HotkeysService, i18n } from '@placeos/common';
+import { SignageGroupAdminService } from '../../app/groups/signage-group-admin.service';
 import { SignageGroupEditModalComponent } from '../../app/groups/signage-group-edit-modal.component';
-import { SignageService } from '../../app/signage.service';
+import { SignageContextService } from '../../app/signage-context.service';
 
 describe('SignageGroupEditModalComponent', () => {
     const dialog_ref = { close: vi.fn(), disableClose: false };
     const save_signage_group = vi.fn();
     const manageable_signage_groups = signal<any[]>([]);
+    const signage_groups = signal<any[]>([]);
     const hotkey_listen = vi.fn();
     let hotkey_callback: () => void;
-    const service_stub = {
+    const can_change_parent = vi.fn();
+    const load_group = vi.fn();
+    const group_admin_stub = {
         manageable_signage_groups,
         saveSignageGroup: save_signage_group,
+        canChangeGroupParent: can_change_parent,
+        loadGroup: load_group,
     };
+    const context_stub = { signage_groups };
     let modal_data: { group: any };
 
     function make() {
@@ -22,7 +29,11 @@ describe('SignageGroupEditModalComponent', () => {
             providers: [
                 { provide: MAT_DIALOG_DATA, useValue: modal_data },
                 { provide: MatDialogRef, useValue: dialog_ref },
-                { provide: SignageService, useValue: service_stub },
+                {
+                    provide: SignageGroupAdminService,
+                    useValue: group_admin_stub,
+                },
+                { provide: SignageContextService, useValue: context_stub },
                 {
                     provide: HotkeysService,
                     useValue: { listen: hotkey_listen },
@@ -44,6 +55,9 @@ describe('SignageGroupEditModalComponent', () => {
             },
         );
         dialog_ref.disableClose = false;
+        can_change_parent.mockReturnValue(true);
+        signage_groups.set([]);
+        load_group.mockRejectedValue(new Error('forbidden'));
         save_signage_group.mockResolvedValue({ id: 'group-1' });
         manageable_signage_groups.set([
             { id: 'group-1', name: 'Group 1' },
@@ -75,6 +89,69 @@ describe('SignageGroupEditModalComponent', () => {
         expect(component.parent_groups().map((group: any) => group.id)).toEqual(
             ['group-2'],
         );
+    });
+
+    it('offers only the parents the user can move the group to', () => {
+        manageable_signage_groups.set([
+            { id: 'group-1', name: 'Group 1' },
+            { id: 'group-2', name: 'Group 2' },
+            { id: 'group-3', name: 'Group 3' },
+        ]);
+        can_change_parent.mockImplementation(
+            (_group: unknown, parent_id: string) => parent_id === 'group-3',
+        );
+        modal_data = { group: { id: 'group-1', parent_id: 'group-3' } };
+        const component = make();
+
+        expect(component.parent_groups().map(({ id }) => id)).toEqual([
+            'group-3',
+        ]);
+        expect(component.can_remove_parent()).toBe(false);
+    });
+
+    it('keeps the current parent as an option when the user does not manage it', () => {
+        manageable_signage_groups.set([{ id: 'group-b', name: 'B' }]);
+        signage_groups.set([
+            { group: { id: 'group-a', name: 'A' }, permissions: 0 },
+        ]);
+        can_change_parent.mockImplementation(
+            (_group: unknown, parent_id: string) => parent_id === 'group-a',
+        );
+        modal_data = { group: { id: 'group-b', parent_id: 'group-a' } };
+        const component = make();
+
+        expect(component.parent_groups()).toEqual([
+            { id: 'group-a', name: 'A' },
+        ]);
+        expect(component.model().parent_id).toBe('group-a');
+    });
+
+    it('reads the current parent when it is not in the group lists', async () => {
+        load_group.mockResolvedValue({ id: 'hidden', name: 'Hidden parent' });
+        modal_data = { group: { id: 'group-1', parent_id: 'hidden' } };
+        const component = make();
+
+        expect(load_group).toHaveBeenCalledWith('hidden');
+        await vi.waitFor(() =>
+            expect(component.parent_groups()[0]).toEqual({
+                id: 'hidden',
+                name: 'Hidden parent',
+            }),
+        );
+    });
+
+    it('labels the current parent when it cannot be read', async () => {
+        can_change_parent.mockReturnValue(false);
+        modal_data = { group: { id: 'group-1', parent_id: 'hidden' } };
+        const component = make();
+        await new Promise((resolve) => setTimeout(resolve));
+
+        expect(component.parent_groups()).toEqual([
+            {
+                id: 'hidden',
+                name: i18n('SIGNAGE_MANAGER.CURRENT_PARENT_GROUP'),
+            },
+        ]);
     });
 
     it('saves a valid group and closes with the result', async () => {
@@ -118,24 +195,9 @@ describe('SignageGroupEditModalComponent', () => {
         expect(dialog_ref.close).not.toHaveBeenCalled();
     });
 
-    it('keeps the dialog open and resets loading when saving fails', async () => {
-        save_signage_group.mockRejectedValue(new Error('nope'));
-        const component = make();
-        component.model.set({
-            name: 'New Group',
-            description: '',
-            parent_id: 'group-1',
-        });
-
-        await component.save();
-
-        expect(component.loading()).toBe(false);
-        expect(dialog_ref.disableClose).toBe(false);
-        expect(dialog_ref.close).not.toHaveBeenCalled();
-    });
-
-    it('does not close when the service reports no saved group', async () => {
-        save_signage_group.mockResolvedValue(undefined);
+    it('stays open and resets loading when the save fails', async () => {
+        // The service shows the error and returns null
+        save_signage_group.mockResolvedValue(null);
         const component = make();
         component.model.set({
             name: 'New Group',
@@ -147,5 +209,7 @@ describe('SignageGroupEditModalComponent', () => {
 
         expect(save_signage_group).toHaveBeenCalled();
         expect(dialog_ref.close).not.toHaveBeenCalled();
+        expect(component.loading()).toBe(false);
+        expect(dialog_ref.disableClose).toBe(false);
     });
 });

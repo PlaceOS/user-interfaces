@@ -38,6 +38,7 @@ describe('RoomBookingsListComponent', () => {
         ],
         providers: [
             MockProvider(EventsStateService, {
+                load_error: signal(false),
                 filtered,
                 date: signal(Date.now()),
                 period: signal<'day' | 'week' | 'month'>('day'),

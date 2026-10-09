@@ -111,26 +111,17 @@ export class ReportSpacesOverallComponent {
             0,
         ),
     );
-    public readonly no_shows = computed(() =>
-        this._stats().events.reduce(
-            (c, { extension_data }) =>
-                c + +extension_data?.people_count?.max ? 1 : 0,
-            0,
-        ),
+    /** Events where people counting ran and saw nobody. */
+    public readonly no_shows = computed(
+        () =>
+            this._stats().events.filter(
+                ({ extension_data }) => extension_data?.people_count?.max === 0,
+            ).length,
     );
     public readonly no_show_percent = computed(() => {
         const { events } = this._stats();
-        return (
-            Math.floor(
-                (events.reduce(
-                    (c, { extension_data }) =>
-                        c + +extension_data?.people_count?.max ? 1 : 0,
-                    0,
-                ) /
-                    events.length) *
-                    10000,
-            ) / 100
-        );
+        if (!events.length) return 0;
+        return Math.floor((this.no_shows() / events.length) * 10000) / 100;
     });
     public readonly has_attendance = computed(
         () =>

@@ -7,6 +7,7 @@ import {
     linkedSignal,
     output,
     signal,
+    untracked,
 } from '@angular/core';
 import { form, FormField, required } from '@angular/forms/signals';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
@@ -17,12 +18,12 @@ import {
     AsyncHandler,
     Building,
     OrganisationService,
-    TIMEZONES_IANA,
     getInvalidSignalFields,
     i18n,
     notifyError,
     notifySuccess,
 } from '@placeos/common';
+import { TIMEZONES_IANA } from '@placeos/common/timezones';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import { addZone, authority, updateZone } from '@placeos/ts-client';
 
@@ -165,8 +166,10 @@ export class BuildingFormComponent extends AsyncHandler {
                 location: building.location ?? m.location,
             }));
         });
+        // Only `save` is tracked. The save reads the model and form, and
+        // tracking them would save again on every edit after a failed save.
         effect(() => {
-            if (this.save()) this.saveChanges();
+            if (this.save()) untracked(() => this.saveChanges());
         });
     }
 

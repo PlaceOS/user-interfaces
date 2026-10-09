@@ -9,7 +9,6 @@ import {
     provideZonelessChangeDetection,
 } from '@angular/core';
 import { NativeDateModule } from '@angular/material/core';
-import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { provideRouter, withHashLocation } from '@angular/router';
 import { provideServiceWorker } from '@angular/service-worker';
 
@@ -24,6 +23,6 @@ export const appConfig: ApplicationConfig = {
         provideServiceWorker('ngsw-worker.js', {
             enabled: environment.production,
         }),
-        importProvidersFrom(MatSnackBarModule, NativeDateModule),
+        importProvidersFrom(NativeDateModule),
     ],
 };

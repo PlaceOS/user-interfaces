@@ -8,16 +8,19 @@ import { ChangelogService } from '@placeos/components';
 import { MockComponent, MockProvider } from 'ng-mocks';
 import { ControlStateService } from '../app/control-state.service';
 
+import { ControlAdvancedViewComponent } from '../app/advanced-view.component';
 import { ControlMainViewComponent } from '../app/main-view.component';
-import { ControlPageViewComponent } from '../app/page-view.component';
 import { ControlStatusBarComponent } from '../app/status-bar.component';
 import { TopbarHeaderComponent } from '../app/topbar-header.component';
+import { ControlConnectingComponent } from '../app/ui/connecting.component';
+import { NextMeetingComponent } from '../app/ui/next-meeting.component';
 
 describe('ControlMainViewComponent', () => {
     let spectator: SpectatorRouting<ControlMainViewComponent>;
     const system = signal<{ active?: boolean; connected?: boolean }>({});
+    const changelog_available = signal(false);
     const changelog = {
-        available: signal(false).asReadonly(),
+        available: changelog_available.asReadonly(),
         view: vi.fn(),
     };
     const createComponent = createRoutingFactory({
@@ -25,8 +28,10 @@ describe('ControlMainViewComponent', () => {
         params: { system: 'space-0' },
         declarations: [
             MockComponent(TopbarHeaderComponent),
-            MockComponent(ControlPageViewComponent),
+            MockComponent(ControlAdvancedViewComponent),
             MockComponent(ControlStatusBarComponent),
+            MockComponent(ControlConnectingComponent),
+            MockComponent(NextMeetingComponent),
         ],
         imports: [MatProgressSpinnerModule],
         providers: [
@@ -41,14 +46,15 @@ describe('ControlMainViewComponent', () => {
 
     beforeEach(() => {
         system.set({});
+        changelog_available.set(false);
         spectator = createComponent();
     });
 
     it('should shown loading when connecting to system', async () => {
         system.set({ connected: true });
-        expect('[name="loader"]').toExist();
+        expect('control-connecting').toExist();
         spectator.detectChanges();
-        expect('[name="loader"]').not.toExist();
+        expect('control-connecting').not.toExist();
     });
 
     it('should show splash page for space', async () => {
@@ -73,7 +79,17 @@ describe('ControlMainViewComponent', () => {
         spectator.detectChanges();
         expect('[name="splash"]').not.toExist();
         expect('topbar-header').toExist();
-        expect('[control-page-view]').toExist();
+        expect('control-advanced-view').toExist();
         expect('control-status-bar').toExist();
+    });
+
+    it('should not power on when the changelog button is tapped', () => {
+        const service: any = spectator.inject(ControlStateService);
+        service.system.set({ connected: true });
+        changelog_available.set(true);
+        spectator.detectChanges();
+        service.powerOn.mockClear();
+        spectator.click('[name="splash"] button');
+        expect(service.powerOn).not.toHaveBeenCalled();
     });
 });

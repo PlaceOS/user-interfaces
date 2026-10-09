@@ -2,7 +2,7 @@ import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { SignageTemplate } from '@placeos/ts-client';
 import { TemplateApprovalPreviewComponent } from '../../app/shared/template-approval-preview.component';
-import { SignageService } from '../../app/signage.service';
+import { SignagePluginService } from '../../app/signage-plugin.service';
 
 describe('TemplateApprovalPreviewComponent', () => {
     const service_stub = {
@@ -15,7 +15,9 @@ describe('TemplateApprovalPreviewComponent', () => {
     beforeEach(async () => {
         await TestBed.configureTestingModule({
             imports: [TemplateApprovalPreviewComponent],
-            providers: [{ provide: SignageService, useValue: service_stub }],
+            providers: [
+                { provide: SignagePluginService, useValue: service_stub },
+            ],
         }).compileComponents();
     });
 

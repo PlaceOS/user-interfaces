@@ -44,10 +44,6 @@ describe('PhoneDiallingTooltipComponent', () => {
         spectator = createComponent();
     });
 
-    it('should expose the system id', () => {
-        expect(spectator.component.sys_id).toBe('sys-1');
-    });
-
     it('should send the dialpad character to the System module on input', async () => {
         await spectator.component.handleInput('5');
         expect(client.getModule).toHaveBeenCalledWith('sys-1', 'System');

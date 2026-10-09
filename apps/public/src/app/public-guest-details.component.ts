@@ -3,24 +3,27 @@ import {
     Component,
     DestroyRef,
     OnInit,
+    computed,
     inject,
     signal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import {
-    FormControl,
-    FormGroup,
-    ReactiveFormsModule,
-    Validators,
-} from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { combineLatest } from 'rxjs';
 import { GuestDetails, PublicEventsService } from './public-events.service';
 import { PublicPageShellComponent } from './public-page-shell.component';
 
+/** Same pattern as Angular's `Validators.email`. */
+const EMAIL_PATTERN =
+    /^(?=.{1,254}$)(?=.{1,64}@)[a-zA-Z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-zA-Z0-9!#$%&'*+/=?^_`{|}~-]+)*@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
+
+/**
+ * Landing page. Collects guest details, then opens the public events list.
+ * Uses signals instead of `@angular/forms` to keep forms out of the initial bundle.
+ */
 @Component({
     selector: 'placeos-public-guest-details',
-    imports: [ReactiveFormsModule, PublicPageShellComponent],
+    imports: [PublicPageShellComponent],
     changeDetection: ChangeDetectionStrategy.Eager,
     template: `
         <placeos-public-page-shell
@@ -63,33 +66,42 @@ import { PublicPageShellComponent } from './public-page-shell.component';
                     </div>
                     <form
                         class="flex flex-col gap-3"
-                        [formGroup]="guest_form"
-                        (ngSubmit)="submit()"
+                        novalidate
+                        (submit)="$event.preventDefault(); submit()"
                     >
                         <label class="block space-y-1 text-sm font-medium">
                             <div>Full name</div>
                             <input
+                                #name_input
                                 class="border-base-300 bg-base-200 focus:border-primary w-full rounded border px-3 py-2 font-normal outline-none"
-                                formControlName="name"
+                                name="name"
                                 autocomplete="name"
+                                [value]="guest_name()"
+                                (input)="guest_name.set(name_input.value)"
                             />
                         </label>
                         <label class="block space-y-1 text-sm font-medium">
                             <div>Email</div>
                             <input
+                                #email_input
                                 class="border-base-300 bg-base-200 focus:border-primary w-full rounded border px-3 py-2 font-normal outline-none"
-                                formControlName="email"
+                                name="email"
                                 type="email"
                                 autocomplete="email"
+                                [value]="guest_email()"
+                                (input)="guest_email.set(email_input.value)"
                             />
                         </label>
                         <label
                             class="flex items-start gap-3 text-sm font-medium"
                         >
                             <input
+                                #remember_input
                                 class="border-base-300 bg-base-200 text-primary focus:ring-primary mt-1 rounded"
-                                formControlName="remember"
+                                name="remember"
                                 type="checkbox"
+                                [checked]="remember()"
+                                (change)="remember.set(remember_input.checked)"
                             />
                             <span>
                                 <span>Remember me</span>
@@ -101,7 +113,7 @@ import { PublicPageShellComponent } from './public-page-shell.component';
                         </label>
                         <button
                             class="bg-primary text-primary-content hover:bg-primary-focus disabled:bg-base-300 disabled:text-base-content min-h-12 w-full rounded px-4 py-2 font-medium disabled:cursor-not-allowed disabled:opacity-60"
-                            [disabled]="guest_form.invalid || !!loading()"
+                            [disabled]="!guest_valid() || !!loading()"
                         >
                             @if (loading()) {
                                 {{ loading() }}
@@ -122,17 +134,13 @@ export class PublicGuestDetailsComponent implements OnInit {
     private readonly _destroy_ref = inject(DestroyRef);
     public readonly loading = this.service.loading;
 
-    public readonly guest_form = new FormGroup({
-        name: new FormControl('', {
-            nonNullable: true,
-            validators: [Validators.required],
-        }),
-        email: new FormControl('', {
-            nonNullable: true,
-            validators: [Validators.required, Validators.email],
-        }),
-        remember: new FormControl(false, { nonNullable: true }),
-    });
+    public readonly guest_name = signal('');
+    public readonly guest_email = signal('');
+    public readonly remember = signal(false);
+    /** Name is required. Email is required and must match `EMAIL_PATTERN`. */
+    public readonly guest_valid = computed(
+        () => !!this.guest_name() && EMAIL_PATTERN.test(this.guest_email()),
+    );
 
     public readonly source_id = signal('');
     public readonly target_event_id = signal('');
@@ -207,9 +215,10 @@ export class PublicGuestDetailsComponent implements OnInit {
     }
 
     public submit() {
-        this.guest_form.markAllAsTouched();
-        if (this.guest_form.invalid) return;
-        const { remember, ...details } = this.guest_form.getRawValue();
-        this.continueAsGuest(details, remember);
+        if (!this.guest_valid()) return;
+        this.continueAsGuest(
+            { name: this.guest_name(), email: this.guest_email() },
+            this.remember(),
+        );
     }
 }

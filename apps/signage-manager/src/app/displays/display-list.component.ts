@@ -1,18 +1,30 @@
+import { DatePipe } from '@angular/common';
 import {
     afterRenderEffect,
     Component,
+    DestroyRef,
     ElementRef,
     inject,
+    LOCALE_ID,
+    signal,
     viewChildren,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterLink } from '@angular/router';
-import { IconComponent, TranslatePipe } from '@placeos/components';
+import {
+    DateFromPipe,
+    IconComponent,
+    LoadErrorComponent,
+    TranslatePipe,
+} from '@placeos/components';
+import { isSameDay } from 'date-fns';
 import { IntersectDirective } from '../shared/intersect.directive';
-import { SignageService } from '../signage.service';
+import { isDisplayOnline } from './display-status.util';
+import { SignageDisplayService } from './signage-display.service';
 
 @Component({
     selector: 'display-list',
@@ -30,8 +42,7 @@ import { SignageService } from '../signage.service';
                         [placeholder]="
                             'SIGNAGE_MANAGER.SEARCH_DISPLAYS' | translate
                         "
-                        [ngModel]="search()"
-                        (ngModelChange)="search.set($event)"
+                        [(ngModel)]="search"
                         [attr.aria-label]="
                             'SIGNAGE_MANAGER.SEARCH_DISPLAYS' | translate
                         "
@@ -63,7 +74,25 @@ import { SignageService } from '../signage.service';
                                       }
                         "
                     >
-                        <icon class="shrink-0 text-2xl">tv</icon>
+                        <div
+                            class="relative shrink-0"
+                            role="img"
+                            [matTooltip]="
+                                statusLabel(display)
+                                    | translate: { time: lastSeen(display) }
+                            "
+                            [attr.aria-label]="
+                                statusLabel(display)
+                                    | translate: { time: lastSeen(display) }
+                            "
+                        >
+                            <icon class="text-2xl">tv</icon>
+                            <span
+                                class="border-base-100 absolute -right-0.5 -bottom-0.5 h-2.5 w-2.5 rounded-full border-2"
+                                [class.bg-success]="isOnline(display)"
+                                [class.bg-error]="!isOnline(display)"
+                            ></span>
+                        </div>
                         <div class="min-w-0 flex-1">
                             <div class="truncate font-medium">
                                 {{ display.display_name || display.name }}
@@ -90,11 +119,22 @@ import { SignageService } from '../signage.service';
                         intersect
                         (intersect)="loadMore()"
                     ></div>
-                } @else {
+                } @else if (error()) {
+                    <load-error (retry)="retry()" />
+                } @else if (!loading()) {
                     <div class="text-base-content/50 p-3 text-center text-xs">
                         {{ 'COMMON.END_OF_LIST' | translate }}
                     </div>
                 }
+            } @else if (loading()) {
+                <div
+                    class="text-base-content/70 flex flex-1 flex-col items-center justify-center p-8"
+                    role="status"
+                >
+                    {{ 'COMMON.LOADING' | translate }}
+                </div>
+            } @else if (error()) {
+                <load-error (retry)="retry()" />
             } @else {
                 <div
                     class="text-base-content/70 flex flex-1 flex-col items-center justify-center space-y-2 p-8"
@@ -120,24 +160,37 @@ import { SignageService } from '../signage.service';
         MatRippleModule,
         MatFormFieldModule,
         MatInputModule,
+        MatTooltipModule,
         IconComponent,
+        LoadErrorComponent,
         TranslatePipe,
         IntersectDirective,
     ],
 })
 export class DisplayListComponent {
-    private readonly _service = inject(SignageService);
+    private readonly _display_service = inject(SignageDisplayService);
     private readonly _display_items =
         viewChildren<ElementRef<HTMLAnchorElement>>('display_item');
 
-    public readonly search = this._service.display_search_term;
-    public readonly displays = this._service.filtered_displays;
-    public readonly selected = this._service.selected_display;
+    public readonly search = this._display_service.display_search_term;
+    public readonly displays = this._display_service.filtered_displays;
+    public readonly selected = this._display_service.selected_display;
 
     // Backend pagination: fetches the next page as the sentinel scrolls in.
-    public readonly has_more = this._service.displays_has_more;
+    public readonly has_more = this._display_service.displays_has_more;
+    public readonly loading = this._display_service.displays_loading;
+    public readonly error = this._display_service.displays_error;
+
+    // Ticks each minute so a display that stops checking in turns offline
+    // without a reload.
+    private readonly _now = signal(Date.now());
+    private readonly _date_from = new DateFromPipe();
+    private readonly _date = new DatePipe(inject(LOCALE_ID));
 
     constructor() {
+        const timer = setInterval(() => this._now.set(Date.now()), 60 * 1000);
+        inject(DestroyRef).onDestroy(() => clearInterval(timer));
+
         afterRenderEffect({
             earlyRead: () => {
                 const selected_id = this.selected()?.id;
@@ -158,6 +211,39 @@ export class DisplayListComponent {
     }
 
     public loadMore() {
-        this._service.loadMoreDisplays();
+        this._display_service.loadMoreDisplays();
+    }
+
+    public retry() {
+        this._display_service.retryDisplays();
+    }
+
+    public isOnline(display: { signage_last_seen?: number }) {
+        return isDisplayOnline(display.signage_last_seen, this._now());
+    }
+
+    /** Translation key for the status tooltip of a display */
+    public statusLabel(display: { signage_last_seen?: number }) {
+        if (!display.signage_last_seen) {
+            return 'SIGNAGE_MANAGER.DISPLAY_STATUS_NEVER_SEEN';
+        }
+        return this.isOnline(display)
+            ? 'SIGNAGE_MANAGER.DISPLAY_STATUS_ONLINE'
+            : 'SIGNAGE_MANAGER.DISPLAY_STATUS_OFFLINE';
+    }
+
+    /**
+     * When the display's player last checked in: minutes ago within the last
+     * hour, the time earlier today, and the date and time before today.
+     */
+    public lastSeen(display: { signage_last_seen?: number }) {
+        const now = this._now();
+        if (!display.signage_last_seen) return '';
+        const last_seen = display.signage_last_seen * 1000;
+        if (now - last_seen < 60 * 60 * 1000) {
+            return this._date_from.transform(last_seen);
+        }
+        const date_format = isSameDay(last_seen, now) ? 'shortTime' : 'short';
+        return this._date.transform(last_seen, date_format) || '';
     }
 }

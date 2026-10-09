@@ -6,11 +6,14 @@ import {
 } from '@ngneat/spectator/vitest';
 import { OrganisationService, SettingsService } from '@placeos/common';
 import { EventFormService, generateEventForm } from '@placeos/events';
+import * as ts_client from '@placeos/ts-client';
 import { addMinutes, startOfDay } from 'date-fns';
 import { MockProvider } from 'ng-mocks';
 
 import { EventManageComponent } from '../../app/events/event-manage.component';
 import { EventStateService } from '../../app/events/event-state.service';
+
+vi.mock('@placeos/ts-client', { spy: true });
 
 describe('EventManageComponent', () => {
     let spectator: SpectatorRouting<EventManageComponent>;
@@ -154,5 +157,37 @@ describe('EventManageComponent', () => {
         const date = startOfDay(Date.now()).valueOf();
         spectator.component.model.update((m) => ({ ...m, date }));
         expect(spectator.component.start_date()).toBe(date);
+    });
+
+    it('should not replace a group event metadata with the metadata route', async () => {
+        vi.mocked<(url: string) => Promise<unknown>>(
+            ts_client.get,
+        ).mockImplementation(async (url) =>
+            url.includes('/metadata/')
+                ? { view_access: 'PUBLIC', permission: 'PUBLIC' }
+                : {
+                      id: 'event-1',
+                      title: 'Group event',
+                      host: 'group@events.com',
+                      permission: 'open',
+                      attendees: [],
+                      extension_data: {
+                          shared_event: true,
+                          view_access: 'OPEN',
+                      },
+                  },
+        );
+        const form_state = spectator.inject(EventFormService);
+
+        await spectator.component.ngOnInit();
+        spectator.setRouteParam('id', 'event-1');
+        await vi.waitFor(() => expect(form_state.newForm).toHaveBeenCalled());
+
+        const [loaded] = vi.mocked(form_state.newForm).mock.calls[0];
+        expect(loaded.extension_data.view_access).toBe('OPEN');
+        expect(spectator.component.model()).not.toHaveProperty('permission');
+        expect(ts_client.get).not.toHaveBeenCalledWith(
+            expect.stringContaining('/metadata/'),
+        );
     });
 });

@@ -17,6 +17,7 @@ import {
     TranslatePipe,
 } from '@placeos/components';
 import { addZone, authority, updateZone } from '@placeos/ts-client';
+import { errorText } from '../ui/modal-actions';
 
 @Component({
     selector: 'level-modal',
@@ -47,18 +48,14 @@ import { addZone, authority, updateZone } from '@placeos/ts-client';
                     <mat-form-field appearance="outline">
                         <mat-select
                             [formField]="form.parent_id"
-                            [placeholder]="
-                                'COMMON.BUILDING_SELECT' | translate
-                            "
+                            [placeholder]="'COMMON.BUILDING_SELECT' | translate"
                         >
                             @for (
                                 building of building_list();
                                 track building.id
                             ) {
                                 <mat-option [value]="building.id">
-                                    {{
-                                        building.display_name || building.name
-                                    }}
+                                    {{ building.display_name || building.name }}
                                 </mat-option>
                             }
                         </mat-select>
@@ -155,18 +152,19 @@ export class LevelModalComponent {
         this.loading.set(true);
         const data: any = this.model();
         data.tags = data.parking ? ['level', 'parking'] : ['level'];
-        const resp = await (
-            data.id
-                ? updateZone(data.id, {
-                      ...data,
-                      name: `LEVEL ${authority().description} ${data.display_name}`,
-                  })
-                : addZone({
-                      ...data,
-                      name: `LEVEL ${authority().description} ${data.display_name}`,
-                  })
-        ).catch();
-        if (resp.id) this._dialog_ref.close(resp);
-        this.loading.set(false);
+        const body = {
+            ...data,
+            name: `LEVEL ${authority().description} ${data.display_name}`,
+        };
+        try {
+            const resp = await (data.id
+                ? updateZone(data.id, body)
+                : addZone(body));
+            this._dialog_ref.close(resp);
+        } catch (e) {
+            notifyError(`Failed to save level. ${errorText(e)}`);
+        } finally {
+            this.loading.set(false);
+        }
     }
 }

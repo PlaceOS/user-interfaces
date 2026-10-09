@@ -1,8 +1,11 @@
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
+import * as ts_client from '@placeos/ts-client';
 import { MockProvider } from 'ng-mocks';
 
 import { LockerModalComponent } from '../../app/lockers/locker-modal.component';
+
+vi.mock('@placeos/ts-client', { spy: true });
 
 describe('LockerModalComponent', () => {
     let spectator: Spectator<LockerModalComponent>;
@@ -66,7 +69,7 @@ describe('LockerModalComponent', () => {
         expect(spectator.component.loading()).toBe(false);
     });
 
-    it('should emit a done event stripping unassigned user fields', () => {
+    it('should emit a done event with no assignee when none is set', () => {
         spectator = createComponent();
         const emit = vi.spyOn(spectator.component.event, 'emit');
         spectator.component.model.update((m) => ({ ...m, name: 'Locker A' }));
@@ -78,8 +81,25 @@ describe('LockerModalComponent', () => {
         );
         const metadata = emit.mock.calls[0][0].metadata as any;
         expect(metadata.name).toBe('Locker A');
-        expect('assigned_to' in metadata).toBe(false);
-        expect('assigned_name' in metadata).toBe(false);
+        expect(metadata.assigned_to).toBe('');
+    });
+
+    it('should keep the stored assignee when the staff lookup fails', async () => {
+        vi.mocked(ts_client.get).mockRejectedValue('offline');
+        dialog_data.locker = {
+            id: 'locker-3',
+            name: 'Locker 3',
+            assigned_to: 'jane@example.com',
+            assigned_name: 'Jane',
+        };
+        spectator = createComponent();
+        await spectator.component.ngOnInit();
+        const emit = vi.spyOn(spectator.component.event, 'emit');
+
+        spectator.component.postForm();
+
+        const metadata = emit.mock.calls[0][0].metadata as any;
+        expect(metadata.assigned_to).toBe('jane@example.com');
     });
 
     it('should flag positions that overlap an existing locker', async () => {

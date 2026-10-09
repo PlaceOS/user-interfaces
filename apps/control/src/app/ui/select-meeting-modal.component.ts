@@ -1,12 +1,17 @@
 import { DatePipe } from '@angular/common';
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
-import { CalendarEvent, i18n, notifySuccess } from '@placeos/common';
+import {
+    CalendarEvent,
+    i18n,
+    notifyError,
+    notifySuccess,
+} from '@placeos/common';
 import {
     IconComponent,
     openConfirmModal,
@@ -14,6 +19,7 @@ import {
 } from '@placeos/components';
 import { format } from 'date-fns';
 import { ControlStateService } from '../control-state.service';
+import { errorText } from '../error-text';
 
 @Component({
     selector: 'select-meeting-modal',
@@ -115,7 +121,7 @@ export class SelectMeetingModalComponent {
     public readonly calendars = this._service.calendars;
     public readonly events = this._service.events;
 
-    public readonly loading = signal(false);
+    public readonly loading = this._service.events_loading;
 
     public readonly calendar = this._service.calendar;
 
@@ -133,9 +139,20 @@ export class SelectMeetingModalComponent {
             },
             this._dialog,
         );
-        details.loading(i18n('APP.CONTROL.MEETING_JOIN_LOADING'));
         if (details.reason !== 'done') return;
-        await this._service.setEvent(e);
+        details.loading(i18n('APP.CONTROL.MEETING_JOIN_LOADING'));
+        try {
+            await this._service.setEvent(e);
+        } catch (error) {
+            notifyError(
+                i18n('APP.CONTROL.MEETING_JOIN_ERROR', {
+                    error: errorText(error),
+                }),
+            );
+            return;
+        } finally {
+            details.close();
+        }
         notifySuccess(i18n('APP.CONTROL.MEETING_JOIN_SUCCESS'));
         this._dialog_ref.close();
     };

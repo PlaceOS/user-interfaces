@@ -251,6 +251,7 @@ export class SignageItemPlaylistsComponent {
     private _state = inject(SignageStateService);
 
     public readonly item = input<any>(undefined);
+    // fallow-ignore-next-line unused-component-input -- read in a template pipe expression fallow does not parse
     public readonly name = input('zone');
     public readonly extra = input('');
     public readonly link = input('');

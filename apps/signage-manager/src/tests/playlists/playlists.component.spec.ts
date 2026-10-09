@@ -1,8 +1,11 @@
 import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router } from '@angular/router';
+import { setNotifyOutlet } from '@placeos/common';
 import { PlaylistsSectionComponent } from '../../app/playlists/playlists.component';
-import { SignageService } from '../../app/signage.service';
+import { SignagePlaylistService } from '../../app/playlists/signage-playlist.service';
+import { SignageContextService } from '../../app/signage-context.service';
 
 describe('PlaylistsSectionComponent', () => {
     const selected_playlist = signal<any>(null);
@@ -10,25 +13,23 @@ describe('PlaylistsSectionComponent', () => {
     const selected_playlist_item_index = signal<number | null>(null);
     const playlists = signal<any[]>([]);
     const playlist_media_items = signal<any[]>([]);
+    const playlists_loading = signal(false);
+    const can_query = signal(true);
     const navigate = vi.fn();
+    const load_playlist = vi.fn();
+    const notify_open = vi.fn(() => ({
+        onAction: () => ({ subscribe: () => ({ unsubscribe: () => {} }) }),
+        dismiss: vi.fn(),
+    }));
 
-    const service_stub = {
+    const playlist_stub = {
         selected_playlist,
         selected_playlist_item,
         selected_playlist_item_index,
-        selected_playlist_requires_approval: signal(false),
-        can_approve: signal(false),
-        can_update: signal(true),
-        can_delete: signal(true),
-        can_share: signal(true),
-        playlist_approval_request_loading: signal(false),
         playlists,
         playlist_media_items,
-        editPlaylist: vi.fn(),
-        removePlaylist: vi.fn(),
-        approvePlaylist: vi.fn(),
-        requestPlaylistApproval: vi.fn(),
-        sharePlaylist: vi.fn(),
+        playlists_loading,
+        loadPlaylist: load_playlist,
     };
 
     let fixture: ComponentFixture<PlaylistsSectionComponent>;
@@ -37,7 +38,11 @@ describe('PlaylistsSectionComponent', () => {
         await TestBed.configureTestingModule({
             imports: [PlaylistsSectionComponent],
             providers: [
-                { provide: SignageService, useValue: service_stub },
+                { provide: SignagePlaylistService, useValue: playlist_stub },
+                {
+                    provide: SignageContextService,
+                    useValue: { canQueryLists: () => can_query() },
+                },
                 { provide: Router, useValue: { navigate } },
                 { provide: ActivatedRoute, useValue: {} },
             ],
@@ -57,6 +62,9 @@ describe('PlaylistsSectionComponent', () => {
         selected_playlist_item_index.set(null);
         playlists.set([]);
         playlist_media_items.set([]);
+        playlists_loading.set(false);
+        can_query.set(true);
+        setNotifyOutlet({ open: notify_open } as unknown as MatSnackBar, true);
     });
 
     it('syncs the active view tab from the route', async () => {
@@ -74,6 +82,102 @@ describe('PlaylistsSectionComponent', () => {
         fixture.detectChanges();
         expect(selected_playlist()).toBe(match);
         expect(selected_playlist_item()).toBeNull();
+    });
+
+    it('fetches and selects a linked playlist that is not in the loaded pages', async () => {
+        const linked = { id: 'pl-9', name: 'Linked' };
+        playlists.set([{ id: 'pl-1' }]);
+        load_playlist.mockImplementationOnce(async () => {
+            playlists.update((list) => [...list, linked]);
+            return linked;
+        });
+        await make();
+        fixture.componentRef.setInput('id', 'pl-9');
+        fixture.detectChanges();
+        await fixture.whenStable();
+        fixture.detectChanges();
+
+        expect(load_playlist).toHaveBeenCalledOnce();
+        expect(load_playlist).toHaveBeenCalledWith('pl-9');
+        expect(selected_playlist()).toBe(linked);
+    });
+
+    it('fetches a linked playlist when the loaded pages are empty', async () => {
+        const linked = { id: 'pl-9', name: 'Linked' };
+        load_playlist.mockImplementationOnce(async () => {
+            playlists.set([linked]);
+            return linked;
+        });
+        await make();
+        fixture.componentRef.setInput('id', 'pl-9');
+        fixture.detectChanges();
+        await fixture.whenStable();
+        fixture.detectChanges();
+
+        expect(load_playlist).toHaveBeenCalledWith('pl-9');
+        expect(selected_playlist()).toBe(linked);
+    });
+
+    it('waits for the first page before fetching a linked playlist', async () => {
+        playlists_loading.set(true);
+        await make();
+        fixture.componentRef.setInput('id', 'pl-9');
+        fixture.detectChanges();
+        expect(load_playlist).not.toHaveBeenCalled();
+
+        playlists_loading.set(false);
+        fixture.detectChanges();
+        expect(load_playlist).toHaveBeenCalledWith('pl-9');
+    });
+
+    it('warns when a linked playlist cannot be loaded', async () => {
+        load_playlist.mockResolvedValueOnce(null);
+        await make();
+        fixture.componentRef.setInput('id', 'missing');
+        fixture.detectChanges();
+        await fixture.whenStable();
+
+        expect(notify_open).toHaveBeenCalledWith(
+            expect.stringContaining('Could not open the playlist'),
+            expect.anything(),
+            expect.anything(),
+        );
+    });
+
+    it('clears the selection when a linked playlist cannot be loaded', async () => {
+        const open = { id: 'pl-1' };
+        playlists.set([open]);
+        await make();
+        fixture.componentRef.setInput('id', 'pl-1');
+        fixture.detectChanges();
+        expect(selected_playlist()).toBe(open);
+
+        load_playlist.mockResolvedValueOnce(null);
+        fixture.componentRef.setInput('id', 'deleted');
+        fixture.detectChanges();
+        await fixture.whenStable();
+
+        expect(selected_playlist()).toBeNull();
+    });
+
+    it('does not warn about a link the user has already left', async () => {
+        let resolveLoad: (value: null) => void = () => {};
+        load_playlist.mockReturnValueOnce(
+            new Promise((resolve) => (resolveLoad = resolve)),
+        );
+        const open = { id: 'pl-1' };
+        playlists.set([open]);
+        await make();
+        fixture.componentRef.setInput('id', 'deleted');
+        fixture.detectChanges();
+
+        fixture.componentRef.setInput('id', 'pl-1');
+        fixture.detectChanges();
+        resolveLoad(null);
+        await fixture.whenStable();
+
+        expect(notify_open).not.toHaveBeenCalled();
+        expect(selected_playlist()).toBe(open);
     });
 
     it('clears the selection once the route id is removed', async () => {

@@ -2,13 +2,19 @@ import { Component, computed, inject, input } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterLink } from '@angular/router';
-import { IconComponent, TranslatePipe } from '@placeos/components';
+import {
+    IconComponent,
+    LoadErrorComponent,
+    TranslatePipe,
+} from '@placeos/components';
 import { SignagePlaylist } from '@placeos/ts-client';
+import { SignageDisplayService } from '../displays/signage-display.service';
+import { SignagePlaylistService } from '../playlists/signage-playlist.service';
 import { PlaylistThumbnailComponent } from '../shared/playlist-thumbnail.component';
 import { TemplateMappingsComponent } from '../shared/template-mappings.component';
-import { SignageService } from '../signage.service';
-
-type PlaylistStatus = 'expired' | 'pending' | 'awaiting_approval' | null;
+import { SignageContextService } from '../signage-context.service';
+import { playlistStatus } from '../signage-playlist.util';
+import { SignageZoneService } from './signage-zone.service';
 
 @Component({
     selector: 'zone-content',
@@ -127,12 +133,22 @@ type PlaylistStatus = 'expired' | 'pending' | 'awaiting_approval' | null;
                                                                 }}
                                                             </span>
                                                         }
+                                                        @case ('awaiting_review') {
+                                                            <span
+                                                                class="bg-warning text-warning-content shrink-0 rounded px-1.5 py-0.5 text-[10px] font-bold uppercase"
+                                                            >
+                                                                {{
+                                                                    'SIGNAGE_MANAGER.STATUS_AWAITING_REVIEW'
+                                                                        | translate
+                                                                }}
+                                                            </span>
+                                                        }
                                                         @case ('awaiting_approval') {
                                                             <span
                                                                 class="bg-secondary text-secondary-content shrink-0 rounded px-1.5 py-0.5 text-[10px] font-bold uppercase"
                                                             >
                                                                 {{
-                                                                    'SIGNAGE_MANAGER.STATUS_AWAITING_APPROVAL'
+                                                                    'COMMON.APPROVAL_REQUIRED'
                                                                         | translate
                                                                 }}
                                                             </span>
@@ -182,6 +198,19 @@ type PlaylistStatus = 'expired' | 'pending' | 'awaiting_approval' | null;
                                         }
                                     </div>
                                 }
+                            } @else if (
+                                has_assigned_playlists() && playlists_loading()
+                            ) {
+                                <div
+                                    class="text-base-content/70 p-6 text-center"
+                                    role="status"
+                                >
+                                    {{ 'COMMON.LOADING' | translate }}
+                                </div>
+                            } @else if (
+                                has_assigned_playlists() && playlists_error()
+                            ) {
+                                <load-error (retry)="reloadPlaylists()" />
                             } @else {
                                 <div
                                     class="text-base-content/70 flex flex-col items-center justify-center space-y-2 p-6"
@@ -283,6 +312,15 @@ type PlaylistStatus = 'expired' | 'pending' | 'awaiting_approval' | null;
                                         </div>
                                     </a>
                                 }
+                            } @else if (zone_displays_loading()) {
+                                <div
+                                    class="text-base-content/70 p-6 text-center"
+                                    role="status"
+                                >
+                                    {{ 'COMMON.LOADING' | translate }}
+                                </div>
+                            } @else if (zone_displays_error()) {
+                                <load-error (retry)="reloadDisplays()" />
                             } @else {
                                 <div
                                     class="text-base-content/70 flex flex-col items-center justify-center space-y-2 p-6"
@@ -336,63 +374,77 @@ type PlaylistStatus = 'expired' | 'pending' | 'awaiting_approval' | null;
         MatTooltipModule,
         RouterLink,
         IconComponent,
+        LoadErrorComponent,
         TranslatePipe,
         PlaylistThumbnailComponent,
         TemplateMappingsComponent,
     ],
 })
 export class ZoneContentComponent {
-    private readonly _service = inject(SignageService);
+    private readonly _context = inject(SignageContextService);
+    private readonly _display_service = inject(SignageDisplayService);
+    private readonly _playlist_service = inject(SignagePlaylistService);
+    private readonly _zone_service = inject(SignageZoneService);
 
     public readonly activeTab = input<'playlists' | 'displays' | 'templates'>(
         'playlists',
     );
-    public readonly selected_zone = this._service.selected_zone;
+    public readonly selected_zone = this._zone_service.selected_zone;
     public readonly playlist_approval_status =
-        this._service.playlist_approval_status;
-    public readonly can_update = this._service.can_update;
+        this._playlist_service.playlist_approval_status;
+    public readonly can_update = this._context.can_update;
 
-    private readonly _playlists = this._service.playlists;
-    private readonly _displays = this._service.displays;
+    public readonly zone_playlists = computed(() =>
+        this._playlist_service.playlistsById(
+            this.selected_zone()?.playlists || [],
+        ),
+    );
+    public readonly playlists_loading =
+        this._playlist_service.playlists_loading;
+    public readonly playlists_error = this._playlist_service.playlists_error;
+    // The tab reads the playlist ids of the zone and resolves them from the
+    // shared playlist list. The list state matters only when there are ids.
+    public readonly has_assigned_playlists = computed(
+        () => !!this.selected_zone()?.playlists?.length,
+    );
 
-    public readonly zone_playlists = computed(() => {
-        const zone = this.selected_zone();
-        if (!zone) return [];
-        return this._playlists().filter((p) => zone.playlists?.includes(p.id));
-    });
+    public reloadPlaylists() {
+        this._playlist_service.reloadPlaylists();
+    }
 
-    public readonly zone_displays = computed(() => {
-        const zone = this.selected_zone();
-        if (!zone) return [];
-        return this._displays().filter((d) => d.zones?.includes(zone.id));
-    });
+    public readonly zone_displays =
+        this._display_service.selected_zone_displays;
+    public readonly zone_displays_loading =
+        this._display_service.selected_zone_displays_loading;
+    public readonly zone_displays_error =
+        this._display_service.selected_zone_displays_error;
+
+    public reloadDisplays() {
+        this._display_service.reloadSelectedZoneDisplays();
+    }
 
     public addPlaylist() {
         const zone = this.selected_zone();
-        if (zone) this._service.addPlaylistToZone(zone);
+        if (zone) this._zone_service.addPlaylistToZone(zone);
     }
 
     public removePlaylist(event: Event, playlist_id: string) {
         event.preventDefault();
         event.stopPropagation();
         const zone = this.selected_zone();
-        if (zone) this._service.removePlaylistFromZone(zone, playlist_id);
+        if (zone) this._zone_service.removePlaylistFromZone(zone, playlist_id);
     }
 
     public addDisplay() {
         const zone = this.selected_zone();
-        if (zone) this._service.addDisplayToZone(zone);
+        if (zone) this._display_service.addDisplayToZone(zone);
     }
 
-    public getStatus(playlist: SignagePlaylist): PlaylistStatus {
-        const now_s = Math.floor(Date.now() / 1000);
-        if (playlist.valid_until && playlist.valid_until < now_s)
-            return 'expired';
-        if (playlist.valid_from && playlist.valid_from > now_s)
-            return 'pending';
-        const approvals = this.playlist_approval_status();
-        if (playlist.id in approvals && !approvals[playlist.id])
-            return 'awaiting_approval';
-        return null;
+    public getStatus(playlist: SignagePlaylist) {
+        return playlistStatus(
+            playlist,
+            this.playlist_approval_status(),
+            this._playlist_service.playlist_approval_requested_status(),
+        );
     }
 }

@@ -8,10 +8,10 @@ import { MatSelectModule } from '@angular/material/select';
 import { ActivatedRoute, Router } from '@angular/router';
 import { OrganisationService, SettingsService } from '@placeos/common';
 import { BuildingPipe, TranslatePipe } from '@placeos/components';
+import { DateOptionsComponent } from '@placeos/form-fields';
 import { parse } from 'date-fns';
 import { ApplicationSidebarComponent } from '../ui/app-sidebar.component';
 import { ApplicationTopbarComponent } from '../ui/app-topbar.component';
-import { DateOptionsComponent } from '../ui/date-options.component';
 import { SearchbarComponent } from '../ui/searchbar.component';
 import { GuestListingComponent } from './guest-listing.component';
 import { InviteVisitorModalComponent } from './invite-visitor-modal.component';
@@ -37,6 +37,7 @@ import { VisitorsStateService } from './visitors-state.service';
                         btn
                         matRipple
                         class="w-40"
+                        data-shortcut="new"
                         (click)="inviteVisitor()"
                     >
                         {{ 'BOOKINGS.VISITOR_INVITE_TITLE' | translate }}
@@ -159,11 +160,13 @@ export class VisitorsComponent implements OnInit, OnDestroy {
     }
 
     public async inviteVisitor() {
-        this._dialog.open(InviteVisitorModalComponent, {
+        const ref = this._dialog.open(InviteVisitorModalComponent, {
             data: {
                 date: this.filters()?.date || Date.now(),
             },
         });
+        // The modal can invite several visitors, so reload once it closes
+        ref.afterClosed().subscribe(() => this._state.poll());
     }
 
     public ngOnInit() {

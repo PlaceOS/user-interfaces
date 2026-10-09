@@ -1,11 +1,11 @@
 import { inject, Injector } from '@angular/core';
-import { CanActivateChildFn, Router } from '@angular/router';
+import { CanActivateChildFn, CanActivateFn, Router } from '@angular/router';
 import {
     firstValueWhere,
     OrganisationService,
     user_groups_loaded,
 } from '@placeos/common';
-import { SignageService } from './signage.service';
+import { SignageContextService } from './signage-context.service';
 
 export function canAccessSignageApp(
     can_manage_all_groups: boolean,
@@ -18,7 +18,7 @@ export function canAccessSignageApp(
 }
 
 export const signageAccessGuard: CanActivateChildFn = async () => {
-    const service = inject(SignageService);
+    const service = inject(SignageContextService);
     const router = inject(Router);
     const org = inject(OrganisationService);
     const injector = inject(Injector);
@@ -35,4 +35,26 @@ export const signageAccessGuard: CanActivateChildFn = async () => {
     )
         ? true
         : router.parseUrl('/unauthorised');
+};
+
+/**
+ * Guards the group admin page. Users who cannot manage a signage group go to
+ * the media library. Waits for the signage groups, like the app guard, and
+ * like it lets the user through when they failed to load, so the page can
+ * show the error and retry instead of sending a manager away.
+ */
+export const manageGroupsGuard: CanActivateFn = async () => {
+    const service = inject(SignageContextService);
+    const router = inject(Router);
+    const org = inject(OrganisationService);
+    const injector = inject(Injector);
+
+    await Promise.all([
+        org.waitUntilInitialised(),
+        firstValueWhere(user_groups_loaded, Boolean, injector),
+        firstValueWhere(service.signage_groups_loaded, Boolean, injector),
+    ]);
+    return service.can_manage_groups() || service.signage_groups_failed()
+        ? true
+        : router.parseUrl('/media');
 };

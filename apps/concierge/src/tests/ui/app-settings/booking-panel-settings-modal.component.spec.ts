@@ -79,6 +79,20 @@ describe('BookingPanelSettingsModalComponent', () => {
         vi.restoreAllMocks();
     });
 
+    it('should not submit the form natively when Enter is pressed', async () => {
+        await spectator.fixture.whenStable();
+        spectator.detectChanges();
+        const form = spectator.query('form');
+        const submit = new Event('submit', { cancelable: true });
+
+        form.dispatchEvent(submit);
+
+        expect(submit.defaultPrevented).toBe(true);
+        for (const button of spectator.queryAll('form button')) {
+            expect(button.getAttribute('type')).toBe('button');
+        }
+    });
+
     it('should have a model with booking values', () => {
         const model = spectator.component.model();
         expect('disable_book_now' in model).toBe(true);

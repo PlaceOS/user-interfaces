@@ -29,6 +29,8 @@ describe('LockerBookingsComponent', () => {
             filters: signal({}),
             search: signal(''),
             has_more_pages: signal(false),
+            load_error: signal(false),
+            lockers: signal([{ id: 'locker-1', name: 'Locker 1' }]),
             filtered_bookings: signal([
                 { id: 'bk-1', date: 1_000, duration: 30 },
             ]),
@@ -46,6 +48,17 @@ describe('LockerBookingsComponent', () => {
         expect(spectator.component.bookings()).toEqual([
             { id: 'bk-1', date: 1_000, duration: 30, end: 1_000 + 30 * 60_000 },
         ]);
+    });
+
+    it('should name a locker from the loaded lockers, falling back to the id', () => {
+        const name = (row: any) => spectator.component.lockerName(row);
+        expect(name({ asset_id: 'locker-1', asset_name: 'locker-1' })).toBe(
+            'Locker 1',
+        );
+        expect(name({ asset_id: 'locker-9', asset_name: 'Named' })).toBe(
+            'Named',
+        );
+        expect(name({ asset_id: 'locker-9', asset_name: '' })).toBe('locker-9');
     });
 
     it('should request the next page when loading more', () => {

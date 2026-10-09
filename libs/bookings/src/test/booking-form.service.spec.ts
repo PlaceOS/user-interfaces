@@ -17,6 +17,7 @@ import {
     i18n,
     OrganisationService,
     setCurrentUser,
+    settingSignal,
     StaffUser,
     User,
 } from '@placeos/common';
@@ -601,6 +602,31 @@ describe('BookingFormService', () => {
         }
     });
 
+    it('should wait for availability when org data reloads during the request', async () => {
+        settings_overrides.set([{}, {}]);
+        try {
+            spectator.service.newForm('desk');
+            const request = spectator.service.listAvailableResources();
+            TestBed.tick();
+            await spectator.service.listResources();
+            // An org reload clears the overrides before the form debounce ends.
+            settings_overrides.set([]);
+            TestBed.tick();
+            await new Promise((resolve) => setTimeout(resolve, 1200));
+            settings_overrides.set([{}, {}]);
+            TestBed.tick();
+
+            const available = await request;
+
+            expect(available.map((asset) => asset.id)).toEqual([
+                'desk-1',
+                'desk-1',
+            ]);
+        } finally {
+            settings_overrides.set([]);
+        }
+    });
+
     it('should exclude window-booked AND recurring-clash desks', async () => {
         // desk-1 is booked in the first-instance window, desk-2 clashes with a
         // later recurrence instance. Enabling recurrence must exclude both, not
@@ -931,6 +957,129 @@ describe('BookingFormService', () => {
         expect((savedBookings()[0] as Booking).description).toBe(
             'Vendor Interview',
         );
+    });
+
+    it('should post the flow type when the form has no booking type', async () => {
+        (spectator.inject(PaymentsService) as any).enabled = false;
+        spectator.service.newForm('desk');
+        spectator.service.model.update((m) => ({
+            ...m,
+            booking_type: ' ',
+            asset_id: 'desk-1',
+            asset_name: 'Desk 1',
+            date: Date.now() + 60 * 60 * 1000,
+            duration: 60,
+        }));
+
+        await spectator.service.postForm(true);
+
+        expect(savedBookings().length).toBe(1);
+        expect((savedBookings()[0] as Booking).booking_type).toBe('desk');
+    });
+
+    it('should keep an untyped stored booking when the flow loads it', () => {
+        sessionStorage.setItem(
+            'PLACEOS.booking_form',
+            JSON.stringify({
+                id: 'untyped-1',
+                booking_type: ' ',
+                asset_id: 'desk-1',
+                date: Date.now() + 60 * 60 * 1000,
+                duration: 60,
+            }),
+        );
+
+        spectator.service.loadForm('desk');
+
+        expect(spectator.service.model().id).toBe('untyped-1');
+        expect(spectator.service.model().booking_type).toBe('desk');
+    });
+
+    it('should validate an untyped parking form as parking', async () => {
+        (spectator.inject(PaymentsService) as any).enabled = false;
+        const require_plate_number = settingSignal(
+            'parking.require_plate_number',
+            false,
+        );
+        require_plate_number.set(true);
+        try {
+            spectator.service.newForm('parking');
+            spectator.service.model.update((m) => ({
+                ...m,
+                asset_id: 'parking-1',
+                asset_name: 'Parking 1',
+                date: Date.now() + 60 * 60 * 1000,
+                duration: 60,
+            }));
+
+            await expect(spectator.service.postForm(true)).rejects.toBe(
+                'FORM.INVALID_FIELDS',
+            );
+            expect(savedBookings().length).toBe(0);
+        } finally {
+            require_plate_number.set(false);
+        }
+    });
+
+    it('should keep an untyped booking when it is opened for editing', () => {
+        spectator.service.newForm(
+            'desk',
+            new Booking({
+                id: 'untyped-1',
+                asset_id: 'desk-1',
+                date: Date.now() + 60 * 60 * 1000,
+                duration: 60,
+            }),
+        );
+
+        expect(spectator.service.model().id).toBe('untyped-1');
+        expect(spectator.service.model().booking_type).toBe('desk');
+    });
+
+    it('should leave approval to the backend for a standard user when approval is skipped', async () => {
+        (spectator.inject(PaymentsService) as any).enabled = false;
+        (spectator.inject(SettingsService).get as Mock).mockImplementation(
+            (key: string) => key === 'app.bookings.no_approval' || undefined,
+        );
+        spectator.service.newForm('desk');
+        spectator.service.model.update((m) => ({
+            ...m,
+            asset_id: 'desk-1',
+            asset_name: 'Desk 1',
+            date: Date.now() + 60 * 60 * 1000,
+            duration: 60,
+        }));
+
+        await spectator.service.postForm(true);
+
+        expect((savedBookings()[0] as Booking).approved).toBe(false);
+    });
+
+    it('should send approved for a support user when approval is skipped', async () => {
+        (spectator.inject(PaymentsService) as any).enabled = false;
+        (spectator.inject(SettingsService).get as Mock).mockImplementation(
+            (key: string) => key === 'app.bookings.no_approval' || undefined,
+        );
+        setCurrentUser(
+            new StaffUser({
+                id: 'support-user',
+                email: 'support.user@example.com',
+                name: 'Support User',
+                groups: ['placeos_support'],
+            }),
+        );
+        spectator.service.newForm('desk');
+        spectator.service.model.update((m) => ({
+            ...m,
+            asset_id: 'desk-1',
+            asset_name: 'Desk 1',
+            date: Date.now() + 60 * 60 * 1000,
+            duration: 60,
+        }));
+
+        await spectator.service.postForm(true);
+
+        expect((savedBookings()[0] as Booking).approved).toBe(true);
     });
 
     it('should keep the host when editing a delegated visitor booking', async () => {
@@ -3733,6 +3882,14 @@ describe('BookingFormService', () => {
 
         it('should keep an existing booking when its asset requests fail', async () => {
             postBookings({ status: 422, error: 'Asset unavailable' });
+            for (const method of [ts_client.patch, ts_client.put]) {
+                vi.mocked(method).mockImplementation(
+                    async (_url: string, body: any) => ({
+                        ...body,
+                        id: 'bkn-1',
+                    }),
+                );
+            }
             useDeskFormWithAssets(
                 new Booking({
                     id: 'bkn-1',

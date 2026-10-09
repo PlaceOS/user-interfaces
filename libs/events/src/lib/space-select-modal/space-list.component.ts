@@ -228,6 +228,7 @@ export class SpaceListComponent {
     private _event_form = inject(EventFormService);
     private _org = inject(OrganisationService);
 
+    // fallow-ignore-next-line unused-component-input -- read in a [class.x!] binding fallow does not parse
     public readonly active = input('');
     public readonly selected = input<string[]>([]);
     public readonly selected_spaces = input<

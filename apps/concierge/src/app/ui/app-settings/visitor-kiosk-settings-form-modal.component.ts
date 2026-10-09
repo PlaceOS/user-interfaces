@@ -27,6 +27,7 @@ import {
     SettingsToggleComponent,
 } from '@placeos/components';
 import { DEFAULT_SETTINGS } from 'apps/visitor-kiosk/src/environments/settings';
+import { errorText } from '../modal-actions';
 import {
     applyAppSettings,
     appSettingOverrides,
@@ -594,26 +595,34 @@ export class VisitorKioskSettingsFormModalComponent implements OnInit {
     public async ngOnInit() {
         const zone = this._data.zone;
         this.loading.set('Loading existing settings...');
-        const org_id = this._org.organisation.id;
-        const org_metadata =
-            zone.id !== org_id ? await this._getMetadata(org_id) : {};
-        const parent_metadata =
-            zone.id !== org_id &&
-            !!zone.parent_id &&
-            org_id !== zone.parent_id
-                ? await this._getMetadata(zone.parent_id)
-                : {};
-        const metadata = await this._getMetadata(zone.id);
-        this.existing_settings = mergeAppSettings(
-            this.model(),
-            DEFAULT_SETTINGS.app,
-            org_metadata,
-            parent_metadata,
-        );
-        this._patchModel(this.existing_settings);
-        this._patchModel(metadata || {});
-        this.old_settings = metadata;
-        this.loading.set('');
+        try {
+            const org_id = this._org.organisation.id;
+            const org_metadata =
+                zone.id !== org_id ? await this._getMetadata(org_id) : {};
+            const parent_metadata =
+                zone.id !== org_id &&
+                !!zone.parent_id &&
+                org_id !== zone.parent_id
+                    ? await this._getMetadata(zone.parent_id)
+                    : {};
+            const metadata = await this._getMetadata(zone.id);
+            this.existing_settings = mergeAppSettings(
+                this.model(),
+                DEFAULT_SETTINGS.app,
+                org_metadata,
+                parent_metadata,
+            );
+            this._patchModel(this.existing_settings);
+            this._patchModel(metadata || {});
+            this.old_settings = metadata;
+        } catch (e) {
+            // Saving defaults over settings that failed to load would lose
+            // them, so close instead.
+            notifyError(`Failed to load existing settings. ${errorText(e)}`);
+            this._dialog_ref.close();
+        } finally {
+            this.loading.set('');
+        }
     }
 
     public addLegend() {

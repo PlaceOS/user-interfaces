@@ -18,6 +18,7 @@
 // Must be first: loads .env into process.env before any var below is read.
 import './load-env';
 import * as path from 'path';
+import { CALENDAR_USER_EMAIL, CALENDAR_USER_PASSWORD } from './calendar/calendar.env';
 
 /**
  * Auth artifacts are resolved against this file, not the cwd — Nx, Playwright
@@ -68,7 +69,7 @@ export function assertLocalOnly(...urls: string[]): void {
     }
 }
 
-export type RoleName = 'admin' | 'staff';
+export type RoleName = 'admin' | 'staff' | 'calendar';
 
 export interface Role {
     name: RoleName;
@@ -115,6 +116,18 @@ export function roleFor(name: RoleName, workerIndex = 0): Role {
             password: ADMIN_PASSWORD,
             storagePath: path.join(AUTH_DIR, `admin-${workerIndex}.json`),
             tokenPath: path.join(AUTH_DIR, `admin-${workerIndex}.token.json`),
+        };
+    }
+    // The admin whose address is a mailbox in the Microsoft 365 tenant. Seeded
+    // only on a stack backed by it (`calendarBacked`); elsewhere no user may be
+    // behind this role.
+    if (name === 'calendar') {
+        return {
+            name,
+            email: CALENDAR_USER_EMAIL,
+            password: CALENDAR_USER_PASSWORD,
+            storagePath: path.join(AUTH_DIR, `calendar-${workerIndex}.json`),
+            tokenPath: path.join(AUTH_DIR, `calendar-${workerIndex}.token.json`),
         };
     }
     return {

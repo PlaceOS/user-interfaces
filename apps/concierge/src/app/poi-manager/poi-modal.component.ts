@@ -31,6 +31,7 @@ import {
 import { showMetadata, updateMetadata } from '@placeos/ts-client';
 import { ImageFieldComponent } from 'libs/form-fields/src/lib/image-field.component';
 import { UploadButtonComponent } from '../ui/app-settings/upload-button.component';
+import { errorText } from '../ui/modal-actions';
 import { SelectMapItemModalComponent } from '../ui/select-map-item-modal.component';
 import { PointOfInterest } from './poi-management.service';
 
@@ -163,10 +164,7 @@ import { PointOfInterest } from './poi-management.service';
                                     (ngModelChange)="
                                         model.update((m) => ({
                                             ...m,
-                                            location: [
-                                                +$event,
-                                                +m.location[1],
-                                            ],
+                                            location: [+$event, +m.location[1]],
                                         }))
                                     "
                                     [ngModelOptions]="{ standalone: true }"
@@ -180,10 +178,7 @@ import { PointOfInterest } from './poi-management.service';
                                     (ngModelChange)="
                                         model.update((m) => ({
                                             ...m,
-                                            location: [
-                                                +m.location[0],
-                                                +$event,
-                                            ],
+                                            location: [+m.location[0], +$event],
                                         }))
                                     "
                                     [ngModelOptions]="{ standalone: true }"
@@ -218,7 +213,10 @@ import { PointOfInterest } from './poi-management.service';
                         <upload-button
                             [ngModel]="model().media_url"
                             (ngModelChange)="
-                                model.update((m) => ({ ...m, media_url: $event }))
+                                model.update((m) => ({
+                                    ...m,
+                                    media_url: $event,
+                                }))
                             "
                             [ngModelOptions]="{ standalone: true }"
                             [types]="['audio', 'video']"
@@ -287,6 +285,10 @@ import { PointOfInterest } from './poi-management.service';
 export class POIModalComponent extends AsyncHandler implements OnInit {
     private _org = inject(OrganisationService);
     private _data = inject<PointOfInterest | undefined>(MAT_DIALOG_DATA);
+    /** ID for a new point of interest, kept across save retries. */
+    private readonly _new_id = `POI-${randomString(8)}`;
+    /** Short URL for this point of interest, kept across save retries. */
+    private _short_link_id = this._data?.short_link_id;
     private _dialog_ref = inject<MatDialogRef<POIModalComponent>>(MatDialogRef);
     private _settings = inject(SettingsService);
     private _dialog = inject(MatDialog);
@@ -367,9 +369,13 @@ export class POIModalComponent extends AsyncHandler implements OnInit {
                 ([key, value]) => key && value,
             ),
         }));
-        const data: any = this.model();
-        if (!data.id) data.id = `POI-${randomString(8)}`;
-        data.short_link_id = this._data?.short_link_id;
+        // Copy the model so a failed save does not change the form, and
+        // reuse the ID and short URL from earlier attempts on retry.
+        const data: any = {
+            ...this.model(),
+            id: this.model().id || this._new_id,
+            short_link_id: this._short_link_id,
+        };
         const path = this._settings.get('app.kiosk_url_path') || '/map-kiosk';
         const public_key = this._settings.get('app.short_url_public_key');
         const location =
@@ -378,50 +384,55 @@ export class POIModalComponent extends AsyncHandler implements OnInit {
                 : data.location.join(',');
         let uri = `${path}/#/explore?level=${data.level_id}&locate=${location}&public=true`;
         if (public_key) uri += `&x-api-key=${public_key}`;
-        if (!data.short_link_id) {
-            const { id } = await createShortURL({
-                name: data.name,
-                description: `Point of Interest: ${data.name}`,
-                uri: `${
-                    window.location.origin
-                }/auth/login?continue=${encodeURIComponent(uri)}`,
-            } as any);
-            data.short_link_id = id;
-        } else {
-            await updateShortURL(data.short_link_id, {
-                id: data.short_link_id,
-                name: data.name,
-                description: `Point of Interest: ${data.name}`,
-                uri: `${
-                    window.location.origin
-                }/auth/login?continue=${encodeURIComponent(uri)}`,
-            } as any);
-        }
         this.loading.set(true);
-        const old_metadata = await showMetadata(
-            this._org.organisation.id,
-            'points-of-interest',
-        );
-        const metadata = old_metadata.details || {};
-        if (!metadata[data.level_id]) metadata[data.level_id] = [];
-        if (this._data?.id) {
-            for (const lvl in metadata) {
-                if (metadata[lvl])
-                    metadata[lvl] = metadata[lvl].filter(
-                        (_) => _.id !== data.id,
-                    );
+        try {
+            if (!data.short_link_id) {
+                const { id } = await createShortURL({
+                    name: data.name,
+                    description: `Point of Interest: ${data.name}`,
+                    uri: `${
+                        window.location.origin
+                    }/auth/login?continue=${encodeURIComponent(uri)}`,
+                } as any);
+                data.short_link_id = this._short_link_id = id;
+            } else {
+                await updateShortURL(data.short_link_id, {
+                    id: data.short_link_id,
+                    name: data.name,
+                    description: `Point of Interest: ${data.name}`,
+                    uri: `${
+                        window.location.origin
+                    }/auth/login?continue=${encodeURIComponent(uri)}`,
+                } as any);
             }
+            const old_metadata = await showMetadata(
+                this._org.organisation.id,
+                'points-of-interest',
+            );
+            const metadata = old_metadata.details || {};
+            if (!metadata[data.level_id]) metadata[data.level_id] = [];
+            if (this._data?.id) {
+                for (const lvl in metadata) {
+                    if (metadata[lvl])
+                        metadata[lvl] = metadata[lvl].filter(
+                            (_) => _.id !== data.id,
+                        );
+                }
+            }
+            metadata[data.level_id] = [
+                ...metadata[data.level_id].filter((_) => _.id !== data.id),
+                data,
+            ].sort((a, b) => a.name.localeCompare(b.name));
+            const resp = await updateMetadata(this._org.organisation.id, {
+                name: 'points-of-interest',
+                details: metadata,
+                description: 'Point of Interests for maps',
+            });
+            this._dialog_ref.close(resp);
+        } catch (e) {
+            notifyError(`Failed to save point of interest. ${errorText(e)}`);
+        } finally {
+            this.loading.set(false);
         }
-        metadata[data.level_id] = [
-            ...metadata[data.level_id].filter((_) => _.id !== data.id),
-            data,
-        ].sort((a, b) => a.name.localeCompare(b.name));
-        const resp = await updateMetadata(this._org.organisation.id, {
-            name: 'points-of-interest',
-            details: metadata,
-            description: 'Point of Interests for maps',
-        }).catch((e) => notifyError(e));
-        if ((resp as any).id) this._dialog_ref.close(resp);
-        this.loading.set(false);
     }
 }

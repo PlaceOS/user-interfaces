@@ -1,10 +1,20 @@
 import {
+    MediaAnimation,
     SignageMedia,
     type SignagePlaylistItemSchedule,
     type SignagePlaylistSchedule,
 } from '@placeos/ts-client';
-import { formatDistance, fromUnixTime } from 'date-fns';
+import { format, formatDistance, fromUnixTime, getUnixTime } from 'date-fns';
 import { fromZonedTime, toZonedTime } from 'date-fns-tz';
+import {
+    cronDaySlots,
+    cronParts,
+    doesCronMatchDay,
+    isCronMonthlyWeekday,
+    nextCronDates,
+    parseCronNumber,
+    parseCronWeekdays,
+} from './signage-cron.util';
 
 /**
  * Schedule fields that are not in the ts-client type yet.
@@ -14,9 +24,64 @@ export type PlaylistSchedule = SignagePlaylistSchedule & {
     readonly valid_from?: number;
     /** Up to 128 binary characters, first occurrence first. Empty disables the mask. */
     readonly mask?: string;
+    /**
+     * One-off play time as a wall-clock time with no offset, e.g.
+     * "2027-01-01T00:00:00". Each display plays it in its own timezone.
+     * Do not set it with `play_at`.
+     */
+    readonly play_at_local?: string;
 };
 
-const DEFAULT_PLAY_PERIOD_MINUTES = 24 * 60;
+const PLAY_AT_LOCAL_PATTERN =
+    /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})$/;
+
+/** Whether the schedule plays once at `play_at` or `play_at_local`. */
+export function isPlayOnceSchedule(schedule: Partial<PlaylistSchedule>) {
+    return !!schedule.play_at || !!schedule.play_at_local;
+}
+
+/**
+ * Parse a `play_at_local` value as a wall-clock time in the viewer's timezone.
+ * Returns null when the value is not an ISO 8601 date time with no offset.
+ */
+export function parsePlayAtLocal(value: string | null | undefined) {
+    const match = PLAY_AT_LOCAL_PATTERN.exec(value || '');
+    if (!match) return null;
+    const [year, month, day, hours, minutes, seconds] = match
+        .slice(1)
+        .map(Number);
+    const date = new Date(year, month - 1, day, hours, minutes, seconds);
+    // Reject values such as February 30 or 00:60 that roll over.
+    return date.getDate() === day &&
+        date.getMonth() === month - 1 &&
+        minutes < 60 &&
+        seconds < 60
+        ? date
+        : null;
+}
+
+/** Format a date as a `play_at_local` value in the viewer's timezone. */
+export function formatPlayAtLocal(date: Date | number) {
+    return format(date, "yyyy-MM-dd'T'HH:mm:ss");
+}
+
+/** Play once start time for labels. Local times note the display timezone. */
+function playOnceLabel(schedule: Partial<PlaylistSchedule>) {
+    const start = playOnceStart(schedule)?.toLocaleString() ?? '';
+    return schedule.play_at ? start : `${start} display local time`;
+}
+
+/**
+ * Start of a play once schedule, or null for a recurring schedule.
+ * The viewer's timezone resolves `play_at_local` values.
+ */
+export function playOnceStart(schedule: Partial<PlaylistSchedule>) {
+    if (schedule.play_at) return fromUnixTime(schedule.play_at);
+    return parsePlayAtLocal(schedule.play_at_local);
+}
+
+/** Play period of a schedule that does not set one: the whole day */
+export const DEFAULT_PLAY_PERIOD_MINUTES = 24 * 60;
 const WEEKDAY_NAMES = [
     'Sunday',
     'Monday',
@@ -26,6 +91,40 @@ const WEEKDAY_NAMES = [
     'Friday',
     'Saturday',
 ];
+
+/**
+ * Animation as a `MediaAnimation` value. The API accepts animation names
+ * but stores and returns the index of the name in `MediaAnimation`, e.g.
+ * 2 for `cross_fade`. Names are kept as they are.
+ * @returns The default animation for an index out of range or no value
+ */
+export function mediaAnimation(
+    value: MediaAnimation | number | null | undefined,
+): MediaAnimation {
+    if (typeof value !== 'number') return value || MediaAnimation.Default;
+    const animations = Object.values(MediaAnimation);
+    return Number.isInteger(value) && value >= 0 && value < animations.length
+        ? animations[value]
+        : MediaAnimation.Default;
+}
+
+/**
+ * Default animation of a playlist that ts-client loaded. The API returns
+ * the index of the animation, and `SignagePlaylist` replaces a falsy value
+ * with `cut`. So index 0 (`default`) arrives as the name `cut`, while a
+ * saved Cut arrives as the index 1. Read the name `cut` as the default.
+ *
+ * The player treats the default as its own transition, not as a cut, so
+ * the two must not be merged.
+ */
+export function playlistAnimation(playlist: {
+    default_animation?: MediaAnimation | number;
+}): MediaAnimation {
+    const value = playlist.default_animation;
+    return value === MediaAnimation.Cut
+        ? MediaAnimation.Default
+        : mediaAnimation(value);
+}
 
 export function playlistMediaThumbnailUrl(item: SignageMedia) {
     // `SignageMedia.thumbnail_url` builds an uploads URL whether or not a
@@ -78,6 +177,27 @@ export function playlistMediaItems(list: {
         : media;
 }
 
+/**
+ * Apply a new order of the shown playlist items to the saved item ids.
+ * Items that do not resolve to media are not shown, so they keep their
+ * position instead of being dropped from the playlist.
+ * @param item_ids Saved item ids of the playlist
+ * @param ordered_ids Ids of the shown items, in the new order
+ */
+export function reorderPlaylistItemIds(
+    item_ids: string[],
+    ordered_ids: string[],
+) {
+    if (!item_ids.length) return [...ordered_ids];
+    const shown_ids = new Set(ordered_ids);
+    let next_index = 0;
+    return item_ids.map((id) =>
+        shown_ids.has(id) && next_index < ordered_ids.length
+            ? ordered_ids[next_index++]
+            : id,
+    );
+}
+
 export function playlistMediaIds(list: {
     items?: string[];
     media?: SignageMedia[];
@@ -98,7 +218,8 @@ export function playlistItemScheduleMap(list: {
     return map;
 }
 
-function ordinal(value: number) {
+/** English ordinal of a number, e.g. "1st" or "12th" */
+export function ordinal(value: number) {
     if (value >= 11 && value <= 13) return `${value}th`;
     switch (value % 10) {
         case 1:
@@ -135,21 +256,13 @@ function durationLabel(duration_minutes: number) {
     return `${hours} hr ${minutes} min`;
 }
 
-function parseCronList(value: string, min: number, max: number) {
-    const values = new Set<number>();
+/** Days of the month in a plain list such as "1,15". Empty for other values. */
+export function parseCronMonthDays(value: string) {
     if (!value || value === '*') return [];
-    for (const part of value.split(',')) {
-        if (part.includes('-')) {
-            const [start, end] = part.split('-').map(Number);
-            if (start < min || end > max || start > end) return [];
-            for (let item = start; item <= end; item++) values.add(item);
-        } else {
-            const item = Number(part);
-            if (item < min || item > max) return [];
-            values.add(item);
-        }
-    }
-    return [...values].sort((a, b) => a - b);
+    const days = value.split(',').map((part) => parseCronNumber(part, 1, 31));
+    return days.every((day) => day !== null)
+        ? [...new Set(days)].sort((a, b) => a - b)
+        : [];
 }
 
 function listText(values: string[]) {
@@ -171,10 +284,6 @@ function weekOfMonthLabel(day_part: string) {
 function weekOfMonthLabels(day_part: string) {
     const labels = day_part.split(',').map((range) => weekOfMonthLabel(range));
     return labels.every((label) => label) ? labels : [];
-}
-
-function isCronMonthlyWeekday(day_part: string, weekday_part: string) {
-    return /^\d+-\d+(,\d+-\d+)*$/.test(day_part || '') && weekday_part !== '*';
 }
 
 function humanizeCronSchedule(cron: string, duration_minutes: number) {
@@ -209,7 +318,7 @@ function humanizeCronSchedule(cron: string, duration_minutes: number) {
         return `Weekdays at ${time}${suffix}`;
     }
     if (day === '*' && day_of_week !== '*') {
-        const weekdays = parseCronList(day_of_week, 0, 6).map(
+        const weekdays = parseCronWeekdays(day_of_week).map(
             (day_value) => WEEKDAY_NAMES[day_value],
         );
         return weekdays.length
@@ -217,7 +326,7 @@ function humanizeCronSchedule(cron: string, duration_minutes: number) {
             : `Custom schedule (${cron})`;
     }
     if (day !== '*' && day_of_week === '*') {
-        const days = parseCronList(day, 1, 31).map((day_value) =>
+        const days = parseCronMonthDays(day).map((day_value) =>
             ordinal(day_value),
         );
         return days.length
@@ -226,7 +335,7 @@ function humanizeCronSchedule(cron: string, duration_minutes: number) {
     }
     if (isCronMonthlyWeekday(day, day_of_week)) {
         const weeks = weekOfMonthLabels(day);
-        const weekdays = parseCronList(day_of_week, 0, 6).map(
+        const weekdays = parseCronWeekdays(day_of_week).map(
             (day_value) => WEEKDAY_NAMES[day_value],
         );
         return weeks.length && weekdays.length
@@ -240,6 +349,31 @@ function schedulePeriod(schedule: Partial<PlaylistSchedule>) {
     return Number.isFinite(schedule.play_period)
         ? schedule.play_period || 0
         : DEFAULT_PLAY_PERIOD_MINUTES;
+}
+
+/** Play time in milliseconds when no other value is set. Matches the signage player. */
+const DEFAULT_PLAY_TIME_MS = 15 * 1000;
+
+/**
+ * Time in milliseconds to play each item once. Uses the same fallbacks as
+ * the signage player: item play time, video length, playlist default, then
+ * 15 seconds. Item schedules are not applied.
+ * @param items Media items of the playlist
+ * @param default_duration Playlist default play time in milliseconds
+ */
+export function playlistLoopDuration(
+    items: Pick<SignageMedia, 'play_time' | 'video_length'>[],
+    default_duration = 0,
+) {
+    return items.reduce(
+        (total, item) =>
+            total +
+            (item.play_time ||
+                item.video_length ||
+                default_duration ||
+                DEFAULT_PLAY_TIME_MS),
+        0,
+    );
 }
 
 export function playlistScheduleExpiryLabel(
@@ -262,6 +396,63 @@ export function playlistScheduleExpiryTooltip(
         : '';
 }
 
+/**
+ * When a playlist stopped playing, in Unix seconds: its own end date, or the
+ * last schedule end date when every schedule has ended. 0 while it can play.
+ */
+export function playlistExpiredAt(
+    playlist: {
+        valid_until?: number;
+        schedules?: readonly Partial<PlaylistSchedule>[];
+    },
+    now = Date.now(),
+) {
+    if (playlist.valid_until && playlist.valid_until * 1000 < now) {
+        return playlist.valid_until;
+    }
+    const ends = (playlist.schedules || []).map(
+        ({ valid_until }) => valid_until || 0,
+    );
+    if (!ends.length || ends.some((end) => !end || end * 1000 >= now)) {
+        return 0;
+    }
+    return Math.max(...ends);
+}
+
+/** Status badge of a playlist in a list. Null when it needs no badge. */
+export type PlaylistStatus =
+    | 'expired'
+    | 'pending'
+    | 'awaiting_approval'
+    | 'awaiting_review'
+    | null;
+
+/**
+ * Status of a playlist for list badges. Expiry uses `playlistExpiredAt`, so
+ * lists agree with the content report.
+ * @param approvals Approval state by playlist ID. A playlist that is not in
+ * it has no approval state, e.g. it does not need approval.
+ * @param requests Whether approval was requested, by playlist ID
+ */
+export function playlistStatus(
+    playlist: {
+        id: string;
+        valid_from?: number;
+        valid_until?: number;
+        schedules?: readonly Partial<PlaylistSchedule>[];
+    },
+    approvals: Record<string, boolean>,
+    requests: Record<string, boolean>,
+    now = Date.now(),
+): PlaylistStatus {
+    if (playlistExpiredAt(playlist, now)) return 'expired';
+    if (playlist.valid_from && playlist.valid_from * 1000 > now) {
+        return 'pending';
+    }
+    if (!(playlist.id in approvals) || approvals[playlist.id]) return null;
+    return requests[playlist.id] ? 'awaiting_review' : 'awaiting_approval';
+}
+
 export function playlistScheduleLabel(schedule: Partial<PlaylistSchedule>) {
     const period = schedulePeriod(schedule);
     const expiry = playlistScheduleExpiryLabel(schedule);
@@ -274,51 +465,14 @@ export function playlistScheduleLabel(schedule: Partial<PlaylistSchedule>) {
     ]
         .filter((_) => _)
         .join(' · ');
-    if (schedule.play_at) {
-        const date = fromUnixTime(schedule.play_at);
-        return `Plays once on ${date.toLocaleString()} for ${durationLabel(period)}${
+    if (isPlayOnceSchedule(schedule)) {
+        return `Plays once on ${playOnceLabel(schedule)} for ${durationLabel(period)}${
             suffix ? ` · ${suffix}` : ''
         }`;
     }
     return `${humanizeCronSchedule(schedule.play_cron || '0 0 * * *', period)}${
         suffix ? ` · ${suffix}` : ''
     }`;
-}
-
-function matchesCronPart(value: number, cron_part: string) {
-    if (cron_part === '*') return true;
-    if (cron_part.includes(',')) {
-        return cron_part
-            .split(',')
-            .some((item) => matchesCronPart(value, item));
-    }
-    if (cron_part.includes('/')) {
-        const [base, step] = cron_part.split('/');
-        return !!+step && value % +step === 0 && matchesCronPart(value, base);
-    }
-    if (cron_part.includes('-')) {
-        const [start, end] = cron_part.split('-').map(Number);
-        return value >= start && value <= end;
-    }
-    return Number(cron_part) === value;
-}
-
-function doesCronMatchDate(cron: string, date: Date) {
-    const parts = cron.trim().split(/\s+/);
-    if (parts.length !== 5) return false;
-    const [minute, hour, day, month, day_of_week] = parts;
-    if (!matchesCronPart(date.getMinutes(), minute)) return false;
-    if (!matchesCronPart(date.getHours(), hour)) return false;
-    if (!matchesCronPart(date.getMonth() + 1, month)) return false;
-    const day_matches = matchesCronPart(date.getDate(), day);
-    const weekday_matches = matchesCronPart(date.getDay(), day_of_week);
-    if (day === '*' && day_of_week === '*') return true;
-    if (day !== '*' && day_of_week === '*') return day_matches;
-    if (day === '*' && day_of_week !== '*') return weekday_matches;
-    if (isCronMonthlyWeekday(day, day_of_week)) {
-        return day_matches && weekday_matches;
-    }
-    return day_matches || weekday_matches;
 }
 
 /** Validate an active mask without changing leading zeros or whitespace. */
@@ -352,19 +506,11 @@ export function createScheduleMaskFilter(
     if (!hasPlayableScheduleMask(schedule)) return () => false;
     const anchor = schedule.valid_from * 1000;
     if (!Number.isFinite(new Date(anchor).getTime())) return () => false;
-    if (schedule.play_at)
+    if (isPlayOnceSchedule(schedule))
         return (date) => date.getTime() >= anchor && mask[0] === '1';
-    const cron = schedule.play_cron || '0 0 * * *';
-    const parts = cron.trim().split(/\s+/);
-    if (parts.length !== 5) return () => false;
-    const slots: number[] = [];
-    for (let hour = 0; hour < 24; hour++) {
-        if (!matchesCronPart(hour, parts[1])) continue;
-        for (let minute = 0; minute < 60; minute++) {
-            if (matchesCronPart(minute, parts[0]))
-                slots.push(hour * 60 + minute);
-        }
-    }
+    const parts = cronParts(schedule.play_cron || '0 0 * * *');
+    if (!parts) return () => false;
+    const slots = cronDaySlots(parts);
     if (!slots.length) return () => false;
     const wallTime = (date: Date) =>
         timezone ? toZonedTime(date, timezone) : new Date(date);
@@ -377,9 +523,7 @@ export function createScheduleMaskFilter(
     let cached_day = NaN;
     let cached_times: number[] = [];
     const countBefore = (day: Date, before: number) => {
-        const probe = new Date(day);
-        probe.setHours(0, slots[0], 0, 0);
-        if (!doesCronMatchDate(cron, probe)) return 0;
+        if (!doesCronMatchDay(parts, day)) return 0;
         const next_day = new Date(day);
         next_day.setDate(next_day.getDate() + 1);
         const start = instant(day).getTime();
@@ -429,8 +573,13 @@ export function createScheduleMaskFilter(
     };
 }
 
-function formatPlayDateTime(date: Date) {
+/**
+ * Date and time of a play, e.g. "Mon, Jan 5, 9:00 AM".
+ * @param timeZone IANA timezone. The viewer's timezone when not set.
+ */
+export function formatPlayDateTime(date: Date, timeZone?: string) {
     return date.toLocaleString(undefined, {
+        timeZone,
         weekday: 'short',
         month: 'short',
         day: 'numeric',
@@ -439,84 +588,98 @@ function formatPlayDateTime(date: Date) {
     });
 }
 
-function formatPlayTime(date: Date) {
+function formatPlayTime(date: Date, timeZone?: string) {
     return date.toLocaleTimeString(undefined, {
+        timeZone,
         hour: 'numeric',
         minute: '2-digit',
     });
 }
 
-function formatPlayDateTimeRange(start: Date, duration_minutes: number) {
-    const end = new Date(start);
-    end.setMinutes(end.getMinutes() + Math.max(0, duration_minutes || 0));
-    if (duration_minutes > 0) end.setSeconds(end.getSeconds() - 1);
-    const end_text =
-        start.toDateString() === end.toDateString()
-            ? formatPlayTime(end)
-            : formatPlayDateTime(end);
-    return `${formatPlayDateTime(start)} – ${end_text}`;
+/**
+ * Last second of a play. Adds elapsed time, as the player does, so a play
+ * across a daylight saving change keeps its length. A play period of 0 plays
+ * the playlist once, so it ends at its start.
+ */
+export function playEndTime(start: Date, duration_minutes: number) {
+    const duration = Math.max(0, duration_minutes || 0);
+    return new Date(
+        start.getTime() + duration * 60_000 - (duration > 0 ? 1000 : 0),
+    );
 }
 
-function nextCronPlayDates(
-    cron: string,
-    count: number,
-    valid_until = 0,
-    valid_from = 0,
-    mask = '',
+/**
+ * Time range of a play. The end shows only its time when the play ends on
+ * the day it starts.
+ * @param timeZone IANA timezone. The viewer's timezone when not set.
+ */
+export function formatPlayDateTimeRange(
+    start: Date,
+    duration_minutes: number,
+    timeZone?: string,
 ) {
-    const allows = createScheduleMaskFilter({
-        play_cron: cron,
-        valid_from,
-        mask,
-    });
-    const result: Date[] = [];
-    if (!cron?.trim() || !hasPlayableScheduleMask({ mask, valid_from }))
-        return result;
-    let date = new Date();
-    date.setSeconds(0, 0);
-    date.setMinutes(date.getMinutes() + 1);
-    // Start the search at the validity window when it opens in the future.
-    if (valid_from && fromUnixTime(valid_from) > date) {
-        date = fromUnixTime(valid_from);
-        if (date.getSeconds()) date.setMinutes(date.getMinutes() + 1);
-        date.setSeconds(0, 0);
-    }
-    const end = new Date(date);
-    end.setFullYear(end.getFullYear() + 2);
-    const expiry = valid_until ? fromUnixTime(valid_until) : end;
-    while (date <= end && date <= expiry && result.length < count) {
-        if (doesCronMatchDate(cron, date) && allows(date))
-            result.push(new Date(date));
-        date.setMinutes(date.getMinutes() + 1);
-    }
-    return result;
+    const end = playEndTime(start, duration_minutes);
+    const day = (date: Date) =>
+        (timeZone ? toZonedTime(date, timeZone) : date).toDateString();
+    const end_text =
+        day(start) === day(end)
+            ? formatPlayTime(end, timeZone)
+            : formatPlayDateTime(end, timeZone);
+    return `${formatPlayDateTime(start, timeZone)} – ${end_text}`;
 }
 
+interface PlaySession {
+    start: Date;
+    period: number;
+}
+
+/** Next plays of one schedule, inside its validity window and mask. */
+function nextSchedulePlays(
+    schedule: Partial<PlaylistSchedule>,
+    count: number,
+    now: number,
+): PlaySession[] {
+    const period = schedulePeriod(schedule);
+    if (isPlayOnceSchedule(schedule)) {
+        const start = playOnceStart(schedule);
+        if (!start) return [];
+        const end = playEndTime(start, period);
+        const play_at = getUnixTime(start);
+        const outside_valid_window =
+            (!!schedule.valid_until && play_at > schedule.valid_until) ||
+            (!!schedule.valid_from && play_at < schedule.valid_from);
+        return end.getTime() >= now &&
+            !outside_valid_window &&
+            createScheduleMaskFilter(schedule)(start)
+            ? [{ start, period }]
+            : [];
+    }
+    if (!hasPlayableScheduleMask(schedule)) return [];
+    return nextCronDates(schedule.play_cron || '0 0 * * *', {
+        from: Math.max(now + 1, (schedule.valid_from || 0) * 1000),
+        until: schedule.valid_until ? schedule.valid_until * 1000 : undefined,
+        count,
+        allows: createScheduleMaskFilter(schedule),
+    }).map((start) => ({ start, period }));
+}
+
+/** Time ranges of the next plays of all the schedules, earliest first. */
+export function playlistNextPlayLabels(
+    schedules: Partial<PlaylistSchedule>[],
+    count = 5,
+    now = Date.now(),
+) {
+    return schedules
+        .flatMap((schedule) => nextSchedulePlays(schedule, count, now))
+        .sort((a, b) => a.start.getTime() - b.start.getTime())
+        .slice(0, count)
+        .map(({ start, period }) => formatPlayDateTimeRange(start, period));
+}
+
+/** Time ranges of the next plays of one schedule. */
 export function playlistScheduleNextPlayLabels(
     schedule: Partial<PlaylistSchedule>,
     count = 5,
 ) {
-    const period = schedulePeriod(schedule);
-    if (schedule.play_at) {
-        const start = fromUnixTime(schedule.play_at);
-        const end = new Date(start);
-        end.setMinutes(end.getMinutes() + Math.max(0, period || 0));
-        if (period > 0) end.setSeconds(end.getSeconds() - 1);
-        const outside_valid_window =
-            (!!schedule.valid_until &&
-                schedule.play_at > schedule.valid_until) ||
-            (!!schedule.valid_from && schedule.play_at < schedule.valid_from);
-        return end >= new Date() &&
-            !outside_valid_window &&
-            createScheduleMaskFilter(schedule)(start)
-            ? [formatPlayDateTimeRange(start, period)]
-            : [];
-    }
-    return nextCronPlayDates(
-        schedule.play_cron || '0 0 * * *',
-        count,
-        schedule.valid_until,
-        schedule.valid_from,
-        schedule.mask,
-    ).map((start) => formatPlayDateTimeRange(start, period));
+    return playlistNextPlayLabels([schedule], count);
 }

@@ -1,4 +1,7 @@
-import { createServiceFactory, SpectatorService } from '@ngneat/spectator/vitest';
+import {
+    createServiceFactory,
+    SpectatorService,
+} from '@ngneat/spectator/vitest';
 
 import { LocaleService } from '../lib/locale.service';
 
@@ -106,9 +109,7 @@ describe('LocaleService', () => {
         }));
         spectator.service.setLocale('es-ES');
         await flush();
-        expect(global.fetch).toHaveBeenCalledWith(
-            'assets/locale/es-ES.json',
-        );
+        expect(global.fetch).toHaveBeenCalledWith('assets/locale/es-ES.json');
         expect(spectator.service.get('COMMON.HELLO')).toBe('Hola');
     });
 
@@ -118,9 +119,9 @@ describe('LocaleService', () => {
         });
         spectator.service.setLocale('fr-FR');
         await flush();
-        expect(
-            spectator.service.get('COMMON.GREET', { name: 'Alex' }),
-        ).toBe('Bonjour Alex');
+        expect(spectator.service.get('COMMON.GREET', { name: 'Alex' })).toBe(
+            'Bonjour Alex',
+        );
     });
 
     it('should handle plural mappings', async () => {
@@ -131,13 +132,29 @@ describe('LocaleService', () => {
         });
         spectator.service.setLocale('fr-FR');
         await flush();
-        expect(spectator.service.get('COMMON.ITEM', {}, 2)).toBe(
-            'deux objets',
-        );
-        expect(spectator.service.get('COMMON.ITEM', {}, 5)).toBe(
-            'des objets',
-        );
+        expect(spectator.service.get('COMMON.ITEM', {}, 2)).toBe('deux objets');
+        expect(spectator.service.get('COMMON.ITEM', {}, 5)).toBe('des objets');
         expect(spectator.service.get('COMMON.ITEM')).toBe('un objet');
+    });
+
+    it('should fall back to the fetched default locale for missing keys', async () => {
+        (global as any).fetch = vi.fn(async (url: string) => ({
+            ok: true,
+            json: async () =>
+                url.endsWith('en-AU.json')
+                    ? { COMMON: { HELLO: 'Hello', BYE: 'Goodbye' } }
+                    : { COMMON: { HELLO: 'Bonjour' } },
+        }));
+        spectator.service.setLocale('fr-FR');
+        await spectator.service.loaded();
+        expect(spectator.service.get('COMMON.HELLO')).toBe('Bonjour');
+        expect(spectator.service.get('COMMON.BYE')).toBe('Goodbye');
+    });
+
+    it('should use the cached default locale before it loads', () => {
+        storeLocale('en-AU', { 'COMMON.HELLO': 'Hello' });
+        const service = new LocaleService();
+        expect(service.get('COMMON.HELLO')).toBe('Hello');
     });
 
     it('should fall back to the key when locale loading fails', async () => {

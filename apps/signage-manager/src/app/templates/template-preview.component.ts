@@ -20,7 +20,11 @@ import {
     TranslatePipe,
 } from '@placeos/components';
 import { mediaThumbnail } from '@placeos/ts-client';
-import { SignageService } from '../signage.service';
+import { SignageDisplayService } from '../displays/signage-display.service';
+import { SignagePluginService } from '../signage-plugin.service';
+import { pluginName } from '../signage-plugin.util';
+import { parseWebUrl } from '../signage-url.util';
+import { SignageTemplateService } from './signage-template.service';
 import {
     applyLayoutPositionDefaults,
     computeTemplateLayoutRects,
@@ -261,18 +265,20 @@ const ASPECT_RATIOS: AspectRatioOption[] = [
     ],
 })
 export class TemplatePreviewComponent {
-    private readonly _service = inject(SignageService);
+    private readonly _display_service = inject(SignageDisplayService);
+    private readonly _plugin_service = inject(SignagePluginService);
+    private readonly _template_service = inject(SignageTemplateService);
 
     public readonly aspect_ratios = ASPECT_RATIOS;
     public readonly aspect = signal(ASPECT_RATIOS[0]);
     public readonly selected_display_id = signal('');
     public readonly live_mode = signal(false);
-    public readonly displays = this._service.displays;
+    public readonly displays = this._display_service.displays;
     public readonly signage_path = settingSignal('signage_path');
 
     public readonly selected_index =
-        this._service.selected_template_layout_index;
-    private readonly _layouts = this._service.template_layout_draft;
+        this._template_service.selected_template_layout_index;
+    private readonly _layouts = this._template_service.template_layout_draft;
     private readonly _live_frame =
         viewChild<ElementRef<HTMLIFrameElement>>('live_frame');
 
@@ -313,12 +319,12 @@ export class TemplatePreviewComponent {
 
     public readonly background_url = computed(() => {
         const background_id =
-            this._service.selected_template()?.background_item_id;
+            this._template_service.selected_template()?.background_item_id;
         return background_id ? mediaThumbnail(background_id) : '';
     });
 
     public readonly live_template_id = computed(() => {
-        const template = this._service.selected_template();
+        const template = this._template_service.selected_template();
         return template?.live_template_id || template?.id || '';
     });
 
@@ -330,20 +336,31 @@ export class TemplatePreviewComponent {
         const template_id = this.live_template_id();
         const display_id = this.selected_display_id();
         if (!template_id || !display_id) return '';
-        const signage_path = this.signage_path() || '/signage';
+        // Zone metadata can override the path, so refuse schemes that would
+        // run script in this origin, such as `javascript:`
+        const setting = this.signage_path();
+        const signage_path =
+            setting && parseWebUrl(setting, document.baseURI)
+                ? setting
+                : '/signage';
         return `${signage_path.replace(/\/$/, '')}/#/template/${encodeURIComponent(template_id)}/${encodeURIComponent(display_id)}?debug=true`;
     });
 
-    /** Send the unsaved layout draft to the live player iframe */
+    /**
+     * Send the unsaved layout draft to the live player iframe. The message
+     * only goes to the player origin, so a page the frame navigates to on
+     * another origin does not get the draft.
+     */
     public postDraftLayouts() {
         const frame = this._live_frame()?.nativeElement;
-        if (!frame?.contentWindow) return;
+        const target = parseWebUrl(this.live_preview_url(), document.baseURI);
+        if (!frame?.contentWindow || !target) return;
         frame.contentWindow.postMessage(
             {
                 type: PREVIEW_LAYOUTS_MESSAGE,
                 layouts: this._layouts().map(applyLayoutPositionDefaults),
             },
-            '*',
+            target.origin,
         );
     }
 
@@ -352,11 +369,7 @@ export class TemplatePreviewComponent {
     }
 
     public pluginName(plugin_id?: string) {
-        if (!plugin_id) return '';
-        return (
-            this._service.widgets().find((item) => item.id === plugin_id)
-                ?.name || plugin_id
-        );
+        return pluginName(this._plugin_service.widgets(), plugin_id);
     }
 
     public positionLabel = layoutPositionLabel;

@@ -18,7 +18,13 @@ import { PointsTopbarComponent } from './points-topbar.component';
             <main class="flex h-full w-1/2 flex-1 flex-col">
                 <points-topbar class="relative z-10">
                     @if (page() === 'assets') {
-                        <button btn matRipple class="w-40" (click)="newAsset()">
+                        <button
+                            btn
+                            matRipple
+                            class="w-40"
+                            data-shortcut="new"
+                            (click)="newAsset()"
+                        >
                             {{ 'APP.CONCIERGE.POINTS_ASSETS_ADD' | translate }}
                         </button>
                     }

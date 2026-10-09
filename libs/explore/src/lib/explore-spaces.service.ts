@@ -29,6 +29,7 @@ import { EventFormService } from 'libs/events/src/lib/event-form.service';
 
 import { ExploreBookQrComponent } from './explore-book-qr.component';
 import { ExploreBookingModalComponent } from './explore-booking-modal.component';
+import { loadBookingRules } from './explore-booking-rules';
 import { ExploreIconComponent } from './explore-icon.component';
 import { ExploreSpaceInfoComponent } from './explore-space-info.component';
 import { ExploreStateService } from './explore-state.service';
@@ -61,14 +62,7 @@ export class ExploreSpacesService extends AsyncHandler implements OnDestroy {
 
     private _booking_rules = resource({
         params: () => this._building() || undefined,
-        loader: ({ params: bld }) =>
-            showMetadata(bld.id, `room_booking_rules`)
-                .then((_) =>
-                    _?.details instanceof Array
-                        ? (_.details as any as BookingRuleset[])
-                        : [],
-                )
-                .catch(() => [] as BookingRuleset[]),
+        loader: ({ params: bld }) => loadBookingRules(bld.id, 'room'),
     });
     public readonly booking_rules = computed<BookingRuleset[]>(
         () => this._booking_rules.value() ?? [],

@@ -21,6 +21,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import {
     AsyncHandler,
     DialogEvent,
+    getInvalidSignalFields,
     HashMap,
     i18n,
     notifyError,
@@ -173,6 +174,7 @@ export async function openBookingModal(
                         btn
                         matRipple
                         name="save"
+                        type="button"
                         class="w-32"
                         (click)="save()"
                     >
@@ -214,7 +216,7 @@ export class BookingModalComponent extends AsyncHandler implements OnInit {
     public max_duration = this._data.max_duration || 480;
 
     public readonly model = signal({
-        organiser: this._data.user || (null as User | null),
+        organiser: (this._data.user || null) as User | null,
         room_ids: [this._data.space?.email || ''],
         date: this._data.date || new Date().valueOf(),
         duration: Math.max(this.min_duration, Math.min(30, this.max_duration)),
@@ -222,11 +224,11 @@ export class BookingModalComponent extends AsyncHandler implements OnInit {
     });
 
     public readonly form = form(this.model, (p) => {
-        validate(p, ({ value }) => {
+        validate(p.organiser, ({ value }) => {
             if (
                 this._data.disable_book_now_host ||
                 this._data.user ||
-                value().organiser
+                value()
             ) {
                 return undefined;
             }
@@ -274,7 +276,12 @@ export class BookingModalComponent extends AsyncHandler implements OnInit {
         if (!success) {
             notifyError(
                 i18n(`FORM.INVALID_FIELDS`, {
-                    field_list: getInvalidFieldsFromSignalForm(),
+                    field_list: getInvalidSignalFields(this.form, this.model, {
+                        organiser: i18n('APP.BOOKING_PANEL.BOOKING_HOST'),
+                        date: i18n('FORM.TIME_START'),
+                        duration: i18n('FORM.DURATION'),
+                        title: i18n('FORM.TITLE'),
+                    }).join(', '),
                 }),
             );
         }
@@ -284,8 +291,4 @@ export class BookingModalComponent extends AsyncHandler implements OnInit {
         this.event.emit({ reason: 'close' });
         this._dialog_ref?.close();
     }
-}
-
-function getInvalidFieldsFromSignalForm() {
-    return ['Booked By'];
 }

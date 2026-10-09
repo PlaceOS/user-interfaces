@@ -13,32 +13,29 @@ import { MatDialog } from '@angular/material/dialog';
 import { Event, NavigationEnd, Router } from '@angular/router';
 import {
     AsyncHandler,
-    BookingClash,
     BookingRuleset,
     CalendarEvent,
     currentUser,
+    currentUserCanApprove,
     currentUserIsLoaded,
     currentUserLoaded,
-    DEFAULT_SETTINGS,
     filterResourcesFromRules,
     firstValueWhere,
     flatten,
     getAllDayTimeRange,
     getInvalidSignalFields,
-    getItemWithKeys,
-    getTimeInTimezone,
     i18n,
     isEmptyUser,
-    isWithinBookableHours,
     notifyWarn,
     onFieldChange,
-    rulesForResource,
+    sameDayInTimezone,
     setDefaultCreator,
     SETTING_KEYS,
     SettingsService,
     Space,
     unique,
     User,
+    user_group_names,
 } from '@placeos/common';
 import { showMetadata } from '@placeos/ts-client';
 
@@ -50,25 +47,38 @@ import { newBookingFromCalendarEvent } from 'libs/bookings/src/lib/booking.utili
 import {
     createBookingsForEvent,
     queryResourceAvailability,
+    removeBooking,
     saveBooking,
 } from 'libs/bookings/src/lib/bookings.fn';
-import { openRecurringClashModal } from 'libs/components/src/lib/recurring-clash-modal.component';
 import { SpacePipe } from 'libs/events/src/lib/space.pipe';
 import { requestSpacesForZone } from 'libs/events/src/lib/space.utilities';
 import { CalendarService } from './calendar.service';
-import { EventLinkModalComponent } from './event-link-modal.component';
-import {
-    findEventClashes,
-    querySpaceAvailability,
-    removeEvent,
-    saveEvent,
-} from './events.fn';
 import {
     eventFormValue,
     generateEventForm,
+    type EventFormValue,
+} from './event-form';
+import { attendeeEmails, eventDetailsKey } from './event-form-changes';
+import { EventLinkModalComponent } from './event-link-modal.component';
+import {
+    checkBuildingBookableHours,
+    checkRecurringClashes,
+    checkSpaceRules,
+    checkSpacesAvailable,
+    errorMessage,
+    eventSaveQuery,
+    isPermissionError,
+    spaceNames,
+} from './event-save.fn';
+import {
+    querySpaceAvailability,
+    removeEvent,
+    saveEvent,
+    type CalendarEventShowParams,
+} from './events.fn';
+import {
     multipleSpacesEnabled,
     newCalendarEventFromBooking,
-    type EventFormValue,
 } from './utilities';
 
 const BOOKING_URLS = [
@@ -80,46 +90,6 @@ const BOOKING_URLS = [
     'upcoming',
 ];
 const PERSISTED_EVENT_CONTEXT_URLS = ['landing'];
-
-/** Form fields that are derived or need semantic comparison below. */
-const IGNORED_DETAIL_FIELDS = [
-    'attendees',
-    'body',
-    'system',
-    'date_end',
-    'organiser',
-    'recurrence',
-    'resources',
-];
-
-function normaliseEventBody(body: string) {
-    const template = document.createElement('template');
-    template.innerHTML = body || '';
-    const serialise = (node: Node): string => {
-        if (node.nodeType === Node.TEXT_NODE) {
-            return (node.textContent || '').replace(/\u200b/g, '');
-        }
-        if (node.nodeType !== Node.ELEMENT_NODE) return '';
-        const element = node as Element;
-        if (element.tagName === 'BR') return '\n';
-        const content = [...element.childNodes].map(serialise).join('');
-        if (element.tagName === 'DIV' || element.tagName === 'P') {
-            return `\n${content}\n`;
-        }
-        const tag = element.tagName.toLowerCase();
-        const attributes = [...element.attributes]
-            .sort((a, b) => a.name.localeCompare(b.name))
-            .map(({ name, value }) => ` ${name}="${value}"`)
-            .join('');
-        return `<${tag}${attributes}>${content}</${tag}>`;
-    };
-    return [...template.content.childNodes]
-        .map(serialise)
-        .join('')
-        .replace(/[ \t]+\n|\n[ \t]+/g, '\n')
-        .replace(/\n+/g, '\n')
-        .trim();
-}
 
 enum Tags {
     Availability = 'AVAILABILITY',
@@ -211,13 +181,11 @@ export class EventFormService extends AsyncHandler {
     public readonly can_notify_new_attendees_only = computed(() => {
         const model = this._model();
         if (!model.id) return false;
-        const attendee_emails = model.attendees.map((_) =>
-            (_.email || _).toLowerCase(),
-        );
+        const attendee_emails = attendeeEmails(model);
         return (
             this._initial_attendees.every((_) => attendee_emails.includes(_)) &&
             attendee_emails.some((_) => !this._initial_attendees.includes(_)) &&
-            this._eventDetails(model) === this._initial_event_details
+            eventDetailsKey(model) === this._initial_event_details
         );
     });
 
@@ -423,6 +391,8 @@ export class EventFormService extends AsyncHandler {
     private readonly _available_params = computed(() => ({
         spaces: this.filtered_spaces(),
         rules: this.booking_rules(),
+        // Booking rules can depend on the current user's groups
+        groups: user_group_names(),
         event: this._event(),
         options: this._options(),
     }));
@@ -587,16 +557,11 @@ export class EventFormService extends AsyncHandler {
         });
     }
 
-    private _allDayTimeRange(date: number) {
+    private _allDayTimeRange(date: number, timezone = this.timezone) {
         const period = this._settings.get<{ start?: number; end?: number }>(
             'app.events.all_day_period',
         );
-        return getAllDayTimeRange(
-            date,
-            this.timezone,
-            period?.start,
-            period?.end,
-        );
+        return getAllDayTimeRange(date, timezone, period?.start, period?.end);
     }
 
     /** Resolve the bookable space list for the given zone */
@@ -884,8 +849,30 @@ export class EventFormService extends AsyncHandler {
                 event.resources.some(
                     (space) => !spaces.some((_) => _.id === space.id),
                 );
+            // Callers can list a space by email (e.g. a shared events
+            // calendar). It is not a room the event is booked in.
+            const ignored_emails = ignore_space_check.map((_) =>
+                _.toLowerCase(),
+            );
+            const isIgnored = (space: Space) =>
+                ignored_emails.includes(space.email?.toLowerCase());
+            const rooms = spaces.filter((_) => !isIgnored(_));
+            const organiser_timezone = await this._organiserTimezone(
+                rooms.length ? rooms : spaces,
+                raw_value.timezone,
+            );
+            // The form picks dates in its own timezone. Keep a newly picked
+            // all-day date on that calendar day in the event timezone.
+            const has_date_changed = !event.id || event.date !== raw_value.date;
+            const all_day_date = has_date_changed
+                ? sameDayInTimezone(
+                      raw_value.date,
+                      this.timezone,
+                      organiser_timezone,
+                  )
+                : raw_value.date;
             const all_day_period = raw_value.all_day
-                ? this._allDayTimeRange(raw_value.date)
+                ? this._allDayTimeRange(all_day_date, organiser_timezone)
                 : {
                       date: raw_value.date,
                       duration: raw_value.duration,
@@ -895,7 +882,6 @@ export class EventFormService extends AsyncHandler {
                 !event.id ||
                 event.date !== raw_value.date ||
                 event.duration !== raw_value.duration;
-            const organiser_timezone = this.timezone || raw_value.timezone;
             this._model.update((m) => ({
                 ...m,
                 timezone: organiser_timezone,
@@ -917,9 +903,10 @@ export class EventFormService extends AsyncHandler {
                 const duration = raw_value.all_day
                     ? all_day_period.duration
                     : raw_value.duration;
-                const availability_candidates = has_time_changed
-                    ? spaces
-                    : changed_spaces;
+                // An ignored calendar's own events must not block the save.
+                const availability_candidates = (
+                    has_time_changed ? spaces : changed_spaces
+                ).filter((_) => !isIgnored(_));
                 if (availability_candidates.length) {
                     const availability_spaces = await Promise.all(
                         availability_candidates.map((space) =>
@@ -983,16 +970,7 @@ export class EventFormService extends AsyncHandler {
                 throw i18n('CALENDAR_EVENT.SPACE_EXTERNALS_ERROR');
             }
             // Handle setup and breakdown times
-            const default_oflow = this._overflow();
-            let [setup, breakdown] = [
-                this._model().setup_time || default_oflow.setup,
-                this._model().breakdown_time || default_oflow.breakdown,
-            ];
-            for (const space of spaces) {
-                const overflow = this._overflow(space.id);
-                setup = Math.max(overflow.setup || 0, setup);
-                breakdown = Math.max(overflow.breakdown || 0, breakdown);
-            }
+            const { setup, breakdown } = this._overflowTimes(spaces);
             this._model.update((m) => ({
                 ...m,
                 setup_time: setup,
@@ -1004,36 +982,11 @@ export class EventFormService extends AsyncHandler {
                 order.charge_code = this._model().catering_charge_code;
             }
             // Perform Booking
-            const query: any = event.id
-                ? {
-                      system_id:
-                          event?.resources[0]?.id ||
-                          event?.system?.id ||
-                          spaces[0]?.id,
-                  }
-                : {};
-            if (notify_new_attendees_only)
-                query.notify_existing_attendees = false;
-            const user_email = currentUser()?.email?.toLowerCase() || '';
-            const source_calendar =
-                event.calendar ||
-                event.host ||
-                event.creator ||
-                raw_value.calendar ||
-                raw_value.creator;
-            const target_calendar = raw_value.host || raw_value.creator;
-            const query_calendar = event.id ? source_calendar : target_calendar;
-            const owner_fields = event.id
-                ? [event.host, event.creator, event.calendar]
-                : [raw_value.host, raw_value.creator, raw_value.calendar];
-            const is_owner = owner_fields.some(
-                (_) => _?.toLowerCase?.() === user_email,
-            );
-            if (
-                ((is_owner && !ignore_owner) || force_calendar) &&
-                query_calendar
-            )
-                query.calendar = query_calendar;
+            const query = eventSaveQuery(event, raw_value, spaces, {
+                notify_new_attendees_only,
+                ignore_owner,
+                force_calendar,
+            });
             const processed_assets = (this._model().assets || []).map((_) =>
                 new AssetRequest(_).toJSON(),
             );
@@ -1092,19 +1045,17 @@ export class EventFormService extends AsyncHandler {
                 resources: booked_resources,
             });
             if (failed_resources.length) {
-                const names = failed_resources
-                    .map((_) => _.display_name || _.name || _.email)
-                    .join(', ');
                 notifyWarn(
                     i18n(
                         failed_resources.length > 1
                             ? 'CALENDAR_EVENT.SPACES_UNAVAILABLE'
                             : 'CALENDAR_EVENT.SPACE_UNAVAILABLE',
-                        { spaces: names },
+                        { spaces: spaceNames(failed_resources) },
                     ),
                 );
             }
-            // Create visitor bookings for external attendees
+            // Sync visitor bookings for external attendees. Always sync an
+            // existing event so bookings for removed visitors are removed
             const domain = (currentUser()?.email || '@').split('@')[1];
             const visitors = this._model().attendees.filter(
                 (user) =>
@@ -1113,7 +1064,7 @@ export class EventFormService extends AsyncHandler {
                     !user.email.includes(domain) &&
                     user.visit_expected,
             );
-            if (visitors.length) {
+            if (visitors.length || event.id) {
                 await createBookingsForEvent(
                     created_event,
                     'visitor',
@@ -1127,7 +1078,9 @@ export class EventFormService extends AsyncHandler {
                     ),
                 );
             }
-            // Create bookings for each catering order in the event
+            // Sync bookings for each catering order in the event. The edit
+            // form can hold no orders for an event that has them, so an
+            // empty list is not taken as a removal
             if (this._model().catering?.length) {
                 await createBookingsForEvent(
                     created_event,
@@ -1191,26 +1144,9 @@ export class EventFormService extends AsyncHandler {
             return created_event;
         } catch (e) {
             this.removeLoadingTag(Tags.PostBooking);
-            if (this._isPermissionError(e)) this._clearSavedHostChange();
+            if (isPermissionError(e)) this._clearSavedHostChange();
             throw e;
         }
-    }
-
-    private _isPermissionError(error: any) {
-        const status = error?.status || error?.error?.status;
-        if (status === 403) return true;
-        const message = this._errorMessage(error).toLowerCase();
-        return /forbidden|permission|authori[sz]ed|not permitted/.test(message);
-    }
-
-    private _errorMessage(error: any) {
-        if (typeof error === 'string') return error;
-        if (error instanceof Error && error.message) return error.message;
-        if (typeof error?.error === 'string') return error.error;
-        if (typeof error?.message === 'string') return error.message;
-        if (typeof error?.error?.message === 'string')
-            return error.error.message;
-        return '';
     }
 
     private _clearSavedHostChange() {
@@ -1232,60 +1168,18 @@ export class EventFormService extends AsyncHandler {
         );
     }
 
-    private async _checkResourcesAvailable(
+    /** Throw when any of the spaces is booked for the period. */
+    private _checkResourcesAvailable(
         spaces: Space[],
         date: number,
         duration: number,
         ignore?: string,
     ) {
-        if (!spaces?.length) return true;
-        const event = this._event();
-        const id_list = spaces.map((_) => _.id);
-        const response = await (this.book_internal
-            ? queryResourceAvailability(id_list, date, duration, ignore)
-            : querySpaceAvailability(
-                  id_list,
-                  date,
-                  duration,
-                  event?.resources[0]?.id ||
-                      event?.system?.id ||
-                      event?.id ||
-                      undefined,
-                  undefined,
-                  [event?.date, event?.duration],
-              ));
-        const unavailable = spaces.filter((_, i) => !response[i]);
-        if (unavailable.length) {
-            const names = unavailable
-                .map((_) => _.display_name || _.name || _.email)
-                .join(', ');
-            throw i18n(
-                unavailable.length > 1
-                    ? 'CALENDAR_EVENT.SPACES_UNAVAILABLE'
-                    : 'CALENDAR_EVENT.SPACE_UNAVAILABLE',
-                { spaces: names },
-            );
-        }
-        return true;
-    }
-
-    /** Resolve an app setting against one building's override stack. */
-    private _buildingSetting<T>(
-        key: string,
-        building: { id: string; parent_id?: string },
-    ): T | undefined {
-        const keys = key.split('.');
-        const override_keys = keys[0] === 'app' ? keys.slice(1) : keys;
-        const overrides = [
-            this._org.buildingSettings(building.id),
-            this._org.regionSettings(building.parent_id),
-            ...(this._org.settings || []),
-        ];
-        for (const override of overrides) {
-            const value = getItemWithKeys(override_keys, override);
-            if (value != null) return value as T;
-        }
-        return getItemWithKeys(keys, DEFAULT_SETTINGS) as T | undefined;
+        return checkSpacesAvailable(spaces, date, duration, {
+            ignore,
+            event: this._event(),
+            book_internal: this.book_internal,
+        });
     }
 
     private _resolveResourceResponses(
@@ -1310,55 +1204,42 @@ export class EventFormService extends AsyncHandler {
         });
     }
 
+    /**
+     * Timezone to save with the event. With building timezones on, the
+     * building of the event's rooms decides it before the active building.
+     */
+    private async _organiserTimezone(spaces: Space[], fallback: string) {
+        if (
+            spaces.length &&
+            !multipleSpacesEnabled(this._settings) &&
+            this._settings.get('app.events.use_building_timezone')
+        ) {
+            const [building] = await this._org.loadBuildingsForZones(
+                spaces.map((space) => space.zones || []),
+            );
+            if (building?.timezone) return building.timezone;
+        }
+        return this.timezone || fallback;
+    }
+
     /** Check the event instant against every selected building's local hours. */
-    private async _checkBuildingBookableHours(
+    private _checkBuildingBookableHours(
         spaces: Space[],
         date: number,
         date_end: number,
         organiser_timezone: string,
     ) {
-        const buildings = await this._org.loadBuildingsForZones(
-            spaces.map((space) => space.zones),
+        return checkBuildingBookableHours(
+            this._org,
+            this._settings,
+            spaces,
+            date,
+            date_end,
+            organiser_timezone,
         );
-        await Promise.all(
-            buildings.map((building) => this._org.loadBuildingData(building)),
-        );
-        const policies = buildings.length
-            ? buildings.map((building) => ({
-                  hours: this._buildingSetting<{
-                      start: number;
-                      end: number;
-                  }>('app.events.bookable_hours', building),
-                  timezone: building.timezone || organiser_timezone,
-              }))
-            : [
-                  {
-                      hours: this._settings.get<{
-                          start: number;
-                          end: number;
-                      }>('app.events.bookable_hours'),
-                      timezone: organiser_timezone,
-                  },
-              ];
-        for (const { hours, timezone } of policies) {
-            if (!hours) continue;
-            const { hours: end_hour, minutes: end_minute } = getTimeInTimezone(
-                date_end,
-                timezone,
-            );
-            const end_minutes = end_hour * 60 + end_minute;
-            const end_is_valid =
-                end_minutes >= hours.start * 60 &&
-                end_minutes <= hours.end * 60;
-            if (
-                !isWithinBookableHours(date, hours, timezone) ||
-                !end_is_valid
-            ) {
-                throw i18n('FORM.BOOKABLE_HOURS_ERROR');
-            }
-        }
     }
 
+    /** Throw when the booking rules hide any of the spaces from the host. */
     private async _checkResourceRules(
         spaces: Space[],
         date: number,
@@ -1367,48 +1248,12 @@ export class EventFormService extends AsyncHandler {
     ) {
         const user = await this._bookingRulesHost(host);
         await this._whenSettled(this._booking_rules_resource);
-        const rules = { ...this.booking_rules() };
-        const buildings = await this._org.loadBuildingsForZones(
-            spaces.map((space) => space.zones),
+        return checkSpaceRules(
+            this._org,
+            spaces,
+            { date, duration, host: new User(user) },
+            this.booking_rules(),
         );
-        // The booking panel does not eagerly load zone metadata, so the
-        // reactive rules resource may still be empty when a booking is
-        // submitted. Fetch any missing building rules on demand so they are
-        // always enforced regardless of which app submitted the booking.
-        for (const space of spaces) {
-            const bld = buildings.find((b) => space.zones.includes(b.id));
-            if (!bld || rules[bld.id]) continue;
-            const metadata = await showMetadata(
-                bld.id,
-                'room_booking_rules',
-            ).catch(() => ({ details: [] }) as any);
-            rules[bld.id] =
-                metadata.details instanceof Array ? metadata.details : [];
-        }
-        const space_rules = spaces.map((space) => {
-            const bld = buildings.find((b) => space.zones.includes(b.id));
-            return rulesForResource(
-                {
-                    date,
-                    duration,
-                    host: new User(user),
-                    resource: space,
-                },
-                rules[bld?.id],
-            );
-        });
-        const hidden = spaces.filter((_, i) => space_rules[i]?.hidden);
-        if (hidden.length) {
-            const names = hidden
-                .map((_) => _.display_name || _.name || _.email)
-                .join(', ');
-            throw i18n(
-                'CALENDAR_EVENT.SPACE_BOOKING_RULES_HIDDEN',
-                { spaces: names },
-                hidden.length,
-            );
-        }
-        return true;
     }
 
     private async _bookingRulesHost(host: string) {
@@ -1426,65 +1271,29 @@ export class EventFormService extends AsyncHandler {
             .catch(() => ({ email: host, name: host }));
     }
 
-    /**
-     * Check for clashing events in a recurring event series
-     * @param event The calendar event to check for clashes
-     * @returns true if no clashes or user confirmed to continue
-     * @throws Error if first instance clashes or clashes not allowed
-     */
-    private async _checkRecurringClashes(
-        event: CalendarEvent,
-    ): Promise<boolean> {
-        if (!event.recurring) {
-            return true;
+    /** Check for clashing events in a recurring event series. */
+    private _checkRecurringClashes(event: CalendarEvent) {
+        return checkRecurringClashes(event, this._settings, this._dialog);
+    }
+
+    /** Largest setup and breakdown times of the form, defaults and spaces. */
+    private _overflowTimes(spaces: Space[]) {
+        const default_oflow = this._overflow();
+        let [setup, breakdown] = [
+            this._model().setup_time || default_oflow.setup,
+            this._model().breakdown_time || default_oflow.breakdown,
+        ];
+        for (const space of spaces) {
+            const overflow = this._overflow(space.id);
+            setup = Math.max(overflow.setup || 0, setup);
+            breakdown = Math.max(overflow.breakdown || 0, breakdown);
         }
-
-        const clashes = (await findEventClashes(event, {
-            include_clash_time: true,
-        })) as BookingClash[];
-
-        if (!clashes?.length) {
-            return true;
-        }
-
-        const sorted_clashes = [...clashes].sort(
-            (a, b) => a.booking_start - b.booking_start,
-        );
-
-        const event_start_unix = Math.floor(event.date / 1000);
-        const first_clash = sorted_clashes[0];
-        const is_first_instance_clash =
-            first_clash.booking_start === event_start_unix;
-
-        if (is_first_instance_clash) {
-            throw i18n('CALENDAR_EVENT.FIRST_INSTANCE_CLASH');
-        }
-
-        const allow_clashes =
-            this._settings.get('app.events.allow_recurring_instance_clashes') ??
-            false;
-
-        if (!allow_clashes) {
-            throw i18n('CALENDAR_EVENT.RECURRING_CLASHES_NOT_ALLOWED', {
-                count: clashes.length,
-            });
-        }
-
-        const result = await openRecurringClashModal(
-            { clashes: sorted_clashes },
-            this._dialog,
-        );
-
-        if (result?.reason !== 'done') {
-            throw 'User cancelled';
-        }
-
-        return true;
+        return { setup, breakdown };
     }
 
     private async _performBooking(
         event: CalendarEvent,
-        query: Record<string, string | number>,
+        query: CalendarEventShowParams,
     ) {
         this._updateVisitorList(event.attendees);
         const old_system =
@@ -1508,7 +1317,7 @@ export class EventFormService extends AsyncHandler {
                       recurrence: event.recurrence,
                       status:
                           this._settings.get('app.bookings.no_approval') ===
-                          true
+                              true && currentUserCanApprove()
                               ? 'approved'
                               : 'tentative',
                   } as any),
@@ -1516,42 +1325,10 @@ export class EventFormService extends AsyncHandler {
             : saveEvent(event, query);
     }
 
+    /** Snapshot the loaded event to detect edits that only add attendees. */
     private _setInitialEvent(value: EventFormValue) {
-        this._initial_attendees = value.attendees.map((_) =>
-            (_.email || _).toLowerCase(),
-        );
-        this._initial_event_details = this._eventDetails(value);
-    }
-
-    private _eventDetails(value: EventFormValue) {
-        const details = Object.entries(value).filter(
-            ([key]) => !IGNORED_DETAIL_FIELDS.includes(key),
-        );
-        const recurrence = value.recurrence;
-        details.push(['body', normaliseEventBody(value.body)]);
-        details.push(['host_email', (value.organiser as any)?.email || '']);
-        details.push([
-            'recurrence',
-            recurrence?.pattern && recurrence?._pattern !== 'none'
-                ? [
-                      recurrence.pattern,
-                      recurrence.interval || 1,
-                      [...(recurrence.days_of_week || [])].sort(),
-                      recurrence.nth_of_month || null,
-                      recurrence.start || null,
-                      recurrence.end || null,
-                      recurrence.occurrences || null,
-                  ]
-                : null,
-        ]);
-        details.push([
-            'space_ids',
-            (value.resources || [])
-                .map((_: any) => (_.email || _.id || '').toLowerCase())
-                .sort(),
-        ]);
-        details.sort(([a], [b]) => (a > b ? 1 : -1));
-        return JSON.stringify(details);
+        this._initial_attendees = attendeeEmails(value);
+        this._initial_event_details = eventDetailsKey(value);
     }
 
     private async _removeBookingAfterError(
@@ -1561,21 +1338,25 @@ export class EventFormService extends AsyncHandler {
         e,
     ) {
         if (is_new) {
-            await removeEvent(
-                event.id,
-                event.resources.length
-                    ? {
-                          calendar: this._model().host || currentUser()?.email,
-                          system_id: event.resources[0].id,
-                      }
-                    : {},
-            );
+            // A native room booking is a staff-api booking, not an event
+            await (event.from_bookings
+                ? removeBooking(event.id)
+                : removeEvent(
+                      event.id,
+                      event.resources.length
+                          ? {
+                                calendar:
+                                    this._model().host || currentUser()?.email,
+                                system_id: event.resources[0].id,
+                            }
+                          : {},
+                  ));
             throw e?.status === 409
                 ? i18n('CALENDAR_EVENT.ASSETS_CLASH_ERROR')
                 : i18n('CALENDAR_EVENT.ASSETS_ERROR');
         } else if (assets) {
             throw i18n('CALENDAR_EVENT.ASSETS_PARTIAL_ERROR', {
-                error: this._errorMessage(e) || e,
+                error: errorMessage(e) || e,
             });
         }
         this.removeLoadingTag(Tags.PostBooking);

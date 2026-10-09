@@ -1,9 +1,9 @@
-import { Component, inject, linkedSignal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import { PlaceZone } from '@placeos/ts-client';
-import { SignageService } from '../signage.service';
+import { SignageZoneService } from '../zones/signage-zone.service';
 import { byDisplayName, PagedSearch } from './paged-search';
 import { ZoneSelectTreeComponent } from './zone-select-tree.component';
 
@@ -37,7 +37,11 @@ import { ZoneSelectTreeComponent } from './zone-select-tree.component';
                 [(selected)]="selected_zone"
             />
         </main>
-        <footer class="border-base-300 flex justify-end border-t p-2">
+        <footer class="border-base-300 flex items-center gap-2 border-t p-2">
+            <!-- A zone picked from the search can be hidden in the tree -->
+            <div class="min-w-0 flex-1 truncate px-2">
+                {{ selected_zone()?.display_name || selected_zone()?.name }}
+            </div>
             <button
                 btn
                 type="button"
@@ -59,27 +63,22 @@ import { ZoneSelectTreeComponent } from './zone-select-tree.component';
     ],
 })
 export class ZoneSelectModalComponent {
-    private readonly _service = inject(SignageService);
+    private readonly _zone_service = inject(SignageZoneService);
     private readonly _dialog_ref = inject(
         MatDialogRef<ZoneSelectModalComponent>,
     );
 
-    public readonly roots = this._service.root_zones;
-    public readonly selected_zone = linkedSignal<PlaceZone[], PlaceZone | null>(
-        {
-            source: this.roots,
-            computation: (roots, previous) =>
-                previous?.value || roots[0] || null,
-        },
-    );
+    public readonly roots = this._zone_service.root_zones;
+    // Start with no zone, so one click cannot assign to the whole organisation
+    public readonly selected_zone = signal<PlaceZone | null>(null);
     public readonly list = new PagedSearch<PlaceZone>((search) => {
         const parent_id = this.selected_zone()?.id;
-        return parent_id && search.trim()
-            ? this._service.querySelectableZones(search, parent_id)
+        return search.trim()
+            ? this._zone_service.querySelectableZones(search, parent_id || '')
             : null;
     }, byDisplayName);
     public readonly loadChildren = (parent_id: string) =>
-        this._service.zoneChildren(parent_id);
+        this._zone_service.zoneChildren(parent_id);
 
     public addZone() {
         const zone = this.selected_zone();

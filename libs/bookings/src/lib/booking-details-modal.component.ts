@@ -163,14 +163,16 @@ export function canEditBooking(booking: Booking) {
                                     </button>
                                 }
                             }
-                            <button
-                                icon
-                                matRipple
-                                [matMenuTriggerFor]="menu"
-                                class="bg-secondary h-12 w-12 rounded-sm text-white"
-                            >
-                                <icon>more_horiz</icon>
-                            </button>
+                            @if (has_menu_actions()) {
+                                <button
+                                    icon
+                                    matRipple
+                                    [matMenuTriggerFor]="menu"
+                                    class="bg-secondary h-12 w-12 rounded-sm text-white"
+                                >
+                                    <icon>more_horiz</icon>
+                                </button>
+                            }
                         </div>
                     }
                 </div>
@@ -481,12 +483,7 @@ export function canEditBooking(booking: Booking) {
                     </div>
                 </button>
             }
-            @if (
-                !booking().is_done &&
-                !is_cancelled() &&
-                booking().instance &&
-                allow_series_delete()
-            ) {
+            @if (can_delete_series()) {
                 <button mat-menu-item (click)="remove(booking(), true)">
                     <div class="flex items-center space-x-2 text-base">
                         <icon class="text-error">delete</icon>
@@ -612,6 +609,29 @@ export class BookingDetailsModalComponent {
             !this.is_cancelled() &&
             !this.booking().is_done &&
             !this.booking().checked_in,
+    );
+
+    public readonly can_delete_series = computed(
+        () =>
+            !this.booking().is_done &&
+            !this.is_cancelled() &&
+            !!this.booking().instance &&
+            this.allow_series_delete(),
+    );
+
+    /**
+     * Whether the action menu has at least one item.
+     * The menu trigger is hidden when this is false, as an empty menu panel
+     * flickers when opened.
+     */
+    public readonly has_menu_actions = computed(
+        () =>
+            this.can_edit() ||
+            (this.is_checked_in() && this.desk_height_enabled()) ||
+            this.can_cancel() ||
+            this.can_manage_group() ||
+            this.can_delete_series() ||
+            this.is_in_progress(),
     );
 
     public readonly can_checkin = computed(() => {

@@ -4,7 +4,6 @@ import {
     effect,
     inject,
     input,
-    resource,
     signal,
 } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
@@ -12,12 +11,16 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, Router } from '@angular/router';
 import { settingSignal } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
+import { SignagePlaylistService } from '../playlists/signage-playlist.service';
 import { NavFooterComponent } from '../shared/nav-footer.component';
 import { NavSidebarComponent } from '../shared/nav-sidebar.component';
-import { SignageService } from '../signage.service';
+import { SignageContextService } from '../signage-context.service';
 import { DisplayContentComponent } from './display-content.component';
 import { DisplayHeaderComponent } from './display-header.component';
 import { DisplayListComponent } from './display-list.component';
+import { selectRoutedItem } from './routed-selection.util';
+import { showSignageDisplay } from './signage-display';
+import { SignageDisplayService } from './signage-display.service';
 
 const TAB_QUERY_PARAM = 'tab';
 
@@ -331,68 +334,49 @@ function parseDisplayTab(
     ],
 })
 export class DisplaysSectionComponent {
-    private readonly _service = inject(SignageService);
+    private readonly _context = inject(SignageContextService);
+    private readonly _display_service = inject(SignageDisplayService);
+    private readonly _playlist_service = inject(SignagePlaylistService);
     private readonly _route = inject(ActivatedRoute);
     private readonly _router = inject(Router);
 
     public readonly id = input('');
     public readonly tab = input<string | null>(null);
     public readonly signage_path = settingSignal('signage_path');
-    public readonly templates_enabled = this._service.templates_enabled;
+    public readonly templates_enabled = this._context.templates_enabled;
     public readonly view_tab = signal<
         'schedule' | 'templates' | 'playlists' | 'zones'
     >('schedule');
-    public readonly selected_display = this._service.selected_display;
-    public readonly can_update = this._service.can_update;
-    public readonly can_delete_displays = this._service.can_delete_displays;
+    public readonly selected_display = this._display_service.selected_display;
+    public readonly can_update = this._context.can_update;
+    public readonly can_delete_displays = this._context.can_delete_displays;
 
-    private readonly _displays = this._service.displays;
-    private readonly _playlists = this._service.playlists;
-    private readonly _zones = this._service.all_zones;
-
-    private readonly _template_mappings = resource({
-        params: () => {
-            const id: string = this.selected_display()?.id;
-            return this.templates_enabled() && id
-                ? { id, revision: this._service.template_mappings_revision() }
-                : undefined;
-        },
-        loader: ({ params }) =>
-            this._service.listTemplateMappings({
-                control_system_id: params.id,
-            }),
-    });
-    public readonly template_count_loading = this._template_mappings.isLoading;
-    public readonly playlist_count_loading = this._service.playlists_loading;
-    public readonly zone_count_loading = this._service.all_zones_loading;
-    public readonly template_count = computed(() =>
-        this._template_mappings.hasValue()
-            ? this._template_mappings.value().length
-            : 0,
+    public readonly template_count_loading =
+        this._display_service.selected_display_template_mappings_loading;
+    public readonly playlist_count_loading =
+        this._playlist_service.playlists_loading;
+    public readonly zone_count_loading =
+        this._display_service.selected_display_zones_loading;
+    public readonly template_count = computed(
+        () => this._display_service.selected_display_template_mappings().length,
     );
 
-    public readonly playlist_count = computed(() => {
-        const display = this.selected_display();
-        if (!display) return 0;
-        return this._playlists().filter((p) =>
-            display.playlists?.includes(p.id),
-        ).length;
-    });
+    public readonly playlist_count = computed(
+        () =>
+            this._playlist_service.playlistsById(
+                this.selected_display()?.playlists || [],
+            ).length,
+    );
 
-    public readonly zone_count = computed(() => {
-        const display = this.selected_display();
-        if (!display) return 0;
-        return this._zones().filter((z) => display.zones?.includes(z.id))
-            .length;
-    });
+    public readonly zone_count = computed(
+        () => this._display_service.selected_display_zones().length,
+    );
     public readonly panel_link = computed(() => {
         const display = this.selected_display();
         if (!display?.id) return '';
         const signage_path = this.signage_path() || '/signage';
         return `${signage_path.replace(/\/$/, '')}/#/signage/${encodeURIComponent(display.id)}?debug=true`;
     });
-
-    private _route_resolved = false;
 
     constructor() {
         effect(() => {
@@ -406,38 +390,29 @@ export class DisplaysSectionComponent {
             }
         });
 
-        effect(() => {
-            const id = this.id();
-            const list = this._displays();
-            if (!list.length) return;
-            if (id) {
-                const match = list.find((d) => d.id === id);
-                if (
-                    match &&
-                    this._service.selected_display()?.id !== match.id
-                ) {
-                    this._service.selected_display.set(match);
-                }
-                this._route_resolved = true;
-            } else if (this._route_resolved) {
-                this._service.selected_display.set(null);
-            }
+        selectRoutedItem({
+            id: this.id,
+            list: this._display_service.displays,
+            selected: this._display_service.selected_display,
+            // The list holds only the pages loaded so far
+            load: showSignageDisplay,
         });
     }
 
     public deselectDisplay() {
-        this._service.selected_display.set(null);
+        this._display_service.selected_display.set(null);
         this._router.navigate(['/displays'], {});
     }
 
     public editDisplay() {
         const display = this.selected_display();
-        if (display) this._service.editDisplay(display);
+        if (display) this._display_service.editDisplay(display);
     }
 
     public async removeDisplay() {
         const display = this.selected_display();
-        if (!display || !(await this._service.removeDisplay(display))) return;
+        if (!display || !(await this._display_service.removeDisplay(display)))
+            return;
         await this._router.navigate(['/displays'], {});
     }
 

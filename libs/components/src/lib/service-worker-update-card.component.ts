@@ -1,7 +1,6 @@
 import { Component } from '@angular/core';
 import { serviceWorkerUpdate } from '@placeos/common';
 
-import { MatTooltipModule } from '@angular/material/tooltip';
 import { IconComponent } from './icon.component';
 
 @Component({
@@ -27,7 +26,8 @@ import { IconComponent } from './icon.component';
                 <button
                     icon
                     default
-                    [matTooltip]="update_state.action || 'Reload App'"
+                    [attr.title]="update_state.action || 'Reload App'"
+                    [attr.aria-label]="update_state.action || 'Reload App'"
                     (click)="reloadApp()"
                 >
                     <icon>refresh</icon>
@@ -35,7 +35,7 @@ import { IconComponent } from './icon.component';
             </aside>
         }
     `,
-    imports: [IconComponent, MatTooltipModule],
+    imports: [IconComponent],
 })
 export class ServiceWorkerUpdateCardComponent {
     public readonly update = serviceWorkerUpdate();

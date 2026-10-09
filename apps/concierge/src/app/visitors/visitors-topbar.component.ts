@@ -13,7 +13,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { AsyncHandler, OrganisationService } from '@placeos/common';
 import { TranslatePipe } from '@placeos/components';
-import { DateOptionsComponent } from '../ui/date-options.component';
+import { DateOptionsComponent } from '@placeos/form-fields';
 import { SearchbarComponent } from '../ui/searchbar.component';
 import { VisitorsStateService } from './visitors-state.service';
 

@@ -1,7 +1,6 @@
 @import '../../../shared/styles/tailwind.css';
+/* The app renders only its own templates, so scan only app sources. */
 @source './';
-@source '../../../libs';
-@source '../../../shared';
 
 :root {
     /* Brand */

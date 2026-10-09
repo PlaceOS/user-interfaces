@@ -14,7 +14,14 @@ const app = {
     schedule_timezone_once_only: true,
     default_animation_time: 1000,
     media_allow_extended_video_codecs: false,
-    templates_enabled: true,
+    /** Signage features for every group. Groups can narrow this list. */
+    features: [
+        'templates',
+        'template-editing',
+        'ai-generation',
+        'ai-editing',
+        'branding-editing',
+    ],
 };
 
 /**

@@ -22,7 +22,11 @@ import { mocksInit } from '@placeos/mocks';
             <router-outlet></router-outlet>
         </div>
         <global-loading />
-        <settings-debug-panel-launcher [loadSchema]="load_settings_schema" />
+        @defer (on idle) {
+            <settings-debug-panel-launcher
+                [loadSchema]="load_settings_schema"
+            />
+        }
     `,
     styles: [
         `

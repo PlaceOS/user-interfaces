@@ -4,6 +4,7 @@ import {
     AsyncHandler,
     Deal,
     i18n,
+    notifyError,
     OrganisationService,
     randomString,
 } from '@placeos/common';
@@ -50,10 +51,12 @@ export class DealsService extends AsyncHandler {
     }
 
     public async saveDeal(deal: Partial<Deal>) {
+        // Do not catch read errors: a failed read must not become an empty
+        // list that is then written back over the stored deals.
         const metadata = await showMetadata(
             this._org.building.id,
             'deals-n-offers',
-        ).catch(() => null);
+        );
         let deals = metadata?.details instanceof Array ? metadata.details : [];
         if (deal.id) {
             deals = deals.filter((d) => d.id !== deal.id);
@@ -82,17 +85,25 @@ export class DealsService extends AsyncHandler {
             if (result?.reason !== 'done') return false;
             result.close();
         }
-        const metadata = await showMetadata(
-            this._org.building.id,
-            'deals-n-offers',
-        ).catch(() => null);
-        let deals = metadata?.details instanceof Array ? metadata.details : [];
-        deals = deals.filter((d) => d.id !== deal.id);
-        await updateMetadata(this._org.building.id, {
-            name: 'deals-n-offers',
-            description: 'List of deals and offers',
-            details: deals,
-        });
+        try {
+            // Do not catch read errors on their own: a failed read must not
+            // become an empty list that is then written back.
+            const metadata = await showMetadata(
+                this._org.building.id,
+                'deals-n-offers',
+            );
+            let deals =
+                metadata?.details instanceof Array ? metadata.details : [];
+            deals = deals.filter((d) => d.id !== deal.id);
+            await updateMetadata(this._org.building.id, {
+                name: 'deals-n-offers',
+                description: 'List of deals and offers',
+                details: deals,
+            });
+        } catch (e) {
+            notifyError(`Failed to remove deal. ${e}`);
+            return false;
+        }
         this._changed.set(Date.now());
         return true;
     }

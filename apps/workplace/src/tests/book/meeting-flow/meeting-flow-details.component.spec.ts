@@ -1,13 +1,20 @@
 import { Injector, signal, WritableSignal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/vitest';
-import { CalendarEvent, OrganisationService, SettingsService } from '@placeos/common';
+import {
+    createRoutingFactory,
+    SpectatorRouting,
+} from '@ngneat/spectator/vitest';
+import {
+    CalendarEvent,
+    OrganisationService,
+    SettingsService,
+} from '@placeos/common';
 import { EventFormService } from '@placeos/events';
+import { MeetingFlowDetailsComponent } from 'apps/workplace/src/app/book/meeting-flow-new/meeting-flow-details.component';
 import {
     EventFormValue,
     generateEventForm,
-} from 'libs/events/src/lib/utilities';
-import { MeetingFlowDetailsComponent } from 'apps/workplace/src/app/book/meeting-flow-new/meeting-flow-details.component';
+} from 'libs/events/src/lib/event-form';
 import { MockProvider } from 'ng-mocks';
 
 describe('MeetingFlowDetailsComponent', () => {

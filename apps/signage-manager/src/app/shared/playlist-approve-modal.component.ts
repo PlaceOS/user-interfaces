@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, resource, signal } from '@angular/core';
+import { Component, computed, inject, resource, signal } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import {
     MAT_DIALOG_DATA,
@@ -11,14 +11,19 @@ import { i18n, notifyError, notifySuccess, notifyWarn } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import {
     approveSignagePlaylist,
-    listSignagePlaylistMediaRevisions,
     SignageMedia,
     SignagePlaylist,
     updateSignagePlaylistMedia,
 } from '@placeos/ts-client';
+import { SignageMediaService } from '../media/signage-media.service';
+import { SignagePlaylistService } from '../playlists/signage-playlist.service';
+import { SignageContextService } from '../signage-context.service';
 import { playlistMediaItems } from '../signage-playlist.util';
-import { SignageService } from '../signage.service';
 import { PlaylistApprovalPreviewComponent } from './playlist-approval-preview.component';
+import {
+    loadPlaylistApprovalVersions,
+    playlistChangedSince,
+} from './playlist-approval.util';
 
 interface PlaylistApproveModalData {
     playlist: SignagePlaylist;
@@ -48,11 +53,26 @@ interface PlaylistApproveModalData {
             </header>
             @if (!loading()) {
                 <main class="max-h-[60vh] gap-2 overflow-auto py-2">
-                    <playlist-approval-preview
-                        [versions]="playlist_versions()"
-                        [media]="playlist_media()"
-                        (preview)="previewItem($event)"
-                    />
+                    @if (versions_error()) {
+                        <div
+                            class="text-base-content/70 flex flex-col items-center justify-center space-y-2 p-8"
+                            role="alert"
+                        >
+                            <icon class="text-error text-4xl">error</icon>
+                            <p class="text-sm">
+                                {{
+                                    'SIGNAGE_MANAGER.PLAYLIST_VERSIONS_LOAD_ERROR'
+                                        | translate
+                                }}
+                            </p>
+                        </div>
+                    } @else {
+                        <playlist-approval-preview
+                            [versions]="playlist_versions()"
+                            [media]="playlist_media()"
+                            (preview)="previewItem($event)"
+                        />
+                    }
                 </main>
                 <footer
                     class="bg-base-200 flex items-center justify-end space-x-2 rounded-sm p-2"
@@ -74,6 +94,7 @@ interface PlaylistApproveModalData {
                         type="button"
                         matRipple
                         class="w-40"
+                        [disabled]="!versions_loaded()"
                         (click)="approve()"
                     >
                         {{ 'COMMON.APPROVE' | translate }}
@@ -106,31 +127,45 @@ export class PlaylistApproveModalComponent {
     private readonly _dialog_ref = inject(
         MatDialogRef<PlaylistApproveModalComponent>,
     );
-    private readonly _service = inject(SignageService);
+    private readonly _context = inject(SignageContextService);
+    private readonly _media_service = inject(SignageMediaService);
+    private readonly _playlist_service = inject(SignagePlaylistService);
 
     public readonly loading = signal('');
-    public readonly has_previous_version = signal(false);
-    public readonly can_update = this._service.can_update;
+    public readonly can_update = this._context.can_update;
 
+    // The version to approve and the last approved version. The approver
+    // must see the changes, so a failed load blocks approval.
     private readonly _playlist_versions = resource({
         params: () => this._data?.playlist?.id || '',
         loader: async ({ params }) => {
             if (!params) return [];
             this.loading.set(i18n('SIGNAGE_MANAGER.LOADING_VERSIONS'));
             try {
-                const versions = await listSignagePlaylistMediaRevisions(
-                    params,
-                    { limit: 2 },
+                return await loadPlaylistApprovalVersions(params);
+            } catch (error) {
+                notifyError(
+                    i18n('SIGNAGE_MANAGER.PLAYLIST_VERSIONS_LOAD_ERROR'),
                 );
-                this.has_previous_version.set(versions.length > 1);
-                return versions;
+                throw error;
             } finally {
                 this.loading.set('');
             }
         },
     });
+    public readonly versions_loaded = computed(() =>
+        this._playlist_versions.hasValue(),
+    );
+    public readonly versions_error = computed(
+        () => this._playlist_versions.status() === 'error',
+    );
     public readonly playlist_versions = () =>
-        this._playlist_versions.value() || [];
+        this._playlist_versions.hasValue()
+            ? this._playlist_versions.value()
+            : [];
+    public readonly has_previous_version = computed(
+        () => this.playlist_versions().length > 1,
+    );
     public readonly playlist_media = () =>
         this.playlist_versions().map((playlist) =>
             playlistMediaItems(playlist),
@@ -150,14 +185,14 @@ export class PlaylistApproveModalComponent {
                 this._data.playlist.id,
                 previous_version.items,
             );
-            this._service.setPlaylistApprovalStatus(
+            this._playlist_service.setPlaylistApprovalStatus(
                 this._data.playlist.id,
                 false,
             );
             notifySuccess(i18n('SIGNAGE_MANAGER.PLAYLIST_REVERTED'));
             this._dialog_ref.close(true);
-            this._service.refreshPlaylist(this._data.playlist.id);
-        } catch (e) {
+            this._playlist_service.refreshPlaylist(this._data.playlist.id);
+        } catch {
             notifyError(i18n('SIGNAGE_MANAGER.PLAYLIST_REVERT_ERROR'));
         } finally {
             this.loading.set('');
@@ -165,19 +200,31 @@ export class PlaylistApproveModalComponent {
         }
     }
 
+    /**
+     * Approve the playlist. When it changed after the changes were loaded,
+     * show the new changes and a warning instead, as the server approves
+     * the latest version.
+     */
     public async approve() {
+        if (!this.versions_loaded()) return;
+        const playlist_id = this._data.playlist.id;
         this.loading.set(i18n('SIGNAGE_MANAGER.APPROVING_PLAYLIST'));
         this._dialog_ref.disableClose = true;
         try {
-            await approveSignagePlaylist(this._data.playlist.id);
-            this._service.setPlaylistApprovalStatus(
-                this._data.playlist.id,
-                true,
-            );
+            const [shown] = this.playlist_versions();
+            if (await playlistChangedSince(playlist_id, shown)) {
+                notifyWarn(
+                    i18n('SIGNAGE_MANAGER.PLAYLIST_CHANGED_BEFORE_APPROVAL'),
+                );
+                this._playlist_versions.reload();
+                return;
+            }
+            await approveSignagePlaylist(playlist_id);
+            this._playlist_service.setPlaylistApprovalStatus(playlist_id, true);
             notifySuccess(i18n('SIGNAGE_MANAGER.PLAYLIST_APPROVED'));
             this._dialog_ref.close(true);
-            this._service.changed();
-        } catch (e) {
+            this._context.changed();
+        } catch {
             notifyError(i18n('SIGNAGE_MANAGER.PLAYLIST_APPROVE_ERROR'));
         } finally {
             this.loading.set('');
@@ -186,6 +233,6 @@ export class PlaylistApproveModalComponent {
     }
 
     public previewItem(item: SignageMedia) {
-        this._service.previewMedia(item);
+        this._media_service.previewMedia(item);
     }
 }

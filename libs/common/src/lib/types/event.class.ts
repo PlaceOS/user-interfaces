@@ -97,6 +97,8 @@ export interface EventExtensionData {
     shared_event?: boolean;
     /** Access level of the event */
     view_access: 'PRIVATE' | 'OPEN' | 'PUBLIC';
+    /** Copy of the event permission kept in the stored metadata */
+    permission?: string;
 }
 
 export interface EventListQueryParams {
@@ -533,7 +535,15 @@ export class CalendarEvent {
             data.view_access ||
             (data.permission?.toUpperCase() as any) ||
             'OPEN';
-        this.permission = data.permission || this.extension_data.view_access;
+        // A selected view access decides the permission. Edit forms can also
+        // carry the stored permission, which is stale after the user changes it.
+        this.permission =
+            data.view_access ||
+            data.permission ||
+            this.extension_data.view_access;
+        if (this.extension_data.permission) {
+            this.extension_data.permission = this.permission;
+        }
         this.extension_data.assets = asset_requests.map(
             (i) => new AssetRequest({ ...i, event: simple_event } as any),
         );
@@ -593,10 +603,14 @@ export class CalendarEvent {
      */
     public toJSON(): Record<string, any> {
         const obj: Record<string, any> = { ...this };
+        // Compare in seconds. The constructor stores the end from a unix
+        // timestamp, so a day end of 23:59:59.999 can become 23:59:59.000.
         const is_full_day_period =
             this.all_day &&
-            this.date === startOfDayInTimezone(this.date, this.timezone) &&
-            this.date_end === endOfDayInTimezone(this.date_end, this.timezone);
+            getUnixTime(this.date) ===
+                getUnixTime(startOfDayInTimezone(this.date, this.timezone)) &&
+            getUnixTime(this.date_end) ===
+                getUnixTime(endOfDayInTimezone(this.date_end, this.timezone));
         const is_custom_all_day = this.all_day && !is_full_day_period;
         const date = is_full_day_period
             ? startOfDayInTimezone(this.date, this.timezone)

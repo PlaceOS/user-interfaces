@@ -14,15 +14,18 @@ import { MatSelectModule } from '@angular/material/select';
 import { i18n, notifyError, notifySuccess, notifyWarn } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import {
-    listSignagePlaylistMediaRevisions,
     SignageMedia,
     SignagePlaylist,
     type SignagePlaylistApprover,
+    SignagePlaylistMedia,
     updateSignagePlaylistMedia,
 } from '@placeos/ts-client';
+import { SignageMediaService } from '../media/signage-media.service';
+import { SignagePlaylistService } from '../playlists/signage-playlist.service';
+import { SignageContextService } from '../signage-context.service';
 import { playlistMediaItems } from '../signage-playlist.util';
-import { SignageService } from '../signage.service';
 import { PlaylistApprovalPreviewComponent } from './playlist-approval-preview.component';
+import { loadPlaylistApprovalVersions } from './playlist-approval.util';
 
 export interface PlaylistRequestApprovalModalData {
     playlist: SignagePlaylist;
@@ -144,11 +147,26 @@ export interface PlaylistRequestApprovalModalResult {
                     }}</icon>
                 </button>
                 @if (show_preview()) {
-                    <playlist-approval-preview
-                        [versions]="playlist_versions()"
-                        [media]="playlist_media()"
-                        (preview)="previewItem($event)"
-                    />
+                    @if (versions_error()) {
+                        <div
+                            class="text-base-content/70 flex flex-col items-center justify-center space-y-2 p-8"
+                            role="alert"
+                        >
+                            <icon class="text-error text-4xl">error</icon>
+                            <p class="text-sm">
+                                {{
+                                    'SIGNAGE_MANAGER.PLAYLIST_VERSIONS_LOAD_ERROR'
+                                        | translate
+                                }}
+                            </p>
+                        </div>
+                    } @else {
+                        <playlist-approval-preview
+                            [versions]="playlist_versions()"
+                            [media]="playlist_media()"
+                            (preview)="previewItem($event)"
+                        />
+                    }
                 }
             </main>
             <footer
@@ -165,7 +183,7 @@ export interface PlaylistRequestApprovalModalResult {
                         {{ 'COMMON.CANCEL' | translate }}
                     </button>
                 }
-                @if (show_preview() && can_update()) {
+                @if (show_preview() && can_update() && !versions_error()) {
                     <button
                         btn
                         type="button"
@@ -215,7 +233,9 @@ export interface PlaylistRequestApprovalModalResult {
     ],
 })
 export class PlaylistRequestApprovalModalComponent {
-    private readonly _service = inject(SignageService);
+    private readonly _context = inject(SignageContextService);
+    private readonly _media_service = inject(SignageMediaService);
+    private readonly _playlist_service = inject(SignagePlaylistService);
     public readonly data =
         inject<PlaylistRequestApprovalModalData>(MAT_DIALOG_DATA);
     private readonly _dialog_ref =
@@ -233,9 +253,12 @@ export class PlaylistRequestApprovalModalComponent {
     public readonly show_preview = signal(false);
     public readonly loading = signal('');
     public readonly has_previous_version = signal(false);
-    public readonly can_update = this._service.can_update;
+    /** Whether the versions failed to load. Opening the preview again retries. */
+    public readonly versions_error = signal(false);
+    public readonly can_update = this._context.can_update;
 
-    public readonly playlist_versions = signal<any[]>([]);
+    /** The latest version and the last approved version, newest first */
+    public readonly playlist_versions = signal<SignagePlaylistMedia[]>([]);
     public readonly playlist_media = () =>
         this.playlist_versions().map((playlist) =>
             playlistMediaItems(playlist),
@@ -252,14 +275,16 @@ export class PlaylistRequestApprovalModalComponent {
         const playlist_id = this.data?.playlist?.id || '';
         if (!playlist_id) return [];
         this.loading.set(i18n('SIGNAGE_MANAGER.LOADING_VERSIONS'));
+        this.versions_error.set(false);
         try {
-            const versions = await listSignagePlaylistMediaRevisions(
-                playlist_id,
-                { limit: 2 },
-            );
+            const versions = await loadPlaylistApprovalVersions(playlist_id);
             this.playlist_versions.set(versions);
             this.has_previous_version.set(versions.length > 1);
             return versions;
+        } catch {
+            this.versions_error.set(true);
+            notifyError(i18n('SIGNAGE_MANAGER.PLAYLIST_VERSIONS_LOAD_ERROR'));
+            return [];
         } finally {
             this.loading.set('');
         }
@@ -286,13 +311,13 @@ export class PlaylistRequestApprovalModalComponent {
                 this.data.playlist.id,
                 previous_version.items,
             );
-            this._service.setPlaylistApprovalStatus(
+            this._playlist_service.setPlaylistApprovalStatus(
                 this.data.playlist.id,
                 false,
             );
             notifySuccess(i18n('SIGNAGE_MANAGER.PLAYLIST_REVERTED'));
             this._dialog_ref.close();
-            this._service.changed();
+            this._context.changed();
         } catch {
             notifyError(i18n('SIGNAGE_MANAGER.PLAYLIST_REVERT_ERROR'));
         } finally {
@@ -302,6 +327,6 @@ export class PlaylistRequestApprovalModalComponent {
     }
 
     public previewItem(item: SignageMedia) {
-        this._service.previewMedia(item);
+        this._media_service.previewMedia(item);
     }
 }

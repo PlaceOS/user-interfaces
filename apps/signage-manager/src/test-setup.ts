@@ -1,4 +1,3 @@
-import { installTestStorage } from 'libs/common/src/test-storage';
 import { defineGlobalsInjections, Spectator } from '@ngneat/spectator';
 import {
     LocaleService,
@@ -6,7 +5,9 @@ import {
     setTranslationService,
 } from '@placeos/common';
 import { TranslatePipe } from '@placeos/components';
+import { installTestStorage } from 'libs/common/src/test-storage';
 import { MockPipe } from 'ng-mocks';
+import * as EN_AU from 'shared/assets/locale/en-AU.json';
 import { TextDecoder, TextEncoder } from 'util';
 
 global.TextEncoder = TextEncoder;
@@ -49,6 +50,25 @@ _dom_spectator_proto.detectChanges = function () {
 };
 
 setNotifyOutlet(null, true);
+// Translations are fetched at runtime. Seed the cached default locale so
+// specs render English text.
+function flattenLocale(value: object, path = ''): Record<string, string> {
+    const out: Record<string, string> = {};
+    for (const [key, item] of Object.entries(value)) {
+        const id = path ? `${path}.${key}` : key;
+        if (item instanceof Object) Object.assign(out, flattenLocale(item, id));
+        else out[id] = `${item}`;
+    }
+    return out;
+}
+localStorage.setItem(
+    'APP.locale.en-AU',
+    JSON.stringify({
+        cached_at: Date.now(),
+        locale: 'en-AU',
+        mappings: flattenLocale(EN_AU),
+    }),
+);
 setTranslationService(new LocaleService());
 
 defineGlobalsInjections({

@@ -1,4 +1,5 @@
 import { signal, WritableSignal } from '@angular/core';
+import { TestBed } from '@angular/core/testing';
 import {
     createServiceFactory,
     SpectatorService,
@@ -17,23 +18,45 @@ import {
     Space,
 } from '@placeos/common';
 import { MockProvider } from 'ng-mocks';
+import { of } from 'rxjs';
+
+import { setNotifyOutlet } from 'libs/common/src/lib/notifications';
+
+// Workspace fns are bundled and cannot be mocked, so stub the API layer below them.
+vi.mock('@placeos/ts-client', { spy: true });
+
+import * as ts_client from '@placeos/ts-client';
+
+const flush = () => new Promise((resolve) => setTimeout(resolve, 0));
 
 describe('CateringOrdersService', () => {
     let spectator: SpectatorService<CateringOrdersService>;
+    // New signal per test, so services from earlier tests do not load orders
+    let active_building: WritableSignal<{ id?: string }>;
     const createService = createServiceFactory({
         service: CateringOrdersService,
         providers: [
             MockProvider(SettingsService, { get: vi.fn() }),
             {
                 provide: OrganisationService,
-                useValue: {
-                    active_building: signal({}),
-                } as unknown as OrganisationService,
+                useFactory: () =>
+                    ({ active_building }) as unknown as OrganisationService,
             },
         ],
     });
 
-    beforeEach(() => (spectator = createService()));
+    beforeEach(() => {
+        active_building = signal({});
+        vi.mocked(ts_client.get).mockReset();
+        spectator = createService();
+    });
+
+    /** Set a building so the service loads orders, then wait for the load */
+    const loadOrders = async () => {
+        active_building.set({ id: 'bld-1' });
+        TestBed.tick();
+        await flush();
+    };
 
     it('should create service', () => {
         expect(spectator.service).toBeTruthy();
@@ -125,5 +148,172 @@ describe('CateringOrdersService', () => {
         )._orders.set([order]);
 
         expect(spectator.service.filtered()).toEqual([order]);
+    });
+
+    it('should flag a failed load instead of showing an empty day', async () => {
+        vi.mocked(ts_client.get).mockRejectedValue(new Error('offline'));
+        await loadOrders();
+
+        expect(spectator.service.load_error()).toBe(true);
+        expect(spectator.service.loading()).toBe(false);
+        expect(spectator.service.last_updated()).toBe(0);
+    });
+
+    it('should only fetch orders again when the date or zones change', async () => {
+        vi.mocked(ts_client.get).mockResolvedValue([] as any);
+        await loadOrders();
+        expect(ts_client.get).toHaveBeenCalledTimes(1);
+        expect(spectator.service.load_error()).toBe(false);
+        expect(spectator.service.last_updated()).toBeGreaterThan(0);
+
+        spectator.service.filters = { search: 'tea', caterer: 'Cafe' };
+        TestBed.tick();
+        await flush();
+        expect(ts_client.get).toHaveBeenCalledTimes(1);
+
+        spectator.service.filters = { date: new Date(2026, 0, 2).valueOf() };
+        TestBed.tick();
+        await flush();
+        expect(ts_client.get).toHaveBeenCalledTimes(2);
+    });
+
+    it('should revert the order status when the save fails', async () => {
+        vi.mocked(ts_client.get).mockRejectedValue(new Error('offline'));
+        const order = new CateringOrder({
+            id: 'order-1',
+            system_id: 'room-1',
+            status: 'accepted',
+            event: new CalendarEvent({
+                id: 'event-1',
+                extension_data: { catering: [] },
+            }),
+        });
+
+        await expect(
+            spectator.service.updateStatus(order, 'ready'),
+        ).rejects.toThrow('offline');
+        expect(order.status).toBe('accepted');
+    });
+
+    it('should filter by status and count orders for each status', () => {
+        const order = (id: string, status: 'ready' | 'delivered') =>
+            new CateringOrder({
+                id,
+                status,
+                items: [new CateringItem({ name: 'Coffee', quantity: 1 })],
+            });
+        (
+            spectator.service as unknown as {
+                _orders: WritableSignal<CateringOrder[]>;
+            }
+        )._orders.set([order('1', 'ready'), order('2', 'delivered')]);
+
+        spectator.service.filters = { status: 'active' };
+
+        expect(spectator.service.filtered().map((o) => o.id)).toEqual(['1']);
+        expect(spectator.service.status_counts()).toEqual({
+            all: 2,
+            active: 1,
+            ready: 1,
+            delivered: 1,
+        });
+    });
+
+    it('should search order charge codes and notes', () => {
+        const order = new CateringOrder({
+            id: 'order-1',
+            charge_code: 'CC-42',
+            notes: 'Nut allergy',
+            items: [new CateringItem({ name: 'Coffee', quantity: 1 })],
+        });
+        (
+            spectator.service as unknown as {
+                _orders: WritableSignal<CateringOrder[]>;
+            }
+        )._orders.set([order]);
+
+        spectator.service.filters = { search: 'cc-42' };
+        expect(spectator.service.filtered()).toEqual([order]);
+        spectator.service.filters = { search: 'allergy' };
+        expect(spectator.service.filtered()).toEqual([order]);
+        spectator.service.filters = { search: 'tea' };
+        expect(spectator.service.filtered()).toEqual([]);
+    });
+
+    describe('changeStatus', () => {
+        const notify_open = vi.fn(() => ({
+            onAction: () => of(),
+            dismiss: vi.fn(),
+        }));
+
+        beforeEach(() => {
+            notify_open.mockClear();
+            setNotifyOutlet({ open: notify_open } as any, true);
+        });
+
+        afterEach(() => setNotifyOutlet(null, true));
+
+        it('should offer undo after a status change', async () => {
+            const update = vi
+                .spyOn(spectator.service, 'updateStatus')
+                .mockResolvedValue(undefined);
+            const order = new CateringOrder({ status: 'accepted' });
+            await spectator.service.changeStatus(order, 'ready');
+
+            expect(update).toHaveBeenCalledWith(order, 'ready');
+            expect(notify_open).toHaveBeenCalledWith(
+                expect.anything(),
+                'COMMON.UNDO',
+                expect.anything(),
+            );
+        });
+
+        it('should notify without undo when a status change fails', async () => {
+            vi.spyOn(spectator.service, 'updateStatus').mockRejectedValue(
+                new Error('offline'),
+            );
+            const order = new CateringOrder({ status: 'accepted' });
+            await spectator.service.changeStatus(order, 'ready');
+
+            expect(notify_open).toHaveBeenCalledTimes(1);
+            expect(notify_open).not.toHaveBeenCalledWith(
+                expect.anything(),
+                'COMMON.UNDO',
+                expect.anything(),
+            );
+        });
+    });
+
+    it('should report orders added since the previous poll', async () => {
+        const changes = vi.fn();
+        spectator.service.order_changes.subscribe(changes);
+        const event = (id: string, order_id: string) => ({
+            id,
+            event_start: Math.floor(Date.now() / 1000),
+            extension_data: {
+                catering: [
+                    {
+                        id: order_id,
+                        items: [{ id: 'coffee', name: 'Coffee', quantity: 1 }],
+                    },
+                ],
+            },
+        });
+        vi.mocked(ts_client.get).mockResolvedValue([event('e1', 'o1')] as any);
+        await loadOrders();
+        expect(changes).not.toHaveBeenCalled();
+
+        vi.mocked(ts_client.get).mockResolvedValue([
+            event('e1', 'o1'),
+            event('e2', 'o2'),
+        ] as any);
+        spectator.service.startPolling(10);
+        await new Promise((resolve) => setTimeout(resolve, 30));
+        TestBed.tick();
+        await flush();
+        spectator.service.stopPolling();
+
+        expect(changes).toHaveBeenCalledTimes(1);
+        expect(changes.mock.calls[0][0].added.map((o) => o.id)).toEqual(['o2']);
     });
 });

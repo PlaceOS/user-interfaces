@@ -1,7 +1,10 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { MatDialog } from '@angular/material/dialog';
-import { createServiceFactory, SpectatorService } from '@ngneat/spectator/vitest';
+import {
+    createServiceFactory,
+    SpectatorService,
+} from '@ngneat/spectator/vitest';
 import { SpacesService } from '@placeos/events';
 import {
     endOfDay,
@@ -119,6 +122,18 @@ describe('EventsStateService', () => {
         spectator.service.setZones(['bld-234']);
         await settle();
         expect(spectator.service.event_list()).toHaveLength(2);
+    });
+
+    it('should only flag shown rooms whose calendars did not load', async () => {
+        vi.mocked(ts_client.responseHeaders).mockReturnValue({
+            'x-calendar-issue': '1,group-events@place.com',
+        });
+        spectator.service.setZones(['bld-123']);
+        await settle();
+        expect(
+            spectator.service.failed_spaces().map((space) => space.id),
+        ).toEqual(['space-1']);
+        vi.mocked(ts_client.responseHeaders).mockReset();
     });
 
     it('should allow filtering of listed events', async () => {

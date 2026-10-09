@@ -11,9 +11,9 @@ import { OrganisationService } from '@placeos/common';
 import { MockComponent, MockProvider } from 'ng-mocks';
 import { of, timer } from 'rxjs';
 
+import { DateOptionsComponent } from '@placeos/form-fields';
 import { DesksStateService } from '../../app/desks/desks-state.service';
 import { DesksTopbarComponent } from '../../app/desks/desks-topbar.component';
-import { DateOptionsComponent } from '../../app/ui/date-options.component';
 import { SearchbarComponent } from '../../app/ui/searchbar.component';
 
 import { MatDialog } from '@angular/material/dialog';

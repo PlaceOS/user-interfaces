@@ -9,7 +9,6 @@ import {
     AsyncHandler,
     csvToJson,
     Desk,
-    generateQRCode,
     i18n,
     loadTextFileFromInputEvent,
     notifyError,
@@ -19,6 +18,7 @@ import {
     settingSignal,
     SettingsService,
 } from '@placeos/common';
+import { generateQRCode } from '@placeos/common/qr-code';
 import {
     CustomTooltipComponent,
     IconComponent,
