@@ -33,22 +33,7 @@
                         "input": "node_modules/@placeos/ts-client/dist/",
                         "output": "/"
                     },
-                    "apps/outlook-addin/src/manifest.webmanifest",
-                    {
-                        "glob": "manifest.xml",
-                        "input": "apps/outlook-addin/",
-                        "output": "/"
-                    },
-                    {
-                        "glob": "function-file.html",
-                        "input": "apps/outlook-addin/src/function-file/",
-                        "output": "/function-file"
-                    },
-                    {
-                        "glob": "function-file.ts",
-                        "input": "apps/outlook-addin/src/function-file/",
-                        "output": "/function-file"
-                    }
+                    "apps/outlook-addin/src/manifest.webmanifest"
                 ],
                 "styles": [
                     "./node_modules/@angular/material/prebuilt-themes/indigo-pink.css",

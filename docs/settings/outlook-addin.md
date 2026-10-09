@@ -89,6 +89,16 @@ These settings control the desk booking form (keys under `desks`).
 
 Desk booking times are otherwise fixed by the app: durations from 1 to 10 hours in 1-hour steps.
 
+## Parking
+
+The calendar pane shows a Parking tab when `features` turns on parking or parking requests. The tab uses the same parking settings as the Workplace app.
+
+| Setting | Type | Default | Description |
+|---------|------|---------|-------------|
+| `features` | string[] | `["spaces", "desks", "explore", "parking", "parking-requests", "help", "schedule"]` | `parking` lets the user choose a parking space. `parking-requests` lets the user request parking, and the parking team assigns a space. With both, the user selects one. With neither, the Parking tab is hidden. The add-in ignores the other values. |
+| `parking.require_plate_number` | boolean | `false` | Make the plate number required. |
+| `parking.assigned_resource_booking` | string | `"other_only"` | When this is not `allow`, a user with an assigned parking space cannot book more parking. The tab shows the assigned space instead. |
+
 ## Analytics
 
 | Setting | Type | Default | Description |
@@ -108,7 +118,6 @@ The build-time defaults also include the settings below, carried over from the W
 
 | Setting | Type | Default | Original purpose |
 |---------|------|---------|------------------|
-| `features` | string[] | `["spaces", "desks", "explore", "parking", "help", "schedule"]` | Feature list used by other apps to toggle sections — the add-in's pages are fixed. |
 | `can_deliver` | boolean | `true` | Catering delivery option flag. |
 | `hide_contacts` | boolean | `false` | Hide contacts in user listings. |
 | `departments` | object | `{ "user": { "level": "bld-01_lvl-10", "centered_at": "table-10.008" } }` | Department-to-map-location hints. |

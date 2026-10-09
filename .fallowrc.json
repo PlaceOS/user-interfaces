@@ -1,17 +1,10 @@
 {
     "$schema": "https://raw.githubusercontent.com/fallow-rs/fallow/main/config-schema.json",
-    // The add-in package.json only serves its manual webpack dev server.
-    // The Angular app resolves packages from the root package.json.
-    "ignorePatterns": ["apps/outlook-addin/package.json"],
     "dynamicallyLoaded": [
         "apps/**/src/environments/*.ts",
         "apps/**/src/test-setup.ts",
         "apps/**/src/index.html",
         "apps/**/src/manifest.webmanifest",
-        "apps/outlook-addin/commands/commands.ts",
-        "apps/outlook-addin/lib/**/*.js",
-        "apps/outlook-addin/src/function-file/**/*.js",
-        "apps/outlook-addin/taskpane/taskpane.ts",
         "config/proxy.conf.js",
         "jest.preset.js",
         "libs/**/src/lib/**/*.ts",
@@ -29,12 +22,7 @@
         "angular-animate",
         "angular-route",
         "angular-sanitize",
-        "core-js",
         "fs-extra",
-        "regenerator-runtime",
-        // Declared in apps/outlook-addin/package.json for its webpack dev server
-        "copy-webpack-plugin",
-        "office-addin-dev-certs",
         // Root folder imported through the tsconfig baseUrl, not a package
         "shared",
         // Installed transitively by @capacitor/assets
