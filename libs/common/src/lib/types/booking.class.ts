@@ -139,10 +139,11 @@ function toBookingWindow(
     end: number,
 ): BookingWindow {
     const date = data.date || start * 1000 || Date.now();
-    const duration =
-        data.duration ||
-        Math.abs(differenceInMinutes(start * 1000, end * 1000)) ||
-        60;
+    const span = Math.abs(differenceInMinutes(start * 1000, end * 1000));
+    // An explicit end is the source of truth over a stored duration.
+    const duration = data.booking_end
+        ? span || 60
+        : data.duration || span || 60;
     return {
         date,
         duration,
@@ -322,7 +323,7 @@ export class Booking {
     }
 
     public get is_all_day() {
-        return this.all_day || this.duration >= 12 * 60;
+        return this.all_day || this.duration >= 18 * 60;
     }
 
     public get has_ended() {

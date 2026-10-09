@@ -3,6 +3,7 @@ import {
     MatBottomSheet,
     MatBottomSheetRef,
 } from '@angular/material/bottom-sheet';
+import { MatRippleModule } from '@angular/material/core';
 import { Router } from '@angular/router';
 import { BookingFormService } from '@placeos/bookings';
 import {
@@ -77,7 +78,12 @@ import { NewDeskFormDetailsComponent } from './desk-form-details.component';
             }
         </div>
     `,
-    imports: [TranslatePipe, NewDeskFormDetailsComponent, IconComponent],
+    imports: [
+        TranslatePipe,
+        NewDeskFormDetailsComponent,
+        MatRippleModule,
+        IconComponent,
+    ],
 })
 export class NewDeskFlowFormComponent implements OnInit {
     private _state = inject(BookingFormService);
@@ -124,7 +130,7 @@ export class NewDeskFlowFormComponent implements OnInit {
             }
         }
         const { asset_id, resources } = this.model();
-        if (resources?.length && !asset_id) {
+        if (resources?.length && asset_id !== resources[0].id) {
             this.model.update((m) => ({ ...m, asset_id: resources[0].id }));
         }
         if (!this.form().valid())

@@ -13,12 +13,14 @@ describe('Desk', () => {
         expect(item.zone).toBeInstanceOf(PlaceZone);
         expect(item.zone?.id).toBe('');
         expect(item.groups).toEqual([]);
+        expect(item.homebase).toBe('');
         item = new Desk({
             id: 'desk-1',
             name: 'Some Desk',
             bookable: true,
             zone: new PlaceZone({ id: 'zone-1' }),
             groups: ['Admin'],
+            homebase: 'Sydney HQ',
         });
         expect(item.id).toBe('desk-1');
         expect(item.name).toBe('Some Desk');
@@ -26,6 +28,7 @@ describe('Desk', () => {
         expect(item.zone).toBeInstanceOf(PlaceZone);
         expect(item.zone?.id).toBe('zone-1');
         expect(item.groups).toEqual(['Admin']);
+        expect(item.homebase).toBe('Sydney HQ');
     });
 
     it('should allow getting simplified version of desk data', () => {
@@ -35,5 +38,6 @@ describe('Desk', () => {
         expect(obj.name).toBe('');
         expect(obj.bookable).toBe(false);
         expect(obj.groups).toEqual([]);
+        expect(obj.homebase).toBe('');
     });
 });

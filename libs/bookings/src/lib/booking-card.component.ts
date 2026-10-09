@@ -6,6 +6,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import {
     Booking,
+    BOOKING_TYPE_COLORS,
     currentUser,
     formatDuration,
     formatRecurrence,
@@ -22,6 +23,7 @@ import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { GroupEventDetailsModalComponent } from '../../../events/src/lib/group-event-details-modal.component';
 import { BookingDetailsModalComponent } from './booking-details-modal.component';
 import {
+    bookingLocationString,
     formatEmailName,
     parkingRequestStatus,
     visitorDisplayNameFor,
@@ -40,7 +42,7 @@ const TYPE_ICONS = new Map<string, { icon: string; tooltip: string }>([
     selector: 'booking-card',
     template: `
         @if (booking()) {
-            <h4 class="mb-2 flex items-center">
+            <h4 class="mb-2 flex items-center px-2">
                 @if (show_day()) {
                     <span day>{{ day() }},&nbsp;</span>
                 }
@@ -64,6 +66,18 @@ const TYPE_ICONS = new Map<string, { icon: string; tooltip: string }>([
                     class="border-base-300 bg-base-100 relative w-full rounded-xl border py-4 shadow-sm"
                     [class.opacity-60]="is_cancelled()"
                 >
+                    <div
+                        class="bg-base-300 absolute top-2 right-2 rounded-full p-1 text-2xl"
+                        [style.background-color]="typeColors[0]"
+                        [style.color]="typeColors[1]"
+                    >
+                        <icon
+                            [matTooltip]="typeLabel | translate"
+                            matTooltipPosition="left"
+                        >
+                            {{ typeIcon }}
+                        </icon>
+                    </div>
                     <h4 class="px-4 text-lg">{{ booking()?.title }}</h4>
                     <div class="mx-4 my-2 flex items-center space-x-2">
                         <status-pill [status]="status()">
@@ -72,6 +86,7 @@ const TYPE_ICONS = new Map<string, { icon: string; tooltip: string }>([
                             }
                             {{ period() }}
                         </status-pill>
+                        <ng-content select="[booking-status]" />
                         @if (!for_current_user() && booked_for_label()) {
                             <div
                                 booked-for
@@ -99,11 +114,7 @@ const TYPE_ICONS = new Map<string, { icon: string; tooltip: string }>([
                         class="divide-base-200-500 flex flex-col flex-wrap space-y-2 py-2 sm:flex-row sm:space-y-0 sm:divide-x"
                     >
                         <div class="flex max-w-[33%] items-center px-4">
-                            <icon
-                                [matTooltip]="type_icon().tooltip | translate"
-                                matTooltipPosition="right"
-                                >{{ type_icon().icon }}</icon
-                            >
+                            <icon>{{ type_icon().icon }}</icon>
                             <div class="mx-2 w-1/2 flex-1 truncate">
                                 {{ resource_label() }}
                             </div>
@@ -133,7 +144,7 @@ const TYPE_ICONS = new Map<string, { icon: string; tooltip: string }>([
                     }
                     @for (badge of warning_badges(); track badge) {
                         <div
-                            class="bg-warning/50 absolute top-2 right-2 rounded-xl px-2 py-1 text-xs"
+                            class="bg-warning/50 absolute top-14 right-2 rounded-xl px-2 py-1 text-xs"
                         >
                             {{ badge | translate }}
                         </div>
@@ -253,6 +264,52 @@ export class BookingCardComponent {
 
     public readonly type = computed(() => this.booking()?.type);
 
+    private _open_timer?: ReturnType<typeof setTimeout>;
+
+    constructor() {
+        const destroy_ref = inject(DestroyRef);
+        destroy_ref.onDestroy(() => clearTimeout(this._open_timer));
+        this._route.queryParamMap
+            .pipe(takeUntilDestroyed())
+            .subscribe((params) =>
+                params.has('booking') &&
+                this.booking()?.id === params.get('event')
+                    ? this.viewDetails()
+                    : '',
+            );
+    }
+
+    public get typeIcon() {
+        const type = this.booking()?.booking_type;
+        const iconMap = {
+            event: 'meeting_room',
+            desk: 'desk',
+            parking: 'drive_eta',
+            visitor: 'people',
+            locker: 'lock',
+            'group-event': 'event_available',
+        };
+        return iconMap[type] || 'book';
+    }
+
+    public get typeLabel() {
+        const type = this.booking()?.booking_type;
+        const labelMap = {
+            event: 'RESOURCE.ROOM',
+            desk: 'RESOURCE.DESK',
+            parking: 'RESOURCE.PARKING',
+            visitor: 'RESOURCE.VISITOR',
+            locker: 'RESOURCE.LOCKER',
+            'group-event': 'RESOURCE.EVENT',
+        };
+        return labelMap[type] || 'RESOURCE.BOOKING';
+    }
+
+    public get typeColors() {
+        const type = this.booking()?.booking_type;
+        return BOOKING_TYPE_COLORS[type] || ['#E5E7EB', '#1F2937'];
+    }
+
     /** Icon and tooltip key for the booking type. Other types show a book
      * icon with no tooltip. */
     public readonly type_icon = computed(
@@ -285,10 +342,9 @@ export class BookingCardComponent {
         return `${is_today ? i18n('COMMON.TODAY') : format(date, 'EEEE')}`;
     });
 
-    public readonly location = computed(() => {
-        const level = this._org.levelWithID(this.booking()?.zones || []);
-        return `${level?.display_name || level?.name || ''}`;
-    });
+    public readonly location = computed(() =>
+        bookingLocationString(this.booking(), this._org),
+    );
 
     public readonly period = computed(() => {
         const booking = this.booking();
@@ -318,29 +374,24 @@ export class BookingCardComponent {
             return i18n('RESOURCE.PARKING');
         }
         if (booking.booking_type !== 'visitor') {
-            return (
-                this.raw_description() || booking.asset_name || booking.asset_id
-            );
+            const label =
+                this.raw_description() ||
+                booking.asset_name ||
+                booking.asset_id ||
+                '';
+            // Unallocated parking has no space yet; hide the raw `unallocated-*`
+            // asset id that the label can fall back to.
+            if (label.startsWith('unallocated')) {
+                return booking.booking_type === 'parking'
+                    ? i18n('RESOURCE.PARKING')
+                    : '';
+            }
+            return label;
         }
         return visitorDisplayNameFor(booking);
     });
 
-    private _open_timer: ReturnType<typeof setTimeout>;
-
-    constructor() {
-        const destroy_ref = inject(DestroyRef);
-        destroy_ref.onDestroy(() => clearTimeout(this._open_timer));
-        this._route.queryParamMap
-            .pipe(takeUntilDestroyed())
-            .subscribe((params) =>
-                params.has('booking') &&
-                this.booking()?.id === params.get('event')
-                    ? this.viewDetails()
-                    : '',
-            );
-    }
-
-    public removeHtmlTags(html: string) {
+    public removeHtmlTags(html = '') {
         const doc = new DOMParser().parseFromString(html, 'text/html');
         return doc.body.textContent || '';
     }

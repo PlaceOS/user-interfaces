@@ -15,6 +15,8 @@ describe('ParkingBookingsListComponent', () => {
     let hide_bay_number = false;
     let hide_assign_space = false;
     let show_waitlist = true;
+    let show_user_groups: string[] = [];
+    let space_restriction_options: { id: number; name: string }[] = [];
     let custom_booking_columns: any[] = [];
     let bookable_hours: { start: number; end: number } | undefined;
     let timezone = 'Australia/Perth';
@@ -73,11 +75,17 @@ describe('ParkingBookingsListComponent', () => {
                             ? hide_bay_number
                             : name === 'app.parking.hide_assign_space'
                               ? hide_assign_space
-                              : name === 'app.parking.custom_booking_columns'
-                                ? custom_booking_columns
-                                : name === 'app.parking.bookable_hours'
-                                  ? bookable_hours
-                                  : false,
+                              : name === 'app.parking.show_user_groups'
+                                ? show_user_groups
+                                : name ===
+                                    'app.parking.request_space_restrictions'
+                                  ? space_restriction_options
+                                  : name ===
+                                      'app.parking.custom_booking_columns'
+                                    ? custom_booking_columns
+                                    : name === 'app.parking.bookable_hours'
+                                      ? bookable_hours
+                                      : false,
                 ),
                 signal: vi.fn((_: string, initial: boolean) => signal(initial)),
                 time_format: 'h:mm a',
@@ -92,6 +100,8 @@ describe('ParkingBookingsListComponent', () => {
         hide_bay_number = false;
         hide_assign_space = false;
         show_waitlist = true;
+        show_user_groups = [];
+        space_restriction_options = [];
         custom_booking_columns = [];
         bookable_hours = undefined;
         timezone = 'Australia/Perth';
@@ -120,13 +130,34 @@ describe('ParkingBookingsListComponent', () => {
             'state',
             'vehicle_type',
             'date',
-            'asset_id',
+            'bay_number',
             'user_name',
             'booked_by_name',
             'plate_number',
             'status',
+            'created_at',
+            'space_restriction',
             'actions',
         ]);
+    });
+
+    it('should expose requested at from booking created_at', () => {
+        bookings = [
+            {
+                id: 'booking-1',
+                asset_id: 'bay-1',
+                status: 'approved',
+                date: Date.now(),
+                date_end: Date.now() + 60 * 60 * 1000,
+                duration: 60,
+                created_at: 1_700_000_000,
+            } as unknown as Booking,
+        ];
+        spectator = createComponent();
+
+        expect(spectator.component.filtered_events()[0]).toMatchObject({
+            created_at: 1_700_000_000_000,
+        });
     });
 
     it('should hide the vehicle type column when requests are disabled', () => {
@@ -282,6 +313,167 @@ describe('ParkingBookingsListComponent', () => {
         });
     });
 
+    it('should sort user groups alphabetically by the first group', () => {
+        show_user_groups = ['Alpha', 'Beta', 'Gamma', 'Zulu'];
+        bookings = [
+            {
+                id: 'booking-beta',
+                asset_id: 'bay-1',
+                date: selected_date,
+                extension_data: { user_groups: ['Beta', 'Alpha'] },
+            },
+            {
+                id: 'booking-alpha',
+                asset_id: 'bay-2',
+                date: selected_date,
+                extension_data: { user_groups: ['Alpha', 'Zulu'] },
+            },
+            {
+                id: 'booking-gamma',
+                asset_id: 'bay-3',
+                date: selected_date,
+                extension_data: { user_groups: ['Gamma'] },
+            },
+        ] as unknown as Booking[];
+        spectator = createComponent();
+
+        const table =
+            spectator.query<SimpleTableComponent<Booking>>(
+                SimpleTableComponent,
+            );
+        table?.setSort('user_groups');
+
+        expect(table?.data_view().map((booking) => booking.id)).toEqual([
+            'booking-alpha',
+            'booking-beta',
+            'booking-gamma',
+        ]);
+
+        table?.setSort('user_groups');
+
+        expect(table?.data_view().map((booking) => booking.id)).toEqual([
+            'booking-gamma',
+            'booking-beta',
+            'booking-alpha',
+        ]);
+        expect(
+            table
+                ?.column('user_groups')
+                ?.sort_fn?.(['Alpha', 'Zulu'], ['Alpha', 'Beta']),
+        ).toBe(0);
+    });
+
+    it('should show request and allocation parking groups', () => {
+        show_user_groups = ['Staff'];
+        bookings = [
+            {
+                id: 'booking-1',
+                asset_id: 'bay-1',
+                date: selected_date,
+                extension_data: {
+                    user_groups: ['Staff'],
+                    parking_group: '  HIO PlaceOS P1 Parking  ',
+                },
+            },
+        ] as unknown as Booking[];
+        spectator = createComponent();
+
+        const table = spectator.query(SimpleTableComponent);
+        const columns = table?.active_columns();
+
+        expect(columns?.map((column) => column.key)).toEqual(
+            expect.arrayContaining(['user_groups', 'parking_group']),
+        );
+        expect(
+            columns?.findIndex((column) => column.key === 'parking_group'),
+        ).toBe(
+            (columns?.findIndex((column) => column.key === 'user_groups') ??
+                -1) + 1,
+        );
+        expect(spectator.component.filtered_events()[0]).toMatchObject({
+            user_groups: ['Staff'],
+            parking_group: 'HIO PlaceOS P1 Parking',
+        });
+    });
+
+    it('should leave missing or blank allocation groups empty', () => {
+        spectator = createComponent();
+
+        expect(
+            spectator.component.allocationGroup({
+                extension_data: { parking_group: '   ' },
+            } as unknown as Booking),
+        ).toBe('');
+        expect(
+            spectator.component.allocationGroup({
+                extension_data: { parking_group: null },
+            } as unknown as Booking),
+        ).toBe('');
+        expect(spectator.component.allocationGroup({} as Booking)).toBe('');
+    });
+
+    it('should resolve and sort parking space restrictions by name', () => {
+        show_user_groups = ['Staff'];
+        space_restriction_options = [
+            { id: 2, name: 'Electric Vehicle' },
+            { id: 9, name: 'ACROD (Max height 2.1m)' },
+            { id: 1, name: 'None' },
+        ];
+        bookings = [
+            {
+                id: 'booking-electric',
+                asset_id: 'bay-2',
+                date: selected_date,
+                extension_data: {
+                    user_groups: ['Staff'],
+                    space_restrictions: 2,
+                },
+            },
+            {
+                id: 'booking-none',
+                asset_id: 'bay-3',
+                date: selected_date,
+                extension_data: { space_restrictions: 1 },
+            },
+            {
+                id: 'booking-acrod',
+                asset_id: 'bay-1',
+                date: selected_date,
+                extension_data: { space_restrictions: 9 },
+            },
+        ] as unknown as Booking[];
+        spectator = createComponent();
+
+        const table =
+            spectator.query<SimpleTableComponent<Booking>>(
+                SimpleTableComponent,
+            );
+        const column_keys = table?.active_columns().map((column) => column.key);
+
+        expect(
+            spectator.component
+                .filtered_events()
+                .find((booking) => booking.id === 'booking-electric'),
+        ).toMatchObject({
+            id: 'booking-electric',
+            space_restriction: 'Electric Vehicle',
+        });
+        expect(column_keys?.indexOf('space_restriction')).toBe(
+            (column_keys?.indexOf('parking_group') ?? -1) + 1,
+        );
+        expect(table?.column('space_restriction')?.name).toBe(
+            'Space Restriction',
+        );
+
+        table?.setSort('space_restriction');
+
+        expect(table?.data_view().map((booking) => booking.id)).toEqual([
+            'booking-acrod',
+            'booking-electric',
+            'booking-none',
+        ]);
+    });
+
     it('should hide the bay number column when viewing requests', () => {
         request_filter = 'requests';
         spectator = createComponent();
@@ -289,7 +481,7 @@ describe('ParkingBookingsListComponent', () => {
         const table = spectator.query(SimpleTableComponent);
         expect(
             table?.active_columns().map((column) => column.key),
-        ).not.toContain('asset_id');
+        ).not.toContain('bay_number');
     });
 
     it('should hide the bay number column when the setting is enabled', () => {
@@ -300,7 +492,7 @@ describe('ParkingBookingsListComponent', () => {
         const table = spectator.query(SimpleTableComponent);
         expect(
             table?.active_columns().map((column) => column.key),
-        ).not.toContain('asset_id');
+        ).not.toContain('bay_number');
     });
 
     it('should show parking request notes when bookings include notes', () => {

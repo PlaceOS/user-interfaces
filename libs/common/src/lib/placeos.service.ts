@@ -1,6 +1,6 @@
 import { Clipboard } from '@angular/cdk/clipboard';
 import { inject, Injectable, signal } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import { SwUpdate } from '@angular/service-worker';
 import {
     authority,
@@ -15,6 +15,7 @@ import {
     token,
 } from '@placeos/ts-client';
 import { addHours } from 'date-fns';
+import { filter } from 'rxjs/operators';
 
 import {
     hasNewVersion,
@@ -527,7 +528,10 @@ export class PlaceOS_Service extends AsyncHandler {
 
     private _initAnalytics() {
         const tracking_id = this._settings.get('app.analytics.tracking_id');
-        if (!tracking_id) return;
+        if (!this._analytics) return;
+        this._analytics.enabled =
+            this._settings.get('app.analytics.enabled') !== false;
+        if (!tracking_id || !this._analytics.enabled) return;
         setLoadingMessage('Initialising analytics...');
         try {
             this._analytics.init(tracking_id);
@@ -537,7 +541,25 @@ export class PlaceOS_Service extends AsyncHandler {
             // Startup gates on `markInitialisationComplete()`, so a throw here
             // would strand the loading screen on this message for good.
             log('APP', 'Failed to initialise analytics.', error, 'warn');
+            return;
         }
+        // Navigation may have completed while startup waited for user data.
+        if (tracking_id.startsWith('G-') && this._router.navigated) {
+            this._analytics.page(this._router.url);
+        }
+        this.subscription(
+            'analytics-router',
+            this._router.events
+                .pipe(
+                    filter(
+                        (event): event is NavigationEnd =>
+                            event instanceof NavigationEnd,
+                    ),
+                )
+                .subscribe((event: NavigationEnd) =>
+                    this._analytics.page(event.urlAfterRedirects),
+                ),
+        );
     }
 
     private _initLocale() {

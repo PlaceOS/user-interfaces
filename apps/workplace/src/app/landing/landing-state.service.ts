@@ -19,6 +19,7 @@ import {
 
 import {
     AsyncHandler,
+    Booking,
     BookingRuleset,
     BuildingLevel,
     currentUser,
@@ -151,9 +152,13 @@ export class LandingStateService extends AsyncHandler {
                     .filtered_bookings()
                     .filter(
                         (i) =>
-                            i.status !== 'cancelled' &&
-                            i.type !== 'cancelled' &&
-                            i.state !== 'done' &&
+                            !i.deleted &&
+                            !['cancelled', 'declined', 'ended'].includes(
+                                i.status,
+                            ) &&
+                            (i instanceof Booking
+                                ? !i.is_done
+                                : i.state !== 'done') &&
                             isSameDay(i.date, Date.now()),
                     ),
             );
@@ -207,6 +212,17 @@ export class LandingStateService extends AsyncHandler {
     public async addContact(user: StaffUser) {
         let users = [...this._contacts()];
         users.push(user);
+        users = unique(users, 'email');
+        await updateMetadata(currentUser().id, {
+            name: 'contacts',
+            description: 'Contacts for the User',
+            details: users,
+        });
+        this.updateContacts();
+    }
+
+    public async addContacts(user_list: User[]) {
+        let users = [...this._contacts(), ...user_list];
         users = unique(users, 'email');
         await updateMetadata(currentUser().id, {
             name: 'contacts',

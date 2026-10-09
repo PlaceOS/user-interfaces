@@ -205,6 +205,42 @@ describe('BookingFormService', () => {
         expect(ts_client.listChildMetadata).not.toHaveBeenCalled();
     });
 
+    it('should use the current form when listing available resources', async () => {
+        const org = spectator.inject(OrganisationService) as any;
+        org.active_region = signal({ id: 'reg-1' });
+        org.regions = [];
+        org.settings = [];
+        (spectator.inject(SettingsService).overrides as any).set([{}, {}]);
+        const desk = {
+            id: 'desk-1',
+            name: 'Desk 1',
+            zone: { id: 'lvl-1', parent_id: 'bld-1' },
+            features: [],
+        };
+        vi.mocked(ts_client.listChildMetadata).mockResolvedValue([
+            {
+                metadata: { desks: { details: [desk] } },
+                zone: desk.zone,
+            },
+        ] as any);
+        (spectator.service as any)._resources_resource.set([desk]);
+        (spectator.service as any)._booking_rules_resource.set({});
+        (spectator.service as any)._available_resource.set([]);
+        spectator.service.setOptions({ type: 'desk', zone_id: 'lvl-1' });
+        spectator.service.model.update((form) => ({
+            ...form,
+            booking_type: 'desk',
+            date: Date.now() + 60 * 60 * 1000,
+            duration: 60,
+            all_day: false,
+            user: currentUser(),
+        }));
+
+        const resources = await spectator.service.listAvailableResources();
+
+        expect(resources.map(({ id }) => id)).toEqual(['desk-1']);
+    });
+
     it('should load desk resources from assets when enabled', async () => {
         vi.mocked(spectator.inject(SettingsService).get).mockImplementation(
             (key: string) => key === 'app.desks.use_assets',
@@ -352,6 +388,30 @@ describe('BookingFormService', () => {
         expect(show_user).not.toHaveBeenCalled();
     });
 
+    it('should use the all-day period for the booking window', () => {
+        (spectator.inject(SettingsService).get as Mock).mockImplementation(
+            (key: string) =>
+                key === 'app.bookings.all_day_period'
+                    ? { start: 8, end: 18 }
+                    : undefined,
+        );
+        const date = new Date(2026, 8, 23, 13, 30).valueOf();
+
+        expect(spectator.service.bookingWindow({ date, duration: 60 })).toEqual(
+            { start: date, end: date + 60 * 60 * 1000 },
+        );
+        expect(
+            spectator.service.bookingWindow({
+                date,
+                duration: 60,
+                all_day: true,
+            }),
+        ).toEqual({
+            start: new Date(2026, 8, 23, 8).valueOf(),
+            end: new Date(2026, 8, 23, 18).valueOf(),
+        });
+    });
+
     it('should handle view changes', () => {
         expect(spectator.service.view()).toBe('form');
         spectator.service.setView('map');
@@ -379,6 +439,50 @@ describe('BookingFormService', () => {
         spectator.service.clearForm();
         expect(spectator.service.model().date).not.toBe(date);
         spy.mockRestore();
+    });
+
+    it('should not refresh availability when the selected desk changes', async () => {
+        vi.useFakeTimers();
+        try {
+            const form_value = (spectator.service as any)._form_value;
+            form_value.set({
+                date: Date.now(),
+                duration: 60,
+                resources: [],
+                asset_id: '',
+            });
+            TestBed.tick();
+            await vi.advanceTimersByTimeAsync(500);
+            TestBed.tick();
+            const availability_form = (spectator.service as any)
+                ._form_value_debounced;
+            const initial_value = availability_form.value();
+            const desk = {
+                id: 'desk-1',
+                name: 'Desk 1',
+                map_id: 'map-desk-1',
+                zone: { id: 'level-1', parent_id: 'building-1' },
+            };
+
+            form_value.set({
+                ...initial_value,
+                resources: [desk],
+                booking_asset: desk,
+                asset_id: desk.id,
+                asset_name: desk.name,
+                map_id: desk.map_id,
+                name: desk.name,
+                description: desk.name,
+                zones: [desk.zone.parent_id, desk.zone.id],
+            });
+            TestBed.tick();
+            await vi.advanceTimersByTimeAsync(500);
+            TestBed.tick();
+
+            expect(availability_form.value()).toBe(initial_value);
+        } finally {
+            vi.useRealTimers();
+        }
     });
 
     it('should not update asset options when form date and duration are unchanged', () => {
@@ -2898,7 +3002,7 @@ describe('BookingFormService', () => {
         expect(post_form).toHaveBeenNthCalledWith(1, true, false);
         expect(post_form).toHaveBeenNthCalledWith(2, true, false);
         expect(clear_form).toHaveBeenCalledTimes(1);
-        expect(saved_forms[0].zones).toEqual(['org-1', 'bld-1']);
+        expect(saved_forms[0].zones).toEqual(['org-1', 'reg-1', 'bld-1']);
         expect(saved_forms[1].location).toBe('Main Lobby');
     });
 

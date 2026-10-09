@@ -48,6 +48,11 @@ interface ParkingBookingExtensionColumn {
     size?: string;
 }
 
+interface ParkingSpaceRestrictionOption {
+    id: string | number;
+    name: string;
+}
+
 interface ParkingBookingColumnTemplates {
     state_template: TemplateRef<any>;
     type_template: TemplateRef<any>;
@@ -58,6 +63,9 @@ interface ParkingBookingColumnTemplates {
     plate_template: TemplateRef<any>;
     notes_template: TemplateRef<any>;
     status_template: TemplateRef<any>;
+    requested_at_template: TemplateRef<any>;
+    user_groups_template: TemplateRef<any>;
+    allocation_group_template: TemplateRef<any>;
     action_template: TemplateRef<any>;
     status_busy_label: string;
     type_label: string;
@@ -68,6 +76,8 @@ interface ParkingBookingColumnTemplates {
     plate_number_label: string;
     notes_label: string;
     status_label: string;
+    user_groups_label: string;
+    allocation_group_label: string;
 }
 
 @Component({
@@ -116,7 +126,7 @@ interface ParkingBookingColumnTemplates {
                     [row_key]="rowKey"
                     [can_select]="canSelect"
                     [(selected)]="selected"
-                    class="block min-w-304 text-sm"
+                    class="block min-w-372 text-sm"
                     [data]="filtered_events()"
                     [columns]="
                         bookingColumns({
@@ -129,6 +139,9 @@ interface ParkingBookingColumnTemplates {
                             plate_template,
                             notes_template,
                             status_template,
+                            requested_at_template,
+                            user_groups_template,
+                            allocation_group_template,
                             action_template,
                             status_busy_label: 'COMMON.STATUS_BUSY' | translate,
                             type_label:
@@ -145,6 +158,11 @@ interface ParkingBookingColumnTemplates {
                                 'BOOKINGS.PARKING_PLATE_NUMBER' | translate,
                             notes_label: 'FORM.NOTES' | translate,
                             status_label: 'COMMON.STATUS' | translate,
+                            user_groups_label:
+                                'APP.CONCIERGE.PARKING_USER_GROUPS' | translate,
+                            allocation_group_label:
+                                'APP.CONCIERGE.PARKING_ALLOCATION_GROUP'
+                                | translate,
                         })
                     "
                     [filter]="options().search"
@@ -246,8 +264,9 @@ interface ParkingBookingColumnTemplates {
                         }
                     }
                 </ng-template>
-                <ng-template #bay_template let-id="data">
+                <ng-template #bay_template let-row="row">
                     <div class="px-4 py-2">
+                        @let id = row.asset_id;
                         @if (id && !isRequestId(id)) {
                             {{ (id | parkingSpace | async)?.identifier || id }}
                         } @else {
@@ -496,6 +515,30 @@ interface ParkingBookingColumnTemplates {
                         }
                     </mat-menu>
                 </ng-template>
+                <ng-template #requested_at_template let-row="row">
+                    <div class="px-4 py-2">
+                        @if (row.created_at) {
+                            {{
+                                row.created_at
+                                    | date: 'MMM d, ' + time_format : timezone
+                            }}
+                        } @else {
+                            <span class="opacity-30">
+                                {{ 'COMMON.EMPTY' | translate }}
+                            </span>
+                        }
+                    </div>
+                </ng-template>
+                <ng-template #user_groups_template let-row="row">
+                    <div class="px-4 py-2">
+                        {{ row.user_groups.join(', ') }}
+                    </div>
+                </ng-template>
+                <ng-template #allocation_group_template let-row="row">
+                    <div class="px-4 py-2">
+                        {{ row.parking_group }}
+                    </div>
+                </ng-template>
                 <ng-template #action_template let-row="row">
                     <div class="flex w-full items-center justify-end gap-2 p-2">
                         <button
@@ -668,16 +711,31 @@ export class ParkingBookingsListComponent
             this.bookings(),
             request_filter,
         );
-        return this._state.filterEventSearch(list, search).map((booking) => ({
-            ...booking,
-            vehicle_type: this.vehicleType(booking),
-            notes: booking.extension_data?.notes || '',
-            // Resolve the human-readable bay identifier onto the row so the
-            // table's built-in search matches it (the `asset_id` field only
-            // holds the space id, not the bay number/name).
-            bay_number: this._state.bayNumber(booking),
-            ...this.customExtensionColumnValues(booking),
-        }));
+        return this._state
+            .filterEventSearch(list, search)
+            .map((booking) => ({
+                ...booking,
+                vehicle_type: this.vehicleType(booking),
+                notes: booking.extension_data?.notes || '',
+                // Surface plate number as a root field so the table can sort by it
+                plate_number: booking.extension_data?.plate_number || '',
+                created_at: ((booking as any).created_at || 0) * 1000,
+                // Resolve the human-readable bay identifier onto the row so the
+                // table's built-in search matches it (the `asset_id` field only
+                // holds the space id, not the bay number/name).
+                bay_number: this._state.bayNumber(booking),
+                // Intersection of the booking's user groups with the
+                // configured `show_user_groups` filter, surfaced for display.
+                user_groups: this.matchedUserGroups(booking),
+                parking_group: this.allocationGroup(booking),
+                space_restriction: this.spaceRestriction(booking),
+                ...this.customExtensionColumnValues(booking),
+            }))
+            .sort((a, b) =>
+                (a.bay_number || a.asset_name || '').localeCompare(
+                    b.bay_number || b.asset_name || '',
+                ),
+            );
     });
 
     public action_count(row) {
@@ -763,6 +821,59 @@ export class ParkingBookingsListComponent
         return Array.isArray(columns)
             ? columns.filter((column) => !!column?.field)
             : [];
+    }
+
+    public get show_user_groups(): string[] {
+        const groups = this._settings.get('app.parking.show_user_groups');
+        return Array.isArray(groups) ? groups.filter(Boolean) : [];
+    }
+
+    public matchedUserGroups(booking: Booking): string[] {
+        const allowed = this.show_user_groups;
+        if (!allowed.length) return [];
+        const groups = booking?.extension_data?.user_groups;
+        if (!Array.isArray(groups)) return [];
+        return groups.filter((group) => allowed.includes(group));
+    }
+
+    public sortUserGroups(a: string[] = [], b: string[] = []) {
+        return (a[0] || '').localeCompare(b[0] || '');
+    }
+
+    public allocationGroup(booking: Booking): string {
+        const group = booking?.extension_data?.parking_group;
+        return typeof group === 'string' ? group.trim() : '';
+    }
+
+    public get space_restriction_options(): ParkingSpaceRestrictionOption[] {
+        const options = this._settings.get(
+            'app.parking.request_space_restrictions',
+        );
+        return Array.isArray(options)
+            ? options.filter(
+                  (option) =>
+                      option?.name &&
+                      option?.id !== undefined &&
+                      option?.id !== null,
+              )
+            : [];
+    }
+
+    public spaceRestriction(booking: Booking): string {
+        const restriction_id = booking?.extension_data?.space_restrictions;
+        if (
+            restriction_id === undefined ||
+            restriction_id === null ||
+            restriction_id === false ||
+            restriction_id === ''
+        ) {
+            return '';
+        }
+        return (
+            this.space_restriction_options.find(
+                (option) => `${option.id}` === `${restriction_id}`,
+            )?.name || `${restriction_id}`
+        );
     }
 
     public get show_waitlist() {
@@ -890,7 +1001,7 @@ export class ParkingBookingsListComponent
                 content: templates.date_template,
             },
             {
-                key: 'asset_id',
+                key: 'bay_number',
                 name: templates.bay_number_label,
                 content: templates.bay_template,
                 show: !this.hide_bay_number_column(),
@@ -910,7 +1021,6 @@ export class ParkingBookingsListComponent
                 name: templates.plate_number_label,
                 content: templates.plate_template,
                 size: '10rem',
-                sortable: false,
             },
             {
                 key: 'notes',
@@ -930,6 +1040,32 @@ export class ParkingBookingsListComponent
                 name: templates.status_label,
                 content: templates.status_template,
                 size: '9.5rem',
+            },
+            {
+                key: 'created_at',
+                name: 'Requested at',
+                content: templates.requested_at_template,
+                size: '10rem',
+            },
+            {
+                key: 'user_groups',
+                name: templates.user_groups_label,
+                content: templates.user_groups_template,
+                size: '12rem',
+                sort_fn: this.sortUserGroups,
+                show: this.show_user_groups.length > 0,
+            },
+            {
+                key: 'parking_group',
+                name: templates.allocation_group_label,
+                content: templates.allocation_group_template,
+                size: '12rem',
+                show: this.show_user_groups.length > 0,
+            },
+            {
+                key: 'space_restriction',
+                name: 'Space Restriction',
+                size: '12rem',
             },
             {
                 key: 'actions',

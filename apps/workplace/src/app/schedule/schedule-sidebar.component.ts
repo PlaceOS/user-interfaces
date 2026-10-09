@@ -1,5 +1,12 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, effect, inject, OnInit } from '@angular/core';
+import {
+    Component,
+    computed,
+    effect,
+    inject,
+    input,
+    OnInit,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatRippleModule } from '@angular/material/core';
@@ -8,13 +15,24 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import {
     AsyncHandler,
+    Booking,
+    BOOKING_TYPE_COLORS,
+    CalendarEvent,
     OrganisationService,
     SettingsService,
 } from '@placeos/common';
-import { IconComponent, TranslatePipe } from '@placeos/components';
-import { DateCalendarComponent } from '@placeos/form-fields';
-import { isSameDay, startOfDay } from 'date-fns';
 import {
+    IconComponent,
+    SettingsToggleComponent,
+    TranslatePipe,
+} from '@placeos/components';
+import {
+    DateCalendarComponent,
+    DateRangeCalendarComponent,
+} from '@placeos/form-fields';
+import { endOfDay, isSameDay, startOfDay } from 'date-fns';
+import {
+    isBookingForOtherUser,
     ScheduleOptions,
     ScheduleStateService,
 } from './schedule-state.service';
@@ -23,40 +41,8 @@ import {
     selector: 'schedule-sidebar',
     template: `
         <div
-            class="bg-base-100[#1F2021] border-base-200 flex h-full w-[18rem] flex-col overflow-hidden border-r"
+            class="border-base-300 bg-base-100 flex h-full w-[18rem] flex-col overflow-hidden border-r"
         >
-            <div class="flex items-center space-x-2 p-2">
-                <button
-                    btn
-                    matRipple
-                    class="flex-1"
-                    [class.inverse]="period !== 'day'"
-                    (click)="setOptions({ period: 'day' })"
-                >
-                    {{ 'COMMON.DAY' | translate }}
-                </button>
-                <button
-                    btn
-                    matRipple
-                    class="flex-1"
-                    [class.inverse]="period !== 'week'"
-                    (click)="setOptions({ period: 'week' })"
-                >
-                    {{ 'COMMON.WEEK' | translate }}
-                </button>
-            </div>
-            @if (!is_today) {
-                <div class="w-full px-2">
-                    <button
-                        btn
-                        matRipple
-                        class="inverse w-full"
-                        (click)="setDateToToday()"
-                    >
-                        {{ 'COMMON.TODAY' | translate }}
-                    </button>
-                </div>
-            }
             @if (period === 'day') {
                 <date-calendar
                     class="border-base-200 border-b"
@@ -66,7 +52,7 @@ import {
                 ></date-calendar>
             }
             @if (period === 'week') {
-                <div class="w-full px-2">
+                <div class="w-full p-2">
                     <mat-form-field
                         appearance="outline"
                         class="no-subscript w-full"
@@ -97,189 +83,72 @@ import {
                     </mat-form-field>
                 </div>
             }
-            <h3 class="mx-4 mt-4 font-medium">
-                {{ 'COMMON.FILTERS' | translate }}
+            @if (period === 'list') {
+                <date-range-calendar
+                    class="border-base-200 border-b p-2"
+                    [from]="null"
+                    [start]="date()?.valueOf()"
+                    [end]="end_date()?.valueOf()"
+                    [offset_weekday]="offset_weekday"
+                    (startChange)="setStartDate($event)"
+                    (endChange)="setEndDate($event)"
+                ></date-range-calendar>
+                <div
+                    class="bg-info text-info-content m-2 w-[calc(100%-1rem)] rounded p-1 text-center text-xs"
+                >
+                    Pick a date range selecting the start then end date.
+                </div>
+            }
+            <h3 class="mx-4 mt-4 pb-2 font-medium uppercase">
+                {{ 'APP.WORKPLACE.SCHEDULE_FILTERS' | translate }}
             </h3>
-            <div class="h-1/2 flex-1 space-y-4 overflow-auto p-4">
-                @if (hasFeature('spaces')) {
-                    <button
-                        matRipple
-                        name="schedule-toggle-event-filter"
-                        class="flex w-full items-center space-x-2 text-left"
-                        (click)="toggleType('event')"
-                    >
-                        <div
-                            class="bg-base-200 flex h-10 w-10 items-center justify-center rounded-full text-2xl"
-                        >
-                            <icon>place</icon>
-                        </div>
-                        <div class="flex-1">
-                            <div class="">
-                                {{ 'RESOURCE.ROOMS' | translate }}
-                            </div>
-                            <div class="text-sm opacity-60">
-                                {{
-                                    'APP.WORKPLACE.SCHEDULE_FILTER_ROOMS'
-                                        | translate
-                                }}
-                            </div>
-                        </div>
-                        <mat-checkbox
-                            [ngModel]="filters().shown_types?.includes('event')"
-                        ></mat-checkbox>
-                    </button>
-                }
-                @if (hasFeature('desks')) {
-                    <button
-                        matRipple
-                        name="schedule-toggle-desk-filter"
-                        class="flex w-full items-center space-x-2 text-left"
-                        (click)="toggleType('desk')"
-                    >
-                        <div
-                            class="bg-base-200 flex h-10 w-10 items-center justify-center rounded-full text-2xl"
-                        >
-                            <img
-                                src="assets/icons/desk-outline.svg"
-                                class="w-6"
-                            />
-                        </div>
-                        <div class="flex-1">
-                            <div class="">
-                                {{ 'RESOURCE.DESKS' | translate }}
-                            </div>
-                            <div class="text-sm opacity-60">
-                                {{
-                                    'APP.WORKPLACE.SCHEDULE_FILTER_DESKS'
-                                        | translate
-                                }}
-                            </div>
-                        </div>
-                        <mat-checkbox
-                            [ngModel]="filters().shown_types?.includes('desk')"
-                        ></mat-checkbox>
-                    </button>
-                }
-                @if (hasFeature('parking') || hasFeature('parking-requests')) {
-                    <button
-                        matRipple
-                        name="schedule-toggle-parking-filter"
-                        class="flex w-full items-center space-x-2 text-left"
-                        (click)="toggleType('parking')"
-                    >
-                        <div
-                            class="bg-base-200 flex h-10 w-10 items-center justify-center rounded-full text-2xl"
-                        >
-                            <icon>drive_eta</icon>
-                        </div>
-                        <div class="flex-1">
-                            <div class="">
-                                {{ 'RESOURCE.PARKING' | translate }}
-                            </div>
-                            <div class="text-sm opacity-60">
-                                {{
-                                    'APP.WORKPLACE.SCHEDULE_FILTER_PARKING'
-                                        | translate
-                                }}
-                            </div>
-                        </div>
-                        <mat-checkbox
+            <div class="h-1/2 flex-1 space-y-1 overflow-auto px-4">
+                @for (item of feature_list; track item.type) {
+                    @if (hasFeature(item.feat)) {
+                        <settings-toggle
                             [ngModel]="
-                                filters().shown_types?.includes('parking')
+                                filters()?.shown_types?.includes(item.type)
                             "
-                        ></mat-checkbox>
-                    </button>
-                }
-                @if (hasFeature('visitor-invite')) {
-                    <button
-                        matRipple
-                        name="schedule-toggle-visitor-filter"
-                        class="flex w-full items-center space-x-2 text-left"
-                        (click)="toggleType('visitor')"
-                    >
-                        <div
-                            class="bg-base-200 flex h-10 w-10 items-center justify-center rounded-full text-2xl"
+                            (click)="toggleType(item.type)"
                         >
-                            <icon>people</icon>
-                        </div>
-                        <div class="flex-1">
-                            <div class="">
-                                {{ 'RESOURCE.VISITORS' | translate }}
+                            <div
+                                class="-my-2 -ml-2 flex items-center space-x-2"
+                            >
+                                <div
+                                    class="bg-base-300 rounded-full p-1 text-2xl"
+                                    [style.background-color]="
+                                        colors[item.type][0]
+                                    "
+                                    [style.color]="colors[item.type][1]"
+                                >
+                                    <icon>{{ item.icon }}</icon>
+                                </div>
+                                <div class="flex-1 font-medium">
+                                    {{ item.name | translate }}
+                                </div>
+                                <div class="font-mono text-xs">
+                                    {{ counts()[item.type] || 0 }}
+                                </div>
                             </div>
-                            <div class="text-sm opacity-60">
-                                {{
-                                    'APP.WORKPLACE.SCHEDULE_FILTER_VISITORS'
-                                        | translate
-                                }}
-                            </div>
-                        </div>
-                        <mat-checkbox
-                            [ngModel]="
-                                filters().shown_types?.includes('visitor')
-                            "
-                        ></mat-checkbox>
-                    </button>
+                        </settings-toggle>
+                    }
                 }
-                @if (hasFeature('lockers')) {
-                    <button
-                        matRipple
-                        name="schedule-toggle-locker-filter"
-                        class="flex w-full items-center space-x-2 text-left"
-                        (click)="toggleType('locker')"
-                    >
-                        <div
-                            class="bg-base-200 flex h-10 w-10 items-center justify-center rounded-full text-2xl"
-                        >
-                            <icon>lock</icon>
+                <settings-toggle
+                    [ngModel]="filters()?.show_bookings_for_others"
+                    (click)="toggleBookingsForOthers()"
+                >
+                    <div class="-my-2 -ml-2 flex items-center space-x-2">
+                        <div class="bg-base-300 rounded-full p-1 text-2xl">
+                            <icon>perm_contact_calendar</icon>
                         </div>
-                        <div class="flex-1">
-                            <div class="">
-                                {{ 'RESOURCE.LOCKERS' | translate }}
-                            </div>
-                            <div class="text-sm opacity-60">
-                                {{
-                                    'APP.WORKPLACE.SCHEDULE_FILTER_LOCKERS'
-                                        | translate
-                                }}
-                            </div>
+                        <div class="flex-1 font-medium">
+                            Bookings for Others
                         </div>
-                        <mat-checkbox
-                            [ngModel]="
-                                filters().shown_types?.includes('locker')
-                            "
-                        ></mat-checkbox>
-                    </button>
-                }
-                @if (hasFeature('group-events')) {
-                    <button
-                        matRipple
-                        name="schedule-toggle-locker-filter"
-                        class="flex w-full items-center space-x-2 text-left"
-                        (click)="toggleType('group-event')"
-                    >
-                        <div
-                            class="bg-base-200 flex h-10 w-10 items-center justify-center rounded-full text-2xl"
-                        >
-                            <icon>event_available</icon>
+                        <div class="font-mono text-xs">
+                            {{ counts()['bookings-for-others'] || 0 }}
                         </div>
-                        <div class="flex-1">
-                            <div class="">
-                                {{ 'RESOURCE.EVENTS' | translate }}
-                            </div>
-                            <div class="text-sm opacity-60">
-                                {{
-                                    'APP.WORKPLACE.SCHEDULE_FILTER_EVENTS'
-                                        | translate
-                                }}
-                            </div>
-                        </div>
-                        <mat-checkbox
-                            [ngModel]="
-                                filters().shown_types?.includes('group-event')
-                            "
-                        ></mat-checkbox>
-                    </button>
-                }
+                    </div>
+                </settings-toggle>
             </div>
         </div>
     `,
@@ -293,6 +162,7 @@ import {
     imports: [
         CommonModule,
         MatCheckboxModule,
+        MatTooltipModule,
         TranslatePipe,
         IconComponent,
         MatRippleModule,
@@ -301,6 +171,8 @@ import {
         MatSelectModule,
         MatTooltipModule,
         DateCalendarComponent,
+        DateRangeCalendarComponent,
+        SettingsToggleComponent,
     ],
 })
 export class ScheduleSidebarComponent extends AsyncHandler implements OnInit {
@@ -310,14 +182,91 @@ export class ScheduleSidebarComponent extends AsyncHandler implements OnInit {
 
     public readonly filters = this._state.filters;
     public readonly date = computed(() => startOfDay(this._state.date()));
+    public readonly end_date = computed(() => {
+        const end = this._state.end_date();
+        return end ? endOfDay(end) : null;
+    });
     public readonly toggleType = (t) => this._state.toggleType(t);
+    public readonly toggleBookingsForOthers = () =>
+        this._state.toggleBookingsForOthers();
     public readonly setDate = (d) => this._state.setDate(d);
+    public readonly bookings = input<(Booking | CalendarEvent)[]>([]);
+    public readonly view = input<'day' | 'week' | 'list'>('day');
+
+    public readonly colors = BOOKING_TYPE_COLORS;
 
     public readonly week_date = this._state.week_date;
     public readonly week_options = this._state.week_options;
 
+    public readonly feature_list = [
+        { type: 'desk', feat: 'desks', icon: 'desk', name: 'RESOURCE.DESKS' },
+        {
+            type: 'event',
+            feat: 'spaces',
+            icon: 'meeting_room',
+            name: 'RESOURCE.MEETINGS',
+        },
+        {
+            type: 'parking',
+            feat: ['parking', 'parking-requests'],
+            icon: 'drive_eta',
+            name: 'RESOURCE.PARKING',
+        },
+        {
+            type: 'visitor',
+            feat: 'visitor-invite',
+            icon: 'people',
+            name: 'RESOURCE.VISITORS',
+        },
+        {
+            type: 'locker',
+            feat: 'lockers',
+            icon: 'lock',
+            name: 'RESOURCE.LOCKERS',
+        },
+        {
+            type: 'group-event',
+            feat: 'group-events',
+            icon: 'event_available',
+            name: 'RESOURCE.EVENTS',
+        },
+    ];
+
+    public readonly counts = computed(() => {
+        const mapping: Record<string, number> = {};
+        const bkn_list = this.bookings() || [];
+        for (const bkn of bkn_list) {
+            if (bkn instanceof CalendarEvent) {
+                const type = bkn.extension_data?.shared_event
+                    ? 'group-event'
+                    : 'event';
+                mapping[type] = (mapping[type] || 0) + 1;
+            } else {
+                const type = bkn.booking_type;
+                mapping[type] = (mapping[type] || 0) + 1;
+                if (isBookingForOtherUser(bkn)) {
+                    mapping['bookings-for-others'] =
+                        (mapping['bookings-for-others'] || 0) + 1;
+                }
+            }
+        }
+        return mapping;
+    });
+
     public get period() {
+        const current_view = this.view();
+        if (current_view === 'list') return 'list';
         return this._state.getOptions()?.period;
+    }
+
+    public setStartDate(date: number) {
+        this._state.setDate(date);
+        // Clear end date when start date changes
+        this._state.setEndDate(null);
+    }
+
+    public setEndDate(date: number) {
+        this._state.setEndDate(date);
     }
 
     public get is_today() {
@@ -332,8 +281,12 @@ export class ScheduleSidebarComponent extends AsyncHandler implements OnInit {
         this._state.setOptions(options);
     }
 
-    public hasFeature(feature: string) {
-        return (this._settings.get('app.features') || []).includes(feature);
+    public hasFeature(feature: string | string[]) {
+        const features = this._settings.get('app.features') || [];
+        if (Array.isArray(feature)) {
+            return feature.some((f) => features.includes(f));
+        }
+        return features.includes(feature);
     }
 
     public get offset_weekday() {

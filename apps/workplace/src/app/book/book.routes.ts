@@ -1,4 +1,10 @@
-import { Routes } from '@angular/router';
+import { CanDeactivateFn, Routes } from '@angular/router';
+
+import type { VisitorFlowNewComponent } from './visitor-flow-new/visitor-flow.component';
+
+const canDeactivateVisitorFlow: CanDeactivateFn<VisitorFlowNewComponent> = (
+    component,
+) => component.canDeactivate();
 
 export const ROUTES: Routes = [
     {
@@ -35,8 +41,8 @@ export const ROUTES: Routes = [
             {
                 path: 'desk/:step',
                 loadComponent: () =>
-                    import('./desk-flow.component').then(
-                        (m) => m.NewDeskFlowComponent,
+                    import('./desk-flow-new/desk-flow.component').then(
+                        (m) => m.DeskFlowNewComponent,
                     ),
                 title: 'Desk Booking',
             },
@@ -44,8 +50,8 @@ export const ROUTES: Routes = [
             {
                 path: 'meeting/:step',
                 loadComponent: () =>
-                    import('./meeting-flow.component').then(
-                        (m) => m.BookMeetingFlowComponent,
+                    import('./meeting-flow-new/meeting-flow.component').then(
+                        (m) => m.MeetingFlowNewComponent,
                     ),
                 title: 'Meeting Booking',
             },
@@ -73,10 +79,11 @@ export const ROUTES: Routes = [
             {
                 path: 'visitor/:step',
                 loadComponent: () =>
-                    import('./visitor-flow.component').then(
-                        (m) => m.VisitorFlowComponent,
+                    import('./visitor-flow-new/visitor-flow.component').then(
+                        (m) => m.VisitorFlowNewComponent,
                     ),
                 title: 'Visitor Booking',
+                canDeactivate: [canDeactivateVisitorFlow],
             },
             { path: 'locker', redirectTo: 'locker/form' },
             {

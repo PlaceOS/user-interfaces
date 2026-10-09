@@ -244,7 +244,7 @@ export class DateFieldComponent
      * @param new_value New value to set on the form field
      */
     public setValue(new_value: number) {
-        // Keep the existing wall-clock time in the selected timezone.
+        // Preserve the selected calendar day and existing wall-clock time in the selected timezone.
         const timezone = this.timezone() || undefined;
         const { hours, minutes } = getTimeInTimezone(
             this.date() || Date.now(),
@@ -269,9 +269,13 @@ export class DateFieldComponent
                 ),
             ).valueOf();
         }
-        // Check that new date is before from
+        // Check that new date is not before the configured minimum.
         if (new_date < this.from().valueOf()) {
             new_date = this.from().valueOf();
+        }
+        // Ensure we don't select a past datetime when switching dates
+        if (new_date < Date.now()) {
+            new_date = Date.now();
         }
         this.date.set(new_date);
         markUserDateChange();

@@ -6,7 +6,7 @@ import {
 } from '@angular/material/dialog';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
-import { SettingsService } from '@placeos/common';
+import { SETTING_KEYS, SettingsService } from '@placeos/common';
 import { createSettingsServiceMock } from '@placeos/common/tests';
 import { MockComponent, MockModule, MockProvider } from 'ng-mocks';
 
@@ -18,10 +18,7 @@ import { ParkingFiltersDisplayComponent } from '../lib/parking-select-modal/park
 import { ParkingFiltersComponent } from '../lib/parking-select-modal/parking-filters.component';
 import { ParkingListComponent } from '../lib/parking-select-modal/parking-list.component';
 import { ParkingMapComponent } from '../lib/parking-select-modal/parking-map.component';
-import {
-    FAV_PARKING_KEY,
-    ParkingSelectModalComponent,
-} from '../lib/parking-select-modal/parking-select-modal.component';
+import { ParkingSelectModalComponent } from '../lib/parking-select-modal/parking-select-modal.component';
 
 const asset = (id: string): BookingAsset =>
     ({ id, name: id, bookable: true, features: [] }) as BookingAsset;
@@ -115,9 +112,10 @@ describe('ParkingSelectModalComponent', () => {
         expect(spectator.component.favorites()).toEqual([]);
         spectator.component.toggleFavourite(asset('a'));
         expect(spectator.component.favorites()).toEqual(['a']);
-        expect(settings.saveUserSetting).toHaveBeenCalledWith(FAV_PARKING_KEY, [
-            'a',
-        ]);
+        expect(settings.saveUserSetting).toHaveBeenCalledWith(
+            SETTING_KEYS.FAVORITE_PARKING_SPACES,
+            ['a'],
+        );
         spectator.component.toggleFavourite(asset('a'));
         expect(spectator.component.favorites()).toEqual([]);
     });

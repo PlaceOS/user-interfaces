@@ -324,16 +324,16 @@ export class TopMenuComponent {
             name: i18n('APP.WORKPLACE.MENU_HOME'),
         },
         {
-            id: 'spaces',
-            route: '/book/meeting',
-            icon: 'meeting_room',
-            name: i18n('APP.WORKPLACE.MENU_ROOMS'),
-        },
-        {
             id: 'desks',
             route: '/book/desk',
             icon: 'desk',
             name: i18n('APP.WORKPLACE.MENU_DESKS'),
+        },
+        {
+            id: 'spaces',
+            route: '/book/meeting',
+            icon: 'meeting_room',
+            name: i18n('APP.WORKPLACE.MENU_ROOMS'),
         },
         {
             id: 'lockers',
@@ -388,6 +388,12 @@ export class TopMenuComponent {
             route: '/deals-n-offers',
             icon: 'confirmation_number',
             name: i18n('APP.WORKPLACE.MENU_DEALS'),
+        },
+        {
+            id: 'team-schedule',
+            route: '/team-schedule',
+            icon: 'groups',
+            name: i18n('APP.WORKPLACE.MENU_TEAM_SCHEDULE'),
         },
         ...this.menu_embeds()
             .filter((item) => item?.id && item?.name && item?.url)

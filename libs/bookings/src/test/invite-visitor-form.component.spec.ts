@@ -57,16 +57,65 @@ describe('InviteVisitorFormComponent', () => {
                 OrganisationService as any,
                 {
                     initialised: signal(true),
-                    building_list: signal([]),
                     active_buildings: signal([
-                        { id: 'bld-1', name: 'Building One' },
-                        { id: 'bld-2', name: 'Building Two' },
+                        {
+                            id: 'bld-1',
+                            name: 'Building One',
+                            parent_id: 'reg-1',
+                            zone_id: 'zone-bld-1',
+                        },
+                    ]),
+                    building_list: signal([
+                        {
+                            id: 'bld-1',
+                            name: 'Building One',
+                            parent_id: 'reg-1',
+                            zone_id: 'zone-bld-1',
+                        },
+                        {
+                            id: 'bld-2',
+                            name: 'Building Two',
+                            parent_id: 'reg-1',
+                            zone_id: 'zone-bld-2',
+                        },
                     ]),
                     buildings: [
-                        { id: 'bld-1', name: 'Building One' },
-                        { id: 'bld-2', name: 'Building Two' },
+                        {
+                            id: 'bld-1',
+                            name: 'Building One',
+                            parent_id: 'reg-1',
+                            zone_id: 'zone-bld-1',
+                        },
+                        {
+                            id: 'bld-2',
+                            name: 'Building Two',
+                            parent_id: 'reg-1',
+                            zone_id: 'zone-bld-2',
+                        },
                     ],
                     building: { id: 'bld-1', name: 'Building One' },
+                    organisation: { id: 'org-1' },
+                    find: vi.fn((id: string) =>
+                        [
+                            {
+                                id: 'bld-1',
+                                name: 'Building One',
+                                parent_id: 'reg-1',
+                                zone_id: 'zone-bld-1',
+                            },
+                            {
+                                id: 'bld-2',
+                                name: 'Building Two',
+                                parent_id: 'reg-1',
+                                zone_id: 'zone-bld-2',
+                            },
+                        ].find((building) => building.id === id),
+                    ),
+                    levelWithID: vi.fn((id_list: string[]) =>
+                        id_list?.includes('lvl-2')
+                            ? { id: 'lvl-2', parent_id: 'bld-2' }
+                            : null,
+                    ),
                 } as any,
             ),
             MockProvider(SettingsService as any, createSettingsServiceMock()),
@@ -99,7 +148,57 @@ describe('InviteVisitorFormComponent', () => {
 
         spectator.component.setBuilding('bld-1');
 
-        expect(service.model().zones).toEqual(['bld-1']);
+        expect(service.model().zones).toEqual(['org-1', 'reg-1', 'bld-1']);
+    });
+
+    it('should list all buildings when editing a booking outside the active building context', async () => {
+        const buildings = spectator.component.buildings() || [];
+
+        expect(buildings.map((building) => building.id)).toEqual([
+            'bld-1',
+            'bld-2',
+        ]);
+    });
+
+    it('should resolve selected building from level zones when editing visitors', async () => {
+        const service = spectator.inject(BookingFormService);
+        await spectator.component.ngOnInit();
+        service.model.update((m) => ({
+            ...m,
+            id: 'booking-edit',
+            booking_type: 'visitor',
+            zones: ['org-1', 'reg-1', 'lvl-2'],
+        }));
+
+        expect(spectator.component.selected_building_id()).toBe('bld-2');
+    });
+
+    it('should resolve selected building from building zone ids when editing visitors', async () => {
+        const service = spectator.inject(BookingFormService);
+        await spectator.component.ngOnInit();
+        service.model.update((m) => ({
+            ...m,
+            id: 'booking-edit',
+            booking_type: 'visitor',
+            zones: ['org-1', 'reg-1', 'zone-bld-2'],
+        }));
+
+        expect(spectator.component.selected_building_id()).toBe('bld-2');
+    });
+
+    it('should not switch the active building when editing a visitor in another building', async () => {
+        const service = spectator.inject(BookingFormService);
+        const org = spectator.inject(OrganisationService);
+        service.model.update((m) => ({
+            ...m,
+            id: 'booking-edit',
+            booking_type: 'visitor',
+            zones: ['org-1', 'reg-1', 'bld-2'],
+        }));
+
+        await spectator.component.ngOnInit();
+
+        expect(org.building.id).toBe('bld-1');
     });
 
     it('should contain form fields', () => {
@@ -681,6 +780,33 @@ describe('InviteVisitorFormComponent', () => {
 
         expect(service.model().id).toBe('booking-edit-type-only');
         expect(service.model().date).toBe(booking_date);
+    });
+
+    it('should restore preloaded edit booking zones from the booking service when the form is initially empty', async () => {
+        const service = spectator.inject(BookingFormService);
+        const settings = spectator.inject(SettingsService);
+        (settings.get as any).mockImplementation((key: string) =>
+            key === 'app.bookings.multiple_visitors' ? false : undefined,
+        );
+        sessionStorage.removeItem('PLACEOS.booking_form');
+        sessionStorage.removeItem('PLACEOS.booking_form_filters');
+        (service as any).booking = new Booking({
+            id: 'booking-edit-zones-only',
+            type: 'visitor',
+            booking_type: ' ',
+            date: Date.now(),
+            duration: 60,
+            asset_id: 'visitor@example.com',
+            asset_name: 'Visitor',
+            zones: ['org-1', 'reg-1', 'zone-bld-2'],
+        });
+        service.form().reset();
+
+        await spectator.component.ngOnInit();
+
+        expect(service.model().id).toBe('booking-edit-zones-only');
+        expect(service.model().zones).toEqual(['org-1', 'reg-1', 'zone-bld-2']);
+        expect(spectator.component.selected_building_id()).toBe('bld-2');
     });
 
     it('should read bookable_hours from visitor settings with fallback', () => {

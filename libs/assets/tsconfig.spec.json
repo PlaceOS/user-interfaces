@@ -7,7 +7,7 @@
         "moduleResolution": "bundler",
         "isolatedModules": true
     },
-    "files": ["src/test-setup.ts"],
+    "files": ["src/test-setup.ts", "src/index.ts"],
     "include": ["**/*.spec.ts", "**/*.d.ts"],
     "angularCompilerOptions": {
         "extendedDiagnostics": {

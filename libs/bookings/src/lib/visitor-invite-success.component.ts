@@ -56,7 +56,10 @@ import { BookingFormService } from './booking-form.service';
                 <img class="mx-auto" src="assets/icons/sent.svg" />
                 <p>
                     {{
-                        'BOOKINGS.VISITOR_SENT_MSG'
+                        (multiple() && last_count() > 1
+                            ? 'BOOKINGS.VISITOR_SENT_MSG_MULTIPLE'
+                            : 'BOOKINGS.VISITOR_SENT_MSG'
+                        )
                             | translate
                                 : {
                                       location:
@@ -131,7 +134,12 @@ import { BookingFormService } from './booking-form.service';
                         class="flex-1"
                         (click)="another.emit()"
                     >
-                        {{ 'BOOKINGS.VISITOR_BOOK_ANOTHER' | translate }}
+                        {{
+                            (multiple() && last_count() > 1
+                                ? 'BOOKINGS.VISITOR_BOOK_ANOTHER_MULTIPLE'
+                                : 'BOOKINGS.VISITOR_BOOK_ANOTHER'
+                            ) | translate
+                        }}
                     </button>
                 </div>
             </div>

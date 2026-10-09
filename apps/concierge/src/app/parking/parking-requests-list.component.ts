@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
+import { MatDialog } from '@angular/material/dialog';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -18,6 +19,7 @@ import {
 import { BookingApprovalBarComponent } from '../ui/booking-approval-bar.component';
 import { bookingRowKey, selectedBookings } from '../ui/bulk-booking-actions';
 import { ParkingRequestsWeekViewComponent } from './parking-requests-week-view.component';
+import { ParkingSpecialRequestModalComponent } from './parking-special-request-modal.component';
 import {
     ParkingRequestFilter,
     ParkingStateService,
@@ -88,6 +90,19 @@ import {
                             content: date_template,
                         },
                         {
+                            key: 'request_type',
+                            name: 'BOOKINGS.PARKING_REQUEST_TYPE' | translate,
+                            content: request_type_template,
+                            size: '9rem',
+                        },
+                        {
+                            key: 'submission_date',
+                            name: 'COMMON.CREATED_AT' | translate,
+                            content: submission_template,
+                            size: '9rem',
+                            sortable: false,
+                        },
+                        {
                             key: 'user_name',
                             name:
                                 'APP.CONCIERGE.PARKING_RESERVED_FOR'
@@ -136,6 +151,23 @@ import {
                                   ' - ' +
                                   (row.date_end | date: time_format : timezone)
                         }}
+                    </div>
+                </ng-template>
+                <ng-template #request_type_template let-row="row">
+                    <div class="px-4 py-2">
+                        {{ request_type_label(request_type(row)) | translate }}
+                    </div>
+                </ng-template>
+                <ng-template #submission_template let-row="row">
+                    <div class="px-4 py-2">
+                        @if (request_submitted_at(row)) {
+                            {{
+                                request_submitted_at(row)
+                                    | date: 'MMM d, ' + time_format
+                            }}
+                        } @else {
+                            {{ 'COMMON.EMPTY' | translate }}
+                        }
                     </div>
                 </ng-template>
                 <ng-template #person_template let-row="row">
@@ -311,6 +343,18 @@ import {
                 </ng-template>
                 <ng-template #action_template let-row="row">
                     <div class="flex w-full items-center justify-end gap-2 p-2">
+                        <button
+                            icon
+                            default
+                            matRipple
+                            [matTooltip]="
+                                'BOOKINGS.P2_SPECIAL_NEEDS_DETAILS' | translate
+                            "
+                            [disabled]="request_type(row) !== 'special'"
+                            (click)="viewSpecialNeedsRequest(row)"
+                        >
+                            <icon>description</icon>
+                        </button>
                         @if (!hide_assign_space) {
                             <button
                                 icon
@@ -384,6 +428,7 @@ export class ParkingRequestsListComponent
 {
     private _state = inject(ParkingStateService);
     private _settings = inject(SettingsService);
+    private _dialog = inject(MatDialog);
 
     public readonly bookings = this._state.bookings;
     public readonly options = this._state.options;
@@ -419,13 +464,62 @@ export class ParkingRequestsListComponent
             b.asset_id?.startsWith('unallocated'),
         );
         unallocated = this._applyRequestFilter(unallocated, request_filter);
+        const type_index = (booking: Booking) =>
+            this.request_type(booking) === 'special'
+                ? 2
+                : this.request_type(booking) === 'after_hours'
+                  ? 1
+                  : 0;
+        unallocated = [...unallocated].sort((first, second) => {
+            const type_diff = type_index(first) - type_index(second);
+            if (type_diff !== 0) return type_diff;
+            const submitted_first = this.request_submitted_at(first);
+            const submitted_second = this.request_submitted_at(second);
+            if (submitted_first !== submitted_second) {
+                return submitted_second - submitted_first;
+            }
+            return second.date - first.date;
+        });
         return this._state.filterEventSearch(unallocated, search);
     });
 
-    public readonly reject = (e) => this._state.rejectBooking(e);
-    public readonly approve = (e) => this._state.approveBooking(e);
-    public readonly editReservation = (e) => this._state.editReservation(e);
-    public readonly assignSpace = (e) => this._state.assignSpace(e);
+    public readonly reject = (e: Booking) => this._state.rejectBooking(e);
+    public readonly approve = (e: Booking) => this._state.approveBooking(e);
+    public readonly editReservation = (e: Booking) =>
+        this._state.editReservation(e);
+    public readonly assignSpace = (e: Booking) => this._state.assignSpace(e);
+    public readonly viewSpecialNeedsRequest = (booking: Booking) =>
+        this._dialog.open(ParkingSpecialRequestModalComponent, {
+            data: { booking },
+        });
+    public readonly request_type = (booking: Booking) =>
+        booking?.extension_data?.request_type || '';
+    public readonly request_submitted_at = (booking: Booking): number => {
+        const value =
+            booking?.extension_data?.submitted_at ||
+            booking?.extension_data?.submission_date ||
+            booking?.extension_data?.created_at ||
+            booking?.extension_data?.created ||
+            0;
+        if (!value) return 0;
+        if (typeof value === 'string') {
+            const parsed_value = Date.parse(value);
+            return Number.isFinite(parsed_value) ? parsed_value : 0;
+        }
+        if (typeof value === 'number') {
+            return value < 1_000_000_000_000 ? value * 1000 : value;
+        }
+        return 0;
+    };
+
+    private readonly _request_type_labels: Record<string, string> = {
+        standard: 'Standard',
+        special: 'P2',
+        after_hours: 'After-hours',
+    };
+
+    public readonly request_type_label = (request_type: string) =>
+        this._request_type_labels[request_type] || 'COMMON.EMPTY';
     public readonly canApproveBooking = (e: Booking) =>
         this._state.canApproveBooking(e);
 

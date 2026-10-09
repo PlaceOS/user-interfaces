@@ -2,13 +2,13 @@
 
 :root {
     /* Brand */
-    --brand-100: hsl(336, 57%, 48%);
-    --brand-200: hsl(217, 91%, 60%);
-    --brand-300: hsl(200, 15%, 94%);
-    --brand-400: hsl(336, 57%, 48%);
-    --brand-500: hsl(336, 57%, 48%);
-    --brand-600: hsl(336, 57%, 48%);
-    --brand-content: hsl(0, 0%, 100%);
+    --brand-100: #00afd0;
+    --brand-200: #006a9d;
+    --brand-300: oklch(0.95 0.004 236.498);
+    --brand-400: #5ac28d;
+    --brand-500: #00917b;
+    --brand-600: #e77d9a;
+    --brand-content: oklch(1 0 89.876);
 
     /* Primary */
     --primary: hsl(336, 57%, 48%);
@@ -16,8 +16,8 @@
     --primary-content: hsl(0, 0%, 100%);
 
     /* Secondary */
-    --secondary: hsl(237, 37%, 20%);
-    --secondary-focus: hsl(237, 37%, 10%);
+    --secondary: #006a9d;
+    --secondary-focus: #00afd0;
     --secondary-content: hsl(0, 0%, 100%);
 
     /* Ternary */
@@ -43,13 +43,13 @@
     --base-content: hsl(0, 0%, 0%);
 
     /* Info */
-    --info: hsl(217, 91%, 60%);
-    --info-light: hsl(207, 89%, 94%);
-    --info-content: hsl(214, 100%, 97%);
+    --info: #006a9d;
+    --info-light: #00afd0;
+    --info-content: hsla(214, 100%, 97%, 1);
 
     /* Warning */
-    --warn: #ffa000;
-    --warn-light: hsl(60, 100%, 95%);
+    --warn: hsla(45, 100%, 64%, 1);
+    --warn-light: rgb(255, 253, 231);
     --warn-content: hsl(0, 0%, 0%);
 
     /* Approval */
@@ -58,25 +58,25 @@
     --approval-content: hsl(0, 0%, 100%);
 
     /* Success */
-    --success: hsl(118, 50%, 43%);
-    --success-light: hsl(120, 39%, 94%);
-    --success-content: hsl(152, 81%, 96%);
+    --success: hsla(118, 50%, 43%, 1);
+    --success-light: rgb(232, 245, 233);
+    --success-content: hsla(152, 81%, 96%, 1);
 
     /* Error */
-    --error: hsl(354, 75%, 53%);
-    --error-light: hsl(350, 100%, 96%);
+    --error: hsla(354, 75%, 53%, 1);
+    --error-light: rgb(255, 235, 238);
     --error-content: hsl(0, 0%, 100%);
 }
 
 .theme-dark {
     /* Brand */
-    --brand-100: hsl(336, 57%, 48%);
-    --brand-200: hsl(217, 91%, 60%);
-    --brand-300: hsl(232, 50%, 48%);
-    --brand-400: hsl(336, 57%, 48%);
-    --brand-500: hsl(336, 57%, 48%);
-    --brand-600: hsl(336, 57%, 48%);
-    --brand-content: hsl(0, 0%, 100%);
+    --brand-100: #00afd0;
+    --brand-200: #006a9d;
+    --brand-300: oklch(0.95 0.004 236.498);
+    --brand-400: #5ac28d;
+    --brand-500: #00917b;
+    --brand-600: #e77d9a;
+    --brand-content: oklch(1 0 89.876);
 
     /* Primary */
     --primary: hsl(336, 57%, 48%);
@@ -84,8 +84,8 @@
     --primary-content: hsl(0, 0%, 100%);
 
     /* Secondary */
-    --secondary: hsl(336, 57%, 48%);
-    --secondary-focus: hsl(336, 57%, 38%);
+    --secondary: #006a9d;
+    --secondary-focus: #f68c50;
     --secondary-content: hsl(0, 0%, 100%);
 
     /* Ternary */
@@ -104,20 +104,20 @@
     --neutral-content: hsl(0, 0%, 80%);
 
     /* Base */
-    --base-100: hsl(0, 0%, 10%);
-    --base-200: hsl(0, 0%, 15%);
-    --base-300: hsl(0, 0%, 20%);
-    --base-400: hsl(0, 0%, 30%);
+    --base-100: oklch(23% 0.034 264.665);
+    --base-200: oklch(27.9% 0.041 260.031);
+    --base-300: oklch(37.2% 0.044 257.287);
+    --base-400: oklch(44.6% 0.043 257.281);
     --base-content: hsl(0, 0%, 80%);
 
     /* Info */
-    --info: hsl(211, 80%, 42%);
-    --info-light: hsl(206, 90%, 61%);
+    --info: #00afd0;
+    --info-light: hsl(190, 100%, 50%);
     --info-content: hsl(0, 0%, 100%);
 
     /* Warning */
-    --warn: hsl(34, 100%, 50%);
-    --warn-light: hsl(44, 100%, 65%);
+    --warn: rgb(255, 143, 0);
+    --warn-light: rgb(255, 213, 79);
     --warn-content: hsl(0, 0%, 0%);
 
     /* Approval */
@@ -126,13 +126,13 @@
     --approval-content: hsl(0, 0%, 100%);
 
     /* Success */
-    --success: hsl(122, 46%, 34%);
-    --success-light: hsl(122, 39%, 57%);
+    --success: rgb(46, 125, 50);
+    --success-light: rgb(102, 187, 106);
     --success-content: hsl(0, 0%, 100%);
 
     /* Error */
-    --error: hsl(0, 66%, 47%);
-    --error-light: hsl(4, 83%, 63%);
+    --error: rgb(198, 40, 40);
+    --error-light: rgb(239, 83, 80);
     --error-content: hsl(0, 0%, 100%);
 }
 
@@ -862,7 +862,8 @@ a[btn] {
 
     &.inverse {
         color: var(--bg-color);
-        background-color: transparent;
+        background-color: color-mix(in srgb, var(--bg-color) 15%, transparent);
+        backdrop-filter: blur(4px);
     }
 
     &.clear {
@@ -904,6 +905,16 @@ a[btn] {
     }
 }
 
+.theme-dark {
+    button[btn]:not([icon]),
+    a[btn] {
+        &.inverse {
+            --bg-color: #fff;
+            --color: #000;
+        }
+    }
+}
+
 #placeos .mdc-icon-button,
 button[icon],
 a[icon] {
@@ -916,6 +927,7 @@ a[icon] {
     font-size: 1em;
     padding: 0;
     border-radius: 9999px;
+    cursor: pointer;
 
     .mdc-button-wrapper {
         display: flex;
@@ -968,6 +980,26 @@ a[icon] {
 @media print {
     .mat-mdc-dialog-surface {
         box-shadow: none;
+    }
+}
+
+@keyframes sidebar-dialog-in-left {
+    from {
+        transform: translateX(-100%);
+    }
+
+    to {
+        transform: translateX(0);
+    }
+}
+
+@keyframes sidebar-dialog-in-right {
+    from {
+        transform: translateX(100%);
+    }
+
+    to {
+        transform: translateX(0);
     }
 }
 
@@ -1043,6 +1075,26 @@ a[icon] {
 
     .cdk-overlay-pane {
         max-width: none !important;
+    }
+
+    .sidebar-embed-dialog .mat-mdc-dialog-surface {
+        border-radius: 0;
+        overflow: hidden;
+        padding: 0;
+    }
+
+    .sidebar-embed-dialog-left .mat-mdc-dialog-surface {
+        animation: sidebar-dialog-in-left 200ms ease-out;
+    }
+
+    .sidebar-embed-dialog-right .mat-mdc-dialog-surface {
+        animation: sidebar-dialog-in-right 200ms ease-out;
+    }
+
+    .svg-viewer__label {
+        top: -200%;
+        left: -200%;
+        line-height: 1.1;
     }
 
     .mdc-datepicker-toggle {
@@ -1359,11 +1411,14 @@ a[icon] {
 
     .mdc-notched-outline__leading,
     .mdc-notched-outline__trailing {
-        border-color: var(--neutral);
+        border-color: var(--base-400);
     }
 
     .mdc-text-field__input {
         color: var(--base-content);
+        &::placeholder {
+            color: var(--base-400);
+        }
     }
 
     .mdc-text-field--focused {
@@ -1555,6 +1610,130 @@ survey-widget *::-webkit-scrollbar-thumb {
     }
 }
 
+#placeos .sun-editor {
+    border-radius: 0.5rem 0.5rem 0.25rem 0.25rem;
+    background-color: var(--base-100);
+    border-color: var(--base-300);
+    .se-toolbar {
+        border-radius: 0.5rem 0.5rem 0 0;
+        background-color: var(--base-200);
+        border-color: var(--base-300);
+        outline-color: var(--base-300);
+    }
+    .se-btn {
+        color: var(--base-content);
+        border-color: var(--base-300);
+        outline-color: var(--base-300);
+
+        &.on {
+            background-color: var(--base-300);
+        }
+    }
+
+    .se-btn-list.default_value {
+        color: var(--base-content);
+        border-color: var(--base-300);
+        background-color: var(--base-200);
+    }
+
+    .se-btn-module {
+        color: var(--base-content);
+        border-color: var(--base-400);
+    }
+
+    .se-btn:hover,
+    .se-btn:focus {
+        background-color: var(--base-300);
+        color: var(--base-content);
+    }
+
+    .se-btn.active {
+        background-color: var(--secondary);
+        color: var(--secondary-content);
+        border-color: var(--secondary);
+    }
+
+    .se-wrapper,
+    .se-wrapper-inner {
+        background-color: var(--base-100);
+    }
+
+    .se-wrapper-wysiwyg {
+        color: var(--base-content);
+    }
+
+    .se-placeholder {
+        color: var(--base-300);
+    }
+
+    .se-resizing-bar {
+        border-radius: 0 0 0.25rem 0.25rem;
+        background-color: var(--base-200);
+        border-color: var(--base-300);
+    }
+
+    .se-dialog {
+        background-color: var(--base-100);
+        border-color: var(--base-300);
+    }
+    .se-dialog-header {
+        background-color: var(--base-200);
+        border-color: var(--base-300);
+    }
+
+    .se-dialog-content {
+        background-color: var(--base-100);
+    }
+
+    .se-dialog-body {
+        color: var(--base-content);
+    }
+
+    .se-dialog-form-footer {
+        background-color: var(--base-200);
+        border-color: var(--base-300);
+    }
+
+    .se-dropdown-list {
+        background-color: var(--base-100);
+        border-color: var(--base-300);
+    }
+
+    .se-list-layer {
+        background-color: var(--base-100);
+        border-color: var(--base-300);
+    }
+
+    .se-list-inner li button {
+        color: var(--base-content);
+    }
+
+    .se-list-inner li button:hover,
+    .se-list-inner li button:focus {
+        background-color: var(--base-200);
+    }
+
+    .se-input-form,
+    .se-input-select {
+        background-color: var(--base-100);
+        color: var(--base-content);
+        border-color: var(--base-300);
+    }
+
+    .se-input-form:focus,
+    .se-input-select:focus {
+        border-color: var(--primary);
+    }
+
+    /* Custom plugin buttons in dark mode */
+    .se-toolbar button i.material-symbols-outlined {
+        color: var(--base-content);
+    }
+    .se-toolbar button:hover i.material-symbols-outlined {
+        color: var(--base-content);
+    }
+}
+
 /* Native Classes */
 
 input,
@@ -1622,7 +1801,7 @@ a[link] {
     ::placeholder,
     .mat-form-field-label,
     .mat-mdc-select-placeholder {
-        color: var(--neutral);
+        color: var(--base-300);
     }
 
     input {

@@ -27,7 +27,11 @@ describe('TopbarComponent', () => {
     const createComponent = createRoutingFactory({
         component: TopbarComponent,
         providers: [
-            MockProvider(SettingsService, { get: vi.fn(), value: vi.fn() }),
+            MockProvider(SettingsService, {
+                get: vi.fn(),
+                value: vi.fn(),
+                theme_signal: signal(''),
+            }),
             MockProvider(OrganisationService, {
                 active_building: signal(new Building()),
                 active_region: signal(null),
@@ -73,8 +77,8 @@ describe('TopbarComponent', () => {
     it('should render user avatar and details', () =>
         expect('[avatar]').toExist());
 
-    it('should render user controls sidebar', () => {
-        expect('user-controls-sidebar').toExist();
+    it('should render user controls trigger', () => {
         expect('[name="user-controls"]').toExist();
+        expect(spectator.component.user_controls).toBeTruthy();
     });
 });

@@ -9,6 +9,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
+import { Router } from '@angular/router';
 import { generateAssetCategoryForm, saveAssetCategory } from '@placeos/assets';
 import {
     AssetCategory,
@@ -110,8 +111,11 @@ import { AssetManagerStateService } from './asset-manager-state.service';
 })
 export class AssetCategoryFormComponent {
     private _state = inject(AssetManagerStateService);
-    private _dialog_ref =
-        inject<MatDialogRef<AssetCategoryFormComponent>>(MatDialogRef);
+    private _dialog_ref = inject<MatDialogRef<AssetCategoryFormComponent>>(
+        MatDialogRef,
+        { optional: true },
+    );
+    private _router = inject(Router);
 
     public readonly loading = signal(false);
     private readonly _form_ref = generateAssetCategoryForm();
@@ -127,7 +131,7 @@ export class AssetCategoryFormComponent {
     constructor() {
         const _data = inject<{
             category?: AssetCategory;
-        }>(MAT_DIALOG_DATA);
+        }>(MAT_DIALOG_DATA, { optional: true });
 
         if (_data?.category) patchSignalModel(this.model, _data.category);
     }
@@ -135,11 +139,11 @@ export class AssetCategoryFormComponent {
     public async save() {
         if (!this.form().valid()) return;
         this.loading.set(true);
-        this._dialog_ref.disableClose = true;
+        if (this._dialog_ref) this._dialog_ref.disableClose = true;
         const data = this.model();
         const item = await saveAssetCategory(data as any).catch((e) => {
             this.loading.set(false);
-            this._dialog_ref.disableClose = false;
+            if (this._dialog_ref) this._dialog_ref.disableClose = false;
             notifyError(
                 i18n('APP.CONCIERGE.ASSETS_CATEGORY_SAVE_ERROR', {
                     error: e.message,
@@ -149,6 +153,10 @@ export class AssetCategoryFormComponent {
         });
         this.form().reset();
         this.loading.set(false);
-        this._dialog_ref.close(item);
+        if (this._dialog_ref) {
+            this._dialog_ref.close(item);
+        } else {
+            await this._router.navigate(['/book/assets/list/items']);
+        }
     }
 }

@@ -15,7 +15,7 @@ import { BuildingPipe, LevelPipe, TranslatePipe } from '@placeos/components';
 import * as ts_client_mod from '@placeos/ts-client';
 import { MockPipe, MockProvider } from 'ng-mocks';
 
-import { NewDeskFlowSuccessComponent } from '../../app/book/desk-flow/desk-flow-success.component';
+import { NewDeskFlowSuccessComponent } from '../../app/book/desk-flow-new/desk-flow-success.component';
 
 vi.mock('@placeos/ts-client', { spy: true });
 

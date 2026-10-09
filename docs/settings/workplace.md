@@ -262,6 +262,7 @@ These settings override the matching `bookings.*` settings for visitor invites.
 | `desks.has_assets` | boolean | – | Make asset requests available in the desk booking flow. Overrides `bookings.has_assets`. |
 | `desks.hide_map` | boolean | `false` | Hide the map when selecting desks. |
 | `desks.default_select_as_map` | boolean | `false` | Open the desk selection modal on the map view instead of the list view. |
+| `desks.show_users` | boolean | `true` | Show desk users in desk tooltips. On the Explore map, this controls the staff name from the building system. On the desk booking map, this controls the names of the people who booked the desk in the selected time window. |
 | `desks.needs_reason` | boolean | – | Require users to enter a reason for their desk booking. |
 | `desks.hide_reason` | boolean | – | Hide the ability to enter a reason for a desk booking. |
 | `desks.show_calendar_links` | boolean | `true` | Show "add to calendar" links on the desk booking success view. |
@@ -464,7 +465,17 @@ Per-resource-type overrides can be set with `<type>_time_before` and `<type>_tim
 | Setting | Type | Default | Description |
 |---------|------|---------|-------------|
 | `analytics.enabled` | boolean | `true` | Enable Google Analytics. |
-| `analytics.tracking_id` | string | `""` | Google Analytics tracking ID. |
+| `analytics.tracking_id` | string | `"G-S6TDS95BDH"` | Google Analytics tracking ID. |
 | `chat.enabled` | boolean | `false` | Show the global chat widget in the app. |
 | `can_deliver` | boolean | `true` | Make delivery available for catering orders. |
 | `group_events_calendar` | string | – | ID (email address) of the calendar used to list group events. |
+
+For GA4 tracking IDs (`G-...`), the app sends page views after successful router
+navigation. In the GA4 web data stream, open **Enhanced measurement > Page views >
+Advanced settings** and turn off **Page changes based on browser history events**.
+The app disables the automatic page view on tag load. The GA4 property setting
+must also be off to prevent duplicate navigation events. See
+[Google's manual page-view setup](https://developers.google.com/analytics/devguides/collection/ga4/views#manual_pageviews).
+
+Set `analytics.enabled` to `false` and reload the app to stop analytics
+initialisation and event tracking.

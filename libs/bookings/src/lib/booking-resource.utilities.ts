@@ -100,6 +100,28 @@ export function groupAvailability(
     return groups;
 }
 
+/**
+ * Resources whose tags or homebase match the user's groups.
+ * Priority: both > homebase > tags > all available.
+ */
+export function preferredAllocationPool(
+    available: BookingAsset[],
+    user_groups: string[],
+): BookingAsset[] {
+    if (!user_groups.length) return available;
+    const tagMatch = (asset: BookingAsset) =>
+        !!asset.tags?.some((tag) => user_groups.includes(tag));
+    const homebaseMatch = (asset: BookingAsset) =>
+        !!asset.homebase && user_groups.includes(asset.homebase);
+    const tag_matched = available.filter(tagMatch);
+    const homebase_matched = available.filter(homebaseMatch);
+    const both_matched = tag_matched.filter(homebaseMatch);
+    if (both_matched.length) return both_matched;
+    if (homebase_matched.length) return homebase_matched;
+    if (tag_matched.length) return tag_matched;
+    return available;
+}
+
 /** Pick a random resource on the level with the most available resources. */
 export function pickAutoAllocatedResource(
     available: BookingAsset[],

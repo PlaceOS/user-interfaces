@@ -466,6 +466,8 @@ export class DesksStateService extends AsyncHandler {
                           bookable: true,
                           groups: ['test-desk-group', 'desk-bookers'],
                           features: ['Standing Desk', 'Dual Monitor'],
+                          tags: ['engineering', 'level-3'],
+                          homebase: 'Sydney HQ',
                       }),
                   ]
         ).map((desk) => {

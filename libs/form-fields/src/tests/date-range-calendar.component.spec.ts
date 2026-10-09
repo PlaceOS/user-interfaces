@@ -84,12 +84,13 @@ describe('DateRangeCalendarComponent', () => {
         const hovered = addDays(month, 6).valueOf();
         spectator.component.selectDate(start);
         spectator.component.setHoveredDate(hovered);
-        expect(spectator.component.end()).toBe(hovered);
+        expect(spectator.component.hovered_date()).toBe(hovered);
+        expect(spectator.component.end_after_start()).toBe(true);
     });
 
     it('should ignore hovered dates before a start is chosen', () => {
         spectator.component.setHoveredDate(addDays(month, 6).valueOf());
-        expect(spectator.component.end()).toBeUndefined();
+        expect(spectator.component.hovered_date()).toBeNull();
     });
 
     it('should navigate between months', () => {

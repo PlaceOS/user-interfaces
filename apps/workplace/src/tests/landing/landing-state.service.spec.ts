@@ -88,6 +88,55 @@ describe('LandingStateService', () => {
         expect(spectator.service).toBeTruthy();
     });
 
+    it('should exclude inactive bookings from upcoming events', () => {
+        const date = Date.now() - 60 * 60 * 1000;
+        filtered_bookings.set([
+            new Booking({
+                id: 'active',
+                date,
+                duration: 24 * 60 - 1,
+                all_day: true,
+                status: 'approved',
+            } as any),
+            new Booking({
+                id: 'checked-out',
+                date,
+                duration: 24 * 60 - 1,
+                all_day: true,
+                status: 'approved',
+                checked_out_at: Math.floor(Date.now() / 1000) - 60,
+            } as any),
+            new Booking({
+                id: 'cancelled',
+                date,
+                duration: 24 * 60 - 1,
+                all_day: true,
+                status: 'cancelled',
+            } as any),
+            new Booking({
+                id: 'deleted',
+                date,
+                duration: 24 * 60 - 1,
+                all_day: true,
+                deleted: true,
+            } as any),
+            new CalendarEvent({
+                id: 'declined-event',
+                date,
+                duration: 24 * 60 - 1,
+                all_day: true,
+                status: 'cancelled',
+            } as any),
+        ]);
+
+        spectator = createService();
+        TestBed.flushEffects();
+
+        expect(spectator.service.upcoming_events().map((_) => _.id)).toEqual([
+            'active',
+        ]);
+    });
+
     it('should exclude cancelled history before the five-card limit', async () => {
         const date = new Date().setHours(12, 0, 0, 0);
         vi.useFakeTimers({ toFake: ['Date'] });

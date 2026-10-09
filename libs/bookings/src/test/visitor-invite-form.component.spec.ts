@@ -12,6 +12,7 @@ import {
 import {
     Booking,
     OrganisationService,
+    settingSignal,
     SettingsService,
     User,
 } from '@placeos/common';
@@ -76,7 +77,29 @@ describe('VisitorInviteFormComponent', () => {
     });
 
     beforeEach(() => {
+        settingSignal('visitors.duration_step').set(undefined);
+        settingSignal('visitors.min_duration').set(undefined);
+        settingSignal('visitors.max_duration').set(undefined);
+        settingSignal('visitors.custom_duration_options').set(undefined);
+        settingSignal('bookings.duration_step').set(15);
+        settingSignal('bookings.min_duration').set(30);
+        settingSignal('bookings.max_duration').set(180);
+        settingSignal('bookings.custom_duration_options').set([]);
         spectator = createComponent();
+    });
+
+    it('should create component', () =>
+        expect(spectator.component).toBeTruthy());
+
+    it('should allow a configured 45 minute visitor duration below the minimum', () => {
+        settingSignal('visitors.duration_step').set(30);
+        settingSignal('visitors.min_duration').set(60);
+        settingSignal('visitors.custom_duration_options').set([45]);
+
+        expect(spectator.component.duration_step()).toBe(30);
+        expect(spectator.component.min_duration()).toBe(60);
+        expect(spectator.component.custom_duration_options()).toEqual([45]);
+        expect(spectator.component.effective_min_duration()).toBe(45);
     });
 
     it('should filter visitor suggestions by the search term', () => {

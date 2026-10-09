@@ -15,6 +15,8 @@ import {
 import { FormsModule } from '@angular/forms';
 import { FormField } from '@angular/forms/signals';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { MatRippleModule } from '@angular/material/core';
+import { MatDialog } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatRadioModule } from '@angular/material/radio';
@@ -54,7 +56,16 @@ import {
     startOfDay,
     startOfWeek,
 } from 'date-fns';
-import { SettingsToggleComponent } from '../../../../../../libs/components/src/lib/settings-toggle.component';
+import { SettingsToggleComponent } from 'libs/components/src/lib/settings-toggle.component';
+import { FullscreenEmbedComponent } from '../../components/fullscreen-embed.component';
+
+const SHIFT_PRESETS: Record<string, { start: number; end: number }> = {
+    day_worker: { start: 420, end: 1020 },
+    day_shift_12hr: { start: 330, end: 1110 },
+    night_shift_12hr: { start: 1050, end: 390 },
+    half_day_am: { start: 420, end: 720 },
+    half_day_pm: { start: 750, end: 1020 },
+};
 
 interface ParkingRequestShiftOption {
     id: string;
@@ -120,24 +131,36 @@ const ALL_DAY_END_MINS = 1440;
 const DEFAULT_DAY_DURATION_MINS = 540;
 
 const DEFAULT_SHIFT_OPTIONS: ParkingRequestShiftOption[] = [
-    // {
-    //     id: 'business',
-    //     name: 'BOOKINGS.PARKING_SHIFT_BUSINESS',
-    //     start_time: 540,
-    //     end_time: 1020,
-    // },
-    // {
-    //     id: 'morning',
-    //     name: 'BOOKINGS.PARKING_SHIFT_MORNING',
-    //     start_time: 360,
-    //     end_time: 720,
-    // },
-    // {
-    //     id: 'afternoon',
-    //     name: 'BOOKINGS.PARKING_SHIFT_AFTERNOON',
-    //     start_time: 720,
-    //     end_time: 1080,
-    // },
+    {
+        id: 'day_worker',
+        name: 'BOOKINGS.PARKING_SHIFT_DAY_WORKER',
+        start_time: SHIFT_PRESETS.day_worker.start,
+        end_time: SHIFT_PRESETS.day_worker.end,
+    },
+    {
+        id: 'day_shift_12hr',
+        name: 'BOOKINGS.PARKING_SHIFT_DAY_12HR',
+        start_time: SHIFT_PRESETS.day_shift_12hr.start,
+        end_time: SHIFT_PRESETS.day_shift_12hr.end,
+    },
+    {
+        id: 'night_shift_12hr',
+        name: 'BOOKINGS.PARKING_SHIFT_NIGHT_12HR',
+        start_time: SHIFT_PRESETS.night_shift_12hr.start,
+        end_time: SHIFT_PRESETS.night_shift_12hr.end,
+    },
+    {
+        id: 'half_day_am',
+        name: 'BOOKINGS.PARKING_SHIFT_HALF_DAY_AM',
+        start_time: SHIFT_PRESETS.half_day_am.start,
+        end_time: SHIFT_PRESETS.half_day_am.end,
+    },
+    {
+        id: 'half_day_pm',
+        name: 'BOOKINGS.PARKING_SHIFT_HALF_DAY_PM',
+        start_time: SHIFT_PRESETS.half_day_pm.start,
+        end_time: SHIFT_PRESETS.half_day_pm.end,
+    },
 ];
 
 const DEFAULT_VEHICLE_TYPE_OPTIONS: VehicleTypeOption[] = [
@@ -154,13 +177,15 @@ const DEFAULT_VEHICLE_TYPE_OPTIONS: VehicleTypeOption[] = [
         @if (form() && model) {
             <div class="flex flex-col gap-2 sm:gap-4">
                 <!-- BOOKING FREQUENCY -->
-                <div class="border-base-300 space-y-3 rounded-lg border p-4">
-                    <h3
-                        class="text-info flex items-center gap-2 text-sm font-bold tracking-wider uppercase"
-                    >
-                        <icon class="text-lg">date_range</icon>
+                <div
+                    class="gradient border-base-content flex items-center space-x-2 border-l-8 px-4 py-3 font-medium"
+                >
+                    <icon>date_range</icon>
+                    <div>
                         {{ 'BOOKINGS.PARKING_BOOKING_FREQUENCY' | translate }}
-                    </h3>
+                    </div>
+                </div>
+                <div class="space-y-3 p-4">
                     <a-date-field
                         [formField]="form().date"
                         [to]="end_date()"
@@ -382,13 +407,15 @@ const DEFAULT_VEHICLE_TYPE_OPTIONS: VehicleTypeOption[] = [
                 </div>
 
                 <!-- REQUEST TYPE -->
-                <div class="border-base-300 space-y-3 rounded-lg border p-4">
-                    <h3
-                        class="text-info flex items-center gap-2 text-sm font-bold tracking-wider uppercase"
-                    >
-                        <icon class="text-lg">ballot</icon>
+                <div
+                    class="gradient border-base-content flex items-center space-x-2 border-l-8 px-4 py-3 font-medium"
+                >
+                    <icon>ballot</icon>
+                    <div>
                         {{ 'BOOKINGS.PARKING_REQUEST_TYPE' | translate }}
-                    </h3>
+                    </div>
+                </div>
+                <div class="space-y-3 p-4">
                     <div class="space-y-2">
                         @for (type of request_types(); track trackById(type)) {
                             <div
@@ -423,7 +450,7 @@ const DEFAULT_VEHICLE_TYPE_OPTIONS: VehicleTypeOption[] = [
                                         }}</span>
                                         @if (type.badge) {
                                             <span
-                                                class="bg-base-200 rounded px-2 py-0.5 text-xs"
+                                                class="bg-base-200 rounded px-2 py-0.5 text-center text-xs"
                                                 >{{
                                                     type.badge | translate
                                                 }}</span
@@ -482,15 +509,132 @@ const DEFAULT_VEHICLE_TYPE_OPTIONS: VehicleTypeOption[] = [
                         </div>
                     }
                 </div>
+                @if (
+                    model().request_type === 'special' && show_special_needs()
+                ) {
+                    <!-- P2 SPECIAL NEEDS DETAILS -->
+                    <div
+                        class="gradient border-base-content text-warning flex items-center space-x-2 border-l-8 px-4 py-3 font-medium"
+                    >
+                        <icon>description</icon>
+                        <div>
+                            {{
+                                'BOOKINGS.P2_SPECIAL_NEEDS_DETAILS' | translate
+                            }}
+                        </div>
+                    </div>
+                    <div class="space-y-6 p-4">
+                        <div>
+                            <label class="mb-2 block text-sm font-medium">
+                                {{
+                                    'BOOKINGS.P2_REASON_FOR_REQUEST' | translate
+                                }}
+                                <span class="text-error">*</span>
+                            </label>
+                            <textarea
+                                matInput
+                                formControlName="notes"
+                                rows="6"
+                                class="border-base-content w-full rounded-lg border p-4 text-base"
+                                [placeholder]="
+                                    'BOOKINGS.P2_REASON_PLACEHOLDER' | translate
+                                "
+                            ></textarea>
+                        </div>
+
+                        <div>
+                            <div class="mb-2 text-sm font-medium">
+                                {{
+                                    'BOOKINGS.P2_ATTACH_SUPPORTING_DOCS'
+                                        | translate
+                                }}
+                            </div>
+                            <label
+                                class="border-base-300 hover:border-info flex cursor-pointer items-start gap-3 rounded-lg border p-4 transition-colors"
+                                for="p2-supporting-docs"
+                            >
+                                <icon class="mt-0.5 text-xl">upload_file</icon>
+                                <div>
+                                    <div class="font-medium">
+                                        {{
+                                            'BOOKINGS.P2_UPLOAD_FILE'
+                                                | translate
+                                        }}
+                                    </div>
+                                    <div class="text-sm opacity-70">
+                                        {{
+                                            'BOOKINGS.P2_ACCEPTED_FORMATS'
+                                                | translate
+                                        }}
+                                    </div>
+                                </div>
+                            </label>
+                            <input
+                                id="p2-supporting-docs"
+                                type="file"
+                                class="hidden"
+                                multiple
+                                accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+                                (change)="onSupportingDocsSelected($event)"
+                            />
+                            @if (supporting_doc_names().length) {
+                                <div class="mt-3 space-y-2">
+                                    @for (
+                                        file_name of supporting_doc_names();
+                                        track $index
+                                    ) {
+                                        <div
+                                            class="border-base-300 bg-base-100 flex items-center justify-between rounded-lg border p-1"
+                                        >
+                                            <div
+                                                class="truncate px-4 py-2 text-sm"
+                                            >
+                                                {{ file_name }}
+                                            </div>
+                                            <div class="flex items-center">
+                                                <button
+                                                    icon
+                                                    type="button"
+                                                    matRipple
+                                                    (click)="
+                                                        previewSupportingDoc(
+                                                            $index
+                                                        )
+                                                    "
+                                                >
+                                                    <icon>open_in_new</icon>
+                                                </button>
+                                                <button
+                                                    icon
+                                                    type="button"
+                                                    matRipple
+                                                    (click)="
+                                                        removeSupportingDoc(
+                                                            $index
+                                                        )
+                                                    "
+                                                >
+                                                    <icon>close</icon>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                            }
+                        </div>
+                    </div>
+                }
 
                 <!-- SHIFT SELECTION -->
-                <div class="border-base-300 space-y-3 rounded-lg border p-4">
-                    <h3
-                        class="text-info flex items-center gap-2 text-sm font-bold tracking-wider uppercase"
-                    >
-                        <icon class="text-lg">schedule</icon>
+                <div
+                    class="gradient border-base-content flex items-center space-x-2 border-l-8 px-4 py-3 font-medium"
+                >
+                    <icon>schedule</icon>
+                    <div>
                         {{ 'BOOKINGS.PARKING_SHIFT_SELECTION' | translate }}
-                    </h3>
+                    </div>
+                </div>
+                <div class="space-y-3 p-4">
                     @if (forced_request_time(); as forced_time) {
                         <div
                             class="border-base-300 bg-base-200 rounded-lg border px-4 py-3"
@@ -730,17 +874,17 @@ const DEFAULT_VEHICLE_TYPE_OPTIONS: VehicleTypeOption[] = [
                 <!-- LOCATION PREFERENCE -->
                 @if (hasMultipleBuildings(building_list())) {
                     <div
-                        class="border-base-300 space-y-3 rounded-lg border p-4"
+                        class="gradient border-base-content flex items-center space-x-2 border-l-8 px-4 py-3 font-medium"
                     >
-                        <h3
-                            class="text-success flex items-center gap-2 text-sm font-bold tracking-wider uppercase"
-                        >
-                            <icon class="text-lg">place</icon>
+                        <icon>place</icon>
+                        <div>
                             {{
                                 'BOOKINGS.PARKING_LOCATION_PREFERENCE'
                                     | translate
                             }}
-                        </h3>
+                        </div>
+                    </div>
+                    <div class="space-y-3 p-4">
                         @if (region_name) {
                             <div class="text-sm font-medium">
                                 {{ region_name }}
@@ -886,7 +1030,7 @@ const DEFAULT_VEHICLE_TYPE_OPTIONS: VehicleTypeOption[] = [
                     </div>
                 } @else {
                     <div
-                        class="border-base-300 space-y-3 rounded-lg border p-4"
+                        class="border-base-300 mx-4 space-y-3 rounded-lg border p-4"
                     >
                         <h3
                             class="text-success flex items-center gap-2 text-sm font-bold tracking-wider uppercase"
@@ -958,13 +1102,15 @@ const DEFAULT_VEHICLE_TYPE_OPTIONS: VehicleTypeOption[] = [
                     </div>
                 }
                 <!-- VEHICLE DETAILS -->
-                <div class="border-base-300 space-y-3 rounded-lg border p-4">
-                    <h3
-                        class="text-info flex items-center gap-2 text-sm font-bold tracking-wider uppercase"
-                    >
-                        <icon class="text-lg">directions_car</icon>
+                <div
+                    class="gradient border-base-content flex items-center space-x-2 border-l-8 px-4 py-3 font-medium"
+                >
+                    <icon>directions_car</icon>
+                    <div>
                         {{ 'BOOKINGS.PARKING_VEHICLE_DETAILS' | translate }}
-                    </h3>
+                    </div>
+                </div>
+                <div class="space-y-3 p-4">
                     <div class="flex flex-col gap-3 sm:flex-row sm:gap-4">
                         <div class="flex-1">
                             <label class="mb-1 block text-sm font-medium">
@@ -1103,13 +1249,10 @@ const DEFAULT_VEHICLE_TYPE_OPTIONS: VehicleTypeOption[] = [
                     extra_space_restriction_options().length
                 ) {
                     <div
-                        class="border-base-300 space-y-3 rounded-lg border p-4"
+                        class="gradient border-base-content flex items-center space-x-2 border-l-8 px-4 py-3 font-medium"
                     >
-                        <h3
-                            id="parking-space-restrictions-label"
-                            class="text-info flex items-center gap-2 text-sm font-bold tracking-wider uppercase"
-                        >
-                            <icon class="text-lg">tune</icon>
+                        <icon>tune</icon>
+                        <div id="parking-space-restrictions-label">
                             {{
                                 'BOOKINGS.PARKING_SPACE_RESTRICTIONS_TITLE'
                                     | translate
@@ -1117,7 +1260,9 @@ const DEFAULT_VEHICLE_TYPE_OPTIONS: VehicleTypeOption[] = [
                             @if (require_space_restriction()) {
                                 <span aria-hidden="true">*</span>
                             }
-                        </h3>
+                        </div>
+                    </div>
+                    <div class="space-y-3 p-4">
                         <p class="text-sm opacity-60">
                             {{
                                 'BOOKINGS.PARKING_SPACE_RESTRICTIONS_DESC'
@@ -1187,7 +1332,18 @@ const DEFAULT_VEHICLE_TYPE_OPTIONS: VehicleTypeOption[] = [
             </div>
         }
     `,
-    styles: [``],
+    styles: [
+        `
+            .gradient {
+                background: linear-gradient(
+                    105deg,
+                    var(--base-200) 0%,
+                    var(--base-200) 50%,
+                    var(--base-100) 100%
+                );
+            }
+        `,
+    ],
     imports: [
         CommonModule,
         FormsModule,
@@ -1203,6 +1359,7 @@ const DEFAULT_VEHICLE_TYPE_OPTIONS: VehicleTypeOption[] = [
         DateFieldComponent,
         UserSearchFieldComponent,
         SettingsToggleComponent,
+        MatRippleModule,
     ],
 })
 export class ParkingRequestFormDetailsComponent
@@ -1213,8 +1370,9 @@ export class ParkingRequestFormDetailsComponent
     private _parking = inject(ParkingService);
     private _injector = inject(Injector);
     private _settings = inject(SettingsService);
-    private _uploads = inject(UploadsService);
     private _org = inject(OrganisationService);
+    private _uploads = inject(UploadsService);
+    private _dialog = inject(MatDialog);
     private _saved_shift_state: ParkingRequestShiftState | null = null;
     private readonly _removed_plate_numbers = signal<string[]>([]);
     private readonly _selected_shift_duration = signal(0);
@@ -1283,7 +1441,7 @@ export class ParkingRequestFormDetailsComponent
     public readonly form = input<BookingForm>(undefined);
     public readonly model_input =
         input<WritableSignal<BookingFormValue>>(undefined);
-    public readonly show_special_needs = input<boolean>(false);
+    public readonly show_special_needs = input<boolean>(true);
 
     /** Writable signal holding the raw booking form value */
     public get model() {
@@ -1430,9 +1588,9 @@ export class ParkingRequestFormDetailsComponent
     public readonly shift_type = signal<string>(CUSTOM_SHIFT_ID);
     public readonly start_time_mins = signal<number>(480);
     public readonly end_time_mins = signal<number>(1020);
+    public readonly supporting_doc_names = signal<string[]>([]);
     public readonly custom_start_time_mins = signal<number>(480);
     public readonly custom_end_time_mins = signal<number>(600);
-    public readonly supporting_doc_names = signal<string[]>([]);
     public readonly shift_options = computed(() => {
         const user_groups = user_group_names();
         return this._normaliseShiftOptions(this.shift_options_setting()).filter(
@@ -2100,7 +2258,7 @@ export class ParkingRequestFormDetailsComponent
         const urls = [...(this.model?.().attachments || [])];
         const url = urls[index];
         if (!url) return;
-        // this._dialog.open(FullscreenEmbedComponent, { data: url });
+        this._dialog.open(FullscreenEmbedComponent, { data: url });
     }
 
     private _fileNameFromUrl(url: string): string {
@@ -2453,10 +2611,12 @@ export class ParkingRequestFormDetailsComponent
             return;
         }
         if (this.has_preset_shifts()) {
-            const matching_preset = this.shift_options().find(
-                (_) =>
-                    _.start_time === this.start_time_mins() &&
-                    _.end_time === this.end_time_mins() % 1440,
+            const matching_preset = this.shift_options().find((_) =>
+                this._matchesShiftOption(
+                    _,
+                    this.start_time_mins(),
+                    this.end_time_mins(),
+                ),
             );
             this._applyShift((matching_preset || this.shift_options()[0]).id);
             return;
@@ -2501,10 +2661,8 @@ export class ParkingRequestFormDetailsComponent
         const preset =
             (shift.type !== CUSTOM_SHIFT_ID &&
                 this.shift_options().find((_) => _.id === shift.type)) ||
-            this.shift_options().find(
-                (_) =>
-                    _.start_time === shift.start_time &&
-                    _.end_time === shift.end_time % 1440,
+            this.shift_options().find((_) =>
+                this._matchesShiftOption(_, shift.start_time, shift.end_time),
             );
         if (preset) {
             this._applyShift(preset.id);
@@ -2522,6 +2680,24 @@ export class ParkingRequestFormDetailsComponent
         this.custom_start_time_mins.set(start_time);
         this.custom_end_time_mins.set(end_time);
         this._applyShift(CUSTOM_SHIFT_ID);
+    }
+
+    private _matchesShiftOption(
+        option: ParkingRequestShiftOption,
+        start_time: number,
+        end_time: number,
+    ) {
+        return (
+            option.start_time === start_time &&
+            this._shiftDuration(option.start_time, option.end_time) ===
+                this._shiftDuration(start_time, end_time)
+        );
+    }
+
+    private _shiftDuration(start_time: number, end_time: number) {
+        return end_time > start_time
+            ? end_time - start_time
+            : 1440 - start_time + end_time;
     }
 
     private _syncRequestTypeUser(model: WritableSignal<BookingFormValue>) {

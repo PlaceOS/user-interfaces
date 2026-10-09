@@ -239,6 +239,12 @@ export interface DeskModalData {
                         [placeholder]="'COMMON.FEATURES' | translate"
                         [formField]="form.features"
                     ></item-list-field>
+                    <label for="tags">{{ 'COMMON.TAGS' | translate }}</label>
+                    <item-list-field
+                        class="w-full"
+                        [placeholder]="'COMMON.TAGS' | translate"
+                        [formField]="form.tags"
+                    ></item-list-field>
                     <label for="notes">{{ 'FORM.NOTES' | translate }}</label>
                     <mat-form-field appearance="outline">
                         <textarea
@@ -246,6 +252,18 @@ export interface DeskModalData {
                             [placeholder]="'FORM.NOTES' | translate"
                             [formField]="form.notes"
                         ></textarea>
+                    </mat-form-field>
+                    <label for="homebase">
+                        {{ 'APP.CONCIERGE.DESKS_HOMEBASE' | translate }}
+                    </label>
+                    <mat-form-field appearance="outline" class="w-full">
+                        <input
+                            matInput
+                            [placeholder]="
+                                'APP.CONCIERGE.DESKS_HOMEBASE' | translate
+                            "
+                            [formField]="form.homebase"
+                        />
                     </mat-form-field>
                     <label for="security">
                         {{ 'APP.CONCIERGE.DESKS_SECURITY' | translate }}
@@ -326,11 +344,13 @@ export class DeskModalComponent implements OnInit {
         map_id: '',
         groups: [] as string[],
         features: [] as string[],
+        tags: [] as string[],
         bookable: false,
         notes: '',
         assigned_user: null as User | null,
         assigned_to: '',
         assigned_name: '',
+        homebase: '',
         security: '',
         zone_id: this._data?.zone_id || '',
     });
@@ -351,10 +371,12 @@ export class DeskModalComponent implements OnInit {
                 map_id: desk.map_id ?? m.map_id,
                 groups: desk.groups ?? m.groups,
                 features: desk.features ?? m.features,
+                tags: desk.tags ?? m.tags,
                 bookable: desk.bookable ?? m.bookable,
                 notes: desk.notes ?? m.notes,
                 assigned_to: desk.assigned_to ?? m.assigned_to,
                 assigned_name: desk.assigned_name ?? m.assigned_name,
+                homebase: desk.homebase ?? m.homebase,
                 security: desk.security ?? m.security,
             }));
         }

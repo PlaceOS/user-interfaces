@@ -41,7 +41,10 @@ import { IconComponent } from 'libs/components/src/lib/icon.component';
                 </button>
             </div>
         </div>
-        <div class="grid h-69 w-69 grid-cols-7 grid-rows-7 gap-1">
+        <div
+            class="grid h-[17.25rem] w-[17.25rem] grid-cols-7 grid-rows-7 gap-1"
+            (mouseleave)="clearHoveredDate()"
+        >
             <div
                 class="border-base-200 col-span-full grid grid-cols-7 border-b"
             >
@@ -111,6 +114,8 @@ export class DateRangeCalendarComponent implements OnInit, OnChanges {
     public readonly to_date = input<number>(undefined, { alias: 'to' });
     /** Index of the day to start the week on when displaying the calendar */
     public readonly offset_weekday = input(0);
+    /** Maximum number of days allowed in the selected range (default: 31 days / ~1 month) */
+    public readonly max_range_days = input(31);
     /** Start date of the selected range */
     public readonly startInput = input<number>(undefined, { alias: 'start' });
     public readonly start = linkedSignal(this.startInput);
@@ -124,20 +129,18 @@ export class DateRangeCalendarComponent implements OnInit, OnChanges {
     /** Emitter for when the end date changes */
     public readonly endChange = output<number>();
 
+    /** Whether user is actively selecting end date (after clicking start) */
+    private _selecting_end = false;
+    /** Hovered date for preview during end selection */
     public readonly hovered_date = signal<number | null>(null);
-    /**
-     * True after the first click of a selection. The given start and end
-     * only show the current range, so the first click always starts a new
-     * range and the second click sets its end.
-     */
-    private readonly _picking_end = signal(false);
 
     public readonly weekdays = signal<Date[]>([]);
     public readonly month_days = signal<any[]>([]);
 
     public readonly end_after_start = computed(() => {
-        const end = this.end();
-        return end && end > this.start() && !isSameDay(end, this.start());
+        const start = this.start();
+        const end = this._selecting_end ? this.hovered_date() : this.end();
+        return !!start && !!end && end > start && !isSameDay(end, start);
     });
 
     public ngOnInit() {
@@ -157,27 +160,59 @@ export class DateRangeCalendarComponent implements OnInit, OnChanges {
         if (changes.month) {
             this._setMonthDays();
         }
-        if (changes.end) this._setMonthDays();
+        if (changes.end) {
+            if (!this._selecting_end) {
+                this._setMonthDays();
+            }
+        }
     }
 
     public selectDate(date: number) {
         const start = this.start();
-        if (!this._picking_end() || !start || date < start) {
+        const max_days = this.max_range_days();
+
+        if (this._selecting_end) {
+            if (date >= start) {
+                let end_date = date;
+                if (max_days > 0) {
+                    const max_end_date = addDays(start, max_days - 1).valueOf();
+                    end_date = Math.min(date, max_end_date);
+                }
+                this.end.set(end_date);
+                this.endChange.emit(end_date);
+            } else {
+                this.start.set(date);
+                this.startChange.emit(date);
+                this.end.set(null);
+            }
+            this._selecting_end = false;
+            this.hovered_date.set(null);
+        } else {
             this.start.set(date);
             this.startChange.emit(date);
-            this._picking_end.set(true);
-        } else {
-            this.end.set(date);
-            this.endChange.emit(date);
-            this._picking_end.set(false);
+            this.end.set(null);
+            this._selecting_end = true;
         }
         this._setMonthDays();
     }
 
     public setHoveredDate(date: number) {
-        if (!this._picking_end() || !this.start()) return;
-        this.hovered_date.set(date);
-        this.end.set(date);
+        if (!this._selecting_end) return;
+        const start = this.start();
+        const max_days = this.max_range_days();
+
+        if (start && max_days > 0) {
+            const max_end_date = addDays(start, max_days - 1).valueOf();
+            this.hovered_date.set(Math.min(date, max_end_date));
+        } else {
+            this.hovered_date.set(date);
+        }
+        this._setMonthDays();
+    }
+
+    public clearHoveredDate() {
+        if (!this._selecting_end) return;
+        this.hovered_date.set(null);
         this._setMonthDays();
     }
 
@@ -196,28 +231,56 @@ export class DateRangeCalendarComponent implements OnInit, OnChanges {
     }
 
     private _setMonthDays() {
-        const start = startOfWeek(startOfMonth(this.month()), {
+        const week_start = startOfWeek(startOfMonth(this.month()), {
             weekStartsOn: this.offset_weekday() as any,
         });
+        const range_start = this.start();
+        const range_end = this._selecting_end
+            ? this.hovered_date()
+            : this.end();
+        const from_date = this.from_date();
+        const to_date = this.to_date();
+        const max_days = this.max_range_days();
+
+        const max_end_date =
+            this._selecting_end && range_start && max_days > 0
+                ? addDays(range_start, max_days - 1).valueOf()
+                : null;
+
         this.month_days.set(
             Array.from(Array(7 * 6).keys()).map((i) => {
-                const date = addDays(start, i).valueOf();
-                const end = this.end();
-                const from_date = this.from_date();
-                const to_date = this.to_date();
+                const date = addDays(week_start, i).valueOf();
+                const is_start = range_start && isSameDay(date, range_start);
+
+                const exceeds_max_range =
+                    this._selecting_end &&
+                    range_start &&
+                    max_end_date &&
+                    date > max_end_date;
+
+                const is_end =
+                    range_end &&
+                    range_start &&
+                    range_end >= range_start &&
+                    isSameDay(date, range_end);
+                const is_selected =
+                    range_end &&
+                    range_start &&
+                    range_end >= range_start &&
+                    date >= startOfDay(range_start).valueOf() &&
+                    date <= endOfDay(range_end).valueOf();
+
                 return {
                     id: date,
                     disabled:
                         (from_date && isBefore(date, from_date)) ||
-                        (to_date && isAfter(date, to_date)),
+                        (to_date && isAfter(date, to_date)) ||
+                        exceeds_max_range,
                     is_today: isSameDay(date, Date.now()),
-                    is_start: isSameDay(date, this.start()),
-                    is_end: isSameDay(date, this.end()),
+                    is_start,
+                    is_end,
                     is_month: isSameMonth(date, this.month()),
-                    is_selected:
-                        end &&
-                        date >= startOfDay(this.start()).valueOf() &&
-                        date <= endOfDay(end).valueOf(),
+                    is_selected,
                 };
             }),
         );

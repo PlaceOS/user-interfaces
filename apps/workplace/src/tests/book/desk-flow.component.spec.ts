@@ -11,7 +11,7 @@ import * as ts_client from '@placeos/ts-client';
 import { MockComponent, MockProvider } from 'ng-mocks';
 import { NewDeskFlowComponent } from '../../app/book/desk-flow.component';
 import { NewDeskFlowFormComponent } from '../../app/book/desk-flow/desk-flow-form.component';
-import { NewDeskFlowSuccessComponent } from '../../app/book/desk-flow/desk-flow-success.component';
+import { NewDeskFlowSuccessComponent } from '../../app/book/desk-flow-new/desk-flow-success.component';
 
 vi.mock('@placeos/ts-client', { spy: true });
 

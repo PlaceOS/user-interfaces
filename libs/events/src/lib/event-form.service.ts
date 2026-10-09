@@ -30,6 +30,7 @@ import {
     onFieldChange,
     sameDayInTimezone,
     setDefaultCreator,
+    SETTING_KEYS,
     SettingsService,
     Space,
     unique,
@@ -88,6 +89,7 @@ const BOOKING_URLS = [
     'confirm/success',
     'upcoming',
 ];
+const PERSISTED_EVENT_CONTEXT_URLS = ['landing'];
 
 enum Tags {
     Availability = 'AVAILABILITY',
@@ -95,6 +97,13 @@ enum Tags {
     ListingRooms = 'LIST_ROOMS',
     PostBooking = 'MAKING_BOOKING',
 }
+
+const ROOM_CAPACITY_RANGES: Record<number, { min: number; max: number }> = {
+    1: { min: 1, max: 2 },
+    3: { min: 3, max: 4 },
+    5: { min: 5, max: 8 },
+    9: { min: 9, max: 999 },
+};
 
 type EventFlowView = 'form' | 'find' | 'catering' | 'confirm' | 'success';
 
@@ -354,8 +363,14 @@ export class EventFormService extends AsyncHandler {
             list = list.filter(({ id }) => this.favorite_spaces.includes(id));
         }
         if (filters.capacity > 0) {
+            const range = ROOM_CAPACITY_RANGES[filters.capacity] || {
+                min: filters.capacity,
+                max: 999,
+            };
             list = list.filter(
-                ({ capacity }) => filters.capacity <= capacity || capacity < 0,
+                ({ capacity }) =>
+                    capacity < 0 ||
+                    (capacity >= range.min && capacity <= range.max),
             );
         }
         if (filters.features) {
@@ -363,7 +378,13 @@ export class EventFormService extends AsyncHandler {
                 filters.features.every((f) => features.includes(f)),
             );
         }
-        return list;
+        return list.sort((a, b) => {
+            const cap_diff = (a.capacity || 0) - (b.capacity || 0);
+            if (cap_diff !== 0) return cap_diff;
+            return (a.display_name || a.name).localeCompare(
+                b.display_name || b.name,
+            );
+        });
     });
 
     /** Params driving the available space calculation */
@@ -435,7 +456,7 @@ export class EventFormService extends AsyncHandler {
     }
 
     public get favorite_spaces() {
-        return this._settings.get<string[]>('favourite_spaces') || [];
+        return this._settings.get<string[]>(SETTING_KEYS.FAVORITE_ROOMS) || [];
     }
 
     public get book_internal() {
@@ -483,7 +504,10 @@ export class EventFormService extends AsyncHandler {
             this._router.events.subscribe((event: Event) => {
                 if (
                     event instanceof NavigationEnd &&
-                    !BOOKING_URLS.some((_) => event.url.includes(_))
+                    !BOOKING_URLS.some((_) => event.url.includes(_)) &&
+                    !PERSISTED_EVENT_CONTEXT_URLS.some((_) =>
+                        event.url.includes(_),
+                    )
                 ) {
                     this.clearForm();
                 }

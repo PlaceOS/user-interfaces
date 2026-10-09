@@ -1,287 +1,106 @@
 import { signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { MatDialog } from '@angular/material/dialog';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
-import { Router } from '@angular/router';
 import {
     createRoutingFactory,
     SpectatorRouting,
 } from '@ngneat/spectator/vitest';
-import { BookingCardComponent, BookingFormService } from '@placeos/bookings';
+import { BookingCardComponent } from '@placeos/bookings';
 import { Booking, CalendarEvent, SettingsService } from '@placeos/common';
-import {
-    EventCardComponent,
-    EventFormService,
-    newCalendarEventFromBooking,
-} from '@placeos/events';
-import * as ts_client from '@placeos/ts-client';
-import { MockComponent, MockProvider } from 'ng-mocks';
-import { NEVER, of } from 'rxjs';
+import { mockComponent } from '@placeos/common/tests';
+import { EventCardComponent } from '@placeos/events';
+import { MockProvider, ngMocks } from 'ng-mocks';
 import { FooterMenuComponent } from '../../app/components/footer-menu.component';
 import { TopbarComponent } from '../../app/components/topbar.component';
+import { VirtualConciergeButtonComponent } from '../../app/components/virtual-concierge-button.component';
+import { ScheduleDayViewComponent } from '../../app/schedule/schedule-day-view.component';
 import { ScheduleFiltersComponent } from '../../app/schedule/schedule-filters.component';
-import { ScheduleMobileCalendarComponent } from '../../app/schedule/schedule-mobile-calendar.component';
+import { ScheduleListViewComponent } from '../../app/schedule/schedule-list-view.component';
 import { ScheduleSidebarComponent } from '../../app/schedule/schedule-sidebar.component';
 import { ScheduleStateService } from '../../app/schedule/schedule-state.service';
+import { ScheduleTopbarComponent } from '../../app/schedule/schedule-topbar.component';
+import { ScheduleWeekViewComponent } from '../../app/schedule/schedule-week-view.component';
 import { ScheduleComponent } from '../../app/schedule/schedule.component';
-
-// Native vitest cannot module-mock workspace packages. `checkinBooking`
-// (from @placeos/bookings) and `openConfirmModal` (from @placeos/components)
-// are real functions here; `checkinBooking` calls @placeos/ts-client `post`
-// (the only mockable layer) and `openConfirmModal` consumes the injected
-// MatDialog, both of which are stubbed below.
-vi.mock('@placeos/ts-client', { spy: true });
 
 describe('ScheduleComponent', () => {
     let spectator: SpectatorRouting<ScheduleComponent>;
+    const bookings = signal<(Booking | CalendarEvent)[]>([]);
     const createComponent = createRoutingFactory({
         component: ScheduleComponent,
         declarations: [
-            MockComponent(ScheduleSidebarComponent),
-            MockComponent(ScheduleMobileCalendarComponent),
-            MockComponent(ScheduleFiltersComponent),
-            MockComponent(EventCardComponent),
-            MockComponent(BookingCardComponent),
-            MockComponent(TopbarComponent),
-            MockComponent(FooterMenuComponent),
+            mockComponent(VirtualConciergeButtonComponent),
+            mockComponent(ScheduleSidebarComponent),
+            mockComponent(ScheduleFiltersComponent),
+            mockComponent(EventCardComponent),
+            mockComponent(BookingCardComponent),
+            mockComponent(TopbarComponent),
+            mockComponent(FooterMenuComponent),
+            mockComponent(ScheduleTopbarComponent),
+            mockComponent(ScheduleListViewComponent),
+            mockComponent(ScheduleWeekViewComponent),
+            mockComponent(ScheduleDayViewComponent),
         ],
         providers: [
             MockProvider(ScheduleStateService, {
-                filtered_bookings: signal([]),
+                bookings,
+                filtered_bookings: bookings,
                 loading: signal(false),
                 date: signal(0),
+                end_date: signal(null),
                 toggleType: vi.fn(),
                 setDate: vi.fn(),
+                setEndDate: vi.fn(),
+                setOptions: vi.fn(),
+                startPolling: vi.fn(() => () => {}),
                 getOptions: vi.fn(() => ({ period: 'day' })),
-                removeItem: vi.fn(),
                 triggerPoll: vi.fn(),
             } as any),
-            MockProvider(EventFormService, { newForm: vi.fn() }),
-            MockProvider(BookingFormService, {
-                newForm: vi.fn(),
-                model: Object.assign(
-                    vi.fn(() => ({})),
-                    {
-                        set: vi.fn(),
-                        update: vi.fn(),
-                    },
-                ),
-            } as any),
-            MockProvider(Router, { navigate: vi.fn() }),
-            MockProvider(MatDialog, { open: vi.fn(), closeAll: vi.fn() }),
             MockProvider(SettingsService, { get: vi.fn() }),
         ],
         imports: [MatProgressBarModule, FormsModule],
     });
 
     beforeEach(() => {
-        vi.clearAllMocks();
-        vi.mocked(ts_client.post).mockResolvedValue({} as any);
-        vi.mocked(ts_client.del).mockResolvedValue(undefined as any);
+        bookings.set([]);
         spectator = createComponent();
     });
 
-    afterEach(() => {
-        vi.useRealTimers();
-    });
-
-    it('should refresh bookings on request', () => {
-        const state = spectator.inject(ScheduleStateService);
-
-        spectator.component.refresh_fn();
-
-        expect(state.triggerPoll).toHaveBeenCalled();
-    });
-
-    it('should not patch resources when editing visitor bookings', () => {
-        vi.useFakeTimers();
-        const booking_form = spectator.inject(BookingFormService);
-        const booking = new Booking({
-            booking_type: 'visitor',
-            type: 'visitor',
-            asset_id: 'visitor@example.com',
-            asset_name: 'Visitor',
-        } as any);
-
-        spectator.component.editBooking(booking);
-        vi.runAllTimers();
-
-        expect(booking_form.newForm).toHaveBeenCalledWith('visitor', booking);
-        expect(booking_form.model.update).not.toHaveBeenCalled();
-        vi.useRealTimers();
-    });
-
-    it('should patch resources when editing non-visitor bookings', () => {
-        vi.useFakeTimers();
-        const booking_form = spectator.inject(BookingFormService);
-        const booking = new Booking({
-            booking_type: 'desk',
-            type: 'desk',
-            asset_id: 'desk-1',
-            asset_name: 'Desk 1',
-        } as any);
-
-        spectator.component.editBooking(booking);
-        vi.runAllTimers();
-
-        expect(booking_form.model.update).toHaveBeenCalled();
-        const updater = (booking_form.model.update as any).mock.calls[0][0];
-        expect(updater({})).toEqual({
-            resources: [{ id: 'desk-1', name: 'Desk 1' }],
-            asset_id: 'desk-1',
-        });
-        vi.useRealTimers();
-    });
-
-    it('should refresh ended bookings without hiding them as deleted', async () => {
-        const state = spectator.inject(ScheduleStateService);
-        // The component imports MatDialogModule, so its injector shadows the
-        // TestBed-level MatDialog mock — spy on the instance it actually gets.
-        const dialog = spectator.fixture.debugElement.injector.get(MatDialog);
-        // Shape returned so the real `openConfirmModal` resolves with reason 'done'.
-        vi.spyOn(dialog, 'open').mockReturnValue({
-            afterClosed: () => of({ reason: 'done' }),
-            componentInstance: {
-                event: of({ reason: 'done' }),
-                loading: { set: vi.fn() },
-            },
-            close: vi.fn(),
-        } as any);
-        const booking = new Booking({
-            id: 'booking-1',
-            booking_type: 'desk',
-            type: 'desk',
-            asset_id: 'desk-1',
-            asset_name: 'Desk 1',
-        } as any);
-
-        await spectator.component.end(booking);
-
-        // `checkinBooking` (workspace fn) cannot be spied; assert the underlying
-        // ts-client POST it issues to the booking check-in endpoint instead.
-        expect(ts_client.post).toHaveBeenCalled();
-        const [url] = vi.mocked(ts_client.post).mock.calls[0];
-        expect(url).toContain('booking-1');
-        expect(url).toContain('check_in');
-        expect(state.triggerPoll).toHaveBeenCalled();
-        expect(state.removeItem).not.toHaveBeenCalled();
-    });
-
-    it('should refresh cancelled bookings without hiding them as deleted', async () => {
-        const state = spectator.inject(ScheduleStateService);
-        const dialog = spectator.fixture.debugElement.injector.get(MatDialog);
-        vi.spyOn(dialog, 'open').mockReturnValue({
-            afterClosed: () => of({ reason: 'done' }),
-            componentInstance: {
-                event: of({ reason: 'done' }),
-                loading: { set: vi.fn() },
-            },
-            close: vi.fn(),
-        } as any);
-        const booking = new Booking({
-            id: 'booking-1',
-            booking_type: 'visitor',
-            type: 'visitor',
-            asset_id: 'visitor@example.com',
-            asset_name: 'Visitor',
-        } as any);
-
-        await spectator.component.remove(booking);
-
-        expect(ts_client.del).toHaveBeenCalled();
-        expect(state.triggerPoll).toHaveBeenCalled();
-        expect(state.removeItem).not.toHaveBeenCalled();
-    });
-    describe('room cancellation', () => {
-        function confirmRemoval(reason = 'done') {
-            const dialog =
-                spectator.fixture.debugElement.injector.get(MatDialog);
-            const close = vi.fn();
-            vi.spyOn(dialog, 'open').mockReturnValue({
-                afterClosed: () => of({ reason }),
-                componentInstance: {
-                    event: reason === 'done' ? of({ reason }) : NEVER,
-                    loading: { set: vi.fn() },
-                },
-                close,
-            } as unknown as ReturnType<MatDialog['open']>);
-            return close;
-        }
-
-        function nativeRoom() {
-            return newCalendarEventFromBooking(
-                new Booking({
-                    id: 'room-booking-1',
-                    booking_type: 'room',
-                    asset_id: 'room-1',
-                    user_email: 'staff@example.com',
-                    extension_data: { creator: 'staff@example.com' },
-                    booking_start: 1800000000,
-                    booking_end: 1800003600,
-                }),
-            );
-        }
-
-        it.each([true, false])(
-            'uses the native API regardless of the current setting %s',
-            async (use_bookings) => {
-                confirmRemoval();
-                vi.mocked(
-                    spectator.inject(SettingsService).get,
-                ).mockReturnValue(use_bookings);
-                const booking = nativeRoom();
-
-                await spectator.component.remove(booking);
-
-                expect(ts_client.del).toHaveBeenCalledExactlyOnceWith(
-                    expect.stringMatching(/\/bookings\/room-booking-1\?/),
-                    { response_type: 'void' },
-                );
-                expect(ts_client.get).not.toHaveBeenCalled();
-                expect(
-                    spectator.inject(ScheduleStateService).removeItem,
-                ).toHaveBeenCalledWith(booking);
-            },
-        );
-
-        it('keeps calendar events on the calendar API', async () => {
-            confirmRemoval();
-            const event = new CalendarEvent({
-                id: 'calendar-event-1',
-                creator: 'staff@example.com',
-                mailbox: 'staff@example.com',
+    it.each(['day', 'week'] as const)(
+        'removes cancelled parking from the %s calendar after refresh and retains list history',
+        async (view) => {
+            const active = new Booking({
+                id: 'parking-1',
+                booking_type: 'parking',
             });
+            const meeting = new CalendarEvent({ id: 'meeting-1' });
+            bookings.set([active, meeting]);
+            spectator.component.view.set(view);
+            await spectator.fixture.whenStable();
+            const calendar = () =>
+                ngMocks.input(
+                    view === 'day' ? 'schedule-day-view' : 'schedule-week-view',
+                    'bookings',
+                );
+            expect(calendar()).toEqual([active, meeting]);
 
-            await spectator.component.remove(event);
+            const cancelled = new Booking({ ...active, deleted: true });
+            const status_cancelled = new Booking({
+                id: 'parking-2',
+                booking_type: 'parking',
+                status: 'cancelled',
+            });
+            bookings.set([cancelled, status_cancelled, meeting]);
+            await spectator.fixture.whenStable();
+            expect(calendar()).toEqual([meeting]);
 
-            expect(ts_client.del).toHaveBeenCalledExactlyOnceWith(
-                expect.stringMatching(/\/events\/calendar-event-1\?/),
-                { response_type: 'void' },
-            );
-        });
-
-        it('does not request an API when confirmation is dismissed', async () => {
-            confirmRemoval('close');
-
-            await spectator.component.remove(nativeRoom());
-
-            expect(ts_client.del).not.toHaveBeenCalled();
-            expect(ts_client.get).not.toHaveBeenCalled();
-        });
-
-        it('keeps the booking visible when native cancellation fails', async () => {
-            const close = confirmRemoval();
-            const error = new Error('Cancellation failed');
-            vi.mocked(ts_client.del).mockRejectedValueOnce(error);
-
-            await expect(
-                spectator.component.remove(nativeRoom()),
-            ).rejects.toThrow(error);
-
-            expect(close).toHaveBeenCalled();
-            expect(
-                spectator.inject(ScheduleStateService).removeItem,
-            ).not.toHaveBeenCalled();
-        });
-    });
+            spectator.component.view.set('list');
+            await spectator.fixture.whenStable();
+            expect(ngMocks.input('schedule-list-view', 'bookings')).toEqual([
+                cancelled,
+                status_cancelled,
+                meeting,
+            ]);
+            expect(cancelled.status).toBe('cancelled');
+        },
+    );
 });

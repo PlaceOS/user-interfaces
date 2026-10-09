@@ -19,14 +19,6 @@ export const routes: Routes = [
         title: 'Misconfigured',
     },
     {
-        path: 'landing',
-        title: 'Home',
-        canActivate: [AuthorisedUserGuard],
-        canLoad: [AuthorisedUserGuard],
-        loadChildren: () =>
-            import('./landing/landing.routes').then((m) => m.ROUTES),
-    },
-    {
         path: 'book',
         title: 'Book',
         canActivate: [AuthorisedUserGuard],
@@ -80,6 +72,25 @@ export const routes: Routes = [
         canLoad: [AuthorisedUserGuard],
         loadChildren: () =>
             import('./deals/deals.routes').then((m) => m.ROUTES),
+    },
+    {
+        path: 'landing',
+        title: 'Home',
+        canActivate: [AuthorisedUserGuard],
+        canLoad: [AuthorisedUserGuard],
+        loadComponent: () =>
+            import('./landing-new/landing-new.component').then(
+                (m) => m.LandingNewComponent,
+            ),
+    },
+    {
+        path: 'team-schedule',
+        canActivate: [AuthorisedUserGuard],
+        canLoad: [AuthorisedUserGuard],
+        loadComponent: () =>
+            import('./team-schedule/team-schedule.component').then(
+                (m) => m.TeamScheduleComponent,
+            ),
     },
     {
         path: 'embedded/:id',

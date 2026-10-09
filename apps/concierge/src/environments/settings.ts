@@ -4,12 +4,16 @@ const app = {
     name: 'Concierge',
     title: 'PlaceOS',
     description: 'Concierge UI',
-    short_name: 'PlaceOS',
+    short_name: 'Concierge',
     logo_light: 'assets/logo-light.svg',
     logo_dark: 'assets/logo-dark.svg',
     default_route: '/book/rooms',
     currency: 'USD',
     use_24_hour_time: false,
+    analytics: {
+        enabled: true,
+        tracking_id: 'G-S6TDS95BDH',
+    },
     admin_group: 'concierge_admins',
     features: [
         'spaces',
@@ -59,6 +63,7 @@ const app = {
         assign_space_on_approve: false,
         max_assigned_count: 0,
         custom_booking_columns: [],
+        show_user_groups: [],
     },
     events: {
         allow_setup_breakdown: false,

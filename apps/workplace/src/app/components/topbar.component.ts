@@ -1,15 +1,16 @@
-import { Component, inject } from '@angular/core';
-import { MatRippleModule } from '@angular/material/core';
+import { Component, computed, inject, viewChild } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import {
-    currentUser,
     OrganisationService,
+    settingSignal,
     SettingsService,
+    userSignal,
 } from '@placeos/common';
 import {
     AuthenticatedImageDirective,
     UserControlsSidebarComponent,
 } from '@placeos/components';
+import { UserAvatarComponent } from '../../../../../libs/components/src/lib/user-avatar.component';
 import { GlobalSearchComponent } from './global-search.component';
 import { TopMenuComponent } from './top-menu.component';
 
@@ -32,7 +33,7 @@ const EMPTY = [];
                     class="h-10 sm:block"
                     [class.hidden]="title"
                     alt="Logo"
-                    [source]="logo?.src || logo"
+                    [source]="$any(logo())?.src || logo()"
                 />
                 @if (title) {
                     <span>{{ title }}</span>
@@ -47,7 +48,9 @@ const EMPTY = [];
                 @if (search) {
                     <global-search />
                 }
-                <user-controls-sidebar class="mr-2" />
+                <user-controls-sidebar class="mr-2">
+                    <a-user-avatar [user]="user()" />
+                </user-controls-sidebar>
             </div>
         </div>
     `,
@@ -59,11 +62,11 @@ const EMPTY = [];
         `,
     ],
     imports: [
-        MatRippleModule,
         GlobalSearchComponent,
         TopMenuComponent,
         AuthenticatedImageDirective,
         RouterModule,
+        UserAvatarComponent,
         UserControlsSidebarComponent,
     ],
 })
@@ -72,14 +75,15 @@ export class TopbarComponent {
     private _org = inject(OrganisationService);
 
     public show_menu: boolean;
+    public readonly user = userSignal();
+    public readonly user_controls = viewChild(UserControlsSidebarComponent);
 
-    public get logo() {
-        return (
-            (this._settings.theme === 'dark'
-                ? this._settings.get('app.logo_dark')
-                : this._settings.get('app.logo_light')) || {}
-        );
-    }
+    public readonly logo = computed(() => {
+        return this._settings.theme_signal() === 'dark'
+            ? settingSignal('logo_dark', '')()
+            : settingSignal('logo_light', '')();
+    });
+
     /** Text to display for page title */
     public get title(): string {
         return this._settings.value('page_title');
@@ -92,10 +96,6 @@ export class TopbarComponent {
 
     public get new_features(): boolean {
         return !!this._settings.get('app.new_features');
-    }
-
-    public get user() {
-        return currentUser();
     }
 
     public get features(): string[] {

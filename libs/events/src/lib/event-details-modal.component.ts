@@ -782,7 +782,7 @@ export class EventDetailsModalComponent implements OnInit {
     public readonly raw_body = signal('');
     public readonly print = signal(false);
     public readonly show_attendees = signal(false);
-    public readonly event = signal(this._data.event);
+    public readonly event = signal(new CalendarEvent(this._data.event));
     public readonly no_edit_message = signal(
         'Editing bookings long than \n a day is not available',
     );
@@ -877,30 +877,33 @@ export class EventDetailsModalComponent implements OnInit {
             );
     });
 
-    public readonly accept_count = computed(() =>
-        this.event().attendees.reduce(
-            (count, user) =>
-                (count += user.response_status === 'accepted' ? 1 : 0),
-            0,
-        ),
+    public readonly accept_count = computed(
+        () =>
+            this.event().attendees?.reduce(
+                (count, user) =>
+                    (count += user.response_status === 'accepted' ? 1 : 0),
+                0,
+            ) || 0,
     );
-    public readonly declined_count = computed(() =>
-        this.event().attendees.reduce(
-            (count, user) =>
-                (count += user.response_status === 'declined' ? 1 : 0),
-            0,
-        ),
+    public readonly declined_count = computed(
+        () =>
+            this.event().attendees?.reduce(
+                (count, user) =>
+                    (count += user.response_status === 'declined' ? 1 : 0),
+                0,
+            ) || 0,
     );
-    public readonly pending_count = computed(() =>
-        this.event().attendees.reduce(
-            (count, user) =>
-                (count +=
-                    user.response_status === 'tentative' ||
-                    user.response_status === 'needsAction'
-                        ? 1
-                        : 0),
-            0,
-        ),
+    public readonly pending_count = computed(
+        () =>
+            this.event().attendees?.reduce(
+                (count, user) =>
+                    (count +=
+                        user.response_status === 'tentative' ||
+                        user.response_status === 'needsAction'
+                            ? 1
+                            : 0),
+                0,
+            ) || 0,
     );
 
     public readonly host_name = computed(() => {
@@ -949,6 +952,8 @@ export class EventDetailsModalComponent implements OnInit {
     );
 
     public ngOnInit() {
+        console.log('Event:', this._data);
+        this.event.set(new CalendarEvent(this._data.event));
         const doc = new DOMParser().parseFromString(
             this.event().body,
             'text/html',

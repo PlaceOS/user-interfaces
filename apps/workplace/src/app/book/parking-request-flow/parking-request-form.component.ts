@@ -1,7 +1,7 @@
 import { CdkScrollable } from '@angular/cdk/scrolling';
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+
 import { Router } from '@angular/router';
 import { BookingFormService, ParkingService } from '@placeos/bookings';
 import {
@@ -27,103 +27,198 @@ import { ParkingRequestFormDetailsComponent } from './parking-request-form-detai
     template: `
         <div
             cdkScrollable
-            class="bg-base-200 h-full w-full overflow-auto p-2 sm:p-4"
+            class="bg-base-200 relative z-0 flex h-full w-full flex-col overflow-auto"
         >
             <div
-                class="bg-base-100 border-base-300 mx-auto flex w-3xl max-w-full flex-col gap-2 rounded-xl border p-2 sm:gap-4 sm:p-4"
+                class="mx-auto min-h-full w-[80rem] max-w-full flex-1 space-y-2 px-2 pt-2 sm:space-y-4 sm:px-4 sm:pt-4"
             >
-                <!-- Header -->
                 <div
-                    class="bg-base-100 border-base-300 flex items-center gap-4 rounded-lg border p-6"
+                    class="border-base-300 bg-base-100 flex w-full flex-col overflow-hidden rounded-xl border"
                 >
+                    <!-- Gradient Header -->
                     <div
-                        class="bg-info/20 text-info flex h-12 w-12 items-center justify-center rounded-full text-xl font-bold"
+                        class="gradient border-base-content relative flex items-center space-x-2 border-l-8 px-4 py-3 text-xl font-medium"
                     >
-                        P
-                    </div>
-                    <div>
-                        <h1 class="text-2xl font-semibold">
+                        <icon>local_parking</icon>
+                        <div>
                             {{
                                 (model().id
                                     ? 'APP.WORKPLACE.PARKING_REQUEST_EDIT_HEADER'
                                     : 'BOOKINGS.PARKING_REQUEST_TITLE'
                                 ) | translate
                             }}
-                        </h1>
+                        </div>
+                    </div>
+                    <div class="px-6 py-4">
                         <p class="opacity-60">
                             {{
                                 'BOOKINGS.PARKING_REQUEST_SUBTITLE' | translate
                             }}
                         </p>
                     </div>
-                </div>
 
-                <!-- Form Details -->
-                <parking-request-form-details
-                    [form]="form"
-                    [model_input]="model"
-                    [show_special_needs]="show_special_needs()"
-                ></parking-request-form-details>
+                    <!-- Form Details -->
+                    <parking-request-form-details
+                        [form]="form"
+                        [model_input]="model"
+                        [show_special_needs]="show_special_needs()"
+                    ></parking-request-form-details>
 
-                <!-- SUMMARY + SUBMISSION -->
-                <div
-                    class="bg-base-200 border-base-300 space-y-4 rounded-lg border p-2 sm:mt-2"
-                >
-                    @if (submission_notes_html()) {
-                        <div
-                            class="bg-base-100 border-base-300 rounded-lg border p-4"
-                        >
-                            <h3 class="mb-3 text-lg font-semibold">
-                                {{
-                                    'BOOKINGS.PARKING_SUMMARY_TITLE' | translate
-                                }}
-                            </h3>
-                            <div
-                                class="prose prose-sm max-w-none"
-                                [innerHTML]="submission_notes_html() | sanitize"
-                            ></div>
-                        </div>
-                    }
-                    <!-- Buttons -->
+                    <!-- SUMMARY SECTION -->
                     <div
-                        class="flex items-center justify-end gap-1 text-sm sm:gap-3 sm:text-base"
+                        class="gradient border-base-content flex items-center space-x-2 border-l-8 px-4 py-3 font-medium"
                     >
-                        @if (loading()) {
-                            <mat-spinner diameter="32"></mat-spinner>
-                        } @else {
-                            <button
-                                btn
-                                matRipple
-                                class="inverse flex w-24 flex-1 items-center gap-2 sm:w-auto sm:flex-none"
-                                (click)="clearForm()"
+                        <icon>info</icon>
+                        <div>
+                            {{ 'BOOKINGS.PARKING_SUMMARY_TITLE' | translate }}
+                        </div>
+                    </div>
+                    <div class="space-y-4 p-4">
+                        <!-- Allocation info box -->
+                        <div
+                            class="bg-base-200 border-base-300 flex items-start gap-3 rounded-lg border p-4"
+                        >
+                            <icon class="text-warning mt-0.5 shrink-0 text-xl"
+                                >campaign</icon
                             >
-                                <icon class="text-xl">close</icon>
-                                <div class="mr-2">
-                                    {{ 'COMMON.CANCEL' | translate }}
-                                </div>
-                            </button>
-                            <button
-                                btn
-                                matRipple
-                                confirm
-                                class="flex flex-1 items-center gap-2 sm:flex-none"
-                                (click)="submitRequest()"
-                            >
-                                <icon class="text-xl">send</icon>
-                                <div>
-                                    {{
-                                        'BOOKINGS.PARKING_SUBMIT_REQUEST'
+                            <p
+                                class="text-sm"
+                                [innerHTML]="
+                                    'BOOKINGS.PARKING_ALLOCATION_INFO'
+                                        | translate
+                                "
+                            ></p>
+                        </div>
+
+                        <!-- Info bullets -->
+                        <div class="space-y-2">
+                            <div class="flex items-center gap-2">
+                                <icon class="text-success text-lg"
+                                    >check_circle</icon
+                                >
+                                <span
+                                    class="text-sm"
+                                    [innerHTML]="
+                                        'BOOKINGS.PARKING_ADVANCE_DAYS'
                                             | translate
-                                    }}
-                                </div>
-                            </button>
+                                                : {
+                                                      days: available_days(),
+                                                  }
+                                    "
+                                ></span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <icon class="text-success text-lg"
+                                    >check_circle</icon
+                                >
+                                <span
+                                    class="text-sm"
+                                    [innerHTML]="
+                                        'BOOKINGS.PARKING_APPROVAL_GROUP'
+                                            | translate
+                                    "
+                                ></span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <icon class="text-warning text-lg"
+                                    >warning</icon
+                                >
+                                <span
+                                    class="text-sm"
+                                    [innerHTML]="
+                                        'BOOKINGS.PARKING_MANUAL_APPROVAL'
+                                            | translate
+                                    "
+                                ></span>
+                            </div>
+                        </div>
+
+                        <!-- Conditional after-hours warning -->
+                        @if (model().request_type === 'after_hours') {
+                            <div class="flex items-center gap-2">
+                                <icon class="text-warning text-lg">error</icon>
+                                <span class="text-sm">{{
+                                    'BOOKINGS.PARKING_AFTER_HOURS_WARNING'
+                                        | translate
+                                }}</span>
+                            </div>
                         }
                     </div>
                 </div>
+
+                <!-- Sticky bottom bar -->
+                <div
+                    class="border-base-300 bg-base-100 sticky bottom-0 z-20 flex justify-between gap-2 rounded-t-xl border-x border-t p-3 text-sm sm:text-base"
+                >
+                    <button
+                        btn
+                        matRipple
+                        class="inverse flex items-center gap-2"
+                        (click)="clearForm()"
+                    >
+                        <icon class="text-xl">close</icon>
+                        <div class="pr-2">
+                            {{ 'BOOKINGS.PARKING_CANCEL' | translate }}
+                        </div>
+                    </button>
+                    <button
+                        btn
+                        matRipple
+                        (click)="submitRequest()"
+                        [disabled]="loading()"
+                    >
+                        <div class="flex items-center space-x-2">
+                            @if (loading()) {
+                                <icon class="animate-spin text-2xl"
+                                    >progress_activity</icon
+                                >
+                            } @else {
+                                <icon class="text-xl">send</icon>
+                            }
+                            <div class="flex-1 pr-4">
+                                {{
+                                    'BOOKINGS.PARKING_SUBMIT_REQUEST'
+                                        | translate
+                                }}
+                            </div>
+                            @if (!loading()) {
+                                <icon class="text-2xl"
+                                    >keyboard_arrow_right</icon
+                                >
+                            }
+                        </div>
+                    </button>
+                </div>
+                @if (submission_notes_html()) {
+                    <div
+                        class="border-base-300 bg-base-100 rounded-xl border p-4"
+                    >
+                        <div
+                            class="prose prose-sm max-w-none"
+                            [innerHTML]="submission_notes_html() | sanitize"
+                        ></div>
+                    </div>
+                }
             </div>
         </div>
     `,
-    styles: [``],
+    styles: [
+        `
+            :host {
+                width: 100%;
+                height: 100%;
+            }
+
+            .gradient {
+                background: linear-gradient(
+                    105deg,
+                    var(--base-200) 0%,
+                    var(--base-200) 50%,
+                    var(--base-100) 100%
+                );
+            }
+        `,
+    ],
     imports: [
         CdkScrollable,
         MatRippleModule,
@@ -131,7 +226,6 @@ import { ParkingRequestFormDetailsComponent } from './parking-request-form-detai
         SanitizePipe,
         IconComponent,
         ParkingRequestFormDetailsComponent,
-        MatProgressSpinnerModule,
     ],
 })
 export class ParkingRequestFormComponent
@@ -145,7 +239,7 @@ export class ParkingRequestFormComponent
     private _org = inject(OrganisationService);
 
     public readonly loading = signal(false);
-    public readonly show_special_needs = signal(false);
+    public readonly show_special_needs = signal(true);
     public readonly available_days = settingSignal(
         'parking.available_period',
         14,
@@ -195,8 +289,8 @@ export class ParkingRequestFormComponent
         // shift the user expects.
         if (!this.model().id) {
             const day_start = startOfDay(now);
-            defaults.date = day_start.valueOf() + 8 * 60 * 60 * 1000;
-            defaults.duration = 540;
+            defaults.date = day_start.valueOf() + 7 * 60 * 60 * 1000;
+            defaults.duration = 600;
         }
         this.model.update((m) => ({ ...m, ...defaults }));
         const parking_user = this._parking.user_details();
@@ -210,7 +304,7 @@ export class ParkingRequestFormComponent
                         '',
                 }));
             }
-            this.show_special_needs.set(!!parking_user.special_needs);
+            this.show_special_needs.set(!!parking_user.special_needs || true);
         }
     }
 
@@ -234,6 +328,14 @@ export class ParkingRequestFormComponent
             title: m.title || 'Parking Request',
             plate_number: `${m.plate_number || ''}`.trim(),
         }));
+        if (
+            this.model().request_type === 'special' &&
+            !`${this.model().notes || ''}`.trim()
+        ) {
+            return notifyError(
+                'Reason for request is required for P2 Special Needs Request.',
+            );
+        }
         const building = this._org.building;
         const location =
             building?.display_name || building?.name || this.model().location;

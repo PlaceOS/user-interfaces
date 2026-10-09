@@ -698,6 +698,42 @@ describe('DesksStateService', () => {
         );
     });
 
+    it('should persist homebase when editing desks', async () => {
+        vi.spyOn(ts_client_mod, 'updateMetadata').mockReturnValue(
+            of({}) as any,
+        );
+        const dialog_ref = {
+            afterClosed: () =>
+                of({
+                    reason: 'done',
+                    metadata: {
+                        id: 'desk-1',
+                        name: 'Desk 1',
+                        map_id: 'desk-1',
+                        homebase: 'Sydney HQ',
+                    },
+                }),
+            componentInstance: {
+                event: new EventEmitter<any>(),
+                loading: { set: vi.fn() },
+            },
+            close: vi.fn(),
+        };
+        (spectator.inject(MatDialog).open as any).mockReturnValue(dialog_ref);
+        spectator.service.setFilters({ zones: ['level-1'] });
+
+        await spectator.service.editDesk({ id: 'desk-1' } as any);
+
+        expect(ts_client_mod.updateMetadata).toHaveBeenCalledWith(
+            'level-1',
+            expect.objectContaining({
+                details: expect.arrayContaining([
+                    expect.objectContaining({ homebase: 'Sydney HQ' }),
+                ]),
+            }),
+        );
+    });
+
     it('should cancel overlapping bookings after assigning a desk', async () => {
         const mock_now = new Date('2026-08-18T10:55:00').valueOf();
         vi.spyOn(Date, 'now').mockReturnValue(mock_now);

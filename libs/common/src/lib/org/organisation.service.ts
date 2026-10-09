@@ -42,7 +42,7 @@ const AUTHORITY_CACHE_KEY = `${ORG_CACHE_PREFIX}.authority`;
 /** How long startup waits to be online before trying cached data */
 const OFFLINE_BOOT_DELAY = 10 * 1000;
 /** How long zone loading may remain incomplete before reloading the app */
-const ZONE_LOAD_TIMEOUT = 45 * 1000;
+const ZONE_LOAD_TIMEOUT = 30 * 1000;
 const GEOLOCATION_TIMEOUT = 10 * 1000;
 const METADATA_CACHE_PREFIX = `${ORG_CACHE_PREFIX}.metadata`;
 /** Cached data older than this is discarded instead of being displayed */

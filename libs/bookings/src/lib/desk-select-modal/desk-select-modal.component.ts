@@ -7,7 +7,7 @@ import {
 } from '@angular/material/dialog';
 
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { isMobileSafari, SettingsService } from '@placeos/common';
+import { isMobileSafari, SETTING_KEYS, SettingsService } from '@placeos/common';
 
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
@@ -18,8 +18,6 @@ import { DeskFiltersDisplayComponent } from './desk-filters-display.component';
 import { DeskFiltersComponent } from './desk-filters.component';
 import { DeskListComponent } from './desk-list.component';
 import { DeskMapComponent } from './desk-map.component';
-
-export const FAV_DESK_KEY = 'favourite_desks';
 
 @Component({
     selector: 'desk-select-modal',
@@ -254,7 +252,7 @@ export class DeskSelectModalComponent {
         false,
     );
     public readonly favorites = signal<string[]>(
-        this._settings.get<string[]>(FAV_DESK_KEY) || [],
+        this._settings.get<string[]>(SETTING_KEYS.FAVORITE_DESKS) || [],
     );
 
     public readonly allow_multiple = computed(
@@ -295,13 +293,16 @@ export class DeskSelectModalComponent {
         );
     }
 
-    public toggleFavourite(item: BookingAsset) {
-        const fav_list = this.favorites();
+    public toggleFavourite(item: BookingAsset | null) {
+        if (!item?.id) return;
+        const fav_list =
+            this._settings.get<string[]>(SETTING_KEYS.FAVORITE_DESKS) ||
+            this.favorites();
         const new_state = !fav_list.includes(item.id);
         const next_favs = new_state
             ? [...fav_list, item.id]
             : fav_list.filter((_) => _ !== item.id);
-        this._settings.saveUserSetting(FAV_DESK_KEY, next_favs);
         this.favorites.set(next_favs);
+        this._settings.saveUserSetting(SETTING_KEYS.FAVORITE_DESKS, next_favs);
     }
 }

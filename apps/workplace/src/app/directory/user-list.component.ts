@@ -15,6 +15,7 @@ import {
 import { searchStaff } from '@placeos/users';
 import { FooterMenuComponent } from '../components/footer-menu.component';
 import { TopbarComponent } from '../components/topbar.component';
+import { VirtualConciergeButtonComponent } from '../components/virtual-concierge-button.component';
 
 const LETTERS = `ABCDEFGHIJKLMNOPQRSTUVWXYZ`.split('');
 
@@ -138,6 +139,7 @@ const LETTERS = `ABCDEFGHIJKLMNOPQRSTUVWXYZ`.split('');
                     }
                 </main>
             </div>
+            <virtual-concierge-button />
         </div>
         <footer-menu />
     `,
@@ -162,6 +164,7 @@ const LETTERS = `ABCDEFGHIJKLMNOPQRSTUVWXYZ`.split('');
         IconComponent,
         FooterMenuComponent,
         TopbarComponent,
+        VirtualConciergeButtonComponent,
         SafePipe,
         UserAvatarComponent,
         MatFormFieldModule,

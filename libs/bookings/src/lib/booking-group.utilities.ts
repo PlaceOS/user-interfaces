@@ -24,6 +24,8 @@ export function visitorMemberPatch(
         group_name: string;
         existing_zones?: string[];
         fallback_zones?: string[];
+        /** Organisation and region zones every visitor booking includes */
+        org_zones?: string[];
     },
 ) {
     const member_name = member.name || member.email;
@@ -39,11 +41,16 @@ export function visitorMemberPatch(
             !!member.extension_data?.international,
         company: (member as any).company || member.organisation,
         phone: member.phone,
-        zones: base_form.zones?.length
-            ? [...base_form.zones]
-            : opts.existing_zones?.length
-              ? [...opts.existing_zones]
-              : [...(opts.fallback_zones || [])],
+        zones: unique(
+            [
+                ...(opts.org_zones || []),
+                ...(base_form.zones?.length
+                    ? base_form.zones
+                    : opts.existing_zones?.length
+                      ? opts.existing_zones
+                      : opts.fallback_zones || []),
+            ].filter((_) => _),
+        ),
         assets: [],
         attendees: [
             new User({

@@ -43,7 +43,9 @@ export class SpacesService {
     );
     /** List of available features */
     public readonly features = computed(() =>
-        unique(flatten(this.list().map((i) => i.features))),
+        unique(
+            flatten(this.list().map((i) => i.features.filter((_) => _.trim()))),
+        ),
     );
     /** Default predicate for filter method */
     protected _compare = (space: Space) =>
@@ -99,7 +101,7 @@ export class SpacesService {
     private async loadSpaces(): Promise<void> {
         const systems = (
             await querySystems({
-                zone_id: this._org.organisation.id,
+                zone_id: this._org.organisation?.id,
                 limit: 5000,
             })
         ).data;

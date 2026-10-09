@@ -156,7 +156,7 @@ const app = {
     name: 'Workplace',
     title: 'Workplace Application',
     description: 'PlaceOS Workplace UI written with Angular Framework',
-    short_name: 'WorkMate',
+    short_name: 'Workplace',
     logo_light: 'assets/logo-light.svg',
     logo_dark: 'assets/logo-dark.svg',
     locales: [
@@ -241,6 +241,7 @@ const app = {
     parking: {
         allow_all_day: true,
         allow_recurrence: true,
+        waitlist_week_start: { day: 5, hour: 18, minute: 0 },
         request_submission_notes_html: '',
         vehicle_types: [
             { id: 'car', name: 'BOOKINGS.PARKING_VEHICLE_CAR' },
@@ -257,15 +258,27 @@ const app = {
         require_plate_number: false,
         require_space_restriction: true,
     },
+    visitors: {
+        allow_all_day: true,
+    },
     analytics: {
         enabled: true,
-        tracking_id: '',
+        tracking_id: 'G-S6TDS95BDH',
     },
     chat: {
         enabled: false,
     },
     hide_contacts: false,
     schedule,
+    virtual_concierge: {
+        display: 'fullscreen',
+        side: 'left',
+        prompts: [
+            'Book a meeting room tomorrow at 2pm for 4 people',
+            'Find me an available desk near a window',
+            'Reserve parking for Friday morning',
+        ],
+    },
 };
 /**
  * ROOT SETTIGNS
