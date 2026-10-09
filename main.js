@@ -1,97 +1,71 @@
 import {
-  MatInput,
-  MatInputModule
-} from "./chunk-7DF3TVHB.js";
-import {
-  MatMenu,
-  MatMenuItem,
-  MatMenuModule,
-  MatMenuTrigger
-} from "./chunk-H5CMN6DZ.js";
-import {
-  MatFormField,
-  MatFormFieldModule,
-  MatPrefix
-} from "./chunk-5PJAOFK6.js";
-import {
   setInternalUserDomain
-} from "./chunk-222RPSTC.js";
-import "./chunk-JJ5PWOGP.js";
+} from "./chunk-V77UPOTA.js";
+import "./chunk-FZFED6D7.js";
 import {
   TranslatePipe
-} from "./chunk-6VXVUKZV.js";
+} from "./chunk-NVBKIOO3.js";
 import {
-  MatTooltip,
-  MatTooltipModule
-} from "./chunk-ST57RYLK.js";
-import {
-  AsyncHandler,
-  BidiModule,
-  DefaultValueAccessor,
-  En,
-  FormsModule,
   GroupPermission,
-  HotkeysService,
-  IconComponent,
-  J,
-  LocaleService,
-  MatRipple,
-  MatRippleModule,
-  MatSnackBar,
-  MatSnackBarModule,
-  Mt,
   NativeDateModule,
-  NgControlStatus,
-  NgControlStatusGroup,
-  NgForm,
-  NgModel,
   OrganisationService,
   PlaceOS_Service,
-  RequiredValidator,
-  Rn,
   SettingsService,
   SwUpdate,
   UploadsService,
-  Xr,
-  Zr,
-  _getAnimationsState,
   autoConfirmNativeDomain,
   current_user,
-  eo,
   failInitialisation,
-  firstTruthyValueFrom,
   firstValueWhere,
   getLoadingMessage,
-  getNativeApiKey,
-  getNativeDomain,
-  getNativeEmail,
   hasPermission,
   initialisationComplete,
   initialisationFailure,
-  log,
-  lookupNativeDomainByEmail,
   markInitialisationComplete,
   nativeDomainError,
   needsNativeDomain,
-  normaliseNativeDomain,
   provideServiceWorker,
   retryInitialisation,
   serviceWorkerUpdate,
-  setAppName,
   setDefaultCreator,
-  setNativeApiKey,
-  setNativeDomain,
-  setNativeEmail,
-  setNotifyOutlet,
-  setTranslationService,
   setupCache,
   setupPlace,
   userSignal,
-  user_groups_loaded,
-  withTimeout,
-  yi,
-  ɵNgNoValidate
-} from "./chunk-IAN4P4R3.js";
+  user_groups_loaded
+} from "./chunk-4RPLQMHU.js";
+import {
+  Router,
+  RouterLink,
+  RouterOutlet,
+  provideRouter,
+  withHashLocation
+} from "./chunk-PDL6SW7D.js";
+import {
+  AsyncHandler,
+  Cn,
+  IconComponent,
+  J,
+  LocaleService,
+  Mt,
+  Un,
+  Yr,
+  bi,
+  firstTruthyValueFrom,
+  io,
+  lazySnackbar,
+  log,
+  setAppName,
+  setNotifyOutlet,
+  setTranslationService,
+  so,
+  withTimeout
+} from "./chunk-DBUTAYQC.js";
+import "./chunk-PDC5DY4R.js";
+import "./chunk-CZKEECSS.js";
+import {
+  BidiModule,
+  _getAnimationsState
+} from "./chunk-4CHWKULB.js";
 import {
   ChangeDetectorRef,
   Component,
@@ -106,30 +80,18 @@ import {
   NgZone,
   Output,
   Renderer2,
-  Router,
-  RouterLink,
-  RouterOutlet,
-  ViewChild,
   ViewEncapsulation,
   bootstrapApplication,
   computed,
-  effect,
   enableProdMode,
-  forwardRef,
   importProvidersFrom,
   inject,
-  input,
   numberAttribute,
-  output,
   provideHttpClient,
-  provideRouter,
   provideZonelessChangeDetection,
   setClassMetadata,
   setClassMetadataAsync,
   signal,
-  untracked,
-  viewChild,
-  withHashLocation,
   withInterceptorsFromDi,
   withXhr,
   ɵsetClassDebugInfo,
@@ -140,10 +102,9 @@ import {
   ɵɵclassProp,
   ɵɵconditional,
   ɵɵconditionalCreate,
-  ɵɵcontrol,
-  ɵɵcontrolCreate,
   ɵɵdefer,
-  ɵɵdeferWhen,
+  ɵɵdeferOnIdle,
+  ɵɵdeferOnImmediate,
   ɵɵdefineComponent,
   ɵɵdefineInjectable,
   ɵɵdefineInjector,
@@ -163,22 +124,14 @@ import {
   ɵɵpipeBind1,
   ɵɵproperty,
   ɵɵpureFunction0,
-  ɵɵqueryAdvance,
-  ɵɵreference,
   ɵɵresetView,
-  ɵɵresolveDocument,
-  ɵɵresolveWindow,
   ɵɵrestoreView,
   ɵɵstyleProp,
   ɵɵtext,
   ɵɵtextInterpolate,
-  ɵɵtextInterpolate1,
-  ɵɵtwoWayBindingSet,
-  ɵɵtwoWayListener,
-  ɵɵtwoWayProperty,
-  ɵɵviewQuerySignal
-} from "./chunk-E52RJLI7.js";
-import "./chunk-653SOEEV.js";
+  ɵɵtextInterpolate1
+} from "./chunk-WU2PTGBX.js";
+import "./chunk-GOMI4DH3.js";
 
 // node_modules/@angular/material/fesm2022/progress-bar.mjs
 function MatProgressBar_Conditional_2_Template(rf, ctx) {
@@ -429,506 +382,6 @@ var MatProgressBarModule = class _MatProgressBarModule {
   }], null, null);
 })();
 
-// libs/components/src/lib/native-domain-overlay.component.ts
-function NativeDomainOverlayComponent_Conditional_7_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275text(0, " Enter the address of your PlaceOS server to connect this app. ");
-  }
-}
-function NativeDomainOverlayComponent_Conditional_8_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275text(0, " Enter your work email to find your PlaceOS server and connect this app. ");
-  }
-}
-function NativeDomainOverlayComponent_Conditional_9_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275elementStart(0, "p", 6);
-    \u0275\u0275text(1);
-    \u0275\u0275elementEnd();
-  }
-  if (rf & 2) {
-    const ctx_r0 = \u0275\u0275nextContext();
-    \u0275\u0275advance();
-    \u0275\u0275textInterpolate1(" ", ctx_r0.error(), " ");
-  }
-}
-function NativeDomainOverlayComponent_Conditional_10_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275elementStart(0, "p", 7);
-    \u0275\u0275text(1);
-    \u0275\u0275elementEnd();
-  }
-  if (rf & 2) {
-    const ctx_r0 = \u0275\u0275nextContext();
-    \u0275\u0275advance();
-    \u0275\u0275textInterpolate1(" Settings provided by your administrator will be applied automatically in ", ctx_r0.auto_accept_in(), "s. ");
-  }
-}
-function NativeDomainOverlayComponent_Conditional_11_Template(rf, ctx) {
-  if (rf & 1) {
-    const _r2 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "div", 8)(1, "label", 12);
-    \u0275\u0275text(2, "Server Address");
-    \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(3, "mat-form-field", 13)(4, "icon", 14);
-    \u0275\u0275text(5, "dns");
-    \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(6, "input", 15);
-    \u0275\u0275twoWayListener("ngModelChange", function NativeDomainOverlayComponent_Conditional_11_Template_input_ngModelChange_6_listener($event) {
-      \u0275\u0275restoreView(_r2);
-      const ctx_r0 = \u0275\u0275nextContext();
-      \u0275\u0275twoWayBindingSet(ctx_r0.server_address, $event) || (ctx_r0.server_address = $event);
-      return \u0275\u0275resetView($event);
-    });
-    \u0275\u0275elementEnd();
-    \u0275\u0275controlCreate();
-    \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(7, "div", 8)(8, "label", 16);
-    \u0275\u0275text(9, "API Key (optional)");
-    \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(10, "mat-form-field", 13)(11, "icon", 14);
-    \u0275\u0275text(12, "key");
-    \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(13, "input", 17);
-    \u0275\u0275twoWayListener("ngModelChange", function NativeDomainOverlayComponent_Conditional_11_Template_input_ngModelChange_13_listener($event) {
-      \u0275\u0275restoreView(_r2);
-      const ctx_r0 = \u0275\u0275nextContext();
-      \u0275\u0275twoWayBindingSet(ctx_r0.api_key, $event) || (ctx_r0.api_key = $event);
-      return \u0275\u0275resetView($event);
-    });
-    \u0275\u0275elementEnd();
-    \u0275\u0275controlCreate();
-    \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(14, "p", 18);
-    \u0275\u0275text(15, " When set, the app authenticates with this key instead of asking you to sign in. ");
-    \u0275\u0275elementEnd()();
-  }
-  if (rf & 2) {
-    const ctx_r0 = \u0275\u0275nextContext();
-    \u0275\u0275advance(6);
-    \u0275\u0275twoWayProperty("ngModel", ctx_r0.server_address);
-    \u0275\u0275property("disabled", ctx_r0.loading());
-    \u0275\u0275control();
-    \u0275\u0275advance(7);
-    \u0275\u0275twoWayProperty("ngModel", ctx_r0.api_key);
-    \u0275\u0275property("disabled", ctx_r0.loading());
-    \u0275\u0275control();
-  }
-}
-function NativeDomainOverlayComponent_Conditional_12_Template(rf, ctx) {
-  if (rf & 1) {
-    const _r3 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "div", 8)(1, "label", 19);
-    \u0275\u0275text(2, "Work Email");
-    \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(3, "mat-form-field", 13)(4, "icon", 14);
-    \u0275\u0275text(5, "mail");
-    \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(6, "input", 20);
-    \u0275\u0275twoWayListener("ngModelChange", function NativeDomainOverlayComponent_Conditional_12_Template_input_ngModelChange_6_listener($event) {
-      \u0275\u0275restoreView(_r3);
-      const ctx_r0 = \u0275\u0275nextContext();
-      \u0275\u0275twoWayBindingSet(ctx_r0.email, $event) || (ctx_r0.email = $event);
-      return \u0275\u0275resetView($event);
-    });
-    \u0275\u0275elementEnd();
-    \u0275\u0275controlCreate();
-    \u0275\u0275elementEnd()();
-  }
-  if (rf & 2) {
-    const ctx_r0 = \u0275\u0275nextContext();
-    \u0275\u0275advance(6);
-    \u0275\u0275twoWayProperty("ngModel", ctx_r0.email);
-    \u0275\u0275property("disabled", ctx_r0.loading());
-    \u0275\u0275control();
-  }
-}
-function NativeDomainOverlayComponent_Conditional_14_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275text(0, " Find my server using my work email ");
-  }
-}
-function NativeDomainOverlayComponent_Conditional_15_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275text(0, " Enter a server address manually ");
-  }
-}
-var AUTO_ACCEPT_SECONDS = 15;
-var NativeDomainOverlayComponent = class _NativeDomainOverlayComponent {
-  constructor() {
-    this.serverError = input(
-      "",
-      ...ngDevMode ? [{ debugName: "serverError" }] : (
-        /* istanbul ignore next */
-        []
-      )
-    );
-    this.autoAccept = input(
-      false,
-      ...ngDevMode ? [{ debugName: "autoAccept" }] : (
-        /* istanbul ignore next */
-        []
-      )
-    );
-    this.domainSet = output();
-    this.email = signal(
-      getNativeEmail() ?? "",
-      ...ngDevMode ? [{ debugName: "email" }] : (
-        /* istanbul ignore next */
-        []
-      )
-    );
-    this.server_address = signal(
-      getNativeDomain() ?? "",
-      ...ngDevMode ? [{ debugName: "server_address" }] : (
-        /* istanbul ignore next */
-        []
-      )
-    );
-    this.api_key = signal(
-      getNativeApiKey() ?? "",
-      ...ngDevMode ? [{ debugName: "api_key" }] : (
-        /* istanbul ignore next */
-        []
-      )
-    );
-    this.manual_entry = signal(
-      !!getNativeDomain(),
-      ...ngDevMode ? [{ debugName: "manual_entry" }] : (
-        /* istanbul ignore next */
-        []
-      )
-    );
-    this.error = signal(
-      "",
-      ...ngDevMode ? [{ debugName: "error" }] : (
-        /* istanbul ignore next */
-        []
-      )
-    );
-    this.loading = signal(
-      false,
-      ...ngDevMode ? [{ debugName: "loading" }] : (
-        /* istanbul ignore next */
-        []
-      )
-    );
-    this.auto_accept_in = signal(
-      0,
-      ...ngDevMode ? [{ debugName: "auto_accept_in" }] : (
-        /* istanbul ignore next */
-        []
-      )
-    );
-    this._auto_accept_timer = null;
-    effect(() => {
-      const msg = this.serverError();
-      if (msg) {
-        this.error.set(msg);
-        untracked(() => this.stopAutoAccept());
-      }
-    });
-    effect(() => {
-      if (this.autoAccept() && untracked(this.server_address)) {
-        untracked(() => this.startAutoAccept());
-      }
-    });
-  }
-  ngOnDestroy() {
-    this.stopAutoAccept();
-  }
-  /** Restart the inactivity countdown — any user activity delays it. */
-  resetAutoAccept() {
-    if (!this._auto_accept_timer)
-      return;
-    this.auto_accept_in.set(AUTO_ACCEPT_SECONDS);
-  }
-  startAutoAccept() {
-    this.auto_accept_in.set(AUTO_ACCEPT_SECONDS);
-    if (this._auto_accept_timer)
-      return;
-    this._auto_accept_timer = setInterval(() => {
-      const remaining = this.auto_accept_in() - 1;
-      this.auto_accept_in.set(remaining);
-      if (remaining > 0)
-        return;
-      this.stopAutoAccept();
-      this.submit();
-    }, 1e3);
-  }
-  stopAutoAccept() {
-    if (this._auto_accept_timer)
-      clearInterval(this._auto_accept_timer);
-    this._auto_accept_timer = null;
-    this.auto_accept_in.set(0);
-  }
-  toggleManualEntry() {
-    if (this.loading())
-      return;
-    this.manual_entry.update((manual) => !manual);
-    this.error.set("");
-  }
-  async submit() {
-    if (this.loading())
-      return;
-    this.stopAutoAccept();
-    if (this.manual_entry())
-      return this.submitManual();
-    const raw = this.email().trim();
-    if (!raw) {
-      this.error.set("A work email is required.");
-      return;
-    }
-    this.loading.set(true);
-    this.error.set("");
-    try {
-      const domain = await lookupNativeDomainByEmail(raw);
-      setNativeEmail(raw);
-      setNativeDomain(domain);
-      setNativeApiKey("");
-      this.domainSet.emit(domain);
-    } catch {
-      this.error.set("Unable to find a server for this email address.");
-    } finally {
-      this.loading.set(false);
-    }
-  }
-  submitManual() {
-    const domain = normaliseNativeDomain(this.server_address());
-    if (!domain) {
-      this.error.set("A valid server address is required.");
-      return;
-    }
-    this.error.set("");
-    setNativeDomain(domain);
-    setNativeApiKey(this.api_key());
-    this.domainSet.emit(domain);
-  }
-  static {
-    this.\u0275fac = function NativeDomainOverlayComponent_Factory(__ngFactoryType__) {
-      return new (__ngFactoryType__ || _NativeDomainOverlayComponent)();
-    };
-  }
-  static {
-    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _NativeDomainOverlayComponent, selectors: [["native-domain-overlay"]], hostBindings: function NativeDomainOverlayComponent_HostBindings(rf, ctx) {
-      if (rf & 1) {
-        \u0275\u0275listener("pointerdown", function NativeDomainOverlayComponent_pointerdown_HostBindingHandler() {
-          return ctx.resetAutoAccept();
-        }, \u0275\u0275resolveWindow)("keydown", function NativeDomainOverlayComponent_keydown_HostBindingHandler() {
-          return ctx.resetAutoAccept();
-        }, \u0275\u0275resolveWindow);
-      }
-    }, inputs: { serverError: [1, "serverError"], autoAccept: [1, "autoAccept"] }, outputs: { domainSet: "domainSet" }, decls: 19, vars: 8, consts: [[1, "bg-base-200", "pointer-events-auto", "fixed", "inset-0", "z-9999", "flex", "items-center", "justify-center", "p-4"], [1, "border-base-300", "bg-base-100", "flex", "w-full", "max-w-md", "flex-col", "rounded-sm", "border", "shadow-sm", 3, "ngSubmit"], [1, "bg-base-200", "m-2", "rounded-sm", "border-none", "p-2"], [1, "px-2", "text-xl", "font-medium"], [1, "flex", "flex-col", "space-y-4", "p-4"], [1, "text-sm", "opacity-60"], [1, "bg-error/10", "text-error", "rounded-sm", "px-3", "py-2", "text-xs"], [1, "bg-info/10", "text-info", "rounded-sm", "px-3", "py-2", "text-xs"], [1, "flex", "w-full", "flex-col"], ["type", "button", 1, "self-start", "text-sm", "underline", "opacity-60", 3, "click", "disabled"], [1, "bg-base-200", "m-2", "flex", "items-center", "justify-center", "space-x-2", "rounded-sm", "border-none", "p-2"], ["btn", "", "matRipple", "", "type", "submit", 1, "flex-1", 3, "disabled"], ["for", "server-address"], ["appearance", "outline", 1, "w-full"], ["matPrefix", ""], ["matInput", "", "name", "server-address", "placeholder", "placeos.company.com", "type", "text", "autocapitalize", "off", "autocomplete", "url", "spellcheck", "false", "required", "", 3, "ngModelChange", "ngModel", "disabled"], ["for", "api-key"], ["matInput", "", "name", "api-key", "placeholder", "Leave empty to sign in", "type", "password", "autocapitalize", "off", "autocomplete", "off", "spellcheck", "false", 3, "ngModelChange", "ngModel", "disabled"], [1, "text-xs", "opacity-60"], ["for", "email"], ["matInput", "", "name", "email", "placeholder", "name@company.com", "type", "email", "autocapitalize", "off", "autocomplete", "email", "spellcheck", "false", "required", "", 3, "ngModelChange", "ngModel", "disabled"]], template: function NativeDomainOverlayComponent_Template(rf, ctx) {
-      if (rf & 1) {
-        \u0275\u0275elementStart(0, "div", 0)(1, "form", 1);
-        \u0275\u0275listener("ngSubmit", function NativeDomainOverlayComponent_Template_form_ngSubmit_1_listener() {
-          return ctx.submit();
-        });
-        \u0275\u0275elementStart(2, "header", 2)(3, "h2", 3);
-        \u0275\u0275text(4, "Connect to Server");
-        \u0275\u0275elementEnd()();
-        \u0275\u0275elementStart(5, "main", 4)(6, "p", 5);
-        \u0275\u0275conditionalCreate(7, NativeDomainOverlayComponent_Conditional_7_Template, 1, 0)(8, NativeDomainOverlayComponent_Conditional_8_Template, 1, 0);
-        \u0275\u0275elementEnd();
-        \u0275\u0275conditionalCreate(9, NativeDomainOverlayComponent_Conditional_9_Template, 2, 1, "p", 6);
-        \u0275\u0275conditionalCreate(10, NativeDomainOverlayComponent_Conditional_10_Template, 2, 1, "p", 7);
-        \u0275\u0275conditionalCreate(11, NativeDomainOverlayComponent_Conditional_11_Template, 16, 4)(12, NativeDomainOverlayComponent_Conditional_12_Template, 7, 2, "div", 8);
-        \u0275\u0275elementStart(13, "button", 9);
-        \u0275\u0275listener("click", function NativeDomainOverlayComponent_Template_button_click_13_listener() {
-          return ctx.toggleManualEntry();
-        });
-        \u0275\u0275conditionalCreate(14, NativeDomainOverlayComponent_Conditional_14_Template, 1, 0)(15, NativeDomainOverlayComponent_Conditional_15_Template, 1, 0);
-        \u0275\u0275elementEnd()();
-        \u0275\u0275elementStart(16, "footer", 10)(17, "button", 11);
-        \u0275\u0275text(18);
-        \u0275\u0275elementEnd()()()();
-      }
-      if (rf & 2) {
-        \u0275\u0275advance(7);
-        \u0275\u0275conditional(ctx.manual_entry() ? 7 : 8);
-        \u0275\u0275advance(2);
-        \u0275\u0275conditional(ctx.error() ? 9 : -1);
-        \u0275\u0275advance();
-        \u0275\u0275conditional(ctx.auto_accept_in() > 0 ? 10 : -1);
-        \u0275\u0275advance();
-        \u0275\u0275conditional(ctx.manual_entry() ? 11 : 12);
-        \u0275\u0275advance(2);
-        \u0275\u0275property("disabled", ctx.loading());
-        \u0275\u0275advance();
-        \u0275\u0275conditional(ctx.manual_entry() ? 14 : 15);
-        \u0275\u0275advance(3);
-        \u0275\u0275property("disabled", ctx.loading());
-        \u0275\u0275advance();
-        \u0275\u0275textInterpolate1(" ", ctx.loading() ? "Looking up..." : "Connect", " ");
-      }
-    }, dependencies: [
-      FormsModule,
-      \u0275NgNoValidate,
-      DefaultValueAccessor,
-      NgControlStatus,
-      NgControlStatusGroup,
-      RequiredValidator,
-      NgModel,
-      NgForm,
-      IconComponent,
-      MatFormFieldModule,
-      MatFormField,
-      MatPrefix,
-      MatInputModule,
-      MatInput,
-      MatRippleModule,
-      MatRipple
-    ], encapsulation: 2 });
-  }
-};
-(() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(NativeDomainOverlayComponent, [{
-    type: Component,
-    args: [{
-      selector: "native-domain-overlay",
-      template: `
-        <div
-            class="bg-base-200 pointer-events-auto fixed inset-0 z-9999 flex items-center justify-center p-4"
-        >
-            <form
-                class="border-base-300 bg-base-100 flex w-full max-w-md flex-col rounded-sm border shadow-sm"
-                (ngSubmit)="submit()"
-            >
-                <header class="bg-base-200 m-2 rounded-sm border-none p-2">
-                    <h2 class="px-2 text-xl font-medium">Connect to Server</h2>
-                </header>
-                <main class="flex flex-col space-y-4 p-4">
-                    <p class="text-sm opacity-60">
-                        @if (manual_entry()) {
-                            Enter the address of your PlaceOS server to connect
-                            this app.
-                        } @else {
-                            Enter your work email to find your PlaceOS server
-                            and connect this app.
-                        }
-                    </p>
-                    @if (error()) {
-                        <p
-                            class="bg-error/10 text-error rounded-sm px-3 py-2 text-xs"
-                        >
-                            {{ error() }}
-                        </p>
-                    }
-                    @if (auto_accept_in() > 0) {
-                        <p
-                            class="bg-info/10 text-info rounded-sm px-3 py-2 text-xs"
-                        >
-                            Settings provided by your administrator will be
-                            applied automatically in {{ auto_accept_in() }}s.
-                        </p>
-                    }
-                    @if (manual_entry()) {
-                        <div class="flex w-full flex-col">
-                            <label for="server-address">Server Address</label>
-                            <mat-form-field appearance="outline" class="w-full">
-                                <icon matPrefix>dns</icon>
-                                <input
-                                    matInput
-                                    name="server-address"
-                                    [(ngModel)]="server_address"
-                                    placeholder="placeos.company.com"
-                                    type="text"
-                                    autocapitalize="off"
-                                    autocomplete="url"
-                                    spellcheck="false"
-                                    required
-                                    [disabled]="loading()"
-                                />
-                            </mat-form-field>
-                        </div>
-                        <div class="flex w-full flex-col">
-                            <label for="api-key">API Key (optional)</label>
-                            <mat-form-field appearance="outline" class="w-full">
-                                <icon matPrefix>key</icon>
-                                <input
-                                    matInput
-                                    name="api-key"
-                                    [(ngModel)]="api_key"
-                                    placeholder="Leave empty to sign in"
-                                    type="password"
-                                    autocapitalize="off"
-                                    autocomplete="off"
-                                    spellcheck="false"
-                                    [disabled]="loading()"
-                                />
-                            </mat-form-field>
-                            <p class="text-xs opacity-60">
-                                When set, the app authenticates with this key
-                                instead of asking you to sign in.
-                            </p>
-                        </div>
-                    } @else {
-                        <div class="flex w-full flex-col">
-                            <label for="email">Work Email</label>
-                            <mat-form-field appearance="outline" class="w-full">
-                                <icon matPrefix>mail</icon>
-                                <input
-                                    matInput
-                                    name="email"
-                                    [(ngModel)]="email"
-                                    placeholder="name@company.com"
-                                    type="email"
-                                    autocapitalize="off"
-                                    autocomplete="email"
-                                    spellcheck="false"
-                                    required
-                                    [disabled]="loading()"
-                                />
-                            </mat-form-field>
-                        </div>
-                    }
-                    <button
-                        type="button"
-                        class="self-start text-sm underline opacity-60"
-                        [disabled]="loading()"
-                        (click)="toggleManualEntry()"
-                    >
-                        @if (manual_entry()) {
-                            Find my server using my work email
-                        } @else {
-                            Enter a server address manually
-                        }
-                    </button>
-                </main>
-                <footer
-                    class="bg-base-200 m-2 flex items-center justify-center space-x-2 rounded-sm border-none p-2"
-                >
-                    <button
-                        btn
-                        matRipple
-                        type="submit"
-                        class="flex-1"
-                        [disabled]="loading()"
-                    >
-                        {{ loading() ? 'Looking up...' : 'Connect' }}
-                    </button>
-                </footer>
-            </form>
-        </div>
-    `,
-      imports: [
-        FormsModule,
-        IconComponent,
-        MatFormFieldModule,
-        MatInputModule,
-        MatRippleModule
-      ],
-      host: {
-        "(window:pointerdown)": "resetAutoAccept()",
-        "(window:keydown)": "resetAutoAccept()"
-      }
-    }]
-  }], () => [], { serverError: [{ type: Input, args: [{ isSignal: true, alias: "serverError", required: false }] }], autoAccept: [{ type: Input, args: [{ isSignal: true, alias: "autoAccept", required: false }] }], domainSet: [{ type: Output, args: ["domainSet"] }] });
-})();
-(() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(NativeDomainOverlayComponent, { className: "NativeDomainOverlayComponent", filePath: "libs/components/src/lib/native-domain-overlay.component.ts", lineNumber: 169 });
-})();
-
 // libs/components/src/lib/service-worker-update-card.component.ts
 function ServiceWorkerUpdateCardComponent_Conditional_0_Template(rf, ctx) {
   if (rf & 1) {
@@ -956,7 +409,7 @@ function ServiceWorkerUpdateCardComponent_Conditional_0_Template(rf, ctx) {
     \u0275\u0275advance(2);
     \u0275\u0275textInterpolate1(" ", update_state_r3.details || "Refresh the page to get the new version of the application", " ");
     \u0275\u0275advance();
-    \u0275\u0275property("matTooltip", update_state_r3.action || "Reload App");
+    \u0275\u0275attribute("title", update_state_r3.action || "Reload App")("aria-label", update_state_r3.action || "Reload App");
   }
 }
 var ServiceWorkerUpdateCardComponent = class _ServiceWorkerUpdateCardComponent {
@@ -972,15 +425,15 @@ var ServiceWorkerUpdateCardComponent = class _ServiceWorkerUpdateCardComponent {
     };
   }
   static {
-    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _ServiceWorkerUpdateCardComponent, selectors: [["placeos-service-worker-update-card"]], decls: 1, vars: 1, consts: [["role", "status", "aria-live", "assertive", 1, "border-base-300", "bg-base-100", "text-base-content", "pointer-events-auto", "fixed", "right-4", "bottom-4", "z-9999", "flex", "w-[20rem]", "max-w-[calc(100vw-2rem)]", "items-center", "gap-3", "rounded-lg", "border", "p-4", "shadow-xl"], [1, "min-w-0", "flex-1"], [1, "m-0", "text-sm", "leading-tight", "font-medium"], [1, "m-0", "mt-1", "text-xs", "opacity-70"], ["icon", "", "default", "", 3, "click", "matTooltip"]], template: function ServiceWorkerUpdateCardComponent_Template(rf, ctx) {
+    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _ServiceWorkerUpdateCardComponent, selectors: [["placeos-service-worker-update-card"]], decls: 1, vars: 1, consts: [["role", "status", "aria-live", "assertive", 1, "border-base-300", "bg-base-100", "text-base-content", "pointer-events-auto", "fixed", "right-4", "bottom-4", "z-9999", "flex", "w-[20rem]", "max-w-[calc(100vw-2rem)]", "items-center", "gap-3", "rounded-lg", "border", "p-4", "shadow-xl"], [1, "min-w-0", "flex-1"], [1, "m-0", "text-sm", "leading-tight", "font-medium"], [1, "m-0", "mt-1", "text-xs", "opacity-70"], ["icon", "", "default", "", 3, "click"]], template: function ServiceWorkerUpdateCardComponent_Template(rf, ctx) {
       if (rf & 1) {
-        \u0275\u0275conditionalCreate(0, ServiceWorkerUpdateCardComponent_Conditional_0_Template, 9, 3, "aside", 0);
+        \u0275\u0275conditionalCreate(0, ServiceWorkerUpdateCardComponent_Conditional_0_Template, 9, 4, "aside", 0);
       }
       if (rf & 2) {
         let tmp_0_0;
         \u0275\u0275conditional((tmp_0_0 = ctx.update()) ? 0 : -1, tmp_0_0);
       }
-    }, dependencies: [IconComponent, MatTooltipModule, MatTooltip], encapsulation: 2 });
+    }, dependencies: [IconComponent], encapsulation: 2 });
   }
 };
 (() => {
@@ -1009,7 +462,8 @@ var ServiceWorkerUpdateCardComponent = class _ServiceWorkerUpdateCardComponent {
                 <button
                     icon
                     default
-                    [matTooltip]="update_state.action || 'Reload App'"
+                    [attr.title]="update_state.action || 'Reload App'"
+                    [attr.aria-label]="update_state.action || 'Reload App'"
                     (click)="reloadApp()"
                 >
                     <icon>refresh</icon>
@@ -1017,7 +471,7 @@ var ServiceWorkerUpdateCardComponent = class _ServiceWorkerUpdateCardComponent {
             </aside>
         }
     `,
-      imports: [IconComponent, MatTooltipModule]
+      imports: [IconComponent]
     }]
   }], null, null);
 })();
@@ -1026,25 +480,36 @@ var ServiceWorkerUpdateCardComponent = class _ServiceWorkerUpdateCardComponent {
 })();
 
 // libs/components/src/lib/global-loading.component.ts
-function GlobalLoadingComponent_Conditional_0_Template(rf, ctx) {
+var NativeDomainOverlayLoaderComponent_Conditional_0_Defer_1_DepsFn = () => [
+  /* @ts-ignore */
+  import("./native-domain-overlay.component-6H2YDGFK.js").then((m) => m.NativeDomainOverlayComponent)
+];
+function NativeDomainOverlayLoaderComponent_Conditional_0_Defer_0_Template(rf, ctx) {
   if (rf & 1) {
     const _r1 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "native-domain-overlay", 3);
-    \u0275\u0275listener("domainSet", function GlobalLoadingComponent_Conditional_0_Template_native_domain_overlay_domainSet_0_listener() {
+    \u0275\u0275elementStart(0, "native-domain-overlay", 0);
+    \u0275\u0275listener("domainSet", function NativeDomainOverlayLoaderComponent_Conditional_0_Defer_0_Template_native_domain_overlay_domainSet_0_listener() {
       \u0275\u0275restoreView(_r1);
-      const ctx_r1 = \u0275\u0275nextContext();
+      const ctx_r1 = \u0275\u0275nextContext(2);
       return \u0275\u0275resetView(ctx_r1.onDomainSet());
     });
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
-    const ctx_r1 = \u0275\u0275nextContext();
+    const ctx_r1 = \u0275\u0275nextContext(2);
     \u0275\u0275property("serverError", ctx_r1.domain_error())("autoAccept", ctx_r1.auto_confirm());
+  }
+}
+function NativeDomainOverlayLoaderComponent_Conditional_0_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275domTemplate(0, NativeDomainOverlayLoaderComponent_Conditional_0_Defer_0_Template, 1, 2);
+    \u0275\u0275defer(1, 0, NativeDomainOverlayLoaderComponent_Conditional_0_Defer_1_DepsFn);
+    \u0275\u0275deferOnImmediate();
   }
 }
 function GlobalLoadingComponent_Conditional_1_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 1);
+    \u0275\u0275elementStart(0, "div", 0);
     \u0275\u0275text(1);
     \u0275\u0275pipe(2, "translate");
     \u0275\u0275elementEnd();
@@ -1056,13 +521,13 @@ function GlobalLoadingComponent_Conditional_1_Template(rf, ctx) {
 }
 function GlobalLoadingComponent_Conditional_2_Conditional_1_Template(rf, ctx) {
   if (rf & 1) {
-    const _r3 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "div", 4)(1, "p", 5);
+    const _r1 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "div", 2)(1, "p", 3);
     \u0275\u0275text(2);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(3, "button", 6);
+    \u0275\u0275elementStart(3, "button", 4);
     \u0275\u0275listener("click", function GlobalLoadingComponent_Conditional_2_Conditional_1_Template_button_click_3_listener() {
-      \u0275\u0275restoreView(_r3);
+      \u0275\u0275restoreView(_r1);
       const ctx_r1 = \u0275\u0275nextContext(2);
       return \u0275\u0275resetView(ctx_r1.retry());
     });
@@ -1077,11 +542,11 @@ function GlobalLoadingComponent_Conditional_2_Conditional_1_Template(rf, ctx) {
 }
 function GlobalLoadingComponent_Conditional_2_Conditional_2_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 7)(1, "p", 8);
+    \u0275\u0275elementStart(0, "div", 5)(1, "p", 6);
     \u0275\u0275text(2);
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(3, "div", 9);
-    \u0275\u0275element(4, "mat-progress-bar", 10);
+    \u0275\u0275elementStart(3, "div", 7);
+    \u0275\u0275element(4, "mat-progress-bar", 8);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
@@ -1092,8 +557,8 @@ function GlobalLoadingComponent_Conditional_2_Conditional_2_Template(rf, ctx) {
 }
 function GlobalLoadingComponent_Conditional_2_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 2);
-    \u0275\u0275conditionalCreate(1, GlobalLoadingComponent_Conditional_2_Conditional_1_Template, 5, 1, "div", 4)(2, GlobalLoadingComponent_Conditional_2_Conditional_2_Template, 5, 1);
+    \u0275\u0275elementStart(0, "div", 1);
+    \u0275\u0275conditionalCreate(1, GlobalLoadingComponent_Conditional_2_Conditional_1_Template, 5, 1, "div", 2)(2, GlobalLoadingComponent_Conditional_2_Conditional_2_Template, 5, 1);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
@@ -1102,10 +567,63 @@ function GlobalLoadingComponent_Conditional_2_Template(rf, ctx) {
     \u0275\u0275conditional(ctx_r1.initialisation_error() ? 1 : 2);
   }
 }
+var NativeDomainOverlayLoaderComponent = class _NativeDomainOverlayLoaderComponent {
+  constructor() {
+    this._placeos = inject(PlaceOS_Service);
+    this.show = needsNativeDomain();
+    this.domain_error = nativeDomainError();
+    this.auto_confirm = autoConfirmNativeDomain();
+  }
+  onDomainSet() {
+    this._placeos.onNativeDomainSet();
+  }
+  static {
+    this.\u0275fac = function NativeDomainOverlayLoaderComponent_Factory(__ngFactoryType__) {
+      return new (__ngFactoryType__ || _NativeDomainOverlayLoaderComponent)();
+    };
+  }
+  static {
+    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _NativeDomainOverlayLoaderComponent, selectors: [["native-domain-overlay-loader"]], decls: 1, vars: 1, consts: [[3, "domainSet", "serverError", "autoAccept"]], template: function NativeDomainOverlayLoaderComponent_Template(rf, ctx) {
+      if (rf & 1) {
+        \u0275\u0275conditionalCreate(0, NativeDomainOverlayLoaderComponent_Conditional_0_Template, 3, 0);
+      }
+      if (rf & 2) {
+        \u0275\u0275conditional(ctx.show() ? 0 : -1);
+      }
+    }, encapsulation: 2 });
+  }
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(NativeDomainOverlayLoaderComponent, () => [
+    /* @ts-ignore */
+    import("./native-domain-overlay.component-6H2YDGFK.js").then((m) => m.NativeDomainOverlayComponent)
+  ], (NativeDomainOverlayComponent) => {
+    setClassMetadata(NativeDomainOverlayLoaderComponent, [{
+      type: Component,
+      args: [{
+        selector: "native-domain-overlay-loader",
+        template: `
+        @if (show()) {
+            @defer (on immediate) {
+                <native-domain-overlay
+                    [serverError]="domain_error()"
+                    [autoAccept]="auto_confirm()"
+                    (domainSet)="onDomainSet()"
+                ></native-domain-overlay>
+            }
+        }
+    `,
+        imports: [NativeDomainOverlayComponent]
+      }]
+    }], null, null);
+  });
+})();
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(NativeDomainOverlayLoaderComponent, { className: "NativeDomainOverlayLoaderComponent", filePath: "libs/components/src/lib/global-loading.component.ts", lineNumber: 40 });
+})();
 var GlobalLoadingComponent = class _GlobalLoadingComponent extends AsyncHandler {
   constructor() {
     super(...arguments);
-    this._placeos = inject(PlaceOS_Service);
     this.online = signal(
       true,
       ...ngDevMode ? [{ debugName: "online" }] : (
@@ -1121,9 +639,6 @@ var GlobalLoadingComponent = class _GlobalLoadingComponent extends AsyncHandler 
       )
     );
     this.message = getLoadingMessage();
-    this.show_domain_overlay = needsNativeDomain();
-    this.domain_error = nativeDomainError();
-    this.auto_confirm = autoConfirmNativeDomain();
     this.initialisation_error = initialisationFailure();
     this.initialisation_complete = initialisationComplete();
     this.loading = computed(
@@ -1137,12 +652,9 @@ var GlobalLoadingComponent = class _GlobalLoadingComponent extends AsyncHandler 
   retry() {
     retryInitialisation();
   }
-  onDomainSet() {
-    this._placeos.onNativeDomainSet();
-  }
   ngOnInit() {
     const update_online = () => {
-      this.online.set(Xr());
+      this.online.set(so());
       if (this.online()) {
         this.connection_checked.set(true);
         this.clearTimeout("initial-connection");
@@ -1164,15 +676,14 @@ var GlobalLoadingComponent = class _GlobalLoadingComponent extends AsyncHandler 
     })();
   }
   static {
-    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _GlobalLoadingComponent, selectors: [["global-loading"]], features: [\u0275\u0275InheritDefinitionFeature], decls: 4, vars: 3, consts: [[3, "serverError", "autoAccept"], [1, "bg-error", "fixed", "top-2", "left-1/2", "z-9999", "-translate-x-1/2", "rounded-3xl", "px-4", "py-2", "text-xs", "text-white", "shadow-sm"], ["loader", "", 1, "bg-base-300", "pointer-events-auto", "fixed", "inset-0", "z-9998", "flex", "flex-col", "items-center", "justify-end", "space-y-2", "p-4"], [3, "domainSet", "serverError", "autoAccept"], [1, "border-base-300", "bg-base-100", "w-[24rem]", "max-w-[calc(100vw-2rem)]", "rounded-lg", "border", "p-4", "text-center", "text-xs", "shadow-sm"], ["initialisation-error", ""], ["type", "button", 1, "bg-primary", "text-primary-content", "mt-3", "rounded", "px-4", "py-2", 3, "click"], [1, "border-base-300", "bg-base-100", "w-[24rem]", "max-w-[calc(100vw-2rem)]", "rounded-lg", "border", "p-2", "text-center", "text-xs", "shadow-sm"], [1, "text-center", "font-mono"], [1, "border-base-300", "w-[24rem]", "max-w-[calc(100vw-2rem)]", "overflow-hidden", "rounded-full", "border", "shadow-sm"], ["mode", "indeterminate", 1, "scale-150", "rounded-sm"]], template: function GlobalLoadingComponent_Template(rf, ctx) {
+    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _GlobalLoadingComponent, selectors: [["global-loading"]], features: [\u0275\u0275InheritDefinitionFeature], decls: 4, vars: 2, consts: [[1, "bg-error", "fixed", "top-2", "left-1/2", "z-9999", "-translate-x-1/2", "rounded-3xl", "px-4", "py-2", "text-xs", "text-white", "shadow-sm"], ["loader", "", 1, "bg-base-300", "pointer-events-auto", "fixed", "inset-0", "z-9998", "flex", "flex-col", "items-center", "justify-end", "space-y-2", "p-4"], [1, "border-base-300", "bg-base-100", "w-[24rem]", "max-w-[calc(100vw-2rem)]", "rounded-lg", "border", "p-4", "text-center", "text-xs", "shadow-sm"], ["initialisation-error", ""], ["type", "button", 1, "bg-primary", "text-primary-content", "mt-3", "rounded", "px-4", "py-2", 3, "click"], [1, "border-base-300", "bg-base-100", "w-[24rem]", "max-w-[calc(100vw-2rem)]", "rounded-lg", "border", "p-2", "text-center", "text-xs", "shadow-sm"], [1, "text-center", "font-mono"], [1, "border-base-300", "w-[24rem]", "max-w-[calc(100vw-2rem)]", "overflow-hidden", "rounded-full", "border", "shadow-sm"], ["mode", "indeterminate", 1, "scale-150", "rounded-sm"]], template: function GlobalLoadingComponent_Template(rf, ctx) {
       if (rf & 1) {
-        \u0275\u0275conditionalCreate(0, GlobalLoadingComponent_Conditional_0_Template, 1, 2, "native-domain-overlay", 0);
-        \u0275\u0275conditionalCreate(1, GlobalLoadingComponent_Conditional_1_Template, 3, 3, "div", 1);
-        \u0275\u0275conditionalCreate(2, GlobalLoadingComponent_Conditional_2_Template, 3, 1, "div", 2);
+        \u0275\u0275element(0, "native-domain-overlay-loader");
+        \u0275\u0275conditionalCreate(1, GlobalLoadingComponent_Conditional_1_Template, 3, 3, "div", 0);
+        \u0275\u0275conditionalCreate(2, GlobalLoadingComponent_Conditional_2_Template, 3, 1, "div", 1);
         \u0275\u0275element(3, "placeos-service-worker-update-card");
       }
       if (rf & 2) {
-        \u0275\u0275conditional(ctx.show_domain_overlay() ? 0 : -1);
         \u0275\u0275advance();
         \u0275\u0275conditional(ctx.connection_checked() && !ctx.online() ? 1 : -1);
         \u0275\u0275advance();
@@ -1181,7 +692,7 @@ var GlobalLoadingComponent = class _GlobalLoadingComponent extends AsyncHandler 
     }, dependencies: [
       MatProgressBarModule,
       MatProgressBar,
-      NativeDomainOverlayComponent,
+      NativeDomainOverlayLoaderComponent,
       ServiceWorkerUpdateCardComponent,
       TranslatePipe
     ], styles: ["\n[_nghost-%COMP%] {\n  pointer-events: none;\n}\n[loader][_ngcontent-%COMP%] {\n  background-image:\n    linear-gradient(\n      to right,\n      #f15b55 0%,\n      #f68c50 100%);\n}\n/*# sourceMappingURL=global-loading.component.css.map */"] });
@@ -1191,13 +702,7 @@ var GlobalLoadingComponent = class _GlobalLoadingComponent extends AsyncHandler 
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(GlobalLoadingComponent, [{
     type: Component,
     args: [{ selector: "global-loading", template: `
-        @if (show_domain_overlay()) {
-            <native-domain-overlay
-                [serverError]="domain_error()"
-                [autoAccept]="auto_confirm()"
-                (domainSet)="onDomainSet()"
-            ></native-domain-overlay>
-        }
+        <native-domain-overlay-loader />
         @if (connection_checked() && !online()) {
             <div
                 class="bg-error fixed top-2 left-1/2 z-9999 -translate-x-1/2 rounded-3xl px-4 py-2 text-xs text-white shadow-sm"
@@ -1245,344 +750,14 @@ var GlobalLoadingComponent = class _GlobalLoadingComponent extends AsyncHandler 
         <placeos-service-worker-update-card />
     `, imports: [
       MatProgressBarModule,
-      NativeDomainOverlayComponent,
+      NativeDomainOverlayLoaderComponent,
       ServiceWorkerUpdateCardComponent,
       TranslatePipe
     ], styles: ["/* angular:styles/component:css;cc9c8858f40050cbf899d1698bf5ddc695ecfe0c7e714e2a22cee15289062064;/home/runner/work/user-interfaces/user-interfaces/libs/components/src/lib/global-loading.component.ts */\n:host {\n  pointer-events: none;\n}\n[loader] {\n  background-image:\n    linear-gradient(\n      to right,\n      #f15b55 0%,\n      #f68c50 100%);\n}\n/*# sourceMappingURL=global-loading.component.css.map */\n"] }]
   }], null, null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(GlobalLoadingComponent, { className: "GlobalLoadingComponent", filePath: "libs/components/src/lib/global-loading.component.ts", lineNumber: 98 });
-})();
-
-// libs/components/src/lib/settings-debug-panel-launcher.component.ts
-var SettingsDebugPanelLauncherComponent_Defer_25_DepsFn = () => [
-  /* @ts-ignore */
-  import("./settings-debug-panel.component-2ZOVFMMC.js").then((m) => m.SettingsDebugPanelComponent)
-];
-var SettingsDebugPanelLauncherComponent_Defer_28_DepsFn = () => [
-  /* @ts-ignore */
-  import("./binding-debug-panel.component-ICYRMKSR.js").then((m) => m.BindingDebugPanelComponent)
-];
-var SettingsDebugPanelLauncherComponent_Defer_31_DepsFn = () => [
-  /* @ts-ignore */
-  import("./debug-console.component-FNEKRY4N.js").then((m) => m.DebugConsoleComponent)
-];
-function SettingsDebugPanelLauncherComponent_Defer_24_Conditional_0_Template(rf, ctx) {
-  if (rf & 1) {
-    const _r3 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "settings-debug-panel", 8);
-    \u0275\u0275listener("showChange", function SettingsDebugPanelLauncherComponent_Defer_24_Conditional_0_Template_settings_debug_panel_showChange_0_listener() {
-      \u0275\u0275restoreView(_r3);
-      const ctx_r3 = \u0275\u0275nextContext(2);
-      return \u0275\u0275resetView(ctx_r3.panel.set(null));
-    });
-    \u0275\u0275elementEnd();
-  }
-  if (rf & 2) {
-    const ctx_r3 = \u0275\u0275nextContext(2);
-    \u0275\u0275property("show", true)("schema", ctx_r3.schema());
-  }
-}
-function SettingsDebugPanelLauncherComponent_Defer_24_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275conditionalCreate(0, SettingsDebugPanelLauncherComponent_Defer_24_Conditional_0_Template, 1, 2, "settings-debug-panel", 7);
-  }
-  if (rf & 2) {
-    const ctx_r3 = \u0275\u0275nextContext();
-    \u0275\u0275conditional(ctx_r3.panel() === "settings" ? 0 : -1);
-  }
-}
-function SettingsDebugPanelLauncherComponent_Defer_27_Conditional_0_Template(rf, ctx) {
-  if (rf & 1) {
-    const _r5 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "binding-debug-panel", 10);
-    \u0275\u0275listener("showChange", function SettingsDebugPanelLauncherComponent_Defer_27_Conditional_0_Template_binding_debug_panel_showChange_0_listener() {
-      \u0275\u0275restoreView(_r5);
-      const ctx_r3 = \u0275\u0275nextContext(2);
-      return \u0275\u0275resetView(ctx_r3.panel.set(null));
-    });
-    \u0275\u0275elementEnd();
-  }
-  if (rf & 2) {
-    \u0275\u0275property("show", true)("hotkeysEnabled", false);
-  }
-}
-function SettingsDebugPanelLauncherComponent_Defer_27_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275conditionalCreate(0, SettingsDebugPanelLauncherComponent_Defer_27_Conditional_0_Template, 1, 2, "binding-debug-panel", 9);
-  }
-  if (rf & 2) {
-    const ctx_r3 = \u0275\u0275nextContext();
-    \u0275\u0275conditional(ctx_r3.panel() === "bindings" ? 0 : -1);
-  }
-}
-function SettingsDebugPanelLauncherComponent_Defer_30_Conditional_0_Template(rf, ctx) {
-  if (rf & 1) {
-    const _r6 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "debug-console", 10);
-    \u0275\u0275listener("showChange", function SettingsDebugPanelLauncherComponent_Defer_30_Conditional_0_Template_debug_console_showChange_0_listener() {
-      \u0275\u0275restoreView(_r6);
-      const ctx_r3 = \u0275\u0275nextContext(2);
-      return \u0275\u0275resetView(ctx_r3.panel.set(null));
-    });
-    \u0275\u0275elementEnd();
-  }
-  if (rf & 2) {
-    \u0275\u0275property("show", true)("hotkeysEnabled", false);
-  }
-}
-function SettingsDebugPanelLauncherComponent_Defer_30_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275conditionalCreate(0, SettingsDebugPanelLauncherComponent_Defer_30_Conditional_0_Template, 1, 2, "debug-console", 9);
-  }
-  if (rf & 2) {
-    const ctx_r3 = \u0275\u0275nextContext();
-    \u0275\u0275conditional(ctx_r3.panel() === "console" ? 0 : -1);
-  }
-}
-var SettingsDebugPanelLauncherComponent = class _SettingsDebugPanelLauncherComponent extends AsyncHandler {
-  constructor() {
-    super(...arguments);
-    this._hotkey = inject(HotkeysService);
-    this._document = inject(DOCUMENT);
-    this._menu_trigger = viewChild.required(
-      MatMenuTrigger,
-      ...ngDevMode ? [{ debugName: "_menu_trigger" }] : (
-        /* istanbul ignore next */
-        []
-      )
-    );
-    this.loadSchema = input(
-      ...ngDevMode ? [void 0, { debugName: "loadSchema" }] : (
-        /* istanbul ignore next */
-        []
-      )
-    );
-    this.schema = signal(
-      null,
-      ...ngDevMode ? [{ debugName: "schema" }] : (
-        /* istanbul ignore next */
-        []
-      )
-    );
-    this.panel = signal(
-      null,
-      ...ngDevMode ? [{ debugName: "panel" }] : (
-        /* istanbul ignore next */
-        []
-      )
-    );
-  }
-  ngOnInit() {
-    const shortcuts = [
-      ["settings", ["Control", "Alt", "Shift", "KeyS"]],
-      ["bindings", ["Control", "Alt", "Shift", "KeyB"]],
-      ["console", ["Control", "Backquote"]]
-    ];
-    for (const [panel, keys] of shortcuts) {
-      this.subscription(panel, this._hotkey.listen(keys, () => {
-        if (this.panel() === panel)
-          this.panel.set(null);
-        else
-          this.openPanel(panel);
-      }));
-    }
-  }
-  /** Observe the corner without placing a pointer target over app controls. */
-  onContextMenu(event) {
-    const height = this._document.documentElement.clientHeight;
-    if (event.clientX < 0 || event.clientX > 32 || event.clientY < height - 32 || event.clientY > height)
-      return;
-    this.openMenu(event, this._menu_trigger());
-  }
-  openMenu(event, trigger) {
-    event.preventDefault();
-    trigger.openMenu();
-  }
-  openPanel(panel) {
-    this.panel.set(panel);
-    if (panel === "settings") {
-      this._schema_request ??= this.loadSettingsSchema();
-    }
-  }
-  async loadSettingsSchema() {
-    try {
-      this.schema.set(await this.loadSchema()?.() ?? null);
-    } catch {
-      this.schema.set(null);
-    }
-  }
-  static {
-    this.\u0275fac = /* @__PURE__ */ (() => {
-      let \u0275SettingsDebugPanelLauncherComponent_BaseFactory;
-      return function SettingsDebugPanelLauncherComponent_Factory(__ngFactoryType__) {
-        return (\u0275SettingsDebugPanelLauncherComponent_BaseFactory || (\u0275SettingsDebugPanelLauncherComponent_BaseFactory = \u0275\u0275getInheritedFactory(_SettingsDebugPanelLauncherComponent)))(__ngFactoryType__ || _SettingsDebugPanelLauncherComponent);
-      };
-    })();
-  }
-  static {
-    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _SettingsDebugPanelLauncherComponent, selectors: [["settings-debug-panel-launcher"]], viewQuery: function SettingsDebugPanelLauncherComponent_Query(rf, ctx) {
-      if (rf & 1) {
-        \u0275\u0275viewQuerySignal(ctx._menu_trigger, MatMenuTrigger, 5);
-      }
-      if (rf & 2) {
-        \u0275\u0275queryAdvance();
-      }
-    }, hostBindings: function SettingsDebugPanelLauncherComponent_HostBindings(rf, ctx) {
-      if (rf & 1) {
-        \u0275\u0275listener("contextmenu", function SettingsDebugPanelLauncherComponent_contextmenu_HostBindingHandler($event) {
-          return ctx.onContextMenu($event);
-        }, \u0275\u0275resolveDocument);
-      }
-    }, inputs: { loadSchema: [1, "loadSchema"] }, features: [\u0275\u0275InheritDefinitionFeature], decls: 33, vars: 4, consts: [["menu_trigger", "matMenuTrigger"], ["debug_menu", "matMenu"], ["type", "button", "aria-label", "Open debugging tools", 1, "absolute", "bottom-0", "left-0", "z-999", "h-px", "w-px", 3, "contextmenu", "matMenuTriggerFor"], ["yPosition", "above"], [1, "flex", "w-64", "items-center", "justify-center", "pb-2", "text-sm", "opacity-60"], ["mat-menu-item", "", 3, "click"], [1, "flex", "items-center", "gap-2"], [3, "show", "schema"], [3, "showChange", "show", "schema"], [3, "show", "hotkeysEnabled"], [3, "showChange", "show", "hotkeysEnabled"]], template: function SettingsDebugPanelLauncherComponent_Template(rf, ctx) {
-      if (rf & 1) {
-        const _r1 = \u0275\u0275getCurrentView();
-        \u0275\u0275elementStart(0, "button", 2, 0);
-        \u0275\u0275listener("contextmenu", function SettingsDebugPanelLauncherComponent_Template_button_contextmenu_0_listener($event) {
-          \u0275\u0275restoreView(_r1);
-          const menu_trigger_r2 = \u0275\u0275reference(1);
-          return \u0275\u0275resetView(ctx.openMenu($event, menu_trigger_r2));
-        });
-        \u0275\u0275elementEnd();
-        \u0275\u0275elementStart(2, "mat-menu", 3, 1)(4, "div", 4);
-        \u0275\u0275text(5, " Debugging Panels ");
-        \u0275\u0275elementEnd();
-        \u0275\u0275elementStart(6, "button", 5);
-        \u0275\u0275listener("click", function SettingsDebugPanelLauncherComponent_Template_button_click_6_listener() {
-          return ctx.openPanel("settings");
-        });
-        \u0275\u0275elementStart(7, "div", 6)(8, "icon");
-        \u0275\u0275text(9, "discover_tune");
-        \u0275\u0275elementEnd();
-        \u0275\u0275elementStart(10, "div");
-        \u0275\u0275text(11, "Settings");
-        \u0275\u0275elementEnd()()();
-        \u0275\u0275elementStart(12, "button", 5);
-        \u0275\u0275listener("click", function SettingsDebugPanelLauncherComponent_Template_button_click_12_listener() {
-          return ctx.openPanel("bindings");
-        });
-        \u0275\u0275elementStart(13, "div", 6)(14, "icon");
-        \u0275\u0275text(15, "linked_services");
-        \u0275\u0275elementEnd();
-        \u0275\u0275elementStart(16, "div");
-        \u0275\u0275text(17, "Driver bindings");
-        \u0275\u0275elementEnd()()();
-        \u0275\u0275elementStart(18, "button", 5);
-        \u0275\u0275listener("click", function SettingsDebugPanelLauncherComponent_Template_button_click_18_listener() {
-          return ctx.openPanel("console");
-        });
-        \u0275\u0275elementStart(19, "div", 6)(20, "icon");
-        \u0275\u0275text(21, "terminal_2");
-        \u0275\u0275elementEnd();
-        \u0275\u0275elementStart(22, "div");
-        \u0275\u0275text(23, "Console");
-        \u0275\u0275elementEnd()()()();
-        \u0275\u0275domTemplate(24, SettingsDebugPanelLauncherComponent_Defer_24_Template, 1, 1);
-        \u0275\u0275defer(25, 24, SettingsDebugPanelLauncherComponent_Defer_25_DepsFn);
-        \u0275\u0275domTemplate(27, SettingsDebugPanelLauncherComponent_Defer_27_Template, 1, 1);
-        \u0275\u0275defer(28, 27, SettingsDebugPanelLauncherComponent_Defer_28_DepsFn);
-        \u0275\u0275domTemplate(30, SettingsDebugPanelLauncherComponent_Defer_30_Template, 1, 1);
-        \u0275\u0275defer(31, 30, SettingsDebugPanelLauncherComponent_Defer_31_DepsFn);
-      }
-      if (rf & 2) {
-        const debug_menu_r7 = \u0275\u0275reference(3);
-        \u0275\u0275property("matMenuTriggerFor", debug_menu_r7);
-        \u0275\u0275advance(25);
-        \u0275\u0275deferWhen(ctx.panel() === "settings");
-        \u0275\u0275advance(3);
-        \u0275\u0275deferWhen(ctx.panel() === "bindings");
-        \u0275\u0275advance(3);
-        \u0275\u0275deferWhen(ctx.panel() === "console");
-      }
-    }, dependencies: [MatMenuModule, MatMenu, MatMenuItem, MatMenuTrigger, IconComponent], encapsulation: 2 });
-  }
-};
-(() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(SettingsDebugPanelLauncherComponent, () => [
-    /* @ts-ignore */
-    import("./settings-debug-panel.component-2ZOVFMMC.js").then((m) => m.SettingsDebugPanelComponent),
-    /* @ts-ignore */
-    import("./binding-debug-panel.component-ICYRMKSR.js").then((m) => m.BindingDebugPanelComponent),
-    /* @ts-ignore */
-    import("./debug-console.component-FNEKRY4N.js").then((m) => m.DebugConsoleComponent)
-  ], (SettingsDebugPanelComponent, BindingDebugPanelComponent, DebugConsoleComponent) => {
-    setClassMetadata(SettingsDebugPanelLauncherComponent, [{
-      type: Component,
-      args: [{ selector: "settings-debug-panel-launcher", host: { "(document:contextmenu)": "onContextMenu($event)" }, imports: [
-        MatMenuModule,
-        SettingsDebugPanelComponent,
-        BindingDebugPanelComponent,
-        DebugConsoleComponent,
-        IconComponent
-      ], template: `
-        <button
-            type="button"
-            class="absolute bottom-0 left-0 z-999 h-px w-px"
-            aria-label="Open debugging tools"
-            [matMenuTriggerFor]="debug_menu"
-            #menu_trigger="matMenuTrigger"
-            (contextmenu)="openMenu($event, menu_trigger)"
-        >
-        </button>
-        <mat-menu #debug_menu="matMenu" yPosition="above">
-            <div
-                class="flex w-64 items-center justify-center pb-2 text-sm opacity-60"
-            >
-                Debugging Panels
-            </div>
-            <button mat-menu-item (click)="openPanel('settings')">
-                <div class="flex items-center gap-2">
-                    <icon>discover_tune</icon>
-                    <div>Settings</div>
-                </div>
-            </button>
-            <button mat-menu-item (click)="openPanel('bindings')">
-                <div class="flex items-center gap-2">
-                    <icon>linked_services</icon>
-                    <div>Driver bindings</div>
-                </div>
-            </button>
-            <button mat-menu-item (click)="openPanel('console')">
-                <div class="flex items-center gap-2">
-                    <icon>terminal_2</icon>
-                    <div>Console</div>
-                </div>
-            </button>
-        </mat-menu>
-        @defer (when panel() === 'settings') {
-            @if (panel() === 'settings') {
-                <settings-debug-panel
-                    [show]="true"
-                    (showChange)="panel.set(null)"
-                    [schema]="schema()"
-                />
-            }
-        }
-        @defer (when panel() === 'bindings') {
-            @if (panel() === 'bindings') {
-                <binding-debug-panel
-                    [show]="true"
-                    (showChange)="panel.set(null)"
-                    [hotkeysEnabled]="false"
-                />
-            }
-        }
-        @defer (when panel() === 'console') {
-            @if (panel() === 'console') {
-                <debug-console
-                    [show]="true"
-                    (showChange)="panel.set(null)"
-                    [hotkeysEnabled]="false"
-                />
-            }
-        }
-    ` }]
-    }], null, { _menu_trigger: [{ type: ViewChild, args: [forwardRef(() => MatMenuTrigger), { isSignal: true }] }], loadSchema: [{ type: Input, args: [{ isSignal: true, alias: "loadSchema", required: false }] }] });
-  });
-})();
-(() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(SettingsDebugPanelLauncherComponent, { className: "SettingsDebugPanelLauncherComponent", filePath: "libs/components/src/lib/settings-debug-panel-launcher.component.ts", lineNumber: 97 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(GlobalLoadingComponent, { className: "GlobalLoadingComponent", filePath: "libs/components/src/lib/global-loading.component.ts", lineNumber: 124 });
 })();
 
 // libs/components/src/lib/unauthorised.component.ts
@@ -1727,7 +902,7 @@ var AuthorisedUserGuard = class _AuthorisedUserGuard {
   }
   /** The active user, or null if the backend could not be reached in time */
   async waitForUser() {
-    const online = await this.waitForBackend(Zr(eo(), Boolean));
+    const online = await this.waitForBackend(Yr(io(), Boolean));
     if (!online)
       return null;
     let user = null;
@@ -1784,13 +959,22 @@ var AuthorisedUserGuard = class _AuthorisedUserGuard {
 })();
 
 // apps/outlook-addin/src/app/app.component.ts
+var AppComponent_Defer_1_DepsFn = () => [
+  /* @ts-ignore */
+  import("./settings-debug-panel-launcher.component-WXTD3MKX.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+];
+function AppComponent_Defer_0_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275element(0, "settings-debug-panel-launcher");
+  }
+}
 var AppComponent = class _AppComponent extends AsyncHandler {
   constructor() {
     super(...arguments);
     this._settings = inject(SettingsService);
     this._org = inject(OrganisationService);
     this._cache = inject(SwUpdate);
-    this._snackbar = inject(MatSnackBar);
+    this._snackbar = lazySnackbar();
     this._locales = inject(LocaleService);
     this._uploads = inject(UploadsService);
     this._current_user = userSignal();
@@ -1826,6 +1010,8 @@ var AppComponent = class _AppComponent extends AsyncHandler {
       failInitialisation("The Outlook add-in could not start. Close and reopen it, then try again.");
       return;
     }
+    if (this._isAuthDialog())
+      return this._completeAuthDialog();
     log("Outlook", `Initialising auth...`);
     if (!await this._initialiseAuth())
       return;
@@ -1896,28 +1082,40 @@ var AppComponent = class _AppComponent extends AsyncHandler {
       const path = `${location.origin}${location.pathname}#ms-auth=true`;
       console.info(`Opening office authentication dialog with URL: ${path}`);
       Office.context.ui.displayDialogAsync(path, { height: 60, width: 30 }, (result) => {
+        if (result.status !== "succeeded") {
+          this.clearTimeout("office_auth_failure");
+          failInitialisation("The Microsoft sign-in window could not open. Allow pop-ups for Outlook, then try again.");
+          return;
+        }
         log("Outlook", `Authenticating with dialog...`);
         const dialog = result.value;
-        dialog.addEventHandler(Office.EventType.DialogMessageReceived, (token) => {
+        dialog.addEventHandler(Office.EventType.DialogMessageReceived, (event) => {
           this.clearTimeout("office_auth_failure");
-          if (token)
-            yi(token);
+          if (event.message)
+            bi(event.message);
           this._finishInitialise();
           dialog.close();
         });
       });
     });
-    console.info(`URL: ${window.location.href}`);
-    if (window.location.href.includes("ms-auth=true") || sessionStorage.getItem("ms-auth")) {
-      sessionStorage.setItem("ms-auth", "true");
-      log("Outlook", `Authenticating with dialog...`);
-      this.clearTimeout("office_auth");
-      if (!await this._initialiseAuth(false))
-        return;
-      if (!J())
-        return;
-      Office.context.ui.messageParent(J() || "");
-    }
+  }
+  /** True when this window is the sign-in dialog opened by the task pane. */
+  _isAuthDialog() {
+    return location.href.includes("ms-auth=true") || !!sessionStorage.getItem("ms-auth");
+  }
+  /**
+   * Sign in to PlaceOS inside the dialog, then send the token to the task
+   * pane. The task pane cannot share the dialog's storage or cookies.
+   */
+  async _completeAuthDialog() {
+    sessionStorage.setItem("ms-auth", "true");
+    log("Outlook", `Signing in from dialog...`);
+    if (!await this._initialiseAuth(false))
+      return;
+    if (!J())
+      return;
+    sessionStorage.removeItem("ms-auth");
+    Office.context.ui.messageParent(J());
   }
   async _authenticateGraphAPI(tries = 0) {
     if (!Office.context.auth) {
@@ -1933,13 +1131,13 @@ var AppComponent = class _AppComponent extends AsyncHandler {
       return this._authenticateGraphAPI(tries + 1);
     }
     try {
-      const access_token = Office.context.auth.getAccessTokenAsync();
+      const access_token = new Promise((resolve) => Office.context.auth.getAccessTokenAsync({ allowSignInPrompt: true }, resolve));
       const result = await withTimeout(access_token, 1e4, "Microsoft single sign-on timed out.");
       if (result.status === "succeeded") {
         const token = result.value;
         log("Outlook", "SSO token acquired successfully");
         if (token)
-          yi(token);
+          bi(token);
         await this._finishInitialise();
         return;
       }
@@ -1954,9 +1152,9 @@ var AppComponent = class _AppComponent extends AsyncHandler {
     }
   }
   onInitError() {
-    if (Rn() || this._current_user()?.is_logged_in)
+    if (Un() || this._current_user()?.is_logged_in)
       return;
-    En();
+    Cn();
     failInitialisation("The Outlook add-in could not load the current user. Check the connection, then try again.");
   }
   static {
@@ -1968,34 +1166,43 @@ var AppComponent = class _AppComponent extends AsyncHandler {
     })();
   }
   static {
-    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _AppComponent, selectors: [["app-root"]], features: [\u0275\u0275InheritDefinitionFeature], decls: 3, vars: 0, template: function AppComponent_Template(rf, ctx) {
+    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _AppComponent, selectors: [["app-root"]], features: [\u0275\u0275InheritDefinitionFeature], decls: 5, vars: 0, template: function AppComponent_Template(rf, ctx) {
       if (rf & 1) {
-        \u0275\u0275element(0, "settings-debug-panel-launcher")(1, "router-outlet")(2, "global-loading");
+        \u0275\u0275domTemplate(0, AppComponent_Defer_0_Template, 1, 0);
+        \u0275\u0275defer(1, 0, AppComponent_Defer_1_DepsFn);
+        \u0275\u0275deferOnIdle();
+        \u0275\u0275element(3, "router-outlet")(4, "global-loading");
       }
     }, dependencies: [
-      SettingsDebugPanelLauncherComponent,
       RouterOutlet,
       GlobalLoadingComponent
     ], encapsulation: 2 });
   }
 };
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(AppComponent, [{
-    type: Component,
-    args: [{ selector: "app-root", template: `
-        <settings-debug-panel-launcher />
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(AppComponent, () => [
+    /* @ts-ignore */
+    import("./settings-debug-panel-launcher.component-WXTD3MKX.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+  ], (SettingsDebugPanelLauncherComponent) => {
+    setClassMetadata(AppComponent, [{
+      type: Component,
+      args: [{ selector: "app-root", template: `
+        @defer (on idle) {
+            <settings-debug-panel-launcher />
+        }
 
         <router-outlet />
         <global-loading />
     `, imports: [
-      SettingsDebugPanelLauncherComponent,
-      RouterOutlet,
-      GlobalLoadingComponent
-    ] }]
-  }], null, null);
+        SettingsDebugPanelLauncherComponent,
+        RouterOutlet,
+        GlobalLoadingComponent
+      ] }]
+    }], null, null);
+  });
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(AppComponent, { className: "AppComponent", filePath: "apps/outlook-addin/src/app/app.component.ts", lineNumber: 54 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(AppComponent, { className: "AppComponent", filePath: "apps/outlook-addin/src/app/app.component.ts", lineNumber: 56 });
 })();
 
 // apps/outlook-addin/src/environments/environment.ts
@@ -2008,11 +1215,11 @@ var routes = [
   { path: "unauthorised", component: UnauthorisedComponent },
   {
     path: "404",
-    loadComponent: () => import("./not-found.component-4VZNAFSG.js").then((m) => m.NotFoundComponent)
+    loadComponent: () => import("./not-found.component-PCJD4WOX.js").then((m) => m.NotFoundComponent)
   },
   {
     path: "find",
-    loadComponent: () => import("./find-space.component-PVNKCJGE.js").then((m) => m.FindSpaceComponent)
+    loadComponent: () => import("./find-space.component-CGLVCHGY.js").then((m) => m.FindSpaceComponent)
   },
   {
     path: "",
@@ -2021,48 +1228,48 @@ var routes = [
     children: [
       {
         path: "ms-auth",
-        loadComponent: () => import("./room-booking.component-BXXQ6L7B.js").then((m) => m.RoomBookingComponent)
+        loadComponent: () => import("./room-booking.component-TI4P26R7.js").then((m) => m.RoomBookingComponent)
       },
       {
         path: "book",
         children: [
           {
             path: "spaces",
-            loadComponent: () => import("./room-booking.component-BXXQ6L7B.js").then((m) => m.RoomBookingComponent)
+            loadComponent: () => import("./room-booking.component-TI4P26R7.js").then((m) => m.RoomBookingComponent)
           },
           {
             path: "spaces/success",
-            loadComponent: () => import("./booking-confirmed.component-JNQQ3JUK.js").then((m) => m.BookingConfirmedComponent)
+            loadComponent: () => import("./booking-confirmed.component-YKO5CD4I.js").then((m) => m.BookingConfirmedComponent)
           },
           {
             path: "meeting",
-            loadComponent: () => import("./meeting-booking.component-ONS3FOMN.js").then((m) => m.MeetingBookingComponent)
+            loadComponent: () => import("./meeting-booking.component-QMA4DC4E.js").then((m) => m.MeetingBookingComponent)
           },
           {
             path: "meeting/success",
-            loadComponent: () => import("./meeting-success.component-3HAYAILA.js").then((m) => m.MeetingBookingSuccessComponent)
+            loadComponent: () => import("./meeting-success.component-7DXYZYM2.js").then((m) => m.MeetingBookingSuccessComponent)
           },
           {
             path: "desks",
-            loadComponent: () => import("./desk-booking.component-BWFPBRG6.js").then((m) => m.DeskBookingComponent)
+            loadComponent: () => import("./desk-booking.component-UFLNJZIX.js").then((m) => m.DeskBookingComponent)
           },
           {
             path: "desks/success",
-            loadComponent: () => import("./desk-success.component-ARPVOOMY.js").then((m) => m.DeskBookingSuccessComponent)
+            loadComponent: () => import("./desk-success.component-QVGZIWTO.js").then((m) => m.DeskBookingSuccessComponent)
           }
         ]
       },
       {
         path: "schedule/view",
-        loadComponent: () => import("./find-space.component-PVNKCJGE.js").then((m) => m.FindSpaceComponent)
+        loadComponent: () => import("./find-space.component-CGLVCHGY.js").then((m) => m.FindSpaceComponent)
       },
       {
         path: "confirm/success",
-        loadComponent: () => import("./booking-confirmed.component-JNQQ3JUK.js").then((m) => m.BookingConfirmedComponent)
+        loadComponent: () => import("./booking-confirmed.component-YKO5CD4I.js").then((m) => m.BookingConfirmedComponent)
       },
       {
         path: "upcoming",
-        loadComponent: () => import("./upcoming-bookings.component-RPRCNWW2.js").then((m) => m.UpcomingBookingsComponent)
+        loadComponent: () => import("./upcoming-bookings.component-QTTG42SL.js").then((m) => m.UpcomingBookingsComponent)
       },
       { path: "**", redirectTo: "book/meeting" }
     ]
@@ -2079,7 +1286,7 @@ var appConfig = {
     provideServiceWorker("ngsw-worker.js", {
       enabled: environment.production
     }),
-    importProvidersFrom(MatSnackBarModule, NativeDateModule)
+    importProvidersFrom(NativeDateModule)
   ]
 };
 
@@ -2088,5 +1295,5 @@ if (environment.production) {
   enableProdMode();
 }
 bootstrapApplication(AppComponent, appConfig).catch((err) => console.error(err));
-//# debugId=7563f7f5-a932-56da-90f9-e60fa5a6280d
+//# debugId=fa2f00a7-910e-52b4-a126-991bd71ce792
 //# sourceMappingURL=main.js.map
