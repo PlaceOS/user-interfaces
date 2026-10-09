@@ -1,7 +1,7 @@
 {
     "name": "Timetable",
     "short_name": "Timetable",
-    "theme_color": "#0F4C81",
+    "theme_color": "#155E75",
     "background_color": "#fafafa",
     "display": "standalone",
     "scope": "./",
