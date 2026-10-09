@@ -1,0 +1,12 @@
+{
+  "version": 3,
+  "sources": [
+    "libs/components/src/lib/load-error.component.ts"
+  ],
+  "sourcesContent": [
+    "import { Component, output } from '@angular/core';\nimport { MatRippleModule } from '@angular/material/core';\n\nimport { IconComponent } from './icon.component';\nimport { TranslatePipe } from './translate.pipe';\n\n/**\n * Shows that data failed to load, with a button to try again.\n * Use it in place of an empty state, so a failed request does not look\n * like a list with no items.\n */\n@Component({\n    selector: 'load-error',\n    template: `\n        <div\n            role=\"alert\"\n            class=\"flex flex-col items-center justify-center gap-2 p-8 text-center\"\n        >\n            <icon class=\"text-error text-3xl\">error</icon>\n            <p>{{ 'COMMON.LOAD_ERROR' | translate }}</p>\n            <!-- type=\"button\": inside a form the default submits it -->\n            <button\n                btn\n                matRipple\n                type=\"button\"\n                class=\"inverse\"\n                (click)=\"retry.emit()\"\n            >\n                {{ 'COMMON.RETRY' | translate }}\n            </button>\n        </div>\n    `,\n    imports: [MatRippleModule, IconComponent, TranslatePipe],\n})\nexport class LoadErrorComponent {\n    public readonly retry = output<void>();\n}\n"
+  ],
+  "mappings": ";;;;;;;;;;;;;;;;;;;;;;;;;;;;;AAkCM,IAAO,qBAAP,MAAO,oBAAkB;EAvB/B,cAAA;AAwBoB,SAAA,QAAQ,OAAM;;;;uCADrB,qBAAkB;IAAA;EAAA;;yEAAlB,qBAAkB,WAAA,CAAA,CAAA,YAAA,CAAA,GAAA,SAAA,EAAA,OAAA,QAAA,GAAA,OAAA,GAAA,MAAA,GAAA,QAAA,CAAA,CAAA,QAAA,SAAA,GAAA,QAAA,YAAA,gBAAA,kBAAA,SAAA,OAAA,aAAA,GAAA,CAAA,GAAA,cAAA,UAAA,GAAA,CAAA,OAAA,IAAA,aAAA,IAAA,QAAA,UAAA,GAAA,WAAA,GAAA,OAAA,CAAA,GAAA,UAAA,SAAA,4BAAA,IAAA,KAAA;AAAA,UAAA,KAAA,GAAA;AApBvB,QAAA,yBAAA,GAAA,OAAA,CAAA,EAGC,GAAA,QAAA,CAAA;AACqC,QAAA,iBAAA,GAAA,OAAA;AAAK,QAAA,uBAAA;AACvC,QAAA,yBAAA,GAAA,GAAA;AAAG,QAAA,iBAAA,CAAA;;AAAqC,QAAA,uBAAA;AAExC,QAAA,yBAAA,GAAA,UAAA,CAAA;AAKI,QAAA,qBAAA,SAAA,SAAA,sDAAA;AAAA,iBAAS,IAAA,MAAA,KAAA;QAAY,CAAA;AAErB,QAAA,iBAAA,CAAA;;AACJ,QAAA,uBAAA,EAAS;;;AAVN,QAAA,oBAAA,CAAA;AAAA,QAAA,4BAAA,sBAAA,GAAA,GAAA,mBAAA,CAAA;AASC,QAAA,oBAAA,CAAA;AAAA,QAAA,6BAAA,KAAA,sBAAA,GAAA,GAAA,cAAA,GAAA,GAAA;;sBAIF,iBAAe,WAAE,eAAe,aAAa,GAAA,eAAA,EAAA,CAAA;EAAA;;;sEAE9C,oBAAkB,CAAA;UAvB9B;WAAU;MACP,UAAU;MACV,UAAU;;;;;;;;;;;;;;;;;;;MAmBV,SAAS,CAAC,iBAAiB,eAAe,aAAa;KAC1D;;;;6EACY,oBAAkB,EAAA,WAAA,sBAAA,UAAA,mDAAA,YAAA,GAAA,CAAA;AAAA,GAAA;",
+  "names": [],
+  "debugId": "14d72cbb-914e-58b4-aa7e-b4aa46e28b2c"
+}

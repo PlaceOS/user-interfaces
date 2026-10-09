@@ -1,0 +1,12 @@
+{
+  "version": 3,
+  "sources": [
+    "apps/signage-manager/src/app/signage-url.util.ts"
+  ],
+  "sourcesContent": [
+    "/**\n * Parse `url` and return it only when it uses http or https. Relative URLs\n * resolve against `base`. Without `base`, only absolute URLs parse. Use it to\n * refuse schemes such as `javascript:` and `data:` before a URL is stored or\n * loaded in an iframe.\n */\nexport function parseWebUrl(url: string, base?: string): URL | null {\n    try {\n        const parsed = new URL(url, base);\n        return parsed.protocol === 'http:' || parsed.protocol === 'https:'\n            ? parsed\n            : null;\n    } catch {\n        return null;\n    }\n}\n\n/**\n * Absolute http or https `url` in the parsed form, or null for other URLs.\n * Save this form: the backend refuses an origin without a path, such as\n * `https://example.com`, and parsing adds the trailing `/`.\n */\nexport function normaliseWebPageUrl(url: string): string | null {\n    return parseWebUrl(url)?.href ?? null;\n}\n\n/** True when `url` is an absolute http or https URL. Webpage media need one. */\nexport function isWebPageUrl(url: string): boolean {\n    return !!parseWebUrl(url);\n}\n\n/**\n * URL that is safe to load in a webpage media iframe. Other schemes, such as\n * `javascript:`, are replaced so they cannot run in the signage manager origin.\n */\nexport function webPageFrameUrl(url: string): string {\n    return isWebPageUrl(url) ? url : 'about:blank';\n}\n"
+  ],
+  "mappings": ";AAMM,SAAU,YAAY,KAAa,MAAa;AAClD,MAAI;AACA,UAAM,SAAS,IAAI,IAAI,KAAK,IAAI;AAChC,WAAO,OAAO,aAAa,WAAW,OAAO,aAAa,WACpD,SACA;EACV,QAAQ;AACJ,WAAO;EACX;AACJ;AAOM,SAAU,oBAAoB,KAAW;AAC3C,SAAO,YAAY,GAAG,GAAG,QAAQ;AACrC;AAGM,SAAU,aAAa,KAAW;AACpC,SAAO,CAAC,CAAC,YAAY,GAAG;AAC5B;AAMM,SAAU,gBAAgB,KAAW;AACvC,SAAO,aAAa,GAAG,IAAI,MAAM;AACrC;",
+  "names": [],
+  "debugId": "66ec795a-4edb-5538-b9d3-fbc3f19ca125"
+}
