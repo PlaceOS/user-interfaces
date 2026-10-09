@@ -401,7 +401,11 @@ export class RoomBookingsApprovalsComponent implements OnInit {
         if (!mod) return;
         this._setInProgress([event], 'accept');
         try {
-            await mod.execute('accept_event', [event.mailbox, event.id]);
+            await mod.execute(
+                'accept_event',
+                [event.mailbox, event.id],
+                30 * 1000,
+            );
         } catch (e) {
             this._clearInProgress([event]);
             return notifyError(`Failed to approve booking: ${e}`);
@@ -438,7 +442,11 @@ export class RoomBookingsApprovalsComponent implements OnInit {
         if (!mod) return;
         this._setInProgress([event], 'decline');
         try {
-            await mod.execute('decline_event', [event.mailbox, event.id]);
+            await mod.execute(
+                'decline_event',
+                [event.mailbox, event.id],
+                30 * 1000,
+            );
         } catch (e) {
             this._clearInProgress([event]);
             return notifyError(`Failed to decline booking: ${e}`);
