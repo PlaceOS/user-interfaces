@@ -1,291 +1,155 @@
 import {
-  FORM_FIELD,
-  MAT_FORM_FIELD,
-  MatFormField,
-  MatFormFieldControl,
-  MatFormFieldModule,
-  MatInput,
-  MatInputModule,
-  MatPrefix,
-  MatProgressSpinner,
-  MatProgressSpinnerModule,
   isDebugMode,
   recordFatalError,
   requestRecovery,
+  resetBootRetries,
+  scheduleBootRetry,
   startWatchdog
-} from "./chunk-HYM26FDC.js";
+} from "./chunk-RON2ZLBS.js";
+import {
+  hasBootstrappedDisplay
+} from "./chunk-OQDJRCPY.js";
+import "./chunk-FZHZW7PT.js";
 import {
   TranslatePipe
-} from "./chunk-WM6Z5DAE.js";
+} from "./chunk-NYNDQV4R.js";
 import {
-  MatTooltip,
-  MatTooltipModule
-} from "./chunk-YCJWGSCU.js";
+  GroupPermission,
+  LazySentryErrorHandler,
+  OrganisationService,
+  PlaceOS_Service,
+  SettingsService,
+  addMonths,
+  autoConfirmNativeDomain,
+  current_user,
+  firstValueWhere,
+  getLoadingMessage,
+  getUnixTime,
+  hasPermission,
+  initialisationComplete,
+  initialisationFailure,
+  isBefore,
+  nativeDomainError,
+  needsNativeDomain,
+  provideServiceWorker,
+  retryInitialisation,
+  serviceWorkerUpdate,
+  setInitReloadHandler,
+  setMocks,
+  settingSignal,
+  user_groups_loaded
+} from "./chunk-UMHXZB4F.js";
 import {
-  A,
-  ActivatedRoute,
-  ActiveDescendantKeyManager,
-  ApplicationRef,
+  Router,
+  RouterLink,
+  RouterOutlet,
+  provideRouter,
+  withHashLocation
+} from "./chunk-SWSQOIQA.js";
+import "./chunk-PAKYII5B.js";
+import {
   AsyncHandler,
+  Hp,
+  J,
+  LocaleService,
+  Mr,
+  Mt,
+  Yr,
+  addDays,
+  addMinutes,
+  capitalizeFirstLetter,
+  differenceInMinutes,
+  firstTruthyValueFrom,
+  io,
+  lo,
+  log,
+  padString,
+  predictableRandomInt,
+  randomInt,
+  randomString,
+  setNotifyFilter,
+  so,
+  startOfDay,
+  timePeriodsIntersect,
+  toDate,
+  unique
+} from "./chunk-CHOQN2TC.js";
+import {
+  IconComponent
+} from "./chunk-XXHXEIYP.js";
+import {
   BidiModule,
-  CdkConnectedOverlay,
-  CdkOverlayOrigin,
-  CdkScrollableModule,
+  _getAnimationsState
+} from "./chunk-5WMBRJSW.js";
+import {
   ChangeDetectorRef,
-  CommonModule,
   Component,
-  ContentChild,
-  ContentChildren,
   DOCUMENT,
-  DOWN_ARROW,
-  DatePipe,
-  DefaultValueAccessor,
-  Directionality,
-  Directive,
-  DomPortalOutlet,
-  ENTER,
-  ESCAPE,
   ElementRef,
   ErrorHandler,
-  ErrorStateMatcher,
   EventEmitter,
-  FocusKeyManager,
-  FocusMonitor,
-  FormGroupDirective,
-  FormsModule,
-  GroupPermission,
-  HostAttributeToken,
-  HotkeysService,
-  IconComponent,
   Injectable,
   InjectionToken,
   Injector,
   Input,
-  Ir,
-  J,
-  LEFT_ARROW,
   LOCALE_ID,
-  LiveAnnouncer,
-  LocaleService,
-  MAT_OPTGROUP,
-  MAT_OPTION_PARENT_COMPONENT,
-  MatOption,
-  MatOptionModule,
-  MatRipple,
-  MatRippleModule,
-  Md,
-  Mt,
-  NgControl,
-  NgControlStatus,
-  NgControlStatusGroup,
-  NgForm,
-  NgModel,
   NgModule,
   NgZone,
-  OVERLAY_DEFAULT_CONFIG,
-  OrganisationService,
   Output,
-  Overlay,
-  OverlayConfig,
-  OverlayModule,
-  PlaceOS_Service,
-  QueryList,
-  RIGHT_ARROW,
   Renderer2,
-  RequiredValidator,
-  Router,
-  RouterLink,
-  RouterOutlet,
-  SPACE,
-  ScrollDispatcher,
-  SettingsService,
-  Subject,
-  Subscription,
-  TemplatePortal,
-  TemplateRef,
-  TraceService,
-  UP_ARROW,
-  VERSION,
-  Validators,
-  ViewChild,
-  ViewContainerRef,
   ViewEncapsulation,
-  ViewportRuler,
-  Xr,
-  Zr,
-  _CdkPrivateStyleLoader,
-  _ErrorStateTracker,
-  _IdGenerator,
-  _StructuralStylesLoader,
-  _animationsDisabled,
-  _countGroupLabelsBeforeOption,
-  _getAnimationsState,
-  _getEventTarget,
-  _getOptionScrollPosition,
-  _getShadowRoot,
-  addDays,
-  addMilliseconds,
-  addMinutes,
-  addMonths,
-  afterNextRender,
-  al,
-  autoConfirmNativeDomain,
-  booleanAttribute,
   bootstrapApplication,
-  capitalizeFirstLetter,
   computed,
-  createErrorHandler,
-  createFlexibleConnectedPositionStrategy,
-  createOverlayRef,
-  createRepositionScrollStrategy,
-  current_user,
-  defer,
-  differenceInMinutes,
   effect,
-  enableProdMode,
-  eo,
-  filter,
-  firstTruthyValueFrom,
-  firstValueWhere,
-  forwardRef,
-  ga,
-  getLoadingMessage,
-  getNativeApiKey,
-  getNativeDomain,
-  getNativeEmail,
-  getUnixTime,
-  hasModifierKey,
-  hasPermission,
-  i18n,
-  initialisationComplete,
-  initialisationFailure,
   inject,
-  input,
-  isBefore,
-  isFakeMousedownFromScreenReader,
-  isFakeTouchstartFromScreenReader,
-  log,
-  lookupNativeDomainByEmail,
-  map,
-  merge,
-  model,
-  nativeDomainError,
-  needsNativeDomain,
-  normaliseNativeDomain,
   numberAttribute,
-  of,
-  output,
-  padString,
-  predictableRandomInt,
   provideAppInitializer,
-  provideRouter,
-  provideServiceWorker,
   provideZonelessChangeDetection,
-  randomInt,
-  randomString,
   registerLocaleData,
-  resource,
-  retryInitialisation,
-  serviceWorkerUpdate,
   setClassMetadata,
   setClassMetadataAsync,
-  setInitReloadHandler,
-  setMocks,
-  setNativeApiKey,
-  setNativeDomain,
-  setNativeEmail,
-  setNotifyFilter,
-  settingSignal,
   signal,
-  skipWhile,
-  startOfDay,
-  startWith,
-  switchMap,
-  take,
-  takeUntil,
-  timePeriodsIntersect,
-  toDate,
-  unique,
-  untracked,
-  uo,
-  user_groups_loaded,
-  viewChild,
-  withHashLocation,
-  ɵNgNoValidate,
   ɵsetClassDebugInfo,
   ɵɵInheritDefinitionFeature,
-  ɵɵNgOnChangesFeature,
-  ɵɵProvidersFeature,
   ɵɵadvance,
   ɵɵattribute,
   ɵɵclassMap,
   ɵɵclassProp,
   ɵɵconditional,
   ɵɵconditionalCreate,
-  ɵɵcontentQuery,
-  ɵɵcontrol,
-  ɵɵcontrolCreate,
   ɵɵdefer,
-  ɵɵdeferWhen,
+  ɵɵdeferOnIdle,
+  ɵɵdeferOnImmediate,
   ɵɵdefineComponent,
-  ɵɵdefineDirective,
   ɵɵdefineInjectable,
   ɵɵdefineInjector,
   ɵɵdefineNgModule,
   ɵɵdomElement,
   ɵɵdomElementEnd,
   ɵɵdomElementStart,
-  ɵɵdomListener,
-  ɵɵdomProperty,
   ɵɵdomTemplate,
   ɵɵelement,
   ɵɵelementEnd,
   ɵɵelementStart,
   ɵɵgetCurrentView,
   ɵɵgetInheritedFactory,
-  ɵɵinvalidFactory,
   ɵɵlistener,
-  ɵɵloadQuery,
-  ɵɵnamespaceSVG,
   ɵɵnextContext,
   ɵɵpipe,
   ɵɵpipeBind1,
-  ɵɵpipeBind2,
-  ɵɵprojection,
-  ɵɵprojectionDef,
   ɵɵproperty,
   ɵɵpureFunction0,
-  ɵɵqueryAdvance,
-  ɵɵqueryRefresh,
-  ɵɵreference,
-  ɵɵrepeater,
-  ɵɵrepeaterCreate,
-  ɵɵrepeaterTrackByIdentity,
   ɵɵresetView,
-  ɵɵresolveDocument,
-  ɵɵresolveWindow,
   ɵɵrestoreView,
   ɵɵstyleProp,
-  ɵɵtemplate,
   ɵɵtext,
   ɵɵtextInterpolate,
-  ɵɵtextInterpolate1,
-  ɵɵtextInterpolate2,
-  ɵɵtwoWayBindingSet,
-  ɵɵtwoWayListener,
-  ɵɵtwoWayProperty,
-  ɵɵviewQuery,
-  ɵɵviewQuerySignal
-} from "./chunk-5IPC6ELG.js";
+  ɵɵtextInterpolate1
+} from "./chunk-KUITXW5O.js";
 import {
   __spreadProps,
   __spreadValues
-} from "./chunk-653SOEEV.js";
-
-// node_modules/date-fns/addSeconds.js
-function addSeconds(date, amount, options) {
-  return addMilliseconds(date, amount * 1e3, options);
-}
+} from "./chunk-GOMI4DH3.js";
 
 // node_modules/date-fns/subDays.js
 function subDays(date, amount, options) {
@@ -316,19 +180,14 @@ function subMinutes(date, amount, options) {
   return addMinutes(date, -amount, options);
 }
 
-// node_modules/date-fns/subSeconds.js
-function subSeconds(date, amount, options) {
-  return addSeconds(date, -amount, options);
-}
-
 // libs/common/src/lib/locale-data.ts
 var SUPPORTED_LOCALES = {
-  ar: () => import("./ar-4OEKFYQ3.js"),
-  es: () => import("./es-E672VPW4.js"),
-  fr: () => import("./fr-62Q4VGQY.js"),
-  it: () => import("./it-OJSM6IJC.js"),
-  ja: () => import("./ja-5HQXGIBO.js"),
-  zh: () => import("./zh-A5WQQ6XL.js")
+  ar: () => import("./ar-5EJYBOLP.js"),
+  es: () => import("./es-ZY3DSOWO.js"),
+  fr: () => import("./fr-SUMAXVTQ.js"),
+  it: () => import("./it-7SOGO3QL.js"),
+  ja: () => import("./ja-AWWPTDN5.js"),
+  zh: () => import("./zh-7BNVPQ5U.js")
 };
 async function registerActiveLocale(locale) {
   const short = (locale || "en").split("-")[0];
@@ -338,2768 +197,6 @@ async function registerActiveLocale(locale) {
   const { default: data } = await loader();
   registerLocaleData(data);
 }
-
-// node_modules/@angular/material/fesm2022/menu.mjs
-var _c0 = [[["mat-icon"], ["", "matMenuItemIcon", ""]], "*"];
-var _c1 = ["mat-icon, [matMenuItemIcon]", "*"];
-function MatMenuItem_Conditional_4_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275namespaceSVG();
-    \u0275\u0275elementStart(0, "svg", 2);
-    \u0275\u0275element(1, "polygon", 3);
-    \u0275\u0275elementEnd();
-  }
-}
-var _c2 = ["*"];
-function MatMenu_ng_template_0_Template(rf, ctx) {
-  if (rf & 1) {
-    const _r1 = \u0275\u0275getCurrentView();
-    \u0275\u0275domElementStart(0, "div", 0);
-    \u0275\u0275domListener("click", function MatMenu_ng_template_0_Template_div_click_0_listener() {
-      \u0275\u0275restoreView(_r1);
-      const ctx_r1 = \u0275\u0275nextContext();
-      return \u0275\u0275resetView(ctx_r1.closed.emit("click"));
-    })("animationstart", function MatMenu_ng_template_0_Template_div_animationstart_0_listener($event) {
-      \u0275\u0275restoreView(_r1);
-      const ctx_r1 = \u0275\u0275nextContext();
-      return \u0275\u0275resetView(ctx_r1._onAnimationStart($event.animationName));
-    })("animationend", function MatMenu_ng_template_0_Template_div_animationend_0_listener($event) {
-      \u0275\u0275restoreView(_r1);
-      const ctx_r1 = \u0275\u0275nextContext();
-      return \u0275\u0275resetView(ctx_r1._onAnimationDone($event.animationName));
-    })("animationcancel", function MatMenu_ng_template_0_Template_div_animationcancel_0_listener($event) {
-      \u0275\u0275restoreView(_r1);
-      const ctx_r1 = \u0275\u0275nextContext();
-      return \u0275\u0275resetView(ctx_r1._onAnimationDone($event.animationName));
-    });
-    \u0275\u0275domElementStart(1, "div", 1);
-    \u0275\u0275projection(2);
-    \u0275\u0275domElementEnd()();
-  }
-  if (rf & 2) {
-    const ctx_r1 = \u0275\u0275nextContext();
-    \u0275\u0275classMap(ctx_r1._classList);
-    \u0275\u0275classProp("mat-menu-panel-animations-disabled", ctx_r1._animationsDisabled)("mat-menu-panel-exit-animation", ctx_r1._panelAnimationState === "void")("mat-menu-panel-animating", ctx_r1._isAnimating());
-    \u0275\u0275domProperty("id", ctx_r1.panelId);
-    \u0275\u0275attribute("aria-label", ctx_r1.ariaLabel || null)("aria-labelledby", ctx_r1.ariaLabelledby || null)("aria-describedby", ctx_r1.ariaDescribedby || null);
-  }
-}
-var MAT_MENU_PANEL = new InjectionToken("MAT_MENU_PANEL");
-var MatMenuItem = class _MatMenuItem {
-  _elementRef = inject(ElementRef);
-  _document = inject(DOCUMENT);
-  _focusMonitor = inject(FocusMonitor);
-  _parentMenu = inject(MAT_MENU_PANEL, {
-    optional: true
-  });
-  _changeDetectorRef = inject(ChangeDetectorRef);
-  role = "menuitem";
-  disabled = false;
-  disableRipple = false;
-  _hovered = new Subject();
-  _focused = new Subject();
-  _highlighted = false;
-  _triggersSubmenu = false;
-  constructor() {
-    inject(_CdkPrivateStyleLoader).load(_StructuralStylesLoader);
-    this._parentMenu?.addItem?.(this);
-  }
-  focus(origin, options) {
-    if (this._focusMonitor && origin) {
-      this._focusMonitor.focusVia(this._getHostElement(), origin, options);
-    } else {
-      this._getHostElement().focus(options);
-    }
-    this._focused.next(this);
-  }
-  ngAfterViewInit() {
-    if (this._focusMonitor) {
-      this._focusMonitor.monitor(this._elementRef, false);
-    }
-  }
-  ngOnDestroy() {
-    if (this._focusMonitor) {
-      this._focusMonitor.stopMonitoring(this._elementRef);
-    }
-    if (this._parentMenu && this._parentMenu.removeItem) {
-      this._parentMenu.removeItem(this);
-    }
-    this._hovered.complete();
-    this._focused.complete();
-  }
-  _getTabIndex() {
-    return this.disabled ? "-1" : "0";
-  }
-  _getHostElement() {
-    return this._elementRef.nativeElement;
-  }
-  _checkDisabled(event) {
-    if (this.disabled) {
-      event.preventDefault();
-      event.stopPropagation();
-    }
-  }
-  _handleMouseEnter() {
-    this._hovered.next(this);
-  }
-  getLabel() {
-    const clone = this._elementRef.nativeElement.cloneNode(true);
-    const icons = clone.querySelectorAll("mat-icon, .material-icons");
-    for (let i = 0; i < icons.length; i++) {
-      icons[i].remove();
-    }
-    return clone.textContent?.trim() || "";
-  }
-  _setHighlighted(isHighlighted) {
-    this._highlighted = isHighlighted;
-    this._changeDetectorRef.markForCheck();
-  }
-  _setTriggersSubmenu(triggersSubmenu) {
-    this._triggersSubmenu = triggersSubmenu;
-    this._changeDetectorRef.markForCheck();
-  }
-  _hasFocus() {
-    return this._document && this._document.activeElement === this._getHostElement();
-  }
-  static \u0275fac = function MatMenuItem_Factory(__ngFactoryType__) {
-    return new (__ngFactoryType__ || _MatMenuItem)();
-  };
-  static \u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({
-    type: _MatMenuItem,
-    selectors: [["", "mat-menu-item", ""]],
-    hostAttrs: [1, "mat-mdc-menu-item", "mat-focus-indicator"],
-    hostVars: 8,
-    hostBindings: function MatMenuItem_HostBindings(rf, ctx) {
-      if (rf & 1) {
-        \u0275\u0275listener("click", function MatMenuItem_click_HostBindingHandler($event) {
-          return ctx._checkDisabled($event);
-        })("mouseenter", function MatMenuItem_mouseenter_HostBindingHandler() {
-          return ctx._handleMouseEnter();
-        });
-      }
-      if (rf & 2) {
-        \u0275\u0275attribute("role", ctx.role)("tabindex", ctx._getTabIndex())("aria-disabled", ctx.disabled)("disabled", ctx.disabled || null);
-        \u0275\u0275classProp("mat-mdc-menu-item-highlighted", ctx._highlighted)("mat-mdc-menu-item-submenu-trigger", ctx._triggersSubmenu);
-      }
-    },
-    inputs: {
-      role: "role",
-      disabled: [2, "disabled", "disabled", booleanAttribute],
-      disableRipple: [2, "disableRipple", "disableRipple", booleanAttribute]
-    },
-    exportAs: ["matMenuItem"],
-    ngContentSelectors: _c1,
-    decls: 5,
-    vars: 3,
-    consts: [[1, "mat-mdc-menu-item-text"], ["matRipple", "", 1, "mat-mdc-menu-ripple", 3, "matRippleDisabled", "matRippleTrigger"], ["viewBox", "0 0 5 10", "focusable", "false", "aria-hidden", "true", 1, "mat-mdc-menu-submenu-icon"], ["points", "0,0 5,5 0,10"]],
-    template: function MatMenuItem_Template(rf, ctx) {
-      if (rf & 1) {
-        \u0275\u0275projectionDef(_c0);
-        \u0275\u0275projection(0);
-        \u0275\u0275elementStart(1, "span", 0);
-        \u0275\u0275projection(2, 1);
-        \u0275\u0275elementEnd();
-        \u0275\u0275element(3, "div", 1);
-        \u0275\u0275conditionalCreate(4, MatMenuItem_Conditional_4_Template, 2, 0, ":svg:svg", 2);
-      }
-      if (rf & 2) {
-        \u0275\u0275advance(3);
-        \u0275\u0275property("matRippleDisabled", ctx.disableRipple || ctx.disabled)("matRippleTrigger", ctx._getHostElement());
-        \u0275\u0275advance();
-        \u0275\u0275conditional(ctx._triggersSubmenu ? 4 : -1);
-      }
-    },
-    dependencies: [MatRipple],
-    encapsulation: 2
-  });
-};
-(() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(MatMenuItem, [{
-    type: Component,
-    args: [{
-      selector: "[mat-menu-item]",
-      exportAs: "matMenuItem",
-      host: {
-        "[attr.role]": "role",
-        "class": "mat-mdc-menu-item mat-focus-indicator",
-        "[class.mat-mdc-menu-item-highlighted]": "_highlighted",
-        "[class.mat-mdc-menu-item-submenu-trigger]": "_triggersSubmenu",
-        "[attr.tabindex]": "_getTabIndex()",
-        "[attr.aria-disabled]": "disabled",
-        "[attr.disabled]": "disabled || null",
-        "(click)": "_checkDisabled($event)",
-        "(mouseenter)": "_handleMouseEnter()"
-      },
-      encapsulation: ViewEncapsulation.None,
-      imports: [MatRipple],
-      template: '<ng-content select="mat-icon, [matMenuItemIcon]"></ng-content>\n<span class="mat-mdc-menu-item-text"><ng-content></ng-content></span>\n<div class="mat-mdc-menu-ripple" matRipple\n     [matRippleDisabled]="disableRipple || disabled"\n     [matRippleTrigger]="_getHostElement()">\n</div>\n\n@if (_triggersSubmenu) {\n     <svg\n       class="mat-mdc-menu-submenu-icon"\n       viewBox="0 0 5 10"\n       focusable="false"\n       aria-hidden="true"><polygon points="0,0 5,5 0,10"/></svg>\n}\n'
-    }]
-  }], () => [], {
-    role: [{
-      type: Input
-    }],
-    disabled: [{
-      type: Input,
-      args: [{
-        transform: booleanAttribute
-      }]
-    }],
-    disableRipple: [{
-      type: Input,
-      args: [{
-        transform: booleanAttribute
-      }]
-    }]
-  });
-})();
-function throwMatMenuInvalidPositionX() {
-  throw Error(`xPosition value must be either 'before' or after'.
-      Example: <mat-menu xPosition="before" #menu="matMenu"></mat-menu>`);
-}
-function throwMatMenuInvalidPositionY() {
-  throw Error(`yPosition value must be either 'above' or below'.
-      Example: <mat-menu yPosition="above" #menu="matMenu"></mat-menu>`);
-}
-function throwMatMenuRecursiveError() {
-  throw Error(`matMenuTriggerFor: menu cannot contain its own trigger. Assign a menu that is not a parent of the trigger or move the trigger outside of the menu.`);
-}
-var MAT_MENU_CONTENT = new InjectionToken("MatMenuContent");
-var MatMenuContent = class _MatMenuContent {
-  _template = inject(TemplateRef);
-  _appRef = inject(ApplicationRef);
-  _injector = inject(Injector);
-  _viewContainerRef = inject(ViewContainerRef);
-  _document = inject(DOCUMENT);
-  _changeDetectorRef = inject(ChangeDetectorRef);
-  _portal;
-  _outlet;
-  _attached = new Subject();
-  attach(context = {}) {
-    if (!this._portal) {
-      this._portal = new TemplatePortal(this._template, this._viewContainerRef);
-    }
-    this.detach();
-    if (!this._outlet) {
-      this._outlet = new DomPortalOutlet(this._document.createElement("div"), this._appRef, this._injector);
-    }
-    const element = this._template.elementRef.nativeElement;
-    element.parentNode.insertBefore(this._outlet.outletElement, element);
-    this._changeDetectorRef.markForCheck();
-    this._portal.attach(this._outlet, context);
-    this._attached.next();
-  }
-  detach() {
-    if (this._portal?.isAttached) {
-      this._portal.detach();
-    }
-  }
-  ngOnDestroy() {
-    this.detach();
-    this._outlet?.dispose();
-  }
-  static \u0275fac = function MatMenuContent_Factory(__ngFactoryType__) {
-    return new (__ngFactoryType__ || _MatMenuContent)();
-  };
-  static \u0275dir = /* @__PURE__ */ \u0275\u0275defineDirective({
-    type: _MatMenuContent,
-    selectors: [["ng-template", "matMenuContent", ""]],
-    features: [\u0275\u0275ProvidersFeature([{
-      provide: MAT_MENU_CONTENT,
-      useExisting: _MatMenuContent
-    }])]
-  });
-};
-(() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(MatMenuContent, [{
-    type: Directive,
-    args: [{
-      selector: "ng-template[matMenuContent]",
-      providers: [{
-        provide: MAT_MENU_CONTENT,
-        useExisting: MatMenuContent
-      }]
-    }]
-  }], null, null);
-})();
-var MAT_MENU_DEFAULT_OPTIONS = new InjectionToken("mat-menu-default-options", {
-  providedIn: "root",
-  factory: () => ({
-    overlapTrigger: false,
-    xPosition: "after",
-    yPosition: "below",
-    backdropClass: "cdk-overlay-transparent-backdrop"
-  })
-});
-var ENTER_ANIMATION = "_mat-menu-enter";
-var EXIT_ANIMATION = "_mat-menu-exit";
-var MatMenu = class _MatMenu {
-  _elementRef = inject(ElementRef);
-  _changeDetectorRef = inject(ChangeDetectorRef);
-  _injector = inject(Injector);
-  _keyManager;
-  _xPosition;
-  _yPosition;
-  _firstItemFocusRef;
-  _exitFallbackTimeout;
-  _animationsDisabled = _animationsDisabled();
-  _allItems;
-  _directDescendantItems = new QueryList();
-  _classList = {};
-  _panelAnimationState = "void";
-  _animationDone = new Subject();
-  _isAnimating = signal(false, ...ngDevMode ? [{
-    debugName: "_isAnimating"
-  }] : []);
-  parentMenu;
-  direction;
-  overlayPanelClass;
-  backdropClass;
-  ariaLabel;
-  ariaLabelledby;
-  ariaDescribedby;
-  get xPosition() {
-    return this._xPosition;
-  }
-  set xPosition(value) {
-    if (value !== "before" && value !== "after" && (typeof ngDevMode === "undefined" || ngDevMode)) {
-      throwMatMenuInvalidPositionX();
-    }
-    this._xPosition = value;
-    this.setPositionClasses();
-  }
-  get yPosition() {
-    return this._yPosition;
-  }
-  set yPosition(value) {
-    if (value !== "above" && value !== "below" && (typeof ngDevMode === "undefined" || ngDevMode)) {
-      throwMatMenuInvalidPositionY();
-    }
-    this._yPosition = value;
-    this.setPositionClasses();
-  }
-  templateRef;
-  items;
-  lazyContent;
-  overlapTrigger = false;
-  hasBackdrop;
-  get panelClass() {
-    return this._previousPanelClass;
-  }
-  set panelClass(classes) {
-    const previousPanelClass = this._previousPanelClass;
-    const newClassList = __spreadValues({}, this._classList);
-    if (previousPanelClass && previousPanelClass.length) {
-      previousPanelClass.split(" ").forEach((className) => {
-        newClassList[className] = false;
-      });
-    }
-    this._previousPanelClass = classes;
-    if (classes && classes.length) {
-      classes.split(" ").forEach((className) => {
-        newClassList[className] = true;
-      });
-      this._elementRef.nativeElement.className = "";
-    }
-    this._classList = newClassList;
-  }
-  _previousPanelClass = "";
-  get classList() {
-    return this.panelClass;
-  }
-  set classList(classes) {
-    this.panelClass = classes;
-  }
-  closed = new EventEmitter();
-  close = this.closed;
-  panelId = inject(_IdGenerator).getId("mat-menu-panel-");
-  constructor() {
-    const defaultOptions = inject(MAT_MENU_DEFAULT_OPTIONS);
-    this.overlayPanelClass = defaultOptions.overlayPanelClass || "";
-    this._xPosition = defaultOptions.xPosition;
-    this._yPosition = defaultOptions.yPosition;
-    this.backdropClass = defaultOptions.backdropClass;
-    this.overlapTrigger = defaultOptions.overlapTrigger;
-    this.hasBackdrop = defaultOptions.hasBackdrop;
-  }
-  ngOnInit() {
-    this.setPositionClasses();
-  }
-  ngAfterContentInit() {
-    this._updateDirectDescendants();
-    this._keyManager = new FocusKeyManager(this._directDescendantItems).withWrap().withTypeAhead().withHomeAndEnd();
-    this._keyManager.tabOut.subscribe(() => this.closed.emit("tab"));
-    this._directDescendantItems.changes.pipe(startWith(this._directDescendantItems), switchMap((items) => merge(...items.map((item) => item._focused)))).subscribe((focusedItem) => this._keyManager.updateActiveItem(focusedItem));
-    this._directDescendantItems.changes.subscribe((itemsList) => {
-      const manager = this._keyManager;
-      if (this._panelAnimationState === "enter" && manager.activeItem?._hasFocus()) {
-        const items = itemsList.toArray();
-        const index = Math.max(0, Math.min(items.length - 1, manager.activeItemIndex || 0));
-        if (items[index] && !items[index].disabled) {
-          manager.setActiveItem(index);
-        } else {
-          manager.setNextItemActive();
-        }
-      }
-    });
-  }
-  ngOnDestroy() {
-    this._keyManager?.destroy();
-    this._directDescendantItems.destroy();
-    this.closed.complete();
-    this._firstItemFocusRef?.destroy();
-    clearTimeout(this._exitFallbackTimeout);
-  }
-  _hovered() {
-    const itemChanges = this._directDescendantItems.changes;
-    return itemChanges.pipe(startWith(this._directDescendantItems), switchMap((items) => merge(...items.map((item) => item._hovered))));
-  }
-  addItem(_item) {
-  }
-  removeItem(_item) {
-  }
-  _handleKeydown(event) {
-    const keyCode = event.keyCode;
-    const manager = this._keyManager;
-    switch (keyCode) {
-      case ESCAPE:
-        if (!hasModifierKey(event)) {
-          event.preventDefault();
-          this.closed.emit("keydown");
-        }
-        break;
-      case LEFT_ARROW:
-        if (this.parentMenu && this.direction === "ltr") {
-          this.closed.emit("keydown");
-        }
-        break;
-      case RIGHT_ARROW:
-        if (this.parentMenu && this.direction === "rtl") {
-          this.closed.emit("keydown");
-        }
-        break;
-      default:
-        if (keyCode === UP_ARROW || keyCode === DOWN_ARROW) {
-          manager.setFocusOrigin("keyboard");
-        }
-        manager.onKeydown(event);
-        return;
-    }
-  }
-  focusFirstItem(origin = "program") {
-    this._firstItemFocusRef?.destroy();
-    this._firstItemFocusRef = afterNextRender(() => {
-      const menuPanel = this._resolvePanel();
-      if (!menuPanel || !menuPanel.contains(document.activeElement)) {
-        const manager = this._keyManager;
-        manager.setFocusOrigin(origin).setFirstItemActive();
-        if (!manager.activeItem && menuPanel) {
-          menuPanel.focus();
-        }
-      }
-    }, {
-      injector: this._injector
-    });
-  }
-  resetActiveItem() {
-    this._keyManager.setActiveItem(-1);
-  }
-  setElevation(_depth) {
-  }
-  setPositionClasses(posX = this.xPosition, posY = this.yPosition) {
-    this._classList = __spreadProps(__spreadValues({}, this._classList), {
-      ["mat-menu-before"]: posX === "before",
-      ["mat-menu-after"]: posX === "after",
-      ["mat-menu-above"]: posY === "above",
-      ["mat-menu-below"]: posY === "below"
-    });
-    this._changeDetectorRef.markForCheck();
-  }
-  _onAnimationDone(state) {
-    const isExit = state === EXIT_ANIMATION;
-    if (isExit || state === ENTER_ANIMATION) {
-      if (isExit) {
-        clearTimeout(this._exitFallbackTimeout);
-        this._exitFallbackTimeout = void 0;
-      }
-      this._animationDone.next(isExit ? "void" : "enter");
-      this._isAnimating.set(false);
-    }
-  }
-  _onAnimationStart(state) {
-    if (state === ENTER_ANIMATION || state === EXIT_ANIMATION) {
-      this._isAnimating.set(true);
-    }
-  }
-  _setIsOpen(isOpen) {
-    this._panelAnimationState = isOpen ? "enter" : "void";
-    if (isOpen) {
-      if (this._keyManager.activeItemIndex === 0) {
-        const menuPanel = this._resolvePanel();
-        if (menuPanel) {
-          menuPanel.scrollTop = 0;
-        }
-      }
-    } else if (!this._animationsDisabled) {
-      this._exitFallbackTimeout = setTimeout(() => this._onAnimationDone(EXIT_ANIMATION), 200);
-    }
-    if (this._animationsDisabled) {
-      setTimeout(() => {
-        this._onAnimationDone(isOpen ? ENTER_ANIMATION : EXIT_ANIMATION);
-      });
-    }
-    this._changeDetectorRef.markForCheck();
-  }
-  _updateDirectDescendants() {
-    this._allItems.changes.pipe(startWith(this._allItems)).subscribe((items) => {
-      this._directDescendantItems.reset(items.filter((item) => item._parentMenu === this));
-      this._directDescendantItems.notifyOnChanges();
-    });
-  }
-  _resolvePanel() {
-    let menuPanel = null;
-    if (this._directDescendantItems.length) {
-      menuPanel = this._directDescendantItems.first._getHostElement().closest('[role="menu"]');
-    }
-    return menuPanel;
-  }
-  static \u0275fac = function MatMenu_Factory(__ngFactoryType__) {
-    return new (__ngFactoryType__ || _MatMenu)();
-  };
-  static \u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({
-    type: _MatMenu,
-    selectors: [["mat-menu"]],
-    contentQueries: function MatMenu_ContentQueries(rf, ctx, dirIndex) {
-      if (rf & 1) {
-        \u0275\u0275contentQuery(dirIndex, MAT_MENU_CONTENT, 5)(dirIndex, MatMenuItem, 5)(dirIndex, MatMenuItem, 4);
-      }
-      if (rf & 2) {
-        let _t;
-        \u0275\u0275queryRefresh(_t = \u0275\u0275loadQuery()) && (ctx.lazyContent = _t.first);
-        \u0275\u0275queryRefresh(_t = \u0275\u0275loadQuery()) && (ctx._allItems = _t);
-        \u0275\u0275queryRefresh(_t = \u0275\u0275loadQuery()) && (ctx.items = _t);
-      }
-    },
-    viewQuery: function MatMenu_Query(rf, ctx) {
-      if (rf & 1) {
-        \u0275\u0275viewQuery(TemplateRef, 5);
-      }
-      if (rf & 2) {
-        let _t;
-        \u0275\u0275queryRefresh(_t = \u0275\u0275loadQuery()) && (ctx.templateRef = _t.first);
-      }
-    },
-    hostVars: 3,
-    hostBindings: function MatMenu_HostBindings(rf, ctx) {
-      if (rf & 2) {
-        \u0275\u0275attribute("aria-label", null)("aria-labelledby", null)("aria-describedby", null);
-      }
-    },
-    inputs: {
-      backdropClass: "backdropClass",
-      ariaLabel: [0, "aria-label", "ariaLabel"],
-      ariaLabelledby: [0, "aria-labelledby", "ariaLabelledby"],
-      ariaDescribedby: [0, "aria-describedby", "ariaDescribedby"],
-      xPosition: "xPosition",
-      yPosition: "yPosition",
-      overlapTrigger: [2, "overlapTrigger", "overlapTrigger", booleanAttribute],
-      hasBackdrop: [2, "hasBackdrop", "hasBackdrop", (value) => value == null ? null : booleanAttribute(value)],
-      panelClass: [0, "class", "panelClass"],
-      classList: "classList"
-    },
-    outputs: {
-      closed: "closed",
-      close: "close"
-    },
-    exportAs: ["matMenu"],
-    features: [\u0275\u0275ProvidersFeature([{
-      provide: MAT_MENU_PANEL,
-      useExisting: _MatMenu
-    }])],
-    ngContentSelectors: _c2,
-    decls: 1,
-    vars: 0,
-    consts: [["tabindex", "-1", "role", "menu", 1, "mat-mdc-menu-panel", 3, "click", "animationstart", "animationend", "animationcancel", "id"], [1, "mat-mdc-menu-content"]],
-    template: function MatMenu_Template(rf, ctx) {
-      if (rf & 1) {
-        \u0275\u0275projectionDef();
-        \u0275\u0275domTemplate(0, MatMenu_ng_template_0_Template, 3, 12, "ng-template");
-      }
-    },
-    styles: ['mat-menu {\n  display: none;\n}\n\n.mat-mdc-menu-content {\n  margin: 0;\n  padding: 8px 0;\n  outline: 0;\n}\n.mat-mdc-menu-content,\n.mat-mdc-menu-content .mat-mdc-menu-item .mat-mdc-menu-item-text {\n  -moz-osx-font-smoothing: grayscale;\n  -webkit-font-smoothing: antialiased;\n  flex: 1;\n  white-space: normal;\n  font-family: var(--%NS%mat-menu-item-label-text-font, var(--%NS%mat-sys-label-large-font));\n  line-height: var(--%NS%mat-menu-item-label-text-line-height, var(--%NS%mat-sys-label-large-line-height));\n  font-size: var(--%NS%mat-menu-item-label-text-size, var(--%NS%mat-sys-label-large-size));\n  letter-spacing: var(--%NS%mat-menu-item-label-text-tracking, var(--%NS%mat-sys-label-large-tracking));\n  font-weight: var(--%NS%mat-menu-item-label-text-weight, var(--%NS%mat-sys-label-large-weight));\n}\n\n@keyframes _mat-menu-enter {\n  from {\n    opacity: 0;\n    transform: scale(0.8);\n  }\n  to {\n    opacity: 1;\n    transform: none;\n  }\n}\n@keyframes _mat-menu-exit {\n  from {\n    opacity: 1;\n  }\n  to {\n    opacity: 0;\n  }\n}\n.mat-mdc-menu-panel {\n  min-width: 112px;\n  max-width: 280px;\n  overflow: auto;\n  box-sizing: border-box;\n  outline: 0;\n  animation: _mat-menu-enter 120ms cubic-bezier(0, 0, 0.2, 1);\n  border-radius: var(--%NS%mat-menu-container-shape, var(--%NS%mat-sys-corner-extra-small));\n  background-color: var(--%NS%mat-menu-container-color, var(--%NS%mat-sys-surface-container));\n  box-shadow: var(--%NS%mat-menu-container-elevation-shadow, 0px 3px 1px -2px rgba(0, 0, 0, 0.2), 0px 2px 2px 0px rgba(0, 0, 0, 0.14), 0px 1px 5px 0px rgba(0, 0, 0, 0.12));\n  will-change: transform, opacity;\n}\n.mat-mdc-menu-panel.mat-menu-panel-exit-animation {\n  animation: _mat-menu-exit 100ms 25ms linear forwards;\n}\n.mat-mdc-menu-panel.mat-menu-panel-animations-disabled {\n  animation: none;\n}\n.mat-mdc-menu-panel.mat-menu-panel-animating {\n  pointer-events: none;\n}\n.mat-mdc-menu-panel.mat-menu-panel-animating:has(.mat-mdc-menu-content:empty) {\n  display: none;\n}\n@media (forced-colors: active) {\n  .mat-mdc-menu-panel {\n    outline: solid 1px;\n  }\n}\n.mat-mdc-menu-panel .mat-divider {\n  border-top-color: var(--%NS%mat-menu-divider-color, var(--%NS%mat-sys-surface-variant));\n  margin-bottom: var(--%NS%mat-menu-divider-bottom-spacing, 8px);\n  margin-top: var(--%NS%mat-menu-divider-top-spacing, 8px);\n}\n\n.mat-mdc-menu-item {\n  display: flex;\n  position: relative;\n  align-items: center;\n  justify-content: flex-start;\n  overflow: hidden;\n  padding: 0;\n  cursor: pointer;\n  width: 100%;\n  text-align: left;\n  box-sizing: border-box;\n  color: inherit;\n  font-size: inherit;\n  background: none;\n  text-decoration: none;\n  margin: 0;\n  min-height: 48px;\n  padding-left: var(--%NS%mat-menu-item-leading-spacing, 12px);\n  padding-right: var(--%NS%mat-menu-item-trailing-spacing, 12px);\n  -webkit-user-select: none;\n  user-select: none;\n  cursor: pointer;\n  outline: none;\n  border: none;\n  -webkit-tap-highlight-color: transparent;\n}\n.mat-mdc-menu-item::-moz-focus-inner {\n  border: 0;\n}\n[dir=rtl] .mat-mdc-menu-item {\n  padding-left: var(--%NS%mat-menu-item-trailing-spacing, 12px);\n  padding-right: var(--%NS%mat-menu-item-leading-spacing, 12px);\n}\n.mat-mdc-menu-item:has(.material-icons, mat-icon, [matButtonIcon]) {\n  padding-left: var(--%NS%mat-menu-item-with-icon-leading-spacing, 12px);\n  padding-right: var(--%NS%mat-menu-item-with-icon-trailing-spacing, 12px);\n}\n[dir=rtl] .mat-mdc-menu-item:has(.material-icons, mat-icon, [matButtonIcon]) {\n  padding-left: var(--%NS%mat-menu-item-with-icon-trailing-spacing, 12px);\n  padding-right: var(--%NS%mat-menu-item-with-icon-leading-spacing, 12px);\n}\n.mat-mdc-menu-item, .mat-mdc-menu-item:visited, .mat-mdc-menu-item:link {\n  color: var(--%NS%mat-menu-item-label-text-color, var(--%NS%mat-sys-on-surface));\n}\n.mat-mdc-menu-item .mat-icon-no-color,\n.mat-mdc-menu-item .mat-mdc-menu-submenu-icon {\n  color: var(--%NS%mat-menu-item-icon-color, var(--%NS%mat-sys-on-surface-variant));\n}\n.mat-mdc-menu-item[disabled] {\n  cursor: default;\n  opacity: 0.38;\n}\n.mat-mdc-menu-item[disabled]::after {\n  display: block;\n  position: absolute;\n  content: "";\n  top: 0;\n  left: 0;\n  bottom: 0;\n  right: 0;\n}\n.mat-mdc-menu-item:focus {\n  outline: 0;\n}\n.mat-mdc-menu-item .mat-icon {\n  flex-shrink: 0;\n  margin-right: var(--%NS%mat-menu-item-spacing, 12px);\n  height: var(--%NS%mat-menu-item-icon-size, 24px);\n  width: var(--%NS%mat-menu-item-icon-size, 24px);\n}\n[dir=rtl] .mat-mdc-menu-item {\n  text-align: right;\n}\n[dir=rtl] .mat-mdc-menu-item .mat-icon {\n  margin-right: 0;\n  margin-left: var(--%NS%mat-menu-item-spacing, 12px);\n}\n.mat-mdc-menu-item:not([disabled]):hover {\n  background-color: var(--%NS%mat-menu-item-hover-state-layer-color, color-mix(in srgb, var(--%NS%mat-sys-on-surface) calc(var(--%NS%mat-sys-hover-state-layer-opacity) * 100%), transparent));\n}\n.mat-mdc-menu-item:not([disabled]).cdk-program-focused, .mat-mdc-menu-item:not([disabled]).cdk-keyboard-focused, .mat-mdc-menu-item:not([disabled]).mat-mdc-menu-item-highlighted {\n  background-color: var(--%NS%mat-menu-item-focus-state-layer-color, color-mix(in srgb, var(--%NS%mat-sys-on-surface) calc(var(--%NS%mat-sys-focus-state-layer-opacity) * 100%), transparent));\n}\n@media (forced-colors: active) {\n  .mat-mdc-menu-item {\n    margin-top: 1px;\n  }\n}\n\n.mat-mdc-menu-submenu-icon {\n  width: var(--%NS%mat-menu-item-icon-size, 24px);\n  height: 10px;\n  fill: currentColor;\n  padding-left: var(--%NS%mat-menu-item-spacing, 12px);\n}\n[dir=rtl] .mat-mdc-menu-submenu-icon {\n  padding-right: var(--%NS%mat-menu-item-spacing, 12px);\n  padding-left: 0;\n}\n[dir=rtl] .mat-mdc-menu-submenu-icon polygon {\n  transform: scaleX(-1);\n  transform-origin: center;\n}\n@media (forced-colors: active) {\n  .mat-mdc-menu-submenu-icon {\n    fill: CanvasText;\n  }\n}\n\n.mat-mdc-menu-item .mat-mdc-menu-ripple {\n  top: 0;\n  left: 0;\n  right: 0;\n  bottom: 0;\n  position: absolute;\n  pointer-events: none;\n}\n'],
-    encapsulation: 2
-  });
-};
-(() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(MatMenu, [{
-    type: Component,
-    args: [{
-      selector: "mat-menu",
-      encapsulation: ViewEncapsulation.None,
-      exportAs: "matMenu",
-      host: {
-        "[attr.aria-label]": "null",
-        "[attr.aria-labelledby]": "null",
-        "[attr.aria-describedby]": "null"
-      },
-      providers: [{
-        provide: MAT_MENU_PANEL,
-        useExisting: MatMenu
-      }],
-      template: `<ng-template>
-  <div
-    class="mat-mdc-menu-panel"
-    [id]="panelId"
-    [class]="_classList"
-    [class.mat-menu-panel-animations-disabled]="_animationsDisabled"
-    [class.mat-menu-panel-exit-animation]="_panelAnimationState === 'void'"
-    [class.mat-menu-panel-animating]="_isAnimating()"
-    (click)="closed.emit('click')"
-    tabindex="-1"
-    role="menu"
-    (animationstart)="_onAnimationStart($event.animationName)"
-    (animationend)="_onAnimationDone($event.animationName)"
-    (animationcancel)="_onAnimationDone($event.animationName)"
-    [attr.aria-label]="ariaLabel || null"
-    [attr.aria-labelledby]="ariaLabelledby || null"
-    [attr.aria-describedby]="ariaDescribedby || null">
-    <div class="mat-mdc-menu-content">
-      <ng-content></ng-content>
-    </div>
-  </div>
-</ng-template>
-`,
-      styles: ['mat-menu {\n  display: none;\n}\n\n.mat-mdc-menu-content {\n  margin: 0;\n  padding: 8px 0;\n  outline: 0;\n}\n.mat-mdc-menu-content,\n.mat-mdc-menu-content .mat-mdc-menu-item .mat-mdc-menu-item-text {\n  -moz-osx-font-smoothing: grayscale;\n  -webkit-font-smoothing: antialiased;\n  flex: 1;\n  white-space: normal;\n  font-family: var(--mat-menu-item-label-text-font, var(--mat-sys-label-large-font));\n  line-height: var(--mat-menu-item-label-text-line-height, var(--mat-sys-label-large-line-height));\n  font-size: var(--mat-menu-item-label-text-size, var(--mat-sys-label-large-size));\n  letter-spacing: var(--mat-menu-item-label-text-tracking, var(--mat-sys-label-large-tracking));\n  font-weight: var(--mat-menu-item-label-text-weight, var(--mat-sys-label-large-weight));\n}\n\n@keyframes _mat-menu-enter {\n  from {\n    opacity: 0;\n    transform: scale(0.8);\n  }\n  to {\n    opacity: 1;\n    transform: none;\n  }\n}\n@keyframes _mat-menu-exit {\n  from {\n    opacity: 1;\n  }\n  to {\n    opacity: 0;\n  }\n}\n.mat-mdc-menu-panel {\n  min-width: 112px;\n  max-width: 280px;\n  overflow: auto;\n  box-sizing: border-box;\n  outline: 0;\n  animation: _mat-menu-enter 120ms cubic-bezier(0, 0, 0.2, 1);\n  border-radius: var(--mat-menu-container-shape, var(--mat-sys-corner-extra-small));\n  background-color: var(--mat-menu-container-color, var(--mat-sys-surface-container));\n  box-shadow: var(--mat-menu-container-elevation-shadow, 0px 3px 1px -2px rgba(0, 0, 0, 0.2), 0px 2px 2px 0px rgba(0, 0, 0, 0.14), 0px 1px 5px 0px rgba(0, 0, 0, 0.12));\n  will-change: transform, opacity;\n}\n.mat-mdc-menu-panel.mat-menu-panel-exit-animation {\n  animation: _mat-menu-exit 100ms 25ms linear forwards;\n}\n.mat-mdc-menu-panel.mat-menu-panel-animations-disabled {\n  animation: none;\n}\n.mat-mdc-menu-panel.mat-menu-panel-animating {\n  pointer-events: none;\n}\n.mat-mdc-menu-panel.mat-menu-panel-animating:has(.mat-mdc-menu-content:empty) {\n  display: none;\n}\n@media (forced-colors: active) {\n  .mat-mdc-menu-panel {\n    outline: solid 1px;\n  }\n}\n.mat-mdc-menu-panel .mat-divider {\n  border-top-color: var(--mat-menu-divider-color, var(--mat-sys-surface-variant));\n  margin-bottom: var(--mat-menu-divider-bottom-spacing, 8px);\n  margin-top: var(--mat-menu-divider-top-spacing, 8px);\n}\n\n.mat-mdc-menu-item {\n  display: flex;\n  position: relative;\n  align-items: center;\n  justify-content: flex-start;\n  overflow: hidden;\n  padding: 0;\n  cursor: pointer;\n  width: 100%;\n  text-align: left;\n  box-sizing: border-box;\n  color: inherit;\n  font-size: inherit;\n  background: none;\n  text-decoration: none;\n  margin: 0;\n  min-height: 48px;\n  padding-left: var(--mat-menu-item-leading-spacing, 12px);\n  padding-right: var(--mat-menu-item-trailing-spacing, 12px);\n  -webkit-user-select: none;\n  user-select: none;\n  cursor: pointer;\n  outline: none;\n  border: none;\n  -webkit-tap-highlight-color: transparent;\n}\n.mat-mdc-menu-item::-moz-focus-inner {\n  border: 0;\n}\n[dir=rtl] .mat-mdc-menu-item {\n  padding-left: var(--mat-menu-item-trailing-spacing, 12px);\n  padding-right: var(--mat-menu-item-leading-spacing, 12px);\n}\n.mat-mdc-menu-item:has(.material-icons, mat-icon, [matButtonIcon]) {\n  padding-left: var(--mat-menu-item-with-icon-leading-spacing, 12px);\n  padding-right: var(--mat-menu-item-with-icon-trailing-spacing, 12px);\n}\n[dir=rtl] .mat-mdc-menu-item:has(.material-icons, mat-icon, [matButtonIcon]) {\n  padding-left: var(--mat-menu-item-with-icon-trailing-spacing, 12px);\n  padding-right: var(--mat-menu-item-with-icon-leading-spacing, 12px);\n}\n.mat-mdc-menu-item, .mat-mdc-menu-item:visited, .mat-mdc-menu-item:link {\n  color: var(--mat-menu-item-label-text-color, var(--mat-sys-on-surface));\n}\n.mat-mdc-menu-item .mat-icon-no-color,\n.mat-mdc-menu-item .mat-mdc-menu-submenu-icon {\n  color: var(--mat-menu-item-icon-color, var(--mat-sys-on-surface-variant));\n}\n.mat-mdc-menu-item[disabled] {\n  cursor: default;\n  opacity: 0.38;\n}\n.mat-mdc-menu-item[disabled]::after {\n  display: block;\n  position: absolute;\n  content: "";\n  top: 0;\n  left: 0;\n  bottom: 0;\n  right: 0;\n}\n.mat-mdc-menu-item:focus {\n  outline: 0;\n}\n.mat-mdc-menu-item .mat-icon {\n  flex-shrink: 0;\n  margin-right: var(--mat-menu-item-spacing, 12px);\n  height: var(--mat-menu-item-icon-size, 24px);\n  width: var(--mat-menu-item-icon-size, 24px);\n}\n[dir=rtl] .mat-mdc-menu-item {\n  text-align: right;\n}\n[dir=rtl] .mat-mdc-menu-item .mat-icon {\n  margin-right: 0;\n  margin-left: var(--mat-menu-item-spacing, 12px);\n}\n.mat-mdc-menu-item:not([disabled]):hover {\n  background-color: var(--mat-menu-item-hover-state-layer-color, color-mix(in srgb, var(--mat-sys-on-surface) calc(var(--mat-sys-hover-state-layer-opacity) * 100%), transparent));\n}\n.mat-mdc-menu-item:not([disabled]).cdk-program-focused, .mat-mdc-menu-item:not([disabled]).cdk-keyboard-focused, .mat-mdc-menu-item:not([disabled]).mat-mdc-menu-item-highlighted {\n  background-color: var(--mat-menu-item-focus-state-layer-color, color-mix(in srgb, var(--mat-sys-on-surface) calc(var(--mat-sys-focus-state-layer-opacity) * 100%), transparent));\n}\n@media (forced-colors: active) {\n  .mat-mdc-menu-item {\n    margin-top: 1px;\n  }\n}\n\n.mat-mdc-menu-submenu-icon {\n  width: var(--mat-menu-item-icon-size, 24px);\n  height: 10px;\n  fill: currentColor;\n  padding-left: var(--mat-menu-item-spacing, 12px);\n}\n[dir=rtl] .mat-mdc-menu-submenu-icon {\n  padding-right: var(--mat-menu-item-spacing, 12px);\n  padding-left: 0;\n}\n[dir=rtl] .mat-mdc-menu-submenu-icon polygon {\n  transform: scaleX(-1);\n  transform-origin: center;\n}\n@media (forced-colors: active) {\n  .mat-mdc-menu-submenu-icon {\n    fill: CanvasText;\n  }\n}\n\n.mat-mdc-menu-item .mat-mdc-menu-ripple {\n  top: 0;\n  left: 0;\n  right: 0;\n  bottom: 0;\n  position: absolute;\n  pointer-events: none;\n}\n']
-    }]
-  }], () => [], {
-    _allItems: [{
-      type: ContentChildren,
-      args: [MatMenuItem, {
-        descendants: true
-      }]
-    }],
-    backdropClass: [{
-      type: Input
-    }],
-    ariaLabel: [{
-      type: Input,
-      args: ["aria-label"]
-    }],
-    ariaLabelledby: [{
-      type: Input,
-      args: ["aria-labelledby"]
-    }],
-    ariaDescribedby: [{
-      type: Input,
-      args: ["aria-describedby"]
-    }],
-    xPosition: [{
-      type: Input
-    }],
-    yPosition: [{
-      type: Input
-    }],
-    templateRef: [{
-      type: ViewChild,
-      args: [TemplateRef]
-    }],
-    items: [{
-      type: ContentChildren,
-      args: [MatMenuItem, {
-        descendants: false
-      }]
-    }],
-    lazyContent: [{
-      type: ContentChild,
-      args: [MAT_MENU_CONTENT]
-    }],
-    overlapTrigger: [{
-      type: Input,
-      args: [{
-        transform: booleanAttribute
-      }]
-    }],
-    hasBackdrop: [{
-      type: Input,
-      args: [{
-        transform: (value) => value == null ? null : booleanAttribute(value)
-      }]
-    }],
-    panelClass: [{
-      type: Input,
-      args: ["class"]
-    }],
-    classList: [{
-      type: Input
-    }],
-    closed: [{
-      type: Output
-    }],
-    close: [{
-      type: Output
-    }]
-  });
-})();
-var MAT_MENU_SCROLL_STRATEGY = new InjectionToken("mat-menu-scroll-strategy", {
-  providedIn: "root",
-  factory: () => {
-    const injector = inject(Injector);
-    return () => createRepositionScrollStrategy(injector);
-  }
-});
-var PANELS_TO_TRIGGERS = /* @__PURE__ */ new WeakMap();
-var MatMenuTriggerBase = class _MatMenuTriggerBase {
-  _canHaveBackdrop;
-  _element = inject(ElementRef);
-  _viewContainerRef = inject(ViewContainerRef);
-  _menuItemInstance = inject(MatMenuItem, {
-    optional: true,
-    self: true
-  });
-  _dir = inject(Directionality, {
-    optional: true
-  });
-  _focusMonitor = inject(FocusMonitor);
-  _ngZone = inject(NgZone);
-  _injector = inject(Injector);
-  _scrollStrategy = inject(MAT_MENU_SCROLL_STRATEGY);
-  _changeDetectorRef = inject(ChangeDetectorRef);
-  _animationsDisabled = _animationsDisabled();
-  _portal;
-  _overlayRef = null;
-  _menuOpen = false;
-  _closingActionsSubscription = Subscription.EMPTY;
-  _menuCloseSubscription = Subscription.EMPTY;
-  _pendingRemoval;
-  _parentMaterialMenu;
-  _parentInnerPadding;
-  _openedBy = void 0;
-  get _menu() {
-    return this._menuInternal;
-  }
-  set _menu(menu) {
-    if (menu === this._menuInternal) {
-      return;
-    }
-    this._menuInternal = menu;
-    this._menuCloseSubscription.unsubscribe();
-    if (menu) {
-      if (menu === this._parentMaterialMenu && (typeof ngDevMode === "undefined" || ngDevMode)) {
-        throwMatMenuRecursiveError();
-      }
-      this._menuCloseSubscription = menu.close.subscribe((reason) => {
-        this._destroyMenu(reason);
-        if ((reason === "click" || reason === "tab") && this._parentMaterialMenu) {
-          this._parentMaterialMenu.closed.emit(reason);
-        }
-      });
-    } else {
-      this._destroyMenu();
-    }
-    this._menuItemInstance?._setTriggersSubmenu(this._triggersSubmenu());
-  }
-  _menuInternal = null;
-  constructor(_canHaveBackdrop) {
-    this._canHaveBackdrop = _canHaveBackdrop;
-    const parentMenu = inject(MAT_MENU_PANEL, {
-      optional: true
-    });
-    this._parentMaterialMenu = parentMenu instanceof MatMenu ? parentMenu : void 0;
-  }
-  ngOnDestroy() {
-    if (this._menu && this._ownsMenu(this._menu)) {
-      PANELS_TO_TRIGGERS.delete(this._menu);
-    }
-    this._pendingRemoval?.unsubscribe();
-    this._menuCloseSubscription.unsubscribe();
-    this._closingActionsSubscription.unsubscribe();
-    if (this._overlayRef) {
-      this._overlayRef.dispose();
-      this._overlayRef = null;
-    }
-  }
-  get menuOpen() {
-    return this._menuOpen;
-  }
-  get dir() {
-    return this._dir && this._dir.value === "rtl" ? "rtl" : "ltr";
-  }
-  _triggersSubmenu() {
-    return !!(this._menuItemInstance && this._parentMaterialMenu && this._menu);
-  }
-  _closeMenu() {
-    this._menu?.close.emit();
-  }
-  _openMenu(autoFocus) {
-    if (this._triggerIsAriaDisabled()) {
-      return;
-    }
-    const menu = this._menu;
-    if (this._menuOpen || !menu) {
-      return;
-    }
-    this._pendingRemoval?.unsubscribe();
-    const previousTrigger = PANELS_TO_TRIGGERS.get(menu);
-    PANELS_TO_TRIGGERS.set(menu, this);
-    if (previousTrigger && previousTrigger !== this) {
-      previousTrigger._closeMenu();
-    }
-    const overlayRef = this._createOverlay(menu);
-    const overlayConfig = overlayRef.getConfig();
-    const positionStrategy = overlayConfig.positionStrategy;
-    this._setPosition(menu, positionStrategy);
-    if (this._canHaveBackdrop) {
-      overlayConfig.hasBackdrop = menu.hasBackdrop == null ? !this._triggersSubmenu() : menu.hasBackdrop;
-    } else {
-      overlayConfig.hasBackdrop = menu.hasBackdrop ?? false;
-    }
-    if (!overlayRef.hasAttached()) {
-      overlayRef.attach(this._getPortal(menu));
-      menu.lazyContent?.attach(this.menuData);
-    }
-    this._closingActionsSubscription = this._menuClosingActions().subscribe(() => this._closeMenu());
-    menu.parentMenu = this._triggersSubmenu() ? this._parentMaterialMenu : void 0;
-    menu.direction = this.dir;
-    if (autoFocus) {
-      menu.focusFirstItem(this._openedBy || "program");
-    }
-    this._setIsMenuOpen(true);
-    if (menu instanceof MatMenu) {
-      menu._setIsOpen(true);
-      menu._directDescendantItems.changes.pipe(takeUntil(menu.close)).subscribe(() => {
-        positionStrategy.withLockedPosition(false).reapplyLastPosition();
-        positionStrategy.withLockedPosition(true);
-      });
-    }
-  }
-  focus(origin, options) {
-    if (this._focusMonitor && origin) {
-      this._focusMonitor.focusVia(this._element, origin, options);
-    } else {
-      this._element.nativeElement.focus(options);
-    }
-  }
-  _destroyMenu(reason) {
-    const overlayRef = this._overlayRef;
-    const menu = this._menu;
-    if (!overlayRef || !this.menuOpen) {
-      return;
-    }
-    this._closingActionsSubscription.unsubscribe();
-    this._pendingRemoval?.unsubscribe();
-    if (menu instanceof MatMenu && this._ownsMenu(menu)) {
-      this._pendingRemoval = menu._animationDone.pipe(take(1)).subscribe(() => {
-        overlayRef.detach();
-        if (!PANELS_TO_TRIGGERS.has(menu)) {
-          menu.lazyContent?.detach();
-        }
-      });
-      menu._setIsOpen(false);
-    } else {
-      overlayRef.detach();
-      menu?.lazyContent?.detach();
-    }
-    if (menu && this._ownsMenu(menu)) {
-      PANELS_TO_TRIGGERS.delete(menu);
-    }
-    if (this.restoreFocus && (reason === "keydown" || !this._openedBy || !this._triggersSubmenu())) {
-      this.focus(this._openedBy);
-    }
-    this._openedBy = void 0;
-    this._setIsMenuOpen(false);
-  }
-  _setIsMenuOpen(isOpen) {
-    if (isOpen !== this._menuOpen) {
-      this._menuOpen = isOpen;
-      this._menuOpen ? this.menuOpened.emit() : this.menuClosed.emit();
-      if (this._triggersSubmenu()) {
-        this._menuItemInstance._setHighlighted(isOpen);
-      }
-      this._changeDetectorRef.markForCheck();
-    }
-  }
-  _createOverlay(menu) {
-    if (!this._overlayRef) {
-      const config = this._getOverlayConfig(menu);
-      this._subscribeToPositions(menu, config.positionStrategy);
-      this._overlayRef = createOverlayRef(this._injector, config);
-      this._overlayRef.keydownEvents().subscribe((event) => {
-        if (this._menu instanceof MatMenu) {
-          this._menu._handleKeydown(event);
-        }
-      });
-    }
-    return this._overlayRef;
-  }
-  _getOverlayConfig(menu) {
-    return new OverlayConfig({
-      positionStrategy: createFlexibleConnectedPositionStrategy(this._injector, this._getOverlayOrigin()).withLockedPosition().withGrowAfterOpen().withTransformOriginOn(".mat-menu-panel, .mat-mdc-menu-panel"),
-      backdropClass: menu.backdropClass || "cdk-overlay-transparent-backdrop",
-      panelClass: menu.overlayPanelClass,
-      scrollStrategy: this._scrollStrategy(),
-      direction: this._dir || "ltr",
-      disableAnimations: this._animationsDisabled
-    });
-  }
-  _subscribeToPositions(menu, position) {
-    if (menu.setPositionClasses) {
-      position.positionChanges.subscribe((change) => {
-        this._ngZone.run(() => {
-          const posX = change.connectionPair.overlayX === "start" ? "after" : "before";
-          const posY = change.connectionPair.overlayY === "top" ? "below" : "above";
-          menu.setPositionClasses(posX, posY);
-        });
-      });
-    }
-  }
-  _setPosition(menu, positionStrategy) {
-    let [originX, originFallbackX] = menu.xPosition === "before" ? ["end", "start"] : ["start", "end"];
-    let [overlayY, overlayFallbackY] = menu.yPosition === "above" ? ["bottom", "top"] : ["top", "bottom"];
-    let [originY, originFallbackY] = [overlayY, overlayFallbackY];
-    let [overlayX, overlayFallbackX] = [originX, originFallbackX];
-    let offsetY = 0;
-    if (this._triggersSubmenu()) {
-      overlayFallbackX = originX = menu.xPosition === "before" ? "start" : "end";
-      originFallbackX = overlayX = originX === "end" ? "start" : "end";
-      if (this._parentMaterialMenu) {
-        if (this._parentInnerPadding == null) {
-          const firstItem = this._parentMaterialMenu.items.first;
-          this._parentInnerPadding = firstItem ? firstItem._getHostElement().offsetTop : 0;
-        }
-        offsetY = overlayY === "bottom" ? this._parentInnerPadding : -this._parentInnerPadding;
-      }
-    } else if (!menu.overlapTrigger) {
-      originY = overlayY === "top" ? "bottom" : "top";
-      originFallbackY = overlayFallbackY === "top" ? "bottom" : "top";
-    }
-    positionStrategy.withPositions([{
-      originX,
-      originY,
-      overlayX,
-      overlayY,
-      offsetY
-    }, {
-      originX: originFallbackX,
-      originY,
-      overlayX: overlayFallbackX,
-      overlayY,
-      offsetY
-    }, {
-      originX,
-      originY: originFallbackY,
-      overlayX,
-      overlayY: overlayFallbackY,
-      offsetY: -offsetY
-    }, {
-      originX: originFallbackX,
-      originY: originFallbackY,
-      overlayX: overlayFallbackX,
-      overlayY: overlayFallbackY,
-      offsetY: -offsetY
-    }]);
-  }
-  _menuClosingActions() {
-    const outsideClicks = this._getOutsideClickStream(this._overlayRef);
-    const detachments = this._overlayRef.detachments();
-    const parentClose = this._parentMaterialMenu ? this._parentMaterialMenu.closed : of();
-    const hover = this._parentMaterialMenu ? this._parentMaterialMenu._hovered().pipe(filter((active) => this._menuOpen && active !== this._menuItemInstance)) : of();
-    return merge(outsideClicks, parentClose, hover, detachments);
-  }
-  _getPortal(menu) {
-    if (!this._portal || this._portal.templateRef !== menu.templateRef) {
-      this._portal = new TemplatePortal(menu.templateRef, this._viewContainerRef);
-    }
-    return this._portal;
-  }
-  _ownsMenu(menu) {
-    return PANELS_TO_TRIGGERS.get(menu) === this;
-  }
-  _triggerIsAriaDisabled() {
-    return booleanAttribute(this._element.nativeElement.getAttribute("aria-disabled"));
-  }
-  static \u0275fac = function MatMenuTriggerBase_Factory(__ngFactoryType__) {
-    \u0275\u0275invalidFactory();
-  };
-  static \u0275dir = /* @__PURE__ */ \u0275\u0275defineDirective({
-    type: _MatMenuTriggerBase
-  });
-};
-(() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(MatMenuTriggerBase, [{
-    type: Directive
-  }], () => [{
-    type: void 0
-  }], null);
-})();
-var MatMenuTrigger = class _MatMenuTrigger extends MatMenuTriggerBase {
-  _cleanupTouchstart;
-  _hoverSubscription = Subscription.EMPTY;
-  get _deprecatedMatMenuTriggerFor() {
-    return this.menu;
-  }
-  set _deprecatedMatMenuTriggerFor(v) {
-    this.menu = v;
-  }
-  get menu() {
-    return this._menu;
-  }
-  set menu(menu) {
-    this._menu = menu;
-  }
-  menuData;
-  restoreFocus = true;
-  menuOpened = new EventEmitter();
-  onMenuOpen = this.menuOpened;
-  menuClosed = new EventEmitter();
-  onMenuClose = this.menuClosed;
-  constructor() {
-    super(true);
-    const renderer = inject(Renderer2);
-    this._cleanupTouchstart = renderer.listen(this._element.nativeElement, "touchstart", (event) => {
-      if (!isFakeTouchstartFromScreenReader(event)) {
-        this._openedBy = "touch";
-      }
-    }, {
-      passive: true
-    });
-  }
-  triggersSubmenu() {
-    return super._triggersSubmenu();
-  }
-  toggleMenu() {
-    return this.menuOpen ? this.closeMenu() : this.openMenu();
-  }
-  openMenu() {
-    this._openMenu(true);
-  }
-  closeMenu() {
-    this._closeMenu();
-  }
-  updatePosition() {
-    this._overlayRef?.updatePosition();
-  }
-  ngAfterContentInit() {
-    this._handleHover();
-  }
-  ngOnDestroy() {
-    super.ngOnDestroy();
-    this._cleanupTouchstart();
-    this._hoverSubscription.unsubscribe();
-  }
-  _getOverlayOrigin() {
-    return this._element;
-  }
-  _getOutsideClickStream(overlayRef) {
-    return overlayRef.backdropClick();
-  }
-  _handleMousedown(event) {
-    if (!isFakeMousedownFromScreenReader(event)) {
-      this._openedBy = event.button === 0 ? "mouse" : void 0;
-      if (this.triggersSubmenu()) {
-        event.preventDefault();
-      }
-    }
-  }
-  _handleKeydown(event) {
-    const keyCode = event.keyCode;
-    if (keyCode === ENTER || keyCode === SPACE) {
-      this._openedBy = "keyboard";
-    }
-    if (this.triggersSubmenu() && (keyCode === RIGHT_ARROW && this.dir === "ltr" || keyCode === LEFT_ARROW && this.dir === "rtl")) {
-      this._openedBy = "keyboard";
-      this.openMenu();
-    }
-  }
-  _handleClick(event) {
-    if (this.triggersSubmenu()) {
-      event.stopPropagation();
-      this.openMenu();
-    } else {
-      this.toggleMenu();
-    }
-  }
-  _handleHover() {
-    if (this.triggersSubmenu() && this._parentMaterialMenu) {
-      this._hoverSubscription = this._parentMaterialMenu._hovered().subscribe((active) => {
-        if (active === this._menuItemInstance && !active.disabled && this._parentMaterialMenu?._panelAnimationState !== "void") {
-          this._openedBy = "mouse";
-          this._openMenu(false);
-        }
-      });
-    }
-  }
-  static \u0275fac = function MatMenuTrigger_Factory(__ngFactoryType__) {
-    return new (__ngFactoryType__ || _MatMenuTrigger)();
-  };
-  static \u0275dir = /* @__PURE__ */ \u0275\u0275defineDirective({
-    type: _MatMenuTrigger,
-    selectors: [["", "mat-menu-trigger-for", ""], ["", "matMenuTriggerFor", ""]],
-    hostAttrs: [1, "mat-mdc-menu-trigger"],
-    hostVars: 3,
-    hostBindings: function MatMenuTrigger_HostBindings(rf, ctx) {
-      if (rf & 1) {
-        \u0275\u0275listener("click", function MatMenuTrigger_click_HostBindingHandler($event) {
-          return ctx._handleClick($event);
-        })("mousedown", function MatMenuTrigger_mousedown_HostBindingHandler($event) {
-          return ctx._handleMousedown($event);
-        })("keydown", function MatMenuTrigger_keydown_HostBindingHandler($event) {
-          return ctx._handleKeydown($event);
-        });
-      }
-      if (rf & 2) {
-        \u0275\u0275attribute("aria-haspopup", ctx.menu ? "menu" : null)("aria-expanded", ctx.menuOpen)("aria-controls", ctx.menuOpen ? ctx.menu?.panelId : null);
-      }
-    },
-    inputs: {
-      _deprecatedMatMenuTriggerFor: [0, "mat-menu-trigger-for", "_deprecatedMatMenuTriggerFor"],
-      menu: [0, "matMenuTriggerFor", "menu"],
-      menuData: [0, "matMenuTriggerData", "menuData"],
-      restoreFocus: [0, "matMenuTriggerRestoreFocus", "restoreFocus"]
-    },
-    outputs: {
-      menuOpened: "menuOpened",
-      onMenuOpen: "onMenuOpen",
-      menuClosed: "menuClosed",
-      onMenuClose: "onMenuClose"
-    },
-    exportAs: ["matMenuTrigger"],
-    features: [\u0275\u0275InheritDefinitionFeature]
-  });
-};
-(() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(MatMenuTrigger, [{
-    type: Directive,
-    args: [{
-      selector: "[mat-menu-trigger-for], [matMenuTriggerFor]",
-      host: {
-        "class": "mat-mdc-menu-trigger",
-        "[attr.aria-haspopup]": 'menu ? "menu" : null',
-        "[attr.aria-expanded]": "menuOpen",
-        "[attr.aria-controls]": "menuOpen ? menu?.panelId : null",
-        "(click)": "_handleClick($event)",
-        "(mousedown)": "_handleMousedown($event)",
-        "(keydown)": "_handleKeydown($event)"
-      },
-      exportAs: "matMenuTrigger"
-    }]
-  }], () => [], {
-    _deprecatedMatMenuTriggerFor: [{
-      type: Input,
-      args: ["mat-menu-trigger-for"]
-    }],
-    menu: [{
-      type: Input,
-      args: ["matMenuTriggerFor"]
-    }],
-    menuData: [{
-      type: Input,
-      args: ["matMenuTriggerData"]
-    }],
-    restoreFocus: [{
-      type: Input,
-      args: ["matMenuTriggerRestoreFocus"]
-    }],
-    menuOpened: [{
-      type: Output
-    }],
-    onMenuOpen: [{
-      type: Output
-    }],
-    menuClosed: [{
-      type: Output
-    }],
-    onMenuClose: [{
-      type: Output
-    }]
-  });
-})();
-var MatContextMenuTrigger = class _MatContextMenuTrigger extends MatMenuTriggerBase {
-  _point = {
-    x: 0,
-    y: 0,
-    initialX: 0,
-    initialY: 0,
-    initialScrollX: 0,
-    initialScrollY: 0
-  };
-  _triggerPressedControl = false;
-  _rootNode;
-  _document = inject(DOCUMENT);
-  _viewportRuler = inject(ViewportRuler);
-  _scrollDispatcher = inject(ScrollDispatcher);
-  _scrollSubscription;
-  get menu() {
-    return this._menu;
-  }
-  set menu(menu) {
-    this._menu = menu;
-  }
-  menuData;
-  restoreFocus = true;
-  disabled = false;
-  menuOpened = new EventEmitter();
-  menuClosed = new EventEmitter();
-  constructor() {
-    super(false);
-  }
-  ngOnDestroy() {
-    super.ngOnDestroy();
-    this._scrollSubscription?.unsubscribe();
-  }
-  _handleContextMenuEvent(event) {
-    if (!this.disabled) {
-      event.preventDefault();
-      if (this.menuOpen) {
-        this._initializePoint(event.clientX, event.clientY);
-        this._updatePosition();
-      } else {
-        this._openContextMenu(event);
-      }
-    }
-  }
-  _destroyMenu(reason) {
-    super._destroyMenu(reason);
-    this._scrollSubscription?.unsubscribe();
-  }
-  _getOverlayOrigin() {
-    return this._point;
-  }
-  _getOutsideClickStream(overlayRef) {
-    return overlayRef.outsidePointerEvents().pipe(skipWhile((event, index) => {
-      if (event.type === "contextmenu") {
-        return this._isWithinMenuOrTrigger(_getEventTarget(event));
-      } else if (event.type === "auxclick") {
-        if (index === 0) {
-          return true;
-        }
-        this._rootNode ??= _getShadowRoot(this._element.nativeElement) || this._document;
-        return this._isWithinMenuOrTrigger(this._rootNode.elementFromPoint(event.clientX, event.clientY));
-      }
-      return this._triggerPressedControl && index === 0 && event.ctrlKey;
-    }));
-  }
-  _isWithinMenuOrTrigger(target) {
-    if (!target) {
-      return false;
-    }
-    const element = this._element.nativeElement;
-    if (target === element || element.contains(target)) {
-      return true;
-    }
-    const overlay = this._overlayRef?.hostElement;
-    return overlay === target || !!overlay?.contains(target);
-  }
-  _openContextMenu(event) {
-    if (event.button === 2) {
-      this._openedBy = "mouse";
-    } else {
-      this._openedBy = event.button === 0 ? "keyboard" : void 0;
-    }
-    this._initializePoint(event.clientX, event.clientY);
-    this._triggerPressedControl = event.ctrlKey;
-    super._openMenu(true);
-    this._scrollSubscription?.unsubscribe();
-    this._scrollSubscription = this._scrollDispatcher.scrolled(0).subscribe(() => {
-      const position = this._viewportRuler.getViewportScrollPosition();
-      const point = this._point;
-      point.y = point.initialY + (point.initialScrollY - position.top);
-      point.x = point.initialX + (point.initialScrollX - position.left);
-      this._updatePosition();
-    });
-  }
-  _initializePoint(x, y) {
-    const scrollPosition = this._viewportRuler.getViewportScrollPosition();
-    const point = this._point;
-    point.x = point.initialX = x;
-    point.y = point.initialY = y;
-    point.initialScrollX = scrollPosition.left;
-    point.initialScrollY = scrollPosition.top;
-  }
-  _updatePosition() {
-    const overlayRef = this._overlayRef;
-    if (overlayRef) {
-      const positionStrategy = overlayRef.getConfig().positionStrategy;
-      positionStrategy.setOrigin(this._point);
-      overlayRef.updatePosition();
-    }
-  }
-  static \u0275fac = function MatContextMenuTrigger_Factory(__ngFactoryType__) {
-    return new (__ngFactoryType__ || _MatContextMenuTrigger)();
-  };
-  static \u0275dir = /* @__PURE__ */ \u0275\u0275defineDirective({
-    type: _MatContextMenuTrigger,
-    selectors: [["", "matContextMenuTriggerFor", ""]],
-    hostAttrs: [1, "mat-context-menu-trigger"],
-    hostVars: 3,
-    hostBindings: function MatContextMenuTrigger_HostBindings(rf, ctx) {
-      if (rf & 1) {
-        \u0275\u0275listener("contextmenu", function MatContextMenuTrigger_contextmenu_HostBindingHandler($event) {
-          return ctx._handleContextMenuEvent($event);
-        });
-      }
-      if (rf & 2) {
-        \u0275\u0275attribute("aria-controls", ctx.menuOpen ? ctx.menu?.panelId : null);
-        \u0275\u0275classProp("mat-context-menu-trigger-disabled", ctx.disabled);
-      }
-    },
-    inputs: {
-      menu: [0, "matContextMenuTriggerFor", "menu"],
-      menuData: [0, "matContextMenuTriggerData", "menuData"],
-      restoreFocus: [0, "matContextMenuTriggerRestoreFocus", "restoreFocus"],
-      disabled: [2, "matContextMenuTriggerDisabled", "disabled", booleanAttribute]
-    },
-    outputs: {
-      menuOpened: "menuOpened",
-      menuClosed: "menuClosed"
-    },
-    exportAs: ["matContextMenuTrigger"],
-    features: [\u0275\u0275InheritDefinitionFeature]
-  });
-};
-(() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(MatContextMenuTrigger, [{
-    type: Directive,
-    args: [{
-      selector: "[matContextMenuTriggerFor]",
-      host: {
-        "class": "mat-context-menu-trigger",
-        "[class.mat-context-menu-trigger-disabled]": "disabled",
-        "[attr.aria-controls]": "menuOpen ? menu?.panelId : null",
-        "(contextmenu)": "_handleContextMenuEvent($event)"
-      },
-      exportAs: "matContextMenuTrigger"
-    }]
-  }], () => [], {
-    menu: [{
-      type: Input,
-      args: [{
-        alias: "matContextMenuTriggerFor",
-        required: true
-      }]
-    }],
-    menuData: [{
-      type: Input,
-      args: ["matContextMenuTriggerData"]
-    }],
-    restoreFocus: [{
-      type: Input,
-      args: ["matContextMenuTriggerRestoreFocus"]
-    }],
-    disabled: [{
-      type: Input,
-      args: [{
-        alias: "matContextMenuTriggerDisabled",
-        transform: booleanAttribute
-      }]
-    }],
-    menuOpened: [{
-      type: Output
-    }],
-    menuClosed: [{
-      type: Output
-    }]
-  });
-})();
-var MatMenuModule = class _MatMenuModule {
-  static \u0275fac = function MatMenuModule_Factory(__ngFactoryType__) {
-    return new (__ngFactoryType__ || _MatMenuModule)();
-  };
-  static \u0275mod = /* @__PURE__ */ \u0275\u0275defineNgModule({
-    type: _MatMenuModule,
-    imports: [MatRippleModule, OverlayModule, MatMenu, MatMenuItem, MatMenuContent, MatMenuTrigger, MatContextMenuTrigger],
-    exports: [BidiModule, CdkScrollableModule, MatMenu, MatMenuItem, MatMenuContent, MatMenuTrigger, MatContextMenuTrigger]
-  });
-  static \u0275inj = /* @__PURE__ */ \u0275\u0275defineInjector({
-    imports: [MatRippleModule, OverlayModule, BidiModule, CdkScrollableModule]
-  });
-};
-(() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(MatMenuModule, [{
-    type: NgModule,
-    args: [{
-      imports: [MatRippleModule, OverlayModule, MatMenu, MatMenuItem, MatMenuContent, MatMenuTrigger, MatContextMenuTrigger],
-      exports: [BidiModule, CdkScrollableModule, MatMenu, MatMenuItem, MatMenuContent, MatMenuTrigger, MatContextMenuTrigger]
-    }]
-  }], null, null);
-})();
-
-// node_modules/@angular/cdk/fesm2022/_selection-model-chunk.mjs
-var SelectionModel = class {
-  _multiple;
-  _emitChanges;
-  compareWith;
-  _selection = /* @__PURE__ */ new Set();
-  _deselectedToEmit = [];
-  _selectedToEmit = [];
-  _selected = null;
-  get selected() {
-    if (!this._selected) {
-      this._selected = Array.from(this._selection.values());
-    }
-    return this._selected;
-  }
-  changed = new Subject();
-  bulk = {
-    select: (values) => this._select(values),
-    deselect: (values) => this._deselect(values),
-    setSelection: (values) => this._setSelection(values)
-  };
-  constructor(_multiple = false, initiallySelectedValues, _emitChanges = true, compareWith) {
-    this._multiple = _multiple;
-    this._emitChanges = _emitChanges;
-    this.compareWith = compareWith;
-    if (initiallySelectedValues && initiallySelectedValues.length) {
-      if (_multiple) {
-        initiallySelectedValues.forEach((value) => this._markSelected(value));
-      } else {
-        this._markSelected(initiallySelectedValues[0]);
-      }
-      this._selectedToEmit.length = 0;
-    }
-  }
-  select(...values) {
-    return this._select(values);
-  }
-  deselect(...values) {
-    return this._deselect(values);
-  }
-  setSelection(...values) {
-    return this._setSelection(values);
-  }
-  toggle(value) {
-    return this.isSelected(value) ? this.deselect(value) : this.select(value);
-  }
-  clear(flushEvent = true) {
-    this._unmarkAll();
-    const changed = this._hasQueuedChanges();
-    if (flushEvent) {
-      this._emitChangeEvent();
-    }
-    return changed;
-  }
-  isSelected(value) {
-    return this._selection.has(this._getConcreteValue(value));
-  }
-  isEmpty() {
-    return this._selection.size === 0;
-  }
-  hasValue() {
-    return !this.isEmpty();
-  }
-  sort(predicate) {
-    if (this._multiple && this.selected) {
-      this._selected.sort(predicate);
-    }
-  }
-  isMultipleSelection() {
-    return this._multiple;
-  }
-  _select(values) {
-    this._verifyValueAssignment(values);
-    values.forEach((value) => this._markSelected(value));
-    const changed = this._hasQueuedChanges();
-    this._emitChangeEvent();
-    return changed;
-  }
-  _deselect(values) {
-    this._verifyValueAssignment(values);
-    values.forEach((value) => this._unmarkSelected(value));
-    const changed = this._hasQueuedChanges();
-    this._emitChangeEvent();
-    return changed;
-  }
-  _setSelection(values) {
-    this._verifyValueAssignment(values);
-    const oldValues = this.selected;
-    const newSelectedSet = new Set(values.map((value) => this._getConcreteValue(value)));
-    values.forEach((value) => this._markSelected(value));
-    oldValues.filter((value) => !newSelectedSet.has(this._getConcreteValue(value, newSelectedSet))).forEach((value) => this._unmarkSelected(value));
-    const changed = this._hasQueuedChanges();
-    this._emitChangeEvent();
-    return changed;
-  }
-  _emitChangeEvent() {
-    this._selected = null;
-    if (this._selectedToEmit.length || this._deselectedToEmit.length) {
-      this.changed.next({
-        source: this,
-        added: this._selectedToEmit,
-        removed: this._deselectedToEmit
-      });
-      this._deselectedToEmit = [];
-      this._selectedToEmit = [];
-    }
-  }
-  _markSelected(value) {
-    value = this._getConcreteValue(value);
-    if (!this.isSelected(value)) {
-      if (!this._multiple) {
-        this._unmarkAll();
-      }
-      if (!this.isSelected(value)) {
-        this._selection.add(value);
-      }
-      if (this._emitChanges) {
-        this._selectedToEmit.push(value);
-      }
-    }
-  }
-  _unmarkSelected(value) {
-    value = this._getConcreteValue(value);
-    if (this.isSelected(value)) {
-      this._selection.delete(value);
-      if (this._emitChanges) {
-        this._deselectedToEmit.push(value);
-      }
-    }
-  }
-  _unmarkAll() {
-    if (!this.isEmpty()) {
-      this._selection.forEach((value) => this._unmarkSelected(value));
-    }
-  }
-  _verifyValueAssignment(values) {
-    if (values.length > 1 && !this._multiple && (typeof ngDevMode === "undefined" || ngDevMode)) {
-      throw getMultipleValuesInSingleSelectionError();
-    }
-  }
-  _hasQueuedChanges() {
-    return !!(this._deselectedToEmit.length || this._selectedToEmit.length);
-  }
-  _getConcreteValue(inputValue, selection) {
-    if (!this.compareWith) {
-      return inputValue;
-    } else {
-      selection = selection ?? this._selection;
-      for (let selectedValue of selection) {
-        if (this.compareWith(inputValue, selectedValue)) {
-          return selectedValue;
-        }
-      }
-      return inputValue;
-    }
-  }
-};
-function getMultipleValuesInSingleSelectionError() {
-  return Error("Cannot pass multiple values into SelectionModel with single-value mode.");
-}
-
-// node_modules/@angular/material/fesm2022/select.mjs
-var _c02 = ["trigger"];
-var _c12 = ["panel"];
-var _c22 = [[["mat-select-trigger"]], "*"];
-var _c3 = ["mat-select-trigger", "*"];
-function MatSelect_Conditional_4_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275elementStart(0, "span", 4);
-    \u0275\u0275text(1);
-    \u0275\u0275elementEnd();
-  }
-  if (rf & 2) {
-    const ctx_r0 = \u0275\u0275nextContext();
-    \u0275\u0275advance();
-    \u0275\u0275textInterpolate(ctx_r0.placeholder);
-  }
-}
-function MatSelect_Conditional_5_Conditional_1_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275projection(0);
-  }
-}
-function MatSelect_Conditional_5_Conditional_2_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275elementStart(0, "span", 11);
-    \u0275\u0275text(1);
-    \u0275\u0275elementEnd();
-  }
-  if (rf & 2) {
-    const ctx_r0 = \u0275\u0275nextContext(2);
-    \u0275\u0275advance();
-    \u0275\u0275textInterpolate(ctx_r0.triggerValue);
-  }
-}
-function MatSelect_Conditional_5_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275elementStart(0, "span", 5);
-    \u0275\u0275conditionalCreate(1, MatSelect_Conditional_5_Conditional_1_Template, 1, 0)(2, MatSelect_Conditional_5_Conditional_2_Template, 2, 1, "span", 11);
-    \u0275\u0275elementEnd();
-  }
-  if (rf & 2) {
-    const ctx_r0 = \u0275\u0275nextContext();
-    \u0275\u0275advance();
-    \u0275\u0275conditional(ctx_r0.customTrigger ? 1 : 2);
-  }
-}
-function MatSelect_ng_template_10_Template(rf, ctx) {
-  if (rf & 1) {
-    const _r2 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "div", 12, 1);
-    \u0275\u0275listener("keydown", function MatSelect_ng_template_10_Template_div_keydown_0_listener($event) {
-      \u0275\u0275restoreView(_r2);
-      const ctx_r0 = \u0275\u0275nextContext();
-      return \u0275\u0275resetView(ctx_r0._handleKeydown($event));
-    });
-    \u0275\u0275projection(2, 1);
-    \u0275\u0275elementEnd();
-  }
-  if (rf & 2) {
-    const ctx_r0 = \u0275\u0275nextContext();
-    \u0275\u0275classMap(ctx_r0.panelClass);
-    \u0275\u0275classProp("mat-select-panel-animations-enabled", !ctx_r0._animationsDisabled)("mat-primary", ctx_r0._parentFormField?.color === "primary")("mat-accent", ctx_r0._parentFormField?.color === "accent")("mat-warn", ctx_r0._parentFormField?.color === "warn")("mat-undefined", !ctx_r0._parentFormField?.color);
-    \u0275\u0275attribute("id", ctx_r0.id + "-panel")("aria-multiselectable", ctx_r0.multiple)("aria-label", ctx_r0.ariaLabel || null)("aria-labelledby", ctx_r0._getPanelAriaLabelledby());
-  }
-}
-function getMatSelectDynamicMultipleError() {
-  return Error("Cannot change `multiple` mode of select after initialization.");
-}
-function getMatSelectNonArrayValueError() {
-  return Error("Value must be an array in multiple-selection mode.");
-}
-function getMatSelectNonFunctionValueError() {
-  return Error("`compareWith` must be a function.");
-}
-var MAT_SELECT_SCROLL_STRATEGY = new InjectionToken("mat-select-scroll-strategy", {
-  providedIn: "root",
-  factory: () => {
-    const injector = inject(Injector);
-    return () => createRepositionScrollStrategy(injector);
-  }
-});
-var MAT_SELECT_CONFIG = new InjectionToken("MAT_SELECT_CONFIG");
-var MAT_SELECT_TRIGGER = new InjectionToken("MatSelectTrigger");
-var MatSelectChange = class {
-  source;
-  value;
-  constructor(source, value) {
-    this.source = source;
-    this.value = value;
-  }
-};
-var MatSelect = class _MatSelect {
-  _viewportRuler = inject(ViewportRuler);
-  _changeDetectorRef = inject(ChangeDetectorRef);
-  _elementRef = inject(ElementRef);
-  _dir = inject(Directionality, {
-    optional: true
-  });
-  _idGenerator = inject(_IdGenerator);
-  _renderer = inject(Renderer2);
-  _parentFormField = inject(MAT_FORM_FIELD, {
-    optional: true
-  });
-  ngControl = inject(NgControl, {
-    self: true,
-    optional: true
-  });
-  _liveAnnouncer = inject(LiveAnnouncer);
-  _defaultOptions = inject(MAT_SELECT_CONFIG, {
-    optional: true
-  });
-  _animationsDisabled = _animationsDisabled();
-  _popoverLocation;
-  _initialized = new Subject();
-  _cleanupDetach;
-  options;
-  optionGroups;
-  customTrigger;
-  _positions = [{
-    originX: "start",
-    originY: "bottom",
-    overlayX: "start",
-    overlayY: "top"
-  }, {
-    originX: "end",
-    originY: "bottom",
-    overlayX: "end",
-    overlayY: "top"
-  }, {
-    originX: "start",
-    originY: "top",
-    overlayX: "start",
-    overlayY: "bottom",
-    panelClass: "mat-mdc-select-panel-above"
-  }, {
-    originX: "end",
-    originY: "top",
-    overlayX: "end",
-    overlayY: "bottom",
-    panelClass: "mat-mdc-select-panel-above"
-  }];
-  _scrollOptionIntoView(index) {
-    const option = this.options.toArray()[index];
-    if (option) {
-      const panel = this.panel.nativeElement;
-      const labelCount = _countGroupLabelsBeforeOption(index, this.options, this.optionGroups);
-      const element = option._getHostElement();
-      if (index === 0 && labelCount === 1) {
-        panel.scrollTop = 0;
-      } else {
-        panel.scrollTop = _getOptionScrollPosition(element.offsetTop, element.offsetHeight, panel.scrollTop, panel.offsetHeight);
-      }
-    }
-  }
-  _positioningSettled() {
-    this._scrollOptionIntoView(this._keyManager.activeItemIndex || 0);
-  }
-  _getChangeEvent(value) {
-    return new MatSelectChange(this, value);
-  }
-  _scrollStrategyFactory = inject(MAT_SELECT_SCROLL_STRATEGY);
-  _panelOpen = false;
-  _compareWith = (o1, o2) => o1 === o2;
-  _uid = this._idGenerator.getId("mat-select-");
-  _triggerAriaLabelledBy = null;
-  _previousControl;
-  _destroy = new Subject();
-  _errorStateTracker;
-  stateChanges = new Subject();
-  disableAutomaticLabeling = true;
-  userAriaDescribedBy;
-  _selectionModel;
-  _keyManager;
-  _preferredOverlayOrigin;
-  _overlayWidth;
-  _onChange = () => {
-  };
-  _onTouched = () => {
-  };
-  _valueId = this._idGenerator.getId("mat-select-value-");
-  _scrollStrategy;
-  _overlayPanelClass = this._defaultOptions?.overlayPanelClass || "";
-  get focused() {
-    return this._focused || this._panelOpen;
-  }
-  _focused = false;
-  controlType = "mat-select";
-  trigger;
-  panel;
-  _overlayDir;
-  panelClass;
-  disabled = false;
-  get disableRipple() {
-    return this._disableRipple();
-  }
-  set disableRipple(value) {
-    this._disableRipple.set(value);
-  }
-  _disableRipple = signal(false, ...ngDevMode ? [{
-    debugName: "_disableRipple"
-  }] : []);
-  tabIndex = 0;
-  get hideSingleSelectionIndicator() {
-    return this._hideSingleSelectionIndicator;
-  }
-  set hideSingleSelectionIndicator(value) {
-    this._hideSingleSelectionIndicator = value;
-    this._syncParentProperties();
-  }
-  _hideSingleSelectionIndicator = this._defaultOptions?.hideSingleSelectionIndicator ?? false;
-  get placeholder() {
-    return this._placeholder;
-  }
-  set placeholder(value) {
-    this._placeholder = value;
-    this.stateChanges.next();
-  }
-  _placeholder;
-  get required() {
-    return this._required ?? this.ngControl?.control?.hasValidator(Validators.required) ?? false;
-  }
-  set required(value) {
-    this._required = value;
-    this.stateChanges.next();
-  }
-  _required;
-  get multiple() {
-    return this._multiple;
-  }
-  set multiple(value) {
-    if (this._selectionModel && (typeof ngDevMode === "undefined" || ngDevMode)) {
-      throw getMatSelectDynamicMultipleError();
-    }
-    this._multiple = value;
-  }
-  _multiple = false;
-  disableOptionCentering = this._defaultOptions?.disableOptionCentering ?? false;
-  get compareWith() {
-    return this._compareWith;
-  }
-  set compareWith(fn) {
-    if (typeof fn !== "function" && (typeof ngDevMode === "undefined" || ngDevMode)) {
-      throw getMatSelectNonFunctionValueError();
-    }
-    this._compareWith = fn;
-    if (this._selectionModel) {
-      this._initializeSelection();
-    }
-  }
-  get value() {
-    return this._value;
-  }
-  set value(newValue) {
-    const hasAssigned = this._assignValue(newValue);
-    if (hasAssigned) {
-      this._onChange(newValue);
-    }
-  }
-  _value;
-  ariaLabel = "";
-  ariaLabelledby;
-  get errorStateMatcher() {
-    return this._errorStateTracker.matcher;
-  }
-  set errorStateMatcher(value) {
-    this._errorStateTracker.matcher = value;
-  }
-  typeaheadDebounceInterval;
-  sortComparator;
-  get id() {
-    return this._id;
-  }
-  set id(value) {
-    this._id = value || this._uid;
-    this.stateChanges.next();
-  }
-  _id;
-  get errorState() {
-    return this._errorStateTracker.errorState;
-  }
-  set errorState(value) {
-    this._errorStateTracker.errorState = value;
-  }
-  panelWidth = this._defaultOptions && typeof this._defaultOptions.panelWidth !== "undefined" ? this._defaultOptions.panelWidth : "auto";
-  canSelectNullableOptions = this._defaultOptions?.canSelectNullableOptions ?? false;
-  optionSelectionChanges = defer(() => {
-    const options = this.options;
-    if (options) {
-      return options.changes.pipe(startWith(options), switchMap(() => merge(...options.map((option) => option.onSelectionChange))));
-    }
-    return this._initialized.pipe(switchMap(() => this.optionSelectionChanges));
-  });
-  openedChange = new EventEmitter();
-  _openedStream = this.openedChange.pipe(filter((o) => o), map(() => {
-  }));
-  _closedStream = this.openedChange.pipe(filter((o) => !o), map(() => {
-  }));
-  selectionChange = new EventEmitter();
-  valueChange = new EventEmitter();
-  constructor() {
-    const defaultErrorStateMatcher = inject(ErrorStateMatcher);
-    const parentForm = inject(NgForm, {
-      optional: true
-    });
-    const parentFormGroup = inject(FormGroupDirective, {
-      optional: true
-    });
-    const tabIndex = inject(new HostAttributeToken("tabindex"), {
-      optional: true
-    });
-    const defaultPopoverConfig = inject(OVERLAY_DEFAULT_CONFIG, {
-      optional: true
-    });
-    const formField = inject(FORM_FIELD, {
-      optional: true,
-      self: true
-    });
-    if (this.ngControl) {
-      this.ngControl.valueAccessor = this;
-    }
-    if (this._defaultOptions?.typeaheadDebounceInterval != null) {
-      this.typeaheadDebounceInterval = this._defaultOptions.typeaheadDebounceInterval;
-    }
-    this._errorStateTracker = new _ErrorStateTracker(defaultErrorStateMatcher, formField || this.ngControl, parentFormGroup, parentForm, this.stateChanges);
-    this._scrollStrategy = this._scrollStrategyFactory();
-    this.tabIndex = tabIndex == null ? 0 : parseInt(tabIndex) || 0;
-    this._popoverLocation = defaultPopoverConfig?.usePopover === false ? null : "inline";
-    this.id = this.id;
-  }
-  ngOnInit() {
-    this._selectionModel = new SelectionModel(this.multiple);
-    this.stateChanges.next();
-    this._viewportRuler.change().pipe(takeUntil(this._destroy)).subscribe(() => {
-      if (this.panelOpen) {
-        this._overlayWidth = this._getOverlayWidth(this._preferredOverlayOrigin);
-        this._changeDetectorRef.detectChanges();
-      }
-    });
-  }
-  ngAfterContentInit() {
-    this._initialized.next();
-    this._initialized.complete();
-    this._initKeyManager();
-    this._selectionModel.changed.pipe(takeUntil(this._destroy)).subscribe((event) => {
-      event.added.forEach((option) => option.select());
-      event.removed.forEach((option) => option.deselect());
-    });
-    this.options.changes.pipe(startWith(null), takeUntil(this._destroy)).subscribe(() => {
-      this._resetOptions();
-      this._initializeSelection();
-    });
-  }
-  ngDoCheck() {
-    const newAriaLabelledby = this._getTriggerAriaLabelledby();
-    const ngControl = this.ngControl;
-    if (newAriaLabelledby !== this._triggerAriaLabelledBy) {
-      const element = this._elementRef.nativeElement;
-      this._triggerAriaLabelledBy = newAriaLabelledby;
-      if (newAriaLabelledby) {
-        element.setAttribute("aria-labelledby", newAriaLabelledby);
-      } else {
-        element.removeAttribute("aria-labelledby");
-      }
-    }
-    if (ngControl) {
-      if (this._previousControl !== ngControl.control) {
-        if (this._previousControl !== void 0 && ngControl.disabled !== null && ngControl.disabled !== this.disabled) {
-          this.disabled = ngControl.disabled;
-        }
-        this._previousControl = ngControl.control;
-      }
-      this.updateErrorState();
-    }
-  }
-  ngOnChanges(changes) {
-    if (changes["disabled"] || changes["userAriaDescribedBy"]) {
-      this.stateChanges.next();
-    }
-    if (changes["typeaheadDebounceInterval"] && this._keyManager) {
-      this._keyManager.withTypeAhead(this.typeaheadDebounceInterval);
-    }
-    if (changes["panelClass"] && this.panelClass instanceof Set) {
-      this.panelClass = Array.from(this.panelClass);
-    }
-  }
-  ngOnDestroy() {
-    this._cleanupDetach?.();
-    this._keyManager?.destroy();
-    this._destroy.next();
-    this._destroy.complete();
-    this.stateChanges.complete();
-  }
-  toggle() {
-    this.panelOpen ? this.close() : this.open();
-  }
-  open() {
-    if (!this._canOpen()) {
-      return;
-    }
-    if (this._parentFormField) {
-      this._preferredOverlayOrigin = this._parentFormField.getConnectedOverlayOrigin();
-    }
-    this._cleanupDetach?.();
-    this._overlayWidth = this._getOverlayWidth(this._preferredOverlayOrigin);
-    this._panelOpen = true;
-    this._overlayDir.positionChange.pipe(take(1)).subscribe(() => {
-      this._changeDetectorRef.detectChanges();
-      this._positioningSettled();
-    });
-    this._overlayDir.attachOverlay();
-    this._keyManager.withHorizontalOrientation(null);
-    this._highlightCorrectOption();
-    this._changeDetectorRef.markForCheck();
-    this.stateChanges.next();
-    Promise.resolve().then(() => this.openedChange.emit(true));
-  }
-  close() {
-    if (this._panelOpen) {
-      this._panelOpen = false;
-      this._exitAndDetach();
-      this._keyManager.withHorizontalOrientation(this._isRtl() ? "rtl" : "ltr");
-      this._changeDetectorRef.markForCheck();
-      this._onTouched();
-      this.stateChanges.next();
-      Promise.resolve().then(() => this.openedChange.emit(false));
-    }
-  }
-  _exitAndDetach() {
-    if (this._animationsDisabled || !this.panel) {
-      this._detachOverlay();
-      return;
-    }
-    this._cleanupDetach?.();
-    this._cleanupDetach = () => {
-      cleanupEvent();
-      clearTimeout(exitFallbackTimer);
-      this._cleanupDetach = void 0;
-    };
-    const panel = this.panel.nativeElement;
-    const cleanupEvent = this._renderer.listen(panel, "animationend", (event) => {
-      if (event.animationName === "_mat-select-exit") {
-        this._cleanupDetach?.();
-        this._detachOverlay();
-      }
-    });
-    const exitFallbackTimer = setTimeout(() => {
-      this._cleanupDetach?.();
-      this._detachOverlay();
-    }, 200);
-    panel.classList.add("mat-select-panel-exit");
-  }
-  _detachOverlay() {
-    this._overlayDir.detachOverlay();
-    this._changeDetectorRef.markForCheck();
-  }
-  writeValue(value) {
-    this._assignValue(value);
-  }
-  registerOnChange(fn) {
-    this._onChange = fn;
-  }
-  registerOnTouched(fn) {
-    this._onTouched = fn;
-  }
-  setDisabledState(isDisabled) {
-    this.disabled = isDisabled;
-    this._changeDetectorRef.markForCheck();
-    this.stateChanges.next();
-  }
-  get panelOpen() {
-    return this._panelOpen;
-  }
-  get selected() {
-    return this.multiple ? this._selectionModel?.selected || [] : this._selectionModel?.selected[0];
-  }
-  get triggerValue() {
-    if (this.empty) {
-      return "";
-    }
-    if (this._multiple) {
-      const selectedOptions = this._selectionModel.selected.map((option) => option.viewValue);
-      if (this._isRtl()) {
-        selectedOptions.reverse();
-      }
-      return selectedOptions.join(", ");
-    }
-    return this._selectionModel.selected[0].viewValue;
-  }
-  updateErrorState() {
-    this._errorStateTracker.updateErrorState();
-  }
-  _isRtl() {
-    return this._dir ? this._dir.value === "rtl" : false;
-  }
-  _handleKeydown(event) {
-    if (!this.disabled) {
-      this.panelOpen ? this._handleOpenKeydown(event) : this._handleClosedKeydown(event);
-    }
-  }
-  _handleClosedKeydown(event) {
-    const keyCode = event.keyCode;
-    const isArrowKey = keyCode === DOWN_ARROW || keyCode === UP_ARROW || keyCode === LEFT_ARROW || keyCode === RIGHT_ARROW;
-    const isOpenKey = keyCode === ENTER || keyCode === SPACE;
-    const manager = this._keyManager;
-    if (!manager.isTyping() && isOpenKey && !hasModifierKey(event) || (this.multiple || event.altKey) && isArrowKey) {
-      event.preventDefault();
-      this.open();
-    } else if (!this.multiple) {
-      const previouslySelectedOption = this.selected;
-      manager.onKeydown(event);
-      const selectedOption = this.selected;
-      if (selectedOption && previouslySelectedOption !== selectedOption) {
-        this._liveAnnouncer.announce(selectedOption.viewValue, 1e4);
-      }
-    }
-  }
-  _handleOpenKeydown(event) {
-    const manager = this._keyManager;
-    const keyCode = event.keyCode;
-    const isArrowKey = keyCode === DOWN_ARROW || keyCode === UP_ARROW;
-    const isTyping = manager.isTyping();
-    if (isArrowKey && event.altKey) {
-      event.preventDefault();
-      this.close();
-    } else if (!isTyping && (keyCode === ENTER || keyCode === SPACE) && manager.activeItem && !hasModifierKey(event)) {
-      event.preventDefault();
-      manager.activeItem._selectViaInteraction();
-    } else if (!isTyping && this._multiple && keyCode === A && event.ctrlKey) {
-      event.preventDefault();
-      const hasDeselectedOptions = this.options.some((opt) => !opt.disabled && !opt.selected);
-      this.options.forEach((option) => {
-        if (!option.disabled) {
-          hasDeselectedOptions ? option.select() : option.deselect();
-        }
-      });
-    } else {
-      const previouslyFocusedIndex = manager.activeItemIndex;
-      manager.onKeydown(event);
-      if (this._multiple && isArrowKey && event.shiftKey && manager.activeItem && manager.activeItemIndex !== previouslyFocusedIndex) {
-        manager.activeItem._selectViaInteraction();
-      }
-    }
-  }
-  _handleOverlayKeydown(event) {
-    if (event.keyCode === ESCAPE && !hasModifierKey(event)) {
-      event.preventDefault();
-      this.close();
-    }
-  }
-  _onFocus() {
-    if (!this.disabled) {
-      this._focused = true;
-      this.stateChanges.next();
-    }
-  }
-  _onBlur() {
-    this._focused = false;
-    this._keyManager?.cancelTypeahead();
-    if (!this.disabled && !this.panelOpen) {
-      this._onTouched();
-      this._changeDetectorRef.markForCheck();
-      this.stateChanges.next();
-    }
-  }
-  get empty() {
-    return !this._selectionModel || this._selectionModel.isEmpty();
-  }
-  _initializeSelection() {
-    Promise.resolve().then(() => {
-      if (this.ngControl) {
-        this._value = this.ngControl.value;
-      }
-      this._setSelectionByValue(this._value);
-      this.stateChanges.next();
-    });
-  }
-  _setSelectionByValue(value) {
-    this.options.forEach((option) => option.setInactiveStyles());
-    this._selectionModel.clear();
-    if (this.multiple && value) {
-      if (!Array.isArray(value) && (typeof ngDevMode === "undefined" || ngDevMode)) {
-        throw getMatSelectNonArrayValueError();
-      }
-      value.forEach((currentValue) => this._selectOptionByValue(currentValue));
-      this._sortValues();
-    } else {
-      const correspondingOption = this._selectOptionByValue(value);
-      if (correspondingOption) {
-        this._keyManager.updateActiveItem(correspondingOption);
-      } else if (!this.panelOpen) {
-        this._keyManager.updateActiveItem(-1);
-      }
-    }
-    this._changeDetectorRef.markForCheck();
-  }
-  _selectOptionByValue(value) {
-    const correspondingOption = this.options.find((option) => {
-      if (this._selectionModel.isSelected(option)) {
-        return false;
-      }
-      try {
-        return (option.value != null || this.canSelectNullableOptions) && this._compareWith(option.value, value);
-      } catch (error) {
-        if (typeof ngDevMode === "undefined" || ngDevMode) {
-          console.warn(error);
-        }
-        return false;
-      }
-    });
-    if (correspondingOption) {
-      this._selectionModel.select(correspondingOption);
-    }
-    return correspondingOption;
-  }
-  _assignValue(newValue) {
-    if (newValue !== this._value || this._multiple && Array.isArray(newValue)) {
-      if (this.options) {
-        this._setSelectionByValue(newValue);
-      }
-      this._value = newValue;
-      return true;
-    }
-    return false;
-  }
-  _skipPredicate = (option) => {
-    if (this.panelOpen) {
-      return false;
-    }
-    return option.disabled;
-  };
-  _getOverlayWidth(preferredOrigin) {
-    if (this.panelWidth === "auto") {
-      const refToMeasure = preferredOrigin instanceof CdkOverlayOrigin ? preferredOrigin.elementRef : preferredOrigin || this._elementRef;
-      return refToMeasure.nativeElement.getBoundingClientRect().width;
-    }
-    return this.panelWidth === null ? "" : this.panelWidth;
-  }
-  _syncParentProperties() {
-    if (this.options) {
-      for (const option of this.options) {
-        option._changeDetectorRef.markForCheck();
-      }
-    }
-  }
-  _initKeyManager() {
-    this._keyManager = new ActiveDescendantKeyManager(this.options).withTypeAhead(this.typeaheadDebounceInterval).withVerticalOrientation().withHorizontalOrientation(this._isRtl() ? "rtl" : "ltr").withHomeAndEnd().withPageUpDown().withAllowedModifierKeys(["shiftKey"]).skipPredicate(this._skipPredicate);
-    this._keyManager.tabOut.subscribe(() => {
-      if (this.panelOpen) {
-        if (!this.multiple && this._keyManager.activeItem) {
-          this._keyManager.activeItem._selectViaInteraction();
-        }
-        this.focus();
-        this.close();
-      }
-    });
-    this._keyManager.change.subscribe(() => {
-      if (this._panelOpen && this.panel) {
-        this._scrollOptionIntoView(this._keyManager.activeItemIndex || 0);
-      } else if (!this._panelOpen && !this.multiple && this._keyManager.activeItem) {
-        this._keyManager.activeItem._selectViaInteraction();
-      }
-    });
-  }
-  _resetOptions() {
-    const changedOrDestroyed = merge(this.options.changes, this._destroy);
-    this.optionSelectionChanges.pipe(takeUntil(changedOrDestroyed)).subscribe((event) => {
-      this._onSelect(event.source, event.isUserInput);
-      if (event.isUserInput && !this.multiple && this._panelOpen) {
-        this.close();
-        this.focus();
-      }
-    });
-    merge(...this.options.map((option) => option._stateChanges)).pipe(takeUntil(changedOrDestroyed)).subscribe(() => {
-      this._changeDetectorRef.detectChanges();
-      this.stateChanges.next();
-    });
-  }
-  _onSelect(option, isUserInput) {
-    const wasSelected = this._selectionModel.isSelected(option);
-    if (!this.canSelectNullableOptions && option.value == null && !this._multiple) {
-      option.deselect();
-      this._selectionModel.clear();
-      if (this.value != null) {
-        this._propagateChanges(option.value);
-      }
-    } else {
-      if (wasSelected !== option.selected) {
-        option.selected ? this._selectionModel.select(option) : this._selectionModel.deselect(option);
-      }
-      if (isUserInput) {
-        this._keyManager.setActiveItem(option);
-      }
-      if (this.multiple) {
-        this._sortValues();
-        if (isUserInput) {
-          this.focus();
-        }
-      }
-    }
-    if (wasSelected !== this._selectionModel.isSelected(option)) {
-      this._propagateChanges();
-    }
-    this.stateChanges.next();
-  }
-  _sortValues() {
-    if (this.multiple) {
-      const options = this.options.toArray();
-      this._selectionModel.sort((a, b) => {
-        return this.sortComparator ? this.sortComparator(a, b, options) : options.indexOf(a) - options.indexOf(b);
-      });
-      this.stateChanges.next();
-    }
-  }
-  _propagateChanges(fallbackValue) {
-    let valueToEmit;
-    if (this.multiple) {
-      valueToEmit = this.selected.map((option) => option.value);
-    } else {
-      valueToEmit = this.selected ? this.selected.value : fallbackValue;
-    }
-    this._value = valueToEmit;
-    this.valueChange.emit(valueToEmit);
-    this._onChange(valueToEmit);
-    this.selectionChange.emit(this._getChangeEvent(valueToEmit));
-    this._changeDetectorRef.markForCheck();
-  }
-  _highlightCorrectOption() {
-    if (this._keyManager) {
-      if (this.empty) {
-        let firstEnabledOptionIndex = -1;
-        for (let index = 0; index < this.options.length; index++) {
-          const option = this.options.get(index);
-          if (!option.disabled) {
-            firstEnabledOptionIndex = index;
-            break;
-          }
-        }
-        this._keyManager.setActiveItem(firstEnabledOptionIndex);
-      } else {
-        this._keyManager.setActiveItem(this._selectionModel.selected[0]);
-      }
-    }
-  }
-  _canOpen() {
-    return !this._panelOpen && !this.disabled && this.options?.length > 0 && !!this._overlayDir;
-  }
-  focus(options) {
-    this._elementRef.nativeElement.focus(options);
-  }
-  _getPanelAriaLabelledby() {
-    if (this.ariaLabel) {
-      return null;
-    }
-    const labelId = this._parentFormField?.getLabelId() || null;
-    const labelExpression = labelId ? labelId + " " : "";
-    return this.ariaLabelledby ? labelExpression + this.ariaLabelledby : labelId;
-  }
-  _getAriaActiveDescendant() {
-    if (this.panelOpen && this._keyManager && this._keyManager.activeItem) {
-      return this._keyManager.activeItem.id;
-    }
-    return null;
-  }
-  _getTriggerAriaLabelledby() {
-    if (this.ariaLabel) {
-      return null;
-    }
-    let value = this._parentFormField?.getLabelId() || "";
-    if (this.ariaLabelledby) {
-      value += " " + this.ariaLabelledby;
-    }
-    if (!value) {
-      value = this._valueId;
-    }
-    return value;
-  }
-  get describedByIds() {
-    const element = this._elementRef.nativeElement;
-    const existingDescribedBy = element.getAttribute("aria-describedby");
-    return existingDescribedBy?.split(" ") || [];
-  }
-  setDescribedByIds(ids) {
-    const element = this._elementRef.nativeElement;
-    if (ids.length) {
-      element.setAttribute("aria-describedby", ids.join(" "));
-    } else {
-      element.removeAttribute("aria-describedby");
-    }
-  }
-  onContainerClick(event) {
-    const target = _getEventTarget(event);
-    if (target && (target.tagName === "MAT-OPTION" || target.classList.contains("cdk-overlay-backdrop") || target.closest(".mat-mdc-select-panel"))) {
-      return;
-    }
-    this.focus();
-    this.open();
-  }
-  get shouldLabelFloat() {
-    return this.panelOpen || !this.empty || this.focused && !!this.placeholder;
-  }
-  static \u0275fac = function MatSelect_Factory(__ngFactoryType__) {
-    return new (__ngFactoryType__ || _MatSelect)();
-  };
-  static \u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({
-    type: _MatSelect,
-    selectors: [["mat-select"]],
-    contentQueries: function MatSelect_ContentQueries(rf, ctx, dirIndex) {
-      if (rf & 1) {
-        \u0275\u0275contentQuery(dirIndex, MAT_SELECT_TRIGGER, 5)(dirIndex, MatOption, 5)(dirIndex, MAT_OPTGROUP, 5);
-      }
-      if (rf & 2) {
-        let _t;
-        \u0275\u0275queryRefresh(_t = \u0275\u0275loadQuery()) && (ctx.customTrigger = _t.first);
-        \u0275\u0275queryRefresh(_t = \u0275\u0275loadQuery()) && (ctx.options = _t);
-        \u0275\u0275queryRefresh(_t = \u0275\u0275loadQuery()) && (ctx.optionGroups = _t);
-      }
-    },
-    viewQuery: function MatSelect_Query(rf, ctx) {
-      if (rf & 1) {
-        \u0275\u0275viewQuery(_c02, 5)(_c12, 5)(CdkConnectedOverlay, 5);
-      }
-      if (rf & 2) {
-        let _t;
-        \u0275\u0275queryRefresh(_t = \u0275\u0275loadQuery()) && (ctx.trigger = _t.first);
-        \u0275\u0275queryRefresh(_t = \u0275\u0275loadQuery()) && (ctx.panel = _t.first);
-        \u0275\u0275queryRefresh(_t = \u0275\u0275loadQuery()) && (ctx._overlayDir = _t.first);
-      }
-    },
-    hostAttrs: ["role", "combobox", "aria-haspopup", "listbox", 1, "mat-mdc-select"],
-    hostVars: 21,
-    hostBindings: function MatSelect_HostBindings(rf, ctx) {
-      if (rf & 1) {
-        \u0275\u0275listener("keydown", function MatSelect_keydown_HostBindingHandler($event) {
-          return ctx._handleKeydown($event);
-        })("focus", function MatSelect_focus_HostBindingHandler() {
-          return ctx._onFocus();
-        })("blur", function MatSelect_blur_HostBindingHandler() {
-          return ctx._onBlur();
-        });
-      }
-      if (rf & 2) {
-        \u0275\u0275attribute("id", ctx.id)("tabindex", ctx.disabled ? -1 : ctx.tabIndex)("aria-controls", ctx.panelOpen ? ctx.id + "-panel" : null)("aria-expanded", ctx.panelOpen)("aria-label", ctx.ariaLabel || null)("aria-required", ctx.required.toString())("aria-disabled", ctx.disabled.toString())("aria-invalid", ctx.errorState)("aria-activedescendant", ctx._getAriaActiveDescendant());
-        \u0275\u0275classProp("mat-mdc-select-disabled", ctx.disabled)("mat-mdc-select-invalid", ctx.errorState)("mat-mdc-select-required", ctx.required)("mat-mdc-select-empty", ctx.empty)("mat-mdc-select-multiple", ctx.multiple)("mat-select-open", ctx.panelOpen);
-      }
-    },
-    inputs: {
-      userAriaDescribedBy: [0, "aria-describedby", "userAriaDescribedBy"],
-      panelClass: "panelClass",
-      disabled: [2, "disabled", "disabled", booleanAttribute],
-      disableRipple: [2, "disableRipple", "disableRipple", booleanAttribute],
-      tabIndex: [2, "tabIndex", "tabIndex", (value) => value == null ? 0 : numberAttribute(value)],
-      hideSingleSelectionIndicator: [2, "hideSingleSelectionIndicator", "hideSingleSelectionIndicator", booleanAttribute],
-      placeholder: "placeholder",
-      required: [2, "required", "required", booleanAttribute],
-      multiple: [2, "multiple", "multiple", booleanAttribute],
-      disableOptionCentering: [2, "disableOptionCentering", "disableOptionCentering", booleanAttribute],
-      compareWith: "compareWith",
-      value: "value",
-      ariaLabel: [0, "aria-label", "ariaLabel"],
-      ariaLabelledby: [0, "aria-labelledby", "ariaLabelledby"],
-      errorStateMatcher: "errorStateMatcher",
-      typeaheadDebounceInterval: [2, "typeaheadDebounceInterval", "typeaheadDebounceInterval", numberAttribute],
-      sortComparator: "sortComparator",
-      id: "id",
-      panelWidth: "panelWidth",
-      canSelectNullableOptions: [2, "canSelectNullableOptions", "canSelectNullableOptions", booleanAttribute]
-    },
-    outputs: {
-      openedChange: "openedChange",
-      _openedStream: "opened",
-      _closedStream: "closed",
-      selectionChange: "selectionChange",
-      valueChange: "valueChange"
-    },
-    exportAs: ["matSelect"],
-    features: [\u0275\u0275ProvidersFeature([{
-      provide: MatFormFieldControl,
-      useExisting: _MatSelect
-    }, {
-      provide: MAT_OPTION_PARENT_COMPONENT,
-      useExisting: _MatSelect
-    }]), \u0275\u0275NgOnChangesFeature],
-    ngContentSelectors: _c3,
-    decls: 11,
-    vars: 10,
-    consts: [["fallbackOverlayOrigin", "cdkOverlayOrigin", "trigger", ""], ["panel", ""], ["cdk-overlay-origin", "", 1, "mat-mdc-select-trigger", 3, "click"], [1, "mat-mdc-select-value"], [1, "mat-mdc-select-placeholder", "mat-mdc-select-min-line"], [1, "mat-mdc-select-value-text"], [1, "mat-mdc-select-arrow-wrapper"], [1, "mat-mdc-select-arrow"], ["viewBox", "0 0 24 24", "width", "24px", "height", "24px", "focusable", "false", "aria-hidden", "true"], ["d", "M7 10l5 5 5-5z"], ["cdk-connected-overlay", "", "cdkConnectedOverlayHasBackdrop", "", "cdkConnectedOverlayBackdropClass", "cdk-overlay-transparent-backdrop", 3, "detach", "backdropClick", "overlayKeydown", "cdkConnectedOverlayDisableClose", "cdkConnectedOverlayPanelClass", "cdkConnectedOverlayScrollStrategy", "cdkConnectedOverlayOrigin", "cdkConnectedOverlayPositions", "cdkConnectedOverlayWidth", "cdkConnectedOverlayFlexibleDimensions", "cdkConnectedOverlayUsePopover"], [1, "mat-mdc-select-min-line"], ["role", "listbox", "tabindex", "-1", 1, "mat-mdc-select-panel", "mdc-menu-surface", "mdc-menu-surface--open", 3, "keydown"]],
-    template: function MatSelect_Template(rf, ctx) {
-      if (rf & 1) {
-        \u0275\u0275projectionDef(_c22);
-        \u0275\u0275elementStart(0, "div", 2, 0);
-        \u0275\u0275listener("click", function MatSelect_Template_div_click_0_listener() {
-          return ctx.open();
-        });
-        \u0275\u0275elementStart(3, "div", 3);
-        \u0275\u0275conditionalCreate(4, MatSelect_Conditional_4_Template, 2, 1, "span", 4)(5, MatSelect_Conditional_5_Template, 3, 1, "span", 5);
-        \u0275\u0275elementEnd();
-        \u0275\u0275elementStart(6, "div", 6)(7, "div", 7);
-        \u0275\u0275namespaceSVG();
-        \u0275\u0275elementStart(8, "svg", 8);
-        \u0275\u0275element(9, "path", 9);
-        \u0275\u0275elementEnd()()()();
-        \u0275\u0275template(10, MatSelect_ng_template_10_Template, 3, 16, "ng-template", 10);
-        \u0275\u0275listener("detach", function MatSelect_Template_ng_template_detach_10_listener() {
-          return ctx.close();
-        })("backdropClick", function MatSelect_Template_ng_template_backdropClick_10_listener() {
-          return ctx.close();
-        })("overlayKeydown", function MatSelect_Template_ng_template_overlayKeydown_10_listener($event) {
-          return ctx._handleOverlayKeydown($event);
-        });
-      }
-      if (rf & 2) {
-        const fallbackOverlayOrigin_r3 = \u0275\u0275reference(1);
-        \u0275\u0275advance(3);
-        \u0275\u0275attribute("id", ctx._valueId);
-        \u0275\u0275advance();
-        \u0275\u0275conditional(ctx.empty ? 4 : 5);
-        \u0275\u0275advance(6);
-        \u0275\u0275property("cdkConnectedOverlayDisableClose", true)("cdkConnectedOverlayPanelClass", ctx._overlayPanelClass)("cdkConnectedOverlayScrollStrategy", ctx._scrollStrategy)("cdkConnectedOverlayOrigin", ctx._preferredOverlayOrigin || fallbackOverlayOrigin_r3)("cdkConnectedOverlayPositions", ctx._positions)("cdkConnectedOverlayWidth", ctx._overlayWidth)("cdkConnectedOverlayFlexibleDimensions", true)("cdkConnectedOverlayUsePopover", ctx._popoverLocation);
-      }
-    },
-    dependencies: [CdkOverlayOrigin, CdkConnectedOverlay],
-    styles: ['@keyframes _mat-select-enter {\n  from {\n    opacity: 0;\n    transform: scaleY(0.8);\n  }\n  to {\n    opacity: 1;\n    transform: none;\n  }\n}\n@keyframes _mat-select-exit {\n  from {\n    opacity: 1;\n  }\n  to {\n    opacity: 0;\n  }\n}\n.mat-mdc-select {\n  display: inline-block;\n  width: 100%;\n  outline: none;\n  -moz-osx-font-smoothing: grayscale;\n  -webkit-font-smoothing: antialiased;\n  color: var(--%NS%mat-select-enabled-trigger-text-color, var(--%NS%mat-sys-on-surface));\n  font-family: var(--%NS%mat-select-trigger-text-font, var(--%NS%mat-sys-body-large-font));\n  line-height: var(--%NS%mat-select-trigger-text-line-height, var(--%NS%mat-sys-body-large-line-height));\n  font-size: var(--%NS%mat-select-trigger-text-size, var(--%NS%mat-sys-body-large-size));\n  font-weight: var(--%NS%mat-select-trigger-text-weight, var(--%NS%mat-sys-body-large-weight));\n  letter-spacing: var(--%NS%mat-select-trigger-text-tracking, var(--%NS%mat-sys-body-large-tracking));\n}\n\ndiv.mat-mdc-select-panel {\n  box-shadow: var(--%NS%mat-select-container-elevation-shadow, 0px 3px 1px -2px rgba(0, 0, 0, 0.2), 0px 2px 2px 0px rgba(0, 0, 0, 0.14), 0px 1px 5px 0px rgba(0, 0, 0, 0.12));\n}\n\n.mat-mdc-select-disabled {\n  color: var(--%NS%mat-select-disabled-trigger-text-color, color-mix(in srgb, var(--%NS%mat-sys-on-surface) 38%, transparent));\n}\n.mat-mdc-select-disabled .mat-mdc-select-placeholder {\n  color: var(--%NS%mat-select-disabled-trigger-text-color, color-mix(in srgb, var(--%NS%mat-sys-on-surface) 38%, transparent));\n}\n\n.mat-mdc-select-trigger {\n  display: inline-flex;\n  align-items: center;\n  cursor: pointer;\n  position: relative;\n  box-sizing: border-box;\n  width: 100%;\n}\n.mat-mdc-select-disabled .mat-mdc-select-trigger {\n  -webkit-user-select: none;\n  user-select: none;\n  cursor: default;\n}\n\n.mat-mdc-select-value {\n  width: 100%;\n  overflow: hidden;\n  text-overflow: ellipsis;\n  white-space: nowrap;\n}\n\n.mat-mdc-select-value-text {\n  white-space: nowrap;\n  overflow: hidden;\n  text-overflow: ellipsis;\n}\n\n.mat-mdc-select-arrow-wrapper {\n  height: 24px;\n  flex-shrink: 0;\n  display: inline-flex;\n  align-items: center;\n}\n.mat-form-field-appearance-fill .mdc-text-field--no-label .mat-mdc-select-arrow-wrapper {\n  transform: none;\n}\n\n.mat-mdc-form-field .mat-mdc-select.mat-mdc-select-invalid .mat-mdc-select-arrow,\n.mat-form-field-invalid:not(.mat-form-field-disabled) .mat-mdc-form-field-infix::after {\n  color: var(--%NS%mat-select-invalid-arrow-color, var(--%NS%mat-sys-error));\n}\n\n.mat-mdc-select-arrow {\n  width: 10px;\n  height: 5px;\n  position: relative;\n  color: var(--%NS%mat-select-enabled-arrow-color, var(--%NS%mat-sys-on-surface-variant));\n}\n.mat-mdc-form-field.mat-focused .mat-mdc-select-arrow {\n  color: var(--%NS%mat-select-focused-arrow-color, var(--%NS%mat-sys-primary));\n}\n.mat-mdc-form-field .mat-mdc-select.mat-mdc-select-disabled .mat-mdc-select-arrow {\n  color: var(--%NS%mat-select-disabled-arrow-color, color-mix(in srgb, var(--%NS%mat-sys-on-surface) 38%, transparent));\n}\n.mat-select-open .mat-mdc-select-arrow {\n  transform: rotate(180deg);\n}\n.mat-form-field-animations-enabled .mat-mdc-select-arrow {\n  transition: transform 80ms linear;\n}\n.mat-mdc-select-arrow svg {\n  fill: currentColor;\n  position: absolute;\n  top: 50%;\n  left: 50%;\n  transform: translate(-50%, -50%);\n}\n@media (forced-colors: active) {\n  .mat-mdc-select-arrow svg {\n    fill: CanvasText;\n  }\n  .mat-mdc-select-disabled .mat-mdc-select-arrow svg {\n    fill: GrayText;\n  }\n}\n\ndiv.mat-mdc-select-panel {\n  width: 100%;\n  max-height: 275px;\n  outline: 0;\n  overflow: auto;\n  padding: 8px 0;\n  box-sizing: border-box;\n  transform-origin: top center;\n  border-radius: 0 0 4px 4px;\n  position: relative;\n  background-color: var(--%NS%mat-select-panel-background-color, var(--%NS%mat-sys-surface-container));\n}\n.mat-mdc-select-panel-above div.mat-mdc-select-panel {\n  border-radius: 4px 4px 0 0;\n  transform-origin: bottom center;\n}\n@media (forced-colors: active) {\n  div.mat-mdc-select-panel {\n    outline: solid 1px;\n  }\n}\n\n.mat-select-panel-animations-enabled {\n  animation: _mat-select-enter 120ms cubic-bezier(0, 0, 0.2, 1);\n}\n.mat-select-panel-animations-enabled.mat-select-panel-exit {\n  animation: _mat-select-exit 100ms linear;\n}\n\n.mat-mdc-select-placeholder {\n  transition: color 400ms 133.3333333333ms cubic-bezier(0.25, 0.8, 0.25, 1);\n  color: var(--%NS%mat-select-placeholder-text-color, var(--%NS%mat-sys-on-surface-variant));\n}\n.mat-mdc-form-field:not(.mat-form-field-animations-enabled) .mat-mdc-select-placeholder, ._mat-animation-noopable .mat-mdc-select-placeholder {\n  transition: none;\n}\n.mat-form-field-hide-placeholder .mat-mdc-select-placeholder {\n  color: transparent;\n  -webkit-text-fill-color: transparent;\n  transition: none;\n  display: block;\n}\n\n.mat-mdc-form-field-type-mat-select:not(.mat-form-field-disabled) .mat-mdc-text-field-wrapper {\n  cursor: pointer;\n}\n.mat-mdc-form-field-type-mat-select.mat-form-field-appearance-fill .mat-mdc-floating-label {\n  max-width: calc(100% - 18px);\n}\n.mat-mdc-form-field-type-mat-select.mat-form-field-appearance-fill .mdc-floating-label--float-above {\n  max-width: calc(100% / 0.75 - 24px);\n}\n.mat-mdc-form-field-type-mat-select.mat-form-field-appearance-outline .mdc-notched-outline__notch {\n  max-width: calc(100% - 60px);\n}\n.mat-mdc-form-field-type-mat-select.mat-form-field-appearance-outline .mdc-text-field--label-floating .mdc-notched-outline__notch {\n  max-width: calc(100% - 24px);\n}\n\n.mat-mdc-select-min-line:empty::before {\n  content: " ";\n  white-space: pre;\n  width: 1px;\n  display: inline-block;\n  visibility: hidden;\n}\n\n.mat-form-field-appearance-fill .mat-mdc-select-arrow-wrapper {\n  transform: var(--%NS%mat-select-arrow-transform, translateY(-8px));\n}\n'],
-    encapsulation: 2
-  });
-};
-(() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(MatSelect, [{
-    type: Component,
-    args: [{
-      selector: "mat-select",
-      exportAs: "matSelect",
-      encapsulation: ViewEncapsulation.None,
-      host: {
-        "role": "combobox",
-        "aria-haspopup": "listbox",
-        "class": "mat-mdc-select",
-        "[attr.id]": "id",
-        "[attr.tabindex]": "disabled ? -1 : tabIndex",
-        "[attr.aria-controls]": 'panelOpen ? id + "-panel" : null',
-        "[attr.aria-expanded]": "panelOpen",
-        "[attr.aria-label]": "ariaLabel || null",
-        "[attr.aria-required]": "required.toString()",
-        "[attr.aria-disabled]": "disabled.toString()",
-        "[attr.aria-invalid]": "errorState",
-        "[attr.aria-activedescendant]": "_getAriaActiveDescendant()",
-        "[class.mat-mdc-select-disabled]": "disabled",
-        "[class.mat-mdc-select-invalid]": "errorState",
-        "[class.mat-mdc-select-required]": "required",
-        "[class.mat-mdc-select-empty]": "empty",
-        "[class.mat-mdc-select-multiple]": "multiple",
-        "[class.mat-select-open]": "panelOpen",
-        "(keydown)": "_handleKeydown($event)",
-        "(focus)": "_onFocus()",
-        "(blur)": "_onBlur()"
-      },
-      providers: [{
-        provide: MatFormFieldControl,
-        useExisting: MatSelect
-      }, {
-        provide: MAT_OPTION_PARENT_COMPONENT,
-        useExisting: MatSelect
-      }],
-      imports: [CdkOverlayOrigin, CdkConnectedOverlay],
-      template: `<div
-  cdk-overlay-origin
-  class="mat-mdc-select-trigger"
-  (click)="open()"
-  #fallbackOverlayOrigin="cdkOverlayOrigin"
-  #trigger
->
-  <div class="mat-mdc-select-value" [attr.id]="_valueId">
-    @if (empty) {
-      <span class="mat-mdc-select-placeholder mat-mdc-select-min-line">{{placeholder}}</span>
-    } @else {
-      <span class="mat-mdc-select-value-text">
-        @if (customTrigger) {
-          <ng-content select="mat-select-trigger"></ng-content>
-        } @else {
-          <span class="mat-mdc-select-min-line">{{triggerValue}}</span>
-        }
-      </span>
-    }
-  </div>
-
-  <div class="mat-mdc-select-arrow-wrapper">
-    <div class="mat-mdc-select-arrow">
-      <!-- Use an inline SVG, because it works better than a CSS triangle in high contrast mode. -->
-      <svg viewBox="0 0 24 24" width="24px" height="24px" focusable="false" aria-hidden="true">
-        <path d="M7 10l5 5 5-5z" />
-      </svg>
-    </div>
-  </div>
-</div>
-
-<ng-template
-  cdk-connected-overlay
-  cdkConnectedOverlayHasBackdrop
-  cdkConnectedOverlayBackdropClass="cdk-overlay-transparent-backdrop"
-  [cdkConnectedOverlayDisableClose]="true"
-  [cdkConnectedOverlayPanelClass]="_overlayPanelClass"
-  [cdkConnectedOverlayScrollStrategy]="_scrollStrategy"
-  [cdkConnectedOverlayOrigin]="_preferredOverlayOrigin || fallbackOverlayOrigin"
-  [cdkConnectedOverlayPositions]="_positions"
-  [cdkConnectedOverlayWidth]="_overlayWidth"
-  [cdkConnectedOverlayFlexibleDimensions]="true"
-  [cdkConnectedOverlayUsePopover]="_popoverLocation"
-  (detach)="close()"
-  (backdropClick)="close()"
-  (overlayKeydown)="_handleOverlayKeydown($event)">
-  <!-- \`mat-undefined\` is weird, but we were using it internally -->
-  <div
-    #panel
-    role="listbox"
-    tabindex="-1"
-    class="mat-mdc-select-panel mdc-menu-surface mdc-menu-surface--open"
-    [class]="panelClass"
-    [class.mat-select-panel-animations-enabled]="!_animationsDisabled"
-    [class.mat-primary]="_parentFormField?.color === 'primary'"
-    [class.mat-accent]="_parentFormField?.color === 'accent'"
-    [class.mat-warn]="_parentFormField?.color === 'warn'"
-    [class.mat-undefined]="!_parentFormField?.color"
-    [attr.id]="id + '-panel'"
-    [attr.aria-multiselectable]="multiple"
-    [attr.aria-label]="ariaLabel || null"
-    [attr.aria-labelledby]="_getPanelAriaLabelledby()"
-    (keydown)="_handleKeydown($event)">
-    <ng-content></ng-content>
-  </div>
-</ng-template>
-`,
-      styles: ['@keyframes _mat-select-enter {\n  from {\n    opacity: 0;\n    transform: scaleY(0.8);\n  }\n  to {\n    opacity: 1;\n    transform: none;\n  }\n}\n@keyframes _mat-select-exit {\n  from {\n    opacity: 1;\n  }\n  to {\n    opacity: 0;\n  }\n}\n.mat-mdc-select {\n  display: inline-block;\n  width: 100%;\n  outline: none;\n  -moz-osx-font-smoothing: grayscale;\n  -webkit-font-smoothing: antialiased;\n  color: var(--mat-select-enabled-trigger-text-color, var(--mat-sys-on-surface));\n  font-family: var(--mat-select-trigger-text-font, var(--mat-sys-body-large-font));\n  line-height: var(--mat-select-trigger-text-line-height, var(--mat-sys-body-large-line-height));\n  font-size: var(--mat-select-trigger-text-size, var(--mat-sys-body-large-size));\n  font-weight: var(--mat-select-trigger-text-weight, var(--mat-sys-body-large-weight));\n  letter-spacing: var(--mat-select-trigger-text-tracking, var(--mat-sys-body-large-tracking));\n}\n\ndiv.mat-mdc-select-panel {\n  box-shadow: var(--mat-select-container-elevation-shadow, 0px 3px 1px -2px rgba(0, 0, 0, 0.2), 0px 2px 2px 0px rgba(0, 0, 0, 0.14), 0px 1px 5px 0px rgba(0, 0, 0, 0.12));\n}\n\n.mat-mdc-select-disabled {\n  color: var(--mat-select-disabled-trigger-text-color, color-mix(in srgb, var(--mat-sys-on-surface) 38%, transparent));\n}\n.mat-mdc-select-disabled .mat-mdc-select-placeholder {\n  color: var(--mat-select-disabled-trigger-text-color, color-mix(in srgb, var(--mat-sys-on-surface) 38%, transparent));\n}\n\n.mat-mdc-select-trigger {\n  display: inline-flex;\n  align-items: center;\n  cursor: pointer;\n  position: relative;\n  box-sizing: border-box;\n  width: 100%;\n}\n.mat-mdc-select-disabled .mat-mdc-select-trigger {\n  -webkit-user-select: none;\n  user-select: none;\n  cursor: default;\n}\n\n.mat-mdc-select-value {\n  width: 100%;\n  overflow: hidden;\n  text-overflow: ellipsis;\n  white-space: nowrap;\n}\n\n.mat-mdc-select-value-text {\n  white-space: nowrap;\n  overflow: hidden;\n  text-overflow: ellipsis;\n}\n\n.mat-mdc-select-arrow-wrapper {\n  height: 24px;\n  flex-shrink: 0;\n  display: inline-flex;\n  align-items: center;\n}\n.mat-form-field-appearance-fill .mdc-text-field--no-label .mat-mdc-select-arrow-wrapper {\n  transform: none;\n}\n\n.mat-mdc-form-field .mat-mdc-select.mat-mdc-select-invalid .mat-mdc-select-arrow,\n.mat-form-field-invalid:not(.mat-form-field-disabled) .mat-mdc-form-field-infix::after {\n  color: var(--mat-select-invalid-arrow-color, var(--mat-sys-error));\n}\n\n.mat-mdc-select-arrow {\n  width: 10px;\n  height: 5px;\n  position: relative;\n  color: var(--mat-select-enabled-arrow-color, var(--mat-sys-on-surface-variant));\n}\n.mat-mdc-form-field.mat-focused .mat-mdc-select-arrow {\n  color: var(--mat-select-focused-arrow-color, var(--mat-sys-primary));\n}\n.mat-mdc-form-field .mat-mdc-select.mat-mdc-select-disabled .mat-mdc-select-arrow {\n  color: var(--mat-select-disabled-arrow-color, color-mix(in srgb, var(--mat-sys-on-surface) 38%, transparent));\n}\n.mat-select-open .mat-mdc-select-arrow {\n  transform: rotate(180deg);\n}\n.mat-form-field-animations-enabled .mat-mdc-select-arrow {\n  transition: transform 80ms linear;\n}\n.mat-mdc-select-arrow svg {\n  fill: currentColor;\n  position: absolute;\n  top: 50%;\n  left: 50%;\n  transform: translate(-50%, -50%);\n}\n@media (forced-colors: active) {\n  .mat-mdc-select-arrow svg {\n    fill: CanvasText;\n  }\n  .mat-mdc-select-disabled .mat-mdc-select-arrow svg {\n    fill: GrayText;\n  }\n}\n\ndiv.mat-mdc-select-panel {\n  width: 100%;\n  max-height: 275px;\n  outline: 0;\n  overflow: auto;\n  padding: 8px 0;\n  box-sizing: border-box;\n  transform-origin: top center;\n  border-radius: 0 0 4px 4px;\n  position: relative;\n  background-color: var(--mat-select-panel-background-color, var(--mat-sys-surface-container));\n}\n.mat-mdc-select-panel-above div.mat-mdc-select-panel {\n  border-radius: 4px 4px 0 0;\n  transform-origin: bottom center;\n}\n@media (forced-colors: active) {\n  div.mat-mdc-select-panel {\n    outline: solid 1px;\n  }\n}\n\n.mat-select-panel-animations-enabled {\n  animation: _mat-select-enter 120ms cubic-bezier(0, 0, 0.2, 1);\n}\n.mat-select-panel-animations-enabled.mat-select-panel-exit {\n  animation: _mat-select-exit 100ms linear;\n}\n\n.mat-mdc-select-placeholder {\n  transition: color 400ms 133.3333333333ms cubic-bezier(0.25, 0.8, 0.25, 1);\n  color: var(--mat-select-placeholder-text-color, var(--mat-sys-on-surface-variant));\n}\n.mat-mdc-form-field:not(.mat-form-field-animations-enabled) .mat-mdc-select-placeholder, ._mat-animation-noopable .mat-mdc-select-placeholder {\n  transition: none;\n}\n.mat-form-field-hide-placeholder .mat-mdc-select-placeholder {\n  color: transparent;\n  -webkit-text-fill-color: transparent;\n  transition: none;\n  display: block;\n}\n\n.mat-mdc-form-field-type-mat-select:not(.mat-form-field-disabled) .mat-mdc-text-field-wrapper {\n  cursor: pointer;\n}\n.mat-mdc-form-field-type-mat-select.mat-form-field-appearance-fill .mat-mdc-floating-label {\n  max-width: calc(100% - 18px);\n}\n.mat-mdc-form-field-type-mat-select.mat-form-field-appearance-fill .mdc-floating-label--float-above {\n  max-width: calc(100% / 0.75 - 24px);\n}\n.mat-mdc-form-field-type-mat-select.mat-form-field-appearance-outline .mdc-notched-outline__notch {\n  max-width: calc(100% - 60px);\n}\n.mat-mdc-form-field-type-mat-select.mat-form-field-appearance-outline .mdc-text-field--label-floating .mdc-notched-outline__notch {\n  max-width: calc(100% - 24px);\n}\n\n.mat-mdc-select-min-line:empty::before {\n  content: " ";\n  white-space: pre;\n  width: 1px;\n  display: inline-block;\n  visibility: hidden;\n}\n\n.mat-form-field-appearance-fill .mat-mdc-select-arrow-wrapper {\n  transform: var(--mat-select-arrow-transform, translateY(-8px));\n}\n']
-    }]
-  }], () => [], {
-    options: [{
-      type: ContentChildren,
-      args: [MatOption, {
-        descendants: true
-      }]
-    }],
-    optionGroups: [{
-      type: ContentChildren,
-      args: [MAT_OPTGROUP, {
-        descendants: true
-      }]
-    }],
-    customTrigger: [{
-      type: ContentChild,
-      args: [MAT_SELECT_TRIGGER]
-    }],
-    userAriaDescribedBy: [{
-      type: Input,
-      args: ["aria-describedby"]
-    }],
-    trigger: [{
-      type: ViewChild,
-      args: ["trigger"]
-    }],
-    panel: [{
-      type: ViewChild,
-      args: ["panel"]
-    }],
-    _overlayDir: [{
-      type: ViewChild,
-      args: [CdkConnectedOverlay]
-    }],
-    panelClass: [{
-      type: Input
-    }],
-    disabled: [{
-      type: Input,
-      args: [{
-        transform: booleanAttribute
-      }]
-    }],
-    disableRipple: [{
-      type: Input,
-      args: [{
-        transform: booleanAttribute
-      }]
-    }],
-    tabIndex: [{
-      type: Input,
-      args: [{
-        transform: (value) => value == null ? 0 : numberAttribute(value)
-      }]
-    }],
-    hideSingleSelectionIndicator: [{
-      type: Input,
-      args: [{
-        transform: booleanAttribute
-      }]
-    }],
-    placeholder: [{
-      type: Input
-    }],
-    required: [{
-      type: Input,
-      args: [{
-        transform: booleanAttribute
-      }]
-    }],
-    multiple: [{
-      type: Input,
-      args: [{
-        transform: booleanAttribute
-      }]
-    }],
-    disableOptionCentering: [{
-      type: Input,
-      args: [{
-        transform: booleanAttribute
-      }]
-    }],
-    compareWith: [{
-      type: Input
-    }],
-    value: [{
-      type: Input
-    }],
-    ariaLabel: [{
-      type: Input,
-      args: ["aria-label"]
-    }],
-    ariaLabelledby: [{
-      type: Input,
-      args: ["aria-labelledby"]
-    }],
-    errorStateMatcher: [{
-      type: Input
-    }],
-    typeaheadDebounceInterval: [{
-      type: Input,
-      args: [{
-        transform: numberAttribute
-      }]
-    }],
-    sortComparator: [{
-      type: Input
-    }],
-    id: [{
-      type: Input
-    }],
-    panelWidth: [{
-      type: Input
-    }],
-    canSelectNullableOptions: [{
-      type: Input,
-      args: [{
-        transform: booleanAttribute
-      }]
-    }],
-    openedChange: [{
-      type: Output
-    }],
-    _openedStream: [{
-      type: Output,
-      args: ["opened"]
-    }],
-    _closedStream: [{
-      type: Output,
-      args: ["closed"]
-    }],
-    selectionChange: [{
-      type: Output
-    }],
-    valueChange: [{
-      type: Output
-    }]
-  });
-})();
-var MatSelectTrigger = class _MatSelectTrigger {
-  static \u0275fac = function MatSelectTrigger_Factory(__ngFactoryType__) {
-    return new (__ngFactoryType__ || _MatSelectTrigger)();
-  };
-  static \u0275dir = /* @__PURE__ */ \u0275\u0275defineDirective({
-    type: _MatSelectTrigger,
-    selectors: [["mat-select-trigger"]],
-    features: [\u0275\u0275ProvidersFeature([{
-      provide: MAT_SELECT_TRIGGER,
-      useExisting: _MatSelectTrigger
-    }])]
-  });
-};
-(() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(MatSelectTrigger, [{
-    type: Directive,
-    args: [{
-      selector: "mat-select-trigger",
-      providers: [{
-        provide: MAT_SELECT_TRIGGER,
-        useExisting: MatSelectTrigger
-      }]
-    }]
-  }], null, null);
-})();
-var MatSelectModule = class _MatSelectModule {
-  static \u0275fac = function MatSelectModule_Factory(__ngFactoryType__) {
-    return new (__ngFactoryType__ || _MatSelectModule)();
-  };
-  static \u0275mod = /* @__PURE__ */ \u0275\u0275defineNgModule({
-    type: _MatSelectModule,
-    imports: [OverlayModule, MatOptionModule, MatSelect, MatSelectTrigger],
-    exports: [BidiModule, CdkScrollableModule, MatFormFieldModule, MatSelect, MatSelectTrigger, MatOptionModule]
-  });
-  static \u0275inj = /* @__PURE__ */ \u0275\u0275defineInjector({
-    imports: [OverlayModule, MatOptionModule, BidiModule, CdkScrollableModule, MatFormFieldModule, MatOptionModule]
-  });
-};
-(() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(MatSelectModule, [{
-    type: NgModule,
-    args: [{
-      imports: [OverlayModule, MatOptionModule, MatSelect, MatSelectTrigger],
-      exports: [BidiModule, CdkScrollableModule, MatFormFieldModule, MatSelect, MatSelectTrigger, MatOptionModule]
-    }]
-  }], null, null);
-})();
 
 // libs/users/src/lib/user.utilities.ts
 var USER_DOMAIN = "@place.tech";
@@ -3534,506 +631,6 @@ var MatProgressBarModule = class _MatProgressBarModule {
   }], null, null);
 })();
 
-// libs/components/src/lib/native-domain-overlay.component.ts
-function NativeDomainOverlayComponent_Conditional_7_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275text(0, " Enter the address of your PlaceOS server to connect this app. ");
-  }
-}
-function NativeDomainOverlayComponent_Conditional_8_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275text(0, " Enter your work email to find your PlaceOS server and connect this app. ");
-  }
-}
-function NativeDomainOverlayComponent_Conditional_9_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275elementStart(0, "p", 6);
-    \u0275\u0275text(1);
-    \u0275\u0275elementEnd();
-  }
-  if (rf & 2) {
-    const ctx_r0 = \u0275\u0275nextContext();
-    \u0275\u0275advance();
-    \u0275\u0275textInterpolate1(" ", ctx_r0.error(), " ");
-  }
-}
-function NativeDomainOverlayComponent_Conditional_10_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275elementStart(0, "p", 7);
-    \u0275\u0275text(1);
-    \u0275\u0275elementEnd();
-  }
-  if (rf & 2) {
-    const ctx_r0 = \u0275\u0275nextContext();
-    \u0275\u0275advance();
-    \u0275\u0275textInterpolate1(" Settings provided by your administrator will be applied automatically in ", ctx_r0.auto_accept_in(), "s. ");
-  }
-}
-function NativeDomainOverlayComponent_Conditional_11_Template(rf, ctx) {
-  if (rf & 1) {
-    const _r2 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "div", 8)(1, "label", 12);
-    \u0275\u0275text(2, "Server Address");
-    \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(3, "mat-form-field", 13)(4, "icon", 14);
-    \u0275\u0275text(5, "dns");
-    \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(6, "input", 15);
-    \u0275\u0275twoWayListener("ngModelChange", function NativeDomainOverlayComponent_Conditional_11_Template_input_ngModelChange_6_listener($event) {
-      \u0275\u0275restoreView(_r2);
-      const ctx_r0 = \u0275\u0275nextContext();
-      \u0275\u0275twoWayBindingSet(ctx_r0.server_address, $event) || (ctx_r0.server_address = $event);
-      return \u0275\u0275resetView($event);
-    });
-    \u0275\u0275elementEnd();
-    \u0275\u0275controlCreate();
-    \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(7, "div", 8)(8, "label", 16);
-    \u0275\u0275text(9, "API Key (optional)");
-    \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(10, "mat-form-field", 13)(11, "icon", 14);
-    \u0275\u0275text(12, "key");
-    \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(13, "input", 17);
-    \u0275\u0275twoWayListener("ngModelChange", function NativeDomainOverlayComponent_Conditional_11_Template_input_ngModelChange_13_listener($event) {
-      \u0275\u0275restoreView(_r2);
-      const ctx_r0 = \u0275\u0275nextContext();
-      \u0275\u0275twoWayBindingSet(ctx_r0.api_key, $event) || (ctx_r0.api_key = $event);
-      return \u0275\u0275resetView($event);
-    });
-    \u0275\u0275elementEnd();
-    \u0275\u0275controlCreate();
-    \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(14, "p", 18);
-    \u0275\u0275text(15, " When set, the app authenticates with this key instead of asking you to sign in. ");
-    \u0275\u0275elementEnd()();
-  }
-  if (rf & 2) {
-    const ctx_r0 = \u0275\u0275nextContext();
-    \u0275\u0275advance(6);
-    \u0275\u0275twoWayProperty("ngModel", ctx_r0.server_address);
-    \u0275\u0275property("disabled", ctx_r0.loading());
-    \u0275\u0275control();
-    \u0275\u0275advance(7);
-    \u0275\u0275twoWayProperty("ngModel", ctx_r0.api_key);
-    \u0275\u0275property("disabled", ctx_r0.loading());
-    \u0275\u0275control();
-  }
-}
-function NativeDomainOverlayComponent_Conditional_12_Template(rf, ctx) {
-  if (rf & 1) {
-    const _r3 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "div", 8)(1, "label", 19);
-    \u0275\u0275text(2, "Work Email");
-    \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(3, "mat-form-field", 13)(4, "icon", 14);
-    \u0275\u0275text(5, "mail");
-    \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(6, "input", 20);
-    \u0275\u0275twoWayListener("ngModelChange", function NativeDomainOverlayComponent_Conditional_12_Template_input_ngModelChange_6_listener($event) {
-      \u0275\u0275restoreView(_r3);
-      const ctx_r0 = \u0275\u0275nextContext();
-      \u0275\u0275twoWayBindingSet(ctx_r0.email, $event) || (ctx_r0.email = $event);
-      return \u0275\u0275resetView($event);
-    });
-    \u0275\u0275elementEnd();
-    \u0275\u0275controlCreate();
-    \u0275\u0275elementEnd()();
-  }
-  if (rf & 2) {
-    const ctx_r0 = \u0275\u0275nextContext();
-    \u0275\u0275advance(6);
-    \u0275\u0275twoWayProperty("ngModel", ctx_r0.email);
-    \u0275\u0275property("disabled", ctx_r0.loading());
-    \u0275\u0275control();
-  }
-}
-function NativeDomainOverlayComponent_Conditional_14_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275text(0, " Find my server using my work email ");
-  }
-}
-function NativeDomainOverlayComponent_Conditional_15_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275text(0, " Enter a server address manually ");
-  }
-}
-var AUTO_ACCEPT_SECONDS = 15;
-var NativeDomainOverlayComponent = class _NativeDomainOverlayComponent {
-  constructor() {
-    this.serverError = input(
-      "",
-      ...ngDevMode ? [{ debugName: "serverError" }] : (
-        /* istanbul ignore next */
-        []
-      )
-    );
-    this.autoAccept = input(
-      false,
-      ...ngDevMode ? [{ debugName: "autoAccept" }] : (
-        /* istanbul ignore next */
-        []
-      )
-    );
-    this.domainSet = output();
-    this.email = signal(
-      getNativeEmail() ?? "",
-      ...ngDevMode ? [{ debugName: "email" }] : (
-        /* istanbul ignore next */
-        []
-      )
-    );
-    this.server_address = signal(
-      getNativeDomain() ?? "",
-      ...ngDevMode ? [{ debugName: "server_address" }] : (
-        /* istanbul ignore next */
-        []
-      )
-    );
-    this.api_key = signal(
-      getNativeApiKey() ?? "",
-      ...ngDevMode ? [{ debugName: "api_key" }] : (
-        /* istanbul ignore next */
-        []
-      )
-    );
-    this.manual_entry = signal(
-      !!getNativeDomain(),
-      ...ngDevMode ? [{ debugName: "manual_entry" }] : (
-        /* istanbul ignore next */
-        []
-      )
-    );
-    this.error = signal(
-      "",
-      ...ngDevMode ? [{ debugName: "error" }] : (
-        /* istanbul ignore next */
-        []
-      )
-    );
-    this.loading = signal(
-      false,
-      ...ngDevMode ? [{ debugName: "loading" }] : (
-        /* istanbul ignore next */
-        []
-      )
-    );
-    this.auto_accept_in = signal(
-      0,
-      ...ngDevMode ? [{ debugName: "auto_accept_in" }] : (
-        /* istanbul ignore next */
-        []
-      )
-    );
-    this._auto_accept_timer = null;
-    effect(() => {
-      const msg = this.serverError();
-      if (msg) {
-        this.error.set(msg);
-        untracked(() => this.stopAutoAccept());
-      }
-    });
-    effect(() => {
-      if (this.autoAccept() && untracked(this.server_address)) {
-        untracked(() => this.startAutoAccept());
-      }
-    });
-  }
-  ngOnDestroy() {
-    this.stopAutoAccept();
-  }
-  /** Restart the inactivity countdown — any user activity delays it. */
-  resetAutoAccept() {
-    if (!this._auto_accept_timer)
-      return;
-    this.auto_accept_in.set(AUTO_ACCEPT_SECONDS);
-  }
-  startAutoAccept() {
-    this.auto_accept_in.set(AUTO_ACCEPT_SECONDS);
-    if (this._auto_accept_timer)
-      return;
-    this._auto_accept_timer = setInterval(() => {
-      const remaining = this.auto_accept_in() - 1;
-      this.auto_accept_in.set(remaining);
-      if (remaining > 0)
-        return;
-      this.stopAutoAccept();
-      this.submit();
-    }, 1e3);
-  }
-  stopAutoAccept() {
-    if (this._auto_accept_timer)
-      clearInterval(this._auto_accept_timer);
-    this._auto_accept_timer = null;
-    this.auto_accept_in.set(0);
-  }
-  toggleManualEntry() {
-    if (this.loading())
-      return;
-    this.manual_entry.update((manual) => !manual);
-    this.error.set("");
-  }
-  async submit() {
-    if (this.loading())
-      return;
-    this.stopAutoAccept();
-    if (this.manual_entry())
-      return this.submitManual();
-    const raw = this.email().trim();
-    if (!raw) {
-      this.error.set("A work email is required.");
-      return;
-    }
-    this.loading.set(true);
-    this.error.set("");
-    try {
-      const domain = await lookupNativeDomainByEmail(raw);
-      setNativeEmail(raw);
-      setNativeDomain(domain);
-      setNativeApiKey("");
-      this.domainSet.emit(domain);
-    } catch {
-      this.error.set("Unable to find a server for this email address.");
-    } finally {
-      this.loading.set(false);
-    }
-  }
-  submitManual() {
-    const domain = normaliseNativeDomain(this.server_address());
-    if (!domain) {
-      this.error.set("A valid server address is required.");
-      return;
-    }
-    this.error.set("");
-    setNativeDomain(domain);
-    setNativeApiKey(this.api_key());
-    this.domainSet.emit(domain);
-  }
-  static {
-    this.\u0275fac = function NativeDomainOverlayComponent_Factory(__ngFactoryType__) {
-      return new (__ngFactoryType__ || _NativeDomainOverlayComponent)();
-    };
-  }
-  static {
-    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _NativeDomainOverlayComponent, selectors: [["native-domain-overlay"]], hostBindings: function NativeDomainOverlayComponent_HostBindings(rf, ctx) {
-      if (rf & 1) {
-        \u0275\u0275listener("pointerdown", function NativeDomainOverlayComponent_pointerdown_HostBindingHandler() {
-          return ctx.resetAutoAccept();
-        }, \u0275\u0275resolveWindow)("keydown", function NativeDomainOverlayComponent_keydown_HostBindingHandler() {
-          return ctx.resetAutoAccept();
-        }, \u0275\u0275resolveWindow);
-      }
-    }, inputs: { serverError: [1, "serverError"], autoAccept: [1, "autoAccept"] }, outputs: { domainSet: "domainSet" }, decls: 19, vars: 8, consts: [[1, "bg-base-200", "pointer-events-auto", "fixed", "inset-0", "z-9999", "flex", "items-center", "justify-center", "p-4"], [1, "border-base-300", "bg-base-100", "flex", "w-full", "max-w-md", "flex-col", "rounded-sm", "border", "shadow-sm", 3, "ngSubmit"], [1, "bg-base-200", "m-2", "rounded-sm", "border-none", "p-2"], [1, "px-2", "text-xl", "font-medium"], [1, "flex", "flex-col", "space-y-4", "p-4"], [1, "text-sm", "opacity-60"], [1, "bg-error/10", "text-error", "rounded-sm", "px-3", "py-2", "text-xs"], [1, "bg-info/10", "text-info", "rounded-sm", "px-3", "py-2", "text-xs"], [1, "flex", "w-full", "flex-col"], ["type", "button", 1, "self-start", "text-sm", "underline", "opacity-60", 3, "click", "disabled"], [1, "bg-base-200", "m-2", "flex", "items-center", "justify-center", "space-x-2", "rounded-sm", "border-none", "p-2"], ["btn", "", "matRipple", "", "type", "submit", 1, "flex-1", 3, "disabled"], ["for", "server-address"], ["appearance", "outline", 1, "w-full"], ["matPrefix", ""], ["matInput", "", "name", "server-address", "placeholder", "placeos.company.com", "type", "text", "autocapitalize", "off", "autocomplete", "url", "spellcheck", "false", "required", "", 3, "ngModelChange", "ngModel", "disabled"], ["for", "api-key"], ["matInput", "", "name", "api-key", "placeholder", "Leave empty to sign in", "type", "password", "autocapitalize", "off", "autocomplete", "off", "spellcheck", "false", 3, "ngModelChange", "ngModel", "disabled"], [1, "text-xs", "opacity-60"], ["for", "email"], ["matInput", "", "name", "email", "placeholder", "name@company.com", "type", "email", "autocapitalize", "off", "autocomplete", "email", "spellcheck", "false", "required", "", 3, "ngModelChange", "ngModel", "disabled"]], template: function NativeDomainOverlayComponent_Template(rf, ctx) {
-      if (rf & 1) {
-        \u0275\u0275elementStart(0, "div", 0)(1, "form", 1);
-        \u0275\u0275listener("ngSubmit", function NativeDomainOverlayComponent_Template_form_ngSubmit_1_listener() {
-          return ctx.submit();
-        });
-        \u0275\u0275elementStart(2, "header", 2)(3, "h2", 3);
-        \u0275\u0275text(4, "Connect to Server");
-        \u0275\u0275elementEnd()();
-        \u0275\u0275elementStart(5, "main", 4)(6, "p", 5);
-        \u0275\u0275conditionalCreate(7, NativeDomainOverlayComponent_Conditional_7_Template, 1, 0)(8, NativeDomainOverlayComponent_Conditional_8_Template, 1, 0);
-        \u0275\u0275elementEnd();
-        \u0275\u0275conditionalCreate(9, NativeDomainOverlayComponent_Conditional_9_Template, 2, 1, "p", 6);
-        \u0275\u0275conditionalCreate(10, NativeDomainOverlayComponent_Conditional_10_Template, 2, 1, "p", 7);
-        \u0275\u0275conditionalCreate(11, NativeDomainOverlayComponent_Conditional_11_Template, 16, 4)(12, NativeDomainOverlayComponent_Conditional_12_Template, 7, 2, "div", 8);
-        \u0275\u0275elementStart(13, "button", 9);
-        \u0275\u0275listener("click", function NativeDomainOverlayComponent_Template_button_click_13_listener() {
-          return ctx.toggleManualEntry();
-        });
-        \u0275\u0275conditionalCreate(14, NativeDomainOverlayComponent_Conditional_14_Template, 1, 0)(15, NativeDomainOverlayComponent_Conditional_15_Template, 1, 0);
-        \u0275\u0275elementEnd()();
-        \u0275\u0275elementStart(16, "footer", 10)(17, "button", 11);
-        \u0275\u0275text(18);
-        \u0275\u0275elementEnd()()()();
-      }
-      if (rf & 2) {
-        \u0275\u0275advance(7);
-        \u0275\u0275conditional(ctx.manual_entry() ? 7 : 8);
-        \u0275\u0275advance(2);
-        \u0275\u0275conditional(ctx.error() ? 9 : -1);
-        \u0275\u0275advance();
-        \u0275\u0275conditional(ctx.auto_accept_in() > 0 ? 10 : -1);
-        \u0275\u0275advance();
-        \u0275\u0275conditional(ctx.manual_entry() ? 11 : 12);
-        \u0275\u0275advance(2);
-        \u0275\u0275property("disabled", ctx.loading());
-        \u0275\u0275advance();
-        \u0275\u0275conditional(ctx.manual_entry() ? 14 : 15);
-        \u0275\u0275advance(3);
-        \u0275\u0275property("disabled", ctx.loading());
-        \u0275\u0275advance();
-        \u0275\u0275textInterpolate1(" ", ctx.loading() ? "Looking up..." : "Connect", " ");
-      }
-    }, dependencies: [
-      FormsModule,
-      \u0275NgNoValidate,
-      DefaultValueAccessor,
-      NgControlStatus,
-      NgControlStatusGroup,
-      RequiredValidator,
-      NgModel,
-      NgForm,
-      IconComponent,
-      MatFormFieldModule,
-      MatFormField,
-      MatPrefix,
-      MatInputModule,
-      MatInput,
-      MatRippleModule,
-      MatRipple
-    ], encapsulation: 2 });
-  }
-};
-(() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(NativeDomainOverlayComponent, [{
-    type: Component,
-    args: [{
-      selector: "native-domain-overlay",
-      template: `
-        <div
-            class="bg-base-200 pointer-events-auto fixed inset-0 z-9999 flex items-center justify-center p-4"
-        >
-            <form
-                class="border-base-300 bg-base-100 flex w-full max-w-md flex-col rounded-sm border shadow-sm"
-                (ngSubmit)="submit()"
-            >
-                <header class="bg-base-200 m-2 rounded-sm border-none p-2">
-                    <h2 class="px-2 text-xl font-medium">Connect to Server</h2>
-                </header>
-                <main class="flex flex-col space-y-4 p-4">
-                    <p class="text-sm opacity-60">
-                        @if (manual_entry()) {
-                            Enter the address of your PlaceOS server to connect
-                            this app.
-                        } @else {
-                            Enter your work email to find your PlaceOS server
-                            and connect this app.
-                        }
-                    </p>
-                    @if (error()) {
-                        <p
-                            class="bg-error/10 text-error rounded-sm px-3 py-2 text-xs"
-                        >
-                            {{ error() }}
-                        </p>
-                    }
-                    @if (auto_accept_in() > 0) {
-                        <p
-                            class="bg-info/10 text-info rounded-sm px-3 py-2 text-xs"
-                        >
-                            Settings provided by your administrator will be
-                            applied automatically in {{ auto_accept_in() }}s.
-                        </p>
-                    }
-                    @if (manual_entry()) {
-                        <div class="flex w-full flex-col">
-                            <label for="server-address">Server Address</label>
-                            <mat-form-field appearance="outline" class="w-full">
-                                <icon matPrefix>dns</icon>
-                                <input
-                                    matInput
-                                    name="server-address"
-                                    [(ngModel)]="server_address"
-                                    placeholder="placeos.company.com"
-                                    type="text"
-                                    autocapitalize="off"
-                                    autocomplete="url"
-                                    spellcheck="false"
-                                    required
-                                    [disabled]="loading()"
-                                />
-                            </mat-form-field>
-                        </div>
-                        <div class="flex w-full flex-col">
-                            <label for="api-key">API Key (optional)</label>
-                            <mat-form-field appearance="outline" class="w-full">
-                                <icon matPrefix>key</icon>
-                                <input
-                                    matInput
-                                    name="api-key"
-                                    [(ngModel)]="api_key"
-                                    placeholder="Leave empty to sign in"
-                                    type="password"
-                                    autocapitalize="off"
-                                    autocomplete="off"
-                                    spellcheck="false"
-                                    [disabled]="loading()"
-                                />
-                            </mat-form-field>
-                            <p class="text-xs opacity-60">
-                                When set, the app authenticates with this key
-                                instead of asking you to sign in.
-                            </p>
-                        </div>
-                    } @else {
-                        <div class="flex w-full flex-col">
-                            <label for="email">Work Email</label>
-                            <mat-form-field appearance="outline" class="w-full">
-                                <icon matPrefix>mail</icon>
-                                <input
-                                    matInput
-                                    name="email"
-                                    [(ngModel)]="email"
-                                    placeholder="name@company.com"
-                                    type="email"
-                                    autocapitalize="off"
-                                    autocomplete="email"
-                                    spellcheck="false"
-                                    required
-                                    [disabled]="loading()"
-                                />
-                            </mat-form-field>
-                        </div>
-                    }
-                    <button
-                        type="button"
-                        class="self-start text-sm underline opacity-60"
-                        [disabled]="loading()"
-                        (click)="toggleManualEntry()"
-                    >
-                        @if (manual_entry()) {
-                            Find my server using my work email
-                        } @else {
-                            Enter a server address manually
-                        }
-                    </button>
-                </main>
-                <footer
-                    class="bg-base-200 m-2 flex items-center justify-center space-x-2 rounded-sm border-none p-2"
-                >
-                    <button
-                        btn
-                        matRipple
-                        type="submit"
-                        class="flex-1"
-                        [disabled]="loading()"
-                    >
-                        {{ loading() ? 'Looking up...' : 'Connect' }}
-                    </button>
-                </footer>
-            </form>
-        </div>
-    `,
-      imports: [
-        FormsModule,
-        IconComponent,
-        MatFormFieldModule,
-        MatInputModule,
-        MatRippleModule
-      ],
-      host: {
-        "(window:pointerdown)": "resetAutoAccept()",
-        "(window:keydown)": "resetAutoAccept()"
-      }
-    }]
-  }], () => [], { serverError: [{ type: Input, args: [{ isSignal: true, alias: "serverError", required: false }] }], autoAccept: [{ type: Input, args: [{ isSignal: true, alias: "autoAccept", required: false }] }], domainSet: [{ type: Output, args: ["domainSet"] }] });
-})();
-(() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(NativeDomainOverlayComponent, { className: "NativeDomainOverlayComponent", filePath: "libs/components/src/lib/native-domain-overlay.component.ts", lineNumber: 169 });
-})();
-
 // libs/components/src/lib/service-worker-update-card.component.ts
 function ServiceWorkerUpdateCardComponent_Conditional_0_Template(rf, ctx) {
   if (rf & 1) {
@@ -4061,7 +658,7 @@ function ServiceWorkerUpdateCardComponent_Conditional_0_Template(rf, ctx) {
     \u0275\u0275advance(2);
     \u0275\u0275textInterpolate1(" ", update_state_r3.details || "Refresh the page to get the new version of the application", " ");
     \u0275\u0275advance();
-    \u0275\u0275property("matTooltip", update_state_r3.action || "Reload App");
+    \u0275\u0275attribute("title", update_state_r3.action || "Reload App")("aria-label", update_state_r3.action || "Reload App");
   }
 }
 var ServiceWorkerUpdateCardComponent = class _ServiceWorkerUpdateCardComponent {
@@ -4077,15 +674,15 @@ var ServiceWorkerUpdateCardComponent = class _ServiceWorkerUpdateCardComponent {
     };
   }
   static {
-    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _ServiceWorkerUpdateCardComponent, selectors: [["placeos-service-worker-update-card"]], decls: 1, vars: 1, consts: [["role", "status", "aria-live", "assertive", 1, "border-base-300", "bg-base-100", "text-base-content", "pointer-events-auto", "fixed", "right-4", "bottom-4", "z-9999", "flex", "w-[20rem]", "max-w-[calc(100vw-2rem)]", "items-center", "gap-3", "rounded-lg", "border", "p-4", "shadow-xl"], [1, "min-w-0", "flex-1"], [1, "m-0", "text-sm", "leading-tight", "font-medium"], [1, "m-0", "mt-1", "text-xs", "opacity-70"], ["icon", "", "default", "", 3, "click", "matTooltip"]], template: function ServiceWorkerUpdateCardComponent_Template(rf, ctx) {
+    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _ServiceWorkerUpdateCardComponent, selectors: [["placeos-service-worker-update-card"]], decls: 1, vars: 1, consts: [["role", "status", "aria-live", "assertive", 1, "border-base-300", "bg-base-100", "text-base-content", "pointer-events-auto", "fixed", "right-4", "bottom-4", "z-9999", "flex", "w-[20rem]", "max-w-[calc(100vw-2rem)]", "items-center", "gap-3", "rounded-lg", "border", "p-4", "shadow-xl"], [1, "min-w-0", "flex-1"], [1, "m-0", "text-sm", "leading-tight", "font-medium"], [1, "m-0", "mt-1", "text-xs", "opacity-70"], ["icon", "", "default", "", 3, "click"]], template: function ServiceWorkerUpdateCardComponent_Template(rf, ctx) {
       if (rf & 1) {
-        \u0275\u0275conditionalCreate(0, ServiceWorkerUpdateCardComponent_Conditional_0_Template, 9, 3, "aside", 0);
+        \u0275\u0275conditionalCreate(0, ServiceWorkerUpdateCardComponent_Conditional_0_Template, 9, 4, "aside", 0);
       }
       if (rf & 2) {
         let tmp_0_0;
         \u0275\u0275conditional((tmp_0_0 = ctx.update()) ? 0 : -1, tmp_0_0);
       }
-    }, dependencies: [IconComponent, MatTooltipModule, MatTooltip], encapsulation: 2 });
+    }, dependencies: [IconComponent], encapsulation: 2 });
   }
 };
 (() => {
@@ -4114,7 +711,8 @@ var ServiceWorkerUpdateCardComponent = class _ServiceWorkerUpdateCardComponent {
                 <button
                     icon
                     default
-                    [matTooltip]="update_state.action || 'Reload App'"
+                    [attr.title]="update_state.action || 'Reload App'"
+                    [attr.aria-label]="update_state.action || 'Reload App'"
                     (click)="reloadApp()"
                 >
                     <icon>refresh</icon>
@@ -4122,7 +720,7 @@ var ServiceWorkerUpdateCardComponent = class _ServiceWorkerUpdateCardComponent {
             </aside>
         }
     `,
-      imports: [IconComponent, MatTooltipModule]
+      imports: [IconComponent]
     }]
   }], null, null);
 })();
@@ -4131,25 +729,36 @@ var ServiceWorkerUpdateCardComponent = class _ServiceWorkerUpdateCardComponent {
 })();
 
 // libs/components/src/lib/global-loading.component.ts
-function GlobalLoadingComponent_Conditional_0_Template(rf, ctx) {
+var NativeDomainOverlayLoaderComponent_Conditional_0_Defer_1_DepsFn = () => [
+  /* @ts-ignore */
+  import("./native-domain-overlay.component-6K4CPMSB.js").then((m) => m.NativeDomainOverlayComponent)
+];
+function NativeDomainOverlayLoaderComponent_Conditional_0_Defer_0_Template(rf, ctx) {
   if (rf & 1) {
     const _r1 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "native-domain-overlay", 3);
-    \u0275\u0275listener("domainSet", function GlobalLoadingComponent_Conditional_0_Template_native_domain_overlay_domainSet_0_listener() {
+    \u0275\u0275elementStart(0, "native-domain-overlay", 0);
+    \u0275\u0275listener("domainSet", function NativeDomainOverlayLoaderComponent_Conditional_0_Defer_0_Template_native_domain_overlay_domainSet_0_listener() {
       \u0275\u0275restoreView(_r1);
-      const ctx_r1 = \u0275\u0275nextContext();
+      const ctx_r1 = \u0275\u0275nextContext(2);
       return \u0275\u0275resetView(ctx_r1.onDomainSet());
     });
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
-    const ctx_r1 = \u0275\u0275nextContext();
+    const ctx_r1 = \u0275\u0275nextContext(2);
     \u0275\u0275property("serverError", ctx_r1.domain_error())("autoAccept", ctx_r1.auto_confirm());
+  }
+}
+function NativeDomainOverlayLoaderComponent_Conditional_0_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275domTemplate(0, NativeDomainOverlayLoaderComponent_Conditional_0_Defer_0_Template, 1, 2);
+    \u0275\u0275defer(1, 0, NativeDomainOverlayLoaderComponent_Conditional_0_Defer_1_DepsFn);
+    \u0275\u0275deferOnImmediate();
   }
 }
 function GlobalLoadingComponent_Conditional_1_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 1);
+    \u0275\u0275elementStart(0, "div", 0);
     \u0275\u0275text(1);
     \u0275\u0275pipe(2, "translate");
     \u0275\u0275elementEnd();
@@ -4161,13 +770,13 @@ function GlobalLoadingComponent_Conditional_1_Template(rf, ctx) {
 }
 function GlobalLoadingComponent_Conditional_2_Conditional_1_Template(rf, ctx) {
   if (rf & 1) {
-    const _r3 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "div", 4)(1, "p", 5);
+    const _r1 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "div", 2)(1, "p", 3);
     \u0275\u0275text(2);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(3, "button", 6);
+    \u0275\u0275elementStart(3, "button", 4);
     \u0275\u0275listener("click", function GlobalLoadingComponent_Conditional_2_Conditional_1_Template_button_click_3_listener() {
-      \u0275\u0275restoreView(_r3);
+      \u0275\u0275restoreView(_r1);
       const ctx_r1 = \u0275\u0275nextContext(2);
       return \u0275\u0275resetView(ctx_r1.retry());
     });
@@ -4182,11 +791,11 @@ function GlobalLoadingComponent_Conditional_2_Conditional_1_Template(rf, ctx) {
 }
 function GlobalLoadingComponent_Conditional_2_Conditional_2_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 7)(1, "p", 8);
+    \u0275\u0275elementStart(0, "div", 5)(1, "p", 6);
     \u0275\u0275text(2);
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(3, "div", 9);
-    \u0275\u0275element(4, "mat-progress-bar", 10);
+    \u0275\u0275elementStart(3, "div", 7);
+    \u0275\u0275element(4, "mat-progress-bar", 8);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
@@ -4197,8 +806,8 @@ function GlobalLoadingComponent_Conditional_2_Conditional_2_Template(rf, ctx) {
 }
 function GlobalLoadingComponent_Conditional_2_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 2);
-    \u0275\u0275conditionalCreate(1, GlobalLoadingComponent_Conditional_2_Conditional_1_Template, 5, 1, "div", 4)(2, GlobalLoadingComponent_Conditional_2_Conditional_2_Template, 5, 1);
+    \u0275\u0275elementStart(0, "div", 1);
+    \u0275\u0275conditionalCreate(1, GlobalLoadingComponent_Conditional_2_Conditional_1_Template, 5, 1, "div", 2)(2, GlobalLoadingComponent_Conditional_2_Conditional_2_Template, 5, 1);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
@@ -4207,10 +816,63 @@ function GlobalLoadingComponent_Conditional_2_Template(rf, ctx) {
     \u0275\u0275conditional(ctx_r1.initialisation_error() ? 1 : 2);
   }
 }
+var NativeDomainOverlayLoaderComponent = class _NativeDomainOverlayLoaderComponent {
+  constructor() {
+    this._placeos = inject(PlaceOS_Service);
+    this.show = needsNativeDomain();
+    this.domain_error = nativeDomainError();
+    this.auto_confirm = autoConfirmNativeDomain();
+  }
+  onDomainSet() {
+    this._placeos.onNativeDomainSet();
+  }
+  static {
+    this.\u0275fac = function NativeDomainOverlayLoaderComponent_Factory(__ngFactoryType__) {
+      return new (__ngFactoryType__ || _NativeDomainOverlayLoaderComponent)();
+    };
+  }
+  static {
+    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _NativeDomainOverlayLoaderComponent, selectors: [["native-domain-overlay-loader"]], decls: 1, vars: 1, consts: [[3, "domainSet", "serverError", "autoAccept"]], template: function NativeDomainOverlayLoaderComponent_Template(rf, ctx) {
+      if (rf & 1) {
+        \u0275\u0275conditionalCreate(0, NativeDomainOverlayLoaderComponent_Conditional_0_Template, 3, 0);
+      }
+      if (rf & 2) {
+        \u0275\u0275conditional(ctx.show() ? 0 : -1);
+      }
+    }, encapsulation: 2 });
+  }
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(NativeDomainOverlayLoaderComponent, () => [
+    /* @ts-ignore */
+    import("./native-domain-overlay.component-6K4CPMSB.js").then((m) => m.NativeDomainOverlayComponent)
+  ], (NativeDomainOverlayComponent) => {
+    setClassMetadata(NativeDomainOverlayLoaderComponent, [{
+      type: Component,
+      args: [{
+        selector: "native-domain-overlay-loader",
+        template: `
+        @if (show()) {
+            @defer (on immediate) {
+                <native-domain-overlay
+                    [serverError]="domain_error()"
+                    [autoAccept]="auto_confirm()"
+                    (domainSet)="onDomainSet()"
+                ></native-domain-overlay>
+            }
+        }
+    `,
+        imports: [NativeDomainOverlayComponent]
+      }]
+    }], null, null);
+  });
+})();
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(NativeDomainOverlayLoaderComponent, { className: "NativeDomainOverlayLoaderComponent", filePath: "libs/components/src/lib/global-loading.component.ts", lineNumber: 40 });
+})();
 var GlobalLoadingComponent = class _GlobalLoadingComponent extends AsyncHandler {
   constructor() {
     super(...arguments);
-    this._placeos = inject(PlaceOS_Service);
     this.online = signal(
       true,
       ...ngDevMode ? [{ debugName: "online" }] : (
@@ -4226,9 +888,6 @@ var GlobalLoadingComponent = class _GlobalLoadingComponent extends AsyncHandler 
       )
     );
     this.message = getLoadingMessage();
-    this.show_domain_overlay = needsNativeDomain();
-    this.domain_error = nativeDomainError();
-    this.auto_confirm = autoConfirmNativeDomain();
     this.initialisation_error = initialisationFailure();
     this.initialisation_complete = initialisationComplete();
     this.loading = computed(
@@ -4242,12 +901,9 @@ var GlobalLoadingComponent = class _GlobalLoadingComponent extends AsyncHandler 
   retry() {
     retryInitialisation();
   }
-  onDomainSet() {
-    this._placeos.onNativeDomainSet();
-  }
   ngOnInit() {
     const update_online = () => {
-      this.online.set(Xr());
+      this.online.set(so());
       if (this.online()) {
         this.connection_checked.set(true);
         this.clearTimeout("initial-connection");
@@ -4269,15 +925,14 @@ var GlobalLoadingComponent = class _GlobalLoadingComponent extends AsyncHandler 
     })();
   }
   static {
-    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _GlobalLoadingComponent, selectors: [["global-loading"]], features: [\u0275\u0275InheritDefinitionFeature], decls: 4, vars: 3, consts: [[3, "serverError", "autoAccept"], [1, "bg-error", "fixed", "top-2", "left-1/2", "z-9999", "-translate-x-1/2", "rounded-3xl", "px-4", "py-2", "text-xs", "text-white", "shadow-sm"], ["loader", "", 1, "bg-base-300", "pointer-events-auto", "fixed", "inset-0", "z-9998", "flex", "flex-col", "items-center", "justify-end", "space-y-2", "p-4"], [3, "domainSet", "serverError", "autoAccept"], [1, "border-base-300", "bg-base-100", "w-[24rem]", "max-w-[calc(100vw-2rem)]", "rounded-lg", "border", "p-4", "text-center", "text-xs", "shadow-sm"], ["initialisation-error", ""], ["type", "button", 1, "bg-primary", "text-primary-content", "mt-3", "rounded", "px-4", "py-2", 3, "click"], [1, "border-base-300", "bg-base-100", "w-[24rem]", "max-w-[calc(100vw-2rem)]", "rounded-lg", "border", "p-2", "text-center", "text-xs", "shadow-sm"], [1, "text-center", "font-mono"], [1, "border-base-300", "w-[24rem]", "max-w-[calc(100vw-2rem)]", "overflow-hidden", "rounded-full", "border", "shadow-sm"], ["mode", "indeterminate", 1, "scale-150", "rounded-sm"]], template: function GlobalLoadingComponent_Template(rf, ctx) {
+    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _GlobalLoadingComponent, selectors: [["global-loading"]], features: [\u0275\u0275InheritDefinitionFeature], decls: 4, vars: 2, consts: [[1, "bg-error", "fixed", "top-2", "left-1/2", "z-9999", "-translate-x-1/2", "rounded-3xl", "px-4", "py-2", "text-xs", "text-white", "shadow-sm"], ["loader", "", 1, "bg-base-300", "pointer-events-auto", "fixed", "inset-0", "z-9998", "flex", "flex-col", "items-center", "justify-end", "space-y-2", "p-4"], [1, "border-base-300", "bg-base-100", "w-[24rem]", "max-w-[calc(100vw-2rem)]", "rounded-lg", "border", "p-4", "text-center", "text-xs", "shadow-sm"], ["initialisation-error", ""], ["type", "button", 1, "bg-primary", "text-primary-content", "mt-3", "rounded", "px-4", "py-2", 3, "click"], [1, "border-base-300", "bg-base-100", "w-[24rem]", "max-w-[calc(100vw-2rem)]", "rounded-lg", "border", "p-2", "text-center", "text-xs", "shadow-sm"], [1, "text-center", "font-mono"], [1, "border-base-300", "w-[24rem]", "max-w-[calc(100vw-2rem)]", "overflow-hidden", "rounded-full", "border", "shadow-sm"], ["mode", "indeterminate", 1, "scale-150", "rounded-sm"]], template: function GlobalLoadingComponent_Template(rf, ctx) {
       if (rf & 1) {
-        \u0275\u0275conditionalCreate(0, GlobalLoadingComponent_Conditional_0_Template, 1, 2, "native-domain-overlay", 0);
-        \u0275\u0275conditionalCreate(1, GlobalLoadingComponent_Conditional_1_Template, 3, 3, "div", 1);
-        \u0275\u0275conditionalCreate(2, GlobalLoadingComponent_Conditional_2_Template, 3, 1, "div", 2);
+        \u0275\u0275element(0, "native-domain-overlay-loader");
+        \u0275\u0275conditionalCreate(1, GlobalLoadingComponent_Conditional_1_Template, 3, 3, "div", 0);
+        \u0275\u0275conditionalCreate(2, GlobalLoadingComponent_Conditional_2_Template, 3, 1, "div", 1);
         \u0275\u0275element(3, "placeos-service-worker-update-card");
       }
       if (rf & 2) {
-        \u0275\u0275conditional(ctx.show_domain_overlay() ? 0 : -1);
         \u0275\u0275advance();
         \u0275\u0275conditional(ctx.connection_checked() && !ctx.online() ? 1 : -1);
         \u0275\u0275advance();
@@ -4286,7 +941,7 @@ var GlobalLoadingComponent = class _GlobalLoadingComponent extends AsyncHandler 
     }, dependencies: [
       MatProgressBarModule,
       MatProgressBar,
-      NativeDomainOverlayComponent,
+      NativeDomainOverlayLoaderComponent,
       ServiceWorkerUpdateCardComponent,
       TranslatePipe
     ], styles: ["\n[_nghost-%COMP%] {\n  pointer-events: none;\n}\n[loader][_ngcontent-%COMP%] {\n  background-image:\n    linear-gradient(\n      to right,\n      #f15b55 0%,\n      #f68c50 100%);\n}\n/*# sourceMappingURL=global-loading.component.css.map */"] });
@@ -4296,13 +951,7 @@ var GlobalLoadingComponent = class _GlobalLoadingComponent extends AsyncHandler 
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(GlobalLoadingComponent, [{
     type: Component,
     args: [{ selector: "global-loading", template: `
-        @if (show_domain_overlay()) {
-            <native-domain-overlay
-                [serverError]="domain_error()"
-                [autoAccept]="auto_confirm()"
-                (domainSet)="onDomainSet()"
-            ></native-domain-overlay>
-        }
+        <native-domain-overlay-loader />
         @if (connection_checked() && !online()) {
             <div
                 class="bg-error fixed top-2 left-1/2 z-9999 -translate-x-1/2 rounded-3xl px-4 py-2 text-xs text-white shadow-sm"
@@ -4350,348 +999,18 @@ var GlobalLoadingComponent = class _GlobalLoadingComponent extends AsyncHandler 
         <placeos-service-worker-update-card />
     `, imports: [
       MatProgressBarModule,
-      NativeDomainOverlayComponent,
+      NativeDomainOverlayLoaderComponent,
       ServiceWorkerUpdateCardComponent,
       TranslatePipe
     ], styles: ["/* angular:styles/component:css;cc9c8858f40050cbf899d1698bf5ddc695ecfe0c7e714e2a22cee15289062064;/home/runner/work/user-interfaces/user-interfaces/libs/components/src/lib/global-loading.component.ts */\n:host {\n  pointer-events: none;\n}\n[loader] {\n  background-image:\n    linear-gradient(\n      to right,\n      #f15b55 0%,\n      #f68c50 100%);\n}\n/*# sourceMappingURL=global-loading.component.css.map */\n"] }]
   }], null, null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(GlobalLoadingComponent, { className: "GlobalLoadingComponent", filePath: "libs/components/src/lib/global-loading.component.ts", lineNumber: 98 });
-})();
-
-// libs/components/src/lib/settings-debug-panel-launcher.component.ts
-var SettingsDebugPanelLauncherComponent_Defer_25_DepsFn = () => [
-  /* @ts-ignore */
-  import("./settings-debug-panel.component-5POXKWNG.js").then((m) => m.SettingsDebugPanelComponent)
-];
-var SettingsDebugPanelLauncherComponent_Defer_28_DepsFn = () => [
-  /* @ts-ignore */
-  import("./binding-debug-panel.component-VPFTS42G.js").then((m) => m.BindingDebugPanelComponent)
-];
-var SettingsDebugPanelLauncherComponent_Defer_31_DepsFn = () => [
-  /* @ts-ignore */
-  import("./debug-console.component-AO6JJLCR.js").then((m) => m.DebugConsoleComponent)
-];
-function SettingsDebugPanelLauncherComponent_Defer_24_Conditional_0_Template(rf, ctx) {
-  if (rf & 1) {
-    const _r3 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "settings-debug-panel", 8);
-    \u0275\u0275listener("showChange", function SettingsDebugPanelLauncherComponent_Defer_24_Conditional_0_Template_settings_debug_panel_showChange_0_listener() {
-      \u0275\u0275restoreView(_r3);
-      const ctx_r3 = \u0275\u0275nextContext(2);
-      return \u0275\u0275resetView(ctx_r3.panel.set(null));
-    });
-    \u0275\u0275elementEnd();
-  }
-  if (rf & 2) {
-    const ctx_r3 = \u0275\u0275nextContext(2);
-    \u0275\u0275property("show", true)("schema", ctx_r3.schema());
-  }
-}
-function SettingsDebugPanelLauncherComponent_Defer_24_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275conditionalCreate(0, SettingsDebugPanelLauncherComponent_Defer_24_Conditional_0_Template, 1, 2, "settings-debug-panel", 7);
-  }
-  if (rf & 2) {
-    const ctx_r3 = \u0275\u0275nextContext();
-    \u0275\u0275conditional(ctx_r3.panel() === "settings" ? 0 : -1);
-  }
-}
-function SettingsDebugPanelLauncherComponent_Defer_27_Conditional_0_Template(rf, ctx) {
-  if (rf & 1) {
-    const _r5 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "binding-debug-panel", 10);
-    \u0275\u0275listener("showChange", function SettingsDebugPanelLauncherComponent_Defer_27_Conditional_0_Template_binding_debug_panel_showChange_0_listener() {
-      \u0275\u0275restoreView(_r5);
-      const ctx_r3 = \u0275\u0275nextContext(2);
-      return \u0275\u0275resetView(ctx_r3.panel.set(null));
-    });
-    \u0275\u0275elementEnd();
-  }
-  if (rf & 2) {
-    \u0275\u0275property("show", true)("hotkeysEnabled", false);
-  }
-}
-function SettingsDebugPanelLauncherComponent_Defer_27_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275conditionalCreate(0, SettingsDebugPanelLauncherComponent_Defer_27_Conditional_0_Template, 1, 2, "binding-debug-panel", 9);
-  }
-  if (rf & 2) {
-    const ctx_r3 = \u0275\u0275nextContext();
-    \u0275\u0275conditional(ctx_r3.panel() === "bindings" ? 0 : -1);
-  }
-}
-function SettingsDebugPanelLauncherComponent_Defer_30_Conditional_0_Template(rf, ctx) {
-  if (rf & 1) {
-    const _r6 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "debug-console", 10);
-    \u0275\u0275listener("showChange", function SettingsDebugPanelLauncherComponent_Defer_30_Conditional_0_Template_debug_console_showChange_0_listener() {
-      \u0275\u0275restoreView(_r6);
-      const ctx_r3 = \u0275\u0275nextContext(2);
-      return \u0275\u0275resetView(ctx_r3.panel.set(null));
-    });
-    \u0275\u0275elementEnd();
-  }
-  if (rf & 2) {
-    \u0275\u0275property("show", true)("hotkeysEnabled", false);
-  }
-}
-function SettingsDebugPanelLauncherComponent_Defer_30_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275conditionalCreate(0, SettingsDebugPanelLauncherComponent_Defer_30_Conditional_0_Template, 1, 2, "debug-console", 9);
-  }
-  if (rf & 2) {
-    const ctx_r3 = \u0275\u0275nextContext();
-    \u0275\u0275conditional(ctx_r3.panel() === "console" ? 0 : -1);
-  }
-}
-var SettingsDebugPanelLauncherComponent = class _SettingsDebugPanelLauncherComponent extends AsyncHandler {
-  constructor() {
-    super(...arguments);
-    this._hotkey = inject(HotkeysService);
-    this._document = inject(DOCUMENT);
-    this._menu_trigger = viewChild.required(
-      MatMenuTrigger,
-      ...ngDevMode ? [{ debugName: "_menu_trigger" }] : (
-        /* istanbul ignore next */
-        []
-      )
-    );
-    this.loadSchema = input(
-      ...ngDevMode ? [void 0, { debugName: "loadSchema" }] : (
-        /* istanbul ignore next */
-        []
-      )
-    );
-    this.schema = signal(
-      null,
-      ...ngDevMode ? [{ debugName: "schema" }] : (
-        /* istanbul ignore next */
-        []
-      )
-    );
-    this.panel = signal(
-      null,
-      ...ngDevMode ? [{ debugName: "panel" }] : (
-        /* istanbul ignore next */
-        []
-      )
-    );
-  }
-  ngOnInit() {
-    const shortcuts = [
-      ["settings", ["Control", "Alt", "Shift", "KeyS"]],
-      ["bindings", ["Control", "Alt", "Shift", "KeyB"]],
-      ["console", ["Control", "Backquote"]]
-    ];
-    for (const [panel, keys] of shortcuts) {
-      this.subscription(panel, this._hotkey.listen(keys, () => {
-        if (this.panel() === panel)
-          this.panel.set(null);
-        else
-          this.openPanel(panel);
-      }));
-    }
-  }
-  /** Observe the corner without placing a pointer target over app controls. */
-  onContextMenu(event) {
-    const height = this._document.documentElement.clientHeight;
-    if (event.clientX < 0 || event.clientX > 32 || event.clientY < height - 32 || event.clientY > height)
-      return;
-    this.openMenu(event, this._menu_trigger());
-  }
-  openMenu(event, trigger) {
-    event.preventDefault();
-    trigger.openMenu();
-  }
-  openPanel(panel) {
-    this.panel.set(panel);
-    if (panel === "settings") {
-      this._schema_request ??= this.loadSettingsSchema();
-    }
-  }
-  async loadSettingsSchema() {
-    try {
-      this.schema.set(await this.loadSchema()?.() ?? null);
-    } catch {
-      this.schema.set(null);
-    }
-  }
-  static {
-    this.\u0275fac = /* @__PURE__ */ (() => {
-      let \u0275SettingsDebugPanelLauncherComponent_BaseFactory;
-      return function SettingsDebugPanelLauncherComponent_Factory(__ngFactoryType__) {
-        return (\u0275SettingsDebugPanelLauncherComponent_BaseFactory || (\u0275SettingsDebugPanelLauncherComponent_BaseFactory = \u0275\u0275getInheritedFactory(_SettingsDebugPanelLauncherComponent)))(__ngFactoryType__ || _SettingsDebugPanelLauncherComponent);
-      };
-    })();
-  }
-  static {
-    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _SettingsDebugPanelLauncherComponent, selectors: [["settings-debug-panel-launcher"]], viewQuery: function SettingsDebugPanelLauncherComponent_Query(rf, ctx) {
-      if (rf & 1) {
-        \u0275\u0275viewQuerySignal(ctx._menu_trigger, MatMenuTrigger, 5);
-      }
-      if (rf & 2) {
-        \u0275\u0275queryAdvance();
-      }
-    }, hostBindings: function SettingsDebugPanelLauncherComponent_HostBindings(rf, ctx) {
-      if (rf & 1) {
-        \u0275\u0275listener("contextmenu", function SettingsDebugPanelLauncherComponent_contextmenu_HostBindingHandler($event) {
-          return ctx.onContextMenu($event);
-        }, \u0275\u0275resolveDocument);
-      }
-    }, inputs: { loadSchema: [1, "loadSchema"] }, features: [\u0275\u0275InheritDefinitionFeature], decls: 33, vars: 4, consts: [["menu_trigger", "matMenuTrigger"], ["debug_menu", "matMenu"], ["type", "button", "aria-label", "Open debugging tools", 1, "absolute", "bottom-0", "left-0", "z-999", "h-px", "w-px", 3, "contextmenu", "matMenuTriggerFor"], ["yPosition", "above"], [1, "flex", "w-64", "items-center", "justify-center", "pb-2", "text-sm", "opacity-60"], ["mat-menu-item", "", 3, "click"], [1, "flex", "items-center", "gap-2"], [3, "show", "schema"], [3, "showChange", "show", "schema"], [3, "show", "hotkeysEnabled"], [3, "showChange", "show", "hotkeysEnabled"]], template: function SettingsDebugPanelLauncherComponent_Template(rf, ctx) {
-      if (rf & 1) {
-        const _r1 = \u0275\u0275getCurrentView();
-        \u0275\u0275elementStart(0, "button", 2, 0);
-        \u0275\u0275listener("contextmenu", function SettingsDebugPanelLauncherComponent_Template_button_contextmenu_0_listener($event) {
-          \u0275\u0275restoreView(_r1);
-          const menu_trigger_r2 = \u0275\u0275reference(1);
-          return \u0275\u0275resetView(ctx.openMenu($event, menu_trigger_r2));
-        });
-        \u0275\u0275elementEnd();
-        \u0275\u0275elementStart(2, "mat-menu", 3, 1)(4, "div", 4);
-        \u0275\u0275text(5, " Debugging Panels ");
-        \u0275\u0275elementEnd();
-        \u0275\u0275elementStart(6, "button", 5);
-        \u0275\u0275listener("click", function SettingsDebugPanelLauncherComponent_Template_button_click_6_listener() {
-          return ctx.openPanel("settings");
-        });
-        \u0275\u0275elementStart(7, "div", 6)(8, "icon");
-        \u0275\u0275text(9, "discover_tune");
-        \u0275\u0275elementEnd();
-        \u0275\u0275elementStart(10, "div");
-        \u0275\u0275text(11, "Settings");
-        \u0275\u0275elementEnd()()();
-        \u0275\u0275elementStart(12, "button", 5);
-        \u0275\u0275listener("click", function SettingsDebugPanelLauncherComponent_Template_button_click_12_listener() {
-          return ctx.openPanel("bindings");
-        });
-        \u0275\u0275elementStart(13, "div", 6)(14, "icon");
-        \u0275\u0275text(15, "linked_services");
-        \u0275\u0275elementEnd();
-        \u0275\u0275elementStart(16, "div");
-        \u0275\u0275text(17, "Driver bindings");
-        \u0275\u0275elementEnd()()();
-        \u0275\u0275elementStart(18, "button", 5);
-        \u0275\u0275listener("click", function SettingsDebugPanelLauncherComponent_Template_button_click_18_listener() {
-          return ctx.openPanel("console");
-        });
-        \u0275\u0275elementStart(19, "div", 6)(20, "icon");
-        \u0275\u0275text(21, "terminal_2");
-        \u0275\u0275elementEnd();
-        \u0275\u0275elementStart(22, "div");
-        \u0275\u0275text(23, "Console");
-        \u0275\u0275elementEnd()()()();
-        \u0275\u0275domTemplate(24, SettingsDebugPanelLauncherComponent_Defer_24_Template, 1, 1);
-        \u0275\u0275defer(25, 24, SettingsDebugPanelLauncherComponent_Defer_25_DepsFn);
-        \u0275\u0275domTemplate(27, SettingsDebugPanelLauncherComponent_Defer_27_Template, 1, 1);
-        \u0275\u0275defer(28, 27, SettingsDebugPanelLauncherComponent_Defer_28_DepsFn);
-        \u0275\u0275domTemplate(30, SettingsDebugPanelLauncherComponent_Defer_30_Template, 1, 1);
-        \u0275\u0275defer(31, 30, SettingsDebugPanelLauncherComponent_Defer_31_DepsFn);
-      }
-      if (rf & 2) {
-        const debug_menu_r7 = \u0275\u0275reference(3);
-        \u0275\u0275property("matMenuTriggerFor", debug_menu_r7);
-        \u0275\u0275advance(25);
-        \u0275\u0275deferWhen(ctx.panel() === "settings");
-        \u0275\u0275advance(3);
-        \u0275\u0275deferWhen(ctx.panel() === "bindings");
-        \u0275\u0275advance(3);
-        \u0275\u0275deferWhen(ctx.panel() === "console");
-      }
-    }, dependencies: [MatMenuModule, MatMenu, MatMenuItem, MatMenuTrigger, IconComponent], encapsulation: 2 });
-  }
-};
-(() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(SettingsDebugPanelLauncherComponent, () => [
-    /* @ts-ignore */
-    import("./settings-debug-panel.component-5POXKWNG.js").then((m) => m.SettingsDebugPanelComponent),
-    /* @ts-ignore */
-    import("./binding-debug-panel.component-VPFTS42G.js").then((m) => m.BindingDebugPanelComponent),
-    /* @ts-ignore */
-    import("./debug-console.component-AO6JJLCR.js").then((m) => m.DebugConsoleComponent)
-  ], (SettingsDebugPanelComponent, BindingDebugPanelComponent, DebugConsoleComponent) => {
-    setClassMetadata(SettingsDebugPanelLauncherComponent, [{
-      type: Component,
-      args: [{ selector: "settings-debug-panel-launcher", host: { "(document:contextmenu)": "onContextMenu($event)" }, imports: [
-        MatMenuModule,
-        SettingsDebugPanelComponent,
-        BindingDebugPanelComponent,
-        DebugConsoleComponent,
-        IconComponent
-      ], template: `
-        <button
-            type="button"
-            class="absolute bottom-0 left-0 z-999 h-px w-px"
-            aria-label="Open debugging tools"
-            [matMenuTriggerFor]="debug_menu"
-            #menu_trigger="matMenuTrigger"
-            (contextmenu)="openMenu($event, menu_trigger)"
-        >
-        </button>
-        <mat-menu #debug_menu="matMenu" yPosition="above">
-            <div
-                class="flex w-64 items-center justify-center pb-2 text-sm opacity-60"
-            >
-                Debugging Panels
-            </div>
-            <button mat-menu-item (click)="openPanel('settings')">
-                <div class="flex items-center gap-2">
-                    <icon>discover_tune</icon>
-                    <div>Settings</div>
-                </div>
-            </button>
-            <button mat-menu-item (click)="openPanel('bindings')">
-                <div class="flex items-center gap-2">
-                    <icon>linked_services</icon>
-                    <div>Driver bindings</div>
-                </div>
-            </button>
-            <button mat-menu-item (click)="openPanel('console')">
-                <div class="flex items-center gap-2">
-                    <icon>terminal_2</icon>
-                    <div>Console</div>
-                </div>
-            </button>
-        </mat-menu>
-        @defer (when panel() === 'settings') {
-            @if (panel() === 'settings') {
-                <settings-debug-panel
-                    [show]="true"
-                    (showChange)="panel.set(null)"
-                    [schema]="schema()"
-                />
-            }
-        }
-        @defer (when panel() === 'bindings') {
-            @if (panel() === 'bindings') {
-                <binding-debug-panel
-                    [show]="true"
-                    (showChange)="panel.set(null)"
-                    [hotkeysEnabled]="false"
-                />
-            }
-        }
-        @defer (when panel() === 'console') {
-            @if (panel() === 'console') {
-                <debug-console
-                    [show]="true"
-                    (showChange)="panel.set(null)"
-                    [hotkeysEnabled]="false"
-                />
-            }
-        }
-    ` }]
-    }], null, { _menu_trigger: [{ type: ViewChild, args: [forwardRef(() => MatMenuTrigger), { isSignal: true }] }], loadSchema: [{ type: Input, args: [{ isSignal: true, alias: "loadSchema", required: false }] }] });
-  });
-})();
-(() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(SettingsDebugPanelLauncherComponent, { className: "SettingsDebugPanelLauncherComponent", filePath: "libs/components/src/lib/settings-debug-panel-launcher.component.ts", lineNumber: 97 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(GlobalLoadingComponent, { className: "GlobalLoadingComponent", filePath: "libs/components/src/lib/global-loading.component.ts", lineNumber: 124 });
 })();
 
 // libs/components/src/lib/unauthorised.component.ts
-var _c03 = () => ["/"];
+var _c0 = () => ["/"];
 var UnauthorisedComponent = class _UnauthorisedComponent {
   static {
     this.\u0275fac = function UnauthorisedComponent_Factory(__ngFactoryType__) {
@@ -4728,7 +1047,7 @@ var UnauthorisedComponent = class _UnauthorisedComponent {
         \u0275\u0275advance(3);
         \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(12, 8, "COMMON.CONTACT_ADMIN"), " ");
         \u0275\u0275advance(2);
-        \u0275\u0275property("routerLink", \u0275\u0275pureFunction0(10, _c03));
+        \u0275\u0275property("routerLink", \u0275\u0275pureFunction0(10, _c0));
       }
     }, dependencies: [RouterLink, TranslatePipe], styles: ["\n[_nghost-%COMP%] {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n}\n[unauthorised][_ngcontent-%COMP%] {\n  background-image:\n    linear-gradient(\n      to right,\n      #c62828 0%,\n      #ef5350 100%);\n}\n/*# sourceMappingURL=unauthorised.component.css.map */"] });
   }
@@ -4757,336 +1076,6 @@ var UnauthorisedComponent = class _UnauthorisedComponent {
 })();
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(UnauthorisedComponent, { className: "UnauthorisedComponent", filePath: "libs/components/src/lib/unauthorised.component.ts", lineNumber: 43 });
-})();
-
-// libs/components/src/lib/virtual-keyboard.component.ts
-var DEFAULT_KEYS = [
-  "0123456789".split(""),
-  "qwertyuiop_".split(""),
-  "asdfghjkl+".split(""),
-  "zxcvbnm@.-".split(""),
-  ["{caps}", "{space}", "{backspace}"]
-];
-var FADE_DURATION = 160;
-var VirtualKeyboardComponent = class _VirtualKeyboardComponent extends AsyncHandler {
-  static {
-    this._enabled = false;
-  }
-  static {
-    this._instances = /* @__PURE__ */ new Set();
-  }
-  /** Whether virtual keyboard should activate */
-  static get enabled() {
-    return this._enabled;
-  }
-  static set enabled(value) {
-    this._enabled = value;
-    for (const instance of this._instances) {
-      instance.syncNativeKeyboardState();
-    }
-  }
-  onFocus() {
-    this.syncNativeKeyboardState();
-    if (!_VirtualKeyboardComponent.enabled)
-      return;
-    this.open();
-    this.clearTimeout("blur-sm");
-  }
-  onBlur() {
-    this.timeout("blur-sm", () => this.close());
-  }
-  constructor() {
-    super();
-    this._element = inject(ElementRef);
-    this._overlay = inject(Overlay);
-    this.keyset = model(
-      DEFAULT_KEYS,
-      ...ngDevMode ? [{ debugName: "keyset" }] : (
-        /* istanbul ignore next */
-        []
-      )
-    );
-    this.state = signal(
-      "normal",
-      ...ngDevMode ? [{ debugName: "state" }] : (
-        /* istanbul ignore next */
-        []
-      )
-    );
-    this._overlay_ref = null;
-    this._keyboard_el = null;
-    this._position = "bottom";
-    this._native_keyboard_prevented = false;
-    this._original_readonly = false;
-    this._original_inputmode = null;
-    _VirtualKeyboardComponent._instances.add(this);
-    this.syncNativeKeyboardState();
-    effect(() => {
-      const keys = this.keyset();
-      if (!keys)
-        this.keyset.set(DEFAULT_KEYS);
-    });
-  }
-  ngOnDestroy() {
-    _VirtualKeyboardComponent._instances.delete(this);
-    this.restoreNativeKeyboardState();
-    super.ngOnDestroy();
-    this.close(true);
-  }
-  focusInput() {
-    this._element?.nativeElement?.blur();
-    this._element?.nativeElement?.focus();
-  }
-  open() {
-    this.clearTimeout("close-animation");
-    if (this._overlay_ref) {
-      this._overlay_ref.hostElement.style.pointerEvents = "auto";
-      if (this._keyboard_el)
-        this._keyboard_el.style.opacity = "1";
-      return;
-    }
-    this._position = this.preferredPosition();
-    const position_strategy = this._overlay.position().global().centerHorizontally();
-    if (this._position === "top") {
-      position_strategy.top("0");
-    } else {
-      position_strategy.bottom("0");
-    }
-    this._overlay_ref = this._overlay.create({
-      width: "100vw",
-      positionStrategy: position_strategy
-    });
-    this._overlay_ref.hostElement.style.display = "block";
-    this._overlay_ref.hostElement.style.pointerEvents = "auto";
-    this.applyOverlayPosition();
-    this.renderKeyboard();
-  }
-  close(immediate = false) {
-    if (!this._overlay_ref)
-      return;
-    this.clearTimeout("close-animation");
-    if (immediate || !this._keyboard_el) {
-      this._overlay_ref.dispose();
-      this._overlay_ref = null;
-      this._keyboard_el = null;
-      return;
-    }
-    this._overlay_ref.hostElement.style.pointerEvents = "none";
-    this._keyboard_el.style.opacity = "0";
-    this.timeout("close-animation", () => {
-      this._overlay_ref?.dispose();
-      this._overlay_ref = null;
-      this._keyboard_el = null;
-    }, FADE_DURATION);
-  }
-  handleKeyPress(key) {
-    const input_el = this._element.nativeElement;
-    const str = input_el.value || "";
-    let cursor_pos = input_el.selectionStart ?? str.length;
-    switch (key.toLowerCase()) {
-      case "{caps}":
-        this.state.set(this.state() === "caps" ? "normal" : "caps");
-        break;
-      case "{shift}":
-        this.state.set(this.state() === "shift" ? "normal" : "shift");
-        break;
-      case "{backspace}":
-        input_el.value = `${str.substr(0, cursor_pos - 1)}${str.substr(cursor_pos, str.length)}`;
-        cursor_pos = Math.max(0, cursor_pos - 1);
-        break;
-      case "{space}":
-        input_el.value = `${str.substr(0, cursor_pos)}${" "}${str.substr(cursor_pos, str.length)}`;
-        cursor_pos += 1;
-        break;
-      default:
-        if (this.state() === "shift")
-          this.state.set("normal");
-        input_el.value = `${str.substr(0, cursor_pos)}${key}${str.substr(cursor_pos, str.length)}`;
-        cursor_pos += 1;
-    }
-    input_el.dispatchEvent(new InputEvent("input"));
-    this.updateKeyState();
-    this.timeout("focus", () => {
-      this.focusInput();
-      try {
-        input_el.setSelectionRange(cursor_pos, cursor_pos);
-      } catch {
-      }
-    }, 50);
-  }
-  updateKeyState() {
-    this.keyset.set(this.keyset().map((_) => _.map((k) => k.length > 1 ? k : k[this.state() !== "normal" ? "toUpperCase" : "toLowerCase"]())));
-    if (this._overlay_ref)
-      this.renderKeyboard();
-  }
-  syncNativeKeyboardState() {
-    if (_VirtualKeyboardComponent.enabled) {
-      this.preventNativeKeyboard();
-    } else {
-      this.restoreNativeKeyboardState();
-    }
-  }
-  reposition() {
-    if (!this._overlay_ref)
-      return;
-    const position = this.preferredPosition();
-    if (position === this._position)
-      return;
-    this.close(true);
-    this.open();
-  }
-  renderKeyboard() {
-    if (!this._overlay_ref)
-      return;
-    const overlay_el = this._overlay_ref.overlayElement;
-    const should_animate = !this._keyboard_el;
-    this.applyOverlayPosition();
-    overlay_el.replaceChildren();
-    const keyboard_el = document.createElement("div");
-    keyboard_el.setAttribute("keyboard-view", "");
-    keyboard_el.className = "border-base-200 bg-base-200 flex w-screen flex-col gap-[16px] p-[8px]";
-    keyboard_el.style.background = "var(--base-200)";
-    keyboard_el.style.borderBottom = this._position === "top" ? "1px solid var(--base-200)" : "";
-    keyboard_el.style.borderTop = this._position === "bottom" ? "1px solid var(--base-200)" : "";
-    keyboard_el.style.display = "flex";
-    keyboard_el.style.flexDirection = "column";
-    keyboard_el.style.gap = "16px";
-    keyboard_el.style.opacity = should_animate ? "0" : "1";
-    keyboard_el.style.padding = "8px";
-    keyboard_el.style.transition = `opacity ${FADE_DURATION}ms ease`;
-    keyboard_el.style.width = "100vw";
-    for (const row of this.keyset()) {
-      const row_el = document.createElement("div");
-      row_el.setAttribute("row", "");
-      row_el.className = "flex items-center justify-center gap-[8px]";
-      row_el.style.alignItems = "center";
-      row_el.style.display = "flex";
-      row_el.style.gap = "8px";
-      row_el.style.justifyContent = "center";
-      for (const key of row) {
-        row_el.appendChild(this.renderKey(key));
-      }
-      keyboard_el.appendChild(row_el);
-    }
-    overlay_el.appendChild(keyboard_el);
-    this._keyboard_el = keyboard_el;
-    if (should_animate) {
-      requestAnimationFrame(() => {
-        if (this._keyboard_el === keyboard_el) {
-          keyboard_el.style.opacity = "1";
-        }
-      });
-    }
-  }
-  renderKey(key) {
-    const button_el = document.createElement("button");
-    button_el.setAttribute("key", key);
-    button_el.setAttribute("tabindex", "0");
-    button_el.type = "button";
-    button_el.className = "border-base-200 bg-base-100 relative cursor-pointer rounded-xl border p-[8px]";
-    button_el.style.height = "56px";
-    button_el.style.width = key[0] === "{" && key.length > 1 ? "160px" : "64px";
-    button_el.style.transition = "box-shadow 200ms, top 200ms";
-    button_el.style.boxShadow = "0 4px 0 0.04px rgba(0, 0, 0, 0.1)";
-    if (key === "{space}") {
-      button_el.style.flex = "1";
-      button_el.style.minWidth = "160px";
-      button_el.style.maxWidth = "400px";
-    }
-    button_el.textContent = this.keyLabel(key);
-    button_el.addEventListener("mousedown", (event) => event.preventDefault());
-    button_el.addEventListener("focus", () => this.focusInput());
-    button_el.addEventListener("click", () => this.handleKeyPress(key));
-    if (key === "{caps}") {
-      const dot_el = document.createElement("div");
-      dot_el.setAttribute("dot", "");
-      dot_el.className = `absolute top-[8px] right-[8px] h-[8px] w-[8px] rounded-full ${this.state() !== "normal" ? "bg-success" : "bg-base-200"}`;
-      button_el.appendChild(dot_el);
-    }
-    return button_el;
-  }
-  keyLabel(key) {
-    return key === "{space}" ? "Space" : key === "{caps}" ? "Caps Lock" : key === "{backspace}" ? "Backspace" : key;
-  }
-  preventNativeKeyboard() {
-    const input_el = this._element.nativeElement;
-    if (!this._native_keyboard_prevented) {
-      this._original_readonly = input_el.readOnly;
-      this._original_inputmode = input_el.getAttribute("inputmode");
-      this._native_keyboard_prevented = true;
-    }
-    input_el.readOnly = true;
-    input_el.setAttribute("readonly", "");
-    input_el.setAttribute("inputmode", "none");
-  }
-  restoreNativeKeyboardState() {
-    if (!this._native_keyboard_prevented)
-      return;
-    const input_el = this._element.nativeElement;
-    input_el.readOnly = this._original_readonly;
-    if (this._original_readonly) {
-      input_el.setAttribute("readonly", "");
-    } else {
-      input_el.removeAttribute("readonly");
-    }
-    if (this._original_inputmode === null) {
-      input_el.removeAttribute("inputmode");
-    } else {
-      input_el.setAttribute("inputmode", this._original_inputmode);
-    }
-    this._native_keyboard_prevented = false;
-  }
-  applyOverlayPosition() {
-    if (!this._overlay_ref)
-      return;
-    const overlay_el = this._overlay_ref.overlayElement;
-    overlay_el.style.position = "fixed";
-    overlay_el.style.left = "0";
-    overlay_el.style.right = "0";
-    overlay_el.style.width = "100vw";
-    overlay_el.style.top = this._position === "top" ? "0" : "";
-    overlay_el.style.bottom = this._position === "bottom" ? "0" : "";
-  }
-  preferredPosition() {
-    const box = this._element.nativeElement.getBoundingClientRect();
-    const space_above = box.top;
-    const space_below = window.innerHeight - box.bottom;
-    return space_below >= space_above ? "bottom" : "top";
-  }
-  static {
-    this.\u0275fac = function VirtualKeyboardComponent_Factory(__ngFactoryType__) {
-      return new (__ngFactoryType__ || _VirtualKeyboardComponent)();
-    };
-  }
-  static {
-    this.\u0275dir = /* @__PURE__ */ \u0275\u0275defineDirective({ type: _VirtualKeyboardComponent, selectors: [["input", "keyboard", ""], ["textarea", "keyboard", ""]], hostBindings: function VirtualKeyboardComponent_HostBindings(rf, ctx) {
-      if (rf & 1) {
-        \u0275\u0275listener("pointerdown", function VirtualKeyboardComponent_pointerdown_HostBindingHandler() {
-          return ctx.syncNativeKeyboardState();
-        })("focus", function VirtualKeyboardComponent_focus_HostBindingHandler() {
-          return ctx.onFocus();
-        })("blur", function VirtualKeyboardComponent_blur_HostBindingHandler() {
-          return ctx.onBlur();
-        })("resize", function VirtualKeyboardComponent_resize_HostBindingHandler() {
-          return ctx.reposition();
-        }, \u0275\u0275resolveWindow);
-      }
-    }, inputs: { keyset: [1, "keyset"] }, outputs: { keyset: "keysetChange" }, features: [\u0275\u0275InheritDefinitionFeature] });
-  }
-};
-(() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(VirtualKeyboardComponent, [{
-    type: Directive,
-    args: [{
-      selector: "input[keyboard],textarea[keyboard]",
-      host: {
-        "(pointerdown)": "syncNativeKeyboardState()",
-        "(focus)": "onFocus()",
-        "(blur)": "onBlur()",
-        "(window:resize)": "reposition()"
-      }
-    }]
-  }], () => [], { keyset: [{ type: Input, args: [{ isSignal: true, alias: "keyset", required: false }] }, { type: Output, args: ["keysetChange"] }] });
 })();
 
 // libs/components/src/lib/authorised-user.guard.ts
@@ -5162,7 +1151,7 @@ var AuthorisedUserGuard = class _AuthorisedUserGuard {
   }
   /** The active user, or null if the backend could not be reached in time */
   async waitForUser() {
-    const online = await this.waitForBackend(Zr(eo(), Boolean));
+    const online = await this.waitForBackend(Yr(io(), Boolean));
     if (!online)
       return null;
     let user = null;
@@ -6579,7 +2568,7 @@ var update = (dataset) => (id, data) => {
   return new_event;
 };
 function registerMockAssets() {
-  uo({
+  lo({
     path: `${BASE_PATH}/asset_categories`,
     metadata: {},
     method: "GET",
@@ -6592,7 +2581,7 @@ function registerMockAssets() {
       return results;
     }
   });
-  uo({
+  lo({
     path: `${BASE_PATH}/asset_categories/:id`,
     metadata: {},
     method: "GET",
@@ -6606,7 +2595,7 @@ function registerMockAssets() {
       return event;
     }
   });
-  uo({
+  lo({
     path: `${BASE_PATH}/asset_categories`,
     metadata: {},
     method: "POST",
@@ -6618,13 +2607,13 @@ function registerMockAssets() {
       return new_event;
     }
   });
-  uo({
+  lo({
     path: `${BASE_PATH}/asset_categories/:id`,
     metadata: {},
     method: "PUT",
     callback: (req) => update(MOCK_CATEGORIES)(req.route_params.id, __spreadValues({}, req.body))
   });
-  uo({
+  lo({
     path: `${BASE_PATH}/asset_categories/:id`,
     metadata: {},
     method: "DELETE",
@@ -6639,7 +2628,7 @@ function registerMockAssets() {
       return;
     }
   });
-  uo({
+  lo({
     path: `${BASE_PATH}/asset_types`,
     metadata: {},
     method: "GET",
@@ -6651,7 +2640,7 @@ function registerMockAssets() {
       return results;
     }
   });
-  uo({
+  lo({
     path: `${BASE_PATH}/asset_types/:id`,
     metadata: {},
     method: "GET",
@@ -6665,7 +2654,7 @@ function registerMockAssets() {
       return event;
     }
   });
-  uo({
+  lo({
     path: `${BASE_PATH}/asset_types`,
     metadata: {},
     method: "POST",
@@ -6677,13 +2666,13 @@ function registerMockAssets() {
       return new_event;
     }
   });
-  uo({
+  lo({
     path: `${BASE_PATH}/asset_types/:id`,
     metadata: {},
     method: "PUT",
     callback: (req) => update(MOCK_PRODUCTS)(req.route_params.id, __spreadValues({}, req.body))
   });
-  uo({
+  lo({
     path: `${BASE_PATH}/asset_types/:id`,
     metadata: {},
     method: "DELETE",
@@ -6698,7 +2687,7 @@ function registerMockAssets() {
       return;
     }
   });
-  uo({
+  lo({
     path: `${BASE_PATH}/asset_purchase_orders`,
     metadata: {},
     method: "GET",
@@ -6707,7 +2696,7 @@ function registerMockAssets() {
       return events;
     }
   });
-  uo({
+  lo({
     path: `${BASE_PATH}/asset_purchase_orders/:id`,
     metadata: {},
     method: "GET",
@@ -6721,7 +2710,7 @@ function registerMockAssets() {
       return event;
     }
   });
-  uo({
+  lo({
     path: `${BASE_PATH}/asset_purchase_orders`,
     metadata: {},
     method: "POST",
@@ -6733,13 +2722,13 @@ function registerMockAssets() {
       return new_event;
     }
   });
-  uo({
+  lo({
     path: `${BASE_PATH}/asset_purchase_orders/:id`,
     metadata: {},
     method: "PUT",
     callback: (req) => update(MOCK_PURCHASE_ORDERS)(req.route_params.id, __spreadValues({}, req.body))
   });
-  uo({
+  lo({
     path: `${BASE_PATH}/asset_purchase_orders/:id`,
     metadata: {},
     method: "DELETE",
@@ -6754,7 +2743,7 @@ function registerMockAssets() {
       return;
     }
   });
-  uo({
+  lo({
     path: `${BASE_PATH}/assets`,
     metadata: {},
     method: "GET",
@@ -6774,7 +2763,7 @@ function registerMockAssets() {
       return results;
     }
   });
-  uo({
+  lo({
     path: `${BASE_PATH}/assets/:id`,
     metadata: {},
     method: "GET",
@@ -6788,7 +2777,7 @@ function registerMockAssets() {
       return event;
     }
   });
-  uo({
+  lo({
     path: `${BASE_PATH}/assets`,
     metadata: {},
     method: "POST",
@@ -6800,13 +2789,13 @@ function registerMockAssets() {
       return new_event;
     }
   });
-  uo({
+  lo({
     path: `${BASE_PATH}/assets/:id`,
     metadata: {},
     method: "PUT",
     callback: (req) => update(MOCK_ASSETS)(req.route_params.id, __spreadValues({}, req.body))
   });
-  uo({
+  lo({
     path: `${BASE_PATH}/assets/:id`,
     metadata: {},
     method: "DELETE",
@@ -6824,6 +2813,14 @@ function registerMockAssets() {
 }
 
 // libs/mocks/src/lib/api/catering.data.ts
+var ORDER_STATUSES = [
+  "pending",
+  "accepted",
+  "preparing",
+  "ready",
+  "delivered",
+  "cancelled"
+];
 var DIETARY_RESTRICTIONS = [
   { id: "vegetarian", name: "Vegetarian", icon: "\u{1F331}" },
   { id: "vegan", name: "Vegan", icon: "\u{1F33F}" },
@@ -7498,7 +3495,7 @@ function generateCateringOrder(event) {
     invoice_number: `INV-${(/* @__PURE__ */ new Date()).getFullYear()}-${String(predictableRandomInt(99999, 1e4))}`,
     charge_code: `CC-${String(predictableRandomInt(9999, 1e3))}`,
     order_type: orderType,
-    status: ["pending", "confirmed", "preparing", "delivered"][predictableRandomInt(4)],
+    status: ORDER_STATUSES[predictableRandomInt(ORDER_STATUSES.length)],
     // Timing
     order_date: new Date(Date.now() - predictableRandomInt(7) * 24 * 60 * 60 * 1e3).toISOString(),
     deliver_at: deliverAt.toISOString(),
@@ -8631,7 +4628,7 @@ var MOCK_CATERING_BOOKINGS = (() => {
 // libs/mocks/src/lib/api/bookings.mock.ts
 var ALL_BOOKINGS = [...MOCK_BOOKINGS, ...MOCK_CATERING_BOOKINGS];
 function registerMockBookings() {
-  uo({
+  lo({
     path: "/api/staff/v1/bookings",
     metadata: {},
     method: "GET",
@@ -8667,7 +4664,7 @@ function registerMockBookings() {
       return events;
     }
   });
-  uo({
+  lo({
     path: "/api/debug/bookings/distribution",
     metadata: {},
     method: "GET",
@@ -8702,7 +4699,7 @@ function registerMockBookings() {
       };
     }
   });
-  uo({
+  lo({
     path: "/api/staff/v1/bookings/:id",
     metadata: {},
     method: "GET",
@@ -8716,7 +4713,7 @@ function registerMockBookings() {
       return event;
     }
   });
-  uo({
+  lo({
     path: "/api/staff/v1/bookings/:id/guests/:email",
     metadata: {},
     method: "POST",
@@ -8737,7 +4734,7 @@ function registerMockBookings() {
       return user;
     }
   });
-  uo({
+  lo({
     path: "/api/staff/v1/bookings/:id/guests/:email",
     metadata: {},
     method: "DELETE",
@@ -8760,7 +4757,7 @@ function registerMockBookings() {
       return guest;
     }
   });
-  uo({
+  lo({
     path: "/api/staff/v1/bookings/:id/guests/:email/checkin",
     metadata: {},
     method: "POST",
@@ -8777,7 +4774,7 @@ function registerMockBookings() {
       return {};
     }
   });
-  uo({
+  lo({
     path: "/api/staff/v1/bookings",
     metadata: {},
     method: "POST",
@@ -8800,13 +4797,13 @@ function registerMockBookings() {
     ALL_BOOKINGS.splice(index, 1, new_event);
     return new_event;
   };
-  uo({
+  lo({
     path: "/api/staff/v1/bookings/:id",
     metadata: {},
     method: "PATCH",
     callback: (req) => updateBooking(req.route_params.id, req.body)
   });
-  uo({
+  lo({
     path: "/api/staff/v1/bookings/:id/approve",
     metadata: {},
     method: "POST",
@@ -8822,7 +4819,7 @@ function registerMockBookings() {
       return booking;
     }
   });
-  uo({
+  lo({
     path: "/api/staff/v1/bookings/:id/reject",
     metadata: {},
     method: "POST",
@@ -8838,7 +4835,7 @@ function registerMockBookings() {
       return booking;
     }
   });
-  uo({
+  lo({
     path: "/api/staff/v1/bookings/:id/check_in",
     metadata: {},
     method: "POST",
@@ -8860,7 +4857,7 @@ function registerMockBookings() {
       return booking;
     }
   });
-  uo({
+  lo({
     path: "/api/staff/v1/bookings/:id/update_induction",
     metadata: {},
     method: "POST",
@@ -8876,13 +4873,13 @@ function registerMockBookings() {
       return booking;
     }
   });
-  uo({
+  lo({
     path: "/api/staff/v1/bookings/:id",
     metadata: {},
     method: "PUT",
     callback: (req) => updateBooking(req.route_params.id, req.body)
   });
-  uo({
+  lo({
     path: "/api/staff/v1/bookings/:id",
     metadata: {},
     method: "DELETE",
@@ -9236,7 +5233,7 @@ var event_spaces = MOCK_SPACES.map((space) => space.id);
 
 // libs/mocks/src/lib/api/calendars.mock.ts
 function registerMockCalendars() {
-  uo({
+  lo({
     path: "/api/staff/v1/calendars",
     metadata: {},
     method: "GET",
@@ -9291,7 +5288,7 @@ function registerMockCalendars() {
     });
     return spaces;
   };
-  uo({
+  lo({
     path: "/api/staff/v1/calendars/availability",
     metadata: {},
     method: "GET",
@@ -9299,7 +5296,7 @@ function registerMockCalendars() {
       resource: _
     }))
   });
-  uo({
+  lo({
     path: "/api/staff/v1/calendars/free_busy",
     metadata: {},
     method: "GET",
@@ -9311,7 +5308,7 @@ function registerMockCalendars() {
 
 // libs/mocks/src/lib/api/events.mock.ts
 function registerMockEvents() {
-  uo({
+  lo({
     path: "/api/staff/v1/events",
     metadata: {},
     method: "GET",
@@ -9328,7 +5325,7 @@ function registerMockEvents() {
       return events;
     }
   });
-  uo({
+  lo({
     path: "/api/staff/v1/events",
     metadata: {},
     method: "POST",
@@ -9351,12 +5348,12 @@ function registerMockEvents() {
         ];
       }
       MOCK_EVENTS.push(new_event);
-      const system = Ir(new_event.system?.id);
+      const system = Mr(new_event.system?.id);
       system?.Bookings[0]?.$poll_bookings();
       return new_event;
     }
   });
-  uo({
+  lo({
     path: "/api/staff/v1/events/:id",
     metadata: {},
     method: "GET",
@@ -9368,7 +5365,7 @@ function registerMockEvents() {
       throw { status: 404, message: "Event not found" };
     }
   });
-  uo({
+  lo({
     path: "/api/staff/v1/events/:id",
     metadata: {},
     method: "DELETE",
@@ -9386,19 +5383,23 @@ function registerMockEvents() {
       throw { status: 404, message: "Event not found" };
     }
   });
-  uo({
+  lo({
     path: "/api/staff/v1/events/:id",
     metadata: {},
     method: "PATCH",
     callback: (request) => {
       const index = MOCK_EVENTS.findIndex((event) => event.id === request.route_params.id);
       if (index >= 0) {
-        return MOCK_EVENTS.splice(index, 1, request.body);
+        const event = __spreadValues(__spreadValues({}, MOCK_EVENTS[index]), request.body);
+        MOCK_EVENTS.splice(index, 1, event);
+        const system = Mr(request.query_params.system_id || event.system?.id);
+        system?.Bookings?.[0]?.$poll_bookings();
+        return event;
       }
       throw { status: 404, message: "Event not found" };
     }
   });
-  uo({
+  lo({
     path: "/api/staff/v1/events/:id/guests/:email/checkin",
     metadata: {},
     method: "POST",
@@ -10074,6 +6075,28 @@ var SIGNAGE_GROUP_USERS = [
     user: MOCK_STAFF[1]
   }
 ];
+var MOCK_DIRECTORY_GROUPS = [
+  {
+    id: "6a1c9a4e-0000-4000-8000-000000000001",
+    name: "All Staff",
+    email: "all-staff@place.tech"
+  },
+  {
+    id: "6a1c9a4e-0000-4000-8000-000000000002",
+    name: "Facilities Team",
+    email: "facilities@place.tech"
+  },
+  {
+    id: "6a1c9a4e-0000-4000-8000-000000000003",
+    name: "Marketing Team",
+    email: "marketing@place.tech"
+  },
+  {
+    id: "6a1c9a4e-0000-4000-8000-000000000004",
+    name: "Reception",
+    email: "reception@place.tech"
+  }
+];
 var SIGNAGE_GROUP_ZONES = [
   {
     group_id: "signage-group-facilities",
@@ -10209,7 +6232,7 @@ function registerMockSignage() {
       });
     }
   });
-  uo({
+  lo({
     path: "/api/engine/v2/groups/current",
     metadata: {},
     method: "GET",
@@ -10220,13 +6243,13 @@ function registerMockSignage() {
       return [];
     }
   });
-  uo({
+  lo({
     path: "/api/engine/v2/groups",
     metadata: {},
     method: "GET",
     callback: (request) => listSignageMockGroups(request.query_params)
   });
-  uo({
+  lo({
     path: "/api/engine/v2/groups",
     metadata: {},
     method: "POST",
@@ -10241,7 +6264,7 @@ function registerMockSignage() {
       return group;
     }
   });
-  uo({
+  lo({
     path: "/api/engine/v2/groups/:id",
     metadata: {},
     method: "PATCH",
@@ -10255,7 +6278,42 @@ function registerMockSignage() {
       return item.group;
     }
   });
-  uo({
+  lo({
+    path: "/api/engine/v2/groups/:id",
+    metadata: {},
+    method: "GET",
+    callback: (request) => {
+      const item = SIGNAGE_GROUPS.find(({ group }) => group.id === request.route_params.id);
+      if (!item)
+        throw { status: 404, message: "Group not found" };
+      return item.group;
+    }
+  });
+  lo({
+    path: "/api/engine/v2/groups/:id/features",
+    metadata: {},
+    method: "GET",
+    callback: (request) => {
+      const groups = SIGNAGE_GROUPS.map(({ group: group2 }) => group2);
+      const chain = [];
+      let group = groups.find(({ id }) => id === request.route_params.id);
+      while (group && !chain.includes(group)) {
+        chain.unshift(group);
+        group = groups.find(({ id }) => id === group.parent_id);
+      }
+      if (!chain.length)
+        throw { status: 404, message: "Not found" };
+      const features = {};
+      for (const { features: own = {} } of chain) {
+        for (const [subsystem2, flags] of Object.entries(own)) {
+          features[subsystem2] = __spreadValues(__spreadValues({}, features[subsystem2]), flags);
+        }
+      }
+      const subsystem = request.query_params?.subsystem;
+      return subsystem ? { [subsystem]: features[subsystem] || {} } : features;
+    }
+  });
+  lo({
     path: "/api/engine/v2/groups/:id",
     metadata: {},
     method: "DELETE",
@@ -10266,21 +6324,31 @@ function registerMockSignage() {
       return {};
     }
   });
-  uo({
+  lo({
+    path: "/api/staff/v1/groups",
+    metadata: {},
+    method: "GET",
+    callback: (request) => {
+      const q = (request.query_params?.q || "").toLowerCase();
+      return MOCK_DIRECTORY_GROUPS.filter((group) => !q || group.name.toLowerCase().includes(q) || group.email.toLowerCase().includes(q));
+    }
+  });
+  lo({
     path: "/api/engine/v2/group_users",
     metadata: {},
     method: "GET",
     callback: (request) => SIGNAGE_GROUP_USERS.filter((item) => item.group_id === request.query_params?.group_id)
   });
-  uo({
+  lo({
     path: "/api/engine/v2/group_users",
     metadata: {},
     method: "POST",
     callback: (request) => {
       const user = MOCK_STAFF.find((item2) => item2.email === request.body.user_id || item2.id === request.body.user_id);
+      const group = SIGNAGE_GROUPS.find((item2) => item2.group.id === request.body.group_id)?.group;
       const item = __spreadProps(__spreadValues({}, request.body), {
         user_id: request.body.user_id,
-        permissions: request.body.permissions || 0,
+        permissions: request.body.permissions ?? group?.default_permissions ?? 0,
         user,
         created_at: (/* @__PURE__ */ new Date()).toISOString(),
         updated_at: (/* @__PURE__ */ new Date()).toISOString()
@@ -10289,7 +6357,7 @@ function registerMockSignage() {
       return item;
     }
   });
-  uo({
+  lo({
     path: "/api/engine/v2/group_users/:user_id/:group_id",
     metadata: {},
     method: "PATCH",
@@ -10305,7 +6373,7 @@ function registerMockSignage() {
       return item;
     }
   });
-  uo({
+  lo({
     path: "/api/engine/v2/group_users/:user_id/:group_id",
     metadata: {},
     method: "DELETE",
@@ -10318,13 +6386,13 @@ function registerMockSignage() {
       return {};
     }
   });
-  uo({
+  lo({
     path: "/api/engine/v2/group_zones",
     metadata: {},
     method: "GET",
     callback: (request) => SIGNAGE_GROUP_ZONES.filter((item) => item.group_id === request.query_params?.group_id)
   });
-  uo({
+  lo({
     path: "/api/engine/v2/group_zones",
     metadata: {},
     method: "POST",
@@ -10341,7 +6409,7 @@ function registerMockSignage() {
       return item;
     }
   });
-  uo({
+  lo({
     path: "/api/engine/v2/group_zones/:group_id/:zone_id",
     metadata: {},
     method: "PATCH",
@@ -10357,7 +6425,7 @@ function registerMockSignage() {
       return item;
     }
   });
-  uo({
+  lo({
     path: "/api/engine/v2/group_zones/:group_id/:zone_id",
     metadata: {},
     method: "DELETE",
@@ -10370,13 +6438,13 @@ function registerMockSignage() {
       return {};
     }
   });
-  uo({
+  lo({
     path: "/api/engine/v2/signage/media",
     metadata: {},
     method: "GET",
     callback: (request) => filterByGroup(MOCK_MEDIA, request.query_params?.group_id).map(toEngineMedia)
   });
-  uo({
+  lo({
     path: "/api/engine/v2/signage/media/tags",
     metadata: {},
     method: "GET",
@@ -10384,7 +6452,7 @@ function registerMockSignage() {
       ...new Set(filterByGroup(MOCK_MEDIA, request.query_params?.group_id).flatMap((item) => item.tags || []).filter((tag) => !!tag))
     ]
   });
-  uo({
+  lo({
     path: "/api/engine/v2/signage/media/tag_counts",
     metadata: {},
     method: "GET",
@@ -10400,7 +6468,7 @@ function registerMockSignage() {
       return counts;
     }
   });
-  uo({
+  lo({
     path: "/api/engine/v2/signage/media",
     metadata: {},
     method: "POST",
@@ -10410,7 +6478,7 @@ function registerMockSignage() {
       updated_at: getUnixTime(Date.now())
     })
   });
-  uo({
+  lo({
     path: "/api/engine/v2/signage/media/:id",
     metadata: {},
     method: "GET",
@@ -10418,7 +6486,7 @@ function registerMockSignage() {
       shared_with: sharedWithGroups(MOCK_MEDIA, request.route_params.id)
     })
   });
-  uo({
+  lo({
     path: "/api/engine/v2/signage/media/:id",
     metadata: {},
     method: "PATCH",
@@ -10426,43 +6494,60 @@ function registerMockSignage() {
       updated_at: getUnixTime(Date.now())
     })
   });
-  uo({
+  lo({
     path: "/api/engine/v2/signage/media/:id",
     metadata: {},
     method: "DELETE",
     callback: () => ({})
   });
-  uo({
+  lo({
     path: "/api/engine/v2/signage/media/:id/thumbnail",
     metadata: {},
     method: "GET",
     callback: () => ({})
   });
-  uo({
+  lo({
+    path: "/api/engine/v2/uploads/screenshot",
+    metadata: {},
+    method: "POST",
+    callback: (request) => ({
+      id: `upload-screenshot-${Date.now()}`,
+      file_name: `screenshot-${new URL(request.body.url).host}.jpg`,
+      file_mime: "image/jpeg",
+      tags: ["screenshot"]
+    })
+  });
+  lo({
+    path: "/api/engine/v2/uploads/:id",
+    metadata: {},
+    method: "DELETE",
+    callback: () => ({})
+  });
+  lo({
     path: "/api/engine/v2/signage/media/share",
     metadata: {},
     method: "POST",
     callback: () => ({})
   });
-  uo({
+  lo({
     path: "/api/engine/v2/signage/plugins",
     metadata: {},
     method: "GET",
     callback: () => MOCK_PLUGINS
   });
-  uo({
+  lo({
     path: "/api/engine/v2/signage/plugins/:id",
     metadata: {},
     method: "GET",
     callback: (request) => MOCK_PLUGINS.find((plugin) => plugin.id === request.route_params.id) || {}
   });
-  uo({
+  lo({
     path: "/api/engine/v2/signage/playlists",
     metadata: {},
     method: "GET",
     callback: (request) => filterByGroup(MOCK_PLAYLISTS, request.query_params?.group_id).map(toEnginePlaylist)
   });
-  uo({
+  lo({
     path: "/api/engine/v2/signage/playlists/approvers",
     metadata: {},
     method: "GET",
@@ -10471,7 +6556,7 @@ function registerMockSignage() {
       name: item.user?.name || item.user_id
     }))
   });
-  uo({
+  lo({
     path: "/api/engine/v2/signage/playlists",
     metadata: {},
     method: "POST",
@@ -10481,7 +6566,7 @@ function registerMockSignage() {
       updated_at: getUnixTime(Date.now())
     })
   });
-  uo({
+  lo({
     path: "/api/engine/v2/signage/playlists/:id",
     metadata: {},
     method: "GET",
@@ -10489,7 +6574,7 @@ function registerMockSignage() {
       shared_with: sharedWithGroups(MOCK_PLAYLISTS, request.route_params.id)
     })
   });
-  uo({
+  lo({
     path: "/api/engine/v2/signage/playlists/:id",
     metadata: {},
     method: "PATCH",
@@ -10497,19 +6582,19 @@ function registerMockSignage() {
       updated_at: getUnixTime(Date.now())
     })
   });
-  uo({
+  lo({
     path: "/api/engine/v2/signage/playlists/:id",
     metadata: {},
     method: "DELETE",
     callback: () => ({})
   });
-  uo({
+  lo({
     path: "/api/engine/v2/signage/playlists/:id/media",
     metadata: {},
     method: "GET",
     callback: (request) => playlistMediaResponse(request.route_params.id, false)
   });
-  uo({
+  lo({
     path: "/api/engine/v2/signage/playlists/:id/media",
     metadata: {},
     method: "POST",
@@ -10518,7 +6603,7 @@ function registerMockSignage() {
       updated_at: getUnixTime(Date.now())
     })
   });
-  uo({
+  lo({
     path: "/api/engine/v2/signage/playlists/:id/media/schedule",
     metadata: {},
     method: "POST",
@@ -10532,7 +6617,7 @@ function registerMockSignage() {
       ]
     })
   });
-  uo({
+  lo({
     path: "/api/engine/v2/signage/playlists/:id/media/schedule/:item_id",
     metadata: {},
     method: "PATCH",
@@ -10542,7 +6627,7 @@ function registerMockSignage() {
       schedules: request.body?.schedules || []
     })
   });
-  uo({
+  lo({
     path: "/api/engine/v2/signage/playlists/:id/media/revisions",
     metadata: {},
     method: "GET",
@@ -10551,37 +6636,37 @@ function registerMockSignage() {
       playlistMediaResponse(request.route_params.id, true)
     ]
   });
-  uo({
+  lo({
     path: "/api/engine/v2/signage/playlists/:id/media/approve",
     metadata: {},
     method: "POST",
     callback: (request) => playlistMediaResponse(request.route_params.id, true)
   });
-  uo({
+  lo({
     path: "/api/engine/v2/signage/playlists/:id/media/request_approval",
     metadata: {},
     method: "POST",
     callback: () => ({})
   });
-  uo({
+  lo({
     path: "/api/engine/v2/signage/playlists/share",
     metadata: {},
     method: "POST",
     callback: () => ({})
   });
-  uo({
+  lo({
     path: "/api/engine/v2/signage/:id",
     metadata: {},
     method: "GET",
     callback: (request) => signageDisplay(request.route_params.id)
   });
-  uo({
+  lo({
     path: "/api/engine/v2/signage/:id/metrics",
     metadata: {},
     method: "POST",
     callback: () => ({})
   });
-  uo({
+  lo({
     path: "/api/staff/v1/signage-displays",
     metadata: {},
     method: "GET",
@@ -10607,7 +6692,7 @@ function registerMockSignage() {
       };
     }
   });
-  uo({
+  lo({
     path: "/api/staff/v1/signage/displays/:id",
     metadata: {},
     method: "GET",
@@ -10618,7 +6703,7 @@ function registerMockSignage() {
       return display;
     }
   });
-  uo({
+  lo({
     path: "/api/staff/v1/signage/media",
     metadata: {},
     method: "GET",
@@ -10648,7 +6733,7 @@ function registerMockSignage() {
       };
     }
   });
-  uo({
+  lo({
     path: "/api/staff/v1/signage/playlists",
     metadata: {},
     method: "GET",
@@ -10670,7 +6755,7 @@ function registerMockSignage() {
       };
     }
   });
-  uo({
+  lo({
     path: "/api/staff/v1/signage/playlists/:id",
     metadata: {},
     method: "GET",
@@ -10686,7 +6771,7 @@ function registerMockSignage() {
       return playlistWithMedia;
     }
   });
-  uo({
+  lo({
     path: "/api/staff/v1/signage/triggers",
     metadata: {},
     method: "GET",
@@ -10709,7 +6794,7 @@ function registerMockSignage() {
       };
     }
   });
-  uo({
+  lo({
     path: "/api/staff/v1/signage/displays/:id/content",
     metadata: {},
     method: "GET",
@@ -10736,7 +6821,7 @@ function registerMockSignage() {
       };
     }
   });
-  uo({
+  lo({
     path: "/api/staff/v1/signage-analytics",
     metadata: {},
     method: "GET",
@@ -10781,7 +6866,7 @@ function registerMockSignage() {
       };
     }
   });
-  uo({
+  lo({
     path: "/api/staff/v1/signage-displays/:id/control",
     metadata: {},
     method: "POST",
@@ -10810,20 +6895,20 @@ function registerMockSignage() {
       };
     }
   });
-  registerMockSignageAI();
+  registerMockSignageImageGen();
 }
-function registerMockSignageAI() {
-  const AI_JOBS = {};
+function registerMockSignageImageGen() {
+  const IMAGE_GEN_JOBS = {};
   const SAMPLE_IMAGES = MOCK_MEDIA.slice(0, 4).map((item) => item.id);
   const now = () => Math.floor(Date.now() / 1e3);
   function makeJob(request, kind) {
     const count = Math.min(Math.max(request.candidates || 2, 1), 4);
     const job = {
-      id: `signage-ai-job-${Object.keys(AI_JOBS).length + 1}`,
+      id: `signage-ai-job-${Object.keys(IMAGE_GEN_JOBS).length + 1}`,
       state: "queued",
       kind,
       provider: "OPENAI",
-      model: "gpt-image-2",
+      model: "gpt-image-2.5-sunburst",
       candidates: count,
       images_produced: 0,
       parent_job_id: request.parent_job_id,
@@ -10832,7 +6917,7 @@ function registerMockSignageAI() {
       images: Array.from({ length: count }, () => null),
       created_at: now()
     };
-    AI_JOBS[job.id] = job;
+    IMAGE_GEN_JOBS[job.id] = job;
     if (`${request.prompt}`.includes("trigger-moderation")) {
       setTimeout(() => {
         job.state = "failed";
@@ -10866,7 +6951,7 @@ function registerMockSignageAI() {
     }
     return job;
   }
-  uo({
+  lo({
     path: "/api/engine/v2/signage/ai/capabilities",
     metadata: {},
     method: "GET",
@@ -10877,11 +6962,11 @@ function registerMockSignageAI() {
           id: "signage-ai-provider-1",
           name: "Mock provider",
           provider: "OPENAI",
-          default_model: "gpt-image-2",
+          default_model: "gpt-image-2.5-sunburst",
           models: [
             {
-              id: "gpt-image-2",
-              name: "GPT Image 2",
+              id: "gpt-image-2.5-sunburst",
+              name: "GPT Image 2.5 Sunburst",
               generate: true,
               edit: true,
               enhance: true,
@@ -10901,41 +6986,41 @@ function registerMockSignageAI() {
       quota: { user_remaining_today: 42, domain_remaining_month: 900 }
     })
   });
-  uo({
+  lo({
     path: "/api/engine/v2/signage/ai/generate",
     metadata: {},
     method: "POST",
     callback: (request) => makeJob(request.body || {}, "generate")
   });
-  uo({
+  lo({
     path: "/api/engine/v2/signage/ai/edit",
     metadata: {},
     method: "POST",
     callback: (request) => makeJob(request.body || {}, "edit")
   });
-  uo({
+  lo({
     path: "/api/engine/v2/signage/ai/jobs",
     metadata: {},
     method: "GET",
-    callback: () => Object.values(AI_JOBS)
+    callback: () => Object.values(IMAGE_GEN_JOBS)
   });
-  uo({
+  lo({
     path: "/api/engine/v2/signage/ai/jobs/:id",
     metadata: {},
     method: "GET",
     callback: (request) => {
-      const job = AI_JOBS[request.route_params.id];
+      const job = IMAGE_GEN_JOBS[request.route_params.id];
       if (!job)
         throw { status: 404, message: "No such job" };
       return job;
     }
   });
-  uo({
+  lo({
     path: "/api/engine/v2/signage/ai/jobs/:id/cancel",
     metadata: {},
     method: "POST",
     callback: (request) => {
-      const job = AI_JOBS[request.route_params.id];
+      const job = IMAGE_GEN_JOBS[request.route_params.id];
       if (!job)
         throw { status: 404, message: "No such job" };
       if (job.state === "queued" || job.state === "running") {
@@ -10945,12 +7030,12 @@ function registerMockSignageAI() {
       return job;
     }
   });
-  uo({
+  lo({
     path: "/api/engine/v2/signage/ai/jobs/:id/claim",
     metadata: {},
     method: "POST",
     callback: (request) => {
-      const job = AI_JOBS[request.route_params.id];
+      const job = IMAGE_GEN_JOBS[request.route_params.id];
       if (!job)
         throw { status: 404, message: "No such job" };
       const entry = job.images.find((image) => image?.upload_id === request.body?.upload_id);
@@ -11529,7 +7614,7 @@ var MOCK_ANSWERS = [
   }
 ];
 function registerMockSurveys() {
-  uo({
+  lo({
     path: "/api/staff/v1/surveys",
     metadata: {},
     method: "GET",
@@ -11548,7 +7633,7 @@ function registerMockSurveys() {
       return filteredSurveys;
     }
   });
-  uo({
+  lo({
     path: "/api/staff/v1/surveys/questions",
     metadata: {},
     method: "GET",
@@ -11573,7 +7658,7 @@ function registerMockSurveys() {
       return filteredQuestions;
     }
   });
-  uo({
+  lo({
     path: "/api/staff/v1/surveys/questions/:id",
     metadata: {},
     method: "GET",
@@ -11588,7 +7673,7 @@ function registerMockSurveys() {
       return question;
     }
   });
-  uo({
+  lo({
     path: "/api/staff/v1/surveys/answers",
     metadata: {},
     method: "GET",
@@ -11609,7 +7694,7 @@ function registerMockSurveys() {
       return filteredAnswers;
     }
   });
-  uo({
+  lo({
     path: "/api/staff/v1/surveys/answers/:id",
     metadata: {},
     method: "GET",
@@ -11622,7 +7707,7 @@ function registerMockSurveys() {
       return answer;
     }
   });
-  uo({
+  lo({
     path: "/api/staff/v1/surveys/:id",
     metadata: {},
     method: "GET",
@@ -11637,7 +7722,7 @@ function registerMockSurveys() {
       return survey;
     }
   });
-  uo({
+  lo({
     path: "/api/staff/v1/surveys/answers",
     metadata: {},
     method: "POST",
@@ -11936,17 +8021,17 @@ Plug your laptop into the HDMI to stream it to the screen, or access the CMS to 
    * be interacting with an audio DSP to add a microphone feed to an output zone, or
    * connecting a USB HID input device with a specific output.
    **/
-  $route(input2, output2) {
-    if (this.inputs.includes(input2) && this.outputs.includes(output2)) {
-      this.$updateState(input2, {
+  $route(input, output) {
+    if (this.inputs.includes(input) && this.outputs.includes(output)) {
+      this.$updateState(input, {
         routes: unique([
-          ...this.input_list[input2].routes || [],
-          output2
+          ...this.input_list[input].routes || [],
+          output
         ])
       });
-      this.$updateState(output2, {
-        source: input2,
-        following: input2
+      this.$updateState(output, {
+        source: input,
+        following: input
       });
     }
   }
@@ -11955,7 +8040,16 @@ Plug your laptop into the HDMI to stream it to the screen, or access the CMS to 
    * Predominantly intended for outputs that support more than one simultaneous input source
    * (mixed audio zone, or display capable of compositing multiple video sources).
    **/
-  $unroute() {
+  $unroute(output) {
+    const input = this.output_list[output]?.source;
+    if (!input)
+      return;
+    if (this.input_list[input]) {
+      this.$updateState(input, {
+        routes: (this.input_list[input].routes || []).filter((_) => _ !== output)
+      });
+    }
+    this.$updateState(output, { source: "", following: "" });
   }
   /**
    * Establish a call (either phone or video) with a remote participant.
@@ -12003,12 +8097,16 @@ Plug your laptop into the HDMI to stream it to the screen, or access the CMS to 
    * output node.
    **/
   $volume(value, source = "all") {
-    if (source === "all") {
+    if (source === "all" || source === this.outputs[0]) {
       this.volume = value;
     }
+    this.$updateState(source, { volume: value });
   }
   /** Interact with audio muting on supporting signal nodes within the space. */
   $mute(state = true, source = "all") {
+    if (source === "all" || source === this.outputs[0]) {
+      this.mute = state;
+    }
     this.$updateState(source, { mute: state });
   }
   /**
@@ -12549,8 +8647,8 @@ var MockBookingModule = class {
     this.enable_end_meeting_button = true;
     this.disable_book_now_host = false;
     this.bookings = [];
-    this.pending_period = 600;
-    this.pending_before = 300;
+    this.pending_period = 15;
+    this.pending_before = 5;
     this.control_ui = "";
     this.catering_ui = "";
     this.last_booking_started = 0;
@@ -12576,6 +8674,9 @@ var MockBookingModule = class {
     this.default_title = "Ad-Hoc Panel Booking";
     this.pending = true;
     this._space = null;
+    this._started = /* @__PURE__ */ new Set();
+    this._ended = /* @__PURE__ */ new Set();
+    this._created = Date.now();
     this._space = space;
     this.room_name = space?.display_name || space?.name || "";
     this.room_capacity = space?.capacity || 10;
@@ -12583,17 +8684,24 @@ var MockBookingModule = class {
       Object.assign(this, _data);
     }
   }
-  /** Start the meeting at the given time */
+  /** Start the meeting that begins at `t` (unix seconds) */
   $start_meeting(t) {
+    const booking = this.bookings.find((_) => _.event_start === t);
+    if (!booking)
+      return;
     this.last_booking_started = t;
-    this.status = "busy";
+    this._started.add(booking.id);
+    updateBookings(this._space, this);
   }
-  /** End the meeting at the given time */
+  /** End the meeting that begins at `t` (unix seconds) */
   $end_meeting(t, notify, reason) {
-    this.current_booking = null;
-    this.status = this.next_booking ? "pending" : "free";
+    const booking = this.bookings.find((_) => _.event_start === t) || this.current_booking;
+    if (!booking)
+      return;
+    this._ended.add(booking.id);
+    updateBookings(this._space, this);
   }
-  /** Book meeting for the current time */
+  /** Book the space from now for `len` seconds. The meeting starts at once. */
   $book_now(len, t, o) {
     const now = Math.floor(Date.now() / 1e3);
     const new_booking = {
@@ -12602,18 +8710,22 @@ var MockBookingModule = class {
       event_end: now + len,
       title: t || this.default_title,
       host: o || "mock@place.tech",
-      attendees: []
+      system: this._space,
+      attendees: [__spreadProps(__spreadValues({}, this._space), { resource: true })],
+      extension_data: {}
     };
-    this.bookings = [new_booking, ...this.bookings];
-    this.current_booking = new_booking;
-    this.status = "busy";
+    MOCK_EVENTS.push(new_booking);
+    this._started.add(new_booking.id);
+    updateBookings(this._space, this);
     return new_booking;
   }
-  /** Check in to current booking */
+  /** Check in to the pending booking */
   $checkin(time) {
-    if (this.current_booking) {
-      this.status = "busy";
-    }
+    const booking = this.current_booking || this.next_booking;
+    if (!booking || this.status !== "pending")
+      return;
+    this._started.add(booking.id);
+    updateBookings(this._space, this);
   }
   /** Call waiter service */
   $waiter_call(time) {
@@ -12625,16 +8737,29 @@ var MockBookingModule = class {
 };
 var createBookingsModule = (space, overrides = {}) => new MockBookingModule(space, overrides);
 function updateBookings(space, mod) {
-  const bookings = MOCK_EVENTS.filter((event) => event.attendees?.find((u) => u.email === space.email || u.id === space.id || event.system?.id === space.id)) || [];
-  bookings.sort((a, b) => a.event_start - b.event_start);
-  mod.bookings = bookings;
-  mod.current_booking = bookings.find((_) => timePeriodsIntersect(Date.now(), Date.now(), _.event_start * 1e3, _.event_end * 1e3));
-  mod.next_booking = bookings.find((_) => _.event_start * 1e3 > Date.now());
-  const date = /* @__PURE__ */ new Date();
+  const now = Date.now();
+  const start = (event) => event.event_start * 1e3;
+  const end = (event) => event.event_end * 1e3;
+  const bookings = MOCK_EVENTS.filter((event) => !mod._ended.has(event.id) && (event.system?.id === space.id || event.attendees?.some((u) => u.email === space.email || u.id === space.id))).sort((a, b) => a.event_start - b.event_start);
+  for (const event of bookings) {
+    const in_progress = timePeriodsIntersect(now, now, start(event), end(event));
+    if (!in_progress || mod._started.has(event.id))
+      continue;
+    if (start(event) < mod._created || !mod.pending) {
+      mod._started.add(event.id);
+    } else if (now > addMinutes(start(event), mod.pending_period).valueOf()) {
+      mod._ended.add(event.id);
+    }
+  }
+  mod.bookings = bookings.filter((event) => !mod._ended.has(event.id));
+  mod.current_booking = mod.bookings.find((_) => timePeriodsIntersect(now, now, start(_), end(_))) || null;
+  mod.next_booking = mod.bookings.find((_) => start(_) > now) || null;
   const { current_booking, next_booking } = mod;
-  const start = new Date((current_booking || next_booking)?.event_start);
-  const pending = timePeriodsIntersect(date.valueOf(), date.valueOf(), subSeconds(start, mod.pending_before).valueOf(), addSeconds(start, mod.pending_period).valueOf());
-  mod.status = space?.bookable ? current_booking ? "busy" : pending ? "pending" : "free" : "not-bookable";
+  const target = current_booking || next_booking;
+  const started = !!current_booking && mod._started.has(current_booking.id);
+  const pending = mod.pending && !!target && !mod._started.has(target.id) && timePeriodsIntersect(now, now, subMinutes(start(target), mod.pending_before).valueOf(), addMinutes(start(target), mod.pending_period).valueOf());
+  mod.presence = started;
+  mod.status = !space?.bookable ? "not-bookable" : pending ? "pending" : current_booking ? "busy" : "free";
 }
 
 // libs/mocks/src/lib/realtime/locker-locations.ts
@@ -12796,7 +8921,7 @@ var createVideoConferenceModule = (space = {}, overrides = {}) => new VideoConfe
 
 // libs/mocks/src/lib/systems-bindings.mock.ts
 function createSystem(space) {
-  Md(space.id, {
+  Hp(space.id, {
     System: [createSystemModule(space)],
     Bookings: [createBookingsModule(space)],
     ContactTracing: [createContactTracingModule(space)],
@@ -12811,7 +8936,7 @@ function createSystem(space) {
     Payment: [createPaymentsModule(space)],
     LockerLocations: [createLockerLocationsModule()]
   });
-  const system = Ir(space.id);
+  const system = Mr(space.id);
   system.Bookings[0].$poll_bookings();
   setInterval(() => system.Bookings[0].$poll_bookings(), 30 * 1e3);
   system.AreaManagement[0].$update();
@@ -12821,7 +8946,7 @@ function createSystem(space) {
 // libs/mocks/src/lib/api/systems.mock.ts
 function registerMockSystems() {
   MOCK_SPACES.forEach((space, index) => createSystem(space));
-  uo({
+  lo({
     path: "/api/engine/v2/systems",
     metadata: {},
     method: "GET",
@@ -12838,7 +8963,7 @@ function registerMockSystems() {
       return systems;
     }
   });
-  uo({
+  lo({
     path: "/api/engine/v2/systems/:id",
     metadata: {},
     method: "GET",
@@ -12853,7 +8978,7 @@ function registerMockSystems() {
 
 // libs/mocks/src/lib/api/users.mock.ts
 function registerMockUsers() {
-  uo({
+  lo({
     path: "/api/engine/v2/users",
     metadata: {},
     method: "GET",
@@ -12865,7 +8990,7 @@ function registerMockUsers() {
       }).slice(0, limit);
     }
   });
-  uo({
+  lo({
     path: "/api/engine/v2/users/:id",
     metadata: {},
     method: "GET",
@@ -12886,7 +9011,7 @@ function registerMockUsers() {
       throw { status: 404, message: "User not found" };
     }
   });
-  uo({
+  lo({
     path: "/api/staff/v1/people",
     metadata: {},
     method: "GET",
@@ -12900,7 +9025,7 @@ function registerMockUsers() {
       return MOCK_STAFF;
     }
   });
-  uo({
+  lo({
     path: "/api/staff/v1/people/:id",
     metadata: {},
     method: "GET",
@@ -12915,7 +9040,7 @@ function registerMockUsers() {
       throw { status: 404, message: "User not found" };
     }
   });
-  uo({
+  lo({
     path: "/api/staff/v1/guests",
     metadata: {},
     method: "GET",
@@ -12927,7 +9052,7 @@ function registerMockUsers() {
       return MOCK_STAFF;
     }
   });
-  uo({
+  lo({
     path: "/api/staff/v1/guests/:email",
     metadata: {},
     method: "GET",
@@ -12939,7 +9064,7 @@ function registerMockUsers() {
       throw { status: 404, message: "Guest not found" };
     }
   });
-  uo({
+  lo({
     path: "/api/staff/v1/guests/:email/meetings",
     metadata: {},
     method: "GET",
@@ -13054,7 +9179,7 @@ function registerMockZones() {
     ...MOCK_LEVELS,
     ...MOCK_ZONES
   ];
-  uo({
+  lo({
     path: "/api/engine/v2/zones",
     metadata: {},
     method: "GET",
@@ -13070,7 +9195,7 @@ function registerMockZones() {
       return zones;
     }
   });
-  uo({
+  lo({
     path: "/api/engine/v2/zones/:id",
     metadata: {},
     method: "GET",
@@ -13085,19 +9210,19 @@ function registerMockZones() {
       return zone;
     }
   });
-  uo({
+  lo({
     path: "/api/engine/v2/settings",
     metadata: {},
     method: "GET",
     callback: (request) => []
   });
-  uo({
+  lo({
     path: "/api/engine/v2/settings/:id",
     metadata: {},
     method: "GET",
     callback: (request) => ({})
   });
-  uo({
+  lo({
     path: "/api/engine/v2/metadata/:id",
     metadata: {},
     method: "GET",
@@ -13213,7 +9338,7 @@ function registerMockZones() {
       return {};
     }
   });
-  uo({
+  lo({
     path: "/api/engine/v2/metadata/:id",
     metadata: {},
     method: "PATCH",
@@ -13224,7 +9349,7 @@ function registerMockZones() {
       return request.body;
     }
   });
-  uo({
+  lo({
     path: "/api/engine/v2/metadata/:id",
     metadata: {},
     method: "PUT",
@@ -13277,7 +9402,7 @@ function registerMockZones() {
     }
     return LOCKERS[id];
   }
-  uo({
+  lo({
     path: "/api/engine/v2/metadata/:id/children",
     metadata: {},
     method: "GET",
@@ -13328,28 +9453,30 @@ function hasStoredApiKey() {
   return false;
 }
 
-// apps/signage/src/app/bootstrap-state.ts
-var STORE_DISPLAY_KEY = "PlaceOS.SIGNAGE.display";
-function hasBootstrappedDisplay() {
-  try {
-    return !!localStorage.getItem(STORE_DISPLAY_KEY);
-  } catch {
-    return false;
-  }
-}
-
 // apps/signage/src/app/app.component.ts
+var AppComponent_Defer_5_DepsFn = () => [
+  /* @ts-ignore */
+  import("./settings-debug-panel-launcher.component-KWCCYRPD.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+];
 function AppComponent_Conditional_3_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275element(0, "global-loading");
   }
 }
+function AppComponent_Defer_4_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275element(0, "settings-debug-panel-launcher", 1);
+  }
+  if (rf & 2) {
+    const ctx_r0 = \u0275\u0275nextContext();
+    \u0275\u0275property("loadSchema", ctx_r0.load_settings_schema);
+  }
+}
 var AppComponent = class _AppComponent {
   constructor() {
-    this.load_settings_schema = () => import("./settings.schema-RUFB44OF.js");
+    this.load_settings_schema = () => import("./settings.schema-AEN52NSG.js");
     this.uses_api_key = hasStoredApiKey();
     this._placeos = inject(PlaceOS_Service);
-    this._org = inject(OrganisationService);
   }
   ngOnInit() {
     startWatchdog({ isExpectedToRun: hasBootstrappedDisplay });
@@ -13364,38 +9491,41 @@ var AppComponent = class _AppComponent {
     };
   }
   static {
-    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _AppComponent, selectors: [["app-root"]], decls: 5, vars: 2, consts: [[1, "relative", "h-1/2", "w-full", "flex-1"], [3, "loadSchema"]], template: function AppComponent_Template(rf, ctx) {
+    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _AppComponent, selectors: [["app-root"]], decls: 7, vars: 1, consts: [[1, "relative", "h-1/2", "w-full", "flex-1"], [3, "loadSchema"]], template: function AppComponent_Template(rf, ctx) {
       if (rf & 1) {
         \u0275\u0275element(0, "global-banner");
         \u0275\u0275elementStart(1, "div", 0);
         \u0275\u0275element(2, "router-outlet");
         \u0275\u0275elementEnd();
         \u0275\u0275conditionalCreate(3, AppComponent_Conditional_3_Template, 1, 0, "global-loading");
-        \u0275\u0275element(4, "settings-debug-panel-launcher", 1);
+        \u0275\u0275domTemplate(4, AppComponent_Defer_4_Template, 1, 1);
+        \u0275\u0275defer(5, 4, AppComponent_Defer_5_DepsFn);
+        \u0275\u0275deferOnIdle();
       }
       if (rf & 2) {
         \u0275\u0275advance(3);
         \u0275\u0275conditional(!ctx.uses_api_key ? 3 : -1);
-        \u0275\u0275advance();
-        \u0275\u0275property("loadSchema", ctx.load_settings_schema);
       }
     }, dependencies: [
       RouterOutlet,
       GlobalBannerComponent,
-      GlobalLoadingComponent,
-      SettingsDebugPanelLauncherComponent
+      GlobalLoadingComponent
     ], styles: ["\n[_nghost-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  height: 100%;\n  width: 100%;\n}\n/*# sourceMappingURL=app.component.css.map */"] });
   }
 };
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(AppComponent, [{
-    type: Component,
-    args: [{ selector: "app-root", imports: [
-      RouterOutlet,
-      GlobalBannerComponent,
-      GlobalLoadingComponent,
-      SettingsDebugPanelLauncherComponent
-    ], template: `
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(AppComponent, () => [
+    /* @ts-ignore */
+    import("./settings-debug-panel-launcher.component-KWCCYRPD.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+  ], (SettingsDebugPanelLauncherComponent) => {
+    setClassMetadata(AppComponent, [{
+      type: Component,
+      args: [{ selector: "app-root", imports: [
+        RouterOutlet,
+        GlobalBannerComponent,
+        GlobalLoadingComponent,
+        SettingsDebugPanelLauncherComponent
+      ], template: `
         <global-banner />
         <div class="relative h-1/2 w-full flex-1">
             <router-outlet></router-outlet>
@@ -13403,12 +9533,17 @@ var AppComponent = class _AppComponent {
         @if (!uses_api_key) {
             <global-loading />
         }
-        <settings-debug-panel-launcher [loadSchema]="load_settings_schema" />
+        @defer (on idle) {
+            <settings-debug-panel-launcher
+                [loadSchema]="load_settings_schema"
+            />
+        }
     `, styles: ["/* angular:styles/component:css;2c590c9e56511a088a1469fe4b227d8190323c208f95620a03712f1a8f5bae8d;/home/runner/work/user-interfaces/user-interfaces/apps/signage/src/app/app.component.ts */\n:host {\n  display: flex;\n  flex-direction: column;\n  height: 100%;\n  width: 100%;\n}\n/*# sourceMappingURL=app.component.css.map */\n"] }]
-  }], null, null);
+    }], null, null);
+  });
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(AppComponent, { className: "AppComponent", filePath: "apps/signage/src/app/app.component.ts", lineNumber: 51 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(AppComponent, { className: "AppComponent", filePath: "apps/signage/src/app/app.component.ts", lineNumber: 54 });
 })();
 
 // apps/signage/src/environments/environment.ts
@@ -13416,473 +9551,8 @@ var environment = {
   production: false
 };
 
-// apps/signage/src/app/bootstrap.component.ts
-var _forTrack0 = ($index, $item) => $item.id;
-function BootstrapComponent_Conditional_5_For_9_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275elementStart(0, "mat-option", 11)(1, "div", 13)(2, "div");
-    \u0275\u0275text(3);
-    \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(4, "div", 14);
-    \u0275\u0275text(5);
-    \u0275\u0275elementEnd()()();
-  }
-  if (rf & 2) {
-    const option_r3 = ctx.$implicit;
-    const ctx_r1 = \u0275\u0275nextContext(2);
-    \u0275\u0275property("value", option_r3.id);
-    \u0275\u0275advance(3);
-    \u0275\u0275textInterpolate(option_r3.name);
-    \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate2(" ", ctx_r1.building(option_r3)?.display_name || ctx_r1.building(option_r3)?.name || "Unknown Building", " - ", ctx_r1.level(option_r3)?.display_name || ctx_r1.level(option_r3)?.name || "Unknown Level", " ");
-  }
-}
-function BootstrapComponent_Conditional_5_Conditional_10_For_9_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275elementStart(0, "mat-option", 11);
-    \u0275\u0275text(1);
-    \u0275\u0275elementEnd();
-  }
-  if (rf & 2) {
-    const option_r5 = ctx.$implicit;
-    \u0275\u0275property("value", option_r5.id);
-    \u0275\u0275advance();
-    \u0275\u0275textInterpolate1(" ", option_r5.name, " ");
-  }
-}
-function BootstrapComponent_Conditional_5_Conditional_10_Template(rf, ctx) {
-  if (rf & 1) {
-    const _r4 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "label", 15);
-    \u0275\u0275text(1);
-    \u0275\u0275pipe(2, "translate");
-    \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(3, "mat-form-field", 9)(4, "mat-select", 16);
-    \u0275\u0275twoWayListener("ngModelChange", function BootstrapComponent_Conditional_5_Conditional_10_Template_mat_select_ngModelChange_4_listener($event) {
-      \u0275\u0275restoreView(_r4);
-      const ctx_r1 = \u0275\u0275nextContext(2);
-      \u0275\u0275twoWayBindingSet(ctx_r1.active_template, $event) || (ctx_r1.active_template = $event);
-      return \u0275\u0275resetView($event);
-    });
-    \u0275\u0275elementStart(5, "mat-option", 17);
-    \u0275\u0275text(6);
-    \u0275\u0275pipe(7, "translate");
-    \u0275\u0275elementEnd();
-    \u0275\u0275repeaterCreate(8, BootstrapComponent_Conditional_5_Conditional_10_For_9_Template, 2, 2, "mat-option", 11, _forTrack0);
-    \u0275\u0275elementEnd();
-    \u0275\u0275controlCreate();
-    \u0275\u0275elementEnd();
-  }
-  if (rf & 2) {
-    const ctx_r1 = \u0275\u0275nextContext(2);
-    \u0275\u0275advance();
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(2, 3, "APP.SIGNAGE.BOOTSTRAP_TEMPLATE"), " ");
-    \u0275\u0275advance(3);
-    \u0275\u0275twoWayProperty("ngModel", ctx_r1.active_template);
-    \u0275\u0275control();
-    \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(7, 5, "APP.SIGNAGE.BOOTSTRAP_TEMPLATE_NONE"), " ");
-    \u0275\u0275advance(2);
-    \u0275\u0275repeater(ctx_r1.templates());
-  }
-}
-function BootstrapComponent_Conditional_5_Template(rf, ctx) {
-  if (rf & 1) {
-    const _r1 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "main", 4)(1, "label", 8);
-    \u0275\u0275text(2);
-    \u0275\u0275pipe(3, "translate");
-    \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(4, "mat-form-field", 9)(5, "mat-select", 10, 0);
-    \u0275\u0275pipe(7, "translate");
-    \u0275\u0275twoWayListener("ngModelChange", function BootstrapComponent_Conditional_5_Template_mat_select_ngModelChange_5_listener($event) {
-      \u0275\u0275restoreView(_r1);
-      const ctx_r1 = \u0275\u0275nextContext();
-      \u0275\u0275twoWayBindingSet(ctx_r1.active_display, $event) || (ctx_r1.active_display = $event);
-      return \u0275\u0275resetView($event);
-    });
-    \u0275\u0275repeaterCreate(8, BootstrapComponent_Conditional_5_For_9_Template, 6, 4, "mat-option", 11, \u0275\u0275repeaterTrackByIdentity);
-    \u0275\u0275elementEnd();
-    \u0275\u0275controlCreate();
-    \u0275\u0275elementEnd();
-    \u0275\u0275conditionalCreate(10, BootstrapComponent_Conditional_5_Conditional_10_Template, 10, 7);
-    \u0275\u0275elementStart(11, "button", 12);
-    \u0275\u0275listener("click", function BootstrapComponent_Conditional_5_Template_button_click_11_listener() {
-      \u0275\u0275restoreView(_r1);
-      const ctx_r1 = \u0275\u0275nextContext();
-      return \u0275\u0275resetView(ctx_r1.bootstrapPanel());
-    });
-    \u0275\u0275text(12);
-    \u0275\u0275pipe(13, "translate");
-    \u0275\u0275elementEnd()();
-  }
-  if (rf & 2) {
-    const ctx_r1 = \u0275\u0275nextContext();
-    \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(3, 7, "APP.SIGNAGE.BOOTSTRAP_DISPLAY"), " ");
-    \u0275\u0275advance(3);
-    \u0275\u0275twoWayProperty("ngModel", ctx_r1.active_display);
-    \u0275\u0275property("placeholder", \u0275\u0275pipeBind1(7, 9, "APP.SIGNAGE.BOOTSTRAP_DISPLAY_SELECT"))("disabled", !ctx_r1.displays().length);
-    \u0275\u0275control();
-    \u0275\u0275advance(3);
-    \u0275\u0275repeater(ctx_r1.displays());
-    \u0275\u0275advance(2);
-    \u0275\u0275conditional(ctx_r1.templates_enabled() ? 10 : -1);
-    \u0275\u0275advance();
-    \u0275\u0275property("disabled", !ctx_r1.active_display());
-    \u0275\u0275advance();
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(13, 11, "COMMON.BOOTSTRAP_SUBMIT"), " ");
-  }
-}
-function BootstrapComponent_Conditional_6_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 5);
-    \u0275\u0275element(1, "mat-spinner", 18);
-    \u0275\u0275elementStart(2, "p");
-    \u0275\u0275text(3);
-    \u0275\u0275elementEnd()();
-  }
-  if (rf & 2) {
-    const ctx_r1 = \u0275\u0275nextContext();
-    \u0275\u0275advance();
-    \u0275\u0275property("diameter", 32);
-    \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate(ctx_r1.loading());
-  }
-}
-var STORE_PREFIX = "PlaceOS.SIGNAGE";
-var STORE_DISPLAY_KEY2 = `${STORE_PREFIX}.display`;
-var STORE_BUILDING_KEY = `${STORE_PREFIX}.building`;
-var STORE_TEMPLATE_KEY = `${STORE_PREFIX}.template`;
-var BootstrapComponent = class _BootstrapComponent extends AsyncHandler {
-  constructor() {
-    super(...arguments);
-    this._org = inject(OrganisationService);
-    this._route = inject(ActivatedRoute);
-    this._router = inject(Router);
-    this._settings = inject(SettingsService);
-    this.loading = signal(
-      "",
-      ...ngDevMode ? [{ debugName: "loading" }] : (
-        /* istanbul ignore next */
-        []
-      )
-    );
-    this.active_display = signal(
-      "",
-      ...ngDevMode ? [{ debugName: "active_display" }] : (
-        /* istanbul ignore next */
-        []
-      )
-    );
-    this.active_template = signal(
-      "",
-      ...ngDevMode ? [{ debugName: "active_template" }] : (
-        /* istanbul ignore next */
-        []
-      )
-    );
-    this.templates_enabled = this._settings.signal("templates_enabled", false);
-    this._displays = resource(__spreadProps(__spreadValues({}, ngDevMode ? { debugName: "_displays" } : (
-      /* istanbul ignore next */
-      {}
-    )), {
-      params: () => this._org.initialised(),
-      loader: async ({ params: initialised }) => {
-        if (!initialised)
-          return [];
-        const result = await ga({
-          zone_id: this._org.organisation?.id,
-          limit: 500,
-          fields: ["id", "name", "display_name", "email", "zones"].join(","),
-          signage: true
-        }).catch(() => ({ data: [] }));
-        return result.data.sort((a, b) => (a.display_name || a.name).localeCompare(b.display_name || b.name));
-      }
-    }));
-    this._templates = resource(__spreadProps(__spreadValues({}, ngDevMode ? { debugName: "_templates" } : (
-      /* istanbul ignore next */
-      {}
-    )), {
-      params: () => this.templates_enabled() && this._org.initialised(),
-      loader: async ({ params: enabled }) => {
-        if (!enabled)
-          return [];
-        const result = await al({ limit: 500 }).catch(() => ({ data: [] }));
-        return result.data.sort((a, b) => a.name.localeCompare(b.name));
-      }
-    }));
-    this.displays = computed(
-      () => this._displays.value() ?? [],
-      ...ngDevMode ? [{ debugName: "displays" }] : (
-        /* istanbul ignore next */
-        []
-      )
-    );
-    this.templates = computed(
-      () => this._templates.value() ?? [],
-      ...ngDevMode ? [{ debugName: "templates" }] : (
-        /* istanbul ignore next */
-        []
-      )
-    );
-  }
-  get version() {
-    return VERSION;
-  }
-  level(system) {
-    return this._org.levelWithID(system.zones || []);
-  }
-  building(system) {
-    const zones = system.zones || [];
-    return this._org.buildings.find(({ id }) => zones.includes(id));
-  }
-  async ngOnInit() {
-    this._org.limit_init = true;
-    log("BOOTSTRAP", "Initialising...");
-    this.subscription("route.query", this._route.queryParamMap.subscribe((params) => {
-      if (params.has("clear") && params.get("clear") === "true") {
-        log("BOOTSTRAP", "Bootstrapped data clear");
-        localStorage.removeItem(STORE_DISPLAY_KEY2);
-        localStorage.removeItem(STORE_BUILDING_KEY);
-        localStorage.removeItem(STORE_TEMPLATE_KEY);
-      }
-      this.active_template.set(params.get("template") || "");
-      if (params.has("display")) {
-        this.active_display.set(params.get("display"));
-        log("BOOTSTRAP", "Bootstrapped data for display set");
-        this.bootstrapPanel();
-      }
-    }));
-    this.timeout("check", () => this.checkBootstrap(), 1e3);
-    await this._org.waitUntilInitialised();
-  }
-  /**
-   * Store bootstrapped values and navigate to the main page
-   */
-  async bootstrapPanel() {
-    this.loading.set(i18n("APP.SIGNAGE.BOOTSTRAP_LOADING"));
-    const active_display = this.active_display();
-    if (!active_display || !localStorage) {
-      log("BOOTSTRAP", `Unable to bootstrap panel. Reason: ${!active_display ? "No display ID set" : "Local Storage unavailable"}`);
-      this.loading.set("");
-      return;
-    }
-    localStorage.setItem(STORE_DISPLAY_KEY2, active_display);
-    const template_id = this.templates_enabled() ? this.active_template() : "";
-    if (template_id) {
-      localStorage.setItem(STORE_TEMPLATE_KEY, template_id);
-    } else {
-      localStorage.removeItem(STORE_TEMPLATE_KEY);
-    }
-    log("BOOTSTRAP", `Bootstrapped panel to display ${active_display}`);
-    this._router.navigate(template_id ? ["/template", template_id, active_display] : ["/signage", active_display]);
-    this.loading.set("");
-  }
-  /**
-   * Check for any existing bootstrapped values
-   */
-  checkBootstrap() {
-    this.loading.set(i18n("APP.SIGNAGE.BOOTSTRAP_LOADING_CHECK"));
-    const display_id = localStorage?.getItem(STORE_DISPLAY_KEY2);
-    if (display_id) {
-      const template_id = this.templates_enabled() && (this.active_template() || localStorage.getItem(STORE_TEMPLATE_KEY)) || "";
-      if (this.active_template() && this.templates_enabled()) {
-        localStorage.setItem(STORE_TEMPLATE_KEY, template_id);
-      }
-      log("BOOTSTRAP", `Application already bootstrapped to display ${display_id}`);
-      this._router.navigate(template_id ? ["/template", template_id, display_id] : ["/signage", display_id]);
-    }
-    VirtualKeyboardComponent.enabled = localStorage.getItem("OSK.enabled") === "true";
-    log("BOOTSTRAP", `No bootstrap details found for system`);
-    this.loading.set("");
-  }
-  static {
-    this.\u0275fac = /* @__PURE__ */ (() => {
-      let \u0275BootstrapComponent_BaseFactory;
-      return function BootstrapComponent_Factory(__ngFactoryType__) {
-        return (\u0275BootstrapComponent_BaseFactory || (\u0275BootstrapComponent_BaseFactory = \u0275\u0275getInheritedFactory(_BootstrapComponent)))(__ngFactoryType__ || _BootstrapComponent);
-      };
-    })();
-  }
-  static {
-    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _BootstrapComponent, selectors: [["", "bootstrap", ""]], features: [\u0275\u0275InheritDefinitionFeature], decls: 15, vars: 16, consts: [["select", ""], [1, "bg-base-200", "absolute", "inset-0"], ["form", "", 1, "bg-base-100", "absolute", "top-2", "left-1/2", "flex", "w-120", "max-w-[calc(100vw-2rem)]", "-translate-x-1/2", "transform", "flex-col", "items-center", "overflow-hidden", "rounded-sm", "shadow-sm"], [1, "bg-secondary", "text-secondary-content", "mb-2", "w-full", "px-4", "py-3", "text-lg", "font-medium"], [1, "px-4", "py-2"], [1, "m-auto", "flex", "flex-col", "items-center", "p-8"], [1, "absolute", "right-0", "bottom-0", "z-10", "p-2", "text-right"], [1, "text-xs", "opacity-40"], ["for", "display"], ["appearance", "outline"], ["name", "display", 3, "ngModelChange", "ngModel", "placeholder", "disabled"], [3, "value"], ["btn", "", "matRipple", "", 1, "mb-2", "w-full", 3, "click", "disabled"], [1, "flex", "flex-col", "leading-tight"], [1, "text-xs", "opacity-30"], ["for", "template"], ["name", "template", 3, "ngModelChange", "ngModel"], ["value", ""], [3, "diameter"]], template: function BootstrapComponent_Template(rf, ctx) {
-      if (rf & 1) {
-        \u0275\u0275elementStart(0, "div", 1)(1, "div", 2)(2, "header", 3);
-        \u0275\u0275text(3);
-        \u0275\u0275pipe(4, "translate");
-        \u0275\u0275elementEnd();
-        \u0275\u0275conditionalCreate(5, BootstrapComponent_Conditional_5_Template, 14, 13, "main", 4)(6, BootstrapComponent_Conditional_6_Template, 4, 2, "div", 5);
-        \u0275\u0275elementEnd();
-        \u0275\u0275elementStart(7, "div", 6)(8, "div", 7);
-        \u0275\u0275text(9);
-        \u0275\u0275pipe(10, "translate");
-        \u0275\u0275elementEnd();
-        \u0275\u0275elementStart(11, "div", 7);
-        \u0275\u0275text(12);
-        \u0275\u0275pipe(13, "date");
-        \u0275\u0275pipe(14, "date");
-        \u0275\u0275elementEnd()()();
-      }
-      if (rf & 2) {
-        \u0275\u0275advance(3);
-        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(4, 6, "APP.SIGNAGE.BOOTSTRAP_TITLE"), " ");
-        \u0275\u0275advance(2);
-        \u0275\u0275conditional(!ctx.loading() ? 5 : 6);
-        \u0275\u0275advance(4);
-        \u0275\u0275textInterpolate2(" ", \u0275\u0275pipeBind1(10, 8, "COMMON.CONTROLS_VERSION"), ": ", ctx.version.hash, " ");
-        \u0275\u0275advance(3);
-        \u0275\u0275textInterpolate2(" ", \u0275\u0275pipeBind2(13, 10, ctx.version.time, "longDate"), " (", \u0275\u0275pipeBind2(14, 13, ctx.version.time, "shortTime"), ") ");
-      }
-    }, dependencies: [
-      CommonModule,
-      MatRippleModule,
-      MatRipple,
-      MatProgressSpinnerModule,
-      MatProgressSpinner,
-      MatFormFieldModule,
-      MatFormField,
-      MatSelectModule,
-      MatSelect,
-      MatOption,
-      FormsModule,
-      NgControlStatus,
-      NgModel,
-      DatePipe,
-      TranslatePipe
-    ], styles: ["\nmat-form-field[_ngcontent-%COMP%] {\n  width: 100%;\n}\n[form][_ngcontent-%COMP%]    > div[_ngcontent-%COMP%] {\n  padding: 0 1em;\n}\n/*# sourceMappingURL=bootstrap.component.css.map */"] });
-  }
-};
-(() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(BootstrapComponent, [{
-    type: Component,
-    args: [{ selector: "[bootstrap]", template: `
-        <div class="bg-base-200 absolute inset-0">
-            <div
-                form
-                class="bg-base-100 absolute top-2 left-1/2 flex w-120 max-w-[calc(100vw-2rem)] -translate-x-1/2 transform flex-col items-center overflow-hidden rounded-sm shadow-sm"
-            >
-                <header
-                    class="bg-secondary text-secondary-content mb-2 w-full px-4 py-3 text-lg font-medium"
-                >
-                    {{ 'APP.SIGNAGE.BOOTSTRAP_TITLE' | translate }}
-                </header>
-                @if (!loading()) {
-                    <main class="px-4 py-2">
-                        <label for="display">
-                            {{ 'APP.SIGNAGE.BOOTSTRAP_DISPLAY' | translate }}
-                        </label>
-                        <mat-form-field appearance="outline">
-                            <mat-select
-                                #select
-                                name="display"
-                                [(ngModel)]="active_display"
-                                [placeholder]="
-                                    'APP.SIGNAGE.BOOTSTRAP_DISPLAY_SELECT'
-                                        | translate
-                                "
-                                [disabled]="!displays().length"
-                            >
-                                @for (option of displays(); track option) {
-                                    <mat-option [value]="option.id">
-                                        <div
-                                            class="flex flex-col leading-tight"
-                                        >
-                                            <div>{{ option.name }}</div>
-                                            <div class="text-xs opacity-30">
-                                                {{
-                                                    building(option)
-                                                        ?.display_name ||
-                                                        building(option)
-                                                            ?.name ||
-                                                        'Unknown Building'
-                                                }}
-                                                -
-                                                {{
-                                                    level(option)
-                                                        ?.display_name ||
-                                                        level(option)?.name ||
-                                                        'Unknown Level'
-                                                }}
-                                            </div>
-                                        </div>
-                                    </mat-option>
-                                }
-                            </mat-select>
-                        </mat-form-field>
-                        @if (templates_enabled()) {
-                            <label for="template">
-                                {{
-                                    'APP.SIGNAGE.BOOTSTRAP_TEMPLATE' | translate
-                                }}
-                            </label>
-                            <mat-form-field appearance="outline">
-                                <mat-select
-                                    name="template"
-                                    [(ngModel)]="active_template"
-                                >
-                                    <mat-option value="">
-                                        {{
-                                            'APP.SIGNAGE.BOOTSTRAP_TEMPLATE_NONE'
-                                                | translate
-                                        }}
-                                    </mat-option>
-                                    @for (
-                                        option of templates();
-                                        track option.id
-                                    ) {
-                                        <mat-option [value]="option.id">
-                                            {{ option.name }}
-                                        </mat-option>
-                                    }
-                                </mat-select>
-                            </mat-form-field>
-                        }
-                        <button
-                            btn
-                            matRipple
-                            class="mb-2 w-full"
-                            [disabled]="!active_display()"
-                            (click)="bootstrapPanel()"
-                        >
-                            {{ 'COMMON.BOOTSTRAP_SUBMIT' | translate }}
-                        </button>
-                    </main>
-                } @else {
-                    <div class="m-auto flex flex-col items-center p-8">
-                        <mat-spinner [diameter]="32"></mat-spinner>
-                        <p>{{ loading() }}</p>
-                    </div>
-                }
-            </div>
-            <div class="absolute right-0 bottom-0 z-10 p-2 text-right">
-                <div class="text-xs opacity-40">
-                    {{ 'COMMON.CONTROLS_VERSION' | translate }}:
-                    {{ version.hash }}
-                </div>
-                <div class="text-xs opacity-40">
-                    {{ version.time | date: 'longDate' }}
-                    ({{ version.time | date: 'shortTime' }})
-                </div>
-            </div>
-        </div>
-    `, imports: [
-      CommonModule,
-      TranslatePipe,
-      MatRippleModule,
-      MatProgressSpinnerModule,
-      MatFormFieldModule,
-      MatSelectModule,
-      FormsModule
-    ], styles: ["/* angular:styles/component:css;baf1acba23f052fee0d31e6c1de13c7184721b4de5e2eed7d009b1a704666123;/home/runner/work/user-interfaces/user-interfaces/apps/signage/src/app/bootstrap.component.ts */\nmat-form-field {\n  width: 100%;\n}\n[form] > div {\n  padding: 0 1em;\n}\n/*# sourceMappingURL=bootstrap.component.css.map */\n"] }]
-  }], null, null);
-})();
-(() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(BootstrapComponent, { className: "BootstrapComponent", filePath: "apps/signage/src/app/bootstrap.component.ts", lineNumber: 174 });
-})();
-
 // apps/signage/src/app/app.routes.ts
-var loadSignageTemplate = () => import("./template.component-XYK4IPGP.js").then((m) => m.SignageTemplateComponent);
+var loadSignageTemplate = () => import("./template.component-XJ5VTB3G.js").then((m) => m.SignageTemplateComponent);
 var routes = [
   {
     path: "unauthorised",
@@ -13890,7 +9560,7 @@ var routes = [
   },
   {
     path: "bootstrap",
-    component: BootstrapComponent,
+    loadComponent: () => import("./bootstrap.component-UZF732FL.js").then((m) => m.BootstrapComponent),
     canActivate: [AuthorisedUserGuard]
   },
   {
@@ -13917,6 +9587,12 @@ var routes = [
 ];
 
 // apps/signage/src/app/app.config.ts
+function errorMessage(error) {
+  if (typeof error === "object" && error !== null && "message" in error && typeof error.message === "string" && error.message) {
+    return error.message;
+  }
+  return String(error);
+}
 var appConfig = {
   providers: [
     provideZonelessChangeDetection(),
@@ -13930,20 +9606,14 @@ var appConfig = {
       // the recovery watchdog is told about them here as well.
       provide: ErrorHandler,
       useFactory: () => {
-        const handler = createErrorHandler({
-          showDialog: false
-        });
+        const handler = new LazySentryErrorHandler();
         return {
           handleError: (error) => {
-            recordFatalError(error?.message || error);
+            recordFatalError(errorMessage(error));
             handler.handleError(error);
           }
         };
       }
-    },
-    {
-      provide: TraceService,
-      deps: [Router]
     },
     {
       provide: LOCALE_ID,
@@ -13954,9 +9624,9 @@ var appConfig = {
 };
 
 // apps/signage/src/main.ts
-if (environment.production) {
-  enableProdMode();
-}
-bootstrapApplication(AppComponent, appConfig).catch((err) => console.error(err));
-//# debugId=6f6b4054-1452-5d81-9f93-6726c7ebc468
+bootstrapApplication(AppComponent, appConfig).then(() => resetBootRetries()).catch((err) => {
+  console.error(err);
+  scheduleBootRetry();
+});
+//# debugId=b6bc3955-fd7b-5db0-8887-e188d8fc48f4
 //# sourceMappingURL=main.js.map
