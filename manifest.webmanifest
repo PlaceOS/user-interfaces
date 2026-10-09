@@ -1,7 +1,7 @@
 {
     "name": "Workplace",
     "short_name": "Workplace",
-    "theme_color": "#0F766E",
+    "theme_color": "#115E59",
     "background_color": "#fafafa",
     "display": "standalone",
     "scope": "./",
