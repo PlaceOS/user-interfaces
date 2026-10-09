@@ -1,7 +1,9 @@
 import { signal } from '@angular/core';
+import { provideRouter } from '@angular/router';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { OrganisationService, SettingsService } from '@placeos/common';
-import { MockProvider } from 'ng-mocks';
+import { TranslatePipe } from '@placeos/components';
+import { MockProvider, ngMocks } from 'ng-mocks';
 
 import { ApplicationSidebarComponent } from '../../app/ui/app-sidebar.component';
 
@@ -13,6 +15,7 @@ describe('ApplicationSidebarComponent', () => {
         shallow: true,
         detectChanges: false,
         providers: [
+            provideRouter([]),
             MockProvider(SettingsService, settings as any),
             MockProvider(OrganisationService, {
                 active_building: signal(null),
@@ -85,5 +88,28 @@ describe('ApplicationSidebarComponent', () => {
         spectator.component.updateFilteredLinks();
         const ids = spectator.component.filtered_links().map((_: any) => _.id);
         expect(ids).not.toContain('facilities');
+    });
+
+    describe('with translations loaded after render', () => {
+        const translations: Record<string, string> = {};
+        beforeAll(() =>
+            ngMocks.defaultMock(TranslatePipe, () => ({
+                transform: (key: string) => translations[key] || key,
+            })),
+        );
+        afterAll(() => ngMocks.defaultMock(TranslatePipe, undefined));
+
+        it('should update link names', () => {
+            spectator.component.links = [
+                { id: 'events', name: 'MENU_EVENTS', route: ['/e'], icon: 'x' },
+            ] as any;
+            spectator.component.updateFilteredLinks();
+            spectator.detectChanges();
+            expect(spectator.element.textContent).toContain('MENU_EVENTS');
+            translations['MENU_EVENTS'] = 'Events';
+            spectator.detectChanges();
+            expect(spectator.element.textContent).toContain('Events');
+            expect(spectator.element.textContent).not.toContain('MENU_EVENTS');
+        });
     });
 });

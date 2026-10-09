@@ -14,11 +14,10 @@ import {
     OrganisationService,
     SettingsService,
     currentUser,
-    i18n,
     unique,
     user_group_names,
 } from '@placeos/common';
-import { IconComponent } from '@placeos/components';
+import { IconComponent, TranslatePipe } from '@placeos/components';
 
 @Component({
     selector: 'app-sidebar',
@@ -35,7 +34,9 @@ import { IconComponent } from '@placeos/components';
                         routerLinkActive="active"
                     >
                         <icon class="text-2xl opacity-60">{{ link.icon }}</icon>
-                        <span class="font-medium">{{ link.name }}</span>
+                        <span class="font-medium">{{
+                            link.name | translate
+                        }}</span>
                     </a>
                 } @else {
                     @if (link.children?.length) {
@@ -48,7 +49,7 @@ import { IconComponent } from '@placeos/components';
                                 {{ link.icon }}
                             </icon>
                             <div class="flex-1 text-left font-medium">
-                                {{ link.name }}
+                                {{ link.name | translate }}
                             </div>
                             <icon class="text-2xl">arrow_drop_down</icon>
                         </button>
@@ -67,7 +68,7 @@ import { IconComponent } from '@placeos/components';
                                     routerLinkActive="active"
                                 >
                                     <icon class="text-2xl"></icon>
-                                    <span>{{ child.name }}</span>
+                                    <span>{{ child.name | translate }}</span>
                                 </a>
                             }
                         </section>
@@ -93,7 +94,7 @@ import { IconComponent } from '@placeos/components';
             }
         `,
     ],
-    imports: [RouterModule, MatRippleModule, IconComponent],
+    imports: [RouterModule, MatRippleModule, IconComponent, TranslatePipe],
 })
 export class ApplicationSidebarComponent
     extends AsyncHandler
@@ -145,59 +146,59 @@ export class ApplicationSidebarComponent
         await this._org.waitUntilInitialised();
         this.links = [
             {
-                name: i18n('APP.CONCIERGE.MENU_BOOKINGS'),
+                name: 'APP.CONCIERGE.MENU_BOOKINGS',
                 icon: 'add_circle',
                 children: [
                     {
                         id: 'spaces',
-                        name: i18n('APP.CONCIERGE.MENU_ROOM_BOOKINGS'),
+                        name: 'APP.CONCIERGE.MENU_ROOM_BOOKINGS',
                         route: ['/book/rooms'],
                     },
                     {
                         id: 'desks',
-                        name: i18n('APP.CONCIERGE.MENU_DESK_BOOKINGS'),
+                        name: 'APP.CONCIERGE.MENU_DESK_BOOKINGS',
                         route: ['/book/desks/events'],
                     },
                     {
                         id: 'parking',
-                        name: i18n('APP.CONCIERGE.MENU_PARKING_BOOKINGS'),
+                        name: 'APP.CONCIERGE.MENU_PARKING_BOOKINGS',
                         route: ['/book/parking/events'],
                     },
                     {
                         id: 'parking-bookings',
-                        name: i18n('APP.CONCIERGE.MENU_PARKING_BOOKINGS'),
+                        name: 'APP.CONCIERGE.MENU_PARKING_BOOKINGS',
                         route: ['/book/parking/events'],
                     },
                     {
                         id: 'lockers',
-                        name: i18n('APP.CONCIERGE.MENU_LOCKER_BOOKINGS'),
+                        name: 'APP.CONCIERGE.MENU_LOCKER_BOOKINGS',
                         route: ['/book/lockers/events'],
                     },
                     {
                         id: 'assets',
-                        name: i18n('APP.CONCIERGE.MENU_ASSET_BOOKINGS'),
+                        name: 'APP.CONCIERGE.MENU_ASSET_BOOKINGS',
                         route: ['/book/assets/list/requests'],
                     },
                     {
                         id: 'catering',
-                        name: i18n('APP.CONCIERGE.MENU_CATERING_BOOKINGS'),
+                        name: 'APP.CONCIERGE.MENU_CATERING_BOOKINGS',
                         route: ['/book/catering/orders'],
                     },
                     {
                         id: 'visitors',
-                        name: i18n('APP.CONCIERGE.MENU_VISITOR_BOOKINGS'),
+                        name: 'APP.CONCIERGE.MENU_VISITOR_BOOKINGS',
                         route: ['/book/visitors'],
                     },
                     {
                         id: 'visitor-rules',
-                        name: i18n('APP.CONCIERGE.MENU_VISITOR_RULES'),
+                        name: 'APP.CONCIERGE.MENU_VISITOR_RULES',
                         route: ['/book/visitors/rules'],
                     },
                 ],
             },
             {
                 id: 'facilities',
-                name: i18n('APP.CONCIERGE.MENU_MANAGEMENT'),
+                name: 'APP.CONCIERGE.MENU_MANAGEMENT',
                 icon: 'place',
                 children: [
                     // {
@@ -207,149 +208,149 @@ export class ApplicationSidebarComponent
                     // },
                     {
                         id: 'zones',
-                        name: i18n('APP.CONCIERGE.MENU_MANAGE_ZONES'),
+                        name: 'APP.CONCIERGE.MENU_MANAGE_ZONES',
                         route: ['/zone-management'],
                     },
                     {
                         id: 'spaces',
-                        name: i18n('APP.CONCIERGE.MENU_MANAGE_ROOMS'),
+                        name: 'APP.CONCIERGE.MENU_MANAGE_ROOMS',
                         route: ['/room-management'],
                     },
                     {
                         id: 'desks',
-                        name: i18n('APP.CONCIERGE.MENU_MANAGE_DESKS'),
+                        name: 'APP.CONCIERGE.MENU_MANAGE_DESKS',
                         route: ['/book/desks/manage'],
                     },
                     {
                         id: 'parking',
-                        name: i18n('APP.CONCIERGE.MENU_MANAGE_PARKING'),
+                        name: 'APP.CONCIERGE.MENU_MANAGE_PARKING',
                         route: ['/book/parking/manage'],
                     },
                     {
                         id: 'parking-manage',
-                        name: i18n('APP.CONCIERGE.MENU_MANAGE_PARKING'),
+                        name: 'APP.CONCIERGE.MENU_MANAGE_PARKING',
                         route: ['/book/parking/manage'],
                     },
                     {
                         id: 'lockers',
-                        name: i18n('APP.CONCIERGE.MENU_MANAGE_LOCKERS'),
+                        name: 'APP.CONCIERGE.MENU_MANAGE_LOCKERS',
                         route: ['/book/lockers/manage'],
                     },
                     {
                         id: 'catering',
-                        name: i18n('APP.CONCIERGE.MENU_MANAGE_CATERING'),
+                        name: 'APP.CONCIERGE.MENU_MANAGE_CATERING',
                         route: ['/book/catering/menu'],
                     },
                     {
                         id: 'points',
-                        name: i18n('APP.CONCIERGE.MENU_MANAGE_POINTS'),
+                        name: 'APP.CONCIERGE.MENU_MANAGE_POINTS',
                         route: ['/points-management'],
                     },
                     {
                         id: 'emergency-contacts',
-                        name: i18n('APP.CONCIERGE.MENU_MANAGE_CONTACTS'),
+                        name: 'APP.CONCIERGE.MENU_MANAGE_CONTACTS',
                         icon: 'assignment_ind',
                         route: ['/users/staff/emergency-contacts'],
                     },
                     {
                         id: 'signage',
-                        name: i18n('APP.CONCIERGE.MENU_MANAGE_SIGNAGE'),
+                        name: 'APP.CONCIERGE.MENU_MANAGE_SIGNAGE',
                         route: ['/signage'],
                     },
                     {
                         id: 'points-of-interest',
-                        name: i18n('APP.CONCIERGE.MENU_MANAGE_MAP_FEATURES'),
+                        name: 'APP.CONCIERGE.MENU_MANAGE_MAP_FEATURES',
                         route: ['/points-of-interest'],
                     },
                     {
                         id: 'url-management',
-                        name: i18n('APP.CONCIERGE.MENU_MANAGE_URLS'),
+                        name: 'APP.CONCIERGE.MENU_MANAGE_URLS',
                         route: ['/url-management'],
                     },
                     {
                         id: 'email-templates',
-                        name: i18n('APP.CONCIERGE.MENU_MANAGE_EMAILS'),
+                        name: 'APP.CONCIERGE.MENU_MANAGE_EMAILS',
                         route: ['/email-templates'],
                     },
                     {
                         id: 'deals-n-offers',
-                        name: i18n('APP.CONCIERGE.MENU_MANAGE_DEALS'),
+                        name: 'APP.CONCIERGE.MENU_MANAGE_DEALS',
                         route: ['/deals-n-offers'],
                     },
                 ],
             },
             {
                 id: 'assets',
-                name: i18n('APP.CONCIERGE.MENU_ASSETS'),
+                name: 'APP.CONCIERGE.MENU_ASSETS',
                 route: ['/book/assets/list/items'],
                 icon: 'vibration',
             },
             {
                 id: 'internal-users',
-                name: i18n('APP.CONCIERGE.MENU_USER_LIST'),
+                name: 'APP.CONCIERGE.MENU_USER_LIST',
                 icon: 'assignment_ind',
                 route: ['/users/staff'],
             },
             {
                 id: 'events',
-                name: i18n('APP.CONCIERGE.MENU_EVENTS'),
+                name: 'APP.CONCIERGE.MENU_EVENTS',
                 route: ['/entertainment/events'],
                 icon: 'confirmation_number',
             },
             {
                 id: 'surveys',
-                name: i18n('APP.CONCIERGE.MENU_SURVEYS'),
+                name: 'APP.CONCIERGE.MENU_SURVEYS',
                 route: ['/surveys'],
                 icon: 'add_reaction',
             },
             {
                 _id: 'reports',
-                name: i18n('APP.CONCIERGE.MENU_REPORTS'),
+                name: 'APP.CONCIERGE.MENU_REPORTS',
                 icon: 'analytics',
                 children: [
                     {
                         id: 'attendance-report',
-                        name: i18n('APP.CONCIERGE.MENU_REPORT_SITE_ATTENDANCE'),
+                        name: 'APP.CONCIERGE.MENU_REPORT_SITE_ATTENDANCE',
                         route: ['/reports/attendance'],
                     },
                     {
                         id: 'booking-report',
-                        name: i18n('APP.CONCIERGE.MENU_REPORT_ROOMS'),
+                        name: 'APP.CONCIERGE.MENU_REPORT_ROOMS',
                         route: ['/reports/bookings'],
                     },
                     {
                         id: 'desk-report',
-                        name: i18n('APP.CONCIERGE.MENU_REPORT_DESKS'),
+                        name: 'APP.CONCIERGE.MENU_REPORT_DESKS',
                         route: ['/reports/desks'],
                     },
                     {
                         id: 'parking-report',
-                        name: i18n('APP.CONCIERGE.MENU_REPORT_PARKING'),
+                        name: 'APP.CONCIERGE.MENU_REPORT_PARKING',
                         route: ['/reports/parking'],
                     },
                     {
                         id: 'lockers-report',
-                        name: i18n('APP.CONCIERGE.MENU_REPORT_LOCKERS'),
+                        name: 'APP.CONCIERGE.MENU_REPORT_LOCKERS',
                         route: ['/reports/lockers'],
                     },
                     {
                         id: 'catering-report',
-                        name: i18n('APP.CONCIERGE.MENU_REPORT_CATERING'),
+                        name: 'APP.CONCIERGE.MENU_REPORT_CATERING',
                         route: ['/reports/catering'],
                     },
                     {
                         id: 'contact-tracing-report',
-                        name: i18n('APP.CONCIERGE.MENU_REPORT_CONTACT_TRACING'),
+                        name: 'APP.CONCIERGE.MENU_REPORT_CONTACT_TRACING',
                         route: ['/reports/contact-tracing'],
                     },
                     {
                         id: 'assets-report',
-                        name: i18n('APP.CONCIERGE.MENU_REPORT_ASSETS'),
+                        name: 'APP.CONCIERGE.MENU_REPORT_ASSETS',
                         route: ['/reports/assets'],
                     },
                     {
                         id: 'visitors-report',
-                        name: i18n('APP.CONCIERGE.MENU_REPORT_VISITORS'),
+                        name: 'APP.CONCIERGE.MENU_REPORT_VISITORS',
                         route: ['/reports/visitors'],
                     },
                 ],
