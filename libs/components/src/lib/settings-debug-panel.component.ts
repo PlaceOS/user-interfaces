@@ -30,7 +30,7 @@ interface SettingRow {
     key: string;
     /** Key without the implicit `app.` prefix, for display */
     label: string;
-    value: any;
+    value: unknown;
     display: string;
     overridden: boolean;
     description: string;
@@ -62,7 +62,7 @@ function flattenKeys(map: HashMap, prefix: string, keys: Set<string>) {
 }
 
 function hasSetting(map: HashMap, key: string) {
-    let value: any = map;
+    let value = map;
     for (const part of key.slice(4).split('.')) value = value?.[part];
     return value != null;
 }
@@ -76,7 +76,7 @@ function optionLabel(value: unknown) {
 function resolveRef(root: HashMap, node: HashMap) {
     const ref = node?.['$ref'] as string;
     if (!ref?.startsWith('#/')) return node;
-    let target: any = root;
+    let target = root;
     for (const part of ref.slice(2).split('/')) target = target?.[part];
     return target || node;
 }
@@ -687,7 +687,7 @@ export class SettingsDebugPanelComponent {
         if (!name || name === 'app.') return;
         const input = prompt?.('Setting value (JSON or plain text)', '');
         if (input == null) return;
-        let value: any = input;
+        let value: unknown = input;
         try {
             value = JSON.parse(input);
         } catch {

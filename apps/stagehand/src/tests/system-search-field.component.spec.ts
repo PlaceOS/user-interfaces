@@ -7,7 +7,7 @@ import { SystemSearchFieldComponent } from '../app/dashboards/system-search-fiel
 vi.mock('@placeos/ts-client', { spy: true });
 
 function makeSystem(data: Partial<PlaceSystem>): PlaceSystem {
-    return new PlaceSystem(data as any);
+    return new PlaceSystem(data);
 }
 
 describe('SystemSearchFieldComponent', () => {
@@ -76,7 +76,7 @@ describe('SystemSearchFieldComponent', () => {
                 makeSystem({ id: 'sys-1', name: 'Meeting Room' }),
                 makeSystem({ id: 'sys-2', name: 'Lobby' }),
             ]);
-        spectator.setInput('query_fn', query_fn as any);
+        spectator.setInput('query_fn', query_fn);
         component.search_str.set('meeting');
 
         await (component as any)._loadSearchResults('meeting');
@@ -87,7 +87,7 @@ describe('SystemSearchFieldComponent', () => {
 
     it('should skip the server query when below the minimum length', async () => {
         const query_fn = vi.fn().mockResolvedValue([]);
-        spectator.setInput('query_fn', query_fn as any);
+        spectator.setInput('query_fn', query_fn);
         spectator.setInput('minLength', 3);
         component.search_str.set('me');
 

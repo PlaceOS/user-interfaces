@@ -129,7 +129,7 @@ describe('AppComponent', () => {
 
         afterEach(() => {
             setNotifyFilter(null);
-            setNotifyOutlet(null as any, true);
+            setNotifyOutlet(null, true);
         });
 
         it('should hide notifications from a display that is not being debugged', () => {

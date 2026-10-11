@@ -371,7 +371,7 @@ export class POIModalComponent extends AsyncHandler implements OnInit {
         }));
         // Copy the model so a failed save does not change the form, and
         // reuse the ID and short URL from earlier attempts on retry.
-        const data: any = {
+        const data = {
             ...this.model(),
             id: this.model().id || this._new_id,
             short_link_id: this._short_link_id,

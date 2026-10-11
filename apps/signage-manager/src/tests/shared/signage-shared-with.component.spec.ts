@@ -75,7 +75,7 @@ describe('SignageSharedWithComponent', () => {
         );
     });
 
-    afterEach(() => setNotifyOutlet(null as any, true));
+    afterEach(() => setNotifyOutlet(null, true));
 
     it('hides the section while the item only lives in the current group', () => {
         const component = make([{ id: 'grp-1', name: 'Facilities' }]);

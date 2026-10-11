@@ -4,7 +4,7 @@ import { setNotifyOutlet } from '@placeos/common';
 import { TextDecoder, TextEncoder } from 'util';
 
 global.TextEncoder = TextEncoder;
-global.TextDecoder = TextDecoder as any;
+global.TextDecoder = TextDecoder;
 installTestStorage();
 
 // Under the zoneless unit-test builder, `fixture.detectChanges()` only

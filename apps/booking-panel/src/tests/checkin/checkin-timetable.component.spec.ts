@@ -44,9 +44,7 @@ describe('CheckinTimetableComponent', () => {
     });
 
     it('should map events into positioned blocks with the correct duration', async () => {
-        spectator.setInput('events', [
-            { date: Date.now(), duration: 30 } as any,
-        ]);
+        spectator.setInput('events', [{ date: Date.now(), duration: 30 }]);
         spectator.detectChanges();
         const blocks = spectator.component.event_blocks();
         expect(blocks.length).toBe(1);
@@ -56,9 +54,7 @@ describe('CheckinTimetableComponent', () => {
     });
 
     it('should render an event overlay for in-range events', () => {
-        spectator.setInput('events', [
-            { date: Date.now(), duration: 30 } as any,
-        ]);
+        spectator.setInput('events', [{ date: Date.now(), duration: 30 }]);
         spectator.detectChanges();
         expect('[event]').toExist();
     });

@@ -27,8 +27,8 @@ describe('SignagePlaylistMediaListComponent', () => {
         providers: [
             MockProvider(SignageStateService, {
                 playlists: signal([{ id: 'p1', name: 'News' }]) as any,
-                media: signal([]) as any,
-                has_changed: signal(0) as any,
+                media: signal([]),
+                has_changed: signal(0),
                 editPlaylist: vi.fn(),
                 removePlaylist: vi.fn(),
                 updatePlaylistMedia: vi.fn(async () => undefined),
@@ -39,7 +39,7 @@ describe('SignagePlaylistMediaListComponent', () => {
             MockProvider(Clipboard, { copy: vi.fn() }),
             MockProvider(SettingsService, {
                 get: vi.fn((key: string) => settings_map[key]),
-            } as any),
+            }),
         ],
     });
 
@@ -50,17 +50,17 @@ describe('SignagePlaylistMediaListComponent', () => {
             dismiss: () => undefined,
         }));
         setNotifyOutlet({ open: notify_open } as any, true);
-        setCurrentUser(new StaffUser({ groups: [] }) as any);
+        setCurrentUser(new StaffUser({ groups: [] }));
         settings_map = { 'app.admin_group': 'signage-admin' };
         router = { navigate: vi.fn() };
         spectator = createComponent({
             providers: [MockProvider(Router, router)],
         });
-        state = spectator.inject(SignageStateService) as any;
+        state = spectator.inject(SignageStateService);
     });
 
     afterEach(() => {
-        setNotifyOutlet(null as any, true);
+        setNotifyOutlet(null, true);
     });
 
     it('should map animation enum values to labels', () => {
@@ -74,19 +74,19 @@ describe('SignagePlaylistMediaListComponent', () => {
     });
 
     it('should treat members of the admin group as admins', () => {
-        setCurrentUser(new StaffUser({ groups: ['signage-admin'] }) as any);
+        setCurrentUser(new StaffUser({ groups: ['signage-admin'] }));
 
         expect(spectator.component.is_admin).toBe(true);
     });
 
     it('should treat placeos_admin members as admins', () => {
-        setCurrentUser(new StaffUser({ groups: ['placeos_admin'] }) as any);
+        setCurrentUser(new StaffUser({ groups: ['placeos_admin'] }));
 
         expect(spectator.component.is_admin).toBe(true);
     });
 
     it('should deny admin for users without the group', () => {
-        setCurrentUser(new StaffUser({ groups: ['staff'] }) as any);
+        setCurrentUser(new StaffUser({ groups: ['staff'] }));
 
         expect(spectator.component.is_admin).toBe(false);
     });

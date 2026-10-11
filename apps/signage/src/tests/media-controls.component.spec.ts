@@ -127,7 +127,7 @@ describe('MediaControlsComponent (icons)', () => {
 
     beforeEach(() => {
         // Keep the progress bar animation loop from scheduling real frames.
-        vi.spyOn(window, 'requestAnimationFrame').mockReturnValue(0 as any);
+        vi.spyOn(window, 'requestAnimationFrame').mockReturnValue(0);
         spectator = create_component();
     });
 
@@ -211,7 +211,7 @@ describe('MediaProgressBarComponent', () => {
     beforeEach(() => {
         // Return a stable frame id and never invoke the callback so the
         // update loop stays deterministic within each test.
-        vi.spyOn(window, 'requestAnimationFrame').mockReturnValue(42 as any);
+        vi.spyOn(window, 'requestAnimationFrame').mockReturnValue(42);
     });
 
     afterEach(() => {
@@ -226,7 +226,7 @@ describe('MediaProgressBarComponent', () => {
                 state: 'PLAYING',
                 playback_start: 1000,
                 playback_duration: 10000,
-            } as any,
+            },
         });
         spectator.detectChanges();
         spectator.component['_updateProgress']();
@@ -241,7 +241,7 @@ describe('MediaProgressBarComponent', () => {
                 progress: 40,
                 playback_start: 1000,
                 playback_duration: 10000,
-            } as any,
+            },
         });
         spectator.detectChanges();
         spectator.component['_updateProgress']();
@@ -258,7 +258,7 @@ describe('MediaProgressBarComponent', () => {
                 playback_start: 0,
                 playback_duration: 10000,
                 waiting: true,
-            } as any,
+            },
         });
         spectator.detectChanges();
         spectator.component['_updateProgress']();
@@ -273,7 +273,7 @@ describe('MediaProgressBarComponent', () => {
                 state: 'PLAYING',
                 playback_start: 1000,
                 playback_duration: 10000,
-            } as any,
+            },
         });
         spectator.detectChanges();
         spectator.component['_updateProgress']();
@@ -288,7 +288,7 @@ describe('MediaProgressBarComponent', () => {
                 state: 'PLAYING',
                 playback_start: 5000,
                 playback_duration: 10000,
-            } as any,
+            },
         });
         spectator.detectChanges();
         spectator.component['_updateProgress']();
@@ -297,7 +297,7 @@ describe('MediaProgressBarComponent', () => {
     });
 
     it('should expose the progress input as aria-valuenow', () => {
-        spectator = create_component({ props: { progress: 30 } as any });
+        spectator = create_component({ props: { progress: 30 } });
         spectator.detectChanges();
 
         expect(
@@ -309,7 +309,7 @@ describe('MediaProgressBarComponent', () => {
 
     it('should cancel the pending animation frame on destroy', () => {
         const cancel_spy = vi.spyOn(window, 'cancelAnimationFrame');
-        spectator = create_component({ props: { progress: 10 } as any });
+        spectator = create_component({ props: { progress: 10 } });
         spectator.detectChanges();
         spectator.component['_updateProgress']();
 

@@ -57,7 +57,7 @@ export type ConsoleStream = 'debug' | 'warn' | 'log' | 'error' | 'info';
 declare global {
     interface Window {
         debug: boolean;
-        jest: any;
+        jest: unknown;
     }
 }
 
@@ -78,7 +78,7 @@ export function setAppName(name: string) {
 export function log(
     type: string,
     msg: string,
-    args?: any,
+    args?: unknown,
     stream: ConsoleStream = 'debug',
     force = false,
     app_name: string = _app_name,
@@ -273,7 +273,7 @@ export function jsonToCsv(json: HashMap[], seperator = ',') {
     if (json instanceof Array && json.length > 0) {
         const keys = Object.keys(json[0]);
         const valid_keys = keys.filter((key) => key in json[0]);
-        const map_cell = (value: any) => {
+        const map_cell = (value: unknown) => {
             if (value === null || value === undefined) return '';
             if (typeof value === 'object') return JSON.stringify(value);
             return `${value}`;
@@ -500,7 +500,7 @@ export function capitalizeFirstLetter(word: string): string {
 
 export function cleanArray(
     array: any[],
-    removal_items: any[] = [undefined, null, ''],
+    removal_items: unknown[] = [undefined, null, ''],
 ) {
     return array.filter((_) => !removal_items.includes(_));
 }
@@ -1050,13 +1050,13 @@ export function guardModelUndefinedWrites<T extends object>(
 ): void {
     const sanitize = (value: T): T => {
         for (const key of Object.keys(defaults)) {
-            const default_value = (defaults as any)[key];
-            const current_value = (value as any)[key];
+            const default_value = defaults[key];
+            const current_value = value[key];
             if (
                 current_value === undefined ||
                 (current_value === null && default_value !== null)
             ) {
-                (value as any)[key] = default_value;
+                value[key] = default_value;
             }
         }
         return value;
@@ -1107,7 +1107,7 @@ export function onFieldChange<T, V>(
  * the optional friendly-name `mappings`. The form value is read via `model`.
  */
 export function getInvalidSignalFields<T extends object>(
-    form: any,
+    form: unknown,
     model: Signal<T>,
     mappings: Record<string, string> = {},
 ): string[] {
@@ -1139,7 +1139,7 @@ export function patchSignalModel<T extends object>(
     model.update((current) => {
         const next = { ...current } as Record<string, unknown>;
         for (const key of Object.keys(partial)) {
-            if (key in current) next[key] = (partial as any)[key];
+            if (key in current) next[key] = partial[key];
         }
         return next as T;
     });
@@ -1769,7 +1769,7 @@ export function setupFormTimeSync<T extends TimeSyncModel>(
 export function getFormTimeSyncHandle(
     form: { _time_sync?: FormTimeSyncHandle } | null | undefined,
 ): FormTimeSyncHandle | undefined {
-    return (form as any)?._time_sync;
+    return form?._time_sync;
 }
 
 /**
@@ -1781,7 +1781,7 @@ export function getFormTimeSyncHandle(
 export function errorMessage(error: unknown): string {
     if (typeof error === 'string') return error;
     if (error instanceof Error) return error.message || '';
-    const value = error as { error?: any; message?: any };
+    const value = error as { error?: any; message?: unknown };
     if (typeof value?.error === 'string') return value.error;
     if (typeof value?.message === 'string') return value.message;
     if (typeof value?.error?.message === 'string') return value.error.message;

@@ -4,7 +4,7 @@ import { GroupsSectionComponent } from '../../app/groups/groups.component';
 import { SignageGroupAdminService } from '../../app/groups/signage-group-admin.service';
 
 describe('GroupsSectionComponent', () => {
-    const managed_group = signal<any>(null);
+    const managed_group = signal<unknown>(null);
     const service_stub = {
         managed_group,
     };

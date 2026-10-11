@@ -145,7 +145,7 @@ export class ParkingMapComponent implements OnInit {
         this._state.available_resources().map((parking) => ({
             id: parking.map_id || parking.id,
             action: ['touchend', 'mouseup'],
-            callback: () => this.selectParking(parking as any),
+            callback: () => this.selectParking(parking),
         })),
     );
 

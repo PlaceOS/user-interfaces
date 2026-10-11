@@ -210,9 +210,7 @@ describe('validateMedia', () => {
     });
 
     it('returns detailed errors for missing media data', () => {
-        expect(validateMedia(null as any)).toBe(
-            'Invalid media: missing media data.',
-        );
+        expect(validateMedia(null)).toBe('Invalid media: missing media data.');
         expect(validateMedia({} as any)).toBe(
             'Invalid media: missing media ID.',
         );

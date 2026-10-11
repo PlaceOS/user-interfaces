@@ -36,12 +36,12 @@ describe('EmailTemplatesListComponent', () => {
                 filtered_templates: signal([]),
                 removeTemplate,
                 setFilters,
-            } as any),
+            }),
             MockProvider(OrganisationService, {
                 binding: vi.fn(() => smtp_binding),
                 module: vi.fn(() => smtp_module),
-            } as any),
-            MockProvider(MatDialog, { open: dialog_open } as any),
+            }),
+            MockProvider(MatDialog, { open: dialog_open }),
         ],
     });
 
@@ -52,14 +52,14 @@ describe('EmailTemplatesListComponent', () => {
             dismiss: () => undefined,
         }));
         setNotifyOutlet({ open: notify_open } as any, true);
-        setCurrentUser(new StaffUser({ email: 'me@example.com' }) as any);
+        setCurrentUser(new StaffUser({ email: 'me@example.com' }));
         smtp_module = { execute: module_execute };
         smtp_binding = { name: 'smtp' };
         spectator = createComponent();
     });
 
     afterEach(() => {
-        setNotifyOutlet(null as any, true);
+        setNotifyOutlet(null, true);
     });
 
     it('should reflect whether a mailing binding exists', () => {

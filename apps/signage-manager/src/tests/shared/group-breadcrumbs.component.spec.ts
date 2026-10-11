@@ -55,7 +55,7 @@ function crumbs(fixture: any): HTMLButtonElement[] {
 }
 
 describe('GroupBreadcrumbsComponent', () => {
-    const selected_group_hierarchy = signal<any[]>([]);
+    const selected_group_hierarchy = signal<unknown[]>([]);
     const selected_group_id = signal('');
     const can_manage_all_groups = signal(false);
     const setSelectedGroup = vi.fn();

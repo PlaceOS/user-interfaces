@@ -38,7 +38,7 @@ describe('OrganisationService offline boot', () => {
     const stayOffline = () =>
         vi
             .mocked(ts_client.waitForSignal)
-            .mockImplementation(() => new Promise(() => undefined) as any);
+            .mockImplementation(() => new Promise(() => undefined));
 
     beforeEach(() => {
         vi.clearAllMocks();
@@ -56,7 +56,7 @@ describe('OrganisationService offline boot', () => {
         });
         vi.mocked(ts_client.authority).mockReturnValue({ id: 'auth-1' } as any);
         vi.mocked(ts_client.queryZones).mockResolvedValue({ data: [] } as any);
-        vi.mocked(ts_client.bulkMetadata).mockResolvedValue({} as any);
+        vi.mocked(ts_client.bulkMetadata).mockResolvedValue({});
         vi.mocked(ts_client.showMetadata).mockResolvedValue({
             details: {},
         } as any);
@@ -65,7 +65,7 @@ describe('OrganisationService offline boot', () => {
 
     afterEach(() => {
         setInitReloadHandler(null);
-        setNotifyOutlet(null as any, true);
+        setNotifyOutlet(null, true);
         vi.useRealTimers();
     });
 
@@ -98,7 +98,7 @@ describe('OrganisationService offline boot', () => {
 
     it('should keep querying without an authority while offline', async () => {
         stayOffline();
-        vi.mocked(ts_client.authority).mockReturnValue(undefined as any);
+        vi.mocked(ts_client.authority).mockReturnValue(undefined);
 
         spectator = createService();
         await vi.advanceTimersByTimeAsync(60_000);
@@ -132,7 +132,7 @@ describe('OrganisationService offline boot', () => {
     });
 
     it('should still start immediately once online', async () => {
-        vi.mocked(ts_client.waitForSignal).mockResolvedValue(true as any);
+        vi.mocked(ts_client.waitForSignal).mockResolvedValue(true);
         settings_mock.get.mockImplementation((key: string) =>
             key === 'app.offline_boot' ? true : undefined,
         );
@@ -148,7 +148,7 @@ describe('OrganisationService offline boot', () => {
         const online = ts_client.createSignal(true);
         vi.mocked(ts_client.onlineState).mockReturnValue(online);
         vi.mocked(ts_client.queryZones)
-            .mockImplementationOnce(() => new Promise(() => undefined) as any)
+            .mockImplementationOnce(() => new Promise(() => undefined))
             .mockResolvedValue({ data: [] } as any);
 
         spectator = createService();
@@ -167,7 +167,7 @@ describe('OrganisationService offline boot', () => {
 
     it('should reload when zone loading remains incomplete for 45 seconds', async () => {
         vi.mocked(ts_client.queryZones).mockImplementation(
-            () => new Promise(() => undefined) as any,
+            () => new Promise(() => undefined),
         );
 
         spectator = createService();

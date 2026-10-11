@@ -183,7 +183,7 @@ export class ExploreSearchComponent extends AsyncHandler implements OnInit {
         this.focusInput();
     }
 
-    public closeSearch(_e?: any) {
+    public closeSearch(_e?: unknown) {
         this.show.set(false);
         this.setFilter('');
         const _input_el = this._input_el();

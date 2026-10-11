@@ -16,11 +16,11 @@ describe('ApplicationSidebarComponent', () => {
         detectChanges: false,
         providers: [
             provideRouter([]),
-            MockProvider(SettingsService, settings as any),
+            MockProvider(SettingsService, settings),
             MockProvider(OrganisationService, {
                 active_building: signal(null),
                 waitUntilInitialised: () => Promise.resolve(),
-            } as any),
+            }),
         ],
     });
 
@@ -46,7 +46,7 @@ describe('ApplicationSidebarComponent', () => {
         spectator.component.links = [
             { id: 'events', name: 'Events', route: ['/e'], icon: 'x' },
             { id: 'hidden', name: 'Hidden', route: ['/h'], icon: 'y' },
-        ] as any;
+        ];
         spectator.component.updateFilteredLinks();
         const ids = spectator.component.filtered_links().map((_: any) => _.id);
         expect(ids).toContain('events');
@@ -61,7 +61,7 @@ describe('ApplicationSidebarComponent', () => {
                 icon: 'p',
                 children: [{ id: 'zones', name: 'Zones', route: ['/z'] }],
             },
-        ] as any;
+        ];
         spectator.component.updateFilteredLinks();
         const ids = spectator.component.filtered_links().map((_: any) => _.id);
         expect(ids).not.toContain('facilities');
@@ -84,7 +84,7 @@ describe('ApplicationSidebarComponent', () => {
                 icon: 'p',
                 children: [{ id: 'zones', name: 'Zones', route: ['/z'] }],
             },
-        ] as any;
+        ];
         spectator.component.updateFilteredLinks();
         const ids = spectator.component.filtered_links().map((_: any) => _.id);
         expect(ids).not.toContain('facilities');
@@ -102,7 +102,7 @@ describe('ApplicationSidebarComponent', () => {
         it('should update link names', () => {
             spectator.component.links = [
                 { id: 'events', name: 'MENU_EVENTS', route: ['/e'], icon: 'x' },
-            ] as any;
+            ];
             spectator.component.updateFilteredLinks();
             spectator.detectChanges();
             expect(spectator.element.textContent).toContain('MENU_EVENTS');

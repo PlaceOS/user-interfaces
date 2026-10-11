@@ -14,8 +14,8 @@ import { NewDeskFlowConfirmComponent } from '../../../app/book/desk-flow/desk-fl
 describe('NewDeskFlowConfirmComponent', () => {
     let spectator: Spectator<NewDeskFlowConfirmComponent>;
     let notify_open: any;
-    let model: ReturnType<typeof signal<Record<string, any>>>;
-    let options: ReturnType<typeof signal<Record<string, any>>>;
+    let model: ReturnType<typeof signal<Record<string, unknown>>>;
+    let options: ReturnType<typeof signal<Record<string, unknown>>>;
     let post_form: any;
     let post_form_group: any;
     let edit_group: any;
@@ -42,7 +42,7 @@ describe('NewDeskFlowConfirmComponent', () => {
             MockProvider(SettingsService, {
                 get: vi.fn(() => undefined),
                 time_format: 'h:mm a',
-            } as any),
+            }),
             MockProvider(OrganisationService, {
                 buildings: [
                     {
@@ -66,7 +66,10 @@ describe('NewDeskFlowConfirmComponent', () => {
         }));
         setNotifyOutlet({ open: notify_open } as any, true);
         model = signal(base_model());
-        options = signal<Record<string, any>>({ type: 'desk', group: false });
+        options = signal<Record<string, unknown>>({
+            type: 'desk',
+            group: false,
+        });
         post_form = vi.fn(() => Promise.resolve());
         post_form_group = vi.fn(() => Promise.resolve());
         edit_group = vi.fn(() => Promise.resolve());
@@ -94,7 +97,7 @@ describe('NewDeskFlowConfirmComponent', () => {
                 } as any),
             ],
         });
-        dismiss = spectator.inject(MatBottomSheetRef).dismiss as any;
+        dismiss = spectator.inject(MatBottomSheetRef).dismiss;
         dismiss.mockClear();
         // The SettingsService mock lives on the component factory, so its
         // `get` spy is shared across every test. Reset it here so an impl set
@@ -103,7 +106,7 @@ describe('NewDeskFlowConfirmComponent', () => {
         vi.mocked(spectator.inject(SettingsService).get).mockReset();
     });
 
-    afterEach(() => setNotifyOutlet(null as any, true));
+    afterEach(() => setNotifyOutlet(null, true));
 
     it('should post a lone booking and dismiss with success', async () => {
         await spectator.component.postForm();
@@ -127,7 +130,7 @@ describe('NewDeskFlowConfirmComponent', () => {
         options.set({ type: 'desk', group: true });
         model.update((m) => ({ ...m, id: 'booking-1' }));
         const siblings = [{ id: 'booking-1' }, { id: 'booking-2' }];
-        load_siblings.mockResolvedValueOnce(siblings as any);
+        load_siblings.mockResolvedValueOnce(siblings);
 
         await spectator.component.postForm();
 

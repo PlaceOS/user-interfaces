@@ -164,7 +164,7 @@ describe('SiteAttendanceReportService', () => {
                         ...item,
                     })),
                     next: undefined,
-                }) as any;
+                });
             }
             return Promise.resolve({
                 data: event_data,
@@ -185,7 +185,7 @@ describe('SiteAttendanceReportService', () => {
             next: undefined,
         } as any);
         vi.mocked(ts_client_mod.queryAssetTypes).mockImplementation(
-            ({ category_id }: any) =>
+            ({ category_id }) =>
                 Promise.resolve({
                     data:
                         category_id === 'cat-park'
@@ -224,7 +224,7 @@ describe('SiteAttendanceReportService', () => {
 
     afterEach(() => {
         downloads.restore();
-        setNotifyOutlet(null as any, true);
+        setNotifyOutlet(null, true);
     });
 
     it('should create service', () => {

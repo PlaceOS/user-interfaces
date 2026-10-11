@@ -330,7 +330,7 @@ export class SelectMapItemModalComponent
             changed: this.changed(),
             map_info: this.map_info(),
         }),
-        defaultValue: [] as any[],
+        defaultValue: [] as unknown[],
         loader: async ({ params }) => {
             const { q, available } = params;
             let list: any[] = [];

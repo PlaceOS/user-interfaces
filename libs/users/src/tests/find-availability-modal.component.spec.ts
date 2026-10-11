@@ -88,7 +88,7 @@ describe('FindAvailabilityModalComponent', () => {
     });
 
     it('should ignore adding a falsy user', () => {
-        spectator.component.addUser(undefined as any);
+        spectator.component.addUser(undefined);
         expect(spectator.component.users().length).toBe(1);
     });
 

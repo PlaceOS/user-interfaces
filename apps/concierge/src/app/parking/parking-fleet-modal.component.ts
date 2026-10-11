@@ -171,7 +171,7 @@ export class ParkingFleetModalComponent extends AsyncHandler {
 
     constructor() {
         super();
-        const data = this._data as any;
+        const data = this._data;
         if (data) {
             this.model.update((m) => ({
                 ...m,

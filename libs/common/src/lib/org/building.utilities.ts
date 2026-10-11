@@ -13,7 +13,7 @@ export function generateMockBuilding(id?: string): Record<string, any> {
     const levels = Array(10)
         .fill(0)
         .map(() => generateMockLevel());
-    const features: any = {};
+    const features = {};
     for (const lvl of levels) {
         const count = Math.floor(Math.random() * 3 + 2);
         features[lvl.level_id] = {};

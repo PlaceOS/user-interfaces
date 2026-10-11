@@ -20,7 +20,7 @@ import { RoomWeekBookingsTimelineComponent } from '../../app/day-view/room-week-
 
 describe('RoomWeekBookingsTimelineComponent', () => {
     let spectator: SpectatorRouting<RoomWeekBookingsTimelineComponent>;
-    const filtered = signal<any[]>([]);
+    const filtered = signal<unknown[]>([]);
     const zones = signal<string[]>([]);
     const date = signal<number>(startOfDay(Date.now()).valueOf());
     const settings_values: Record<string, any> = {};
@@ -65,7 +65,7 @@ describe('RoomWeekBookingsTimelineComponent', () => {
             MockProvider(SettingsService, {
                 get: vi.fn((key: string) => settings_values[key]),
                 time_format: 'shortTime',
-            } as any),
+            }),
             MockProvider(OrganisationService, {
                 active_building: signal({ id: 'bld-1' }),
                 building: { timezone: '' },
@@ -88,7 +88,7 @@ describe('RoomWeekBookingsTimelineComponent', () => {
             afterClosed: () => new Subject(),
         }));
         spectator = createComponent({
-            providers: [MockProvider(MatDialog, { open: dialog_open } as any)],
+            providers: [MockProvider(MatDialog, { open: dialog_open })],
         });
         spectator.detectChanges();
     });

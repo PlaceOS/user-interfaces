@@ -3,7 +3,7 @@ import { HashMap, randomInt, randomString } from '@placeos/common';
 class PaymentsModule {
     $list_payment_methods(_type: string) {}
 
-    $add_payment_method(_type: string, _details: any) {}
+    $add_payment_method(_type: string, _details: unknown) {}
 
     $get_product_prices(_id: string, _period) {
         return [12000, 60];

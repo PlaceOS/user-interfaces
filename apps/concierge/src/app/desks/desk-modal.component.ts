@@ -341,7 +341,7 @@ export class DeskModalComponent implements OnInit {
     });
 
     constructor() {
-        const desk = this._data?.desk as any;
+        const desk = this._data?.desk;
         if (desk) {
             this.model.update((m) => ({
                 ...m,
@@ -424,7 +424,7 @@ export class DeskModalComponent implements OnInit {
         this.form().markAsTouched();
         if (!this.form().valid()) return;
         this.loading.set(true);
-        const value: any = { ...this.model() };
+        const value = { ...this.model() };
         if (value.assigned_user) {
             value.assigned_to = value.assigned_user?.email || value.assigned_to;
             value.assigned_name =

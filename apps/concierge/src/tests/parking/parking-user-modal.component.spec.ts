@@ -6,8 +6,8 @@ import { ParkingUserModalComponent } from '../../app/parking/parking-user-modal.
 
 describe('ParkingUserModalComponent', () => {
     let spectator: Spectator<ParkingUserModalComponent>;
-    let data: any;
-    const dialog_ref = { disableClose: false } as MatDialogRef<any>;
+    let data: unknown;
+    const dialog_ref = { disableClose: false } as MatDialogRef<unknown>;
 
     const createComponent = createComponentFactory({
         component: ParkingUserModalComponent,

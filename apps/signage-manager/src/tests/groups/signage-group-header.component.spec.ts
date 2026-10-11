@@ -7,7 +7,7 @@ import { SignageGroupHeaderComponent } from '../../app/groups/signage-group-head
 import { SignageContextService } from '../../app/signage-context.service';
 
 describe('SignageGroupHeaderComponent', () => {
-    const manageable_signage_groups = signal<any[]>([]);
+    const manageable_signage_groups = signal<unknown[]>([]);
     const managed_group_id = signal('');
     const can_manage_all_groups = signal(true);
     const dialog = { open: vi.fn() };

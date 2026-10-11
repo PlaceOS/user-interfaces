@@ -171,7 +171,7 @@ export class AuthorisedUserGuard {
         return value === true || value === 'true';
     }
 
-    private checkSubsystemAccess(user: any) {
+    private checkSubsystemAccess(user: unknown) {
         if (!user) return false;
         // The subsystem groups grant permissions for doesn't always match the
         // app's deploy path, e.g. signage-manager runs on `signage`.

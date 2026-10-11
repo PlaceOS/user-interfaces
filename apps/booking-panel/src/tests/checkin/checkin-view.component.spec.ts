@@ -15,15 +15,15 @@ describe('CheckinViewComponent', () => {
     let spectator: SpectatorRouting<CheckinViewComponent>;
 
     const status = signal<string>('free');
-    const space = signal<any>(null);
-    const bookings = signal<any[]>([]);
-    const current = signal<any>(null);
-    const next = signal<any>(null);
-    const setting = vi.fn<(key: string) => any>();
+    const space = signal<unknown>(null);
+    const bookings = signal<unknown[]>([]);
+    const current = signal<unknown>(null);
+    const next = signal<unknown>(null);
+    const setting = vi.fn<(key: string) => unknown>();
     const start_meeting = vi.fn();
     const new_booking = vi.fn();
 
-    const state_service: any = {
+    const state_service = {
         status,
         space,
         bookings,

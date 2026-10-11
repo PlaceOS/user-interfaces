@@ -32,7 +32,7 @@ describe('AssetBulkFormComponent', () => {
                 postChange: vi.fn(),
                 setExtraAssets: vi.fn(),
                 setOptions: vi.fn(),
-            } as any),
+            }),
             MockProvider(OrganisationService, {
                 building: { id: 'bld-1' },
             } as any),
@@ -60,7 +60,7 @@ describe('AssetBulkFormComponent', () => {
             identifier: 'Chair',
             other_data: {},
             purchase_order_id: '',
-        } as any);
+        });
     });
 
     it('should reject an invalid count without creating assets', async () => {

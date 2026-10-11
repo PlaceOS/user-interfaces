@@ -23,7 +23,7 @@ describe('ParkingSpecialRequestModalComponent', () => {
         booking = {
             extension_data: { notes: '  Needs wheelchair access  ' },
             description: 'ignored',
-        } as any;
+        };
 
         spectator = createComponent();
 
@@ -36,7 +36,7 @@ describe('ParkingSpecialRequestModalComponent', () => {
         booking = {
             extension_data: {},
             description: 'Fallback reason',
-        } as any;
+        };
 
         spectator = createComponent();
 
@@ -51,7 +51,7 @@ describe('ParkingSpecialRequestModalComponent', () => {
                     '',
                 ],
             },
-        } as any;
+        };
 
         spectator = createComponent();
 
@@ -64,7 +64,7 @@ describe('ParkingSpecialRequestModalComponent', () => {
     });
 
     it('should expose an empty attachment list when none are provided', () => {
-        booking = { extension_data: {} } as any;
+        booking = { extension_data: {} };
 
         spectator = createComponent();
 

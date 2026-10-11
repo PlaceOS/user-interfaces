@@ -546,7 +546,7 @@ export class IndoorMapsComponent
             return notifyError('Unable to find a route.');
         }
 
-        const origin: any = {
+        const origin = {
             lat: this.user_latitude(),
             lng: this.user_longitude(),
         };

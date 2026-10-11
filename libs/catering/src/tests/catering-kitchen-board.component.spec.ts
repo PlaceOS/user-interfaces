@@ -25,16 +25,16 @@ describe('CateringKitchenBoardComponent', () => {
                 filters: {},
                 startPolling: vi.fn(() => () => null),
                 changeStatus,
-            } as any),
+            }),
             MockProvider(CateringOrderAlertsService, {
                 enabled: signal(false),
-            } as any),
+            }),
             MockProvider(OrganisationService, {
                 levelWithID: vi.fn(),
-            } as any),
+            }),
             MockProvider(SettingsService, {
                 time_format_signal: signal('h:mm a'),
-            } as any),
+            }),
         ],
     });
     const order = (id: string, status: CateringOrder['status']) =>

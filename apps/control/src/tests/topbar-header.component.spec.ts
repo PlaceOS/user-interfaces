@@ -28,7 +28,7 @@ describe('TopbarHeaderComponent', () => {
             MockProvider(SettingsService, { get: vi.fn(), theme: 'light' }),
             MockProvider(OrganisationService, {
                 active_building: signal({} as any),
-            } as any),
+            }),
             MockProvider(ControlStateService, {
                 system: signal([]),
                 mic_list: signal([]),

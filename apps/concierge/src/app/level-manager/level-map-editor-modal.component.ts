@@ -837,8 +837,8 @@ export class LevelMapEditorModalComponent implements OnInit, OnDestroy {
                 ...this._level,
                 ...response,
                 map_id,
-                tags: (response as any)?.tags?.length
-                    ? (response as any).tags
+                tags: response?.tags?.length
+                    ? response.tags
                     : this._level.tags?.length
                       ? this._level.tags
                       : ['level'],

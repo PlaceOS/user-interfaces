@@ -11,7 +11,7 @@ import { GroupEventsComponent } from '../../app/events/group-events.component';
 
 describe('GroupEventsComponent', () => {
     let spectator: Spectator<GroupEventsComponent>;
-    const filtered_events = signal<any[]>([]);
+    const filtered_events = signal<unknown[]>([]);
     const createComponent = createComponentFactory({
         component: GroupEventsComponent,
         declarations: [
@@ -24,7 +24,7 @@ describe('GroupEventsComponent', () => {
         providers: [
             MockProvider(GroupEventsStateService, {
                 filtered_events,
-            } as any),
+            }),
         ],
         detectChanges: false,
     });

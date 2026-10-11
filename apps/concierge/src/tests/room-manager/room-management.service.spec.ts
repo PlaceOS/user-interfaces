@@ -17,7 +17,7 @@ vi.mock('@placeos/ts-client', { spy: true });
 
 describe('RoomManagementService', () => {
     let spectator: SpectatorService<RoomManagementService>;
-    let dialog_open: any;
+    let dialog_open: unknown;
     let settings_map: Record<string, any>;
 
     const organisation_service: any = {
@@ -32,9 +32,9 @@ describe('RoomManagementService', () => {
         providers: [
             MockProvider(OrganisationService, organisation_service),
             MockProvider(SettingsService, {
-                get: ((name: string) => settings_map[name]) as any,
-            } as any),
-            MockProvider(MatDialog, {} as any),
+                get: ((name: string) => settings_map[name]),
+            }),
+            MockProvider(MatDialog, {}),
         ],
     });
 
@@ -42,7 +42,7 @@ describe('RoomManagementService', () => {
         settings_map = { 'app.use_region': false };
         organisation_service.active_building = signal({ id: 'bld-1' });
         organisation_service.active_region = signal({ id: 'region-1' });
-        dialog_open = vi.fn(() => ({ afterClosed: () => of(null) }) as any);
+        dialog_open = vi.fn(() => ({ afterClosed: () => of(null) }));
         vi.clearAllMocks();
         (ts_client_mod.showMetadata as any).mockResolvedValue({
             details: {},
@@ -72,7 +72,7 @@ describe('RoomManagementService', () => {
     });
 
     it('should open the alert modal, ignoring empty rooms', () => {
-        spectator.service.setRoomAlert(null as any);
+        spectator.service.setRoomAlert(null);
         expect(dialog_open).not.toHaveBeenCalled();
 
         const room = new PlaceSystem({ id: 'sys-1' });
@@ -83,7 +83,7 @@ describe('RoomManagementService', () => {
     });
 
     it('should open a fullscreen booking history modal', () => {
-        spectator.service.viewBookingHistory(null as any);
+        spectator.service.viewBookingHistory(null);
         expect(dialog_open).not.toHaveBeenCalled();
 
         const room = new PlaceSystem({ id: 'sys-1' });

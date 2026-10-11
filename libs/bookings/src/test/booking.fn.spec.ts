@@ -105,7 +105,7 @@ describe('[Booking API]', () => {
                         data: ['asset-3'],
                         next: null,
                     }),
-            } as any);
+            });
 
             await expect(
                 bookedResourceList(
@@ -404,7 +404,7 @@ describe('[Booking API]', () => {
                 id: '1138',
                 ical_uid: '',
                 from_bookings: true,
-            } as any);
+            });
             const get_spy = vi
                 .spyOn(ts_client, 'get')
                 .mockResolvedValue([] as never);
@@ -714,7 +714,7 @@ describe('[Booking API]', () => {
     describe('removeBooking', () => {
         it('should include the UTM source in a booking DELETE request', async () => {
             const spy = vi.spyOn(ts_client, 'del');
-            spy.mockResolvedValue(undefined as any);
+            spy.mockResolvedValue(undefined);
 
             await removeBooking('booking/1');
 
@@ -726,7 +726,7 @@ describe('[Booking API]', () => {
 
         it('should include the UTM source in an instance DELETE request', async () => {
             const spy = vi.spyOn(ts_client, 'del');
-            spy.mockResolvedValue(undefined as any);
+            spy.mockResolvedValue(undefined);
 
             await removeBookingInstance('booking/1', 123);
 
@@ -855,7 +855,7 @@ describe('[Booking API]', () => {
                     booking_start: 100,
                     instance: 200,
                     recurrence_type: 'daily',
-                } as any),
+                }),
                 true,
             );
             expect(ts_client.post).toHaveBeenCalledWith(
@@ -873,7 +873,7 @@ describe('[Booking API]', () => {
                     id: '1',
                     booking_start: 100,
                     recurrence_type: 'weekly',
-                } as any),
+                }),
                 false,
             );
             expect(ts_client.post).toHaveBeenCalledWith(

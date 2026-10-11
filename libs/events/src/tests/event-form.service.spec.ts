@@ -842,7 +842,7 @@ describe('EventFormService', () => {
                     name: 'Space 1',
                     capacity: 8,
                     zones: ['zone-1'],
-                } as any,
+                },
             ],
             attendees: [...model.attendees, { email: 'new.attendee@test.com' }],
         }));
@@ -852,7 +852,7 @@ describe('EventFormService', () => {
         service.model.update((model) => ({
             ...model,
             resources: [
-                { id: 'space-2', email: 'space-2@test.com', zones: [] } as any,
+                { id: 'space-2', email: 'space-2@test.com', zones: [] },
             ],
         }));
         expect(service.can_notify_new_attendees_only()).toBe(false);
@@ -928,7 +928,7 @@ describe('EventFormService', () => {
                 {
                     id: 'placeos-system-2',
                     email: 'space-2@test.com',
-                } as any,
+                },
             ],
         }));
         expect(service.can_notify_new_attendees_only()).toBe(false);
@@ -938,7 +938,7 @@ describe('EventFormService', () => {
                 {
                     id: 'placeos-system-1',
                     email: 'space-1@test.com',
-                } as any,
+                },
             ],
         }));
         expect(service.can_notify_new_attendees_only()).toBe(true);
@@ -1453,7 +1453,7 @@ describe('EventFormService', () => {
         vi.mocked(ts_client.post).mockRejectedValue({
             status: 400,
         });
-        vi.mocked(ts_client.del).mockResolvedValue(undefined as any);
+        vi.mocked(ts_client.del).mockResolvedValue(undefined);
 
         await expect(service.postForm(true)).rejects.toBe(
             i18n('CALENDAR_EVENT.ASSETS_ERROR'),
@@ -1643,14 +1643,11 @@ describe('EventFormService', () => {
 
         service.newForm(event);
         // Concierge copies the stored metadata, permission included, into the form.
-        service.model.update(
-            (model) =>
-                ({
-                    ...model,
-                    permission: 'PUBLIC',
-                    view_access: 'OPEN',
-                }) as any,
-        );
+        service.model.update((model) => ({
+            ...model,
+            permission: 'PUBLIC',
+            view_access: 'OPEN',
+        }));
 
         await service.postForm(true, ['group-events@test.com'], true, true);
 
@@ -1731,10 +1728,9 @@ describe('EventFormService', () => {
                         new Building({ id, timezone: building_timezones[id] }),
                 ),
         );
-        vi.mocked(settings.get).mockImplementation(((key: string) =>
-            key === 'app.events.use_building_timezone'
-                ? true
-                : undefined) as any);
+        vi.mocked(settings.get).mockImplementation((key: string) =>
+            key === 'app.events.use_building_timezone' ? true : undefined,
+        );
         vi.spyOn(service as any, '_checkResourcesAvailable').mockResolvedValue(
             true,
         );

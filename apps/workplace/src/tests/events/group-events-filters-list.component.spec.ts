@@ -8,8 +8,8 @@ import { GroupEventsStateService } from '../../app/events/group-events-state.ser
 
 describe('GroupEventsFiltersListComponent', () => {
     let spectator: Spectator<GroupEventsFiltersListComponent>;
-    const options = signal<any>({ date: Date.now(), end: undefined });
-    const filters = signal<any>({ categories: [], tags: [] });
+    const options = signal<unknown>({ date: Date.now(), end: undefined });
+    const filters = signal<unknown>({ categories: [], tags: [] });
     const set_filters = vi.fn();
     const createComponent = createComponentFactory({
         component: GroupEventsFiltersListComponent,

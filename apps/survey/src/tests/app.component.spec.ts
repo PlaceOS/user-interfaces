@@ -108,7 +108,7 @@ describe('AppComponent', () => {
     it('should toggle dark mode when the dark-mode hotkey fires', () => {
         spectator.component.ngOnInit();
         const dark = listens.find((_) => _.combo.includes('KeyD'));
-        settings.get.mockReturnValue(false as any);
+        settings.get.mockReturnValue(false);
 
         dark.cb();
 

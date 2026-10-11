@@ -17,11 +17,11 @@ describe('AssetRequestDetailsComponent', () => {
             MockProvider(AssetManagerStateService, {
                 setStatus: (...args: any[]) => set_status(...args),
                 setTracking: (...args: any[]) => set_tracking(...args),
-            } as any),
+            }),
             MockProvider(OrganisationService, {
                 levelWithID: vi.fn(),
-            } as any),
-            MockProvider(SettingsService, { time_format: 'h:mm a' } as any),
+            }),
+            MockProvider(SettingsService, { time_format: 'h:mm a' }),
         ],
     });
 
@@ -46,7 +46,7 @@ describe('AssetRequestDetailsComponent', () => {
     });
 
     it('should update the request status locally after saving', async () => {
-        const request: any = { id: 'r-1', status: 'tentative' };
+        const request = { id: 'r-1', status: 'tentative' };
         spectator.component.request.set(request);
 
         await spectator.component.setStatus('approved');
@@ -57,7 +57,7 @@ describe('AssetRequestDetailsComponent', () => {
     });
 
     it('should update the request tracking locally after saving', async () => {
-        const request: any = {
+        const request = {
             id: 'r-1',
             status: 'approved',
             extension_data: {},

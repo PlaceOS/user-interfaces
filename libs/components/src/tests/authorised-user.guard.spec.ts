@@ -28,7 +28,7 @@ describe('AuthorisedUserGuard', () => {
     const access_mock = { group: '' };
     const settings_mock = {
         app_name: 'workplace',
-        get: vi.fn((_key: string): any => []),
+        get: vi.fn((_key: string): unknown => []),
     };
     const wait_until_initialised = vi.fn().mockResolvedValue(undefined);
 
@@ -62,7 +62,7 @@ describe('AuthorisedUserGuard', () => {
         vi.mocked(ts_client.authority).mockReturnValue(undefined);
         vi.mocked(ts_client.currentGroups).mockReturnValue(of([]) as any);
         vi.mocked(ts_client.onlineState).mockReturnValue(of(true) as any);
-        vi.mocked(ts_client.waitForSignal).mockResolvedValue(true as any);
+        vi.mocked(ts_client.waitForSignal).mockResolvedValue(true);
         common_lib.user_groups.set([]);
         common_lib.user_groups_loaded.set(true);
         wait_until_initialised.mockResolvedValue(undefined);
@@ -133,7 +133,7 @@ describe('AuthorisedUserGuard', () => {
             return undefined;
         });
         vi.mocked(ts_client.waitForSignal).mockImplementation(
-            () => new Promise(() => undefined) as any,
+            () => new Promise(() => undefined),
         );
         vi.mocked(ts_client.token).mockReturnValue('cached-token');
 
@@ -251,7 +251,7 @@ describe('AuthorisedUserGuard', () => {
         } as any);
         settings_mock.app_name = 'signage-manager';
         settings_mock.get.mockImplementation((key) =>
-            key === 'app.access_subsystem' ? ('signage' as any) : undefined,
+            key === 'app.access_subsystem' ? 'signage' : undefined,
         );
         setCurrentUser({ groups: [] } as any);
         common_lib.user_groups.set([

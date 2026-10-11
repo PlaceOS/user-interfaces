@@ -138,9 +138,8 @@ export function registerMockEvents() {
                 (event) => event.id === request.route_params.id,
             );
             if (event) {
-                const checked_in =
-                    (event.extension_data as any).checked_in || [];
-                (event.extension_data as any).checked_in = checked_in.concat([
+                const checked_in = event.extension_data.checked_in || [];
+                event.extension_data.checked_in = checked_in.concat([
                     request.route_params.email,
                 ]);
                 return event;

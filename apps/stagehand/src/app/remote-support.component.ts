@@ -500,7 +500,7 @@ export class RemoteSupportComponent extends AsyncHandler implements OnInit {
     public readonly is_eduction = settingSignal('educational_environment');
 
     public readonly alerts = this._dashboard.dashboard_alerts;
-    public readonly alert_sort = (a: any[], b: any[]) =>
+    public readonly alert_sort = (a: unknown[], b: unknown[]) =>
         (a?.length || 0) - (b?.length || 0);
     public readonly critical_alerts = computed(
         () =>
@@ -705,7 +705,7 @@ export class RemoteSupportComponent extends AsyncHandler implements OnInit {
     }
 
     private readonly _room_list_sync = effect(() => {
-        this.room_list.set(this._support.space_list() as any as Space[]);
+        this.room_list.set(this._support.space_list() as Space[]);
     });
 
     public setCurrentBooking(space: Space, event: CalendarEvent) {

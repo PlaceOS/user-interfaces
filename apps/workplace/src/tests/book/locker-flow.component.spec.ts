@@ -21,7 +21,7 @@ vi.mock('@placeos/ts-client', { spy: true });
 
 describe('BookLockerFlowComponent', () => {
     let spectator: SpectatorRouting<BookLockerFlowComponent>;
-    let model: ReturnType<typeof signal<Record<string, any>>>;
+    let model: ReturnType<typeof signal<Record<string, unknown>>>;
     let view: ReturnType<typeof signal<string>>;
     let set_view: any;
     let load_form: any;
@@ -71,7 +71,7 @@ describe('BookLockerFlowComponent', () => {
                 id: 'me',
                 email: 'me@test.com',
                 name: 'Me',
-            } as any),
+            }),
         );
         vi.mocked(ts_client.get).mockResolvedValue([] as any);
         vi.mocked(ts_client.query).mockResolvedValue({ data: [] } as any);
@@ -82,7 +82,7 @@ describe('BookLockerFlowComponent', () => {
             data: [],
         } as any);
         vi.mocked(ts_client.post).mockResolvedValue({ id: 'x' } as any);
-        model = signal<Record<string, any>>({ id: '', booking_type: '' });
+        model = signal<Record<string, unknown>>({ id: '', booking_type: '' });
         view = signal<string>('form');
         set_view = vi.fn((v: string) => view.set(v));
         load_form = vi.fn();

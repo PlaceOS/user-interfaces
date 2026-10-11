@@ -38,7 +38,7 @@ describe('BookingModalComponent', () => {
                         newForm: vi.fn(),
                         postForm: vi.fn(async () => null),
                         loading: signal(''),
-                    } as any;
+                    };
                 },
             },
             MockProvider(SettingsService, { get: vi.fn() }),

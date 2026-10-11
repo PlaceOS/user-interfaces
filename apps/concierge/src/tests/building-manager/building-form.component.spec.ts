@@ -49,7 +49,7 @@ describe('BuildingFormComponent', () => {
     });
 
     afterEach(() => {
-        setNotifyOutlet(null as any, true);
+        setNotifyOutlet(null, true);
         vi.restoreAllMocks();
     });
 
@@ -66,7 +66,7 @@ describe('BuildingFormComponent', () => {
             display_name: 'Alpha Tower',
             timezone: 'Australia/Sydney',
             location: '123 St',
-        } as any);
+        });
         await flush();
 
         const model = spectator.component.model();
@@ -100,7 +100,7 @@ describe('BuildingFormComponent', () => {
     });
 
     it('should create a new building and emit the result when valid', async () => {
-        let emitted: any = null;
+        let emitted: unknown = null;
         spectator.component.done.subscribe((v) => (emitted = v));
         spectator.component.model.update((m) => ({
             ...m,

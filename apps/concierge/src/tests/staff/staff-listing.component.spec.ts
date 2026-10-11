@@ -21,7 +21,7 @@ describe('StaffListingComponent', () => {
         component: StaffListingComponent,
         shallow: true,
         detectChanges: false,
-        providers: [MockProvider(StaffStateService, state as any)],
+        providers: [MockProvider(StaffStateService, state)],
     });
 
     beforeEach(() => {

@@ -14,9 +14,9 @@ import { captureDownloads } from '../download-capture.helper';
 describe('ReportDesksLevelListComponent', () => {
     let spectator: Spectator<ReportDesksLevelListComponent>;
     let downloads: ReturnType<typeof captureDownloads>;
-    let options: ReturnType<typeof signal<any>>;
-    let stats: ReturnType<typeof signal<any>>;
-    let counts: ReturnType<typeof signal<any>>;
+    let options: ReturnType<typeof signal<unknown>>;
+    let stats: ReturnType<typeof signal<unknown>>;
+    let counts: ReturnType<typeof signal<unknown>>;
 
     const day = new Date('2026-04-06T00:00:00').valueOf();
 
@@ -29,7 +29,7 @@ describe('ReportDesksLevelListComponent', () => {
         ],
         imports: [MatTooltipModule],
         providers: [
-            MockProvider(ReportsStateService, {} as any),
+            MockProvider(ReportsStateService, {}),
             MockProvider(SettingsService, {
                 get: vi.fn(() => false),
             } as any),

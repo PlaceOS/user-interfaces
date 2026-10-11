@@ -49,13 +49,13 @@ describe('ParkingComponent', () => {
         };
         // currentUser() is a workspace-lib fn (not spyable under the bundling
         // builder); seed the real user store instead.
-        setCurrentUser(new StaffUser({ groups: ['staff'] } as any));
+        setCurrentUser(new StaffUser({ groups: ['staff'] }));
         spectator = createComponent();
     });
 
     afterEach(() => {
         vi.restoreAllMocks();
-        setCurrentUser(new StaffUser({ groups: ['staff'] } as any));
+        setCurrentUser(new StaffUser({ groups: ['staff'] }));
     });
 
     it('should not show the no parking floors message while org data refreshes', () => {
@@ -76,7 +76,7 @@ describe('ParkingComponent', () => {
     });
 
     it('should allow admins to view requests', () => {
-        setCurrentUser(new StaffUser({ groups: ['admin'] } as any));
+        setCurrentUser(new StaffUser({ groups: ['admin'] }));
 
         expect(spectator.component.can_view_requests).toBe(true);
     });

@@ -36,7 +36,7 @@ describe('stringToMinutes', () => {
 
     it('should return 0 for invalid input', () => {
         expect(stringToMinutes('')).toBe(0);
-        expect(stringToMinutes(null as any)).toBe(0);
+        expect(stringToMinutes(null)).toBe(0);
         expect(stringToMinutes('30')).toBe(0);
     });
 });
@@ -171,7 +171,7 @@ describe('rulesForResource', () => {
     };
 
     it('should return default rules when ruleset list is not an array', () => {
-        expect(rulesForResource(details(), null as any)).toEqual({
+        expect(rulesForResource(details(), null)).toEqual({
             auto_approve: true,
             hidden: false,
         });

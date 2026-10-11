@@ -326,7 +326,7 @@ export class UserListFieldComponent
                     });
                 }
                 return unique(
-                    (staff as any).concat(guests).concat(visitors_list),
+                    staff.concat(guests).concat(visitors_list),
                     'email',
                 );
             } catch {

@@ -8,9 +8,9 @@ import { SignagePlaylistService } from '../../app/playlists/signage-playlist.ser
 import { HydratedSignageTemplateMapping } from '../../app/signage-template-mapping';
 
 describe('DisplayScheduleComponent', () => {
-    const selected_display = signal<any>(null);
-    const selected_display_zones = signal<any[]>([]);
-    const playlists = signal<any[]>([]);
+    const selected_display = signal<unknown>(null);
+    const selected_display_zones = signal<unknown[]>([]);
+    const playlists = signal<unknown[]>([]);
     const template_mappings = signal<HydratedSignageTemplateMapping[]>([]);
     const display_stub = {
         selected_display,

@@ -16,7 +16,7 @@ class MockSpeechRecognition {
     public maxAlternatives = 0;
     public onresult: any = null;
     public onerror: any = null;
-    public onend: any = null;
+    public onend: unknown = null;
     public start = vi.fn();
     public stop = vi.fn();
     public abort = vi.fn();
@@ -24,8 +24,8 @@ class MockSpeechRecognition {
 
 describe('VoiceAssistantService', () => {
     let spectator: SpectatorService<VoiceAssistantService>;
-    let messages: ReturnType<typeof signal<any[]>>;
-    let progress: ReturnType<typeof signal<any>>;
+    let messages: ReturnType<typeof signal<unknown[]>>;
+    let progress: ReturnType<typeof signal<unknown>>;
     let chat: any;
     let recognition_instances: MockSpeechRecognition[];
 
@@ -43,8 +43,8 @@ describe('VoiceAssistantService', () => {
             recognition_instances.push(instance);
             return instance;
         });
-        messages = signal<any[]>([]);
-        progress = signal<any>(null);
+        messages = signal<unknown[]>([]);
+        progress = signal<unknown>(null);
         chat = {
             messages,
             progress,
@@ -202,7 +202,7 @@ describe('VoiceAssistantService', () => {
         (window as any).speechSynthesis = { speaking: true };
         hear(recognition, 'can you please confirm the booking');
         expect(chat.sendMessage).not.toHaveBeenCalled();
-        delete (window as any).speechSynthesis;
+        delete window.speechSynthesis;
     });
 
     it('should speak the reply as plain text and go idle', () => {
@@ -231,8 +231,8 @@ describe('VoiceAssistantService', () => {
             expect.objectContaining({ text: 'Two meetings' }),
         );
         expect(spectator.service.state()).toBe('idle');
-        delete (window as any).speechSynthesis;
-        delete (window as any).SpeechSynthesisUtterance;
+        delete window.speechSynthesis;
+        delete window.SpeechSynthesisUtterance;
     });
 
     it('should only disable recognition for fatal errors', () => {

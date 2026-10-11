@@ -10,8 +10,8 @@ import { DeskListComponent } from '../lib/desk-select-modal/desk-list.component'
 
 describe('DeskListComponent', () => {
     let spectator: Spectator<DeskListComponent>;
-    const available_resources = signal<any[]>([]);
-    const options = signal<any>({});
+    const available_resources = signal<unknown[]>([]);
+    const options = signal<unknown>({});
     const loading = signal<string>('');
 
     const createComponent = createComponentFactory({
@@ -61,7 +61,7 @@ describe('DeskListComponent', () => {
     });
 
     it('should emit onSelect when a desk is clicked', () => {
-        let selected: any = null;
+        let selected: unknown = null;
         spectator.component.onSelect.subscribe((d) => (selected = d));
         available_resources.set([{ id: 'd1', name: 'Desk One' }]);
         spectator.detectChanges();
@@ -70,7 +70,7 @@ describe('DeskListComponent', () => {
     });
 
     it('should emit toggleFav when the favourite button is clicked', () => {
-        let toggled: any = null;
+        let toggled: unknown = null;
         spectator.component.toggleFav.subscribe((d) => (toggled = d));
         available_resources.set([{ id: 'd1', name: 'Desk One' }]);
         spectator.detectChanges();

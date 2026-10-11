@@ -23,7 +23,7 @@ describe('EmbeddedUrlComponent', () => {
         detectChanges: false,
     });
 
-    const setEmbeds = (items: any[]) =>
+    const setEmbeds = (items: unknown[]) =>
         settingSignal('menu_embeds', []).set(items);
 
     beforeEach(() => setEmbeds([]));

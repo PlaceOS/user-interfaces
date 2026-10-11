@@ -12,7 +12,7 @@ import { RoomAccessoryTooltipComponent } from '../../app/ui/room-accessory-toolt
 
 describe('RoomAccessoryTooltipComponent', () => {
     let spectator: Spectator<RoomAccessoryTooltipComponent>;
-    const room_accessories = signal<any[]>([]);
+    const room_accessories = signal<unknown[]>([]);
     const close_fn = vi.fn();
     const execute_fn = vi.fn(async () => null);
     const createComponent = createComponentFactory({

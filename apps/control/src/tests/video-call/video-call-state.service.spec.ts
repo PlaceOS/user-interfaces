@@ -17,7 +17,7 @@ describe('VideoCallStateService', () => {
     let execute_spy: any;
     let variable_values: Record<string, any>;
     const system_id = signal('sys-1');
-    const control_mock: any = { id: 'sys-1', system_id };
+    const control_mock = { id: 'sys-1', system_id };
 
     const createService = createServiceFactory({
         service: VideoCallStateService,

@@ -13,7 +13,7 @@ describe('NewSurveyWidgetComponent', () => {
 
     it('should classify comment/text questions as table widgets', () => {
         spectator.setInput('response', {
-            question: { type: 'comment' } as any,
+            question: { type: 'comment' },
             answers: [],
         });
         expect(spectator.component.is_table()).toBe(true);
@@ -25,12 +25,12 @@ describe('NewSurveyWidgetComponent', () => {
             question: {
                 type: 'radiogroup',
                 choices: [{ text: 'Yes' }, { text: 'No' }],
-            } as any,
+            },
             answers: [
                 { id: 1, answer_json: 'Yes' },
                 { id: 2, answer_json: 'Yes' },
                 { id: 3, answer_json: 'No' },
-            ] as any,
+            ],
         });
 
         expect(spectator.component.is_selection()).toBe(true);
@@ -45,8 +45,8 @@ describe('NewSurveyWidgetComponent', () => {
             question: {
                 type: 'checkbox',
                 choices: [{ text: 'A' }, { text: 'B' }],
-            } as any,
-            answers: [{ id: 1, answer_json: ['A', 'B'] }] as any,
+            },
+            answers: [{ id: 1, answer_json: ['A', 'B'] }],
         });
 
         const items = spectator.component.selection_items();
@@ -56,11 +56,11 @@ describe('NewSurveyWidgetComponent', () => {
 
     it('should compute the average rating and progress for rating questions', () => {
         spectator.setInput('response', {
-            question: { type: 'rating', max_rating: 10 } as any,
+            question: { type: 'rating', max_rating: 10 },
             answers: [
                 { id: 1, answer_json: 5 },
                 { id: 2, answer_json: 10 },
-            ] as any,
+            ],
         });
 
         expect(spectator.component.average_rating()).toBe(7.5);

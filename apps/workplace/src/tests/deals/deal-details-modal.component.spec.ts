@@ -28,7 +28,7 @@ describe('DealDetailsModalComponent', () => {
         providers: [
             { provide: MAT_DIALOG_DATA, useValue: deal },
             { provide: MatDialogRef, useValue: dialog_ref },
-            MockProvider(MatDialogRef, dialog_ref as any),
+            MockProvider(MatDialogRef, dialog_ref),
         ],
     });
 

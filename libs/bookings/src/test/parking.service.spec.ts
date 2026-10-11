@@ -53,7 +53,7 @@ describe('ParkingService', () => {
         vi.mocked(ts_client.queryAssets).mockResolvedValue({
             data: [{ id: 'park-1', assigned_to: 'user@example.com' }],
         } as any);
-        vi.mocked(ts_client.listChildMetadata).mockResolvedValue([] as any);
+        vi.mocked(ts_client.listChildMetadata).mockResolvedValue([]);
         vi.mocked(ts_client.get).mockResolvedValue([] as any);
         spectator = createService();
         TestBed.tick();

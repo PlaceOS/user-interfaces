@@ -501,8 +501,8 @@ export class EventsStateService extends AsyncHandler {
             }),
             nextValueFrom(ref.afterClosed()),
         ]);
-        if ((details as any)?.reason !== 'done') return;
-        this.replace((details as any).metadata);
+        if (details?.reason !== 'done') return;
+        this.replace(details.metadata);
     }
 
     public async removeBooking(event: CalendarEvent, series = false) {

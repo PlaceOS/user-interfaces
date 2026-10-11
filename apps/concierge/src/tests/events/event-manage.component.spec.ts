@@ -18,9 +18,9 @@ vi.mock('@placeos/ts-client', { spy: true });
 describe('EventManageComponent', () => {
     let spectator: SpectatorRouting<EventManageComponent>;
     const settings_values: Record<string, any> = {};
-    const form_options = signal<any>({ zones: [] });
+    const form_options = signal<unknown>({ zones: [] });
     const building = { id: 'bld-1', display_name: 'HQ', parent_id: 'reg-1' };
-    let set_options: any;
+    let set_options: unknown;
 
     const createComponent = createRoutingFactory({
         component: EventManageComponent,
@@ -45,16 +45,16 @@ describe('EventManageComponent', () => {
                         newForm: vi.fn(),
                         setOptions: set_options,
                         postForm: vi.fn(async () => ({ id: 'e1' })),
-                    } as any;
+                    };
                 },
             },
             MockProvider(EventStateService, {
                 calendar: 'group@events.com',
                 changed: vi.fn(),
-            } as any),
+            }),
             MockProvider(SettingsService, {
                 get: vi.fn((key: string) => settings_values[key]),
-            } as any),
+            }),
             MockProvider(OrganisationService, {
                 building_list: signal([]),
                 active_levels: signal([]),

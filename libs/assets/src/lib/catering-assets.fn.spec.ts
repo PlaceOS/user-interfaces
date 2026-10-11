@@ -11,7 +11,7 @@ function response(data: any[]) {
         data,
         total: data.length,
         next: () => null,
-    }) as any;
+    });
 }
 
 async function load_modules() {
@@ -58,7 +58,7 @@ describe('[Catering Assets]', () => {
             ]),
         );
         vi.mocked(ts_client.queryAssetTypes).mockImplementation(
-            ({ category_id }: any) =>
+            ({ category_id }) =>
                 response(
                     category_id === 'cat-old'
                         ? [

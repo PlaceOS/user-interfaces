@@ -24,7 +24,7 @@ const SCHEMA = {
 
 describe('parseSchemaFields', () => {
     it('should map JSON schema properties to form fields', () => {
-        const fields = parseSchemaFields(SCHEMA as any);
+        const fields = parseSchemaFields(SCHEMA);
         expect(fields).toHaveLength(4);
         expect(fields[0]).toMatchObject({
             key: 'title',
@@ -59,7 +59,7 @@ describe('parseSchemaFields', () => {
 
 describe('buildFormFromFields', () => {
     it('should prefer passed defaults over schema defaults', () => {
-        const fields = parseSchemaFields(SCHEMA as any);
+        const fields = parseSchemaFields(SCHEMA);
         const form = buildFormFromFields(fields, { count: 10 });
         expect(form.value).toEqual({
             title: null,

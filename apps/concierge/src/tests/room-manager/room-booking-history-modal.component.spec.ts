@@ -24,7 +24,7 @@ describe('RoomBookingHistoryModalComponent', () => {
                 provide: MAT_DIALOG_DATA,
                 useValue: { room: { id: 'sys-1', name: 'Boardroom' } },
             },
-            MockProvider(SettingsService, { time_format: 'h:mm a' } as any),
+            MockProvider(SettingsService, { time_format: 'h:mm a' }),
         ],
     });
 

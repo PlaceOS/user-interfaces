@@ -241,10 +241,10 @@ export class BookingFormService extends AsyncHandler {
      * what makes it safe to replay over a freshly loaded booking.
      */
     private _userEditedValues(): Partial<BookingFormValue> {
-        const form = this.form as any;
+        const form = this.form;
         if (!form) return {};
         const model = untracked(this.model) as Record<string, any>;
-        const edits: Record<string, any> = {};
+        const edits: Record<string, unknown> = {};
         for (const key of Object.keys(model || {})) {
             const field = form[key];
             if (typeof field !== 'function') continue;
@@ -590,8 +590,7 @@ export class BookingFormService extends AsyncHandler {
             () => [] as BookingAsset[],
         );
         return resources.some(
-            (resource) =>
-                (resource as any).assigned_to?.toLowerCase() === email,
+            (resource) => resource.assigned_to?.toLowerCase() === email,
         );
     }
 
@@ -815,7 +814,7 @@ export class BookingFormService extends AsyncHandler {
         );
         this.subscription('form_change', {
             unsubscribe: () => form_change.destroy(),
-        } as any);
+        });
         this._syncWindowIfUnchanged(
             'date',
             initial_date,
@@ -1107,7 +1106,7 @@ export class BookingFormService extends AsyncHandler {
     public async confirmPost() {
         await this.checkQuestions();
         const options = this._options();
-        const value = this.model() as any;
+        const value = this.model();
 
         const content = i18n(
             options.group
@@ -1151,7 +1150,7 @@ export class BookingFormService extends AsyncHandler {
     public async postForm(ignore_check = false, reset_form = true) {
         if (!this.form) throw 'No form for booking';
         this._prepareFormForPost();
-        const value = this.model() as any;
+        const value = this.model();
         const effective_timezone = this.timezone || value.timezone;
         const booking = this._booking() || new Booking();
         const all_day_period = value.all_day
@@ -1253,7 +1252,7 @@ export class BookingFormService extends AsyncHandler {
         // user/booked_by may have been seeded with the placeholder EMPTY_USER
         // before the signed-in user loaded. Refresh them from the now-loaded
         // current user so bookings are never saved against the empty user.
-        if (isEmptyUser(this.model().user as any)) {
+        if (isEmptyUser(this.model().user)) {
             this._patch({ user: currentUser(), booked_by: currentUser() });
         }
         // For all-day bookings the date/duration window is derived from the
@@ -1569,7 +1568,7 @@ export class BookingFormService extends AsyncHandler {
                     ...form,
                     assets,
                     parent_id,
-                    user: user as any,
+                    user: user,
                     user_email: user.email,
                     user_id: user.id,
                     ...this._resourceFormData(asset),
@@ -1811,7 +1810,7 @@ export class BookingFormService extends AsyncHandler {
                         id: booking_id,
                         parent_id: booking_id === parent_id ? '' : parent_id,
                         group: group_name,
-                        user: member as any,
+                        user: member,
                         user_email: member.email,
                         user_id: member.id,
                         ...(asset ? this._resourceFormData(asset) : {}),
@@ -1978,7 +1977,7 @@ export class BookingFormService extends AsyncHandler {
         });
     }
 
-    private _error_message(error: any) {
+    private _error_message(error: unknown) {
         return errorMessage(error) || i18n('BOOKINGS.ERROR_GENERIC');
     }
 
@@ -2047,12 +2046,12 @@ export class BookingFormService extends AsyncHandler {
         const ref = this._dialog.open(DeskQuestionsModalComponent);
         const result = await new Promise<any>((resolve) => {
             const subs: { unsubscribe: () => void }[] = [];
-            const finish = (value: any) => {
+            const finish = (value: unknown) => {
                 subs.forEach((s) => s.unsubscribe());
                 resolve(value);
             };
             subs.push(
-                ref.componentInstance.event.subscribe((event: any) => {
+                ref.componentInstance.event.subscribe((event) => {
                     if (event?.reason === 'done') finish(event);
                 }),
             );
@@ -2148,7 +2147,7 @@ export class BookingFormService extends AsyncHandler {
         if (
             this.assignedResourceBooking(type) !== 'allow' &&
             active_bookings.some(
-                (_) => _.id !== id && (_.extension_data as any)?.is_assigned,
+                (_) => _.id !== id && _.extension_data?.is_assigned,
             )
         ) {
             throw `${is_self ? 'You have' : 'This user has'} an assigned ${type} and cannot book another ${type}.`;
@@ -2330,8 +2329,8 @@ export class BookingFormService extends AsyncHandler {
             date: booking.date,
             duration: booking.duration,
             timezone: effective_timezone,
-            recurrence_type: (booking as any).recurrence_type,
-            recurrence_end: (booking as any).recurrence_end,
+            recurrence_type: booking.recurrence_type,
+            recurrence_end: booking.recurrence_end,
             zones,
             asset_ids: resources.map((_) => _.id),
         });

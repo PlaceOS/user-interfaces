@@ -173,14 +173,14 @@ export class AssetListComponent {
             );
             if (selected) selected.assets = item.assets;
             if (requested[item.id] !== undefined) {
-                (item as any).available = Math.max(
+                item.available = Math.max(
                     (item.assets?.length || 0) - requested[item.id],
                     0,
                 );
             }
         }
         return assets.filter(
-            (_: any) =>
+            (_) =>
                 (_.available != null && _.available > 0) ||
                 (_.available == null && _.assets?.length > 0),
         );

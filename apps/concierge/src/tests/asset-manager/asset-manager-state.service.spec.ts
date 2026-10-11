@@ -15,7 +15,7 @@ describe('AssetManagerStateService', () => {
     let spectator: SpectatorService<AssetManagerStateService>;
     let settings_map: Record<string, any>;
 
-    const organisation_service: any = {
+    const organisation_service: unknown = {
         active_building: signal({ id: 'bld-1' }),
         active_region: signal(null),
         initialised: signal(true),
@@ -33,10 +33,10 @@ describe('AssetManagerStateService', () => {
             MockProvider(SpacesService, {
                 initialised: signal(true),
                 find: vi.fn(),
-            } as any),
+            }),
             MockProvider(SettingsService, {
                 get: vi.fn((name: string) => settings_map[name]),
-            } as any),
+            }),
             MockProvider(OrganisationService, organisation_service),
         ],
     });
@@ -51,22 +51,22 @@ describe('AssetManagerStateService', () => {
             data: [],
             total: 0,
             next: null,
-        } as any);
+        });
         vi.mocked(ts_client.queryAssetCategories).mockResolvedValue({
             data: [],
             total: 0,
             next: null,
-        } as any);
+        });
         vi.mocked(ts_client.queryAssets).mockResolvedValue({
             data: [],
             total: 0,
             next: null,
-        } as any);
+        });
         vi.mocked(ts_client.queryAssetPurchaseOrders).mockResolvedValue({
             data: [],
             total: 0,
             next: null,
-        } as any);
+        });
         vi.mocked(ts_client.showMetadata).mockResolvedValue({
             details: {},
         } as any);
@@ -247,7 +247,7 @@ describe('AssetManagerStateService', () => {
                 other_data: expect.objectContaining({ warranty: '2 years' }),
             }),
         );
-        const saved = vi.mocked(ts_client.addAsset).mock.calls[0][0] as any;
+        const saved = vi.mocked(ts_client.addAsset).mock.calls[0][0];
         expect(saved.other_data).not.toHaveProperty('name');
         expect(saved.other_data).not.toHaveProperty('id');
         expect(id).toBe('asset-1');

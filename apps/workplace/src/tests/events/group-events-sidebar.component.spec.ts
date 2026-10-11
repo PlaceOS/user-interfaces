@@ -11,8 +11,8 @@ import { GroupEventsStateService } from '../../app/events/group-events-state.ser
 
 describe('GroupEventsSidebarComponent', () => {
     let spectator: Spectator<GroupEventsSidebarComponent>;
-    const options = signal<any>({ date: Date.now() });
-    const filters = signal<any>({ categories: [], tags: [] });
+    const options = signal<unknown>({ date: Date.now() });
+    const filters = signal<unknown>({ categories: [], tags: [] });
     const tags = signal<string[]>([]);
     const set_options = vi.fn();
     const set_filters = vi.fn();

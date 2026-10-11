@@ -31,9 +31,9 @@ describe('DeskBookModalComponent', () => {
                         form: ref.form,
                         newForm,
                         applyDurationSettings,
-                        options: signal({ type: 'desk' }) as any,
+                        options: signal({ type: 'desk' }),
                         postForm: vi.fn(async () => null),
-                    } as any;
+                    };
                 },
             },
             MockProvider(MatDialogRef, { close: vi.fn() }),

@@ -15,8 +15,8 @@ import { Survey } from '@placeos/ts-client';
 describe('SurveyResponsesComponent', () => {
     let spectator: Spectator<SurveyResponsesComponent>;
     const setSurvey = vi.fn();
-    const survey = signal<any>(null);
-    const survey_questions = signal<any[]>([]);
+    const survey = signal<unknown>(null);
+    const survey_questions = signal<unknown[]>([]);
     let param_map: any;
 
     const createComponent = createComponentFactory({
@@ -36,7 +36,7 @@ describe('SurveyResponsesComponent', () => {
                 get paramMap() {
                     return param_map;
                 },
-            } as any),
+            }),
         ],
     });
 
@@ -58,7 +58,7 @@ describe('SurveyResponsesComponent', () => {
             new Survey({
                 id: 1,
                 pages: [{ title: 'Page One', question_order: [1, 2] }],
-            } as any),
+            }),
         );
         survey_questions.set([
             { id: 1, title: 'Q1' },

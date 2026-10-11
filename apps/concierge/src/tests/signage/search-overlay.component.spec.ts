@@ -47,7 +47,7 @@ describe('SearchOverlayComponent', () => {
     });
 
     it('should tolerate a null item list', () => {
-        spectator.setInput('item_list', null as any);
+        spectator.setInput('item_list', null);
         spectator.component.search.set('abc');
 
         expect(spectator.component.filtered_items()).toEqual([]);

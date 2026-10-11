@@ -52,9 +52,9 @@ describe('AppComponent', () => {
         settings_get.mockImplementation((key: string) =>
             key === 'composer' ? {} : undefined,
         );
-        vi.mocked(setup).mockResolvedValue(undefined as any);
-        vi.mocked(setAPI_Key).mockReturnValue(undefined as any);
-        vi.mocked(authority).mockReturnValue(undefined as any);
+        vi.mocked(setup).mockResolvedValue(undefined);
+        vi.mocked(setAPI_Key).mockReturnValue(undefined);
+        vi.mocked(authority).mockReturnValue(undefined);
         setCurrentUser({ email: 'user@example.com' } as any);
         spectator = create_component();
     });
@@ -140,7 +140,7 @@ describe('AppComponent', () => {
 
     describe('domain redirects', () => {
         it('should not redirect when there is no authority', async () => {
-            vi.mocked(authority).mockReturnValue(undefined as any);
+            vi.mocked(authority).mockReturnValue(undefined);
             await spectator.component.ngOnInit();
             expect(redirect_url()).toBeUndefined();
             expect(spectator.component.initialisation_error()).toContain(

@@ -13,8 +13,8 @@ vi.mock('@placeos/ts-client', { spy: true });
 
 describe('ReportSpacesSpaceListingComponent', () => {
     let spectator: Spectator<ReportSpacesSpaceListingComponent>;
-    let stats: ReturnType<typeof signal<any>>;
-    let options: ReturnType<typeof signal<any>>;
+    let stats: ReturnType<typeof signal<unknown>>;
+    let options: ReturnType<typeof signal<unknown>>;
 
     const start = new Date('2026-04-06T09:00:00').valueOf();
     const end = new Date('2026-04-06T18:00:00').valueOf();
@@ -30,8 +30,8 @@ describe('ReportSpacesSpaceListingComponent', () => {
             {
                 provide: ReportsStateService,
                 useValue: {
-                    stats: (stats = signal<any>({ events: [] })),
-                    options: (options = signal<any>({ start, end })),
+                    stats: (stats = signal<unknown>({ events: [] })),
+                    options: (options = signal<unknown>({ start, end })),
                 },
             },
             {
@@ -61,8 +61,8 @@ describe('ReportSpacesSpaceListingComponent', () => {
         (ts_client.querySystemsWithEmails as any).mockResolvedValue({
             data: [],
         });
-        stats = signal<any>({ events: [] });
-        options = signal<any>({ start, end });
+        stats = signal<unknown>({ events: [] });
+        options = signal<unknown>({ start, end });
         spectator = createComponent({
             providers: [
                 {

@@ -22,8 +22,8 @@ describe('ExploreSpacesService', () => {
         service: ExploreSpacesService,
         providers: [
             MockProvider(ExploreStateService, {
-                options: signal({ is_public: false }) as any,
-                spaces: signal([]) as any,
+                options: signal({ is_public: false }),
+                spaces: signal([]),
                 setStyles: vi.fn(),
                 setFeatures: vi.fn(),
                 setActions: vi.fn(),

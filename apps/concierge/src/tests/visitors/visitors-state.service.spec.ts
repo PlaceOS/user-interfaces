@@ -48,7 +48,7 @@ describe('VisitorStateService', () => {
                     name === 'app.bookings.use_building_timezone'
                         ? true
                         : undefined) as any,
-            } as any),
+            }),
         ],
     });
 
@@ -59,22 +59,22 @@ describe('VisitorStateService', () => {
             data: [],
             total: 0,
             next: null,
-        } as any);
+        });
         vi.mocked(ts_client.post).mockResolvedValue({} as any);
         vi.mocked(ts_client.patch).mockResolvedValue({} as any);
         vi.mocked(ts_client.put).mockResolvedValue({} as any);
-        setNotifyOutlet(null as any, true);
+        setNotifyOutlet(null, true);
         spectator = createService();
     });
 
-    afterEach(() => setNotifyOutlet(null as any, true));
+    afterEach(() => setNotifyOutlet(null, true));
 
     it('should list visitor events', async () => {
         vi.mocked(ts_client.query).mockResolvedValue({
             data: [{ guests: [{}], attendees: [{}, {}] }],
             total: 1,
             next: null,
-        } as any);
+        });
         expect(ts_client.query).not.toHaveBeenCalled();
         TestBed.flushEffects();
         await wait(10);
@@ -127,7 +127,7 @@ describe('VisitorStateService', () => {
             data: [{ extension_data: {} }],
             total: 1,
             next: null,
-        } as any);
+        });
         const date = new Date('2026-06-15T12:00:00').valueOf();
 
         spectator.service.setFilters({ date, period: 1 });
@@ -160,7 +160,7 @@ describe('VisitorStateService', () => {
             data: [{ asset_name: 'true', extension_data: {} }],
             total: 1,
             next: null,
-        } as any);
+        });
         expect(ts_client.query).not.toHaveBeenCalled();
         TestBed.flushEffects();
         await wait(10);
@@ -198,7 +198,7 @@ describe('VisitorStateService', () => {
             data: [{ parent_id: '1', extension_data: {} }],
             total: 1,
             next: null,
-        } as any);
+        });
         TestBed.flushEffects();
         await wait(10);
         vi.mocked(ts_client.post).mockClear();
@@ -215,7 +215,7 @@ describe('VisitorStateService', () => {
             data: [{ parent_id: '1', extension_data: {} }],
             total: 1,
             next: null,
-        } as any);
+        });
         TestBed.flushEffects();
         await wait(10);
         vi.mocked(ts_client.post).mockClear();

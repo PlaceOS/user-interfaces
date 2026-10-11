@@ -75,7 +75,7 @@ describe('BookingPanelSettingsModalComponent', () => {
     });
 
     afterEach(() => {
-        setNotifyOutlet(null as any, true);
+        setNotifyOutlet(null, true);
         vi.restoreAllMocks();
     });
 
@@ -263,7 +263,7 @@ describe('BookingPanelSettingsModalComponent', () => {
 
     it('should do nothing when no files selected for upload', () => {
         const uploads = spectator.inject(UploadsService);
-        (uploads.uploadFileWithProgress as any).mockClear();
+        uploads.uploadFileWithProgress.mockClear();
 
         const event = {
             target: {

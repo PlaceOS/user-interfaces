@@ -115,7 +115,7 @@ describe('ImageListFieldComponent', () => {
             onAction: () => of(),
             dismiss: vi.fn(),
         }));
-        const fileEvent = (...files: File[]) => ({ target: { files } }) as any;
+        const fileEvent = (...files: File[]) => ({ target: { files } });
 
         beforeEach(() => {
             notify_open.mockClear();

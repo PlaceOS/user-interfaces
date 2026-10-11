@@ -32,11 +32,11 @@ describe('GlobalLoadingComponent', () => {
         providers: [
             MockProvider(OrganisationService, {
                 waitUntilInitialised: vi.fn().mockResolvedValue(undefined),
-            } as any),
-            MockProvider(SettingsService, { initialised: of(true) } as any),
+            }),
+            MockProvider(SettingsService, { initialised: of(true) }),
             MockProvider(PlaceOS_Service, {
                 onNativeDomainSet: vi.fn(),
-            } as any),
+            }),
             MockProvider(LocaleService),
         ],
     });

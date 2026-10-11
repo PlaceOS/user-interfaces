@@ -33,9 +33,9 @@ describe('POIModalComponent', () => {
                 building: { id: 'bld-1' },
             } as any),
             MockProvider(SettingsService, {
-                get: ((name: string) => settings_map[name]) as any,
-            } as any),
-            MockProvider(MatDialog, {} as any),
+                get: ((name: string) => settings_map[name]),
+            }),
+            MockProvider(MatDialog, {}),
         ],
     });
 
@@ -68,7 +68,7 @@ describe('POIModalComponent', () => {
         });
     });
 
-    afterEach(() => setNotifyOutlet(null as any, true));
+    afterEach(() => setNotifyOutlet(null, true));
 
     it('should treat array locations as coordinates', () => {
         spectator = build({ location: [1, 2] } as PointOfInterest);

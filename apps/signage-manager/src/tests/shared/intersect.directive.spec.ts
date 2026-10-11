@@ -27,7 +27,7 @@ describe('IntersectDirective', () => {
     let observer_options: IntersectionObserverInit | undefined;
     const observe = vi.fn();
     const disconnect = vi.fn();
-    const original_observer = (global as any).IntersectionObserver;
+    const original_observer = global.IntersectionObserver;
 
     beforeEach(async () => {
         vi.clearAllMocks();
@@ -48,7 +48,7 @@ describe('IntersectDirective', () => {
     });
 
     afterEach(() => {
-        (global as any).IntersectionObserver = original_observer;
+        global.IntersectionObserver = original_observer;
     });
 
     function setup(): ComponentFixture<HostComponent> {

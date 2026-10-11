@@ -452,7 +452,7 @@ export class EmailTemplateManageComponent
             this._router.navigate(['/email-templates', 'manage']);
             return;
         }
-        const tmpl = template as any;
+        const tmpl = template;
         this.model.update((m) => ({
             ...m,
             id: tmpl.id ?? m.id,

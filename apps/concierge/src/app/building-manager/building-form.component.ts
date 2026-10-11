@@ -155,7 +155,7 @@ export class BuildingFormComponent extends AsyncHandler {
     constructor() {
         super();
         effect(() => {
-            const building = this.building() as any;
+            const building = this.building();
             if (!building) return;
             this.model.update((m) => ({
                 ...m,

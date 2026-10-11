@@ -12,7 +12,7 @@ import { LightingSceneTooltipComponent } from '../../app/ui/lighting-scene-toolt
 describe('LightingSceneTooltipComponent', () => {
     let spectator: Spectator<LightingSceneTooltipComponent>;
     const lighting_scene = signal<number | undefined>(undefined);
-    const lighting_scenes = signal<any[]>([]);
+    const lighting_scenes = signal<unknown[]>([]);
     const close_fn = vi.fn();
     const execute_fn = vi.fn(async () => null);
     const createComponent = createComponentFactory({

@@ -36,7 +36,7 @@ const DEFAULT_ZOOM = 18.5;
 
 interface MapsIndoorServices {
     mapsindoors: any;
-    view: any;
+    view: unknown;
     map: any;
     directions: any;
     directions_renderer: any;
@@ -146,7 +146,7 @@ export class MapsIndoorsComponent
         }
     }
 
-    private _setResource(id: string, resource: any) {
+    private _setResource(id: string, resource: unknown) {
         RESOURCE_MAP[id] = resource;
         this.timeout('set_resource', () => {
             sessionStorage.setItem(
@@ -164,7 +164,7 @@ export class MapsIndoorsComponent
         const [lat, long] = (
             this._org.building?.location || `-33.8567844,151.2152967`
         ).split(',');
-        const view_options: Record<string, any> = {
+        const view_options: Record<string, unknown> = {
             element: this._container().nativeElement,
             center: { lat: parseFloat(lat), lng: parseFloat(long) },
             zoom: DEFAULT_ZOOM,

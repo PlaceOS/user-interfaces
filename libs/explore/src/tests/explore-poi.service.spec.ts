@@ -123,7 +123,7 @@ describe('ExplorePointOfInterestService', () => {
         };
         (spectator.service as any)._updateMapDetails([item]);
         const [, actions] = vi.mocked(state.setActions).mock.calls[0];
-        const mouseup = actions.find((_: any) => _.action === 'mouseup');
+        const mouseup = actions.find((_) => _.action === 'mouseup');
         mouseup.callback(new Event('mouseup'));
         expect(dialog.open).toHaveBeenCalledWith(
             ExplorePointOfInterestModalComponent,

@@ -13,7 +13,7 @@ import { SidebarComponent } from '../app/ui/sidebar.component';
 
 vi.mock('@placeos/ts-client', { spy: true });
 
-const make_alert = (overrides: Record<string, any> = {}) => ({
+const make_alert = (overrides: Record<string, unknown> = {}) => ({
     id: 'a-1',
     severity: 'critical',
     type: 'display',
@@ -28,14 +28,14 @@ const make_alert = (overrides: Record<string, any> = {}) => ({
 
 describe('AlertsComponent', () => {
     let spectator: Spectator<AlertsComponent>;
-    let dashboard_alerts: ReturnType<typeof signal<any[]>>;
-    let dashboard_list: ReturnType<typeof signal<any[]>>;
+    let dashboard_alerts: ReturnType<typeof signal<unknown[]>>;
+    let dashboard_list: ReturnType<typeof signal<unknown[]>>;
     let region_id: ReturnType<typeof signal<string>>;
     let building_id: ReturnType<typeof signal<string>>;
     let router: { navigate: Mock };
-    let route: any;
+    let route: unknown;
     let dashboards_service: any;
-    let org: any;
+    let org: unknown;
 
     const create_component = createComponentFactory({
         component: AlertsComponent,
@@ -48,9 +48,9 @@ describe('AlertsComponent', () => {
     });
 
     const build = (query_params: Record<string, string> = {}, id = null) => {
-        vi.mocked(showSystem).mockReturnValue(Promise.resolve(null) as any);
-        dashboard_alerts = signal<any[]>([]);
-        dashboard_list = signal<any[]>([]);
+        vi.mocked(showSystem).mockReturnValue(Promise.resolve(null));
+        dashboard_alerts = signal<unknown[]>([]);
+        dashboard_list = signal<unknown[]>([]);
         region_id = signal('');
         building_id = signal('');
         router = { navigate: vi.fn() };

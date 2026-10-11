@@ -3,9 +3,9 @@ import { HashMap } from '@placeos/common';
 class MeetingPushModule {
     public supported_meeting_url = 'https://meet.';
 
-    constructor(_data: any) {}
+    constructor(_data: unknown) {}
 
-    $econtrol(..._args: any[]) {}
+    $econtrol(..._args: unknown[]) {}
 }
 
 export const createMeetingPushModule = (

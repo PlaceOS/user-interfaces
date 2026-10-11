@@ -18,9 +18,9 @@ import { ReportMetricGuideComponent } from 'apps/concierge/src/app/reports/repor
 describe('ContactTracingReportComponent', () => {
     let spectator: Spectator<ContactTracingReportComponent>;
     let loading: WritableSignal<string>;
-    let options: WritableSignal<any>;
-    let events: WritableSignal<any[]>;
-    let settings_map: Record<string, any>;
+    let options: WritableSignal<unknown>;
+    let events: WritableSignal<unknown[]>;
+    let settings_map: Record<string, unknown>;
     let theme: string;
     const createComponent = createComponentFactory({
         component: ContactTracingReportComponent,

@@ -26,7 +26,7 @@ describe('DeskBookingsComponent', () => {
                 nextPage: vi.fn(),
                 refresh: vi.fn(),
                 viewBookingHistory: vi.fn(),
-            } as any),
+            }),
             MockProvider(SettingsService, { time_format: 'h:mm a' }),
         ],
         declarations: [

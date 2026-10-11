@@ -120,7 +120,7 @@ describe('General Methods', () => {
                 expect(revoke_object_url).toHaveBeenCalledWith('blob:test-url');
             } finally {
                 vi.useRealTimers();
-                (window as any).URL = original_url;
+                window.URL = original_url;
             }
         });
     });
@@ -1041,7 +1041,7 @@ describe('General Methods', () => {
                 );
                 expect(notify_open).not.toHaveBeenCalled();
             } finally {
-                notifications.setNotifyOutlet(null as any, true);
+                notifications.setNotifyOutlet(null, true);
                 vi.useRealTimers();
             }
         });
@@ -1218,11 +1218,11 @@ describe('General Methods', () => {
                     new Date(2028, 5, 15, 9, 0, 0, 0).valueOf(),
                 );
                 expect(notify_open).toHaveBeenCalledTimes(1);
-                expect((notify_open.mock.calls[0] as any[])[2]).toEqual(
+                expect((notify_open.mock.calls[0] as unknown[])[2]).toEqual(
                     expect.objectContaining({ panelClass: ['warn'] }),
                 );
             } finally {
-                notifications.setNotifyOutlet(null as any, true);
+                notifications.setNotifyOutlet(null, true);
             }
         });
 
@@ -1247,7 +1247,7 @@ describe('General Methods', () => {
                 );
                 expect(notify_open).not.toHaveBeenCalled();
             } finally {
-                notifications.setNotifyOutlet(null as any, true);
+                notifications.setNotifyOutlet(null, true);
             }
         });
 

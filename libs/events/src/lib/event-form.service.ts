@@ -1044,7 +1044,7 @@ export class EventFormService extends AsyncHandler {
                 await createBookingsForEvent(
                     created_event,
                     'visitor',
-                    visitors as any,
+                    visitors,
                 ).catch((e) =>
                     this._removeBookingAfterError(
                         !event.id,
@@ -1061,7 +1061,7 @@ export class EventFormService extends AsyncHandler {
                 await createBookingsForEvent(
                     created_event,
                     'catering-order',
-                    this._model().catering as any,
+                    this._model().catering,
                 ).catch((e) =>
                     this._removeBookingAfterError(
                         !event.id,

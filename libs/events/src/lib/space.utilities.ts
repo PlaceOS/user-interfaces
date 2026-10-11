@@ -91,7 +91,7 @@ export function generateSystemsFormFields(
         zone: null,
         zones: [...(system.zones || [])],
         version: system.version,
-        approval: (system as any).approval || false,
+        approval: system.approval || false,
     });
 
     const ref_form = form(
@@ -134,7 +134,7 @@ export function generateSystemsFormFields(
             (value) => value.zone,
             (zone) =>
                 zone &&
-                model.update((m) => ({ ...m, zones: [(zone as any).id] })),
+                model.update((m) => ({ ...m, zones: [zone.id] })),
             injector,
         );
     }

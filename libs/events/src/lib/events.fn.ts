@@ -89,7 +89,7 @@ function appName() {
     );
 }
 
-function withAppVersion<T extends { extension_data?: Record<string, any> }>(
+function withAppVersion<T extends { extension_data?: Record<string, unknown> }>(
     data: T,
 ): T {
     return {
@@ -510,7 +510,7 @@ export async function querySpaceAvailability(
     start: number,
     duration: number,
     ignore?: string,
-    type?: any,
+    type?: unknown,
     ignore_period: [number, number] = [0, 0],
 ): Promise<boolean[]> {
     const end = addMinutes(start, duration).valueOf();
@@ -529,8 +529,7 @@ export async function querySpaceAvailability(
             : Promise.resolve([]),
     ]);
     const short_list = id_list.map(
-        (id) =>
-            !!spaces.find((s) => s.id === id || (s as any).resource?.id === id),
+        (id) => !!spaces.find((s) => s.id === id || s.resource?.id === id),
     );
     for (const space of ignore_check) {
         if (!id_list.includes(space.id)) continue;

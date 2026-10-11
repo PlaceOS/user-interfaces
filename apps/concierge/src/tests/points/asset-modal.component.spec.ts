@@ -26,7 +26,7 @@ describe('PointsAssetModalComponent', () => {
             MockProvider(DesksStateService, {
                 setFilters: vi.fn(),
                 desks: signal([]),
-            } as any),
+            }),
             MockProvider(MAT_DIALOG_DATA, {}),
         ],
         declarations: [

@@ -120,7 +120,7 @@ describe('WorkLocationTooltipComponent', () => {
                             { start_time: 9, end_time: 17, location: 'wfh' },
                         ],
                     },
-                } as any,
+                },
             }),
         );
         spectator = createComponent();

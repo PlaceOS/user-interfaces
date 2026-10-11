@@ -31,7 +31,7 @@ describe('RoomBookingComponent', () => {
             title: '',
             date: Date.now(),
             duration: 30,
-        } as any);
+        });
 
     const createComponent = createRoutingFactory({
         component: RoomBookingComponent,
@@ -56,7 +56,7 @@ describe('RoomBookingComponent', () => {
                         view: '',
                         model: form_ref.model,
                         form: form_ref.form,
-                    } as any;
+                    };
                 },
                 deps: [Injector],
             },
@@ -103,7 +103,7 @@ describe('RoomBookingComponent', () => {
     });
 
     it('should create a new form on component init', () => {
-        const event_service: any = spectator.inject(EventFormService);
+        const event_service = spectator.inject(EventFormService);
         const spy = vi.spyOn(spectator.component, 'ngOnInit');
         const new_form_spy = vi.spyOn(event_service, 'newForm');
         spectator.component.ngOnInit();
@@ -118,7 +118,7 @@ describe('RoomBookingComponent', () => {
         // Settle the routing factory's initial navigation so `Location.path()`
         // reports the root route.
         await spectator.fixture.whenStable();
-        const event_service: any = spectator.inject(EventFormService);
+        const event_service = spectator.inject(EventFormService);
         await event_service.newForm();
 
         form_ref.model.update((m) => ({

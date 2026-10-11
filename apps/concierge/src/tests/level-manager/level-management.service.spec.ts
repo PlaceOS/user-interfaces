@@ -26,8 +26,8 @@ describe('LevelManagementService', () => {
 
     beforeEach(() => {
         org = {
-            level_list: signal<any[]>([]),
-            building_list: signal<any[]>([]),
+            level_list: signal<unknown[]>([]),
+            building_list: signal<unknown[]>([]),
             buildings: [],
             addZone: vi.fn(),
             removeZone: vi.fn(),
@@ -45,11 +45,11 @@ describe('LevelManagementService', () => {
                 { provide: MatDialog, useValue: { open: vi.fn() } },
             ],
         });
-        dialog_open = spectator.inject(MatDialog).open as any;
+        dialog_open = spectator.inject(MatDialog).open;
     });
 
     afterEach(() => {
-        setNotifyOutlet(null as any, true);
+        setNotifyOutlet(null, true);
         vi.restoreAllMocks();
     });
 

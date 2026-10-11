@@ -21,7 +21,7 @@ describe('CateringOrderAlertsService', () => {
     const createService = createServiceFactory({
         service: CateringOrderAlertsService,
         providers: [
-            MockProvider(CateringOrdersService, { order_changes } as any),
+            MockProvider(CateringOrdersService, { order_changes }),
             MockProvider(PushNotificationService, {
                 notify: vi.fn(),
                 requestPermission: vi.fn().mockResolvedValue(true),

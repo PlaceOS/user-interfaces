@@ -322,7 +322,7 @@ export class AttachedResourceConfigModalComponent extends AsyncHandler {
                         value = JSON.parse(i[1] as any);
                     } catch {}
                     return [i[0], value];
-                }) as any,
+                }),
             };
         });
         this.event.emit({ reason: 'done', metadata: rulesets });

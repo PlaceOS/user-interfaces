@@ -38,12 +38,12 @@ const flush = async () => {
 
 describe('DashboardsService', () => {
     let spectator: SpectatorService<DashboardsService>;
-    let org: any;
-    let active_region: ReturnType<typeof signal<any>>;
+    let org: unknown;
+    let active_region: ReturnType<typeof signal<unknown>>;
     let notify_open: ReturnType<typeof vi.fn>;
     let dialog_close: ReturnType<typeof vi.fn>;
     let confirm_reason: string;
-    let dialog: any;
+    let dialog: unknown;
 
     const createService = createServiceFactory({
         service: DashboardsService,
@@ -76,11 +76,11 @@ describe('DashboardsService', () => {
             data: [],
         } as any);
         vi.mocked(ts_client.removeAlertDashboard).mockResolvedValue(
-            undefined as any,
+            undefined,
         );
-        vi.mocked(ts_client.removeAlert).mockResolvedValue(undefined as any);
+        vi.mocked(ts_client.removeAlert).mockResolvedValue(undefined);
         vi.mocked(ts_client.queryModules).mockResolvedValue({ data: [] } as any);
-        vi.mocked(ts_client.systemModuleState).mockResolvedValue({} as any);
+        vi.mocked(ts_client.systemModuleState).mockResolvedValue({});
         vi.mocked(ts_client.token).mockReturnValue('jwt-token');
 
         confirm_reason = 'close';
@@ -93,7 +93,7 @@ describe('DashboardsService', () => {
             })),
         };
 
-        active_region = signal<any>(undefined);
+        active_region = signal<unknown>(undefined);
         org = {
             waitUntilInitialised: vi.fn(() => Promise.resolve()),
             active_region,
@@ -113,7 +113,7 @@ describe('DashboardsService', () => {
 
     afterEach(() => {
         spectator.service.ngOnDestroy?.();
-        setNotifyOutlet(null as any, true);
+        setNotifyOutlet(null, true);
     });
 
     it('should create the service', () => {

@@ -25,12 +25,12 @@ describe('SurveyListingsComponent', () => {
                 building_surveys: signal([]),
                 setBuilding,
                 removeSurvey,
-            } as any),
+            }),
             MockProvider(ActivatedRoute, {
                 get paramMap() {
                     return param_map;
                 },
-            } as any),
+            }),
         ],
     });
 

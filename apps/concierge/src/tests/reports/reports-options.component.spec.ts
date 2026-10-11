@@ -16,8 +16,8 @@ import { of } from 'rxjs';
 describe('ReportsOptionsComponent', () => {
     let spectator: Spectator<ReportsOptionsComponent>;
     let navigate: any;
-    let query_params: Record<string, any>;
-    let settings_map: Record<string, any>;
+    let query_params: Record<string, unknown>;
+    let settings_map: Record<string, unknown>;
     const createComponent = createComponentFactory({
         component: ReportsOptionsComponent,
         declarations: [

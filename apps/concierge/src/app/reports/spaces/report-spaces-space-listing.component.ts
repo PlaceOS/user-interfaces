@@ -187,7 +187,7 @@ export class ReportSpacesSpaceListingComponent {
             stats: this._reports.stats(),
             options: this._reports.options(),
         }),
-        defaultValue: [] as any[],
+        defaultValue: [] as unknown[],
         loader: async ({ params }) => {
             const { stats } = params;
             const { start, end } = params.options;

@@ -20,7 +20,7 @@ describe('CateringItemListComponent', () => {
                 loading,
                 filtered_menu,
                 currency_code: 'AUD',
-            } as any),
+            }),
         ],
         imports: [MatProgressSpinnerModule],
     });

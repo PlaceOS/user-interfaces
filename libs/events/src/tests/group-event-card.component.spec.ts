@@ -54,7 +54,7 @@ describe('GroupEventCardComponent', () => {
             zones: [],
         } as any);
         settingSignal('group_events_calendar').set('calendar@place.tech');
-        spectator = createComponent({ props: { event } as any });
+        spectator = createComponent({ props: { event } });
         spectator.detectChanges();
     });
 
@@ -69,7 +69,7 @@ describe('GroupEventCardComponent', () => {
         spectator.setInput({
             event: new CalendarEvent({
                 ...event,
-                extension_data: { attendance_type: 'ONLINE' } as any,
+                extension_data: { attendance_type: 'ONLINE' },
             }),
         });
         expect(spectator.component.is_onsite()).toBe(false);

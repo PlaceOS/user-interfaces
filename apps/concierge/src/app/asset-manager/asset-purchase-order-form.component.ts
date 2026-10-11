@@ -218,8 +218,8 @@ export class AssetPurchaseOrderFormComponent
             return asset_list.data.map((asset) => ({
                 ...asset,
                 name:
-                    groups.find((_) => _.id === (asset as any).asset_type_id)
-                        ?.name || asset.id,
+                    groups.find((_) => _.id === asset.asset_type_id)?.name ||
+                    asset.id,
             }));
         },
     });
@@ -281,7 +281,7 @@ export class AssetPurchaseOrderFormComponent
             this.item()?.expected_service_end_date ||
             null;
         data.unit_price = +data.unit_price;
-        await saveAssetPurchaseOrder(data as any).catch((e) => {
+        await saveAssetPurchaseOrder(data).catch((e) => {
             this.loading.set('');
             notifyError(
                 i18n('APP.CONCIERGE.ASSETS_PURCHASE_SAVE_ERROR', {

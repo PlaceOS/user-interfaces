@@ -26,7 +26,7 @@ describe('InteractiveMapComponent', () => {
                 provide: SettingsService,
                 useValue: {
                     get: vi.fn(() => null),
-                    signal: (name: string, default_value: any) =>
+                    signal: (name: string, default_value: unknown) =>
                         settingSignal(name, default_value),
                 },
             },

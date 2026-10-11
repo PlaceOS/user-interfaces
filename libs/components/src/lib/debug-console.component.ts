@@ -261,7 +261,7 @@ export class DebugConsoleComponent extends AsyncHandler implements OnInit {
         );
     }
 
-    public type(item: any) {
+    public type(item: unknown) {
         if (
             typeof item === 'string' &&
             URL_STARTS.find((start) => item.startsWith(start))

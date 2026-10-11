@@ -30,7 +30,7 @@ import * as client from '@placeos/ts-client';
 
 describe('CameraTooltipComponent', () => {
     let spectator: Spectator<CameraTooltipComponent>;
-    const available_cameras = signal<any[]>([]);
+    const available_cameras = signal<unknown[]>([]);
     const selected_camera = signal<string | null>(null);
     const createComponent = createComponentFactory({
         component: CameraTooltipComponent,

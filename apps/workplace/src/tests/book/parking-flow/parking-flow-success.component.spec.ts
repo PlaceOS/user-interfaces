@@ -9,7 +9,7 @@ describe('ParkingFlowSuccessComponent', () => {
     let spectator: SpectatorRouting<ParkingFlowSuccessComponent>;
     let show_links: boolean;
 
-    const last_success: any = {
+    const last_success = {
         title: 'My Parking',
         asset_name: 'Bay 1',
         date: Date.now(),

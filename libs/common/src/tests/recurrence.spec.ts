@@ -61,7 +61,7 @@ describe('formatRecurrence', () => {
                 _custom: true,
                 type: 'weekly',
                 interval: 1,
-                weekdays: new Set([2 as any]),
+                weekdays: new Set([2]),
                 end_type: 'instances',
                 end_instances: 7,
             },
@@ -82,7 +82,7 @@ describe('formatRecurrence', () => {
                 _custom: true,
                 type: 'weekly',
                 interval: 1,
-                weekdays: new Set([4 as any]),
+                weekdays: new Set([4]),
                 end_type: 'instances',
                 end_instances: 3,
             },
@@ -135,8 +135,8 @@ describe('formatRecurrence', () => {
                 _custom: true,
                 type: 'monthly',
                 interval: 2,
-                weekdays: new Set([2 as any]),
-                week: WeekOfMonth.Last as any,
+                weekdays: new Set([2]),
+                week: WeekOfMonth.Last,
                 monthly_type: 'day_of_week',
                 end_type: 'never',
             }),
@@ -164,8 +164,8 @@ describe('formatRecurrence', () => {
                 _custom: true,
                 type: 'monthly',
                 interval: 1,
-                weekdays: new Set([3 as any]),
-                week: WeekOfMonth.Second as any,
+                weekdays: new Set([3]),
+                week: WeekOfMonth.Second,
                 monthly_type: 'day_of_week',
                 end_type: 'never',
             },
@@ -234,7 +234,7 @@ describe('formatRecurrence', () => {
                 _custom: true,
                 type: 'weekly',
                 interval: 1,
-                weekdays: new Set([2 as any]),
+                weekdays: new Set([2]),
                 end_type: 'date',
                 end_date,
             },
@@ -297,7 +297,7 @@ describe('recurrence instance counts', () => {
     const end_date = new Date(2026, 8, 2, 23, 59).valueOf();
 
     it('should only accept whole counts of one or more', () => {
-        expect(recurrenceInstanceCount([] as any)).toBeUndefined();
+        expect(recurrenceInstanceCount([])).toBeUndefined();
         expect(recurrenceInstanceCount(null)).toBeUndefined();
         expect(recurrenceInstanceCount(undefined)).toBeUndefined();
         expect(recurrenceInstanceCount(0)).toBeUndefined();

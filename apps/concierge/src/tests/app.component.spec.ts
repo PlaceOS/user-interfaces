@@ -30,10 +30,10 @@ describe('AppComponent', () => {
                     return placeos.has_uploads;
                 },
                 init: () => placeos.init(),
-            } as any),
+            }),
             MockProvider(UploadsService, {
                 init: (...args: any[]) => uploads_init(...args),
-            } as any),
+            }),
         ],
     });
 

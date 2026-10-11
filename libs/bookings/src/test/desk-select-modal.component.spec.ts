@@ -24,7 +24,7 @@ import { DeskSelectModalComponent } from '../lib/desk-select-modal/desk-select-m
 describe('DeskSelectModalComponent', () => {
     let spectator: Spectator<DeskSelectModalComponent>;
     const dialog_ref = { close: vi.fn() };
-    let data: any;
+    let data: unknown;
     let settings: any;
 
     const createComponent = createComponentFactory({

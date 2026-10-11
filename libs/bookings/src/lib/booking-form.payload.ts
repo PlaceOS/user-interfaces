@@ -105,7 +105,7 @@ export function bookingSaveQuery(
     booking: Booking,
 ): Record<string, any> {
     const { event_id, parent_id } = value;
-    const q: Record<string, any> = event_id
+    const q: Record<string, unknown> = event_id
         ? { ical_uid: value.ical_uid, event_id: event_id }
         : parent_id
           ? { booking_id: parent_id }

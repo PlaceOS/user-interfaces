@@ -374,7 +374,7 @@ export class LockerBookingsComponent {
         return this._settings.time_format;
     }
 
-    private async runMethod(name: string, fn: () => Promise<any>) {
+    private async runMethod(name: string, fn: () => Promise<unknown>) {
         this.loading.set(name);
         await fn().catch(() => null);
         this.loading.set('');

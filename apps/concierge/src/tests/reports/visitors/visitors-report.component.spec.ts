@@ -17,12 +17,12 @@ import { VisitorsReportService } from 'apps/concierge/src/app/reports/visitors/v
 
 describe('VisitorsReportComponent', () => {
     let spectator: Spectator<VisitorsReportComponent>;
-    let query_params: BehaviorSubject<any>;
-    let bookings: ReturnType<typeof signal<any[]>>;
+    let query_params: BehaviorSubject<unknown>;
+    let bookings: ReturnType<typeof signal<unknown[]>>;
     let loading: ReturnType<typeof signal<boolean>>;
-    let set_options: any;
-    let generate: any;
-    let download: any;
+    let set_options: unknown;
+    let generate: unknown;
+    let download: unknown;
 
     const createComponent = createComponentFactory({
         component: VisitorsReportComponent,
@@ -42,14 +42,14 @@ describe('VisitorsReportComponent', () => {
                 setOptions: vi.fn(),
                 generateReport: vi.fn(),
                 downloadReport: vi.fn(),
-            } as any),
+            }),
             MockProvider(SettingsService, { theme: 'light', get: vi.fn() }),
             MockProvider(OrganisationService, {
                 active_building: signal({ id: 'building-1' }),
             } as any),
             MockProvider(ActivatedRoute, {
                 queryParamMap: new BehaviorSubject(convertToParamMap({})),
-            } as any),
+            }),
         ],
     });
 
@@ -61,7 +61,7 @@ describe('VisitorsReportComponent', () => {
                 zone_ids: 'lvl-1,lvl-2',
             }),
         );
-        bookings = signal<any[]>([]);
+        bookings = signal<unknown[]>([]);
         loading = signal(false);
         set_options = vi.fn();
         generate = vi.fn();

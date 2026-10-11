@@ -69,7 +69,7 @@ describe('AssetsReportService', () => {
         const real_create = Document.prototype.createElement;
         create_spy = vi
             .spyOn(document, 'createElement')
-            .mockImplementation(function (this: any, tag: any, opts?: any) {
+            .mockImplementation(function (this, tag: unknown, opts?: unknown) {
                 const el = real_create.call(document, tag, opts);
                 if (String(tag).toLowerCase() === 'a') last_anchor = el;
                 return el;
@@ -101,7 +101,7 @@ describe('AssetsReportService', () => {
 
     afterEach(() => {
         create_spy?.mockRestore();
-        setNotifyOutlet(null as any, true);
+        setNotifyOutlet(null, true);
     });
 
     it('should create service', () => {

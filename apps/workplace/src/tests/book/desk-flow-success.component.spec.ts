@@ -91,7 +91,7 @@ describe('NewDeskFlowSuccessComponent', () => {
             MockProvider(SettingsService, {
                 get: vi.fn(() => undefined),
                 time_format: 'h:mm a',
-            } as any),
+            }),
             // The component uses inject(LevelPipe) and inject(BuildingPipe)
             // directly, so they must be provided in the test's injector.
             {

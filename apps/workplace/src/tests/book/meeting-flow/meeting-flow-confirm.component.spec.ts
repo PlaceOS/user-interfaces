@@ -96,7 +96,7 @@ describe('MeetingFlowConfirmComponent', () => {
                     },
                 ] as any,
                 regions: [],
-                building: { timezone: 'Australia/Sydney' } as any,
+                building: { timezone: 'Australia/Sydney' },
                 locationWithID: vi.fn(() => ({
                     label: 'HQ Building / Level 1',
                     building: { timezone: 'Australia/Sydney' },
@@ -105,7 +105,7 @@ describe('MeetingFlowConfirmComponent', () => {
             MockProvider(SettingsService, {
                 get: vi.fn((k: string) => settings_config[k]),
                 time_format: 'h:mm a',
-            } as any),
+            }),
         ],
         componentProviders: [MockProvider(SpacePipe, { transform } as any)],
     });
@@ -134,7 +134,7 @@ describe('MeetingFlowConfirmComponent', () => {
         transform.mockClear();
     });
 
-    afterEach(() => setNotifyOutlet(null as any, true));
+    afterEach(() => setNotifyOutlet(null, true));
 
     it('should create component', async () => {
         await init();
@@ -192,7 +192,7 @@ describe('MeetingFlowConfirmComponent', () => {
 
     it('should confirm before posting when no room is selected', async () => {
         model.set({ ...base_event(), resources: [] });
-        transform.mockResolvedValueOnce(null as any);
+        transform.mockResolvedValueOnce(null);
         await init();
         await spectator.component.postForm();
         expect(dialog_open).toHaveBeenCalledTimes(1);
@@ -202,7 +202,7 @@ describe('MeetingFlowConfirmComponent', () => {
 
     it('should not post when the no-room confirmation is cancelled', async () => {
         model.set({ ...base_event(), resources: [] });
-        transform.mockResolvedValueOnce(null as any);
+        transform.mockResolvedValueOnce(null);
         confirm_reason = 'cancel';
         await init();
         await spectator.component.postForm();

@@ -14,7 +14,7 @@ const CALENDAR = 'group@events.com';
 describe('EventListingComponent', () => {
     let spectator: SpectatorRouting<EventListingComponent>;
     const loading = signal('');
-    const event_list = signal<any[]>([]);
+    const event_list = signal<unknown[]>([]);
     const view_event = vi.fn();
     const remove_event = vi.fn();
 
@@ -35,7 +35,7 @@ describe('EventListingComponent', () => {
             },
             MockProvider(SettingsService, {
                 time_format: 'shortTime',
-            } as any),
+            }),
         ],
     });
 

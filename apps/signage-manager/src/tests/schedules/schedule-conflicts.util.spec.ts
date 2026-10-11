@@ -11,7 +11,7 @@ function playlist(
         id,
         name: id,
         schedules: [{ play_cron, play_period, play_takeover }],
-    } as any);
+    });
 }
 
 describe('findTakeoverConflicts', () => {

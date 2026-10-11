@@ -44,7 +44,7 @@ describe('DateFieldComponent', () => {
             local_timezone,
             reference_date,
         );
-        const supported_timezones = ((Intl as any).supportedValuesOf?.(
+        const supported_timezones = (Intl.supportedValuesOf?.(
             'timeZone',
         ) as string[]) || [
             'Pacific/Pago_Pago',

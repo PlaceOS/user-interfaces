@@ -9,8 +9,8 @@ import { SignageContextService } from '../../app/signage-context.service';
 describe('SignageGroupEditModalComponent', () => {
     const dialog_ref = { close: vi.fn(), disableClose: false };
     const save_signage_group = vi.fn();
-    const manageable_signage_groups = signal<any[]>([]);
-    const signage_groups = signal<any[]>([]);
+    const manageable_signage_groups = signal<unknown[]>([]);
+    const signage_groups = signal<unknown[]>([]);
     const hotkey_listen = vi.fn();
     let hotkey_callback: () => void;
     const can_change_parent = vi.fn();
@@ -22,7 +22,7 @@ describe('SignageGroupEditModalComponent', () => {
         loadGroup: load_group,
     };
     const context_stub = { signage_groups };
-    let modal_data: { group: any };
+    let modal_data: { group: unknown };
 
     function make() {
         TestBed.configureTestingModule({
@@ -86,9 +86,9 @@ describe('SignageGroupEditModalComponent', () => {
     it('excludes the edited group from the parent group options', () => {
         modal_data = { group: { id: 'group-1', name: 'Group 1' } };
         const component = make();
-        expect(component.parent_groups().map((group: any) => group.id)).toEqual(
-            ['group-2'],
-        );
+        expect(component.parent_groups().map((group) => group.id)).toEqual([
+            'group-2',
+        ]);
     });
 
     it('offers only the parents the user can move the group to', () => {

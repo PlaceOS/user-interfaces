@@ -11,12 +11,12 @@ import { RegionSelectComponent } from '../lib/region-select.component';
 describe('RegionSelectComponent', () => {
     let spectator: Spectator<RegionSelectComponent>;
     let org: any;
-    let tooltip: { data: any; close: Mock };
+    let tooltip: { data: unknown; close: Mock };
 
     const REGIONS = [
         { id: 'region-1', name: 'Asia Pacific' },
         { id: 'region-2', name: 'emea', display_name: 'EMEA' },
-    ] as any[];
+    ] as unknown[];
 
     const createComponent = createComponentFactory({
         component: RegionSelectComponent,

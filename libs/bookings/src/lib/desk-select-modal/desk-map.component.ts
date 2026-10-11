@@ -151,7 +151,7 @@ export class DeskMapComponent {
         this._state.available_resources().map((desk) => ({
             id: desk.map_id || desk.id,
             action: ['touchend', 'mouseup'],
-            callback: () => this.selectDesk(desk as any),
+            callback: () => this.selectDesk(desk),
         })),
     );
 

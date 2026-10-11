@@ -29,7 +29,7 @@ describe('MeetingFormDetailsComponent', () => {
                 signal: vi.fn(
                     (key: string, default_value: any) =>
                         (setting_signals[key] ??= signal(default_value)),
-                ) as any,
+                ),
             }),
             MockProvider(OrganisationService, {
                 building: { timezone: 'Australia/Sydney' } as any,

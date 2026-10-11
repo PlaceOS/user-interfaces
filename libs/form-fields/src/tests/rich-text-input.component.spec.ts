@@ -54,7 +54,7 @@ describe('RichTextInputComponent', () => {
     };
 
     beforeEach(() => {
-        Object.values(mockEditor).forEach((fn) => (fn as any).mockClear?.());
+        Object.values(mockEditor).forEach((fn) => fn.mockClear?.());
         mockEditor.hasFormat.mockReturnValue(false);
         mockEditor.getHTML.mockReturnValue('<p>content</p>');
         spectator = createComponent();

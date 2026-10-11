@@ -6,8 +6,8 @@ import { ParkingFleetModalComponent } from '../../app/parking/parking-fleet-moda
 
 describe('ParkingFleetModalComponent', () => {
     let spectator: Spectator<ParkingFleetModalComponent>;
-    let data: any;
-    const dialog_ref = { disableClose: false } as MatDialogRef<any>;
+    let data: unknown;
+    const dialog_ref = { disableClose: false } as MatDialogRef<unknown>;
 
     const createComponent = createComponentFactory({
         component: ParkingFleetModalComponent,

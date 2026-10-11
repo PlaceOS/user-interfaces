@@ -40,7 +40,7 @@ describe('DealsService', () => {
     let stored_deals: any[];
     let dialog_open: any;
 
-    const organisation_service: any = {
+    const organisation_service: unknown = {
         active_building: signal(undefined),
         building: { id: 'bld-1' },
     };
@@ -51,7 +51,7 @@ describe('DealsService', () => {
             MockProvider(OrganisationService, organisation_service),
             MockProvider(MatDialog, {
                 open: (...args: any[]) => dialog_open(...args),
-            } as any),
+            }),
         ],
     });
 

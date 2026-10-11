@@ -26,7 +26,7 @@ describe('UploadListFieldComponent', () => {
 
     it('should assign ids to written values', () => {
         spectator.component.writeValue([
-            { name: 'a.txt', progress: 100, url: 'a', size: 1 } as any,
+            { name: 'a.txt', progress: 100, url: 'a', size: 1 },
         ]);
         const list = spectator.component.list();
         expect(list).toHaveLength(1);

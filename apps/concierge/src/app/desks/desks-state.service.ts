@@ -201,7 +201,7 @@ export class DesksStateService extends AsyncHandler {
                     const metadata = await listChildMetadata(
                         this._org.building?.id,
                         { name: 'desks' },
-                    ).catch(() => [] as any[]);
+                    ).catch(() => [] as unknown[]);
                     // Tag each desk with its level so per-desk saves can
                     // target the correct zone when viewing all levels.
                     list = metadata
@@ -211,7 +211,10 @@ export class DesksStateService extends AsyncHandler {
                                 : []
                             ).map((i) => ({ ...i, zone: item.zone })),
                         )
-                        .reduce((c: any[], i: any[]) => [...c, ...i], []);
+                        .reduce(
+                            (c: unknown[], i: unknown[]) => [...c, ...i],
+                            [],
+                        );
                 }
                 if (!(list instanceof Array)) list = [];
                 list.sort((a, b) => a.name?.localeCompare(b.name));
@@ -360,7 +363,7 @@ export class DesksStateService extends AsyncHandler {
                 include_checked_out: true,
                 include_deleted: true,
                 limit: 200,
-            } as any);
+            });
     }
 
     /**
@@ -382,7 +385,7 @@ export class DesksStateService extends AsyncHandler {
         const token = ++this._load_token;
         this._loading.set(true);
         let failed = false;
-        const resp: any = await Promise.resolve(fetch()).catch(() => {
+        const resp = await Promise.resolve(fetch()).catch(() => {
             failed = true;
             return { data: [], total: 0, next: null };
         });
@@ -1042,7 +1045,10 @@ export class DesksStateService extends AsyncHandler {
         }
     }
 
-    private async _rollbackMetadata(zone: string, original_desk_list: any[]) {
+    private async _rollbackMetadata(
+        zone: string,
+        original_desk_list: unknown[],
+    ) {
         try {
             await updateMetadata(zone, {
                 name: 'desks',

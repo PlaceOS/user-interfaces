@@ -98,11 +98,11 @@ export class CodeFlowErrorComponent extends AsyncHandler implements OnInit {
         this.subscription(
             'route.query',
             this._route.queryParamMap.subscribe((params) => {
-                this.type.set((params.get('type') as any) || 'other');
+                this.type.set(params.get('type') || 'other');
                 this.asset_type.set(
-                    (params.get('asset_type') as any) || 'resource',
+                    params.get('asset_type') || 'resource',
                 );
-                this.asset_id.set(params.get('asset_id') as any);
+                this.asset_id.set(params.get('asset_id'));
             }),
         );
     }

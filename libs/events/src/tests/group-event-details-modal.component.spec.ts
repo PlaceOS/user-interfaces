@@ -100,7 +100,7 @@ describe('GroupEventDetailsModalComponent', () => {
         spectator.component.event.set(
             new CalendarEvent({
                 ...event,
-                extension_data: { attendance_type: 'ANY' } as any,
+                extension_data: { attendance_type: 'ANY' },
             }),
         );
         expect(spectator.component.is_onsite()).toBe(true);
@@ -108,7 +108,7 @@ describe('GroupEventDetailsModalComponent', () => {
         spectator.component.event.set(
             new CalendarEvent({
                 ...event,
-                extension_data: { attendance_type: 'ONLINE' } as any,
+                extension_data: { attendance_type: 'ONLINE' },
             }),
         );
         expect(spectator.component.is_onsite()).toBe(false);

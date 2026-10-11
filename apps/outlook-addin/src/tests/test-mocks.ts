@@ -13,7 +13,7 @@ export const mockForm = {
     markAllAsTouched: vi.fn(() => {}),
 };
 
-export const mockGenerateEventForm = (_event: any) => {};
+export const mockGenerateEventForm = (_event: unknown) => {};
 
 export const mockBuilding = {
     id: 1,
@@ -206,7 +206,7 @@ export const mockCalendarEvent: any = {
     guests: [] as any,
     ext: '' as any,
     toJSON: () => {
-        return '' as any;
+        return '';
     },
     state: 'upcoming',
     can_check_in: true,
@@ -247,7 +247,7 @@ export const mockExternalCalendarEvent: any = {
     guests: [] as any,
     ext: '' as any,
     toJSON: () => {
-        return '' as any;
+        return '';
     },
     state: 'upcoming',
     can_check_in: true,

@@ -112,7 +112,7 @@ describe('SiteAttendanceReportChartComponent', () => {
     const createComponent = createComponentFactory({
         component: SiteAttendanceReportChartComponent,
         shallow: true,
-        providers: [MockProvider(MatDialog, { open: vi.fn() } as any)],
+        providers: [MockProvider(MatDialog, { open: vi.fn() })],
     });
 
     beforeEach(() => {

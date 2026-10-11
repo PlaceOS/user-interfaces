@@ -137,7 +137,7 @@ export class AssetCategoryFormComponent {
         this.loading.set(true);
         this._dialog_ref.disableClose = true;
         const data = this.model();
-        const item = await saveAssetCategory(data as any).catch((e) => {
+        const item = await saveAssetCategory(data).catch((e) => {
             this.loading.set(false);
             this._dialog_ref.disableClose = false;
             notifyError(

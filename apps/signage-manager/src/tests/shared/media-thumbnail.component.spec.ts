@@ -9,11 +9,11 @@ class AuthenticatedImageStubDirective {
 }
 
 describe('MediaThumbnailComponent', () => {
-    const original_observer = (global as any).IntersectionObserver;
+    const original_observer = global.IntersectionObserver;
     let observer_callback: IntersectionObserverCallback;
     let disconnect_count = 0;
 
-    async function make(item: Record<string, any>) {
+    async function make(item: Record<string, unknown>) {
         await TestBed.configureTestingModule({
             imports: [MediaThumbnailComponent],
         })
@@ -49,7 +49,7 @@ describe('MediaThumbnailComponent', () => {
     });
 
     afterEach(() => {
-        (global as any).IntersectionObserver = original_observer;
+        global.IntersectionObserver = original_observer;
     });
 
     it('renders the authenticated image once in view and keeps it', async () => {

@@ -23,18 +23,18 @@ describe('FacilitiesMapComponent', () => {
         ],
         providers: [
             MockProvider(ExploreStateService, {
-                map_url: signal('map.svg') as any,
-                map_styles: signal({}) as any,
+                map_url: signal('map.svg'),
+                map_styles: signal({}),
                 map_positions: signal({ zoom: 1, center: {} }) as any,
-                map_features: signal([]) as any,
-                map_actions: signal([]) as any,
+                map_features: signal([]),
+                map_actions: signal([]),
                 setLevel: (...args: any[]) => set_level(...args),
-            } as any),
+            }),
             MockProvider(EventsStateService, {
                 get zones() {
                     return zones;
                 },
-            } as any),
+            }),
         ],
     });
 

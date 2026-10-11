@@ -10,7 +10,7 @@ import { ParkingBookingModalComponent } from '../../app/parking/parking-booking-
 describe('ParkingBookingModalComponent', () => {
     let spectator: Spectator<ParkingBookingModalComponent>;
     let settings: Record<string, unknown>;
-    let data: any;
+    let data: unknown;
     let model: BookingFormService['model'];
     const post_form = vi.fn(async () => ({ id: 'new-booking' }));
     const close = vi.fn();
@@ -34,10 +34,10 @@ describe('ParkingBookingModalComponent', () => {
                         newForm: vi.fn(),
                         setOptions: vi.fn(),
                         postForm: post_form,
-                    } as any;
+                    };
                 },
             },
-            MockProvider(MatDialogRef, { close } as any),
+            MockProvider(MatDialogRef, { close }),
             MockProvider(SettingsService as any, {
                 get: vi.fn((key: string) => settings[key]),
             }),

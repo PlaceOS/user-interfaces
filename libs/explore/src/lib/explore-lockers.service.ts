@@ -40,7 +40,7 @@ export class ExploreLockersService extends AsyncHandler {
     private _building = this._org.active_building;
     private _region = this._org.active_region;
 
-    private _status = signal<Record<string, any>[]>([]);
+    private _status = signal<Record<string, unknown>[]>([]);
     private _change = signal(0);
 
     /** ID of the zone used to scope locker queries */

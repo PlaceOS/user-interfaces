@@ -11,8 +11,8 @@ describe('signage diagnostics', () => {
         vi.spyOn(console, 'groupEnd').mockImplementation(() => undefined);
         vi.spyOn(console, 'log').mockImplementation(() => undefined);
         vi.spyOn(console, 'table').mockImplementation(() => undefined);
-        poll = vi.fn() as any;
-        reload = vi.fn() as any;
+        poll = vi.fn();
+        reload = vi.fn();
         remove = registerSignageDiagnostics({
             getState: () => state,
             poll,

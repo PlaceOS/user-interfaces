@@ -16,9 +16,9 @@ describe('SupportTicketModalComponent', () => {
         component: SupportTicketModalComponent,
         shallow: true,
         providers: [
-            MockProvider(MatDialogRef, { close: vi.fn() } as any),
+            MockProvider(MatDialogRef, { close: vi.fn() }),
             MockProvider(SettingsService, {
-                signal: ((_: string, def: any) => signal(def)) as any,
+                signal: (_: string, def: any) => signal(def),
             }),
             MockProvider(OrganisationService, {
                 building_list: signal([

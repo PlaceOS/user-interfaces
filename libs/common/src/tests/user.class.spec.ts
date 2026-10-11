@@ -26,7 +26,7 @@ describe('User', () => {
     });
 
     it('should resolve photo from upload ID', () => {
-        const user = new User({ photo_upload_id: 'upload/1' } as any);
+        const user = new User({ photo_upload_id: 'upload/1' });
         expect(user.photo).toBe(
             '/api/engine/v2/uploads/upload%2F1/url',
         );
@@ -145,7 +145,7 @@ describe('isEmptyUser', () => {
     it('should identify the placeholder user', () => {
         expect(isEmptyUser(EMPTY_USER)).toBe(true);
         expect(isEmptyUser(undefined)).toBe(true);
-        expect(isEmptyUser({} as any)).toBe(true);
+        expect(isEmptyUser({})).toBe(true);
         expect(
             isEmptyUser(new StaffUser({ email: 'alex@dev.place.tech' })),
         ).toBe(false);

@@ -10,9 +10,9 @@ import { AlertsService } from '../app/alerts.service';
 
 const { mock_mqtt_handlers, mock_mqtt_client, mock_mqtt_connect } = vi.hoisted(
     () => {
-        const handlers: Record<string, (...args: any[]) => void> = {};
-        const client: any = {
-            on: vi.fn((event: string, cb: (...args: any[]) => void) => {
+        const handlers: Record<string, (...args: unknown[]) => void> = {};
+        const client = {
+            on: vi.fn((event: string, cb: (...args: unknown[]) => void) => {
                 handlers[event] = cb;
                 return client;
             }),
@@ -44,7 +44,7 @@ const flush = async () => {
 const state_topic = (system: string, module: string, index: string) =>
     `placeos/org-1/state/bld-1/lvl-1/area-1/b/${system}/drv-1/${module}/${index}/connected`;
 
-const message = (value: any, timestamp = 111) =>
+const message = (value: unknown, timestamp = 111) =>
     Buffer.from(JSON.stringify({ value, timestamp }));
 
 describe('AlertsService', () => {
@@ -112,7 +112,7 @@ describe('AlertsService', () => {
         );
         expect(alerts[0].body).toContain('Display_1');
 
-        const state = spectator.service.system_state() as any;
+        const state = spectator.service.system_state();
         expect(state['sys-1'].disconnected).toContain('Display_1');
         expect(state['sys-1'].connected).not.toContain('Display_1');
     });
@@ -131,7 +131,7 @@ describe('AlertsService', () => {
         );
 
         expect(spectator.service.alerts()).toHaveLength(0);
-        const state = spectator.service.system_state() as any;
+        const state = spectator.service.system_state();
         expect(state['sys-1'].connected).toContain('Display_1');
         expect(state['sys-1'].disconnected).not.toContain('Display_1');
     });
@@ -151,7 +151,7 @@ describe('AlertsService', () => {
         expect(ids).toEqual(
             expect.arrayContaining(['sys-1+Display_1', 'sys-1+Audio_2']),
         );
-        const state = spectator.service.system_state() as any;
+        const state = spectator.service.system_state();
         expect(state['sys-1'].disconnected).toEqual(
             expect.arrayContaining(['Display_1', 'Audio_2']),
         );

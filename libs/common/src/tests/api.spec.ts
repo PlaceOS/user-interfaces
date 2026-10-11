@@ -21,6 +21,6 @@ describe('toQueryString', () => {
 
     it('should handle empty or missing maps', () => {
         expect(toQueryString({})).toBe('');
-        expect(toQueryString(null as any)).toBe('');
+        expect(toQueryString(null)).toBe('');
     });
 });

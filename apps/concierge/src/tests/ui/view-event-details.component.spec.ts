@@ -21,8 +21,8 @@ describe('ViewEventDetailsComponent', () => {
         detectChanges: false,
         providers: [
             { provide: ComponentFixtureAutoDetect, useValue: false },
-            MockProvider(EventsStateService, state as any),
-            MockProvider(SettingsService, settings as any),
+            MockProvider(EventsStateService, state),
+            MockProvider(SettingsService, settings),
             MockProvider(OrganisationService, {
                 building: { display_name: 'HQ', name: 'HQ' },
             } as any),
@@ -43,7 +43,7 @@ describe('ViewEventDetailsComponent', () => {
             resources: [{ id: 'space-res' }],
             space: { id: 'space-space' },
             system: { id: 'space-system' },
-        } as any);
+        });
         expect(spectator.component.space_id()).toBe('space-res');
     });
 
@@ -51,7 +51,7 @@ describe('ViewEventDetailsComponent', () => {
         spectator.fixture.componentRef.setInput('event', {
             resources: [],
             system: { id: 'space-system' },
-        } as any);
+        });
         expect(spectator.component.space_id()).toBe('space-system');
     });
 
@@ -60,7 +60,7 @@ describe('ViewEventDetailsComponent', () => {
             date: new Date('2026-06-15T09:00:00').valueOf(),
             duration: 60,
             resources: [],
-        } as any);
+        });
         expect(spectator.component.time()).toBe('9:00 AM - 10:00 AM');
     });
 
@@ -77,14 +77,14 @@ describe('ViewEventDetailsComponent', () => {
     });
 
     it('should start a new booking on edit', () => {
-        const event = { resources: [] } as any;
+        const event = { resources: [] };
         spectator.fixture.componentRef.setInput('event', event);
         spectator.component.edit();
         expect(state.newBooking).toHaveBeenCalledWith(event);
     });
 
     it('should close after a successful remove', async () => {
-        spectator.fixture.componentRef.setInput('event', { resources: [] } as any);
+        spectator.fixture.componentRef.setInput('event', { resources: [] });
         await spectator.component.remove();
         expect(state.removeBooking).toHaveBeenCalled();
         expect(state.setEvent).toHaveBeenCalledWith(null);
@@ -92,7 +92,7 @@ describe('ViewEventDetailsComponent', () => {
 
     it('should not close when remove is cancelled', async () => {
         state.removeBooking.mockResolvedValue(false);
-        spectator.fixture.componentRef.setInput('event', { resources: [] } as any);
+        spectator.fixture.componentRef.setInput('event', { resources: [] });
         await spectator.component.remove();
         expect(state.setEvent).not.toHaveBeenCalled();
     });

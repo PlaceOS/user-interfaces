@@ -7,12 +7,12 @@ import { AssetsReportService } from 'apps/concierge/src/app/reports/assets/asset
 
 describe('AssetReportOverallComponent', () => {
     let spectator: Spectator<AssetReportOverallComponent>;
-    let stats: ReturnType<typeof signal<any>>;
-    let options: ReturnType<typeof signal<any>>;
+    let stats: ReturnType<typeof signal<unknown>>;
+    let options: ReturnType<typeof signal<unknown>>;
 
     const createComponent = createComponentFactory({
         component: AssetReportOverallComponent,
-        providers: [MockProvider(AssetsReportService, {} as any)],
+        providers: [MockProvider(AssetsReportService, {})],
     });
 
     beforeEach(() => {

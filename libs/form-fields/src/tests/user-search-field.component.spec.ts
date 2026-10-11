@@ -34,7 +34,7 @@ describe('UserSearchFieldComponent', () => {
 
     beforeEach(() => {
         vi.clearAllMocks();
-        vi.mocked(showUser).mockResolvedValue(null as any);
+        vi.mocked(showUser).mockResolvedValue(null);
         spectator = createComponent();
     });
 
@@ -55,7 +55,7 @@ describe('UserSearchFieldComponent', () => {
             },
         });
 
-        spec.component.search_term.set(user_list[0].name as any);
+        spec.component.search_term.set(user_list[0].name);
         spec.detectChanges();
         await new Promise((r) => setTimeout(r, 350)); // debounce window
         spec.detectChanges();
@@ -91,7 +91,7 @@ describe('UserSearchFieldComponent', () => {
 
         const spec = createComponent({ props: { options: user_list } });
 
-        spec.component.search_term.set('test' as any);
+        spec.component.search_term.set('test');
         spec.detectChanges();
         await new Promise((r) => setTimeout(r, 350)); // debounce window
         spec.detectChanges();
@@ -110,7 +110,7 @@ describe('UserSearchFieldComponent', () => {
         spectator.component.writeValue(user);
         spectator.detectChanges();
         expect(spectator.component.search_term()).toEqual(user);
-        spectator.component.search_term.set('Test' as any);
+        spectator.component.search_term.set('Test');
         spectator.detectChanges();
         expect(spectator.component.search_term()).toBe('Test');
         spectator.dispatchFakeEvent('input', 'blur');
@@ -125,7 +125,7 @@ describe('UserSearchFieldComponent', () => {
 
         expect(spectator.component.selected_user()).toEqual(user);
 
-        spectator.component.search_term.set('Search text' as any);
+        spectator.component.search_term.set('Search text');
         spectator.detectChanges();
 
         expect(spectator.component.selected_user()).toBeNull();
@@ -163,7 +163,7 @@ describe('UserSearchFieldComponent', () => {
             },
         });
 
-        spec.component.search_term.set('real' as any);
+        spec.component.search_term.set('real');
         spec.detectChanges();
         await new Promise((r) => setTimeout(r, 350)); // debounce window
         spec.detectChanges();

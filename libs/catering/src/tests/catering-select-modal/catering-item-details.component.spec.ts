@@ -147,7 +147,7 @@ describe('CateringItemDetailsComponent', () => {
 
     it('should ignore group updates without a group', () => {
         expect(() =>
-            spectator.component.updateGroupOption(undefined as any, 'x'),
+            spectator.component.updateGroupOption(undefined, 'x'),
         ).not.toThrow();
         expect(spectator.component.group_state()).toEqual({});
     });

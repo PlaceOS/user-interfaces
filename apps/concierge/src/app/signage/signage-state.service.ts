@@ -97,9 +97,7 @@ export class SignageStateService extends AsyncHandler {
         defaultValue: [] as SignageMedia[],
         loader: async ({ params }) => {
             if (!params.building) return [];
-            const list = await queryAllPages(
-                querySignageMedia({ limit: 200 } as any),
-            );
+            const list = await queryAllPages(querySignageMedia({ limit: 200 }));
             return list.sort((a, b) => b.created_at - a.created_at);
         },
     });
@@ -115,7 +113,7 @@ export class SignageStateService extends AsyncHandler {
         loader: async ({ params }) => {
             if (!params.building) return [];
             const list = await queryAllPages(
-                querySignagePlaylists({ limit: 200 } as any),
+                querySignagePlaylists({ limit: 200 }),
             );
             return list.sort((a, b) => a.name.localeCompare(b.name));
         },
@@ -141,7 +139,7 @@ export class SignageStateService extends AsyncHandler {
                             : '') || params.building,
                     limit: 200,
                     signage: true,
-                } as any),
+                }),
             );
             return list
                 .sort((a, b) =>
@@ -166,7 +164,7 @@ export class SignageStateService extends AsyncHandler {
                 queryZones({
                     limit: 200,
                     tags: 'signage',
-                } as any),
+                }),
             ).catch(() => []);
             return list.sort((a, b) =>
                 (a.display_name || a.name).localeCompare(
@@ -244,7 +242,7 @@ export class SignageStateService extends AsyncHandler {
                     display.map_id ||
                     display.email ||
                     display.module_list.length > 0
-                        ? updateSystem(display.id, { signage: false } as any)
+                        ? updateSystem(display.id, { signage: false })
                         : removeSystem(display.id),
                 error: (e) => `Failed to remove display. ${errorText(e)}`,
             },
@@ -308,7 +306,7 @@ export class SignageStateService extends AsyncHandler {
     }
 
     public previewFileFromInput(event, playlist_id = '') {
-        const element: HTMLInputElement = event.target as any;
+        const element: HTMLInputElement = event.target;
         /* istanbul ignore else */
         if (!element?.files?.length) return;
         const files: FileList = element.files;

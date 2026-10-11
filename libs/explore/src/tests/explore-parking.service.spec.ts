@@ -26,14 +26,14 @@ describe('ExploreParkingService', () => {
         providers: [
             MockProvider(ExploreStateService, {
                 level: active_level,
-                options: signal({ is_public: false }) as any,
+                options: signal({ is_public: false }),
                 setActions: vi.fn(),
                 setStyles: vi.fn(),
                 setFeatures: vi.fn(),
             }),
             MockProvider(OrganisationService, {
                 active_building: signal({ id: 'bld-1' }) as any,
-                active_levels: signal([]) as any,
+                active_levels: signal([]),
                 organisation: { id: 'org-1' } as any,
                 region: { id: 'region-1' } as any,
                 levelWithID: vi.fn(() => ({
@@ -52,10 +52,10 @@ describe('ExploreParkingService', () => {
                 confirmPost: vi.fn().mockResolvedValue({}),
             }),
             MockProvider(ParkingService, {
-                users: signal([]) as any,
-                assigned_space: signal(null) as any,
-                deny_parking_access: signal(false) as any,
-                booked_space: signal(null) as any,
+                users: signal([]),
+                assigned_space: signal(null),
+                deny_parking_access: signal(false),
+                booked_space: signal(null),
             }),
         ],
     });
@@ -71,7 +71,7 @@ describe('ExploreParkingService', () => {
             data: [],
             total: 0,
             next: null,
-        } as any);
+        });
         vi.mocked(ts_client.queryAssetCategories).mockResolvedValue({
             data: [{ id: 'cat-parking', name: '_PARKING_', hidden: true }],
         } as any);
@@ -115,11 +115,10 @@ describe('ExploreParkingService', () => {
         const call = vi
             .mocked(ts_client.query)
             .mock.calls.find(
-                ([options]) =>
-                    (options as any).query_params?.type === 'parking',
+                ([options]) => options.query_params?.type === 'parking',
             );
         expect(call).toBeTruthy();
-        const params = (call[0] as any).query_params;
+        const params = call[0].query_params;
         expect(params.period_start).toBe(getUnixTime(addMinutes(date, -15)));
         expect(params.period_end).toBe(getUnixTime(addMinutes(date, 30)));
         expect(params.zones).toBe('lvl-1');
@@ -136,11 +135,10 @@ describe('ExploreParkingService', () => {
         const call = vi
             .mocked(ts_client.query)
             .mock.calls.find(
-                ([options]) =>
-                    (options as any).query_params?.type === 'parking',
+                ([options]) => options.query_params?.type === 'parking',
             );
         expect(call).toBeTruthy();
-        const params = (call[0] as any).query_params;
+        const params = call[0].query_params;
         expect(params.period_start).toBe(getUnixTime(startOfDay(date)));
         expect(params.period_end).toBe(getUnixTime(endOfDay(date)));
     });
@@ -167,10 +165,9 @@ describe('ExploreParkingService', () => {
         const call = vi
             .mocked(ts_client.query)
             .mock.calls.find(
-                ([options]) =>
-                    (options as any).query_params?.type === 'parking',
+                ([options]) => options.query_params?.type === 'parking',
             );
-        const params = (call[0] as any).query_params;
+        const params = call[0].query_params;
         expect(params.period_start).toBe(
             getUnixTime(new Date(2026, 6, 9, 8, 0, 0, 0)),
         );
@@ -194,10 +191,9 @@ describe('ExploreParkingService', () => {
         const call = vi
             .mocked(ts_client.query)
             .mock.calls.find(
-                ([options]) =>
-                    (options as any).query_params?.type === 'parking',
+                ([options]) => options.query_params?.type === 'parking',
             );
-        const params = (call[0] as any).query_params;
+        const params = call[0].query_params;
         expect(params.period_start).toBe(getUnixTime(date));
         expect(params.period_end).toBe(getUnixTime(addMinutes(date, 60)));
     });
@@ -213,11 +209,10 @@ describe('ExploreParkingService', () => {
         const call = vi
             .mocked(ts_client.query)
             .mock.calls.find(
-                ([options]) =>
-                    (options as any).query_params?.type === 'parking',
+                ([options]) => options.query_params?.type === 'parking',
             );
         expect(call).toBeTruthy();
-        expect((call[0] as any).query_params.zones).toBe('lvl-2');
+        expect(call[0].query_params.zones).toBe('lvl-2');
     });
 
     it('should load every page of parking status bookings', async () => {
@@ -230,7 +225,7 @@ describe('ExploreParkingService', () => {
             data: [new Booking({ id: 'b1', asset_id: 'p1' })],
             total: 2,
             next,
-        } as any);
+        });
 
         spectator.service.setOptions({ date: 123 });
         TestBed.flushEffects();
@@ -256,11 +251,10 @@ describe('ExploreParkingService', () => {
         const call = vi
             .mocked(ts_client.query)
             .mock.calls.find(
-                ([options]) =>
-                    (options as any).query_params?.type === 'parking',
+                ([options]) => options.query_params?.type === 'parking',
             );
         expect(call).toBeTruthy();
-        const params = (call[0] as any).query_params;
+        const params = call[0].query_params;
         expect(params.period_start).toBe(
             getUnixTime(addMinutes(now.valueOf(), -15)),
         );

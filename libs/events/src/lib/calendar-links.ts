@@ -116,7 +116,7 @@ export function generateGoogleCalendarLink(event: CalEvent): string {
     const emails = (event.attendees || []).map((_: any) => _.email || _);
     const resources = (
         (event.resources?.length ? event.resources : null) || [event.system]
-    ).map((_: any) => _?.email || _);
+    ).map((_) => _?.email || _);
     if (emails.length || resources.length)
         details.add = unique([...emails, ...resources]).join();
     return `https://calendar.google.com/calendar/render?${toQueryString(
@@ -152,7 +152,7 @@ export function generateMicrosoftCalendarLink(
     const emails = (event.attendees || []).map((_: any) => _.email || _);
     const resources = (
         (event.resources?.length ? event.resources : null) || [event.system]
-    ).map((_: any) => _?.email || _);
+    ).map((_) => _?.email || _);
     if (emails.length || resources.length)
         data.to = unique([...emails, ...resources])
             .filter((_) => !!_)

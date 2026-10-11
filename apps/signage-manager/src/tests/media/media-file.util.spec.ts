@@ -6,7 +6,7 @@ import {
 } from '../../app/media/media-file.util';
 
 describe('media file thumbnails', () => {
-    let context: Record<string, any>;
+    let context: Record<string, unknown>;
     let canvas: Record<string, any>;
     /** Order of drawing operations, so a fill after the draw is still caught */
     let operations: string[];

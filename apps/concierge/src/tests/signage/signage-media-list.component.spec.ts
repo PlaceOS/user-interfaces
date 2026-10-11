@@ -45,11 +45,11 @@ describe('SignageMediaListComponent', () => {
             items: ['existing'],
         });
         spectator = createComponent();
-        state = spectator.inject(SignageStateService) as any;
+        state = spectator.inject(SignageStateService);
     });
 
     afterEach(() => {
-        setNotifyOutlet(null as any, true);
+        setNotifyOutlet(null, true);
     });
 
     it('should filter the media list by search term', () => {

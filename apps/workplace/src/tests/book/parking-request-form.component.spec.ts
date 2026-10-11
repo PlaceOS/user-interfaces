@@ -13,7 +13,7 @@ import { ParkingRequestFormComponent } from '../../app/book/parking-request-flow
 describe('ParkingRequestFormComponent', () => {
     let spectator: Spectator<ParkingRequestFormComponent>;
     let model: ReturnType<typeof signal<Record<string, any>>>;
-    let form: any;
+    let form: unknown;
     let post_form: any;
     let settings: SettingsService;
     const createComponent = createComponentFactory({
@@ -31,10 +31,10 @@ describe('ParkingRequestFormComponent', () => {
             MockProvider(BookingFormService, {
                 setOptions: vi.fn(),
                 postForm: vi.fn(),
-            } as any),
+            }),
             MockProvider(ParkingService, {
                 user_details: signal(null),
-            } as any),
+            }),
             MockProvider(SettingsService, {
                 get: vi.fn(),
                 saveUserSetting: vi.fn(),

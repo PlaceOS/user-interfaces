@@ -7,8 +7,8 @@ import { AssetItemListComponent } from '../../app/asset-manager/asset-item-list.
 
 const loading = signal(false);
 const options_signal = signal<any>({ view: 'grid', search: '' });
-const categories = signal<any[]>([]);
-const product_mapping = signal<any>({ _count: 0 });
+const categories = signal<unknown[]>([]);
+const product_mapping = signal<unknown>({ _count: 0 });
 
 describe('AssetItemListComponent', () => {
     let spectator: SpectatorRouting<AssetItemListComponent>;

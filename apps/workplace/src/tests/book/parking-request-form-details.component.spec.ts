@@ -52,7 +52,7 @@ describe('ParkingRequestFormDetailsComponent', () => {
      */
     const attachForm = (
         values: Partial<BookingFormValue>,
-        time_sync_options: Record<string, any> = {},
+        time_sync_options: Record<string, unknown> = {},
     ): { form: BookingForm; model: WritableSignal<BookingFormValue> } => {
         const injector = spectator.inject(Injector);
         const { model, form, time_sync } = TestBed.runInInjectionContext(() =>
@@ -125,7 +125,7 @@ describe('ParkingRequestFormDetailsComponent', () => {
                 email: 'me@test.com',
                 name: 'Me',
                 groups: [],
-            } as any),
+            }),
         );
         vi.mocked(ts_client.get).mockResolvedValue([] as any);
         vi.mocked(ts_client.query).mockResolvedValue({ data: [] } as any);
@@ -383,11 +383,11 @@ describe('ParkingRequestFormDetailsComponent', () => {
     it('should default the selected building to the first desk booking location for the selected day', async () => {
         spectator.component.default_location_from_desk_booking.set(true);
         const org = spectator.inject(OrganisationService) as any;
-        (org.active_buildings as any).set([
+        org.active_buildings.set([
             { id: 'bld-1', timezone: 'UTC', levels: [{ id: 'lvl-1' }] },
             { id: 'bld-2', timezone: 'UTC', levels: [{ id: 'lvl-2' }] },
         ]);
-        (org.level_list as any).set([
+        org.level_list.set([
             { id: 'lvl-1', parent_id: 'bld-1', tags: ['parking'] },
             { id: 'lvl-2', parent_id: 'bld-2', tags: ['parking'] },
         ]);
@@ -409,7 +409,7 @@ describe('ParkingRequestFormDetailsComponent', () => {
                 booking_end: 2,
                 zones: ['lvl-1', 'bld-1'],
             },
-        ] as any);
+        ]);
 
         await spectator.component.ngOnInit();
         await flush();
@@ -432,11 +432,11 @@ describe('ParkingRequestFormDetailsComponent', () => {
 
     it('should not default the selected building from desk bookings when disabled by settings', async () => {
         const org = spectator.inject(OrganisationService) as any;
-        (org.active_buildings as any).set([
+        org.active_buildings.set([
             { id: 'bld-1', timezone: 'UTC', levels: [{ id: 'lvl-1' }] },
             { id: 'bld-2', timezone: 'UTC', levels: [{ id: 'lvl-2' }] },
         ]);
-        (org.level_list as any).set([
+        org.level_list.set([
             { id: 'lvl-1', parent_id: 'bld-1', tags: ['parking'] },
             { id: 'lvl-2', parent_id: 'bld-2', tags: ['parking'] },
         ]);
@@ -452,11 +452,11 @@ describe('ParkingRequestFormDetailsComponent', () => {
     it('should use the selected host when defaulting the selected building from desk bookings', async () => {
         spectator.component.default_location_from_desk_booking.set(true);
         const org = spectator.inject(OrganisationService) as any;
-        (org.active_buildings as any).set([
+        org.active_buildings.set([
             { id: 'bld-1', timezone: 'UTC', levels: [{ id: 'lvl-1' }] },
             { id: 'bld-2', timezone: 'UTC', levels: [{ id: 'lvl-2' }] },
         ]);
-        (org.level_list as any).set([
+        org.level_list.set([
             { id: 'lvl-1', parent_id: 'bld-1', tags: ['parking'] },
             { id: 'lvl-2', parent_id: 'bld-2', tags: ['parking'] },
         ]);
@@ -483,7 +483,7 @@ describe('ParkingRequestFormDetailsComponent', () => {
                 booking_end: 2,
                 zones: ['lvl-1', 'bld-1'],
             },
-        ] as any);
+        ]);
 
         spectator.component.model.update((m) => ({
             ...m,
@@ -508,8 +508,8 @@ describe('ParkingRequestFormDetailsComponent', () => {
             timezone: 'UTC',
             levels: [{ id: 'lvl-2' }],
         };
-        (org.active_buildings as any).set([bld_1, bld_2]);
-        (org.level_list as any).set([
+        org.active_buildings.set([bld_1, bld_2]);
+        org.level_list.set([
             { id: 'lvl-1', parent_id: 'bld-1', tags: ['parking'] },
             { id: 'lvl-2', parent_id: 'bld-2', tags: ['parking'] },
         ]);
@@ -523,7 +523,7 @@ describe('ParkingRequestFormDetailsComponent', () => {
                 booking_end: 2,
                 zones: ['lvl-2', 'bld-2'],
             },
-        ] as any);
+        ]);
         await spectator.component.ngOnInit();
         await flush();
         expect(spectator.component.desk_booking_building_id()).toBe('bld-2');
@@ -536,11 +536,11 @@ describe('ParkingRequestFormDetailsComponent', () => {
 
     it('should hide buildings without parking levels from the location options', async () => {
         const org = spectator.inject(OrganisationService) as any;
-        (org.active_buildings as any).set([
+        org.active_buildings.set([
             { id: 'bld-1', timezone: 'UTC' },
             { id: 'bld-2', timezone: 'UTC' },
         ]);
-        (org.level_list as any).set([
+        org.level_list.set([
             { id: 'lvl-1', parent_id: 'bld-1', tags: ['parking'] },
             { id: 'lvl-2', parent_id: 'bld-2', tags: ['level'] },
         ]);
@@ -552,11 +552,11 @@ describe('ParkingRequestFormDetailsComponent', () => {
 
     it('should hide buildings listed in the hidden buildings setting', async () => {
         const org = spectator.inject(OrganisationService) as any;
-        (org.active_buildings as any).set([
+        org.active_buildings.set([
             { id: 'bld-1', timezone: 'UTC' },
             { id: 'bld-2', timezone: 'UTC' },
         ]);
-        (org.level_list as any).set([
+        org.level_list.set([
             { id: 'lvl-1', parent_id: 'bld-1', tags: ['parking'] },
             { id: 'lvl-2', parent_id: 'bld-2', tags: ['parking'] },
         ]);
@@ -572,13 +572,13 @@ describe('ParkingRequestFormDetailsComponent', () => {
 
     it('should switch the active building when the selected building is not a valid parking location', async () => {
         const org = spectator.inject(OrganisationService) as any;
-        (org.active_building as any).set({ id: 'bld-1', timezone: 'UTC' });
+        org.active_building.set({ id: 'bld-1', timezone: 'UTC' });
         org.building = { id: 'bld-1', timezone: 'UTC' };
-        (org.active_buildings as any).set([
+        org.active_buildings.set([
             { id: 'bld-1', timezone: 'UTC' },
             { id: 'bld-2', timezone: 'UTC' },
         ]);
-        (org.level_list as any).set([
+        org.level_list.set([
             { id: 'lvl-2', parent_id: 'bld-2', tags: ['parking'] },
         ]);
 
@@ -845,7 +845,7 @@ describe('ParkingRequestFormDetailsComponent', () => {
                 email: 'me@test.com',
                 name: 'Me',
                 groups: ['PlaceOS P1 Parking'],
-            } as any),
+            }),
         );
         spectator.component.shift_options_setting.set([
             {

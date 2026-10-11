@@ -30,7 +30,7 @@ describe('LocaleService', () => {
     });
 
     afterEach(() => {
-        delete (global as any).fetch;
+        delete global.fetch;
         vi.restoreAllMocks();
     });
 

@@ -20,7 +20,7 @@ describe('RoomBookingsApprovalsComponent', () => {
         shallow: true,
         detectChanges: false,
         providers: [
-            MockProvider(EventsStateService, { pending, replace } as any),
+            MockProvider(EventsStateService, { pending, replace }),
             MockProvider(OrganisationService, {
                 building: { timezone: 'Australia/Sydney' },
                 module: vi.fn(() => ({ execute })),

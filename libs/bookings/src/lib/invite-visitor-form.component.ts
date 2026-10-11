@@ -781,7 +781,7 @@ export class InviteVisitorFormComponent implements OnInit {
             this._org.buildings.find(
                 (bld) =>
                     zone_list.includes(bld.id) ||
-                    zone_list.includes((bld as any).zone_id),
+                    zone_list.includes(bld.zone_id),
             ) || this._org.buildings.find((bld) => level?.parent_id === bld.id);
         if (building?.id) return building.id;
         if (this.model()?.id) return zone_list[0] || '';
@@ -898,7 +898,7 @@ export class InviteVisitorFormComponent implements OnInit {
                               ...(user.extension_data || {}),
                               international: !!international,
                           },
-                      } as any);
+                      });
             }),
         }));
     }
@@ -963,7 +963,7 @@ export class InviteVisitorFormComponent implements OnInit {
                     .filter((_) => !!_.email)
                     .map((item) => {
                         return `${item.email}|${item.name || item.email}|${
-                            (item as any).company || item.organisation || ''
+                            item.company || item.organisation || ''
                         }|${this.getVisitorInternational(item) ? '1' : '0'}`;
                     }),
             ]);
@@ -993,7 +993,7 @@ export class InviteVisitorFormComponent implements OnInit {
         await this._org.waitUntilInitialised();
         const form_snapshot = this.model() as any;
         const booking_snapshot = this._service.booking as any;
-        const is_visitor_booking = (booking: Record<string, any>) =>
+        const is_visitor_booking = (booking: Record<string, unknown>) =>
             booking?.booking_type === 'visitor' || booking?.type === 'visitor';
         const keep_preloaded_edit =
             (!!form_snapshot.id || !!booking_snapshot?.id) &&
@@ -1013,7 +1013,7 @@ export class InviteVisitorFormComponent implements OnInit {
                 _in_progress:
                     booking_snapshot.state === 'started' ||
                     booking_snapshot.state === 'in_progress',
-            } as any);
+            });
             this.form().reset();
         } else if (!keep_preloaded_edit) {
             this._service.loadForm('visitor');

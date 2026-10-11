@@ -5,7 +5,7 @@ import { SignagePlaylistService } from '../../app/playlists/signage-playlist.ser
 import { SignageContextService } from '../../app/signage-context.service';
 
 describe('PlaylistSidebarComponent', () => {
-    const playlists = signal<any[]>([]);
+    const playlists = signal<unknown[]>([]);
     const playlist_approval_status = signal<Record<string, boolean>>({});
     const playlist_approval_requested_status = signal<Record<string, boolean>>(
         {},

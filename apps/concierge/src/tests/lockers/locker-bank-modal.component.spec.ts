@@ -8,9 +8,9 @@ import { LockerBankModalComponent } from '../../app/lockers/locker-bank-modal.co
 
 describe('LockerBankModalComponent', () => {
     let spectator: Spectator<LockerBankModalComponent>;
-    let dialog_data: any;
+    let dialog_data: unknown;
     let settings: Record<string, unknown>;
-    const level_list = signal<any[]>([
+    const level_list = signal<unknown[]>([
         {
             id: 'lvl-1',
             parent_id: 'bld-1',
@@ -24,7 +24,7 @@ describe('LockerBankModalComponent', () => {
         shallow: true,
         providers: [
             { provide: MAT_DIALOG_DATA, useFactory: () => dialog_data },
-            MockProvider(MatDialogRef, { disableClose: false } as any),
+            MockProvider(MatDialogRef, { disableClose: false }),
             MockProvider(OrganisationService, {
                 level_list,
                 buildingsForRegion: vi.fn(() => [{ id: 'bld-1' }]),
@@ -108,7 +108,7 @@ describe('LockerBankModalComponent', () => {
         expect(emit).toHaveBeenCalledWith(
             expect.objectContaining({ reason: 'done' }),
         );
-        const metadata = emit.mock.calls[0][0].metadata as any;
+        const metadata = emit.mock.calls[0][0].metadata;
         expect(metadata.zones).toEqual(['lvl-1', 'org-1', 'region-1', 'bld-1']);
     });
 
@@ -127,7 +127,7 @@ describe('LockerBankModalComponent', () => {
 
         spectator.component.postForm();
 
-        const metadata = emit.mock.calls[0][0].metadata as any;
+        const metadata = emit.mock.calls[0][0].metadata;
         expect(metadata.zones).toEqual(['lvl-other', 'org-1', 'bld-1']);
         org.region = { id: 'region-1' };
     });

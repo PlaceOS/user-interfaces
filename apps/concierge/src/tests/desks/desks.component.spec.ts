@@ -27,9 +27,9 @@ describe('DesksComponent', () => {
     const levelsForBuilding = (building: any) =>
         building?.id === 'bld-2' ? [{ id: 'level-b' }] : [{ id: 'level-a' }];
     let spectator: SpectatorRouting<DesksComponent>;
-    let active_building: WritableSignal<any>;
-    let active_region: WritableSignal<any>;
-    let current_building: any;
+    let active_building: WritableSignal<unknown>;
+    let active_region: WritableSignal<unknown>;
+    let current_building: unknown;
     let filters_signal: ReturnType<typeof signal<any>>;
     let print_desk_signal: ReturnType<typeof signal<DeskQrItem | null>>;
     const organisation_service: any = {
@@ -68,7 +68,7 @@ describe('DesksComponent', () => {
                 rejectAllDesks: vi.fn(),
                 editDesk: vi.fn(),
                 addDesks: vi.fn(),
-            } as any),
+            }),
             MockProvider(OrganisationService, organisation_service),
             MockProvider(MatDialog, { open: vi.fn() }),
             MockProvider(SettingsService, { get: vi.fn() }),
@@ -109,11 +109,11 @@ describe('DesksComponent', () => {
                     rejectAllDesks: vi.fn(),
                     editDesk: vi.fn(),
                     addDesks: vi.fn(),
-                } as any),
+                }),
                 MockProvider(SettingsService, {
                     get: ((name: string) =>
                         name === 'app.use_region' ? false : undefined) as any,
-                } as any),
+                }),
             ],
         });
     });
@@ -130,7 +130,7 @@ describe('DesksComponent', () => {
         spectator.component.path.set('manage');
         spectator.detectChanges();
 
-        expect(spectator.component.levels().map((lvl: any) => lvl.id)).toEqual([
+        expect(spectator.component.levels().map((lvl) => lvl.id)).toEqual([
             'level-ground',
             'level-parking',
         ]);
@@ -145,7 +145,7 @@ describe('DesksComponent', () => {
             JSON.stringify(['level-b']),
         );
         const injected_building = spectator.inject(OrganisationService)
-            .active_building as unknown as WritableSignal<any>;
+            .active_building as unknown as WritableSignal<unknown>;
         // Flush the initial `toObservable` emissions, then restore the active
         // selection (initial sync may clear it) so we test the building change.
         spectator.detectChanges();
@@ -164,7 +164,7 @@ describe('DesksComponent', () => {
 
     it('should clear search when switching desk views', () => {
         const desks_state = spectator.inject(DesksStateService);
-        (desks_state.setFilters as any).mockClear();
+        desks_state.setFilters.mockClear();
         filters_signal.set({
             zones: ['level-a'],
             view: 'manage',

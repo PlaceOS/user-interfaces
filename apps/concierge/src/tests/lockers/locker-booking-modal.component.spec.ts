@@ -10,7 +10,7 @@ import { LockerBookingModalComponent } from '../../app/lockers/locker-booking-mo
 describe('LockerBookingModalComponent', () => {
     let spectator: Spectator<LockerBookingModalComponent>;
     let settings: Record<string, unknown>;
-    let dialog_data: any;
+    let dialog_data: unknown;
     let model: BookingFormService['model'];
     const newForm = vi.fn();
     const setOptions = vi.fn();
@@ -32,11 +32,11 @@ describe('LockerBookingModalComponent', () => {
                         newForm,
                         setOptions,
                         postForm,
-                    } as any;
+                    };
                 },
             },
-            MockProvider(MatDialogRef, { close: vi.fn() } as any),
-            MockProvider(MatDialog, { open: vi.fn() } as any),
+            MockProvider(MatDialogRef, { close: vi.fn() }),
+            MockProvider(MatDialog, { open: vi.fn() }),
             MockProvider(SettingsService, {
                 get: vi.fn((key: string) => settings[key]),
             } as any),

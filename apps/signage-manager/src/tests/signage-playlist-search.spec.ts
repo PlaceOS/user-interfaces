@@ -14,14 +14,14 @@ import { SignagePlaylistService } from '../app/playlists/signage-playlist.servic
 vi.mock('@placeos/ts-client', { spy: true });
 
 type SignagePlaylistServiceTestAccess = SignagePlaylistService &
-    Record<string, any>;
+    Record<string, unknown>;
 
 /** Playlist search runs on the backend so the results paginate like displays. */
 describe('SignagePlaylistService playlist search', () => {
     const flush = () => new Promise((resolve) => setTimeout(resolve));
 
     const pageOf = (ids: string[], total = ids.length, next: any = null) => ({
-        data: ids.map((id) => new SignagePlaylist({ id, name: id } as any)),
+        data: ids.map((id) => new SignagePlaylist({ id, name: id })),
         total,
         next: next ? () => Promise.resolve(next) : null,
     });
@@ -41,7 +41,7 @@ describe('SignagePlaylistService playlist search', () => {
                     provide: SettingsService,
                     useValue: {
                         get: vi.fn(),
-                        signal: (_name: string, default_value?: any) =>
+                        signal: (_name: string, default_value?: unknown) =>
                             signal(default_value),
                     },
                 },
@@ -84,9 +84,9 @@ describe('SignagePlaylistService playlist search', () => {
         expect(params.q).toBe('news');
         expect(params.fields).toBe('id,name,display_name,description,tags');
         expect(params.limit).toBe(200);
-        expect(
-            service.filtered_playlists().map((item: any) => item.id),
-        ).toEqual(['news']);
+        expect(service.filtered_playlists().map((item) => item.id)).toEqual([
+            'news',
+        ]);
     });
 
     it('pages the search results', async () => {
@@ -104,9 +104,10 @@ describe('SignagePlaylistService playlist search', () => {
         service.loadMorePlaylists();
         await flush();
 
-        expect(
-            service.filtered_playlists().map((item: any) => item.id),
-        ).toEqual(['news-1', 'news-2']);
+        expect(service.filtered_playlists().map((item) => item.id)).toEqual([
+            'news-1',
+            'news-2',
+        ]);
         expect(service.playlists_has_more()).toBe(false);
     });
 
@@ -159,7 +160,7 @@ describe('SignagePlaylistService playlist search', () => {
 
     it('keeps loaded playlists available for id lookups while searching', async () => {
         const service = await init();
-        expect(service.playlists().map((item: any) => item.id)).toEqual([
+        expect(service.playlists().map((item) => item.id)).toEqual([
             'events',
             'news',
         ]);
@@ -170,10 +171,10 @@ describe('SignagePlaylistService playlist search', () => {
         TestBed.tick();
         await flush();
 
-        expect(
-            service.filtered_playlists().map((item: any) => item.id),
-        ).toEqual(['news']);
-        expect(service.playlists().map((item: any) => item.id)).toEqual([
+        expect(service.filtered_playlists().map((item) => item.id)).toEqual([
+            'news',
+        ]);
+        expect(service.playlists().map((item) => item.id)).toEqual([
             'events',
             'news',
         ]);

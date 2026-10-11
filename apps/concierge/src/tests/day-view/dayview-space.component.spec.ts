@@ -25,7 +25,7 @@ describe('DayviewSpaceComponent', () => {
 
     it('should display events', () => {
         expect('dayview-event').not.toExist();
-        spectator.setInput({ space: { email: '1@2.3' } as any });
+        spectator.setInput({ space: { email: '1@2.3' } });
         const events = spectator.inject(EventsStateService);
         (events as any).filtered.set([
             { resources: [{ email: '1@2.3' } as any] },

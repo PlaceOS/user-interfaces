@@ -437,7 +437,7 @@ export class SignagePlaylistModalComponent implements OnInit {
         this.form().markAsTouched();
         if (!this.form().valid()) return;
         this.loading.set(true);
-        const form_value: any = { ...this.model() };
+        const form_value = { ...this.model() };
         if (this.schedule() === 'between') {
             form_value.play_at = 0;
             form_value.play_cron = '';
@@ -465,7 +465,7 @@ export class SignagePlaylistModalComponent implements OnInit {
         } else delete form_value.valid_until;
         const result = await this._state
             .savePlaylist({
-                ...(form_value as any),
+                ...form_value,
             })
             .catch((_) => {
                 notifyError('Error saving playlist');

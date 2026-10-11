@@ -74,7 +74,7 @@ export class EmailTemplatesStateService extends AsyncHandler {
                 'email_template_fields',
             ).catch(() => null);
             const definitions =
-                (metadata as any)?.details ||
+                metadata?.details ||
                 ({} as Record<string, EmailTemplateDefinition>);
             return Object.keys(definitions).map(
                 (key) =>

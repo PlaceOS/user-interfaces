@@ -7,12 +7,12 @@ import { LockersReportService } from 'apps/concierge/src/app/reports/lockers/loc
 
 describe('LockersReportOverallComponent', () => {
     let spectator: Spectator<LockersReportOverallComponent>;
-    let bookings: ReturnType<typeof signal<any>>;
-    let options: ReturnType<typeof signal<any>>;
+    let bookings: ReturnType<typeof signal<unknown>>;
+    let options: ReturnType<typeof signal<unknown>>;
 
     const createComponent = createComponentFactory({
         component: LockersReportOverallComponent,
-        providers: [MockProvider(LockersReportService, {} as any)],
+        providers: [MockProvider(LockersReportService, {})],
     });
 
     beforeEach(() => {

@@ -35,7 +35,7 @@ import { CustomTooltipData } from './custom-tooltip.component';
 export class JsonDisplayComponent {
     public readonly json = input<Object>(undefined);
 
-    private readonly _json = signal<any>(undefined);
+    private readonly _json = signal<unknown>(undefined);
 
     public readonly formatted_json = computed(() =>
         JSON.stringify(this._json(), undefined, 4),

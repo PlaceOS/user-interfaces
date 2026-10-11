@@ -19,7 +19,7 @@ describe('UrlListComponent', () => {
                 editURL: vi.fn(),
                 removeURL: vi.fn(),
                 loadQrCode: vi.fn(),
-            } as any),
+            }),
             MockProvider(SettingsService, {
                 get: vi.fn(() => '/kiosk'),
             } as any),

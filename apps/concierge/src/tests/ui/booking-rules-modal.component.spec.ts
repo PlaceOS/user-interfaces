@@ -18,7 +18,7 @@ describe('BookingRulesModalComponent', () => {
         detectChanges: false,
         providers: [
             MockProvider(MAT_DIALOG_DATA, { type: 'desk' }),
-            MockProvider(MatDialog, { open: vi.fn() } as any),
+            MockProvider(MatDialog, { open: vi.fn() }),
             MockProvider(OrganisationService, {
                 active_building: signal({ id: 'bld-1' }),
                 building: { id: 'bld-1' },
@@ -43,7 +43,7 @@ describe('BookingRulesModalComponent', () => {
         expect(spectator.component.conditionKeys({ a: 1 } as any)).toEqual([
             'a',
         ]);
-        expect(spectator.component.conditionKeys(null as any)).toEqual([]);
+        expect(spectator.component.conditionKeys(null)).toEqual([]);
     });
 
     it('should give duplicate and missing ruleset IDs unique values', () => {
@@ -135,7 +135,7 @@ describe('BookingRulesModalComponent', () => {
                 rules: {},
                 conditions: {},
             },
-        ] as any);
+        ]);
 
         await spectator.component.save({
             id: 'same',
@@ -143,7 +143,7 @@ describe('BookingRulesModalComponent', () => {
             zone: '*',
             rules: {},
             conditions: {},
-        } as any);
+        });
 
         const details = (ts_client.updateMetadata as any).mock.calls.at(-1)[1]
             .details;

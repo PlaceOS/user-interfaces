@@ -15,7 +15,7 @@ class StubRouterOutlet {}
 
 describe('ReportsComponent', () => {
     let spectator: Spectator<ReportsComponent>;
-    let router_events: Subject<any>;
+    let router_events: Subject<unknown>;
     let current_url: string;
     const createComponent = createComponentFactory({
         component: ReportsComponent,

@@ -40,7 +40,7 @@ describe('SpaceMapComponent', () => {
         name: 'Building 1',
         location: '3.5,4.5',
     });
-    const options = signal<any>({ zones: [] });
+    const options = signal<unknown>({ zones: [] });
     const spaces = signal<Space[]>([]);
     const available_spaces = signal<Space[]>([]);
     const org = {
@@ -58,9 +58,9 @@ describe('SpaceMapComponent', () => {
         providers: [
             { provide: OrganisationService, useValue: org },
             MockProvider(EventFormService, {
-                options: options as any,
-                spaces: spaces as any,
-                available_spaces: available_spaces as any,
+                options: options,
+                spaces: spaces,
+                available_spaces: available_spaces,
                 setOptions: vi.fn(),
             }),
             MockProvider(SettingsService, { get: vi.fn() }),

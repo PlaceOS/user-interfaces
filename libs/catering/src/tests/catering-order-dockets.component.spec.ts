@@ -15,7 +15,7 @@ describe('CateringOrderDocketsComponent', () => {
         providers: [
             MockProvider(SettingsService, {
                 time_format_signal: signal('h:mm a'),
-            } as any),
+            }),
         ],
     });
 

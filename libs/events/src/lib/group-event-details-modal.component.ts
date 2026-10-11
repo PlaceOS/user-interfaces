@@ -539,9 +539,7 @@ export class GroupEventDetailsModalComponent implements OnInit {
         return body;
     });
     public readonly attendance = computed(
-        () =>
-            this.event().attendees?.filter((_: any) => _.checked_in)?.length ||
-            0,
+        () => this.event().attendees?.filter((_) => _.checked_in)?.length || 0,
     );
 
     public remove(event: CalendarEvent, remove_series?: boolean) {
@@ -615,7 +613,7 @@ export class GroupEventDetailsModalComponent implements OnInit {
                 },
             ]);
         }
-        const zones = (this.space().zones as any) || [];
+        const zones = this.space().zones || [];
         this.level.set(this._org.levelWithID(zones) || this.level());
         this.building.set(
             this._org.buildings.find((_) => zones.includes(_.id)) ||
@@ -658,7 +656,7 @@ export class GroupEventDetailsModalComponent implements OnInit {
                     new CalendarEvent({
                         ...event,
                         attendees: (event.attendees || []).filter(
-                            (_: any) => _.email !== user.email,
+                            (_) => _.email !== user.email,
                         ),
                     }),
             );

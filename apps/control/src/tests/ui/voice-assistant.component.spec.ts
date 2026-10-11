@@ -11,8 +11,8 @@ describe('VoiceAssistantComponent', () => {
     let state: ReturnType<typeof signal<string>>;
     let current_text: ReturnType<typeof signal<string>>;
     let levels_ready: ReturnType<typeof signal<boolean>>;
-    let progress: ReturnType<typeof signal<any>>;
-    let error: ReturnType<typeof signal<any>>;
+    let progress: ReturnType<typeof signal<unknown>>;
+    let error: ReturnType<typeof signal<unknown>>;
     let enabled: ReturnType<typeof signal<boolean>>;
     let service: any;
 
@@ -25,8 +25,8 @@ describe('VoiceAssistantComponent', () => {
         state = signal('idle');
         current_text = signal('');
         levels_ready = signal(false);
-        progress = signal<any>(null);
-        error = signal<any>({});
+        progress = signal<unknown>(null);
+        error = signal<unknown>({});
         enabled = signal(true);
         service = {
             activate: vi.fn(),

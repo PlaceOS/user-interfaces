@@ -25,7 +25,7 @@ import * as ts_client from '@placeos/ts-client';
 
 describe('ParkingRequestModalComponent', () => {
     let spectator: Spectator<ParkingRequestModalComponent>;
-    let data: any;
+    let data: unknown;
     let settings: Record<string, unknown>;
     let user_details: any;
     let model: BookingFormService['model'];
@@ -67,7 +67,7 @@ describe('ParkingRequestModalComponent', () => {
                         setOptions: vi.fn(),
                         postForm: post_form,
                         clearForm: clear_form,
-                    } as any;
+                    };
                 },
             },
             MockProvider(ParkingService, {
@@ -79,7 +79,7 @@ describe('ParkingRequestModalComponent', () => {
                 organisation: { id: 'org-1' },
                 region: { id: 'region-1' },
             } as any),
-            MockProvider(MatDialogRef, { close } as any),
+            MockProvider(MatDialogRef, { close }),
             MockProvider(SettingsService as any, {
                 get: vi.fn((key: string) => settings[key]),
                 saveUserSetting: vi.fn(),
@@ -92,7 +92,7 @@ describe('ParkingRequestModalComponent', () => {
             new StaffUser({
                 id: 'current-user',
                 email: 'me@example.com',
-            } as any),
+            }),
         );
         data = { booking: null };
         settings = {};
@@ -163,7 +163,7 @@ describe('ParkingRequestModalComponent', () => {
             user: new StaffUser({
                 id: 'another-user',
                 email: 'someone@example.com',
-            } as any),
+            }),
             plate_number: 'OTHER123',
         }));
 

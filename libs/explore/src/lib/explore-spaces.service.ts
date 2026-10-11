@@ -304,7 +304,7 @@ export class ExploreSpacesService extends AsyncHandler implements OnDestroy {
             for (const action of ['mousedown', 'touchstart']) {
                 actions.push({
                     id: space.map_id,
-                    action: action as any,
+                    action: action,
                     priority: 5,
                     callback: () => {
                         this._panning = false;
@@ -320,7 +320,7 @@ export class ExploreSpacesService extends AsyncHandler implements OnDestroy {
             for (const action of ['mouseup', 'touchend']) {
                 actions.push({
                     id: space.map_id,
-                    action: action as any,
+                    action: action,
                     priority: 5,
                     callback: () => {
                         this.bookSpace(space);

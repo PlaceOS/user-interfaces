@@ -18,8 +18,8 @@ const PARKING_TYPE_NAME = '_PARKING_SPACES_';
 
 let _parking_type_id: string | null = null;
 let _parking_type_id_promise: Promise<string> | null = null;
-let _hidden_categories_promise: Promise<any[]> | null = null;
-const _types_for_category_promises = new Map<string, Promise<any[]>>();
+let _hidden_categories_promise: Promise<unknown[]> | null = null;
+const _types_for_category_promises = new Map<string, Promise<unknown[]>>();
 
 function normalise_name(name: string = '') {
     return name.trim().toLowerCase();
@@ -78,7 +78,7 @@ async function ensure_hidden_category(name: string) {
         const category = await saveAssetCategory({
             name,
             hidden: true,
-        } as any);
+        });
         reset_hidden_categories_cache();
         return category;
     } catch (error) {
@@ -109,7 +109,7 @@ async function move_type_to_category(
             name,
             brand: type.brand || 'PlaceOS',
             category_id,
-        } as any);
+        });
         reset_types_cache([category_id]);
         return updated_type;
     } catch (error) {
@@ -139,7 +139,7 @@ async function ensure_type(
             name,
             brand: 'PlaceOS',
             category_id,
-        } as any);
+        });
         reset_types_cache([category_id]);
         return type;
     } catch (error) {

@@ -7,7 +7,7 @@ import { ServiceWorkerUpdateCardComponent } from '../lib/service-worker-update-c
 
 // The service-worker update state signal is module-private with no exported
 // setter, so drive the component's own `update` signal directly.
-const update_state = signal<any>(null);
+const update_state = signal<unknown>(null);
 
 describe('ServiceWorkerUpdateCardComponent', () => {
     let spectator: Spectator<ServiceWorkerUpdateCardComponent>;

@@ -33,7 +33,7 @@ import { HydratedSignageTemplateMapping } from '../../app/signage-template-mappi
 import { SignageTemplateService } from '../../app/templates/signage-template.service';
 
 type SignageTemplateServiceTestAccess = SignageTemplateService &
-    Record<string, any>;
+    Record<string, unknown>;
 
 vi.mock('@placeos/ts-client', { spy: true });
 
@@ -45,7 +45,8 @@ const notify_open = vi.fn(() => ({
 describe('SignageTemplateService', () => {
     const settings = {
         get: vi.fn(),
-        signal: (_name: string, default_value?: any) => signal(default_value),
+        signal: (_name: string, default_value?: unknown) =>
+            signal(default_value),
     };
     const org = {
         initialised: signal(true),
@@ -723,7 +724,7 @@ describe('SignageTemplateService', () => {
         };
 
         await service.editTemplateMapping({ control_system_id: 'display-1' });
-        const add_config = dialog.open.mock.calls.at(-1)?.[1] as any;
+        const add_config = dialog.open.mock.calls.at(-1)?.[1];
         await add_config.data.save('template-1', schedule);
 
         expect(dialog.open).toHaveBeenLastCalledWith(
@@ -746,7 +747,7 @@ describe('SignageTemplateService', () => {
             { control_system_id: 'display-1' },
             mapping,
         );
-        const edit_config = dialog.open.mock.calls.at(-1)?.[1] as any;
+        const edit_config = dialog.open.mock.calls.at(-1)?.[1];
         await edit_config.data.save('template-changed', null);
 
         expect(updateSignageTemplateMapping).toHaveBeenCalledWith('mapping-1', {

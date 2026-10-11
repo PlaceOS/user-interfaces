@@ -19,9 +19,9 @@ describe('CateringSelectModalComponent', () => {
     const createComponent = createRoutingFactory({
         component: CateringSelectModalComponent,
         providers: [
-            MockProvider(SettingsService as any, createSettingsServiceMock()),
+            MockProvider(SettingsService, createSettingsServiceMock()),
             MockProvider(MAT_DIALOG_DATA, { details: {} }),
-            MockProvider(OrganisationService as any, {}),
+            MockProvider(OrganisationService, {}),
             MockProvider(CateringOrderStateService, {}),
         ],
         declarations: [
@@ -133,9 +133,7 @@ describe('CateringSelectModalComponent', () => {
         spectator.component.offset_day.set(1);
         spectator.detectChanges();
 
-        const filters = spectator.query(
-            CateringItemFiltersComponent as any,
-        ) as any;
+        const filters = spectator.query(CateringItemFiltersComponent);
         expect(filters.at_time).toBe(true);
         expect(filters.offset).toBe(45);
         expect(filters.offset_day).toBe(1);

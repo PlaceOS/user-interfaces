@@ -19,7 +19,7 @@ import { RoleManagementModalComponent } from '../../app/staff/role-management-mo
 
 describe('EmergencyContactsComponent', () => {
     let spectator: SpectatorRouting<EmergencyContactsComponent>;
-    const contacts = signal<any[]>([]);
+    const contacts = signal<unknown[]>([]);
     const dialog = {
         open: vi.fn(() => ({ afterClosed: () => of(true) })),
     };
@@ -38,7 +38,7 @@ describe('EmergencyContactsComponent', () => {
         detectChanges: false,
         providers: [
             MockProvider(EmergencyContactsService, service as any),
-            MockProvider(Clipboard, clipboard as any),
+            MockProvider(Clipboard, clipboard),
             MockProvider(OrganisationService, {
                 active_building: signal({ id: 'bld-1' }),
             } as any),

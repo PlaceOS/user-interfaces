@@ -24,7 +24,7 @@ const room = (over: Record<string, any> = {}) => ({
 
 describe('RemoteSupportComponent', () => {
     let spectator: Spectator<RemoteSupportComponent>;
-    let region_id: any;
+    let region_id: unknown;
     let building_id: any;
     let dashboard_alerts: any;
     let space_list: any;
@@ -39,14 +39,14 @@ describe('RemoteSupportComponent', () => {
         // and methods, not its (heavy) template with the sidebar + data table.
         overrideComponents: [[RemoteSupportComponent, { set: { template: '' } }]],
         providers: [
-            MockProvider(DashboardsService, {} as any),
-            MockProvider(SupportService, {} as any),
+            MockProvider(DashboardsService, {}),
+            MockProvider(SupportService, {}),
             MockProvider(OrganisationService, {
                 regions: [],
                 buildings: [],
-            } as any),
-            MockProvider(MatDialog, {} as any),
-            MockProvider(Router, {} as any),
+            }),
+            MockProvider(MatDialog, {}),
+            MockProvider(Router, {}),
             MockProvider(ActivatedRoute, {
                 snapshot: { queryParams: {} },
             } as any),
@@ -56,8 +56,8 @@ describe('RemoteSupportComponent', () => {
     beforeEach(() => {
         region_id = signal('');
         building_id = signal('');
-        dashboard_alerts = signal<any[]>([]);
-        space_list = signal<any[]>([]);
+        dashboard_alerts = signal<unknown[]>([]);
+        space_list = signal<unknown[]>([]);
         dialog_open = vi.fn();
         navigate = vi.fn();
         spectator = createComponent({
@@ -113,7 +113,7 @@ describe('RemoteSupportComponent', () => {
         spectator.component.setCurrentBooking(space, event);
         expect(spectator.component.current()['sys-1']).toBe(event);
 
-        spectator.component.setCurrentBooking(space, null as any);
+        spectator.component.setCurrentBooking(space, null);
         expect(spectator.component.current()['sys-1']).toBeUndefined();
     });
 
@@ -123,7 +123,7 @@ describe('RemoteSupportComponent', () => {
         spectator.component.setNextBooking(space, event);
         expect(spectator.component.next()['sys-1']).toBe(event);
 
-        spectator.component.setNextBooking(space, null as any);
+        spectator.component.setNextBooking(space, null);
         expect(spectator.component.next()['sys-1']).toBeUndefined();
     });
 

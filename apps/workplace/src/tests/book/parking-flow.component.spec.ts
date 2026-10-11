@@ -12,11 +12,11 @@ import { ParkingFlowSuccessComponent } from '../../app/book/parking-flow/parking
 describe('NewParkingFlowComponent', () => {
     let spectator: SpectatorRouting<NewParkingFlowComponent>;
     let deny_parking_access: ReturnType<typeof signal<boolean>>;
-    let assigned_space: ReturnType<typeof signal<any>>;
+    let assigned_space: ReturnType<typeof signal<unknown>>;
     let has_booking: ReturnType<typeof signal<boolean>>;
     let is_home_location: ReturnType<typeof signal<boolean>>;
     let view: ReturnType<typeof signal<string>>;
-    let model: ReturnType<typeof signal<Record<string, any>>>;
+    let model: ReturnType<typeof signal<Record<string, unknown>>>;
 
     const createComponent = createRoutingFactory({
         component: NewParkingFlowComponent,
@@ -27,15 +27,15 @@ describe('NewParkingFlowComponent', () => {
         ],
         detectChanges: false,
         providers: [
-            MockProvider(BookingFormService, {} as any),
-            MockProvider(ParkingService, {} as any),
-            MockProvider(OrganisationService, {} as any),
+            MockProvider(BookingFormService, {}),
+            MockProvider(ParkingService, {}),
+            MockProvider(OrganisationService, {}),
         ],
     });
 
-    const build = (options: Record<string, any> = {}) => {
+    const build = (options: Record<string, unknown> = {}) => {
         deny_parking_access = signal(false);
-        assigned_space = signal<any>(null);
+        assigned_space = signal<unknown>(null);
         has_booking = signal(false);
         is_home_location = signal(false);
         view = signal('form');
@@ -62,7 +62,7 @@ describe('NewParkingFlowComponent', () => {
                 } as any),
                 MockProvider(OrganisationService, {
                     waitUntilInitialised: vi.fn(() => Promise.resolve()),
-                } as any),
+                }),
             ],
         });
     };
@@ -143,8 +143,8 @@ describe('NewParkingFlowComponent', () => {
     });
 
     it('should load a fresh parking form and mark ready on init when no edit state exists', async () => {
-        const state: any = spectator.inject(BookingFormService);
-        const parking: any = spectator.inject(ParkingService);
+        const state = spectator.inject(BookingFormService);
+        const parking = spectator.inject(ParkingService);
         await spectator.component.ngOnInit();
 
         expect(parking.loadBookings).toHaveBeenCalled();
@@ -157,7 +157,7 @@ describe('NewParkingFlowComponent', () => {
 
     it('should not reload the form when an existing parking booking is being edited', async () => {
         model.set({ id: 'booking-1', booking_type: 'parking' });
-        const state: any = spectator.inject(BookingFormService);
+        const state = spectator.inject(BookingFormService);
         await spectator.component.ngOnInit();
 
         expect(state.loadForm).not.toHaveBeenCalled();
@@ -169,7 +169,7 @@ describe('NewParkingFlowComponent', () => {
             paramMap: new Map([['step', 'confirm']]),
             queryParamMap: new Map(),
         } as any;
-        const state: any = spectator.inject(BookingFormService);
+        const state = spectator.inject(BookingFormService);
         await spectator.component.ngOnInit();
 
         expect(state.setView).toHaveBeenCalledWith('confirm');
@@ -180,7 +180,7 @@ describe('NewParkingFlowComponent', () => {
             paramMap: new Map(),
             queryParamMap: new Map([['success', '1']]),
         } as any;
-        const state: any = spectator.inject(BookingFormService);
+        const state = spectator.inject(BookingFormService);
         await spectator.component.ngOnInit();
 
         expect(state.setView).toHaveBeenCalledWith('success');

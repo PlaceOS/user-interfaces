@@ -220,7 +220,7 @@ describe('ParkingTopbarComponent', () => {
         (spectator.inject(OrganisationService) as any).buildings = [
             { id: 'bld-1' },
         ];
-        (spectator.inject(ParkingStateService).setOptions as any).mockClear();
+        spectator.inject(ParkingStateService).setOptions.mockClear();
 
         (spectator.component as any)._applyQueryZones(['lvl-1']);
         setOptions({ request_filter: 'all', zones: ['lvl-1'] });
@@ -245,7 +245,7 @@ describe('ParkingTopbarComponent', () => {
             configurable: true,
         });
         vi.spyOn(router, 'navigate').mockResolvedValue(true);
-        (spectator.inject(ParkingStateService).setOptions as any).mockClear();
+        spectator.inject(ParkingStateService).setOptions.mockClear();
 
         spectator.component.updateZones(['lvl-1']);
 

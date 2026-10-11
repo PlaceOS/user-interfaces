@@ -417,7 +417,7 @@ export class LockerStateService extends AsyncHandler {
         const token = ++this._load_token;
         this._loading.set(addToken(this._loading(), '[BOOKINGS]'));
         let failed = false;
-        const resp: any = await Promise.resolve(fetch()).catch(() => {
+        const resp = await Promise.resolve(fetch()).catch(() => {
             failed = true;
             return { data: [], total: 0, next: null };
         });

@@ -10,9 +10,9 @@ import { ZoneContentComponent } from '../../app/zones/zone-content.component';
 const NOW_S = Math.floor(Date.now() / 1000);
 
 describe('ZoneContentComponent', () => {
-    const selected_zone = signal<any>(null);
-    const playlists = signal<any[]>([]);
-    const selected_zone_displays = signal<any[]>([]);
+    const selected_zone = signal<unknown>(null);
+    const playlists = signal<unknown[]>([]);
+    const selected_zone_displays = signal<unknown[]>([]);
     const playlist_approval_status = signal<Record<string, boolean>>({});
     const playlist_thumbnail_media = signal<Record<string, string[]>>({});
     const can_update = signal(true);
@@ -104,10 +104,8 @@ describe('ZoneContentComponent', () => {
         selected_zone.set({ id: 'z1', playlists: ['p2'] });
         const component = await make();
 
-        expect(component.zone_playlists().map((p: any) => p.id)).toEqual([
-            'p2',
-        ]);
-        expect(component.zone_displays().map((d: any) => d.id)).toEqual(['d1']);
+        expect(component.zone_playlists().map((p) => p.id)).toEqual(['p2']);
+        expect(component.zone_displays().map((d) => d.id)).toEqual(['d1']);
     });
 
     it('returns nothing when no zone is selected', async () => {

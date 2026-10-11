@@ -43,7 +43,7 @@ describe('HelpTooltipComponent', () => {
                 link: 'https://help.example.com/support',
                 icon: { content: 'support' },
             },
-        ] as any);
+        ]);
         spectator.detectChanges();
         const links = spectator.queryAll<HTMLAnchorElement>('a');
         expect(links).toHaveLength(2);

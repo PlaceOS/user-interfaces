@@ -29,7 +29,7 @@ describe('MeetingFlowSuccessComponent', () => {
         id: 'level-2',
         name: 'Level 2',
         display_name: 'Level 2',
-    } as any);
+    });
     const create_settings = () => ({
         get: vi.fn((key: string) => {
             if (key === 'app.features') return ['desks'];
@@ -53,7 +53,7 @@ describe('MeetingFlowSuccessComponent', () => {
                 levelWithID: vi.fn((zones = []) =>
                     zones.includes('level-2') ? level_2 : null,
                 ),
-            } as any),
+            }),
         ],
         componentProviders: [
             MockProvider(SpacePipe, {

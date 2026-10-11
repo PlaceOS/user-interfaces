@@ -387,7 +387,7 @@ export class AutoReleaseSettingsModalComponent implements OnInit {
         return this.settings()[key];
     }
 
-    public setSetting(key: string, value: any) {
+    public setSetting(key: string, value: unknown) {
         this.settings.update((settings) => ({ ...settings, [key]: value }));
     }
 

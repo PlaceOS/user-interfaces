@@ -512,7 +512,7 @@ export class ExploreComponent extends AsyncHandler implements OnInit {
         const space = await this._space_pipe.transform(id);
         if (!space) return;
         this._state.setLevel(this._org.levelWithID(space.zones)?.id);
-        const feature: any = {
+        const feature = {
             location: space.map_id,
             content: MapPinComponent,
             data: {

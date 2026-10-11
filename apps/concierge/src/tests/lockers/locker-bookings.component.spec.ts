@@ -19,9 +19,7 @@ describe('LockerBookingsComponent', () => {
             MockComponent(SimpleTableComponent),
         ],
         imports: [MatMenuModule],
-        providers: [
-            MockProvider(SettingsService, { time_format: 'h:mm a' } as any),
-        ],
+        providers: [MockProvider(SettingsService, { time_format: 'h:mm a' })],
     });
 
     beforeEach(() => {
