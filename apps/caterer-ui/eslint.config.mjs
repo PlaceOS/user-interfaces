@@ -3,6 +3,7 @@ import baseConfig, {
     angularPresetRuleOverrides,
     angularSelectorRules,
     basePresetRuleOverrides,
+    specFileRuleOverrides,
 } from '../../eslint.config.mjs';
 
 export default [
@@ -18,4 +19,5 @@ export default [
     ...nx.configs['flat/angular-template'],
     basePresetRuleOverrides,
     ...angularPresetRuleOverrides,
+    specFileRuleOverrides,
 ];

@@ -4,6 +4,7 @@ import baseConfig, {
     angularPresetRuleOverrides,
     angularSelectorRules,
     basePresetRuleOverrides,
+    specFileRuleOverrides,
 } from '../../eslint.config.mjs';
 
 export default [
@@ -20,6 +21,7 @@ export default [
     ...nx.configs['flat/angular-template'],
     basePresetRuleOverrides,
     ...angularPresetRuleOverrides,
+    specFileRuleOverrides,
     {
         // The Playwright files share helpers from the workspace `e2e` folder,
         // which is not an Nx project.

@@ -70,6 +70,15 @@ export const angularPresetRuleOverrides = [
     },
 ];
 
+// Specs cast partial mocks and assert on values that the test set up.
+export const specFileRuleOverrides = {
+    files: ['**/*.spec.ts'],
+    rules: {
+        '@typescript-eslint/no-explicit-any': 'off',
+        '@typescript-eslint/no-non-null-assertion': 'off',
+    },
+};
+
 // The standards allow `app-`, `placeos-` and feature prefixes, and routed
 // components use attribute selectors. Check the selector type and style only.
 export const angularSelectorRules = {
@@ -127,4 +136,5 @@ export default [
         },
     },
     basePresetRuleOverrides,
+    specFileRuleOverrides,
 ];
