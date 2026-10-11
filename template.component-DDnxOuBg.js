@@ -17,5 +17,5 @@ import{$n as nT,An as hm,At as Uh,B as Iy,Br as ym,Bt as Wb,C as FB,Cn as fe,Cr 
 *)
 */
 export{Qd as SignageTemplateComponent};
-//# debugId=a4c4d20c-ddd9-501d-a8f3-8c8ead1cdb4a
+//# debugId=a7e9fa96-bc61-5510-b43b-5bb213ce1c35
 //# sourceMappingURL=template.component-DDnxOuBg.js.map
