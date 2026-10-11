@@ -1,10 +1,10 @@
 import { Component, computed, inject, input, output } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { OrganisationService, ViewerFeature } from '@placeos/common';
-import { MapPinComponent } from '@placeos/components';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { ImageCarouselComponent } from 'libs/components/src/lib/image-carousel.component';
 import { InteractiveMapComponent } from 'libs/components/src/lib/interactive-map.component';
+import { MapPinComponent } from 'libs/components/src/lib/map-pin.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { BookingAsset } from '../booking-form.types';
 

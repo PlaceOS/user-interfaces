@@ -1,4 +1,4 @@
-import { HashMap } from '@placeos/common';
+import { HashMap } from '../lib/types';
 
 import { generateMockBuilding } from '../lib/org/building.utilities';
 import { Building } from '../lib/types/org.classes';

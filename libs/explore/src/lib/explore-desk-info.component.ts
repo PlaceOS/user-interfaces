@@ -9,9 +9,9 @@ import {
     signal,
 } from '@angular/core';
 import { AsyncHandler, Booking } from '@placeos/common';
-import { IconComponent } from '@placeos/components';
 import { isSameDay } from 'date-fns';
 import { CustomTooltipComponent } from 'libs/components/src/lib/custom-tooltip.component';
+import { IconComponent } from 'libs/components/src/lib/icon.component';
 
 import { MAP_FEATURE_DATA } from 'libs/common/src/lib/types';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';

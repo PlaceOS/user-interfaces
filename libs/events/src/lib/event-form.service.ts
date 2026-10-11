@@ -39,7 +39,6 @@ import {
 import { showMetadata } from '@placeos/ts-client';
 
 import { AssetRequest, OrganisationService } from '@placeos/common';
-import { UserPipe } from '@placeos/users';
 import { AssetStateService } from 'libs/assets/src/lib/asset-state.service';
 import { validateAssetRequestsForResource } from 'libs/assets/src/lib/assets.fn';
 import { newBookingFromCalendarEvent } from 'libs/bookings/src/lib/booking.utilities';
@@ -51,6 +50,7 @@ import {
 } from 'libs/bookings/src/lib/bookings.fn';
 import { SpacePipe } from 'libs/events/src/lib/space.pipe';
 import { requestSpacesForZone } from 'libs/events/src/lib/space.utilities';
+import { UserPipe } from 'libs/users/src/lib/user.pipe';
 import { CalendarService } from './calendar.service';
 import {
     eventFormValue,

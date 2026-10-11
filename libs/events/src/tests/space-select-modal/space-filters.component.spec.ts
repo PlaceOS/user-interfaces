@@ -9,13 +9,13 @@ import {
     settingSignal,
     Space,
 } from '@placeos/common';
-import { generateEventForm } from '@placeos/events';
 import { mockComponent } from 'libs/common/src/tests/test-helpers';
 import { SettingsToggleComponent } from 'libs/components/src/lib/settings-toggle.component';
 import { DateFieldComponent } from 'libs/form-fields/src/lib/date-field.component';
 import { DurationFieldComponent } from 'libs/form-fields/src/lib/duration-field.component';
 import { TimeFieldComponent } from 'libs/form-fields/src/lib/time-field.component';
 import { MockProvider } from 'ng-mocks';
+import { generateEventForm } from '../../lib/event-form';
 import { EventFormService } from '../../lib/event-form.service';
 import { SpaceFiltersComponent } from '../../lib/space-select-modal/space-filters.component';
 import { SpacesService } from '../../lib/spaces.service';

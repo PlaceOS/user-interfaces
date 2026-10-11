@@ -54,7 +54,7 @@ import {
     startOfDay,
     startOfWeek,
 } from 'date-fns';
-import { SettingsToggleComponent } from '../../../../../../libs/components/src/lib/settings-toggle.component';
+import { SettingsToggleComponent } from 'libs/components/src/lib/settings-toggle.component';
 
 interface ParkingRequestShiftOption {
     id: string;

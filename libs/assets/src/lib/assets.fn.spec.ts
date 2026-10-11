@@ -1,3 +1,4 @@
+import { AssetRequest } from '@placeos/common';
 import * as ts_client from '@placeos/ts-client';
 
 // Workspace modules (bookings.fn) run for real; only the ts-client API layer
@@ -391,7 +392,6 @@ describe('[Assets]', () => {
         it('should create asset bookings only when the validated request is saved', async () => {
             const { validateAssetRequestsForResource } =
                 await import('./assets.fn');
-            const { AssetRequest } = await import('@placeos/common');
             vi.mocked(ts_client.queryAssetTypes).mockReturnValue(
                 response([{ id: 'type-projector', name: 'Projector' }]),
             );

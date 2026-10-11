@@ -16,7 +16,7 @@ import {
     SettingsService,
 } from '@placeos/common';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
-import { FullscreenModalShellComponent } from '../../../components/src/lib/fullscreen-modal-shell.component';
+import { FullscreenModalShellComponent } from 'libs/components/src/lib/fullscreen-modal-shell.component';
 import { ImageListFieldComponent } from './image-list-field.component';
 import { RichTextInputComponent } from './rich-text-input.component';
 

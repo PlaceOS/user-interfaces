@@ -7,9 +7,9 @@ import {
     SettingsService,
     User,
 } from '@placeos/common';
-import { generateEventForm } from '@placeos/events';
 import * as ts_client from '@placeos/ts-client';
 import { MockProvider } from 'ng-mocks';
+import { generateEventForm } from '../lib/event-form';
 import { EventFormService } from '../lib/event-form.service';
 import { MeetingFormDetailsComponent } from '../lib/meeting-form-details.component';
 

@@ -60,6 +60,25 @@ export const angularPresetRuleOverrides = [
     },
 ];
 
+// The standards allow `app-`, `placeos-` and feature prefixes, and routed
+// components use attribute selectors. Check the selector type and style only.
+export const angularSelectorRules = {
+    files: ['**/*.ts'],
+    rules: {
+        '@angular-eslint/directive-selector': [
+            'error',
+            [{ type: 'attribute', style: 'camelCase' }],
+        ],
+        '@angular-eslint/component-selector': [
+            'error',
+            [
+                { type: 'element', style: 'kebab-case' },
+                { type: 'attribute', style: 'kebab-case' },
+            ],
+        ],
+    },
+};
+
 export default [
     ...nx.configs['flat/base'],
     {
@@ -69,7 +88,10 @@ export default [
                 'error',
                 {
                     enforceBuildableLibDependency: true,
-                    allow: [],
+                    // Projects import single files from other projects by
+                    // workspace path. Barrel imports between the libraries
+                    // cause circular imports.
+                    allow: ['libs/**', 'apps/**'],
                     depConstraints: [
                         {
                             sourceTag: '*',

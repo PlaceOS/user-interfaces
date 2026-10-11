@@ -27,7 +27,7 @@ import { MapLocation } from 'libs/users/src/lib/location.class';
 import { showStaff } from 'libs/users/src/lib/staff.fn';
 
 import { FormsModule } from '@angular/forms';
-import { SettingsToggleComponent } from '@placeos/components';
+import { SettingsToggleComponent } from 'libs/components/src/lib/settings-toggle.component';
 import { ExploreDesksService } from './explore-desks.service';
 import { ExploreLockersService } from './explore-lockers.service';
 import { ExploreMapControlComponent } from './explore-map-control.component';

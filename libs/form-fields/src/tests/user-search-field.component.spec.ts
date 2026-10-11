@@ -8,8 +8,8 @@ import { MockComponent, MockProvider } from 'ng-mocks';
 
 import { EMPTY_USER, User } from '@placeos/common';
 import { showUser } from '@placeos/ts-client';
-import { generateMockUser } from '@placeos/users';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
+import { generateMockUser } from 'libs/users/src/lib/user.utilities';
 
 // ts-client runs for real via passthrough spies; showUser is stubbed per test.
 vi.mock('@placeos/ts-client', { spy: true });

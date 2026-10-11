@@ -19,7 +19,7 @@ import { OrganisationService } from '@placeos/common';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { StatusPillComponent } from 'libs/components/src/lib/status-pill.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
-import { GroupEventDetailsModalComponent } from '../../../events/src/lib/group-event-details-modal.component';
+import { GroupEventDetailsModalComponent } from 'libs/events/src/lib/group-event-details-modal.component';
 import { BookingDetailsModalComponent } from './booking-details-modal.component';
 import {
     formatEmailName,

@@ -1,8 +1,4 @@
 import {
-    queryLockerAssetsForZones,
-    queryLockerBankAssetsForZones,
-} from '@placeos/assets';
-import {
     Booking,
     CalendarEvent,
     fromEventRecurrence,
@@ -11,8 +7,12 @@ import {
     toBookingRecurrence,
     unique,
 } from '@placeos/common';
-import { getMapDetails } from '@placeos/components';
 import { PlaceAsset } from '@placeos/ts-client';
+import {
+    queryLockerAssetsForZones,
+    queryLockerBankAssetsForZones,
+} from 'libs/assets/src/lib/locker-assets.fn';
+import { getMapDetails } from 'libs/components/src/lib/map-viewer.class';
 import { Locker, LockerBank } from './locker.class';
 
 function parseJson<T>(value: string, fallback: T): T {

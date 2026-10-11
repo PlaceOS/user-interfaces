@@ -29,7 +29,8 @@ import {
     unique,
     ViewerFeature,
 } from '@placeos/common';
-import { MapLocateModalComponent, MapPinComponent } from '@placeos/components';
+import { MapLocateModalComponent } from 'libs/components/src/lib/map-locate-modal.component';
+import { MapPinComponent } from 'libs/components/src/lib/map-pin.component';
 
 import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticated-image.directive';
 import { IconComponent } from 'libs/components/src/lib/icon.component';

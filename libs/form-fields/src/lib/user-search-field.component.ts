@@ -28,12 +28,10 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { AsyncHandler, EMPTY_USER, settingSignal, User } from '@placeos/common';
 import { authority, queryUsers, showUser } from '@placeos/ts-client';
 
-import {
-    UserAvatarComponent,
-    VirtualKeyboardComponent,
-} from '@placeos/components';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
+import { UserAvatarComponent } from 'libs/components/src/lib/user-avatar.component';
+import { VirtualKeyboardComponent } from 'libs/components/src/lib/virtual-keyboard.component';
 import { searchGuests } from 'libs/users/src/lib/guests.fn';
 import { searchStaff } from 'libs/users/src/lib/staff.fn';
 

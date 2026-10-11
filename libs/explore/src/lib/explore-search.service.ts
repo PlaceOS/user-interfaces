@@ -7,7 +7,6 @@ import {
     resource,
     signal,
 } from '@angular/core';
-import { deskFromAsset, queryDeskAssetsForZones } from '@placeos/assets';
 import {
     Asset,
     AssetCategory,
@@ -33,9 +32,13 @@ import {
     queryUsers,
     showMetadata,
 } from '@placeos/ts-client';
+import {
+    deskFromAsset,
+    queryDeskAssetsForZones,
+} from 'libs/assets/src/lib/desk-assets.fn';
 
 import { toQueryString } from '@placeos/common';
-import { searchStaff } from '@placeos/users';
+import { searchStaff } from 'libs/users/src/lib/staff.fn';
 import { ExploreStateService } from './explore-state.service';
 
 const EMERGENCY_CONTACTS_CATEGORY_NAME = '_EMERGENCY_CONTACTS_';

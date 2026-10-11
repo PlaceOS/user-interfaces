@@ -22,19 +22,6 @@ import {
     User,
 } from '@placeos/common';
 import {
-    IconComponent,
-    SettingsToggleComponent,
-    TranslatePipe,
-} from '@placeos/components';
-import {
-    DateFieldComponent,
-    DurationFieldComponent,
-    HostSelectFieldComponent,
-    RecurrenceFieldComponent,
-    TimeFieldComponent,
-    UserSearchFieldComponent,
-} from '@placeos/form-fields';
-import {
     addDays,
     addMinutes,
     differenceInMinutes,
@@ -42,6 +29,15 @@ import {
     format,
     startOfDay,
 } from 'date-fns';
+import { IconComponent } from 'libs/components/src/lib/icon.component';
+import { SettingsToggleComponent } from 'libs/components/src/lib/settings-toggle.component';
+import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
+import { DateFieldComponent } from 'libs/form-fields/src/lib/date-field.component';
+import { DurationFieldComponent } from 'libs/form-fields/src/lib/duration-field.component';
+import { HostSelectFieldComponent } from 'libs/form-fields/src/lib/host-select-field.component';
+import { RecurrenceFieldComponent } from 'libs/form-fields/src/lib/recurrence-field.component';
+import { TimeFieldComponent } from 'libs/form-fields/src/lib/time-field.component';
+import { UserSearchFieldComponent } from 'libs/form-fields/src/lib/user-search-field.component';
 
 import { queryCalendarPermission } from './calendar.fn';
 import { EventFormService } from './event-form.service';

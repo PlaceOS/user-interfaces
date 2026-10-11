@@ -140,6 +140,7 @@ declare let mapsindoors: any;
                                 "
                                 (click)="selected.set(poi.id)"
                                 (mouseover)="hovered.set(poi.id)"
+                                (focus)="hovered.set(poi.id)"
                             >
                                 <div
                                     class="flex w-full flex-col font-mono text-sm"

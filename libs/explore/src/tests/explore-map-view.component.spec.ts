@@ -10,7 +10,7 @@ import { MockComponent, MockModule, MockProvider } from 'ng-mocks';
 import { of } from 'rxjs';
 
 import { OrganisationService, SettingsService } from '@placeos/common';
-import { SpacesService } from '@placeos/events';
+import { SpacesService } from 'libs/events/src/lib/spaces.service';
 
 import { MapsPeopleService } from 'libs/common/src/lib/mapspeople.service';
 import { IndoorMapsComponent } from 'libs/components/src/lib/indoor-maps.component';

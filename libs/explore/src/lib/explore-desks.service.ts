@@ -11,9 +11,12 @@ import {
     WritableSignal,
 } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { deskFromAsset, queryDeskAssets } from '@placeos/assets';
 import { showMetadata } from '@placeos/ts-client';
 import { addDays, endOfDay, getUnixTime, startOfDay } from 'date-fns';
+import {
+    deskFromAsset,
+    queryDeskAssets,
+} from 'libs/assets/src/lib/desk-assets.fn';
 
 import {
     alignDateToBookableHours,

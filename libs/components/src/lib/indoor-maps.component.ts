@@ -24,7 +24,7 @@ import {
     notifyError,
 } from '@placeos/common';
 import { MapService } from 'libs/common/src/lib/mapspeople.service';
-import { ExploreStateService } from '../../../explore/src/lib/explore-state.service';
+import { ExploreStateService } from 'libs/explore/src/lib/explore-state.service';
 import { IconComponent } from './icon.component';
 import { TranslatePipe } from './translate.pipe';
 import { SlicePipe } from '@angular/common';

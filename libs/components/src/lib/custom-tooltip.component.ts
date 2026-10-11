@@ -30,6 +30,7 @@ export class CustomTooltipData<T = any> {
 }
 
 @Component({
+    // eslint-disable-next-line @angular-eslint/component-selector -- applied like a directive, so the selector uses the camelCase directive style
     selector: '[customTooltip]',
     template: `
         <ng-content />

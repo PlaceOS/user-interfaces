@@ -1,7 +1,7 @@
 import { computed, effect, inject, Injectable, signal } from '@angular/core';
-import { OrganisationService } from '@placeos/common';
 import { AsyncHandler } from './async-handler.class';
 import { log } from './general';
+import { OrganisationService } from './org/organisation.service';
 import { SettingsService } from './settings.service';
 
 export enum MapService {

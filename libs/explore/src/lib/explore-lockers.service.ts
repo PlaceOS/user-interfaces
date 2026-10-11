@@ -18,7 +18,7 @@ import {
 import {
     queryLockerAssetsForZones,
     queryLockerBankAssetsForZones,
-} from '@placeos/assets';
+} from 'libs/assets/src/lib/locker-assets.fn';
 import {
     lockerBankFromAsset,
     lockerFromAsset,

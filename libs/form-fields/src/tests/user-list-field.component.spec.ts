@@ -3,7 +3,7 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatDialog } from '@angular/material/dialog';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { SettingsService, User } from '@placeos/common';
-import { generateMockUser } from '@placeos/users';
+import { generateMockUser } from 'libs/users/src/lib/user.utilities';
 import { MockComponent, MockPipe, MockProvider } from 'ng-mocks';
 
 import {

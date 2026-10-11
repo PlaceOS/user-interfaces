@@ -10,7 +10,7 @@ import {
 import { PlaceSystem, PlaceZone, querySystems } from '@placeos/ts-client';
 import { from, Observable, of } from 'rxjs';
 import { map, shareReplay, tap } from 'rxjs/operators';
-import { USER_DOMAIN } from '../../../users/src/lib/user.utilities';
+import { USER_DOMAIN } from 'libs/users/src/lib/user.utilities';
 import { updateSpaceList } from './space.pipe';
 
 const SPACE_LIST_REQUESTS: Record<string, Observable<Space[]>> = {};
