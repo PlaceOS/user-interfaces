@@ -41,8 +41,6 @@ import {
 } from '@placeos/form-fields';
 import { addDays, endOfDay } from 'date-fns';
 
-const MINUTES_IN_DAY = 24 * 60;
-
 @Component({
     selector: 'desk-form-details',
     styles: [],

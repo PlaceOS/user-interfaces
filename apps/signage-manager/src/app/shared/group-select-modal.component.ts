@@ -17,7 +17,6 @@ export interface GroupSelectModalData {
 
 @Component({
     // Existing signage-manager components use feature selectors without the app prefix.
-    // eslint-disable-next-line @angular-eslint/component-selector
     selector: 'group-select-modal',
     template: `
         <header

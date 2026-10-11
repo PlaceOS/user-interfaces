@@ -293,7 +293,7 @@ export class DeskFiltersComponent {
 
     public readonly setOptions = (o) => this._state.setOptions(o);
     public readonly setFeature = (f, e) => this._state.setFeature(f, e);
-    public readonly setLevel = (l) => {};
+    public readonly setLevel = (_l) => {};
 
     public readonly setBuilding = (bld) => (this._org.building = bld);
     public readonly setRegion = (r) => (this._org.region = r);

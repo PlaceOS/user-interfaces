@@ -281,7 +281,7 @@ export class AssetPurchaseOrderFormComponent
             this.item()?.expected_service_end_date ||
             null;
         data.unit_price = +data.unit_price;
-        const item = await saveAssetPurchaseOrder(data as any).catch((e) => {
+        await saveAssetPurchaseOrder(data as any).catch((e) => {
             this.loading.set('');
             notifyError(
                 i18n('APP.CONCIERGE.ASSETS_PURCHASE_SAVE_ERROR', {

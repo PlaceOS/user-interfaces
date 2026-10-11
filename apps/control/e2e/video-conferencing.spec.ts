@@ -125,7 +125,7 @@ test.describe('US-024: Toggle Self-View', () => {
         await ensurePoweredOn(page);
     });
 
-    test('should have self-view toggle in VC controls', async ({ page }) => {
+    test('should have self-view toggle in VC controls', async () => {
         // Self-view is part of video conference controls
         // Available when VidConf module is present
     });
@@ -136,7 +136,7 @@ test.describe('US-025: Change Video Layout', () => {
         await ensurePoweredOn(page);
     });
 
-    test('should have layout options in VC controls', async ({ page }) => {
+    test('should have layout options in VC controls', async () => {
         // Layout options: Auto, Equal, Overlay, Prominent, Single
         // Available in video conference tooltip or tab
     });
@@ -147,7 +147,7 @@ test.describe('US-026: Share Presentation in Call', () => {
         await ensurePoweredOn(page);
     });
 
-    test('should have presentation sharing controls', async ({ page }) => {
+    test('should have presentation sharing controls', async () => {
         // Presentation mode can be None, Local, or Remote
         // Available in VC controls
     });
@@ -158,7 +158,7 @@ test.describe('US-027: Send DTMF Tones', () => {
         await ensurePoweredOn(page);
     });
 
-    test('should have dial pad accessible during calls', async ({ page }) => {
+    test('should have dial pad accessible during calls', async () => {
         // DTMF can be sent via dial pad during active calls
     });
 });
@@ -168,7 +168,7 @@ test.describe('US-028: Hold/Resume Call', () => {
         await ensurePoweredOn(page);
     });
 
-    test('should have hold/resume controls in call view', async ({ page }) => {
+    test('should have hold/resume controls in call view', async () => {
         // Hold and resume buttons in video call controls
     });
 });
@@ -206,7 +206,7 @@ test.describe('Video Conferencing - Call Page', () => {
         const callView = page.locator(
             'video-call-page, app-control-video-call-view',
         );
-        const isVisible = await callView.isVisible().catch(() => false);
+        await callView.isVisible().catch(() => false);
 
         // May or may not be visible depending on routing
     });

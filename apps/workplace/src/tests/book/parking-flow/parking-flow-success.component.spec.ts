@@ -1,4 +1,3 @@
-import { signal } from '@angular/core';
 import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/vitest';
 import { BookingFormService } from '@placeos/bookings';
 import { OrganisationService, SettingsService } from '@placeos/common';

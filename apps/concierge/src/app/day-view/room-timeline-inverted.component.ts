@@ -466,7 +466,7 @@ Host:  ${event.organiser?.name || event.host}`;
     public viewEvent(
         event: CalendarEvent,
         space_id: string,
-        scroll_to = false,
+        _scroll_to = false,
     ) {
         if (event.is_system_event) return;
         const ref = this._dialog.open(EventDetailsModalComponent, {

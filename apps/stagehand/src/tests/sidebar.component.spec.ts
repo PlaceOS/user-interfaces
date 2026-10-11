@@ -1,4 +1,3 @@
-import { MockComponent } from 'ng-mocks';
 import type { Mock } from 'vitest';
 import { signal } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';

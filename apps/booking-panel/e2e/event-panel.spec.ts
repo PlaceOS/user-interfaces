@@ -88,7 +88,6 @@ test.describe('Event Panel - QR Code Display', () => {
 
     test('should have QR code section (collapsible)', async ({ page }) => {
         // QR code section has book-tag button
-        const bookButton = page.locator('event-panel [book-tag]');
         // Button visibility depends on show_qr_code settings
         await page.waitForTimeout(1000);
     });

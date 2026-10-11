@@ -76,7 +76,6 @@ test.describe('Checkin View - Action Buttons', () => {
 
     test('should have action buttons in status cards', async ({ page }) => {
         // Buttons appear based on room status (Check-In for pending, Book for free)
-        const actionButtons = page.locator('checkin-view button.w-24');
         // Wait for potential buttons to appear
         await page.waitForTimeout(2000);
         // At least the UI structure should be ready
@@ -87,14 +86,12 @@ test.describe('Checkin View - Action Buttons', () => {
         page,
     }) => {
         // Check-In button appears only when status is pending
-        const checkinButton = page.locator('button:has-text("Check")');
         // Visibility depends on room status
         await page.waitForTimeout(2000);
     });
 
     test('should show Book button when room is free', async ({ page }) => {
         // Book button appears when room is free
-        const bookButton = page.locator('button:has-text("Book")');
         // Visibility depends on room status
         await page.waitForTimeout(2000);
     });

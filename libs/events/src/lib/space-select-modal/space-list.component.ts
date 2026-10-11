@@ -1,5 +1,12 @@
 import { NgTemplateOutlet } from '@angular/common';
-import { Component, computed, inject, input, output } from '@angular/core';
+import {
+    Component,
+    computed,
+    inject,
+    input,
+    OnInit,
+    output,
+} from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -224,7 +231,7 @@ import { EventFormService } from 'libs/events/src/lib/event-form.service';
         NgTemplateOutlet,
     ],
 })
-export class SpaceListComponent {
+export class SpaceListComponent implements OnInit {
     private _event_form = inject(EventFormService);
     private _org = inject(OrganisationService);
 

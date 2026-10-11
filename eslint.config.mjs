@@ -10,6 +10,16 @@ export const basePresetRuleOverrides = {
         '@typescript-eslint/no-inferrable-types': 'off',
         '@typescript-eslint/no-this-alias': 'off',
         '@typescript-eslint/no-unused-expressions': 'off',
+        // A leading underscore marks a value that is unused on purpose.
+        '@typescript-eslint/no-unused-vars': [
+            'warn',
+            {
+                argsIgnorePattern: '^_',
+                caughtErrorsIgnorePattern: '^_',
+                destructuredArrayIgnorePattern: '^_',
+                ignoreRestSiblings: true,
+            },
+        ],
         '@typescript-eslint/no-wrapper-object-types': 'off',
         'no-case-declarations': 'off',
         'no-cond-assign': 'off',

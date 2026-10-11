@@ -13,9 +13,7 @@ export const mockForm = {
     markAllAsTouched: vi.fn(() => {}),
 };
 
-export const mockGenerateEventForm = (event: any) => {
-    const form = mockForm;
-};
+export const mockGenerateEventForm = (_event: any) => {};
 
 export const mockBuilding = {
     id: 1,

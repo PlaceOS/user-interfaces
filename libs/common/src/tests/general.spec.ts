@@ -101,7 +101,7 @@ describe('General Methods', () => {
     describe('downloadFile', () => {
         it('should prefix BOM for csv downloads', () => {
             const original_url = window.URL;
-            const create_object_url = vi.fn((blob: Blob) => 'blob:test-url');
+            const create_object_url = vi.fn((_blob: Blob) => 'blob:test-url');
             const revoke_object_url = vi.fn();
             (window as any).URL = {
                 createObjectURL: create_object_url,

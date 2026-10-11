@@ -62,6 +62,6 @@ describe('VisitorReportOverallComponent', () => {
     it('should render the total visitors into the summary', async () => {
         bookings.set([{ duration: 30 }, { duration: 60 }]);
         spectator.detectChanges();
-        await expect(spectator.fixture.nativeElement.textContent).toContain('2');
+        expect(spectator.fixture.nativeElement.textContent).toContain('2');
     });
 });

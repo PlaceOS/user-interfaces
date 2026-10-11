@@ -47,7 +47,6 @@ import {
     SettingsService,
     unique,
 } from '@placeos/common';
-import { generateQRCode } from '@placeos/common/qr-code';
 import {
     listChildMetadata,
     PlaceZone,
@@ -78,20 +77,6 @@ import {
     upsertDesk,
 } from './desk-edit';
 import { DeskModalComponent } from './desk-modal.component';
-
-function addQRCodeToBooking(booking: Booking): Booking {
-    return new Booking({
-        ...booking,
-        extension_data: {
-            ...booking.extension_data,
-            checkin_qr_code: generateQRCode(
-                `/workplace/#/book/code?asset_id=${encodeURIComponent(
-                    booking.asset_id,
-                )}`,
-            ),
-        },
-    });
-}
 
 export type DeskView = 'manage' | 'events' | 'map';
 

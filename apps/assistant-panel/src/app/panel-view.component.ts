@@ -2,6 +2,7 @@ import {
     Component,
     ElementRef,
     OnDestroy,
+    OnInit,
     computed,
     effect,
     inject,
@@ -275,7 +276,10 @@ type AssistantWindow = Window & {
         UserAvatarComponent,
     ],
 })
-export class PanelViewComponent extends AsyncHandler implements OnDestroy {
+export class PanelViewComponent
+    extends AsyncHandler
+    implements OnDestroy, OnInit
+{
     private _route = inject(ActivatedRoute);
     private _chat = inject(ChatService);
     private _org = inject(OrganisationService);

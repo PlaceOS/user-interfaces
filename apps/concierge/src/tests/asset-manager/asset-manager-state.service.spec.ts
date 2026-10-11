@@ -13,7 +13,6 @@ vi.mock('@placeos/ts-client', { spy: true });
 
 describe('AssetManagerStateService', () => {
     let spectator: SpectatorService<AssetManagerStateService>;
-    let model_data: Record<string, any>;
     let settings_map: Record<string, any>;
 
     const organisation_service: any = {
@@ -44,16 +43,6 @@ describe('AssetManagerStateService', () => {
 
     beforeEach(() => {
         settings_map = { 'app.use_region': false };
-        model_data = {
-            id: '',
-            name: 'Chair',
-            quantity: 1,
-            category: 'furniture',
-            brand: 'Acme',
-            images: [],
-            serial_number: 'SER-1',
-            warranty: '2 years',
-        };
         vi.clearAllMocks();
         // The workspace asset/booking wrappers cannot be spied under this
         // builder, so stub the ts-client primitives they call with safe

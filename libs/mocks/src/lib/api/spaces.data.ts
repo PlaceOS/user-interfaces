@@ -2,19 +2,6 @@ import { predictableRandomInt } from '@placeos/common';
 import { generateMockSpace } from '@placeos/events';
 import { MOCK_BUILDINGS, MOCK_REGIONS } from './zone.data';
 
-const SPACE_TYPES = [
-    'Meeting Room',
-    'Conference Room',
-    'Boardroom',
-    'Training Room',
-    'Phone Booth',
-    'Collaboration Space',
-    'Event Space',
-    'Break Room',
-    'Focus Room',
-    'Presentation Room',
-];
-
 const ROOM_FEATURES = {
     'Meeting Room': [
         'Whiteboard',
@@ -300,18 +287,6 @@ const generateSpaceData = () => {
                     ].includes(roomData.type) || predictableRandomInt(3) === 0;
 
                 // Generate realistic images based on room type
-                const imageCategories = {
-                    'Meeting Room': 'meeting-room',
-                    'Conference Room': 'conference-room',
-                    Boardroom: 'boardroom',
-                    'Training Room': 'training-room',
-                    'Phone Booth': 'phone-booth',
-                    'Collaboration Space': 'collaboration-space',
-                    'Event Space': 'event-space',
-                    'Break Room': 'break-room',
-                    'Focus Room': 'focus-room',
-                    'Presentation Room': 'presentation-room',
-                };
 
                 const space = {
                     id: `space-${spaceIndex + 1}`,

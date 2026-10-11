@@ -45,7 +45,7 @@ function validateJSONValue(value: any) {
     if (value instanceof Object) return undefined;
     try {
         JSON.parse(value);
-    } catch (e) {
+    } catch {
         return { kind: 'json' };
     }
     return undefined;

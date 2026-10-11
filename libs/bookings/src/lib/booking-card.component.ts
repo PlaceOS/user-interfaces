@@ -169,9 +169,9 @@ export class BookingCardComponent {
 
     public readonly booking = input<Booking>(undefined);
     public readonly show_day = input(false);
-    public readonly edit_fn = input((i) => null);
-    public readonly remove_fn = input((i, s?) => null);
-    public readonly end_fn = input((i) => null);
+    public readonly edit_fn = input((_i) => null);
+    public readonly remove_fn = input((_i, _s?) => null);
+    public readonly end_fn = input((_i) => null);
     public readonly refresh_fn = input<() => void>();
 
     public readonly raw_description = computed(() =>

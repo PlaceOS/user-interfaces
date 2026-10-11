@@ -131,7 +131,7 @@ function dateToISO(date: Date | number) {
 export function generateMicrosoftCalendarLink(
     event: CalEvent,
     type: 'outlook' | 'office' = 'office',
-    status: 'free' | 'busy' | 'tentative' | 'oof' = 'free',
+    _status: 'free' | 'busy' | 'tentative' | 'oof' = 'free',
 ): string {
     if (!event.date) event.date = Date.now();
     const data: any = {

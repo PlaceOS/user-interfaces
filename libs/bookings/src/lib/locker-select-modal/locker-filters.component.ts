@@ -305,7 +305,7 @@ export class LockerFiltersComponent extends AsyncHandler implements OnInit {
 
     public readonly setOptions = (o) => this._state.setOptions(o);
     public readonly setFeature = (f, e) => this._state.setFeature(f, e);
-    public readonly setLevel = (l) => {};
+    public readonly setLevel = (_l) => {};
     public readonly setBuilding = (bld) => (this._org.building = bld);
     public readonly setRegion = (reg) => (this._org.region = reg);
     private readonly _locker_bookable_hours = this._settings.signal(

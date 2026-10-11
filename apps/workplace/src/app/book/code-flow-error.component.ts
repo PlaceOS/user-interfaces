@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, OnInit } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { BookingFormService } from '@placeos/bookings';
@@ -84,7 +84,7 @@ import { TranslatePipe } from '@placeos/components';
     ],
     imports: [MatRippleModule, TranslatePipe, RouterModule],
 })
-export class CodeFlowErrorComponent extends AsyncHandler {
+export class CodeFlowErrorComponent extends AsyncHandler implements OnInit {
     private _route = inject(ActivatedRoute);
     private _state = inject(BookingFormService);
 

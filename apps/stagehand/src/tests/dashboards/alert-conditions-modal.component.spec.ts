@@ -5,7 +5,7 @@ import {
     TriggerConditionOperator,
     TriggerTimeConditionType,
 } from '@placeos/ts-client';
-import { MockComponent, MockProvider } from 'ng-mocks';
+import { MockProvider } from 'ng-mocks';
 
 import {
     AlertConditionModalComponent,

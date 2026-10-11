@@ -5,6 +5,7 @@ import {
     inject,
     input,
     model,
+    OnInit,
     signal,
 } from '@angular/core';
 
@@ -196,7 +197,7 @@ const URL_STARTS = [
         CustomTooltipComponent,
     ],
 })
-export class DebugConsoleComponent extends AsyncHandler {
+export class DebugConsoleComponent extends AsyncHandler implements OnInit {
     private _org = inject(OrganisationService);
     private _logs = inject(RemoteLoggingService);
     private _hotkey = inject(HotkeysService);

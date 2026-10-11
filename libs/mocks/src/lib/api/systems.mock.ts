@@ -4,7 +4,7 @@ import { createSystem } from '../systems-bindings.mock';
 import { MOCK_SPACES } from './spaces.data';
 
 export function registerMockSystems() {
-    MOCK_SPACES.forEach((space: any, index) => createSystem(space));
+    MOCK_SPACES.forEach((space: any) => createSystem(space));
 
     registerMockEndpoint({
         path: '/api/engine/v2/systems',

@@ -28,7 +28,7 @@ describe('AuthorisedUserGuard', () => {
     const access_mock = { group: '' };
     const settings_mock = {
         app_name: 'workplace',
-        get: vi.fn((key: string): any => []),
+        get: vi.fn((_key: string): any => []),
     };
     const wait_until_initialised = vi.fn().mockResolvedValue(undefined);
 

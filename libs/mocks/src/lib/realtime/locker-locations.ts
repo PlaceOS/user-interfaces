@@ -1,9 +1,9 @@
 import { HashMap } from '@placeos/common';
 
 class LockerLocationsModule {
-    constructor(data: any) {}
+    constructor(_data: any) {}
 
-    $lockers_allocated_to_me(...args: any[]) {
+    $lockers_allocated_to_me(..._args: any[]) {
         return [
             {
                 location: 'locker',

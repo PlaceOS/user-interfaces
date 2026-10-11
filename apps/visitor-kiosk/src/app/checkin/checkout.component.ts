@@ -8,7 +8,7 @@ import { MatRippleModule } from '@angular/material/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { Router, RouterModule } from '@angular/router';
 import { OrganisationService, i18n, notifySuccess } from '@placeos/common';
-import { IconComponent, TranslatePipe } from '@placeos/components';
+import { TranslatePipe } from '@placeos/components';
 import { CheckinStateService } from './checkin-state.service';
 
 @Component({

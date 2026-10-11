@@ -5,12 +5,10 @@ import { Building } from '../lib/types/org.classes';
 
 describe('Building', () => {
     let init_data: HashMap;
-    let service: any;
     let bld: Building;
 
     beforeEach(() => {
         init_data = generateMockBuilding();
-        service = { get: vi.fn() };
         bld = new Building(init_data);
     });
 

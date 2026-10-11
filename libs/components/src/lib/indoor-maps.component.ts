@@ -31,7 +31,6 @@ import { SlicePipe } from '@angular/common';
 
 declare let mapsindoors: any;
 declare let google: any;
-declare let mapboxgl: any;
 
 interface GeolocationCoordinates {
     latitude: number;

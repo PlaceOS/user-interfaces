@@ -8,6 +8,7 @@ import {
     linkedSignal,
     output,
     signal,
+    OnInit,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { form, FormField, required, validate } from '@angular/forms/signals';
@@ -596,7 +597,7 @@ import { bookingHostUser } from './booking-form.model';
         SafePipe,
     ],
 })
-export class InviteVisitorFormComponent {
+export class InviteVisitorFormComponent implements OnInit {
     private _service = inject(BookingFormService);
     private _settings = inject(SettingsService);
     private _org = inject(OrganisationService);

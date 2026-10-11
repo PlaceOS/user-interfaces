@@ -102,14 +102,14 @@ export function registerMockZones() {
         path: '/api/engine/v2/settings',
         metadata: {},
         method: 'GET',
-        callback: (request) => [],
+        callback: (_request) => [],
     });
 
     registerMockEndpoint({
         path: '/api/engine/v2/settings/:id',
         metadata: {},
         method: 'GET',
-        callback: (request) => ({}),
+        callback: (_request) => ({}),
     });
 
     registerMockEndpoint({
@@ -172,8 +172,6 @@ export function registerMockZones() {
                 return generateMockDeskMetadata(id);
             }
             if (request.query_params.name === 'charge_codes') {
-                const parts = request.route_params.id.split('-');
-                const id = parts[parts.length - 1];
                 return {
                     charge_codes: {
                         details: new Array(30)

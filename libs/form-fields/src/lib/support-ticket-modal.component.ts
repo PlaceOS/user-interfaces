@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, OnInit } from '@angular/core';
 import { form, FormField, required } from '@angular/forms/signals';
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
@@ -160,7 +160,7 @@ export interface SupportRequestType {
         FullscreenModalShellComponent,
     ],
 })
-export class SupportTicketModalComponent {
+export class SupportTicketModalComponent implements OnInit {
     private _dialog_ref =
         inject<MatDialogRef<SupportTicketModalComponent>>(MatDialogRef);
     private _org = inject(OrganisationService);

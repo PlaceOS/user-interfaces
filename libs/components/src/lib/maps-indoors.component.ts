@@ -1,6 +1,7 @@
 import {
     Component,
     ElementRef,
+    OnChanges,
     OnInit,
     SimpleChanges,
     inject,
@@ -30,7 +31,6 @@ import { IconComponent } from './icon.component';
 
 declare let mapsindoors: any;
 declare let google: any;
-declare let mapboxgl: any;
 
 const DEFAULT_ZOOM = 18.5;
 
@@ -68,7 +68,10 @@ const RESOURCE_MAP: Record<string, any> = {};
     styles: [``],
     imports: [MatRippleModule, MatProgressSpinnerModule, IconComponent],
 })
-export class MapsIndoorsComponent extends AsyncHandler implements OnInit {
+export class MapsIndoorsComponent
+    extends AsyncHandler
+    implements OnInit, OnChanges
+{
     private _maps_people = inject(MapsPeopleService);
     private _org = inject(OrganisationService);
 

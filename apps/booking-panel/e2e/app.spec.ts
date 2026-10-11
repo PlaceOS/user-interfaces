@@ -165,9 +165,6 @@ test.describe('Booking a Room (US-006 to US-010)', () => {
 
         // Wait for either booking modal or confirm modal to appear
         // This depends on current room status
-        const modal = page.locator(
-            'booking-modal, mat-dialog-container, [mat-dialog-container]',
-        );
         // Modal may or may not appear depending on room status
         // If room is free, should show booking interface
         await page.waitForTimeout(2000);
@@ -211,7 +208,6 @@ test.describe('Check-In and Meeting Management (US-011 to US-014)', () => {
 
         // Checkin view should have a check-in button (visible when status is pending)
         // The button text varies based on locale
-        const checkinButton = page.locator('button:has-text("Check")');
         // Button may or may not be visible depending on mock data state
         await page.waitForTimeout(2000);
     });
@@ -223,7 +219,6 @@ test.describe('Check-In and Meeting Management (US-011 to US-014)', () => {
         await page.locator('panel-view').waitFor({ timeout: LOAD_TIMEOUT });
 
         // QR code should be visible in the details section
-        const qrCode = page.locator('[qr-checkin] img, panel-view-details img');
         // QR code visibility depends on settings (show_qr_code)
         await page.waitForTimeout(2000);
         // Just verify the details component loads
@@ -371,7 +366,6 @@ test.describe('Timeline and Schedule View (US-024 to US-025)', () => {
         await page.locator('checkin-view').waitFor({ timeout: LOAD_TIMEOUT });
 
         // Should have Book buttons
-        const bookButtons = page.locator('button:has-text("Book")');
         // Book buttons appear based on room availability
         await page.waitForTimeout(2000);
     });

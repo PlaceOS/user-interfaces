@@ -593,7 +593,7 @@ export class EventsStateService extends AsyncHandler {
         start: Date,
         end: Date,
         filters: BookingFilters,
-        zones: string[] = [],
+        _zones: string[] = [],
         options: BookingUIOptions = {},
     ) {
         return events.filter((bkn) => {

@@ -43,7 +43,7 @@ export class RemoteLoggingService extends AsyncHandler {
 
     public readonly history = this._event_history.asReadonly();
 
-    public setMetadata(metadata: any) {}
+    public setMetadata(_metadata: any) {}
 
     constructor() {
         super();

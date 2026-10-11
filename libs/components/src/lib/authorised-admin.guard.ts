@@ -18,15 +18,15 @@ export class AuthorisedAdminGuard {
     private _router = inject(Router);
 
     public async canActivate(
-        next?: ActivatedRouteSnapshot,
-        state?: RouterStateSnapshot,
+        _next?: ActivatedRouteSnapshot,
+        _state?: RouterStateSnapshot,
     ): Promise<boolean | UrlTree> {
         return this.checkUser();
     }
 
     public async canLoad(
-        route?: Route,
-        segments?: UrlSegment[],
+        _route?: Route,
+        _segments?: UrlSegment[],
     ): Promise<boolean> {
         return this.checkUser();
     }

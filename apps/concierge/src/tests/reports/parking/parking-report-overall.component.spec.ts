@@ -69,7 +69,7 @@ describe('ParkingReportOverallComponent', () => {
         ]);
         options.set({ start: monday, end: monday });
         spectator.detectChanges();
-        await expect(spectator.fixture.nativeElement.textContent).toContain('2');
+        expect(spectator.fixture.nativeElement.textContent).toContain('2');
     });
 
     it('should produce an average length string from active bookings', () => {

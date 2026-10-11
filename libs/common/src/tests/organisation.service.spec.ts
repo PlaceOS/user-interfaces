@@ -639,7 +639,7 @@ describe('OrganisationService', () => {
     // });
 
     it('should load org and buildings settings', async () => {
-        const settings = spectator.inject(SettingsService);
+        spectator.inject(SettingsService);
         // (settings.get as any).mockImplementation(() => );
         // (spectator.service as any)._buildings.next([
         //     { id: 'bld-1' },

@@ -38,10 +38,6 @@ import { DashboardsService } from './dashboards/dashboards.service';
 import { SupportService } from './support.service';
 import { SidebarComponent } from './ui/sidebar.component';
 
-function contains(str: string, substr: string) {
-    return str.toLowerCase().includes(substr.toLowerCase());
-}
-
 @Component({
     selector: 'stagehand-remote-support',
     template: `

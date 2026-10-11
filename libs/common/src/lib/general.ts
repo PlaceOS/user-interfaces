@@ -231,7 +231,7 @@ export function csvToJson(csv: string, delimiter = ','): HashMap[] {
             const key = (headers[i] || '').split(' ').join('_').toLowerCase();
             try {
                 element[key] = JSON.parse(row[i]?.replace('|', ','));
-            } catch (e) {
+            } catch {
                 element[key] = row[i] || '';
             }
             if (element[key] === 'TRUE' || element[key] === 'FALSE')

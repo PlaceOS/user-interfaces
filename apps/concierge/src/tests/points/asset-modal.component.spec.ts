@@ -8,7 +8,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
+import { createComponentFactory } from '@ngneat/spectator/vitest';
 import { mockComponent } from '@placeos/common/tests';
 import { IconComponent, SettingsToggleComponent } from '@placeos/components';
 import { SpacesService } from '@placeos/events';
@@ -19,7 +19,6 @@ import { DesksStateService } from '../../app/desks/desks-state.service';
 import { PointsAssetModalComponent } from '../../app/points/asset-modal.component';
 
 describe('PointsAssetModalComponent', () => {
-    let spectator: Spectator<PointsAssetModalComponent>;
     const createComponent = createComponentFactory({
         component: PointsAssetModalComponent,
         providers: [
@@ -49,7 +48,9 @@ describe('PointsAssetModalComponent', () => {
         ],
     });
 
-    beforeEach(() => (spectator = createComponent()));
+    beforeEach(() => {
+        createComponent();
+    });
 
     it.todo('should create component');
 

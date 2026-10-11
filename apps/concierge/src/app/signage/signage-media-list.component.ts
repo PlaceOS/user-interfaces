@@ -411,7 +411,7 @@ export class SignageMediaListComponent {
     public readonly removeItem = async (item: SignageMedia) =>
         this._state.removeMedia(item);
 
-    public drop(event: any) {
+    public drop(_event: any) {
         // No-op for media list drops - media is managed via addToPlaylist
     }
 

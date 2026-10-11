@@ -12,7 +12,7 @@ export function generateMockBuilding(id?: string): Record<string, any> {
     }
     const levels = Array(10)
         .fill(0)
-        .map((i) => generateMockLevel());
+        .map(() => generateMockLevel());
     const features: any = {};
     for (const lvl of levels) {
         const count = Math.floor(Math.random() * 3 + 2);
@@ -46,7 +46,7 @@ export function generateMockBuilding(id?: string): Record<string, any> {
         roles: {
             'first-aiders': Array(10)
                 .fill(0)
-                .map((i) => ({ name: 'Test' })),
+                .map(() => ({ name: 'Test' })),
         },
         neighbourhoods: features,
         settings: {

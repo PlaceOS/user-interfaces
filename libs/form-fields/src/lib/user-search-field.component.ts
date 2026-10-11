@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/member-ordering */
 import { CommonModule } from '@angular/common';
 import {
     Component,

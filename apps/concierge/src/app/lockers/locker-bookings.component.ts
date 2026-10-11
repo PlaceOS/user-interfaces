@@ -376,7 +376,7 @@ export class LockerBookingsComponent {
 
     private async runMethod(name: string, fn: () => Promise<any>) {
         this.loading.set(name);
-        await fn().catch((i) => null);
+        await fn().catch(() => null);
         this.loading.set('');
     }
 }

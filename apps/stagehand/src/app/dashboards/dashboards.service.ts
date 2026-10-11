@@ -86,7 +86,7 @@ function compareAsTopic(
             building_id: zones.building,
         });
     const parts = (item.left?.mod || '').split('_');
-    const module_index = parts.pop();
+    parts.pop();
     const module_name = parts.join('_');
     const topic = topicToString({
         module_name,

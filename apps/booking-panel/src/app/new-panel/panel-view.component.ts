@@ -4,6 +4,8 @@ import {
     Component,
     computed,
     inject,
+    OnDestroy,
+    OnInit,
     signal,
 } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
@@ -192,7 +194,10 @@ import { PanelViewTimelineComponent } from './panel-view-timeline.component';
         SafePipe,
     ],
 })
-export class PanelViewComponent extends AsyncHandler {
+export class PanelViewComponent
+    extends AsyncHandler
+    implements OnInit, OnDestroy
+{
     private _state = inject(PanelStateService);
     private _route = inject(ActivatedRoute);
     private _logger = inject(RemoteLoggingService);

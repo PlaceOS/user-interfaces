@@ -9,7 +9,6 @@ import { SignageContextService } from '../signage-context.service';
 
 @Component({
     // Existing signage-manager components use feature selectors without the app prefix.
-    // eslint-disable-next-line @angular-eslint/component-selector
     selector: 'signage-group-selector',
     template: `
         @if (show_selector() && (can_manage_all_groups() || groups().length)) {

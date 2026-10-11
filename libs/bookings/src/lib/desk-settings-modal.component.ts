@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import {
@@ -109,7 +109,7 @@ import { IconComponent } from 'libs/components/src/lib/icon.component';
         DeskHeightPresetsComponent,
     ],
 })
-export class DeskSettingsModalComponent {
+export class DeskSettingsModalComponent implements OnInit {
     private _data = inject<{
         id: string;
     }>(MAT_DIALOG_DATA);

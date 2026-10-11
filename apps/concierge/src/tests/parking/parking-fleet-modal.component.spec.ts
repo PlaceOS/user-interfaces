@@ -1,7 +1,6 @@
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { DialogEvent } from '@placeos/common';
-import { MockProvider } from 'ng-mocks';
 
 import { ParkingFleetModalComponent } from '../../app/parking/parking-fleet-modal.component';
 

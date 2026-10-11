@@ -259,7 +259,7 @@ export class SignageStateService extends AsyncHandler {
         const call = clean_playlist.id
             ? updateSignagePlaylist(clean_playlist.id, clean_playlist, 'put')
             : addSignagePlaylist(clean_playlist);
-        const new_playlist = await call;
+        await call;
         notifySuccess(i18n('APP.CONCIERGE.SIGNAGE_PLAYLISTS_SAVE_SUCCESS'));
         this._change.set(Date.now());
     }
@@ -379,7 +379,6 @@ export class SignageStateService extends AsyncHandler {
         const uploadDetails = (id) =>
             new Promise<{ id: string; link: string }>((resolve, reject) => {
                 let state = null;
-                let resolved = false;
 
                 const check_state = () => {
                     const list = this._uploads.upload_list();
@@ -391,7 +390,6 @@ export class SignageStateService extends AsyncHandler {
                         return;
                     }
                     if (state && (state.link || state.progress >= 100)) {
-                        resolved = true;
                         const uid = state.upload_id || state.upload?.id || id;
                         const url = `/api/engine/v2/uploads/${encodeURIComponent(
                             uid,

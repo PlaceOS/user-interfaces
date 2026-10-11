@@ -43,8 +43,6 @@ import { queryCalendarPermission } from './calendar.fn';
 import { EventFormService } from './event-form.service';
 import { multipleSpacesSignal, organiserTimezone } from './utilities';
 
-const MINUTES_IN_DAY = 24 * 60;
-
 const ALLOWED_CALENDAR_ROLES = [
     'write',
     'delegateWithoutPrivateEventAccess',

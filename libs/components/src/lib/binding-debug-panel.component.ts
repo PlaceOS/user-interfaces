@@ -2,6 +2,7 @@ import { Clipboard } from '@angular/cdk/clipboard';
 import { DOCUMENT } from '@angular/common';
 import {
     Component,
+    OnInit,
     WritableSignal,
     computed,
     effect,
@@ -949,7 +950,7 @@ installBindingDebugHooks();
     ],
     imports: [FormsModule, MatRippleModule, IconComponent, MatTooltipModule],
 })
-export class BindingDebugPanelComponent extends AsyncHandler {
+export class BindingDebugPanelComponent extends AsyncHandler implements OnInit {
     private _hotkey = inject(HotkeysService);
     private _document = inject(DOCUMENT);
     private _clipboard = inject(Clipboard);
