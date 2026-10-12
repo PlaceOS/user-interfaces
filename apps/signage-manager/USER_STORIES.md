@@ -94,6 +94,9 @@ These stories cover the current app workflows:
 **Acceptance Criteria:**
 
 - Users with create permission can upload one or more supported media files.
+- Users choose the file access permissions of an upload, for one file or many.
+- A file that the browser cannot read shows an error. The other files of a bulk upload continue.
+- Media larger than 4K (3840x2160, or 2160x3840 in portrait) shows a warning: in the edit dialog for one file, and with the file names for a bulk upload.
 - Users can drag files onto the media page to start upload preview.
 - Users can add webpage media from a valid URL.
 - Invalid URLs are rejected before creating media.
@@ -116,7 +119,7 @@ These stories cover the current app workflows:
 - Users with update permission can add media to a playlist.
 - Users with share permission can share media.
 - Users with delete permission can remove media.
-- The delete confirmation lists the playlists that use the media. Deleting the media removes it from those playlists, including distribution playlists.
+- The delete confirmation lists the playlists that use the media. Deleting the media removes it from those playlists, including distribution playlists. If the playlists of some items cannot be read, the confirmation still lists the playlists of the other items.
 - Share and delete actions open confirmation or group-selection dialogs before making changes.
 - Users can select multiple media items and bulk add tags, delete, share, or add them to a playlist when permitted.
 
@@ -134,11 +137,12 @@ These stories cover the current app workflows:
 
 - The playlists page shows a searchable playlist list.
 - Playlist rows show thumbnail previews when available.
-- Playlist rows show disabled, expired, pending, awaiting review, and approval-required states.
+- Playlist rows show disabled, expired, pending, awaiting review, and approval-required states. A playlist is expired when its end date has passed or all its schedules have ended. Playlist lists on the media, zone, and display pages show the same states.
 - Additional playlists load as the user scrolls.
 - Users with create permission can create a new playlist.
 - Users with create permission can duplicate a playlist. The copy has the same settings, items, and item schedules. It is not approved and is not assigned to displays or zones.
 - Selecting a playlist opens its items and details.
+- A link to a playlist opens it, also when the loaded list does not include it. When the playlist cannot load, a warning shows and no playlist is selected.
 
 ---
 
@@ -150,14 +154,15 @@ These stories cover the current app workflows:
 
 **Acceptance Criteria:**
 
-- Users can view media items in the selected playlist.
+- Users can view media items in the selected playlist. When the items cannot load, the list shows an error with a retry action.
 - Non-distribution playlists show the item count and the time to play each item once. The time uses the same fallbacks as the player: item play time, video length, playlist default, then 15 seconds.
 - Users can preview a playlist item.
-- Users with update permission can reorder playlist items by drag and drop.
+- Users with update permission can reorder playlist items by drag and drop, or with the move up and move down actions in the item menu.
 - Distribution playlists cannot be reordered from the item list.
 - Users with update permission can remove media from the playlist.
+- Adding media to a distribution playlist always asks for the item schedule first. When adding media fails, an error shows.
 - Users can expand, collapse, and edit item schedules.
-- Keyboard selection is supported for playlist items.
+- Keyboard selection is supported for playlist items. Enter and Space on the checkbox or the actions button of a row operate that control.
 
 ---
 
@@ -170,7 +175,7 @@ These stories cover the current app workflows:
 **Acceptance Criteria:**
 
 - Users can view playlist item count, enabled state, description, validity dates, animation, schedules, and next play sessions.
-- Users with update permission can edit playlist details.
+- Users with update permission can edit playlist details. Clearing a validity date removes it.
 - Users with update permission can add or remove display assignments.
 - Users with update permission can add or remove zone assignments.
 - Users with share permission can share playlists.
@@ -192,6 +197,8 @@ These stories cover the current app workflows:
 - Users without approval permission can request approval for a selected playlist.
 - Approval request actions show a loading state while submitting.
 - Approval preview shows changed media versions and allows media preview.
+- Approval applies only to the version that the reviewer saw. When the playlist changed after the preview loaded, the preview shows the new version with a warning, and the playlist is not approved.
+- A playlist that is awaiting review keeps that state when the user selects it.
 
 ---
 
@@ -206,13 +213,16 @@ These stories cover the current app workflows:
 **Acceptance Criteria:**
 
 - The templates page shows a searchable template list and loads more templates as the user scrolls.
+- The header shows the number of templates that match, including templates that are not loaded yet.
+- If the list cannot load, the page shows an error with a retry button, not an empty list.
+- A link to a template that is not in the loaded pages opens that template.
 - Users with create or update permission can create templates and edit their layout items.
 - Users with create permission can duplicate a template. The copy has the same settings and saved layouts. It is not approved and has no template mappings.
 - Template rows show approval-required and awaiting-review states.
 - Users with approval permission can review and approve a selected template.
 - Users without approval permission can select an approver and request template approval with a message.
 - The approval preview shows only changed layout items from the pending and approved templates, including the applicable X and Y values. It shows a no-older-version placeholder when no distinct approved version exists.
-- Users with update permission can discard pending changes when an approved version exists.
+- Users with update permission can discard pending changes when an approved version exists. They must confirm first.
 - Users must confirm before they leave a template that has unsaved layout changes. Confirming discards the changes. The browser warns before a reload or tab close drops them.
 
 ---
@@ -228,6 +238,7 @@ These stories cover the current app workflows:
 **Acceptance Criteria:**
 
 - The zones page lists signage zones and supports direct routes to a selected zone.
+- The header count shows the number of signage zones. When users search in a zone, it shows the number of results. If the count cannot load, the header does not show it.
 - System administrators and signage group managers can create, edit, and delete signage zones.
 - New and edited signage zones keep the `signage` tag and require a parent from the active group's accessible zone tree.
 - Zone management controls are not shown for untagged parent zones in the tree.
@@ -236,6 +247,8 @@ These stories cover the current app workflows:
 - Users with update permission can add or remove playlists from the zone.
 - The display tab shows displays assigned to the zone.
 - Users with update permission can add displays to the zone.
+- When the display or zone search in an add dialog fails, the dialog shows an error with a retry, not an empty result.
+- While the zone tree or a tab loads, it shows a loading state. If a zone list, the playlist tab, or the display tab cannot load, it shows an error with a retry button. The error shows above the zones that loaded.
 
 ---
 
@@ -254,6 +267,8 @@ These stories cover the current app workflows:
 - The playlist tab shows playlists assigned directly to the display and their status.
 - Users with update permission can add or remove direct playlist assignments.
 - The zone tab shows zones assigned to the display.
+- While the display list or a tab loads, it shows a loading state. If the list, the playlist tab, or the zone tab cannot load, it shows an error with a retry button.
+- If a link opens a display or zone that cannot load, an error message shows.
 
 ---
 
@@ -272,8 +287,10 @@ These stories cover the current app workflows:
 - The current time indicator appears when the selected date is today.
 - Users can search schedules by display, zone, playlist, and source labels where applicable.
 - Timeline rows link to the related display or zone detail page.
+- Display rows show the same online, offline, or never seen status as the displays page.
+- Timeline blocks show only the times that the player plays. Blocks stop at the playlist and schedule dates, and clock times that daylight saving skips do not show. Blocks of disabled playlists say "Disabled" in text.
 - Empty and filtered states explain when no rows are available.
-- Users must confirm a change that makes two takeover playlists play at the same time on a display in the next 14 days. The check runs when users save playlist schedules and when they assign a playlist to a display or zone. The warning names the display, the other playlist, and the start time of the overlap.
+- Users must confirm a change that makes two takeover playlists play at the same time on a display in the next 14 days. The check runs when users save playlist schedules and when they assign a playlist to a display or zone. The warning names the display, the other playlist, and the start time of the overlap. Disabled playlists and overlaps that ended earlier today do not count. A single pass (play period 0) plays alone before timed takeovers, so it conflicts only with another single pass.
 
 ---
 
@@ -304,10 +321,11 @@ These stories cover the current app workflows:
 
 **Acceptance Criteria:**
 
-- The groups page is available only when the user can manage signage groups.
+- The groups page is available only when the user can manage signage groups. Other users who open its address go to the media library.
 - Manageable groups appear in a searchable tree.
-- Expanding a group loads and shows child groups.
-- Selecting a group opens its users and zones panels.
+- Expanding a group shows its child groups.
+- Selecting a group opens its users and zones panels. On mobile, the back button returns to the group list.
+- After a save, the selected group and the expanded groups stay as they were, also when the group list cannot load again. When the group list cannot load at all, the page shows an error.
 - Users with manage-all-groups permission can create a new group.
 - Selected groups can be edited or removed.
 
@@ -322,7 +340,7 @@ These stories cover the current app workflows:
 **Acceptance Criteria:**
 
 - The users panel lists assigned users with name, email, and permission labels.
-- Users can add a user not already assigned to the group. The user gets the default permissions of the group.
+- Users can add a user not already assigned to the group. The user gets the default permissions of the group. The user search shows a loading state, and an error when the search fails.
 - Users can edit an assigned user's signage permissions.
 - Users can remove an assigned user from the group.
 - Empty state appears when no users are assigned.
@@ -363,7 +381,7 @@ These stories cover the current app workflows:
   - Without `template-editing`, template create, edit, duplicate, delete and layout changes are hidden. Template mappings stay available.
   - Without `ai-generation`, the AI create actions are hidden.
   - Without `ai-editing`, "Edit with AI" and refinement in the AI editor are hidden.
-  - Without `branding-editing`, the branding tab is read-only.
+  - Without `branding-editing`, the branding tab is read-only, and the AI editor cannot change the logo.
 - The All Groups view uses only `app.features`.
 
 ---

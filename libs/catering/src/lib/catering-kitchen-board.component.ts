@@ -19,11 +19,8 @@ import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 
 import { CateringOrderAlertsService } from './catering-order-alerts.service';
-import {
-    deliveryRuns,
-    orderLevelFinder,
-    orderLocation,
-} from './catering-order-tools';
+import { orderLevelFinder, orderLocation } from './catering-order-details';
+import { deliveryRuns } from './catering-order-tools';
 import { CateringOrdersService } from './catering-orders.service';
 import { nextOrderStatus, orderUrgency, statusList } from './catering.vars';
 

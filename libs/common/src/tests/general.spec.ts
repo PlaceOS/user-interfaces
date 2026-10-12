@@ -1,11 +1,13 @@
 import { Injector, signal, WritableSignal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { FormArray, FormControl, FormGroup, Validators } from '@angular/forms';
 import { addMinutes, differenceInMinutes } from 'date-fns';
 import {
     alignDateToBookableHours,
     csvToJson,
     downloadFile,
     errorMessage,
+    getInvalidFields,
     getItemWithKeys,
     getNextBookableTime,
     isWithinBookableHours,
@@ -99,7 +101,7 @@ describe('General Methods', () => {
     describe('downloadFile', () => {
         it('should prefix BOM for csv downloads', () => {
             const original_url = window.URL;
-            const create_object_url = vi.fn((blob: Blob) => 'blob:test-url');
+            const create_object_url = vi.fn((_blob: Blob) => 'blob:test-url');
             const revoke_object_url = vi.fn();
             (window as any).URL = {
                 createObjectURL: create_object_url,
@@ -118,7 +120,7 @@ describe('General Methods', () => {
                 expect(revoke_object_url).toHaveBeenCalledWith('blob:test-url');
             } finally {
                 vi.useRealTimers();
-                (window as any).URL = original_url;
+                window.URL = original_url;
             }
         });
     });
@@ -1039,7 +1041,7 @@ describe('General Methods', () => {
                 );
                 expect(notify_open).not.toHaveBeenCalled();
             } finally {
-                notifications.setNotifyOutlet(null as any, true);
+                notifications.setNotifyOutlet(null, true);
                 vi.useRealTimers();
             }
         });
@@ -1216,11 +1218,11 @@ describe('General Methods', () => {
                     new Date(2028, 5, 15, 9, 0, 0, 0).valueOf(),
                 );
                 expect(notify_open).toHaveBeenCalledTimes(1);
-                expect((notify_open.mock.calls[0] as any[])[2]).toEqual(
+                expect((notify_open.mock.calls[0] as unknown[])[2]).toEqual(
                     expect.objectContaining({ panelClass: ['warn'] }),
                 );
             } finally {
-                notifications.setNotifyOutlet(null as any, true);
+                notifications.setNotifyOutlet(null, true);
             }
         });
 
@@ -1245,7 +1247,7 @@ describe('General Methods', () => {
                 );
                 expect(notify_open).not.toHaveBeenCalled();
             } finally {
-                notifications.setNotifyOutlet(null as any, true);
+                notifications.setNotifyOutlet(null, true);
             }
         });
 
@@ -1480,6 +1482,23 @@ describe('General Methods', () => {
             expect(errorMessage({})).toBe('');
             expect(errorMessage(null)).toBe('');
             expect(errorMessage({ error: { status: 409 } })).toBe('');
+        });
+    });
+
+    describe('getInvalidFields', () => {
+        it('should list invalid fields inside nested groups but not arrays', () => {
+            const form = new FormGroup({
+                name: new FormControl('', Validators.required),
+                host: new FormGroup({
+                    email: new FormControl('', Validators.required),
+                }),
+                guests: new FormArray([
+                    new FormControl('', Validators.required),
+                ]),
+            });
+            expect(
+                getInvalidFields(form, { 'host.email': 'Host email' }),
+            ).toEqual(['name', 'Host email', 'guests']);
         });
     });
 });

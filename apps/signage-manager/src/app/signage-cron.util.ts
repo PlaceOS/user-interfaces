@@ -16,7 +16,7 @@ import { formatInTimeZone, fromZonedTime, toZonedTime } from 'date-fns-tz';
  */
 
 /** Days searched for upcoming plays, so a cron that never matches stops. */
-export const MAX_CRON_SEARCH_DAYS = 2 * 366;
+const MAX_CRON_SEARCH_DAYS = 2 * 366;
 
 const MS_PER_DAY = 86_400_000;
 
@@ -127,13 +127,6 @@ export function doesCronMatchDay(parts: readonly string[], date: Date) {
 }
 
 /** Whether all five fields match the local date and time. */
-export function doesCronMatchDate(parts: readonly string[], date: Date) {
-    return (
-        matchesCronPart(date.getMinutes(), parts[0]) &&
-        matchesCronPart(date.getHours(), parts[1]) &&
-        doesCronMatchDay(parts, date)
-    );
-}
 
 /** Minutes after midnight that the minute and hour fields match, in order. */
 export function cronDaySlots(parts: readonly string[]) {

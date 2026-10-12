@@ -1,5 +1,9 @@
-import { DOCUMENT, inject, Injectable } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
+import {
+    DOCUMENT,
+    EnvironmentInjector,
+    inject,
+    Injectable,
+} from '@angular/core';
 
 /**
  * How a shortcut acts on its target element. `focus` clicks targets that are
@@ -116,13 +120,19 @@ export function findShortcutTarget(
 })
 export class KeyboardShortcutsService {
     private _document = inject(DOCUMENT);
-    private _dialog = inject(MatDialog);
+    private _injector = inject(EnvironmentInjector);
 
-    /** Open the modal that lists the shortcuts */
+    /**
+     * Open the modal that lists the shortcuts. The dialog service is loaded on
+     * demand to keep it out of the initial bundle.
+     */
     public async openHelp() {
-        const { KeyboardShortcutsModalComponent } =
-            await import('./keyboard-shortcuts-modal.component');
-        this._dialog.open(KeyboardShortcutsModalComponent);
+        const [{ MatDialog }, { KeyboardShortcutsModalComponent }] =
+            await Promise.all([
+                import('@angular/material/dialog'),
+                import('./keyboard-shortcuts-modal.component'),
+            ]);
+        this._injector.get(MatDialog).open(KeyboardShortcutsModalComponent);
     }
 
     /** Run the shortcut for a window `keydown` event, if one matches */
@@ -165,11 +175,13 @@ export class KeyboardShortcutsService {
         }
     }
 
-    /** Dialogs, menus and select panels all show a CDK overlay backdrop */
+    /**
+     * Dialogs, menus and select panels all show a CDK overlay backdrop. Dialogs
+     * opened without a backdrop are found by their container.
+     */
     private _isOverlayOpen() {
-        return (
-            this._dialog.openDialogs.length > 0 ||
-            !!this._document.querySelector('.cdk-overlay-backdrop')
+        return !!this._document.querySelector(
+            '.cdk-overlay-backdrop, .mat-mdc-dialog-container, .cdk-dialog-container',
         );
     }
 }

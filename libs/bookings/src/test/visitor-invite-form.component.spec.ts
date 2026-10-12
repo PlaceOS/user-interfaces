@@ -19,8 +19,8 @@ import { createSettingsServiceMock } from '@placeos/common/tests';
 import { MockModule, MockProvider, MockService } from 'ng-mocks';
 import type { Mock } from 'vitest';
 
+import { generateBookingForm } from '../lib/booking-form.model';
 import { BookingFormService } from '../lib/booking-form.service';
-import { generateBookingForm } from '../lib/booking.utilities';
 import { VisitorInviteFormComponent } from '../lib/visitor-invite-form.component';
 
 describe('VisitorInviteFormComponent', () => {
@@ -52,17 +52,14 @@ describe('VisitorInviteFormComponent', () => {
                     });
                 },
             },
-            MockProvider(
-                OrganisationService as any,
-                {
-                    waitUntilInitialised: vi.fn(async () => {}),
-                    active_buildings: signal([]),
-                    buildings: [{ id: 'bld-1', name: 'Building One' }],
-                    building: { id: 'bld-1', name: 'Building One' },
-                    region: { id: 'reg-1', name: 'Region One' },
-                } as any,
-            ),
-            MockProvider(SettingsService as any, createSettingsServiceMock()),
+            MockProvider(OrganisationService as any, {
+                waitUntilInitialised: vi.fn(async () => {}),
+                active_buildings: signal([]),
+                buildings: [{ id: 'bld-1', name: 'Building One' }],
+                building: { id: 'bld-1', name: 'Building One' },
+                region: { id: 'reg-1', name: 'Region One' },
+            }),
+            MockProvider(SettingsService, createSettingsServiceMock()),
         ],
         imports: [
             ReactiveFormsModule,
@@ -124,9 +121,9 @@ describe('VisitorInviteFormComponent', () => {
         expect(
             spectator.component.visitor_international()['dave@example.com'],
         ).toBe(true);
-        expect(
-            (service.model().assets[0] as any).extension_data?.international,
-        ).toBe(true);
+        expect(service.model().assets[0].extension_data?.international).toBe(
+            true,
+        );
     });
 
     it('should not send invite when required fields are missing', async () => {

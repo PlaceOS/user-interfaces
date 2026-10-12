@@ -81,14 +81,14 @@ describe('WorkplaceSettingsFormModalComponent', () => {
                 name: 'Test User',
                 email: 'test@example.com',
                 groups: ['placeos_admin'],
-            }) as any,
+            }),
         );
         spectator = createComponent();
     });
 
     afterEach(() => {
-        setNotifyOutlet(null as any, true);
-        setCurrentUser(null as any);
+        setNotifyOutlet(null, true);
+        setCurrentUser(null);
         vi.restoreAllMocks();
     });
 
@@ -396,7 +396,7 @@ describe('WorkplaceSettingsFormModalComponent', () => {
                 name: 'Support User',
                 email: 'support@example.com',
                 groups: ['placeos_support'],
-            }) as any,
+            }),
         );
         await spectator.component.ngOnInit();
         await spectator.component.save();
@@ -419,7 +419,7 @@ describe('WorkplaceSettingsFormModalComponent', () => {
                 name: 'Regular User',
                 email: 'user@example.com',
                 groups: [],
-            }) as any,
+            }),
         );
         await spectator.component.ngOnInit();
         await spectator.component.save();

@@ -1,4 +1,4 @@
-import { Component, computed, inject, input, output } from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
 import { SettingsService } from '@placeos/common';
 
 import { CommonModule } from '@angular/common';
@@ -95,8 +95,6 @@ export class DeskFiltersDisplayComponent {
     private _state = inject(BookingFormService);
     private _settings = inject(SettingsService);
 
-    public readonly view = input<'map' | 'list'>('list');
-    public readonly viewChange = output<'map' | 'list'>();
     public readonly options = this._state.options;
     public readonly setOptions = (o) => this._state.setOptions(o);
     public readonly setFeature = (f, e) => this._state.setFeature(f, e);

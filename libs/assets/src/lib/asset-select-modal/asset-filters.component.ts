@@ -6,6 +6,7 @@ import {
     inject,
     input,
     model,
+    OnInit,
     Signal,
     signal,
 } from '@angular/core';
@@ -131,7 +132,7 @@ import { AssetStateService } from '../asset-state.service';
         IconComponent,
     ],
 })
-export class AssetFiltersComponent extends AsyncHandler {
+export class AssetFiltersComponent extends AsyncHandler implements OnInit {
     private _state = inject(AssetStateService);
     private _settings = inject(SettingsService);
 

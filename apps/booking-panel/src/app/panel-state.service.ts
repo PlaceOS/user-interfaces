@@ -96,6 +96,8 @@ export interface PanelSettings {
     pending_period?: number;
     /** Whether user is allowed to interact with the interface */
     disable_book_now?: boolean;
+    /** Whether users are blocked from booking on the QR checkin view */
+    disable_qr_booking?: boolean;
     /** URL to the control UI for this space */
     control_ui?: string;
     /** URI to the catering UI for this space */
@@ -257,6 +259,7 @@ export class PanelStateService extends AsyncHandler {
             'custom_qr_url',
             'custom_qr_color',
             'disable_book_now',
+            'disable_qr_booking',
             'hide_meeting_details',
             'hide_meeting_title',
             'disable_book_now_host',
@@ -462,26 +465,21 @@ export class PanelStateService extends AsyncHandler {
             this._dialog,
         );
         if (details.reason !== 'done') return details.close();
-        this._events.newForm();
-        this._events.model.update((m) => ({
-            ...m,
+        const booking: Partial<CalendarEvent> = {
             ...details.metadata,
             host: details.metadata.organiser?.email,
             resources: [space],
             system: space,
-        }));
-        await this.makeBooking(
-            this._events.model() as Partial<CalendarEvent>,
-            force_api,
-        ).catch((e) => {
+        };
+        try {
+            await this.makeBooking(booking, force_api);
+        } catch (e) {
             notifyError(`Error creating meeting. ${e}`);
-            this._events.clearForm();
-            details.close();
             throw e;
-        });
-        this._events.clearForm();
-        details.close();
-        this.clearTimeout('reset_view');
+        } finally {
+            details.close();
+            this.clearTimeout('reset_view');
+        }
     }
 
     public async confirmBookNow() {
@@ -588,7 +586,21 @@ export class PanelStateService extends AsyncHandler {
         force_api = false,
     ) {
         if (isAfter(details.date, addMinutes(Date.now(), 5)) || force_api) {
-            await this._events.postForm(true);
+            // The shared form starts staff API queries. Driver bookings do
+            // not need them, and their auth errors can redirect API key panels.
+            this._events.newForm();
+            // newForm() sets a default end time, which takes precedence over
+            // duration when saving. Replace it so the event ends on time.
+            this._events.model.update((m) => ({
+                ...m,
+                ...details,
+                date_end: addMinutes(details.date, details.duration).valueOf(),
+            }));
+            try {
+                await this._events.postForm(true);
+            } finally {
+                this._events.clearForm();
+            }
         } else {
             const module = getModule(this.system, 'Bookings');
             if (!details || !module) return;

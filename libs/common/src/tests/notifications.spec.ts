@@ -28,7 +28,7 @@ describe('notifications', () => {
     });
 
     afterEach(() => {
-        setNotifyOutlet(null as any, true);
+        setNotifyOutlet(null, true);
         setNotifyFilter(null);
     });
 
@@ -91,7 +91,7 @@ describe('notifications', () => {
     });
 
     it('should do nothing when no outlet is set', () => {
-        setNotifyOutlet(null as any, true);
+        setNotifyOutlet(null, true);
         expect(() => notify('info', 'Message')).not.toThrow();
     });
 
@@ -116,6 +116,29 @@ describe('notifications', () => {
         notifyError({} as any);
         expect(snackbar.open).toHaveBeenLastCalledWith(
             'An error occurred',
+            'OK',
+            expect.anything(),
+        );
+    });
+
+    it('should load a lazy outlet once and show queued notifications', async () => {
+        const loader = vi.fn(async () => snackbar);
+        setNotifyOutlet(loader, true);
+
+        notifyInfo('First');
+        notifyInfo('Second');
+        expect(snackbar.open).not.toHaveBeenCalled();
+        await loader.mock.results[0].value;
+        await Promise.resolve();
+
+        expect(loader).toHaveBeenCalledTimes(1);
+        expect(snackbar.open).toHaveBeenCalledWith(
+            'First',
+            'OK',
+            expect.anything(),
+        );
+        expect(snackbar.open).toHaveBeenCalledWith(
+            'Second',
             'OK',
             expect.anything(),
         );

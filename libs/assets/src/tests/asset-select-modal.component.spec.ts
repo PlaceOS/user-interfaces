@@ -115,7 +115,7 @@ describe('AssetSelectModalComponent', () => {
         spectator.component.offset_day.set(1);
         spectator.detectChanges();
 
-        const filters = spectator.query(AssetFiltersComponent as any) as any;
+        const filters = spectator.query(AssetFiltersComponent);
         expect(filters.at_time).toBe(true);
         expect(filters.offset).toBe(45);
         expect(filters.offset_day).toBe(1);

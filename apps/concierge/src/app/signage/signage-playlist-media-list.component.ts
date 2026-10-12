@@ -433,7 +433,7 @@ export class SignagePlaylistMediaListComponent {
             id: this.selected_playlist()?.id,
             change: this._state.has_changed(),
         }),
-        defaultValue: { id: '', items: [], approved: 0 } as any,
+        defaultValue: { id: '', items: [], approved: 0 },
         loader: async ({ params }) => {
             if (!params.id) return { id: '', items: [], approved: 0 };
             this.loading.set(true);

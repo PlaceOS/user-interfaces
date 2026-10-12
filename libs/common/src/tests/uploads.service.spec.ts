@@ -22,7 +22,7 @@ describe('UploadsService', () => {
         mocks: [MatDialog],
     });
 
-    let state: BehaviorSubject<any>;
+    let state: BehaviorSubject<unknown>;
     let mock_upload: any;
 
     beforeEach(() => {
@@ -30,12 +30,12 @@ describe('UploadsService', () => {
         spectator = createService();
         state = new BehaviorSubject({ status: 'UPLOADING', progress: 0 });
         mock_upload = { id: 'up-1', state, resume: vi.fn() };
-        vi.mocked(cloud_uploads.initUploads).mockReturnValue(undefined as any);
+        vi.mocked(cloud_uploads.initUploads).mockReturnValue(undefined);
         vi.mocked(cloud_uploads.humanReadableByteCount).mockReturnValue('1 KB');
         vi.mocked(cloud_uploads.uploadFile).mockResolvedValue(mock_upload);
         vi.mocked(ts_client.token).mockReturnValue('valid-token');
         vi.mocked(ts_client.apiKey).mockReturnValue('');
-        vi.mocked(ts_client.authorise).mockResolvedValue('new-token' as any);
+        vi.mocked(ts_client.authorise).mockResolvedValue('new-token');
     });
 
     const flush = () => new Promise((resolve) => setTimeout(resolve));

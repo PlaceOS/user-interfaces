@@ -23,7 +23,7 @@ describe('AssetLocationModalComponent', () => {
             } as any),
             MockProvider(OrganisationService, {
                 levelWithID: (...args: any[]) => level_with_id(...args),
-            } as any),
+            }),
         ],
     });
 
@@ -60,7 +60,7 @@ describe('AssetLocationModalComponent', () => {
     });
 
     it('should toggle row loading around tracking updates', async () => {
-        const item = { id: 'r-1' } as any;
+        const item = { id: 'r-1' };
 
         const promise = spectator.component.setTracking(item, 'at_location');
         expect(spectator.component.loading()['r-1']).toBe(true);

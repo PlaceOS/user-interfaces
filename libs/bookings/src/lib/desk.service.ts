@@ -154,7 +154,7 @@ export class DesksService {
         return saveBooking(booking_data as any);
     }
 
-    private _doneEvent(event: { subscribe: (callback: any) => any }) {
+    private _doneEvent(event: { subscribe: (callback: unknown) => unknown }) {
         return new Promise<DialogEvent>((resolve) => {
             let sub: any;
             sub = event.subscribe((details: DialogEvent) => {

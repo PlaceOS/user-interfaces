@@ -35,6 +35,7 @@ questions without needing to reproduce anything.
 | `media_cache`                 | Per file `status`, `size`, `owners`; plus totals, budget (`limit_bytes`), `too_large`, `failed_sync_attempts`                         |
 | `watchdog`                    | Heartbeats for `poll` / `schedule` / `playback`, which are `stalled`, the last fatal error, and the recovery count and throttle state |
 | `players`                     | Per player: `state`, `item_index`, `progress_percent`, `playing`, `queue`, `mid_play_through`                                         |
+| `remote_paused`               | Whether the parent frame has paused playback with `signage:pause`                                                                     |
 
 Timestamps are ISO strings; `"never"` means it has not happened yet.
 
@@ -80,12 +81,13 @@ makes the display request use `?preview=true`.
 | Takeover scheduled but not showing | A takeover with no valid media does not start. Compare the playlist and media `valid_from` / `valid_until` with `schedule.now`                                              |
 | Trigger did not start a takeover   | A trigger fires only when its value changes to true. A display update does not replay a trigger that is already true, and a trigger is ignored while another override plays |
 | Stuck on old content               | `poll.last_success` and `poll.next_due`; run `signage.poll()`                                                                                                               |
-| Not picking up new content         | `poll.last_success` vs now; if stale, look for `Display poll failed` in the console                                                                                         |
+| Not picking up new content         | `poll.last_success` is when the backend last answered; if stale, look for `Failed to fetch display details` or `Display poll failed`                                        |
 | Media never appears                | `media_cache.files` for that URL — `invalidated` means the download failed; `failed_sync_attempts` shows the backoff                                                        |
 | Old version running                | `updates.new_version`, `updates.reload_pending` (a reload waits for the network and for play-through content to finish), `updates.last_check`                               |
 | Blank screen after a reboot        | Likely offline boot — check `online`, then whether cached credentials exist                                                                                                 |
 | Player reloading itself            | `watchdog.recent_reloads` and `watchdog.last_error` — something fatal stalled a core loop                                                                                   |
-| Paused and does not resume         | Pause and resume messages are obeyed only from the parent frame. Check what embeds the player and `players[].state`                                                         |
+| Paused and does not resume         | Pause and resume messages are obeyed only from the parent frame. `remote_paused` stays true until it sends `signage:resume`                                                 |
+| Template or plugin bands missing   | A failed template, plugin or background load tries again after 15 s, doubling to 5 min. Look for `Unable to load template`                                                  |
 | Plugin cut short, or held long     | A play-through plugin advances on `finished`, or after a limit. Look for `did not report finished in time` in the console                                                   |
 | Blank screen, no `window.signage`  | The application did not start. Look for `Application failed to start` in the console; it reloads with a backoff                                                             |
 | Media always streams               | `media_cache.too_large` — the file does not fit in `limit_bytes`; see [Media cache storage](#media-cache-storage)                                                           |
@@ -99,8 +101,10 @@ idle. No error is required — most stalls worth recovering from raise none — 
 any fatal error is recorded and reported alongside the stall.
 
 The heartbeats measure the player's own machinery, not the backend. The poll
-signal beats when a fetch is _attempted_, so a backend that has been down for
-hours never triggers a recovery.
+signal beats when a fetch is _attempted_, so it does not stop when the backend
+is down. The `content` signal is different. It stops when the player has
+nothing it can show, for example when nothing is cached and the server is
+down. A backend outage can therefore cause recoveries, at the usual limits.
 
 It starts at application bootstrap, before any routing, so a startup that never
 completes is covered too: if nothing has been on screen five minutes after
@@ -109,12 +113,26 @@ boot that never completes is most often a bad cached build. That deadline only
 applies once the device has been bootstrapped to a display — one sitting on the
 picker is waiting for a person, not broken.
 
-| Guard | Value |
-| Stall thresholds | poll 10 min, schedule 5 min, playback 3 min, visible 5 min |
-| Boot deadline | 5 min from start with nothing on screen |
-| Grace before recovering | 5 min |
-| Recoveries allowed | 3 per hour, then 1 per hour |
-| Back to 3 per hour after | 2 hours with no recovery |
+When the display is cleared (`/#/bootstrap?clear=true`) or a display is
+bootstrapped, the watchdog forgets all heartbeats. Thus the picker is not
+reloaded for the player that was on screen before. A display picked later gets
+the full five-minute boot deadline.
+
+Heartbeats use a clock that a change to the device time does not move. Thus a
+clock set back cannot hide a stall. The recovery history uses the device time,
+because it must stay after a reload. If the history has a recovery more than
+one hour later than the device time, the watchdog forgets the history.
+Otherwise a device that starts with its clock behind refuses all recoveries. A
+smaller correction keeps the limits. `state()` shows heartbeat times in device
+time, so they agree with the other times after a correction.
+
+| Guard                    | Value                                                                      |
+| ------------------------ | -------------------------------------------------------------------------- |
+| Stall thresholds         | poll 10 min, schedule 5 min, playback 3 min, visible 5 min, content 10 min |
+| Boot deadline            | 5 min from start with nothing on screen                                    |
+| Grace before recovering  | 5 min                                                                      |
+| Recoveries allowed       | 3 per hour, then 1 per hour                                                |
+| Back to 3 per hour after | 2 hours with no recovery                                                   |
 
 Once recoveries are throttled the next one clears the application cache first —
 unregistering the service worker and deleting its caches — in case the cached
@@ -180,15 +198,17 @@ recovered and you want to know what from.
 
 ## Storage
 
-| Location | Holds |
-| `localStorage["PlaceOS.SIGNAGE.display_details.<id>"]` | Last known display payload, used offline |
-| `localStorage["PlaceOS.SIGNAGE.cached_files"]` | Media cache index (urls, sizes, owners) |
-| `localStorage["PlaceOS.SIGNAGE.display"]` | Bootstrapped display id |
-| `localStorage["PLACEOS.org.*"]` | Cached zone data and last known authority |
-| `localStorage["PlaceOS.SIGNAGE.watchdog_reloads"]` | Timestamps of automatic recoveries |
-| `sessionStorage["SIGNAGE.debug"]`, `["SIGNAGE.muted"]` | Debug and mute state |
-| `sessionStorage["SIGNAGE.boot_failures"]` | Consecutive failed starts, for the backoff |
-| IndexedDB `SignageMedia` → `files` | The cached media files themselves |
+| Location                                               | Holds                                                |
+| ------------------------------------------------------ | ---------------------------------------------------- |
+| `localStorage["PlaceOS.SIGNAGE.display_details.<id>"]` | Last known display payload, used offline             |
+| `localStorage["PlaceOS.SIGNAGE.cached_files"]`         | Media cache index (urls, sizes, owners)              |
+| `localStorage["PlaceOS.SIGNAGE.display"]`              | Bootstrapped display id                              |
+| `localStorage["PLACEOS.org.*"]`                        | Cached zone data and last known authority            |
+| `localStorage["PlaceOS.SIGNAGE.watchdog_reloads"]`     | Timestamps of automatic recoveries                   |
+| `sessionStorage["SIGNAGE.debug"]`, `["SIGNAGE.muted"]` | Debug and mute state                                 |
+| `sessionStorage["SIGNAGE.boot_failures"]`              | Consecutive failed starts, for the backoff           |
+| `localStorage["SIGNAGE.debug-overlay.<id>"]`           | Debug overlay positions, kept after the session ends |
+| IndexedDB `SignageMedia` → `files`                     | The cached media files themselves                    |
 
 ## Media cache storage
 

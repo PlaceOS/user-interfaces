@@ -14,9 +14,9 @@ vi.mock('@placeos/ts-client', { spy: true });
 
 describe('ZonesSectionComponent', () => {
     const selected_zone = signal<any>(null);
-    const all_zones = signal<any[]>([]);
-    const playlists = signal<any[]>([]);
-    const selected_zone_displays = signal<any[]>([]);
+    const all_zones = signal<unknown[]>([]);
+    const playlists = signal<unknown[]>([]);
+    const selected_zone_displays = signal<unknown[]>([]);
     const templates_enabled = signal(true);
     const playlists_loading = signal(false);
     const related_loading = signal(false);
@@ -185,6 +185,28 @@ describe('ZonesSectionComponent', () => {
         await vi.waitFor(() => expect(selected_zone()?.id).toBe('z-far'));
         expect(selected_zone().name).toBe('R&D');
         expect(showZone).toHaveBeenCalledExactlyOnceWith('z-far');
+    });
+
+    it('loads a linked zone again after going back to it', async () => {
+        all_zones.set([{ id: 'z1' }]);
+        vi.mocked(showZone).mockResolvedValue(
+            new PlaceZone({ id: 'z-far', name: 'Far' }),
+        );
+        const [, fixture] = await make();
+        const route = (id: string) => {
+            fixture.componentRef.setInput('id', id);
+            fixture.detectChanges();
+            TestBed.flushEffects();
+        };
+
+        route('z-far');
+        await vi.waitFor(() => expect(selected_zone()?.id).toBe('z-far'));
+        route('z1');
+        expect(selected_zone()?.id).toBe('z1');
+        route('z-far');
+
+        await vi.waitFor(() => expect(selected_zone()?.id).toBe('z-far'));
+        expect(showZone).toHaveBeenCalledTimes(2);
     });
 
     it('clears the selection when navigating back to the list', async () => {

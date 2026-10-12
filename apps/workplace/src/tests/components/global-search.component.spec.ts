@@ -20,15 +20,15 @@ describe('GlobalSearchComponent', () => {
         providers: [
             MockProvider(SettingsService, { get: vi.fn() }),
             MockProvider(ExploreSearchService, {
-                search_results: signal([]) as any,
-                global_search_results: signal([]) as any,
-                loading: signal(false) as any,
+                search_results: signal([]),
+                global_search_results: signal([]),
+                loading: signal(false),
                 setFilter: vi.fn(),
                 setInProgressBookings: vi.fn(),
-            } as any),
+            }),
             MockProvider(ScheduleStateService, {
                 bookings: signal([]),
-            } as any),
+            }),
         ],
         declarations: [MockComponent(IconComponent)],
         imports: [MatAutocompleteModule, FormsModule],

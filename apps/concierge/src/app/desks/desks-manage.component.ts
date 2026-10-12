@@ -9,7 +9,6 @@ import {
     AsyncHandler,
     csvToJson,
     Desk,
-    generateQRCode,
     i18n,
     loadTextFileFromInputEvent,
     notifyError,
@@ -19,6 +18,7 @@ import {
     settingSignal,
     SettingsService,
 } from '@placeos/common';
+import { generateQRCode } from '@placeos/common/qr-code';
 import {
     CustomTooltipComponent,
     IconComponent,
@@ -29,8 +29,6 @@ import {
     TranslatePipe,
 } from '@placeos/components';
 import { DeskQrItem, DesksStateService } from './desks-state.service';
-
-const QR_CODES = {};
 
 @Component({
     selector: 'desks-manage',
@@ -382,7 +380,7 @@ export class DesksManageComponent extends AsyncHandler {
         this.loading.set('');
     }
 
-    public handleDrag(type: 'enter' | 'leave' | 'end', event: DragEvent) {
+    public handleDrag(type: 'enter' | 'leave' | 'end', _event: DragEvent) {
         this.dragging.set(type === 'enter');
     }
 }

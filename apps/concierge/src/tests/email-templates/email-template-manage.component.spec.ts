@@ -13,10 +13,10 @@ import { EmailTemplatesStateService } from '../../app/email-templates/email-temp
 describe('EmailTemplateManageComponent', () => {
     let spectator: Spectator<EmailTemplateManageComponent>;
     const saveTemplate = vi.fn(() => Promise.resolve());
-    const loadTemplate = vi.fn(() => Promise.resolve(null as any));
+    const loadTemplate = vi.fn(() => Promise.resolve(null));
     const navigate = vi.fn();
     const clipboard_copy = vi.fn();
-    const template_groups = signal<any[]>([]);
+    const template_groups = signal<unknown[]>([]);
     let param_map: any;
     let notify_open: ReturnType<typeof vi.fn>;
 
@@ -33,8 +33,8 @@ describe('EmailTemplateManageComponent', () => {
             MockProvider(OrganisationService, {
                 building_list: signal([{ id: 'bld-1' }]),
             } as any),
-            MockProvider(Router, { navigate } as any),
-            MockProvider(Clipboard, { copy: clipboard_copy } as any),
+            MockProvider(Router, { navigate }),
+            MockProvider(Clipboard, { copy: clipboard_copy }),
             MockProvider(ActivatedRoute, {
                 get paramMap() {
                     return param_map;
@@ -57,7 +57,7 @@ describe('EmailTemplateManageComponent', () => {
     });
 
     afterEach(() => {
-        setNotifyOutlet(null as any, true);
+        setNotifyOutlet(null, true);
     });
 
     it('should copy a placeholder token and notify', () => {

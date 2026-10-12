@@ -2050,7 +2050,7 @@ export class ConciergeSettingsFormModalComponent implements OnInit {
         );
 
         const user = currentUser();
-        (new_settings as any).edited_by = {
+        new_settings.edited_by = {
             id: user.id,
             name: user.name,
             email: user.email,
@@ -2080,12 +2080,12 @@ export class ConciergeSettingsFormModalComponent implements OnInit {
         this._dialog_ref.close();
     }
 
-    private _patchModel(patch: Record<string, any>) {
+    private _patchModel(patch: Record<string, unknown>) {
         this.model.update((model) => applyAppSettings(model, patch));
     }
 
     private async _getMetadata(id) {
-        const metadata: any = await showMetadata(id, this.settings_key);
-        return (metadata.details || {}) as Record<string, any>;
+        const metadata = await showMetadata(id, this.settings_key);
+        return (metadata.details || {}) as Record<string, unknown>;
     }
 }

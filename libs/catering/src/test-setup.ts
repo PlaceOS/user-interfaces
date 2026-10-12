@@ -6,7 +6,7 @@ import { MockPipe } from 'ng-mocks';
 import { TextDecoder, TextEncoder } from 'util';
 
 global.TextEncoder = TextEncoder;
-global.TextDecoder = TextDecoder as any;
+global.TextDecoder = TextDecoder;
 installTestStorage();
 
 setNotifyOutlet(null, true);

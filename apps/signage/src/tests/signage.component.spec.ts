@@ -10,6 +10,7 @@ import { MockProvider } from 'ng-mocks';
 import { MediaPlayerComponent } from '../app/media-player.component';
 import { SignagePanelComponent } from '../app/signage.component';
 import { SignageService } from '../app/signage.service';
+import { MediaPlayerItem } from '../app/types';
 
 describe('SignagePanelComponent', () => {
     let spectator: SpectatorRouting<SignagePanelComponent>;
@@ -238,7 +239,7 @@ describe('SignagePanelComponent', () => {
         build_component();
         signage_service.override_playlist.set({
             ends_at: 0,
-            playlist: [{ id: 'override-1' }],
+            playlist: [{ id: 'override-1', playlist: 'playlist-1' }],
         });
 
         spectator.component.handlePlayerEvent(
@@ -251,6 +252,29 @@ describe('SignagePanelComponent', () => {
             type: 'playlist_through',
             ref_id: 'playlist-1',
         });
+    });
+
+    it('should play every playlist of overlapping one-shot overrides', () => {
+        build_component();
+        signage_service.override_playlist.set({
+            ends_at: 0,
+            playlist: [
+                { id: 'media-a', playlist: 'playlist-a' },
+                { id: 'media-b', playlist: 'playlist-b' },
+            ],
+        });
+
+        spectator.component.handlePlayerEvent(
+            { type: 'playlist_through', ref_id: 'playlist-a' },
+            true,
+        );
+        expect(signage_service.clearPlaylistOverride).not.toHaveBeenCalled();
+
+        spectator.component.handlePlayerEvent(
+            { type: 'playlist_through', ref_id: 'playlist-b' },
+            true,
+        );
+        expect(signage_service.clearPlaylistOverride).toHaveBeenCalled();
     });
 
     describe('remote playback commands', () => {
@@ -285,6 +309,58 @@ describe('SignagePanelComponent', () => {
 
             post('signage:resume', shell);
             expect(player_state()).toBe('PLAYING');
+        });
+
+        const players = () => spectator.queryAll(MediaPlayerComponent);
+        const setOverride = (playlist: Partial<MediaPlayerItem>[]) => {
+            signage_service.override_playlist.set({ ends_at: 0, playlist });
+            spectator.detectChanges();
+        };
+        const takeover = [
+            {
+                id: 'takeover-1',
+                playlist: 'playlist-1',
+                type: 'image',
+                getURL: async () => 'https://media.test/takeover.png',
+            } satisfies Partial<MediaPlayerItem>,
+        ];
+
+        it('should keep a takeover paused that starts while paused', async () => {
+            vi.useFakeTimers();
+            post('signage:pause', shell);
+            setOverride(takeover);
+            // Let the takeover load its first item, which starts playback
+            await vi.advanceTimersByTimeAsync(1000);
+            spectator.detectChanges();
+
+            expect(players()).toHaveLength(2);
+            expect(players().map((player) => player.state())).toEqual([
+                'PAUSED',
+                'PAUSED',
+            ]);
+        });
+
+        it('should keep the background paused when a takeover ends while paused', () => {
+            setOverride(takeover);
+            post('signage:pause', shell);
+            setOverride([]);
+
+            expect(players()).toHaveLength(1);
+            expect(player_state()).toBe('PAUSED');
+
+            post('signage:resume', shell);
+            expect(player_state()).toBe('PLAYING');
+        });
+
+        it('should only resume the takeover while one is playing', () => {
+            setOverride(takeover);
+            post('signage:pause', shell);
+            post('signage:resume', shell);
+
+            expect(players().map((player) => player.state())).toEqual([
+                'PAUSED',
+                'PLAYING',
+            ]);
         });
 
         it('should ignore commands from any other window', () => {

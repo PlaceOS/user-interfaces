@@ -15,15 +15,15 @@ describe('CheckinViewComponent', () => {
     let spectator: SpectatorRouting<CheckinViewComponent>;
 
     const status = signal<string>('free');
-    const space = signal<any>(null);
-    const bookings = signal<any[]>([]);
-    const current = signal<any>(null);
-    const next = signal<any>(null);
-    const setting = vi.fn<(key: string) => any>();
+    const space = signal<unknown>(null);
+    const bookings = signal<unknown[]>([]);
+    const current = signal<unknown>(null);
+    const next = signal<unknown>(null);
+    const setting = vi.fn<(key: string) => unknown>();
     const start_meeting = vi.fn();
     const new_booking = vi.fn();
 
-    const state_service: any = {
+    const state_service = {
         status,
         space,
         bookings,
@@ -127,9 +127,8 @@ describe('CheckinViewComponent', () => {
     it('should start a new booking when the book button is used', () => {
         status.set('free');
         setting.mockReturnValue(undefined); // book allowed
-        // a future "next" event hides the second (no-upcoming) book button
-        next.set({ date: Date.now() + 2 * 60 * 60 * 1000, duration: 30 });
         spectator.detectChanges();
+        // first book button is on the "now" card
         spectator.click('button.w-24');
         expect(new_booking).toHaveBeenCalledTimes(1);
         const args = new_booking.mock.calls[0];
@@ -138,9 +137,24 @@ describe('CheckinViewComponent', () => {
         expect(args[3]).toBe(true); // force api
     });
 
-    it('should not offer booking when book now is disabled', () => {
+    it('should book the next free slot when an upcoming event exists', () => {
+        status.set('busy');
+        const now = Date.now();
+        const current_event = { date: now - 10 * 60 * 1000, duration: 30 };
+        const next_event = { date: now + 20 * 60 * 1000, duration: 30 };
+        current.set(current_event);
+        next.set(next_event);
+        bookings.set([current_event, next_event]);
+        spectator.detectChanges();
+        const free_start = next_event.date + 30 * 60 * 1000;
+        expect(spectator.component.start()).toBe(free_start);
+        spectator.click('button.w-24');
+        expect(new_booking).toHaveBeenCalledWith(free_start, true, true, true);
+    });
+
+    it('should not offer booking when QR booking is disabled', () => {
         status.set('free');
-        setting.mockReturnValue(true); // disable_book_now
+        setting.mockImplementation((k) => k === 'disable_qr_booking');
         spectator.detectChanges();
         expect(spectator.component.can_book()).toBe(false);
         expect('button.w-24').not.toExist();

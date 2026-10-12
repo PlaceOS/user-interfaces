@@ -55,7 +55,7 @@ describe('SignageApprovePlaylistModalComponent', () => {
         spectator = createComponent({
             providers: [MockProvider(MatDialogRef, dialog_ref)],
         });
-        state = spectator.inject(SignageStateService) as any;
+        state = spectator.inject(SignageStateService);
     });
 
     it('should expose current and previous playlist versions', async () => {

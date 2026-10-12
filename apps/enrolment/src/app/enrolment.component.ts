@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, inject } from '@angular/core';
+import { Component, computed, inject, OnInit } from '@angular/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ActivatedRoute } from '@angular/router';
 import {
@@ -41,7 +41,15 @@ import { EnrolmentStateService } from './enrolment-state.service';
                             <enrolment-event-details></enrolment-event-details>
                         }
                         @case ('guest') {
-                            <enrolment-guest-confirm></enrolment-guest-confirm>
+                            <!-- Form, Material inputs and upload fields load on demand -->
+                            @defer (on immediate) {
+                                <enrolment-guest-confirm></enrolment-guest-confirm>
+                            } @placeholder {
+                                <mat-spinner
+                                    class="m-16"
+                                    [diameter]="32"
+                                ></mat-spinner>
+                            }
                         }
                         @case ('complete') {
                             <div
@@ -85,7 +93,7 @@ import { EnrolmentStateService } from './enrolment-state.service';
         IconComponent,
     ],
 })
-export class EnrolmentComponent extends AsyncHandler {
+export class EnrolmentComponent extends AsyncHandler implements OnInit {
     private _state = inject(EnrolmentStateService);
     private _settings = inject(SettingsService);
     private _route = inject(ActivatedRoute);

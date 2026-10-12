@@ -13,7 +13,8 @@ import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticat
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { LevelPipe } from 'libs/components/src/lib/level.pipe';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
-import { BookingAsset, BookingFormService } from '../booking-form.service';
+import { BookingFormService } from '../booking-form.service';
+import { BookingAsset } from '../booking-form.types';
 import {
     loadLockerBanksForScope,
     loadLockersForScope,
@@ -183,6 +184,7 @@ export class LockerBankListComponent {
     private _org = inject(OrganisationService);
     private _settings = inject(SettingsService);
 
+    // fallow-ignore-next-line unused-component-input -- read in a [class.!x] binding fallow does not parse
     public readonly active = input('');
     public readonly selected = input('');
     public readonly favorites = input<string[]>([]);

@@ -22,7 +22,7 @@ describe('SignageMediaComponent', () => {
         providers: [
             { provide: ComponentFixtureAutoDetect, useValue: false },
             MockProvider(SignageStateService, {
-                loading: signal(false) as any,
+                loading: signal(false),
                 playlists: signal([
                     { id: 'p1', name: 'News' },
                     { id: 'p2', name: 'Ads' },
@@ -48,7 +48,7 @@ describe('SignageMediaComponent', () => {
         spectator = createComponent({
             providers: [MockProvider(Router, router)],
         });
-        state = spectator.inject(SignageStateService) as any;
+        state = spectator.inject(SignageStateService);
     });
 
     it('should filter playlists by search term', () => {

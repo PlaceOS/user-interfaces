@@ -1,4 +1,3 @@
-import { ActivatedRoute } from '@angular/router';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { setCurrentUser, SettingsService } from '@placeos/common';
 import { authority, setAPI_Key, setup } from '@placeos/ts-client';
@@ -19,22 +18,15 @@ const settings_mock = {
     get: settings_get,
 };
 
-function query_map(params: Record<string, string>): any {
-    return {
-        has: (key: string) => Object.prototype.hasOwnProperty.call(params, key),
-        get: (key: string) => (key in params ? params[key] : null),
-        getAll: (key: string) => (key in params ? [params[key]] : []),
-        get keys() {
-            return Object.keys(params);
-        },
-    };
+// The component reads `location.search`, so set the query string on the URL.
+function set_query(params: Record<string, string>): void {
+    const query = new URLSearchParams(params).toString();
+    history.replaceState(null, '', query ? `/?${query}` : '/');
 }
 
 describe('AppComponent', () => {
     let spectator: Spectator<AppComponent>;
     let log_spy: ReturnType<typeof vi.spyOn>;
-
-    const route_stub: any = { snapshot: { queryParamMap: query_map({}) } };
 
     // The component logs `console.log('Redirect:', url)` immediately before
     // assigning `location.href`, so this reflects the computed redirect target.
@@ -46,7 +38,6 @@ describe('AppComponent', () => {
     const create_component = createComponentFactory({
         component: AppComponent,
         detectChanges: false,
-        providers: [{ provide: ActivatedRoute, useValue: route_stub }],
         componentProviders: [
             { provide: SettingsService, useValue: settings_mock },
         ],
@@ -56,14 +47,14 @@ describe('AppComponent', () => {
         vi.clearAllMocks();
         localStorage.clear();
         log_spy = vi.spyOn(console, 'log').mockImplementation(() => void 0);
-        route_stub.snapshot.queryParamMap = query_map({});
+        set_query({});
         settings_mock.initialised = new BehaviorSubject<boolean>(true);
         settings_get.mockImplementation((key: string) =>
             key === 'composer' ? {} : undefined,
         );
-        vi.mocked(setup).mockResolvedValue(undefined as any);
-        vi.mocked(setAPI_Key).mockReturnValue(undefined as any);
-        vi.mocked(authority).mockReturnValue(undefined as any);
+        vi.mocked(setup).mockResolvedValue(undefined);
+        vi.mocked(setAPI_Key).mockReturnValue(undefined);
+        vi.mocked(authority).mockReturnValue(undefined);
         setCurrentUser({ email: 'user@example.com' } as any);
         spectator = create_component();
     });
@@ -93,7 +84,7 @@ describe('AppComponent', () => {
 
     describe('query parameter handling', () => {
         it('should append a "continue" path to the redirect URL', async () => {
-            route_stub.snapshot.queryParamMap = query_map({
+            set_query({
                 continue: '/bookings',
             });
             vi.mocked(authority).mockReturnValue({ config: {} } as any);
@@ -102,7 +93,7 @@ describe('AppComponent', () => {
         });
 
         it('should ignore a "continue" value that is not a path (open redirect guard)', async () => {
-            route_stub.snapshot.queryParamMap = query_map({
+            set_query({
                 continue: 'https://evil.example.com',
             });
             vi.mocked(authority).mockReturnValue({ config: {} } as any);
@@ -111,7 +102,7 @@ describe('AppComponent', () => {
         });
 
         it('should set the API key when x-api-key is provided', async () => {
-            route_stub.snapshot.queryParamMap = query_map({
+            set_query({
                 'x-api-key': 'secret-key',
             });
             vi.mocked(authority).mockReturnValue({ config: {} } as any);
@@ -149,7 +140,7 @@ describe('AppComponent', () => {
 
     describe('domain redirects', () => {
         it('should not redirect when there is no authority', async () => {
-            vi.mocked(authority).mockReturnValue(undefined as any);
+            vi.mocked(authority).mockReturnValue(undefined);
             await spectator.component.ngOnInit();
             expect(redirect_url()).toBeUndefined();
             expect(spectator.component.initialisation_error()).toContain(
@@ -180,7 +171,7 @@ describe('AppComponent', () => {
         });
 
         it('should apply path mappings for the resolved domain', async () => {
-            route_stub.snapshot.queryParamMap = query_map({
+            set_query({
                 continue: '/old/path',
             });
             setCurrentUser({ email: 'alice@acme.com' } as any);
@@ -197,7 +188,7 @@ describe('AppComponent', () => {
         });
 
         it('should combine the continue path with the resolved domain', async () => {
-            route_stub.snapshot.queryParamMap = query_map({
+            set_query({
                 continue: '/desks',
             });
             setCurrentUser({ email: 'alice@acme.com' } as any);

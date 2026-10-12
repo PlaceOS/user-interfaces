@@ -1,4 +1,4 @@
-import { predictableRandomInt, unique } from '@placeos/common';
+import { predictableRandomInt } from '@placeos/common';
 import {
     addDays,
     addMinutes,
@@ -7,24 +7,8 @@ import {
     setMinutes,
     startOfDay,
 } from 'date-fns';
-import { generateCateringOrder } from './catering.data';
 import { MOCK_SPACES } from './spaces.data';
-import {
-    ACTIVE_USER,
-    MOCK_GUESTS,
-    MOCK_STAFF,
-    getStaffByDepartment,
-} from './users.data';
-
-let EVENT_TIME = setHours(startOfDay(Date.now()), 7);
-
-const nextEventTime = (save = false): number => {
-    const next = addMinutes(EVENT_TIME, (predictableRandomInt(8) + 1) * 15);
-    if (save) {
-        EVENT_TIME = next;
-    }
-    return getUnixTime(next);
-};
+import { ACTIVE_USER, MOCK_STAFF } from './users.data';
 
 const event_status = ['tentative', 'confirmed', 'cancelled'];
 const randomStatus = (): string => {
@@ -186,158 +170,6 @@ const generateMeetingUrl = () => {
         provider: provider.name,
         url: provider.urlPattern + meetingId,
         id: meetingId,
-    };
-};
-
-const getRelevantAttendees = (category: string, space: any) => {
-    const attendees = [];
-    const meetingInfo =
-        MEETING_TYPES[category] || MEETING_TYPES['Team Standup'];
-
-    // Get staff from relevant departments
-    let relevantStaff = [];
-    if (meetingInfo.departments.includes('All Departments')) {
-        relevantStaff = MOCK_STAFF;
-    } else {
-        meetingInfo.departments.forEach((dept) => {
-            relevantStaff = relevantStaff.concat(getStaffByDepartment(dept));
-        });
-    }
-
-    // Select attendees based on typical count
-    const attendeeCount = Math.min(
-        meetingInfo.typical_attendees + predictableRandomInt(4, -2),
-        relevantStaff.length,
-        space?.capacity || 20,
-    );
-
-    for (let i = 0; i < attendeeCount; i++) {
-        if (relevantStaff.length > 0) {
-            const randomIndex = predictableRandomInt(relevantStaff.length);
-            attendees.push(relevantStaff.splice(randomIndex, 1)[0]);
-        }
-    }
-
-    // Add external attendees for client meetings
-    if (category === 'Client' && predictableRandomInt(2) === 0) {
-        const guestCount = predictableRandomInt(3) + 1;
-        for (let i = 0; i < guestCount && i < MOCK_GUESTS.length; i++) {
-            attendees.push(MOCK_GUESTS[i]);
-        }
-    }
-
-    // Active user should not be in phase 1 events
-
-    return unique(attendees, 'email') || [];
-};
-
-const generateEventForTime = (eventTime: number, index: number) => {
-    const space = MOCK_SPACES[predictableRandomInt(MOCK_SPACES.length)];
-    const meetingContent = getRandomMeetingContent();
-    const meetingInfo = generateMeetingUrl();
-
-    const attendees = getRelevantAttendees(meetingContent.category, space);
-
-    const event_start = eventTime;
-    const event_end = getUnixTime(
-        addMinutes(
-            new Date(event_start * 1000),
-            (predictableRandomInt(8) + 1) * 15,
-        ),
-    );
-
-    const hasSetup =
-        meetingContent.category === 'Strategic' ||
-        meetingContent.category === 'Client' ||
-        predictableRandomInt(5) === 0;
-
-    const hasCatering =
-        meetingContent.category === 'Strategic' ||
-        meetingContent.category === 'Social' ||
-        meetingContent.category === 'Training' ||
-        (attendees.length > 5 && predictableRandomInt(3) === 0);
-
-    return {
-        id: `cal-event-${index}`,
-        status: randomStatus(),
-        host: attendees[0]?.email || 'unknown@place.tech',
-        calendar: `calendar-${attendees[0]?.department?.toLowerCase() || 'general'}`,
-        creator: attendees[0]?.email || 'unknown@place.tech',
-        attendees: attendees.map((attendee, idx) => ({
-            ...attendee,
-            organizer: idx === 0,
-            checked_in: predictableRandomInt(99999) % 3 === 0,
-            response_status:
-                idx === 0
-                    ? 'accepted'
-                    : predictableRandomInt(99999) % 2 === 0
-                      ? 'accepted'
-                      : predictableRandomInt(99999) % 6 === 0
-                        ? 'declined'
-                        : 'tentative',
-        })),
-        title: meetingContent.title,
-        body: meetingContent.body,
-        private:
-            meetingContent.category === 'Strategic' ||
-            predictableRandomInt(4) === 0,
-        event_start,
-        event_end,
-        timezone: 'Australia/Sydney',
-        all_day: false,
-        location: space?.name || 'TBD',
-        recurring: predictableRandomInt(10) === 0, // 10% recurring
-        recurrence:
-            predictableRandomInt(10) === 0
-                ? {
-                      rule: 'FREQ=WEEKLY;BYDAY=TU',
-                      until: getUnixTime(new Date(Date.now() + 86400000 * 90)), // 3 months
-                  }
-                : {},
-        attachments:
-            meetingContent.category === 'Project' &&
-            predictableRandomInt(3) === 0
-                ? {
-                      'project-brief.pdf':
-                          'https://example.com/project-brief.pdf',
-                      'requirements.docx':
-                          'https://example.com/requirements.docx',
-                  }
-                : {},
-        system: space,
-        meeting_url: meetingInfo.url,
-        meeting_id: meetingInfo.id,
-        meeting_provider: meetingInfo.provider,
-        extension_data: {
-            category: meetingContent.category,
-            catering: hasCatering
-                ? [
-                      generateCateringOrder({
-                          id: `cal-event-${index}`,
-                          event_start,
-                          event_end,
-                      }),
-                  ]
-                : [],
-            setup: hasSetup ? predictableRandomInt(4) * 5 + 15 : 0, // 15-30 min setup
-            breakdown: hasSetup ? predictableRandomInt(3) * 5 + 10 : 0, // 10-20 min breakdown
-            cost_center:
-                attendees[0]?.department?.toLowerCase().replace(/\s+/g, '-') ||
-                'general',
-            priority:
-                meetingContent.category === 'Strategic'
-                    ? 'high'
-                    : meetingContent.category === 'Client'
-                      ? 'high'
-                      : predictableRandomInt(3) === 0
-                        ? 'medium'
-                        : 'normal',
-            estimated_attendees: attendees.length,
-            actual_attendees: Math.max(
-                1,
-                attendees.length - predictableRandomInt(3),
-            ),
-        },
     };
 };
 

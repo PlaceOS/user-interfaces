@@ -10,6 +10,16 @@ export const basePresetRuleOverrides = {
         '@typescript-eslint/no-inferrable-types': 'off',
         '@typescript-eslint/no-this-alias': 'off',
         '@typescript-eslint/no-unused-expressions': 'off',
+        // A leading underscore marks a value that is unused on purpose.
+        '@typescript-eslint/no-unused-vars': [
+            'warn',
+            {
+                argsIgnorePattern: '^_',
+                caughtErrorsIgnorePattern: '^_',
+                destructuredArrayIgnorePattern: '^_',
+                ignoreRestSiblings: true,
+            },
+        ],
         '@typescript-eslint/no-wrapper-object-types': 'off',
         'no-case-declarations': 'off',
         'no-cond-assign': 'off',
@@ -60,6 +70,34 @@ export const angularPresetRuleOverrides = [
     },
 ];
 
+// Specs cast partial mocks and assert on values that the test set up.
+export const specFileRuleOverrides = {
+    files: ['**/*.spec.ts'],
+    rules: {
+        '@typescript-eslint/no-explicit-any': 'off',
+        '@typescript-eslint/no-non-null-assertion': 'off',
+    },
+};
+
+// The standards allow `app-`, `placeos-` and feature prefixes, and routed
+// components use attribute selectors. Check the selector type and style only.
+export const angularSelectorRules = {
+    files: ['**/*.ts'],
+    rules: {
+        '@angular-eslint/directive-selector': [
+            'error',
+            [{ type: 'attribute', style: 'camelCase' }],
+        ],
+        '@angular-eslint/component-selector': [
+            'error',
+            [
+                { type: 'element', style: 'kebab-case' },
+                { type: 'attribute', style: 'kebab-case' },
+            ],
+        ],
+    },
+};
+
 export default [
     ...nx.configs['flat/base'],
     {
@@ -69,7 +107,10 @@ export default [
                 'error',
                 {
                     enforceBuildableLibDependency: true,
-                    allow: [],
+                    // Projects import single files from other projects by
+                    // workspace path. Barrel imports between the libraries
+                    // cause circular imports.
+                    allow: ['libs/**', 'apps/**'],
                     depConstraints: [
                         {
                             sourceTag: '*',
@@ -95,4 +136,5 @@ export default [
         },
     },
     basePresetRuleOverrides,
+    specFileRuleOverrides,
 ];

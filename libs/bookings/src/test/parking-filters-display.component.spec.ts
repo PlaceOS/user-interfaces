@@ -12,8 +12,8 @@ import { ParkingFiltersDisplayComponent } from '../lib/parking-select-modal/park
 describe('ParkingFiltersDisplayComponent', () => {
     let spectator: Spectator<ParkingFiltersDisplayComponent>;
     const base_date = new Date(2026, 5, 15, 9, 0, 0, 0).valueOf();
-    const options = signal<any>({ zone_id: 'lvl-1', features: [] });
-    const model = signal<any>({ date: base_date, duration: 120 });
+    const options = signal<unknown>({ zone_id: 'lvl-1', features: [] });
+    const model = signal<unknown>({ date: base_date, duration: 120 });
     const setOptions = vi.fn((value) => options.set(value));
 
     const org_mock = {

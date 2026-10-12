@@ -45,7 +45,7 @@ export type MediaTagModalResult =
                 matRipple
                 mat-dialog-close
                 class="shrink-0"
-                [attr.aria-label]="'COMMON.CANCEL' | translate"
+                [aria-label]="'COMMON.CANCEL' | translate"
             >
                 <icon>close</icon>
             </button>

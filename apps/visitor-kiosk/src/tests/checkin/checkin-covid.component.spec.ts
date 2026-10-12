@@ -45,7 +45,7 @@ describe('CheckinCovidComponent', () => {
         spectator = createComponent();
     });
 
-    afterEach(() => setNotifyOutlet(null as any, true));
+    afterEach(() => setNotifyOutlet(null, true));
 
     it('should allow confirming questions', async () => {
         await spectator.component.confirm();

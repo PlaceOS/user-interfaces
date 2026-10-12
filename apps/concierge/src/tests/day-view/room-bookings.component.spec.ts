@@ -37,6 +37,7 @@ describe('RoomBookingsComponent', () => {
             } as any),
             MockProvider(EventsStateService, {
                 load_error: signal(false),
+                failed_spaces: signal([]),
                 zones,
                 period: signal('day'),
                 date: signal(Date.now()),
@@ -51,10 +52,10 @@ describe('RoomBookingsComponent', () => {
                 setUIOptions: vi.fn(),
                 newBooking: vi.fn(),
                 getDate: vi.fn(() => Date.now()),
-            } as any),
+            }),
             MockProvider(SettingsService, {
                 get: (() => false) as any,
-            } as any),
+            }),
         ],
         imports: [
             FormsModule,

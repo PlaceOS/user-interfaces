@@ -15,7 +15,7 @@ describe('UserLabelComponent', () => {
         declarations: [MockComponent(UserAvatarComponent)],
         providers: [
             MockProvider(OrganisationService, {
-                levelWithID: vi.fn(() => undefined as any),
+                levelWithID: vi.fn(() => undefined),
             }),
         ],
     });

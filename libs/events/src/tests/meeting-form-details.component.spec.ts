@@ -7,9 +7,9 @@ import {
     SettingsService,
     User,
 } from '@placeos/common';
-import { generateEventForm } from '@placeos/events';
 import * as ts_client from '@placeos/ts-client';
 import { MockProvider } from 'ng-mocks';
+import { generateEventForm } from '../lib/event-form';
 import { EventFormService } from '../lib/event-form.service';
 import { MeetingFormDetailsComponent } from '../lib/meeting-form-details.component';
 
@@ -29,7 +29,7 @@ describe('MeetingFormDetailsComponent', () => {
                 signal: vi.fn(
                     (key: string, default_value: any) =>
                         (setting_signals[key] ??= signal(default_value)),
-                ) as any,
+                ),
             }),
             MockProvider(OrganisationService, {
                 building: { timezone: 'Australia/Sydney' } as any,
@@ -168,6 +168,25 @@ describe('MeetingFormDetailsComponent', () => {
         expect(ts_client.get).not.toHaveBeenCalledWith(
             expect.stringContaining('/permission'),
         );
+    });
+
+    it('should keep the selected host without a calendar check for native bookings', async () => {
+        setting_signals['events.can_book_for_anyone'].set(true);
+        setting_signals['events.use_bookings'].set(true);
+        vi.mocked(ts_client.get).mockRejectedValue('error');
+        spectator.component.model.update((m) => ({
+            ...m,
+            organiser: { email: 'other@place.tech' } as any,
+        }));
+        await flush();
+        expect(ts_client.get).not.toHaveBeenCalledWith(
+            expect.stringContaining('/permission'),
+        );
+        expect(spectator.component.permission_error()).toBe('');
+        expect(spectator.component.model().organiser.email).toBe(
+            'other@place.tech',
+        );
+        expect(spectator.component.model().host).toBe('other@place.tech');
     });
 
     it('should keep the selected host when they have shared their calendar', async () => {

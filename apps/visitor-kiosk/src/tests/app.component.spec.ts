@@ -41,7 +41,7 @@ describe('AppComponent', () => {
         setLocationHref('/');
         placeos = { init: vi.fn(), setInitialToken: vi.fn() };
         spectator = createComponent({
-            providers: [MockProvider(PlaceOS_Service, placeos as any)],
+            providers: [MockProvider(PlaceOS_Service, placeos)],
         });
     });
 

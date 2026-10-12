@@ -80,7 +80,7 @@ export class LockersReportOverallComponent {
         );
     });
     public readonly avg_length = computed(() => {
-        const events: any = activeReportBookings(this._bookings());
+        const events = activeReportBookings(this._bookings());
         return formatDuration({
             minutes:
                 Math.floor(

@@ -13,7 +13,7 @@ import { ReportsMenuComponent } from 'apps/concierge/src/app/reports/reports-men
 describe('ReportsMenuComponent', () => {
     let spectator: SpectatorRouting<ReportsMenuComponent>;
     let features: WritableSignal<string[]>;
-    let custom_reports: WritableSignal<any[]>;
+    let custom_reports: WritableSignal<unknown[]>;
     const createComponent = createRoutingFactory({
         component: ReportsMenuComponent,
         declarations: [MockComponent(IconComponent), MockPipe(TranslatePipe)],
@@ -34,7 +34,7 @@ describe('ReportsMenuComponent', () => {
 
     beforeEach(() => {
         features = signal<string[]>(['desks', 'spaces']);
-        custom_reports = signal<any[]>([]);
+        custom_reports = signal<unknown[]>([]);
         spectator = createComponent();
     });
 

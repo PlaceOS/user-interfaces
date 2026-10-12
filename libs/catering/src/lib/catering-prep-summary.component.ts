@@ -11,12 +11,8 @@ import {
 } from '@placeos/common';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 
-import {
-    deliveryRuns,
-    orderLevelFinder,
-    orderLocation,
-    prepSummary,
-} from './catering-order-tools';
+import { orderLevelFinder, orderLocation } from './catering-order-details';
+import { deliveryRuns, prepSummary } from './catering-order-tools';
 import { CateringOrdersService } from './catering-orders.service';
 
 /**

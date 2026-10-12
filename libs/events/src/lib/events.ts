@@ -1,3 +1,4 @@
+export * from './event-form';
 export * from './event.interfaces';
 export * from './events.fn';
 export * from './helpers';

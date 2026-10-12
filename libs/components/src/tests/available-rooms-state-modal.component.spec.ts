@@ -16,7 +16,7 @@ describe('AvailableRoomsStateModalComponent', () => {
     const spaces = [
         { id: 'space-1', name: 'Room 1' },
         { id: 'space-2', name: 'Room 2', display_name: 'Second Room' },
-    ] as any[];
+    ] as unknown[];
     const dialog_data = { type: 'meeting', disabled_rooms: ['space-2'] };
 
     const createComponent = createComponentFactory({

@@ -79,7 +79,6 @@ import { Locker, LockerBank } from './locker.class';
 export class LockerGridComponent {
     private _settings = inject(SettingsService);
 
-    public readonly show_name = input(true);
     public readonly default_status = input('busy');
     public readonly bank = input<LockerBank>(undefined);
     public readonly bank_status = input<Record<string, string>>({});

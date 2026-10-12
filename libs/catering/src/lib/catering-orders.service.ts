@@ -36,12 +36,8 @@ import {
 import { SpacePipe } from 'libs/events/src/lib/space.pipe';
 import { newCalendarEventFromBooking } from 'libs/events/src/lib/utilities';
 import { Subject } from 'rxjs';
-import {
-    diffOrders,
-    OrderChanges,
-    orderHost,
-    orderLocation,
-} from './catering-order-tools';
+import { orderHost, orderLocation } from './catering-order-details';
+import { diffOrders, OrderChanges } from './catering-order-tools';
 import { CateringOrderStatus } from './catering.interfaces';
 import {
     CateringStatusFilter,

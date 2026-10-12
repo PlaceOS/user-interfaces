@@ -15,7 +15,7 @@ import { PhoneDiallingTooltipComponent } from '../../app/ui/phone-dialling-toolt
 
 describe('PhoneDiallingTooltipComponent', () => {
     let spectator: Spectator<PhoneDiallingTooltipComponent>;
-    let execute: any;
+    let execute: unknown;
     const createComponent = createComponentFactory({
         component: PhoneDiallingTooltipComponent,
         declarations: [
@@ -27,7 +27,7 @@ describe('PhoneDiallingTooltipComponent', () => {
                 provide: ControlStateService,
                 useValue: {
                     id: 'sys-1',
-                    system: signal<any>({}),
+                    system: signal<unknown>({}),
                 },
             },
         ],

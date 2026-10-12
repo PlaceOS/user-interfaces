@@ -21,14 +21,14 @@ const GUEST_ENDPOINT = '/api/staff/v1/guests';
 const EVENTS_ENDPOINT = '/api/staff/v1/events';
 
 /** Build a JWT-shaped token with the payload the service expects */
-function userToken(payload: Record<string, any>) {
+function userToken(payload: Record<string, unknown>) {
     const body = btoa(JSON.stringify(payload))
         .replace(/\+/g, '-')
         .replace(/\//g, '_');
     return `header.${body}.signature`;
 }
 
-function validToken(overrides: Record<string, any> = {}) {
+function validToken(overrides: Record<string, unknown> = {}) {
     return userToken({
         exp: getUnixTime(Date.now()) + 3600,
         u: { e: 'guest@example.com', r: ['event-1'] },

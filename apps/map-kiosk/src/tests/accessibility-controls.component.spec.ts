@@ -8,9 +8,9 @@ import { MockModule, MockProvider } from 'ng-mocks';
 import { AccessibilityControlsComponent } from '../app/accessibility-controls.component';
 
 const setting_signals: Record<string, ReturnType<typeof signal>> = {
-    allow_dark_mode: signal<any>(false),
-    accessible: signal<any>(false),
-    font_size: signal<any>(16),
+    allow_dark_mode: signal<unknown>(false),
+    accessible: signal<unknown>(false),
+    font_size: signal<unknown>(16),
 };
 const theme = signal('light');
 
@@ -21,7 +21,7 @@ describe('AccessibilityControlsComponent', () => {
         providers: [
             MockProvider(SettingsService, {
                 signal: vi.fn((name: string) => setting_signals[name]) as any,
-                theme_signal: theme as any,
+                theme_signal: theme,
                 setTheme: vi.fn(),
                 saveUserSetting: vi.fn(),
             }),

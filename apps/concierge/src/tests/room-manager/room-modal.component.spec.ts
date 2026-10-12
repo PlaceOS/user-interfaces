@@ -12,24 +12,24 @@ vi.mock('@placeos/ts-client', { spy: true });
 
 describe('RoomModalComponent', () => {
     let spectator: Spectator<RoomModalComponent>;
-    let dialog_data: { room: any };
+    let dialog_data: { room: unknown };
 
     const createComponent = createComponentFactory({
         component: RoomModalComponent,
         providers: [
             { provide: MAT_DIALOG_DATA, useFactory: () => dialog_data },
-            MockProvider(MatDialogRef, { close: vi.fn() } as any),
+            MockProvider(MatDialogRef, { close: vi.fn() }),
             MockProvider(OrganisationService, {
                 organisation: { id: 'org-1' },
                 building: { id: 'bld-1', parent_id: 'region-1' },
                 active_levels: signal([{ id: 'lvl-1' }]),
                 levelWithID: vi.fn(),
             } as any),
-            MockProvider(MatDialog, {} as any),
+            MockProvider(MatDialog, {}),
         ],
     });
 
-    const build = (room: any) => {
+    const build = (room: unknown) => {
         dialog_data = { room };
         return createComponent({ detectChanges: false });
     };

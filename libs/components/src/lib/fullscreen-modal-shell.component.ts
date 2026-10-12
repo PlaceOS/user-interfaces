@@ -113,5 +113,4 @@ export class FullscreenModalShellComponent {
     public readonly hide_close = input(false);
     public readonly full_width = input(false);
     public readonly confirm = output();
-    public readonly closed = output();
 }

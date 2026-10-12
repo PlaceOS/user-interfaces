@@ -1,5 +1,4 @@
 import { Component, inject, OnInit } from '@angular/core';
-import { ActivatedRoute, RouterModule } from '@angular/router';
 import { authority, setAPI_Key } from '@placeos/ts-client';
 
 import {
@@ -16,7 +15,6 @@ import {
 } from '@placeos/common';
 
 @Component({
-    imports: [RouterModule],
     selector: 'app-root',
     template: `
         <article>
@@ -93,7 +91,6 @@ import {
 })
 export class AppComponent implements OnInit {
     private _settings = inject(SettingsService);
-    private _route = inject(ActivatedRoute);
 
     private _continue = '';
     public readonly initialisation_error = initialisationFailure();
@@ -103,7 +100,8 @@ export class AppComponent implements OnInit {
     }
 
     public async ngOnInit() {
-        const params = this._route.snapshot.queryParamMap;
+        // The app has no routes, so read the query string directly.
+        const params = new URLSearchParams(location.search);
         if (params.has('continue')) {
             this._continue = params.get('continue') || '';
             // Only allow paths

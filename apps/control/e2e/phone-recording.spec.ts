@@ -264,7 +264,6 @@ test.describe('Phone & Recording - Status Bar Layout', () => {
 
         // Recording is on left, volume is on right
         const recordingSection = statusBar.locator('[recording]');
-        const volumeSection = statusBar.locator('mat-slider');
 
         if (await recordingSection.isVisible().catch(() => false)) {
             // Both should be in status bar with flex-1 spacer between
@@ -296,7 +295,7 @@ test.describe('Phone & Recording - Responsive', () => {
         await page.setViewportSize({ width: 1920, height: 1080 });
 
         const phoneButton = page.locator('button[type="phone"]');
-        const isVisible = await phoneButton.isVisible().catch(() => false);
+        await phoneButton.isVisible().catch(() => false);
 
         // Phone button visibility depends on dial_bindings configuration
     });

@@ -37,7 +37,7 @@ describe('new-panel helpers', () => {
 
     describe('nextPeriod', () => {
         it('should return an empty string when there is no next booking', () => {
-            expect(nextPeriod(null as any)).toBe('');
+            expect(nextPeriod(null)).toBe('');
         });
 
         it('should return an empty string when the next booking is more than a day away', () => {
@@ -57,21 +57,17 @@ describe('new-panel helpers', () => {
 
     describe('currentPeriod', () => {
         it('should return an empty tuple when there is no current or next booking', () => {
-            expect(currentPeriod([], null as any, null as any)).toEqual([]);
+            expect(currentPeriod([], null, null)).toEqual([]);
         });
 
         it('should return an empty tuple when the next booking is more than a day away', () => {
             const next = { date: FIXED_NOW + 24 * 60 * 60 * 1000 } as any;
-            expect(currentPeriod([], null as any, next)).toEqual([]);
+            expect(currentPeriod([], null, next)).toEqual([]);
         });
 
         it('should count down to the next booking when there is no current booking', () => {
             const next = { date: FIXED_NOW + 90 * 60 * 1000 } as any;
-            expect(currentPeriod([], null as any, next)).toEqual([
-                false,
-                1,
-                30,
-            ]);
+            expect(currentPeriod([], null, next)).toEqual([false, 1, 30]);
         });
 
         it('should count down to the next free slot when a booking is current', () => {
@@ -92,7 +88,7 @@ describe('new-panel helpers', () => {
             const [checked_in, hours, minutes] = currentPeriod(
                 bookings,
                 current,
-                null as any,
+                null,
             ) as [boolean, number, number];
             expect(checked_in).toBe(true);
             expect(hours).toBe(0);

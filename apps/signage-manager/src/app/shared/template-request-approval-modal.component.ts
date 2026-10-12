@@ -143,9 +143,18 @@ export interface TemplateRequestApprovalModalResult {
                     }}</icon>
                 </button>
                 @if (show_preview()) {
-                    <template-approval-preview
-                        [versions]="template_versions()"
-                    />
+                    @if (versions_error()) {
+                        <p class="text-error p-8 text-center">
+                            {{
+                                'SIGNAGE_MANAGER.TEMPLATE_VERSIONS_LOAD_ERROR'
+                                    | translate
+                            }}
+                        </p>
+                    } @else {
+                        <template-approval-preview
+                            [versions]="template_versions()"
+                        />
+                    }
                 }
             </main>
             <footer
@@ -230,6 +239,8 @@ export class TemplateRequestApprovalModalComponent {
     public readonly show_preview = signal(false);
     public readonly loading = signal('');
     public readonly template_versions = signal<SignageTemplate[]>([]);
+    /** Whether the versions for the preview failed to load */
+    public readonly versions_error = signal(false);
     public readonly has_previous_version = () =>
         this.template_versions().length > 1;
     public readonly can_update = this._context.can_update_templates;
@@ -240,15 +251,20 @@ export class TemplateRequestApprovalModalComponent {
         if (show_preview) void this._loadTemplateVersions();
     }
 
+    /** Load the versions once. Sets `versions_error` and returns none on failure. */
     private async _loadTemplateVersions() {
         if (this.template_versions().length) return this.template_versions();
         const template_id = this.data?.template?.id || '';
         if (!template_id) return [];
         this.loading.set(i18n('SIGNAGE_MANAGER.LOADING_VERSIONS'));
+        this.versions_error.set(false);
         try {
             const versions = await loadTemplateApprovalVersions(template_id);
             this.template_versions.set(versions);
             return versions;
+        } catch {
+            this.versions_error.set(true);
+            return [];
         } finally {
             this.loading.set('');
         }
@@ -261,20 +277,14 @@ export class TemplateRequestApprovalModalComponent {
         });
     }
 
+    /** Discard the pending version. The service asks the user to confirm. */
     public async undoChanges() {
         const [, previous_version] = await this._loadTemplateVersions();
         if (!previous_version) return;
-        this.loading.set(i18n('SIGNAGE_MANAGER.UNDOING_CHANGES'));
-        this._dialog_ref.disableClose = true;
-        try {
-            const undone = await this._template_service.undoTemplateChanges(
-                this.data.template.id,
-                previous_version,
-            );
-            if (undone) this._dialog_ref.close();
-        } finally {
-            this.loading.set('');
-            this._dialog_ref.disableClose = false;
-        }
+        const undone = await this._template_service.undoTemplateChanges(
+            this.data.template.id,
+            previous_version,
+        );
+        if (undone) this._dialog_ref.close();
     }
 }

@@ -10,7 +10,7 @@ vi.mock('@placeos/ts-client', { spy: true });
 
 describe('AssetCategoryManagementModalComponent', () => {
     let spectator: Spectator<AssetCategoryManagementModalComponent>;
-    let edit: any;
+    let edit: unknown;
 
     const createComponent = createComponentFactory({
         component: AssetCategoryManagementModalComponent,
@@ -45,7 +45,7 @@ describe('AssetCategoryManagementModalComponent', () => {
     });
 
     it('should remove a category and emit a change event', async () => {
-        vi.mocked(ts_client.removeAssetCategory).mockResolvedValue({} as any);
+        vi.mocked(ts_client.removeAssetCategory).mockResolvedValue({});
         const changed = vi.fn();
         spectator.component.changed.subscribe(changed);
 

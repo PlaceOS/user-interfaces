@@ -1,4 +1,4 @@
-import { signal } from '@angular/core';
+import { ApplicationRef, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { MatDialog } from '@angular/material/dialog';
 import {
@@ -9,6 +9,7 @@ import {
 import {
     addSignagePlaylist,
     listSignagePlaylistMedia,
+    MediaAnimation,
     PlaceSystem,
     removeSignagePlaylist,
     scheduleSignagePlaylistMedia,
@@ -29,7 +30,7 @@ import { SignageContextService } from '../../app/signage-context.service';
 import { SignageInventoryService } from '../../app/signage-inventory.service';
 
 type SignagePlaylistServiceTestAccess = SignagePlaylistService &
-    Record<string, any>;
+    Record<string, unknown>;
 
 vi.mock('@placeos/ts-client', { spy: true });
 
@@ -41,7 +42,8 @@ const notify_open = vi.fn(() => ({
 describe('SignagePlaylistService', () => {
     const settings = {
         get: vi.fn(),
-        signal: (_name: string, default_value?: any) => signal(default_value),
+        signal: (_name: string, default_value?: unknown) =>
+            signal(default_value),
     };
     const org = {
         initialised: signal(true),
@@ -149,6 +151,7 @@ describe('SignagePlaylistService', () => {
                 }),
         );
         test_service['_playlist_list'].update(() => loaded_playlists);
+        vi.mocked(showSignagePlaylist).mockResolvedValue(loaded_playlists[200]);
         (updateSignagePlaylistMedia as any).mockResolvedValue({});
 
         await service.addMediaToPlaylist('playlist-200', 'media-1');
@@ -463,6 +466,28 @@ describe('SignagePlaylistService', () => {
         );
     });
 
+    it('keeps the default animation on a copy', async () => {
+        vi.mocked(addSignagePlaylist).mockResolvedValue(
+            new SignagePlaylist({ id: 'copy-1' }),
+        );
+        vi.mocked(updateSignagePlaylistMedia).mockResolvedValue(
+            new SignagePlaylistMedia({}),
+        );
+        const service = createService();
+
+        // ts-client turns the saved index 0 into `cut`
+        await service.duplicatePlaylist(
+            new SignagePlaylist({
+                id: 'pl-1',
+                default_animation: 0 as unknown as MediaAnimation,
+            }),
+        );
+
+        expect(vi.mocked(addSignagePlaylist).mock.calls[0][0]).toMatchObject({
+            default_animation: MediaAnimation.Default,
+        });
+    });
+
     it('ignores a second duplicate request while the first runs', async () => {
         let listed: (value: unknown) => void = () => {};
         (listSignagePlaylistMedia as any).mockReturnValue(
@@ -549,15 +574,15 @@ describe('SignagePlaylistService', () => {
                 schedules: [
                     { play_cron, play_period: 60, play_takeover: true },
                 ],
-            } as any);
+            });
         const inventory = {
             displays: [
                 new PlaceSystem({
                     id: 'd1',
                     name: 'Lobby',
                     playlists: ['a'],
-                } as any),
-                new PlaceSystem({ id: 'd2', name: 'Cafe' } as any),
+                }),
+                new PlaceSystem({ id: 'd2', name: 'Cafe' }),
             ],
             zones: [],
             playlists: [
@@ -682,6 +707,131 @@ describe('SignagePlaylistService', () => {
                 current_group,
                 target_group,
             ]);
+        });
+    });
+
+    describe('adding media', () => {
+        it('checks a playlist outside the loaded pages for distribution', async () => {
+            const service = createService();
+            vi.mocked(showSignagePlaylist).mockResolvedValue(
+                new SignagePlaylist({ id: 'found-1', distribution: true }),
+            );
+
+            await service.addMediaToPlaylist('found-1', 'media-1');
+
+            expect(showSignagePlaylist).toHaveBeenCalledWith(
+                'found-1',
+                expect.anything(),
+            );
+            expect(dialog.open).toHaveBeenCalledWith(
+                PlaylistItemScheduleModalComponent,
+                expect.anything(),
+            );
+            expect(updateSignagePlaylistMedia).not.toHaveBeenCalled();
+        });
+
+        it('reports an error, not a rejection, when adding media fails', async () => {
+            const service = createService();
+            vi.mocked(showSignagePlaylist).mockResolvedValue(
+                new SignagePlaylist({ id: 'pl-1' }),
+            );
+            vi.mocked(listSignagePlaylistMedia).mockRejectedValue(
+                new Error('Offline'),
+            );
+
+            await service.addMediaToPlaylist('pl-1', 'media-1');
+            const added = await service.addMediaItemsToPlaylist('pl-1', [
+                'media-2',
+            ]);
+
+            expect(added).toBe(false);
+            expect(updateSignagePlaylistMedia).not.toHaveBeenCalled();
+            expect(notify_open).toHaveBeenCalledTimes(2);
+            expect(notify_open).toHaveBeenCalledWith(
+                'Error adding media to the playlist',
+                expect.anything(),
+                expect.objectContaining({ panelClass: ['error'] }),
+            );
+        });
+    });
+
+    describe('selected playlist items', () => {
+        /** Select a playlist by ID without the selection debounce */
+        function selectPlaylistId(service: SignagePlaylistService) {
+            const id = signal('');
+            Object.defineProperty(service, '_selected_playlist_id', {
+                value: id,
+            });
+            return async (playlist_id: string) => {
+                id.set(playlist_id);
+                TestBed.tick();
+                await TestBed.inject(ApplicationRef).whenStable();
+            };
+        }
+
+        it('keeps a pending approval request when the items load', async () => {
+            const service = createService();
+            const select = selectPlaylistId(service);
+            vi.mocked(listSignagePlaylistMedia).mockResolvedValue(
+                new SignagePlaylistMedia({
+                    items: ['media-1'],
+                    approved: false,
+                    approval_requested: true,
+                }),
+            );
+
+            await select('pl-1');
+
+            expect(service.playlist_approval_status()['pl-1']).toBe(false);
+            expect(service.playlist_approval_requested_status()['pl-1']).toBe(
+                true,
+            );
+        });
+
+        it('shows a load error and loads the items again on retry', async () => {
+            const service = createService();
+            const select = selectPlaylistId(service);
+            vi.mocked(listSignagePlaylistMedia).mockRejectedValue(
+                new Error('Offline'),
+            );
+
+            await select('pl-1');
+
+            expect(service.playlist_media_error()).toBe(true);
+            expect(service.playlist_media_loading()).toBe(false);
+            expect(service.playlist_media_items()).toEqual([]);
+
+            vi.mocked(listSignagePlaylistMedia).mockResolvedValue(
+                new SignagePlaylistMedia({
+                    items: ['media-1'],
+                    media: [new SignageMedia({ id: 'media-1' })],
+                }),
+            );
+            service.reloadPlaylistMedia();
+            TestBed.tick();
+            await TestBed.inject(ApplicationRef).whenStable();
+
+            expect(service.playlist_media_error()).toBe(false);
+            expect(playlistMediaIdsShown(service)).toEqual(['media-1']);
+        });
+
+        it('shows only the load of the playlist that is selected now', async () => {
+            const service = createService();
+            const select = selectPlaylistId(service);
+            let resolveFirst: (value: SignagePlaylistMedia) => void = () => {};
+            vi.mocked(listSignagePlaylistMedia)
+                .mockReturnValueOnce(
+                    new Promise((resolve) => (resolveFirst = resolve)),
+                )
+                .mockReturnValueOnce(new Promise(() => {}));
+
+            void select('pl-1');
+            void select('pl-2');
+            resolveFirst(new SignagePlaylistMedia({ items: [] }));
+            await new Promise((resolve) => setTimeout(resolve));
+            TestBed.tick();
+
+            expect(service.playlist_media_loading()).toBe(true);
         });
     });
 });

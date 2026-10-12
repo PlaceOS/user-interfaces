@@ -306,7 +306,7 @@ export class AssetRequestDetailsComponent {
         this.loading.set(true);
         try {
             await this._state.setStatus(this.request(), status);
-            (this.request() as any).status = status;
+            this.request().status = status;
         } catch {
             // The state service shows the error.
         } finally {
@@ -318,7 +318,7 @@ export class AssetRequestDetailsComponent {
         this.loading.set(true);
         try {
             await this._state.setTracking(this.request(), state);
-            (this.request() as any).extension_data.tracking = state;
+            this.request().extension_data.tracking = state;
         } catch {
             // The state service shows the error.
         } finally {

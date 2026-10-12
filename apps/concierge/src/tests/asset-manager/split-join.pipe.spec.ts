@@ -16,7 +16,7 @@ describe('SplitJoinPipe', () => {
 
     it('should safely handle empty or nullish values', () => {
         expect(pipe.transform('')).toBe('');
-        expect(pipe.transform(null as any)).toBe('');
-        expect(pipe.transform(undefined as any)).toBe('');
+        expect(pipe.transform(null)).toBe('');
+        expect(pipe.transform(undefined)).toBe('');
     });
 });

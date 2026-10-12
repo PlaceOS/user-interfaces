@@ -13,7 +13,7 @@ import { captureDownloads } from '../download-capture.helper';
 describe('ReportDesksOverallListComponent', () => {
     let spectator: Spectator<ReportDesksOverallListComponent>;
     let downloads: ReturnType<typeof captureDownloads>;
-    let day_list: ReturnType<typeof signal<any>>;
+    let day_list: ReturnType<typeof signal<unknown>>;
 
     const createComponent = createComponentFactory({
         component: ReportDesksOverallListComponent,
@@ -23,7 +23,7 @@ describe('ReportDesksOverallListComponent', () => {
             MockComponent(ReportMetricGuideComponent),
         ],
         imports: [MatTooltipModule],
-        providers: [MockProvider(ReportsStateService, {} as any)],
+        providers: [MockProvider(ReportsStateService, {})],
     });
 
     afterEach(() => downloads.restore());

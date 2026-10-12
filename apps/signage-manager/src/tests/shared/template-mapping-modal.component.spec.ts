@@ -74,6 +74,20 @@ describe('TemplateMappingModalComponent', () => {
         expect(save).toHaveBeenCalledWith('template-1', null);
     });
 
+    it('keeps the modal open without a rejected promise when saving fails', async () => {
+        save.mockRejectedValue(new Error('Denied'));
+        const component = await createComponent();
+        component.model.update((value) => ({
+            ...value,
+            template_id: 'template-1',
+        }));
+
+        await expect(component.saveMapping()).resolves.toBeUndefined();
+
+        expect(dialog_ref.close).not.toHaveBeenCalled();
+        expect(component.loading()).toBe(false);
+    });
+
     it('saves an unscheduled mapping as the default template', async () => {
         const component = await createComponent();
         component.model.update((value) => ({

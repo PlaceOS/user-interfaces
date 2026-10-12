@@ -186,8 +186,12 @@ export class CommandPaletteComponent {
                 detail: '',
                 select: () => this._open([item.route]),
             }));
-        // Keep old matches out once the term is cleared
-        const matches = term ? this._matches.value() : undefined;
+        // Keep out matches for an older term, such as while the new term
+        // waits for its debounce, so Enter cannot open a stale match
+        const current =
+            !!term &&
+            term === this._search_debounced.value().trim().toLowerCase();
+        const matches = current ? this._matches.value() : undefined;
         if (!matches) return pages;
         return [
             ...pages,

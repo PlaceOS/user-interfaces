@@ -20,7 +20,7 @@ describe('POIListComponent', () => {
                 editPointOfInterest: vi.fn(),
                 removePointOfInterest: vi.fn(),
                 previewPointOfInterest: vi.fn(),
-            } as any),
+            }),
             MockProvider(SettingsService, {
                 get: vi.fn(() => '/kiosk'),
             } as any),
@@ -38,7 +38,7 @@ describe('POIListComponent', () => {
                     editPointOfInterest: vi.fn(),
                     removePointOfInterest: vi.fn(),
                     previewPointOfInterest: vi.fn(),
-                } as any),
+                }),
             ],
         });
     });

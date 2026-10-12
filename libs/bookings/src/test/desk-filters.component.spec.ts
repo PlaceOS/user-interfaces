@@ -16,8 +16,8 @@ import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { DateFieldComponent } from 'libs/form-fields/src/lib/date-field.component';
 import { DurationFieldComponent } from 'libs/form-fields/src/lib/duration-field.component';
 import { TimeFieldComponent } from 'libs/form-fields/src/lib/time-field.component';
+import { generateBookingForm } from '../lib/booking-form.model';
 import { BookingFormService } from '../lib/booking-form.service';
-import { generateBookingForm } from '../lib/booking.utilities';
 import { DeskFiltersComponent } from '../lib/desk-select-modal/desk-filters.component';
 
 describe('DeskFiltersComponent', () => {
@@ -28,7 +28,7 @@ describe('DeskFiltersComponent', () => {
         features: [],
     });
     const features = signal<string[]>(['sit-stand', 'monitor']);
-    const resources = signal<any[]>([
+    const resources = signal<unknown[]>([
         { id: 'd1', zone: { id: 'lvl-a' } },
         { id: 'd2', zone: { id: 'lvl-b' } },
     ]);
@@ -58,7 +58,7 @@ describe('DeskFiltersComponent', () => {
             tags: ['parking'],
         },
     ];
-    const org_mock: any = {
+    const org_mock = {
         active_buildings: signal([
             { id: 'bld-1', display_name: 'Building One', name: 'bld-1' },
             { id: 'bld-2', display_name: 'Building Two', name: 'bld-2' },
@@ -197,9 +197,9 @@ describe('DeskFiltersComponent', () => {
     });
 
     it('should update the active building and region through the organisation', () => {
-        spectator.component.setBuilding({ id: 'bld-2' } as any);
+        spectator.component.setBuilding({ id: 'bld-2' });
         expect(org_mock.building).toEqual({ id: 'bld-2' });
-        spectator.component.setRegion({ id: 'reg-2' } as any);
+        spectator.component.setRegion({ id: 'reg-2' });
         expect(org_mock.region).toEqual({ id: 'reg-2' });
     });
 

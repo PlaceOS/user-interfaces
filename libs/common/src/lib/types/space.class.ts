@@ -63,15 +63,13 @@ export class Space {
         this.display_name = data.display_name || '';
         this.email = (data.email || '').toLowerCase();
         this.capacity = data.capacity || -1;
-        this.feature_list = data.feature_list || (data.features as any) || [];
+        this.feature_list = data.feature_list || data.features || [];
         this.bookable = !!data.bookable;
         this.zones = data.zones || [];
         this.support_url = data.support_url || '';
         this.camera_url = data.camera_url || '';
-        this.camera_snapshot_urls = Array.isArray(
-            (data as any).camera_snapshot_urls,
-        )
-            ? ((data as any).camera_snapshot_urls as string[]).filter(Boolean)
+        this.camera_snapshot_urls = Array.isArray(data.camera_snapshot_urls)
+            ? (data.camera_snapshot_urls as string[]).filter(Boolean)
             : data.camera_snapshot_url
               ? [data.camera_snapshot_url]
               : [];

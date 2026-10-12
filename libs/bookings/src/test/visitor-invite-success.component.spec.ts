@@ -24,25 +24,19 @@ describe('VisitorInviteSuccessComponent', () => {
         user_email: 'host@example.com',
         description: 'Visit',
         attendees: [new User({ email: 'visitor@example.com' })],
-    } as any);
+    });
     const building = { id: 'bld-1', name: 'HQ', display_name: 'Head Office' };
     const createComponent = createComponentFactory({
         component: VisitorInviteSuccessComponent,
         shallow: true,
         providers: [
-            MockProvider(
-                BookingFormService as any,
-                {
-                    last_success,
-                } as any,
-            ),
-            MockProvider(
-                OrganisationService as any,
-                {
-                    building,
-                    buildings: [building],
-                } as any,
-            ),
+            MockProvider(BookingFormService, {
+                last_success,
+            }),
+            MockProvider(OrganisationService as any, {
+                building,
+                buildings: [building],
+            }),
             {
                 provide: SettingsService,
                 useValue: createSettingsServiceMock(),

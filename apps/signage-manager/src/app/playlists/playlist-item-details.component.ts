@@ -15,39 +15,25 @@ import {
     MediaDurationPipe,
     TranslatePipe,
 } from '@placeos/components';
-import { MediaAnimation, SignagePlaylist } from '@placeos/ts-client';
+import {
+    MediaAnimation,
+    PlaceSystem,
+    PlaceZone,
+    SignagePlaylist,
+} from '@placeos/ts-client';
 import { SignageDisplayService } from '../displays/signage-display.service';
+import { playlistSchedules } from '../schedules/signage-schedule.util';
 import { SignageSharedWithComponent } from '../shared/signage-shared-with.component';
 import { SignageContextService } from '../signage-context.service';
 import { SignageInventoryService } from '../signage-inventory.service';
 import {
+    playlistAnimation,
     playlistNextPlayLabels,
     playlistScheduleExpiryTooltip,
     playlistScheduleLabel,
 } from '../signage-playlist.util';
 import { SignageZoneService } from '../zones/signage-zone.service';
 import { SignagePlaylistService } from './signage-playlist.service';
-
-const DEFAULT_PLAY_PERIOD_MINUTES = 24 * 60;
-
-function playlistSchedules(playlist: SignagePlaylist) {
-    const legacy_playlist = playlist as SignagePlaylist & {
-        play_at?: number;
-        play_cron?: string;
-        play_period?: number;
-        play_takeover?: boolean;
-    };
-    if (playlist.schedules?.length) return playlist.schedules;
-    return [
-        {
-            play_at: legacy_playlist.play_at,
-            play_cron: legacy_playlist.play_cron || '0 0 * * *',
-            play_period:
-                legacy_playlist.play_period ?? DEFAULT_PLAY_PERIOD_MINUTES,
-            play_takeover: !!legacy_playlist.play_takeover,
-        },
-    ];
-}
 
 @Component({
     selector: 'playlist-item-details',
@@ -663,7 +649,12 @@ export class PlaylistItemDetailsComponent {
         loader: () => this._inventory_service.loadSignageInventory(),
     });
 
-    public readonly item_count = computed(() => this._items().length);
+    /** Number of items. A dash while the items cannot load. */
+    public readonly item_count = computed(() =>
+        this._playlist_service.playlist_media_error()
+            ? '—'
+            : this._items().length,
+    );
     public readonly can_update = this._context.can_update;
     public readonly selected_group_id = computed(
         () => this._context.selected_group()?.group.id || '',
@@ -690,7 +681,7 @@ export class PlaylistItemDetailsComponent {
     public readonly animation_label = computed(() => {
         const pl = this.playlist();
         if (!pl) return 'COMMON.DEFAULT';
-        switch (pl.default_animation) {
+        switch (playlistAnimation(pl)) {
             case MediaAnimation.Cut:
                 return 'SIGNAGE_MANAGER.ANIM_CUT';
             case MediaAnimation.CrossFade:
@@ -752,7 +743,7 @@ export class PlaylistItemDetailsComponent {
         if (playlist) this._zone_service.addZoneToPlaylist(playlist);
     }
 
-    public removeDisplay(event: Event, display: any) {
+    public removeDisplay(event: Event, display: PlaceSystem) {
         event.preventDefault();
         event.stopPropagation();
         const playlist = this.playlist();
@@ -760,7 +751,7 @@ export class PlaylistItemDetailsComponent {
             this._display_service.removeDisplayFromPlaylist(playlist, display);
     }
 
-    public removeZone(event: Event, zone: any) {
+    public removeZone(event: Event, zone: PlaceZone) {
         event.preventDefault();
         event.stopPropagation();
         const playlist = this.playlist();

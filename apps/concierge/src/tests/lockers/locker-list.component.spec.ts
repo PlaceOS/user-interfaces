@@ -49,7 +49,7 @@ describe('LockerListComponent', () => {
         spectator = createComponent({
             providers: [
                 { provide: LockerStateService, useValue: state },
-                MockProvider(Clipboard, clipboard as any),
+                MockProvider(Clipboard, clipboard),
             ],
         });
     });

@@ -1,5 +1,6 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
 import { SignageTemplate } from '@placeos/ts-client';
 import { SignageTemplateService } from '../../app/templates/signage-template.service';
 import { TemplateListComponent } from '../../app/templates/template-list.component';
@@ -11,7 +12,10 @@ describe('TemplateListComponent', () => {
         templates: signal<SignageTemplate[]>([]),
         selected_template: signal<SignageTemplate | null>(null),
         templates_has_more: signal(false),
+        templates_loading: signal(false),
+        templates_error: signal(false),
         loadMoreTemplates: load_more,
+        reloadTemplates: vi.fn(),
     };
 
     async function make() {
@@ -28,7 +32,29 @@ describe('TemplateListComponent', () => {
         return TestBed.createComponent(TemplateListComponent).componentInstance;
     }
 
-    beforeEach(() => vi.clearAllMocks());
+    beforeEach(() => {
+        vi.clearAllMocks();
+        template_stub.templates.set([]);
+        template_stub.templates_error.set(false);
+    });
+
+    it('shows a load error with a retry instead of the empty list', async () => {
+        template_stub.templates_error.set(true);
+        await TestBed.configureTestingModule({
+            imports: [TemplateListComponent],
+            providers: [
+                provideRouter([]),
+                { provide: SignageTemplateService, useValue: template_stub },
+            ],
+        }).compileComponents();
+        const fixture = TestBed.createComponent(TemplateListComponent);
+        fixture.detectChanges();
+        const element: HTMLElement = fixture.nativeElement;
+
+        expect(element.querySelector('load-error')).not.toBeNull();
+        element.querySelector<HTMLButtonElement>('load-error button')?.click();
+        expect(template_stub.reloadTemplates).toHaveBeenCalledOnce();
+    });
 
     it('marks an unrequested draft as awaiting approval', async () => {
         const component = await make();

@@ -1,14 +1,13 @@
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { DialogEvent } from '@placeos/common';
-import { MockProvider } from 'ng-mocks';
 
 import { ParkingFleetModalComponent } from '../../app/parking/parking-fleet-modal.component';
 
 describe('ParkingFleetModalComponent', () => {
     let spectator: Spectator<ParkingFleetModalComponent>;
-    let data: any;
-    const dialog_ref = { disableClose: false } as MatDialogRef<any>;
+    let data: unknown;
+    const dialog_ref = { disableClose: false } as MatDialogRef<unknown>;
 
     const createComponent = createComponentFactory({
         component: ParkingFleetModalComponent,

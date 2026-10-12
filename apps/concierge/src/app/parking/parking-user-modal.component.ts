@@ -251,7 +251,7 @@ export class ParkingUserModalComponent extends AsyncHandler {
         this.form().markAsTouched();
         if (!this.form().valid()) return;
         this.loading.set(true);
-        const value: any = { ...this.model() };
+        const value = { ...this.model() };
         if (value.user) {
             value.email = value.user.email;
             value.name = value.user.name;

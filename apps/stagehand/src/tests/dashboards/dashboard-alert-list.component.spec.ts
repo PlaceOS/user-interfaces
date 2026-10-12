@@ -59,7 +59,7 @@ describe('DashboardAlertListComponent', () => {
 
     it('should feed the alert list into the table', () => {
         build({ params: { id: 'dash-1' } });
-        const table = spectator.query(SimpleTableComponent) as any;
+        const table = spectator.query(SimpleTableComponent);
 
         expect(table.data).toEqual(service.alerts_list());
     });
@@ -68,7 +68,7 @@ describe('DashboardAlertListComponent', () => {
         build({ params: { id: 'dash-1' } });
         const alert = { id: 'a-2', name: 'Overheat' };
 
-        spectator.component.remove(alert as any);
+        spectator.component.remove(alert);
 
         expect(service.removeDashboardAlert).toHaveBeenCalledWith(alert);
     });

@@ -1,5 +1,8 @@
 {
     "$schema": "https://raw.githubusercontent.com/fallow-rs/fallow/main/config-schema.json",
+    // The add-in package.json only serves its manual webpack dev server.
+    // The Angular app resolves packages from the root package.json.
+    "ignorePatterns": ["apps/outlook-addin/package.json"],
     "dynamicallyLoaded": [
         "apps/**/src/environments/*.ts",
         "apps/**/src/test-setup.ts",
@@ -28,7 +31,14 @@
         "angular-sanitize",
         "core-js",
         "fs-extra",
-        "regenerator-runtime"
+        "regenerator-runtime",
+        // Declared in apps/outlook-addin/package.json for its webpack dev server
+        "copy-webpack-plugin",
+        "office-addin-dev-certs",
+        // Root folder imported through the tsconfig baseUrl, not a package
+        "shared",
+        // Installed transitively by @capacitor/assets
+        "sharp"
     ],
     "ignoreExports": [
         {
@@ -57,6 +67,23 @@
         "unused-dev-dependencies": "off",
         "unresolved-imports": "off",
         "duplicate-exports": "off",
-        "circular-dependencies": "off"
-    }
+        "circular-dependencies": "off",
+        // Applications are bundled, so the dependency section has no runtime effect
+        "dev-dependencies-in-production": "off"
+    },
+    "overrides": [
+        {
+            // Spec files declare stub components that mirror the real API
+            "files": [
+                "**/*.spec.ts",
+                "apps/*/src/tests/**",
+                "libs/*/src/test/**",
+                "libs/*/src/tests/**"
+            ],
+            "rules": {
+                "unused-component-inputs": "off",
+                "unused-component-outputs": "off"
+            }
+        }
+    ]
 }

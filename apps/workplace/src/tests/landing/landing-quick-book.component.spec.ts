@@ -48,7 +48,7 @@ describe('LandingQuickBookComponent', () => {
     });
 
     afterEach(() => {
-        setNotifyOutlet(null as any, true);
+        setNotifyOutlet(null, true);
     });
 
     it('exposes enabled features from settings', () => {
@@ -71,7 +71,7 @@ describe('LandingQuickBookComponent', () => {
 
     it('notifies and resets loading when no resources are available', async () => {
         const form = spectator.inject(BookingFormService);
-        (form.listAvailableResources as any).mockResolvedValue([]);
+        form.listAvailableResources.mockResolvedValue([]);
         await spectator.component.book('desk');
         expect(form.newForm).toHaveBeenCalledWith('desk');
         expect(form.setOptions).toHaveBeenCalledWith({ type: 'desk' });
@@ -178,10 +178,10 @@ describe('LandingQuickBookComponent', () => {
     it('resets the form without navigating when confirmation fails', async () => {
         const form = spectator.inject(BookingFormService);
         const router = spectator.inject(Router);
-        (form.listAvailableResources as any).mockResolvedValue([
+        form.listAvailableResources.mockResolvedValue([
             { id: 'desk-1', name: 'Desk 1', bookable: true, features: [] },
         ]);
-        (form.confirmPost as any).mockRejectedValue(new Error('nope'));
+        form.confirmPost.mockRejectedValue(new Error('nope'));
         await spectator.component.book('desk');
         expect(router.navigate).not.toHaveBeenCalled();
         expect(form.resetForm).toHaveBeenCalled();

@@ -18,7 +18,7 @@ function dialogRef(value: unknown) {
 }
 
 describe('SignageGroupZonesComponent', () => {
-    const managed_group_zones = signal<any[]>([]);
+    const managed_group_zones = signal<unknown[]>([]);
     const add_zone = vi.fn();
     const update_zone = vi.fn();
     const remove_zone = vi.fn();
@@ -53,7 +53,7 @@ describe('SignageGroupZonesComponent', () => {
 
     it('exposes the managed group zones from the service', () => {
         const component = make();
-        expect(component.zones().map((row: any) => row.zone_id)).toEqual([
+        expect(component.zones().map((row) => row.zone_id)).toEqual([
             'zone-1',
             'zone-2',
         ]);

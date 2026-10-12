@@ -1,5 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 
+import { ensureBrandFont } from '../../app/branding/brand-fonts';
 import { ImageGenLayerComponent } from '../../app/image-gen/image-gen-layer.component';
 import { ImageGenLayerState } from '../../app/image-gen/image-gen.types';
 
@@ -12,6 +13,14 @@ interface Box {
 
 /** the private parts these tests drive directly */
 interface LayerInternals {
+    _panelColour: (text_colour: string) => string;
+    _draw: () => void;
+    _drawBlocks: (
+        context: CanvasRenderingContext2D,
+        width: number,
+        height: number,
+        state: ImageGenLayerState,
+    ) => void;
     _boxes: Map<string, Box>;
     _logos: Record<'on_light' | 'on_dark', HTMLImageElement | null>;
     _logoFor: (
@@ -108,5 +117,77 @@ describe('ImageGenLayerComponent', () => {
                 blocks: [expect.objectContaining({ x: 0.5, y: 0 })],
             }),
         );
+    });
+
+    it('draws a block that outgrew its spot back inside the artwork', async () => {
+        const fixture = await make('');
+        const layer = fixture.componentInstance as unknown as LayerInternals;
+        // ten pixels a character, so the text is 190 wide
+        const context = {
+            measureText: (text: string) => ({ width: text.length * 10 }),
+            fillText: vi.fn(),
+        } as unknown as CanvasRenderingContext2D;
+        const block = {
+            id: 'block-1',
+            text: 'Spring launch party',
+            role: 'headline' as const,
+            x: 0.9,
+            y: 0.95,
+            align: 'left' as const,
+            colour: '#ffffff',
+            font: '',
+            panel: false,
+        };
+
+        layer._drawBlocks(context, 1000, 500, layerState({ blocks: [block] }));
+
+        // a 55px headline pads its panel by 19px, so the panel ends at the
+        // artwork's right and bottom edges
+        const box = layer._boxes.get(block.id);
+        expect((box?.left ?? 0) + (box?.width ?? 0) + 19).toBe(1000);
+        expect((box?.top ?? 0) + (box?.height ?? 0) + 19 * 0.6).toBeCloseTo(
+            500,
+        );
+    });
+
+    it('shades dark short hex text with a light panel', async () => {
+        const fixture = await make('');
+        const layer = fixture.componentInstance as unknown as LayerInternals;
+
+        expect(layer._panelColour('#000')).toBe('rgba(255, 255, 255, 0.6)');
+        expect(layer._panelColour('#fff')).toBe('rgba(0, 0, 0, 0.45)');
+    });
+
+    it('draws once per drag step, not again for each font', async () => {
+        const fixture = await make('');
+        const layer = fixture.componentInstance as unknown as LayerInternals;
+        const block = {
+            id: 'block-1',
+            text: 'Hello',
+            role: 'headline' as const,
+            x: 0.1,
+            y: 0.1,
+            align: 'left' as const,
+            colour: '#FFFFFF',
+            font: 'Inter',
+            panel: false,
+        };
+        fixture.componentRef.setInput('state', layerState({ blocks: [block] }));
+        fixture.detectChanges();
+        // jsdom fetches no stylesheets, so say this one has loaded
+        document.head
+            .querySelector('link[href*="Inter"]')
+            ?.dispatchEvent(new Event('load'));
+        await ensureBrandFont('Inter');
+        const draw = vi.spyOn(layer, '_draw');
+
+        fixture.componentRef.setInput(
+            'state',
+            layerState({ blocks: [{ ...block, x: 0.2 }] }),
+        );
+        fixture.detectChanges();
+        await ensureBrandFont('Inter');
+
+        expect(draw).toHaveBeenCalledTimes(1);
     });
 });

@@ -20,8 +20,10 @@ import {
     querySignageTemplates,
     querySystems,
     queryZones,
+    shareSignageMedia,
     showGroupFeatures,
 } from '@placeos/ts-client';
+import { from } from 'rxjs';
 
 import { SignageMediaService } from '../app/media/signage-media.service';
 import { SignagePlaylistService } from '../app/playlists/signage-playlist.service';
@@ -33,6 +35,7 @@ vi.mock('@placeos/ts-client', { spy: true });
 const STORAGE_KEY = 'PlaceOS.SIGNAGE:selected-group:v1';
 const READ = 1 << 0;
 const UPDATE = 1 << 2;
+const SHARE = 1 << 7;
 const EMPTY_PAGE = { data: [], total: 0, next: () => null };
 
 function signageGroup(id: string) {
@@ -186,6 +189,66 @@ describe('SignageContextService group context', () => {
 
             expect(service.signage_groups_failed()).toBe(false);
             expect(service.selected_group()?.group.id).toBe('g1');
+        });
+    });
+
+    describe('group list reload', () => {
+        it('keeps the selected group and its permissions while the groups reload', async () => {
+            localStorage.setItem(STORAGE_KEY, 'g1');
+            const service = TestBed.inject(SignageContextService);
+            await settle();
+            expect(service.can_update()).toBe(true);
+
+            vi.mocked(currentGroups).mockReturnValue(
+                new Promise<never>(() => undefined),
+            );
+            service.reloadSignageGroups();
+            await settle();
+
+            expect(service.signage_groups_loaded()).toBe(false);
+            expect(service.selected_group()?.group.id).toBe('g1');
+            expect(service.can_update()).toBe(true);
+        });
+    });
+
+    describe('group list reload failure', () => {
+        it('keeps the selected group and its permissions when a reload fails', async () => {
+            localStorage.setItem(STORAGE_KEY, 'g1');
+            const service = TestBed.inject(SignageContextService);
+            await settle();
+
+            vi.mocked(currentGroups).mockRejectedValue(new Error('down'));
+            service.reloadSignageGroups();
+            await settle();
+
+            expect(service.signage_groups_failed()).toBe(true);
+            expect(service.selected_group()?.group.id).toBe('g1');
+            expect(service.can_update()).toBe(true);
+        });
+    });
+
+    describe('sharing', () => {
+        it('returns false without a rejected promise when the share fails', async () => {
+            localStorage.setItem(STORAGE_KEY, 'g1');
+            vi.mocked(currentGroups).mockResolvedValue([
+                membership('g1', READ | SHARE),
+                membership('g2'),
+            ]);
+            // A dialog closes after it opens, never during the subscribe
+            dialog.open.mockReturnValue({
+                afterClosed: () => from(Promise.resolve('g2')),
+            });
+            vi.mocked(shareSignageMedia).mockRejectedValue(new Error('down'));
+            const service = TestBed.inject(SignageContextService);
+            await settle();
+
+            await expect(service.shareItems('media', ['m1'])).resolves.toBe(
+                false,
+            );
+            expect(shareSignageMedia).toHaveBeenCalledWith({
+                items: 'm1',
+                to: 'g2',
+            });
         });
     });
 

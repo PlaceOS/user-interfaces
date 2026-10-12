@@ -9,10 +9,8 @@ import { createSettingsServiceMock } from '@placeos/common/tests';
 import { MockComponent, MockModule, MockProvider } from 'ng-mocks';
 
 import { InteractiveMapComponent } from 'libs/components/src/lib/interactive-map.component';
-import {
-    BookingAsset,
-    BookingFormService,
-} from '../lib/booking-form.service';
+import { BookingFormService } from '../lib/booking-form.service';
+import { BookingAsset } from '../lib/booking-form.types';
 import { ParkingMapComponent } from '../lib/parking-select-modal/parking-map.component';
 
 const asset = (over: Partial<BookingAsset> = {}): BookingAsset =>
@@ -49,23 +47,23 @@ describe('ParkingMapComponent', () => {
         component: ParkingMapComponent,
         providers: [
             MockProvider(BookingFormService, {
-                resources: resources as any,
-                available_resources: available as any,
-                options: options as any,
-                loading: loading as any,
+                resources: resources,
+                available_resources: available,
+                options: options,
+                loading: loading,
                 setOptions: set_options,
-                resourceUserName: resource_user_name as any,
+                resourceUserName: resource_user_name,
             }),
             {
                 provide: SettingsService,
                 useValue: createSettingsServiceMock(),
             },
             MockProvider(OrganisationService, {
-                active_region: signal(undefined) as any,
+                active_region: signal(undefined),
                 active_building: signal({ id: 'bld-1' }) as any,
-                levelsForBuilding: levels_for_building as any,
-                levelsForRegion: vi.fn(() => []) as any,
-                levelWithID: level_with_id as any,
+                levelsForBuilding: levels_for_building,
+                levelsForRegion: vi.fn(() => []),
+                levelWithID: level_with_id,
                 buildings: [{ id: 'bld-1', location: '1.0,2.0' }] as any,
             }),
         ],

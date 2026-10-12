@@ -11,8 +11,8 @@ import { LockerFiltersDisplayComponent } from '../lib/locker-select-modal/locker
 
 describe('LockerFiltersDisplayComponent', () => {
     let spectator: Spectator<LockerFiltersDisplayComponent>;
-    const options = signal<any>({ features: [] });
-    const model = signal<any>({
+    const options = signal<unknown>({ features: [] });
+    const model = signal<unknown>({
         date: new Date(2026, 5, 1, 9, 0, 0).valueOf(),
         duration: 60,
         all_day: false,

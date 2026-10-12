@@ -58,8 +58,8 @@ describe('AppComponent', () => {
         });
         vi.mocked(authority).mockReturnValue({ id: 'auth-1' } as any);
         vi.mocked(queryApplications).mockResolvedValue({ data: [] } as any);
-        vi.mocked(setup).mockResolvedValue(undefined as any);
-        vi.mocked(setAPI_Key).mockReturnValue(undefined as any);
+        vi.mocked(setup).mockResolvedValue(undefined);
+        vi.mocked(setAPI_Key).mockReturnValue(undefined);
         setCurrentUser({ id: 'user-1', groups: [] } as any);
         window.history.replaceState({}, '', '/');
         spectator = create_component();
@@ -163,7 +163,7 @@ describe('AppComponent', () => {
     });
 
     it('shows the empty-state message when there is no active authority', async () => {
-        vi.mocked(authority).mockReturnValue(null as any);
+        vi.mocked(authority).mockReturnValue(null);
 
         await runInit();
 

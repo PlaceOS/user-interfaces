@@ -87,7 +87,7 @@ export class ItemListModalComponent implements OnInit {
     public readonly item_list = signal<{ name: string; email: string }[]>([]);
     public readonly loading = signal(false);
 
-    public identify = (index: number, item: any) => index;
+    public identify = (index: number, _item: unknown) => index;
 
     public async ngOnInit() {
         const metadata_key =

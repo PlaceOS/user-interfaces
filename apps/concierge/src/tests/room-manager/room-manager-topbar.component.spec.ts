@@ -26,7 +26,7 @@ describe('RoomManagerTopbarComponent', () => {
                 setFilters: vi.fn(),
                 setSearchString: vi.fn(),
                 editRoom: vi.fn(),
-            } as any),
+            }),
             MockProvider(OrganisationService, {
                 active_building: signal({ id: 'bld-1' }),
                 active_region: signal({ id: 'region-1' }),
@@ -37,8 +37,8 @@ describe('RoomManagerTopbarComponent', () => {
                 region: { id: 'region-1' },
             } as any),
             MockProvider(SettingsService, {
-                get: ((name: string) => settings_map[name]) as any,
-            } as any),
+                get: ((name: string) => settings_map[name]),
+            }),
             MockProvider(MatDialog, {
                 open: vi.fn(() => ({ afterClosed: () => of() }) as any),
             }),

@@ -24,11 +24,11 @@ const test_mock = {
 
 interface PropDecoratorFactory {
     type?: { prototype: { ngMetadataName?: string } };
-    args: (Type<any> | string | { isSignal?: boolean })[];
+    args: (Type<unknown> | string | { isSignal?: boolean })[];
 }
 
 const getPropMetadata = (
-    def: Type<any>,
+    def: Type<unknown>,
 ): Record<string, [PropDecoratorFactory]> | undefined => {
     if ('propDecorators' in def && def.propDecorators) {
         return def.propDecorators as Record<string, [PropDecoratorFactory]>;
@@ -36,7 +36,7 @@ const getPropMetadata = (
     return undefined;
 };
 
-const isSignal = (arg: any): boolean => {
+const isSignal = (arg: unknown): boolean => {
     return (
         arg &&
         typeof arg === 'object' &&
@@ -88,8 +88,8 @@ export const getSignalBasedQueries = (
 export const getHostDirectives = (dir: Type<any>): Array<any> | undefined => {
     const possibleMetadataKeys = ['ɵcmp', 'ɵdir'];
     for (const key of possibleMetadataKeys) {
-        if (key in dir && 'hostDirectives' in (dir as any)[key]) {
-            return (dir as any)[key].hostDirectives as Array<any>;
+        if (key in dir && 'hostDirectives' in dir[key]) {
+            return dir[key].hostDirectives as Array<unknown>;
         }
     }
     return undefined;
@@ -102,12 +102,12 @@ export const createQuerySignalMock = (): Signal<undefined> => {
     const theSignal = signal(undefined);
     const signalSymbol = Object.getOwnPropertySymbols(theSignal)[0];
     if (signalSymbol) {
-        (theSignal as any)[signalSymbol]._dirtyCounter = { update: test_mock.fn() }; // Mock the update method to avoid errors in tests;
+        theSignal[signalSymbol]._dirtyCounter = { update: test_mock.fn() }; // Mock the update method to avoid errors in tests;
     }
     return theSignal;
 };
 
-const mockSignalBasedQueries = (component: Type<any>): void => {
+const mockSignalBasedQueries = (component: Type<unknown>): void => {
     const signalBasedQueries = getSignalBasedQueries(component);
     if (signalBasedQueries) {
         for (const [propName, metadata] of Object.entries(signalBasedQueries)) {
@@ -169,24 +169,24 @@ export const createSettingsServiceMock = (
     overrides: Record<string, any> = {},
 ) => {
     const version = signal(0);
-    const get = test_mock.fn(<T = any>(_: string): T => undefined as T);
+    const get = test_mock.fn(<T = unknown>(_: string): T => undefined as T);
     const bump = () => version.update((value) => value + 1);
     const mock_implementation = get.mockImplementation.bind(get);
     const mock_return_value = get.mockReturnValue.bind(get);
-    (get.mockImplementation as any) = ((fn) => {
+    get.mockImplementation = ((fn) => {
         bump();
         return mock_implementation(fn);
-    }) as any;
-    (get.mockReturnValue as any) = ((value) => {
+    });
+    get.mockReturnValue = ((value) => {
         bump();
         return mock_return_value(value);
-    }) as any;
+    });
     return {
         get,
         saveUserSetting: test_mock.fn(),
         initialised: of(true),
         overrides$: of([]),
-        signal: test_mock.fn((name: string, default_value?: any, root = false) =>
+        signal: test_mock.fn((name: string, default_value?: unknown, root = false) =>
             computed(() => {
                 version();
                 return get(root ? name : `app.${name}`) ?? default_value;

@@ -221,7 +221,7 @@ export class SurveyResponsesComponent extends AsyncHandler implements OnInit {
         const questions = this.questions();
         const answers = this.answers();
         if (!survey) return [];
-        const mapping: Record<string, any> = {};
+        const mapping: Record<string, unknown> = {};
         questions.forEach((question) => {
             mapping[question.id] = {
                 question,

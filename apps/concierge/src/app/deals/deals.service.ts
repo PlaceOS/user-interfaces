@@ -34,7 +34,7 @@ export class DealsService extends AsyncHandler {
             const metadata = await showMetadata(
                 params.building,
                 'deals-n-offers',
-            ).catch(() => ({ details: [] }) as any);
+            ).catch(() => ({ details: [] }));
             this.loading.set(false);
             return metadata?.details instanceof Array ? metadata.details : [];
         },

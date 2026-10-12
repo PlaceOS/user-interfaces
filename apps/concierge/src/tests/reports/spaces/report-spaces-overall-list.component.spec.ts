@@ -11,7 +11,7 @@ import { ReportsStateService } from 'apps/concierge/src/app/reports/reports-stat
 describe('ReportSpacesOverallListComponent', () => {
     let spectator: Spectator<ReportSpacesOverallListComponent>;
     let downloads: ReturnType<typeof captureDownloads>;
-    let day_list: ReturnType<typeof signal<any[]>>;
+    let day_list: ReturnType<typeof signal<unknown[]>>;
 
     const day = new Date('2026-04-06T09:00:00').valueOf();
 
@@ -25,7 +25,7 @@ describe('ReportSpacesOverallListComponent', () => {
         providers: [
             {
                 provide: ReportsStateService,
-                useValue: { day_list: (day_list = signal<any[]>([])) },
+                useValue: { day_list: (day_list = signal<unknown[]>([])) },
             },
         ],
     });
@@ -33,7 +33,7 @@ describe('ReportSpacesOverallListComponent', () => {
     afterEach(() => downloads.restore());
 
     beforeEach(() => {
-        day_list = signal<any[]>([]);
+        day_list = signal<unknown[]>([]);
         downloads = captureDownloads();
         spectator = createComponent({
             providers: [

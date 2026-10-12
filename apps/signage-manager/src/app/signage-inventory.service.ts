@@ -4,12 +4,12 @@ import {
     PlaceZone,
     querySignageMedia,
     querySignagePlaylists,
-    querySystems,
     queryZones,
     showSignageMedia,
     SignageMedia,
     SignagePlaylist,
 } from '@placeos/ts-client';
+import { querySignageDisplays } from './displays/signage-display';
 import {
     findTakeoverConflicts,
     type TakeoverConflict,
@@ -78,18 +78,18 @@ export class SignageInventoryService {
         const limit = PAGE_SIZE;
         const [displays, zones, playlists] = await Promise.all([
             queryAll(
-                querySystems({
+                querySignageDisplays({
                     ...this._context.orgZoneQueryParams({}),
                     limit,
                     signage: true,
-                } as any),
+                }),
             ),
             queryAll(
                 queryZones(
                     this._context.groupQueryParams({
                         limit,
                         tags: 'signage',
-                    }) as any,
+                    }),
                 ),
             ),
             queryAll(

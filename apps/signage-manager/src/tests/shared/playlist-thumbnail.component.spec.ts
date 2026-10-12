@@ -18,7 +18,7 @@ describe('PlaylistThumbnailComponent', () => {
         playlist_thumbnail_media,
         queuePlaylistMeta: queue_meta,
     };
-    const original_observer = (global as any).IntersectionObserver;
+    const original_observer = global.IntersectionObserver;
     let observer_callback: IntersectionObserverCallback;
     let disconnect_count = 0;
 
@@ -65,7 +65,7 @@ describe('PlaylistThumbnailComponent', () => {
     });
 
     afterEach(() => {
-        (global as any).IntersectionObserver = original_observer;
+        global.IntersectionObserver = original_observer;
     });
 
     it('renders images and queues metadata only while in view', async () => {

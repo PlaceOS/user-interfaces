@@ -20,7 +20,7 @@ describe('RoomBookingsApprovalsComponent', () => {
         shallow: true,
         detectChanges: false,
         providers: [
-            MockProvider(EventsStateService, { pending, replace } as any),
+            MockProvider(EventsStateService, { pending, replace }),
             MockProvider(OrganisationService, {
                 building: { timezone: 'Australia/Sydney' },
                 module: vi.fn(() => ({ execute })),
@@ -124,6 +124,11 @@ describe('RoomBookingsApprovalsComponent', () => {
 
         await spectator.component.approve(event);
 
+        expect(execute).toHaveBeenCalledWith(
+            'accept_event',
+            ['room@example.com', 'event-1'],
+            30 * 1000,
+        );
         expect(replace).toHaveBeenCalledTimes(1);
         expect(replace.mock.calls[0][0].status).toBe('approved');
     });
@@ -142,6 +147,11 @@ describe('RoomBookingsApprovalsComponent', () => {
 
         await spectator.component.reject(event);
 
+        expect(execute).toHaveBeenCalledWith(
+            'decline_event',
+            ['room@example.com', 'event-1'],
+            30 * 1000,
+        );
         expect(replace).toHaveBeenCalledTimes(1);
         expect(replace.mock.calls[0][0].status).toBe('declined');
     });

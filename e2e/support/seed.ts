@@ -19,18 +19,21 @@ import {
     APP_URL,
     BACKEND_URL,
     DESK_PREFIX,
+    Role,
     WORKERS,
     assertLocalOnly,
     roleFor,
     staffEmail,
 } from './env';
 import { mintToken, clientId, redirectUriFor } from './auth';
-import { ENGINE_API, STAFF_API } from './api';
+import { ENGINE_API, STAFF_API, alreadyExists, getJson as json } from './api';
+import { describeDrivers, ensureDrivers } from './drivers/drivers.seed';
+import { CALENDAR_ENABLED, CALENDAR_TENANT_NAME, O365 } from './calendar/calendar.env';
 
 /** The app `init` guarantees exists — our way in before anything else is registered. */
 const BOOTSTRAP_APP_URL = `${BACKEND_URL}/backoffice`;
 
-async function adminApi(): Promise<APIRequestContext> {
+export async function adminApi(): Promise<APIRequestContext> {
     const admin = roleFor('admin');
     const mint = await mintToken(BACKEND_URL, BOOTSTRAP_APP_URL, admin.email, admin.password);
     return pwRequest.newContext({
@@ -38,19 +41,6 @@ async function adminApi(): Promise<APIRequestContext> {
         ignoreHTTPSErrors: true,
         extraHTTPHeaders: { Authorization: `Bearer ${mint.accessToken}` },
     });
-}
-
-/** Does this error body mean "the row is already there"? */
-function alreadyExists(body: string): boolean {
-    return /already (exists|taken)|has already been taken|must be unique|should be unique|duplicate/i.test(
-        body,
-    );
-}
-
-async function json(api: APIRequestContext, path: string, params?: Record<string, string>) {
-    const res = await api.get(path, { params });
-    if (!res.ok()) throw new Error(`GET ${path} failed: HTTP ${res.status()} ${await res.text()}`);
-    return res.json();
 }
 
 /**
@@ -150,31 +140,100 @@ async function ensureAbsoluteLoginUrl(api: APIRequestContext) {
  * for the calendar-backed routes (/calendars, /events) and nothing else — so a
  * placeholder tenant unblocks the whole PlaceOS-native booking surface (desks,
  * lockers, parking, visitors) with ZERO external calls. That is what keeps this
- * suite genuinely local. Real calendar credentials are opt-in; see e2e/README.md.
+ * suite genuinely local. Real credentials are opt-in through the `E2E_O365_*`
+ * variables (`e2e/support/calendar/calendar.env.ts`); with them the row is
+ * app-only (no delegated access, no service account) so staff-api acts as the
+ * signed-in user, and is named `CALENDAR_TENANT_NAME` so specs can tell.
+ *
+ * An existing row is always re-sent. Credentials are never returned, so there is
+ * no way to see what it holds, and a stack reused after a calendar run must go
+ * back to placeholders rather than keep calling Microsoft.
  */
 async function ensureTenant(api: APIRequestContext) {
     const domain = new URL(BACKEND_URL).hostname;
+    const row = {
+        domain,
+        platform: 'office365',
+        delegated: false,
+        ...(CALENDAR_ENABLED
+            ? { name: CALENDAR_TENANT_NAME, credentials: O365 }
+            : {
+                  name: 'E2E Local',
+                  credentials: {
+                      tenant: 'e2e-local-placeholder',
+                      client_id: 'e2e-local-placeholder',
+                      client_secret: 'e2e-local-placeholder',
+                  },
+              }),
+    };
     const existing = await json(api, `${STAFF_API}/tenants`);
     const list = Array.isArray(existing) ? existing : (existing.results ?? []);
-    if (list.some((t: { domain?: string }) => t.domain === domain)) {
-        return { domain, created: false };
+    const found = list.find((t: { domain?: string }) => t.domain === domain);
+    // staff-api encrypts the credentials on save.
+    const res = found
+        ? await api.put(`${STAFF_API}/tenants/${found.id}`, { data: { ...found, ...row } })
+        : await api.post(`${STAFF_API}/tenants`, { data: row });
+    if (!res.ok()) {
+        throw new Error(
+            `${found ? 'update' : 'create'} tenant failed: HTTP ${res.status()} ${await res.text()}`,
+        );
     }
-    const res = await api.post(`${STAFF_API}/tenants`, {
-        data: {
-            name: 'E2E Local',
-            domain,
-            platform: 'office365',
-            credentials: {
-                tenant: 'e2e-local-placeholder',
-                client_id: 'e2e-local-placeholder',
-                client_secret: 'e2e-local-placeholder',
-            },
-        },
+    return { domain, created: !found };
+}
+
+/**
+ * Create a local user, or bring an existing one back in line. Keyed on email.
+ *
+ * A reused stack keeps its users between seeds, so an existing user gets the
+ * role's password and `fields` again: a changed password or a missing sys_admin
+ * would otherwise leave a user the suite cannot sign in as. Returns whether the
+ * user was created.
+ */
+async function ensureUser(
+    api: APIRequestContext,
+    role: Role,
+    authority_id: string,
+    fields: { name: string; sys_admin: boolean },
+): Promise<boolean> {
+    const data = { ...fields, password: role.password, support: false };
+    const found = await json(api, `${ENGINE_API}/users`, { q: role.email, limit: '50' });
+    const list = Array.isArray(found) ? found : (found.results ?? []);
+    const user = list.find(
+        (u: { email?: string }) => u.email?.toLowerCase() === role.email.toLowerCase(),
+    );
+    if (user) {
+        const res = await api.patch(`${ENGINE_API}/users/${user.id}`, { data });
+        if (!res.ok()) {
+            const body = await res.text();
+            throw new Error(`update user ${role.email} failed: HTTP ${res.status()} ${body}`);
+        }
+        return false;
+    }
+    const res = await api.post(`${ENGINE_API}/users`, {
+        data: { ...data, email: role.email, authority_id },
     });
     if (!res.ok()) {
-        throw new Error(`create tenant failed: HTTP ${res.status()} ${await res.text()}`);
+        const body = await res.text();
+        // The lookup above reads from Elasticsearch, which can lag a fresh row.
+        if (alreadyExists(body)) return false;
+        throw new Error(`create user ${role.email} failed: HTTP ${res.status()} ${body}`);
     }
-    return { domain, created: true };
+    return true;
+}
+
+/**
+ * The admin whose address is a mailbox in the tenant (`roleFor('calendar')`).
+ *
+ * A sys_admin, because the concierge calendar specs sign in as this user and
+ * concierge admits admin and support users by default.
+ */
+async function ensureCalendarUser(api: APIRequestContext) {
+    const role = roleFor('calendar');
+    const created = await ensureUser(api, role, (await authority(api)).id, {
+        name: 'E2E Calendar Admin',
+        sys_admin: true,
+    });
+    return { email: role.email, created };
 }
 
 /**
@@ -235,33 +294,9 @@ async function ensureStaffUsers(api: APIRequestContext) {
 
     for (let i = 0; i < WORKERS; i++) {
         const role = roleFor('staff', i);
-        const found = await json(api, `${ENGINE_API}/users`, { q: role.email, limit: '50' });
-        const list = Array.isArray(found) ? found : (found.results ?? []);
-        if (
-            list.some((u: { email?: string }) => u.email?.toLowerCase() === role.email.toLowerCase())
-        ) {
-            present.push(role.email);
-            continue;
-        }
-        const res = await api.post(`${ENGINE_API}/users`, {
-            data: {
-                name: `E2E Staff ${i} (non-admin)`,
-                email: role.email,
-                password: role.password,
-                authority_id,
-                sys_admin: false,
-                support: false,
-            },
-        });
-        if (!res.ok()) {
-            const body = await res.text();
-            if (alreadyExists(body)) {
-                present.push(role.email);
-                continue;
-            }
-            throw new Error(`create user ${role.email} failed: HTTP ${res.status()} ${body}`);
-        }
-        created.push(role.email);
+        const fields = { name: `E2E Staff ${i} (non-admin)`, sys_admin: false };
+        if (await ensureUser(api, role, authority_id, fields)) created.push(role.email);
+        else present.push(role.email);
     }
     return { created, present };
 }
@@ -277,7 +312,16 @@ export async function seed(): Promise<void> {
         const login = await ensureAbsoluteLoginUrl(api);
         console.log(`  login_url  ${login.changed ? 'patched' : 'ok'}       ${login.login_url}`);
         const tenant = await ensureTenant(api);
-        console.log(`  tenant     ${tenant.created ? 'created' : 'present'}  domain=${tenant.domain}`);
+        console.log(
+            `  tenant     ${tenant.created ? 'created' : 'present'}  domain=${tenant.domain}  ` +
+                `calendar=${CALENDAR_ENABLED ? `microsoft 365 (${O365.tenant})` : 'placeholder'}`,
+        );
+        if (CALENDAR_ENABLED) {
+            const calendar_user = await ensureCalendarUser(api);
+            console.log(
+                `  calendar   ${calendar_user.created ? 'created' : 'present'}  admin ${calendar_user.email}`,
+            );
+        }
         const desks = await ensureDesks(api);
         console.log(`  desks      ${desks.count} on ${desks.zone}`);
         const users = await ensureStaffUsers(api);
@@ -285,6 +329,17 @@ export async function seed(): Promise<void> {
             `  staff users ${users.created.length} created, ${users.present.length} present ` +
                 `(${WORKERS} workers: ${staffEmail(0)} … ${staffEmail(WORKERS - 1)})`,
         );
+        // Only specs that bind a room's status need the drivers, so a build farm
+        // that is down or slow is reported here instead of failing every spec.
+        try {
+            const drivers = await ensureDrivers(api, (message) => console.log(`  drivers    ${message}`));
+            console.log(`  drivers    ${describeDrivers(drivers)}`);
+        } catch (error) {
+            console.warn(
+                `  drivers    NOT LOADED; specs that need a room status will fail.\n` +
+                    `${error instanceof Error ? error.message : error}`,
+            );
+        }
     } finally {
         await api.dispose();
     }

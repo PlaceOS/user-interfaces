@@ -4,7 +4,10 @@ import { MatDialog } from '@angular/material/dialog';
 import { OrganisationService, SettingsService } from '@placeos/common';
 import {
     PlaceSystem,
+    query,
     querySignageMedia,
+    querySignagePlaylists,
+    queryZones,
     showSignageMedia,
     SignageMedia,
     SignagePlaylist,
@@ -13,14 +16,14 @@ import { SignageContextService } from '../app/signage-context.service';
 import { SignageInventoryService } from '../app/signage-inventory.service';
 
 type SignageInventoryServiceTestAccess = SignageInventoryService &
-    Record<string, any>;
+    Record<string, unknown>;
 
 vi.mock('@placeos/ts-client', { spy: true });
 
 describe('SignageInventoryService', () => {
     const settings = {
         get: vi.fn(),
-        signal: (_name: string, default_value?: any) => signal(default_value),
+        signal: (_name: string, default_value?: unknown) => signal(default_value),
     };
     const org = {
         initialised: signal(true),
@@ -46,6 +49,35 @@ describe('SignageInventoryService', () => {
         return TestBed.inject(SignageInventoryService);
     }
 
+    // The schedules timeline shows its online status from these displays
+    it('keeps a display that never checked in as never seen, its name decoded once', async () => {
+        const service = createService();
+        vi.spyOn(
+            TestBed.inject(SignageContextService),
+            'canQueryLists',
+        ).mockReturnValue(true);
+        const empty_page = { data: [], total: 0, next: null };
+        vi.mocked(querySignagePlaylists).mockResolvedValue(
+            empty_page as never,
+        );
+        vi.mocked(queryZones).mockResolvedValue(empty_page as never);
+        vi.mocked(query).mockImplementation(((params: {
+            fn: (raw: Partial<PlaceSystem>) => PlaceSystem;
+        }) =>
+            Promise.resolve({
+                // A saved name of `R&amp;D`, encoded once by the backend
+                data: [params.fn({ id: 'd1', name: 'R&amp;amp;D' })],
+                total: 1,
+                next: null,
+            })) as unknown as typeof query);
+
+        const { displays } = await service.loadSignageInventory();
+
+        expect(displays.map(({ id }) => id)).toEqual(['d1']);
+        expect(displays[0].signage_last_seen).toBe(0);
+        expect(displays[0].name).toBe('R&amp;D');
+    });
+
     describe('content report', () => {
         const takeover = (id: string, play_cron: string) =>
             new SignagePlaylist({
@@ -54,15 +86,15 @@ describe('SignageInventoryService', () => {
                 schedules: [
                     { play_cron, play_period: 60, play_takeover: true },
                 ],
-            } as any);
+            });
         const inventory = {
             displays: [
                 new PlaceSystem({
                     id: 'd1',
                     name: 'Lobby',
                     playlists: ['a'],
-                } as any),
-                new PlaceSystem({ id: 'd2', name: 'Cafe' } as any),
+                }),
+                new PlaceSystem({ id: 'd2', name: 'Cafe' }),
             ],
             zones: [],
             playlists: [
@@ -84,7 +116,7 @@ describe('SignageInventoryService', () => {
                         id: 'd3',
                         name: 'Hall',
                         playlists: ['c'],
-                    } as any),
+                    }),
                 ],
             });
             test_service['_expiredMediaInPlaylists'] = vi
@@ -165,7 +197,7 @@ describe('SignageInventoryService', () => {
                         id: 'd1',
                         name: 'Lobby',
                         playlists: ['all', 'some'],
-                    } as any),
+                    }),
                 ],
                 zones: [],
                 playlists: [ended('all', [1, 2]), ended('some', [1, 0])],

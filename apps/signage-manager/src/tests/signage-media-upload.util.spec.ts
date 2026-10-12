@@ -1,6 +1,5 @@
 import type { MockInstance } from 'vitest';
 import {
-    SIGNAGE_MEDIA_FILE_ACCEPT,
     SIGNAGE_MEDIA_PICKER_ACCEPT,
     isImageSourceFile,
     validateSignageMediaDimensions,
@@ -9,13 +8,6 @@ import {
 
 describe('signage-media-upload util', () => {
     it('exposes the requested file picker formats', () => {
-        expect(SIGNAGE_MEDIA_FILE_ACCEPT).toContain('.png');
-        expect(SIGNAGE_MEDIA_FILE_ACCEPT).toContain('.jpeg');
-        expect(SIGNAGE_MEDIA_FILE_ACCEPT).toContain('.webp');
-        expect(SIGNAGE_MEDIA_FILE_ACCEPT).toContain('.svg');
-        expect(SIGNAGE_MEDIA_FILE_ACCEPT).toContain('.webm');
-        expect(SIGNAGE_MEDIA_FILE_ACCEPT).toContain('.mp4');
-        expect(SIGNAGE_MEDIA_FILE_ACCEPT).toContain('.mov');
         expect(SIGNAGE_MEDIA_PICKER_ACCEPT).toContain('image/*');
         expect(SIGNAGE_MEDIA_PICKER_ACCEPT).toContain('.heic');
         expect(SIGNAGE_MEDIA_PICKER_ACCEPT).toContain('.heif');
@@ -72,6 +64,15 @@ describe('signage-media-upload util', () => {
         expect(
             validateSignageMediaDimensions({ width: 3840, height: 2161 }),
         ).toMatchObject({ valid: false });
+        expect(
+            validateSignageMediaDimensions({ width: 2161, height: 3840 }),
+        ).toMatchObject({ valid: false });
+    });
+
+    it('accepts portrait media within 4K resolution', () => {
+        expect(
+            validateSignageMediaDimensions({ width: 2160, height: 3840 }),
+        ).toEqual({ valid: true });
     });
 
     it('accepts MP4 uploads with H.264 video and AAC audio', async () => {

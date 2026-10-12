@@ -20,10 +20,10 @@ describe('ParkingFlowFormComponent', () => {
     let notify_open: any;
     let model: ReturnType<typeof signal<Record<string, any>>>;
     let valid_flag: boolean;
-    let form: any;
-    let user_details: ReturnType<typeof signal<any>>;
+    let form: unknown;
+    let user_details: ReturnType<typeof signal<unknown>>;
     let open_result: any;
-    let dismiss_value: any;
+    let dismiss_value: unknown;
 
     const createComponent = createComponentFactory({
         component: ParkingFlowFormComponent,
@@ -36,11 +36,11 @@ describe('ParkingFlowFormComponent', () => {
             // (whose fields aren't callable), throwing `this.field(...) is not
             // a function` asynchronously. Disable it so no template renders.
             { provide: ComponentFixtureAutoDetect, useValue: false },
-            MockProvider(BookingFormService, {} as any),
-            MockProvider(SettingsService, {} as any),
-            MockProvider(ParkingService, {} as any),
-            MockProvider(MatBottomSheet, {} as any),
-            MockProvider(Router, {} as any),
+            MockProvider(BookingFormService, {}),
+            MockProvider(SettingsService, {}),
+            MockProvider(ParkingService, {}),
+            MockProvider(MatBottomSheet, {}),
+            MockProvider(Router, {}),
         ],
     });
 
@@ -55,7 +55,7 @@ describe('ParkingFlowFormComponent', () => {
                 id: 'me',
                 email: 'me@test.com',
                 name: 'Me',
-            } as any),
+            }),
         );
         valid_flag = true;
         model = signal({
@@ -68,7 +68,7 @@ describe('ParkingFlowFormComponent', () => {
             plate_number: '',
         });
         form = () => ({ valid: () => valid_flag });
-        user_details = signal<any>(null);
+        user_details = signal<unknown>(null);
         dismiss_value = true;
         open_result = {
             instance: { show_close: { set: vi.fn() } },
@@ -85,23 +85,23 @@ describe('ParkingFlowFormComponent', () => {
                 } as any),
                 MockProvider(SettingsService, {
                     get: vi.fn(() => undefined),
-                } as any),
+                }),
                 MockProvider(ParkingService, {
                     user_details,
-                } as any),
+                }),
                 MockProvider(MatBottomSheet, {
                     open: vi.fn(() => open_result),
-                } as any),
+                }),
                 MockProvider(Router, { navigate: vi.fn() }),
             ],
         });
     });
 
-    afterEach(() => setNotifyOutlet(null as any, true));
+    afterEach(() => setNotifyOutlet(null, true));
 
     it('should notify the user and not open the confirm sheet when the form is invalid', () => {
         valid_flag = false;
-        const sheet: any = spectator.inject(MatBottomSheet);
+        const sheet = spectator.inject(MatBottomSheet);
 
         spectator.component.viewConfirm();
 
@@ -136,7 +136,7 @@ describe('ParkingFlowFormComponent', () => {
     });
 
     it('should open the confirm sheet and enable its close button when the form is valid', () => {
-        const sheet: any = spectator.inject(MatBottomSheet);
+        const sheet = spectator.inject(MatBottomSheet);
 
         spectator.component.viewConfirm();
 
@@ -146,8 +146,8 @@ describe('ParkingFlowFormComponent', () => {
 
     it('should navigate to the success step when the confirm sheet is dismissed with a value', () => {
         dismiss_value = true;
-        const router: any = spectator.inject(Router);
-        const state: any = spectator.inject(BookingFormService);
+        const router = spectator.inject(Router);
+        const state = spectator.inject(BookingFormService);
 
         spectator.component.viewConfirm();
 
@@ -161,7 +161,7 @@ describe('ParkingFlowFormComponent', () => {
 
     it('should not navigate when the confirm sheet is dismissed without a value', () => {
         dismiss_value = undefined;
-        const router: any = spectator.inject(Router);
+        const router = spectator.inject(Router);
 
         spectator.component.viewConfirm();
 
@@ -169,7 +169,7 @@ describe('ParkingFlowFormComponent', () => {
     });
 
     it('should reset the form via the state service when cleared', () => {
-        const state: any = spectator.inject(BookingFormService);
+        const state = spectator.inject(BookingFormService);
 
         spectator.component.clearForm();
 
@@ -188,7 +188,7 @@ describe('ParkingFlowFormComponent', () => {
 
     it('should prefer the configured plate number setting over the user details', async () => {
         user_details.set({ email: 'me@test.com', plate_number: 'XYZ789' });
-        const settings: any = spectator.inject(SettingsService);
+        const settings = spectator.inject(SettingsService);
         settings.get.mockImplementation((key: string) =>
             key === 'plate_number' ? 'SETTING1' : undefined,
         );

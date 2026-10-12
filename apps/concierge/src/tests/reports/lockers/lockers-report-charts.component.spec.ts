@@ -8,16 +8,16 @@ import { LockersReportService } from 'apps/concierge/src/app/reports/lockers/loc
 
 describe('LockersReportChartsComponent', () => {
     let spectator: Spectator<LockersReportChartsComponent>;
-    let daily_stats: ReturnType<typeof signal<any>>;
-    let counts: ReturnType<typeof signal<any>>;
-    let bookings: ReturnType<typeof signal<any>>;
+    let daily_stats: ReturnType<typeof signal<unknown>>;
+    let counts: ReturnType<typeof signal<unknown>>;
+    let bookings: ReturnType<typeof signal<unknown>>;
 
     const day = new Date('2026-04-06T00:00:00').valueOf();
 
     const createComponent = createComponentFactory({
         component: LockersReportChartsComponent,
         providers: [
-            MockProvider(LockersReportService, {} as any),
+            MockProvider(LockersReportService, {}),
             MockProvider(SettingsService, {
                 get: vi.fn(() => false),
             } as any),

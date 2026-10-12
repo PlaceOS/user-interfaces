@@ -8,7 +8,7 @@ describe('ZoneSelectModalComponent', () => {
     const flush = () => new Promise((resolve) => setTimeout(resolve));
     const querySelectableZones = vi.fn();
     const zoneChildren = vi.fn();
-    const root_zones = signal<any[]>([]);
+    const root_zones = signal<unknown[]>([]);
     const service = { querySelectableZones, root_zones, zoneChildren };
     const dialog_ref = { close: vi.fn() };
 
@@ -71,6 +71,24 @@ describe('ZoneSelectModalComponent', () => {
         await new Promise((resolve) => setTimeout(resolve, 450));
 
         expect(querySelectableZones).toHaveBeenCalledWith(' lobby ', 'z1');
+    });
+
+    it('searches without selecting a zone first', async () => {
+        const fixture = TestBed.createComponent(ZoneSelectModalComponent);
+        fixture.detectChanges();
+        fixture.componentInstance.list.search.set(' lobby ');
+        await new Promise((resolve) => setTimeout(resolve, 450));
+        expect(querySelectableZones).toHaveBeenCalledWith(' lobby ', '');
+    });
+
+    it('keeps the picker empty after a failed search', async () => {
+        querySelectableZones.mockRejectedValue(new Error('403'));
+        const fixture = TestBed.createComponent(ZoneSelectModalComponent);
+        fixture.detectChanges();
+        fixture.componentInstance.list.search.set('lobby');
+        await new Promise((resolve) => setTimeout(resolve, 450));
+        expect(querySelectableZones).toHaveBeenCalledWith('lobby', '');
+        expect(fixture.componentInstance.list.items()).toEqual([]);
     });
 
     it('closes with the confirmed zone id', () => {

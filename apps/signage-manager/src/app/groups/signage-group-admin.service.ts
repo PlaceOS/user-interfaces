@@ -6,6 +6,7 @@ import {
     Injectable,
     resource,
     signal,
+    untracked,
 } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { i18n, notifyError, notifySuccess, notifyWarn } from '@placeos/common';
@@ -20,6 +21,7 @@ import {
     PlaceGroupZone,
     PlaceUser,
     PlaceZone,
+    type PlaceZoneQueryOptions,
     queryGroupUsers,
     queryGroupZones,
     type QueryResponse,
@@ -36,6 +38,7 @@ import {
 import { decodeEntityNames } from '../shared/decode-entity-names.util';
 import {
     groupHierarchy,
+    lastLoaded,
     SignageContextService,
     SignageGroupPermission,
     sortGroups,
@@ -50,7 +53,7 @@ import {
     SignageGroupAccess,
     signageGroupAccess,
 } from '../signage-group-access';
-import { PAGE_SIZE, searchParam } from '../signage-service.util';
+import { PAGE_SIZE, queryAll, searchParam } from '../signage-service.util';
 
 /** Users or zones of one group, with the group they were read for */
 interface ManagedGroupList<T> {
@@ -91,59 +94,35 @@ export class SignageGroupAdminService {
         Record<string, boolean>
     >({});
 
+    // Every group the user manages, all pages of them, so the group tree
+    // builds from this one list
     private readonly _manageable_signage_groups = resource({
         params: () => ({
             user_email: this._context.active_user()?.email || '',
             groups_change: this._context.groups_change(),
             can_manage_all: this._context.can_manage_all_groups(),
         }),
+        // A failed load fails the resource, so the last loaded list stays
         loader: async ({ params }) => {
             if (!params.user_email) return [] as PlaceGroup[];
-            try {
-                const groups = params.can_manage_all
-                    ? await this._context.queryManageableGroups()
-                    : await this._currentManageableGroups(params.groups_change);
-                return sortGroups(groups);
-            } catch {
-                return [] as PlaceGroup[];
-            }
+            const groups = params.can_manage_all
+                ? await this._context.allSignageGroups(params.groups_change)
+                : await this._currentManageableGroups(params.groups_change);
+            return sortGroups(groups);
         },
     });
-    public readonly manageable_signage_groups = computed(
-        () => this._manageable_signage_groups.value() || [],
+    // Keeps the list while a save reloads it, or when the reload fails, so
+    // the selection and the open tree branches stay
+    private readonly _loaded_manageable_signage_groups = lastLoaded(
+        this._manageable_signage_groups,
+        () => this._context.active_user()?.email,
     );
-    private readonly _root_manageable_signage_groups = resource({
-        params: () => ({
-            user_email: this._context.active_user()?.email || '',
-            groups_change: this._context.groups_change(),
-            can_manage_all: this._context.can_manage_all_groups(),
-        }),
-        loader: async ({ params }) => {
-            if (!params.user_email) return [] as PlaceGroup[];
-            try {
-                if (params.can_manage_all) {
-                    return this._context.queryManageableGroups({
-                        parent_id: 'root',
-                        include_children_count: true,
-                    });
-                }
-                const groups = await this._currentManageableGroups(
-                    params.groups_change,
-                );
-                const group_ids = new Set(groups.map((group) => group.id));
-                return sortGroups(
-                    groups.filter(
-                        (group) =>
-                            !group.parent_id || !group_ids.has(group.parent_id),
-                    ),
-                );
-            } catch {
-                return [] as PlaceGroup[];
-            }
-        },
-    });
-    public readonly root_manageable_signage_groups = computed(
-        () => this._root_manageable_signage_groups.value() || [],
+    public readonly manageable_signage_groups = computed(
+        () => this._loaded_manageable_signage_groups() || [],
+    );
+    /** Whether the last read of the group list failed */
+    public readonly manageable_signage_groups_failed = computed(
+        () => !!this._manageable_signage_groups.error(),
     );
     public readonly managed_group = computed(() => {
         const group_id = this.managed_group_id();
@@ -151,33 +130,30 @@ export class SignageGroupAdminService {
             (group) => group.id === group_id,
         );
     });
+    // Email of the user the first group opened for. After that an empty
+    // selection is the user's choice, such as the back button on mobile. A
+    // new user gets their first group opened again.
+    private _first_group_opened_for?: string;
 
     constructor() {
         effect(() => {
             const groups = this.manageable_signage_groups();
             const group_id = this.managed_group_id();
-            if (!groups.length) {
-                this.managed_group_id.set('');
+            const email = this._context.active_user()?.email;
+            if (group_id) {
+                // The group was removed or the user lost access to it
+                if (!groups.some((group) => group.id === group_id)) {
+                    this.managed_group_id.set('');
+                } else {
+                    this._first_group_opened_for = email;
+                }
             } else if (
-                !group_id ||
-                !groups.some((group) => group.id === group_id)
+                groups.length &&
+                this._first_group_opened_for !== email
             ) {
+                this._first_group_opened_for = email;
                 this.managed_group_id.set(groups[0].id);
             }
-        });
-    }
-
-    public async groupChildren(parent_id: string) {
-        if (!this._context.can_manage_all_groups()) {
-            return sortGroups(
-                this.manageable_signage_groups().filter(
-                    (group) => group.parent_id === parent_id,
-                ),
-            );
-        }
-        return this._context.queryManageableGroups({
-            parent_id,
-            include_children_count: true,
         });
     }
 
@@ -194,64 +170,78 @@ export class SignageGroupAdminService {
     // then stay hidden while the debounced group switch catches up, so they
     // can't be changed by mistake.
     private _managedGroupResource<T>(load: (group_id: string) => Promise<T[]>) {
-        return resource({
+        const list = resource({
             params: () => ({
                 group_id: this._managed_group_id_debounced.value(),
                 groups_change: this._context.groups_change(),
             }),
-            loader: async ({ params: { group_id } }) => {
+            loader: async ({
+                params: { group_id },
+            }): Promise<ManagedGroupList<T>> => {
                 if (!group_id) return managedGroupList<T>('');
                 return load(group_id).then(
                     (items) => managedGroupList(group_id, items),
-                    () => managedGroupList<T>(group_id, [], true),
+                    () => {
+                        // Keep the rows already shown for the group, and
+                        // mark the list as failed so the panel shows an error
+                        const shown = untracked(rows);
+                        return managedGroupList<T>(
+                            group_id,
+                            shown?.group_id === group_id ? shown.items : [],
+                            true,
+                        );
+                    },
                 );
             },
         });
+        // A save reloads the list. Keep the rows until the new ones arrive.
+        const rows = lastLoaded(list);
+        return rows;
     }
 
     private readonly _managed_group_users = this._managedGroupResource(
         async (group_id) => {
-            const { data } = await queryGroupUsers({ group_id, limit: 1000 });
-            return data
-                .map(decodeEntityNames)
-                .sort((a, b) =>
-                    (a.user?.name || a.user_id).localeCompare(
-                        b.user?.name || b.user_id,
-                    ),
-                );
+            const users = await queryAll(
+                queryGroupUsers({ group_id, limit: PAGE_SIZE }),
+            );
+            return users.sort((a, b) =>
+                (a.user?.name || a.user_id).localeCompare(
+                    b.user?.name || b.user_id,
+                ),
+            );
         },
     );
     /** Users of the managed group. Empty until they load. */
     public readonly managed_group_users = computed(() =>
-        this._managedGroupRows(this._managed_group_users.value()),
+        this._managedGroupRows(this._managed_group_users()),
     );
     public readonly managed_group_users_loading = computed(() =>
-        this._managedGroupLoading(this._managed_group_users.value()),
+        this._managedGroupLoading(this._managed_group_users()),
     );
     public readonly managed_group_users_failed = computed(() =>
-        this._managedGroupFailed(this._managed_group_users.value()),
+        this._managedGroupFailed(this._managed_group_users()),
     );
     private readonly _managed_group_zones = this._managedGroupResource(
         async (group_id) => {
-            const { data } = await queryGroupZones({ group_id, limit: 200 });
-            return data
-                .map(decodeEntityNames)
-                .sort((a, b) =>
-                    (a.zone?.name || a.zone_id).localeCompare(
-                        b.zone?.name || b.zone_id,
-                    ),
-                );
+            const zones = await queryAll(
+                queryGroupZones({ group_id, limit: PAGE_SIZE }),
+            );
+            return zones.sort((a, b) =>
+                (a.zone?.name || a.zone_id).localeCompare(
+                    b.zone?.name || b.zone_id,
+                ),
+            );
         },
     );
     /** Zones of the managed group. Empty until they load. */
     public readonly managed_group_zones = computed(() =>
-        this._managedGroupRows(this._managed_group_zones.value()),
+        this._managedGroupRows(this._managed_group_zones()),
     );
     public readonly managed_group_zones_loading = computed(() =>
-        this._managedGroupLoading(this._managed_group_zones.value()),
+        this._managedGroupLoading(this._managed_group_zones()),
     );
     public readonly managed_group_zones_failed = computed(() =>
-        this._managedGroupFailed(this._managed_group_zones.value()),
+        this._managedGroupFailed(this._managed_group_zones()),
     );
 
     private _managedGroupRows<T>(list: ManagedGroupList<T> | undefined) {
@@ -269,13 +259,17 @@ export class SignageGroupAdminService {
     /** Zones a managed group can be given access to, not just signage ones */
     public queryGroupZones(search = ''): QueryResponse<PlaceZone> | null {
         const group = this.managed_group();
-        return queryZones({
-            limit: PAGE_SIZE,
-            ...(group?.authority_id
-                ? { authority_id: group.authority_id }
-                : {}),
-            ...searchParam(search),
-        } as any);
+        // The zones index takes `authority_id`, which the client options
+        // do not type
+        const query_params: PlaceZoneQueryOptions & { authority_id?: string } =
+            {
+                limit: PAGE_SIZE,
+                ...(group?.authority_id
+                    ? { authority_id: group.authority_id }
+                    : {}),
+                ...searchParam(search),
+            };
+        return queryZones(query_params);
     }
 
     /**
@@ -356,7 +350,7 @@ export class SignageGroupAdminService {
             'SIGNAGE_MANAGER.SVC_ERR_SAVE_GROUP',
             'SIGNAGE_MANAGER.SVC_GROUP_ACCESS_SAVED',
         );
-        return signageGroupAccess(result);
+        return result && signageGroupAccess(result);
     }
 
     /** Search the organisation directory for AD groups. Fails when the
@@ -442,12 +436,14 @@ export class SignageGroupAdminService {
             this._dialog,
         );
         if (result.reason !== 'done') return;
-        await this._saveGroupChange(
-            removeGroup(group.id).finally(() => result.close()),
+        const removed = await this._saveGroupChange(
+            removeGroup(group.id)
+                .then(() => true)
+                .finally(() => result.close()),
             'SIGNAGE_MANAGER.SVC_ERR_REMOVE_GROUP',
             'SIGNAGE_MANAGER.SVC_GROUP_REMOVED',
         );
-        if (this._context.selected_group_id() === group.id) {
+        if (removed && this._context.selected_group_id() === group.id) {
             this._context.selected_group_id.set('');
         }
     }
@@ -592,17 +588,21 @@ export class SignageGroupAdminService {
 
     /**
      * Wait for a group save, then reload the group lists and confirm it.
-     * Shows an error and rethrows when the save fails.
+     * Shows an error and returns null when the save fails, so callers bound
+     * to clicks do not leave a rejected promise.
      */
     private async _saveGroupChange<T>(
         request: Promise<T>,
         error_key: string,
         success_key: string,
-    ) {
-        const result = await request.catch((error) => {
+    ): Promise<T | null> {
+        let result: T;
+        try {
+            result = await request;
+        } catch {
             notifyError(i18n(error_key));
-            throw error;
-        });
+            return null;
+        }
         this._context.reloadSignageGroups();
         notifySuccess(i18n(success_key));
         return result;

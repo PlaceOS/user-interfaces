@@ -48,7 +48,7 @@ describe('CheckinInductionComponent', () => {
             {
                 provide: CheckinStateService,
                 useValue: {
-                    event: signal<any>({ induction: 'pending' }),
+                    event: signal<unknown>({ induction: 'pending' }),
                     declineInduction: vi.fn(async () => null),
                     completeInduction: vi.fn(async () => null),
                     checkinGuest: vi.fn(async () => null),
@@ -57,7 +57,7 @@ describe('CheckinInductionComponent', () => {
             },
             MockProvider(OrganisationService, {
                 waitUntilInitialised: async () => null,
-            } as any),
+            }),
         ],
         imports: [MatCheckboxModule, FormsModule],
     });
@@ -73,7 +73,7 @@ describe('CheckinInductionComponent', () => {
         });
     });
 
-    afterEach(() => setNotifyOutlet(null as any, true));
+    afterEach(() => setNotifyOutlet(null, true));
 
     describe('ngOnInit navigation', () => {
         it('redirects to checkin when there is no event', async () => {
@@ -201,10 +201,8 @@ describe('CheckinInductionComponent', () => {
             expect(state.completeInduction).toHaveBeenCalledTimes(1);
             expect(state.checkinGuest).toHaveBeenCalledTimes(1);
             expect(
-                (state.completeInduction as any).mock.invocationCallOrder[0],
-            ).toBeLessThan(
-                (state.checkinGuest as any).mock.invocationCallOrder[0],
-            );
+                state.completeInduction.mock.invocationCallOrder[0],
+            ).toBeLessThan(state.checkinGuest.mock.invocationCallOrder[0]);
         });
     });
 

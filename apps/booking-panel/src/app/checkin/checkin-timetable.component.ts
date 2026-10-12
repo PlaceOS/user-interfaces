@@ -3,6 +3,7 @@ import {
     Component,
     effect,
     input,
+    OnInit,
     output,
     signal,
 } from '@angular/core';
@@ -94,7 +95,7 @@ interface EventBlock {
     changeDetection: ChangeDetectionStrategy.Eager,
     imports: [],
 })
-export class CheckinTimetableComponent extends AsyncHandler {
+export class CheckinTimetableComponent extends AsyncHandler implements OnInit {
     public readonly events = input<CalendarEvent[]>([]);
     public readonly step = input(15);
     public readonly event = output<number>();

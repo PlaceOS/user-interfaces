@@ -3,9 +3,9 @@ import { log } from './general';
 
 declare global {
     interface Window {
-        ga: any;
-        gtag: any;
-        dataLayer: any[];
+        ga: unknown;
+        gtag: unknown;
+        dataLayer: unknown[];
         debug: boolean;
     }
 }

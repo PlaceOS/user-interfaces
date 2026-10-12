@@ -55,7 +55,7 @@ export function signageTemplateLayoutChanges(
     return changes;
 }
 
-export function signageTemplateLayoutsEqual(
+function signageTemplateLayoutsEqual(
     current: SignageTemplateLayout,
     older?: SignageTemplateLayout,
 ) {

@@ -94,7 +94,7 @@ export class MockBookingModule {
     }
 
     /** End the meeting that begins at `t` (unix seconds) */
-    $end_meeting(t: number, notify?: boolean, reason?: string) {
+    $end_meeting(t: number, _notify?: boolean, _reason?: string) {
         const booking =
             this.bookings.find((_) => _.event_start === t) ||
             this.current_booking;
@@ -123,7 +123,7 @@ export class MockBookingModule {
     }
 
     /** Check in to the pending booking */
-    $checkin(time: number) {
+    $checkin(_time: number) {
         const booking = this.current_booking || this.next_booking;
         if (!booking || this.status !== 'pending') return;
         this._started.add(booking.id);

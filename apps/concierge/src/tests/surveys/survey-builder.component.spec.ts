@@ -19,8 +19,8 @@ describe('SurveyBuilderComponent', () => {
     const editQuestion = vi.fn();
     const removeQuestion = vi.fn();
     const service_survey = signal<any>(null);
-    const filtered_questions = signal<any[]>([]);
-    const questions = signal<any[]>([]);
+    const filtered_questions = signal<unknown[]>([]);
+    const questions = signal<unknown[]>([]);
     let param_map: any;
 
     const createComponent = createComponentFactory({
@@ -45,7 +45,7 @@ describe('SurveyBuilderComponent', () => {
                 get paramMap() {
                     return param_map;
                 },
-            } as any),
+            }),
         ],
     });
 
@@ -66,7 +66,7 @@ describe('SurveyBuilderComponent', () => {
     });
 
     afterEach(() => {
-        setNotifyOutlet(null as any, true);
+        setNotifyOutlet(null, true);
     });
 
     it('should add a page and expose the active page value', () => {
@@ -234,7 +234,7 @@ describe('SurveyBuilderComponent', () => {
 
         await spectator.component.saveSurvey();
 
-        const body = vi.mocked(ts_client.addSurvey).mock.calls[0][0] as any;
+        const body = vi.mocked(ts_client.addSurvey).mock.calls[0][0];
         expect('id' in body).toBe(false);
         expect(body.trigger).toBe('NONE');
     });

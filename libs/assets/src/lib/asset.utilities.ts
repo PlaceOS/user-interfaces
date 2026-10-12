@@ -9,9 +9,9 @@ import {
     SignalFormRef,
     stringToMinutes,
 } from '@placeos/common';
-import { AttachedResourceRuleset } from '@placeos/components';
 import { showMetadata } from '@placeos/ts-client';
 import { isAfter, isBefore, setHours, subHours } from 'date-fns';
+import { AttachedResourceRuleset } from 'libs/components/src/lib/attached-resource-config-modal.component';
 
 export function generateAssetCategoryForm(
     category: Partial<PlaceAssetCategory> = {},

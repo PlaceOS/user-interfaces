@@ -1,12 +1,16 @@
-import type { OrganisationService, Space } from '@placeos/common';
 import { CateringOrder } from '@placeos/common';
 import { format } from 'date-fns';
 import { i18n } from 'libs/common/src/lib/locale.service';
-import { SpacePipe } from 'libs/events/src/lib/space.pipe';
 
+import {
+    orderHost,
+    orderItemsText,
+    orderLocation,
+} from './catering-order-details';
 import { statusList } from './catering.vars';
 
-const SPACE_PIPE = new SpacePipe();
+// Operations on lists of catering orders. Display details of one order are
+// in catering-order-details.
 
 /** Total amount of one menu item in a list of orders */
 export interface PrepSummaryItem {
@@ -32,38 +36,6 @@ export interface DeliveryRun {
 export interface OrderChanges {
     added: CateringOrder[];
     cancelled: CateringOrder[];
-}
-
-/** Room name or location text of an order */
-export function orderLocation(order: CateringOrder) {
-    const space =
-        (order as CateringOrder & { space?: ReturnType<SpacePipe['get']> })
-            .space ||
-        order.event?.system ||
-        SPACE_PIPE.get(
-            order.system_id || order.event?.extension_data.system_id,
-        );
-    return order.event?.location || space?.display_name || space?.name || '';
-}
-
-/** Name or email of the host of an order */
-export function orderHost(order: CateringOrder) {
-    return (
-        order.event?.organiser?.name ||
-        order.event?.host ||
-        order.event?.organiser?.email ||
-        ''
-    );
-}
-
-/** Items of an order as text, e.g. "2× Coffee (Oat milk); 1× Muffin" */
-export function orderItemsText(order: CateringOrder) {
-    return order.items
-        .map((item) => {
-            const options = item.option_list.map((o) => o.name).join(', ');
-            return `${item.quantity}× ${item.name}${options ? ` (${options})` : ''}`;
-        })
-        .join('; ');
 }
 
 /**
@@ -172,23 +144,4 @@ export function ordersToCsvRows(orders: readonly CateringOrder[]) {
         [i18n('CATERING.TOTAL_COST')]: (order.total_cost / 100).toFixed(2),
         [i18n('FORM.NOTES')]: order.notes,
     }));
-}
-
-/**
- * Make a function that finds the level of an order from its room.
- * @param org Organisation data with the list of levels
- */
-export function orderLevelFinder(
-    org: Pick<OrganisationService, 'levelWithID'>,
-) {
-    return (order: CateringOrder) => {
-        const space =
-            (order as CateringOrder & { space?: Space }).space ||
-            order.event?.system;
-        const level =
-            org.levelWithID([...(space?.zones || [])]) ||
-            (space as Partial<Space>)?.level;
-        if (!level?.id) return null;
-        return { id: level.id, name: level.display_name || level.name };
-    };
 }

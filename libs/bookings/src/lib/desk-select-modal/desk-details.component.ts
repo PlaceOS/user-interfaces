@@ -7,7 +7,7 @@ import { ImageCarouselComponent } from 'libs/components/src/lib/image-carousel.c
 import { InteractiveMapComponent } from 'libs/components/src/lib/interactive-map.component';
 import { MapPinComponent } from 'libs/components/src/lib/map-pin.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
-import { BookingAsset } from '../booking-form.service';
+import { BookingAsset } from '../booking-form.types';
 
 @Component({
     selector: 'desk-details',
@@ -158,12 +158,10 @@ import { BookingAsset } from '../booking-form.service';
 export class DeskDetailsComponent {
     public readonly desk = input<BookingAsset>(undefined);
     public readonly fav = input(false);
-    public readonly active = input(false);
     public readonly hide_map = input(false);
 
     public readonly close = output<void>();
     public readonly toggleFav = output<void>();
-    public readonly activeChange = output<void>();
 
     public readonly map_url = computed(() => this.desk()?.zone?.map_id || '');
     public readonly features = computed<ViewerFeature[]>(() => {

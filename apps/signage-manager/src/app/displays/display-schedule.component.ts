@@ -1,5 +1,5 @@
 import { DatePipe } from '@angular/common';
-import { Component, computed, inject, resource, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterLink } from '@angular/router';
@@ -12,8 +12,6 @@ import {
     buildDisplayScheduleAssignments,
     buildScheduleBlocks,
 } from '../schedules/signage-schedule.util';
-import { SignageContextService } from '../signage-context.service';
-import { SignageTemplateService } from '../templates/signage-template.service';
 import { buildDisplayScheduleDays } from './display-schedule.util';
 import { SignageDisplayService } from './signage-display.service';
 
@@ -324,10 +322,8 @@ import { SignageDisplayService } from './signage-display.service';
     ],
 })
 export class DisplayScheduleComponent {
-    private readonly _context = inject(SignageContextService);
     private readonly _display_service = inject(SignageDisplayService);
     private readonly _playlist_service = inject(SignagePlaylistService);
-    private readonly _template_service = inject(SignageTemplateService);
 
     public readonly selected_display = this._display_service.selected_display;
     private readonly _zones = this._display_service.selected_display_zones;
@@ -362,23 +358,12 @@ export class DisplayScheduleComponent {
         return buildScheduleBlocks(this.display_assignments(), days);
     });
 
-    private readonly _template_mappings = resource({
-        params: () =>
-            this._context.templates_enabled()
-                ? this.selected_display()?.id
-                : undefined,
-        loader: ({ params }) =>
-            this._template_service.listTemplateMappings({
-                control_system_id: params,
-            }),
-    });
-    public readonly templates_loading = this._template_mappings.isLoading;
-    public readonly templates_error = this._template_mappings.error;
-    public readonly template_mappings = computed(() =>
-        this._template_mappings.hasValue()
-            ? this._template_mappings.value()
-            : [],
-    );
+    public readonly templates_loading =
+        this._display_service.selected_display_template_mappings_loading;
+    public readonly templates_error =
+        this._display_service.selected_display_template_mappings_error;
+    public readonly template_mappings =
+        this._display_service.selected_display_template_mappings;
 
     public readonly day_blocks = computed(() =>
         buildDisplayScheduleDays(

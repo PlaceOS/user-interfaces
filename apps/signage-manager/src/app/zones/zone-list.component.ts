@@ -14,8 +14,13 @@ import { MatInputModule } from '@angular/material/input';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { Router, RouterLink } from '@angular/router';
 import { OrganisationService } from '@placeos/common';
-import { IconComponent, TranslatePipe } from '@placeos/components';
+import {
+    IconComponent,
+    LoadErrorComponent,
+    TranslatePipe,
+} from '@placeos/components';
 import { PlaceZone } from '@placeos/ts-client';
+import { zoneSearchLabel } from '../shared/zone-select-tree.component';
 import { SignageZoneService } from './signage-zone.service';
 
 interface ZoneTreeNode {
@@ -34,6 +39,8 @@ interface FlatZoneTreeNode extends ZoneTreeNode {
 @Component({
     selector: 'zone-list',
     template: `
+        @let search_text =
+            search_label().key | translate: search_label().params;
         <div
             class="bg-base-100 border-base-300 h-full min-w-64 overflow-auto border-r sm:max-w-80"
         >
@@ -44,34 +51,18 @@ interface FlatZoneTreeNode extends ZoneTreeNode {
                 >
                     <input
                         matInput
-                        [disabled]="!search_enabled()"
-                        [placeholder]="
-                            'SIGNAGE_MANAGER.SEARCH_IN_ZONE'
-                                | translate
-                                    : {
-                                          name:
-                                              selected()?.display_name ||
-                                              selected()?.name ||
-                                              '',
-                                      }
-                        "
-                        [ngModel]="search()"
-                        (ngModelChange)="search.set($event)"
-                        [attr.aria-label]="
-                            'SIGNAGE_MANAGER.SEARCH_IN_ZONE'
-                                | translate
-                                    : {
-                                          name:
-                                              selected()?.display_name ||
-                                              selected()?.name ||
-                                              '',
-                                      }
-                        "
+                        [placeholder]="search_text"
+                        [(ngModel)]="search"
+                        [attr.aria-label]="search_text"
                     />
                 </mat-form-field>
             </div>
 
             @if (tree_nodes().length) {
+                @if (error()) {
+                    <!-- Some lists loaded, so the tree may lack zones -->
+                    <load-error (retry)="retry()" />
+                }
                 <cdk-tree
                     class="zone-tree"
                     [dataSource]="flat_tree_nodes()"
@@ -220,6 +211,15 @@ interface FlatZoneTreeNode extends ZoneTreeNode {
                         }
                     </cdk-tree-node>
                 </cdk-tree>
+            } @else if (loading()) {
+                <div
+                    class="text-base-content/70 flex flex-1 flex-col items-center justify-center p-8"
+                    role="status"
+                >
+                    {{ 'COMMON.LOADING' | translate }}
+                </div>
+            } @else if (error()) {
+                <load-error (retry)="retry()" />
             } @else {
                 <div
                     class="text-base-content/70 flex flex-1 flex-col items-center justify-center space-y-2 p-8"
@@ -252,6 +252,7 @@ interface FlatZoneTreeNode extends ZoneTreeNode {
         MatTooltipModule,
         CdkTreeModule,
         IconComponent,
+        LoadErrorComponent,
         TranslatePipe,
     ],
 })
@@ -269,9 +270,13 @@ export class ZoneListComponent {
     public readonly search = this._zone_service.zone_search_term;
     public readonly zones = this._zone_service.filtered_zones;
     public readonly selected = this._zone_service.selected_zone;
-    public readonly search_enabled = computed(() => !!this.selected()?.id);
+    public readonly loading = this._zone_service.zones_loading;
+    public readonly error = this._zone_service.zones_error;
+    public readonly search_label = computed(() =>
+        zoneSearchLabel(this.selected()),
+    );
     public readonly show_search_results = computed(
-        () => this.search_enabled() && !!this.search().trim(),
+        () => !!this.search().trim(),
     );
     public readonly tree_nodes = signal<ZoneTreeNode[]>([]);
     public readonly expanded_zones = this._zone_service.zone_tree_expanded;
@@ -392,6 +397,10 @@ export class ZoneListComponent {
         this.loadNodeChildren(current);
     }
 
+    public retry() {
+        this._zone_service.reloadZones();
+    }
+
     public retryChildren(node: ZoneTreeNode) {
         this.loadNodeChildren(node);
     }
@@ -422,21 +431,24 @@ export class ZoneListComponent {
 
     /** Whether the node shows an expand control */
     public canExpand(node: FlatZoneTreeNode) {
-        return (
-            this.childCount(node) > 0 &&
-            !(this.show_search_results() && node.level === 0)
-        );
+        return this.childCount(node) > 0 && !this.isSearchScope(node.zone.id);
     }
 
     public isExpanded(zone_or_node: ZoneTreeNode | PlaceZone | string) {
         const zone_id = this.getZoneId(zone_or_node);
-        if (this.show_search_results() && this.selected()?.id === zone_id) {
-            return true;
-        }
+        if (this.isSearchScope(zone_id)) return true;
         const expanded_zones = this.expanded_zones();
-        return zone_id in expanded_zones
-            ? expanded_zones[zone_id]
-            : this._root_zones()[0]?.id === zone_id;
+        if (zone_id in expanded_zones) return expanded_zones[zone_id];
+        // A matching root opens only on request, so its children do not
+        // show as matches
+        return (
+            !this.show_search_results() && this._root_zones()[0]?.id === zone_id
+        );
+    }
+
+    /** Whether the zone holds the search results, so it stays open */
+    private isSearchScope(zone_id: string) {
+        return this.show_search_results() && this.selected()?.id === zone_id;
     }
 
     public childCount(zone_or_id: ZoneTreeNode | PlaceZone | string) {

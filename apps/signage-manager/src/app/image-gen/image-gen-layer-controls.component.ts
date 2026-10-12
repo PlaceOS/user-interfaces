@@ -1,6 +1,6 @@
 import { Component, computed, input, output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { MatButtonModule } from '@angular/material/button';
+import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
@@ -15,6 +15,7 @@ import {
     ImageGenTextBlock,
     ImageGenTextRole,
 } from './image-gen.types';
+import { hexColour } from './image-gen.util';
 
 /** first block sits under the top left margin, each next one below it */
 const FIRST_Y = 0.06;
@@ -31,7 +32,7 @@ export function newTextBlock(
         x: 0.06,
         y: FIRST_Y + BLOCK_GAP * index,
         align: 'left',
-        colour: '#FFFFFF',
+        colour: '#ffffff',
         font: '',
         panel: true,
     };
@@ -50,13 +51,12 @@ export function newTextBlock(
 
             @for (block of state().blocks; track block.id) {
                 <div
-                    class="border-base-content/10 flex flex-col gap-2 rounded border p-3"
+                    class="border-base-300 flex flex-col gap-2 rounded-lg border p-3"
                 >
                     <div class="flex items-start gap-2">
                         <mat-form-field
                             appearance="outline"
-                            class="flex-1"
-                            subscriptSizing="dynamic"
+                            class="no-subscript flex-1"
                         >
                             <textarea
                                 matInput
@@ -92,8 +92,7 @@ export function newTextBlock(
                     <div class="flex flex-wrap items-center gap-2">
                         <mat-form-field
                             appearance="outline"
-                            class="w-32"
-                            subscriptSizing="dynamic"
+                            class="no-subscript w-32"
                         >
                             <mat-select
                                 [ngModel]="block.role"
@@ -122,8 +121,7 @@ export function newTextBlock(
 
                         <mat-form-field
                             appearance="outline"
-                            class="w-32"
-                            subscriptSizing="dynamic"
+                            class="no-subscript w-32"
                         >
                             <mat-select
                                 [ngModel]="block.align"
@@ -152,8 +150,7 @@ export function newTextBlock(
 
                         <mat-form-field
                             appearance="outline"
-                            class="w-full"
-                            subscriptSizing="dynamic"
+                            class="no-subscript w-full"
                         >
                             <mat-select
                                 [ngModel]="block.font"
@@ -183,16 +180,17 @@ export function newTextBlock(
                         @for (colour of palette(); track colour) {
                             <button
                                 type="button"
-                                class="border-base-content/20 h-6 w-6 rounded-full border"
+                                class="border-base-300 ring-primary ring-offset-base-100 h-6 w-6 rounded-full border ring-offset-2"
                                 [style.background]="colour"
                                 [class.ring-2]="block.colour === colour"
+                                [attr.aria-pressed]="block.colour === colour"
                                 (click)="patchBlock(block.id, { colour })"
                                 [attr.aria-label]="colour"
                             ></button>
                         }
                         <input
                             type="color"
-                            class="border-base-content/20 h-6 w-8 cursor-pointer rounded border bg-transparent p-0"
+                            class="border-base-300 h-6 w-8 cursor-pointer rounded border bg-transparent p-0"
                             [value]="block.colour"
                             (input)="setBlockColour(block.id, $event)"
                             [matTooltip]="
@@ -220,28 +218,28 @@ export function newTextBlock(
             }
 
             <button
-                mat-stroked-button
+                btn
+                matRipple
                 type="button"
-                class="self-start"
+                class="inverse self-start"
                 (click)="addBlock()"
             >
                 {{ 'SIGNAGE_MANAGER.IMAGE_GEN_ADD_TEXT' | translate }}
             </button>
 
             <div
-                class="border-base-content/10 flex flex-wrap items-center gap-3 rounded border p-3"
+                class="border-base-300 flex flex-wrap items-center gap-3 rounded-lg border p-3"
             >
                 @if (!has_logo()) {
                     <span class="text-sm">{{
-                        (can_set_logo()
-                            ? 'SIGNAGE_MANAGER.IMAGE_GEN_NO_LOGO_YET'
-                            : 'SIGNAGE_MANAGER.IMAGE_GEN_NO_LOGO_ADMIN'
-                        ) | translate
+                        no_logo_note() | translate
                     }}</span>
                     @if (can_set_logo()) {
                         <button
-                            mat-stroked-button
+                            btn
+                            matRipple
                             type="button"
+                            class="inverse"
                             [disabled]="uploading()"
                             (click)="logo_input.click()"
                         >
@@ -263,8 +261,7 @@ export function newTextBlock(
                     @if (state().logo) {
                         <mat-form-field
                             appearance="outline"
-                            class="w-36"
-                            subscriptSizing="dynamic"
+                            class="no-subscript w-36"
                         >
                             <mat-select
                                 [ngModel]="state().logo_position"
@@ -299,17 +296,16 @@ export function newTextBlock(
                         @if (has_both_logos()) {
                             <mat-form-field
                                 appearance="outline"
-                                class="w-44"
-                                subscriptSizing="dynamic"
+                                class="no-subscript w-44"
                             >
-                                <mat-label>{{
-                                    'SIGNAGE_MANAGER.IMAGE_GEN_LOGO_VERSION'
-                                        | translate
-                                }}</mat-label>
                                 <mat-select
                                     [ngModel]="state().logo_choice"
                                     (ngModelChange)="
                                         patch({ logo_choice: $event })
+                                    "
+                                    [attr.aria-label]="
+                                        'SIGNAGE_MANAGER.IMAGE_GEN_LOGO_VERSION'
+                                            | translate
                                     "
                                 >
                                     <mat-option value="auto">{{
@@ -345,7 +341,7 @@ export function newTextBlock(
     imports: [
         FormsModule,
         IconComponent,
-        MatButtonModule,
+        MatRippleModule,
         MatFormFieldModule,
         MatInputModule,
         MatSelectModule,
@@ -361,6 +357,8 @@ export class ImageGenLayerControlsComponent {
     public readonly brand = input<ImageGenBrandKit | null>(null);
     public readonly uploading = input(false);
     public readonly can_set_logo = input(true);
+    /** whether the brand kit can be changed by anyone */
+    public readonly branding_editing = input(true);
 
     public readonly changed = output<ImageGenLayerState>();
     public readonly logo_picked = output<File>({ alias: 'logoPicked' });
@@ -372,6 +370,15 @@ export class ImageGenLayerControlsComponent {
         () => !!this.logo_on_light() && !!this.logo_on_dark(),
     );
 
+    /** points at the branding page only when someone can use it */
+    public readonly no_logo_note = computed(() =>
+        this.can_set_logo()
+            ? 'SIGNAGE_MANAGER.IMAGE_GEN_NO_LOGO_YET'
+            : this.branding_editing()
+              ? 'SIGNAGE_MANAGER.IMAGE_GEN_NO_LOGO_ADMIN'
+              : 'SIGNAGE_MANAGER.IMAGE_GEN_NO_LOGO_LOCKED',
+    );
+
     public readonly fonts = BRAND_FONTS;
 
     /** names the face a block falls back to */
@@ -381,11 +388,14 @@ export class ImageGenLayerControlsComponent {
         return family || 'SIGNAGE_MANAGER.IMAGE_GEN_TEXT_BRAND_FONT';
     });
 
+    /** white, near black, then the brand's own, each once and as `#rrggbb` */
     public readonly palette = computed(() => {
         const colours = Object.values(this.brand()?.palette || {});
-        return ['#FFFFFF', '#1B2420', ...colours].filter(
-            (colour, index, all) => all.indexOf(colour) === index,
-        );
+        return [
+            ...new Set(
+                ['#ffffff', '#1b2420', ...colours].map(hexColour).filter(Boolean),
+            ),
+        ];
     });
 
     public patch(changes: Partial<ImageGenLayerState>) {

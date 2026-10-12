@@ -27,15 +27,15 @@ describe('SelectMapItemModalComponent', () => {
             MockProvider(MAT_DIALOG_DATA, {}),
             MockProvider(MapsPeopleService, {
                 available: signal(false),
-            } as any),
+            }),
             MockProvider(OrganisationService, {
                 initialised: signal(false),
                 active_levels: levels,
-            } as any),
+            }),
         ],
     });
 
-    const withData = (data: any) =>
+    const withData = (data: unknown) =>
         createComponent({
             providers: [{ provide: MAT_DIALOG_DATA, useValue: data }],
         });
@@ -60,7 +60,7 @@ describe('SelectMapItemModalComponent', () => {
 
     it('should record map info bounds', () => {
         spectator = createComponent();
-        const bounds = { 'poi-1': { x: 0, y: 0, w: 1, h: 1 } } as any;
+        const bounds = { 'poi-1': { x: 0, y: 0, w: 1, h: 1 } };
         spectator.component.setMapInfo(bounds);
         expect(spectator.component.map_info()).toBe(bounds);
     });
@@ -72,7 +72,7 @@ describe('SelectMapItemModalComponent', () => {
             floor: { x: 0, y: 0, w: 1, h: 1 },
             room: { x: 0.1, y: 0.1, w: 0.4, h: 0.4 },
             desk: { x: 0.2, y: 0.2, w: 0.1, h: 0.1 },
-        } as any);
+        });
 
         spectator.component.selectID({ x: 0.25, y: 0.25 });
         vi.advanceTimersByTime(300);
@@ -92,9 +92,7 @@ describe('SelectMapItemModalComponent', () => {
         spectator = createComponent();
         spectator.component.selected.set('poi-selected');
         spectator.component.hovered.set('poi-hovered');
-        const locations = spectator.component
-            .features()
-            .map((_: any) => _.location);
+        const locations = spectator.component.features().map((_) => _.location);
         expect(locations).toContain('poi-selected');
         expect(locations).toContain('poi-hovered');
     });

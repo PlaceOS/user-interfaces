@@ -4,7 +4,6 @@ import { showMetadata } from '@placeos/ts-client';
 import {
     AsyncHandler,
     Booking,
-    generateQRCode,
     getTimezoneOffsetString,
     i18n,
     notifyError,
@@ -13,6 +12,7 @@ import {
     SettingsService,
     User,
 } from '@placeos/common';
+import { generateQRCode } from '@placeos/common/qr-code';
 
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';

@@ -18,7 +18,7 @@ describe('BindingDirective', () => {
         vi.clearAllMocks();
         vi.mocked(ts_client.authority).mockReturnValue(true as any);
         vi.mocked(ts_client.onlineState).mockReturnValue(of(true) as any);
-        vi.mocked(ts_client.waitForSignal).mockResolvedValue(true as any);
+        vi.mocked(ts_client.waitForSignal).mockResolvedValue(true);
         spectator = createDirective(
             `
             <div
@@ -69,7 +69,7 @@ describe('BindingDirective', () => {
             'System',
             2,
         );
-        const emitted: any[] = [];
+        const emitted: unknown[] = [];
         spectator.directive.modelChange.subscribe((v) => emitted.push(v));
         value.next('Testing');
         await vi.advanceTimersByTimeAsync(1000);

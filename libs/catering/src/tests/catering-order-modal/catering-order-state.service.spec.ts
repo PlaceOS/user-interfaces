@@ -23,7 +23,7 @@ describe('CateringOrderStateService', () => {
     const createService = createServiceFactory({
         service: CateringOrderStateService,
         providers: [
-            MockProvider(MatDialog, { open: vi.fn() } as any),
+            MockProvider(MatDialog, { open: vi.fn() }),
             MockProvider(OrganisationService, {
                 building: { id: '' },
                 active_building: signal({}),

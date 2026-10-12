@@ -62,11 +62,16 @@ export class SignagePluginService {
     });
     public readonly widgets = computed(() => this._widgets.value() || []);
 
-    /** Find a plugin by ID, from every plugin and not only the group's */
+    /**
+     * Find a plugin by ID, from every plugin and not only the group's.
+     * Uses the loaded plugins first and only queries on a miss.
+     */
     public async resolvePlugin(
         plugin_id: string,
     ): Promise<SignagePlugin | undefined> {
         if (!plugin_id) return undefined;
+        const loaded = this.all_plugins().find(({ id }) => id === plugin_id);
+        if (loaded) return loaded;
         const result = await querySignagePlugins({
             limit: 500,
             plugin_type: 'plugin',

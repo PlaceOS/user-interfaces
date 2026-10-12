@@ -4,9 +4,7 @@ import {
     effect,
     inject,
     input,
-    resource,
     signal,
-    untracked,
 } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -17,10 +15,10 @@ import { SignagePlaylistService } from '../playlists/signage-playlist.service';
 import { NavFooterComponent } from '../shared/nav-footer.component';
 import { NavSidebarComponent } from '../shared/nav-sidebar.component';
 import { SignageContextService } from '../signage-context.service';
-import { SignageTemplateService } from '../templates/signage-template.service';
 import { DisplayContentComponent } from './display-content.component';
 import { DisplayHeaderComponent } from './display-header.component';
 import { DisplayListComponent } from './display-list.component';
+import { selectRoutedItem } from './routed-selection.util';
 import { showSignageDisplay } from './signage-display';
 import { SignageDisplayService } from './signage-display.service';
 
@@ -339,7 +337,6 @@ export class DisplaysSectionComponent {
     private readonly _context = inject(SignageContextService);
     private readonly _display_service = inject(SignageDisplayService);
     private readonly _playlist_service = inject(SignagePlaylistService);
-    private readonly _template_service = inject(SignageTemplateService);
     private readonly _route = inject(ActivatedRoute);
     private readonly _router = inject(Router);
 
@@ -354,33 +351,14 @@ export class DisplaysSectionComponent {
     public readonly can_update = this._context.can_update;
     public readonly can_delete_displays = this._context.can_delete_displays;
 
-    private readonly _displays = this._display_service.displays;
-
-    private readonly _template_mappings = resource({
-        params: () => {
-            const id: string = this.selected_display()?.id;
-            return this.templates_enabled() && id
-                ? {
-                      id,
-                      revision:
-                          this._template_service.template_mappings_revision(),
-                  }
-                : undefined;
-        },
-        loader: ({ params }) =>
-            this._template_service.listTemplateMappings({
-                control_system_id: params.id,
-            }),
-    });
-    public readonly template_count_loading = this._template_mappings.isLoading;
+    public readonly template_count_loading =
+        this._display_service.selected_display_template_mappings_loading;
     public readonly playlist_count_loading =
         this._playlist_service.playlists_loading;
     public readonly zone_count_loading =
         this._display_service.selected_display_zones_loading;
-    public readonly template_count = computed(() =>
-        this._template_mappings.hasValue()
-            ? this._template_mappings.value().length
-            : 0,
+    public readonly template_count = computed(
+        () => this._display_service.selected_display_template_mappings().length,
     );
 
     public readonly playlist_count = computed(
@@ -400,10 +378,6 @@ export class DisplaysSectionComponent {
         return `${signage_path.replace(/\/$/, '')}/#/signage/${encodeURIComponent(display.id)}?debug=true`;
     });
 
-    private _route_resolved = false;
-    // Last display id fetched for a link, so a missing id is fetched once
-    private _requested_id = '';
-
     constructor() {
         effect(() => {
             const route_tab = parseDisplayTab(this.tab());
@@ -416,45 +390,13 @@ export class DisplaysSectionComponent {
             }
         });
 
-        effect(() => {
-            const id = this.id();
-            const list = this._displays();
-            if (id) {
-                const match = list.find((d) => d.id === id);
-                if (match) {
-                    if (
-                        this._display_service.selected_display()?.id !==
-                        match.id
-                    ) {
-                        this._display_service.selected_display.set(match);
-                    }
-                    this._route_resolved = true;
-                } else if (
-                    untracked(this._display_service.selected_display)?.id !== id
-                ) {
-                    // The list holds only the pages loaded so far
-                    untracked(() => this._loadDisplay(id));
-                }
-            } else if (this._route_resolved) {
-                this._display_service.selected_display.set(null);
-            }
+        selectRoutedItem({
+            id: this.id,
+            list: this._display_service.displays,
+            selected: this._display_service.selected_display,
+            // The list holds only the pages loaded so far
+            load: showSignageDisplay,
         });
-    }
-
-    /** Select a display from a link that the loaded pages do not include */
-    private async _loadDisplay(id: string) {
-        if (this._requested_id === id) return;
-        this._requested_id = id;
-        const display = await showSignageDisplay(id).catch(() => null);
-        if (
-            !display ||
-            this.id() !== id ||
-            this._display_service.selected_display()?.id === id
-        ) {
-            return;
-        }
-        this._display_service.selected_display.set(display);
-        this._route_resolved = true;
     }
 
     public deselectDisplay() {

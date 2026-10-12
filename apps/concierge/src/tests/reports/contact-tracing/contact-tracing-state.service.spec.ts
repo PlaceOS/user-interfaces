@@ -11,7 +11,7 @@ import { captureDownloads } from '../download-capture.helper';
 
 describe('ContactTracingStateService', () => {
     let spectator: SpectatorService<ContactTracingStateService>;
-    let binding: any;
+    let binding: unknown;
     let notify_open: ReturnType<typeof vi.fn>;
     let downloads: ReturnType<typeof captureDownloads>;
     const createService = createServiceFactory({
@@ -47,7 +47,7 @@ describe('ContactTracingStateService', () => {
 
     afterEach(() => {
         downloads.restore();
-        setNotifyOutlet(null as any, true);
+        setNotifyOutlet(null, true);
     });
 
     it('should merge partial option updates', () => {

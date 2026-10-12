@@ -48,7 +48,7 @@ describe('BookMeetingFlowComponent', () => {
 
     beforeEach(() => {
         spectator = createComponent();
-        const event_service: any = spectator.inject(EventFormService);
+        const event_service = spectator.inject(EventFormService);
         event_service.setView.mockImplementation((_) => {
             view.set(_);
             spectator.detectChanges();

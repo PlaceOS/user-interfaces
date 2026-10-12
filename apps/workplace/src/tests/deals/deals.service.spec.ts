@@ -15,11 +15,11 @@ const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 describe('DealsService', () => {
     let spectator: SpectatorService<DealsService>;
-    const active_building = signal<any>(null);
+    const active_building = signal<unknown>(null);
     const createService = createServiceFactory({
         service: DealsService,
         providers: [
-            MockProvider(MatDialog, { open: vi.fn() } as any),
+            MockProvider(MatDialog, { open: vi.fn() }),
             MockProvider(OrganisationService, {
                 active_building,
             } as any),

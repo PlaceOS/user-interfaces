@@ -10,7 +10,7 @@ import {
 import { AsyncHandler } from '@placeos/common';
 
 import { MatProgressBarModule } from '@angular/material/progress-bar';
-import { TranslatePipe } from '@placeos/components';
+import { LoadErrorComponent, TranslatePipe } from '@placeos/components';
 import { StaffDetailsComponent } from './staff-details.component';
 import { StaffStateService } from './staff-state.service';
 
@@ -38,7 +38,11 @@ const CHARS = '#abcdefghijklmnopqrstuvwxyz'.split('');
             #container
             (scroll)="onScroll($event)"
         >
-            @if (user_count()) {
+            @if (users_error()) {
+                <div class="absolute inset-0 flex items-center justify-center">
+                    <load-error (retry)="retry()" />
+                </div>
+            } @else if (user_count()) {
                 @for (group of groups; track group) {
                     @if (user_list()[group].length) {
                         <div
@@ -63,7 +67,7 @@ const CHARS = '#abcdefghijklmnopqrstuvwxyz'.split('');
                         }
                     }
                 }
-            } @else {
+            } @else if (!users_loading()) {
                 <div
                     class="absolute inset-0 flex flex-col items-center justify-center"
                 >
@@ -73,7 +77,7 @@ const CHARS = '#abcdefghijklmnopqrstuvwxyz'.split('');
                 </div>
             }
         </div>
-        @if (loading()) {
+        @if (loading() || users_loading()) {
             <mat-progress-bar mode="indeterminate" />
         }
     `,
@@ -109,7 +113,12 @@ const CHARS = '#abcdefghijklmnopqrstuvwxyz'.split('');
             }
         `,
     ],
-    imports: [MatProgressBarModule, StaffDetailsComponent, TranslatePipe],
+    imports: [
+        MatProgressBarModule,
+        LoadErrorComponent,
+        StaffDetailsComponent,
+        TranslatePipe,
+    ],
 })
 export class StaffListingComponent extends AsyncHandler {
     private _state = inject(StaffStateService);
@@ -119,6 +128,8 @@ export class StaffListingComponent extends AsyncHandler {
     public readonly groups = CHARS;
     public readonly events = this._state.user_events;
     public readonly loading = this._state.loading;
+    public readonly users_loading = this._state.users_loading;
+    public readonly users_error = this._state.users_error;
     public readonly filtered_users = this._state.filtered_users;
 
     public readonly user_count = computed(() => this.filtered_users().length);
@@ -167,6 +178,10 @@ export class StaffListingComponent extends AsyncHandler {
                 this.active_group.set(group);
             }
         }
+    }
+
+    public retry() {
+        this._state.loadUsers();
     }
 
     public scrollTo(group: string) {

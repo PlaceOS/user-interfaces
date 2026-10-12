@@ -1,6 +1,7 @@
 import {
     Component,
     ElementRef,
+    OnChanges,
     OnInit,
     SimpleChanges,
     inject,
@@ -30,13 +31,12 @@ import { IconComponent } from './icon.component';
 
 declare let mapsindoors: any;
 declare let google: any;
-declare let mapboxgl: any;
 
 const DEFAULT_ZOOM = 18.5;
 
 interface MapsIndoorServices {
     mapsindoors: any;
-    view: any;
+    view: unknown;
     map: any;
     directions: any;
     directions_renderer: any;
@@ -68,7 +68,10 @@ const RESOURCE_MAP: Record<string, any> = {};
     styles: [``],
     imports: [MatRippleModule, MatProgressSpinnerModule, IconComponent],
 })
-export class MapsIndoorsComponent extends AsyncHandler implements OnInit {
+export class MapsIndoorsComponent
+    extends AsyncHandler
+    implements OnInit, OnChanges
+{
     private _maps_people = inject(MapsPeopleService);
     private _org = inject(OrganisationService);
 
@@ -143,7 +146,7 @@ export class MapsIndoorsComponent extends AsyncHandler implements OnInit {
         }
     }
 
-    private _setResource(id: string, resource: any) {
+    private _setResource(id: string, resource: unknown) {
         RESOURCE_MAP[id] = resource;
         this.timeout('set_resource', () => {
             sessionStorage.setItem(
@@ -161,7 +164,7 @@ export class MapsIndoorsComponent extends AsyncHandler implements OnInit {
         const [lat, long] = (
             this._org.building?.location || `-33.8567844,151.2152967`
         ).split(',');
-        const view_options: Record<string, any> = {
+        const view_options: Record<string, unknown> = {
             element: this._container().nativeElement,
             center: { lat: parseFloat(lat), lng: parseFloat(long) },
             zoom: DEFAULT_ZOOM,

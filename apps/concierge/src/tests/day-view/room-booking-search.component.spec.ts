@@ -11,7 +11,7 @@ import { RoomBookingSearchComponent } from '../../app/day-view/room-booking-sear
 
 describe('RoomBookingSearchComponent', () => {
     let spectator: SpectatorRouting<RoomBookingSearchComponent>;
-    const filtered = signal<any[]>([]);
+    const filtered = signal<unknown[]>([]);
 
     const createComponent = createRoutingFactory({
         component: RoomBookingSearchComponent,
@@ -23,7 +23,7 @@ describe('RoomBookingSearchComponent', () => {
             },
             MockProvider(SettingsService, {
                 time_format: 'shortTime',
-            } as any),
+            }),
         ],
     });
 

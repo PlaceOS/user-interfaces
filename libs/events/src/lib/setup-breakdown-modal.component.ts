@@ -92,8 +92,7 @@ export class SetupBreakdownModalComponent {
     public async save() {
         this.loading.set(true);
         this._dialog_ref.disableClose = true;
-        const { host, creator } = this._event;
-        const query: any = {
+        const query = {
             system_id: this._event?.resources[0]?.id || this._event?.system?.id,
             ical_uid: this._event?.ical_uid,
         };

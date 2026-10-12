@@ -27,7 +27,7 @@ export class Organisation {
     /** PlaceOS bindings for applications */
     public readonly bindings: Record<string, string | Binding>;
     /** Map of custom settings for the building */
-    private _settings: Record<string, any>;
+    private _settings: Record<string, unknown>;
 
     constructor(raw_data: Partial<OrganisationComplete> = {}) {
         this.id = raw_data.id || '';

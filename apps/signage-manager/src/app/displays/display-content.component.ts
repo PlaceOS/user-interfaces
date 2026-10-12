@@ -2,16 +2,19 @@ import { Component, computed, inject, input } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterLink } from '@angular/router';
-import { IconComponent, TranslatePipe } from '@placeos/components';
+import {
+    IconComponent,
+    LoadErrorComponent,
+    TranslatePipe,
+} from '@placeos/components';
 import { SignagePlaylist } from '@placeos/ts-client';
 import { SignagePlaylistService } from '../playlists/signage-playlist.service';
 import { PlaylistThumbnailComponent } from '../shared/playlist-thumbnail.component';
 import { TemplateMappingsComponent } from '../shared/template-mappings.component';
 import { SignageContextService } from '../signage-context.service';
+import { playlistStatus } from '../signage-playlist.util';
 import { DisplayScheduleComponent } from './display-schedule.component';
 import { SignageDisplayService } from './signage-display.service';
-
-type PlaylistStatus = 'expired' | 'pending' | 'awaiting_approval' | null;
 
 @Component({
     selector: 'display-content',
@@ -162,12 +165,22 @@ type PlaylistStatus = 'expired' | 'pending' | 'awaiting_approval' | null;
                                                                     }}
                                                                 </span>
                                                             }
+                                                            @case ('awaiting_review') {
+                                                                <span
+                                                                    class="bg-warning text-warning-content shrink-0 rounded px-1.5 py-0.5 text-[10px] font-bold uppercase"
+                                                                >
+                                                                    {{
+                                                                        'SIGNAGE_MANAGER.STATUS_AWAITING_REVIEW'
+                                                                            | translate
+                                                                    }}
+                                                                </span>
+                                                            }
                                                             @case ('awaiting_approval') {
                                                                 <span
                                                                     class="bg-secondary text-secondary-content shrink-0 rounded px-1.5 py-0.5 text-[10px] font-bold uppercase"
                                                                 >
                                                                     {{
-                                                                        'SIGNAGE_MANAGER.STATUS_AWAITING_APPROVAL'
+                                                                        'COMMON.APPROVAL_REQUIRED'
                                                                             | translate
                                                                     }}
                                                                 </span>
@@ -215,6 +228,21 @@ type PlaylistStatus = 'expired' | 'pending' | 'awaiting_approval' | null;
                                             }
                                         </div>
                                     }
+                                } @else if (
+                                    has_assigned_playlists() &&
+                                    playlists_loading()
+                                ) {
+                                    <div
+                                        class="text-base-content/70 p-6 text-center"
+                                        role="status"
+                                    >
+                                        {{ 'COMMON.LOADING' | translate }}
+                                    </div>
+                                } @else if (
+                                    has_assigned_playlists() &&
+                                    playlists_error()
+                                ) {
+                                    <load-error (retry)="reloadPlaylists()" />
                                 } @else {
                                     <div
                                         class="text-base-content/70 flex flex-col items-center justify-center space-y-2 p-6"
@@ -303,6 +331,15 @@ type PlaylistStatus = 'expired' | 'pending' | 'awaiting_approval' | null;
                                             </div>
                                         </a>
                                     }
+                                } @else if (display_zones_loading()) {
+                                    <div
+                                        class="text-base-content/70 p-6 text-center"
+                                        role="status"
+                                    >
+                                        {{ 'COMMON.LOADING' | translate }}
+                                    </div>
+                                } @else if (display_zones_error()) {
+                                    <load-error (retry)="reloadZones()" />
                                 } @else {
                                     <div
                                         class="text-base-content/70 flex flex-col items-center justify-center space-y-2 p-6"
@@ -348,6 +385,7 @@ type PlaylistStatus = 'expired' | 'pending' | 'awaiting_approval' | null;
         MatTooltipModule,
         RouterLink,
         IconComponent,
+        LoadErrorComponent,
         DisplayScheduleComponent,
         TemplateMappingsComponent,
         TranslatePipe,
@@ -372,8 +410,29 @@ export class DisplayContentComponent {
             this.selected_display()?.playlists || [],
         ),
     );
+    public readonly playlists_loading =
+        this._playlist_service.playlists_loading;
+    public readonly playlists_error = this._playlist_service.playlists_error;
+    // The tab reads the playlist ids of the display and resolves them from the
+    // shared playlist list. The list state matters only when there are ids.
+    public readonly has_assigned_playlists = computed(
+        () => !!this.selected_display()?.playlists?.length,
+    );
+
+    public reloadPlaylists() {
+        this._playlist_service.reloadPlaylists();
+    }
+
     public readonly display_zones =
         this._display_service.selected_display_zones;
+    public readonly display_zones_loading =
+        this._display_service.selected_display_zones_loading;
+    public readonly display_zones_error =
+        this._display_service.selected_display_zones_error;
+
+    public reloadZones() {
+        this._display_service.reloadSelectedDisplayZones();
+    }
 
     public addPlaylist() {
         const display = this.selected_display();
@@ -391,15 +450,11 @@ export class DisplayContentComponent {
             );
     }
 
-    public getStatus(playlist: SignagePlaylist): PlaylistStatus {
-        const now_s = Math.floor(Date.now() / 1000);
-        if (playlist.valid_until && playlist.valid_until < now_s)
-            return 'expired';
-        if (playlist.valid_from && playlist.valid_from > now_s)
-            return 'pending';
-        const approvals = this.playlist_approval_status();
-        if (playlist.id in approvals && !approvals[playlist.id])
-            return 'awaiting_approval';
-        return null;
+    public getStatus(playlist: SignagePlaylist) {
+        return playlistStatus(
+            playlist,
+            this.playlist_approval_status(),
+            this._playlist_service.playlist_approval_requested_status(),
+        );
     }
 }

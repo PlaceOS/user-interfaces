@@ -10,9 +10,12 @@ import { provideServiceWorker } from '@angular/service-worker';
 import { LocaleService } from '@placeos/common';
 import { environment } from '../environments/environment';
 import { NotFoundComponent } from './not-found.component';
-import { SurveyComponent } from './survey.component';
 
 // import * as Sentry from '@sentry/angular';
+
+/** Survey view is lazy so its form and Material controls stay out of main */
+const loadSurvey = () =>
+    import('./survey.component').then((m) => m.SurveyComponent);
 
 const appRoutes: Route[] = [
     {
@@ -22,12 +25,12 @@ const appRoutes: Route[] = [
     },
     {
         path: ':id',
-        component: SurveyComponent,
+        loadComponent: loadSurvey,
         pathMatch: 'full',
     },
     {
         path: 'survey/:id',
-        component: SurveyComponent,
+        loadComponent: loadSurvey,
         pathMatch: 'full',
     },
     { path: '**', redirectTo: '/not-found', pathMatch: 'full' },

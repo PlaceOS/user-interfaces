@@ -18,12 +18,12 @@ import {
     AsyncHandler,
     Building,
     OrganisationService,
-    TIMEZONES_IANA,
     getInvalidSignalFields,
     i18n,
     notifyError,
     notifySuccess,
 } from '@placeos/common';
+import { TIMEZONES_IANA } from '@placeos/common/timezones';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import { addZone, authority, updateZone } from '@placeos/ts-client';
 
@@ -155,7 +155,7 @@ export class BuildingFormComponent extends AsyncHandler {
     constructor() {
         super();
         effect(() => {
-            const building = this.building() as any;
+            const building = this.building();
             if (!building) return;
             this.model.update((m) => ({
                 ...m,

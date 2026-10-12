@@ -22,7 +22,6 @@ import {
     CalendarEvent,
     currentUser,
     notifyError,
-    scanForQRCode,
 } from '@placeos/common';
 import {
     checkinEventGuest,
@@ -37,6 +36,7 @@ import { MatRippleModule } from '@angular/material/core';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { OrganisationService } from '@placeos/common';
+import { scanForQRCode } from '@placeos/common/qr-code';
 
 @Component({
     selector: 'book-code-flow',
@@ -360,7 +360,7 @@ export class BookCodeFlowComponent
                     scanForQRCode(video_el).subscribe({
                         next: (qr_code) =>
                             qr_code ? this.handleQrCode(qr_code) : null,
-                        error: (error: any) =>
+                        error: (error: unknown) =>
                             console.error('Error scanning QR code:', error),
                     }),
                 );

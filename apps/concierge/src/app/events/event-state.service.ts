@@ -72,6 +72,8 @@ export class EventStateService extends AsyncHandler {
     }
 
     private async _load(options: GroupEventOptions) {
+        // The events list sets the period range. Wait for it.
+        if (!options.date) return;
         this.loading.set(i18n('APP.CONCIERGE.EVENTS_LOADING'));
         let list = await queryEvents({
             period_start: getUnixTime(startOfDay(options.date)),
@@ -153,7 +155,7 @@ export class EventStateService extends AsyncHandler {
             data: {
                 event,
                 concierge: true,
-                edit_fn: (i) =>
+                edit_fn: (_i) =>
                     this._router.navigate([
                         '/entertainment',
                         'events',

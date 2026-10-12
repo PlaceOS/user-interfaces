@@ -11,7 +11,7 @@ describe('GlobalBannerComponent', () => {
         providers: [
             MockProvider(OrganisationService, {
                 waitUntilInitialised: vi.fn().mockResolvedValue(undefined),
-            } as any),
+            }),
         ],
     });
 

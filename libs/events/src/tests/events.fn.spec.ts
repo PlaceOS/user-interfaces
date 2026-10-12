@@ -3,6 +3,7 @@ import {
     approveEvent,
     checkinEventGuest,
     queryEventGuests,
+    queryEventListOrThrow,
     queryEvents,
     rejectEvent,
     saveEvent,
@@ -34,6 +35,33 @@ describe('Event API Methods', () => {
                 `/api/staff/v1/events?period_start=1&period_end=2`,
             );
             spy.mockReset();
+        });
+    });
+
+    describe('queryEventListOrThrow', () => {
+        it('should list calendars from the x-calendar-issue header', async () => {
+            vi.spyOn(ts_client, 'get').mockResolvedValue([{}] as any);
+            const headers_spy = vi
+                .spyOn(ts_client, 'responseHeaders')
+                .mockReturnValue({
+                    'x-calendar-issue': 'Room1@Place.com, room2@place.com',
+                });
+            const result = await queryEventListOrThrow({
+                period_start: 1,
+                period_end: 2,
+            });
+            expect(result.events).toHaveLength(1);
+            expect(result.failed_calendars).toEqual([
+                'room1@place.com',
+                'room2@place.com',
+            ]);
+            expect(headers_spy).toHaveBeenCalledWith(
+                new URL(
+                    '/api/staff/v1/events?period_start=1&period_end=2',
+                    document.baseURI,
+                ).href,
+            );
+            headers_spy.mockReset();
         });
     });
 

@@ -151,7 +151,8 @@ describe('SignageGroupAccessModalComponent', () => {
     });
 
     it('stays open when saving fails', async () => {
-        service_stub.saveGroupAccess.mockRejectedValue(new Error('nope'));
+        // The service shows the error and returns null
+        service_stub.saveGroupAccess.mockResolvedValue(null);
         const component = await make();
 
         await component.save();

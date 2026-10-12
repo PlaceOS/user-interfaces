@@ -1,15 +1,10 @@
-import {
-    Component,
-    ViewEncapsulation,
-    computed,
-    inject,
-} from '@angular/core';
+import { Component, ViewEncapsulation, computed, inject } from '@angular/core';
 import { Desk, SettingsService } from '@placeos/common';
+import { generateQRCode } from '@placeos/common/qr-code';
 import { DesksStateService } from './desks-state.service';
 
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialogModule } from '@angular/material/dialog';
-import { generateQRCode } from '@placeos/common';
 import { IconComponent, SafePipe, TranslatePipe } from '@placeos/components';
 
 @Component({

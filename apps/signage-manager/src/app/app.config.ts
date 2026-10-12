@@ -19,7 +19,7 @@ import {
     UnauthorisedComponent,
 } from '@placeos/components';
 import { environment } from '../environments/environment';
-import { signageAccessGuard } from './signage-access.guard';
+import { manageGroupsGuard, signageAccessGuard } from './signage-access.guard';
 import { templatesEnabledGuard } from './templates-enabled.guard';
 import { templateUnsavedGuard } from './templates/template-unsaved.guard';
 
@@ -121,6 +121,7 @@ const APP_ROUTES: Routes = [
             { path: 'branding', redirectTo: 'manage/branding' },
             {
                 path: 'groups',
+                canActivate: [manageGroupsGuard],
                 loadComponent: () =>
                     import('./groups/groups.component').then(
                         (m) => m.GroupsSectionComponent,

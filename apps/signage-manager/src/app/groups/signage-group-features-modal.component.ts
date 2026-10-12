@@ -292,18 +292,14 @@ export class SignageGroupFeaturesModalComponent {
         if (this.saving() || !this.inherited_loaded()) return;
         this.saving.set(true);
         this._dialog_ref.disableClose = true;
-        try {
-            const result = await this._group_admin.saveGroupFeatures(
-                this.group,
-                this._withKnownPlugins(this.own()),
-            );
-            this._dialog_ref.disableClose = false;
-            if (result) this._dialog_ref.close(result);
-            else this.saving.set(false);
-        } catch {
-            this._dialog_ref.disableClose = false;
-            this.saving.set(false);
-        }
+        // The service shows the error and returns null when it fails
+        const result = await this._group_admin.saveGroupFeatures(
+            this.group,
+            this._withKnownPlugins(this.own()),
+        );
+        this._dialog_ref.disableClose = false;
+        if (result) this._dialog_ref.close(result);
+        else this.saving.set(false);
     }
 
     /** Drop plugin IDs that no longer exist. Keeps the list as is when the

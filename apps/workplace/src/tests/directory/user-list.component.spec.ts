@@ -29,9 +29,7 @@ describe('DirectoryUserListComponent', () => {
             MockComponent(IconComponent),
             MockComponent(UserAvatarComponent),
         ],
-        providers: [
-            MockProvider(SettingsService, { get: settings_get } as any),
-        ],
+        providers: [MockProvider(SettingsService, { get: settings_get })],
         detectChanges: false,
     });
 

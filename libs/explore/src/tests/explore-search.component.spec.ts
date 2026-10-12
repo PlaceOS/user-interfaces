@@ -19,7 +19,7 @@ describe('ExploreSearchComponent', () => {
                 search_results: signal(null),
                 loading: signal(false),
                 setFilter: vi.fn(),
-            } as any),
+            }),
             MockProvider(Router, { navigate: vi.fn() }),
             MockProvider(ActivatedRoute, {}),
         ],

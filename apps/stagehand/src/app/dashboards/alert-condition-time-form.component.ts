@@ -12,7 +12,8 @@ import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
-import { AsyncHandler, i18n, Identity, TIMEZONES_IANA } from '@placeos/common';
+import { AsyncHandler, i18n, Identity } from '@placeos/common';
+import { TIMEZONES_IANA } from '@placeos/common/timezones';
 import { TriggerTimeConditionType } from '@placeos/ts-client';
 import { format, setDay, setMonth } from 'date-fns';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
@@ -378,7 +379,7 @@ export class AlertConditionTimeFormComponent
 
     public readonly timezones = signal<string[]>([]);
 
-    public pad(str: any, digits = 2) {
+    public pad(str: unknown, digits = 2) {
         return `${str}`.padStart(digits, '0');
     }
 

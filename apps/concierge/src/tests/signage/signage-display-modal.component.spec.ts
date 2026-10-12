@@ -10,7 +10,7 @@ vi.mock('@placeos/ts-client', { spy: true });
 
 describe('SignageDisplayModalComponent', () => {
     let spectator: Spectator<SignageDisplayModalComponent>;
-    let display: any;
+    let display: unknown;
 
     const createComponent = createComponentFactory({
         component: SignageDisplayModalComponent,

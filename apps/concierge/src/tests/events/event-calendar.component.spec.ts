@@ -12,7 +12,7 @@ import { EventStateService } from '../../app/events/event-state.service';
 
 describe('EventCalendarComponent', () => {
     let spectator: SpectatorRouting<EventCalendarComponent>;
-    const options = signal<any>({ period: 'week' });
+    const options = signal<unknown>({ period: 'week' });
     const set_options = vi.fn();
 
     const createComponent = createRoutingFactory({

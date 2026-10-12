@@ -1,7 +1,9 @@
+import { MediaAnimation } from '@placeos/ts-client';
 import {
     applyMediaView,
     DEFAULT_MEDIA_VIEW,
     isMediaViewActive,
+    mediaAnimation,
 } from '../../app/media/media-view.util';
 
 const DAY_S = 24 * 60 * 60;
@@ -65,4 +67,23 @@ describe('media view util', () => {
             isMediaViewActive({ ...DEFAULT_MEDIA_VIEW, type: 'image' }),
         ).toBe(true);
     });
+});
+
+describe('mediaAnimation', () => {
+    // The API stores the name it is sent, but returns its index
+    it('maps an index from the API to the animation name', () => {
+        expect(mediaAnimation(2)).toBe(MediaAnimation.CrossFade);
+        expect(mediaAnimation(4)).toBe(MediaAnimation.SlideLeft);
+    });
+
+    it('keeps an animation name', () => {
+        expect(mediaAnimation('cross_fade')).toBe(MediaAnimation.CrossFade);
+    });
+
+    it.each([-1, 7, 1.5, 'spin', null, undefined])(
+        'uses the default animation for %s',
+        (value) => {
+            expect(mediaAnimation(value)).toBe(MediaAnimation.Default);
+        },
+    );
 });

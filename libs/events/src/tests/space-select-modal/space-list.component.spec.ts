@@ -21,9 +21,9 @@ describe('SpaceListComponent', () => {
         component: SpaceListComponent,
         providers: [
             MockProvider(EventFormService, {
-                loading: loading as any,
-                available_spaces: available_spaces as any,
-                room_alerts: room_alerts as any,
+                loading: loading,
+                available_spaces: available_spaces,
+                room_alerts: room_alerts,
                 setView: vi.fn(),
             }),
             MockProvider(OrganisationService, {

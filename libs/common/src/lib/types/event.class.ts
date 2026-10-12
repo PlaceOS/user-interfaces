@@ -97,6 +97,8 @@ export interface EventExtensionData {
     shared_event?: boolean;
     /** Access level of the event */
     view_access: 'PRIVATE' | 'OPEN' | 'PUBLIC';
+    /** Copy of the event permission kept in the stored metadata */
+    permission?: string;
 }
 
 export interface EventListQueryParams {
@@ -343,7 +345,7 @@ export class CalendarEvent {
 
     constructor(data: Partial<CalendarEventExtended> = {}) {
         const custom_all_day = !!(
-            data.extension_data?.custom_all_day || (data as any).custom_all_day
+            data.extension_data?.custom_all_day || data.custom_all_day
         );
         this.id = data.event_id || data.id || '';
         this.event_start =
@@ -373,16 +375,16 @@ export class CalendarEvent {
         const attendees = data.attendees || [];
         const system_email = (data.system?.email || '').toLowerCase();
         const is_system_resource = (user: Partial<User>) =>
-            !!(user as any).resource ||
+            !!user.resource ||
             (!!system_email && user.email?.toLowerCase() === system_email);
         this.attendees = attendees
-            .filter((user: any) => !is_system_resource(user))
+            .filter((user) => !is_system_resource(user))
             .map((u) => new User(u));
         this.resources =
             unique(
                 data.resources ||
                     attendees
-                        .filter((user) => is_system_resource(user as any))
+                        .filter((user) => is_system_resource(user))
                         .map((s) => new Space(s as any)),
                 'email',
             ) || [];
@@ -403,25 +405,13 @@ export class CalendarEvent {
         this.duration = differenceInMinutes(this.date_end, this.date);
         if (this.all_day) {
             if (!data.duration && !data.date_end && !data.event_end) {
-                (this as any).date = startOfDayInTimezone(
-                    this.date,
-                    this.timezone,
-                );
-                (this as any).duration = 24 * 60 - 1;
-                (this as any).date_end = endOfDayInTimezone(
-                    this.date,
-                    this.timezone,
-                );
+                this.date = startOfDayInTimezone(this.date, this.timezone);
+                this.duration = 24 * 60 - 1;
+                this.date_end = endOfDayInTimezone(this.date, this.timezone);
             } else if (this.duration % (24 * 60) === 0) {
-                (this as any).date = startOfDayInTimezone(
-                    this.date,
-                    this.timezone,
-                );
-                (this as any).duration = Math.max(1, this.duration - 1);
-                (this as any).date_end = endOfDayInTimezone(
-                    this.date,
-                    this.timezone,
-                );
+                this.date = startOfDayInTimezone(this.date, this.timezone);
+                this.duration = Math.max(1, this.duration - 1);
+                this.date_end = endOfDayInTimezone(this.date, this.timezone);
             }
         }
         const matches = this.body.match(/\[ID\|([^\]]+)\]/);
@@ -488,7 +478,7 @@ export class CalendarEvent {
         this.old_system = data.old_system || data.system;
         this.attachments = data.attachments || [];
         this.extension_data = data.extension_data || {};
-        this.deleted = !!(data as any).deleted;
+        this.deleted = !!data.deleted;
         this.status = eventStatus({ ...data, ...this }) || 'none';
         this.location =
             data.location || this.space?.display_name || this.space?.name || '';
@@ -533,9 +523,17 @@ export class CalendarEvent {
             data.view_access ||
             (data.permission?.toUpperCase() as any) ||
             'OPEN';
-        this.permission = data.permission || this.extension_data.view_access;
+        // A selected view access decides the permission. Edit forms can also
+        // carry the stored permission, which is stale after the user changes it.
+        this.permission =
+            data.view_access ||
+            data.permission ||
+            this.extension_data.view_access;
+        if (this.extension_data.permission) {
+            this.extension_data.permission = this.permission;
+        }
         this.extension_data.assets = asset_requests.map(
-            (i) => new AssetRequest({ ...i, event: simple_event } as any),
+            (i) => new AssetRequest({ ...i, event: simple_event }),
         );
     }
 
@@ -573,7 +571,7 @@ export class CalendarEvent {
             .filter((request) => request.deliver_at < this.date_end)
             .map((request) => {
                 const booking = list.find(
-                    (_: any) => _.extension_data.request_id === request.id,
+                    (_) => _.extension_data.request_id === request.id,
                 );
                 if (booking) {
                     (request as any).state = booking.approved

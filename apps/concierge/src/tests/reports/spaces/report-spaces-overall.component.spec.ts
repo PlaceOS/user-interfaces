@@ -6,8 +6,8 @@ import { ReportSpacesOverallComponent } from 'apps/concierge/src/app/reports/spa
 
 describe('ReportSpacesOverallComponent', () => {
     let spectator: Spectator<ReportSpacesOverallComponent>;
-    let stats: ReturnType<typeof signal<any>>;
-    let options: ReturnType<typeof signal<any>>;
+    let stats: ReturnType<typeof signal<unknown>>;
+    let options: ReturnType<typeof signal<unknown>>;
 
     const monday = new Date('2026-04-06T09:00:00').valueOf();
     const friday = new Date('2026-04-10T09:00:00').valueOf();
@@ -18,16 +18,16 @@ describe('ReportSpacesOverallComponent', () => {
             {
                 provide: ReportsStateService,
                 useValue: {
-                    stats: (stats = signal<any>({ events: [] })),
-                    options: (options = signal<any>({})),
+                    stats: (stats = signal<unknown>({ events: [] })),
+                    options: (options = signal<unknown>({})),
                 },
             },
         ],
     });
 
     beforeEach(() => {
-        stats = signal<any>({ events: [] });
-        options = signal<any>({});
+        stats = signal<unknown>({ events: [] });
+        options = signal<unknown>({});
         spectator = createComponent({
             providers: [
                 {

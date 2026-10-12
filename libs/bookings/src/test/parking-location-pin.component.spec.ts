@@ -7,7 +7,7 @@ import { ParkingLocationPinComponent } from '../lib/parking-select-modal/parking
 
 describe('ParkingLocationPinComponent', () => {
     let spectator: Spectator<ParkingLocationPinComponent>;
-    let pin_data: any;
+    let pin_data: unknown;
 
     const createComponent = createComponentFactory({
         component: ParkingLocationPinComponent,

@@ -12,8 +12,8 @@ vi.mock('@placeos/ts-client', { spy: true });
 
 describe('BuildingManagementService', () => {
     let spectator: SpectatorService<BuildingManagementService>;
-    let building_list: ReturnType<typeof signal<any[]>>;
-    let region_list: ReturnType<typeof signal<any[]>>;
+    let building_list: ReturnType<typeof signal<unknown[]>>;
+    let region_list: ReturnType<typeof signal<unknown[]>>;
     let org: any;
     let dialog_open: any;
     let notify_open: ReturnType<typeof vi.fn>;
@@ -33,11 +33,11 @@ describe('BuildingManagementService', () => {
     });
 
     beforeEach(() => {
-        building_list = signal<any[]>([
+        building_list = signal<unknown[]>([
             { id: 'b1', name: 'Alpha Tower', parent_id: 'r1' },
             { id: 'b2', name: 'Beta House', parent_id: 'r2' },
         ]);
-        region_list = signal<any[]>([
+        region_list = signal<unknown[]>([
             { id: 'r1', name: 'Region One', display_name: 'North Region' },
         ]);
         org = {
@@ -61,11 +61,11 @@ describe('BuildingManagementService', () => {
                 { provide: MatDialog, useValue: { open: vi.fn() } },
             ],
         });
-        dialog_open = spectator.inject(MatDialog).open as any;
+        dialog_open = spectator.inject(MatDialog).open;
     });
 
     afterEach(() => {
-        setNotifyOutlet(null as any, true);
+        setNotifyOutlet(null, true);
         vi.restoreAllMocks();
     });
 

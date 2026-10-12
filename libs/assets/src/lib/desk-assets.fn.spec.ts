@@ -7,11 +7,11 @@ function response(data: any[]) {
         data,
         total: data.length,
         next: () => null,
-    }) as any;
+    });
 }
 
 async function load_module() {
-    return (await import('./desk-assets.fn')) as any;
+    return await import('./desk-assets.fn');
 }
 
 describe('[Desk Assets]', () => {
@@ -21,7 +21,7 @@ describe('[Desk Assets]', () => {
         vi.mocked(ts_client.addAssetCategory).mockResolvedValue({} as any);
         vi.mocked(ts_client.addAssetType).mockResolvedValue({} as any);
         vi.mocked(ts_client.addAsset).mockResolvedValue({} as any);
-        vi.mocked(ts_client.removeAsset).mockResolvedValue(undefined as any);
+        vi.mocked(ts_client.removeAsset).mockResolvedValue(undefined);
     });
 
     it('should reuse the existing hidden desk category and type', async () => {
@@ -71,8 +71,8 @@ describe('[Desk Assets]', () => {
         vi.mocked(ts_client.queryAssetTypes).mockReturnValue(
             response([{ id: 'type-1', name: '_DESKS_' }]),
         );
-        vi.mocked(ts_client.queryAssets).mockImplementation(
-            ({ zone_id }: any) => response([{ id: `${zone_id}-desk` }]),
+        vi.mocked(ts_client.queryAssets).mockImplementation(({ zone_id }) =>
+            response([{ id: `${zone_id}-desk` }]),
         );
 
         const list = await desks.queryDeskAssetsForZones([

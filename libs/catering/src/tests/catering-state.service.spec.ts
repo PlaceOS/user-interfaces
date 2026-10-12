@@ -75,7 +75,7 @@ describe('CateringStateService', () => {
         vi.mocked(ts_client.updateAsset).mockImplementation(
             (_id: string, asset: any) => Promise.resolve({ ...asset }),
         );
-        vi.mocked(ts_client.removeAsset).mockResolvedValue({} as any);
+        vi.mocked(ts_client.removeAsset).mockResolvedValue({});
         vi.mocked(ts_client.addAssetType).mockResolvedValue({
             id: 'type-1',
         } as any);

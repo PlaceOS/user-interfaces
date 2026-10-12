@@ -20,7 +20,7 @@ export async function searchStaff(q: string): Promise<StaffUser[]> {
         ].join(','),
     });
     const list = await get(`${STAFF_ENDPOINT}${q ? '?' + query : ''}`);
-    return list.map((item: Record<string, any>) => new StaffUser(item));
+    return list.map((item: Record<string, unknown>) => new StaffUser(item));
 }
 
 /** Find staff whose primary email starts with the given email prefix. */

@@ -5,7 +5,7 @@ import { setNotifyOutlet } from './lib/notifications';
 import { installTestStorage } from './test-storage';
 
 global.TextEncoder = TextEncoder;
-global.TextDecoder = TextDecoder as any;
+global.TextDecoder = TextDecoder;
 installTestStorage();
 
 setNotifyOutlet(null, true);

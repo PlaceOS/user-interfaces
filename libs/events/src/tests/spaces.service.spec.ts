@@ -1,7 +1,6 @@
 import { signal } from '@angular/core';
 import { createServiceFactory, SpectatorService } from '@ngneat/spectator/vitest';
 import { OrganisationService, Space } from '@placeos/common';
-import { of } from 'rxjs';
 
 vi.mock('@placeos/ts-client', { spy: true });
 

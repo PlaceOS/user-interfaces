@@ -1,44 +1,6 @@
 import { predictableRandomInt } from '@placeos/common';
 import { DOMAIN } from './common.mock';
 
-const DEPARTMENTS = [
-    'Engineering',
-    'Marketing',
-    'Sales',
-    'Human Resources',
-    'Finance',
-    'Operations',
-    'Product',
-    'Design',
-    'Customer Success',
-    'Legal',
-    'IT',
-    'Research & Development',
-];
-
-const JOB_TITLES = [
-    'Software Engineer',
-    'Senior Developer',
-    'Product Manager',
-    'UX Designer',
-    'Sales Manager',
-    'Marketing Specialist',
-    'HR Business Partner',
-    'Financial Analyst',
-    'Operations Coordinator',
-    'Customer Success Manager',
-    'Legal Counsel',
-    'IT Administrator',
-    'Research Scientist',
-    'Technical Lead',
-    'Account Executive',
-    'Business Analyst',
-    'DevOps Engineer',
-    'Content Creator',
-    'Project Manager',
-    'Quality Assurance Engineer',
-];
-
 const REALISTIC_STAFF_PROFILES = [
     {
         first_name: 'Sarah',
@@ -636,24 +598,6 @@ const REALISTIC_STAFF_PROFILES = [
         title: 'Growth Marketing Manager',
         location: 'Adelaide',
     },
-];
-
-const EXTERNAL_COMPANIES = [
-    'TechCorp Australia',
-    'Global Innovations Pty Ltd',
-    'Digital Solutions Group',
-    'Innovation Labs',
-    'Future Systems',
-    'Advanced Technologies',
-    'Smart Solutions Ltd',
-    'NextGen Industries',
-    'Dynamic Enterprises',
-    'Creative Solutions Inc',
-    'Enterprise Partners',
-    'Strategic Consulting',
-    'Business Development Co',
-    'Market Leaders Group',
-    'Industry Experts Ltd',
 ];
 
 const VISITOR_PROFILES = [

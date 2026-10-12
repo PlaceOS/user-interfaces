@@ -11,7 +11,7 @@ import { ParkingReportService } from 'apps/concierge/src/app/reports/parking/par
 describe('ParkingReportDailyUsageComponent', () => {
     let spectator: Spectator<ParkingReportDailyUsageComponent>;
     let downloads: ReturnType<typeof captureDownloads>;
-    let daily_stats: ReturnType<typeof signal<any>>;
+    let daily_stats: ReturnType<typeof signal<unknown>>;
 
     const day = new Date('2026-04-06T09:00:00').valueOf();
 
@@ -25,7 +25,7 @@ describe('ParkingReportDailyUsageComponent', () => {
         providers: [
             {
                 provide: ParkingReportService,
-                useValue: { daily_stats: (daily_stats = signal<any>({})) },
+                useValue: { daily_stats: (daily_stats = signal<unknown>({})) },
             },
         ],
     });
@@ -33,7 +33,7 @@ describe('ParkingReportDailyUsageComponent', () => {
     afterEach(() => downloads.restore());
 
     beforeEach(() => {
-        daily_stats = signal<any>({});
+        daily_stats = signal<unknown>({});
         downloads = captureDownloads();
         spectator = createComponent({
             providers: [

@@ -36,4 +36,23 @@ describe('SignageGroupTabsComponent', () => {
 
         expect(managed_group_tab()).toBe('zones');
     });
+
+    it('moves between the tabs with the arrow, Home and End keys', () => {
+        const component = make();
+        const press = (key: string) =>
+            component.onKeydown(new KeyboardEvent('keydown', { key }));
+
+        press('ArrowRight');
+        expect(managed_group_tab()).toBe('zones');
+        press('ArrowRight');
+        expect(managed_group_tab()).toBe('users');
+        press('ArrowLeft');
+        expect(managed_group_tab()).toBe('zones');
+        press('Home');
+        expect(managed_group_tab()).toBe('users');
+        press('End');
+        expect(managed_group_tab()).toBe('zones');
+        press('a');
+        expect(managed_group_tab()).toBe('zones');
+    });
 });

@@ -28,7 +28,7 @@ import { SignageZoneService } from '../app/zones/signage-zone.service';
 
 vi.mock('@placeos/ts-client', { spy: true });
 
-type TestAccess<T> = T & Record<string, any>;
+type TestAccess<T> = T & Record<string, unknown>;
 
 /** Saves, errors and local edits of displays and zones */
 describe('SignageDisplayService and SignageZoneService', () => {
@@ -205,7 +205,10 @@ describe('SignageDisplayService and SignageZoneService', () => {
             d1: new PlaceSystem({ id: 'd1', name: 'Edited' }),
             other: new PlaceSystem({ id: 'other', name: 'Other group' }),
         });
-        zones['_all_zone_list'].set([new PlaceZone({ id: 'z1' })]);
+        zones['_all_zone_list'].set({
+            zones: [new PlaceZone({ id: 'z1' })],
+            total: 1,
+        });
         zones['_zone_overrides'].set({
             other: new PlaceZone({ id: 'other', name: 'Other group' }),
         });

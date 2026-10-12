@@ -33,7 +33,7 @@ describe('Space', () => {
             bookable: true,
             zones: ['zone-bld-1'],
             support_url: 'assets/support.html',
-            camera_snapshot_urls: ['https://example.com/snapshot.jpg'] as any,
+            camera_snapshot_urls: ['https://example.com/snapshot.jpg'],
             map_id: 'area-space',
             images: ['assets/img/space.png'],
         });

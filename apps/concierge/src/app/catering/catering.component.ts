@@ -46,7 +46,7 @@ import { CateringTopbarComponent } from './catering-topbar.component';
                                     <a
                                         matRipple
                                         class="bg-base-100 flex flex-col items-center rounded-sm text-black shadow-sm"
-                                        [routerLink]="['/catering', 'menu']"
+                                        routerLink="/book/catering/menu"
                                     >
                                         <div
                                             name="img"
@@ -69,7 +69,7 @@ import { CateringTopbarComponent } from './catering-topbar.component';
                                     <a
                                         matRipple
                                         class="bg-base-100 flex flex-col items-center rounded-sm text-black shadow-sm"
-                                        [routerLink]="['/catering', 'orders']"
+                                        routerLink="/book/catering/orders"
                                     >
                                         <div
                                             name="img"

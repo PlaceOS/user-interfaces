@@ -27,7 +27,7 @@ import { MapLocation } from 'libs/users/src/lib/location.class';
 import { showStaff } from 'libs/users/src/lib/staff.fn';
 
 import { FormsModule } from '@angular/forms';
-import { SettingsToggleComponent } from '@placeos/components';
+import { SettingsToggleComponent } from 'libs/components/src/lib/settings-toggle.component';
 import { ExploreDesksService } from './explore-desks.service';
 import { ExploreLockersService } from './explore-lockers.service';
 import { ExploreMapControlComponent } from './explore-map-control.component';
@@ -355,7 +355,7 @@ export class ExploreMapViewComponent extends AsyncHandler implements OnInit {
     private _locateFeature(id: string, name = '') {
         const has_coordinates = id.includes(',');
         const parts = id.split(',');
-        const feature: any = {
+        const feature = {
             track_id: `locate-${id}`,
             location: has_coordinates
                 ? { x: parseFloat(parts[0]), y: parseFloat(parts[1]) }
@@ -375,7 +375,7 @@ export class ExploreMapViewComponent extends AsyncHandler implements OnInit {
         if (!space)
             return notifyError(i18n('EXPLORE.LOCATE_SPACE_DETAILS_FAILED'));
         this._state.setLevel(this._org.levelWithID(space.zones)?.id);
-        const feature: any = {
+        const feature = {
             track_id: `locate-${space.id}`,
             location: space.map_id,
             content: MapPinComponent,

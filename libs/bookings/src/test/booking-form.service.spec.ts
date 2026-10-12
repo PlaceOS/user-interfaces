@@ -17,6 +17,7 @@ import {
     i18n,
     OrganisationService,
     setCurrentUser,
+    settingSignal,
     StaffUser,
     User,
 } from '@placeos/common';
@@ -37,7 +38,7 @@ import { MockProvider } from 'ng-mocks';
 
 // Per-test overridable results for the ts-client layer beneath bookings.fn.
 let booked_result: string[] = [];
-let clash_result: any[] = [];
+let clash_result: unknown[] = [];
 
 const BOOKINGS_ENDPOINT = '/api/staff/v1/bookings';
 
@@ -138,7 +139,7 @@ describe('BookingFormService', () => {
         vi.mocked(ts_client.showMetadata).mockResolvedValue({
             details: [],
         } as any);
-        vi.mocked(ts_client.showUser).mockReturnValue(undefined as any);
+        vi.mocked(ts_client.showUser).mockReturnValue(undefined);
         vi.mocked(ts_client.listChildMetadata).mockResolvedValue([
             {
                 metadata: {
@@ -151,37 +152,33 @@ describe('BookingFormService', () => {
         ] as any);
         // ts-client layer beneath the real bookings.fn functions.
         vi.mocked(ts_client.get).mockResolvedValue([] as any);
-        vi.mocked(ts_client.query).mockImplementation(
-            async () =>
-                ({
-                    data: [...booked_result],
-                    next: null,
-                    total: booked_result.length,
-                }) as any,
+        vi.mocked(ts_client.query).mockImplementation(async () => ({
+            data: [...booked_result],
+            next: null,
+            total: booked_result.length,
+        }));
+        vi.mocked(ts_client.post).mockImplementation(
+            async (url: string, body: any) => {
+                if (url.includes('/clashing-assets')) return [...clash_result];
+                // Emulate the backend assigning an id to a newly-created group
+                // container so children can reference it as their parent_id.
+                if (
+                    url.startsWith(`${BOOKINGS_ENDPOINT}?`) &&
+                    !body?.id &&
+                    (body?.type === 'group' || body?.booking_type === 'group')
+                ) {
+                    return { ...body, id: 'booking-group' };
+                }
+                return body;
+            },
         );
-        vi.mocked(ts_client.post).mockImplementation((async (
-            url: string,
-            body: any,
-        ) => {
-            if (url.includes('/clashing-assets')) return [...clash_result];
-            // Emulate the backend assigning an id to a newly-created group
-            // container so children can reference it as their parent_id.
-            if (
-                url.startsWith(`${BOOKINGS_ENDPOINT}?`) &&
-                !body?.id &&
-                (body?.type === 'group' || body?.booking_type === 'group')
-            ) {
-                return { ...body, id: 'booking-group' };
-            }
-            return body;
-        }) as any);
         vi.mocked(ts_client.patch).mockImplementation(
             async (_url: string, body: any) => body,
         );
         vi.mocked(ts_client.put).mockImplementation(
             async (_url: string, body: any) => body,
         );
-        vi.mocked(ts_client.del).mockResolvedValue(undefined as any);
+        vi.mocked(ts_client.del).mockResolvedValue(undefined);
         spectator = createService();
         vi.mocked(ts_client.cleanObject).mockImplementation((a) => a);
         vi.spyOn(spectator.inject(SettingsService), 'get').mockImplementation(
@@ -286,7 +283,7 @@ describe('BookingFormService', () => {
         // (e.g. `asset_id: ''`) get deleted out of the signal-forms model,
         // orphaning `[formField]` bindings (`field() is not a function`).
         vi.mocked(ts_client.cleanObject).mockImplementation(
-            (value: any, exclude: any[] = []) => {
+            (value, exclude: unknown[] = []) => {
                 for (const key of Object.keys(value || {})) {
                     if (exclude.includes(value[key])) delete value[key];
                 }
@@ -297,7 +294,7 @@ describe('BookingFormService', () => {
         spectator.service.newForm('visitor');
         spectator.service.storeForm();
 
-        const form: any = spectator.service.form;
+        const form = spectator.service.form;
         expect(typeof form.asset_id).toBe('function');
         expect(form.asset_id()).toBeDefined();
         // touching/validating must not throw an orphan-field error
@@ -854,6 +851,129 @@ describe('BookingFormService', () => {
         );
     });
 
+    it('should post the flow type when the form has no booking type', async () => {
+        (spectator.inject(PaymentsService) as any).enabled = false;
+        spectator.service.newForm('desk');
+        spectator.service.model.update((m) => ({
+            ...m,
+            booking_type: ' ',
+            asset_id: 'desk-1',
+            asset_name: 'Desk 1',
+            date: Date.now() + 60 * 60 * 1000,
+            duration: 60,
+        }));
+
+        await spectator.service.postForm(true);
+
+        expect(savedBookings().length).toBe(1);
+        expect((savedBookings()[0] as Booking).booking_type).toBe('desk');
+    });
+
+    it('should keep an untyped stored booking when the flow loads it', () => {
+        sessionStorage.setItem(
+            'PLACEOS.booking_form',
+            JSON.stringify({
+                id: 'untyped-1',
+                booking_type: ' ',
+                asset_id: 'desk-1',
+                date: Date.now() + 60 * 60 * 1000,
+                duration: 60,
+            }),
+        );
+
+        spectator.service.loadForm('desk');
+
+        expect(spectator.service.model().id).toBe('untyped-1');
+        expect(spectator.service.model().booking_type).toBe('desk');
+    });
+
+    it('should validate an untyped parking form as parking', async () => {
+        (spectator.inject(PaymentsService) as any).enabled = false;
+        const require_plate_number = settingSignal(
+            'parking.require_plate_number',
+            false,
+        );
+        require_plate_number.set(true);
+        try {
+            spectator.service.newForm('parking');
+            spectator.service.model.update((m) => ({
+                ...m,
+                asset_id: 'parking-1',
+                asset_name: 'Parking 1',
+                date: Date.now() + 60 * 60 * 1000,
+                duration: 60,
+            }));
+
+            await expect(spectator.service.postForm(true)).rejects.toBe(
+                'FORM.INVALID_FIELDS',
+            );
+            expect(savedBookings().length).toBe(0);
+        } finally {
+            require_plate_number.set(false);
+        }
+    });
+
+    it('should keep an untyped booking when it is opened for editing', () => {
+        spectator.service.newForm(
+            'desk',
+            new Booking({
+                id: 'untyped-1',
+                asset_id: 'desk-1',
+                date: Date.now() + 60 * 60 * 1000,
+                duration: 60,
+            }),
+        );
+
+        expect(spectator.service.model().id).toBe('untyped-1');
+        expect(spectator.service.model().booking_type).toBe('desk');
+    });
+
+    it('should leave approval to the backend for a standard user when approval is skipped', async () => {
+        (spectator.inject(PaymentsService) as any).enabled = false;
+        (spectator.inject(SettingsService).get as Mock).mockImplementation(
+            (key: string) => key === 'app.bookings.no_approval' || undefined,
+        );
+        spectator.service.newForm('desk');
+        spectator.service.model.update((m) => ({
+            ...m,
+            asset_id: 'desk-1',
+            asset_name: 'Desk 1',
+            date: Date.now() + 60 * 60 * 1000,
+            duration: 60,
+        }));
+
+        await spectator.service.postForm(true);
+
+        expect((savedBookings()[0] as Booking).approved).toBe(false);
+    });
+
+    it('should send approved for a support user when approval is skipped', async () => {
+        (spectator.inject(PaymentsService) as any).enabled = false;
+        (spectator.inject(SettingsService).get as Mock).mockImplementation(
+            (key: string) => key === 'app.bookings.no_approval' || undefined,
+        );
+        setCurrentUser(
+            new StaffUser({
+                id: 'support-user',
+                email: 'support.user@example.com',
+                name: 'Support User',
+                groups: ['placeos_support'],
+            }),
+        );
+        spectator.service.newForm('desk');
+        spectator.service.model.update((m) => ({
+            ...m,
+            asset_id: 'desk-1',
+            asset_name: 'Desk 1',
+            date: Date.now() + 60 * 60 * 1000,
+            duration: 60,
+        }));
+
+        await spectator.service.postForm(true);
+
+        expect((savedBookings()[0] as Booking).approved).toBe(true);
+    });
+
     it('should keep the host when editing a delegated visitor booking', async () => {
         (spectator.inject(PaymentsService) as any).enabled = false;
         spectator.service.newForm(
@@ -874,9 +994,7 @@ describe('BookingFormService', () => {
             }),
         );
 
-        expect((spectator.service.model().user as any)?.email).toBe(
-            'host@example.com',
-        );
+        expect(spectator.service.model().user?.email).toBe('host@example.com');
 
         spectator.service.model.update((m) => ({ ...m, title: 'Updated' }));
         await spectator.service.postForm(true);
@@ -998,29 +1116,26 @@ describe('BookingFormService', () => {
                 },
             }),
         );
-        spectator.service.model.update(
-            (m) =>
-                ({
-                    ...m,
-                    booking_type: 'parking',
-                    asset_id: 'unallocated-parking',
-                    asset_name: 'Parking Request',
-                    title: 'Parking Request',
-                    cost_code: 'CC-123',
-                    p2_document_names: ['Permit.pdf'],
-                    resources: [{ id: 'resource-1' }],
-                    level: { id: 'lvl-1' },
-                    extension_data: {
-                        notes: 'Needs access',
-                        p2_document_names: ['Permit.pdf'],
-                        attachments: ['https://example.com/permit.pdf'],
-                        cost_code: 'CC-123',
-                        resources: [{ id: 'resource-1' }],
-                        assets: [{ id: 'asset-1' }],
-                        level: { id: 'lvl-1' },
-                    },
-                }) as any,
-        );
+        spectator.service.model.update((m) => ({
+            ...m,
+            booking_type: 'parking',
+            asset_id: 'unallocated-parking',
+            asset_name: 'Parking Request',
+            title: 'Parking Request',
+            cost_code: 'CC-123',
+            p2_document_names: ['Permit.pdf'],
+            resources: [{ id: 'resource-1' }],
+            level: { id: 'lvl-1' },
+            extension_data: {
+                notes: 'Needs access',
+                p2_document_names: ['Permit.pdf'],
+                attachments: ['https://example.com/permit.pdf'],
+                cost_code: 'CC-123',
+                resources: [{ id: 'resource-1' }],
+                assets: [{ id: 'asset-1' }],
+                level: { id: 'lvl-1' },
+            },
+        }));
 
         await spectator.service.postForm(true);
 
@@ -1043,21 +1158,18 @@ describe('BookingFormService', () => {
 
         const date = new Date(2027, 2, 20, 22, 0, 0, 0).valueOf();
         spectator.service.newForm('parking');
-        spectator.service.model.update(
-            (m) =>
-                ({
-                    ...m,
-                    booking_type: 'parking',
-                    asset_id: 'unallocated-parking',
-                    asset_name: 'Parking Request',
-                    title: 'Parking Request',
-                    date,
-                    date_end: date + 8 * 60 * 60 * 1000,
-                    duration: 8 * 60,
-                    booking_start: 2,
-                    booking_end: 1,
-                }) as any,
-        );
+        spectator.service.model.update((m) => ({
+            ...m,
+            booking_type: 'parking',
+            asset_id: 'unallocated-parking',
+            asset_name: 'Parking Request',
+            title: 'Parking Request',
+            date,
+            date_end: date + 8 * 60 * 60 * 1000,
+            duration: 8 * 60,
+            booking_start: 2,
+            booking_end: 1,
+        }));
 
         await spectator.service.postForm(true);
 
@@ -3358,11 +3470,9 @@ describe('BookingFormService', () => {
         // edited booking's stale value onto every sibling made all of them
         // resolve to the first visitor's name in the bookings list.
         const visitor_bookings = savedBookings().filter(
-            (_: any) => _.booking_type === 'visitor',
+            (_) => _.booking_type === 'visitor',
         );
-        expect(
-            visitor_bookings.map((_: any) => [_.asset_id, _.asset_ids]),
-        ).toEqual([
+        expect(visitor_bookings.map((_) => [_.asset_id, _.asset_ids])).toEqual([
             ['visitor.one@example.com', ['visitor.one@example.com']],
             ['visitor.two@example.com', ['visitor.two@example.com']],
         ]);
@@ -3405,8 +3515,8 @@ describe('BookingFormService', () => {
          * takes its deferred branch here. Nothing is mocked and no runtime probe
          * is neutralised: this is the ordinary path.
          */
-        function userEdits(field: string, value: any) {
-            const node = (spectator.service.form as any)[field]();
+        function userEdits(field: string, value: unknown) {
+            const node = spectator.service.form[field]();
             node.value.set(value);
             node.markAsDirty();
         }
@@ -3486,8 +3596,8 @@ describe('BookingFormService', () => {
         }
 
         /** Type into a field the way the Field directive does. */
-        function userEdits(field: string, value: any) {
-            const node = (spectator.service.form as any)[field]();
+        function userEdits(field: string, value: unknown) {
+            const node = spectator.service.form[field]();
             node.value.set(value);
             node.markAsDirty();
         }
@@ -3574,38 +3684,35 @@ describe('BookingFormService', () => {
          * is given.
          */
         const postBookings = (error?: unknown) =>
-            vi.mocked(ts_client.post).mockImplementation((async (
-                url: string,
-                body: any,
-            ) => {
-                if (url.includes('/clashing-assets')) return [...clash_result];
-                if (error && body?.type === 'asset-request') throw error;
-                return body?.id ? body : { ...body, id: 'booking-1' };
-            }) as any);
+            vi
+                .mocked(ts_client.post)
+                .mockImplementation(async (url: string, body: any) => {
+                    if (url.includes('/clashing-assets'))
+                        return [...clash_result];
+                    if (error && body?.type === 'asset-request') throw error;
+                    return body?.id ? body : { ...body, id: 'booking-1' };
+                });
 
         const useDeskFormWithAssets = (booking?: Booking) => {
             spectator.service.newForm('desk', booking);
-            spectator.service.model.update(
-                (m) =>
-                    ({
-                        ...m,
-                        asset_id: 'desk-1',
-                        asset_name: 'Desk 1',
-                        assets: [
-                            new AssetRequest({
-                                id: 'asset-request-1',
-                                items: [
-                                    {
-                                        id: 'asset-type-1',
-                                        name: 'Monitor',
-                                        quantity: 1,
-                                        item_ids: [],
-                                    },
-                                ],
-                            }),
+            spectator.service.model.update((m) => ({
+                ...m,
+                asset_id: 'desk-1',
+                asset_name: 'Desk 1',
+                assets: [
+                    new AssetRequest({
+                        id: 'asset-request-1',
+                        items: [
+                            {
+                                id: 'asset-type-1',
+                                name: 'Monitor',
+                                quantity: 1,
+                                item_ids: [],
+                            },
                         ],
-                    }) as any,
-            );
+                    }),
+                ],
+            }));
         };
 
         beforeEach(() => {
@@ -3654,6 +3761,14 @@ describe('BookingFormService', () => {
 
         it('should keep an existing booking when its asset requests fail', async () => {
             postBookings({ status: 422, error: 'Asset unavailable' });
+            for (const method of [ts_client.patch, ts_client.put]) {
+                vi.mocked(method).mockImplementation(
+                    async (_url: string, body: any) => ({
+                        ...body,
+                        id: 'bkn-1',
+                    }),
+                );
+            }
             useDeskFormWithAssets(
                 new Booking({
                     id: 'bkn-1',

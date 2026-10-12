@@ -3,6 +3,7 @@ import {
     endOfDayInTimezone,
     getTimezoneOffsetInMinutes,
     getTimezoneOffsetString,
+    sameDayInTimezone,
     startOfDayInTimezone,
 } from '../lib/timezone-helpers';
 import { Booking } from '../lib/types/booking.class';
@@ -104,5 +105,20 @@ describe('timezone offset helpers', () => {
                 new Date('2026-01-15T00:00:00Z'),
             ),
         ).toBe(11 * 60);
+    });
+});
+
+describe('sameDayInTimezone', () => {
+    it('should keep the calendar day picked in another timezone', () => {
+        // 15 June 00:00 in Sydney is 14 June 15:00 in London.
+        const sydney_midnight = Date.UTC(2028, 5, 14, 14);
+
+        expect(
+            sameDayInTimezone(
+                sydney_midnight,
+                'Australia/Sydney',
+                'Europe/London',
+            ),
+        ).toBe(Date.UTC(2028, 5, 15, 11));
     });
 });

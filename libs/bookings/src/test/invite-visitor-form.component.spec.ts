@@ -13,8 +13,8 @@ import { inject, Injector, signal } from '@angular/core';
 import { Booking, OrganisationService, User } from '@placeos/common';
 import { createSettingsServiceMock } from '@placeos/common/tests';
 import { MockModule, MockProvider, MockService } from 'ng-mocks';
+import { generateBookingForm } from '../lib/booking-form.model';
 import { BookingFormService } from '../lib/booking-form.service';
-import { generateBookingForm } from '../lib/booking.utilities';
 
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatCheckboxModule } from '@angular/material/checkbox';
@@ -53,23 +53,20 @@ describe('InviteVisitorFormComponent', () => {
                     });
                 },
             },
-            MockProvider(
-                OrganisationService as any,
-                {
-                    initialised: signal(true),
-                    building_list: signal([]),
-                    active_buildings: signal([
-                        { id: 'bld-1', name: 'Building One' },
-                        { id: 'bld-2', name: 'Building Two' },
-                    ]),
-                    buildings: [
-                        { id: 'bld-1', name: 'Building One' },
-                        { id: 'bld-2', name: 'Building Two' },
-                    ],
-                    building: { id: 'bld-1', name: 'Building One' },
-                } as any,
-            ),
-            MockProvider(SettingsService as any, createSettingsServiceMock()),
+            MockProvider(OrganisationService as any, {
+                initialised: signal(true),
+                building_list: signal([]),
+                active_buildings: signal([
+                    { id: 'bld-1', name: 'Building One' },
+                    { id: 'bld-2', name: 'Building Two' },
+                ]),
+                buildings: [
+                    { id: 'bld-1', name: 'Building One' },
+                    { id: 'bld-2', name: 'Building Two' },
+                ],
+                building: { id: 'bld-1', name: 'Building One' },
+            }),
+            MockProvider(SettingsService, createSettingsServiceMock()),
         ],
         imports: [
             ReactiveFormsModule,

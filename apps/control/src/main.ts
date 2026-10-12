@@ -5,22 +5,16 @@ import {
     provideZonelessChangeDetection,
 } from '@angular/core';
 import { bootstrapApplication } from '@angular/platform-browser';
-import {
-    provideRouter,
-    Router,
-    Routes,
-    withHashLocation,
-} from '@angular/router';
+import { provideRouter, Routes, withHashLocation } from '@angular/router';
 import { provideServiceWorker } from '@angular/service-worker';
+import { LazySentryErrorHandler } from '@placeos/common';
 
 import {
     AuthorisedUserGuard,
     UnauthorisedComponent,
 } from '@placeos/components';
-import * as Sentry from '@sentry/angular';
 
 import { AppComponent } from './app/app.component';
-import { BootstrapComponent } from './app/bootstrap.component';
 import { tabbedRouteMatcher } from './app/tabbed-view/tabbed-route';
 import { environment } from './environments/environment';
 
@@ -32,7 +26,10 @@ const routes: Routes = [
     { path: 'unauthorised', component: UnauthorisedComponent },
     {
         path: 'bootstrap',
-        component: BootstrapComponent,
+        loadComponent: () =>
+            import('./app/bootstrap.component').then(
+                (m) => m.BootstrapComponent,
+            ),
         canActivate: [AuthorisedUserGuard],
     },
     {
@@ -72,13 +69,7 @@ bootstrapApplication(AppComponent, {
         }),
         {
             provide: ErrorHandler,
-            useValue: Sentry.createErrorHandler({
-                showDialog: false,
-            }),
-        },
-        {
-            provide: Sentry.TraceService,
-            deps: [Router],
+            useClass: LazySentryErrorHandler,
         },
     ],
 }).catch((err) => console.error(err));

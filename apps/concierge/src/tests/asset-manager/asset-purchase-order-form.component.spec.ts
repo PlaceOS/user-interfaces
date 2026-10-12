@@ -24,7 +24,7 @@ describe('AssetPurchaseOrderFormComponent', () => {
                 base_route: '/book/assets',
                 postChange: vi.fn(),
                 setOptions: vi.fn(),
-            } as any),
+            }),
             MockProvider(OrganisationService, {
                 building: { id: 'bld-1' },
                 active_building: signal({ id: 'bld-1' }),

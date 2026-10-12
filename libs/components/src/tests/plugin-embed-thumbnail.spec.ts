@@ -22,7 +22,7 @@ describe('PluginEmbedComponent thumbnails', () => {
                 data: { api: API, ...message },
                 origin: ORIGIN,
                 source: content_window,
-            } as any),
+            }),
         );
 
     const declareCapabilities = (can_thumbnail?: boolean) =>
@@ -42,7 +42,7 @@ describe('PluginEmbedComponent thumbnails', () => {
 
     beforeEach(() => {
         posted = [];
-        content_window = { postMessage: (msg: any) => posted.push(msg) };
+        content_window = { postMessage: (msg: unknown) => posted.push(msg) };
         spectator = createComponent({
             props: { plugin: { uri: `${ORIGIN}/clock` } as any },
         });
@@ -104,6 +104,15 @@ describe('PluginEmbedComponent thumbnails', () => {
         expect(await spectator.component.requestThumbnail(1280, 720, 20)).toBe(
             '',
         );
+    });
+
+    it('should emit finished for every finished message', () => {
+        const finished_spy = vi.spyOn(spectator.component.finished, 'emit');
+
+        fromPlugin({ type: 'finished' });
+        fromPlugin({ type: 'finished' });
+
+        expect(finished_spy).toHaveBeenCalledTimes(2);
     });
 
     it('should not let a thumbnail reply change the plugin status', async () => {

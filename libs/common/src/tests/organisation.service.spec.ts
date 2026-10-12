@@ -33,12 +33,12 @@ describe('OrganisationService', () => {
         vi.mocked(ts_client.onlineState).mockReturnValue(
             ts_client.createSignal(true),
         );
-        vi.mocked(ts_client.waitForSignal).mockResolvedValue(true as any);
+        vi.mocked(ts_client.waitForSignal).mockResolvedValue(true);
         vi.mocked(ts_client.authority).mockReturnValue({
             id: 'auth-1',
         } as any);
         vi.mocked(ts_client.queryZones).mockResolvedValue({ data: [] } as any);
-        vi.mocked(ts_client.bulkMetadata).mockResolvedValue({} as any);
+        vi.mocked(ts_client.bulkMetadata).mockResolvedValue({});
         vi.mocked(ts_client.showMetadata).mockResolvedValue({
             details: {},
         } as any);
@@ -56,7 +56,7 @@ describe('OrganisationService', () => {
         const online_metadata_id = service._metadataCacheID();
 
         // Offline cold boot: /auth/authority cannot be fetched
-        vi.mocked(ts_client.authority).mockReturnValue(undefined as any);
+        vi.mocked(ts_client.authority).mockReturnValue(undefined);
 
         expect(service._zoneCacheKey(params)).toBe(online_zone_key);
         expect(service._metadataCacheID()).toBe(online_metadata_id);
@@ -69,7 +69,7 @@ describe('OrganisationService', () => {
         const key = service._zoneCacheKey({ tags: 'org' });
         service._setCachedItem(key, [{ id: 'zone-1' }]);
 
-        vi.mocked(ts_client.authority).mockReturnValue(undefined as any);
+        vi.mocked(ts_client.authority).mockReturnValue(undefined);
 
         expect(
             service._getCachedItem(service._zoneCacheKey({ tags: 'org' })),
@@ -639,7 +639,7 @@ describe('OrganisationService', () => {
     // });
 
     it('should load org and buildings settings', async () => {
-        const settings = spectator.inject(SettingsService);
+        spectator.inject(SettingsService);
         // (settings.get as any).mockImplementation(() => );
         // (spectator.service as any)._buildings.next([
         //     { id: 'bld-1' },

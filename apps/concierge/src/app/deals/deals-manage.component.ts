@@ -235,7 +235,7 @@ export class DealsManageComponent extends AsyncHandler implements OnInit {
     private async _loadDeal(id: string) {
         this.loading.set('APP.CONCIERGE.DEALS_LOAD_EXISTING');
         const deal_list = await this._service.getDeals();
-        const deal = deal_list.find((deal) => deal.id === id) as any;
+        const deal = deal_list.find((deal) => deal.id === id);
         if (deal) {
             this.model.update((m) => ({
                 ...m,

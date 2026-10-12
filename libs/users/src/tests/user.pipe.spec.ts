@@ -97,9 +97,9 @@ describe('UserPipe', () => {
     });
 
     it('should de-duplicate concurrent lookups for the same id', async () => {
-        let resolve_fn: (value: any) => void = () => undefined;
+        let resolve_fn: (value: unknown) => void = () => undefined;
         vi.mocked(ts_client.get).mockReturnValue(
-            new Promise((resolve) => (resolve_fn = resolve)) as any,
+            new Promise((resolve) => (resolve_fn = resolve)),
         );
         const first = pipe.transform('user-id-7');
         const second = pipe.transform('user-id-7');

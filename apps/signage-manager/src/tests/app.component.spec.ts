@@ -47,11 +47,12 @@ describe('AppComponent', () => {
             .compileComponents();
     });
 
+    // Creating the component runs ngOnInit. Image generation loads through a
+    // dynamic import, so wait for its last call before checking the calls.
     it('initialises PlaceOS then the uploads service on init', async () => {
-        const component =
-            TestBed.createComponent(AppComponent).componentInstance;
+        TestBed.createComponent(AppComponent);
 
-        await component.ngOnInit();
+        await vi.waitFor(() => expect(image_gen.loadRecent).toHaveBeenCalled());
 
         expect(placeos.init).toHaveBeenCalledTimes(1);
         expect(uploads.init).toHaveBeenCalledTimes(1);
@@ -67,10 +68,9 @@ describe('AppComponent', () => {
         uploads.init.mockImplementation(() => {
             order.push('uploads');
         });
-        const component =
-            TestBed.createComponent(AppComponent).componentInstance;
+        TestBed.createComponent(AppComponent);
 
-        await component.ngOnInit();
+        await vi.waitFor(() => expect(image_gen.loadRecent).toHaveBeenCalled());
 
         expect(order).toEqual(['placeos', 'uploads']);
     });
@@ -97,6 +97,8 @@ describe('AppComponent', () => {
     });
 
     it('leaves the templates section when the group turns templates off', () => {
+        // Hold init, so it does not outlive the test
+        placeos.init.mockReturnValue(new Promise(() => {}));
         router.url = '/templates/template-1';
         TestBed.createComponent(AppComponent);
         TestBed.tick();
@@ -109,6 +111,7 @@ describe('AppComponent', () => {
     });
 
     it('stays on other pages when templates turn off', () => {
+        placeos.init.mockReturnValue(new Promise(() => {}));
         TestBed.createComponent(AppComponent);
         context.templates_enabled.set(false);
         TestBed.tick();

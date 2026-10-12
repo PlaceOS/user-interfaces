@@ -67,10 +67,6 @@ const EMPTY_FAVS: string[] = [];
                 >
                     <asset-details
                         [item]="displayed()"
-                        [active]="
-                            selected_ids().includes(displayed()?.id || '')
-                        "
-                        (activeChange)="setSelected(displayed(), $event)"
                         [fav]="
                             !!displayed() &&
                             favorites().includes(displayed()?.id || '')

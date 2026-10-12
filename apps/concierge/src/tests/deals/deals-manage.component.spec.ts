@@ -26,18 +26,18 @@ describe('DealsManageComponent', () => {
         providers: [
             MockProvider(OrganisationService, {
                 waitUntilInitialised: () => Promise.resolve(),
-                initialised: signal(true) as any,
-            } as any),
+                initialised: signal(true),
+            }),
             MockProvider(DealsService, {
                 getDeals: (...args: any[]) => get_deals(...args),
                 saveDeal: (...args: any[]) => save_deal(...args),
-            } as any),
+            }),
         ],
     });
 
     beforeEach(() => {
         get_deals = vi.fn(async () => []);
-        save_deal = vi.fn(async (deal: any) => deal);
+        save_deal = vi.fn(async (deal: unknown) => deal);
         spectator = createComponent();
     });
 

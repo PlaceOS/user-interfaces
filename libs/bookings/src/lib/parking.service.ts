@@ -7,11 +7,6 @@ import {
     untracked,
 } from '@angular/core';
 import {
-    queryDeskAssetsForZones,
-    queryParkingSpacesForZones,
-    queryParkingUsers,
-} from '@placeos/assets';
-import {
     AsyncHandler,
     currentUser,
     Desk,
@@ -21,10 +16,15 @@ import {
 } from '@placeos/common';
 import { listChildMetadata, PlaceAsset } from '@placeos/ts-client';
 import { endOfDay, getUnixTime, startOfDay } from 'date-fns';
+import { queryDeskAssetsForZones } from 'libs/assets/src/lib/desk-assets.fn';
+import {
+    queryParkingSpacesForZones,
+    queryParkingUsers,
+} from 'libs/assets/src/lib/parking-assets.fn';
 import { queryBookings } from './bookings.fn';
 
 export type ParkingSpace = PlaceAsset;
-export type { ParkingUser } from '@placeos/assets';
+export type { ParkingUser } from 'libs/assets/src/lib/parking-assets.fn';
 
 @Injectable({
     providedIn: 'root',

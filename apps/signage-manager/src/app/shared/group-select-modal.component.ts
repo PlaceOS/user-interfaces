@@ -17,7 +17,6 @@ export interface GroupSelectModalData {
 
 @Component({
     // Existing signage-manager components use feature selectors without the app prefix.
-    // eslint-disable-next-line @angular-eslint/component-selector
     selector: 'group-select-modal',
     template: `
         <header
@@ -95,8 +94,7 @@ export interface GroupSelectModalData {
                 <input
                     matInput
                     cdkFocusInitial
-                    [ngModel]="search()"
-                    (ngModelChange)="search.set($event)"
+                    [(ngModel)]="search"
                     [placeholder]="'SIGNAGE_MANAGER.SEARCH_GROUPS' | translate"
                     [attr.aria-label]="
                         'SIGNAGE_MANAGER.SEARCH_GROUPS' | translate

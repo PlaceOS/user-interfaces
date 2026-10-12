@@ -100,6 +100,17 @@ describe('TemplateEditModalComponent', () => {
         },
     );
 
+    it('keeps the modal open without a rejected promise when saving fails', async () => {
+        onEdit.mockRejectedValue(new Error('Denied'));
+        const component = await make('template-1');
+
+        await expect(component.saveTemplate()).resolves.toBeUndefined();
+
+        expect(dialog_ref.close).not.toHaveBeenCalled();
+        expect(component.loading()).toBe(false);
+        expect(dialog_ref.disableClose).toBe(false);
+    });
+
     it('sends a cleared description and background as null on edit', async () => {
         const component = await make('template-1');
         component.model.update((model) => ({

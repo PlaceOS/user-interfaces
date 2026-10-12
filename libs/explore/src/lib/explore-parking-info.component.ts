@@ -1,10 +1,10 @@
 import { AsyncPipe } from '@angular/common';
 import { Component, computed, ElementRef, inject, signal } from '@angular/core';
 import { settingSignal, SettingsService } from '@placeos/common';
-import { UserPipe } from '@placeos/users';
 import { ParkingSpace } from 'libs/bookings/src/lib/parking.service';
 import { MAP_FEATURE_DATA } from 'libs/common/src/lib/types';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
+import { UserPipe } from 'libs/users/src/lib/user.pipe';
 
 interface ParkingSpaceExtended extends ParkingSpace {
     user: string;

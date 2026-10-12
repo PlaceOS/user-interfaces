@@ -140,6 +140,7 @@ declare let mapsindoors: any;
                                 "
                                 (click)="selected.set(poi.id)"
                                 (mouseover)="hovered.set(poi.id)"
+                                (focus)="hovered.set(poi.id)"
                             >
                                 <div
                                     class="flex w-full flex-col font-mono text-sm"
@@ -329,7 +330,7 @@ export class SelectMapItemModalComponent
             changed: this.changed(),
             map_info: this.map_info(),
         }),
-        defaultValue: [] as any[],
+        defaultValue: [] as unknown[],
         loader: async ({ params }) => {
             const { q, available } = params;
             let list: any[] = [];

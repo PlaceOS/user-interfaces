@@ -172,11 +172,10 @@ export class PlaylistItemScheduleModalComponent {
                 this._dialog_ref.disableClose = false;
                 this._dialog_ref.close(true);
                 notifySuccess(i18n('SIGNAGE_MANAGER.SVC_PLAYLIST_UPDATED'));
-            } catch (e) {
+            } catch {
                 this._dialog_ref.disableClose = false;
                 this.loading.set(false);
                 notifyError(i18n('SIGNAGE_MANAGER.PLAYLIST_SAVE_ERROR'));
-                throw e;
             }
         });
     }

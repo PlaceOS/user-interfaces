@@ -1,7 +1,10 @@
 @import '../../../shared/styles/tailwind.css';
 @source './';
-@source '../../../libs';
-@source '../../../shared';
+/*
+  Scan only this app and the lib components it renders (the settings debug
+  panel). Scanning all of libs adds utilities this app never uses.
+*/
+@source '../../../libs/components/src/lib/{settings-debug-panel-launcher,settings-debug-panel,binding-debug-panel,debug-console,json-display,icon,custom-tooltip}.component.ts';
 
 html,
 body {

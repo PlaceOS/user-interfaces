@@ -21,7 +21,7 @@ describe('RoleManagementModalComponent', () => {
         shallow: true,
         detectChanges: false,
         providers: [
-            MockProvider(EmergencyContactsService, service as any),
+            MockProvider(EmergencyContactsService, service),
             {
                 provide: MatDialogRef,
                 useValue: (dialog_ref = { disableClose: false }),

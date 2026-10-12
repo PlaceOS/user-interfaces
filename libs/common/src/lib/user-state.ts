@@ -324,6 +324,18 @@ export function currentUser() {
     return _current_user.getValue() || EMPTY_USER;
 }
 
+/**
+ * Whether the current user may set a booking's approval state. staff-api
+ * accepts `approved` on create only from admin, support and zone manager
+ * users; zone management is not known client side
+ */
+export function currentUserCanApprove() {
+    const groups = currentUser()?.groups || [];
+    return (
+        groups.includes('placeos_admin') || groups.includes('placeos_support')
+    );
+}
+
 /** Override the current user store. Intended for tests seeding a loaded user. */
 export function setCurrentUser(user: StaffUser) {
     _current_user.next(user);

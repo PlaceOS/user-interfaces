@@ -18,7 +18,7 @@ describe('RecurringClashModalComponent', () => {
             booking_start: toUnix(new Date(2026, 2, 11, 9, 30)),
             booking_end: toUnix(new Date(2026, 2, 11, 10, 0)),
         },
-    ] as any[];
+    ] as unknown[];
     const dialog_ref = { close: vi.fn() };
 
     const createComponent = createComponentFactory({

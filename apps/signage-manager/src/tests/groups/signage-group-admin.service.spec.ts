@@ -1,15 +1,27 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { MatDialog } from '@angular/material/dialog';
-import { OrganisationService, SettingsService } from '@placeos/common';
+import {
+    OrganisationService,
+    setCurrentUser,
+    SettingsService,
+    StaffUser,
+    user_groups_loaded,
+} from '@placeos/common';
 import {
     addGroupUser,
+    currentGroups,
     get,
+    PlaceCurrentGroup,
     PlaceGroup,
     PlaceGroupUser,
+    queryGroups,
+    queryGroupUsers,
+    queryGroupZones,
     showGroup,
     showGroupFeatures,
     updateGroup,
+    updateGroupUser,
 } from '@placeos/ts-client';
 
 import { SignageGroupAdminService } from '../../app/groups/signage-group-admin.service';
@@ -167,7 +179,7 @@ describe('SignageGroupAdminService', () => {
         const users = service['_managed_group_users'];
         service.managed_group_id.set('group-2');
 
-        users.value.set({
+        users.set({
             group_id: 'group-1',
             items: [new PlaceGroupUser({ user_id: 'user-1' })],
             failed: false,
@@ -175,7 +187,7 @@ describe('SignageGroupAdminService', () => {
         expect(service.managed_group_users()).toEqual([]);
         expect(service.managed_group_users_loading()).toBe(true);
 
-        users.value.set({ group_id: 'group-2', items: [], failed: true });
+        users.set({ group_id: 'group-2', items: [], failed: true });
         expect(service.managed_group_users_loading()).toBe(false);
         expect(service.managed_group_users_failed()).toBe(true);
     });
@@ -352,6 +364,201 @@ describe('SignageGroupAdminService', () => {
                 '/api/staff/v1/groups?q=staff%20team',
             );
             expect(groups).toEqual([{ id: 'ad-1', name: 'Staff' }]);
+        });
+    });
+
+    /** Real context and admin service, with only the API mocked */
+    describe('with the real group context', () => {
+        const READ = 1 << 0;
+        const pending = () => new Promise<never>(() => undefined);
+
+        function manager(id: string) {
+            return {
+                group: new PlaceGroup({
+                    id,
+                    name: id,
+                    subsystems: ['signage'],
+                }),
+                permissions: MANAGE,
+            } as PlaceCurrentGroup;
+        }
+
+        function member(user_id: string, group_id: string) {
+            return new PlaceGroupUser({ user_id, group_id, permissions: READ });
+        }
+
+        function page<T>(data: T[], next: () => unknown = () => null) {
+            return { data, total: data.length, next } as never;
+        }
+
+        /** Run effects and timers past the 300 ms group debounce */
+        async function settle() {
+            for (let i = 0; i < 5; i++) {
+                TestBed.tick();
+                await vi.advanceTimersByTimeAsync(100);
+            }
+        }
+
+        beforeEach(() => {
+            vi.useFakeTimers({ shouldAdvanceTime: true });
+            localStorage.clear();
+            setCurrentUser(new StaffUser({ id: 'me', email: 'me@place.tech' }));
+            user_groups_loaded.set(true);
+            vi.mocked(currentGroups).mockResolvedValue([
+                manager('a'),
+                manager('b'),
+            ]);
+            vi.mocked(showGroupFeatures).mockResolvedValue({});
+            vi.mocked(queryGroupUsers).mockImplementation((options) =>
+                page([member('user-1', options?.group_id || '')]),
+            );
+            vi.mocked(queryGroupZones).mockReturnValue(page([]));
+        });
+
+        afterEach(() => {
+            vi.useRealTimers();
+            TestBed.resetTestingModule();
+        });
+
+        it('opens the first group, then lets the user clear the selection', async () => {
+            const service = createService();
+            await settle();
+            expect(service.managed_group_id()).toBe('a');
+
+            // The back button on mobile
+            service.managed_group_id.set('');
+            await settle();
+
+            expect(service.managed_group_id()).toBe('');
+        });
+
+        it('keeps the selected group and its users while a save reloads them', async () => {
+            const service = createService();
+            await settle();
+            service.managed_group_id.set('b');
+            await settle();
+            const [row] = service.managed_group_users();
+            expect(row.group_id).toBe('b');
+
+            vi.mocked(updateGroupUser).mockResolvedValue(row);
+            vi.mocked(currentGroups).mockReturnValue(pending());
+            vi.mocked(queryGroupUsers).mockReturnValue(pending() as never);
+            await service.updateManagedGroupUser(row, READ | MANAGE);
+            await settle();
+
+            expect(service.managed_group_id()).toBe('b');
+            expect(service.manageable_signage_groups().length).toBe(2);
+            expect(service.managed_group_users()).toEqual([row]);
+            expect(service.managed_group_users_loading()).toBe(false);
+        });
+
+        it('clears the selection when the selected group is gone', async () => {
+            const service = createService();
+            await settle();
+            service.managed_group_id.set('b');
+            await settle();
+
+            vi.mocked(currentGroups).mockResolvedValue([manager('a')]);
+            TestBed.inject(SignageContextService).reloadSignageGroups();
+            await settle();
+
+            expect(service.managed_group_id()).toBe('');
+        });
+
+        it('reports a failed save without a rejected promise', async () => {
+            const service = createService();
+            await settle();
+            vi.mocked(updateGroupUser).mockRejectedValue(new Error('down'));
+
+            await expect(
+                service.updateManagedGroupUser(member('user-1', 'a'), READ),
+            ).resolves.toBeUndefined();
+        });
+
+        it('keeps the groups and the selection when a reload fails', async () => {
+            const service = createService();
+            await settle();
+            service.managed_group_id.set('b');
+            await settle();
+            const [row] = service.managed_group_users();
+
+            vi.mocked(updateGroupUser).mockResolvedValue(row);
+            vi.mocked(currentGroups).mockRejectedValue(new Error('down'));
+            await service.updateManagedGroupUser(row, READ | MANAGE);
+            await settle();
+
+            expect(service.manageable_signage_groups_failed()).toBe(true);
+            expect(service.manageable_signage_groups().length).toBe(2);
+            expect(service.managed_group_id()).toBe('b');
+            const context = TestBed.inject(SignageContextService);
+            expect(context.signage_groups_failed()).toBe(true);
+            expect(context.signage_groups().length).toBe(2);
+        });
+
+        it('reads the group index once for admins', async () => {
+            setCurrentUser(
+                new StaffUser({
+                    id: 'me',
+                    email: 'me@place.tech',
+                    groups: ['placeos_admin'],
+                }),
+            );
+            vi.mocked(queryGroups).mockReturnValue(
+                page([new PlaceGroup({ id: 'a', subsystems: ['signage'] })]),
+            );
+            const service = createService();
+            await settle();
+
+            expect(service.manageable_signage_groups().length).toBe(1);
+            expect(queryGroups).toHaveBeenCalledTimes(1);
+        });
+
+        it('opens the first group again for a new user', async () => {
+            const service = createService();
+            await settle();
+            service.managed_group_id.set('');
+            await settle();
+
+            vi.mocked(currentGroups).mockResolvedValue([manager('c')]);
+            setCurrentUser(
+                new StaffUser({ id: 'other', email: 'other@place.tech' }),
+            );
+            await settle();
+
+            expect(
+                service.manageable_signage_groups().map(({ id }) => id),
+            ).toEqual(['c']);
+            expect(service.managed_group_id()).toBe('c');
+        });
+
+        it('keeps the users on screen when their reload fails', async () => {
+            const service = createService();
+            await settle();
+            service.managed_group_id.set('b');
+            await settle();
+            const [row] = service.managed_group_users();
+
+            vi.mocked(updateGroupUser).mockResolvedValue(row);
+            vi.mocked(queryGroupUsers).mockRejectedValue(new Error('down'));
+            await service.updateManagedGroupUser(row, READ | MANAGE);
+            await settle();
+
+            expect(service.managed_group_users()).toEqual([row]);
+            expect(service.managed_group_users_failed()).toBe(true);
+        });
+
+        it('reads every page of the group users', async () => {
+            vi.mocked(queryGroupUsers).mockReturnValue(
+                page([member('user-1', 'a')], () =>
+                    page([member('user-2', 'a')]),
+                ),
+            );
+            const service = createService();
+            await settle();
+
+            expect(
+                service.managed_group_users().map(({ user_id }) => user_id),
+            ).toEqual(['user-1', 'user-2']);
         });
     });
 });

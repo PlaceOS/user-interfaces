@@ -9,6 +9,7 @@ import { RouterLink } from '@angular/router';
 import {
     AuthenticatedImageDirective,
     IconComponent,
+    LoadErrorComponent,
     MediaDurationPipe,
     PluginConfigPayload,
     PluginEmbedComponent,
@@ -21,6 +22,7 @@ import {
     SignagePlaylist,
     SignagePlugin,
 } from '@placeos/ts-client';
+import { mediaAnimation } from '../media/media-view.util';
 import { SignageMediaService } from '../media/signage-media.service';
 import {
     playlistMediaThumbnailUrl,
@@ -50,7 +52,7 @@ interface MediaPreviewModalData {
                     type="button"
                     matRipple
                     mat-dialog-close
-                    [attr.aria-label]="
+                    [aria-label]="
                         'SIGNAGE_MANAGER.CLOSE_MEDIA_PREVIEW' | translate
                     "
                 >
@@ -162,6 +164,9 @@ interface MediaPreviewModalData {
                                 default
                                 class="absolute top-2 right-2"
                                 [matTooltip]="
+                                    'SIGNAGE_MANAGER.MEDIA_EDIT' | translate
+                                "
+                                [attr.aria-label]="
                                     'SIGNAGE_MANAGER.MEDIA_EDIT' | translate
                                 "
                                 matTooltipPosition="left"
@@ -278,6 +283,8 @@ interface MediaPreviewModalData {
                                 <div class="text-base-content/70 text-sm">
                                     {{ 'COMMON.LOADING' | translate }}
                                 </div>
+                            } @else if (playlists_error()) {
+                                <load-error (retry)="loadPlaylists()" />
                             } @else if (containing_playlists().length > 0) {
                                 <div class="space-y-1">
                                     @for (
@@ -388,6 +395,7 @@ interface MediaPreviewModalData {
         MatProgressSpinnerModule,
         RouterLink,
         IconComponent,
+        LoadErrorComponent,
         AuthenticatedImageDirective,
         DatePipe,
         MediaDurationPipe,
@@ -412,6 +420,8 @@ export class MediaPreviewModalComponent implements OnInit {
 
     public readonly containing_playlists = signal<SignagePlaylist[]>([]);
     public readonly loading_playlists = signal(true);
+    /** Whether the playlists that use the media failed to load */
+    public readonly playlists_error = signal(false);
     public readonly edit = () => this._media_service.editMedia(this.item);
 
     /** Webpage URL for the preview iframe. Only http and https URLs load. */
@@ -453,7 +463,7 @@ export class MediaPreviewModalComponent implements OnInit {
     });
 
     public readonly animation_label = computed(() => {
-        switch (this.item.animation) {
+        switch (mediaAnimation(this.item.animation)) {
             case MediaAnimation.Cut:
                 return 'SIGNAGE_MANAGER.ANIM_CUT';
             case MediaAnimation.CrossFade:
@@ -471,13 +481,20 @@ export class MediaPreviewModalComponent implements OnInit {
         }
     });
 
-    public async ngOnInit() {
+    public ngOnInit() {
+        return this.loadPlaylists();
+    }
+
+    /** Load the playlists that use the media */
+    public async loadPlaylists() {
         // Unsaved media, such as a preview from the edit modal, is in no
         // playlist yet.
         if (!this.item.id) {
             this.loading_playlists.set(false);
             return;
         }
+        this.loading_playlists.set(true);
+        this.playlists_error.set(false);
         try {
             const media = await showSignageMedia(
                 this.item.id,
@@ -486,6 +503,7 @@ export class MediaPreviewModalComponent implements OnInit {
             this.containing_playlists.set(media.playlists || []);
         } catch {
             this.containing_playlists.set([]);
+            this.playlists_error.set(true);
         } finally {
             this.loading_playlists.set(false);
         }

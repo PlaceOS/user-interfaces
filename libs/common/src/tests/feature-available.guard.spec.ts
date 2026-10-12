@@ -1,7 +1,8 @@
 import { Router } from '@angular/router';
 import { createServiceFactory, SpectatorService } from '@ngneat/spectator/vitest';
 
-import { OrganisationService, SettingsService } from '@placeos/common';
+import { OrganisationService } from '../lib/org/organisation.service';
+import { SettingsService } from '../lib/settings.service';
 import { FeatureAvailableGuard } from '../lib/feature-available.guard';
 import { createSettingsServiceMock } from './test-helpers';
 

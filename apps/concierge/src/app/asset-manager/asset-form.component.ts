@@ -230,7 +230,7 @@ export class AssetFormComponent extends AsyncHandler implements OnInit {
         const item = await saveAsset({
             ...data,
             zone_id: this._org.building.id,
-        } as any).catch((e) => {
+        }).catch((e) => {
             this.loading.set('');
             notifyError(`Error saving asset: ${e.message}`);
             throw e;

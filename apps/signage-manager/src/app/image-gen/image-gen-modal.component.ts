@@ -1,14 +1,15 @@
 import {
     Component,
     computed,
+    effect,
     inject,
     linkedSignal,
     OnDestroy,
     signal,
+    untracked,
     viewChild,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { MatButtonModule } from '@angular/material/button';
 import { MatRippleModule } from '@angular/material/core';
 import {
     MAT_DIALOG_DATA,
@@ -29,6 +30,7 @@ import {
 } from '@placeos/components';
 import { SignageMedia } from '@placeos/ts-client';
 
+import { brandEditingOn, canEditBrandKit } from '../branding/brand-access';
 import { SignageMediaService } from '../media/signage-media.service';
 import { SignagePlaylistService } from '../playlists/signage-playlist.service';
 import { SignageContextService } from '../signage-context.service';
@@ -36,9 +38,12 @@ import {
     ImageGenLayerControlsComponent,
     newTextBlock,
 } from './image-gen-layer-controls.component';
-import { ImageGenLayerComponent } from './image-gen-layer.component';
+import {
+    COMPOSITE_TYPE,
+    ImageGenLayerComponent,
+} from './image-gen-layer.component';
 import { ImageGenReferencesComponent } from './image-gen-references.component';
-import { ImageGenService, isFinal, MAX_JOB_WAIT_MS } from './image-gen.service';
+import { ImageGenService, isFinal } from './image-gen.service';
 import {
     ImageGenEditRequest,
     ImageGenGenerateRequest,
@@ -46,7 +51,7 @@ import {
     ImageGenLayerState,
     ImageGenReference,
 } from './image-gen.types';
-import { errorMessage, orientationOf } from './image-gen.util';
+import { actionError, orientationOf } from './image-gen.util';
 
 export interface ImageGenModalData {
     /** pre-set from the playlist a user opened this from */
@@ -74,25 +79,32 @@ interface Candidate {
 @Component({
     selector: 'image-gen-modal',
     template: `
-        <div class="bg-base-200 flex h-full w-full flex-col overflow-hidden">
+        <div class="bg-base-100 flex h-full w-full flex-col overflow-hidden">
             <header
-                class="border-base-content/10 bg-base-100 flex h-14 shrink-0 items-center justify-between border-b px-4"
+                class="bg-base-200 m-2 w-[calc(100%-1rem)] shrink-0 rounded-sm border-none p-2"
             >
-                <h2 id="image-gen-modal-title" class="m-0 text-lg font-medium">
+                <h2 id="image-gen-modal-title" class="px-2 text-xl font-medium">
                     {{ heading() | translate }}
                 </h2>
-                <button icon mat-dialog-close [disabled]="saving()">
+                <button
+                    icon
+                    type="button"
+                    matRipple
+                    mat-dialog-close
+                    [disabled]="saving()"
+                    [attr.aria-label]="'COMMON.CLOSE' | translate"
+                >
                     <icon>close</icon>
                 </button>
             </header>
 
-            <div class="flex min-h-0 flex-1 flex-col md:flex-row">
+            <div class="flex min-h-0 flex-1 flex-col gap-2 px-2 pb-2 md:flex-row">
                 <!-- the picture, given the room -->
                 <section
-                    class="flex min-h-48 min-w-0 flex-1 flex-col gap-3 p-4 md:min-h-0"
+                    class="flex min-h-48 min-w-0 flex-1 flex-col gap-2 md:min-h-0"
                 >
                     <div
-                        class="border-base-content/10 bg-base-300 relative flex min-h-0 flex-1 items-center justify-center overflow-hidden rounded border"
+                        class="border-base-300 bg-base-200 relative flex min-h-0 flex-1 items-center justify-center overflow-hidden rounded-lg border"
                     >
                         @if (selected_object_url()) {
                             <image-gen-layer
@@ -106,6 +118,10 @@ interface Candidate {
                                 (changed)="layer_state.set($event)"
                                 (failed)="onArtworkFailed()"
                             ></image-gen-layer>
+                        } @else if (selected()) {
+                            <!-- the pick is still being read; the source
+                                 image here would look like the result -->
+                            <mat-spinner diameter="32"></mat-spinner>
                         } @else if (source_url()) {
                             <img
                                 auth
@@ -147,26 +163,35 @@ interface Candidate {
                     <!-- every candidate of every job in this session, oldest first -->
                     @if (rail().length) {
                         <div class="flex shrink-0 flex-col gap-1">
-                            <p
-                                class="text-base-content/60 m-0 text-xs uppercase"
-                            >
+                            <p class="m-0 text-sm font-medium">
                                 {{
                                     'SIGNAGE_MANAGER.IMAGE_GEN_VERSIONS'
                                         | translate
                                 }}
                             </p>
-                            <div class="flex gap-2 overflow-x-auto pb-1">
+                            <!-- padded so the selection ring is not clipped -->
+                            <div class="flex gap-2 overflow-x-auto p-1">
                                 @for (
                                     candidate of rail();
                                     track candidate.job_id +
                                         '-' +
                                         candidate.index
                                 ) {
+                                    <!-- a new result takes the preview when
+                                         it lands, so no pick while one runs -->
                                     <button
                                         type="button"
-                                        [disabled]="claim_pending()"
-                                        class="border-base-content/10 h-16 w-28 shrink-0 overflow-hidden rounded border"
+                                        [disabled]="
+                                            claim_pending() ||
+                                            saving() ||
+                                            state() === 'generating'
+                                        "
+                                        class="border-base-300 ring-primary ring-offset-base-100 h-16 w-28 shrink-0 overflow-hidden rounded-lg border ring-offset-2 disabled:opacity-60"
                                         [class.ring-2]="
+                                            selected()?.upload_id ===
+                                            candidate.upload_id
+                                        "
+                                        [attr.aria-pressed]="
                                             selected()?.upload_id ===
                                             candidate.upload_id
                                         "
@@ -188,10 +213,10 @@ interface Candidate {
 
                 <!-- everything that shapes it -->
                 <aside
-                    class="border-base-content/10 bg-base-100 flex min-h-0 w-full flex-1 flex-col border-t md:w-96 md:flex-none md:shrink-0 md:border-t-0 md:border-l"
+                    class="border-base-300 bg-base-100 flex min-h-0 w-full flex-1 flex-col rounded-lg border md:w-96 md:flex-none md:shrink-0"
                 >
                     <div class="flex-1 space-y-4 overflow-y-auto p-4">
-                        @if (!rail().length) {
+                        @if (show_compose()) {
                             <div class="flex flex-col">
                                 <label
                                     for="image-gen-brief"
@@ -205,7 +230,7 @@ interface Candidate {
                                 >
                                 <mat-form-field
                                     appearance="outline"
-                                    class="w-full"
+                                    class="no-subscript w-full"
                                 >
                                     <textarea
                                         matInput
@@ -218,24 +243,36 @@ interface Candidate {
                                             ) | translate
                                         "
                                         [(ngModel)]="brief"
+                                        (keydown.control.enter)="start()"
+                                        (keydown.meta.enter)="start()"
                                     ></textarea>
                                 </mat-form-field>
                             </div>
 
-                            <div class="flex flex-col gap-3">
-                                <!-- an edit comes back at the source's own
-                                     shape, so there is nothing here to choose -->
-                                @if (!is_edit()) {
-                                    <mat-form-field
-                                        appearance="outline"
-                                        class="w-full"
-                                        subscriptSizing="dynamic"
-                                    >
-                                        <mat-label>{{
+                            <!-- an edit comes back at the source's own
+                                 shape, so there is nothing here to choose -->
+                            @if (!is_edit()) {
+                                <div class="flex flex-col">
+                                    <!-- a mat-select names itself from the
+                                         label by its id -->
+                                    <label
+                                        id="image-gen-shape-label"
+                                        for="image-gen-shape"
+                                        class="mb-1 text-sm"
+                                        >{{
                                             'SIGNAGE_MANAGER.IMAGE_GEN_SHAPE'
                                                 | translate
-                                        }}</mat-label>
-                                        <mat-select [(ngModel)]="aspect">
+                                        }}</label
+                                    >
+                                    <mat-form-field
+                                        appearance="outline"
+                                        class="no-subscript w-full"
+                                    >
+                                        <mat-select
+                                            id="image-gen-shape"
+                                            aria-labelledby="image-gen-shape-label"
+                                            [(ngModel)]="aspect"
+                                        >
                                             @for (
                                                 option of aspect_options();
                                                 track option
@@ -246,17 +283,27 @@ interface Candidate {
                                             }
                                         </mat-select>
                                     </mat-form-field>
-                                }
-                                <mat-form-field
-                                    appearance="outline"
-                                    class="w-full"
-                                    subscriptSizing="dynamic"
-                                >
-                                    <mat-label>{{
+                                </div>
+                            }
+                            <div class="flex flex-col">
+                                <label
+                                    id="image-gen-count-label"
+                                    for="image-gen-count"
+                                    class="mb-1 text-sm"
+                                    >{{
                                         'SIGNAGE_MANAGER.IMAGE_GEN_OPTIONS_COUNT'
                                             | translate
-                                    }}</mat-label>
-                                    <mat-select [(ngModel)]="candidates">
+                                    }}</label
+                                >
+                                <mat-form-field
+                                    appearance="outline"
+                                    class="no-subscript w-full"
+                                >
+                                    <mat-select
+                                        id="image-gen-count"
+                                        aria-labelledby="image-gen-count-label"
+                                        [(ngModel)]="candidates"
+                                    >
                                         @for (
                                             count of candidate_options();
                                             track count
@@ -332,39 +379,47 @@ interface Candidate {
                             <!-- refining sends the pick back through the edit
                                  model, so it follows the ai-editing flag -->
                             @if (can_refine()) {
-                                <div class="flex flex-col">
-                                    <label
-                                        for="image-gen-refine"
-                                        class="mb-1 text-sm"
-                                        >{{
-                                            'SIGNAGE_MANAGER.IMAGE_GEN_REFINE'
-                                                | translate
-                                        }}</label
-                                    >
-                                    <mat-form-field
-                                        appearance="outline"
-                                        class="w-full"
-                                    >
-                                        <textarea
-                                            matInput
-                                            id="image-gen-refine"
-                                            rows="2"
-                                            [placeholder]="
-                                                'SIGNAGE_MANAGER.IMAGE_GEN_REFINE_HINT'
+                                <div class="flex flex-col gap-2">
+                                    <div class="flex flex-col">
+                                        <label
+                                            for="image-gen-refine"
+                                            class="mb-1 text-sm"
+                                            >{{
+                                                'SIGNAGE_MANAGER.IMAGE_GEN_REFINE'
                                                     | translate
-                                            "
-                                            [(ngModel)]="refinement"
-                                        ></textarea>
-                                    </mat-form-field>
+                                            }}</label
+                                        >
+                                        <mat-form-field
+                                            appearance="outline"
+                                            class="no-subscript w-full"
+                                        >
+                                            <textarea
+                                                matInput
+                                                id="image-gen-refine"
+                                                rows="2"
+                                                [placeholder]="
+                                                    'SIGNAGE_MANAGER.IMAGE_GEN_REFINE_HINT'
+                                                        | translate
+                                                "
+                                                [(ngModel)]="refinement"
+                                                (keydown.control.enter)="
+                                                    refine()
+                                                "
+                                                (keydown.meta.enter)="refine()"
+                                            ></textarea>
+                                        </mat-form-field>
+                                    </div>
                                     <button
-                                        mat-stroked-button
+                                        btn
+                                        matRipple
                                         type="button"
-                                        class="self-start"
+                                        class="inverse self-start"
                                         [disabled]="
                                             !refinement().trim() ||
                                             !selected() ||
                                             state() === 'generating' ||
-                                            claim_pending()
+                                            claim_pending() ||
+                                            saving()
                                         "
                                         (click)="refine()"
                                     >
@@ -399,8 +454,8 @@ interface Candidate {
                             (removed)="removeReference($event)"
                         ></image-gen-references>
 
-                        @if (rail().length) {
-                            <div class="border-base-content/10 border-t pt-4">
+                        @if (!show_compose()) {
+                            <div class="border-base-300 border-t pt-4">
                                 <p class="m-0 mb-2 text-sm font-medium">
                                     {{
                                         'SIGNAGE_MANAGER.IMAGE_GEN_WORDS_AND_LOGO'
@@ -413,6 +468,7 @@ interface Candidate {
                                     [logo_on_dark]="logo_on_dark()"
                                     [brand]="applied_brand()"
                                     [can_set_logo]="can_set_logo()"
+                                    [branding_editing]="branding_editing()"
                                     [uploading]="uploading_logo()"
                                     (changed)="layer_state.set($event)"
                                     (logoPicked)="uploadLogo($event)"
@@ -433,20 +489,34 @@ interface Candidate {
                     </div>
 
                     <footer
-                        class="border-base-content/10 flex shrink-0 items-center justify-end gap-2 border-t p-4"
+                        class="border-base-300 flex shrink-0 items-center justify-end gap-2 border-t p-2"
                     >
                         @if (state() === 'generating') {
                             <button
-                                mat-stroked-button
+                                btn
+                                matRipple
                                 type="button"
+                                class="inverse min-w-32"
                                 (click)="cancel()"
                             >
                                 {{ 'COMMON.CANCEL' | translate }}
                             </button>
-                        } @else if (!rail().length) {
+                        } @else if (show_compose()) {
+                            @if (rail().length) {
+                                <button
+                                    btn
+                                    matRipple
+                                    type="button"
+                                    class="inverse min-w-32"
+                                    (click)="composing.set(false)"
+                                >
+                                    {{ 'COMMON.BACK' | translate }}
+                                </button>
+                            }
                             <button
                                 btn
                                 matRipple
+                                type="button"
                                 class="min-w-32"
                                 [disabled]="!brief().trim()"
                                 (click)="start()"
@@ -460,8 +530,22 @@ interface Candidate {
                             <button
                                 btn
                                 matRipple
+                                type="button"
+                                class="inverse min-w-32"
+                                [disabled]="claim_pending() || saving()"
+                                (click)="composing.set(true)"
+                            >
+                                {{
+                                    'SIGNAGE_MANAGER.IMAGE_GEN_NEW_BRIEF'
+                                        | translate
+                                }}
+                            </button>
+                            <button
+                                btn
+                                matRipple
+                                type="button"
                                 class="flex min-w-32 items-center justify-center gap-2"
-                                [disabled]="!selected() || saving()"
+                                [disabled]="!can_save()"
                                 (click)="save()"
                             >
                                 @if (saving()) {
@@ -482,7 +566,6 @@ interface Candidate {
     `,
     imports: [
         FormsModule,
-        MatButtonModule,
         MatDialogModule,
         MatFormFieldModule,
         MatInputModule,
@@ -532,6 +615,8 @@ export class ImageGenModalComponent implements OnDestroy {
 
     public readonly state = signal<ModalState>('compose');
     public readonly saving = signal(false);
+    /** writing a new brief while the versions made so far stay in the rail */
+    public readonly composing = signal(false);
 
     public readonly brief = signal('');
     public readonly refinement = signal('');
@@ -585,10 +670,20 @@ export class ImageGenModalComponent implements OnDestroy {
         return style ? [style] : [];
     });
     public readonly claim_pending = signal(false);
+    /** only a pick that has loaded, so the person has seen what is saved */
+    public readonly can_save = computed(
+        () => !!this.selected_object_url() && !this.saving(),
+    );
 
     public readonly brand = this._image_gen.brand_kit;
 
-    public readonly can_set_logo = this._context.is_sys_admin;
+    /** the same rule as the branding page, as this writes the same kit */
+    public readonly can_set_logo = computed(() =>
+        canEditBrandKit(this._context),
+    );
+    public readonly branding_editing = computed(() =>
+        brandEditingOn(this._context),
+    );
 
     public readonly group_id = computed(
         () => this._context.selected_group()?.group.id || undefined,
@@ -615,6 +710,10 @@ export class ImageGenModalComponent implements OnDestroy {
     );
 
     public readonly is_edit = computed(() => !!this._data.source_upload_id);
+    /** the brief and its options, before anything is made or on request */
+    public readonly show_compose = computed(
+        () => !this.rail().length || this.composing(),
+    );
     public readonly can_refine = computed(
         () =>
             this._context.hasFeature('ai-editing') &&
@@ -733,19 +832,13 @@ export class ImageGenModalComponent implements OnDestroy {
 
     public async start() {
         const brief = this.brief().trim();
-        if (!brief) return;
-        const prompt = this.withReferenceRoles(brief);
+        if (!brief || this.state() === 'generating') return;
         const token = ++this._job_token;
         this.state.set('generating');
         try {
             const common = {
-                prompt,
-                candidates: this.candidates(),
-                include_logo: this.include_logo(),
-                add_text_with_layer: this.add_text_with_layer(),
-                use_branding: this.use_branding(),
-                group_id: this.group_id(),
-                references: this.reference_ids(),
+                ...this._requestBase(),
+                prompt: this.withReferenceRoles(brief),
             };
             let job: ImageGenJob;
             if (this._data.source_upload_id) {
@@ -756,7 +849,7 @@ export class ImageGenModalComponent implements OnDestroy {
                 };
                 job = await this._image_gen.edit({
                     ...request,
-                    idempotency_key: this._image_gen.intentKey('edit', request),
+                    idempotency_key: this._intentKey('edit', request),
                 });
             } else {
                 const request: ImageGenGenerateRequest = {
@@ -765,18 +858,17 @@ export class ImageGenModalComponent implements OnDestroy {
                 };
                 job = await this._image_gen.generate({
                     ...request,
-                    idempotency_key: this._image_gen.intentKey(
-                        'generate',
-                        request,
-                    ),
+                    idempotency_key: this._intentKey('generate', request),
                 });
             }
             this._follow(job, token);
         } catch (error) {
+            // closed while waiting, and no job will read the images now
+            if (this._closed) return this._removeReferences();
             if (token !== this._job_token) return;
-            this.state.set('compose');
+            this.state.set(this.rail().length ? 'review' : 'compose');
             notifyError(
-                errorMessage(
+                actionError(
                     error,
                     i18n('SIGNAGE_MANAGER.IMAGE_GEN_JOB_FAILED'),
                 ),
@@ -787,32 +879,30 @@ export class ImageGenModalComponent implements OnDestroy {
     public async refine() {
         const instruction = this.refinement().trim();
         const source = this.selected();
-        if (!instruction || !source) return;
+        if (!instruction || !source || this.state() === 'generating') return;
         this.refinement.set('');
         const token = ++this._job_token;
         this.state.set('generating');
         try {
             const request: ImageGenEditRequest = {
+                ...this._requestBase(),
                 prompt: this.withReferenceRoles(instruction),
                 candidates: 1,
-                include_logo: this.include_logo(),
-                add_text_with_layer: this.add_text_with_layer(),
-                use_branding: this.use_branding(),
-                group_id: this.group_id(),
                 source_upload_id: source.upload_id,
                 parent_job_id: source.job_id,
-                references: this.reference_ids(),
             };
             const job = await this._image_gen.edit({
                 ...request,
-                idempotency_key: this._image_gen.intentKey('edit', request),
+                idempotency_key: this._intentKey('edit', request),
             });
             this._follow(job, token);
         } catch (error) {
+            // closed while waiting, and no job will read the images now
+            if (this._closed) return this._removeReferences();
             if (token !== this._job_token) return;
             this.state.set('review');
             notifyError(
-                errorMessage(
+                actionError(
                     error,
                     i18n('SIGNAGE_MANAGER.IMAGE_GEN_JOB_FAILED'),
                 ),
@@ -822,13 +912,16 @@ export class ImageGenModalComponent implements OnDestroy {
 
     private _select_token = 0;
 
+    /** the pick could not be read, so it is let go rather than saved unseen */
     public onArtworkFailed() {
+        this.selected.set(null);
         this.selected_object_url.set('');
         notifyError(i18n('SIGNAGE_MANAGER.IMAGE_GEN_IMAGE_UNREADABLE'));
     }
 
     public async select(candidate: Candidate) {
-        if (this.claim_pending()) return;
+        if (this.claim_pending() || this.saving()) return;
+        if (this.state() === 'generating') return;
         const token = ++this._select_token;
         this.selected.set(candidate);
         this.selected_object_url.set('');
@@ -836,15 +929,19 @@ export class ImageGenModalComponent implements OnDestroy {
             .loadImage(candidate.url)
             .catch(() => '');
         if (token !== this._select_token) return;
+        if (!url) return this.onArtworkFailed();
         this.selected_object_url.set(url);
     }
 
     /**
      * Stop the running job. The old loop stops at once, so a job that still
      * finishes later cannot take over the screen. If the server refuses, the
-     * job is still running and the modal keeps following it.
+     * job is still running and the modal keeps following it. A request still
+     * on its way gives up its key, so asking again makes a new job rather than
+     * getting back the one being cancelled.
      */
     public async cancel() {
+        this._dropIntent();
         this._stopAwaiting();
         const id = this.current_job_id();
         const job = this._image_gen.jobs()[id];
@@ -923,9 +1020,9 @@ export class ImageGenModalComponent implements OnDestroy {
             }
         } catch (error) {
             notifyError(
-                errorMessage(
+                actionError(
                     error,
-                    i18n('SIGNAGE_MANAGER.IMAGE_GEN_JOB_FAILED'),
+                    i18n('SIGNAGE_MANAGER.IMAGE_GEN_REFERENCE_UPLOAD_FAILED'),
                 ),
             );
         } finally {
@@ -947,15 +1044,29 @@ export class ImageGenModalComponent implements OnDestroy {
 
     public ngOnDestroy() {
         this._closed = true;
+        this._dropIntent();
         this._stopAwaiting();
 
-        const running = this.state() === 'generating';
-        for (const item of this.references()) {
-            URL.revokeObjectURL(item.url);
-            // a running job reads the reference bytes server side, so those are
-            // left for the housekeeping sweep to clear
-            if (!running) this._image_gen.removeReference(item.id);
+        for (const id of this.job_ids()) {
+            this._image_gen.setJobOnScreen(id, false);
         }
+        for (const item of this.references()) URL.revokeObjectURL(item.url);
+        if (this.state() !== 'generating') return this._removeReferences();
+        // nothing can show the result once this closes, so stop the job
+        // rather than spend the quota on images no one can reach. A request
+        // the server has not answered yet is dealt with by _follow, or by
+        // start and refine if it fails.
+        const job = this._image_gen.jobs()[this.current_job_id()];
+        if (job && !isFinal(job)) {
+            this._image_gen.abandon(job.id, this.reference_ids());
+        }
+    }
+
+    /** nothing sends the attached images again, so their uploads can go */
+    private _removeReferences() {
+        this.reference_ids().forEach((id) =>
+            this._image_gen.removeReference(id),
+        );
     }
 
     public async uploadLogo(file: File) {
@@ -968,9 +1079,9 @@ export class ImageGenModalComponent implements OnDestroy {
             notifySuccess(i18n('SIGNAGE_MANAGER.IMAGE_GEN_LOGO_SAVED'));
         } catch (error) {
             notifyError(
-                errorMessage(
+                actionError(
                     error,
-                    i18n('SIGNAGE_MANAGER.IMAGE_GEN_JOB_FAILED'),
+                    i18n('SIGNAGE_MANAGER.IMAGE_GEN_LOGO_SAVE_FAILED'),
                 ),
             );
         } finally {
@@ -980,27 +1091,28 @@ export class ImageGenModalComponent implements OnDestroy {
 
     public async save() {
         const candidate = this.selected();
-        if (!candidate) return;
+        if (!candidate || !this.can_save()) return;
 
-        // Take the composited image before the button swaps to a spinner. A
-        // retry reuses the row the last attempt made, so needs no image.
-        const name = this._name();
-        const overlay = !this._pending && this.has_overlay();
-        const blob = overlay ? await this._layer()?.toBlob() : undefined;
-        if (overlay && !blob) {
-            notifyError(i18n('SIGNAGE_MANAGER.IMAGE_GEN_NO_IMAGE'));
-            return;
-        }
-
+        // set before the image is taken, so a second click cannot start a
+        // second save while the canvas is encoded
         this.saving.set(true);
         this._dialog_ref.disableClose = true;
         try {
+            // A retry reuses the row the last attempt made, so needs no image.
+            const name = this._name();
+            const overlay = !this._pending && this.has_overlay();
+            const blob = overlay ? await this._layer()?.toBlob() : undefined;
+            if (overlay && !blob) {
+                notifyError(i18n('SIGNAGE_MANAGER.IMAGE_GEN_NO_IMAGE'));
+                return;
+            }
+
             let pending = this._pending;
             if (!pending) {
                 const media = blob
                     ? await this._media_service.addMedia(
-                          new File([blob], `${name}.png`, {
-                              type: 'image/png',
+                          new File([blob], `${name}.jpg`, {
+                              type: COMPOSITE_TYPE[0],
                           }),
                           new SignageMedia({ name, tags: this._tags() }),
                       )
@@ -1070,9 +1182,9 @@ export class ImageGenModalComponent implements OnDestroy {
             this._dialog_ref.close(media);
         } catch (error) {
             notifyError(
-                errorMessage(
+                actionError(
                     error,
-                    i18n('SIGNAGE_MANAGER.IMAGE_GEN_JOB_FAILED'),
+                    i18n('SIGNAGE_MANAGER.IMAGE_GEN_SAVE_FAILED'),
                 ),
             );
         } finally {
@@ -1087,67 +1199,81 @@ export class ImageGenModalComponent implements OnDestroy {
      * it rather than making a second. While it is set the pick is locked.
      */
     private _pending: { media: SignageMedia; claimed: boolean } | undefined;
-    private _await_timer: ReturnType<typeof setTimeout> | null = null;
     /** bumped to stop whichever job the modal was following */
     private _job_token = 0;
     private _logo_defaulted = false;
+    private _logos_read = false;
+    /** the key of a request the server has not answered yet */
+    private _inflight_key = '';
+    /** the job the modal waits on, empty once it ends or is let go */
+    private readonly _awaiting = signal('');
+
+    constructor() {
+        // the service polls the job, and marks it failed if it runs too long
+        effect(() => {
+            const id = this._awaiting();
+            const job = id ? this._image_gen.jobs()[id] : undefined;
+            if (job && isFinal(job)) untracked(() => this._finish(job));
+        });
+    }
 
     /** follow a job the server accepted, unless it was cancelled on the way */
     private _follow(job: ImageGenJob, token: number) {
-        if (this._closed) return;
-        if (token !== this._job_token) {
-            this._image_gen.cancel(job.id);
+        if (this._closed || token !== this._job_token) {
+            this._image_gen.abandon(
+                job.id,
+                this._closed ? this.reference_ids() : [],
+            );
             return;
         }
+        // answered, and the service has already retired the key
+        this._inflight_key = '';
         this.job_ids.update((ids) => [...ids, job.id]);
+        // the modal shows the result, so the service need not announce it
+        this._image_gen.setJobOnScreen(job.id, true);
         this._awaitJob(job.id);
     }
 
     private _stopAwaiting() {
         this._job_token++;
-        if (this._await_timer) clearTimeout(this._await_timer);
-        this._await_timer = null;
+        this._awaiting.set('');
     }
 
-    /** poll until the job reaches a final state, then move on */
+    /** wait for the job to reach a final state, then move on */
     private _awaitJob(id: string) {
         this._stopAwaiting();
-        const token = this._job_token;
-        const deadline = Date.now() + MAX_JOB_WAIT_MS;
-        const check = () => {
-            this._await_timer = null;
-            if (this._closed || token !== this._job_token) return;
-            const job = this._image_gen.jobs()[id];
-            if (!job || !isFinal(job)) {
-                if (Date.now() >= deadline) {
-                    this._image_gen.unwatch(id);
-                    this.state.set(this.rail().length ? 'review' : 'compose');
-                    notifyError(i18n('SIGNAGE_MANAGER.IMAGE_GEN_JOB_FAILED'));
-                    return;
-                }
-                this._await_timer = setTimeout(check, 250);
-                return;
-            }
-            if (job.state === 'failed') {
-                this.state.set(this.rail().length ? 'review' : 'compose');
-                return;
-            }
-            if (job.state === 'cancelled') {
-                this.state.set(this.rail().length ? 'review' : 'compose');
-                return;
-            }
-            const newest = this.rail().filter(
-                (candidate) => candidate.job_id === id,
-            );
-            if (newest.length) this.select(newest[0]);
-            this._loadBrandLogos();
-            this.state.set('review');
-        };
-        check();
+        this._awaiting.set(id);
     }
 
-    /** both saved logos, so the toggle in the sidebar has something to show */
+    private _finish(job: ImageGenJob) {
+        this._awaiting.set('');
+        if (this._closed) return;
+        const newest =
+            job.state === 'done'
+                ? this.rail().find((candidate) => candidate.job_id === job.id)
+                : undefined;
+        if (!newest) {
+            // the service tells of a failure, but a job that ended with
+            // nothing to show would otherwise end in silence
+            if (job.state === 'done') {
+                notifyError(i18n('SIGNAGE_MANAGER.IMAGE_GEN_NO_IMAGES'));
+            }
+            this.state.set(this.rail().length ? 'review' : 'compose');
+            return;
+        }
+        // set first, as a pick is refused while a job runs
+        this.state.set('review');
+        this.composing.set(false);
+        this.select(newest);
+        if (!this._logos_read) this._loadBrandLogos();
+    }
+
+    /**
+     * Both saved logos, so the toggle in the sidebar has something to show.
+     * Read once, when the first result lands, and again after an upload.
+     */
     private async _loadBrandLogos() {
+        this._logos_read = true;
         const brand = this.brand();
         const [on_light, on_dark] = await Promise.all([
             this._readUpload(brand?.logo_upload_id),
@@ -1171,9 +1297,36 @@ export class ImageGenModalComponent implements OnDestroy {
     }
 
     private _name() {
-        const brief = (this.brief() || this._data.source_name || '').trim();
-        const words = brief.split(/\s+/).slice(0, 6).join(' ');
+        // an edit is a new version of the item, so it keeps the item's name
+        const source = this.is_edit() ? this._data.source_name?.trim() : '';
+        if (source) return source;
+        const words = this.brief().trim().split(/\s+/).slice(0, 6).join(' ');
         return words || i18n('SIGNAGE_MANAGER.IMAGE_GEN_DEFAULT_NAME');
+    }
+
+    /** what every request carries, whichever kind it is */
+    private _requestBase() {
+        return {
+            candidates: this.candidates(),
+            // the server would leave a corner empty for a logo it cannot draw
+            include_logo: this.include_logo() && this.has_logo(),
+            add_text_with_layer: this.add_text_with_layer(),
+            use_branding: this.use_branding(),
+            group_id: this.group_id(),
+            references: this.reference_ids(),
+        };
+    }
+
+    /** the request's key, kept until the server answers or it is let go */
+    private _intentKey(kind: 'generate' | 'edit', request: object) {
+        this._inflight_key = this._image_gen.intentKey(kind, request);
+        return this._inflight_key;
+    }
+
+    private _dropIntent() {
+        if (!this._inflight_key) return;
+        this._image_gen.forgetIntent(this._inflight_key);
+        this._inflight_key = '';
     }
 
     /**

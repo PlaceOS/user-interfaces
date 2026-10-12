@@ -1,7 +1,7 @@
 {
     "name": "Enrolment",
     "short_name": "Enrolment",
-    "theme_color": "#126E82",
+    "theme_color": "#365314",
     "background_color": "#fafafa",
     "display": "standalone",
     "scope": "./",

@@ -27,13 +27,11 @@ export class DateFromPipe implements PipeTransform {
                 : format(date, 'H:mm');
         } else if (diff < 7 * 24 * 60) {
             // Days
-            const days = Math.floor(diff / (24 * 60));
             return direction
                 ? format(date, 'dd MMM yyyy')
                 : format(date, 'E H:mm');
         } else if (diff < 365 * 24 * 60) {
             // Days
-            const days = Math.floor(diff / (24 * 60));
             return direction
                 ? format(date, 'dd MMM yyyy')
                 : format(date, 'LLL d H:mm');

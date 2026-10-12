@@ -10,6 +10,30 @@ import { BACKEND_URL, RoleName, roleFor } from './env';
 export const ENGINE_API = '/api/engine/v2';
 export const STAFF_API = '/api/staff/v1';
 
+/** The rows of a listing, which is either a bare array or `{ results }`. */
+export function asList<T>(body: unknown): T[] {
+    if (Array.isArray(body)) return body;
+    return (body as { results?: T[] } | null)?.results ?? [];
+}
+
+/** Does this error body mean "the row is already there"? */
+export function alreadyExists(body: string): boolean {
+    return /already (exists|taken)|has already been taken|must be unique|should be unique|duplicate/i.test(
+        body,
+    );
+}
+
+/** GET a JSON body, or throw with the status and body. */
+export async function getJson(
+    api: APIRequestContext,
+    path: string,
+    params?: Record<string, string>,
+) {
+    const res = await api.get(path, { params });
+    if (!res.ok()) throw new Error(`GET ${path} failed: HTTP ${res.status()} ${await res.text()}`);
+    return res.json();
+}
+
 /** Read the raw bearer a worker's auth fixture wrote for a role. */
 export function readToken(role: RoleName, workerIndex = 0): string {
     const { tokenPath } = roleFor(role, workerIndex);

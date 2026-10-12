@@ -16,17 +16,18 @@ import {
     Building,
     BuildingLevel,
     CalendarEvent,
+    EventExtensionData,
     OrganisationService,
     SettingsService,
     Space,
     StaffUser,
-    TIMEZONES_IANA,
     currentUser,
     formatDuration,
     getInvalidSignalFields,
     notifyError,
     unique,
 } from '@placeos/common';
+import { TIMEZONES_IANA } from '@placeos/common/timezones';
 import {
     IconComponent,
     SettingsToggleComponent,
@@ -608,14 +609,20 @@ export class EventManageComponent
                     let booking = await showEvent(params.get('id'), {
                         calendar: this._state.calendar,
                     });
-                    const space = await space_pipe.transform(
-                        this._state.calendar,
-                    );
-                    const metadata = await showEventMetadata(
-                        params.get('id'),
-                        space?.id || booking.system?.id,
-                        { ical_uid: booking.ical_uid },
-                    ).catch(() => ({}));
+                    // Staff API can keep more than one metadata record for an
+                    // event, and the metadata route can return an old one.
+                    // Group events already include their current metadata.
+                    let metadata: Partial<EventExtensionData> = {};
+                    if (!booking.extension_data?.shared_event) {
+                        const space = await space_pipe.transform(
+                            this._state.calendar,
+                        );
+                        metadata = await showEventMetadata(
+                            params.get('id'),
+                            space?.id || booking.system?.id,
+                            { ical_uid: booking.ical_uid },
+                        ).catch(() => ({}));
+                    }
                     booking = new CalendarEvent({
                         ...booking,
                         extension_data: {
@@ -662,12 +669,6 @@ export class EventManageComponent
     }
 
     public setLevel(level: BuildingLevel) {
-        const new_zones = unique([
-            this._org.organisation.id,
-            this._org.building.parent_id,
-            this._org.building.id,
-            level.id,
-        ]);
         this._form_state.setOptions({ zones: [level.id] });
     }
 

@@ -29,7 +29,7 @@ export interface MediaSelectModalData {
                 type="button"
                 matRipple
                 mat-dialog-close
-                [attr.aria-label]="'COMMON.CLOSE' | translate"
+                [aria-label]="'COMMON.CLOSE' | translate"
             >
                 <icon>close</icon>
             </button>
@@ -43,8 +43,7 @@ export interface MediaSelectModalData {
             >
                 <input
                     matInput
-                    [ngModel]="list.search()"
-                    (ngModelChange)="list.search.set($event)"
+                    [(ngModel)]="list.search"
                     [placeholder]="
                         'SIGNAGE_MANAGER.TEMPLATE_BACKGROUND_SEARCH' | translate
                     "

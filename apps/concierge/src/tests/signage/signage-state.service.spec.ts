@@ -24,7 +24,7 @@ describe('SignageStateService', () => {
     // entirely through the injected `MatDialog` fake below.
     let confirm_reason: 'done' | 'cancel';
 
-    const organisation_service: any = {
+    const organisation_service: unknown = {
         active_building: signal({ id: 'bld-1' }),
         active_region: signal({ id: 'region-1' }),
     };
@@ -38,7 +38,7 @@ describe('SignageStateService', () => {
                 upload_list: signal([]),
                 uploadFile: vi.fn(),
                 uploadFileWithPermissions: vi.fn(),
-            } as any),
+            }),
         ],
     });
 
@@ -93,7 +93,7 @@ describe('SignageStateService', () => {
     });
 
     afterEach(() => {
-        setNotifyOutlet(null as any, true);
+        setNotifyOutlet(null, true);
     });
 
     it('should mark state as changed with a fresh timestamp', () => {
@@ -124,7 +124,7 @@ describe('SignageStateService', () => {
             id: 'pl-9',
             name: 'Renamed',
             description: '',
-            orientation: null as any,
+            orientation: null,
         });
 
         expect(ts_client_mod.updateSignagePlaylist).toHaveBeenCalledWith(
@@ -244,12 +244,12 @@ describe('SignageStateService', () => {
     it('should open the media modal for supported dropped files', async () => {
         const editMedia = vi
             .spyOn(spectator.service, 'editMedia')
-            .mockResolvedValue(null as any);
+            .mockResolvedValue(null);
         const file = new File([''], 'clip.mp4', { type: 'video/mp4' });
 
         spectator.service.previewFileFromInput({
             target: { files: [file] },
-        } as any);
+        });
 
         expect(editMedia).toHaveBeenCalledWith(undefined, file, '');
         expect(notify_open).not.toHaveBeenCalled();
@@ -258,12 +258,12 @@ describe('SignageStateService', () => {
     it('should reject dropped files that are not images or videos', () => {
         const editMedia = vi
             .spyOn(spectator.service, 'editMedia')
-            .mockResolvedValue(null as any);
+            .mockResolvedValue(null);
         const file = new File([''], 'notes.txt', { type: 'text/plain' });
 
         spectator.service.previewFileFromInput({
             target: { files: [file] },
-        } as any);
+        });
 
         expect(editMedia).not.toHaveBeenCalled();
         expect(notify_open).toHaveBeenCalledWith(

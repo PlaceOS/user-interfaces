@@ -17,8 +17,8 @@ const notify_open = vi.fn(() => ({
 
 describe('MediaAddModalComponent', () => {
     const dialog_ref = { close: vi.fn() };
-    const plugins = signal<any[]>([]);
-    const widgets = signal<any[]>([]);
+    const plugins = signal<unknown[]>([]);
+    const widgets = signal<unknown[]>([]);
     const plugin_service = { plugins, widgets };
     const media_service = {
         addMediaFromLink: vi.fn().mockResolvedValue(undefined),

@@ -22,7 +22,7 @@ describe('EventViewComponent', () => {
         providers: [
             MockProvider(OrganisationService, {
                 waitUntilInitialised: vi.fn(() => Promise.resolve()),
-            } as any),
+            }),
             MockProvider(SettingsService, {
                 get: vi.fn(() => ''),
             } as any),

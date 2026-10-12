@@ -2,7 +2,7 @@ import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { setNotifyOutlet } from '@placeos/common';
-import { SignageTemplate } from '@placeos/ts-client';
+import { showSignageTemplate, SignageTemplate } from '@placeos/ts-client';
 import { TemplateRequestApprovalModalComponent } from '../../app/shared/template-request-approval-modal.component';
 import { SignageContextService } from '../../app/signage-context.service';
 import { SignagePluginService } from '../../app/signage-plugin.service';
@@ -68,6 +68,25 @@ describe('TemplateRequestApprovalModalComponent', () => {
             approver_id: 'user-1',
             message: 'Please review',
         });
+    });
+
+    it('shows an error when the preview versions fail to load', async () => {
+        vi.mocked(showSignageTemplate).mockRejectedValue(new Error('Offline'));
+        const fixture = TestBed.createComponent(
+            TemplateRequestApprovalModalComponent,
+        );
+        const component = fixture.componentInstance;
+
+        component.togglePreview();
+        await vi.waitFor(() => expect(component.versions_error()).toBe(true));
+        fixture.detectChanges();
+
+        expect(component.loading()).toBe('');
+        expect(fixture.nativeElement.textContent).toContain(
+            'Unable to load template versions.',
+        );
+        await expect(component.undoChanges()).resolves.toBeUndefined();
+        expect(template_service.undoTemplateChanges).not.toHaveBeenCalled();
     });
 
     it('undoes the pending draft from the approval preview', async () => {

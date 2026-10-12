@@ -4,7 +4,7 @@ import {
 } from '@placeos/ts-client';
 
 /** Most revisions to read when looking for the last approved revision */
-export const PLAYLIST_REVISION_LIMIT = 25;
+const PLAYLIST_REVISION_LIMIT = 25;
 
 /**
  * Load the latest revision of the media of a playlist and the last approved
@@ -23,4 +23,20 @@ export async function loadPlaylistApprovalVersions(
     if (!latest) return [];
     const approved = older.find((revision) => revision.approved);
     return approved ? [latest, approved] : [latest];
+}
+
+/**
+ * Whether the media list of a playlist has changed since a revision was
+ * loaded. The approve action approves the latest revision, so check this
+ * first to approve only what the approver saw.
+ * @param shown Latest revision when the approver loaded the changes
+ */
+export async function playlistChangedSince(
+    playlist_id: string,
+    shown: SignagePlaylistMedia | undefined,
+) {
+    const [latest] = await listSignagePlaylistMediaRevisions(playlist_id, {
+        limit: 1,
+    });
+    return latest?.id !== shown?.id || latest?.updated_at !== shown?.updated_at;
 }

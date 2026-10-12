@@ -1,5 +1,6 @@
 import { DatePipe } from '@angular/common';
 import {
+    afterRenderEffect,
     Component,
     inject,
     input,
@@ -24,9 +25,9 @@ import {
     clearDebugOverlayLayouts,
     DebugOverlayComponent,
 } from './debug-overlay.component';
-import { isDebugEnabled } from './debug-state';
+import { DEBUG_STORAGE_KEY, isDebugEnabled } from './debug-state';
 import { registerSignageDiagnostics } from './diagnostics';
-import { time } from './media-helpers';
+import { time, validateMedia } from './media-helpers';
 import { MediaPlayerComponent } from './media-player.component';
 import { MediaEvent, SignageService } from './signage.service';
 import { recordHeartbeat } from './watchdog';
@@ -229,6 +230,8 @@ export class SignagePanelComponent extends AsyncHandler implements OnInit {
     public readonly debug = this._signage.debug;
     public readonly playing_id = this._signage.playing_id;
     public readonly muted = signal(true);
+    /** Whether the parent shell has paused playback */
+    public readonly remote_paused = signal(false);
     public readonly debug_layout_editing = signal(false);
     public readonly debug_layout_reset_count = signal(0);
     public readonly transparent = input(false);
@@ -236,6 +239,19 @@ export class SignagePanelComponent extends AsyncHandler implements OnInit {
     public readonly version_date = VERSION.time;
 
     private readonly _players = viewChildren(MediaPlayerComponent);
+
+    /**
+     * Keep every player paused while the shell has paused playback. Players
+     * also start on their own: a takeover mounts playing, and the background
+     * resumes when a takeover ends. This runs after rendering, so it sees the
+     * players once they have reacted to the change.
+     */
+    private readonly _hold_remote_pause = afterRenderEffect(() => {
+        if (!this.remote_paused()) return;
+        for (const player of this._players()) {
+            if (player.state() === 'PLAYING') player.togglePause();
+        }
+    });
 
     public readonly clearOverridePlaylist = () =>
         this._signage.clearPlaylistOverride();
@@ -260,12 +276,16 @@ export class SignagePanelComponent extends AsyncHandler implements OnInit {
         if (window.parent === window || event?.source !== window.parent) return;
         const data = event?.data;
         if (!data || typeof data !== 'object') return;
-        if (data.type === REMOTE_PAUSE) this._setPlaybackState('PAUSED');
-        else if (data.type === REMOTE_RESUME) this._setPlaybackState('PLAYING');
+        if (data.type === REMOTE_PAUSE) this._setRemotePaused(true);
+        else if (data.type === REMOTE_RESUME) this._setRemotePaused(false);
     };
 
-    private _setPlaybackState(target: 'PAUSED' | 'PLAYING') {
+    private _setRemotePaused(paused: boolean) {
+        this.remote_paused.set(paused);
+        const target = paused ? 'PAUSED' : 'PLAYING';
         for (const player of this._players()) {
+            // The background stays paused while a takeover plays over it
+            if (!paused && player.override()) continue;
             if (player.state() !== target) player.togglePause();
         }
     }
@@ -314,7 +334,7 @@ export class SignagePanelComponent extends AsyncHandler implements OnInit {
             },
             3000,
         );
-        const debug = sessionStorage.getItem('SIGNAGE.debug');
+        const debug = sessionStorage.getItem(DEBUG_STORAGE_KEY);
         if (debug !== null) this.debug.set(isDebugEnabled(debug));
         const muted = sessionStorage.getItem(MUTE_STORAGE_KEY);
         if (muted !== null) this.muted.set(muted === 'true');
@@ -324,7 +344,7 @@ export class SignagePanelComponent extends AsyncHandler implements OnInit {
                 if (params.has('debug')) {
                     const enabled = isDebugEnabled(params.get('debug'));
                     this.debug.set(enabled);
-                    sessionStorage.setItem('SIGNAGE.debug', `${enabled}`);
+                    sessionStorage.setItem(DEBUG_STORAGE_KEY, `${enabled}`);
                 }
             }),
         );
@@ -359,6 +379,7 @@ export class SignagePanelComponent extends AsyncHandler implements OnInit {
             },
             online: isOnline(),
             updates: updateCheckState(),
+            remote_paused: this.remote_paused(),
             ...this._signage.diagnostics(),
             players: this._players().map((player, index) => ({
                 role: index === 0 ? 'background' : 'takeover',
@@ -382,11 +403,27 @@ export class SignagePanelComponent extends AsyncHandler implements OnInit {
     }
 
     public handlePlayerEvent(e: MediaEvent, overridden = false) {
-        // Check override playlists for single play throughs
+        // A single-pass override ends after one full pass
         if (overridden && e.type === 'playlist_through') {
             const { ends_at } = this.override_playlist();
-            if (!ends_at) this._signage.clearPlaylistOverride();
+            if (!ends_at && this._isOverridePassDone(e.ref_id)) {
+                this._signage.clearPlaylistOverride();
+            }
         }
         this._signage.storeMetricEvent(e);
+    }
+
+    /**
+     * Whether a `playlist_through` ends the pass of the override. Overlapping
+     * single-pass runs share one override, and the player reports each of
+     * their playlists as it passes, so the pass is done when the playlist of
+     * the last valid item finishes. With no valid item there is nothing left
+     * to play.
+     */
+    private _isOverridePassDone(playlist_id: string) {
+        const last_valid = this.override_playlist()
+            .playlist.filter((item) => !validateMedia(item))
+            .at(-1);
+        return !last_valid || last_valid.playlist === playlist_id;
     }
 }

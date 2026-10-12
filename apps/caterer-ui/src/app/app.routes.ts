@@ -3,7 +3,10 @@ import {
     AuthorisedUserGuard,
     UnauthorisedComponent,
 } from '@placeos/components';
-import { CateringComponent } from './catering.component';
+
+/** Lazy load the catering views so their Material and catering code stays out of the initial bundle */
+const loadCatering = () =>
+    import('./catering.component').then((m) => m.CateringComponent);
 
 export const routes: Routes = [
     {
@@ -12,12 +15,12 @@ export const routes: Routes = [
     },
     {
         path: '',
-        component: CateringComponent,
+        loadComponent: loadCatering,
         canActivate: [AuthorisedUserGuard],
     },
     {
         path: ':view',
-        component: CateringComponent,
+        loadComponent: loadCatering,
         canActivate: [AuthorisedUserGuard],
     },
     { path: '**', redirectTo: '' },

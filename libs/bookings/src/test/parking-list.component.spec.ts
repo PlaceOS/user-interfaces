@@ -11,7 +11,8 @@ import {
 
 import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticated-image.directive';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
-import { BookingAsset, BookingFormService } from '../lib/booking-form.service';
+import { BookingFormService } from '../lib/booking-form.service';
+import { BookingAsset } from '../lib/booking-form.types';
 import { ParkingListComponent } from '../lib/parking-select-modal/parking-list.component';
 
 const asset = (over: Partial<BookingAsset> = {}): BookingAsset =>
@@ -33,9 +34,9 @@ describe('ParkingListComponent', () => {
         component: ParkingListComponent,
         providers: [
             MockProvider(BookingFormService, {
-                available_resources: available as any,
-                options: options as any,
-                loading: loading as any,
+                available_resources: available,
+                options: options,
+                loading: loading,
             }),
         ],
         declarations: [

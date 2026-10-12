@@ -1,7 +1,5 @@
 import { Injectable, signal } from '@angular/core';
 
-import * as DEFAULT_LOCALE from 'shared/assets/locale/en-AU.json';
-
 import { showMetadata } from '@placeos/ts-client';
 import { log } from './general';
 
@@ -80,8 +78,6 @@ export class LocaleService {
     private _loaded_locales: Record<string, boolean> = {};
     private readonly _changes = signal(0);
 
-    private _default_mappings: Record<string, string> =
-        removeNesting(DEFAULT_LOCALE);
     private _locale_mappings: Record<string, Record<string, string>> = {};
 
     public locale_folder = 'assets/locale';
@@ -91,10 +87,17 @@ export class LocaleService {
     constructor() {
         this._current_locale =
             localStorage.getItem(`${STORE_KEY}`) || this._default_locale;
-        if (this._current_locale !== this._default_locale) {
-            const cached = this._cachedMappings(this._current_locale);
-            if (cached) this._locale_mappings[this._current_locale] = cached;
+        // The default locale is the fallback for missing keys. It is fetched
+        // like any other locale, so show the cached copies until it loads.
+        for (const locale of [this._current_locale, this._default_locale]) {
+            const cached = this._cachedMappings(locale);
+            if (cached) this._locale_mappings[locale] = cached;
         }
+    }
+
+    /** Resolves when the locales that are loading have finished */
+    public async loaded() {
+        await Promise.allSettled(Object.values(this._load_promises));
     }
 
     public init() {
@@ -117,7 +120,7 @@ export class LocaleService {
         const map = this._locale_mappings[this._current_locale] || {};
         const map_short =
             this._locale_mappings[this._current_locale_short] || {};
-        const map_default = this._default_mappings || {};
+        const map_default = this._locale_mappings[this._default_locale] || {};
         if (plural) {
             key_value = `${key}_${plural}`;
             const any_key_value = `${key}_N`;
@@ -166,8 +169,10 @@ export class LocaleService {
         this._current_locale = locale;
         this._current_locale_short = this._current_locale.split('-')[0];
         this._changes.update((value) => value + 1);
-        if (!this._loaded_locales[locale] && !this._load_promises[locale]) {
-            this._load_promises[locale] = this._loadLocale(locale);
+        for (const id of [locale, this._default_locale]) {
+            if (!this._loaded_locales[id] && !this._load_promises[id]) {
+                this._load_promises[id] = this._loadLocale(id);
+            }
         }
         localStorage.setItem(`${STORE_KEY}`, locale);
         log('LOCALE', `Locale set to "${locale}"`);

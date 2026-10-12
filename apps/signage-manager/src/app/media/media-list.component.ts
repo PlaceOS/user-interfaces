@@ -8,6 +8,7 @@ import {
     effect,
     inject,
     input,
+    linkedSignal,
     OnInit,
     signal,
     untracked,
@@ -787,7 +788,11 @@ export class MediaListComponent implements OnInit {
             .fill(0)
             .map((_, idx) => `playlist-${idx}`),
     );
-    public readonly selected_ids = signal(new Set<string>());
+    /** Selected media. A group switch from any control starts it empty. */
+    public readonly selected_ids = linkedSignal({
+        source: this._context.selected_group_id,
+        computation: () => new Set<string>(),
+    });
     public readonly selected_media = computed(() => {
         const selected_ids = this.selected_ids();
         return this.media().filter((item) => selected_ids.has(item.id));
@@ -801,10 +806,6 @@ export class MediaListComponent implements OnInit {
         this.sidebar_hidden.set(e.matches);
 
     constructor() {
-        // Leaving folder view (or switching group) closes any open folder.
-        effect(() => {
-            if (this.view_mode() !== 'folder') this.selected_folder.set(null);
-        });
         // An open folder filters the loaded pages, and its items can be on
         // any page, so load every page while it is open. Paging stops on the
         // last page, an empty page or an error.
@@ -841,8 +842,18 @@ export class MediaListComponent implements OnInit {
                 : this.groups().length > 1),
     );
 
-    // Currently opened tag folder (null = showing the folder grid).
-    public readonly selected_folder = signal<string | null>(null);
+    /** Opened tag folder, or null for the folder grid. Leaving folder view
+     * or switching group closes it. */
+    public readonly selected_folder = linkedSignal<
+        { group_id: string; folder_view: boolean },
+        string | null
+    >({
+        source: () => ({
+            group_id: this._context.selected_group_id(),
+            folder_view: this.view_mode() === 'folder',
+        }),
+        computation: () => null,
+    });
     public readonly untagged_id = UNTAGGED;
 
     // An always-present "Untagged" bucket shown first, then one folder per
@@ -913,8 +924,6 @@ export class MediaListComponent implements OnInit {
     }
 
     public selectGroup(group_id: string) {
-        this.clearSelection();
-        this.selected_folder.set(null);
         this._context.setSelectedGroup(group_id);
     }
 

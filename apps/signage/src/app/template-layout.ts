@@ -19,7 +19,12 @@ export interface ComputedTemplateLayout {
 
 const EDGE_BAR_SIZE = 15;
 const SIDE_BAR_SIZE = 20;
-const FLOATING_POSITION = 50;
+/**
+ * Top-left corner of a floating item with no position, so it fills the frame.
+ * Keep in step with the manager preview
+ * (`apps/signage-manager/src/app/templates/template-layout.util.ts`).
+ */
+const FLOATING_POSITION = 0;
 
 const clamp = (value: number, max = 100) =>
     Math.min(Math.max(value, 0), Math.max(max, 0));

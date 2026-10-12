@@ -9,11 +9,16 @@ import {
     User,
     WeekOfMonth,
 } from '@placeos/common';
+import { generateBookingForm } from '../lib/booking-form.model';
 import {
-    generateBookingForm,
+    loadLockersForScope,
     newBookingFromCalendarEvent,
     parkingRequestStatus,
 } from '../lib/booking.utilities';
+
+vi.mock('@placeos/ts-client', { spy: true });
+
+import * as ts_client from '@placeos/ts-client';
 
 describe('Booking Utilities', () => {
     let injector: Injector;
@@ -129,9 +134,9 @@ describe('Booking Utilities', () => {
             // remove them from the FieldTree, breaking `[formField]`.
             model.update((m) => ({
                 ...m,
-                user: undefined as any,
-                asset_id: undefined as any,
-                assets: undefined as any,
+                user: undefined,
+                asset_id: undefined,
+                assets: undefined,
             }));
 
             // Sanitised synchronously at the update() boundary — no tick.
@@ -155,12 +160,12 @@ describe('Booking Utilities', () => {
             // that makes signal-forms degrade the field binding.
             model.update((m) => ({
                 ...m,
-                user: null as any,
-                asset_id: null as any,
-                assets: null as any,
-                booking_asset: null as any,
-                group: null as any,
-                recurrence_instances: null as any,
+                user: null,
+                asset_id: null,
+                assets: null,
+                booking_asset: null,
+                group: null,
+                recurrence_instances: null,
             }));
 
             expect(typeof form.user).toBe('function');
@@ -191,7 +196,7 @@ describe('Booking Utilities', () => {
                 recurrence_type: 'daily',
                 recurrence_interval: 1,
                 recurrence_end: end_date / 1000,
-                recurrence_instances: undefined as any,
+                recurrence_instances: undefined,
             }));
 
             const recurrence = fromBookingRecurrence(model() as any);
@@ -209,6 +214,49 @@ describe('Booking Utilities', () => {
             );
 
             expect(typeof form.date().disabled()).toBe('boolean');
+        });
+    });
+
+    describe('loadLockersForScope', () => {
+        it('should list lockers under their bank without a reference cycle', async () => {
+            vi.spyOn(ts_client, 'queryAssetCategories').mockResolvedValue({
+                total: 1,
+                next: null,
+                data: [{ id: 'category-1', name: '_LOCKERS_', hidden: true }],
+            } as any);
+            vi.spyOn(ts_client, 'queryAssetTypes').mockResolvedValue({
+                total: 1,
+                next: null,
+                data: [{ id: 'type-1', name: '_LOCKERS_' }],
+            } as any);
+            vi.spyOn(ts_client, 'queryAssets').mockResolvedValue({
+                total: 1,
+                next: null,
+                data: [
+                    {
+                        id: 'locker-1',
+                        identifier: 'Locker 1',
+                        parent_id: 'bank-1',
+                        zone_id: 'level-1',
+                        asset_type_id: 'type-1',
+                        other_data: {},
+                    },
+                ],
+            } as any);
+            const bank = { id: 'bank-1', name: 'Bank 1', lockers: [] } as any;
+
+            const lockers = await loadLockersForScope(
+                { levelWithID: () => null } as any,
+                'building-1',
+                [bank],
+            );
+
+            expect(lockers.map((_) => _.id)).toEqual(['locker-1']);
+            expect(lockers[0].bank).toBe(bank);
+            expect(bank.lockers.map((_) => _.id)).toEqual(['locker-1']);
+            expect(bank.lockers[0].bank.id).toBe('bank-1');
+            expect(bank.lockers[0].bank.lockers).toEqual([]);
+            expect(() => JSON.stringify(bank)).not.toThrow();
         });
     });
 
@@ -277,6 +325,24 @@ describe('Booking Utilities', () => {
                 });
             },
         );
+
+        it.each([false, true])(
+            'should keep the meeting title, serialized event: %s',
+            (serialized) => {
+                const event = new CalendarEvent({ title: 'Team Sync' });
+                const booking = newBookingFromCalendarEvent(
+                    serialized ? (event.toJSON() as CalendarEvent) : event,
+                );
+
+                expect(booking.toJSON().title).toBe('Team Sync');
+            },
+        );
+
+        it('should use the default title for an untitled meeting', () => {
+            const booking = newBookingFromCalendarEvent(new CalendarEvent());
+
+            expect(booking.title).toBe('Room Booking');
+        });
 
         it('should use the host email as the identity when staff details are unavailable', () => {
             const booking = newBookingFromCalendarEvent(

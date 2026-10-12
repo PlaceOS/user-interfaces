@@ -22,7 +22,7 @@ describe('RoomListComponent', () => {
                 editRoom: vi.fn(),
                 setRoomAlert: vi.fn(),
                 viewBookingHistory: vi.fn(),
-            } as any),
+            }),
             MockProvider(SettingsService, {
                 signal: vi.fn(() => signal('')),
             } as any),
@@ -43,7 +43,7 @@ describe('RoomListComponent', () => {
     });
 
     afterEach(() => {
-        setNotifyOutlet(null as any, true);
+        setNotifyOutlet(null, true);
     });
 
     it('should delegate room row actions to the management service', () => {
@@ -67,7 +67,7 @@ describe('RoomListComponent', () => {
     });
 
     it('should not notify when copying a room id fails', () => {
-        (clipboard.copy as any).mockReturnValue(false);
+        clipboard.copy.mockReturnValue(false);
         spectator.component.copyToClipboard('sys-1');
         expect(notify_open).not.toHaveBeenCalled();
     });

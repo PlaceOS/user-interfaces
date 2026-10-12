@@ -15,10 +15,10 @@ import {
     OrganisationService,
     SettingsService,
 } from '@placeos/common';
+import { generateQRCode } from '@placeos/common/qr-code';
 
 import { CommonModule } from '@angular/common';
 import { MatRippleModule } from '@angular/material/core';
-import { generateQRCode } from '@placeos/common';
 import {
     AuthenticatedImageDirective,
     SafePipe,

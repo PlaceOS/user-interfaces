@@ -49,7 +49,7 @@ export class VisitorReportOverallComponent {
         );
     });
     public readonly avg_length = computed(() => {
-        const events: any = this._bookings();
+        const events = this._bookings();
         return formatDuration({
             minutes:
                 Math.floor(

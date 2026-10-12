@@ -19,7 +19,7 @@ vi.mock('@placeos/ts-client', { spy: true });
 describe('DeskModalComponent', () => {
     let spectator: Spectator<DeskModalComponent>;
     let dialog_data: DeskModalData;
-    let dialog_ref: { close: any; disableClose: boolean };
+    let dialog_ref: { close: unknown; disableClose: boolean };
 
     const createComponent = createComponentFactory({
         component: DeskModalComponent,
@@ -30,7 +30,7 @@ describe('DeskModalComponent', () => {
                 organisation: { id: 'org-1' },
                 building: { id: 'bld-1', parent_id: 'region-1' },
             } as any),
-            MockProvider(MatDialog, { open: vi.fn() } as any),
+            MockProvider(MatDialog, { open: vi.fn() }),
         ],
     });
 
@@ -119,7 +119,7 @@ describe('DeskModalComponent', () => {
 
         spectator.component.postForm();
 
-        const metadata = emit.mock.calls[0][0].metadata as any;
+        const metadata = emit.mock.calls[0][0].metadata;
         expect(metadata.assigned_to).toBe('jane@example.com');
     });
 

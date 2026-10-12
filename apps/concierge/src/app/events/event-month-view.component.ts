@@ -166,13 +166,13 @@ export class EventMonthViewComponent {
     public readonly offset_weekday = this._settings.get('app.week_start') || 0;
     public readonly weekdays = computed(() => {
         const start = startOfWeek(Date.now(), {
-            weekStartsOn: this.offset_weekday as any,
+            weekStartsOn: this.offset_weekday,
         });
         return Array.from(Array(7).keys()).map((i) => addDays(start, i));
     });
     public readonly month_days = computed(() => {
         const start = startOfWeek(startOfMonth(this.month()), {
-            weekStartsOn: this.offset_weekday as any,
+            weekStartsOn: this.offset_weekday,
         });
         return Array.from(Array(7 * 6).keys()).map((i) => {
             const date = addDays(start, i).valueOf();

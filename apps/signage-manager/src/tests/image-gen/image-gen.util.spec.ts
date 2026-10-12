@@ -1,19 +1,26 @@
 import {
-    errorMessage,
+    actionError,
     errorStatus,
+    hexColour,
     orientationOf,
     perceivedLightness,
+    UserFacingError,
 } from '../../app/image-gen/image-gen.util';
 
 describe('image generation utilities', () => {
-    it('reads nested API errors without returning an object', () => {
+    it('names the action rather than a raw error, unless written for people', () => {
         expect(
-            errorMessage(
-                { error: { error: 'Provider rejected the request' } },
-                'Fallback',
+            actionError(
+                new Error('Creating upload for a.png failed with status 500'),
+                'The image could not be attached',
             ),
-        ).toBe('Provider rejected the request');
-        expect(errorMessage({ error: {} }, 'Fallback')).toBe('Fallback');
+        ).toBe('The image could not be attached');
+        expect(
+            actionError(
+                new UserFacingError('This domain has no organisation zone'),
+                'The logo could not be saved',
+            ),
+        ).toBe('This domain has no organisation zone');
     });
 
     it('reads direct and wrapped HTTP status codes', () => {
@@ -25,6 +32,12 @@ describe('image generation utilities', () => {
     it('uses one luminance calculation for black and white', () => {
         expect(perceivedLightness(0, 0, 0)).toBe(0);
         expect(perceivedLightness(255, 255, 255)).toBe(255);
+    });
+
+    it('writes colours the way a colour input reports them', () => {
+        expect(hexColour('#FFF')).toBe('#ffffff');
+        expect(hexColour('#0E6E52')).toBe('#0e6e52');
+        expect(hexColour('rgb(0, 0, 0)')).toBe('');
     });
 
     it('labels orientation from the image size, then the aspect ratio', () => {

@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatRippleModule } from '@angular/material/core';
@@ -54,7 +54,7 @@ import { CheckinStateService } from './checkin-state.service';
     styles: [],
     imports: [TranslatePipe, MatRippleModule, MatCheckboxModule, FormsModule],
 })
-export class CheckinInductionComponent {
+export class CheckinInductionComponent implements OnInit {
     private _checkin = inject(CheckinStateService);
     private _router = inject(Router);
     private _org = inject(OrganisationService);

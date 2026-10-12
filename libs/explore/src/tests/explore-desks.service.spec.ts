@@ -8,8 +8,8 @@ import {
     SettingsService,
 } from '@placeos/common';
 
+import { generateBookingForm } from 'libs/bookings/src/lib/booking-form.model';
 import { BookingFormService } from 'libs/bookings/src/lib/booking-form.service';
-import { generateBookingForm } from 'libs/bookings/src/lib/booking.utilities';
 import { DesksService } from 'libs/bookings/src/lib/desk.service';
 
 import { ExploreDesksService } from '../lib/explore-desks.service';
@@ -27,8 +27,8 @@ describe('ExploreDesksService', () => {
         service: ExploreDesksService,
         providers: [
             MockProvider(ExploreStateService, {
-                level: signal(null) as any,
-                options: signal({ is_public: false }) as any,
+                level: signal(null),
+                options: signal({ is_public: false }),
                 setFeatures: vi.fn(),
                 setStyles: vi.fn(),
                 setActions: vi.fn(),
@@ -161,7 +161,7 @@ describe('ExploreDesksService', () => {
         booking_service.model = model;
         booking_service.form = form;
         booking_service.newForm = vi.fn(() =>
-            model.update((m: any) => ({
+            model.update((m) => ({
                 ...m,
                 date: Date.now() + 60 * 60 * 1000,
                 duration: 60,

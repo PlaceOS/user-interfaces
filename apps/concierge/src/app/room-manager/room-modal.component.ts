@@ -32,7 +32,6 @@ import {
     AsyncHandler,
     OrganisationService,
     Space,
-    TIMEZONES_IANA,
     getInvalidSignalFields,
     getItemWithKeys,
     i18n,
@@ -42,6 +41,7 @@ import {
     patchSignalModel,
     unique,
 } from '@placeos/common';
+import { TIMEZONES_IANA } from '@placeos/common/timezones';
 import {
     FullscreenModalShellComponent,
     IconComponent,
@@ -636,7 +636,7 @@ export class RoomModalComponent extends AsyncHandler implements OnInit {
     }
 
     public selectItemfromMap() {
-        let level = this._org.levelWithID(this.model().zones as any);
+        let level = this._org.levelWithID(this.model().zones);
         const ref = this._dialog.open(SelectMapItemModalComponent, {
             data: {
                 location: this.model().map_id,

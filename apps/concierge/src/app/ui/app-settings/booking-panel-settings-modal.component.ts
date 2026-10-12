@@ -359,7 +359,7 @@ export class BookingPanelSettingsModalComponent
         );
     });
 
-    private _defaults: Record<string, any> = {};
+    private _defaults: Record<string, unknown> = {};
 
     public async ngOnInit() {
         if (!this.zone?.id) {

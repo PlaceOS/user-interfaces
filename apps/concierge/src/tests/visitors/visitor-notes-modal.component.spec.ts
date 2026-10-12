@@ -12,7 +12,7 @@ import * as ts_client from '@placeos/ts-client';
 
 describe('VisitorNotesModalComponent', () => {
     let spectator: Spectator<VisitorNotesModalComponent>;
-    let dialog_ref: { close: any; disableClose: boolean };
+    let dialog_ref: { close: unknown; disableClose: boolean };
 
     const item = {
         id: 'booking-1',
@@ -40,14 +40,14 @@ describe('VisitorNotesModalComponent', () => {
     beforeEach(() => {
         vi.clearAllMocks();
         vi.mocked(ts_client.patch).mockResolvedValue({} as any);
-        setNotifyOutlet(null as any, true);
+        setNotifyOutlet(null, true);
         dialog_ref = { close: vi.fn(), disableClose: false };
         spectator = createComponent({
             providers: [{ provide: MatDialogRef, useValue: dialog_ref }],
         });
     });
 
-    afterEach(() => setNotifyOutlet(null as any, true));
+    afterEach(() => setNotifyOutlet(null, true));
 
     it('should seed notes from the booking extension data', () => {
         expect(spectator.component.notes()).toBe('existing note');

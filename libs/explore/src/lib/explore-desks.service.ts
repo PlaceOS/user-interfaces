@@ -11,9 +11,12 @@ import {
     WritableSignal,
 } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { deskFromAsset, queryDeskAssets } from '@placeos/assets';
 import { showMetadata } from '@placeos/ts-client';
 import { addDays, endOfDay, getUnixTime, startOfDay } from 'date-fns';
+import {
+    deskFromAsset,
+    queryDeskAssets,
+} from 'libs/assets/src/lib/desk-assets.fn';
 
 import {
     alignDateToBookableHours,
@@ -38,6 +41,7 @@ import { BookingFormService } from 'libs/bookings/src/lib/booking-form.service';
 
 import { queryBookings } from 'libs/bookings/src/lib/bookings.fn';
 import { SetDatetimeModalComponent } from 'libs/explore/src/lib/set-datetime-modal.component';
+import { loadBookingRules } from './explore-booking-rules';
 import { ExploreDeskInfoComponent } from './explore-desk-info.component';
 import { ExploreDeviceInfoComponent } from './explore-device-info.component';
 import { DEFAULT_COLOURS } from './explore-spaces.service';
@@ -87,14 +91,7 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
 
     private _booking_rules = resource({
         params: () => this._building() || undefined,
-        loader: ({ params: bld }) =>
-            showMetadata(bld.id, `desk_booking_rules`)
-                .then((_) =>
-                    _?.details instanceof Array
-                        ? (_.details as any as BookingRuleset[])
-                        : [],
-                )
-                .catch(() => [] as BookingRuleset[]),
+        loader: ({ params: bld }) => loadBookingRules(bld.id, 'desk'),
     });
     public readonly booking_rules = computed<BookingRuleset[]>(
         () => this._booking_rules.value() ?? [],
@@ -114,7 +111,7 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
                 .catch(() => ({ details: [] }))
                 .then((i) =>
                     (i?.details instanceof Array ? i.details : []).map(
-                        (j: Record<string, any>) =>
+                        (j: Record<string, unknown>) =>
                             new Desk({ ...j, zone: lvl as any }),
                     ),
                 );
@@ -215,7 +212,7 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
             this.subscription(
                 `lvl-in_use`,
                 binding.bindThenSubscribe((d) =>
-                    this.processBindingChange(d || ({} as any), mod.id),
+                    this.processBindingChange(d || {}, mod.id),
                 ),
             );
         }
@@ -564,7 +561,7 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
             this._bookings.model().date,
             this._bookings.model().duration,
             this._options()?.custom ?? false,
-            desk as any,
+            desk,
             options.all_day ?? this._bookings.model().all_day,
             bookable_hours,
         );

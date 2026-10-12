@@ -7,7 +7,7 @@ import { SignageGroupDetailHeaderComponent } from '../../app/groups/signage-grou
 import { SignageGroupEditModalComponent } from '../../app/groups/signage-group-edit-modal.component';
 
 describe('SignageGroupDetailHeaderComponent', () => {
-    const managed_group = signal<any>({ id: 'group-1', name: 'Group 1' });
+    const managed_group = signal<unknown>({ id: 'group-1', name: 'Group 1' });
     const managed_group_id = signal('group-1');
     const remove_signage_group = vi.fn();
     const dialog = { open: vi.fn() };
@@ -44,7 +44,7 @@ describe('SignageGroupDetailHeaderComponent', () => {
 
     it('opens the edit modal seeded with the given group', () => {
         const component = make();
-        const group = { id: 'group-1', name: 'Group 1' } as any;
+        const group = { id: 'group-1', name: 'Group 1' };
         component.editGroup(group);
 
         expect(dialog.open).toHaveBeenCalledWith(

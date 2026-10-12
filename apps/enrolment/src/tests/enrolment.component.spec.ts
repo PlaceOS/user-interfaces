@@ -1,5 +1,8 @@
 import { signal } from '@angular/core';
-import { ComponentFixtureAutoDetect } from '@angular/core/testing';
+import {
+    ComponentFixtureAutoDetect,
+    DeferBlockState,
+} from '@angular/core/testing';
 import { ActivatedRoute } from '@angular/router';
 import { Spectator, createComponentFactory } from '@ngneat/spectator/vitest';
 import { OrganisationService, SettingsService } from '@placeos/common';
@@ -26,7 +29,7 @@ function userToken() {
     return `header.${body}.signature`;
 }
 
-function param_map(params: Record<string, string>): any {
+function param_map(params: Record<string, string>): unknown {
     return {
         has: (key: string) =>
             Object.prototype.hasOwnProperty.call(params, key),
@@ -41,8 +44,8 @@ function param_map(params: Record<string, string>): any {
 describe('EnrolmentComponent', () => {
     let spectator: Spectator<EnrolmentComponent>;
     let state: EnrolmentStateService;
-    let params: BehaviorSubject<any>;
-    let query_params: BehaviorSubject<any>;
+    let params: BehaviorSubject<unknown>;
+    let query_params: BehaviorSubject<unknown>;
     let settings_map: Record<string, any>;
     let theme: string;
 
@@ -115,9 +118,12 @@ describe('EnrolmentComponent', () => {
             expect(spectator.query('enrolment-event-details')).toExist();
         });
 
-        it('should render the details form for the guest view', () => {
+        it('should render the details form for the guest view', async () => {
             state.setView('guest');
             spectator.detectChanges();
+            // The details form is a deferred block
+            const [block] = await spectator.fixture.getDeferBlocks();
+            await block.render(DeferBlockState.Complete);
 
             expect(spectator.query('enrolment-guest-confirm')).toExist();
         });

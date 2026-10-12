@@ -308,11 +308,10 @@ export class TemplateEditModalComponent {
                 this._dialog_ref.disableClose = false;
                 this._dialog_ref.close(result);
                 notifySuccess(i18n('SIGNAGE_MANAGER.TEMPLATE_SAVED'));
-            } catch (e) {
+            } catch {
                 this._dialog_ref.disableClose = false;
                 this.loading.set(false);
                 notifyError(i18n('SIGNAGE_MANAGER.TEMPLATE_SAVE_ERROR'));
-                throw e;
             }
         });
     }

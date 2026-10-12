@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, OnInit } from '@angular/core';
 import { form, FormField, required } from '@angular/forms/signals';
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
@@ -16,7 +16,7 @@ import {
     SettingsService,
 } from '@placeos/common';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
-import { FullscreenModalShellComponent } from '../../../components/src/lib/fullscreen-modal-shell.component';
+import { FullscreenModalShellComponent } from 'libs/components/src/lib/fullscreen-modal-shell.component';
 import { ImageListFieldComponent } from './image-list-field.component';
 import { RichTextInputComponent } from './rich-text-input.component';
 
@@ -160,7 +160,7 @@ export interface SupportRequestType {
         FullscreenModalShellComponent,
     ],
 })
-export class SupportTicketModalComponent {
+export class SupportTicketModalComponent implements OnInit {
     private _dialog_ref =
         inject<MatDialogRef<SupportTicketModalComponent>>(MatDialogRef);
     private _org = inject(OrganisationService);

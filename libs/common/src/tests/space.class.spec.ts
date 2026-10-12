@@ -27,7 +27,7 @@ describe('Space', () => {
     it('should normalise camera snapshot URLs', () => {
         const multi = new Space({
             camera_snapshot_urls: ['http://cam-1', '', 'http://cam-2'],
-        } as any);
+        });
         expect(multi.camera_snapshot_urls).toEqual([
             'http://cam-1',
             'http://cam-2',
@@ -41,7 +41,7 @@ describe('Space', () => {
         const start = new Date(2024, 0, 10, 10, 0).valueOf();
         const space = new Space({
             availability: [{ date: start, duration: 60, status: 'busy' }],
-        } as any);
+        });
 
         it('should report busy availability blocks', () => {
             expect(space.inUseAt(start, 60)).toBe(true);
@@ -54,7 +54,7 @@ describe('Space', () => {
                 availability: [
                     { date: start, duration: 60, status: 'free' },
                 ],
-            } as any);
+            });
             expect(free.inUseAt(start, 60)).toBe(false);
         });
     });

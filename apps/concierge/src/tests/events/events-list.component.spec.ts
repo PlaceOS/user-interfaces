@@ -14,9 +14,9 @@ import { EventsListComponent } from '../../app/events/events-list.component';
 
 describe('EventsListComponent', () => {
     let spectator: SpectatorRouting<EventsListComponent>;
-    const options = signal<any>({ period: 'week' });
-    const active_building = signal<any>({ id: 'bld-1' });
-    const active_region = signal<any>({ id: 'reg-1' });
+    const options = signal<unknown>({ period: 'week' });
+    const active_building = signal<unknown>({ id: 'bld-1' });
+    const active_region = signal<unknown>({ id: 'reg-1' });
     const settings_values: Record<string, any> = {};
     const set_options = vi.fn();
     const building_levels = [{ id: 'lvl-b', parent_id: 'bld-1' }];
@@ -30,7 +30,7 @@ describe('EventsListComponent', () => {
             { provide: ComponentFixtureAutoDetect, useValue: false },
             MockProvider(SettingsService, {
                 get: vi.fn((key: string) => settings_values[key]),
-            } as any),
+            }),
             {
                 provide: EventStateService,
                 useValue: {

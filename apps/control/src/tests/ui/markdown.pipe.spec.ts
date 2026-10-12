@@ -7,8 +7,8 @@ describe('MarkdownPipe', () => {
 
     it('should return an empty string for empty input', () => {
         expect(pipe.transform('')).toBe('');
-        expect(pipe.transform(null as any)).toBe('');
-        expect(pipe.transform(undefined as any)).toBe('');
+        expect(pipe.transform(null)).toBe('');
+        expect(pipe.transform(undefined)).toBe('');
     });
 
     it('should render headings as HTML', () => {

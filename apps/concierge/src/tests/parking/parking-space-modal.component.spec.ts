@@ -15,7 +15,7 @@ describe('ParkingSpaceModalComponent', () => {
         component: ParkingSpaceModalComponent,
         providers: [
             { provide: MAT_DIALOG_DATA, useFactory: () => dialog_data },
-            MockProvider(MatDialogRef, { disableClose: false } as any),
+            MockProvider(MatDialogRef, { disableClose: false }),
         ],
     });
 

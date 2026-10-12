@@ -56,11 +56,11 @@ describe('TabOutletComponent', () => {
                 routeToAll: vi.fn(),
                 unrouteAll: vi.fn(),
                 viewHelp: vi.fn(),
-            } as any),
+            }),
             MockProvider(VideoCallStateService, {
                 call: signal(null),
                 speaker_track: signal(null),
-            } as any),
+            }),
         ],
     });
 
@@ -123,7 +123,7 @@ describe('TabOutletComponent', () => {
     });
 
     it('should set the output source when an input is chosen', () => {
-        const service: any = spectator.inject(ControlStateService);
+        const service = spectator.inject(ControlStateService);
         spectator.component.setInput({ id: 'i9' } as RoomInput);
         expect(service.setOutputSource).toHaveBeenCalledWith('i9');
     });

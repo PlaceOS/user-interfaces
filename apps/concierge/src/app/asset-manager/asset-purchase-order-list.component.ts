@@ -94,7 +94,7 @@ export class AssetPurchaseOrderListComponent {
         return (list || []).filter(
             (_) =>
                 !search ||
-                (_ as any).purchase_order_number
+                _.purchase_order_number
                     .toLowerCase()
                     .includes(search.toLowerCase()) ||
                 _.invoice_number?.toLowerCase().includes(search.toLowerCase()),

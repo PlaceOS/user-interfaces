@@ -5,7 +5,7 @@ import {
     TriggerConditionOperator,
     TriggerTimeConditionType,
 } from '@placeos/ts-client';
-import { MockComponent, MockProvider } from 'ng-mocks';
+import { MockProvider } from 'ng-mocks';
 
 import {
     AlertConditionModalComponent,
@@ -26,7 +26,7 @@ describe('generateTriggerConditionForm', () => {
         const value = generateTriggerConditionForm({
             type: TriggerTimeConditionType.AT,
             time: 10,
-        } as any);
+        });
         expect(value.condition_type).toBe('time');
         expect(value.time_type).toBe(TriggerTimeConditionType.AT);
         // stored seconds are converted to milliseconds
@@ -38,7 +38,7 @@ describe('generateTriggerConditionForm', () => {
             left: { mod: 'Display_1', status: 'power', keys: [] },
             operator: TriggerConditionOperator.NEQ,
             right: true,
-        } as any);
+        });
         expect(value.condition_type).toBe('compare');
         expect(value.left).toEqual({
             mod: 'Display_1',
@@ -92,7 +92,7 @@ describe('AlertConditionModalComponent', () => {
         // experimental signal-forms + mat-select template and emit benign async
         // rxjs/material errors that vitest reports as unhandled.
         providers: [
-            MockProvider(MatDialogRef, { close: dialog_close } as any),
+            MockProvider(MatDialogRef, { close: dialog_close }),
             { provide: ComponentFixtureAutoDetect, useValue: false },
         ],
     });
@@ -100,10 +100,10 @@ describe('AlertConditionModalComponent', () => {
     const base_alert = () => ({
         id: 'alert-1',
         name: 'My Alert',
-        conditions: { comparisons: [] as any[] },
+        conditions: { comparisons: [] as unknown[] },
     });
 
-    const build = (data: any) =>
+    const build = (data: unknown) =>
         create_component({
             providers: [{ provide: MAT_DIALOG_DATA, useValue: data }],
         });

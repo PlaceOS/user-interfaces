@@ -8,10 +8,8 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
 import { PlaceGroupZone } from '@placeos/ts-client';
 import { dialogClosed } from '../signage-service.util';
 import { SignageGroupAdminService } from './signage-group-admin.service';
-import {
-    groupPermissionLabels,
-    SignageGroupPermissionsModalComponent,
-} from './signage-group-permissions-modal.component';
+import { SignageGroupPermissionLabelsComponent } from './signage-group-permission-labels.component';
+import { SignageGroupPermissionsModalComponent } from './signage-group-permissions-modal.component';
 import { SignageGroupZoneSelectModalComponent } from './signage-group-zone-select-modal.component';
 
 @Component({
@@ -52,6 +50,15 @@ import { SignageGroupZoneSelectModalComponent } from './signage-group-zone-selec
                 </button>
             </div>
             <div class="gap-2 p-2">
+                @if (failed() && zones().length) {
+                    <p
+                        class="text-error mb-2 flex items-center gap-2 px-2 text-sm"
+                        role="alert"
+                    >
+                        <icon class="text-lg">error</icon>
+                        {{ 'SIGNAGE_MANAGER.ZONES_LOAD_ERROR' | translate }}
+                    </p>
+                }
                 @if (zones().length) {
                     @for (row of zones(); track row.zone_id) {
                         <div
@@ -71,21 +78,9 @@ import { SignageGroupZoneSelectModalComponent } from './signage-group-zone-selec
                                 <div
                                     class="text-base-content/70 mt-1 truncate text-xs"
                                 >
-                                    @let labels =
-                                        permissionLabels(row.permissions);
-                                    @if (labels.length) {
-                                        @for (label of labels; track label) {
-                                            {{ label | translate }}
-                                            @if (!$last) {
-                                                ,
-                                            }
-                                        }
-                                    } @else {
-                                        <span class="italic">{{
-                                            'SIGNAGE_MANAGER.DEFAULT_PERMISSIONS'
-                                                | translate
-                                        }}</span>
-                                    }
+                                    <signage-group-permission-labels
+                                        [permissions]="row.permissions"
+                                    />
                                     @if (row.deny) {
                                         <span class="text-error">
                                             {{
@@ -173,6 +168,7 @@ import { SignageGroupZoneSelectModalComponent } from './signage-group-zone-selec
         MatTooltipModule,
         IconComponent,
         TranslatePipe,
+        SignageGroupPermissionLabelsComponent,
     ],
 })
 export class SignageGroupZonesComponent {
@@ -182,7 +178,6 @@ export class SignageGroupZonesComponent {
     public readonly zones = this._group_admin.managed_group_zones;
     public readonly loading = this._group_admin.managed_group_zones_loading;
     public readonly failed = this._group_admin.managed_group_zones_failed;
-    public readonly permissionLabels = groupPermissionLabels;
 
     public async addZone() {
         const zone = await dialogClosed(

@@ -9,9 +9,9 @@ import { SurveyService } from '../../app/surveys/survey.service';
 
 describe('BuildingListComponent', () => {
     let spectator: Spectator<BuildingListComponent>;
-    const building_list = signal<any[]>([]);
-    const survey_list = signal<any[]>([]);
-    const answer_list = signal<any[]>([]);
+    const building_list = signal<unknown[]>([]);
+    const survey_list = signal<unknown[]>([]);
+    const answer_list = signal<unknown[]>([]);
 
     const createComponent = createComponentFactory({
         component: BuildingListComponent,

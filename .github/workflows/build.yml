@@ -164,6 +164,13 @@ jobs:
                       ${{ runner.os }}-nx-${{matrix.package}}-
                       ${{ runner.os }}-nx-
 
+            # Match install_deps. The runner image default (Node 22) differs
+            # from local runs in web APIs such as Response.blob().
+            - name: Setup Node.js environment
+              uses: actions/setup-node@v6
+              with:
+                  node-version: '24'
+
             - name: Setup Bun
               uses: oven-sh/setup-bun@v2
               with:

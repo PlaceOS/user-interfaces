@@ -7,6 +7,8 @@
 #
 #   ./up.sh              bring up (reuses volumes if present)
 #   ./up.sh --fresh      destroy volumes first — a genuine cold start
+#   ./up.sh --pull       pull the current images first (CI does this every run)
+#   ./up.sh --pull-only  pull and stop (CI runs this as its own bounded step)
 #   ./down.sh            stop
 # -E (errtrace) is load-bearing: without it the ERR trap below is NOT inherited by
 # shell functions, so a failure inside `dc()` would exit silently and the
@@ -26,7 +28,16 @@ export E2E_DOMAIN=${E2E_DOMAIN:-localhost:${HTTPS_PORT}}
 dc() { docker compose -p "$PROJECT" "$@"; }
 
 fresh=false
-[[ "${1:-}" == "--fresh" ]] && fresh=true
+pull=false
+pull_only=false
+for arg in "$@"; do
+    case "$arg" in
+        --fresh) fresh=true ;;
+        --pull) pull=true ;;
+        --pull-only) pull=true; pull_only=true ;;
+        *) echo "unknown option: $arg" >&2; exit 64 ;;
+    esac
+done
 
 step() { printf '\n\033[1m== %s\033[0m\n' "$1"; }
 
@@ -36,12 +47,25 @@ if [[ "$fresh" == true ]]; then
 fi
 
 # ---------------------------------------------------------------------------
-# Secrets. Generated locally, never committed — the init image's generator is
-# the same one PlaceOS/local uses, so the key material is shaped identically.
-# It is idempotent: existing values are kept, not rotated.
-step "secrets"
+# Secrets live in .secrets/, generated below and never committed. The env files
+# are created empty first: compose refuses to load the project while an
+# env_file is missing, and the pull needs the project loaded.
 mkdir -p .secrets
 touch .secrets/.env.secret_key .secrets/.env.public_key
+
+if [[ "$pull" == true ]]; then
+    step "pulling images"
+    # Each image pulls on its own: one that fails is reported and the rest still
+    # update. The stack then runs on whatever is present, and CI's "Record
+    # backend inputs" step shows which images that was.
+    dc pull --ignore-pull-failures
+    if [[ "$pull_only" == true ]]; then exit 0; fi
+fi
+
+# The init image's generator is the same one PlaceOS/local uses, so the key
+# material is shaped identically. Idempotent: existing values are kept, not
+# rotated.
+step "secrets"
 if ! grep -q 'JWT_SECRET' .secrets/.env.secret_key 2>/dev/null; then
     printf 'PLACE_EMAIL=%s\nPLACE_PASSWORD=%s\n' \
         "${E2E_ADMIN_EMAIL:-support@place.tech}" \
@@ -112,6 +136,15 @@ echo "  /login -> 200"
 step "seeding platform entities (init)"
 dc run --rm init start
 
+# After init: core subscribes to the driver and module tables as it starts, and
+# a core that comes up before the migrations have created them stops managing
+# drivers for good while still answering HTTP.
+step "starting core"
+dc up -d core
+
+# The last step of the seed waits for core to hold the suite's driver binaries.
+# A commit the build farm has already built for this CPU architecture is a
+# download; one it has not takes a few minutes.
 step "seeding e2e fixtures"
 cd ../..
 E2E_BACKEND_URL="https://localhost:${HTTPS_PORT}" bunx tsx e2e/support/seed.ts

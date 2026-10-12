@@ -25,7 +25,7 @@ describe('AuthorisedAdminGuard', () => {
         vi.clearAllMocks();
         setCurrentUser({ groups: [] } as any);
         vi.mocked(ts_client.onlineState).mockReturnValue(of(true) as any);
-        vi.mocked(ts_client.waitForSignal).mockResolvedValue(true as any);
+        vi.mocked(ts_client.waitForSignal).mockResolvedValue(true);
         spectator = createService();
     });
 

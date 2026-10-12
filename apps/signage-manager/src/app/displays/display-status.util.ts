@@ -1,5 +1,5 @@
 /** Minutes without a player check-in before a display counts as offline */
-export const DISPLAY_OFFLINE_MINUTES = 5;
+const DISPLAY_OFFLINE_MINUTES = 5;
 
 /**
  * Whether a display's player checked in recently.

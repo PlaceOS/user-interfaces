@@ -1,5 +1,4 @@
 import { Component, computed, inject, OnInit } from '@angular/core';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { RouterOutlet } from '@angular/router';
 import { SwUpdate } from '@angular/service-worker';
 import {
@@ -7,6 +6,7 @@ import {
     current_user,
     failInitialisation,
     firstTruthyValueFrom,
+    lazySnackbar,
     LocaleService,
     log,
     markInitialisationComplete,
@@ -28,7 +28,6 @@ import { invalidateToken, isMock, setToken, token } from '@placeos/ts-client';
 import { setInternalUserDomain } from '@placeos/users';
 
 declare let Office: any;
-declare let OfficeRuntime: any;
 
 interface OfficeAccessTokenResult {
     status: string;
@@ -39,7 +38,9 @@ interface OfficeAccessTokenResult {
 @Component({
     selector: 'app-root',
     template: `
-        <settings-debug-panel-launcher />
+        @defer (on idle) {
+            <settings-debug-panel-launcher />
+        }
 
         <router-outlet />
         <global-loading />
@@ -55,7 +56,7 @@ export class AppComponent extends AsyncHandler implements OnInit {
     private _settings = inject(SettingsService);
     private _org = inject(OrganisationService);
     private _cache = inject(SwUpdate);
-    private _snackbar = inject(MatSnackBar);
+    private _snackbar = lazySnackbar();
     private _locales = inject(LocaleService);
     private _uploads = inject(UploadsService);
     private _current_user = userSignal();
@@ -72,8 +73,8 @@ export class AppComponent extends AsyncHandler implements OnInit {
 
     public async ngOnInit() {
         console.info(`Initialising application...`);
-        window.history.replaceState = (data: null, unused: null) => {};
-        window.history.pushState = (data: null, unused: null) => {};
+        window.history.replaceState = (_data: null, _unused: null) => {};
+        window.history.pushState = (_data: null, _unused: null) => {};
         setTranslationService(this._locales);
 
         setNotifyOutlet(this._snackbar);

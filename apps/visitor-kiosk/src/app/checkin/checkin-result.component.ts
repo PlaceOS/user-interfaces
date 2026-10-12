@@ -5,10 +5,10 @@ import { Router } from '@angular/router';
 import {
     AsyncHandler,
     Booking,
-    generateQRCode,
     OrganisationService,
     SettingsService,
 } from '@placeos/common';
+import { generateQRCode } from '@placeos/common/qr-code';
 import { SanitizePipe, TranslatePipe } from '@placeos/components';
 import { UserLabelComponent } from '@placeos/users';
 import { roundToNearestMinutes, startOfMinute } from 'date-fns';

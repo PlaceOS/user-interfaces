@@ -19,8 +19,8 @@ describe('SignageZonesComponent', () => {
         detectChanges: false,
         providers: [
             MockProvider(SignageStateService, {
-                loading: signal(false) as any,
-                has_changed: signal(0) as any,
+                loading: signal(false),
+                has_changed: signal(0),
                 zones: signal([
                     { id: 'z1', name: 'Lobby', playlists: ['p1'], version: 3 },
                     { id: 'z2', name: 'Kitchen', playlists: [], version: 1 },
@@ -42,7 +42,7 @@ describe('SignageZonesComponent', () => {
         // `spy: true` keeps real ts-client impls, which hang on live HTTP.
         (ts_client_mod.updateZone as any).mockResolvedValue({});
         spectator = createComponent();
-        state = spectator.inject(SignageStateService) as any;
+        state = spectator.inject(SignageStateService);
     });
 
     it('should filter zones by search term', () => {

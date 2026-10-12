@@ -22,19 +22,6 @@ import {
     User,
 } from '@placeos/common';
 import {
-    IconComponent,
-    SettingsToggleComponent,
-    TranslatePipe,
-} from '@placeos/components';
-import {
-    DateFieldComponent,
-    DurationFieldComponent,
-    HostSelectFieldComponent,
-    RecurrenceFieldComponent,
-    TimeFieldComponent,
-    UserSearchFieldComponent,
-} from '@placeos/form-fields';
-import {
     addDays,
     addMinutes,
     differenceInMinutes,
@@ -42,12 +29,19 @@ import {
     format,
     startOfDay,
 } from 'date-fns';
+import { IconComponent } from 'libs/components/src/lib/icon.component';
+import { SettingsToggleComponent } from 'libs/components/src/lib/settings-toggle.component';
+import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
+import { DateFieldComponent } from 'libs/form-fields/src/lib/date-field.component';
+import { DurationFieldComponent } from 'libs/form-fields/src/lib/duration-field.component';
+import { HostSelectFieldComponent } from 'libs/form-fields/src/lib/host-select-field.component';
+import { RecurrenceFieldComponent } from 'libs/form-fields/src/lib/recurrence-field.component';
+import { TimeFieldComponent } from 'libs/form-fields/src/lib/time-field.component';
+import { UserSearchFieldComponent } from 'libs/form-fields/src/lib/user-search-field.component';
 
 import { queryCalendarPermission } from './calendar.fn';
 import { EventFormService } from './event-form.service';
 import { multipleSpacesSignal, organiserTimezone } from './utilities';
-
-const MINUTES_IN_DAY = 24 * 60;
 
 const ALLOWED_CALENDAR_ROLES = [
     'write',
@@ -367,6 +361,10 @@ export class MeetingFormDetailsComponent extends AsyncHandler {
         'events.can_book_for_anyone',
         false,
     );
+    private readonly _use_bookings = this._settings.signal(
+        'events.use_bookings',
+        false,
+    );
     private readonly _allow_all_day = this._settings.signal(
         'events.allow_all_day',
         false,
@@ -475,8 +473,13 @@ export class MeetingFormDetailsComponent extends AsyncHandler {
         this.model.update((model) => ({ ...model, timezone }));
     }
 
+    /**
+     * Confirm the current user can write to the selected host's calendar.
+     * Native bookings do not write to calendars, so they skip this check.
+     */
     private async _checkCalendarPermission(user: User) {
         if (!user?.email || !this.can_book_for_anyone()) return;
+        if (this._use_bookings()) return;
         const current = currentUser();
         if (user.email.toLowerCase() === current?.email?.toLowerCase()) return;
         this.permission_error.set('');

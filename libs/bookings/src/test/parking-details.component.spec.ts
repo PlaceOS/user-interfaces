@@ -2,10 +2,10 @@ import { Spectator, createComponentFactory } from '@ngneat/spectator/vitest';
 import { OrganisationService } from '@placeos/common';
 import { MockComponent, MockPipe } from 'ng-mocks';
 
-import { MapPinComponent } from '@placeos/components';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { ImageCarouselComponent } from 'libs/components/src/lib/image-carousel.component';
 import { InteractiveMapComponent } from 'libs/components/src/lib/interactive-map.component';
+import { MapPinComponent } from 'libs/components/src/lib/map-pin.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { ParkingDetailsComponent } from '../lib/parking-select-modal/parking-details.component';
 
@@ -60,7 +60,7 @@ describe('ParkingDetailsComponent', () => {
             display_name: 'Bay 12',
             name: 'bay-12',
             zone: { id: 'lvl-1', parent_id: 'bld-1' },
-        } as any);
+        });
         spectator.detectChanges();
         expect(spectator.query('[empty]')).not.toExist();
         expect(spectator.query('[actions] h2')).toContainText('Bay 12');
@@ -69,7 +69,7 @@ describe('ParkingDetailsComponent', () => {
     it('should emit close when the back button is clicked', () => {
         const close = vi.fn();
         spectator.component.close.subscribe(close);
-        spectator.setInput('space', { id: 'space-1', name: 'Bay' } as any);
+        spectator.setInput('space', { id: 'space-1', name: 'Bay' });
         spectator.detectChanges();
         spectator.click('button[close]');
         expect(close).toHaveBeenCalledTimes(1);
@@ -78,14 +78,14 @@ describe('ParkingDetailsComponent', () => {
     it('should emit toggleFav when the favourite button is clicked', () => {
         const toggle = vi.fn();
         spectator.component.toggleFav.subscribe(toggle);
-        spectator.setInput('space', { id: 'space-1', name: 'Bay' } as any);
+        spectator.setInput('space', { id: 'space-1', name: 'Bay' });
         spectator.detectChanges();
         spectator.click('button[fav]');
         expect(toggle).toHaveBeenCalledTimes(1);
     });
 
     it('should reflect the favourite state on the favourite icon', () => {
-        spectator.setInput('space', { id: 'space-1', name: 'Bay' } as any);
+        spectator.setInput('space', { id: 'space-1', name: 'Bay' });
         spectator.setInput('fav', false);
         spectator.detectChanges();
         expect(spectator.query('button[fav] icon')).toContainText(
@@ -101,7 +101,7 @@ describe('ParkingDetailsComponent', () => {
             id: 'space-1',
             name: 'Bay',
             zone: { id: 'lvl-1', parent_id: 'bld-1' },
-        } as any);
+        });
         spectator.detectChanges();
         expect(spectator.component.level()?.display_name).toBe('Level One');
         expect(spectator.component.building()?.id).toBe('bld-1');
@@ -115,7 +115,7 @@ describe('ParkingDetailsComponent', () => {
             name: 'Bay',
             map_id: 'map-space-1',
             zone: { id: 'lvl-1', parent_id: 'bld-1' },
-        } as any);
+        });
         spectator.setInput('hide_map', false);
         spectator.detectChanges();
         expect(spectator.query('interactive-map')).toExist();
@@ -127,7 +127,7 @@ describe('ParkingDetailsComponent', () => {
     });
 
     it('should not produce map features when the space has no map id', () => {
-        spectator.setInput('space', { id: 'space-1', name: 'Bay' } as any);
+        spectator.setInput('space', { id: 'space-1', name: 'Bay' });
         spectator.detectChanges();
         expect(spectator.component.features()).toEqual([]);
     });

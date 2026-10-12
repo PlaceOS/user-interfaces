@@ -8,7 +8,7 @@ import {
     viewChild,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { MatButtonModule } from '@angular/material/button';
+import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -26,11 +26,21 @@ import {
     ImageGenBrandKit,
     ImageGenLogoSlot,
 } from '../image-gen/image-gen.types';
-import { errorMessage } from '../image-gen/image-gen.util';
+import { actionError } from '../image-gen/image-gen.util';
 import { SignageContextService } from '../signage-context.service';
+import { brandEditingOn, canEditBrandKit } from './brand-access';
 import { BRAND_FONTS, ensureBrandFont } from './brand-fonts';
 
 const COLOUR_NAMES = ['primary', 'secondary', 'accent'];
+
+/** how many palette colours the page shows and edits */
+const MAX_COLOURS = 3;
+
+/** a palette colour and the key it is stored under */
+interface BrandColour {
+    key: string;
+    value: string;
+}
 
 @Component({
     selector: 'app-branding',
@@ -49,20 +59,26 @@ const COLOUR_NAMES = ['primary', 'secondary', 'accent'];
                 </div>
             } @else if (load_state() === 'failed') {
                 <div
-                    class="border-error/40 bg-error/10 flex items-center gap-3 rounded border p-3 text-sm"
+                    class="border-error/40 bg-error/10 flex items-center gap-3 rounded-lg border p-3 text-sm"
                 >
                     <icon class="text-error">error</icon>
                     <span class="flex-1">{{
                         'SIGNAGE_MANAGER.BRAND_LOAD_ERROR' | translate
                     }}</span>
-                    <button mat-stroked-button type="button" (click)="load()">
+                    <button
+                        btn
+                        matRipple
+                        type="button"
+                        class="inverse"
+                        (click)="load()"
+                    >
                         {{ 'COMMON.RETRY' | translate }}
                     </button>
                 </div>
             } @else {
                 @if (!can_edit()) {
                     <p
-                        class="border-base-300 bg-base-200 mb-6 flex items-center gap-2 rounded border p-3 text-sm"
+                        class="border-base-300 bg-base-200 mb-6 flex items-center gap-2 rounded-lg border p-3 text-sm"
                     >
                         <icon class="text-base-content/60">lock</icon>
                         {{
@@ -97,10 +113,10 @@ const COLOUR_NAMES = ['primary', 'secondary', 'accent'];
                         <div class="flex items-center gap-3">
                             <input
                                 type="color"
-                                class="border-base-content/20 h-10 w-14 rounded border bg-transparent disabled:cursor-not-allowed disabled:opacity-60"
+                                class="border-base-300 h-10 w-14 rounded border bg-transparent disabled:cursor-not-allowed disabled:opacity-60"
                                 [class.cursor-pointer]="can_edit()"
                                 [disabled]="!can_edit()"
-                                [value]="colour"
+                                [value]="colour.value"
                                 (input)="setColourFromInput($index, $event)"
                                 [attr.aria-label]="
                                     'SIGNAGE_MANAGER.BRAND_COLOURS' | translate
@@ -108,12 +124,11 @@ const COLOUR_NAMES = ['primary', 'secondary', 'accent'];
                             />
                             <mat-form-field
                                 appearance="outline"
-                                class="w-40"
-                                subscriptSizing="dynamic"
+                                class="no-subscript w-40"
                             >
                                 <input
                                     matInput
-                                    [ngModel]="colour"
+                                    [ngModel]="colour.value"
                                     (ngModelChange)="setColour($index, $event)"
                                     [disabled]="!can_edit()"
                                     [class.text-error]="colour_errors()[$index]"
@@ -125,7 +140,7 @@ const COLOUR_NAMES = ['primary', 'secondary', 'accent'];
                             </mat-form-field>
                             <span
                                 class="text-base-content/60 text-xs uppercase"
-                                >{{ colourName($index) }}</span
+                                >{{ colour.key }}</span
                             >
                             @if (can_edit()) {
                                 <button
@@ -145,10 +160,12 @@ const COLOUR_NAMES = ['primary', 'secondary', 'accent'];
                             }
                         </div>
                     }
-                    @if (can_edit() && colours().length < 3) {
+                    @if (can_edit() && colours().length < max_colours) {
                         <button
-                            mat-stroked-button
+                            btn
+                            matRipple
                             type="button"
+                            class="inverse"
                             (click)="addColour()"
                         >
                             {{ 'SIGNAGE_MANAGER.BRAND_ADD_COLOUR' | translate }}
@@ -176,7 +193,7 @@ const COLOUR_NAMES = ['primary', 'secondary', 'accent'];
                     </mat-select>
                 </mat-form-field>
                 <p
-                    class="border-base-content/10 bg-base-200 mb-2 rounded border p-4 text-2xl"
+                    class="border-base-300 bg-base-200 mb-2 rounded-lg border p-4 text-2xl"
                     [style.font-family]="font_stack()"
                 >
                     {{ 'SIGNAGE_MANAGER.BRAND_FONT_SAMPLE' | translate }}
@@ -193,7 +210,7 @@ const COLOUR_NAMES = ['primary', 'secondary', 'accent'];
                 <div class="flex flex-col gap-4 sm:flex-row">
                     @for (slot of slots; track slot.id) {
                         <div
-                            class="border-base-content/10 flex min-w-0 flex-1 flex-col gap-3 rounded border p-4"
+                            class="border-base-300 flex min-w-0 flex-1 flex-col gap-3 rounded-lg border p-4"
                         >
                             <div
                                 class="flex items-baseline justify-between gap-2"
@@ -240,8 +257,10 @@ const COLOUR_NAMES = ['primary', 'secondary', 'accent'];
                             @if (can_edit()) {
                                 <div class="flex flex-wrap gap-2">
                                     <button
-                                        mat-stroked-button
+                                        btn
+                                        matRipple
                                         type="button"
+                                        class="inverse"
                                         [disabled]="!!busy()"
                                         (click)="pick(slot.id)"
                                     >
@@ -259,8 +278,10 @@ const COLOUR_NAMES = ['primary', 'secondary', 'accent'];
                                         logoId(other(slot.id))
                                     ) {
                                         <button
-                                            mat-stroked-button
+                                            btn
+                                            matRipple
                                             type="button"
+                                            class="inverse"
                                             [disabled]="!!busy()"
                                             (click)="derive(slot.id)"
                                         >
@@ -291,6 +312,7 @@ const COLOUR_NAMES = ['primary', 'secondary', 'accent'];
                         <button
                             btn
                             matRipple
+                            type="button"
                             class="w-40"
                             [disabled]="saving()"
                             (click)="save()"
@@ -314,7 +336,7 @@ const COLOUR_NAMES = ['primary', 'secondary', 'accent'];
         AuthenticatedImageDirective,
         FormsModule,
         IconComponent,
-        MatButtonModule,
+        MatRippleModule,
         MatFormFieldModule,
         MatInputModule,
         MatProgressSpinnerModule,
@@ -330,13 +352,8 @@ export class BrandingComponent implements OnInit {
     public readonly fonts = BRAND_FONTS;
     public readonly enabled = this._image_gen.enabled;
 
-    /** The brand kit is for the whole organisation, so only the global
-     * `app.features` setting turns branding edits off */
     public readonly branding_disabled = computed(
-        () =>
-            !(this._context.global_features() || []).includes(
-                'branding-editing',
-            ),
+        () => !brandEditingOn(this._context),
     );
     /** Whether the stored brand kit is read. The form shows only after a
      * read works, so its defaults cannot replace the stored kit. */
@@ -344,14 +361,14 @@ export class BrandingComponent implements OnInit {
         'loading',
     );
     public readonly can_edit = computed(
-        () =>
-            this._context.is_sys_admin() &&
-            !this.branding_disabled() &&
-            this.load_state() === 'ready',
+        () => canEditBrandKit(this._context) && this.load_state() === 'ready',
     );
 
     public readonly organisation = signal('');
-    public readonly colours = signal<string[]>(['#0E6E52']);
+    public readonly colours = signal<BrandColour[]>([
+        { key: 'primary', value: '#0E6E52' },
+    ]);
+    public readonly max_colours = MAX_COLOURS;
     public readonly font = signal('');
     public readonly saving = signal(false);
 
@@ -362,7 +379,7 @@ export class BrandingComponent implements OnInit {
         on_dark: '',
     });
     public readonly derived = signal<ImageGenLogoSlot | ''>('');
-    /** Palette colours after the three that the page edits. A save replaces
+    /** Palette colours after the ones that the page edits. A save replaces
      * the whole kit, so they are saved back as they are. */
     private _extra_palette: Record<string, string> = {};
 
@@ -412,13 +429,31 @@ export class BrandingComponent implements OnInit {
         this.load_state.set('ready');
     }
 
-    public colourName(index: number) {
-        return COLOUR_NAMES[index] || `colour ${index + 1}`;
+    public addColour() {
+        if (this.colours().length >= MAX_COLOURS) return;
+        this.colours.update((list) => [
+            ...list,
+            { key: this._freeKey(), value: '#1B2420' },
+        ]);
     }
 
-    public addColour() {
-        if (this.colours().length >= 3) return;
-        this.colours.update((list) => [...list, '#1B2420']);
+    /** the first palette key not in use, so a new colour replaces nothing */
+    private _freeKey() {
+        const used = new Set([
+            ...this.colours().map((colour) => colour.key),
+            ...Object.keys(this._extra_palette),
+        ]);
+        // one more numbered name than keys in use, so one is always free
+        const names = [
+            ...COLOUR_NAMES,
+            ...Array.from(
+                { length: used.size + 1 },
+                (_, index) => `colour ${index + 1}`,
+            ),
+        ];
+        return (
+            names.find((name) => !used.has(name)) || `colour ${used.size + 1}`
+        );
     }
 
     public removeColour(index: number) {
@@ -430,12 +465,16 @@ export class BrandingComponent implements OnInit {
     public static readonly COLOUR = /^#([0-9a-f]{3}|[0-9a-f]{6})$/i;
 
     public readonly colour_errors = computed(() =>
-        this.colours().map((colour) => !BrandingComponent.COLOUR.test(colour)),
+        this.colours().map(
+            (colour) => !BrandingComponent.COLOUR.test(colour.value),
+        ),
     );
 
     public setColour(index: number, value: string) {
         this.colours.update((list) =>
-            list.map((colour, i) => (i === index ? value : colour)),
+            list.map((colour, i) =>
+                i === index ? { ...colour, value } : colour,
+            ),
         );
     }
 
@@ -487,7 +526,7 @@ export class BrandingComponent implements OnInit {
             notifySuccess(i18n('SIGNAGE_MANAGER.IMAGE_GEN_LOGO_SAVED'));
         } catch (error) {
             notifyError(
-                errorMessage(error, i18n('SIGNAGE_MANAGER.BRAND_SAVE_FAILED')),
+                actionError(error, i18n('SIGNAGE_MANAGER.BRAND_SAVE_FAILED')),
             );
         } finally {
             this.busy.set('');
@@ -504,7 +543,7 @@ export class BrandingComponent implements OnInit {
             notifySuccess(i18n('SIGNAGE_MANAGER.BRAND_LOGO_MADE'));
         } catch (error) {
             notifyError(
-                errorMessage(error, i18n('SIGNAGE_MANAGER.BRAND_SAVE_FAILED')),
+                actionError(error, i18n('SIGNAGE_MANAGER.BRAND_SAVE_FAILED')),
             );
         } finally {
             this.busy.set('');
@@ -519,10 +558,11 @@ export class BrandingComponent implements OnInit {
         }
         this.saving.set(true);
         try {
+            // each colour keeps the key it was read from
             const palette = { ...this._extra_palette };
-            this.colours().forEach((colour, index) => {
-                palette[this.colourName(index)] = colour;
-            });
+            for (const colour of this.colours()) {
+                palette[colour.key] = colour.value;
+            }
             await this._image_gen.saveBrandKit({
                 organisation: this.organisation().trim() || undefined,
                 palette,
@@ -531,7 +571,7 @@ export class BrandingComponent implements OnInit {
             notifySuccess(i18n('SIGNAGE_MANAGER.BRAND_SAVED'));
         } catch (error) {
             notifyError(
-                errorMessage(error, i18n('SIGNAGE_MANAGER.BRAND_SAVE_FAILED')),
+                actionError(error, i18n('SIGNAGE_MANAGER.BRAND_SAVE_FAILED')),
             );
         } finally {
             this.saving.set(false);
@@ -548,10 +588,14 @@ export class BrandingComponent implements OnInit {
             ),
         ];
         if (ordered.length) {
-            this.colours.set(ordered.slice(0, 3).map((key) => palette[key]));
+            this.colours.set(
+                ordered
+                    .slice(0, MAX_COLOURS)
+                    .map((key) => ({ key, value: palette[key] })),
+            );
         }
         this._extra_palette = Object.fromEntries(
-            ordered.slice(3).map((key) => [key, palette[key]]),
+            ordered.slice(MAX_COLOURS).map((key) => [key, palette[key]]),
         );
         const font = brand.font;
         this.font.set(typeof font === 'string' ? font : font?.family || '');

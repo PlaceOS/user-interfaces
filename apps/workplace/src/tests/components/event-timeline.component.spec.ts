@@ -48,7 +48,7 @@ describe('EventTimelineComponent', () => {
         let emitted: number | undefined;
         spectator.component.date.subscribe((v) => (emitted = v));
 
-        spectator.component.setTime({ id: '10:15' } as any);
+        spectator.component.setTime({ id: '10:15' });
 
         const selected = new Date(spectator.component.date());
         expect(selected.getHours()).toBe(10);
@@ -58,7 +58,7 @@ describe('EventTimelineComponent', () => {
 
     it('ignores block selection when no block is provided', () => {
         const before = spectator.component.date();
-        spectator.component.setTime(undefined as any);
+        spectator.component.setTime(undefined);
         expect(spectator.component.date()).toBe(before);
     });
 

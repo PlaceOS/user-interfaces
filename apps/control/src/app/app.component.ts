@@ -11,7 +11,9 @@ import { mocksInit } from '@placeos/mocks';
 @Component({
     selector: 'app-root',
     template: `
-        <settings-debug-panel-launcher />
+        @defer (on idle) {
+            <settings-debug-panel-launcher />
+        }
 
         <global-banner />
         <div class="relative h-1/2 w-full flex-1">

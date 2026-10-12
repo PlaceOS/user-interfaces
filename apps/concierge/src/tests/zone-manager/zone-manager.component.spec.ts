@@ -17,8 +17,8 @@ describe('ZoneManagerComponent', () => {
     let region_service: any;
     let building_service: any;
     let level_service: any;
-    let router_navigate: any;
-    let query_param_map: any;
+    let router_navigate: unknown;
+    let query_param_map: unknown;
 
     const createComponent = createComponentFactory({
         component: ZoneManagerComponent,

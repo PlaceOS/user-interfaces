@@ -19,7 +19,7 @@ class ModalShellStubComponent {
 
 @Component({ selector: 'playlist-schedule-form', template: '' })
 class ScheduleFormStubComponent {
-    public readonly schedule = input<any>();
+    public readonly schedule = input<unknown>();
     public readonly index = input(0);
     public readonly open = input(false);
     public readonly can_remove = input(false);
@@ -29,7 +29,7 @@ class ScheduleFormStubComponent {
 
 @Component({ selector: 'media-thumbnail', template: '' })
 class MediaThumbnailStubComponent {
-    public readonly item = input<any>();
+    public readonly item = input<unknown>();
     public readonly cover = input(false);
 }
 
@@ -322,7 +322,7 @@ describe('PlaylistItemScheduleModalComponent', () => {
         save.mockRejectedValue(new Error('nope'));
         const component = await createComponent();
 
-        await component.saveSchedule().catch(() => undefined);
+        await expect(component.saveSchedule()).resolves.toBeUndefined();
 
         expect(component.loading()).toBe(false);
         expect(dialog_ref.disableClose).toBe(false);

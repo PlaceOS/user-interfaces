@@ -13,7 +13,7 @@ import { captureDownloads } from '../download-capture.helper';
 describe('LockersReportListComponent', () => {
     let spectator: Spectator<LockersReportListComponent>;
     let downloads: ReturnType<typeof captureDownloads>;
-    let bookings: ReturnType<typeof signal<any>>;
+    let bookings: ReturnType<typeof signal<unknown>>;
 
     const createComponent = createComponentFactory({
         component: LockersReportListComponent,
@@ -23,7 +23,7 @@ describe('LockersReportListComponent', () => {
             MockComponent(ReportMetricGuideComponent),
         ],
         imports: [MatTooltipModule],
-        providers: [MockProvider(LockersReportService, {} as any)],
+        providers: [MockProvider(LockersReportService, {})],
     });
 
     afterEach(() => downloads.restore());

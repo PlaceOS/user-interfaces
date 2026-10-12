@@ -16,22 +16,25 @@ import { SettingsToggleComponent } from 'libs/components/src/lib/settings-toggle
 import { DateFieldComponent } from 'libs/form-fields/src/lib/date-field.component';
 import { DurationFieldComponent } from 'libs/form-fields/src/lib/duration-field.component';
 import { TimeFieldComponent } from 'libs/form-fields/src/lib/time-field.component';
+import { generateBookingForm } from '../lib/booking-form.model';
 import { BookingFormService } from '../lib/booking-form.service';
-import { generateBookingForm } from '../lib/booking.utilities';
 import { LockerFiltersComponent } from '../lib/locker-select-modal/locker-filters.component';
 
 describe('LockerFiltersComponent', () => {
     let spectator: Spectator<LockerFiltersComponent>;
-    const options = signal<any>({ zone_id: '' });
+    const options = signal<unknown>({ zone_id: '' });
     const features = signal<string[]>([]);
-    const active_buildings = signal<any[]>([{ id: 'bld-1' }, { id: 'bld-2' }]);
-    const active_building = signal<any>({ id: 'bld-1' });
-    const region_list = signal<any[]>([]);
-    const active_region = signal<any>(null);
+    const active_buildings = signal<unknown[]>([
+        { id: 'bld-1' },
+        { id: 'bld-2' },
+    ]);
+    const active_building = signal<unknown>({ id: 'bld-1' });
+    const region_list = signal<unknown[]>([]);
+    const active_region = signal<unknown>(null);
     const set_options = vi.fn();
     const set_feature = vi.fn();
-    let org_building_setter: any = null;
-    let org_region_setter: any = null;
+    let org_building_setter: unknown = null;
+    let org_region_setter: unknown = null;
 
     const levels = [
         {
@@ -100,10 +103,10 @@ describe('LockerFiltersComponent', () => {
                     active_region,
                     levelsForRegion: vi.fn(() => levels),
                     levelsForBuilding: vi.fn(() => levels),
-                    set building(value: any) {
+                    set building(value: unknown) {
                         org_building_setter = value;
                     },
-                    set region(value: any) {
+                    set region(value: unknown) {
                         org_region_setter = value;
                     },
                 },

@@ -29,11 +29,15 @@ import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
-import { TranslatePipe, VirtualKeyboardComponent } from '@placeos/components';
+import {
+    LoadErrorComponent,
+    TranslatePipe,
+    VirtualKeyboardComponent,
+} from '@placeos/components';
+
+import { hasBootstrappedDisplay, STORE_DISPLAY_KEY } from './bootstrap-state';
 
 const STORE_PREFIX = 'PlaceOS.SIGNAGE';
-/** Keep in step with `bootstrap-state.ts` */
-const STORE_DISPLAY_KEY = `${STORE_PREFIX}.display`;
 const STORE_BUILDING_KEY = `${STORE_PREFIX}.building`;
 const STORE_TEMPLATE_KEY = `${STORE_PREFIX}.template`;
 
@@ -50,7 +54,14 @@ const STORE_TEMPLATE_KEY = `${STORE_PREFIX}.template`;
                 >
                     {{ 'APP.SIGNAGE.BOOTSTRAP_TITLE' | translate }}
                 </header>
-                @if (!loading()) {
+                @if (loading()) {
+                    <div class="m-auto flex flex-col items-center p-8">
+                        <mat-spinner [diameter]="32"></mat-spinner>
+                        <p>{{ loading() }}</p>
+                    </div>
+                } @else if (displays_failed()) {
+                    <load-error (retry)="reloadDisplays()" />
+                } @else {
                     <main class="px-4 py-2">
                         <label for="display">
                             {{ 'APP.SIGNAGE.BOOTSTRAP_DISPLAY' | translate }}
@@ -66,7 +77,7 @@ const STORE_TEMPLATE_KEY = `${STORE_PREFIX}.template`;
                                 "
                                 [disabled]="!displays().length"
                             >
-                                @for (option of displays(); track option) {
+                                @for (option of displays(); track option.id) {
                                     <mat-option [value]="option.id">
                                         <div
                                             class="flex flex-col leading-tight"
@@ -131,11 +142,6 @@ const STORE_TEMPLATE_KEY = `${STORE_PREFIX}.template`;
                             {{ 'COMMON.BOOTSTRAP_SUBMIT' | translate }}
                         </button>
                     </main>
-                } @else {
-                    <div class="m-auto flex flex-col items-center p-8">
-                        <mat-spinner [diameter]="32"></mat-spinner>
-                        <p>{{ loading() }}</p>
-                    </div>
                 }
             </div>
             <div class="absolute right-0 bottom-0 z-10 p-2 text-right">
@@ -169,6 +175,7 @@ const STORE_TEMPLATE_KEY = `${STORE_PREFIX}.template`;
         MatFormFieldModule,
         MatSelectModule,
         FormsModule,
+        LoadErrorComponent,
     ],
 })
 export class BootstrapComponent extends AsyncHandler implements OnInit {
@@ -181,8 +188,16 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
         return VERSION;
     }
 
-    /** Loading state of the bootstrap */
-    public readonly loading = signal('');
+    /**
+     * Loading state of the bootstrap. Starts on the setup check when a display
+     * is stored, so a bootstrapped player never shows the picker on its way
+     * back to its content.
+     */
+    public readonly loading = signal(
+        hasBootstrappedDisplay()
+            ? i18n('APP.SIGNAGE.BOOTSTRAP_LOADING_CHECK')
+            : '',
+    );
     /** Actively selected display */
     public readonly active_display = signal('');
     /** Template selected for the bootstrapped display. */
@@ -192,6 +207,9 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
         'templates_enabled',
         false,
     );
+
+    /** Set once a navigation to the player has started */
+    private _opening = false;
 
     private readonly _displays = resource({
         params: () => this._org.initialised(),
@@ -204,7 +222,7 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
                     ',',
                 ),
                 signage: true,
-            }).catch(() => ({ data: [] }));
+            });
             return result.data.sort((a, b) =>
                 (a.display_name || a.name).localeCompare(
                     b.display_name || b.name,
@@ -225,12 +243,16 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
     });
 
     /** List of signage displays available for the active organisation */
-    public readonly displays = computed(() => this._displays.value() ?? []);
+    public readonly displays = computed(() =>
+        this._displays.hasValue() ? this._displays.value() : [],
+    );
+    /** Whether the display list failed to load */
+    public readonly displays_failed = computed(() => !!this._displays.error());
     /** Templates available when template bootstrapping is enabled. */
     public readonly templates = computed(() => this._templates.value() ?? []);
 
     public level(system: PlaceSystem) {
-        return this._org.levelWithID((system.zones || []) as any);
+        return this._org.levelWithID([...(system.zones || [])]);
     }
 
     public building(system: PlaceSystem) {
@@ -238,7 +260,12 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
         return this._org.buildings.find(({ id }) => zones.includes(id));
     }
 
-    public async ngOnInit() {
+    /** Fetch the display list again after it failed to load */
+    public reloadDisplays() {
+        this._displays.reload();
+    }
+
+    public ngOnInit() {
         this._org.limit_init = true;
         log('BOOTSTRAP', 'Initialising...');
         this.subscription(
@@ -263,7 +290,6 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
         // backend. Otherwise an offline player never reaches the content it
         // already has cached.
         this.timeout('check', () => this.checkBootstrap(), 1000);
-        await this._org.waitUntilInitialised();
     }
 
     /**
@@ -290,42 +316,58 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
             localStorage.removeItem(STORE_TEMPLATE_KEY);
         }
         log('BOOTSTRAP', `Bootstrapped panel to display ${active_display}`);
-        this._router.navigate(
-            template_id
-                ? ['/template', template_id, active_display]
-                : ['/signage', active_display],
-        );
-        this.loading.set('');
+        await this.openPlayer(active_display, template_id);
     }
 
     /**
      * Check for any existing bootstrapped values
      */
     private checkBootstrap() {
+        VirtualKeyboardComponent.enabled =
+            localStorage.getItem('OSK.enabled') === 'true';
+        // A display picked from the URL is already on its way to the player.
+        if (this._opening) return;
+        const display_id = localStorage.getItem(STORE_DISPLAY_KEY);
+        if (!display_id) {
+            log('BOOTSTRAP', `No bootstrap details found for system`);
+            this.loading.set('');
+            return;
+        }
         this.loading.set(i18n('APP.SIGNAGE.BOOTSTRAP_LOADING_CHECK'));
-        const display_id = localStorage?.getItem(STORE_DISPLAY_KEY);
-        if (display_id) {
-            const template_id =
-                (this.templates_enabled() &&
-                    (this.active_template() ||
-                        localStorage.getItem(STORE_TEMPLATE_KEY))) ||
-                '';
-            if (this.active_template() && this.templates_enabled()) {
-                localStorage.setItem(STORE_TEMPLATE_KEY, template_id);
-            }
-            log(
-                'BOOTSTRAP',
-                `Application already bootstrapped to display ${display_id}`,
-            );
-            this._router.navigate(
+        const template_id =
+            (this.templates_enabled() &&
+                (this.active_template() ||
+                    localStorage.getItem(STORE_TEMPLATE_KEY))) ||
+            '';
+        if (this.active_template() && this.templates_enabled()) {
+            localStorage.setItem(STORE_TEMPLATE_KEY, template_id);
+        }
+        log(
+            'BOOTSTRAP',
+            `Application already bootstrapped to display ${display_id}`,
+        );
+        this.openPlayer(display_id, template_id);
+    }
+
+    /**
+     * Navigate to the player. The loading state stays up while the route
+     * guard runs, which can take a while offline, and the picker only comes
+     * back if the navigation does not go through.
+     */
+    private async openPlayer(display_id: string, template_id: string) {
+        this._opening = true;
+        let opened = false;
+        try {
+            opened = await this._router.navigate(
                 template_id
                     ? ['/template', template_id, display_id]
                     : ['/signage', display_id],
             );
+        } catch (error) {
+            log('BOOTSTRAP', 'Failed to open the player', error, 'warn');
         }
-        VirtualKeyboardComponent.enabled =
-            localStorage.getItem('OSK.enabled') === 'true';
-        log('BOOTSTRAP', `No bootstrap details found for system`);
+        if (opened) return;
+        this._opening = false;
         this.loading.set('');
     }
 }

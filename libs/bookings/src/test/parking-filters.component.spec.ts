@@ -22,13 +22,13 @@ import { ParkingFiltersComponent } from '../lib/parking-select-modal/parking-fil
 
 describe('ParkingFiltersComponent', () => {
     let spectator: Spectator<ParkingFiltersComponent>;
-    const options = signal<any>({
+    const options = signal<unknown>({
         zone_id: 'lvl-a',
         show_fav: false,
         features: [],
     });
     const features = signal<string[]>(['EV', 'Accessible']);
-    const model = signal<any>({
+    const model = signal<unknown>({
         date: new Date(2026, 5, 15, 9, 0, 0, 0).valueOf(),
         duration: 120,
         all_day: false,
@@ -67,7 +67,7 @@ describe('ParkingFiltersComponent', () => {
             tags: ['desks'],
         },
     ];
-    const org_mock: any = {
+    const org_mock = {
         active_buildings: signal([
             { id: 'bld-1', display_name: 'Building One', name: 'bld-1' },
             { id: 'bld-2', display_name: 'Building Two', name: 'bld-2' },
@@ -190,9 +190,9 @@ describe('ParkingFiltersComponent', () => {
     });
 
     it('should update the active building and region through the organisation', () => {
-        spectator.component.setBuilding({ id: 'bld-2' } as any);
+        spectator.component.setBuilding({ id: 'bld-2' });
         expect(org_mock.building).toEqual({ id: 'bld-2' });
-        spectator.component.setRegion({ id: 'reg-2' } as any);
+        spectator.component.setRegion({ id: 'reg-2' });
         expect(org_mock.region).toEqual({ id: 'reg-2' });
     });
 });

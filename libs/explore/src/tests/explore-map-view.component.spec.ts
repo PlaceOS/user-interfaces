@@ -10,7 +10,7 @@ import { MockComponent, MockModule, MockProvider } from 'ng-mocks';
 import { of } from 'rxjs';
 
 import { OrganisationService, SettingsService } from '@placeos/common';
-import { SpacesService } from '@placeos/events';
+import { SpacesService } from 'libs/events/src/lib/spaces.service';
 
 import { MapsPeopleService } from 'libs/common/src/lib/mapspeople.service';
 import { IndoorMapsComponent } from 'libs/components/src/lib/indoor-maps.component';
@@ -63,7 +63,7 @@ describe('ExploreMapViewComponent', () => {
         providers: [
             MockProvider(MapsPeopleService, {
                 available: signal(false),
-            } as any),
+            }),
             MockProvider(OrganisationService, {
                 initialised: signal(true),
                 levelWithID: vi.fn(),
@@ -113,9 +113,7 @@ describe('ExploreMapViewComponent', () => {
             spectator.component.hide_zones.set(false);
             spectator.component.hide_devices.set(true);
             spectator.component.hide_sensors.set(true);
-            (
-                spectator.inject(ExploreStateService).setFeatures as any
-            ).mockReset();
+            spectator.inject(ExploreStateService).setFeatures.mockReset();
         }
     });
 

@@ -202,7 +202,7 @@ export class AssetGroupFormComponent extends AsyncHandler implements OnInit {
         if (!this.form().valid()) return;
         this.loading.set('Saving Product...');
         const data = this.model();
-        const item = await saveAssetType(data as any).catch((e) => {
+        const item = await saveAssetType(data).catch((e) => {
             this.loading.set('');
             notifyError(`Error saving Product: ${e.message}`);
             throw e;

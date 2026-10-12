@@ -22,7 +22,7 @@ describe('UrlManagerComponent', () => {
             MockProvider(UrlManagementService, {
                 editURL: vi.fn(),
                 setSearchString: vi.fn(),
-            } as any),
+            }),
         ],
     });
 

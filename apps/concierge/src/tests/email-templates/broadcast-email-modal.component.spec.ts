@@ -38,7 +38,7 @@ describe('BroadcastEmailModalComponent', () => {
         imports: [MatFormFieldModule, MatInputModule, MatSelectModule],
         providers: [
             { provide: ComponentFixtureAutoDetect, useValue: false },
-            MockProvider(MatDialogRef, { close: dialog_close } as any),
+            MockProvider(MatDialogRef, { close: dialog_close }),
             MockProvider(OrganisationService, {
                 module: vi.fn(() => smtp_module),
                 building: { id: 'bld-1', timezone: 'Australia/Sydney' },
@@ -63,7 +63,7 @@ describe('BroadcastEmailModalComponent', () => {
     });
 
     afterEach(() => {
-        setNotifyOutlet(null as any, true);
+        setNotifyOutlet(null, true);
     });
 
     it('should resolve, normalise and de-duplicate custom recipients', async () => {
@@ -209,7 +209,7 @@ describe('BroadcastEmailModalComponent', () => {
             subject: 'Hello',
             message_plaintext: 'Body',
             recipient_group: 'custom',
-            recipients: [] as any,
+            recipients: [],
         }));
         await spectator.component.updateRecipients();
 

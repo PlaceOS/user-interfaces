@@ -10,7 +10,7 @@ import { BookLockerFlowSuccessComponent } from '../../../app/book/locker-flow/lo
 describe('BookLockerFlowSuccessComponent', () => {
     let spectator: SpectatorRouting<BookLockerFlowSuccessComponent>;
     let settings: Record<string, any>;
-    const last_success: Record<string, any> = {
+    const last_success: Record<string, unknown> = {
         asset_id: 'locker-1',
         asset_name: 'E-043',
         date: new Date('2026-04-08T09:00:00.000Z').valueOf(),
@@ -29,7 +29,7 @@ describe('BookLockerFlowSuccessComponent', () => {
             MockProvider(SettingsService, {
                 get: vi.fn((key: string) => settings[key]),
                 time_format: 'h:mm a',
-            } as any),
+            }),
             MockProvider(OrganisationService, {
                 buildings: [
                     { id: 'bld-1', name: 'HQ', display_name: 'Headquarters' },
@@ -63,7 +63,7 @@ describe('BookLockerFlowSuccessComponent', () => {
     });
 
     it('should report "Unknown" when there is no last event', () => {
-        (spectator.inject(BookingFormService) as any).last_success = null;
+        spectator.inject(BookingFormService).last_success = null;
         expect(spectator.component.location).toBe('Unknown');
     });
 

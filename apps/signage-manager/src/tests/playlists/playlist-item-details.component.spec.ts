@@ -1,6 +1,11 @@
 import { ApplicationRef, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { MediaAnimation } from '@placeos/ts-client';
+import {
+    MediaAnimation,
+    PlaceSystem,
+    PlaceZone,
+    SignagePlaylist,
+} from '@placeos/ts-client';
 import { SignageDisplayService } from '../../app/displays/signage-display.service';
 import { PlaylistItemDetailsComponent } from '../../app/playlists/playlist-item-details.component';
 import { SignagePlaylistService } from '../../app/playlists/signage-playlist.service';
@@ -9,12 +14,13 @@ import { SignageInventoryService } from '../../app/signage-inventory.service';
 import { SignageZoneService } from '../../app/zones/signage-zone.service';
 
 describe('PlaylistItemDetailsComponent', () => {
-    const selected_playlist = signal<any>(null);
-    const playlist_media_items = signal<any[]>([]);
-    const displays = signal<any[]>([]);
-    const zones = signal<any[]>([]);
+    const selected_playlist = signal<unknown>(null);
+    const playlist_media_items = signal<unknown[]>([]);
+    const playlist_media_error = signal(false);
+    const displays = signal<unknown[]>([]);
+    const zones = signal<unknown[]>([]);
     const can_update = signal(true);
-    const selected_group = signal<any>(null);
+    const selected_group = signal<unknown>(null);
     const add_display = vi.fn();
     const add_zone = vi.fn();
     const remove_display = vi.fn();
@@ -33,7 +39,11 @@ describe('PlaylistItemDetailsComponent', () => {
         removeDisplayFromPlaylist: remove_display,
     };
     const inventory_stub = { loadSignageInventory: load_inventory };
-    const playlist_stub = { selected_playlist, playlist_media_items };
+    const playlist_stub = {
+        selected_playlist,
+        playlist_media_items,
+        playlist_media_error,
+    };
     const zone_stub = {
         zones,
         addZoneToPlaylist: add_zone,
@@ -63,6 +73,7 @@ describe('PlaylistItemDetailsComponent', () => {
         vi.clearAllMocks();
         selected_playlist.set(null);
         playlist_media_items.set([]);
+        playlist_media_error.set(false);
         displays.set([]);
         zones.set([]);
         can_update.set(true);
@@ -99,6 +110,12 @@ describe('PlaylistItemDetailsComponent', () => {
         expect(component.item_count()).toBe(2);
     });
 
+    it('shows a dash, not zero, while the items cannot load', async () => {
+        playlist_media_error.set(true);
+        const component = await make();
+        expect(component.item_count()).toBe('—');
+    });
+
     it('lists only displays and zones that reference the selected playlist', async () => {
         selected_playlist.set({ id: 'pl-1', name: 'Lobby' });
         displays.set([
@@ -111,12 +128,8 @@ describe('PlaylistItemDetailsComponent', () => {
             { id: 'z-2', playlists: [] },
         ]);
         const component = await make();
-        expect(component.playlist_displays().map((d: any) => d.id)).toEqual([
-            'd-1',
-        ]);
-        expect(component.playlist_zones().map((z: any) => z.id)).toEqual([
-            'z-1',
-        ]);
+        expect(component.playlist_displays().map((d) => d.id)).toEqual(['d-1']);
+        expect(component.playlist_zones().map((z) => z.id)).toEqual(['z-1']);
     });
 
     it('returns no displays or zones when nothing is selected', async () => {
@@ -125,6 +138,14 @@ describe('PlaylistItemDetailsComponent', () => {
         const component = await make();
         expect(component.playlist_displays()).toEqual([]);
         expect(component.playlist_zones()).toEqual([]);
+    });
+
+    it('labels a saved animation index as its animation', async () => {
+        selected_playlist.set({ id: 'pl-1', default_animation: 2 });
+        const component = await make();
+        expect(component.animation_label()).toBe(
+            'SIGNAGE_MANAGER.ANIM_CROSS_FADE',
+        );
     });
 
     it('uses the selected signage group for shared playlist details', async () => {
@@ -146,6 +167,21 @@ describe('PlaylistItemDetailsComponent', () => {
 
         selected_playlist.set({ id: 'pl-1', default_animation: 'nonsense' });
         expect(component.animation_label()).toBe('COMMON.DEFAULT');
+    });
+
+    it('labels a playlist with the default animation as default, not cut', async () => {
+        // ts-client turns the saved index 0 into `cut`; a saved Cut is 1
+        selected_playlist.set(
+            new SignagePlaylist({
+                id: 'pl-1',
+                default_animation: 0 as unknown as MediaAnimation,
+            }),
+        );
+        const component = await make();
+        expect(component.animation_label()).toBe('COMMON.DEFAULT');
+
+        selected_playlist.set({ id: 'pl-1', default_animation: 1 });
+        expect(component.animation_label()).toBe('SIGNAGE_MANAGER.ANIM_CUT');
     });
 
     it('converts validity timestamps from seconds to milliseconds', async () => {
@@ -292,7 +328,7 @@ describe('PlaylistItemDetailsComponent', () => {
         const playlist = { id: 'pl-1' };
         selected_playlist.set(playlist);
         const component = await make();
-        const display = { id: 'd-1' };
+        const display = new PlaceSystem({ id: 'd-1' });
         const event = { preventDefault: vi.fn(), stopPropagation: vi.fn() };
 
         component.addDisplay();
@@ -308,7 +344,7 @@ describe('PlaylistItemDetailsComponent', () => {
         const playlist = { id: 'pl-1' };
         selected_playlist.set(playlist);
         const component = await make();
-        const zone = { id: 'z-1' };
+        const zone = new PlaceZone({ id: 'z-1' });
         const event = { preventDefault: vi.fn(), stopPropagation: vi.fn() };
 
         component.addZone();

@@ -221,10 +221,12 @@ export class TimeControlsComponent extends AsyncHandler implements OnInit {
         this.edited_time.update((value) => value + minutes * 60 * 1000);
     }
 
+    /** Set the edited time of day from a `HH:MM` value; ignore a cleared input */
     public setEditedTime(value: string) {
-        const [hours, minutes] = value.split(':').map(Number);
+        const match = /^(\d{1,2}):(\d{2})/.exec(value || '');
+        if (!match) return;
         const date = new Date(this.edited_time());
-        date.setHours(hours || 0, minutes || 0, 0, 0);
+        date.setHours(Number(match[1]), Number(match[2]), 0, 0);
         this.edited_time.set(date.valueOf());
     }
 

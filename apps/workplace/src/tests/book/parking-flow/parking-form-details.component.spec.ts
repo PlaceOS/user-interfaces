@@ -17,9 +17,9 @@ describe('ParkingFormDetailsComponent', () => {
         detectChanges: false,
         shallow: true,
         providers: [
-            MockProvider(BookingFormService, {} as any),
-            MockProvider(SettingsService, {} as any),
-            MockProvider(OrganisationService, {} as any),
+            MockProvider(BookingFormService, {}),
+            MockProvider(SettingsService, {}),
+            MockProvider(OrganisationService, {}),
         ],
     });
 
@@ -33,7 +33,7 @@ describe('ParkingFormDetailsComponent', () => {
                 } as any),
                 MockProvider(SettingsService, {
                     get: vi.fn((key: string) => settings[key]),
-                } as any),
+                }),
                 MockProvider(OrganisationService, {
                     active_building: signal({ id: 'bld-1' }),
                     building_list: signal([{ id: 'bld-1' }, { id: 'bld-2' }]),
@@ -92,8 +92,8 @@ describe('ParkingFormDetailsComponent', () => {
 
     it('should set the active building on the organisation service', () => {
         spectator.component.setBuilding({ id: 'bld-2' });
-        expect((spectator.inject(OrganisationService) as any).building).toEqual(
-            { id: 'bld-2' },
-        );
+        expect(spectator.inject(OrganisationService).building).toEqual({
+            id: 'bld-2',
+        });
     });
 });

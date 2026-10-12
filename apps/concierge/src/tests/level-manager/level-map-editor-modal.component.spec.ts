@@ -296,7 +296,7 @@ describe('LevelMapEditorModalComponent', () => {
         spectator.component.applySelectedChanges();
 
         const uploads = spectator.inject(UploadsService);
-        (uploads.uploadFileToCompletion as any).mockResolvedValue(
+        uploads.uploadFileToCompletion.mockResolvedValue(
             'upload-1',
         );
 
@@ -305,7 +305,7 @@ describe('LevelMapEditorModalComponent', () => {
         expect(uploads.uploadFileToCompletion).toHaveBeenCalledWith(
             expect.any(File),
         );
-        const file = (uploads.uploadFileToCompletion as any).mock
+        const file = uploads.uploadFileToCompletion.mock
             .calls[0][0] as File;
         expect(file.name).toBe('level-1.svg');
         expect(file.type).toBe('image/svg+xml');

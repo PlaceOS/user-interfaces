@@ -7,7 +7,7 @@ import { setNotifyOutlet } from 'libs/common/src/lib/notifications';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 
 global.TextEncoder = TextEncoder;
-global.TextDecoder = TextDecoder as any;
+global.TextDecoder = TextDecoder;
 installTestStorage();
 
 setNotifyOutlet(null, true);

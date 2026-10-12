@@ -8,6 +8,7 @@ import {
     linkedSignal,
     output,
     signal,
+    OnInit,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { form, FormField, required, validate } from '@angular/forms/signals';
@@ -52,7 +53,7 @@ import { TimeFieldComponent } from 'libs/form-fields/src/lib/time-field.componen
 import { UserListFieldComponent } from 'libs/form-fields/src/lib/user-list-field.component';
 import { UserSearchFieldComponent } from 'libs/form-fields/src/lib/user-search-field.component';
 import { BookingFormService } from './booking-form.service';
-import { bookingHostUser } from './booking.utilities';
+import { bookingHostUser } from './booking-form.model';
 
 @Component({
     selector: `invite-visitor-form`,
@@ -596,7 +597,7 @@ import { bookingHostUser } from './booking.utilities';
         SafePipe,
     ],
 })
-export class InviteVisitorFormComponent {
+export class InviteVisitorFormComponent implements OnInit {
     private _service = inject(BookingFormService);
     private _settings = inject(SettingsService);
     private _org = inject(OrganisationService);
@@ -780,7 +781,7 @@ export class InviteVisitorFormComponent {
             this._org.buildings.find(
                 (bld) =>
                     zone_list.includes(bld.id) ||
-                    zone_list.includes((bld as any).zone_id),
+                    zone_list.includes(bld.zone_id),
             ) || this._org.buildings.find((bld) => level?.parent_id === bld.id);
         if (building?.id) return building.id;
         if (this.model()?.id) return zone_list[0] || '';
@@ -897,7 +898,7 @@ export class InviteVisitorFormComponent {
                               ...(user.extension_data || {}),
                               international: !!international,
                           },
-                      } as any);
+                      });
             }),
         }));
     }
@@ -962,7 +963,7 @@ export class InviteVisitorFormComponent {
                     .filter((_) => !!_.email)
                     .map((item) => {
                         return `${item.email}|${item.name || item.email}|${
-                            (item as any).company || item.organisation || ''
+                            item.company || item.organisation || ''
                         }|${this.getVisitorInternational(item) ? '1' : '0'}`;
                     }),
             ]);
@@ -992,7 +993,7 @@ export class InviteVisitorFormComponent {
         await this._org.waitUntilInitialised();
         const form_snapshot = this.model() as any;
         const booking_snapshot = this._service.booking as any;
-        const is_visitor_booking = (booking: Record<string, any>) =>
+        const is_visitor_booking = (booking: Record<string, unknown>) =>
             booking?.booking_type === 'visitor' || booking?.type === 'visitor';
         const keep_preloaded_edit =
             (!!form_snapshot.id || !!booking_snapshot?.id) &&
@@ -1012,7 +1013,7 @@ export class InviteVisitorFormComponent {
                 _in_progress:
                     booking_snapshot.state === 'started' ||
                     booking_snapshot.state === 'in_progress',
-            } as any);
+            });
             this.form().reset();
         } else if (!keep_preloaded_edit) {
             this._service.loadForm('visitor');

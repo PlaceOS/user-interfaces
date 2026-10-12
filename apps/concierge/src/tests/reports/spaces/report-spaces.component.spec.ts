@@ -19,12 +19,12 @@ import { ReportSpacesComponent } from 'apps/concierge/src/app/reports/spaces/rep
 
 describe('ReportSpacesComponent', () => {
     let spectator: Spectator<ReportSpacesComponent>;
-    let query_params: BehaviorSubject<any>;
-    let stats: ReturnType<typeof signal<any>>;
+    let query_params: BehaviorSubject<unknown>;
+    let stats: ReturnType<typeof signal<unknown>>;
     let loading: ReturnType<typeof signal<string>>;
-    let set_options: any;
-    let generate: any;
-    let download: any;
+    let set_options: unknown;
+    let generate: unknown;
+    let download: unknown;
 
     const createComponent = createComponentFactory({
         component: ReportSpacesComponent,
@@ -41,19 +41,19 @@ describe('ReportSpacesComponent', () => {
         imports: [MatProgressSpinnerModule],
         providers: [
             MockProvider(ReportsStateService, {
-                stats: signal<any>({ count: 0 }),
+                stats: signal<unknown>({ count: 0 }),
                 loading: signal(''),
                 setOptions: vi.fn(),
                 generateReport: vi.fn(),
                 downloadReport: vi.fn(),
-            } as any),
+            }),
             MockProvider(SettingsService, { theme: 'light', get: vi.fn() }),
             MockProvider(OrganisationService, {
                 active_building: signal({ id: 'building-1' }),
             } as any),
             MockProvider(ActivatedRoute, {
                 queryParamMap: new BehaviorSubject(convertToParamMap({})),
-            } as any),
+            }),
         ],
     });
 
@@ -65,7 +65,7 @@ describe('ReportSpacesComponent', () => {
                 zone_ids: 'lvl-1,lvl-2',
             }),
         );
-        stats = signal<any>({ count: 0 });
+        stats = signal<unknown>({ count: 0 });
         loading = signal('');
         set_options = vi.fn();
         generate = vi.fn();

@@ -21,7 +21,7 @@ describe('SignageItemPlaylistsComponent', () => {
                     { id: 'p1', name: 'News', updated_at: 1 },
                     { id: 'p2', name: 'Ads', updated_at: 1 },
                 ]) as any,
-                has_changed: signal(0) as any,
+                has_changed: signal(0),
                 getPlaylistMedia: vi.fn(async () => ['m1', 'm2', 'm3', 'm4']),
             }),
             MockProvider(ActivatedRoute, {
@@ -34,7 +34,7 @@ describe('SignageItemPlaylistsComponent', () => {
     beforeEach(() => {
         vi.clearAllMocks();
         spectator = createComponent();
-        state = spectator.inject(SignageStateService) as any;
+        state = spectator.inject(SignageStateService);
         spectator.component.playlist_count.set({});
     });
 

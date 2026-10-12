@@ -68,7 +68,7 @@ describe('DashboardViewComponent', () => {
 
     it('should feed the dashboard alerts into the table', () => {
         build({ params: { id: 'dash-9' } });
-        const table = spectator.query(SimpleTableComponent) as any;
+        const table = spectator.query(SimpleTableComponent);
 
         expect(table.data).toEqual(service.dashboard_alerts());
     });

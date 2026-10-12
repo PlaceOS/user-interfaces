@@ -206,7 +206,7 @@ export class LandingUpcomingComponent
             start_time: (item as any).instance
                 ? (item as any).booking_start
                 : undefined,
-        } as any) as any;
+        }) as any;
         await (
             remove_result?.then instanceof Function
                 ? remove_result

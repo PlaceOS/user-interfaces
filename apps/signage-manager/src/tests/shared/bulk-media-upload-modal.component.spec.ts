@@ -155,4 +155,22 @@ describe('BulkMediaUploadModalComponent', () => {
         expect(component.rows().length).toBe(0);
         expect(dialog_ref.close).toHaveBeenCalled();
     });
+
+    it('labels the permissions select', async () => {
+        TestBed.resetTestingModule();
+        await TestBed.configureTestingModule({
+            imports: [BulkMediaUploadModalComponent],
+            providers: [
+                { provide: MAT_DIALOG_DATA, useValue: modal_data },
+                { provide: MatDialogRef, useValue: dialog_ref },
+            ],
+        }).compileComponents();
+        const fixture = TestBed.createComponent(BulkMediaUploadModalComponent);
+        fixture.detectChanges();
+        const element: HTMLElement = fixture.nativeElement;
+
+        const label = element.querySelector('label');
+        const select = element.querySelector(`#${label.htmlFor}`);
+        expect(select.getAttribute('aria-labelledby')).toContain(label.id);
+    });
 });

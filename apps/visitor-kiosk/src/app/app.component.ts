@@ -29,7 +29,11 @@ import { parseTokenFromUrl } from './checkin/token-from-url';
             <global-chat />
         }
         <global-loading />
-        <settings-debug-panel-launcher [loadSchema]="load_settings_schema" />
+        @defer (on idle) {
+            <settings-debug-panel-launcher
+                [loadSchema]="load_settings_schema"
+            />
+        }
     `,
     styles: [
         `

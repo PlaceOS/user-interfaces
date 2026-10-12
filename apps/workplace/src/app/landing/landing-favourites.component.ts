@@ -343,7 +343,7 @@ export class LandingFavouritesComponent extends AsyncHandler implements OnInit {
 
     public async loadAssets() {
         const [desks, parking] = await Promise.all([
-            this._booking_form.loadResourceList('desks' as any),
+            this._booking_form.loadResourceList('desks'),
             this._booking_form.loadParkingResources(),
         ]);
         this.assets.set([

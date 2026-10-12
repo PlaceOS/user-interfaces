@@ -102,7 +102,6 @@ export class SpaceMapComponent {
 
     public readonly selected = input<string[]>([]);
     public readonly active = input<string>(undefined);
-    public readonly is_displayed = input(false);
     public readonly onSelect = output<Space>();
 
     public readonly zoom = signal(1);

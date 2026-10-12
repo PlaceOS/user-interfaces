@@ -42,6 +42,7 @@ describe('TemplateMappingsComponent', () => {
         ]),
     };
     const template_stub = {
+        template_mapping_opening: signal(false),
         listTemplateMappings: list_mappings,
         editTemplateMapping: edit_mapping,
         removeTemplateMapping: remove_mapping,
@@ -83,6 +84,18 @@ describe('TemplateMappingsComponent', () => {
         list_mappings.mockResolvedValue([mapping]);
         edit_mapping.mockResolvedValue(true);
         remove_mapping.mockResolvedValue(true);
+        template_stub.template_mapping_opening.set(false);
+    });
+
+    it('disables apply template while the template picker loads', async () => {
+        template_stub.template_mapping_opening.set(true);
+        const { fixture } = await setup('display', 'display-1', true);
+        fixture.detectChanges();
+
+        const add: HTMLButtonElement =
+            fixture.nativeElement.querySelector('button');
+        expect(add.disabled).toBe(true);
+        expect(add.querySelector('mat-spinner')).toBeTruthy();
     });
 
     it('loads mappings for a display and builds preview layout items', async () => {

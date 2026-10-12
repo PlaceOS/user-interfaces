@@ -70,22 +70,22 @@ export class AuthorisedUserGuard {
     private _access = inject(PLACEOS_APP_ACCESS, { optional: true });
 
     public async canActivate(
-        next?: ActivatedRouteSnapshot,
-        state?: RouterStateSnapshot,
+        _next?: ActivatedRouteSnapshot,
+        _state?: RouterStateSnapshot,
     ): Promise<boolean | UrlTree> {
         return this.checkUser();
     }
 
     public async canLoad(
-        route?: Route,
-        segments?: UrlSegment[],
+        _route?: Route,
+        _segments?: UrlSegment[],
     ): Promise<boolean> {
         return this.checkUser();
     }
 
     public async canActivateChild(
-        next?: ActivatedRouteSnapshot,
-        state?: RouterStateSnapshot,
+        _next?: ActivatedRouteSnapshot,
+        _state?: RouterStateSnapshot,
     ): Promise<boolean | UrlTree> {
         return this.checkUser();
     }
@@ -171,7 +171,7 @@ export class AuthorisedUserGuard {
         return value === true || value === 'true';
     }
 
-    private checkSubsystemAccess(user: any) {
+    private checkSubsystemAccess(user: unknown) {
         if (!user) return false;
         // The subsystem groups grant permissions for doesn't always match the
         // app's deploy path, e.g. signage-manager runs on `signage`.

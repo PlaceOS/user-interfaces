@@ -1,6 +1,7 @@
 import * as ts_client from '@placeos/ts-client';
 
 import { PLACE_SETUP_TIMEOUT, PlaceSettings, setupPlace } from '../lib/placeos';
+import { VERSION } from '../lib/version';
 
 // Only the external ts-client API layer is stubbed; native detection is driven
 // through the real `window.Capacitor` seam that `native-app` reads from.
@@ -32,7 +33,7 @@ function setNative(is_native: boolean) {
 describe('setupPlace', () => {
     beforeEach(() => {
         vi.clearAllMocks();
-        vi.mocked(ts_client.setup).mockResolvedValue(undefined as any);
+        vi.mocked(ts_client.setup).mockResolvedValue(undefined);
         localStorage.clear();
         delete window_store[native_fetch_key];
         window.fetch = real_fetch;
@@ -69,6 +70,19 @@ describe('setupPlace', () => {
         expect(ts_client.setup).toHaveBeenCalledWith(
             expect.objectContaining({ storage: 'session' }),
         );
+    });
+
+    it('sets app identity headers before setup', async () => {
+        await setupPlace({ ...base_settings, app_name: 'workplace' });
+
+        expect(ts_client.setAppHeaders).toHaveBeenCalledWith(
+            'workplace',
+            new Date(VERSION.time).toISOString(),
+            VERSION.hash,
+        );
+        expect(
+            vi.mocked(ts_client.setAppHeaders).mock.invocationCallOrder[0],
+        ).toBeLessThan(vi.mocked(ts_client.setup).mock.invocationCallOrder[0]);
     });
 
     it('always uses local storage for native apps', async () => {

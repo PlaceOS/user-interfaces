@@ -7,9 +7,9 @@ import { LockerFormDetailsComponent } from '../../../app/book/locker-flow/locker
 
 describe('LockerFormDetailsComponent', () => {
     let spectator: Spectator<LockerFormDetailsComponent>;
-    let model: ReturnType<typeof signal<Record<string, any>>>;
+    let model: ReturnType<typeof signal<Record<string, unknown>>>;
     let settings: Record<string, any>;
-    let building: Record<string, any>;
+    let building: Record<string, unknown>;
 
     const createComponent = createComponentFactory({
         component: LockerFormDetailsComponent,
@@ -19,14 +19,14 @@ describe('LockerFormDetailsComponent', () => {
                 building_list: signal([]),
                 active_levels: signal([]),
                 waitUntilInitialised: vi.fn(() => Promise.resolve()),
-            } as any),
+            }),
         ],
     });
 
     beforeEach(() => {
         settings = {};
         building = { id: 'bld-1', timezone: 'Australia/Sydney' };
-        model = signal<Record<string, any>>({
+        model = signal<Record<string, unknown>>({
             id: '',
             date: Date.now(),
             duration: 60,
@@ -37,7 +37,7 @@ describe('LockerFormDetailsComponent', () => {
             providers: [
                 MockProvider(SettingsService, {
                     get: vi.fn((key: string) => settings[key]),
-                } as any),
+                }),
                 MockProvider(BookingFormService, {
                     model,
                     options: signal({ type: 'locker', group: false }),
@@ -47,7 +47,7 @@ describe('LockerFormDetailsComponent', () => {
                 } as any),
             ],
         });
-        const org = spectator.inject(OrganisationService) as any;
+        const org = spectator.inject(OrganisationService);
         Object.defineProperty(org, 'building', {
             configurable: true,
             get: () => building,

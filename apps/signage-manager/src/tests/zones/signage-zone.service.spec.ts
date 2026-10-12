@@ -6,7 +6,13 @@ import {
     setNotifyOutlet,
     SettingsService,
 } from '@placeos/common';
-import { addZone, PlaceZone, removeZone, updateZone } from '@placeos/ts-client';
+import {
+    addZone,
+    PlaceZone,
+    removeZone,
+    showZone,
+    updateZone,
+} from '@placeos/ts-client';
 import { NEVER, of } from 'rxjs';
 import { SignageContextService } from '../../app/signage-context.service';
 import { SignageZoneService } from '../../app/zones/signage-zone.service';
@@ -21,7 +27,8 @@ const notify_open = vi.fn(() => ({
 describe('SignageZoneService', () => {
     const settings = {
         get: vi.fn(),
-        signal: (_name: string, default_value?: any) => signal(default_value),
+        signal: (_name: string, default_value?: unknown) =>
+            signal(default_value),
     };
     const org = {
         initialised: signal(true),
@@ -51,6 +58,13 @@ describe('SignageZoneService', () => {
             'requirePermission',
         ).mockReturnValue(true);
         return service;
+    }
+
+    /** Serve zones from a map of zone id to parent id */
+    function mockParents(parents: Record<string, string>) {
+        vi.mocked(showZone).mockImplementation(
+            async (id: string) => new PlaceZone({ id, parent_id: parents[id] }),
+        );
     }
 
     function confirmNextDialog() {
@@ -107,6 +121,7 @@ describe('SignageZoneService', () => {
             parent_id: 'building-2',
         });
         vi.mocked(updateZone).mockResolvedValue(saved_zone);
+        mockParents({ 'building-2': 'org-1' });
 
         await service.saveZone(zone, {
             name: 'SIGNAGE Lobby',
@@ -134,6 +149,35 @@ describe('SignageZoneService', () => {
                 parent_id: 'org-1',
             },
         );
+        expect(updateZone).not.toHaveBeenCalled();
+    });
+
+    it('clears the zone search when the selected zone changes', () => {
+        const service = createService();
+        service.zone_search_term.set('kiosk');
+
+        service.selected_zone.set(new PlaceZone({ id: 'zone-2' }));
+
+        expect(service.zone_search_term()).toBe('');
+    });
+
+    it('does not make a zone the parent of its own ancestor', async () => {
+        const service = createService();
+        const zone = new PlaceZone({
+            id: 'zone-1',
+            parent_id: 'building-1',
+            tags: ['signage'],
+        });
+        mockParents({ 'room-1': 'floor-1', 'floor-1': 'zone-1' });
+
+        const result = await service.saveZone(zone, {
+            name: 'Lobby',
+            display_name: '',
+            description: '',
+            parent_id: 'room-1',
+        });
+
+        expect(result).toBeNull();
         expect(updateZone).not.toHaveBeenCalled();
     });
 

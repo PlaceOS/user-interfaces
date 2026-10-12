@@ -23,7 +23,7 @@ describe('CateringItemListItemComponent', () => {
             (spectator = createComponent({
                 props: {
                     item: new CateringItem({ id: '1', name: 'Coffee' }),
-                } as any,
+                },
             })),
     );
 

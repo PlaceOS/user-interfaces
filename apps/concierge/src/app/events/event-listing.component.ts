@@ -167,6 +167,7 @@ import { EventStateService } from './event-state.service';
                         [host]="item.user_email || item.host"
                         [show_host]="false"
                         [hide_close]="true"
+                        [mark_external]="true"
                         [custom_title]="
                             'CALENDAR_EVENT.GROUP_INTERESTED' | translate
                         "
@@ -195,6 +196,7 @@ import { EventStateService } from './event-state.service';
                         [list]="checkedInList(item.attendees)"
                         [host]="item.user_email || item.host"
                         [hide_close]="true"
+                        [mark_external]="true"
                     ></attendee-list>
                 </div>
             </ng-template>

@@ -6,8 +6,8 @@ import { ParkingReportService } from 'apps/concierge/src/app/reports/parking/par
 
 describe('ParkingReportOverallComponent', () => {
     let spectator: Spectator<ParkingReportOverallComponent>;
-    let bookings: ReturnType<typeof signal<any[]>>;
-    let options: ReturnType<typeof signal<any>>;
+    let bookings: ReturnType<typeof signal<unknown[]>>;
+    let options: ReturnType<typeof signal<unknown>>;
 
     const monday = new Date('2026-04-06T09:00:00').valueOf();
     const friday = new Date('2026-04-10T09:00:00').valueOf();
@@ -18,16 +18,16 @@ describe('ParkingReportOverallComponent', () => {
             {
                 provide: ParkingReportService,
                 useValue: {
-                    bookings: (bookings = signal<any[]>([])),
-                    options: (options = signal<any>({})),
+                    bookings: (bookings = signal<unknown[]>([])),
+                    options: (options = signal<unknown>({})),
                 },
             },
         ],
     });
 
     beforeEach(() => {
-        bookings = signal<any[]>([]);
-        options = signal<any>({});
+        bookings = signal<unknown[]>([]);
+        options = signal<unknown>({});
         spectator = createComponent({
             providers: [
                 {
@@ -69,7 +69,7 @@ describe('ParkingReportOverallComponent', () => {
         ]);
         options.set({ start: monday, end: monday });
         spectator.detectChanges();
-        await expect(spectator.fixture.nativeElement.textContent).toContain('2');
+        expect(spectator.fixture.nativeElement.textContent).toContain('2');
     });
 
     it('should produce an average length string from active bookings', () => {
