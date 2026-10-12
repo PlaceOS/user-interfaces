@@ -10,7 +10,7 @@ import { AssetManagerStateService } from '../../app/asset-manager/asset-manager-
 import { AssetRequestDetailsComponent } from '../../app/asset-manager/asset-request-details.component';
 import { AssetRequestListComponent } from '../../app/asset-manager/asset-request-list.component';
 
-const filtered_requests = signal<any[]>([]);
+const filtered_requests = signal<unknown[]>([]);
 const options_signal = signal<any>({ view: 'grid', search: '', date: 0 });
 
 describe('AssetRequestListComponent', () => {
@@ -32,8 +32,8 @@ describe('AssetRequestListComponent', () => {
             } as any),
             MockProvider(OrganisationService, {
                 levelWithID: (...args: any[]) => level_with_id(...args),
-            } as any),
-            MockProvider(SettingsService, { time_format: 'h:mm a' } as any),
+            }),
+            MockProvider(SettingsService, { time_format: 'h:mm a' }),
         ],
         declarations: [
             MockComponent(SimpleTableComponent),

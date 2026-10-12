@@ -6,8 +6,8 @@ import { SignageContextService } from '../../app/signage-context.service';
 describe('NavFooterComponent', () => {
     const can_manage_all_groups = signal(false);
     const can_manage_groups = signal(false);
-    const signage_groups = signal<any[]>([]);
-    const selected_group = signal<any>(null);
+    const signage_groups = signal<unknown[]>([]);
+    const selected_group = signal<unknown>(null);
     const selectGroup = vi.fn();
     const show_group_selector = signal(true);
     const templates_enabled = signal(false);

@@ -111,8 +111,8 @@ describe('QuestionComponent', () => {
 
     it('should default choices and max rating on init', () => {
         const question = new SurveyQuestion({ title: 'Q', type: 'text' });
-        delete (question as any).choices;
-        (question as any).max_rating = 0;
+        delete question.choices;
+        question.max_rating = 0;
         spectator.component.question.set(question);
 
         spectator.component.ngOnInit();

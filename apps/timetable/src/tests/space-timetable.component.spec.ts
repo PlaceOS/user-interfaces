@@ -19,7 +19,7 @@ describe('SpaceTimetableComponent', () => {
     it('should show space column', () => {
         expect('[space]').not.toExist();
         spectator.setInput({
-            space: { id: '1', display_name: 'Room 1' } as any,
+            space: { id: '1', display_name: 'Room 1' },
         });
         spectator.detectChanges();
         expect('[space]').toExist();

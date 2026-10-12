@@ -39,7 +39,7 @@ describe('ShortUrlModalComponent', () => {
         (ts_client.put as any).mockResolvedValue({ id: 'url-1' });
     });
 
-    afterEach(() => setNotifyOutlet(null as any, true));
+    afterEach(() => setNotifyOutlet(null, true));
 
     it('should initialise the model from the injected URL', () => {
         spectator = buildComponent({

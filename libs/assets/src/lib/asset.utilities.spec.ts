@@ -170,7 +170,7 @@ describe('asset.utilities', () => {
                 space: { zones: [] },
                 ext: () => undefined,
                 ...overrides,
-            } as any;
+            };
         }
 
         it('should be available when there are no rules', () => {

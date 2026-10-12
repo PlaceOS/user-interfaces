@@ -10,7 +10,7 @@ vi.mock('@placeos/ts-client', { spy: true });
 
 describe('RoomAlertModalComponent', () => {
     let spectator: Spectator<RoomAlertModalComponent>;
-    let dialog_data: { room: any };
+    let dialog_data: { room: unknown };
     let dialog_ref: any;
 
     const createComponent = createComponentFactory({
@@ -24,7 +24,7 @@ describe('RoomAlertModalComponent', () => {
         ],
     });
 
-    const build = (room: any) => {
+    const build = (room: unknown) => {
         dialog_data = { room };
         dialog_ref = { close: vi.fn() };
         spectator = createComponent({ detectChanges: false });
@@ -36,9 +36,12 @@ describe('RoomAlertModalComponent', () => {
     });
 
     it('should pre-fill the form from an existing room alert', () => {
-        const room = Object.assign({ id: 'sys-1' } as any, {
-            alert: { status: 'warn', message: 'Under repair' },
-        });
+        const room = Object.assign(
+            { id: 'sys-1' },
+            {
+                alert: { status: 'warn', message: 'Under repair' },
+            },
+        );
         build(room);
         expect(spectator.component.model()).toEqual({
             status: 'warn',
@@ -51,7 +54,7 @@ describe('RoomAlertModalComponent', () => {
             details: {},
             editors: [],
         });
-        build({ id: 'sys-1' } as any);
+        build({ id: 'sys-1' });
         spectator.component.model.set({
             status: 'closed',
             message: 'Flooded',
@@ -74,7 +77,7 @@ describe('RoomAlertModalComponent', () => {
             details: { 'sys-1': ['warn', 'old'] },
             editors: [],
         });
-        build({ id: 'sys-1' } as any);
+        build({ id: 'sys-1' });
         spectator.component.model.set({ status: '', message: '' });
 
         await spectator.component.save();

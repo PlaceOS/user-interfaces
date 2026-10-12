@@ -6,7 +6,7 @@ import { TextDecoder, TextEncoder } from 'util';
 import { TranslatePipe } from './lib/translate.pipe';
 
 global.TextEncoder = TextEncoder;
-global.TextDecoder = TextDecoder as any;
+global.TextDecoder = TextDecoder;
 installTestStorage();
 
 // Under the zoneless unit-test builder, `fixture.detectChanges()` only

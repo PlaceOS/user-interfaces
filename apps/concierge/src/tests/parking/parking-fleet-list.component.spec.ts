@@ -25,18 +25,18 @@ describe('ParkingFleetListComponent', () => {
         shallow: true,
         providers: [
             MockProvider(ParkingStateService, {
-                fleet_vehicles: fleet_vehicles as any,
+                fleet_vehicles: fleet_vehicles,
                 options: signal({
                     date: Date.now(),
                     search: '',
                     zones: [],
                     period: 'day',
                     request_filter: 'all',
-                }) as any,
-                loading: signal([]) as any,
+                }),
+                loading: signal([]),
                 editFleetVehicle: edit_fleet_vehicle,
                 removeFleetVehicle: remove_fleet_vehicle,
-            } as any),
+            }),
         ],
     });
 

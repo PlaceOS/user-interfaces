@@ -33,8 +33,8 @@ describe('ChargeCodeListModalComponent', () => {
             MockProvider(CateringStateService, {
                 charge_codes,
                 saveSettings,
-            } as any),
-            MockProvider(MatDialogRef, { close: dialog_close } as any),
+            }),
+            MockProvider(MatDialogRef, { close: dialog_close }),
         ],
         imports: [
             FormsModule,

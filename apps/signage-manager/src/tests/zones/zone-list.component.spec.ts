@@ -7,13 +7,13 @@ import { ZoneListComponent } from '../../app/zones/zone-list.component';
 
 describe('ZoneListComponent', () => {
     const initialised = signal(true);
-    const all_zones = signal<any[]>([]);
-    const root_zones = signal<any[]>([]);
-    const filtered_zones = signal<any[]>([]);
+    const all_zones = signal<unknown[]>([]);
+    const root_zones = signal<unknown[]>([]);
+    const filtered_zones = signal<unknown[]>([]);
     const selected_zone = signal<any>(null);
     const zone_search_term = signal('');
     const zone_tree_expanded = signal<Record<string, boolean>>({});
-    const zone_tree_children_cache = signal<Record<string, any[]>>({});
+    const zone_tree_children_cache = signal<Record<string, unknown[]>>({});
     const zone_children = vi.fn();
     const zones_loading = signal(false);
     const zones_error = signal(false);
@@ -181,9 +181,10 @@ describe('ZoneListComponent', () => {
         const component = (await make()).componentInstance;
 
         expect(component.child_count_lookup()).toEqual({ r1: 2, c1: 1 });
-        expect(component.children_lookup()['r1'].map((z: any) => z.id)).toEqual(
-            ['c1', 'c2'],
-        );
+        expect(component.children_lookup()['r1'].map((z) => z.id)).toEqual([
+            'c1',
+            'c2',
+        ]);
     });
 
     it('reports child count from the lookup for a known parent zone', async () => {

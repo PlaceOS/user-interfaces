@@ -17,15 +17,15 @@ const notify_open = vi.fn(() => ({
 
 describe('MediaListHeaderComponent', () => {
     const media_total = signal(0);
-    const media = signal<any[]>([]);
-    const media_view = signal<any>({
+    const media = signal<unknown[]>([]);
+    const media_view = signal<unknown>({
         sort: 'newest',
         type: null,
         expiry: null,
     });
     const media_view_active = signal(false);
-    const plugins = signal<any[]>([]);
-    const widgets = signal<any[]>([]);
+    const plugins = signal<unknown[]>([]);
+    const widgets = signal<unknown[]>([]);
     const search_term = signal('');
     const media_view_mode = signal<'grid' | 'list' | 'folder'>('grid');
     const add_from_link = vi.fn().mockResolvedValue(undefined);

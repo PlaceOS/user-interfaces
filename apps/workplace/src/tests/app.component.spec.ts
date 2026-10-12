@@ -20,7 +20,7 @@ describe('AppComponent', () => {
             MockProvider(PlaceOS_Service, {
                 init: vi.fn(() => Promise.resolve()),
                 has_uploads: false,
-            } as any),
+            }),
             MockProvider(UploadsService, { init: vi.fn() }),
         ],
     });

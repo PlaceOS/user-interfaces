@@ -12,7 +12,7 @@ import { DeskFiltersDisplayComponent } from '../lib/desk-select-modal/desk-filte
 describe('DeskFiltersDisplayComponent', () => {
     let spectator: Spectator<DeskFiltersDisplayComponent>;
     const options = signal<any>({});
-    const model = signal<any>({ date: 0, duration: 60, all_day: false });
+    const model = signal<unknown>({ date: 0, duration: 60, all_day: false });
     const set_options = vi.fn((o) => options.update((v) => ({ ...v, ...o })));
     const set_feature = vi.fn();
 

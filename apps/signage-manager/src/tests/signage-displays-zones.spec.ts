@@ -28,7 +28,7 @@ import { SignageZoneService } from '../app/zones/signage-zone.service';
 
 vi.mock('@placeos/ts-client', { spy: true });
 
-type TestAccess<T> = T & Record<string, any>;
+type TestAccess<T> = T & Record<string, unknown>;
 
 /** Saves, errors and local edits of displays and zones */
 describe('SignageDisplayService and SignageZoneService', () => {

@@ -331,7 +331,7 @@ export class ParkingAssignSpaceModalComponent
                 booking_type: 'parking',
                 zones: bookingZonesForLevel(this._org, params.level),
                 asset_ids: params.space_ids,
-            } as any);
+            });
             return findBookingClashes(booking).catch(
                 () => [] as string[],
             ) as Promise<string[]>;
@@ -474,7 +474,7 @@ export class ParkingAssignSpaceModalComponent
                     ...this._data.booking.extension_data,
                     asset_name,
                 },
-            } as any);
+            });
             await approveBooking(this._data.booking.id);
             // Reject the assignee's overlapping parking bookings over the next
             // 4 weeks now that they have a recurring space assigned.
@@ -494,7 +494,7 @@ export class ParkingAssignSpaceModalComponent
         }
     }
 
-    private _onMapClick(e: any) {
+    private _onMapClick(e: unknown) {
         this.timeout('map_click', async () => {
             const id = mapLocationFromClick(e, this.map_info());
             if (!id) return;

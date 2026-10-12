@@ -8,21 +8,15 @@ import {
     User,
 } from '@placeos/common';
 import {
-    add,
     addMinutes,
     differenceInMinutes,
     format,
     formatDuration,
     getTime,
     isSameDay,
-    setHours,
-    setMinutes,
-    startOfMinute,
 } from 'date-fns';
 
 import { getNextFreeTimeSlot } from './helpers';
-
-let BOOKING_DATE = add(setMinutes(setHours(new Date(), 6), 0), { days: -1 });
 
 /** Whether the current settings allow one event to use multiple spaces. */
 export function multipleSpacesEnabled(settings: SettingsService): boolean {
@@ -51,14 +45,6 @@ export function organiserTimezone(user?: User): string {
         | undefined;
     const timezone = details?.timezone || details?.time_zone;
     return typeof timezone === 'string' ? timezone : '';
-}
-
-/**
- * Set the initial time used for generating mock bookings
- * @param time New initial time as ms from UTC epoch
- */
-export function setMockBookingStartDatetime(time: number) {
-    BOOKING_DATE = startOfMinute(new Date(time));
 }
 
 /**

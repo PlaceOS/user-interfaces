@@ -14,7 +14,7 @@ describe('SpaceEventDetailsComponent', () => {
     it('should match snapshot', () => {
         expect('[event]').not.toExist();
         spectator.setInput({
-            event: { title: 'Event 1', date: 1, duration: 60 } as any,
+            event: { title: 'Event 1', date: 1, duration: 60 },
         });
         spectator.detectChanges();
         expect('[event]').toExist();

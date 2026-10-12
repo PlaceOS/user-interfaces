@@ -55,20 +55,18 @@ describe('TopbarComponent', () => {
     it('should render global search', () => {
         expect('global-search').toExist();
         const settings = spectator.inject(SettingsService);
-        (settings as any).get.mockImplementation((x) =>
+        settings.get.mockImplementation((x) =>
             x.includes('search') ? false : null,
         );
         spectator.detectChanges();
         expect('global-search').not.toExist();
-        (settings as any).value.mockReset();
+        settings.value.mockReset();
     });
 
     it('should render page title', () => {
         expect('[name="nav-logo"] span').not.toExist();
         const settings = spectator.inject(SettingsService);
-        (settings as any).value.mockImplementation(
-            () => 'An interesting title',
-        );
+        settings.value.mockImplementation(() => 'An interesting title');
         spectator.detectChanges();
         expect('[name="nav-logo"] span').toExist();
         expect('[name="nav-logo"] span').toContainText('An interesting title');

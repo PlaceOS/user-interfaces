@@ -48,7 +48,7 @@ describe('RegionListComponent', () => {
         });
     });
 
-    afterEach(() => setNotifyOutlet(null as any, true));
+    afterEach(() => setNotifyOutlet(null, true));
 
     it('should expose the filtered regions from the manager', () => {
         expect(spectator.component.regions()).toEqual([{ id: 'r1' }]);

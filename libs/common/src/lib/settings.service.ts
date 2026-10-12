@@ -22,7 +22,7 @@ declare global {
     interface Window {
         debug: boolean;
         app: HashMap;
-        setting: (string) => any;
+        setting: (string) => unknown;
     }
 }
 
@@ -95,7 +95,7 @@ export class SettingsService extends AsyncHandler {
     }
 
     /** Set a local debug override for an `app.*` setting. `undefined` clears the key. */
-    public setDebugOverride(key: string, value: any) {
+    public setDebugOverride(key: string, value: unknown) {
         if (!key.startsWith('app.')) return;
         const overrides = { ...this._debug_overrides() };
         if (value === undefined) delete overrides[key];

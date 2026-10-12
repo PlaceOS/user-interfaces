@@ -49,7 +49,7 @@ describe('LevelListComponent', () => {
         });
     });
 
-    afterEach(() => setNotifyOutlet(null as any, true));
+    afterEach(() => setNotifyOutlet(null, true));
 
     it('should expose the filtered levels from the manager', () => {
         expect(spectator.component.levels()).toEqual([{ id: 'lvl-1' }]);

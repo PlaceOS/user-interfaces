@@ -208,8 +208,8 @@ export class EventCardComponent extends AsyncHandler implements OnInit {
 
     public readonly event = input<CalendarEvent>(undefined);
     public readonly show_day = input(false);
-    public readonly edit_fn = input((d) => null);
-    public readonly remove_fn = input((d, t) => null);
+    public readonly edit_fn = input((_d) => null);
+    public readonly remove_fn = input((_d, _t) => null);
 
     public readonly location = signal('');
 

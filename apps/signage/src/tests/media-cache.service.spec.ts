@@ -1614,7 +1614,7 @@ describe('MediaCacheService', () => {
                 configurable: true,
                 value: {
                     open: vi.fn(() => {
-                        const request: any = {};
+                        const request = {};
                         open_requests.push(request);
                         return request;
                     }),
@@ -1656,7 +1656,7 @@ describe('MediaCacheService', () => {
                 configurable: true,
                 value: {
                     open: vi.fn(() => {
-                        const request: any = {};
+                        const request = {};
                         open_requests.push(request);
                         return request;
                     }),

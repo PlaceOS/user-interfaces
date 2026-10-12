@@ -28,7 +28,6 @@ import { invalidateToken, isMock, setToken, token } from '@placeos/ts-client';
 import { setInternalUserDomain } from '@placeos/users';
 
 declare let Office: any;
-declare let OfficeRuntime: any;
 
 interface OfficeAccessTokenResult {
     status: string;
@@ -74,8 +73,8 @@ export class AppComponent extends AsyncHandler implements OnInit {
 
     public async ngOnInit() {
         console.info(`Initialising application...`);
-        window.history.replaceState = (data: null, unused: null) => {};
-        window.history.pushState = (data: null, unused: null) => {};
+        window.history.replaceState = (_data: null, _unused: null) => {};
+        window.history.pushState = (_data: null, _unused: null) => {};
         setTranslationService(this._locales);
 
         setNotifyOutlet(this._snackbar);

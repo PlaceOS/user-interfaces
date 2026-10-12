@@ -11,7 +11,7 @@ import { VisitorsReportService } from 'apps/concierge/src/app/reports/visitors/v
 describe('VisitorReportDailyUsageComponent', () => {
     let spectator: Spectator<VisitorReportDailyUsageComponent>;
     let downloads: ReturnType<typeof captureDownloads>;
-    let daily_stats: ReturnType<typeof signal<any>>;
+    let daily_stats: ReturnType<typeof signal<unknown>>;
 
     const day = new Date('2026-04-06T09:00:00').valueOf();
 
@@ -25,7 +25,7 @@ describe('VisitorReportDailyUsageComponent', () => {
         providers: [
             {
                 provide: VisitorsReportService,
-                useValue: { daily_stats: (daily_stats = signal<any>({})) },
+                useValue: { daily_stats: (daily_stats = signal<unknown>({})) },
             },
         ],
     });
@@ -33,7 +33,7 @@ describe('VisitorReportDailyUsageComponent', () => {
     afterEach(() => downloads.restore());
 
     beforeEach(() => {
-        daily_stats = signal<any>({});
+        daily_stats = signal<unknown>({});
         downloads = captureDownloads();
         spectator = createComponent({
             providers: [

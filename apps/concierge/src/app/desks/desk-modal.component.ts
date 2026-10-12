@@ -29,7 +29,6 @@ import {
     notifyInfo,
     OrganisationService,
     randomString,
-    unique,
     User,
 } from '@placeos/common';
 import {
@@ -362,7 +361,7 @@ export class DeskModalComponent implements OnInit {
     });
 
     constructor() {
-        const desk = this._data?.desk as any;
+        const desk = this._data?.desk;
         if (desk) {
             this.model.update((m) => ({
                 ...m,
@@ -447,7 +446,7 @@ export class DeskModalComponent implements OnInit {
         this.form().markAsTouched();
         if (!this.form().valid()) return;
         this.loading.set(true);
-        const value: any = { ...this.model() };
+        const value = { ...this.model() };
         if (value.assigned_user) {
             value.assigned_to = value.assigned_user?.email || value.assigned_to;
             value.assigned_name =
@@ -485,12 +484,6 @@ export class DeskModalComponent implements OnInit {
         ref.afterClosed().subscribe((d) => {
             if (!d) return;
             level = ref.componentInstance.level || level;
-            const zones = unique([
-                this._org.organisation.id,
-                this._org.building.parent_id,
-                this._org.building.id,
-                level?.id,
-            ]);
             this.model.update((m) => ({ ...m, map_id: d }));
         });
     }

@@ -20,8 +20,8 @@ import {
     UploadCancelledError,
     UploadsService,
 } from '@placeos/common';
-import { IconComponent } from '@placeos/components';
 import { apiKey, token } from '@placeos/ts-client';
+import { IconComponent } from 'libs/components/src/lib/icon.component';
 
 import type Squire from 'squire-rte';
 

@@ -49,7 +49,7 @@ describe('ControlTabbedViewComponent', () => {
             MockProvider(SettingsService, { get: vi.fn(), theme: 'light' }),
             MockProvider(OrganisationService, {
                 active_building: signal({} as any),
-            } as any),
+            }),
             MockProvider(ControlStateService, {
                 system: signal({}),
                 join_status: signal([false, false]),
@@ -57,7 +57,7 @@ describe('ControlTabbedViewComponent', () => {
                 powerOn: vi.fn(),
                 setID: vi.fn(),
                 selectMeeting: vi.fn(),
-            } as any),
+            }),
         ],
     });
 
@@ -133,7 +133,7 @@ describe('ControlTabbedViewComponent', () => {
     });
 
     it('should open the meeting list once and clear the join parameter', () => {
-        const service: any = spectator.inject(ControlStateService);
+        const service = spectator.inject(ControlStateService);
         spectator.setRouteQueryParam('join', 'true');
         spectator.detectChanges();
         expect(service.selectMeeting).toHaveBeenCalledTimes(1);

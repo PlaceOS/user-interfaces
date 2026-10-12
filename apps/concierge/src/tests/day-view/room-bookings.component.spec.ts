@@ -52,10 +52,10 @@ describe('RoomBookingsComponent', () => {
                 setUIOptions: vi.fn(),
                 newBooking: vi.fn(),
                 getDate: vi.fn(() => Date.now()),
-            } as any),
+            }),
             MockProvider(SettingsService, {
                 get: (() => false) as any,
-            } as any),
+            }),
         ],
         imports: [
             FormsModule,

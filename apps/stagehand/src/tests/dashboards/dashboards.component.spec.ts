@@ -23,11 +23,11 @@ describe('DashboardsComponent', () => {
     });
 
     beforeEach(() => {
-        dashboard = signal<any>({ id: 'dash-1', name: 'Front Desk' });
+        dashboard = signal<unknown>({ id: 'dash-1', name: 'Front Desk' });
         spectator = create_component({
             providers: [
                 MockProvider(DashboardsService, {
-                    dashboard: dashboard as any,
+                    dashboard: dashboard,
                 }),
             ],
         });

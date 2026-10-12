@@ -20,7 +20,7 @@ import { LockerSelectModalComponent } from '../lib/locker-select-modal/locker-se
 
 describe('LockerSelectModalComponent', () => {
     let spectator: Spectator<LockerSelectModalComponent>;
-    const options = signal<any>({ group: false });
+    const options = signal<unknown>({ group: false });
     const dialog_ref = { close: vi.fn() };
     const set_options = vi.fn();
     let dialog_data: any;

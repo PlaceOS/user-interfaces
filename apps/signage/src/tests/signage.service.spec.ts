@@ -179,10 +179,10 @@ describe('SignageService', () => {
             })),
         };
         (ts_client.showSignage as any).mockReturnValue(
-            Promise.resolve(create_display() as any),
+            Promise.resolve(create_display()),
         );
         (ts_client.querySignagePlugins as any).mockReturnValue(
-            Promise.resolve({ data: [] } as any),
+            Promise.resolve({ data: [] }),
         );
         (ts_client.responseHeaders as any).mockReturnValue({});
         trigger_binding = {
@@ -191,7 +191,7 @@ describe('SignageService', () => {
         (ts_client.getModule as any).mockReturnValue({
             variable: vi.fn(() => trigger_binding),
         });
-        (ts_client.post as any).mockReturnValue(Promise.resolve({} as any));
+        (ts_client.post as any).mockReturnValue(Promise.resolve({}));
         spectator = create_service({
             providers: [MockProvider(MediaCacheService, media_cache)],
         });
@@ -314,7 +314,7 @@ describe('SignageService', () => {
                             ['media-3'],
                         ],
                     },
-                }) as any,
+                }),
             ),
         );
         spectator.service.setDisplay('display-1');
@@ -534,7 +534,7 @@ describe('SignageService', () => {
                             ['media-3'],
                         ],
                     },
-                }) as any,
+                }),
             ),
         );
         spectator.service.setDisplay('display-1');
@@ -590,7 +590,7 @@ describe('SignageService', () => {
                             ['media-3'],
                         ],
                     },
-                }) as any,
+                }),
             ),
         );
         spectator.service.setDisplay('display-1');
@@ -757,7 +757,7 @@ describe('SignageService', () => {
                         schedule: { play_at: play_at(15), play_period: 60 },
                     },
                 ],
-            }) as any,
+            }),
         );
 
         spectator.service.setDisplay('display-1');
@@ -795,7 +795,7 @@ describe('SignageService', () => {
                         },
                     },
                 ],
-            }) as any,
+            }),
         );
 
         spectator.service.setDisplay('display-1');
@@ -819,7 +819,7 @@ describe('SignageService', () => {
                 create_display({
                     playlist_mappings: { 'display-1': [] },
                     playlist_config: {},
-                }) as any,
+                }),
             ),
         );
         spectator.service.setDisplay('display-1');
@@ -841,7 +841,7 @@ describe('SignageService', () => {
                 create_display({
                     playlist_mappings: { 'display-1': [] },
                     playlist_config: {},
-                }) as any,
+                }),
             ),
         );
         spectator.service.setDisplay('display-1');
@@ -1030,7 +1030,7 @@ describe('SignageService', () => {
     it('should not reload the display when the payload is unchanged', async () => {
         const display = create_display();
         (ts_client.showSignage as any).mockImplementation(() =>
-            Promise.resolve(display as any),
+            Promise.resolve(display),
         );
         spectator.service.setDisplay('display-1');
         await flush();
@@ -1094,7 +1094,7 @@ describe('SignageService', () => {
                             ['media-3'],
                         ],
                     },
-                }) as any,
+                }),
             ),
         );
         spectator.service.setDisplay('display-1');
@@ -1133,7 +1133,7 @@ describe('SignageService', () => {
                             ['media-3'],
                         ],
                     },
-                }) as any,
+                }),
             ),
         );
         spectator.service.setDisplay('display-1');
@@ -1188,7 +1188,7 @@ describe('SignageService', () => {
                             ['media-3'],
                         ],
                     },
-                }) as any,
+                }),
             ),
         );
         spectator.service.setDisplay('display-1');
@@ -1239,7 +1239,7 @@ describe('SignageService', () => {
                             ['media-1', 'media-2', 'media-5'],
                         ],
                     },
-                }) as any,
+                }),
             ),
         );
         spectator.service.setDisplay('display-1');
@@ -1272,7 +1272,7 @@ describe('SignageService', () => {
                             ['media-1', 'media-2', 'media-3', 'media-5'],
                         ],
                     },
-                }) as any,
+                }),
             ),
         );
         spectator.service.setDisplay('display-1');
@@ -1322,7 +1322,7 @@ describe('SignageService', () => {
                             ['media-3'],
                         ],
                     },
-                }) as any,
+                }),
             ),
         );
         spectator.service.setDisplay('display-1');
@@ -1363,7 +1363,7 @@ describe('SignageService', () => {
                             ['media-3'],
                         ],
                     },
-                }) as any,
+                }),
             ),
         );
         spectator.service.setDisplay('display-1');
@@ -1503,7 +1503,7 @@ describe('SignageService', () => {
                             ['media-3'],
                         ],
                     },
-                }) as any,
+                }),
             ),
         );
         spectator.service.setDisplay('display-1');
@@ -1604,7 +1604,7 @@ describe('SignageService', () => {
                         },
                     ],
                     plugins: [],
-                }) as any,
+                }),
             ),
         );
         (ts_client.querySignagePlugins as any).mockReturnValue(
@@ -1617,7 +1617,7 @@ describe('SignageService', () => {
                         defaults: { units: 'metric' },
                     },
                 ],
-            } as any),
+            }),
         );
         spectator.service.setDisplay('display-1');
         await flush();
@@ -1687,7 +1687,7 @@ describe('SignageService', () => {
                             ),
                         },
                     ],
-                }) as any,
+                }),
             ),
         );
         spectator.service.setDisplay('display-1');
@@ -1848,7 +1848,7 @@ describe('SignageService', () => {
                             media_uri: '/#/signage/display-1',
                         },
                     ],
-                }) as any,
+                }),
             ),
         );
         spectator.service.setDisplay('display-1');
@@ -1893,7 +1893,7 @@ describe('SignageService', () => {
                             media_uri: '/#/signage/display-2',
                         },
                     ],
-                }) as any,
+                }),
             ),
         );
         spectator.service.setDisplay('display-1');
@@ -2039,7 +2039,7 @@ describe('SignageService', () => {
                             ['media-3'],
                         ],
                     },
-                }) as any,
+                }),
             ),
         );
         spectator.service.setDisplay('display-1');
@@ -2092,7 +2092,7 @@ describe('SignageService', () => {
                             ['media-3'],
                         ],
                     },
-                }) as any,
+                }),
             ),
         );
         spectator.service.setDisplay('display-1');
@@ -2137,7 +2137,7 @@ describe('SignageService', () => {
                             ['media-3'],
                         ],
                     },
-                }) as any,
+                }),
             ),
         );
 
@@ -2178,7 +2178,7 @@ describe('SignageService', () => {
                             ['media-3'],
                         ],
                     },
-                }) as any,
+                }),
             ),
         );
 
@@ -2221,7 +2221,7 @@ describe('SignageService', () => {
                             ['media-3'],
                         ],
                     },
-                }) as any,
+                }),
             ),
         );
 
@@ -2260,7 +2260,7 @@ describe('SignageService', () => {
                             ['media-3'],
                         ],
                     },
-                }) as any,
+                }),
             ),
         );
 
@@ -2300,7 +2300,7 @@ describe('SignageService', () => {
                             ['media-3'],
                         ],
                     },
-                }) as any,
+                }),
             ),
         );
 
@@ -2340,7 +2340,7 @@ describe('SignageService', () => {
                             ['media-3'],
                         ],
                     },
-                }) as any,
+                }),
             ),
         );
 
@@ -2368,7 +2368,7 @@ describe('SignageService', () => {
                         play_period: 10,
                         play_takeover: true,
                     },
-                ]) as any,
+                ]),
             ),
         );
         spectator.service.setDisplay('display-1');
@@ -2601,7 +2601,7 @@ describe('SignageService', () => {
                     ],
                     ['media-3'],
                     { valid_until: Math.floor(now / 1000) - 24 * 60 * 60 },
-                ) as any,
+                ),
             ),
         );
         spectator.service.setDisplay('display-1');
@@ -2627,7 +2627,7 @@ describe('SignageService', () => {
                         ? { ...item, valid_from: Math.floor(now / 1000) + 300 }
                         : item,
                 ),
-            } as any),
+            }),
         );
         spectator.service.setDisplay('display-1');
         await flush();
@@ -2667,7 +2667,7 @@ describe('SignageService', () => {
                         'zone-1': [],
                         'trig-fire': ['trigger-playlist'],
                     },
-                }) as any,
+                }),
             ),
         );
         spectator.service.setDisplay('display-1');
@@ -2922,7 +2922,7 @@ describe('SignageService', () => {
                             ['media-3'],
                         ],
                     },
-                }) as any,
+                }),
             ),
         );
         spectator.service.setDisplay('display-1');

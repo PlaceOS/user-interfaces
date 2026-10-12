@@ -33,7 +33,7 @@ describe('UploadButtonComponent', () => {
     });
 
     afterEach(() => {
-        setNotifyOutlet(null as any, true);
+        setNotifyOutlet(null, true);
         vi.restoreAllMocks();
     });
 
@@ -161,7 +161,7 @@ describe('UploadButtonComponent', () => {
 
     it('should do nothing when no files selected', () => {
         const uploads = spectator.inject(UploadsService);
-        (uploads.uploadFileWithProgress as any).mockClear();
+        uploads.uploadFileWithProgress.mockClear();
 
         const event = {
             target: { files: [] } as any,

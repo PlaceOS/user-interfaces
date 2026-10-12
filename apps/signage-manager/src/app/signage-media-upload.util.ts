@@ -30,12 +30,6 @@ const IMAGE_SOURCE_EXTENSIONS = new Set([
     'tif',
     'tiff',
 ]);
-const VIDEO_MIME_TYPES = new Set([
-    'video/webm',
-    'video/mp4',
-    'video/quicktime',
-]);
-const VIDEO_EXTENSIONS = new Set(['webm', 'mp4', 'mov']);
 
 const MP4_ALLOWED_VIDEO_CODECS = new Set(['avc1', 'avc3']);
 const MP4_ALLOWED_AUDIO_CODECS = new Set(['mp4a']);

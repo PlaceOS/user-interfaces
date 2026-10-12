@@ -20,7 +20,7 @@ import {
 
 describe('CameraControlsComponent', () => {
     let spectator: Spectator<CameraControlsComponent>;
-    const camera_list = signal<any[]>([]);
+    const camera_list = signal<unknown[]>([]);
     const selected_camera = signal<string | null>(null);
     const execute_fn = vi.fn(async () => null);
     const createComponent = createComponentFactory({

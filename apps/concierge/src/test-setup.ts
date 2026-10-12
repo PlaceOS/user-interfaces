@@ -10,7 +10,7 @@ import { MockPipe } from 'ng-mocks';
 import { TextDecoder, TextEncoder } from 'util';
 
 global.TextEncoder = TextEncoder;
-global.TextDecoder = TextDecoder as any;
+global.TextDecoder = TextDecoder;
 installTestStorage();
 
 // Under the zoneless unit-test builder, `fixture.detectChanges()` only
@@ -43,9 +43,13 @@ const _setTimeout = globalThis.setTimeout;
 const _setInterval = globalThis.setInterval;
 const _clearTimeout = globalThis.clearTimeout;
 const _clearInterval = globalThis.clearInterval;
-globalThis.setTimeout = ((handler: (...args: any[]) => void, ms, ...args) => {
+globalThis.setTimeout = ((
+    handler: (...args: unknown[]) => void,
+    ms,
+    ...args
+) => {
     const id = _setTimeout(
-        (...run_args: any[]) => {
+        (...run_args: unknown[]) => {
             pending_timers.delete(id);
             handler(...run_args);
         },

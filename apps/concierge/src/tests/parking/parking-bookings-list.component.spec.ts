@@ -17,7 +17,7 @@ describe('ParkingBookingsListComponent', () => {
     let show_waitlist = true;
     let show_user_groups: string[] = [];
     let space_restriction_options: { id: number; name: string }[] = [];
-    let custom_booking_columns: any[] = [];
+    let custom_booking_columns: unknown[] = [];
     let bookable_hours: { start: number; end: number } | undefined;
     let timezone = 'Australia/Perth';
     let selected_date = Date.now();
@@ -64,7 +64,7 @@ describe('ParkingBookingsListComponent', () => {
                 get timezone() {
                     return timezone;
                 },
-            } as any),
+            }),
             MockProvider(SettingsService as any, {
                 get: vi.fn((name: string) =>
                     name === 'app.parking.show_requests'

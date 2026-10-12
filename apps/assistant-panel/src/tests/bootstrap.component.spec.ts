@@ -16,7 +16,7 @@ const SYS_ID_KEY = 'PLACEOS.ASSISTANT.system';
 
 describe('BootstrapComponent', () => {
     let spectator: SpectatorRouting<BootstrapComponent>;
-    let org_service: any;
+    let org_service: unknown;
 
     const create_component = createRoutingFactory({
         component: BootstrapComponent,

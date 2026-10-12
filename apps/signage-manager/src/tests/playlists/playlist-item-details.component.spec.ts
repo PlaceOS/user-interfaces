@@ -14,13 +14,13 @@ import { SignageInventoryService } from '../../app/signage-inventory.service';
 import { SignageZoneService } from '../../app/zones/signage-zone.service';
 
 describe('PlaylistItemDetailsComponent', () => {
-    const selected_playlist = signal<any>(null);
-    const playlist_media_items = signal<any[]>([]);
+    const selected_playlist = signal<unknown>(null);
+    const playlist_media_items = signal<unknown[]>([]);
     const playlist_media_error = signal(false);
-    const displays = signal<any[]>([]);
-    const zones = signal<any[]>([]);
+    const displays = signal<unknown[]>([]);
+    const zones = signal<unknown[]>([]);
     const can_update = signal(true);
-    const selected_group = signal<any>(null);
+    const selected_group = signal<unknown>(null);
     const add_display = vi.fn();
     const add_zone = vi.fn();
     const remove_display = vi.fn();
@@ -128,12 +128,8 @@ describe('PlaylistItemDetailsComponent', () => {
             { id: 'z-2', playlists: [] },
         ]);
         const component = await make();
-        expect(component.playlist_displays().map((d: any) => d.id)).toEqual([
-            'd-1',
-        ]);
-        expect(component.playlist_zones().map((z: any) => z.id)).toEqual([
-            'z-1',
-        ]);
+        expect(component.playlist_displays().map((d) => d.id)).toEqual(['d-1']);
+        expect(component.playlist_zones().map((z) => z.id)).toEqual(['z-1']);
     });
 
     it('returns no displays or zones when nothing is selected', async () => {

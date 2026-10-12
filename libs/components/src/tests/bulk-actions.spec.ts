@@ -39,7 +39,7 @@ describe('runBulkAction', () => {
         setNotifyOutlet({ open: notify_open } as any, true);
     });
 
-    afterEach(() => setNotifyOutlet(null as any, true));
+    afterEach(() => setNotifyOutlet(null, true));
 
     const dialogWith = (reason: string) =>
         ({

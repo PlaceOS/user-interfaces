@@ -37,7 +37,7 @@ import {
     removeBooking,
 } from 'libs/bookings/src/lib/bookings.fn';
 
-export async function queryAssetPurchaseOrders(query: any = {}) {
+export async function queryAssetPurchaseOrders(query: unknown = {}) {
     return queryAssetPurchaseOrdersAPI(query);
 }
 
@@ -248,7 +248,7 @@ export function saveAssetPurchaseOrder(
 ////     Asset Helper Methods     ////
 //////////////////////////////////////
 
-export function getGroupsWithAssets(query: any = {}) {
+export function getGroupsWithAssets(query: unknown = {}) {
     return queryAssetTypes(query);
 }
 
@@ -263,10 +263,10 @@ export async function showGroupFull(id: string, query: any = {}) {
         queryAssetPurchaseOrders(),
     ]);
     const product = type as AssetGroup;
-    (product as any).category = categories.data.find(
+    product.category = categories.data.find(
         (category) => category.id === product.category_id,
     );
-    (product as any).assets = assets.data.filter(
+    product.assets = assets.data.filter(
         (asset) => asset.asset_type_id === product.id,
     );
     for (const asset of product.assets) {
@@ -466,7 +466,7 @@ export async function validateAssetRequestsForResource(
     const processed_requests = changed_assets.map((request) => {
         // Handle duplicate asset ids
         const asset_ids = flatten(
-            (request.items as any).map(({ id, item_ids, quantity }) => {
+            request.items.map(({ id, item_ids, quantity }) => {
                 const selected_ids = item_ids || [];
                 const assets = available_groups.find(
                     (_) => _.id === id,

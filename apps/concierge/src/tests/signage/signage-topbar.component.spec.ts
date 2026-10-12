@@ -21,7 +21,7 @@ describe('SignageTopbarComponent', () => {
         providers: [MockProvider(SignageStateService, {})],
     });
 
-    function build(level_lookup: any = null) {
+    function build(level_lookup: unknown = null) {
         org = {
             active_levels,
             levelWithID: vi.fn(() => level_lookup),
@@ -32,7 +32,7 @@ describe('SignageTopbarComponent', () => {
             providers: [
                 MockProvider(OrganisationService, org),
                 MockProvider(ActivatedRoute, {
-                    queryParamMap: of(query_params) as any,
+                    queryParamMap: of(query_params),
                 }),
                 MockProvider(Router, { navigate: vi.fn() }),
             ],
@@ -40,7 +40,7 @@ describe('SignageTopbarComponent', () => {
     }
 
     beforeEach(() => {
-        active_levels = signal<any[]>([]);
+        active_levels = signal<unknown[]>([]);
         query_params = { has: () => false, get: () => null };
     });
 
@@ -75,7 +75,7 @@ describe('SignageTopbarComponent', () => {
 
         expect(org.levelWithID).toHaveBeenCalledWith(['l1']);
         expect(
-            (spectator.inject(OrganisationService) as any).building,
+            spectator.inject(OrganisationService).building,
         ).toEqual({ id: 'bld-1' });
         expect(spectator.component.zones()).toEqual(['l1']);
     });

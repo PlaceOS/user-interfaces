@@ -78,7 +78,7 @@ describe('LandingUpcomingComponent', () => {
             type: 'visitor',
             asset_id: 'visitor@example.com',
             asset_name: 'Visitor',
-        } as any);
+        });
 
         spectator.component.editBooking(booking);
         vi.runAllTimers();
@@ -120,7 +120,7 @@ describe('LandingUpcomingComponent', () => {
                         id: `booking-${index}`,
                         booking_type: 'desk',
                         type: 'desk',
-                    } as any),
+                    }),
             ),
         );
         spectator.detectChanges();

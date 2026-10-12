@@ -40,9 +40,9 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { User } from '@placeos/common';
 import { authority, queryUsers } from '@placeos/ts-client';
 
-import { UserAvatarComponent } from '@placeos/components';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
+import { UserAvatarComponent } from 'libs/components/src/lib/user-avatar.component';
 import { searchGuests } from 'libs/users/src/lib/guests.fn';
 import { NewUserModalComponent } from 'libs/users/src/lib/new-user-modal.component';
 import { searchStaff } from 'libs/users/src/lib/staff.fn';
@@ -327,7 +327,7 @@ export class UserListFieldComponent
                     });
                 }
                 return unique(
-                    (staff as any).concat(guests).concat(visitors_list),
+                    staff.concat(guests).concat(visitors_list),
                     'email',
                 );
             } catch {

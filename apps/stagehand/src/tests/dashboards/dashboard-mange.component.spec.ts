@@ -48,13 +48,13 @@ describe('DashboardManageComponent', () => {
         }));
         setNotifyOutlet({ open: notify_open } as any, true);
         service = {
-            dashboard: signal<any>(undefined),
+            dashboard: signal<unknown>(undefined),
             setDashboard: vi.fn(),
             loadDashboards: vi.fn(),
         };
     });
 
-    afterEach(() => setNotifyOutlet(null as any, true));
+    afterEach(() => setNotifyOutlet(null, true));
 
     it('should reject saving when the name is missing', async () => {
         build();

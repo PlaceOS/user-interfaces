@@ -13,8 +13,8 @@ import { BookLockerFlowConfirmComponent } from '../../../app/book/locker-flow/lo
 describe('BookLockerFlowConfirmComponent', () => {
     let spectator: Spectator<BookLockerFlowConfirmComponent>;
     let notify_open: any;
-    let model: ReturnType<typeof signal<Record<string, any>>>;
-    let options: ReturnType<typeof signal<Record<string, any>>>;
+    let model: ReturnType<typeof signal<Record<string, unknown>>>;
+    let options: ReturnType<typeof signal<Record<string, unknown>>>;
     let post_form: any;
     let post_form_group: any;
     let edit_group: any;
@@ -43,7 +43,7 @@ describe('BookLockerFlowConfirmComponent', () => {
             MockProvider(SettingsService, {
                 get: vi.fn(() => undefined),
                 time_format: 'h:mm a',
-            } as any),
+            }),
             MockProvider(OrganisationService, {
                 buildings: [
                     {
@@ -70,7 +70,10 @@ describe('BookLockerFlowConfirmComponent', () => {
         }));
         setNotifyOutlet({ open: notify_open } as any, true);
         model = signal(base_model());
-        options = signal<Record<string, any>>({ type: 'locker', group: false });
+        options = signal<Record<string, unknown>>({
+            type: 'locker',
+            group: false,
+        });
         post_form = vi.fn(() => Promise.resolve());
         post_form_group = vi.fn(() => Promise.resolve());
         edit_group = vi.fn(() => Promise.resolve());
@@ -88,11 +91,11 @@ describe('BookLockerFlowConfirmComponent', () => {
                 } as any),
             ],
         });
-        dismiss = spectator.inject(MatBottomSheetRef).dismiss as any;
+        dismiss = spectator.inject(MatBottomSheetRef).dismiss;
         dismiss.mockClear();
     });
 
-    afterEach(() => setNotifyOutlet(null as any, true));
+    afterEach(() => setNotifyOutlet(null, true));
 
     it('should post a lone booking and dismiss with success', async () => {
         await spectator.component.postForm();
@@ -111,7 +114,7 @@ describe('BookLockerFlowConfirmComponent', () => {
         options.set({ type: 'locker', group: true });
         model.update((m) => ({ ...m, id: 'booking-1' }));
         const siblings = [{ id: 'booking-1' }, { id: 'booking-2' }];
-        load_siblings.mockResolvedValueOnce(siblings as any);
+        load_siblings.mockResolvedValueOnce(siblings);
 
         await spectator.component.postForm();
 

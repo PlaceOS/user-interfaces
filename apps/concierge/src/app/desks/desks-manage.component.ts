@@ -30,8 +30,6 @@ import {
 } from '@placeos/components';
 import { DeskQrItem, DesksStateService } from './desks-state.service';
 
-const QR_CODES = {};
-
 @Component({
     selector: 'desks-manage',
     template: `
@@ -391,7 +389,7 @@ export class DesksManageComponent extends AsyncHandler {
         this.loading.set('');
     }
 
-    public handleDrag(type: 'enter' | 'leave' | 'end', event: DragEvent) {
+    public handleDrag(type: 'enter' | 'leave' | 'end', _event: DragEvent) {
         this.dragging.set(type === 'enter');
     }
 }

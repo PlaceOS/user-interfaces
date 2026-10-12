@@ -5,7 +5,7 @@ import { DealModalComponent } from '../../app/deals/deal-modal.component';
 
 describe('DealModalComponent', () => {
     let spectator: SpectatorRouting<DealModalComponent>;
-    let dialog_ref: { close: any };
+    let dialog_ref: { close: unknown };
 
     const deal = {
         id: 'deal-1',

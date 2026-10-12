@@ -24,13 +24,13 @@ import { DateOptionsComponent } from '@placeos/form-fields';
 import { CateringTopbarComponent } from '../app/catering-topbar.component';
 
 class OrdersServiceStub {
-    private readonly _filters = signal<any>({});
-    public readonly filtered = signal<any[]>([]);
+    private readonly _filters = signal<unknown>({});
+    public readonly filtered = signal<unknown[]>([]);
     public readonly order_filters = this._filters.asReadonly();
     public get filters() {
         return this._filters();
     }
-    public set filters(value: any) {
+    public set filters(value: unknown) {
         this._filters.set(value);
     }
 }
@@ -47,10 +47,10 @@ class StateServiceStub {
 
 class OrgServiceStub {
     public readonly initialised = signal(true);
-    public readonly active_region = signal<any>({ id: 'region-1' });
-    public readonly active_building = signal<any>({ id: 'bld-1' });
-    public building: any = { id: 'bld-1' };
-    public buildings: any[] = [{ id: 'bld-1' }, { id: 'bld-2' }];
+    public readonly active_region = signal<unknown>({ id: 'region-1' });
+    public readonly active_building = signal<unknown>({ id: 'bld-1' });
+    public building = { id: 'bld-1' };
+    public buildings: unknown[] = [{ id: 'bld-1' }, { id: 'bld-2' }];
     public levelsForRegion = vi.fn().mockReturnValue([]);
     public levelsForBuilding = vi.fn().mockReturnValue([]);
     public levelWithID = vi.fn();
@@ -86,7 +86,7 @@ describe('CateringTopbarComponent', () => {
         settingSignal('use_region', false).set(false);
         dialog_ref = {
             componentInstance: {
-                change: new Subject<any>(),
+                change: new Subject<unknown>(),
                 loading: signal(true),
             },
         };

@@ -29,7 +29,7 @@ describe('LevelModalComponent', () => {
         ],
     });
 
-    const buildLevel = (data: any) => () =>
+    const buildLevel = (data: unknown) => () =>
         createComponent({
             providers: [MockProvider(MAT_DIALOG_DATA, data)],
         });
@@ -48,7 +48,7 @@ describe('LevelModalComponent', () => {
     });
 
     afterEach(() => {
-        setNotifyOutlet(null as any, true);
+        setNotifyOutlet(null, true);
         vi.restoreAllMocks();
     });
 

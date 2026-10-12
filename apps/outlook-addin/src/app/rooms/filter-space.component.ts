@@ -220,7 +220,8 @@ export class FilterSpaceComponent {
     data = inject<{
         data;
     }>(MAT_BOTTOM_SHEET_DATA);
-    private _bottomsheetRef = inject<MatBottomSheetRef<any>>(MatBottomSheetRef);
+    private _bottomsheetRef =
+        inject<MatBottomSheetRef<unknown>>(MatBottomSheetRef);
     private _featuresFilterService = inject(FeaturesFilterService);
     private _state = inject(EventFormService);
     private _org = inject(OrganisationService);

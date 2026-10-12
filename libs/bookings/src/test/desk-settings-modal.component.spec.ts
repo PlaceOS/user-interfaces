@@ -28,7 +28,7 @@ describe('DeskSettingsModalComponent', () => {
         providers: [
             { provide: MAT_DIALOG_DATA, useValue: { id: 'desk-1' } },
             { provide: MatDialogRef, useValue: dialog_ref },
-            MockProvider(OrganisationService as any, org as any),
+            MockProvider(OrganisationService, org as any),
             {
                 provide: SettingsService,
                 useValue: createSettingsServiceMock(),

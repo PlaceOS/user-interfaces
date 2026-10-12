@@ -47,7 +47,7 @@ describe('BootstrapComponent', () => {
                         zones: ['level-1', 'building-1'],
                     },
                 ],
-            } as any),
+            }),
         );
         (ts_client.querySignageTemplates as any).mockResolvedValue({
             data: [

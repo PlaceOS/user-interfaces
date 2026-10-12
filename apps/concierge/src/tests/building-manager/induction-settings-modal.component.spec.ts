@@ -40,11 +40,11 @@ describe('InductionSettingsModalComponent', () => {
         (ts_client.updateMetadata as any).mockReset();
         (ts_client.updateMetadata as any).mockResolvedValue({ id: 'meta' });
         spectator = createComponent();
-        (spectator.inject(MatDialogRef).close as any).mockClear();
+        spectator.inject(MatDialogRef).close.mockClear();
     });
 
     afterEach(() => {
-        setNotifyOutlet(null as any, true);
+        setNotifyOutlet(null, true);
         vi.restoreAllMocks();
     });
 

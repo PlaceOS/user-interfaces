@@ -561,7 +561,7 @@ export class UserControlsComponent implements OnInit {
         this._dialog.open(WFHSettingsModalComponent);
     }
 
-    public saveSetting(name: string, value: any) {
+    public saveSetting(name: string, value: unknown) {
         this._settings.saveUserSetting(name, value);
     }
 

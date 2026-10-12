@@ -27,7 +27,7 @@ import {
     TranslatePipe,
 } from '@placeos/components';
 import { roundToNearestMinutes, startOfDay } from 'date-fns';
-import { ParkingRequestFormDetailsComponent } from '../../../../workplace/src/app/book/parking-request-flow/parking-request-form-details.component';
+import { ParkingRequestFormDetailsComponent } from 'apps/workplace/src/app/book/parking-request-flow/parking-request-form-details.component';
 
 @Component({
     selector: 'parking-request-modal',

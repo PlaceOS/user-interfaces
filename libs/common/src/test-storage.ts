@@ -32,7 +32,7 @@ export function installTestStorage() {
         typeof globalThis.sessionStorage === 'undefined';
 
     if (needs_storage || typeof globalThis.Storage === 'undefined') {
-        (globalThis as any).Storage = InMemoryStorage;
+        globalThis.Storage = InMemoryStorage;
     }
 
     if (typeof globalThis.localStorage === 'undefined') {

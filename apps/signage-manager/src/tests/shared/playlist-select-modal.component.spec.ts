@@ -39,8 +39,8 @@ describe('PlaylistSelectModalComponent', () => {
         await flush();
 
         expect(queryPlaylists).toHaveBeenCalledWith('');
-        expect(
-            fixture.componentInstance.list.items().map((_: any) => _.id),
-        ).toEqual(['p1', 'p2']);
+        expect(fixture.componentInstance.list.items().map((_) => _.id)).toEqual(
+            ['p1', 'p2'],
+        );
     });
 });

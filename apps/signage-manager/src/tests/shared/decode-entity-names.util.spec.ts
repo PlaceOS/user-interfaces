@@ -57,7 +57,7 @@ describe('decodeEntityNames', () => {
     });
 
     it('passes through non-objects', () => {
-        expect(decodeEntityNames(null as any)).toBeNull();
-        expect(decodeEntityNames('x' as any)).toBe('x');
+        expect(decodeEntityNames(null)).toBeNull();
+        expect(decodeEntityNames('x')).toBe('x');
     });
 });

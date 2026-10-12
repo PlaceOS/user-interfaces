@@ -197,7 +197,7 @@ export class ScheduleStateService extends AsyncHandler {
 
     public readonly week_date = computed(() =>
         startOfWeek(this._date(), {
-            weekStartsOn: this.offset_weekday as any,
+            weekStartsOn: this.offset_weekday,
         }).valueOf(),
     );
 
@@ -350,7 +350,7 @@ export class ScheduleStateService extends AsyncHandler {
                 return false;
             }
             if (_ instanceof CalendarEvent) return true;
-            return filters?.shown_types?.includes((_ as any).booking_type);
+            return filters?.shown_types?.includes(_.booking_type);
         }),
     );
 
@@ -784,7 +784,7 @@ export class ScheduleStateService extends AsyncHandler {
                 period === 'range' || period === 'day'
                     ? startOfDay(date)
                     : startOfWeek(date, {
-                          weekStartsOn: this.offset_weekday as any,
+                          weekStartsOn: this.offset_weekday,
                       }),
             ),
             period_end: getUnixTime(
@@ -793,7 +793,7 @@ export class ScheduleStateService extends AsyncHandler {
                     : period === 'day'
                       ? endOfDay(date)
                       : endOfWeek(date, {
-                            weekStartsOn: this.offset_weekday as any,
+                            weekStartsOn: this.offset_weekday,
                         }),
             ),
         };

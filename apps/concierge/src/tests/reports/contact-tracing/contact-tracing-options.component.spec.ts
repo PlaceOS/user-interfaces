@@ -15,8 +15,8 @@ import { ContactTracingStateService } from 'apps/concierge/src/app/reports/conta
 
 describe('ContactTracingOptionsComponent', () => {
     let spectator: Spectator<ContactTracingOptionsComponent>;
-    let options: WritableSignal<any>;
-    let set_options: any;
+    let options: WritableSignal<unknown>;
+    let set_options: unknown;
     const createComponent = createComponentFactory({
         component: ContactTracingOptionsComponent,
         declarations: [

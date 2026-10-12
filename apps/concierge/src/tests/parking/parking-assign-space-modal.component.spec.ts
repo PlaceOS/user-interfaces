@@ -15,7 +15,7 @@ describe('bookingZonesForLevel', () => {
             {
                 id: 'lvl-1',
                 parent_id: 'bld-1',
-            } as any,
+            },
         );
 
         expect(zones).toEqual(['org-1', 'region-1', 'bld-1', 'lvl-1']);
@@ -30,7 +30,7 @@ describe('bookingZonesForLevel', () => {
             {
                 id: 'lvl-1',
                 parent_id: 'bld-1',
-            } as any,
+            },
         );
 
         expect(zones).toEqual(['org-1', 'bld-1', 'lvl-1']);
@@ -52,7 +52,7 @@ describe('mapLocationFromClick', () => {
         const map_info = {
             parent: { x: 0, y: 0, w: 10, h: 10 },
             child: { x: 2, y: 2, w: 2, h: 2 },
-        } as any;
+        };
 
         expect(mapLocationFromClick({ x: 3, y: 3 }, map_info)).toBe('child');
     });
@@ -61,7 +61,7 @@ describe('mapLocationFromClick', () => {
         expect(
             mapLocationFromClick(
                 { x: 20, y: 20 },
-                { space: { x: 0, y: 0, w: 1, h: 1 } } as any,
+                { space: { x: 0, y: 0, w: 1, h: 1 } },
             ),
         ).toBe('');
     });

@@ -12,10 +12,10 @@ function media(id: string, media_type = 'image') {
 }
 
 describe('PlaylistItemsComponent', () => {
-    const selected_playlist = signal<any>(null);
-    const selected_playlist_item = signal<any>(null);
+    const selected_playlist = signal<unknown>(null);
+    const selected_playlist_item = signal<unknown>(null);
     const selected_playlist_item_index = signal<number | null>(null);
-    const playlist_media_items = signal<any[]>([]);
+    const playlist_media_items = signal<unknown[]>([]);
     const playlist_item_schedules = signal(
         new Map<string, SignagePlaylistItemSchedule>(),
     );

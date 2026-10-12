@@ -27,7 +27,8 @@ const notify_open = vi.fn(() => ({
 describe('SignageZoneService', () => {
     const settings = {
         get: vi.fn(),
-        signal: (_name: string, default_value?: any) => signal(default_value),
+        signal: (_name: string, default_value?: unknown) =>
+            signal(default_value),
     };
     const org = {
         initialised: signal(true),

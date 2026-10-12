@@ -16,7 +16,7 @@ describe('LockerModalComponent', () => {
         shallow: true,
         providers: [
             { provide: MAT_DIALOG_DATA, useFactory: () => dialog_data },
-            MockProvider(MatDialogRef, { disableClose: false } as any),
+            MockProvider(MatDialogRef, { disableClose: false }),
         ],
     });
 
@@ -79,7 +79,7 @@ describe('LockerModalComponent', () => {
         expect(emit).toHaveBeenCalledWith(
             expect.objectContaining({ reason: 'done' }),
         );
-        const metadata = emit.mock.calls[0][0].metadata as any;
+        const metadata = emit.mock.calls[0][0].metadata;
         expect(metadata.name).toBe('Locker A');
         expect(metadata.assigned_to).toBe('');
     });
@@ -98,7 +98,7 @@ describe('LockerModalComponent', () => {
 
         spectator.component.postForm();
 
-        const metadata = emit.mock.calls[0][0].metadata as any;
+        const metadata = emit.mock.calls[0][0].metadata;
         expect(metadata.assigned_to).toBe('jane@example.com');
     });
 

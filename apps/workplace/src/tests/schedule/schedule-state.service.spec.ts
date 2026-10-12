@@ -99,7 +99,7 @@ describe('ScheduleStateService', () => {
         // layer down.
         vi.mocked<(url: string) => Promise<unknown>>(
             ts_client.get,
-        ).mockResolvedValue([] as any);
+        ).mockResolvedValue([]);
         vi.mocked(ts_client.querySystems).mockResolvedValue({
             data: [],
         } as any);
@@ -262,7 +262,7 @@ describe('ScheduleStateService', () => {
     });
 
     it('should only mark enabled feature booking types as loadable', () => {
-        const settings = spectator.inject(SettingsService) as any;
+        const settings = spectator.inject(SettingsService);
         settings.get.mockImplementation((key: string) =>
             key === 'app.features' ? ['desks', 'parking-requests'] : undefined,
         );

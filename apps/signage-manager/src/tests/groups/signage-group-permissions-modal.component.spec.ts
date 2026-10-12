@@ -85,6 +85,6 @@ describe('groupPermissionLabels', () => {
 
     it('returns no labels for an empty or invalid mask', () => {
         expect(groupPermissionLabels(0)).toEqual([]);
-        expect(groupPermissionLabels(NaN as any)).toEqual([]);
+        expect(groupPermissionLabels(NaN)).toEqual([]);
     });
 });

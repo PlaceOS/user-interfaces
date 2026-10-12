@@ -338,12 +338,12 @@ export class ParkingSpaceModalComponent implements OnInit {
         this.form().markAsTouched();
         if (!this.form().valid()) return;
         this.loading.set(true);
-        const value: any = { ...this.model() };
+        const value = { ...this.model() };
         if (value.assigned_user) {
             value.assigned_to = value.assigned_user.email;
             value.assigned_name = value.assigned_user.name;
         }
-        delete (value as any).assigned_user;
+        delete value.assigned_user;
         this._dialog_ref.disableClose = true;
         this.event.emit({ reason: 'done', metadata: value });
     }

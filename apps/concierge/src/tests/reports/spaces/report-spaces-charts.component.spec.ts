@@ -12,8 +12,8 @@ vi.mock('chart.js');
 
 describe('ReportSpacesChartsComponent', () => {
     let spectator: Spectator<ReportSpacesChartsComponent>;
-    let day_list: ReturnType<typeof signal<any[]>>;
-    let options: ReturnType<typeof signal<any>>;
+    let day_list: ReturnType<typeof signal<unknown[]>>;
+    let options: ReturnType<typeof signal<unknown>>;
     let counts: ReturnType<typeof signal<Record<string, number>>>;
 
     const org_levels = [
@@ -27,8 +27,8 @@ describe('ReportSpacesChartsComponent', () => {
             {
                 provide: ReportsStateService,
                 useValue: {
-                    day_list: (day_list = signal<any[]>([])),
-                    options: (options = signal<any>({ zones: [] })),
+                    day_list: (day_list = signal<unknown[]>([])),
+                    options: (options = signal<unknown>({ zones: [] })),
                     counts: (counts = signal<Record<string, number>>({})),
                 },
             },
@@ -45,8 +45,8 @@ describe('ReportSpacesChartsComponent', () => {
 
     beforeEach(() => {
         (chart_mod.Chart as unknown as any).mockClear();
-        day_list = signal<any[]>([]);
-        options = signal<any>({ zones: [] });
+        day_list = signal<unknown[]>([]);
+        options = signal<unknown>({ zones: [] });
         counts = signal<Record<string, number>>({});
         spectator = createComponent({
             providers: [

@@ -15,9 +15,9 @@ import { LockerFormDetailsComponent } from '../../../app/book/locker-flow/locker
 describe('BookLockerFlowFormComponent', () => {
     let spectator: SpectatorRouting<BookLockerFlowFormComponent>;
     let notify_open: any;
-    let model: ReturnType<typeof signal<Record<string, any>>>;
+    let model: ReturnType<typeof signal<Record<string, unknown>>>;
     let form_valid: boolean;
-    let after_dismissed_value: any;
+    let after_dismissed_value: unknown;
     let sheet_open: any;
     let show_close: ReturnType<typeof signal<boolean>>;
 
@@ -42,7 +42,7 @@ describe('BookLockerFlowFormComponent', () => {
             dismiss: () => undefined,
         }));
         setNotifyOutlet({ open: notify_open } as any, true);
-        model = signal<Record<string, any>>({
+        model = signal<Record<string, unknown>>({
             id: '',
             date: Date.now() + 60 * 60 * 1000,
             duration: 60,
@@ -61,12 +61,12 @@ describe('BookLockerFlowFormComponent', () => {
                     model,
                     setView: vi.fn(),
                 } as any),
-                MockProvider(MatBottomSheet, { open: sheet_open } as any),
+                MockProvider(MatBottomSheet, { open: sheet_open }),
             ],
         });
     });
 
-    afterEach(() => setNotifyOutlet(null as any, true));
+    afterEach(() => setNotifyOutlet(null, true));
 
     it('should open the confirm sheet when the form is valid', () => {
         spectator.component.viewConfirm();

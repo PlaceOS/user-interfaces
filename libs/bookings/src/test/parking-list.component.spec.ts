@@ -34,9 +34,9 @@ describe('ParkingListComponent', () => {
         component: ParkingListComponent,
         providers: [
             MockProvider(BookingFormService, {
-                available_resources: available as any,
-                options: options as any,
-                loading: loading as any,
+                available_resources: available,
+                options: options,
+                loading: loading,
             }),
         ],
         declarations: [

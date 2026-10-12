@@ -113,7 +113,7 @@ test.describe('Panel View - QR Code Display', () => {
         // QR code section should exist (visibility depends on show_qr_code setting)
         const qrSection = page.locator('[qr-checkin]');
         // Check if it exists in DOM
-        const count = await qrSection.count();
+        await qrSection.count();
         // QR section is controlled by settings, just verify panel loads correctly
         await expect(page.locator('panel-view-details')).toBeVisible();
     });
@@ -145,9 +145,6 @@ test.describe('Panel View - User Interactions', () => {
 
         if (isFree) {
             // Should show booking instruction hint
-            const hintText = page.locator(
-                'panel-view-status p:has-text("book"), panel-view-status p:has-text("tap")',
-            );
             // Hint visibility depends on locale
         }
     });
@@ -221,7 +218,6 @@ test.describe('Panel View - Meeting Details Visibility', () => {
 
         if (isBusy) {
             // Should show host information (unless hide_meeting_details is true)
-            const hostSection = page.locator('panel-view-details p.text-4xl');
             // Host visibility depends on settings
         }
     });
@@ -234,7 +230,6 @@ test.describe('Panel View - Meeting Details Visibility', () => {
 
         if (isBusy) {
             // Should show meeting title (unless hide_meeting_title is true)
-            const titleSection = page.locator('panel-view-details .text-3xl');
             // Title visibility depends on settings
         }
     });

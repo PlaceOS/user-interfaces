@@ -16,8 +16,8 @@ describe('application cache handling', () => {
         currentVersion: { hash: 'current-version' },
         latestVersion: { hash: 'next-version' },
     } as const;
-    let version_updates: Subject<any>;
-    let unrecoverable: Subject<any>;
+    let version_updates: Subject<unknown>;
+    let unrecoverable: Subject<unknown>;
     let cache: any;
     let reload: ReturnType<typeof vi.fn>;
     let console_debug: ReturnType<typeof vi.spyOn>;
@@ -127,7 +127,7 @@ describe('application cache handling', () => {
         expect(reload).toHaveBeenCalledTimes(1);
         // Navigating instead would drop the hash, and with it the route the
         // app is on
-        expect((globalThis.location as any).href).toBeUndefined();
+        expect(globalThis.location.href).toBeUndefined();
     });
 
     it('should hold a version reload back for the reload gate', () => {

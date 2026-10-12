@@ -5,7 +5,7 @@ import { NavSidebarComponent } from '../../app/shared/nav-sidebar.component';
 import { SignageContextService } from '../../app/signage-context.service';
 
 describe('NavSidebarComponent', () => {
-    const locales_signal = signal<any[]>([]);
+    const locales_signal = signal<unknown[]>([]);
     const show_locale_signal = signal(false);
     const can_manage_all_groups = signal(false);
     const can_manage_groups = signal(false);

@@ -20,7 +20,7 @@ describe('EnrolmentGuestConfirmComponent', () => {
         providers: [
             MockProvider(SettingsService, {
                 signal: vi.fn(() => vaccine_check),
-            } as any),
+            }),
             // Zoneless shallow rendering of mat-form-field/signal-forms
             // otherwise trips endless change detection (NG0103)
             { provide: ComponentFixtureAutoDetect, useValue: false },

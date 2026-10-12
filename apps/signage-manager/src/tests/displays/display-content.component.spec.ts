@@ -9,9 +9,9 @@ import { SignageContextService } from '../../app/signage-context.service';
 const NOW_S = Math.floor(Date.now() / 1000);
 
 describe('DisplayContentComponent', () => {
-    const selected_display = signal<any>(null);
-    const playlists = signal<any[]>([]);
-    const selected_display_zones = signal<any[]>([]);
+    const selected_display = signal<unknown>(null);
+    const playlists = signal<unknown[]>([]);
+    const selected_display_zones = signal<unknown[]>([]);
     const playlist_approval_status = signal<Record<string, boolean>>({});
     const playlist_thumbnail_media = signal<Record<string, string[]>>({});
     const can_update = signal(true);
@@ -101,11 +101,11 @@ describe('DisplayContentComponent', () => {
         });
         const component = await make();
 
-        expect(component.display_playlists().map((p: any) => p.id)).toEqual([
+        expect(component.display_playlists().map((p) => p.id)).toEqual([
             'p1',
             'p3',
         ]);
-        expect(component.display_zones().map((z: any) => z.id)).toEqual(['z2']);
+        expect(component.display_zones().map((z) => z.id)).toEqual(['z2']);
     });
 
     it('returns nothing when no display is selected', async () => {

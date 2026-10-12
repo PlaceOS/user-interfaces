@@ -275,7 +275,7 @@ export class TopbarHeaderComponent extends AsyncHandler {
             mics?.length > 0 || microphones?.length > 0;
         actions[TOOLTIP.JOIN].show =
             !hide_join_button && Object.keys(join_modes || {}).length > 1;
-        actions[TOOLTIP.JOIN].enabled = (joined as any)?.room_ids?.length > 1;
+        actions[TOOLTIP.JOIN].enabled = joined?.room_ids?.length > 1;
         actions[TOOLTIP.CAMERA].show = cams?.length > 0 && !speaker_track;
         actions[TOOLTIP.HELP].show = help_items?.length > 0;
         actions[TOOLTIP.LIGHT_LEVELS].show = light_levels != null;

@@ -14,8 +14,8 @@ import { RoomBookingsTimelineComponent } from '../../app/day-view/room-timeline.
 
 describe('RoomBookingsTimelineComponent', () => {
     let spectator: SpectatorRouting<RoomBookingsTimelineComponent>;
-    const filtered = signal<any[]>([]);
-    const spaces = signal<any[]>([]);
+    const filtered = signal<unknown[]>([]);
+    const spaces = signal<unknown[]>([]);
     const date = signal<number>(startOfDay(Date.now()).valueOf());
     const settings_values: Record<string, any> = {};
     let dialog_open: any;
@@ -44,7 +44,7 @@ describe('RoomBookingsTimelineComponent', () => {
             MockProvider(SettingsService, {
                 get: vi.fn((key: string) => settings_values[key]),
                 time_format: 'shortTime',
-            } as any),
+            }),
             MockProvider(OrganisationService, {
                 active_building: signal({ id: 'bld-1' }),
                 building: { timezone: '' },
@@ -66,7 +66,7 @@ describe('RoomBookingsTimelineComponent', () => {
             afterClosed: () => new Subject(),
         }));
         spectator = createComponent({
-            providers: [MockProvider(MatDialog, { open: dialog_open } as any)],
+            providers: [MockProvider(MatDialog, { open: dialog_open })],
         });
         spectator.detectChanges();
     });

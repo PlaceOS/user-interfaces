@@ -9,7 +9,7 @@ import {
     getCateringRulesForZone,
 } from '../lib/utilities';
 
-const makeEvent = (overrides: Record<string, any> = {}) =>
+const makeEvent = (overrides: Record<string, unknown> = {}) =>
     ({
         resources: [],
         space: null,
@@ -17,7 +17,7 @@ const makeEvent = (overrides: Record<string, any> = {}) =>
         duration: 120,
         ext: (_: string) => undefined,
         ...overrides,
-    }) as any as CalendarEvent;
+    }) as CalendarEvent;
 
 describe('catering utilities', () => {
     beforeEach(() => vi.clearAllMocks());
@@ -80,7 +80,7 @@ describe('catering utilities', () => {
             const item = new CateringItem({ category: 'Drinks' });
             const rules = [
                 { name: 'Snacks', rules: [['min_length', 100]] },
-            ] as any as AttachedResourceRuleset[];
+            ] as unknown as AttachedResourceRuleset[];
             expect(cateringItemAvailable(item, rules, makeEvent())).toBe(true);
         });
 
@@ -88,13 +88,13 @@ describe('catering utilities', () => {
             const item = new CateringItem({ category: 'Drinks' });
             const passing = [
                 { name: '*', rules: [['min_length', 1]] },
-            ] as any as AttachedResourceRuleset[];
+            ] as unknown as AttachedResourceRuleset[];
             expect(
                 cateringItemAvailable(item, passing, makeEvent({ duration: 120 })),
             ).toBe(true);
             const failing = [
                 { name: '*', rules: [['min_length', 3]] },
-            ] as any as AttachedResourceRuleset[];
+            ] as unknown as AttachedResourceRuleset[];
             expect(
                 cateringItemAvailable(item, failing, makeEvent({ duration: 120 })),
             ).toBe(false);
@@ -104,7 +104,7 @@ describe('catering utilities', () => {
             const item = new CateringItem({ category: 'Drinks' });
             const rules = [
                 { name: 'Drinks', rules: [['max_length', 3]] },
-            ] as any as AttachedResourceRuleset[];
+            ] as unknown as AttachedResourceRuleset[];
             expect(
                 cateringItemAvailable(item, rules, makeEvent({ duration: 120 })),
             ).toBe(true);
@@ -114,7 +114,7 @@ describe('catering utilities', () => {
             const item = new CateringItem({ tags: ['Hot'] });
             const rules = [
                 { name: 'Hot', rules: [['min_length', 5]] },
-            ] as any as AttachedResourceRuleset[];
+            ] as unknown as AttachedResourceRuleset[];
             expect(
                 cateringItemAvailable(item, rules, makeEvent({ duration: 120 })),
             ).toBe(false);
@@ -124,7 +124,7 @@ describe('catering utilities', () => {
             const item = new CateringItem({ category: 'Drinks' });
             const rules = [
                 { name: 'Drinks', rules: [['visitor_type', 'VIP']] },
-            ] as any as AttachedResourceRuleset[];
+            ] as AttachedResourceRuleset[];
             const vip_event = makeEvent({
                 ext: (key: string) => (key === 'visitor_type' ? 'VIP' : undefined),
             });
@@ -142,7 +142,7 @@ describe('catering utilities', () => {
                         ['max_length', 1],
                     ],
                 },
-            ] as any as AttachedResourceRuleset[];
+            ] as unknown as AttachedResourceRuleset[];
             expect(
                 cateringItemAvailable(item, rules, makeEvent({ duration: 120 })),
             ).toBe(false);

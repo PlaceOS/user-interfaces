@@ -10,16 +10,16 @@ import {
 } from '../app/dashboards/alert-condition-time-form.component';
 
 /** Build a mock signal-form field whose value can be read and set */
-function makeField(initial: any) {
+function makeField(initial: unknown) {
     const value = signal(initial);
     const state = { value };
-    return () => state as any;
+    return () => state;
 }
 
 /** Build a mock time-condition form tree matching what the component reads */
 function makeTimeForm(
     opts: {
-        time_type?: any;
+        time_type?: unknown;
         cron?: string;
         timezone?: string;
         time?: number;
@@ -30,7 +30,7 @@ function makeTimeForm(
         cron: makeField(opts.cron ?? ''),
         timezone: makeField(opts.timezone ?? ''),
         time: makeField(opts.time ?? Date.now()),
-    } as any;
+    };
 }
 
 describe('AlertConditionTimeFormComponent', () => {

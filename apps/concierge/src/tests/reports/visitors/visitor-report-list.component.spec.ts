@@ -10,7 +10,7 @@ import { VisitorsReportService } from 'apps/concierge/src/app/reports/visitors/v
 
 describe('VisitorReportListComponent', () => {
     let spectator: Spectator<VisitorReportListComponent>;
-    let bookings: ReturnType<typeof signal<any[]>>;
+    let bookings: ReturnType<typeof signal<unknown[]>>;
     let allow_international: boolean;
 
     const day = new Date('2026-04-06T09:00:00').valueOf();
@@ -25,7 +25,7 @@ describe('VisitorReportListComponent', () => {
         providers: [
             {
                 provide: VisitorsReportService,
-                useValue: { bookings: (bookings = signal<any[]>([])) },
+                useValue: { bookings: (bookings = signal<unknown[]>([])) },
             },
             {
                 provide: SettingsService,
@@ -37,7 +37,7 @@ describe('VisitorReportListComponent', () => {
     });
 
     beforeEach(() => {
-        bookings = signal<any[]>([]);
+        bookings = signal<unknown[]>([]);
         allow_international = false;
         spectator = createComponent({
             providers: [

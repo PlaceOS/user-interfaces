@@ -40,14 +40,14 @@ describe('DeviceOutputListItemComponent', () => {
     });
 
     it('should show the output name when an item is provided', () => {
-        spectator.setInput('item', { id: 'o1', name: 'Main Display' } as any);
+        spectator.setInput('item', { id: 'o1', name: 'Main Display' });
         spectator.detectChanges();
         expect('button').toExist();
         expect(spectator.query('button')).toContainText('Main Display');
     });
 
     it('should highlight the border when active', () => {
-        spectator.setInput('item', { id: 'o1', name: 'o1' } as any);
+        spectator.setInput('item', { id: 'o1', name: 'o1' });
         spectator.setInput('active', false);
         spectator.detectChanges();
         expect('.border-primary').not.toExist();
@@ -65,7 +65,7 @@ describe('DeviceOutputListItemComponent', () => {
             id: 'o1',
             name: 'o1',
             source: 'i1',
-        } as any);
+        });
         spectator.detectChanges();
         expect(spectator.component.input()).toEqual({
             id: 'i1',
@@ -82,7 +82,7 @@ describe('DeviceOutputListItemComponent', () => {
             id: 'o1',
             name: 'o1',
             source: 'i1',
-        } as any);
+        });
         spectator.detectChanges();
         spectator.click('button');
         expect(service.setOutput).toHaveBeenCalledWith('o1');
@@ -97,7 +97,7 @@ describe('DeviceOutputListItemComponent', () => {
             id: 'o1',
             name: 'o1',
             source: 'i1',
-        } as any);
+        });
         spectator.detectChanges();
         spectator.click('button');
         expect(service.unroute).toHaveBeenCalledWith('o1');

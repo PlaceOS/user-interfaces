@@ -39,7 +39,7 @@ const TYPE_STUB = {
 
 describe('LockerStateService', () => {
     let spectator: SpectatorService<LockerStateService>;
-    let current_building: any;
+    let current_building: unknown;
     let settings_map: Record<string, any>;
 
     const organisation_service: any = {
@@ -60,8 +60,8 @@ describe('LockerStateService', () => {
         providers: [
             MockProvider(MatDialog, { open: vi.fn() }),
             MockProvider(SettingsService, {
-                get: vi.fn((name: string) => settings_map[name]) as any,
-            } as any),
+                get: vi.fn((name: string) => settings_map[name]),
+            }),
             MockProvider(OrganisationService, organisation_service),
         ],
     });
@@ -154,7 +154,7 @@ describe('LockerStateService', () => {
             { id: 'lvl-other', parent_id: 'bld-2', tags: ['level'] },
         ]);
 
-        expect(spectator.service.levels().map((lvl: any) => lvl.id)).toEqual([
+        expect(spectator.service.levels().map((lvl) => lvl.id)).toEqual([
             'lvl-ground',
             'lvl-parking',
         ]);
@@ -173,7 +173,7 @@ describe('LockerStateService', () => {
         ]);
         spectator = createService();
 
-        expect(spectator.service.levels().map((lvl: any) => lvl.id)).toEqual([
+        expect(spectator.service.levels().map((lvl) => lvl.id)).toEqual([
             'lvl-ground',
             'lvl-other',
         ]);

@@ -50,17 +50,17 @@ describe('BookingDetailsModalComponent', () => {
                     date: Date.now(),
                     duration: 60,
                     status: 'approved',
-                } as any),
+                }),
                 edit_fn,
                 remove_fn,
                 end_fn,
                 refresh_fn,
             }),
-            MockProvider(OrganisationService as any, {
+            MockProvider(OrganisationService, {
                 levelWithID: vi.fn(),
                 buildings: [],
             }),
-            MockProvider(SettingsService as any, createSettingsServiceMock()),
+            MockProvider(SettingsService, createSettingsServiceMock()),
             MockProvider(MapsPeopleService, {
                 use_mapsindoors$: new BehaviorSubject(false),
             } as any),
@@ -82,7 +82,7 @@ describe('BookingDetailsModalComponent', () => {
 
     it('should show images', () => {
         expect('image-carousel').not.toExist();
-        (spectator.component as any).booking.set(
+        spectator.component.booking.set(
             new Booking({
                 extension_data: { images: [''] },
             }),
@@ -107,7 +107,7 @@ describe('BookingDetailsModalComponent', () => {
             date: Date.now(),
             duration: 60,
             status: 'approved',
-        } as any);
+        });
 
         spectator.component.remove(booking);
 
@@ -123,8 +123,8 @@ describe('BookingDetailsModalComponent', () => {
             date: Date.now() - 30 * 60 * 1000,
             duration: 60,
             status: 'approved',
-        } as any);
-        (spectator.component as any).booking.set(booking);
+        });
+        spectator.component.booking.set(booking);
 
         expect(spectator.component.is_in_progress()).toBe(true);
         expect(spectator.component.can_cancel()).toBe(false);
@@ -144,7 +144,7 @@ describe('BookingDetailsModalComponent', () => {
             date: Date.now() + 10 * 60 * 1000,
             duration: 60,
             status: 'approved',
-        } as any);
+        });
         spectator.component.booking.set(booking);
         spectator.detectChanges();
 
@@ -156,7 +156,7 @@ describe('BookingDetailsModalComponent', () => {
             new Booking({
                 ...booking.toJSON(),
                 date: Date.now() - 10 * 60 * 1000,
-            } as any),
+            }),
         );
         spectator.detectChanges();
 
@@ -172,8 +172,8 @@ describe('BookingDetailsModalComponent', () => {
             date: Date.now() + 60 * 60 * 1000,
             duration: 60,
             status: 'approved',
-        } as any);
-        (spectator.component as any).booking.set(booking);
+        });
+        spectator.component.booking.set(booking);
 
         expect(spectator.component.can_cancel()).toBe(true);
 
@@ -191,7 +191,7 @@ describe('BookingDetailsModalComponent', () => {
             date: Date.now() + 60 * 60 * 1000,
             duration: 60,
             status: 'approved',
-        } as any);
+        });
         spectator.component.booking.set(booking);
         spectator.detectChanges();
         expect('[actions]').toExist();
@@ -199,7 +199,7 @@ describe('BookingDetailsModalComponent', () => {
         expect(spectator.component.can_cancel()).toBe(true);
 
         spectator.component.booking.set(
-            new Booking({ ...booking.toJSON(), deleted: true } as any),
+            new Booking({ ...booking.toJSON(), deleted: true }),
         );
         spectator.detectChanges();
 
@@ -299,7 +299,7 @@ describe('BookingDetailsModalComponent', () => {
                 date: Date.now() + 60 * 60 * 1000,
                 duration: 60,
                 status: 'approved',
-            } as any),
+            }),
         );
 
         expect(spectator.component.allow_series_delete()).toBe(true);
@@ -316,14 +316,14 @@ describe('BookingDetailsModalComponent', () => {
                 duration: 60,
                 status: 'approved',
                 extension_data: { is_assigned: true },
-            } as any),
+            }),
         );
 
         expect(spectator.component.allow_series_delete()).toBe(false);
     });
 
     it('should format visitor name nicely in booking details', () => {
-        (spectator.component as any).booking.set(
+        spectator.component.booking.set(
             new Booking({
                 booking_type: 'visitor',
                 asset_name: 'jane.doe@example.com',
@@ -338,7 +338,7 @@ describe('BookingDetailsModalComponent', () => {
     });
 
     it('should show booking title as display title and visitor name separately', () => {
-        (spectator.component as any).booking.set(
+        spectator.component.booking.set(
             new Booking({
                 booking_type: 'visitor',
                 title: 'Vendor Interview',
@@ -374,11 +374,11 @@ describe('BookingDetailsModalComponent', () => {
             afterClosed: () => of(null),
             close: vi.fn(),
         } as any);
-        (spectator.component as any).booking.set(
+        spectator.component.booking.set(
             new Booking({
                 id: 'booking-1',
                 checked_in: true,
-            } as any),
+            }),
         );
 
         await spectator.component.toggleCheckedIn();
@@ -407,13 +407,13 @@ describe('BookingDetailsModalComponent', () => {
             afterClosed: () => NEVER,
             close,
         } as any);
-        (spectator.component as any).booking.set(
+        spectator.component.booking.set(
             new Booking({
                 id: 'parking-booking-1',
                 booking_type: 'parking',
                 type: 'parking',
                 checked_in: true,
-            } as any),
+            }),
         );
         vi.mocked(ts_client.post).mockResolvedValue({
             id: 'parking-booking-1',
@@ -447,31 +447,31 @@ describe('BookingDetailsModalComponent', () => {
     });
 
     it('should hide check-in for unallocated parking bookings', () => {
-        (spectator.component as any).booking.set(
+        spectator.component.booking.set(
             new Booking({
                 booking_type: 'parking',
                 type: 'parking',
                 asset_id: 'unallocated-1',
-            } as any),
+            }),
         );
 
         expect(spectator.component.can_checkin()).toBe(false);
     });
 
     it('should allow check-in for allocated parking bookings', () => {
-        (spectator.component as any).booking.set(
+        spectator.component.booking.set(
             new Booking({
                 booking_type: 'parking',
                 type: 'parking',
                 asset_id: 'parking-1',
-            } as any),
+            }),
         );
 
         expect(spectator.component.can_checkin()).toBe(true);
     });
 
     it('should show waitlisted status for parking requests when enabled', () => {
-        (spectator.component as any).booking.set(
+        spectator.component.booking.set(
             new Booking({
                 booking_type: 'parking',
                 type: 'parking',
@@ -480,14 +480,14 @@ describe('BookingDetailsModalComponent', () => {
                 approved: false,
                 status: 'tentative',
                 process_state: 'wait_list',
-            } as any),
+            }),
         );
 
         expect(spectator.component.booking_status()).toBe('info');
     });
 
     it('should not show waiting approval parking requests as waitlisted', () => {
-        (spectator.component as any).booking.set(
+        spectator.component.booking.set(
             new Booking({
                 booking_type: 'parking',
                 type: 'parking',
@@ -495,7 +495,7 @@ describe('BookingDetailsModalComponent', () => {
                 date: Date.now(),
                 status: 'tentative',
                 process_state: 'waiting_approval',
-            } as any),
+            }),
         );
 
         expect(spectator.component.booking_status()).toBe('warning');
@@ -507,7 +507,7 @@ describe('BookingDetailsModalComponent', () => {
             name === 'app.parking.show_waitlist' ? false : undefined,
         );
         spectator = createComponent();
-        (spectator.component as any).booking.set(
+        spectator.component.booking.set(
             new Booking({
                 booking_type: 'parking',
                 type: 'parking',
@@ -516,7 +516,7 @@ describe('BookingDetailsModalComponent', () => {
                 approved: false,
                 status: 'tentative',
                 process_state: 'wait_list',
-            } as any),
+            }),
         );
 
         expect(spectator.component.booking_status()).toBe('warning');
@@ -528,13 +528,13 @@ describe('BookingDetailsModalComponent', () => {
             name === 'app.parking.hide_selected_space' ? true : undefined,
         );
         spectator = createComponent();
-        (spectator.component as any).booking.set(
+        spectator.component.booking.set(
             new Booking({
                 booking_type: 'parking',
                 type: 'parking',
                 asset_id: 'parking-1',
                 asset_name: 'Parking 1',
-            } as any),
+            }),
         );
 
         expect(spectator.component.resource_details_label()).toBe(
@@ -543,7 +543,7 @@ describe('BookingDetailsModalComponent', () => {
     });
 
     it('should show group details from the linked group parent booking', () => {
-        (spectator.component as any).booking.set(
+        spectator.component.booking.set(
             new Booking({
                 booking_type: 'desk',
                 type: 'desk',
@@ -568,7 +568,7 @@ describe('BookingDetailsModalComponent', () => {
                         ],
                     },
                 },
-            } as any),
+            }),
         );
         spectator.detectChanges();
 
@@ -581,7 +581,7 @@ describe('BookingDetailsModalComponent', () => {
     });
 
     it('should allow the group host to delete the linked group parent', () => {
-        (spectator.component as any).booking.set(
+        spectator.component.booking.set(
             new Booking({
                 booking_type: 'desk',
                 type: 'desk',
@@ -625,7 +625,7 @@ describe('BookingDetailsModalComponent', () => {
     });
 
     it('should hide group parent actions for non-host users', () => {
-        (spectator.component as any).booking.set(
+        spectator.component.booking.set(
             new Booking({
                 booking_type: 'desk',
                 type: 'desk',

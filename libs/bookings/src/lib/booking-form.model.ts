@@ -313,9 +313,9 @@ export function generateBookingForm(
             model.update((m) => ({
                 ...m,
                 user,
-                user_id: (user as any)?.id ?? '',
-                user_email: (user as any)?.email ?? '',
-                user_name: (user as any)?.name ?? '',
+                user_id: user?.id ?? '',
+                user_email: user?.email ?? '',
+                user_name: user?.name ?? '',
             }));
         },
         injector,

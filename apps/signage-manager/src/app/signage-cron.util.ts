@@ -127,13 +127,6 @@ export function doesCronMatchDay(parts: readonly string[], date: Date) {
 }
 
 /** Whether all five fields match the local date and time. */
-function doesCronMatchDate(parts: readonly string[], date: Date) {
-    return (
-        matchesCronPart(date.getMinutes(), parts[0]) &&
-        matchesCronPart(date.getHours(), parts[1]) &&
-        doesCronMatchDay(parts, date)
-    );
-}
 
 /** Minutes after midnight that the minute and hour fields match, in order. */
 export function cronDaySlots(parts: readonly string[]) {

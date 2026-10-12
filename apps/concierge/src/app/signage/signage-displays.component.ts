@@ -369,7 +369,7 @@ export class SignageDisplaysComponent extends AsyncHandler {
 
     private readonly _triggers = resource({
         params: () => this.selected(),
-        defaultValue: [] as any[],
+        defaultValue: [] as unknown[],
         loader: async ({ params: id }) => {
             if (!id) return [];
             const resp = await listSystemTriggers(id);

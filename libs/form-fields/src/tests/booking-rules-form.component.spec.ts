@@ -27,11 +27,11 @@ describe('BookingRulesFormComponent', () => {
         ],
         providers: [
             MockProvider(OrganisationService, {
-                active_building: signal(null) as any,
+                active_building: signal(null),
                 module: vi.fn(),
             }),
             MockProvider(SettingsService, {
-                time_format_signal: signal('h:mm a') as any,
+                time_format_signal: signal('h:mm a'),
             }),
         ],
         imports: [MatFormFieldModule, MatSelectModule],
@@ -52,7 +52,7 @@ describe('BookingRulesFormComponent', () => {
             name: 'My Rules',
             rules: { auto_approve: true, hidden: false },
             conditions: { groups: ['staff'], min_length: 30 },
-        } as any);
+        });
         spectator.detectChanges();
 
         expect(spectator.component.available_conditions()).toEqual([

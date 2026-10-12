@@ -16,7 +16,7 @@ async function flush() {
 
 describe('ZoneSelectModalComponent', () => {
     let spectator: Spectator<ZoneSelectModalComponent>;
-    let data: any;
+    let data: unknown;
 
     const createComponent = createComponentFactory({
         component: ZoneSelectModalComponent,

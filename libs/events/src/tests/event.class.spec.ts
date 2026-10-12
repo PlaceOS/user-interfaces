@@ -5,7 +5,6 @@ import {
     User,
     WeekOfMonth,
 } from '@placeos/common';
-import { setInternalUserDomain } from '@placeos/users';
 import {
     add,
     endOfDay,
@@ -14,6 +13,7 @@ import {
     startOfHour,
     sub,
 } from 'date-fns';
+import { setInternalUserDomain } from 'libs/users/src/lib/user.utilities';
 
 describe('CalendarEvent', () => {
     let event: CalendarEvent;

@@ -45,8 +45,8 @@ describe('CateringItemFiltersComponent', () => {
                 getFilters,
                 categories,
                 caterers,
-            } as any),
-            MockProvider(SettingsService as any, createSettingsServiceMock()),
+            }),
+            MockProvider(SettingsService, createSettingsServiceMock()),
         ],
         imports: [
             FormsModule,

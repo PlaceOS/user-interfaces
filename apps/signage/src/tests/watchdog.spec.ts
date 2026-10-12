@@ -570,8 +570,8 @@ describe('recovery watchdog', () => {
 describe('cache clearing recovery', () => {
     let reload: any;
     let stop: () => void;
-    let unregister: any;
-    let delete_cache: any;
+    let unregister: unknown;
+    let delete_cache: unknown;
 
     beforeEach(() => {
         reload = vi.fn();

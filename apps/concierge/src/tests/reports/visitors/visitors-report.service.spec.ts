@@ -72,7 +72,7 @@ describe('VisitorsReportService', () => {
 
     afterEach(() => {
         downloads.restore();
-        setNotifyOutlet(null as any, true);
+        setNotifyOutlet(null, true);
     });
 
     it('should create service', () => {

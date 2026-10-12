@@ -11,7 +11,7 @@ describe('BuildingSelectComponent', () => {
     const buildings = [
         { id: 'bld-1', name: 'Alpha' },
         { id: 'bld-2', name: 'Beta', display_name: 'Beta Tower' },
-    ] as any[];
+    ] as unknown[];
     const org_mock = {
         active_buildings: signal(buildings),
         active_building: signal(buildings[0]),

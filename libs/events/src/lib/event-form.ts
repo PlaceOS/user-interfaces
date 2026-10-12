@@ -96,7 +96,7 @@ export function eventFormValue(
         recurring_event_id: event.recurring_event_id || '',
         master: event.master ?? null,
         attachments: event.attachments ?? null,
-        catering: (event.extension_data?.catering as any) || [],
+        catering: event.extension_data?.catering || [],
         catering_notes: event.extension_data?.catering?.[0]?.notes || '',
         catering_charge_code:
             event.extension_data?.catering?.[0]?.charge_code || '',
@@ -205,7 +205,7 @@ export function generateEventForm(
             // FieldTree (an undefined value breaks its `required`/`[formField]`).
             model.update((m) => ({
                 ...m,
-                host: (organiser as any)?.email ?? '',
+                host: organiser?.email ?? '',
             })),
         injector,
     );

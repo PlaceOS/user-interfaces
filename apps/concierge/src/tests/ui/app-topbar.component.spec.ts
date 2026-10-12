@@ -11,7 +11,7 @@ import { ApplicationTopbarComponent } from '../../app/ui/app-topbar.component';
 describe('ApplicationTopbarComponent', () => {
     let spectator: SpectatorRouting<ApplicationTopbarComponent>;
     const theme = signal<'light' | 'dark'>('light');
-    const logo_dark = signal<any>('dark-logo.png');
+    const logo_dark = signal<unknown>('dark-logo.png');
     const logo_light = signal<any>('light-logo.png');
 
     const createComponent = createRoutingFactory({
@@ -21,9 +21,9 @@ describe('ApplicationTopbarComponent', () => {
         providers: [
             MockProvider(SettingsService, {
                 theme_signal: theme,
-                signal: ((name: string) =>
-                    name === 'app.logo_dark' ? logo_dark : logo_light) as any,
-            } as any),
+                signal: (name: string) =>
+                    name === 'app.logo_dark' ? logo_dark : logo_light,
+            }),
         ],
     });
 

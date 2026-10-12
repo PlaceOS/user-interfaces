@@ -86,7 +86,7 @@ describe('EventDetailsModalComponent', () => {
 
     it('should show images', () => {
         expect('image-carousel').not.toExist();
-        (spectator.component as any).event.set(
+        spectator.component.event.set(
             new CalendarEvent({
                 system: { images: ['test.png'] },
             } as any),
@@ -102,7 +102,7 @@ describe('EventDetailsModalComponent', () => {
             id: 'event-1',
             date: Date.now() - 2 * 60 * 60 * 1000,
             duration: 60,
-        } as any);
+        });
 
         spectator.component.remove(event);
 

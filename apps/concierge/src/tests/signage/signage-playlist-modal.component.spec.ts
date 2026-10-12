@@ -27,7 +27,7 @@ describe('SignagePlaylistModalComponent', () => {
             providers: [
                 { provide: MAT_DIALOG_DATA, useValue: data },
                 MockProvider(SignageStateService, {
-                    media: signal([]) as any,
+                    media: signal([]),
                     savePlaylist: save_playlist,
                 }),
             ],

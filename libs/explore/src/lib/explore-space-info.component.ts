@@ -14,10 +14,10 @@ import {
     settingSignal,
     Space,
 } from '@placeos/common';
-import { IconComponent } from '@placeos/components';
 import { getModule } from '@placeos/ts-client';
-import { UserPipe } from '@placeos/users';
 import { isSameDay } from 'date-fns';
+import { IconComponent } from 'libs/components/src/lib/icon.component';
+import { UserPipe } from 'libs/users/src/lib/user.pipe';
 
 import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticated-image.directive';
 import { CustomTooltipComponent } from 'libs/components/src/lib/custom-tooltip.component';

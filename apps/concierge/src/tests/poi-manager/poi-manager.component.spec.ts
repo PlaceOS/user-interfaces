@@ -12,7 +12,7 @@ import { POIManagementService } from '../../app/poi-manager/poi-management.servi
 describe('POIManagerComponent', () => {
     let spectator: Spectator<POIManagerComponent>;
     let state: any;
-    let org: any;
+    let org: unknown;
     let settings_map: Record<string, any>;
     let current_building: Building;
 
@@ -26,10 +26,10 @@ describe('POIManagerComponent', () => {
         providers: [
             MockProvider(POIManagementService, {
                 editPointOfInterest: vi.fn(),
-            } as any),
+            }),
             MockProvider(SettingsService, {
-                get: ((name: string) => settings_map[name]) as any,
-            } as any),
+                get: ((name: string) => settings_map[name]),
+            }),
         ],
     });
 

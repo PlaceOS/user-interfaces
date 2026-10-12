@@ -1,3 +1,4 @@
+import { AssetRequest } from '@placeos/common';
 import * as ts_client from '@placeos/ts-client';
 
 // Workspace modules (bookings.fn) run for real; only the ts-client API layer
@@ -21,7 +22,7 @@ function response(data: any[]) {
         data,
         total: data.length,
         next: () => null,
-    }) as any;
+    });
 }
 
 async function load_modules() {
@@ -39,8 +40,8 @@ describe('[Assets]', () => {
             data: [],
             next: undefined,
             total: 0,
-        } as any);
-        vi.mocked(ts_client.del).mockResolvedValue(undefined as any);
+        });
+        vi.mocked(ts_client.del).mockResolvedValue(undefined);
     });
 
     describe('findOldestByName', () => {
@@ -195,7 +196,7 @@ describe('[Assets]', () => {
 
         it('should update in bulk when every asset has an id', async () => {
             const { assets_fn } = await load_modules();
-            vi.mocked(ts_client.updateAssets).mockResolvedValue(['ok'] as any);
+            vi.mocked(ts_client.updateAssets).mockResolvedValue(['ok']);
 
             await assets_fn.saveAssetsInBulk([{ id: 'a' }, { id: 'b' }]);
             expect(ts_client.updateAssets).toHaveBeenCalled();
@@ -345,7 +346,7 @@ describe('[Assets]', () => {
                 data: ['a1'],
                 next: undefined,
                 total: 1,
-            } as any);
+            });
 
             const available = await assets_fn.queryAvailableAssets({
                 period_start: 1,
@@ -391,7 +392,6 @@ describe('[Assets]', () => {
         it('should create asset bookings only when the validated request is saved', async () => {
             const { validateAssetRequestsForResource } =
                 await import('./assets.fn');
-            const { AssetRequest } = await import('@placeos/common');
             vi.mocked(ts_client.queryAssetTypes).mockReturnValue(
                 response([{ id: 'type-projector', name: 'Projector' }]),
             );

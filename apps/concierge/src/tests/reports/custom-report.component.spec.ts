@@ -27,7 +27,7 @@ function paramMapFor(id: string): ParamMap {
 
 describe('CustomReportComponent', () => {
     let spectator: Spectator<CustomReportComponent>;
-    let custom_reports: any[];
+    let custom_reports: unknown[];
     const createComponent = createComponentFactory({
         component: CustomReportComponent,
         overrideComponents: [

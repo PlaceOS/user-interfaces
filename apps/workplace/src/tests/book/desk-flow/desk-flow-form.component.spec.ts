@@ -19,14 +19,14 @@ import { NewDeskFormDetailsComponent } from '../../../app/book/desk-flow/desk-fo
 describe('NewDeskFlowFormComponent', () => {
     let spectator: SpectatorRouting<NewDeskFlowFormComponent>;
     let notify_open: any;
-    let model: ReturnType<typeof signal<Record<string, any>>>;
+    let model: ReturnType<typeof signal<Record<string, unknown>>>;
     let form_valid: boolean;
     let has_assigned_desk: ReturnType<typeof signal<boolean>>;
     let assigned_resource_booking: any;
     let auto_allocation: boolean;
     let auto_allocate: any;
-    let set_view: any;
-    let after_dismissed_value: any;
+    let set_view: unknown;
+    let after_dismissed_value: unknown;
     let sheet_open: any;
     let show_close: ReturnType<typeof signal<boolean>>;
 
@@ -52,7 +52,7 @@ describe('NewDeskFlowFormComponent', () => {
             dismiss: () => undefined,
         }));
         setNotifyOutlet({ open: notify_open } as any, true);
-        model = signal<Record<string, any>>({
+        model = signal<Record<string, unknown>>({
             id: '',
             title: 'Desk',
             asset_id: '',
@@ -89,12 +89,12 @@ describe('NewDeskFlowFormComponent', () => {
                         setOptions: vi.fn(),
                     },
                 },
-                MockProvider(MatBottomSheet, { open: sheet_open } as any),
+                MockProvider(MatBottomSheet, { open: sheet_open }),
             ],
         });
     });
 
-    afterEach(() => setNotifyOutlet(null as any, true));
+    afterEach(() => setNotifyOutlet(null, true));
 
     it('should show the reserved-desk overlay when the user has a reserved desk that blocks booking', () => {
         has_assigned_desk.set(true);

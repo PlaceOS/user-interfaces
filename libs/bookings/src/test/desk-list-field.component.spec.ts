@@ -60,7 +60,7 @@ describe('DeskListFieldComponent', () => {
                         : itemsSignal || [];
                 return {
                     afterClosed: () => of([...items, { id: `${count++}` }]),
-                } as any;
+                };
             },
         );
         spectator.click('button[name="add-desk"]');

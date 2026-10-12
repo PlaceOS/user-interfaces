@@ -34,7 +34,7 @@ describe('MicLevels', () => {
     });
 
     afterEach(() => {
-        delete (window as any).AudioContext;
+        delete window.AudioContext;
         delete (navigator as any).mediaDevices;
     });
 

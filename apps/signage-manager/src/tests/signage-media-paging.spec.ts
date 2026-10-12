@@ -43,7 +43,7 @@ describe('SignageMediaService media paging', () => {
                     provide: SettingsService,
                     useValue: {
                         get: vi.fn(),
-                        signal: (_n: string, d?: any) => signal(d),
+                        signal: (_n: string, d?: unknown) => signal(d),
                     },
                 },
                 {

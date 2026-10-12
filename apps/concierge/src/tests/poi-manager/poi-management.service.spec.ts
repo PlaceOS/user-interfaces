@@ -33,14 +33,14 @@ describe('POIManagementService', () => {
         service: POIManagementService,
         providers: [
             MockProvider(OrganisationService, organisation_service),
-            MockProvider(MatDialog, {} as any),
+            MockProvider(MatDialog, {}),
         ],
     });
 
     beforeEach(() => {
         active_building = signal({ id: 'bld-1' });
         organisation_service.active_building = active_building;
-        dialog_open = vi.fn(() => ({ afterClosed: () => of(true) }) as any);
+        dialog_open = vi.fn(() => ({ afterClosed: () => of(true) }));
         vi.clearAllMocks();
         notify_open = vi.fn(() => ({
             onAction: () => ({ subscribe: () => undefined }),
@@ -57,7 +57,7 @@ describe('POIManagementService', () => {
         (spectator.inject(MatDialog) as any).open = dialog_open;
     });
 
-    afterEach(() => setNotifyOutlet(null as any, true));
+    afterEach(() => setNotifyOutlet(null, true));
 
     const confirmRef = (reason: string) => {
         const close = vi.fn();

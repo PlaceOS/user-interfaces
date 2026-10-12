@@ -11,11 +11,11 @@ import { SignageZoneService } from '../../app/zones/signage-zone.service';
 describe('TemplateLayoutListComponent', () => {
     const draft = signal<any[]>([]);
     const selected_index = signal<number | null>(null);
-    const selected_template = signal<any>(null);
+    const selected_template = signal<unknown>(null);
     const can_update = signal(true);
     const widgets = signal<any[]>([]);
-    const displays = signal<any[]>([]);
-    const zones = signal<any[]>([]);
+    const displays = signal<unknown[]>([]);
+    const zones = signal<unknown[]>([]);
     const save = vi.fn();
     const discard = vi.fn();
     const list_mappings = vi.fn();

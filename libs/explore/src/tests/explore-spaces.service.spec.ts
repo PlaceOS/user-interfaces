@@ -7,7 +7,7 @@ import { MockProvider } from 'ng-mocks';
 import { of } from 'rxjs';
 
 import { OrganisationService, SettingsService } from '@placeos/common';
-import { EventFormService } from '@placeos/events';
+import { EventFormService } from 'libs/events/src/lib/event-form.service';
 
 import { ExploreSpacesService } from '../lib/explore-spaces.service';
 import { ExploreStateService } from '../lib/explore-state.service';
@@ -22,8 +22,8 @@ describe('ExploreSpacesService', () => {
         service: ExploreSpacesService,
         providers: [
             MockProvider(ExploreStateService, {
-                options: signal({ is_public: false }) as any,
-                spaces: signal([]) as any,
+                options: signal({ is_public: false }),
+                spaces: signal([]),
                 setStyles: vi.fn(),
                 setFeatures: vi.fn(),
                 setActions: vi.fn(),

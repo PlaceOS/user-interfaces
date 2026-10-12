@@ -3,9 +3,9 @@ import { log } from './general';
 
 declare global {
     interface Window {
-        ga: any;
-        gtag: any;
-        dataLayer: any[];
+        ga: unknown;
+        gtag: (...args: unknown[]) => void;
+        dataLayer: unknown[];
         debug: boolean;
     }
 }
@@ -31,9 +31,10 @@ export class GoogleAnalyticsService {
         this._ga4 = !!tracking_id?.startsWith('G-');
         if (!window.gtag) {
             window.dataLayer = window.dataLayer || [];
+            // gtag.js reads the `arguments` object, not an array.
             window.gtag = function () {
                 window.dataLayer.push(arguments);
-            } as any;
+            };
             if (this._ga4) {
                 window.gtag('js', new Date());
             } else {

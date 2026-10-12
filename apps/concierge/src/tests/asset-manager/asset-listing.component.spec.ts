@@ -15,7 +15,7 @@ describe('AssetListingComponent', () => {
             { provide: ComponentFixtureAutoDetect, useValue: false },
             MockProvider(AssetManagerStateService, {
                 base_route: '/book/assets',
-            } as any),
+            }),
         ],
         declarations: [MockComponent(AssetManagerTopbarComponent)],
     });

@@ -47,12 +47,12 @@ describe('NewSurveyService', () => {
         );
         dialog_open = vi.fn(() => ({ afterClosed: () => of(true) }));
         spectator = createService({
-            providers: [MockProvider(MatDialog, { open: dialog_open } as any)],
+            providers: [MockProvider(MatDialog, { open: dialog_open })],
         });
     });
 
     afterEach(() => {
-        setNotifyOutlet(null as any, true);
+        setNotifyOutlet(null, true);
     });
 
     it('should resolve the active building from the organisation list', () => {

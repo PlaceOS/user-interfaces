@@ -158,7 +158,7 @@ describe('CalendarEvent', () => {
             permission: 'PUBLIC',
             view_access: 'OPEN',
             extension_data: { permission: 'PUBLIC' },
-        } as any);
+        });
         expect(event.permission).toBe('OPEN');
         expect(event.view_access).toBe('OPEN');
         expect(event.extension_data.permission).toBe('OPEN');
@@ -168,7 +168,7 @@ describe('CalendarEvent', () => {
         const event = new CalendarEvent({
             permission: 'public',
             extension_data: { view_access: 'PUBLIC' },
-        } as any);
+        });
         expect(event.permission).toBe('public');
         expect(event.view_access).toBe('PUBLIC');
     });
@@ -192,7 +192,7 @@ describe('CalendarEvent', () => {
         const event = new CalendarEvent({
             event_start: start,
             all_day: true,
-        } as any);
+        });
         expect(event.all_day).toBe(true);
         expect(event.is_all_day).toBe(true);
         expect(event.date).toBe(

@@ -31,7 +31,7 @@ describe('LockersTopbarComponent', () => {
                 setSearch: vi.fn(),
                 editLockerBank: vi.fn(),
                 releaseAllLockers: vi.fn(),
-            } as any),
+            }),
             MockProvider(OrganisationService, {
                 initialised: signal(true),
                 active_region: signal(null),

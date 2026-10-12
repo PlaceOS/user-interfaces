@@ -180,7 +180,7 @@ export class TimeFieldComponent
     public readonly force_time = input<number>(undefined);
     public readonly no_error = input<boolean>(undefined);
     public readonly extra_info_fn = input<(t?: number) => string>(
-        (t?: number) => '',
+        (_t?: number) => '',
     );
     /** Prevent times before */
     public readonly from = input<number>(startOfDay(Date.now()).valueOf());

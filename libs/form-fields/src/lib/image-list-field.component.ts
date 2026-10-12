@@ -347,7 +347,7 @@ export class ImageListFieldComponent
     }
 
     public async uploadImages(event) {
-        const element: HTMLInputElement = event.target as any;
+        const element: HTMLInputElement = event.target;
         /* istanbul ignore else */
         if (element?.files) {
             const files: FileList = element.files;

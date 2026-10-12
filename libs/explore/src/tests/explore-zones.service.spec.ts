@@ -22,9 +22,9 @@ describe('ExploreStateService', () => {
         providers: [
             MockProvider(ExploreStateService, {
                 level: signal({ id: 'lvl-1' }) as any,
-                options: signal({ is_public: false }) as any,
+                options: signal({ is_public: false }),
                 has: vi.fn(() => false),
-                spaces: signal([]) as any,
+                spaces: signal([]),
                 setFeatures: vi.fn(),
                 setLabels: vi.fn(),
                 setStyles: vi.fn(),

@@ -17,8 +17,8 @@ describe('AssetListComponent', () => {
         declarations: [MockDirective(AuthenticatedImageDirective)],
         providers: [
             MockProvider(AssetStateService, {
-                loading: loading as any,
-                filtered_assets: filtered_assets as any,
+                loading: loading,
+                filtered_assets: filtered_assets,
             }),
         ],
     });
@@ -72,7 +72,7 @@ describe('AssetListComponent', () => {
         spectator.detectChanges();
         TestBed.tick();
 
-        expect((spectator.component.assets()[0] as any).available).toBe(1);
+        expect(spectator.component.assets()[0].available).toBe(1);
     });
 
     it('should drop assets fully consumed by requests', () => {

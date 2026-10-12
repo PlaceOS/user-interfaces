@@ -32,7 +32,7 @@ describe('NextMeetingComponent', () => {
                 system: signal({ meeting_url: 'https://meet.example' }),
                 powerOn: vi.fn(),
                 setEvent: vi.fn(),
-            } as any),
+            }),
         ],
         detectChanges: false,
     });

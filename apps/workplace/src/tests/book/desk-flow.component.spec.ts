@@ -42,7 +42,7 @@ describe('NewDeskFlowComponent', () => {
 
     beforeEach(() => {
         spectator = createComponent();
-        const book_service: any = spectator.inject(BookingFormService);
+        const book_service = spectator.inject(BookingFormService);
         book_service.setView.mockImplementation((e) => {
             book_service.view.set(e);
             spectator.detectChanges();

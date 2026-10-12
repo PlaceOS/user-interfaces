@@ -155,7 +155,7 @@ export class DayviewTimelineComponent
                     new Space({
                         ..._,
                         level: this._org.levelWithID(_.zones),
-                    } as any),
+                    }),
             );
         },
     });

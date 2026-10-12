@@ -21,7 +21,7 @@ describe('modal actions', () => {
         setNotifyOutlet({ open: notify_open } as any, true);
     });
 
-    afterEach(() => setNotifyOutlet(null as any, true));
+    afterEach(() => setNotifyOutlet(null, true));
 
     /** Fake MatDialog for `openConfirmModal` that confirms or cancels. */
     const confirmDialog = (confirmed: boolean) => {
@@ -81,7 +81,7 @@ describe('modal actions', () => {
         const closed = new Subject<void>();
         const ref = {
             componentInstance: {
-                event: new EventEmitter<any>(),
+                event: new EventEmitter<unknown>(),
                 loading: { set: vi.fn() },
             },
             afterClosed: () => closed,

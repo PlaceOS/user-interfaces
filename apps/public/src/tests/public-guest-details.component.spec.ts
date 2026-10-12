@@ -25,7 +25,7 @@ function makeService() {
 describe('PublicGuestDetailsComponent', () => {
     let param_map$: BehaviorSubject<ParamMap>;
     let query_map$: BehaviorSubject<ParamMap>;
-    let route: any;
+    let route: unknown;
     let router: { navigate: ReturnType<typeof vi.fn> };
     let service: ReturnType<typeof makeService>;
 

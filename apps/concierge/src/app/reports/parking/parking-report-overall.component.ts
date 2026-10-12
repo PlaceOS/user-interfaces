@@ -114,7 +114,7 @@ export class ParkingReportOverallComponent {
         );
     });
     public readonly avg_length = computed(() => {
-        const events: any = activeReportBookings(this._bookings());
+        const events = activeReportBookings(this._bookings());
         const avg_minutes =
             events.reduce((c, i) => c + i.duration, 0) / events.length || 0;
         return formatDuration({

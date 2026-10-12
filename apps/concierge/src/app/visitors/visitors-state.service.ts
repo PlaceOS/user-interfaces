@@ -257,7 +257,7 @@ export class VisitorsStateService extends AsyncHandler {
         if (!item.approved && state === true) {
             await approveBooking(item.id);
         }
-        const new_user = await setBookingCheckedIn(item, state).catch((e) => {
+        await setBookingCheckedIn(item, state).catch((e) => {
             notifyError(
                 `Error checking ${state ? 'in' : 'out'} ${
                     item.asset_name || item.asset_id

@@ -596,7 +596,7 @@ export class VisitorInviteFormComponent
                               ...(user.extension_data || {}),
                               international: !!international,
                           },
-                      } as any);
+                      });
             }),
         }));
     }
@@ -643,7 +643,7 @@ export class VisitorInviteFormComponent
                     .filter((_) => !!_.email)
                     .map((item) => {
                         return `${item.email}|${item.name || item.email}|${
-                            (item as any).company || item.organisation || ''
+                            item.company || item.organisation || ''
                         }|${this.getVisitorInternational(item) ? '1' : '0'}`;
                     }),
             ]);
@@ -755,7 +755,7 @@ export class VisitorInviteFormComponent
                             ...(user.extension_data || {}),
                             international: this.getVisitorInternational(user),
                         },
-                    } as any),
+                    }),
             );
         this._service.setOptions({ type: 'visitor', group: true, members });
         await this._service.postFormForVisitorGroup().catch((e) => {

@@ -118,7 +118,7 @@ describe('InviteVisitorFormComponent', () => {
                     ),
                 } as any,
             ),
-            MockProvider(SettingsService as any, createSettingsServiceMock()),
+            MockProvider(SettingsService, createSettingsServiceMock()),
         ],
         imports: [
             ReactiveFormsModule,

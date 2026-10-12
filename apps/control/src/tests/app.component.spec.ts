@@ -23,7 +23,7 @@ describe('AppComponent', () => {
         providers: [
             MockProvider(PlaceOS_Service, {
                 init: vi.fn().mockResolvedValue(undefined),
-            } as any),
+            }),
         ],
     });
 

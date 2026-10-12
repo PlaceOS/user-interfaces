@@ -20,7 +20,7 @@ describe('ParkingMapComponent', () => {
     const feature_list = [
         { location: 'parking-1' },
         { location: 'parking-2' },
-    ] as any[];
+    ] as unknown[];
 
     const createComponent = createComponentFactory({
         component: ParkingMapComponent,
@@ -67,7 +67,7 @@ describe('ParkingMapComponent', () => {
                 provide: SettingsService,
                 useValue: {
                     get: vi.fn(),
-                    signal: vi.fn((name: string, default_value: any) =>
+                    signal: vi.fn((name: string, default_value: unknown) =>
                         name === 'parking.disable_styles'
                             ? disable_styles
                             : signal(default_value),

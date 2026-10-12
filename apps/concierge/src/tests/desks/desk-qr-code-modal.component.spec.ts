@@ -9,7 +9,7 @@ import { DesksStateService } from '../../app/desks/desks-state.service';
 describe('DeskQrCodeModalComponent', () => {
     let spectator: Spectator<DeskQrCodeModalComponent>;
     let settings: Record<string, unknown>;
-    const desks = signal<any[]>([{ id: 'desk-1', name: 'Desk 1' }]);
+    const desks = signal<unknown[]>([{ id: 'desk-1', name: 'Desk 1' }]);
 
     const createComponent = createComponentFactory({
         component: DeskQrCodeModalComponent,

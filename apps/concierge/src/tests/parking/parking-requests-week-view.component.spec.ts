@@ -24,8 +24,8 @@ describe('ParkingRequestsWeekViewComponent', () => {
         shallow: true,
         providers: [
             MockProvider(ParkingStateService, {
-                loading: signal([]) as any,
-                options: options as any,
+                loading: signal([]),
+                options: options,
                 bookings: (() => bookings) as any,
                 week_start: 1,
                 startPolling: vi.fn(() => () => null),
@@ -159,7 +159,7 @@ describe('ParkingRequestsWeekViewComponent', () => {
             status: 'tentative',
             extension_data: { requires_manual_approval: true },
             date: Date.now(),
-        } as any as Booking;
+        } as unknown as Booking;
         const pending = { status: 'tentative', date: Date.now() } as Booking;
 
         expect(spectator.component.statusTone(waitlisted)).toBe('info');

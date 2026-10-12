@@ -1,10 +1,10 @@
+import { Desk, flatten, OrganisationService } from '@placeos/common';
+import { listChildMetadata } from '@placeos/ts-client';
 import {
     deskFromAsset,
     queryDeskAssetsForZones,
-    queryParkingSpacesForZones,
-} from '@placeos/assets';
-import { Desk, flatten, OrganisationService } from '@placeos/common';
-import { listChildMetadata } from '@placeos/ts-client';
+} from 'libs/assets/src/lib/desk-assets.fn';
+import { queryParkingSpacesForZones } from 'libs/assets/src/lib/parking-assets.fn';
 import type { BookingAsset } from './booking-form.types';
 
 /** Load parking spaces on the parking levels of the active building or region. */

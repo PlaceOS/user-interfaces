@@ -21,10 +21,10 @@ describe('VideoCallPageComponent', () => {
     let spectator: Spectator<VideoCallPageComponent>;
     let execute_spy: any;
     const router_mock = { navigate: vi.fn() };
-    const mic_mute = signal<any>(null);
-    const show_camera_pip = signal<any>(null);
+    const mic_mute = signal<unknown>(null);
+    const show_camera_pip = signal<unknown>(null);
 
-    const call_state: any = {
+    const call_state = {
         call: signal({ Status: 'Connected' }),
         show_camera_pip,
         mic_mute,
@@ -38,7 +38,7 @@ describe('VideoCallPageComponent', () => {
         toggleCallOnHold: vi.fn(),
         hangup: vi.fn().mockResolvedValue(null),
     };
-    const control_state: any = {
+    const control_state = {
         id: 'sys-1',
         presentables: signal([]),
         camera_list: signal([]),

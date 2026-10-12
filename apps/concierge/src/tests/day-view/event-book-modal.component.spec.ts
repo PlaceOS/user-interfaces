@@ -17,9 +17,9 @@ describe('EventBookModalComponent', () => {
     let spectator: SpectatorRouting<EventBookModalComponent>;
     const settings_values: Record<string, any> = {};
     const charge_codes = signal<string[]>([]);
-    const available_menu = signal<any[]>([]);
-    let post_form: any;
-    let new_form: any;
+    const available_menu = signal<unknown[]>([]);
+    let post_form: unknown;
+    let new_form: unknown;
 
     const createComponent = createRoutingFactory({
         component: EventBookModalComponent,
@@ -32,7 +32,7 @@ describe('EventBookModalComponent', () => {
             MockProvider(MatDialogRef, { close: vi.fn() }),
             MockProvider(SettingsService, {
                 get: vi.fn((key: string) => settings_values[key]),
-            } as any),
+            }),
             MockProvider(CateringOrderStateService, {
                 charge_codes,
                 available_menu,
@@ -55,7 +55,7 @@ describe('EventBookModalComponent', () => {
                         is_multiday: false,
                         newForm: new_form,
                         postForm: post_form,
-                    } as any;
+                    };
                 },
             },
         ],
@@ -97,7 +97,7 @@ describe('EventBookModalComponent', () => {
     it('should sum the capacity of selected resources', () => {
         spectator.component.model.update((m) => ({
             ...m,
-            resources: [{ capacity: 4 }, { capacity: 6 }] as any,
+            resources: [{ capacity: 4 }, { capacity: 6 }],
         }));
         expect(spectator.component.total_capacity).toBe(10);
     });

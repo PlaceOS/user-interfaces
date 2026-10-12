@@ -11,8 +11,8 @@ describe('SpaceFiltersDisplayComponent', () => {
     let spectator: Spectator<SpaceFiltersDisplayComponent>;
     const date = new Date('2024-06-12T10:00:00').valueOf();
     const model = signal({ date, duration: 90, all_day: false });
-    const options = signal<any>({ zones: ['lvl-1'] });
-    const filters = signal<any>({ features: ['vc', 'whiteboard'] });
+    const options = signal<unknown>({ zones: ['lvl-1'] });
+    const filters = signal<unknown>({ features: ['vc', 'whiteboard'] });
     const level = new BuildingLevel({
         id: 'lvl-1',
         name: 'Level 1',
@@ -22,8 +22,8 @@ describe('SpaceFiltersDisplayComponent', () => {
         component: SpaceFiltersDisplayComponent,
         providers: [
             MockProvider(EventFormService, {
-                options: options as any,
-                filters: filters as any,
+                options: options,
+                filters: filters,
                 model: model as any,
                 setFilters: vi.fn(),
             }),

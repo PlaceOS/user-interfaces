@@ -20,9 +20,9 @@ function makeField(initial: any) {
     const state = {
         value,
         touched: signal(false),
-        errors: signal([] as any[]),
+        errors: signal([] as unknown[]),
     };
-    return () => state as any;
+    return () => state;
 }
 
 /** Build a mock comparison form tree matching what the component reads */
@@ -33,7 +33,7 @@ function makeCompareForm(opts: { left?: any; right?: any; operator?: any } = {})
         ),
         right: makeField(opts.right ?? ''),
         operator: makeField(opts.operator ?? TriggerConditionOperator.EQ),
-    } as any;
+    };
 }
 
 const flush = () => new Promise((resolve) => setTimeout(resolve));
@@ -63,7 +63,7 @@ describe('AlertConditionComparisonFormComponent', () => {
         spectator.component.ngOnInit();
     });
 
-    afterEach(() => setNotifyOutlet(null as any, true));
+    afterEach(() => setNotifyOutlet(null, true));
 
     describe('calculateModuleIndex', () => {
         it('numbers modules that share a class in list order', () => {
@@ -114,7 +114,7 @@ describe('AlertConditionComparisonFormComponent', () => {
             mod: 'Display_1',
             status: 'power',
             keys: ['a', 'b'],
-        } as any);
+        });
         expect(spectator.component.keysFor('left')).toBe('a,b');
         expect(spectator.component.keysFor('right')).toBe('');
     });
@@ -164,7 +164,7 @@ describe('AlertConditionComparisonFormComponent', () => {
             spectator.fixture.componentRef.setInput('system', {
                 id: 'sys-1',
                 modules: [],
-            } as any);
+            });
         });
 
         it('maps returned state keys into selectable status variables', async () => {
@@ -221,7 +221,7 @@ describe('AlertConditionComparisonFormComponent', () => {
         spectator.fixture.componentRef.setInput('system', {
             id: 'sys-1',
             modules: ['mod-1', 'mod-2', 'mod-3'],
-        } as any);
+        });
 
         spectator.component.ngOnChanges({
             system: { firstChange: true } as any,

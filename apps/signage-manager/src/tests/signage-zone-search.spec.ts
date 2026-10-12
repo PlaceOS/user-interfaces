@@ -32,7 +32,7 @@ describe('SignageZoneService zone search', () => {
                     provide: SettingsService,
                     useValue: {
                         get: vi.fn(),
-                        signal: (_name: string, default_value?: any) =>
+                        signal: (_name: string, default_value?: unknown) =>
                             signal(default_value),
                     },
                 },

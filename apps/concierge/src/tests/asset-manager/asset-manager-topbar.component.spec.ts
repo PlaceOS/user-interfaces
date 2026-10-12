@@ -26,8 +26,8 @@ describe('AssetManagerTopbarComponent', () => {
                 availability: () => ['room-1'],
                 saveSettings: (...args: any[]) => save_settings(...args),
             } as any),
-            MockProvider(OrganisationService, {} as any),
-            MockProvider(SettingsService, { get: vi.fn() } as any),
+            MockProvider(OrganisationService, {}),
+            MockProvider(SettingsService, { get: vi.fn() }),
             MockProvider(MatDialog, { open: vi.fn() }),
         ],
     });

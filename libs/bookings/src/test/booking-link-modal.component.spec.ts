@@ -14,13 +14,13 @@ describe('BookingLinkModalComponent', () => {
         date: Date.now(),
         duration: 60,
         attendees: [],
-    } as any);
+    });
     const createComponent = createComponentFactory({
         component: BookingLinkModalComponent,
         shallow: true,
         providers: [
             { provide: MAT_DIALOG_DATA, useValue: event },
-            MockProvider(SettingsService as any, createSettingsServiceMock()),
+            MockProvider(SettingsService, createSettingsServiceMock()),
         ],
     });
 

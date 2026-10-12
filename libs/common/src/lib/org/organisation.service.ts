@@ -765,7 +765,7 @@ export class OrganisationService {
         if (this._loaded_data[region.id] && !this._refreshing) return;
         const load_metadata = !this._service.get('dont_load_metadata');
         const from_cache = this._zoneDataCached(region.id);
-        const [settings, bindings, buildings]: any = await Promise.all([
+        const [settings, bindings, buildings] = await Promise.all([
             load_metadata
                 ? this._bulkMetadataDetails(this.app_key, [region.id]).then(
                       (_) => _[region.id],
@@ -1099,7 +1099,7 @@ export class OrganisationService {
     private async _individualMetadata(
         name: string,
         ids: string[],
-    ): Promise<Record<string, any>> {
+    ): Promise<Record<string, unknown>> {
         const items = await Promise.all(
             ids.filter(Boolean).map((id) =>
                 showMetadata(id, name).then(
@@ -1108,7 +1108,7 @@ export class OrganisationService {
                 ),
             ),
         );
-        const metadata: Record<string, any> = {};
+        const metadata: Record<string, unknown> = {};
         for (const [id, item] of items) {
             if (item) metadata[id] = item;
         }

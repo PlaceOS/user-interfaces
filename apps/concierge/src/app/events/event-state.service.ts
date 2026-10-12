@@ -155,7 +155,7 @@ export class EventStateService extends AsyncHandler {
             data: {
                 event,
                 concierge: true,
-                edit_fn: (i) =>
+                edit_fn: (_i) =>
                     this._router.navigate([
                         '/entertainment',
                         'events',

@@ -546,7 +546,7 @@ export class FindAvailabilityModalComponent
             Math.floor(Math.abs((change_px / this._move_size) * 24 * 60) / 5) *
             5;
         if (change_min) {
-            const old_date = this.date();
+            this.date();
             const new_date = addMinutes(this._start_time, change_min).valueOf();
             if (new_date >= Date.now()) {
                 this.date.set(new_date);

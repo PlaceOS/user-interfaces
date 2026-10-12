@@ -8,9 +8,9 @@ import {
 } from '@placeos/common';
 import {
     AuthenticatedImageDirective,
+    UserAvatarComponent,
     UserControlsSidebarComponent,
 } from '@placeos/components';
-import { UserAvatarComponent } from '../../../../../libs/components/src/lib/user-avatar.component';
 import { GlobalSearchComponent } from './global-search.component';
 import { TopMenuComponent } from './top-menu.component';
 

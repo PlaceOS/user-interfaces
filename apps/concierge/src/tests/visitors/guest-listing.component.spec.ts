@@ -36,9 +36,9 @@ describe('GuestListingComponent', () => {
                 setCheckinState: vi.fn(),
                 emailVisitor: vi.fn(),
                 poll,
-            } as any),
+            }),
             MockProvider(ParkingStateService, { editReservation: vi.fn() }),
-            MockProvider(SettingsService, settings as any),
+            MockProvider(SettingsService, settings),
             MockProvider(OrganisationService, {
                 active_building: signal({ id: 'bld-1' }),
                 building: { timezone: 'Australia/Sydney' },
@@ -133,7 +133,7 @@ describe('GuestListingComponent', () => {
         const booking = new Booking({ id: 'booking-1' });
         vi.mocked(
             spectator.inject(ParkingStateService).editReservation,
-        ).mockResolvedValue('parking-1' as any);
+        ).mockResolvedValue('parking-1');
 
         await spectator.component.reserveParking(booking);
 

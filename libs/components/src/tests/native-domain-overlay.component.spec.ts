@@ -9,7 +9,7 @@ const API_KEY_KEY = 'PlaceOS.native.api_key';
 describe('NativeDomainOverlayComponent', () => {
     let spectator: Spectator<NativeDomainOverlayComponent>;
     let emitted_domains: string[];
-    const original_fetch = (global as any).fetch;
+    const original_fetch = global.fetch;
 
     const createComponent = createComponentFactory({
         component: NativeDomainOverlayComponent,
@@ -28,7 +28,7 @@ describe('NativeDomainOverlayComponent', () => {
     });
 
     afterEach(() => {
-        (global as any).fetch = original_fetch;
+        global.fetch = original_fetch;
     });
 
     it('should create component', () => {
@@ -75,7 +75,7 @@ describe('NativeDomainOverlayComponent', () => {
         create();
         spectator.component.email.set('user@company.com');
         await spectator.component.submit();
-        expect((global as any).fetch).toHaveBeenCalledWith(
+        expect(global.fetch).toHaveBeenCalledWith(
             expect.stringContaining('user%40company.com'),
             { signal: expect.any(AbortSignal) },
         );

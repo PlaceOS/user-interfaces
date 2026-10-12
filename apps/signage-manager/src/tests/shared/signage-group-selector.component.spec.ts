@@ -4,14 +4,14 @@ import { SignageGroupSelectorComponent } from '../../app/shared/signage-group-se
 import { SignageContextService } from '../../app/signage-context.service';
 
 function group(id: string, name: string, parent_id?: string) {
-    return { group: { id, name, parent_id }, permissions: 0 } as any;
+    return { group: { id, name, parent_id }, permissions: 0 };
 }
 
 describe('SignageGroupSelectorComponent', () => {
-    const signage_groups = signal<any[]>([]);
-    const selected_group = signal<any>(null);
+    const signage_groups = signal<unknown[]>([]);
+    const selected_group = signal<unknown>(null);
     const selectGroup = vi.fn();
-    const selected_group_hierarchy = signal<any[]>([]);
+    const selected_group_hierarchy = signal<unknown[]>([]);
     const show_group_selector = signal(true);
     const service = {
         show_group_selector,

@@ -20,7 +20,7 @@ describe('ExploreLockersService', () => {
         providers: [
             MockProvider(ExploreStateService, {
                 level: signal({ id: 'lvl-1' }) as any,
-                options: signal({ is_public: false }) as any,
+                options: signal({ is_public: false }),
                 setStyles: vi.fn(),
                 setFeatures: vi.fn(),
             }),
@@ -28,9 +28,9 @@ describe('ExploreLockersService', () => {
                 active_building: signal({ id: 'bld-1' }) as any,
                 active_region: signal({ id: 'region-1' }) as any,
                 region: { id: 'region-1' } as any,
-                levelWithID: vi.fn() as any,
-                module: vi.fn(() => null) as any,
-                binding: vi.fn(() => 'sys-1') as any,
+                levelWithID: vi.fn(),
+                module: vi.fn(() => null),
+                binding: vi.fn(() => 'sys-1'),
             }),
             MockProvider(SettingsService, { get: vi.fn() }),
         ],

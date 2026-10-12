@@ -495,7 +495,11 @@ export class ControlStateService extends AsyncHandler {
     }
 
     /** Execute driver method */
-    private _execute(name: string, params: any[] = [], mod_name = 'System') {
+    private _execute(
+        name: string,
+        params: unknown[] = [],
+        mod_name = 'System',
+    ) {
         const mod = getModule(this._id(), mod_name);
         if (!mod) return;
         return mod.execute(name, params);
@@ -653,7 +657,7 @@ export class ControlStateService extends AsyncHandler {
     }
 
     /** Update properties of the system data */
-    private updateProperty(name: string, value: any) {
+    private updateProperty(name: string, value: unknown) {
         if (this._ignore_changes.includes(name)) return;
         this._system.update((item) => ({ ...item, [name]: value }));
     }

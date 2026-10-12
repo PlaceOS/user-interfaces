@@ -44,7 +44,7 @@ describe('HelpModalComponent', () => {
     });
 
     const setup = (
-        data: any = { items: ITEMS, active_id: 'b' },
+        data: unknown = { items: ITEMS, active_id: 'b' },
         theme = 'light',
     ) =>
         (spectator = createComponent({

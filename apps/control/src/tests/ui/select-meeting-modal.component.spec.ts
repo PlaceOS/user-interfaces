@@ -14,10 +14,10 @@ describe('SelectMeetingModalComponent', () => {
     let spectator: Spectator<SelectMeetingModalComponent>;
     let calendars: ReturnType<typeof signal<any[]>>;
     let events: ReturnType<typeof signal<any[]>>;
-    let calendar: ReturnType<typeof signal<any>>;
+    let calendar: ReturnType<typeof signal<unknown>>;
     let events_loading: ReturnType<typeof signal<boolean>>;
     let service: any;
-    let dialog_ref: { close: any };
+    let dialog_ref: { close: unknown };
     let dialog_open: any;
     let notify_open: any;
 
@@ -31,14 +31,14 @@ describe('SelectMeetingModalComponent', () => {
     });
 
     beforeEach(() => {
-        calendars = signal<any[]>([
+        calendars = signal<unknown[]>([
             { id: 'c1', name: 'Cal One' },
             { id: 'c2', summary: 'Cal Two' },
         ]);
-        events = signal<any[]>([
+        events = signal<unknown[]>([
             { title: 'Standup', date: Date.now(), organiser: { name: 'Ada' } },
         ]);
-        calendar = signal<any>(calendars()[0]);
+        calendar = signal<unknown>(calendars()[0]);
         events_loading = signal(false);
         service = {
             calendars,
@@ -70,7 +70,7 @@ describe('SelectMeetingModalComponent', () => {
     });
 
     afterEach(() => {
-        setNotifyOutlet(null as any, true);
+        setNotifyOutlet(null, true);
     });
 
     it('should render a button for each event', () => {

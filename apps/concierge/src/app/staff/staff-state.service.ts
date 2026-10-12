@@ -101,7 +101,7 @@ export class StaffStateService extends AsyncHandler {
                 this._org.building.display_name || this._org.building.name,
             zones: [this._org.building.id],
             booking_type: 'staff',
-        } as any);
+        });
         await checkinBooking(result.id, true);
         this._events[user.email] = result;
         this._onsite[user.email] = true;
@@ -113,7 +113,7 @@ export class StaffStateService extends AsyncHandler {
             const result = await saveBooking({
                 ...event.toJSON(),
                 booking_end: Math.floor(new Date().valueOf() / 1000),
-            } as any);
+            });
             await checkinBooking(result.id, false);
             this._events[user.email] = result;
             this._onsite[user.email] = false;

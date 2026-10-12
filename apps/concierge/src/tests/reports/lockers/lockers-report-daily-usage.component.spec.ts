@@ -13,7 +13,7 @@ import { captureDownloads } from '../download-capture.helper';
 describe('LockersReportDailyUsageComponent', () => {
     let spectator: Spectator<LockersReportDailyUsageComponent>;
     let downloads: ReturnType<typeof captureDownloads>;
-    let daily_stats: ReturnType<typeof signal<any>>;
+    let daily_stats: ReturnType<typeof signal<unknown>>;
 
     const day = new Date('2026-04-06T00:00:00').valueOf();
 
@@ -25,7 +25,7 @@ describe('LockersReportDailyUsageComponent', () => {
             MockComponent(ReportMetricGuideComponent),
         ],
         imports: [MatTooltipModule],
-        providers: [MockProvider(LockersReportService, {} as any)],
+        providers: [MockProvider(LockersReportService, {})],
     });
 
     afterEach(() => downloads.restore());

@@ -42,7 +42,7 @@ describe('ParkingRequestsListComponent', () => {
                     return timezone;
                 },
                 week_start: 1,
-            } as any),
+            }),
             MockProvider(SettingsService as any, {
                 get: vi.fn((name: string) =>
                     name === 'app.parking.show_waitlist'

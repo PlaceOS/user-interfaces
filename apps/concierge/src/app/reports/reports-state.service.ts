@@ -181,7 +181,7 @@ export class ReportsStateService extends AsyncHandler {
         defaultValue: {} as HashMap<number>,
         loader: async ({ params }) => {
             let zones = (params.zones || []).filter(
-                (z: any) => z !== -1 && z !== 'All',
+                (z: unknown) => z !== -1 && z !== 'All',
             );
             if (!zones.length) {
                 zones = this._settings.get('app.use_region')
@@ -244,7 +244,7 @@ export class ReportsStateService extends AsyncHandler {
                 const count = lockers.filter(
                     (locker) =>
                         locker.bookable !== false &&
-                        bank_ids.includes((locker as any).parent_id),
+                        bank_ids.includes(locker.parent_id),
                 ).length;
                 return [zone_id, count];
             }
@@ -256,7 +256,7 @@ export class ReportsStateService extends AsyncHandler {
                     return [zone_id, desks.length];
                 }
                 const metadata = await showMetadata(zone_id, 'desks').catch(
-                    () => ({ details: [] }) as any,
+                    () => ({ details: [] }),
                 );
                 return [zone_id, metadata.details.length];
             }

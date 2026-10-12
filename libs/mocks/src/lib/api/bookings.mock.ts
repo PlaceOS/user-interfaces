@@ -320,7 +320,7 @@ export function registerMockBookings() {
                     message: `Unable to find booking with ID ${req.route_params.id}`,
                 };
             const induction = req.query_params.induction || 'tentative';
-            (booking as any).induction = induction;
+            booking.induction = induction;
             return booking;
         },
     });

@@ -15,8 +15,10 @@ import { PanelStateService } from '../../app/panel-state.service';
 
 describe('PanelViewComponent', () => {
     let spectator: SpectatorRouting<PanelViewComponent>;
-    const settings = signal<Record<string, any>>({});
-    const setting = vi.fn<(name: string) => any>((name) => settings()[name]);
+    const settings = signal<Record<string, unknown>>({});
+    const setting = vi.fn<(name: string) => unknown>(
+        (name) => settings()[name],
+    );
     const clock = signal(Date.now());
     const offline_since = signal(0);
     let features: string[] = [];

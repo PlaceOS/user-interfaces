@@ -43,7 +43,7 @@ describe('EmergencyContactsService', () => {
         vi.mocked(ts_client.updateAssetType).mockResolvedValue({
             id: 'at1',
         } as any);
-        vi.mocked(ts_client.removeAsset).mockResolvedValue({} as any);
+        vi.mocked(ts_client.removeAsset).mockResolvedValue({});
         vi.mocked(ts_client.showMetadata).mockResolvedValue({
             details: {},
         } as any);

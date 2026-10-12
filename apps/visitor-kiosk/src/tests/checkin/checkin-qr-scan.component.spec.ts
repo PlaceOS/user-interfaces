@@ -52,7 +52,7 @@ vi.mock('qr/dom.js', () => ({
 
 describe('CheckinQRScanComponent', () => {
     let spectator: SpectatorRouting<CheckinQRScanComponent>;
-    const event = signal<any>({});
+    const event = signal<unknown>({});
     const state = {
         event,
         guest: signal({}),

@@ -239,7 +239,7 @@ export class CheckinQRScanComponent
         this.stopQRReader();
         this.checking_code.set(true);
         const chunks = raw_text.split(',');
-        let [visit_block, system_id, event_id, host_email] = chunks;
+        let [visit_block, , event_id] = chunks;
         const visit_parts = visit_block.split(':');
         const visitor_email = (
             visit_parts.length > 1

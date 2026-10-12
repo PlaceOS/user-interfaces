@@ -1,4 +1,4 @@
-import { inject, Injector, signal } from '@angular/core';
+import { inject, Injector } from '@angular/core';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { BookingFormService, generateBookingForm } from '@placeos/bookings';
@@ -10,9 +10,8 @@ import { LockerBookingModalComponent } from '../../app/lockers/locker-booking-mo
 describe('LockerBookingModalComponent', () => {
     let spectator: Spectator<LockerBookingModalComponent>;
     let settings: Record<string, unknown>;
-    let dialog_data: any;
+    let dialog_data: unknown;
     let model: BookingFormService['model'];
-    let form: BookingFormService['form'];
     const newForm = vi.fn();
     const setOptions = vi.fn();
     const postForm = vi.fn(async () => ({ id: 'lb-1' }));
@@ -27,18 +26,17 @@ describe('LockerBookingModalComponent', () => {
                 useFactory: () => {
                     const ref = generateBookingForm(undefined, inject(Injector));
                     model = ref.model;
-                    form = ref.form;
                     return {
                         model: ref.model,
                         form: ref.form,
                         newForm,
                         setOptions,
                         postForm,
-                    } as any;
+                    };
                 },
             },
-            MockProvider(MatDialogRef, { close: vi.fn() } as any),
-            MockProvider(MatDialog, { open: vi.fn() } as any),
+            MockProvider(MatDialogRef, { close: vi.fn() }),
+            MockProvider(MatDialog, { open: vi.fn() }),
             MockProvider(SettingsService, {
                 get: vi.fn((key: string) => settings[key]),
             } as any),

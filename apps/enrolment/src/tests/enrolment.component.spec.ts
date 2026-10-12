@@ -29,7 +29,7 @@ function userToken() {
     return `header.${body}.signature`;
 }
 
-function param_map(params: Record<string, string>): any {
+function param_map(params: Record<string, string>): unknown {
     return {
         has: (key: string) =>
             Object.prototype.hasOwnProperty.call(params, key),
@@ -44,8 +44,8 @@ function param_map(params: Record<string, string>): any {
 describe('EnrolmentComponent', () => {
     let spectator: Spectator<EnrolmentComponent>;
     let state: EnrolmentStateService;
-    let params: BehaviorSubject<any>;
-    let query_params: BehaviorSubject<any>;
+    let params: BehaviorSubject<unknown>;
+    let query_params: BehaviorSubject<unknown>;
     let settings_map: Record<string, any>;
     let theme: string;
 

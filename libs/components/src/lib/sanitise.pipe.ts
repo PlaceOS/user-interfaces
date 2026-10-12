@@ -23,7 +23,7 @@ export class SanitizePipe implements PipeTransform {
     private sanitizer = inject(DomSanitizer);
 
     transform(
-        value: any,
+        value: unknown,
         type: 'resource' | 'url' | 'script' | 'style' | 'html' = 'html',
     ): SafeHtml | SafeResourceUrl | SafeScript | SafeStyle {
         switch (type) {

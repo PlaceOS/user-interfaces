@@ -6,7 +6,6 @@ import { expect, test } from '@playwright/test';
  */
 
 const BOOTSTRAP_URL = '/#/bootstrap';
-const WELCOME_URL = '/#/welcome';
 const LOAD_TIMEOUT = 30000;
 const ACTION_TIMEOUT = 10000;
 

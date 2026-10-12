@@ -26,7 +26,7 @@ describe('RegionModalComponent', () => {
         ],
     });
 
-    const buildRegion = (data: any) => () =>
+    const buildRegion = (data: unknown) => () =>
         createComponent({
             providers: [MockProvider(MAT_DIALOG_DATA, data)],
         });
@@ -45,7 +45,7 @@ describe('RegionModalComponent', () => {
     });
 
     afterEach(() => {
-        setNotifyOutlet(null as any, true);
+        setNotifyOutlet(null, true);
         vi.restoreAllMocks();
     });
 

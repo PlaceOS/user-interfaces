@@ -21,8 +21,8 @@ let _locker_bank_type_id: string | null = null;
 let _locker_bank_type_id_promise: Promise<string> | null = null;
 let _locker_type_id: string | null = null;
 let _locker_type_id_promise: Promise<string> | null = null;
-let _hidden_categories_promise: Promise<any[]> | null = null;
-const _types_for_category_promises = new Map<string, Promise<any[]>>();
+let _hidden_categories_promise: Promise<unknown[]> | null = null;
+const _types_for_category_promises = new Map<string, Promise<unknown[]>>();
 
 async function query_hidden_categories() {
     if (!_hidden_categories_promise) {
@@ -57,7 +57,7 @@ async function ensure_hidden_category(name: string) {
     const created = await saveAssetCategory({
         name,
         hidden: true,
-    } as any);
+    });
     _hidden_categories_promise = null;
     return created;
 }
@@ -72,7 +72,7 @@ async function ensure_type(category_id: string, name: string) {
         name,
         brand: 'PlaceOS',
         category_id,
-    } as any);
+    });
     _types_for_category_promises.delete(category_id);
     return created;
 }

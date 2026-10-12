@@ -17,11 +17,11 @@ const day_2 = new Date('2026-04-07T09:00:00').valueOf();
 
 describe('LockersReportService', () => {
     let spectator: SpectatorService<LockersReportService>;
-    let report_bookings: ReturnType<typeof signal<any>>;
-    let report_set_options: any;
-    let report_generate: any;
+    let report_bookings: ReturnType<typeof signal<unknown>>;
+    let report_set_options: unknown;
+    let report_generate: unknown;
     let downloads: ReturnType<typeof captureDownloads>;
-    let locker_assets: any[];
+    let locker_assets: unknown[];
 
     const createService = createServiceFactory({
         service: LockersReportService,

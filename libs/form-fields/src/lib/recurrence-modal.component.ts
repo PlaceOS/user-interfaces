@@ -252,7 +252,7 @@ export class RecurrenceModalComponent extends AsyncHandler implements OnInit {
     public ngOnInit() {
         this.model.update((m) => ({
             ...m,
-            ...(this._data.value as any),
+            ...this._data.value,
             _custom: true,
         }));
         if (!this.model().type || (this.model().type as string) === 'none') {
@@ -291,7 +291,7 @@ export class RecurrenceModalComponent extends AsyncHandler implements OnInit {
     }
 
     public confirmValue(): Recurrence {
-        const value = { ...this.model() } as any as Recurrence;
+        const value = { ...this.model() } as Recurrence;
         value.end_date = value.end_date || this._defaultEndDate();
 
         if (value.end_type === 'instances' && value.end_instances) {
@@ -316,7 +316,7 @@ export class RecurrenceModalComponent extends AsyncHandler implements OnInit {
     }
 
     public maxInstances(): number {
-        const value = this.model() as any as Recurrence;
+        const value = this.model() as Recurrence;
         let max_instances = 1;
         for (let count = 1; count <= 53; count++) {
             const end_date = recurrenceEndDate(

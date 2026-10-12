@@ -30,7 +30,7 @@ const buildEvent = (overrides: any = {}) => ({
 
 describe('GroupEventsStateService', () => {
     let spectator: SpectatorService<GroupEventsStateService>;
-    const active_building = signal<any>({ id: 'bld-1' });
+    const active_building = signal<unknown>({ id: 'bld-1' });
     const settings_get = vi.fn((key: string) =>
         key === 'app.group_events_calendar' ? 'events@example.com' : undefined,
     );
@@ -50,7 +50,7 @@ describe('GroupEventsStateService', () => {
                 id: 'me',
                 email: 'me@example.com',
                 name: 'Me',
-            }) as any,
+            }),
         );
         active_building.set({ id: 'bld-1' });
         vi.mocked(ts_client.querySystemsWithEmails).mockResolvedValue({
@@ -64,7 +64,7 @@ describe('GroupEventsStateService', () => {
     });
 
     afterEach(() => {
-        setCurrentUser(null as any);
+        setCurrentUser(null);
     });
 
     it('should create service', () => {

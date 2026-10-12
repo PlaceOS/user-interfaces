@@ -13,10 +13,10 @@ import { MockProvider } from 'ng-mocks';
 
 describe('SiteAttendanceReportComponent', () => {
     let spectator: Spectator<SiteAttendanceReportComponent>;
-    let query_params: BehaviorSubject<any>;
-    let report: ReturnType<typeof signal<any>>;
+    let query_params: BehaviorSubject<unknown>;
+    let report: ReturnType<typeof signal<unknown>>;
     let loading: ReturnType<typeof signal<boolean>>;
-    let active_building: ReturnType<typeof signal<any>>;
+    let active_building: ReturnType<typeof signal<unknown>>;
 
     const createComponent = createComponentFactory({
         component: SiteAttendanceReportComponent,
@@ -29,7 +29,7 @@ describe('SiteAttendanceReportComponent', () => {
                 setOptions: vi.fn(),
                 downloadReport: vi.fn(),
                 generateReport: vi.fn(),
-            } as any),
+            }),
             MockProvider(SettingsService, {
                 theme: 'light',
                 get: vi.fn((key: string) => {

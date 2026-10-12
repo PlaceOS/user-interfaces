@@ -5,7 +5,7 @@ import { PlaylistListComponent } from '../../app/playlists/playlist-list.compone
 import { SignagePlaylistService } from '../../app/playlists/signage-playlist.service';
 
 describe('PlaylistListComponent', () => {
-    const filtered_playlists = signal<any[]>([]);
+    const filtered_playlists = signal<unknown[]>([]);
     const playlist_approval_status = signal<Record<string, boolean>>({});
     const playlist_approval_requested_status = signal<Record<string, boolean>>(
         {},
@@ -19,7 +19,7 @@ describe('PlaylistListComponent', () => {
     const playlist_stub = {
         playlist_search_term: signal(''),
         filtered_playlists,
-        selected_playlist: signal<any>(null),
+        selected_playlist: signal<unknown>(null),
         playlist_thumbnail_media: signal<Record<string, string[]>>({}),
         playlist_approval_status,
         playlist_approval_requested_status,

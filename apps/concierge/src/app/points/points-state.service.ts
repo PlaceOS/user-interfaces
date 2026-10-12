@@ -44,7 +44,7 @@ export class PointsStateService {
                 ...details.metadata,
                 id: details.metadata.id || `PA-${randomInt(999_999_999)}`,
             },
-        ] as any);
+        ]);
         ref.close();
     }
 

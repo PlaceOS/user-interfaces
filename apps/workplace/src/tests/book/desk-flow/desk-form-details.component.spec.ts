@@ -7,7 +7,7 @@ import { NewDeskFormDetailsComponent } from '../../../app/book/desk-flow/desk-fo
 
 describe('NewDeskFormDetailsComponent', () => {
     let spectator: Spectator<NewDeskFormDetailsComponent>;
-    let model: ReturnType<typeof signal<Record<string, any>>>;
+    let model: ReturnType<typeof signal<Record<string, unknown>>>;
     let settings: Record<string, any>;
     let set_options: any;
 
@@ -26,7 +26,7 @@ describe('NewDeskFormDetailsComponent', () => {
     beforeEach(() => {
         settings = {};
         set_options = vi.fn();
-        model = signal<Record<string, any>>({
+        model = signal<Record<string, unknown>>({
             id: '',
             date: Date.now(),
             duration: 60,
@@ -37,7 +37,7 @@ describe('NewDeskFormDetailsComponent', () => {
             providers: [
                 MockProvider(SettingsService, {
                     get: vi.fn((key: string) => settings[key]),
-                } as any),
+                }),
                 MockProvider(BookingFormService, {
                     options: signal({ type: 'desk', group: false }),
                     features: signal([]),
@@ -50,7 +50,7 @@ describe('NewDeskFormDetailsComponent', () => {
                 } as any),
             ],
         });
-        spectator.setInput('model_input', model as any);
+        spectator.setInput('model_input', model);
     });
 
     it('should expose the writable model from the model_input', () => {
@@ -65,7 +65,7 @@ describe('NewDeskFormDetailsComponent', () => {
     it('should merge recurrence changes into the model', () => {
         spectator.component.onRecurrenceChange({
             recurrence_type: 'weekly',
-        } as any);
+        });
         expect(model().recurrence_type).toBe('weekly');
     });
 

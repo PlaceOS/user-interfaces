@@ -16,7 +16,7 @@ describe('ControlConnectingComponent', () => {
                 system_id: signal('sys-1'),
                 changeRoom: vi.fn(),
                 canChangeRoom: vi.fn(() => can_change_room),
-            } as any),
+            }),
         ],
     });
 

@@ -13,7 +13,7 @@ import { EmergencyContactsService } from '../../app/staff/emergency-contacts.ser
 
 describe('EmergencyContactModalComponent', () => {
     let spectator: Spectator<EmergencyContactModalComponent>;
-    let dialog_ref: { close: any; disableClose: boolean };
+    let dialog_ref: { close: unknown; disableClose: boolean };
     const service = {
         roles: signal(['Fire Warden']),
         generateContactId: vi.fn(() => 'contact-generated'),
@@ -36,7 +36,7 @@ describe('EmergencyContactModalComponent', () => {
         detectChanges: false,
         providers: [
             MockProvider(MAT_DIALOG_DATA, existing_contact),
-            MockProvider(EmergencyContactsService, service as any),
+            MockProvider(EmergencyContactsService, service),
             MockProvider(OrganisationService, {
                 active_levels: signal([{ id: 'level-1', name: 'Level 1' }]),
             } as any),

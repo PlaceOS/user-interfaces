@@ -37,8 +37,8 @@ import {
     startOfMinute,
 } from 'date-fns';
 
-import { queryParkingSpacesForZones } from '@placeos/assets';
 import { OrganisationService } from '@placeos/common';
+import { queryParkingSpacesForZones } from 'libs/assets/src/lib/parking-assets.fn';
 import { BookingFormService } from 'libs/bookings/src/lib/booking-form.service';
 import {
     queryAllBookings,

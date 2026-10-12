@@ -21,8 +21,8 @@ describe('SignageDisplaysComponent', () => {
         detectChanges: false,
         providers: [
             MockProvider(SignageStateService, {
-                loading: signal(false) as any,
-                has_changed: signal(0) as any,
+                loading: signal(false),
+                has_changed: signal(0),
                 displays: signal([
                     { id: 'd1', name: 'Foyer', playlists: ['p1'], version: 2, zones: [] },
                     { id: 'd2', name: 'Cafe', playlists: [], version: 1, zones: [] },
@@ -47,7 +47,7 @@ describe('SignageDisplaysComponent', () => {
         // `spy: true` keeps real ts-client impls, which hang on live HTTP.
         (ts_client_mod.updateSystem as any).mockResolvedValue({});
         spectator = createComponent();
-        state = spectator.inject(SignageStateService) as any;
+        state = spectator.inject(SignageStateService);
     });
 
     it('should filter displays by search term', () => {

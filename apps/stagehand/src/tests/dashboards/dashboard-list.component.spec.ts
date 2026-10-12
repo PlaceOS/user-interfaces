@@ -37,7 +37,7 @@ describe('DashboardListComponent', () => {
                 { id: 'dash-1', name: 'Lobby', enabled: true },
                 { id: 'dash-2', name: 'Cafe', enabled: false },
             ]),
-            dashboard_alert_map: signal<Record<string, any[]>>({}),
+            dashboard_alert_map: signal<Record<string, unknown[]>>({}),
             loading: signal<string[]>([]),
             loadDashboards: vi.fn(),
             loadDashboardAlerts: vi.fn().mockResolvedValue(undefined),
@@ -54,7 +54,7 @@ describe('DashboardListComponent', () => {
 
     it('should feed the dashboard list into the table', () => {
         build();
-        const table = spectator.query(SimpleTableComponent) as any;
+        const table = spectator.query(SimpleTableComponent);
 
         expect(table.data).toEqual(service.dashboard_list());
     });
@@ -84,7 +84,7 @@ describe('DashboardListComponent', () => {
         build();
         const dash = { id: 'dash-2', name: 'Cafe' };
 
-        spectator.component.remove(dash as any);
+        spectator.component.remove(dash);
 
         expect(service.removeDashboard).toHaveBeenCalledWith(dash);
     });
@@ -93,7 +93,7 @@ describe('DashboardListComponent', () => {
         build();
         const alert = { id: 'alert-1', name: 'Offline' };
 
-        spectator.component.removeAlert(alert as any);
+        spectator.component.removeAlert(alert);
 
         expect(service.removeDashboardAlert).toHaveBeenCalledWith(alert);
     });

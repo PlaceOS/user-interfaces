@@ -299,8 +299,8 @@ export class LockerBookingModalComponent
                 if (!user) return;
                 this.model.update((m) => ({
                     ...m,
-                    user_name: (user as any).name,
-                    user_email: (user as any).email,
+                    user_name: user.name,
+                    user_email: user.email,
                     attendees: [user],
                 }));
             },
@@ -312,7 +312,7 @@ export class LockerBookingModalComponent
             this.model.update((m) => ({
                 ...m,
                 user:
-                    (this._data.booking?.attendees[0] as any) || currentUser(),
+                    (this._data.booking?.attendees[0]) || currentUser(),
             }));
         }
         if (this._data.parent_id) {
@@ -324,7 +324,7 @@ export class LockerBookingModalComponent
         if (this._data.user) {
             this.model.update((m) => ({
                 ...m,
-                user: this._data.user as any,
+                user: this._data.user,
                 user_email: this._data.user.email,
                 user_name: this._data.user.name,
                 attendees: [this._data.user],

@@ -86,7 +86,7 @@ export class POIManagementService {
     }
 
     public previewPointOfInterest(poi: PointOfInterest) {
-        const ref = this._dialog.open(ExplorePointOfInterestModalComponent, {
+        this._dialog.open(ExplorePointOfInterestModalComponent, {
             data: poi,
         });
     }

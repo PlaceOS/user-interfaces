@@ -102,7 +102,7 @@ describe('TimeFieldComponent', () => {
             { start: '', end: '' },
             { start: 9, end: 9 },
             {},
-        ] as any[]) {
+        ] as unknown[]) {
             spectator.setInput({ no_past_times: false, from: date, range });
             spectator.component.writeValue(date);
             spectator.detectChanges();

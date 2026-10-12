@@ -40,7 +40,7 @@ describe('DisplaySelectModalComponent', () => {
 
         expect(queryDisplays).toHaveBeenCalledWith('');
         expect(
-            fixture.componentInstance.list.items().map((_: any) => _.id),
+            fixture.componentInstance.list.items().map((_) => _.id),
         ).toEqual(['d2', 'd1']);
     });
 });

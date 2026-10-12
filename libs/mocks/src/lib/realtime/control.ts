@@ -388,7 +388,7 @@ Plug your laptop into the HDMI to stream it to the screen, or access the CMS to 
     }
 
     /** Dial a phone number */
-    $dial_phone(number: string) {
+    $dial_phone(_number: string) {
         this.offhook = true;
         return new Promise<void>((r) => setTimeout(() => r(), 1000));
     }

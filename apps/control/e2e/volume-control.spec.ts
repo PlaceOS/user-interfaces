@@ -104,7 +104,7 @@ test.describe('US-011: Mute/Unmute Audio', () => {
 
         // Get initial icon state
         const volumeIcon = muteButton.locator('icon');
-        const initialIcon = await volumeIcon.textContent();
+        await volumeIcon.textContent();
 
         // Click to toggle
         await muteButton.click();

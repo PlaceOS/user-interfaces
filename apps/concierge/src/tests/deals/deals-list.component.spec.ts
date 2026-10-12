@@ -33,7 +33,7 @@ describe('DealsListComponent', () => {
                 },
                 removeDeal: (...args: any[]) => remove_deal(...args),
                 viewDeal: (...args: any[]) => view_deal(...args),
-            } as any),
+            }),
         ],
     });
 
