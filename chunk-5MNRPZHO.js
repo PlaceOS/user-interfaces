@@ -1,6 +1,6 @@
 import {
   TranslatePipe
-} from "./chunk-ZG4U5NWK.js";
+} from "./chunk-OH5DG2YE.js";
 import {
   Aa,
   OrganisationService,
@@ -9,9 +9,8 @@ import {
   Space,
   addDays,
   predictableRandomInt,
-  toDate,
   xa
-} from "./chunk-XIZFFTX3.js";
+} from "./chunk-AC6R4MJF.js";
 import {
   CdkScrollableModule,
   DomPortalOutlet,
@@ -154,20 +153,6 @@ import {
 // node_modules/date-fns/subDays.js
 function subDays(date, amount, options) {
   return addDays(date, -amount, options);
-}
-
-// node_modules/date-fns/setHours.js
-function setHours(date, hours, options) {
-  const _date = toDate(date, options?.in);
-  _date.setHours(hours);
-  return _date;
-}
-
-// node_modules/date-fns/setMinutes.js
-function setMinutes(date, minutes, options) {
-  const date_ = toDate(date, options?.in);
-  date_.setMinutes(minutes);
-  return date_;
 }
 
 // libs/events/src/lib/space.pipe.ts
@@ -2232,8 +2217,6 @@ function generateMockSpace(overrides = {}) {
 
 export {
   subDays,
-  setHours,
-  setMinutes,
   SpacePipe,
   orderLocation,
   orderHost,
@@ -2250,5 +2233,5 @@ export {
   requestSpacesForZone,
   generateMockSpace
 };
-//# debugId=8918b3ac-9108-5ff6-b860-bb3589dee892
-//# sourceMappingURL=chunk-GMYL4HMR.js.map
+//# debugId=0eee9f83-de99-5a10-8eb2-e8cdfd99f52a
+//# sourceMappingURL=chunk-5MNRPZHO.js.map

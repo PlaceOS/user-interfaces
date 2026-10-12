@@ -1,10 +1,10 @@
 import {
   SanitizePipe
-} from "./chunk-5HJIN3NA.js";
+} from "./chunk-RG6ARIQI.js";
 import "./chunk-L7HWC5UA.js";
 import {
   TranslatePipe
-} from "./chunk-ZG4U5NWK.js";
+} from "./chunk-OH5DG2YE.js";
 import {
   AsyncHandler,
   Gp,
@@ -20,21 +20,21 @@ import {
   log,
   randomString,
   settingSignal
-} from "./chunk-XIZFFTX3.js";
-import "./chunk-YQHRR62F.js";
+} from "./chunk-AC6R4MJF.js";
 import {
   DefaultValueAccessor,
   FormsModule,
   IconComponent,
   NgControlStatus,
   NgModel
-} from "./chunk-6Y7NIYC3.js";
+} from "./chunk-5NZELXYP.js";
 import "./chunk-CLZRAEFM.js";
 import {
   MatRipple,
   MatRippleModule
 } from "./chunk-VD4LEJKP.js";
 import "./chunk-7E5CWEBW.js";
+import "./chunk-YQHRR62F.js";
 import {
   Component,
   Injectable,
@@ -106,10 +106,8 @@ var DateFromPipe = class _DateFromPipe {
       const hours = Math.floor(diff / 60);
       return direction ? `In ${hours} hour${hours === 1 ? "" : "s"}` : format(date, "H:mm");
     } else if (diff < 7 * 24 * 60) {
-      const days = Math.floor(diff / (24 * 60));
       return direction ? format(date, "dd MMM yyyy") : format(date, "E H:mm");
     } else if (diff < 365 * 24 * 60) {
-      const days = Math.floor(diff / (24 * 60));
       return direction ? format(date, "dd MMM yyyy") : format(date, "LLL d H:mm");
     }
     return "Just now";
@@ -2449,7 +2447,7 @@ var ChatService = class _ChatService extends AsyncHandler {
       let msg = event.data;
       try {
         msg = JSON.parse(event.data);
-      } catch (e) {
+      } catch {
       }
       this._onMessage(msg);
     };
@@ -3143,5 +3141,5 @@ var ChatComponent = class _ChatComponent extends AsyncHandler {
 export {
   ChatComponent
 };
-//# debugId=63b56247-19e5-5e6b-bc2d-c71aee4d39e9
-//# sourceMappingURL=chat.component-YOTUC7WN.js.map
+//# debugId=bd73632e-6e30-5cd4-a38c-f63229a739cf
+//# sourceMappingURL=chat.component-EYR6WXAA.js.map
