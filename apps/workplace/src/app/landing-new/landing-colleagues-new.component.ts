@@ -11,7 +11,7 @@ import {
     CalendarEvent,
     i18n,
     notifySuccess,
-    SettingsService,
+    settingSignal,
     User,
 } from '@placeos/common';
 import {
@@ -24,6 +24,7 @@ import { EventFormService } from '@placeos/events';
 import { LandingStateService } from '../landing/landing-state.service';
 import { TeamScheduleService } from '../team-schedule/team-schedule.service';
 import { AddColleaguesModalComponent } from './add-colleagues-modal.component';
+import { landingFeatures } from './landing-features';
 
 @Component({
     selector: 'landing-colleagues-new',
@@ -54,28 +55,34 @@ import { AddColleaguesModalComponent } from './add-colleagues-modal.component';
             </div>
             @if (selected_users().length > 0) {
                 <div class="mt-2 flex space-x-2">
-                    <button
-                        btn
-                        matRipple
-                        class="flex-1 space-x-2 text-sm"
-                        (click)="bookDeskWithSelected()"
-                    >
-                        <icon class="text-lg">desk</icon>
-                        <span>{{
-                            'APP.WORKPLACE.COLLEAGUES_BOOK_DESK' | translate
-                        }}</span>
-                    </button>
-                    <button
-                        btn
-                        matRipple
-                        class="flex-1 space-x-2 text-sm"
-                        (click)="bookMeetingWithSelected()"
-                    >
-                        <icon class="text-lg">event</icon>
-                        <span>{{
-                            'APP.WORKPLACE.COLLEAGUES_BOOK_ROOM' | translate
-                        }}</span>
-                    </button>
+                    @if (can_book_group_desk()) {
+                        <button
+                            btn
+                            matRipple
+                            name="book-desk-selected"
+                            class="flex-1 space-x-2 text-sm"
+                            (click)="bookDeskWithSelected()"
+                        >
+                            <icon class="text-lg">desk</icon>
+                            <span>{{
+                                'APP.WORKPLACE.COLLEAGUES_BOOK_DESK' | translate
+                            }}</span>
+                        </button>
+                    }
+                    @if (features().includes('spaces')) {
+                        <button
+                            btn
+                            matRipple
+                            name="book-room-selected"
+                            class="flex-1 space-x-2 text-sm"
+                            (click)="bookMeetingWithSelected()"
+                        >
+                            <icon class="text-lg">event</icon>
+                            <span>{{
+                                'APP.WORKPLACE.COLLEAGUES_BOOK_ROOM' | translate
+                            }}</span>
+                        </button>
+                    }
                 </div>
             }
             @if (contact_list?.length) {
@@ -108,20 +115,24 @@ import { AddColleaguesModalComponent } from './add-colleagues-modal.component';
                                 <icon>more_vert</icon>
                             </button>
                             <mat-menu #menu="matMenu">
-                                <button
-                                    mat-menu-item
-                                    (click)="bookMeeting(user)"
-                                >
-                                    <div class="flex items-center space-x-2">
-                                        <icon class="text-2xl">event</icon>
-                                        <div>
-                                            {{
-                                                'APP.WORKPLACE.COLLEAGUES_BOOK_MEETING'
-                                                    | translate
-                                            }}
+                                @if (features().includes('spaces')) {
+                                    <button
+                                        mat-menu-item
+                                        (click)="bookMeeting(user)"
+                                    >
+                                        <div
+                                            class="flex items-center space-x-2"
+                                        >
+                                            <icon class="text-2xl">event</icon>
+                                            <div>
+                                                {{
+                                                    'APP.WORKPLACE.COLLEAGUES_BOOK_MEETING'
+                                                        | translate
+                                                }}
+                                            </div>
                                         </div>
-                                    </div>
-                                </button>
+                                    </button>
+                                }
                                 @if (has_team_schedule()) {
                                     <button
                                         mat-menu-item
@@ -230,28 +241,34 @@ export class LandingColleaguesNewComponent {
     private _event_form = inject(EventFormService);
     private _booking_form = inject(BookingFormService);
     private _router = inject(Router);
-    private _settings = inject(SettingsService);
     private _team_schedule = inject(TeamScheduleService);
 
     public readonly contacts = this._state.contacts;
-    public readonly features = this._settings.signal<string[]>('features', []);
+    public readonly features = landingFeatures();
     public readonly has_team_schedule = computed(() =>
         this.features().includes('team-schedule'),
     );
     public readonly selected_users = signal<User[]>([]);
+    private readonly _allow_desk_groups = settingSignal<boolean>(
+        'desks.allow_groups',
+        false,
+    );
+    /** A desk booking for the selected colleagues is a group booking */
+    public readonly can_book_group_desk = computed(
+        () => this.features().includes('desks') && this._allow_desk_groups(),
+    );
 
     public openAddColleaguesModal() {
+        // The modal saves through the landing state, which updates `contacts`
         const dialog_ref = this._dialog.open(AddColleaguesModalComponent, {
             maxWidth: '100vw',
             maxHeight: '100vh',
             panelClass: 'panel',
             data: {},
         });
-
-        dialog_ref.afterClosed().subscribe((result) => {
-            if (result) {
-                // Colleagues were added, the state service will update automatically
-            }
+        // The team schedule loads the colleagues one time
+        dialog_ref.afterClosed().subscribe((added) => {
+            if (added) this._team_schedule.refresh();
         });
     }
 
@@ -324,6 +341,7 @@ export class LandingColleaguesNewComponent {
         if (resp.reason !== 'done') return;
         resp.loading(i18n('APP.WORKPLACE.COLLEAGUES_REMOVE_LOADING'));
         await this._state.removeContact(user);
+        this._team_schedule.refresh();
         // Remove from selection if selected
         if (this.isSelected(user)) {
             this.selected_users.set(

@@ -8,6 +8,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import {
     AsyncHandler,
+    i18n,
     notifyError,
     notifySuccess,
     User,
@@ -313,15 +314,13 @@ export class AddColleaguesModalComponent
             await this._state.addContacts(this.selected_users());
             const count = this.selected_users().length;
             notifySuccess(
-                count === 1
-                    ? 'Colleague added successfully'
-                    : `${count} colleagues added successfully`,
+                i18n('APP.WORKPLACE.COLLEAGUES_ADD_SUCCESS', { count }, count),
             );
 
             this._dialog_ref?.close(true);
         } catch (error) {
             console.error('Error adding colleagues:', error);
-            notifyError('Failed to add colleagues. Please try again.');
+            notifyError(i18n('APP.WORKPLACE.COLLEAGUES_ADD_ERROR'));
         } finally {
             this.loading.set(false);
         }

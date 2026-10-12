@@ -72,6 +72,14 @@ describe('DeskFlowAutoAssignComponent', () => {
         expect(component_instance.show_close.set).toHaveBeenCalledWith(true);
     });
 
+    it('should not open the modal when the form has an error', () => {
+        spectator.setInput('error', 'Select a person');
+
+        spectator.component.autoAssignDesk();
+
+        expect(dialog_open).not.toHaveBeenCalled();
+    });
+
     it('should pass the current date and duration to the modal when set', () => {
         model.set({ date: 1234, duration: 90 });
 

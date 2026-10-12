@@ -1,3 +1,4 @@
+import { ComponentType } from '@angular/cdk/portal';
 import { CommonModule } from '@angular/common';
 import {
     Component,
@@ -8,6 +9,7 @@ import {
     input,
     OnInit,
     signal,
+    untracked,
     viewChild,
 } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
@@ -41,6 +43,8 @@ import {
 import {
     bookedForLabel,
     isBookingForOtherUser,
+    itemEnd,
+    overlapsDay,
     ScheduleStateService,
 } from './schedule-state.service';
 
@@ -71,8 +75,8 @@ interface PositionedBooking {
                     <div
                         class="border-base-300 bg-base-100 text-base-content rounded-md border px-2 py-1 text-sm"
                     >
-                        {{ bookings()?.length || 0 }} booking{{
-                            bookings()?.length !== 1 ? 's' : ''
+                        {{ dayBookings().length }} booking{{
+                            dayBookings().length !== 1 ? 's' : ''
                         }}
                     </div>
                 </div>
@@ -333,11 +337,14 @@ export class ScheduleDayViewComponent extends AsyncHandler implements OnInit {
 
     constructor() {
         super();
-        // Auto-scroll to current time when viewing today
+        // Scroll to the current time one time for each date change. The
+        // marker position changes every 10 seconds, so it is not tracked here:
+        // the view must not move after the user scrolls.
         effect(() => {
-            const position = this.currentTimePosition();
+            this.date();
             const marker = this.currentTimeMarker()?.nativeElement;
             const container = this.scrollContainer()?.nativeElement;
+            const position = untracked(() => this.currentTimePosition());
 
             if (position !== null && marker && container) {
                 // Wait a tick for the view to render
@@ -406,8 +413,8 @@ export class ScheduleDayViewComponent extends AsyncHandler implements OnInit {
 
     public readonly dayBookings = computed(() => {
         const targetDate = this.date();
-        return this.bookings().filter((booking) =>
-            isSameDay(booking.date, targetDate),
+        return (this.bookings() || []).filter((booking) =>
+            overlapsDay(booking, targetDate),
         );
     });
 
@@ -486,7 +493,7 @@ export class ScheduleDayViewComponent extends AsyncHandler implements OnInit {
         a: Booking | CalendarEvent,
         b: Booking | CalendarEvent,
     ): boolean {
-        return a.date < b.date_end && a.date_end > b.date;
+        return a.date < itemEnd(b) && itemEnd(a) > b.date;
     }
 
     private calculatePosition(
@@ -506,7 +513,7 @@ export class ScheduleDayViewComponent extends AsyncHandler implements OnInit {
 
         // Clamp booking times to visible range
         const bookingStart = Math.max(booking.date, dayStart);
-        const bookingEnd = Math.min(booking.date_end, dayEnd);
+        const bookingEnd = Math.min(itemEnd(booking), dayEnd);
 
         const startOffset = (bookingStart - dayStart) / (1000 * 60);
         const duration = (bookingEnd - bookingStart) / (1000 * 60);
@@ -614,7 +621,7 @@ export class ScheduleDayViewComponent extends AsyncHandler implements OnInit {
                 });
             }
         } else {
-            const view_component: any =
+            const view_component: ComponentType<unknown> =
                 bkn.booking_type === 'group-event'
                     ? GroupEventDetailsModalComponent
                     : BookingDetailsModalComponent;

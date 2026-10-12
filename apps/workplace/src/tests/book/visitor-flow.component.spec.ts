@@ -1,4 +1,4 @@
-import { Injector, WritableSignal } from '@angular/core';
+import { Injector, signal, WritableSignal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -30,6 +30,9 @@ describe('VisitorFlowNewComponent', () => {
     let dialog_open: any;
     let dialog_close: any;
     let new_form: any;
+    let options: WritableSignal<any>;
+    let post_form: any;
+    let post_group: any;
 
     const createComponent = createRoutingFactory({
         component: VisitorFlowNewComponent,
@@ -57,12 +60,17 @@ describe('VisitorFlowNewComponent', () => {
                         phone: '',
                         assets: [],
                     }));
+                    options = signal({ type: 'visitor' });
                     return {
                         form,
                         model,
+                        options,
                         view: () => 'details',
                         booking: null,
                         last_count: 0,
+                        postForm: (...args: any[]) => post_form(...args),
+                        postFormForVisitorGroup: (...args: any[]) =>
+                            post_group(...args),
                         setOptions: vi.fn(),
                         setView: vi.fn(),
                         newForm: (...args: any[]) => new_form(...args),
@@ -101,6 +109,8 @@ describe('VisitorFlowNewComponent', () => {
     beforeEach(() => {
         save_user_setting = vi.fn();
         clear_form = vi.fn();
+        post_form = vi.fn(() => Promise.resolve());
+        post_group = vi.fn(() => Promise.resolve());
         dialog_close = vi.fn();
         dialog_open = vi.fn(() => ({
             componentInstance: { event: of({ reason: 'done' }) },
@@ -177,8 +187,67 @@ describe('VisitorFlowNewComponent', () => {
         (spectator.component as any)._saveRecentVisitors(false);
 
         expect(save_user_setting).toHaveBeenCalledWith('visitor-invitees', [
-            'visitor.one@example.com|Visitor One|Acme|+61400111222',
+            'visitor.one@example.com|Visitor One|Acme|0|+61400111222',
         ]);
+    });
+
+    describe('confirmBooking', () => {
+        const visit_time = () => ({
+            booking_type: 'visitor' as const,
+            date: Date.now() + 60 * 60 * 1000,
+            duration: 60,
+        });
+
+        it('should save an invite for a single visitor', async () => {
+            model.update((m) => ({
+                ...m,
+                ...visit_time(),
+                asset_id: 'visitor.one@example.com',
+                asset_name: 'Visitor One',
+            }));
+
+            await spectator.component.confirmBooking();
+
+            expect(post_form).toHaveBeenCalled();
+            expect(post_group).not.toHaveBeenCalled();
+            expect(model().attendees.map((_) => _.email)).toEqual([
+                'visitor.one@example.com',
+            ]);
+        });
+
+        it('should not save a multiple visitor invite that has no visitors', async () => {
+            options.set({ type: 'visitor', group: true });
+            model.update((m) => ({
+                ...m,
+                ...visit_time(),
+                asset_id: 'multiple@place.tech',
+                assets: [],
+            }));
+
+            await spectator.component.confirmBooking();
+
+            expect(post_form).not.toHaveBeenCalled();
+            expect(post_group).not.toHaveBeenCalled();
+            expect(save_user_setting).not.toHaveBeenCalled();
+        });
+
+        it('should save a group invite for multiple visitors', async () => {
+            options.set({ type: 'visitor', group: true });
+            model.update((m) => ({
+                ...m,
+                ...visit_time(),
+                asset_id: 'multiple@place.tech',
+                assets: [
+                    { email: 'visitor.one@example.com', name: 'Visitor One' },
+                    { email: 'visitor.two@example.com', name: 'Visitor Two' },
+                ],
+            }));
+
+            await spectator.component.confirmBooking();
+
+            expect(post_group).toHaveBeenCalled();
+            expect(post_form).not.toHaveBeenCalled();
+        });
     });
 
     it('should allow navigation without prompting when the edit form has no unsaved changes', async () => {

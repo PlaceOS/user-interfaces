@@ -25,8 +25,10 @@ import {
     currentUser,
     filterResourcesFromRules,
     HashMap,
+    i18n,
     OrganisationService,
     SettingsService,
+    Space,
     StaffUser,
     unique,
     User,
@@ -56,26 +58,35 @@ export class LandingStateService extends AsyncHandler {
     private _level_occupancy = signal<BuildingLevel[]>([]);
     private _occupancy_binding: PlaceVariableBinding;
     private _booking_rules = signal<BookingRuleset[]>([]);
-    private _space_list = signal<any[]>([]);
+    private _space_list = signal<Space[]>([]);
     private _space_statuses = signal<unknown[]>([]);
     private _search_results = signal<StaffUser[]>([]);
+    // `any` stays here: explore.component.ts reads event and booking fields
+    // from this list with no type guard.
     private _upcoming_events = signal<any[]>([]);
 
-    private _filtered_spaces = computed(() =>
-        filterResourcesFromRules(
-            this._space_list(),
-            {
-                date: Date.now(),
-                duration: 60,
-                host: currentUser(),
-                resource: null,
-            },
-            this._booking_rules(),
-        ),
+    private _filtered_spaces = computed(
+        () =>
+            filterResourcesFromRules(
+                this._space_list(),
+                {
+                    date: Date.now(),
+                    duration: 60,
+                    host: currentUser(),
+                    resource: null,
+                },
+                this._booking_rules(),
+            ) as Space[],
     );
 
+    /** Bookable spaces of the active building */
+    public readonly space_list = this._space_list.asReadonly();
+    /**
+     * Spaces that the user can book and that have a live status of free.
+     * The statuses have the same order as the filtered spaces.
+     */
     public readonly free_space_list = computed(() =>
-        (this._space_list() || [])
+        this._filtered_spaces()
             .filter((_, idx) => this._space_statuses()[idx] === 'free')
             .sort((a, b) => a.capacity - b.capacity),
     );
@@ -137,7 +148,9 @@ export class LandingStateService extends AsyncHandler {
         effect((onCleanup) => {
             const { search } = this._options();
             const timeout = setTimeout(async () => {
-                this._loading.set('Loading users...');
+                this._loading.set(
+                    i18n('APP.WORKPLACE.COLLEAGUE_SEARCH_LOADING'),
+                );
                 const results = search
                     ? await this.search_fn(search).catch(() => [])
                     : [];

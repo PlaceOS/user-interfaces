@@ -24,14 +24,21 @@ import {
     SettingsToggleComponent,
     TranslatePipe,
 } from '@placeos/components';
-import { EventFormService, SpacesService } from '@placeos/events';
+import {
+    EventFormFilters,
+    EventFormService,
+    multipleSpacesEnabled,
+    SpacesService,
+} from '@placeos/events';
 import {
     DateFieldComponent,
     DurationFieldComponent,
     TimeFieldComponent,
 } from '@placeos/form-fields';
+import { addDays, endOfDay } from 'date-fns';
 import { MeetingFlowSpaceListComponent } from './meeting-flow-space-list.component';
 import { MeetingFlowSpaceMapComponent } from './meeting-flow-space-map.component';
+import { ROOM_CAPACITY_OPTIONS, roomCapacityFilters } from './room-capacity';
 
 @Component({
     selector: 'meeting-flow-space-select',
@@ -88,7 +95,7 @@ import { MeetingFlowSpaceMapComponent } from './meeting-flow-space-map.component
                                     (ngModelChange)="setRegion($event)"
                                     [ngModelOptions]="{ standalone: true }"
                                     [placeholder]="
-                                        'CALENDAR_EVENT.SPACE_REGION_ANY'
+                                        'COMMON.REGION_ANY'
                                             | translate
                                     "
                                 >
@@ -171,9 +178,7 @@ import { MeetingFlowSpaceMapComponent } from './meeting-flow-space-map.component
                             <mat-select
                                 name="capacity"
                                 [ngModel]="filters()?.capacity ?? -1"
-                                (ngModelChange)="
-                                    setFilters({ capacity: $event })
-                                "
+                                (ngModelChange)="setCapacity($event)"
                                 [ngModelOptions]="{ standalone: true }"
                             >
                                 @for (opt of capacity_options; track opt.value) {
@@ -184,7 +189,7 @@ import { MeetingFlowSpaceMapComponent } from './meeting-flow-space-map.component
                             </mat-select>
                         </mat-form-field>
                         <label for="date">{{ 'FORM.DATE' | translate }}</label>
-                        <date-field [formField]="form.date" />
+                        <date-field [formField]="form.date" [to]="end_date()" />
                         @if (allow_all_day()) {
                             <settings-toggle
                                 class="mb-2"
@@ -207,21 +212,56 @@ import { MeetingFlowSpaceMapComponent } from './meeting-flow-space-map.component
                                     "
                                     [ngModelOptions]="{ standalone: true }"
                                     [disabled]="form.date().disabled()"
+                                    [range]="bookable_hours()"
                                     [use_24hr]="use_24hr()"
                                     [timezone]="timezone"
                                 />
-                                <duration-field
-                                    class="w-1/3 flex-1"
-                                    [formField]="form.duration"
-                                    [time]="field('date')"
-                                    [max]="max_duration()"
-                                    [min]="min_duration()"
-                                    [step]="duration_step()"
-                                    [custom_options]="custom_duration_options()"
-                                    [use_24hr]="use_24hr()"
-                                    [timezone]="timezone"
-                                />
+                                @if (!allow_multiday()) {
+                                    <duration-field
+                                        class="w-1/3 flex-1"
+                                        [formField]="form.duration"
+                                        [time]="field('date')"
+                                        [max]="max_duration()"
+                                        [min]="min_duration()"
+                                        [step]="duration_step()"
+                                        [custom_options]="
+                                            custom_duration_options()
+                                        "
+                                        [end_time]="bookable_hours()?.end"
+                                        [use_24hr]="use_24hr()"
+                                        [timezone]="timezone"
+                                    />
+                                }
                             </div>
+                        }
+                        @if (allow_multiday()) {
+                            <label for="date-end">{{
+                                'FORM.DATE_END' | translate
+                            }}</label>
+                            <date-field
+                                [formField]="form.date_end"
+                                [from]="field('date')"
+                                [to]="end_date()"
+                            />
+                            @if (!field('all_day')) {
+                                <label for="end-time">{{
+                                    'FORM.TIME_END' | translate
+                                }}</label>
+                                <time-field
+                                    [ngModel]="field('date_end')"
+                                    (ngModelChange)="
+                                        model.update((m) => ({
+                                            ...m,
+                                            date_end: $event,
+                                        }))
+                                    "
+                                    [ngModelOptions]="{ standalone: true }"
+                                    [from]="field('date')"
+                                    [range]="bookable_hours()"
+                                    [use_24hr]="use_24hr()"
+                                    [timezone]="timezone"
+                                />
+                            }
                         }
                         @if (view() === 'list') {
                             <settings-toggle
@@ -413,7 +453,7 @@ import { MeetingFlowSpaceMapComponent } from './meeting-flow-space-map.component
                                 (ngModelChange)="setRegion($event)"
                                 [ngModelOptions]="{ standalone: true }"
                                 [placeholder]="
-                                    'CALENDAR_EVENT.SPACE_REGION_ANY'
+                                    'COMMON.REGION_ANY'
                                         | translate
                                 "
                             >
@@ -489,7 +529,7 @@ import { MeetingFlowSpaceMapComponent } from './meeting-flow-space-map.component
                         <mat-select
                             name="capacity-mobile"
                             [ngModel]="filters()?.capacity ?? -1"
-                            (ngModelChange)="setFilters({ capacity: $event })"
+                            (ngModelChange)="setCapacity($event)"
                             [ngModelOptions]="{ standalone: true }"
                         >
                             @for (opt of capacity_options; track opt.value) {
@@ -500,7 +540,7 @@ import { MeetingFlowSpaceMapComponent } from './meeting-flow-space-map.component
                         </mat-select>
                     </mat-form-field>
                     <label for="date">{{ 'FORM.DATE' | translate }}</label>
-                    <date-field [formField]="form.date" />
+                    <date-field [formField]="form.date" [to]="end_date()" />
                     @if (allow_all_day()) {
                         <settings-toggle
                             class="mb-2"
@@ -519,21 +559,54 @@ import { MeetingFlowSpaceMapComponent } from './meeting-flow-space-map.component
                                 "
                                 [ngModelOptions]="{ standalone: true }"
                                 [disabled]="form.date().disabled()"
+                                [range]="bookable_hours()"
                                 [use_24hr]="use_24hr()"
                                 [timezone]="timezone"
                             />
-                            <duration-field
-                                class="w-1/3 flex-1"
-                                [formField]="form.duration"
-                                [time]="field('date')"
-                                [max]="max_duration()"
-                                [min]="min_duration()"
-                                [step]="duration_step()"
-                                [custom_options]="custom_duration_options()"
-                                [use_24hr]="use_24hr()"
-                                [timezone]="timezone"
-                            />
+                            @if (!allow_multiday()) {
+                                <duration-field
+                                    class="w-1/3 flex-1"
+                                    [formField]="form.duration"
+                                    [time]="field('date')"
+                                    [max]="max_duration()"
+                                    [min]="min_duration()"
+                                    [step]="duration_step()"
+                                    [custom_options]="custom_duration_options()"
+                                    [end_time]="bookable_hours()?.end"
+                                    [use_24hr]="use_24hr()"
+                                    [timezone]="timezone"
+                                />
+                            }
                         </div>
+                    }
+                    @if (allow_multiday()) {
+                        <label for="date-end">{{
+                            'FORM.DATE_END' | translate
+                        }}</label>
+                        <date-field
+                            [formField]="form.date_end"
+                            [from]="field('date')"
+                            [to]="end_date()"
+                        />
+                        @if (!field('all_day')) {
+                            <label for="end-time">{{
+                                'FORM.TIME_END' | translate
+                            }}</label>
+                            <time-field
+                                [ngModel]="field('date_end')"
+                                (ngModelChange)="
+                                    model.update((m) => ({
+                                        ...m,
+                                        date_end: $event,
+                                    }))
+                                "
+                                [ngModelOptions]="{ standalone: true }"
+                                [from]="field('date')"
+                                [range]="bookable_hours()"
+                                [use_24hr]="use_24hr()"
+                                [timezone]="timezone"
+                            />
+                        }
                     }
                     @if (view() === 'list') {
                         <settings-toggle
@@ -686,13 +759,27 @@ export class MeetingFlowSpaceSelectComponent {
     public readonly view = signal<'map' | 'list'>('list');
     public readonly filters_open = signal(false);
 
-    public readonly capacity_options = [
-        { value: -1, label: 'COMMON.CAPACITY_ANY' },
-        { value: 1, label: 'CALENDAR_EVENT.ROOM_SIZE_1_2' },
-        { value: 3, label: 'CALENDAR_EVENT.ROOM_SIZE_3_4' },
-        { value: 5, label: 'CALENDAR_EVENT.ROOM_SIZE_5_8' },
-        { value: 9, label: 'CALENDAR_EVENT.ROOM_SIZE_9_PLUS' },
-    ];
+    /** Number of days ahead that the user can book a meeting */
+    public readonly allowed_future_days = settingSignal(
+        'events.allowed_future_days',
+        180,
+    );
+    public readonly end_date = computed(() =>
+        endOfDay(addDays(Date.now(), this.allowed_future_days())).valueOf(),
+    );
+    public readonly bookable_hours = settingSignal<
+        { start: number; end: number } | undefined
+    >('events.bookable_hours', undefined);
+    private readonly _allow_multiday = settingSignal(
+        'events.allow_multiday',
+        false,
+    );
+    /** Whether to show an end date and end time in place of the duration */
+    public readonly allow_multiday = computed(
+        () => this._allow_multiday() || this._event_form.is_multiday,
+    );
+
+    public readonly capacity_options = ROOM_CAPACITY_OPTIONS;
 
     public get form() {
         return this._event_form.form;
@@ -726,7 +813,10 @@ export class MeetingFlowSpaceSelectComponent {
     public readonly setBuilding = (bld) => (this._org.building = bld);
     public readonly setRegion = (region) => (this._org.region = region);
     public readonly setOptions = (o) => this._event_form.setOptions(o);
-    public readonly setFilters = (f) => this._event_form.setFilters(f);
+    public readonly setFilters = (f: Partial<EventFormFilters>) =>
+        this._event_form.setFilters(f);
+    public readonly setCapacity = (capacity: number) =>
+        this._event_form.setFilters(roomCapacityFilters(capacity));
     public readonly loading = this._event_form.loading;
 
     public readonly room_alerts = this._event_form.room_alerts;
@@ -827,7 +917,7 @@ export class MeetingFlowSpaceSelectComponent {
 
     public toggleSpace(space: Space) {
         const resources = this.field('resources') || [];
-        if (this._settings.get('app.events.allow_multiple_spaces')) {
+        if (multipleSpacesEnabled(this._settings)) {
             const new_resources = resources.find(({ id }) => id === space.id)
                 ? resources.filter(({ id }) => id !== space.id)
                 : [...resources, space];

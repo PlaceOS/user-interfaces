@@ -398,7 +398,9 @@ export class VisitorFlowDetailsComponent implements OnInit {
         const value = this.model();
 
         if (form === 'single') {
-            const [visitor] = (value.assets || []) as User[];
+            const [visitor] = (value.assets || []) as (User & {
+                company?: string;
+            })[];
             const use_selected_visitor =
                 !!visitor?.email &&
                 (!value.asset_id || value.asset_id === 'multiple@place.tech');
@@ -415,7 +417,7 @@ export class VisitorFlowDetailsComponent implements OnInit {
                     ? visitor.name || visitor.email
                     : value.asset_name || '',
                 company: use_selected_visitor
-                    ? (visitor as any).company || visitor.organisation || ''
+                    ? visitor.company || visitor.organisation || ''
                     : value.company || '',
                 phone: use_selected_visitor
                     ? visitor.phone || value.phone || ''
@@ -456,7 +458,7 @@ export class VisitorFlowDetailsComponent implements OnInit {
         // Saving merges the active building's zones into the booking, so the
         // active building has to move too or the booking keeps the old one.
         if (building && building.id !== this._org.building?.id) {
-            this._org.building = building as any;
+            this._org.building = building;
         }
         const zones = [
             this._org.organisation?.id,

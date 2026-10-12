@@ -210,6 +210,41 @@ describe('LandingStateService', () => {
         expect(spectator.service.upcoming_events()).toEqual([]);
     });
 
+    it('should list the free spaces that the booking rules allow', async () => {
+        // The live statuses have the order of the allowed spaces
+        vi.mocked(ts_client.querySystems).mockResolvedValue({
+            data: [
+                { id: 'space-hidden', bookable: true, zones: ['lvl-a'] },
+                { id: 'space-free', bookable: true, zones: ['lvl-b'] },
+                { id: 'space-busy', bookable: true, zones: ['lvl-b'] },
+            ],
+        } as any);
+        vi.mocked(ts_client.showMetadata).mockResolvedValue({
+            details: [{ zone: 'lvl-a', rules: { hidden: true } }],
+        } as any);
+        vi.mocked(ts_client.getModule).mockImplementation(
+            (id: string) =>
+                ({
+                    variable: () => ({
+                        bindThenSubscribe: (
+                            callback: (status: string) => void,
+                        ) => {
+                            callback(id === 'space-free' ? 'free' : 'busy');
+                            return vi.fn();
+                        },
+                    }),
+                }) as any,
+        );
+
+        active_building.set({ id: 'bld-rules' });
+        spectator = createService();
+        await flush();
+
+        expect(
+            spectator.service.free_space_list().map((space) => space.id),
+        ).toEqual(['space-free']);
+    });
+
     it('should not rebind space status when a status value is received', async () => {
         const bindThenSubscribe = vi.fn((callback) => {
             callback('free');

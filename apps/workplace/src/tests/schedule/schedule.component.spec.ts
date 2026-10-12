@@ -65,6 +65,17 @@ describe('ScheduleComponent', () => {
         spectator = createComponent();
     });
 
+    it('should reset the shared period and range end when destroyed', () => {
+        const state = spectator.inject(ScheduleStateService);
+        vi.mocked(state.setOptions).mockClear();
+        vi.mocked(state.setEndDate).mockClear();
+
+        spectator.fixture.destroy();
+
+        expect(state.setOptions).toHaveBeenCalledWith({ period: 'day' });
+        expect(state.setEndDate).toHaveBeenCalledWith(null);
+    });
+
     it.each(['day', 'week'] as const)(
         'removes cancelled parking from the %s calendar after refresh and retains list history',
         async (view) => {

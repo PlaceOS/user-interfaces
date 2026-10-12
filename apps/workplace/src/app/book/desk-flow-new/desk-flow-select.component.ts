@@ -95,8 +95,7 @@ import { DeskFlowSelectMapComponent } from './desk-flow-select-map.component';
                                     (ngModelChange)="setRegion($event)"
                                     [ngModelOptions]="{ standalone: true }"
                                     [placeholder]="
-                                        'CALENDAR_EVENT.SPACE_REGION_ANY'
-                                            | translate
+                                        'COMMON.REGION_ANY' | translate
                                     "
                                 >
                                     @for (reg of regions(); track reg) {
@@ -193,6 +192,7 @@ import { DeskFlowSelectMapComponent } from './desk-flow-select-map.component';
                                         }))
                                     "
                                     [ngModelOptions]="{ standalone: true }"
+                                    [range]="bookable_hours()"
                                     [use_24hr]="use_24hr()"
                                     [timezone]="timezone"
                                 />
@@ -204,6 +204,7 @@ import { DeskFlowSelectMapComponent } from './desk-flow-select-map.component';
                                     [min]="min_duration()"
                                     [custom_options]="custom_duration_options()"
                                     [step]="duration_step()"
+                                    [end_time]="bookable_hours()?.end"
                                     [use_24hr]="use_24hr()"
                                     [timezone]="timezone"
                                 />
@@ -384,10 +385,7 @@ import { DeskFlowSelectMapComponent } from './desk-flow-select-map.component';
                                 [ngModel]="region()"
                                 (ngModelChange)="setRegion($event)"
                                 [ngModelOptions]="{ standalone: true }"
-                                [placeholder]="
-                                    'CALENDAR_EVENT.SPACE_REGION_ANY'
-                                        | translate
-                                "
+                                [placeholder]="'COMMON.REGION_ANY' | translate"
                             >
                                 @for (reg of regions(); track reg) {
                                     <mat-option [value]="reg">
@@ -471,6 +469,7 @@ import { DeskFlowSelectMapComponent } from './desk-flow-select-map.component';
                                     }))
                                 "
                                 [ngModelOptions]="{ standalone: true }"
+                                [range]="bookable_hours()"
                                 [use_24hr]="use_24hr()"
                                 [timezone]="timezone"
                             />
@@ -482,6 +481,7 @@ import { DeskFlowSelectMapComponent } from './desk-flow-select-map.component';
                                 [max]="max_duration()"
                                 [step]="duration_step()"
                                 [custom_options]="custom_duration_options()"
+                                [end_time]="bookable_hours()?.end"
                                 [use_24hr]="use_24hr()"
                                 [timezone]="timezone"
                             />
@@ -619,6 +619,14 @@ export class DeskFlowSelectComponent extends AsyncHandler implements OnInit {
         () =>
             settingSignal('desks.custom_duration_options')() ||
             settingSignal('bookings.custom_duration_options', [] as number[])(),
+    );
+    public readonly bookable_hours = computed<
+        { start: number; end: number } | undefined
+    >(
+        () =>
+            settingSignal('desks.bookable_hours')() ||
+            settingSignal('bookings.bookable_hours')() ||
+            undefined,
     );
     public readonly feature_display = settingSignal<Record<string, string>>(
         'desks.feature_decriptions',
@@ -785,7 +793,7 @@ export class DeskFlowSelectComponent extends AsyncHandler implements OnInit {
     /** Create an effect and return a teardown compatible with subscription() */
     private _effect(fn: () => void) {
         const ref = effect(fn, { injector: this._injector });
-        return { unsubscribe: () => ref.destroy() } as any;
+        return () => ref.destroy();
     }
 
     public field(name: string) {

@@ -61,14 +61,17 @@ import { addDays, isSameDay, subDays } from 'date-fns';
                                 [start]="date()?.valueOf()"
                                 [end]="end_date()?.valueOf()"
                                 [offset_weekday]="offset_weekday"
+                                [max_range_days]="31"
                                 (startChange)="setStartDate($event)"
                                 (endChange)="end_date.set($event)"
                             ></date-range-calendar>
                             <div
                                 class="bg-info text-info-content rounded p-2 text-center text-xs"
                             >
-                                Pick a date range selecting the start then end
-                                date.
+                                {{
+                                    'APP.WORKPLACE.SCHEDULE_RANGE_HINT'
+                                        | translate
+                                }}
                             </div>
                         </div>
                     </mat-menu>

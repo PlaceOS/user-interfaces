@@ -7,10 +7,12 @@ import {
 import {
     CalendarEvent,
     OrganisationService,
+    settingSignal,
     SettingsService,
 } from '@placeos/common';
 import { EventFormService } from '@placeos/events';
 import { MeetingFlowDetailsComponent } from 'apps/workplace/src/app/book/meeting-flow-new/meeting-flow-details.component';
+import { addDays, endOfDay } from 'date-fns';
 import {
     EventFormValue,
     generateEventForm,
@@ -96,5 +98,43 @@ describe('MeetingFlowDetailsComponent', () => {
     it('should keep the start time enabled for editable meetings', () => {
         spectator = createComponent();
         expect(spectator.component.start_time_disabled()).toBe(false);
+    });
+
+    it('should filter rooms with the minimum and the maximum of the selected size', () => {
+        spectator = createComponent();
+        const { setFilters } = spectator.inject(EventFormService);
+
+        spectator.component.setCapacity(1);
+        expect(setFilters).toHaveBeenLastCalledWith({
+            capacity: 1,
+            capacity_max: 2,
+        });
+
+        spectator.component.setCapacity(3);
+        expect(setFilters).toHaveBeenLastCalledWith({
+            capacity: 3,
+            capacity_max: 4,
+        });
+
+        spectator.component.setCapacity(9);
+        expect(setFilters).toHaveBeenLastCalledWith({
+            capacity: 9,
+            capacity_max: undefined,
+        });
+
+        spectator.component.setCapacity(-1);
+        expect(setFilters).toHaveBeenLastCalledWith({
+            capacity: -1,
+            capacity_max: undefined,
+        });
+    });
+
+    it('should limit the date to the allowed future days setting', () => {
+        spectator = createComponent();
+        settingSignal('events.allowed_future_days').set(30);
+
+        expect(spectator.component.end_date()).toBe(
+            endOfDay(addDays(Date.now(), 30)).valueOf(),
+        );
     });
 });

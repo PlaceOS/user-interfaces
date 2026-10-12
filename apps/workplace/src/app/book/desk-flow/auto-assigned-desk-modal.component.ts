@@ -14,6 +14,7 @@ import { Router } from '@angular/router';
 import {
     BookingAsset,
     BookingFormService,
+    BookingFormValue,
     findNearbyFeature,
 } from '@placeos/bookings';
 import {
@@ -245,13 +246,26 @@ export class AutoAssignedDeskModalComponent
     public zoom = 1.5;
     public center = signal({ x: 0.5, y: 0.5 });
 
+    /** Shared form value on open. Restored if the modal closes with no booking */
+    private _initial_form: BookingFormValue | null = null;
+    private _booked = false;
+
     public async ngOnInit() {
         await this.initializeAndAutoAssign();
+    }
+
+    public override ngOnDestroy() {
+        super.ngOnDestroy();
+        // The search needs the date and all-day values in the shared form.
+        // Put the form back when the user did not confirm a booking.
+        if (this._booked || !this._initial_form) return;
+        this._state.model.set(this._initial_form);
     }
 
     private async initializeAndAutoAssign() {
         try {
             this.loading.set('available');
+            this._initial_form = this._state.model();
 
             // Initialize booking state for desk
             this._state.setOptions({ type: 'desk' });
@@ -391,12 +405,7 @@ export class AutoAssignedDeskModalComponent
                 assigned_desk = level_with_most_desks[1][0];
             }
 
-            this._state.model.update((m) => ({
-                ...m,
-                asset_id: assigned_desk.id,
-                resources: [assigned_desk],
-            }));
-
+            // The desk goes into the shared form only on confirm()
             this.assigned_desk.set(assigned_desk);
 
             this.loading.set('');
@@ -454,8 +463,6 @@ export class AutoAssignedDeskModalComponent
         const assigned = this.assigned_desk();
         if (!assigned) return [];
 
-        console.log('Assigned:', assigned);
-
         return [
             {
                 location: assigned.map_id,
@@ -484,6 +491,7 @@ export class AutoAssignedDeskModalComponent
             } else {
                 await this._state.postForm();
             }
+            this._booked = true;
             await this._router.navigate(['/book', 'desk', 'success']);
             this._dialog_ref?.close(true);
         } catch (e) {

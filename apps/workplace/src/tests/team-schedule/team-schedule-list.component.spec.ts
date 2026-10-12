@@ -2,6 +2,7 @@ import { signal } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { MockProvider } from 'ng-mocks';
+import { Subject } from 'rxjs';
 import { TeamMember } from '../../app/team-schedule/common';
 import { TeamScheduleListComponent } from '../../app/team-schedule/team-schedule-list.component';
 import { TeamScheduleService } from '../../app/team-schedule/team-schedule.service';
@@ -36,7 +37,12 @@ describe('TeamScheduleListComponent', () => {
         level_id: { set: vi.fn() },
         duration: { set: vi.fn() },
     };
-    const dialog_open = vi.fn(() => ({ componentInstance: component_instance }));
+    let closed: Subject<boolean>;
+    const refresh = vi.fn();
+    const dialog_open = vi.fn(() => ({
+        componentInstance: component_instance,
+        afterClosed: () => closed,
+    }));
 
     const createComponent = createComponentFactory({
         component: TeamScheduleListComponent,
@@ -49,6 +55,7 @@ describe('TeamScheduleListComponent', () => {
                 total_members: signal(0),
                 select_mode: signal(false),
                 loading: signal(false),
+                refresh,
                 setFilters: set_filters,
                 toggleMemberSelection: toggle_selection,
                 isMemberSelected: is_selected,
@@ -62,6 +69,7 @@ describe('TeamScheduleListComponent', () => {
 
     beforeEach(() => {
         vi.clearAllMocks();
+        closed = new Subject<boolean>();
         active_day_index.set(1);
         spectator = createComponent();
     });
@@ -131,5 +139,14 @@ describe('TeamScheduleListComponent', () => {
     it('should open the add colleagues modal', () => {
         spectator.component.openAddColleaguesModal();
         expect(dialog_open).toHaveBeenCalled();
+    });
+
+    it('should reload the colleagues only when the modal added some', () => {
+        spectator.component.openAddColleaguesModal();
+        closed.next(false);
+        expect(refresh).not.toHaveBeenCalled();
+
+        closed.next(true);
+        expect(refresh).toHaveBeenCalledTimes(1);
     });
 });

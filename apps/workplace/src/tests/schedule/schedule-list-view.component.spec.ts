@@ -125,6 +125,27 @@ describe('ScheduleListViewComponent', () => {
         expect(blocks[1].bookings[0].id).toBe('c');
     });
 
+    it('should list a multi-day booking on each day of the range that it covers', () => {
+        const multi = new Booking({
+            id: 'multi',
+            booking_type: 'parking',
+            date: addDays(day_one, -1).valueOf(),
+            duration: 3 * 24 * 60,
+            all_day: true,
+        });
+        spectator.setInput('bookings', [multi]);
+        // Single day: the booking started on the day before
+        expect(spectator.component.booking_dates().map((_) => _.date)).toEqual([
+            day_one,
+        ]);
+
+        spectator.setInput('end_date', addDays(day_one, 3).valueOf());
+        expect(spectator.component.booking_dates().map((_) => _.date)).toEqual([
+            day_one,
+            addDays(day_one, 1).valueOf(),
+        ]);
+    });
+
     it('should exclude bookings outside the date range', () => {
         const day_two = addDays(day_one, 1).valueOf();
         spectator.setInput('end_date', day_two);

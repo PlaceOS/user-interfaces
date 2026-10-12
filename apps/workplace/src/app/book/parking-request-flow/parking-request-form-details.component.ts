@@ -59,14 +59,6 @@ import {
 import { SettingsToggleComponent } from 'libs/components/src/lib/settings-toggle.component';
 import { FullscreenEmbedComponent } from '../../components/fullscreen-embed.component';
 
-const SHIFT_PRESETS: Record<string, { start: number; end: number }> = {
-    day_worker: { start: 420, end: 1020 },
-    day_shift_12hr: { start: 330, end: 1110 },
-    night_shift_12hr: { start: 1050, end: 390 },
-    half_day_am: { start: 420, end: 720 },
-    half_day_pm: { start: 750, end: 1020 },
-};
-
 interface ParkingRequestShiftOption {
     id: string;
     name: string;
@@ -130,38 +122,8 @@ const ALL_DAY_START_MINS = 0;
 const ALL_DAY_END_MINS = 1440;
 const DEFAULT_DAY_DURATION_MINS = 540;
 
-const DEFAULT_SHIFT_OPTIONS: ParkingRequestShiftOption[] = [
-    {
-        id: 'day_worker',
-        name: 'BOOKINGS.PARKING_SHIFT_DAY_WORKER',
-        start_time: SHIFT_PRESETS.day_worker.start,
-        end_time: SHIFT_PRESETS.day_worker.end,
-    },
-    {
-        id: 'day_shift_12hr',
-        name: 'BOOKINGS.PARKING_SHIFT_DAY_12HR',
-        start_time: SHIFT_PRESETS.day_shift_12hr.start,
-        end_time: SHIFT_PRESETS.day_shift_12hr.end,
-    },
-    {
-        id: 'night_shift_12hr',
-        name: 'BOOKINGS.PARKING_SHIFT_NIGHT_12HR',
-        start_time: SHIFT_PRESETS.night_shift_12hr.start,
-        end_time: SHIFT_PRESETS.night_shift_12hr.end,
-    },
-    {
-        id: 'half_day_am',
-        name: 'BOOKINGS.PARKING_SHIFT_HALF_DAY_AM',
-        start_time: SHIFT_PRESETS.half_day_am.start,
-        end_time: SHIFT_PRESETS.half_day_am.end,
-    },
-    {
-        id: 'half_day_pm',
-        name: 'BOOKINGS.PARKING_SHIFT_HALF_DAY_PM',
-        start_time: SHIFT_PRESETS.half_day_pm.start,
-        end_time: SHIFT_PRESETS.half_day_pm.end,
-    },
-];
+/** Shift presets come only from the `parking.request_shift_options` setting */
+const DEFAULT_SHIFT_OPTIONS: ParkingRequestShiftOption[] = [];
 
 const DEFAULT_VEHICLE_TYPE_OPTIONS: VehicleTypeOption[] = [
     { id: 'car', name: 'BOOKINGS.PARKING_VEHICLE_CAR' },
@@ -512,7 +474,7 @@ const DEFAULT_VEHICLE_TYPE_OPTIONS: VehicleTypeOption[] = [
                 @if (
                     model().request_type === 'special' && show_special_needs()
                 ) {
-                    <!-- P2 SPECIAL NEEDS DETAILS -->
+                    <!-- SPECIAL NEEDS DETAILS -->
                     <div
                         class="gradient border-base-content text-warning flex items-center space-x-2 border-l-8 px-4 py-3 font-medium"
                     >
@@ -533,7 +495,7 @@ const DEFAULT_VEHICLE_TYPE_OPTIONS: VehicleTypeOption[] = [
                             </label>
                             <textarea
                                 matInput
-                                formControlName="notes"
+                                [formField]="form().notes"
                                 rows="6"
                                 class="border-base-content w-full rounded-lg border p-4 text-base"
                                 [placeholder]="
@@ -1441,7 +1403,7 @@ export class ParkingRequestFormDetailsComponent
     public readonly form = input<BookingForm>(undefined);
     public readonly model_input =
         input<WritableSignal<BookingFormValue>>(undefined);
-    public readonly show_special_needs = input<boolean>(true);
+    public readonly show_special_needs = input<boolean>(false);
 
     /** Writable signal holding the raw booking form value */
     public get model() {

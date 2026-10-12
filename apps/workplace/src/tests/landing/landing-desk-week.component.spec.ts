@@ -210,6 +210,18 @@ describe('LandingDeskWeekComponent', () => {
         expect(schedule.remove).toHaveBeenCalledWith(booking, 'reason');
     });
 
+    it('should keep the week in view after the delete prompt closes', async () => {
+        // `remove` also resolves when the user cancels the prompt
+        const date = addDays(Date.now(), 21).valueOf();
+        spectator.component.selected_date.set(date);
+        spectator.component.viewBooking(new Booking({ id: 'b1' }));
+
+        const { remove_fn } = dialog.open.mock.calls[0][1].data;
+        await remove_fn(new Booking({ id: 'b1' }));
+
+        expect(spectator.component.selected_date()).toBe(date);
+    });
+
     it('should navigate and prepare a new desk form when booking', () => {
         vi.useFakeTimers();
         const date = Date.now();

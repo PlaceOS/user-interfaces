@@ -1,5 +1,12 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import {
+    Component,
+    computed,
+    inject,
+    OnDestroy,
+    OnInit,
+    signal,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -20,6 +27,8 @@ import {
 } from './schedule-state.service';
 import { ScheduleTopbarComponent } from './schedule-topbar.component';
 import { ScheduleWeekViewComponent } from './schedule-week-view.component';
+
+type ScheduleView = 'day' | 'week' | 'list';
 
 @Component({
     selector: 'app-schedule',
@@ -113,7 +122,10 @@ import { ScheduleWeekViewComponent } from './schedule-week-view.component';
         ScheduleDayViewComponent,
     ],
 })
-export class ScheduleComponent extends AsyncHandler implements OnInit {
+export class ScheduleComponent
+    extends AsyncHandler
+    implements OnInit, OnDestroy
+{
     private _state = inject(ScheduleStateService);
     private _route = inject(ActivatedRoute);
 
@@ -127,11 +139,12 @@ export class ScheduleComponent extends AsyncHandler implements OnInit {
     );
     public readonly loading = this._state.loading;
 
-    public readonly view = signal<'day' | 'week' | 'list'>('day');
+    public readonly view = signal<ScheduleView>('day');
     public readonly date = this._state.date;
     public readonly end_date = this._state.end_date;
-    public readonly setDate = (d) => this._state.setDate(d);
-    public readonly setEndDate = (d) => this._state.setEndDate(d);
+    public readonly setDate = (d: number) => this._state.setDate(d);
+    public readonly setEndDate = (d: number | null) =>
+        this._state.setEndDate(d);
 
     public get period() {
         return this._state.getOptions().period;
@@ -149,7 +162,7 @@ export class ScheduleComponent extends AsyncHandler implements OnInit {
             'route.query',
             this._route.queryParamMap.subscribe((params) => {
                 if (params.has('view')) {
-                    this.view.set(params.get('view') as any);
+                    this.view.set(params.get('view') as ScheduleView);
                     if (this.view() === 'week') {
                         this.setOptions({ period: 'week' });
                     } else if (this.view() === 'list') {
@@ -160,6 +173,14 @@ export class ScheduleComponent extends AsyncHandler implements OnInit {
                 }
             }),
         );
+    }
+
+    public ngOnDestroy() {
+        super.ngOnDestroy();
+        // The state service is shared with the landing page. Do not leave
+        // the list view range or the week period active for it.
+        this._state.setOptions({ period: 'day' });
+        this._state.setEndDate(null);
     }
 
     public setOptions(options: ScheduleOptions) {

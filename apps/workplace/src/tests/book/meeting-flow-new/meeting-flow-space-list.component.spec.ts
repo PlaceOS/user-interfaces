@@ -108,6 +108,19 @@ describe('MeetingFlowSpaceListComponent', () => {
         expect(spectator.component.active_range()).toEqual([21, 25]);
     });
 
+    it('should show the last page when the room list gets shorter than the selected page', () => {
+        available_spaces.set(makeSpaces(35));
+        spectator.component.page.set(2);
+        spectator.detectChanges();
+        expect(spectator.queryAll('li[space]').length).toBe(10);
+
+        available_spaces.set(makeSpaces(4));
+        spectator.detectChanges();
+
+        expect(spectator.queryAll('li[space]').length).toBe(4);
+        expect(spectator.component.active_range()).toEqual([1, 4]);
+    });
+
     it('should only render a page worth of spaces', () => {
         available_spaces.set(makeSpaces(25));
         spectator.detectChanges();

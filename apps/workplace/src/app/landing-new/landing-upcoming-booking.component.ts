@@ -1,9 +1,11 @@
+import { ComponentType } from '@angular/cdk/portal';
 import { CommonModule } from '@angular/common';
 import {
     Component,
     computed,
     effect,
     inject,
+    Signal,
     signal,
     untracked,
 } from '@angular/core';
@@ -15,11 +17,12 @@ import { Router, RouterLink } from '@angular/router';
 import {
     BookingDetailsModalComponent,
     canEditBooking,
-    checkinBooking,
+    setBookingCheckedIn,
 } from '@placeos/bookings';
 import {
     AsyncHandler,
     Booking,
+    BuildingLevel,
     CalendarEvent,
     currentUser,
     i18n,
@@ -45,6 +48,16 @@ import { timer } from 'rxjs';
 import { debounce, distinctUntilChanged } from 'rxjs/operators';
 import { LandingStateService } from '../landing/landing-state.service';
 import { ScheduleStateService } from '../schedule/schedule-state.service';
+import { landingFeatures } from './landing-features';
+
+/** Item that the map locate modal shows */
+interface MapLocateTarget {
+    id: string;
+    name: string;
+    map_id: string;
+    zones: readonly string[];
+    level: BuildingLevel;
+}
 
 @Component({
     selector: 'landing-upcoming-booking',
@@ -87,7 +100,13 @@ import { ScheduleStateService } from '../schedule/schedule-state.service';
                             class="flex w-48 items-center space-x-2 px-2 text-center"
                         >
                             <icon>schedule</icon>
-                            <div>Ends in {{ minutesUntilEnd() }} minutes</div>
+                            <div>
+                                {{
+                                    'APP.WORKPLACE.UPCOMING_ENDS_IN'
+                                        | translate
+                                            : { minutes: minutesUntilEnd() }
+                                }}
+                            </div>
                         </div>
                     } @else if (minutesUntilStart() >= 0) {
                         <div
@@ -95,7 +114,11 @@ import { ScheduleStateService } from '../schedule/schedule-state.service';
                         >
                             <icon>timelapse</icon>
                             <div>
-                                Starts in {{ minutesUntilStart() }} minutes
+                                {{
+                                    'APP.WORKPLACE.UPCOMING_STARTS_IN'
+                                        | translate
+                                            : { minutes: minutesUntilStart() }
+                                }}
                             </div>
                         </div>
                     }
@@ -120,7 +143,12 @@ import { ScheduleStateService } from '../schedule/schedule-state.service';
                         @if (attendeeCount(); as count) {
                             <div class="flex items-center space-x-2">
                                 <icon class="text-xl">people</icon>
-                                <div>{{ count }} attendees</div>
+                                <div>
+                                    {{
+                                        'CALENDAR_EVENT.ATTENDEES_COUNT'
+                                            | translate: { count }: count
+                                    }}
+                                </div>
                             </div>
                         }
                     </div>
@@ -155,7 +183,8 @@ import { ScheduleStateService } from '../schedule/schedule-state.service';
                             <button
                                 btn
                                 matRiple
-                                matTooltip="Edit Booking"
+                                name="edit-booking"
+                                [matTooltip]="'BOOKINGS.ACTION_EDIT' | translate"
                                 matTooltipPosition="left"
                                 [disabled]="!canEdit()"
                                 class="white inverse h-12 px-0"
@@ -180,12 +209,16 @@ import { ScheduleStateService } from '../schedule/schedule-state.service';
                                 (click)="viewDetails()"
                             >
                                 <icon class="text-2xl">info</icon>
-                                <div class="pr-2">View Details</div>
+                                <div class="pr-2">
+                                    {{ 'COMMON.VIEW_DETAILS' | translate }}
+                                </div>
                             </button>
                             <button
                                 btn
                                 matRiple
-                                matTooltip="Delete Booking"
+                                [matTooltip]="
+                                    'BOOKINGS.ACTION_DELETE' | translate
+                                "
                                 matTooltipPosition="left"
                                 [disabled]="deleteDisabled()"
                                 class="white inverse h-12 w-12 px-0"
@@ -219,30 +252,48 @@ import { ScheduleStateService } from '../schedule/schedule-state.service';
                     <div
                         class="bg-brand-content absolute inset-0 opacity-20"
                     ></div>
-                    <div class="capitalize">No Upcoming Bookings</div>
+                    <div class="capitalize">
+                        {{ 'APP.WORKPLACE.UPCOMING_NONE' | translate }}
+                    </div>
                 </div>
-                <h2 class="text-3xl font-medium">Your schedule is clear</h2>
+                <h2 class="text-3xl font-medium">
+                    {{ 'APP.WORKPLACE.UPCOMING_CLEAR_TITLE' | translate }}
+                </h2>
                 <p class="text-base opacity-90">
-                    Ready to plan your day? Book a space or find a colleague.
+                    {{ 'APP.WORKPLACE.UPCOMING_CLEAR_MSG' | translate }}
                 </p>
                 <div class="flex w-full flex-wrap gap-3 pt-2">
                     <div class="flex w-full flex-wrap gap-3 sm:w-auto">
-                        <a
-                            btn
-                            matRipple
-                            class="white min-w-48 flex-1 space-x-2 sm:w-48 sm:flex-0"
-                            [routerLink]="['/book', 'meeting']"
-                        >
-                            <div>Book a Space</div>
-                        </a>
-                        <a
-                            btn
-                            matRipple
-                            class="inverse white min-w-48 flex-1 space-x-2 sm:w-48 sm:flex-0"
-                            [routerLink]="['/book', 'desk']"
-                        >
-                            <div>Find Desk</div>
-                        </a>
+                        @if (features().includes('spaces')) {
+                            <a
+                                btn
+                                matRipple
+                                class="white min-w-48 flex-1 space-x-2 sm:w-48 sm:flex-0"
+                                [routerLink]="['/book', 'meeting']"
+                            >
+                                <div>
+                                    {{
+                                        'APP.WORKPLACE.QUICK_LINK_ROOMS'
+                                            | translate
+                                    }}
+                                </div>
+                            </a>
+                        }
+                        @if (features().includes('desks')) {
+                            <a
+                                btn
+                                matRipple
+                                class="inverse white min-w-48 flex-1 space-x-2 sm:w-48 sm:flex-0"
+                                [routerLink]="['/book', 'desk']"
+                            >
+                                <div>
+                                    {{
+                                        'APP.WORKPLACE.QUICK_LINK_DESKS'
+                                            | translate
+                                    }}
+                                </div>
+                            </a>
+                        }
                     </div>
                     <div class="hidden w-px flex-1 sm:block"></div>
                     <a
@@ -292,7 +343,9 @@ export class LandingUpcomingBookingComponent extends AsyncHandler {
     private _router = inject(Router);
     private _space_pipe = new SpacePipe(this._org);
 
-    public readonly upcomingEvents = this._state.upcoming_events;
+    public readonly features = landingFeatures();
+    public readonly upcomingEvents: Signal<(Booking | CalendarEvent)[]> =
+        this._state.upcoming_events;
     public readonly room_status = signal('');
     public readonly room_booking_start = signal(0);
     public readonly room_system_id = signal('');
@@ -301,10 +354,12 @@ export class LandingUpcomingBookingComponent extends AsyncHandler {
         initialValue: 0,
     });
 
-    public readonly edit_fn = (i) => this._schedule.edit(i);
-    public readonly edit_booking_fn = (i) => this._schedule.editBooking(i);
-    public readonly remove_fn = (i, s?) => this._schedule.remove(i, s);
-    public readonly end_fn = (i) => this._schedule.end(i);
+    public readonly edit_fn = (i: CalendarEvent) => this._schedule.edit(i);
+    public readonly edit_booking_fn = (i: Booking) =>
+        this._schedule.editBooking(i);
+    public readonly remove_fn = (i: Booking | CalendarEvent, s?: boolean) =>
+        this._schedule.remove(i, s);
+    public readonly end_fn = (i: Booking) => this._schedule.end(i);
 
     public readonly nextEvent = computed(() => {
         const events = this.upcomingEvents();
@@ -366,9 +421,14 @@ export class LandingUpcomingBookingComponent extends AsyncHandler {
         const event = this.nextEvent();
         if (!event) return '';
         if (event instanceof Booking) {
-            return event.title || event.description || event.asset_name || 'Booking';
+            return (
+                event.title ||
+                event.description ||
+                event.asset_name ||
+                i18n('RESOURCE.BOOKING')
+            );
         }
-        return event.title || 'Event';
+        return event.title || i18n('RESOURCE.EVENT');
     });
 
     public readonly eventLocation = computed(() => {
@@ -386,7 +446,7 @@ export class LandingUpcomingBookingComponent extends AsyncHandler {
         const start = format(event.date, 'h:mm a');
         const end = format(event.date + event.duration * 60 * 1000, 'h:mm a');
         const day = isSameDay(event.date, Date.now())
-            ? 'Today'
+            ? i18n('COMMON.TODAY')
             : format(event.date, 'MMM d');
         return `${start} - ${end} · ${day}`;
     });
@@ -424,9 +484,12 @@ export class LandingUpcomingBookingComponent extends AsyncHandler {
         }
         const user_email = currentUser()?.email?.toLowerCase();
         if (!user_email) return false;
-        const checked_in = (event.extension_data as any)?.checked_in || [];
-        return checked_in.some(
-            (email: string) => `${email}`.toLowerCase() === user_email,
+        // `checked_in` is not in the EventExtensionData type
+        const { checked_in } = event.extension_data as {
+            checked_in?: string[];
+        };
+        return (checked_in || []).some(
+            (email) => `${email}`.toLowerCase() === user_email,
         );
     });
 
@@ -457,9 +520,7 @@ export class LandingUpcomingBookingComponent extends AsyncHandler {
                 });
                 return;
             }
-            const event_key = (event as any).instance
-                ? `${event.id}|${(event as any).instance}`
-                : event.id;
+            const event_key = event.id;
             untracked(() => {
                 const same_event = this._room_event_key() === event_key;
                 this._room_event_key.set(event_key);
@@ -490,7 +551,8 @@ export class LandingUpcomingBookingComponent extends AsyncHandler {
 
         try {
             if (event instanceof Booking) {
-                await checkinBooking(event.id, true);
+                // Checks in one occurrence when the booking is recurring
+                await setBookingCheckedIn(event, true);
             } else if (event.extension_data?.shared_event) {
                 const user_email = currentUser()?.email;
                 if (!user_email) throw new Error('Missing current user email');
@@ -506,10 +568,10 @@ export class LandingUpcomingBookingComponent extends AsyncHandler {
                 if (!mod) throw new Error('Missing bookings module');
                 await mod.execute('checkin', [Math.floor(event.date / 1000)]);
             }
-            notifySuccess('Successfully checked in');
+            notifySuccess(i18n('BOOKINGS.CHECK_IN_SUCCESS'));
             this._state.refreshUpcomingEvents();
         } catch (error) {
-            notifyError('Failed to check in');
+            notifyError(i18n('BOOKINGS.CHECK_IN_ERROR'));
         }
     }
 
@@ -519,7 +581,7 @@ export class LandingUpcomingBookingComponent extends AsyncHandler {
             if (!event) return;
 
             if (event instanceof Booking) {
-                const view_component: any =
+                const view_component: ComponentType<unknown> =
                     event.booking_type === 'group-event'
                         ? GroupEventDetailsModalComponent
                         : BookingDetailsModalComponent;
@@ -575,7 +637,7 @@ export class LandingUpcomingBookingComponent extends AsyncHandler {
         const event = this.nextEvent();
         if (!event) return;
 
-        let itemData: any;
+        let itemData: MapLocateTarget | undefined;
         let zones: readonly string[] = [];
 
         if (event instanceof Booking) {

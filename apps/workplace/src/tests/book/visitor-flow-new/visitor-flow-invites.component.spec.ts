@@ -130,7 +130,7 @@ describe('VisitorFlowInvitesComponent', () => {
         spectator.component.setVisitor({
             email: 'Carol@Place.Tech',
             name: 'Carol',
-            organisation: 'Initech',
+            company: 'Initech',
             phone: '+61400111111',
         });
         expect(model().asset_id).toBe('carol@place.tech');
@@ -143,11 +143,11 @@ describe('VisitorFlowInvitesComponent', () => {
         spectator.component.setVisitor({
             email: 'carol@place.tech',
             name: 'Carol',
-            organisation: 'Initech',
+            company: 'Initech',
             phone: '+61400111111',
         });
         expect(save_user_setting).toHaveBeenCalledWith('visitor-invitees', [
-            'carol@place.tech|Carol|Initech|+61400111111',
+            'carol@place.tech|Carol|Initech|0|+61400111111',
         ]);
     });
 

@@ -95,6 +95,31 @@ export function bookedForLabel(item: Booking | CalendarEvent) {
     );
 }
 
+/**
+ * End time of the item, from its start and duration.
+ * `date_end` is not used: for an all-day item of two or more days, the
+ * Booking and CalendarEvent classes set it to the end of the first day.
+ */
+export function itemEnd(item: Booking | CalendarEvent) {
+    return item.date + item.duration * 60 * 1000;
+}
+
+/** Whether the item is in progress at some time on the day of `date` */
+export function overlapsDay(item: Booking | CalendarEvent, date: number) {
+    // An item with no length still counts on its start day
+    const item_end = Math.max(itemEnd(item), item.date + 1);
+    return (
+        item.date <= endOfDay(date).valueOf() &&
+        item_end > startOfDay(date).valueOf()
+    );
+}
+
+/** Key for the locally deleted list. Only bookings have recurrence instances */
+function deletedKey(item: Booking | CalendarEvent) {
+    const instance = item instanceof Booking ? item.instance : undefined;
+    return instance ? `${item.id}|${instance}` : item.id;
+}
+
 function deduplicateEventsByIcalUid(
     events_by_source: CalendarEvent[][],
 ): CalendarEvent[] {
@@ -140,7 +165,7 @@ export class ScheduleStateService extends AsyncHandler {
             'locker',
             'group-event',
         ],
-        show_bookings_for_others: false,
+        show_bookings_for_others: true,
     });
     private _date = signal(Date.now());
     private _end_date = signal<number | null>(null);
@@ -176,8 +201,16 @@ export class ScheduleStateService extends AsyncHandler {
     public readonly filters = this._filters.asReadonly();
     /** Currently selected date (start date for range) */
     public readonly date = this._date.asReadonly();
-    /** End date for range selection (list view only) */
-    public readonly end_date = this._end_date.asReadonly();
+    /**
+     * End date for range selection (list view only).
+     * Null when it is not set or when it is before the selected date. This
+     * service is shared, so a range end can stay set after the date changes.
+     */
+    public readonly end_date = computed(() => {
+        const end = this._end_date();
+        if (end === null) return null;
+        return end >= startOfDay(this._date()).valueOf() ? end : null;
+    });
     public readonly loading = this._loading.asReadonly();
     public readonly event_sources = this._event_sources.asReadonly();
 
@@ -186,7 +219,7 @@ export class ScheduleStateService extends AsyncHandler {
         if (!this._requests_ready()) return undefined;
         return {
             date: this._date(),
-            end_date: this._end_date(),
+            end_date: this.end_date(),
             period: this._options().period,
         };
     });
@@ -321,15 +354,7 @@ export class ScheduleStateService extends AsyncHandler {
     public readonly filtered_bookings = computed(() =>
         this.bookings().filter((_) => {
             const filters = this._filters();
-            if (
-                this._deleted.includes(
-                    (_ as any).instance
-                        ? `${_.id}|${(_ as any).instance}`
-                        : _.id,
-                )
-            ) {
-                return false;
-            }
+            if (this._deleted.includes(deletedKey(_))) return false;
             if (
                 this.isBookingForOtherUser(_) &&
                 !filters?.show_bookings_for_others
@@ -475,11 +500,9 @@ export class ScheduleStateService extends AsyncHandler {
         this._end_date.set(end);
     }
 
-    public removeItem(item) {
+    public removeItem(item: Booking | CalendarEvent) {
         this._startNetwork();
-        this.setAsDeleted(
-            item.instance ? `${item.id}|${item.instance}` : item.id,
-        );
+        this.setAsDeleted(deletedKey(item));
         this._poll.set(Date.now());
     }
 
@@ -923,7 +946,6 @@ export class ScheduleStateService extends AsyncHandler {
     ///////////////////////////////////////////////////////////////
 
     public async edit(event: CalendarEvent) {
-        console.log('Edit Event:', event);
         this._router.navigate(['/book', 'meeting', 'form']);
         if (event.creator !== event.mailbox) {
             event =
@@ -976,10 +998,9 @@ export class ScheduleStateService extends AsyncHandler {
     }
 
     public editBooking(event: Booking) {
-        console.log('Edit Booking:', event.type);
         const booking_type = `${event.booking_type || ''}`.trim() || event.type;
         this._router.navigate(['/book', `${event.type}`]);
-        this._booking_form.newForm(booking_type as any, event);
+        this._booking_form.newForm(booking_type as BookingType, event);
         if (booking_type === 'visitor') return;
         setTimeout(() => {
             this._booking_form.model.update((m) => ({
@@ -1043,24 +1064,20 @@ export class ScheduleStateService extends AsyncHandler {
                     : 'APP.WORKPLACE.SCHEDULE_REMOVE_LOADING',
             ),
         );
-        await (
-            item instanceof CalendarEvent && !item.from_bookings
-                ? removeEvent
-                : removeBooking
-        )(
-            remove_series
-                ? (item as any).recurring_event_id || item.id
-                : item.id,
-            {
-                calendar: this._settings.get('app.events.use_bookings')
-                    ? null
-                    : (item as CalendarEvent).calendar || currentUser()?.email,
-                system_id: (item as CalendarEvent).system?.id,
-                instance: remove_series ? undefined : !!(item as any).instance,
-                start_time: (item as any).instance
-                    ? (item as any).instance
-                    : undefined,
-            } as any,
+        const event = item instanceof CalendarEvent ? item : undefined;
+        const instance = item instanceof Booking ? item.instance : undefined;
+        // `instance` and `start_time` select one occurrence of a booking
+        const options = {
+            calendar: this._settings.get('app.events.use_bookings')
+                ? null
+                : event?.calendar || currentUser()?.email,
+            system_id: event?.system?.id,
+            instance: remove_series ? undefined : !!instance,
+            start_time: instance || undefined,
+        };
+        await (event && !event.from_bookings ? removeEvent : removeBooking)(
+            remove_series ? event?.recurring_event_id || item.id : item.id,
+            options,
         ).catch(async (e) => {
             notifyError(
                 i18n(

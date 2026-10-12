@@ -195,11 +195,8 @@ export class LandingUpcomingComponent
 
         if (resp.reason !== 'done') return;
         resp.loading(i18n('APP.WORKPLACE.SCHEDULE_REMOVE_LOADING'));
-        const remove_result = (
-            item instanceof CalendarEvent && !item.from_bookings
-                ? removeEvent
-                : removeBooking
-        )(item.id, {
+        // `instance` and `start_time` are only read for bookings
+        const options = {
             calendar: this._settings.get('app.events.use_bookings')
                 ? null
                 : currentUser()?.email,
@@ -208,7 +205,12 @@ export class LandingUpcomingComponent
             start_time: (item as any).instance
                 ? (item as any).booking_start
                 : undefined,
-        }) as any;
+        };
+        const remove_result = (
+            item instanceof CalendarEvent && !item.from_bookings
+                ? removeEvent
+                : removeBooking
+        )(item.id, options) as any;
         await (
             remove_result?.then instanceof Function
                 ? remove_result

@@ -90,13 +90,14 @@ import {
                     [start]="date()?.valueOf()"
                     [end]="end_date()?.valueOf()"
                     [offset_weekday]="offset_weekday"
+                    [max_range_days]="31"
                     (startChange)="setStartDate($event)"
                     (endChange)="setEndDate($event)"
                 ></date-range-calendar>
                 <div
                     class="bg-info text-info-content m-2 w-[calc(100%-1rem)] rounded p-1 text-center text-xs"
                 >
-                    Pick a date range selecting the start then end date.
+                    {{ 'APP.WORKPLACE.SCHEDULE_RANGE_HINT' | translate }}
                 </div>
             }
             <h3 class="mx-4 mt-4 pb-2 font-medium uppercase">

@@ -1,7 +1,8 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, input } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { BookingFormService } from '@placeos/bookings';
+import { notifyError } from '@placeos/common';
 import { IconComponent } from '@placeos/components';
 import { AutoAssignedDeskModalComponent } from '../desk-flow/auto-assigned-desk-modal.component';
 
@@ -77,7 +78,11 @@ export class DeskFlowAutoAssignComponent {
         return this._booking_form.model;
     }
 
+    /** Error to show in place of the modal, when the form is not ready */
+    public readonly error = input('');
+
     public readonly autoAssignDesk = () => {
+        if (this.error()) return notifyError(this.error());
         // Get current form values for date and duration
         const { date, duration } = this.model();
 

@@ -89,22 +89,12 @@ describe('AddColleaguesModalComponent', () => {
         await spectator.component.confirm();
         expect(state.addContacts).toHaveBeenCalledWith([user_a]);
         expect(snackbar.open).toHaveBeenCalledWith(
-            'Colleague added successfully',
+            'APP.WORKPLACE.COLLEAGUES_ADD_SUCCESS',
             'OK',
             expect.objectContaining({ panelClass: ['success'] }),
         );
         expect(dialog_ref.close).toHaveBeenCalledWith(true);
         expect(spectator.component.loading()).toBe(false);
-    });
-
-    it('should pluralise the success message for multiple colleagues', async () => {
-        spectator.component.selected_users.set([user_a, user_b] as any);
-        await spectator.component.confirm();
-        expect(snackbar.open).toHaveBeenCalledWith(
-            '2 colleagues added successfully',
-            'OK',
-            expect.objectContaining({ panelClass: ['success'] }),
-        );
     });
 
     it('should notify and stay open when adding fails', async () => {
@@ -113,7 +103,7 @@ describe('AddColleaguesModalComponent', () => {
         spectator.component.selected_users.set([user_a] as any);
         await spectator.component.confirm();
         expect(snackbar.open).toHaveBeenCalledWith(
-            'Failed to add colleagues. Please try again.',
+            'APP.WORKPLACE.COLLEAGUES_ADD_ERROR',
             'OK',
             expect.objectContaining({ panelClass: ['error'] }),
         );

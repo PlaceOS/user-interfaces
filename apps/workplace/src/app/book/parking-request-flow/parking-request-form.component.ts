@@ -8,6 +8,7 @@ import {
     AsyncHandler,
     currentUser,
     getInvalidSignalFields,
+    i18n,
     notifyError,
     OrganisationService,
     randomString,
@@ -74,63 +75,26 @@ import { ParkingRequestFormDetailsComponent } from './parking-request-form-detai
                         </div>
                     </div>
                     <div class="space-y-4 p-4">
-                        <!-- Allocation info box -->
-                        <div
-                            class="bg-base-200 border-base-300 flex items-start gap-3 rounded-lg border p-4"
-                        >
-                            <icon class="text-warning mt-0.5 shrink-0 text-xl"
-                                >campaign</icon
+                        @if (submission_notes_html()) {
+                            <div
+                                class="prose prose-sm max-w-none"
+                                [innerHTML]="submission_notes_html() | sanitize"
+                            ></div>
+                        }
+                        <div class="flex items-center gap-2">
+                            <icon class="text-success text-lg"
+                                >check_circle</icon
                             >
-                            <p
+                            <span
                                 class="text-sm"
                                 [innerHTML]="
-                                    'BOOKINGS.PARKING_ALLOCATION_INFO'
+                                    'BOOKINGS.PARKING_ADVANCE_DAYS'
                                         | translate
+                                            : {
+                                                  days: available_days(),
+                                              }
                                 "
-                            ></p>
-                        </div>
-
-                        <!-- Info bullets -->
-                        <div class="space-y-2">
-                            <div class="flex items-center gap-2">
-                                <icon class="text-success text-lg"
-                                    >check_circle</icon
-                                >
-                                <span
-                                    class="text-sm"
-                                    [innerHTML]="
-                                        'BOOKINGS.PARKING_ADVANCE_DAYS'
-                                            | translate
-                                                : {
-                                                      days: available_days(),
-                                                  }
-                                    "
-                                ></span>
-                            </div>
-                            <div class="flex items-center gap-2">
-                                <icon class="text-success text-lg"
-                                    >check_circle</icon
-                                >
-                                <span
-                                    class="text-sm"
-                                    [innerHTML]="
-                                        'BOOKINGS.PARKING_APPROVAL_GROUP'
-                                            | translate
-                                    "
-                                ></span>
-                            </div>
-                            <div class="flex items-center gap-2">
-                                <icon class="text-warning text-lg"
-                                    >warning</icon
-                                >
-                                <span
-                                    class="text-sm"
-                                    [innerHTML]="
-                                        'BOOKINGS.PARKING_MANUAL_APPROVAL'
-                                            | translate
-                                    "
-                                ></span>
-                            </div>
+                            ></span>
                         </div>
 
                         <!-- Conditional after-hours warning -->
@@ -189,16 +153,6 @@ import { ParkingRequestFormDetailsComponent } from './parking-request-form-detai
                         </div>
                     </button>
                 </div>
-                @if (submission_notes_html()) {
-                    <div
-                        class="border-base-300 bg-base-100 rounded-xl border p-4"
-                    >
-                        <div
-                            class="prose prose-sm max-w-none"
-                            [innerHTML]="submission_notes_html() | sanitize"
-                        ></div>
-                    </div>
-                }
             </div>
         </div>
     `,
@@ -239,7 +193,16 @@ export class ParkingRequestFormComponent
     private _org = inject(OrganisationService);
 
     public readonly loading = signal(false);
-    public readonly show_special_needs = signal(true);
+    /** Whether the parking record of the user has the special needs flag */
+    private readonly _user_special_needs = signal(false);
+    private readonly _always_show_special_needs = settingSignal<boolean>(
+        'parking.show_special_needs',
+        false,
+    );
+    /** Whether a `special` request shows the reason and document fields */
+    public readonly show_special_needs = computed(
+        () => this._always_show_special_needs() || this._user_special_needs(),
+    );
     public readonly available_days = settingSignal(
         'parking.available_period',
         14,
@@ -289,8 +252,8 @@ export class ParkingRequestFormComponent
         // shift the user expects.
         if (!this.model().id) {
             const day_start = startOfDay(now);
-            defaults.date = day_start.valueOf() + 7 * 60 * 60 * 1000;
-            defaults.duration = 600;
+            defaults.date = day_start.valueOf() + 8 * 60 * 60 * 1000;
+            defaults.duration = 540;
         }
         this.model.update((m) => ({ ...m, ...defaults }));
         const parking_user = this._parking.user_details();
@@ -304,7 +267,7 @@ export class ParkingRequestFormComponent
                         '',
                 }));
             }
-            this.show_special_needs.set(!!parking_user.special_needs || true);
+            this._user_special_needs.set(!!parking_user.special_needs);
         }
     }
 
@@ -328,12 +291,16 @@ export class ParkingRequestFormComponent
             title: m.title || 'Parking Request',
             plate_number: `${m.plate_number || ''}`.trim(),
         }));
+        // The reason field shows only with the special needs details
         if (
             this.model().request_type === 'special' &&
+            this.show_special_needs() &&
             !`${this.model().notes || ''}`.trim()
         ) {
             return notifyError(
-                'Reason for request is required for P2 Special Needs Request.',
+                i18n('FORM.INVALID_FIELDS', {
+                    field_list: i18n('BOOKINGS.P2_REASON_FOR_REQUEST'),
+                }),
             );
         }
         const building = this._org.building;

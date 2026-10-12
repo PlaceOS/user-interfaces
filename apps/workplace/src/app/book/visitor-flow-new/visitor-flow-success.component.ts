@@ -7,6 +7,7 @@ import {
     OrganisationService,
     settingSignal,
     SettingsService,
+    User,
 } from '@placeos/common';
 import {
     IconComponent,
@@ -181,10 +182,10 @@ export class VisitorFlowSuccessComponent implements OnInit {
         const event: CalEvent = {
             ...this.last_success(),
             host: this.last_success().user_email,
-            organiser: {
+            organiser: new User({
                 name: this.last_success().user_name,
                 email: this.last_success().user_email,
-            } as any,
+            }),
             attendees: this.last_success().attendees.map((_) => _.email),
             body: this.last_success().description,
             location:

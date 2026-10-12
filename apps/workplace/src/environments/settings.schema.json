@@ -556,6 +556,10 @@
                     "type": "boolean",
                     "description": "Whether users must select a parking space restriction in the parking request flow."
                 },
+                "show_special_needs": {
+                    "type": "boolean",
+                    "description": "Whether the special needs reason and document fields show to each user who selects the `special` request type. When `false`, only parking users with the special needs flag see them."
+                },
                 "show_status_details": {
                     "type": "boolean",
                     "description": "Whether the explore parking tooltip should show availability status details such as status text, assigned users, and plate numbers."
@@ -1001,6 +1005,14 @@
             "type": "object",
             "description": "Data associated with virtual concierge rendering",
             "properties": {
+                "url": {
+                    "type": "string",
+                    "description": "URL of the virtual concierge page to embed. The button is hidden when this is empty."
+                },
+                "icon": {
+                    "type": "string",
+                    "description": "URL of the image for the virtual concierge button. A default icon shows when this is empty."
+                },
                 "display": {
                     "type": "string",
                     "enum": ["fullscreen", "sidebar"],

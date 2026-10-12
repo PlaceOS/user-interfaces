@@ -80,6 +80,26 @@ describe('ScheduleWeekViewComponent', () => {
         ]);
     });
 
+    it('should list a multi-day booking on each day that it covers', () => {
+        // Monday to Wednesday of a week that starts on Monday
+        const monday = new Date(2026, 4, 11).valueOf();
+        spectator.setInput('date', monday);
+        spectator.setInput('bookings', [
+            new Booking({
+                id: 'multi',
+                booking_type: 'parking',
+                date: monday,
+                duration: 3 * 24 * 60,
+                all_day: true,
+            }),
+        ]);
+
+        const by_date = spectator.component.bookings_by_date();
+        expect(
+            spectator.component.weekdays().map((_) => by_date[_.id].length),
+        ).toEqual([1, 1, 1, 0, 0, 0, 0]);
+    });
+
     it('should refresh bookings after a modal checkout', () => {
         const dialog = spectator.inject(MatDialog);
         const state = spectator.inject(ScheduleStateService);

@@ -598,13 +598,14 @@ export class LandingDeskWeekComponent
         this._dialog.open(BookingDetailsModalComponent, {
             data: {
                 booking,
-                edit_fn: (b) => this._schedule.editBooking(b),
-                remove_fn: async (b, s) => {
+                edit_fn: (b: Booking) => this._schedule.editBooking(b),
+                // Reload only. The week in view must stay, also when the
+                // user cancels the delete prompt.
+                remove_fn: async (b: Booking, s?: boolean) => {
                     await this._schedule.remove(b, s);
-                    this.selected_date.set(Date.now());
                     this._desk_bookings_resource.reload();
                 },
-                end_fn: (b) => this._schedule.end(b),
+                end_fn: (b: Booking) => this._schedule.end(b),
             },
         });
     }

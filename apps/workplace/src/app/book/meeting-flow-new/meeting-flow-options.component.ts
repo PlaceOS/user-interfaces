@@ -24,6 +24,7 @@ import {
     currentUser,
     formatRecurrence,
     fromEventRecurrence,
+    getInvalidSignalFields,
     i18n,
     notifyError,
     notifySuccess,
@@ -42,6 +43,12 @@ import {
     UserListFieldComponent,
 } from '@placeos/form-fields';
 import { FindAvailabilityModalComponent } from '@placeos/users';
+
+/** Parts of a selected room that give its level and building */
+interface SpaceLocation {
+    level?: { id?: string } | string;
+    zones?: string[];
+}
 
 @Component({
     selector: 'meeting-flow-options',
@@ -205,26 +212,36 @@ import { FindAvailabilityModalComponent } from '@placeos/users';
                 </div>
             </div>
             <div class="p-4">
-                <h3 class="flex items-center space-x-2 text-xl">
-                    {{ 'CALENDAR_EVENT.ATTENDEES' | translate }}
-                </h3>
-                <a-user-list-field
-                    [formField]="form.attendees"
-                    [time]="form_value().date"
-                    [guests]="allow_externals()"
-                >
-                    <button
-                        btn
-                        matRipple
-                        class="inverse min-w-1/4 flex-1 sm:flex-none"
-                        (click)="findAvailableTime()"
+                @if (!hide_attendees()) {
+                    <h3 class="flex items-center space-x-2 text-xl">
+                        {{ 'CALENDAR_EVENT.ATTENDEES' | translate }}
+                    </h3>
+                    <a-user-list-field
+                        [formField]="form.attendees"
+                        [time]="form_value().date"
+                        [guests]="allow_externals()"
                     >
-                        <div class="hidden sm:flex">
-                            {{ 'Find Available time' }}
-                        </div>
-                        <div class="fle sm:hidden">Availability</div>
-                    </button>
-                </a-user-list-field>
+                        <button
+                            btn
+                            matRipple
+                            class="inverse min-w-1/4 flex-1 sm:flex-none"
+                            (click)="findAvailableTime()"
+                        >
+                            <div class="hidden sm:flex">
+                                {{ 'Find Available time' }}
+                            </div>
+                            <div class="fle sm:hidden">Availability</div>
+                        </button>
+                    </a-user-list-field>
+                }
+                @if (show_capacity_warning()) {
+                    <div
+                        capacity-warning
+                        class="bg-warning text-warning-content my-2 inline-flex rounded-sm p-2 text-xs shadow-sm"
+                    >
+                        {{ 'CALENDAR_EVENT.CAPACITY_WARNING' | translate }}
+                    </div>
+                }
                 @if (has_catering()) {
                     <h3 class="mb-2 mt-4 flex items-center space-x-2 text-xl">
                         {{ 'CALENDAR_EVENT.CATERING' | translate }}
@@ -238,6 +255,7 @@ import { FindAvailabilityModalComponent } from '@placeos/users';
                             zone_id: form_value().resources?.length
                                 ? form_value().resources[0]?.level?.parent_id
                                 : '',
+                            resources: form_value().resources,
                         }"
                     ></catering-list-field>
                     @if (form_value().catering?.length && has_codes()) {
@@ -262,7 +280,7 @@ import { FindAvailabilityModalComponent } from '@placeos/users';
                                         standalone: true,
                                     }"
                                     [placeholder]="
-                                        'CALENDAR_EVENT.CATERING_CHARGE_CODE_SEACH'
+                                        'CALENDAR_EVENT.CATERING_CHARGE_CODE_SEARCH'
                                             | translate
                                     "
                                 />
@@ -418,8 +436,48 @@ export class MeetingFlowOptionsComponent {
         'events.hide_attendees',
         false,
     );
+    public readonly strict_capacity_check = settingSignal<boolean>(
+        'events.strict_capacity_check',
+        false,
+    );
+    public readonly no_standalone = settingSignal<boolean>(
+        'events.no_standalone',
+        false,
+    );
+    public readonly booking_unavailable = settingSignal<boolean>(
+        'events.booking_unavailable',
+        false,
+    );
     public readonly code_filter = signal('');
-    public invalid_assets = [];
+    public invalid_assets: string[] = [];
+
+    /** Number of people that the selected rooms hold */
+    public readonly total_capacity = computed(() =>
+        (this.form_value().resources || []).reduce(
+            (total: number, space: { capacity?: number }) =>
+                total + (space.capacity || 0),
+            0,
+        ),
+    );
+
+    /** Number of attendees, with the current user included */
+    public readonly attendee_count = computed(() => {
+        const attendees: { email?: string }[] =
+            this.form_value().attendees || [];
+        const email = currentUser()?.email?.toLowerCase();
+        const has_user = attendees.some(
+            (_) => _.email?.toLowerCase() === email,
+        );
+        return attendees.length + (has_user ? 0 : 1);
+    });
+
+    public readonly show_capacity_warning = computed(
+        () =>
+            !this.strict_capacity_check() &&
+            this.total_capacity() > 0 &&
+            this.total_capacity() <=
+                (this.form_value().attendees?.length || 0),
+    );
 
     public get form() {
         return this._event_form.form;
@@ -474,7 +532,7 @@ export class MeetingFlowOptionsComponent {
         );
     }
 
-    public getSpaceLocation(space: any): string {
+    public getSpaceLocation(space: SpaceLocation | null): string {
         if (!space) return '';
 
         const parts: string[] = [];
@@ -482,7 +540,9 @@ export class MeetingFlowOptionsComponent {
         // Get level information
         if (space.level) {
             const level = this._org.levelWithID([
-                space.level.id || space.level,
+                typeof space.level === 'string'
+                    ? space.level
+                    : space.level.id,
             ]);
             if (level) {
                 parts.push(level.display_name || level.name);
@@ -513,11 +573,34 @@ export class MeetingFlowOptionsComponent {
             this.model.update((m) => ({ ...m, host: currentUser()?.email }));
         }
         if (
+            this.strict_capacity_check() &&
+            this.attendee_count() > this.total_capacity()
+        ) {
+            return notifyError(i18n('CALENDAR_EVENT.CAPACITY_ERROR'));
+        }
+        if (
             !this.allow_daily_allday_recurrence() &&
             value.all_day &&
             value.recurrence?.pattern === 'daily'
         ) {
             return notifyError(i18n('CALENDAR_EVENT.DAILY_RECURR_ERROR'));
+        }
+        this.form().markAsTouched();
+        if (!this.form().valid()) {
+            return notifyError(
+                i18n('FORM.INVALID_FIELDS', {
+                    field_list: getInvalidSignalFields(
+                        this.form,
+                        this.model,
+                    ).join(', '),
+                }),
+            );
+        }
+        if (this.no_standalone() && !space) {
+            return notifyError(i18n('CALENDAR_EVENT.ROOM_REQUIRED'));
+        }
+        if (this.booking_unavailable()) {
+            return this._event_form.openEventLinkModal();
         }
         if (!space) {
             const result = await openConfirmModal(

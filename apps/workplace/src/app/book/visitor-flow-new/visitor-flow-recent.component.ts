@@ -1,8 +1,9 @@
 import { SlicePipe } from '@angular/common';
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { BookingFormService } from '@placeos/bookings';
-import { SettingsService, User } from '@placeos/common';
+import { SettingsService } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
+import { parseRecentVisitors, RecentVisitor } from './recent-visitors';
 
 @Component({
     selector: 'visitor-flow-recent',
@@ -114,7 +115,7 @@ export class VisitorFlowRecentComponent implements OnInit {
     private _booking_form = inject(BookingFormService);
     private _settings = inject(SettingsService);
 
-    public readonly visitors = signal<User[]>([]);
+    public readonly visitors = signal<RecentVisitor[]>([]);
     public readonly options = this._booking_form.options;
 
     private get _model() {
@@ -135,16 +136,17 @@ export class VisitorFlowRecentComponent implements OnInit {
 
     public readonly selected_visitors = computed(() => {
         const assets = this._model()?.assets || [];
-        return new Set(assets.map((a: any) => a.email));
+        return new Set<string>(assets.map((a) => a.email));
     });
 
     public ngOnInit() {
         // Load visitor history
-        const visitor_history = this._settings.get('visitor-invitees') || [];
-        this.visitors.set(this.parseRecentVisitors(visitor_history));
+        this.visitors.set(
+            parseRecentVisitors(this._settings.get('visitor-invitees')),
+        );
     }
 
-    public isVisitorSelected(visitor: any): boolean {
+    public isVisitorSelected(visitor: RecentVisitor): boolean {
         if (this.is_single()) {
             return this._model()?.asset_id === visitor.email;
         }
@@ -171,38 +173,7 @@ export class VisitorFlowRecentComponent implements OnInit {
         return companyName.charAt(0).toUpperCase() + companyName.slice(1);
     }
 
-    private toSafeValue(value: any): string {
-        if (!value || value === 'null' || value === 'undefined') return '';
-        return `${value}`.trim();
-    }
-
-    private normalizeEmail(value: any): string {
-        const email = this.toSafeValue(value)
-            .replace(/^mailto:/i, '')
-            .replace(/[<>"']/g, '');
-        return email.toLowerCase();
-    }
-
-    private parseRecentVisitors(visitor_history: string[]): User[] {
-        const unique_visitors = new Map<string, User>();
-        for (let index = visitor_history.length - 1; index >= 0; index--) {
-            const item = visitor_history[index];
-            if (typeof item !== 'string') continue;
-            const [email, name, company, phone] = item.split('|');
-            const parsed_visitor = {
-                email: this.normalizeEmail(email),
-                name: this.toSafeValue(name),
-                company: this.toSafeValue(company),
-                phone: this.toSafeValue(phone),
-            };
-            const email_key = parsed_visitor.email;
-            if (!email_key || unique_visitors.has(email_key)) continue;
-            unique_visitors.set(email_key, parsed_visitor as any);
-        }
-        return [...unique_visitors.values()];
-    }
-
-    private enrichVisitorData(visitor: any): any {
+    private enrichVisitorData(visitor: RecentVisitor): RecentVisitor {
         const enriched = { ...visitor };
 
         // Extract name from email if not provided, null, or empty
@@ -228,7 +199,7 @@ export class VisitorFlowRecentComponent implements OnInit {
         return enriched;
     }
 
-    public selectVisitor(visitor: any) {
+    public selectVisitor(visitor: RecentVisitor) {
         const is_group = this.options()?.group === true;
         const enriched = this.enrichVisitorData(visitor);
 
@@ -236,7 +207,7 @@ export class VisitorFlowRecentComponent implements OnInit {
             // Toggle visitor in assets array
             const current_assets = [...(this._model()?.assets || [])];
             const index = current_assets.findIndex(
-                (a: any) => a.email === visitor.email,
+                (a) => a.email === visitor.email,
             );
 
             if (index >= 0) {

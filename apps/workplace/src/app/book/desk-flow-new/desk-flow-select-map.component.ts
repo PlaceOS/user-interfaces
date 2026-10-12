@@ -341,15 +341,13 @@ export class DeskFlowSelectMapComponent extends AsyncHandler implements OnInit {
             () => {
                 const details = this._booking_form.options();
                 const level = this._org.levelWithID(
-                    (details as any).zones || [details.zone_id],
+                    details.zones || [details.zone_id],
                 );
                 if (level) this.level.set(level);
             },
             { injector: this._injector },
         );
-        this.subscription('levels_update', {
-            unsubscribe: () => ref.destroy(),
-        } as any);
+        this.subscription('levels_update', () => ref.destroy());
     }
 
     public setLevel(level: BuildingLevel) {

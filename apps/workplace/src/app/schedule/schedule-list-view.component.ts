@@ -1,19 +1,27 @@
 import { CommonModule } from '@angular/common';
 import { Component, computed, inject, input } from '@angular/core';
 import { BookingCardComponent } from '@placeos/bookings';
-import { CalendarEvent } from '@placeos/common';
+import { Booking, CalendarEvent } from '@placeos/common';
 import { TranslatePipe } from '@placeos/components';
 import { EventCardComponent } from '@placeos/events';
 import {
-    endOfDay,
+    addDays,
+    differenceInCalendarDays,
     format,
-    isAfter,
-    isBefore,
     isSameDay,
-    parse,
     startOfDay,
 } from 'date-fns';
-import { ScheduleStateService } from './schedule-state.service';
+import { overlapsDay, ScheduleStateService } from './schedule-state.service';
+
+interface ScheduleDateBlock {
+    id: string;
+    date: number;
+    bookings: (Booking | CalendarEvent)[];
+    is_today: boolean;
+}
+
+/** Upper bound for the number of days in the list */
+const MAX_LIST_DAYS = 366;
 
 @Component({
     selector: `schedule-list-view`,
@@ -82,53 +90,44 @@ export class ScheduleListViewComponent {
     private _state = inject(ScheduleStateService);
     public readonly date = input(Date.now());
     public readonly end_date = input<number | null>(null);
-    public readonly bookings = input<any[]>([]);
+    public readonly bookings = input<(Booking | CalendarEvent)[]>([]);
     public readonly loading = input(false);
-    public readonly isEvent = (i) => i instanceof CalendarEvent;
+    public readonly isEvent = (
+        i: Booking | CalendarEvent,
+    ): i is CalendarEvent => i instanceof CalendarEvent;
     public readonly isSameDayCheck = (a: number, b: number) => isSameDay(a, b);
 
-    public readonly edit_fn = (i) => this._state.edit(i);
-    public readonly edit_booking_fn = (i) => this._state.editBooking(i);
-    public readonly remove_fn = (i, t?) => this._state.remove(i, t);
-    public readonly end_fn = (i) => this._state.end(i);
+    public readonly edit_fn = (i: CalendarEvent) => this._state.edit(i);
+    public readonly edit_booking_fn = (i: Booking) =>
+        this._state.editBooking(i);
+    public readonly remove_fn = (i: Booking | CalendarEvent, t?: boolean) =>
+        this._state.remove(i, t);
+    public readonly end_fn = (i: Booking) => this._state.end(i);
     public readonly refresh_fn = () => this._state.triggerPoll();
 
+    /** Days in the selected date or date range that have bookings */
     public readonly booking_dates = computed(() => {
         if (this.loading()) return [];
-        const sorted = (this.bookings() || []).sort((a, b) => a.date - b.date);
-        const start = this.date();
+        const bookings = [...(this.bookings() || [])].sort(
+            (a, b) => a.date - b.date,
+        );
+        const start = startOfDay(this.date());
         const end = this.end_date();
-
-        // Filter bookings by date range
-        const filtered = sorted.filter((b) => {
-            if (end && !isSameDay(start, end)) {
-                // Date range mode: check if booking falls within range
-                const booking_date = b.date;
-                return (
-                    (isAfter(booking_date, startOfDay(start)) ||
-                        isSameDay(booking_date, start)) &&
-                    (isBefore(booking_date, endOfDay(end)) ||
-                        isSameDay(booking_date, end))
-                );
-            }
-            // Single date mode
-            return isSameDay(b.date, start);
-        });
-
-        const dates = new Set<string>();
-        for (const booking of filtered) {
-            const date = format(booking.date, 'yyyy-MM-dd');
-            if (!dates.has(date)) dates.add(date);
-        }
-        const list = [];
-        for (const date of dates) {
-            const day = parse(date, 'yyyy-MM-dd', 0);
+        // One day when there is no range end
+        const day_count = Math.min(
+            MAX_LIST_DAYS,
+            end ? Math.max(1, differenceInCalendarDays(end, start) + 1) : 1,
+        );
+        const list: ScheduleDateBlock[] = [];
+        for (let i = 0; i < day_count; i++) {
+            const day = addDays(start, i).valueOf();
+            // A multi-day booking is listed on each day that it covers
+            const day_bookings = bookings.filter((_) => overlapsDay(_, day));
+            if (!day_bookings.length) continue;
             list.push({
-                id: date,
-                date: day.valueOf(),
-                bookings: filtered.filter((booking) =>
-                    isSameDay(booking.date, day),
-                ),
+                id: format(day, 'yyyy-MM-dd'),
+                date: day,
+                bookings: day_bookings,
                 is_today: isSameDay(day, Date.now()),
             });
         }

@@ -1,3 +1,4 @@
+import { ComponentType } from '@angular/cdk/portal';
 import { CommonModule } from '@angular/common';
 import {
     Component,
@@ -40,6 +41,7 @@ import {
 import {
     bookedForLabel,
     isBookingForOtherUser,
+    overlapsDay,
     ScheduleStateService,
 } from './schedule-state.service';
 
@@ -287,11 +289,13 @@ export class ScheduleWeekViewComponent {
         return days;
     });
     public readonly bookings_by_date = computed(() => {
+        // A multi-day booking is listed on each day that it covers
+        const bookings = this.bookings() || [];
         const date_map: Record<string, (Booking | CalendarEvent)[]> = {};
-        for (const bkn of this.bookings() || []) {
-            const date = format(bkn.date, 'yyyy-MM-dd');
-            if (!date_map[date]) date_map[date] = [];
-            date_map[date].push(bkn);
+        for (const day of this.weekdays()) {
+            date_map[day.id] = bookings.filter((bkn) =>
+                overlapsDay(bkn, day.date),
+            );
         }
         return date_map;
     });
@@ -378,7 +382,7 @@ export class ScheduleWeekViewComponent {
                 });
             }
         } else {
-            const view_component: any =
+            const view_component: ComponentType<unknown> =
                 bkn.booking_type === 'group-event'
                     ? GroupEventDetailsModalComponent
                     : BookingDetailsModalComponent;

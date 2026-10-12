@@ -190,7 +190,11 @@ export class MeetingFlowNewComponent extends AsyncHandler implements OnInit {
             'route.params',
             this._route.paramMap.subscribe((param) => {
                 if (param.has('step'))
-                    this._event_form.setView(param.get('step') as any);
+                    this._event_form.setView(
+                        param.get('step') as Parameters<
+                            EventFormService['setView']
+                        >[0],
+                    );
             }),
         );
         this.subscription(
@@ -198,7 +202,7 @@ export class MeetingFlowNewComponent extends AsyncHandler implements OnInit {
             this._route.queryParamMap.subscribe((params) => {
                 if (params.has('view')) {
                     if (Number.isNaN(+params.get('view'))) return;
-                    this.view.update((o) => +params.get('view'));
+                    this.view.set(+params.get('view'));
                 }
             }),
         );

@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { Component } from '@angular/core';
 import { FooterMenuComponent } from '../components/footer-menu.component';
 import { TopbarComponent } from '../components/topbar.component';
 import { VirtualConciergeButtonComponent } from '../components/virtual-concierge-button.component';
@@ -11,7 +11,7 @@ import { TeamScheduleTableComponent } from './team-schedule-table.component';
     selector: 'team-schedule',
     template: `
         <div class="absolute inset-0 flex flex-col overflow-hidden">
-            @if (!hide_nav()) {
+            @if (!hide_nav) {
                 <topbar />
             }
             <div class="bg-base-200 relative flex h-1/2 flex-1 overflow-auto">
@@ -26,7 +26,7 @@ import { TeamScheduleTableComponent } from './team-schedule-table.component';
                 </div>
                 <virtual-concierge-button />
             </div>
-            @if (!hide_nav()) {
+            @if (!hide_nav) {
                 <footer-menu />
             }
             <div></div>
@@ -44,5 +44,8 @@ import { TeamScheduleTableComponent } from './team-schedule-table.component';
     ],
 })
 export class TeamScheduleComponent {
-    public readonly hide_nav = signal(false);
+    /** Set from the `hide_nav` URL parameter when the app is embedded */
+    public get hide_nav() {
+        return localStorage.getItem('PlaceOS.hide_nav') === 'true';
+    }
 }

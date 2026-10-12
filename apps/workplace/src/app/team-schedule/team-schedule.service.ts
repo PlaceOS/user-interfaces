@@ -76,6 +76,10 @@ export class TeamScheduleService {
     // Loading state - starts true, set to false after initial load completes
     public readonly loading = signal(true);
     private _initialized = false;
+    /** Colleagues from the contacts of the user */
+    private _users: StaffUser[] = [];
+    /** Number of the last booking load. A response for an old load is dropped */
+    private _request_id = 0;
 
     // Selection mode state
     public readonly select_mode = signal(false);
@@ -85,9 +89,17 @@ export class TeamScheduleService {
     private readonly _favorite_ids = signal<Set<string>>(new Set());
     private readonly _team_member_ids = signal<Set<string>>(new Set());
 
+    /**
+     * Start of the selected week. The value is a number, so a filter change
+     * in the same week (search, department, status, view) does not change it.
+     */
+    private readonly _week_start = computed(() =>
+        startOfWeek(this._filters().date, { weekStartsOn: 1 }).valueOf(),
+    );
+
     // Week days computed from selected date
     public readonly week_days = computed(() => {
-        const start = startOfWeek(this._filters().date, { weekStartsOn: 1 });
+        const start = this._week_start();
         const days = eachDayOfInterval({
             start,
             end: addDays(start, 4),
@@ -309,7 +321,7 @@ export class TeamScheduleService {
 
         // Re-fetch bookings when the week changes
         effect(() => {
-            const _ = this.week_days();
+            this._week_start();
             untracked(() => this._refreshBookings());
         });
     }
@@ -324,58 +336,45 @@ export class TeamScheduleService {
         this.loading.set(true);
         try {
             // Fetch colleagues (from user's contacts metadata)
-            const colleagues = await this._fetchColleagues();
-
-            // Get favourite IDs from user settings (favourites are a subset of colleagues)
-            const favorite_ids = this._getFavoriteIds();
-            this._favorite_ids.set(favorite_ids);
-
-            // Get team member IDs from user settings (team members are a subset of colleagues)
-            const team_ids = this._getTeamMemberIds();
-            this._team_member_ids.set(team_ids);
-
-            // Fetch bookings for all colleagues and build team members
-            const team_members = await this._buildTeamMembers(
-                colleagues,
-                favorite_ids,
-                team_ids,
-            );
-            this._team_members.set(team_members);
+            this._users = await this._fetchColleagues();
         } catch (error) {
             console.error('Error loading team schedule data:', error);
-        } finally {
-            this.loading.set(false);
-            this._initialized = true;
         }
+        // Set before the bookings load, so a week change in that time
+        // starts a new load.
+        this._initialized = true;
+        await this._updateMembers();
     }
 
     /** Refresh bookings for existing users when week changes */
     private async _refreshBookings() {
-        if (!this._initialized) return;
+        if (!this._initialized || this._users.length === 0) return;
+        await this._updateMembers();
+    }
 
-        const members = this._team_members();
-        if (members.length === 0) return;
-
+    /** Load the bookings of the colleagues for the selected week */
+    private async _updateMembers() {
+        const request_id = ++this._request_id;
         this.loading.set(true);
         try {
-            // Re-read IDs from settings in case they changed
+            // Favourites and team members are subsets of the colleagues.
+            // Read the IDs from the settings in case they changed.
             const favorite_ids = this._getFavoriteIds();
             this._favorite_ids.set(favorite_ids);
-
             const team_ids = this._getTeamMemberIds();
             this._team_member_ids.set(team_ids);
-
-            const users = members.map((m) => m.user as StaffUser);
             const team_members = await this._buildTeamMembers(
-                users,
+                this._users,
                 favorite_ids,
                 team_ids,
             );
+            // A newer load started. Do not show the bookings of an old week.
+            if (request_id !== this._request_id) return;
             this._team_members.set(team_members);
         } catch (error) {
-            console.error('Error refreshing bookings:', error);
+            console.error('Error loading team schedule bookings:', error);
         } finally {
-            this.loading.set(false);
+            if (request_id === this._request_id) this.loading.set(false);
         }
     }
 
@@ -385,11 +384,11 @@ export class TeamScheduleService {
             const user = currentUser();
             if (!user?.id) return [];
 
-            const metadata: PlaceMetadata = (await showMetadata(
+            const metadata: Partial<PlaceMetadata> = await showMetadata(
                 user.id,
                 'contacts',
-            ).catch(() => ({}))) as any;
-            const list =
+            ).catch(() => ({}));
+            const list: Partial<StaffUser>[] =
                 metadata?.details instanceof Array ? metadata.details : [];
 
             // Fetch full user details for each contact
@@ -398,7 +397,7 @@ export class TeamScheduleService {
                     showUser(contact.email).catch(() => contact),
                 ),
             );
-            return users.map((u) => new StaffUser(u as any));
+            return users.map((u) => new StaffUser(u));
         } catch (error) {
             console.error('Error fetching colleagues:', error);
             return [];

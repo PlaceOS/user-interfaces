@@ -3,7 +3,7 @@ import { Component, computed, inject, resource } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { Router } from '@angular/router';
-import { BookingFormService } from '@placeos/bookings';
+import { BookingAsset, BookingFormService } from '@placeos/bookings';
 import {
     OrganisationService,
     SETTING_KEYS,
@@ -18,6 +18,8 @@ import {
 } from '@placeos/components';
 import { EventFormService } from '@placeos/events';
 import { ExploreSpacesService } from '@placeos/explore';
+import { LandingStateService } from '../landing/landing-state.service';
+import { landingFeatures } from './landing-features';
 
 export interface FavoriteEntry {
     id: string;
@@ -161,6 +163,7 @@ export interface FavoriteEntry {
 })
 export class LandingFavouritesNewComponent {
     private _explore = inject(ExploreSpacesService);
+    private _state = inject(LandingStateService);
     private _event_form = inject(EventFormService);
     private _booking_form = inject(BookingFormService);
     private _router = inject(Router);
@@ -189,28 +192,41 @@ export class LandingFavouritesNewComponent {
         true,
     );
 
-    // Full resource lists
-    public readonly all_spaces = this._event_form.spaces;
+    public readonly features = landingFeatures();
+
+    // Full resource lists. A list loads only when its feature is enabled.
+    /**
+     * Rooms of the active building that the event form can book. The list
+     * is from the landing state: the event form loads its space list only
+     * after the user opens a booking page.
+     */
+    public readonly all_spaces = computed(() =>
+        this.features().includes('spaces')
+            ? this._state
+                  .space_list()
+                  .filter((s) => s.email && !s.room_booking_url)
+            : [],
+    );
     private readonly _desks_resource = resource({
-        params: () => this._org.active_building()?.id || undefined,
+        params: () => this._buildingWithFeature('desks'),
         loader: () => this._booking_form.loadResourceList('desks'),
     });
     public readonly all_desks = computed(
-        () => this._desks_resource.value() ?? ([] as any[]),
+        () => this._desks_resource.value() ?? ([] as BookingAsset[]),
     );
     private readonly _parking_resource = resource({
-        params: () => this._org.active_building()?.id || undefined,
+        params: () => this._buildingWithFeature('parking'),
         loader: () => this._booking_form.loadResourceList('parking-spaces'),
     });
     public readonly all_parking = computed(
-        () => this._parking_resource.value() ?? ([] as any[]),
+        () => this._parking_resource.value() ?? ([] as BookingAsset[]),
     );
     private readonly _lockers_resource = resource({
-        params: () => this._org.active_building()?.id || undefined,
+        params: () => this._buildingWithFeature('lockers'),
         loader: () => this._booking_form.loadResourceList('lockers'),
     });
     public readonly all_lockers = computed(
-        () => this._lockers_resource.value() ?? ([] as any[]),
+        () => this._lockers_resource.value() ?? ([] as BookingAsset[]),
     );
 
     public readonly favourites = computed(() => {
@@ -227,7 +243,7 @@ export class LandingFavouritesNewComponent {
                 id: s.id,
                 name: s.display_name || s.name,
                 zones: s.zones || [],
-                images: (s as any).images,
+                images: s.images,
                 capacity: s.capacity,
             })),
         );
@@ -242,7 +258,7 @@ export class LandingFavouritesNewComponent {
                 type: 'parking' as const,
                 id: p.id,
                 name: p.name,
-                zones: (p as any).zones || [],
+                zones: (p as BookingAsset & { zones?: string[] }).zones || [],
             })),
         );
 
@@ -270,12 +286,19 @@ export class LandingFavouritesNewComponent {
                 type: 'locker' as const,
                 id: l.id,
                 name: l.name,
-                zones: l.zones,
+                zones: (l as BookingAsset & { zones?: string[] }).zones,
             })),
         );
 
         return list;
     });
+
+    /** ID of the active building when the feature is enabled */
+    private _buildingWithFeature(feature: string) {
+        return this.features().includes(feature)
+            ? this._org.active_building()?.id || undefined
+            : undefined;
+    }
 
     public removeFavourite(item: FavoriteEntry) {
         let fav_list: string[] = [];

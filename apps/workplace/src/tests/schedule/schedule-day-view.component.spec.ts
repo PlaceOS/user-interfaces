@@ -87,6 +87,27 @@ describe('ScheduleDayViewComponent', () => {
         expect(day.map((b) => b.id)).toEqual(['today']);
     });
 
+    it('should show a multi-day booking on a middle day, for the full day', () => {
+        const booking = new Booking({
+            id: 'multi',
+            booking_type: 'parking',
+            date: addDays(the_day, -1).valueOf(),
+            duration: 3 * 24 * 60,
+            all_day: true,
+        });
+        spectator.setInput('bookings', [booking]);
+
+        const [item] = spectator.component.positionedBookings();
+        expect(item.booking.id).toBe('multi');
+        expect(item.top).toBe(0);
+        expect(item.height).toBe(100);
+        spectator.detectChanges();
+        expect(spectator.query('.mb-4')?.textContent).toContain('1 booking');
+
+        spectator.setInput('date', addDays(the_day, 2).valueOf());
+        expect(spectator.component.dayBookings()).toEqual([]);
+    });
+
     it('should render a booking count that is pluralised', () => {
         spectator.setInput('bookings', [bookingAt(9, 60)]);
         spectator.detectChanges();
@@ -291,6 +312,28 @@ describe('ScheduleDayViewComponent', () => {
                 '#BFDBFE80',
             );
         });
+    });
+
+    it('should scroll to the current time one time for each date change', () => {
+        vi.useFakeTimers();
+        const scrollIntoView = vi.fn();
+        Element.prototype.scrollIntoView = scrollIntoView;
+        spectator.setInput('date', Date.now());
+        spectator.detectChanges();
+        vi.advanceTimersByTime(100);
+        expect(scrollIntoView).toHaveBeenCalledTimes(1);
+
+        // The time marker moves every 10 seconds
+        vi.advanceTimersByTime(30 * 1000);
+        spectator.detectChanges();
+        vi.advanceTimersByTime(100);
+        expect(scrollIntoView).toHaveBeenCalledTimes(1);
+
+        spectator.setInput('date', Date.now());
+        spectator.detectChanges();
+        vi.advanceTimersByTime(100);
+        expect(scrollIntoView).toHaveBeenCalledTimes(2);
+        vi.useRealTimers();
     });
 
     describe('currentTimePosition()', () => {

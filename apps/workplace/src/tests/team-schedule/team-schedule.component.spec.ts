@@ -30,16 +30,17 @@ describe('TeamScheduleComponent', () => {
     beforeEach(() => (spectator = createComponent()));
 
     it('should default to showing the navigation chrome', () => {
-        expect(spectator.component.hide_nav()).toBe(false);
+        expect(spectator.component.hide_nav).toBe(false);
         expect(spectator.query(TopbarComponent)).toBeTruthy();
         expect(spectator.query(FooterMenuComponent)).toBeTruthy();
     });
 
     it('should hide the topbar and footer when nav is hidden', () => {
-        spectator.component.hide_nav.set(true);
+        localStorage.setItem('PlaceOS.hide_nav', 'true');
         spectator.detectChanges();
         expect(spectator.query(TopbarComponent)).toBeFalsy();
         expect(spectator.query(FooterMenuComponent)).toBeFalsy();
+        localStorage.removeItem('PlaceOS.hide_nav');
     });
 
     it('should always render the schedule table and list', () => {

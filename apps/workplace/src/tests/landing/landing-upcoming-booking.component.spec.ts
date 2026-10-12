@@ -5,6 +5,10 @@ import { BookingDetailsModalComponent } from '@placeos/bookings';
 import { Booking, CalendarEvent, OrganisationService } from '@placeos/common';
 import { MockProvider } from 'ng-mocks';
 import { SpacePipe } from 'libs/events/src/lib/space.pipe';
+
+vi.mock('@placeos/ts-client', { spy: true });
+
+import * as ts_client from '@placeos/ts-client';
 import { LandingUpcomingBookingComponent } from '../../app/landing-new/landing-upcoming-booking.component';
 import { LandingStateService } from '../../app/landing/landing-state.service';
 import { ScheduleStateService } from '../../app/schedule/schedule-state.service';
@@ -81,6 +85,60 @@ describe('LandingUpcomingBookingComponent', () => {
         spectator = createComponent();
     });
 
+    describe('checkIn', () => {
+        const checkInUrl = () =>
+            vi.mocked(ts_client.post).mock.calls[0]?.[0] as string;
+
+        beforeEach(() => {
+            vi.mocked(ts_client.post).mockResolvedValue({} as any);
+        });
+
+        it('should check in only the occurrence for the first day of a recurring booking', async () => {
+            // The first day is the series master: it has no `instance`
+            upcoming_events.set([
+                new Booking({
+                    id: 'series-1',
+                    booking_type: 'desk',
+                    booking_start: 1_790_000_000,
+                    duration: 60,
+                    recurrence_type: 'daily',
+                }),
+            ]);
+
+            await spectator.component.checkIn();
+
+            expect(ts_client.post).toHaveBeenCalledTimes(1);
+            expect(checkInUrl()).toContain(
+                '/series-1/check_in/1790000000?state=true',
+            );
+            expect(refreshUpcomingEvents).toHaveBeenCalledTimes(1);
+        });
+
+        it('should check in the instance of a later occurrence', async () => {
+            upcoming_events.set([
+                new Booking({
+                    id: 'series-1',
+                    booking_type: 'desk',
+                    booking_start: 1_790_000_000,
+                    duration: 60,
+                    instance: 1_790_086_400,
+                }),
+            ]);
+
+            await spectator.component.checkIn();
+
+            expect(checkInUrl()).toContain(
+                '/series-1/check_in/1790086400?state=true',
+            );
+        });
+
+        it('should check in a booking with no recurrence by its ID', async () => {
+            await spectator.component.checkIn();
+
+            expect(checkInUrl()).toContain('/booking-1/check_in?state=true');
+        });
+    });
+
     it('should pass a refresh callback to booking details modal', () => {
         vi.useFakeTimers();
 
@@ -136,7 +194,7 @@ describe('LandingUpcomingBookingComponent', () => {
 
         expect(spectator.query('button[btn]:not(.inverse)')).not.toExist();
         const edit_button = spectator.query<HTMLButtonElement>(
-            'button[mattooltip="Edit Booking"]',
+            'button[name="edit-booking"]',
         );
         expect(edit_button).toHaveClass('flex-1');
         expect(edit_button).not.toHaveClass('w-12');
@@ -159,7 +217,7 @@ describe('LandingUpcomingBookingComponent', () => {
 
         expect(spectator.query('button[btn]:not(.inverse)')).toExist();
         const edit_button = spectator.query<HTMLButtonElement>(
-            'button[mattooltip="Edit Booking"]',
+            'button[name="edit-booking"]',
         );
         expect(edit_button).toHaveClass('w-12');
         expect(edit_button).not.toHaveClass('flex-1');

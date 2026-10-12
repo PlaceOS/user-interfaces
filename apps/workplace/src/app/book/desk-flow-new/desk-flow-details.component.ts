@@ -1,4 +1,11 @@
-import { Component, computed, effect, inject, signal } from '@angular/core';
+import {
+    Component,
+    computed,
+    effect,
+    inject,
+    model,
+    signal,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { FormField } from '@angular/forms/signals';
 import { MatCheckboxModule } from '@angular/material/checkbox';
@@ -7,9 +14,12 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
-import { BookingFormService } from '@placeos/bookings';
+import { AssetListFieldComponent } from '@placeos/assets';
+import { BookingFlowOptions, BookingFormService } from '@placeos/bookings';
 import {
+    BookingRecurrence,
     currentUser,
+    EMPTY_USER,
     OrganisationService,
     settingSignal,
     SettingsService,
@@ -26,89 +36,100 @@ import {
 import { FindAvailabilityModalComponent } from '@placeos/users';
 import { addDays, endOfDay } from 'date-fns';
 
-type FormType = 'single' | 'group' | 'other';
+/** Who the desk booking is for: the current user, a group or one other person */
+export type DeskFormType = 'single' | 'group' | 'other';
 
 @Component({
     selector: 'desk-flow-details',
     template: `
         <div class="w-full p-4">
-            <!-- Mobile select dropdown -->
-            <div class="mb-4 flex w-full sm:hidden">
-                <mat-form-field
-                    appearance="outline"
-                    class="no-subscript w-full"
-                >
-                    <mat-select
-                        [ngModel]="active_form()"
-                        (ngModelChange)="setActiveForm($event)"
-                        [ngModelOptions]="{ standalone: true }"
+            @if (has_form_types()) {
+                <!-- Mobile select dropdown -->
+                <div class="mb-4 flex w-full sm:hidden">
+                    <mat-form-field
+                        appearance="outline"
+                        class="no-subscript w-full"
                     >
-                        <mat-select-trigger>
-                            <div class="flex items-center space-x-2">
-                                <icon class="text-xl">{{
-                                    form_type_config()[active_form()].icon
-                                }}</icon>
-                                <span>{{
-                                    form_type_config()[active_form()].label
-                                }}</span>
-                            </div>
-                        </mat-select-trigger>
-                        <mat-option value="single">
-                            <div class="flex items-center space-x-2">
-                                <icon class="text-xl">person</icon>
-                                <span>Single</span>
-                            </div>
-                        </mat-option>
-                        <mat-option value="group">
-                            <div class="flex items-center space-x-2">
-                                <icon class="text-xl">group_add</icon>
-                                <span>Group</span>
-                            </div>
-                        </mat-option>
-                        <mat-option value="other">
-                            <div class="flex items-center space-x-2">
-                                <icon class="text-xl">person_add</icon>
-                                <span>Book for other</span>
-                            </div>
-                        </mat-option>
-                    </mat-select>
-                </mat-form-field>
-            </div>
-            <!-- Desktop button toggle -->
-            <div
-                class="bg-base-200 hidden w-full items-center space-x-1 rounded-lg p-1 sm:flex"
-            >
-                <button
-                    btn
-                    matRipple
-                    class="border-base-300 hover:bg-base-300 flex-1 space-x-2 border"
-                    [class.clear]="active_form() !== 'single'"
-                    (click)="setActiveForm('single')"
+                        <mat-select
+                            [ngModel]="active_form()"
+                            (ngModelChange)="setActiveForm($event)"
+                            [ngModelOptions]="{ standalone: true }"
+                        >
+                            <mat-select-trigger>
+                                <div class="flex items-center space-x-2">
+                                    <icon class="text-xl">{{
+                                        form_type_config()[active_form()].icon
+                                    }}</icon>
+                                    <span>{{
+                                        form_type_config()[active_form()].label
+                                    }}</span>
+                                </div>
+                            </mat-select-trigger>
+                            <mat-option value="single">
+                                <div class="flex items-center space-x-2">
+                                    <icon class="text-xl">person</icon>
+                                    <span>Single</span>
+                                </div>
+                            </mat-option>
+                            @if (allow_groups()) {
+                                <mat-option value="group">
+                                    <div class="flex items-center space-x-2">
+                                        <icon class="text-xl">group_add</icon>
+                                        <span>Group</span>
+                                    </div>
+                                </mat-option>
+                            }
+                            @if (can_book_for_others()) {
+                                <mat-option value="other">
+                                    <div class="flex items-center space-x-2">
+                                        <icon class="text-xl">person_add</icon>
+                                        <span>Book for other</span>
+                                    </div>
+                                </mat-option>
+                            }
+                        </mat-select>
+                    </mat-form-field>
+                </div>
+                <!-- Desktop button toggle -->
+                <div
+                    class="bg-base-200 hidden w-full items-center space-x-1 rounded-lg p-1 sm:flex"
                 >
-                    <icon class="text-xl">person</icon>
-                    <div>Single</div>
-                </button>
-                <button
-                    btn
-                    matRipple
-                    class="border-base-300 hover:bg-base-300 flex-1 space-x-2 border"
-                    [class.clear]="active_form() !== 'group'"
-                    (click)="setActiveForm('group')"
-                >
-                    <icon class="text-xl">group_add</icon>
-                    <div>Group</div>
-                </button>
-                <button
-                    btn
-                    matRipple
-                    class="border-base-300 hover:bg-base-300 flex-1 space-x-2 border"
-                    [class.clear]="active_form() !== 'other'"
-                    (click)="setActiveForm('other')"
-                >
-                    <icon class="text-xl">person_add</icon>
-                    <div>Book for other</div>
-                </button>
-            </div>
+                    <button
+                        btn
+                        matRipple
+                        class="border-base-300 hover:bg-base-300 flex-1 space-x-2 border"
+                        [class.clear]="active_form() !== 'single'"
+                        (click)="setActiveForm('single')"
+                    >
+                        <icon class="text-xl">person</icon>
+                        <div>Single</div>
+                    </button>
+                    @if (allow_groups()) {
+                        <button
+                            btn
+                            matRipple
+                            class="border-base-300 hover:bg-base-300 flex-1 space-x-2 border"
+                            [class.clear]="active_form() !== 'group'"
+                            (click)="setActiveForm('group')"
+                        >
+                            <icon class="text-xl">group_add</icon>
+                            <div>Group</div>
+                        </button>
+                    }
+                    @if (can_book_for_others()) {
+                        <button
+                            btn
+                            matRipple
+                            class="border-base-300 hover:bg-base-300 flex-1 space-x-2 border"
+                            [class.clear]="active_form() !== 'other'"
+                            (click)="setActiveForm('other')"
+                        >
+                            <icon class="text-xl">person_add</icon>
+                            <div>Book for other</div>
+                        </button>
+                    }
+                </div>
+            }
             <div class="mt-4">
                 @if (active_form() === 'other') {
                     <div class="mb-4 w-full">
@@ -141,8 +162,10 @@ type FormType = 'single' | 'group' | 'other';
                         </mat-form-field>
                     </div>
                 }
+                <!-- On larger screens the desk select filters hold these fields -->
                 <div
-                    class="flex flex-col space-y-2 sm:hidden sm:flex-row sm:space-y-0 sm:space-x-2"
+                    class="flex flex-col space-y-2 sm:flex-row sm:space-y-0 sm:space-x-2"
+                    [class.sm:hidden]="!auto_allocation"
                 >
                     <div class="relative flex-1">
                         <label for="date">{{ 'FORM.DATE' | translate }}</label>
@@ -171,6 +194,7 @@ type FormType = 'single' | 'group' | 'other';
                                     model.update((m) => ({ ...m, date: $event }))
                                 "
                                 [ngModelOptions]="{ standalone: true }"
+                                [range]="bookable_hours()"
                             />
                         </div>
                         <div class="flex-1">
@@ -183,6 +207,7 @@ type FormType = 'single' | 'group' | 'other';
                                 [min]="min_duration()"
                                 [custom_options]="custom_duration_options()"
                                 [step]="duration_step()"
+                                [end_time]="bookable_hours()?.end"
                                 [use_24hr]="use_24hr()"
                                 [timezone]="timezone"
                                 [formField]="form.duration"
@@ -261,6 +286,21 @@ type FormType = 'single' | 'group' | 'other';
                         </p>
                     </div>
                 }
+                @if (has_assets() && active_form() !== 'group') {
+                    <div class="flex flex-col">
+                        <label for="assets">
+                            {{ 'RESOURCE.ASSETS' | translate }}
+                        </label>
+                        <asset-list-field
+                            [options]="{
+                                date: model().date,
+                                duration: model().duration,
+                                all_day: model().all_day,
+                            }"
+                            [formField]="form.assets"
+                        ></asset-list-field>
+                    </div>
+                }
             </div>
         </div>
     `,
@@ -281,6 +321,7 @@ type FormType = 'single' | 'group' | 'other';
         RecurrenceFieldComponent,
         UserSearchFieldComponent,
         UserListFieldComponent,
+        AssetListFieldComponent,
     ],
 })
 export class DeskFlowDetailsComponent {
@@ -289,7 +330,8 @@ export class DeskFlowDetailsComponent {
     private _settings = inject(SettingsService);
     private _dialog = inject(MatDialog);
 
-    public readonly active_form = signal<FormType>('single');
+    /** Selected booking type. The parent flow reads it when it confirms */
+    public readonly active_form = model<DeskFormType>('single');
     public readonly form_type_config = signal({
         single: { icon: 'person', label: 'Single' },
         group: { icon: 'group_add', label: 'Group' },
@@ -306,6 +348,32 @@ export class DeskFlowDetailsComponent {
     });
 
     public readonly hide_title = settingSignal('desks.hide_title', false);
+    public readonly allow_groups = settingSignal<boolean>(
+        'desks.allow_groups',
+        false,
+    );
+    public readonly can_book_for_others = computed<boolean>(
+        () =>
+            !!settingSignal('bookings.can_book_for_others')() ||
+            !!settingSignal('desks.can_book_for_others')(),
+    );
+    /** Whether the user can select a booking type other than `single` */
+    public readonly has_form_types = computed(
+        () => this.allow_groups() || this.can_book_for_others(),
+    );
+    public readonly has_assets = computed<boolean>(
+        () =>
+            !!settingSignal('bookings.has_assets')() ||
+            !!settingSignal('desks.has_assets')(),
+    );
+    public readonly bookable_hours = computed<
+        { start: number; end: number } | undefined
+    >(
+        () =>
+            settingSignal('desks.bookable_hours')() ||
+            settingSignal('bookings.bookable_hours')() ||
+            undefined,
+    );
     public readonly available_days = settingSignal(
         'desks.available_period',
         90,
@@ -360,6 +428,11 @@ export class DeskFlowDetailsComponent {
     );
     public readonly use_24hr = settingSignal('use_24_hour_time', false);
 
+    /** Whether the desk is allocated on confirm and not selected by the user */
+    public get auto_allocation() {
+        return this._booking_form.auto_allocation;
+    }
+
     public get timezone() {
         return this._settings.get('app.bookings.use_building_timezone') ||
             this._settings.get('app.desks.use_building_timezone')
@@ -367,8 +440,8 @@ export class DeskFlowDetailsComponent {
             : '';
     }
 
-    public setActiveForm(form: FormType) {
-        this.active_form.set(form as any);
+    public setActiveForm(form: DeskFormType) {
+        this.active_form.set(form);
         this._booking_form.setOptions({ group: form === 'group' });
         if (form === 'single') {
             this.model.update((m) => ({
@@ -379,15 +452,21 @@ export class DeskFlowDetailsComponent {
         } else if (form === 'group') {
             this.model.update((m) => ({ ...m, user: currentUser() }));
         } else {
-            this.model.update((m) => ({ ...m, user: null, attendees: [] }));
+            // A `null` user goes back to the form default, which can be the
+            // current user. The empty user keeps the field clear.
+            this.model.update((m) => ({
+                ...m,
+                user: EMPTY_USER,
+                attendees: [],
+            }));
         }
     }
 
-    public setOptions(options: any) {
+    public setOptions(options: Partial<BookingFlowOptions>) {
         this._booking_form.setOptions(options);
     }
 
-    public onRecurrenceChange(recurrence: any) {
+    public onRecurrenceChange(recurrence: BookingRecurrence) {
         this.model.update((m) => ({ ...m, ...recurrence }));
     }
 

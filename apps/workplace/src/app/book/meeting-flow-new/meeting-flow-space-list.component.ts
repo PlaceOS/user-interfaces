@@ -29,8 +29,8 @@ import { EventFormService } from '@placeos/events';
                     @for (
                         space of available_spaces()
                             | slice
-                                : page() * page_size()
-                                : page() * page_size() + page_size();
+                                : active_page() * page_size()
+                                : active_page() * page_size() + page_size();
                         track space.id
                     ) {
                         <li
@@ -215,13 +215,13 @@ import { EventFormService } from '@placeos/events';
                         </div>
                         <div class="flex-1"></div>
                         <div class="p-2">
-                            Page {{ page() + 1 }} of {{ max_pages() }}
+                            Page {{ active_page() + 1 }} of {{ max_pages() }}
                         </div>
                         <button
                             icon
                             matRipple
-                            [disabled]="page() <= 0"
-                            (click)="page.set(page() - 1)"
+                            [disabled]="active_page() <= 0"
+                            (click)="page.set(active_page() - 1)"
                             class="rounded-xl border border-base-300"
                         >
                             <icon>keyboard_arrow_left</icon>
@@ -229,8 +229,8 @@ import { EventFormService } from '@placeos/events';
                         <button
                             icon
                             matRipple
-                            [disabled]="page() + 1 >= max_pages()"
-                            (click)="page.set(page() + 1)"
+                            [disabled]="active_page() + 1 >= max_pages()"
+                            (click)="page.set(active_page() + 1)"
                             class="rounded-xl border border-base-300"
                         >
                             <icon>keyboard_arrow_right</icon>
@@ -297,10 +297,14 @@ export class MeetingFlowSpaceListComponent {
     public readonly max_pages = computed(() =>
         Math.ceil(this.available_spaces().length / this.page_size()),
     );
+    /** Selected page, limited to the last page of the current room list */
+    public readonly active_page = computed(() =>
+        Math.max(0, Math.min(this.page(), this.max_pages() - 1)),
+    );
     public readonly active_range = computed(() => [
-        this.page() * this.page_size() + 1,
+        this.active_page() * this.page_size() + 1,
         Math.min(
-            this.page() * this.page_size() + this.page_size(),
+            this.active_page() * this.page_size() + this.page_size(),
             this.available_spaces()?.length,
         ),
     ]);

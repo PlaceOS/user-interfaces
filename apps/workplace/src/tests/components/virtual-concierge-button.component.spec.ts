@@ -20,6 +20,8 @@ describe('VirtualConciergeButtonComponent', () => {
         settingSignal('virtual_concierge.url', '').set(value);
     const setLegacyUrl = (value: string) =>
         settingSignal('virtual_concierge_url', '').set(value);
+    const setIcon = (value: string) =>
+        settingSignal('virtual_concierge.icon', '').set(value);
     const setDisplay = (value: 'fullscreen' | 'sidebar') =>
         settingSignal('virtual_concierge.display', 'fullscreen').set(value);
     const setSide = (value: 'left' | 'right') =>
@@ -28,6 +30,7 @@ describe('VirtualConciergeButtonComponent', () => {
     beforeEach(() => {
         setUrl('');
         setLegacyUrl('');
+        setIcon('');
         setDisplay('fullscreen');
         setSide('left');
         spectator = createComponent();
@@ -44,6 +47,21 @@ describe('VirtualConciergeButtonComponent', () => {
         setUrl('https://concierge.example');
         spectator.detectChanges();
         expect(spectator.query('button')).toExist();
+    });
+
+    it('shows the configured image, or a default icon', () => {
+        setUrl('https://concierge.example');
+        spectator.detectChanges();
+        expect(spectator.query('button icon')).toExist();
+        expect(spectator.query('button img')).not.toExist();
+
+        setIcon('assets/icons/concierge.png');
+        spectator.detectChanges();
+        expect(spectator.query('button img')).toHaveAttribute(
+            'src',
+            'assets/icons/concierge.png',
+        );
+        expect(spectator.query('button icon')).not.toExist();
     });
 
     it('falls back to the legacy url setting', () => {

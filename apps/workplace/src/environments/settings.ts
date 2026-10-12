@@ -263,7 +263,7 @@ const app = {
     },
     analytics: {
         enabled: true,
-        tracking_id: 'G-S6TDS95BDH',
+        tracking_id: '',
     },
     chat: {
         enabled: false,

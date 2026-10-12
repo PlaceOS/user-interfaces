@@ -5,7 +5,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { BookingFormService } from '@placeos/bookings';
-import { Booking, SettingsService } from '@placeos/common';
+import { Booking, settingSignal } from '@placeos/common';
 import { EventFormService } from '@placeos/events';
 import { MockProvider } from 'ng-mocks';
 import { LandingStateService } from '../../app/landing/landing-state.service';
@@ -14,15 +14,10 @@ import { TeamScheduleService } from '../../app/team-schedule/team-schedule.servi
 
 describe('LandingColleaguesNewComponent', () => {
     let spectator: Spectator<LandingColleaguesNewComponent>;
-    let features: string[] = [];
+    const features = settingSignal<string[]>('features', []);
     const booking_form_service = {
         newForm: vi.fn(),
         setOptions: vi.fn(),
-    };
-    const settings_service = {
-        signal: vi.fn((key: string, default_value?: string[]) =>
-            signal(key === 'features' ? features : (default_value ?? [])),
-        ),
     };
     const createComponent = createComponentFactory({
         component: LandingColleaguesNewComponent,
@@ -53,10 +48,6 @@ describe('LandingColleaguesNewComponent', () => {
                 toggleFavoriteByUser: vi.fn(),
                 toggleTeamMemberByUser: vi.fn(),
             }),
-            {
-                provide: SettingsService,
-                useValue: settings_service,
-            },
         ],
     });
 
@@ -70,8 +61,7 @@ describe('LandingColleaguesNewComponent', () => {
     };
 
     beforeEach(() => {
-        features = [];
-        settings_service.signal.mockClear();
+        features.set(['spaces']);
         booking_form_service.newForm.mockClear();
         booking_form_service.setOptions.mockClear();
     });
@@ -100,7 +90,7 @@ describe('LandingColleaguesNewComponent', () => {
     });
 
     it('should show favorite and team actions when team schedule is enabled', async () => {
-        features = ['team-schedule'];
+        features.set(['spaces', 'team-schedule']);
         spectator = createComponent();
         spectator.detectChanges();
         await open_actions_menu();
@@ -111,6 +101,33 @@ describe('LandingColleaguesNewComponent', () => {
 
         expect(overlay).toContain('star_outline');
         expect(overlay).toContain('group_add');
+    });
+
+    it('should show the booking actions of the enabled features only', async () => {
+        spectator = createComponent();
+        spectator.component.selected_users.set([
+            { name: 'Test User', email: 'test@example.com' },
+        ] as any);
+        spectator.detectChanges();
+        expect(spectator.query('[name="book-room-selected"]')).toBeTruthy();
+        expect(spectator.query('[name="book-desk-selected"]')).toBeFalsy();
+
+        // A desk booking for colleagues is a group booking
+        const allow_groups = settingSignal('desks.allow_groups', false);
+        allow_groups.set(false);
+        features.set(['desks']);
+        spectator.detectChanges();
+        expect(spectator.query('[name="book-room-selected"]')).toBeFalsy();
+        expect(spectator.query('[name="book-desk-selected"]')).toBeFalsy();
+
+        allow_groups.set(true);
+        spectator.detectChanges();
+        expect(spectator.query('[name="book-desk-selected"]')).toBeTruthy();
+        await open_actions_menu();
+        expect(
+            spectator.inject(OverlayContainer).getContainerElement()
+                .textContent,
+        ).not.toContain('COLLEAGUES_BOOK_MEETING');
     });
 
     it('should initialise colleague desk bookings with desk booking type', async () => {

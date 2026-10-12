@@ -19,10 +19,15 @@ import {
     onFieldChange,
     settingSignal,
     SettingsService,
-    User,
 } from '@placeos/common';
 import { TranslatePipe } from '@placeos/components';
 import { UserListFieldComponent } from '@placeos/form-fields';
+import {
+    normaliseVisitorEmail,
+    parseRecentVisitors,
+    RecentVisitor,
+    recentVisitorEntry,
+} from './recent-visitors';
 
 @Component({
     selector: 'visitor-flow-invites',
@@ -65,9 +70,8 @@ import { UserListFieldComponent } from '@placeos/form-fields';
                                             <div class="text-xs opacity-60">
                                                 {{ item.email }}
                                                 {{
-                                                    item.organisation
-                                                        ? '| ' +
-                                                          item.organisation
+                                                    item.company
+                                                        ? '| ' + item.company
                                                         : ''
                                                 }}
                                             </div>
@@ -112,9 +116,8 @@ import { UserListFieldComponent } from '@placeos/form-fields';
                                             <div class="text-xs opacity-60">
                                                 {{ item.email }}
                                                 {{
-                                                    item.organisation
-                                                        ? '| ' +
-                                                          item.organisation
+                                                    item.company
+                                                        ? '| ' + item.company
                                                         : ''
                                                 }}
                                             </div>
@@ -212,7 +215,7 @@ export class VisitorFlowInvitesComponent
     private _injector = inject(Injector);
 
     public readonly search_term = signal<string>('');
-    public readonly visitors = signal<User[]>([]);
+    public readonly visitors = signal<RecentVisitor[]>([]);
     public readonly options = this._booking_form.options;
 
     public readonly is_single = computed(() => {
@@ -225,10 +228,10 @@ export class VisitorFlowInvitesComponent
     public readonly filtered_visitors = computed(() => {
         const s = this.search_term().toLowerCase();
         return this.visitors().filter(
-            ({ email, name, company }: any) =>
-                email?.toLowerCase()?.includes(s) ||
-                name?.toLowerCase()?.includes(s) ||
-                company?.toLowerCase()?.includes(s),
+            ({ email, name, company }) =>
+                email.toLowerCase().includes(s) ||
+                name.toLowerCase().includes(s) ||
+                company.toLowerCase().includes(s),
         );
     });
 
@@ -256,8 +259,11 @@ export class VisitorFlowInvitesComponent
         // validator wiring is needed here.
 
         // Load previous visitors from settings
-        const visitors = this._settings.get('visitor-invitees') || [];
-        this.visitors.set(this.parseRecentVisitors(visitors));
+        this.visitors.set(
+            parseRecentVisitors(
+                this._settings.get('visitor-invitees'),
+            ).reverse(),
+        );
 
         // Initialize search term
         this.search_term.set('');
@@ -300,66 +306,33 @@ export class VisitorFlowInvitesComponent
         }
     }
 
-    public setVisitor(item: any) {
-        const asset_id = this.normalizeEmail(item?.asset_id || item?.email);
-        const asset_name = item?.asset_name || item?.name || asset_id;
-        const company = item?.company || item?.organisation || '';
+    public setVisitor(item: Partial<RecentVisitor>) {
+        const asset_id = normaliseVisitorEmail(item?.email);
         if (!asset_id) return;
+        const visitor: Partial<RecentVisitor> = {
+            ...item,
+            email: asset_id,
+            name: item.name || asset_id,
+            company: item.company || '',
+        };
 
         this.model.update((m) => ({
             ...m,
             asset_id,
-            asset_name,
-            company,
+            asset_name: visitor.name,
+            company: visitor.company,
             phone: item.phone,
         }));
 
         // Save to visitor history
-        const visitor_details = `${asset_id}|${asset_name}|${company}|${
-            item.phone || ''
-        }`;
-        const old_visitors = this._settings.get('visitor-invitees') || [];
-        const old_visitor_records = this.parseRecentVisitors(old_visitors)
-            .filter((visitor) => visitor.email !== asset_id)
-            .map((visitor) => {
-                return `${visitor.email}|${visitor.name || ''}|${
-                    (visitor as any).company || ''
-                }|${visitor.phone || ''}`;
-            });
-        this._settings.saveUserSetting('visitor-invitees', [
-            ...old_visitor_records,
-            visitor_details,
-        ]);
-    }
-
-    private toSafeValue(value: any): string {
-        if (!value || value === 'null' || value === 'undefined') return '';
-        return `${value}`.trim();
-    }
-
-    private normalizeEmail(value: any): string {
-        const email = this.toSafeValue(value)
-            .replace(/^mailto:/i, '')
-            .replace(/[<>"']/g, '');
-        return email.toLowerCase();
-    }
-
-    private parseRecentVisitors(visitor_history: string[]): User[] {
-        const unique_visitors = new Map<string, User>();
-        for (let index = visitor_history.length - 1; index >= 0; index--) {
-            const item = visitor_history[index];
-            if (typeof item !== 'string') continue;
-            const [email, name, company, phone] = item.split('|');
-            const parsed_visitor = {
-                email: this.normalizeEmail(email),
-                name: this.toSafeValue(name),
-                company: this.toSafeValue(company),
-                phone: this.toSafeValue(phone),
-            };
-            const email_key = parsed_visitor.email;
-            if (!email_key || unique_visitors.has(email_key)) continue;
-            unique_visitors.set(email_key, parsed_visitor as any);
-        }
-        return [...unique_visitors.values()].reverse();
+        const old_visitors = parseRecentVisitors(
+            this._settings.get('visitor-invitees'),
+        )
+            .filter((_) => _.email !== asset_id)
+            .reverse();
+        this._settings.saveUserSetting(
+            'visitor-invitees',
+            [...old_visitors, visitor].map(recentVisitorEntry),
+        );
     }
 }

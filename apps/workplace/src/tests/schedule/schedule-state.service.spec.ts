@@ -17,6 +17,7 @@ import {
     newCalendarEventFromBooking,
     SpacesService,
 } from '@placeos/events';
+import { endOfDay, getUnixTime, startOfDay } from 'date-fns';
 import { MockProvider } from 'ng-mocks';
 import { NEVER, of } from 'rxjs';
 
@@ -25,6 +26,7 @@ vi.mock('@placeos/ts-client', { spy: true });
 import * as ts_client from '@placeos/ts-client';
 import {
     isBookingForOtherUser,
+    overlapsDay,
     ScheduleStateService,
 } from '../../app/schedule/schedule-state.service';
 
@@ -282,7 +284,7 @@ describe('ScheduleStateService', () => {
         expect((spectator.service as any)._canLoadEvents()).toBe(false);
     });
 
-    it('should hide bookings made by me for others by default', () => {
+    it('should show bookings made by me for others by default', () => {
         const settings = spectator.inject(SettingsService) as any;
         settings.get.mockImplementation((key: string) =>
             key === 'app.features' ? ['desks'] : undefined,
@@ -304,14 +306,60 @@ describe('ScheduleStateService', () => {
         );
         (spectator.service as any)._desks.set([mine, for_other]);
 
-        expect(spectator.service.filtered_bookings()).toEqual([mine]);
-
-        spectator.service.toggleBookingsForOthers();
-
         expect(spectator.service.filtered_bookings()).toEqual([
             mine,
             for_other,
         ]);
+
+        spectator.service.toggleBookingsForOthers();
+
+        expect(spectator.service.filtered_bookings()).toEqual([mine]);
+    });
+
+    it('should ignore a range end date that is before the selected date', async () => {
+        const day = (date: number) => new Date(2026, 9, date, 10).valueOf();
+        spectator.service.setOptions({ period: 'range' });
+        spectator.service.setDateRange(day(5), day(9));
+        expect(spectator.service.end_date()).toBe(day(9));
+
+        // The landing page moves the date and leaves the range end in place
+        spectator.service.setDate(day(12));
+
+        expect(spectator.service.end_date()).toBeNull();
+        await spectator.service['_bookingQuery'](
+            'desk',
+            spectator.service.options().period,
+            spectator.service.date(),
+            spectator.service.end_date(),
+        );
+        const url = vi.mocked(ts_client.get).mock.lastCall?.[0] as string;
+        const query = new URLSearchParams(url.split('?')[1]);
+        expect(+query.get('period_start')).toBe(
+            getUnixTime(startOfDay(day(12))),
+        );
+        expect(+query.get('period_end')).toBe(getUnixTime(endOfDay(day(12))));
+    });
+
+    it('should match a multi-day booking on each day that it covers', () => {
+        const day = (date: number) => new Date(2026, 9, date, 12).valueOf();
+        const window = {
+            date: startOfDay(day(5)).valueOf(),
+            duration: 3 * 24 * 60,
+            all_day: true,
+        };
+
+        // `date_end` of these items is the end of the first day
+        for (const item of [new Booking(window), new CalendarEvent(window)]) {
+            expect(overlapsDay(item, day(4))).toBe(false);
+            expect(overlapsDay(item, day(5))).toBe(true);
+            expect(overlapsDay(item, day(6))).toBe(true);
+            expect(overlapsDay(item, day(7))).toBe(true);
+            expect(overlapsDay(item, day(8))).toBe(false);
+        }
+
+        const meeting = new CalendarEvent({ date: day(5), duration: 60 });
+        expect(overlapsDay(meeting, day(5))).toBe(true);
+        expect(overlapsDay(meeting, day(6))).toBe(false);
     });
 
     it('should identify bookings made by the current user for someone else', () => {

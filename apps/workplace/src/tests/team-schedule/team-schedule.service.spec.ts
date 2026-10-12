@@ -1,3 +1,4 @@
+import { TestBed } from '@angular/core/testing';
 import { createServiceFactory, SpectatorService } from '@ngneat/spectator/vitest';
 import { MockProvider } from 'ng-mocks';
 import {
@@ -618,6 +619,47 @@ describe('TeamScheduleService', () => {
         it('should clear the loading flag after a refresh', async () => {
             await service.refresh();
             await wait();
+            expect(service.loading()).toBe(false);
+        });
+
+        it('should request bookings for a week change and not for other filters', async () => {
+            setupColleagues([{ email: 'a@example.com', name: 'A' }]);
+            await service.refresh();
+            await wait();
+            vi.mocked(get).mockClear();
+
+            service.setFilters({ search: 'a', view: 'team', status: 'wfh' });
+            TestBed.tick();
+            await wait();
+            expect(get).not.toHaveBeenCalled();
+
+            service.nextWeek();
+            TestBed.tick();
+            await wait();
+            expect(get).toHaveBeenCalledTimes(1);
+        });
+
+        it('should drop a late response for an old week', async () => {
+            setupColleagues([{ email: 'a@example.com', name: 'A' }]);
+            await service.refresh();
+            await wait();
+            let resolveOldWeek: (list: unknown[]) => void = () => null;
+            vi.mocked(get)
+                .mockReturnValueOnce(
+                    new Promise((resolve) => (resolveOldWeek = resolve)) as any,
+                )
+                .mockResolvedValue([] as any);
+
+            service.nextWeek();
+            TestBed.tick();
+            service.nextWeek();
+            TestBed.tick();
+            await wait();
+            resolveOldWeek([]);
+            await wait();
+
+            const member = (service as any)._team_members()[0];
+            expect(member.statuses[0].date).toBe(service.week_days()[0].date);
             expect(service.loading()).toBe(false);
         });
     });

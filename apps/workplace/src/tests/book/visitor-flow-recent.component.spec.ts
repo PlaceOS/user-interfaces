@@ -65,12 +65,7 @@ describe('VisitorFlowRecentComponent', () => {
         ]);
 
         spectator.component.ngOnInit();
-        spectator.component.selectVisitor({
-            email: 'visitor.one@example.com',
-            name: 'Visitor One',
-            company: 'Acme',
-            phone: '+61400111222',
-        });
+        spectator.component.selectVisitor(spectator.component.visitors()[0]);
 
         expect(model().phone).toBe('+61400111222');
     });

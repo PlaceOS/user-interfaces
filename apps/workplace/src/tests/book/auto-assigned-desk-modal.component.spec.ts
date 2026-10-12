@@ -68,18 +68,56 @@ describe('AutoAssignedDeskModalComponent', () => {
     });
 
     beforeEach(() => {
+        vi.clearAllMocks();
+        // The providers hold one model for the whole file
+        model.set({
+            booking_type: 'desk',
+            date: Date.now(),
+            duration: 60,
+            all_day: false,
+            resources: [],
+            asset_id: '',
+        });
         spectator = createComponent();
     });
 
-    it('should auto-assign desks as all-day bookings', async () => {
+    it('should search for a desk with an all-day booking', async () => {
         await spectator.component.ngOnInit();
 
-        expect(model()).toEqual(
-            expect.objectContaining({
-                all_day: true,
-                asset_id: 'desk-123',
-                resources: [desk_resource],
-            }),
-        );
+        expect(model().all_day).toBe(true);
+        expect(spectator.component.assigned_desk()).toEqual(desk_resource);
+    });
+
+    it('should keep the assigned desk out of the shared form until the user confirms', async () => {
+        await spectator.component.ngOnInit();
+
+        expect(model().asset_id).toBe('');
+        expect(model().resources).toEqual([]);
+
+        await spectator.component.confirm();
+
+        expect(model().asset_id).toBe('desk-123');
+        expect(model().resources).toEqual([desk_resource]);
+        expect(spectator.inject(BookingFormService).postForm).toHaveBeenCalled();
+    });
+
+    it('should restore the shared form when the modal closes without a booking', async () => {
+        const initial_form = model();
+        await spectator.component.ngOnInit();
+
+        spectator.fixture.destroy();
+
+        expect(model()).toEqual(initial_form);
+        expect(model().all_day).toBe(false);
+    });
+
+    it('should not restore the shared form after a booking', async () => {
+        await spectator.component.ngOnInit();
+        await spectator.component.confirm();
+        const booked_form = model();
+
+        spectator.fixture.destroy();
+
+        expect(model()).toBe(booked_form);
     });
 });

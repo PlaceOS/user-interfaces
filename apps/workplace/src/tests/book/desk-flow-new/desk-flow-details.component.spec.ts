@@ -12,7 +12,9 @@ import {
     currentUser,
     isEmptyUser,
     OrganisationService,
+    settingSignal,
     SettingsService,
+    User,
 } from '@placeos/common';
 import { addDays, endOfDay } from 'date-fns';
 import { MockProvider } from 'ng-mocks';
@@ -163,9 +165,30 @@ describe('DeskFlowDetailsComponent', () => {
     });
 
     it('should forward setOptions to the booking form service', () => {
-        spectator.component.setOptions({ members: ['x'] });
+        const members = [new User({ email: 'x@a.com' })];
+        spectator.component.setOptions({ members });
 
-        expect(set_options).toHaveBeenCalledWith({ members: ['x'] });
+        expect(set_options).toHaveBeenCalledWith({ members });
+    });
+
+    it('should offer the group and book for other types only when the settings allow them', () => {
+        const typeButtons = () =>
+            spectator
+                .queryAll('button[btn] > div')
+                .map((el) => el.textContent.trim());
+        settingSignal('desks.allow_groups').set(true);
+        settingSignal('desks.can_book_for_others').set(true);
+        spectator.detectChanges();
+        expect(typeButtons()).toEqual(['Single', 'Group', 'Book for other']);
+
+        settingSignal('desks.allow_groups').set(false);
+        spectator.detectChanges();
+        expect(typeButtons()).toEqual(['Single', 'Book for other']);
+
+        settingSignal('desks.can_book_for_others').set(false);
+        settingSignal('bookings.can_book_for_others').set(false);
+        spectator.detectChanges();
+        expect(typeButtons()).toEqual([]);
     });
 
     it('should limit the selectable end date to the configured available period', () => {

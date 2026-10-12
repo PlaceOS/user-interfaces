@@ -3,7 +3,7 @@ import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
-import { BookingFormService } from '@placeos/bookings';
+import { BookingFlowView, BookingFormService } from '@placeos/bookings';
 import {
     AsyncHandler,
     Booking,
@@ -19,6 +19,7 @@ import {
     openConfirmModal,
     TranslatePipe,
 } from '@placeos/components';
+import { recentVisitorEntry } from './recent-visitors';
 import { VisitorFlowDetailsComponent } from './visitor-flow-details.component';
 import { VisitorFlowInvitesComponent } from './visitor-flow-invites.component';
 import { VisitorFlowRecentComponent } from './visitor-flow-recent.component';
@@ -151,8 +152,9 @@ export class VisitorFlowNewComponent extends AsyncHandler implements OnInit {
         return this._booking_form.model;
     }
 
+    /** Whether the user selected to invite multiple visitors */
     public readonly is_multiple = computed(
-        () => !!this._model()?.assets?.length,
+        () => this._booking_form.options()?.group === true,
     );
     public readonly visit_heading = computed(() =>
         this._model()?.id
@@ -170,7 +172,9 @@ export class VisitorFlowNewComponent extends AsyncHandler implements OnInit {
             'route.params',
             this._route.paramMap.subscribe((param) => {
                 if (param.has('step'))
-                    this._booking_form.setView(param.get('step') as any);
+                    this._booking_form.setView(
+                        param.get('step') as BookingFlowView,
+                    );
             }),
         );
         this._loadGroupVisitors();
@@ -219,7 +223,7 @@ export class VisitorFlowNewComponent extends AsyncHandler implements OnInit {
                 i18n('FORM.INVALID_FIELDS', {
                     field_list: getInvalidSignalFields(this._form, this._model)
                         .join(', ')
-                        .replace('asset_id', i18n('BOOKINGS.VISITOR')),
+                        .replace('asset_id', i18n('RESOURCE.VISITOR')),
                 }),
             );
         }
@@ -242,7 +246,7 @@ export class VisitorFlowNewComponent extends AsyncHandler implements OnInit {
                 : 1;
             this._saveRecentVisitors(is_multiple);
             await (is_multiple ? this._bookForMany() : this._bookForOne());
-            const name = is_multiple ? i18n('BOOKINGS.VISITORS') : asset_name;
+            const name = is_multiple ? i18n('RESOURCE.VISITORS') : asset_name;
             notifySuccess(
                 i18n(
                     is_multiple
@@ -268,10 +272,9 @@ export class VisitorFlowNewComponent extends AsyncHandler implements OnInit {
         if (!value.id || !this._form().dirty()) return true;
         const result = await openConfirmModal(
             {
-                title: 'Unsaved changes',
-                content:
-                    'You have unsaved visitor invite changes. Discard these changes and leave this form?',
-                confirm_text: 'Discard changes',
+                title: i18n('APP.CONCIERGE.UNSAVED_CHANGES_TITLE'),
+                content: i18n('APP.CONCIERGE.UNSAVED_CHANGES_MSG'),
+                confirm_text: i18n('APP.CONCIERGE.UNSAVED_CHANGES_DISCARD'),
                 icon: { content: 'warning' },
             },
             this._dialog,
@@ -286,38 +289,39 @@ export class VisitorFlowNewComponent extends AsyncHandler implements OnInit {
         const old_visitors: string[] =
             this._settings.get('visitor-invitees') || [];
         const value = this._model();
-        const toEntry = (
-            email: string,
-            name = '',
-            org = '',
-            phone = '',
-        ) => `${email}|${name}|${org}|${phone}`;
         if (is_multiple && value.assets?.length) {
-            const emails = new Set(
-                value.assets.map((a) => a.email).filter(Boolean),
-            );
+            const assets: (Partial<User> & { company?: string })[] =
+                value.assets;
+            const emails = new Set(assets.map((a) => a.email).filter(Boolean));
             this._settings.saveUserSetting('visitor-invitees', [
                 ...old_visitors.filter(
                     (v) => !emails.has(`${v}`.split('|')[0]),
                 ),
-                ...value.assets
+                ...assets
                     .filter((a) => !!a.email)
                     .map((a) =>
-                        toEntry(
-                            a.email,
-                            a.name,
-                            a.organisation,
-                            (a as any).phone || '',
-                        ),
+                        recentVisitorEntry({
+                            email: a.email,
+                            name: a.name,
+                            company: a.organisation || a.company,
+                            phone: a.phone,
+                        }),
                     ),
             ]);
         } else {
-            const { asset_id, asset_name, company, phone } = value;
+            const { asset_id, asset_name, company, phone, international } =
+                value;
             this._settings.saveUserSetting('visitor-invitees', [
                 ...old_visitors.filter(
                     (v) => `${v}`.split('|')[0] !== asset_id,
                 ),
-                toEntry(asset_id, asset_name, company, phone),
+                recentVisitorEntry({
+                    email: asset_id,
+                    name: asset_name,
+                    company,
+                    phone,
+                    international,
+                }),
             ]);
         }
     }
@@ -341,7 +345,6 @@ export class VisitorFlowNewComponent extends AsyncHandler implements OnInit {
 
     private async _bookForMany() {
         const value = this._model();
-        const visitor_reason = value.title || value.description || 'Visit';
         const assets: User[] = value.assets || [];
         const visitor_members = assets
             .filter((_) => !!_.email)
@@ -350,7 +353,7 @@ export class VisitorFlowNewComponent extends AsyncHandler implements OnInit {
                     new User({
                         ...user,
                         name: user.name || user.email,
-                    } as any),
+                    }),
             );
         this._booking_form.setOptions({
             type: 'visitor',

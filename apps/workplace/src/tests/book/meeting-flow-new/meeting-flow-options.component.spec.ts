@@ -12,7 +12,8 @@ import {
     SettingsService,
 } from '@placeos/common';
 import { EventFormService, generateEventForm } from '@placeos/events';
-import { MockProvider } from 'ng-mocks';
+import { UserListFieldComponent } from '@placeos/form-fields';
+import { MockComponent, MockProvider } from 'ng-mocks';
 import { NEVER, of } from 'rxjs';
 import { MeetingFlowOptionsComponent } from '../../../app/book/meeting-flow-new/meeting-flow-options.component';
 
@@ -22,6 +23,7 @@ describe('MeetingFlowOptionsComponent', () => {
     let available_menu: ReturnType<typeof signal<any[]>>;
     let charge_codes: ReturnType<typeof signal<string[]>>;
     let post_form: any;
+    let open_link_modal: any;
     let navigate: any;
     let dialog_open: any;
     const snackbar = {
@@ -34,6 +36,15 @@ describe('MeetingFlowOptionsComponent', () => {
     const createComponent = createComponentFactory({
         component: MeetingFlowOptionsComponent,
         detectChanges: false,
+        overrideComponents: [
+            [
+                MeetingFlowOptionsComponent,
+                {
+                    remove: { imports: [UserListFieldComponent] },
+                    add: { imports: [MockComponent(UserListFieldComponent)] },
+                },
+            ],
+        ],
         providers: [
             {
                 provide: EventFormService,
@@ -48,6 +59,7 @@ describe('MeetingFlowOptionsComponent', () => {
                         model,
                         form: refs.form,
                         postForm: (post_form = vi.fn(() => Promise.resolve())),
+                        openEventLinkModal: (open_link_modal = vi.fn()),
                     };
                 },
             },
@@ -60,6 +72,7 @@ describe('MeetingFlowOptionsComponent', () => {
             },
             MockProvider(SettingsService, {
                 get: vi.fn(() => false),
+                signal: vi.fn(() => signal(false)),
                 time_format: 'h:mm a',
             } as any),
             MockProvider(OrganisationService, {
@@ -97,6 +110,13 @@ describe('MeetingFlowOptionsComponent', () => {
         available_menu = signal([]);
         charge_codes = signal([]);
         settingSignal('events.allow_daily_allday_recurrence', false).set(false);
+        settingSignal('events.booking_unavailable').set(false);
+        settingSignal('events.no_standalone').set(false);
+        settingSignal('events.strict_capacity_check').set(false);
+        settingSignal('events.hide_attendees').set(false);
+        // The tests that render the template do not need these fields
+        settingSignal('events.hide_notes').set(true);
+        settingSignal('events.has_assets').set(false);
         spectator = createComponent();
         // A component-imported dialog module provides a real MatDialog that
         // shadows a root mock, so spy on the actual injected instance.
@@ -190,6 +210,66 @@ describe('MeetingFlowOptionsComponent', () => {
         model.update((m) => ({ ...m, resources: [] }));
         await spectator.component.confirmBooking();
         expect(post_form).not.toHaveBeenCalled();
+    });
+
+    it('should open the booking link and not save when room booking is unavailable', async () => {
+        settingSignal('events.booking_unavailable').set(true);
+
+        await spectator.component.confirmBooking();
+
+        expect(open_link_modal).toHaveBeenCalled();
+        expect(post_form).not.toHaveBeenCalled();
+    });
+
+    it('should not save a meeting without a room when a room is required', async () => {
+        settingSignal('events.no_standalone').set(true);
+        model.update((m) => ({ ...m, resources: [] }));
+
+        await spectator.component.confirmBooking();
+
+        expect(dialog_open).not.toHaveBeenCalled();
+        expect(post_form).not.toHaveBeenCalled();
+    });
+
+    it('should not save more attendees than the rooms hold when the capacity check is strict', async () => {
+        settingSignal('events.strict_capacity_check').set(true);
+        model.update((m) => ({
+            ...m,
+            resources: [{ id: 'space-1', name: 'Room 1', capacity: 2 }],
+            attendees: [{ email: 'a@example.com' }, { email: 'b@example.com' }],
+        }));
+
+        await spectator.component.confirmBooking();
+        expect(post_form).not.toHaveBeenCalled();
+
+        model.update((m) => ({
+            ...m,
+            attendees: [{ email: 'a@example.com' }],
+        }));
+        await spectator.component.confirmBooking();
+        expect(post_form).toHaveBeenCalled();
+    });
+
+    it('should hide the attendees field when the setting hides it', () => {
+        spectator.detectChanges();
+        expect(spectator.query('a-user-list-field')).toExist();
+
+        settingSignal('events.hide_attendees').set(true);
+        spectator.detectChanges();
+        expect(spectator.query('a-user-list-field')).not.toExist();
+    });
+
+    it('should allow a catering order only when a room is selected', () => {
+        available_menu.set([{ id: 'item-1' }] as any);
+        const addButton = () =>
+            spectator.query<HTMLButtonElement>('catering-list-field button');
+
+        spectator.detectChanges();
+        expect(addButton().disabled).toBe(false);
+
+        model.update((m) => ({ ...m, resources: [] }));
+        spectator.detectChanges();
+        expect(addButton().disabled).toBe(true);
     });
 
     it('should navigate to success and notify on a successful booking', async () => {

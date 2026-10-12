@@ -232,6 +232,34 @@ describe('MeetingFlowSpaceSelectComponent', () => {
         expect(model().resources).toEqual([{ id: 'space-2' }]);
     });
 
+    it('should allow multiple spaces with the current multiple spaces setting', () => {
+        settings_get.mockImplementation(
+            (k: string) => k === 'app.events.multiple_spaces',
+        );
+        model.set({ resources: [{ id: 'space-1' }] });
+
+        spectator.component.toggleSpace({ id: 'space-2' } as any);
+
+        expect(model().resources).toEqual([
+            { id: 'space-1' },
+            { id: 'space-2' },
+        ]);
+    });
+
+    it('should filter rooms with the minimum and the maximum of the selected size', () => {
+        spectator.component.setCapacity(5);
+        expect(set_filters).toHaveBeenLastCalledWith({
+            capacity: 5,
+            capacity_max: 8,
+        });
+
+        spectator.component.setCapacity(9);
+        expect(set_filters).toHaveBeenLastCalledWith({
+            capacity: 9,
+            capacity_max: undefined,
+        });
+    });
+
     it('should block continuing without a selected space', () => {
         model.set({ resources: [] });
         spectator.component.continue();

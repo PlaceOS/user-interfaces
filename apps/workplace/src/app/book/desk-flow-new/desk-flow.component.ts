@@ -1,9 +1,17 @@
 import { CdkScrollable } from '@angular/cdk/scrolling';
-import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import {
+    Component,
+    computed,
+    effect,
+    inject,
+    OnInit,
+    signal,
+} from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
     BookingAsset,
+    BookingFlowView,
     BookingFormService,
     findNearbyFeature,
 } from '@placeos/bookings';
@@ -13,16 +21,21 @@ import {
     flatten,
     getInvalidSignalFields,
     i18n,
+    isEmptyUser,
     notifyError,
     notifySuccess,
     OrganisationService,
+    User,
 } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import { SpacePipe } from '@placeos/events';
 import { listChildMetadata } from '@placeos/ts-client';
 import { set } from 'date-fns';
 import { DeskFlowAutoAssignComponent } from './desk-flow-auto-assign.component';
-import { DeskFlowDetailsComponent } from './desk-flow-details.component';
+import {
+    DeskFlowDetailsComponent,
+    DeskFormType,
+} from './desk-flow-details.component';
 import { DeskFlowSelectComponent } from './desk-flow-select.component';
 import { NewDeskFlowSuccessComponent } from './desk-flow-success.component';
 
@@ -38,7 +51,10 @@ import { NewDeskFlowSuccessComponent } from './desk-flow-success.component';
                     class="mx-auto min-h-full w-7xl max-w-full flex-1 space-y-4 px-4 pt-4"
                 >
                     @if (!is_edit_mode()) {
-                        <desk-flow-auto-assign class="block" />
+                        <desk-flow-auto-assign
+                            class="block"
+                            [error]="other_user_error()"
+                        />
                     }
                     <div
                         class="border-base-300 bg-base-100 flex w-full flex-col overflow-hidden rounded-xl border"
@@ -51,8 +67,19 @@ import { NewDeskFlowSuccessComponent } from './desk-flow-success.component';
                                 {{ 'BOOKINGS.DESK_DETAILS_HEADER' | translate }}
                             </div>
                         </div>
-                        <desk-flow-details />
-                        <desk-flow-select />
+                        <desk-flow-details [(active_form)]="active_form" />
+                        @if (auto_allocation) {
+                            <p
+                                class="bg-info/10 text-info m-4 rounded-sm px-4 py-3 text-center text-sm"
+                            >
+                                {{
+                                    'BOOKINGS.DESK_AUTO_ALLOCATION_INFO'
+                                        | translate
+                                }}
+                            </p>
+                        } @else {
+                            <desk-flow-select />
+                        }
                     </div>
                     <div
                         class="border-base-300 bg-base-100 sticky bottom-0 z-20 flex justify-between rounded-t-xl border-x border-t p-3"
@@ -145,6 +172,29 @@ export class DeskFlowNewComponent extends AsyncHandler implements OnInit {
     );
 
     public readonly is_edit_mode = computed(() => !!this.form_value()?.id);
+    /** Booking type selected in the details step */
+    public readonly active_form = signal<DeskFormType>('single');
+    // A saved booking resets the form options. Reset the booking type with
+    // them, as this component stays alive for the next booking.
+    private readonly _reset_form_type = effect(() => {
+        if (this.view() === 'success') this.active_form.set('single');
+    });
+    /** Error for a "Book for other" booking that has no person selected */
+    public readonly other_user_error = computed(() =>
+        this.active_form() === 'other' && isEmptyUser(this.form_value()?.user)
+            ? i18n('FORM.INVALID_FIELDS', {
+                  field_list: i18n('FORM.BOOK_FOR'),
+              })
+            : '',
+    );
+
+    /** Whether the desk is allocated on confirm and not selected by the user */
+    public get auto_allocation() {
+        return this._booking_form.auto_allocation;
+    }
+
+    /** Stops the async waits of this component after it is destroyed */
+    private _destroyed = false;
 
     public ngOnInit() {
         const { id, booking_type } = this._booking_form.model();
@@ -159,11 +209,14 @@ export class DeskFlowNewComponent extends AsyncHandler implements OnInit {
                 ...m,
                 title: 'Booking',
             }));
+        this._loadGroupMembers();
         this.subscription(
             'route.params',
             this._route.paramMap.subscribe((param) => {
                 if (param.has('step'))
-                    this._booking_form.setView(param.get('step') as any);
+                    this._booking_form.setView(
+                        param.get('step') as BookingFlowView,
+                    );
             }),
         );
         this.subscription(
@@ -186,7 +239,7 @@ export class DeskFlowNewComponent extends AsyncHandler implements OnInit {
                     return;
                 }
                 await this._waitForLoaded();
-                if (!asset_id) return;
+                if (!asset_id || this._destroyed) return;
                 const resource = await this._findDeskResource(asset_id);
                 if (!resource) return;
                 const building = resource.zone?.parent_id
@@ -209,9 +262,39 @@ export class DeskFlowNewComponent extends AsyncHandler implements OnInit {
         );
     }
 
-    /** Resolve once the booking form has finished its current load */
+    public override ngOnDestroy() {
+        super.ngOnDestroy();
+        this._destroyed = true;
+    }
+
+    /**
+     * Restore the group option and the members when the edited booking is
+     * part of a group, so that a save updates every member.
+     */
+    private async _loadGroupMembers() {
+        const booking = this._booking_form.booking;
+        if (!this._booking_form.model().id || !booking?.id) return;
+        const is_group =
+            !!booking.parent_id ||
+            !!booking.group ||
+            !!booking.extension_data?.group_members?.length;
+        if (!is_group) return;
+        // With no members the save fails with an error. It does not save
+        // the booking of the organiser only.
+        const members = await this._booking_form
+            .loadGroupMembersForBooking(booking)
+            .catch((): User[] => []);
+        if (this._destroyed) return;
+        this._booking_form.setOptions({ group: true, members });
+    }
+
+    /**
+     * Resolve once the booking form has finished its current load. Stops
+     * after 10 seconds or when the component is destroyed.
+     */
     private async _waitForLoaded() {
-        while (this._booking_form.loading()) {
+        for (let attempt = 0; attempt < 200; attempt++) {
+            if (this._destroyed || !this._booking_form.loading()) return;
             await new Promise((resolve) => setTimeout(resolve, 50));
         }
     }
@@ -310,7 +393,37 @@ export class DeskFlowNewComponent extends AsyncHandler implements OnInit {
         }));
     }
 
+    /**
+     * Save the booking. An edit of a group booking updates the booking of
+     * every member. The other bookings save as a new group or a single booking.
+     */
+    private async _postBooking() {
+        if (!this.options()?.group) return this._booking_form.postForm();
+        const booking = this._booking_form.booking;
+        if (!this._booking_form.model().id || !booking?.id) {
+            return this._booking_form.postFormForGroup();
+        }
+        const siblings = await this._booking_form.loadGroupSiblings(booking);
+        return this._booking_form.editFormForGroup(
+            siblings.length ? siblings : [booking],
+        );
+    }
+
     public async confirmBooking() {
+        if (this.other_user_error()) {
+            return notifyError(this.other_user_error());
+        }
+        if (this.auto_allocation) {
+            try {
+                await this._booking_form.autoAllocateDesk();
+            } catch (e) {
+                return notifyError(
+                    typeof e === 'string'
+                        ? e
+                        : i18n('BOOKINGS.DESK_AVAILABLE_ERROR'),
+                );
+            }
+        }
         const { asset_id, resources } = this._booking_form.model();
         if (resources?.length && asset_id !== resources[0].id) {
             this._booking_form.model.update((m) => ({
@@ -333,9 +446,7 @@ export class DeskFlowNewComponent extends AsyncHandler implements OnInit {
         }
         this.loading.set(true);
         try {
-            await (this.options()?.group
-                ? this._booking_form.postFormForGroup()
-                : this._booking_form.postForm());
+            await this._postBooking();
             notifySuccess(i18n('APP.CONCIERGE.DESKS_BOOKING_SUCCESS'));
             this._router.navigate(['/book/desk/success']);
         } catch (e) {
