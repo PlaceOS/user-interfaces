@@ -2,7 +2,7 @@ import { applyOps, upsertStyleRule } from '../lib/apply';
 import { ANCHOR_ATTR } from '../lib/constants';
 import { AttributeGeometryProvider, NoGeometryProvider } from '../lib/geometry';
 import { MapDocument } from '../lib/map-document';
-import { MapOp } from '../lib/ops';
+import { MapOp, NameValue } from '../lib/ops';
 import { anchor, load, loadMap, OFFICE } from './fixtures';
 
 const geometry = new AttributeGeometryProvider();
@@ -18,6 +18,28 @@ function one(doc: MapDocument, op: MapOp) {
 
 describe('applyOps', () => {
     describe('set_attr', () => {
+        it('refuses the editor attributes', () => {
+            const doc = office();
+            expect(
+                one(doc, {
+                    op: 'set_attr',
+                    why: '',
+                    target: { id: 'plant-2' },
+                    name: 'data-map-editor-anchor',
+                    value: 'e1',
+                }).rejected?.reason,
+            ).toMatch(/not editable/);
+            expect(
+                one(doc, {
+                    op: 'set_attr',
+                    why: '',
+                    target: { id: 'plant-2' },
+                    name: 'data-name',
+                    value: 'Fern',
+                }).applied,
+            ).toBeDefined();
+        });
+
         it('sets the attribute and the inline style for fill and stroke', () => {
             const doc = office();
             const { applied } = one(doc, {
@@ -143,6 +165,24 @@ describe('applyOps', () => {
             );
         });
 
+        it('matches whole selectors only and keeps !important on untouched declarations', () => {
+            expect(
+                upsertStyleRule('.foo .cls-1{fill:red !important}', '.cls-1', {
+                    stroke: 'blue',
+                }),
+            ).toBe('.foo .cls-1{fill:red !important}\n.cls-1{stroke:blue}');
+            expect(
+                upsertStyleRule('.a{fill:red !important;stroke:#111}', '.a', {
+                    stroke: 'blue',
+                }),
+            ).toBe('.a{fill:red !important;stroke:blue}');
+            expect(
+                upsertStyleRule('.b{fill:#000}\n.a{fill:#000}', '.a', {
+                    fill: '#fff',
+                }),
+            ).toBe('.b{fill:#000}\n.a{fill:#fff}');
+        });
+
         it('edits the first style element and rejects unsafe or unknown properties', () => {
             const doc = office();
             const { applied } = one(doc, {
@@ -187,6 +227,16 @@ describe('applyOps', () => {
                     declarations: [{ name: 'fill', value: '#fff' }],
                 }).rejected?.reason,
             ).toMatch(/parse/);
+            expect(
+                one(doc, {
+                    op: 'set_style_rule',
+                    why: '',
+                    selector: '.desk',
+                    declarations: [
+                        { name: 5, value: 'x' } as unknown as NameValue,
+                    ],
+                }).rejected?.reason,
+            ).toMatch(/not editable/);
         });
 
         it('creates a style element when the map has none', () => {
@@ -203,6 +253,21 @@ describe('applyOps', () => {
     });
 
     describe('set_text', () => {
+        it('drops the tspan lines of a text element and reports them as touched', () => {
+            const doc = office();
+            const line = anchor(doc, 'sub-1');
+            const { applied } = one(doc, {
+                op: 'set_text',
+                why: '',
+                target: { id: 'label-1' },
+                text: 'Boardroom',
+            });
+            const label = doc.byId('label-1') as Element;
+            expect(label.textContent).toBe('Boardroom');
+            expect(label.querySelector('tspan')).toBeNull();
+            expect(applied.touched).toContain(line);
+        });
+
         it('replaces the text of text and tspan only', () => {
             const doc = office();
             one(doc, {
@@ -453,6 +518,18 @@ describe('applyOps', () => {
     });
 
     describe('insert_shape', () => {
+        it('refuses an attribute without a string name', () => {
+            const doc = office();
+            expect(
+                one(doc, {
+                    op: 'insert_shape',
+                    why: '',
+                    kind: 'rect',
+                    attrs: [{ name: 5, value: 'x' } as unknown as NameValue],
+                }).rejected?.reason,
+            ).toMatch(/not allowed on a rect/);
+        });
+
         it('inserts into the root with an ai- id and into a group after a sibling', () => {
             const doc = office();
             const first = one(doc, {

@@ -1,8 +1,7 @@
 import {
     ANCHOR_ATTR,
-    ATTR_ALLOW_LIST,
-    ATTR_DENY_LIST,
     DEFAULT_ID_PREFIX,
+    isAllowedAttributeName,
     MAX_DUPLICATE_COUNT,
     MAX_REPLACEMENT_MARKUP_BYTES,
     MAX_TRANSFORM_TARGETS,
@@ -52,11 +51,7 @@ import {
 } from './ops';
 import { checkPathData } from './path-data';
 import { isUnsafeCssValue, purifyMarkup } from './sanitise';
-import {
-    formatDeclarations,
-    isValidSelector,
-    parseDeclarations,
-} from './style-resolution';
+import { formatDeclarations, isValidSelector } from './style-resolution';
 import { attributeValueIssue, geometryValueIssue } from './value-syntax';
 
 export interface AppliedOp {
@@ -200,17 +195,6 @@ function isRoot(doc: MapDocument, element: Element): boolean {
     return element === doc.root;
 }
 
-function isEditableAttribute(name: string): boolean {
-    const lower = name.toLowerCase();
-    if (
-        ATTR_DENY_LIST.has(lower) ||
-        lower.startsWith('on') ||
-        lower.includes(':')
-    )
-        return false;
-    return ATTR_ALLOW_LIST.has(name) || /^data-[a-z][a-z0-9_-]*$/i.test(name);
-}
-
 function prependTransform(element: Element, matrix: Matrix): void {
     const existing = element.getAttribute('transform') || '';
     element.setAttribute(
@@ -246,7 +230,7 @@ function setAttr(doc: MapDocument, op: SetAttrOp): Outcome {
     if (!resolution.ok) return { ok: false, reason: resolution.error };
     const element = resolution.element;
     const name = (op.name || '').trim();
-    if (!isEditableAttribute(name)) {
+    if (!isAllowedAttributeName(name)) {
         return { ok: false, reason: `attribute "${name}" is not editable` };
     }
     const style = (element as SVGElement).style;
@@ -267,19 +251,37 @@ export function styleElementOf(doc: MapDocument): Element | null {
     return doc.root.querySelector('style');
 }
 
-/** Merge declarations into the rule with exactly this selector, or append one. */
+/** The rule's declarations as written, `!important` kept, overridden by the new ones. */
+function mergeDeclarations(
+    body: string,
+    declarations: Readonly<Record<string, string>>,
+): string {
+    const merged = new Map<string, string>();
+    for (const part of body.split(';')) {
+        const index = part.indexOf(':');
+        if (index < 0) continue;
+        const name = part.slice(0, index).trim();
+        const value = part.slice(index + 1).trim();
+        if (name && value) merged.set(name, value);
+    }
+    for (const [name, value] of Object.entries(declarations)) {
+        merged.set(name, value);
+    }
+    return [...merged].map(([name, value]) => `${name}:${value}`).join(';');
+}
+
+/** Merge declarations into the rule whose whole selector is this one, or append a rule. */
 export function upsertStyleRule(
     css: string,
     selector: string,
     declarations: Readonly<Record<string, string>>,
 ): string {
     const pattern = new RegExp(
-        `(^|[}\\s;])(${escapeRegExp(selector)})\\s*\\{([^{}]*)\\}`,
+        `(^|[};])(\\s*)(${escapeRegExp(selector)})\\s*\\{([^{}]*)\\}`,
     );
     const match = css.match(pattern);
     if (match && match.index !== undefined) {
-        const merged = { ...parseDeclarations(match[3]), ...declarations };
-        const block = `${match[1]}${selector}{${formatDeclarations(merged)}}`;
+        const block = `${match[1]}${match[2]}${selector}{${mergeDeclarations(match[4], declarations)}}`;
         return (
             css.slice(0, match.index) +
             block +
@@ -308,7 +310,7 @@ function setStyleRule(doc: MapDocument, op: SetStyleRuleOp): Outcome {
     }
     const declarations: Record<string, string> = {};
     for (const { name, value } of op.declarations) {
-        const property = (name || '').trim();
+        const property = typeof name === 'string' ? name.trim() : '';
         if (!STYLE_PROPERTY_ALLOW_LIST.has(property)) {
             return {
                 ok: false,
@@ -352,8 +354,11 @@ function setText(doc: MapDocument, op: SetTextOp): Outcome {
     }
     if (typeof op.text !== 'string')
         return { ok: false, reason: 'text must be a string' };
+    const removed = MapDocument.subtree(element)
+        .slice(1)
+        .map((line) => doc.anchorOf(line));
     element.textContent = op.text;
-    return { ok: true, anchors: [doc.anchorOf(element)] };
+    return { ok: true, anchors: [doc.anchorOf(element)], touched: removed };
 }
 
 function isPoint(value: unknown): value is [number, number] {
@@ -566,7 +571,7 @@ function insertShape(
     const geometry_attrs = SHAPE_GEOMETRY_ATTRS[op.kind];
     const attrs: [string, string][] = [];
     for (const pair of op.attrs || []) {
-        const name = (pair?.name || '').trim();
+        const name = typeof pair?.name === 'string' ? pair.name.trim() : '';
         const value = `${pair?.value ?? ''}`;
         if (geometry_attrs.includes(name)) {
             const issue =
@@ -574,7 +579,7 @@ function insertShape(
                     ? checkPathData(value).error
                     : geometryValueIssue(name, value);
             if (issue) return { ok: false, reason: issue };
-        } else if (isEditableAttribute(name)) {
+        } else if (isAllowedAttributeName(name)) {
             const issue = attributeValueIssue(name, value);
             if (issue) return { ok: false, reason: issue };
         } else {
