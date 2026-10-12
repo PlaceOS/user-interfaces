@@ -139,10 +139,18 @@ test.describe('your bookings — high cancelled history', () => {
                 matching.length,
                 'the page must issue its desk listing query',
             ).toBeGreaterThan(0);
+            // Across every page: the listing is not ordered by id, so the live
+            // row can be on any of them.
+            const listed = new Set(matching.flatMap((response) => response.ids));
             expect(
-                matching.at(-1)?.ids,
-                'the active booking must be returned by the same query Your Bookings uses',
+                [...listed],
+                'the active booking must be returned by the listing Your Bookings uses',
             ).toContain(active_id);
+            expect(
+                listed.size,
+                `every row of the day must come back, not only the first page; ` +
+                    `${HISTORY_COUNT + 1} exist`,
+            ).toBeGreaterThanOrEqual(HISTORY_COUNT + 1);
             await expect(
                 schedule.card(active_id),
                 'the active booking must be displayed after the history boundary',
