@@ -2,10 +2,10 @@ import {
   CheckinComponent,
   CheckinErrorComponent,
   CheckinQRScanComponent
-} from "./chunk-SZ5BLWDM.js";
+} from "./chunk-7RZ6LI3G.js";
 import {
   CheckinStateService
-} from "./chunk-H2BVFJOA.js";
+} from "./chunk-5J4K5JUB.js";
 import {
   generateQRCode
 } from "./chunk-WBYOU3UR.js";
@@ -19,11 +19,11 @@ import {
   UserAvatarComponent,
   findOldestByName,
   saveAssetCategory
-} from "./chunk-57ORNH6K.js";
+} from "./chunk-YZW7J7UE.js";
 import {
   getGuestCateringItem,
   setGuestCateringItem
-} from "./chunk-E6GWOVXD.js";
+} from "./chunk-FRI5E3HZ.js";
 import {
   MatSelect,
   MatSelectModule
@@ -53,7 +53,7 @@ import {
 import {
   parseTokenFromUrl
 } from "./chunk-FZ3XJSQC.js";
-import "./chunk-22BENU6D.js";
+import "./chunk-W3ESZN72.js";
 import {
   VirtualKeyboardComponent
 } from "./chunk-DMN6I2KC.js";
@@ -71,7 +71,7 @@ import {
   OrganisationService,
   SettingsService,
   settingSignal
-} from "./chunk-R46GCB6B.js";
+} from "./chunk-DEX54MEG.js";
 import {
   AsyncHandler,
   Ql,
@@ -2592,4 +2592,4 @@ export {
   ROUTES
 };
 //# debugId=8b791e9c-8cea-5aa1-8e34-998eeda3a85e
-//# sourceMappingURL=checkin.routes-HV4YHXES.js.map
+//# sourceMappingURL=checkin.routes-HPVGKQDG.js.map

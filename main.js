@@ -1,6 +1,6 @@
 import {
   generateMockSpace
-} from "./chunk-D33MZV45.js";
+} from "./chunk-CUJCO5FA.js";
 import {
   setHours
 } from "./chunk-ZWPXNMKK.js";
@@ -9,7 +9,7 @@ import {
 } from "./chunk-FZ3XJSQC.js";
 import {
   subDays
-} from "./chunk-22BENU6D.js";
+} from "./chunk-W3ESZN72.js";
 import {
   VirtualKeyboardComponent
 } from "./chunk-DMN6I2KC.js";
@@ -42,7 +42,7 @@ import {
   setPublicMode,
   settingSignal,
   user_groups_loaded
-} from "./chunk-R46GCB6B.js";
+} from "./chunk-DEX54MEG.js";
 import {
   AsyncHandler,
   Hp,
@@ -9474,11 +9474,11 @@ function mocksInit() {
 // apps/visitor-kiosk/src/app/app.component.ts
 var AppComponent_Defer_4_DepsFn = () => [
   /* @ts-ignore */
-  import("./chat.component-EL4KXRKB.js").then((m) => m.ChatComponent)
+  import("./chat.component-WJBRTUSN.js").then((m) => m.ChatComponent)
 ];
 var AppComponent_Defer_8_DepsFn = () => [
   /* @ts-ignore */
-  import("./settings-debug-panel-launcher.component-ABVIEVNF.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+  import("./settings-debug-panel-launcher.component-SNOJUO66.js").then((m) => m.SettingsDebugPanelLauncherComponent)
 ];
 function AppComponent_Defer_3_Template(rf, ctx) {
   if (rf & 1) {
@@ -9551,9 +9551,9 @@ var AppComponent = class _AppComponent {
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(AppComponent, () => [
     /* @ts-ignore */
-    import("./chat.component-EL4KXRKB.js").then((m) => m.ChatComponent),
+    import("./chat.component-WJBRTUSN.js").then((m) => m.ChatComponent),
     /* @ts-ignore */
-    import("./settings-debug-panel-launcher.component-ABVIEVNF.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+    import("./settings-debug-panel-launcher.component-SNOJUO66.js").then((m) => m.SettingsDebugPanelLauncherComponent)
   ], (ChatComponent, SettingsDebugPanelLauncherComponent) => {
     setClassMetadata(AppComponent, [{
       type: Component,
@@ -9595,33 +9595,33 @@ var routes = [
   { path: "unauthorised", component: UnauthorisedComponent },
   {
     path: "bootstrap",
-    loadComponent: () => import("./bootstrap.component-HAHBET7R.js").then((m) => m.BootstrapComponent),
+    loadComponent: () => import("./bootstrap.component-H64NMIC3.js").then((m) => m.BootstrapComponent),
     canActivate: [AuthorisedUserGuard]
   },
   {
     path: "welcome",
-    loadComponent: () => import("./welcome.component-EBOJFOSG.js").then((m) => m.WelcomeComponent),
+    loadComponent: () => import("./welcome.component-AW5XYDOB.js").then((m) => m.WelcomeComponent),
     canActivate: [AuthorisedUserGuard]
   },
   {
     path: "register",
-    loadComponent: () => import("./visitor-registration.component-KNH3K6RO.js").then((m) => m.VisitorRegistrationComponent),
+    loadComponent: () => import("./visitor-registration.component-D2YHB5WB.js").then((m) => m.VisitorRegistrationComponent),
     canActivate: [AuthorisedUserGuard]
   },
   {
     path: "explore",
     canActivate: [AuthorisedUserGuard],
-    loadChildren: () => import("./explore.routes-WBDPSLYQ.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./explore.routes-NBYZCL6U.js").then((m) => m.ROUTES)
   },
   {
     path: "checkin",
     canActivate: [AuthorisedUserGuard],
-    loadChildren: () => import("./checkin.routes-HV4YHXES.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./checkin.routes-HPVGKQDG.js").then((m) => m.ROUTES)
   },
   {
     path: "checkout",
     canActivate: [AuthorisedUserGuard],
-    loadChildren: () => import("./checkout.routes-KV3J7UA6.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./checkout.routes-LJ5TAIM6.js").then((m) => m.ROUTES)
   },
   { path: "**", redirectTo: "bootstrap" }
 ];
