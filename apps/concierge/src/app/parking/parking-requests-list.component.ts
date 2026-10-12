@@ -494,22 +494,11 @@ export class ParkingRequestsListComponent
         });
     public readonly request_type = (booking: Booking) =>
         booking?.extension_data?.request_type || '';
+    /** Time that the request was created, in milliseconds */
     public readonly request_submitted_at = (booking: Booking): number => {
-        const value =
-            booking?.extension_data?.submitted_at ||
-            booking?.extension_data?.submission_date ||
-            booking?.extension_data?.created_at ||
-            booking?.extension_data?.created ||
-            0;
-        if (!value) return 0;
-        if (typeof value === 'string') {
-            const parsed_value = Date.parse(value);
-            return Number.isFinite(parsed_value) ? parsed_value : 0;
-        }
-        if (typeof value === 'number') {
-            return value < 1_000_000_000_000 ? value * 1000 : value;
-        }
-        return 0;
+        const value = booking?.created_at || 0;
+        // The API returns seconds. A local booking holds milliseconds.
+        return value < 1_000_000_000_000 ? value * 1000 : value;
     };
 
     private readonly _request_type_labels: Record<string, string> = {

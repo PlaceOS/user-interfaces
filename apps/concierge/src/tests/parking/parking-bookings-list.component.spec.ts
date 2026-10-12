@@ -700,6 +700,25 @@ describe('ParkingBookingsListComponent', () => {
         ).toBe('warning');
     });
 
+    it('should sort bays in natural order', () => {
+        bookings = ['B10', 'B2', ''].map(
+            (asset_name) =>
+                ({
+                    asset_id: 'bay',
+                    asset_name,
+                    date: selected_date,
+                    date_end: selected_date + 60 * 60 * 1000,
+                }) as unknown as Booking,
+        );
+        spectator = createComponent();
+
+        expect(
+            spectator.component
+                .filtered_events()
+                .map(({ asset_name }) => asset_name),
+        ).toEqual(['', 'B2', 'B10']);
+    });
+
     it('should map bookings to sortable vehicle type values', () => {
         bookings = [
             {

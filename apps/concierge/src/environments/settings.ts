@@ -12,7 +12,7 @@ const app = {
     use_24_hour_time: false,
     analytics: {
         enabled: true,
-        tracking_id: 'G-S6TDS95BDH',
+        tracking_id: '',
     },
     admin_group: 'concierge_admins',
     features: [

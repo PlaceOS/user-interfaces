@@ -719,7 +719,7 @@ export class ParkingBookingsListComponent
                 notes: booking.extension_data?.notes || '',
                 // Surface plate number as a root field so the table can sort by it
                 plate_number: booking.extension_data?.plate_number || '',
-                created_at: ((booking as any).created_at || 0) * 1000,
+                created_at: (booking.created_at || 0) * 1000,
                 // Resolve the human-readable bay identifier onto the row so the
                 // table's built-in search matches it (the `asset_id` field only
                 // holds the space id, not the bay number/name).
@@ -734,6 +734,8 @@ export class ParkingBookingsListComponent
             .sort((a, b) =>
                 (a.bay_number || a.asset_name || '').localeCompare(
                     b.bay_number || b.asset_name || '',
+                    undefined,
+                    { numeric: true, sensitivity: 'base' },
                 ),
             );
     });

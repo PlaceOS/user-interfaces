@@ -442,7 +442,7 @@ export class ParkingAssignSpaceModalComponent
     }
 
     public readonly space_label = (space: PlaceAsset) =>
-        (space as any)?.identifier ||
+        space?.identifier ||
         space?.name ||
         (space as any)?.display_name ||
         (space as any)?.metadata?.display_name ||
