@@ -13,6 +13,7 @@ import {
     BookingFormService,
     loadLockerResources,
     ParkingService,
+    queryAllBookings,
     queryBookings,
     removeBooking,
     setBookingCheckedIn,
@@ -647,7 +648,7 @@ export class ScheduleStateService extends AsyncHandler {
                 this._loading.set(true);
                 const query = this._periodQuery(period, date, end_date);
                 const list = this._settings.get('app.events.use_bookings')
-                    ? await queryBookings({ ...query, type: 'room' })
+                    ? await queryAllBookings({ ...query, type: 'room' })
                           .then((_) =>
                               _.map((i) => newCalendarEventFromBooking(i)),
                           )
@@ -842,7 +843,9 @@ export class ScheduleStateService extends AsyncHandler {
         const key = JSON.stringify(query);
         const existing = this._booking_query_requests.get(key);
         if (existing) return existing;
-        const request = queryBookings(query)
+        // Every page: the listing shows a user's whole day, and a hundred
+        // cancelled rows must not hide a live one.
+        const request = queryAllBookings(query)
             .then((list) =>
                 type === 'visitor'
                     ? list.filter(

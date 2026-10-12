@@ -95,13 +95,18 @@ describe('ScheduleStateService', () => {
         event_form.newForm.mockClear();
         spaces.find.mockReset();
         spaces.loadSpace.mockReset();
-        // The schedule fns (queryBookings/queryEvents/requestSpacesForZone/
+        // The schedule fns (queryAllBookings/queryEvents/requestSpacesForZone/
         // loadLockerResources) are workspace fns that can't be spied; they all
-        // funnel into ts-client `get`/`querySystems`, so stub + assert one
-        // layer down.
+        // funnel into ts-client `get`/`query`/`querySystems`, so stub + assert
+        // one layer down.
         vi.mocked<(url: string) => Promise<unknown>>(
             ts_client.get,
         ).mockResolvedValue([]);
+        vi.mocked(ts_client.query).mockResolvedValue({
+            data: [],
+            next: null,
+            total: 0,
+        } as any);
         vi.mocked(ts_client.querySystems).mockResolvedValue({
             data: [],
         } as any);
@@ -253,6 +258,7 @@ describe('ScheduleStateService', () => {
     it('should not make schedule requests before schedule data is consumed', () => {
         expect(parking_factory).not.toHaveBeenCalled();
         expect(ts_client.get).not.toHaveBeenCalled();
+        expect(ts_client.query).not.toHaveBeenCalled();
         expect(ts_client.querySystems).not.toHaveBeenCalled();
     });
 
@@ -260,6 +266,7 @@ describe('ScheduleStateService', () => {
         spectator.service.bookings();
 
         expect(ts_client.get).not.toHaveBeenCalled();
+        expect(ts_client.query).not.toHaveBeenCalled();
         expect(ts_client.querySystems).not.toHaveBeenCalled();
     });
 
@@ -332,12 +339,12 @@ describe('ScheduleStateService', () => {
             spectator.service.date(),
             spectator.service.end_date(),
         );
-        const url = vi.mocked(ts_client.get).mock.lastCall?.[0] as string;
-        const query = new URLSearchParams(url.split('?')[1]);
-        expect(+query.get('period_start')).toBe(
-            getUnixTime(startOfDay(day(12))),
-        );
-        expect(+query.get('period_end')).toBe(getUnixTime(endOfDay(day(12))));
+        const params = vi.mocked(ts_client.query).mock.lastCall?.[0]
+            ?.query_params as Record<string, unknown>;
+        expect(params).toMatchObject({
+            period_start: getUnixTime(startOfDay(day(12))),
+            period_end: getUnixTime(endOfDay(day(12))),
+        });
     });
 
     it('should match a multi-day booking on each day that it covers', () => {
@@ -393,7 +400,7 @@ describe('ScheduleStateService', () => {
             (spectator.service as any)._bookingQuery('desk', 'day', date),
         ]);
 
-        expect(ts_client.get).toHaveBeenCalledTimes(1);
+        expect(ts_client.query).toHaveBeenCalledTimes(1);
     });
 
     it('should not reuse in-flight booking queries after a poll is triggered', async () => {
@@ -412,27 +419,62 @@ describe('ScheduleStateService', () => {
         );
         await Promise.all([first, second]);
 
-        expect(ts_client.get).toHaveBeenCalledTimes(2);
+        expect(ts_client.query).toHaveBeenCalledTimes(2);
+    });
+
+    it('should list every page of a day, not only the first', async () => {
+        vi.mocked(ts_client.query).mockResolvedValueOnce({
+            total: 3,
+            data: [
+                new Booking({ id: 'page-1-a', booking_type: 'desk' }),
+                new Booking({ id: 'page-1-b', booking_type: 'desk' }),
+            ],
+            next: () =>
+                Promise.resolve({
+                    total: 3,
+                    data: [new Booking({ id: 'page-2-a', booking_type: 'desk' })],
+                    next: null,
+                }),
+        } as any);
+
+        const bookings = await spectator.service['_bookingQuery'](
+            'desk',
+            'day',
+            new Date(2026, 5, 22, 9).valueOf(),
+        );
+
+        expect(bookings.map((booking) => booking.id)).toEqual([
+            'page-1-a',
+            'page-1-b',
+            'page-2-a',
+        ]);
     });
 
     it('should hide removed visitors but keep ordinary cancellations and failed removals', async () => {
-        vi.mocked<(url: string) => Promise<unknown>>(
-            ts_client.get,
-        ).mockResolvedValue([
-            { id: 'retained', booking_type: 'visitor' },
-            { id: 'cancelled', booking_type: 'visitor', deleted: true },
-            {
-                id: 'removed',
-                booking_type: 'visitor',
-                deleted: true,
-                extension_data: { removed_from_group: true },
-            },
-            {
-                id: 'failed-removal',
-                booking_type: 'visitor',
-                extension_data: { removed_from_group: true },
-            },
-        ]);
+        vi.mocked(ts_client.query).mockResolvedValue({
+            total: 4,
+            next: null,
+            // `query` maps rows through `new Booking` itself; a stub has to.
+            data: [
+                new Booking({ id: 'retained', booking_type: 'visitor' }),
+                new Booking({
+                    id: 'cancelled',
+                    booking_type: 'visitor',
+                    deleted: true,
+                }),
+                new Booking({
+                    id: 'removed',
+                    booking_type: 'visitor',
+                    deleted: true,
+                    extension_data: { removed_from_group: true },
+                }),
+                new Booking({
+                    id: 'failed-removal',
+                    booking_type: 'visitor',
+                    extension_data: { removed_from_group: true },
+                }),
+            ],
+        } as any);
 
         const bookings = await spectator.service['_bookingQuery'](
             'visitor',
@@ -454,10 +496,13 @@ describe('ScheduleStateService', () => {
             new Date(2026, 5, 22, 9).valueOf(),
         );
 
-        const url = vi.mocked(ts_client.get).mock.lastCall?.[0] as string;
-        expect(url).toContain('include_checked_out=true');
-        expect(url).toContain('include_deleted=true');
-        expect(url).toMatch(/[?&]deleted=true/);
+        const params = vi.mocked(ts_client.query).mock.lastCall?.[0]
+            ?.query_params as Record<string, unknown>;
+        expect(params).toMatchObject({
+            include_checked_out: true,
+            include_deleted: true,
+            deleted: true,
+        });
     });
 
     describe('room cancellation', () => {
