@@ -4,7 +4,7 @@ import {
 import {
   AuthenticatedImageDirective,
   PanelStateService
-} from "./chunk-3GY5KTHY.js";
+} from "./chunk-PZKJ2EI4.js";
 import "./chunk-3ZEQ5DCG.js";
 import "./chunk-HHUGXD6R.js";
 import "./chunk-RYULPSWU.js";
@@ -13,7 +13,7 @@ import {
   SanitizePipe
 } from "./chunk-EQYG3X62.js";
 import "./chunk-G2XWN7US.js";
-import "./chunk-EFNSZBYH.js";
+import "./chunk-OBWROB3H.js";
 import "./chunk-CS6C6SLC.js";
 import {
   TranslatePipe
@@ -21,7 +21,7 @@ import {
 import {
   OrganisationService,
   SettingsService
-} from "./chunk-L3WRHYAH.js";
+} from "./chunk-X5XZ2JSA.js";
 import {
   AsyncHandler,
   startOfMinute
@@ -553,4 +553,4 @@ export {
   EventPanelComponent
 };
 //# debugId=43dca8d7-4412-5a31-b7ca-0dcada371197
-//# sourceMappingURL=event-panel.component-GEELRT36.js.map
+//# sourceMappingURL=event-panel.component-BCAJLQA3.js.map
