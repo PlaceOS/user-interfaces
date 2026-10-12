@@ -13,6 +13,7 @@ export * from './lib/path-data';
 export * from './lib/protected-ids';
 export * from './lib/render-check';
 export * from './lib/sanitise';
+export * from './lib/session';
 export * from './lib/signature';
 export * from './lib/style-resolution';
 export * from './lib/validate';

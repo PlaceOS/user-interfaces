@@ -63,6 +63,11 @@ export class MapHistory {
         return this._undo.map((entry) => entry.label);
     }
 
+    /** Labels of the entries redo would restore, most recent first. */
+    public redoLabels(): string[] {
+        return [...this._redo].reverse().map((entry) => entry.label);
+    }
+
     /** Snapshot the document before a change. Clears the redo stack. */
     public push(label = ''): void {
         const root = this._doc.root.cloneNode(true) as Element;
@@ -90,6 +95,11 @@ export class MapHistory {
         this._undo.push(this._currentEntry(entry.label));
         this._doc.replaceRoot(entry.root);
         return true;
+    }
+
+    /** Forget the most recent snapshot without restoring it. */
+    public drop(): boolean {
+        return this._undo.pop() !== undefined;
     }
 
     public clear(): void {
