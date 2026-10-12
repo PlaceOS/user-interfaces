@@ -59,6 +59,7 @@ import { OrganisationService } from './org/organisation.service';
 import { createNativeAuthUrl, setupPlace } from './placeos';
 import { initSentry } from './sentry';
 import { SettingsService } from './settings.service';
+import { finishTeamsSignIn, startTeamsHost } from './teams-host';
 import { setInternalUserDomain } from './types/user.class';
 import { current_user, currentUser } from './user-state';
 
@@ -435,6 +436,10 @@ export class PlaceOS_Service extends AsyncHandler {
             return;
         }
         if (!isNativeApp()) {
+            // A Teams or Microsoft 365 tab cannot show the Microsoft login
+            // page in its frame, so it signs in through the host instead.
+            const teams_mode = await startTeamsHost();
+            if (teams_mode) settings.local_login = teams_mode === 'tab';
             setLoadingMessage('Authenticating...');
             // `setup` resolves only once the authority has loaded, and it never
             // rejects - a failure retries in the background forever. Waiting on
@@ -445,6 +450,10 @@ export class PlaceOS_Service extends AsyncHandler {
             await setupPlace(settings, AUTHORITY_WAIT_MS).catch((_) =>
                 console.error(_),
             );
+            if (teams_mode) {
+                setLoadingMessage('Waiting for Microsoft sign in...');
+                if (!(await finishTeamsSignIn(teams_mode))) return;
+            }
         }
         if (this._initial_token) setToken(this._initial_token);
         try {

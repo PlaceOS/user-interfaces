@@ -11,6 +11,7 @@ export * from './lib/invite-visitor-form.component';
 export * from './lib/locker-grid.component';
 export * from './lib/locker-list-field.component';
 export * from './lib/locker.class';
+export * from './lib/desk-select-modal/desk-map.component';
 export * from './lib/desk-select-modal/desk-select-modal.component';
 export * from './lib/locker-select-modal/locker-select-modal.component';
 export * from './lib/parking-select-modal/parking-select-modal.component';

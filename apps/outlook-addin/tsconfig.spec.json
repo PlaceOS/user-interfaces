@@ -3,7 +3,7 @@
     "compilerOptions": {
         "outDir": "../../dist/out-tsc",
         "module": "preserve",
-        "types": ["vitest/globals", "node"],
+        "types": ["vitest/globals", "node", "office-js"],
         "moduleResolution": "bundler",
         "isolatedModules": true
     },
