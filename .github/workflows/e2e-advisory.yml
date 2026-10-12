@@ -96,14 +96,11 @@ jobs:
         timeout-minutes: 45
         env:
             E2E_BACKEND_URL: https://localhost:9443
-            # Deliberately lower than the local default of 4.
-            #
-            # A GitHub runner has 4 cores and is simultaneously running ~10
-            # containers, an Angular dev server and the browsers. Fewer workers
-            # means less contention, which means fewer failures that are about the
-            # runner rather than about the code — and avoiding false positives
-            # matters more here than shaving a minute off the run.
-            E2E_WORKERS: '2'
+            # The runner is a 12-core, 16 GB Mac that also hosts the stack's
+            # containers, the Angular dev server and the browsers. Seeding reads
+            # this too (one staff user, desk and room set per worker), so it must
+            # be the same here as in the test step.
+            E2E_WORKERS: '4'
             TZ: 'Etc/UTC'
         steps:
             # persist-credentials: false — checkout otherwise leaves the token in
