@@ -10,6 +10,7 @@ describe('NewDeskFormDetailsComponent', () => {
     let model: ReturnType<typeof signal<Record<string, unknown>>>;
     let settings: Record<string, any>;
     let set_options: any;
+    let set_user_values: ReturnType<typeof vi.fn>;
 
     const createComponent = createComponentFactory({
         component: NewDeskFormDetailsComponent,
@@ -26,6 +27,7 @@ describe('NewDeskFormDetailsComponent', () => {
     beforeEach(() => {
         settings = {};
         set_options = vi.fn();
+        set_user_values = vi.fn();
         model = signal<Record<string, unknown>>({
             id: '',
             date: Date.now(),
@@ -42,6 +44,7 @@ describe('NewDeskFormDetailsComponent', () => {
                     options: signal({ type: 'desk', group: false }),
                     features: signal([]),
                     setOptions: set_options,
+                    setUserValues: set_user_values,
                     setFeature: vi.fn(),
                     model,
                     get auto_allocation() {
@@ -62,17 +65,19 @@ describe('NewDeskFormDetailsComponent', () => {
         expect(set_options).toHaveBeenCalledWith({ group: true });
     });
 
-    it('should merge recurrence changes into the model', () => {
+    it('should send recurrence changes to the service as user edits', () => {
         spectator.component.onRecurrenceChange({
             recurrence_type: 'weekly',
         });
-        expect(model().recurrence_type).toBe('weekly');
+        expect(set_user_values).toHaveBeenCalledWith({
+            recurrence_type: 'weekly',
+        });
     });
 
-    it('should update the model date on first-instance change', () => {
+    it('should send the first-instance date to the service as a user edit', () => {
         const date = new Date('2026-05-01T00:00:00.000Z').valueOf();
         spectator.component.onFirstInstanceChange(date);
-        expect(model().date).toBe(date);
+        expect(set_user_values).toHaveBeenCalledWith({ date });
     });
 
     it('should apply the selected desk to resources when the form changes', () => {

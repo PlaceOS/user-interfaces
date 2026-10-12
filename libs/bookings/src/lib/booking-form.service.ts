@@ -160,6 +160,17 @@ type GroupContainerForm = Partial<Booking> & {
     extension_data?: Record<string, unknown>;
 };
 
+/** Edits the user made on a booking form before a form reset. */
+interface UserEdits {
+    /** Booking type of the form at that time. Not set before the first
+     * initialisation of the form. */
+    type?: BookingType;
+    /** Values of the fields that the user changed. */
+    values: Partial<BookingFormValue>;
+    /** Group selection. Options have no dirty flags to read. */
+    options: Pick<BookingFlowOptions, 'group' | 'members'>;
+}
+
 /** A booking type, or `undefined` for the blank `' '` placeholder that
  * `new Booking()` sets when no type is given. */
 function knownBookingType(
@@ -222,10 +233,10 @@ export class BookingFormService extends AsyncHandler {
     public readonly view = signal<BookingFlowView>('form');
 
     /**
-     * Edits the user made while `newForm` was waiting on the current user,
-     * carried across the deferred re-entry so the reset does not discard them.
+     * Edits the user made before a form reset, carried across the reset so
+     * that it does not discard them.
      */
-    private _pending_user_edits: Partial<BookingFormValue> | null = null;
+    private _pending_user_edits: UserEdits | null = null;
 
     /** Apply a partial patch to the booking form model. */
     private _patch(value: Partial<BookingFormValue>, _opts?: unknown) {
@@ -237,8 +248,10 @@ export class BookingFormService extends AsyncHandler {
      *
      * Reads the signal-forms dirty flags rather than diffing against a
      * default. Programmatic writes (`_patch`, `model.set`) do not mark a field
-     * dirty, so this returns genuine user input and nothing else — which is
-     * what makes it safe to replay over a freshly loaded booking.
+     * dirty, so this returns user input — which is what makes it safe to
+     * replay over a freshly loaded booking. One exception: the recurrence
+     * field adjusts a recurrence when the date changes, and that write goes
+     * through `setUserValues`.
      */
     private _userEditedValues(): Partial<BookingFormValue> {
         const form = this.form;
@@ -268,11 +281,68 @@ export class BookingFormService extends AsyncHandler {
      * capture with an empty one on the second call.
      */
     private _captureUserEdits() {
-        const edits = {
-            ...(this._pending_user_edits || {}),
-            ...this._userEditedValues(),
-        };
-        this._pending_user_edits = Object.keys(edits).length ? edits : null;
+        const pending = this._pending_user_edits;
+        const values = { ...pending?.values, ...this._userEditedValues() };
+        // The first capture gives the type and the options. A reset that ran
+        // after it can have changed both.
+        const { group, members } = this._options();
+        const edits: UserEdits = pending
+            ? { ...pending, values }
+            : {
+                  type: knownBookingType(untracked(this.model).booking_type),
+                  values,
+                  options: group || members?.length ? { group, members } : {},
+              };
+        const has_edits =
+            Object.keys(values).length || Object.keys(edits.options).length;
+        this._pending_user_edits = has_edits ? edits : null;
+    }
+
+    /**
+     * The stashed edits that apply to a reset for the given booking type.
+     *
+     * Edits made on the form of a different booking type do not apply. A
+     * recurrence or a group selection must not move to a form that cannot
+     * show it.
+     *
+     * Limit: the type comes from the last initialised form. Thus an edit is
+     * lost when the user makes it on a form of a new type before that form
+     * initialises. The desk flow has such a window of 300 ms after in-app
+     * navigation from a different booking type.
+     */
+    private _userEditsFor(type?: BookingType): UserEdits | null {
+        const edits = this._pending_user_edits;
+        if (edits?.type && type && edits.type !== type) return null;
+        return edits;
+    }
+
+    /**
+     * Re-apply the user's edits over the booking that a reset loaded.
+     *
+     * A replayed start time or duration moves the end time with it. If the
+     * end time stays at the value of the loaded booking, the time sync
+     * calculates the duration from it and discards the user's value.
+     */
+    private _replayUserEdits(edits: UserEdits | null) {
+        if (!edits) return;
+        this._patch(edits.values);
+        const { date, duration, all_day } = this.model();
+        const window_changed =
+            'date' in edits.values || 'duration' in edits.values;
+        if (all_day || !window_changed) return;
+        this._patch({ date_end: addMinutes(date, duration).valueOf() });
+    }
+
+    /**
+     * Apply a change the user made in a control that has no `[formField]`
+     * binding.
+     *
+     * Marks each changed field dirty, as `[formField]` does, so
+     * `_userEditedValues` keeps the change across a form reset.
+     */
+    public setUserValues(value: Partial<BookingFormValue>) {
+        this._patch(value);
+        for (const key of Object.keys(value)) this.form[key]?.().markAsDirty();
     }
 
     private _syncAssetOptions() {
@@ -752,7 +822,7 @@ export class BookingFormService extends AsyncHandler {
             });
             return;
         }
-        const user_edits = this._pending_user_edits;
+        const user_edits = this._userEditsFor(type);
         this._pending_user_edits = null;
         // Never apply an existing booking's edit state to a different type
         // (e.g. editing parking then opening the desk form).
@@ -795,9 +865,7 @@ export class BookingFormService extends AsyncHandler {
         // the time-sync window; and before `_syncWindowIfUnchanged`, which
         // compares against `initial_date`/`initial_duration` and so leaves a
         // user-changed window alone of its own accord.
-        if (user_edits && Object.keys(user_edits).length) {
-            this._patch(user_edits, { emitEvent: false });
-        }
+        this._replayUserEdits(user_edits);
         // Give an untyped form the flow type, so validators that depend on
         // the type (e.g. parking plate number) run for callers that do not
         // set it themselves.
@@ -823,7 +891,12 @@ export class BookingFormService extends AsyncHandler {
             booking.duration,
         );
         this._booking.set(new Booking(booking));
-        this._options.set({ type: this._options().type });
+        // A new form clears the options, except a group selection that the
+        // user made before this reset.
+        this._options.set({
+            type: this._options().type,
+            ...user_edits?.options,
+        });
         // Persist immediately to avoid edit-flow races where the consumer
         // reloads from session before async form change events occur.
         this.storeForm();
@@ -1009,12 +1082,12 @@ export class BookingFormService extends AsyncHandler {
         // already entered. Capture before `form().reset()` clears the dirty
         // flags `_userEditedValues` reads.
         this._captureUserEdits();
-        const user_edits = this._pending_user_edits;
+        const user_edits = this._userEditsFor(expected_type);
         // Flows call `loadForm(type)` and then `newForm(type)` in the same tick
-        // (desk-flow.component.ts:62 and :65, and the locker/parking
-        // equivalents). Leave the capture in place so that second reset replays
-        // it too, and release it at the end of the tick, where it can no longer
-        // reach an unrelated form.
+        // (desk-flow.component.ts, and the locker/parking equivalents). Leave
+        // the capture in place so that second reset replays it too, and
+        // release it at the end of the tick, where it can no longer reach an
+        // unrelated form.
         queueMicrotask(() => (this._pending_user_edits = null));
         this._startNetwork();
         this._calendar.loadCalendars();
@@ -1057,9 +1130,7 @@ export class BookingFormService extends AsyncHandler {
         // Re-apply the user's own edits over the loaded booking, before
         // `applyDurationSettings` so a restored `all_day` still drives the
         // time-sync window — same ordering as `newForm`.
-        if (user_edits && Object.keys(user_edits).length) {
-            this._patch(user_edits, { emitEvent: false });
-        }
+        this._replayUserEdits(user_edits);
         // Give an untyped booking the flow type. Otherwise the flow sees a
         // type mismatch and replaces the booking with a new form.
         if (expected_type) {

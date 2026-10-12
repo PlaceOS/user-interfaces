@@ -20,7 +20,7 @@
  * ## The form is rebuilt while it initialises (REG-10 / PPT-2643)
  *
  * When async init completes the form is rebuilt and defaults are restored —
- * title back to "Booking", All Day back off, Require locker back ON. It is a
+ * title back to "Booking", All Day back off. It is a
  * RACE, not a step: on a warm run it lands before anything is typed. Every
  * setter here is therefore used inside a converging block by its callers, the
  * same workaround `bookDeskViaUI` uses, and for the same reason it means these
@@ -82,9 +82,8 @@ export class DeskForm {
     /**
      * The "Require locker" checkbox.
      *
-     * It defaults to CHECKED and no lockers are seeded, which makes the form
-     * unsatisfiable with no error shown — the single most confusing thing about
-     * this form. Every spec has to clear it.
+     * It defaults to unchecked. Specs clear it as a safeguard, because no
+     * lockers are seeded.
      *
      * Matched on label text, which breaks the no-visible-text rule and is
      * inherited from the dev's `setCheckbox` helper: these two checkboxes carry

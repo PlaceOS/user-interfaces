@@ -70,7 +70,9 @@ test.describe('desk form initialisation', () => {
 
             const title = `DESK-21 distinctive ${Date.now()}`;
             await form.title.fill(title);
-            await form.setChecked(form.requireLocker, false);
+            // The box starts clear, so a tick is the change that the
+            // initialisation render can lose.
+            await form.setChecked(form.requireLocker, true);
             await testInfo.attach('desk-form-before-initialisation-release', {
                 body: await staffPage.screenshot(),
                 contentType: 'image/png',
@@ -127,7 +129,7 @@ test.describe('desk form initialisation', () => {
             await expect(
                 form.requireLocker,
                 'the Require locker value was lost after desk-form initialisation',
-            ).not.toBeChecked({ timeout: 30_000 });
+            ).toBeChecked({ timeout: 30_000 });
             await testInfo.attach('desk-form-after-initialisation-release', {
                 body: await staffPage.screenshot(),
                 contentType: 'image/png',

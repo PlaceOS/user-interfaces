@@ -60,7 +60,7 @@ export interface BookingFormValue {
     booked_by: User;
     booked_by_id: string;
     booked_by_email: string;
-    secondary_resource: any;
+    secondary_resource: string;
     location: string;
     attendance_type: string;
     phone?: string;
@@ -156,10 +156,12 @@ export function bookingFormValue(
         booked_by: currentUser(),
         booked_by_id: booking.booked_by_id || '',
         booked_by_email: booking.booked_by_email || '',
+        // Empty when no secondary resource is requested. The desk forms show
+        // "Require locker" as ticked for any truthy value.
         secondary_resource:
             extension_data.other_asset_type ||
             extension_data.secondary_resource ||
-            {},
+            '',
         location: extension_data.location || '',
         attendance_type: extension_data.attendance_type || 'ANY',
         phone: extension_data.phone || '',

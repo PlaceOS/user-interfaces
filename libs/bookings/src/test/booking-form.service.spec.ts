@@ -3533,16 +3533,111 @@ describe('BookingFormService', () => {
             expect(spectator.service.model().all_day).toBe(true);
         });
 
-        it('carries a typed title between booking forms, deliberately', () => {
-            // Switching desk -> parking without leaving the booking area does not
-            // reset the form, so the user's own typing follows them. Pinned
-            // rather than left to chance: only fields they actually edited move,
-            // `isCrossTypeEdit` still discards the previous booking's identity,
-            // and leaving the booking section entirely calls `clearForm()`.
+        it('does not request a locker on a new desk form', () => {
+            spectator.service.loadForm('desk');
+            spectator.service.newForm('desk');
+
+            expect(spectator.service.model().secondary_resource).toBe('');
+        });
+
+        it('keeps a "Require locker" choice made before the flow initialises the form', () => {
+            spectator.service.setUserValues({ secondary_resource: 'locker' });
+
+            spectator.service.loadForm('desk');
+            spectator.service.newForm('desk');
+
+            expect(spectator.service.model().secondary_resource).toBe('locker');
+        });
+
+        it('keeps a cleared "Require locker" over a stored locker request', () => {
+            sessionStorage.setItem(
+                'PLACEOS.booking_form',
+                JSON.stringify({ secondary_resource: 'locker' }),
+            );
+            spectator.service.setUserValues({ secondary_resource: '' });
+
+            spectator.service.loadForm('desk');
+
+            expect(spectator.service.model().secondary_resource).toBe('');
+        });
+
+        it('keeps a start time chosen before the flow initialises the form', () => {
+            vi.useFakeTimers();
+            vi.setSystemTime(new Date(2026, 9, 12, 9, 0));
+            try {
+                const date = new Date(2026, 9, 12, 11, 0).valueOf();
+                spectator.service.setUserValues({ date });
+                // Let the time sync set the end time for the user's start.
+                TestBed.tick();
+
+                spectator.service.loadForm('desk');
+                spectator.service.newForm('desk');
+                // The delayed window sync must not replace the user's time.
+                vi.runAllTimers();
+                TestBed.tick();
+
+                const model = spectator.service.model();
+                expect(model.date).toBe(date);
+                // The end time moves with the start time. The end time of
+                // the new booking is before the user's start, and the time
+                // sync would reduce the duration to the minimum.
+                expect(model.duration).toBe(60);
+                expect(model.date_end).toBe(date + 60 * 60 * 1000);
+            } finally {
+                vi.useRealTimers();
+            }
+        });
+
+        it('keeps a duration chosen before the flow initialises the form', () => {
+            userEdits('duration', 120);
+            // Let the time sync set the end time for the user's duration.
+            TestBed.tick();
+
+            spectator.service.loadForm('desk');
+            spectator.service.newForm('desk');
+            TestBed.tick();
+
+            expect(spectator.service.model().duration).toBe(120);
+        });
+
+        it('keeps a recurrence chosen before the flow initialises the form', () => {
+            spectator.service.setUserValues({
+                recurrence_type: 'weekly',
+                recurrence_interval: 2,
+            });
+
+            spectator.service.loadForm('desk');
+            spectator.service.newForm('desk');
+
+            const { recurrence_type, recurrence_interval } =
+                spectator.service.model();
+            expect(recurrence_type).toBe('weekly');
+            expect(recurrence_interval).toBe(2);
+        });
+
+        it('keeps a group selection made before the flow initialises the form', () => {
+            const members = [new StaffUser({ email: 'jo@example.com' })];
+            spectator.service.setOptions({ group: true, members });
+
+            spectator.service.loadForm('desk');
+            spectator.service.newForm('desk');
+
+            expect(spectator.service.options().group).toBe(true);
+            expect(spectator.service.options().members).toEqual(members);
+        });
+
+        it('does not move edits to the form of a different booking type', () => {
+            // A parking form cannot show a desk recurrence or a group
+            // selection, so edits stay with the booking type of their form.
+            spectator.service.newForm('desk');
             userEdits('title', 'Desk title');
+            spectator.service.setOptions({ group: true });
+
             spectator.service.loadForm('parking');
             spectator.service.newForm('parking');
-            expect(spectator.service.model().title).toBe('Desk title');
+
+            expect(spectator.service.model().title).not.toBe('Desk title');
+            expect(spectator.service.options().group).toBeFalsy();
         });
 
         it('does not carry those edits into a later unrelated form', () => {
