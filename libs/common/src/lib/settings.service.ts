@@ -38,6 +38,15 @@ const LEGACY_USER_SETTING_KEYS: Record<string, string> = {
     favourite_parking_spaces: SETTING_KEYS.FAVORITE_PARKING_SPACES,
 };
 
+/** CSS rule that sets each entry of the map as a CSS variable */
+function cssVariableRule(selector: string, variables: HashMap = {}) {
+    let rule = `${selector} { `;
+    for (const key in variables) {
+        rule += `--${key}: ${variables[key]}; `;
+    }
+    return `${rule}}`;
+}
+
 /** Use the value of a renamed user setting until the new key has a value */
 function withLegacyUserSettings(details: HashMap): HashMap {
     const result = { ...details };
@@ -310,13 +319,19 @@ export class SettingsService extends AsyncHandler {
         this._applyTheme();
     }
 
+    /**
+     * Apply the colour overrides from `app.css_variables` and, for the dark
+     * theme, from `app.css_variables_dark`. The dark rule has the theme class,
+     * so it wins over the `.theme-dark` defaults of the stylesheet.
+     */
     private _applyCssVariables() {
-        const variable_map = this.get('app.css_variables') || {};
-        let css_string = 'body { ';
-        for (const key in variable_map) {
-            css_string += `--${key}: ${variable_map[key]}; `;
-        }
-        css_string += '}';
+        const css_string = [
+            cssVariableRule('body', this.get('app.css_variables') || {}),
+            cssVariableRule(
+                'body.theme-dark',
+                this.get('app.css_variables_dark') || {},
+            ),
+        ].join(' ');
         let element = document.getElementById('css-var-overrides');
         if (!element) {
             element = document.createElement('style');

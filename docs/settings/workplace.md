@@ -29,6 +29,8 @@ These options live at the root of the settings file (alongside `app`, not inside
 | `logo_light` | string \| object | `"assets/logo-light.svg"` | Logo shown in the top bar when using the light theme. Either an image URL or an icon object with a `src` property. |
 | `logo_dark` | string \| object | `"assets/logo-dark.svg"` | Logo shown in the top bar when using the dark theme. Either an image URL or an icon object with a `src` property. |
 | `environment_bar` | string | – | CSS colour for thin environment identifier bars shown at the top and bottom of the app (useful for marking test/UAT environments). Leave unset to hide the bars. |
+| `css_variables` | object | – | Colour overrides for the light theme. See [theme colour overrides](README.md#theme-colour-overrides). |
+| `css_variables_dark` | object | – | Colour overrides for the dark theme. See [theme colour overrides](README.md#theme-colour-overrides). |
 | `sentry_dsn` | string | – | Connection string for Sentry error reporting. |
 | `show_changelog` | boolean | `true` | Whether the version number in the user controls links to the changelog modal. |
 | `allow_dark_mode` | boolean | `true` | Allow users to switch the application to the dark theme. |

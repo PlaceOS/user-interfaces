@@ -124,6 +124,30 @@ describe('SettingsService renamed user settings', () => {
     });
 });
 
+describe('SettingsService colour overrides', () => {
+    const createService = createServiceFactory(SettingsService);
+
+    it('should apply the dark overrides to the dark theme only', () => {
+        setCurrentUser({ id: 'test-user' } as any);
+        const service = createService({
+            providers: [MockProvider(Title, { setTitle: vi.fn() })],
+        }).service;
+
+        service.setOverrides([
+            {
+                css_variables: { 'brand-100': '#00afd0' },
+                css_variables_dark: { 'base-100': '#101828' },
+            },
+        ]);
+
+        expect(document.getElementById('css-var-overrides').innerText).toBe(
+            'body { --brand-100: #00afd0; } ' +
+                'body.theme-dark { --base-100: #101828; }',
+        );
+        service.setOverrides([]);
+    });
+});
+
 describe('SettingsService theme', () => {
     const createService = createServiceFactory(SettingsService);
 
