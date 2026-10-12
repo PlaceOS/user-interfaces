@@ -168,6 +168,54 @@ describe('MapEditorSession', () => {
         expect(s.dirty()).toBe(false);
     });
 
+    it('reverts to the loaded document with the anchors intact', () => {
+        const s = session();
+        const table = anchor(s.doc, 'table-01.001');
+        s.apply([recolour(s.doc, 'table-01.001', 'red')], 'Recolour');
+        s.apply(
+            [
+                {
+                    op: 'delete',
+                    target: { a: anchor(s.doc, 'plant-1') },
+                    why: '',
+                },
+            ],
+            'Delete',
+        );
+        s.revert();
+        expect(s.dirty()).toBe(false);
+        expect(s.doc.byId('plant-1')).not.toBeNull();
+        expect(anchor(s.doc, 'table-01.001')).toBe(table);
+        expect(s.isChanged(table)).toBe(false);
+        expect(s.undo_label()).toBe('Discard changes');
+        expect(s.undo()).toBe(true);
+        expect(s.doc.byId('plant-1')).toBeNull();
+    });
+
+    it('rebases the baseline on markSaved', () => {
+        const s = session();
+        const table = anchor(s.doc, 'table-01.001');
+        s.apply([recolour(s.doc, 'table-01.001', 'red')], 'Recolour');
+        s.markSaved();
+        expect(s.dirty()).toBe(false);
+        expect(s.isChanged(table)).toBe(false);
+        expect(s.originalOf(table)?.getAttribute('fill')).toBe('red');
+        s.undo();
+        expect(s.dirty()).toBe(true);
+    });
+
+    it('matches restored elements to the baseline by id', () => {
+        const s = session();
+        const edited = s.doc.clone();
+        (edited.byId('table-01.001') as Element).setAttribute('fill', 'red');
+        s.restore(edited.serialise(), 'Restore draft');
+        expect(s.isChanged(anchor(s.doc, 'table-01.001'))).toBe(true);
+        expect(s.isChanged(anchor(s.doc, 'table-01.002'))).toBe(false);
+        expect(
+            s.originalOf(anchor(s.doc, 'table-01.001'))?.getAttribute('fill'),
+        ).toBeNull();
+    });
+
     it('writes the draft after a change and removes it when clean again', async () => {
         const store = new MemoryDraftStore();
         const s = session(OFFICE, { draft_store: store });

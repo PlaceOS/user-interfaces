@@ -79,9 +79,9 @@ export class MapEditorSession {
     /** Label of the change redo would restore. */
     public readonly redo_label: Signal<string> = this._redo_label.asReadonly();
 
-    private readonly _baseline_markup: string;
-    private readonly _baseline_root: Element;
-    private readonly _baseline_signatures: Map<string, string>;
+    private _baseline_markup: string;
+    private _baseline_root: Element;
+    private _baseline_signatures: Map<string, string>;
     private readonly _draft_store: DraftStore | null;
     private readonly _draft_delay_ms: number;
     private readonly _draft_key: Promise<string>;
@@ -199,22 +199,52 @@ export class MapEditorSession {
         this._changed();
     }
 
+    /**
+     * Put the loaded document back, as one undoable step; the elements keep
+     * the anchors they loaded with.
+     */
+    public revert(label = 'Discard changes'): void {
+        this.history.push(label);
+        this.doc.replaceRoot(this._baseline_root.cloneNode(true) as Element);
+        this._changed();
+    }
+
+    /** Make the current document the baseline, after a save. */
+    public markSaved(): void {
+        this._baseline_markup = this.doc.serialise();
+        this._baseline_root = this.doc.root.cloneNode(true) as Element;
+        this._baseline_signatures = this.doc.signatures();
+        this._dirty.set(false);
+    }
+
     /** Whether the element differs from the loaded document, or is new. */
     public isChanged(anchor: string): boolean {
         const element = this.doc.byAnchor(anchor);
         if (!element) return false;
-        const original = this._baseline_signatures.get(anchor);
+        const original = this.originalOf(anchor);
         return (
-            original === undefined || original !== canonicalSignature(element)
+            !original ||
+            canonicalSignature(original) !== canonicalSignature(element)
         );
     }
 
-    /** The element as it was when the map loaded; null for an element added since. */
+    /**
+     * The element as it was when the map loaded, by anchor or, after a
+     * restore has re-anchored the tree, by id; null for a new element.
+     */
     public originalOf(anchor: string): Element | null {
-        return (
-            this._baseline_root.querySelector(`[${ANCHOR_ATTR}="${anchor}"]`) ||
-            null
+        const by_anchor = this._baseline_root.querySelector(
+            `[${ANCHOR_ATTR}="${anchor}"]`,
         );
+        if (by_anchor) return by_anchor;
+        const id = this.doc.byAnchor(anchor)?.getAttribute('id');
+        if (!id) return null;
+        for (const candidate of Array.from(
+            this._baseline_root.querySelectorAll('[id]'),
+        )) {
+            if (candidate.getAttribute('id') === id) return candidate;
+        }
+        return null;
     }
 
     public draftKey(): Promise<string> {
