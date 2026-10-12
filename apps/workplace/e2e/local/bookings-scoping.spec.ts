@@ -15,11 +15,22 @@
  * The second user is real. A token is minted for another seeded identity rather
  * than reusing this worker's bearer, so "another user" means another user rather
  * than the same one twice.
+ *
+ * Both tests book THIS worker's scoping desk (`scopingDeskFor`), which no other
+ * spec touches. The other user's booking and sweep land there rather than on
+ * that user's own desk, which the worker signed in as that user may be booking
+ * at the same moment.
  */
 import { test, expect } from '../../../../e2e/support/fixtures';
 import { request } from '@playwright/test';
 import { deleteBooking, uniqueTitle } from '../../../../e2e/support/api';
-import { APP_URL, BACKEND_URL, WORKERS, deskFor, roleFor } from '../../../../e2e/support/env';
+import {
+    APP_URL,
+    BACKEND_URL,
+    WORKERS,
+    roleFor,
+    scopingDeskFor,
+} from '../../../../e2e/support/env';
 import { mintToken } from '../../../../e2e/support/auth';
 import {
     SCHEDULE_DAYS,
@@ -65,23 +76,23 @@ test.describe('your bookings — visibility between users', () => {
         const theirs = (mine + 1) % WORKERS;
         test.skip(theirs === mine, 'needs at least two workers to have two distinct users');
 
-        const their_desk = deskFor(theirs);
+        const desk = scopingDeskFor(mine);
         const day = SCHEDULE_DAYS.scoping;
         const slot = slotOn(day, 9);
         const { from, to } = dayWindow(day);
         const other = await apiAsOtherUser(theirs);
         let their_booking: number | undefined;
 
-        // Their desk, their booking, cleared by THEM: `GET /bookings` is
-        // caller-scoped, so this worker's sweep cannot see it and the desk would
-        // stay held by something invisible.
-        await releaseFor(other, 'desk', their_desk.id, from, to);
+        // Their booking on this worker's scoping desk, cleared by THEM: `GET
+        // /bookings` is caller-scoped, so this worker's sweep cannot see it and
+        // the desk would stay held by something invisible.
+        await releaseFor(other, 'desk', desk.id, from, to);
 
         try {
             const booking = await createBookingViaApi(other, {
                 type: 'desk',
-                asset_id: their_desk.id,
-                asset_name: their_desk.name,
+                asset_id: desk.id,
+                asset_name: desk.name,
                 title: uniqueTitle('E2E YB Theirs'),
                 start: slot.start,
                 end: slot.end,
@@ -107,7 +118,7 @@ test.describe('your bookings — visibility between users', () => {
             ).not.toContain(their_booking);
         } finally {
             if (their_booking != null) await deleteBooking(other, their_booking);
-            await releaseFor(other, 'desk', their_desk.id, from, to);
+            await releaseFor(other, 'desk', desk.id, from, to);
             await other.dispose();
         }
     });
@@ -116,7 +127,7 @@ test.describe('your bookings — visibility between users', () => {
         staffPage,
         staffApi,
     }, testInfo) => {
-        const desk = deskFor(testInfo.parallelIndex);
+        const desk = scopingDeskFor(testInfo.parallelIndex);
         const day = SCHEDULE_DAYS.scoping;
         const slot = slotOn(day, 14);
         const { from, to } = dayWindow(day);

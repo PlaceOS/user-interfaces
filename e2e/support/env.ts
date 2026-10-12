@@ -101,6 +101,21 @@ export function deskFor(workerIndex: number): { id: string; name: string } {
     return { id: `${DESK_PREFIX}${workerIndex}`, name: `E2E Desk ${workerIndex}` };
 }
 
+/** Asset-id prefix of the scoping desks. seed.ts creates `${SCOPING_DESK_PREFIX}0..WORKERS-1`. */
+export const SCOPING_DESK_PREFIX = 'e2e-scoping-desk-';
+
+/**
+ * The desk the scoping specs use on this worker. Those specs book it as another
+ * user as well as this worker's own, and sweep it as both, so no other spec may
+ * book it.
+ */
+export function scopingDeskFor(workerIndex: number): { id: string; name: string } {
+    return {
+        id: `${SCOPING_DESK_PREFIX}${workerIndex}`,
+        name: `E2E Scoping Desk ${workerIndex}`,
+    };
+}
+
 /**
  * Resolve a role for a given parallel worker.
  *

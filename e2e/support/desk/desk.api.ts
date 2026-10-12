@@ -18,6 +18,7 @@ import {
     ENGINE_API,
     STAFF_API,
     currentUser,
+    readBack,
     zonesWithTag,
 } from '../api';
 
@@ -28,21 +29,6 @@ function isConcurrentWriteFailure(status: number, body: string): boolean {
     // field it is unhappy about.
     if (status === 422 && /"failures"\s*:\s*\[\s*\]/.test(body)) return true;
     return false;
-}
-
-/**
- * Did this booking actually PERSIST?
- *
- * A 201 is not proof. Measured under parallel load: `POST /bookings` answered
- * 201 with an id and `GET /bookings/<id>` then 404'd — the row was never
- * committed. That is REG-09 / PPT-2642 (a failed COMMIT on a dirty connection,
- * after the response has already been written), and it presents as every
- * downstream symptom except the real one. Reading the row back is the only
- * reliable check.
- */
-async function persisted(api: APIRequestContext, id: number): Promise<boolean> {
-    const res = await api.get(`${STAFF_API}/bookings/${id}`);
-    return res.ok();
 }
 
 /**
@@ -94,8 +80,8 @@ export async function createDeskBookingViaApi(
         const body = await res.text();
         if (res.ok()) {
             const created = JSON.parse(body);
-            // A 201 is not proof the row exists — see `persisted`.
-            if (await persisted(api, created.id)) return created;
+            // A 201 is not proof the row exists — see `readBack`.
+            if ((await readBack(api, created.id)) !== 'missing') return created;
             last = `HTTP 201 for booking ${created.id}, which then 404s`;
             console.warn(`  ! phantom 201 on attempt ${attempt}/4 — ${last}`);
             await new Promise((r) => setTimeout(r, 400 * attempt));

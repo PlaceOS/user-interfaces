@@ -23,6 +23,7 @@ import {
     WORKERS,
     assertLocalOnly,
     roleFor,
+    scopingDeskFor,
     staffEmail,
 } from './env';
 import { mintToken, clientId, redirectUriFor } from './auth';
@@ -259,14 +260,22 @@ async function ensureDesks(api: APIRequestContext) {
         );
     }
 
-    const details = Array.from({ length: WORKERS + 1 }, (_, i) => ({
-        id: `${DESK_PREFIX}${i}`,
-        name: `E2E Desk ${i}`,
+    const desk = (id: string, name: string) => ({
+        id,
+        name,
         bookable: true,
         groups: [],
         features: [],
         images: [],
-    }));
+    });
+    const details = [
+        ...Array.from({ length: WORKERS + 1 }, (_, i) =>
+            desk(`${DESK_PREFIX}${i}`, `E2E Desk ${i}`),
+        ),
+        ...Array.from({ length: WORKERS }, (_, i) => scopingDeskFor(i)).map((d) =>
+            desk(d.id, d.name),
+        ),
+    ];
 
     const res = await api.put(`${ENGINE_API}/metadata/${level.id}`, {
         data: { name: 'desks', details, description: 'e2e bookable desks' },

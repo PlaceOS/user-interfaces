@@ -1,5 +1,6 @@
 /** CON-CAT-03: creating an item is independent of ROOM-B5 (ordering it).
  * Only select the new item in Workplace; do not submit a meeting/order. */
+import { request } from '@playwright/test';
 import { buildStorageState, mintToken } from '../../../../e2e/support/auth';
 import { expect, test } from '../../../../e2e/support/concierge/fixtures';
 import {
@@ -13,11 +14,30 @@ import {
     useSettings,
 } from '../../../../e2e/support/room/room.settings';
 
+/** Does anything answer at this URL? */
+async function reachable(url: string): Promise<boolean> {
+    const probe = await request.newContext({ ignoreHTTPSErrors: true });
+    try {
+        await probe.get(url, { timeout: 5_000 });
+        return true;
+    } catch {
+        return false;
+    } finally {
+        await probe.dispose();
+    }
+}
+
 test('CON-CAT-03: an item created in concierge is stored and offered on the workplace form', async ({
     adminPage,
     adminApi,
     browser,
 }) => {
+    test.skip(
+        !(await reachable(APP_URL)),
+        `nothing is serving the workplace app at ${APP_URL}, and the second half of ` +
+            `this row opens its meeting form. Serve it (nx serve workplace) or run the ` +
+            `workplace suite alongside.`,
+    );
     const name = runName('CON-CAT-03');
     let asset_id: string | undefined;
     await adminPage.goto('/#/book/catering/menu');

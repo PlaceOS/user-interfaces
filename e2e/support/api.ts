@@ -5,7 +5,8 @@
  */
 import * as fs from 'fs';
 import { request as pwRequest, APIRequestContext } from '@playwright/test';
-import { BACKEND_URL, RoleName, roleFor } from './env';
+import { APP_URL, AUTH_DIR, BACKEND_URL, RoleName, assertLocalOnly, roleFor } from './env';
+import { buildStorageState, mintToken } from './auth';
 
 export const ENGINE_API = '/api/engine/v2';
 export const STAFF_API = '/api/staff/v1';
@@ -35,17 +36,103 @@ export async function getJson(
 }
 
 /** Read the raw bearer a worker's auth fixture wrote for a role. */
-export function readToken(role: RoleName, workerIndex = 0): string {
+/** The bearer in a role's token sidecar, or null when there is no usable file. */
+function storedToken(role: RoleName, workerIndex: number): string | null {
     const { tokenPath } = roleFor(role, workerIndex);
-    if (!fs.existsSync(tokenPath)) {
-        throw new Error(
-            `No auth token for "${role}" (worker ${workerIndex}) at ${tokenPath}. ` +
-                `Use the fixtures from e2e/support/fixtures.ts — they mint per worker.`,
-        );
+    if (!fs.existsSync(tokenPath)) return null;
+    try {
+        const { accessToken } = JSON.parse(fs.readFileSync(tokenPath, 'utf8'));
+        return typeof accessToken === 'string' && accessToken ? accessToken : null;
+    } catch {
+        return null;
     }
-    const { accessToken } = JSON.parse(fs.readFileSync(tokenPath, 'utf8'));
-    if (!accessToken) throw new Error(`Token file ${tokenPath} has no accessToken.`);
-    return accessToken;
+}
+
+/** Write a file in one step, so a reader in another worker never sees part of it. */
+function writeAtomic(file: string, content: string): void {
+    const tmp = `${file}.${process.pid}.tmp`;
+    fs.writeFileSync(tmp, content);
+    fs.renameSync(tmp, file);
+}
+
+/** Does the backend accept this bearer? */
+async function accepted(token: string): Promise<boolean> {
+    const api = await pwRequest.newContext({
+        baseURL: BACKEND_URL,
+        ignoreHTTPSErrors: true,
+        extraHTTPHeaders: { Authorization: `Bearer ${token}` },
+    });
+    try {
+        return (await api.get(`${ENGINE_API}/users/current`)).ok();
+    } finally {
+        await api.dispose();
+    }
+}
+
+/**
+ * Mint a bearer for a role on a worker and write its storageState and token
+ * sidecar under `AUTH_DIR`.
+ *
+ * Throws when the backend rejects the new token, and when a `staff` role turns
+ * out to be admin or support: a permission assertion made as that user would
+ * pass whether or not the check works.
+ */
+export async function mintForWorker(role: RoleName, workerIndex: number) {
+    assertLocalOnly(BACKEND_URL, APP_URL);
+    const r = roleFor(role, workerIndex);
+    const mint = await mintToken(BACKEND_URL, APP_URL, r.email, r.password);
+
+    const api = await pwRequest.newContext({
+        baseURL: BACKEND_URL,
+        ignoreHTTPSErrors: true,
+        extraHTTPHeaders: { Authorization: `Bearer ${mint.accessToken}` },
+    });
+    try {
+        const res = await api.get(`${ENGINE_API}/users/current`);
+        if (!res.ok()) {
+            throw new Error(
+                `minted token for ${r.email} was rejected by rest-api: HTTP ${res.status()}`,
+            );
+        }
+        const user = await res.json();
+        if (role === 'staff' && (user.sys_admin || user.support)) {
+            throw new Error(
+                `${r.email} is admin/support — permission checks would be bypassed, making ` +
+                    `any gating assertion vacuous. Re-run e2e/support/seed.ts.`,
+            );
+        }
+    } finally {
+        await api.dispose();
+    }
+
+    fs.mkdirSync(AUTH_DIR, { recursive: true });
+    writeAtomic(r.storagePath, JSON.stringify(buildStorageState(mint, APP_URL), null, 2));
+    writeAtomic(
+        r.tokenPath,
+        JSON.stringify(
+            {
+                accessToken: mint.accessToken,
+                refreshToken: mint.refreshToken,
+                clientId: mint.clientId,
+                redirectUri: mint.redirectUri,
+                expiresIn: mint.expiresIn,
+            },
+            null,
+            2,
+        ),
+    );
+    return { role: r, mint };
+}
+
+/**
+ * A bearer for a role on a worker: the one in its token sidecar while the
+ * backend still accepts it, otherwise a freshly minted one. Safe to call from
+ * any worker, before or after the fixtures have minted for that role.
+ */
+export async function tokenFor(role: RoleName, workerIndex = 0): Promise<string> {
+    const stored = storedToken(role, workerIndex);
+    if (stored && (await accepted(stored))) return stored;
+    return (await mintForWorker(role, workerIndex)).mint.accessToken;
 }
 
 /** An APIRequestContext authenticated as the given role, pointed at the backend. */
@@ -53,7 +140,7 @@ export async function apiFor(role: RoleName, workerIndex = 0): Promise<APIReques
     return pwRequest.newContext({
         baseURL: BACKEND_URL,
         ignoreHTTPSErrors: true,
-        extraHTTPHeaders: { Authorization: `Bearer ${readToken(role, workerIndex)}` },
+        extraHTTPHeaders: { Authorization: `Bearer ${await tokenFor(role, workerIndex)}` },
     });
 }
 
@@ -146,6 +233,34 @@ export async function getBooking(api: APIRequestContext, id: number): Promise<Bo
 }
 
 /** Best-effort cleanup — never throws, so teardown cannot fail a passing test. */
+/**
+ * Read a booking back after `POST /bookings` answered 201.
+ *
+ * `missing` is a 404: the row was never committed (REG-09 / PPT-2642, a COMMIT
+ * that fails on a dirty connection after the response is written). `unknown`
+ * means the read itself failed on every try, so nothing is known either way.
+ * The read-back, and the create retry built on it, can go once every stack
+ * runs a staff-api built on pg-orm 2.2.4 or later.
+ */
+export async function readBack(
+    api: APIRequestContext,
+    id: number,
+): Promise<'persisted' | 'missing' | 'unknown'> {
+    let last = '';
+    for (let attempt = 1; attempt <= 3; attempt++) {
+        const res = await api.get(`${STAFF_API}/bookings/${id}`);
+        if (res.ok()) return 'persisted';
+        if (res.status() === 404) return 'missing';
+        last = `HTTP ${res.status()}`;
+        await new Promise((r) => setTimeout(r, 300 * attempt));
+    }
+    console.warn(
+        `  ! booking ${id}: 201 on create, but reading it back failed 3 times (${last}); ` +
+            `treating it as created so the caller can clean it up`,
+    );
+    return 'unknown';
+}
+
 export async function deleteBooking(api: APIRequestContext, id: number): Promise<void> {
     try {
         await api.delete(`${STAFF_API}/bookings/${id}`);

@@ -29,6 +29,8 @@ import { ENGINE_API, apiFor, zonesWithTag } from '../api';
 
 export interface SecondLevel {
     zone_id: string;
+    /** The level's display name, unique to the worker that created it. */
+    name: string;
     desk: { id: string; name: string };
 }
 
@@ -97,7 +99,7 @@ export async function createSecondLevel(workerIndex: number): Promise<SecondLeve
                 `write desks metadata failed: HTTP ${meta.status()} ${await meta.text()}`,
             );
         }
-        return { zone_id: zone.id, desk };
+        return { zone_id: zone.id, name, desk };
     } finally {
         await admin.dispose();
     }

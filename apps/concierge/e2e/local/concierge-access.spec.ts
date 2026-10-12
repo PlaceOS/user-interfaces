@@ -23,6 +23,18 @@ import {
 /** Sidebar links that only an admin should ever be offered. */
 const ADMIN_ONLY = 'a[href*="zone-management"], a[href*="room-management"]';
 
+const APP_ORIGIN = new URL(CONCIERGE_URL).origin;
+
+/** The origin a page is on. `about:blank` and an unparseable URL count as the app. */
+function originOf(url: string): string {
+    try {
+        const { origin } = new URL(url);
+        return origin === 'null' ? APP_ORIGIN : origin;
+    } catch {
+        return APP_ORIGIN;
+    }
+}
+
 test.describe('concierge access', () => {
     test('CON-AUTH-01: an admin reaches the app and the shell renders', async ({
         adminPage,
@@ -128,7 +140,7 @@ test.describe('concierge access', () => {
             // must NOT happen is the concierge UI rendering for someone with no
             // credentials at all.
             await expect
-                .poll(() => page.url(), {
+                .poll(() => originOf(page.url()), {
                     message:
                         'an unauthenticated visit must not stay on the concierge app. ' +
                         'If it does, check whether a token was left in this origin\'s ' +
@@ -136,7 +148,7 @@ test.describe('concierge access', () => {
                         'created without storage state',
                     timeout: 45_000,
                 })
-                .not.toMatch(/localhost:4215/);
+                .not.toBe(APP_ORIGIN);
 
             await expect(
                 page.locator(ADMIN_ONLY),

@@ -11,8 +11,28 @@
  */
 import { test as setup } from '@playwright/test';
 
+import { ensureParking } from './parking/parking.seed';
 import { assertStackUp } from './preflight';
+import { ensureEquipment } from './room/asset.seed';
+import { ensureCateringMenu } from './room/catering.seed';
+import { ensureRooms } from './room/room.seed';
+
+// Seeding needs the stack check to have passed first.
+setup.describe.configure({ mode: 'serial' });
 
 setup('local PlaceOS stack is up', async () => {
     await assertStackUp();
+});
+
+/**
+ * The shared rows every worker reads: rooms, parking spaces, requestable
+ * equipment and the catering menu. Created here, once, before the `local`
+ * project starts, so a worker's own `ensure*` call only ever finds them.
+ */
+setup('shared fixtures are seeded', async () => {
+    setup.setTimeout(180_000);
+    await ensureRooms();
+    await ensureParking();
+    await ensureEquipment();
+    await ensureCateringMenu();
 });

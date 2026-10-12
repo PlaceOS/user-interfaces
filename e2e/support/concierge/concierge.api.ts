@@ -33,6 +33,7 @@ import {
     STAFF_API,
     currentUser,
     deleteBooking,
+    readBack,
     zonesWithTag,
 } from '../api';
 
@@ -58,19 +59,6 @@ function isConcurrentWriteFailure(status: number, body: string): boolean {
     // field it is unhappy about.
     if (status === 422 && /"failures"\s*:\s*\[\s*\]/.test(body)) return true;
     return false;
-}
-
-/**
- * Did this booking actually PERSIST?
- *
- * A 201 is not proof — measured under load, `POST /bookings` has answered 201
- * with an id that `GET /bookings/<id>` then 404'd, because the COMMIT failed
- * after the response was written (REG-09). Reading the row back is the only
- * reliable check.
- */
-async function persisted(api: APIRequestContext, id: number): Promise<boolean> {
-    const res = await api.get(`${STAFF_API}/bookings/${id}`);
-    return res.ok();
 }
 
 export interface BookingForOptions {
@@ -126,7 +114,8 @@ export async function createBookingFor(
         const body = await res.text();
         if (res.ok()) {
             const booking = JSON.parse(body) as Booking;
-            if (await persisted(api, booking.id)) return booking;
+            // A 201 is not proof the row exists — see `readBack`.
+            if ((await readBack(api, booking.id)) !== 'missing') return booking;
             // 201 but not committed — REG-09. Treat as a retryable failure.
             last = `201 for id ${booking.id}, but GET /bookings/${booking.id} then 404'd (REG-09)`;
         } else {

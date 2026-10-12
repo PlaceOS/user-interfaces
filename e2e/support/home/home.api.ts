@@ -15,6 +15,7 @@ import {
     ENGINE_API,
     STAFF_API,
     currentUser,
+    readBack,
     zonesWithTag,
 } from '../api';
 
@@ -24,11 +25,6 @@ function isConcurrentWriteFailure(status: number, body: string): boolean {
     // An empty `failures` list is the tell: a real validation error names a field.
     if (status === 422 && /"failures"\s*:\s*\[\s*\]/.test(body)) return true;
     return false;
-}
-
-async function persisted(api: APIRequestContext, id: number): Promise<boolean> {
-    const res = await api.get(`${STAFF_API}/bookings/${id}`);
-    return res.ok();
 }
 
 /** Create a booking of any type, as the signed-in user. */
@@ -70,7 +66,7 @@ export async function createBookingViaApi(
         const body = await res.text();
         if (res.ok()) {
             const created = JSON.parse(body);
-            if (await persisted(api, created.id)) return created;
+            if ((await readBack(api, created.id)) !== 'missing') return created;
             last = `HTTP 201 for booking ${created.id}, which then 404s`;
             console.warn(`  ! phantom 201 on attempt ${attempt}/4 — ${last}`);
             await new Promise((r) => setTimeout(r, 400 * attempt));

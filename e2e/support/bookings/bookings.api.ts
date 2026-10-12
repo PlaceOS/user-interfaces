@@ -16,7 +16,7 @@
  * only ever a row that ought to show up on a page.
  */
 import { APIRequestContext } from '@playwright/test';
-import { Booking, STAFF_API, currentUser, releaseAsset, zonesWithTag } from '../api';
+import { Booking, STAFF_API, currentUser, readBack, releaseAsset, zonesWithTag } from '../api';
 
 export interface ScheduleBooking extends Booking {
     checked_in?: boolean;
@@ -63,32 +63,6 @@ function isConcurrentWriteFailure(status: number, body: string): boolean {
     return false;
 }
 
-/**
- * Did this booking actually PERSIST?
- *
- * ## A 201 is not proof the row exists
- *
- * Measured under a fifteen-test parallel run: `POST /bookings` returned **201
- * with an id**, and `GET /bookings/<that id>` then returned **404 "could not
- * find booking with id"**. The row was never committed. Everything downstream
- * then looks like a different bug — the card never appears on the schedule, and
- * the listing says the booking is not live — which is how this cost two
- * debugging sessions before the id was read back.
- *
- * This is REG-09 / PPT-2642 doing more damage than its row currently describes:
- * crystal-db clears a connection's transaction flag only after the COMMIT it
- * issues, so a COMMIT that fails leaves the connection dirty. The response is
- * already written by then, hence a 201 for nothing.
- *
- * So every create here reads the booking back before returning it, and treats a
- * missing row as a failed attempt. Delete this, like the retry around it, once
- * the stack runs a staff-api built on pg-orm >= 2.2.4.
- */
-async function persisted(api: APIRequestContext, id: number): Promise<boolean> {
-    const res = await api.get(`${STAFF_API}/bookings/${id}`);
-    return res.ok();
-}
-
 export async function createBookingViaApi(
     api: APIRequestContext,
     options: {
@@ -124,8 +98,9 @@ export async function createBookingViaApi(
         const body = await res.text();
         if (res.ok()) {
             const created = JSON.parse(body);
-            if (await persisted(api, created.id)) return created;
-            last = `HTTP 201 for booking ${created.id}, which then 404s — see persisted()`;
+            // A 201 is not proof the row exists — see `readBack`.
+            if ((await readBack(api, created.id)) !== 'missing') return created;
+            last = `HTTP 201 for booking ${created.id}, which then 404s — see readBack()`;
             console.warn(`  ! phantom 201 on attempt ${attempt}/4 — ${last}`);
             await new Promise((r) => setTimeout(r, 400 * attempt));
             continue;

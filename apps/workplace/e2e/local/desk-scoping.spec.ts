@@ -80,9 +80,8 @@ test.describe('desk level scoping', () => {
             }
             await selector.click();
             const option = staffPage
-                .locator('.cdk-overlay-container mat-option')
-                .filter({ hasText: 'E2E Extra Level' })
-                .first();
+                .locator('.cdk-overlay-container')
+                .getByRole('option', { name: extra.name, exact: true });
             await expect(
                 option,
                 'the extra level is not among the options the selector offers',

@@ -12,6 +12,11 @@
  *
  * The control is not optional: a panel that showed nothing at all would pass the
  * first test on its own.
+ *
+ * Both tests book THIS worker's scoping desk (`scopingDeskFor`), which no other
+ * spec touches. The other user's booking and sweep land there rather than on
+ * that user's own desk, which the desk specs book all day today on the worker
+ * signed in as that user.
  */
 import { test, expect } from '../../../../e2e/support/fixtures';
 import { request } from '@playwright/test';
@@ -20,8 +25,8 @@ import {
     APP_URL,
     BACKEND_URL,
     WORKERS,
-    deskFor,
     roleFor,
+    scopingDeskFor,
 } from '../../../../e2e/support/env';
 import { mintToken } from '../../../../e2e/support/auth';
 import { createBookingViaApi } from '../../../../e2e/support/home/home.api';
@@ -54,21 +59,21 @@ test.describe('home page — visibility between users', () => {
         const theirs = (mine + 1) % WORKERS;
         test.skip(theirs === mine, 'needs at least two workers to have two distinct users');
 
-        const their_desk = deskFor(theirs);
+        const desk = scopingDeskFor(mine);
         const start = Math.floor(Date.now() / 1000) + (60 + 20 * mine) * MINUTE;
         test.skip(!stillToday(start), 'this window has crossed midnight');
         const other = await apiAsOtherUser(theirs);
         let their_booking: number | undefined;
 
-        // Their desk, their booking, swept by THEM: `GET /bookings` is
-        // caller-scoped, so this worker cannot see or clear it.
-        await releaseAsset(other, 'desk', their_desk.id, start - 60, start + 3600);
+        // Their booking on this worker's scoping desk, swept by THEM: `GET
+        // /bookings` is caller-scoped, so this worker cannot see or clear it.
+        await releaseAsset(other, 'desk', desk.id, start - 60, start + 3600);
 
         try {
             const booking = await createBookingViaApi(other, {
                 type: 'desk',
-                asset_id: their_desk.id,
-                asset_name: their_desk.name,
+                asset_id: desk.id,
+                asset_name: desk.name,
                 title: uniqueTitle('E2E Home Theirs'),
                 start,
                 end: start + 15 * MINUTE,
@@ -91,7 +96,7 @@ test.describe('home page — visibility between users', () => {
             ).not.toContain(their_booking);
         } finally {
             if (their_booking != null) await deleteBooking(other, their_booking);
-            await releaseAsset(other, 'desk', their_desk.id, start - 60, start + 3600);
+            await releaseAsset(other, 'desk', desk.id, start - 60, start + 3600);
             await other.dispose();
         }
     });
@@ -113,11 +118,8 @@ test.describe('home page — visibility between users', () => {
         staffPage,
         staffApi,
     }, testInfo) => {
-        // The spare desk, so this does not contend with the desk specs, which
-        // book the worker's own desk all day today.
-        const desk = deskFor(WORKERS);
-        // Close enough to now that an evening run still lands inside today, and
-        // clear of desk-status (+5 to +45) and home-upcoming (+90 onwards).
+        const desk = scopingDeskFor(testInfo.parallelIndex);
+        // Close enough to now that an evening run still lands inside today.
         const start = Math.floor(Date.now() / 1000) + (46 + 10 * testInfo.parallelIndex) * MINUTE;
         test.skip(!stillToday(start), 'this window has crossed midnight');
         let booking_id: number | undefined;

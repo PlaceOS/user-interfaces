@@ -248,9 +248,9 @@ test.describe('your bookings — the listing', () => {
         await schedule.showDayOf(target.date_ms);
         await schedule.waitForLoaded();
 
-        const for_day = asked.filter(
-            (a) => a.from >= target.start - DAY && a.to <= target.start + DAY,
-        );
+        // Every request whose window touches the day on screen, however wide.
+        const { from: day_start, to: day_end } = dayBoundsOn(day);
+        const for_day = asked.filter((a) => a.from < day_end && a.to > day_start);
         expect(
             for_day.length,
             `the page should request the day being shown; it asked for ` +
