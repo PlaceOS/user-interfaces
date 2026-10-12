@@ -306,7 +306,7 @@ export type MapEditorAiStringsOverride = {
 };
 
 /** The defaults with the host's overrides laid over them, one level deep. */
-export function resolveStrings(
+export function resolveAiStrings(
     override: MapEditorAiStringsOverride | null | undefined,
 ): MapEditorAiStrings {
     if (!override) return DEFAULT_AI_STRINGS;

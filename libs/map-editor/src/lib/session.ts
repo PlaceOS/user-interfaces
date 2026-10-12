@@ -1,4 +1,8 @@
 import { Signal, signal } from '@angular/core';
+import {
+    MapEditorSessionLike,
+    SessionApplyOptions,
+} from './ai/session-contract';
 import { applyOps, ApplyResult } from './apply';
 import { ANCHOR_ATTR } from './constants';
 import { draftKeyFor, DraftStore, makeDraft } from './draft-store';
@@ -10,11 +14,6 @@ import { MapOp } from './ops';
 import { ProtectedIdSet } from './protected-ids';
 import { FakeRenderCheck, RenderCheck } from './render-check';
 import { canonicalSignature } from './signature';
-
-export interface SessionApplyOptions {
-    /** Indices of ops to leave out, such as rows the person unticked. */
-    skip?: ReadonlySet<number>;
-}
 
 export interface MapEditorSessionOptions {
     /** Zone the map belongs to; part of the draft key. */
@@ -51,7 +50,7 @@ export class LiveGeometryProvider implements GeometryProvider {
  * history, the element index and the browser draft. Every change goes through
  * `apply`, `undo`, `redo` or `restore`, which bump `version`.
  */
-export class MapEditorSession {
+export class MapEditorSession implements MapEditorSessionLike {
     public readonly doc: MapDocument;
     public readonly zone_id: string;
     public readonly protected: ProtectedIdSet;

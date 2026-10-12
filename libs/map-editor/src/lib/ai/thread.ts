@@ -39,7 +39,7 @@ import {
 import {
     MapEditorAiStrings,
     MapEditorAiStringsOverride,
-    resolveStrings,
+    resolveAiStrings,
 } from './strings';
 import { MapAIJob, MapAIResolveDecision } from './types';
 
@@ -219,7 +219,7 @@ export class MapAiThread {
         private readonly _zone_id: string,
         options: MapAiThreadOptions = {},
     ) {
-        this.strings = resolveStrings(options.strings);
+        this.strings = resolveAiStrings(options.strings);
         this._transport = options.transport ?? PLACEOS_TRANSPORT;
         this._upload = options.upload ?? null;
         this._now = options.now ?? Date.now;
