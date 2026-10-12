@@ -7,7 +7,7 @@ import {
 } from "./chunk-XSMQQPKD.js";
 import {
   CustomTooltipComponent
-} from "./chunk-AKHAPCTO.js";
+} from "./chunk-HQNEGRHF.js";
 import "./chunk-RG6ARIQI.js";
 import "./chunk-L7HWC5UA.js";
 import {
@@ -15,7 +15,7 @@ import {
   DEFAULT_SETTINGS,
   OrganisationService,
   SettingsService
-} from "./chunk-AC6R4MJF.js";
+} from "./chunk-JQQZD4SZ.js";
 import {
   DefaultValueAccessor,
   FormsModule,
@@ -1245,4 +1245,4 @@ export {
   SettingsDebugPanelComponent
 };
 //# debugId=76d1388c-0c1d-5260-bf63-d118ba4d1014
-//# sourceMappingURL=settings-debug-panel.component-KYHA7UXX.js.map
+//# sourceMappingURL=settings-debug-panel.component-Q2COSM3A.js.map
