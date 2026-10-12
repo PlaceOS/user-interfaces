@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1791777259988,
+  "timestamp": 1791780226185,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -12,6 +12,7 @@
       },
       "urls": [
         "./chunk-4MI22UID.js",
+        "./chunk-4VQ0lFjl.js",
         "./chunk-73PW3FCZ.js",
         "./chunk-BAgiCUX0.js",
         "./chunk-BBTrnznO.js",
@@ -27,10 +28,10 @@
         "./chunk-DVj9e7m3.js",
         "./chunk-DlKZwLkR.js",
         "./chunk-EUWIM5B3.js",
-        "./chunk-GkDzgveQ.js",
         "./chunk-I33QMCJC.js",
         "./chunk-IV6A2JKC.js",
         "./chunk-JAODHKFU.js",
+        "./chunk-JZBI2CAF.js",
         "./chunk-LS6NZJ7E.js",
         "./chunk-Y4R37YMA.js",
         "./chunk-Z2jPxRN7.js",
@@ -224,6 +225,7 @@
     "./assets/support/opera-logo.svg": "23f8e25409598ac843eefe81ea3c09b4f460844d",
     "./assets/support/safari-logo.svg": "1c510b0c330f84f6662351e4a0abd7fb8af2f678",
     "./chunk-4MI22UID.js": "d3a6664995504cd74f41b5c54412c4a68ee90eb4",
+    "./chunk-4VQ0lFjl.js": "9a75e99d1d39586b7e95832c0d046c9844eb73af",
     "./chunk-73PW3FCZ.js": "36b1f5ee92bb6cc604e659b5ac501d9c4dee239c",
     "./chunk-BAgiCUX0.js": "d5ff9c85a35f0993bafc06d369b10857d9cd14ce",
     "./chunk-BBTrnznO.js": "883c4a393110d1cd8fcfce49144280940776270e",
@@ -239,10 +241,10 @@
     "./chunk-DVj9e7m3.js": "22dd94db17756c714484eacfdfee24aff196e1a3",
     "./chunk-DlKZwLkR.js": "759342182b63e9c87bfd56084ef946e4e22ddefd",
     "./chunk-EUWIM5B3.js": "6f62fc1acd80db768c0fa5b7967fc417f4aac7c4",
-    "./chunk-GkDzgveQ.js": "cd5aa7c91551769e0797c47c3f5842fa0a262aac",
     "./chunk-I33QMCJC.js": "3271add2e7dcaefa540920a97187107e3aab18ea",
     "./chunk-IV6A2JKC.js": "b654e4f898a2cdb8fa3f3723ae88127fd38a9ac6",
     "./chunk-JAODHKFU.js": "343d60170d3300e18a18901ad9438872649d8a26",
+    "./chunk-JZBI2CAF.js": "eee8cc3641fcc247428ddc109e3acaf4d63aa49a",
     "./chunk-LS6NZJ7E.js": "0cd5081ba7c1ca16951dd56e171435158ed751b5",
     "./chunk-Y4R37YMA.js": "e9e66716ac39c24be247b6e391868c43816126e9",
     "./chunk-Z2jPxRN7.js": "1ce7a816a867b40d47e6f95cbbe04b3ea35f1a7a",
@@ -251,7 +253,7 @@
     "./chunk-x_EPPIUm.js": "26dfb68bc62b8428d71967c095edebed1903ee60",
     "./favicon.ico": "f169facae544e62416885eef632d81129da291c5",
     "./index.html": "edd88bb335985720b5db8dd0f4bc1bb56d90714a",
-    "./main.js": "417e4ff84186442f8b2bdec9d40e0a507b0d4971",
+    "./main.js": "5308d4fa4576493e33ba6c876922620fa621f7ea",
     "./manifest.webmanifest": "13e11cd6a36b62c01e1eff0a76597b21a560d9c2",
     "./styles.css": "aa08a3875ef39252db12240c7d97e3e539efa07f"
   },
