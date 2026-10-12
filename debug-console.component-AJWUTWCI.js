@@ -2,22 +2,21 @@ import {
   CustomTooltipComponent,
   CustomTooltipData,
   SanitizePipe
-} from "./chunk-3PF4WVU3.js";
+} from "./chunk-FVGYBHTW.js";
 import "./chunk-KIADTA4P.js";
 import {
   TranslatePipe
-} from "./chunk-NYNDQV4R.js";
+} from "./chunk-DTOFWQDK.js";
 import {
   OrganisationService,
   SettingsService
-} from "./chunk-UMHXZB4F.js";
-import "./chunk-SWSQOIQA.js";
+} from "./chunk-RI2FVWRA.js";
 import {
   DefaultValueAccessor,
   FormsModule,
   NgControlStatus,
   NgModel
-} from "./chunk-PAKYII5B.js";
+} from "./chunk-QUKX4ESA.js";
 import {
   AsyncHandler,
   Gp,
@@ -25,7 +24,7 @@ import {
   log,
   randomInt,
   randomString
-} from "./chunk-CHOQN2TC.js";
+} from "./chunk-BILSIETY.js";
 import {
   IconComponent
 } from "./chunk-XXHXEIYP.js";
@@ -42,6 +41,7 @@ import {
 } from "./chunk-H3EM6KUH.js";
 import "./chunk-SSJKZM4J.js";
 import "./chunk-5WMBRJSW.js";
+import "./chunk-SWSQOIQA.js";
 import {
   Component,
   DatePipe,
@@ -102,7 +102,7 @@ function hookMethod(rootObject, functionToHook, hookingFunction) {
 }
 var DEVICE_ID = globalThis.localStorage?.getItem("PLACEOS.DEVICE_ID") || `DEV-${randomString(8)}`;
 var RemoteLoggingService = class _RemoteLoggingService extends AsyncHandler {
-  setMetadata(metadata) {
+  setMetadata(_metadata) {
   }
   constructor() {
     super();
@@ -748,10 +748,10 @@ var DebugConsoleComponent = class _DebugConsoleComponent extends AsyncHandler {
   }], () => [], { show: [{ type: Input, args: [{ isSignal: true, alias: "show", required: false }] }, { type: Output, args: ["showChange"] }], hotkeysEnabled: [{ type: Input, args: [{ isSignal: true, alias: "hotkeysEnabled", required: false }] }] });
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(DebugConsoleComponent, { className: "DebugConsoleComponent", filePath: "libs/components/src/lib/debug-console.component.ts", lineNumber: 199 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(DebugConsoleComponent, { className: "DebugConsoleComponent", filePath: "libs/components/src/lib/debug-console.component.ts", lineNumber: 200 });
 })();
 export {
   DebugConsoleComponent
 };
-//# debugId=1c354e1c-57ee-5f49-b586-26e9b40130c9
-//# sourceMappingURL=debug-console.component-I2QJXO53.js.map
+//# debugId=30242273-e9bd-5ae8-9657-9b2dfe1c20cc
+//# sourceMappingURL=debug-console.component-AJWUTWCI.js.map

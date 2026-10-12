@@ -8,20 +8,19 @@ import {
 import "./chunk-KIADTA4P.js";
 import {
   Clipboard
-} from "./chunk-UMHXZB4F.js";
-import "./chunk-SWSQOIQA.js";
+} from "./chunk-RI2FVWRA.js";
 import {
   DefaultValueAccessor,
   FormsModule,
   NgControlStatus,
   NgModel
-} from "./chunk-PAKYII5B.js";
+} from "./chunk-QUKX4ESA.js";
 import {
   AsyncHandler,
   HotkeysService,
   Kr,
   xa
-} from "./chunk-CHOQN2TC.js";
+} from "./chunk-BILSIETY.js";
 import {
   IconComponent
 } from "./chunk-XXHXEIYP.js";
@@ -33,6 +32,7 @@ import {
 } from "./chunk-H3EM6KUH.js";
 import "./chunk-SSJKZM4J.js";
 import "./chunk-5WMBRJSW.js";
+import "./chunk-SWSQOIQA.js";
 import {
   Component,
   DOCUMENT,
@@ -1874,11 +1874,11 @@ var BindingDebugPanelComponent = class _BindingDebugPanelComponent extends Async
   }], null, { show: [{ type: Input, args: [{ isSignal: true, alias: "show", required: false }] }, { type: Output, args: ["showChange"] }], hotkeysEnabled: [{ type: Input, args: [{ isSignal: true, alias: "hotkeysEnabled", required: false }] }] });
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(BindingDebugPanelComponent, { className: "BindingDebugPanelComponent", filePath: "libs/components/src/lib/binding-debug-panel.component.ts", lineNumber: 952 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(BindingDebugPanelComponent, { className: "BindingDebugPanelComponent", filePath: "libs/components/src/lib/binding-debug-panel.component.ts", lineNumber: 953 });
 })();
 export {
   BindingDebugPanelComponent,
   pairExecuteMessages
 };
-//# debugId=c0072ef6-510a-5326-a1c0-3e7b08694e86
-//# sourceMappingURL=binding-debug-panel.component-QWSALKCO.js.map
+//# debugId=ab1689ab-a78b-5f7e-b003-aa82def55ff6
+//# sourceMappingURL=binding-debug-panel.component-K5Z74SPW.js.map
