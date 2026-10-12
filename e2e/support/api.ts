@@ -35,7 +35,6 @@ export async function getJson(
     return res.json();
 }
 
-/** Read the raw bearer a worker's auth fixture wrote for a role. */
 /** The bearer in a role's token sidecar, or null when there is no usable file. */
 function storedToken(role: RoleName, workerIndex: number): string | null {
     const { tokenPath } = roleFor(role, workerIndex);
@@ -232,7 +231,6 @@ export async function getBooking(api: APIRequestContext, id: number): Promise<Bo
     return res.json();
 }
 
-/** Best-effort cleanup — never throws, so teardown cannot fail a passing test. */
 /**
  * Read a booking back after `POST /bookings` answered 201.
  *
@@ -261,6 +259,7 @@ export async function readBack(
     return 'unknown';
 }
 
+/** Best-effort cleanup — never throws, so teardown cannot fail a passing test. */
 export async function deleteBooking(api: APIRequestContext, id: number): Promise<void> {
     try {
         await api.delete(`${STAFF_API}/bookings/${id}`);

@@ -189,12 +189,9 @@ export async function seededDesks(
  *
  * ## Why this does not call the workplace `ensureParking()`
  *
- * `e2e/support/parking/parking.seed.ts` mints its own admin context with
- * `apiFor('admin', 0)`, which reads the TOKEN FILE the workplace fixtures
- * write (`e2e/.auth/admin-0.token.json`). The concierge fixtures do not write
- * that file — they write a storage state bound to the concierge origin — so a
- * concierge spec calling it would either fail outright or, worse, quietly use
- * yesterday's expired token. This takes the caller's context instead.
+ * That seeder opens its own admin context through `apiFor('admin', 0)`. This
+ * takes the caller's context instead, so a concierge spec seeds through the
+ * token it already holds.
  *
  * Idempotent, and it reuses whatever the workplace parking seeder already made:
  * the zone is matched by name, so the two never create competing hierarchies.
