@@ -29,6 +29,7 @@ import {
 import {
     addDays,
     addMinutes,
+    type Day,
     endOfDay,
     getUnixTime,
     set,
@@ -69,7 +70,7 @@ export function isInWaitlistWeek(
     const now = Date.now();
     const zoned_now = timezone ? toZonedTime(now, timezone) : new Date(now);
     let current_week_start = set(
-        startOfWeek(zoned_now, { weekStartsOn: day as any }),
+        startOfWeek(zoned_now, { weekStartsOn: day as Day }),
         { hours: hour, minutes: minute, seconds: 0, milliseconds: 0 },
     );
     if (zoned_now < current_week_start) {

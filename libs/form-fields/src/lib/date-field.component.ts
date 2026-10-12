@@ -273,10 +273,6 @@ export class DateFieldComponent
         if (new_date < this.from().valueOf()) {
             new_date = this.from().valueOf();
         }
-        // Ensure we don't select a past datetime when switching dates
-        if (new_date < Date.now()) {
-            new_date = Date.now();
-        }
         this.date.set(new_date);
         markUserDateChange();
         if (this._onChange) this._onChange(new_date);

@@ -110,10 +110,12 @@ describe('PlaceOS analytics startup', () => {
         ]);
     });
 
-    it('keeps the GTM initial page view in load', () => {
+    it('keeps the GTM page view in load and does not track routes', () => {
         settings['app.analytics.tracking_id'] = 'GTM-TEST123';
         router.navigated = true;
         service['_initAnalytics']();
+
+        events.next(new NavigationEnd(2, '/book', '/book/rooms'));
 
         expect(analytics.load).toHaveBeenCalledExactlyOnceWith('GTM-TEST123');
         expect(analytics.page).not.toHaveBeenCalled();

@@ -161,16 +161,17 @@ export function bookingLocationString(
             booking.location ||
             booking.space?.display_name ||
             booking.space?.name ||
-            (booking.system as any)?.name ||
+            booking.system?.name ||
             '';
+        const system_level = org.levelWithID([
+            ...(booking.system?.zones || []),
+        ]);
         level_name =
             booking.space?.level?.display_name ||
             booking.space?.level?.name ||
-            (booking.system as any)?.zones
-                ? org.levelWithID((booking.system as any)?.zones || [])
-                      ?.display_name ||
-                  org.levelWithID((booking.system as any)?.zones || [])?.name
-                : '';
+            system_level?.display_name ||
+            system_level?.name ||
+            '';
     }
 
     if (location && level_name) {

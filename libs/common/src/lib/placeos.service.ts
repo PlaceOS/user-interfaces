@@ -543,10 +543,11 @@ export class PlaceOS_Service extends AsyncHandler {
             log('APP', 'Failed to initialise analytics.', error, 'warn');
             return;
         }
+        // GTM containers get one page view from `load()` and track history
+        // changes on their own. Only GA4 needs a page view for each route.
+        if (!tracking_id.startsWith('G-')) return;
         // Navigation may have completed while startup waited for user data.
-        if (tracking_id.startsWith('G-') && this._router.navigated) {
-            this._analytics.page(this._router.url);
-        }
+        if (this._router.navigated) this._analytics.page(this._router.url);
         this.subscription(
             'analytics-router',
             this._router.events

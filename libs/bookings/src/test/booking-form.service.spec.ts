@@ -788,6 +788,16 @@ describe('BookingFormService', () => {
         spy.mockRestore();
     });
 
+    it('should clear form on a visit to the landing page', () => {
+        const spy = vi.spyOn(spectator.service, 'clearForm');
+        const router = spectator.inject(Router);
+        (router.events as any).next(
+            new NavigationEnd(1, '/landing', '/landing'),
+        );
+        expect(spy).toHaveBeenCalled();
+        spy.mockRestore();
+    });
+
     it('should show user friendly names for invalid form fields', async () => {
         spectator.service.newForm('desk');
         spectator.service.model.update((m) => ({ ...m, asset_id: '' }));

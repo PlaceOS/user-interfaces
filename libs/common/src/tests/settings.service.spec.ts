@@ -100,6 +100,30 @@ describe('SettingsService', () => {
     });
 });
 
+describe('SettingsService renamed user settings', () => {
+    const createService = createServiceFactory(SettingsService);
+
+    it('should read favourites saved under the old setting keys', async () => {
+        vi.mocked(ts_client.showMetadata).mockResolvedValue({
+            details: {
+                favourite_spaces: ['room-1'],
+                favourite_parking_spaces: ['bay-1'],
+                favourite_parking: ['bay-2'],
+            },
+        } as any);
+        setCurrentUser({ id: 'test-user' } as any);
+        const service = createService({
+            providers: [MockProvider(Title, { setTitle: vi.fn() })],
+        }).service;
+
+        await vi.waitFor(() =>
+            expect(service.get('favourite_rooms')).toEqual(['room-1']),
+        );
+        // A value under the new key wins over the old key
+        expect(service.get('favourite_parking')).toEqual(['bay-2']);
+    });
+});
+
 describe('SettingsService theme', () => {
     const createService = createServiceFactory(SettingsService);
 

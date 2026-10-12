@@ -114,8 +114,8 @@ export class DateRangeCalendarComponent implements OnInit, OnChanges {
     public readonly to_date = input<number>(undefined, { alias: 'to' });
     /** Index of the day to start the week on when displaying the calendar */
     public readonly offset_weekday = input(0);
-    /** Maximum number of days allowed in the selected range (default: 31 days / ~1 month) */
-    public readonly max_range_days = input(31);
+    /** Maximum number of days allowed in the selected range. `0` means no limit */
+    public readonly max_range_days = input(0);
     /** Start date of the selected range */
     public readonly startInput = input<number>(undefined, { alias: 'start' });
     public readonly start = linkedSignal(this.startInput);

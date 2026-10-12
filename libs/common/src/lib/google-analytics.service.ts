@@ -43,7 +43,7 @@ export class GoogleAnalyticsService {
                     event: 'gtm.js',
                 });
             }
-            const script = document.createElement('script') as any;
+            const script = document.createElement('script');
             script.async = true;
             script.src = this._ga4
                 ? `https://www.googletagmanager.com/gtag/js?id=${tracking_id}`
@@ -225,7 +225,9 @@ export class GoogleAnalyticsService {
     }
 
     /**
-     * Post routing event to Google Analytics API
+     * Post routing event to Google Analytics API.
+     * The query string and fragment are removed, as they can hold personal
+     * data such as an email address.
      * @param route Activated route
      * @param origin Add origin to routh path
      */
@@ -235,6 +237,7 @@ export class GoogleAnalyticsService {
                 "Google Analytics hasn't been installed on this page",
             );
         }
+        route = route.split(/[?#]/)[0];
         if (this.enabled) {
             this.timeout(
                 `page|${route}`,

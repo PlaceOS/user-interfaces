@@ -952,8 +952,6 @@ export class EventDetailsModalComponent implements OnInit {
     );
 
     public ngOnInit() {
-        console.log('Event:', this._data);
-        this.event.set(new CalendarEvent(this._data.event));
         const doc = new DOMParser().parseFromString(
             this.event().body,
             'text/html',

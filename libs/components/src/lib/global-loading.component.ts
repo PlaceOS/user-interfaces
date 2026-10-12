@@ -108,8 +108,8 @@ export class NativeDomainOverlayLoaderComponent {
             [loader] {
                 background-image: linear-gradient(
                     to right,
-                    #f15b55 0%,
-                    #f68c50 100%
+                    #0d47a1 0%,
+                    #2196f3 100%
                 );
             }
         `,

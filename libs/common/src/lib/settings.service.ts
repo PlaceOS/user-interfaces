@@ -10,6 +10,7 @@ import { showMetadata, updateMetadata, updateUser } from '@placeos/ts-client';
 import { format, isSameDay } from 'date-fns';
 
 import { AsyncHandler } from './async-handler.class';
+import { SETTING_KEYS } from './constants';
 import { getItemWithKeys, log, setAppName } from './general';
 import { DEFAULT_SETTINGS } from './settings';
 import { HashMap } from './types';
@@ -30,6 +31,21 @@ let _service: SettingsService;
 const _setting_signals: Record<string, WritableSignal<any>> = {};
 
 const DEBUG_OVERRIDES_KEY = 'PLACEOS.setting_overrides';
+
+/** Renamed user setting keys, as old key to new key */
+const LEGACY_USER_SETTING_KEYS: Record<string, string> = {
+    favourite_spaces: SETTING_KEYS.FAVORITE_ROOMS,
+    favourite_parking_spaces: SETTING_KEYS.FAVORITE_PARKING_SPACES,
+};
+
+/** Use the value of a renamed user setting until the new key has a value */
+function withLegacyUserSettings(details: HashMap): HashMap {
+    const result = { ...details };
+    for (const [old_key, key] of Object.entries(LEGACY_USER_SETTING_KEYS)) {
+        result[key] ??= details[old_key];
+    }
+    return result;
+}
 
 function loadDebugOverrides(): HashMap {
     try {
@@ -213,7 +229,7 @@ export class SettingsService extends AsyncHandler {
         }
         const user = await this._currentUser();
         const data = await showMetadata(user.id, 'settings');
-        this._user_settings.set(data.details || {});
+        this._user_settings.set(withLegacyUserSettings(data.details || {}));
         this._updateSignals();
         this.timeout(
             'init',

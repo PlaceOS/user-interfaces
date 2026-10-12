@@ -30,7 +30,6 @@ import {
     setHours,
     startOfDay,
 } from 'date-fns';
-import { queryBookings } from 'libs/bookings/src/lib/bookings.fn';
 import { DurationPipe } from 'libs/components/src/lib/duration.pipe';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
@@ -314,31 +313,15 @@ export class FindAvailabilityModalComponent
             date: this._debounced_date.value(),
         }),
         loader: async ({ params: { users, date } }) => {
-            const all_emails = [
-                this.host.email,
-                ...users.map((_) => _.email.toLowerCase()),
-            ];
-            const period_start = getUnixTime(startOfDay(date));
-            const period_end = getUnixTime(endOfDay(date));
             const availability_list = await queryUserFreeBusy({
-                calendars: all_emails.join(','),
-                period_start,
-                period_end,
+                calendars: [
+                    this.host.email,
+                    ...users.map((_) => _.email.toLowerCase()),
+                ].join(','),
+                period_start: getUnixTime(startOfDay(date)),
+                period_end: getUnixTime(endOfDay(date)),
             }).catch(() => []);
-            const desk_list = await Promise.all(
-                all_emails.map(async (email) => ({
-                    email,
-                    bookings: await queryBookings({
-                        type: 'desk',
-                        email,
-                        period_start,
-                        period_end,
-                    }).catch(() => []),
-                })),
-            );
             const availability_map: Record<string, AvailabilityBlock[]> = {};
-
-            // Process calendar availability
             for (const item of availability_list) {
                 availability_map[item.id.toLowerCase()] = item.availability
                     .filter((_) => _.status === 'busy')
@@ -359,29 +342,6 @@ export class FindAvailabilityModalComponent
                         };
                     });
             }
-
-            // Process desk bookings per user and merge into availability
-            for (const { email, bookings } of desk_list) {
-                const email_lower = email.toLowerCase();
-                for (const booking of bookings) {
-                    const date = new Date(booking.date);
-                    const duration = booking.duration;
-                    const block: AvailabilityBlock = {
-                        date: date.valueOf(),
-                        duration,
-                        start:
-                            ((date.getHours() + date.getMinutes() / 60) / 24) *
-                            100,
-                        size: (duration / 60 / 24) * 100,
-                    };
-
-                    if (!availability_map[email_lower]) {
-                        availability_map[email_lower] = [];
-                    }
-                    availability_map[email_lower].push(block);
-                }
-            }
-
             return availability_map;
         },
     });

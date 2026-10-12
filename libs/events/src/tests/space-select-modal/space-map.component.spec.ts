@@ -118,6 +118,20 @@ describe('SpaceMapComponent', () => {
         expect(styles['#area-busy']).toEqual({ fill: DEFAULT_COLOURS.busy });
     });
 
+    it('should select a space from its map pin', async () => {
+        const space = new Space({ id: 'space-1', map_id: 'area-1' });
+        const on_select = vi.fn();
+        spectator.component.onSelect.subscribe(on_select);
+        available_spaces.set([space]);
+        await vi.waitFor(() =>
+            expect(spectator.component.features()).toHaveLength(1),
+        );
+
+        spectator.component.features()[0].data.onSelect();
+
+        expect(on_select).toHaveBeenCalledWith(space);
+    });
+
     it('should update options and coordinates when setting a level', () => {
         spectator.component.setLevel(level_1);
         expect(

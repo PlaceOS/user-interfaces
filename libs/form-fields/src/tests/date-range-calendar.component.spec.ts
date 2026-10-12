@@ -88,6 +88,20 @@ describe('DateRangeCalendarComponent', () => {
         expect(spectator.component.end_after_start()).toBe(true);
     });
 
+    it('should not limit the range length by default', () => {
+        const end = addDays(month, 90).valueOf();
+        spectator.component.selectDate(month.valueOf());
+        spectator.component.selectDate(end);
+        expect(spectator.component.end()).toBe(end);
+    });
+
+    it('should limit the range length to max_range_days', () => {
+        spectator.setInput('max_range_days', 31);
+        spectator.component.selectDate(month.valueOf());
+        spectator.component.selectDate(addDays(month, 90).valueOf());
+        expect(spectator.component.end()).toBe(addDays(month, 30).valueOf());
+    });
+
     it('should ignore hovered dates before a start is chosen', () => {
         spectator.component.setHoveredDate(addDays(month, 6).valueOf());
         expect(spectator.component.hovered_date()).toBeNull();

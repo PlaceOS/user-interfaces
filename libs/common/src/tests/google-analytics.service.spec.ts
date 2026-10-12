@@ -26,14 +26,14 @@ describe('GoogleAnalyticsService', () => {
     });
 
     it('should load gtag.js for a GA4 measurement ID', () => {
-        service.init('G-S6TDS95BDH');
+        service.init('G-TEST123');
 
         const scripts = Array.from(document.querySelectorAll('script'));
         const injected = scripts.find((s) =>
             s.src.includes('googletagmanager.com'),
         );
         expect(injected?.src).toBe(
-            'https://www.googletagmanager.com/gtag/js?id=G-S6TDS95BDH',
+            'https://www.googletagmanager.com/gtag/js?id=G-TEST123',
         );
         expect(dataLayerCommands()[0][0]).toBe('js');
         expect(dataLayerCommands()[0][1]).toBeInstanceOf(Date);
@@ -56,12 +56,12 @@ describe('GoogleAnalyticsService', () => {
     });
 
     it('should queue the config command on load for GA4', () => {
-        service.init('G-S6TDS95BDH');
-        service.load('G-S6TDS95BDH');
+        service.init('G-TEST123');
+        service.load('G-TEST123');
 
         const commands = dataLayerCommands();
         expect(commands[commands.length - 1][0]).toBe('config');
-        expect(commands[commands.length - 1][1]).toBe('G-S6TDS95BDH');
+        expect(commands[commands.length - 1][1]).toBe('G-TEST123');
         expect(commands[commands.length - 1][2]).toEqual({
             send_page_view: false,
         });
@@ -70,8 +70,8 @@ describe('GoogleAnalyticsService', () => {
     it('should emit a page_view command on navigation for GA4', () => {
         vi.useFakeTimers();
         document.title = 'Workplace | Desk Booking';
-        service.init('G-S6TDS95BDH');
-        service.load('G-S6TDS95BDH');
+        service.init('G-TEST123');
+        service.load('G-TEST123');
         service.page('/book/desks/booking');
         vi.advanceTimersByTime(200);
 
@@ -86,10 +86,24 @@ describe('GoogleAnalyticsService', () => {
         });
     });
 
+    it('should remove the query string and fragment from page views', () => {
+        vi.useFakeTimers();
+        service.init('G-TEST123');
+        service.load('G-TEST123');
+        service.page('/explore?user=jim%40example.com#desk');
+        vi.advanceTimersByTime(200);
+
+        const page_view = dataLayerCommands().find((cmd) => cmd[0] === 'event');
+        expect(page_view?.[2]).toMatchObject({
+            page_path: '/explore',
+            page_location: `${location.origin}/explore`,
+        });
+    });
+
     it('should emit custom events for GA4', () => {
         vi.useFakeTimers();
-        service.init('G-S6TDS95BDH');
-        service.load('G-S6TDS95BDH');
+        service.init('G-TEST123');
+        service.load('G-TEST123');
         service.event('bookings', 'desk_booked', 'Level 1');
         vi.advanceTimersByTime(200);
 
@@ -113,8 +127,8 @@ describe('GoogleAnalyticsService', () => {
 
     it('should send a valid GA4 authentication event name', () => {
         vi.useFakeTimers();
-        service.init('G-S6TDS95BDH');
-        service.load('G-S6TDS95BDH');
+        service.init('G-TEST123');
+        service.load('G-TEST123');
         service.setUser('user-123');
         vi.advanceTimersByTime(200);
 
@@ -139,11 +153,11 @@ describe('GoogleAnalyticsService', () => {
 
     it('should throw when disabled', () => {
         service.enabled = false;
-        service.init('G-S6TDS95BDH');
+        service.init('G-TEST123');
         expect(document.querySelector('script')).toBeNull();
         expect(window.dataLayer).toEqual([]);
         expect(window.gtag).toBeUndefined();
-        expect(() => service.load('G-S6TDS95BDH')).toThrowError(
+        expect(() => service.load('G-TEST123')).toThrowError(
             'Google Analytics needs to be enabled before being initialised',
         );
     });

@@ -152,6 +152,26 @@ describe('DateFieldComponent', () => {
         );
     });
 
+    it('should keep a past date that the minimum allows', () => {
+        const timezone = 'UTC';
+        const old_date = new Date('2020-04-08T15:30:00.000Z').valueOf();
+        const new_date = new Date(2020, 3, 12).valueOf();
+        const on_change = vi.fn();
+        spectator.setInput('from', 1);
+        spectator.setInput('timezone', timezone);
+        spectator.component.registerOnChange(on_change);
+        spectator.component.writeValue(old_date);
+
+        spectator.component.setValue(new_date);
+
+        expectPreservedDateAndTime(
+            on_change.mock.calls[0][0],
+            old_date,
+            new_date,
+            timezone,
+        );
+    });
+
     it('should preserve the selected calendar day in the configured timezone', () => {
         const timezone = pickTimezoneBehindLocal();
         expect(timezone).toBeTruthy();

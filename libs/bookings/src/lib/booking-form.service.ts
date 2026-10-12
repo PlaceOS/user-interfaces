@@ -115,7 +115,6 @@ import { openConfirmModal } from 'libs/components/src/lib/confirm-modal.componen
 import { PaymentsService } from 'libs/payments/src/lib/payments.service';
 
 const BOOKING_TYPES = ['desk', 'parking', 'locker', 'catering'];
-const PERSISTED_BOOKING_CONTEXT_URLS = ['landing'];
 
 const STORAGE_KEYS = {
     booking_form: 'PLACEOS.booking_form',
@@ -154,7 +153,10 @@ const AVAILABILITY_SELECTION_FIELDS = new Set([
     'zones',
 ]);
 
-function availabilityFormMatch(a: Record<string, any>, b: Record<string, any>) {
+function availabilityFormMatch(
+    a: Record<string, unknown>,
+    b: Record<string, unknown>,
+) {
     if (!a || !b) return a === b;
     const keys = new Set([...Object.keys(a), ...Object.keys(b)]);
     return [...keys].every(
@@ -915,8 +917,7 @@ export class BookingFormService extends AsyncHandler {
                 if (
                     booking instanceof NavigationEnd &&
                     !url.includes('book') &&
-                    !BOOKING_TYPES.find((_) => url.includes(_)) &&
-                    !PERSISTED_BOOKING_CONTEXT_URLS.find((_) => url.includes(_))
+                    !BOOKING_TYPES.find((_) => url.includes(_))
                 ) {
                     this.clearForm();
                 }

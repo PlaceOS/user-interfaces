@@ -89,7 +89,6 @@ const BOOKING_URLS = [
     'confirm/success',
     'upcoming',
 ];
-const PERSISTED_EVENT_CONTEXT_URLS = ['landing'];
 
 enum Tags {
     Availability = 'AVAILABILITY',
@@ -97,13 +96,6 @@ enum Tags {
     ListingRooms = 'LIST_ROOMS',
     PostBooking = 'MAKING_BOOKING',
 }
-
-const ROOM_CAPACITY_RANGES: Record<number, { min: number; max: number }> = {
-    1: { min: 1, max: 2 },
-    3: { min: 3, max: 4 },
-    5: { min: 5, max: 8 },
-    9: { min: 9, max: 999 },
-};
 
 type EventFlowView = 'form' | 'find' | 'catering' | 'confirm' | 'success';
 
@@ -115,7 +107,10 @@ export interface EventFormOptions {
 }
 
 export interface EventFormFilters {
+    /** Minimum room capacity. Values below 1 mean no limit */
     capacity?: number;
+    /** Maximum room capacity. Empty means no upper limit */
+    capacity_max?: number;
     /** Whether to only show favourite rooms */
     show_fav?: boolean;
     features?: string[];
@@ -363,14 +358,12 @@ export class EventFormService extends AsyncHandler {
             list = list.filter(({ id }) => this.favorite_spaces.includes(id));
         }
         if (filters.capacity > 0) {
-            const range = ROOM_CAPACITY_RANGES[filters.capacity] || {
-                min: filters.capacity,
-                max: 999,
-            };
+            const max =
+                filters.capacity_max > 0 ? filters.capacity_max : Infinity;
             list = list.filter(
                 ({ capacity }) =>
                     capacity < 0 ||
-                    (capacity >= range.min && capacity <= range.max),
+                    (capacity >= filters.capacity && capacity <= max),
             );
         }
         if (filters.features) {
@@ -504,10 +497,7 @@ export class EventFormService extends AsyncHandler {
             this._router.events.subscribe((event: Event) => {
                 if (
                     event instanceof NavigationEnd &&
-                    !BOOKING_URLS.some((_) => event.url.includes(_)) &&
-                    !PERSISTED_EVENT_CONTEXT_URLS.some((_) =>
-                        event.url.includes(_),
-                    )
+                    !BOOKING_URLS.some((_) => event.url.includes(_))
                 ) {
                     this.clearForm();
                 }
