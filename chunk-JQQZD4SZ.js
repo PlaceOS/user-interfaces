@@ -7394,15 +7394,15 @@ var GoogleAnalyticsService = class _GoogleAnalyticsService {
 // libs/common/src/lib/version.ts
 var VERSION = {
   "dirty": false,
-  "raw": "d957502",
-  "hash": "d957502",
+  "raw": "04c589d",
+  "hash": "04c589d",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "d957502",
+  "suffix": "04c589d",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1791769972379
+  "time": 1791775445339
 };
 
 // libs/common/src/lib/settings.service.ts
@@ -10304,5 +10304,5 @@ export {
   PushNotificationService,
   toQueryString
 };
-//# debugId=b1706550-fe06-541d-9bd1-0d3a07741d01
-//# sourceMappingURL=chunk-AC6R4MJF.js.map
+//# debugId=d509d4e3-1e40-5a53-9a17-33158be5bd24
+//# sourceMappingURL=chunk-JQQZD4SZ.js.map
