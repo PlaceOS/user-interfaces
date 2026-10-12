@@ -17,6 +17,7 @@ import {
     checkinBooking,
     createBooking,
     createBookingsForEvent,
+    queryAllBookings,
     queryBookings,
     queryResourceAvailability,
     rejectBooking,
@@ -123,6 +124,37 @@ describe('[Booking API]', () => {
                 endpoint: `/api/staff/v1/bookings`,
                 path: 'booked',
             });
+            spy.mockReset();
+        });
+    });
+
+    describe('queryAllBookings', () => {
+        it('should follow every page and return each booking once', async () => {
+            const spy = vi.spyOn(ts_client, 'query');
+            spy.mockResolvedValue({
+                total: 3,
+                data: [new Booking({ id: 'b-1' }), new Booking({ id: 'b-2' })],
+                next: () =>
+                    Promise.resolve({
+                        total: 3,
+                        data: [new Booking({ id: 'b-2' }), new Booking({ id: 'b-3' })],
+                        next: null,
+                    }),
+            });
+
+            const list = await queryAllBookings({
+                period_start: 1,
+                period_end: 2,
+                type: 'desk',
+            });
+
+            expect(list.map((booking) => booking.id)).toEqual(['b-1', 'b-2', 'b-3']);
+            expect(ts_client.query).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    query_params: { period_start: 1, period_end: 2, type: 'desk' },
+                    endpoint: `/api/staff/v1/bookings`,
+                }),
+            );
             spy.mockReset();
         });
     });
