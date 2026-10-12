@@ -62,7 +62,7 @@ export interface IndexOptions {
 }
 
 const BOOKABLE_ID =
-    /^(?:desk|table|room|area|park|bay|locker|space|seat|meeting)/i;
+    /^(?:desk|table|room|area|park|bay|locker|space|seat|meeting)[-_.]/i;
 const ZONE_ID = /^zone/i;
 const ZONES_GROUP = /^zones$/i;
 

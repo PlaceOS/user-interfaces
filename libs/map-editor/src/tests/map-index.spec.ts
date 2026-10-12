@@ -98,6 +98,22 @@ describe('buildIndex', () => {
         });
     });
 
+    it('does not take plural layer groups for bookable elements', () => {
+        const doc = loadMap('level_1', { geometry });
+        const index = buildIndex(doc, { bbox: false });
+        const groups = index.entries.filter((entry) =>
+            entry.id?.startsWith('tables-'),
+        );
+        expect(groups.length).toBeGreaterThan(0);
+        for (const entry of groups) {
+            expect(entry.tag).toBe('g');
+            expect(['layer-group', 'group']).toContain(entry.kind);
+        }
+        expect(
+            index.entries.find((entry) => entry.id === 'table-01.004')?.kind,
+        ).toBe('bookable');
+    });
+
     it('reports the duplicate id level_2 ships', () => {
         const doc = loadMap('level_2', { geometry });
         const index = buildIndex(doc, { bbox: false });
