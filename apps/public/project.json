@@ -69,9 +69,7 @@
                 }
             }
         },
-        "lint": {
-            "executor": "@nx/eslint:lint"
-        },
+        "lint": {},
         "test": {
             "executor": "@angular/build:unit-test",
             "outputs": ["{workspaceRoot}/coverage/apps/public"],
