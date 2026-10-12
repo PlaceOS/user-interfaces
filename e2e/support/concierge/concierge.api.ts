@@ -187,11 +187,7 @@ export async function seededDesks(
 /**
  * Parking spaces to book against, found or created.
  *
- * ## Why this does not call the workplace `ensureParking()`
- *
- * That seeder opens its own admin context through `apiFor('admin', 0)`. This
- * takes the caller's context instead, so a concierge spec seeds through the
- * token it already holds.
+ * Seeds through the caller's context.
  *
  * Idempotent, and it reuses whatever the workplace parking seeder already made:
  * the zone is matched by name, so the two never create competing hierarchies.

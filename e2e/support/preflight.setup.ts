@@ -31,8 +31,10 @@ setup('local PlaceOS stack is up', async () => {
  */
 setup('shared fixtures are seeded', async () => {
     setup.setTimeout(180_000);
-    await ensureRooms();
-    await ensureParking();
-    await ensureEquipment();
-    await ensureCateringMenu();
+    await Promise.all([
+        ensureRooms(),
+        ensureParking(),
+        ensureEquipment(),
+        ensureCateringMenu(),
+    ]);
 });

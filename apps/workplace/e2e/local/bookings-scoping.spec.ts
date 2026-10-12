@@ -16,10 +16,8 @@
  * than reusing this worker's bearer, so "another user" means another user rather
  * than the same one twice.
  *
- * Both tests book THIS worker's scoping desk (`scopingDeskFor`), which no other
- * spec touches. The other user's booking and sweep land there rather than on
- * that user's own desk, which the worker signed in as that user may be booking
- * at the same moment.
+ * Both tests book THIS worker's scoping desk (`scopingDeskFor`), as either
+ * user; no other spec may book it.
  */
 import { test, expect } from '../../../../e2e/support/fixtures';
 import { request } from '@playwright/test';

@@ -23,16 +23,15 @@ import {
 /** Sidebar links that only an admin should ever be offered. */
 const ADMIN_ONLY = 'a[href*="zone-management"], a[href*="room-management"]';
 
-const APP_ORIGIN = new URL(CONCIERGE_URL).origin;
+const APP_HREF = new URL(CONCIERGE_URL).href;
 
-/** The origin a page is on. `about:blank` and an unparseable URL count as the app. */
-function originOf(url: string): string {
-    try {
-        const { origin } = new URL(url);
-        return origin === 'null' ? APP_ORIGIN : origin;
-    } catch {
-        return APP_ORIGIN;
-    }
+/**
+ * Is the page still on the app? Matched on the app's full URL prefix, since
+ * the authority's login page can share the app's origin when the app is served
+ * from the stack. `about:blank` is the page before any navigation, so it counts.
+ */
+function onApp(url: string): boolean {
+    return url.startsWith('about:') || url.startsWith(APP_HREF);
 }
 
 test.describe('concierge access', () => {
@@ -140,7 +139,7 @@ test.describe('concierge access', () => {
             // must NOT happen is the concierge UI rendering for someone with no
             // credentials at all.
             await expect
-                .poll(() => originOf(page.url()), {
+                .poll(() => onApp(page.url()), {
                     message:
                         'an unauthenticated visit must not stay on the concierge app. ' +
                         'If it does, check whether a token was left in this origin\'s ' +
@@ -148,7 +147,7 @@ test.describe('concierge access', () => {
                         'created without storage state',
                     timeout: 45_000,
                 })
-                .not.toBe(APP_ORIGIN);
+                .toBe(false);
 
             await expect(
                 page.locator(ADMIN_ONLY),

@@ -13,10 +13,8 @@
  * The control is not optional: a panel that showed nothing at all would pass the
  * first test on its own.
  *
- * Both tests book THIS worker's scoping desk (`scopingDeskFor`), which no other
- * spec touches. The other user's booking and sweep land there rather than on
- * that user's own desk, which the desk specs book all day today on the worker
- * signed in as that user.
+ * Both tests book THIS worker's scoping desk (`scopingDeskFor`), as either
+ * user; no other spec may book it.
  */
 import { test, expect } from '../../../../e2e/support/fixtures';
 import { request } from '@playwright/test';

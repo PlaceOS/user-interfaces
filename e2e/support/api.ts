@@ -54,55 +54,51 @@ function writeAtomic(file: string, content: string): void {
     fs.renameSync(tmp, file);
 }
 
-/** Does the backend accept this bearer? */
-async function accepted(token: string): Promise<boolean> {
+/** The user behind a bearer, or null when the backend does not accept it or cannot be reached. */
+async function userBehind(token: string): Promise<CurrentUser | null> {
     const api = await pwRequest.newContext({
         baseURL: BACKEND_URL,
         ignoreHTTPSErrors: true,
         extraHTTPHeaders: { Authorization: `Bearer ${token}` },
     });
     try {
-        return (await api.get(`${ENGINE_API}/users/current`)).ok();
+        const res = await api.get(`${ENGINE_API}/users/current`);
+        return res.ok() ? await res.json() : null;
+    } catch {
+        return null;
     } finally {
         await api.dispose();
     }
 }
 
 /**
+ * Throws when a `staff` role turns out to be admin or support: a permission
+ * assertion made as that user passes whether or not the check works.
+ */
+function assertRoleFits(role: RoleName, email: string, user: CurrentUser): void {
+    if (role === 'staff' && (user.sys_admin || user.support)) {
+        throw new Error(
+            `${email} is admin/support — permission checks would be bypassed, making ` +
+                `any gating assertion vacuous. Re-run e2e/support/seed.ts.`,
+        );
+    }
+}
+
+/**
  * Mint a bearer for a role on a worker and write its storageState and token
- * sidecar under `AUTH_DIR`.
- *
- * Throws when the backend rejects the new token, and when a `staff` role turns
- * out to be admin or support: a permission assertion made as that user would
- * pass whether or not the check works.
+ * sidecar under `AUTH_DIR`. Throws when the backend rejects the new token or
+ * the role does not fit the user (`assertRoleFits`).
  */
 export async function mintForWorker(role: RoleName, workerIndex: number) {
     assertLocalOnly(BACKEND_URL, APP_URL);
     const r = roleFor(role, workerIndex);
     const mint = await mintToken(BACKEND_URL, APP_URL, r.email, r.password);
 
-    const api = await pwRequest.newContext({
-        baseURL: BACKEND_URL,
-        ignoreHTTPSErrors: true,
-        extraHTTPHeaders: { Authorization: `Bearer ${mint.accessToken}` },
-    });
-    try {
-        const res = await api.get(`${ENGINE_API}/users/current`);
-        if (!res.ok()) {
-            throw new Error(
-                `minted token for ${r.email} was rejected by rest-api: HTTP ${res.status()}`,
-            );
-        }
-        const user = await res.json();
-        if (role === 'staff' && (user.sys_admin || user.support)) {
-            throw new Error(
-                `${r.email} is admin/support — permission checks would be bypassed, making ` +
-                    `any gating assertion vacuous. Re-run e2e/support/seed.ts.`,
-            );
-        }
-    } finally {
-        await api.dispose();
+    const user = await userBehind(mint.accessToken);
+    if (!user) {
+        throw new Error(`minted token for ${r.email} was rejected by rest-api`);
     }
+    assertRoleFits(role, r.email, user);
 
     fs.mkdirSync(AUTH_DIR, { recursive: true });
     writeAtomic(r.storagePath, JSON.stringify(buildStorageState(mint, APP_URL), null, 2));
@@ -123,15 +119,31 @@ export async function mintForWorker(role: RoleName, workerIndex: number) {
     return { role: r, mint };
 }
 
+const validated = new Map<string, Promise<string>>();
+
 /**
  * A bearer for a role on a worker: the one in its token sidecar while the
- * backend still accepts it, otherwise a freshly minted one. Safe to call from
- * any worker, before or after the fixtures have minted for that role.
+ * backend still accepts it, otherwise a freshly minted one. Checked once per
+ * process for each role and worker. Safe to call from any worker, before or
+ * after the fixtures have minted for that role.
  */
-export async function tokenFor(role: RoleName, workerIndex = 0): Promise<string> {
-    const stored = storedToken(role, workerIndex);
-    if (stored && (await accepted(stored))) return stored;
-    return (await mintForWorker(role, workerIndex)).mint.accessToken;
+export function tokenFor(role: RoleName, workerIndex = 0): Promise<string> {
+    const key = `${role}:${workerIndex}`;
+    let pending = validated.get(key);
+    if (!pending) {
+        pending = (async () => {
+            const stored = storedToken(role, workerIndex);
+            const user = stored ? await userBehind(stored) : null;
+            if (stored && user) {
+                assertRoleFits(role, roleFor(role, workerIndex).email, user);
+                return stored;
+            }
+            return (await mintForWorker(role, workerIndex)).mint.accessToken;
+        })();
+        validated.set(key, pending);
+        pending.catch(() => validated.delete(key));
+    }
+    return pending;
 }
 
 /** An APIRequestContext authenticated as the given role, pointed at the backend. */
@@ -246,11 +258,11 @@ export async function readBack(
 ): Promise<'persisted' | 'missing' | 'unknown'> {
     let last = '';
     for (let attempt = 1; attempt <= 3; attempt++) {
+        if (attempt > 1) await new Promise((r) => setTimeout(r, 300 * attempt));
         const res = await api.get(`${STAFF_API}/bookings/${id}`);
         if (res.ok()) return 'persisted';
         if (res.status() === 404) return 'missing';
         last = `HTTP ${res.status()}`;
-        await new Promise((r) => setTimeout(r, 300 * attempt));
     }
     console.warn(
         `  ! booking ${id}: 201 on create, but reading it back failed 3 times (${last}); ` +

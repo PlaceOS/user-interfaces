@@ -79,9 +79,12 @@ test.describe('desk level scoping', () => {
                 );
             }
             await selector.click();
+            // `.first()`: a run that died before teardown can leave a second
+            // level with this name, and either carries the desk.
             const option = staffPage
                 .locator('.cdk-overlay-container')
-                .getByRole('option', { name: extra.name, exact: true });
+                .getByRole('option', { name: extra.name, exact: true })
+                .first();
             await expect(
                 option,
                 'the extra level is not among the options the selector offers',
