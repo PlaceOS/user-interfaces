@@ -1,0 +1,34 @@
+{
+    "name": "map-editor",
+    "$schema": "../../node_modules/nx/schemas/project-schema.json",
+    "projectType": "library",
+    "sourceRoot": "libs/map-editor/src",
+    "prefix": "placeos",
+    "tags": [],
+    "targets": {
+        "lint": {},
+        "test": {
+            "executor": "@angular/build:unit-test",
+            "outputs": ["{workspaceRoot}/coverage/libs/map-editor"],
+            "options": {
+                "tsConfig": "libs/map-editor/tsconfig.spec.json",
+                "setupFiles": ["libs/map-editor/src/test-setup.ts"],
+                "isolate": true,
+                "watch": false,
+                "buildTarget": "map-editor:test-build:development"
+            }
+        },
+        "test-build": {
+            "executor": "@angular/build:application",
+            "options": {
+                "outputPath": "dist/libs/map-editor",
+                "browser": "libs/map-editor/src/index.ts",
+                "tsConfig": "libs/map-editor/tsconfig.spec.json",
+                "polyfills": []
+            },
+            "configurations": {
+                "development": {}
+            }
+        }
+    }
+}
