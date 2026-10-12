@@ -8,7 +8,7 @@ import {
 import "./chunk-VCFW5EQV.js";
 import {
   Clipboard
-} from "./chunk-DMJLYB5Z.js";
+} from "./chunk-A4MEUMUP.js";
 import {
   AsyncHandler,
   HotkeysService,
@@ -1882,4 +1882,4 @@ export {
   pairExecuteMessages
 };
 //# debugId=c893a3d7-e6b7-5464-8e06-466c421f0071
-//# sourceMappingURL=binding-debug-panel.component-YGP5GRX2.js.map
+//# sourceMappingURL=binding-debug-panel.component-3CJKBTOA.js.map

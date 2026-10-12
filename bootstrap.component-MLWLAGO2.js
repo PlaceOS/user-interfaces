@@ -27,7 +27,7 @@ import {
 import {
   OrganisationService,
   VERSION
-} from "./chunk-DMJLYB5Z.js";
+} from "./chunk-A4MEUMUP.js";
 import {
   AsyncHandler
 } from "./chunk-ALIFJGIH.js";
@@ -1297,4 +1297,4 @@ export {
   BootstrapComponent
 };
 //# debugId=ede3f47e-117d-5403-9833-2d71406d04c6
-//# sourceMappingURL=bootstrap.component-5YLVZJG4.js.map
+//# sourceMappingURL=bootstrap.component-MLWLAGO2.js.map
