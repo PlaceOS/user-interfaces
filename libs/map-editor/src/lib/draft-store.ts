@@ -5,7 +5,7 @@ const DB_NAME = 'placeos-map-editor';
 const DB_VERSION = 1;
 const STORE = 'drafts';
 
-/** An unsaved working copy, kept in the browser so a long session survives a reload. */
+/** An unsaved working copy, kept in the viewer's browser; nothing on the server reads it. */
 export interface MapDraft {
     key: string;
     zone_id: string;

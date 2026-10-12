@@ -2,7 +2,7 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { MapDocument, MapDocumentOptions } from '../lib/map-document';
 
-/** The real sample maps; `test.svg` is excluded because it declares no SVG namespace. */
+/** The sample maps that load; `test.svg` has no xmlns and is rejected as not_svg. */
 export const SAMPLE_MAPS = [
     'level_P1',
     'level_G',
