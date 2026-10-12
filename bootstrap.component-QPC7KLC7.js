@@ -24,19 +24,15 @@ import {
 } from "./chunk-OQDJRCPY.js";
 import {
   FORM_FIELD
-} from "./chunk-FZHZW7PT.js";
+} from "./chunk-7V22KQJW.js";
 import {
   TranslatePipe
-} from "./chunk-NYNDQV4R.js";
+} from "./chunk-DTOFWQDK.js";
 import {
   OrganisationService,
   SettingsService,
   VERSION
-} from "./chunk-UMHXZB4F.js";
-import {
-  ActivatedRoute,
-  Router
-} from "./chunk-SWSQOIQA.js";
+} from "./chunk-RI2FVWRA.js";
 import {
   FormGroupDirective,
   FormsModule,
@@ -45,14 +41,14 @@ import {
   NgForm,
   NgModel,
   Validators
-} from "./chunk-PAKYII5B.js";
+} from "./chunk-QUKX4ESA.js";
 import {
   AsyncHandler,
   Sa,
   _l,
   i18n,
   log
-} from "./chunk-CHOQN2TC.js";
+} from "./chunk-BILSIETY.js";
 import {
   IconComponent
 } from "./chunk-XXHXEIYP.js";
@@ -91,6 +87,10 @@ import {
   Directionality,
   _animationsDisabled
 } from "./chunk-5WMBRJSW.js";
+import {
+  ActivatedRoute,
+  Router
+} from "./chunk-SWSQOIQA.js";
 import {
   ChangeDetectorRef,
   CommonModule,
@@ -2475,4 +2475,4 @@ export {
   BootstrapComponent
 };
 //# debugId=3abe80e2-e4a1-5323-8742-55acb134a506
-//# sourceMappingURL=bootstrap.component-UZF732FL.js.map
+//# sourceMappingURL=bootstrap.component-QPC7KLC7.js.map

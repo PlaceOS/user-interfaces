@@ -5,7 +5,7 @@ import {
 import {
   MatInput,
   MatInputModule
-} from "./chunk-UQPAWP4M.js";
+} from "./chunk-T5OQ7IZI.js";
 import {
   MatFormField,
   MatFormFieldModule
@@ -16,18 +16,18 @@ import {
 } from "./chunk-RLRXSHYF.js";
 import {
   CustomTooltipComponent
-} from "./chunk-3PF4WVU3.js";
+} from "./chunk-FVGYBHTW.js";
 import "./chunk-KIADTA4P.js";
 import {
   DEBUG_STORAGE_KEY,
   isDebugEnabled,
   recordHeartbeat,
   watchdogState
-} from "./chunk-RON2ZLBS.js";
-import "./chunk-FZHZW7PT.js";
+} from "./chunk-5EKVHNMA.js";
+import "./chunk-7V22KQJW.js";
 import {
   TranslatePipe
-} from "./chunk-NYNDQV4R.js";
+} from "./chunk-DTOFWQDK.js";
 import {
   MINUTES,
   SECONDS,
@@ -38,11 +38,7 @@ import {
   isBefore,
   setAutoReloadGate,
   updateCheckState
-} from "./chunk-UMHXZB4F.js";
-import {
-  ActivatedRoute,
-  Router
-} from "./chunk-SWSQOIQA.js";
+} from "./chunk-RI2FVWRA.js";
 import {
   DefaultValueAccessor,
   FormsModule,
@@ -50,7 +46,7 @@ import {
   NgControl,
   NgControlStatus,
   NgModel
-} from "./chunk-PAKYII5B.js";
+} from "./chunk-QUKX4ESA.js";
 import {
   $r,
   AsyncHandler,
@@ -92,7 +88,7 @@ import {
   u,
   v,
   vr
-} from "./chunk-CHOQN2TC.js";
+} from "./chunk-BILSIETY.js";
 import {
   IconComponent,
   SafePipe
@@ -105,6 +101,10 @@ import {
 } from "./chunk-H3EM6KUH.js";
 import "./chunk-SSJKZM4J.js";
 import "./chunk-5WMBRJSW.js";
+import {
+  ActivatedRoute,
+  Router
+} from "./chunk-SWSQOIQA.js";
 import {
   CommonModule,
   Component,
@@ -3847,9 +3847,6 @@ var DateFieldComponent = class _DateFieldComponent extends AsyncHandler {
     }
     if (new_date < this.from().valueOf()) {
       new_date = this.from().valueOf();
-    }
-    if (new_date < Date.now()) {
-      new_date = Date.now();
     }
     this.date.set(new_date);
     markUserDateChange();
@@ -9050,5 +9047,5 @@ var SignageTemplateComponent = class _SignageTemplateComponent extends AsyncHand
 export {
   SignageTemplateComponent
 };
-//# debugId=c7a40c4e-962a-53ef-aeb3-11d2c3d6a850
-//# sourceMappingURL=template.component-XJ5VTB3G.js.map
+//# debugId=085a574a-53c9-5a70-8a61-b4f3b2c2a9d9
+//# sourceMappingURL=template.component-JBA2WARO.js.map
