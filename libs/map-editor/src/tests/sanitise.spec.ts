@@ -1,4 +1,11 @@
-import { cleanStyleText, purifyMarkup, sanitiseTree } from '../lib/sanitise';
+import { MapDocument } from '../lib/map-document';
+import {
+    cleanStyleText,
+    decodeCssEscapes,
+    isUnsafeCssValue,
+    purifyMarkup,
+    sanitiseTree,
+} from '../lib/sanitise';
 import { loadMap, readMap, SAMPLE_MAPS, svg } from './fixtures';
 
 const DIRTY = `<g id="wrap" onload="x()">
@@ -82,6 +89,29 @@ describe('sanitiseTree', () => {
         );
         expect(cleaned.text).toBe('.a{stroke:#000}');
         expect(cleaned.removed.length).toBe(2);
+    });
+
+    it('decodes CSS escapes before testing for imports and external urls', () => {
+        expect(decodeCssEscapes('\\31 0 u\\72l(\\.)')).toBe('10 url(.)');
+        expect(isUnsafeCssValue('fill:u\\72l(http://evil/p)')).toBe(true);
+        expect(isUnsafeCssValue('fill:u\\72l(#g)')).toBe(false);
+        const cleaned = cleanStyleText(
+            '@\\69 mport u\\72l(http://evil/x.css); .a{fill:u\\72l(http://evil/x.svg#g);stroke:#000}',
+        );
+        expect(cleaned.removed.length).toBe(2);
+        expect(cleaned.text).not.toContain('evil');
+        expect(cleaned.text).toContain('stroke:#000');
+        expect(cleanStyleText('@media print{.a{fill:#000}}').removed).toEqual(
+            [],
+        );
+        const doc = MapDocument.load(
+            svg(
+                '<style>@\\69 mport u\\72l(http://evil/x.css);</style><rect id="r" style="fill:u\\72l(http://evil/p);stroke:#000" width="1" height="1"/>',
+            ),
+        );
+        expect(doc.sanitise_report.removed.length).toBe(2);
+        expect(doc.serialise()).not.toContain('evil');
+        expect(doc.byId('r')?.getAttribute('style')).toBe('stroke:#000');
     });
 
     describe.each(SAMPLE_MAPS)('sample map %s', (name) => {

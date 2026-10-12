@@ -21,11 +21,30 @@ export interface SanitiseReport {
 
 const UNSAFE_CSS_VALUE =
     /expression\s*\(|behavior\s*:|javascript\s*:|url\s*\(\s*(?!['"]?#)/i;
-const IMPORT_RULE = /@import\b[^;]*;?/gi;
+const CSS_ESCAPE = /\\(?:([0-9a-fA-F]{1,6})[ \t\n\r\f]?|([^\n\r\f0-9a-fA-F]))/g;
+/** An at-rule statement, `@name ... ;`, the name possibly escaped. */
+const AT_STATEMENT =
+    /@((?:\\[0-9a-fA-F]{1,6}[ \t\n\r\f]?|\\[^\n\r\f]|[\w-])+)[^;{}]*(?:;|(?=\})|$)/g;
 const DECLARATION = /([\w-]+)\s*:\s*([^;{}]*)(;|(?=\}))/g;
 
+/** CSS escapes (`\69`, `\.`) decoded the way a browser tokenises them. */
+export function decodeCssEscapes(text: string): string {
+    if (!text.includes('\\')) return text;
+    return text.replace(CSS_ESCAPE, (_, hex?: string, char?: string) => {
+        if (hex === undefined) return char ?? '';
+        const code = parseInt(hex, 16);
+        const invalid =
+            code === 0 || code > 0x10ffff || (code >= 0xd800 && code <= 0xdfff);
+        return invalid ? '\ufffd' : String.fromCodePoint(code);
+    });
+}
+
+/** External, scripted or behaviour values, tested before and after escape decoding. */
 export function isUnsafeCssValue(value: string): boolean {
-    return UNSAFE_CSS_VALUE.test(value);
+    return (
+        UNSAFE_CSS_VALUE.test(value) ||
+        UNSAFE_CSS_VALUE.test(decodeCssEscapes(value))
+    );
 }
 
 /** Drop `@import` and declarations with external, scripted or behaviour values. */
@@ -34,11 +53,12 @@ export function cleanStyleText(css: string): {
     removed: string[];
 } {
     const removed: string[] = [];
-    let text = css.replace(IMPORT_RULE, (match) => {
+    let text = css.replace(AT_STATEMENT, (match, name: string) => {
+        if (decodeCssEscapes(name).toLowerCase() !== 'import') return match;
         removed.push(match.trim());
         return '';
     });
-    if (UNSAFE_CSS_VALUE.test(text)) {
+    if (isUnsafeCssValue(text)) {
         text = text.replace(
             DECLARATION,
             (match, name: string, value: string) => {
@@ -112,7 +132,7 @@ export function sanitiseTree(root: Element): SanitiseReport {
                 if (element.hasAttributeNS(XLINK_NS, 'href')) {
                     element.removeAttributeNS(XLINK_NS, 'href');
                 }
-            } else if (lower === 'style' && UNSAFE_CSS_VALUE.test(value)) {
+            } else if (lower === 'style' && isUnsafeCssValue(value)) {
                 const cleaned = cleanStyleText(value);
                 for (const declaration of cleaned.removed) {
                     removed.push({
