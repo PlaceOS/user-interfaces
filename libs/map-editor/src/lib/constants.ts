@@ -41,6 +41,17 @@ export const ATTR_DENY_LIST: ReadonlySet<string> = new Set([
     'src',
 ]);
 
+const DATA_ATTR = /^data-[a-z][a-z0-9_-]*$/i;
+
+/** Names `set_attr` and `insert_shape` may write: the allow-list, or `data-*` outside the editor prefix. */
+export function isAllowedAttributeName(name: string): boolean {
+    if (ATTR_ALLOW_LIST.has(name)) return true;
+    return (
+        DATA_ATTR.test(name) &&
+        !name.toLowerCase().startsWith(EDITOR_ATTR_PREFIX)
+    );
+}
+
 export const SHAPE_KINDS = [
     'rect',
     'circle',
@@ -107,6 +118,13 @@ export const DENIED_TAGS: ReadonlySet<string> = new Set([
     'set',
     'discard',
     'mpath',
+]);
+
+/** Tags refused in replacement markup on top of the deny-list. */
+export const REPLACEMENT_DENIED_TAGS: ReadonlySet<string> = new Set([
+    ...DENIED_TAGS,
+    'style',
+    'use',
 ]);
 
 /** Attributes whose value is a reference and must stay inside the document. */

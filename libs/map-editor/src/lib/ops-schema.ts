@@ -21,9 +21,10 @@ export interface OpVariantSchema {
 }
 
 /**
- * The proposal schema in the OpenAI strict dialect: every property required,
- * optional fields nullable, additionalProperties false throughout. The
- * server renders the same shape for each vendor.
+ * The proposal schema in the OpenAI strict dialect: one closed variant per
+ * op, every property required, optional fields nullable. The server embeds
+ * a verbatim copy of this file and sends it to the vendor as is; the ops it
+ * stores back carry `id` and `server_issue` on top of it.
  */
 export const OPS_SCHEMA = schema as unknown as OpsJsonSchema;
 

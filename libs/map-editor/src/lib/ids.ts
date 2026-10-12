@@ -115,6 +115,19 @@ export function referencesTo(root: Element, id: string): Element[] {
     return elements;
 }
 
+/** Occurrences of `url(#id)` in `<style>` text, which `rewriteReferences` leaves alone. */
+export function styleReferencesTo(root: Element, id: string): number {
+    const pattern = new RegExp(
+        `url\\(\\s*['"]?#${escapeRegExp(id)}['"]?\\s*\\)`,
+        'g',
+    );
+    let count = 0;
+    for (const style of Array.from(root.querySelectorAll('style'))) {
+        count += (style.textContent || '').match(pattern)?.length || 0;
+    }
+    return count;
+}
+
 /** Rewrite `#old` references to `#new_id`; returns the elements changed. */
 export function rewriteReferences(
     root: Element,

@@ -33,7 +33,17 @@ interface BaseOp {
     op: OpKind;
     /** One sentence shown in the review row. */
     why: string;
+    /** `op-N`, written by the server on every stored op. */
+    id?: string;
+    /** The server's reason for doubting the op; the row starts unticked. */
+    server_issue?: string | null;
 }
+
+/** Fields the server writes onto stored ops; not part of the vendor schema. */
+export const OP_BOOKKEEPING_FIELDS: ReadonlySet<string> = new Set([
+    'id',
+    'server_issue',
+]);
 
 export interface SetAttrOp extends BaseOp {
     op: 'set_attr';

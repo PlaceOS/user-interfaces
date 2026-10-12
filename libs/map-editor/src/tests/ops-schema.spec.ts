@@ -27,6 +27,14 @@ describe('ops-schema.json', () => {
         for (const def of Object.values(OPS_SCHEMA.$defs)) {
             expect(def.required).toEqual(Object.keys(def.properties));
         }
+        expect(Object.keys(OPS_SCHEMA.$defs)).toEqual(['target', 'name_value']);
+    });
+
+    it('leaves the server bookkeeping out of every variant', () => {
+        for (const variant of OPS_SCHEMA.properties.ops.items.anyOf) {
+            expect(variant.properties).not.toHaveProperty('id');
+            expect(variant.properties).not.toHaveProperty('server_issue');
+        }
     });
 
     it('carries the fields each op needs', () => {
