@@ -2,7 +2,7 @@ import {
   generateMockSpace,
   setHours,
   subDays
-} from "./chunk-V3KKXI5C.js";
+} from "./chunk-CZX5UJZR.js";
 import "./chunk-FCVO2NPY.js";
 import {
   TranslatePipe
@@ -31,7 +31,7 @@ import {
   setMocks,
   settingSignal,
   user_groups_loaded
-} from "./chunk-DMJLYB5Z.js";
+} from "./chunk-A4MEUMUP.js";
 import {
   AsyncHandler,
   Hp,
@@ -9381,11 +9381,11 @@ function mocksInit() {
 // apps/map-kiosk/src/app/app.component.ts
 var AppComponent_Defer_4_DepsFn = () => [
   /* @ts-ignore */
-  import("./chat.component-P55BL3RO.js").then((m) => m.ChatComponent)
+  import("./chat.component-3TICZOLQ.js").then((m) => m.ChatComponent)
 ];
 var AppComponent_Defer_8_DepsFn = () => [
   /* @ts-ignore */
-  import("./settings-debug-panel-launcher.component-A2CFP2AU.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+  import("./settings-debug-panel-launcher.component-PVNNHKHP.js").then((m) => m.SettingsDebugPanelLauncherComponent)
 ];
 function AppComponent_Defer_3_Template(rf, ctx) {
   if (rf & 1) {
@@ -9444,9 +9444,9 @@ var AppComponent = class _AppComponent {
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(AppComponent, () => [
     /* @ts-ignore */
-    import("./chat.component-P55BL3RO.js").then((m) => m.ChatComponent),
+    import("./chat.component-3TICZOLQ.js").then((m) => m.ChatComponent),
     /* @ts-ignore */
-    import("./settings-debug-panel-launcher.component-A2CFP2AU.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+    import("./settings-debug-panel-launcher.component-PVNNHKHP.js").then((m) => m.SettingsDebugPanelLauncherComponent)
   ], (ChatComponent, SettingsDebugPanelLauncherComponent) => {
     setClassMetadata(AppComponent, [{
       type: Component,
@@ -9491,22 +9491,22 @@ var routes = [
   },
   {
     path: "bootstrap",
-    loadComponent: () => import("./bootstrap.component-5YLVZJG4.js").then((m) => m.BootstrapComponent),
+    loadComponent: () => import("./bootstrap.component-MLWLAGO2.js").then((m) => m.BootstrapComponent),
     canActivate: [AuthorisedUserGuard]
   },
   {
     path: "explore",
-    loadComponent: () => import("./explore.component-MSVMXKN3.js").then((m) => m.ExploreComponent),
+    loadComponent: () => import("./explore.component-UYKXM33G.js").then((m) => m.ExploreComponent),
     canActivate: [AuthorisedUserGuard]
   },
   {
     path: "desks",
-    loadComponent: () => import("./desk-booking.component-PMOHXATC.js").then((m) => m.DeskBookingComponent),
+    loadComponent: () => import("./desk-booking.component-IB3SKYSO.js").then((m) => m.DeskBookingComponent),
     canActivate: [AuthorisedUserGuard]
   },
   {
     path: "parking",
-    loadComponent: () => import("./parking.component-AM66OYSH.js").then((m) => m.ParkingComponent),
+    loadComponent: () => import("./parking.component-WXKKWGUJ.js").then((m) => m.ParkingComponent),
     canActivate: [AuthorisedUserGuard]
   },
   { path: "**", redirectTo: "bootstrap" }
