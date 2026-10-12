@@ -9,18 +9,9 @@
  * Import `test`/`expect` from this module rather than from @playwright/test.
  */
 import { test as base, expect, APIRequestContext, Page, request as pwRequest } from '@playwright/test';
-import * as fs from 'fs';
 import * as path from 'path';
-import {
-    APP_URL,
-    AUTH_DIR,
-    BACKEND_URL,
-    RoleName,
-    assertLocalOnly,
-    roleFor,
-} from './env';
-import { mintToken, buildStorageState } from './auth';
-import { ENGINE_API } from './api';
+import { APP_URL, AUTH_DIR, BACKEND_URL } from './env';
+import { mintForWorker } from './api';
 
 interface WorkerFixtures {
     /** storageState path for the admin identity of THIS worker. */
@@ -34,56 +25,6 @@ interface TestFixtures {
     staffApi: APIRequestContext;
     /** A browser page authenticated as this worker's non-admin user. */
     staffPage: Page;
-}
-
-/** Mint for a role on a worker, writing storageState + token sidecar. */
-async function mintForWorker(role: RoleName, workerIndex: number) {
-    assertLocalOnly(BACKEND_URL, APP_URL);
-    const r = roleFor(role, workerIndex);
-    const mint = await mintToken(BACKEND_URL, APP_URL, r.email, r.password);
-
-    // A token that parses but is rejected downstream is the failure mode that
-    // caused a production revert once already — assert it here, once, loudly.
-    const api = await pwRequest.newContext({
-        baseURL: BACKEND_URL,
-        ignoreHTTPSErrors: true,
-        extraHTTPHeaders: { Authorization: `Bearer ${mint.accessToken}` },
-    });
-    try {
-        const res = await api.get(`${ENGINE_API}/users/current`);
-        if (!res.ok()) {
-            throw new Error(
-                `minted token for ${r.email} was rejected by rest-api: HTTP ${res.status()}`,
-            );
-        }
-        const user = await res.json();
-        if (role === 'staff' && (user.sys_admin || user.support)) {
-            throw new Error(
-                `${r.email} is admin/support — permission checks would be bypassed, making ` +
-                    `any gating assertion vacuous. Re-run e2e/support/seed.ts.`,
-            );
-        }
-    } finally {
-        await api.dispose();
-    }
-
-    fs.mkdirSync(AUTH_DIR, { recursive: true });
-    fs.writeFileSync(r.storagePath, JSON.stringify(buildStorageState(mint, APP_URL), null, 2));
-    fs.writeFileSync(
-        r.tokenPath,
-        JSON.stringify(
-            {
-                accessToken: mint.accessToken,
-                refreshToken: mint.refreshToken,
-                clientId: mint.clientId,
-                redirectUri: mint.redirectUri,
-                expiresIn: mint.expiresIn,
-            },
-            null,
-            2,
-        ),
-    );
-    return { role: r, mint };
 }
 
 export const test = base.extend<TestFixtures, WorkerFixtures>({

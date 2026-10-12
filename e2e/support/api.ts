@@ -5,7 +5,8 @@
  */
 import * as fs from 'fs';
 import { request as pwRequest, APIRequestContext } from '@playwright/test';
-import { BACKEND_URL, RoleName, roleFor } from './env';
+import { APP_URL, AUTH_DIR, BACKEND_URL, RoleName, assertLocalOnly, roleFor } from './env';
+import { buildStorageState, mintToken } from './auth';
 
 export const ENGINE_API = '/api/engine/v2';
 export const STAFF_API = '/api/staff/v1';
@@ -34,18 +35,115 @@ export async function getJson(
     return res.json();
 }
 
-/** Read the raw bearer a worker's auth fixture wrote for a role. */
-export function readToken(role: RoleName, workerIndex = 0): string {
+/** The bearer in a role's token sidecar, or null when there is no usable file. */
+function storedToken(role: RoleName, workerIndex: number): string | null {
     const { tokenPath } = roleFor(role, workerIndex);
-    if (!fs.existsSync(tokenPath)) {
+    if (!fs.existsSync(tokenPath)) return null;
+    try {
+        const { accessToken } = JSON.parse(fs.readFileSync(tokenPath, 'utf8'));
+        return typeof accessToken === 'string' && accessToken ? accessToken : null;
+    } catch {
+        return null;
+    }
+}
+
+/** Write a file in one step, so a reader in another worker never sees part of it. */
+function writeAtomic(file: string, content: string): void {
+    const tmp = `${file}.${process.pid}.tmp`;
+    fs.writeFileSync(tmp, content);
+    fs.renameSync(tmp, file);
+}
+
+/** The user behind a bearer, or null when the backend does not accept it or cannot be reached. */
+async function userBehind(token: string): Promise<CurrentUser | null> {
+    const api = await pwRequest.newContext({
+        baseURL: BACKEND_URL,
+        ignoreHTTPSErrors: true,
+        extraHTTPHeaders: { Authorization: `Bearer ${token}` },
+    });
+    try {
+        const res = await api.get(`${ENGINE_API}/users/current`);
+        return res.ok() ? await res.json() : null;
+    } catch {
+        return null;
+    } finally {
+        await api.dispose();
+    }
+}
+
+/**
+ * Throws when a `staff` role turns out to be admin or support: a permission
+ * assertion made as that user passes whether or not the check works.
+ */
+function assertRoleFits(role: RoleName, email: string, user: CurrentUser): void {
+    if (role === 'staff' && (user.sys_admin || user.support)) {
         throw new Error(
-            `No auth token for "${role}" (worker ${workerIndex}) at ${tokenPath}. ` +
-                `Use the fixtures from e2e/support/fixtures.ts — they mint per worker.`,
+            `${email} is admin/support — permission checks would be bypassed, making ` +
+                `any gating assertion vacuous. Re-run e2e/support/seed.ts.`,
         );
     }
-    const { accessToken } = JSON.parse(fs.readFileSync(tokenPath, 'utf8'));
-    if (!accessToken) throw new Error(`Token file ${tokenPath} has no accessToken.`);
-    return accessToken;
+}
+
+/**
+ * Mint a bearer for a role on a worker and write its storageState and token
+ * sidecar under `AUTH_DIR`. Throws when the backend rejects the new token or
+ * the role does not fit the user (`assertRoleFits`).
+ */
+export async function mintForWorker(role: RoleName, workerIndex: number) {
+    assertLocalOnly(BACKEND_URL, APP_URL);
+    const r = roleFor(role, workerIndex);
+    const mint = await mintToken(BACKEND_URL, APP_URL, r.email, r.password);
+
+    const user = await userBehind(mint.accessToken);
+    if (!user) {
+        throw new Error(`minted token for ${r.email} was rejected by rest-api`);
+    }
+    assertRoleFits(role, r.email, user);
+
+    fs.mkdirSync(AUTH_DIR, { recursive: true });
+    writeAtomic(r.storagePath, JSON.stringify(buildStorageState(mint, APP_URL), null, 2));
+    writeAtomic(
+        r.tokenPath,
+        JSON.stringify(
+            {
+                accessToken: mint.accessToken,
+                refreshToken: mint.refreshToken,
+                clientId: mint.clientId,
+                redirectUri: mint.redirectUri,
+                expiresIn: mint.expiresIn,
+            },
+            null,
+            2,
+        ),
+    );
+    return { role: r, mint };
+}
+
+const validated = new Map<string, Promise<string>>();
+
+/**
+ * A bearer for a role on a worker: the one in its token sidecar while the
+ * backend still accepts it, otherwise a freshly minted one. Checked once per
+ * process for each role and worker. Safe to call from any worker, before or
+ * after the fixtures have minted for that role.
+ */
+export function tokenFor(role: RoleName, workerIndex = 0): Promise<string> {
+    const key = `${role}:${workerIndex}`;
+    let pending = validated.get(key);
+    if (!pending) {
+        pending = (async () => {
+            const stored = storedToken(role, workerIndex);
+            const user = stored ? await userBehind(stored) : null;
+            if (stored && user) {
+                assertRoleFits(role, roleFor(role, workerIndex).email, user);
+                return stored;
+            }
+            return (await mintForWorker(role, workerIndex)).mint.accessToken;
+        })();
+        validated.set(key, pending);
+        pending.catch(() => validated.delete(key));
+    }
+    return pending;
 }
 
 /** An APIRequestContext authenticated as the given role, pointed at the backend. */
@@ -53,7 +151,7 @@ export async function apiFor(role: RoleName, workerIndex = 0): Promise<APIReques
     return pwRequest.newContext({
         baseURL: BACKEND_URL,
         ignoreHTTPSErrors: true,
-        extraHTTPHeaders: { Authorization: `Bearer ${readToken(role, workerIndex)}` },
+        extraHTTPHeaders: { Authorization: `Bearer ${await tokenFor(role, workerIndex)}` },
     });
 }
 
@@ -143,6 +241,34 @@ export async function getBooking(api: APIRequestContext, id: number): Promise<Bo
         throw new Error(`GET /bookings/${id} failed: HTTP ${res.status()} ${await res.text()}`);
     }
     return res.json();
+}
+
+/**
+ * Read a booking back after `POST /bookings` answered 201.
+ *
+ * `missing` is a 404: the row was never committed (REG-09 / PPT-2642, a COMMIT
+ * that fails on a dirty connection after the response is written). `unknown`
+ * means the read itself failed on every try, so nothing is known either way.
+ * The read-back, and the create retry built on it, can go once every stack
+ * runs a staff-api built on pg-orm 2.2.4 or later.
+ */
+export async function readBack(
+    api: APIRequestContext,
+    id: number,
+): Promise<'persisted' | 'missing' | 'unknown'> {
+    let last = '';
+    for (let attempt = 1; attempt <= 3; attempt++) {
+        if (attempt > 1) await new Promise((r) => setTimeout(r, 300 * attempt));
+        const res = await api.get(`${STAFF_API}/bookings/${id}`);
+        if (res.ok()) return 'persisted';
+        if (res.status() === 404) return 'missing';
+        last = `HTTP ${res.status()}`;
+    }
+    console.warn(
+        `  ! booking ${id}: 201 on create, but reading it back failed 3 times (${last}); ` +
+            `treating it as created so the caller can clean it up`,
+    );
+    return 'unknown';
 }
 
 /** Best-effort cleanup — never throws, so teardown cannot fail a passing test. */
