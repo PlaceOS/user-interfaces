@@ -1,10 +1,10 @@
 import {
   CustomTooltipComponent,
   CustomTooltipData
-} from "./chunk-XTQE2S6F.js";
+} from "./chunk-ZA2TPIWO.js";
 import {
   SanitizePipe
-} from "./chunk-7IOUEM67.js";
+} from "./chunk-IDWGENAM.js";
 import {
   DefaultValueAccessor,
   FormsModule,
@@ -14,11 +14,11 @@ import {
 import "./chunk-AHQCGNDO.js";
 import {
   TranslatePipe
-} from "./chunk-ZF3H46FM.js";
+} from "./chunk-TPUODTON.js";
 import {
   OrganisationService,
   SettingsService
-} from "./chunk-V72PF4T5.js";
+} from "./chunk-7ZDGEQG3.js";
 import {
   AsyncHandler,
   Gp,
@@ -26,12 +26,11 @@ import {
   log,
   randomInt,
   randomString
-} from "./chunk-KGDOITXZ.js";
-import "./chunk-EWXLGUEE.js";
+} from "./chunk-VFOBAGRJ.js";
 import {
   IconComponent
 } from "./chunk-INMTY3DS.js";
-import "./chunk-XGSYTLXL.js";
+import "./chunk-SDQYPRVH.js";
 import {
   CdkFixedSizeVirtualScroll,
   CdkVirtualForOf,
@@ -45,6 +44,7 @@ import {
 } from "./chunk-JU4P7B37.js";
 import "./chunk-REERWBDM.js";
 import "./chunk-XQQXKDT5.js";
+import "./chunk-EWXLGUEE.js";
 import {
   Component,
   DatePipe,
@@ -105,7 +105,7 @@ function hookMethod(rootObject, functionToHook, hookingFunction) {
 }
 var DEVICE_ID = globalThis.localStorage?.getItem("PLACEOS.DEVICE_ID") || `DEV-${randomString(8)}`;
 var RemoteLoggingService = class _RemoteLoggingService extends AsyncHandler {
-  setMetadata(metadata) {
+  setMetadata(_metadata) {
   }
   constructor() {
     super();
@@ -751,10 +751,10 @@ var DebugConsoleComponent = class _DebugConsoleComponent extends AsyncHandler {
   }], () => [], { show: [{ type: Input, args: [{ isSignal: true, alias: "show", required: false }] }, { type: Output, args: ["showChange"] }], hotkeysEnabled: [{ type: Input, args: [{ isSignal: true, alias: "hotkeysEnabled", required: false }] }] });
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(DebugConsoleComponent, { className: "DebugConsoleComponent", filePath: "libs/components/src/lib/debug-console.component.ts", lineNumber: 199 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(DebugConsoleComponent, { className: "DebugConsoleComponent", filePath: "libs/components/src/lib/debug-console.component.ts", lineNumber: 200 });
 })();
 export {
   DebugConsoleComponent
 };
-//# debugId=369e2081-52d4-5870-9a5a-8eeecf397a8a
-//# sourceMappingURL=debug-console.component-VKQ7O3VC.js.map
+//# debugId=403c5f82-da89-5923-a641-1dc5d3582dde
+//# sourceMappingURL=debug-console.component-SNP3PZFH.js.map

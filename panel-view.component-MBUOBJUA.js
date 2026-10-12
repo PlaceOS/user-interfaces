@@ -1,31 +1,28 @@
 import {
   ChatService,
   DateFromPipe
-} from "./chunk-4BHSR5SI.js";
+} from "./chunk-I6K7YR5U.js";
 import {
   SanitizePipe
-} from "./chunk-7IOUEM67.js";
+} from "./chunk-IDWGENAM.js";
 import "./chunk-AHQCGNDO.js";
 import {
   TranslatePipe
-} from "./chunk-ZF3H46FM.js";
+} from "./chunk-TPUODTON.js";
 import {
   OrganisationService,
   currentUser
-} from "./chunk-V72PF4T5.js";
+} from "./chunk-7ZDGEQG3.js";
 import {
   AsyncHandler,
   J,
   Mt,
   et
-} from "./chunk-KGDOITXZ.js";
-import {
-  ActivatedRoute
-} from "./chunk-EWXLGUEE.js";
+} from "./chunk-VFOBAGRJ.js";
 import {
   IconComponent
 } from "./chunk-INMTY3DS.js";
-import "./chunk-XGSYTLXL.js";
+import "./chunk-SDQYPRVH.js";
 import "./chunk-LEWKNA5J.js";
 import {
   MatRipple,
@@ -33,6 +30,9 @@ import {
 } from "./chunk-JU4P7B37.js";
 import "./chunk-REERWBDM.js";
 import "./chunk-XQQXKDT5.js";
+import {
+  ActivatedRoute
+} from "./chunk-EWXLGUEE.js";
 import {
   ChangeDetectorRef,
   Component,
@@ -2923,10 +2923,10 @@ var PanelViewComponent = class _PanelViewComponent extends AsyncHandler {
   }], () => [], { _video_el: [{ type: ViewChild, args: ["video", { isSignal: true }] }], _canvas_el: [{ type: ViewChild, args: ["canvas", { isSignal: true }] }], _message_el: [{ type: ViewChild, args: ["message_element", { isSignal: true }] }], _waveform_canvas_el: [{ type: ViewChild, args: ["waveform_canvas", { isSignal: true }] }] });
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(PanelViewComponent, { className: "PanelViewComponent", filePath: "apps/assistant-panel/src/app/panel-view.component.ts", lineNumber: 278 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(PanelViewComponent, { className: "PanelViewComponent", filePath: "apps/assistant-panel/src/app/panel-view.component.ts", lineNumber: 279 });
 })();
 export {
   PanelViewComponent
 };
-//# debugId=a6270f43-9bc2-5c39-84c2-410bca2fcaff
-//# sourceMappingURL=panel-view.component-HMSZV3HS.js.map
+//# debugId=7d9c79fe-fb20-572f-a7cd-7785210a733d
+//# sourceMappingURL=panel-view.component-MBUOBJUA.js.map

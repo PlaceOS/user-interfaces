@@ -33,21 +33,17 @@ import {
 } from "./chunk-AHQCGNDO.js";
 import {
   TranslatePipe
-} from "./chunk-ZF3H46FM.js";
+} from "./chunk-TPUODTON.js";
 import {
   OrganisationService,
   Space,
   VERSION
-} from "./chunk-V72PF4T5.js";
+} from "./chunk-7ZDGEQG3.js";
 import {
   AsyncHandler,
   Sa
-} from "./chunk-KGDOITXZ.js";
-import {
-  ActivatedRoute,
-  Router
-} from "./chunk-EWXLGUEE.js";
-import "./chunk-XGSYTLXL.js";
+} from "./chunk-VFOBAGRJ.js";
+import "./chunk-SDQYPRVH.js";
 import {
   CdkConnectedOverlay,
   CdkOverlayOrigin,
@@ -93,6 +89,10 @@ import {
   _getAnimationsState,
   coerceArray
 } from "./chunk-XQQXKDT5.js";
+import {
+  ActivatedRoute,
+  Router
+} from "./chunk-EWXLGUEE.js";
 import {
   ChangeDetectorRef,
   CommonModule,
@@ -3263,4 +3263,4 @@ export {
   BootstrapComponent
 };
 //# debugId=4610c4f6-89e0-53c6-9c07-7be658fcb998
-//# sourceMappingURL=bootstrap.component-4NKQ66XV.js.map
+//# sourceMappingURL=bootstrap.component-3IGJGWAO.js.map

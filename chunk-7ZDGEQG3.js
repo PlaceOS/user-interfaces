@@ -44,12 +44,7 @@ import {
   toDate,
   unique,
   withTimeout
-} from "./chunk-KGDOITXZ.js";
-import {
-  ActivatedRoute,
-  NavigationEnd,
-  Router
-} from "./chunk-EWXLGUEE.js";
+} from "./chunk-VFOBAGRJ.js";
 import {
   bindNativeAuthRedirects,
   clearNativeApiKey,
@@ -75,7 +70,12 @@ import {
   setNativeEmail,
   storeNativePkceVerifier,
   syncNativeManagedConfig
-} from "./chunk-XGSYTLXL.js";
+} from "./chunk-SDQYPRVH.js";
+import {
+  ActivatedRoute,
+  NavigationEnd,
+  Router
+} from "./chunk-EWXLGUEE.js";
 import {
   ApplicationRef,
   BehaviorSubject,
@@ -127,6 +127,200 @@ import {
   __spreadProps,
   __spreadValues
 } from "./chunk-GOMI4DH3.js";
+
+// node_modules/@angular/cdk/fesm2022/clipboard.mjs
+var PendingCopy = class {
+  _document;
+  _textarea;
+  constructor(text, _document) {
+    this._document = _document;
+    const textarea = this._textarea = this._document.createElement("textarea");
+    const styles = textarea.style;
+    styles.position = "fixed";
+    styles.top = styles.opacity = "0";
+    styles.left = "-999em";
+    textarea.setAttribute("aria-hidden", "true");
+    textarea.value = text;
+    textarea.readOnly = true;
+    (this._document.fullscreenElement || this._document.body).appendChild(textarea);
+  }
+  copy() {
+    const textarea = this._textarea;
+    let successful = false;
+    try {
+      if (textarea) {
+        const currentFocus = this._document.activeElement;
+        textarea.select();
+        textarea.setSelectionRange(0, textarea.value.length);
+        successful = this._document.execCommand("copy");
+        if (currentFocus) {
+          currentFocus.focus();
+        }
+      }
+    } catch {
+    }
+    return successful;
+  }
+  destroy() {
+    const textarea = this._textarea;
+    if (textarea) {
+      textarea.remove();
+      this._textarea = void 0;
+    }
+  }
+};
+var Clipboard = class _Clipboard {
+  _document = inject(DOCUMENT);
+  copy(text) {
+    const pendingCopy = this.beginCopy(text);
+    const successful = pendingCopy.copy();
+    pendingCopy.destroy();
+    return successful;
+  }
+  beginCopy(text) {
+    return new PendingCopy(text, this._document);
+  }
+  static \u0275fac = function Clipboard_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _Clipboard)();
+  };
+  static \u0275prov = /* @__PURE__ */ \u0275\u0275defineService({
+    token: _Clipboard,
+    factory: _Clipboard.\u0275fac
+  });
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(Clipboard, [{
+    type: Service
+  }], null, null);
+})();
+var CDK_COPY_TO_CLIPBOARD_CONFIG = new InjectionToken("CDK_COPY_TO_CLIPBOARD_CONFIG");
+var CdkCopyToClipboard = class _CdkCopyToClipboard {
+  _clipboard = inject(Clipboard);
+  _ngZone = inject(NgZone);
+  text = "";
+  attempts = 1;
+  copied = new EventEmitter();
+  _pending = /* @__PURE__ */ new Set();
+  _destroyed = false;
+  _currentTimeout;
+  constructor() {
+    const config = inject(CDK_COPY_TO_CLIPBOARD_CONFIG, {
+      optional: true
+    });
+    if (config && config.attempts != null) {
+      this.attempts = config.attempts;
+    }
+  }
+  copy(attempts = this.attempts) {
+    attempts = Math.min(attempts, 50);
+    if (attempts > 1) {
+      let remainingAttempts = attempts;
+      const pending = this._clipboard.beginCopy(this.text);
+      this._pending.add(pending);
+      const attempt = () => {
+        const successful = pending.copy();
+        if (!successful && --remainingAttempts && !this._destroyed) {
+          this._currentTimeout = this._ngZone.runOutsideAngular(() => setTimeout(attempt, 1));
+        } else {
+          this._currentTimeout = null;
+          this._pending.delete(pending);
+          pending.destroy();
+          this.copied.emit(successful);
+        }
+      };
+      attempt();
+    } else {
+      this.copied.emit(this._clipboard.copy(this.text));
+    }
+  }
+  ngOnDestroy() {
+    if (this._currentTimeout) {
+      clearTimeout(this._currentTimeout);
+    }
+    this._pending.forEach((copy) => copy.destroy());
+    this._pending.clear();
+    this._destroyed = true;
+  }
+  static \u0275fac = function CdkCopyToClipboard_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _CdkCopyToClipboard)();
+  };
+  static \u0275dir = /* @__PURE__ */ \u0275\u0275defineDirective({
+    type: _CdkCopyToClipboard,
+    selectors: [["", "cdkCopyToClipboard", ""]],
+    hostBindings: function CdkCopyToClipboard_HostBindings(rf, ctx) {
+      if (rf & 1) {
+        \u0275\u0275listener("click", function CdkCopyToClipboard_click_HostBindingHandler() {
+          return ctx.copy();
+        });
+      }
+    },
+    inputs: {
+      text: [0, "cdkCopyToClipboard", "text"],
+      attempts: [0, "cdkCopyToClipboardAttempts", "attempts"]
+    },
+    outputs: {
+      copied: "cdkCopyToClipboardCopied"
+    }
+  });
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(CdkCopyToClipboard, [{
+    type: Directive,
+    args: [{
+      selector: "[cdkCopyToClipboard]",
+      host: {
+        "(click)": "copy()"
+      }
+    }]
+  }], () => [], {
+    text: [{
+      type: Input,
+      args: ["cdkCopyToClipboard"]
+    }],
+    attempts: [{
+      type: Input,
+      args: ["cdkCopyToClipboardAttempts"]
+    }],
+    copied: [{
+      type: Output,
+      args: ["cdkCopyToClipboardCopied"]
+    }]
+  });
+})();
+var ClipboardModule = class _ClipboardModule {
+  static \u0275fac = function ClipboardModule_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _ClipboardModule)();
+  };
+  static \u0275mod = /* @__PURE__ */ \u0275\u0275defineNgModule({
+    type: _ClipboardModule,
+    imports: [CdkCopyToClipboard],
+    exports: [CdkCopyToClipboard]
+  });
+  static \u0275inj = /* @__PURE__ */ \u0275\u0275defineInjector({});
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(ClipboardModule, [{
+    type: NgModule,
+    args: [{
+      imports: [CdkCopyToClipboard],
+      exports: [CdkCopyToClipboard]
+    }]
+  }], null, null);
+})();
+
+// libs/common/src/lib/version.ts
+var VERSION = {
+  "dirty": false,
+  "raw": "d957502",
+  "hash": "d957502",
+  "distance": null,
+  "tag": null,
+  "semver": null,
+  "suffix": "d957502",
+  "semverString": null,
+  "version": "1.12.0",
+  "time": 1791769973848
+};
 
 // libs/common/src/lib/settings.ts
 var general = {};
@@ -743,19 +937,23 @@ function getPermissionMask(subsystem) {
 }
 setTimeout(() => initialiseUser(), 50);
 
-// libs/common/src/lib/version.ts
-var VERSION = {
-  "dirty": false,
-  "raw": "597bdd6",
-  "hash": "597bdd6",
-  "distance": null,
-  "tag": null,
-  "semver": null,
-  "suffix": "597bdd6",
-  "semverString": null,
-  "version": "1.12.0",
-  "time": 1791551873638
+// libs/common/src/lib/constants.ts
+var SETTING_KEYS = {
+  FAVORITE_ROOMS: "favourite_rooms",
+  FAVORITE_DESKS: "favourite_desks",
+  FAVORITE_PARKING_SPACES: "favourite_parking",
+  FAVORITE_LOCKERS: "favourite_lockers",
+  FAVORITE_CATERING: "favourite_menu_items",
+  FAVORITE_TEAM_MEMBERS: "favourite_team_members",
+  TEAM_MEMBERS: "team_members"
 };
+var SECONDS = 1e3;
+var MINUTES = 60 * SECONDS;
+var HOURS = 60 * MINUTES;
+var DAYS = 24 * HOURS;
+var MINUTE = 60 * SECONDS;
+var HOUR = 60 * MINUTES;
+var DAY = 24 * HOURS;
 
 // libs/common/src/lib/google-analytics.service.ts
 var GoogleAnalyticsService = class _GoogleAnalyticsService {
@@ -912,7 +1110,9 @@ var GoogleAnalyticsService = class _GoogleAnalyticsService {
     }
   }
   /**
-   * Post routing event to Google Analytics API
+   * Post routing event to Google Analytics API.
+   * The query string and fragment are removed, as they can hold personal
+   * data such as an email address.
    * @param route Activated route
    * @param origin Add origin to routh path
    */
@@ -920,6 +1120,7 @@ var GoogleAnalyticsService = class _GoogleAnalyticsService {
     if (!this.service) {
       throw new Error("Google Analytics hasn't been installed on this page");
     }
+    route = route.split(/[?#]/)[0];
     if (this.enabled) {
       this.timeout(`page|${route}`, () => {
         log("Analytics", "Service", `Page: ${route}`);
@@ -1016,6 +1217,24 @@ var GoogleAnalyticsService = class _GoogleAnalyticsService {
 var _service;
 var _setting_signals = {};
 var DEBUG_OVERRIDES_KEY = "PLACEOS.setting_overrides";
+var LEGACY_USER_SETTING_KEYS = {
+  favourite_spaces: SETTING_KEYS.FAVORITE_ROOMS,
+  favourite_parking_spaces: SETTING_KEYS.FAVORITE_PARKING_SPACES
+};
+function cssVariableRule(selector, variables = {}) {
+  let rule = `${selector} { `;
+  for (const key in variables) {
+    rule += `--${key}: ${variables[key]}; `;
+  }
+  return `${rule}}`;
+}
+function withLegacyUserSettings(details) {
+  const result = __spreadValues({}, details);
+  for (const [old_key, key] of Object.entries(LEGACY_USER_SETTING_KEYS)) {
+    result[key] ??= details[old_key];
+  }
+  return result;
+}
 function loadDebugOverrides() {
   try {
     const overrides = JSON.parse(localStorage.getItem(DEBUG_OVERRIDES_KEY) || "{}");
@@ -1183,7 +1402,7 @@ var SettingsService = class _SettingsService extends AsyncHandler {
     }
     const user = await this._currentUser();
     const data = await ac(user.id, "settings");
-    this._user_settings.set(data.details || {});
+    this._user_settings.set(withLegacyUserSettings(data.details || {}));
     this._updateSignals();
     this.timeout("init", () => {
       this._initDarkMode();
@@ -1249,13 +1468,16 @@ var SettingsService = class _SettingsService extends AsyncHandler {
     this.saveUserSetting("theme", theme);
     this._applyTheme();
   }
+  /**
+   * Apply the colour overrides from `app.css_variables` and, for the dark
+   * theme, from `app.css_variables_dark`. The dark rule has the theme class,
+   * so it wins over the `.theme-dark` defaults of the stylesheet.
+   */
   _applyCssVariables() {
-    const variable_map = this.get("app.css_variables") || {};
-    let css_string = "body { ";
-    for (const key in variable_map) {
-      css_string += `--${key}: ${variable_map[key]}; `;
-    }
-    css_string += "}";
+    const css_string = [
+      cssVariableRule("body", this.get("app.css_variables") || {}),
+      cssVariableRule("body.theme-dark", this.get("app.css_variables_dark") || {})
+    ].join(" ");
     let element = document.getElementById("css-var-overrides");
     if (!element) {
       element = document.createElement("style");
@@ -1345,34 +1567,6 @@ var SettingsService = class _SettingsService extends AsyncHandler {
     }]
   }], () => [], null);
 })();
-
-// libs/common/src/lib/fixed-device-helpers.ts
-var _wake_lock = null;
-async function requestScreenWakeLock() {
-  if (!_s())
-    return;
-  if (_wake_lock)
-    await _wake_lock.release();
-  if (document.visibilityState === "visible") {
-    _wake_lock = await navigator.wakeLock.request("screen");
-  } else {
-    setTimeout(() => requestScreenWakeLock(), 1e3);
-  }
-}
-document.addEventListener("visibilitychange", async () => {
-  if (_wake_lock !== null && document.visibilityState === "visible") {
-    _wake_lock = await navigator.wakeLock.request("screen");
-  }
-});
-
-// libs/common/src/lib/constants.ts
-var SECONDS = 1e3;
-var MINUTES = 60 * SECONDS;
-var HOURS = 60 * MINUTES;
-var DAYS = 24 * HOURS;
-var MINUTE = 60 * SECONDS;
-var HOUR = 60 * MINUTES;
-var DAY = 24 * HOURS;
 
 // libs/common/src/lib/application.ts
 var _timer;
@@ -1617,186 +1811,6 @@ async function checkForUpdate(cache) {
     log("CACHE", `Failed to check for application updates.`, error, "warn");
   }
 }
-
-// node_modules/@angular/cdk/fesm2022/clipboard.mjs
-var PendingCopy = class {
-  _document;
-  _textarea;
-  constructor(text, _document) {
-    this._document = _document;
-    const textarea = this._textarea = this._document.createElement("textarea");
-    const styles = textarea.style;
-    styles.position = "fixed";
-    styles.top = styles.opacity = "0";
-    styles.left = "-999em";
-    textarea.setAttribute("aria-hidden", "true");
-    textarea.value = text;
-    textarea.readOnly = true;
-    (this._document.fullscreenElement || this._document.body).appendChild(textarea);
-  }
-  copy() {
-    const textarea = this._textarea;
-    let successful = false;
-    try {
-      if (textarea) {
-        const currentFocus = this._document.activeElement;
-        textarea.select();
-        textarea.setSelectionRange(0, textarea.value.length);
-        successful = this._document.execCommand("copy");
-        if (currentFocus) {
-          currentFocus.focus();
-        }
-      }
-    } catch {
-    }
-    return successful;
-  }
-  destroy() {
-    const textarea = this._textarea;
-    if (textarea) {
-      textarea.remove();
-      this._textarea = void 0;
-    }
-  }
-};
-var Clipboard = class _Clipboard {
-  _document = inject(DOCUMENT);
-  copy(text) {
-    const pendingCopy = this.beginCopy(text);
-    const successful = pendingCopy.copy();
-    pendingCopy.destroy();
-    return successful;
-  }
-  beginCopy(text) {
-    return new PendingCopy(text, this._document);
-  }
-  static \u0275fac = function Clipboard_Factory(__ngFactoryType__) {
-    return new (__ngFactoryType__ || _Clipboard)();
-  };
-  static \u0275prov = /* @__PURE__ */ \u0275\u0275defineService({
-    token: _Clipboard,
-    factory: _Clipboard.\u0275fac
-  });
-};
-(() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(Clipboard, [{
-    type: Service
-  }], null, null);
-})();
-var CDK_COPY_TO_CLIPBOARD_CONFIG = new InjectionToken("CDK_COPY_TO_CLIPBOARD_CONFIG");
-var CdkCopyToClipboard = class _CdkCopyToClipboard {
-  _clipboard = inject(Clipboard);
-  _ngZone = inject(NgZone);
-  text = "";
-  attempts = 1;
-  copied = new EventEmitter();
-  _pending = /* @__PURE__ */ new Set();
-  _destroyed = false;
-  _currentTimeout;
-  constructor() {
-    const config = inject(CDK_COPY_TO_CLIPBOARD_CONFIG, {
-      optional: true
-    });
-    if (config && config.attempts != null) {
-      this.attempts = config.attempts;
-    }
-  }
-  copy(attempts = this.attempts) {
-    attempts = Math.min(attempts, 50);
-    if (attempts > 1) {
-      let remainingAttempts = attempts;
-      const pending = this._clipboard.beginCopy(this.text);
-      this._pending.add(pending);
-      const attempt = () => {
-        const successful = pending.copy();
-        if (!successful && --remainingAttempts && !this._destroyed) {
-          this._currentTimeout = this._ngZone.runOutsideAngular(() => setTimeout(attempt, 1));
-        } else {
-          this._currentTimeout = null;
-          this._pending.delete(pending);
-          pending.destroy();
-          this.copied.emit(successful);
-        }
-      };
-      attempt();
-    } else {
-      this.copied.emit(this._clipboard.copy(this.text));
-    }
-  }
-  ngOnDestroy() {
-    if (this._currentTimeout) {
-      clearTimeout(this._currentTimeout);
-    }
-    this._pending.forEach((copy) => copy.destroy());
-    this._pending.clear();
-    this._destroyed = true;
-  }
-  static \u0275fac = function CdkCopyToClipboard_Factory(__ngFactoryType__) {
-    return new (__ngFactoryType__ || _CdkCopyToClipboard)();
-  };
-  static \u0275dir = /* @__PURE__ */ \u0275\u0275defineDirective({
-    type: _CdkCopyToClipboard,
-    selectors: [["", "cdkCopyToClipboard", ""]],
-    hostBindings: function CdkCopyToClipboard_HostBindings(rf, ctx) {
-      if (rf & 1) {
-        \u0275\u0275listener("click", function CdkCopyToClipboard_click_HostBindingHandler() {
-          return ctx.copy();
-        });
-      }
-    },
-    inputs: {
-      text: [0, "cdkCopyToClipboard", "text"],
-      attempts: [0, "cdkCopyToClipboardAttempts", "attempts"]
-    },
-    outputs: {
-      copied: "cdkCopyToClipboardCopied"
-    }
-  });
-};
-(() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(CdkCopyToClipboard, [{
-    type: Directive,
-    args: [{
-      selector: "[cdkCopyToClipboard]",
-      host: {
-        "(click)": "copy()"
-      }
-    }]
-  }], () => [], {
-    text: [{
-      type: Input,
-      args: ["cdkCopyToClipboard"]
-    }],
-    attempts: [{
-      type: Input,
-      args: ["cdkCopyToClipboardAttempts"]
-    }],
-    copied: [{
-      type: Output,
-      args: ["cdkCopyToClipboardCopied"]
-    }]
-  });
-})();
-var ClipboardModule = class _ClipboardModule {
-  static \u0275fac = function ClipboardModule_Factory(__ngFactoryType__) {
-    return new (__ngFactoryType__ || _ClipboardModule)();
-  };
-  static \u0275mod = /* @__PURE__ */ \u0275\u0275defineNgModule({
-    type: _ClipboardModule,
-    imports: [CdkCopyToClipboard],
-    exports: [CdkCopyToClipboard]
-  });
-  static \u0275inj = /* @__PURE__ */ \u0275\u0275defineInjector({});
-};
-(() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(ClipboardModule, [{
-    type: NgModule,
-    args: [{
-      imports: [CdkCopyToClipboard],
-      exports: [CdkCopyToClipboard]
-    }]
-  }], null, null);
-})();
 
 // node_modules/@angular/service-worker/fesm2022/service-worker.mjs
 /**
@@ -2174,6 +2188,159 @@ var ServiceWorkerModule = class _ServiceWorkerModule {
       providers: [SwPush, SwUpdate]
     }]
   }], null, null);
+})();
+
+// libs/common/src/lib/fixed-device-helpers.ts
+var _wake_lock = null;
+async function requestScreenWakeLock() {
+  if (!_s())
+    return;
+  if (_wake_lock)
+    await _wake_lock.release();
+  if (document.visibilityState === "visible") {
+    _wake_lock = await navigator.wakeLock.request("screen");
+  } else {
+    setTimeout(() => requestScreenWakeLock(), 1e3);
+  }
+}
+document.addEventListener("visibilitychange", async () => {
+  if (_wake_lock !== null && document.visibilityState === "visible") {
+    _wake_lock = await navigator.wakeLock.request("screen");
+  }
+});
+
+// libs/common/src/lib/mapspeople.service.ts
+var MapService;
+(function(MapService2) {
+  MapService2[MapService2["GoogleMaps"] = 0] = "GoogleMaps";
+  MapService2[MapService2["Mapbox"] = 1] = "Mapbox";
+})(MapService || (MapService = {}));
+var MapsPeopleService = class _MapsPeopleService extends AsyncHandler {
+  get map_keys() {
+    return this._settings.get("app.maps_people.keys") || {};
+  }
+  get use_service() {
+    return this._settings.get("app.maps_people.use_zones") || [];
+  }
+  get map_service() {
+    return this._map_service();
+  }
+  get map_token() {
+    return this._map_token();
+  }
+  get is_ready() {
+    return this._ready();
+  }
+  constructor() {
+    super();
+    this._settings = inject(SettingsService);
+    this._org = inject(OrganisationService);
+    this._map_service = signal(
+      null,
+      ...ngDevMode ? [{ debugName: "_map_service" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this._map_token = signal(
+      "",
+      ...ngDevMode ? [{ debugName: "_map_token" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this._ready = signal(
+      false,
+      ...ngDevMode ? [{ debugName: "_ready" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this._injected = {};
+    this._custom_zone = signal(
+      "",
+      ...ngDevMode ? [{ debugName: "_custom_zone" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.available = computed(
+      () => {
+        const bld = this._org.active_building();
+        const zone = this._custom_zone();
+        if (!this._org.initialised() || !bld?.id)
+          return false;
+        return !!this.map_keys.mapsindoors && (this.use_service.includes(zone || bld.id) || this.use_service.includes("*"));
+      },
+      ...ngDevMode ? [{ debugName: "available" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    effect(() => {
+      if (!this.available())
+        return;
+      this._injectMapsApiKeys();
+    });
+  }
+  setCustomZone(zone_id) {
+    this._custom_zone.set(zone_id);
+  }
+  _injectMapsApiKeys() {
+    log("MapsPeople", "Initializing Maps API Keys");
+    this._ready.set(false);
+    const { mapsindoors, google, mapbox } = this.map_keys;
+    if (!mapsindoors)
+      return;
+    if (mapsindoors && !this._injected.mapsindoors) {
+      const script = document.createElement("script");
+      script.src = `https://app.mapsindoors.com/mapsindoors/js/sdk/4.35.0/mapsindoors-4.35.0.js.gz?apikey=${mapsindoors}`;
+      document.body.appendChild(script);
+      this._injected.mapsindoors = true;
+    }
+    if (google && mapbox) {
+      log("MapsPeople", "Both Google and Mapbox keys provided", void 0, "error");
+      return;
+    }
+    if (google && !this._injected.google) {
+      const script = document.createElement("script");
+      script.src = `https://maps.googleapis.com/maps/api/js?libraries=geometry&key=${google}`;
+      document.body.appendChild(script);
+      this._map_service.set(MapService.GoogleMaps);
+      this._injected.google = true;
+    } else if (mapbox && !this._injected.mapbox) {
+      const script = document.createElement("script");
+      script.src = `https://api.mapbox.com/mapbox-gl-js/v2.14.1/mapbox-gl.js`;
+      document.body.appendChild(script);
+      const styles = document.createElement("link");
+      styles.rel = "stylesheet";
+      styles.href = `https://api.mapbox.com/mapbox-gl-js/v2.14.1/mapbox-gl.css`;
+      document.head.appendChild(styles);
+      this._map_service.set(MapService.Mapbox);
+      this._map_token.set(mapbox);
+      this._injected.mapbox = true;
+    }
+    if (google || mapbox) {
+      log("MapsPeople", `Initialized Maps API Keys for ${google ? "Google Maps" : "Mapbox"}`);
+      this.timeout("ready", () => this._ready.set(true), 300);
+    }
+  }
+  static {
+    this.\u0275fac = function MapsPeopleService_Factory(__ngFactoryType__) {
+      return new (__ngFactoryType__ || _MapsPeopleService)();
+    };
+  }
+  static {
+    this.\u0275prov = /* @__PURE__ */ \u0275\u0275defineInjectable({ token: _MapsPeopleService, factory: _MapsPeopleService.\u0275fac, providedIn: "root" });
+  }
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(MapsPeopleService, [{
+    type: Injectable,
+    args: [{
+      providedIn: "root"
+    }]
+  }], () => [], null);
 })();
 
 // libs/common/src/lib/placeos.ts
@@ -2654,9 +2821,10 @@ var PlaceOS_Service = class _PlaceOS_Service extends AsyncHandler {
       log("APP", "Failed to initialise analytics.", error, "warn");
       return;
     }
-    if (tracking_id.startsWith("G-") && this._router.navigated) {
+    if (!tracking_id.startsWith("G-"))
+      return;
+    if (this._router.navigated)
       this._analytics.page(this._router.url);
-    }
     this.subscription("analytics-router", this._router.events.pipe(filter((event) => event instanceof NavigationEnd)).subscribe((event) => this._analytics.page(event.urlAfterRedirects)));
   }
   _initLocale() {
@@ -3715,141 +3883,15 @@ var OrganisationService = class _OrganisationService {
   }], () => [], null);
 })();
 
-// libs/common/src/lib/mapspeople.service.ts
-var MapService;
-(function(MapService2) {
-  MapService2[MapService2["GoogleMaps"] = 0] = "GoogleMaps";
-  MapService2[MapService2["Mapbox"] = 1] = "Mapbox";
-})(MapService || (MapService = {}));
-var MapsPeopleService = class _MapsPeopleService extends AsyncHandler {
-  get map_keys() {
-    return this._settings.get("app.maps_people.keys") || {};
-  }
-  get use_service() {
-    return this._settings.get("app.maps_people.use_zones") || [];
-  }
-  get map_service() {
-    return this._map_service();
-  }
-  get map_token() {
-    return this._map_token();
-  }
-  get is_ready() {
-    return this._ready();
-  }
-  constructor() {
-    super();
-    this._settings = inject(SettingsService);
-    this._org = inject(OrganisationService);
-    this._map_service = signal(
-      null,
-      ...ngDevMode ? [{ debugName: "_map_service" }] : (
-        /* istanbul ignore next */
-        []
-      )
-    );
-    this._map_token = signal(
-      "",
-      ...ngDevMode ? [{ debugName: "_map_token" }] : (
-        /* istanbul ignore next */
-        []
-      )
-    );
-    this._ready = signal(
-      false,
-      ...ngDevMode ? [{ debugName: "_ready" }] : (
-        /* istanbul ignore next */
-        []
-      )
-    );
-    this._injected = {};
-    this._custom_zone = signal(
-      "",
-      ...ngDevMode ? [{ debugName: "_custom_zone" }] : (
-        /* istanbul ignore next */
-        []
-      )
-    );
-    this.available = computed(
-      () => {
-        const bld = this._org.active_building();
-        const zone = this._custom_zone();
-        if (!this._org.initialised() || !bld?.id)
-          return false;
-        return !!this.map_keys.mapsindoors && (this.use_service.includes(zone || bld.id) || this.use_service.includes("*"));
-      },
-      ...ngDevMode ? [{ debugName: "available" }] : (
-        /* istanbul ignore next */
-        []
-      )
-    );
-    effect(() => {
-      if (!this.available())
-        return;
-      this._injectMapsApiKeys();
-    });
-  }
-  setCustomZone(zone_id) {
-    this._custom_zone.set(zone_id);
-  }
-  _injectMapsApiKeys() {
-    log("MapsPeople", "Initializing Maps API Keys");
-    this._ready.set(false);
-    const { mapsindoors, google, mapbox } = this.map_keys;
-    if (!mapsindoors)
-      return;
-    if (mapsindoors && !this._injected.mapsindoors) {
-      const script = document.createElement("script");
-      script.src = `https://app.mapsindoors.com/mapsindoors/js/sdk/4.35.0/mapsindoors-4.35.0.js.gz?apikey=${mapsindoors}`;
-      document.body.appendChild(script);
-      this._injected.mapsindoors = true;
-    }
-    if (google && mapbox) {
-      log("MapsPeople", "Both Google and Mapbox keys provided", void 0, "error");
-      return;
-    }
-    if (google && !this._injected.google) {
-      const script = document.createElement("script");
-      script.src = `https://maps.googleapis.com/maps/api/js?libraries=geometry&key=${google}`;
-      document.body.appendChild(script);
-      this._map_service.set(MapService.GoogleMaps);
-      this._injected.google = true;
-    } else if (mapbox && !this._injected.mapbox) {
-      const script = document.createElement("script");
-      script.src = `https://api.mapbox.com/mapbox-gl-js/v2.14.1/mapbox-gl.js`;
-      document.body.appendChild(script);
-      const styles = document.createElement("link");
-      styles.rel = "stylesheet";
-      styles.href = `https://api.mapbox.com/mapbox-gl-js/v2.14.1/mapbox-gl.css`;
-      document.head.appendChild(styles);
-      this._map_service.set(MapService.Mapbox);
-      this._map_token.set(mapbox);
-      this._injected.mapbox = true;
-    }
-    if (google || mapbox) {
-      log("MapsPeople", `Initialized Maps API Keys for ${google ? "Google Maps" : "Mapbox"}`);
-      this.timeout("ready", () => this._ready.set(true), 300);
-    }
-  }
-  static {
-    this.\u0275fac = function MapsPeopleService_Factory(__ngFactoryType__) {
-      return new (__ngFactoryType__ || _MapsPeopleService)();
-    };
-  }
-  static {
-    this.\u0275prov = /* @__PURE__ */ \u0275\u0275defineInjectable({ token: _MapsPeopleService, factory: _MapsPeopleService.\u0275fac, providedIn: "root" });
-  }
-};
-(() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(MapsPeopleService, [{
-    type: Injectable,
-    args: [{
-      providedIn: "root"
-    }]
-  }], () => [], null);
-})();
-
 export {
+  serviceWorkerUpdate,
+  initialisationFailure,
+  initialisationComplete,
+  retryInitialisation,
+  Clipboard,
+  provideServiceWorker,
+  VERSION,
+  LazySentryErrorHandler,
   DEFAULT_SETTINGS,
   Space,
   User,
@@ -3858,23 +3900,15 @@ export {
   user_groups_loaded,
   currentUser,
   hasPermission,
-  VERSION,
   settingSignal,
   SettingsService,
-  serviceWorkerUpdate,
-  initialisationFailure,
-  initialisationComplete,
-  retryInitialisation,
-  firstValueWhere,
-  Clipboard,
-  provideServiceWorker,
-  LazySentryErrorHandler,
   getLoadingMessage,
   needsNativeDomain,
   nativeDomainError,
   autoConfirmNativeDomain,
   PlaceOS_Service,
+  firstValueWhere,
   OrganisationService
 };
-//# debugId=fbb9f26f-a4cc-5fe4-ad4e-d5719d31fa6c
-//# sourceMappingURL=chunk-V72PF4T5.js.map
+//# debugId=7c3ab2c1-6054-5b30-8aff-3cd66d281383
+//# sourceMappingURL=chunk-7ZDGEQG3.js.map

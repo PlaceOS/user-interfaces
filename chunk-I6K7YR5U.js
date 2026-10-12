@@ -2,7 +2,7 @@ import {
   OrganisationService,
   SettingsService,
   currentUser
-} from "./chunk-V72PF4T5.js";
+} from "./chunk-7ZDGEQG3.js";
 import {
   AsyncHandler,
   Gp,
@@ -12,7 +12,7 @@ import {
   format,
   log,
   randomString
-} from "./chunk-KGDOITXZ.js";
+} from "./chunk-VFOBAGRJ.js";
 import {
   Injectable,
   Pipe,
@@ -46,10 +46,8 @@ var DateFromPipe = class _DateFromPipe {
       const hours = Math.floor(diff / 60);
       return direction ? `In ${hours} hour${hours === 1 ? "" : "s"}` : format(date, "H:mm");
     } else if (diff < 7 * 24 * 60) {
-      const days = Math.floor(diff / (24 * 60));
       return direction ? format(date, "dd MMM yyyy") : format(date, "E H:mm");
     } else if (diff < 365 * 24 * 60) {
-      const days = Math.floor(diff / (24 * 60));
       return direction ? format(date, "dd MMM yyyy") : format(date, "LLL d H:mm");
     }
     return "Just now";
@@ -2389,7 +2387,7 @@ var ChatService = class _ChatService extends AsyncHandler {
       let msg = event.data;
       try {
         msg = JSON.parse(event.data);
-      } catch (e) {
+      } catch {
       }
       this._onMessage(msg);
     };
@@ -2499,5 +2497,5 @@ export {
   DateFromPipe,
   ChatService
 };
-//# debugId=c88fbff7-370f-53d6-af78-af08ca86942b
-//# sourceMappingURL=chunk-4BHSR5SI.js.map
+//# debugId=9e991ffc-d499-5f56-a095-78dfdbd222b0
+//# sourceMappingURL=chunk-I6K7YR5U.js.map
