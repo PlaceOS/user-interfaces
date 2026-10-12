@@ -1,3 +1,4 @@
+export * from './lib/ai';
 export * from './lib/apply';
 export * from './lib/canvas';
 export * from './lib/constants';
