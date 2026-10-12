@@ -25,7 +25,7 @@ These options live at the root of the settings file (alongside `app`, not inside
 | `name` | string | `"Workplace"` | Name of the application, used in the browser page title. |
 | `title` | string | `"Workplace Application"` | Display title for the application. |
 | `description` | string | `"PlaceOS Workplace UI written with Angular Framework"` | Description of the application. |
-| `short_name` | string | `"WorkMate"` | Short name for the application. |
+| `short_name` | string | `"Workplace"` | Short name for the application. |
 | `logo_light` | string \| object | `"assets/logo-light.svg"` | Logo shown in the top bar when using the light theme. Either an image URL or an icon object with a `src` property. |
 | `logo_dark` | string \| object | `"assets/logo-dark.svg"` | Logo shown in the top bar when using the dark theme. Either an image URL or an icon object with a `src` property. |
 | `environment_bar` | string | – | CSS colour for thin environment identifier bars shown at the top and bottom of the app (useful for marking test/UAT environments). Leave unset to hide the bars. |
@@ -40,12 +40,11 @@ These options live at the root of the settings file (alongside `app`, not inside
 | `week_start` | number | – | First day of the week for schedule and calendar views. `0` is Sunday through `6` for Saturday. |
 | `idle_timeout` | number | `5` | Minutes of inactivity on the meeting form before the user is prompted to discard their changes. |
 | `global_search` | boolean | `true` | Show the global search bar in the top bar. |
-| `hide_landing_sidebar` | boolean | – | Hide the colleagues and favourites sidebar on the landing page. |
-| `hide_colleagues` | boolean | – | Hide the colleagues tab on the landing page. Show favourites in its place. |
-| `hide_landing_spaces` | boolean | – | Hide the availability summary by level on the landing page. |
-| `hide_landing_rooms` | boolean | – | Hide the available meeting rooms list on the landing page. |
-| `show_quick_links` | boolean | – | Show quick links on the landing page. Hidden when unset. |
-| `show_quick_book` | boolean | – | Show quick booking actions on the landing page. Hidden when unset. |
+| `hide_colleagues` | boolean | – | Hide the colleagues card on the landing page. The favourites card takes the full row. |
+| `hide_landing_spaces` | boolean | – | Hide the Desks and Lockers tabs of the Available Now card on the landing page. |
+| `hide_landing_rooms` | boolean | – | Hide the Rooms tab of the Available Now card on the landing page. The card is hidden when no tab is left. |
+| `show_quick_links` | boolean | – | Show the booking links in the Quick Actions card on the landing page, one for each enabled feature. Shown when not set; set to `false` to hide them. |
+| `show_quick_book` | boolean | – | Show the Auto-assign Desk action in the Quick Actions card on the landing page. Needs the `desks` feature. Shown when not set; set to `false` to hide it. |
 | `features` | string[] | see below | List of feature flags controlling which sections of the app are available. |
 | `locales` | object[] | 10 languages | Languages available in the language selector. |
 | `menu_embeds` | object[] | – | Additional menu items that open third-party URLs embedded inside the app. |
@@ -203,7 +202,7 @@ These settings override the matching `bookings.*` settings for visitor invites.
 |---------|------|---------|-------------|
 | `visitors.reason_required` | boolean | `false` | Require a reason for each visitor invite. Starts new invites with an empty reason and rejects blank or whitespace-only reasons. |
 | `visitors.allow_editing` | boolean | `false` | Allow visitor booking edits from the shared booking details modal, subject to the booking status and user permissions. |
-| `visitors.allow_all_day` | boolean | – | Make the all-day option available for visitor invites. Falls back to `bookings.allow_all_day`. |
+| `visitors.allow_all_day` | boolean | `true` | Make the all-day option available for visitor invites. Falls back to `bookings.allow_all_day` when not set. |
 | `visitors.can_book_for_others` | boolean | – | Allow users to invite visitors on behalf of another internal host. Falls back to `bookings.can_book_for_others`. |
 | `visitors.can_book_for_anyone` | boolean | – | Allow users to invite visitors on behalf of any host, including an external host. Falls back to `bookings.can_book_for_anyone`. |
 
@@ -222,6 +221,7 @@ These settings override the matching `bookings.*` settings for visitor invites.
 | `events.has_assets` | boolean | `true` | Make asset requests available in the meeting booking flow. |
 | `events.allow_all_day` | boolean | `true` | Make the "all day" option available for meetings. |
 | `events.allow_multiday` | boolean | – | Allow meetings to span multiple days. |
+| `events.allowed_future_days` | number | `180` | Number of days into the future that a meeting can be booked. |
 | `events.allow_externals` | boolean | `true` | Allow external (non-directory) attendees to be added to meetings. |
 | `events.allow_recurrence` | boolean | `false` | Allow recurring meetings to be created. |
 | `events.allow_daily_allday_recurrence` | boolean | `false` | Allow daily recurrence for all-day meetings. |
@@ -299,7 +299,10 @@ These settings override the matching `bookings.*` settings for visitor invites.
 | `parking.hide_selected_space` | boolean | `false` | Hide selected parking space names in booking cards and booking detail modals. |
 | `parking.hide_availability_counter` | boolean | `false` | Hide the parking availability counter shown next to the selected location or level. |
 | `parking.require_plate_number` | boolean | `false` | Make the plate number/registration field mandatory in the parking request flow. |
+| `parking.show_special_needs` | boolean | `false` | Show the special needs reason and document fields to each user who selects the `special` request type. When `false`, only parking users with the special needs flag see them. |
 | `parking.show_status_details` | boolean | – | Show availability status details (status text, assigned users, plate numbers) in the explore map parking tooltip. |
+| `parking.show_waitlist` | boolean | – | Show unallocated parking bookings in the active waitlist week as waitlisted. Shown when not set; set to `false` to hide the status. |
+| `parking.waitlist_week_start` | object | Friday at 18:00 | Day and time at which the active parking waitlist week starts. Needs a `day` (`0` is Sunday), an `hour` and a `minute`. |
 
 Request types also accept `approver_groups` to restrict the approver options, `show_notes` to show the notes field, and `requires_manual_approval` to mark the request for manual approval. The last two fields default to `false`.
 
@@ -465,7 +468,7 @@ Per-resource-type overrides can be set with `<type>_time_before` and `<type>_tim
 | Setting | Type | Default | Description |
 |---------|------|---------|-------------|
 | `analytics.enabled` | boolean | `true` | Enable Google Analytics. |
-| `analytics.tracking_id` | string | `"G-S6TDS95BDH"` | Google Analytics tracking ID. |
+| `analytics.tracking_id` | string | `""` | Google Analytics tracking ID. |
 | `chat.enabled` | boolean | `false` | Show the global chat widget in the app. |
 | `can_deliver` | boolean | `true` | Make delivery available for catering orders. |
 | `group_events_calendar` | string | – | ID (email address) of the calendar used to list group events. |
@@ -479,3 +482,27 @@ must also be off to prevent duplicate navigation events. See
 
 Set `analytics.enabled` to `false` and reload the app to stop analytics
 initialisation and event tracking.
+
+## Virtual Concierge (`virtual_concierge.*`)
+
+A button for the virtual concierge shows on the schedule, team schedule, explore, deals and directory pages when a URL is set.
+
+| Setting | Type | Default | Description |
+|---------|------|---------|-------------|
+| `virtual_concierge.url` | string | – | URL of the virtual concierge page to embed. The button is hidden when this is empty. |
+| `virtual_concierge_url` | string | – | Legacy key for the URL. Used when `virtual_concierge.url` is empty. |
+| `virtual_concierge.icon` | string | – | URL of the image for the button. A default icon shows when this is empty. |
+| `virtual_concierge.display` | string | `"fullscreen"` | How the embed opens: `fullscreen` or `sidebar`. |
+| `virtual_concierge.side` | string | `"left"` | Side of the screen for the sidebar: `left` or `right`. |
+| `virtual_concierge.prompts` | string[] | three example prompts | Suggested prompts for the virtual concierge UI. |
+
+```json
+{
+    "virtual_concierge": {
+        "url": "https://concierge.example.com",
+        "icon": "https://concierge.example.com/icon.png",
+        "display": "sidebar",
+        "side": "right"
+    }
+}
+```

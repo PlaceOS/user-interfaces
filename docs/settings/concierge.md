@@ -11,7 +11,7 @@ Set settings in Backoffice zone metadata under `concierge_app` for the standard 
 | `name` | string | `"Concierge"` | Name of the application. |
 | `title` | string | `"PlaceOS"` | Title shown in the browser tab. |
 | `description` | string | `"Concierge UI"` | Description of the application. |
-| `short_name` | string | `"PlaceOS"` | Short name for the application. |
+| `short_name` | string | `"Concierge"` | Short name for the application. |
 | `logo_light` | string / object | `"assets/logo-light.svg"` | Logo shown when using the light theme. Also used in generated PDF reports. Either a URL string or an object with a `src` URL. |
 | `logo_dark` | string / object | `"assets/logo-dark.svg"` | Logo shown when using the dark theme. Also used in generated PDF reports. Either a URL string or an object with a `src` URL. |
 | `default_route` | string | `"/book/rooms"` | Route used for the sidebar bookings link when no matching feature is enabled, e.g. `/book/rooms`. |
@@ -187,6 +187,7 @@ Each custom action requires an `id` (passed to the action handler when selected)
 | `parking.assign_space_on_approve` | boolean | `false` | Automatically assign a parking space when approving a parking booking. |
 | `parking.max_assigned_count` | number | `0` | Maximum number of parking spaces that can be assigned to a single user. `0` for unlimited. |
 | `parking.custom_booking_columns` | array | `[]` | Additional columns to display in the parking bookings list, sourced from booking extension data. |
+| `parking.show_user_groups` | string[] | `[]` | User group names to show in the parking bookings list. The column shows the groups of each booking that are in this list. It is hidden when the list is empty. |
 | `parking.use_building_timezone` | boolean | – | Handle parking dates and times in the active building's timezone. Falls back to `bookings.use_building_timezone`. |
 | `parking.bookable_hours` | object | – | Time window during which parking bookings are allowed, as hours of the day (0-24). |
 | `parking.min_duration` | number | – | Minimum parking booking duration in minutes. Falls back to `bookings.min_duration`. |
@@ -273,7 +274,7 @@ Each custom report requires an `id` (unique, URL-safe), a `name` (shown in the r
 | Setting | Type | Default | Description |
 |---|---|---|---|
 | `analytics.enabled` | boolean | `true` | Enable Google Analytics. |
-| `analytics.tracking_id` | string | `"G-S6TDS95BDH"` | Google Analytics tracking ID. Analytics is only initialised when this is set. |
+| `analytics.tracking_id` | string | `""` | Google Analytics tracking ID. Analytics is only initialised when this is set. |
 
 ```json
 {
@@ -285,7 +286,7 @@ Each custom report requires an `id` (unique, URL-safe), a `name` (shown in the r
 ```
 
 For GA4 tracking IDs (`G-...`), the app sends page views after successful router
-navigation. In the GA4 web data stream, open **Enhanced measurement > Page views >
+navigation. The page path has no query string or fragment. In the GA4 web data stream, open **Enhanced measurement > Page views >
 Advanced settings** and turn off **Page changes based on browser history events**.
 The app disables the automatic page view on tag load. The GA4 property setting
 must also be off to prevent duplicate navigation events. See
