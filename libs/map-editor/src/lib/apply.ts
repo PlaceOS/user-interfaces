@@ -580,7 +580,8 @@ function insertShape(
     let parent: Element = doc.root;
     if (op.parent) {
         const resolution = doc.resolve(op.parent);
-        if (resolution.ok === false) return { ok: false, reason: resolution.error };
+        if (resolution.ok === false)
+            return { ok: false, reason: resolution.error };
         parent = resolution.element;
     }
     if (!isRoot(doc, parent) && parent.localName !== 'g') {
@@ -592,7 +593,8 @@ function insertShape(
     let after: Element | null = null;
     if (op.after) {
         const resolution = doc.resolve(op.after);
-        if (resolution.ok === false) return { ok: false, reason: resolution.error };
+        if (resolution.ok === false)
+            return { ok: false, reason: resolution.error };
         after = resolution.element;
         if (after.parentElement !== parent) {
             return { ok: false, reason: 'after must be a child of the parent' };
