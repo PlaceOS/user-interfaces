@@ -1,4 +1,5 @@
 export * from './lib/apply';
+export * from './lib/canvas';
 export * from './lib/constants';
 export * from './lib/draft-store';
 export * from './lib/geometry';

@@ -51,7 +51,11 @@ import {
 } from './ops';
 import { checkPathData } from './path-data';
 import { isUnsafeCssValue, purifyMarkup } from './sanitise';
-import { formatDeclarations, isValidSelector } from './style-resolution';
+import {
+    formatDeclarations,
+    inlineStyleValue,
+    isValidSelector,
+} from './style-resolution';
 import { attributeValueIssue, geometryValueIssue } from './value-syntax';
 
 export interface AppliedOp {
@@ -236,15 +240,44 @@ function setAttr(doc: MapDocument, op: SetAttrOp): Outcome {
     const style = (element as SVGElement).style;
     if (op.value === null || op.value === undefined) {
         element.removeAttribute(name);
-        if (PAINT_STYLE_ATTRS.has(name)) style?.removeProperty(name);
+        if (PAINT_STYLE_ATTRS.has(name) && style) {
+            style.removeProperty(name);
+            if (!style.length) element.removeAttribute('style');
+        }
     } else {
         const value = `${op.value}`;
         const issue = attributeValueIssue(name, value);
         if (issue) return { ok: false, reason: issue };
         element.setAttribute(name, value);
-        if (PAINT_STYLE_ATTRS.has(name)) style?.setProperty(name, value);
+        if (
+            PAINT_STYLE_ATTRS.has(name) &&
+            style &&
+            (inlineStyleValue(element, name) ||
+                ruleDeclares(doc, element, name))
+        ) {
+            style.setProperty(name, value);
+        }
     }
     return { ok: true, anchors: [doc.anchorOf(element)] };
+}
+
+/** Whether a stylesheet rule, which would beat the attribute, sets the property on the element. */
+function ruleDeclares(
+    doc: MapDocument,
+    element: Element,
+    name: string,
+): boolean {
+    for (const rule of doc.styleRules()) {
+        if (!(name in rule.declarations)) continue;
+        for (const selector of rule.selectors) {
+            try {
+                if (element.matches(selector)) return true;
+            } catch {
+                // an invalid selector matches nothing
+            }
+        }
+    }
+    return false;
 }
 
 export function styleElementOf(doc: MapDocument): Element | null {
