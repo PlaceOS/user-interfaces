@@ -8,13 +8,13 @@ import {
 } from "./chunk-5SPORA3A.js";
 import {
   generateMockSpace
-} from "./chunk-IO6HMBKB.js";
-import "./chunk-6QPTEWNF.js";
+} from "./chunk-2LST4F5R.js";
+import "./chunk-F5ETKGCF.js";
 import {
   setHours,
   subDays
 } from "./chunk-K764B4V2.js";
-import "./chunk-TMPWPIRC.js";
+import "./chunk-6WGIDKBW.js";
 import {
   TranslatePipe
 } from "./chunk-LX74DR62.js";
@@ -49,7 +49,7 @@ import {
   settingSignal,
   user_groups_loaded,
   watchUserGroupSync
-} from "./chunk-6TCBJM3R.js";
+} from "./chunk-H4THH76O.js";
 import {
   AsyncHandler,
   IconComponent
@@ -396,7 +396,7 @@ var ServiceWorkerUpdateCardComponent = class _ServiceWorkerUpdateCardComponent {
 // libs/components/src/lib/global-loading.component.ts
 var NativeDomainOverlayLoaderComponent_Conditional_0_Defer_1_DepsFn = () => [
   /* @ts-ignore */
-  import("./native-domain-overlay.component-CVYCIIHO.js").then((m) => m.NativeDomainOverlayComponent)
+  import("./native-domain-overlay.component-QP4X6AFD.js").then((m) => m.NativeDomainOverlayComponent)
 ];
 function NativeDomainOverlayLoaderComponent_Conditional_0_Defer_0_Template(rf, ctx) {
   if (rf & 1) {
@@ -519,7 +519,7 @@ var NativeDomainOverlayLoaderComponent = class _NativeDomainOverlayLoaderCompone
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(NativeDomainOverlayLoaderComponent, () => [
     /* @ts-ignore */
-    import("./native-domain-overlay.component-CVYCIIHO.js").then((m) => m.NativeDomainOverlayComponent)
+    import("./native-domain-overlay.component-QP4X6AFD.js").then((m) => m.NativeDomainOverlayComponent)
   ], (NativeDomainOverlayComponent) => {
     setClassMetadata(NativeDomainOverlayLoaderComponent, [{
       type: Component,
@@ -9213,11 +9213,11 @@ function mocksInit() {
 // apps/workplace/src/app/app.component.ts
 var AppComponent_Defer_4_DepsFn = () => [
   /* @ts-ignore */
-  import("./chat.component-JPT3UTLK.js").then((m) => m.ChatComponent)
+  import("./chat.component-YD3AMJY4.js").then((m) => m.ChatComponent)
 ];
 var AppComponent_Defer_8_DepsFn = () => [
   /* @ts-ignore */
-  import("./settings-debug-panel-launcher.component-DOHMR5DU.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+  import("./settings-debug-panel-launcher.component-7TUA4WY2.js").then((m) => m.SettingsDebugPanelLauncherComponent)
 ];
 function AppComponent_Defer_3_Template(rf, ctx) {
   if (rf & 1) {
@@ -9281,9 +9281,9 @@ var AppComponent = class _AppComponent {
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(AppComponent, () => [
     /* @ts-ignore */
-    import("./chat.component-JPT3UTLK.js").then((m) => m.ChatComponent),
+    import("./chat.component-YD3AMJY4.js").then((m) => m.ChatComponent),
     /* @ts-ignore */
-    import("./settings-debug-panel-launcher.component-DOHMR5DU.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+    import("./settings-debug-panel-launcher.component-7TUA4WY2.js").then((m) => m.SettingsDebugPanelLauncherComponent)
   ], (ChatComponent, SettingsDebugPanelLauncherComponent) => {
     setClassMetadata(AppComponent, [{
       type: Component,
@@ -9339,68 +9339,68 @@ var routes = [
     title: "Book",
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard],
-    loadChildren: () => import("./book.routes-BRH4H4AM.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./book.routes-ZPFD2UTW.js").then((m) => m.ROUTES)
   },
   {
     path: "explore",
     title: "Explore",
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard],
-    loadChildren: () => import("./explore.routes-VDUBZUUG.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./explore.routes-GF2LBKSI.js").then((m) => m.ROUTES)
   },
   {
     path: "control",
     title: "Control",
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard],
-    loadChildren: () => import("./control.routes-V7GXJD6P.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./control.routes-DLM36VLV.js").then((m) => m.ROUTES)
   },
   {
     path: "directory",
     title: "Directory",
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard],
-    loadChildren: () => import("./directory.routes-WSHVHM2A.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./directory.routes-HZS4OAB7.js").then((m) => m.ROUTES)
   },
   {
     path: "your-bookings",
     title: "Your Bookings",
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard],
-    loadChildren: () => import("./schedule.routes-LKCTONC2.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./schedule.routes-ILEFYPCC.js").then((m) => m.ROUTES)
   },
   {
     path: "group-events",
     title: "Group Events",
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard],
-    loadChildren: () => import("./group-events.routes-GOEEYHUX.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./group-events.routes-XPUEOIZA.js").then((m) => m.ROUTES)
   },
   {
     path: "deals-n-offers",
     title: "Deals & Offers",
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard],
-    loadChildren: () => import("./deals.routes-AMWNJWAB.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./deals.routes-G7H73G7R.js").then((m) => m.ROUTES)
   },
   {
     path: "landing",
     title: "Home",
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard],
-    loadComponent: () => import("./landing-new.component-OHVHA5NC.js").then((m) => m.LandingNewComponent)
+    loadComponent: () => import("./landing-new.component-HOCH74BM.js").then((m) => m.LandingNewComponent)
   },
   {
     path: "team-schedule",
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard],
-    loadComponent: () => import("./team-schedule.component-G3W227QE.js").then((m) => m.TeamScheduleComponent)
+    loadComponent: () => import("./team-schedule.component-BLT6X7GY.js").then((m) => m.TeamScheduleComponent)
   },
   {
     path: "embedded/:id",
     title: "Embedded Page",
     canActivate: [AuthorisedUserGuard],
-    loadComponent: () => import("./embedded-url.component-PT2BVILD.js").then((m) => m.EmbeddedUrlComponent)
+    loadComponent: () => import("./embedded-url.component-YZO3D4N4.js").then((m) => m.EmbeddedUrlComponent)
   },
   { path: "**", redirectTo: "-", pathMatch: "full" }
 ];
