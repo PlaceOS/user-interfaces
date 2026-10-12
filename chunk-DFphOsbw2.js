@@ -1,0 +1,3 @@
+import{br as nn,w as E}from"./chunk--4xhlkem.js";import{at as ai}from"./chunk-BtIj2dj3.js";var u=(()=>{class i{constructor(){this._org=E(ai)}transform(r){return this._org.buildings.find(t=>r instanceof Array?r.includes(t.id):t.id===r)}static{this.ɵfac=function(t){return new(t||i)}}static{this.ɵpipe=nn({name:`building`,type:i,pure:!0})}}return i})();export{u as t};
+//# debugId=b0b123b4-1f73-55ff-9ad3-4151f89103d5
+//# sourceMappingURL=chunk-DFphOsbw2.js.map
