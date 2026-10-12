@@ -1,19 +1,19 @@
 import {
   SignageTemplateService
-} from "./chunk-FGDWCGX6.js";
-import "./chunk-DOHI3I5O.js";
+} from "./chunk-P43TPKRX.js";
+import "./chunk-3UHUAKXT.js";
 import {
   CommandPaletteService
-} from "./chunk-AOUA7LSD.js";
-import "./chunk-STYUKBG2.js";
+} from "./chunk-J7XIR5IY.js";
+import "./chunk-NAZCAT4T.js";
 import {
   openConfirmModal
-} from "./chunk-EW627VC3.js";
+} from "./chunk-SHB2GV6J.js";
 import {
   SignageContextService
-} from "./chunk-NVC2MTBW.js";
+} from "./chunk-327NSC25.js";
 import "./chunk-EMBZFGIE.js";
-import "./chunk-RR6Z4IN7.js";
+import "./chunk-QXSWNHIY.js";
 import "./chunk-ARJ6GFJX.js";
 import {
   MatDialog
@@ -21,7 +21,7 @@ import {
 import "./chunk-2PPCVPFM.js";
 import {
   TranslatePipe
-} from "./chunk-KEXLIPA2.js";
+} from "./chunk-OBBQ2V33.js";
 import "./chunk-KABK725Z.js";
 import {
   GroupPermission,
@@ -48,19 +48,11 @@ import {
   setMocks,
   settingSignal,
   user_groups_loaded
-} from "./chunk-4BHMYMLA.js";
+} from "./chunk-EMHQBGPR.js";
 import "./chunk-HGUL5NVP.js";
 import {
-  Router,
-  RouterLink,
-  RouterOutlet,
-  provideRouter,
-  withComponentInputBinding,
-  withHashLocation
-} from "./chunk-E72MB55H.js";
-import {
   AsyncHandler
-} from "./chunk-DMUGOB3K.js";
+} from "./chunk-HM3LT7VR.js";
 import {
   IconComponent
 } from "./chunk-PRJCR3BE.js";
@@ -89,7 +81,7 @@ import {
   timePeriodsIntersect,
   toDate,
   unique
-} from "./chunk-UY3BZCXJ.js";
+} from "./chunk-KODEFSHU.js";
 import "./chunk-7QGPCQM3.js";
 import "./chunk-TQO6MZFG.js";
 import {
@@ -100,6 +92,14 @@ import {
   BidiModule,
   _getAnimationsState
 } from "./chunk-ZJXU3LLP.js";
+import {
+  Router,
+  RouterLink,
+  RouterOutlet,
+  provideRouter,
+  withComponentInputBinding,
+  withHashLocation
+} from "./chunk-E72MB55H.js";
 import {
   ChangeDetectorRef,
   Component,
@@ -733,7 +733,7 @@ var ServiceWorkerUpdateCardComponent = class _ServiceWorkerUpdateCardComponent {
 // libs/components/src/lib/global-loading.component.ts
 var NativeDomainOverlayLoaderComponent_Conditional_0_Defer_1_DepsFn = () => [
   /* @ts-ignore */
-  import("./native-domain-overlay.component-W4WPEHYV.js").then((m) => m.NativeDomainOverlayComponent)
+  import("./native-domain-overlay.component-ZSUQIZZO.js").then((m) => m.NativeDomainOverlayComponent)
 ];
 function NativeDomainOverlayLoaderComponent_Conditional_0_Defer_0_Template(rf, ctx) {
   if (rf & 1) {
@@ -773,10 +773,10 @@ function GlobalLoadingComponent_Conditional_1_Template(rf, ctx) {
 function GlobalLoadingComponent_Conditional_2_Conditional_1_Template(rf, ctx) {
   if (rf & 1) {
     const _r1 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "div", 2)(1, "p", 3);
+    \u0275\u0275elementStart(0, "div", 3)(1, "p", 4);
     \u0275\u0275text(2);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(3, "button", 4);
+    \u0275\u0275elementStart(3, "button", 5);
     \u0275\u0275listener("click", function GlobalLoadingComponent_Conditional_2_Conditional_1_Template_button_click_3_listener() {
       \u0275\u0275restoreView(_r1);
       const ctx_r1 = \u0275\u0275nextContext(2);
@@ -793,11 +793,11 @@ function GlobalLoadingComponent_Conditional_2_Conditional_1_Template(rf, ctx) {
 }
 function GlobalLoadingComponent_Conditional_2_Conditional_2_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 5)(1, "p", 6);
+    \u0275\u0275elementStart(0, "div", 6)(1, "p", 7);
     \u0275\u0275text(2);
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(3, "div", 7);
-    \u0275\u0275element(4, "mat-progress-bar", 8);
+    \u0275\u0275elementStart(3, "div", 8);
+    \u0275\u0275element(4, "mat-progress-bar", 9);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
@@ -808,15 +808,24 @@ function GlobalLoadingComponent_Conditional_2_Conditional_2_Template(rf, ctx) {
 }
 function GlobalLoadingComponent_Conditional_2_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 1);
-    \u0275\u0275conditionalCreate(1, GlobalLoadingComponent_Conditional_2_Conditional_1_Template, 5, 1, "div", 2)(2, GlobalLoadingComponent_Conditional_2_Conditional_2_Template, 5, 1);
+    \u0275\u0275elementStart(0, "div", 2);
+    \u0275\u0275conditionalCreate(1, GlobalLoadingComponent_Conditional_2_Conditional_1_Template, 5, 1, "div", 3)(2, GlobalLoadingComponent_Conditional_2_Conditional_2_Template, 5, 1);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
     const ctx_r1 = \u0275\u0275nextContext();
+    \u0275\u0275styleProp("background-image", ctx_r1.gradient() || null);
     \u0275\u0275advance();
     \u0275\u0275conditional(ctx_r1.initialisation_error() ? 1 : 2);
   }
+}
+var GRADIENT_CACHE_KEY = "PLACEOS.loading_gradient";
+var CSS_COLOUR = /^(#[0-9a-f]{3,8}|[a-z]+|(rgba?|hsla?|oklch|oklab)\([\w\s.,%/-]+\))$/i;
+function loadingGradient(colours) {
+  if (!Array.isArray(colours) || colours.length < 2)
+    return "";
+  const valid = colours.every((colour) => typeof colour === "string" && CSS_COLOUR.test(colour.trim()));
+  return valid ? `linear-gradient(to right, ${colours.join(", ")})` : "";
 }
 var NativeDomainOverlayLoaderComponent = class _NativeDomainOverlayLoaderComponent {
   constructor() {
@@ -847,7 +856,7 @@ var NativeDomainOverlayLoaderComponent = class _NativeDomainOverlayLoaderCompone
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(NativeDomainOverlayLoaderComponent, () => [
     /* @ts-ignore */
-    import("./native-domain-overlay.component-W4WPEHYV.js").then((m) => m.NativeDomainOverlayComponent)
+    import("./native-domain-overlay.component-ZSUQIZZO.js").then((m) => m.NativeDomainOverlayComponent)
   ], (NativeDomainOverlayComponent) => {
     setClassMetadata(NativeDomainOverlayLoaderComponent, [{
       type: Component,
@@ -870,7 +879,7 @@ var NativeDomainOverlayLoaderComponent = class _NativeDomainOverlayLoaderCompone
   });
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(NativeDomainOverlayLoaderComponent, { className: "NativeDomainOverlayLoaderComponent", filePath: "libs/components/src/lib/global-loading.component.ts", lineNumber: 40 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(NativeDomainOverlayLoaderComponent, { className: "NativeDomainOverlayLoaderComponent", filePath: "libs/components/src/lib/global-loading.component.ts", lineNumber: 59 });
 })();
 var GlobalLoadingComponent = class _GlobalLoadingComponent extends AsyncHandler {
   constructor() {
@@ -899,6 +908,13 @@ var GlobalLoadingComponent = class _GlobalLoadingComponent extends AsyncHandler 
         []
       )
     );
+    this.gradient = signal(
+      localStorage.getItem(GRADIENT_CACHE_KEY) || "",
+      ...ngDevMode ? [{ debugName: "gradient" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
   }
   retry() {
     retryInitialisation();
@@ -915,8 +931,22 @@ var GlobalLoadingComponent = class _GlobalLoadingComponent extends AsyncHandler 
       update_online();
       this.connection_checked.set(true);
     }, 5e3);
+    const update_gradient = () => {
+      const domain = Mt();
+      if (!domain)
+        return;
+      const gradient = loadingGradient(domain.config?.loading_gradient);
+      if (gradient === this.gradient())
+        return;
+      this.gradient.set(gradient);
+      localStorage.setItem(GRADIENT_CACHE_KEY, gradient);
+    };
     update_online();
-    this.interval("online", update_online, 1e3);
+    update_gradient();
+    this.interval("online", () => {
+      update_online();
+      update_gradient();
+    }, 1e3);
   }
   static {
     this.\u0275fac = /* @__PURE__ */ (() => {
@@ -927,11 +957,11 @@ var GlobalLoadingComponent = class _GlobalLoadingComponent extends AsyncHandler 
     })();
   }
   static {
-    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _GlobalLoadingComponent, selectors: [["global-loading"]], features: [\u0275\u0275InheritDefinitionFeature], decls: 4, vars: 2, consts: [[1, "bg-error", "fixed", "top-2", "left-1/2", "z-9999", "-translate-x-1/2", "rounded-3xl", "px-4", "py-2", "text-xs", "text-white", "shadow-sm"], ["loader", "", 1, "bg-base-300", "pointer-events-auto", "fixed", "inset-0", "z-9998", "flex", "flex-col", "items-center", "justify-end", "space-y-2", "p-4"], [1, "border-base-300", "bg-base-100", "w-[24rem]", "max-w-[calc(100vw-2rem)]", "rounded-lg", "border", "p-4", "text-center", "text-xs", "shadow-sm"], ["initialisation-error", ""], ["type", "button", 1, "bg-primary", "text-primary-content", "mt-3", "rounded", "px-4", "py-2", 3, "click"], [1, "border-base-300", "bg-base-100", "w-[24rem]", "max-w-[calc(100vw-2rem)]", "rounded-lg", "border", "p-2", "text-center", "text-xs", "shadow-sm"], [1, "text-center", "font-mono"], [1, "border-base-300", "w-[24rem]", "max-w-[calc(100vw-2rem)]", "overflow-hidden", "rounded-full", "border", "shadow-sm"], ["mode", "indeterminate", 1, "scale-150", "rounded-sm"]], template: function GlobalLoadingComponent_Template(rf, ctx) {
+    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _GlobalLoadingComponent, selectors: [["global-loading"]], features: [\u0275\u0275InheritDefinitionFeature], decls: 4, vars: 2, consts: [[1, "bg-error", "fixed", "top-2", "left-1/2", "z-9999", "-translate-x-1/2", "rounded-3xl", "px-4", "py-2", "text-xs", "text-white", "shadow-sm"], ["loader", "", 1, "bg-base-300", "pointer-events-auto", "fixed", "inset-0", "z-9998", "flex", "flex-col", "items-center", "justify-end", "space-y-2", "p-4", 3, "background-image"], ["loader", "", 1, "bg-base-300", "pointer-events-auto", "fixed", "inset-0", "z-9998", "flex", "flex-col", "items-center", "justify-end", "space-y-2", "p-4"], [1, "border-base-300", "bg-base-100", "w-[24rem]", "max-w-[calc(100vw-2rem)]", "rounded-lg", "border", "p-4", "text-center", "text-xs", "shadow-sm"], ["initialisation-error", ""], ["type", "button", 1, "bg-primary", "text-primary-content", "mt-3", "rounded", "px-4", "py-2", 3, "click"], [1, "border-base-300", "bg-base-100", "w-[24rem]", "max-w-[calc(100vw-2rem)]", "rounded-lg", "border", "p-2", "text-center", "text-xs", "shadow-sm"], [1, "text-center", "font-mono"], [1, "border-base-300", "w-[24rem]", "max-w-[calc(100vw-2rem)]", "overflow-hidden", "rounded-full", "border", "shadow-sm"], ["mode", "indeterminate", 1, "scale-150", "rounded-sm"]], template: function GlobalLoadingComponent_Template(rf, ctx) {
       if (rf & 1) {
         \u0275\u0275element(0, "native-domain-overlay-loader");
         \u0275\u0275conditionalCreate(1, GlobalLoadingComponent_Conditional_1_Template, 3, 3, "div", 0);
-        \u0275\u0275conditionalCreate(2, GlobalLoadingComponent_Conditional_2_Template, 3, 1, "div", 1);
+        \u0275\u0275conditionalCreate(2, GlobalLoadingComponent_Conditional_2_Template, 3, 3, "div", 1);
         \u0275\u0275element(3, "placeos-service-worker-update-card");
       }
       if (rf & 2) {
@@ -946,7 +976,7 @@ var GlobalLoadingComponent = class _GlobalLoadingComponent extends AsyncHandler 
       NativeDomainOverlayLoaderComponent,
       ServiceWorkerUpdateCardComponent,
       TranslatePipe
-    ], styles: ["\n[_nghost-%COMP%] {\n  pointer-events: none;\n}\n[loader][_ngcontent-%COMP%] {\n  background-image:\n    linear-gradient(\n      to right,\n      #f15b55 0%,\n      #f68c50 100%);\n}\n/*# sourceMappingURL=global-loading.component.css.map */"] });
+    ], styles: ["\n[_nghost-%COMP%] {\n  pointer-events: none;\n}\n[loader][_ngcontent-%COMP%] {\n  background-image:\n    linear-gradient(\n      to right,\n      #0d47a1 0%,\n      #2196f3 100%);\n}\n/*# sourceMappingURL=global-loading.component.css.map */"] });
   }
 };
 (() => {
@@ -965,6 +995,7 @@ var GlobalLoadingComponent = class _GlobalLoadingComponent extends AsyncHandler 
             <div
                 loader
                 class="bg-base-300 pointer-events-auto fixed inset-0 z-9998 flex flex-col items-center justify-end space-y-2 p-4"
+                [style.background-image]="gradient() || null"
             >
                 @if (initialisation_error()) {
                     <div
@@ -1004,11 +1035,11 @@ var GlobalLoadingComponent = class _GlobalLoadingComponent extends AsyncHandler 
       NativeDomainOverlayLoaderComponent,
       ServiceWorkerUpdateCardComponent,
       TranslatePipe
-    ], styles: ["/* angular:styles/component:css;cc9c8858f40050cbf899d1698bf5ddc695ecfe0c7e714e2a22cee15289062064;/home/runner/work/user-interfaces/user-interfaces/libs/components/src/lib/global-loading.component.ts */\n:host {\n  pointer-events: none;\n}\n[loader] {\n  background-image:\n    linear-gradient(\n      to right,\n      #f15b55 0%,\n      #f68c50 100%);\n}\n/*# sourceMappingURL=global-loading.component.css.map */\n"] }]
+    ], styles: ["/* angular:styles/component:css;20ed35e4d9331eb05f75050b4db1abf21c3efcb5c2a33e67ac0f1efe2c3a5f59;/home/runner/work/user-interfaces/user-interfaces/libs/components/src/lib/global-loading.component.ts */\n:host {\n  pointer-events: none;\n}\n[loader] {\n  background-image:\n    linear-gradient(\n      to right,\n      #0d47a1 0%,\n      #2196f3 100%);\n}\n/*# sourceMappingURL=global-loading.component.css.map */\n"] }]
   }], null, null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(GlobalLoadingComponent, { className: "GlobalLoadingComponent", filePath: "libs/components/src/lib/global-loading.component.ts", lineNumber: 124 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(GlobalLoadingComponent, { className: "GlobalLoadingComponent", filePath: "libs/components/src/lib/global-loading.component.ts", lineNumber: 144 });
 })();
 
 // libs/components/src/lib/unauthorised.component.ts
@@ -1111,13 +1142,13 @@ var AuthorisedUserGuard = class _AuthorisedUserGuard {
     this._injector = inject(Injector);
     this._access = inject(PLACEOS_APP_ACCESS, { optional: true });
   }
-  async canActivate(next, state) {
+  async canActivate(_next, _state) {
     return this.checkUser();
   }
-  async canLoad(route, segments) {
+  async canLoad(_route, _segments) {
     return this.checkUser();
   }
-  async canActivateChild(next, state) {
+  async canActivateChild(_next, _state) {
     return this.checkUser();
   }
   async checkUser() {
@@ -4248,18 +4279,6 @@ var generateSpaceData = () => {
           "Collaboration Space",
           "Focus Room"
         ].includes(roomData.type) || predictableRandomInt(3) === 0;
-        const imageCategories = {
-          "Meeting Room": "meeting-room",
-          "Conference Room": "conference-room",
-          Boardroom: "boardroom",
-          "Training Room": "training-room",
-          "Phone Booth": "phone-booth",
-          "Collaboration Space": "collaboration-space",
-          "Event Space": "event-space",
-          "Break Room": "break-room",
-          "Focus Room": "focus-room",
-          "Presentation Room": "presentation-room"
-        };
         const space = {
           id: `space-${spaceIndex + 1}`,
           name: `${roomCode} ${roomData.name}`,
@@ -4900,7 +4919,6 @@ function registerMockBookings() {
 }
 
 // libs/mocks/src/lib/api/events.data.ts
-var EVENT_TIME = setHours(startOfDay(Date.now()), 7);
 var event_status = ["tentative", "confirmed", "cancelled"];
 var randomStatus = () => {
   const rnd = predictableRandomInt(10);
@@ -5239,7 +5257,7 @@ function registerMockCalendars() {
     path: "/api/staff/v1/calendars",
     metadata: {},
     method: "GET",
-    callback: (request) => {
+    callback: (_request) => {
       const user = MOCK_STAFF[predictableRandomInt(MOCK_STAFF.length)];
       const user2 = MOCK_STAFF[predictableRandomInt(MOCK_STAFF.length)];
       const user3 = MOCK_STAFF[predictableRandomInt(MOCK_STAFF.length)];
@@ -5734,7 +5752,7 @@ function generateMockDisplays() {
 function generateMockMedia() {
   const media = [];
   let mediaId = 1;
-  CONTENT_TEMPLATES.forEach((template, templateIndex) => {
+  CONTENT_TEMPLATES.forEach((template) => {
     const variations = predictableRandomInt(3, 2);
     for (let v = 0; v < variations; v++) {
       const mediaItem = {
@@ -8183,7 +8201,7 @@ Plug your laptop into the HDMI to stream it to the screen, or access the CMS to 
     }
   }
   /** Dial a phone number */
-  $dial_phone(number) {
+  $dial_phone(_number) {
     this.offhook = true;
     return new Promise((r) => setTimeout(() => r(), 1e3));
   }
@@ -8499,7 +8517,7 @@ var MockAreaManagementModule = class {
       "Fire Warden": MOCK_STAFF.filter((_) => predictableRandomInt(9999) % 5 === 0)
     };
   }
-  $locate_user(email, username) {
+  $locate_user(_email, _username) {
     return {};
   }
   $update() {
@@ -8515,7 +8533,7 @@ var MockLocationServicesModule = class {
     }
     return MAC_LOOKUP[mac_address];
   }
-  $locate_user(email, username) {
+  $locate_user(_email, _username) {
     return [
       {
         type: "wireless",
@@ -8533,7 +8551,7 @@ function padZero(no, len = 3) {
   }
   return str;
 }
-function createAreaManagementModule(space, overrides = {}) {
+function createAreaManagementModule(space, _overrides = {}) {
   const mod = new MockAreaManagementModule();
   for (const lvl of MOCK_LEVELS) {
     mod.overview[lvl.id] = {
@@ -8696,7 +8714,7 @@ var MockBookingModule = class {
     updateBookings(this._space, this);
   }
   /** End the meeting that begins at `t` (unix seconds) */
-  $end_meeting(t, notify, reason) {
+  $end_meeting(t, _notify, _reason) {
     const booking = this.bookings.find((_) => _.event_start === t) || this.current_booking;
     if (!booking)
       return;
@@ -8722,7 +8740,7 @@ var MockBookingModule = class {
     return new_booking;
   }
   /** Check in to the pending booking */
-  $checkin(time) {
+  $checkin(_time) {
     const booking = this.current_booking || this.next_booking;
     if (!booking || this.status !== "pending")
       return;
@@ -8766,9 +8784,9 @@ function updateBookings(space, mod) {
 
 // libs/mocks/src/lib/realtime/locker-locations.ts
 var LockerLocationsModule = class {
-  constructor(data) {
+  constructor(_data) {
   }
-  $lockers_allocated_to_me(...args) {
+  $lockers_allocated_to_me(..._args) {
     return [
       {
         location: "locker",
@@ -8785,10 +8803,10 @@ var createLockerLocationsModule = (details, overrides = {}) => new LockerLocatio
 
 // libs/mocks/src/lib/realtime/meeting.ts
 var MeetingPushModule = class {
-  constructor(data) {
+  constructor(_data) {
     this.supported_meeting_url = "https://meet.";
   }
-  $econtrol(...args) {
+  $econtrol(..._args) {
   }
 };
 var createMeetingPushModule = (details, overrides = {}) => new MeetingPushModule(__spreadValues(__spreadValues({}, details), overrides));
@@ -8809,21 +8827,21 @@ var createMicrophoneModule = (space, overrides = {}) => new MicrophoneModule(__s
 
 // libs/mocks/src/lib/realtime/payments.ts
 var PaymentsModule = class {
-  $list_payment_methods(type) {
+  $list_payment_methods(_type) {
   }
-  $add_payment_method(type, details) {
+  $add_payment_method(_type, _details) {
   }
-  $get_product_prices(id, period) {
+  $get_product_prices(_id, _period) {
     return [12e3, 60];
   }
-  $create_payment_intent(amount, source) {
+  $create_payment_intent(_amount, _source) {
     return randomString(12);
   }
-  $confirm_payment_intent(id) {
+  $confirm_payment_intent(_id) {
   }
-  $cancel_payment_intent(id) {
+  $cancel_payment_intent(_id) {
   }
-  $create_customer(...args) {
+  $create_customer(..._args) {
     return `stripe-${randomInt(9999999, 1e6)}`;
   }
   constructor(_) {
@@ -8947,7 +8965,7 @@ function createSystem(space) {
 
 // libs/mocks/src/lib/api/systems.mock.ts
 function registerMockSystems() {
-  MOCK_SPACES.forEach((space, index) => createSystem(space));
+  MOCK_SPACES.forEach((space) => createSystem(space));
   lo({
     path: "/api/engine/v2/systems",
     metadata: {},
@@ -9216,13 +9234,13 @@ function registerMockZones() {
     path: "/api/engine/v2/settings",
     metadata: {},
     method: "GET",
-    callback: (request) => []
+    callback: (_request) => []
   });
   lo({
     path: "/api/engine/v2/settings/:id",
     metadata: {},
     method: "GET",
-    callback: (request) => ({})
+    callback: (_request) => ({})
   });
   lo({
     path: "/api/engine/v2/metadata/:id",
@@ -9284,8 +9302,6 @@ function registerMockZones() {
         return generateMockDeskMetadata(id);
       }
       if (request.query_params.name === "charge_codes") {
-        const parts = request.route_params.id.split("-");
-        const id = parts[parts.length - 1];
         return {
           charge_codes: {
             details: new Array(30).fill(0).map((_, idx) => `C-${idx}`)
@@ -9443,7 +9459,7 @@ function mocksInit() {
 // apps/signage-manager/src/app/app.component.ts
 var AppComponent_Defer_9_DepsFn = () => [
   /* @ts-ignore */
-  import("./settings-debug-panel-launcher.component-YJRWCPNE.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+  import("./settings-debug-panel-launcher.component-3KESMBSO.js").then((m) => m.SettingsDebugPanelLauncherComponent)
 ];
 function AppComponent_Conditional_4_Template(rf, ctx) {
   if (rf & 1) {
@@ -9521,7 +9537,7 @@ var AppComponent = class _AppComponent {
     setMocks(mocksInit);
     await this._placeos.init();
     this._uploads.init();
-    const { ImageGenService } = await import("./image-gen.service-27S2554H.js");
+    const { ImageGenService } = await import("./image-gen.service-NKF3ZABH.js");
     const image_gen = this._injector.get(ImageGenService);
     await image_gen.load(Mt()?.config?.org_zone);
     if (image_gen.enabled())
@@ -9575,7 +9591,7 @@ var AppComponent = class _AppComponent {
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(AppComponent, () => [
     /* @ts-ignore */
-    import("./settings-debug-panel-launcher.component-YJRWCPNE.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+    import("./settings-debug-panel-launcher.component-3KESMBSO.js").then((m) => m.SettingsDebugPanelLauncherComponent)
   ], (SettingsDebugPanelLauncherComponent) => {
     setClassMetadata(AppComponent, [{
       type: Component,
@@ -9712,51 +9728,51 @@ var APP_ROUTES = [
     children: [
       {
         path: "media",
-        loadComponent: () => import("./media.component-AQVYBOLL.js").then((m) => m.MediaSectionComponent)
+        loadComponent: () => import("./media.component-WI37IJD5.js").then((m) => m.MediaSectionComponent)
       },
       {
         path: "playlists/:id",
-        loadComponent: () => import("./playlists.component-QWVQS3GR.js").then((m) => m.PlaylistsSectionComponent)
+        loadComponent: () => import("./playlists.component-CRMRJ4BY.js").then((m) => m.PlaylistsSectionComponent)
       },
       {
         path: "playlists",
-        loadComponent: () => import("./playlists.component-QWVQS3GR.js").then((m) => m.PlaylistsSectionComponent)
+        loadComponent: () => import("./playlists.component-CRMRJ4BY.js").then((m) => m.PlaylistsSectionComponent)
       },
       {
         path: "templates/:id",
         canActivate: [templatesEnabledGuard],
         canDeactivate: [templateUnsavedGuard],
-        loadComponent: () => import("./templates.component-VZQGBLJ7.js").then((m) => m.TemplatesSectionComponent)
+        loadComponent: () => import("./templates.component-UBAUXWEX.js").then((m) => m.TemplatesSectionComponent)
       },
       {
         path: "templates",
         canActivate: [templatesEnabledGuard],
-        loadComponent: () => import("./templates.component-VZQGBLJ7.js").then((m) => m.TemplatesSectionComponent)
+        loadComponent: () => import("./templates.component-UBAUXWEX.js").then((m) => m.TemplatesSectionComponent)
       },
       {
         path: "schedules",
-        loadComponent: () => import("./schedules.component-QSN7DCOX.js").then((m) => m.SchedulesSectionComponent)
+        loadComponent: () => import("./schedules.component-DQMRYHG3.js").then((m) => m.SchedulesSectionComponent)
       },
       {
         path: "displays/:id",
-        loadComponent: () => import("./displays.component-533K7LYQ.js").then((m) => m.DisplaysSectionComponent)
+        loadComponent: () => import("./displays.component-DJ7DEW4D.js").then((m) => m.DisplaysSectionComponent)
       },
       {
         path: "displays",
-        loadComponent: () => import("./displays.component-533K7LYQ.js").then((m) => m.DisplaysSectionComponent)
+        loadComponent: () => import("./displays.component-DJ7DEW4D.js").then((m) => m.DisplaysSectionComponent)
       },
       {
         path: "manage",
-        loadComponent: () => import("./manage.component-ZGVXCKHV.js").then((m) => m.ManageSectionComponent),
+        loadComponent: () => import("./manage.component-ZAZ4HBI5.js").then((m) => m.ManageSectionComponent),
         children: [
           { path: "", pathMatch: "full", redirectTo: "report" },
           {
             path: "report",
-            loadComponent: () => import("./content-report.component-DI72WRSU.js").then((m) => m.ContentReportComponent)
+            loadComponent: () => import("./content-report.component-N6PSETA3.js").then((m) => m.ContentReportComponent)
           },
           {
             path: "branding",
-            loadComponent: () => import("./branding.component-4BZAEREG.js").then((m) => m.BrandingComponent)
+            loadComponent: () => import("./branding.component-Q3II4NF5.js").then((m) => m.BrandingComponent)
           }
         ]
       },
@@ -9766,15 +9782,15 @@ var APP_ROUTES = [
       {
         path: "groups",
         canActivate: [manageGroupsGuard],
-        loadComponent: () => import("./groups.component-5XTF6QF2.js").then((m) => m.GroupsSectionComponent)
+        loadComponent: () => import("./groups.component-NFLISCKX.js").then((m) => m.GroupsSectionComponent)
       },
       {
         path: "zones/:id",
-        loadComponent: () => import("./zones.component-O5AUV5GS.js").then((m) => m.ZonesSectionComponent)
+        loadComponent: () => import("./zones.component-JTZSEZ4K.js").then((m) => m.ZonesSectionComponent)
       },
       {
         path: "zones",
-        loadComponent: () => import("./zones.component-O5AUV5GS.js").then((m) => m.ZonesSectionComponent)
+        loadComponent: () => import("./zones.component-JTZSEZ4K.js").then((m) => m.ZonesSectionComponent)
       },
       { path: "**", redirectTo: "media" }
     ]
@@ -9809,5 +9825,5 @@ var APP_CONFIG = {
 
 // apps/signage-manager/src/main.ts
 bootstrapApplication(AppComponent, APP_CONFIG).catch((err) => console.error(err));
-//# debugId=bd42ae4d-5aec-5256-851f-d821b9bbc151
+//# debugId=4d451799-79d9-5098-913b-5c1a1ccf7ec0
 //# sourceMappingURL=main.js.map
