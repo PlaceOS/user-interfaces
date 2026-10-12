@@ -2,9 +2,11 @@ import {
     Component,
     computed,
     DestroyRef,
+    effect,
     inject,
     OnInit,
     signal,
+    viewChild,
 } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialog } from '@angular/material/dialog';
@@ -27,16 +29,20 @@ import {
 import {
     BrowserRenderCheck,
     collectProtectedIds,
+    DEFAULT_AI_STRINGS,
     DEFAULT_MAP_EDITOR_STRINGS,
     IndexedDbDraftStore,
     LiveGeometryProvider,
     MapDocument,
+    MapEditorAiPanelComponent,
+    MapEditorAiStringsOverride,
     MapEditorComponent,
     MapEditorNotifier,
     MapEditorSession,
     MapEditorStrings,
     NotifyAction,
     NotifyKind,
+    UploadPort,
 } from '@placeos/map-editor';
 import { HasUnsavedChanges } from '../ui/unsaved-changes.guard';
 import { MapManagementService } from './map-management.service';
@@ -50,6 +56,44 @@ export function mapEditorStrings(): MapEditorStrings {
         if (value && value !== locale_key) strings[key] = value;
     }
     return strings;
+}
+
+/**
+ * The AI panel's English strings looked up as MAP_EDITOR.AI.* locale keys; a
+ * group such as `reasons` reads MAP_EDITOR.AI.REASONS.*.
+ */
+export function mapEditorAiStrings(
+    lookup: (key: string) => string = i18n,
+): MapEditorAiStringsOverride {
+    const strings: Record<string, string | Record<string, string>> = {};
+    for (const [name, value] of Object.entries(DEFAULT_AI_STRINGS)) {
+        const prefix = `MAP_EDITOR.AI.${name.toUpperCase()}`;
+        if (typeof value === 'string') {
+            strings[name] = localised(lookup, prefix, value);
+            continue;
+        }
+        const group: Record<string, string> = {};
+        for (const [key, text] of Object.entries(
+            value as Record<string, string>,
+        )) {
+            group[key] = localised(
+                lookup,
+                `${prefix}.${key.toUpperCase()}`,
+                text,
+            );
+        }
+        strings[name] = group;
+    }
+    return strings as MapEditorAiStringsOverride;
+}
+
+function localised(
+    lookup: (key: string) => string,
+    key: string,
+    fallback: string,
+): string {
+    const value = lookup(key);
+    return value && value !== key ? value : fallback;
 }
 
 @Component({
@@ -137,7 +181,17 @@ export function mapEditorStrings(): MapEditorStrings {
                 [session]="editor_session"
                 [strings]="strings"
                 [notifier]="notifier"
-            ></map-editor>
+            >
+                @if (!ai_hidden()) {
+                    <map-editor-ai-panel
+                        panel
+                        [session]="editor_session"
+                        [zone_id]="level_id()"
+                        [upload]="upload_port"
+                        [strings]="ai_strings"
+                    />
+                }
+            </map-editor>
         } @else {
             <div class="flex flex-1 items-center justify-center opacity-60">
                 {{ loading() }}
@@ -162,6 +216,7 @@ export function mapEditorStrings(): MapEditorStrings {
         IconComponent,
         TranslatePipe,
         MapEditorComponent,
+        MapEditorAiPanelComponent,
     ],
 })
 export class MapEditorPageComponent implements OnInit, HasUnsavedChanges {
@@ -179,6 +234,8 @@ export class MapEditorPageComponent implements OnInit, HasUnsavedChanges {
     public readonly error = signal('');
     public readonly failed_sources = signal<readonly string[]>([]);
     public readonly changed_elsewhere = signal(false);
+    /** Set once the server answered that it has no map AI; drops the panel. */
+    public readonly ai_hidden = signal(false);
 
     public readonly building = computed(() =>
         this._manager.building(this.level() || undefined),
@@ -189,16 +246,23 @@ export class MapEditorPageComponent implements OnInit, HasUnsavedChanges {
     public readonly dirty = computed(() => this.session()?.dirty() ?? false);
 
     public readonly strings = mapEditorStrings();
+    public readonly ai_strings = mapEditorAiStrings();
     public readonly notifier: MapEditorNotifier = {
         confirm: (title, message, confirm_text) =>
             this._confirm(title, message, confirm_text),
         notify: (kind, message, action) => this._notify(kind, message, action),
     };
+    public readonly upload_port: UploadPort = (blob, name) =>
+        this._manager.uploadMapSnapshot(blob, name);
 
+    private readonly _ai_panel = viewChild(MapEditorAiPanelComponent);
     private _loaded_map_id = '';
 
     constructor() {
         this._destroy.onDestroy(() => this.session()?.dispose());
+        effect(() => {
+            if (this._ai_panel()?.hidden()) this.ai_hidden.set(true);
+        });
     }
 
     public hasUnsavedChanges(): boolean {

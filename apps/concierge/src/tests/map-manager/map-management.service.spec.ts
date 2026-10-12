@@ -174,4 +174,15 @@ describe('MapManagementService', () => {
             'https://studio.example.com/',
         );
     });
+
+    it('stores an AI snapshot as a file and answers with the upload id', async () => {
+        const blob = new Blob(['png'], { type: 'image/png' });
+        await expect(
+            spectator.service.uploadMapSnapshot(blob, 'map-snapshot.png'),
+        ).resolves.toBe('upload-9');
+        const file: File = uploads.uploadFileToCompletion.mock.calls[0][0];
+        expect(file.name).toBe('map-snapshot.png');
+        expect(file.type).toBe('image/png');
+        expect(file.size).toBe(3);
+    });
 });

@@ -101,6 +101,12 @@ export class MapManagementService {
         return details.raw_data;
     }
 
+    /** Store the picture of the map an AI request carries; answers with the upload id. */
+    public uploadMapSnapshot(blob: Blob, name: string): Promise<string> {
+        const file = new File([blob], name, { type: blob.type || 'image/png' });
+        return this._uploads.uploadFileToCompletion(file);
+    }
+
     /** The map URL the server holds now, to spot a change made elsewhere. */
     public async currentMapId(level_id: string): Promise<string> {
         const zone = await showZone(level_id);
