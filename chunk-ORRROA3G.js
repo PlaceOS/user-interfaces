@@ -706,15 +706,15 @@ var ClipboardModule = class _ClipboardModule {
 // libs/common/src/lib/version.ts
 var VERSION = {
   "dirty": false,
-  "raw": "d957502",
-  "hash": "d957502",
+  "raw": "04c589d",
+  "hash": "04c589d",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "d957502",
+  "suffix": "04c589d",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1791770056943
+  "time": 1791775488190
 };
 
 // node_modules/date-fns/addMonths.js
@@ -4499,5 +4499,5 @@ export {
   OrganisationService,
   toQueryString
 };
-//# debugId=68f1ce4d-525b-5228-a070-90f93ba4dcc6
-//# sourceMappingURL=chunk-PE5CNJHN.js.map
+//# debugId=23999694-a392-5974-aba4-059ec08a3b31
+//# sourceMappingURL=chunk-ORRROA3G.js.map
