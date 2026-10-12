@@ -23,7 +23,7 @@ import {
   isDebugEnabled,
   recordHeartbeat,
   watchdogState
-} from "./chunk-5EKVHNMA.js";
+} from "./chunk-DGFUHXWL.js";
 import "./chunk-7V22KQJW.js";
 import {
   TranslatePipe
@@ -38,7 +38,7 @@ import {
   isBefore,
   setAutoReloadGate,
   updateCheckState
-} from "./chunk-RI2FVWRA.js";
+} from "./chunk-RBBEDVE4.js";
 import {
   DefaultValueAccessor,
   FormsModule,
@@ -9048,4 +9048,4 @@ export {
   SignageTemplateComponent
 };
 //# debugId=085a574a-53c9-5a70-8a61-b4f3b2c2a9d9
-//# sourceMappingURL=template.component-JBA2WARO.js.map
+//# sourceMappingURL=template.component-YLOLRUXR.js.map
