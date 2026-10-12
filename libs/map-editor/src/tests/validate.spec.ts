@@ -1,7 +1,7 @@
 import { applyOps, ApplyOptions } from '../lib/apply';
 import { AttributeGeometryProvider } from '../lib/geometry';
 import { MapDocument } from '../lib/map-document';
-import { MapOp } from '../lib/ops';
+import { MapOp, NameValue } from '../lib/ops';
 import { ProtectedIdSet } from '../lib/protected-ids';
 import { FakeRenderCheck } from '../lib/render-check';
 import {
@@ -10,7 +10,7 @@ import {
     validateProposal,
     ValidationContext,
 } from '../lib/validate';
-import { anchor, loadMap, OFFICE } from './fixtures';
+import { anchor, load, loadMap, OFFICE } from './fixtures';
 
 const geometry = new AttributeGeometryProvider();
 const PROTECTED = new ProtectedIdSet([
@@ -159,10 +159,11 @@ describe('validateProposal', () => {
             ['<rect onload="x()"/>', /onload/],
             ['<foreignObject><div/></foreignObject>', /foreignObject/],
             ['<g><animate attributeName="href"/></g>', /animate/],
-            ['<use href="https://evil/x.svg#a"/>', /reference an id/],
+            ['<use href="https://evil/x.svg#a"/>', /not allowed/],
             ['<image href="http://evil/x.png"/>', /reference an id/],
-            ['<g><style>@import url(x)</style></g>', /unsafe rule/],
+            ['<g><style>.room{visibility:hidden}</style></g>', /not allowed/],
             ['<rect style="fill:url(http://x)"/>', /unsafe value/],
+            ['<rect style="fill:u\\72l(http://x)"/>', /unsafe value/],
             ['<rect', /well-formed/],
         ];
         for (const [markup, pattern] of cases) {
@@ -177,7 +178,7 @@ describe('validateProposal', () => {
         }
         expect(
             markupDenyListIssue(
-                '<g><use href="#a"/><image href="data:image/png;base64,AA"/></g>',
+                '<g><a href="#a"><rect/></a><image href="data:image/png;base64,AA"/></g>',
             ),
         ).toBeNull();
     });
@@ -223,8 +224,12 @@ describe('validateProposal', () => {
             why: '',
             target: { id: 'table-01.001' },
         });
-        expect(locked.codes).toEqual(['protected_delete']);
+        expect(locked.codes).toEqual([
+            'protected_delete',
+            'dangling_reference',
+        ]);
         expect(locked.row.issues[0].message).toContain('Desk 1.001');
+        expect(locked.row.issues[1].message).toContain('#table-01.001');
         expect(locked.row.checked_by_default).toBe(false);
         expect(locked.row.locked).toBe(true);
         expect(locked.row.applied).toBe(false);
@@ -280,7 +285,7 @@ describe('validateProposal', () => {
         expect(takeover.codes).toEqual(['duplicate_id']);
     });
 
-    it('warns when a protected element is hidden or moved off the canvas', async () => {
+    it('locks hiding a protected element until it is unlocked, and warns on moves off the canvas', async () => {
         const hidden = await single({
             op: 'set_attr',
             why: '',
@@ -289,16 +294,40 @@ describe('validateProposal', () => {
             value: 'hidden',
         });
         expect(hidden.codes).toEqual(['protected_hidden']);
-        expect(hidden.row.locked).toBe(false);
+        expect(hidden.row.locked).toBe(true);
         expect(hidden.row.checked_by_default).toBe(false);
+        expect(hidden.row.applied).toBe(false);
+        const unlocked = await single(
+            {
+                op: 'set_attr',
+                why: '',
+                target: { id: 'table-01.001' },
+                name: 'visibility',
+                value: 'hidden',
+            },
+            { unlocked: ['table-01.001'] },
+        );
+        expect(unlocked.row.locked).toBe(false);
+        expect(unlocked.row.applied).toBe(true);
+        const faded = await single({
+            op: 'set_attr',
+            why: '',
+            target: { id: 'table-01.001' },
+            name: 'opacity',
+            value: '0',
+        });
+        expect(faded.codes).toEqual(['protected_hidden']);
+        expect(faded.row.locked).toBe(true);
         const rule = await single({
             op: 'set_style_rule',
             why: '',
             selector: '.desk',
-            declarations: [{ name: 'visibility', value: 'hidden' }],
+            declarations: [{ name: 'fill-opacity', value: '0' }],
         });
         expect(rule.codes).toEqual(['affects', 'protected_hidden']);
         expect(rule.row.affected).toBe(3);
+        expect(rule.row.locked).toBe(true);
+        expect(rule.row.issues[1].message).toBe('hides 2 bound element(s)');
         const moved = await single({
             op: 'transform',
             why: '',
@@ -669,6 +698,242 @@ describe('validateProposal', () => {
             'blue',
         );
         expect(doc.byId('guide')?.getAttribute('stroke')).toBe('#f00');
+    });
+
+    it('tolerates the server bookkeeping and unticks a row the server doubted', async () => {
+        const doc = office();
+        const result = await validateProposal(doc, [
+            {
+                op: 'set_attr',
+                why: '',
+                id: 'op-1',
+                server_issue: null,
+                target: { a: anchor(doc, 'bg'), id: null, h: null },
+                name: 'fill',
+                value: 'red',
+            },
+            {
+                op: 'set_attr',
+                why: '',
+                id: 'op-2',
+                server_issue: 'anchor e404 is not in the index',
+                target: { id: 'guide' },
+                name: 'stroke',
+                value: 'blue',
+            },
+            { op: 'no_change', why: '', id: 'op-3', reason: 'r' },
+        ]);
+        expect(result.ops[0].issues).toEqual([]);
+        expect(result.ops[0].checked_by_default).toBe(true);
+        expect(result.ops[1].issues.map((i) => i.code)).toEqual([
+            'server_issue',
+        ]);
+        expect(result.ops[1].locked).toBe(false);
+        expect(result.ops[1].checked_by_default).toBe(false);
+        expect(result.ops[1].applied).toBe(true);
+        expect(result.ops[2].issues).toEqual([]);
+        expect(result.blocking).toBe(false);
+        expect(
+            schemaIssues({ op: 'no_change', why: '', reason: 'r', id: 7 })[0]
+                .message,
+        ).toMatch(/id has the wrong type/);
+    });
+
+    it('locks a malformed declaration or attribute name instead of throwing', async () => {
+        const rule = await single({
+            op: 'set_style_rule',
+            why: '',
+            selector: '.desk',
+            declarations: [{ name: 5, value: 'x' } as unknown as NameValue],
+        });
+        expect(rule.codes).toEqual(['schema']);
+        expect(rule.row.locked).toBe(true);
+        const shape = await single({
+            op: 'insert_shape',
+            why: '',
+            kind: 'rect',
+            attrs: [{ name: 5, value: 'x' } as unknown as NameValue],
+        });
+        expect(shape.codes).toEqual(['schema']);
+        expect(
+            schemaIssues({
+                op: 'set_attr',
+                why: '',
+                target: { a: 'e1', bogus: 1 },
+                name: 'fill',
+                value: 'x',
+            })[0].message,
+        ).toMatch(/target has the wrong type/);
+    });
+
+    it('replaces the tspan lines of a text element without blocking the batch', async () => {
+        const doc = office();
+        const line = anchor(doc, 'sub-1');
+        const { result, row, codes } = await single(
+            {
+                op: 'set_text',
+                why: '',
+                target: { id: 'label-1' },
+                text: 'Boardroom',
+            },
+            {},
+            doc,
+        );
+        expect(codes).toEqual(['replaces_lines', 'text_hidden_in_explore']);
+        expect(row.checked_by_default).toBe(true);
+        expect(result.blocking).toBe(false);
+        expect(result.element_delta).toBe(-1);
+        expect(result.trial?.byId('label-1')?.textContent).toBe('Boardroom');
+        expect(result.trial?.byAnchor(line)).toBeNull();
+        const level = loadMap('level_2', { geometry });
+        const texts = Array.from(level.root.querySelectorAll('text')).filter(
+            (text) => text.querySelector('tspan'),
+        );
+        expect(texts.length).toBeGreaterThan(0);
+        for (const text of texts) {
+            const outcome = await validateProposal(level, [
+                {
+                    op: 'set_text',
+                    why: '',
+                    target: { a: level.anchorOf(text) },
+                    text: 'Renamed',
+                },
+            ]);
+            expect(outcome.blocking).toBe(false);
+            expect(outcome.ops[0].applied).toBe(true);
+        }
+    });
+
+    it('refuses a <style> or <use> inside replacement markup', async () => {
+        const styled = await single({
+            op: 'replace_element',
+            why: '',
+            target: { id: 'plant-2' },
+            markup: '<g><style>.room{visibility:hidden}</style><circle cx="930" cy="400" r="10"/></g>',
+        });
+        expect(styled.codes).toEqual(['denied_markup']);
+        expect(styled.row.locked).toBe(true);
+        const used = await single({
+            op: 'replace_element',
+            why: '',
+            target: { id: 'plant-2' },
+            markup: '<g><use href="#plant-1"/></g>',
+        });
+        expect(used.codes).toEqual(['denied_markup']);
+    });
+
+    it('warns when replacement markup wraps a bound id in a group that paints itself', async () => {
+        const bound = await single({
+            op: 'replace_element',
+            why: '',
+            target: { id: 'table-01.001' },
+            markup: '<g><rect x="0" y="0" width="30" height="20" fill="#dde"/></g>',
+        });
+        expect(bound.codes).toEqual(['group_fill']);
+        expect(bound.row.issues[0].level).toBe('warning');
+        expect(bound.row.issues[0].message).toContain('Desk 1.001');
+        expect(bound.row.checked_by_default).toBe(false);
+        expect(bound.result.trial?.byId('table-01.001')?.localName).toBe('g');
+        const inherits = await single({
+            op: 'replace_element',
+            why: '',
+            target: { id: 'table-01.001' },
+            markup: '<g><rect x="0" y="0" width="30" height="20"/></g>',
+        });
+        expect(inherits.codes).toEqual([]);
+        const unbound = await single({
+            op: 'replace_element',
+            why: '',
+            target: { id: 'plant-2' },
+            markup: '<g><circle cx="930" cy="400" r="10" fill="#0a0"/></g>',
+        });
+        expect(unbound.codes).toEqual(['group_fill']);
+        expect(unbound.row.issues[0].level).toBe('info');
+        expect(unbound.row.checked_by_default).toBe(true);
+    });
+
+    it('catches a <style> added without a set_style_rule op', async () => {
+        const inject: ValidationContext['apply'] = (
+            doc,
+            ops,
+            options?: ApplyOptions,
+        ) => {
+            const result = applyOps(doc, ops, options);
+            const style = doc.root.ownerDocument.createElementNS(
+                'http://www.w3.org/2000/svg',
+                'style',
+            );
+            style.textContent = '.room{visibility:hidden}';
+            doc.root.appendChild(style);
+            doc.assignAnchors(style);
+            return result;
+        };
+        const { result } = await single(
+            {
+                op: 'set_attr',
+                why: '',
+                target: { id: 'bg' },
+                name: 'fill',
+                value: 'red',
+            },
+            { apply: inject },
+        );
+        expect(result.issues.map((i) => i.code)).toContain('style_changed');
+    });
+
+    it('refuses the editor attributes through set_attr', async () => {
+        const { codes } = await single({
+            op: 'set_attr',
+            why: '',
+            target: { id: 'plant-2' },
+            name: 'data-map-editor-anchor',
+            value: 'e1',
+        });
+        expect(codes).toEqual(['forbidden_attribute']);
+        const ok = await single({
+            op: 'set_attr',
+            why: '',
+            target: { id: 'plant-2' },
+            name: 'data-name',
+            value: 'Fern',
+        });
+        expect(ok.codes).toEqual([]);
+    });
+
+    it('warns when a delete leaves references dangling and notes style references a rename keeps', async () => {
+        const doc = load(
+            '<defs><style>.a{fill:url(#grad)}</style><linearGradient id="grad"/></defs><rect id="r" class="a" width="1" height="1"/><rect id="s" fill="url(#grad)" width="1" height="1"/>',
+        );
+        const removed = await single(
+            { op: 'delete', why: '', target: { id: 'grad' } },
+            {},
+            doc,
+        );
+        expect(removed.codes).toEqual(['dangling_reference']);
+        expect(removed.row.issues[0].message).toContain('#grad');
+        expect(removed.row.checked_by_default).toBe(false);
+        expect(removed.row.locked).toBe(false);
+        const renamed = await single(
+            {
+                op: 'set_id',
+                why: '',
+                target: { id: 'grad' },
+                new_id: 'grad-2',
+            },
+            {},
+            doc,
+        );
+        expect(renamed.codes).toEqual(['style_reference']);
+        expect(renamed.row.checked_by_default).toBe(true);
+        expect(renamed.result.trial?.byId('s')?.getAttribute('fill')).toBe(
+            'url(#grad-2)',
+        );
+        const clean = await single(
+            { op: 'delete', why: '', target: { id: 'r' } },
+            {},
+            doc,
+        );
+        expect(clean.codes).toEqual([]);
     });
 
     it('validates a realistic batch on a real map without collateral', async () => {

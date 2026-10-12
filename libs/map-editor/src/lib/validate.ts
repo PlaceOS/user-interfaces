@@ -1,13 +1,13 @@
 import { applyOps, ApplyOptions, ApplyResult } from './apply';
 import {
-    ATTR_ALLOW_LIST,
-    DENIED_TAGS,
+    isAllowedAttributeName,
     MAX_BYTE_GROWTH,
     MAX_ELEMENT_GROWTH,
     MAX_OPS_PER_PROPOSAL,
     MAX_REPLACEMENT_MARKUP_BYTES,
     OFF_CANVAS_TOLERANCE,
     REFERENCE_ATTRS,
+    REPLACEMENT_DENIED_TAGS,
     SHAPE_GEOMETRY_ATTRS,
     SHAPE_KINDS,
     STYLE_PROPERTY_ALLOW_LIST,
@@ -16,9 +16,15 @@ import {
     XLINK_NS,
 } from './constants';
 import { BBox, GeometryProvider } from './geometry';
-import { idIssue, idsIn, referencesTo } from './ids';
+import { idIssue, idsIn, referencesTo, styleReferencesTo } from './ids';
 import { MapDocument, Target } from './map-document';
-import { isOpKind, MapOp, OpKind, targetsOf } from './ops';
+import {
+    isOpKind,
+    MapOp,
+    OP_BOOKKEEPING_FIELDS,
+    OpKind,
+    targetsOf,
+} from './ops';
 import { OPS_SCHEMA, OpVariantSchema } from './ops-schema';
 import { checkPathData } from './path-data';
 import { ProtectedIdSet } from './protected-ids';
@@ -124,6 +130,7 @@ type PropertySchema = {
     anyOf?: PropertySchema[];
     $ref?: string;
     items?: PropertySchema;
+    properties?: Record<string, PropertySchema>;
 };
 
 function variantFor(kind: OpKind): Variant | undefined {
@@ -138,11 +145,35 @@ function allowsNull(schema: PropertySchema): boolean {
     return !!schema.anyOf?.some((option) => allowsNull(option));
 }
 
+function definitionFor(ref: string): PropertySchema | null {
+    const definition = OPS_SCHEMA.$defs[ref.replace('#/$defs/', '')];
+    return definition ? (definition as unknown as PropertySchema) : null;
+}
+
+/** A closed object: no unknown keys, members null only where allowed. */
+function objectMatches(value: unknown, schema: PropertySchema): boolean {
+    if (typeof value !== 'object' || value === null || Array.isArray(value))
+        return false;
+    const properties = schema.properties || {};
+    const record = value as Record<string, unknown>;
+    if (Object.keys(record).some((key) => !(key in properties))) return false;
+    return Object.entries(properties).every(([key, property]) => {
+        const member = record[key];
+        if (member === undefined || member === null)
+            return allowsNull(property);
+        return typeMatches(member, property);
+    });
+}
+
 function typeMatches(value: unknown, schema: PropertySchema): boolean {
-    if (schema.$ref)
-        return (
-            typeof value === 'object' && value !== null && !Array.isArray(value)
-        );
+    if (schema.$ref) {
+        const definition = definitionFor(schema.$ref);
+        return definition
+            ? objectMatches(value, definition)
+            : typeof value === 'object' &&
+                  value !== null &&
+                  !Array.isArray(value);
+    }
     if (schema.anyOf)
         return schema.anyOf.some((option) => typeMatches(value, option));
     const types = Array.isArray(schema.type)
@@ -171,11 +202,11 @@ function typeMatches(value: unknown, schema: PropertySchema): boolean {
                         ))
                 );
             case 'object':
-                return (
-                    typeof value === 'object' &&
-                    value !== null &&
-                    !Array.isArray(value)
-                );
+                return schema.properties
+                    ? objectMatches(value, schema)
+                    : typeof value === 'object' &&
+                          value !== null &&
+                          !Array.isArray(value);
             case 'null':
                 return value === null;
             default:
@@ -205,7 +236,25 @@ export function schemaIssues(op: unknown): ValidationIssue[] {
             issue('error', 'unknown_op', `"${record['op']}" has no schema`),
         ];
     const issues: ValidationIssue[] = [];
+    if (record['id'] !== undefined && typeof record['id'] !== 'string') {
+        issues.push(
+            issue('error', 'schema', `${record['op']}.id has the wrong type`),
+        );
+    }
+    if (
+        record['server_issue'] != null &&
+        typeof record['server_issue'] !== 'string'
+    ) {
+        issues.push(
+            issue(
+                'error',
+                'schema',
+                `${record['op']}.server_issue has the wrong type`,
+            ),
+        );
+    }
     for (const name of Object.keys(record)) {
+        if (OP_BOOKKEEPING_FIELDS.has(name)) continue;
         if (!(name in variant.properties)) {
             issues.push(
                 issue(
@@ -266,6 +315,15 @@ function outsideViewBox(bbox: BBox | null, doc: MapDocument): boolean {
     );
 }
 
+/** Whether a presentation value stops an element from showing. */
+function hidesElement(name: string, value: string): boolean {
+    const trimmed = value.trim();
+    if (name === 'visibility') return trimmed !== 'visible';
+    if (name === 'opacity' || name === 'fill-opacity')
+        return parseFloat(trimmed) === 0;
+    return false;
+}
+
 /** Deny-list scan of raw markup, before any sanitiser touches it. */
 export function markupDenyListIssue(markup: string): string | null {
     const wrapped = `<svg xmlns="${SVG_NS}" xmlns:xlink="${XLINK_NS}">${markup}</svg>`;
@@ -280,7 +338,7 @@ export function markupDenyListIssue(markup: string): string | null {
         doc.documentElement.querySelectorAll('*'),
     )) {
         const tag = element.localName.toLowerCase();
-        if (DENIED_TAGS.has(tag))
+        if (REPLACEMENT_DENIED_TAGS.has(tag))
             return `<${element.localName}> is not allowed`;
         if (element.namespaceURI !== SVG_NS)
             return `<${element.tagName}> is outside the SVG namespace`;
@@ -298,11 +356,6 @@ export function markupDenyListIssue(markup: string): string | null {
             }
             if (lower === 'style' && isUnsafeCssValue(value))
                 return 'style contains an unsafe value';
-        }
-        if (tag === 'style') {
-            const css = element.textContent || '';
-            if (/@import/i.test(css) || isUnsafeCssValue(css))
-                return '<style> contains an unsafe rule';
         }
     }
     return null;
@@ -384,7 +437,13 @@ class Validator {
             created: [],
         };
         this.steps.push(step);
-        if (!issues.length && step.validation.actionable) this._policy(step);
+        const malformed = issues.length > 0;
+        if (typeof op.server_issue === 'string' && op.server_issue.trim()) {
+            step.validation.issues.push(
+                issue('warning', 'server_issue', op.server_issue.trim()),
+            );
+        }
+        if (!malformed && step.validation.actionable) this._policy(step);
         const errors = step.validation.issues.filter(
             (i) => i.level === 'error',
         );
@@ -455,10 +514,7 @@ class Validator {
         switch (op.op) {
             case 'set_attr': {
                 const name = (op.name || '').trim();
-                const allowed =
-                    ATTR_ALLOW_LIST.has(name) ||
-                    /^data-[a-z][a-z0-9_-]*$/i.test(name);
-                if (!allowed) {
+                if (!isAllowedAttributeName(name)) {
                     push(
                         'error',
                         'forbidden_attribute',
@@ -481,15 +537,12 @@ class Validator {
                 const element = elements[0];
                 step.changed = [...step.anchors];
                 const id = element.getAttribute('id') || '';
-                if (
-                    name === 'visibility' &&
-                    op.value !== 'visible' &&
-                    op.value != null
-                ) {
+                if (op.value != null && hidesElement(name, `${op.value}`)) {
                     const hidden = protectedIdsIn(element, this._protected);
                     if (hidden.length) {
-                        push(
-                            'warning',
+                        this._lockUnlessUnlocked(
+                            step,
+                            hidden,
                             'protected_hidden',
                             `hides ${hidden.map((h) => this._protected.labelOf(h)).join(', ')}, which bookings bind to`,
                         );
@@ -530,11 +583,13 @@ class Validator {
                     return;
                 }
                 for (const { name, value } of op.declarations || []) {
-                    if (!STYLE_PROPERTY_ALLOW_LIST.has((name || '').trim())) {
+                    const property =
+                        typeof name === 'string' ? name.trim() : '';
+                    if (!STYLE_PROPERTY_ALLOW_LIST.has(property)) {
                         push(
                             'error',
                             'forbidden_property',
-                            `property "${name}" cannot be set`,
+                            `property "${property}" cannot be set`,
                         );
                         return;
                     }
@@ -542,11 +597,11 @@ class Validator {
                         push(
                             'error',
                             'bad_value',
-                            `value for "${name}" is not allowed`,
+                            `value for "${property}" is not allowed`,
                         );
                         return;
                     }
-                    const value_issue = attributeValueIssue(name.trim(), value);
+                    const value_issue = attributeValueIssue(property, value);
                     if (value_issue) {
                         push('error', 'bad_value', value_issue);
                         return;
@@ -559,18 +614,21 @@ class Validator {
                     'affects',
                     `affects ${matched.length} element${matched.length === 1 ? '' : 's'}`,
                 );
-                const hides = (op.declarations || []).some(
-                    ({ name, value }) =>
-                        name.trim() === 'visibility' &&
-                        value.trim() !== 'visible',
+                const hides = (op.declarations || []).some(({ name, value }) =>
+                    hidesElement(name.trim(), value),
                 );
                 if (hides) {
-                    const hidden = matched.flatMap((element) =>
-                        protectedIdsIn(element, this._protected),
-                    );
+                    const hidden = [
+                        ...new Set(
+                            matched.flatMap((element) =>
+                                protectedIdsIn(element, this._protected),
+                            ),
+                        ),
+                    ];
                     if (hidden.length) {
-                        push(
-                            'warning',
+                        this._lockUnlessUnlocked(
+                            step,
+                            hidden,
                             'protected_hidden',
                             `hides ${hidden.length} bound element(s)`,
                         );
@@ -598,6 +656,18 @@ class Validator {
                     return;
                 }
                 step.changed = [...step.anchors];
+                const lines = MapDocument.subtree(elements[0]).slice(1);
+                if (lines.length) {
+                    step.removed = lines.map((line) =>
+                        this.trial.anchorOf(line),
+                    );
+                    step.expected_delta = -lines.length;
+                    push(
+                        'info',
+                        'replaces_lines',
+                        `replaces ${lines.length} <tspan> line${lines.length === 1 ? '' : 's'} with one run of text`,
+                    );
+                }
                 push(
                     'info',
                     'text_hidden_in_explore',
@@ -649,6 +719,7 @@ class Validator {
                         `breaks the booking link for ${bound.map((id) => this._protected.labelOf(id)).join(', ')}`,
                     );
                 }
+                this._danglingWarning(step, elements);
                 return;
             }
             case 'duplicate': {
@@ -692,18 +763,16 @@ class Validator {
                 }
                 const geometry_attrs = SHAPE_GEOMETRY_ATTRS[op.kind];
                 for (const pair of op.attrs || []) {
-                    const name = (pair.name || '').trim();
-                    const value = `${pair.value ?? ''}`;
+                    const name =
+                        typeof pair?.name === 'string' ? pair.name.trim() : '';
+                    const value = `${pair?.value ?? ''}`;
                     let value_issue: string | null | undefined;
                     if (geometry_attrs.includes(name)) {
                         value_issue =
                             name === 'd'
                                 ? checkPathData(value).error
                                 : geometryValueIssue(name, value);
-                    } else if (
-                        ATTR_ALLOW_LIST.has(name) ||
-                        /^data-[a-z][a-z0-9_-]*$/i.test(name)
-                    ) {
+                    } else if (isAllowedAttributeName(name)) {
                         value_issue = attributeValueIssue(name, value);
                     } else {
                         value_issue = `attribute "${name}" is not allowed on a ${op.kind}`;
@@ -794,6 +863,17 @@ class Validator {
                             this.trial.anchorOf(ref),
                         ),
                     );
+                    const in_styles = styleReferencesTo(
+                        this.trial.root,
+                        old_id,
+                    );
+                    if (in_styles && op.new_id !== old_id) {
+                        push(
+                            'info',
+                            'style_reference',
+                            `${in_styles} url(#${old_id}) reference${in_styles === 1 ? '' : 's'} in <style> rules ${in_styles === 1 ? 'is' : 'are'} not rewritten`,
+                        );
+                    }
                     if (this._protected.has(old_id) && op.new_id !== old_id) {
                         this._lockUnlessUnlocked(
                             step,
@@ -804,7 +884,7 @@ class Validator {
                     }
                 }
                 if (element.localName === 'g' && op.new_id)
-                    this._groupFillWarning(step, element);
+                    this._groupFillWarning(step, element, op.new_id);
                 return;
             }
             case 'reorder': {
@@ -907,6 +987,11 @@ class Validator {
                         `removes ${this._protected.labelOf(id)}, which bookings bind to`,
                     );
                 }
+                if (id) {
+                    const kept = idsIn(element);
+                    kept.delete(id);
+                    this._danglingWarning(step, [element], kept);
+                }
                 return;
             }
             case 'replace_element': {
@@ -964,6 +1049,10 @@ class Validator {
                         `removes ${bound.map((id) => this._protected.labelOf(id)).join(', ')}, which bookings bind to`,
                     );
                 }
+                const kept = idsIn(purified.element);
+                const own_id = element.getAttribute('id');
+                if (own_id) kept.add(own_id);
+                this._danglingWarning(step, [element], kept);
                 return;
             }
             case 'replace_path': {
@@ -1043,21 +1132,52 @@ class Validator {
     }
 
     /** Contract warning: an id on a <g> whose children paint themselves cannot show status colours. */
-    private _groupFillWarning(step: Step, element: Element): void {
+    private _groupFillWarning(step: Step, element: Element, id: string): void {
         const resolver = this._resolverFor(this.trial);
         const children = Array.from(element.children);
         if (
-            children.length &&
-            children.every((child) => !!resolver.own(child, 'fill'))
-        ) {
-            step.validation.issues.push(
-                issue(
-                    'info',
-                    'group_fill',
-                    'the children of this group set their own fill, so status colouring on the id will not show',
-                ),
-            );
+            !children.length ||
+            children.some((child) => !resolver.own(child, 'fill'))
+        )
+            return;
+        const bound = this._protected.has(id);
+        step.validation.issues.push(
+            issue(
+                bound ? 'warning' : 'info',
+                'group_fill',
+                `the children of this group set their own fill, so status colouring on ${bound ? this._protected.labelOf(id) : id} will not show`,
+            ),
+        );
+        if (bound) step.validation.checked_by_default = false;
+    }
+
+    /** Warn when ids inside removed elements are still referenced from outside them. */
+    private _danglingWarning(
+        step: Step,
+        removed: Element[],
+        kept: ReadonlySet<string> = new Set(),
+    ): void {
+        const gone = new Set(
+            removed.flatMap((element) => MapDocument.subtree(element)),
+        );
+        const dangling: string[] = [];
+        for (const element of removed) {
+            for (const id of idsIn(element)) {
+                if (kept.has(id)) continue;
+                const outside = referencesTo(this.trial.root, id).filter(
+                    (ref) => !gone.has(ref),
+                );
+                if (outside.length) dangling.push(`#${id}`);
+            }
         }
+        if (!dangling.length) return;
+        step.validation.issues.push(
+            issue(
+                'warning',
+                'dangling_reference',
+                `other elements reference ${dangling.join(', ')}, which this removes`,
+            ),
+        );
     }
 
     private _apply(step: Step): void {
@@ -1086,6 +1206,12 @@ class Validator {
         created: string[],
     ): void {
         const op = step.op;
+        if (op.op === 'replace_element') {
+            const element = this.trial.byAnchor(anchors[0]);
+            const id = element?.getAttribute('id');
+            if (element && id && element.localName === 'g')
+                this._groupFillWarning(step, element, id);
+        }
         const moved =
             op.op === 'transform' ||
             op.op === 'replace_path' ||
@@ -1151,6 +1277,26 @@ function batchChecks(
             );
             break;
         }
+    }
+    const original_styles = new Set(
+        Array.from(doc.root.querySelectorAll('style')).map((style) =>
+            doc.anchorOf(style),
+        ),
+    );
+    const added_styles = Array.from(
+        trial.root.querySelectorAll('style'),
+    ).filter((style) => !original_styles.has(trial.anchorOf(style))).length;
+    const expected_styles = applied.filter(
+        (step) => step.op.op === 'set_style_rule' && step.adds,
+    ).length;
+    if (added_styles !== expected_styles) {
+        issues.push(
+            issue(
+                'error',
+                'style_changed',
+                `${added_styles} <style> element${added_styles === 1 ? ' was' : 's were'} added without a set_style_rule op`,
+            ),
+        );
     }
     const element_delta = trial.elementCount() - doc.elementCount();
     const expected_delta = applied.reduce(
