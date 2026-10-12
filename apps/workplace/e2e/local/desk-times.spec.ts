@@ -72,8 +72,8 @@ test.describe('desk booking times', () => {
                 if ((await form.chosenDesks.count()) === 0) {
                     await form.chooseDesk(desk.name);
                 }
-                expect(await form.title.inputValue()).toBe(title);
-                expect(await form.allDay.isChecked()).toBe(false);
+                await expect(form.title).toHaveValue(title, { timeout: 1_000 });
+                await expect(form.allDay).not.toBeChecked({ timeout: 1_000 });
             }).toPass({ timeout: 45_000 });
 
             // Times LAST, after the rebuild can no longer undo them, and with a
@@ -131,7 +131,7 @@ test.describe('desk booking times', () => {
         await expect(async () => {
             await form.setChecked(form.requireLocker, false);
             await form.setChecked(form.allDay, false);
-            expect(await form.allDay.isChecked()).toBe(false);
+            await expect(form.allDay).not.toBeChecked({ timeout: 1_000 });
         }).toPass({ timeout: 45_000 });
 
         // Lengths: nothing beyond the cap may be on offer. Without the setting

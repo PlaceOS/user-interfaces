@@ -82,7 +82,7 @@ test.describe('booking a desk for a colleague', () => {
                 if ((await form.chosenDesks.count()) === 0) {
                     await form.chooseDesk(desk.name);
                 }
-                expect(await form.title.inputValue()).toBe(title);
+                await expect(form.title).toHaveValue(title, { timeout: 1_000 });
             }).toPass({ timeout: 60_000 });
 
             await form.setStartTime(hhmm(slot.start));

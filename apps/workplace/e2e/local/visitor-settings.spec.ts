@@ -92,7 +92,7 @@ test.describe('visitor invite settings', () => {
         await expect(async () => {
             await form.visitorName.fill(visitor.name);
             await form.visitorEmail.fill(visitor.email);
-            expect(await form.visitorEmail.inputValue()).toBe(visitor.email);
+            await expect(form.visitorEmail).toHaveValue(visitor.email, { timeout: 1_000 });
         }).toPass({ timeout: 30_000 });
 
         await form.sendButton.click();

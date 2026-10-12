@@ -168,7 +168,7 @@ test.describe('editing a visitor invite', () => {
             const form = new InviteVisitorForm(staffPage);
             await expect(async () => {
                 await form.reason.fill(new_reason);
-                expect(await form.reason.inputValue()).toBe(new_reason);
+                await expect(form.reason).toHaveValue(new_reason, { timeout: 1_000 });
             }).toPass({ timeout: 30_000 });
             await form.sendButton.click();
 
@@ -364,7 +364,7 @@ test.describe('editing a visitor invite', () => {
             const form = new InviteVisitorForm(staffPage);
             await expect(async () => {
                 await form.reason.fill(new_reason);
-                expect(await form.reason.inputValue()).toBe(new_reason);
+                await expect(form.reason).toHaveValue(new_reason, { timeout: 1_000 });
             }).toPass({ timeout: 30_000 });
             await form.sendButton.click();
 

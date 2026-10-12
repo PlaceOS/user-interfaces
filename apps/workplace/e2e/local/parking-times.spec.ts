@@ -63,7 +63,7 @@ test.describe('parking booking times', () => {
                 if ((await form.chosenSpaces.count()) === 0) {
                     await form.chooseSpace(space.name);
                 }
-                expect(await form.title.inputValue()).toBe(title);
+                await expect(form.title).toHaveValue(title, { timeout: 1_000 });
                 expect(await form.chosenSpaces.count()).toBe(1);
             }).toPass({ timeout: 60_000 });
 
@@ -118,7 +118,7 @@ test.describe('parking booking times', () => {
         await form.open();
         await expect(async () => {
             await form.setChecked(form.allDay, false);
-            expect(await form.allDay.isChecked()).toBe(false);
+            await expect(form.allDay).not.toBeChecked({ timeout: 1_000 });
         }).toPass({ timeout: 45_000 });
 
         const lengths = await form.durationOptions();

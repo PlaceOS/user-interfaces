@@ -73,7 +73,7 @@ test.describe('parking booking', () => {
                 if ((await form.chosenSpaces.count()) === 0) {
                     await form.chooseSpace(space.name);
                 }
-                expect(await form.title.inputValue()).toBe(title);
+                await expect(form.title).toHaveValue(title, { timeout: 1_000 });
                 expect(await form.chosenSpaces.count()).toBe(1);
             }).toPass({ timeout: 60_000 });
 

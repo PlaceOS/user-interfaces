@@ -89,7 +89,7 @@ test.describe('room capacity', () => {
         await expect(async () => {
             await form.title.fill(title);
             if ((await form.chosenSpaces.count()) === 0) await form.chooseRoom(small.name);
-            expect(await form.title.inputValue()).toBe(title);
+            await expect(form.title).toHaveValue(title, { timeout: 1_000 });
             expect(await form.chosenSpaces.count()).toBe(1);
         }).toPass({ timeout: 45_000 });
         await form.addAttendee(guest);
@@ -152,7 +152,7 @@ test.describe('room capacity', () => {
         await expect(async () => {
             await form.title.fill(title);
             if ((await form.chosenSpaces.count()) === 0) await form.chooseRoom(room.name);
-            expect(await form.title.inputValue()).toBe(title);
+            await expect(form.title).toHaveValue(title, { timeout: 1_000 });
             expect(await form.chosenSpaces.count()).toBe(1);
         }).toPass({ timeout: 45_000 });
         await form.addAttendee(guest);

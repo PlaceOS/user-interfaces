@@ -62,11 +62,11 @@ test.describe('desk booking settings', () => {
                 if ((await form.chosenDesks.count()) === 0) {
                     await form.chooseDesk(desk.name);
                 }
-                expect(await form.title.inputValue()).toBe(title);
-                expect(
-                    await form.allDay.isChecked(),
+                await expect(form.title).toHaveValue(title, { timeout: 1_000 });
+                await expect(
+                    form.allDay,
                     'the All Day checkbox should be on — is `app.bookings.allow_all_day` set?',
-                ).toBe(true);
+                ).toBeChecked({ timeout: 1_000 });
             }).toPass({ timeout: 45_000 });
 
             await staffPage.waitForTimeout(2_000);

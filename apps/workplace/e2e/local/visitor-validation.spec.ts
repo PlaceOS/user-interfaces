@@ -56,7 +56,7 @@ test.describe('visitor invite validation', () => {
             await form.visitorName.fill(visitor.name);
             await form.visitorEmail.fill('not-an-email');
             await form.reason.fill(uniqueTitle('E2E Bad Email'));
-            expect(await form.visitorEmail.inputValue()).toBe('not-an-email');
+            await expect(form.visitorEmail).toHaveValue('not-an-email', { timeout: 1_000 });
         }).toPass({ timeout: 30_000 });
 
         await form.sendButton.click();
