@@ -1,9 +1,9 @@
 import {
   SanitizePipe
-} from "./chunk-5HJIN3NA.js";
+} from "./chunk-RG6ARIQI.js";
 import {
   AsyncHandler
-} from "./chunk-XIZFFTX3.js";
+} from "./chunk-AC6R4MJF.js";
 import {
   Overlay,
   TemplatePortal
@@ -364,12 +364,12 @@ var CustomTooltipComponent = class _CustomTooltipComponent extends AsyncHandler 
   }), { isSignal: true })] }] });
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(CustomTooltipComponent, { className: "CustomTooltipComponent", filePath: "libs/components/src/lib/custom-tooltip.component.ts", lineNumber: 65 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(CustomTooltipComponent, { className: "CustomTooltipComponent", filePath: "libs/components/src/lib/custom-tooltip.component.ts", lineNumber: 66 });
 })();
 
 export {
   CustomTooltipData,
   CustomTooltipComponent
 };
-//# debugId=f36d31ca-eea6-5151-aac3-cf2bf727559b
-//# sourceMappingURL=chunk-P57X5WN4.js.map
+//# debugId=92eb087b-1385-51b6-a320-d5786cb5ba76
+//# sourceMappingURL=chunk-AKHAPCTO.js.map

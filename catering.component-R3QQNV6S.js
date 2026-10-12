@@ -14,15 +14,15 @@ import {
   MatInput,
   MatInputModule,
   MatSuffix
-} from "./chunk-7JGIQ2IL.js";
+} from "./chunk-KONXCVNT.js";
 import {
   MatTooltip,
   MatTooltipModule
 } from "./chunk-XSMQQPKD.js";
 import {
   CustomTooltipComponent
-} from "./chunk-P57X5WN4.js";
-import "./chunk-5HJIN3NA.js";
+} from "./chunk-AKHAPCTO.js";
+import "./chunk-RG6ARIQI.js";
 import {
   ErrorStateMatcher,
   MAT_OPTGROUP,
@@ -49,19 +49,17 @@ import {
   orderLevelFinder,
   orderLocation,
   requestSpacesForZone,
-  setHours,
-  setMinutes,
   subDays
-} from "./chunk-GMYL4HMR.js";
+} from "./chunk-5MNRPZHO.js";
 import {
   FORM_FIELD,
   FormField,
   form,
   required
-} from "./chunk-7QRC4WMU.js";
+} from "./chunk-6QEWF7WC.js";
 import {
   TranslatePipe
-} from "./chunk-ZG4U5NWK.js";
+} from "./chunk-OH5DG2YE.js";
 import {
   AssetRequest,
   AsyncHandler,
@@ -151,13 +149,7 @@ import {
   unique,
   user_group_names,
   warnOrThrowProtectedError
-} from "./chunk-XIZFFTX3.js";
-import {
-  ActivatedRoute,
-  Router,
-  RouterLink,
-  RouterModule
-} from "./chunk-YQHRR62F.js";
+} from "./chunk-AC6R4MJF.js";
 import {
   DefaultValueAccessor,
   FormGroupDirective,
@@ -173,7 +165,7 @@ import {
   RequiredValidator,
   Validators,
   ɵNgNoValidate
-} from "./chunk-6Y7NIYC3.js";
+} from "./chunk-5NZELXYP.js";
 import {
   MatRippleLoader
 } from "./chunk-CLZRAEFM.js";
@@ -228,6 +220,12 @@ import {
   coerceArray,
   hasModifierKey
 } from "./chunk-7E5CWEBW.js";
+import {
+  ActivatedRoute,
+  Router,
+  RouterLink,
+  RouterModule
+} from "./chunk-YQHRR62F.js";
 import {
   ChangeDetectorRef,
   CommonModule,
@@ -2620,8 +2618,10 @@ var Booking = class {
   get group() {
     return this.extension_data.group || "";
   }
+  /** Whether to show the booking as all day. Parking shifts can be 12 hours or more */
   get is_all_day() {
-    return this.all_day || this.duration >= 18 * 60;
+    const min_hours = this.booking_type === "parking" ? 18 : 12;
+    return this.all_day || this.duration >= min_hours * 60;
   }
   get has_ended() {
     return this.checked_out_at > 0 || isAfter(Date.now(), this.date_end);
@@ -2817,7 +2817,6 @@ async function updateEventMetadata(id, system_id, metadata, query = {}) {
 }
 
 // libs/events/src/lib/utilities.ts
-var BOOKING_DATE = add(setMinutes(setHours(/* @__PURE__ */ new Date(), 6), 0), { days: -1 });
 function newCalendarEventFromBooking(booking) {
   let attendees = [
     {
@@ -15491,7 +15490,7 @@ var AttachedResourceConfigModalComponent = class _AttachedResourceConfigModalCom
           let value = i[1];
           try {
             value = JSON.parse(i[1]);
-          } catch (e) {
+          } catch {
           }
           return [i[0], value];
         })
@@ -21435,5 +21434,5 @@ var CateringComponent = class _CateringComponent {
 export {
   CateringComponent
 };
-//# debugId=05d68976-f855-59ff-8ed9-822b55b41ce6
-//# sourceMappingURL=catering.component-DWK3IJBV.js.map
+//# debugId=c21172ab-c050-508d-a78e-4dc07e21e421
+//# sourceMappingURL=catering.component-R3QQNV6S.js.map
