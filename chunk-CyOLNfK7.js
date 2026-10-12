@@ -1,0 +1,3 @@
+import{R as Kt}from"./chunk-aQe9QLUy.js";import{h as Gh,rt as _e}from"./chunk-D4N3eZWs.js";var i=`/api/staff/v1/people`;async function m(t){let a=Gh({q:t,fields:[`id`,`name`,`email`,`username`,`organisation`,`department`].join(`,`)});return(await Kt(`${i}${t?`?`+a:``}`)).map(s=>new _e(s))}async function l(t){return(await Kt(`${i}?${Gh({filter:`startsWith(mail,'${t.replace(/'/g,`''`)}')`})}`)).map(f=>new _e(f))}async function u(t){return new _e(await Kt(`${i}/${encodeURIComponent(t)}`))}export{m as n,u as r,l as t};
+//# debugId=da559149-e298-57eb-9238-7031f3cc281a
+//# sourceMappingURL=chunk-CyOLNfK7.js.map
