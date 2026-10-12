@@ -212,6 +212,11 @@ export class ApplicationSidebarComponent
                         route: ['/zone-management'],
                     },
                     {
+                        id: 'maps',
+                        name: 'APP.CONCIERGE.MENU_MANAGE_MAPS',
+                        route: ['/map-management'],
+                    },
+                    {
                         id: 'spaces',
                         name: 'APP.CONCIERGE.MENU_MANAGE_ROOMS',
                         route: ['/room-management'],

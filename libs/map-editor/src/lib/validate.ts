@@ -468,7 +468,7 @@ class Validator {
         const elements: Element[] = [];
         for (const target of targets) {
             const resolution = this.trial.resolve(target);
-            if (!resolution.ok) {
+            if (resolution.ok === false) {
                 step.validation.issues.push(
                     issue('error', 'unknown_target', resolution.error),
                 );
@@ -904,7 +904,7 @@ class Validator {
                 const sibling_target = op.before || op.after;
                 if (sibling_target) {
                     const sibling = this.trial.resolve(sibling_target);
-                    if (!sibling.ok) {
+                    if (sibling.ok === false) {
                         push('error', 'unknown_target', sibling.error);
                         return;
                     }

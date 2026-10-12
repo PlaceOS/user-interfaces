@@ -112,7 +112,7 @@ export function applyOps(
     ops.forEach((op, index) => {
         if (options.skip?.has(index)) return;
         const outcome = applyOne(doc, op, geometry);
-        if (!outcome.ok) {
+        if (outcome.ok === false) {
             result.rejected.push({ index, op, reason: outcome.reason });
             return;
         }
@@ -188,7 +188,7 @@ function resolveAll(
     const elements: Element[] = [];
     for (const target of targets) {
         const resolution = doc.resolve(target);
-        if (!resolution.ok) return { error: resolution.error };
+        if (resolution.ok === false) return { error: resolution.error };
         if (!elements.includes(resolution.element))
             elements.push(resolution.element);
     }
@@ -231,7 +231,7 @@ function toParentSpace(
 
 function setAttr(doc: MapDocument, op: SetAttrOp): Outcome {
     const resolution = doc.resolve(op.target);
-    if (!resolution.ok) return { ok: false, reason: resolution.error };
+    if (resolution.ok === false) return { ok: false, reason: resolution.error };
     const element = resolution.element;
     const name = (op.name || '').trim();
     if (!isAllowedAttributeName(name)) {
@@ -377,7 +377,7 @@ function setStyleRule(doc: MapDocument, op: SetStyleRuleOp): Outcome {
 
 function setText(doc: MapDocument, op: SetTextOp): Outcome {
     const resolution = doc.resolve(op.target);
-    if (!resolution.ok) return { ok: false, reason: resolution.error };
+    if (resolution.ok === false) return { ok: false, reason: resolution.error };
     const element = resolution.element;
     if (!TEXT_TAGS.has(element.localName)) {
         return {
@@ -503,7 +503,7 @@ function duplicate(
     geometry: GeometryProvider,
 ): Outcome {
     const resolution = doc.resolve(op.target);
-    if (!resolution.ok) return { ok: false, reason: resolution.error };
+    if (resolution.ok === false) return { ok: false, reason: resolution.error };
     const source = resolution.element;
     if (isRoot(doc, source))
         return { ok: false, reason: 'the root cannot be duplicated' };
@@ -580,7 +580,7 @@ function insertShape(
     let parent: Element = doc.root;
     if (op.parent) {
         const resolution = doc.resolve(op.parent);
-        if (!resolution.ok) return { ok: false, reason: resolution.error };
+        if (resolution.ok === false) return { ok: false, reason: resolution.error };
         parent = resolution.element;
     }
     if (!isRoot(doc, parent) && parent.localName !== 'g') {
@@ -592,7 +592,7 @@ function insertShape(
     let after: Element | null = null;
     if (op.after) {
         const resolution = doc.resolve(op.after);
-        if (!resolution.ok) return { ok: false, reason: resolution.error };
+        if (resolution.ok === false) return { ok: false, reason: resolution.error };
         after = resolution.element;
         if (after.parentElement !== parent) {
             return { ok: false, reason: 'after must be a child of the parent' };
@@ -660,7 +660,7 @@ function insertShape(
 
 function setId(doc: MapDocument, op: SetIdOp): Outcome {
     const resolution = doc.resolve(op.target);
-    if (!resolution.ok) return { ok: false, reason: resolution.error };
+    if (resolution.ok === false) return { ok: false, reason: resolution.error };
     const element = resolution.element;
     const old_id = element.getAttribute('id');
     const anchor = doc.anchorOf(element);
@@ -694,7 +694,7 @@ function setId(doc: MapDocument, op: SetIdOp): Outcome {
 
 function reorder(doc: MapDocument, op: ReorderOp): Outcome {
     const resolution = doc.resolve(op.target);
-    if (!resolution.ok) return { ok: false, reason: resolution.error };
+    if (resolution.ok === false) return { ok: false, reason: resolution.error };
     const element = resolution.element;
     if (isRoot(doc, element))
         return { ok: false, reason: 'the root cannot be reordered' };
@@ -721,7 +721,7 @@ function reorder(doc: MapDocument, op: ReorderOp): Outcome {
     }
     const sibling_target = (op.before || op.after) as Target;
     const sibling = doc.resolve(sibling_target);
-    if (!sibling.ok) return { ok: false, reason: sibling.error };
+    if (sibling.ok === false) return { ok: false, reason: sibling.error };
     if (sibling.element === element)
         return { ok: false, reason: 'cannot reorder relative to itself' };
     if (sibling.element.parentElement !== parent) {
@@ -783,7 +783,7 @@ function group(doc: MapDocument, op: GroupOp): Outcome {
 
 function ungroup(doc: MapDocument, op: UngroupOp): Outcome {
     const resolution = doc.resolve(op.target);
-    if (!resolution.ok) return { ok: false, reason: resolution.error };
+    if (resolution.ok === false) return { ok: false, reason: resolution.error };
     const element = resolution.element;
     if (element.localName !== 'g') {
         return {
@@ -812,7 +812,7 @@ function ungroup(doc: MapDocument, op: UngroupOp): Outcome {
 
 function replaceElement(doc: MapDocument, op: ReplaceElementOp): Outcome {
     const resolution = doc.resolve(op.target);
-    if (!resolution.ok) return { ok: false, reason: resolution.error };
+    if (resolution.ok === false) return { ok: false, reason: resolution.error };
     const target = resolution.element;
     if (isRoot(doc, target))
         return { ok: false, reason: 'the root cannot be replaced' };
@@ -891,7 +891,7 @@ function replaceElement(doc: MapDocument, op: ReplaceElementOp): Outcome {
 
 function replacePath(doc: MapDocument, op: ReplacePathOp): Outcome {
     const resolution = doc.resolve(op.target);
-    if (!resolution.ok) return { ok: false, reason: resolution.error };
+    if (resolution.ok === false) return { ok: false, reason: resolution.error };
     const element = resolution.element;
     if (element.localName !== 'path') {
         return {

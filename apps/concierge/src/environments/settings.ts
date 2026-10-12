@@ -14,6 +14,7 @@ const app = {
     features: [
         'spaces',
         'zones',
+        'maps',
         'desks',
         'parking',
         'visitors',
