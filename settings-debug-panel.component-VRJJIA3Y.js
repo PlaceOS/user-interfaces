@@ -5,8 +5,8 @@ import {
 } from "./chunk-LGCL4S3T.js";
 import {
   CustomTooltipComponent
-} from "./chunk-XTQE2S6F.js";
-import "./chunk-7IOUEM67.js";
+} from "./chunk-ZA2TPIWO.js";
+import "./chunk-IDWGENAM.js";
 import {
   DefaultValueAccessor,
   FormsModule,
@@ -23,13 +23,12 @@ import {
   DEFAULT_SETTINGS,
   OrganisationService,
   SettingsService
-} from "./chunk-V72PF4T5.js";
-import "./chunk-KGDOITXZ.js";
-import "./chunk-EWXLGUEE.js";
+} from "./chunk-7ZDGEQG3.js";
+import "./chunk-VFOBAGRJ.js";
 import {
   IconComponent
 } from "./chunk-INMTY3DS.js";
-import "./chunk-XGSYTLXL.js";
+import "./chunk-SDQYPRVH.js";
 import "./chunk-WR7Z4UF4.js";
 import "./chunk-LEWKNA5J.js";
 import {
@@ -38,6 +37,7 @@ import {
 } from "./chunk-JU4P7B37.js";
 import "./chunk-REERWBDM.js";
 import "./chunk-XQQXKDT5.js";
+import "./chunk-EWXLGUEE.js";
 import {
   Component,
   DOCUMENT,
@@ -1247,5 +1247,5 @@ var SettingsDebugPanelComponent = class _SettingsDebugPanelComponent {
 export {
   SettingsDebugPanelComponent
 };
-//# debugId=b838d731-ea45-510a-971f-51e1e0e3947a
-//# sourceMappingURL=settings-debug-panel.component-WO42DO27.js.map
+//# debugId=577c3058-d53e-57a1-85d5-1a0cd788f2de
+//# sourceMappingURL=settings-debug-panel.component-VRJJIA3Y.js.map

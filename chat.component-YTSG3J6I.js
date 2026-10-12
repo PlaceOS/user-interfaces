@@ -1,10 +1,10 @@
 import {
   ChatService,
   DateFromPipe
-} from "./chunk-4BHSR5SI.js";
+} from "./chunk-I6K7YR5U.js";
 import {
   SanitizePipe
-} from "./chunk-7IOUEM67.js";
+} from "./chunk-IDWGENAM.js";
 import {
   DefaultValueAccessor,
   FormsModule,
@@ -14,21 +14,20 @@ import {
 import "./chunk-AHQCGNDO.js";
 import {
   TranslatePipe
-} from "./chunk-ZF3H46FM.js";
+} from "./chunk-TPUODTON.js";
 import {
   SettingsService,
   User,
   current_user,
   settingSignal
-} from "./chunk-V72PF4T5.js";
+} from "./chunk-7ZDGEQG3.js";
 import {
   AsyncHandler
-} from "./chunk-KGDOITXZ.js";
-import "./chunk-EWXLGUEE.js";
+} from "./chunk-VFOBAGRJ.js";
 import {
   IconComponent
 } from "./chunk-INMTY3DS.js";
-import "./chunk-XGSYTLXL.js";
+import "./chunk-SDQYPRVH.js";
 import "./chunk-LEWKNA5J.js";
 import {
   MatRipple,
@@ -36,6 +35,7 @@ import {
 } from "./chunk-JU4P7B37.js";
 import "./chunk-REERWBDM.js";
 import "./chunk-XQQXKDT5.js";
+import "./chunk-EWXLGUEE.js";
 import {
   Component,
   ViewChild,
@@ -672,4 +672,4 @@ export {
   ChatComponent
 };
 //# debugId=1dfb2823-7f79-53bf-9059-1ac1fe0db570
-//# sourceMappingURL=chat.component-FMRXT7OP.js.map
+//# sourceMappingURL=chat.component-YTSG3J6I.js.map
