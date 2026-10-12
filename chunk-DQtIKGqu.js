@@ -1,3 +1,0 @@
-import{R as Kt}from"./chunk-CGQEFhTx.js";import{Et as fr,nt as __}from"./chunk-CU1xEWw1.js";var r=`/api/staff/v1/guests`;async function C(t){let s=__({q:t});return(await Kt(`${r}${t?`?`+s:``}`)).map(c=>new fr(c))}async function I(t){return new fr(await Kt(`${r}/${encodeURIComponent(t)}`))}export{I as n,C as t};
-//# debugId=8d30956f-6f59-5845-979e-06e809b48649
-//# sourceMappingURL=chunk-DQtIKGqu.js.map
