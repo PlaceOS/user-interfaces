@@ -1,7 +1,7 @@
 import {
   ChatService,
   DateFromPipe
-} from "./chunk-I6K7YR5U.js";
+} from "./chunk-UC7VUPET.js";
 import {
   SanitizePipe
 } from "./chunk-IDWGENAM.js";
@@ -20,7 +20,7 @@ import {
   User,
   current_user,
   settingSignal
-} from "./chunk-7ZDGEQG3.js";
+} from "./chunk-4NL4ELVQ.js";
 import {
   AsyncHandler
 } from "./chunk-VFOBAGRJ.js";
@@ -672,4 +672,4 @@ export {
   ChatComponent
 };
 //# debugId=1dfb2823-7f79-53bf-9059-1ac1fe0db570
-//# sourceMappingURL=chat.component-YTSG3J6I.js.map
+//# sourceMappingURL=chat.component-OSLLFHSJ.js.map

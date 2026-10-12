@@ -2,7 +2,7 @@ import {
   OrganisationService,
   SettingsService,
   currentUser
-} from "./chunk-7ZDGEQG3.js";
+} from "./chunk-4NL4ELVQ.js";
 import {
   AsyncHandler,
   Gp,
@@ -2498,4 +2498,4 @@ export {
   ChatService
 };
 //# debugId=9e991ffc-d499-5f56-a095-78dfdbd222b0
-//# sourceMappingURL=chunk-I6K7YR5U.js.map
+//# sourceMappingURL=chunk-UC7VUPET.js.map
