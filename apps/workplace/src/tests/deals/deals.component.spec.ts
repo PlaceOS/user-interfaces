@@ -21,7 +21,7 @@ const future = (offset = 100000) => NOW + offset;
 
 describe('DealsComponent', () => {
     let spectator: SpectatorRouting<DealsComponent>;
-    const deals = signal<any[]>([]);
+    const deals = signal<unknown[]>([]);
     const view_deal = vi.fn();
     const settings_get = vi.fn();
     const createComponent = createRoutingFactory({
@@ -39,11 +39,11 @@ describe('DealsComponent', () => {
             } as any),
             MockProvider(OrganisationService, {
                 waitUntilInitialised: vi.fn(() => Promise.resolve()),
-            } as any),
+            }),
             MockProvider(SettingsService, {
                 initialised: of(true),
                 get: settings_get,
-            } as any),
+            }),
         ],
         detectChanges: false,
     });

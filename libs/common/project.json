@@ -6,10 +6,7 @@
     "prefix": "placeos",
     "tags": [],
     "targets": {
-        "lint": {
-            "executor": "@nx/eslint:lint",
-            "outputs": ["{options.outputFile}"]
-        },
+        "lint": {},
         "test": {
             "executor": "@angular/build:unit-test",
             "outputs": ["{workspaceRoot}/coverage/libs/common"],

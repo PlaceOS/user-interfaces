@@ -8,14 +8,14 @@ import { ReportsStateService } from 'apps/concierge/src/app/reports/reports-stat
 
 describe('ReportDesksChartsComponent', () => {
     let spectator: Spectator<ReportDesksChartsComponent>;
-    let options: ReturnType<typeof signal<any>>;
-    let counts: ReturnType<typeof signal<any>>;
-    let day_list: ReturnType<typeof signal<any>>;
+    let options: ReturnType<typeof signal<unknown>>;
+    let counts: ReturnType<typeof signal<unknown>>;
+    let day_list: ReturnType<typeof signal<unknown>>;
 
     const createComponent = createComponentFactory({
         component: ReportDesksChartsComponent,
         providers: [
-            MockProvider(ReportsStateService, {} as any),
+            MockProvider(ReportsStateService, {}),
             MockProvider(SettingsService, {
                 get: vi.fn(() => false),
             } as any),

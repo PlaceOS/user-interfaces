@@ -81,14 +81,14 @@ describe('ConciergeSettingsFormModalComponent', () => {
                 name: 'Test User',
                 email: 'test@example.com',
                 groups: ['placeos_admin'],
-            }) as any,
+            }),
         );
         spectator = createComponent();
     });
 
     afterEach(() => {
-        setNotifyOutlet(null as any, true);
-        setCurrentUser(null as any);
+        setNotifyOutlet(null, true);
+        setCurrentUser(null);
         vi.restoreAllMocks();
     });
 
@@ -319,7 +319,7 @@ describe('ConciergeSettingsFormModalComponent', () => {
     });
 
     it('should set loading state during save', async () => {
-        let resolve_save: (v?: any) => void;
+        let resolve_save: (v?: unknown) => void;
         vi.mocked(ts_client.updateMetadata).mockReturnValue(
             new Promise<any>((res) => {
                 resolve_save = res;

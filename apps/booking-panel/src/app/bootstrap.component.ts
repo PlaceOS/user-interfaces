@@ -196,7 +196,7 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
                     this.loading.set('search');
                     const results =
                         search.length < 2
-                            ? { data: [] as any[] }
+                            ? { data: [] as unknown[] }
                             : await querySystems({
                                   q: search,
                                   limit: 20,
@@ -210,7 +210,7 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
                               });
                     if (search_id !== this._search_id) return;
                     this.space_list.set(
-                        results.data.map((item: any) => new Space(item)),
+                        results.data.map((item: unknown) => new Space(item)),
                     );
                     this.loading.set('');
                 },

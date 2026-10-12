@@ -10,8 +10,8 @@ import { EventWeekViewComponent } from '../../app/events/event-week-view.compone
 
 describe('EventWeekViewComponent', () => {
     let spectator: SpectatorRouting<EventWeekViewComponent>;
-    const options = signal<any>({ period: 'week', date: 0 });
-    const event_day_map = signal<any>({});
+    const options = signal<unknown>({ period: 'week', date: 0 });
+    const event_day_map = signal<unknown>({});
     const view_event = vi.fn();
 
     const createComponent = createRoutingFactory({
@@ -70,7 +70,7 @@ describe('EventWeekViewComponent', () => {
     });
 
     it('should delegate event viewing to the state service', () => {
-        spectator.component.viewEvent({ id: 'e1' } as any);
+        spectator.component.viewEvent({ id: 'e1' });
         expect(view_event).toHaveBeenCalledWith({ id: 'e1' });
     });
 });

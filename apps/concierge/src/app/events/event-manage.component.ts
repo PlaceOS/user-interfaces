@@ -669,12 +669,6 @@ export class EventManageComponent
     }
 
     public setLevel(level: BuildingLevel) {
-        const new_zones = unique([
-            this._org.organisation.id,
-            this._org.building.parent_id,
-            this._org.building.id,
-            level.id,
-        ]);
         this._form_state.setOptions({ zones: [level.id] });
     }
 

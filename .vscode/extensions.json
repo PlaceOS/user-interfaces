@@ -4,6 +4,7 @@
         "angular.ng-template",
         "ms-vscode.vscode-typescript-tslint-plugin",
         "esbenp.prettier-vscode",
+        "oxc.oxc-vscode",
         "firsttris.vscode-jest-runner",
         "ms-playwright.playwright"
     ]

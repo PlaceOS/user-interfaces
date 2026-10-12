@@ -15,7 +15,7 @@ export function captureDownloads() {
     const real_create = Document.prototype.createElement;
     const create_spy = vi
         .spyOn(document, 'createElement')
-        .mockImplementation(function (this: any, tag: any, opts?: any) {
+        .mockImplementation(function (this, tag: unknown, opts?: unknown) {
             const element = real_create.call(document, tag, opts);
             if (String(tag).toLowerCase() === 'a') {
                 state.last = element as HTMLAnchorElement;

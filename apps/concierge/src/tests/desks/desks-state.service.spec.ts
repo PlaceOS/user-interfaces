@@ -33,9 +33,9 @@ vi.mock('@placeos/ts-client', { spy: true });
 
 describe('DesksStateService', () => {
     let spectator: SpectatorService<DesksStateService>;
-    let active_building: WritableSignal<any>;
-    let active_region: WritableSignal<any>;
-    let current_building: any;
+    let active_building: WritableSignal<unknown>;
+    let active_region: WritableSignal<unknown>;
+    let current_building: unknown;
     let settings_map: Record<string, any>;
     let notify_open: ReturnType<typeof vi.fn>;
     const organisation_service: any = {
@@ -61,8 +61,8 @@ describe('DesksStateService', () => {
         providers: [
             MockProvider(MatDialog, { open: vi.fn() }),
             MockProvider(SettingsService, {
-                get: ((name: string) => settings_map[name]) as any,
-            } as any),
+                get: (name: string) => settings_map[name],
+            }),
             MockProvider(OrganisationService, organisation_service),
         ],
     });
@@ -118,7 +118,7 @@ describe('DesksStateService', () => {
         vi.mocked(ts_client_mod.post).mockResolvedValue({} as any);
         vi.mocked(ts_client_mod.patch).mockResolvedValue({} as any);
         vi.mocked(ts_client_mod.put).mockResolvedValue({} as any);
-        vi.mocked(ts_client_mod.del).mockResolvedValue(undefined as any);
+        vi.mocked(ts_client_mod.del).mockResolvedValue(undefined);
         vi.mocked(ts_client_mod.updateMetadata).mockResolvedValue({} as never);
         vi.mocked(ts_client_mod.showMetadata).mockResolvedValue({
             details: [],
@@ -127,7 +127,7 @@ describe('DesksStateService', () => {
     });
 
     afterEach(() => {
-        setNotifyOutlet(null as any, true);
+        setNotifyOutlet(null, true);
         vi.restoreAllMocks();
     });
 
@@ -238,9 +238,7 @@ describe('DesksStateService', () => {
         vi.mocked(ts_client_mod.addAsset).mockResolvedValue({
             id: 'asset-desk-1',
         } as any);
-        vi.mocked(ts_client_mod.removeAsset).mockResolvedValue(
-            undefined as any,
-        );
+        vi.mocked(ts_client_mod.removeAsset).mockResolvedValue(undefined);
         spectator.service.setFilters({ zones: ['level-1'] });
         const desk = new Desk({
             id: 'desk-map-1',

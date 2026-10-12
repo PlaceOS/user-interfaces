@@ -9,7 +9,6 @@ const MOCK_SYSTEM_ID = 'space-1';
 const PANEL_URL = `/#/panel/${MOCK_SYSTEM_ID}`;
 const CHECKIN_URL = `/#/checkin/${MOCK_SYSTEM_ID}`;
 const LOAD_TIMEOUT = 30000;
-const MODAL_TIMEOUT = 10000;
 
 test.describe('Booking Modal - Opening', () => {
     test.beforeEach(async ({ page }) => {
@@ -40,7 +39,7 @@ test.describe('Booking Modal - Opening', () => {
         const dialog = page.locator(
             'mat-dialog-container, booking-modal, .cdk-overlay-pane',
         );
-        const dialogCount = await dialog.count();
+        await dialog.count();
         // Dialog may or may not appear based on room status
     });
 });
@@ -83,7 +82,6 @@ test.describe('Booking Modal - Form Fields', () => {
         await page.waitForTimeout(2000);
 
         // Host field visibility depends on disable_book_now_host setting
-        const hostField = page.locator('a-user-search-field');
         // May or may not be visible based on settings
     });
 
@@ -95,7 +93,6 @@ test.describe('Booking Modal - Form Fields', () => {
         await page.waitForTimeout(2000);
 
         // Time field only appears for future bookings
-        const timeField = page.locator('a-time-field');
         // May not be visible for immediate bookings
     });
 });
@@ -166,7 +163,6 @@ test.describe('Booking Modal - From Checkin View', () => {
             await page.waitForTimeout(2000);
 
             // Check for booking modal
-            const modal = page.locator('booking-modal, mat-dialog-container');
             // Modal should appear
         }
     });
@@ -260,7 +256,6 @@ test.describe('Booking Modal - Loading State', () => {
             await saveButton.click();
 
             // Should show loading indicator
-            const spinner = page.locator('mat-spinner');
             // Spinner may appear briefly during save
         }
     });

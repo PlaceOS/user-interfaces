@@ -314,10 +314,9 @@ export class LockerModalComponent extends AsyncHandler implements OnInit {
         return this.locker?.id || '';
     }
 
-    public readonly addTag = (e) =>
-        addChipItem(this._features_control as any, e);
+    public readonly addTag = (e) => addChipItem(this._features_control, e);
     public readonly removeTag = (i) =>
-        removeChipItem(this._features_control as any, i);
+        removeChipItem(this._features_control, i);
 
     public get tag_list(): string[] {
         return this.model().features;
@@ -417,7 +416,7 @@ export class LockerModalComponent extends AsyncHandler implements OnInit {
         this.form().markAsTouched();
         if (!this.form().valid()) return;
         this.loading.set(true);
-        const value: any = { ...this.model() };
+        const value = { ...this.model() };
         if (value.assigned_user) {
             value.assigned_to = value.assigned_user.email;
             value.assigned_name = value.assigned_user.name;

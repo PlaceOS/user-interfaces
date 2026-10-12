@@ -12,8 +12,8 @@ import { EventStateService } from '../../app/events/event-state.service';
 
 describe('EventMonthViewComponent', () => {
     let spectator: SpectatorRouting<EventMonthViewComponent>;
-    const options = signal<any>({ period: 'month', date: Date.now() });
-    const event_day_map = signal<any>({});
+    const options = signal<unknown>({ period: 'month', date: Date.now() });
+    const event_day_map = signal<unknown>({});
     const view_event = vi.fn();
 
     const createComponent = createRoutingFactory({
@@ -69,7 +69,7 @@ describe('EventMonthViewComponent', () => {
     });
 
     it('should delegate event viewing to the state service', () => {
-        spectator.component.viewEvent({ id: 'e1' } as any);
+        spectator.component.viewEvent({ id: 'e1' });
         expect(view_event).toHaveBeenCalledWith({ id: 'e1' });
     });
 });

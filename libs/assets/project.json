@@ -29,8 +29,6 @@
                 "development": {}
             }
         },
-        "lint": {
-            "executor": "@nx/eslint:lint"
-        }
+        "lint": {}
     }
 }

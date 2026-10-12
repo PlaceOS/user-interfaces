@@ -84,7 +84,7 @@ export class ChatService extends AsyncHandler {
             let msg = event.data;
             try {
                 msg = JSON.parse(event.data);
-            } catch (e) {}
+            } catch {}
             this._onMessage(msg);
         };
         socket.onerror = (e) => {

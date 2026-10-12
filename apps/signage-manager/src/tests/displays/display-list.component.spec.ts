@@ -7,8 +7,8 @@ import { SignageDisplayService } from '../../app/displays/signage-display.servic
 
 describe('DisplayListComponent', () => {
     const display_search_term = signal('');
-    const filtered_displays = signal<any[]>([]);
-    const selected_display = signal<any>(null);
+    const filtered_displays = signal<unknown[]>([]);
+    const selected_display = signal<unknown>(null);
     const displays_has_more = signal(false);
     const displays_loading = signal(false);
     const displays_error = signal(false);
@@ -58,10 +58,7 @@ describe('DisplayListComponent', () => {
         const component = make();
         filtered_displays.set([{ id: 'd1' }, { id: 'd2' }]);
         selected_display.set({ id: 'd2' });
-        expect(component.displays().map((d: any) => d.id)).toEqual([
-            'd1',
-            'd2',
-        ]);
+        expect(component.displays().map((d) => d.id)).toEqual(['d1', 'd2']);
         expect(component.selected()?.id).toBe('d2');
     });
 

@@ -64,10 +64,10 @@ export async function openBookingModal(
             resolve(event || ({} as DialogEvent));
         };
         const close = ref.close.bind(ref);
-        ref.close = ((event?: DialogEvent) => {
+        ref.close = (event?: DialogEvent) => {
             finish(event);
             close(event);
-        }) as any;
+        };
         event_sub = ref.componentInstance.event.subscribe((event) => {
             finish(event);
         });

@@ -10,7 +10,7 @@ vi.mock('chart.js');
 
 describe('ParkingReportChartsComponent', () => {
     let spectator: Spectator<ParkingReportChartsComponent>;
-    let bookings: ReturnType<typeof signal<any[]>>;
+    let bookings: ReturnType<typeof signal<unknown[]>>;
     let counts: ReturnType<typeof signal<Record<string, number>>>;
 
     const day_1 = new Date('2026-04-06T09:00:00').valueOf();
@@ -27,7 +27,7 @@ describe('ParkingReportChartsComponent', () => {
             {
                 provide: ParkingReportService,
                 useValue: {
-                    bookings: (bookings = signal<any[]>([])),
+                    bookings: (bookings = signal<unknown[]>([])),
                     counts: (counts = signal<Record<string, number>>({})),
                 },
             },
@@ -43,7 +43,7 @@ describe('ParkingReportChartsComponent', () => {
     });
 
     beforeEach(() => {
-        bookings = signal<any[]>([]);
+        bookings = signal<unknown[]>([]);
         counts = signal<Record<string, number>>({});
         spectator = createComponent({
             providers: [

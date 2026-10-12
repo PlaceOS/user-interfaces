@@ -290,7 +290,7 @@ test.describe('US-047: View TV Channels', () => {
     }) => {
         // TV channels tab shows tv-channels controls
         const tvControls = page.locator('tv-controls');
-        const isVisible = await tvControls.isVisible().catch(() => false);
+        await tvControls.isVisible().catch(() => false);
 
         // Visibility depends on tab configuration
     });
@@ -302,9 +302,7 @@ test.describe('US-048: Use Hearing Loop', () => {
         await ensurePoweredOn(page);
     });
 
-    test('should indicate hearing loop availability if configured', async ({
-        page,
-    }) => {
+    test('should indicate hearing loop availability if configured', async () => {
         // Hearing loop indicator would be shown when available
     });
 });
@@ -363,7 +361,6 @@ test.describe('US-050: View System Status', () => {
         await page.goto(`${TABBED_URL}?mock=true`);
 
         // Loader may appear briefly during connection
-        const loader = page.locator('div[name="loader"]');
         const tabbedView = page.locator('app-control-tabbed-view');
 
         // Eventually should connect

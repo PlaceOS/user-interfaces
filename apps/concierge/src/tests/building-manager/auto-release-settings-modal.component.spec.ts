@@ -47,11 +47,11 @@ describe('AutoReleaseSettingsModalComponent', () => {
         (ts_client.showMetadata as any).mockResolvedValue({ details: {} });
         (ts_client.updateMetadata as any).mockResolvedValue({ id: 'meta' });
         spectator = createComponent();
-        (spectator.inject(MatDialogRef).close as any).mockClear();
+        spectator.inject(MatDialogRef).close.mockClear();
     });
 
     afterEach(() => {
-        setNotifyOutlet(null as any, true);
+        setNotifyOutlet(null, true);
         vi.restoreAllMocks();
     });
 

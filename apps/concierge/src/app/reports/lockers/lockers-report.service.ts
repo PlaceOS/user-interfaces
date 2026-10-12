@@ -58,7 +58,7 @@ export class LockersReportService {
         defaultValue: {} as Record<string, number>,
         loader: async ({ params: filters }) => {
             let zones = (filters.zones || []).filter(
-                (z: any) => z !== -1 && z !== 'All',
+                (z: unknown) => z !== -1 && z !== 'All',
             );
             if (!zones.length) {
                 zones = (

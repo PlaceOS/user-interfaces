@@ -9,9 +9,9 @@ describe('AccessibilityTooltipComponent', () => {
     let spectator: Spectator<AccessibilityTooltipComponent>;
 
     const theme = signal<string>('light');
-    let setting_signals: Record<string, WritableSignal<any>> = {};
+    let setting_signals: Record<string, WritableSignal<unknown>> = {};
     const settings_mock = {
-        signal: vi.fn((name: string, default_value?: any) => {
+        signal: vi.fn((name: string, default_value?: unknown) => {
             if (!setting_signals[name]) {
                 setting_signals[name] = signal(default_value);
             }

@@ -52,7 +52,7 @@ describe('SignageGroupZoneSelectModalComponent', () => {
         const component = await make();
 
         expect(queryGroupZones).toHaveBeenCalledWith('');
-        expect(component.list.items().map((zone: any) => zone.id)).toEqual([
+        expect(component.list.items().map((zone) => zone.id)).toEqual([
             'zone-1',
             'zone-2',
         ]);

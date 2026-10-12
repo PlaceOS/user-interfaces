@@ -50,7 +50,7 @@ describe('EventFormComponent', () => {
                         form: ref.form,
                         can_notify_new_attendees_only: signal(false),
                         notify_new_attendees_only: signal(false),
-                    } as any;
+                    };
                 },
             },
             MockProvider(OrganisationService as any, {

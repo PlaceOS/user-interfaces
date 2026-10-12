@@ -14,9 +14,9 @@ import { AssetViewComponent } from '../../app/asset-manager/asset-view.component
 
 vi.mock('@placeos/ts-client', { spy: true });
 
-const active_product = signal<any>(null);
+const active_product = signal<unknown>(null);
 const extra_assets = signal<Asset[]>([]);
-const active_product_requests = signal<any[]>([]);
+const active_product_requests = signal<unknown[]>([]);
 
 describe('AssetViewComponent', () => {
     let spectator: Spectator<AssetViewComponent>;
@@ -37,7 +37,7 @@ describe('AssetViewComponent', () => {
                 postChange: () => post_change(),
                 setOptions: vi.fn(),
             } as any),
-            MockProvider(OrganisationService, { currency_code: 'AUD' } as any),
+            MockProvider(OrganisationService, { currency_code: 'AUD' }),
             MockProvider(MatDialog, { open: vi.fn() }),
             MockProvider(Router, { navigate: vi.fn() }),
             MockProvider(ActivatedRoute, { paramMap: of(new Map()) } as any),

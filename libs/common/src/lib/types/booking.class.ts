@@ -345,10 +345,10 @@ export class Booking {
             .filter((request) => request.deliver_at < this.date_end)
             .map((request) => {
                 const booking = list.find(
-                    (_: any) => _.extension_data.request_id === request.id,
+                    (_) => _.extension_data.request_id === request.id,
                 );
                 if (booking) {
-                    (request as any).state = booking.approved
+                    request.state = booking.approved
                         ? 'approved'
                         : booking.rejected
                           ? 'rejected'
@@ -438,8 +438,7 @@ export class Booking {
 
         copyUnknownFields(this, data);
         this.extension_data.assets = (this.extension_data.assets || []).map(
-            (i) =>
-                new AssetRequest({ ...i, event: this, date: this.date } as any),
+            (i) => new AssetRequest({ ...i, event: this, date: this.date }),
         );
         this.extension_data.tags = data.tags || [];
         if (this.extension_data.request) {
@@ -447,7 +446,7 @@ export class Booking {
                 ...this.extension_data.request,
                 event: this,
                 date: this.date,
-            } as any);
+            });
         }
     }
 

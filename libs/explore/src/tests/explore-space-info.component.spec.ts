@@ -2,7 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { CalendarEvent, MAP_FEATURE_DATA, Space } from '@placeos/common';
 import { getModule } from '@placeos/ts-client';
-import { UserPipe } from '@placeos/users';
+import { UserPipe } from 'libs/users/src/lib/user.pipe';
 import { MockPipe } from 'ng-mocks';
 import { BehaviorSubject } from 'rxjs';
 

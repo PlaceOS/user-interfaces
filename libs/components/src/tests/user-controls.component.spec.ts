@@ -26,7 +26,7 @@ describe('UserControlsComponent', () => {
     const settings = {
         get: vi.fn<(key: string) => unknown>(() => null),
         saveUserSetting: vi.fn(),
-        signal: (name: string, default_value: any) =>
+        signal: (name: string, default_value: unknown) =>
             settingSignal(name, default_value),
     };
     const test_user = new StaffUser({
@@ -71,7 +71,7 @@ describe('UserControlsComponent', () => {
 
     beforeEach(() => {
         vi.clearAllMocks();
-        vi.mocked(logout).mockImplementation(() => undefined as any);
+        vi.mocked(logout).mockImplementation(() => undefined);
         settings.get.mockReturnValue(null);
         setCurrentUser(test_user);
         settingSignal('features', []).set([]);

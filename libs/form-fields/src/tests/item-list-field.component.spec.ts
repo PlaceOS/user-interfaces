@@ -9,7 +9,7 @@ const chipEvent = (input: HTMLInputElement, value: string): MatChipInputEvent =>
     ({ input, value }) as unknown as MatChipInputEvent;
 
 describe('ItemListFieldComponent', () => {
-    let spectator: Spectator<ItemListFieldComponent<any>>;
+    let spectator: Spectator<ItemListFieldComponent<unknown>>;
     const createComponent = createComponentFactory({
         component: ItemListFieldComponent,
         declarations: [MockComponent(IconComponent)],

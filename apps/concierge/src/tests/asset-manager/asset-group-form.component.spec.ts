@@ -15,7 +15,7 @@ describe('AssetGroupFormComponent', () => {
     let spectator: Spectator<AssetGroupFormComponent>;
     let edit_category: any;
 
-    const categories = signal<any[]>([{ id: 'c1', name: 'Furniture' }]);
+    const categories = signal<unknown[]>([{ id: 'c1', name: 'Furniture' }]);
 
     const createComponent = createComponentFactory({
         component: AssetGroupFormComponent,
@@ -47,7 +47,7 @@ describe('AssetGroupFormComponent', () => {
             images: [],
             brand: '',
             description: '',
-        } as any);
+        });
     });
 
     it('should append a newly created category to the option list', () => {

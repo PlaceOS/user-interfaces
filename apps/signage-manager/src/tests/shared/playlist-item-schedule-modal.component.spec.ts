@@ -19,7 +19,7 @@ class ModalShellStubComponent {
 
 @Component({ selector: 'playlist-schedule-form', template: '' })
 class ScheduleFormStubComponent {
-    public readonly schedule = input<any>();
+    public readonly schedule = input<unknown>();
     public readonly index = input(0);
     public readonly open = input(false);
     public readonly can_remove = input(false);
@@ -29,7 +29,7 @@ class ScheduleFormStubComponent {
 
 @Component({ selector: 'media-thumbnail', template: '' })
 class MediaThumbnailStubComponent {
-    public readonly item = input<any>();
+    public readonly item = input<unknown>();
     public readonly cover = input(false);
 }
 

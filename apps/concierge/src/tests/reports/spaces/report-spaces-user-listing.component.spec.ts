@@ -9,7 +9,7 @@ import { ReportsStateService } from 'apps/concierge/src/app/reports/reports-stat
 
 describe('ReportSpacesUserListingComponent', () => {
     let spectator: Spectator<ReportSpacesUserListingComponent>;
-    let stats: ReturnType<typeof signal<any>>;
+    let stats: ReturnType<typeof signal<unknown>>;
 
     const createComponent = createComponentFactory({
         component: ReportSpacesUserListingComponent,
@@ -21,13 +21,13 @@ describe('ReportSpacesUserListingComponent', () => {
         providers: [
             {
                 provide: ReportsStateService,
-                useValue: { stats: (stats = signal<any>({ events: [] })) },
+                useValue: { stats: (stats = signal<unknown>({ events: [] })) },
             },
         ],
     });
 
     beforeEach(() => {
-        stats = signal<any>({ events: [] });
+        stats = signal<unknown>({ events: [] });
         spectator = createComponent({
             providers: [
                 { provide: ReportsStateService, useValue: { stats } },

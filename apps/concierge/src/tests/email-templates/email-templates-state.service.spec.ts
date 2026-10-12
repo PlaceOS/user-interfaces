@@ -40,8 +40,8 @@ describe('EmailTemplatesStateService', () => {
     let spectator: SpectatorService<EmailTemplatesStateService>;
     let notify_open: ReturnType<typeof vi.fn>;
     let dialog_open: (...args: any[]) => unknown;
-    const active_building = signal<any>({ id: 'bld-1' });
-    const active_region = signal<any>(null);
+    const active_building = signal<unknown>({ id: 'bld-1' });
+    const active_region = signal<unknown>(null);
 
     const createService = createServiceFactory({
         service: EmailTemplatesStateService,
@@ -51,7 +51,7 @@ describe('EmailTemplatesStateService', () => {
                 active_building,
                 active_region,
             } as any),
-            MockProvider(SettingsService, { get: vi.fn() } as any),
+            MockProvider(SettingsService, { get: vi.fn() }),
             MockProvider(MatDialog, {
                 open: (...args: any[]) => dialog_open(...args),
             } as any),
@@ -76,7 +76,7 @@ describe('EmailTemplatesStateService', () => {
     });
 
     afterEach(() => {
-        setNotifyOutlet(null as any, true);
+        setNotifyOutlet(null, true);
     });
 
     it('should reject templates that have no building zone', async () => {

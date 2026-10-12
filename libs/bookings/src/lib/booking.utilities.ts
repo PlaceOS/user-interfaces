@@ -1,8 +1,4 @@
 import {
-    queryLockerAssetsForZones,
-    queryLockerBankAssetsForZones,
-} from '@placeos/assets';
-import {
     Booking,
     CalendarEvent,
     fromEventRecurrence,
@@ -11,8 +7,12 @@ import {
     toBookingRecurrence,
     unique,
 } from '@placeos/common';
-import { getMapDetails } from '@placeos/components';
 import { PlaceAsset } from '@placeos/ts-client';
+import {
+    queryLockerAssetsForZones,
+    queryLockerBankAssetsForZones,
+} from 'libs/assets/src/lib/locker-assets.fn';
+import { getMapDetails } from 'libs/components/src/lib/map-viewer.class';
 import { Locker, LockerBank } from './locker.class';
 
 function parseJson<T>(value: string, fallback: T): T {
@@ -62,14 +62,14 @@ export function lockerFromAsset(
     banks: LockerBank[],
 ): Locker {
     const data = asset.other_data || {};
-    const bank_id = (asset as any).parent_id || '';
+    const bank_id = asset.parent_id || '';
     const bank = banks.find((_) => _.id === bank_id);
     return {
         id: asset.id,
         bank_id,
         map_id: asset.map_id || data.map_id,
-        assigned_to: (asset as any).assigned_to || data.assigned_to,
-        assigned_name: (asset as any).assigned_name || data.assigned_name,
+        assigned_to: asset.assigned_to || data.assigned_to,
+        assigned_name: asset.assigned_name || data.assigned_name,
         name: asset.identifier || data.name || '',
         accessible: data.accessible === 'true',
         bookable: asset.bookable !== false,

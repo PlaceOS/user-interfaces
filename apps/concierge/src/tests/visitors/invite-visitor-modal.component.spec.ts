@@ -10,7 +10,7 @@ describe('InviteVisitorModalComponent', () => {
     let loading: WritableSignal<string>;
     let booking_form: {
         loading: WritableSignal<string>;
-        clearOldState: any;
+        clearOldState: unknown;
     };
 
     beforeEach(async () => {

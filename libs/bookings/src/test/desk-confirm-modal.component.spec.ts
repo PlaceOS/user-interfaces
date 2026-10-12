@@ -36,7 +36,7 @@ describe('DeskConfirmModalComponent', () => {
     it('should allow setting the host', () => {
         expect('[host]').not.toExist();
         const settings = spectator.inject(SettingsService);
-        (settings.get as any).mockImplementation(() => true);
+        settings.get.mockImplementation(() => true);
         spectator.detectChanges();
         expect('[host]').toExist();
     });

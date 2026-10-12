@@ -54,7 +54,7 @@ export interface ApplicationSettings {
     environment_bar?: string;
 }
 
-export interface GeneralAppSettings {}
+export type GeneralAppSettings = Record<string, unknown>;
 
 const app: any = {
     title: 'PlaceOS',

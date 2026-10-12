@@ -15,8 +15,8 @@ import { DeskMapComponent } from '../lib/desk-select-modal/desk-map.component';
 
 describe('DeskMapComponent', () => {
     let spectator: Spectator<DeskMapComponent>;
-    const available_resources = signal<any[]>([]);
-    const resources = signal<any[]>([]);
+    const available_resources = signal<unknown[]>([]);
+    const resources = signal<unknown[]>([]);
     const options = signal<any>({});
     const loading = signal<string>('');
     const set_options = vi.fn((o) => options.update((v) => ({ ...v, ...o })));
@@ -110,7 +110,7 @@ describe('DeskMapComponent', () => {
     });
 
     it('should emit onSelect when a desk is selected', () => {
-        let selected: any = null;
+        let selected: unknown = null;
         spectator.component.onSelect.subscribe((d) => (selected = d));
         spectator.component.selectDesk({ id: 'd1' } as any);
         expect(selected).toEqual({ id: 'd1' });
@@ -147,7 +147,7 @@ describe('DeskMapComponent', () => {
 
     it('should build no map features when hide_user setting is on', () => {
         const settings = spectator.inject(SettingsService);
-        (settings.get as any).mockImplementation(
+        settings.get.mockImplementation(
             (key: string) => key === 'app.desks.hide_user',
         );
         resources.set([{ id: 'd1', name: 'Desk One' }]);

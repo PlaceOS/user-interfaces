@@ -14,19 +14,19 @@ import { NewParkingFlowConfirmComponent } from '../../../app/book/parking-flow/p
 describe('NewParkingFlowConfirmComponent', () => {
     let spectator: Spectator<NewParkingFlowConfirmComponent>;
     let notify_open: any;
-    let model: ReturnType<typeof signal<Record<string, any>>>;
+    let model: ReturnType<typeof signal<Record<string, unknown>>>;
     let loading: ReturnType<typeof signal<boolean>>;
     let post_form: any;
-    let dismiss: any;
+    let dismiss: unknown;
 
     const createComponent = createComponentFactory({
         component: NewParkingFlowConfirmComponent,
         detectChanges: false,
         providers: [
-            MockProvider(BookingFormService, {} as any),
-            MockProvider(OrganisationService, {} as any),
-            MockProvider(SettingsService, {} as any),
-            MockProvider(MatBottomSheetRef, {} as any),
+            MockProvider(BookingFormService, {}),
+            MockProvider(OrganisationService, {}),
+            MockProvider(SettingsService, {}),
+            MockProvider(MatBottomSheetRef, {}),
         ],
     });
 
@@ -77,13 +77,13 @@ describe('NewParkingFlowConfirmComponent', () => {
                 } as any),
                 MockProvider(SettingsService, {
                     time_format: 'h:mm a',
-                } as any),
+                }),
                 { provide: MatBottomSheetRef, useValue: { dismiss } },
             ],
         });
     });
 
-    afterEach(() => setNotifyOutlet(null as any, true));
+    afterEach(() => setNotifyOutlet(null, true));
 
     it('should dismiss with a truthy value when the booking is posted successfully', async () => {
         await spectator.component.postForm();

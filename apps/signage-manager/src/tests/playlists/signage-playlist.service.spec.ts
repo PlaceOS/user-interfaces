@@ -30,7 +30,7 @@ import { SignageContextService } from '../../app/signage-context.service';
 import { SignageInventoryService } from '../../app/signage-inventory.service';
 
 type SignagePlaylistServiceTestAccess = SignagePlaylistService &
-    Record<string, any>;
+    Record<string, unknown>;
 
 vi.mock('@placeos/ts-client', { spy: true });
 
@@ -42,7 +42,8 @@ const notify_open = vi.fn(() => ({
 describe('SignagePlaylistService', () => {
     const settings = {
         get: vi.fn(),
-        signal: (_name: string, default_value?: any) => signal(default_value),
+        signal: (_name: string, default_value?: unknown) =>
+            signal(default_value),
     };
     const org = {
         initialised: signal(true),
@@ -573,15 +574,15 @@ describe('SignagePlaylistService', () => {
                 schedules: [
                     { play_cron, play_period: 60, play_takeover: true },
                 ],
-            } as any);
+            });
         const inventory = {
             displays: [
                 new PlaceSystem({
                     id: 'd1',
                     name: 'Lobby',
                     playlists: ['a'],
-                } as any),
-                new PlaceSystem({ id: 'd2', name: 'Cafe' } as any),
+                }),
+                new PlaceSystem({ id: 'd2', name: 'Cafe' }),
             ],
             zones: [],
             playlists: [

@@ -53,23 +53,20 @@ describe('InviteVisitorFormComponent', () => {
                     });
                 },
             },
-            MockProvider(
-                OrganisationService as any,
-                {
-                    initialised: signal(true),
-                    building_list: signal([]),
-                    active_buildings: signal([
-                        { id: 'bld-1', name: 'Building One' },
-                        { id: 'bld-2', name: 'Building Two' },
-                    ]),
-                    buildings: [
-                        { id: 'bld-1', name: 'Building One' },
-                        { id: 'bld-2', name: 'Building Two' },
-                    ],
-                    building: { id: 'bld-1', name: 'Building One' },
-                } as any,
-            ),
-            MockProvider(SettingsService as any, createSettingsServiceMock()),
+            MockProvider(OrganisationService as any, {
+                initialised: signal(true),
+                building_list: signal([]),
+                active_buildings: signal([
+                    { id: 'bld-1', name: 'Building One' },
+                    { id: 'bld-2', name: 'Building Two' },
+                ]),
+                buildings: [
+                    { id: 'bld-1', name: 'Building One' },
+                    { id: 'bld-2', name: 'Building Two' },
+                ],
+                building: { id: 'bld-1', name: 'Building One' },
+            }),
+            MockProvider(SettingsService, createSettingsServiceMock()),
         ],
         imports: [
             ReactiveFormsModule,

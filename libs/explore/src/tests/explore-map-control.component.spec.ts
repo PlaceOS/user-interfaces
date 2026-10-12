@@ -19,13 +19,13 @@ describe('ExploreMapControlComponent', () => {
         component: ExploreMapControlComponent,
         providers: [
             MockProvider(OrganisationService, {
-                initialised: signal(true) as any,
-                active_buildings: signal([]) as any,
-                active_building: signal(null) as any,
-                active_levels: signal([]) as any,
+                initialised: signal(true),
+                active_buildings: signal([]),
+                active_building: signal(null),
+                active_levels: signal([]),
             }),
             MockProvider(ExploreStateService, {
-                level: signal(null) as any,
+                level: signal(null),
                 setLevel: vi.fn(),
                 setFeatures: vi.fn(),
             }),

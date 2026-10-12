@@ -39,8 +39,8 @@ describe('AppComponent (demo domain)', () => {
         settings_get.mockImplementation((key: string) =>
             key === 'composer' ? {} : undefined,
         );
-        vi.mocked(setup).mockResolvedValue(undefined as any);
-        vi.mocked(authority).mockReturnValue(undefined as any);
+        vi.mocked(setup).mockResolvedValue(undefined);
+        vi.mocked(authority).mockReturnValue(undefined);
         setCurrentUser({ email: 'user@example.com' } as any);
         spectator = create_component();
     });

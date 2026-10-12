@@ -8,7 +8,8 @@ import { MockProvider, ngMocks } from 'ng-mocks';
 import { timer } from 'rxjs';
 
 import { SettingsService } from '@placeos/common';
-import { EventFormService, generateEventForm } from '@placeos/events';
+import { generateEventForm } from 'libs/events/src/lib/event-form';
+import { EventFormService } from 'libs/events/src/lib/event-form.service';
 
 import { ExploreBookingModalComponent } from '../lib/explore-booking-modal.component';
 

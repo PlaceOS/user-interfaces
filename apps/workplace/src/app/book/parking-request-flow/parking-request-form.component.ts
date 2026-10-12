@@ -176,7 +176,7 @@ export class ParkingRequestFormComponent
             nearestTo: 5,
             roundingMethod: 'ceil',
         }).valueOf();
-        const defaults: Record<string, any> = {
+        const defaults: Record<string, unknown> = {
             user,
             title: 'Parking Request',
             request_type: 'standard',
@@ -241,19 +241,16 @@ export class ParkingRequestFormComponent
             ...((this.model() as any).extension_data || {}),
             location,
         };
-        this.model.update(
-            (m) =>
-                ({
-                    ...m,
-                    zones: [
-                        this._org.organisation.id,
-                        this._org.region?.id,
-                        building?.id,
-                    ].filter(Boolean),
-                    location,
-                    extension_data,
-                }) as any,
-        );
+        this.model.update((m) => ({
+            ...m,
+            zones: [
+                this._org.organisation.id,
+                this._org.region?.id,
+                building?.id,
+            ].filter(Boolean),
+            location,
+            extension_data,
+        }));
         if (!this.form().valid())
             return notifyError(
                 `Some fields are invalid. [${getInvalidSignalFields(

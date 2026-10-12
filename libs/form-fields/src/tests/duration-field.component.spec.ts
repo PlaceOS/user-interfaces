@@ -159,7 +159,7 @@ describe('DurationFieldComponent', () => {
 
         expect(spectator.component.duration_options()).toEqual([]);
         expect(spectator.component.no_options()).toBe(true);
-        expect(spectator.component.validate(null as any)).toEqual({
+        expect(spectator.component.validate(null)).toEqual({
             no_duration_options: true,
         });
         expect('button[duration-field]').toHaveAttribute('disabled');
@@ -181,7 +181,7 @@ describe('DurationFieldComponent', () => {
         spectator.detectChanges();
 
         expect(spectator.component.no_options()).toBe(false);
-        expect(spectator.component.validate(null as any)).toBeNull();
+        expect(spectator.component.validate(null)).toBeNull();
         expect(on_validator_change).toHaveBeenCalledTimes(2);
     });
 

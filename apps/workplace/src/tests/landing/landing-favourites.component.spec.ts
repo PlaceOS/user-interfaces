@@ -46,9 +46,9 @@ describe('LandingFavouritesComponent', () => {
         const router = spectator.inject(Router);
         const settings = spectator.inject(SettingsService);
         const booking_form = spectator.inject(BookingFormService);
-        (settings.get as any).mockReturnValue(false);
+        settings.get.mockReturnValue(false);
 
-        spectator.component.newBooking('desk', { id: 'desk-123' } as any);
+        spectator.component.newBooking('desk', { id: 'desk-123' });
         vi.runAllTimers();
 
         expect(router.navigate).toHaveBeenCalledWith(['/book', 'desks'], {
@@ -65,8 +65,8 @@ describe('LandingFavouritesComponent', () => {
         const router = spectator.inject(Router);
         const settings = spectator.inject(SettingsService);
         const booking_form = spectator.inject(BookingFormService);
-        (settings.get as any).mockReturnValue(false);
-        const item = { id: 'park-123' } as any;
+        settings.get.mockReturnValue(false);
+        const item = { id: 'park-123' };
 
         spectator.component.newBooking('parking', item);
         vi.runAllTimers();

@@ -360,7 +360,7 @@ export class BookCodeFlowComponent
                     scanForQRCode(video_el).subscribe({
                         next: (qr_code) =>
                             qr_code ? this.handleQrCode(qr_code) : null,
-                        error: (error: any) =>
+                        error: (error: unknown) =>
                             console.error('Error scanning QR code:', error),
                     }),
                 );

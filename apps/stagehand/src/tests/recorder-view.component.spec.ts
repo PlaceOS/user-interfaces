@@ -27,7 +27,7 @@ describe('RecorderGridViewComponent', () => {
             MockProvider(OrganisationService, {
                 organisation: { id: 'org-1' } as any,
                 waitUntilInitialised: () => Promise.resolve(),
-            } as any),
+            }),
         ],
     });
 

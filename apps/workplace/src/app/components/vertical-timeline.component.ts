@@ -311,9 +311,6 @@ export class VerticalTimelineComponent
                             : this.offset;
                     const content_box =
                         block.nativeElement.getBoundingClientRect();
-                    const percent_w =
-                        (center.x - off.x - content_box.left) /
-                        content_box.width;
                     const percent_h =
                         (center.y - off.y - content_box.top) /
                         content_box.height;

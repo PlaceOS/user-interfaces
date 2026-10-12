@@ -24,7 +24,7 @@ function response(data: any[]) {
         data,
         total: data.length,
         next: () => null,
-    }) as any;
+    });
 }
 
 describe('AssetStateService', () => {
@@ -34,10 +34,10 @@ describe('AssetStateService', () => {
         providers: [
             MockProvider(SettingsService, {
                 get: vi.fn(() => undefined),
-                overrides: signal([{}, {}]) as any,
+                overrides: signal([{}, {}]),
             }),
             MockProvider(OrganisationService, {
-                initialised: signal(true) as any,
+                initialised: signal(true),
                 active_building: signal({ id: 'bld-1' }) as any,
                 settings: [],
             }),
@@ -76,7 +76,7 @@ describe('AssetStateService', () => {
     });
 
     it('should not make asset requests when assets are disabled', () => {
-        const settings = spectator.inject(SettingsService) as any;
+        const settings = spectator.inject(SettingsService);
         settings.get.mockImplementation((key: string) =>
             key === 'app.has_assets' ? false : undefined,
         );

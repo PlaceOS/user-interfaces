@@ -45,7 +45,7 @@ function validateJSONValue(value: any) {
     if (value instanceof Object) return undefined;
     try {
         JSON.parse(value);
-    } catch (e) {
+    } catch {
         return { kind: 'json' };
     }
     return undefined;
@@ -299,10 +299,10 @@ export class AlertConditionModalComponent
                 (time) => JSON.stringify(time) === old_value,
             );
             if (index >= 0) {
-                old_values.splice(index, 1, new_value as any);
+                old_values.splice(index, 1, new_value);
             }
         } else {
-            old_values.push(new_value as any);
+            old_values.push(new_value);
         }
         const updated_conditions = {
             ...this.alert.conditions,

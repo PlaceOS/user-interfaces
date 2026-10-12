@@ -99,7 +99,7 @@ describe('ImageGenModalComponent', () => {
     async function make(data: Record<string, string> = {}) {
         const jobs = signal<Record<string, ImageGenJob>>({});
         const current_capabilities = capabilities();
-        const generate = vi.fn(async (request) => {
+        const generate = vi.fn(async (_request) => {
             const job: ImageGenJob = {
                 id: 'job-1',
                 state: 'done',
@@ -112,7 +112,7 @@ describe('ImageGenModalComponent', () => {
             jobs.set({ [job.id]: job });
             return job;
         });
-        const edit = vi.fn(async (request) => {
+        const edit = vi.fn(async (_request) => {
             const job: ImageGenJob = {
                 id: 'job-1',
                 state: 'done',

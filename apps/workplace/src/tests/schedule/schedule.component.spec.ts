@@ -77,7 +77,7 @@ describe('ScheduleComponent', () => {
     beforeEach(() => {
         vi.clearAllMocks();
         vi.mocked(ts_client.post).mockResolvedValue({} as any);
-        vi.mocked(ts_client.del).mockResolvedValue(undefined as any);
+        vi.mocked(ts_client.del).mockResolvedValue(undefined);
         spectator = createComponent();
     });
 
@@ -101,7 +101,7 @@ describe('ScheduleComponent', () => {
             type: 'visitor',
             asset_id: 'visitor@example.com',
             asset_name: 'Visitor',
-        } as any);
+        });
 
         spectator.component.editBooking(booking);
         vi.runAllTimers();
@@ -119,7 +119,7 @@ describe('ScheduleComponent', () => {
             type: 'desk',
             asset_id: 'desk-1',
             asset_name: 'Desk 1',
-        } as any);
+        });
 
         spectator.component.editBooking(booking);
         vi.runAllTimers();
@@ -153,7 +153,7 @@ describe('ScheduleComponent', () => {
             type: 'desk',
             asset_id: 'desk-1',
             asset_name: 'Desk 1',
-        } as any);
+        });
 
         await spectator.component.end(booking);
 
@@ -184,7 +184,7 @@ describe('ScheduleComponent', () => {
             type: 'visitor',
             asset_id: 'visitor@example.com',
             asset_name: 'Visitor',
-        } as any);
+        });
 
         await spectator.component.remove(booking);
 

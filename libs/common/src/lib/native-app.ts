@@ -33,18 +33,18 @@ interface NativePluginHandle {
  */
 interface CapacitorBridge {
     isNativePlatform?: () => boolean;
-    registerPlugin?: (name: string) => Record<string, any>;
-    Plugins?: Record<string, Record<string, any> | undefined>;
+    registerPlugin?: (name: string) => Record<string, unknown>;
+    Plugins?: Record<string, Record<string, unknown> | undefined>;
     addListener?: (
         plugin_name: string,
         event_name: string,
-        listener: (event: any) => void,
+        listener: (event: unknown) => void,
     ) => NativePluginHandle;
     nativePromise?: (
         plugin_name: string,
         method_name: string,
-        options?: Record<string, any>,
-    ) => Promise<any>;
+        options?: Record<string, unknown>,
+    ) => Promise<unknown>;
 }
 
 let _native_url_listener: Promise<NativePluginHandle> | null = null;
@@ -107,7 +107,7 @@ function listenToNativeEvent(
 function callNativeMethod(
     plugin_name: string,
     method_name: string,
-    options?: Record<string, any>,
+    options?: Record<string, unknown>,
 ): Promise<any> | null {
     const proxy = nativePluginProxy(plugin_name);
     if (typeof proxy?.[method_name] === 'function') {

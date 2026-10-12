@@ -86,7 +86,7 @@ export class SignageZoneService {
                     ...(group_id ? { descendants: true } : {}),
                 },
                 group_id,
-            ) as any,
+            ),
         );
     }
 

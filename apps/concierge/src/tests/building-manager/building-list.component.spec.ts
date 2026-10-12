@@ -52,7 +52,7 @@ describe('BuildingListComponent', () => {
         });
     });
 
-    afterEach(() => setNotifyOutlet(null as any, true));
+    afterEach(() => setNotifyOutlet(null, true));
 
     it('should expose the filtered buildings from the manager', () => {
         expect(spectator.component.buildings()).toEqual([{ id: 'b1' }]);

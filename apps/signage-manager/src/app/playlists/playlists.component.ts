@@ -14,7 +14,6 @@ import { PlaylistListComponent } from './playlist-list.component';
 import { SignagePlaylistService } from './signage-playlist.service';
 
 const TAB_QUERY_PARAM = 'tab';
-const ITEM_QUERY_PARAM = 'item';
 
 function parsePlaylistTab(value: string | null): 'items' | 'details' {
     return value === 'details' ? 'details' : 'items';

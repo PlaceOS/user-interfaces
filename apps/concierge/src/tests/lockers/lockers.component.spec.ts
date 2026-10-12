@@ -21,8 +21,8 @@ describe('LockersComponent', () => {
             [LockersComponent, { set: { template: '', imports: [] } }],
         ],
         providers: [
-            MockProvider(ActivatedRoute, {} as any),
-            MockProvider(MatDialog, { open: vi.fn() } as any),
+            MockProvider(ActivatedRoute, {}),
+            MockProvider(MatDialog, { open: vi.fn() }),
             MockProvider(SettingsService, {
                 get: vi.fn(() => false),
             } as any),

@@ -43,7 +43,7 @@ describe('report utilities', () => {
                         date,
                         date_end: new Date('2026-04-06T18:00:00').valueOf(),
                         duration: 24 * 60,
-                    } as any,
+                    },
                 ),
             ).toBe(600);
         });

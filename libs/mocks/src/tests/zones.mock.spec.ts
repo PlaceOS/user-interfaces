@@ -11,7 +11,7 @@ import { registerMockZones } from '../lib/api/zones.mock';
 vi.mock('@placeos/ts-client');
 
 /** Build the request object a mocked endpoint is handed by ts-client */
-function request(overrides: Record<string, any> = {}): any {
+function request(overrides: Record<string, unknown> = {}): unknown {
     return {
         url: '',
         path: '',
@@ -30,9 +30,9 @@ describe('registerMockZones', () => {
         const match = vi
             .mocked(registerMockEndpoint)
             .mock.calls.map(([options]) => options)
-            .find((o: any) => o.method === method && o.path === path);
+            .find((o) => o.method === method && o.path === path);
         if (!match) throw new Error(`No handler for ${method} ${path}`);
-        return (req: any) => (match as any).callback(req);
+        return (req: any) => match.callback(req);
     }
 
     const listZones = (query_params = {}) =>

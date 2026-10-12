@@ -1,5 +1,12 @@
 import { CommonModule, DatePipe } from '@angular/common';
-import { Component, computed, inject, model, signal } from '@angular/core';
+import {
+    Component,
+    OnInit,
+    computed,
+    inject,
+    model,
+    signal,
+} from '@angular/core';
 import { MatBottomSheetRef } from '@angular/material/bottom-sheet';
 import { MatRippleModule } from '@angular/material/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -228,7 +235,10 @@ import { addMinutes, endOfDay } from 'date-fns';
         MatTooltipModule,
     ],
 })
-export class NewDeskFlowConfirmComponent extends AsyncHandler {
+export class NewDeskFlowConfirmComponent
+    extends AsyncHandler
+    implements OnInit
+{
     private _state = inject(BookingFormService);
     private _org = inject(OrganisationService);
     private _sheet_ref = inject(MatBottomSheetRef, { optional: true });

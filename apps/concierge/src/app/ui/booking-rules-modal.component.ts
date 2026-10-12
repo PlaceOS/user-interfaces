@@ -487,7 +487,7 @@ export class BookingRulesModalComponent {
         });
     }
 
-    public formatConditionValue(key: string, value: any): string {
+    public formatConditionValue(key: string, value: unknown): string {
         if (value == null) return '';
         if (key === 'min_length' || key === 'max_length') {
             const minutes = Number(value);

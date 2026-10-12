@@ -3,7 +3,7 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatDialog } from '@angular/material/dialog';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { SettingsService, User } from '@placeos/common';
-import { generateMockUser } from '@placeos/users';
+import { generateMockUser } from 'libs/users/src/lib/user.utilities';
 import { MockComponent, MockPipe, MockProvider } from 'ng-mocks';
 
 import {
@@ -45,10 +45,10 @@ describe('UserListFieldComponent', () => {
     // view, producing a benign "Cannot set properties of undefined (setting
     // 'value')" rejection. Null-guard the write so it no-ops once the host input
     // is gone.
-    const trigger_proto = MatAutocompleteTrigger.prototype as any;
+    const trigger_proto = MatAutocompleteTrigger.prototype;
     const original_write = trigger_proto.writeValue;
     beforeAll(() => {
-        trigger_proto.writeValue = function (value: any) {
+        trigger_proto.writeValue = function (value: unknown) {
             Promise.resolve(null).then(() => {
                 try {
                     this._assignOptionValue(value);
@@ -108,8 +108,8 @@ describe('UserListFieldComponent', () => {
             readAsText: () => null,
         };
         vi.spyOn(window, 'FileReader').mockImplementation(function () {
-            return mock_file_reader as any;
-        } as any);
+            return mock_file_reader;
+        });
         spectator.component.addUsersFromFile({
             target: {
                 files: [{ id: 0, type: 'text/csv', size: 1, name: 'File.csv' }],

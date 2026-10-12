@@ -26,7 +26,7 @@ describe('EmailTemplatesComponent', () => {
                 get url() {
                     return router_url;
                 },
-            } as any),
+            }),
         ],
     });
 

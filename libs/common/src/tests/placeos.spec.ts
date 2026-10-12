@@ -33,7 +33,7 @@ function setNative(is_native: boolean) {
 describe('setupPlace', () => {
     beforeEach(() => {
         vi.clearAllMocks();
-        vi.mocked(ts_client.setup).mockResolvedValue(undefined as any);
+        vi.mocked(ts_client.setup).mockResolvedValue(undefined);
         localStorage.clear();
         delete window_store[native_fetch_key];
         window.fetch = real_fetch;

@@ -119,7 +119,7 @@ export class User {
         this.visit_expected = data.visit_expected ?? true;
         this.assistance_required = !!this.extension_data?.assistance_required;
         for (const key in data) {
-            if (!(key in this)) this.extension_data[key] = data[key] as any;
+            if (!(key in this)) this.extension_data[key] = data[key];
         }
     }
 }
@@ -279,7 +279,7 @@ export class StaffUser extends User {
         this.staff_id = data.staff_id || '';
         this.is_logged_in = !!data.is_logged_in;
         this.work_preferences = data.work_preferences || [];
-        this.work_overrides = data.work_overrides || ({} as any);
+        this.work_overrides = data.work_overrides || {};
     }
 }
 

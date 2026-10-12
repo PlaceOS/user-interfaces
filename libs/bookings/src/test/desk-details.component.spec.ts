@@ -1,10 +1,10 @@
 import { Spectator, createComponentFactory } from '@ngneat/spectator/vitest';
 import { MockComponent, MockPipe } from 'ng-mocks';
 
-import { MapPinComponent } from '@placeos/components';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { ImageCarouselComponent } from 'libs/components/src/lib/image-carousel.component';
 import { InteractiveMapComponent } from 'libs/components/src/lib/interactive-map.component';
+import { MapPinComponent } from 'libs/components/src/lib/map-pin.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { DeskDetailsComponent } from '../lib/desk-select-modal/desk-details.component';
 
@@ -33,7 +33,7 @@ describe('DeskDetailsComponent', () => {
             id: 'desk-1',
             name: 'Desk One',
             zone: { name: 'Level 1' },
-        } as any);
+        });
         spectator.detectChanges();
         expect(spectator.query('[empty]')).not.toExist();
         expect(spectator.query('[details]')).toExist();
@@ -45,7 +45,7 @@ describe('DeskDetailsComponent', () => {
             id: 'desk-1',
             name: 'Desk One',
             display_name: 'Fancy Desk',
-        } as any);
+        });
         spectator.detectChanges();
         expect(spectator.query('section[actions]')).toContainText('Fancy Desk');
     });
@@ -53,7 +53,7 @@ describe('DeskDetailsComponent', () => {
     it('should emit close when the back button is clicked', () => {
         let closed = false;
         spectator.component.close.subscribe(() => (closed = true));
-        spectator.setInput('desk', { id: 'desk-1', name: 'Desk One' } as any);
+        spectator.setInput('desk', { id: 'desk-1', name: 'Desk One' });
         spectator.detectChanges();
         spectator.click('button[name="close-desk-details"]');
         expect(closed).toBe(true);
@@ -62,7 +62,7 @@ describe('DeskDetailsComponent', () => {
     it('should emit toggleFav when the favourite button is clicked', () => {
         let toggled = false;
         spectator.component.toggleFav.subscribe(() => (toggled = true));
-        spectator.setInput('desk', { id: 'desk-1', name: 'Desk One' } as any);
+        spectator.setInput('desk', { id: 'desk-1', name: 'Desk One' });
         spectator.detectChanges();
         spectator.click('button[name="toggle-desk-favourite-details"]');
         expect(toggled).toBe(true);
@@ -73,7 +73,7 @@ describe('DeskDetailsComponent', () => {
             id: 'desk-1',
             name: 'Desk One',
             features: ['sit-stand', 'monitor'],
-        } as any);
+        });
         spectator.detectChanges();
         const feats = spectator.queryAll('[facilities] [for="feat"]');
         expect(feats.length).toBe(2);
@@ -81,7 +81,7 @@ describe('DeskDetailsComponent', () => {
     });
 
     it('should hide the map section when hide_map is set', () => {
-        spectator.setInput('desk', { id: 'desk-1', name: 'Desk One' } as any);
+        spectator.setInput('desk', { id: 'desk-1', name: 'Desk One' });
         spectator.detectChanges();
         expect(spectator.query('section[map]')).toExist();
         spectator.setInput('hide_map', true);
@@ -94,7 +94,7 @@ describe('DeskDetailsComponent', () => {
             id: 'desk-1',
             map_id: 'map-1',
             zone: { map_id: 'level-map' },
-        } as any);
+        });
         spectator.detectChanges();
         expect(spectator.component.map_url()).toBe('level-map');
         const features = spectator.component.features();

@@ -23,6 +23,12 @@ history from locally available remote tips and the destination's remote-tracking
 refs. If no remote history is available locally, it checks the full history being
 pushed. Fetch the destination first to avoid checking history it already has.
 
+The `pre-push` hook then lints the working tree. It runs the same commands as
+`bun run lint` and `bun run lint:templates`. Oxlint checks all rules but the
+Angular template rules, and ESLint checks the template rules. Lint errors block
+the push. Warnings do not. If the linters are not installed, the hook prints a
+message and skips this step.
+
 Hooks use Bun from `PATH`, `$BUN_INSTALL/bin/bun`, or the default
 `$HOME/.bun/bin/bun` when `BUN_INSTALL` is unset. They can also use Node.js from
 `PATH`. This lets GUI Git clients run the hooks without loading a shell profile.

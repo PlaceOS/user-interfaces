@@ -81,14 +81,14 @@ describe('VisitorKioskSettingsFormModalComponent', () => {
                 name: 'Test User',
                 email: 'test@example.com',
                 groups: ['placeos_admin'],
-            }) as any,
+            }),
         );
         spectator = createComponent();
     });
 
     afterEach(() => {
-        setNotifyOutlet(null as any, true);
-        setCurrentUser(null as any);
+        setNotifyOutlet(null, true);
+        setCurrentUser(null);
         vi.restoreAllMocks();
     });
 

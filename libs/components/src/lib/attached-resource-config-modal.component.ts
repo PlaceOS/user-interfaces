@@ -320,9 +320,9 @@ export class AttachedResourceConfigModalComponent extends AsyncHandler {
                     let value = i[1];
                     try {
                         value = JSON.parse(i[1] as any);
-                    } catch (e) {}
+                    } catch {}
                     return [i[0], value];
-                }) as any,
+                }),
             };
         });
         this.event.emit({ reason: 'done', metadata: rulesets });

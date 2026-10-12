@@ -21,7 +21,7 @@ const makeConfirmRef = (reason: string) => ({
 
 describe('SurveyService', () => {
     let spectator: SpectatorService<SurveyService>;
-    let building_list: ReturnType<typeof signal<any[] | null>>;
+    let building_list: ReturnType<typeof signal<unknown[] | null>>;
     let dialog_open: any;
     let notify_open: ReturnType<typeof vi.fn>;
 
@@ -31,7 +31,7 @@ describe('SurveyService', () => {
             MockProvider(MatDialog, { open: vi.fn() }),
             MockProvider(OrganisationService, {
                 waitUntilInitialised: vi.fn(() => Promise.resolve()),
-                building_list: null as any,
+                building_list: null,
             }),
         ],
     });
@@ -48,21 +48,21 @@ describe('SurveyService', () => {
             undefined as never,
         );
         dialog_open = vi.fn(() => ({ afterClosed: () => of(true) }));
-        building_list = signal<any[] | null>(null);
-        const org: any = {
+        building_list = signal<unknown[] | null>(null);
+        const org: unknown = {
             waitUntilInitialised: vi.fn(() => Promise.resolve()),
             building_list,
         };
         spectator = createService({
             providers: [
                 MockProvider(OrganisationService, org),
-                MockProvider(MatDialog, { open: dialog_open } as any),
+                MockProvider(MatDialog, { open: dialog_open }),
             ],
         });
     });
 
     afterEach(() => {
-        setNotifyOutlet(null as any, true);
+        setNotifyOutlet(null, true);
     });
 
     it('should filter surveys and answers by the active building', () => {
@@ -94,7 +94,7 @@ describe('SurveyService', () => {
             new Survey({
                 id: 5,
                 pages: [{ title: '', question_order: [1, 3] }],
-            } as any),
+            }),
         );
 
         expect(spectator.service.survey_questions().map((q) => q.id)).toEqual([

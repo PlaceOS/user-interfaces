@@ -643,7 +643,7 @@ export class VisitorKioskSettingsFormModalComponent implements OnInit {
         }));
     }
 
-    private _patchModel(value: Record<string, any>) {
+    private _patchModel(value: Record<string, unknown>) {
         this.model.update((model) => applyAppSettings(model, value));
     }
 
@@ -659,7 +659,7 @@ export class VisitorKioskSettingsFormModalComponent implements OnInit {
             this.existing_settings,
         );
         const user = currentUser();
-        (new_settings as any).edited_by = {
+        new_settings.edited_by = {
             id: user.id,
             name: user.name,
             email: user.email,
@@ -690,7 +690,7 @@ export class VisitorKioskSettingsFormModalComponent implements OnInit {
     }
 
     private async _getMetadata(id) {
-        const metadata: any = await showMetadata(id, this.settings_key);
-        return (metadata.details || {}) as Record<string, any>;
+        const metadata = await showMetadata(id, this.settings_key);
+        return (metadata.details || {}) as Record<string, unknown>;
     }
 }

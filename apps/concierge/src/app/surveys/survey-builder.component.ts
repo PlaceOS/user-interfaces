@@ -591,7 +591,7 @@ export class SurveyBuilderComponent
 
     /** Sync the form with the active survey whenever it loads */
     private readonly _sync_survey = effect(() => {
-        const survey = this._service.survey() as any;
+        const survey = this._service.survey();
         if (!survey) return;
         this.model.update((m) => ({
             ...m,
@@ -725,7 +725,7 @@ export class SurveyBuilderComponent
         const body = { ...details, trigger: details.trigger || 'NONE' };
         const call = survey_id
             ? updateSurvey(`${survey_id}`, { ...body, id: survey_id } as any)
-            : addSurvey(body as any);
+            : addSurvey(body);
         const saved = await call
             .catch((error) => {
                 notifyError('Failed to save survey details. Error: ', error);

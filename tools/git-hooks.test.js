@@ -6,6 +6,7 @@ const {
     mkdtempSync,
     rmSync,
     symlinkSync,
+    writeFileSync,
 } = require('node:fs');
 const { tmpdir } = require('node:os');
 const path = require('node:path');
@@ -201,4 +202,16 @@ test('force pushes check replacement history', (context) => {
     git('reset', '--hard', base);
     commit(`replacement\n\n${ATTRIBUTION}`, true);
     assert.notEqual(run('push', '--force', 'origin', 'main').status, 0);
+});
+
+test('push is blocked when a linter fails', (context) => {
+    const { run, git, commit, directory } = fixture(context);
+    const oxlint = path.join(directory, 'repo/node_modules/oxlint/bin');
+    mkdirSync(oxlint, { recursive: true });
+    writeFileSync(path.join(oxlint, 'oxlint'), 'process.exit(1);');
+    commit('fix: example');
+    const blocked = run('push', 'origin', 'main');
+    assert.notEqual(blocked.status, 0);
+    assert.match(blocked.stderr, /Lint failed/);
+    assert.equal(git('ls-remote', 'origin'), '');
 });

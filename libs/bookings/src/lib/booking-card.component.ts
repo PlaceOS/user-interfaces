@@ -19,7 +19,7 @@ import { OrganisationService } from '@placeos/common';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { StatusPillComponent } from 'libs/components/src/lib/status-pill.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
-import { GroupEventDetailsModalComponent } from '../../../events/src/lib/group-event-details-modal.component';
+import { GroupEventDetailsModalComponent } from 'libs/events/src/lib/group-event-details-modal.component';
 import { BookingDetailsModalComponent } from './booking-details-modal.component';
 import {
     formatEmailName,
@@ -169,9 +169,9 @@ export class BookingCardComponent {
 
     public readonly booking = input<Booking>(undefined);
     public readonly show_day = input(false);
-    public readonly edit_fn = input((i) => null);
-    public readonly remove_fn = input((i, s?) => null);
-    public readonly end_fn = input((i) => null);
+    public readonly edit_fn = input((_i) => null);
+    public readonly remove_fn = input((_i, _s?) => null);
+    public readonly end_fn = input((_i) => null);
     public readonly refresh_fn = input<() => void>();
 
     public readonly raw_description = computed(() =>

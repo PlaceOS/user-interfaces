@@ -2,6 +2,7 @@ import { Clipboard } from '@angular/cdk/clipboard';
 import { DOCUMENT } from '@angular/common';
 import {
     Component,
+    OnInit,
     WritableSignal,
     computed,
     effect,
@@ -37,17 +38,17 @@ interface BindingRecord {
     module_index: number;
     name: string;
     binding: PlaceVariableBinding;
-    value: WritableSignal<any>;
+    value: WritableSignal<unknown>;
     last_update: WritableSignal<number>;
     overridden: WritableSignal<boolean>;
-    driver_value: any;
-    emit(value: any): void;
+    driver_value: unknown;
+    emit(value: unknown): void;
 }
 
 interface BindingRow extends BindingRecord {
     active: boolean;
     count: number;
-    current_value: any;
+    current_value: unknown;
     updated_at: number;
     is_overridden: boolean;
 }
@@ -60,7 +61,7 @@ interface ExecuteMessage {
     module_name: string;
     module_index: number;
     method: string;
-    value: any;
+    value: unknown;
     time: number;
     error: boolean;
 }
@@ -133,7 +134,7 @@ function trackBinding(
 ) {
     const key = bindingKey(module, binding);
     if (records_by_key.has(key)) return binding;
-    const source = binding.listen() as unknown as ClientWritableSignal<any>;
+    const source = binding.listen() as unknown as ClientWritableSignal<unknown>;
     const emit = source.set.bind(source);
     const record: BindingRecord = {
         key,
@@ -190,7 +191,7 @@ function installBindingDebugHooks() {
     const execute = PlaceModuleBinding.prototype.execute;
     PlaceModuleBinding.prototype.execute = function <T>(
         method: string,
-        args: any[] = [],
+        args: unknown[] = [],
         timeout_delay?: number,
     ) {
         const id = ++execute_id;
@@ -949,7 +950,7 @@ installBindingDebugHooks();
     ],
     imports: [FormsModule, MatRippleModule, IconComponent, MatTooltipModule],
 })
-export class BindingDebugPanelComponent extends AsyncHandler {
+export class BindingDebugPanelComponent extends AsyncHandler implements OnInit {
     private _hotkey = inject(HotkeysService);
     private _document = inject(DOCUMENT);
     private _clipboard = inject(Clipboard);
@@ -1170,7 +1171,7 @@ export class BindingDebugPanelComponent extends AsyncHandler {
     }
 
     public saveOverride(row: BindingRow) {
-        let value: any = this.edit_value();
+        let value = this.edit_value();
         try {
             value = JSON.parse(value);
         } catch {

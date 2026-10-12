@@ -134,9 +134,9 @@ describe('Booking Utilities', () => {
             // remove them from the FieldTree, breaking `[formField]`.
             model.update((m) => ({
                 ...m,
-                user: undefined as any,
-                asset_id: undefined as any,
-                assets: undefined as any,
+                user: undefined,
+                asset_id: undefined,
+                assets: undefined,
             }));
 
             // Sanitised synchronously at the update() boundary — no tick.
@@ -160,12 +160,12 @@ describe('Booking Utilities', () => {
             // that makes signal-forms degrade the field binding.
             model.update((m) => ({
                 ...m,
-                user: null as any,
-                asset_id: null as any,
-                assets: null as any,
-                booking_asset: null as any,
-                group: null as any,
-                recurrence_instances: null as any,
+                user: null,
+                asset_id: null,
+                assets: null,
+                booking_asset: null,
+                group: null,
+                recurrence_instances: null,
             }));
 
             expect(typeof form.user).toBe('function');
@@ -196,7 +196,7 @@ describe('Booking Utilities', () => {
                 recurrence_type: 'daily',
                 recurrence_interval: 1,
                 recurrence_end: end_date / 1000,
-                recurrence_instances: undefined as any,
+                recurrence_instances: undefined,
             }));
 
             const recurrence = fromBookingRecurrence(model() as any);

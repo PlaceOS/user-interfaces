@@ -1,4 +1,3 @@
-import { MockComponent } from 'ng-mocks';
 import type { Mock } from 'vitest';
 import { signal } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
@@ -35,7 +34,7 @@ describe('SidebarComponent', () => {
         theme = signal('light');
         dialog = { open: vi.fn() };
         settings = {
-            signal: vi.fn((key: string, def: any) =>
+            signal: vi.fn((key: string, def: unknown) =>
                 key === 'allow_dark_mode' ? allow_dark_mode : signal(def),
             ),
             theme_signal: theme,
@@ -46,13 +45,13 @@ describe('SidebarComponent', () => {
             active_buildings: signal([{ id: 'bld-1', name: 'Building 1' }]),
             _region: undefined,
             _building: undefined,
-            set region(value: any) {
+            set region(value: unknown) {
                 this._region = value;
             },
             get region() {
                 return this._region;
             },
-            set building(value: any) {
+            set building(value: unknown) {
                 this._building = value;
             },
             get building() {

@@ -36,13 +36,13 @@ describe('CheckoutComponent', () => {
             {
                 provide: CheckinStateService,
                 useValue: {
-                    event: signal<any>({ id: 'booking-1' }),
+                    event: signal<unknown>({ id: 'booking-1' }),
                     checkinGuest: vi.fn(async () => null),
                 },
             },
             MockProvider(OrganisationService, {
                 waitUntilInitialised: async () => null,
-            } as any),
+            }),
         ],
     });
 
@@ -55,7 +55,7 @@ describe('CheckoutComponent', () => {
         });
     });
 
-    afterEach(() => setNotifyOutlet(null as any, true));
+    afterEach(() => setNotifyOutlet(null, true));
 
     describe('ngOnInit', () => {
         it('redirects to checkout when there is no event', async () => {
@@ -90,9 +90,7 @@ describe('CheckoutComponent', () => {
 
         it('does not navigate when checkout fails', async () => {
             const state = spectator.inject(CheckinStateService);
-            (state.checkinGuest as any).mockRejectedValueOnce(
-                new Error('failed'),
-            );
+            state.checkinGuest.mockRejectedValueOnce(new Error('failed'));
             await spectator.component.checkout();
             expect(spectator.component.loading()).toBe(false);
             expect(spectator.inject(Router).navigate).not.toHaveBeenCalled();

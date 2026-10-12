@@ -13,7 +13,7 @@ import { RoomBookingsListComponent } from '../../app/day-view/room-bookings-list
 describe('RoomBookingsListComponent', () => {
     let spectator: Spectator<RoomBookingsListComponent>;
     const filtered = signal<CalendarEvent[]>([]);
-    const spaces = signal<any[]>([]);
+    const spaces = signal<unknown[]>([]);
     const loading = signal(false);
     const user_pipe_transform = vi.fn(
         async (user_id: string, lookup_mode?: string) =>
@@ -53,7 +53,7 @@ describe('RoomBookingsListComponent', () => {
                 app_name: 'concierge',
                 get: vi.fn(),
                 time_format: 'h:mm a',
-            } as any),
+            }),
             MockProvider(MatDialog, { open: vi.fn() }),
             MockProvider(Router, { navigate: vi.fn() }),
             MockProvider(ActivatedRoute, {

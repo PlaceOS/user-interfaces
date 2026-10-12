@@ -435,7 +435,7 @@ export class ParkingStateService extends AsyncHandler {
                 include_checked_out: true,
                 include_deleted: true,
                 limit: 200,
-            } as any);
+            });
     }
 
     /**
@@ -457,7 +457,7 @@ export class ParkingStateService extends AsyncHandler {
         const token = ++this._load_token;
         this._bookings_loading.set(true);
         let failed = false;
-        const resp: any = await Promise.resolve(fetch()).catch(() => {
+        const resp = await Promise.resolve(fetch()).catch(() => {
             failed = true;
             return { data: [], total: 0, next: null };
         });

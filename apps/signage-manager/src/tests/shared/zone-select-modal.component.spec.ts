@@ -8,7 +8,7 @@ describe('ZoneSelectModalComponent', () => {
     const flush = () => new Promise((resolve) => setTimeout(resolve));
     const querySelectableZones = vi.fn();
     const zoneChildren = vi.fn();
-    const root_zones = signal<any[]>([]);
+    const root_zones = signal<unknown[]>([]);
     const service = { querySelectableZones, root_zones, zoneChildren };
     const dialog_ref = { close: vi.fn() };
 

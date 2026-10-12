@@ -29,7 +29,7 @@ describe('Desk', () => {
     });
 
     it('should allow getting simplified version of desk data', () => {
-        const obj: any = item.toJSON();
+        const obj = item.toJSON();
         expect(obj.zone).toBeUndefined();
         expect(obj.id).toBe('');
         expect(obj.name).toBe('');

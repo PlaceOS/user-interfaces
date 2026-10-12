@@ -9,7 +9,7 @@ describe('ParkingRequestSuccessComponent', () => {
     let spectator: SpectatorRouting<ParkingRequestSuccessComponent>;
     let show_links: boolean;
 
-    const last_success: any = {
+    const last_success = {
         title: 'Parking Request',
         date: Date.now(),
         duration: 60,

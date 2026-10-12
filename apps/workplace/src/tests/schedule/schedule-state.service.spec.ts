@@ -8,7 +8,7 @@ import { MockProvider } from 'ng-mocks';
 vi.mock('@placeos/ts-client', { spy: true });
 
 import { ParkingService } from '@placeos/bookings';
-import { OrganisationService, SettingsService } from '@placeos/common';
+import { Booking, OrganisationService, SettingsService } from '@placeos/common';
 import * as ts_client from '@placeos/ts-client';
 import { ScheduleStateService } from '../../app/schedule/schedule-state.service';
 
@@ -39,13 +39,18 @@ describe('ScheduleStateService', () => {
 
     beforeEach(() => {
         vi.clearAllMocks();
-        // The schedule fns (queryBookings/queryEvents/requestSpacesForZone/
+        // The schedule fns (queryAllBookings/queryEvents/requestSpacesForZone/
         // loadLockerResources) are workspace fns that can't be spied; they all
-        // funnel into ts-client `get`/`querySystems`, so stub + assert one
-        // layer down.
+        // funnel into ts-client `get`/`query`/`querySystems`, so stub + assert
+        // one layer down.
         vi.mocked<(url: string) => Promise<unknown>>(
             ts_client.get,
-        ).mockResolvedValue([] as any);
+        ).mockResolvedValue([]);
+        vi.mocked(ts_client.query).mockResolvedValue({
+            data: [],
+            next: null,
+            total: 0,
+        } as any);
         vi.mocked(ts_client.querySystems).mockResolvedValue({
             data: [],
         } as any);
@@ -59,6 +64,7 @@ describe('ScheduleStateService', () => {
     it('should not make schedule requests before schedule data is consumed', () => {
         expect(parking_factory).not.toHaveBeenCalled();
         expect(ts_client.get).not.toHaveBeenCalled();
+        expect(ts_client.query).not.toHaveBeenCalled();
         expect(ts_client.querySystems).not.toHaveBeenCalled();
     });
 
@@ -66,11 +72,12 @@ describe('ScheduleStateService', () => {
         spectator.service.bookings();
 
         expect(ts_client.get).not.toHaveBeenCalled();
+        expect(ts_client.query).not.toHaveBeenCalled();
         expect(ts_client.querySystems).not.toHaveBeenCalled();
     });
 
     it('should only mark enabled feature booking types as loadable', () => {
-        const settings = spectator.inject(SettingsService) as any;
+        const settings = spectator.inject(SettingsService);
         settings.get.mockImplementation((key: string) =>
             key === 'app.features' ? ['desks', 'parking-requests'] : undefined,
         );
@@ -98,7 +105,7 @@ describe('ScheduleStateService', () => {
             (spectator.service as any)._bookingQuery('desk', 'day', date),
         ]);
 
-        expect(ts_client.get).toHaveBeenCalledTimes(1);
+        expect(ts_client.query).toHaveBeenCalledTimes(1);
     });
 
     it('should not reuse in-flight booking queries after a poll is triggered', async () => {
@@ -117,27 +124,62 @@ describe('ScheduleStateService', () => {
         );
         await Promise.all([first, second]);
 
-        expect(ts_client.get).toHaveBeenCalledTimes(2);
+        expect(ts_client.query).toHaveBeenCalledTimes(2);
+    });
+
+    it('should list every page of a day, not only the first', async () => {
+        vi.mocked(ts_client.query).mockResolvedValueOnce({
+            total: 3,
+            data: [
+                new Booking({ id: 'page-1-a', booking_type: 'desk' }),
+                new Booking({ id: 'page-1-b', booking_type: 'desk' }),
+            ],
+            next: () =>
+                Promise.resolve({
+                    total: 3,
+                    data: [new Booking({ id: 'page-2-a', booking_type: 'desk' })],
+                    next: null,
+                }),
+        } as any);
+
+        const bookings = await spectator.service['_bookingQuery'](
+            'desk',
+            'day',
+            new Date(2026, 5, 22, 9).valueOf(),
+        );
+
+        expect(bookings.map((booking) => booking.id)).toEqual([
+            'page-1-a',
+            'page-1-b',
+            'page-2-a',
+        ]);
     });
 
     it('should hide removed visitors but keep ordinary cancellations and failed removals', async () => {
-        vi.mocked<(url: string) => Promise<unknown>>(
-            ts_client.get,
-        ).mockResolvedValue([
-            { id: 'retained', booking_type: 'visitor' },
-            { id: 'cancelled', booking_type: 'visitor', deleted: true },
-            {
-                id: 'removed',
-                booking_type: 'visitor',
-                deleted: true,
-                extension_data: { removed_from_group: true },
-            },
-            {
-                id: 'failed-removal',
-                booking_type: 'visitor',
-                extension_data: { removed_from_group: true },
-            },
-        ]);
+        vi.mocked(ts_client.query).mockResolvedValue({
+            total: 4,
+            next: null,
+            // `query` maps rows through `new Booking` itself; a stub has to.
+            data: [
+                new Booking({ id: 'retained', booking_type: 'visitor' }),
+                new Booking({
+                    id: 'cancelled',
+                    booking_type: 'visitor',
+                    deleted: true,
+                }),
+                new Booking({
+                    id: 'removed',
+                    booking_type: 'visitor',
+                    deleted: true,
+                    extension_data: { removed_from_group: true },
+                }),
+                new Booking({
+                    id: 'failed-removal',
+                    booking_type: 'visitor',
+                    extension_data: { removed_from_group: true },
+                }),
+            ],
+        } as any);
 
         const bookings = await spectator.service['_bookingQuery'](
             'visitor',
@@ -159,8 +201,11 @@ describe('ScheduleStateService', () => {
             new Date(2026, 5, 22, 9).valueOf(),
         );
 
-        const url = vi.mocked(ts_client.get).mock.lastCall?.[0] as string;
-        expect(url).toContain('include_checked_out=true');
-        expect(url).toContain('include_deleted=true');
+        const params = vi.mocked(ts_client.query).mock.lastCall?.[0]
+            ?.query_params as Record<string, unknown>;
+        expect(params).toMatchObject({
+            include_checked_out: true,
+            include_deleted: true,
+        });
     });
 });

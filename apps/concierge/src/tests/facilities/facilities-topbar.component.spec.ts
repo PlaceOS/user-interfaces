@@ -25,13 +25,13 @@ describe('FacilitiesTopbarComponent', () => {
                 setZones: (...args: any[]) => set_zones(...args),
                 setFilters: (...args: any[]) => set_filters(...args),
                 setDate: vi.fn(),
-            } as any),
+            }),
             MockProvider(OrganisationService, {
                 waitUntilInitialised: () => Promise.resolve(),
-                active_levels: signal([]) as any,
+                active_levels: signal([]),
                 levelWithID: vi.fn(),
                 buildings: [],
-            } as any),
+            }),
         ],
     });
 

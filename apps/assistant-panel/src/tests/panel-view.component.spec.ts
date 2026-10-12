@@ -44,7 +44,7 @@ describe('PanelViewComponent', () => {
     let spectator: SpectatorRouting<PanelViewComponent>;
     let chat: {
         messages: ReturnType<typeof signal<MockMessage[]>>;
-        progress: ReturnType<typeof signal<any>>;
+        progress: ReturnType<typeof signal<unknown>>;
         startChat: ReturnType<typeof vi.fn>;
         sendMessage: ReturnType<typeof vi.fn>;
         close: ReturnType<typeof vi.fn>;
@@ -70,19 +70,16 @@ describe('PanelViewComponent', () => {
         // missing under jsdom. Stub the canvas context and the Vosklet global
         // so the window click listener it installs does not throw when tests
         // dispatch clicks; the pipelines themselves stay dormant.
-        (globalThis as any).loadVosklet = false;
-        HTMLCanvasElement.prototype.getContext = vi.fn(
-            () =>
-                ({
-                    drawImage: vi.fn(),
-                    getImageData: vi.fn(),
-                    clearRect: vi.fn(),
-                    beginPath: vi.fn(),
-                    moveTo: vi.fn(),
-                    lineTo: vi.fn(),
-                    stroke: vi.fn(),
-                }) as any,
-        ) as any;
+        globalThis.loadVosklet = false;
+        HTMLCanvasElement.prototype.getContext = vi.fn(() => ({
+            drawImage: vi.fn(),
+            getImageData: vi.fn(),
+            clearRect: vi.fn(),
+            beginPath: vi.fn(),
+            moveTo: vi.fn(),
+            lineTo: vi.fn(),
+            stroke: vi.fn(),
+        })) as any;
         // Provide speech synthesis stubs so the "speak on new message" effect
         // does not flag an unsupported-synthesis error under jsdom.
         (window as any).speechSynthesis = {
@@ -94,12 +91,12 @@ describe('PanelViewComponent', () => {
         (window as any).SpeechSynthesisUtterance = class {
             public rate = 1;
             public pitch = 1;
-            public voice: any = null;
+            public voice: unknown = null;
             constructor(public text: string) {}
         };
         chat = {
             messages: signal<MockMessage[]>([]),
-            progress: signal<any>(null),
+            progress: signal<unknown>(null),
             startChat: vi.fn(),
             sendMessage: vi.fn(),
             close: vi.fn(),

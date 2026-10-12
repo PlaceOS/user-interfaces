@@ -34,7 +34,7 @@ describe('BookingCardComponent', () => {
                 buildingsForRegion: vi.fn(() => []),
             }),
             MockProvider(MatDialog, { open: vi.fn() }),
-            MockProvider(SettingsService as any, settings_service),
+            MockProvider(SettingsService, settings_service),
         ],
     });
 
@@ -133,7 +133,7 @@ describe('BookingCardComponent', () => {
                 type: 'desk',
                 date: addHours(new Date(), 1).valueOf(),
                 deleted: true,
-            } as any),
+            }),
         });
         spectator.detectChanges();
 
@@ -150,7 +150,7 @@ describe('BookingCardComponent', () => {
                 date: addHours(new Date(), -3).valueOf(),
                 duration: 60,
                 deleted: true,
-            } as any),
+            }),
         });
 
         expect(spectator.component.status()).toBe('error');
@@ -164,7 +164,7 @@ describe('BookingCardComponent', () => {
                 title: 'Desk booking',
                 user_email: 'james.mcmillan@example.com',
                 user_name: 'James McMillan',
-            } as any),
+            }),
         });
         spectator.detectChanges();
 
@@ -182,7 +182,7 @@ describe('BookingCardComponent', () => {
                 approved: false,
                 status: 'tentative',
                 process_state: 'wait_list',
-            } as any),
+            }),
         });
 
         expect(spectator.component.status()).toBe('info');
@@ -198,7 +198,7 @@ describe('BookingCardComponent', () => {
                 approved: false,
                 status: 'tentative',
                 extension_data: { requires_manual_approval: true },
-            } as any),
+            }),
         });
 
         expect(spectator.component.status()).toBe('approval');
@@ -213,7 +213,7 @@ describe('BookingCardComponent', () => {
                 date: Date.now(),
                 status: 'tentative',
                 process_state: 'waiting_approval',
-            } as any),
+            }),
         });
 
         expect(spectator.component.status()).toBe('warning');
@@ -232,7 +232,7 @@ describe('BookingCardComponent', () => {
                 approved: false,
                 status: 'tentative',
                 process_state: 'wait_list',
-            } as any),
+            }),
         });
 
         expect(spectator.component.status()).toBe('warning');
@@ -248,7 +248,7 @@ describe('BookingCardComponent', () => {
                 type: 'parking',
                 asset_id: 'parking-1',
                 asset_name: 'Parking 1',
-            } as any),
+            }),
         });
 
         expect(spectator.component.resource_label()).toBe('RESOURCE.PARKING');

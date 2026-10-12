@@ -24,7 +24,7 @@ describe('AssetFormComponent', () => {
                 postChange: vi.fn(),
                 setExtraAssets: vi.fn(),
                 setOptions: vi.fn(),
-            } as any),
+            }),
             MockProvider(OrganisationService, {
                 building: { id: 'bld-1' },
             } as any),
@@ -51,7 +51,7 @@ describe('AssetFormComponent', () => {
             identifier: 'Chair 1',
             other_data: {},
             purchase_order_id: '',
-        } as any);
+        });
     });
 
     it('should save the asset scoped to the active building', async () => {

@@ -1,4 +1,3 @@
-import { signal } from '@angular/core';
 import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/vitest';
 import { BookingFormService } from '@placeos/bookings';
 import { OrganisationService, SettingsService } from '@placeos/common';
@@ -10,7 +9,7 @@ describe('ParkingFlowSuccessComponent', () => {
     let spectator: SpectatorRouting<ParkingFlowSuccessComponent>;
     let show_links: boolean;
 
-    const last_success: any = {
+    const last_success = {
         title: 'My Parking',
         asset_name: 'Bay 1',
         date: Date.now(),

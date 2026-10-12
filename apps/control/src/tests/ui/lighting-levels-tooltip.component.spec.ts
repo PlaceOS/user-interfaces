@@ -14,7 +14,7 @@ import { LightingLevelsTooltipComponent } from '../../app/ui/lighting-levels-too
 describe('LightingLevelsTooltipComponent', () => {
     let spectator: Spectator<LightingLevelsTooltipComponent>;
     const system_id = signal<string>('sys-1');
-    const lighting_levels = signal<any[]>([]);
+    const lighting_levels = signal<unknown[]>([]);
     const close_fn = vi.fn();
     const execute_fn = vi.fn(async () => null);
     const createComponent = createComponentFactory({

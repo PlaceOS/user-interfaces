@@ -105,7 +105,7 @@ describe('[Guest API]', () => {
     describe('removeGuest', () => {
         it('should DELETE guest', async () => {
             const spy = vi.spyOn(ts_client, 'del');
-            spy.mockResolvedValue(undefined as any);
+            spy.mockResolvedValue(undefined);
             const item = await removeGuest('jim');
             expect(item).toBeUndefined();
             expect(spy).toHaveBeenCalledWith('/api/staff/v1/guests/jim', {

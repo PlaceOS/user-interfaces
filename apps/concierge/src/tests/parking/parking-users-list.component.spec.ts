@@ -35,11 +35,11 @@ describe('ParkingUsersListComponent', () => {
                     zones: [],
                     period: 'day',
                     request_filter: 'all',
-                }) as any,
-                loading: signal([]) as any,
+                }),
+                loading: signal([]),
                 editUser: edit_user,
                 removeUser: remove_user,
-            } as any),
+            }),
         ],
     });
 

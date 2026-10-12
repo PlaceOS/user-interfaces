@@ -1,6 +1,6 @@
 import { inject, Injector, signal } from '@angular/core';
 import { MatDialogRef } from '@angular/material/dialog';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
+import { createComponentFactory } from '@ngneat/spectator/vitest';
 import { BookingFormService, generateBookingForm } from '@placeos/bookings';
 import { SettingsService } from '@placeos/common';
 import { MockProvider } from 'ng-mocks';
@@ -8,10 +8,8 @@ import { MockProvider } from 'ng-mocks';
 import { DeskBookModalComponent } from '../../app/desks/desk-book-modal.component';
 
 describe('DeskBookModalComponent', () => {
-    let spectator: Spectator<DeskBookModalComponent>;
     let settings: Record<string, unknown>;
     let model: BookingFormService['model'];
-    let form: BookingFormService['form'];
     let default_value: ReturnType<BookingFormService['model']>;
     const newForm = vi.fn();
     const applyDurationSettings = vi.fn();
@@ -27,16 +25,15 @@ describe('DeskBookModalComponent', () => {
                         inject(Injector),
                     );
                     model = ref.model;
-                    form = ref.form;
                     if (!default_value) default_value = model();
                     return {
                         model: ref.model,
                         form: ref.form,
                         newForm,
                         applyDurationSettings,
-                        options: signal({ type: 'desk' }) as any,
+                        options: signal({ type: 'desk' }),
                         postForm: vi.fn(async () => null),
-                    } as any;
+                    };
                 },
             },
             MockProvider(MatDialogRef, { close: vi.fn() }),
@@ -53,7 +50,7 @@ describe('DeskBookModalComponent', () => {
     });
 
     it('should initialise a desk booking form', () => {
-        spectator = createComponent();
+        createComponent();
 
         expect(newForm).toHaveBeenCalledWith('desk');
         expect(model().duration).toBe(60);
@@ -63,7 +60,7 @@ describe('DeskBookModalComponent', () => {
     it('should apply the desk all day default setting', () => {
         settings['app.desks.all_day_default'] = true;
 
-        spectator = createComponent();
+        createComponent();
 
         expect(model().all_day).toBe(true);
     });
@@ -71,7 +68,7 @@ describe('DeskBookModalComponent', () => {
     it('should fall back to the booking all day default setting', () => {
         settings['app.bookings.all_day_default'] = true;
 
-        spectator = createComponent();
+        createComponent();
 
         expect(model().all_day).toBe(true);
     });

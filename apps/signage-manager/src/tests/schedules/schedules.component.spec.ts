@@ -7,9 +7,9 @@ import { SchedulesSectionComponent } from '../../app/schedules/schedules.compone
 import { SignageInventoryService } from '../../app/signage-inventory.service';
 
 describe('SchedulesSectionComponent', () => {
-    const playlists = signal<any[]>([]);
-    const displays = signal<any[]>([]);
-    const zones = signal<any[]>([]);
+    const playlists = signal<unknown[]>([]);
+    const displays = signal<unknown[]>([]);
+    const zones = signal<unknown[]>([]);
     const navigate = vi.fn();
     const inventory_key = signal({ group_id: 'g-1', change: 1 });
     const load_inventory = vi.fn();

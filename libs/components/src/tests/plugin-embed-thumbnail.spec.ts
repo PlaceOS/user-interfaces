@@ -22,7 +22,7 @@ describe('PluginEmbedComponent thumbnails', () => {
                 data: { api: API, ...message },
                 origin: ORIGIN,
                 source: content_window,
-            } as any),
+            }),
         );
 
     const declareCapabilities = (can_thumbnail?: boolean) =>
@@ -42,7 +42,7 @@ describe('PluginEmbedComponent thumbnails', () => {
 
     beforeEach(() => {
         posted = [];
-        content_window = { postMessage: (msg: any) => posted.push(msg) };
+        content_window = { postMessage: (msg: unknown) => posted.push(msg) };
         spectator = createComponent({
             props: { plugin: { uri: `${ORIGIN}/clock` } as any },
         });

@@ -901,7 +901,7 @@ export class DynamicMapComponent implements OnInit, OnDestroy {
         );
         this.injectors.set(
             (this.features() || []).map(
-                (f: any) =>
+                (f) =>
                     (f.track_id && old_injectors.get(f.track_id)) ||
                     Injector.create({
                         providers: [

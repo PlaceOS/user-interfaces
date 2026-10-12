@@ -1084,7 +1084,7 @@ export class SignageService extends AsyncHandler {
         );
     }
 
-    private _isOverridePlaylist(display: any, id: string) {
+    private _isOverridePlaylist(display: unknown, id: string) {
         const playlist = this._playlistConfig(display, id)?.[0];
         return (
             playlist?.enabled &&
@@ -1262,7 +1262,7 @@ export class SignageService extends AsyncHandler {
      * period, so it starts or continues once the single pass is done, and still
      * ends at its scheduled time.
      */
-    private _checkScheduledOverrides(display: any, playlist_ids: string[]) {
+    private _checkScheduledOverrides(display: unknown, playlist_ids: string[]) {
         const active = this._activeOverrideSchedules(display, playlist_ids);
         const held = this._heldSinglePassRuns(display, playlist_ids);
         const single_pass = active.filter(
@@ -1318,7 +1318,7 @@ export class SignageService extends AsyncHandler {
      * is all outside its validity window is left out: it would pause normal
      * playback behind a blank override for its whole play period.
      */
-    private _activeOverrideSchedules(display: any, playlist_ids: string[]) {
+    private _activeOverrideSchedules(display: unknown, playlist_ids: string[]) {
         const now = time();
         // A key names one run, which is never detected again once its window
         // has passed. Until then it is kept, even while its playlist is
@@ -1354,7 +1354,7 @@ export class SignageService extends AsyncHandler {
      * (`playlist_through`). The hold ends early when its playlist is removed,
      * disabled, no longer a single-pass takeover, or has no valid media.
      */
-    private _heldSinglePassRuns(display: any, playlist_ids: string[]) {
+    private _heldSinglePassRuns(display: unknown, playlist_ids: string[]) {
         const keys = this.override_playlist().schedule_keys || [];
         return keys
             .map((key) => ({
@@ -1379,7 +1379,7 @@ export class SignageService extends AsyncHandler {
             );
     }
 
-    private _hasValidTakeoverMedia(display: any, playlist_id: string) {
+    private _hasValidTakeoverMedia(display: unknown, playlist_id: string) {
         return this._getPlaylistMedia(
             display,
             [playlist_id],
@@ -1465,9 +1465,9 @@ export class SignageService extends AsyncHandler {
                 ),
         );
         if (!unresolved_plugin) return Promise.resolve(display_plugins);
-        return querySignagePlugins({ limit: 500 } as any)
+        return querySignagePlugins({ limit: 500 })
             .catch(() => ({ data: [] }))
-            .then((result: any) => {
+            .then((result) => {
                 const plugins = new Map<string, SignagePlugin>();
                 for (const plugin of result.data || []) {
                     if (plugin?.id) plugins.set(plugin.id, plugin);
@@ -1486,7 +1486,7 @@ export class SignageService extends AsyncHandler {
     }
 
     private _playlistMediaReferences(
-        display: any,
+        display: unknown,
         playlists: string[],
         filter_fn: (item: SignagePlaylist) => boolean,
         kind?: ScheduleKind,

@@ -2,7 +2,7 @@ import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { MockComponent, MockProvider } from 'ng-mocks';
 
 import { UploadsService } from '@placeos/common';
-import { IconComponent } from '@placeos/components';
+import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { RichTextInputComponent } from '../lib/rich-text-input.component';
 
 const mockEditor = vi.hoisted(() => ({
@@ -54,7 +54,7 @@ describe('RichTextInputComponent', () => {
     };
 
     beforeEach(() => {
-        Object.values(mockEditor).forEach((fn) => (fn as any).mockClear?.());
+        Object.values(mockEditor).forEach((fn) => fn.mockClear?.());
         mockEditor.hasFormat.mockReturnValue(false);
         mockEditor.getHTML.mockReturnValue('<p>content</p>');
         spectator = createComponent();

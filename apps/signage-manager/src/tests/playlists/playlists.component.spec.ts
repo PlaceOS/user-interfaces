@@ -8,11 +8,11 @@ import { SignagePlaylistService } from '../../app/playlists/signage-playlist.ser
 import { SignageContextService } from '../../app/signage-context.service';
 
 describe('PlaylistsSectionComponent', () => {
-    const selected_playlist = signal<any>(null);
-    const selected_playlist_item = signal<any>(null);
+    const selected_playlist = signal<unknown>(null);
+    const selected_playlist_item = signal<unknown>(null);
     const selected_playlist_item_index = signal<number | null>(null);
-    const playlists = signal<any[]>([]);
-    const playlist_media_items = signal<any[]>([]);
+    const playlists = signal<unknown[]>([]);
+    const playlist_media_items = signal<unknown[]>([]);
     const playlists_loading = signal(false);
     const can_query = signal(true);
     const navigate = vi.fn();

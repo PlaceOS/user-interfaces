@@ -8,7 +8,7 @@ import {
 describe('PagedSearch', () => {
     const flush = () => new Promise((resolve) => setTimeout(resolve));
 
-    const pageOf = (ids: string[], total = ids.length, next: any = null) => ({
+    const pageOf = (ids: string[], total = ids.length, next: unknown = null) => ({
         data: ids.map((id) => ({ id, name: id })),
         total,
         next: next ? () => Promise.resolve(next) : null,
@@ -93,7 +93,7 @@ describe('PagedSearch', () => {
 
     it('discards pages from a query the search moved on from', async () => {
         const list = await make();
-        let resolve_stale: (value: any) => void = () => {};
+        let resolve_stale: (value: unknown) => void = () => {};
         query.mockReturnValueOnce(
             new Promise((resolve) => (resolve_stale = resolve)),
         );

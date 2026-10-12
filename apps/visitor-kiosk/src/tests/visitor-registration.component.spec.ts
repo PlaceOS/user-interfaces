@@ -36,7 +36,7 @@ describe('VisitorRegistrationComponent', () => {
                 get: vi.fn(),
                 overrides: settings_overrides,
                 signal: vi.fn(() => signal(undefined)),
-            } as any),
+            }),
         ],
     });
 
@@ -127,7 +127,7 @@ describe('VisitorRegistrationComponent', () => {
 
         spectator.component.form_value.update((value) => ({
             ...value,
-            user: null as any,
+            user: null,
         }));
         await vi.advanceTimersByTimeAsync(350);
         spectator.detectChanges();

@@ -18,13 +18,13 @@ import { MockComponent, MockDirective, MockProvider } from 'ng-mocks';
 
 describe('LockersReportComponent', () => {
     let spectator: Spectator<LockersReportComponent>;
-    let query_params: BehaviorSubject<any>;
-    let bookings: ReturnType<typeof signal<any>>;
+    let query_params: BehaviorSubject<unknown>;
+    let bookings: ReturnType<typeof signal<unknown>>;
     let loading: ReturnType<typeof signal<string>>;
-    let active_building: ReturnType<typeof signal<any>>;
-    let set_options: any;
-    let generate_report: any;
-    let download_report: any;
+    let active_building: ReturnType<typeof signal<unknown>>;
+    let set_options: unknown;
+    let generate_report: unknown;
+    let download_report: unknown;
 
     const createComponent = createComponentFactory({
         component: LockersReportComponent,
@@ -38,7 +38,7 @@ describe('LockersReportComponent', () => {
             MockDirective(AuthenticatedImageDirective),
         ],
         imports: [MatProgressSpinnerModule],
-        providers: [MockProvider(SettingsService, {} as any)],
+        providers: [MockProvider(SettingsService, {})],
     });
 
     beforeEach(() => {

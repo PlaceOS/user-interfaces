@@ -16,7 +16,7 @@ const { SurveyQuestion } = ts_client;
 
 describe('QuestionModalComponent', () => {
     let spectator: Spectator<QuestionModalComponent>;
-    let dialog_data: any;
+    let dialog_data: unknown;
     let notify_open: ReturnType<typeof vi.fn>;
     const dialog_close = vi.fn();
 
@@ -27,11 +27,11 @@ describe('QuestionModalComponent', () => {
         providers: [
             { provide: ComponentFixtureAutoDetect, useValue: false },
             { provide: MAT_DIALOG_DATA, useFactory: () => dialog_data },
-            MockProvider(MatDialogRef, { close: dialog_close } as any),
+            MockProvider(MatDialogRef, { close: dialog_close }),
         ],
     });
 
-    function setQuestionEl(valid: boolean, question: any) {
+    function setQuestionEl(valid: boolean, question: unknown) {
         Object.defineProperty(spectator.component, 'question_el', {
             value: signal({ valid: () => valid, question: () => question }),
         });
@@ -54,7 +54,7 @@ describe('QuestionModalComponent', () => {
     });
 
     afterEach(() => {
-        setNotifyOutlet(null as any, true);
+        setNotifyOutlet(null, true);
     });
 
     it('should treat existing questions as edits', () => {

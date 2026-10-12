@@ -158,7 +158,7 @@ export class DeskMapComponent {
         this.desks().map((desk) => ({
             id: desk.map_id || desk.id,
             action: ['touchend', 'mouseup'],
-            callback: () => this.selectDesk(desk as any),
+            callback: () => this.selectDesk(desk),
         })),
     );
 

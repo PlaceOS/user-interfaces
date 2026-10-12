@@ -11,10 +11,10 @@ import { PanelStateService } from '../app/panel-state.service';
 
 describe('EventPanelComponent', () => {
     let spectator: SpectatorRouting<EventPanelComponent>;
-    const current = signal<any>(null);
-    const next = signal<any>(null);
-    const space = signal<any>(null);
-    const settings = signal<any>({});
+    const current = signal<unknown>(null);
+    const next = signal<unknown>(null);
+    const space = signal<unknown>(null);
+    const settings = signal<unknown>({});
     const state_setting = vi.fn();
 
     const createComponent = createRoutingFactory({
@@ -36,11 +36,11 @@ describe('EventPanelComponent', () => {
                 get: vi.fn(() => undefined),
                 overrideCssVariable: vi.fn(),
                 theme: false,
-            } as any),
+            }),
             MockProvider(OrganisationService, {
                 active_building: signal(null),
                 waitUntilInitialised: vi.fn().mockResolvedValue(true),
-            } as any),
+            }),
         ],
     });
 

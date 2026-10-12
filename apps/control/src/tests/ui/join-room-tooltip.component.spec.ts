@@ -6,7 +6,7 @@ import { JoinRoomTooltipComponent } from '../../app/ui/join-room-tooltip.compone
 
 describe('JoinRoomTooltipComponent', () => {
     let spectator: Spectator<JoinRoomTooltipComponent>;
-    const join_modes = signal<Record<string, any>>({});
+    const join_modes = signal<Record<string, unknown>>({});
     const joined_id = signal<string>('');
     const join_fn = vi.fn();
     const createComponent = createComponentFactory({

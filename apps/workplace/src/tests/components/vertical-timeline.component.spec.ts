@@ -23,7 +23,7 @@ describe('VerticalTimelineComponent', () => {
     beforeEach(
         () =>
             (spectator = createComponent({
-                props: { date: at(9, 0), duration: 60 } as any,
+                props: { date: at(9, 0), duration: 60 },
             })),
     );
 

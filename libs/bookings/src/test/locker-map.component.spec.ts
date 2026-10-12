@@ -14,11 +14,11 @@ import { LockerMapComponent } from '../lib/locker-select-modal/locker-map.compon
 
 describe('LockerMapComponent', () => {
     let spectator: Spectator<LockerMapComponent>;
-    const options = signal<any>({});
-    const available_resources = signal<any[]>([]);
+    const options = signal<unknown>({});
+    const available_resources = signal<unknown[]>([]);
     const loading = signal<string[]>([]);
-    const active_region = signal<any>(null);
-    const active_building = signal<any>({ id: 'bld-1' });
+    const active_region = signal<unknown>(null);
+    const active_building = signal<unknown>({ id: 'bld-1' });
     const set_options = vi.fn();
     const resource_user_name = vi.fn(() => '');
 
@@ -112,7 +112,7 @@ describe('LockerMapComponent', () => {
     });
 
     it('should emit onSelect when a locker is selected', () => {
-        let emitted: any = null;
+        let emitted: unknown = null;
         spectator.component.onSelect.subscribe((locker) => (emitted = locker));
         spectator.component.selectLocker({ id: 'locker-1' } as any);
         expect(emitted).toEqual({ id: 'locker-1' });

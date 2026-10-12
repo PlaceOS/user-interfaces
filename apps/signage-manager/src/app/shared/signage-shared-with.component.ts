@@ -27,7 +27,6 @@ import {
 
 @Component({
     // Existing signage-manager components use feature selectors without the app prefix.
-    // eslint-disable-next-line @angular-eslint/component-selector
     selector: 'signage-shared-with',
     template: `
         @if (visible()) {

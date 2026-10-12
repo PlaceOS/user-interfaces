@@ -8,7 +8,7 @@ export function generateMockOrganisation(): Record<string, any> {
         name: `Organisation ${ORG_COUNT}`,
         buildings: Array(3)
             .fill(0)
-            .map((i) => generateMockBuilding()),
+            .map(() => generateMockBuilding()),
         settings: {
             test: {
                 nested: {

@@ -375,7 +375,7 @@ function generateMockMedia() {
     const media = [];
     let mediaId = 1;
 
-    CONTENT_TEMPLATES.forEach((template, templateIndex) => {
+    CONTENT_TEMPLATES.forEach((template) => {
         // Create 2-3 variations of each template
         const variations = predictableRandomInt(3, 2);
 

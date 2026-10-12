@@ -719,7 +719,8 @@ export class MeetingFlowFormComponent extends AsyncHandler implements OnInit {
         }
     };
 
-    private readonly _confirm_ref = viewChild<TemplateRef<any>>('confirm_ref');
+    private readonly _confirm_ref =
+        viewChild<TemplateRef<unknown>>('confirm_ref');
     private readonly _input_el =
         viewChild<ElementRef<HTMLInputElement>>('input');
 
@@ -877,7 +878,7 @@ export class MeetingFlowFormComponent extends AsyncHandler implements OnInit {
                 () => this._updateValidAssets(),
                 this._injector,
             ).destroy,
-        } as any);
+        });
         for (const key of [
             'resources',
             'date',
@@ -887,14 +888,14 @@ export class MeetingFlowFormComponent extends AsyncHandler implements OnInit {
             this.subscription(`${key}_changes`, {
                 unsubscribe: onFieldChange(
                     this._state.model,
-                    (m) => (m as any)[key],
+                    (m) => m[key],
                     () =>
                         this.timeout('check_resources', () =>
                             this._space_list.set(this.model().resources || []),
                         ),
                     this._injector,
                 ).destroy,
-            } as any);
+            });
         }
         this._catering.setOptions({ zone: '' });
         this._space_list.set(this.model().resources || []);

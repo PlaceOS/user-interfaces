@@ -314,8 +314,7 @@ export class AssetListFieldComponent implements ControlValueAccessor {
             this.asset_requests.set(
                 untracked(() =>
                     this.asset_requests().map(
-                        (_) =>
-                            new AssetRequest({ ..._, event: options as any }),
+                        (_) => new AssetRequest({ ..._, event: options }),
                     ),
                 ),
             );
@@ -345,7 +344,7 @@ export class AssetListFieldComponent implements ControlValueAccessor {
                 (_) =>
                     new AssetRequest({
                         ..._,
-                        event: this.options() as any,
+                        event: this.options(),
                         state: _.state,
                     }),
             ),
@@ -434,7 +433,7 @@ export class AssetListFieldComponent implements ControlValueAccessor {
                             _.quantity,
                     ),
                 items: items.map((_) => ({ ..._ })),
-                event: this.options() as any,
+                event: this.options(),
                 deliver_offset: ref.componentInstance.offset(),
                 deliver_time: ref.componentInstance.exact_time()
                     ? time.getHours() + time.getMinutes() / 60

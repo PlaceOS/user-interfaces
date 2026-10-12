@@ -59,8 +59,8 @@ const TYPE_STUB = {
 
 describe('ParkingStateService', () => {
     let spectator: SpectatorService<ParkingStateService>;
-    let active_building: WritableSignal<any>;
-    let active_region: WritableSignal<any>;
+    let active_building: WritableSignal<unknown>;
+    let active_region: WritableSignal<unknown>;
     let current_building: any;
     let settings_map: Record<string, any>;
     let notify_open: ReturnType<typeof vi.fn>;
@@ -87,11 +87,11 @@ describe('ParkingStateService', () => {
         providers: [
             MockProvider(MatDialog, { open: vi.fn() }),
             MockProvider(SettingsService, {
-                get: vi.fn((name: string) => settings_map[name]) as any,
+                get: vi.fn((name: string) => settings_map[name]),
                 signal: vi.fn((name: string, default_value: any) =>
                     signal(settings_map[`app.${name}`] ?? default_value),
-                ) as any,
-            } as any),
+                ),
+            }),
             MockProvider(OrganisationService, organisation_service),
         ],
     });
@@ -174,7 +174,7 @@ describe('ParkingStateService', () => {
     });
 
     afterEach(() => {
-        setNotifyOutlet(null as any, true);
+        setNotifyOutlet(null, true);
         vi.restoreAllMocks();
     });
 
@@ -290,7 +290,7 @@ describe('ParkingStateService', () => {
                 id,
                 user_email: 'staff@example.com',
                 extension_data: {},
-            } as any);
+            });
         const fourth_page = vi.fn().mockResolvedValue({
             data: [booking('booking-4')],
             total: 4,
@@ -334,7 +334,7 @@ describe('ParkingStateService', () => {
             id: 'booking-1',
             user_email: 'staff@example.com',
             extension_data: {},
-        } as any);
+        });
         const repeated_page = vi.fn();
         const first_page = vi.fn().mockResolvedValue({
             data: [booking],
@@ -356,7 +356,7 @@ describe('ParkingStateService', () => {
             id: 'booking-1',
             user_email: 'staff@example.com',
             extension_data: {},
-        } as any);
+        });
         const next_page = vi.fn();
         const empty_page = vi.fn().mockResolvedValue({
             data: [],
@@ -388,7 +388,7 @@ describe('ParkingStateService', () => {
                     id: `booking-${++booking_count}`,
                     user_email: 'staff@example.com',
                     extension_data: {},
-                } as any),
+                }),
             ],
             total: 0,
             next: repeated_page,
@@ -528,7 +528,7 @@ describe('ParkingStateService', () => {
             close: vi.fn(),
         };
         (spectator.inject(MatDialog).open as any).mockReturnValue(dialog_ref);
-        (spectator.inject(MatDialog).open as any).mockClear();
+        spectator.inject(MatDialog).open.mockClear();
 
         await spectator.service.editSpace();
 
@@ -612,7 +612,7 @@ describe('ParkingStateService', () => {
             },
         };
         (spectator.inject(MatDialog).open as any).mockReturnValue(dialog_ref);
-        (spectator.inject(MatDialog).open as any).mockClear();
+        spectator.inject(MatDialog).open.mockClear();
 
         await spectator.service.editSpace();
 

@@ -47,14 +47,14 @@ describe('PanelViewDetailsComponent', () => {
 
     it('should display QR code when enabled', () => {
         const service = spectator.inject(PanelStateService);
-        (service.setting as any).mockReturnValue(true);
+        service.setting.mockReturnValue(true);
         spectator.detectChanges();
         expect(spectator.component.checkin).toBe(true);
     });
 
     it('should hide QR code when disabled', () => {
         const service = spectator.inject(PanelStateService);
-        (service.setting as any).mockReturnValue(false);
+        service.setting.mockReturnValue(false);
         spectator.detectChanges();
         expect(spectator.component.checkin).toBe(false);
     });

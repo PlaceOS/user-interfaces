@@ -20,7 +20,7 @@ describe('DateRangeCalendarComponent', () => {
     });
 
     beforeEach(() => {
-        spectator = createComponent({ props: { month } as any });
+        spectator = createComponent({ props: { month } });
         spectator.detectChanges();
     });
 
@@ -42,7 +42,7 @@ describe('DateRangeCalendarComponent', () => {
         spectator.setInput({
             start: addDays(month, 1).valueOf(),
             end: addDays(month, 5).valueOf(),
-        } as any);
+        });
         const start_change = vi.fn();
         const end_change = vi.fn();
         spectator.component.startChange.subscribe(start_change);
@@ -106,7 +106,7 @@ describe('DateRangeCalendarComponent', () => {
         spectator.setInput('from', from);
         spectator.component.ngOnChanges({
             start: { currentValue: undefined } as any,
-        } as any);
+        });
         const before = spectator.component
             .month_days()
             .find((_) => _.id === addDays(month, 5).valueOf());

@@ -28,7 +28,7 @@ describe('UrlManagementService', () => {
             MockProvider(OrganisationService, {
                 active_building: signal({ id: 'bld-1' }),
             } as any),
-            MockProvider(MatDialog, {} as any),
+            MockProvider(MatDialog, {}),
         ],
     });
 
@@ -43,7 +43,7 @@ describe('UrlManagementService', () => {
     };
 
     beforeEach(() => {
-        dialog_open = vi.fn(() => ({ afterClosed: () => of(true) }) as any);
+        dialog_open = vi.fn(() => ({ afterClosed: () => of(true) }));
         vi.clearAllMocks();
         notify_open = vi.fn(() => ({
             onAction: () => ({ subscribe: () => undefined }),
@@ -57,14 +57,14 @@ describe('UrlManagementService', () => {
         // getShortUrlQRCode() -> fetch() + URL.createObjectURL()
         fetch_mock = vi.fn(async () => ({ blob: async () => new Blob(['x']) }));
         (globalThis as any).fetch = fetch_mock;
-        (URL as any).createObjectURL = vi.fn(() => 'qr-data');
+        URL.createObjectURL = vi.fn(() => 'qr-data');
         spectator = createService();
         (spectator.inject(MatDialog) as any).open = dialog_open;
     });
 
     afterEach(() => {
         vi.useRealTimers();
-        setNotifyOutlet(null as any, true);
+        setNotifyOutlet(null, true);
     });
 
     it('should load short URLs and their QR codes after the debounce period', async () => {

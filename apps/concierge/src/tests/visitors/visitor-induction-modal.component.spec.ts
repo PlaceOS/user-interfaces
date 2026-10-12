@@ -11,7 +11,7 @@ describe('VisitorInductionModalComponent', () => {
         component: VisitorInductionModalComponent,
         shallow: true,
         detectChanges: false,
-        providers: [MockProvider(SettingsService, settings as any)],
+        providers: [MockProvider(SettingsService, settings)],
     });
 
     beforeEach(() => {

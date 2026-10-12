@@ -21,7 +21,7 @@ describe('FooterMenuComponent', () => {
         providers: [
             MockProvider(SettingsService, {
                 get: vi.fn(),
-                theme: 'light' as any,
+                theme: 'light',
             }),
             MockProvider(OrganisationService, {
                 active_building: signal(new Building()),
@@ -34,9 +34,9 @@ describe('FooterMenuComponent', () => {
         detectChanges: false,
     });
 
-    const setSettings = (map: Record<string, any>) => {
+    const setSettings = (map: Record<string, unknown>) => {
         const settings = spectator.inject(SettingsService);
-        (settings.get as any).mockImplementation((key: string) => map[key]);
+        settings.get.mockImplementation((key: string) => map[key]);
     };
 
     beforeEach(() => (spectator = createComponent()));

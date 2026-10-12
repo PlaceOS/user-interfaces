@@ -67,8 +67,8 @@ describe('DashboardAlertManageComponent', () => {
         }));
         setNotifyOutlet({ open: notify_open } as any, true);
         service = {
-            dashboard: signal<any>({ id: 'dash-1', name: 'Lobby' }),
-            alert: signal<any>(undefined),
+            dashboard: signal<unknown>({ id: 'dash-1', name: 'Lobby' }),
+            alert: signal<unknown>(undefined),
             setDashboard: vi.fn(),
             setAlert: vi.fn(),
         };
@@ -77,7 +77,7 @@ describe('DashboardAlertManageComponent', () => {
 
     afterEach(() => {
         spectator?.fixture?.destroy();
-        setNotifyOutlet(null as any, true);
+        setNotifyOutlet(null, true);
     });
 
     it('should reject saving when the name is missing', async () => {
@@ -180,7 +180,7 @@ describe('DashboardAlertManageComponent', () => {
                 }).pipe(delay(1)),
         });
         build();
-        spectator.component.template_system.set({ id: 'sys-1' } as any);
+        spectator.component.template_system.set({ id: 'sys-1' });
 
         await spectator.component.editCondition();
 
@@ -195,7 +195,7 @@ describe('DashboardAlertManageComponent', () => {
             afterClosed: () => of(null).pipe(delay(1)),
         });
         build();
-        spectator.component.template_system.set({ id: 'sys-1' } as any);
+        spectator.component.template_system.set({ id: 'sys-1' });
         const before = spectator.component.model().conditions;
 
         await spectator.component.editCondition();

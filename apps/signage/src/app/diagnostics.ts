@@ -54,7 +54,6 @@ export function registerSignageDiagnostics(
 }
 
 function logState(state: Record<string, unknown>) {
-    /* eslint-disable no-console */
     console.groupCollapsed(
         `%cPlaceOS Signage%c ${state.display_id || 'no display'}`,
         'font-weight:bold',
@@ -74,5 +73,4 @@ function logState(state: Record<string, unknown>) {
         }
     }
     console.groupEnd();
-    /* eslint-enable no-console */
 }

@@ -148,9 +148,7 @@ describe('LockerGridComponent', () => {
         });
 
         it('should return the not-bookable colour for a missing locker', () => {
-            expect(spectator.component.status(undefined as any)).toBe(
-                '#757575',
-            );
+            expect(spectator.component.status(undefined)).toBe('#757575');
         });
     });
 

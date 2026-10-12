@@ -454,7 +454,7 @@ export class CateringStateService extends AsyncHandler {
         zone_id: string = this._org.building.id,
     ): Promise<AttachedResourceRuleset[]> {
         const rules = (await showMetadata(zone_id, 'catering_config')).details;
-        return rules instanceof Array ? (rules as any) : [];
+        return rules instanceof Array ? rules : [];
     }
 
     private updateConfig(zone_id: string, config: AttachedResourceRuleset[]) {
@@ -518,7 +518,7 @@ export class CateringStateService extends AsyncHandler {
         );
     }
 
-    private _doneEvent(event: { subscribe: (_: any) => any }) {
+    private _doneEvent(event: { subscribe: (_: any) => unknown }) {
         return new Promise<any>((resolve) => {
             let sub: any;
             sub = event.subscribe((details) => {
@@ -529,7 +529,7 @@ export class CateringStateService extends AsyncHandler {
         });
     }
 
-    private _closedEvent(event: { subscribe: (_: any) => any }) {
+    private _closedEvent(event: { subscribe: (_: unknown) => unknown }) {
         return new Promise<null>((resolve) => {
             let sub: any;
             sub = event.subscribe(() => {

@@ -40,14 +40,14 @@ describe('VisitorsComponent', () => {
                     },
                 },
             }),
-            MockProvider(Router as any, { navigate: vi.fn() }),
+            MockProvider(Router, { navigate: vi.fn() }),
             MockProvider(OrganisationService as any, {
                 active_building: signal({}),
                 active_region: signal({}),
                 levelsForBuilding: vi.fn(() => []),
                 levelsForRegion: vi.fn(() => []),
             }),
-            MockProvider(SettingsService as any, { get: vi.fn() }),
+            MockProvider(SettingsService, { get: vi.fn() }),
         ],
         declarations: [
             MockComponent(ApplicationTopbarComponent),
@@ -69,14 +69,14 @@ describe('VisitorsComponent', () => {
     beforeEach(() => {
         query_params = new URLSearchParams();
         spectator = createComponent();
-        const service = spectator.inject(VisitorsStateService) as any;
+        const service = spectator.inject(VisitorsStateService);
         service.setFilters.mockClear();
         service.poll.mockClear();
         service.startPolling.mockClear();
     });
 
     it('should refresh visitors when the view is initialised', () => {
-        const service = spectator.inject(VisitorsStateService) as any;
+        const service = spectator.inject(VisitorsStateService);
         spectator.component.ngOnInit();
         expect(service.poll).toHaveBeenCalledTimes(1);
         expect(service.startPolling).toHaveBeenCalledTimes(1);
@@ -84,7 +84,7 @@ describe('VisitorsComponent', () => {
 
     it('should reset the visitor list to today when the route has no date', () => {
         const now = new Date('2026-06-15T12:00:00').valueOf();
-        const service = spectator.inject(VisitorsStateService) as any;
+        const service = spectator.inject(VisitorsStateService);
         const date_now = vi.spyOn(Date, 'now').mockReturnValue(now);
 
         spectator.component.ngOnInit();
@@ -96,7 +96,7 @@ describe('VisitorsComponent', () => {
     it('should restore the visitor list date from the route', () => {
         query_params.set('date', '2026-06-15');
         spectator = createComponent();
-        const service = spectator.inject(VisitorsStateService) as any;
+        const service = spectator.inject(VisitorsStateService);
         service.setFilters.mockClear();
 
         spectator.component.ngOnInit();

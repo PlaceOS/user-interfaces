@@ -16,8 +16,6 @@ let _filter: NotifyFilter | null = null;
 /** Decides whether a notification is shown. Return false to suppress it. */
 export type NotifyFilter = (type: string, message: string) => boolean;
 
-declare let jest: any;
-
 /**
  * Set where notifications are shown. Pass a snackbar, or a loader from
  * `lazySnackbar()` to load Material's snackbar on the first notification.

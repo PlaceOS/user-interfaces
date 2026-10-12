@@ -49,16 +49,16 @@ interface ParkingBookingExtensionColumn {
 }
 
 interface ParkingBookingColumnTemplates {
-    state_template: TemplateRef<any>;
-    type_template: TemplateRef<any>;
-    date_template: TemplateRef<any>;
-    bay_template: TemplateRef<any>;
-    person_template: TemplateRef<any>;
-    host_template: TemplateRef<any>;
-    plate_template: TemplateRef<any>;
-    notes_template: TemplateRef<any>;
-    status_template: TemplateRef<any>;
-    action_template: TemplateRef<any>;
+    state_template: TemplateRef<unknown>;
+    type_template: TemplateRef<unknown>;
+    date_template: TemplateRef<unknown>;
+    bay_template: TemplateRef<unknown>;
+    person_template: TemplateRef<unknown>;
+    host_template: TemplateRef<unknown>;
+    plate_template: TemplateRef<unknown>;
+    notes_template: TemplateRef<unknown>;
+    status_template: TemplateRef<unknown>;
+    action_template: TemplateRef<unknown>;
     status_busy_label: string;
     type_label: string;
     time_label: string;

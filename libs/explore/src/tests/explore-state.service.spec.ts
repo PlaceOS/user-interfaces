@@ -1,7 +1,7 @@
 import { signal } from '@angular/core';
 import { createServiceFactory, SpectatorService } from '@ngneat/spectator';
 import { OrganisationService, SettingsService } from '@placeos/common';
-import { SpacesService } from '@placeos/events';
+import { SpacesService } from 'libs/events/src/lib/spaces.service';
 import { of } from 'rxjs';
 
 import { ExploreStateService } from '../lib/explore-state.service';

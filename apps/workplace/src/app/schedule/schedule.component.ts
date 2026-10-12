@@ -242,7 +242,7 @@ export class ScheduleComponent extends AsyncHandler implements OnInit {
         return this._state.getOptions().period;
     }
 
-    public isEvent(item: any) {
+    public isEvent(item: unknown) {
         return item instanceof CalendarEvent;
     }
 
@@ -367,7 +367,7 @@ export class ScheduleComponent extends AsyncHandler implements OnInit {
                 start_time: (item as any).instance
                     ? (item as any).instance
                     : undefined,
-            } as any,
+            },
         ) as any;
         await (
             remove_result?.then instanceof Function

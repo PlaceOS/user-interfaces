@@ -37,7 +37,7 @@ describe('DesksTopbarComponent', () => {
                 setFilters: vi.fn(),
                 approveDesk: vi.fn(),
                 rejectDesk: vi.fn(),
-            } as any),
+            }),
             MockProvider(OrganisationService, {
                 active_levels: signal([]),
                 initialised: signal(true),

@@ -31,8 +31,8 @@ describe('ReportsStateService', () => {
         service: ReportsStateService,
         providers: [
             MockProvider(SettingsService, {
-                get: ((name: string) => settings_map[name]) as any,
-            } as any),
+                get: (name: string) => settings_map[name],
+            }),
             MockProvider(OrganisationService, {
                 building: {
                     id: 'bld-1',
@@ -97,7 +97,7 @@ describe('ReportsStateService', () => {
 
     afterEach(() => {
         downloads.restore();
-        setNotifyOutlet(null as any, true);
+        setNotifyOutlet(null, true);
     });
 
     it('should expand an "All" zone selection to every building level', () => {
@@ -175,7 +175,7 @@ describe('ReportsStateService', () => {
 
     it('should clear loading when the options change during a load', async () => {
         vi.mocked(ts_client_mod.query).mockReturnValue(
-            new Promise(() => undefined) as any,
+            new Promise(() => undefined),
         );
         spectator.service.setOptions({
             type: 'desks',

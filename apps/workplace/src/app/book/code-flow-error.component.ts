@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, OnInit } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { BookingFormService } from '@placeos/bookings';
@@ -84,7 +84,7 @@ import { TranslatePipe } from '@placeos/components';
     ],
     imports: [MatRippleModule, TranslatePipe, RouterModule],
 })
-export class CodeFlowErrorComponent extends AsyncHandler {
+export class CodeFlowErrorComponent extends AsyncHandler implements OnInit {
     private _route = inject(ActivatedRoute);
     private _state = inject(BookingFormService);
 
@@ -98,11 +98,11 @@ export class CodeFlowErrorComponent extends AsyncHandler {
         this.subscription(
             'route.query',
             this._route.queryParamMap.subscribe((params) => {
-                this.type.set((params.get('type') as any) || 'other');
+                this.type.set(params.get('type') || 'other');
                 this.asset_type.set(
-                    (params.get('asset_type') as any) || 'resource',
+                    params.get('asset_type') || 'resource',
                 );
-                this.asset_id.set(params.get('asset_id') as any);
+                this.asset_id.set(params.get('asset_id'));
             }),
         );
     }

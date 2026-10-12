@@ -38,7 +38,7 @@ describe('MapService', () => {
             {
                 provide: MatBottomSheet,
                 useValue: {
-                    open: vi.fn((RoomTileComponent) => {}),
+                    open: vi.fn((_RoomTileComponent) => {}),
                     afterDismissed: vi.fn(),
                 },
             },
@@ -46,8 +46,8 @@ describe('MapService', () => {
                 provide: RoomConfirmService,
                 useValue: {
                     selected_space: signal(mockSpace),
-                    openRoomDetail: vi.fn((param) => {}),
-                    handleBookEvent: vi.fn((space, flat) => {}),
+                    openRoomDetail: vi.fn((_param) => {}),
+                    handleBookEvent: vi.fn((_space, _flat) => {}),
                 },
             },
         ],
@@ -105,7 +105,7 @@ describe('MapService', () => {
     it('should contain a method to open a room tile when clicked', async () => {
         const mat_bottom_sheet = spectator.inject(MatBottomSheet);
         (mat_bottom_sheet as any).open.mockImplementation(
-            (RoomDetailsComponent) => {},
+            () => {},
         );
         const room_confirm_service = spectator.inject(RoomConfirmService);
 

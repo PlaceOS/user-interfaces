@@ -59,9 +59,9 @@ describe('SurveyOutletComponent', () => {
         vi.clearAllMocks();
         vi.mocked(ts_client.showSurvey).mockResolvedValue(SURVEY);
         vi.mocked(ts_client.showQuestion).mockImplementation(
-            (id) => Promise.resolve({ ...QUESTIONS[+id] }) as any,
+            (id) => Promise.resolve({ ...QUESTIONS[+id] }),
         );
-        vi.mocked(ts_client.addAnswer).mockResolvedValue([] as any);
+        vi.mocked(ts_client.addAnswer).mockResolvedValue([]);
     });
 
     it('should create component', () => {

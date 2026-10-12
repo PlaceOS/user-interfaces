@@ -28,7 +28,7 @@ describe('notifications', () => {
     });
 
     afterEach(() => {
-        setNotifyOutlet(null as any, true);
+        setNotifyOutlet(null, true);
         setNotifyFilter(null);
     });
 
@@ -91,7 +91,7 @@ describe('notifications', () => {
     });
 
     it('should do nothing when no outlet is set', () => {
-        setNotifyOutlet(null as any, true);
+        setNotifyOutlet(null, true);
         expect(() => notify('info', 'Message')).not.toThrow();
     });
 

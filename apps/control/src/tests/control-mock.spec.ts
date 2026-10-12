@@ -1,4 +1,4 @@
-import { createSystemModule } from '../../../../libs/mocks/src/lib/realtime/control';
+import { createSystemModule } from 'libs/mocks/src/lib/realtime/control';
 
 describe('Control mock', () => {
     it('should expose available cameras without selecting one', () => {

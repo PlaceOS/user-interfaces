@@ -6,9 +6,10 @@ import {
 } from '@angular/material/dialog';
 import { createRoutingFactory, Spectator } from '@ngneat/spectator/vitest';
 import { OrganisationService, SettingsService, Space } from '@placeos/common';
-import { EventFormService, generateEventForm } from '@placeos/events';
 import { MockComponent, MockModule, MockProvider } from 'ng-mocks';
 import { BehaviorSubject } from 'rxjs';
+import { generateEventForm } from '../../lib/event-form';
+import { EventFormService } from '../../lib/event-form.service';
 import { SpaceDetailsComponent } from '../../lib/space-select-modal/space-details.component';
 import { SpaceFiltersDisplayComponent } from '../../lib/space-select-modal/space-filters-display.component';
 import { SpaceFiltersComponent } from '../../lib/space-select-modal/space-filters.component';

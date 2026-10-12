@@ -1,0 +1,163 @@
+{
+    "$schema": "./node_modules/oxlint/configuration_schema.json",
+    // Only the rules in this file run. They are the rules that the ESLint
+    // presets enabled, so each new rule is adopted deliberately.
+    "categories": {
+        "correctness": "off"
+    },
+    "plugins": ["typescript"],
+    // ESLint plugins that Oxlint has no native rules for.
+    "jsPlugins": [
+        "@angular-eslint/eslint-plugin",
+        "@nx/eslint-plugin",
+        "eslint-plugin-playwright"
+    ],
+    "rules": {
+        "for-direction": "error",
+        "no-array-constructor": "error",
+        "no-async-promise-executor": "error",
+        "no-compare-neg-zero": "error",
+        "no-constant-binary-expression": "error",
+        "no-debugger": "error",
+        "no-delete-var": "error",
+        "no-dupe-else-if": "error",
+        "no-duplicate-case": "error",
+        "no-empty-character-class": "error",
+        "no-empty-static-block": "error",
+        "no-ex-assign": "error",
+        "no-extra-boolean-cast": "error",
+        "no-global-assign": "error",
+        "no-invalid-regexp": "error",
+        "no-irregular-whitespace": "error",
+        "no-loss-of-precision": "error",
+        "no-nonoctal-decimal-escape": "error",
+        "no-regex-spaces": "error",
+        "no-shadow-restricted-names": "error",
+        "no-unused-labels": "error",
+        "no-unused-private-class-members": "error",
+        // A leading underscore marks a value that is unused on purpose.
+        "no-unused-vars": [
+            "warn",
+            {
+                "argsIgnorePattern": "^_",
+                "caughtErrorsIgnorePattern": "^_",
+                "destructuredArrayIgnorePattern": "^_",
+                "ignoreRestSiblings": true
+            }
+        ],
+        "no-useless-backreference": "error",
+        "require-yield": "error",
+        "use-isnan": "error",
+        "valid-typeof": "error",
+
+        "typescript/adjacent-overload-signatures": "error",
+        "typescript/ban-ts-comment": "error",
+        "typescript/no-duplicate-enum-values": "error",
+        "typescript/no-empty-object-type": "error",
+        "typescript/no-explicit-any": "warn",
+        "typescript/no-extra-non-null-assertion": "error",
+        "typescript/no-misused-new": "error",
+        "typescript/no-namespace": "error",
+        "typescript/no-non-null-asserted-optional-chain": "error",
+        "typescript/no-non-null-assertion": "warn",
+        "typescript/no-unnecessary-type-constraint": "error",
+        "typescript/no-unsafe-declaration-merging": "error",
+        "typescript/no-unsafe-function-type": "error",
+        "typescript/prefer-as-const": "error",
+        "typescript/prefer-namespace-keyword": "error",
+        "typescript/triple-slash-reference": "error",
+
+        "@nx/enforce-module-boundaries": [
+            "error",
+            {
+                "enforceBuildableLibDependency": true,
+                // Projects import single files from other projects by
+                // workspace path. Barrel imports between the libraries
+                // cause circular imports.
+                "allow": ["libs/**", "apps/**"],
+                "depConstraints": [
+                    {
+                        "sourceTag": "*",
+                        "onlyDependOnLibsWithTags": ["*"]
+                    }
+                ]
+            }
+        ]
+    },
+    "overrides": [
+        {
+            "files": ["**/*.ts"],
+            "rules": {
+                "@angular-eslint/contextual-lifecycle": "error",
+                "@angular-eslint/no-inputs-metadata-property": "error",
+                "@angular-eslint/no-outputs-metadata-property": "error",
+                "@angular-eslint/prefer-inject": "error",
+                "@angular-eslint/prefer-standalone": "error",
+                "@angular-eslint/use-lifecycle-interface": "warn",
+                // The standards allow `app-`, `placeos-` and feature prefixes,
+                // and routed components use attribute selectors. Check the
+                // selector type and style only.
+                "@angular-eslint/directive-selector": [
+                    "error",
+                    [{ "type": "attribute", "style": "camelCase" }]
+                ],
+                "@angular-eslint/component-selector": [
+                    "error",
+                    [
+                        { "type": "element", "style": "kebab-case" },
+                        { "type": "attribute", "style": "kebab-case" }
+                    ]
+                ]
+            }
+        },
+        {
+            // Specs cast partial mocks and assert on values that the test set up.
+            "files": ["**/*.spec.ts"],
+            "rules": {
+                "typescript/no-explicit-any": "off",
+                "typescript/no-non-null-assertion": "off",
+                // A spec can declare a non-standalone component to test
+                // against.
+                "@angular-eslint/prefer-standalone": "off"
+            }
+        },
+        {
+            // The Playwright files share helpers from the workspace `e2e`
+            // folder, which is not an Nx project.
+            "files": ["**/e2e/**/*.ts", "**/playwright.config.ts"],
+            "rules": {
+                "@nx/enforce-module-boundaries": "off"
+            }
+        },
+        {
+            // Only these applications have adopted the Playwright rules.
+            "files": [
+                "apps/{concierge,workplace}/e2e/**/*.ts",
+                "apps/{concierge,workplace}/playwright.config.ts"
+            ],
+            "rules": {
+                "playwright/expect-expect": "warn",
+                "playwright/max-nested-describe": "warn",
+                "playwright/no-conditional-expect": "warn",
+                "playwright/no-conditional-in-test": "warn",
+                "playwright/no-element-handle": "warn",
+                "playwright/no-eval": "warn",
+                "playwright/no-focused-test": "error",
+                "playwright/no-force-option": "warn",
+                "playwright/no-nested-step": "warn",
+                "playwright/no-page-pause": "warn",
+                "playwright/no-skipped-test": "warn",
+                "playwright/no-unsafe-references": "error",
+                "playwright/no-useless-await": "warn",
+                "playwright/no-useless-not": "warn",
+                "playwright/no-wait-for-selector": "warn",
+                "playwright/no-wait-for-timeout": "warn",
+                "playwright/prefer-web-first-assertions": "error",
+                "playwright/valid-describe-callback": "error",
+                "playwright/valid-expect": "error",
+                "playwright/valid-expect-in-promise": "error",
+                "playwright/valid-title": "error"
+            }
+        }
+    ]
+}

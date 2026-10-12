@@ -26,7 +26,7 @@ describe('CheckinStateService', () => {
                     id: 'event-1234',
                     asset_id: 'a@b.com',
                     user_email: 'host@b.com',
-                } as any;
+                };
             }
             // guest lookup
             return {} as any;

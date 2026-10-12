@@ -183,7 +183,7 @@ describe('PagedList', () => {
                 ],
                 total: 2,
                 next: null,
-            } as any),
+            }),
         );
         await flush();
 

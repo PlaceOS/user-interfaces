@@ -6,7 +6,7 @@ import { EnrolmentStateService } from '../app/enrolment-state.service';
 
 describe('EnrolmentEventDetailsComponent', () => {
     let spectator: Spectator<EnrolmentEventDetailsComponent>;
-    const event = signal<any>(null);
+    const event = signal<unknown>(null);
 
     const createComponent = createComponentFactory({
         component: EnrolmentEventDetailsComponent,
@@ -16,7 +16,7 @@ describe('EnrolmentEventDetailsComponent', () => {
         detectChanges: false,
     });
 
-    function render(details: any) {
+    function render(details: unknown) {
         event.set(details);
         spectator = createComponent();
         spectator.detectChanges();

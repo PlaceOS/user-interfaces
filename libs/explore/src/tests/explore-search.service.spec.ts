@@ -39,7 +39,7 @@ describe('ExploreSearchService', () => {
             } as any),
             MockProvider(MapsPeopleService, {
                 available: signal(false),
-            } as any),
+            }),
         ],
     });
 
@@ -53,7 +53,7 @@ describe('ExploreSearchService', () => {
         const results = [
             { id: '2', type: 'user', name: 'Zoe', description: '' },
             { id: '1', type: 'user', name: 'Alex', description: '' },
-        ] as any;
+        ];
 
         expect(
             results.sort(compareSearchResultsAscending).map((_) => _.name),

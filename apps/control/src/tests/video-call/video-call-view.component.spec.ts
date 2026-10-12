@@ -17,7 +17,7 @@ import { ControlVideoCallViewComponent } from '../../app/video-call/video-call-v
 describe('ControlVideoCallViewComponent', () => {
     let spectator: SpectatorRouting<ControlVideoCallViewComponent>;
     const state_mock = {
-        system: signal<any>({}),
+        system: signal<unknown>({}),
         system_id: signal('sys-1'),
         powerOn: vi.fn(),
         setID: vi.fn(),

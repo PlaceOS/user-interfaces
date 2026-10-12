@@ -26,12 +26,12 @@ const state_mock = {
     setFeatures: vi.fn(),
     setOptions: vi.fn(),
     setLevel: vi.fn(),
-    building: null as any,
+    building: null,
 };
 
 const parking_mock = {
-    active_spaces: signal<any[]>([{}, {}, {}]),
-    available_spaces: signal<any[]>([{}, {}]),
+    active_spaces: signal<unknown[]>([{}, {}, {}]),
+    available_spaces: signal<unknown[]>([{}, {}]),
 };
 
 describe('ParkingComponent', () => {

@@ -346,7 +346,7 @@ export const saveBooking = async (
     const id = data.id;
     delete (data as any).id;
     const instance = q?.instance;
-    if (q) delete (q as any).instance;
+    if (q) delete q.instance;
     return id
         ? instance
             ? updateBookingInstance(
@@ -404,7 +404,7 @@ async function overlappingRecurringBookings(
         email,
         limit: 1000,
     });
-    const recurrence = fromBookingRecurrence(booking as any);
+    const recurrence = fromBookingRecurrence(booking);
     return existing.filter(
         (other) =>
             other.id !== booking.id &&
@@ -958,13 +958,13 @@ export async function createBookingsForEvent(
             const resource_name =
                 assigned_space?.display_name ||
                 assigned_space?.name ||
-                (item as any).name;
+                item.name;
             const desired = new Booking({
                 type,
                 booking_type: type,
                 date: event.date,
                 duration: event.duration,
-                description: event.title || (item as any).name,
+                description: event.title || item.name,
                 user_email: event.host,
                 asset_id: resource_id,
                 asset_name: resource_name,

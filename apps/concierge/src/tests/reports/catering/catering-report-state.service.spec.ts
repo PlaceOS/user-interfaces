@@ -32,8 +32,8 @@ function bookingWithOrder(date: number, overrides: any = {}) {
 
 describe('CateringReportStateService', () => {
     let spectator: SpectatorService<CateringReportStateService>;
-    let options: WritableSignal<any>;
-    let bookings: WritableSignal<any[]>;
+    let options: WritableSignal<unknown>;
+    let bookings: WritableSignal<unknown[]>;
     let downloads: ReturnType<typeof captureDownloads>;
     const in_range = new Date('2026-04-06T10:00:00').valueOf();
     const createService = createServiceFactory({
@@ -51,7 +51,7 @@ describe('CateringReportStateService', () => {
             start: new Date('2026-04-06T00:00:00').valueOf(),
             end: new Date('2026-04-06T23:59:59').valueOf(),
         });
-        bookings = signal<any[]>([]);
+        bookings = signal<unknown[]>([]);
         downloads = captureDownloads();
         spectator = createService();
     });

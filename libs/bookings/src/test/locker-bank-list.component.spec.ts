@@ -13,11 +13,11 @@ import { LockerBankListComponent } from '../lib/locker-select-modal/locker-bank-
 
 describe('LockerBankListComponent', () => {
     let spectator: Spectator<LockerBankListComponent>;
-    const options = signal<any>({});
-    const available_resources = signal<any[]>([]);
+    const options = signal<unknown>({});
+    const available_resources = signal<unknown[]>([]);
     const loading = signal<string[]>([]);
-    const active_region = signal<any>(null);
-    const active_building = signal<any>(null);
+    const active_region = signal<unknown>(null);
+    const active_building = signal<unknown>(null);
 
     const createComponent = createComponentFactory({
         component: LockerBankListComponent,
@@ -82,7 +82,7 @@ describe('LockerBankListComponent', () => {
     });
 
     it('should emit onSelect when a bank is selected', () => {
-        let emitted: any = null;
+        let emitted: unknown = null;
         spectator.component.onSelect.subscribe((bank) => (emitted = bank));
         spectator.component.selectLockerBank({ id: 'bank-1' } as any);
         expect(emitted).toEqual({ id: 'bank-1' });

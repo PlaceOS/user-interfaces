@@ -8,7 +8,7 @@ import { SignagePluginService } from '../../app/signage-plugin.service';
 
 describe('SignageGroupFeaturesModalComponent', () => {
     const dialog_ref = { close: vi.fn(), disableClose: false };
-    const all_plugins = signal<any[]>([]);
+    const all_plugins = signal<unknown[]>([]);
     const global_features = signal<string[]>([]);
     const plugin_stub = { all_plugins };
     const context_stub = {

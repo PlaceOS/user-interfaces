@@ -13,7 +13,7 @@ import { captureDownloads } from '../download-capture.helper';
 describe('AssetReportExpiredItemsComponent', () => {
     let spectator: Spectator<AssetReportExpiredItemsComponent>;
     let downloads: ReturnType<typeof captureDownloads>;
-    let expired_items: ReturnType<typeof signal<any>>;
+    let expired_items: ReturnType<typeof signal<unknown>>;
 
     const createComponent = createComponentFactory({
         component: AssetReportExpiredItemsComponent,
@@ -23,7 +23,7 @@ describe('AssetReportExpiredItemsComponent', () => {
             MockComponent(ReportMetricGuideComponent),
         ],
         imports: [MatTooltipModule],
-        providers: [MockProvider(AssetsReportService, {} as any)],
+        providers: [MockProvider(AssetsReportService, {})],
     });
 
     afterEach(() => downloads.restore());

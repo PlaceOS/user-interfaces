@@ -100,7 +100,7 @@ describe('MeetingFlowConfirmModalComponent', () => {
                 building: {
                     id: 'level-1',
                     timezone: 'Australia/Sydney',
-                } as any,
+                },
                 currency_code: 'USD',
                 locationWithID: vi.fn(() => ({
                     label: 'HQ Building / Level 1',
@@ -110,7 +110,7 @@ describe('MeetingFlowConfirmModalComponent', () => {
             MockProvider(SettingsService, {
                 get: vi.fn((k: string) => settings_config[k]),
                 time_format: 'h:mm a',
-            } as any),
+            }),
         ],
         componentProviders: [MockProvider(SpacePipe, { transform } as any)],
     });
@@ -143,7 +143,7 @@ describe('MeetingFlowConfirmModalComponent', () => {
         transform.mockClear();
     });
 
-    afterEach(() => setNotifyOutlet(null as any, true));
+    afterEach(() => setNotifyOutlet(null, true));
 
     it('should create component', async () => {
         await init();
@@ -213,7 +213,7 @@ describe('MeetingFlowConfirmModalComponent', () => {
 
     it('should not close when the form resolves falsy', async () => {
         await init();
-        post_form.mockResolvedValueOnce(false as any);
+        post_form.mockResolvedValueOnce(false);
         await spectator.component.postForm();
         expect(close).not.toHaveBeenCalled();
     });

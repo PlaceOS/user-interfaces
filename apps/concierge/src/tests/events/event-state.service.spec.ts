@@ -33,7 +33,7 @@ describe('EventStateService', () => {
         providers: [
             MockProvider(OrganisationService, {
                 active_building: signal(new Building({ id: 'bld-123' })),
-            } as any),
+            }),
             MockProvider(SettingsService, {
                 get: vi.fn((key: string) =>
                     key === 'app.group_events_calendar'

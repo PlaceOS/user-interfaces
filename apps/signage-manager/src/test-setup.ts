@@ -11,7 +11,7 @@ import * as EN_AU from 'shared/assets/locale/en-AU.json';
 import { TextDecoder, TextEncoder } from 'util';
 
 global.TextEncoder = TextEncoder;
-global.TextDecoder = TextDecoder as any;
+global.TextDecoder = TextDecoder;
 installTestStorage();
 
 // jsdom's `matchMedia` returns a MediaQueryList without the deprecated

@@ -14,7 +14,7 @@ import {
     SettingsService,
     Space,
 } from '@placeos/common';
-import { EventFormOptions, EventFormService } from '@placeos/events';
+import { EventFormOptions, EventFormService } from '../event-form.service';
 
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';

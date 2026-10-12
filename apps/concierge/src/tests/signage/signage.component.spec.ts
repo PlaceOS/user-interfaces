@@ -17,9 +17,9 @@ describe('SignageComponent', () => {
         detectChanges: false,
         providers: [
             MockProvider(SignageStateService, {
-                loading: signal(false) as any,
+                loading: signal(false),
                 editPlaylist: vi.fn(async () => ({ id: 'pl-1' }) as any),
-                editDisplay: vi.fn(async () => ({ id: 'disp-1' }) as any),
+                editDisplay: vi.fn(async () => ({ id: 'disp-1' })),
                 previewFileFromInput: vi.fn(),
             }),
             MockProvider(ActivatedRoute, {
@@ -37,7 +37,7 @@ describe('SignageComponent', () => {
         spectator = createComponent({
             providers: [MockProvider(Router, router)],
         });
-        state = spectator.inject(SignageStateService) as any;
+        state = spectator.inject(SignageStateService);
     }
 
     it('should resolve the active link from the current url', () => {

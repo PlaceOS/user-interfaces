@@ -26,7 +26,7 @@ describe('AppComponent', () => {
             MockProvider(PlaceOS_Service, {
                 has_chat: false,
                 init: vi.fn().mockResolvedValue(undefined),
-            } as any),
+            }),
         ],
     });
 

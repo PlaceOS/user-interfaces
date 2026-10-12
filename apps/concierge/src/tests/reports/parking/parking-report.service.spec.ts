@@ -12,9 +12,9 @@ import { captureDownloads } from '../download-capture.helper';
 
 describe('ParkingReportService', () => {
     let spectator: SpectatorService<ParkingReportService>;
-    let bookings: ReturnType<typeof signal<any[]>>;
-    let report_set_options: any;
-    let report_generate: any;
+    let bookings: ReturnType<typeof signal<unknown[]>>;
+    let report_set_options: unknown;
+    let report_generate: unknown;
     let downloads: ReturnType<typeof captureDownloads>;
     let settings_map: Record<string, any>;
 
@@ -26,7 +26,7 @@ describe('ParkingReportService', () => {
         providers: [
             MockProvider(SettingsService, {
                 get: vi.fn((name: string) => settings_map[name]),
-            } as any),
+            }),
             MockProvider(OrganisationService, {
                 building: {
                     id: 'building-1',
@@ -44,7 +44,7 @@ describe('ParkingReportService', () => {
     beforeEach(() => {
         settings_map = {};
         downloads = captureDownloads();
-        bookings = signal<any[]>([]);
+        bookings = signal<unknown[]>([]);
         report_set_options = vi.fn();
         report_generate = vi.fn();
         spectator = createService({

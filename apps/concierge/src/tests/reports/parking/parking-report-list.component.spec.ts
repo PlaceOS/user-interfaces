@@ -9,7 +9,7 @@ import { ParkingReportService } from 'apps/concierge/src/app/reports/parking/par
 
 describe('ParkingReportListComponent', () => {
     let spectator: Spectator<ParkingReportListComponent>;
-    let bookings: ReturnType<typeof signal<any[]>>;
+    let bookings: ReturnType<typeof signal<unknown[]>>;
 
     const early = new Date('2026-04-06T08:00:00').valueOf();
     const late = new Date('2026-04-06T15:00:00').valueOf();
@@ -24,13 +24,13 @@ describe('ParkingReportListComponent', () => {
         providers: [
             {
                 provide: ParkingReportService,
-                useValue: { bookings: (bookings = signal<any[]>([])) },
+                useValue: { bookings: (bookings = signal<unknown[]>([])) },
             },
         ],
     });
 
     beforeEach(() => {
-        bookings = signal<any[]>([]);
+        bookings = signal<unknown[]>([]);
         spectator = createComponent({
             providers: [
                 { provide: ParkingReportService, useValue: { bookings } },

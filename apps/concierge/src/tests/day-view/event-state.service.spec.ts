@@ -79,7 +79,7 @@ describe('EventsStateService', () => {
             MockProvider(SettingsService, {
                 get: ((name: string) =>
                     name === 'app.week_start' ? week_start : false) as any,
-            } as any),
+            }),
             MockProvider(SpacesService, { find: vi.fn() }),
             MockProvider(MatDialog, { open: vi.fn() }),
         ],

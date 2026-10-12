@@ -36,7 +36,7 @@ class TranslateStubPipe implements PipeTransform {
 }
 
 describe('SignageGroupUsersComponent', () => {
-    const managed_group_users = signal<any[]>([]);
+    const managed_group_users = signal<unknown[]>([]);
     const add_user = vi.fn();
     const update_user = vi.fn();
     const remove_user = vi.fn();
@@ -101,7 +101,7 @@ describe('SignageGroupUsersComponent', () => {
 
     it('exposes the managed group users from the service', () => {
         const component = make();
-        expect(component.users().map((row: any) => row.user_id)).toEqual([
+        expect(component.users().map((row) => row.user_id)).toEqual([
             'user-1',
             'user-2',
         ]);

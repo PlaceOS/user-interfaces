@@ -15,11 +15,9 @@ import {
     settingSignal,
     SettingsService,
 } from '@placeos/common';
-import {
-    IconComponent,
-    SanitizePipe,
-    TranslatePipe,
-} from '@placeos/components';
+import { IconComponent } from 'libs/components/src/lib/icon.component';
+import { SanitizePipe } from 'libs/components/src/lib/sanitise.pipe';
+import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import {
     CalEvent,
     generateCalendarFileLink,

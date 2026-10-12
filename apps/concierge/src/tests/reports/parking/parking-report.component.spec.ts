@@ -18,11 +18,11 @@ import { ReportsOptionsComponent } from 'apps/concierge/src/app/reports/reports-
 
 describe('ParkingReportComponent', () => {
     let spectator: Spectator<ParkingReportComponent>;
-    let query_params: BehaviorSubject<any>;
-    let bookings: ReturnType<typeof signal<any[]>>;
-    let set_options: any;
-    let generate: any;
-    let download: any;
+    let query_params: BehaviorSubject<unknown>;
+    let bookings: ReturnType<typeof signal<unknown[]>>;
+    let set_options: unknown;
+    let generate: unknown;
+    let download: unknown;
 
     const createComponent = createComponentFactory({
         component: ParkingReportComponent,
@@ -43,17 +43,17 @@ describe('ParkingReportComponent', () => {
                 setOptions: vi.fn(),
                 generateReport: vi.fn(),
                 downloadReport: vi.fn(),
-            } as any),
+            }),
             MockProvider(SettingsService, {
                 theme: 'light',
                 get: vi.fn(),
-            } as any),
+            }),
             MockProvider(OrganisationService, {
                 active_building: signal({ id: 'building-1' }),
             } as any),
             MockProvider(ActivatedRoute, {
                 queryParamMap: new BehaviorSubject(convertToParamMap({})),
-            } as any),
+            }),
         ],
     });
 
@@ -65,7 +65,7 @@ describe('ParkingReportComponent', () => {
                 zone_ids: 'lvl-1,lvl-2',
             }),
         );
-        bookings = signal<any[]>([]);
+        bookings = signal<unknown[]>([]);
         set_options = vi.fn();
         generate = vi.fn();
         download = vi.fn();

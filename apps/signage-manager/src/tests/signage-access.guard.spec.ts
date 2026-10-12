@@ -36,7 +36,7 @@ describe('canAccessSignageApp', () => {
 describe('signageAccessGuard', () => {
     const loaded = signal(false);
     const can_manage_all_groups = signal(false);
-    const signage_groups = signal<any[]>([]);
+    const signage_groups = signal<unknown[]>([]);
     const signage_groups_failed = signal(false);
     const wait_until_initialised = vi.fn().mockResolvedValue(undefined);
 

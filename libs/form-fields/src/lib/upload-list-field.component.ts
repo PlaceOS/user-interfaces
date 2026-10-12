@@ -145,7 +145,7 @@ export class UploadListFieldComponent implements ControlValueAccessor {
     }
 
     public onFileEvent(event) {
-        const element: HTMLInputElement = event.target as any;
+        const element: HTMLInputElement = event.target;
         /* istanbul ignore else */
         if (!element?.files?.length) return;
         const files: FileList = element.files;

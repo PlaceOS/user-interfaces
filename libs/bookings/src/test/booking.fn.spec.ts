@@ -17,6 +17,7 @@ import {
     checkinBooking,
     createBooking,
     createBookingsForEvent,
+    queryAllBookings,
     queryBookings,
     queryResourceAvailability,
     rejectBooking,
@@ -105,7 +106,7 @@ describe('[Booking API]', () => {
                         data: ['asset-3'],
                         next: null,
                     }),
-            } as any);
+            });
 
             await expect(
                 bookedResourceList(
@@ -123,6 +124,37 @@ describe('[Booking API]', () => {
                 endpoint: `/api/staff/v1/bookings`,
                 path: 'booked',
             });
+            spy.mockReset();
+        });
+    });
+
+    describe('queryAllBookings', () => {
+        it('should follow every page and return each booking once', async () => {
+            const spy = vi.spyOn(ts_client, 'query');
+            spy.mockResolvedValue({
+                total: 3,
+                data: [new Booking({ id: 'b-1' }), new Booking({ id: 'b-2' })],
+                next: () =>
+                    Promise.resolve({
+                        total: 3,
+                        data: [new Booking({ id: 'b-2' }), new Booking({ id: 'b-3' })],
+                        next: null,
+                    }),
+            });
+
+            const list = await queryAllBookings({
+                period_start: 1,
+                period_end: 2,
+                type: 'desk',
+            });
+
+            expect(list.map((booking) => booking.id)).toEqual(['b-1', 'b-2', 'b-3']);
+            expect(ts_client.query).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    query_params: { period_start: 1, period_end: 2, type: 'desk' },
+                    endpoint: `/api/staff/v1/bookings`,
+                }),
+            );
             spy.mockReset();
         });
     });
@@ -404,7 +436,7 @@ describe('[Booking API]', () => {
                 id: '1138',
                 ical_uid: '',
                 from_bookings: true,
-            } as any);
+            });
             const get_spy = vi
                 .spyOn(ts_client, 'get')
                 .mockResolvedValue([] as never);
@@ -714,7 +746,7 @@ describe('[Booking API]', () => {
     describe('removeBooking', () => {
         it('should include the UTM source in a booking DELETE request', async () => {
             const spy = vi.spyOn(ts_client, 'del');
-            spy.mockResolvedValue(undefined as any);
+            spy.mockResolvedValue(undefined);
 
             await removeBooking('booking/1');
 
@@ -726,7 +758,7 @@ describe('[Booking API]', () => {
 
         it('should include the UTM source in an instance DELETE request', async () => {
             const spy = vi.spyOn(ts_client, 'del');
-            spy.mockResolvedValue(undefined as any);
+            spy.mockResolvedValue(undefined);
 
             await removeBookingInstance('booking/1', 123);
 
@@ -855,7 +887,7 @@ describe('[Booking API]', () => {
                     booking_start: 100,
                     instance: 200,
                     recurrence_type: 'daily',
-                } as any),
+                }),
                 true,
             );
             expect(ts_client.post).toHaveBeenCalledWith(
@@ -873,7 +905,7 @@ describe('[Booking API]', () => {
                     id: '1',
                     booking_start: 100,
                     recurrence_type: 'weekly',
-                } as any),
+                }),
                 false,
             );
             expect(ts_client.post).toHaveBeenCalledWith(

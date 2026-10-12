@@ -14,9 +14,9 @@ vi.mock('@placeos/ts-client', { spy: true });
 
 describe('ZonesSectionComponent', () => {
     const selected_zone = signal<any>(null);
-    const all_zones = signal<any[]>([]);
-    const playlists = signal<any[]>([]);
-    const selected_zone_displays = signal<any[]>([]);
+    const all_zones = signal<unknown[]>([]);
+    const playlists = signal<unknown[]>([]);
+    const selected_zone_displays = signal<unknown[]>([]);
     const templates_enabled = signal(true);
     const playlists_loading = signal(false);
     const related_loading = signal(false);

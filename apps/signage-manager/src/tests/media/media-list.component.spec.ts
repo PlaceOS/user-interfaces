@@ -6,15 +6,15 @@ import { SignageMediaService } from '../../app/media/signage-media.service';
 import { SignageContextService } from '../../app/signage-context.service';
 
 function media(id: string, tags: string[]) {
-    return { id, name: id, tags, media_type: 'image' } as any;
+    return { id, name: id, tags, media_type: 'image' };
 }
 
 describe('MediaListComponent folders', () => {
-    const media_items = signal<any[]>([]);
+    const media_items = signal<unknown[]>([]);
     const media_tags = signal<string[]>([]);
     const media_tag_counts = signal<Record<string, number>>({});
     const media_view_mode = signal<'grid' | 'list' | 'folder'>('grid');
-    const signage_groups = signal<any[]>([]);
+    const signage_groups = signal<unknown[]>([]);
     const can_manage_all_groups = signal(false);
     const can_update_media_tags = signal(true);
     const show_media_group_tabs = signal(true);
@@ -70,7 +70,7 @@ describe('MediaListComponent folders', () => {
             removeListener: vi.fn(),
             addEventListener: vi.fn(),
             removeEventListener: vi.fn(),
-        }) as any;
+        });
         media_items.set([
             media('a', ['news', 'lobby']),
             media('b', ['news']),
@@ -184,13 +184,10 @@ describe('MediaListComponent folders', () => {
     it('shows only media in the opened folder', () => {
         const component = make();
         component.openFolder('news');
-        expect(component.display_media().map((m: any) => m.id)).toEqual([
-            'a',
-            'b',
-        ]);
+        expect(component.display_media().map((m) => m.id)).toEqual(['a', 'b']);
 
         component.openFolder(component.untagged_id);
-        expect(component.display_media().map((m: any) => m.id)).toEqual(['c']);
+        expect(component.display_media().map((m) => m.id)).toEqual(['c']);
 
         component.closeFolder();
         expect(component.display_media().length).toBe(3);
@@ -253,7 +250,7 @@ describe('MediaListComponent folders', () => {
         TestBed.flushEffects();
 
         expect(media_stub.loadMoreMedia).toHaveBeenCalledOnce();
-        expect(component.display_media().map((m: any) => m.id)).toEqual([
+        expect(component.display_media().map((m) => m.id)).toEqual([
             'a',
             'b',
             'd',

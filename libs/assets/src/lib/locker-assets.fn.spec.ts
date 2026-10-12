@@ -11,11 +11,11 @@ function response(data: any[]) {
         data,
         total: data.length,
         next: () => null,
-    }) as any;
+    });
 }
 
 async function load_modules() {
-    const locker = (await import('./locker-assets.fn')) as any;
+    const locker = (await import('./locker-assets.fn'));
     return { locker };
 }
 
@@ -26,7 +26,7 @@ describe('[Locker Assets]', () => {
         vi.mocked(ts_client.addAssetCategory).mockResolvedValue({} as any);
         vi.mocked(ts_client.addAssetType).mockResolvedValue({} as any);
         vi.mocked(ts_client.addAsset).mockResolvedValue({} as any);
-        vi.mocked(ts_client.removeAsset).mockResolvedValue(undefined as any);
+        vi.mocked(ts_client.removeAsset).mockResolvedValue(undefined);
     });
 
     describe('resolveLockerBankTypeId', () => {
@@ -155,7 +155,7 @@ describe('[Locker Assets]', () => {
                 response([{ id: 'type-1', name: '_LOCKER_BANKS_' }]),
             );
             vi.mocked(ts_client.queryAssets).mockImplementation(
-                ({ zone_id }: any) => response([{ id: `${zone_id}-a` }]),
+                ({ zone_id }) => response([{ id: `${zone_id}-a` }]),
             );
 
             const list = await locker.queryLockerBankAssetsForZones([

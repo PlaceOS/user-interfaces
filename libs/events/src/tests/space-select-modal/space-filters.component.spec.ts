@@ -9,13 +9,13 @@ import {
     settingSignal,
     Space,
 } from '@placeos/common';
-import { generateEventForm } from '@placeos/events';
 import { mockComponent } from 'libs/common/src/tests/test-helpers';
 import { SettingsToggleComponent } from 'libs/components/src/lib/settings-toggle.component';
 import { DateFieldComponent } from 'libs/form-fields/src/lib/date-field.component';
 import { DurationFieldComponent } from 'libs/form-fields/src/lib/duration-field.component';
 import { TimeFieldComponent } from 'libs/form-fields/src/lib/time-field.component';
 import { MockProvider } from 'ng-mocks';
+import { generateEventForm } from '../../lib/event-form';
 import { EventFormService } from '../../lib/event-form.service';
 import { SpaceFiltersComponent } from '../../lib/space-select-modal/space-filters.component';
 import { SpacesService } from '../../lib/spaces.service';
@@ -39,8 +39,8 @@ describe('SpaceFiltersComponent', () => {
         tags: ['parking'],
     });
     const building = new Building({ id: 'bld-1', name: 'Building 1' });
-    const options = signal<any>({ zones: [] });
-    const filters = signal<any>({ features: [] });
+    const options = signal<unknown>({ zones: [] });
+    const filters = signal<unknown>({ features: [] });
     const spaces = signal<Space[]>([
         new Space({ id: 'space-1', zones: ['lvl-1'], features: ['vc'] }),
         new Space({ id: 'space-2', zones: ['lvl-2'] }),
@@ -52,8 +52,8 @@ describe('SpaceFiltersComponent', () => {
         active_buildings: signal([building]),
         region_list: signal<Region[]>([]),
         buildings: [building],
-        building: null as any,
-        region: null as any,
+        building: null,
+        region: null,
         levelsForBuilding: vi.fn(() => [level_2, level_1, parking]),
         levelsForRegion: vi.fn(() => []),
         levelWithID: vi.fn(),
@@ -73,20 +73,20 @@ describe('SpaceFiltersComponent', () => {
                     return {
                         model,
                         form,
-                        options: options as any,
-                        filters: filters as any,
-                        spaces: spaces as any,
-                        available_spaces: available_spaces as any,
+                        options: options,
+                        filters: filters,
+                        spaces: spaces,
+                        available_spaces: available_spaces,
                         setOptions: vi.fn(),
                         setFilters: vi.fn(),
                     } as Partial<EventFormService>;
                 },
             },
             MockProvider(SpacesService, {
-                features: signal(['whiteboard']) as any,
+                features: signal(['whiteboard']),
             }),
             MockProvider(MapsPeopleService, {
-                available: signal(false) as any,
+                available: signal(false),
             }),
         ],
         declarations: [

@@ -13,7 +13,7 @@ describe('PanelViewStatusComponent', () => {
     let features: string[] = [];
     const show_timeline = signal(false);
     const timeline_position = signal('floating-left');
-    const setting = vi.fn<(name: string) => any>((name) => {
+    const setting = vi.fn<(name: string) => unknown>((name) => {
         if (name === 'show_timeline') return show_timeline();
         if (name === 'timeline_position') return timeline_position();
         return panel_settings()[name] ?? false;

@@ -7,9 +7,9 @@ import {
     SettingsService,
     User,
 } from '@placeos/common';
-import { generateEventForm } from '@placeos/events';
 import * as ts_client from '@placeos/ts-client';
 import { MockProvider } from 'ng-mocks';
+import { generateEventForm } from '../lib/event-form';
 import { EventFormService } from '../lib/event-form.service';
 import { MeetingFormDetailsComponent } from '../lib/meeting-form-details.component';
 
@@ -29,7 +29,7 @@ describe('MeetingFormDetailsComponent', () => {
                 signal: vi.fn(
                     (key: string, default_value: any) =>
                         (setting_signals[key] ??= signal(default_value)),
-                ) as any,
+                ),
             }),
             MockProvider(OrganisationService, {
                 building: { timezone: 'Australia/Sydney' } as any,
