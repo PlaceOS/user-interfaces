@@ -25,8 +25,8 @@ import {
 import { IconComponent } from '@placeos/components';
 import {
     BookingLinkFields,
-    parkingRequestAsset,
     ParkingLinkService,
+    parkingRequestAsset,
 } from './booking-link.service';
 import { LinkedBookingComponent } from './linked-booking.component';
 import { bookingWindow, formatEventPeriod } from './outlook-event';
@@ -42,7 +42,9 @@ export type ParkingMode = 'space' | 'request';
 export function parkingModes(features: string[] = []): ParkingMode[] {
     return [
         ...(features.includes('parking') ? (['space'] as const) : []),
-        ...(features.includes('parking-requests') ? (['request'] as const) : []),
+        ...(features.includes('parking-requests')
+            ? (['request'] as const)
+            : []),
     ];
 }
 
@@ -91,9 +93,7 @@ const MODE_NAMES: Record<ParkingMode, string> = {
                                 matRipple
                                 class="flex-1 rounded-md px-2 py-1 text-sm"
                                 [class.bg-secondary]="mode() === item"
-                                [class.text-secondary-content]="
-                                    mode() === item
-                                "
+                                [class.text-secondary-content]="mode() === item"
                                 [attr.aria-checked]="mode() === item"
                                 (click)="mode.set(item)"
                             >
@@ -142,7 +142,9 @@ const MODE_NAMES: Record<ParkingMode, string> = {
                             (click)="requestParking()"
                         >
                             {{
-                                saving() ? 'Sending request...' : 'Request parking'
+                                saving()
+                                    ? 'Sending request...'
+                                    : 'Request parking'
                             }}
                         </button>
                     </section>
@@ -176,10 +178,14 @@ const MODE_NAMES: Record<ParkingMode, string> = {
                     @for (space of spaces(); track space.id) {
                         <article class="border-base-300 rounded-lg border p-3">
                             <h4 class="truncate font-medium">
-                                {{ space.display_name || space.name || space.id }}
+                                {{
+                                    space.display_name || space.name || space.id
+                                }}
                             </h4>
                             <p class="text-sm opacity-70">
-                                {{ space.zone?.display_name || space.zone?.name }}
+                                {{
+                                    space.zone?.display_name || space.zone?.name
+                                }}
                             </p>
                             <div class="mt-2 flex items-center justify-between">
                                 <span
@@ -305,9 +311,7 @@ export class ParkingSearchComponent {
         const event = this._outlook.event();
         return event ? bookingWindow(event, this.link.resource) : null;
     });
-    public readonly window_error = computed(
-        () => this._window()?.reason || '',
-    );
+    public readonly window_error = computed(() => this._window()?.reason || '');
     public readonly all_day_unknown = computed(
         () => this._outlook.event()?.all_day === null,
     );

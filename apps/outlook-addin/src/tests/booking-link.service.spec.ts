@@ -17,8 +17,8 @@ import { PlaceZone } from '@placeos/ts-client';
 import {
     isParkingRequest,
     PARKING_BOOKING_PROPERTY,
-    parkingRequestAsset,
     ParkingLinkService,
+    parkingRequestAsset,
 } from '../app/calendar/booking-link.service';
 import { OutlookEventService } from '../app/calendar/outlook-event.service';
 import { MemoryItemAdapter } from '../app/calendar/outlook-item.adapter';

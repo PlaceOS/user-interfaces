@@ -5,7 +5,10 @@ import { IconComponent } from '@placeos/components';
 import { DeskSearchComponent } from './desk-search.component';
 import { formatEventPeriod, localTimezoneLabel } from './outlook-event';
 import { OutlookEventService } from './outlook-event.service';
-import { parkingModes, ParkingSearchComponent } from './parking-search.component';
+import {
+    parkingModes,
+    ParkingSearchComponent,
+} from './parking-search.component';
 import { RoomSearchComponent } from './room-search.component';
 
 type PaneTab = 'rooms' | 'desks' | 'parking';
