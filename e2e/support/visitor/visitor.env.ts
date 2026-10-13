@@ -58,6 +58,8 @@ export const VISITOR_SLOTS = {
      * other file owns. 40 onwards is clear of everything above.
      */
     concurrency: { base: 40, count: 8 },
+    /** visitor-flow-new.spec.ts — clear of the concurrency block above */
+    new_flow: { stores: 50, recent: 51 },
 } as const;
 
 export interface VisitorIdentity {

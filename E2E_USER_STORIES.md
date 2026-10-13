@@ -267,6 +267,82 @@ What is left, in rough order of value:
 - **Room features / facilities** filtering in the picker, which has the same shape as ROOM-19's
   favourites filter.
 
+## 1c. Workplace — the views that PR #561 made the default
+
+Nineteen tests in six files under `apps/workplace/e2e/local/`. Each file has its own page
+object in `e2e/support/`. The page objects for the replaced views are not changed.
+
+PR #561 changed the components that these routes open:
+
+| Route | Opens now | Opened before |
+|---|---|---|
+| `/landing` | `landing-new` | `app-landing` |
+| `/book/desk` | `desk-flow-new` | `desk-flow-form` and the desk picker modal |
+| `/book/meeting` | `meeting-flow-new` | `meeting-flow-form` and the room picker modal |
+| `/book/visitor` | `visitor-flow-new` | `invite-visitor-form` |
+| `/your-bookings` | Day, week and list views. The day view is the default. | One list of cards |
+| `/team-schedule` | `team-schedule` | No route |
+
+**The specs that drive the replaced views through the UI do not pass now.** Measured on 2026-10-13 with a full local run of 161 tests: all 19 tests of this section pass,
+and **102 of the 140 tests that were there before fail**, in 60 of the spec files. The failures
+are in the `desk-*`, `room-*`, `visitor-*`, `home-*` and `bookings-*` files that drive a form or
+the schedule, and in the five `parking-*` files that do the same. The specs that use only the
+API still pass, as do login, boot, lockers and the parking booking form. The failures were not
+examined one by one. For comparison, the last CI run before PR #561 had 131 passes and 10
+failures.
+Their rows in this document still say **done**. That status is correct for the replaced views
+only. Each of those specs must be moved to the new view or removed, and that decision is not
+made yet. The rows below are the only UI coverage of these six routes until then.
+
+| ID | P | Story | Status |
+|----|---|-------|--------|
+| NEW-DESK-01 | P1 | A **non-admin** books a desk from the list of the new flow. The backend stores it with the correct desk, title and zones, and the app shows its success view. | **done** — `local/desk-flow-new.spec.ts`. The flow has one page and no second confirmation: Confirm sends the booking. |
+| NEW-DESK-02 | P1 | Confirm with no desk selected is refused, and no booking request leaves the page. | **done** — `local/desk-flow-new.spec.ts`. Red-checked: with a desk selected the flow goes to the success view. |
+| NEW-ROOM-01 | P1 | A **non-admin** books a room through the three steps of the new flow (details, room, options). The backend stores a `room` booking with the correct system, title and zones. | **done** — `local/meeting-flow-new.spec.ts`. Runs with `app.events.use_bookings = true`, as §1b does. A green run says nothing about the calendar path. |
+| NEW-ROOM-02 | P1 | Each step refuses to go forward without its requirement: a title for the room step, a room for the options step. No booking request leaves the page. | **done** — `local/meeting-flow-new.spec.ts`. Red-checked: with a title the first step goes forward. |
+| NEW-VIS-01 | P1 | A **non-admin** invites one visitor through the new flow. The backend stores the booking with the correct address, reason and zones, and makes a guest record. | **done** — `local/visitor-flow-new.spec.ts` |
+| NEW-VIS-02 | P1 | Confirm with no visitor address is refused, and no booking request leaves the page. | **done** — `local/visitor-flow-new.spec.ts`. Red-checked: with an address the flow goes to the success view. |
+| NEW-VIS-03 | P2 | A recent visitor from the user settings (`visitor-invitees`) is shown on the quick action panel, and a click fills the visitor fields. | **done** — `local/visitor-flow-new.spec.ts`. Red-checked: without the click the fields stay empty. |
+| NEW-HOME-01 | P1 | The next-booking card shows the "schedule is clear" state with no booking today, and the booking when there is one. | **done** — `local/landing-new.spec.ts`. The card shows only the first booking of today that is not done. Each test deletes every booking that the user has today before it starts. |
+| NEW-HOME-02 | P1 | Edit on the card opens the new desk flow with the booking loaded: the title and the selected desk are those of the booking. | **done** — `local/landing-new.spec.ts`. This proves the load only. The save of an edit through the new flow has no spec. |
+| NEW-HOME-03 | P1 | Delete on the card, and its confirmation, removes the booking on the backend. | **done** — `local/landing-new.spec.ts`. Red-checked: without the confirmation the booking stays live. |
+| NEW-HOME-04 | P2 | A favourite desk from the user settings is listed, and Book opens the new desk flow with that desk selected. | **done** — `local/landing-new.spec.ts` |
+| NEW-HOME-05 | P2 | The desk week offers to book a desk on a day with no desk booking. It shows the booking on a day that has one, and a click opens the booking details. | **done** — `local/landing-new.spec.ts`. Red-checked: a booking on a different day does not show on today. |
+| NEW-HOME-06 | P2 | A colleague added through the modal is listed and is saved to the `contacts` document of the user. | **done** — `local/landing-new.spec.ts`. Red-checked: without the add the colleague is not listed. |
+| NEW-YB-01 | P1 | A booking of today shows on the day view, the week view and the list view. The page opens on the day view. | **done** — `local/schedule-views.spec.ts` |
+| NEW-YB-02 | P1 | The day view shows only the bookings of its day, and the topbar moves it to the next day and back to today. | **done** — `local/schedule-views.spec.ts`. Has a booking of today as a control. The first version had no control and passed with both bookings on one day, because "not shown" is also true of a view that has not loaded. |
+| NEW-YB-03 | P1 | A booking cancelled from the day view (details, menu, confirmation) is removed on the backend. | **done** — `local/schedule-views.spec.ts`. Red-checked: a declined confirmation leaves the booking live. The booking must be in progress or in the future: a booking that has ended has no actions. |
+| NEW-YB-04 | P2 | The Desks filter of the sidebar hides a desk booking and shows it again. | **done** — `local/schedule-views.spec.ts`. Red-checked: a different type filter does not hide it. |
+| NEW-TEAM-01 | P1 | A colleague from the contacts is a row of the team schedule, and their desk booking shows on its day and on no other day. | **done** — `local/team-schedule.spec.ts`. The booking is four weeks on and on the desk of the worker that makes it, so that it cannot race the specs of the worker whose user is the colleague. |
+| NEW-TEAM-02 | P2 | A colleague marked as a favourite is saved to the user settings (`favourite_team_members`), and the Favorites view lists only the favourites. | **done** — `local/team-schedule.spec.ts`. Red-checked: without the mark the view lists nobody. |
+
+**Not covered, and why.**
+
+- **Edits saved through the new flows.** NEW-HOME-02 proves that a booking loads into the new desk
+  flow. No spec changes a booking and saves it.
+- **The other modes of the new flows.** Group and "book for other" desk bookings, multiple
+  visitors, and the attendees, catering and assets of the meeting options step. The replaced
+  flows had specs for each of these.
+- **Auto-assign desk**, on the home page and at the top of the desk flow.
+- **The map views** of the desk list and the room list. The stack has no map metadata
+  (WP-E2E-13).
+- **"Available now" on the home page.** The free count of a level is shared by all workers, so
+  an exact count cannot be asserted in a parallel run.
+- **Narrow screens.** The team schedule list, the mobile filter sheets and the mobile schedule
+  calendar. Every spec runs at the desktop size.
+- **The calendar path** for rooms, as in §1b.
+
+### Findings from building this coverage
+
+None is a failure of a test. None is filed.
+
+| ID | Finding |
+|----|---------|
+| **NEW-F1** | **The load-bearing controls of the new views have no `name` attribute.** The Confirm buttons of the three flows, "Search available rooms", Continue, the single/group/other buttons, the schedule view links and type filters, and every control of the team schedule. The specs match them on their icon ligature or on their position. The replaced views had names on these controls (`open-desk-confirm`, `confirm-desk`, `schedule-toggle-desk-filter`). A `name` on each would make the page objects shorter and stop a change of icon from breaking a spec. |
+| **NEW-F2** | A room booking from the new meeting flow is stored with the **address of the host as `user_id`** (`e2e-staff-0@place.tech`). Desk and visitor bookings from the new flows are stored with the user id (`user-…`). The value comes from `newBookingFromCalendarEvent` (`event.organiser?.id \|\| event.host`). The booking is still in the listing of the user, so no spec fails. It was not measured whether the replaced meeting flow did the same. |
+| **NEW-F3** | `createDeskBookingViaApi` and the other API helpers send `asset_name` at the top level of the booking. The backend does not keep it, so every surface shows the **asset id** for a booking made by a helper (`e2e-desk-0`), where a booking made by the app shows the name (`E2E Desk 0`). This is a limit of the helpers, not of the app. A spec that asserts on the name of a resource must make the booking through the app, or accept the id. |
+| **NEW-F4** | `landing-new` and `desk-flow-success` have no box, so Playwright reports them as hidden while their content shows. Wait for an element inside them. |
+
 ## 2. Auth & session
 
 Grounded in the auth.cr work (PPT-2536), where every production failure was an
