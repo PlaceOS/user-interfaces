@@ -10,6 +10,7 @@ import { showMetadata, updateMetadata, updateUser } from '@placeos/ts-client';
 import { format, isSameDay } from 'date-fns';
 
 import { AsyncHandler } from './async-handler.class';
+import { SETTING_KEYS } from './constants';
 import { getItemWithKeys, log, setAppName } from './general';
 import { DEFAULT_SETTINGS } from './settings';
 import { HashMap } from './types';
@@ -30,6 +31,30 @@ let _service: SettingsService;
 const _setting_signals: Record<string, WritableSignal<any>> = {};
 
 const DEBUG_OVERRIDES_KEY = 'PLACEOS.setting_overrides';
+
+/** Renamed user setting keys, as old key to new key */
+const LEGACY_USER_SETTING_KEYS: Record<string, string> = {
+    favourite_spaces: SETTING_KEYS.FAVORITE_ROOMS,
+    favourite_parking_spaces: SETTING_KEYS.FAVORITE_PARKING_SPACES,
+};
+
+/** CSS rule that sets each entry of the map as a CSS variable */
+function cssVariableRule(selector: string, variables: HashMap = {}) {
+    let rule = `${selector} { `;
+    for (const key in variables) {
+        rule += `--${key}: ${variables[key]}; `;
+    }
+    return `${rule}}`;
+}
+
+/** Use the value of a renamed user setting until the new key has a value */
+function withLegacyUserSettings(details: HashMap): HashMap {
+    const result = { ...details };
+    for (const [old_key, key] of Object.entries(LEGACY_USER_SETTING_KEYS)) {
+        result[key] ??= details[old_key];
+    }
+    return result;
+}
 
 function loadDebugOverrides(): HashMap {
     try {
@@ -174,7 +199,7 @@ export class SettingsService extends AsyncHandler {
             `${value} | ${this.get('app.name') || this._app_name}`,
         );
         const tracking_id = this.get('app.analytics.tracking_id');
-        if (!tracking_id) return;
+        if (!tracking_id || this.get('app.analytics.enabled') === false) return;
         this._analytics?.send('pagename', { title: value });
     }
 
@@ -213,7 +238,7 @@ export class SettingsService extends AsyncHandler {
         }
         const user = await this._currentUser();
         const data = await showMetadata(user.id, 'settings');
-        this._user_settings.set(data.details || {});
+        this._user_settings.set(withLegacyUserSettings(data.details || {}));
         this._updateSignals();
         this.timeout(
             'init',
@@ -294,13 +319,19 @@ export class SettingsService extends AsyncHandler {
         this._applyTheme();
     }
 
+    /**
+     * Apply the colour overrides from `app.css_variables` and, for the dark
+     * theme, from `app.css_variables_dark`. The dark rule has the theme class,
+     * so it wins over the `.theme-dark` defaults of the stylesheet.
+     */
     private _applyCssVariables() {
-        const variable_map = this.get('app.css_variables') || {};
-        let css_string = 'body { ';
-        for (const key in variable_map) {
-            css_string += `--${key}: ${variable_map[key]}; `;
-        }
-        css_string += '}';
+        const css_string = [
+            cssVariableRule('body', this.get('app.css_variables') || {}),
+            cssVariableRule(
+                'body.theme-dark',
+                this.get('app.css_variables_dark') || {},
+            ),
+        ].join(' ');
         let element = document.getElementById('css-var-overrides');
         if (!element) {
             element = document.createElement('style');

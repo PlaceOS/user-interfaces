@@ -56,8 +56,9 @@ export async function loadMetadataResources(
             id: d.id || d.map_id,
             zone: _.zone,
         }));
+    const id = use_region ? org.building?.parent_id : org.building?.id;
+    if (!id) return [];
     if (use_region) {
-        const id = org.building.parent_id;
         const buildings = org.buildings.filter((_) => _.parent_id === id);
         const lists = await Promise.all(
             buildings.map((_) =>
@@ -68,9 +69,7 @@ export async function loadMetadataResources(
         );
         return flatten(lists);
     }
-    const data = await listChildMetadata(org.building.id, {
-        name: type,
-    });
+    const data = await listChildMetadata(id, { name: type });
     return flatten(data.map(map_metadata));
 }
 

@@ -5,7 +5,12 @@ import {
     MatDialogRef,
 } from '@angular/material/dialog';
 import { createRoutingFactory, Spectator } from '@ngneat/spectator/vitest';
-import { OrganisationService, SettingsService, Space } from '@placeos/common';
+import {
+    OrganisationService,
+    SETTING_KEYS,
+    SettingsService,
+    Space,
+} from '@placeos/common';
 import { MockComponent, MockModule, MockProvider } from 'ng-mocks';
 import { BehaviorSubject } from 'rxjs';
 import { generateEventForm } from '../../lib/event-form';
@@ -215,7 +220,7 @@ describe('SpaceSelectModalComponent', () => {
         expect(spectator.component.favorites()).toEqual(['1']);
         expect(
             spectator.inject(SettingsService).saveUserSetting,
-        ).toHaveBeenCalledWith('favourite_spaces', ['1']);
+        ).toHaveBeenCalledWith(SETTING_KEYS.FAVORITE_ROOMS, ['1']);
     });
 
     it('should allow un-favouriting a space', () => {
@@ -223,7 +228,7 @@ describe('SpaceSelectModalComponent', () => {
         spectator.component.toggleFavourite(new Space({ id: '1' }));
         expect(
             spectator.inject(SettingsService).saveUserSetting,
-        ).toHaveBeenCalledWith('favourite_spaces', ['1']);
+        ).toHaveBeenCalledWith(SETTING_KEYS.FAVORITE_ROOMS, ['1']);
     });
 });
 
@@ -234,7 +239,7 @@ describe('SpaceSelectModalComponent (with favourites)', () => {
         providers: [
             MockProvider(SettingsService, {
                 get: vi.fn((key: string) =>
-                    key === 'favourite_spaces' ? ['1'] : undefined,
+                    key === SETTING_KEYS.FAVORITE_ROOMS ? ['1'] : undefined,
                 ) as any,
                 overrides: signal([]),
                 saveUserSetting: vi.fn(),
@@ -295,6 +300,6 @@ describe('SpaceSelectModalComponent (with favourites)', () => {
         expect(spectator.component.favorites()).toEqual([]);
         expect(
             spectator.inject(SettingsService).saveUserSetting,
-        ).toHaveBeenCalledWith('favourite_spaces', []);
+        ).toHaveBeenCalledWith(SETTING_KEYS.FAVORITE_ROOMS, []);
     });
 });

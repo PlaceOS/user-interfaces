@@ -449,6 +449,15 @@ export class ParkingTopbarComponent extends AsyncHandler implements OnInit {
             date: selected_date.valueOf(),
         });
     };
+    /** Set selected period */
+    public readonly setPeriod = (p: 'day' | 'week') => {
+        this._router.navigate([], {
+            relativeTo: this._route,
+            queryParams: { period: p },
+            queryParamsHandling: 'merge',
+        });
+        this._state.setPeriod(p);
+    };
     /** Set filter string */
     public readonly setSearch = (str) =>
         this._state.setOptions({ search: str });
@@ -500,15 +509,6 @@ export class ParkingTopbarComponent extends AsyncHandler implements OnInit {
 
     public readonly updateSingleZone = (zone: string) => {
         this.updateZones(zone ? [zone] : []);
-    };
-
-    public readonly setPeriod = (p: 'day' | 'week') => {
-        this._router.navigate([], {
-            relativeTo: this._route,
-            queryParams: { period: p },
-            queryParamsHandling: 'merge',
-        });
-        this._state.setPeriod(p);
     };
 
     public get use_region() {

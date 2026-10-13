@@ -1,6 +1,19 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from './fixtures';
+import { gotoMockRoute, waitForHost } from './helpers';
 
 test.describe('Locker Management Page', () => {
+    // US-040 / US-043: Locker bookings route and approval toolbar context.
+    test('shows locker bookings view', async ({ page }) => {
+        await gotoMockRoute(page, '/#/book/lockers/events');
+        await waitForHost(page, '[app-lockers]');
+        await waitForHost(page, 'lockers-topbar');
+        await waitForHost(page, 'locker-bookings');
+
+        await expect(
+            page.getByRole('button', { name: /New Booking/i }),
+        ).toBeVisible();
+    });
+
     test('creates a locker bank and child locker with mocks', async ({
         page,
     }) => {
@@ -54,5 +67,25 @@ test.describe('Locker Management Page', () => {
 
         await page.getByRole('button', { name: 'chevron_right' }).click();
         await expect(page.getByText(locker_name)).toBeVisible();
+    });
+
+    // US-042 / US-044: Locker bulk release and booking rule controls.
+    test('shows locker management bulk and rules controls', async ({
+        page,
+    }) => {
+        await gotoMockRoute(page, '/#/book/lockers/manage');
+        await waitForHost(page, '[app-lockers]');
+        await waitForHost(page, 'locker-list');
+
+        await expect(
+            page.locator('lockers-topbar button icon', {
+                hasText: 'open_in_new',
+            }),
+        ).toBeVisible();
+        await expect(
+            page.locator('lockers-topbar button icon', {
+                hasText: 'lock_open',
+            }),
+        ).toBeVisible();
     });
 });

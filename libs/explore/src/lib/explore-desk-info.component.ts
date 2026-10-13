@@ -3,7 +3,7 @@ import {
     Component,
     ElementRef,
     OnInit,
-    WritableSignal,
+    Signal,
     computed,
     inject,
     signal,
@@ -28,14 +28,14 @@ type DeskStatus =
 export interface DeskInfoData {
     id: string;
     map_id: string;
-    user: WritableSignal<string>;
+    user: Signal<string>;
     name: string;
     start?: number;
     end?: number;
     department?: string;
     date?: number;
-    status: WritableSignal<DeskStatus>;
-    bookings: WritableSignal<Booking[]>;
+    status: Signal<DeskStatus>;
+    bookings: Signal<Booking[]>;
 }
 
 @Component({

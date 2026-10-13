@@ -88,7 +88,7 @@ describe('MeetingFlowSuccessComponent', () => {
     });
 
     it("should show the resolved space's level", () => {
-        expect(spectator.component.level).toBe(level_2);
+        expect(spectator.component.level()).toBe(level_2);
     });
 
     it('should show the recurring booking end date', async () => {

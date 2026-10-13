@@ -10,12 +10,31 @@ import {
     PlaceOS_Service,
     retryInitialisation,
 } from '@placeos/common';
-import { isOnline } from '@placeos/ts-client';
+import { authority, isOnline } from '@placeos/ts-client';
 
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { NativeDomainOverlayComponent } from './native-domain-overlay.component';
 import { ServiceWorkerUpdateCardComponent } from './service-worker-update-card.component';
 import { TranslatePipe } from './translate.pipe';
+
+/** Local storage key for the last gradient, so a reload has no colour change */
+const GRADIENT_CACHE_KEY = 'PLACEOS.loading_gradient';
+/** Hex, named and functional CSS colours. No `url()` or other CSS values */
+const CSS_COLOUR =
+    /^(#[0-9a-f]{3,8}|[a-z]+|(rgba?|hsla?|oklch|oklab)\([\w\s.,%/-]+\))$/i;
+
+/**
+ * CSS gradient for a list of two or more CSS colours.
+ * Returns an empty string when the list is not valid.
+ */
+export function loadingGradient(colours: unknown): string {
+    if (!Array.isArray(colours) || colours.length < 2) return '';
+    const valid = colours.every(
+        (colour) =>
+            typeof colour === 'string' && CSS_COLOUR.test(colour.trim()),
+    );
+    return valid ? `linear-gradient(to right, ${colours.join(', ')})` : '';
+}
 
 /**
  * Shows the native domain form when the app needs a domain. Only native apps
@@ -64,6 +83,7 @@ export class NativeDomainOverlayLoaderComponent {
             <div
                 loader
                 class="bg-base-300 pointer-events-auto fixed inset-0 z-9998 flex flex-col items-center justify-end space-y-2 p-4"
+                [style.background-image]="gradient() || null"
             >
                 @if (initialisation_error()) {
                     <div
@@ -128,6 +148,13 @@ export class GlobalLoadingComponent extends AsyncHandler implements OnInit {
     public readonly initialisation_error = initialisationFailure();
     public readonly initialisation_complete = initialisationComplete();
     public readonly loading = computed(() => !this.initialisation_complete());
+    /**
+     * Background of the loading screen, from the `loading_gradient` list of
+     * colours in the domain config. Empty for the default gradient.
+     */
+    public readonly gradient = signal(
+        localStorage.getItem(GRADIENT_CACHE_KEY) || '',
+    );
 
     public retry(): void {
         retryInitialisation();
@@ -150,7 +177,25 @@ export class GlobalLoadingComponent extends AsyncHandler implements OnInit {
             },
             5000,
         );
+        // Settings load after this screen shows, so the colours come from
+        // the domain. Keep the last known gradient until the domain loads.
+        const update_gradient = () => {
+            const domain = authority();
+            if (!domain) return;
+            const gradient = loadingGradient(domain.config?.loading_gradient);
+            if (gradient === this.gradient()) return;
+            this.gradient.set(gradient);
+            localStorage.setItem(GRADIENT_CACHE_KEY, gradient);
+        };
         update_online();
-        this.interval('online', update_online, 1000);
+        update_gradient();
+        this.interval(
+            'online',
+            () => {
+                update_online();
+                update_gradient();
+            },
+            1000,
+        );
     }
 }

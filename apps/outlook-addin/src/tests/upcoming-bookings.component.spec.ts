@@ -1,16 +1,18 @@
-import { signal } from '@angular/core';
+import { signal, WritableSignal } from '@angular/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { BookingCardComponent } from '@placeos/bookings';
 import { CalendarEvent } from '@placeos/common';
+import { mockComponent } from '@placeos/common/tests';
 import { EventCardComponent } from '@placeos/events';
-import { MockComponent } from 'ng-mocks';
 import { UpcomingBookingsComponent } from '../app/rooms/upcoming-bookings.component';
 
 import { ScheduleStateService } from 'apps/workplace/src/app/schedule/schedule-state.service';
 
 describe('UpcomingBookingsComponent', () => {
     let spectator: Spectator<UpcomingBookingsComponent>;
+    let loading: WritableSignal<boolean>;
+    let filtered_bookings: WritableSignal<any[]>;
 
     const createComponent = createComponentFactory({
         component: UpcomingBookingsComponent,
@@ -18,43 +20,41 @@ describe('UpcomingBookingsComponent', () => {
         providers: [
             {
                 provide: ScheduleStateService,
-                useValue: {
-                    loading: signal(false),
-                    filtered_bookings: signal([]),
-                    toggleType: vi.fn(),
-                    startPolling: vi.fn(),
+                useFactory: () => {
+                    loading = signal(false);
+                    filtered_bookings = signal([]);
+                    return {
+                        loading,
+                        filtered_bookings,
+                        toggleType: vi.fn(),
+                        startPolling: vi.fn(() => () => {}),
+                    };
                 },
             },
         ],
         declarations: [
-            MockComponent(EventCardComponent),
-            MockComponent(BookingCardComponent),
+            mockComponent(EventCardComponent),
+            mockComponent(BookingCardComponent),
         ],
     });
 
     beforeEach(() => (spectator = createComponent()));
 
     afterEach(() => {
-        (spectator.inject(ScheduleStateService).loading as any).set(false);
-        (spectator.inject(ScheduleStateService).filtered_bookings as any).set(
-            [],
-        );
+        loading.set(false);
+        filtered_bookings.set([]);
     });
 
     it('should show empty state', () => {
         expect('[empty]').toExist();
-        (spectator.inject(ScheduleStateService).filtered_bookings as any).set([
-            new CalendarEvent(),
-        ]);
+        filtered_bookings.set([new CalendarEvent()]);
         spectator.detectChanges();
         expect('[empty]').not.toExist();
     });
 
     it("should show user's events", () => {
         expect('event-card').not.toExist();
-        (spectator.inject(ScheduleStateService).filtered_bookings as any).set([
-            new CalendarEvent(),
-        ]);
+        filtered_bookings.set([new CalendarEvent()]);
         spectator.detectChanges();
         expect('event-card').toExist();
     });

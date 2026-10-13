@@ -54,6 +54,45 @@ Root settings such as `composer`, `mock` and `service_worker` are outside `app`.
 
 The loader caches zone data in the browser. Reload the app after a metadata change. If cached values remain, use `window.app.org.reloadMetadata()` in debug mode to clear the organisation cache and fetch it again.
 
+## Theme colour overrides
+
+Apps that use the shared settings service read two maps of CSS variables. Each key is a variable name from `shared/styles/application.css` without the `--` prefix. Each value is a CSS colour.
+
+| Setting | Type | Default | Description |
+|---------|------|---------|-------------|
+| `css_variables` | object | – | Colour overrides for the light theme. In the dark theme, they apply only to variables that the dark theme does not set. |
+| `css_variables_dark` | object | – | Colour overrides for the dark theme. Repeat a brand colour here to use it in the two themes. |
+
+```json
+{
+    "css_variables": {
+        "brand-100": "#00afd0",
+        "secondary": "#006a9d"
+    },
+    "css_variables_dark": {
+        "brand-100": "#00afd0",
+        "secondary": "#006a9d",
+        "base-100": "oklch(23% 0.034 264.665)"
+    }
+}
+```
+
+## Domain configuration
+
+The loading screen shows before the zone settings load. Its colours come from the `config` object of the domain (authority) in Backoffice, not from zone metadata.
+
+| Key | Type | Default | Description |
+|-----|------|---------|-------------|
+| `loading_gradient` | string[] | blue gradient | Two or more CSS colours for the background of the loading screen, from left to right. Hex, named, `rgb()`, `hsl()` and `oklch()` colours are valid. The app ignores the list if a value is not a colour. |
+
+```json
+{
+    "loading_gradient": ["#f15b55", "#f68c50"]
+}
+```
+
+The browser stores the last gradient, so a reload shows it immediately. After a change to the domain config, the first load shows the old colours for about one second.
+
 ## Local settings overrides
 
 Apps with a settings debug panel use **Ctrl+Alt+Shift+S** to open it. A saved override applies only in that browser. It does not update Backoffice. Overrides persist in local storage under `PLACEOS.setting_overrides` and take priority over zone settings.
@@ -62,6 +101,7 @@ Overrides use exact keys. An override for `app.events` does not override a looku
 
 ## Source references
 
-- [Settings lookup and debug overrides](../../libs/common/src/lib/settings.service.ts)
+- [Settings lookup, colour overrides and debug overrides](../../libs/common/src/lib/settings.service.ts)
+- [Loading screen gradient](../../libs/components/src/lib/global-loading.component.ts)
 - [Metadata loading and priority](../../libs/common/src/lib/org/organisation.service.ts)
 - [Settings debug panel shortcut](../../libs/components/src/lib/settings-debug-panel-launcher.component.ts)

@@ -75,6 +75,52 @@ describe('GlobalLoadingComponent', () => {
         expect('[loader]').not.toExist();
     });
 
+    describe('loading gradient', () => {
+        const background = () =>
+            spectator.query<HTMLElement>('[loader]').style.backgroundImage;
+
+        afterEach(() => localStorage.removeItem('PLACEOS.loading_gradient'));
+
+        it('should use the colours from the domain config', () => {
+            spectator.detectChanges();
+            expect(background()).toBe('');
+
+            vi.mocked(authority).mockReturnValue({
+                id: 'test',
+                config: { loading_gradient: ['#f15b55', '#f68c50'] },
+            } as any);
+            vi.advanceTimersByTime(1000);
+            spectator.detectChanges();
+
+            expect(background()).toContain('linear-gradient');
+            expect(localStorage.getItem('PLACEOS.loading_gradient')).toBe(
+                'linear-gradient(to right, #f15b55, #f68c50)',
+            );
+        });
+
+        it('should keep the default gradient for values that are not colours', () => {
+            vi.mocked(authority).mockReturnValue({
+                id: 'test',
+                config: { loading_gradient: ['#f15b55', 'url(//example.com)'] },
+            } as any);
+            vi.advanceTimersByTime(1000);
+            spectator.detectChanges();
+
+            expect(background()).toBe('');
+        });
+
+        it('should show the last known gradient before the domain loads', () => {
+            localStorage.setItem(
+                'PLACEOS.loading_gradient',
+                'linear-gradient(to right, red, blue)',
+            );
+            spectator = createComponent();
+            spectator.detectChanges();
+
+            expect(background()).toContain('linear-gradient');
+        });
+    });
+
     it('should show a server down message while offline', () => {
         vi.mocked(authority).mockReturnValue({ id: 'test' } as any);
         vi.mocked(token).mockReturnValue('test-token');

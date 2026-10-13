@@ -2,7 +2,9 @@ import { Component, inject, OnInit } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import {
     continueTeamsSignIn,
+    currentUser,
     PlaceOS_Service,
+    setDefaultCreator,
     setMocks,
     settingSignal,
     teamsSignInRequired,
@@ -90,6 +92,8 @@ export class AppComponent implements OnInit {
 
         await this._placeos.init();
         if (this._placeos.has_uploads) this._uploads.init();
+
+        setDefaultCreator(currentUser());
     }
 
     public signInWithTeams() {

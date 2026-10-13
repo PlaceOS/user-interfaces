@@ -517,6 +517,7 @@ export class NewDeskFormDetailsComponent
                 model.update((m) => ({
                     ...m,
                     resources: [this.selected_desk],
+                    asset_id: this.selected_desk.id,
                 }));
             }
         }

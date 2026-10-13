@@ -47,15 +47,15 @@ export interface SpaceInfoData {
             [xPosition]="'center'"
             [yPosition]="'center'"
             [hover]="true"
-            [attr.id]="space()?.map_id || space()?.id"
+            [attr.id]="space().map_id || space().id"
             (mouseenter)="updateOffset()"
             class="pointer-events-auto relative h-full w-full cursor-pointer"
         ></div>
         <ng-template #space_tooltip>
             <div
                 name="space-info"
-                [id]="space()?.id"
-                class="border-base-300 bg-base-100 pointer-events-none absolute top-0 left-0 w-64 transform overflow-hidden rounded-sm border shadow-sm"
+                [id]="space().id"
+                class="border-base-300 bg-base-100 pointer-events-none absolute top-0 left-0 w-64 transform overflow-hidden rounded border shadow"
                 [class.-translate-x-full]="x_pos() === 'end'"
                 [class.-translate-y-full]="y_pos() === 'bottom'"
             >
@@ -67,7 +67,7 @@ export interface SpaceInfoData {
                         [class.h-32]="space().images[0]"
                         [class.h-8]="!space().images[0]"
                     >
-                        @if (space().images[0]) {
+                        @if (space().images?.length) {
                             <img
                                 auth
                                 [source]="space().images[0]"
@@ -221,7 +221,7 @@ export class ExploreSpaceInfoComponent extends AsyncHandler implements OnInit {
     public readonly y_pos = signal<'top' | 'bottom'>('top');
     public readonly x_pos = signal<'start' | 'end'>('start');
     /** Space to display details for */
-    public readonly space = signal(this._details.space);
+    public readonly space = signal(this._details.space || new Space());
     /** List of upcoming events for space */
     public readonly events = signal(this._details.events || []);
     /** List of upcoming events for space */

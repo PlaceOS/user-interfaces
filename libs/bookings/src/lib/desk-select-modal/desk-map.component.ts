@@ -7,6 +7,7 @@ import {
     model,
     output,
     signal,
+    untracked,
     WritableSignal,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -219,9 +220,13 @@ export class DeskMapComponent {
             }, {});
             this.styles.set(styles);
         });
+        // Show a level from the filter. Keep the shown level when the filter
+        // already has it, as the filter can hold more than one level.
         effect(() => {
-            const { zone_id } = this._state.options();
-            const level = this._org.levelWithID([zone_id]);
+            const { zones, zone_id } = this._state.options();
+            const level_ids = zones?.length ? zones : [zone_id];
+            if (level_ids.includes(untracked(this.level)?.id)) return;
+            const level = this._org.levelWithID(level_ids);
             if (level) this.level.set(level);
         });
     }
@@ -231,7 +236,11 @@ export class DeskMapComponent {
     }
 
     public setLevel(level: BuildingLevel) {
-        this.setOptions({ zone_id: level?.id });
+        // The filter reads `zones`, so set both to keep the two in step
+        this.setOptions({
+            zones: level ? [level.id] : [],
+            zone_id: level?.id,
+        });
         const bld = this._org.buildings.find((_) => _.id === level?.parent_id);
         if (bld) {
             const [latitude, longitude] = bld.location

@@ -32,37 +32,42 @@ export interface Locatable {
 @Component({
     selector: 'map-locate-modal',
     template: `
-        <div class="flex h-screen w-screen flex-col">
+        <div class="h-[calc(100vh-4rem)] w-screen sm:h-auto sm:w-auto">
             <header
-                class="bg-base-200 sticky top-0 z-10 m-2 h-14 w-[calc(100%-1rem)] rounded-sm border-none p-2"
+                class="bg-base-200 sticky top-0 z-10 m-2 flex h-14 w-[calc(100%-1rem)] min-w-[20rem] items-center space-x-2 rounded border-none p-2"
             >
-                <h2 class="px-2 text-xl font-medium">
-                    Location of {{ item().display_name || item().name }}
+                <icon class="text-2xl">place</icon>
+                <h2 class="text-xl font-medium">
+                    {{ item().display_name || item().name }}
                 </h2>
-                <button icon default matRipple mat-dialog-close>
+                <div class="flex-1"></div>
+                <button icon matRipple mat-dialog-close>
                     <icon>close</icon>
                 </button>
             </header>
-            <div
-                body
-                class="border-base-300 bg-base-200 relative mx-2 mb-2 w-[calc(100%-1rem)] flex-1 overflow-hidden rounded-xl border"
-            >
+            <div class="px-2 pb-2">
                 @if (level()) {
-                    <interactive-map
-                        class="pointer-events-none absolute inset-0 block h-full w-full"
-                        [src]="level()?.map_id"
-                        [focus]="item()?.map_id"
-                        [features]="features()"
-                        [options]="{
-                            disable_pan: true,
-                            disable_zoom: true,
-                        }"
-                    >
-                    </interactive-map>
                     <div
-                        class="border-base-300 bg-base-100 absolute top-2 right-2 rounded-3xl border px-4 py-2 shadow-lg"
+                        body
+                        class="border-base-300 relative h-[65vh] w-full overflow-hidden rounded-lg border sm:max-h-[65vh]"
                     >
-                        {{ level()?.display_name || level()?.name }}
+                        <interactive-map
+                            class="pointer-events-none"
+                            [src]="level().map_id"
+                            [focus]="item().map_id"
+                            [features]="features()"
+                            [options]="{
+                                disable_pan: true,
+                                disable_zoom: true,
+                            }"
+                        >
+                            <mat-spinner diameter="64"></mat-spinner
+                        ></interactive-map>
+                        <div
+                            class="border-base-300 bg-base-200 absolute top-2 right-2 rounded-xl border px-4 py-2 font-medium"
+                        >
+                            {{ level().display_name || level().name }}
+                        </div>
                     </div>
                 }
             </div>
@@ -99,7 +104,7 @@ export class MapLocateModalComponent extends AsyncHandler implements OnInit {
     /** Space to show the location of on the map */
     public readonly item = signal(this._data.item);
     /** Features of the map */
-    public features = signal<ViewerFeature[]>(undefined);
+    public readonly features = signal<ViewerFeature[]>([]);
     /** Mapping of elements to CSS styles */
     public style_map = signal<ViewerStyles>({});
 

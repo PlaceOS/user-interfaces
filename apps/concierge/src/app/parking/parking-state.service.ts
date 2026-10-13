@@ -92,11 +92,11 @@ export type ParkingRequestFilter =
 
 export interface ParkingOptions {
     date: number;
+    period: 'day' | 'week';
     all_day?: boolean;
     duration?: number;
     search: string;
     zones: string[];
-    period: 'day' | 'week';
     request_filter: ParkingRequestFilter;
 }
 
@@ -140,11 +140,11 @@ export class ParkingStateService extends AsyncHandler {
 
     private readonly _options = signal<ParkingOptions>({
         date: Date.now(),
+        period: 'day',
         all_day: true,
         duration: 60,
         search: '',
         zones: [],
-        period: 'day',
         request_filter: 'all',
     });
 
@@ -624,6 +624,9 @@ export class ParkingStateService extends AsyncHandler {
                 booking.booked_by_name?.toLowerCase().includes(search_term) ||
                 booking.booked_by_email?.toLowerCase().includes(search_term) ||
                 booking.asset_name?.toLowerCase().includes(search_term) ||
+                booking.extension_data?.plate_number
+                    ?.toLowerCase()
+                    .includes(search_term) ||
                 this.bayNumber(booking, spaces)
                     ?.toLowerCase()
                     .includes(search_term),

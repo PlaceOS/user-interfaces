@@ -7,6 +7,7 @@ import { MockProvider } from 'ng-mocks';
 
 import * as ts_client from '@placeos/ts-client';
 
+import { GoogleAnalyticsService } from '../lib/google-analytics.service';
 import { SettingsService } from '../lib/settings.service';
 import { setCurrentUser } from '../lib/user-state';
 
@@ -62,6 +63,21 @@ describe('SettingsService', () => {
         expect(service.get('composer.local_login')).toBe(false);
     });
 
+    it('should update the title without tracking when analytics is disabled', async () => {
+        const service = spectator.service;
+        await whenInitialised(service);
+        const send = vi.spyOn(spectator.inject(GoogleAnalyticsService), 'send');
+        const settings: Record<string, unknown> = {
+            'app.analytics.tracking_id': 'G-TEST123',
+            'app.analytics.enabled': false,
+        };
+        vi.spyOn(service, 'get').mockImplementation((key) => settings[key]);
+
+        expect(() => (service.title = 'Home')).not.toThrow();
+        expect(send).not.toHaveBeenCalled();
+        expect(spectator.inject(Title).setTitle).toHaveBeenCalled();
+    });
+
     it('should return `null` for non-existing settings', async () => {
         const service = spectator.service;
         await whenInitialised(service);
@@ -81,6 +97,54 @@ describe('SettingsService', () => {
         service.saveUserSetting(key, ['item-1']);
 
         expect(favorites()).toEqual(['item-1']);
+    });
+});
+
+describe('SettingsService renamed user settings', () => {
+    const createService = createServiceFactory(SettingsService);
+
+    it('should read favourites saved under the old setting keys', async () => {
+        vi.mocked(ts_client.showMetadata).mockResolvedValue({
+            details: {
+                favourite_spaces: ['room-1'],
+                favourite_parking_spaces: ['bay-1'],
+                favourite_parking: ['bay-2'],
+            },
+        } as any);
+        setCurrentUser({ id: 'test-user' } as any);
+        const service = createService({
+            providers: [MockProvider(Title, { setTitle: vi.fn() })],
+        }).service;
+
+        await vi.waitFor(() =>
+            expect(service.get('favourite_rooms')).toEqual(['room-1']),
+        );
+        // A value under the new key wins over the old key
+        expect(service.get('favourite_parking')).toEqual(['bay-2']);
+    });
+});
+
+describe('SettingsService colour overrides', () => {
+    const createService = createServiceFactory(SettingsService);
+
+    it('should apply the dark overrides to the dark theme only', () => {
+        setCurrentUser({ id: 'test-user' } as any);
+        const service = createService({
+            providers: [MockProvider(Title, { setTitle: vi.fn() })],
+        }).service;
+
+        service.setOverrides([
+            {
+                css_variables: { 'brand-100': '#00afd0' },
+                css_variables_dark: { 'base-100': '#101828' },
+            },
+        ]);
+
+        expect(document.getElementById('css-var-overrides').innerText).toBe(
+            'body { --brand-100: #00afd0; } ' +
+                'body.theme-dark { --base-100: #101828; }',
+        );
+        service.setOverrides([]);
     });
 });
 

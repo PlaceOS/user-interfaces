@@ -231,11 +231,11 @@ export function parseRecurrence(data: RecurrenceDetails) {
         range_end: getUnixTime(endOfDay(end)),
         interval: data.interval,
         pattern: data.pattern,
+        nth_of_month: data.nth_of_month,
         days_of_week:
             data.days_of_week?.map((_) =>
                 typeof _ === 'number' ? DAYS_OF_WEEK[_] : _,
             ) || [],
-        nth_of_month: data.nth_of_month,
     };
 }
 

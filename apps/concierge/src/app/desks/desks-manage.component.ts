@@ -64,8 +64,17 @@ import { DeskQrItem, DesksStateService } from './desks-state.service';
                         content: item_list_template,
                     },
                     {
+                        key: 'tags',
+                        name: 'COMMON.TAGS' | translate,
+                        content: item_list_template,
+                    },
+                    {
                         key: 'security',
                         name: 'APP.CONCIERGE.DESKS_SECURITY' | translate,
+                    },
+                    {
+                        key: 'homebase',
+                        name: 'APP.CONCIERGE.DESKS_HOMEBASE' | translate,
                     },
                     {
                         key: 'bookable',

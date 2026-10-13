@@ -332,7 +332,7 @@ export class FindAvailabilityModalComponent
                             fromUnixTime(block.starts_at),
                         );
                         return {
-                            date,
+                            date: date.valueOf(),
                             duration,
                             start:
                                 ((date.getHours() + date.getMinutes() / 60) /

@@ -201,7 +201,10 @@ export class ExploreBookingModalComponent implements OnInit {
         inject<MatDialogRef<ExploreBookingModalComponent>>(MatDialogRef);
     private _router = inject(Router);
 
-    public readonly loading = this._event_form.loading;
+    private _min_loading = signal(true);
+    public readonly loading = computed(
+        () => this._min_loading() || !!this._event_form.loading(),
+    );
     public readonly alert = signal(this._data.alert);
 
     public get form() {
@@ -236,6 +239,14 @@ export class ExploreBookingModalComponent implements OnInit {
     );
 
     public ngOnInit() {
+        if (!this._data.space) {
+            notifyError(
+                'Error intialising Ad-hoc booking form. [Space missing]',
+            );
+            console.error('Book Modal Data:', this._data);
+            this._dialog_ref.close();
+            return;
+        }
         this._event_form.newForm();
         this.model.update((m) => ({
             ...m,
@@ -243,6 +254,7 @@ export class ExploreBookingModalComponent implements OnInit {
             host: currentUser().email,
             organiser: currentUser(),
         }));
+        setTimeout(() => this._min_loading.set(false), 500);
     }
 
     public async save() {

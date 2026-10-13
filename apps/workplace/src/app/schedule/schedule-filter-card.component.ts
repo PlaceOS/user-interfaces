@@ -1,12 +1,24 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component, computed, inject, model } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatBottomSheetRef } from '@angular/material/bottom-sheet';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatRippleModule } from '@angular/material/core';
-import { SettingsService } from '@placeos/common';
-import { IconComponent, TranslatePipe } from '@placeos/components';
-import { ScheduleStateService } from './schedule-state.service';
+import {
+    Booking,
+    BOOKING_TYPE_COLORS,
+    CalendarEvent,
+    SettingsService,
+} from '@placeos/common';
+import {
+    IconComponent,
+    SettingsToggleComponent,
+    TranslatePipe,
+} from '@placeos/components';
+import {
+    isBookingForOtherUser,
+    ScheduleStateService,
+} from './schedule-state.service';
 
 @Component({
     selector: 'schedule-filter-card',
@@ -22,173 +34,47 @@ import { ScheduleStateService } from './schedule-state.service';
             </h2>
             <icon></icon>
         </div>
-        <div class="border-base-200 mb-4 space-y-4 border-b px-2 pb-4">
-            @if (hasFeature('spaces')) {
-                <button
-                    matRipple
-                    name="schedule-toggle-event-filter"
-                    class="flex w-full items-center space-x-2 text-left"
-                    (click)="toggleType('event')"
-                >
-                    <div
-                        class="bg-base-200 flex h-10 w-10 items-center justify-center rounded-full text-2xl"
+        <div class="border-base-200 mb-4 space-y-2 border-b px-4 pb-4">
+            @for (item of feature_list; track item.type) {
+                @if (hasFeature(item.feat)) {
+                    <settings-toggle
+                        [ngModel]="filters()?.shown_types?.includes(item.type)"
+                        (click)="toggleType(item.type)"
                     >
-                        <icon>place</icon>
-                    </div>
-                    <div class="flex-1">
-                        <div class="">{{ 'RESOURCE.ROOMS' | translate }}</div>
-                        <div class="text-sm opacity-60">
-                            {{
-                                'APP.WORKPLACE.SCHEDULE_FILTER_ROOMS'
-                                    | translate
-                            }}
+                        <div class="-my-2 -ml-2 flex items-center space-x-2">
+                            <div
+                                class="bg-base-300 rounded-full p-1 text-2xl"
+                                [style.background-color]="colors[item.type][0]"
+                                [style.color]="colors[item.type][1]"
+                            >
+                                <icon>{{ item.icon }}</icon>
+                            </div>
+                            <div class="flex-1 font-medium">
+                                {{ item.name | translate }}
+                            </div>
+                            <div class="font-mono text-xs">
+                                {{ counts()[item.type] || 0 }}
+                            </div>
                         </div>
-                    </div>
-                    <mat-checkbox
-                        [ngModel]="filters().shown_types?.includes('event')"
-                    ></mat-checkbox>
-                </button>
+                    </settings-toggle>
+                }
             }
-            @if (hasFeature('desks')) {
-                <button
-                    matRipple
-                    name="schedule-toggle-desk-filter"
-                    class="flex w-full items-center space-x-2 text-left"
-                    (click)="toggleType('desk')"
-                >
-                    <div
-                        class="bg-base-200 flex h-10 w-10 items-center justify-center rounded-full text-2xl"
-                    >
-                        <img src="assets/icons/desk-outline.svg" class="w-6" />
+            <settings-toggle
+                [ngModel]="filters()?.show_bookings_for_others"
+                (click)="toggleBookingsForOthers()"
+            >
+                <div class="-my-2 -ml-2 flex items-center space-x-2">
+                    <div class="bg-base-300 rounded-full p-1 text-2xl">
+                        <icon>perm_contact_calendar</icon>
                     </div>
-                    <div class="flex-1">
-                        <div class="">{{ 'RESOURCE.DESKS' | translate }}</div>
-                        <div class="text-sm opacity-60">
-                            {{
-                                'APP.WORKPLACE.SCHEDULE_FILTER_DESKS'
-                                    | translate
-                            }}
-                        </div>
+                    <div class="flex-1 font-medium">Bookings for Others</div>
+                    <div class="font-mono text-xs">
+                        {{ counts()['bookings-for-others'] || 0 }}
                     </div>
-                    <mat-checkbox
-                        [ngModel]="filters().shown_types?.includes('desk')"
-                    ></mat-checkbox>
-                </button>
-            }
-            @if (hasFeature('parking') || hasFeature('parking-requests')) {
-                <button
-                    matRipple
-                    name="schedule-toggle-parking-filter"
-                    class="flex w-full items-center space-x-2 text-left"
-                    (click)="toggleType('parking')"
-                >
-                    <div
-                        class="bg-base-200 flex h-10 w-10 items-center justify-center rounded-full text-2xl"
-                    >
-                        <icon>drive_eta</icon>
-                    </div>
-                    <div class="flex-1">
-                        <div class="">{{ 'RESOURCE.PARKING' | translate }}</div>
-                        <div class="text-sm opacity-60">
-                            {{
-                                'APP.WORKPLACE.SCHEDULE_FILTER_PARKING'
-                                    | translate
-                            }}
-                        </div>
-                    </div>
-                    <mat-checkbox
-                        [ngModel]="filters().shown_types?.includes('parking')"
-                    ></mat-checkbox>
-                </button>
-            }
-            @if (hasFeature('visitor-invite')) {
-                <button
-                    matRipple
-                    name="schedule-toggle-visitor-filter"
-                    class="flex w-full items-center space-x-2 text-left"
-                    (click)="toggleType('visitor')"
-                >
-                    <div
-                        class="bg-base-200 flex h-10 w-10 items-center justify-center rounded-full text-2xl"
-                    >
-                        <icon>people</icon>
-                    </div>
-                    <div class="flex-1">
-                        <div class="">
-                            {{ 'RESOURCE.VISITORS' | translate }}
-                        </div>
-                        <div class="text-sm opacity-60">
-                            {{
-                                'APP.WORKPLACE.SCHEDULE_FILTER_VISITORS'
-                                    | translate
-                            }}
-                        </div>
-                    </div>
-                    <mat-checkbox
-                        [ngModel]="filters().shown_types?.includes('visitor')"
-                    ></mat-checkbox>
-                </button>
-            }
-            @if (hasFeature('lockers')) {
-                <button
-                    matRipple
-                    name="schedule-toggle-locker-filter"
-                    class="flex w-full items-center space-x-2 text-left"
-                    (click)="toggleType('locker')"
-                >
-                    <div
-                        class="bg-base-200 flex h-10 w-10 items-center justify-center rounded-full text-2xl"
-                    >
-                        <icon>door_back</icon>
-                    </div>
-                    <div class="flex-1">
-                        <div class="">
-                            {{ 'RESOURCE.LOCKERS' | translate }}
-                        </div>
-                        <div class="text-sm opacity-60">
-                            {{
-                                'APP.WORKPLACE.SCHEDULE_FILTER_LOCKERS'
-                                    | translate
-                            }}
-                        </div>
-                    </div>
-                    <mat-checkbox
-                        [ngModel]="filters().shown_types?.includes('locker')"
-                    ></mat-checkbox>
-                </button>
-            }
-            @if (hasFeature('group-events')) {
-                <button
-                    matRipple
-                    name="schedule-toggle-locker-filter"
-                    class="flex w-full items-center space-x-2 text-left"
-                    (click)="toggleType('group-event')"
-                >
-                    <div
-                        class="bg-base-200 flex h-10 w-10 items-center justify-center rounded-full text-2xl"
-                    >
-                        <icon>door_back</icon>
-                    </div>
-                    <div class="flex-1">
-                        <div class="">
-                            {{ 'RESOURCE.EVENTS' | translate }}
-                        </div>
-                        <div class="text-sm opacity-60">
-                            {{
-                                'APP.WORKPLACE.SCHEDULE_FILTER_EVENTS'
-                                    | translate
-                            }}
-                        </div>
-                    </div>
-                    <mat-checkbox
-                        [ngModel]="
-                            filters().shown_types?.includes('group-event')
-                        "
-                    ></mat-checkbox>
-                </button>
-            }
+                </div>
+            </settings-toggle>
         </div>
-        <div class="px-2 pb-2">
+        <div class="px-4 pb-4">
             <button
                 btn
                 matRipple
@@ -214,6 +100,7 @@ import { ScheduleStateService } from './schedule-state.service';
         MatCheckboxModule,
         FormsModule,
         MatRippleModule,
+        SettingsToggleComponent,
     ],
 })
 export class ScheduleFilterCardComponent {
@@ -225,11 +112,74 @@ export class ScheduleFilterCardComponent {
         );
 
     public readonly filters = this._state.filters;
+    public readonly colors = BOOKING_TYPE_COLORS;
+    public readonly bookings = model<(Booking | CalendarEvent)[]>([]);
+
+    public readonly feature_list = [
+        { type: 'desk', feat: 'desks', icon: 'desk', name: 'RESOURCE.DESKS' },
+        {
+            type: 'event',
+            feat: 'spaces',
+            icon: 'meeting_room',
+            name: 'RESOURCE.ROOMS',
+        },
+        {
+            type: 'parking',
+            feat: ['parking', 'parking-requests'],
+            icon: 'drive_eta',
+            name: 'RESOURCE.PARKING',
+        },
+        {
+            type: 'visitor',
+            feat: 'visitor-invite',
+            icon: 'people',
+            name: 'RESOURCE.VISITORS',
+        },
+        {
+            type: 'locker',
+            feat: 'lockers',
+            icon: 'lock',
+            name: 'RESOURCE.LOCKERS',
+        },
+        {
+            type: 'group-event',
+            feat: 'group-events',
+            icon: 'event_available',
+            name: 'RESOURCE.EVENTS',
+        },
+    ];
+
+    public readonly counts = computed(() => {
+        const mapping: Record<string, number> = {};
+        const bkn_list = this.bookings() || [];
+        for (const bkn of bkn_list) {
+            if (bkn instanceof CalendarEvent) {
+                const type = bkn.extension_data?.shared_event
+                    ? 'group-event'
+                    : 'event';
+                mapping[type] = (mapping[type] || 0) + 1;
+            } else {
+                const type = bkn.booking_type;
+                mapping[type] = (mapping[type] || 0) + 1;
+                if (isBookingForOtherUser(bkn)) {
+                    mapping['bookings-for-others'] =
+                        (mapping['bookings-for-others'] || 0) + 1;
+                }
+            }
+        }
+        return mapping;
+    });
 
     public readonly toggleType = (t) => this._state.toggleType(t);
+    public readonly toggleBookingsForOthers = () =>
+        this._state.toggleBookingsForOthers();
     public readonly dismiss = () => this._sheet_ref.dismiss();
 
-    public hasFeature(feature: string) {
-        return this._settings.get('app.features')?.includes(feature);
+    public hasFeature(feature: string | string[]) {
+        const features = this._settings.get('app.features') || [];
+        if (Array.isArray(feature)) {
+            return feature.some((f) => features.includes(f));
+        }
+        return features.includes(feature);
     }
 }

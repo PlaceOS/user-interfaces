@@ -31,6 +31,7 @@ import {
     onFieldChange,
     sameDayInTimezone,
     setDefaultCreator,
+    SETTING_KEYS,
     SettingsService,
     Space,
     unique,
@@ -107,7 +108,10 @@ export interface EventFormOptions {
 }
 
 export interface EventFormFilters {
+    /** Minimum room capacity. Values below 1 mean no limit */
     capacity?: number;
+    /** Maximum room capacity. Empty means no upper limit */
+    capacity_max?: number;
     /** Whether to only show favourite rooms */
     show_fav?: boolean;
     features?: string[];
@@ -356,8 +360,12 @@ export class EventFormService extends AsyncHandler {
             list = list.filter(({ id }) => this.favorite_spaces.includes(id));
         }
         if (filters.capacity > 0) {
+            const max =
+                filters.capacity_max > 0 ? filters.capacity_max : Infinity;
             list = list.filter(
-                ({ capacity }) => filters.capacity <= capacity || capacity < 0,
+                ({ capacity }) =>
+                    capacity < 0 ||
+                    (capacity >= filters.capacity && capacity <= max),
             );
         }
         if (filters.features) {
@@ -365,7 +373,13 @@ export class EventFormService extends AsyncHandler {
                 filters.features.every((f) => features.includes(f)),
             );
         }
-        return list;
+        return list.sort((a, b) => {
+            const cap_diff = (a.capacity || 0) - (b.capacity || 0);
+            if (cap_diff !== 0) return cap_diff;
+            return (a.display_name || a.name).localeCompare(
+                b.display_name || b.name,
+            );
+        });
     });
 
     /** Params driving the available space calculation */
@@ -437,7 +451,7 @@ export class EventFormService extends AsyncHandler {
     }
 
     public get favorite_spaces() {
-        return this._settings.get<string[]>('favourite_spaces') || [];
+        return this._settings.get<string[]>(SETTING_KEYS.FAVORITE_ROOMS) || [];
     }
 
     public get book_internal() {

@@ -90,12 +90,11 @@ import { BookingFormService } from '../booking-form.service';
                         <mat-form-field appearance="outline" class="w-full">
                             <mat-select
                                 name="location"
-                                [ngModel]="options()?.zone_id"
-                                (ngModelChange)="
-                                    setOptions({ zone_id: $event })
-                                "
+                                [ngModel]="options()?.zones"
+                                (ngModelChange)="setOptions({ zones: $event })"
                                 [ngModelOptions]="{ standalone: true }"
                                 [placeholder]="'COMMON.LEVEL_ANY' | translate"
+                                [multiple]="true"
                             >
                                 @for (lvl of levels(); track lvl) {
                                     <mat-option [value]="lvl.id">
@@ -282,12 +281,15 @@ export class DeskFiltersComponent {
         () => !this.hide_levels() && this.levels().length > 1,
     );
 
-    private readonly _clear_invalid_level = effect(() => {
-        const zone_id = this.options()?.zone_id;
-        if (!zone_id) return;
+    private readonly _clear_invalid_levels = effect(() => {
+        const zones = this.options()?.zones || [];
+        if (!zones.length) return;
         if (!this._state.resources().length) return;
-        if (!this.levels().some((lvl) => lvl.id === zone_id)) {
-            this._state.setOptions({ zone_id: undefined });
+        const valid_zones = zones.filter((zone_id) =>
+            this.levels().some((lvl) => lvl.id === zone_id),
+        );
+        if (valid_zones.length !== zones.length) {
+            this._state.setOptions({ zones: valid_zones });
         }
     });
 

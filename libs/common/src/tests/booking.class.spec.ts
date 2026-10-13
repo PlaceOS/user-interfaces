@@ -31,6 +31,18 @@ describe('Booking', () => {
         expect(booking.booking_end).toBe(1_700_003_600);
     });
 
+    it('shows 12 hour bookings as all day, but not parking shifts', () => {
+        const duration = 13 * 60;
+        const desk = new Booking({ booking_type: 'desk', duration });
+        const parking = new Booking({ booking_type: 'parking', duration });
+        expect(desk.is_all_day).toBe(true);
+        expect(parking.is_all_day).toBe(false);
+        expect(
+            new Booking({ booking_type: 'parking', duration: 18 * 60 })
+                .is_all_day,
+        ).toBe(true);
+    });
+
     it('retains server-provided booking history without serialising it', () => {
         const booking = new Booking({
             history: [

@@ -424,7 +424,7 @@ export function toEventRecurrence(
         details.days_of_week = Array.from(r.weekdays);
         if (r.type === 'monthly') {
             details.pattern = 'monthly';
-            details.nth_of_month = r.week;
+            if (r.week) details.nth_of_month = r.week;
         }
     } else if (r.type === 'monthly') {
         details.days_of_week = [];
