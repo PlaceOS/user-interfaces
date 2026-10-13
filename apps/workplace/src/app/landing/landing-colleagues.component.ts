@@ -290,13 +290,7 @@ export class LandingColleaguesComponent extends AsyncHandler {
         viewChild.required<ElementRef<HTMLInputElement>>('search_input');
 
     public newMeeting(user: StaffUser) {
-        this._event_form.newForm();
-        setTimeout(() => {
-            this._event_form.model.update((m) => ({
-                ...m,
-                attendees: [user],
-            }));
-        }, 300);
+        this._event_form.newFormWith({ attendees: [user] });
         if (this._settings.get('app.new_features')) {
             this._router.navigate(['/book', 'meeting']);
         } else {

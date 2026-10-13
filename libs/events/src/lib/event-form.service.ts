@@ -704,6 +704,24 @@ export class EventFormService extends AsyncHandler {
         );
     }
 
+    /**
+     * Start a new form with the given values set. The values are saved at
+     * once, so `loadForm` restores them when the form page loads. Use this to
+     * open the form from another page with a field already filled in.
+     */
+    public newFormWith(values: Partial<EventFormValue>) {
+        if (!currentUserIsLoaded()) {
+            currentUserLoaded().then(() => this.newFormWith(values));
+            return;
+        }
+        this.newForm();
+        this._model.update((m) => ({ ...m, ...values }));
+        sessionStorage.setItem(
+            'PLACEOS.event_form',
+            JSON.stringify(this._model()),
+        );
+    }
+
     public resetForm() {
         if (!currentUserIsLoaded()) {
             currentUserLoaded().then(() => this.resetForm());
