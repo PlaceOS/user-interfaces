@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["schedule-topbar.component.ts"],
+  "sourcesContent": ["\n            ::ng-deep .schedule-date-menu.mat-mdc-menu-panel {\n                max-width: none;\n            }\n            ::ng-deep .schedule-date-menu .mat-mdc-menu-content {\n                padding: 0;\n                overflow: hidden;\n            }\n        "],
+  "mappings": "AACY,UAAA,CAAA,kBAAA,CAAA,mBACI,UAAA,IACJ,CACA,UAAA,CAHA,mBAGA,CAAA,6BACI,EACA,SAAA,MACJ",
+  "names": []
+}
