@@ -116,6 +116,16 @@ export const MAP_AI_MARKUP_SCHEMA = 'placeos.map-markup/1';
 /** x, y, width, height in user units. */
 export type MapAIViewBox = [number, number, number, number];
 
+/** An outlined label: the glyph paths of one or two rows inside a room, desk or zone. */
+export interface MapAILabel {
+    /** Id or anchor of the element the label sits in. */
+    in: string;
+    /** Anchors of the glyph paths, left to right, top row first. */
+    anchors: string[];
+    bbox: MapAIViewBox;
+    fill: string | null;
+}
+
 /** One line of the element index the prompt builder reads. */
 export interface MapAIContextEntry {
     /** Session anchor. */
@@ -186,6 +196,8 @@ export interface MapAIContext {
     protected_ids: string[];
     duplicate_ids: string[];
     index: MapAIContextEntry[];
+    /** Outlined labels found by clustering glyph paths. */
+    labels: MapAILabel[];
     /** Anchors whose markup is in `subtrees`. */
     shortlist: string[];
     /** Anchor to outerHTML, without editor attributes. */

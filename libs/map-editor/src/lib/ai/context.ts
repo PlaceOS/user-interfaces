@@ -135,11 +135,16 @@ export function containerIndex(index: MapIndex): Map<string, MapIndexEntry> {
     return result;
 }
 
-const GLYPH_MAX_HEIGHT_RATIO = 0.2;
-const GLYPH_MAX_WIDTH_RATIO = 0.35;
+const GLYPH_MAX_HEIGHT_RATIO = 0.15;
+const GLYPH_MAX_WIDTH_RATIO = 0.12;
+const GLYPH_MIN_HEIGHT = 3;
+const LABEL_MIN_GLYPHS = 3;
+const ROW_GAP_RATIO = 1.5;
+const ROW_OVERLAP_RATIO = 0.5;
+const ROW_STACK_RATIO = 1.2;
 
 /** An anonymous path small enough to be one letter of an outlined label inside its container. */
-export function isGlyphEntry(
+export function isGlyphCandidate(
     entry: MapIndexEntry,
     container: MapIndexEntry | undefined,
 ): boolean {
@@ -147,13 +152,122 @@ export function isGlyphEntry(
     if (entry.id || entry.label || entry.protected) return false;
     if (entry.tag !== 'path' && entry.tag !== 'polygon') return false;
     if (entry.parent === container.anchor) return false;
+    if (!entry.fill || entry.fill === 'none') return false;
     const [, , w, h] = entry.bbox;
     const [, , cw, ch] = container.bbox;
     return (
-        h > 0 &&
+        h >= GLYPH_MIN_HEIGHT &&
         h <= ch * GLYPH_MAX_HEIGHT_RATIO &&
         w <= cw * GLYPH_MAX_WIDTH_RATIO
     );
+}
+
+type Box = [number, number, number, number];
+
+function unionBox(boxes: readonly Box[]): Box {
+    const x0 = Math.min(...boxes.map((b) => b[0]));
+    const y0 = Math.min(...boxes.map((b) => b[1]));
+    const x1 = Math.max(...boxes.map((b) => b[0] + b[2]));
+    const y1 = Math.max(...boxes.map((b) => b[1] + b[3]));
+    return [x0, y0, x1 - x0, y1 - y0];
+}
+
+function sameRow(last: Box, next: Box): boolean {
+    const overlap =
+        Math.min(last[1] + last[3], next[1] + next[3]) -
+        Math.max(last[1], next[1]);
+    const tallest = Math.max(last[3], next[3]);
+    const gap = next[0] - (last[0] + last[2]);
+    return (
+        overlap >= Math.min(last[3], next[3]) * ROW_OVERLAP_RATIO &&
+        gap <= tallest * ROW_GAP_RATIO &&
+        gap >= -tallest * ROW_OVERLAP_RATIO
+    );
+}
+
+function stacked(upper: Box, lower: Box): boolean {
+    const gap = lower[1] - (upper[1] + upper[3]);
+    const horizontal =
+        Math.min(upper[0] + upper[2], lower[0] + lower[2]) -
+        Math.max(upper[0], lower[0]);
+    return (
+        gap >= -Math.min(upper[3], lower[3]) * ROW_OVERLAP_RATIO &&
+        gap <= Math.max(upper[3], lower[3]) * ROW_STACK_RATIO &&
+        horizontal > 0
+    );
+}
+
+export interface LabelCluster {
+    in: string;
+    anchors: string[];
+    bbox: Box;
+    fill: string | null;
+}
+
+/**
+ * Outlined labels: glyph candidates with one parent and one fill inside one
+ * container, grouped into rows of adjacent letters, with rows that stack
+ * joined into one label. Rows shorter than LABEL_MIN_GLYPHS are not labels.
+ */
+export function labelClusters(
+    index: MapIndex,
+    containers: Map<string, MapIndexEntry>,
+): LabelCluster[] {
+    const groups = new Map<
+        string,
+        { container: MapIndexEntry; members: MapIndexEntry[] }
+    >();
+    for (const entry of index.entries) {
+        const container = containers.get(entry.anchor);
+        if (!isGlyphCandidate(entry, container) || !container) continue;
+        const key = `${container.anchor}|${entry.parent}|${entry.fill}`;
+        const group = groups.get(key) || { container, members: [] };
+        group.members.push(entry);
+        groups.set(key, group);
+    }
+    const clusters: LabelCluster[] = [];
+    for (const { container, members } of groups.values()) {
+        const sorted = [...members].sort(
+            (a, b) => (a.bbox as Box)[0] - (b.bbox as Box)[0],
+        );
+        const rows: MapIndexEntry[][] = [];
+        for (const member of sorted) {
+            const row = rows.find((candidate) =>
+                sameRow(
+                    candidate[candidate.length - 1].bbox as Box,
+                    member.bbox as Box,
+                ),
+            );
+            if (row) row.push(member);
+            else rows.push([member]);
+        }
+        const labels = rows
+            .filter((row) => row.length >= LABEL_MIN_GLYPHS)
+            .map((row) => ({
+                rows: [row],
+                bbox: unionBox(row.map((entry) => entry.bbox as Box)),
+            }))
+            .sort((a, b) => a.bbox[1] - b.bbox[1]);
+        const merged: typeof labels = [];
+        for (const label of labels) {
+            const above = merged.find((candidate) =>
+                stacked(candidate.bbox, label.bbox),
+            );
+            if (above) {
+                above.rows.push(...label.rows);
+                above.bbox = unionBox([above.bbox, label.bbox]);
+            } else merged.push(label);
+        }
+        for (const label of merged) {
+            clusters.push({
+                in: container.id || container.anchor,
+                anchors: label.rows.flat().map((entry) => entry.anchor),
+                bbox: label.bbox,
+                fill: members[0].fill,
+            });
+        }
+    }
+    return clusters;
 }
 
 const MENTION = /[A-Za-z0-9.]*\d[A-Za-z0-9.]*/g;
@@ -207,6 +321,7 @@ export function contextEntry(
     entry: MapIndexEntry,
     root_anchor: string | null,
     container?: MapIndexEntry,
+    glyph = false,
 ): MapAIContextEntry {
     return {
         a: entry.anchor,
@@ -217,7 +332,7 @@ export function contextEntry(
         bbox: entry.bbox ? [...entry.bbox] : null,
         p: entry.parent && entry.parent !== root_anchor ? entry.parent : null,
         z: entry.z,
-        kind: isGlyphEntry(entry, container) ? 'glyph' : entry.kind,
+        kind: glyph ? 'glyph' : entry.kind,
         prot: entry.protected,
         h: entry.hash,
         fill: entry.fill,
@@ -280,8 +395,15 @@ export function buildContext(
 
     const ordered = orderEntries(index);
     const containers = containerIndex(index);
+    const labels = labelClusters(index, containers);
+    const glyphs = new Set(labels.flatMap((label) => label.anchors));
     const entries = ordered.map((entry) =>
-        contextEntry(entry, root_anchor, containers.get(entry.anchor)),
+        contextEntry(
+            entry,
+            root_anchor,
+            containers.get(entry.anchor),
+            glyphs.has(entry.anchor),
+        ),
     );
     const named_count = ordered.filter(isNamedEntry).length;
 
@@ -302,6 +424,12 @@ export function buildContext(
             .map((entry) => entry.id as string),
         duplicate_ids: [...index.duplicate_ids],
         index: entries,
+        labels: labels.map((label) => ({
+            in: label.in,
+            anchors: [...label.anchors],
+            bbox: [...label.bbox] as MapAIViewBox,
+            fill: label.fill,
+        })),
         shortlist: subtree_keys,
         subtrees,
         style_rules: styleRuleStrings(doc.styleRules()),

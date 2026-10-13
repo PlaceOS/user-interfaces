@@ -260,7 +260,9 @@ describe('containment, glyphs and mentions', () => {
     <circle cx="540" cy="450" r="8" fill="#888"/>
     <path d="M560 320h12v14h-12z" fill="#fff"/>
     <path d="M575 320h12v14h-12z" fill="#fff"/>
+    <path d="M590 320h12v14h-12z" fill="#fff"/>
     <path d="M700 320h300v200h-300z" fill="#fff"/>
+    <path d="M820 380h10v10h-10z" fill="#0a0"/>
   </g>
   <path d="M960 10h30v30h-30z" fill="#0f0"/>
 </svg>`;
@@ -292,19 +294,29 @@ describe('containment, glyphs and mentions', () => {
         expect(outside?.in).toBeNull();
     });
 
-    it('marks small anonymous paths inside a room as glyphs, not large ones', () => {
+    it('clusters a row of small same-coloured paths into a label and marks its glyphs', () => {
         const { built } = build();
         const paths = built.context.index.filter(
             (e) => e.tag === 'path' && !e.id,
         );
         const glyphs = paths.filter((e) => e.kind === 'glyph');
-        expect(glyphs.length).toBe(2);
+        expect(glyphs.length).toBe(3);
         for (const glyph of glyphs) {
             expect(glyph.in).toBe('area-1.03-status');
             expect(glyph.fill).toBe('#fff');
         }
         const big = paths.find((e) => e.bbox && e.bbox[2] === 300);
         expect(big?.kind).toBe('art');
+        const lone = paths.find((e) => e.fill === '#0a0');
+        expect(lone?.kind).toBe('art');
+        expect(built.context.labels).toEqual([
+            {
+                in: 'area-1.03-status',
+                anchors: glyphs.map((e) => e.a),
+                bbox: [560, 320, 42, 14],
+                fill: '#fff',
+            },
+        ]);
     });
 
     it('shortlists the elements the instruction names by number', () => {

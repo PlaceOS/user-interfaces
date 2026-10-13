@@ -112,6 +112,7 @@
             "in": null
         }
     ],
+    "labels": [],
     "shortlist": ["e2", "e4"],
     "subtrees": {
         "e2": "<path id=\"area-1.01-status\" class=\"cls-3\" d=\"M100 80h120v90h-120z\"/>",
