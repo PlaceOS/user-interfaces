@@ -50,9 +50,6 @@ export class LockerForm {
     get toggleLockerButton(): Locator {
         return this.modal.locator('button[name="toggle-locker"]');
     }
-    get returnSelectionButton(): Locator {
-        return this.modal.locator('button[name="locker-return"]');
-    }
     get selectedLocker(): Locator {
         return this.page.locator('locker-list-field [locker]');
     }
@@ -122,10 +119,11 @@ export class LockerForm {
         await expect(locker).toBeVisible({ timeout: 20_000 });
         await locker.click();
         await expect(this.toggleLockerButton).toBeEnabled({ timeout: 10_000 });
+        // Adding a locker closes the modal. Do not also click "confirm
+        // selection": that button is in a modal that is on its way out, and a
+        // click that starts before the modal detaches waits out its timeout.
         await this.toggleLockerButton.click();
-        if (await this.modal.isVisible().catch(() => false)) {
-            await this.returnSelectionButton.click();
-        }
+        await expect(this.modal).toBeHidden({ timeout: 10_000 });
         await expect(this.selectedLocker.filter({ hasText: lockerName })).toBeVisible({
             timeout: 20_000,
         });

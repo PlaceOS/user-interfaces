@@ -387,18 +387,12 @@ export class LandingFavouritesComponent extends AsyncHandler implements OnInit {
     public async newSpaceMeeting(id: string) {
         const space = await this._space_pipe.transform(id);
         if (!space) return;
-        this._event_form.newForm();
+        this._event_form.newFormWith({ resources: [space] });
         if (this._settings.get('app.new_features')) {
             this._router.navigate(['/book', 'meeting']);
         } else {
             this._router.navigate(['/book', 'spaces']);
         }
-        setTimeout(() => {
-            this._event_form.model.update((m) => ({
-                ...m,
-                resources: [space],
-            }));
-        }, 300);
     }
 
     public async newBooking(type: BookingType, item: any) {
