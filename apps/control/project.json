@@ -145,10 +145,7 @@
                 }
             }
         },
-        "lint": {
-            "executor": "@nx/eslint:lint",
-            "outputs": ["{options.outputFile}"]
-        },
+        "lint": {},
         "test": {
             "executor": "@angular/build:unit-test",
             "outputs": ["{workspaceRoot}/coverage/apps/control"],

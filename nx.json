@@ -3,12 +3,12 @@
     "generators": {
         "@nx/angular:application": {
             "e2eTestRunner": "playwright",
-            "linter": "eslint",
+            "linter": "none",
             "style": "css",
             "unitTestRunner": "jest"
         },
         "@nx/angular:library": {
-            "linter": "eslint",
+            "linter": "none",
             "unitTestRunner": "jest"
         },
         "@nx/angular:component": {
@@ -17,13 +17,13 @@
         },
         "@nx/angular": {
             "application": {
-                "linter": "eslint"
+                "linter": "none"
             },
             "library": {
-                "linter": "eslint"
+                "linter": "none"
             },
             "storybook-configuration": {
-                "linter": "eslint"
+                "linter": "none"
             },
             "directive": {
                 "type": "directive"
@@ -107,8 +107,12 @@
                 }
             }
         },
-        "@nx/eslint:lint": {
-            "inputs": ["default", "{workspaceRoot}/eslint.config.mjs"],
+        "lint": {
+            "executor": "nx:run-commands",
+            "options": {
+                "command": "oxlint {projectRoot}"
+            },
+            "inputs": ["default", "{workspaceRoot}/.oxlintrc.json"],
             "cache": true
         },
         "@angular-devkit/build-angular:browser": {
@@ -140,7 +144,6 @@
             "!{projectRoot}/**/?(*.)+(spec|test).[jt]s?(x)?(.snap)",
             "!{projectRoot}/tsconfig.spec.json",
             "!{projectRoot}/jest.config.[jt]s",
-            "!{projectRoot}/eslint.config.mjs",
             "!{projectRoot}/src/test-setup.[jt]s"
         ]
     },

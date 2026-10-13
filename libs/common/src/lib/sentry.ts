@@ -5,7 +5,7 @@ import { log } from './general';
 /** Sentry's handler, set once `initSentry` has loaded the SDK */
 let _sentry_handler: ErrorHandler | null = null;
 /** Held so its router subscriptions live for the life of the app */
-// eslint-disable-next-line @typescript-eslint/no-unused-vars -- write-only on purpose, see the comment above
+// oxlint-disable-next-line @typescript-eslint/no-unused-vars -- write-only on purpose, see the comment above
 let _trace_service: unknown = null;
 
 /**

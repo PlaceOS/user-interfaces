@@ -15,3 +15,4 @@
 - [Mobile builds](docs/mobile-builds.md): Read before changing or running a Capacitor workflow.
 - [Release workflow](docs/release-workflow.md): Read before creating a pull request or changing release and deployment configuration.
 - [Signage plugin thumbnails](docs/signage-plugin-thumbnails.md): Read before changing the signage plugin thumbnail protocol.
+- [Teams and Microsoft 365 app](docs/teams-app.md): Read before changing the Teams app package or the Teams host sign-in.

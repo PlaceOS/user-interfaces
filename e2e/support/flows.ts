@@ -63,8 +63,8 @@ export async function bookDeskViaUI(
     // re-affirmed after desk selection, because the form can be rebuilt underneath
     // us — see the converging block below.
     //
-    //  - "Require locker" defaults to CHECKED and no lockers are seeded, so leaving
-    //    it on makes the form unsatisfiable, with no error shown.
+    //  - "Require locker" defaults to unchecked. It is cleared here as a
+    //    safeguard, because no lockers are seeded.
     //  - "All Day" replaces the default slot, which is the next 5-minute boundary.
     //    That default makes the booking implicitly time-sensitive: a slow run
     //    crosses the boundary, the start time falls into the past, and the form
@@ -97,7 +97,7 @@ export async function bookDeskViaUI(
     //
     // The form is rebuilt when its async initialisation (org data, settings,
     // resource lists) completes, and that rebuild restores defaults — title back
-    // to "Booking", All Day back off, Require locker back on. Crucially it is a
+    // to "Booking", All Day back off. Crucially it is a
     // RACE, not a step: on a warm run it lands before we touch anything and
     // nothing is lost, on a cold one it lands mid-flow and silently discards our
     // input. Locally that showed up as a booking created under the wrong title; in

@@ -20,6 +20,7 @@ import {
     BookingFormService,
     BookingFormValue,
     DeskListFieldComponent,
+    requiresLocker,
 } from '@placeos/bookings';
 import {
     AsyncHandler,
@@ -161,10 +162,7 @@ import { addDays, endOfDay } from 'date-fns';
                                     name="start-time"
                                     [ngModel]="model().date"
                                     (ngModelChange)="
-                                        model.update((m) => ({
-                                            ...m,
-                                            date: $event,
-                                        }))
+                                        setUserValues({ date: $event })
                                     "
                                     [ngModelOptions]="{ standalone: true }"
                                     [range]="bookable_hours"
@@ -221,14 +219,13 @@ import { addDays, endOfDay } from 'date-fns';
                         <div class="flex items-center space-x-2">
                             <div class="w-1/3 flex-1">
                                 <mat-checkbox
-                                    [ngModel]="!!model().secondary_resource"
+                                    [ngModel]="requires_locker()"
                                     (ngModelChange)="
-                                        model.update((m) => ({
-                                            ...m,
+                                        setUserValues({
                                             secondary_resource: $event
                                                 ? 'locker'
                                                 : '',
-                                        }))
+                                        })
                                     "
                                     [ngModelOptions]="{ standalone: true }"
                                 >
@@ -395,6 +392,11 @@ export class NewDeskFormDetailsComponent
 
     public readonly setFeature = (f, e) => this._state.setFeature(f, e);
 
+    /** Apply a user change from a control that has no `[formField]` binding. */
+    public readonly setUserValues: BookingFormService['setUserValues'] = (
+        value,
+    ) => this._state.setUserValues(value);
+
     public get max_duration() {
         return (
             this._settings.get('app.desks.max_duration') ||
@@ -413,6 +415,10 @@ export class NewDeskFormDetailsComponent
     public get can_book_lockers() {
         return this._settings.get('app.desks.can_book_lockers');
     }
+
+    public readonly requires_locker = computed(() =>
+        requiresLocker(this.model().secondary_resource),
+    );
 
     public get can_recurr() {
         return this._settings.get('app.desks.allow_recurrence');
@@ -518,10 +524,10 @@ export class NewDeskFormDetailsComponent
     }
 
     public onRecurrenceChange(recurrence: BookingRecurrence) {
-        this.model.update((m) => ({ ...m, ...recurrence }));
+        this.setUserValues(recurrence);
     }
 
     public onFirstInstanceChange(date: number) {
-        this.model.update((m) => ({ ...m, date }));
+        this.setUserValues({ date });
     }
 }

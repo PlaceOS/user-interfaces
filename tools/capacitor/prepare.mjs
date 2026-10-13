@@ -51,7 +51,7 @@ export async function ensureWorkspace(app_name) {
         private: true,
         type: 'module',
         dependencies: {
-            '@capacitor/core': '8.2.0',
+            '@capacitor/core': '8.5.3',
             '@capacitor/app': '8.1.0',
             '@capacitor/browser': '8.0.3',
             '@capacitor/status-bar': '8.0.2',

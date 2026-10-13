@@ -6,8 +6,6 @@
     "prefix": "placeos",
     "tags": [],
     "targets": {
-        "lint": {
-            "executor": "@nx/eslint:lint"
-        }
+        "lint": {}
     }
 }
