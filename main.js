@@ -1,6 +1,6 @@
 import {
   TranslatePipe
-} from "./chunk-TPUODTON.js";
+} from "./chunk-6MQLZWDU.js";
 import {
   GroupPermission,
   LazySentryErrorHandler,
@@ -21,7 +21,7 @@ import {
   serviceWorkerUpdate,
   settingSignal,
   user_groups_loaded
-} from "./chunk-4NL4ELVQ.js";
+} from "./chunk-3LMS57A6.js";
 import {
   AsyncHandler,
   J,
@@ -31,22 +31,22 @@ import {
   io,
   log,
   so
-} from "./chunk-VFOBAGRJ.js";
+} from "./chunk-4TEYIUYT.js";
 import {
   IconComponent
-} from "./chunk-INMTY3DS.js";
+} from "./chunk-Y4JDSSMV.js";
 import "./chunk-SDQYPRVH.js";
 import {
   BidiModule,
   _getAnimationsState
-} from "./chunk-XQQXKDT5.js";
+} from "./chunk-E4UK5TG7.js";
 import {
   Router,
   RouterLink,
   RouterOutlet,
   provideRouter,
   withHashLocation
-} from "./chunk-EWXLGUEE.js";
+} from "./chunk-RE27BLGI.js";
 import {
   ChangeDetectorRef,
   Component,
@@ -113,8 +113,8 @@ import {
   ɵɵtext,
   ɵɵtextInterpolate,
   ɵɵtextInterpolate1
-} from "./chunk-XX344EG7.js";
-import "./chunk-GOMI4DH3.js";
+} from "./chunk-XOCAZTJW.js";
+import "./chunk-653SOEEV.js";
 
 // libs/components/src/lib/global-banner.component.ts
 function GlobalBannerComponent_Conditional_0_Template(rf, ctx) {
@@ -612,7 +612,7 @@ var ServiceWorkerUpdateCardComponent = class _ServiceWorkerUpdateCardComponent {
 // libs/components/src/lib/global-loading.component.ts
 var NativeDomainOverlayLoaderComponent_Conditional_0_Defer_1_DepsFn = () => [
   /* @ts-ignore */
-  import("./native-domain-overlay.component-IJQEFK5A.js").then((m) => m.NativeDomainOverlayComponent)
+  import("./native-domain-overlay.component-MJSIPSFV.js").then((m) => m.NativeDomainOverlayComponent)
 ];
 function NativeDomainOverlayLoaderComponent_Conditional_0_Defer_0_Template(rf, ctx) {
   if (rf & 1) {
@@ -735,7 +735,7 @@ var NativeDomainOverlayLoaderComponent = class _NativeDomainOverlayLoaderCompone
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(NativeDomainOverlayLoaderComponent, () => [
     /* @ts-ignore */
-    import("./native-domain-overlay.component-IJQEFK5A.js").then((m) => m.NativeDomainOverlayComponent)
+    import("./native-domain-overlay.component-MJSIPSFV.js").then((m) => m.NativeDomainOverlayComponent)
   ], (NativeDomainOverlayComponent) => {
     setClassMetadata(NativeDomainOverlayLoaderComponent, [{
       type: Component,
@@ -1122,11 +1122,11 @@ var AuthorisedUserGuard = class _AuthorisedUserGuard {
 // apps/assistant-panel/src/app/app.component.ts
 var AppComponent_Defer_4_DepsFn = () => [
   /* @ts-ignore */
-  import("./chat.component-OSLLFHSJ.js").then((m) => m.ChatComponent)
+  import("./chat.component-X3XAPPHN.js").then((m) => m.ChatComponent)
 ];
 var AppComponent_Defer_8_DepsFn = () => [
   /* @ts-ignore */
-  import("./settings-debug-panel-launcher.component-GW67HD2M.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+  import("./settings-debug-panel-launcher.component-3RKXFDUP.js").then((m) => m.SettingsDebugPanelLauncherComponent)
 ];
 function AppComponent_Defer_3_Template(rf, ctx) {
   if (rf & 1) {
@@ -1144,7 +1144,7 @@ function AppComponent_Defer_7_Template(rf, ctx) {
 }
 var AppComponent = class _AppComponent {
   constructor() {
-    this.load_settings_schema = () => import("./settings.schema-BKZ4ICQD.js");
+    this.load_settings_schema = () => import("./settings.schema-ZYQJ53ZP.js");
     this._placeos = inject(PlaceOS_Service);
     this._settings = inject(SettingsService);
     this.has_chat = this._settings.signal("chat.enabled", false);
@@ -1185,9 +1185,9 @@ var AppComponent = class _AppComponent {
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(AppComponent, () => [
     /* @ts-ignore */
-    import("./chat.component-OSLLFHSJ.js").then((m) => m.ChatComponent),
+    import("./chat.component-X3XAPPHN.js").then((m) => m.ChatComponent),
     /* @ts-ignore */
-    import("./settings-debug-panel-launcher.component-GW67HD2M.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+    import("./settings-debug-panel-launcher.component-3RKXFDUP.js").then((m) => m.SettingsDebugPanelLauncherComponent)
   ], (ChatComponent, SettingsDebugPanelLauncherComponent) => {
     setClassMetadata(AppComponent, [{
       type: Component,
@@ -1229,12 +1229,12 @@ var routes = [
   { path: "unauthorised", component: UnauthorisedComponent },
   {
     path: "bootstrap",
-    loadComponent: () => import("./bootstrap.component-AYKTH3KK.js").then((m) => m.BootstrapComponent),
+    loadComponent: () => import("./bootstrap.component-PNHFA26Y.js").then((m) => m.BootstrapComponent),
     canActivate: [AuthorisedUserGuard]
   },
   {
     path: "panel/:system_id",
-    loadComponent: () => import("./panel-view.component-6YMAWTTW.js").then((m) => m.PanelViewComponent),
+    loadComponent: () => import("./panel-view.component-BI2DIYYY.js").then((m) => m.PanelViewComponent),
     canActivate: [AuthorisedUserGuard]
   },
   { path: "**", redirectTo: "bootstrap" }
