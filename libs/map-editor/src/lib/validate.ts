@@ -15,7 +15,7 @@ import {
     TEXT_TAGS,
     XLINK_NS,
 } from './constants';
-import { BBox, GeometryProvider } from './geometry';
+import { AttributeGeometryProvider, BBox, GeometryProvider } from './geometry';
 import { idIssue, idsIn, referencesTo, styleReferencesTo } from './ids';
 import { MapDocument, Target } from './map-document';
 import {
@@ -382,6 +382,8 @@ class Validator {
     private readonly _unlocked: Set<string>;
     private readonly _accepted: ReadonlySet<number> | null;
     private readonly _geometry: GeometryProvider;
+    /** Measures the trial; the page's geometry cannot see a tree that is not rendered. */
+    private readonly _trial_geometry: GeometryProvider;
     private readonly _original_hashes = new Map<string, string>();
     private _resolver: StyleResolver | null = null;
     private _resolver_version = -1;
@@ -395,6 +397,11 @@ class Validator {
         this._unlocked = new Set(_context.unlocked || []);
         this._accepted = _context.accepted || null;
         this._geometry = _context.geometry || _doc.geometry;
+        this._trial_geometry =
+            typeof document !== 'undefined' &&
+            trial.root.getRootNode({ composed: true }) === document
+                ? this._geometry
+                : new AttributeGeometryProvider();
         for (const element of _doc.elements()) {
             this._original_hashes.set(
                 _doc.anchorOf(element),
@@ -1183,7 +1190,7 @@ class Validator {
     private _apply(step: Step): void {
         const apply = this._context.apply || applyOps;
         const result = apply(this.trial, [step.op], {
-            geometry: this._geometry,
+            geometry: this._trial_geometry,
         });
         if (result.rejected.length) {
             step.validation.issues.push(
@@ -1227,7 +1234,9 @@ class Validator {
             const element = this.trial.byAnchor(anchor);
             if (!element || element.parentElement?.localName === 'defs')
                 continue;
-            if (outsideViewBox(this._geometry.bboxOf(element), this.trial)) {
+            if (
+                outsideViewBox(this._trial_geometry.bboxOf(element), this.trial)
+            ) {
                 off.push(anchor);
                 bound.push(...protectedIdsIn(element, this._protected));
             }
