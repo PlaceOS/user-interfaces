@@ -260,3 +260,39 @@ describe('MapEditorSession', () => {
         }
     });
 });
+
+describe('index geometry after mounting', () => {
+    it('rebuilds the cached index once the map is in the page', () => {
+        const doc = MapDocument.load(
+            `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect id="area-1.01-status" x="1" y="1" width="10" height="10"/></svg>`,
+            { geometry: new AttributeGeometryProvider() },
+        );
+        let builds = 0;
+        const counting = {
+            bboxOf: (element: Element) => {
+                builds += 1;
+                return new AttributeGeometryProvider().bboxOf(element);
+            },
+            ctmOf: (element: Element) =>
+                new AttributeGeometryProvider().ctmOf(element),
+        };
+        const session = new MapEditorSession(doc, {
+            zone_id: 'zone-1',
+            source_text: doc.serialise(),
+            geometry: counting,
+        });
+        expect(session.isRendered()).toBe(false);
+        session.index();
+        const before = builds;
+        session.index();
+        expect(builds).toBe(before);
+        document.body.appendChild(doc.root);
+        expect(session.isRendered()).toBe(true);
+        session.index();
+        expect(builds).toBeGreaterThan(before);
+        const again = builds;
+        session.index();
+        expect(builds).toBe(again);
+        doc.root.remove();
+    });
+});

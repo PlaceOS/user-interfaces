@@ -88,6 +88,7 @@ export class MapEditorSession implements MapEditorSessionLike {
     private _draft_write: Promise<void> = Promise.resolve();
     private _index: MapIndex | null = null;
     private _index_version = -1;
+    private _index_rendered = false;
     private _disposed = false;
 
     constructor(doc: MapDocument, options: MapEditorSessionOptions) {
@@ -107,16 +108,34 @@ export class MapEditorSession implements MapEditorSessionLike {
         this._draft_key = draftKeyFor(options.zone_id, options.source_text);
     }
 
-    /** The element index with bounding boxes, cached per version. */
+    /**
+     * The element index with bounding boxes, cached per version. An index
+     * built before the map is rendered in the page has no boxes, so it is
+     * replaced by the first one built after the map is mounted.
+     */
     public index(): MapIndex {
-        if (!this._index || this._index_version !== this._version()) {
+        const rendered = this.isRendered();
+        if (
+            !this._index ||
+            this._index_version !== this._version() ||
+            (rendered && !this._index_rendered)
+        ) {
             this._index = buildIndex(this.doc, {
                 geometry: this.geometry,
                 protected: this.protected,
             });
             this._index_version = this._version();
+            this._index_rendered = rendered;
         }
         return this._index;
+    }
+
+    /** Whether the document's root is in the page's render tree, shadow roots included. */
+    public isRendered(): boolean {
+        return (
+            typeof document !== 'undefined' &&
+            this.doc.root.getRootNode({ composed: true }) === document
+        );
     }
 
     public select(anchors: readonly string[]): void {
