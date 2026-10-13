@@ -24,7 +24,9 @@
  * RACE, not a step: on a warm run it lands before anything is typed. Every
  * setter here is therefore used inside a converging block by its callers, the
  * same workaround `bookDeskViaUI` uses, and for the same reason it means these
- * specs cannot DETECT that bug (REG-10 has its own row saying so).
+ * specs cannot DETECT that bug (REG-10 has its own row saying so). The one
+ * exception is `desk-initialisation.spec.ts`, which holds the settle timer of
+ * the desk flow so that its edits come before the rebuild.
  */
 import { Locator, Page, expect } from '@playwright/test';
 

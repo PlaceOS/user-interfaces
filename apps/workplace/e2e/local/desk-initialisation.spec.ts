@@ -1,142 +1,102 @@
-import type { Request } from '@playwright/test';
 /**
  * DESK-21 — values entered before desk-form initialisation completes survive
- * the initialisation render.
+ * the form reset of the initialisation.
  */
 import { DeskForm } from '../../../../e2e/support/desk/desk-form.page';
 import { expect, test } from '../../../../e2e/support/fixtures';
 
+/** State of the held settle timer of the desk flow. */
+interface DeskInitHold {
+    /** True after the desk flow started its settle timer. */
+    held: boolean;
+    /** Ends the settle timer. The form reset follows. */
+    release: () => void;
+}
+
+type HoldWindow = Window & { desk_init_hold: DeskInitHold };
+
 test.describe('desk form initialisation', () => {
-    test('preserves values entered while organisation data is pending', async ({
+    test('preserves values entered before the form reset', async ({
         staffPage,
     }, testInfo) => {
-        let release_metadata!: () => void;
-        const metadata_released = new Promise<void>((resolve) => {
-            release_metadata = resolve;
-        });
-        let metadata_seen!: () => void;
-        const metadata_requested = new Promise<void>((resolve) => {
-            metadata_seen = resolve;
-        });
-        let delayed_metadata: Request | undefined;
-
-        await staffPage.route('**/api/engine/v2/metadata**', async (route) => {
-            if (route.request().method() !== 'GET') return route.continue();
-            if (delayed_metadata) return route.continue();
-            delayed_metadata = route.request();
-            metadata_seen();
-            await metadata_released;
-            await route.continue().catch(() => undefined);
+        // The desk flow shows its form immediately. It resets the form after
+        // the organisation data loads and a settle timer of 300 ms ends. On
+        // fast hardware the reset comes before the first edit, and the test
+        // then passes with or without the fault. Hold the settle timer, so
+        // the edits below always come before the reset.
+        await staffPage.addInitScript(() => {
+            const native = window.setTimeout;
+            const hold: DeskInitHold = { held: false, release: () => null };
+            (window as unknown as HoldWindow).desk_init_hold = hold;
+            window.setTimeout = ((
+                fn: (...args: unknown[]) => void,
+                ms?: number,
+                ...args: unknown[]
+            ) => {
+                const is_settle_timer =
+                    ms === 300 &&
+                    !hold.held &&
+                    /NewDeskFlowComponent\b/.test(new Error().stack || '');
+                if (!is_settle_timer) return native(fn, ms, ...args);
+                hold.held = true;
+                hold.release = () => fn(...args);
+                return 0;
+            }) as typeof window.setTimeout;
         });
 
         const form = new DeskForm(staffPage);
-        try {
-            await form.open();
-            const refresh_started = await staffPage.evaluate(() => {
-                const org = (
-                    window as unknown as {
-                        app?: {
-                            org?: { reloadMetadata?: () => Promise<void> };
-                        };
-                    }
-                ).app?.org;
-                if (!org?.reloadMetadata) return false;
-                // Keep the actual reload completion, including application state
-                // updates, rather than only knowing that the request started.
-                (
-                    window as unknown as {
-                        desk_test_reload: Promise<string | null>;
-                    }
-                ).desk_test_reload = org.reloadMetadata().then(
-                    () => null,
-                    (error) => String(error),
-                );
-                return true;
-            });
-            test.skip(
-                !refresh_started,
-                'the local debug organisation refresh is unavailable',
-            );
-            const request_started = await Promise.race([
-                metadata_requested.then(() => true),
-                new Promise<false>((resolve) =>
-                    setTimeout(() => resolve(false), 15_000),
+        await form.open();
+        // If the timer is not found, the reset is not held and the test
+        // cannot find the fault. Fail here and do not pass without a check.
+        await expect
+            .poll(
+                () =>
+                    staffPage.evaluate(
+                        () =>
+                            (window as unknown as HoldWindow).desk_init_hold
+                                .held,
+                    ),
+                {
+                    message: 'the desk flow did not start its settle timer',
+                    timeout: 30_000,
+                },
+            )
+            .toBe(true);
+
+        const title = `DESK-21 distinctive ${Date.now()}`;
+        await form.title.fill(title);
+        // The box starts clear, so a tick is the change that the form reset
+        // can lose. `setChecked` does nothing when the box is not in the
+        // page, so make sure that the tick is there.
+        await form.setChecked(form.requireLocker, true);
+        await expect(form.requireLocker).toBeChecked();
+        await testInfo.attach('desk-form-before-reset', {
+            body: await staffPage.screenshot(),
+            contentType: 'image/png',
+        });
+
+        // The reset runs in the microtask after the timer callback. Two
+        // animation frames let Angular render the result.
+        await staffPage.evaluate(async () => {
+            (window as unknown as HoldWindow).desk_init_hold.release();
+            await new Promise<void>((resolve) =>
+                requestAnimationFrame(() =>
+                    requestAnimationFrame(() => resolve()),
                 ),
-            ]);
-            test.skip(
-                !request_started,
-                'the metadata refresh did not issue a request',
             );
+        });
 
-            const title = `DESK-21 distinctive ${Date.now()}`;
-            await form.title.fill(title);
-            // The box starts clear, so a tick is the change that the
-            // initialisation render can lose.
-            await form.setChecked(form.requireLocker, true);
-            await testInfo.attach('desk-form-before-initialisation-release', {
-                body: await staffPage.screenshot(),
-                contentType: 'image/png',
-            });
-
-            const response_ready = staffPage.waitForResponse(
-                (response) => response.request() === delayed_metadata,
-            );
-            release_metadata();
-            const response = await response_ready;
-            expect(response.ok(), 'delayed metadata request must succeed').toBe(
-                true,
-            );
-            expect(
-                await response.finished(),
-                'metadata body must finish loading',
-            ).toBeNull();
-            const reload_error = await staffPage.evaluate(async () => {
-                const state = window as unknown as {
-                    desk_test_reload: Promise<string | null>;
-                };
-                return await state.desk_test_reload;
-            });
-            expect(
-                reload_error,
-                'organisation metadata reload must finish',
-            ).toBeNull();
-            // Let Angular consume the refreshed state and render it before
-            // inspecting values. This barrier is independent of expected values.
-            await staffPage.evaluate(async () => {
-                const win = window as unknown as {
-                    getAllAngularTestabilities?: () => Array<{
-                        whenStable: (done: () => void) => void;
-                    }>;
-                };
-                await Promise.all(
-                    (win.getAllAngularTestabilities?.() ?? []).map(
-                        (testability) =>
-                            new Promise<void>((resolve) =>
-                                testability.whenStable(resolve),
-                            ),
-                    ),
-                );
-                await new Promise<void>((resolve) =>
-                    requestAnimationFrame(() =>
-                        requestAnimationFrame(() => resolve()),
-                    ),
-                );
-            });
-            await expect(
-                form.title,
-                'the title was lost after desk-form initialisation',
-            ).toHaveValue(title, { timeout: 30_000 });
-            await expect(
-                form.requireLocker,
-                'the Require locker value was lost after desk-form initialisation',
-            ).toBeChecked({ timeout: 30_000 });
-            await testInfo.attach('desk-form-after-initialisation-release', {
-                body: await staffPage.screenshot(),
-                contentType: 'image/png',
-            });
-        } finally {
-            release_metadata();
-            await staffPage.unroute('**/api/engine/v2/metadata**');
-        }
+        await expect(
+            form.title,
+            'the title was lost after the desk form reset',
+        ).toHaveValue(title);
+        await expect(
+            form.requireLocker,
+            'the Require locker value was lost after the desk form reset',
+        ).toBeChecked();
+        await testInfo.attach('desk-form-after-reset', {
+            body: await staffPage.screenshot(),
+            contentType: 'image/png',
+        });
     });
 });
