@@ -62,6 +62,22 @@ function setup(ops: MapOp[], final: Partial<MapAIJob> = {}) {
 }
 
 describe('MapAiThread', () => {
+    it('refreshes remaining usage without clearing the applied proposal', async () => {
+        const { thread, transport } = setup([]);
+        await thread.load();
+        transport.options.capabilities = capabilities({
+            quota: { user_remaining_today: 0, domain_remaining_month: 941 },
+        });
+        await thread.submit('No changes needed');
+        await flush();
+        expect(thread.capabilities()?.quota.user_remaining_today).toBe(0);
+        expect(thread.capabilities()?.quota.domain_remaining_month).toBe(941);
+        expect(
+            thread.state().turns.some((turn) => turn.kind === 'proposal'),
+        ).toBe(true);
+        expect(thread.can_send()).toBe(false);
+    });
+
     it('sends the chosen model, remembered for the next thread', async () => {
         const stored: { choice: MapAiModelChoice | null } = { choice: null };
         const memory = {

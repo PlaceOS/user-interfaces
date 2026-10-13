@@ -471,6 +471,7 @@ export class MapAiThread {
             return;
         }
         this.dispatch({ type: 'job_accepted', job, at: this._now() });
+        void this._refreshQuota();
         if (isFinalJob(job)) {
             await this._finish(job);
             return;
@@ -608,6 +609,20 @@ export class MapAiThread {
         const run = this._queue.then(task, task);
         this._queue = run.catch(() => undefined);
         return run;
+    }
+
+    private async _refreshQuota(): Promise<void> {
+        try {
+            const capabilities = await mapAICapabilities(this._transport);
+            this._state.update((state) => ({
+                ...state,
+                capabilities: state.capabilities
+                    ? { ...state.capabilities, quota: capabilities.quota }
+                    : null,
+            }));
+        } catch {
+            return;
+        }
     }
 
     private async _finish(job: MapAIJob): Promise<void> {
