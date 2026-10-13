@@ -2,8 +2,10 @@ import {
     colourInputValue,
     describeSelection,
     idOp,
+    normaliseTextInput,
     paintOps,
     resetOps,
+    textLinesOf,
     textOp,
 } from '../lib/canvas/properties';
 import { AttributeGeometryProvider } from '../lib/geometry';
@@ -203,5 +205,22 @@ describe('properties ops', () => {
         expect(colourInputValue('#abc')).toBe('#aabbcc');
         expect(colourInputValue('red')).toBe('#000000');
         expect(colourInputValue('#fff !important')).toBe('#ffffff');
+    });
+});
+
+describe('text lines in the strip', () => {
+    it('reads tspan lines as lines and normalises typed input', () => {
+        const doc = MapDocument.load(
+            `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text id="t" x="10" y="20"><tspan x="10">Studio Space</tspan><tspan x="10" dy="1.2em">1.04</tspan></text><text id="u" x="10" y="60">One line</text></svg>`,
+            { geometry: new AttributeGeometryProvider() },
+        );
+        expect(textLinesOf(doc.byId('t') as Element)).toBe(
+            'Studio Space\n1.04',
+        );
+        expect(textLinesOf(doc.byId('u') as Element)).toBe('One line');
+        expect(normaliseTextInput('Studio Space \\n 1.04 ')).toBe(
+            'Studio Space\n 1.04',
+        );
+        expect(normaliseTextInput('a\nb  ')).toBe('a\nb');
     });
 });

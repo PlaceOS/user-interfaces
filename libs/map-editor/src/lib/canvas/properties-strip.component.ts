@@ -19,6 +19,7 @@ import {
     describeSelection,
     idOp,
     MultiSelectionView,
+    normaliseTextInput,
     PaintName,
     paintOps,
     PaintSource,
@@ -113,12 +114,14 @@ import {
                 @if (item.is_text) {
                     <label class="field grow">
                         <span class="label">{{ strings().text }}</span>
-                        <input
-                            type="text"
-                            class="text"
+                        <textarea
+                            class="text lines"
+                            rows="2"
                             [value]="item.text"
+                            [title]="strings().text_hint"
+                            (keydown.enter)="enterText($event)"
                             (change)="commitText(item, $event)"
-                        />
+                        ></textarea>
                     </label>
                 }
             } @else if (multi(); as group) {
@@ -239,6 +242,13 @@ import {
                 font: inherit;
                 font-size: 0.875rem;
                 min-width: 6rem;
+            }
+
+            .text.lines {
+                resize: vertical;
+                min-height: 2.6em;
+                font: inherit;
+                line-height: 1.25;
             }
 
             .text.short {
@@ -398,8 +408,18 @@ export class PropertiesStripComponent {
         this._reportRejections(result.rejected.map((entry) => entry.reason));
     }
 
+    /** Enter applies the text; Shift+Enter adds a line. */
+    public enterText(event: Event): void {
+        const key = event as KeyboardEvent;
+        if (key.shiftKey) return;
+        event.preventDefault();
+        (event.target as HTMLTextAreaElement).blur();
+    }
+
     public commitText(item: SingleSelectionView, event: Event): void {
-        const value = (event.target as HTMLInputElement).value;
+        const value = normaliseTextInput(
+            (event.target as HTMLTextAreaElement).value,
+        );
         if (value === item.text) return;
         const strings = this.strings();
         const result = this.session().apply(

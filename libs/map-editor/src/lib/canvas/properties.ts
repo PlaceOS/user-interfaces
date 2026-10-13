@@ -105,7 +105,7 @@ export function describeSelection(
             id,
             label: elementLabel(element) || '',
             is_text,
-            text: is_text ? element.textContent || '' : '',
+            text: is_text ? textLinesOf(element) : '',
             fill: paintValue(element, 'fill', resolver),
             stroke: paintValue(element, 'stroke', resolver),
             changed: source.isChanged(anchor),
@@ -145,6 +145,24 @@ export function paintOps(
         value: trimmed || null,
         why,
     }));
+}
+
+/** A text element's content as lines: one per <tspan> when it has them, else its text. */
+export function textLinesOf(element: Element): string {
+    const spans = Array.from(element.children).filter(
+        (child) => child.localName === 'tspan',
+    );
+    if (!spans.length) return element.textContent || '';
+    return spans.map((span) => span.textContent || '').join('\n');
+}
+
+/** Turns a typed backslash-n into a line break and trims line ends. */
+export function normaliseTextInput(value: string): string {
+    return value
+        .replace(/\\n/g, '\n')
+        .split('\n')
+        .map((line) => line.replace(/\s+$/, ''))
+        .join('\n');
 }
 
 export function textOp(anchor: string, text: string, why: string): SetTextOp {

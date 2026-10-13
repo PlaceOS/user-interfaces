@@ -31,6 +31,8 @@ export interface MapEditorStrings {
     fill: string;
     stroke: string;
     text: string;
+    /** Tooltip on the text field. */
+    text_hint: string;
     changed: string;
     reset: string;
     protected_badge: string;
@@ -76,6 +78,7 @@ export const DEFAULT_MAP_EDITOR_STRINGS: MapEditorStrings = {
     fill: 'Fill',
     stroke: 'Stroke',
     text: 'Text',
+    text_hint: 'Enter applies the text, Shift+Enter starts a new line',
     changed: 'Changed',
     reset: 'Reset',
     protected_badge: 'Bound to a record',
