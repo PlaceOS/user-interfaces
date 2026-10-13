@@ -978,3 +978,81 @@ describe('applyOps', () => {
         expect(result.touched).toEqual([anchor(doc, 'bg')]);
     });
 });
+
+describe('deleted positions and text lines', () => {
+    const map = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 100"><g id="labels"><rect id="first" x="0" y="0" width="5" height="5"/><path id="g1" d="M10 10h5v5h-5z" fill="#fff"/><path id="g2" d="M16 10h5v5h-5z" fill="#fff"/><rect id="last" x="30" y="0" width="5" height="5"/></g><g id="rooms"></g></svg>`;
+
+    it('inserts where a sibling deleted earlier in the batch stood', () => {
+        const doc = MapDocument.load(map, {
+            geometry: new AttributeGeometryProvider(),
+        });
+        const g2 = anchor(doc, 'g2');
+        const result = applyOps(doc, [
+            {
+                op: 'delete',
+                why: '',
+                target: { a: anchor(doc, 'g1') },
+                targets: [{ a: anchor(doc, 'g1') }, { a: g2 }],
+            },
+            {
+                op: 'insert_shape',
+                why: '',
+                kind: 'text',
+                text: 'Studio Space\n1.04',
+                parent: { id: 'rooms' },
+                after: { a: g2 },
+                attrs: [
+                    { name: 'x', value: '12' },
+                    { name: 'y', value: '20' },
+                ],
+                new_id: 'ai-label',
+            },
+        ]);
+        expect(result.rejected).toEqual([]);
+        const text = doc.byId('ai-label') as Element;
+        expect(text.parentElement?.getAttribute('id')).toBe('labels');
+        expect(text.nextElementSibling?.getAttribute('id')).toBe('last');
+        expect(text.previousElementSibling?.getAttribute('id')).toBe('first');
+        expect(result.applied[1].note).toContain('placed where');
+        const spans = Array.from(text.children);
+        expect(spans.map((span) => span.textContent)).toEqual([
+            'Studio Space',
+            '1.04',
+        ]);
+        expect(spans.map((span) => span.getAttribute('x'))).toEqual([
+            '12',
+            '12',
+        ]);
+        expect(spans.map((span) => span.getAttribute('dy'))).toEqual([
+            null,
+            '1.2em',
+        ]);
+        expect(result.applied[1].created.length).toBe(3);
+    });
+
+    it('lays out several lines of set_text as tspans and one line as plain text', () => {
+        const doc = MapDocument.load(
+            `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text id="t" x="50" y="20">Old</text></svg>`,
+            { geometry: new AttributeGeometryProvider() },
+        );
+        const multi = applyOps(doc, [
+            {
+                op: 'set_text',
+                why: '',
+                target: { id: 't' },
+                text: 'Two\nLines',
+            },
+        ]);
+        expect(multi.rejected).toEqual([]);
+        expect(multi.applied[0].created.length).toBe(2);
+        const text = doc.byId('t') as Element;
+        expect(text.children.length).toBe(2);
+        expect(text.children[1].getAttribute('dy')).toBe('1.2em');
+        const single = applyOps(doc, [
+            { op: 'set_text', why: '', target: { id: 't' }, text: 'One' },
+        ]);
+        expect(single.rejected).toEqual([]);
+        expect(text.children.length).toBe(0);
+        expect(text.textContent).toBe('One');
+    });
+});

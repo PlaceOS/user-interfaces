@@ -1,4 +1,4 @@
-import { applyOps, ApplyOptions, ApplyResult } from './apply';
+import { applyOps, ApplyOptions, ApplyResult, textLines } from './apply';
 import {
     isAllowedAttributeName,
     MAX_BYTE_GROWTH,
@@ -299,6 +299,12 @@ function protectedIdsIn(
     protected_ids: ProtectedIdSet,
 ): string[] {
     return [...idsIn(element)].filter((id) => protected_ids.has(id));
+}
+
+/** Number of <tspan> lines a text of several lines creates; 0 for one line. */
+function extraLines(text: string): number {
+    const count = textLines(text).length;
+    return count > 1 ? count : 0;
 }
 
 function outsideViewBox(bbox: BBox | null, doc: MapDocument): boolean {
@@ -664,11 +670,16 @@ class Validator {
                 }
                 step.changed = [...step.anchors];
                 const lines = MapDocument.subtree(elements[0]).slice(1);
+                step.expected_delta =
+                    elements[0].localName === 'text' &&
+                    typeof op.text === 'string'
+                        ? extraLines(op.text)
+                        : 0;
                 if (lines.length) {
                     step.removed = lines.map((line) =>
                         this.trial.anchorOf(line),
                     );
-                    step.expected_delta = -lines.length;
+                    step.expected_delta -= lines.length;
                     push(
                         'info',
                         'replaces_lines',
@@ -826,10 +837,20 @@ class Validator {
                         return;
                     }
                 }
-                if (op.after && !this._resolveTargets(step, [op.after])) return;
+                if (op.after?.a && this.trial.positionOfRemoved(op.after.a)) {
+                    push(
+                        'info',
+                        'after_deleted',
+                        `placed where ${op.after.a} was, which an earlier change deleted`,
+                    );
+                } else if (op.after && !this._resolveTargets(step, [op.after]))
+                    return;
                 step.anchors = [];
                 step.adds = true;
-                step.expected_delta = 1;
+                step.expected_delta =
+                    op.kind === 'text' && typeof op.text === 'string'
+                        ? 1 + extraLines(op.text)
+                        : 1;
                 return;
             }
             case 'set_id': {

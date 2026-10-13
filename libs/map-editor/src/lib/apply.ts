@@ -390,8 +390,14 @@ function setText(doc: MapDocument, op: SetTextOp): Outcome {
     const removed = MapDocument.subtree(element)
         .slice(1)
         .map((line) => doc.anchorOf(line));
-    element.textContent = op.text;
-    return { ok: true, anchors: [doc.anchorOf(element)], touched: removed };
+    const spans = writeTextLines(element, op.text);
+    const created = spans.flatMap((span) => doc.assignAnchors(span));
+    return {
+        ok: true,
+        anchors: [doc.anchorOf(element)],
+        created,
+        touched: removed,
+    };
 }
 
 function isPoint(value: unknown): value is [number, number] {
@@ -484,6 +490,15 @@ function remove(doc: MapDocument, op: DeleteOp): Outcome {
         }
     }
     const removed: string[] = [];
+    for (const element of resolved.elements) {
+        const parent = element.parentElement;
+        if (parent) {
+            doc.removed_positions.set(doc.anchorOf(element), {
+                parent,
+                next: element.nextElementSibling,
+            });
+        }
+    }
     for (const element of resolved.elements) {
         for (const descendant of MapDocument.subtree(element)) {
             removed.push(doc.anchorOf(descendant));
@@ -591,13 +606,28 @@ function insertShape(
         };
     }
     let after: Element | null = null;
+    let before: Element | null = null;
+    let placement_note: string | undefined;
     if (op.after) {
         const resolution = doc.resolve(op.after);
-        if (resolution.ok === false)
+        const former =
+            resolution.ok === false && op.after.a
+                ? doc.positionOfRemoved(op.after.a)
+                : null;
+        if (former) {
+            parent = former.parent;
+            before = former.next;
+            placement_note = `placed where ${op.after.a} was, which an earlier change deleted`;
+        } else if (resolution.ok === false) {
             return { ok: false, reason: resolution.error };
-        after = resolution.element;
-        if (after.parentElement !== parent) {
-            return { ok: false, reason: 'after must be a child of the parent' };
+        } else {
+            after = resolution.element;
+            if (after.parentElement !== parent) {
+                return {
+                    ok: false,
+                    reason: 'after must be a child of the parent',
+                };
+            }
         }
     }
     if (!(SHAPE_KINDS as readonly string[]).includes(op.kind)) {
@@ -638,8 +668,8 @@ function insertShape(
     for (const [name, value] of attrs) element.setAttribute(name, value);
     element.setAttribute('id', id);
     if (op.kind === 'text' && typeof op.text === 'string')
-        element.textContent = op.text;
-    let note: string | undefined;
+        writeTextLines(element, op.text);
+    let note: string | undefined = placement_note;
     if (!isRoot(doc, parent)) {
         const parent_ctm = geometry.ctmOf(parent);
         if (!parent_ctm)
@@ -655,9 +685,43 @@ function insertShape(
         }
     }
     if (after) after.after(element);
+    else if (before) parent.insertBefore(element, before);
     else parent.appendChild(element);
     const created = doc.assignAnchors(element);
     return { ok: true, anchors: created, created, ...(note ? { note } : {}) };
+}
+
+const LINE_HEIGHT = '1.2em';
+
+/**
+ * Lines of a text: one line is the element's text; several become one
+ * <tspan> each, stacked below the first at the element's x.
+ */
+export function textLines(text: string): string[] {
+    const lines = text.split(/\r?\n/);
+    while (lines.length > 1 && !lines[lines.length - 1].trim()) lines.pop();
+    return lines;
+}
+
+export function writeTextLines(element: Element, text: string): Element[] {
+    const lines = textLines(text);
+    if (lines.length <= 1 || element.localName !== 'text') {
+        element.textContent = text;
+        return [];
+    }
+    element.textContent = '';
+    const x = element.getAttribute('x');
+    const owner = element.ownerDocument;
+    const spans: Element[] = [];
+    lines.forEach((line, index) => {
+        const span = owner.createElementNS(SVG_NS, 'tspan');
+        if (x !== null) span.setAttribute('x', x);
+        if (index > 0) span.setAttribute('dy', LINE_HEIGHT);
+        span.textContent = line;
+        element.appendChild(span);
+        spans.push(span);
+    });
+    return spans;
 }
 
 function setId(doc: MapDocument, op: SetIdOp): Outcome {

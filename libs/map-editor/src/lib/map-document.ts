@@ -51,6 +51,12 @@ export type Resolution =
     | { ok: true; element: Element }
     | { ok: false; error: string };
 
+/** Where a deleted element stood: its parent and the sibling that followed it. */
+export interface RemovedPosition {
+    parent: Element;
+    next: Element | null;
+}
+
 const DOCTYPE_OR_ENTITY = /<!\s*(?:DOCTYPE|ENTITY)\b/i;
 const PROLOG = /^﻿?\s*(<\?xml[\s\S]*?\?>)/;
 const UNITLESS_NUMBER = /^\+?(?:\d+\.?\d*|\.\d+)(?:px)?$/;
@@ -371,7 +377,29 @@ export class MapDocument {
         const parent = this._root.parentNode;
         if (parent) parent.replaceChild(root, this._root);
         this._root = root as SVGSVGElement;
+        this.removed_positions.clear();
         this.markChanged();
+    }
+
+    /** Positions of elements deleted from this document, by anchor; cleared when the root is swapped. */
+    public readonly removed_positions = new Map<string, RemovedPosition>();
+
+    /**
+     * Where an element deleted earlier stood, as a parent and the first
+     * following sibling that is still in the document; null when the parent
+     * is gone too or the anchor was never deleted.
+     */
+    public positionOfRemoved(anchor: string): RemovedPosition | null {
+        const position = this.removed_positions.get(anchor);
+        if (!position || !position.parent.isConnected) return null;
+        let next = position.next;
+        while (next && !next.isConnected) {
+            const next_anchor = next.getAttribute(ANCHOR_ATTR);
+            next = next_anchor
+                ? (this.removed_positions.get(next_anchor)?.next ?? null)
+                : null;
+        }
+        return { parent: position.parent, next };
     }
 
     /** Elements of a subtree, including its root, in document order. */

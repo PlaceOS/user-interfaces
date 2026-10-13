@@ -984,3 +984,38 @@ describe('validateProposal', () => {
         expect(result.trial?.byId('table-01.006')).not.toBeNull();
     });
 });
+
+describe('validation of a rename of an outlined label', () => {
+    it('accepts a text placed after a glyph the same batch deletes and counts its lines', async () => {
+        const doc = MapDocument.load(
+            `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 100"><g id="labels"><path id="g1" d="M10 10h5v5h-5z" fill="#fff"/><path id="g2" d="M16 10h5v5h-5z" fill="#fff"/><path id="g3" d="M22 10h5v5h-5z" fill="#fff"/></g></svg>`,
+            { geometry: new AttributeGeometryProvider() },
+        );
+        const targets = ['g1', 'g2', 'g3'].map((id) => ({
+            a: anchor(doc, id),
+        }));
+        const result = await validateProposal(doc, [
+            { op: 'delete', why: '', target: targets[0], targets },
+            {
+                op: 'insert_shape',
+                why: '',
+                kind: 'text',
+                text: 'Studio Space\n1.04',
+                parent: { id: 'labels' },
+                after: targets[2],
+                attrs: [
+                    { name: 'x', value: '18' },
+                    { name: 'y', value: '15' },
+                ],
+                new_id: 'ai-label',
+            },
+        ]);
+        expect(result.blocking).toBe(false);
+        expect(result.ops.map((op) => op.locked)).toEqual([false, false]);
+        expect(result.ops[1].issues.map((issue) => issue.code)).toContain(
+            'after_deleted',
+        );
+        expect(result.element_delta).toBe(-3 + 3);
+        expect(result.trial?.byId('ai-label')?.children.length).toBe(2);
+    });
+});
