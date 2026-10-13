@@ -1,8 +1,8 @@
-import "./chunk-DZIT2N7R.js";
-import "./chunk-N6CH5ISF.js";
+import "./chunk-YQKDPALL.js";
+import "./chunk-AGK5J2VR.js";
 import {
   TranslatePipe
-} from "./chunk-AXKTKOVF.js";
+} from "./chunk-AUPW2XX7.js";
 import {
   GroupPermission,
   LazySentryErrorHandler,
@@ -27,8 +27,7 @@ import {
   setMocks,
   settingSignal,
   user_groups_loaded
-} from "./chunk-ORRROA3G.js";
-import "./chunk-H2RXZK4H.js";
+} from "./chunk-OTA3DIFD.js";
 import {
   AsyncHandler,
   Hp,
@@ -53,21 +52,22 @@ import {
   timePeriodsIntersect,
   toDate,
   unique
-} from "./chunk-QBXM4CKQ.js";
+} from "./chunk-EA27WN3L.js";
 import {
   IconComponent
-} from "./chunk-7J4AT2TZ.js";
+} from "./chunk-T6G4DZFT.js";
+import "./chunk-WVTG4RXQ.js";
 import {
   BidiModule,
   _getAnimationsState
-} from "./chunk-Y43KW6W3.js";
+} from "./chunk-C5EN5BVH.js";
 import {
   Router,
   RouterLink,
   RouterOutlet,
   provideRouter,
   withHashLocation
-} from "./chunk-WI6YB6KJ.js";
+} from "./chunk-MJNQ6RLI.js";
 import {
   ChangeDetectorRef,
   Component,
@@ -131,11 +131,11 @@ import {
   ɵɵtext,
   ɵɵtextInterpolate,
   ɵɵtextInterpolate1
-} from "./chunk-ZL76SY4J.js";
+} from "./chunk-BF6PVGRU.js";
 import {
   __spreadProps,
   __spreadValues
-} from "./chunk-GOMI4DH3.js";
+} from "./chunk-653SOEEV.js";
 
 // node_modules/date-fns/subDays.js
 function subDays(date, amount, options) {
@@ -697,7 +697,7 @@ var ServiceWorkerUpdateCardComponent = _ServiceWorkerUpdateCardComponent;
 // libs/components/src/lib/global-loading.component.ts
 var NativeDomainOverlayLoaderComponent_Conditional_0_Defer_1_DepsFn = () => [
   /* @ts-ignore */
-  import("./native-domain-overlay.component-X6TKAKML.js").then((m) => m.NativeDomainOverlayComponent)
+  import("./native-domain-overlay.component-3DTDDELN.js").then((m) => m.NativeDomainOverlayComponent)
 ];
 function NativeDomainOverlayLoaderComponent_Conditional_0_Defer_0_Template(rf, ctx) {
   if (rf & 1) {
@@ -817,7 +817,7 @@ var NativeDomainOverlayLoaderComponent = _NativeDomainOverlayLoaderComponent;
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(NativeDomainOverlayLoaderComponent, () => [
     /* @ts-ignore */
-    import("./native-domain-overlay.component-X6TKAKML.js").then((m) => m.NativeDomainOverlayComponent)
+    import("./native-domain-overlay.component-3DTDDELN.js").then((m) => m.NativeDomainOverlayComponent)
   ], (NativeDomainOverlayComponent) => {
     setClassMetadata(NativeDomainOverlayLoaderComponent, [{
       type: Component,
@@ -9485,7 +9485,7 @@ function mocksInit() {
 // apps/control/src/app/app.component.ts
 var AppComponent_Defer_1_DepsFn = () => [
   /* @ts-ignore */
-  import("./settings-debug-panel-launcher.component-TLKQJON6.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+  import("./settings-debug-panel-launcher.component-NP2JNUX3.js").then((m) => m.SettingsDebugPanelLauncherComponent)
 ];
 function AppComponent_Defer_0_Template(rf, ctx) {
   if (rf & 1) {
@@ -9524,7 +9524,7 @@ var AppComponent = _AppComponent;
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(AppComponent, () => [
     /* @ts-ignore */
-    import("./settings-debug-panel-launcher.component-TLKQJON6.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+    import("./settings-debug-panel-launcher.component-NP2JNUX3.js").then((m) => m.SettingsDebugPanelLauncherComponent)
   ], (SettingsDebugPanelLauncherComponent) => {
     setClassMetadata(AppComponent, [{
       type: Component,
@@ -9577,22 +9577,22 @@ var routes = [
   { path: "unauthorised", component: UnauthorisedComponent },
   {
     path: "bootstrap",
-    loadComponent: () => import("./bootstrap.component-FSUWGFI6.js").then((m) => m.BootstrapComponent),
+    loadComponent: () => import("./bootstrap.component-RQGSYLPZ.js").then((m) => m.BootstrapComponent),
     canActivate: [AuthorisedUserGuard]
   },
   {
     path: "panel/:system",
-    loadComponent: () => import("./main-view.component-N4WRJNZB.js").then((m) => m.ControlMainViewComponent),
+    loadComponent: () => import("./main-view.component-VA4UV7MN.js").then((m) => m.ControlMainViewComponent),
     canActivate: [AuthorisedUserGuard]
   },
   {
     matcher: tabbedRouteMatcher,
-    loadComponent: () => import("./tabbed-view.component-4NTMMF2A.js").then((m) => m.ControlTabbedViewComponent),
+    loadComponent: () => import("./tabbed-view.component-VSQNTWXT.js").then((m) => m.ControlTabbedViewComponent),
     canActivate: [AuthorisedUserGuard]
   },
   {
     path: "panel/:system/call",
-    loadComponent: () => import("./video-call-view.component-YAEOYNV4.js").then((m) => m.ControlVideoCallViewComponent),
+    loadComponent: () => import("./video-call-view.component-QS2CSOAN.js").then((m) => m.ControlVideoCallViewComponent),
     canActivate: [AuthorisedUserGuard]
   },
   { path: "**", redirectTo: "bootstrap" }
