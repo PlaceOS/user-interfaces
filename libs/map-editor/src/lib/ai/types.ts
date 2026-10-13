@@ -136,6 +136,10 @@ export interface MapAIContextEntry {
     prot: boolean;
     /** Content hash. */
     h: string;
+    /** Effective fill colour; null when none or unknown. */
+    fill: string | null;
+    /** Id or anchor of the smallest bookable or zone whose box contains this element's box. */
+    in: string | null;
 }
 
 export type MapAIAnnotationKind = 'box' | 'arrow' | 'path' | 'pin';

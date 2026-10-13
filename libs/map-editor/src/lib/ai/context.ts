@@ -23,6 +23,8 @@ export interface ContextSource {
 export interface BuildContextOptions {
     /** Anchors of the selected elements. */
     selection?: readonly string[];
+    /** The instruction; elements whose ids it names join the shortlist. */
+    instruction?: string;
     /** Anchors near the person's marks, from hit-testing. */
     shortlist?: readonly string[];
     max_bytes?: number;
@@ -83,9 +85,128 @@ export function orderEntries(index: MapIndex): MapIndexEntry[] {
     return [...named, ...anonymous];
 }
 
+/** Entries whose box can contain others: bookables and zones with a non-empty box, smallest first. */
+export function containerEntries(index: MapIndex): MapIndexEntry[] {
+    return index.entries
+        .filter(
+            (entry) =>
+                (entry.kind === 'bookable' || entry.kind === 'zone') &&
+                !!entry.bbox &&
+                entry.bbox[2] > 0 &&
+                entry.bbox[3] > 0,
+        )
+        .sort((a, b) => bboxArea(a) - bboxArea(b));
+}
+
+const CONTAINMENT_TOLERANCE = 0.5;
+
+/** The smallest container whose box holds the entry's box, by anchor; entries outside every container are absent. */
+export function containerIndex(index: MapIndex): Map<string, MapIndexEntry> {
+    const containers = containerEntries(index);
+    const result = new Map<string, MapIndexEntry>();
+    for (const entry of index.entries) {
+        if (
+            !entry.bbox ||
+            entry.kind === 'root' ||
+            entry.kind === 'non-rendered'
+        )
+            continue;
+        const [x, y, w, h] = entry.bbox;
+        for (const container of containers) {
+            if (container === entry) continue;
+            const [cx, cy, cw, ch] = container.bbox as [
+                number,
+                number,
+                number,
+                number,
+            ];
+            if (cw * ch <= w * h) continue;
+            if (
+                x >= cx - CONTAINMENT_TOLERANCE &&
+                y >= cy - CONTAINMENT_TOLERANCE &&
+                x + w <= cx + cw + CONTAINMENT_TOLERANCE &&
+                y + h <= cy + ch + CONTAINMENT_TOLERANCE
+            ) {
+                result.set(entry.anchor, container);
+                break;
+            }
+        }
+    }
+    return result;
+}
+
+const GLYPH_MAX_HEIGHT_RATIO = 0.2;
+const GLYPH_MAX_WIDTH_RATIO = 0.35;
+
+/** An anonymous path small enough to be one letter of an outlined label inside its container. */
+export function isGlyphEntry(
+    entry: MapIndexEntry,
+    container: MapIndexEntry | undefined,
+): boolean {
+    if (!container?.bbox || !entry.bbox) return false;
+    if (entry.id || entry.label || entry.protected) return false;
+    if (entry.tag !== 'path' && entry.tag !== 'polygon') return false;
+    if (entry.parent === container.anchor) return false;
+    const [, , w, h] = entry.bbox;
+    const [, , cw, ch] = container.bbox;
+    return (
+        h > 0 &&
+        h <= ch * GLYPH_MAX_HEIGHT_RATIO &&
+        w <= cw * GLYPH_MAX_WIDTH_RATIO
+    );
+}
+
+const MENTION = /[A-Za-z0-9.]*\d[A-Za-z0-9.]*/g;
+const ID_SEPARATOR = /[-_.\s]+/;
+const MAX_MENTIONS = 12;
+
+/** Tokens of the instruction that carry a digit, such as 1.03, 01.004, G.02 or 100. */
+export function mentionedTokens(instruction: string): string[] {
+    const tokens = (instruction.match(MENTION) || [])
+        .map((token) => token.replace(/^\.+|\.+$/g, ''))
+        .filter((token) => token.length >= 2 || /^\d+$/.test(token));
+    return unique(tokens);
+}
+
+function idParts(value: string): string[] {
+    return value
+        .toLowerCase()
+        .split(ID_SEPARATOR)
+        .filter((part) => !!part);
+}
+
+/** Whether the id carries the token's parts in sequence, so 1.03 names area-1.03-status but not table-01.003. */
+export function idMentions(id: string, token: string): boolean {
+    const needle = idParts(token);
+    const haystack = idParts(id);
+    if (!needle.length || needle.length > haystack.length) return false;
+    for (let start = 0; start + needle.length <= haystack.length; start++) {
+        if (needle.every((part, offset) => haystack[start + offset] === part))
+            return true;
+    }
+    return false;
+}
+
+/** Id'd entries the instruction names by number, in document order, at most MAX_MENTIONS. */
+export function mentionedEntries(
+    index: MapIndex,
+    instruction: string | undefined,
+): MapIndexEntry[] {
+    if (!instruction) return [];
+    const tokens = mentionedTokens(instruction);
+    if (!tokens.length) return [];
+    const found = index.entries.filter(
+        (entry) =>
+            !!entry.id &&
+            tokens.some((token) => idMentions(entry.id as string, token)),
+    );
+    return found.slice(0, MAX_MENTIONS);
+}
+
 export function contextEntry(
     entry: MapIndexEntry,
     root_anchor: string | null,
+    container?: MapIndexEntry,
 ): MapAIContextEntry {
     return {
         a: entry.anchor,
@@ -96,9 +217,11 @@ export function contextEntry(
         bbox: entry.bbox ? [...entry.bbox] : null,
         p: entry.parent && entry.parent !== root_anchor ? entry.parent : null,
         z: entry.z,
-        kind: entry.kind,
+        kind: isGlyphEntry(entry, container) ? 'glyph' : entry.kind,
         prot: entry.protected,
         h: entry.hash,
+        fill: entry.fill,
+        in: container ? container.id || container.anchor : null,
     };
 }
 
@@ -144,12 +267,22 @@ export function buildContext(
     const root_entry = index.entries.find((entry) => entry.kind === 'root');
     const root_anchor = root_entry?.anchor || null;
     const selection = unique(options.selection || []);
-    const shortlist = unique([...selection, ...(options.shortlist || [])]);
+    const mentioned = mentionedEntries(index, options.instruction).map(
+        (entry) => entry.anchor,
+    );
+    const shortlist = unique([
+        ...selection,
+        ...(options.shortlist || []),
+        ...mentioned,
+    ]);
     const size =
         options.snapshot || snapshotSize(doc.view_box, options.long_side);
 
     const ordered = orderEntries(index);
-    const entries = ordered.map((entry) => contextEntry(entry, root_anchor));
+    const containers = containerIndex(index);
+    const entries = ordered.map((entry) =>
+        contextEntry(entry, root_anchor, containers.get(entry.anchor)),
+    );
     const named_count = ordered.filter(isNamedEntry).length;
 
     const subtrees: Record<string, string> = {};

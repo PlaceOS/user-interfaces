@@ -17,7 +17,9 @@
             "z": 1,
             "kind": "layer-group",
             "prot": false,
-            "h": "a1a1a1a1"
+            "h": "a1a1a1a1",
+            "fill": null,
+            "in": null
         },
         {
             "a": "e2",
@@ -30,7 +32,9 @@
             "z": 2,
             "kind": "zone",
             "prot": false,
-            "h": "b2b2b2b2"
+            "h": "b2b2b2b2",
+            "fill": null,
+            "in": null
         },
         {
             "a": "e3",
@@ -43,7 +47,9 @@
             "z": 3,
             "kind": "zone",
             "prot": true,
-            "h": "c3c3c3c3"
+            "h": "c3c3c3c3",
+            "fill": null,
+            "in": null
         },
         {
             "a": "e4",
@@ -56,7 +62,9 @@
             "z": 4,
             "kind": "bookable",
             "prot": true,
-            "h": "d4d4d4d4"
+            "h": "d4d4d4d4",
+            "fill": null,
+            "in": null
         },
         {
             "a": "e5",
@@ -69,7 +77,9 @@
             "z": 5,
             "kind": "bookable",
             "prot": false,
-            "h": "e5e5e5e5"
+            "h": "e5e5e5e5",
+            "fill": null,
+            "in": null
         },
         {
             "a": "e6",
@@ -82,7 +92,9 @@
             "z": 6,
             "kind": "art",
             "prot": false,
-            "h": "f6f6f6f6"
+            "h": "f6f6f6f6",
+            "fill": null,
+            "in": null
         },
         {
             "a": "e7",
@@ -95,7 +107,9 @@
             "z": 7,
             "kind": "art",
             "prot": false,
-            "h": "07070707"
+            "h": "07070707",
+            "fill": null,
+            "in": null
         }
     ],
     "shortlist": ["e2", "e4"],
@@ -133,5 +147,9 @@
         ],
         "selected": ["area-1.01-status"]
     },
-    "stats": { "elements": 748, "ids": 84, "bytes": 134861 }
+    "stats": {
+        "elements": 748,
+        "ids": 84,
+        "bytes": 134861
+    }
 }

@@ -37,6 +37,8 @@ export interface MapEditorAiStrings {
     /** `{count}` changes in the proposal. */
     proposal_title: string;
     questions_title: string;
+    /** Shown under a question from the model. */
+    questions_hint: string;
     keep: string;
     undo: string;
     reason_prompt: string;
@@ -170,6 +172,8 @@ export const DEFAULT_AI_STRINGS: MapEditorAiStrings = {
     running_long: 'Still working after {seconds} s',
     proposal_title: '{count} changes',
     questions_title: 'The AI has a question',
+    questions_hint:
+        'Click the element on the map to select it, then answer below; the selection is sent with your reply.',
     keep: 'Keep',
     undo: 'Undo',
     reason_prompt: 'What was wrong?',

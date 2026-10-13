@@ -202,6 +202,20 @@ const IDLE: MapAiPhase = { kind: 'idle' };
                                                     </p>
                                                 }
                                                 @if (
+                                                    turn.proposal.questions
+                                                        .length
+                                                ) {
+                                                    <p
+                                                        class="px-3 pb-2 text-xs opacity-70"
+                                                        hint
+                                                    >
+                                                        {{
+                                                            t.strings
+                                                                .questions_hint
+                                                        }}
+                                                    </p>
+                                                }
+                                                @if (
                                                     verdictText(turn.proposal);
                                                     as text
                                                 ) {

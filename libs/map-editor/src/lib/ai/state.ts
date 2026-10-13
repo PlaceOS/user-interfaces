@@ -141,7 +141,7 @@ export function initialState(): MapAiState {
         turns: [],
         parent_job_id: null,
         draft: '',
-        snapshot_on: false,
+        snapshot_on: true,
         reasons: [],
         announcement: '',
         sequence: 0,

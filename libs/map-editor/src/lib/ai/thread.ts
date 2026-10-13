@@ -1,4 +1,5 @@
 import { computed, signal, Signal, WritableSignal } from '@angular/core';
+import { MapIndex } from '../map-index';
 import {
     cancelMapAIJob,
     errorMessage,
@@ -14,7 +15,7 @@ import {
     watchJob,
     WatchTimeoutError,
 } from './api';
-import { buildContext } from './context';
+import { buildContext, mentionedEntries } from './context';
 import {
     buildProposal,
     decisionFor,
@@ -46,9 +47,28 @@ import { MapAIJob, MapAIResolveDecision } from './types';
 /** Stores a file and answers with its upload id. */
 export type UploadPort = (blob: Blob, name: string) => Promise<string>;
 
+/** Rooms and zones cover at least this share of the map's area to get a tag on the snapshot. */
+const TAG_MIN_AREA_SHARE = 0.002;
+
+/** Anchors of the large bookables and zones plus everything the instruction names, for the snapshot tags. */
+export function snapshotTags(index: MapIndex, instruction: string): string[] {
+    const { width, height } = index.view_box;
+    const floor = width * height * TAG_MIN_AREA_SHARE;
+    const large = index.entries.filter(
+        (entry) =>
+            (entry.kind === 'bookable' || entry.kind === 'zone') &&
+            !!entry.id &&
+            !!entry.bbox &&
+            entry.bbox[2] * entry.bbox[3] >= floor,
+    );
+    const named = mentionedEntries(index, instruction);
+    return [...new Set([...large, ...named].map((entry) => entry.anchor))];
+}
+
 export type SnapshotPort = (
     session: MapEditorSessionLike,
     selection: readonly string[],
+    tags: readonly string[],
 ) => Promise<{ blob: Blob } & SnapshotSize>;
 
 export interface MapAiThreadOptions {
@@ -228,8 +248,8 @@ export class MapAiThread {
         const long_side = options.long_side;
         this._snapshot =
             options.snapshot ??
-            ((session, selection) =>
-                renderSnapshot(session.doc, { selection, long_side }));
+            ((session, selection, tags) =>
+                renderSnapshot(session.doc, { selection, tags, long_side }));
         this._state = signal(initialState());
         this.state = this._state.asReadonly();
         this.phase = computed(() => this._state().phase);
@@ -328,7 +348,11 @@ export class MapAiThread {
         let size: SnapshotSize | null = null;
         if (want_snapshot && this._upload) {
             try {
-                const snapshot = await this._snapshot(this._session, selection);
+                const snapshot = await this._snapshot(
+                    this._session,
+                    selection,
+                    snapshotTags(this._session.index(), text),
+                );
                 markup_upload_id = await this._upload(
                     snapshot.blob,
                     'map-snapshot.png',
@@ -345,6 +369,7 @@ export class MapAiThread {
             { doc: this._session.doc, index: () => this._session.index() },
             {
                 selection,
+                instruction: text,
                 max_bytes: state.capabilities?.limits.max_context_bytes,
                 snapshot: size,
             },

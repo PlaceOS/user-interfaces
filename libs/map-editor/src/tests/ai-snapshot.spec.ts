@@ -3,6 +3,7 @@ import {
     snapshotMarkup,
     snapshotSize,
 } from '../lib/ai/snapshot';
+import { AttributeGeometryProvider } from '../lib/geometry';
 import { MapDocument } from '../lib/map-document';
 import { anchor, OFFICE } from './fixtures';
 
@@ -52,5 +53,22 @@ describe('snapshot', () => {
         expect(snapshot.outlined).toEqual([]);
         expect(snapshot.markup).not.toContain(SNAPSHOT_OUTLINE_COLOUR);
         expect(snapshot.markup).toContain('width="2048"');
+    });
+});
+
+describe('snapshot tags', () => {
+    it('prints the id of each tagged element at its top left corner', () => {
+        const doc = MapDocument.load(
+            `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300"><rect id="area-1.01-status" x="20" y="30" width="100" height="80"/><rect x="200" y="30" width="100" height="80"/></svg>`,
+            { geometry: new AttributeGeometryProvider() },
+        );
+        const room = doc.byId('area-1.01-status') as Element;
+        const anon = doc.root.querySelector('rect:not([id])') as Element;
+        const result = snapshotMarkup(doc, {
+            tags: [doc.anchorOf(room), doc.anchorOf(anon)],
+        });
+        expect(result.markup).toContain('>area-1.01-status</text>');
+        expect((result.markup.match(/<text/g) || []).length).toBe(1);
+        expect(result.outlined).toEqual([]);
     });
 });

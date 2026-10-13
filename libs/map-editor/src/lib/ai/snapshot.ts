@@ -3,6 +3,7 @@ import { MapDocument, stripEditorAttributes, ViewBox } from '../map-document';
 
 export const SNAPSHOT_LONG_SIDE = 2048;
 export const SNAPSHOT_OUTLINE_COLOUR = '#d946ef';
+export const SNAPSHOT_TAG_COLOUR = '#c2410c';
 const DEFAULT_RENDER_TIMEOUT_MS = 15_000;
 
 export interface SnapshotSize {
@@ -37,6 +38,8 @@ export function snapshotSize(
 export interface SnapshotMarkupOptions {
     /** Anchors to outline, with their ids as labels. */
     selection?: readonly string[];
+    /** Anchors to mark with a small id tag at the top left of their box. */
+    tags?: readonly string[];
     long_side?: number;
     colour?: string;
 }
@@ -94,7 +97,30 @@ export function snapshotMarkup(
         overlay.appendChild(text);
         outlined.push(anchor);
     }
-    if (outlined.length) clone.appendChild(overlay);
+    const tagged = new Set(outlined);
+    const tag_size = Math.max(font_size * 0.6, 5);
+    for (const anchor of options.tags || []) {
+        if (tagged.has(anchor)) continue;
+        const element = doc.byAnchor(anchor);
+        const id = element?.getAttribute('id');
+        if (!element || !id) continue;
+        const bbox = doc.geometry.bboxOf(element);
+        if (!bbox) continue;
+        const [x, y] = bbox;
+        const text = owner.createElementNS(SVG_NS, 'text');
+        text.setAttribute('x', String(x + stroke_width));
+        text.setAttribute('y', String(y + tag_size + stroke_width));
+        text.setAttribute('font-size', String(tag_size));
+        text.setAttribute('font-family', 'sans-serif');
+        text.setAttribute('fill', SNAPSHOT_TAG_COLOUR);
+        text.setAttribute('stroke', '#ffffff');
+        text.setAttribute('stroke-width', String(stroke_width * 0.6));
+        text.setAttribute('paint-order', 'stroke');
+        text.textContent = id;
+        overlay.appendChild(text);
+        tagged.add(anchor);
+    }
+    if (overlay.childNodes.length) clone.appendChild(overlay);
     clone.setAttribute('width', String(size.image_px[0]));
     clone.setAttribute('height', String(size.image_px[1]));
     stripEditorAttributes(clone);

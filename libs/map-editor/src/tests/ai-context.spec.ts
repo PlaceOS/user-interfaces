@@ -1,6 +1,8 @@
 import {
     buildContext,
     contextEntry,
+    idMentions,
+    mentionedTokens,
     orderEntries,
     styleRuleStrings,
     subtreeMarkup,
@@ -11,7 +13,9 @@ import {
     MapAIContext,
     MapAIContextEntry,
 } from '../lib/ai/types';
+import { AttributeGeometryProvider } from '../lib/geometry';
 import { MapDocument } from '../lib/map-document';
+import { buildIndex } from '../lib/map-index';
 import { ProtectedIdSet } from '../lib/protected-ids';
 import { FakeSession, fixtureContext } from './ai-fakes';
 import { anchor, OFFICE } from './fixtures';
@@ -49,8 +53,10 @@ function assertEntryShape(entry: MapAIContextEntry): void {
             'a',
             'bbox',
             'cls',
+            'fill',
             'h',
             'id',
+            'in',
             'kind',
             'label',
             'p',
@@ -74,6 +80,8 @@ function assertEntryShape(entry: MapAIContextEntry): void {
     expect(typeof entry.kind).toBe('string');
     expect(typeof entry.prot).toBe('boolean');
     expect(entry.h).toMatch(HEX8);
+    expect(entry.fill === null || typeof entry.fill === 'string').toBe(true);
+    expect(entry.in === null || typeof entry.in === 'string').toBe(true);
 }
 
 describe('buildContext', () => {
@@ -238,5 +246,84 @@ describe('buildContext', () => {
             '.wall{fill:none;stroke:#000;stroke-width:2}',
             '.room{fill:#fff}',
         ]);
+    });
+});
+
+describe('containment, glyphs and mentions', () => {
+    const map = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 600">
+  <g id="bookings">
+    <path id="area-1.03-status" d="M500 300h400v250h-400z" fill="#505a5e"/>
+    <path id="area-1.01-status" d="M20 300h300v250h-300z" fill="#505a5e"/>
+  </g>
+  <g id="furniture">
+    <g id="table-01.004"><rect x="520" y="400" width="60" height="30" fill="#fff"/></g>
+    <circle cx="540" cy="450" r="8" fill="#888"/>
+    <path d="M560 320h12v14h-12z" fill="#fff"/>
+    <path d="M575 320h12v14h-12z" fill="#fff"/>
+    <path d="M700 320h300v200h-300z" fill="#fff"/>
+  </g>
+  <path d="M960 10h30v30h-30z" fill="#0f0"/>
+</svg>`;
+
+    function build(instruction?: string) {
+        const doc = MapDocument.load(map, {
+            geometry: new AttributeGeometryProvider(),
+        });
+        const index = buildIndex(doc);
+        return {
+            doc,
+            index,
+            built: buildContext({ doc, index: () => index }, { instruction }),
+        };
+    }
+
+    it('names the smallest room, desk or zone holding each element', () => {
+        const { built } = build();
+        const by_id = new Map(built.context.index.map((e) => [e.id, e]));
+        const by_tag = (tag: string) =>
+            built.context.index.filter((e) => e.tag === tag && !e.id);
+        expect(by_id.get('table-01.004')?.in).toBe('area-1.03-status');
+        expect(by_tag('circle')[0].in).toBe('area-1.03-status');
+        expect(by_id.get('area-1.03-status')?.in).toBeNull();
+        expect(by_id.get('area-1.01-status')?.in).toBeNull();
+        const outside = built.context.index.find(
+            (e) => e.fill === '#0f0' && e.tag === 'path',
+        );
+        expect(outside?.in).toBeNull();
+    });
+
+    it('marks small anonymous paths inside a room as glyphs, not large ones', () => {
+        const { built } = build();
+        const paths = built.context.index.filter(
+            (e) => e.tag === 'path' && !e.id,
+        );
+        const glyphs = paths.filter((e) => e.kind === 'glyph');
+        expect(glyphs.length).toBe(2);
+        for (const glyph of glyphs) {
+            expect(glyph.in).toBe('area-1.03-status');
+            expect(glyph.fill).toBe('#fff');
+        }
+        const big = paths.find((e) => e.bbox && e.bbox[2] === 300);
+        expect(big?.kind).toBe('art');
+    });
+
+    it('shortlists the elements the instruction names by number', () => {
+        expect(
+            mentionedTokens('Rename Boardroom 1.03 and desk 01.004'),
+        ).toEqual(['1.03', '01.004']);
+        expect(idMentions('area-1.03-status', '1.03')).toBe(true);
+        expect(idMentions('table-01.003', '1.03')).toBe(false);
+        expect(idMentions('park-100', '100')).toBe(true);
+        const { built, doc } = build(
+            'Rename Boardroom 1.03 to Conference Room',
+        );
+        const room = doc.byId('area-1.03-status') as Element;
+        expect(built.context.shortlist).toEqual([doc.anchorOf(room)]);
+        expect(built.context.subtrees[doc.anchorOf(room)]).toContain(
+            'area-1.03-status',
+        );
+        expect(build('Make the walls darker').built.context.shortlist).toEqual(
+            [],
+        );
     });
 });
