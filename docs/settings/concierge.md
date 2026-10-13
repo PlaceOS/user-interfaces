@@ -54,7 +54,7 @@ Each locale entry requires an `id` and `name`:
 
 | Setting | Type | Default | Description |
 |---|---|---|---|
-| `features` | string[] | All features enabled (see below) | List of features enabled in the app. Available values: `spaces`, `zones`, `desks`, `parking`, `visitors`, `assets`, `facilities`, `internal-users`, `points`, `surveys`, `catering`, `events`, `booking-report`, `attendance-report`, `contact-tracing-report`, `signage`, `email-templates`. |
+| `features` | string[] | All features enabled (see below) | List of features enabled in the app. Available values: `spaces`, `zones`, `desks`, `parking`, `visitors`, `assets`, `facilities`, `internal-users`, `points`, `surveys`, `catering`, `events`, `booking-report`, `attendance-report`, `contact-tracing-report`, `user-report`, `signage`, `email-templates`. `user-report` is off by default. It adds a report of the desk, parking, locker and room bookings of a single user in the active building or region. |
 | `feature_groups` | object | – | Maps feature names to the user groups allowed to access them, e.g. `parking-requests`. Features without an entry are available to all users. |
 | `admin_group` | string | `"concierge_admins"` | Name of the user group that grants access to admin sections of the app. Members of `placeos_admin` and `placeos_support` are always allowed. |
 | `delegated` | boolean | `false` | Set when your PlaceOS instance uses delegated calendar access. Hides event actions from the event details view. |
@@ -237,7 +237,7 @@ Each custom column requires a `field` (the booking extension data field to displ
 
 | Setting | Type | Default | Description |
 |---|---|---|---|
-| `reports.features` | string[] | – | List of report types shown in the reports menu. Defaults to `attendance`, `desks`, `spaces`, `catering` and `contact-tracing`. |
+| `reports.features` | string[] | – | List of report types shown in the reports menu. Defaults to `attendance`, `desks`, `spaces`, `catering` and `contact-tracing`. Add `user` to show the report of the bookings of a single user. |
 | `reports.attendance_include_weekends` | boolean | `false` | Include weekends in attendance report calculations. |
 | `reports.ignore_days` | array | – | Days of the week to exclude from report calculations. Either day names (e.g. `"saturday"`) or day indexes (0-6). |
 | `custom_reports` | array | `[]` | Custom report pages to add to the reports section. Each report is rendered as an embedded page. |
