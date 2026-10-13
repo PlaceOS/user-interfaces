@@ -32,7 +32,12 @@ import { MapManagementService } from './map-management.service';
                     </h2>
                     <div class="w-2 flex-1"></div>
                     <searchbar (modelChange)="setSearch($event)"></searchbar>
-                    <button btn matRipple class="w-48" (click)="openStudio()">
+                    <button
+                        btn
+                        matRipple
+                        class="w-52 whitespace-nowrap"
+                        (click)="openStudio()"
+                    >
                         <div class="flex items-center space-x-2">
                             <icon>open_in_new</icon>
                             <div class="pr-2">
@@ -115,7 +120,7 @@ import { MapManagementService } from './map-management.service';
                                     key: 'actions',
                                     name: ' ',
                                     content: action_template,
-                                    size: '12rem',
+                                    size: '13rem',
                                     sortable: false,
                                 },
                             ]"
@@ -171,7 +176,12 @@ import { MapManagementService } from './map-management.service';
         </ng-template>
         <ng-template #action_template let-row="row">
             <div class="flex items-center justify-end gap-2 p-2">
-                <button btn matRipple class="w-28" (click)="editMap(row)">
+                <button
+                    btn
+                    matRipple
+                    class="w-32 whitespace-nowrap"
+                    (click)="editMap(row)"
+                >
                     <div class="flex items-center space-x-2">
                         <icon>edit</icon>
                         <div class="pr-2">
