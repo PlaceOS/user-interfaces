@@ -63,7 +63,9 @@ test.describe('desk booking times', () => {
             await form.setChecked(form.requireLocker, false);
             await form.setAllDay(false);
             await form.title.fill(title);
-            await form.setDuration(60);
+            // Not 60: that is the default length (`desks.default_duration`),
+            // and a length field that did nothing would also store it.
+            await form.setDuration(90);
             await form.setStartTime(hhmm(slot.start));
             await form.selectDesk(desk.name);
 
@@ -99,7 +101,7 @@ test.describe('desk booking times', () => {
             expect(
                 (stored.booking_end - stored.booking_start) / MINUTES,
                 'and last as long as was picked',
-            ).toBe(60);
+            ).toBe(90);
         } finally {
             if (booking_id != null) await deleteBooking(staffApi, booking_id);
             await releaseAsset(staffApi, 'desk', desk.id, from, to);

@@ -21,6 +21,7 @@
  * the way fails there and not as a wrong booking.
  */
 import { APIRequestContext, Page, expect } from '@playwright/test';
+import { isReg09 } from '../api';
 import { MeetingFlow } from './meeting-flow.page';
 import { RoomBooking } from './room.api';
 
@@ -190,18 +191,13 @@ export async function bookRoomViaUI(
     // and only when — every failure looks like the concurrent-write defect
     // (PPT-2642): a burst of booking writes poisons a staff-api connection and
     // the request that lands on it fails for reasons unrelated to what was sent.
-    // Its shapes are a 400 "Expected BeginObject but was EOF", a 500 "could not
-    // serialize access", and a 422 whose `failures` list is EMPTY — a real
-    // validation error always names the field it is unhappy about.
+    // `isReg09` in `../api.ts` has its three shapes.
     //
     // Seen here on a full parallel room run: 422 with no failures, on a payload
     // that had just worked twice. Delete this with the rest of the REG-09
     // handling once the stack runs staff-api on pg-orm >= 2.2.4, and do not read
     // a green run as evidence the image is fixed.
-    const looks_like_reg09 = (p: CapturedPost) =>
-        (p.status === 400 && /Expected BeginObject but was EOF/.test(p.body)) ||
-        (p.status === 500 && /could not serialize access/.test(p.body)) ||
-        (p.status === 422 && /"failures"\s*:\s*\[\s*\]/.test(p.body));
+    const looks_like_reg09 = (p: CapturedPost) => isReg09(p.status, p.body);
 
     for (let attempt = 1; attempt <= 3; attempt++) {
         if (reached_success && created.length) break;

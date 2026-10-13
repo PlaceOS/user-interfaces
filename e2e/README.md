@@ -334,4 +334,15 @@ failure that looked like something else entirely.
 - **Red-check new assertions.** Break the expected value once and confirm the test
   fails for the reason you think. An assertion that never observed real data is
   worse than no assertion.
+- **"Nothing is shown" needs a control.** An empty state is also what a page shows
+  before its data loads. Hold a second item that the page can only show when it
+  has loaded, and assert on that.
+- **A workaround for an app defect goes in the report.** A helper that retries past
+  a known defect adds an annotation to the test each time the retry fires:
+  `test.info().annotations.push({ type: 'NEW-F5', description })`. The type is the
+  id of the finding in `E2E_USER_STORIES.md`. A `console.warn` alone is not read on
+  a green run, and the defect can then get worse with no sign.
+- **Do not make a booking of TODAY for the user of another worker.** The home page
+  shows the first booking a user has today, so the home specs delete every booking
+  their user has today (`clearToday`). Book a later day.
 - `.auth/` and `.env` are gitignored — those tokens are impersonation-grade.

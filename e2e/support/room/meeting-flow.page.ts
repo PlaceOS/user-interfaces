@@ -35,7 +35,7 @@
  * The room size on step 1 starts at "any", so the capacity-1 rooms are offered
  * without a change. The picker of the old flow started at four people.
  */
-import { Locator, Page, expect } from '@playwright/test';
+import { Locator, Page, expect, test } from '@playwright/test';
 
 /** Upper bound on the room list pages that the list helpers read. */
 const MAX_LIST_PAGES = 10;
@@ -775,9 +775,15 @@ export class MeetingFlow {
      * and that write competes with the default of 1 that `asset-details`
      * sets. Nothing on screen shows which of the two won.
      *
-     * So a request that does not land is made again, with a warning. This
-     * does not hide a request that is lost later: the spec reads the stored
-     * `asset-request` booking.
+     * So a request that does not land is made again. This does not hide a
+     * request that is lost later: the spec reads the stored `asset-request`
+     * booking.
+     *
+     * The retry starts for ANY request that does not land in five seconds,
+     * not only for the quantity 0 case, so it could hide a defect that gets
+     * worse. Each dropped request is therefore put in the report as a
+     * `NEW-F5` annotation on the test. A green run with that annotation is
+     * not a clean run.
      */
     async addAssetRequest(type_name: string): Promise<void> {
         const before = await this.assetRequests.count();
@@ -824,10 +830,11 @@ export class MeetingFlow {
                 .then(() => true)
                 .catch(() => false);
             if (landed) return;
-            console.warn(
-                `  ! the asset modal returned no request for "${type_name}" on attempt ` +
-                    `${attempt}/${MAX_ASSET_ATTEMPTS} — see \`addAssetRequest\``,
-            );
+            const description =
+                `the asset modal returned no request for "${type_name}" on attempt ` +
+                `${attempt}/${MAX_ASSET_ATTEMPTS}`;
+            test.info().annotations.push({ type: 'NEW-F5', description });
+            console.warn(`  ! NEW-F5: ${description} — see \`addAssetRequest\``);
         }
         throw new Error(
             `"${type_name}" was requested ${MAX_ASSET_ATTEMPTS} times and the last step ` +

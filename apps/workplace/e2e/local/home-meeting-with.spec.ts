@@ -58,11 +58,22 @@ test.describe('home page — meeting with a colleague', () => {
             // The shortcut puts the colleague on the form 300 ms after the
             // route change, and that write makes a new form. A title typed
             // before it is lost, so the first step is tried until it holds.
+            // A user who types in that window loses the title the same way:
+            // this is REG-10 on the meeting flow, and a second try goes in
+            // the report.
+            let tries = 0;
             await expect(async () => {
+                tries += 1;
                 await flow.title.fill(title);
                 await flow.searchRooms.click();
                 await expect(staffPage).toHaveURL(/view=1/, { timeout: 2_000 });
             }).toPass({ timeout: 30_000 });
+            if (tries > 1) {
+                testInfo.annotations.push({
+                    type: 'REG-10',
+                    description: `the meeting flow needed ${tries} tries to keep the title and reach the room step`,
+                });
+            }
             await flow.selectRoom(room.name);
             await flow.continue.click();
 

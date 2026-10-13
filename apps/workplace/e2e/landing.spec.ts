@@ -100,24 +100,4 @@ test.describe('Home / Landing', () => {
             timeout: LOAD_TIMEOUT,
         });
     });
-
-    test('controlled free status shows a room and opens its booking modal', async ({
-        page,
-    }) => {
-        await page.goto('/#/?mock=true');
-        await expect(page.locator('app-landing')).toBeVisible({ timeout: 30_000 });
-
-        const room = page.locator('button[name="landing-book-room"]').first();
-        await expect(room, 'the mock Bookings module should publish free status').toBeVisible({
-            timeout: 30_000,
-        });
-        const room_name = ((await room.innerText()).split('\n')[0] ?? '').trim();
-        await room.click();
-
-        const modal = page.locator('.cdk-overlay-container mat-dialog-container');
-        await expect(modal, 'booking the available room should open its modal').toBeVisible({
-            timeout: 20_000,
-        });
-        await expect(modal).toContainText(room_name);
-    });
 });

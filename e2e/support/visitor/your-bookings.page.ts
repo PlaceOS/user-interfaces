@@ -20,9 +20,11 @@
  *
  * Cards are found by booking id rather than by title: the card anchor renders
  * `routerLink` query params into its href, so `?booking=123` is real data in
- * the DOM and cannot be knocked out by a copy change.
+ * the DOM and cannot be knocked out by a copy change. The id is the END of the
+ * href, and the locators match it there: `booking=123` is also inside
+ * `booking=1230`.
  */
-import { Locator, Page, expect } from '@playwright/test';
+import { Locator, Page, expect, test } from '@playwright/test';
 import {
     calendarDayLabel,
     calendarIndexForDate,
@@ -77,7 +79,7 @@ export class YourBookingsPage {
     }
 
     /** The link of the topbar that changes the view. */
-    protected viewLink(view: 'day' | 'week' | 'list'): Locator {
+    viewLink(view: 'day' | 'week' | 'list'): Locator {
         return this.page.locator(`schedule-topbar a[href*="view=${view}"]`);
     }
 
@@ -104,14 +106,22 @@ export class YourBookingsPage {
     }
 
     /**
-     * Turn a type filter on, if the page has it and it is off.
+     * Turn a type filter on, if it is off.
      *
      * ENSURE, never blindly toggle: clicking a filter that is already on turns
      * it off, and the list then looks like the booking is missing.
+     *
+     * A filter that is not on the page fails here. The filter is matched on
+     * its icon, so a change of icon would make this do nothing, and the spec
+     * would then fail later on a missing card.
      */
     protected async ensureShown(type: ScheduleType): Promise<void> {
         const toggle = this.typeFilter(type);
-        if (!(await toggle.count())) return;
+        await expect(
+            toggle,
+            `the schedule sidebar has no ${type} filter (icon \`${FILTER_ICONS[type]}\`). ` +
+                `It is rendered only when that booking type is enabled for the org`,
+        ).toHaveCount(1);
         if (!(await this.isShown(type))) {
             await toggle.locator('button').first().click({ timeout: 10_000 });
         }
@@ -218,9 +228,9 @@ export class YourBookingsPage {
         });
     }
 
-    /** The card for a specific booking, matched on the id in its href. */
+    /** The card for a specific booking, matched on the id at the end of its href. */
     card(bookingId: number): Locator {
-        return this.page.locator(`a[name="view-booking-details"][href*="booking=${bookingId}"]`);
+        return this.page.locator(`a[name="view-booking-details"][href$="booking=${bookingId}"]`);
     }
 
     /**
@@ -251,6 +261,25 @@ export class YourBookingsPage {
             .filter((n) => Number.isFinite(n));
     }
 
+    /**
+     * The modal that a click on a card opens.
+     *
+     * A hook, like `editForm` below: a room booking opens
+     * `event-details-modal`. See `room/schedule.page.ts`.
+     */
+    protected get detailsModal(): Locator {
+        return this.page.locator('booking-details-modal');
+    }
+
+    /** What to check when a card is missing. Type-specific. */
+    protected get missingCardHint(): string {
+        return (
+            'Check the day being shown is the booking\'s own day (`showDayOf` ' +
+            'moves it), that the visitor filter is on, and that the list is not ' +
+            'dominated by leftovers from earlier runs.'
+        );
+    }
+
     /** Open a booking's details modal and wait for it. */
     async openDetails(bookingId: number): Promise<Locator> {
         const card = this.card(bookingId);
@@ -268,19 +297,30 @@ export class YourBookingsPage {
                 `no card for booking ${bookingId} on the list view of /your-bookings, ` +
                     `which is showing ${JSON.stringify(showing.map((t) => t.trim()))}. ` +
                     `${rendered.length} card(s) are rendered: [${rendered.join(', ')}]. ` +
-                    `Check the day being shown is the booking's own day (\`showDayOf\` ` +
-                    `moves it), that the visitor filter is on, and that the list is not ` +
-                    `dominated by leftovers from earlier runs.`,
+                    this.missingCardHint,
             );
         }
-        const modal = this.page.locator('booking-details-modal');
+        const modal = this.detailsModal;
         // The list drops its cards while it loads, and a card that is dropped
-        // after the click never opens its details. A late answer for another
-        // day can start such a load at any time, so click again if needed.
+        // after the click never opens its details (NEW-F3). A late answer for
+        // another day can start such a load at any time, so click again if
+        // needed. Each click after the first is put in the report: the defect
+        // must stay visible on a green run.
+        let clicks = 0;
         await expect(async () => {
-            if (!(await modal.isVisible())) await card.click({ timeout: 5_000 });
+            if (!(await modal.isVisible())) {
+                await card.click({ timeout: 5_000 });
+                clicks += 1;
+            }
             await expect(modal).toBeVisible({ timeout: 5_000 });
-        }, 'the booking details modal did not open').toPass({ timeout: 30_000 });
+        }, `the details modal of booking ${bookingId} did not open`).toPass({ timeout: 30_000 });
+        if (clicks > 1) {
+            const description =
+                `the card of booking ${bookingId} was clicked ${clicks} times before ` +
+                `its details opened`;
+            test.info().annotations.push({ type: 'NEW-F3', description });
+            console.warn(`  ! NEW-F3: ${description} — see \`openDetails\``);
+        }
         return modal;
     }
 

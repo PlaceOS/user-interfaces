@@ -7,7 +7,8 @@
  * a shared file is the thing that could break all of them at once.
  *
  * The REG-09 guards are here too — the retry, and reading the row back, because
- * a 201 with an id is not proof the row exists.
+ * a 201 with an id is not proof the row exists. The check itself is `isReg09`
+ * in `../api.ts`.
  */
 import { APIRequestContext } from '@playwright/test';
 import {
@@ -16,18 +17,11 @@ import {
     STAFF_API,
     currentUser,
     deleteBooking,
+    isReg09,
     listBookings,
     readBack,
     zonesWithTag,
 } from '../api';
-
-function isConcurrentWriteFailure(status: number, body: string): boolean {
-    if (status === 400 && /Expected BeginObject but was EOF/.test(body)) return true;
-    if (status === 500 && /could not serialize access/.test(body)) return true;
-    // An empty `failures` list is the tell: a real validation error names a field.
-    if (status === 422 && /"failures"\s*:\s*\[\s*\]/.test(body)) return true;
-    return false;
-}
 
 /** Create a booking of any type, as the signed-in user. */
 export async function createBookingViaApi(
@@ -75,7 +69,7 @@ export async function createBookingViaApi(
             continue;
         }
         last = `HTTP ${res.status()} ${body.slice(0, 200)}`;
-        if (!isConcurrentWriteFailure(res.status(), body)) {
+        if (!isReg09(res.status(), body)) {
             throw new Error(
                 `create ${options.type} booking failed: ${last}. A 409 means the asset ` +
                     `is already held for that window — check the spec swept first, and ` +
@@ -197,6 +191,11 @@ export function todayBounds() {
     return { from, to: from + 86_399 };
 }
 
+/** Is this moment still today, locally? The home page shows today and nothing else. */
+export function stillToday(unix_seconds: number): boolean {
+    return new Date(unix_seconds * 1000).toDateString() === new Date().toDateString();
+}
+
 /**
  * A window that is in progress now, so that the home page shows it at once.
  * The start does not go back past midnight: the page lists a booking by the
@@ -213,13 +212,19 @@ export function inProgressSlot() {
  *
  * The next-booking card shows the FIRST booking that the user has today,
  * whatever its type, so a spec about the card must start from an empty day.
- * This is safe in a parallel run: a worker runs one test at a time, and no
- * spec makes a booking of today for the user of a different worker.
+ *
+ * RULE for a parallel run: no spec may make a booking of TODAY for the user
+ * of a different worker. This sweep would delete that booking under the other
+ * test, and that booking would show on the card of this worker. A spec that
+ * books for the user of another worker books a later day, as
+ * `visitor-delegate.spec.ts` does.
+ *
+ * A listing that fails throws. A sweep that did not run is not a clear day.
  */
 export async function clearToday(api: APIRequestContext): Promise<void> {
     const { from, to } = todayBounds();
     for (const type of CARD_TYPES) {
-        const bookings = await listBookings(api, type, from, to).catch(() => []);
+        const bookings = await listBookings(api, type, from, to);
         for (const booking of bookings) {
             if (!booking.deleted) await deleteBooking(api, booking.id);
         }

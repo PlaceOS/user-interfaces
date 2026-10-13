@@ -20,13 +20,15 @@
  *     what decides whether two overlapping meetings can both be equipped, and
  *     one asset would make every second test fail for the wrong reason.
  *
- * ## The equipment section is off by default
+ * ## The equipment section needs a setting
  *
  * The meeting flow only renders its equipment section when
  * `app.events.has_assets` is true (`meeting-flow-options.component.ts`,
  * `has_assets`). That is a SETTING, not seeding — see `ROOM_ASSETS_MODE` in
- * `room.settings.ts`. Seeding without the setting gives a flow with no section;
- * the setting without seeding gives a section with nothing in it.
+ * `room.settings.ts`. The workplace defaults turn it on, and the specs set it
+ * so that they do not depend on that default. Seeding without the setting
+ * gives a flow with no section; the setting without seeding gives a section
+ * with nothing in it.
  */
 import { APIRequestContext } from '@playwright/test';
 import { ENGINE_API, apiFor, zonesWithTag } from '../api';

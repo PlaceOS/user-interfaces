@@ -67,7 +67,7 @@ Eight new files, no existing file changed except one line in `package.json`
 |---|---|
 | `calendar.ts` | driving the shared `date-calendar` widget (schedule sidebar AND the form's date pop-up) |
 | `visitor.env.ts` | `visitorFor(worker, slot)` + the `VISITOR_SLOTS` table |
-| `visitor.api.ts` | guest search/delete, sweeps, `createBookingViaApi`, `checkInViaApi`, `isReg09` |
+| `visitor.api.ts` | guest search/delete, sweeps, `createBookingViaApi`, `checkInViaApi`. The REG-09 check, `isReg09`, is in `../api.ts` |
 | `visitor.settings.ts` | `useSettings()` + named mode presets |
 | `invite-form.page.ts` | page object for `/#/book/visitor/form` |
 | `your-bookings.page.ts` | page object for `/#/your-bookings` + details modal |

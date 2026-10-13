@@ -45,8 +45,8 @@
 import { APIRequestContext, Page, expect } from '@playwright/test';
 import { InviteVisitorForm } from './invite-form.page';
 import { VisitorIdentity } from './visitor.env';
-import { deleteBooking, readBack } from '../api';
-import { VisitorBooking, isReg09 } from './visitor.api';
+import { deleteBooking, isReg09, readBack } from '../api';
+import { VisitorBooking } from './visitor.api';
 
 /** How long the form's values must hold steady before we trust them. */
 const SETTLE_MS = 1_000;

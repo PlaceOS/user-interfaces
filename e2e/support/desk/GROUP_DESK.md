@@ -38,7 +38,7 @@ The flow has one page and no confirm dialog. The group page selects Group,
 sets the date, the time and the members, limits the desk list to the test
 level, and selects the first desk of that level. Confirm saves at once. The
 flow gives the other members the desks nearest to the selected desk on the map.
-A refusal shows as a notice and the form stays on the page. This suite does
+A refusal shows as an error notice and the form stays on the page. This suite does
 not cover form initialisation. It waits for actual directory results rather
 than selecting the similarly labelled external-user option.
 

@@ -17,6 +17,7 @@
 import { test, expect } from '../../../../e2e/support/fixtures';
 import { deskFor } from '../../../../e2e/support/env';
 import { bookDeskViaUI } from '../../../../e2e/support/flows';
+import { DeskFlow } from '../../../../e2e/support/desk/desk-flow.page';
 import {
     deleteBooking,
     getBooking,
@@ -52,7 +53,10 @@ test.describe('desk booking', () => {
 
             // The UI reached its success state — proof the app believed it too,
             // not merely that a POST happened.
+            const flow = new DeskFlow(staffPage);
             await expect(staffPage).toHaveURL(/#\/book\/desk\/success/);
+            await expect(flow.successContinue).toBeVisible();
+            await expect(flow.success, 'the success view names the desk').toContainText(desk.name);
 
             // Read it back independently of the response we just parsed.
             const stored = await getBooking(staffApi, booking_id);

@@ -30,17 +30,13 @@ import {
     clearToday,
     createBookingViaApi,
     inProgressSlot,
+    stillToday,
     todayBounds,
 } from '../../../../e2e/support/home/home.api';
 import { LandingNewPage } from '../../../../e2e/support/home/landing-new.page';
 import { SchedulePage } from '../../../../e2e/support/bookings/schedule.page';
 
 const MINUTE = 60;
-
-/** Still today, locally? The card shows today and nothing else. */
-function stillToday(unix_seconds: number): boolean {
-    return new Date(unix_seconds * 1000).toDateString() === new Date().toDateString();
-}
 
 test.describe('home page — visibility between users', () => {
     test("another user's booking today is not on your card", async ({

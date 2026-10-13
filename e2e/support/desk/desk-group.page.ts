@@ -11,9 +11,12 @@ export class DeskGroupPage {
         this.form = new DeskFlow(page);
     }
 
-    /** The notices of the app. A refusal and a warning both show as one. */
-    get notice() {
-        return this.page.locator('mat-snack-bar-container:not([mat-exit])');
+    /**
+     * The error notice of the app. The type of a notice is a class on its
+     * container (`notifications.ts`), so a success notice does not match.
+     */
+    get errorNotice() {
+        return this.page.locator('mat-snack-bar-container.error:not([mat-exit])');
     }
 
     async prepare(
@@ -52,9 +55,9 @@ export class DeskGroupPage {
         await expect(this.form.successContinue).toBeVisible();
     }
 
-    /** The flow refused the booking: a notice shows and the form stays. */
+    /** The flow refused the booking: an error notice shows and the form stays. */
     async expectRefused() {
-        await expect(this.notice).toBeVisible();
+        await expect(this.errorNotice).toBeVisible();
         await expect(this.page).toHaveURL(/#\/book\/desk\/form/);
         await expect(this.form.confirm).toBeVisible();
     }

@@ -13,17 +13,10 @@ import {
     ENGINE_API,
     STAFF_API,
     currentUser,
+    isReg09,
     readBack,
     zonesWithTag,
 } from '../api';
-
-function isConcurrentWriteFailure(status: number, body: string): boolean {
-    if (status === 400 && /Expected BeginObject but was EOF/.test(body)) return true;
-    if (status === 500 && /could not serialize access/.test(body)) return true;
-    // An empty `failures` list is the tell: a real validation error names a field.
-    if (status === 422 && /"failures"\s*:\s*\[\s*\]/.test(body)) return true;
-    return false;
-}
 
 /**
  * Create a parking booking straight through the API.
@@ -77,7 +70,7 @@ export async function createParkingBookingViaApi(
             continue;
         }
         last = `HTTP ${res.status()} ${body.slice(0, 200)}`;
-        if (!isConcurrentWriteFailure(res.status(), body)) {
+        if (!isReg09(res.status(), body)) {
             throw new Error(
                 `create parking booking failed: ${last}. A 409 means the space is ` +
                     `already held for that window — check the spec swept first, and ` +

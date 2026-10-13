@@ -95,6 +95,17 @@ export const ROOM_SLOTS_3 = {
     recurring: { hour: 12 },
 } as const;
 
+/**
+ * A FOURTH day, for `meeting-flow-new.spec.ts` alone.
+ *
+ * NEW-ROOM-01 books the room for the whole day. On a day that another spec
+ * uses, a booking left by a run that died would hold the room against that
+ * spec. On today it would also hold the room against the specs that take the
+ * default time (`home-meeting-with`, and the concierge catering spec on
+ * worker 0).
+ */
+export const FOURTH_DAY = 6;
+
 export interface RoomIdentity {
     /** Engine system id, filled in by the seeder — not known up front. */
     id: string;

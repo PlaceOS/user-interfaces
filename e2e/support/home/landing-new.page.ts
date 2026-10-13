@@ -32,9 +32,20 @@ export class LandingNewPage {
         return this.page.locator('landing-upcoming-booking');
     }
 
-    /** The title of the next booking. Not present in the clear state. */
+    /**
+     * The heading of the card. It is the title of the next booking, or the
+     * "schedule is clear" heading: both states of the card have one `h2`.
+     */
     get upcomingTitle(): Locator {
         return this.upcoming.locator('h2');
+    }
+
+    /**
+     * The "starts in" marker, which the card shows only for a booking that
+     * has not started. A booking in progress shows `schedule` in its place.
+     */
+    get upcomingStartsIn(): Locator {
+        return this.upcoming.locator('icon', { hasText: 'timelapse' });
     }
 
     /** The edit control of the next booking. Not present in the clear state. */
@@ -54,7 +65,12 @@ export class LandingNewPage {
         return this.upcoming.locator('a[href$="/your-bookings"]');
     }
 
-    /** The "book a desk" link, which only the clear state shows. */
+    /**
+     * The "book a desk" link, which only the clear state shows.
+     *
+     * The clear state is also what the card shows BEFORE its bookings load.
+     * After a page load, do not use it as proof that the user has no booking.
+     */
     get clearStateDeskLink(): Locator {
         return this.upcoming.locator('a[href$="/book/desk"]');
     }

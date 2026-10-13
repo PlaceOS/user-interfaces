@@ -56,10 +56,13 @@ export const VISITOR_SLOTS = {
      * A BLOCK rather than a slot, because the test fires a burst: it needs one
      * visitor identity per concurrent write, and it must not touch a slot any
      * other file owns. 40 onwards is clear of everything above.
+     *
+     * The block is 40 to 50, not 40 to 47: VIS-28b takes three more identities
+     * after the burst (`base + count + index`, which is 48, 49 and 50).
      */
     concurrency: { base: 40, count: 8 },
     /** visitor-flow-new.spec.ts — clear of the concurrency block above. 52 is `details`. */
-    new_flow: { stores: 50, recent: 51 },
+    new_flow: { stores: 53, recent: 54 },
 } as const;
 
 export interface VisitorIdentity {

@@ -247,6 +247,29 @@ export class ParkingForm {
         await option.click();
     }
 
+    /**
+     * The start time that the form holds, as "HH:mm", or '' when no option
+     * of the menu is the chosen one.
+     *
+     * Read from the menu and not from the trigger: the trigger shows the time
+     * in the format of the app, and the chosen option of the menu has a
+     * `done` mark and its time in `data-time`.
+     */
+    async startTime(): Promise<string> {
+        await this.startTimeTrigger.click();
+        const options = this.page.locator('button[data-time]');
+        await expect(options.first()).toBeVisible({ timeout: 10_000 });
+        const chosen = await options.evaluateAll(
+            (els) =>
+                els
+                    .find((el) => el.querySelector('icon')?.textContent?.trim() === 'done')
+                    ?.getAttribute('data-time') ?? '',
+        );
+        await this.page.keyboard.press('Escape');
+        await expect(options.first(), 'the start time menu did not close').toBeHidden();
+        return chosen;
+    }
+
     /** Set the length in minutes, from the options offered. */
     async setDuration(minutes: number): Promise<void> {
         await this.durationTrigger.click();

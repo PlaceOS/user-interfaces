@@ -80,16 +80,28 @@ test.describe('editing a parking booking', () => {
             // The form can be rebuilt while it loads, and the rebuild puts the
             // booked time back. Under load that came after the choice, and the
             // edit was saved with the old time. So set the time again until
-            // it holds for the three seconds that the wait has always been.
+            // the form holds the WANTED time for three seconds. A user who
+            // picks a time in that window loses it the same way: this is
+            // REG-10 on the parking form, and a second set goes in the report.
+            const wanted = hhmm(to_slot.start);
+            let sets = 0;
             await expect(async () => {
-                await form.setStartTime(hhmm(to_slot.start));
-                const shown = await form.startTimeTrigger.innerText();
+                if ((await form.startTime()) !== wanted) {
+                    await form.setStartTime(wanted);
+                    sets += 1;
+                }
                 await staffPage.waitForTimeout(3_000);
-                await expect(
-                    form.startTimeTrigger,
+                expect(
+                    await form.startTime(),
                     'the form put the start time back after it was chosen',
-                ).toHaveText(shown, { timeout: 1_000 });
+                ).toBe(wanted);
             }).toPass({ timeout: 30_000 });
+            if (sets > 1) {
+                testInfo.annotations.push({
+                    type: 'REG-10',
+                    description: `the parking form lost the chosen start time ${sets - 1} time(s)`,
+                });
+            }
             await form.confirmAndSend();
 
             await expect(async () => {

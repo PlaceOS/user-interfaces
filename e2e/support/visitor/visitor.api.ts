@@ -4,10 +4,10 @@
  *
  * Kept out of `e2e/support/api.ts` so the desk specs' helpers stay untouched.
  * The generic pieces this builds on (`listBookings`, `deleteBooking`,
- * `STAFF_API`) are imported from there rather than duplicated.
+ * `STAFF_API`, `isReg09`) are imported from there rather than duplicated.
  */
 import { APIRequestContext } from '@playwright/test';
-import { Booking, STAFF_API, deleteBooking, listBookings } from '../api';
+import { Booking, STAFF_API, deleteBooking, isReg09, listBookings } from '../api';
 
 /**
  * A booking as the visitor flows deal with it.
@@ -57,26 +57,6 @@ export async function searchGuests(api: APIRequestContext, q: string): Promise<G
     }
     const body = await res.json();
     return Array.isArray(body) ? body : (body.results ?? []);
-}
-
-/**
- * Is this response REG-09 (PPT-2642) rather than a real rejection?
- *
- * Three signatures, all produced by the same poisoned connection. The 400 is the
- * confusing one — it claims the request body was empty when it was not.
- * `e2e/support/repro/vis-b6-burst.ts` reproduces the first two with no browser
- * involved. The 422 was seen on the PATCH of a group container under a
- * parallel run. An empty `failures` list is the tell: a real validation error
- * names the field it refuses. The desk and home helpers match it the same way.
- *
- * Deliberately narrow. Matching on the status alone would swallow genuine 400s
- * and 500s, and a suite that retries real failures is worse than no suite.
- */
-export function isReg09(status: number, body: string): boolean {
-    if (status === 400 && /Expected BeginObject but was EOF/.test(body)) return true;
-    if (status === 500 && /could not serialize access/.test(body)) return true;
-    if (status === 422 && /"failures"\s*:\s*\[\s*\]/.test(body)) return true;
-    return false;
 }
 
 /**

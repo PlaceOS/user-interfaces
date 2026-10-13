@@ -15,7 +15,6 @@ import { deleteBooking, releaseAsset, uniqueTitle } from '../../../../e2e/suppor
 import { isLive } from '../../../../e2e/support/bookings/bookings.api';
 import { ScheduleViewsPage } from '../../../../e2e/support/bookings/schedule-views.page';
 import { createDeskBookingViaApi } from '../../../../e2e/support/desk/desk.api';
-import { YourBookingsPage } from '../../../../e2e/support/visitor/your-bookings.page';
 
 /** A local day as a unix-second window. `0` is today. */
 function dayBounds(offset: number) {
@@ -62,7 +61,7 @@ test.describe('your bookings — the day, week and list views', () => {
 
         try {
             // No `view` parameter: the page opens on the day view.
-            await schedule.open();
+            await schedule.openView();
             await expect(schedule.dayBooking(title)).toBeVisible({ timeout: 30_000 });
             await expect(schedule.weekView).toHaveCount(0);
 
@@ -73,8 +72,8 @@ test.describe('your bookings — the day, week and list views', () => {
 
             await schedule.viewLink('list').click();
             await expect(staffPage).toHaveURL(/view=list/);
-            await expect(schedule.listCard(created.id)).toBeVisible();
-            await expect(schedule.listCard(created.id)).toContainText(title);
+            await expect(schedule.card(created.id)).toBeVisible();
+            await expect(schedule.card(created.id)).toContainText(title);
         } finally {
             await deleteBooking(staffApi, created.id);
         }
@@ -104,7 +103,7 @@ test.describe('your bookings — the day, week and list views', () => {
         });
 
         try {
-            await schedule.open('day');
+            await schedule.openView('day');
             await expect(schedule.dayBooking(today_title)).toBeVisible({ timeout: 30_000 });
             await expect(
                 schedule.dayBooking(tomorrow_title),
@@ -131,7 +130,6 @@ test.describe('your bookings — the day, week and list views', () => {
         const desk = deskFor(testInfo.parallelIndex);
         const title = uniqueTitle('E2E Views Cancel');
         const schedule = new ScheduleViewsPage(staffPage);
-        const modal_actions = new YourBookingsPage(staffPage);
         const { from, to } = dayBounds(0);
 
         await releaseAsset(staffApi, 'desk', desk.id, from, to);
@@ -143,16 +141,16 @@ test.describe('your bookings — the day, week and list views', () => {
         const live = () => isLive(staffApi, 'desk', created.id, from, to);
 
         try {
-            await schedule.open('day');
+            await schedule.openView('day');
             await schedule.dayBooking(title).click();
             const modal = staffPage.locator('booking-details-modal');
             await expect(modal, 'the details are those of the booking').toContainText(title);
 
-            await modal_actions.openOverflowMenu(modal);
-            const cancel = await modal_actions.menuAction('delete');
+            await schedule.openOverflowMenu(modal);
+            const cancel = await schedule.menuAction('delete');
             if (!cancel) throw new Error('the booking menu offers no cancel action');
             await cancel.click();
-            await modal_actions.acceptConfirm();
+            await schedule.acceptConfirm();
 
             await expect
                 .poll(live, {
@@ -183,13 +181,13 @@ test.describe('your bookings — the day, week and list views', () => {
         });
 
         try {
-            await schedule.open('day');
+            await schedule.openView('day');
             await expect(schedule.dayBooking(title)).toBeVisible({ timeout: 30_000 });
 
-            await schedule.setTypeFilter('desk', false);
+            await schedule.setShown('desk', false);
             await expect(schedule.dayBooking(title)).toHaveCount(0);
 
-            await schedule.setTypeFilter('desk', true);
+            await schedule.setShown('desk', true);
             await expect(schedule.dayBooking(title)).toBeVisible();
         } finally {
             await deleteBooking(staffApi, created.id);

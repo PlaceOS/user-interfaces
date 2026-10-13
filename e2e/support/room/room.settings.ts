@@ -59,10 +59,11 @@ export async function useSettings(
  * Turn on the EQUIPMENT section of the meeting flow — ROOM-24.
  *
  * `app.events.has_assets` is what `meeting-flow-options.component.ts` reads to
- * decide whether to render the section at all, and it is off by default. The
- * setting alone gives a section with nothing in it: the items also have to be
- * seeded, by `asset.seed.ts`. Both are needed, and neither fails loudly without
- * the other.
+ * decide whether to render the section at all. The workplace defaults turn it
+ * on (`environments/settings.ts`). The specs set it so that they do not depend
+ * on that default. The setting alone gives a section with nothing in it: the
+ * items also have to be seeded, by `asset.seed.ts`. Both are needed, and
+ * neither fails loudly without the other.
  */
 export const ROOM_ASSETS_MODE = {
     'app.events.has_assets': true,
@@ -160,6 +161,9 @@ export const MULTI_SPACE = {
  * NOT `allow_multiday`. A first attempt at the all-day test set the multiday
  * key, found no checkbox, and nearly concluded the app has no all-day meetings
  * at all.
+ *
+ * The workplace defaults turn it on (`environments/settings.ts`). A spec that
+ * uses the checkbox sets this, so that it does not depend on that default.
  */
 export const ALLOW_ALL_DAY = {
     'app.events.allow_all_day': true,

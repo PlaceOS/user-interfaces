@@ -111,7 +111,7 @@ the PR gate.
 |----|---|-------|--------|
 | WP-E2E-01 | P0 | An authenticated user lands on the workplace home; the shell renders and org data resolves (**not** `/misconfigured`). | **done** — `local/boot.spec.ts` |
 | WP-E2E-02 | P0 | An unauthenticated visit redirects to the authority's login page, real credentials sign in, and the app loads authenticated. | **done** — `local/login.spec.ts` |
-| WP-E2E-05 | P0 | A **non-admin** books a desk through the full UI; the backend stores it with the right asset, title and zones. | **done** — `local/desk-booking.spec.ts` |
+| WP-E2E-05 | P0 | A **non-admin** books a desk through the full UI; the backend stores it with the right asset, title and zones, and the app shows its success view with the name of the desk. | **done** — `local/desk-booking.spec.ts` |
 | WP-E2E-06 | P1 | A deleted booking disappears from the listing (teardown really tears down). | **done** — `local/desk-booking.spec.ts` |
 | WP-E2E-03 | P1 | Building/level selectors are populated from seeded zones, and changing them re-scopes what is bookable. | todo |
 | WP-E2E-07 | P1 | "Your bookings" lists the user's own booking; cancelling it moves it out of the upcoming list. | todo |
@@ -236,7 +236,7 @@ needs, and its row says what the spec has to set up.
 | ROOM-18 | P2 | **By default** the same meeting is only **warned** about, and still books. | **done** — `local/room-capacity.spec.ts`. The shipped behaviour, so the one real users get. Only the room changes between the control and the assertion, which is what makes it about capacity. |
 | ROOM-19 | P2 | A room marked as a **favourite** is saved to the user's own settings and the "Favorites Only" filter then narrows the picker to it. | **done** — `local/room-favourites.spec.ts`. The one room feature that outlives the booking flow: it is stored in the user's `settings` metadata, debounced ~2.4s, so the spec polls the backend rather than trusting the star. |
 | ROOM-20 | P1 | A room booked with the default settings is stored **unapproved** (`tentative`), and still holds the room. | **done** — `local/room-approval.spec.ts`. Also the control for ROOM-21. |
-| ROOM-21 | P2 | With `app.bookings.no_approval`, the booking is stored **approved**. | **done** — `local/room-approval.spec.ts`. With `app.bookings.no_approval` the booking is stored, and it is stored pending. ROOM-B1 (the `500`) does not occur, because the booking now has zones. |
+| ROOM-21 | P2 | With `app.bookings.no_approval`, a standard user can still book: the booking is stored, and it is stored **pending**, not approved. | **done** — `local/room-approval.spec.ts`. The app does not send `approved` for such a user, so the backend keeps the booking pending. ROOM-B1 (the `500`) does not occur, because the booking now has zones. |
 | ROOM-22 | P1 | **Catering** ordered on the form reaches the backend as its own `catering-order` booking, linked to the meeting. | **done** — `local/room-catering.spec.ts`. The catering order is stored and names the item. ROOM-B5 does not occur. |
 | ROOM-23 | P1 | **Checking in** to a room booking. | **unblocked, no spec yet.** The check-in button only renders when a websocket `binding` to a **`Bookings` driver module** on the room's System reports a status (`event-details-modal.component.ts`: `mod="Bookings" bind="status"`, and the button also needs `room_status() !== 'free'`). The stack now runs core, and every seeded room carries `Place::Bookings` polling a demo calendar in the same system (`e2e/support/room/room.seed.ts`); `home-availability.spec.ts` (HOME-10) proves that chain end to end, since the home page lists a room only while its module reports `free`. A spec here has to put an event covering now into the room's `Calendar_1` (`create_event`, through the module exec route) so the module reports a meeting, then the control renders. Contrast VIS-11, where visitor check-in is a plain API call and is covered. |
 
@@ -292,9 +292,24 @@ PR #561 changed the components that these routes open:
 - **Six rows that were blocked on the replaced flows now pass**: ROOM-11, ROOM-13, ROOM-14,
   ROOM-21, ROOM-22 and VIS-15.
 - **After the move, a full local run of 161 tests has 155 passes, 5 `fixme` and 1 failure.**
-  The failure is VIS-28, the detector for REG-09. It passes when it runs alone, it failed in
-  the last CI run before PR #561 too, and its file is not changed. The fifth `fixme` is
-  VIS-B1, which was `fixme` before.
+  The failure is in `visitor-concurrency.spec.ts`, the detector for REG-09: VIS-28 in one run
+  and VIS-28b in the next, each time with a phantom write. The detector passes when it runs
+  alone, it failed in the last CI run before PR #561 too, and its file is not changed. The
+  fifth `fixme` is VIS-B1, which was `fixme` before. The count was the same on 2026-10-14,
+  after the review changes: one test was merged into WP-E2E-05 and one was added for a
+  booking that has not started.
+- **The `mock` project has three failures that this work did not cause and does not fix.**
+  They are in [CI run 38386909981](https://github.com/PlaceOS/user-interfaces/actions/runs/38386909981)
+  and they fail in the same way on a local run. Their spec files are not changed here.
+  - `discovery.spec.ts`, US-071 and US-072. `/#/deals-n-offers?mock=true` shows the home page,
+    and `deals-n-offers` never renders. The cause is not found.
+  - `error-states.spec.ts`, US-090. `app-unauthorised` renders, but its only child is
+    `absolute inset-0`, so the host has no box and Playwright reports it as hidden. This is
+    the cause of NEW-F11, on a component that was last changed in July 2026.
+- **One `mock` test drove the replaced home page and is deleted**: "controlled free status
+  shows a room and opens its booking modal" in `landing.spec.ts`. It waited for `app-landing`,
+  which has no route now. The room rows and the booking modal are gone from the page, and
+  HOME-10 (`local/home-availability.spec.ts`) holds the free status of a room on the new page.
 
 How each area changed:
 
@@ -304,19 +319,19 @@ How each area changed:
 | Desk (`desk-*`) | One page, no picker modal and no confirm overlay: Confirm sends the booking. Group and "book for other" are buttons of the details. |
 | Room (`room-*`) | Three steps on one route (`view=0`, `1`, `2`) and no confirm screen. The room list has ten rooms a page. |
 | Visitor (`visitor-*`) | One page. Single or multiple visitors is a toggle of the page, not a setting. |
-| Home (`home-*`) | The next-booking card shows ONE booking, the first of today, so each spec clears the bookings its user has today. The "other user" of the scoping spec is the admin: a booking of today for the user of a different worker would show on that worker's card. Add colleague is a modal. Quick book is the "auto-assign desk" action. |
+| Home (`home-*`) | The next-booking card shows ONE booking, the first of today, so each spec clears the bookings its user has today (`clearToday`). For that reason no spec may make a booking of today for the user of a different worker: it would show on that worker's card, and that worker's sweep would delete it. The "other user" of the scoping spec is the admin, and `visitor-delegate` invites three days on. The clear state of the card is also its state before the bookings load, so the HOME-B1 guard holds a second live booking as its control (red-checked on 2026-10-14: it fails when `upcoming_events` keeps cancelled bookings). One test has a booking that has not started, for the "starts in" branch of the card. Add colleague is a modal. Quick book is the "auto-assign desk" action. |
 | Parking (`parking-request`, `parking-restrictions`, `parking-favourites`) | The submit control of the request form lost its `confirm` attribute. The favourite setting is now `favourite_parking`. |
 
 ### Stories that only the new views have
 
-Seventeen tests in six files. Each has `NEW-` in its name.
+Sixteen tests in six files. Each has `NEW-` in its name. There is no NEW-DESK-01: it was a copy
+of WP-E2E-05, and its two checks of the success view are now in that test.
 
 | ID | P | Story | Status |
 |----|---|-------|--------|
-| NEW-DESK-01 | P1 | A **non-admin** books a desk from the list of the new flow. The backend stores it with the correct desk, title and zones, and the app shows its success view. | **done** — `local/desk-flow-new.spec.ts` |
-| NEW-DESK-02 | P1 | Confirm with no desk selected is refused, and no booking request leaves the page. | **done** — `local/desk-flow-new.spec.ts`. Red-checked: with a desk selected the flow goes to the success view. |
+| NEW-DESK-02 | P1 | Confirm with no desk selected is refused with an error notice, and no booking request leaves the page. | **done** — `local/desk-flow-new.spec.ts`. Red-checked: with a desk selected the flow goes to the success view. |
 | NEW-ROOM-01 | P1 | A **non-admin** books a room through the three steps of the new flow. The backend stores a `room` booking with the correct system, title and zones. | **done** — `local/meeting-flow-new.spec.ts`. Runs with `app.events.use_bookings = true`, as §1b does. |
-| NEW-ROOM-02 | P1 | Each step refuses to go forward without its requirement: a title for the room step, a room for the options step. No booking request leaves the page. | **done** — `local/meeting-flow-new.spec.ts`. Red-checked. |
+| NEW-ROOM-02 | P1 | Each step refuses to go forward without its requirement: a title for the room step, a room for the options step. Each refusal shows an error notice. No booking request leaves the page. | **done** — `local/meeting-flow-new.spec.ts`. The error notice is the signal: "the flow is still on this step" is also true before the click. Red-checked on 2026-10-14: with the `has_space()` check removed from `continue()` the test fails. |
 | NEW-VIS-01 | P1 | A **non-admin** invites one visitor through the new flow. The backend stores the booking and makes a guest record. | **done** — `local/visitor-flow-new.spec.ts` |
 | NEW-VIS-02 | P1 | Confirm with no visitor address is refused, and no booking request leaves the page. | **done** — `local/visitor-flow-new.spec.ts`. Red-checked. |
 | NEW-VIS-03 | P2 | A recent visitor from the user settings (`visitor-invitees`) is shown on the quick action panel, and a click fills the visitor fields. | **done** — `local/visitor-flow-new.spec.ts`. Red-checked. |
@@ -364,15 +379,16 @@ repeated here.
 |----|---------|
 | **NEW-F1** | **The load-bearing controls of the new views have no `name` attribute.** The Confirm buttons of the three flows, "Search available rooms", Continue, the single/group/other buttons, the schedule view links and type filters, and every control of the team schedule. The page objects match them on their icon ligature or on their position. The replaced views had names on these controls. A `name` on each would make the page objects shorter and stop a change of icon from breaking a spec. |
 | **NEW-F2** | A room booking from the new meeting flow is stored with the **address of the host as `user_id`**. Desk and visitor bookings are stored with the user id (`user-…`). The value comes from `newBookingFromCalendarEvent` (`event.organiser?.id \|\| event.host`). The booking is still in the listing of the user. It was not measured whether the earlier meeting flow did the same. |
-| **NEW-F3** | **A card of the schedule list that is clicked while the list loads never opens its details.** The list drops its cards while it loads, and the card opens its details on a timer that is cleared when the card is destroyed. A change of view starts a load on a 300 ms debounce. In two traces of the visitor work, the answer for page 2 of today (more than 100 rows) came after the answer for the selected day and replaced the list. `openDetails` clicks again when this happens. |
+| **NEW-F3** | **A card of the schedule list that is clicked while the list loads never opens its details.** The list drops its cards while it loads, and the card opens its details on a timer that is cleared when the card is destroyed. A change of view starts a load on a 300 ms debounce. In two traces of the visitor work, the answer for page 2 of today (more than 100 rows) came after the answer for the selected day and replaced the list. `openDetails` clicks again when this happens, and puts each such click in the report as a `NEW-F3` annotation on the test. |
 | **NEW-F4** | **Group invite edits.** The invite page loads the other members of a group after it opens. A Confirm before that sent a `PATCH` for the opened member only. After one member of a group invite is refused, the visitor list of the page goes from two chips to none, and a live container with no members stays on the backend. |
-| **NEW-F5** | **The asset modal of the meeting options can drop a request.** In 2 of 24 runs the modal closed with the group at quantity 0, and `asset-list-field` dropped the request with no message. `addAssetRequest` adds it again, up to three times, with a warning in the log. |
+| **NEW-F5** | **The asset modal of the meeting options can drop a request.** In 2 of 24 runs the modal closed with the group at quantity 0, and `asset-list-field` dropped the request with no message. `addAssetRequest` adds it again, up to three times. The retry starts for any request that does not land, so each drop goes in the report as a `NEW-F5` annotation on the test. A green run with that annotation is not a clean run. |
 | **NEW-F6** | The "no results" text of the add-colleagues modal shows the placeholder itself: `No matching users found for "{{ text }}"`. |
 | **NEW-F7** | "Auto-assign desk" sends the **desk id as `asset_name`**, where the modal shows the desk name. The schedule then shows the id for that booking. |
 | **NEW-F8** | The All Day toggle of the desk filters shows, and turns on, with `app.bookings.allow_all_day` and `app.desks.allow_all_day` both false. It was not measured whether such a booking saves. |
 | **NEW-F9** | PR #561 renamed two user settings: `favourite_spaces` is now `favourite_rooms`, and `favourite_parking_spaces` is now `favourite_parking`. The app reads a value under an old key only until the new key has a value (`settings.service.ts`, `LEGACY_USER_SETTING_KEYS`). This is not a fault; the helpers that seed favourites must write the new keys. |
 | **NEW-F10** | The API helpers send `asset_name` at the top level of a booking. The backend does not keep it, so every surface shows the **asset id** for a booking made by a helper. This is a limit of the helpers, not of the app. |
 | **NEW-F11** | `landing-new` and `desk-flow-success` have no box, so Playwright reports them as hidden while their content shows. The loading screen (`global-loading`) can also cover a form for a moment after it renders. Wait for an element inside, and do not force a click. |
+| **NEW-F12** | **Two forms drop a value that is set while they load.** This is REG-10 on forms that DESK-21 does not cover. The edit form of a parking booking is rebuilt while it loads and puts the booked start time back (`parking-edit.spec.ts`). The meeting flow makes a new form 300 ms after the "meeting with" shortcut opens it, and drops a title typed before that (`home-meeting-with.spec.ts`). A user who is quick loses the value the same way. Each spec sets the value again until the form holds it, and puts a second set in the report as a `REG-10` annotation on the test. |
 
 ## 2. Auth & session
 
