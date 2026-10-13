@@ -15,7 +15,11 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { AssetListFieldComponent } from '@placeos/assets';
-import { BookingFlowOptions, BookingFormService } from '@placeos/bookings';
+import {
+    BookingFlowOptions,
+    BookingFormService,
+    requiresLocker,
+} from '@placeos/bookings';
 import {
     BookingRecurrence,
     currentUser,
@@ -191,7 +195,7 @@ export type DeskFormType = 'single' | 'group' | 'other';
                                 name="time"
                                 [ngModel]="model().date"
                                 (ngModelChange)="
-                                    model.update((m) => ({ ...m, date: $event }))
+                                    setUserValues({ date: $event })
                                 "
                                 [ngModelOptions]="{ standalone: true }"
                                 [range]="bookable_hours()"
@@ -239,12 +243,11 @@ export type DeskFormType = 'single' | 'group' | 'other';
                 @if (can_book_lockers()) {
                     <div class="flex items-center space-x-2">
                         <mat-checkbox
-                            [ngModel]="!!form_value().secondary_resource"
+                            [ngModel]="requires_locker()"
                             (ngModelChange)="
-                                model.update((m) => ({
-                                    ...m,
+                                setUserValues({
                                     secondary_resource: $event ? 'locker' : '',
-                                }))
+                                })
                             "
                             [ngModelOptions]="{ standalone: true }"
                         >
@@ -338,6 +341,9 @@ export class DeskFlowDetailsComponent {
         other: { icon: 'person_add', label: 'Book for other' },
     });
     public readonly form_value = this._booking_form.model;
+    public readonly requires_locker = computed(() =>
+        requiresLocker(this.form_value().secondary_resource),
+    );
     public readonly options = this._booking_form.options;
 
     private _options_sync = effect(() => {
@@ -462,16 +468,21 @@ export class DeskFlowDetailsComponent {
         }
     }
 
+    /** Apply a user change from a control that has no `[formField]` binding. */
+    public readonly setUserValues: BookingFormService['setUserValues'] = (
+        value,
+    ) => this._booking_form.setUserValues(value);
+
     public setOptions(options: Partial<BookingFlowOptions>) {
         this._booking_form.setOptions(options);
     }
 
     public onRecurrenceChange(recurrence: BookingRecurrence) {
-        this.model.update((m) => ({ ...m, ...recurrence }));
+        this.setUserValues(recurrence);
     }
 
     public onFirstInstanceChange(date: number) {
-        this.model.update((m) => ({ ...m, date }));
+        this.setUserValues({ date });
     }
 
     public findAvailableTime() {

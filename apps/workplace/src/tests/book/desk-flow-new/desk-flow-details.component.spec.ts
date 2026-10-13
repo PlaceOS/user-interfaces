@@ -28,6 +28,7 @@ describe('DeskFlowDetailsComponent', () => {
     let model: WritableSignal<BookingFormValue>;
     let options: WritableSignal<any>;
     let set_options: any;
+    let set_user_values: ReturnType<typeof vi.fn>;
     let dialog_open: any;
     let after_closed_value: any;
     let dialog_instance: {
@@ -67,6 +68,7 @@ describe('DeskFlowDetailsComponent', () => {
                         model,
                         options,
                         setOptions: set_options,
+                        setUserValues: set_user_values,
                     };
                 },
             },
@@ -82,6 +84,7 @@ describe('DeskFlowDetailsComponent', () => {
 
     beforeEach(() => {
         vi.clearAllMocks();
+        set_user_values = vi.fn();
         after_closed_value = null;
         dialog_instance = {
             date: vi.fn(() => 5000),
@@ -148,20 +151,28 @@ describe('DeskFlowDetailsComponent', () => {
         expect(spectator.component.active_form()).toBe('group');
     });
 
-    it('should merge recurrence changes into the booking model', () => {
-        spectator.component.onRecurrenceChange({
-            recurrence: 'daily',
-            end: 10,
-        } as any);
+    it('should send recurrence changes to the service as user edits', () => {
+        spectator.component.onRecurrenceChange({ recurrence_type: 'weekly' });
 
-        expect((model() as any).recurrence).toBe('daily');
-        expect((model() as any).end).toBe(10);
+        expect(set_user_values).toHaveBeenCalledWith({
+            recurrence_type: 'weekly',
+        });
     });
 
-    it('should update the model date from the recurrence first instance', () => {
+    it('should send the first-instance date to the service as a user edit', () => {
         spectator.component.onFirstInstanceChange(98765);
 
-        expect(model().date).toBe(98765);
+        expect(set_user_values).toHaveBeenCalledWith({ date: 98765 });
+    });
+
+    it('should not require a locker for a saved `{}` value', () => {
+        // Some saved desk bookings hold `{}`, which an earlier default of
+        // the form wrote.
+        model.update((m) => ({ ...m, secondary_resource: {} }));
+        expect(spectator.component.requires_locker()).toBe(false);
+
+        model.update((m) => ({ ...m, secondary_resource: 'locker' }));
+        expect(spectator.component.requires_locker()).toBe(true);
     });
 
     it('should forward setOptions to the booking form service', () => {
