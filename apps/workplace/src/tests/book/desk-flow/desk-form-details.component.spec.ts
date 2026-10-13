@@ -1,7 +1,9 @@
-import { signal, SimpleChange } from '@angular/core';
+import { NO_ERRORS_SCHEMA, signal, SimpleChange } from '@angular/core';
+import { By } from '@angular/platform-browser';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { BookingFormService } from '@placeos/bookings';
 import { OrganisationService, SettingsService } from '@placeos/common';
+import { TranslatePipe } from '@placeos/components';
 import { MockProvider } from 'ng-mocks';
 import { NewDeskFormDetailsComponent } from '../../../app/book/desk-flow/desk-form-details.component';
 
@@ -15,6 +17,19 @@ describe('NewDeskFormDetailsComponent', () => {
     const createComponent = createComponentFactory({
         component: NewDeskFormDetailsComponent,
         detectChanges: false,
+        // The specs that render the template test the event bindings only,
+        // so the form field components are not necessary.
+        overrideComponents: [
+            [
+                NewDeskFormDetailsComponent,
+                {
+                    set: {
+                        imports: [TranslatePipe],
+                        schemas: [NO_ERRORS_SCHEMA],
+                    },
+                },
+            ],
+        ],
         providers: [
             MockProvider(OrganisationService, {
                 building_list: signal([]),
@@ -77,6 +92,33 @@ describe('NewDeskFormDetailsComponent', () => {
     it('should send the first-instance date to the service as a user edit', () => {
         const date = new Date('2026-05-01T00:00:00.000Z').valueOf();
         spectator.component.onFirstInstanceChange(date);
+        expect(set_user_values).toHaveBeenCalledWith({ date });
+    });
+
+    it('should send a "Require locker" change to the service as a user edit', () => {
+        settings['app.desks.can_book_lockers'] = true;
+        spectator.setInput('form', (() => ({})) as any);
+        spectator.detectChanges();
+
+        const checkbox = spectator.debugElement
+            .queryAll(By.css('mat-checkbox'))
+            .find((_) => _.nativeElement.textContent.includes('LOCKER'));
+        checkbox.triggerEventHandler('ngModelChange', true);
+
+        expect(set_user_values).toHaveBeenCalledWith({
+            secondary_resource: 'locker',
+        });
+    });
+
+    it('should send a start time change to the service as a user edit', () => {
+        spectator.setInput('form', (() => ({})) as any);
+        spectator.detectChanges();
+
+        const date = new Date('2026-05-01T02:00:00.000Z').valueOf();
+        spectator.debugElement
+            .query(By.css('a-time-field'))
+            .triggerEventHandler('ngModelChange', date);
+
         expect(set_user_values).toHaveBeenCalledWith({ date });
     });
 

@@ -162,14 +162,23 @@ type GroupContainerForm = Partial<Booking> & {
 
 /** Edits the user made on a booking form before a form reset. */
 interface UserEdits {
-    /** Booking type of the form at that time. Not set before the first
-     * initialisation of the form. */
-    type?: BookingType;
     /** Values of the fields that the user changed. */
     values: Partial<BookingFormValue>;
     /** Group selection. Options have no dirty flags to read. */
     options: Pick<BookingFlowOptions, 'group' | 'members'>;
 }
+
+/** Fields that only the desk form lets the user change. */
+const DESK_ONLY_FIELDS: (keyof BookingFormValue)[] = [
+    'secondary_resource',
+    'recurrence_type',
+    'recurrence_days',
+    'recurrence_nth_of_month',
+    'recurrence_interval',
+    'recurrence_end',
+    'recurrence_instances',
+    'recurrence_custom',
+];
 
 /** A booking type, or `undefined` for the blank `' '` placeholder that
  * `new Booking()` sets when no type is given. */
@@ -283,37 +292,32 @@ export class BookingFormService extends AsyncHandler {
     private _captureUserEdits() {
         const pending = this._pending_user_edits;
         const values = { ...pending?.values, ...this._userEditedValues() };
-        // The first capture gives the type and the options. A reset that ran
-        // after it can have changed both.
+        // The first capture gives the options. A reset that ran after it has
+        // cleared them.
         const { group, members } = this._options();
-        const edits: UserEdits = pending
-            ? { ...pending, values }
-            : {
-                  type: knownBookingType(untracked(this.model).booking_type),
-                  values,
-                  options: group || members?.length ? { group, members } : {},
-              };
+        const options =
+            pending?.options ??
+            (group || members?.length ? { group, members } : {});
         const has_edits =
-            Object.keys(values).length || Object.keys(edits.options).length;
-        this._pending_user_edits = has_edits ? edits : null;
+            Object.keys(values).length || Object.keys(options).length;
+        this._pending_user_edits = has_edits ? { values, options } : null;
     }
 
     /**
      * The stashed edits that apply to a reset for the given booking type.
      *
-     * Edits made on the form of a different booking type do not apply. A
-     * recurrence or a group selection must not move to a form that cannot
-     * show it.
-     *
-     * Limit: the type comes from the last initialised form. Thus an edit is
-     * lost when the user makes it on a form of a new type before that form
-     * initialises. The desk flow has such a window of 300 ms after in-app
-     * navigation from a different booking type.
+     * A change from one booking flow to a different one does not reset the
+     * form, so the stash can hold edits from the form of a different booking
+     * type. A locker request, a recurrence, and a group selection apply only
+     * to a desk form, because no other form shows them. All other edits
+     * apply to each form.
      */
     private _userEditsFor(type?: BookingType): UserEdits | null {
         const edits = this._pending_user_edits;
-        if (edits?.type && type && edits.type !== type) return null;
-        return edits;
+        if (!edits || type === 'desk') return edits;
+        const values = { ...edits.values };
+        for (const key of DESK_ONLY_FIELDS) delete values[key];
+        return { values, options: {} };
     }
 
     /**
@@ -342,7 +346,9 @@ export class BookingFormService extends AsyncHandler {
      */
     public setUserValues(value: Partial<BookingFormValue>) {
         this._patch(value);
-        for (const key of Object.keys(value)) this.form[key]?.().markAsDirty();
+        for (const key of Object.keys(value) as (keyof BookingFormValue)[]) {
+            this.form[key]?.().markAsDirty();
+        }
     }
 
     private _syncAssetOptions() {

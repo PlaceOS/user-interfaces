@@ -3626,17 +3626,57 @@ describe('BookingFormService', () => {
             expect(spectator.service.options().members).toEqual(members);
         });
 
-        it('does not move edits to the form of a different booking type', () => {
-            // A parking form cannot show a desk recurrence or a group
-            // selection, so edits stay with the booking type of their form.
+        it('keeps a choice made on a desk form that a reset already initialised', () => {
+            // The usual path in the app: the landing page clears the form,
+            // which gives the model the type `desk`.
+            spectator.service.clearForm();
+            spectator.service.setUserValues({ secondary_resource: 'locker' });
+
+            spectator.service.loadForm('desk');
             spectator.service.newForm('desk');
+
+            expect(spectator.service.model().secondary_resource).toBe('locker');
+        });
+
+        it('keeps input on a visitor form after the landing page cleared the form', () => {
+            spectator.service.clearForm();
+            userEdits('title', 'Visitor title');
+
+            spectator.service.loadForm('visitor');
+            spectator.service.newForm('visitor');
+
+            expect(spectator.service.model().title).toBe('Visitor title');
+        });
+
+        it('carries a typed title between booking forms, deliberately', () => {
+            // Switching desk -> parking without leaving the booking area does not
+            // reset the form, so the user's own typing follows them. Pinned
+            // rather than left to chance: only fields they actually edited move,
+            // `isCrossTypeEdit` still discards the previous booking's identity,
+            // and leaving the booking section entirely calls `clearForm()`.
             userEdits('title', 'Desk title');
+            spectator.service.loadForm('parking');
+            spectator.service.newForm('parking');
+            expect(spectator.service.model().title).toBe('Desk title');
+        });
+
+        it('does not move desk choices to the form of a different booking type', () => {
+            // No other form shows a locker request, a recurrence, or a group
+            // selection.
+            spectator.service.newForm('desk');
+            spectator.service.setUserValues({
+                secondary_resource: 'locker',
+                recurrence_type: 'weekly',
+            });
             spectator.service.setOptions({ group: true });
 
             spectator.service.loadForm('parking');
             spectator.service.newForm('parking');
 
-            expect(spectator.service.model().title).not.toBe('Desk title');
+            const { secondary_resource, recurrence_type } =
+                spectator.service.model();
+            expect(secondary_resource).toBe('');
+            expect(recurrence_type).toBe('none');
             expect(spectator.service.options().group).toBeFalsy();
         });
 

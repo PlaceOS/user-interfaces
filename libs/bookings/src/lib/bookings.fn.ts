@@ -361,8 +361,13 @@ export const saveBooking = async (
 /**
  * Remove booking from the database
  * @param id ID of the booking to remove
+ * @param q Set `instance` and `start_time` to remove only one instance of a
+ *   recurring booking
  */
-export function removeBooking(id: string, q: any = {}): Promise<void> {
+export function removeBooking(
+    id: string,
+    q: { instance?: boolean; start_time?: number } = {},
+): Promise<void> {
     if (q.instance) {
         return removeBookingInstance(id, q.start_time);
     }

@@ -11,7 +11,7 @@ import { MatBottomSheetRef } from '@angular/material/bottom-sheet';
 import { MatRippleModule } from '@angular/material/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { BookingFormService } from '@placeos/bookings';
+import { BookingFormService, requiresLocker } from '@placeos/bookings';
 import {
     AssetRequest,
     AsyncHandler,
@@ -343,7 +343,10 @@ export class NewDeskFlowConfirmComponent
     }
 
     public get needs_locker() {
-        return !!this.booking.secondary_resource && this.can_book_lockers;
+        return (
+            requiresLocker(this.booking.secondary_resource) &&
+            this.can_book_lockers
+        );
     }
 
     public get assets_count() {

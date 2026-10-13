@@ -20,6 +20,7 @@ import {
     BookingFormService,
     BookingFormValue,
     DeskListFieldComponent,
+    requiresLocker,
 } from '@placeos/bookings';
 import {
     AsyncHandler,
@@ -218,7 +219,7 @@ import { addDays, endOfDay } from 'date-fns';
                         <div class="flex items-center space-x-2">
                             <div class="w-1/3 flex-1">
                                 <mat-checkbox
-                                    [ngModel]="!!model().secondary_resource"
+                                    [ngModel]="requires_locker()"
                                     (ngModelChange)="
                                         setUserValues({
                                             secondary_resource: $event
@@ -414,6 +415,10 @@ export class NewDeskFormDetailsComponent
     public get can_book_lockers() {
         return this._settings.get('app.desks.can_book_lockers');
     }
+
+    public readonly requires_locker = computed(() =>
+        requiresLocker(this.model().secondary_resource),
+    );
 
     public get can_recurr() {
         return this._settings.get('app.desks.allow_recurrence');

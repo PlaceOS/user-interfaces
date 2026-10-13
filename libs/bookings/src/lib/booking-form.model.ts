@@ -60,7 +60,8 @@ export interface BookingFormValue {
     booked_by: User;
     booked_by_id: string;
     booked_by_email: string;
-    secondary_resource: string;
+    /** Read this value with `requiresLocker`. */
+    secondary_resource: unknown;
     location: string;
     attendance_type: string;
     phone?: string;
@@ -89,6 +90,16 @@ export interface BookingFormValue {
     update_master: boolean;
     self_registered: boolean;
     is_assgined: boolean;
+}
+
+/**
+ * Whether a `secondary_resource` form value is a request for a locker.
+ *
+ * Only a text value is a request. Some saved desk bookings hold `{}`, which
+ * an earlier default of the form wrote. That value is not a request.
+ */
+export function requiresLocker(secondary_resource: unknown): boolean {
+    return typeof secondary_resource === 'string' && !!secondary_resource;
 }
 
 export function bookingAttachments(booking: Booking = new Booking()): string[] {
@@ -156,8 +167,7 @@ export function bookingFormValue(
         booked_by: currentUser(),
         booked_by_id: booking.booked_by_id || '',
         booked_by_email: booking.booked_by_email || '',
-        // Empty when no secondary resource is requested. The desk forms show
-        // "Require locker" as ticked for any truthy value.
+        // Empty when no secondary resource is requested.
         secondary_resource:
             extension_data.other_asset_type ||
             extension_data.secondary_resource ||
