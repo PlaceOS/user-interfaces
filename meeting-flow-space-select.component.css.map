@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["meeting-flow-space-select.component.ts"],
+  "sourcesContent": ["\n            .gradient {\n                background: linear-gradient(\n                    105deg,\n                    var(--base-200) 0%,\n                    var(--base-200) 50%,\n                    var(--base-100) 100%\n                );\n            }\n\n            .filters-panel-mobile {\n                border-radius: 1rem 1rem 0 0;\n                max-height: 70vh;\n            }\n\n            [filter-item] {\n                display: flex;\n                align-items: center;\n                padding: 0 1rem;\n                min-height: 2rem;\n                height: 2rem;\n                font-size: 0.875rem;\n                border: 1px solid var(--base-300);\n                border-radius: 1.25rem;\n                margin: 0.25rem;\n                max-width: 100%;\n                text-align: center;\n            }\n\n            [filter-item]:hover {\n                background: rgba(0, 0, 0, 0.1);\n            }\n\n            [filter-item] > * + * {\n                margin-left: 0.5rem;\n            }\n        "],
+  "mappings": "AACY,CAAA,SACI,WAAA,mFAMJ,CAEA,CAAA,mCACI,KAAA,KAAA,EAAA,EACA,WAAA,IACJ,CAEA,CAAA,aACI,QAAA,KACA,YAAA,eACA,EAAA,KACA,WAAA,KACA,OAAA,KACA,UAAA,QACA,OAAA,IAAA,MAAA,IAAA,0BACA,eACA,OACA,UAAA,KACA,WAAA,MACJ,CAEA,CAAA,YAAA,OACI,WAAA,SACJ,CAEA,CAAA,YAAA,CAAA,CAAA,CAAA,EACI,YAAA,KACJ",
+  "names": []
+}
