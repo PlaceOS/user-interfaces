@@ -62,7 +62,7 @@
         },
         "features": {
             "type": "array",
-            "description": "List of features enabled in the app. e.g. `spaces`, `zones`, `desks`, `parking`, `visitors`, `assets`, `facilities`, `internal-users`, `points`, `surveys`, `catering`, `events`, `booking-report`, `attendance-report`, `contact-tracing-report`, `signage`, `email-templates`",
+            "description": "List of features enabled in the app. e.g. `spaces`, `zones`, `desks`, `parking`, `visitors`, `assets`, `facilities`, `internal-users`, `points`, `surveys`, `catering`, `events`, `booking-report`, `attendance-report`, `contact-tracing-report`, `user-report`, `signage`, `email-templates`",
             "items": { "type": "string" }
         },
         "feature_groups": {
@@ -528,7 +528,7 @@
             "properties": {
                 "features": {
                     "type": "array",
-                    "description": "List of report types shown in the reports menu. Defaults to `attendance`, `desks`, `spaces`, `catering` and `contact-tracing`",
+                    "description": "List of report types shown in the reports menu. Defaults to `attendance`, `desks`, `spaces`, `catering` and `contact-tracing`. Add `user` to show the report of the bookings of a single user",
                     "items": {
                         "type": "string",
                         "enum": [
@@ -536,14 +536,16 @@
                             "desks",
                             "spaces",
                             "catering",
-                            "contact-tracing"
+                            "contact-tracing",
+                            "user"
                         ],
                         "enumNames": [
                             "Attendance",
                             "Desks",
                             "Spaces",
                             "Catering",
-                            "Contact tracing"
+                            "Contact tracing",
+                            "User bookings"
                         ]
                     }
                 },

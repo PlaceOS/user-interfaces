@@ -180,6 +180,9 @@ import { UploadButtonComponent } from './upload-button.component';
                                     <mat-option value="visitors-report">
                                         Visitors Report
                                     </mat-option>
+                                    <mat-option value="user-report">
+                                        User Report
+                                    </mat-option>
                                 }
                             </mat-select>
                         </mat-form-field>
