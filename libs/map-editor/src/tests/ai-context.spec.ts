@@ -345,7 +345,54 @@ describe('containment, glyphs and mentions', () => {
     });
 });
 
+it('sends the alignment markup of text labels named without a number', () => {
+    const doc = MapDocument.load(
+        `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300"><text x="100" y="100" text-anchor="start">Zone <tspan>C</tspan></text><text x="100" y="200">Other</text></svg>`,
+        { geometry: new AttributeGeometryProvider() },
+    );
+    const index = buildIndex(doc);
+    const built = buildContext(
+        { doc, index: () => index },
+        {
+            instruction:
+                'Rename "Zone C" to "Collaboration" and keep it centred.',
+        },
+    );
+    const label = doc.root.querySelector('text') as Element;
+    expect(built.context.shortlist).toEqual([doc.anchorOf(label)]);
+    expect(built.context.subtrees[doc.anchorOf(label)]).toContain(
+        'text-anchor="start"',
+    );
+});
+
 describe('pieces', () => {
+    it('includes tiny nested line details in their enclosing furniture piece', () => {
+        const doc = MapDocument.load(
+            `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300"><g id="furniture">
+            <g id="INSERT"><g id="LINE"><line x1="110" y1="110" x2="110" y2="110.04" stroke="#888"/></g></g>
+            <path d="M100 100h30v27h-30z" fill="#020202"/><path d="M101 98h30v27h-30z" fill="#596069"/>
+            <line x1="200" y1="200" x2="200" y2="200.04" stroke="#888"/>
+            <line x1="100" y1="110" x2="130" y2="110" stroke="#888"/>
+            </g><g id="other"><line x1="110" y1="110" x2="110" y2="110.04" stroke="#888"/></g></svg>`,
+            { geometry: new AttributeGeometryProvider() },
+        );
+        const index = buildIndex(doc);
+        const built = buildContext({ doc, index: () => index });
+        const piece = built.context.index.find(
+            (entry) => entry.tag === 'path',
+        )?.piece;
+        expect(piece).toBeTruthy();
+        const lines = built.context.index.filter(
+            (entry) => entry.tag === 'line',
+        );
+        expect(lines.map((entry) => entry.piece)).toEqual([
+            piece,
+            null,
+            null,
+            null,
+        ]);
+    });
+
     it('gives the stacked layers of one drawn object one piece id', () => {
         const doc = MapDocument.load(
             `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300"><g id="furniture"><path d="M100 100h30v27h-30z" fill="#020202"/><path d="M101 98h30v27h-30z" fill="#596069"/><path d="M101 94h30v27h-30z" fill="#9baeb8"/><path d="M109 94h22v28h-22z" fill="none" stroke="#7a8f94"/><path d="M300 100h30v27h-30z" fill="#020202"/><path d="M301 96h30v27h-30z" fill="#9baeb8"/><rect x="200" y="200" width="60" height="30" fill="#fff"/></g></svg>`,

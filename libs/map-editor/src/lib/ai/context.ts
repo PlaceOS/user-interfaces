@@ -470,6 +470,64 @@ export function pieceIndex(
             }
         }
     }
+    const child_counts = new Map<string, number>();
+    for (const entry of index.entries) {
+        if (entry.parent)
+            child_counts.set(
+                entry.parent,
+                (child_counts.get(entry.parent) || 0) + 1,
+            );
+    }
+    const drawingParent = (entry: MapIndexEntry): string | null => {
+        let parent = entry.parent;
+        while (parent && child_counts.get(parent) === 1) {
+            const wrapper = index.by_anchor.get(parent);
+            if (!wrapper || wrapper.tag !== 'g' || wrapper.protected) break;
+            parent = wrapper.parent;
+        }
+        return parent;
+    };
+    // CAD exports can wrap a chair's tiny line detail in single-child INSERT/LINE groups.
+    for (const entry of index.entries) {
+        const box = entry.bbox;
+        if (
+            entry.tag !== 'line' ||
+            entry.id ||
+            entry.protected ||
+            !entry.visible ||
+            !entry.stroke ||
+            entry.stroke === 'none' ||
+            !box ||
+            group_of.has(entry.anchor) ||
+            glyphs.has(entry.anchor)
+        )
+            continue;
+        const candidates = new Set<number>();
+        const parent = drawingParent(entry);
+        for (const layer of index.entries) {
+            const group = group_of.get(layer.anchor);
+            const bounds = layer.bbox;
+            if (
+                group === undefined ||
+                !bounds ||
+                drawingParent(layer) !== parent
+            )
+                continue;
+            if (
+                Math.max(box[2], box[3]) <=
+                    Math.min(bounds[2], bounds[3]) * 0.1 &&
+                box[0] >= bounds[0] &&
+                box[1] >= bounds[1] &&
+                box[0] + box[2] <= bounds[0] + bounds[2] &&
+                box[1] + box[3] <= bounds[1] + bounds[3]
+            )
+                candidates.add(group);
+        }
+        if (candidates.size !== 1) continue;
+        const group = [...candidates][0];
+        group_of.set(entry.anchor, group);
+        members.get(group)?.push(entry.anchor);
+    }
     const result = new Map<string, string>();
     let counter = 0;
     for (const entry of index.entries) {
@@ -599,10 +657,28 @@ export function buildContext(
     const mentioned = mentionedEntries(index, options.instruction).map(
         (entry) => entry.anchor,
     );
+    const instruction = (options.instruction || '')
+        .toLocaleLowerCase()
+        .replace(/\s+/g, ' ');
+    const named_text = index.entries
+        .filter((entry) => entry.tag === 'text')
+        .filter((entry) => {
+            const element = doc.byAnchor(entry.anchor);
+            const label = element
+                ? textWords(element)
+                      ?.toLocaleLowerCase()
+                      .replace(/\s+/g, ' ')
+                      .trim()
+                : '';
+            return !!label && label.length >= 3 && instruction.includes(label);
+        })
+        .slice(0, MAX_MENTIONS)
+        .map((entry) => entry.anchor);
     const shortlist = unique([
         ...selection,
         ...(options.shortlist || []),
         ...mentioned,
+        ...named_text,
     ]);
     const size =
         options.snapshot || snapshotSize(doc.view_box, options.long_side);
