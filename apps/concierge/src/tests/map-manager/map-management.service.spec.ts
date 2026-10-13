@@ -102,7 +102,10 @@ describe('MapManagementService', () => {
             'Recolour',
         );
         const file: File = uploads.uploadFileToCompletion.mock.calls[0][0];
-        expect(file.name).toBe('l1.svg');
+        expect(file.name).toBe('old.svg');
+        expect(
+            spectator.service.mapName('/api/engine/v2/uploads/upload-9/url'),
+        ).toBe('old.svg');
         expect(file.type).toBe('image/svg+xml');
         expect(saved.upload_id).toBe('upload-9');
         expect(saved.map_id).toBe('/api/engine/v2/uploads/upload-9/url');
@@ -133,6 +136,7 @@ describe('MapManagementService', () => {
             upload_id: 'upload-9',
             map_id: '/api/engine/v2/uploads/upload-9/url',
             summary: 'Recolour',
+            file_name: 'old.svg',
         });
         expect(metadata.details[1].upload_id).toBe('u1');
     });

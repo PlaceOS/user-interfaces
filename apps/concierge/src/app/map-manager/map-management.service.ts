@@ -1,4 +1,4 @@
-import { computed, inject, Injectable, signal } from '@angular/core';
+import { computed, effect, inject, Injectable, signal } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import {
     BuildingLevel,
@@ -20,6 +20,7 @@ import {
 import { LevelModalComponent } from '../level-manager/level-modal.component';
 import {
     appendMapHistory,
+    isApiUpload,
     mapFileName,
     MapHistoryEntry,
     MapListOptions,
@@ -50,14 +51,53 @@ export class MapManagementService {
     public readonly options = this._options.asReadonly();
     public readonly buildings = this._org.building_list;
 
+    /** File names of upload-backed maps, by map URL, read from each level's map history. */
+    private readonly _map_names = signal<ReadonlyMap<string, string>>(
+        new Map(),
+    );
+    private readonly _names_requested = new Set<string>();
+
     /** Levels with a map, filtered by the current options. */
     public readonly rows = computed(() =>
         mapRows(
             this._org.level_list(),
             this._org.building_list(),
             this._options(),
+            this._map_names(),
         ),
     );
+
+    constructor() {
+        effect(() => {
+            for (const row of this.rows()) {
+                if (isApiUpload(row.map_id)) this._resolveMapName(row.level);
+            }
+        });
+    }
+
+    /** The file name the map was last saved under, when known. */
+    public mapName(map_id: string): string | undefined {
+        return this._map_names().get(map_id);
+    }
+
+    private async _resolveMapName(level: BuildingLevel) {
+        const url = level.map_id;
+        if (!url || this._names_requested.has(url)) return;
+        this._names_requested.add(url);
+        const metadata = await showMetadata(level.id, MAP_HISTORY_KEY).catch(
+            () => null,
+        );
+        const entries = Array.isArray(metadata?.details)
+            ? (metadata.details as MapHistoryEntry[])
+            : [];
+        const match = entries.find(
+            (entry) => entry.map_id === url && !!entry.file_name,
+        );
+        if (match?.file_name) {
+            const name = match.file_name;
+            this._map_names.update((map) => new Map(map).set(url, name));
+        }
+    }
 
     public setFilters(options: Partial<MapListOptions>) {
         this._options.update((current) => ({ ...current, ...options }));
@@ -128,7 +168,12 @@ export class MapManagementService {
         markup: string,
         summary: string,
     ): Promise<SavedLevelMap> {
-        const file = new File([markup], mapFileName(level), {
+        const file_name = mapFileName(
+            level,
+            level.map_id,
+            this._map_names().get(level.map_id),
+        );
+        const file = new File([markup], file_name, {
             type: 'image/svg+xml',
         });
         const upload_id = await this._uploads.uploadFileToCompletion(file);
@@ -152,12 +197,14 @@ export class MapManagementService {
             tags: response?.tags?.length ? response.tags : tags,
         } as unknown as PlaceZone;
         this._org.addZone(zone);
+        this._map_names.update((map) => new Map(map).set(map_id, file_name));
         await this._recordHistory(level.id, {
             upload_id,
             map_id,
             at: Date.now(),
             by: currentUser()?.email || '',
             summary,
+            file_name,
         }).catch((error) =>
             console.warn('Map history was not recorded for', level.id, error),
         );

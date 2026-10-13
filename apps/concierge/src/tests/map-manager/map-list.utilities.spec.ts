@@ -2,10 +2,12 @@ import { Building, BuildingLevel } from '@placeos/common';
 
 import {
     appendMapHistory,
+    mapFileLabel,
     mapFileName,
     mapRows,
     mapStudioUrl,
     shortenMapUrl,
+    urlFileName,
 } from '../../app/map-manager/map-list.utilities';
 
 const buildings = [
@@ -50,6 +52,7 @@ describe('mapRows', () => {
             building: 'Alpha Tower',
             building_id: 'b1',
             map_short: '…/alpha/level_1.svg',
+            map_label: 'level_1.svg',
         });
         expect(rows[2].building).toBe('Beta');
     });
@@ -96,6 +99,51 @@ describe('map helpers', () => {
         );
         expect(mapStudioUrl('/map-studio/', 'fp 1')).toBe(
             '/map-studio/#/editor/fp%201',
+        );
+    });
+
+    it('reads a file name from a map URL and labels upload URLs by their recorded name', () => {
+        expect(urlFileName('/maps/alpha/level_1.svg?v=2')).toBe('level_1.svg');
+        expect(urlFileName('https://os.place.tech/x/Level%201.svg')).toBe(
+            'Level 1.svg',
+        );
+        expect(urlFileName('/api/engine/v2/uploads/upload-9/url')).toBeNull();
+        expect(
+            mapFileLabel('/api/engine/v2/uploads/upload-9/url', 'level_1.svg'),
+        ).toBe('level_1.svg');
+        expect(mapFileLabel('/api/engine/v2/uploads/upload-9/url')).toBe(
+            '…/upload-9/url',
+        );
+        const names = new Map([
+            ['/api/engine/v2/uploads/upload-9/url', 'level_1.svg'],
+        ]);
+        const saved = new BuildingLevel({
+            id: 'l9',
+            parent_id: 'b1',
+            name: 'L9',
+            display_name: 'L9',
+            map_id: '/api/engine/v2/uploads/upload-9/url',
+            tags: ['level'],
+        });
+        expect(mapRows([saved], buildings, {}, names)[0].map_label).toBe(
+            'level_1.svg',
+        );
+    });
+
+    it('keeps the file name across saves: the recorded name, else the URL file name, else the level', () => {
+        const level = { display_name: 'Level 1 (East)', name: '', id: 'l1' };
+        expect(
+            mapFileName(
+                level,
+                '/api/engine/v2/uploads/upload-9/url',
+                'level_1.svg',
+            ),
+        ).toBe('level_1.svg');
+        expect(mapFileName(level, '/maps/alpha/level_1.svg')).toBe(
+            'level_1.svg',
+        );
+        expect(mapFileName(level, '/api/engine/v2/uploads/upload-9/url')).toBe(
+            'level-1-east.svg',
         );
     });
 

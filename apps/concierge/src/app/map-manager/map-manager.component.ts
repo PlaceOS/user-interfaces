@@ -1,5 +1,12 @@
 import { Clipboard } from '@angular/cdk/clipboard';
-import { Component, computed, inject, signal } from '@angular/core';
+import {
+    Component,
+    computed,
+    effect,
+    inject,
+    OnDestroy,
+    signal,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -9,6 +16,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { Router } from '@angular/router';
 import { i18n, notifySuccess } from '@placeos/common';
 import {
+    getMapDetails,
     IconComponent,
     SimpleTableComponent,
     TranslatePipe,
@@ -16,7 +24,7 @@ import {
 import { ApplicationSidebarComponent } from '../ui/app-sidebar.component';
 import { ApplicationTopbarComponent } from '../ui/app-topbar.component';
 import { SearchbarComponent } from '../ui/searchbar.component';
-import { MapRow } from './map-list.utilities';
+import { isApiUpload, MapRow } from './map-list.utilities';
 import { MapManagementService } from './map-management.service';
 
 @Component({
@@ -135,11 +143,11 @@ import { MapManagementService } from './map-management.service';
             <div
                 class="bg-base-200 m-2 flex h-14 w-24 items-center justify-center overflow-hidden rounded"
             >
-                @if (!broken().has(row.id)) {
+                @if (thumbnailSrc(row); as src) {
                     <img
                         class="max-h-full max-w-full"
                         loading="lazy"
-                        [src]="row.map_id"
+                        [src]="src"
                         [alt]="row.name"
                         (error)="markBroken(row.id)"
                     />
@@ -162,7 +170,7 @@ import { MapManagementService } from './map-management.service';
         <ng-template #url_template let-row="row" let-data="data">
             <div class="flex items-center gap-1 px-2">
                 <span class="truncate font-mono text-xs" [title]="row.map_id">
-                    {{ data }}
+                    {{ row.map_label }}
                 </span>
                 <button
                     icon
@@ -243,10 +251,49 @@ import { MapManagementService } from './map-management.service';
         MatTooltipModule,
     ],
 })
-export class MapManagerComponent {
+export class MapManagerComponent implements OnDestroy {
     private readonly _manager = inject(MapManagementService);
     private readonly _router = inject(Router);
     private readonly _clipboard = inject(Clipboard);
+    /** Object URLs of the maps fetched through the API, by map URL; '' when the fetch failed. */
+    private readonly _thumbnails = signal<ReadonlyMap<string, string>>(
+        new Map(),
+    );
+    private readonly _loading = new Set<string>();
+
+    constructor() {
+        effect(() => {
+            for (const row of this.rows()) this._loadThumbnail(row.map_id);
+        });
+    }
+
+    public ngOnDestroy() {
+        for (const url of this._thumbnails().values()) {
+            if (url) URL.revokeObjectURL(url);
+        }
+    }
+
+    /** The image to show for a row: the map fetched with the session's token, or nothing until it arrives or when it failed. */
+    public thumbnailSrc(row: MapRow): string | null {
+        if (this.broken().has(row.id)) return null;
+        const loaded = this._thumbnails().get(row.map_id);
+        if (loaded !== undefined) return loaded || null;
+        return isApiUpload(row.map_id) ? null : row.map_id;
+    }
+
+    private async _loadThumbnail(url: string) {
+        if (!url || this._loading.has(url)) return;
+        this._loading.add(url);
+        try {
+            const details = await getMapDetails(url);
+            const object_url = URL.createObjectURL(
+                new Blob([details.raw_data], { type: 'image/svg+xml' }),
+            );
+            this._thumbnails.update((map) => new Map(map).set(url, object_url));
+        } catch {
+            this._thumbnails.update((map) => new Map(map).set(url, ''));
+        }
+    }
 
     public readonly rows = this._manager.rows;
     public readonly options = this._manager.options;
