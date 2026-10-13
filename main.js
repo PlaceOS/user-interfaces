@@ -5,14 +5,14 @@ import {
   resetBootRetries,
   scheduleBootRetry,
   startWatchdog
-} from "./chunk-DGFUHXWL.js";
+} from "./chunk-6CWDI2BU.js";
 import {
   hasBootstrappedDisplay
 } from "./chunk-OQDJRCPY.js";
-import "./chunk-7V22KQJW.js";
+import "./chunk-I47CEQW3.js";
 import {
   TranslatePipe
-} from "./chunk-DTOFWQDK.js";
+} from "./chunk-N5JXD6N4.js";
 import {
   GroupPermission,
   LazySentryErrorHandler,
@@ -38,8 +38,7 @@ import {
   setMocks,
   settingSignal,
   user_groups_loaded
-} from "./chunk-RBBEDVE4.js";
-import "./chunk-QUKX4ESA.js";
+} from "./chunk-4R5LQJF6.js";
 import {
   AsyncHandler,
   Hp,
@@ -66,21 +65,22 @@ import {
   timePeriodsIntersect,
   toDate,
   unique
-} from "./chunk-BILSIETY.js";
+} from "./chunk-CEFZDJJG.js";
+import "./chunk-ZL2DDDHQ.js";
 import {
   IconComponent
-} from "./chunk-XXHXEIYP.js";
+} from "./chunk-NP46BJJC.js";
 import {
   BidiModule,
   _getAnimationsState
-} from "./chunk-5WMBRJSW.js";
+} from "./chunk-DGXEAERW.js";
 import {
   Router,
   RouterLink,
   RouterOutlet,
   provideRouter,
   withHashLocation
-} from "./chunk-SWSQOIQA.js";
+} from "./chunk-4GQBMVSX.js";
 import {
   ChangeDetectorRef,
   Component,
@@ -145,11 +145,11 @@ import {
   ɵɵtext,
   ɵɵtextInterpolate,
   ɵɵtextInterpolate1
-} from "./chunk-KUITXW5O.js";
+} from "./chunk-HSWS6FHB.js";
 import {
   __spreadProps,
   __spreadValues
-} from "./chunk-GOMI4DH3.js";
+} from "./chunk-653SOEEV.js";
 
 // node_modules/date-fns/subDays.js
 function subDays(date, amount, options) {
@@ -182,12 +182,12 @@ function subMinutes(date, amount, options) {
 
 // libs/common/src/lib/locale-data.ts
 var SUPPORTED_LOCALES = {
-  ar: () => import("./ar-5EJYBOLP.js"),
-  es: () => import("./es-ZY3DSOWO.js"),
-  fr: () => import("./fr-SUMAXVTQ.js"),
-  it: () => import("./it-7SOGO3QL.js"),
-  ja: () => import("./ja-AWWPTDN5.js"),
-  zh: () => import("./zh-7BNVPQ5U.js")
+  ar: () => import("./ar-4OEKFYQ3.js"),
+  es: () => import("./es-E672VPW4.js"),
+  fr: () => import("./fr-62Q4VGQY.js"),
+  it: () => import("./it-OJSM6IJC.js"),
+  ja: () => import("./ja-5HQXGIBO.js"),
+  zh: () => import("./zh-A5WQQ6XL.js")
 };
 async function registerActiveLocale(locale) {
   const short = (locale || "en").split("-")[0];
@@ -731,7 +731,7 @@ var ServiceWorkerUpdateCardComponent = class _ServiceWorkerUpdateCardComponent {
 // libs/components/src/lib/global-loading.component.ts
 var NativeDomainOverlayLoaderComponent_Conditional_0_Defer_1_DepsFn = () => [
   /* @ts-ignore */
-  import("./native-domain-overlay.component-BAU3DO4G.js").then((m) => m.NativeDomainOverlayComponent)
+  import("./native-domain-overlay.component-VJXYITCF.js").then((m) => m.NativeDomainOverlayComponent)
 ];
 function NativeDomainOverlayLoaderComponent_Conditional_0_Defer_0_Template(rf, ctx) {
   if (rf & 1) {
@@ -854,7 +854,7 @@ var NativeDomainOverlayLoaderComponent = class _NativeDomainOverlayLoaderCompone
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(NativeDomainOverlayLoaderComponent, () => [
     /* @ts-ignore */
-    import("./native-domain-overlay.component-BAU3DO4G.js").then((m) => m.NativeDomainOverlayComponent)
+    import("./native-domain-overlay.component-VJXYITCF.js").then((m) => m.NativeDomainOverlayComponent)
   ], (NativeDomainOverlayComponent) => {
     setClassMetadata(NativeDomainOverlayLoaderComponent, [{
       type: Component,
@@ -9472,7 +9472,7 @@ function hasStoredApiKey() {
 // apps/signage/src/app/app.component.ts
 var AppComponent_Defer_5_DepsFn = () => [
   /* @ts-ignore */
-  import("./settings-debug-panel-launcher.component-JDTEYRZR.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+  import("./settings-debug-panel-launcher.component-GZC5DM44.js").then((m) => m.SettingsDebugPanelLauncherComponent)
 ];
 function AppComponent_Conditional_3_Template(rf, ctx) {
   if (rf & 1) {
@@ -9490,7 +9490,7 @@ function AppComponent_Defer_4_Template(rf, ctx) {
 }
 var AppComponent = class _AppComponent {
   constructor() {
-    this.load_settings_schema = () => import("./settings.schema-AEN52NSG.js");
+    this.load_settings_schema = () => import("./settings.schema-RUFB44OF.js");
     this.uses_api_key = hasStoredApiKey();
     this._placeos = inject(PlaceOS_Service);
   }
@@ -9532,7 +9532,7 @@ var AppComponent = class _AppComponent {
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(AppComponent, () => [
     /* @ts-ignore */
-    import("./settings-debug-panel-launcher.component-JDTEYRZR.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+    import("./settings-debug-panel-launcher.component-GZC5DM44.js").then((m) => m.SettingsDebugPanelLauncherComponent)
   ], (SettingsDebugPanelLauncherComponent) => {
     setClassMetadata(AppComponent, [{
       type: Component,
@@ -9568,7 +9568,7 @@ var environment = {
 };
 
 // apps/signage/src/app/app.routes.ts
-var loadSignageTemplate = () => import("./template.component-YLOLRUXR.js").then((m) => m.SignageTemplateComponent);
+var loadSignageTemplate = () => import("./template.component-LY4QQVFF.js").then((m) => m.SignageTemplateComponent);
 var routes = [
   {
     path: "unauthorised",
@@ -9576,7 +9576,7 @@ var routes = [
   },
   {
     path: "bootstrap",
-    loadComponent: () => import("./bootstrap.component-5FO25UEG.js").then((m) => m.BootstrapComponent),
+    loadComponent: () => import("./bootstrap.component-2TBCOTG5.js").then((m) => m.BootstrapComponent),
     canActivate: [AuthorisedUserGuard]
   },
   {
