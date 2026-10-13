@@ -33,9 +33,9 @@ stack port. The config rejects non-local backends. The selection runs six group
 tests and one backend preflight. Results are in
 `reports/e2e/workplace/index.html`.
 
-The group page reselects Group after date initialisation, which can reset the
-form (REG-10). This suite does not claim to cover that separate initialisation
-regression. It waits for actual directory results rather than selecting the
+The group page selects Group again after date initialisation as a safeguard.
+Form initialisation keeps a Group selection since the PPT-2643 fix. This suite
+does not cover form initialisation. It waits for actual directory results rather than selecting the
 similarly labelled external-user option.
 
 Group selection uses the existing English button label. It does not require the
