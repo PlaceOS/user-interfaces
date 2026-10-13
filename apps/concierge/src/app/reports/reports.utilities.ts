@@ -45,6 +45,13 @@ export function reportBookingStatus(booking: Booking): string {
     return booking.status || 'tentative';
 }
 
+export function reportEventStatus(event: CalendarEvent): string {
+    if (event.deleted) return 'Cancelled';
+    if (isDeclinedReportEvent(event)) return 'Rejected';
+    if (event.status === 'approved') return 'Approved';
+    return event.status || 'tentative';
+}
+
 export function formatReportPercentage(value = 0, total = 0): string {
     const percent = total ? Math.floor((value / total) * 1000) / 10 : 0;
     return `${value || 0} (${percent}%)`;

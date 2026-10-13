@@ -17,8 +17,8 @@ import {
 } from '@placeos/common';
 import { SpacePipe } from '@placeos/events';
 import { set } from 'date-fns';
+import { NewDeskFlowSuccessComponent } from './desk-flow-new/desk-flow-success.component';
 import { NewDeskFlowFormComponent } from './desk-flow/desk-flow-form.component';
-import { NewDeskFlowSuccessComponent } from './desk-flow/desk-flow-success.component';
 
 @Component({
     selector: 'placeos-new-book-desk-flow',
@@ -99,6 +99,7 @@ export class NewDeskFlowComponent extends AsyncHandler implements OnInit {
             }
             this._state.model.update((m) => ({
                 ...m,
+                asset_id: asset.id,
                 resources: [
                     new Desk({
                         id: asset.id,

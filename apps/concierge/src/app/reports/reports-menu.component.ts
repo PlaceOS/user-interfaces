@@ -94,6 +94,22 @@ const DEFAULT_FEATURES = [
                         </div>
                     </a>
                 }
+                @if (features().includes('user')) {
+                    <a
+                        [routerLink]="['/reports', 'user']"
+                        matRipple
+                        class="border-base-200 bg-base-100 flex h-64 w-64 flex-col items-center justify-center rounded-sm border p-4 shadow-sm hover:opacity-80"
+                    >
+                        <icon class="text-8xl">person_search</icon>
+                        <h3 class="mb-4 text-center text-xl font-bold">
+                            {{ 'APP.CONCIERGE.MENU_REPORT_USER' | translate }}
+                        </h3>
+                        <div class="flex items-center">
+                            <p>View Report</p>
+                            <icon class="ml-2">chevron_right</icon>
+                        </div>
+                    </a>
+                }
                 @for (report of custom_reports(); track report) {
                     <a
                         [routerLink]="['/reports', report.id]"

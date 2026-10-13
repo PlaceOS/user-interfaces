@@ -80,9 +80,9 @@ describe('FooterMenuComponent', () => {
         setSettings({ 'app.features': ['spaces', 'parking'] });
         spectator.component.show_book_items.set(true);
         spectator.detectChanges();
-        expect('[name="footer-nav-meeting"]').toExist();
+        expect('[name="footer-nav-spaces"]').toExist();
         expect('[name="footer-nav-parking"]').toExist();
-        expect('[name="footer-nav-visitors"]').not.toExist();
+        expect('[name="footer-nav-visitor-invite"]').not.toExist();
     });
 
     it('resolves dark mode from the allow_dark_mode setting and active theme', () => {

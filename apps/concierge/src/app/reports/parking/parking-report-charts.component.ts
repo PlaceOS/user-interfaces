@@ -66,7 +66,10 @@ Chart.register(
                 class="border-base-300 bg-base-100 h-72 w-1/2 flex-1 rounded-sm border shadow"
             >
                 <div class="border-base-200 border-b p-4 text-xl font-bold">
-                    Active bookings
+                    {{
+                        'APP.CONCIERGE.REPORTS_ACTIVE_BOOKINGS_HEADER'
+                            | translate
+                    }}
                 </div>
                 <div class="mx-auto h-56 w-full max-w-full p-2">
                     <canvas #dailyChart></canvas>

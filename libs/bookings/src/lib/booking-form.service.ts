@@ -10,6 +10,7 @@ import {
     signal,
     type Signal,
     untracked,
+    type WritableSignal,
 } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Event, NavigationEnd, Router } from '@angular/router';
@@ -35,6 +36,8 @@ import {
     notifyWarn,
     OrganisationService,
     rulesForResource,
+    SETTING_KEYS,
+    settingSignal,
     SettingsService,
     unique,
     User,
@@ -91,6 +94,7 @@ import {
     groupAvailability,
     nearbyResources,
     pickAutoAllocatedResource,
+    preferredAllocationPool,
     reserveResource,
     resourceReserved,
 } from './booking-resource.utilities';
@@ -117,6 +121,7 @@ const STORAGE_KEYS = {
     booking_form_options: 'PLACEOS.booking_form_options',
     booking_form_filters: 'PLACEOS.booking_form_filters',
     last_booked_booking: 'PLACEOS.last_booked_booking',
+    last_booked_count: 'PLACEOS.last_booked_count',
     last_group_booking_ids: 'PLACEOS.last_group_booking_ids',
     last_group_booking_errors: 'PLACEOS.last_group_booking_errors',
 } as const;
@@ -135,6 +140,29 @@ function bookingOptionsMatch(a: BookingFlowOptions, b: BookingFlowOptions) {
         ]),
     );
     return keys.every((key) => a[key] === b[key]);
+}
+
+const AVAILABILITY_SELECTION_FIELDS = new Set([
+    'resources',
+    'booking_asset',
+    'asset_id',
+    'asset_name',
+    'map_id',
+    'name',
+    'description',
+    'zones',
+]);
+
+function availabilityFormMatch(
+    a: Record<string, unknown>,
+    b: Record<string, unknown>,
+) {
+    if (!a || !b) return a === b;
+    const keys = new Set([...Object.keys(a), ...Object.keys(b)]);
+    return [...keys].every(
+        (key) =>
+            AVAILABILITY_SELECTION_FIELDS.has(key) || Object.is(a[key], b[key]),
+    );
 }
 
 function assetDateValue(date: unknown) {
@@ -159,6 +187,26 @@ type GroupContainerForm = Partial<Booking> & {
     user?: User;
     extension_data?: Record<string, unknown>;
 };
+
+/** Edits the user made on a booking form before a form reset. */
+interface UserEdits {
+    /** Values of the fields that the user changed. */
+    values: Partial<BookingFormValue>;
+    /** Group selection. Options have no dirty flags to read. */
+    options: Pick<BookingFlowOptions, 'group' | 'members'>;
+}
+
+/** Fields that only the desk form lets the user change. */
+const DESK_ONLY_FIELDS: (keyof BookingFormValue)[] = [
+    'secondary_resource',
+    'recurrence_type',
+    'recurrence_days',
+    'recurrence_nth_of_month',
+    'recurrence_interval',
+    'recurrence_end',
+    'recurrence_instances',
+    'recurrence_custom',
+];
 
 /** A booking type, or `undefined` for the blank `' '` placeholder that
  * `new Booking()` sets when no type is given. */
@@ -193,6 +241,19 @@ export class BookingFormService extends AsyncHandler {
     private _booking = signal<Booking>(null);
     private _resource_use: Record<string, string> = {};
     private _loading = signal<string>('');
+    private _favourites: Record<BookingType, WritableSignal<string[]>> = {
+        ' ': settingSignal('favorites', [], true),
+        room: settingSignal(SETTING_KEYS.FAVORITE_ROOMS, [], true),
+        group: signal([]),
+        desk: settingSignal(SETTING_KEYS.FAVORITE_DESKS, [], true),
+        locker: settingSignal(SETTING_KEYS.FAVORITE_LOCKERS, [], true),
+        parking: settingSignal(SETTING_KEYS.FAVORITE_PARKING_SPACES, [], true),
+        staff: settingSignal('favorites', [], true),
+        visitor: settingSignal('favorites', [], true),
+        'group-event': settingSignal('favorites', [], true),
+        'asset-request': settingSignal('favorites', [], true),
+        'catering-order': settingSignal('favorites', [], true),
+    };
     private _network_requested = false;
     private _network_consumed = signal(false);
     private _booked_resource_requests = new Map<string, Promise<string[]>>();
@@ -209,6 +270,15 @@ export class BookingFormService extends AsyncHandler {
             sessionStorage.getItem(STORAGE_KEYS.last_booked_booking) || '{}',
         ),
     );
+    public get last_count(): number {
+        return parseInt(
+            sessionStorage.getItem(STORAGE_KEYS.last_booked_count) || '1',
+            10,
+        );
+    }
+    public set last_count(value: number) {
+        sessionStorage.setItem(STORAGE_KEYS.last_booked_count, String(value));
+    }
     /** Signal emitting the current loading message, empty when idle */
     public readonly loading = this._loading.asReadonly();
     /** Signal for the active booking flow options */
@@ -222,10 +292,10 @@ export class BookingFormService extends AsyncHandler {
     public readonly view = signal<BookingFlowView>('form');
 
     /**
-     * Edits the user made while `newForm` was waiting on the current user,
-     * carried across the deferred re-entry so the reset does not discard them.
+     * Edits the user made before a form reset, carried across the reset so
+     * that it does not discard them.
      */
-    private _pending_user_edits: Partial<BookingFormValue> | null = null;
+    private _pending_user_edits: UserEdits | null = null;
 
     /** Apply a partial patch to the booking form model. */
     private _patch(value: Partial<BookingFormValue>, _opts?: unknown) {
@@ -237,8 +307,10 @@ export class BookingFormService extends AsyncHandler {
      *
      * Reads the signal-forms dirty flags rather than diffing against a
      * default. Programmatic writes (`_patch`, `model.set`) do not mark a field
-     * dirty, so this returns genuine user input and nothing else — which is
-     * what makes it safe to replay over a freshly loaded booking.
+     * dirty, so this returns user input — which is what makes it safe to
+     * replay over a freshly loaded booking. One exception: the recurrence
+     * field adjusts a recurrence when the date changes, and that write goes
+     * through `setUserValues`.
      */
     private _userEditedValues(): Partial<BookingFormValue> {
         const form = this.form;
@@ -268,11 +340,65 @@ export class BookingFormService extends AsyncHandler {
      * capture with an empty one on the second call.
      */
     private _captureUserEdits() {
-        const edits = {
-            ...(this._pending_user_edits || {}),
-            ...this._userEditedValues(),
-        };
-        this._pending_user_edits = Object.keys(edits).length ? edits : null;
+        const pending = this._pending_user_edits;
+        const values = { ...pending?.values, ...this._userEditedValues() };
+        // The first capture gives the options. A reset that ran after it has
+        // cleared them.
+        const { group, members } = this._options();
+        const options =
+            pending?.options ??
+            (group || members?.length ? { group, members } : {});
+        const has_edits =
+            Object.keys(values).length || Object.keys(options).length;
+        this._pending_user_edits = has_edits ? { values, options } : null;
+    }
+
+    /**
+     * The stashed edits that apply to a reset for the given booking type.
+     *
+     * A change from one booking flow to a different one does not reset the
+     * form, so the stash can hold edits from the form of a different booking
+     * type. A locker request, a recurrence, and a group selection apply only
+     * to a desk form, because no other form shows them. All other edits
+     * apply to each form.
+     */
+    private _userEditsFor(type?: BookingType): UserEdits | null {
+        const edits = this._pending_user_edits;
+        if (!edits || type === 'desk') return edits;
+        const values = { ...edits.values };
+        for (const key of DESK_ONLY_FIELDS) delete values[key];
+        return { values, options: {} };
+    }
+
+    /**
+     * Re-apply the user's edits over the booking that a reset loaded.
+     *
+     * A replayed start time or duration moves the end time with it. If the
+     * end time stays at the value of the loaded booking, the time sync
+     * calculates the duration from it and discards the user's value.
+     */
+    private _replayUserEdits(edits: UserEdits | null) {
+        if (!edits) return;
+        this._patch(edits.values);
+        const { date, duration, all_day } = this.model();
+        const window_changed =
+            'date' in edits.values || 'duration' in edits.values;
+        if (all_day || !window_changed) return;
+        this._patch({ date_end: addMinutes(date, duration).valueOf() });
+    }
+
+    /**
+     * Apply a change the user made in a control that has no `[formField]`
+     * binding.
+     *
+     * Marks each changed field dirty, as `[formField]` does, so
+     * `_userEditedValues` keeps the change across a form reset.
+     */
+    public setUserValues(value: Partial<BookingFormValue>) {
+        this._patch(value);
+        for (const key of Object.keys(value) as (keyof BookingFormValue)[]) {
+            this.form[key]?.().markAsDirty();
+        }
     }
 
     private _syncAssetOptions() {
@@ -318,7 +444,7 @@ export class BookingFormService extends AsyncHandler {
     private readonly _form_value = signal<Record<string, any>>(null);
     private readonly _form_value_debounced = debounced(this._form_value, 500, {
         injector: this._injector,
-        equal: Object.is,
+        equal: availabilityFormMatch,
     });
 
     /** Params driving the resource list, debounced to coalesce rapid changes */
@@ -489,7 +615,6 @@ export class BookingFormService extends AsyncHandler {
     /** Resolve with the available resources for the current selection */
     public async listAvailableResources(): Promise<BookingAsset[]> {
         this._startNetwork();
-        this._form_value.set(this.model());
         await firstValueWhere(
             computed(
                 () =>
@@ -498,16 +623,19 @@ export class BookingFormService extends AsyncHandler {
                         this._booking_rules_params() &&
                     // Rules stay idle when there are no buildings to load.
                     (!this._booking_rules_params() ||
-                        resourceSettled(this._booking_rules_resource)) &&
-                    // Form effects can replace the initial snapshot before the
-                    // debounce completes. Wait for the current model.
-                    this._form_value_debounced.value() === this.model() &&
-                    resourceSettled(this._available_resource),
+                        resourceSettled(this._booking_rules_resource)),
             ),
             (ready) => ready,
             this._injector,
         );
-        return this.available_resources();
+        // Compute from the current model rather than waiting on the debounced
+        // availability resource, which ignores selection-only form changes.
+        return this._computeAvailableResources(
+            this._options(),
+            this.resources(),
+            this.booking_rules(),
+            this.model(),
+        );
     }
 
     /**
@@ -622,12 +750,14 @@ export class BookingFormService extends AsyncHandler {
         if (all_day) {
             ({ date, duration } = this._allDayTimeRange(date));
         }
-        const zones =
-            options.zone_id ||
+        const favourites = this._favourites[options.type]?.() || [];
+        const default_zone =
             (this._settings.get('app.use_region')
                 ? this._org.region?.id
-                : this._org.building?.id) ||
-            this._org.organisation.id;
+                : this._org.building?.id) || this._org.organisation.id;
+        const zones = options.zones?.length
+            ? options.zones.join(',')
+            : options.zone_id || default_zone;
         let booked_ids: string[] = [];
         if (!isMock()) {
             // Always exclude resources booked in the first-instance window.
@@ -675,8 +805,20 @@ export class BookingFormService extends AsyncHandler {
                     restrictions[this._org.building?.id] ||
                     [],
             ).hidden;
+            // Check zone filtering
+            const zone_filter = options.zones?.length
+                ? options.zones.some(
+                      (zone_id) =>
+                          zone_id === asset.zone?.id ||
+                          zone_id === asset.zone?.parent_id,
+                  )
+                : options.zone_id
+                  ? options.zone_id === asset.zone?.id ||
+                    options.zone_id === asset.zone?.parent_id
+                  : true;
             return (
                 !is_restricted &&
+                (!options.show_fav || favourites.includes(asset.id)) &&
                 (!asset.groups?.length ||
                     asset.groups.some((grp) =>
                         currentUser().groups.includes(grp),
@@ -686,9 +828,7 @@ export class BookingFormService extends AsyncHandler {
                     options.features?.every((_) =>
                         asset.features.includes(_),
                     )) &&
-                (!options.zone_id ||
-                    options.zone_id === asset.zone?.id ||
-                    options.zone_id === asset.zone?.parent_id) &&
+                zone_filter &&
                 !booked_ids.includes(asset.id)
             );
         });
@@ -752,7 +892,7 @@ export class BookingFormService extends AsyncHandler {
             });
             return;
         }
-        const user_edits = this._pending_user_edits;
+        const user_edits = this._userEditsFor(type);
         this._pending_user_edits = null;
         // Never apply an existing booking's edit state to a different type
         // (e.g. editing parking then opening the desk form).
@@ -780,6 +920,9 @@ export class BookingFormService extends AsyncHandler {
                     ...booking.extension_data,
                     attachments: bookingAttachments(booking),
                     ...booking,
+                    _in_progress:
+                        booking.state === 'started' ||
+                        booking.state === 'in_progress',
                     // `Booking` has no `user` object, only the flat `user_*`
                     // fields, so the host has to be rebuilt from those. Without
                     // it the form keeps the signed-in user and editing a
@@ -795,9 +938,7 @@ export class BookingFormService extends AsyncHandler {
         // the time-sync window; and before `_syncWindowIfUnchanged`, which
         // compares against `initial_date`/`initial_duration` and so leaves a
         // user-changed window alone of its own accord.
-        if (user_edits && Object.keys(user_edits).length) {
-            this._patch(user_edits, { emitEvent: false });
-        }
+        this._replayUserEdits(user_edits);
         // Give an untyped form the flow type, so validators that depend on
         // the type (e.g. parking plate number) run for callers that do not
         // set it themselves.
@@ -823,7 +964,12 @@ export class BookingFormService extends AsyncHandler {
             booking.duration,
         );
         this._booking.set(new Booking(booking));
-        this._options.set({ type: this._options().type });
+        // A new form clears the options, except a group selection that the
+        // user made before this reset.
+        this._options.set({
+            type: this._options().type,
+            ...user_edits?.options,
+        });
         // Persist immediately to avoid edit-flow races where the consumer
         // reloads from session before async form change events occur.
         this.storeForm();
@@ -843,10 +989,14 @@ export class BookingFormService extends AsyncHandler {
         this.subscription(
             'router.bookings',
             this._router.events.subscribe((booking: Event) => {
+                const url =
+                    booking instanceof NavigationEnd
+                        ? booking.urlAfterRedirects || booking.url
+                        : '';
                 if (
                     booking instanceof NavigationEnd &&
-                    !booking.url.includes('book') &&
-                    !BOOKING_TYPES.find((_) => booking.url.includes(_))
+                    !url.includes('book') &&
+                    !BOOKING_TYPES.find((_) => url.includes(_))
                 ) {
                     this.clearForm();
                 }
@@ -876,6 +1026,25 @@ export class BookingFormService extends AsyncHandler {
             all_day_start: period?.start,
             all_day_end: period?.end,
         });
+    }
+
+    /**
+     * Start and end times (ms) of the booking window for a form value.
+     * All-day values use the configured all-day period.
+     */
+    public bookingWindow(value: {
+        date?: number;
+        duration?: number;
+        all_day?: boolean;
+    }) {
+        if (value.all_day) {
+            const { date, date_end } = this._allDayTimeRange(value.date);
+            return { start: date, end: date_end };
+        }
+        return {
+            start: value.date,
+            end: addMinutes(value.date, value.duration).valueOf(),
+        };
     }
 
     private _allDayTimeRange(date: number) {
@@ -1009,12 +1178,12 @@ export class BookingFormService extends AsyncHandler {
         // already entered. Capture before `form().reset()` clears the dirty
         // flags `_userEditedValues` reads.
         this._captureUserEdits();
-        const user_edits = this._pending_user_edits;
+        const user_edits = this._userEditsFor(expected_type);
         // Flows call `loadForm(type)` and then `newForm(type)` in the same tick
-        // (desk-flow.component.ts:62 and :65, and the locker/parking
-        // equivalents). Leave the capture in place so that second reset replays
-        // it too, and release it at the end of the tick, where it can no longer
-        // reach an unrelated form.
+        // (desk-flow.component.ts, and the locker/parking equivalents). Leave
+        // the capture in place so that second reset replays it too, and
+        // release it at the end of the tick, where it can no longer reach an
+        // unrelated form.
         queueMicrotask(() => (this._pending_user_edits = null));
         this._startNetwork();
         this._calendar.loadCalendars();
@@ -1057,9 +1226,7 @@ export class BookingFormService extends AsyncHandler {
         // Re-apply the user's own edits over the loaded booking, before
         // `applyDurationSettings` so a restored `all_day` still drives the
         // time-sync window — same ordering as `newForm`.
-        if (user_edits && Object.keys(user_edits).length) {
-            this._patch(user_edits, { emitEvent: false });
-        }
+        this._replayUserEdits(user_edits);
         // Give an untyped booking the flow type. Otherwise the flow sees a
         // type mismatch and replaces the booking with a new form.
         if (expected_type) {
@@ -1090,6 +1257,8 @@ export class BookingFormService extends AsyncHandler {
 
     public clearOldState() {
         sessionStorage.removeItem(STORAGE_KEYS.last_booked_booking);
+        sessionStorage.removeItem(STORAGE_KEYS.last_booked_count);
+        this._loading.set('');
         this.last_success = new Booking();
     }
 
@@ -1150,6 +1319,7 @@ export class BookingFormService extends AsyncHandler {
     public async postForm(ignore_check = false, reset_form = true) {
         if (!this.form) throw 'No form for booking';
         this._prepareFormForPost();
+        localStorage.removeItem(STORAGE_KEYS.last_group_booking_ids);
         const value = this.model();
         const effective_timezone = this.timezone || value.timezone;
         const booking = this._booking() || new Booking();
@@ -1196,6 +1366,13 @@ export class BookingFormService extends AsyncHandler {
             value.duration = all_day_period.duration;
             value.date_end = all_day_period.date_end;
         }
+        // date/duration/date_end are the source of truth for the booking
+        // window. The form model can carry stale booking_start/booking_end
+        // (spread in from a Booking when the form was seeded), and the Booking
+        // constructor prefers an explicit booking_end. Drop them so the saved
+        // booking's window is recomputed from the current date/duration.
+        delete (value as any).booking_start;
+        delete (value as any).booking_end;
         const q = bookingSaveQuery(value, booking);
         delete value.event_id;
         const zones = unique([
@@ -1292,14 +1469,18 @@ export class BookingFormService extends AsyncHandler {
         timezone: string,
         ignore_check: boolean,
     ) {
+        const type: BookingType = request.booking_type || this._options().type;
         if (ignore_check) {
             await this._checkAssignedResourceRestriction(
                 request.user_email,
-                this._options().type,
+                type,
             );
             return;
         }
-        await this._checkResourceAvailable(request, this._options().type);
+        // Visitor bookings hold the visitor email, not a bookable resource.
+        if (type !== 'visitor') {
+            await this._checkResourceAvailable(request, type);
+        }
         await this._checkResourceRules(
             request.resources,
             period.date,
@@ -1308,7 +1489,7 @@ export class BookingFormService extends AsyncHandler {
         );
         await this._checkRecurringClashes(
             { ...request, ...period, timezone },
-            this._options().type,
+            type,
         );
     }
 
@@ -1340,13 +1521,13 @@ export class BookingFormService extends AsyncHandler {
             this._org.levelWithID(resources[0]?.zone_id) || resources[0]?.zone;
         return zone && zone instanceof Object
             ? unique([
-                  this._org.organisation.id,
+                  this._org.organisation?.id,
                   this._org.region?.id,
                   zone.parent_id,
                   zone.id,
               ])
             : [
-                  this._org.organisation.id,
+                  this._org.organisation?.id,
                   this._org.region?.id,
                   this._org.building?.id,
               ];
@@ -1458,14 +1639,18 @@ export class BookingFormService extends AsyncHandler {
 
     /**
      * Auto-allocate a desk from the active building.
-     * Picks the level with the most available desks, then selects one at random.
+     * Prefers desks with tags and homebase matching the user's groups, then
+     * picks the level with the most available desks and selects one at random.
      */
     public async autoAllocateDesk(): Promise<void> {
         const available = await this.listAvailableResources();
         if (!available?.length) {
             throw i18n('BOOKINGS.DESK_AVAILABLE_ERROR');
         }
-        const selected = pickAutoAllocatedResource(available);
+        // Prefer desks whose tags or homebase match the current user's groups
+        const selected = pickAutoAllocatedResource(
+            preferredAllocationPool(available, currentUser()?.groups || []),
+        );
         this._patch({
             resources: [selected],
             asset_id: selected.id,
@@ -1564,6 +1749,15 @@ export class BookingFormService extends AsyncHandler {
                 const asset = resources[i];
                 const assets =
                     user.email == currentUser().email ? form.assets : [];
+                const zones = unique(
+                    [
+                        this._org.organisation?.id,
+                        this._org.region?.id,
+                        asset?.zone?.parent_id,
+                        asset?.zone?.id,
+                        ...form.zones,
+                    ].filter((_) => _),
+                );
                 this._patch({
                     ...form,
                     assets,
@@ -1573,6 +1767,7 @@ export class BookingFormService extends AsyncHandler {
                     user_id: user.id,
                     ...this._resourceFormData(asset),
                     group: group_name,
+                    zones,
                 });
                 const bkn = await this.postForm(true, false).catch((error) => {
                     const message = this._error_message(error);
@@ -1665,6 +1860,10 @@ export class BookingFormService extends AsyncHandler {
                         parent_id,
                         group_name,
                         fallback_zones: this._booking()?.zones,
+                        org_zones: [
+                            this._org.organisation?.id,
+                            this._org.region?.id,
+                        ],
                     }),
                 );
                 const bkn = await this.postForm(true, false).catch((error) => {
@@ -1801,6 +2000,10 @@ export class BookingFormService extends AsyncHandler {
                             group_name,
                             existing_zones: existing?.zones,
                             fallback_zones: this._booking()?.zones,
+                            org_zones: [
+                                this._org.organisation?.id,
+                                this._org.region?.id,
+                            ],
                         }),
                     );
                 } else {

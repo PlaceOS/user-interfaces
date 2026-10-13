@@ -5,7 +5,7 @@ import {
     MatDialogRef,
 } from '@angular/material/dialog';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
-import { SettingsService } from '@placeos/common';
+import { SETTING_KEYS, SettingsService } from '@placeos/common';
 import { createSettingsServiceMock } from '@placeos/common/tests';
 import { MockComponent, MockModule } from 'ng-mocks';
 
@@ -16,10 +16,7 @@ import { LockerBankListComponent } from '../lib/locker-select-modal/locker-bank-
 import { LockerFiltersDisplayComponent } from '../lib/locker-select-modal/locker-filters-display.component';
 import { LockerFiltersComponent } from '../lib/locker-select-modal/locker-filters.component';
 import { LockerMapComponent } from '../lib/locker-select-modal/locker-map.component';
-import {
-    FAV_LOCKER_KEY,
-    LockerSelectModalComponent,
-} from '../lib/locker-select-modal/locker-select-modal.component';
+import { LockerSelectModalComponent } from '../lib/locker-select-modal/locker-select-modal.component';
 
 describe('LockerSelectModalComponent', () => {
     let spectator: Spectator<LockerSelectModalComponent>;
@@ -116,9 +113,10 @@ describe('LockerSelectModalComponent', () => {
         expect(spectator.component.favorites()).toEqual([]);
         spectator.component.toggleFavourite({ id: 'locker-1' } as any);
         expect(spectator.component.favorites()).toEqual(['locker-1']);
-        expect(settings.saveUserSetting).toHaveBeenCalledWith(FAV_LOCKER_KEY, [
-            'locker-1',
-        ]);
+        expect(settings.saveUserSetting).toHaveBeenCalledWith(
+            SETTING_KEYS.FAVORITE_LOCKERS,
+            ['locker-1'],
+        );
         spectator.component.toggleFavourite({ id: 'locker-1' } as any);
         expect(spectator.component.favorites()).toEqual([]);
     });

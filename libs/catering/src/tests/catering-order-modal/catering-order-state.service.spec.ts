@@ -28,7 +28,10 @@ describe('CateringOrderStateService', () => {
                 building: { id: '' },
                 active_building: signal({}),
             } as any),
-            MockProvider(SettingsService, { get: vi.fn() }),
+            MockProvider(SettingsService, {
+                get: vi.fn(),
+                signal: vi.fn(() => signal(undefined)),
+            }),
         ],
     });
 

@@ -19,6 +19,7 @@ import {
     currentUserCanApprove,
     currentUserIsLoaded,
     currentUserLoaded,
+    ExternalCateringService,
     filterResourcesFromRules,
     firstValueWhere,
     flatten,
@@ -30,6 +31,7 @@ import {
     onFieldChange,
     sameDayInTimezone,
     setDefaultCreator,
+    SETTING_KEYS,
     SettingsService,
     Space,
     unique,
@@ -106,7 +108,10 @@ export interface EventFormOptions {
 }
 
 export interface EventFormFilters {
+    /** Minimum room capacity. Values below 1 mean no limit */
     capacity?: number;
+    /** Maximum room capacity. Empty means no upper limit */
+    capacity_max?: number;
     /** Whether to only show favourite rooms */
     show_fav?: boolean;
     features?: string[];
@@ -118,6 +123,7 @@ export interface EventFormFilters {
 export class EventFormService extends AsyncHandler {
     private _org = inject(OrganisationService);
     private _settings = inject(SettingsService);
+    private _external_catering = inject(ExternalCateringService);
     private _router = inject(Router);
     private _assets = inject(AssetStateService);
     private _calendar = inject(CalendarService);
@@ -354,8 +360,12 @@ export class EventFormService extends AsyncHandler {
             list = list.filter(({ id }) => this.favorite_spaces.includes(id));
         }
         if (filters.capacity > 0) {
+            const max =
+                filters.capacity_max > 0 ? filters.capacity_max : Infinity;
             list = list.filter(
-                ({ capacity }) => filters.capacity <= capacity || capacity < 0,
+                ({ capacity }) =>
+                    capacity < 0 ||
+                    (capacity >= filters.capacity && capacity <= max),
             );
         }
         if (filters.features) {
@@ -363,7 +373,13 @@ export class EventFormService extends AsyncHandler {
                 filters.features.every((f) => features.includes(f)),
             );
         }
-        return list;
+        return list.sort((a, b) => {
+            const cap_diff = (a.capacity || 0) - (b.capacity || 0);
+            if (cap_diff !== 0) return cap_diff;
+            return (a.display_name || a.name).localeCompare(
+                b.display_name || b.name,
+            );
+        });
     });
 
     /** Params driving the available space calculation */
@@ -435,7 +451,7 @@ export class EventFormService extends AsyncHandler {
     }
 
     public get favorite_spaces() {
-        return this._settings.get<string[]>('favourite_spaces') || [];
+        return this._settings.get<string[]>(SETTING_KEYS.FAVORITE_ROOMS) || [];
     }
 
     public get book_internal() {
@@ -699,6 +715,24 @@ export class EventFormService extends AsyncHandler {
         sessionStorage.setItem(
             'PLACEOS.event',
             JSON.stringify(event?.toJSON() || {}),
+        );
+    }
+
+    /**
+     * Start a new form with the given values set. The values are saved at
+     * once, so `loadForm` restores them when the form page loads. Use this to
+     * open the form from another page with a field already filled in.
+     */
+    public newFormWith(values: Partial<EventFormValue>) {
+        if (!currentUserIsLoaded()) {
+            currentUserLoaded().then(() => this.newFormWith(values));
+            return;
+        }
+        this.newForm();
+        this._model.update((m) => ({ ...m, ...values }));
+        sessionStorage.setItem(
+            'PLACEOS.event_form',
+            JSON.stringify(this._model()),
         );
     }
 
@@ -1057,14 +1091,53 @@ export class EventFormService extends AsyncHandler {
             // Sync bookings for each catering order in the event. The edit
             // form can hold no orders for an event that has them, so an
             // empty list is not taken as a removal
+            const is_new_booking = !event.id;
             if (this._model().catering?.length) {
-                await createBookingsForEvent(
-                    created_event,
-                    'catering-order',
-                    this._model().catering,
-                ).catch((e) =>
+                let submit_catering: Promise<unknown> | null = null;
+                if (this._external_catering.enabled) {
+                    // The external catering driver only creates orders (no update/cancel) and
+                    // keys them by purchase_order_number = event id, so
+                    // re-submitting on an edit would duplicate the order. Only
+                    // place orders for brand new bookings; existing external orders
+                    // are left untouched on edit.
+                    if (is_new_booking) {
+                        submit_catering = this._external_catering
+                            .placeOrders(created_event, this._model().catering)
+                            .then((placed) => {
+                                // Create local catering-order bookings that
+                                // reference the external order so they show in the
+                                // management UI like native orders
+                                const orders = placed.map(
+                                    ({ order, reference }) => {
+                                        const data =
+                                            typeof (order as any).toJSON ===
+                                            'function'
+                                                ? (order as any).toJSON()
+                                                : { ...order };
+                                        return {
+                                            ...data,
+                                            external_reference: reference,
+                                        };
+                                    },
+                                );
+                                if (!orders.length) return;
+                                return createBookingsForEvent(
+                                    created_event,
+                                    'catering-order',
+                                    orders as any,
+                                );
+                            });
+                    }
+                } else {
+                    submit_catering = createBookingsForEvent(
+                        created_event,
+                        'catering-order',
+                        this._model().catering,
+                    );
+                }
+                await submit_catering?.catch((e) =>
                     this._removeBookingAfterError(
-                        !event.id,
+                        is_new_booking,
                         created_event,
                         false,
                         e,

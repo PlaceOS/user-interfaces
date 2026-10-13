@@ -201,6 +201,42 @@ describe('BookingFormService', () => {
         expect(ts_client.listChildMetadata).not.toHaveBeenCalled();
     });
 
+    it('should use the current form when listing available resources', async () => {
+        const org = spectator.inject(OrganisationService) as any;
+        org.active_region = signal({ id: 'reg-1' });
+        org.regions = [];
+        org.settings = [];
+        (spectator.inject(SettingsService).overrides as any).set([{}, {}]);
+        const desk = {
+            id: 'desk-1',
+            name: 'Desk 1',
+            zone: { id: 'lvl-1', parent_id: 'bld-1' },
+            features: [],
+        };
+        vi.mocked(ts_client.listChildMetadata).mockResolvedValue([
+            {
+                metadata: { desks: { details: [desk] } },
+                zone: desk.zone,
+            },
+        ] as any);
+        (spectator.service as any)._resources_resource.set([desk]);
+        (spectator.service as any)._booking_rules_resource.set({});
+        (spectator.service as any)._available_resource.set([]);
+        spectator.service.setOptions({ type: 'desk', zone_id: 'lvl-1' });
+        spectator.service.model.update((form) => ({
+            ...form,
+            booking_type: 'desk',
+            date: Date.now() + 60 * 60 * 1000,
+            duration: 60,
+            all_day: false,
+            user: currentUser(),
+        }));
+
+        const resources = await spectator.service.listAvailableResources();
+
+        expect(resources.map(({ id }) => id)).toEqual(['desk-1']);
+    });
+
     it('should load desk resources from assets when enabled', async () => {
         vi.mocked(spectator.inject(SettingsService).get).mockImplementation(
             (key: string) => key === 'app.desks.use_assets',
@@ -348,6 +384,30 @@ describe('BookingFormService', () => {
         expect(show_user).not.toHaveBeenCalled();
     });
 
+    it('should use the all-day period for the booking window', () => {
+        (spectator.inject(SettingsService).get as Mock).mockImplementation(
+            (key: string) =>
+                key === 'app.bookings.all_day_period'
+                    ? { start: 8, end: 18 }
+                    : undefined,
+        );
+        const date = new Date(2026, 8, 23, 13, 30).valueOf();
+
+        expect(spectator.service.bookingWindow({ date, duration: 60 })).toEqual(
+            { start: date, end: date + 60 * 60 * 1000 },
+        );
+        expect(
+            spectator.service.bookingWindow({
+                date,
+                duration: 60,
+                all_day: true,
+            }),
+        ).toEqual({
+            start: new Date(2026, 8, 23, 8).valueOf(),
+            end: new Date(2026, 8, 23, 18).valueOf(),
+        });
+    });
+
     it('should handle view changes', () => {
         expect(spectator.service.view()).toBe('form');
         spectator.service.setView('map');
@@ -375,6 +435,50 @@ describe('BookingFormService', () => {
         spectator.service.clearForm();
         expect(spectator.service.model().date).not.toBe(date);
         spy.mockRestore();
+    });
+
+    it('should not refresh availability when the selected desk changes', async () => {
+        vi.useFakeTimers();
+        try {
+            const form_value = (spectator.service as any)._form_value;
+            form_value.set({
+                date: Date.now(),
+                duration: 60,
+                resources: [],
+                asset_id: '',
+            });
+            TestBed.tick();
+            await vi.advanceTimersByTimeAsync(500);
+            TestBed.tick();
+            const availability_form = (spectator.service as any)
+                ._form_value_debounced;
+            const initial_value = availability_form.value();
+            const desk = {
+                id: 'desk-1',
+                name: 'Desk 1',
+                map_id: 'map-desk-1',
+                zone: { id: 'level-1', parent_id: 'building-1' },
+            };
+
+            form_value.set({
+                ...initial_value,
+                resources: [desk],
+                booking_asset: desk,
+                asset_id: desk.id,
+                asset_name: desk.name,
+                map_id: desk.map_id,
+                name: desk.name,
+                description: desk.name,
+                zones: [desk.zone.parent_id, desk.zone.id],
+            });
+            TestBed.tick();
+            await vi.advanceTimersByTimeAsync(500);
+            TestBed.tick();
+
+            expect(availability_form.value()).toBe(initial_value);
+        } finally {
+            vi.useRealTimers();
+        }
     });
 
     it('should not update asset options when form date and duration are unchanged', () => {
@@ -681,6 +785,16 @@ describe('BookingFormService', () => {
             new NavigationEnd(1, '/schedule', '/schedule'),
         );
         expect(spectator.service.clearForm).toHaveBeenCalled();
+        spy.mockRestore();
+    });
+
+    it('should clear form on a visit to the landing page', () => {
+        const spy = vi.spyOn(spectator.service, 'clearForm');
+        const router = spectator.inject(Router);
+        (router.events as any).next(
+            new NavigationEnd(1, '/landing', '/landing'),
+        );
+        expect(spy).toHaveBeenCalled();
         spy.mockRestore();
     });
 
@@ -2886,7 +3000,7 @@ describe('BookingFormService', () => {
         expect(post_form).toHaveBeenNthCalledWith(1, true, false);
         expect(post_form).toHaveBeenNthCalledWith(2, true, false);
         expect(clear_form).toHaveBeenCalledTimes(1);
-        expect(saved_forms[0].zones).toEqual(['org-1', 'bld-1']);
+        expect(saved_forms[0].zones).toEqual(['org-1', 'reg-1', 'bld-1']);
         expect(saved_forms[1].location).toBe('Main Lobby');
     });
 
@@ -3533,6 +3647,121 @@ describe('BookingFormService', () => {
             expect(spectator.service.model().all_day).toBe(true);
         });
 
+        it('does not request a locker on a new desk form', () => {
+            spectator.service.loadForm('desk');
+            spectator.service.newForm('desk');
+
+            expect(spectator.service.model().secondary_resource).toBe('');
+        });
+
+        it('keeps a "Require locker" choice made before the flow initialises the form', () => {
+            spectator.service.setUserValues({ secondary_resource: 'locker' });
+
+            spectator.service.loadForm('desk');
+            spectator.service.newForm('desk');
+
+            expect(spectator.service.model().secondary_resource).toBe('locker');
+        });
+
+        it('keeps a cleared "Require locker" over a stored locker request', () => {
+            sessionStorage.setItem(
+                'PLACEOS.booking_form',
+                JSON.stringify({ secondary_resource: 'locker' }),
+            );
+            spectator.service.setUserValues({ secondary_resource: '' });
+
+            spectator.service.loadForm('desk');
+
+            expect(spectator.service.model().secondary_resource).toBe('');
+        });
+
+        it('keeps a start time chosen before the flow initialises the form', () => {
+            vi.useFakeTimers();
+            vi.setSystemTime(new Date(2026, 9, 12, 9, 0));
+            try {
+                const date = new Date(2026, 9, 12, 11, 0).valueOf();
+                spectator.service.setUserValues({ date });
+                // Let the time sync set the end time for the user's start.
+                TestBed.tick();
+
+                spectator.service.loadForm('desk');
+                spectator.service.newForm('desk');
+                // The delayed window sync must not replace the user's time.
+                vi.runAllTimers();
+                TestBed.tick();
+
+                const model = spectator.service.model();
+                expect(model.date).toBe(date);
+                // The end time moves with the start time. The end time of
+                // the new booking is before the user's start, and the time
+                // sync would reduce the duration to the minimum.
+                expect(model.duration).toBe(60);
+                expect(model.date_end).toBe(date + 60 * 60 * 1000);
+            } finally {
+                vi.useRealTimers();
+            }
+        });
+
+        it('keeps a duration chosen before the flow initialises the form', () => {
+            userEdits('duration', 120);
+            // Let the time sync set the end time for the user's duration.
+            TestBed.tick();
+
+            spectator.service.loadForm('desk');
+            spectator.service.newForm('desk');
+            TestBed.tick();
+
+            expect(spectator.service.model().duration).toBe(120);
+        });
+
+        it('keeps a recurrence chosen before the flow initialises the form', () => {
+            spectator.service.setUserValues({
+                recurrence_type: 'weekly',
+                recurrence_interval: 2,
+            });
+
+            spectator.service.loadForm('desk');
+            spectator.service.newForm('desk');
+
+            const { recurrence_type, recurrence_interval } =
+                spectator.service.model();
+            expect(recurrence_type).toBe('weekly');
+            expect(recurrence_interval).toBe(2);
+        });
+
+        it('keeps a group selection made before the flow initialises the form', () => {
+            const members = [new StaffUser({ email: 'jo@example.com' })];
+            spectator.service.setOptions({ group: true, members });
+
+            spectator.service.loadForm('desk');
+            spectator.service.newForm('desk');
+
+            expect(spectator.service.options().group).toBe(true);
+            expect(spectator.service.options().members).toEqual(members);
+        });
+
+        it('keeps a choice made on a desk form that a reset already initialised', () => {
+            // The usual path in the app: the landing page clears the form,
+            // which gives the model the type `desk`.
+            spectator.service.clearForm();
+            spectator.service.setUserValues({ secondary_resource: 'locker' });
+
+            spectator.service.loadForm('desk');
+            spectator.service.newForm('desk');
+
+            expect(spectator.service.model().secondary_resource).toBe('locker');
+        });
+
+        it('keeps input on a visitor form after the landing page cleared the form', () => {
+            spectator.service.clearForm();
+            userEdits('title', 'Visitor title');
+
+            spectator.service.loadForm('visitor');
+            spectator.service.newForm('visitor');
+
+            expect(spectator.service.model().title).toBe('Visitor title');
+        });
+
         it('carries a typed title between booking forms, deliberately', () => {
             // Switching desk -> parking without leaving the booking area does not
             // reset the form, so the user's own typing follows them. Pinned
@@ -3543,6 +3772,26 @@ describe('BookingFormService', () => {
             spectator.service.loadForm('parking');
             spectator.service.newForm('parking');
             expect(spectator.service.model().title).toBe('Desk title');
+        });
+
+        it('does not move desk choices to the form of a different booking type', () => {
+            // No other form shows a locker request, a recurrence, or a group
+            // selection.
+            spectator.service.newForm('desk');
+            spectator.service.setUserValues({
+                secondary_resource: 'locker',
+                recurrence_type: 'weekly',
+            });
+            spectator.service.setOptions({ group: true });
+
+            spectator.service.loadForm('parking');
+            spectator.service.newForm('parking');
+
+            const { secondary_resource, recurrence_type } =
+                spectator.service.model();
+            expect(secondary_resource).toBe('');
+            expect(recurrence_type).toBe('none');
+            expect(spectator.service.options().group).toBeFalsy();
         });
 
         it('does not carry those edits into a later unrelated form', () => {

@@ -1,4 +1,5 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, inject, model, signal } from '@angular/core';
+import { MatRippleModule } from '@angular/material/core';
 import { RouterModule } from '@angular/router';
 import {
     AsyncHandler,
@@ -8,282 +9,174 @@ import {
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import type { TopMenuEmbedItem } from './top-menu.component';
 
+interface FooterMenuItem {
+    id: string;
+    name: string;
+    icon: string;
+    route: string[];
+}
+
+const FEATURE_MENU_ITEMS: FooterMenuItem[] = [
+    {
+        id: 'spaces',
+        name: 'APP.WORKPLACE.MENU_ROOMS',
+        icon: 'meeting_room',
+        route: ['/book', 'meeting'],
+    },
+    {
+        id: 'desks',
+        name: 'APP.WORKPLACE.MENU_DESKS',
+        icon: 'desk',
+        route: ['/book', 'desk'],
+    },
+    {
+        id: 'parking',
+        name: 'APP.WORKPLACE.MENU_PARKING',
+        icon: 'directions_car',
+        route: ['/book', 'parking'],
+    },
+    {
+        id: 'parking-requests',
+        name: 'APP.WORKPLACE.MENU_PARKING_REQUESTS',
+        icon: 'local_parking',
+        route: ['/book', 'parking-request'],
+    },
+    {
+        id: 'visitor-invite',
+        name: 'APP.WORKPLACE.MENU_VISITORS',
+        icon: 'person_add',
+        route: ['/book', 'visitor'],
+    },
+    {
+        id: 'schedule',
+        name: 'APP.WORKPLACE.MENU_SCHEDULE',
+        icon: 'today',
+        route: ['/your-bookings'],
+    },
+    {
+        id: 'group-events',
+        name: 'APP.WORKPLACE.MENU_EVENTS',
+        icon: 'local_activity',
+        route: ['/group-events'],
+    },
+    {
+        id: 'lockers',
+        name: 'APP.WORKPLACE.MENU_LOCKERS',
+        icon: 'lock',
+        route: ['/book', 'locker'],
+    },
+    {
+        id: 'control',
+        name: 'APP.WORKPLACE.MENU_CONTROL',
+        icon: 'remote_gen',
+        route: ['/control'],
+    },
+    {
+        id: 'deals-n-offers',
+        name: 'APP.WORKPLACE.MENU_DEALS',
+        icon: 'confirmation_number',
+        route: ['/deals-n-offers'],
+    },
+    {
+        id: 'team-schedule',
+        name: 'APP.WORKPLACE.MENU_TEAM_SCHEDULE',
+        icon: 'groups',
+        route: ['/team-schedule'],
+    },
+];
+
 @Component({
     selector: 'footer-menu',
     template: `
         @if (show_book_items() && footer_item_count() > 1) {
             <div
-                class="fixed inset-0 bottom-16 z-20"
+                class="border-base-100 fixed inset-0 bottom-16 z-30 border-t"
                 [attr.dark]="dark_mode()"
-                (click)="show_book_items.set(false)"
+                (click)="show_book_items.set(false); blur_backdrop.set(false)"
             >
-                <div class="absolute inset-0 bg-black opacity-50"></div>
                 <div
-                    class="absolute inset-x-0 bottom-0 flex flex-wrap items-end justify-center p-4"
+                    class="border-base-100 bg-base-100 absolute inset-x-0 bottom-0 grid max-h-[60vh] grid-cols-2 gap-4 overflow-y-auto rounded-t-xl border-t p-4"
                 >
-                    @if (features().includes('spaces')) {
-                        <div
-                            class="flex w-1/2 min-w-1/2 flex-1 items-center justify-center p-2"
+                    @for (item of menu_items(); track item.id) {
+                        <a
+                            matRipple
+                            [name]="'footer-nav-' + item.id"
+                            [routerLink]="item.route"
+                            routerLinkActive="active"
+                            class="bg-base-100 border-base-300 hover:bg-base-200 flex h-32 w-full flex-col items-center justify-center gap-2 rounded-2xl border p-2 shadow-lg"
                         >
-                            <a
-                                icon default
-                                class="flex h-28 w-28 flex-col items-center justify-center gap-2 rounded-xl"
-                                name="footer-nav-meeting"
-                                matRipple
-                                [routerLink]="['/book', 'meeting']"
-                                routerLinkActive="active"
+                            <icon class="text-4xl" filled>{{ item.icon }}</icon>
+                            <icon
+                                outline
+                                class="text-base-400 text-4xl"
+                                className="material-symbols-outlined"
+                                >{{ item.icon }}</icon
                             >
-                                <icon class="text-4xl" filled
-                                    >meeting_room</icon
-                                >
-                                <icon
-                                    outline
-                                    class="text-base-400 text-4xl"
-                                    className="material-symbols-outlined"
-                                    >meeting_room</icon
-                                >
-                                <div class="text-center text-sm">
-                                    {{ 'APP.WORKPLACE.MENU_ROOMS' | translate }}
-                                </div>
-                            </a>
-                        </div>
-                    }
-                    @if (features().includes('desks')) {
-                        <div
-                            class="flex w-1/2 min-w-1/2 flex-1 items-center justify-center p-2"
-                        >
-                            <a
-                                icon default
-                                class="flex h-28 w-28 flex-col items-center justify-center gap-2 rounded-xl"
-                                matRipple
-                                [routerLink]="['/book', 'desk']"
-                                routerLinkActive="active"
-                            >
-                                <icon class="text-4xl" filled>desk</icon>
-                                <icon
-                                    outline
-                                    class="text-base-400 text-4xl"
-                                    className="material-symbols-outlined"
-                                    >desk</icon
-                                >
-                                <div class="text-center text-sm">
-                                    {{ 'APP.WORKPLACE.MENU_DESKS' | translate }}
-                                </div>
-                            </a>
-                        </div>
-                    }
-                    @if (features().includes('parking')) {
-                        <div
-                            class="flex w-1/2 min-w-1/2 flex-1 items-center justify-center p-2"
-                        >
-                            <a
-                                icon default
-                                class="flex h-28 w-28 flex-col items-center justify-center gap-2 rounded-xl"
-                                name="footer-nav-parking"
-                                matRipple
-                                [routerLink]="['/book', 'parking']"
-                                routerLinkActive="active"
-                            >
-                                <icon class="text-4xl" filled
-                                    >directions_car</icon
-                                >
-                                <icon
-                                    outline
-                                    class="text-base-400 text-4xl"
-                                    className="material-symbols-outlined"
-                                    >directions_car</icon
-                                >
-                                <div class="text-center text-sm">
-                                    {{
-                                        'APP.WORKPLACE.MENU_PARKING' | translate
-                                    }}
-                                </div>
-                            </a>
-                        </div>
-                    }
-                    @if (features().includes('parking-requests')) {
-                        <div
-                            class="flex w-1/2 min-w-1/2 flex-1 items-center justify-center p-2"
-                        >
-                            <a
-                                icon default
-                                class="flex h-28 w-28 flex-col items-center justify-center gap-2 rounded-xl"
-                                name="footer-nav-parking-requests"
-                                matRipple
-                                [routerLink]="['/book', 'parking-request']"
-                                routerLinkActive="active"
-                            >
-                                <icon class="text-4xl" filled
-                                    >local_parking</icon
-                                >
-                                <icon
-                                    outline
-                                    class="text-base-400 text-4xl"
-                                    className="material-symbols-outlined"
-                                    >local_parking</icon
-                                >
-                                <div class="text-center text-sm">
-                                    {{
-                                        'APP.WORKPLACE.MENU_PARKING_REQUESTS'
-                                            | translate
-                                    }}
-                                </div>
-                            </a>
-                        </div>
-                    }
-                    @if (features().includes('visitor-invite')) {
-                        <div
-                            class="flex w-1/2 min-w-1/2 flex-1 items-center justify-center p-2"
-                        >
-                            <a
-                                icon default
-                                class="flex h-28 w-28 flex-col items-center justify-center gap-2 rounded-xl"
-                                name="footer-nav-visitors"
-                                matRipple
-                                [routerLink]="['/book', 'visitor']"
-                                routerLinkActive="active"
-                            >
-                                <icon class="text-4xl" filled>person_add</icon>
-                                <icon
-                                    outline
-                                    class="text-base-400 text-4xl"
-                                    className="material-symbols-outlined"
-                                    >person_add</icon
-                                >
-                                <div class="text-center text-sm">
-                                    {{
-                                        'APP.WORKPLACE.MENU_VISITORS'
-                                            | translate
-                                    }}
-                                </div>
-                            </a>
-                        </div>
-                    }
-                    @if (features().includes('schedule')) {
-                        <div
-                            class="flex w-1/2 min-w-1/2 flex-1 items-center justify-center p-2"
-                        >
-                            <a
-                                icon default
-                                class="flex h-28 w-28 flex-col items-center justify-center gap-2 rounded-xl"
-                                name="footer-nav-my-day"
-                                matRipple
-                                [routerLink]="['/your-bookings']"
-                                routerLinkActive="active"
-                            >
-                                <icon class="text-4xl" filled>today</icon>
-                                <icon
-                                    outline
-                                    class="text-base-400 text-4xl"
-                                    className="material-symbols-outlined"
-                                    >today</icon
-                                >
-                                <div class="text-center text-sm">
-                                    {{
-                                        'APP.WORKPLACE.MENU_SCHEDULE'
-                                            | translate
-                                    }}
-                                </div>
-                            </a>
-                        </div>
-                    }
-                    @if (features().includes('events')) {
-                        <div
-                            class="flex w-1/2 min-w-1/2 flex-1 items-center justify-center p-2"
-                        >
-                            <a
-                                icon default
-                                class="flex h-28 w-28 flex-col items-center justify-center gap-2 rounded-xl"
-                                name="footer-nav-events"
-                                matRipple
-                                [routerLink]="['/group-events']"
-                                routerLinkActive="active"
-                            >
-                                <icon class="text-4xl" filled
-                                    >local_activity</icon
-                                >
-                                <icon
-                                    outline
-                                    class="text-base-400 text-4xl"
-                                    className="material-symbols-outlined"
-                                    >local_activity</icon
-                                >
-                                <div class="text-center text-sm">
-                                    {{
-                                        'APP.WORKPLACE.MENU_EVENTS' | translate
-                                    }}
-                                </div>
-                            </a>
-                        </div>
+                            <div class="text-center text-sm">
+                                {{ item.name | translate }}
+                            </div>
+                        </a>
                     }
                     @for (item of menu_embeds(); track item.id) {
-                        <div
-                            class="flex w-1/2 min-w-1/2 flex-1 items-center justify-center p-2"
-                        >
-                            @if (item.external) {
-                                <a
-                                    icon default
-                                    class="flex h-28 w-28 flex-col items-center justify-center gap-2 rounded-xl"
-                                    [name]="'footer-nav-embed-' + item.id"
-                                    [href]="item.url"
-                                    target="_blank"
-                                    rel="noopener noreferrer"
+                        @if (item.external) {
+                            <a
+                                matRipple
+                                [name]="'footer-nav-embed-' + item.id"
+                                [href]="item.url"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                class="bg-base-100 border-base-300 hover:bg-base-200 flex h-32 w-full flex-col items-center justify-center gap-2 rounded-2xl border p-2 shadow-lg"
+                            >
+                                <icon class="text-4xl" filled>{{
+                                    item.icon || 'open_in_browser'
+                                }}</icon>
+                                <icon
+                                    outline
+                                    class="text-base-400 text-4xl"
+                                    className="material-symbols-outlined"
+                                    >{{ item.icon || 'open_in_browser' }}</icon
                                 >
-                                    <icon class="text-4xl" filled>{{
-                                        item.icon || 'open_in_browser'
-                                    }}</icon>
-                                    <icon
-                                        outline
-                                        class="text-base-400 text-4xl"
-                                        className="material-symbols-outlined"
-                                        >{{
-                                            item.icon || 'open_in_browser'
-                                        }}</icon
-                                    >
-                                    <div class="text-center text-sm">
-                                        {{ item.name | translate }}
-                                    </div>
-                                </a>
-                            } @else {
-                                <a
-                                    icon default
-                                    class="flex h-28 w-28 flex-col items-center justify-center gap-2 rounded-xl"
-                                    [name]="'footer-nav-embed-' + item.id"
-                                    [routerLink]="['/embedded', item.id]"
-                                    routerLinkActive="active"
+                                <div class="text-center text-sm">
+                                    {{ item.name | translate }}
+                                </div>
+                            </a>
+                        } @else {
+                            <a
+                                matRipple
+                                [name]="'footer-nav-embed-' + item.id"
+                                [routerLink]="['/embedded', item.id]"
+                                routerLinkActive="active"
+                                class="bg-base-100 border-base-300 hover:bg-base-200 flex h-32 w-full flex-col items-center justify-center gap-2 rounded-2xl border p-2 shadow-lg"
+                            >
+                                <icon class="text-4xl" filled>{{
+                                    item.icon || 'open_in_browser'
+                                }}</icon>
+                                <icon
+                                    outline
+                                    class="text-base-400 text-4xl"
+                                    className="material-symbols-outlined"
+                                    >{{ item.icon || 'open_in_browser' }}</icon
                                 >
-                                    <icon class="text-4xl" filled>{{
-                                        item.icon || 'open_in_browser'
-                                    }}</icon>
-                                    <icon
-                                        outline
-                                        class="text-base-400 text-4xl"
-                                        className="material-symbols-outlined"
-                                        >{{
-                                            item.icon || 'open_in_browser'
-                                        }}</icon
-                                    >
-                                    <div class="text-center text-sm">
-                                        {{ item.name | translate }}
-                                    </div>
-                                </a>
-                            }
-                        </div>
+                                <div class="text-center text-sm">
+                                    {{ item.name | translate }}
+                                </div>
+                            </a>
+                        }
                     }
                 </div>
             </div>
         }
         @if (footer_item_count() > 1) {
             <div
-                class="border-base-200 gap-1 bg-base-100 relative z-30 flex min-h-16 w-full items-center justify-center border-t shadow-sm sm:hidden pl-[env(safe-area-inset-left)] pr-[env(safe-area-inset-right)] px-1"
+                class="border-base-200 bg-base-100 relative z-60 flex min-h-16 w-full items-center justify-center gap-3 border-t px-2 pr-[max(0.5rem,env(safe-area-inset-right))] pb-[env(safe-area-inset-bottom)] pl-[max(0.5rem,env(safe-area-inset-left))] shadow-sm sm:hidden"
                 [attr.dark]="dark_mode()"
             >
                 <a
                     matRipple
-                    class="relative flex flex-1 flex-col items-center justify-center"
+                    class="relative flex flex-1 flex-col items-center justify-center rounded-lg"
                     [routerLink]="[default_page()]"
                     name="footer-nav-home"
-                    routerLinkActive="active"
+                    routerLinkActive="text-secondary active font-medium bg-secondary/10"
                 >
                     <icon filled class="text-2xl">home</icon>
                     <icon
@@ -295,15 +188,15 @@ import type { TopMenuEmbedItem } from './top-menu.component';
                     <span class="text-sm">{{
                         'APP.WORKPLACE.MENU_HOME' | translate
                     }}</span>
-                    <div bar class="absolute -bottom-2 inset-x-2 h-1.5 rounded-t bg-info"></div>
                 </a>
                 <button
                     matRipple
-                    class="z-10 mb-4 flex h-12 w-12 items-center justify-center rounded-full border border-base-300"
+                    class="border-base-300 z-10 mb-4 flex h-12 w-12 items-center justify-center rounded-full border"
                     (click)="show_book_items.set(!show_book_items())"
                     [class.bg-base-200]="!show_book_items()"
                     [class.border-info!]="show_book_items()"
-                    [class.bg-info-light]="show_book_items()"
+                    [class.bg-info]="show_book_items()"
+                    [class.text-info-content]="show_book_items()"
                     [class.shadow-md]="show_book_items()"
                 >
                     <icon class="text-2xl">{{
@@ -316,7 +209,7 @@ import type { TopMenuEmbedItem } from './top-menu.component';
                     [routerLink]="['/explore']"
                     [attr.disabled]="!features().includes('explore')"
                     [class.opacity-0]="!features().includes('explore')"
-                    routerLinkActive="active"
+                    routerLinkActive="text-secondary active font-medium bg-secondary/10"
                 >
                     <icon filled class="text-2xl">place</icon>
                     <icon
@@ -328,7 +221,6 @@ import type { TopMenuEmbedItem } from './top-menu.component';
                     <span class="text-sm">{{
                         'APP.WORKPLACE.MENU_EXPLORE' | translate
                     }}</span>
-                    <div bar class="absolute -bottom-2 inset-x-2 h-1.5 rounded-t bg-info"></div>
                 </a>
                 <div
                     class="absolute top-0 left-1/2 h-2 w-24 -translate-x-1/2 -translate-y-full overflow-hidden"
@@ -342,29 +234,29 @@ import type { TopMenuEmbedItem } from './top-menu.component';
     `,
     styles: [
         `
-            a.active {
-                font-weight: 500;
-            }
-
-            [icon][default].active {
-                background: var(--info-light);
-                color: var(--info);
-                border-color: var(--info);
+            :host {
+                position: relative;
+                z-index: 20;
             }
 
             a:not(.active) [filled],
-            a.active [outline],
-            a:not(.active) [bar] {
+            a.active [outline] {
                 display: none;
+            }
+
+            a.active {
+                background: var(--brand-200) !important;
+                color: #fff !important;
             }
         `,
     ],
-    imports: [TranslatePipe, IconComponent, RouterModule],
+    imports: [TranslatePipe, IconComponent, RouterModule, MatRippleModule],
 })
 export class FooterMenuComponent extends AsyncHandler {
     private _settings = inject(SettingsService);
     private _org = inject(OrganisationService);
 
+    public readonly blur_backdrop = model(false);
     public readonly show_book_items = signal(false);
     // Derive settings-based state as computeds so they stay consistent within a
     // change detection pass. Writing these from an effect created the menu
@@ -389,6 +281,10 @@ export class FooterMenuComponent extends AsyncHandler {
         return (this._settings.get('app.menu_embeds') || []).filter(
             (item) => item?.id && item?.name && item?.url,
         );
+    });
+    public readonly menu_items = computed(() => {
+        const features = this.features();
+        return FEATURE_MENU_ITEMS.filter((item) => features.includes(item.id));
     });
     public readonly footer_item_count = computed(
         () => this.features().length + this.menu_embeds().length,

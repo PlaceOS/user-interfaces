@@ -69,6 +69,17 @@ describe('ParkingRequestsListComponent', () => {
         expect(spectator.component.timezone).toBe('Australia/Perth');
     });
 
+    it('should read the created time of a request from the booking', () => {
+        spectator = createComponent();
+        const created_at = 1_780_000_000;
+
+        expect(
+            spectator.component.request_submitted_at(
+                new Booking({ created_at }),
+            ),
+        ).toBe(created_at * 1000);
+    });
+
     it('should hide waitlisted status when waitlist display is disabled', () => {
         show_waitlist = false;
         spectator = createComponent();

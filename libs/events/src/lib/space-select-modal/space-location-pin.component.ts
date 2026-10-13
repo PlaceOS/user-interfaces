@@ -1,11 +1,13 @@
-import { Component, computed, inject } from '@angular/core';
+import { Component, computed, HostListener, inject } from '@angular/core';
 import { MAP_FEATURE_DATA } from 'libs/common/src/lib/types';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 
 @Component({
     selector: 'space-location-pin',
     template: `
-        <div class="absolute bottom-0 left-1/2 -translate-x-1/2">
+        <div
+            class="pointer-events-auto absolute bottom-0 left-1/2 -translate-x-1/2 cursor-pointer"
+        >
             <svg
                 width="44"
                 height="60"
@@ -94,4 +96,13 @@ export class SpaceLocationPinComponent {
               ? '#D32F2F'
               : '#309251';
     });
+
+    @HostListener('click', ['$event'])
+    @HostListener('touchend', ['$event'])
+    public onClick(event: Event) {
+        event.stopPropagation();
+        if (typeof this._data.onSelect === 'function') {
+            this._data.onSelect();
+        }
+    }
 }

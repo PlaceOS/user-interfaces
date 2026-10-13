@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import {
+    BuildingLevel,
     formatRecurrence,
     fromEventRecurrence,
     OrganisationService,
@@ -16,8 +17,8 @@ import { EventFormService, SpacePipe } from '@placeos/events';
     template: `
         @let details =
             {
-                level: level?.display_name || level?.name,
-                space: space?.display_name || space?.name,
+                level: level().display_name || level().name,
+                space: space().display_name || space().name,
                 date: last_event()?.date | date: 'mediumDate',
                 time:
                     (last_event()?.date | date: time_format) +
@@ -48,7 +49,7 @@ import { EventFormService, SpacePipe } from '@placeos/events';
                     <p class="max-w-lg text-center">
                         @if (last_event()?.all_day) {
                             {{
-                                (space
+                                (space().email
                                     ? 'CALENDAR_EVENT.SUCCESS_WITH_SPACE_ALLDAY'
                                     : 'CALENDAR_EVENT.SUCCESS_WITHOUT_SPACE_ALLDAY'
                                 ) | translate: details
@@ -56,7 +57,7 @@ import { EventFormService, SpacePipe } from '@placeos/events';
                         }
                         @if (!last_event()?.all_day) {
                             {{
-                                (space
+                                (space().email
                                     ? 'CALENDAR_EVENT.SUCCESS_WITH_SPACE'
                                     : 'CALENDAR_EVENT.SUCCESS_WITHOUT_SPACE'
                                 ) | translate: details
@@ -75,13 +76,19 @@ import { EventFormService, SpacePipe } from '@placeos/events';
                         </div>
                     }
                     <div class="h-4"></div>
-                    @if (space?.email && allow_desk_booking) {
+                    @if (space().email && allow_desk_booking) {
                         <button
                             btn
                             matRipple
-                            class="w-48"
+                            class="w-56"
+                            [disabled]="desk_loading()"
                             (click)="startDeskBooking()"
                         >
+                            @if (desk_loading()) {
+                                <icon class="mr-2 animate-spin text-2xl"
+                                    >progress_activity</icon
+                                >
+                            }
                             {{ 'CALENDAR_EVENT.BOOK_NEARBY_DESK' | translate }}
                         </button>
                     }
@@ -114,8 +121,12 @@ export class MeetingFlowSuccessComponent implements OnInit {
     private _space_pipe = inject(SpacePipe);
 
     public readonly loading = signal(false);
+    public readonly desk_loading = signal(false);
     public readonly last_event = this._event_form.last_success;
-    public readonly resolved_space = signal<Space | null>(null);
+    public readonly space = signal(new Space());
+    public readonly level = computed(() => {
+        return this._org.levelWithID(this.space().zones) || new BuildingLevel();
+    });
     public readonly formatted_recurrence = computed(() => {
         const event = this.last_event();
         if (!event?.recurrence?.pattern) return '';
@@ -136,33 +147,28 @@ export class MeetingFlowSuccessComponent implements OnInit {
         );
     }
 
-    public get space() {
-        return this.resolved_space() || this.last_event()?.space;
-    }
-
-    public get level() {
-        return (
-            this._org.levelWithID(this.space?.zones || []) || this.space?.level
-        );
-    }
-
     public get time_format() {
         return this._settings.time_format;
     }
 
     public async ngOnInit() {
         this.loading.set(true);
-        const space = this.last_event()?.space;
-        if (space?.email || space?.id) {
-            const resolved_space = await this._space_pipe.transform(
-                space.email || space.id,
-            );
-            if (
-                resolved_space &&
-                (resolved_space.id ||
-                    resolved_space.email !== 'empty.space@place.os')
-            ) {
-                this.resolved_space.set(resolved_space);
+        const event_space = this.last_event()?.space;
+        if (event_space) {
+            this.space.set(new Space(event_space));
+            try {
+                const resolved_space = await this._space_pipe.transform(
+                    event_space.email || event_space.id,
+                );
+                if (
+                    resolved_space &&
+                    (resolved_space.id ||
+                        resolved_space.email !== 'empty.space@place.os')
+                ) {
+                    this.space.set(new Space(resolved_space));
+                }
+            } catch {
+                /* Falls back to event space details when org data is unavailable */
             }
         }
         setTimeout(() => this.loading.set(false), 500);
@@ -171,7 +177,7 @@ export class MeetingFlowSuccessComponent implements OnInit {
     public startDeskBooking() {
         this._router.navigate(['/book', 'desk', 'form'], {
             queryParams: {
-                nearby_space: this.space.id || this.space.email,
+                nearby_space: this.space().id || this.space().email,
                 date: this.last_event().date,
             },
         });

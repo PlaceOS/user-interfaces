@@ -88,6 +88,55 @@ describe('LandingStateService', () => {
         expect(spectator.service).toBeTruthy();
     });
 
+    it('should exclude inactive bookings from upcoming events', () => {
+        const date = Date.now() - 60 * 60 * 1000;
+        filtered_bookings.set([
+            new Booking({
+                id: 'active',
+                date,
+                duration: 24 * 60 - 1,
+                all_day: true,
+                status: 'approved',
+            } as any),
+            new Booking({
+                id: 'checked-out',
+                date,
+                duration: 24 * 60 - 1,
+                all_day: true,
+                status: 'approved',
+                checked_out_at: Math.floor(Date.now() / 1000) - 60,
+            } as any),
+            new Booking({
+                id: 'cancelled',
+                date,
+                duration: 24 * 60 - 1,
+                all_day: true,
+                status: 'cancelled',
+            } as any),
+            new Booking({
+                id: 'deleted',
+                date,
+                duration: 24 * 60 - 1,
+                all_day: true,
+                deleted: true,
+            } as any),
+            new CalendarEvent({
+                id: 'declined-event',
+                date,
+                duration: 24 * 60 - 1,
+                all_day: true,
+                status: 'cancelled',
+            } as any),
+        ]);
+
+        spectator = createService();
+        TestBed.flushEffects();
+
+        expect(spectator.service.upcoming_events().map((_) => _.id)).toEqual([
+            'active',
+        ]);
+    });
+
     it('should exclude cancelled history before the five-card limit', async () => {
         const date = new Date().setHours(12, 0, 0, 0);
         vi.useFakeTimers({ toFake: ['Date'] });
@@ -159,6 +208,41 @@ describe('LandingStateService', () => {
         await flush();
 
         expect(spectator.service.upcoming_events()).toEqual([]);
+    });
+
+    it('should list the free spaces that the booking rules allow', async () => {
+        // The live statuses have the order of the allowed spaces
+        vi.mocked(ts_client.querySystems).mockResolvedValue({
+            data: [
+                { id: 'space-hidden', bookable: true, zones: ['lvl-a'] },
+                { id: 'space-free', bookable: true, zones: ['lvl-b'] },
+                { id: 'space-busy', bookable: true, zones: ['lvl-b'] },
+            ],
+        } as any);
+        vi.mocked(ts_client.showMetadata).mockResolvedValue({
+            details: [{ zone: 'lvl-a', rules: { hidden: true } }],
+        } as any);
+        vi.mocked(ts_client.getModule).mockImplementation(
+            (id: string) =>
+                ({
+                    variable: () => ({
+                        bindThenSubscribe: (
+                            callback: (status: string) => void,
+                        ) => {
+                            callback(id === 'space-free' ? 'free' : 'busy');
+                            return vi.fn();
+                        },
+                    }),
+                }) as any,
+        );
+
+        active_building.set({ id: 'bld-rules' });
+        spectator = createService();
+        await flush();
+
+        expect(
+            spectator.service.free_space_list().map((space) => space.id),
+        ).toEqual(['space-free']);
     });
 
     it('should not rebind space status when a status value is received', async () => {

@@ -555,6 +555,33 @@ describe('EventFormService', () => {
         expect(transform_spy).not.toHaveBeenCalled();
     });
 
+    describe('room capacity filter', () => {
+        const capacities = () =>
+            service.filtered_spaces().map((space) => space.capacity);
+
+        beforeEach(() => {
+            const spaces = [2, 4, 12].map(
+                (capacity) =>
+                    new Space({
+                        id: `space-${capacity}`,
+                        zones: ['bld-1'],
+                        capacity,
+                    }),
+            );
+            Object.assign(service, { spaces: signal(spaces) });
+        });
+
+        it('should use the capacity as a minimum', () => {
+            service.setFilters({ capacity: 3 });
+            expect(capacities()).toEqual([4, 12]);
+        });
+
+        it('should apply the upper limit only when one is set', () => {
+            service.setFilters({ capacity: 3, capacity_max: 4 });
+            expect(capacities()).toEqual([4]);
+        });
+    });
+
     it('should not make metadata requests before event data is consumed', () => {
         expect(ts_client.showMetadata).not.toHaveBeenCalled();
     });

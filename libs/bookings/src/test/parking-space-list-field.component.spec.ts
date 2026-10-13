@@ -1,5 +1,6 @@
 import { MatDialog } from '@angular/material/dialog';
 import { Spectator, createComponentFactory } from '@ngneat/spectator/vitest';
+import { SETTING_KEYS } from '@placeos/common';
 import { createSettingsServiceMock } from '@placeos/common/tests';
 import { MockComponent, MockDirective, MockPipe } from 'ng-mocks';
 import { of } from 'rxjs';
@@ -9,7 +10,6 @@ import { SettingsService } from 'libs/common/src/lib/settings.service';
 import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticated-image.directive';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
-import { FAV_PARKING_KEY } from '../lib/parking-select-modal/parking-select-modal.component';
 import { ParkingSpaceListFieldComponent } from '../lib/parking-space-list-field.component';
 
 describe('ParkingSpaceListFieldComponent', () => {
@@ -99,21 +99,25 @@ describe('ParkingSpaceListFieldComponent', () => {
     it('should add a space to favourites when toggled on', () => {
         const settings = spectator.inject(SettingsService);
         spectator.component.toggleFavourite({ id: 'space-1' } as any);
-        expect(settings.saveUserSetting).toHaveBeenCalledWith(FAV_PARKING_KEY, [
-            'space-1',
-        ]);
+        expect(settings.saveUserSetting).toHaveBeenCalledWith(
+            SETTING_KEYS.FAVORITE_PARKING_SPACES,
+            ['space-1'],
+        );
     });
 
     it('should remove a space from favourites when toggled off', () => {
         const settings = spectator.inject(SettingsService);
         (settings.get as Mock).mockImplementation((key: string) =>
-            key === FAV_PARKING_KEY ? ['space-1', 'space-2'] : undefined,
+            key === SETTING_KEYS.FAVORITE_PARKING_SPACES
+                ? ['space-1', 'space-2']
+                : undefined,
         );
         spectator.detectChanges();
         spectator.component.toggleFavourite({ id: 'space-1' } as any);
-        expect(settings.saveUserSetting).toHaveBeenCalledWith(FAV_PARKING_KEY, [
-            'space-2',
-        ]);
+        expect(settings.saveUserSetting).toHaveBeenCalledWith(
+            SETTING_KEYS.FAVORITE_PARKING_SPACES,
+            ['space-2'],
+        );
     });
 
     it('should reflect disabled state changes', () => {

@@ -62,7 +62,7 @@
         },
         "features": {
             "type": "array",
-            "description": "List of features enabled in the app. e.g. `spaces`, `zones`, `maps`, `desks`, `parking`, `visitors`, `assets`, `facilities`, `internal-users`, `points`, `surveys`, `catering`, `events`, `booking-report`, `attendance-report`, `contact-tracing-report`, `signage`, `email-templates`",
+            "description": "List of features enabled in the app. e.g. `spaces`, `zones`, `maps`, `desks`, `parking`, `visitors`, `assets`, `facilities`, `internal-users`, `points`, `surveys`, `catering`, `events`, `booking-report`, `attendance-report`, `contact-tracing-report`, `user-report`, `signage`, `email-templates`",
             "items": { "type": "string" }
         },
         "feature_groups": {
@@ -402,6 +402,11 @@
                     "description": "Additional columns to display in the parking bookings list, sourced from booking extension data",
                     "items": { "$ref": "#/$defs/parking_booking_column" }
                 },
+                "show_user_groups": {
+                    "type": "array",
+                    "description": "User group names to show in the parking bookings list. The column shows the groups of each booking that are in this list, and is hidden when the list is empty",
+                    "items": { "type": "string" }
+                },
                 "use_building_timezone": {
                     "type": "boolean",
                     "description": "Whether parking dates and times are handled in the active building's timezone. Falls back to `bookings.use_building_timezone`"
@@ -527,7 +532,7 @@
             "properties": {
                 "features": {
                     "type": "array",
-                    "description": "List of report types shown in the reports menu. Defaults to `attendance`, `desks`, `spaces`, `catering` and `contact-tracing`",
+                    "description": "List of report types shown in the reports menu. Defaults to `attendance`, `desks`, `spaces`, `catering` and `contact-tracing`. Add `user` to show the report of the bookings of a single user",
                     "items": {
                         "type": "string",
                         "enum": [
@@ -535,14 +540,16 @@
                             "desks",
                             "spaces",
                             "catering",
-                            "contact-tracing"
+                            "contact-tracing",
+                            "user"
                         ],
                         "enumNames": [
                             "Attendance",
                             "Desks",
                             "Spaces",
                             "Catering",
-                            "Contact tracing"
+                            "Contact tracing",
+                            "User bookings"
                         ]
                     }
                 },
@@ -598,6 +605,20 @@
                 "use_bookings": {
                     "type": "boolean",
                     "description": "Whether catering orders are sourced from the bookings API instead of calendar events. Affects catering reports."
+                }
+            }
+        },
+        "analytics": {
+            "type": "object",
+            "description": "Settings for Google Analytics",
+            "properties": {
+                "enabled": {
+                    "type": "boolean",
+                    "description": "Whether Google Analytics is enabled"
+                },
+                "tracking_id": {
+                    "type": "string",
+                    "description": "Google Analytics tracking ID"
                 }
             }
         }

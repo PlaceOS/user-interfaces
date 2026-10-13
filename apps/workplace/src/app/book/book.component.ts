@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { FooterMenuComponent } from '../components/footer-menu.component';
 import { TopbarComponent } from '../components/topbar.component';
+import { VirtualConciergeButtonComponent } from '../components/virtual-concierge-button.component';
 
 @Component({
     selector: 'placeos-book',
@@ -13,6 +14,7 @@ import { TopbarComponent } from '../components/topbar.component';
             <main class="flex h-1/2 flex-1 flex-col overflow-hidden sm:h-auto">
                 <router-outlet></router-outlet>
             </main>
+            <virtual-concierge-button />
         </div>
         @if (!hide_nav) {
             <footer-menu />
@@ -28,7 +30,12 @@ import { TopbarComponent } from '../components/topbar.component';
             }
         `,
     ],
-    imports: [RouterModule, FooterMenuComponent, TopbarComponent],
+    imports: [
+        RouterModule,
+        FooterMenuComponent,
+        TopbarComponent,
+        VirtualConciergeButtonComponent,
+    ],
 })
 export class BookComponent {
     public get hide_nav() {

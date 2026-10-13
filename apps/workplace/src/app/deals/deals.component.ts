@@ -16,6 +16,7 @@ import {
 } from '@placeos/components';
 import { FooterMenuComponent } from '../components/footer-menu.component';
 import { TopbarComponent } from '../components/topbar.component';
+import { VirtualConciergeButtonComponent } from '../components/virtual-concierge-button.component';
 import { DealsService } from './deals.service';
 
 @Component({
@@ -184,6 +185,7 @@ import { DealsService } from './deals.service';
                     }
                 </div>
             </main>
+            <virtual-concierge-button />
             <footer-menu />
         </div>
     `,
@@ -196,6 +198,7 @@ import { DealsService } from './deals.service';
         MatMenuModule,
         TopbarComponent,
         FooterMenuComponent,
+        VirtualConciergeButtonComponent,
         AuthenticatedImageDirective,
     ],
 })

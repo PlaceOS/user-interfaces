@@ -49,8 +49,9 @@ timeouts, not 200s.
   app-only credentials the workflow passes in (`E2E_O365_*`).
 - **build.placeos.run / placeos-drivers.s3-ap-southeast-2.amazonaws.com** — the
   build farm core fetches driver binaries from, and the bucket its download links
-  point at. The stack is torn down with its volumes after every run, so every run
-  downloads them again.
+  point at. The stack is torn down with its volumes after every run, but the
+  driver binaries volume (`placeos-e2e-core-drivers`) is kept, so a run downloads
+  only a binary it does not have yet.
 
 > A slow link looks like a block. Colima's first VM image download failed here with a
 > timeout that read like a firewall; the host was fine, just slow. Retry before
@@ -148,7 +149,7 @@ logs in front of you, Ctrl-C to stop.
 | **No `actions/cache`, `setup-node` or `setup-bun`** | Those are right on a hosted runner that starts from a bare VM. Here they were the biggest cost in the job: the first run spent **9.1 min** uploading `node_modules` and **3.1 min** saving the bun cache out of 19.2 min total, while the suite itself took 1.0 min. The workspace and toolchain persist on this machine, so the toolchain is provisioned once (step 1) and nothing is shipped to a remote cache. |
 | **Reclaim step** | A self-hosted machine is not a fresh VM. A previous aborted run can leave the stack up or port 4214 held, and that failure looks nothing like its cause. |
 | **No `vm.max_map_count` bump** | Required on hosted Linux, meaningless here — the value lives in Colima's VM and is already high. Restore it if reverting to `ubuntu-latest`. |
-| **`E2E_WORKERS: 2`** | Lower than the local default of 4. The machine also hosts ~10 containers, a dev server and browsers; less contention means fewer failures that are about the machine rather than the code. |
+| **`E2E_WORKERS: 4`** | The same as the local default. The machine also hosts ~10 containers, a dev server and the browsers, and four workers already use all of it: a trial with six took the same time, because each test ran about 50% slower. |
 | **No `pull_request` trigger** | This repo is **public**. A fork PR would run arbitrary code on a machine on an internal network. Every trigger requires write access. Do not add it back without moving to `ubuntu-latest` or making the repo private. |
 
 **Trade-off worth knowing:** dropping remote caching means runs are no longer hermetic

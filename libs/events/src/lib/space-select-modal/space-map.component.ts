@@ -174,6 +174,7 @@ export class SpaceMapComponent {
                 ...space,
                 active: this.active() === space.id,
                 selected: this.selected().includes(space.id),
+                onSelect: this._seletedSpace(space),
             },
         })),
     );

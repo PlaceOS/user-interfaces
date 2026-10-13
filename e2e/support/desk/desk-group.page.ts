@@ -20,7 +20,7 @@ export class DeskGroupPage {
         await this.form.open();
         await this.form.groupModeButton.click();
         await this.form.pickDate(slot.date_ms);
-        // Date/init can rebuild the form and restore single mode (REG-10).
+        // Safeguard: this sets Group mode again. It does not toggle the mode.
         await this.form.groupModeButton.click();
         await expect(this.form.root.locator('a-user-list-field')).toBeVisible();
         await this.form.setChecked(this.form.requireLocker, false);

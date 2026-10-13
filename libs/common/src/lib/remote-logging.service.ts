@@ -29,7 +29,8 @@ function hookMethod<T, K extends keyof T>(
 }
 
 let DEVICE_ID =
-    localStorage.getItem('PLACEOS.DEVICE_ID') || `DEV-${randomString(8)}`;
+    globalThis.localStorage?.getItem('PLACEOS.DEVICE_ID') ||
+    `DEV-${randomString(8)}`;
 
 @Injectable({
     providedIn: 'root',
@@ -47,7 +48,7 @@ export class RemoteLoggingService extends AsyncHandler {
 
     constructor() {
         super();
-        localStorage.setItem('PLACEOS.DEVICE_ID', DEVICE_ID);
+        globalThis.localStorage?.setItem('PLACEOS.DEVICE_ID', DEVICE_ID);
         this._patchConsoleMethods();
         log('Logger', 'Remote logging initialised...');
     }

@@ -232,6 +232,17 @@ describe('NewDeskFlowConfirmComponent', () => {
         expect(spectator.component.needs_locker).toBe(true);
     });
 
+    it('should not require a locker for a saved `{}` value', () => {
+        // Some saved desk bookings hold `{}`, which an earlier default of
+        // the form wrote.
+        const settings = spectator.inject(SettingsService);
+        vi.mocked(settings.get).mockImplementation(
+            (key: string) => key === 'app.desks.can_book_lockers',
+        );
+        model.update((m) => ({ ...m, secondary_resource: {} }));
+        expect(spectator.component.needs_locker).toBe(false);
+    });
+
     it('should not require a locker when locker booking is disabled', () => {
         model.update((m) => ({ ...m, secondary_resource: 'locker' }));
         expect(spectator.component.needs_locker).toBeFalsy();

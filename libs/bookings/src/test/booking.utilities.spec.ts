@@ -2,15 +2,18 @@ import { Injector } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import {
     Booking,
+    BuildingLevel,
     CalendarEvent,
     fromBookingRecurrence,
     getAllDayTimeRange,
+    OrganisationService,
     Space,
     User,
     WeekOfMonth,
 } from '@placeos/common';
 import { generateBookingForm } from '../lib/booking-form.model';
 import {
+    bookingLocationString,
     loadLockersForScope,
     newBookingFromCalendarEvent,
     parkingRequestStatus,
@@ -19,12 +22,44 @@ import {
 vi.mock('@placeos/ts-client', { spy: true });
 
 import * as ts_client from '@placeos/ts-client';
+import { PlaceSystem } from '@placeos/ts-client';
 
 describe('Booking Utilities', () => {
     let injector: Injector;
 
     beforeEach(() => {
         injector = TestBed.inject(Injector);
+    });
+
+    describe('bookingLocationString', () => {
+        const system_level = new BuildingLevel({ id: 'lvl-2', name: 'L2' });
+        const system = new PlaceSystem({ id: 'sys-1', zones: ['lvl-2'] });
+        const org = {
+            levelWithID: (ids: string[]) =>
+                ids.includes('lvl-2') ? system_level : undefined,
+        } as OrganisationService;
+
+        it('should use the level name of the space', () => {
+            const event = new CalendarEvent({
+                location: 'Room 1',
+                resources: [
+                    new Space({
+                        email: 'room-1@example.com',
+                        level: new BuildingLevel({ name: 'Level 1' }),
+                    }),
+                ],
+                system,
+            });
+            expect(bookingLocationString(event, org)).toBe('Room 1 - Level 1');
+        });
+
+        it('should fall back to the level of the system zones', () => {
+            const event = new CalendarEvent({
+                location: 'Room 1',
+                system,
+            });
+            expect(bookingLocationString(event, org)).toBe('Room 1 - L2');
+        });
     });
 
     describe('parkingRequestStatus', () => {

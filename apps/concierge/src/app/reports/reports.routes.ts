@@ -10,10 +10,11 @@ import { ParkingReportComponent } from './parking/parking-report.component';
 import { ReportsOptionsComponent } from './reports-options.component';
 import { ReportsComponent } from './reports.component';
 import { ReportSpacesComponent } from './spaces/report-spaces.component';
+import { UserReportComponent } from './user/user-report.component';
 import { VisitorsReportComponent } from './visitors/visitors-report.component';
 
 const children: Route[] = [
-    { path: '', component: ReportsOptionsComponent, title: 'Reports' },
+    { path: '', redirectTo: 'desks', pathMatch: 'full' },
     {
         path: 'bookings',
         component: ReportSpacesComponent,
@@ -54,6 +55,11 @@ const children: Route[] = [
         path: 'visitors',
         component: VisitorsReportComponent,
         title: 'Visitor Reports',
+    },
+    {
+        path: 'user',
+        component: UserReportComponent,
+        title: 'User Booking Reports',
     },
     { path: ':id', component: CustomReportComponent, title: 'Reports' },
     { path: '**', redirectTo: 'desks', pathMatch: 'full' },

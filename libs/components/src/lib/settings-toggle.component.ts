@@ -19,8 +19,14 @@ import { IconComponent } from './icon.component';
             [class.border-info]="value()"
             (click)="setValue(!value())"
         >
-            <div class="z-10 flex flex-1 items-center space-x-2 px-2 text-left" [class.py-2]="!inline()" [class.py-1]="!inline()">
-                <div class="flex flex-col justify-center w-full leading-none h-full">
+            <div
+                class="z-10 flex flex-1 items-center space-x-2 px-2 text-left"
+                [class.py-2]="!inline()"
+                [class.py-1]="inline()"
+            >
+                <div
+                    class="flex h-full w-full flex-col justify-center leading-none"
+                >
                     <div>{{ label() }}<ng-content></ng-content></div>
                     @if (info() && inline()) {
                         <div class="text-xs opacity-30">{{ info() }}</div>

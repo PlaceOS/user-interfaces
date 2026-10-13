@@ -134,6 +134,52 @@ export const visitorDisplayNameFor = (booking: Booking) => {
     return formatEmailName(asset_id || asset_name || 'Visitor');
 };
 
+/**
+ * Location text shown for a booking/event: `<resource> - <level>`, falling back
+ * to whichever part is available. Shared by the booking card, booking details
+ * modal, and workplace schedule week/day views so they all read the same.
+ */
+export function bookingLocationString(
+    booking: Booking | CalendarEvent,
+    org: OrganisationService,
+): string {
+    let location = '';
+    let level_name = '';
+
+    if (booking instanceof Booking) {
+        location =
+            booking.booking_type === 'visitor'
+                ? booking.extension_data?.location || ''
+                : booking.location || booking.asset_name || '';
+        // Unallocated parking has no space yet; hide the raw `unallocated-*`
+        // asset id that the location/asset name can fall back to.
+        if (location.startsWith('unallocated')) location = '';
+        const level = org.levelWithID(booking.zones);
+        level_name = level?.display_name || level?.name || '';
+    } else {
+        location =
+            booking.location ||
+            booking.space?.display_name ||
+            booking.space?.name ||
+            booking.system?.name ||
+            '';
+        const system_level = org.levelWithID([
+            ...(booking.system?.zones || []),
+        ]);
+        level_name =
+            booking.space?.level?.display_name ||
+            booking.space?.level?.name ||
+            system_level?.display_name ||
+            system_level?.name ||
+            '';
+    }
+
+    if (location && level_name) {
+        return `${location} - ${level_name}`;
+    }
+    return location || level_name || '';
+}
+
 export async function findNearbyFeature(
     map_url: string,
     centered_at: Point | string,

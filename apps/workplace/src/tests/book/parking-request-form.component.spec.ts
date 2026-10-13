@@ -5,7 +5,11 @@ import { By } from '@angular/platform-browser';
 import { Router } from '@angular/router';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { BookingFormService, ParkingService } from '@placeos/bookings';
-import { OrganisationService, SettingsService } from '@placeos/common';
+import {
+    OrganisationService,
+    settingSignal,
+    SettingsService,
+} from '@placeos/common';
 import { MockProvider } from 'ng-mocks';
 import { ParkingRequestFormDetailsComponent } from '../../app/book/parking-request-flow/parking-request-form-details.component';
 import { ParkingRequestFormComponent } from '../../app/book/parking-request-flow/parking-request-form.component';
@@ -88,6 +92,50 @@ describe('ParkingRequestFormComponent', () => {
         settings = spectator.inject(SettingsService);
         vi.mocked(settings.get).mockReset();
         vi.mocked(settings.saveUserSetting).mockReset();
+        settingSignal('parking.show_special_needs').set(false);
+    });
+
+    describe('special needs request', () => {
+        beforeEach(() =>
+            model.update((value) => ({ ...value, request_type: 'special' })),
+        );
+
+        it('should not submit without a reason when the special needs details show', async () => {
+            settingSignal('parking.show_special_needs').set(true);
+
+            await spectator.component.submitRequest();
+
+            expect(post_form).not.toHaveBeenCalled();
+        });
+
+        it('should submit with the reason that the user entered', async () => {
+            settingSignal('parking.show_special_needs').set(true);
+            model.update((value) => ({ ...value, notes: 'Mobility aid' }));
+
+            await spectator.component.submitRequest();
+
+            expect(post_form).toHaveBeenCalled();
+        });
+
+        it('should show the details to a user with the special needs flag', async () => {
+            const parking = spectator.inject(ParkingService);
+            (parking.user_details as any).set({
+                email: 'me@example.com',
+                special_needs: true,
+            });
+
+            await spectator.component.ngOnInit();
+
+            expect(spectator.component.show_special_needs()).toBe(true);
+            (parking.user_details as any).set(null);
+        });
+
+        it('should not require a reason when the special needs details do not show', async () => {
+            await spectator.component.submitRequest();
+
+            expect(spectator.component.show_special_needs()).toBe(false);
+            expect(post_form).toHaveBeenCalled();
+        });
     });
 
     it('should set the parking request location from the selected building before submitting', async () => {

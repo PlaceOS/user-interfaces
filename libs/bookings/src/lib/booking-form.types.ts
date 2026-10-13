@@ -8,6 +8,8 @@ export interface BookingFlowOptions {
     type: BookingType;
     /** Zone to check available */
     zone_id?: string;
+    /** List of zones to check available */
+    zones?: string[];
     /** List of features that the asset should associate */
     features?: string[];
     /** Whether booking is for a group */
@@ -39,6 +41,8 @@ export interface BookingAsset {
     groups?: string[];
     assigned_to?: string;
     features: string[];
+    tags?: string[];
+    homebase?: string;
 }
 
 export interface GroupBookingFailure {

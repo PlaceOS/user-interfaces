@@ -1,16 +1,15 @@
-import {
-    Component,
-    inject,
-    Injector,
-    OnInit,
-} from '@angular/core';
+import { Component, computed, inject, Injector, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { FormField } from '@angular/forms/signals';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { AssetListFieldComponent } from '@placeos/assets';
-import { BookingFormService, DeskListFieldComponent } from '@placeos/bookings';
+import {
+    BookingFormService,
+    DeskListFieldComponent,
+    requiresLocker,
+} from '@placeos/bookings';
 import {
     AsyncHandler,
     Desk,
@@ -67,7 +66,10 @@ import {
                                 name="start-time"
                                 [ngModel]="model().date"
                                 (ngModelChange)="
-                                    model.update((m) => ({ ...m, date: $event }))
+                                    model.update((m) => ({
+                                        ...m,
+                                        date: $event,
+                                    }))
                                 "
                                 [ngModelOptions]="{ standalone: true }"
                             ></a-time-field>
@@ -96,9 +98,7 @@ import {
                         <div class="flex items-center space-x-2">
                             <div class="w-1/3 flex-1">
                                 <mat-checkbox
-                                    [ngModel]="
-                                        !!model().secondary_resource
-                                    "
+                                    [ngModel]="requires_locker()"
                                     (ngModelChange)="
                                         model.update((m) => ({
                                             ...m,
@@ -175,6 +175,9 @@ export class DeskBookingFormComponent extends AsyncHandler implements OnInit {
     public readonly can_book_lockers = settingSignal(
         'desks.can_book_lockers',
         false,
+    );
+    public readonly requires_locker = computed(() =>
+        requiresLocker(this.model().secondary_resource),
     );
 
     public ngOnInit() {

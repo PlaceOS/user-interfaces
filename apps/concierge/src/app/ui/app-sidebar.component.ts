@@ -358,6 +358,11 @@ export class ApplicationSidebarComponent
                         name: 'APP.CONCIERGE.MENU_REPORT_VISITORS',
                         route: ['/reports/visitors'],
                     },
+                    {
+                        id: 'user-report',
+                        name: 'APP.CONCIERGE.MENU_REPORT_USER',
+                        route: ['/reports/user'],
+                    },
                 ],
             },
         ];

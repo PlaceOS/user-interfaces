@@ -6,20 +6,20 @@ Set settings in Backoffice zone metadata under `concierge_app` for the standard 
 
 ## General & Branding
 
-| Setting            | Type            | Default                   | Description                                                                                                                                     |
-| ------------------ | --------------- | ------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
-| `name`             | string          | `"Concierge"`             | Name of the application.                                                                                                                        |
-| `title`            | string          | `"PlaceOS"`               | Title shown in the browser tab.                                                                                                                 |
-| `description`      | string          | `"Concierge UI"`          | Description of the application.                                                                                                                 |
-| `short_name`       | string          | `"PlaceOS"`               | Short name for the application.                                                                                                                 |
-| `logo_light`       | string / object | `"assets/logo-light.svg"` | Logo shown when using the light theme. Also used in generated PDF reports. Either a URL string or an object with a `src` URL.                   |
-| `logo_dark`        | string / object | `"assets/logo-dark.svg"`  | Logo shown when using the dark theme. Also used in generated PDF reports. Either a URL string or an object with a `src` URL.                    |
-| `default_route`    | string          | `"/book/rooms"`           | Route used for the sidebar bookings link when no matching feature is enabled, e.g. `/book/rooms`.                                               |
-| `currency`         | string          | `"USD"`                   | Default currency code for pricing, e.g. on catering orders.                                                                                     |
-| `use_24_hour_time` | boolean         | `false`                   | Display times using a 24 hour clock.                                                                                                            |
-| `week_start`       | number          | –                         | Day of the week that calendars and week views start on: `0` for Sunday through `6` for Saturday. Defaults to `0`.                               |
-| `use_region`       | boolean         | –                         | Scope data to the active region instead of the active building. Affects desks, parking, lockers, visitors, signage, reports and other listings. |
-| `hide_sidebar`     | boolean         | –                         | Hide the application sidebar. Currently applied on the signage management view.                                                                 |
+| Setting | Type | Default | Description |
+|---|---|---|---|
+| `name` | string | `"Concierge"` | Name of the application. |
+| `title` | string | `"PlaceOS"` | Title shown in the browser tab. |
+| `description` | string | `"Concierge UI"` | Description of the application. |
+| `short_name` | string | `"Concierge"` | Short name for the application. |
+| `logo_light` | string / object | `"assets/logo-light.svg"` | Logo shown when using the light theme. Also used in generated PDF reports. Either a URL string or an object with a `src` URL. |
+| `logo_dark` | string / object | `"assets/logo-dark.svg"` | Logo shown when using the dark theme. Also used in generated PDF reports. Either a URL string or an object with a `src` URL. |
+| `default_route` | string | `"/book/rooms"` | Route used for the sidebar bookings link when no matching feature is enabled, e.g. `/book/rooms`. |
+| `currency` | string | `"USD"` | Default currency code for pricing, e.g. on catering orders. |
+| `use_24_hour_time` | boolean | `false` | Display times using a 24 hour clock. |
+| `week_start` | number | – | Day of the week that calendars and week views start on: `0` for Sunday through `6` for Saturday. Defaults to `0`. |
+| `use_region` | boolean | – | Scope data to the active region instead of the active building. Affects desks, parking, lockers, visitors, signage, reports and other listings. |
+| `hide_sidebar` | boolean | – | Hide the application sidebar. Currently applied on the signage management view. |
 
 ```json
 {
@@ -52,15 +52,15 @@ Each locale entry requires an `id` and `name`:
 
 ## Features & Access
 
-| Setting          | Type     | Default                          | Description                                                                                                                                                                                                                                                                                           |
-| ---------------- | -------- | -------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `features`       | string[] | All features enabled (see below) | List of features enabled in the app. Available values: `spaces`, `zones`, `desks`, `parking`, `visitors`, `assets`, `facilities`, `internal-users`, `points`, `surveys`, `catering`, `events`, `booking-report`, `attendance-report`, `contact-tracing-report`, `signage`, `email-templates`, `maps`. |
-| `feature_groups` | object   | –                                | Maps feature names to the user groups allowed to access them, e.g. `parking-requests`. Features without an entry are available to all users.                                                                                                                                                          |
-| `admin_group`    | string   | `"concierge_admins"`             | Name of the user group that grants access to admin sections of the app. Members of `placeos_admin` and `placeos_support` are always allowed.                                                                                                                                                          |
-| `delegated`      | boolean  | `false`                          | Set when your PlaceOS instance uses delegated calendar access. Hides event actions from the event details view.                                                                                                                                                                                       |
-| `has_uploads`    | boolean  | `true`                           | Whether file upload support (S3/cloud storage) is available in the app.                                                                                                                                                                                                                               |
-| `map_studio_url` | string   | `"/map-studio/"`                 | Where the `Open in Map Studio` link on the Map Management page goes.                                                                                                                                                                                                                                  |
-| `bulk_actions`   | boolean  | `false`                          | Let staff select several rows and apply one action to all of them. Desk, parking and locker bookings, parking requests and asset requests get approve and reject actions. Catering orders get a status action.                                                                                        |
+| Setting | Type | Default | Description |
+|---|---|---|---|
+| `features` | string[] | All features enabled (see below) | List of features enabled in the app. Available values: `spaces`, `zones`, `maps`, `desks`, `parking`, `visitors`, `assets`, `facilities`, `internal-users`, `points`, `surveys`, `catering`, `events`, `booking-report`, `attendance-report`, `contact-tracing-report`, `user-report`, `signage`, `email-templates`. `user-report` is off by default. It adds a report of the desk, parking, locker and room bookings of a single user in the active building or region. |
+| `feature_groups` | object | – | Maps feature names to the user groups allowed to access them, e.g. `parking-requests`. Features without an entry are available to all users. |
+| `admin_group` | string | `"concierge_admins"` | Name of the user group that grants access to admin sections of the app. Members of `placeos_admin` and `placeos_support` are always allowed. |
+| `delegated` | boolean | `false` | Set when your PlaceOS instance uses delegated calendar access. Hides event actions from the event details view. |
+| `has_uploads` | boolean | `true` | Whether file upload support (S3/cloud storage) is available in the app. |
+| `map_studio_url` | string | `"/map-studio/"` | Where the `Open in Map Studio` link on the Map Management page goes. |
+| `bulk_actions` | boolean | `false` | Let staff select several rows and apply one action to all of them. Desk, parking and locker bookings, parking requests and asset requests get approve and reject actions. Catering orders get a status action. |
 
 ```json
 {
@@ -166,34 +166,35 @@ Each custom action requires an `id` (passed to the action handler when selected)
 
 ## Parking
 
-| Setting                                       | Type     | Default | Description                                                                                                        |
-| --------------------------------------------- | -------- | ------- | ------------------------------------------------------------------------------------------------------------------ |
-| `parking.show_waitlist`                       | boolean  | `false` | Show waitlisted parking bookings in parking lists.                                                                 |
-| `parking.show_requests`                       | boolean  | –       | Show parking requests in the parking section. Access can be restricted via the `parking-requests` feature group.   |
-| `parking.disable_bookings`                    | boolean  | –       | Disable creating new parking reservations.                                                                         |
-| `parking.disable_styles`                      | boolean  | `false` | Disable status styling of parking spaces on the parking map.                                                       |
-| `parking.hide_bay_number`                     | boolean  | `false` | Hide parking bay numbers in parking booking lists.                                                                 |
-| `parking.hide_level_selector_on_booking_list` | boolean  | `false` | Hide the level selector when viewing the parking booking list.                                                     |
-| `parking.hide_users`                          | boolean  | `false` | Hide the users tab on the parking view.                                                                            |
-| `parking.hide_vehicles`                       | boolean  | `false` | Hide the vehicles tab on the parking view.                                                                         |
-| `parking.hide_users_and_vehicles`             | boolean  | `false` | Hide both the users and vehicles tabs on the parking view.                                                         |
-| `parking.hide_availability_counter`           | boolean  | `false` | Hide the parking space availability counter in the parking topbar.                                                 |
-| `parking.hide_assign_space`                   | boolean  | `false` | Hide the assign space action on parking bookings and requests.                                                     |
-| `parking.allow_editing`                       | boolean  | –       | Allow parking bookings to be edited from parking lists. Defaults to `true`.                                        |
-| `parking.allow_editing_allocated`             | boolean  | –       | Allow edits to allocated parking bookings in the parking list. Falls back to `parking.allow_editing`.              |
-| `parking.can_book_for_anyone`                 | boolean  | `false` | Allow the parking request modal to select an external host.                                                        |
-| `parking.request_submission_notes_html`       | string   | `""`    | HTML content shown below the parking request form.                                                                 |
-| `parking.allow_deleting`                      | boolean  | `false` | Allow parking bookings to be deleted from parking lists.                                                           |
-| `parking.allow_all_day`                       | boolean  | –       | Allow all day parking bookings.                                                                                    |
-| `parking.assign_space_on_approve`             | boolean  | `false` | Automatically assign a parking space when approving a parking booking.                                             |
-| `parking.max_assigned_count`                  | number   | `0`     | Maximum number of parking spaces that can be assigned to a single user. `0` for unlimited.                         |
-| `parking.custom_booking_columns`              | array    | `[]`    | Additional columns to display in the parking bookings list, sourced from booking extension data.                   |
-| `parking.use_building_timezone`               | boolean  | –       | Handle parking dates and times in the active building's timezone. Falls back to `bookings.use_building_timezone`.  |
-| `parking.bookable_hours`                      | object   | –       | Time window during which parking bookings are allowed, as hours of the day (0-24).                                 |
-| `parking.min_duration`                        | number   | –       | Minimum parking booking duration in minutes. Falls back to `bookings.min_duration`.                                |
-| `parking.max_duration`                        | number   | –       | Maximum parking booking duration in minutes. Falls back to `bookings.max_duration`.                                |
-| `parking.custom_duration_options`             | number[] | –       | Custom list of selectable parking booking durations, in minutes. Falls back to `bookings.custom_duration_options`. |
-| `parking.available_period`                    | number   | –       | Number of days into the future that parking can be booked. Falls back to `bookings.available_period`.              |
+| Setting | Type | Default | Description |
+|---|---|---|---|
+| `parking.show_waitlist` | boolean | `false` | Show waitlisted parking bookings in parking lists. |
+| `parking.show_requests` | boolean | – | Show parking requests in the parking section. Access can be restricted via the `parking-requests` feature group. |
+| `parking.disable_bookings` | boolean | – | Disable creating new parking reservations. |
+| `parking.disable_styles` | boolean | `false` | Disable status styling of parking spaces on the parking map. |
+| `parking.hide_bay_number` | boolean | `false` | Hide parking bay numbers in parking booking lists. |
+| `parking.hide_level_selector_on_booking_list` | boolean | `false` | Hide the level selector when viewing the parking booking list. |
+| `parking.hide_users` | boolean | `false` | Hide the users tab on the parking view. |
+| `parking.hide_vehicles` | boolean | `false` | Hide the vehicles tab on the parking view. |
+| `parking.hide_users_and_vehicles` | boolean | `false` | Hide both the users and vehicles tabs on the parking view. |
+| `parking.hide_availability_counter` | boolean | `false` | Hide the parking space availability counter in the parking topbar. |
+| `parking.hide_assign_space` | boolean | `false` | Hide the assign space action on parking bookings and requests. |
+| `parking.allow_editing` | boolean | – | Allow parking bookings to be edited from parking lists. Defaults to `true`. |
+| `parking.allow_editing_allocated` | boolean | – | Allow edits to allocated parking bookings in the parking list. Falls back to `parking.allow_editing`. |
+| `parking.can_book_for_anyone` | boolean | `false` | Allow the parking request modal to select an external host. |
+| `parking.request_submission_notes_html` | string | `""` | HTML content shown below the parking request form. |
+| `parking.allow_deleting` | boolean | `false` | Allow parking bookings to be deleted from parking lists. |
+| `parking.allow_all_day` | boolean | – | Allow all day parking bookings. |
+| `parking.assign_space_on_approve` | boolean | `false` | Automatically assign a parking space when approving a parking booking. |
+| `parking.max_assigned_count` | number | `0` | Maximum number of parking spaces that can be assigned to a single user. `0` for unlimited. |
+| `parking.custom_booking_columns` | array | `[]` | Additional columns to display in the parking bookings list, sourced from booking extension data. |
+| `parking.show_user_groups` | string[] | `[]` | User group names to show in the parking bookings list. The column shows the groups of each booking that are in this list. It is hidden when the list is empty. |
+| `parking.use_building_timezone` | boolean | – | Handle parking dates and times in the active building's timezone. Falls back to `bookings.use_building_timezone`. |
+| `parking.bookable_hours` | object | – | Time window during which parking bookings are allowed, as hours of the day (0-24). |
+| `parking.min_duration` | number | – | Minimum parking booking duration in minutes. Falls back to `bookings.min_duration`. |
+| `parking.max_duration` | number | – | Maximum parking booking duration in minutes. Falls back to `bookings.max_duration`. |
+| `parking.custom_duration_options` | number[] | – | Custom list of selectable parking booking durations, in minutes. Falls back to `bookings.custom_duration_options`. |
+| `parking.available_period` | number | – | Number of days into the future that parking can be booked. Falls back to `bookings.available_period`. |
 
 ```json
 {
@@ -233,12 +234,12 @@ Each custom column requires a `field` (the booking extension data field to displ
 
 ## Reports
 
-| Setting                               | Type     | Default | Description                                                                                                                    |
-| ------------------------------------- | -------- | ------- | ------------------------------------------------------------------------------------------------------------------------------ |
-| `reports.features`                    | string[] | –       | List of report types shown in the reports menu. Defaults to `attendance`, `desks`, `spaces`, `catering` and `contact-tracing`. |
-| `reports.attendance_include_weekends` | boolean  | `false` | Include weekends in attendance report calculations.                                                                            |
-| `reports.ignore_days`                 | array    | –       | Days of the week to exclude from report calculations. Either day names (e.g. `"saturday"`) or day indexes (0-6).               |
-| `custom_reports`                      | array    | `[]`    | Custom report pages to add to the reports section. Each report is rendered as an embedded page.                                |
+| Setting | Type | Default | Description |
+|---|---|---|---|
+| `reports.features` | string[] | – | List of report types shown in the reports menu. Defaults to `attendance`, `desks`, `spaces`, `catering` and `contact-tracing`. Add `user` to show the report of the bookings of a single user. |
+| `reports.attendance_include_weekends` | boolean | `false` | Include weekends in attendance report calculations. |
+| `reports.ignore_days` | array | – | Days of the week to exclude from report calculations. Either day names (e.g. `"saturday"`) or day indexes (0-6). |
+| `custom_reports` | array | `[]` | Custom report pages to add to the reports section. Each report is rendered as an embedded page. |
 
 ```json
 {
@@ -266,6 +267,32 @@ Each custom report requires an `id` (unique, URL-safe), a `name` (shown in the r
 | Setting                 | Type   | Default | Description                                       |
 | ----------------------- | ------ | ------- | ------------------------------------------------- |
 | `group_events_calendar` | string | –       | ID of the calendar used for storing group events. |
+
+## Analytics
+
+| Setting | Type | Default | Description |
+|---|---|---|---|
+| `analytics.enabled` | boolean | `true` | Enable Google Analytics. |
+| `analytics.tracking_id` | string | `""` | Google Analytics tracking ID. Analytics is only initialised when this is set. |
+
+```json
+{
+    "analytics": {
+        "enabled": true,
+        "tracking_id": "G-XXXXXXXXXX"
+    }
+}
+```
+
+For GA4 tracking IDs (`G-...`), the app sends page views after successful router
+navigation. The page path has no query string or fragment. In the GA4 web data stream, open **Enhanced measurement > Page views >
+Advanced settings** and turn off **Page changes based on browser history events**.
+The app disables the automatic page view on tag load. The GA4 property setting
+must also be off to prevent duplicate navigation events. See
+[Google's manual page-view setup](https://developers.google.com/analytics/devguides/collection/ga4/views#manual_pageviews).
+
+Set `analytics.enabled` to `false` and reload the app to stop analytics
+initialisation and event tracking.
 
 ## Integration & Advanced
 

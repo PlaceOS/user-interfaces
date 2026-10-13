@@ -3,6 +3,7 @@ import { queryCateringItems } from '@placeos/assets';
 import {
     CateringItem,
     CateringOrder,
+    ExternalCateringService,
     OrganisationService,
     SettingsService,
     Space,
@@ -36,6 +37,7 @@ export interface CateringOrderSelectFilters {
 export class CateringOrderStateService {
     private _org = inject(OrganisationService);
     private _settings = inject(SettingsService);
+    private _external_catering = inject(ExternalCateringService);
 
     private _options = signal<CateringOrderSelectOptions>({});
     private _filters = signal<CateringOrderSelectFilters>({
@@ -48,6 +50,8 @@ export class CateringOrderStateService {
     private _settings_data = signal<CateringSettings>({});
     private _available_menu = signal<CateringItem[]>([]);
     private _filtered_menu = signal<CateringItem[]>([]);
+    /** Incrementing token so a stale menu load can't overwrite a newer one */
+    private _menu_load = 0;
 
     public readonly loading = this._loading.asReadonly();
     public readonly filters = this._filters.asReadonly();
@@ -77,6 +81,10 @@ export class CateringOrderStateService {
         effect(() => {
             const bld = this._org.active_building();
             const { zone, building } = this._options();
+            // Depend on the catering backend setting so the menu reloads via
+            // the external backend once the org settings finish loading (they arrive after the
+            // building is first set, so reading it non-reactively would race)
+            this._settings.signal('catering.backend')();
             const building_id = building || bld?.id;
             if (!building_id) return;
             this._loadSettings(building_id);
@@ -146,10 +154,18 @@ export class CateringOrderStateService {
     }
 
     private async _loadMenu(zone_id: string) {
+        const load = ++this._menu_load;
         this._loading.set('[MENU]');
-        const items = await queryCateringItems(zone_id).catch(
-            () => [] as CateringItem[],
-        );
+        const items = this._external_catering.enabled
+            ? await this._external_catering
+                  .loadMenu()
+                  .catch(() => [] as CateringItem[])
+            : await queryCateringItems(zone_id).catch(
+                  () => [] as CateringItem[],
+              );
+        // A newer load (e.g. native -> external after settings arrive) started
+        // while this one was in flight; drop this stale result.
+        if (load !== this._menu_load) return;
         this._loading.set(this._loading().replace('[MENU]', ''));
         if (this._settings.get('app.catering_provider')) {
             this.setFilters({

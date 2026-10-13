@@ -53,7 +53,9 @@ describe('DeskMapComponent', () => {
         active_building: signal({ id: 'bld-1' }),
         levelsForRegion: vi.fn(() => levels),
         levelsForBuilding: vi.fn(() => levels),
-        levelWithID: vi.fn(() => undefined),
+        levelWithID: vi.fn(
+            (_ids: string[]): (typeof levels)[number] | undefined => undefined,
+        ),
         buildings: [{ id: 'bld-1', location: '1.23,4.56' }],
     };
 
@@ -122,12 +124,24 @@ describe('DeskMapComponent', () => {
             'ngModelChange',
             levels[1],
         );
-        expect(set_options).toHaveBeenCalledWith({ zone_id: 'lvl-2' });
+        expect(set_options).toHaveBeenCalledWith({
+            zones: ['lvl-2'],
+            zone_id: 'lvl-2',
+        });
         expect(spectator.component.level()).toEqual(levels[1]);
         expect(spectator.component.coordinates()).toEqual({
             latitude: 1.23,
             longitude: 4.56,
         });
+    });
+
+    it('should show a level that the filter has selected', () => {
+        org_mock.levelWithID.mockImplementationOnce((ids) =>
+            levels.find((lvl) => ids.includes(lvl.id)),
+        );
+        options.set({ zones: ['lvl-2'] });
+        spectator.detectChanges();
+        expect(spectator.component.level()?.id).toBe('lvl-2');
     });
 
     it('should build map actions from the available resources', () => {
