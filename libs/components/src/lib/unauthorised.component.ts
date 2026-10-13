@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { TranslatePipe } from './translate.pipe';
 
 @Component({
@@ -6,7 +7,7 @@ import { TranslatePipe } from './translate.pipe';
     template: `
         <div unauthorised class="absolute inset-0">
             <div
-                class="border-base-300 bg-base-100 text-base-content mx-auto my-4 w-104 max-w-[calc(100%-1rem)] rounded-xl border p-4 text-center shadow-lg"
+                class="border-base-300 bg-base-100 text-base-content mx-auto my-4 flex w-104 max-w-[calc(100%-1rem)] flex-col gap-2 rounded-xl border p-4 text-center shadow-lg"
             >
                 <h1 class="text-4xl">403</h1>
                 <h3>{{ 'COMMON.FORBIDDEN' | translate }}</h3>
@@ -16,6 +17,7 @@ import { TranslatePipe } from './translate.pipe';
                 <p>
                     {{ 'COMMON.CONTACT_ADMIN' | translate }}
                 </p>
+                <a btn [routerLink]="['/']">Try Again</a>
             </div>
         </div>
     `,
@@ -36,6 +38,6 @@ import { TranslatePipe } from './translate.pipe';
             }
         `,
     ],
-    imports: [TranslatePipe],
+    imports: [TranslatePipe, RouterLink],
 })
 export class UnauthorisedComponent {}

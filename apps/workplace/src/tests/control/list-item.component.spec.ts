@@ -1,5 +1,5 @@
 import { SpectatorRouting } from '@ngneat/spectator';
-import { createRoutingFactory } from '@ngneat/spectator/jest';
+import { createRoutingFactory } from '@ngneat/spectator/vitest';
 import { MockComponent, MockPipe, MockProvider } from 'ng-mocks';
 
 import { OrganisationService, SettingsService } from '@placeos/common';
@@ -13,7 +13,7 @@ describe('ControlSpaceListItemComponent', () => {
         component: ControlSpaceListItemComponent,
         providers: [
             MockProvider(SettingsService, {
-                get: jest.fn(() => ['explore']),
+                get: vi.fn(() => ['explore']),
             } as any),
             MockProvider(OrganisationService, { buildings: [] }),
         ],
@@ -22,19 +22,15 @@ describe('ControlSpaceListItemComponent', () => {
 
     beforeEach(() => (spectator = createComponent()));
 
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
-
     it('should allow user to locate space', () => {
         expect('a[btn][locate]').not.toExist();
-        spectator.setInput({ space: { name: 'Space 1', capacity: 32 } as any });
+        spectator.setInput({ space: { name: 'Space 1', capacity: 32 } });
         expect('a[btn][locate]').toExist();
     });
 
     it('should allow user to open support URL', () => {
         expect('a[btn][control]').not.toExist();
-        spectator.setInput({ space: { name: 'Space 1', capacity: 32 } as any });
+        spectator.setInput({ space: { name: 'Space 1', capacity: 32 } });
         expect('a[btn][control]').toExist();
     });
 });

@@ -1,51 +1,70 @@
 import { MatRadioModule } from '@angular/material/radio';
 import { Router } from '@angular/router';
-import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
+import {
+    createRoutingFactory,
+    SpectatorRouting,
+} from '@ngneat/spectator/vitest';
 
 import { CheckinCovidComponent } from '../../app/checkin/checkin-covid.component';
 import { CheckinStateService } from '../../app/checkin/checkin-state.service';
 
-jest.mock('@placeos/common');
-
 import { FormsModule } from '@angular/forms';
-import * as common_mod from '@placeos/common';
+import { setNotifyOutlet } from '@placeos/common';
 import { IconComponent } from '@placeos/components';
 import { MockComponent } from 'ng-mocks';
 
+// Workspace modules cannot be intercepted by the native unit-test builder, so
+// instead of mocking `notifyError` we spy on the snackbar outlet it routes to.
+function createSnackbarSpy() {
+    return {
+        open: vi.fn(() => ({
+            onAction: () => ({ subscribe: () => undefined }),
+            dismiss: () => undefined,
+        })),
+    };
+}
+
 describe('CheckinCovidComponent', () => {
     let spectator: SpectatorRouting<CheckinCovidComponent>;
+    let snackbar: ReturnType<typeof createSnackbarSpy>;
     const createComponent = createRoutingFactory({
         component: CheckinCovidComponent,
         declarations: [MockComponent(IconComponent)],
         providers: [
             {
                 provide: CheckinStateService,
-                useValue: { updateGuest: jest.fn(), setError: jest.fn() },
+                useValue: { updateGuest: vi.fn(), setError: vi.fn() },
             },
         ],
         imports: [MatRadioModule, FormsModule],
     });
 
-    beforeEach(() => (spectator = createComponent()));
-
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
+    beforeEach(() => {
+        snackbar = createSnackbarSpy();
+        setNotifyOutlet(snackbar as any, true);
+        spectator = createComponent();
     });
 
-    it('should allow confirming questions', () => {
-        (common_mod.notifyError as any) = jest.fn();
-        spectator.component.confirm();
-        expect(common_mod.notifyError).toHaveBeenCalledWith(
+    afterEach(() => setNotifyOutlet(null, true));
+
+    it('should allow confirming questions', async () => {
+        await spectator.component.confirm();
+        expect(snackbar.open).toHaveBeenCalledWith(
             'Please select yes or no for each question',
+            'OK',
+            expect.objectContaining({ panelClass: ['error'] }),
         );
         spectator.component.contact.set('true');
         spectator.component.symptoms.set('false');
-        spectator.component.confirm();
+        await spectator.component.confirm();
         expect(
             spectator.inject(CheckinStateService).setError,
         ).toHaveBeenCalledTimes(1);
         spectator.component.contact.set('false');
-        spectator.component.confirm();
+        await spectator.component.confirm();
+        expect(
+            spectator.inject(CheckinStateService).updateGuest,
+        ).toHaveBeenLastCalledWith({ covid: false, symptoms: false });
         expect(spectator.inject(Router).navigate).toHaveBeenCalledWith([
             '/checkin',
             'results',

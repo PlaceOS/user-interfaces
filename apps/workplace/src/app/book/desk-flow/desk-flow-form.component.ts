@@ -90,11 +90,11 @@ export class NewDeskFlowFormComponent implements OnInit {
     public level = '';
     public levels = [];
 
-    /** Block the form when the user has a reserved desk and isn't allowed to book another */
+    /** Blanket-block the form for assigned-desk users only in `deny` mode. */
     public readonly show_reserved_desk_overlay = computed(
         () =>
             this._state.has_assigned_desk() &&
-            !this._state.canBookWithReservedDesk(),
+            this._state.assignedResourceBooking('desk') === 'deny',
     );
 
     public get form() {

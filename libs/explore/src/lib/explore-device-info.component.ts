@@ -140,9 +140,7 @@ const EMPTY: string[] = [];
                     }
                     @if (device_user && !hide_fields().includes('user')) {
                         <p user>
-                            <label
-                                >{{ 'EXPLORE.DEVICE_TYPE' | translate }}:</label
-                            >
+                            <label>{{ 'COMMON.TYPE' | translate }}:</label>
                             {{ device_user.type }}
                         </p>
                     }

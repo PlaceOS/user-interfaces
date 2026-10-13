@@ -1,6 +1,6 @@
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
-import { OrganisationService, SettingsService } from '@placeos/common';
 import { signal } from '@angular/core';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
+import { Booking, OrganisationService, SettingsService } from '@placeos/common';
 import { MockProvider } from 'ng-mocks';
 import { ParkingStateService } from '../../app/parking/parking-state.service';
 import { GuestListingComponent } from '../../app/visitors/guest-listing.component';
@@ -8,8 +8,10 @@ import { VisitorsStateService } from '../../app/visitors/visitors-state.service'
 
 describe('GuestListingComponent', () => {
     let spectator: Spectator<GuestListingComponent>;
+    const set_ext = vi.fn();
+    const poll = vi.fn();
     const settings = {
-        get: jest.fn(),
+        get: vi.fn(),
         time_format: 'h:mm a',
         theme: 'light',
     };
@@ -21,39 +23,46 @@ describe('GuestListingComponent', () => {
         detectChanges: false,
         providers: [
             MockProvider(VisitorsStateService, {
+                load_error: signal(false),
                 filtered_bookings,
                 filters,
                 search: '',
-                downloadVisitorsList: jest.fn(),
-                approveVisitor: jest.fn(),
-                declineVisitor: jest.fn(),
-                setCheckinStateForEvent: jest.fn(),
-                setExt: jest.fn(),
-                editVisitorNotes: jest.fn(),
-                setCheckinState: jest.fn(),
-                emailVisitor: jest.fn(),
-                poll: jest.fn(),
-            } as any),
-            MockProvider(ParkingStateService, { editReservation: jest.fn() }),
-            MockProvider(SettingsService, settings as any),
+                downloadVisitorsList: vi.fn(),
+                approveVisitor: vi.fn(),
+                declineVisitor: vi.fn(),
+                setCheckinStateForEvent: vi.fn(),
+                setExt: set_ext,
+                editVisitorNotes: vi.fn(),
+                setCheckinState: vi.fn(),
+                emailVisitor: vi.fn(),
+                poll,
+            }),
+            MockProvider(ParkingStateService, { editReservation: vi.fn() }),
+            MockProvider(SettingsService, settings),
             MockProvider(OrganisationService, {
                 active_building: signal({ id: 'bld-1' }),
                 building: { timezone: 'Australia/Sydney' },
                 organisation: { id: 'org-1' },
-                module: jest.fn(),
+                module: vi.fn(),
             } as any),
         ],
     });
 
     beforeEach(() => {
         settings.get.mockReset();
+        set_ext.mockReset().mockResolvedValue(undefined);
+        poll.mockReset();
         filtered_bookings.set([]);
         filters.set({});
         spectator = createComponent();
     });
 
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
+    it('should show cancelled bookings as cancelled', () => {
+        expect(
+            spectator.component.bookingStatusLabel({
+                status: 'cancelled',
+            } as any),
+        ).toBe('COMMON.TYPE_CANCELLED');
     });
 
     it('should show all visitor actions from 15 minutes before until 15 minutes after the booking', () => {
@@ -62,7 +71,7 @@ describe('GuestListingComponent', () => {
             date: new Date('2026-06-15T10:00:00').valueOf(),
             date_end: new Date('2026-06-15T11:00:00').valueOf(),
         } as any;
-        const date_now = jest.spyOn(Date, 'now');
+        const date_now = vi.spyOn(Date, 'now');
 
         date_now.mockReturnValue(new Date('2026-06-15T09:44:59').valueOf());
         expect(spectator.component.canShowAllVisitorActions(booking)).toBe(
@@ -105,7 +114,7 @@ describe('GuestListingComponent', () => {
             date: new Date('2026-06-15T10:00:00').valueOf(),
             date_end: new Date('2026-06-15T11:00:00').valueOf(),
         } as any;
-        const date_now = jest.spyOn(Date, 'now');
+        const date_now = vi.spyOn(Date, 'now');
 
         date_now.mockReturnValue(new Date('2026-06-15T09:30:00').valueOf());
         expect(spectator.component.canShowAllVisitorActions(booking)).toBe(
@@ -118,5 +127,46 @@ describe('GuestListingComponent', () => {
         );
 
         date_now.mockRestore();
+    });
+
+    it('should store the reserved parking booking on the visitor', async () => {
+        const booking = new Booking({ id: 'booking-1' });
+        vi.mocked(
+            spectator.inject(ParkingStateService).editReservation,
+        ).mockResolvedValue('parking-1');
+
+        await spectator.component.reserveParking(booking);
+
+        expect(set_ext).toHaveBeenCalledWith(
+            booking,
+            'parking_booking_id',
+            'parking-1',
+        );
+    });
+
+    it('should assign a pass number to the visitor', async () => {
+        const booking = new Booking({
+            id: 'booking-1',
+            extension_data: { notes: 'VIP' },
+        });
+
+        await spectator.component.setPass(booking, 'PASS-101');
+
+        expect(set_ext).toHaveBeenCalledWith(
+            booking,
+            'pass_number',
+            'PASS-101',
+        );
+    });
+
+    it('should remove an assigned pass number from the visitor', async () => {
+        const booking = new Booking({
+            id: 'booking-1',
+            extension_data: { notes: 'VIP', pass_number: 'PASS-101' },
+        });
+
+        await spectator.component.setPass(booking);
+
+        expect(set_ext).toHaveBeenCalledWith(booking, 'pass_number', null);
     });
 });

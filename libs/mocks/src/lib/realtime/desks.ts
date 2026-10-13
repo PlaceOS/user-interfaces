@@ -34,7 +34,7 @@ export class MockAreaManagementModule implements HashMap {
         ),
     };
 
-    $locate_user(email: string, username: string) {
+    $locate_user(_email: string, _username: string) {
         // Mock locate user functionality
         return {};
     }
@@ -58,7 +58,7 @@ export class MockLocationServicesModule implements HashMap {
         return MAC_LOOKUP[mac_address];
     }
 
-    $locate_user(email: string, username: string) {
+    $locate_user(_email: string, _username: string) {
         return [
             {
                 type: 'wireless',
@@ -80,7 +80,7 @@ function padZero(no: number, len = 3) {
 
 export function createAreaManagementModule(
     space: HashMap,
-    overrides: HashMap = {},
+    _overrides: HashMap = {},
 ) {
     const mod = new MockAreaManagementModule();
     for (const lvl of MOCK_LEVELS) {

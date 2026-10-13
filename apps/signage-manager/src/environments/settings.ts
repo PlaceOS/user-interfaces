@@ -3,12 +3,25 @@ const app = {
     title: 'PlaceOS',
     description: 'Signage Manager UI',
     short_name: 'Signage Manager',
+    /** Group subsystem this app's permissions are granted through */
+    access_subsystem: 'signage',
     logo_light: 'assets/logo-light.svg',
     logo_dark: 'assets/logo-dark.svg',
     diagnostics: true,
     show_locale_selector: false,
+    show_group_selector: false,
+    show_media_group_tabs: false,
+    schedule_timezone_once_only: true,
     default_animation_time: 1000,
     media_allow_extended_video_codecs: false,
+    /** Signage features for every group. Groups can narrow this list. */
+    features: [
+        'templates',
+        'template-editing',
+        'ai-generation',
+        'ai-editing',
+        'branding-editing',
+    ],
 };
 
 /**

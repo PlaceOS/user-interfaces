@@ -1,9 +1,9 @@
+import { signal } from '@angular/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { BookingCardComponent } from '@placeos/bookings';
 import { CalendarEvent } from '@placeos/common';
 import { EventCardComponent } from '@placeos/events';
-import { signal } from '@angular/core';
 import { MockComponent } from 'ng-mocks';
 import { UpcomingBookingsComponent } from '../app/rooms/upcoming-bookings.component';
 
@@ -21,8 +21,8 @@ describe('UpcomingBookingsComponent', () => {
                 useValue: {
                     loading: signal(false),
                     filtered_bookings: signal([]),
-                    toggleType: jest.fn(),
-                    startPolling: jest.fn(),
+                    toggleType: vi.fn(),
+                    startPolling: vi.fn(),
                 },
             },
         ],
@@ -39,10 +39,6 @@ describe('UpcomingBookingsComponent', () => {
         (spectator.inject(ScheduleStateService).filtered_bookings as any).set(
             [],
         );
-    });
-
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
     });
 
     it('should show empty state', () => {

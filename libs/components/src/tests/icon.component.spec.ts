@@ -1,4 +1,4 @@
-import { Spectator, createComponentFactory } from '@ngneat/spectator/jest';
+import { Spectator, createComponentFactory } from '@ngneat/spectator/vitest';
 
 import { IconComponent } from '../lib/icon.component';
 import { SafePipe } from '../lib/safe.pipe';
@@ -11,10 +11,6 @@ describe('IconComponent', () => {
     });
 
     beforeEach(() => (spectator = createComponent()));
-
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
 
     it('should show font icons', () => {
         spectator.setInput('icon', {

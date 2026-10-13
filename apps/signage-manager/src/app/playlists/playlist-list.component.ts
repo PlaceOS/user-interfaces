@@ -1,25 +1,26 @@
-import { Component, effect, inject } from '@angular/core';
+import {
+    afterRenderEffect,
+    Component,
+    ElementRef,
+    inject,
+    viewChildren,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { MatMenuModule } from '@angular/material/menu';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { RouterLink } from '@angular/router';
 import {
-    AuthenticatedImageDirective,
     IconComponent,
+    LoadErrorComponent,
     TranslatePipe,
 } from '@placeos/components';
 import { SignagePlaylist } from '@placeos/ts-client';
 import { IntersectDirective } from '../shared/intersect.directive';
-import { SignageService } from '../signage.service';
-
-type PlaylistStatus =
-    | 'expired'
-    | 'pending'
-    | 'awaiting_approval'
-    | 'awaiting_review'
-    | null;
+import { PlaylistThumbnailComponent } from '../shared/playlist-thumbnail.component';
+import { playlistStatus } from '../signage-playlist.util';
+import { SignagePlaylistService } from './signage-playlist.service';
 
 @Component({
     selector: 'playlist-list',
@@ -39,8 +40,7 @@ type PlaylistStatus =
                         [placeholder]="
                             'SIGNAGE_MANAGER.SEARCH_PLAYLISTS' | translate
                         "
-                        [ngModel]="search()"
-                        (ngModelChange)="search.set($event)"
+                        [(ngModel)]="search"
                         [attr.aria-label]="
                             'SIGNAGE_MANAGER.SEARCH_PLAYLISTS' | translate
                         "
@@ -50,64 +50,41 @@ type PlaylistStatus =
             @if (playlists().length > 0) {
                 @for (playlist of playlists(); track playlist.id) {
                     <a
+                        #playlist_item
                         matRipple
                         class="border-base-300 relative z-0 flex w-full cursor-pointer items-center gap-3 border-b px-2 py-1 text-left no-underline transition-colors"
                         [class.bg-primary]="selected()?.id === playlist.id"
+                        [class.bg-warning/10]="
+                            !playlist.enabled && selected()?.id !== playlist.id
+                        "
                         [class.text-primary-content]="
                             selected()?.id === playlist.id
                         "
                         [class.hover:bg-base-200]="
-                            selected()?.id !== playlist.id
+                            playlist.enabled && selected()?.id !== playlist.id
+                        "
+                        [class.hover:bg-warning/20]="
+                            !playlist.enabled && selected()?.id !== playlist.id
                         "
                         [routerLink]="['/playlists', playlist.id]"
                         queryParamsHandling="merge"
+                        [attr.data-disabled-playlist]="
+                            !playlist.enabled ? true : null
+                        "
                         [attr.aria-label]="
-                            'SIGNAGE_MANAGER.OPEN_PLAYLIST'
-                                | translate: { name: playlist.name }
+                            ('SIGNAGE_MANAGER.OPEN_PLAYLIST'
+                                | translate: { name: playlist.name }) +
+                            (!playlist.enabled
+                                ? ', ' + ('COMMON.DISABLED' | translate)
+                                : '')
                         "
                     >
-                        <div
+                        <playlist-thumbnail
+                            [playlist]="playlist"
                             class="relative h-12 w-12 shrink-0 overflow-hidden rounded-md"
-                        >
-                            @if (
-                                playlist_thumbnail_media()[playlist.id]?.length
-                            ) {
-                                @for (
-                                    media of playlist_thumbnail_media()[
-                                        playlist.id
-                                    ];
-                                    track media;
-                                    let i = $index;
-                                    let len = $count
-                                ) {
-                                    <img
-                                        auth
-                                        [source]="media"
-                                        alt=""
-                                        class="border-base-300 bg-base-200 absolute h-9 w-9 rounded-sm border object-cover shadow"
-                                        [style.top]="
-                                            0.3 -
-                                            (len - 1) * 0.125 +
-                                            (len - 1 - i) * 0.25 +
-                                            'rem'
-                                        "
-                                        [style.left]="
-                                            0.3 -
-                                            (len - 1) * 0.125 +
-                                            (len - 1 - i) * 0.25 +
-                                            'rem'
-                                        "
-                                        [style.z-index]="i"
-                                    />
-                                }
-                            } @else {
-                                <div
-                                    class="text-base-content/35 flex h-full w-full items-center justify-center"
-                                >
-                                    <icon class="text-2xl">playlist_play</icon>
-                                </div>
-                            }
-                        </div>
+                            [class.grayscale]="!playlist.enabled"
+                            [class.opacity-50]="!playlist.enabled"
+                        />
                         <div class="min-w-0 flex-1 pr-2">
                             <div
                                 class="flex items-center gap-2 truncate font-medium"
@@ -119,7 +96,8 @@ type PlaylistStatus =
                             >
                                 @if (!playlist.enabled) {
                                     <span
-                                        class="bg-base-200 shrink-0 rounded px-1.5 py-0.5"
+                                        data-playlist-status="disabled"
+                                        class="bg-warning text-warning-content flex shrink-0 items-center gap-1 rounded px-1.5 py-0.5 font-bold"
                                     >
                                         {{ 'COMMON.DISABLED' | translate }}
                                     </span>
@@ -178,6 +156,9 @@ type PlaylistStatus =
                                 </div>
                             }
                         </div>
+                        @if (playlist.distribution) {
+                            <icon class="mx-1">p2p</icon>
+                        }
                     </a>
                 }
                 @if (has_more()) {
@@ -186,6 +167,8 @@ type PlaylistStatus =
                         intersect
                         (intersect)="loadMore()"
                     ></div>
+                } @else if (error()) {
+                    <load-error (retry)="reload()" />
                 } @else {
                     <div
                         class="text-base-content/50 bg-base-content/10 col-span-full my-2 p-2 text-center text-xs"
@@ -193,6 +176,15 @@ type PlaylistStatus =
                         {{ 'COMMON.END_OF_LIST' | translate }}
                     </div>
                 }
+            } @else if (loading()) {
+                <div
+                    class="text-base-content/70 flex flex-1 flex-col items-center justify-center space-y-2 p-8"
+                >
+                    <mat-spinner diameter="32" />
+                    <p>{{ 'COMMON.LOADING' | translate }}</p>
+                </div>
+            } @else if (error()) {
+                <load-error class="flex-1" (retry)="reload()" />
             } @else {
                 <div
                     class="text-base-content/70 flex flex-1 flex-col items-center justify-center space-y-2 p-8"
@@ -218,62 +210,65 @@ type PlaylistStatus =
         MatRippleModule,
         MatFormFieldModule,
         MatInputModule,
-        MatMenuModule,
-        AuthenticatedImageDirective,
+        MatProgressSpinnerModule,
         IconComponent,
+        LoadErrorComponent,
         TranslatePipe,
         IntersectDirective,
+        PlaylistThumbnailComponent,
     ],
 })
 export class PlaylistListComponent {
-    private readonly _service = inject(SignageService);
+    private readonly _playlist_service = inject(SignagePlaylistService);
+    private readonly _playlist_items =
+        viewChildren<ElementRef<HTMLAnchorElement>>('playlist_item');
 
-    public readonly search = this._service.playlist_search_term;
-    public readonly playlists = this._service.filtered_playlists;
-    public readonly selected = this._service.selected_playlist;
-    public readonly playlist_thumbnail_media =
-        this._service.playlist_thumbnail_media;
+    public readonly search = this._playlist_service.playlist_search_term;
+    public readonly playlists = this._playlist_service.filtered_playlists;
+    public readonly selected = this._playlist_service.selected_playlist;
     public readonly playlist_approval_status =
-        this._service.playlist_approval_status;
+        this._playlist_service.playlist_approval_status;
     public readonly playlist_approval_requested_status =
-        this._service.playlist_approval_requested_status;
+        this._playlist_service.playlist_approval_requested_status;
 
     // Backend pagination: fetches the next page as the sentinel scrolls in.
-    public readonly has_more = this._service.playlists_has_more;
-    public loadMore() {
-        this._service.loadMorePlaylists();
-    }
+    public readonly has_more = this._playlist_service.playlists_has_more;
+    public readonly loading = this._playlist_service.playlists_loading;
+    public readonly error = this._playlist_service.playlists_error;
 
     constructor() {
-        effect(() => {
-            this._service.queuePlaylistMeta(this.playlists());
+        afterRenderEffect({
+            earlyRead: () => {
+                const selected_id = this.selected()?.id;
+                if (!selected_id) return;
+                const playlist_index = this.playlists().findIndex(
+                    ({ id }) => id === selected_id,
+                );
+                return this._playlist_items()[playlist_index]?.nativeElement;
+            },
+            write: (selected_item) => {
+                selected_item()?.scrollIntoView?.({
+                    behavior: 'instant',
+                    block: 'nearest',
+                    inline: 'nearest',
+                });
+            },
         });
     }
 
-    public getStatus(playlist: SignagePlaylist): PlaylistStatus {
-        const now_s = Math.floor(Date.now() / 1000);
-        if (playlist.valid_until && playlist.valid_until < now_s)
-            return 'expired';
-        if (playlist.valid_from && playlist.valid_from > now_s)
-            return 'pending';
-        const approvals = this.playlist_approval_status();
-        const approval_requests = this.playlist_approval_requested_status();
-        if (
-            playlist.id in approvals &&
-            !approvals[playlist.id] &&
-            approval_requests[playlist.id]
-        )
-            return 'awaiting_review';
-        if (playlist.id in approvals && !approvals[playlist.id])
-            return 'awaiting_approval';
-        return null;
+    public loadMore() {
+        this._playlist_service.loadMorePlaylists();
     }
 
-    public editPlaylist(playlist: SignagePlaylist) {
-        this._service.editPlaylist(playlist);
+    public reload() {
+        this._playlist_service.reloadPlaylists();
     }
 
-    public removePlaylist(playlist: SignagePlaylist) {
-        this._service.removePlaylist(playlist);
+    public getStatus(playlist: SignagePlaylist) {
+        return playlistStatus(
+            playlist,
+            this.playlist_approval_status(),
+            this.playlist_approval_requested_status(),
+        );
     }
 }

@@ -2,7 +2,7 @@
     "extends": "./tsconfig.json",
     "include": ["**/*.ts"],
     "compilerOptions": {
-        "types": ["jest", "node", "google.maps"]
+        "types": ["vitest/globals", "node", "google.maps"]
     },
     "exclude": ["jest.config.ts"]
 }

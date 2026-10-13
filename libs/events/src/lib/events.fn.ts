@@ -6,7 +6,15 @@ import {
     toQueryString,
     VERSION,
 } from '@placeos/common';
-import { del, get, patch, post, put, query } from '@placeos/ts-client';
+import {
+    del,
+    get,
+    patch,
+    post,
+    put,
+    query,
+    responseHeaders,
+} from '@placeos/ts-client';
 import { addMinutes, getUnixTime } from 'date-fns';
 
 import { queryCalendarAvailability, querySpaceFreeBusy } from './calendar.fn';
@@ -65,6 +73,8 @@ export interface CalendarEventShowParams {
     calendar?: string;
     /** ID of the system/space to get the associated calendar ID */
     system_id?: string;
+    /** Whether existing attendees should be notified when attendees change */
+    notify_existing_attendees?: boolean;
 }
 
 const EVENTS_ENDPOINT = `/api/staff/v1/events`;
@@ -79,7 +89,7 @@ function appName() {
     );
 }
 
-function withAppVersion<T extends { extension_data?: Record<string, any> }>(
+function withAppVersion<T extends { extension_data?: Record<string, unknown> }>(
     data: T,
 ): T {
     return {
@@ -93,19 +103,58 @@ function withAppVersion<T extends { extension_data?: Record<string, any> }>(
 }
 
 /**
- * List events
+ * List events. Returns an empty list when the request fails.
  * @param q Parameters to pass to the API request
  */
 export async function queryEvents(
     q: CalendarEventQueryParams,
 ): Promise<CalendarEvent[]> {
+    return queryEventsOrThrow(q).catch(() => []);
+}
+
+/**
+ * List events. Throws when the request fails, so callers can tell
+ * an error apart from an empty list.
+ * @param q Parameters to pass to the API request
+ */
+export async function queryEventsOrThrow(
+    q: CalendarEventQueryParams,
+): Promise<CalendarEvent[]> {
+    return (await queryEventListOrThrow(q)).events;
+}
+
+/** Events from a list request, with the calendars that did not load */
+export interface CalendarEventList {
+    events: CalendarEvent[];
+    /** Lower case IDs of the calendars that the API could not read */
+    failed_calendars: string[];
+}
+
+/**
+ * List events and the calendars that did not load. When the API cannot
+ * read some calendars, it returns the other events with HTTP 206 and
+ * lists the failed calendars in the `x-calendar-issue` header.
+ * Throws when the request fails.
+ * @param q Parameters to pass to the API request
+ */
+export async function queryEventListOrThrow(
+    q: CalendarEventQueryParams,
+): Promise<CalendarEventList> {
     const query = toQueryString(q);
-    try {
-        const list = await get(`${EVENTS_ENDPOINT}${query ? '?' + query : ''}`);
-        return list.map((e) => new CalendarEvent(e));
-    } catch (_) {
-        return [];
-    }
+    const url = `${EVENTS_ENDPOINT}${query ? '?' + query : ''}`;
+    const list = await get(url);
+    // The client stores headers by the absolute URL of the response
+    const issues =
+        responseHeaders(new URL(url, document.baseURI).href)[
+            'x-calendar-issue'
+        ] || '';
+    return {
+        events: list.map((e) => new CalendarEvent(e)),
+        failed_calendars: issues
+            .split(',')
+            .map((id) => id.trim().toLowerCase())
+            .filter(Boolean),
+    };
 }
 
 export async function queryEventHistory(
@@ -461,7 +510,7 @@ export async function querySpaceAvailability(
     start: number,
     duration: number,
     ignore?: string,
-    type?: any,
+    type?: unknown,
     ignore_period: [number, number] = [0, 0],
 ): Promise<boolean[]> {
     const end = addMinutes(start, duration).valueOf();
@@ -480,8 +529,7 @@ export async function querySpaceAvailability(
             : Promise.resolve([]),
     ]);
     const short_list = id_list.map(
-        (id) =>
-            !!spaces.find((s) => s.id === id || (s as any).resource?.id === id),
+        (id) => !!spaces.find((s) => s.id === id || s.resource?.id === id),
     );
     for (const space of ignore_check) {
         if (!id_list.includes(space.id)) continue;

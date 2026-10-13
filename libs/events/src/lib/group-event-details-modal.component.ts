@@ -29,7 +29,8 @@ import {
     unique,
     ViewerFeature,
 } from '@placeos/common';
-import { MapLocateModalComponent, MapPinComponent } from '@placeos/components';
+import { MapLocateModalComponent } from 'libs/components/src/lib/map-locate-modal.component';
+import { MapPinComponent } from 'libs/components/src/lib/map-pin.component';
 
 import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticated-image.directive';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
@@ -167,7 +168,7 @@ import {
                                 <icon class="text-2xl">edit</icon>
                                 <div class="mr-2">
                                     {{
-                                        'CALENDAR_EVENT.GROUP_EDIT' | translate
+                                        'CALENDAR_EVENT.ACTION_EDIT' | translate
                                     }}
                                 </div>
                             </div>
@@ -454,6 +455,7 @@ import {
                         [list]="event().attendees"
                         [host]="event().host"
                         [show_host]="false"
+                        [mark_external]="!!concierge()"
                         (click)="show_attendees.set(false)"
                     ></attendee-list>
                 </div>
@@ -537,9 +539,7 @@ export class GroupEventDetailsModalComponent implements OnInit {
         return body;
     });
     public readonly attendance = computed(
-        () =>
-            this.event().attendees?.filter((_: any) => _.checked_in)?.length ||
-            0,
+        () => this.event().attendees?.filter((_) => _.checked_in)?.length || 0,
     );
 
     public remove(event: CalendarEvent, remove_series?: boolean) {
@@ -613,7 +613,7 @@ export class GroupEventDetailsModalComponent implements OnInit {
                 },
             ]);
         }
-        const zones = (this.space().zones as any) || [];
+        const zones = this.space().zones || [];
         this.level.set(this._org.levelWithID(zones) || this.level());
         this.building.set(
             this._org.buildings.find((_) => zones.includes(_.id)) ||
@@ -656,7 +656,7 @@ export class GroupEventDetailsModalComponent implements OnInit {
                     new CalendarEvent({
                         ...event,
                         attendees: (event.attendees || []).filter(
-                            (_: any) => _.email !== user.email,
+                            (_) => _.email !== user.email,
                         ),
                     }),
             );

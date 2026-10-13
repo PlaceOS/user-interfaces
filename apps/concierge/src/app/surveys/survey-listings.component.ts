@@ -35,6 +35,7 @@ import { SurveyService } from './survey.service';
                 btn
                 matRipple
                 class="space-x-2"
+                data-shortcut="new"
                 [routerLink]="['/surveys', 'builder']"
                 [queryParams]="{ building_id: building() }"
             >

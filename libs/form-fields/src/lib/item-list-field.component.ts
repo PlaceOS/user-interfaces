@@ -1,11 +1,23 @@
 import { COMMA, ENTER } from '@angular/cdk/keycodes';
 
-import { Component, forwardRef, input, signal } from '@angular/core';
+import {
+    Component,
+    computed,
+    ElementRef,
+    forwardRef,
+    input,
+    signal,
+    viewChild,
+} from '@angular/core';
 import {
     ControlValueAccessor,
     FormControl,
     NG_VALUE_ACCESSOR,
 } from '@angular/forms';
+import {
+    MatAutocompleteModule,
+    MatAutocompleteTrigger,
+} from '@angular/material/autocomplete';
 import { MatChipInputEvent, MatChipsModule } from '@angular/material/chips';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
@@ -87,13 +99,26 @@ export function uniqueChipItems<T = string>(items: T[]): T[] {
                 }
             </mat-chip-grid>
             <input
+                #search_field
                 [placeholder]="placeholder() || 'User groups...'"
+                [matAutocomplete]="auto"
                 [matChipInputFor]="chipList"
                 [matChipInputSeparatorKeyCodes]="separators()"
-                [matChipInputAddOnBlur]="true"
+                [matChipInputAddOnBlur]="!panel_open()"
+                (input)="search.set(search_field.value)"
                 (matChipInputTokenEnd)="add($event)"
             />
         </mat-form-field>
+        <mat-autocomplete
+            #auto="matAutocomplete"
+            (opened)="panel_open.set(true)"
+            (closed)="panel_open.set(false)"
+            (optionSelected)="addSuggestion($event.option.value)"
+        >
+            @for (option of matching_options(); track option) {
+                <mat-option [value]="option">{{ option }}</mat-option>
+            }
+        </mat-autocomplete>
     `,
     styles: [``],
     providers: [
@@ -104,7 +129,12 @@ export function uniqueChipItems<T = string>(items: T[]): T[] {
             multi: true,
         },
     ],
-    imports: [MatFormFieldModule, MatChipsModule, IconComponent],
+    imports: [
+        MatFormFieldModule,
+        MatChipsModule,
+        MatAutocompleteModule,
+        IconComponent,
+    ],
 })
 export class ItemListFieldComponent<
     T = string,
@@ -112,8 +142,30 @@ export class ItemListFieldComponent<
     public readonly separators = input<number[]>([ENTER, COMMA]);
 
     public readonly placeholder = input('');
+    /** Existing items to suggest as the user types. New items are still allowed. */
+    public readonly options = input<T[]>([]);
     /** List of items stored */
     public readonly value = signal<T[]>([]);
+    /** Current contents of the search input */
+    public readonly search = signal('');
+    /** Whether the suggestion list is currently shown */
+    public readonly panel_open = signal(false);
+
+    private readonly _search_field =
+        viewChild<ElementRef<HTMLInputElement>>('search_field');
+    private readonly _autocomplete = viewChild(MatAutocompleteTrigger);
+
+    /** Suggestions matching the search text, excluding items already added */
+    public readonly matching_options = computed(() => {
+        const search = this.search().trim().toLowerCase();
+        const selected = new Set(
+            this.value().map((item) => `${item}`.toLowerCase()),
+        );
+        return uniqueChipItems(this.options()).filter((option) => {
+            const text = `${option}`.toLowerCase();
+            return !selected.has(text) && (!search || text.includes(search));
+        });
+    });
 
     /** Form control on change handler */
     private _onChange: (_: T[]) => void;
@@ -121,13 +173,24 @@ export class ItemListFieldComponent<
     private _onTouch: (_: T[]) => void;
 
     /**
-     * Add the `step` to the current value
+     * Add the contents of the input to the list of items. Ignored while a
+     * suggestion is highlighted so that it is not added alongside the
+     * partially typed text.
      */
-    public readonly add = (e: MatChipInputEvent) =>
+    public readonly add = (e: MatChipInputEvent) => {
+        if (this._autocomplete()?.activeOption) return;
         addChipItem(
             { value: this.value(), setValue: (i) => this.setValue(i) },
             e,
         );
+        this._clearSearch();
+    };
+
+    /** Add a suggestion picked from the autocomplete list */
+    public addSuggestion(option: T) {
+        this.setValue([...this.value(), option]);
+        this._clearSearch();
+    }
 
     /** Remove the `step` from the current value */
     public readonly remove = (item: T, index?: number) =>
@@ -174,5 +237,12 @@ export class ItemListFieldComponent<
      */
     public registerOnTouched(fn: (_: T[]) => void): void {
         this._onTouch = fn;
+    }
+
+    /** Empty the search input so the next search starts fresh */
+    private _clearSearch() {
+        this.search.set('');
+        const field = this._search_field();
+        if (field) field.nativeElement.value = '';
     }
 }

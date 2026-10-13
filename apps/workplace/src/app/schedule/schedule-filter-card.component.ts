@@ -18,7 +18,7 @@ import { ScheduleStateService } from './schedule-state.service';
                 <icon>chevron_left</icon>
             </button>
             <h2 class="w-1/2 flex-1 text-center">
-                {{ 'APP.WORKPLACE.SCHEDULE_FILTERS' | translate }}
+                {{ 'COMMON.FILTERS' | translate }}
             </h2>
             <icon></icon>
         </div>

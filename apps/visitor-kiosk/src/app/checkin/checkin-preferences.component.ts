@@ -74,7 +74,7 @@ import { parseTokenFromUrl } from './token-from-url';
                     >
                         {{
                             (beverage()
-                                ? 'APP.VISITOR_KIOSK.SAVE'
+                                ? 'COMMON.SAVE'
                                 : 'APP.VISITOR_KIOSK.CONTINUE'
                             ) | translate
                         }}
@@ -195,11 +195,7 @@ export class CheckinPreferencesComponent
         this.loading.set(true);
         this.loadJwtFromRoute();
         this.type.set('menu');
-        this.timeout(
-            'event',
-            () => this.loadExistingBeverage(),
-            1000,
-        );
+        this.timeout('event', () => this.loadExistingBeverage(), 1000);
     }
 
     public async update() {

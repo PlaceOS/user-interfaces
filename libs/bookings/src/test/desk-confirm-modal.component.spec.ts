@@ -2,7 +2,7 @@ import { FormsModule } from '@angular/forms';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { Spectator, createComponentFactory } from '@ngneat/spectator/jest';
+import { Spectator, createComponentFactory } from '@ngneat/spectator/vitest';
 import { SettingsService } from '@placeos/common';
 import { createSettingsServiceMock } from '@placeos/common/tests';
 import { MockModule } from 'ng-mocks';
@@ -26,9 +26,6 @@ describe('DeskConfirmModalComponent', () => {
     });
 
     beforeEach(() => (spectator = createComponent()));
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
 
     it('should allow setting the date', () => {
         expect('[date]').toExist();
@@ -39,7 +36,7 @@ describe('DeskConfirmModalComponent', () => {
     it('should allow setting the host', () => {
         expect('[host]').not.toExist();
         const settings = spectator.inject(SettingsService);
-        (settings.get as any).mockImplementation(() => true);
+        settings.get.mockImplementation(() => true);
         spectator.detectChanges();
         expect('[host]').toExist();
     });

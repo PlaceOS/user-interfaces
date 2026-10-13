@@ -1,0 +1,1061 @@
+import {
+    CdkDrag,
+    CdkDragDrop,
+    CdkDragHandle,
+    CdkDropList,
+    moveItemInArray,
+} from '@angular/cdk/drag-drop';
+import {
+    Component,
+    computed,
+    inject,
+    model,
+    resource,
+    signal,
+    viewChild,
+} from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { MatRippleModule } from '@angular/material/core';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatSelectModule } from '@angular/material/select';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { RouterLink } from '@angular/router';
+import { i18n, notifyWarn } from '@placeos/common';
+import {
+    AuthenticatedImageDirective,
+    buildFormFromFields,
+    IconComponent,
+    parseSchemaFields,
+    SchemaFormComponent,
+    TranslatePipe,
+} from '@placeos/components';
+import { CounterComponent } from '@placeos/form-fields';
+import {
+    mediaThumbnail,
+    SignageTemplateLayout,
+    SignageTemplateLayoutPosition,
+    SignageTemplateMapping,
+} from '@placeos/ts-client';
+import { SignageDisplayService } from '../displays/signage-display.service';
+import { SignageContextService } from '../signage-context.service';
+import { playlistScheduleLabel } from '../signage-playlist.util';
+import { SignagePluginService } from '../signage-plugin.service';
+import {
+    pluginName,
+    pluginSchema,
+    schemaDefaults,
+} from '../signage-plugin.util';
+import { SignageZoneService } from '../zones/signage-zone.service';
+import { SignageTemplateService } from './signage-template.service';
+import {
+    LAYOUT_POSITIONS,
+    layoutAxisPercentage,
+    layoutPercentageToRatio,
+    layoutPositionAxes,
+    layoutPositionIcon,
+    layoutPositionLabel,
+    layoutPositionValid,
+    tabKeyIndex,
+} from './template-layout.util';
+
+@Component({
+    selector: 'template-layout-list',
+    template: `
+        <div
+            class="bg-base-100 border-base-300 flex h-full w-full flex-col lg:w-96 lg:border-l"
+        >
+            <div
+                class="border-base-300 hidden border-b lg:flex"
+                role="tablist"
+                [attr.aria-label]="
+                    'SIGNAGE_MANAGER.TEMPLATE_LAYOUT_ITEMS' | translate
+                "
+            >
+                <button
+                    #items_tab
+                    type="button"
+                    role="tab"
+                    class="flex-1 px-4 py-3 text-sm font-medium transition-colors"
+                    [class.border-primary]="view_tab() === 'items'"
+                    [class.border-b-2]="view_tab() === 'items'"
+                    [class.text-primary]="view_tab() === 'items'"
+                    [class.opacity-60]="view_tab() !== 'items'"
+                    (click)="setViewTab('items')"
+                    (keydown)="handleTabKeydown($event, items_tab, details_tab)"
+                    [attr.aria-selected]="view_tab() === 'items'"
+                    [tabIndex]="view_tab() === 'items' ? 0 : -1"
+                    aria-controls="template-layout-items-panel"
+                    id="template-layout-items-tab"
+                >
+                    {{ 'SIGNAGE_MANAGER.TEMPLATE_LAYOUT_ITEMS' | translate }}
+                </button>
+                <button
+                    #details_tab
+                    type="button"
+                    role="tab"
+                    class="flex-1 px-4 py-3 text-sm font-medium transition-colors"
+                    [class.border-primary]="view_tab() === 'details'"
+                    [class.border-b-2]="view_tab() === 'details'"
+                    [class.text-primary]="view_tab() === 'details'"
+                    [class.opacity-60]="view_tab() !== 'details'"
+                    (click)="setViewTab('details')"
+                    (keydown)="handleTabKeydown($event, items_tab, details_tab)"
+                    [attr.aria-selected]="view_tab() === 'details'"
+                    [tabIndex]="view_tab() === 'details' ? 0 : -1"
+                    aria-controls="template-layout-details-panel"
+                    id="template-layout-details-tab"
+                >
+                    {{ 'COMMON.DETAILS' | translate }}
+                </button>
+            </div>
+            @if (view_tab() === 'items') {
+                <div
+                    id="template-layout-items-panel"
+                    role="tabpanel"
+                    aria-labelledby="template-layout-items-tab"
+                    class="flex min-h-0 flex-1 flex-col"
+                >
+                    @if (can_update()) {
+                        <div class="flex justify-end px-3 pt-3">
+                            <button
+                                btn
+                                type="button"
+                                matRipple
+                                class="bg-secondary text-secondary-content flex items-center rounded-lg py-1.5 pr-4 pl-2"
+                                [matMenuTriggerFor]="position_menu"
+                                [attr.aria-label]="
+                                    'SIGNAGE_MANAGER.TEMPLATE_ADD_LAYOUT'
+                                        | translate
+                                "
+                            >
+                                <icon class="mr-1 text-2xl">add</icon>
+                                {{
+                                    'SIGNAGE_MANAGER.TEMPLATE_ADD_LAYOUT'
+                                        | translate
+                                }}
+                            </button>
+                            <mat-menu #position_menu="matMenu">
+                                @for (position of positions; track position) {
+                                    <button
+                                        type="button"
+                                        mat-menu-item
+                                        (click)="addLayout(position)"
+                                    >
+                                        <div class="flex items-center gap-2">
+                                            <icon class="text-2xl">{{
+                                                positionIcon(position)
+                                            }}</icon>
+                                            <span>{{
+                                                positionLabel(position)
+                                                    | translate
+                                            }}</span>
+                                        </div>
+                                    </button>
+                                }
+                            </mat-menu>
+                        </div>
+                    }
+                    <div
+                        class="min-h-0 flex-1 overflow-auto px-3 py-2"
+                        cdkDropList
+                        role="list"
+                        (cdkDropListDropped)="onDrop($event)"
+                    >
+                        @for (layout of layouts(); track $index) {
+                            <div
+                                cdkDrag
+                                [cdkDragDisabled]="!can_update()"
+                                role="listitem"
+                                class="border-base-300 bg-base-100 mb-2 rounded-lg border"
+                                [class.border-primary]="
+                                    selected_index() === $index
+                                "
+                            >
+                                <div
+                                    class="flex w-full items-center gap-2 px-2 py-2"
+                                >
+                                    @if (can_update()) {
+                                        <icon
+                                            cdkDragHandle
+                                            class="shrink-0 cursor-grab opacity-40"
+                                            >drag_indicator</icon
+                                        >
+                                    }
+                                    <button
+                                        type="button"
+                                        class="flex min-w-0 flex-1 items-center gap-2 text-left"
+                                        [attr.aria-expanded]="
+                                            selected_index() === $index
+                                        "
+                                        (click)="selectLayout($index)"
+                                    >
+                                        <icon
+                                            class="shrink-0 text-2xl opacity-70"
+                                            >{{
+                                                positionIcon(layout.position)
+                                            }}</icon
+                                        >
+                                        <div class="min-w-0 flex-1">
+                                            <div
+                                                class="truncate text-sm font-medium"
+                                            >
+                                                {{
+                                                    positionLabel(
+                                                        layout.position
+                                                    ) | translate
+                                                }}
+                                            </div>
+                                            <div
+                                                class="truncate text-xs opacity-60"
+                                            >
+                                                {{
+                                                    pluginName(
+                                                        layout.plugin_id
+                                                    ) ||
+                                                        ('SIGNAGE_MANAGER.TEMPLATE_NO_PLUGIN'
+                                                            | translate)
+                                                }}
+                                            </div>
+                                        </div>
+                                    </button>
+                                    @if (can_update()) {
+                                        <button
+                                            icon
+                                            default
+                                            error
+                                            type="button"
+                                            matRipple
+                                            (click)="
+                                                removeLayout($event, $index)
+                                            "
+                                            [attr.aria-label]="
+                                                'SIGNAGE_MANAGER.TEMPLATE_REMOVE_LAYOUT'
+                                                    | translate
+                                            "
+                                        >
+                                            <icon>delete</icon>
+                                        </button>
+                                    }
+                                </div>
+                                @if (selected_index() === $index) {
+                                    <div
+                                        class="border-base-300 flex flex-col gap-2 border-t px-3 py-3"
+                                    >
+                                        <label [for]="'plugin-' + $index">{{
+                                            'SIGNAGE_MANAGER.SELECT_PLUGIN'
+                                                | translate
+                                        }}</label>
+                                        <mat-form-field
+                                            appearance="outline"
+                                            class="no-subscript w-full"
+                                        >
+                                            <mat-select
+                                                [id]="'plugin-' + $index"
+                                                [ngModel]="
+                                                    layout.plugin_id || ''
+                                                "
+                                                (ngModelChange)="
+                                                    setPlugin($index, $event)
+                                                "
+                                                [disabled]="!can_update()"
+                                                [attr.aria-label]="
+                                                    'SIGNAGE_MANAGER.SELECT_PLUGIN_ARIA'
+                                                        | translate
+                                                "
+                                            >
+                                                <mat-option value="">{{
+                                                    'SIGNAGE_MANAGER.TEMPLATE_NO_PLUGIN'
+                                                        | translate
+                                                }}</mat-option>
+                                                @for (
+                                                    plugin of widgets();
+                                                    track plugin.id
+                                                ) {
+                                                    <mat-option
+                                                        [value]="plugin.id"
+                                                        >{{
+                                                            plugin.name
+                                                        }}</mat-option
+                                                    >
+                                                }
+                                            </mat-select>
+                                        </mat-form-field>
+                                        <!-- Edge panels size along their
+                                             consumed axis; floating panels
+                                             position their top-left corner
+                                             and fill from there. -->
+                                        @let axes = positionAxes(layout);
+                                        <div class="flex gap-2">
+                                            @if (axes.includes('x_pos')) {
+                                                <label class="min-w-0 flex-1">
+                                                    <div class="mb-1 text-sm">
+                                                        {{
+                                                            xLabel(
+                                                                layout.position
+                                                            ) | translate
+                                                        }}
+                                                    </div>
+                                                    <a-counter
+                                                        class="block"
+                                                        [min]="0"
+                                                        [max]="100"
+                                                        [ngModel]="
+                                                            axisPercentage(
+                                                                layout,
+                                                                'x_pos'
+                                                            )
+                                                        "
+                                                        (ngModelChange)="
+                                                            setAxis(
+                                                                $index,
+                                                                'x_pos',
+                                                                $event
+                                                            )
+                                                        "
+                                                        [disabled]="
+                                                            !can_update()
+                                                        "
+                                                        [render_fn]="
+                                                            renderPercent
+                                                        "
+                                                        [attr.aria-label]="
+                                                            xLabel(
+                                                                layout.position
+                                                            ) | translate
+                                                        "
+                                                    />
+                                                </label>
+                                            }
+                                            @if (axes.includes('y_pos')) {
+                                                <label class="min-w-0 flex-1">
+                                                    <div class="mb-1 text-sm">
+                                                        {{
+                                                            yLabel(
+                                                                layout.position
+                                                            ) | translate
+                                                        }}
+                                                    </div>
+                                                    <a-counter
+                                                        class="block"
+                                                        [min]="0"
+                                                        [max]="100"
+                                                        [ngModel]="
+                                                            axisPercentage(
+                                                                layout,
+                                                                'y_pos'
+                                                            )
+                                                        "
+                                                        (ngModelChange)="
+                                                            setAxis(
+                                                                $index,
+                                                                'y_pos',
+                                                                $event
+                                                            )
+                                                        "
+                                                        [disabled]="
+                                                            !can_update()
+                                                        "
+                                                        [render_fn]="
+                                                            renderPercent
+                                                        "
+                                                        [attr.aria-label]="
+                                                            yLabel(
+                                                                layout.position
+                                                            ) | translate
+                                                        "
+                                                    />
+                                                </label>
+                                            }
+                                        </div>
+                                        @if (selected_plugin_schema()) {
+                                            <label>
+                                                {{
+                                                    'SIGNAGE_MANAGER.PLUGIN_PARAMETERS'
+                                                        | translate
+                                                }}
+                                            </label>
+                                            <div
+                                                class="bg-base-200/60 rounded-lg p-4"
+                                                [class.opacity-70]="
+                                                    !can_update()
+                                                "
+                                                [attr.inert]="
+                                                    can_update() ? null : ''
+                                                "
+                                            >
+                                                <schema-form
+                                                    [schema]="
+                                                        selected_plugin_schema()
+                                                    "
+                                                    [ngModel]="
+                                                        layout.plugin_params ||
+                                                        {}
+                                                    "
+                                                    (ngModelChange)="
+                                                        setParams(
+                                                            $index,
+                                                            $event
+                                                        )
+                                                    "
+                                                    [ngModelOptions]="{
+                                                        standalone: true,
+                                                    }"
+                                                ></schema-form>
+                                            </div>
+                                        }
+                                    </div>
+                                }
+                            </div>
+                        } @empty {
+                            <div
+                                class="text-base-content/70 flex flex-col items-center justify-center space-y-2 p-8 text-center"
+                            >
+                                <icon class="text-5xl">space_dashboard</icon>
+                                <p class="text-sm">
+                                    {{
+                                        'SIGNAGE_MANAGER.TEMPLATE_NO_LAYOUTS'
+                                            | translate
+                                    }}
+                                </p>
+                            </div>
+                        }
+                    </div>
+                </div>
+            } @else {
+                <div
+                    id="template-layout-details-panel"
+                    role="tabpanel"
+                    aria-labelledby="template-layout-details-tab"
+                    class="min-h-0 flex-1 overflow-auto"
+                >
+                    @if (selected_template(); as template) {
+                        <div class="flex flex-col gap-5 p-4">
+                            <section>
+                                <h5
+                                    class="text-base-content/70 mb-2 flex items-center gap-2 text-xs font-medium tracking-wider uppercase"
+                                >
+                                    <icon class="text-lg">tune</icon>
+                                    {{
+                                        'SIGNAGE_MANAGER.TEMPLATE_CONFIGURATION'
+                                            | translate
+                                    }}
+                                </h5>
+                                <dl
+                                    class="border-base-300 divide-base-300 divide-y rounded-lg border"
+                                >
+                                    <div class="px-3 py-2">
+                                        <dt
+                                            class="text-base-content/60 text-xs"
+                                        >
+                                            {{ 'FORM.NAME' | translate }}
+                                        </dt>
+                                        <dd class="mt-0.5 font-medium">
+                                            {{ template.name }}
+                                        </dd>
+                                    </div>
+                                    <div class="px-3 py-2">
+                                        <dt
+                                            class="text-base-content/60 text-xs"
+                                        >
+                                            {{
+                                                'COMMON.DESCRIPTION' | translate
+                                            }}
+                                        </dt>
+                                        <dd
+                                            class="mt-0.5 text-sm whitespace-pre-wrap"
+                                        >
+                                            {{
+                                                template.description ||
+                                                    ('COMMON.NONE' | translate)
+                                            }}
+                                        </dd>
+                                    </div>
+                                    <div class="px-3 py-2">
+                                        <dt
+                                            class="text-base-content/60 mb-1 text-xs"
+                                        >
+                                            {{
+                                                'SIGNAGE_MANAGER.TEMPLATE_BACKGROUND'
+                                                    | translate
+                                            }}
+                                        </dt>
+                                        @if (background_url(); as source) {
+                                            <dd class="flex items-center gap-2">
+                                                <img
+                                                    auth
+                                                    class="bg-base-200 h-12 w-20 rounded object-cover"
+                                                    [source]="source"
+                                                    [alt]="
+                                                        'SIGNAGE_MANAGER.TEMPLATE_BACKGROUND'
+                                                            | translate
+                                                    "
+                                                />
+                                                <span class="text-sm">{{
+                                                    'SIGNAGE_MANAGER.TEMPLATE_BACKGROUND_SELECTED'
+                                                        | translate
+                                                }}</span>
+                                            </dd>
+                                        } @else {
+                                            <dd class="text-sm">
+                                                {{
+                                                    'SIGNAGE_MANAGER.TEMPLATE_BACKGROUND_EMPTY'
+                                                        | translate
+                                                }}
+                                            </dd>
+                                        }
+                                    </div>
+                                    <div
+                                        class="flex items-center justify-between gap-3 px-3 py-2"
+                                    >
+                                        <dt class="text-sm">
+                                            {{
+                                                'SIGNAGE_MANAGER.TEMPLATE_FULLSCREEN_TAKEOVER'
+                                                    | translate
+                                            }}
+                                        </dt>
+                                        <dd class="font-medium">
+                                            {{
+                                                (template.full_screen_takeover
+                                                    ? 'COMMON.YES'
+                                                    : 'COMMON.NO'
+                                                ) | translate
+                                            }}
+                                        </dd>
+                                    </div>
+                                    <div
+                                        class="flex items-center justify-between gap-3 px-3 py-2"
+                                    >
+                                        <dt class="text-sm">
+                                            {{
+                                                'SIGNAGE_MANAGER.TEMPLATE_MERGE'
+                                                    | translate
+                                            }}
+                                        </dt>
+                                        <dd class="font-medium">
+                                            {{
+                                                (template.merge
+                                                    ? 'COMMON.YES'
+                                                    : 'COMMON.NO'
+                                                ) | translate
+                                            }}
+                                        </dd>
+                                    </div>
+                                </dl>
+                            </section>
+
+                            <section>
+                                <h5
+                                    class="text-base-content/70 mb-2 flex items-center gap-2 text-xs font-medium tracking-wider uppercase"
+                                >
+                                    <icon class="text-lg">groups</icon>
+                                    {{
+                                        'SIGNAGE_MANAGER.SHARED_WITH'
+                                            | translate
+                                    }}
+                                </h5>
+                                @if (template.shared_with.length) {
+                                    <ul
+                                        class="border-base-300 divide-base-300 list-none divide-y rounded-lg border p-0"
+                                    >
+                                        @for (
+                                            group of template.shared_with;
+                                            track group.id
+                                        ) {
+                                            <li
+                                                class="flex items-center gap-2 px-3 py-2"
+                                            >
+                                                <icon
+                                                    class="text-base-content/60 text-xl"
+                                                    >group</icon
+                                                >
+                                                <span
+                                                    class="min-w-0 flex-1 truncate text-sm"
+                                                    >{{ group.name }}</span
+                                                >
+                                            </li>
+                                        }
+                                    </ul>
+                                } @else {
+                                    <div
+                                        class="border-base-300 text-base-content/70 rounded-lg border px-3 py-2 text-sm"
+                                    >
+                                        {{ 'COMMON.NONE' | translate }}
+                                    </div>
+                                }
+                            </section>
+
+                            <section>
+                                <h5
+                                    class="text-base-content/70 mb-2 flex items-center gap-2 text-xs font-medium tracking-wider uppercase"
+                                >
+                                    <icon class="text-lg">link</icon>
+                                    {{
+                                        'SIGNAGE_MANAGER.TEMPLATE_MAPPINGS'
+                                            | translate
+                                    }}
+                                    @if (!mappings_loading()) {
+                                        <span>({{ mappings().length }})</span>
+                                    }
+                                </h5>
+                                @if (mappings_loading()) {
+                                    <div
+                                        class="border-base-300 text-base-content/70 rounded-lg border px-3 py-4 text-center text-sm"
+                                    >
+                                        {{ 'COMMON.LOADING' | translate }}
+                                    </div>
+                                } @else if (mappings_error()) {
+                                    <div
+                                        class="border-error text-error rounded-lg border px-3 py-3 text-sm"
+                                    >
+                                        {{
+                                            'SIGNAGE_MANAGER.TEMPLATE_MAPPINGS_LOAD_ERROR'
+                                                | translate
+                                        }}
+                                    </div>
+                                } @else if (mappings().length) {
+                                    <ul
+                                        class="border-base-300 divide-base-300 list-none divide-y rounded-lg border p-0"
+                                    >
+                                        @for (
+                                            mapping of mappings();
+                                            track mapping.id
+                                        ) {
+                                            <li>
+                                                <a
+                                                    matRipple
+                                                    class="hover:bg-base-200 flex items-center gap-2 px-3 py-2 no-underline transition-colors"
+                                                    [routerLink]="
+                                                        mappingRoute(mapping)
+                                                    "
+                                                >
+                                                    <icon
+                                                        class="text-base-content/60 shrink-0 text-xl"
+                                                        >{{
+                                                            mappingIcon(mapping)
+                                                        }}</icon
+                                                    >
+                                                    <div class="min-w-0 flex-1">
+                                                        <div
+                                                            class="truncate text-sm font-medium"
+                                                            [title]="
+                                                                mappingTargetLabel(
+                                                                    mapping
+                                                                )
+                                                            "
+                                                        >
+                                                            {{
+                                                                mappingTargetLabel(
+                                                                    mapping
+                                                                )
+                                                            }}
+                                                        </div>
+                                                        <div
+                                                            class="text-base-content/60 text-xs"
+                                                        >
+                                                            {{
+                                                                mappingTargetType(
+                                                                    mapping
+                                                                ) | translate
+                                                            }}
+                                                        </div>
+                                                    </div>
+                                                    <span
+                                                        class="bg-base-200 max-w-36 truncate rounded px-2 py-1 text-xs"
+                                                        [title]="
+                                                            mappingSchedule(
+                                                                mapping
+                                                            )
+                                                        "
+                                                    >
+                                                        {{
+                                                            mappingSchedule(
+                                                                mapping
+                                                            )
+                                                        }}
+                                                    </span>
+                                                </a>
+                                            </li>
+                                        }
+                                    </ul>
+                                } @else {
+                                    <div
+                                        class="border-base-300 text-base-content/70 rounded-lg border px-3 py-3 text-sm"
+                                    >
+                                        {{
+                                            'SIGNAGE_MANAGER.TEMPLATE_NO_MAPPINGS'
+                                                | translate
+                                        }}
+                                    </div>
+                                }
+                            </section>
+                        </div>
+                    } @else {
+                        <div
+                            class="text-base-content/70 flex h-full flex-col items-center justify-center space-y-2 p-8 text-center"
+                        >
+                            <icon class="text-5xl">dashboard_customize</icon>
+                            <p class="text-sm">
+                                {{
+                                    'SIGNAGE_MANAGER.SELECT_TEMPLATE_HINT'
+                                        | translate
+                                }}
+                            </p>
+                        </div>
+                    }
+                </div>
+            }
+            @if (dirty()) {
+                <div
+                    class="border-base-300 flex items-center gap-2 border-t px-4 py-3"
+                >
+                    <button
+                        btn
+                        type="button"
+                        matRipple
+                        class="bg-base-200 flex-1 rounded-lg py-2"
+                        [disabled]="saving()"
+                        (click)="discard()"
+                    >
+                        {{ 'SIGNAGE_MANAGER.TEMPLATE_DISCARD' | translate }}
+                    </button>
+                    @if (can_update()) {
+                        <button
+                            btn
+                            type="button"
+                            matRipple
+                            class="bg-secondary text-secondary-content flex-1 rounded-lg py-2"
+                            [disabled]="saving()"
+                            (click)="save()"
+                        >
+                            {{
+                                (saving()
+                                    ? 'SIGNAGE_MANAGER.TEMPLATE_SAVING'
+                                    : 'COMMON.SAVE'
+                                ) | translate
+                            }}
+                        </button>
+                    }
+                </div>
+            }
+        </div>
+    `,
+    styles: [
+        `
+            :host {
+                display: block;
+                height: 100%;
+            }
+        `,
+    ],
+    imports: [
+        CdkDropList,
+        CdkDrag,
+        CdkDragHandle,
+        FormsModule,
+        RouterLink,
+        MatRippleModule,
+        MatFormFieldModule,
+        MatMenuModule,
+        MatSelectModule,
+        MatTooltipModule,
+        CounterComponent,
+        AuthenticatedImageDirective,
+        IconComponent,
+        SchemaFormComponent,
+        TranslatePipe,
+    ],
+})
+export class TemplateLayoutListComponent {
+    private readonly _context = inject(SignageContextService);
+    private readonly _display_service = inject(SignageDisplayService);
+    private readonly _plugin_service = inject(SignagePluginService);
+    private readonly _template_service = inject(SignageTemplateService);
+    private readonly _zone_service = inject(SignageZoneService);
+
+    /** Active inner tab. Below lg the parent drives it from its own tabs. */
+    public readonly view_tab = model<'items' | 'details'>('items', {
+        alias: 'tab',
+    });
+    public readonly positions = LAYOUT_POSITIONS;
+    public readonly layouts = this._template_service.template_layout_draft;
+    public readonly selected_template =
+        this._template_service.selected_template;
+    public readonly selected_index =
+        this._template_service.selected_template_layout_index;
+    public readonly dirty = this._template_service.template_layout_dirty;
+    public readonly saving = signal(false);
+    public readonly can_update = this._context.can_update_templates;
+    public readonly widgets = this._plugin_service.widgets;
+    public readonly displays = this._display_service.displays;
+    public readonly zones = this._zone_service.all_zones;
+    public readonly background_url = computed(() => {
+        const background_id = this.selected_template()?.background_item_id;
+        return background_id ? mediaThumbnail(background_id) : '';
+    });
+    private readonly _mappings = resource({
+        params: () => ({
+            template_id:
+                this.view_tab() === 'details'
+                    ? this.selected_template()?.live_template_id ||
+                      this.selected_template()?.id ||
+                      ''
+                    : '',
+        }),
+        loader: ({ params }) =>
+            params.template_id
+                ? this._template_service.listTemplateMappings({
+                      template_id: params.template_id,
+                  })
+                : Promise.resolve([]),
+    });
+    // value() throws while the resource is in error, so check hasValue first
+    public readonly mappings = computed(() =>
+        this._mappings.hasValue() ? this._mappings.value() : [],
+    );
+    public readonly mappings_loading = this._mappings.isLoading;
+    public readonly mappings_error = this._mappings.error;
+    public readonly selected_plugin = computed(() => {
+        const index = this.selected_index();
+        const plugin_id =
+            index === null ? '' : this.layouts()[index]?.plugin_id;
+        return this.widgets().find((plugin) => plugin.id === plugin_id);
+    });
+    public readonly selected_plugin_schema = computed(() =>
+        pluginSchema(this.selected_plugin()?.params),
+    );
+    private readonly _schema_form = viewChild(SchemaFormComponent);
+
+    public positionIcon = layoutPositionIcon;
+    public positionLabel = layoutPositionLabel;
+    public positionAxes = layoutPositionAxes;
+    public axisPercentage = layoutAxisPercentage;
+    public renderPercent = (value = 0) => `${value}%`;
+
+    public pluginName(plugin_id?: string) {
+        return pluginName(this.widgets(), plugin_id);
+    }
+
+    public selectLayout(index: number) {
+        this.selected_index.set(this.selected_index() === index ? null : index);
+    }
+
+    public addLayout(position: SignageTemplateLayoutPosition) {
+        this.layouts.update((layouts) => [
+            ...layouts,
+            { position, plugin_params: {} },
+        ]);
+        this.selected_index.set(this.layouts().length - 1);
+    }
+
+    public setViewTab(tab: 'items' | 'details') {
+        this.view_tab.set(tab);
+    }
+
+    public handleTabKeydown(
+        event: KeyboardEvent,
+        items_tab: HTMLButtonElement,
+        details_tab: HTMLButtonElement,
+    ) {
+        const tabs = ['items', 'details'] as const;
+        const next = tabKeyIndex(
+            event.key,
+            tabs.indexOf(this.view_tab()),
+            tabs.length,
+        );
+        if (next === null) return;
+        event.preventDefault();
+        this.view_tab.set(tabs[next]);
+        [items_tab, details_tab][next].focus();
+    }
+
+    public mappingTargetLabel(mapping: SignageTemplateMapping) {
+        if (mapping.control_system_id) {
+            const display = this.displays().find(
+                ({ id }) => id === mapping.control_system_id,
+            );
+            return (
+                display?.display_name ||
+                display?.name ||
+                mapping.control_system_id
+            );
+        }
+        const zone = this.zones().find(({ id }) => id === mapping.zone_id);
+        return zone?.name || mapping.zone_id;
+    }
+
+    public mappingTargetType(mapping: SignageTemplateMapping) {
+        return mapping.control_system_id
+            ? 'SIGNAGE_MANAGER.TEMPLATE_MAPPING_DISPLAY'
+            : 'SIGNAGE_MANAGER.TEMPLATE_MAPPING_ZONE';
+    }
+
+    public mappingIcon(mapping: SignageTemplateMapping) {
+        return mapping.control_system_id ? 'tv' : 'layers';
+    }
+
+    public mappingRoute(mapping: SignageTemplateMapping) {
+        return mapping.control_system_id
+            ? ['/displays', mapping.control_system_id]
+            : ['/zones', mapping.zone_id];
+    }
+
+    public mappingSchedule(mapping: SignageTemplateMapping) {
+        return mapping.schedule
+            ? playlistScheduleLabel(mapping.schedule)
+            : i18n('SIGNAGE_MANAGER.DEFAULT_TEMPLATE');
+    }
+
+    public removeLayout(event: Event, index: number) {
+        event.stopPropagation();
+        this.layouts.update((layouts) =>
+            layouts.filter((_, item_index) => item_index !== index),
+        );
+        this.selected_index.update((selected) => {
+            if (selected === index) return null;
+            return selected !== null && selected > index
+                ? selected - 1
+                : selected;
+        });
+    }
+
+    public onDrop(event: CdkDragDrop<SignageTemplateLayout[]>) {
+        if (!this.can_update()) return;
+        if (event.previousIndex === event.currentIndex) return;
+        const layouts = [...this.layouts()];
+        moveItemInArray(layouts, event.previousIndex, event.currentIndex);
+        // Keep the selection on the same layout item after the move
+        const selected = this.selected_index();
+        if (selected !== null) {
+            const selected_item = this.layouts()[selected];
+            this.selected_index.set(layouts.indexOf(selected_item));
+        }
+        this.layouts.set(layouts);
+    }
+
+    public setPlugin(index: number, plugin_id: string) {
+        const plugin = this.widgets().find((item) => item.id === plugin_id);
+        if (plugin_id && !plugin) return;
+        const defaults = {
+            ...(plugin?.defaults ?? {}),
+            ...schemaDefaults(pluginSchema(plugin?.params)),
+        };
+        this.layouts.update((layouts) =>
+            layouts.map((layout, item_index) => {
+                if (item_index !== index) return layout;
+                return {
+                    ...layout,
+                    plugin_id: plugin_id || undefined,
+                    plugin_params: {
+                        ...defaults,
+                        ...(layout.plugin_id === plugin_id
+                            ? (layout.plugin_params ?? {})
+                            : {}),
+                    } as SignageTemplateLayout['plugin_params'],
+                };
+            }),
+        );
+    }
+
+    public xLabel(position: SignageTemplateLayoutPosition) {
+        return position === 'floating'
+            ? 'SIGNAGE_MANAGER.TEMPLATE_X_POS'
+            : 'SIGNAGE_MANAGER.TEMPLATE_PANEL_WIDTH';
+    }
+
+    public yLabel(position: SignageTemplateLayoutPosition) {
+        return position === 'floating'
+            ? 'SIGNAGE_MANAGER.TEMPLATE_Y_POS'
+            : 'SIGNAGE_MANAGER.TEMPLATE_PANEL_HEIGHT';
+    }
+
+    public setAxis(
+        index: number,
+        axis: 'x_pos' | 'y_pos',
+        value: number | null,
+    ) {
+        const ratio = layoutPercentageToRatio(value);
+        this.layouts.update((layouts) =>
+            layouts.map((layout, item_index) =>
+                item_index === index ? { ...layout, [axis]: ratio } : layout,
+            ),
+        );
+    }
+
+    public setParams(index: number, params: Record<string, unknown>) {
+        if (!params || typeof params !== 'object' || Array.isArray(params)) {
+            return;
+        }
+        this.layouts.update((layouts) =>
+            layouts.map((layout, item_index) =>
+                item_index === index
+                    ? {
+                          ...layout,
+                          plugin_params:
+                              params as SignageTemplateLayout['plugin_params'],
+                      }
+                    : layout,
+            ),
+        );
+    }
+
+    /**
+     * Save the layout draft. Every layout's position and params are checked
+     * first; the first invalid layout is opened instead.
+     */
+    public async save() {
+        if (this.saving()) return;
+        const invalid = this._invalidLayout();
+        if (invalid) {
+            if (this.selected_index() === invalid.index) {
+                this._schema_form()?.isValid(); // Shows the field errors
+            }
+            this.selected_index.set(invalid.index);
+            notifyWarn(i18n(invalid.message));
+            return;
+        }
+        this.saving.set(true);
+        try {
+            await this._template_service.saveTemplateLayouts();
+        } finally {
+            this.saving.set(false);
+        }
+    }
+
+    public discard() {
+        this._template_service.discardTemplateLayoutDraft();
+    }
+
+    /**
+     * First layout with a position the API rejects or a missing required
+     * plugin param, with the warning to show. Null when all are valid.
+     */
+    private _invalidLayout() {
+        const widgets = this.widgets();
+        const layouts = this.layouts();
+        for (let index = 0; index < layouts.length; index++) {
+            const layout = layouts[index];
+            if (!layoutPositionValid(layout)) {
+                return {
+                    index,
+                    message: 'SIGNAGE_MANAGER.TEMPLATE_LAYOUT_POSITION_INVALID',
+                };
+            }
+            const plugin = widgets.find(({ id }) => id === layout.plugin_id);
+            const schema = pluginSchema(plugin?.params);
+            const params_valid =
+                !schema ||
+                buildFormFromFields(
+                    parseSchemaFields(schema),
+                    layout.plugin_params ?? {},
+                ).valid;
+            if (!params_valid) {
+                return {
+                    index,
+                    message: 'SIGNAGE_MANAGER.TEMPLATE_LAYOUT_PARAMS_REQUIRED',
+                };
+            }
+        }
+        return null;
+    }
+}

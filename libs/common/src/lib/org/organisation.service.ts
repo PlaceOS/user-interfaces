@@ -13,11 +13,14 @@ import {
     bulkMetadata,
     getModule,
     isMock,
+    isOnline,
     onlineState,
     queryZones,
+    showMetadata,
     waitForSignal,
 } from '@placeos/ts-client';
 
+import { requestInitReload } from '../application';
 import { scoped_log, unique } from '../general';
 import { notifyError } from '../notifications';
 import { setLoadingMessage } from '../placeos.service';
@@ -35,12 +38,58 @@ const log = scoped_log('ORG');
 
 const ORG_CACHE_PREFIX = 'PLACEOS.org';
 const ZONE_CACHE_PREFIX = `${ORG_CACHE_PREFIX}.zones`;
+const AUTHORITY_CACHE_KEY = `${ORG_CACHE_PREFIX}.authority`;
+/** How long startup waits to be online before trying cached data */
+const OFFLINE_BOOT_DELAY = 10 * 1000;
+/** How long zone loading may remain incomplete before reloading the app */
+const ZONE_LOAD_TIMEOUT = 45 * 1000;
+const GEOLOCATION_TIMEOUT = 10 * 1000;
 const METADATA_CACHE_PREFIX = `${ORG_CACHE_PREFIX}.metadata`;
-const DEFAULT_CACHE_DURATION = 5 * 60 * 1000;
+/** Cached data older than this is discarded instead of being displayed */
+const MAX_CACHE_AGE = 7 * 24 * 60 * 60 * 1000;
+interface CachedAuthority {
+    id: string;
+    metadata_cache_id: string;
+}
+
+export interface OrganisationLocation {
+    level?: BuildingLevel;
+    building?: Building;
+    region?: Region;
+    label: string;
+}
+
+/**
+ * The authority is fetched from the backend, so it is not available on an
+ * offline boot. Cached org data is namespaced by it, so the last known values
+ * are remembered here - without them the cache written while online can never
+ * be read back at the one moment it is actually needed.
+ */
+function cachedAuthority(): CachedAuthority | null {
+    const auth = authority();
+    if (auth?.id) {
+        const details = {
+            id: auth.id,
+            metadata_cache_id: `${auth.config?.['metadata_cache_id'] || ''}`,
+        };
+        try {
+            localStorage.setItem(AUTHORITY_CACHE_KEY, JSON.stringify(details));
+        } catch {
+            // Ignore quota and privacy-mode failures.
+        }
+        return details;
+    }
+    try {
+        return JSON.parse(localStorage.getItem(AUTHORITY_CACHE_KEY) || 'null');
+    } catch {
+        return null;
+    }
+}
+
 type ZoneQueryParams = Parameters<typeof queryZones>[0];
 type MetadataMap = Record<string, Record<string, any>>;
-interface SessionCacheItem<T> {
-    expires_at: number;
+interface CacheItem<T> {
+    cached_at: number;
     metadata_cache_id: string;
     data: T;
 }
@@ -66,7 +115,45 @@ export class OrganisationService {
         new Building({ name: 'Unknown' }),
     );
     private readonly _level_list = signal<BuildingLevel[]>([]);
-    private readonly _loaded_data: string[] = [];
+    private readonly _regions_by_id = computed(
+        () =>
+            new Map(
+                this._region_list().map((region): [string, Region] => [
+                    region.id,
+                    region,
+                ]),
+            ),
+    );
+    private readonly _buildings_by_id = computed(
+        () =>
+            new Map(
+                this._building_list().map((building): [string, Building] => [
+                    building.id,
+                    building,
+                ]),
+            ),
+    );
+    private readonly _levels_by_id = computed(
+        () =>
+            new Map(
+                this._level_list().map((level): [string, BuildingLevel] => [
+                    level.id,
+                    level,
+                ]),
+            ),
+    );
+    private _loaded_data: Record<string, boolean> = {};
+    /** Whether any cached data was used during the initial load */
+    private _served_cache = false;
+    /** Number of background refreshes currently in flight */
+    private readonly _refresh_count = signal(0);
+    /** Whether cached data is being replaced with the latest from the API */
+    public readonly refreshing = computed(() => this._refresh_count() > 0);
+    private get _refreshing() {
+        return this.refreshing();
+    }
+    /** Ids of buildings whose settings metadata has finished loading */
+    private readonly _loaded_buildings = signal<string[]>([]);
     private readonly _limited_init = signal(false);
 
     public readonly app_key = `${(
@@ -82,6 +169,16 @@ export class OrganisationService {
     public readonly active_region = this._active_region.asReadonly();
     /** Signal for the currently active building */
     public readonly active_building = this._active_building.asReadonly();
+    /**
+     * Whether the active building's settings metadata has loaded into the
+     * override stack. False while `loadBuildingData` is still in flight, so
+     * consumers can avoid reading building-level settings before they land.
+     */
+    public readonly active_building_loaded = computed(() => {
+        if (this._service.get('dont_load_metadata')) return true;
+        const id = this._active_building()?.id;
+        return !id || this._loaded_buildings().includes(id);
+    });
     /** Signal for the buildings associated with the currently active region */
     public readonly active_buildings = computed(() => {
         const region = this._active_region();
@@ -102,6 +199,10 @@ export class OrganisationService {
     private _building_settings: Record<string, Record<string, any>> = {};
     /** Flag to skip automatic building/region selection when set externally */
     private _skip_auto_selection = false;
+    /** Pending delayed initialisation, shared by startup and auth recovery */
+    private _init_timer: ReturnType<typeof setTimeout> | null = null;
+    /** Reload timer for a zone load that never settles */
+    private _zone_load_timer: ReturnType<typeof setTimeout> | null = null;
 
     /** Mapping of organisation settings overrides */
     public get settings() {
@@ -163,6 +264,7 @@ export class OrganisationService {
         if (!item || active_region?.id === item?.id) return;
         this._active_region.set(item);
         await this.loadRegionData(item);
+
         this._setBuildingFromTimezone();
         if (
             !this._skip_auto_selection &&
@@ -236,7 +338,7 @@ export class OrganisationService {
 
     /** Get building by id */
     public find(id: string) {
-        return this.buildings.find((i) => i.id === id);
+        return this._buildings_by_id().get(id);
     }
 
     /** List of available levels */
@@ -249,14 +351,54 @@ export class OrganisationService {
     }
 
     constructor() {
-        waitForSignal(onlineState(), (_) => _).then(() =>
-            setTimeout(() => this.init(), 1000),
+        const online_state = onlineState();
+        const online = waitForSignal(online_state, (_) => _);
+        // Waiting forever prevents the loading UI and route guards from
+        // recovering. After a short wait, try the cache and let the normal
+        // request retry path handle a missing cache.
+        const start = Promise.race([
+            online,
+            new Promise((resolve) => setTimeout(resolve, OFFLINE_BOOT_DELAY)),
+        ]);
+        start.then(() => this._scheduleInit());
+        // A zone request can remain pending when authentication is interrupted.
+        // Start a fresh load when authentication brings the client online again.
+        online_state.subscribe(
+            (is_online, was_online) => {
+                if (is_online && !was_online) this._scheduleInit();
+            },
+            { emitCurrent: false },
         );
         effect(() => {
             this._active_region();
             const building = this._active_building();
             if (building) this._updateSettingOverrides();
         });
+    }
+
+    private _scheduleInit(): void {
+        if (this._init_timer) clearTimeout(this._init_timer);
+        this._init_timer = setTimeout(() => {
+            this._init_timer = null;
+            if (!this._initialised()) {
+                this._startZoneLoadTimer();
+                this.init();
+            }
+        }, 1000);
+    }
+
+    private _startZoneLoadTimer(): void {
+        if (this._zone_load_timer) return;
+        this._zone_load_timer = setTimeout(() => {
+            this._zone_load_timer = null;
+            if (!this._initialised()) requestInitReload();
+        }, ZONE_LOAD_TIMEOUT);
+    }
+
+    private _completeInit(): void {
+        if (this._zone_load_timer) clearTimeout(this._zone_load_timer);
+        this._zone_load_timer = null;
+        this._initialised.set(true);
     }
 
     /** Resolve once the organisation data has finished initialising */
@@ -273,7 +415,46 @@ export class OrganisationService {
      * @param id_list List of IDs to find a match
      */
     public levelWithID(id_list: string[]): BuildingLevel {
-        return this.levels.find((lvl) => id_list?.includes(lvl.id));
+        for (const id of id_list || []) {
+            const level = this._levels_by_id().get(id);
+            if (level) return level;
+        }
+        return undefined;
+    }
+
+    /** Get the organisation location represented by a list of zone IDs. */
+    public locationWithID(id_list: string[]): OrganisationLocation {
+        const level = this.levelWithID(id_list);
+        const building =
+            this._buildingWithID(id_list) ||
+            this._buildings_by_id().get(level?.parent_id);
+        const region = this._regions_by_id().get(building?.parent_id);
+        const label = [region, building, level]
+            .map((_) => _?.display_name || _?.name)
+            .filter((_) => !!_)
+            .join(' / ');
+        return { level, building, region, label };
+    }
+
+    /** Load and return every building represented by the zone ID lists. */
+    public async loadBuildingsForZones(
+        zone_lists: string[][],
+    ): Promise<Building[]> {
+        const find_buildings = () =>
+            unique(
+                zone_lists
+                    .map((zones) => this._buildingWithID(zones))
+                    .filter((building): building is Building => !!building),
+                'id',
+            );
+        let buildings = find_buildings();
+        const has_missing_building = () =>
+            zone_lists.some((zones) => !this._buildingWithID(zones));
+        if (has_missing_building()) {
+            await this._loadAllBuildings();
+            buildings = find_buildings();
+        }
+        return buildings;
     }
 
     /**
@@ -301,14 +482,23 @@ export class OrganisationService {
      * @param region Region to list levels for
      */
     public levelsForRegion(region: Region = this.region): BuildingLevel[] {
-        const bld_list = this.buildingsForRegion(region);
+        const building_ids = new Set(
+            this.buildingsForRegion(region).map(({ id }) => id),
+        );
         return this._sortLevels(
             this.levels.filter(
-                (lvl) =>
-                    lvl.parent_id &&
-                    bld_list.find((bld) => bld.id === lvl.parent_id),
+                (lvl) => lvl.parent_id && building_ids.has(lvl.parent_id),
             ),
         );
+    }
+
+    /** Get the first building represented by a list of zone IDs. */
+    private _buildingWithID(id_list: string[]): Building | undefined {
+        for (const id of id_list || []) {
+            const building = this._buildings_by_id().get(id);
+            if (building) return building;
+        }
+        return undefined;
     }
 
     public addZone(zone: PlaceZone) {
@@ -347,6 +537,8 @@ export class OrganisationService {
         return [...levels].sort(
             (a, b) =>
                 (a.parent_id || '').localeCompare(b.parent_id || '') ||
+                Number(a.tags.includes('parking')) -
+                    Number(b.tags.includes('parking')) ||
                 (a.name || '').localeCompare(b.name || '') ||
                 (a.display_name || '').localeCompare(b.display_name || ''),
         );
@@ -374,14 +566,15 @@ export class OrganisationService {
 
     /** Clear cached org data and reload it from PlaceOS. Exposed via window.app.org in debug mode. */
     public async reloadMetadata(): Promise<void> {
-        this._clearSessionCache();
-        this._loaded_data.length = 0;
+        this._clearCache();
+        this._loaded_data = {};
+        this._loaded_buildings.set([]);
         await this.load();
     }
 
     private async init(tries = 0) {
         if (this._limited_init()) {
-            this._initialised.set(true);
+            this._completeInit();
             return;
         }
         this._initialised.set(false);
@@ -394,21 +587,53 @@ export class OrganisationService {
                 this._setPublicData();
             });
         } else {
-            await this.load().catch((err) => {
-                notifyError('Error loading organisation data. Retrying...');
+            try {
+                await this.load();
+            } catch (err) {
+                // Offline, a failed load is expected rather than an error:
+                // there is nothing to fix and nobody at an unattended screen
+                // to read about it. Keep retrying quietly until the network
+                // is back, then say so if it is still failing.
+                if (isOnline() && navigator.onLine !== false) {
+                    notifyError('Error loading organisation data. Retrying...');
+                } else {
+                    log.warn(
+                        'Unable to load organisation data while offline. Retrying...',
+                        err,
+                    );
+                }
                 setTimeout(
                     () => this.init(tries),
                     Math.min(10_000, 300 * ++tries),
                 );
-                throw err;
-            });
+                return;
+            }
         }
         if (window.debug) {
             if (!window.app) window.app = {};
             window.app.org = this;
             (window as any).org = this;
         }
-        this._initialised.set(true);
+        this._completeInit();
+        // Cached data is displayed immediately, then replaced with the latest.
+        if (this._served_cache) {
+            log('Loaded from cache, refreshing organisation data...');
+            this._served_cache = false;
+            this._loaded_data = {};
+            this._refresh(() => this.load());
+        }
+    }
+
+    /**
+     * Run a load straight against the API, ignoring any cached data, so the
+     * displayed data is replaced with the latest. Runs in the background.
+     */
+    private async _refresh(load: () => Promise<void>) {
+        this._refresh_count.update((count) => count + 1);
+        await load().catch((err) =>
+            console.warn('Failed to refresh organisation data.', err),
+        );
+        this._refresh_count.update((count) => count - 1);
     }
 
     private _setPublicData() {
@@ -450,19 +675,24 @@ export class OrganisationService {
     }
 
     /**
-     * Initialise service data
+     * Initialise service data. When this is a background refresh, loading
+     * messages and the default region/building selection are skipped so the
+     * user's current view and selection are left alone.
      */
     private async load(): Promise<void> {
-        setLoadingMessage('Loading organistion data...');
+        const refreshing = this._refreshing;
+        const loadingMessage = (message: string) =>
+            refreshing ? null : setLoadingMessage(message);
+        loadingMessage('Loading organisation data...');
         await this.loadOrganisation();
-        setLoadingMessage('Loading region data...');
+        loadingMessage('Loading region data...');
         await this.loadRegions();
         if (!this._region_list().length) {
-            setLoadingMessage('Loading building data...');
+            loadingMessage('Loading building data...');
             const list = await this.loadBuildings();
             this._building_list.set(list);
         } else {
-            setLoadingMessage('Loading region buildings data...');
+            loadingMessage('Loading region buildings data...');
             for (const region of this._region_list()) {
                 const blds = await this.loadBuildings(region.id);
                 if (blds.length) {
@@ -471,13 +701,21 @@ export class OrganisationService {
                 }
             }
         }
-        setLoadingMessage('Loading zone settings...');
+        loadingMessage('Loading zone settings...');
         await this.loadSettings();
         if (!this._building_list()?.length) {
             log('Unable to find any building zones');
         }
-        setLoadingMessage('Loading active building levels...');
+        loadingMessage('Loading active building levels...');
         await this.loadLevels();
+        if (refreshing) {
+            // Default selection is skipped above, so refresh the metadata for
+            // whatever region/building the user is currently on.
+            if (this.region?.id) await this.loadRegionData(this.region);
+            if (this.building?.id && !this._service.get('dont_load_metadata')) {
+                await this.loadBuildingData(this.building);
+            }
+        }
         this._updateSettingOverrides();
     }
 
@@ -524,9 +762,10 @@ export class OrganisationService {
     }
 
     public async loadRegionData(region: Region): Promise<void> {
-        if (this._loaded_data[region.id]) return;
+        if (this._loaded_data[region.id] && !this._refreshing) return;
         const load_metadata = !this._service.get('dont_load_metadata');
-        const [settings, bindings, buildings]: any = await Promise.all([
+        const from_cache = this._zoneDataCached(region.id);
+        const [settings, bindings, buildings] = await Promise.all([
             load_metadata
                 ? this._bulkMetadataDetails(this.app_key, [region.id]).then(
                       (_) => _[region.id],
@@ -547,6 +786,8 @@ export class OrganisationService {
         this._loaded_data[region.id] = true;
         (region as any).bindings = bindings;
         this._region_settings[region.id] = settings;
+        // Cached data is shown immediately, then replaced with the latest.
+        if (from_cache) this._refresh(() => this.loadRegionData(region));
     }
 
     /**
@@ -566,7 +807,8 @@ export class OrganisationService {
     }
 
     public async loadBuildingData(bld: Building) {
-        if (!bld || this._loaded_data[bld.id]) return;
+        if (!bld || (this._loaded_data[bld.id] && !this._refreshing)) return;
+        const from_cache = this._zoneDataCached(bld.id);
         const [settings, bindings, booking_rules, driver_settings]: any =
             await Promise.all([
                 this._bulkMetadataDetails(this.app_key, [bld.id]).then(
@@ -607,7 +849,22 @@ export class OrganisationService {
         (bld as any).bindings = bindings;
         (bld as any).booking_rules = booking_rules;
         this._loaded_data[bld.id] = true;
+        this._loaded_buildings.update((ids) =>
+            ids.includes(bld.id) ? ids : [...ids, bld.id],
+        );
         this._updateSettingOverrides();
+        // Cached data is shown immediately, then replaced with the latest.
+        if (from_cache) this._refresh(() => this.loadBuildingData(bld));
+    }
+
+    /**
+     * Whether the zone's settings metadata would be loaded from the cache.
+     * Always false while refreshing, so a refresh never schedules another one.
+     */
+    private _zoneDataCached(id: string): boolean {
+        return !!this._getCachedItem(
+            this._metadataCacheKey(this.app_key, [id]),
+        );
     }
 
     /**
@@ -623,8 +880,11 @@ export class OrganisationService {
             this._router.navigate(['/misconfigured']);
         }
         let levels = level_list.map((lvl) => new BuildingLevel(lvl));
-        levels = levels.sort((a, b) =>
-            (a.name || '').localeCompare(b.name || ''),
+        levels = levels.sort(
+            (a, b) =>
+                Number(a.tags.includes('parking')) -
+                    Number(b.tags.includes('parking')) ||
+                (a.name || '').localeCompare(b.name || ''),
         );
         this._level_list.set(levels);
     }
@@ -646,21 +906,31 @@ export class OrganisationService {
             this._override_timer = null;
         }
         this._service.setOverrides([...this._settings]);
-        await this._setDefaultBuilding();
+        if (!this._refreshing) await this._setDefaultBuilding();
         this._updateSettingOverrides();
     }
 
     /** Select the building physically closest to the user's current location */
     private async _setBuildingFromGeolocation(): Promise<Building | null> {
         return new Promise<Building | null>((resolve) => {
+            let settled = false;
+            const finish = (building: Building | null) => {
+                if (settled) return;
+                settled = true;
+                clearTimeout(timer);
+                resolve(building);
+            };
+            const timer = setTimeout(() => finish(null), GEOLOCATION_TIMEOUT);
             navigator.geolocation.getCurrentPosition(
                 (position) => {
+                    if (settled) return;
                     const { latitude, longitude } = position.coords;
                     const closest = this._closestBuilding(latitude, longitude);
                     if (closest) this.building = closest;
-                    resolve(closest);
+                    finish(closest);
                 },
-                () => resolve(null),
+                () => finish(null),
+                { timeout: GEOLOCATION_TIMEOUT },
             );
         });
     }
@@ -812,7 +1082,10 @@ export class OrganisationService {
         const cached_metadata = this._getCachedItem<MetadataMap>(cache_key);
         if (cached_metadata) return cached_metadata;
         const metadata = await bulkMetadata(name, { parent_ids }).catch(
-            () => ({}) as Record<string, any>,
+            (err) =>
+                err?.status === 404
+                    ? this._individualMetadata(name, ids)
+                    : ({} as Record<string, any>),
         );
         const metadata_details = ids.reduce((map, id) => {
             map[id] = metadata[id]?.details || {};
@@ -820,6 +1093,26 @@ export class OrganisationService {
         }, {} as MetadataMap);
         this._setCachedItem(cache_key, metadata_details);
         return metadata_details;
+    }
+
+    /** Fallback for backends without the bulk metadata endpoint (404) */
+    private async _individualMetadata(
+        name: string,
+        ids: string[],
+    ): Promise<Record<string, unknown>> {
+        const items = await Promise.all(
+            ids.filter(Boolean).map((id) =>
+                showMetadata(id, name).then(
+                    (item) => [id, item] as const,
+                    () => [id, null] as const,
+                ),
+            ),
+        );
+        const metadata: Record<string, unknown> = {};
+        for (const [id, item] of items) {
+            if (item) metadata[id] = item;
+        }
+        return metadata;
     }
 
     private async _queryZones(params: ZoneQueryParams): Promise<PlaceZone[]> {
@@ -830,7 +1123,7 @@ export class OrganisationService {
             (
                 await queryZones({
                     ...params,
-                    authority_id: authority().id,
+                    authority_id: authority()?.id,
                 } as any)
             ).data || [];
         this._setCachedItem(cache_key, zones);
@@ -838,13 +1131,13 @@ export class OrganisationService {
     }
 
     private _metadataCacheKey(name: string, ids: string[]): string {
-        const auth = authority();
+        const auth = cachedAuthority();
         const parent_ids = ids.filter(Boolean).sort().join(',');
         return `${METADATA_CACHE_PREFIX}.${auth?.id || 'default'}.${name}.${parent_ids}`;
     }
 
     private _zoneCacheKey(params: ZoneQueryParams): string {
-        const auth = authority();
+        const auth = cachedAuthority();
         const sorted_params = Object.keys(params)
             .sort()
             .reduce(
@@ -862,55 +1155,57 @@ export class OrganisationService {
     }
 
     private _getCachedItem<T>(cache_key: string): T | null {
+        if (this._refreshing) return null;
         try {
             const cached_item = JSON.parse(
-                sessionStorage.getItem(cache_key) || 'null',
-            ) as SessionCacheItem<T> | null;
+                localStorage.getItem(cache_key) || 'null',
+            ) as CacheItem<T> | null;
             if (!cached_item) return null;
-            if (cached_item.metadata_cache_id !== this._metadataCacheID()) {
-                sessionStorage.removeItem(cache_key);
+            if (
+                cached_item.metadata_cache_id !== this._metadataCacheID() ||
+                cached_item.cached_at + MAX_CACHE_AGE < Date.now()
+            ) {
+                localStorage.removeItem(cache_key);
                 return null;
             }
-            if (cached_item.expires_at > Date.now()) return cached_item.data;
-            sessionStorage.removeItem(cache_key);
-            return null;
+            this._served_cache = true;
+            return cached_item.data;
         } catch {
-            sessionStorage.removeItem(cache_key);
+            localStorage.removeItem(cache_key);
             return null;
         }
     }
 
     private _setCachedItem<T>(cache_key: string, data: T) {
+        const cached_item: CacheItem<T> = {
+            cached_at: Date.now(),
+            metadata_cache_id: this._metadataCacheID(),
+            data,
+        };
+        const value = JSON.stringify(cached_item);
         try {
-            const cached_item: SessionCacheItem<T> = {
-                expires_at: Date.now() + this._cacheDuration(),
-                metadata_cache_id: this._metadataCacheID(),
-                data,
-            };
-            sessionStorage.setItem(cache_key, JSON.stringify(cached_item));
+            localStorage.setItem(cache_key, value);
         } catch {
-            // Ignore storage quota and privacy-mode failures.
+            // Most likely the storage quota, drop the old org data and retry.
+            this._clearCache();
+            try {
+                localStorage.setItem(cache_key, value);
+            } catch {
+                // Ignore quota and privacy-mode failures.
+            }
         }
     }
 
-    private _cacheDuration(): number {
-        const config = authority()?.config || {};
-        const duration =
-            config['metadata_cache_duration'] ?? config['metadata_cache_ttl'];
-        return typeof duration === 'number'
-            ? duration * 1000
-            : DEFAULT_CACHE_DURATION;
-    }
-
     private _metadataCacheID(): string {
-        return `${authority()?.config?.['metadata_cache_id'] || ''}`;
+        return `${cachedAuthority()?.metadata_cache_id || ''}`;
     }
 
-    private _clearSessionCache() {
-        for (let i = sessionStorage.length - 1; i >= 0; i--) {
-            const key = sessionStorage.key(i);
-            if (key?.startsWith(ORG_CACHE_PREFIX))
-                sessionStorage.removeItem(key);
+    private _clearCache() {
+        for (const store of [localStorage, sessionStorage]) {
+            for (let i = store.length - 1; i >= 0; i--) {
+                const key = store.key(i);
+                if (key?.startsWith(ORG_CACHE_PREFIX)) store.removeItem(key);
+            }
         }
     }
 }

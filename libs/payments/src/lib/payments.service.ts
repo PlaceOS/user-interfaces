@@ -7,7 +7,8 @@ import {
     currentUser,
 } from '@placeos/common';
 import { PaymentCardDetails } from './card-input-field.component';
-import { PaymentModalComponent } from './payment-modal.component';
+import { PaymentData, PaymentModalComponent } from './payment-modal.component';
+import { StripeCard } from './stripe.types';
 
 export interface PaymentDetails {
     type: string; // Resource Type
@@ -39,7 +40,7 @@ export class PaymentsService {
 
     private _loading = signal('');
     private _active_card = signal('');
-    private _payment_sources = signal<any[]>([]);
+    private _payment_sources = signal<StripeCard[]>([]);
 
     public readonly loading = this._loading.asReadonly();
     public readonly payment_sources = this._payment_sources.asReadonly();
@@ -60,24 +61,27 @@ export class PaymentsService {
             throw 'Payments not enabled';
         const [cost, period] = await this._getCostOfProduct(
             details?.type,
-        ).catch((_) => [0, 60]);
+        ).catch(() => [0, 60] as [number, number]);
         console.log('Cost:', cost, period);
         if (cost <= 0) return;
         let customer_id = this._settings.get('STRIPE_Customer_ID');
         if (!customer_id) customer_id = await this._newCustomerID();
         this._settings.saveUserSetting('STRIPE_Customer_ID', customer_id);
         const amount = cost * (details.duration / period);
-        let result = undefined;
-        const makePayment = async (c: any) => {
-            result = await this._processPayment(amount, customer_id, c).catch(
-                (e) => {
-                    this._loading.set('');
-                    throw e;
-                },
-            );
+        let result: PaymentResult | undefined;
+        const makePayment = async (card?: PaymentCardDetails) => {
+            result = await this._processPayment(
+                amount,
+                customer_id,
+                card,
+            ).catch((e) => {
+                this._loading.set('');
+                throw e;
+            });
         };
-        const data = {
+        const data: PaymentData = {
             ...details,
+            has_payment_method: !!this._active_card(),
             rate: `$${(cost / 100).toFixed(2)} per hour`,
             amount,
             makePayment,
@@ -128,7 +132,7 @@ export class PaymentsService {
         amount: number,
         customer_id: string,
         card_details?: PaymentCardDetails,
-    ) {
+    ): Promise<PaymentResult> {
         this._loading.set('Checking payment method...');
         console.log('Getting payment method...');
         const source = card_details
@@ -184,7 +188,7 @@ export class PaymentsService {
         const mod = this._org.module('payments', STRIPE_MODULE);
         const list = mod
             ? await mod
-                  .execute<any[]>('list_payment_methods', ['card'])
+                  .execute<StripeCard[]>('list_payment_methods', ['card'])
                   .catch(() => [])
             : [];
         if (list[0]) this._active_card.set(list[0].id);

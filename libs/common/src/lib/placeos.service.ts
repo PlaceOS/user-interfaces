@@ -1,6 +1,5 @@
 import { Clipboard } from '@angular/cdk/clipboard';
 import { inject, Injectable, signal } from '@angular/core';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router } from '@angular/router';
 import { SwUpdate } from '@angular/service-worker';
 import {
@@ -15,13 +14,18 @@ import {
     setToken,
     token,
 } from '@placeos/ts-client';
-import * as Sentry from '@sentry/angular';
 import { addHours } from 'date-fns';
 
-import { hasNewVersion, setupCache } from './application';
+import {
+    hasNewVersion,
+    markInitialisationComplete,
+    reloadForNewVersion,
+    requestInitReload,
+    setupCache,
+} from './application';
 import { AsyncHandler } from './async-handler.class';
 import { requestScreenWakeLock } from './fixed-device-helpers';
-import { firstTruthyValueFrom, log, setAppName } from './general';
+import { firstTruthyValueFrom, log, setAppName, withTimeout } from './general';
 import { GoogleAnalyticsService } from './google-analytics.service';
 import { HotkeysService } from './hotkeys.service';
 import { LocaleService, setTranslationService } from './locale.service';
@@ -34,25 +38,34 @@ import {
     closeNativeBrowser,
     consumeNativeAuthError,
     consumeNativeAuthRedirect,
+    getIntuneAccount,
+    getIntuneToken,
     getNativeApiKey,
     getNativeDomain,
     hideNativeStatusBar,
     isNativeApp,
+    lookupNativeDomainByEmail,
     markNativeAuthRedirectConsumed,
     openNativeBrowser,
     restoreNativePkceVerifier,
     scheduleNativeRestart,
     setNativeAuthError,
+    setNativeDomain,
+    setNativeEmail,
     syncNativeManagedConfig,
 } from './native-app';
-import { notifySuccess, setNotifyOutlet } from './notifications';
+import { lazySnackbar, notifySuccess, setNotifyOutlet } from './notifications';
 import { OrganisationService } from './org/organisation.service';
 import { createNativeAuthUrl, setupPlace } from './placeos';
+import { initSentry } from './sentry';
 import { SettingsService } from './settings.service';
+import { finishTeamsSignIn, startTeamsHost } from './teams-host';
 import { setInternalUserDomain } from './types/user.class';
-import { currentUser } from './user-state';
+import { current_user, currentUser } from './user-state';
 
 const START_QUERY = location.search;
+/** Longest startup waits on the authority before continuing without it */
+const AUTHORITY_WAIT_MS = 10 * 1000;
 
 declare global {
     interface Window {
@@ -92,26 +105,6 @@ export function autoConfirmNativeDomain() {
     return AUTO_CONFIRM_DOMAIN;
 }
 
-export function initSentry(dsn: string) {
-    if (!dsn) return;
-    // Session Replay (rrweb, ~123KB) is intentionally omitted to keep it out of
-    // the initial bundle and avoid any external CDN dependency for firewalled /
-    // private-intranet deployments. Error reporting and performance tracing are
-    // unaffected.
-    Sentry.init({
-        dsn,
-        integrations: [Sentry.browserTracingIntegration()],
-        // Performance Monitoring
-        tracesSampleRate: 1.0, //  Capture 100% of the transactions
-        // Set 'tracePropagationTargets' to control for which URLs distributed tracing should be enabled
-        tracePropagationTargets: [
-            'localhost',
-            /^https:\/\/[a-zA-Z0-9_-]*\.[a-zA-Z0-9]*\/api/,
-            /^https:\/\/[a-zA-Z0-9_-]*\.placeos\.run*\/api/,
-        ],
-    });
-}
-
 let _mocks: (() => void) | null = null;
 
 export function setMocks(value: () => void) {
@@ -127,13 +120,12 @@ export class PlaceOS_Service extends AsyncHandler {
     private _settings = inject(SettingsService);
     private _org = inject(OrganisationService); // For init
     private _cache = inject(SwUpdate);
-    private _snackbar = inject(MatSnackBar);
+    private _snackbar = lazySnackbar();
     private _hotkey = inject(HotkeysService);
     private _clipboard = inject(Clipboard);
     private _route = inject(ActivatedRoute);
     private _router = inject(Router);
     private _maps = inject(MapsPeopleService);
-    private _tracing = inject(Sentry.TraceService);
 
     private _zone = '';
     private _region = '';
@@ -228,9 +220,13 @@ export class PlaceOS_Service extends AsyncHandler {
         setupCache(this._cache);
         log('APP', 'MOCKS:', _mocks);
         if (_mocks) {
+            // Mirror setupPlace's mock detection — the URL param enables mocks
+            // on first load before setupPlace persists it to localStorage.
             const mocks_enabled =
-                localStorage.getItem('mock') === 'true' ||
-                location.origin.includes('demo.place.tech');
+                !location.href.includes('mock=false') &&
+                (localStorage.getItem('mock') === 'true' ||
+                    location.href.includes('mock=true') ||
+                    location.origin.includes('demo.place.tech'));
             if (mocks_enabled) {
                 setLoadingMessage('Initializing mocks...');
                 _mocks();
@@ -335,6 +331,33 @@ export class PlaceOS_Service extends AsyncHandler {
                 );
             }
         }
+        /**
+         * On an Intune-managed device, authenticate with the MS token from the
+         * enrolled account and auto-configure the server from the user's email
+         * domain. Falls through to the normal OAuth flow when not enrolled.
+         */
+        let intune_token = '';
+        if (isNativeApp()) {
+            setLoadingMessage('Checking managed account...');
+            const account = await getIntuneAccount();
+            if (account) {
+                intune_token = await getIntuneToken(
+                    account,
+                    this._settings.get('app.intune.scopes') || undefined,
+                );
+                const email = `${account.username || ''}`.trim();
+                // Only derive the domain when the MDM config didn't supply one.
+                if (email && !getNativeDomain()) {
+                    const domain = await lookupNativeDomainByEmail(email).catch(
+                        () => '',
+                    );
+                    if (domain) {
+                        setNativeDomain(domain);
+                        setNativeEmail(email);
+                    }
+                }
+            }
+        }
         /** On native platforms, ensure we have a server domain before auth. */
         while (isNativeApp()) {
             let domain = getNativeDomain();
@@ -366,6 +389,12 @@ export class PlaceOS_Service extends AsyncHandler {
                     localStorage.removeItem(client_key);
                     invalidateToken();
                 }
+                // Authenticate with the Intune MS token. Set after setupPlace
+                // so it's stored under the computed client ID, and makes
+                // token() truthy so the OAuth sign-in below is skipped.
+                // ponytail: the plugin returns no expiry — leave setToken's
+                // default and re-acquire silently on the next launch.
+                if (intune_token) setToken(intune_token);
                 break;
             }
             log('APP', 'Auth failed, resetting domain.', auth_error, 'warn');
@@ -407,21 +436,53 @@ export class PlaceOS_Service extends AsyncHandler {
             return;
         }
         if (!isNativeApp()) {
+            // A Teams or Microsoft 365 tab cannot show the Microsoft login
+            // page in its frame, so it signs in through the host instead.
+            const teams_mode = await startTeamsHost();
+            if (teams_mode) settings.local_login = teams_mode === 'tab';
             setLoadingMessage('Authenticating...');
-            await setupPlace(settings).catch((_) => console.error(_));
+            // `setup` resolves only once the authority has loaded, and it never
+            // rejects - a failure retries in the background forever. Waiting on
+            // it therefore parks startup indefinitely on a device with no
+            // network. Everything needed below it (storage prefix, config,
+            // token) is already set synchronously, and the authority arrives on
+            // its own once the network is back.
+            await setupPlace(settings, AUTHORITY_WAIT_MS).catch((_) =>
+                console.error(_),
+            );
+            if (teams_mode) {
+                setLoadingMessage('Waiting for Microsoft sign in...');
+                if (!(await finishTeamsSignIn(teams_mode))) return;
+            }
         }
         if (this._initial_token) setToken(this._initial_token);
-        await this._waitFor(() => this._org.initialised());
+        try {
+            await withTimeout(
+                this._org.waitUntilInitialised(),
+                50_000,
+                'Organisation loading timed out.',
+            );
+        } catch (error) {
+            console.error(error);
+            requestInitReload();
+            return;
+        }
         if (this._locale) {
             this._locale.zone_id = this._org.organisation.id;
             this._locale.init();
         }
         setupCache(this._cache, this._settings.get('service_worker') || {});
-        if (!settings.local_login) {
-            this.timeout('wait_for_user', () => this.onInitError(), 30 * 1000);
+        try {
+            await withTimeout(
+                firstTruthyValueFrom(current_user),
+                30_000,
+                'Current user loading timed out.',
+            );
+        } catch (error) {
+            console.error(error);
+            this.onInitError();
+            return;
         }
-        await this._waitFor(() => !!currentUser());
-        this.clearTimeout('wait_for_user');
         clearNativePkceVerifier();
         this._initLocale();
         setInternalUserDomain(
@@ -429,7 +490,7 @@ export class PlaceOS_Service extends AsyncHandler {
                 `@${currentUser()?.email?.split('@')[1]}`,
         );
         this._initAnalytics();
-        initSentry(this._settings.get('app.sentry_dsn'));
+        void initSentry(this._settings.get('app.sentry_dsn'), this._router);
         try {
             this._initFixedDevice();
         } catch {
@@ -441,6 +502,15 @@ export class PlaceOS_Service extends AsyncHandler {
             );
         }
         this._setZones();
+        // Translations are fetched, so give them a moment to land before the
+        // loading screen is removed. Untranslated keys are shown otherwise.
+        if (this._locale) {
+            await Promise.race([
+                this._locale.loaded(),
+                new Promise((resolve) => setTimeout(resolve, 5_000)),
+            ]);
+        }
+        markInitialisationComplete();
     }
 
     private onInitError() {
@@ -458,20 +528,29 @@ export class PlaceOS_Service extends AsyncHandler {
         // Keep a valid token on slow networks — the user fetch timing out
         // doesn't mean the token is bad, so just retry with a reload.
         else if (!token(false)) invalidateToken();
-        location.reload();
+        // Routed rather than reloaded directly: an app that never manages to
+        // load the current user would otherwise restart every thirty seconds
+        // for as long as that keeps failing.
+        requestInitReload();
     }
 
     private _initAnalytics() {
         const tracking_id = this._settings.get('app.analytics.tracking_id');
         if (!tracking_id) return;
-        setLoadingMessage('Initializing analytics...');
-        this._analytics.init(tracking_id);
-        this._analytics.load(tracking_id);
-        this._analytics.setUser(currentUser().id);
+        setLoadingMessage('Initialising analytics...');
+        try {
+            this._analytics.init(tracking_id);
+            this._analytics.load(tracking_id);
+            this._analytics.setUser(currentUser().id);
+        } catch (error) {
+            // Startup gates on `markInitialisationComplete()`, so a throw here
+            // would strand the loading screen on this message for good.
+            log('APP', 'Failed to initialise analytics.', error, 'warn');
+        }
     }
 
     private _initLocale() {
-        setLoadingMessage('Loading locale...');
+        setLoadingMessage('Loading locales...');
         try {
             let locale = localStorage.getItem('PLACEOS.locale');
             const locales = this._settings.get('app.locales') || [];
@@ -516,17 +595,17 @@ export class PlaceOS_Service extends AsyncHandler {
     private _checkReload() {
         if (!hasNewVersion()) return;
         setLoadingMessage('Checking for updates...');
-
-        location.reload();
-        this.timeout(
-            'reload',
-            () => (location.href = `${location.origin}${location.pathname}`),
-        );
+        // Reloads rather than navigating: on a hash routed app the route is in
+        // the hash, so going to the base path restarts the app somewhere else
+        // entirely - a signage player lands on the display picker instead of
+        // back on its content. Routed through the shared update reload so the
+        // app's reload gate still applies.
+        reloadForNewVersion();
     }
 
     private async _initFixedDevice() {
         if (!isFixedDevice()) return;
-        setLoadingMessage('Initializing as fixed device...');
+        setLoadingMessage('Initialising as fixed device...');
         this.interval(
             'auto-update-version',
             () => this._checkReload(),
@@ -558,15 +637,5 @@ export class PlaceOS_Service extends AsyncHandler {
             },
             1000,
         );
-    }
-
-    private _waitFor(condition: () => boolean) {
-        return new Promise<void>((resolve) => {
-            const check = () => {
-                if (condition()) return resolve();
-                this.timeout(`wait-${Math.random()}`, check, 100);
-            };
-            check();
-        });
     }
 }

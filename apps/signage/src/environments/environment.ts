@@ -1,6 +1,6 @@
-// This file can be replaced durinx build by using the `fileReplacements` array.
-// `nx build --prod` replaces `environment.ts` with `environment.prod.ts`.
-// The list of file replacements can be found in `angular.json`.
+// This file can be replaced during build by using the `fileReplacements` array.
+// The production and staging builds replace `environment.ts` with
+// `environment.prod.ts`. The list of file replacements is in `project.json`.
 
 export const environment = {
     production: false,

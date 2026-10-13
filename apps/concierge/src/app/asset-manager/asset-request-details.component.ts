@@ -133,7 +133,7 @@ import { SplitJoinPipe } from './split-join.pipe';
                                 <icon class="text-sm">schedule</icon>
                             </div>
                             <div class="font-medium">
-                                {{ 'COMMON.PERIOD' | translate }}
+                                {{ 'FORM.PERIOD' | translate }}
                             </div>
                         </div>
                         <div class="mt-1 pl-10">
@@ -304,15 +304,25 @@ export class AssetRequestDetailsComponent {
 
     public async setStatus(status: string) {
         this.loading.set(true);
-        await this._state.setStatus(this.request(), status);
-        (this.request() as any).status = status;
-        this.loading.set(false);
+        try {
+            await this._state.setStatus(this.request(), status);
+            this.request().status = status;
+        } catch {
+            // The state service shows the error.
+        } finally {
+            this.loading.set(false);
+        }
     }
 
     public async setTracking(state: string) {
         this.loading.set(true);
-        await this._state.setTracking(this.request(), state);
-        (this.request() as any).extension_data.tracking = state;
-        this.loading.set(false);
+        try {
+            await this._state.setTracking(this.request(), state);
+            this.request().extension_data.tracking = state;
+        } catch {
+            // The state service shows the error.
+        } finally {
+            this.loading.set(false);
+        }
     }
 }

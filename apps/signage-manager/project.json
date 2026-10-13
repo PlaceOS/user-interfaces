@@ -29,11 +29,6 @@
                         "output": "/assets/"
                     },
                     {
-                        "glob": "*.woff2",
-                        "input": "node_modules/material-symbols",
-                        "output": "/assets/"
-                    },
-                    {
                         "glob": "oauth-resp.html",
                         "input": "node_modules/@placeos/ts-client/dist/",
                         "output": "/"
@@ -95,8 +90,8 @@
                     "budgets": [
                         {
                             "type": "initial",
-                            "maximumWarning": "1.5mb",
-                            "maximumError": "2mb"
+                            "maximumWarning": "1050kb",
+                            "maximumError": "1250kb"
                         },
                         {
                             "type": "anyComponentStyle",
@@ -110,6 +105,7 @@
         },
         "serve": {
             "executor": "@angular/build:dev-server",
+            "continuous": true,
             "options": {
                 "proxyConfig": "config/proxy.conf.js",
                 "buildTarget": "signage-manager:build"
@@ -118,19 +114,40 @@
                 "production": {
                     "buildTarget": "signage-manager:build:production"
                 }
-            },
-            "continuous": true
+            }
         },
-        "lint": {
-            "executor": "@nx/eslint:lint",
-            "outputs": ["{options.outputFile}"]
-        },
+        "lint": {},
         "test": {
-            "executor": "@nx/jest:jest",
+            "executor": "@angular/build:unit-test",
             "outputs": ["{workspaceRoot}/coverage/apps/signage-manager"],
             "options": {
-                "jestConfig": "apps/signage-manager/jest.config.ts",
-                "tsConfig": "apps/signage-manager/tsconfig.spec.json"
+                "tsConfig": "apps/signage-manager/tsconfig.spec.json",
+                "setupFiles": ["apps/signage-manager/src/test-setup.ts"],
+                "isolate": true,
+                "watch": false,
+                "buildTarget": "signage-manager:test-build:development"
+            }
+        },
+        "test-build": {
+            "executor": "@angular/build:application",
+            "options": {
+                "outputPath": "dist/apps/signage-manager-test",
+                "browser": "apps/signage-manager/src/main.ts",
+                "tsConfig": "apps/signage-manager/tsconfig.spec.json",
+                "polyfills": []
+            },
+            "configurations": {
+                "development": {}
+            }
+        },
+        "e2e": {
+            "executor": "@nx/playwright:playwright",
+            "dependsOn": ["build"],
+            "outputs": [
+                "{workspaceRoot}/dist/.playwright/apps/signage-manager"
+            ],
+            "options": {
+                "config": "apps/signage-manager/playwright.config.ts"
             }
         }
     }

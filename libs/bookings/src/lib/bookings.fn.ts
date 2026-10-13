@@ -14,6 +14,7 @@ import {
     BookingClash,
     BookingType,
     CalendarEvent,
+    currentUser,
     flatten,
     fromBookingRecurrence,
     GuestUser,
@@ -21,6 +22,7 @@ import {
     setting,
     toQueryString,
     unique,
+    User,
     VERSION,
 } from '@placeos/common';
 
@@ -49,8 +51,8 @@ export interface BookingsQueryParams {
     include_checked_out?: boolean;
     /** Include bookings made by the current user in the response */
     include_booked_by?: boolean;
-    /** Include deleted bookings in the response (can be set to apply to only recurring bookings) */
-    include_deleted?: 'all' | 'recurring';
+    /** Include deleted bookings in the response */
+    include_deleted?: boolean;
     /** Include deleted bookings in the response */
     deleted?: boolean;
     /**  */
@@ -77,13 +79,19 @@ function appName() {
     );
 }
 
-function withAppVersion<T extends { extension_data?: Record<string, any> }>(
-    data: T,
-): T {
+function bookingUtmSource() {
+    return `${appName()}_${VERSION.hash}_${currentUser().email || ''}`;
+}
+
+function withAppVersion(data: NewBookingData): NewBookingData {
+    const booking_data = {
+        ...(data instanceof Booking ? data.toJSON() : data),
+    };
+    delete booking_data.created_at;
     return {
-        ...data,
+        ...booking_data,
         extension_data: {
-            ...(data.extension_data || {}),
+            ...(booking_data.extension_data || {}),
             app_name: appName(),
             app_version: APP_VERSION,
         },
@@ -91,21 +99,26 @@ function withAppVersion<T extends { extension_data?: Record<string, any> }>(
 }
 
 /**
- * Get a single page of bookings
+ * Get a single page of bookings. Returns an empty list when the request fails.
  * @param q Parameters to pass to the API request
  */
 export async function queryBookings(
     q: BookingsQueryParams,
 ): Promise<Booking[]> {
+    return queryBookingsOrThrow(q).catch(() => []);
+}
+
+/**
+ * Get a single page of bookings. Throws when the request fails, so callers
+ * can tell an error apart from an empty list.
+ * @param q Parameters to pass to the API request
+ */
+export async function queryBookingsOrThrow(
+    q: BookingsQueryParams,
+): Promise<Booking[]> {
     const query = toQueryString(q);
-    try {
-        const list = await get(
-            `${BOOKINGS_ENDPOINT}${query ? '?' + query : ''}`,
-        );
-        return list.map((item) => new Booking(item));
-    } catch (_) {
-        return [];
-    }
+    const list = await get(`${BOOKINGS_ENDPOINT}${query ? '?' + query : ''}`);
+    return list.map((item) => new Booking(item));
 }
 
 /**
@@ -223,14 +236,34 @@ export async function showBooking(id: string): Promise<Booking> {
 }
 
 /**
+ * Fields sent to create a booking. staff-api stores `parent_id` as an
+ * integer, while booking ids are typed as strings in this app
+ */
+export type NewBookingData = Omit<Partial<Booking>, 'parent_id'> & {
+    parent_id?: string | number;
+};
+
+/**
+ * `parent_id` value that links a new booking to a parent booking. A numeric
+ * id is sent as the integer that staff-api reads. Other ids, such as the ones
+ * from the mock API, are sent unchanged
+ * @param id Id of the parent booking
+ */
+export function parentBookingId(id: string | number): string | number {
+    if (!id) throw new Error('Missing parent booking id');
+    const parent_id = Number(id);
+    return Number.isSafeInteger(parent_id) ? parent_id : id;
+}
+
+/**
  * Create new booking and add it to the database
  * @param data New booking fields
  */
 export async function createBooking(
-    data: Partial<Booking>,
+    data: NewBookingData,
     q?: { event_id?: string; ical_uid?: string },
 ): Promise<Booking> {
-    const query = toQueryString(q);
+    const query = toQueryString({ ...q, utm_source: bookingUtmSource() });
     return new Booking(
         await post(
             `${BOOKINGS_ENDPOINT}${query ? '?' + query : ''}`,
@@ -313,7 +346,7 @@ export const saveBooking = async (
     const id = data.id;
     delete (data as any).id;
     const instance = q?.instance;
-    if (q) delete (q as any).instance;
+    if (q) delete q.instance;
     return id
         ? instance
             ? updateBookingInstance(
@@ -333,7 +366,8 @@ export function removeBooking(id: string, q: any = {}): Promise<void> {
     if (q.instance) {
         return removeBookingInstance(id, q.start_time);
     }
-    return del(`${BOOKINGS_ENDPOINT}/${encodeURIComponent(id)}`, {
+    const query = toQueryString({ utm_source: bookingUtmSource() });
+    return del(`${BOOKINGS_ENDPOINT}/${encodeURIComponent(id)}?${query}`, {
         response_type: 'void',
     });
 }
@@ -351,22 +385,12 @@ function bookingsTimeOfDayOverlap(a: Booking, b: Booking): boolean {
     return a_start < b_end && b_start < a_end;
 }
 
-/**
- * Reject the assignee's bookings of the given type, within the next
- * `window_days` days, that overlap with instances of a recurring booking.
- * Used when assigning a desk/parking space to a recurring booking so the
- * assignee's existing ad-hoc bookings on those days/times are rejected. A
- * no-op for non-recurring bookings.
- * @param booking Recurring booking being assigned (must have a `user_email`)
- * @param type Booking type to clear (e.g. 'desk', 'parking')
- * @param window_days How far ahead to look (default 28)
- * @returns ids of the bookings that were rejected
- */
-export async function rejectOverlappingRecurringBookings(
+/** Find active bookings that overlap with instances of a recurring booking. */
+async function overlappingRecurringBookings(
     booking: Booking,
     type: BookingType,
     window_days = 28,
-): Promise<string[]> {
+): Promise<Booking[]> {
     if (!booking?.recurrence_type || booking.recurrence_type === 'none') {
         return [];
     }
@@ -380,8 +404,8 @@ export async function rejectOverlappingRecurringBookings(
         email,
         limit: 1000,
     });
-    const recurrence = fromBookingRecurrence(booking as any);
-    const overlapping = existing.filter(
+    const recurrence = fromBookingRecurrence(booking);
+    return existing.filter(
         (other) =>
             other.id !== booking.id &&
             other.parent_id !== booking.id &&
@@ -391,11 +415,52 @@ export async function rejectOverlappingRecurringBookings(
             isRecurrenceInstanceDate(recurrence, booking.date, other.date) &&
             bookingsTimeOfDayOverlap(booking, other),
     );
+}
+
+/**
+ * Reject the assignee's bookings that overlap with instances of a recurring
+ * booking.
+ */
+export async function rejectOverlappingRecurringBookings(
+    booking: Booking,
+    type: BookingType,
+    window_days = 28,
+): Promise<string[]> {
+    const overlapping = await overlappingRecurringBookings(
+        booking,
+        type,
+        window_days,
+    );
     await Promise.all(
         overlapping.map((other) =>
             (other.instance
                 ? rejectBookingInstance(other.id, other.instance)
                 : rejectBooking(other.id)
+            ).catch(() => null),
+        ),
+    );
+    return overlapping.map((_) => _.id);
+}
+
+/**
+ * Cancel the assignee's bookings that overlap with instances of a recurring
+ * booking. Cancellation is persistent when an approval arrives later.
+ */
+export async function cancelOverlappingRecurringBookings(
+    booking: Booking,
+    type: BookingType,
+    window_days = 28,
+): Promise<string[]> {
+    const overlapping = await overlappingRecurringBookings(
+        booking,
+        type,
+        window_days,
+    );
+    await Promise.all(
+        overlapping.map((other) =>
+            (other.instance
+                ? removeBookingInstance(other.id, other.instance)
+                : removeBooking(other.id)
             ).catch(() => null),
         ),
     );
@@ -411,8 +476,9 @@ export function removeBookingInstance(
     id: string,
     start_time: number,
 ): Promise<void> {
+    const query = toQueryString({ utm_source: bookingUtmSource() });
     return del(
-        `${BOOKINGS_ENDPOINT}/${encodeURIComponent(id)}/instance/${start_time}`,
+        `${BOOKINGS_ENDPOINT}/${encodeURIComponent(id)}/instance/${start_time}?${query}`,
         {
             response_type: 'void',
         },
@@ -518,7 +584,7 @@ export async function checkinBookingGuest(
         await post(
             `${BOOKINGS_ENDPOINT}/${encodeURIComponent(
                 id,
-            )}/guests/${encodeURIComponent(guest_id)}/check_in?state=${state}`,
+            )}/guests/${encodeURIComponent(guest_id)}/check_in?state=${state}&utm_source=${bookingUtmSource()}`,
             '',
         ),
     );
@@ -572,7 +638,7 @@ export async function checkinBooking(
     try {
         return new Booking(
             await post(
-                `${BOOKINGS_ENDPOINT}/${encodeURIComponent(id)}/check_in?${query}`,
+                `${BOOKINGS_ENDPOINT}/${encodeURIComponent(id)}/check_in?${query}&utm_source=${bookingUtmSource()}`,
                 '',
             ),
         );
@@ -597,7 +663,7 @@ export async function checkinBookingInstance(
     try {
         return new Booking(
             await post(
-                `${BOOKINGS_ENDPOINT}/${encodeURIComponent(id)}/check_in/${start_time}?${query}`,
+                `${BOOKINGS_ENDPOINT}/${encodeURIComponent(id)}/check_in/${start_time}?${query}&utm_source=${bookingUtmSource()}`,
                 '',
             ),
         );
@@ -605,6 +671,30 @@ export async function checkinBookingInstance(
         const body = await e.json();
         throw body.error || body.message || body;
     }
+}
+
+/**
+ * Set the checkin state of a booking, changing only the single occurrence when
+ * the booking belongs to a recurring series. The first occurrence of a series
+ * is the master booking so it has no `instance`, and checking it in without
+ * one would change the state of every future occurrence.
+ * @param booking Booking to change the checkin state of
+ * @param state New checkin state of the booking
+ */
+export async function setBookingCheckedIn(
+    booking: Booking,
+    state: boolean,
+): Promise<Booking> {
+    const is_recurring =
+        !!booking.instance ||
+        (!!booking.recurrence_type && booking.recurrence_type !== 'none');
+    return is_recurring
+        ? checkinBookingInstance(
+              booking.id,
+              booking.instance || booking.booking_start,
+              state,
+          )
+        : checkinBooking(booking.id, state);
 }
 
 /**
@@ -622,7 +712,7 @@ export async function checkinBookingAttendee(
         await post(
             `${BOOKINGS_ENDPOINT}/${encodeURIComponent(
                 id,
-            )}/guests/${encodeURIComponent(email)}/check_in?${query}`,
+            )}/guests/${encodeURIComponent(email)}/check_in?${query}&utm_source=${bookingUtmSource()}`,
             '',
         ),
     );
@@ -648,7 +738,9 @@ export async function queryResourceAvailability(
     return id_list.map(
         (id) =>
             !bookings.find(
-                (b) => b.asset_id === id && (!ignore || ignore !== b.id),
+                (b) =>
+                    (b.asset_id === id || b.asset_ids.includes(id)) &&
+                    (!ignore || ignore !== b.id),
             ),
     );
 }
@@ -666,70 +758,255 @@ export async function isResourceAvailable(
         period_end: getUnixTime(addMinutes(start, duration)),
     });
     return (
-        bookings.filter((_) => _.asset_id === id && _.id !== ignore).length ===
-        0
+        bookings.filter(
+            (_) =>
+                (_.asset_id === id || _.asset_ids.includes(id)) &&
+                _.id !== ignore,
+        ).length === 0
     );
 }
 
 /**
- *
- * @param event
- * @param type
- * @param resources
+ * Bookings of the given type that this app linked to the event. A native
+ * booking event already holds its child bookings from the API. For a calendar
+ * event, the API ignores the period when given an event id, so bookings are
+ * found wherever they sit in time; the period is only used by the mock API.
+ * Rejects when the request fails
+ * @param event Event the bookings are linked to
+ * @param type Type of the linked bookings
+ */
+async function linkedBookingsForEvent(
+    event: CalendarEvent,
+    type: BookingType,
+): Promise<Booking[]> {
+    if (event.from_bookings) {
+        return event.linked_bookings
+            .filter((_) => _.booking_type === type)
+            .map((_) => new Booking(_ as unknown as Partial<Booking>));
+    }
+    const bookings = await queryBookingsOrThrow({
+        type,
+        event_id: event.id,
+        period_start: getUnixTime(event.date),
+        period_end: getUnixTime(addMinutes(event.date, event.duration)),
+        limit: 500,
+    });
+    return bookings.filter((_) => _.extension_data?.parent_id === event.id);
+}
+
+/**
+ * Ids of the linked bookings of the given type that were made for an earlier
+ * copy of the event. A host change moves the event to the new host's calendar
+ * under a new id, and the API keeps the old host's bookings linked to it. A
+ * native booking keeps its id, so it has none
+ * @param event Parent event
+ * @param type Type of the linked bookings
+ */
+function replacedEventBookingIds(
+    event: CalendarEvent,
+    type: BookingType,
+): string[] {
+    if (event.from_bookings) return [];
+    return (event.linked_bookings || [])
+        .filter((_) => {
+            const parent_id = _.extension_data?.parent_id;
+            return (
+                _.booking_type === type && !!parent_id && parent_id !== event.id
+            );
+        })
+        .map((_) => _.id);
+}
+
+/**
+ * Whether a linked booking was created for the given resource
+ * @param booking Existing linked booking
+ * @param item Resource on the event
+ */
+function bookingMatchesResource(
+    booking: Booking,
+    item: BookableResource,
+): boolean {
+    if (item.id && booking.extension_data?.details?.id === item.id) {
+        return true;
+    }
+    if (item.email && booking.attendees?.find((_) => _.email === item.email)) {
+        return true;
+    }
+    return !!booking.asset_ids?.find((id) =>
+        item.items?.find((i) => i.item_ids?.includes(id)),
+    );
+}
+
+/**
+ * JSON of a resource's details with object keys sorted, so the stored copy
+ * compares equal to the live one whatever key order the API returns.
+ * `deliver_at_time` is left out as it comes from the event time, which is
+ * compared on its own, and falls back to the current time without an event
+ * @param details Resource details
+ */
+function detailsKey(details: unknown): string {
+    const data = JSON.parse(JSON.stringify(details ?? null));
+    if (data && typeof data === 'object') delete data.deliver_at_time;
+    return JSON.stringify(data, (_, value) =>
+        value && typeof value === 'object' && !Array.isArray(value)
+            ? Object.fromEntries(
+                  Object.entries(value).sort(([a], [b]) => (a < b ? -1 : 1)),
+              )
+            : value,
+    );
+}
+
+/** Sorted, comma separated emails of a list of attendees */
+function attendeeEmails(list: readonly Partial<User>[] = []): string {
+    return list
+        .map((_) => _.email?.toLowerCase())
+        .sort()
+        .join(',');
+}
+
+/**
+ * Fields to PATCH on a linked booking so it matches the event, or `null` when
+ * nothing differs. Only changed fields are sent, so the API does not treat an
+ * unchanged time or attendee list as a change. Times are sent as
+ * `booking_start`/`booking_end`, as the API ignores `date` and `duration`
+ * @param booking Existing linked booking
+ * @param desired Booking the event now requires
+ */
+function linkedBookingChanges(
+    booking: Booking,
+    desired: Booking,
+): Partial<Booking> | null {
+    const changes: { -readonly [K in keyof Booking]?: Booking[K] } = {};
+    if (
+        booking.booking_start !== desired.booking_start ||
+        booking.booking_end !== desired.booking_end
+    ) {
+        changes.booking_start = desired.booking_start;
+        changes.booking_end = desired.booking_end;
+        changes.all_day = desired.all_day;
+    }
+    for (const key of ['title', 'description', 'asset_name'] as const) {
+        if (booking[key] !== desired[key]) changes[key] = desired[key];
+    }
+    if (booking.user_email.toLowerCase() !== desired.user_email.toLowerCase()) {
+        changes.user_email = desired.user_email;
+    }
+    if (booking.asset_id !== desired.asset_id) {
+        changes.asset_id = desired.asset_id;
+        changes.asset_ids = desired.asset_ids;
+    }
+    if ([...booking.zones].sort().join() !== [...desired.zones].sort().join()) {
+        changes.zones = desired.zones;
+    }
+    if (
+        attendeeEmails(booking.attendees) !== attendeeEmails(desired.attendees)
+    ) {
+        changes.attendees = desired.attendees;
+    }
+    const details_changed =
+        detailsKey(booking.extension_data?.details) !==
+        detailsKey(desired.extension_data?.details);
+    if (!details_changed && !Object.keys(changes).length) return null;
+    return { ...changes, extension_data: desired.extension_data };
+}
+
+/**
+ * Sync the bookings linked to an event with the event's current resources of
+ * the given type. Bookings for resources still on the event are updated in
+ * place so their ids, approval state and check-in survive an edit; bookings are
+ * created for new resources and removed for resources no longer on the event.
+ * Bookings left by a host change are removed and created again for the new
+ * host. Call with an empty list to remove every linked booking of the type
+ * @param event Parent event
+ * @param type Type of linked booking to sync
+ * @param resources Resources of that type currently on the event
  */
 export async function createBookingsForEvent(
     event: CalendarEvent,
     type: BookingType,
-    resources: BookableResource,
+    resources: readonly BookableResource[],
 ) {
-    const bookings = (
-        await queryBookings({
-            type,
-            period_start: getUnixTime(event.date),
-            period_end: getUnixTime(addMinutes(event.date, event.duration)),
-        })
-    ).filter((_) => _.parent_id === event.id);
-    await Promise.all(bookings.map((_) => removeBooking(_.id)));
-    await Promise.all(
-        event.linked_bookings
-            .filter((_) => _.booking_type === type)
-            .map((_) => removeBooking(_.id)),
-    );
+    const existing = await linkedBookingsForEvent(event, type);
     const zones =
         (event.system?.zones as any) ||
         unique(flatten(event.resources.map((_) => _.zones))) ||
         [];
-    await Promise.all(
-        resources.map((item) => {
-            const booking = bookings.find((_) =>
-                _.asset_ids.find((id) =>
-                    item.items?.find((i) => i.item_ids.includes(id)),
+    const kept = new Set<string>();
+    const created_bookings: Booking[] = [];
+    try {
+        // Linked booking changes update the parent event, so process each
+        // request in order to avoid concurrent writes to the same event.
+        // The old host's bookings go first, as the API rejects a new booking
+        // that clashes with one of them.
+        for (const id of replacedEventBookingIds(event, type)) {
+            await removeBooking(id);
+        }
+        for (const item of resources) {
+            const booking = existing.find(
+                (_) => !kept.has(_.id) && bookingMatchesResource(_, item),
+            );
+            const assigned_space =
+                type === 'catering-order' && item.system_id
+                    ? event.resources.find(
+                          (_) =>
+                              _.id === item.system_id ||
+                              _.email === item.system_id,
+                      )
+                    : undefined;
+            const resource_id =
+                assigned_space?.id || item.system_id || item.email || item.id;
+            const resource_name =
+                assigned_space?.display_name ||
+                assigned_space?.name ||
+                item.name;
+            const desired = new Booking({
+                type,
+                booking_type: type,
+                date: event.date,
+                duration: event.duration,
+                description: event.title || item.name,
+                user_email: event.host,
+                asset_id: resource_id,
+                asset_name: resource_name,
+                title: event.title,
+                attendees: item.email ? [new User(item)] : [],
+                extension_data: {
+                    parent_id: event.id,
+                    name: resource_name,
+                    location_id: assigned_space?.id || event.location,
+                    details: item,
+                },
+                zones: assigned_space?.zones || zones,
+            });
+            if (booking) {
+                kept.add(booking.id);
+                const changes = linkedBookingChanges(booking, desired);
+                if (changes) await updateBooking(booking.id, changes);
+                continue;
+            }
+            created_bookings.push(
+                event.from_bookings
+                    ? await createBooking({
+                          ...desired.toJSON(),
+                          parent_id: parentBookingId(event.id),
+                      })
+                    : await createBooking(desired.toJSON(), {
+                          ical_uid: event.ical_uid,
+                          event_id: event.id,
+                      }),
+            );
+        }
+        for (const booking of existing) {
+            if (!kept.has(booking.id)) await removeBooking(booking.id);
+        }
+    } catch (error) {
+        await Promise.all(
+            created_bookings
+                .filter((booking) => !!booking.id)
+                .map((booking) =>
+                    removeBooking(booking.id).catch(() => undefined),
                 ),
-            );
-            return createBooking(
-                new Booking({
-                    type,
-                    booking_type: type,
-                    date: event.date,
-                    duration: event.duration,
-                    description: event.title || (item as any).name,
-                    user_email: event.host,
-                    asset_id: item.email || item.id,
-                    asset_name: (item as any).name,
-                    title: event.title,
-                    attendees: item.email ? [item] : [],
-                    approved: booking?.approved && !item._changed,
-                    rejected: booking?.rejected && !item._changed,
-                    extension_data: {
-                        parent_id: event.id,
-                        name: (item as any).name,
-                        location_id: event.location,
-                        details: item,
-                    },
-                    zones,
-                }).toJSON(),
-                { ical_uid: event.ical_uid, event_id: event.id },
-            );
-        }),
-    );
+        );
+        throw error;
+    }
 }

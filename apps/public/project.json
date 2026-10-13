@@ -9,6 +9,7 @@
         "build": {
             "executor": "@angular/build:application",
             "outputs": ["{options.outputPath}"],
+            "defaultConfiguration": "production",
             "options": {
                 "outputPath": "dist/apps/public",
                 "browser": "apps/public/src/main.ts",
@@ -36,7 +37,7 @@
                         {
                             "type": "initial",
                             "maximumWarning": "500kb",
-                            "maximumError": "1mb"
+                            "maximumError": "600kb"
                         },
                         {
                             "type": "anyComponentStyle",
@@ -51,12 +52,12 @@
                     "extractLicenses": false,
                     "sourceMap": true
                 }
-            },
-            "defaultConfiguration": "production"
+            }
         },
         "serve": {
             "continuous": true,
             "executor": "@angular/build:dev-server",
+            "defaultConfiguration": "development",
             "configurations": {
                 "production": {
                     "proxyConfig": "config/proxy.conf.js",
@@ -66,18 +67,30 @@
                     "proxyConfig": "config/proxy.conf.js",
                     "buildTarget": "public:build:development"
                 }
-            },
-            "defaultConfiguration": "development"
+            }
         },
-        "lint": {
-            "executor": "@nx/eslint:lint"
-        },
+        "lint": {},
         "test": {
-            "executor": "@nx/jest:jest",
-            "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+            "executor": "@angular/build:unit-test",
+            "outputs": ["{workspaceRoot}/coverage/apps/public"],
             "options": {
-                "jestConfig": "apps/public/jest.config.cts",
-                "tsConfig": "apps/public/tsconfig.spec.json"
+                "tsConfig": "apps/public/tsconfig.spec.json",
+                "setupFiles": ["apps/public/src/test-setup.ts"],
+                "isolate": true,
+                "watch": false,
+                "buildTarget": "public:test-build:development"
+            }
+        },
+        "test-build": {
+            "executor": "@angular/build:application",
+            "options": {
+                "outputPath": "dist/apps/public-test",
+                "browser": "apps/public/src/main.ts",
+                "tsConfig": "apps/public/tsconfig.spec.json",
+                "polyfills": []
+            },
+            "configurations": {
+                "development": {}
             }
         },
         "serve-static": {

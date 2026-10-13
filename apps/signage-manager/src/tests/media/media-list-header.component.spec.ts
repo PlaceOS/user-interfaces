@@ -1,0 +1,201 @@
+import { signal } from '@angular/core';
+import { TestBed } from '@angular/core/testing';
+import { MatDialog } from '@angular/material/dialog';
+import { setNotifyOutlet } from '@placeos/common';
+import { SignagePlugin } from '@placeos/ts-client';
+import { ImageGenService } from '../../app/image-gen/image-gen.service';
+import { MediaListHeaderComponent } from '../../app/media/media-list-header.component';
+import { SignageMediaService } from '../../app/media/signage-media.service';
+import { MediaAddModalComponent } from '../../app/shared/media-add-modal.component';
+import { SignageContextService } from '../../app/signage-context.service';
+import { SignagePluginService } from '../../app/signage-plugin.service';
+
+const notify_open = vi.fn(() => ({
+    onAction: () => ({ subscribe: () => ({ unsubscribe: () => {} }) }),
+    dismiss: vi.fn(),
+}));
+
+describe('MediaListHeaderComponent', () => {
+    const media_total = signal(0);
+    const media = signal<unknown[]>([]);
+    const media_view = signal<unknown>({
+        sort: 'newest',
+        type: null,
+        expiry: null,
+    });
+    const media_view_active = signal(false);
+    const plugins = signal<unknown[]>([]);
+    const widgets = signal<unknown[]>([]);
+    const search_term = signal('');
+    const media_view_mode = signal<'grid' | 'list' | 'folder'>('grid');
+    const add_from_link = vi.fn().mockResolvedValue(undefined);
+    const add_from_plugin = vi.fn().mockResolvedValue(undefined);
+    const preview_file = vi.fn();
+    const dialog_open = vi.fn();
+
+    const context_stub = { can_create: signal(true) };
+    const media_stub = {
+        media_total,
+        media,
+        media_view,
+        media_view_active,
+        search_term,
+        media_view_mode,
+        media_upload_accept: 'image/*',
+        addMediaFromLink: add_from_link,
+        addMediaFromPlugin: add_from_plugin,
+        previewFileFromInput: preview_file,
+    };
+    const plugin_stub = { plugins, widgets };
+
+    async function make() {
+        await TestBed.configureTestingModule({
+            imports: [MediaListHeaderComponent],
+            providers: [
+                { provide: SignageContextService, useValue: context_stub },
+                { provide: SignageMediaService, useValue: media_stub },
+                { provide: SignagePluginService, useValue: plugin_stub },
+                { provide: MatDialog, useValue: { open: dialog_open } },
+                {
+                    provide: ImageGenService,
+                    useValue: { can_generate: signal(true) },
+                },
+            ],
+        })
+            .overrideComponent(MediaListHeaderComponent, {
+                set: { template: '' },
+            })
+            .compileComponents();
+        return TestBed.createComponent(MediaListHeaderComponent)
+            .componentInstance;
+    }
+
+    beforeEach(() => {
+        vi.clearAllMocks();
+        setNotifyOutlet({ open: notify_open } as any, true);
+        media_total.set(0);
+        media.set([]);
+        media_view_active.set(false);
+        plugins.set([]);
+        widgets.set([]);
+    });
+
+    it('reports the media count from the backend', async () => {
+        media_total.set(42);
+        const component = await make();
+        expect(component.total_count()).toBe(42);
+    });
+
+    it('counts the filtered media while a sort or filter is active', async () => {
+        media_total.set(42);
+        media.set([{ id: 'a' }, { id: 'b' }]);
+        media_view_active.set(true);
+        const component = await make();
+        expect(component.total_count()).toBe(2);
+    });
+
+    it('adds media from a valid link and clears the field', async () => {
+        const component = await make();
+        component.link.set('https://example.com/poster.png');
+        await component.addFromLink();
+        expect(add_from_link).toHaveBeenCalledWith(
+            'https://example.com/poster.png',
+        );
+        expect(component.link()).toBe('');
+    });
+
+    it('rejects an invalid link without calling the service', async () => {
+        const component = await make();
+        component.link.set('not a url');
+        await component.addFromLink();
+        expect(notify_open).toHaveBeenCalledWith(
+            expect.anything(),
+            expect.anything(),
+            expect.objectContaining({ panelClass: ['error'] }),
+        );
+        expect(add_from_link).not.toHaveBeenCalled();
+    });
+
+    it('adds a bare origin link with a trailing slash', async () => {
+        const component = await make();
+        component.link.set('https://example.com');
+        await component.addFromLink();
+        expect(add_from_link).toHaveBeenCalledWith('https://example.com/');
+    });
+
+    it('rejects a javascript link without calling the service', async () => {
+        const component = await make();
+        component.link.set('javascript:alert(1)');
+        await component.addFromLink();
+        expect(add_from_link).not.toHaveBeenCalled();
+    });
+
+    it('ignores an empty link', async () => {
+        const component = await make();
+        component.link.set('   ');
+        await component.addFromLink();
+        expect(add_from_link).not.toHaveBeenCalled();
+        expect(notify_open).not.toHaveBeenCalledWith(
+            expect.anything(),
+            expect.anything(),
+            expect.objectContaining({ panelClass: ['error'] }),
+        );
+    });
+
+    it('adds media from the selected plugin and resets the selection', async () => {
+        const component = await make();
+        const plugin = new SignagePlugin({
+            id: 'plugin-1',
+            name: 'Clock',
+            plugin_type: 'plugin',
+        });
+        plugins.set([plugin]);
+        component.selected_plugin.set(plugin);
+        await component.addFromPlugin();
+        expect(add_from_plugin).toHaveBeenCalledWith(plugin);
+        expect(component.selected_plugin()).toBeNull();
+    });
+
+    it('excludes widget plugins from media items', async () => {
+        const component = await make();
+        const widget = new SignagePlugin({
+            id: 'widget-1',
+            name: 'Clock',
+            plugin_type: 'widget',
+        });
+        plugins.set([
+            { id: 'plugin-1', name: 'Weather', plugin_type: 'plugin' },
+        ]);
+        widgets.set([widget]);
+
+        expect(component.available_plugins().map(({ id }) => id)).toEqual([
+            'plugin-1',
+        ]);
+
+        component.selected_plugin.set(widget);
+        await component.addFromPlugin();
+        expect(add_from_plugin).not.toHaveBeenCalled();
+    });
+
+    it('does nothing when adding from a plugin with none selected', async () => {
+        const component = await make();
+        await component.addFromPlugin();
+        expect(add_from_plugin).not.toHaveBeenCalled();
+    });
+
+    it('opens the add-media modal with the requested mode', async () => {
+        const component = await make();
+        component.openAdd('link');
+        expect(dialog_open).toHaveBeenCalledWith(
+            MediaAddModalComponent,
+            expect.objectContaining({ data: { mode: 'link' } }),
+        );
+    });
+
+    it('forwards file input changes to the service', async () => {
+        const component = await make();
+        const event = { target: {} };
+        component.previewFile(event as any);
+        expect(preview_file).toHaveBeenCalledWith(event);
+    });
+});

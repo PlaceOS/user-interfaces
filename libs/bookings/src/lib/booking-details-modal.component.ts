@@ -10,7 +10,6 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import {
-    ANIMATION_SHOW_CONTRACT_EXPAND,
     Booking,
     formatDuration,
     formatRecurrence,
@@ -22,9 +21,10 @@ import {
     SettingsService,
     userSignal,
 } from '@placeos/common';
-import { addMinutes, format, isSameWeek } from 'date-fns';
+import { addMinutes, format } from 'date-fns';
 
 import { OrganisationService } from '@placeos/common';
+import { openConfirmModal } from 'libs/components/src/lib/confirm-modal.component';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { ImageCarouselComponent } from 'libs/components/src/lib/image-carousel.component';
 import { InteractiveMapComponent } from 'libs/components/src/lib/interactive-map.component';
@@ -33,8 +33,11 @@ import { MapPinComponent } from 'libs/components/src/lib/map-pin.component';
 import { StatusPillComponent } from 'libs/components/src/lib/status-pill.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { UserPipe } from 'libs/users/src/lib/user.pipe';
-import { visitorDisplayNameFor } from './booking.utilities';
-import { checkinBooking, checkinBookingInstance } from './bookings.fn';
+import {
+    parkingRequestStatus,
+    visitorDisplayNameFor,
+} from './booking.utilities';
+import { setBookingCheckedIn } from './bookings.fn';
 import { DeskSettingsModalComponent } from './desk-settings-modal.component';
 
 @Component({
@@ -74,6 +77,9 @@ import { DeskSettingsModalComponent } from './desk-settings-modal.component';
                 <div class="w-full items-center justify-between sm:flex">
                     <div class="m-2 flex items-center space-x-2">
                         <status-pill [status]="booking_status()">
+                            @if (is_cancelled()) {
+                                {{ 'COMMON.TYPE_CANCELLED' | translate }} ·
+                            }
                             {{ period() }}
                         </status-pill>
                         @if (booking().instance) {
@@ -84,9 +90,9 @@ import { DeskSettingsModalComponent } from './desk-settings-modal.component';
                             >
                         }
                     </div>
-                    @if (!booking().is_done) {
+                    @if (show_actions()) {
                         <div actions class="flex items-center space-x-2 px-2">
-                            @if (can_checkin()) {
+                            @if (can_checkin() && !is_cancelled()) {
                                 @if (
                                     !booking().checked_out_at &&
                                     !checked_out() &&
@@ -140,14 +146,16 @@ import { DeskSettingsModalComponent } from './desk-settings-modal.component';
                                     </button>
                                 }
                             }
-                            <button
-                                icon
-                                matRipple
-                                [matMenuTriggerFor]="menu"
-                                class="bg-secondary h-12 w-12 rounded-sm text-white"
-                            >
-                                <icon>more_horiz</icon>
-                            </button>
+                            @if (has_menu_actions()) {
+                                <button
+                                    icon
+                                    matRipple
+                                    [matMenuTriggerFor]="menu"
+                                    class="bg-secondary h-12 w-12 rounded-sm text-white"
+                                >
+                                    <icon>more_horiz</icon>
+                                </button>
+                            }
                         </div>
                     }
                 </div>
@@ -157,7 +165,7 @@ import { DeskSettingsModalComponent } from './desk-settings-modal.component';
                     class="border-base-200 sm:bg-base-100 min-w-1/3 grow-4 rounded-sm sm:m-2 sm:w-[16rem] sm:border sm:p-4"
                 >
                     <h3 class="mt-2 mb-2 px-3 text-lg font-medium">
-                        {{ 'BOOKINGS.DETAILS' | translate }}
+                        {{ 'COMMON.DETAILS' | translate }}
                     </h3>
                     <div class="flex items-center space-x-2 px-2">
                         <icon matTooltip="Date">event</icon>
@@ -171,7 +179,7 @@ import { DeskSettingsModalComponent } from './desk-settings-modal.component';
                     </div>
                     <div class="flex items-center space-x-2 px-2">
                         <icon matTooltip="Level and Resource">{{
-                            is_visitor() ? 'person' : 'map'
+                            is_visitor() ? 'person' : 'place'
                         }}</icon>
                         <div>
                             @if (is_visitor()) {
@@ -186,20 +194,29 @@ import { DeskSettingsModalComponent } from './desk-settings-modal.component';
                             }
                         </div>
                     </div>
-                    <div class="flex items-center space-x-2 px-2">
-                        <icon matTooltip="Location">place</icon>
-                        <div>
-                            {{ building()?.display_name || building()?.name }}
-                            {{
-                                building()?.address
-                                    ? ', ' + building().address
-                                    : ''
-                            }}
+                    @if (is_visitor()) {
+                        <div class="flex items-center space-x-2 px-2">
+                            <icon matTooltip="Location">place</icon>
+                            <div>
+                                {{
+                                    building()?.display_name || building()?.name
+                                }}
+                                {{
+                                    building()?.address
+                                        ? ', ' + building().address
+                                        : ''
+                                }}
+                            </div>
                         </div>
-                    </div>
+                    }
                     @if (current_user()?.email !== booking().user_email) {
                         <div class="flex items-center space-x-2 px-2">
-                            <icon matTooltip="Host">person</icon>
+                            <icon
+                                [matTooltip]="
+                                    'BOOKINGS.BOOKED_FOR_LABEL' | translate
+                                "
+                                >person</icon
+                            >
                             <div>
                                 {{
                                     (booking().user_email | user | async)
@@ -210,7 +227,9 @@ import { DeskSettingsModalComponent } from './desk-settings-modal.component';
                     }
                     @if (booking().booked_by_email !== booking().user_email) {
                         <div class="flex items-center space-x-2 px-2">
-                            <icon matTooltip="Booked By">edit_calendar</icon>
+                            <icon [matTooltip]="'COMMON.BOOKED_BY' | translate"
+                                >edit_calendar</icon
+                            >
                             <div>
                                 {{
                                     (booking().booked_by_email | user | async)
@@ -341,11 +360,9 @@ import { DeskSettingsModalComponent } from './desk-settings-modal.component';
                                         </div>
                                     </button>
                                     <div
-                                        class="divide-base-100 bg-base-200 flex flex-col divide-y"
-                                        [@show]="
-                                            showRequest(request.id)
-                                                ? 'show'
-                                                : 'hide'
+                                        class="contract-expand divide-base-100 bg-base-200 flex flex-col divide-y"
+                                        [class.contract-collapsed]="
+                                            !showRequest(request.id)
                                         "
                                     >
                                         @for (
@@ -430,7 +447,7 @@ import { DeskSettingsModalComponent } from './desk-settings-modal.component';
                     </div>
                 </button>
             }
-            @if (!booking().is_done) {
+            @if (can_cancel()) {
                 <button mat-menu-item (click)="remove(booking(), false)">
                     <div class="flex items-center space-x-2 text-base">
                         <icon class="text-error">delete</icon>
@@ -449,11 +466,7 @@ import { DeskSettingsModalComponent } from './desk-settings-modal.component';
                     </div>
                 </button>
             }
-            @if (
-                !booking().is_done &&
-                booking().instance &&
-                allow_series_delete()
-            ) {
+            @if (can_delete_series()) {
                 <button mat-menu-item (click)="remove(booking(), true)">
                     <div class="flex items-center space-x-2 text-base">
                         <icon class="text-error">delete</icon>
@@ -474,7 +487,6 @@ import { DeskSettingsModalComponent } from './desk-settings-modal.component';
         </mat-menu>
     `,
     styles: [``],
-    animations: [ANIMATION_SHOW_CONTRACT_EXPAND],
     imports: [
         CommonModule,
         MatMenuModule,
@@ -558,6 +570,21 @@ export class BookingDetailsModalComponent {
         return building;
     });
 
+    public readonly is_cancelled = computed(
+        () => this.booking().status === 'cancelled',
+    );
+
+    /**
+     * Whether the check-in and action menu controls are shown.
+     * Finished bookings have no actions. Cancelled bookings only keep the
+     * group delete action for the group host.
+     */
+    public readonly show_actions = computed(
+        () =>
+            !this.booking().is_done &&
+            (!this.is_cancelled() || this.can_manage_group()),
+    );
+
     public readonly can_edit = computed(() => {
         const is_visitor = this.booking().booking_type === 'visitor';
         const visitor_edit_allowed =
@@ -569,6 +596,7 @@ export class BookingDetailsModalComponent {
             !!this.booking().asset_id &&
             !features.includes('parking');
         return (
+            !this.is_cancelled() &&
             !this.booking().is_done &&
             !this.booking().checked_in &&
             (!is_visitor || visitor_edit_allowed) &&
@@ -576,16 +604,50 @@ export class BookingDetailsModalComponent {
         );
     });
 
-    public readonly can_checkin = computed(
+    public readonly can_cancel = computed(
         () =>
-            !settingSignal(
-                `${(this.booking()?.type || 'booking') + 's'}.hide_checkin`,
-            )() &&
-            !settingSignal(
-                `${this.booking()?.type || 'bookings'}.hide_checkin`,
-            )() &&
-            !settingSignal('bookings.hide_checkin')(),
+            !this.is_cancelled() &&
+            !this.booking().is_done &&
+            !this.booking().checked_in,
     );
+
+    public readonly can_delete_series = computed(
+        () =>
+            !this.booking().is_done &&
+            !this.is_cancelled() &&
+            !!this.booking().instance &&
+            this.allow_series_delete(),
+    );
+
+    /**
+     * Whether the action menu has at least one item.
+     * The menu trigger is hidden when this is false, as an empty menu panel
+     * flickers when opened.
+     */
+    public readonly has_menu_actions = computed(
+        () =>
+            this.can_edit() ||
+            (this.is_checked_in() && this.desk_height_enabled()) ||
+            this.can_cancel() ||
+            this.can_manage_group() ||
+            this.can_delete_series() ||
+            this.is_in_progress(),
+    );
+
+    public readonly can_checkin = computed(() => {
+        const booking = this.booking();
+        return (
+            !(
+                booking.booking_type === 'parking' &&
+                booking.asset_id.startsWith('unallocated')
+            ) &&
+            !settingSignal(
+                `${(booking.type || 'booking') + 's'}.hide_checkin`,
+            )() &&
+            !settingSignal(`${booking.type || 'bookings'}.hide_checkin`)() &&
+            !settingSignal('bookings.hide_checkin')()
+        );
+    });
 
     public readonly allow_series_delete = computed(() => {
         const is_assigned = this.booking().extension_data.is_assigned;
@@ -602,7 +664,7 @@ export class BookingDetailsModalComponent {
             const value = this._settings.get(check_key);
             if (value != null) return !!value;
         }
-        return false;
+        return !is_assigned && this.booking().booking_type !== 'parking';
     });
 
     public readonly auto_checkin = settingSignal(
@@ -696,7 +758,12 @@ export class BookingDetailsModalComponent {
     });
 
     public remove(booking: Booking, remove_series?: boolean) {
-        if (booking?.is_done) return;
+        if (
+            booking?.status === 'cancelled' ||
+            booking?.is_done ||
+            (booking?.checked_in && !remove_series)
+        )
+            return;
         if (remove_series === undefined) this._data.remove_fn(booking);
         else this._data.remove_fn(booking, remove_series);
     }
@@ -719,6 +786,7 @@ export class BookingDetailsModalComponent {
     });
 
     public readonly is_in_progress = computed(() => {
+        if (this.is_cancelled()) return false;
         const ts = Date.now();
         const start = this.booking()?.booking_start * 1000;
         const end = this.booking()?.booking_end * 1000;
@@ -728,24 +796,25 @@ export class BookingDetailsModalComponent {
 
     public readonly time_format = this._settings.time_format_signal;
 
-    private readonly _is_visible_waitlisted = computed(() => {
+    /** Request status of the booking, `pending` for anything but parking requests */
+    private readonly _parking_status = computed(() => {
         const booking = this.booking();
-        return (
-            this.show_waitlist() &&
+        const is_parking_request =
             booking?.booking_type === 'parking' &&
-            booking?.status === 'tentative' &&
-            booking?.process_state !== 'waiting_approval' &&
-            !!booking?.asset_id?.startsWith('unallocated') &&
-            isSameWeek(Date.now(), booking.date)
-        );
+            booking?.status === 'tentative';
+        return is_parking_request ? parkingRequestStatus(booking) : 'pending';
     });
 
     public readonly booking_status = computed(() => {
+        if (this.is_cancelled()) return 'error';
         if (this.booking()?.is_done) return 'neutral';
         if (this.booking()?.status === 'approved') return 'success';
         if (this.booking()?.status === 'declined') return 'error';
         if (this.booking()?.status === 'tentative') {
-            if (this._is_visible_waitlisted()) return 'info';
+            if (this._parking_status() === 'waitlist' && this.show_waitlist())
+                return 'info';
+            if (this._parking_status() === 'approval_required')
+                return 'approval';
             return 'warning';
         }
         return 'warning';
@@ -780,30 +849,47 @@ export class BookingDetailsModalComponent {
     }
 
     public async toggleCheckedIn() {
-        this.checking_in.set(true);
         const bkn = this.booking();
-        const promise = (
-            bkn.instance
-                ? checkinBookingInstance(
-                      bkn.id,
-                      bkn.instance,
-                      !this.booking().checked_in,
-                  )
-                : checkinBooking(this.booking().id, !this.booking().checked_in)
+        if (bkn.checked_in) {
+            const resource_name =
+                bkn.booking_type === 'parking'
+                    ? 'parking space'
+                    : bkn.booking_type;
+            const response = await openConfirmModal(
+                {
+                    title: i18n('COMMON.CHECK_OUT'),
+                    content:
+                        'You are currently checked in.<br/>' +
+                        `Would you like to check out of your ${resource_name} now?<br/>` +
+                        `This will make the ${resource_name} available for others to book.`,
+                    confirm_text: i18n('COMMON.CHECK_OUT'),
+                    icon: { content: 'logout' },
+                },
+                this._dialog,
+            );
+            if (response.reason !== 'done') return;
+            response.close();
+        }
+        this.checking_in.set(true);
+        const updated_booking = await setBookingCheckedIn(
+            bkn,
+            !bkn.checked_in,
         ).catch((_) => {
-            notifyError(i18n('BOOKINGS.CHECK_IN_ERROR'));
+            notifyError(
+                i18n(
+                    bkn.checked_in
+                        ? 'BOOKINGS.CHECK_OUT_ERROR'
+                        : 'BOOKINGS.CHECK_IN_ERROR',
+                ),
+            );
             this.checking_in.set(false);
             throw _;
         });
-        await promise;
-        this.booking.update((b) => {
-            (b as any).checked_in = !b.checked_in;
-            return b;
-        });
-        this.checked_out.set(!this.booking().checked_in);
+        this.booking.set(updated_booking);
+        this.checked_out.set(!updated_booking.checked_in);
         notifySuccess(
             i18n(
-                this.booking().checked_in
+                updated_booking.checked_in
                     ? 'BOOKINGS.CHECK_IN_SUCCESS'
                     : 'BOOKINGS.CHECK_OUT_SUCCESS',
             ),

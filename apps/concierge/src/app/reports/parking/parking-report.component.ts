@@ -19,6 +19,7 @@ import { ReportsOptionsComponent } from '../reports-options.component';
 import { ParkingReportChartsComponent } from './parking-report-charts.component';
 import { ParkingReportDailyUsageComponent } from './parking-report-daily-usage.component';
 import { ParkingReportListComponent } from './parking-report-list.component';
+import { ParkingReportNoShowsComponent } from './parking-report-no-shows.component';
 import { ParkingReportOverallComponent } from './parking-report-overall.component';
 import { ParkingReportService } from './parking-report.service';
 
@@ -43,9 +44,14 @@ const METRIC_GUIDE: ReportMetricGuideItem[] = [
             'Sum of active reservation durations divided by the number of active reservations.',
     },
     {
+        label: 'No shows',
+        description:
+            'Active reservations that ended without a check-in; percentage is of active reservations.',
+    },
+    {
         label: 'Daily usage',
         description:
-            'Counts unique parking spaces, unique hosts, active reservations, cancellations, deletions, and total reservations for each day.',
+            'Counts unique parking spaces, unique hosts, active reservations, cancellations, deletions, no shows, and total reservations for each day.',
     },
 ];
 
@@ -80,12 +86,15 @@ const METRIC_GUIDE: ReportMetricGuideItem[] = [
                     />
                     <parking-report-overall></parking-report-overall>
                     <parking-report-charts></parking-report-charts>
-                    <parking-report-daily-usage
-                        [print]="printing()"
-                    ></parking-report-daily-usage>
                     <parking-report-list
                         [print]="printing()"
                     ></parking-report-list>
+                    <parking-report-no-shows
+                        [print]="printing()"
+                    ></parking-report-no-shows>
+                    <parking-report-daily-usage
+                        [print]="printing()"
+                    ></parking-report-daily-usage>
                 } @else {
                     <div
                         class="screen-only flex h-full w-full flex-col items-center p-8"
@@ -123,6 +132,7 @@ const METRIC_GUIDE: ReportMetricGuideItem[] = [
         ParkingReportDailyUsageComponent,
         ParkingReportChartsComponent,
         ParkingReportListComponent,
+        ParkingReportNoShowsComponent,
         ReportsOptionsComponent,
     ],
 })
@@ -132,12 +142,10 @@ export class ParkingReportComponent extends AsyncHandler {
     private _route = inject(ActivatedRoute);
     private _org = inject(OrganisationService);
     private readonly _bookings = this._state.bookings;
-    private readonly _loading = this._state.loading;
-
     public readonly printing = signal(false);
     public readonly metric_guide = METRIC_GUIDE;
     public readonly total_count = computed(() => this._bookings().length || 0);
-    public readonly loading = computed(() => this._loading());
+    public readonly loading = this._state.loading;
 
     public readonly downloadReport = () => this._state.downloadReport();
     public readonly generateReport = () => this._state.generateReport();

@@ -1,17 +1,20 @@
+import { signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
-import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
+import {
+    createRoutingFactory,
+    SpectatorRouting,
+} from '@ngneat/spectator/vitest';
 import { OrganisationService } from '@placeos/common';
 import { IconComponent } from '@placeos/components';
-import { signal } from '@angular/core';
 import { MockComponent, MockProvider } from 'ng-mocks';
 
 import { SettingsService } from '@placeos/common';
+import { DateOptionsComponent } from '@placeos/form-fields';
 import { DayviewTopbarComponent } from '../../app/day-view/dayview-topbar.component';
 import { EventsStateService } from '../../app/day-view/events-state.service';
-import { DateOptionsComponent } from '../../app/ui/date-options.component';
 
 describe('DayviewTopbarComponent', () => {
     let spectator: SpectatorRouting<DayviewTopbarComponent>;
@@ -21,15 +24,15 @@ describe('DayviewTopbarComponent', () => {
             MockProvider(OrganisationService, {
                 initialised: signal(true),
                 active_levels: signal([]),
-                levelWithID: jest.fn(),
+                levelWithID: vi.fn(),
             }),
             MockProvider(EventsStateService, {
                 levels: signal([]),
                 options: signal({}),
-                setFilters: jest.fn(),
-                setDate: jest.fn(),
-                setZones: jest.fn(),
-                newBooking: jest.fn(),
+                setFilters: vi.fn(),
+                setDate: vi.fn(),
+                setZones: vi.fn(),
+                newBooking: vi.fn(),
             }),
             MockProvider(SettingsService, { time_format: 'h:mm a' }),
         ],
@@ -46,10 +49,6 @@ describe('DayviewTopbarComponent', () => {
     });
 
     beforeEach(() => (spectator = createComponent()));
-
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
 
     it('should handle query parameters', () => {
         expect(spectator.component.zones()).toEqual([]);

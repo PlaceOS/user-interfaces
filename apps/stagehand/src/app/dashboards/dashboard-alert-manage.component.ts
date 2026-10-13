@@ -119,6 +119,7 @@ export type AlertType = 'threshold' | 'status' | 'custom';
                                 }}</label>
                                 <mat-form-field appearance="outline">
                                     <mat-select
+                                        aria-label="Severity"
                                         [formField]="form.severity"
                                         [placeholder]="
                                             'APP.STAGEHAND.ALERT_FIELD_SEVERITY'
@@ -145,6 +146,7 @@ export type AlertType = 'threshold' | 'status' | 'custom';
                                 }}</label>
                                 <mat-form-field appearance="outline">
                                     <mat-select
+                                        aria-label="Type"
                                         [formField]="form.alert_type"
                                         [placeholder]="
                                             'APP.STAGEHAND.ALERT_FIELD_TYPE'

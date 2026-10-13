@@ -1,4 +1,5 @@
 import {
+    EnvironmentInjector,
     inject,
     Injectable,
     InjectionToken,
@@ -6,14 +7,8 @@ import {
     Type,
     WritableSignal,
 } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
-
-import {
-    humanReadableByteCount,
-    initUploads,
-    uploadFile,
-} from '@placeos/cloud-uploads';
-import { authorise, token } from '@placeos/ts-client';
+import { apiKey, authorise, token } from '@placeos/ts-client';
+import { firstValueFrom } from 'rxjs';
 import { AsyncHandler } from './async-handler.class';
 import { log } from './general';
 
@@ -42,6 +37,50 @@ export interface UploadDetails {
 
 export type UploadPermissions = 'none' | 'support' | 'admin';
 
+/**
+ * Rejection raised when the user dismisses the upload permissions modal.
+ * Lets consumers skip error messaging for a deliberate cancellation.
+ */
+export class UploadCancelledError extends Error {
+    constructor() {
+        super('Upload cancelled');
+        this.name = 'UploadCancelledError';
+    }
+}
+
+/** Failure of an upload, carrying the details of the attempt that failed */
+export class UploadFailedError extends Error {
+    constructor(
+        message: string,
+        public readonly details?: UploadDetails,
+    ) {
+        super(message);
+        this.name = 'UploadFailedError';
+    }
+}
+
+/**
+ * Loads the uploads library on first use. This file is in every app's initial
+ * bundle, and most apps only upload from lazy screens.
+ */
+const loadCloudUploads = () => import('@placeos/cloud-uploads');
+
+/** How many times a failed upload is re-attempted before reporting failure */
+const UPLOAD_RETRY_ATTEMPTS = 3;
+
+function uploadStateError(state: { error?: string } | any) {
+    return state?.error || 'Upload failed';
+}
+
+/** Normalise whatever an upload failed with into a throwable error */
+function uploadFailure(details: any) {
+    if (details instanceof Error) return details;
+    return new UploadFailedError(
+        details?.error || 'Upload failed',
+        details as UploadDetails,
+    );
+}
+
 export const UPLOAD_PERMISSIONS_MODAL = new InjectionToken<Type<any>>(
     'UploadPermissionsModalComponent',
 );
@@ -50,7 +89,7 @@ export const UPLOAD_PERMISSIONS_MODAL = new InjectionToken<Type<any>>(
     providedIn: 'root',
 })
 export class UploadsService extends AsyncHandler {
-    private _dialog = inject(MatDialog);
+    private _injector = inject(EnvironmentInjector);
     private _permissions_modal = inject(UPLOAD_PERMISSIONS_MODAL, {
         optional: true,
     });
@@ -70,15 +109,13 @@ export class UploadsService extends AsyncHandler {
 
     public init(tries = 1) {
         this.timeout('init_uploads', () => {
-            try {
-                this._initUploads();
-            } catch (e) {
+            this._initUploads().catch(() =>
                 this.timeout(
                     'init_uploads',
                     () => this.init((tries += 1)),
                     1000 * tries,
-                );
-            }
+                ),
+            );
         });
     }
 
@@ -89,7 +126,7 @@ export class UploadsService extends AsyncHandler {
         this._upload_list.set(in_progress_list);
     }
 
-    public uploadFileWithPermissions(file: File, default_public = false) {
+    public async uploadFileWithPermissions(file: File, default_public = false) {
         if (!this._permissions_modal) {
             log(
                 'UPLOAD',
@@ -99,23 +136,12 @@ export class UploadsService extends AsyncHandler {
             );
             return this.uploadFile(file, default_public);
         }
-        return new Promise<string>((resolve, reject) => {
-            const ref = this._dialog.open(this._permissions_modal, {
-                data: { file, is_public: default_public },
-            });
-            ref.afterClosed().subscribe(async (details) => {
-                if (!details) return reject();
-                const id = await this.uploadFile(
-                    details.file,
-                    details.is_public,
-                    details.permissions,
-                ).catch((e) => {
-                    reject(e);
-                    throw e;
-                });
-                resolve(id);
-            });
-        });
+        const details = await this._askPermissions(file, default_public);
+        return this.uploadFile(
+            details.file,
+            details.is_public,
+            details.permissions,
+        );
     }
 
     public uploadFile(
@@ -141,7 +167,7 @@ export class UploadsService extends AsyncHandler {
                 next: update_fn,
                 error: (details) => {
                     if (details?.id) update_fn(details);
-                    if (!resolved) reject(details);
+                    if (!resolved) reject(uploadFailure(details));
                 },
                 complete: () => this._updateUploadHistory(),
             });
@@ -152,14 +178,20 @@ export class UploadsService extends AsyncHandler {
         file: File,
         pub = false,
         permissions: UploadPermissions = 'none',
+        on_progress?: (progress: number) => void,
     ) {
-        const details = await this._uploadFileToDetails(file, pub, permissions);
+        const details = await this._uploadFileToDetails(
+            file,
+            pub,
+            permissions,
+            on_progress,
+        );
         const upload_id = details.upload_id || details.upload?.id || details.id;
         if (!upload_id) throw new Error('Failed to get uploaded file ID');
         return upload_id;
     }
 
-    public uploadFileWithPermissionsToCompletion(
+    public async uploadFileWithPermissionsToCompletion(
         file: File,
         default_public = false,
     ) {
@@ -172,22 +204,28 @@ export class UploadsService extends AsyncHandler {
             );
             return this.uploadFileToCompletion(file, default_public);
         }
-        return new Promise<string>((resolve, reject) => {
-            const ref = this._dialog.open(this._permissions_modal, {
-                data: { file, is_public: default_public },
-            });
-            ref.afterClosed().subscribe((details) => {
-                if (!details) {
-                    reject(new Error('Upload cancelled'));
-                    return;
-                }
-                this.uploadFileToCompletion(
-                    details.file,
-                    details.is_public,
-                    details.permissions,
-                ).then(resolve, reject);
-            });
+        const details = await this._askPermissions(file, default_public);
+        return this.uploadFileToCompletion(
+            details.file,
+            details.is_public,
+            details.permissions,
+        );
+    }
+
+    /**
+     * Opens the permissions modal and waits for its result. The dialog
+     * service is loaded on demand to keep it out of the initial bundle.
+     */
+    private async _askPermissions(file: File, is_public: boolean) {
+        const { MatDialog } = await import('@angular/material/dialog');
+        const ref = this._injector
+            .get(MatDialog)
+            .open(this._permissions_modal, { data: { file, is_public } });
+        const details = await firstValueFrom(ref.afterClosed(), {
+            defaultValue: null,
         });
+        if (!details) throw new UploadCancelledError();
+        return details;
     }
 
     public uploadFileWithProgress(
@@ -214,18 +252,29 @@ export class UploadsService extends AsyncHandler {
         }
     }
 
-    private _initUploads() {
+    private async _initUploads() {
+        const { initUploads } = await loadCloudUploads();
+        const api_key = apiKey();
         initUploads({
             auto_start: true,
-            token: token(),
+            // token() returns the literal string "x-api-key" when the session
+            // is authenticated with an API key, which is not a usable bearer
+            // token; the uploads API needs the key in its own header.
+            ...(api_key ? { api_key } : { token: token() }),
             endpoint: '/api/engine/v2/uploads',
             worker_url: 'assets/md5_worker.js',
         });
     }
 
-    private async _updateUploadToken() {
-        if (!token(false)) await authorise();
-        this._initUploads();
+    private _token_refresh: Promise<void> | null = null;
+
+    private _updateUploadToken() {
+        // ponytail: shared promise so concurrent failed uploads trigger one refresh
+        this._token_refresh ||= (async () => {
+            if (!apiKey() && !token(false)) await authorise();
+            await this._initUploads();
+        })().finally(() => (this._token_refresh = null));
+        return this._token_refresh;
     }
 
     /**
@@ -243,13 +292,12 @@ export class UploadsService extends AsyncHandler {
         },
     ) {
         this._updateUploadToken()
-            .then(() =>
-                uploadFile(file, {
+            .then(() => loadCloudUploads())
+            .then(async ({ humanReadableByteCount, uploadFile }) => {
+                const upload = await uploadFile(file, {
                     permissions,
                     public: pub,
-                }),
-            )
-            .then((upload) => {
+                });
                 const upload_details: UploadDetails = {
                     id: upload?.id || `upi-${randomString(8)}`,
                     name: file.name,
@@ -259,9 +307,18 @@ export class UploadsService extends AsyncHandler {
                     size: file.size,
                     upload,
                 };
-                upload.state.subscribe((state) => {
+                let attempts = 0;
+                let settled = false;
+                let subscription: { unsubscribe: () => void };
+                // The state is a BehaviorSubject, so this can run before
+                // `subscription` has been assigned.
+                const stop = () => {
+                    settled = true;
+                    Promise.resolve().then(() => subscription?.unsubscribe());
+                };
+                subscription = upload.state.subscribe(async (state) => {
+                    if (settled) return;
                     upload_details.upload_id = upload.id;
-                    console.log('Upload:', state, upload);
                     if ((upload as any).access_url || state.progress >= 100) {
                         const local_url = `${
                             location.origin
@@ -273,12 +330,26 @@ export class UploadsService extends AsyncHandler {
                     upload_details.progress = state.progress;
                     observer.next(upload_details);
                     if (state.status === 'FAILED') {
+                        if (attempts < UPLOAD_RETRY_ATTEMPTS) {
+                            // Most often an expired credential; re-validate it
+                            // and resume from the parts already uploaded.
+                            attempts += 1;
+                            await this._updateUploadToken();
+                            if (settled) return;
+                            upload.resume();
+                            return;
+                        }
+                        stop();
                         observer.error({
                             ...upload_details,
-                            error: (state as any).error || 'Error',
+                            error: uploadStateError(state),
                         });
+                        return;
                     }
-                    if (state.status === 'COMPLETED') observer.complete();
+                    if (state.status === 'COMPLETED') {
+                        stop();
+                        observer.complete();
+                    }
                 });
                 observer.next(upload_details);
             })
@@ -289,14 +360,16 @@ export class UploadsService extends AsyncHandler {
         file: File,
         pub = false,
         permissions: UploadPermissions = 'none',
+        on_progress?: (progress: number) => void,
     ) {
         return new Promise<UploadDetails>((resolve, reject) => {
             let last_details: UploadDetails;
             this._uploadFile(file, pub, permissions, {
                 next: (details) => {
                     last_details = details;
+                    on_progress?.(details.progress);
                 },
-                error: reject,
+                error: (details) => reject(uploadFailure(details)),
                 complete: () => {
                     this._updateUploadHistory();
                     resolve(last_details);

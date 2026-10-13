@@ -3,7 +3,7 @@ import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
-import { createRoutingFactory, Spectator } from '@ngneat/spectator/jest';
+import { createRoutingFactory, Spectator } from '@ngneat/spectator/vitest';
 import {
     currentUser,
     OrganisationService,
@@ -28,7 +28,7 @@ import { MeetingFormDetailsComponent } from 'libs/events/src/lib/meeting-form-de
 describe('MeetingFormDetailsComponent', () => {
     let spectator: Spectator<MeetingFormDetailsComponent>;
     const settings_values: Record<string, any> = {};
-    const store_form = jest.fn();
+    const store_form = vi.fn();
     let form_ref: EventFormRef;
     const lookup_setting = (key: string, fallback?) =>
         key in settings_values ? settings_values[key] : fallback;
@@ -36,8 +36,8 @@ describe('MeetingFormDetailsComponent', () => {
         component: MeetingFormDetailsComponent,
         providers: [
             MockProvider(SettingsService as any, {
-                get: jest.fn((key: string) => lookup_setting(key)),
-                signal: jest.fn(
+                get: vi.fn((key: string) => lookup_setting(key)),
+                signal: vi.fn(
                     (key: string, fallback?) => () =>
                         lookup_setting(key, fallback),
                 ),
@@ -92,9 +92,6 @@ describe('MeetingFormDetailsComponent', () => {
         spectator.setInput({ form: form_ref.form });
         store_form.mockClear();
     });
-
-    it('should create component', () =>
-        expect(spectator.component).toBeTruthy());
 
     it('should allow for input of title', () =>
         expect(spectator.query('input#title')).toExist());

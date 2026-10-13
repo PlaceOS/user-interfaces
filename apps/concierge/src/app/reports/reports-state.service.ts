@@ -9,6 +9,7 @@ import {
     untracked,
 } from '@angular/core';
 import {
+    queryDeskAssets,
     queryLockerAssetsForZones,
     queryLockerBankAssetsForZones,
     queryParkingSpacesForZones,
@@ -21,6 +22,7 @@ import {
     CalendarEvent,
     downloadFile,
     flatten,
+    getTimezoneDifferenceInHours,
     HashMap,
     i18n,
     jsonToCsv,
@@ -39,6 +41,7 @@ import {
 import { showMetadata } from '@placeos/ts-client';
 import {
     addDays,
+    addMinutes,
     endOfDay,
     format,
     getUnixTime,
@@ -65,22 +68,12 @@ export interface ReportOptions {
     zones?: string[];
 }
 
-const DAYS_OF_WEEK = {
-    sunday: 0,
-    monday: 1,
-    tuesday: 2,
-    wednesday: 3,
-    thurday: 4,
-    friday: 5,
-    saturday: 6,
-};
-
 const DAYS_OF_WEEK_INDEX = {
     0: 'sunday',
     1: 'monday',
     2: 'tuesday',
     3: 'wednesday',
-    4: 'thurday',
+    4: 'thursday',
     5: 'friday',
     6: 'saturday',
 };
@@ -188,7 +181,7 @@ export class ReportsStateService extends AsyncHandler {
         defaultValue: {} as HashMap<number>,
         loader: async ({ params }) => {
             let zones = (params.zones || []).filter(
-                (z: any) => z !== -1 && z !== 'All',
+                (z: unknown) => z !== -1 && z !== 'All',
             );
             if (!zones.length) {
                 zones = this._settings.get('app.use_region')
@@ -251,13 +244,19 @@ export class ReportsStateService extends AsyncHandler {
                 const count = lockers.filter(
                     (locker) =>
                         locker.bookable !== false &&
-                        bank_ids.includes((locker as any).parent_id),
+                        bank_ids.includes(locker.parent_id),
                 ).length;
                 return [zone_id, count];
             }
             case 'desks': {
+                if (this._settings.get('app.desks.use_assets')) {
+                    const desks = await queryDeskAssets(zone_id).catch(
+                        () => [],
+                    );
+                    return [zone_id, desks.length];
+                }
                 const metadata = await showMetadata(zone_id, 'desks').catch(
-                    () => ({ details: [] }) as any,
+                    () => ({ details: [] }),
                 );
                 return [zone_id, metadata.details.length];
             }
@@ -373,7 +372,7 @@ export class ReportsStateService extends AsyncHandler {
         const opts = this._options();
         let start = startOfDay(opts.start);
         const end = endOfDay(opts.end).valueOf();
-        let count = 1;
+        let count = 0;
         while (start.valueOf() < end) {
             if (
                 !this._ignore_days.includes(DAYS_OF_WEEK_INDEX[start.getDay()])
@@ -402,8 +401,22 @@ export class ReportsStateService extends AsyncHandler {
             this._active_bookings.set([]);
             return;
         }
-        const start = startOfDay(options.start || Date.now());
-        const end = endOfDay(options.end || start);
+        let start = startOfDay(options.start || Date.now());
+        let end = endOfDay(options.end || start);
+        if (
+            options.type === 'parking' &&
+            (this._settings.get('app.bookings.use_building_timezone') ||
+                this._settings.get('app.parking.use_building_timezone')) &&
+            this._org.building?.timezone
+        ) {
+            const current_tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+            const offset = getTimezoneDifferenceInHours(
+                current_tz,
+                this._org.building.timezone,
+            );
+            start = addMinutes(start, offset * 60);
+            end = addMinutes(end, offset * 60);
+        }
         let zones = options?.zones
             ? options.zones.filter((z) => z !== 'All').join(',')
             : '';
@@ -418,11 +431,12 @@ export class ReportsStateService extends AsyncHandler {
         };
         const bookings_query = {
             ...query,
-            include_deleted: true as any,
+            include_deleted: true,
             include_checked_out: true,
         };
         const token = ++this._load_token;
         let list: (CalendarEvent | Booking)[] = [];
+        let failed = false;
         try {
             switch (options.type) {
                 case 'desks':
@@ -430,7 +444,7 @@ export class ReportsStateService extends AsyncHandler {
                         ...bookings_query,
                         zones,
                         type: 'desk',
-                        limit: 1000,
+                        limit: 200,
                     });
                     break;
                 case 'parking':
@@ -438,7 +452,7 @@ export class ReportsStateService extends AsyncHandler {
                         ...bookings_query,
                         zones,
                         type: 'parking',
-                        limit: 1000,
+                        limit: 200,
                     });
                     break;
                 case 'lockers':
@@ -446,7 +460,7 @@ export class ReportsStateService extends AsyncHandler {
                         ...bookings_query,
                         zones,
                         type: 'locker',
-                        limit: 1000,
+                        limit: 200,
                     });
                     break;
                 case 'assets':
@@ -454,7 +468,7 @@ export class ReportsStateService extends AsyncHandler {
                         ...bookings_query,
                         zones,
                         type: 'asset-request',
-                        limit: 1000,
+                        limit: 200,
                     });
                     break;
                 case 'catering':
@@ -462,7 +476,7 @@ export class ReportsStateService extends AsyncHandler {
                         ...bookings_query,
                         zones,
                         type: 'catering-order',
-                        limit: 1000,
+                        limit: 200,
                     });
                     break;
                 case 'events':
@@ -470,19 +484,24 @@ export class ReportsStateService extends AsyncHandler {
                         ...query,
                         zone_ids: zones,
                         include_cancelled: true,
-                        limit: 1000,
-                    }).catch(() => []);
+                        limit: 200,
+                    });
                     break;
                 default:
                     list = [];
             }
         } catch (_) {
             list = [];
+            failed = true;
         }
         // Discard the response if the options changed before it completed
         if (token !== this._load_token) return;
         this._loading.set('');
-        if (!list?.length) {
+        if (failed) {
+            notifyError(i18n('COMMON.LOAD_ERROR'), i18n('COMMON.RETRY'), () =>
+                this.generateReport(),
+            );
+        } else if (!list?.length) {
             notifyError('No bookings for the selected levels and period');
         }
         list = list.filter((bkn) => {
@@ -508,14 +527,19 @@ export class ReportsStateService extends AsyncHandler {
         } else if (options.zones && current.zones?.includes('All')) {
             options.zones = [];
         }
-        if (
-            options.start?.valueOf() === current.start?.valueOf() ||
-            options.end?.valueOf() === current.end?.valueOf()
-        )
-            return;
-        // Clear stale bookings and cancel any in-flight load
+        // Skip only when every given option equals its current value.
+        const value = (v: unknown) =>
+            v instanceof Array ? v.join() : v instanceof Date ? v.valueOf() : v;
+        const unchanged = Object.entries(options).every(
+            ([key, v]) =>
+                value(v) === value(current[key as keyof ReportOptions]),
+        );
+        if (unchanged) return;
+        // Clear stale bookings and cancel any in-flight load. The cancelled
+        // load exits early, so clear its loading state here.
         this._active_bookings.set([]);
         this._load_token++;
+        this._loading.set('');
         this._options.set({ ...current, ...options });
     }
 
@@ -526,7 +550,7 @@ export class ReportsStateService extends AsyncHandler {
             `report+${options.type}+${format(
                 options.start,
                 'yyyy-MM-dd',
-            )}+${format(options.end, 'yyyy-MM-dd')}.tsv`,
+            )}+${format(options.end, 'yyyy-MM-dd')}.csv`,
             jsonToCsv(
                 bookings.map((bkn) => {
                     const details = bkn.toJSON();
@@ -540,10 +564,19 @@ export class ReportsStateService extends AsyncHandler {
                         'MMM d, y, h:mm a',
                         'en',
                     );
+                    // Always set so the column exists even when the first
+                    // booking was never checked in
+                    details.checked_in_time = details.checked_in_at
+                        ? formatDate(
+                              details.checked_in_at * 1000,
+                              'MMM d, y, h:mm a',
+                              'en',
+                          )
+                        : '';
+                    delete details.checked_in_at;
                     for (const key of REMOVE_KEYS) delete details[key];
                     return details;
                 }),
-                '\t',
             ),
         );
     }

@@ -1,14 +1,26 @@
 import { Component, computed, effect, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { ActivatedRoute, Params, Router, RouterModule } from '@angular/router';
 
 import { MatDialog } from '@angular/material/dialog';
 import {
+    CateringDocketsService,
+    CateringOrderAlertsService,
+    CateringOrderFilters,
     CateringOrdersService,
     CateringStateService,
     ChargeCodeListModalComponent,
+    ordersToCsvRows,
 } from '@placeos/catering';
-import { AsyncHandler, settingSignal } from '@placeos/common';
+import {
+    AsyncHandler,
+    downloadFile,
+    jsonToCsv,
+    notifyError,
+    notifySuccess,
+    settingSignal,
+} from '@placeos/common';
+import { format } from 'date-fns';
 
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
@@ -23,7 +35,7 @@ import {
     IconComponent,
     TranslatePipe,
 } from '@placeos/components';
-import { DateOptionsComponent } from 'apps/concierge/src/app/ui/date-options.component';
+import { DateOptionsComponent } from '@placeos/form-fields';
 
 @Component({
     selector: 'catering-topbar',
@@ -33,7 +45,7 @@ import { DateOptionsComponent } from 'apps/concierge/src/app/ui/date-options.com
                 icon
                 matRipple
                 class="h-12 w-12"
-                matTooltip="Back to Home"
+                [matTooltip]="'COMMON.BACK_HOME' | translate"
                 [routerLink]="['/']"
             >
                 <icon class="text-2xl">arrow_back</icon>
@@ -96,7 +108,10 @@ import { DateOptionsComponent } from 'apps/concierge/src/app/ui/date-options.com
                         }}</mat-option>
                         @for (caterer of caterers(); track caterer) {
                             <mat-option [value]="caterer || '<empty>'">
-                                {{ caterer || '[No Caterer]' }}
+                                {{
+                                    caterer ||
+                                        ('CATERING.CATERER_EMPTY' | translate)
+                                }}
                             </mat-option>
                         }
                     </mat-select>
@@ -170,6 +185,69 @@ import { DateOptionsComponent } from 'apps/concierge/src/app/ui/date-options.com
             @if (page() !== 'menu') {
                 <date-options (dateChange)="setDate($event)"></date-options>
             }
+            @if (page() === 'orders') {
+                <button
+                    icon
+                    matRipple
+                    summary-toggle
+                    class="h-12 w-12 rounded-sm"
+                    [class.bg-secondary]="show_summary()"
+                    [class.text-secondary-content]="show_summary()"
+                    [matTooltip]="'CATERING.PREP_SUMMARY' | translate"
+                    (click)="toggleSummary()"
+                >
+                    <icon class="text-2xl">summarize</icon>
+                </button>
+                <button
+                    icon
+                    matRipple
+                    class="h-12 w-12"
+                    [disabled]="!order_count()"
+                    [matTooltip]="'CATERING.DOCKETS_PRINT' | translate"
+                    (click)="printDockets()"
+                >
+                    <icon class="text-2xl">print</icon>
+                </button>
+                <button
+                    icon
+                    matRipple
+                    class="h-12 w-12"
+                    [disabled]="!order_count()"
+                    [matTooltip]="'CATERING.ORDERS_EXPORT' | translate"
+                    (click)="exportCsv()"
+                >
+                    <icon class="text-2xl">download</icon>
+                </button>
+                <button
+                    icon
+                    matRipple
+                    class="h-12 w-12"
+                    [matTooltip]="
+                        (alerts_on()
+                            ? 'CATERING.ALERTS_OFF'
+                            : 'CATERING.ALERTS_ON'
+                        ) | translate
+                    "
+                    (click)="toggleAlerts()"
+                >
+                    <icon class="text-2xl">
+                        {{
+                            alerts_on()
+                                ? 'notifications_active'
+                                : 'notifications_off'
+                        }}
+                    </icon>
+                </button>
+                <a
+                    icon
+                    matRipple
+                    class="h-12 w-12"
+                    [matTooltip]="'CATERING.KITCHEN' | translate"
+                    [routerLink]="['/kitchen']"
+                >
+                    <icon class="text-2xl">view_kanban</icon>
+                </a>
+            }
         </div>
     `,
     styles: [
@@ -201,6 +279,8 @@ export class CateringTopbarComponent extends AsyncHandler {
     private _route = inject(ActivatedRoute);
     private _router = inject(Router);
     private _dialog = inject(MatDialog);
+    private _dockets = inject(CateringDocketsService);
+    private _alerts = inject(CateringOrderAlertsService);
 
     private readonly _org_initialised = this._org.initialised;
     private readonly _param_map = toSignal(this._route.paramMap, {
@@ -221,6 +301,15 @@ export class CateringTopbarComponent extends AsyncHandler {
                 : '') || '',
     );
     public readonly filters = this._orders.order_filters;
+    /** Number of orders in the list */
+    public readonly order_count = computed(
+        () => this._orders.filtered().length,
+    );
+    /** Whether the prep summary panel is open */
+    public readonly show_summary = computed(
+        () => this._query_param_map().get('summary') === 'true',
+    );
+    public readonly alerts_on = this._alerts.enabled;
     public readonly caterers = this._catering.caterers;
     public readonly building = this._org.active_building;
     public readonly use_region = settingSignal('use_region', false);
@@ -231,12 +320,18 @@ export class CateringTopbarComponent extends AsyncHandler {
             : this._org.levelsForBuilding(this.building()),
     );
     /** Set filtered date */
-    public readonly setDate = (date) =>
-        (this._orders.filters = { ...this._orders.filters, date });
-    public readonly setSearch = (str) =>
-        (this._orders.filters = { ...this._orders.filters, search: str });
+    public readonly setDate = (date: string | number) => {
+        const date_value =
+            typeof date === 'number' ? date : new Date(date).valueOf();
+        if (!Number.isFinite(date_value)) return;
+        this._orders.filters = { ...this._orders.filters, date: date_value };
+    };
+    public readonly setSearch = (search: string) => {
+        this._orders.filters = { ...this._orders.filters, search };
+        this._setQueryParams({ search: search || null });
+    };
     /** List of levels for the active building */
-    public readonly updateZones = (z) => {
+    public readonly updateZones = (z: string[]) => {
         this._router.navigate([], {
             relativeTo: this._route,
             queryParams: { zone_ids: z.join(',') },
@@ -249,11 +344,14 @@ export class CateringTopbarComponent extends AsyncHandler {
     public readonly addItem = () => this._catering.addItem();
     public readonly editConfig = () => this._catering.editConfig();
     public readonly importMenu = () => this._catering.importMenu();
-    public readonly setCaterer = (caterer: string) =>
-        (this._orders.filters = { ...this._orders.filters, caterer });
+    public readonly setCaterer = (caterer: string) => {
+        this._orders.filters = { ...this._orders.filters, caterer };
+        this._setQueryParams({ caterer: caterer || null });
+    };
 
     constructor() {
         super();
+        this._restoreFilters();
 
         effect(() => {
             if (!this._org_initialised()) return;
@@ -276,9 +374,10 @@ export class CateringTopbarComponent extends AsyncHandler {
                 );
             }
             if (params.has('building_id')) {
-                this._org.building = this._org.buildings.find(
+                const building = this._org.buildings.find(
                     (bld) => bld.id === params.get('building_id'),
                 );
+                if (building) this._org.building = building;
             }
         });
     }
@@ -293,15 +392,69 @@ export class CateringTopbarComponent extends AsyncHandler {
         this.subscription(
             'room-availability',
             ref.componentInstance.change.subscribe(async (list) => {
-                await this._catering
-                    .saveSettings({ disabled_rooms: list })
-                    .catch();
-                ref.componentInstance.loading.set(false);
+                try {
+                    await this._catering.saveSettings({
+                        disabled_rooms: list,
+                    });
+                    notifySuccess('Room availability settings saved');
+                } catch {
+                    notifyError('Unable to save room availability settings');
+                } finally {
+                    ref.componentInstance.loading.set(false);
+                }
             }),
         );
     }
 
     public setChargeCodes() {
         this._dialog.open(ChargeCodeListModalComponent);
+    }
+
+    public toggleSummary() {
+        this._setQueryParams({ summary: this.show_summary() ? null : 'true' });
+    }
+
+    /** Print a docket for each order in the list */
+    public printDockets() {
+        this._dockets.print(this._orders.filtered());
+    }
+
+    /** Download the orders in the list as a CSV file */
+    public exportCsv() {
+        const date = format(
+            this._orders.filters.date || Date.now(),
+            'yyyy-MM-dd',
+        );
+        downloadFile(
+            `catering-orders-${date}.csv`,
+            jsonToCsv(ordersToCsvRows(this._orders.filtered())),
+        );
+    }
+
+    public toggleAlerts() {
+        return this._alerts.setEnabled(!this.alerts_on());
+    }
+
+    /**
+     * Apply the search and caterer filters from the URL.
+     * Only read on load, so slow navigation cannot overwrite what the user types.
+     */
+    private _restoreFilters() {
+        const params = this._route.snapshot.queryParamMap;
+        const restored: CateringOrderFilters = {};
+        if (params.get('search')) restored.search = params.get('search');
+        if (params.get('caterer')) restored.caterer = params.get('caterer');
+        if (!Object.keys(restored).length) return;
+        this._orders.filters = { ...this._orders.filters, ...restored };
+    }
+
+    /** Save filters to the URL without adding browser history entries */
+    private _setQueryParams(queryParams: Params) {
+        this._router.navigate([], {
+            relativeTo: this._route,
+            queryParams,
+            queryParamsHandling: 'merge',
+            replaceUrl: true,
+        });
     }
 }

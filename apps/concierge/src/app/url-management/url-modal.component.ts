@@ -5,10 +5,10 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import {
     AsyncHandler,
-    ShortURL,
     getInvalidSignalFields,
     notifyError,
     saveShortURL,
+    ShortURL,
 } from '@placeos/common';
 import {
     FullscreenModalShellComponent,
@@ -16,6 +16,7 @@ import {
     TranslatePipe,
 } from '@placeos/components';
 import { RichTextInputComponent } from '@placeos/form-fields';
+import { errorText } from '../ui/modal-actions';
 
 @Component({
     selector: 'short-url-modal',
@@ -69,7 +70,7 @@ import { RichTextInputComponent } from '@placeos/form-fields';
                 <div class="item-center flex space-x-4 py-4">
                     <settings-toggle
                         class="flex-1"
-                        [label]="'APP.CONCIERGE.URLS_ENABLED' | translate"
+                        [label]="'COMMON.ENABLED' | translate"
                         [formField]="form.enabled"
                     >
                     </settings-toggle>
@@ -81,7 +82,7 @@ import { RichTextInputComponent } from '@placeos/form-fields';
           </div>
           <div class="flex flex-col" *ngIf="form.controls.valid_to">
             <label for="uri" >
-              {{'APP.CONCIERGE.VALID_UNTIL' | translate}}<span>*</span>
+              {{'COMMON.VALID_UNTIL' | translate}}<span>*</span>
             </label>
             <a-date-field
               formControlName="valid_until"
@@ -134,10 +135,12 @@ export class ShortUrlModalComponent extends AsyncHandler {
         }
         const data: any = this.model();
         this.loading.set(true);
-        const resp = await saveShortURL(data).catch((e) =>
-            notifyError(`Error saving Short URL: ${e.message}`),
-        );
-        if ((resp as any).id) this._dialog_ref.close(resp);
-        this.loading.set(false);
+        try {
+            this._dialog_ref.close(await saveShortURL(data));
+        } catch (e) {
+            notifyError(`Error saving Short URL: ${errorText(e)}`);
+        } finally {
+            this.loading.set(false);
+        }
     }
 }

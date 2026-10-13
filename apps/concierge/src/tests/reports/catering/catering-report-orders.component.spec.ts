@@ -1,6 +1,6 @@
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
-import { MockComponent, MockModule, MockProvider } from 'ng-mocks';
 import { signal } from '@angular/core';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
+import { MockComponent, MockModule, MockProvider } from 'ng-mocks';
 
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { Router } from '@angular/router';
@@ -21,19 +21,15 @@ describe('CateringReportOrdersComponent', () => {
         providers: [
             MockProvider(CateringReportStateService, {
                 catering_orders: signal({}),
-                downloadOrders: jest.fn(),
+                downloadOrders: vi.fn(),
             } as any),
             MockProvider(Router, {}),
-            MockProvider(SettingsService, { get: jest.fn() }),
+            MockProvider(SettingsService, { get: vi.fn() }),
         ],
         imports: [MockModule(MatTooltipModule)],
     });
 
     beforeEach(() => (spectator = createComponent()));
-
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
 
     it('should allow downloading orders', () => {
         const service = spectator.inject(CateringReportStateService);

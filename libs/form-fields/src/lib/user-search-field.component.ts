@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/member-ordering */
 import { CommonModule } from '@angular/common';
 import {
     Component,
@@ -25,15 +24,13 @@ import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { AsyncHandler, settingSignal, User } from '@placeos/common';
+import { AsyncHandler, EMPTY_USER, settingSignal, User } from '@placeos/common';
 import { authority, queryUsers, showUser } from '@placeos/ts-client';
 
-import {
-    UserAvatarComponent,
-    VirtualKeyboardComponent,
-} from '@placeos/components';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
+import { UserAvatarComponent } from 'libs/components/src/lib/user-avatar.component';
+import { VirtualKeyboardComponent } from 'libs/components/src/lib/virtual-keyboard.component';
 import { searchGuests } from 'libs/users/src/lib/guests.fn';
 import { searchStaff } from 'libs/users/src/lib/staff.fn';
 
@@ -63,6 +60,7 @@ import { searchStaff } from 'libs/users/src/lib/staff.fn';
                     #input
                     keyboard
                     matInput
+                    [attr.autocomplete]="autocomplete()"
                     [ngModel]="search_term()"
                     (ngModelChange)="search_term.set($event)"
                     [disabled]="disabled()"
@@ -199,6 +197,8 @@ export class UserSearchFieldComponent
     extends AsyncHandler
     implements ControlValueAccessor
 {
+    /** Native browser autocomplete mode for the search input. */
+    public readonly autocomplete = input<string>();
     private use_basic_search = settingSignal('basic_user_search', true);
 
     public readonly search_term = signal<string>('');
@@ -206,7 +206,11 @@ export class UserSearchFieldComponent
     public readonly user = signal<User | null>(null);
     public readonly selected_user = computed<User | null>(() => {
         const term = this.search_term() as string | User;
-        return term && typeof term !== 'string' ? term : null;
+        return term &&
+            typeof term !== 'string' &&
+            term.email !== EMPTY_USER.email
+            ? term
+            : null;
     });
 
     /** Whether form field is disabled */
@@ -239,7 +243,11 @@ export class UserSearchFieldComponent
             const guest_query = () => searchGuests(q).catch(() => [] as User[]);
             if (this.guests_only()) return guest_query();
             const staff = this.use_basic_search()
-                ? await queryUsers({ q, authority_id: authority()?.id })
+                ? await queryUsers({
+                      q,
+                      authority_id: authority()?.id,
+                      fields: ['id', 'name', 'email'].join(','),
+                  })
                       .then((_) => _.data.map((u) => new User(u)))
                       .catch(() => [] as User[])
                 : await searchStaff(q).catch(() => [] as User[]);
@@ -252,20 +260,31 @@ export class UserSearchFieldComponent
     private readonly _search = resource({
         params: () => ({ term: this._debounced_term.value() }),
         loader: async ({ params: { term } }): Promise<User[]> => {
-            if (term && typeof term !== 'string') return [term as User];
-            if (term === this.user()?.name) return [this.user()];
+            if (term && typeof term !== 'string') {
+                const user = term as User;
+                return user.email === EMPTY_USER.email ? [] : [user];
+            }
+            const selected = this.user();
+            if (selected && term === selected.name) return [selected];
             if (this.disable_search()) return [];
             const s = `${term || ''}`.toLowerCase();
             if (this.options()?.length) {
                 return this.options().filter(
                     (_) =>
-                        _.name.toLowerCase().includes(s) ||
-                        _.email.toLowerCase().includes(s),
+                        _.email !== EMPTY_USER.email &&
+                        (_.name.toLowerCase().includes(s) ||
+                            _.email.toLowerCase().includes(s)),
                 );
             }
             if (s.length <= 2) return [];
             const list = await this.query_fn()(s).catch(() => [] as User[]);
-            return list.filter((_) => !!_);
+            return list
+                .filter((_) => !!_ && _.email !== EMPTY_USER.email)
+                .sort((a, b) =>
+                    (a.name?.toLowerCase() || '').localeCompare(
+                        b.name?.toLowerCase(),
+                    ),
+                );
         },
     });
     public readonly search_results = computed(() => this._search.value() ?? []);
@@ -327,7 +346,9 @@ export class UserSearchFieldComponent
     }
 
     public displayFn(user: User): string {
-        return user && user.name ? user.name : '';
+        return user && user.email !== EMPTY_USER.email && user.name
+            ? user.name
+            : '';
     }
 
     public stopEvent(event: Event) {

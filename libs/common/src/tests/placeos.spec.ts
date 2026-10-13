@@ -1,17 +1,11 @@
-jest.mock('@placeos/ts-client', () => ({
-    setup: jest.fn(() => Promise.resolve()),
-}));
+import * as ts_client from '@placeos/ts-client';
 
-jest.mock('../lib/native-app', () => ({
-    getNativeRedirectUri: jest.fn(() =>
-        Promise.resolve('com.placeos.workplace://example.com/oauth-resp'),
-    ),
-    isNativeApp: jest.fn(() => false),
-}));
+import { PLACE_SETUP_TIMEOUT, PlaceSettings, setupPlace } from '../lib/placeos';
+import { VERSION } from '../lib/version';
 
-import { setup } from '@placeos/ts-client';
-import { isNativeApp } from '../lib/native-app';
-import { PlaceSettings, setupPlace } from '../lib/placeos';
+// Only the external ts-client API layer is stubbed; native detection is driven
+// through the real `window.Capacitor` seam that `native-app` reads from.
+vi.mock('@placeos/ts-client', { spy: true });
 
 const base_settings: PlaceSettings = {
     protocol: 'https:',
@@ -28,31 +22,71 @@ const window_store = window as Window &
     typeof globalThis &
     Record<string, unknown>;
 
+function setNative(is_native: boolean) {
+    if (is_native) {
+        (window as any).Capacitor = { isNativePlatform: () => true };
+    } else {
+        delete (window as any).Capacitor;
+    }
+}
+
 describe('setupPlace', () => {
     beforeEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
+        vi.mocked(ts_client.setup).mockResolvedValue(undefined);
         localStorage.clear();
         delete window_store[native_fetch_key];
         window.fetch = real_fetch;
+        setNative(false);
     });
 
     afterEach(() => {
         delete window_store[native_fetch_key];
         window.fetch = real_fetch;
+        setNative(false);
+    });
+
+    it('rejects when PlaceOS setup does not settle', async () => {
+        vi.useFakeTimers();
+        vi.mocked(ts_client.setup).mockReturnValue(
+            new Promise(() => undefined) as ReturnType<typeof ts_client.setup>,
+        );
+
+        const result = setupPlace(base_settings);
+        const assertion = expect(result).rejects.toThrow(
+            'PlaceOS setup timed out',
+        );
+        await vi.advanceTimersByTimeAsync(PLACE_SETUP_TIMEOUT);
+
+        await assertion;
+        vi.useRealTimers();
     });
 
     it('passes configured storage through for browser apps', async () => {
-        (isNativeApp as jest.Mock).mockReturnValue(false);
+        setNative(false);
 
         await setupPlace({ ...base_settings, storage: 'session' });
 
-        expect(setup).toHaveBeenCalledWith(
+        expect(ts_client.setup).toHaveBeenCalledWith(
             expect.objectContaining({ storage: 'session' }),
         );
     });
 
+    it('sets app identity headers before setup', async () => {
+        await setupPlace({ ...base_settings, app_name: 'workplace' });
+
+        expect(ts_client.setAppHeaders).toHaveBeenCalledWith(
+            'workplace',
+            new Date(VERSION.time).toISOString(),
+            VERSION.hash,
+        );
+        expect(
+            vi.mocked(ts_client.setAppHeaders).mock.invocationCallOrder[0],
+        ).toBeLessThan(vi.mocked(ts_client.setup).mock.invocationCallOrder[0]);
+    });
+
     it('always uses local storage for native apps', async () => {
-        (isNativeApp as jest.Mock).mockReturnValue(true);
+        setNative(true);
 
         await setupPlace({
             ...base_settings,
@@ -60,15 +94,15 @@ describe('setupPlace', () => {
             storage: 'session',
         });
 
-        expect(setup).toHaveBeenCalledWith(
+        expect(ts_client.setup).toHaveBeenCalledWith(
             expect.objectContaining({ storage: 'local' }),
         );
     });
 
     it('includes credentials for native auth endpoint requests', async () => {
-        const fetch = jest.fn(() => Promise.resolve({} as Response));
+        const fetch = vi.fn(() => Promise.resolve({} as Response));
         window.fetch = fetch as unknown as typeof window.fetch;
-        (isNativeApp as jest.Mock).mockReturnValue(true);
+        setNative(true);
 
         await setupPlace({
             ...base_settings,

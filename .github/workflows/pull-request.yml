@@ -1,30 +1,30 @@
 name: 'PR Flow'
 
+env:
+    NX_CACHE_DIRECTORY: .nx/cache
+
 on:
     push:
-        branches: [feat/*, fix/*, custom/*, refactor/*]
-    pull_request:
         branches: [feat/*, fix/*, custom/*, refactor/*]
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
     install_deps:
         runs-on: ubuntu-latest
+        permissions:
+            actions: read
+            contents: read
         steps:
             - uses: actions/checkout@v6
               with:
-                  fetch-depth: '2'
+                  fetch-depth: 0
 
             - name: Cache node modules
               id: cache
               uses: actions/cache@v5
               with:
                   path: node_modules
-                  key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/bun.lock') }}
-                  restore-keys: |
-                      ${{ runner.os }}-build-${{ env.cache-name }}-
-                      ${{ runner.os }}-build-
-                      ${{ runner.os }}-
+                  key: ${{ runner.os }}-node-modules-v2-${{ hashFiles('**/bun.lock') }}
 
             - name: Setup Node.js environment
               uses: actions/setup-node@v6
@@ -68,15 +68,56 @@ jobs:
                   else
                       echo "configuration=pr" >> $GITHUB_OUTPUT
                   fi
+            - name: Find affected base commit
+              id: affected_base
+              env:
+                  GH_TOKEN: ${{ github.token }}
+                  PUSH_BEFORE: ${{ github.event.before }}
+              run: |
+                  base="$(.github/scripts/get-affected-base.sh)"
+                  echo "sha=${base}" >> $GITHUB_OUTPUT
+
             - name: List affected applications
               id: affected_apps
+              env:
+                  NX_BASE: ${{ steps.affected_base.outputs.sha }}
               run: |
-                  echo "affected_apps=$(node ./tools/get-affected.js ${{ github.ref }})" >> $GITHUB_OUTPUT
-                  echo "affected_units=$(node ./tools/get-affected.js ${{ github.ref }} test)" >> $GITHUB_OUTPUT
+                  affected_apps="$(node ./tools/get-affected.js ${{ github.ref }})"
+                  affected_units="$(node ./tools/get-affected.js ${{ github.ref }} test)"
+                  echo "affected_apps=${affected_apps}" >> $GITHUB_OUTPUT
+                  echo "affected_units=${affected_units}" >> $GITHUB_OUTPUT
 
             - name: Print affected applications
               run: |
+                  echo "Base: ${{ steps.affected_base.outputs.sha }}"
                   echo ${{ steps.affected_apps.outputs.affected_apps }}
+
+            - name: Install git-cliff
+              if: ${{ fromJSON(steps.affected_apps.outputs.affected_apps)[0] != null }}
+              uses: taiki-e/install-action@v2
+              with:
+                  tool: git-cliff@2.13.1
+                  fallback: none
+
+            - name: Generate application changelogs
+              id: changelogs
+              continue-on-error: true
+              if: ${{ fromJSON(steps.affected_apps.outputs.affected_apps)[0] != null }}
+              env:
+                  AFFECTED_APPS: ${{ steps.affected_apps.outputs.affected_apps }}
+                  CHANGELOG_DIR: ${{ runner.temp }}/changelogs
+                  GITHUB_REPO: ${{ github.repository }}
+                  MAX_PARALLEL: 2
+              run: .github/scripts/generate-changelogs.sh
+
+            - name: Upload application changelogs
+              if: ${{ steps.changelogs.outcome == 'success' }}
+              continue-on-error: true
+              uses: actions/upload-artifact@v4
+              with:
+                  name: changelogs-${{ github.run_attempt }}
+                  path: ${{ runner.temp }}/changelogs
+                  retention-days: 1
 
         outputs:
             affected_apps: ${{ steps.affected_apps.outputs.affected_apps }}
@@ -106,17 +147,13 @@ jobs:
               uses: actions/cache@v5
               with:
                   path: node_modules
-                  key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/bun.lock') }}
-                  restore-keys: |
-                      ${{ runner.os }}-build-${{ env.cache-name }}-
-                      ${{ runner.os }}-build-
-                      ${{ runner.os }}-
+                  key: ${{ runner.os }}-node-modules-v2-${{ hashFiles('**/bun.lock') }}
 
             - name: Cache nx build cahce
               id: cache-nx
               uses: actions/cache@v5
               with:
-                  path: node_modules/.cache/nx
+                  path: .nx/cache
                   key: ${{ runner.os }}-nx-${{matrix.package}}-${{ hashFiles('**/bun.lock') }}
                   restore-keys: |
                       ${{ runner.os }}-nx-${{matrix.package}}-
@@ -131,22 +168,32 @@ jobs:
               run: bun run postinstall
 
             - name: Initialise Pipeline Chat Status
-              uses: fjogeleit/http-request-action@master
+              run: |
+                  curl --fail-with-body --silent --show-error --max-time 5 \
+                    --request POST \
+                    --header 'Content-Type: application/json' \
+                    --data "$REQUEST_DATA" \
+                    "$STATUS_URL"
               continue-on-error: true
-              with:
-                  url: ${{ secrets.STATUS_URL }}
-                  data: '{ "chat_url": "${{ secrets.CHAT_URL }}", "name": "${{ github.repository }}", "commit": "${{ github.sha }}", "pipeline_name": "${{ matrix.package }}", "branch": "${{ github.ref }}", "status": "processing", "url": "https://github.com/${{ github.repository }}/runs/${{ github.run_id }}" }'
+              env:
+                  STATUS_URL: ${{ secrets.STATUS_URL }}
+                  REQUEST_DATA: '{ "chat_url": "${{ secrets.CHAT_URL }}", "name": "${{ github.repository }}", "commit": "${{ github.sha }}", "pipeline_name": "${{ matrix.package }}", "branch": "${{ github.ref }}", "status": "processing", "url": "https://github.com/${{ github.repository }}/runs/${{ github.run_id }}" }'
 
             - name: Build affected applications
               run: |
                   bunx nx test ${{ matrix.package }} --verbose --configuration=${{ env.configuration }}
 
             - name: Update Pipeline Chat Status
-              uses: fjogeleit/http-request-action@master
+              run: |
+                  curl --fail-with-body --silent --show-error --max-time 5 \
+                    --request POST \
+                    --header 'Content-Type: application/json' \
+                    --data "$REQUEST_DATA" \
+                    "$STATUS_URL"
               continue-on-error: true
-              with:
-                  url: ${{ secrets.STATUS_URL }}
-                  data: '{ "name": "${{ github.repository }}", "commit": "${{ github.sha }}", "pipeline_name": "${{ matrix.package }}", "branch": "${{ github.ref }}", "status": "${{ job.status }}", "url": "https://github.com/${{ github.repository }}/runs/${{ github.run_id }}" }'
+              env:
+                  STATUS_URL: ${{ secrets.STATUS_URL }}
+                  REQUEST_DATA: '{ "name": "${{ github.repository }}", "commit": "${{ github.sha }}", "pipeline_name": "${{ matrix.package }}", "branch": "${{ github.ref }}", "status": "${{ job.status }}", "url": "https://github.com/${{ github.repository }}/runs/${{ github.run_id }}" }'
               if: ${{ always() }}
 
     build:
@@ -170,17 +217,13 @@ jobs:
               uses: actions/cache@v5
               with:
                   path: node_modules
-                  key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/bun.lock') }}
-                  restore-keys: |
-                      ${{ runner.os }}-build-${{ env.cache-name }}-
-                      ${{ runner.os }}-build-
-                      ${{ runner.os }}-
+                  key: ${{ runner.os }}-node-modules-v2-${{ hashFiles('**/bun.lock') }}
 
             - name: Cache nx build cache
               id: cache-nx
               uses: actions/cache@v5
               with:
-                  path: node_modules/.cache/nx
+                  path: .nx/cache
                   key: ${{ runner.os }}-nx-${{matrix.package}}-${{ hashFiles('**/bun.lock') }}
                   restore-keys: |
                       ${{ runner.os }}-nx-${{matrix.package}}-
@@ -195,29 +238,53 @@ jobs:
               run: bun run postinstall
 
             - name: Initialise Pipeline Chat Status
-              uses: fjogeleit/http-request-action@master
+              run: |
+                  curl --fail-with-body --silent --show-error --max-time 5 \
+                    --request POST \
+                    --header 'Content-Type: application/json' \
+                    --data "$REQUEST_DATA" \
+                    "$STATUS_URL"
               continue-on-error: true
-              with:
-                  url: ${{ secrets.STATUS_URL }}
-                  data: '{ "chat_url": "${{ secrets.CHAT_URL }}", "name": "${{ github.repository }}", "commit": "${{ github.sha }}", "pipeline_name": "${{ matrix.package }}", "branch": "${{ github.ref }}", "status": "processing", "url": "https://github.com/${{ github.repository }}/runs/${{ github.run_id }}" }'
+              env:
+                  STATUS_URL: ${{ secrets.STATUS_URL }}
+                  REQUEST_DATA: '{ "chat_url": "${{ secrets.CHAT_URL }}", "name": "${{ github.repository }}", "commit": "${{ github.sha }}", "pipeline_name": "${{ matrix.package }}", "branch": "${{ github.ref }}", "status": "processing", "url": "https://github.com/${{ github.repository }}/runs/${{ github.run_id }}" }'
 
             - name: Build affected applications
               run: |
                   bunx nx build ${{ matrix.package }} --verbose --configuration=${{ env.configuration }}
 
+            - name: Download application changelogs
+              id: download_changelogs
+              continue-on-error: true
+              uses: actions/download-artifact@v4
+              with:
+                  name: changelogs-${{ github.run_attempt }}
+                  path: ${{ runner.temp }}/changelogs
+
+            - name: Add application changelog to build
+              if: ${{ steps.download_changelogs.outcome == 'success' }}
+              continue-on-error: true
+              run: |
+                  cp \
+                    "${RUNNER_TEMP}/changelogs/${{ matrix.package }}/CHANGELOG.md" \
+                    "dist/apps/${{ matrix.package }}/browser/CHANGELOG.md"
+
             - name: Deploy the application(${{ matrix.package }})
-              uses: MrYuion/git-publish-subdir-action@develop
+              run: .github/scripts/publish-subdir.sh
               env:
-                  REPO: self
                   BRANCH: build/${{env.deploy_branch}}/${{ matrix.package }} # The branch name where you want to push the assets
                   FOLDER: dist/apps/${{ matrix.package }}/browser # The directory where your assets are generated
-                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # GitHub will automatically add this - you don't need to bother getting a token
                   MESSAGE: 'build(${{ matrix.package }}): ${{env.type}}[${{env.deploy_branch}}][{sha}] CI build' # The commit message
 
             - name: Update Pipeline Chat Status
-              uses: fjogeleit/http-request-action@master
+              run: |
+                  curl --fail-with-body --silent --show-error --max-time 5 \
+                    --request POST \
+                    --header 'Content-Type: application/json' \
+                    --data "$REQUEST_DATA" \
+                    "$STATUS_URL"
               continue-on-error: true
-              with:
-                  url: ${{ secrets.STATUS_URL }}
-                  data: '{ "name": "${{ github.repository }}", "commit": "${{ github.sha }}", "pipeline_name": "${{ matrix.package }}", "branch": "${{ github.ref }}", "status": "${{ job.status }}", "url": "https://github.com/${{ github.repository }}/runs/${{ github.run_id }}" }'
+              env:
+                  STATUS_URL: ${{ secrets.STATUS_URL }}
+                  REQUEST_DATA: '{ "name": "${{ github.repository }}", "commit": "${{ github.sha }}", "pipeline_name": "${{ matrix.package }}", "branch": "${{ github.ref }}", "status": "${{ job.status }}", "url": "https://github.com/${{ github.repository }}/runs/${{ github.run_id }}" }'
               if: ${{ always() }}

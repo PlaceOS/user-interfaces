@@ -1,5 +1,5 @@
 import { signal } from '@angular/core';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { ControlStateService } from '../../app/control-state.service';
 
 import { CustomTooltipData, SanitizePipe } from '@placeos/components';
@@ -13,18 +13,14 @@ describe('PowerTooltipComponent', () => {
         declarations: [MockPipe(SanitizePipe)],
         providers: [
             MockProvider(ControlStateService, {
-                powerOff: jest.fn(),
+                powerOff: vi.fn(),
                 joined: signal([]),
             } as any),
-            MockProvider(CustomTooltipData, { close: jest.fn() }),
+            MockProvider(CustomTooltipData, { close: vi.fn() }),
         ],
     });
 
     beforeEach(() => (spectator = createComponent()));
-
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
 
     it('should allow shutting down', () => {
         expect('button:not(.inverse)').toExist();

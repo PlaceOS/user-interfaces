@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, OnInit } from '@angular/core';
 import { form, FormField, required } from '@angular/forms/signals';
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
@@ -16,7 +16,7 @@ import {
     SettingsService,
 } from '@placeos/common';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
-import { FullscreenModalShellComponent } from '../../../components/src/lib/fullscreen-modal-shell.component';
+import { FullscreenModalShellComponent } from 'libs/components/src/lib/fullscreen-modal-shell.component';
 import { ImageListFieldComponent } from './image-list-field.component';
 import { RichTextInputComponent } from './rich-text-input.component';
 
@@ -68,12 +68,10 @@ export interface SupportRequestType {
                     </div>
                 </div>
                 <div class="flex flex-col">
-                    <label>{{ 'COMMON.SUPPORT_LOCATION' | translate }}</label>
+                    <label>{{ 'COMMON.LOCATION' | translate }}</label>
                     <mat-form-field appearance="outline" class="w-full">
                         <mat-select
-                            [placeholder]="
-                                'COMMON.SUPPORT_LOCATION' | translate
-                            "
+                            [placeholder]="'COMMON.LOCATION' | translate"
                             [formField]="form.location"
                         >
                             @for (bld of buildings(); track bld) {
@@ -119,17 +117,14 @@ export interface SupportRequestType {
                     ></rich-text-input>
                     @if (desc_error()) {
                         <mat-error class="my-2 text-xs">
-                            {{
-                                'COMMON.SUPPORT_DESCRIPTION_REQUIRED'
-                                    | translate
-                            }}
+                            {{ 'COMMON.DESCRIPTION_REQUIRED' | translate }}
                         </mat-error>
                     }
                 </div>
                 @if (allow_images()) {
                     <div class="pt-4">
                         <label class="mb-4">{{
-                            'COMMON.SUPPORT_IMAGES' | translate
+                            'COMMON.IMAGES' | translate
                         }}</label>
                         <image-list-field
                             [formField]="form.images"
@@ -165,7 +160,7 @@ export interface SupportRequestType {
         FullscreenModalShellComponent,
     ],
 })
-export class SupportTicketModalComponent {
+export class SupportTicketModalComponent implements OnInit {
     private _dialog_ref =
         inject<MatDialogRef<SupportTicketModalComponent>>(MatDialogRef);
     private _org = inject(OrganisationService);

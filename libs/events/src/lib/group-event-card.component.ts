@@ -17,11 +17,9 @@ import {
     settingSignal,
     Space,
 } from '@placeos/common';
-import {
-    AuthenticatedImageDirective,
-    IconComponent,
-    TranslatePipe,
-} from '@placeos/components';
+import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticated-image.directive';
+import { IconComponent } from 'libs/components/src/lib/icon.component';
+import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { GroupEventDetailsModalComponent } from './group-event-details-modal.component';
 import { SpacePipe } from './space.pipe';
 

@@ -1,15 +1,13 @@
-import {
-    Component,
-    inject,
-    OnInit,
-} from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { PlaceOS_Service, setMocks } from '@placeos/common';
+import { PlaceOS_Service, setMocks, settingSignal } from '@placeos/common';
+import {
+    GlobalBannerComponent,
+    GlobalLoadingComponent,
+} from '@placeos/components';
+import { ChatComponent } from '@placeos/components/chat';
+import { SettingsDebugPanelLauncherComponent } from '@placeos/components/settings-debug';
 import { mocksInit } from '@placeos/mocks';
-
-import { ChatComponent } from 'libs/components/src/lib/chat/chat.component';
-import { GlobalBannerComponent } from 'libs/components/src/lib/global-banner.component';
-import { GlobalLoadingComponent } from 'libs/components/src/lib/global-loading.component';
 
 @Component({
     selector: 'app-root',
@@ -21,11 +19,15 @@ import { GlobalLoadingComponent } from 'libs/components/src/lib/global-loading.c
         <div class="relative h-1/2 w-full flex-1">
             <router-outlet></router-outlet>
         </div>
-        @if (has_chat) {
+        @defer (when has_chat()) {
             <global-chat />
         }
         <global-loading />
-        <!-- <debug-console *ngIf="debug"></debug-console> -->
+        @defer (on idle) {
+            <settings-debug-panel-launcher
+                [loadSchema]="load_settings_schema"
+            />
+        }
     `,
     styles: [
         `
@@ -42,14 +44,15 @@ import { GlobalLoadingComponent } from 'libs/components/src/lib/global-loading.c
         ChatComponent,
         GlobalBannerComponent,
         GlobalLoadingComponent,
+        SettingsDebugPanelLauncherComponent,
     ],
 })
 export class AppComponent implements OnInit {
-    private _placeos = inject(PlaceOS_Service);
+    public readonly load_settings_schema = () =>
+        import('../environments/settings.schema.json');
+    public readonly has_chat = settingSignal('chat.enabled', false);
 
-    public get has_chat(): boolean {
-        return this._placeos.has_chat;
-    }
+    private _placeos = inject(PlaceOS_Service);
 
     public ngOnInit(): void {
         setMocks(mocksInit);

@@ -1,29 +1,59 @@
-import { Booking, VERSION } from '@placeos/common';
+import {
+    Booking,
+    CalendarEvent,
+    CateringItem,
+    CateringOrder,
+    setCurrentUser,
+    Space,
+    StaffUser,
+    User,
+    VERSION,
+} from '@placeos/common';
+import { newBookingFromCalendarEvent } from '../lib/booking.utilities';
 import {
     approveBooking,
     bookedResourceList,
+    cancelOverlappingRecurringBookings,
     checkinBooking,
     createBooking,
+    createBookingsForEvent,
+    queryAllBookings,
     queryBookings,
+    queryResourceAvailability,
     rejectBooking,
+    removeBooking,
+    removeBookingInstance,
     saveBooking,
+    setBookingCheckedIn,
     showBooking,
     updateBooking,
 } from '../lib/bookings.fn';
 
-jest.mock('@placeos/ts-client');
+vi.mock('@placeos/ts-client', { spy: true });
 
 import * as ts_client from '@placeos/ts-client';
 
 describe('[Booking API]', () => {
     const app_version = VERSION.raw || VERSION.version || VERSION.hash;
     const app_name = 'PlaceOS';
+    const user_email = 'current.user@example.com';
+    const utm_source = `${app_name}_${VERSION.hash}_${user_email}`;
+    const encoded_utm_source = encodeURIComponent(utm_source);
 
-    beforeEach(() => jest.clearAllMocks());
+    beforeEach(() => {
+        vi.clearAllMocks();
+        setCurrentUser(
+            new StaffUser({
+                id: 'current-user',
+                email: user_email,
+                name: 'Current User',
+            }),
+        );
+    });
 
     describe('queryBookings', () => {
         it('should allow calling GET request for listing bookings', async () => {
-            const spy = jest.spyOn(ts_client, 'get');
+            const spy = vi.spyOn(ts_client, 'get');
             expect(spy).not.toHaveBeenCalled();
             spy.mockResolvedValue([{}] as any);
             const bookings = await queryBookings({
@@ -40,9 +70,33 @@ describe('[Booking API]', () => {
         });
     });
 
+    describe('queryResourceAvailability', () => {
+        it('should mark every room held by a multi-room booking as unavailable', async () => {
+            const spy = vi.spyOn(ts_client, 'get');
+            spy.mockResolvedValue([
+                {
+                    id: 'held',
+                    asset_id: 'room-1',
+                    asset_ids: ['room-1', 'room-2'],
+                },
+            ] as any);
+            expect(
+                await queryResourceAvailability(
+                    ['room-1', 'room-2', 'room-3'],
+                    0,
+                    30,
+                ),
+            ).toEqual([false, false, true]);
+            expect(
+                await queryResourceAvailability(['room-2'], 0, 30, 'held'),
+            ).toEqual([true]);
+            spy.mockReset();
+        });
+    });
+
     describe('bookedResourceList', () => {
         it('should query all pages of booked resources', async () => {
-            const spy = jest.spyOn(ts_client, 'query');
+            const spy = vi.spyOn(ts_client, 'query');
             spy.mockResolvedValue({
                 total: 3,
                 data: ['asset-1', 'asset-2'],
@@ -52,7 +106,7 @@ describe('[Booking API]', () => {
                         data: ['asset-3'],
                         next: null,
                     }),
-            } as any);
+            });
 
             await expect(
                 bookedResourceList(
@@ -74,9 +128,40 @@ describe('[Booking API]', () => {
         });
     });
 
+    describe('queryAllBookings', () => {
+        it('should follow every page and return each booking once', async () => {
+            const spy = vi.spyOn(ts_client, 'query');
+            spy.mockResolvedValue({
+                total: 3,
+                data: [new Booking({ id: 'b-1' }), new Booking({ id: 'b-2' })],
+                next: () =>
+                    Promise.resolve({
+                        total: 3,
+                        data: [new Booking({ id: 'b-2' }), new Booking({ id: 'b-3' })],
+                        next: null,
+                    }),
+            });
+
+            const list = await queryAllBookings({
+                period_start: 1,
+                period_end: 2,
+                type: 'desk',
+            });
+
+            expect(list.map((booking) => booking.id)).toEqual(['b-1', 'b-2', 'b-3']);
+            expect(ts_client.query).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    query_params: { period_start: 1, period_end: 2, type: 'desk' },
+                    endpoint: `/api/staff/v1/bookings`,
+                }),
+            );
+            spy.mockReset();
+        });
+    });
+
     describe('showBooking', () => {
         it('should allow calling GET request for a specific booking', async () => {
-            const spy = jest.spyOn(ts_client, 'get');
+            const spy = vi.spyOn(ts_client, 'get');
             expect(spy).not.toHaveBeenCalled();
             spy.mockResolvedValue({} as any);
             const booking = await showBooking('1');
@@ -89,26 +174,493 @@ describe('[Booking API]', () => {
     });
 
     describe('createBooking', () => {
+        it('should omit an empty ID when creating an asset booking model', async () => {
+            const spy = vi
+                .spyOn(ts_client, 'post')
+                .mockResolvedValue(undefined);
+            const request = new Booking({
+                booking_type: 'asset-request',
+                asset_id: 'asset-1',
+                asset_ids: ['asset-1'],
+                booking_start: 1_800_000_000,
+                booking_end: 1_800_003_600,
+            });
+
+            await createBooking(request);
+
+            const payload = JSON.parse(JSON.stringify(spy.mock.calls[0][1]));
+            expect(payload).not.toHaveProperty('id');
+            expect(payload).toMatchObject({
+                booking_type: 'asset-request',
+                asset_id: 'asset-1',
+                asset_ids: ['asset-1'],
+                booking_start: 1_800_000_000,
+                booking_end: 1_800_003_600,
+                extension_data: { app_name, app_version },
+            });
+            spy.mockReset();
+        });
+
         it('should allow calling POST request for creating a new booking', async () => {
-            const spy = jest.spyOn(ts_client, 'post');
+            const spy = vi.spyOn(ts_client, 'post');
             expect(spy).not.toHaveBeenCalled();
             spy.mockResolvedValue({} as any);
-            const booking = await createBooking({});
+            const booking = await createBooking({ created_at: 123 });
             expect(booking).toBeInstanceOf(Booking);
             expect(ts_client.post).toHaveBeenCalledWith(
-                `/api/staff/v1/bookings`,
+                `/api/staff/v1/bookings?utm_source=${encoded_utm_source}`,
                 { extension_data: { app_name, app_version } },
             );
             spy.mockReset();
         });
     });
 
+    describe('createBookingsForEvent', () => {
+        const event = new CalendarEvent({
+            id: 'event-1',
+            event_start: 1_800_000_000,
+            event_end: 1_800_003_600,
+            host: user_email,
+            title: 'Visitor meeting',
+            ical_uid: 'event-1@example.com',
+            resources: [
+                new Space({
+                    id: 'space-1',
+                    email: 'space-1@example.com',
+                    zones: ['zone-1'],
+                }),
+            ],
+        });
+        const visitors = [
+            {
+                id: 'visitor-1',
+                email: 'visitor.one@external.com',
+                name: 'Visitor One',
+            },
+            {
+                id: 'visitor-2',
+                email: 'visitor.two@external.com',
+                name: 'Visitor Two',
+            },
+        ];
+
+        it('should create linked visitor bookings sequentially', async () => {
+            vi.spyOn(ts_client, 'get').mockResolvedValue([] as never);
+            let active_requests = 0;
+            let max_concurrent_requests = 0;
+            vi.spyOn(ts_client, 'post').mockImplementation(async () => {
+                active_requests += 1;
+                max_concurrent_requests = Math.max(
+                    max_concurrent_requests,
+                    active_requests,
+                );
+                await Promise.resolve();
+                active_requests -= 1;
+                return { id: `booking-${active_requests}` } as never;
+            });
+
+            await createBookingsForEvent(event, 'visitor', visitors);
+
+            expect(ts_client.post).toHaveBeenCalledTimes(2);
+            expect(max_concurrent_requests).toBe(1);
+        });
+
+        it('should remove created visitor bookings when a later request fails', async () => {
+            const error = new Error('Unable to link visitor');
+            vi.spyOn(ts_client, 'get').mockResolvedValue([] as never);
+            vi.spyOn(ts_client, 'post')
+                .mockResolvedValueOnce({ id: 'visitor-booking-1' } as never)
+                .mockRejectedValueOnce(error);
+            const delete_spy = vi
+                .spyOn(ts_client, 'del')
+                .mockResolvedValue(undefined);
+
+            await expect(
+                createBookingsForEvent(event, 'visitor', visitors),
+            ).rejects.toBe(error);
+
+            expect(delete_spy).toHaveBeenCalledWith(
+                `/api/staff/v1/bookings/visitor-booking-1?utm_source=${encoded_utm_source}`,
+                { response_type: 'void' },
+            );
+        });
+
+        const linked_visitor = (overrides: Record<string, any> = {}) => ({
+            id: 'visitor-booking-1',
+            parent_id: 'event-1',
+            booking_type: 'visitor',
+            booking_start: 1_800_000_000,
+            booking_end: 1_800_003_600,
+            title: 'Visitor meeting',
+            description: 'Visitor meeting',
+            user_email,
+            asset_id: 'visitor.one@external.com',
+            asset_name: 'Visitor One',
+            zones: ['zone-1'],
+            attendees: [visitors[0]],
+            approved: true,
+            checked_in: true,
+            extension_data: {
+                parent_id: 'event-1',
+                name: 'Visitor One',
+                details: visitors[0],
+            },
+            ...overrides,
+        });
+
+        it('should update the linked booking of an attendee still on the event', async () => {
+            vi.spyOn(ts_client, 'get').mockResolvedValue([
+                linked_visitor({
+                    booking_start: 1_799_990_000,
+                    booking_end: 1_799_993_600,
+                }),
+            ] as never);
+            const patch_spy = vi
+                .spyOn(ts_client, 'patch')
+                .mockResolvedValue({ id: 'visitor-booking-1' } as never);
+            const post_spy = vi
+                .spyOn(ts_client, 'post')
+                .mockResolvedValue({ id: 'visitor-booking-2' } as never);
+            const delete_spy = vi.spyOn(ts_client, 'del');
+
+            await createBookingsForEvent(event, 'visitor', visitors);
+
+            expect(patch_spy).toHaveBeenCalledTimes(1);
+            expect(patch_spy).toHaveBeenCalledWith(
+                '/api/staff/v1/bookings/visitor-booking-1',
+                expect.objectContaining({
+                    booking_start: 1_800_000_000,
+                    booking_end: 1_800_003_600,
+                    extension_data: expect.objectContaining({
+                        parent_id: 'event-1',
+                        details: expect.objectContaining({ id: 'visitor-1' }),
+                    }),
+                }),
+            );
+            const body = patch_spy.mock.calls[0][1];
+            for (const key of ['date', 'title', 'attendees', 'approved']) {
+                expect(body).not.toHaveProperty(key);
+            }
+            expect(post_spy).toHaveBeenCalledTimes(1);
+            expect(post_spy.mock.calls[0][1]).toMatchObject({
+                asset_id: 'visitor.two@external.com',
+            });
+            expect(delete_spy).not.toHaveBeenCalled();
+        });
+
+        it('should leave an unchanged linked booking alone', async () => {
+            const [first, ...rest] = Object.entries(visitors[0]);
+            vi.spyOn(ts_client, 'get').mockResolvedValue([
+                linked_visitor({
+                    extension_data: {
+                        parent_id: 'event-1',
+                        name: 'Visitor One',
+                        // Stored JSON can return keys in another order
+                        details: Object.fromEntries([...rest, first]),
+                    },
+                }),
+            ] as never);
+            const patch_spy = vi.spyOn(ts_client, 'patch');
+            const post_spy = vi.spyOn(ts_client, 'post');
+            const delete_spy = vi.spyOn(ts_client, 'del');
+
+            await createBookingsForEvent(event, 'visitor', [visitors[0]]);
+
+            expect(patch_spy).not.toHaveBeenCalled();
+            expect(post_spy).not.toHaveBeenCalled();
+            expect(delete_spy).not.toHaveBeenCalled();
+        });
+
+        it('should remove the linked bookings of attendees taken off the event one at a time', async () => {
+            const removed = (id: string, email: string) =>
+                linked_visitor({
+                    id,
+                    asset_id: email,
+                    attendees: [{ id, email }],
+                    extension_data: { parent_id: 'event-1', details: { id } },
+                });
+            vi.spyOn(ts_client, 'get').mockResolvedValue([
+                linked_visitor(),
+                removed('visitor-booking-3', 'visitor.three@external.com'),
+                removed('visitor-booking-4', 'visitor.four@external.com'),
+            ] as never);
+            const patch_spy = vi.spyOn(ts_client, 'patch');
+            const post_spy = vi.spyOn(ts_client, 'post');
+            let active_requests = 0;
+            let max_concurrent_requests = 0;
+            const delete_spy = vi
+                .spyOn(ts_client, 'del')
+                .mockImplementation(async () => {
+                    active_requests += 1;
+                    max_concurrent_requests = Math.max(
+                        max_concurrent_requests,
+                        active_requests,
+                    );
+                    await Promise.resolve();
+                    active_requests -= 1;
+                });
+
+            await createBookingsForEvent(event, 'visitor', [visitors[0]]);
+
+            expect(patch_spy).not.toHaveBeenCalled();
+            expect(post_spy).not.toHaveBeenCalled();
+            expect(delete_spy.mock.calls.map(([url]) => url)).toEqual([
+                `/api/staff/v1/bookings/visitor-booking-3?utm_source=${encoded_utm_source}`,
+                `/api/staff/v1/bookings/visitor-booking-4?utm_source=${encoded_utm_source}`,
+            ]);
+            expect(max_concurrent_requests).toBe(1);
+        });
+
+        it('should find linked bookings by event id and ignore other bookings', async () => {
+            const get_spy = vi.spyOn(ts_client, 'get').mockResolvedValue([
+                linked_visitor({
+                    id: 'other-booking',
+                    extension_data: { parent_id: 'event-2' },
+                }),
+            ] as never);
+            const post_spy = vi
+                .spyOn(ts_client, 'post')
+                .mockResolvedValue({ id: 'visitor-booking-2' } as never);
+            const delete_spy = vi.spyOn(ts_client, 'del');
+
+            await createBookingsForEvent(event, 'visitor', [visitors[0]]);
+
+            expect(get_spy.mock.calls[0][0]).toContain('event_id=event-1');
+            expect(post_spy).toHaveBeenCalledTimes(1);
+            expect(delete_spy).not.toHaveBeenCalled();
+        });
+
+        it('should link the bookings of a native booking event by parent id', async () => {
+            const native_event = new CalendarEvent({
+                ...event.toJSON(),
+                id: '1138',
+                ical_uid: '',
+                from_bookings: true,
+            });
+            const get_spy = vi
+                .spyOn(ts_client, 'get')
+                .mockResolvedValue([] as never);
+            const post_spy = vi
+                .spyOn(ts_client, 'post')
+                .mockResolvedValue({ id: 'visitor-booking-1' } as never);
+
+            await createBookingsForEvent(native_event, 'visitor', [
+                visitors[0],
+            ]);
+
+            expect(get_spy).not.toHaveBeenCalled();
+            const [url, body] = post_spy.mock.calls[0] as [string, any];
+            expect(url).not.toContain('event_id=');
+            expect(url).not.toContain('ical_uid=');
+            expect(body.parent_id).toBe(1138);
+            expect(body.extension_data.parent_id).toBe('1138');
+        });
+
+        it('should update the child of a native booking that another user hosts', async () => {
+            const host = 'host@example.com';
+            const native_event = new CalendarEvent({
+                ...event.toJSON(),
+                id: '1138',
+                host,
+                ical_uid: '',
+                from_bookings: true,
+                linked_bookings: [
+                    linked_visitor({
+                        parent_id: '1138',
+                        user_email: host,
+                        booking_start: 1_799_990_000,
+                        booking_end: 1_799_993_600,
+                        extension_data: {
+                            parent_id: '1138',
+                            name: 'Visitor One',
+                            details: visitors[0],
+                        },
+                    }),
+                ],
+            } as any);
+            // The API only lists the current user's bookings without filters
+            vi.spyOn(ts_client, 'get').mockResolvedValue([] as never);
+            const patch_spy = vi
+                .spyOn(ts_client, 'patch')
+                .mockResolvedValue({ id: 'visitor-booking-1' } as never);
+            const post_spy = vi.spyOn(ts_client, 'post');
+            const delete_spy = vi.spyOn(ts_client, 'del');
+
+            await createBookingsForEvent(native_event, 'visitor', [
+                visitors[0],
+            ]);
+
+            expect(patch_spy).toHaveBeenCalledTimes(1);
+            expect(patch_spy.mock.calls[0][0]).toBe(
+                '/api/staff/v1/bookings/visitor-booking-1',
+            );
+            expect(post_spy).not.toHaveBeenCalled();
+            expect(delete_spy).not.toHaveBeenCalled();
+        });
+
+        it('should not create bookings when the linked bookings fail to load', async () => {
+            const error = new Error('Unable to load bookings');
+            vi.spyOn(ts_client, 'get').mockRejectedValueOnce(error);
+            const post_spy = vi.spyOn(ts_client, 'post');
+            const delete_spy = vi.spyOn(ts_client, 'del');
+
+            await expect(
+                createBookingsForEvent(event, 'visitor', visitors),
+            ).rejects.toBe(error);
+
+            expect(post_spy).not.toHaveBeenCalled();
+            expect(delete_spy).not.toHaveBeenCalled();
+        });
+
+        it('should recreate the linked bookings of an event moved to a new host', async () => {
+            const new_host = 'new.host@example.com';
+            const old_booking = linked_visitor();
+            const moved_event = new CalendarEvent({
+                id: 'event-2',
+                event_start: 1_800_000_000,
+                event_end: 1_800_003_600,
+                host: new_host,
+                title: 'Visitor meeting',
+                ical_uid: 'event-2@example.com',
+                resources: event.resources,
+                linked_bookings: [
+                    old_booking,
+                    {
+                        ...old_booking,
+                        id: 'catering-booking-1',
+                        booking_type: 'catering-order',
+                    },
+                ] as never,
+            });
+            vi.spyOn(ts_client, 'get').mockResolvedValue([
+                old_booking,
+            ] as never);
+            const patch_spy = vi.spyOn(ts_client, 'patch');
+            const delete_spy = vi
+                .spyOn(ts_client, 'del')
+                .mockResolvedValue(undefined);
+            const post_spy = vi
+                .spyOn(ts_client, 'post')
+                .mockResolvedValue({ id: 'visitor-booking-2' } as never);
+
+            await createBookingsForEvent(moved_event, 'visitor', [visitors[0]]);
+
+            expect(delete_spy.mock.calls.map(([url]) => url)).toEqual([
+                `/api/staff/v1/bookings/visitor-booking-1?utm_source=${encoded_utm_source}`,
+            ]);
+            expect(patch_spy).not.toHaveBeenCalled();
+            expect(post_spy).toHaveBeenCalledTimes(1);
+            expect(post_spy.mock.calls[0][0]).toContain('event_id=event-2');
+            expect(post_spy.mock.calls[0][1]).toMatchObject({
+                user_email: new_host,
+                extension_data: { parent_id: 'event-2' },
+            });
+            expect(delete_spy.mock.invocationCallOrder[0]).toBeLessThan(
+                post_spy.mock.invocationCallOrder[0],
+            );
+        });
+
+        it('should leave a saved catering booking alone on the next save', async () => {
+            const order = () =>
+                new CateringOrder({
+                    id: 'order-1',
+                    system_id: 'space-1',
+                    caterer: 'Cafe',
+                    items: [
+                        new CateringItem({
+                            id: 'coffee',
+                            caterer: 'Cafe',
+                            quantity: 1,
+                        }),
+                    ],
+                });
+            vi.spyOn(ts_client, 'get').mockResolvedValue([] as never);
+            const post_spy = vi
+                .spyOn(ts_client, 'post')
+                .mockResolvedValue({ id: 'catering-booking-1' } as never);
+            await createBookingsForEvent(event, 'catering-order', [order()]);
+            const saved = JSON.parse(JSON.stringify(post_spy.mock.calls[0][1]));
+            // Without an event the order's delivery time falls back to now
+            saved.extension_data.details.deliver_at_time = 1;
+            vi.spyOn(ts_client, 'get').mockResolvedValue([
+                { ...saved, id: 'catering-booking-1' },
+            ] as never);
+            const patch_spy = vi.spyOn(ts_client, 'patch');
+
+            await createBookingsForEvent(event, 'catering-order', [order()]);
+
+            expect(patch_spy).not.toHaveBeenCalled();
+            expect(post_spy).toHaveBeenCalledTimes(1);
+        });
+
+        it('should create catering bookings against the assigned room', async () => {
+            const catering_event = new CalendarEvent({
+                id: 'event-1',
+                event_start: 1_800_000_000,
+                event_end: 1_800_003_600,
+                host: user_email,
+                title: 'Catering meeting',
+                ical_uid: 'event-1@example.com',
+                resources: [
+                    new Space({
+                        id: 'space-1',
+                        email: 'space-1@example.com',
+                        name: 'Boardroom',
+                        zones: ['building-1', 'level-1'],
+                    }),
+                    new Space({
+                        id: 'space-2',
+                        email: 'space-2@example.com',
+                        name: 'Training room',
+                        zones: ['building-1', 'level-2'],
+                    }),
+                ],
+            });
+            const order = new CateringOrder({
+                id: 'order-1',
+                system_id: 'space-2',
+                caterer: 'Cafe',
+                items: [
+                    new CateringItem({
+                        id: 'coffee',
+                        caterer: 'Cafe',
+                        quantity: 1,
+                    }),
+                ],
+            });
+            vi.spyOn(ts_client, 'get').mockResolvedValue([] as never);
+            const post_spy = vi
+                .spyOn(ts_client, 'post')
+                .mockResolvedValue({ id: 'catering-booking-1' } as never);
+
+            await createBookingsForEvent(catering_event, 'catering-order', [
+                order,
+            ]);
+
+            expect(post_spy).toHaveBeenCalledWith(
+                expect.stringContaining('/api/staff/v1/bookings'),
+                expect.objectContaining({
+                    asset_id: 'space-2',
+                    asset_name: 'Training room',
+                    zones: ['building-1', 'level-2'],
+                    extension_data: expect.objectContaining({
+                        location_id: 'space-2',
+                        details: expect.objectContaining({
+                            id: 'order-1',
+                            system_id: 'space-2',
+                        }),
+                    }),
+                }),
+            );
+        });
+    });
+
     describe('updateBooking', () => {
         it('should allow calling PATCH request for updating a booking', async () => {
-            const spy = jest.spyOn(ts_client, 'patch');
+            const spy = vi.spyOn(ts_client, 'patch');
             expect(spy).not.toHaveBeenCalled();
             spy.mockResolvedValue({} as any);
-            const booking = await updateBooking('1', {});
+            const booking = await updateBooking('1', { created_at: 123 });
             expect(booking).toBeInstanceOf(Booking);
             expect(ts_client.patch).toHaveBeenCalledWith(
                 `/api/staff/v1/bookings/1`,
@@ -117,10 +669,14 @@ describe('[Booking API]', () => {
             spy.mockReset();
         });
         it('should allow calling PUT request for updating a booking', async () => {
-            const spy = jest.spyOn(ts_client, 'put');
+            const spy = vi.spyOn(ts_client, 'put');
             expect(spy).not.toHaveBeenCalled();
             spy.mockResolvedValue({} as any);
-            const booking = await updateBooking('1', {}, 'put');
+            const booking = await updateBooking(
+                '1',
+                { created_at: 123 },
+                'put',
+            );
             expect(booking).toBeInstanceOf(Booking);
             expect(ts_client.put).toHaveBeenCalledWith(
                 `/api/staff/v1/bookings/1`,
@@ -131,19 +687,51 @@ describe('[Booking API]', () => {
     });
 
     describe('saveBooking', () => {
+        it('should send the selected room host separately from the creator', async () => {
+            const host = new User({
+                id: 'staff-colleague',
+                email: 'colleague@example.com',
+                name: 'Selected Colleague',
+            });
+            const event = new CalendarEvent({
+                host: host.email,
+                creator: user_email,
+                attendees: [host],
+            });
+            const post = vi
+                .spyOn(ts_client, 'post')
+                .mockResolvedValue(undefined);
+
+            await saveBooking(
+                newBookingFromCalendarEvent(event.toJSON() as CalendarEvent),
+            );
+
+            expect(post).toHaveBeenCalledWith(
+                expect.stringContaining('/api/staff/v1/bookings?'),
+                expect.objectContaining({
+                    user_id: host.id,
+                    user_email: host.email,
+                    user_name: host.name,
+                    extension_data: expect.objectContaining({
+                        creator: user_email,
+                    }),
+                }),
+            );
+        });
+
         it('should create new bookings', async () => {
-            const spy = jest.spyOn(ts_client, 'post');
+            const spy = vi.spyOn(ts_client, 'post');
             spy.mockResolvedValue({} as any);
             expect(ts_client.post).not.toHaveBeenCalled();
             await saveBooking({});
             expect(ts_client.post).toHaveBeenCalledWith(
-                `/api/staff/v1/bookings`,
+                `/api/staff/v1/bookings?utm_source=${encoded_utm_source}`,
                 { extension_data: { app_name, app_version } },
             );
             spy.mockReset();
         });
         it('should update existing bookings', async () => {
-            const spy = jest.spyOn(ts_client, 'patch');
+            const spy = vi.spyOn(ts_client, 'patch');
             spy.mockResolvedValue({} as any);
             expect(ts_client.patch).not.toHaveBeenCalled();
             await saveBooking({ id: '1' });
@@ -155,9 +743,83 @@ describe('[Booking API]', () => {
         });
     });
 
+    describe('removeBooking', () => {
+        it('should include the UTM source in a booking DELETE request', async () => {
+            const spy = vi.spyOn(ts_client, 'del');
+            spy.mockResolvedValue(undefined);
+
+            await removeBooking('booking/1');
+
+            expect(spy).toHaveBeenCalledWith(
+                `/api/staff/v1/bookings/booking%2F1?utm_source=${encoded_utm_source}`,
+                { response_type: 'void' },
+            );
+        });
+
+        it('should include the UTM source in an instance DELETE request', async () => {
+            const spy = vi.spyOn(ts_client, 'del');
+            spy.mockResolvedValue(undefined);
+
+            await removeBookingInstance('booking/1', 123);
+
+            expect(spy).toHaveBeenCalledWith(
+                `/api/staff/v1/bookings/booking%2F1/instance/123?utm_source=${encoded_utm_source}`,
+                { response_type: 'void' },
+            );
+        });
+    });
+
+    describe('cancelOverlappingRecurringBookings', () => {
+        it('should cancel an overlapping desk booking on another floor', async () => {
+            const now = new Date('2026-08-18T10:55:00').valueOf();
+            const now_spy = vi.spyOn(Date, 'now').mockReturnValue(now);
+            vi.spyOn(ts_client, 'get').mockResolvedValue([
+                {
+                    id: 'ad-hoc-booking',
+                    booking_start:
+                        new Date('2026-08-18T16:45:00').valueOf() / 1000,
+                    booking_end:
+                        new Date('2026-08-18T17:15:00').valueOf() / 1000,
+                    booking_type: 'desk',
+                    approved: true,
+                    asset_id: 'F-010',
+                    zones: ['first-floor'],
+                },
+            ] as never);
+            const delete_spy = vi
+                .spyOn(ts_client, 'del')
+                .mockResolvedValue(undefined);
+            const post_spy = vi.spyOn(ts_client, 'post');
+            const assignment = new Booking({
+                id: 'permanent-assignment',
+                booking_start: new Date('2026-08-18T03:00:00').valueOf() / 1000,
+                booking_end: new Date('2026-08-18T23:00:00').valueOf() / 1000,
+                booking_type: 'desk',
+                recurrence_type: 'daily',
+                user_email: 'staff@example.com',
+                asset_id: 'G-033',
+                zones: ['ground-floor'],
+            });
+
+            await expect(
+                cancelOverlappingRecurringBookings(assignment, 'desk'),
+            ).resolves.toEqual(['ad-hoc-booking']);
+
+            expect(delete_spy).toHaveBeenCalledWith(
+                `/api/staff/v1/bookings/ad-hoc-booking?utm_source=${encoded_utm_source}`,
+                { response_type: 'void' },
+            );
+            expect(post_spy).not.toHaveBeenCalledWith(
+                expect.stringContaining('/ad-hoc-booking/reject'),
+                expect.anything(),
+            );
+            now_spy.mockRestore();
+        });
+    });
+
     describe('approveBooking', () => {
         it('should allow calling POST request for approving a booking', async () => {
-            const spy = jest.spyOn(ts_client, 'post');
+            const spy = vi.spyOn(ts_client, 'post');
             expect(spy).not.toHaveBeenCalled();
             spy.mockResolvedValue({} as any);
             const booking = await approveBooking('1');
@@ -172,7 +834,7 @@ describe('[Booking API]', () => {
 
     describe('rejectBooking', () => {
         it('should allow calling POST request for rejecting a booking', async () => {
-            const spy = jest.spyOn(ts_client, 'post');
+            const spy = vi.spyOn(ts_client, 'post');
             expect(spy).not.toHaveBeenCalled();
             spy.mockResolvedValue({} as any);
             const booking = await rejectBooking('1');
@@ -187,13 +849,67 @@ describe('[Booking API]', () => {
 
     describe('checkinBooking', () => {
         it('should allow calling POST request for checking in a booking', async () => {
-            const spy = jest.spyOn(ts_client, 'post');
+            const spy = vi.spyOn(ts_client, 'post');
             expect(spy).not.toHaveBeenCalled();
             spy.mockResolvedValue({} as any);
             const booking = await checkinBooking('1', true);
             expect(booking).toBeInstanceOf(Booking);
             expect(ts_client.post).toHaveBeenCalledWith(
-                `/api/staff/v1/bookings/1/check_in?state=true`,
+                `/api/staff/v1/bookings/1/check_in?state=true&utm_source=${utm_source}`,
+                '',
+            );
+            spy.mockReset();
+        });
+    });
+
+    describe('setBookingCheckedIn', () => {
+        it('should check in the whole booking when it is not recurring', async () => {
+            const spy = vi.spyOn(ts_client, 'post');
+            spy.mockResolvedValue({} as any);
+            const booking = await setBookingCheckedIn(
+                new Booking({ id: '1', booking_start: 100 }),
+                true,
+            );
+            expect(booking).toBeInstanceOf(Booking);
+            expect(ts_client.post).toHaveBeenCalledWith(
+                `/api/staff/v1/bookings/1/check_in?state=true&utm_source=${utm_source}`,
+                '',
+            );
+            spy.mockReset();
+        });
+
+        it('should check in only the instance of a recurring booking', async () => {
+            const spy = vi.spyOn(ts_client, 'post');
+            spy.mockResolvedValue({} as any);
+            await setBookingCheckedIn(
+                new Booking({
+                    id: '1',
+                    booking_start: 100,
+                    instance: 200,
+                    recurrence_type: 'daily',
+                }),
+                true,
+            );
+            expect(ts_client.post).toHaveBeenCalledWith(
+                `/api/staff/v1/bookings/1/check_in/200?state=true&utm_source=${utm_source}`,
+                '',
+            );
+            spy.mockReset();
+        });
+
+        it('should use the start time for the first instance of a series', async () => {
+            const spy = vi.spyOn(ts_client, 'post');
+            spy.mockResolvedValue({} as any);
+            await setBookingCheckedIn(
+                new Booking({
+                    id: '1',
+                    booking_start: 100,
+                    recurrence_type: 'weekly',
+                }),
+                false,
+            );
+            expect(ts_client.post).toHaveBeenCalledWith(
+                `/api/staff/v1/bookings/1/check_in/100?state=false&utm_source=${utm_source}`,
                 '',
             );
             spy.mockReset();

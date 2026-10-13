@@ -1,16 +1,14 @@
-import { HashMap } from '@placeos/common';
+import { HashMap } from '../lib/types';
 
 import { generateMockBuilding } from '../lib/org/building.utilities';
 import { Building } from '../lib/types/org.classes';
 
 describe('Building', () => {
     let init_data: HashMap;
-    let service: any;
     let bld: Building;
 
     beforeEach(() => {
         init_data = generateMockBuilding();
-        service = { get: jest.fn() };
         bld = new Building(init_data);
     });
 

@@ -1,24 +1,21 @@
 import { FormsModule } from '@angular/forms';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatDialog } from '@angular/material/dialog';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { SettingsService, User } from '@placeos/common';
-import { generateMockUser } from '@placeos/users';
+import { generateMockUser } from 'libs/users/src/lib/user.utilities';
 import { MockComponent, MockPipe, MockProvider } from 'ng-mocks';
 
-import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import {
+    MatAutocompleteModule,
+    MatAutocompleteTrigger,
+} from '@angular/material/autocomplete';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { UserAvatarComponent } from 'libs/components/src/lib/user-avatar.component';
 import { PlaceUserPipe } from '../lib/place-user.pipe';
 import { UserListFieldComponent } from '../lib/user-list-field.component';
 import { UserSearchFieldComponent } from '../lib/user-search-field.component';
-
-jest.mock('@placeos/common', () => ({
-    ...jest.requireActual('@placeos/common'),
-    notifyError: jest.fn(),
-    csvToJson: jest.fn(),
-}));
 
 describe('UserListFieldComponent', () => {
     let spectator: Spectator<UserListFieldComponent>;
@@ -31,8 +28,8 @@ describe('UserListFieldComponent', () => {
             MockPipe(PlaceUserPipe),
         ],
         providers: [
-            MockProvider(MatDialog, { open: jest.fn(() => ({})) } as any),
-            MockProvider(SettingsService, { get: jest.fn() }),
+            MockProvider(MatDialog, { open: vi.fn(() => ({})) } as any),
+            MockProvider(SettingsService, { get: vi.fn() }),
         ],
         imports: [
             MatChipsModule,
@@ -42,11 +39,30 @@ describe('UserListFieldComponent', () => {
         ],
     });
 
-    beforeEach(() => (spectator = createComponent()));
-
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
+    // The search input is a chip input (no `matInput`), so MatAutocompleteTrigger
+    // is its sole value accessor. On teardown its `writeValue` schedules a
+    // microtask that runs `_updateNativeInputValue` against the already-destroyed
+    // view, producing a benign "Cannot set properties of undefined (setting
+    // 'value')" rejection. Null-guard the write so it no-ops once the host input
+    // is gone.
+    const trigger_proto = MatAutocompleteTrigger.prototype;
+    const original_write = trigger_proto.writeValue;
+    beforeAll(() => {
+        trigger_proto.writeValue = function (value: unknown) {
+            Promise.resolve(null).then(() => {
+                try {
+                    this._assignOptionValue(value);
+                } catch {
+                    /* view already destroyed */
+                }
+            });
+        };
     });
+    afterAll(() => {
+        trigger_proto.writeValue = original_write;
+    });
+
+    beforeEach(() => (spectator = createComponent()));
 
     it('should be able to be disabled', () => {
         expect('[form-field]').not.toHaveAttribute('disabled');
@@ -58,7 +74,7 @@ describe('UserListFieldComponent', () => {
     it('should show selected users', () => {
         const user_list = Array(20)
             .fill(1)
-            .map((_) => new User(generateMockUser()));
+            .map(() => new User(generateMockUser()));
 
         spectator.component.writeValue(user_list);
         spectator.detectChanges();
@@ -72,24 +88,9 @@ describe('UserListFieldComponent', () => {
     });
 
     it('should allow adding users from a CSV file', () => {
-        const { csvToJson } = require('@placeos/common');
-        (csvToJson as jest.Mock).mockReturnValue([
-            {
-                organisation: 'Fake Org',
-                first_name: 'John',
-                last_name: 'Smith',
-                email: 'john.smith@example.com',
-                phone: '01234567898',
-            },
-            {
-                organisation: 'Fake Org',
-                first_name: 'Johnny',
-                last_name: 'Smith',
-                email: 'johnny.smith@example.com',
-                phone: '01234567898',
-            },
-        ]);
-        jest.spyOn(spectator.component, 'addUser');
+        // The real csvToJson parses the CSV string produced by the mocked
+        // FileReader below into two user rows.
+        vi.spyOn(spectator.component, 'addUser');
         const eventListener = (type, callback) => {
             if (type === 'load') {
                 callback({
@@ -106,9 +107,9 @@ describe('UserListFieldComponent', () => {
             addEventListener: eventListener,
             readAsText: () => null,
         };
-        jest.spyOn(window, 'FileReader').mockReturnValue(
-            mock_file_reader as any,
-        );
+        vi.spyOn(window, 'FileReader').mockImplementation(function () {
+            return mock_file_reader;
+        });
         spectator.component.addUsersFromFile({
             target: {
                 files: [{ id: 0, type: 'text/csv', size: 1, name: 'File.csv' }],
@@ -125,6 +126,56 @@ describe('UserListFieldComponent', () => {
         expect('[user] [remove]').toExist();
         spectator.click('[user] [remove]');
         expect(spectator.component.active_list().length).toBe(0);
+    });
+
+    it('should only remove the selected user when users have no IDs', () => {
+        const users = [
+            {
+                name: 'Visitor One',
+                email: 'visitor.one@example.com',
+            },
+            {
+                name: 'Visitor Two',
+                email: 'visitor.two@example.com',
+            },
+        ] as User[];
+        spectator.component.writeValue(users);
+        spectator.detectChanges();
+
+        spectator.click('[user] [remove]');
+
+        expect(spectator.component.active_list()).toEqual([users[1]]);
+    });
+
+    it('should only remove one entry when list entries share an identity', () => {
+        // Visitor lists built from booking data can carry blank or repeated
+        // ids/emails; removal must stay positional. (PPT-2634)
+        const users = [
+            { name: 'Visitor One', email: '' },
+            { name: 'Visitor Two', email: '' },
+            { name: 'Visitor Three', email: '' },
+        ] as User[];
+        spectator.component.writeValue(users);
+        spectator.detectChanges();
+        expect('[user]').toHaveLength(3);
+
+        spectator.click('[user] [remove]');
+
+        expect(spectator.component.active_list()).toEqual([users[1], users[2]]);
+    });
+
+    it('should remove the clicked entry rather than the first match', () => {
+        const users = [
+            { name: 'Visitor One', email: 'one@example.com' },
+            { name: 'Visitor Two', email: 'two@example.com' },
+            { name: 'Visitor Three', email: 'three@example.com' },
+        ] as User[];
+        spectator.component.writeValue(users);
+        spectator.detectChanges();
+
+        spectator.component.removeUser(1);
+
+        expect(spectator.component.active_list()).toEqual([users[0], users[2]]);
     });
 
     it('should be able to hide user actions', () => {

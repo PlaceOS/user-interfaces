@@ -2,6 +2,7 @@ import {
     AssetGroup,
     AssetRequest,
     Booking,
+    CalendarEvent,
     flatten,
     unique,
 } from '@placeos/common';
@@ -9,11 +10,12 @@ import {
     addAsset,
     addAssetCategory,
     addAssetPurchaseOrder,
-    addAssets,
     addAssetType,
+    apiEndpoint,
     PlaceAsset,
     PlaceAssetCategory,
     PlaceAssetPurchaseOrder,
+    post,
     queryAssetCategories as queryAssetCategoriesAPI,
     queryAssetPurchaseOrders as queryAssetPurchaseOrdersAPI,
     queryAssets as queryAssetsAPI,
@@ -30,12 +32,25 @@ import {
     bookedResourceList,
     BookingsQueryParams,
     createBooking,
+    parentBookingId,
     queryBookings,
     removeBooking,
 } from 'libs/bookings/src/lib/bookings.fn';
 
-export async function queryAssetPurchaseOrders(query: any = {}) {
+export async function queryAssetPurchaseOrders(query: unknown = {}) {
     return queryAssetPurchaseOrdersAPI(query);
+}
+
+/**
+ * Find the item whose name matches (trimmed, case-insensitive), resolving
+ * duplicates to the oldest (lowest `created_at`) so every client converges
+ * on the same record.
+ */
+export function findOldestByName(list: any[], name: string = '') {
+    const match_name = name.trim().toLowerCase();
+    return list
+        .filter((_) => (_.name || '').trim().toLowerCase() === match_name)
+        .sort((a, b) => (a.created_at || 0) - (b.created_at || 0))[0];
 }
 
 function filter_hidden_items<T extends { data: any[] }>(response: T): T {
@@ -202,7 +217,19 @@ export function saveAssetsInBulk(assets: Partial<PlaceAsset>[]) {
     if (!assets?.length) return Promise.resolve([]);
     return assets.every((item) => item?.id)
         ? updateAssets(assets)
-        : addAssets(assets);
+        : addAssetsInBulk(assets);
+}
+
+/** Add assets through the bulk endpoint with an explicit path separator. */
+async function addAssetsInBulk(assets: Partial<PlaceAsset>[]) {
+    const response = await post(
+        `${apiEndpoint()}/assets/bulk`,
+        JSON.stringify(assets),
+        {},
+    );
+    return (response as unknown as Partial<PlaceAsset>[]).map(
+        (item) => new PlaceAsset(item),
+    );
 }
 
 /////////////////////////////////
@@ -221,7 +248,7 @@ export function saveAssetPurchaseOrder(
 ////     Asset Helper Methods     ////
 //////////////////////////////////////
 
-export function getGroupsWithAssets(query: any = {}) {
+export function getGroupsWithAssets(query: unknown = {}) {
     return queryAssetTypes(query);
 }
 
@@ -236,10 +263,10 @@ export async function showGroupFull(id: string, query: any = {}) {
         queryAssetPurchaseOrders(),
     ]);
     const product = type as AssetGroup;
-    (product as any).category = categories.data.find(
+    product.category = categories.data.find(
         (category) => category.id === product.category_id,
     );
-    (product as any).assets = assets.data.filter(
+    product.assets = assets.data.filter(
         (asset) => asset.asset_type_id === product.id,
     );
     for (const asset of product.assets) {
@@ -326,8 +353,21 @@ export function differenceBetweenAssetRequests(
     return changed;
 }
 
+/**
+ * Check the asset requests of a parent against asset availability. Returns a
+ * function that removes the changed asset bookings and creates the new ones.
+ * The parent is a calendar event, or a native booking when `from_booking` or
+ * `from_bookings` is set
+ */
 export async function validateAssetRequestsForResource(
-    { id, ical_uid, from_booking }: any,
+    {
+        id,
+        ical_uid,
+        from_booking,
+        from_bookings,
+    }: Partial<Pick<CalendarEvent, 'id' | 'ical_uid' | 'from_bookings'>> & {
+        from_booking?: boolean;
+    },
     {
         date,
         duration,
@@ -356,17 +396,25 @@ export async function validateAssetRequestsForResource(
         type: 'asset-request',
         zones: zones.join(','),
     });
+    const native = !!(from_booking || from_bookings);
+    // The API has no filter for the parent booking, so a native query returns
+    // every asset request of the host on the day. Keep only this parent's
     const bookings =
-        id && ical_uid
-            ? await queryBookings({
-                  period_start: getUnixTime(startOfDay(date)),
-                  period_end: getUnixTime(endOfDay(date)),
-                  type: 'asset-request',
-                  email: host,
-                  event_id: from_booking ? '' : id,
-                  booking_id: from_booking ? id : '',
-                  ical_uid,
-              })
+        id && (ical_uid || native)
+            ? (
+                  await queryBookings({
+                      period_start: getUnixTime(startOfDay(date)),
+                      period_end: getUnixTime(endOfDay(date)),
+                      type: 'asset-request',
+                      email: host,
+                      event_id: native ? '' : id,
+                      ical_uid,
+                  })
+              ).filter(
+                  (_) =>
+                      !native ||
+                      String(_.extension_data?.parent_id) === String(id),
+              )
             : [];
     const booking_list: [string, AssetRequest][] = bookings.map((_) => [
         _.id,
@@ -411,30 +459,32 @@ export async function validateAssetRequestsForResource(
             period_start: getUnixTime(date),
             period_end: getUnixTime(addMinutes(date, duration)),
             type: 'asset-request',
+            zones: (zones || []).join(','),
         },
         bookings.map((_) => _.id),
     );
     const processed_requests = changed_assets.map((request) => {
         // Handle duplicate asset ids
         const asset_ids = flatten(
-            (request.items as any).map(({ id, item_ids, quantity }) => {
+            request.items.map(({ id, item_ids, quantity }) => {
+                const selected_ids = item_ids || [];
                 const assets = available_groups.find(
                     (_) => _.id === id,
                 )?.assets;
-                if (!assets) return item_ids;
+                if (!assets) return selected_ids;
                 const list = [];
                 return new Array(quantity).fill(0).map((_, idx) => {
                     const item =
-                        used_ids.includes(item_ids[idx]) ||
-                        list.includes(item_ids[idx]) ||
-                        !item_ids[idx]
+                        used_ids.includes(selected_ids[idx]) ||
+                        list.includes(selected_ids[idx]) ||
+                        !selected_ids[idx]
                             ? assets?.find(({ id }) => {
                                   return (
                                       !used_ids.includes(id) &&
                                       !list.includes(id)
                                   );
                               })?.id
-                            : item_ids[idx];
+                            : selected_ids[idx];
                     if (!item) {
                         request.conflict = true;
                         throw 'Unable to find available asset for request';
@@ -444,10 +494,14 @@ export async function validateAssetRequestsForResource(
                 });
             }),
         );
+        if (!asset_ids.length || asset_ids.some((id) => !id)) {
+            request.conflict = true;
+            throw 'Unable to find available asset for request';
+        }
         // Grab any existing bookings for the asset for the parent event/booking
         const booking = bookings.find((_) =>
             _.asset_ids.find((id) =>
-                request.items?.find((i) => i.item_ids.includes(id)),
+                request.items?.find((i) => i.item_ids?.includes(id)),
             ),
         );
         used_ids = [...used_ids, ...asset_ids];
@@ -473,14 +527,19 @@ export async function validateAssetRequestsForResource(
             },
             zones: zones || [],
         };
-        if (from_booking) (asset_data as any).parent_id = id;
-        return createBooking(new Booking(asset_data), {
-            ical_uid,
-            event_id: from_booking ? '' : id,
-        });
+        return () =>
+            native
+                ? createBooking({
+                      ...new Booking(asset_data).toJSON(),
+                      parent_id: parentBookingId(id),
+                  })
+                : createBooking(new Booking(asset_data), {
+                      ical_uid,
+                      event_id: id,
+                  });
     });
     return async () => {
         await Promise.all(changed_requests.map(([id]) => removeBooking(id)));
-        await Promise.all(processed_requests);
+        await Promise.all(processed_requests.map((create) => create()));
     };
 }

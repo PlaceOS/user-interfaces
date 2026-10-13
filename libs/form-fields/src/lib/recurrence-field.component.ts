@@ -24,6 +24,7 @@ import {
     NO_RECURR,
     Recurrence,
     recurrenceEndDate,
+    recurrenceInstanceCount,
     toBookingRecurrence,
     toEventRecurrence,
 } from '@placeos/common';
@@ -184,7 +185,10 @@ export class RecurrenceFieldComponent implements ControlValueAccessor {
     public readonly formatted_value = computed(() => {
         const val = this.value();
         if (!val) return '';
-        if (val.end_type === 'instances' && val.end_instances) {
+        if (
+            val.end_type === 'instances' &&
+            recurrenceInstanceCount(val.end_instances)
+        ) {
             return formatRecurrence(
                 {
                     ...val,

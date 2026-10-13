@@ -127,6 +127,22 @@ function validWeekdays(days?: Set<DayIndex>): DayIndex[] {
         .sort((a, b) => a - b);
 }
 
+/**
+ * Usable instance count for a recurrence, or `undefined` when there isn't one.
+ * Instance counts are read back from untyped booking/event data, where they can
+ * arrive as strings or empty values. Anything that isn't a whole number of one
+ * or more instances is not a count, so the recurrence ends by date instead.
+ */
+export function recurrenceInstanceCount(value: unknown): number | undefined {
+    const count =
+        typeof value === 'number'
+            ? value
+            : typeof value === 'string'
+              ? Number(value)
+              : NaN;
+    return Number.isFinite(count) && count >= 1 ? Math.floor(count) : undefined;
+}
+
 function isWeeklyInstance(
     date: number,
     start_date: number,
@@ -192,7 +208,10 @@ export function recurrenceEndDate(
     recurrence: Recurrence,
     date: number = Date.now(),
 ): number {
-    const instances = Math.max((recurrence.end_instances || 1) - 1, 0);
+    const instances = Math.max(
+        (recurrenceInstanceCount(recurrence.end_instances) || 1) - 1,
+        0,
+    );
     const interval = Math.max(recurrence.interval, 1);
     const first_instance = firstRecurrenceInstance(recurrence, date);
     if (recurrence.type === 'daily') {
@@ -319,17 +338,18 @@ export function fromEventRecurrence(r: RecurrenceDetails): Recurrence {
         };
     }
 
+    const occurrences = recurrenceInstanceCount(r.occurrences);
     const recurr: Recurrence = {
         _custom: r._pattern == 'custom_display',
         type: r.pattern as RecurrType,
         interval: r.interval || 1,
         end_type:
             r._end_type ??
-            (r.occurrences ? 'instances' : r.end ? 'date' : 'never'),
+            (occurrences ? 'instances' : r.end ? 'date' : 'never'),
     };
 
     if (r.end) recurr.end_date = r.end;
-    if (r.occurrences) recurr.end_instances = r.occurrences;
+    if (occurrences) recurr.end_instances = occurrences;
 
     if (r.pattern === 'weekly' && r.days_of_week?.length) {
         recurr.weekdays = new Set(r.days_of_week as DayIndex[]);
@@ -396,8 +416,9 @@ export function toEventRecurrence(
         start: recurrence_start,
         end,
     };
-    if (r.end_type === 'instances' && r.end_instances) {
-        details.occurrences = r.end_instances;
+    if (r.end_type === 'instances') {
+        const occurrences = recurrenceInstanceCount(r.end_instances);
+        if (occurrences) details.occurrences = occurrences;
     }
     if ((r.type === 'weekly' || r.type === 'monthly') && r.weekdays) {
         details.days_of_week = Array.from(r.weekdays);
@@ -430,21 +451,18 @@ export function fromBookingRecurrence(r: BookingRecurrence): Recurrence {
             end_type: 'never',
         };
     }
+    const instances = recurrenceInstanceCount(r.recurrence_instances);
     const recurr: Recurrence = {
         _custom: r.recurrence_custom,
         type: r.recurrence_type,
         interval: r.recurrence_interval || 1,
-        end_type: r.recurrence_instances
-            ? 'instances'
-            : r.recurrence_end
-              ? 'date'
-              : 'never',
+        end_type: instances ? 'instances' : r.recurrence_end ? 'date' : 'never',
     };
     if (r.recurrence_end) {
         recurr.end_date = r.recurrence_end * 1000; // Convert from seconds to milliseconds
     }
-    if (r.recurrence_instances) {
-        recurr.end_instances = r.recurrence_instances;
+    if (instances) {
+        recurr.end_instances = instances;
     }
 
     if (r.recurrence_type === 'daily' && r.recurrence_days) {
@@ -508,7 +526,7 @@ export function toBookingRecurrence(
     if (r.end_type === 'date' && r.end_date) {
         booking.recurrence_end = getUnixTime(r.end_date); // Convert from milliseconds to seconds
     } else if (r.end_type === 'instances') {
-        booking.recurrence_instances = r.end_instances;
+        booking.recurrence_instances = recurrenceInstanceCount(r.end_instances);
         booking.recurrence_end = getUnixTime(recurrenceEndDate(r, date));
     }
 
@@ -616,11 +634,18 @@ export function formatRecurrence(
             case 'date':
                 if (!end_date) return '';
                 return ` until ${format(end_date, 'dd MMM yyyy')}`;
-            case 'instances':
-                if (!end_instances) return '';
-                return ` ends after ${end_instances} ${plural(end_instances, 'instance')}${
+            case 'instances': {
+                const count = recurrenceInstanceCount(end_instances);
+                // Without a usable count the end date is all we can report.
+                if (!count) {
+                    return end_date
+                        ? ` until ${format(end_date, 'dd MMM yyyy')}`
+                        : '';
+                }
+                return ` ends after ${count} ${plural(count, 'instance')}${
                     end_date ? ` (${format(end_date, 'dd MMM yyyy')})` : ''
                 }`;
+            }
         }
     }
 

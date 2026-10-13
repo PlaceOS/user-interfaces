@@ -1,54 +1,84 @@
-import { computed, Injectable, signal } from '@angular/core';
+import { Injectable, signal } from '@angular/core';
 
-const EVENTS_NAMES = ['keypress', 'mousemove', 'touchmove', 'scroll', 'wheel'];
+const EVENT_NAMES = [
+    'keydown',
+    'mousemove',
+    'pointermove',
+    'touchmove',
+    'scroll',
+    'wheel',
+] as const;
 
 @Injectable({
     providedIn: 'root',
 })
 export class UserIdleTimeService {
-    private _last_action = signal(Date.now());
-    private _now = signal(Date.now());
-    private _interval: ReturnType<typeof setInterval>;
-    private _update = (e?) => this._onUserInteraction();
-    private _event_names = EVENTS_NAMES;
+    private readonly _last_action = signal(Date.now());
+    private readonly _update = () => this._last_action.set(Date.now());
+    private _listening = false;
 
     public readonly last_action = this._last_action.asReadonly();
+    public readonly idle_time = () => Date.now() - this._last_action();
 
-    public readonly idle_time = computed(
-        () => this._now() - this._last_action(),
-    );
-
-    constructor() {
-        this._interval = setInterval(() => this._now.set(Date.now()), 1000);
-    }
-
-    private _onUserInteraction() {
+    public startListening(): () => void {
+        this.stopListening();
         this._last_action.set(Date.now());
-    }
-
-    public idleFor(time_ms: number) {
-        const stop = this.startListening();
-        return new Promise<void>((resolve) => {
-            const interval = setInterval(() => {
-                if (this.idle_time() < time_ms) return;
-                clearInterval(interval);
-                stop();
-                resolve();
-            }, 1000);
-        });
-    }
-
-    public startListening() {
-        this._last_action.set(Date.now());
-        for (const name of this._event_names) {
-            document.body.addEventListener(name, this._update);
+        this._listening = true;
+        for (const name of EVENT_NAMES) {
+            document.body.addEventListener(name, this._update, {
+                passive: true,
+            });
         }
         return () => this.stopListening();
     }
 
-    public stopListening() {
-        for (const name of this._event_names) {
+    public stopListening(): void {
+        if (!this._listening) return;
+        this._listening = false;
+        for (const name of EVENT_NAMES) {
             document.body.removeEventListener(name, this._update);
         }
+    }
+
+    /** Resolve true after no user input for the requested time. */
+    public idleFor(
+        time_ms: number,
+        abort_signal?: AbortSignal,
+    ): Promise<boolean> {
+        return new Promise<boolean>((resolve) => {
+            if (abort_signal?.aborted) {
+                resolve(false);
+                return;
+            }
+
+            let timer: ReturnType<typeof setTimeout> | null = null;
+            let settled = false;
+            const stop = this.startListening();
+
+            const cleanup = () => {
+                if (timer) clearTimeout(timer);
+                timer = null;
+                stop();
+                abort_signal?.removeEventListener('abort', cancel);
+            };
+            const finish = (did_idle: boolean) => {
+                if (settled) return;
+                settled = true;
+                cleanup();
+                resolve(did_idle);
+            };
+            const check = () => {
+                const remaining = time_ms - this.idle_time();
+                if (remaining <= 0) {
+                    finish(true);
+                    return;
+                }
+                timer = setTimeout(check, remaining);
+            };
+            const cancel = () => finish(false);
+
+            abort_signal?.addEventListener('abort', cancel, { once: true });
+            timer = setTimeout(check, Math.max(0, time_ms));
+        });
     }
 }

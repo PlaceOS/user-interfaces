@@ -21,10 +21,10 @@ import { IconComponent } from '@placeos/components';
             <strong class="qty">Quantity</strong>
             @for (item of catering(); track item) {
                 <label>
-                    {{ item.item }}
+                    {{ item.name }}
                 </label>
                 <label class="qty">
-                    {{ item.qty }}
+                    {{ item.quantity }}
                 </label>
             }
             <strong class="total">Total Items</strong>

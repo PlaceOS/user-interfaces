@@ -18,7 +18,7 @@ export interface ClientEvent {
 function hookMethod<T, K extends keyof T>(
     rootObject: T,
     functionToHook: K,
-    hookingFunction: (...args: any[]) => void,
+    hookingFunction: (...args: unknown[]) => void,
 ): T[K] {
     var previousFunction = rootObject[functionToHook];
     (rootObject as any)[functionToHook] = (...args: any[]) => {
@@ -43,7 +43,7 @@ export class RemoteLoggingService extends AsyncHandler {
 
     public readonly history = this._event_history.asReadonly();
 
-    public setMetadata(metadata: any) {}
+    public setMetadata(_metadata: unknown) {}
 
     constructor() {
         super();

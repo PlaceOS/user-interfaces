@@ -1,5 +1,6 @@
 import {
     Component,
+    computed,
     inject,
     input,
     OnInit,
@@ -16,6 +17,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import {
+    queryDeskAssetsForZones,
     queryLockerAssetsForZones,
     queryLockerBankAssetsForZones,
     queryParkingSpacesForZones,
@@ -203,28 +205,41 @@ export class ReportsOptionsComponent extends AsyncHandler implements OnInit {
             return this._levelsWithResources(levels, resource_type, scope_id);
         },
     });
-    public readonly levels = this._levels.value;
+    public readonly levels = computed(() => {
+        if (this.resource_type() !== 'parking' || !this._levels.isLoading()) {
+            return this._levels.value();
+        }
+        const use_region = this._settings.get('app.use_region');
+        const levels = use_region
+            ? this._org.levelsForRegion(this._org.active_region())
+            : this._org.levelsForBuilding(this._org.active_building());
+        return this._parkingLevels(levels);
+    });
 
     public readonly setStartDate = (date) => {
         if (date instanceof Date) date = date.valueOf();
         this.start.set(date);
-        this._router.navigate([], {
-            relativeTo: this._route,
-            queryParams: { start: date },
-            queryParamsHandling: 'merge',
-        });
+        this._navigateToDates();
     };
 
     public readonly setEndDate = (date) => {
         if (date instanceof Date) date = date.valueOf();
-        const end = endOfDay(date).valueOf();
-        this.end.set(end);
+        this.end.set(endOfDay(date).valueOf());
+        this._navigateToDates();
+    };
+
+    /**
+     * Write both dates to the URL. The date field can change the start and
+     * end in the same tick, and separate merges would each start from the
+     * old URL, so the second would restore the old value.
+     */
+    private _navigateToDates() {
         this._router.navigate([], {
             relativeTo: this._route,
-            queryParams: { end },
+            queryParams: { start: this.start(), end: this.end() },
             queryParamsHandling: 'merge',
         });
-    };
+    }
 
     public readonly setZones = (zones) => {
         this.zones.set(zones);
@@ -254,13 +269,25 @@ export class ReportsOptionsComponent extends AsyncHandler implements OnInit {
         scope_id: string,
     ): Promise<BuildingLevel[]> {
         if (!resource_type) return levels;
+        if (resource_type === 'parking') {
+            levels = this._parkingLevels(levels);
+        }
         if (!levels.length || !scope_id) return [];
         const resource_zones = await this._levelResourceZones(
             levels,
             resource_type,
             scope_id,
         );
-        return levels.filter((level) => resource_zones.has(level.id));
+        const filtered_levels = levels.filter((level) =>
+            resource_zones.has(level.id),
+        );
+        return resource_type === 'parking' && !filtered_levels.length
+            ? levels
+            : filtered_levels;
+    }
+
+    private _parkingLevels(levels: BuildingLevel[]) {
+        return levels.filter((level) => level.tags?.includes('parking'));
     }
 
     private _levelResourceZones(
@@ -268,7 +295,10 @@ export class ReportsOptionsComponent extends AsyncHandler implements OnInit {
         resource_type: ReportResourceType,
         scope_id: string,
     ): Promise<Set<string>> {
-        const key = `${RESOURCE_LEVEL_CACHE_PREFIX}${resource_type}:${scope_id}`;
+        const desk_store = this._settings.get('app.desks.use_assets')
+            ? 'assets'
+            : 'metadata';
+        const key = `${RESOURCE_LEVEL_CACHE_PREFIX}${resource_type}:${scope_id}:${desk_store}`;
         const cached = sessionStorage.getItem(key);
         if (cached !== null) {
             return Promise.resolve(new Set<string>(JSON.parse(cached)));
@@ -294,6 +324,12 @@ export class ReportsOptionsComponent extends AsyncHandler implements OnInit {
     ): Promise<Set<string>> {
         switch (resource_type) {
             case 'desks': {
+                if (this._settings.get('app.desks.use_assets')) {
+                    const desks = await queryDeskAssetsForZones([scope_id]);
+                    return this._zonesForResources(
+                        desks.filter((desk) => desk.bookable),
+                    );
+                }
                 const list = await listChildMetadata(scope_id, {
                     name: 'desks',
                 });
@@ -356,18 +392,16 @@ export class ReportsOptionsComponent extends AsyncHandler implements OnInit {
         this.subscription(
             'route.query',
             this._route.queryParamMap.subscribe((params) => {
-                if (params.has('zone_ids')) {
-                    const zones = params.get('zone_ids').split(',');
-                    if (zones.length) {
-                        const level = this._org.levelWithID(zones);
-                        if (!level) {
-                            return;
-                        }
-                        this._org.building = this._org.buildings.find(
-                            (bld) => bld.id === level.parent_id,
-                        );
-                        this.zones.set(zones);
-                    }
+                // Apply the dates even when the levels are not loaded yet.
+                const zones = params.get('zone_ids')?.split(',') || [];
+                const level = zones.length
+                    ? this._org.levelWithID(zones)
+                    : null;
+                if (level) {
+                    this._org.building = this._org.buildings.find(
+                        (bld) => bld.id === level.parent_id,
+                    );
+                    this.zones.set(zones);
                 }
                 if (params.has('start')) this.start.set(+params.get('start'));
                 if (params.has('end')) this.end.set(+params.get('end'));

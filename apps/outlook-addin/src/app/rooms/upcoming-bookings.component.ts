@@ -88,7 +88,7 @@ export class UpcomingBookingsComponent extends AsyncHandler implements OnInit {
         this.subscription('poll', this._schedule.startPolling());
     }
 
-    public isEvent(item: any) {
+    public isEvent(item: unknown) {
         return item instanceof CalendarEvent;
     }
 }

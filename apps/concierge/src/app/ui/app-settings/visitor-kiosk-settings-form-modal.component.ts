@@ -27,6 +27,12 @@ import {
     SettingsToggleComponent,
 } from '@placeos/components';
 import { DEFAULT_SETTINGS } from 'apps/visitor-kiosk/src/environments/settings';
+import { errorText } from '../modal-actions';
+import {
+    applyAppSettings,
+    appSettingOverrides,
+    mergeAppSettings,
+} from './app-settings.utilities';
 import {
     EXPLORE_FEATURE_OPTIONS,
     MAX_DURATION_MINI_OPTIONS,
@@ -589,24 +595,34 @@ export class VisitorKioskSettingsFormModalComponent implements OnInit {
     public async ngOnInit() {
         const zone = this._data.zone;
         this.loading.set('Loading existing settings...');
-        this._patchModel(DEFAULT_SETTINGS.app);
-        const org_id = this._org.organisation.id;
-        const org_metadata = await this._getMetadata(org_id);
-        const parent_metadata =
-            org_id !== zone.parent_id
-                ? await this._getMetadata(zone.parent_id)
-                : {};
-        const metadata = await this._getMetadata(zone.id);
-        this.existing_settings = {
-            ...DEFAULT_SETTINGS.app,
-            ...org_metadata,
-            ...parent_metadata,
-        };
-        this._patchModel(org_metadata || {});
-        this._patchModel(parent_metadata || {});
-        this._patchModel(metadata || {});
-        this.old_settings = metadata;
-        this.loading.set('');
+        try {
+            const org_id = this._org.organisation.id;
+            const org_metadata =
+                zone.id !== org_id ? await this._getMetadata(org_id) : {};
+            const parent_metadata =
+                zone.id !== org_id &&
+                !!zone.parent_id &&
+                org_id !== zone.parent_id
+                    ? await this._getMetadata(zone.parent_id)
+                    : {};
+            const metadata = await this._getMetadata(zone.id);
+            this.existing_settings = mergeAppSettings(
+                this.model(),
+                DEFAULT_SETTINGS.app,
+                org_metadata,
+                parent_metadata,
+            );
+            this._patchModel(this.existing_settings);
+            this._patchModel(metadata || {});
+            this.old_settings = metadata;
+        } catch (e) {
+            // Saving defaults over settings that failed to load would lose
+            // them, so close instead.
+            notifyError(`Failed to load existing settings. ${errorText(e)}`);
+            this._dialog_ref.close();
+        } finally {
+            this.loading.set('');
+        }
     }
 
     public addLegend() {
@@ -627,61 +643,23 @@ export class VisitorKioskSettingsFormModalComponent implements OnInit {
         }));
     }
 
-    private _patchModel(value: Record<string, any>) {
-        if (!value) return;
-        this.model.update((m) => ({
-            ...m,
-            ...value,
-            visitor_label_size: {
-                ...m.visitor_label_size,
-                ...(value.visitor_label_size || {}),
-            },
-            visitors: { ...m.visitors, ...(value.visitors || {}) },
-            explore: { ...m.explore, ...(value.explore || {}) },
-        }));
+    private _patchModel(value: Record<string, unknown>) {
+        this.model.update((model) => applyAppSettings(model, value));
     }
 
     public async save() {
         this.loading.set('Saving settings...');
         const zone = this._data.zone;
-        const form_value: any = this.model();
-        const new_settings = { ...this.old_settings };
-        for (const key in form_value) {
-            if (form_value[key] instanceof Array) {
-                new_settings[key] = form_value[key];
-            } else if (form_value[key] instanceof Object) {
-                new_settings[key] = {
-                    ...(this.existing_settings[key] || {}),
-                    ...form_value[key],
-                };
-            } else {
-                new_settings[key] = form_value[key];
-            }
-        }
-        for (const key in new_settings) {
-            if (
-                !this._isValid(new_settings[key], this.existing_settings[key])
-            ) {
-                delete new_settings[key];
-            } else if (
-                new_settings[key] instanceof Object &&
-                !(new_settings[key] instanceof Array) &&
-                this.existing_settings[key]
-            ) {
-                for (const sub_key in new_settings[key]) {
-                    if (
-                        !this._isValid(
-                            new_settings[key][sub_key],
-                            this.existing_settings[key][sub_key],
-                        )
-                    ) {
-                        delete new_settings[key][sub_key];
-                    }
-                }
-            }
-        }
+        const working_settings = mergeAppSettings(
+            this.old_settings,
+            this.model(),
+        );
+        const new_settings = appSettingOverrides(
+            working_settings,
+            this.existing_settings,
+        );
         const user = currentUser();
-        (new_settings as any).edited_by = {
+        new_settings.edited_by = {
             id: user.id,
             name: user.name,
             email: user.email,
@@ -711,17 +689,8 @@ export class VisitorKioskSettingsFormModalComponent implements OnInit {
         this._dialog_ref.close();
     }
 
-    private _isValid<T>(new_value: T, existing_value: T) {
-        return (
-            new_value !== '' &&
-            new_value !== undefined &&
-            new_value !== null &&
-            JSON.stringify(new_value) !== JSON.stringify(existing_value)
-        );
-    }
-
     private async _getMetadata(id) {
-        const metadata: any = await showMetadata(id, this.settings_key);
-        return metadata.details as Record<string, any>;
+        const metadata = await showMetadata(id, this.settings_key);
+        return (metadata.details || {}) as Record<string, unknown>;
     }
 }

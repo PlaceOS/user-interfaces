@@ -1,11 +1,15 @@
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { SpectatorRouting, createRoutingFactory } from '@ngneat/spectator/jest';
 import { inject, Injector, signal } from '@angular/core';
-import { MockProvider, MockService, ngMocks } from 'ng-mocks';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import {
+    createRoutingFactory,
+    SpectatorRouting,
+} from '@ngneat/spectator/vitest';
+import { MockProvider, ngMocks } from 'ng-mocks';
 import { timer } from 'rxjs';
 
 import { SettingsService } from '@placeos/common';
-import { EventFormService, generateEventForm } from '@placeos/events';
+import { generateEventForm } from 'libs/events/src/lib/event-form';
+import { EventFormService } from 'libs/events/src/lib/event-form.service';
 
 import { ExploreBookingModalComponent } from '../lib/explore-booking-modal.component';
 
@@ -34,25 +38,21 @@ describe('ExploreBookingModalComponent', () => {
                     return {
                         model,
                         form,
-                        newForm: jest.fn(),
-                        postForm: jest.fn(async () => ({})),
+                        newForm: vi.fn(),
+                        postForm: vi.fn(async () => ({})),
                         loading: signal(''),
-                    } as Partial<EventFormService>;
+                    } as unknown as Partial<EventFormService>;
                 },
             },
             MockProvider(SettingsService, {
-                get: jest.fn(),
+                get: vi.fn(),
                 app_name: 'workplace',
             }),
-            MockProvider(MatDialogRef, { close: jest.fn() }),
+            MockProvider(MatDialogRef, { close: vi.fn() }),
         ],
     });
 
     beforeEach(() => (spectator = createComponent()));
-
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
 
     it('should allow changing the title and duration', () => {
         spectator.detectChanges();
@@ -72,7 +72,7 @@ describe('ExploreBookingModalComponent', () => {
             creator: 'creator@place.tech',
         }));
         spectator.typeInElement('Freedom Booking', 'input[name="title"]');
-        const spy = jest.spyOn(spectator.component, 'save');
+        const spy = vi.spyOn(spectator.component, 'save');
         spectator.click('footer button');
         expect(spy).toHaveBeenCalled();
         await timer(310).toPromise();

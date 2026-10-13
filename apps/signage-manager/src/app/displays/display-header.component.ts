@@ -1,6 +1,11 @@
-import { Component, computed, inject } from '@angular/core';
-import { TranslatePipe } from '@placeos/components';
-import { SignageService } from '../signage.service';
+import { Component, inject } from '@angular/core';
+import { MatRippleModule } from '@angular/material/core';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { Router } from '@angular/router';
+import { IconComponent, TranslatePipe } from '@placeos/components';
+import { GroupBreadcrumbsComponent } from '../shared/group-breadcrumbs.component';
+import { SignageContextService } from '../signage-context.service';
+import { SignageDisplayService } from './signage-display.service';
 
 @Component({
     selector: 'display-header',
@@ -12,24 +17,56 @@ import { SignageService } from '../signage.service';
                 <h3 class="text-2xl font-medium">
                     {{ 'SIGNAGE_MANAGER.DISPLAYS_TITLE' | translate }}
                 </h3>
-                <div class="text-sm opacity-60">
-                    {{
-                        'COMMON.ITEM_COUNT'
-                            | translate
-                                : { count: total_count() }
-                                : total_count()
-                    }}
+                <div class="flex flex-wrap items-center gap-2">
+                    <div class="text-sm opacity-60">
+                        {{
+                            'COMMON.ITEM_COUNT'
+                                | translate
+                                    : { count: total_count() }
+                                    : total_count()
+                        }}
+                    </div>
+                    <group-breadcrumbs />
                 </div>
             </div>
             <div class="w-px flex-1"></div>
+            @if (can_create()) {
+                <button
+                    icon
+                    default
+                    type="button"
+                    matRipple
+                    class="text-xl"
+                    (click)="addDisplay()"
+                    [attr.aria-label]="
+                        'SIGNAGE_MANAGER.CREATE_NEW_DISPLAY' | translate
+                    "
+                    [matTooltip]="'SIGNAGE_MANAGER.NEW_DISPLAY' | translate"
+                >
+                    <icon>add</icon>
+                </button>
+            }
         </div>
     `,
-    imports: [TranslatePipe],
+    imports: [
+        MatRippleModule,
+        IconComponent,
+        TranslatePipe,
+        GroupBreadcrumbsComponent,
+        MatTooltipModule,
+    ],
 })
 export class DisplayHeaderComponent {
-    private readonly _service = inject(SignageService);
+    private readonly _context = inject(SignageContextService);
+    private readonly _display_service = inject(SignageDisplayService);
+    private readonly _router = inject(Router);
 
-    public readonly total_count = computed(
-        () => this._service.filtered_displays().length,
-    );
+    /** Server total, as the list holds only the pages loaded so far */
+    public readonly total_count = this._display_service.displays_total;
+    public readonly can_create = this._context.can_create;
+
+    public async addDisplay() {
+        const display = await this._display_service.addDisplay();
+        if (display?.id) await this._router.navigate(['/displays', display.id]);
+    }
 }

@@ -4,7 +4,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { Router } from '@angular/router';
-import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
+import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/vitest';
 import { MockModule, MockProvider } from 'ng-mocks';
 
 import { signal } from '@angular/core';
@@ -21,7 +21,7 @@ describe('BootstrapComponent', () => {
                 initialised: signal(true),
                 space_list: [{ id: '1', name: 'Space 1' }],
             } as any),
-            MockProvider(SettingsService, { get: jest.fn() }),
+            MockProvider(SettingsService, { get: vi.fn() }),
             MockProvider(OrganisationService, {
                 organisation: { id: 'org-123', name: 'Test Org' },
                 initialised: signal(true),

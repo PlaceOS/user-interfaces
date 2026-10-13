@@ -29,31 +29,11 @@
                         "output": "/assets/"
                     },
                     {
-                        "glob": "*.woff2",
-                        "input": "node_modules/material-symbols",
-                        "output": "/assets/"
-                    },
-                    {
                         "glob": "oauth-resp.html",
                         "input": "node_modules/@placeos/ts-client/dist/",
                         "output": "/"
                     },
-                    "apps/outlook-addin/src/manifest.webmanifest",
-                    {
-                        "glob": "manifest.xml",
-                        "input": "apps/outlook-addin/",
-                        "output": "/"
-                    },
-                    {
-                        "glob": "function-file.html",
-                        "input": "apps/outlook-addin/src/function-file/",
-                        "output": "/function-file"
-                    },
-                    {
-                        "glob": "function-file.ts",
-                        "input": "apps/outlook-addin/src/function-file/",
-                        "output": "/function-file"
-                    }
+                    "apps/outlook-addin/src/manifest.webmanifest"
                 ],
                 "styles": [
                     "./node_modules/@angular/material/prebuilt-themes/indigo-pink.css",
@@ -109,8 +89,8 @@
                     "budgets": [
                         {
                             "type": "initial",
-                            "maximumWarning": "2mb",
-                            "maximumError": "5mb"
+                            "maximumWarning": "1000kb",
+                            "maximumError": "1200kb"
                         },
                         {
                             "type": "anyComponentStyle",
@@ -124,6 +104,7 @@
         },
         "serve": {
             "executor": "@angular/build:dev-server",
+            "continuous": true,
             "options": {
                 "proxyConfig": "config/proxy.conf.js",
                 "ssl": true,
@@ -136,19 +117,30 @@
                 "development": {
                     "buildTarget": "outlook-addin:build:development"
                 }
-            },
-            "continuous": true
+            }
         },
-        "lint": {
-            "executor": "@nx/eslint:lint",
-            "outputs": ["{options.outputFile}"]
-        },
+        "lint": {},
         "test": {
-            "executor": "@nx/jest:jest",
+            "executor": "@angular/build:unit-test",
             "outputs": ["{workspaceRoot}/coverage/apps/outlook-addin"],
             "options": {
-                "jestConfig": "apps/outlook-addin/jest.config.ts",
-                "tsConfig": "apps/outlook-addin/tsconfig.spec.json"
+                "tsConfig": "apps/outlook-addin/tsconfig.spec.json",
+                "setupFiles": ["apps/outlook-addin/src/test-setup.ts"],
+                "isolate": true,
+                "watch": false,
+                "buildTarget": "outlook-addin:test-build:development"
+            }
+        },
+        "test-build": {
+            "executor": "@angular/build:application",
+            "options": {
+                "outputPath": "dist/apps/outlook-addin-test",
+                "browser": "apps/outlook-addin/src/main.ts",
+                "tsConfig": "apps/outlook-addin/tsconfig.spec.json",
+                "polyfills": []
+            },
+            "configurations": {
+                "development": {}
             }
         }
     }

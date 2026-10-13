@@ -19,7 +19,9 @@ import {
     UnauthorisedComponent,
 } from '@placeos/components';
 import { environment } from '../environments/environment';
-import { signageAccessGuard } from './signage-access.guard';
+import { manageGroupsGuard, signageAccessGuard } from './signage-access.guard';
+import { templatesEnabledGuard } from './templates-enabled.guard';
+import { templateUnsavedGuard } from './templates/template-unsaved.guard';
 
 const APP_ROUTES: Routes = [
     {
@@ -53,6 +55,23 @@ const APP_ROUTES: Routes = [
                     ),
             },
             {
+                path: 'templates/:id',
+                canActivate: [templatesEnabledGuard],
+                canDeactivate: [templateUnsavedGuard],
+                loadComponent: () =>
+                    import('./templates/templates.component').then(
+                        (m) => m.TemplatesSectionComponent,
+                    ),
+            },
+            {
+                path: 'templates',
+                canActivate: [templatesEnabledGuard],
+                loadComponent: () =>
+                    import('./templates/templates.component').then(
+                        (m) => m.TemplatesSectionComponent,
+                    ),
+            },
+            {
                 path: 'schedules',
                 loadComponent: () =>
                     import('./schedules/schedules.component').then(
@@ -74,7 +93,35 @@ const APP_ROUTES: Routes = [
                     ),
             },
             {
+                path: 'manage',
+                loadComponent: () =>
+                    import('./manage/manage.component').then(
+                        (m) => m.ManageSectionComponent,
+                    ),
+                children: [
+                    { path: '', pathMatch: 'full', redirectTo: 'report' },
+                    {
+                        path: 'report',
+                        loadComponent: () =>
+                            import('./report/content-report.component').then(
+                                (m) => m.ContentReportComponent,
+                            ),
+                    },
+                    {
+                        path: 'branding',
+                        loadComponent: () =>
+                            import('./branding/branding.component').then(
+                                (m) => m.BrandingComponent,
+                            ),
+                    },
+                ],
+            },
+            // Old addresses of the pages now under Manage
+            { path: 'report', redirectTo: 'manage/report' },
+            { path: 'branding', redirectTo: 'manage/branding' },
+            {
                 path: 'groups',
+                canActivate: [manageGroupsGuard],
                 loadComponent: () =>
                     import('./groups/groups.component').then(
                         (m) => m.GroupsSectionComponent,
@@ -109,7 +156,11 @@ export const APP_CONFIG: ApplicationConfig = {
         provideAppInitializer(() =>
             registerActiveLocale(inject(LocaleService).locale),
         ),
-        provideRouter(APP_ROUTES, withHashLocation(), withComponentInputBinding()),
+        provideRouter(
+            APP_ROUTES,
+            withHashLocation(),
+            withComponentInputBinding(),
+        ),
         // {
         //     provide: ErrorHandler,
         //     useValue: Sentry.createErrorHandler({

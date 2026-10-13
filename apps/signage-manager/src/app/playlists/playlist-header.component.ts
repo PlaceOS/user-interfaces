@@ -1,7 +1,10 @@
-import { Component, computed, inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { IconComponent, TranslatePipe } from '@placeos/components';
-import { SignageService } from '../signage.service';
+import { GroupBreadcrumbsComponent } from '../shared/group-breadcrumbs.component';
+import { SignageContextService } from '../signage-context.service';
+import { SignagePlaylistService } from './signage-playlist.service';
 
 @Component({
     selector: 'playlist-header',
@@ -13,42 +16,51 @@ import { SignageService } from '../signage.service';
                 <h3 class="text-2xl font-medium">
                     {{ 'SIGNAGE_MANAGER.PLAYLISTS_PAGE_TITLE' | translate }}
                 </h3>
-                <div class="text-sm opacity-60">
-                    {{
-                        'COMMON.ITEM_COUNT'
-                            | translate: { count: total_count() }
-                    }}
+                <div class="flex flex-wrap items-center gap-2">
+                    <div class="text-sm opacity-60">
+                        {{
+                            'COMMON.ITEM_COUNT'
+                                | translate: { count: total_count() }
+                        }}
+                    </div>
+                    <group-breadcrumbs />
                 </div>
             </div>
             <div class="w-px flex-1"></div>
             @if (can_create()) {
                 <button
-                    btn
+                    icon
+                    default
                     type="button"
                     matRipple
-                    class="bg-secondary text-secondary-content h-12 shrink-0 rounded-lg px-4"
+                    class="text-xl"
                     (click)="addPlaylist()"
                     [attr.aria-label]="
                         'SIGNAGE_MANAGER.CREATE_NEW_PLAYLIST' | translate
                     "
+                    [matTooltip]="'SIGNAGE_MANAGER.NEW_PLAYLIST' | translate"
                 >
-                    <icon class="mr-2 text-2xl">add</icon>
-                    <div>{{ 'SIGNAGE_MANAGER.NEW_PLAYLIST' | translate }}</div>
+                    <icon>add</icon>
                 </button>
             }
         </div>
     `,
-    imports: [MatRippleModule, IconComponent, TranslatePipe],
+    imports: [
+        MatRippleModule,
+        IconComponent,
+        TranslatePipe,
+        GroupBreadcrumbsComponent,
+        MatTooltipModule,
+    ],
 })
 export class PlaylistHeaderComponent {
-    private readonly _service = inject(SignageService);
+    private readonly _context = inject(SignageContextService);
+    private readonly _playlist_service = inject(SignagePlaylistService);
 
-    public readonly total_count = computed(
-        () => this._service.filtered_playlists().length,
-    );
-    public readonly can_create = this._service.can_create;
+    public readonly total_count = this._playlist_service.playlists_total;
+    public readonly can_create = this._context.can_create;
 
     public addPlaylist() {
-        this._service.addPlaylist();
+        this._playlist_service.addPlaylist();
     }
 }

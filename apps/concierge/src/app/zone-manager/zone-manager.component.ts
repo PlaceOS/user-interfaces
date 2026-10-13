@@ -44,7 +44,13 @@ import { ApplicationTopbarComponent } from '../ui/app-topbar.component';
                                 <icon>more_vert</icon>
                             </button>
                         }
-                        <button btn matRipple (click)="addItem()" class="w-48">
+                        <button
+                            btn
+                            matRipple
+                            data-shortcut="new"
+                            (click)="addItem()"
+                            class="w-48"
+                        >
                             <div class="flex items-center space-x-2">
                                 <icon>shadow_add</icon>
                                 <div class="pr-2">

@@ -1,14 +1,20 @@
 import { computed, signal } from '@angular/core';
-import { currentGroups, PlaceCurrentGroup, showUser } from '@placeos/ts-client';
+import {
+    currentGroups,
+    PlaceCurrentGroup,
+    showUser,
+    token,
+} from '@placeos/ts-client';
 import { BehaviorSubject, combineLatest, of, timer } from 'rxjs';
 import { catchError, map, retry } from 'rxjs/operators';
 import { isPublicMode } from './public-mode';
 import { setDefaultCreator } from './types/event.class';
-import { EMPTY_USER, StaffUser } from './types/user.class';
+import { EMPTY_USER, isEmptyUser, StaffUser } from './types/user.class';
 
 export { EMPTY_USER, isEmptyUser } from './types/user.class';
 
 declare let jest;
+declare let vi;
 
 type PermissionName = (typeof PERMISSION_VALUES)[number][0];
 type UserPermissions = Record<PermissionName, string[]>;
@@ -42,6 +48,22 @@ export const current_user = _current_user.asObservable();
 export const user_groups = signal<PlaceCurrentGroup[]>([]);
 export const user_groups_loaded = signal(false);
 const user_signal = signal(EMPTY_USER);
+_current_user.subscribe((u) => user_signal.set(u));
+
+/** True when both lists hold the same group names, in any order */
+function sameGroups(a: readonly string[], b: readonly string[]) {
+    if (a.length !== b.length) return false;
+    const set = new Set(a);
+    return b.every((group) => set.has(group));
+}
+
+/**
+ * Group names of the current user. Only changes when the set of groups
+ * changes, so read it to recompute group-based rules and views.
+ */
+export const user_group_names = computed(() => user_signal().groups || [], {
+    equal: sameGroups,
+});
 
 const PERMISSION_VALUES = [
     ['read', GroupPermission.Read],
@@ -53,6 +75,91 @@ const PERMISSION_VALUES = [
     ['manage', GroupPermission.Manage],
     ['share', GroupPermission.Share],
 ] as const;
+
+function isTestRuntime() {
+    return typeof jest !== 'undefined' || typeof vi !== 'undefined';
+}
+
+const USER_CACHE_KEY = 'PLACEOS.user';
+/** Cached user data older than this is discarded instead of displayed */
+const MAX_CACHE_AGE = 7 * 24 * 60 * 60 * 1000;
+
+interface UserCache {
+    cached_at: number;
+    token_id: string;
+    user: Partial<StaffUser>;
+}
+
+/**
+ * Fingerprint of the active access token. Cached user data is tied to it so
+ * another user's details can never be displayed after a change of login.
+ */
+function tokenID(): string {
+    const value = token() || '';
+    let hash = 0;
+
+    for (let i = 0; i < value.length; i++) {
+        hash = (hash * 31 + value.charCodeAt(i)) | 0;
+    }
+    return `${hash}`;
+}
+
+/** User details stored by the last load, if they belong to the active token */
+export function cachedUserData(): UserCache | null {
+    try {
+        const cache: UserCache = JSON.parse(
+            localStorage.getItem(USER_CACHE_KEY) || 'null',
+        );
+        if (
+            !cache?.cached_at ||
+            cache.token_id !== tokenID() ||
+            cache.cached_at + MAX_CACHE_AGE < Date.now()
+        ) {
+            localStorage.removeItem(USER_CACHE_KEY);
+            return null;
+        }
+        return cache;
+    } catch {
+        localStorage.removeItem(USER_CACHE_KEY);
+        return null;
+    }
+}
+
+/**
+ * Store the loaded user details for the next load of the application. Group
+ * permissions are deliberately not cached, see `applyCachedUserData`.
+ */
+export function storeUserData() {
+    const user = currentUser();
+    if (isEmptyUser(user) || isPublicMode()) return;
+    try {
+        const cache: UserCache = {
+            cached_at: Date.now(),
+            token_id: tokenID(),
+            user: { ...user },
+        };
+        localStorage.setItem(USER_CACHE_KEY, JSON.stringify(cache));
+    } catch {
+        // Ignore storage quota and privacy-mode failures.
+    }
+}
+
+/**
+ * Display the user details from the last load while the latest are loading,
+ * so the application doesn't have to wait on the user request to render.
+ *
+ * Group permissions are left alone. They gate what the user is offered, so
+ * they always wait on the live request rather than being restored from a
+ * previous session.
+ */
+function applyCachedUserData(): boolean {
+    const cache = cachedUserData();
+    if (!cache) return false;
+    const user = new StaffUser(cache.user);
+    _current_user.next(user);
+    setDefaultCreator(user);
+    return true;
+}
 
 export const user_permissions = computed<UserPermissions>(() => {
     const permissions: UserPermissions = {
@@ -125,13 +232,11 @@ async function loadUserGroups() {
 }
 
 function initialiseUser() {
-    try {
-        if (jest) return;
-    } catch {
-        // `jest` is only defined during tests.
-    }
-    _current_user.subscribe((u) => user_signal.set(u));
+    if (isTestRuntime()) return;
     const is_public_mode = isPublicMode();
+    // Cached details are displayed immediately, then replaced by the request
+    // below with the latest.
+    if (!is_public_mode) applyCachedUserData();
     const user_request = combineLatest([showUser('current'), _change]).pipe(
         map(([i]) => new StaffUser(i)),
     );
@@ -163,21 +268,22 @@ function initialiseUser() {
                 },
             }),
         )
-        .subscribe((user) => {
-            _current_user.next(user);
-            setDefaultCreator(user);
-            loadUserGroups();
-        });
+        .subscribe((user) => applyUser(user));
+}
+
+/** Set the loaded user as the current user and load their group permissions */
+function applyUser(user: StaffUser) {
+    _current_user.next(user);
+    setDefaultCreator(user);
+    storeUserData();
+    return loadUserGroups();
 }
 
 export function reloadUserData() {
     setTimeout(async () => {
         try {
             const p_user = await showUser('current');
-            const user = new StaffUser(p_user);
-            _current_user.next(user);
-            setDefaultCreator(user);
-            loadUserGroups();
+            applyUser(new StaffUser(p_user));
         } catch (error) {
             if (isPublicMode()) {
                 console.warn(
@@ -192,9 +298,64 @@ export function reloadUserData() {
     }, 300);
 }
 
+/**
+ * Load the current user again and apply the result if the groups changed.
+ * The group sync that runs after sign in can finish after the first user
+ * request, so a new sign in can start without the user's groups.
+ *
+ * Returns true if the groups changed.
+ */
+export async function checkUserGroupChanges(): Promise<boolean> {
+    const current = currentUser();
+    if (isPublicMode() || isEmptyUser(current)) return false;
+    try {
+        const user = new StaffUser(await showUser('current'));
+        if (sameGroups(current.groups || [], user.groups || [])) return false;
+        await applyUser(user);
+        return true;
+    } catch (error) {
+        console.warn('Failed to check for user group changes.', error);
+        return false;
+    }
+}
+
 /** Get the current user details */
 export function currentUser() {
     return _current_user.getValue() || EMPTY_USER;
+}
+
+/**
+ * Whether the current user may set a booking's approval state. staff-api
+ * accepts `approved` on create only from admin, support and zone manager
+ * users; zone management is not known client side
+ */
+export function currentUserCanApprove() {
+    const groups = currentUser()?.groups || [];
+    return (
+        groups.includes('placeos_admin') || groups.includes('placeos_support')
+    );
+}
+
+/** Override the current user store. Intended for tests seeding a loaded user. */
+export function setCurrentUser(user: StaffUser) {
+    _current_user.next(user);
+}
+
+export function currentUserIsLoaded() {
+    if (!isEmptyUser(currentUser())) return true;
+    return isTestRuntime();
+}
+
+export function currentUserLoaded(): Promise<StaffUser> {
+    const user = currentUser();
+    if (currentUserIsLoaded()) return Promise.resolve(user);
+    return new Promise((resolve) => {
+        const sub = _current_user.subscribe((user) => {
+            if (isEmptyUser(user)) return;
+            sub.unsubscribe();
+            resolve(user);
+        });
+    });
 }
 
 export function userSignal() {

@@ -113,6 +113,227 @@ function doesCronMatchDate(cron_parts: string[], date: Date) {
     return day_of_month_matches || day_of_week_matches;
 }
 
+function cronParts(cron_string: string) {
+    const parts = cron_string.trim().split(/\s+/);
+    if (parts.length !== 5) {
+        throw new Error('Invalid CRON string: Must have 5 parts.');
+    }
+    return parts;
+}
+
+/** Schedule start is in Unix seconds; mask characters repeat by cron occurrence. */
+export interface ScheduleMask {
+    readonly valid_from?: number;
+    readonly mask?: string;
+}
+
+/** Whether a schedule can have an enabled occurrence. */
+export function hasPlayableScheduleMask({
+    mask = '',
+    valid_from,
+}: ScheduleMask) {
+    return (
+        !mask ||
+        (mask.length <= 128 &&
+            !/[^01]/.test(mask) &&
+            mask.includes('1') &&
+            Number.isFinite(valid_from) &&
+            valid_from > 0 &&
+            Number.isFinite(new Date(valid_from * 1000).getTime()))
+    );
+}
+
+const MASK_FILTER_CACHE = new Map<string, (date: Date) => boolean>();
+
+/** Calculate the candidate occurrence index from cached calendar totals. */
+export function createScheduleMaskFilter(cron: string, schedule: ScheduleMask) {
+    const { mask = '', valid_from = 0 } = schedule;
+    const anchor = valid_from * 1000;
+    if (!hasPlayableScheduleMask(schedule)) return () => false;
+    if (!mask) return (date: Date) => !anchor || date.getTime() >= anchor;
+    const key = JSON.stringify([cron, mask, valid_from]);
+    const cached = MASK_FILTER_CACHE.get(key);
+    if (cached) return cached;
+    const parts = cronParts(cron);
+    const slots: number[] = [];
+    for (let hour = 0; hour < 24; hour++) {
+        if (!matchesCronPart(hour, parts[1])) continue;
+        for (let minute = 0; minute < 60; minute++) {
+            if (matchesCronPart(minute, parts[0]))
+                slots.push(hour * 60 + minute);
+        }
+    }
+    const calendar_parts = cronDayParts(parts);
+    const first_day = new Date(anchor);
+    first_day.setHours(0, 0, 0, 0);
+    const month_totals = new Map<number, number[]>();
+    const countBefore = (day: Date, before: number) => {
+        if (!slots.length || day.getTime() + 2 * 86_400_000 < anchor) return 0;
+        if (!doesCronMatchDate(calendar_parts, day)) return 0;
+        const next_day = new Date(day);
+        next_day.setDate(next_day.getDate() + 1);
+        if (next_day.getTime() <= anchor) return 0;
+        if (
+            day.getTime() >= anchor &&
+            next_day.getTime() <= before &&
+            next_day.getTime() - day.getTime() === 86_400_000
+        )
+            return slots.length;
+        let count = 0;
+        for (const slot of slots) {
+            const occurrence = new Date(day);
+            occurrence.setHours(0, slot, 0, 0);
+            // Date normalises nonexistent local times during a DST transition.
+            if (occurrence.getHours() * 60 + occurrence.getMinutes() !== slot)
+                continue;
+            const timestamp = occurrence.getTime();
+            if (timestamp >= anchor && timestamp < before) count++;
+        }
+        return count;
+    };
+    const monthTotals = (year: number, month: number) => {
+        const key = year * 12 + month;
+        const cached = month_totals.get(key);
+        if (cached) return cached;
+        const days = new Date(year, month + 1, 0).getDate();
+        const totals = [0];
+        for (let day = 1; day <= days; day++) {
+            totals.push(
+                (totals[day - 1] +
+                    countBefore(new Date(year, month, day), Infinity)) %
+                    mask.length,
+            );
+        }
+        if (month_totals.size >= 256) month_totals.clear();
+        month_totals.set(key, totals);
+        return totals;
+    };
+    const first_month = first_day.getFullYear() * 12 + first_day.getMonth();
+    const allows = (date: Date) => {
+        const timestamp = date.getTime();
+        if (!Number.isFinite(timestamp) || timestamp < anchor) return false;
+        const day = new Date(date);
+        day.setHours(0, 0, 0, 0);
+        const current_month = day.getFullYear() * 12 + day.getMonth();
+        let preceding = 0;
+        // Sum calendar totals, not prior cron instances. A backwards lookup
+        // reuses the same totals as a forwards lookup.
+        for (let month = first_month; month < current_month; month++) {
+            const totals = monthTotals(Math.floor(month / 12), month % 12);
+            preceding = (preceding + totals[totals.length - 1]) % mask.length;
+        }
+        const totals = monthTotals(day.getFullYear(), day.getMonth());
+        const index =
+            (preceding +
+                totals[day.getDate() - 1] +
+                countBefore(day, timestamp)) %
+            mask.length;
+        return mask[index] === '1';
+    };
+    // Displays can receive changed schedules for their entire uptime.
+    if (MASK_FILTER_CACHE.size >= 128) MASK_FILTER_CACHE.clear();
+    MASK_FILTER_CACHE.set(key, allows);
+    return allows;
+}
+
+/** Search limit below which a lookup is too cheap and too precise to memoise */
+const MIN_CACHEABLE_SEARCH_LIMIT_SECONDS = 60;
+/**
+ * Longest search, so a lookup always ends whatever limit it is given. A search
+ * as long as a play period must find the run that started it, and the manager
+ * sets no upper limit on play periods, so this is ten years: far above any
+ * real period. Days the cron cannot match are skipped whole, so a search costs
+ * at most about 3,700 day checks plus the minutes of the days it does match.
+ */
+const MAX_SEARCH_LIMIT_SECONDS = 10 * 366 * 24 * 60 * 60;
+const MINUTE_MS = 60_000;
+
+/**
+ * Whether `date` is the first time its local wall-clock minute occurs. When the
+ * clocks go back, the repeated hour only counts once, at its first occurrence,
+ * as in the signage manager and the schedule mask count.
+ */
+function isFirstLocalOccurrence(date: Date) {
+    const wall_clock = new Date(
+        date.getFullYear(),
+        date.getMonth(),
+        date.getDate(),
+        date.getHours(),
+        date.getMinutes(),
+    );
+    return wall_clock.getTime() === date.getTime();
+}
+
+/** Whether a cron runs at `date`, a whole minute, in local time */
+function isCronRun(cron_parts: string[], date: Date) {
+    return doesCronMatchDate(cron_parts, date) && isFirstLocalOccurrence(date);
+}
+
+/** Whether a cron can run at some time of day; `61 * * * *` never can */
+function hasCronTimeOfDay([minute_part, hour_part]: string[]) {
+    for (let hour = 0; hour < 24; hour++) {
+        if (!matchesCronPart(hour, hour_part)) continue;
+        for (let minute = 0; minute < 60; minute++) {
+            if (matchesCronPart(minute, minute_part)) return true;
+        }
+    }
+    return false;
+}
+
+/** Cron fields that match any time on the days the cron runs */
+function cronDayParts(cron_parts: string[]) {
+    return ['*', '*', ...cron_parts.slice(2)];
+}
+
+/** Start of the local day `offset_days` from the day of `date` */
+function localDayStart(date: Date, offset_days = 0) {
+    return new Date(
+        date.getFullYear(),
+        date.getMonth(),
+        date.getDate() + offset_days,
+    ).getTime();
+}
+
+/** Search limit in milliseconds, capped to `MAX_SEARCH_LIMIT_SECONDS` */
+function searchLimitMs(search_limit_in_seconds: number) {
+    return Math.min(search_limit_in_seconds, MAX_SEARCH_LIMIT_SECONDS) * 1000;
+}
+
+const CRON_LOOKUP_CACHE = new Map<string, number | null>();
+let cron_lookup_second = 0;
+
+/**
+ * Schedule evaluation runs every 15 seconds and asks the same question of the
+ * same schedule several times per pass: filtering playlists, resolving media
+ * validity, detecting takeovers and choosing what to cache ahead. Each of those
+ * walks the schedule a minute at a time, so the results are memoised for the
+ * second they were calculated in.
+ *
+ * Short searches are not memoised. The single-pass trigger window is only 30
+ * seconds wide and its boundary moves within a second, so its results are not
+ * interchangeable across a second - and a search that short costs almost
+ * nothing to repeat.
+ */
+function cachedCronLookup(
+    key: string,
+    now: number,
+    search_limit_in_seconds: number,
+    lookup: () => number | null,
+) {
+    if (search_limit_in_seconds < MIN_CACHEABLE_SEARCH_LIMIT_SECONDS) {
+        return lookup();
+    }
+    const second = Math.floor(now / 1000);
+    if (second !== cron_lookup_second) {
+        CRON_LOOKUP_CACHE.clear();
+        cron_lookup_second = second;
+    }
+    if (CRON_LOOKUP_CACHE.has(key)) return CRON_LOOKUP_CACHE.get(key);
+    const result = lookup();
+    CRON_LOOKUP_CACHE.set(key, result);
+    return result;
+}
+
 /**
  * Calculates the Unix timestamp for the next signage-manager-compatible cron
  * run in the device's local timezone, but only if it occurs within a specified
@@ -128,24 +349,84 @@ export function getNextCronRunTimestampInRange(
     cron_string: string,
     search_limit_in_seconds: number,
     now = Date.now(),
+    schedule: ScheduleMask = {},
 ): number | null {
-    const parts = cron_string.trim().split(/\s+/);
-    if (parts.length !== 5) {
-        throw new Error('Invalid CRON string: Must have 5 parts.');
-    }
-
-    const searchLimitDate = new Date(now + search_limit_in_seconds * 1000);
-    const start_time = new Date(now);
-    start_time.setSeconds(0, 0);
-    start_time.setMinutes(start_time.getMinutes() + 1);
-
-    const current_date = new Date(start_time.getTime());
-
-    while (current_date <= searchLimitDate) {
-        if (doesCronMatchDate(parts, current_date)) {
-            return Math.floor(current_date.getTime() / 1000);
+    const parts = cronParts(cron_string);
+    if (!hasPlayableScheduleMask(schedule)) return null;
+    const allows = createScheduleMaskFilter(cron_string, schedule);
+    const mask_key = JSON.stringify([schedule.valid_from, schedule.mask]);
+    const key = `next|${cron_string}|${search_limit_in_seconds}|${mask_key}`;
+    return cachedCronLookup(key, now, search_limit_in_seconds, () => {
+        // Steps in UTC, not local time: a local step resolves the hour that
+        // repeats when the clocks go back to its first occurrence, which
+        // would move the search an hour into the past.
+        if (!hasCronTimeOfDay(parts)) return null;
+        const day_parts = cronDayParts(parts);
+        const limit = now + searchLimitMs(search_limit_in_seconds);
+        const start = Math.floor(now / MINUTE_MS) * MINUTE_MS + MINUTE_MS;
+        const current_date = new Date(start);
+        // Every step moves forwards, by a minute or to the next day
+        for (let time = start; time <= limit; ) {
+            current_date.setTime(time);
+            if (!doesCronMatchDate(day_parts, current_date)) {
+                time = localDayStart(current_date, 1);
+                continue;
+            }
+            if (isCronRun(parts, current_date) && allows(current_date)) {
+                return Math.floor(time / 1000);
+            }
+            time += MINUTE_MS;
         }
-        current_date.setMinutes(current_date.getMinutes() + 1);
-    }
-    return null;
+        return null;
+    });
+}
+
+/**
+ * Calculates the Unix timestamp for the most recent signage-manager-compatible
+ * cron run at or before `now`, in the device's local timezone, but only if it
+ * occurred within a specified time range.
+ *
+ * A schedule that fires more often than its play period is long has several
+ * runs inside the search window; the run that is currently playing is always
+ * the latest one, so the search walks backwards from `now`. A masked latest
+ * run stops playback even when an earlier run still has time remaining.
+ *
+ * @param cron_string The 5-field CRON string (e.g., "* * * * *").
+ * @param search_limit_in_seconds The maximum number of seconds before now to search for a run.
+ * @returns The Unix timestamp (in seconds) for the last run if found within the
+ *          limit, otherwise returns `null`.
+ * @throws An error if the CRON string format is invalid.
+ */
+export function getLastCronRunTimestampInRange(
+    cron_string: string,
+    search_limit_in_seconds: number,
+    now = Date.now(),
+    schedule: ScheduleMask = {},
+): number | null {
+    const parts = cronParts(cron_string);
+    if (!hasPlayableScheduleMask(schedule)) return null;
+    const allows = createScheduleMaskFilter(cron_string, schedule);
+    const mask_key = JSON.stringify([schedule.valid_from, schedule.mask]);
+    const key = `last|${cron_string}|${search_limit_in_seconds}|${mask_key}`;
+    return cachedCronLookup(key, now, search_limit_in_seconds, () => {
+        // Steps in UTC for the same reason as the forwards search.
+        if (!hasCronTimeOfDay(parts)) return null;
+        const day_parts = cronDayParts(parts);
+        const limit = now - searchLimitMs(search_limit_in_seconds);
+        const start = Math.floor(now / MINUTE_MS) * MINUTE_MS;
+        const current_date = new Date(start);
+        // Every step moves backwards, by a minute or to the day before
+        for (let time = start; time >= limit; ) {
+            current_date.setTime(time);
+            if (!doesCronMatchDate(day_parts, current_date)) {
+                time = localDayStart(current_date) - MINUTE_MS;
+                continue;
+            }
+            if (isCronRun(parts, current_date)) {
+                return allows(current_date) ? Math.floor(time / 1000) : null;
+            }
+            time -= MINUTE_MS;
+        }
+        return null;
+    });
 }

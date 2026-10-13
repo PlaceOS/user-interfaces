@@ -15,10 +15,10 @@ import {
     OrganisationService,
     SettingsService,
 } from '@placeos/common';
+import { generateQRCode } from '@placeos/common/qr-code';
 
 import { CommonModule } from '@angular/common';
 import { MatRippleModule } from '@angular/material/core';
-import { generateQRCode } from '@placeos/common';
 import {
     AuthenticatedImageDirective,
     SafePipe,
@@ -56,12 +56,21 @@ import { PanelStateService } from './panel-state.service';
                 <div class="flex-1 overflow-hidden">
                     @let current_bkn = current();
                     @if (current_bkn) {
-                        <h2 class="line-clamp-5 text-2xl font-medium">
-                            {{ current_bkn?.title }}
-                        </h2>
+                        @if (!hide_meeting_title) {
+                            <h2 class="line-clamp-5 text-2xl font-medium">
+                                {{ current_bkn?.title }}
+                            </h2>
+                        }
                         <p class="mb-4 text-2xl lowercase">
-                            ending &#64;
-                            {{ current_bkn?.event_end * 1000 | date: 'h:mma' }}
+                            {{
+                                'APP.BOOKING_PANEL.ENDING_AT'
+                                    | translate
+                                        : {
+                                              time:
+                                                  current_bkn?.event_end * 1000
+                                                  | date: 'h:mma',
+                                          }
+                            }}
                         </p>
                         @if (!hide_meeting_details) {
                             <p class="text-xl">
@@ -71,11 +80,13 @@ import { PanelStateService } from './panel-state.service';
                                         current_bkn?.host
                                 }}
                             </p>
+                            <p
+                                class="line-clamp-6 text-base portrait:line-clamp-8"
+                                [innerHTML]="
+                                    current_bkn?.body | sanitize: 'html'
+                                "
+                            ></p>
                         }
-                        <p
-                            class="line-clamp-6 text-base portrait:line-clamp-8"
-                            [innerHTML]="current_bkn?.body | sanitize: 'html'"
-                        ></p>
                     } @else {
                         <p class="text-2xl font-medium opacity-60">
                             {{ 'APP.BOOKING_PANEL.NO_CURRENT' | translate }}
@@ -84,17 +95,26 @@ import { PanelStateService } from './panel-state.service';
                 </div>
                 <div class="min-w-[40%] flex-1">
                     <h2 class="text-2xl font-medium uppercase">
-                        {{ 'APP.BOOKING_PANEL.NEXT' | translate }}
+                        {{ 'COMMON.NEXT' | translate }}
                     </h2>
                     <hr class="mb-8" />
                     @let next_bkn = next();
                     @if (next_bkn) {
-                        <h2 class="line-clamp-4 text-2xl font-medium">
-                            {{ next_bkn?.title }}
-                        </h2>
+                        @if (!hide_meeting_title) {
+                            <h2 class="line-clamp-4 text-2xl font-medium">
+                                {{ next_bkn?.title }}
+                            </h2>
+                        }
                         <p class="text-2xl lowercase">
-                            starting &#64;
-                            {{ next_bkn?.event_start * 1000 | date: 'h:mma' }}
+                            {{
+                                'APP.BOOKING_PANEL.STARTING_AT'
+                                    | translate
+                                        : {
+                                              time:
+                                                  next_bkn?.event_start * 1000
+                                                  | date: 'h:mma',
+                                          }
+                            }}
                         </p>
                     } @else {
                         <p class="text-2xl font-medium opacity-60">
@@ -209,6 +229,10 @@ export class EventPanelComponent extends AsyncHandler implements OnInit {
 
     public get hide_meeting_details() {
         return this._state.setting('hide_meeting_details');
+    }
+
+    public get hide_meeting_title() {
+        return this._state.setting('hide_meeting_title');
     }
 
     public get checkin() {

@@ -1,14 +1,20 @@
-import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
+import {
+    MAT_DIALOG_DATA,
+    MatDialog,
+    MatDialogModule,
+} from '@angular/material/dialog';
 import { MatMenuModule } from '@angular/material/menu';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import {
     currentUser,
     MapsPeopleService,
     OrganisationService,
+    settingSignal,
     SettingsService,
 } from '@placeos/common';
 import { createSettingsServiceMock } from '@placeos/common/tests';
 import { MockComponent, MockModule, MockProvider } from 'ng-mocks';
+import type { Mock } from 'vitest';
 
 import { Booking } from '@placeos/common';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
@@ -16,16 +22,21 @@ import { ImageCarouselComponent } from 'libs/components/src/lib/image-carousel.c
 import { IndoorMapsComponent } from 'libs/components/src/lib/indoor-maps.component';
 import { InteractiveMapComponent } from 'libs/components/src/lib/interactive-map.component';
 import { StatusPillComponent } from 'libs/components/src/lib/status-pill.component';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, NEVER, of } from 'rxjs';
 import { BookingDetailsModalComponent } from '../lib/booking-details-modal.component';
-import * as bookings_fn from '../lib/bookings.fn';
+
+// `checkinBooking` runs for real; only the ts-client `post` beneath it is
+// stubbed so the check-in request resolves.
+vi.mock('@placeos/ts-client', { spy: true });
+
+import * as ts_client from '@placeos/ts-client';
 
 describe('BookingDetailsModalComponent', () => {
     let spectator: Spectator<BookingDetailsModalComponent>;
-    const refresh_fn = jest.fn();
-    const edit_fn = jest.fn();
-    const remove_fn = jest.fn();
-    const end_fn = jest.fn();
+    const refresh_fn = vi.fn();
+    const edit_fn = vi.fn();
+    const remove_fn = vi.fn();
+    const end_fn = vi.fn();
     const createComponent = createComponentFactory({
         component: BookingDetailsModalComponent,
         providers: [
@@ -39,17 +50,17 @@ describe('BookingDetailsModalComponent', () => {
                     date: Date.now(),
                     duration: 60,
                     status: 'approved',
-                } as any),
+                }),
                 edit_fn,
                 remove_fn,
                 end_fn,
                 refresh_fn,
             }),
-            MockProvider(OrganisationService as any, {
-                levelWithID: jest.fn(),
+            MockProvider(OrganisationService, {
+                levelWithID: vi.fn(),
                 buildings: [],
             }),
-            MockProvider(SettingsService as any, createSettingsServiceMock()),
+            MockProvider(SettingsService, createSettingsServiceMock()),
             MockProvider(MapsPeopleService, {
                 use_mapsindoors$: new BehaviorSubject(false),
             } as any),
@@ -65,16 +76,13 @@ describe('BookingDetailsModalComponent', () => {
     });
 
     beforeEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
         spectator = createComponent();
     });
 
-    it('should create component', () =>
-        expect(spectator.component).toBeTruthy());
-
     it('should show images', () => {
         expect('image-carousel').not.toExist();
-        (spectator.component as any).booking.set(
+        spectator.component.booking.set(
             new Booking({
                 extension_data: { images: [''] },
             }),
@@ -85,6 +93,11 @@ describe('BookingDetailsModalComponent', () => {
 
     it('should show title', () => expect('[title]').toExist());
 
+    const hasMenuTrigger = () =>
+        spectator
+            .queryAll('[actions] button')
+            .some((_) => _.textContent?.includes('more_horiz'));
+
     it('should not delete ended bookings', () => {
         const booking = new Booking({
             id: 'booking-1',
@@ -94,15 +107,204 @@ describe('BookingDetailsModalComponent', () => {
             date: Date.now(),
             duration: 60,
             status: 'approved',
-        } as any);
+        });
 
         spectator.component.remove(booking);
 
         expect(remove_fn).not.toHaveBeenCalled();
     });
 
+    it('should end instead of cancel an ongoing checked-in visitor booking', () => {
+        const booking = new Booking({
+            id: 'visitor-booking-1',
+            booking_type: 'visitor',
+            type: 'visitor',
+            checked_in: true,
+            date: Date.now() - 30 * 60 * 1000,
+            duration: 60,
+            status: 'approved',
+        });
+        spectator.component.booking.set(booking);
+
+        expect(spectator.component.is_in_progress()).toBe(true);
+        expect(spectator.component.can_cancel()).toBe(false);
+
+        spectator.component.remove(booking, false);
+
+        expect(remove_fn).not.toHaveBeenCalled();
+    });
+
+    it('should hide the action menu for a booking checked in before its start', () => {
+        const booking = new Booking({
+            id: 'desk-booking-1',
+            booking_type: 'desk',
+            type: 'desk',
+            asset_id: 'desk-1',
+            checked_in: true,
+            date: Date.now() + 10 * 60 * 1000,
+            duration: 60,
+            status: 'approved',
+        });
+        spectator.component.booking.set(booking);
+        spectator.detectChanges();
+
+        expect('[actions]').toExist();
+        expect(spectator.component.has_menu_actions()).toBe(false);
+        expect(hasMenuTrigger()).toBe(false);
+
+        spectator.component.booking.set(
+            new Booking({
+                ...booking.toJSON(),
+                date: Date.now() - 10 * 60 * 1000,
+            }),
+        );
+        spectator.detectChanges();
+
+        expect(spectator.component.has_menu_actions()).toBe(true);
+        expect(hasMenuTrigger()).toBe(true);
+    });
+
+    it('should allow cancelling a visitor booking before check-in', () => {
+        const booking = new Booking({
+            id: 'visitor-booking-1',
+            booking_type: 'visitor',
+            type: 'visitor',
+            date: Date.now() + 60 * 60 * 1000,
+            duration: 60,
+            status: 'approved',
+        });
+        spectator.component.booking.set(booking);
+
+        expect(spectator.component.can_cancel()).toBe(true);
+
+        spectator.component.remove(booking, false);
+
+        expect(remove_fn).toHaveBeenCalledWith(booking, false);
+    });
+
+    it('should hide the action controls for a cancelled desk booking', () => {
+        const booking = new Booking({
+            id: 'desk-booking-1',
+            booking_type: 'desk',
+            type: 'desk',
+            asset_id: 'desk-1',
+            date: Date.now() + 60 * 60 * 1000,
+            duration: 60,
+            status: 'approved',
+        });
+        spectator.component.booking.set(booking);
+        spectator.detectChanges();
+        expect('[actions]').toExist();
+        expect(spectator.component.can_edit()).toBe(true);
+        expect(spectator.component.can_cancel()).toBe(true);
+
+        spectator.component.booking.set(
+            new Booking({ ...booking.toJSON(), deleted: true }),
+        );
+        spectator.detectChanges();
+
+        expect(spectator.component.show_actions()).toBe(false);
+        expect('[actions]').not.toExist();
+        expect(spectator.component.can_edit()).toBe(false);
+        expect(spectator.component.can_cancel()).toBe(false);
+        expect(spectator.component.booking_status()).toBe('error');
+    });
+
+    it('should keep the group delete action for a cancelled group member', () => {
+        spectator.component.booking.set(
+            new Booking({
+                booking_type: 'desk',
+                type: 'desk',
+                parent_id: 'booking-group',
+                user_email: currentUser().email,
+                date: Date.now() + 60 * 60 * 1000,
+                duration: 60,
+                deleted: true,
+                linked_parent_booking: {
+                    id: 'booking-group',
+                    booking_type: 'group',
+                    user_email: currentUser().email,
+                    date: Date.now() + 60 * 60 * 1000,
+                    duration: 60,
+                    status: 'approved',
+                },
+            } as any),
+        );
+        spectator.detectChanges();
+
+        expect(spectator.component.can_manage_group()).toBe(true);
+        expect(spectator.component.show_actions()).toBe(true);
+        expect('[actions]').toExist();
+        expect(spectator.component.can_edit()).toBe(false);
+        expect(spectator.component.can_cancel()).toBe(false);
+    });
+
+    it('should block actions after a visitor booking is cancelled', () => {
+        const allow_editing = settingSignal('visitors.allow_editing', false);
+        const previous_value = allow_editing();
+        allow_editing.set(true);
+        const booking = new Booking({
+            id: 'visitor-booking-1',
+            booking_type: 'visitor',
+            date: Date.now() + 60 * 60 * 1000,
+            duration: 60,
+            status: 'cancelled',
+        });
+        try {
+            spectator.component.booking.set(
+                new Booking({
+                    ...booking.toJSON(),
+                    status: 'approved',
+                }),
+            );
+            expect(spectator.component.can_edit()).toBe(true);
+            expect(spectator.component.can_cancel()).toBe(true);
+            spectator.component.booking.set(booking);
+            expect(spectator.component.can_edit()).toBe(false);
+            expect(spectator.component.can_cancel()).toBe(false);
+            expect(spectator.component.booking_status()).toBe('error');
+            spectator.component.remove(booking, false);
+            expect(remove_fn).not.toHaveBeenCalled();
+        } finally {
+            allow_editing.set(previous_value);
+        }
+    });
+
+    it('should show cancel series for a recurring booking by default', () => {
+        spectator.component.booking.set(
+            new Booking({
+                id: 'booking-1',
+                booking_type: 'desk',
+                type: 'desk',
+                instance: Math.floor(Date.now() / 1000),
+                date: Date.now() + 60 * 60 * 1000,
+                duration: 60,
+                status: 'approved',
+            }),
+        );
+
+        expect(spectator.component.allow_series_delete()).toBe(true);
+    });
+
+    it('should hide cancel series for an assigned booking by default', () => {
+        spectator.component.booking.set(
+            new Booking({
+                id: 'booking-1',
+                booking_type: 'locker',
+                type: 'locker',
+                instance: Math.floor(Date.now() / 1000),
+                date: Date.now() + 60 * 60 * 1000,
+                duration: 60,
+                status: 'approved',
+                extension_data: { is_assigned: true },
+            }),
+        );
+
+        expect(spectator.component.allow_series_delete()).toBe(false);
+    });
+
     it('should format visitor name nicely in booking details', () => {
-        (spectator.component as any).booking.set(
+        spectator.component.booking.set(
             new Booking({
                 booking_type: 'visitor',
                 asset_name: 'jane.doe@example.com',
@@ -117,7 +319,7 @@ describe('BookingDetailsModalComponent', () => {
     });
 
     it('should show booking title as display title and visitor name separately', () => {
-        (spectator.component as any).booking.set(
+        spectator.component.booking.set(
             new Booking({
                 booking_type: 'visitor',
                 title: 'Vendor Interview',
@@ -135,14 +337,10 @@ describe('BookingDetailsModalComponent', () => {
     });
 
     it('should refresh parent state after toggling checked in', async () => {
-        jest.spyOn(bookings_fn, 'checkinBooking').mockReturnValue(
-            Promise.resolve(
-                new Booking({
-                    id: 'booking-1',
-                    checked_in: true,
-                } as any),
-            ) as any,
-        );
+        vi.mocked(ts_client.post).mockResolvedValue({
+            id: 'booking-1',
+            checked_in: true,
+        } as any);
 
         await spectator.component.toggleCheckedIn();
 
@@ -150,22 +348,127 @@ describe('BookingDetailsModalComponent', () => {
         expect(spectator.component.booking().checked_in).toBe(true);
     });
 
-    it('should show waitlisted status for current week parking requests when enabled', () => {
-        (spectator.component as any).booking.set(
+    it('should confirm before checking out', async () => {
+        const dialog: MatDialog = (spectator.component as any)._dialog;
+        vi.spyOn(dialog, 'open').mockReturnValue({
+            componentInstance: { event: NEVER },
+            afterClosed: () => of(null),
+            close: vi.fn(),
+        } as any);
+        spectator.component.booking.set(
+            new Booking({
+                id: 'booking-1',
+                checked_in: true,
+            }),
+        );
+
+        await spectator.component.toggleCheckedIn();
+
+        expect(dialog.open).toHaveBeenCalledWith(
+            expect.anything(),
+            expect.objectContaining({
+                data: expect.objectContaining({
+                    title: 'COMMON.CHECK_OUT',
+                    confirm_text: 'COMMON.CHECK_OUT',
+                    icon: { content: 'logout' },
+                }),
+            }),
+        );
+        expect(ts_client.post).not.toHaveBeenCalled();
+    });
+
+    it('should check out parking and refresh the parent state', async () => {
+        const dialog: MatDialog = (spectator.component as any)._dialog;
+        const close = vi.fn();
+        vi.spyOn(dialog, 'open').mockReturnValue({
+            componentInstance: {
+                event: of({ reason: 'done' }),
+                loading: { set: vi.fn() },
+            },
+            afterClosed: () => NEVER,
+            close,
+        } as any);
+        spectator.component.booking.set(
+            new Booking({
+                id: 'parking-booking-1',
+                booking_type: 'parking',
+                type: 'parking',
+                checked_in: true,
+            }),
+        );
+        vi.mocked(ts_client.post).mockResolvedValue({
+            id: 'parking-booking-1',
+            booking_type: 'parking',
+            type: 'parking',
+            checked_in: false,
+            checked_out_at: Math.floor(Date.now() / 1000),
+        } as any);
+
+        await spectator.component.toggleCheckedIn();
+
+        expect(dialog.open).toHaveBeenCalledWith(
+            expect.anything(),
+            expect.objectContaining({
+                data: expect.objectContaining({
+                    content:
+                        'You are currently checked in.<br/>' +
+                        'Would you like to check out of your parking space now?<br/>' +
+                        'This will make the parking space available for others to book.',
+                }),
+            }),
+        );
+        expect(ts_client.post).toHaveBeenCalledWith(
+            expect.stringContaining('parking-booking-1/check_in?state=false'),
+            '',
+        );
+        expect(spectator.component.booking().checked_in).toBe(false);
+        expect(spectator.component.checked_out()).toBe(true);
+        expect(refresh_fn).toHaveBeenCalled();
+        expect(close).toHaveBeenCalled();
+    });
+
+    it('should hide check-in for unallocated parking bookings', () => {
+        spectator.component.booking.set(
+            new Booking({
+                booking_type: 'parking',
+                type: 'parking',
+                asset_id: 'unallocated-1',
+            }),
+        );
+
+        expect(spectator.component.can_checkin()).toBe(false);
+    });
+
+    it('should allow check-in for allocated parking bookings', () => {
+        spectator.component.booking.set(
+            new Booking({
+                booking_type: 'parking',
+                type: 'parking',
+                asset_id: 'parking-1',
+            }),
+        );
+
+        expect(spectator.component.can_checkin()).toBe(true);
+    });
+
+    it('should show waitlisted status for parking requests when enabled', () => {
+        spectator.component.booking.set(
             new Booking({
                 booking_type: 'parking',
                 type: 'parking',
                 asset_id: 'unallocated-1',
                 date: Date.now(),
+                approved: false,
                 status: 'tentative',
-            } as any),
+                process_state: 'wait_list',
+            }),
         );
 
         expect(spectator.component.booking_status()).toBe('info');
     });
 
     it('should not show waiting approval parking requests as waitlisted', () => {
-        (spectator.component as any).booking.set(
+        spectator.component.booking.set(
             new Booking({
                 booking_type: 'parking',
                 type: 'parking',
@@ -173,7 +476,7 @@ describe('BookingDetailsModalComponent', () => {
                 date: Date.now(),
                 status: 'tentative',
                 process_state: 'waiting_approval',
-            } as any),
+            }),
         );
 
         expect(spectator.component.booking_status()).toBe('warning');
@@ -181,18 +484,20 @@ describe('BookingDetailsModalComponent', () => {
 
     it('should hide waitlisted status for parking requests when waitlist display is disabled', () => {
         const settings = spectator.inject(SettingsService);
-        (settings.get as jest.Mock).mockImplementation((name: string) =>
+        (settings.get as Mock).mockImplementation((name: string) =>
             name === 'app.parking.show_waitlist' ? false : undefined,
         );
         spectator = createComponent();
-        (spectator.component as any).booking.set(
+        spectator.component.booking.set(
             new Booking({
                 booking_type: 'parking',
                 type: 'parking',
                 asset_id: 'unallocated-1',
                 date: Date.now(),
+                approved: false,
                 status: 'tentative',
-            } as any),
+                process_state: 'wait_list',
+            }),
         );
 
         expect(spectator.component.booking_status()).toBe('warning');
@@ -200,17 +505,17 @@ describe('BookingDetailsModalComponent', () => {
 
     it('should hide selected parking space when enabled', () => {
         const settings = spectator.inject(SettingsService);
-        (settings.get as jest.Mock).mockImplementation((name: string) =>
+        (settings.get as Mock).mockImplementation((name: string) =>
             name === 'app.parking.hide_selected_space' ? true : undefined,
         );
         spectator = createComponent();
-        (spectator.component as any).booking.set(
+        spectator.component.booking.set(
             new Booking({
                 booking_type: 'parking',
                 type: 'parking',
                 asset_id: 'parking-1',
                 asset_name: 'Parking 1',
-            } as any),
+            }),
         );
 
         expect(spectator.component.resource_details_label()).toBe(
@@ -219,7 +524,7 @@ describe('BookingDetailsModalComponent', () => {
     });
 
     it('should show group details from the linked group parent booking', () => {
-        (spectator.component as any).booking.set(
+        spectator.component.booking.set(
             new Booking({
                 booking_type: 'desk',
                 type: 'desk',
@@ -244,7 +549,7 @@ describe('BookingDetailsModalComponent', () => {
                         ],
                     },
                 },
-            } as any),
+            }),
         );
         spectator.detectChanges();
 
@@ -257,7 +562,7 @@ describe('BookingDetailsModalComponent', () => {
     });
 
     it('should allow the group host to delete the linked group parent', () => {
-        (spectator.component as any).booking.set(
+        spectator.component.booking.set(
             new Booking({
                 booking_type: 'desk',
                 type: 'desk',
@@ -301,7 +606,7 @@ describe('BookingDetailsModalComponent', () => {
     });
 
     it('should hide group parent actions for non-host users', () => {
-        (spectator.component as any).booking.set(
+        spectator.component.booking.set(
             new Booking({
                 booking_type: 'desk',
                 type: 'desk',

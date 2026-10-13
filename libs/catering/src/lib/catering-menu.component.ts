@@ -16,6 +16,33 @@ import { CateringStateService } from './catering-state.service';
 @Component({
     selector: 'catering-menu',
     template: `
+        <div class="mb-2 flex items-center gap-2 text-sm">
+            <div class="flex-1 opacity-60">
+                {{
+                    'CATERING.MENU_SHOWN' | translate: { count: menu().length }
+                }}
+            </div>
+            <button
+                btn
+                matRipple
+                allow-all
+                class="inverse"
+                [disabled]="!menu().length"
+                (click)="setAllEnabled(true)"
+            >
+                {{ 'CATERING.MENU_ALLOW_ALL' | translate }}
+            </button>
+            <button
+                btn
+                matRipple
+                stop-all
+                class="inverse"
+                [disabled]="!menu().length"
+                (click)="setAllEnabled(false)"
+            >
+                {{ 'CATERING.MENU_STOP_ALL' | translate }}
+            </button>
+        </div>
         <simple-table
             class="block w-full min-w-lg text-sm"
             [data]="menu()"
@@ -48,7 +75,6 @@ import { CateringStateService } from './catering-state.service';
                     sortable: false,
                 },
             ]"
-            [filter]="filters()?.search"
             [show_children]="show_children()"
             [child_template]="child_template"
             [sortable]="true"
@@ -102,6 +128,16 @@ import { CateringStateService } from './catering-state.service';
                         <div class="flex items-center space-x-2 pr-2">
                             <icon>edit</icon>
                             <div>{{ 'CATERING.ITEM_EDIT' | translate }}</div>
+                        </div>
+                    </button>
+                    <button
+                        mat-menu-item
+                        class="flex items-center"
+                        (click)="duplicateItem(row)"
+                    >
+                        <div class="flex items-center space-x-2 pr-2">
+                            <icon>content_copy</icon>
+                            <div>{{ 'COMMON.DUPLICATE' | translate }}</div>
                         </div>
                     </button>
                     <button
@@ -214,14 +250,19 @@ export class CateringMenuComponent {
     public readonly show_children = signal<Record<string, boolean>>({});
     public readonly filters = this._orders.order_filters;
     private readonly _menu = this._catering.menu;
-    /** Signal for the currently active menu */
+    /** Menu items that match the caterer and search filters */
     public readonly menu = computed(() => {
         const filters = this.filters();
+        const search = (filters?.search || '').toLowerCase();
         return this._menu().filter(
             (item) =>
-                !filters?.caterer ||
-                (filters.caterer === '<empty>' && !item.caterer) ||
-                item.caterer === filters.caterer,
+                (!filters?.caterer ||
+                    (filters.caterer === '<empty>' && !item.caterer) ||
+                    item.caterer === filters.caterer) &&
+                [item.name, item.category, item.caterer, item.description]
+                    .join('\n')
+                    .toLowerCase()
+                    .includes(search),
         );
     });
 
@@ -236,6 +277,17 @@ export class CateringMenuComponent {
     public readonly editItem = (item) => this._catering.addItem(item);
 
     public readonly removeItem = (item) => this._catering.deleteItem(item);
+
+    public readonly duplicateItem = (item: CateringItem) =>
+        this._catering.duplicateItem(item);
+
+    /** Allow or stop ordering of all shown items from the current zone */
+    public readonly setAllEnabled = (enabled: boolean) =>
+        this._catering.setItemsEnabled(
+            this.menu(),
+            this._catering.zone,
+            enabled,
+        );
 
     public readonly can_edit = computed(() => this._catering.is_editable);
 

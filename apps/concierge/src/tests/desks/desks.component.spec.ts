@@ -2,7 +2,10 @@ import { signal, WritableSignal } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatTabsModule } from '@angular/material/tabs';
-import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
+import {
+    createRoutingFactory,
+    SpectatorRouting,
+} from '@ngneat/spectator/vitest';
 import { MockComponent, MockModule, MockProvider } from 'ng-mocks';
 
 import { FormsModule } from '@angular/forms';
@@ -21,10 +24,12 @@ import { ApplicationTopbarComponent } from '../../app/ui/app-topbar.component';
 import { SearchbarComponent } from '../../app/ui/searchbar.component';
 
 describe('DesksComponent', () => {
+    const levelsForBuilding = (building: any) =>
+        building?.id === 'bld-2' ? [{ id: 'level-b' }] : [{ id: 'level-a' }];
     let spectator: SpectatorRouting<DesksComponent>;
-    let active_building: WritableSignal<any>;
-    let active_region: WritableSignal<any>;
-    let current_building: any;
+    let active_building: WritableSignal<unknown>;
+    let active_region: WritableSignal<unknown>;
+    let current_building: unknown;
     let filters_signal: ReturnType<typeof signal<any>>;
     let print_desk_signal: ReturnType<typeof signal<DeskQrItem | null>>;
     const organisation_service: any = {
@@ -32,13 +37,9 @@ describe('DesksComponent', () => {
             { id: 'bld-1', parent_id: 'region-1' },
             { id: 'bld-2', parent_id: 'region-1' },
         ],
-        levelsForBuilding: jest.fn((building) =>
-            building?.id === 'bld-2'
-                ? [{ id: 'level-b' }]
-                : [{ id: 'level-a' }],
-        ),
-        levelsForRegion: jest.fn(() => [{ id: 'level-a' }, { id: 'level-b' }]),
-        levelWithID: jest.fn(),
+        levelsForBuilding: vi.fn(levelsForBuilding),
+        levelsForRegion: vi.fn(() => [{ id: 'level-a' }, { id: 'level-b' }]),
+        levelWithID: vi.fn(),
         active_building: undefined,
         active_region: undefined,
         get building() {
@@ -59,18 +60,18 @@ describe('DesksComponent', () => {
         ],
         providers: [
             MockProvider(DesksStateService, {
-                refresh: jest.fn(),
+                refresh: vi.fn(),
                 filters: signal({}),
                 print_desk: signal(null),
                 loading: signal(false),
-                setFilters: jest.fn(),
-                rejectAllDesks: jest.fn(),
-                editDesk: jest.fn(),
-                addDesks: jest.fn(),
-            } as any),
+                setFilters: vi.fn(),
+                rejectAllDesks: vi.fn(),
+                editDesk: vi.fn(),
+                addDesks: vi.fn(),
+            }),
             MockProvider(OrganisationService, organisation_service),
-            MockProvider(MatDialog, { open: jest.fn() }),
-            MockProvider(SettingsService, { get: jest.fn() }),
+            MockProvider(MatDialog, { open: vi.fn() }),
+            MockProvider(SettingsService, { get: vi.fn() }),
         ],
         imports: [
             MockModule(MatProgressBarModule),
@@ -82,6 +83,9 @@ describe('DesksComponent', () => {
     });
 
     beforeEach(() => {
+        organisation_service.levelsForBuilding.mockImplementation(
+            levelsForBuilding,
+        );
         current_building = { id: 'bld-1', parent_id: 'region-1' };
         active_building = signal(current_building);
         active_region = signal({ id: 'region-1' });
@@ -92,43 +96,61 @@ describe('DesksComponent', () => {
         spectator = createComponent({
             providers: [
                 MockProvider(DesksStateService, {
-                    refresh: jest.fn(),
+                    refresh: vi.fn(),
                     filters: filters_signal,
                     print_desk: print_desk_signal,
                     loading: signal(false),
-                    setFilters: jest.fn((filters) =>
+                    setFilters: vi.fn((filters) =>
                         filters_signal.set({
                             ...filters_signal(),
                             ...filters,
                         }),
                     ),
-                    rejectAllDesks: jest.fn(),
-                    editDesk: jest.fn(),
-                    addDesks: jest.fn(),
-                } as any),
+                    rejectAllDesks: vi.fn(),
+                    editDesk: vi.fn(),
+                    addDesks: vi.fn(),
+                }),
                 MockProvider(SettingsService, {
                     get: ((name: string) =>
                         name === 'app.use_region' ? false : undefined) as any,
-                } as any),
+                }),
             ],
         });
     });
 
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
+    afterEach(() => localStorage.clear());
+
+    it('should list parking-only levels last', () => {
+        organisation_service.levelsForBuilding.mockReturnValue([
+            { id: 'level-parking', tags: ['level', 'parking'] },
+            { id: 'level-ground', tags: ['level'] },
+        ]);
+        current_building = { id: 'bld-3', parent_id: 'region-1' };
+        active_building.set(current_building);
+        spectator.component.path.set('manage');
+        spectator.detectChanges();
+
+        expect(spectator.component.levels().map((lvl) => lvl.id)).toEqual([
+            'level-ground',
+            'level-parking',
+        ]);
     });
 
-    it('should clear stale zones when the active building changes', () => {
+    it('should default to all levels when the active building changes', () => {
         // Events view defaults to "all levels" (empty selection). When the
         // building changes, zones that don't belong to the new building must
-        // be dropped so the user isn't left with a stale selection.
+        // be dropped even if that building has a persisted booking selection.
+        localStorage.setItem(
+            'PLACEOS.concierge.zones.desks.bld-2',
+            JSON.stringify(['level-b']),
+        );
         const injected_building = spectator.inject(OrganisationService)
-            .active_building as WritableSignal<any>;
+            .active_building as unknown as WritableSignal<unknown>;
         // Flush the initial `toObservable` emissions, then restore the active
         // selection (initial sync may clear it) so we test the building change.
         spectator.detectChanges();
         filters_signal.set({ zones: ['level-a'] });
-        const update_zones = jest.spyOn(spectator.component, 'updateZones');
+        const update_zones = vi.spyOn(spectator.component, 'updateZones');
         update_zones.mockClear();
 
         current_building = { id: 'bld-2', parent_id: 'region-1' };
@@ -142,7 +164,7 @@ describe('DesksComponent', () => {
 
     it('should clear search when switching desk views', () => {
         const desks_state = spectator.inject(DesksStateService);
-        (desks_state.setFilters as jest.Mock).mockClear();
+        desks_state.setFilters.mockClear();
         filters_signal.set({
             zones: ['level-a'],
             view: 'manage',
@@ -156,6 +178,34 @@ describe('DesksComponent', () => {
             view: 'events',
             search: '',
         });
+    });
+
+    it('should restore all levels when returning from desk management', () => {
+        filters_signal.set({ zones: ['level-a'], view: 'manage' });
+
+        spectator.component.path.set('events');
+        (spectator.component as any)._updateView();
+
+        expect(filters_signal().zones).toEqual([]);
+    });
+
+    it('should default desk management to all levels', () => {
+        filters_signal.set({ zones: ['level-a'], view: 'events' });
+
+        spectator.component.path.set('manage');
+        (spectator.component as any)._updateView();
+
+        expect(filters_signal().zones).toEqual([]);
+    });
+
+    it('should allow multiple or no desk management levels', () => {
+        spectator.component.path.set('manage');
+
+        spectator.component.updateZones(['level-a', 'level-b']);
+        expect(filters_signal().zones).toEqual(['level-a', 'level-b']);
+
+        spectator.component.updateZones([]);
+        expect(filters_signal().zones).toEqual([]);
     });
 
     it('should render selected desk QR code outside the print-hidden content', () => {

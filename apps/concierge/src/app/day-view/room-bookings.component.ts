@@ -1,5 +1,6 @@
 import {
     Component,
+    computed,
     effect,
     inject,
     OnInit,
@@ -29,6 +30,7 @@ import {
 import {
     BuildingPipe,
     IconComponent,
+    LoadErrorComponent,
     SettingsToggleComponent,
     TranslatePipe,
 } from '@placeos/components';
@@ -47,8 +49,8 @@ const EMPTY = [];
 @Component({
     selector: 'room-bookings',
     template: `
-        <div class="absolute inset-0 flex flex-col overflow-hidden pl-8">
-            <div class="flex w-full items-center space-x-2 py-4 pr-8">
+        <div class="absolute inset-0 flex flex-col overflow-hidden">
+            <div class="flex w-full items-center gap-2 px-8 py-4">
                 <h2 class="text-2xl font-medium">
                     {{ 'APP.CONCIERGE.ROOM_BOOKINGS' | translate }}
                 </h2>
@@ -82,20 +84,26 @@ const EMPTY = [];
                         <icon class="text-2xl">download</icon>
                     }
                 </button>
-                <button btn matRipple class="space-x-2" (click)="newBooking()">
+                <button
+                    btn
+                    matRipple
+                    class="space-x-2"
+                    data-shortcut="new"
+                    (click)="newBooking()"
+                >
                     <div class="pl-2">
                         {{ 'APP.CONCIERGE.ROOMS_BOOK_ADD' | translate }}
                     </div>
                     <icon class="text-2xl">add</icon>
                 </button>
                 <div
-                    class="border-base-300 bg-base-100 ml-2 flex rounded border"
+                    class="border-base-300 bg-base-100 flex overflow-hidden rounded-lg border"
                 >
                     <button
                         icon
                         matRipple
-                        class="h-12 w-12 rounded-none"
-                        [class.bg-secondary]="view() === 'timeline'"
+                        class="hover:bg-base-200 h-12 w-12 rounded-none"
+                        [class.bg-secondary!]="view() === 'timeline'"
                         [class.text-secondary-content]="view() === 'timeline'"
                         [class.opacity-70]="view() !== 'timeline'"
                         [matTooltip]="'COMMON.DAY' | translate"
@@ -106,8 +114,8 @@ const EMPTY = [];
                     <button
                         icon
                         matRipple
-                        class="h-12 w-12 rounded-none"
-                        [class.bg-secondary]="view() === 'list'"
+                        class="hover:bg-base-200 h-12 w-12 rounded-none"
+                        [class.bg-secondary!]="view() === 'list'"
                         [class.text-secondary-content]="view() === 'list'"
                         [class.opacity-70]="view() !== 'list'"
                         [matTooltip]="'COMMON.LIST' | translate"
@@ -117,7 +125,7 @@ const EMPTY = [];
                     </button>
                 </div>
             </div>
-            <div class="flex w-full items-center space-x-2">
+            <div class="flex w-full items-center gap-2 px-8">
                 <mat-form-field appearance="outline" class="no-subscript w-52">
                     <mat-select
                         [ngModel]="zones()"
@@ -156,9 +164,9 @@ const EMPTY = [];
                         }}</settings-toggle
                     >
                 }
-                <div class="flex flex-1 justify-end pr-2">
+                <div class="flex flex-1 justify-end">
                     <div
-                        class="border-base-300 flex max-w-lg flex-1 items-center rounded-full border"
+                        class="border-base-300 bg-base-200 flex max-w-lg flex-1 items-center rounded-full border"
                     >
                         <div
                             class="flex w-px flex-1 items-center space-x-1 overflow-x-auto rounded-l-full px-1"
@@ -166,7 +174,7 @@ const EMPTY = [];
                             @for (type of types(); track type.id) {
                                 @if (!type_list.includes(type.id)) {
                                     <div
-                                        class="border-base-300 flex items-center rounded-full border"
+                                        class="border-base-300 bg-base-100 flex items-center rounded-full border"
                                     >
                                         <div
                                             class="m-2 h-4 w-4 rounded-full"
@@ -219,6 +227,34 @@ const EMPTY = [];
                     </mat-menu>
                 </div>
             </div>
+            @if (load_error() && view() === 'timeline') {
+                <load-error
+                    class="border-error/30 mx-8 mt-4 block rounded-lg border"
+                    (retry)="retryLoad()"
+                />
+            } @else if (failed_space_names()) {
+                <div
+                    role="alert"
+                    class="border-warning/30 bg-warning/10 mx-8 mt-4 flex items-center gap-2 rounded-lg border p-2 pl-4 text-sm"
+                >
+                    <icon class="text-warning text-xl">warning</icon>
+                    <p class="flex-1">
+                        {{
+                            'APP.CONCIERGE.BOOKINGS_CALENDAR_ERROR'
+                                | translate: { names: failed_space_names() }
+                        }}
+                    </p>
+                    <button
+                        btn
+                        matRipple
+                        type="button"
+                        class="inverse"
+                        (click)="retryLoad()"
+                    >
+                        {{ 'COMMON.RETRY' | translate }}
+                    </button>
+                </div>
+            }
             <div class="border-base-200 mt-4 flex h-px w-full flex-1 border-t">
                 @if (view() === 'timeline') {
                     @if (period() === 'day') {
@@ -265,6 +301,7 @@ const EMPTY = [];
         RoomBookingsApprovalsComponent,
         SettingsToggleComponent,
         BuildingPipe,
+        LoadErrorComponent,
     ],
 })
 export class RoomBookingsComponent extends AsyncHandler implements OnInit {
@@ -281,6 +318,15 @@ export class RoomBookingsComponent extends AsyncHandler implements OnInit {
 
     public readonly zones = this._state.zones;
     public readonly period = this._state.period;
+    public readonly load_error = this._state.load_error;
+    /** Names of shown rooms whose bookings did not load */
+    public readonly failed_space_names = computed(() =>
+        this._state
+            .failed_spaces()
+            .map((space) => space.display_name || space.name)
+            .join(', '),
+    );
+    public readonly retryLoad = () => this._state.reload();
     public readonly downloading = signal(false);
     public readonly view = signal<'timeline' | 'list'>('timeline');
     public readonly ui_options = this._state.options;
@@ -292,9 +338,7 @@ export class RoomBookingsComponent extends AsyncHandler implements OnInit {
         }),
         defaultValue: [],
         loader: async ({ params }) => {
-            const zone_id = params.use_region
-                ? params.region
-                : params.building;
+            const zone_id = params.use_region ? params.region : params.building;
             if (!zone_id) return [];
             const spaces = await nextValueFrom(
                 requestSpacesForZone(zone_id),

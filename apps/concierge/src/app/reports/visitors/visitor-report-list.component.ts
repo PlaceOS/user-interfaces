@@ -162,17 +162,17 @@ export class VisitorReportListComponent {
                 host_email: booking.user_email || booking.booked_by_email,
 
                 checked_in: i18n(
-                    booking.checked_in ? 'COMMON.TRUE' : 'COMMON.FALSE',
+                    booking.checked_in ? 'COMMON.YES' : 'COMMON.NO',
                 ),
                 self_registered: i18n(
                     booking.extension_data?.self_registered
-                        ? 'COMMON.TRUE'
-                        : 'COMMON.FALSE',
+                        ? 'COMMON.YES'
+                        : 'COMMON.NO',
                 ),
                 international: i18n(
                     booking.extension_data?.international
-                        ? 'COMMON.TRUE'
-                        : 'COMMON.FALSE',
+                        ? 'COMMON.YES'
+                        : 'COMMON.NO',
                 ),
             });
         }

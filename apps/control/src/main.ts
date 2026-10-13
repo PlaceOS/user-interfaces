@@ -5,52 +5,55 @@ import {
     provideZonelessChangeDetection,
 } from '@angular/core';
 import { bootstrapApplication } from '@angular/platform-browser';
-import { provideAnimations } from '@angular/platform-browser/animations';
-import { provideRouter, Router, withHashLocation } from '@angular/router';
+import { provideRouter, Routes, withHashLocation } from '@angular/router';
 import { provideServiceWorker } from '@angular/service-worker';
+import { LazySentryErrorHandler } from '@placeos/common';
 
 import {
     AuthorisedUserGuard,
     UnauthorisedComponent,
 } from '@placeos/components';
-import * as Sentry from '@sentry/angular';
 
 import { AppComponent } from './app/app.component';
-import { BootstrapComponent } from './app/bootstrap.component';
-import { ControlMainViewComponent } from './app/main-view.component';
-import { ControlTabbedViewComponent } from './app/tabbed-view/tabbed-view.component';
-import { ControlVideoCallViewComponent } from './app/video-call/video-call-view.component';
+import { tabbedRouteMatcher } from './app/tabbed-view/tabbed-route';
 import { environment } from './environments/environment';
 
 if (environment.production) {
     enableProdMode();
 }
 
-const routes = [
+const routes: Routes = [
     { path: 'unauthorised', component: UnauthorisedComponent },
     {
         path: 'bootstrap',
-        component: BootstrapComponent,
+        loadComponent: () =>
+            import('./app/bootstrap.component').then(
+                (m) => m.BootstrapComponent,
+            ),
         canActivate: [AuthorisedUserGuard],
     },
     {
         path: 'panel/:system',
-        component: ControlMainViewComponent,
+        loadComponent: () =>
+            import('./app/main-view.component').then(
+                (m) => m.ControlMainViewComponent,
+            ),
         canActivate: [AuthorisedUserGuard],
     },
     {
-        path: 'tabbed/:system',
-        component: ControlTabbedViewComponent,
-        canActivate: [AuthorisedUserGuard],
-    },
-    {
-        path: 'tabbed/:system/:tab',
-        component: ControlTabbedViewComponent,
+        matcher: tabbedRouteMatcher,
+        loadComponent: () =>
+            import('./app/tabbed-view/tabbed-view.component').then(
+                (m) => m.ControlTabbedViewComponent,
+            ),
         canActivate: [AuthorisedUserGuard],
     },
     {
         path: 'panel/:system/call',
-        component: ControlVideoCallViewComponent,
+        loadComponent: () =>
+            import('./app/video-call/video-call-view.component').then(
+                (m) => m.ControlVideoCallViewComponent,
+            ),
         canActivate: [AuthorisedUserGuard],
     },
     { path: '**', redirectTo: 'bootstrap' },
@@ -59,7 +62,6 @@ const routes = [
 bootstrapApplication(AppComponent, {
     providers: [
         provideZonelessChangeDetection(),
-        provideAnimations(),
         provideRouter(routes, withHashLocation()),
         provideServiceWorker('ngsw-worker.js', {
             enabled: !isDevMode() && environment.service_worker,
@@ -67,13 +69,7 @@ bootstrapApplication(AppComponent, {
         }),
         {
             provide: ErrorHandler,
-            useValue: Sentry.createErrorHandler({
-                showDialog: false,
-            }),
-        },
-        {
-            provide: Sentry.TraceService,
-            deps: [Router],
+            useClass: LazySentryErrorHandler,
         },
     ],
 }).catch((err) => console.error(err));

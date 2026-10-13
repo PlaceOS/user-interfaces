@@ -5,8 +5,11 @@ import {
     signal,
 } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { TranslatePipe } from '@placeos/components';
 import { MediaSectionComponent } from '../../app/media/media.component';
-import { SignageService } from '../../app/signage.service';
+import { SignageMediaService } from '../../app/media/signage-media.service';
+import { SignagePlaylistService } from '../../app/playlists/signage-playlist.service';
+import { SignageContextService } from '../../app/signage-context.service';
 
 @Component({
     selector: 'nav-sidebar',
@@ -59,17 +62,21 @@ class NavFooterStubComponent {}
 class IconStubComponent {}
 
 describe('MediaSectionComponent', () => {
-    const preview_files = jest.fn();
-    const service_stub = {
-        playlists: signal([]),
-        previewFiles: preview_files,
-    };
+    const preview_files = vi.fn();
+    const context_stub = { can_create: signal(true) };
+    const media_stub = { previewFiles: preview_files };
+    const playlist_stub = { playlists: signal([]) };
 
     beforeEach(async () => {
         preview_files.mockReset();
+        context_stub.can_create.set(true);
         await TestBed.configureTestingModule({
             imports: [MediaSectionComponent],
-            providers: [{ provide: SignageService, useValue: service_stub }],
+            providers: [
+                { provide: SignageContextService, useValue: context_stub },
+                { provide: SignageMediaService, useValue: media_stub },
+                { provide: SignagePlaylistService, useValue: playlist_stub },
+            ],
         })
             .overrideComponent(MediaSectionComponent, {
                 set: {
@@ -80,6 +87,7 @@ describe('MediaSectionComponent', () => {
                         PlaylistSidebarStubComponent,
                         NavFooterStubComponent,
                         IconStubComponent,
+                        TranslatePipe,
                     ],
                 },
             })
@@ -89,7 +97,7 @@ describe('MediaSectionComponent', () => {
     it('shows the upload overlay for file drags', () => {
         const fixture = TestBed.createComponent(MediaSectionComponent);
         const component = fixture.componentInstance;
-        const prevent_default = jest.fn();
+        const prevent_default = vi.fn();
 
         component.handleDragEnter({
             dataTransfer: { types: ['Files'] },
@@ -100,10 +108,27 @@ describe('MediaSectionComponent', () => {
         expect(component.show_dropzone()).toBe(true);
     });
 
+    it('offers the upload overlay only to users who can create media', () => {
+        context_stub.can_create.set(false);
+        const fixture = TestBed.createComponent(MediaSectionComponent);
+        fixture.componentInstance.handleDragEnter({
+            dataTransfer: { types: ['Files'] },
+            preventDefault: vi.fn(),
+        } as any);
+        fixture.detectChanges();
+
+        expect(fixture.nativeElement.textContent).not.toContain('cloud_upload');
+
+        context_stub.can_create.set(true);
+        fixture.detectChanges();
+
+        expect(fixture.nativeElement.textContent).toContain('cloud_upload');
+    });
+
     it('ignores drags that do not contain files', () => {
         const fixture = TestBed.createComponent(MediaSectionComponent);
         const component = fixture.componentInstance;
-        const prevent_default = jest.fn();
+        const prevent_default = vi.fn();
 
         component.handleDragEnter({
             dataTransfer: { types: ['text/plain'] },
@@ -119,7 +144,7 @@ describe('MediaSectionComponent', () => {
         const component = fixture.componentInstance;
         component.handleDragEnter({
             dataTransfer: { types: ['Files'] },
-            preventDefault: jest.fn(),
+            preventDefault: vi.fn(),
         } as any);
 
         component.handleDragLeave({
@@ -134,8 +159,8 @@ describe('MediaSectionComponent', () => {
     it('forwards dropped files to the signage service', async () => {
         const fixture = TestBed.createComponent(MediaSectionComponent);
         const component = fixture.componentInstance;
-        const prevent_default = jest.fn();
-        const stop_propagation = jest.fn();
+        const prevent_default = vi.fn();
+        const stop_propagation = vi.fn();
         const files = {
             0: new File(['image'], 'poster.png', { type: 'image/png' }),
             length: 1,

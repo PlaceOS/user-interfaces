@@ -5,7 +5,7 @@ import {
     type Signal,
     type WritableSignal,
 } from '@angular/core';
-import { FormGroup } from '@angular/forms';
+import type { AbstractControl, FormGroup } from '@angular/forms';
 import { Signal as TSSignal } from '@placeos/ts-client';
 import {
     addDays,
@@ -57,7 +57,7 @@ export type ConsoleStream = 'debug' | 'warn' | 'log' | 'error' | 'info';
 declare global {
     interface Window {
         debug: boolean;
-        jest: any;
+        jest: unknown;
     }
 }
 
@@ -78,7 +78,7 @@ export function setAppName(name: string) {
 export function log(
     type: string,
     msg: string,
-    args?: any,
+    args?: unknown,
     stream: ConsoleStream = 'debug',
     force = false,
     app_name: string = _app_name,
@@ -139,7 +139,7 @@ export function padLength(
  */
 export function getItemWithKeys(keys: string[], map: HashMap) {
     const key = keys[0];
-    if (map && key in map) {
+    if (map && typeof map === 'object' && key in map) {
         return keys.length > 1
             ? getItemWithKeys(keys.slice(1), map[key] || {})
             : map[key];
@@ -231,7 +231,7 @@ export function csvToJson(csv: string, delimiter = ','): HashMap[] {
             const key = (headers[i] || '').split(' ').join('_').toLowerCase();
             try {
                 element[key] = JSON.parse(row[i]?.replace('|', ','));
-            } catch (e) {
+            } catch {
                 element[key] = row[i] || '';
             }
             if (element[key] === 'TRUE' || element[key] === 'FALSE')
@@ -273,7 +273,7 @@ export function jsonToCsv(json: HashMap[], seperator = ',') {
     if (json instanceof Array && json.length > 0) {
         const keys = Object.keys(json[0]);
         const valid_keys = keys.filter((key) => key in json[0]);
-        const map_cell = (value: any) => {
+        const map_cell = (value: unknown) => {
             if (value === null || value === undefined) return '';
             if (typeof value === 'object') return JSON.stringify(value);
             return `${value}`;
@@ -451,6 +451,18 @@ export function is24HourTime(): boolean {
     return localeString.indexOf('am') < 0 && localeString.indexOf('pm') < 0;
 }
 
+/**
+ * Structural `instanceof FormGroup` check, so this file does not load
+ * `@angular/forms` into every app's initial bundle. A `FormArray` has an
+ * array of controls and is not treated as a group.
+ */
+function isFormGroup(control: AbstractControl): control is FormGroup {
+    const controls = (control as FormGroup).controls;
+    return (
+        !!controls && typeof controls === 'object' && !Array.isArray(controls)
+    );
+}
+
 export function getInvalidFields(
     form: FormGroup,
     mappings: Record<string, string> = {},
@@ -458,7 +470,7 @@ export function getInvalidFields(
 ) {
     let invalid = [];
     for (const key in form.controls) {
-        if (form.controls[key] instanceof FormGroup) {
+        if (isFormGroup(form.controls[key])) {
             invalid = [
                 ...invalid,
                 ...getInvalidFields(
@@ -488,7 +500,7 @@ export function capitalizeFirstLetter(word: string): string {
 
 export function cleanArray(
     array: any[],
-    removal_items: any[] = [undefined, null, ''],
+    removal_items: unknown[] = [undefined, null, ''],
 ) {
     return array.filter((_) => !removal_items.includes(_));
 }
@@ -689,6 +701,28 @@ export function firstTruthyValueFrom<T = any>(obs: Observable<T>): Promise<T> {
         : Promise.resolve(null);
 }
 
+/** Reject a promise if it does not settle within the specified time. */
+export function withTimeout<T>(
+    promise: Promise<T>,
+    timeout_ms: number,
+    message = 'Operation timed out.',
+): Promise<T> {
+    if (timeout_ms <= 0) return promise;
+    return new Promise<T>((resolve, reject) => {
+        const timer = setTimeout(() => reject(new Error(message)), timeout_ms);
+        promise.then(
+            (value) => {
+                clearTimeout(timer);
+                resolve(value);
+            },
+            (error) => {
+                clearTimeout(timer);
+                reject(error);
+            },
+        );
+    });
+}
+
 /**
  * Convert a ts-client signal into an rxjs observable.
  * Emits the signal's current value on subscription, like a BehaviorSubject.
@@ -716,43 +750,20 @@ export function getAllDayTimeRange(
     timezone = '',
     start?: number | null,
     end?: number | null,
-    min_date?: number | null,
 ) {
     const day_start = startOfDayInTimezone(date, timezone);
-    const clampStart = (period_start: number, period_end: number) => {
-        if (!min_date) return period_start;
-        const minimum = roundToNearestMinutes(min_date, {
-            nearestTo: 5,
-            roundingMethod: 'ceil',
-        }).valueOf();
-        const same_day = isSameDay(
-            timezone ? toZonedTime(minimum, timezone) : new Date(minimum),
-            timezone
-                ? toZonedTime(period_start, timezone)
-                : new Date(period_start),
-        );
-        if (!same_day || minimum <= period_start) return period_start;
-        return Math.min(period_end, minimum);
-    };
     if (start == null || end == null) {
         const period_end = endOfDayInTimezone(day_start, timezone);
-        const period_start = clampStart(day_start, period_end);
         return {
-            date: period_start,
-            duration: Math.max(
-                0,
-                differenceInMinutes(period_end, period_start),
-            ),
+            date: day_start,
+            duration: Math.max(0, differenceInMinutes(period_end, day_start)),
             date_end: period_end,
         };
     }
     const range_start = Math.max(0, Math.min(23, start));
     const range_end = Math.max(range_start + 1, Math.min(24, end));
     const period_end = addHours(day_start, range_end).valueOf();
-    const period_start = clampStart(
-        addHours(day_start, range_start).valueOf(),
-        period_end,
-    );
+    const period_start = addHours(day_start, range_start).valueOf();
     return {
         date: period_start,
         duration: Math.max(0, differenceInMinutes(period_end, period_start)),
@@ -1039,13 +1050,13 @@ export function guardModelUndefinedWrites<T extends object>(
 ): void {
     const sanitize = (value: T): T => {
         for (const key of Object.keys(defaults)) {
-            const default_value = (defaults as any)[key];
-            const current_value = (value as any)[key];
+            const default_value = defaults[key];
+            const current_value = value[key];
             if (
                 current_value === undefined ||
                 (current_value === null && default_value !== null)
             ) {
-                (value as any)[key] = default_value;
+                value[key] = default_value;
             }
         }
         return value;
@@ -1096,7 +1107,7 @@ export function onFieldChange<T, V>(
  * the optional friendly-name `mappings`. The form value is read via `model`.
  */
 export function getInvalidSignalFields<T extends object>(
-    form: any,
+    form: unknown,
     model: Signal<T>,
     mappings: Record<string, string> = {},
 ): string[] {
@@ -1128,7 +1139,7 @@ export function patchSignalModel<T extends object>(
     model.update((current) => {
         const next = { ...current } as Record<string, unknown>;
         for (const key of Object.keys(partial)) {
-            if (key in current) next[key] = (partial as any)[key];
+            if (key in current) next[key] = partial[key];
         }
         return next as T;
     });
@@ -1191,6 +1202,9 @@ export function setupFormTimeSync<T extends TimeSyncModel>(
         date_end: finiteNumber(snap().date_end),
         all_day: snap().all_day,
     };
+    let timed_window:
+        | { date: number; duration: number; date_end: number }
+        | undefined;
     const refreshPrev = () => {
         const s = snap();
         prev.date = finiteNumber(s.date);
@@ -1257,8 +1271,6 @@ export function setupFormTimeSync<T extends TimeSyncModel>(
             nearestTo: round_to as 5,
             roundingMethod: 'ceil',
         }).valueOf();
-
-    const allDayMinDate = () => (snap().id ? undefined : Date.now());
 
     /**
      * Minutes remaining in the bookable window from `start` until the end of
@@ -1525,6 +1537,8 @@ export function setupFormTimeSync<T extends TimeSyncModel>(
             const is_all_day = snap().all_day;
             const has_id = !!snap().id;
             if (is_all_day && effective < Date.now() && !has_id) {
+                // Keep new all-day bookings off past days; the time range
+                // below still resolves to the start of the day.
                 const snapped = roundCeil(Date.now());
                 effective = alignToBookableHours(snapped) || snapped;
             }
@@ -1535,7 +1549,6 @@ export function setupFormTimeSync<T extends TimeSyncModel>(
                         timezone,
                         all_day_start,
                         all_day_end,
-                        allDayMinDate(),
                     ) as Partial<T>,
                 );
                 on_change?.();
@@ -1609,16 +1622,27 @@ export function setupFormTimeSync<T extends TimeSyncModel>(
         () => {
             const all_day = snap().all_day;
             if (all_day) {
+                timed_window = {
+                    date: normaliseTimeValue(snap().date),
+                    duration: normaliseTimeValue(snap().duration),
+                    date_end: normaliseTimeValue(snap().date_end),
+                };
                 applyPatch(
                     getAllDayTimeRange(
                         normaliseTimeValue(snap().date),
                         timezone,
                         all_day_start,
                         all_day_end,
-                        allDayMinDate(),
                     ) as Partial<T>,
                 );
+            } else if (
+                timed_window &&
+                !isMultiday(timed_window.date, normaliseTimeValue(snap().date))
+            ) {
+                applyPatch(timed_window as Partial<T>);
+                timed_window = undefined;
             } else {
+                timed_window = undefined;
                 const date = normaliseTimeValue(snap().date);
                 const duration = normaliseTimeValue(snap().duration);
                 const date_end = normaliseTimeValue(snap().date_end);
@@ -1667,7 +1691,6 @@ export function setupFormTimeSync<T extends TimeSyncModel>(
                         timezone,
                         all_day_start,
                         all_day_end,
-                        allDayMinDate(),
                     ) as Partial<T>,
                 );
                 on_change?.();
@@ -1746,5 +1769,21 @@ export function setupFormTimeSync<T extends TimeSyncModel>(
 export function getFormTimeSyncHandle(
     form: { _time_sync?: FormTimeSyncHandle } | null | undefined,
 ): FormTimeSyncHandle | undefined {
-    return (form as any)?._time_sync;
+    return form?._time_sync;
+}
+
+/**
+ * Extract a readable message from a thrown value. API failures arrive as
+ * strings, `Error` instances, or nested `{ error: { message } }` objects, so
+ * callers cannot rely on a single shape. Returns an empty string when no
+ * message is found, letting the caller pick its own fallback text.
+ */
+export function errorMessage(error: unknown): string {
+    if (typeof error === 'string') return error;
+    if (error instanceof Error) return error.message || '';
+    const value = error as { error?: any; message?: unknown };
+    if (typeof value?.error === 'string') return value.error;
+    if (typeof value?.message === 'string') return value.message;
+    if (typeof value?.error?.message === 'string') return value.error.message;
+    return '';
 }

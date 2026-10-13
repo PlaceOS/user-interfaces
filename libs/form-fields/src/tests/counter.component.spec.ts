@@ -1,4 +1,4 @@
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { MockComponent, MockPipe } from 'ng-mocks';
 
 import { FormsModule } from '@angular/forms';
@@ -17,12 +17,8 @@ describe('CounterComponent', () => {
     beforeEach(() => {
         spectator = createComponent();
         spectator.component.value.set(0);
-        spectator.component.registerOnChange((_) => null);
+        spectator.component.registerOnChange(() => null);
         spectator.detectChanges();
-    });
-
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
     });
 
     it('should allow adding to count', () => {

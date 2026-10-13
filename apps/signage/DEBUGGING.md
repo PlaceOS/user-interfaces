@@ -1,0 +1,245 @@
+# Debugging a signage player
+
+Signage runs unattended, so the console is usually the only way in. Open dev
+tools against the player (remote debugging on a real device) and start here.
+
+## `window.signage`
+
+Always available on a running player, in production builds too.
+
+| Call               | Does                                                 |
+| ------------------ | ---------------------------------------------------- |
+| `signage.state()`  | Logs a grouped snapshot and returns it               |
+| `signage.json()`   | The same snapshot as text, for pasting into a ticket |
+| `signage.poll()`   | Forces an immediate display fetch                    |
+| `signage.reload()` | Reloads the application                              |
+
+`state()` is the first thing to run for almost any issue — it answers most
+questions without needing to reproduce anything.
+
+### What the snapshot contains
+
+| Key                           | Use it to answer                                                                                                                      |
+| ----------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+| `version`                     | Which build is actually running (`hash`, `built`)                                                                                     |
+| `online`                      | Whether the client believes it can reach the backend                                                                                  |
+| `updates`                     | Is update checking running, when did it last check, is a new version pending, is a reload being held back                             |
+| `display_id` / `display_name` | Which display this player is bootstrapped to                                                                                          |
+| `poll`                        | `last_attempt`, `last_success`, `next_due`, `in_flight`, `interval_ms`                                                                |
+| `schedule`                    | Tick interval, the player's current time, and mock-time speed                                                                         |
+| `playlists.mapped`            | Every playlist id mapped to this display or its zones                                                                                 |
+| `playlists.active`            | Per playlist: `enabled`, `scheduled`, `active`, `takeover`, `started_at`, `expires_at`                                                |
+| `playlists.takeover`          | The override playlist, its media and when it ends                                                                                     |
+| `active_media`                | What the background playlist currently resolves to                                                                                    |
+| `upcoming_schedules`          | Every scheduled run in the next month, soonest first                                                                                  |
+| `media_cache`                 | Per file `status`, `size`, `owners`; plus totals, budget (`limit_bytes`), `too_large`, `failed_sync_attempts`                         |
+| `watchdog`                    | Heartbeats for `poll` / `schedule` / `playback`, which are `stalled`, the last fatal error, and the recovery count and throttle state |
+| `players`                     | Per player: `state`, `item_index`, `progress_percent`, `playing`, `queue`, `mid_play_through`                                         |
+| `remote_paused`               | Whether the parent frame has paused playback with `signage:pause`                                                                     |
+
+Timestamps are ISO strings; `"never"` means it has not happened yet.
+
+Media entries carry an `invalid_reason` when the player is refusing to show
+them — usually a validity window that has not opened or has passed.
+
+## Enabling debug output
+
+Application logs are gated behind `window.debug`. Signage ships with
+`debug: true` in its settings, so they are normally on; if not:
+
+```js
+window.debug = true; // takes effect for subsequent messages
+```
+
+Messages are prefixed `[<APP>][<scope>]`. Useful scopes: `Signage` (polling,
+schedules, overrides), `MediaCache` (downloads, pruning), `MediaPlayer`
+(playback, load failures), `CACHE` (service worker updates), `ACCESS` (route
+guard), `BOOTSTRAP`.
+
+With debug settings on you also get `window.app.settings`, `window.setting(key)`
+and `window.app.org`.
+
+## On-screen debug mode
+
+Append `?debug=true` to the player route:
+
+```
+/#/signage/<system_id>?debug=true
+```
+
+Adds playback controls, the playlist panel, a time-travel panel for testing
+schedules, and the version/playing-item footers. The setting persists in
+`sessionStorage` (`SIGNAGE.debug`); `?debug=false` turns it off. Debug mode also
+makes the display request use `?preview=true`.
+
+## Symptom → what to check
+
+| Symptom                            | Check                                                                                                                                                                       |
+| ---------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Nothing on screen                  | `state().active_media` — empty means nothing is scheduled now; check `upcoming_schedules`                                                                                   |
+| Content scheduled but not showing  | `active_media[].invalid_reason`, and `cached` / `loading` on the same entry                                                                                                 |
+| Takeover scheduled but not showing | A takeover with no valid media does not start. Compare the playlist and media `valid_from` / `valid_until` with `schedule.now`                                              |
+| Trigger did not start a takeover   | A trigger fires only when its value changes to true. A display update does not replay a trigger that is already true, and a trigger is ignored while another override plays |
+| Stuck on old content               | `poll.last_success` and `poll.next_due`; run `signage.poll()`                                                                                                               |
+| Not picking up new content         | `poll.last_success` is when the backend last answered; if stale, look for `Failed to fetch display details` or `Display poll failed`                                        |
+| Media never appears                | `media_cache.files` for that URL — `invalidated` means the download failed; `failed_sync_attempts` shows the backoff                                                        |
+| Old version running                | `updates.new_version`, `updates.reload_pending` (a reload waits for the network and for play-through content to finish), `updates.last_check`                               |
+| Blank screen after a reboot        | Likely offline boot — check `online`, then whether cached credentials exist                                                                                                 |
+| Player reloading itself            | `watchdog.recent_reloads` and `watchdog.last_error` — something fatal stalled a core loop                                                                                   |
+| Paused and does not resume         | Pause and resume messages are obeyed only from the parent frame. `remote_paused` stays true until it sends `signage:resume`                                                 |
+| Template or plugin bands missing   | A failed template, plugin or background load tries again after 15 s, doubling to 5 min. Look for `Unable to load template`                                                  |
+| Plugin cut short, or held long     | A play-through plugin advances on `finished`, or after a limit. Look for `did not report finished in time` in the console                                                   |
+| Blank screen, no `window.signage`  | The application did not start. Look for `Application failed to start` in the console; it reloads with a backoff                                                             |
+| Media always streams               | `media_cache.too_large` — the file does not fit in `limit_bytes`; see [Media cache storage](#media-cache-storage)                                                           |
+
+## Recovery watchdog
+
+The player reloads itself when one of its core loops stops checking in:
+polling, schedule evaluation or playback. Each beats far more often than its
+stall threshold, so a stalled signal means that timer chain is dead rather than
+idle. No error is required — most stalls worth recovering from raise none — but
+any fatal error is recorded and reported alongside the stall.
+
+The heartbeats measure the player's own machinery, not the backend. The poll
+signal beats when a fetch is _attempted_, so it does not stop when the backend
+is down. The `content` signal is different. It stops when the player has
+nothing it can show, for example when nothing is cached and the server is
+down. A backend outage can therefore cause recoveries, at the usual limits.
+
+It starts at application bootstrap, before any routing, so a startup that never
+completes is covered too: if nothing has been on screen five minutes after
+start it recovers, going straight to clearing the application cache because a
+boot that never completes is most often a bad cached build. That deadline only
+applies once the device has been bootstrapped to a display — one sitting on the
+picker is waiting for a person, not broken.
+
+When the display is cleared (`/#/bootstrap?clear=true`) or a display is
+bootstrapped, the watchdog forgets all heartbeats. Thus the picker is not
+reloaded for the player that was on screen before. A display picked later gets
+the full five-minute boot deadline.
+
+Heartbeats use a clock that a change to the device time does not move. Thus a
+clock set back cannot hide a stall. The recovery history uses the device time,
+because it must stay after a reload. If the history has a recovery more than
+one hour later than the device time, the watchdog forgets the history.
+Otherwise a device that starts with its clock behind refuses all recoveries. A
+smaller correction keeps the limits. `state()` shows heartbeat times in device
+time, so they agree with the other times after a correction.
+
+| Guard                    | Value                                                                      |
+| ------------------------ | -------------------------------------------------------------------------- |
+| Stall thresholds         | poll 10 min, schedule 5 min, playback 3 min, visible 5 min, content 10 min |
+| Boot deadline            | 5 min from start with nothing on screen                                    |
+| Grace before recovering  | 5 min                                                                      |
+| Recoveries allowed       | 3 per hour, then 1 per hour                                                |
+| Back to 3 per hour after | 2 hours with no recovery                                                   |
+
+Once recoveries are throttled the next one clears the application cache first —
+unregistering the service worker and deleting its caches — in case the cached
+build is what is wrong. That only happens if `location.href` returns a 200, so a
+player is never left with no cached application and no way to fetch a new one;
+if the server cannot be reached it falls back to a plain reload. A server that
+does not answer within 15 seconds counts as unreachable.
+
+A recovery that has not replaced the page after 2 minutes counts as failed: a
+cache clear that hung, or a reload the server never answered. The watchdog then
+reloads again and starts its checks again, inside the same limits, so a failed
+recovery cannot stop the watchdog until someone restarts the device.
+
+A recovery reload does **not** wait for the network, unlike an update reload. A
+stalled player should restart whether or not the backend is up, and it can boot
+from cached credentials and cached content.
+
+The `visible` signal is separate from `playback` on purpose. The shared loading
+overlay covers the whole screen and, on a degraded startup, never clears — so
+the player underneath can be running perfectly while the screen shows a
+progress bar. `visible` is the one that notices.
+
+Failed initialisation — the app giving up because it cannot load the current
+user — is routed through the same limits, so it cannot restart the player every
+thirty seconds on its own.
+
+The watchdog starts inside the application, so it cannot see a start that fails
+before the application exists. That case has its own retry: the player reloads
+after 10 seconds, and the wait doubles after each consecutive failure to a
+maximum of 5 minutes. The count is in `sessionStorage["SIGNAGE.boot_failures"]`
+and is removed after a successful start.
+
+### Content that holds the screen
+
+A play-through plugin advances when it reports `finished`. If it never sends a
+plugin message (for example, the page did not load), it advances after its
+configured duration, like a static plugin. If it sends messages but never
+reports `finished`, it advances after twice its configured duration, held
+between 5 and 60 minutes. After that limit, it also stops holding back an
+update reload.
+
+When the plugin is the only item, there is nothing to advance to. A lone
+play-through plugin that never sent a plugin message is then treated as a
+failed load: it is removed from the screen and loaded again after 30 seconds,
+until it responds. A lone plugin that responds but never reports `finished`
+stays on screen, as any single item does.
+
+Pause and resume messages (US-SIG-024) are obeyed only from the parent frame.
+Webpages and plugins on screen cannot pause the player. This is important
+because a paused player still checks in with the watchdog, so the watchdog does
+not recover it.
+
+`watchdog.booted`, `watchdog.recoveries_throttled` and `watchdog.last_recovery`
+show where in that sequence a player is.
+
+Only the recovery ledger is persisted; the heartbeats and `last_error` describe
+the current page load and are gone after a reload. So that a player found
+restarting itself can still say why, `watchdog.last_recovery_detail` is written
+to local storage before each recovery and survives it — the reasons (stalled
+signal names, `boot`, or `init-error`), whether the application cache was
+cleared, and the last error seen beforehand. Start there when a player has
+recovered and you want to know what from.
+
+## Storage
+
+| Location                                               | Holds                                                |
+| ------------------------------------------------------ | ---------------------------------------------------- |
+| `localStorage["PlaceOS.SIGNAGE.display_details.<id>"]` | Last known display payload, used offline             |
+| `localStorage["PlaceOS.SIGNAGE.cached_files"]`         | Media cache index (urls, sizes, owners)              |
+| `localStorage["PlaceOS.SIGNAGE.display"]`              | Bootstrapped display id                              |
+| `localStorage["PLACEOS.org.*"]`                        | Cached zone data and last known authority            |
+| `localStorage["PlaceOS.SIGNAGE.watchdog_reloads"]`     | Timestamps of automatic recoveries                   |
+| `sessionStorage["SIGNAGE.debug"]`, `["SIGNAGE.muted"]` | Debug and mute state                                 |
+| `sessionStorage["SIGNAGE.boot_failures"]`              | Consecutive failed starts, for the backoff           |
+| `localStorage["SIGNAGE.debug-overlay.<id>"]`           | Debug overlay positions, kept after the session ends |
+| IndexedDB `SignageMedia` → `files`                     | The cached media files themselves                    |
+
+## Media cache storage
+
+The cache budget (`limit_bytes`) is 80% of the storage quota, less the usage
+outside the cache. To see the values, run
+`await navigator.storage.estimate()`. If the browser cannot supply them, the
+budget is 512 MB. At startup the app requests persistent storage. To see the
+result, run `await navigator.storage.persisted()`.
+
+- The cache never removes media that the current playlist uses.
+- Media that cannot fit is not downloaded. Its URL shows in `too_large` and it
+  plays from the network. The cache tries it again only when more space is
+  available, or after a reload.
+- If a write fails because storage is full (`QuotaExceededError` or
+  `DataError`), the cache removes the files that the playlist does not use and
+  tries one more time.
+- On a small profile volume, the browser's blob storage can fill before the
+  disk does. The console then shows `Browser blob storage is full`. Files up to
+  50 MB are downloaded one more time into memory. Larger files go into
+  `too_large` until the next reload.
+- The service worker does not cache media. Cache Storage holds only the app.
+
+## Resetting
+
+```
+/#/bootstrap?clear=true        clear the bootstrapped display
+/#/bootstrap?display=<id>      bootstrap straight to a display
+```
+
+`Ctrl + Alt + Shift + M` reloads in mock mode (repeat to exit).
+`Ctrl + Alt + Shift + D` toggles dark mode.
+
+To clear cached media, delete the `SignageMedia` IndexedDB database and the
+`PlaceOS.SIGNAGE.cached_files` key, then reload.

@@ -1,6 +1,5 @@
 import { Component, inject, input } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
-import { AsyncHandler } from '@placeos/common';
 import {
     AuthenticatedImageDirective,
     BindingDirective,
@@ -53,7 +52,7 @@ import { ControlStateService } from '../control-state.service';
     `,
     imports: [BindingDirective, MatRippleModule, AuthenticatedImageDirective],
 })
-export class TVControlsComponent extends AsyncHandler {
+export class TVControlsComponent {
     private _state = inject(ControlStateService);
 
     public readonly mod = input('');

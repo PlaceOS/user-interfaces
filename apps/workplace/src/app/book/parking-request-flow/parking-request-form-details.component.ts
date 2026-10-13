@@ -14,8 +14,10 @@ import {
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { FormField } from '@angular/forms/signals';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { MatRadioModule } from '@angular/material/radio';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import {
@@ -30,10 +32,13 @@ import {
     currentUser,
     getFormTimeSyncHandle,
     getTimeInTimezone,
+    notifyError,
     OrganisationService,
     settingSignal,
     SettingsService,
     startOfDayInTimezone,
+    UploadsService,
+    user_group_names,
 } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import {
@@ -49,7 +54,7 @@ import {
     startOfDay,
     startOfWeek,
 } from 'date-fns';
-import { SettingsToggleComponent } from '../../../../../../libs/components/src/lib/settings-toggle.component';
+import { SettingsToggleComponent } from 'libs/components/src/lib/settings-toggle.component';
 
 interface ParkingRequestShiftOption {
     id: string;
@@ -656,10 +661,7 @@ const DEFAULT_VEHICLE_TYPE_OPTIONS: VehicleTypeOption[] = [
                                         <label
                                             class="mb-1 block text-sm font-medium"
                                         >
-                                            {{
-                                                'BOOKINGS.PARKING_START_TIME'
-                                                    | translate
-                                            }}
+                                            {{ 'FORM.TIME_START' | translate }}
                                         </label>
                                         <mat-form-field
                                             appearance="outline"
@@ -691,10 +693,7 @@ const DEFAULT_VEHICLE_TYPE_OPTIONS: VehicleTypeOption[] = [
                                         <label
                                             class="mb-1 block text-sm font-medium"
                                         >
-                                            {{
-                                                'BOOKINGS.PARKING_END_TIME'
-                                                    | translate
-                                            }}
+                                            {{ 'FORM.TIME_END' | translate }}
                                         </label>
                                         <mat-form-field
                                             appearance="outline"
@@ -811,7 +810,7 @@ const DEFAULT_VEHICLE_TYPE_OPTIONS: VehicleTypeOption[] = [
                                             >
                                                 @if (availability_loading()) {
                                                     <div
-                                                        class="text-sm font-medium opacity-60"
+                                                        class="p-2 text-sm font-medium opacity-60"
                                                     >
                                                         Checking...
                                                     </div>
@@ -918,7 +917,7 @@ const DEFAULT_VEHICLE_TYPE_OPTIONS: VehicleTypeOption[] = [
                                 >
                                     @if (availability_loading()) {
                                         <div
-                                            class="text-sm font-medium opacity-60"
+                                            class="pr-2 text-sm font-medium opacity-60"
                                         >
                                             Checking...
                                         </div>
@@ -998,14 +997,55 @@ const DEFAULT_VEHICLE_TYPE_OPTIONS: VehicleTypeOption[] = [
                             <mat-form-field appearance="outline" class="w-full">
                                 <input
                                     matInput
+                                    autocomplete="off"
                                     [ngModel]="model().plate_number"
                                     [ngModelOptions]="{ standalone: true }"
                                     (ngModelChange)="setPlateNumber($event)"
+                                    [matAutocomplete]="plate_number_auto"
                                     [placeholder]="
                                         'BOOKINGS.PARKING_REGISTRATION_PLACEHOLDER'
                                             | translate
                                     "
                                 />
+                                <mat-autocomplete
+                                    #plate_number_auto="matAutocomplete"
+                                >
+                                    @for (
+                                        plate_number of plate_number_options();
+                                        track plate_number
+                                    ) {
+                                        <mat-option [value]="plate_number">
+                                            <div
+                                                class="flex w-full items-center gap-2"
+                                            >
+                                                <span class="flex-1">{{
+                                                    plate_number
+                                                }}</span>
+                                                <button
+                                                    icon
+                                                    default
+                                                    error
+                                                    type="button"
+                                                    class="text-xs"
+                                                    [attr.aria-label]="
+                                                        'Remove ' + plate_number
+                                                    "
+                                                    (mousedown)="
+                                                        $event.stopPropagation()
+                                                    "
+                                                    (click)="
+                                                        removePlateNumber(
+                                                            $event,
+                                                            plate_number
+                                                        )
+                                                    "
+                                                >
+                                                    <icon>close</icon>
+                                                </button>
+                                            </div>
+                                        </mat-option>
+                                    }
+                                </mat-autocomplete>
                                 @if (showPlateNumberError()) {
                                     <mat-error>
                                         {{
@@ -1066,6 +1106,7 @@ const DEFAULT_VEHICLE_TYPE_OPTIONS: VehicleTypeOption[] = [
                         class="border-base-300 space-y-3 rounded-lg border p-4"
                     >
                         <h3
+                            id="parking-space-restrictions-label"
                             class="text-info flex items-center gap-2 text-sm font-bold tracking-wider uppercase"
                         >
                             <icon class="text-lg">tune</icon>
@@ -1073,6 +1114,9 @@ const DEFAULT_VEHICLE_TYPE_OPTIONS: VehicleTypeOption[] = [
                                 'BOOKINGS.PARKING_SPACE_RESTRICTIONS_TITLE'
                                     | translate
                             }}
+                            @if (require_space_restriction()) {
+                                <span aria-hidden="true">*</span>
+                            }
                         </h3>
                         <p class="text-sm opacity-60">
                             {{
@@ -1081,23 +1125,38 @@ const DEFAULT_VEHICLE_TYPE_OPTIONS: VehicleTypeOption[] = [
                             }}
                         </p>
                         @if (space_restriction_options().length) {
-                            <mat-form-field appearance="outline" class="w-full">
-                                <mat-select
-                                    [value]="selected_space_restriction()"
-                                    (selectionChange)="
-                                        setSpaceRestriction($event.value)
-                                    "
-                                >
-                                    @for (
-                                        option of space_restriction_options();
-                                        track trackById(option)
-                                    ) {
-                                        <mat-option [value]="option.id">{{
-                                            option.name | translate
-                                        }}</mat-option>
-                                    }
-                                </mat-select>
-                            </mat-form-field>
+                            <mat-radio-group
+                                class="flex flex-col gap-2"
+                                aria-labelledby="parking-space-restrictions-label"
+                                [attr.aria-required]="
+                                    require_space_restriction()
+                                "
+                                [attr.aria-invalid]="
+                                    form().space_restrictions().invalid()
+                                "
+                                [formField]="form().space_restrictions"
+                            >
+                                @for (
+                                    option of space_restriction_options();
+                                    track trackById(option)
+                                ) {
+                                    <mat-radio-button [value]="option.id">
+                                        {{ option.name | translate }}
+                                    </mat-radio-button>
+                                }
+                            </mat-radio-group>
+                            @if (
+                                require_space_restriction() &&
+                                form().space_restrictions().touched() &&
+                                form().space_restrictions().invalid()
+                            ) {
+                                <p class="text-error text-sm" role="alert">
+                                    {{
+                                        'BOOKINGS.PARKING_SPACE_RESTRICTION_REQUIRED'
+                                            | translate
+                                    }}
+                                </p>
+                            }
                         }
                         @if (extra_space_restriction_options().length) {
                             <div class="flex flex-col gap-2">
@@ -1133,8 +1192,10 @@ const DEFAULT_VEHICLE_TYPE_OPTIONS: VehicleTypeOption[] = [
         CommonModule,
         FormsModule,
         FormField,
+        MatAutocompleteModule,
         MatFormFieldModule,
         MatInputModule,
+        MatRadioModule,
         MatSelectModule,
         MatTooltipModule,
         TranslatePipe,
@@ -1152,8 +1213,10 @@ export class ParkingRequestFormDetailsComponent
     private _parking = inject(ParkingService);
     private _injector = inject(Injector);
     private _settings = inject(SettingsService);
+    private _uploads = inject(UploadsService);
     private _org = inject(OrganisationService);
     private _saved_shift_state: ParkingRequestShiftState | null = null;
+    private readonly _removed_plate_numbers = signal<string[]>([]);
     private readonly _selected_shift_duration = signal(0);
     /**
      * Set to `true` once the user has explicitly chosen a shift via the
@@ -1332,6 +1395,10 @@ export class ParkingRequestFormDetailsComponent
         'parking.require_plate_number',
         false,
     );
+    public readonly require_space_restriction = settingSignal<boolean>(
+        'parking.require_space_restriction',
+        false,
+    );
     public readonly auto_approved_groups_setting = settingSignal<string[]>(
         'parking.auto_approved_groups',
         [],
@@ -1340,7 +1407,7 @@ export class ParkingRequestFormDetailsComponent
     public readonly is_auto_approved = computed(() => {
         const auto_groups = this.auto_approved_groups_setting();
         if (!auto_groups?.length) return false;
-        const user_groups = currentUser()?.groups || [];
+        const user_groups = user_group_names();
         return auto_groups.some((g) => user_groups.includes(g));
     });
 
@@ -1365,8 +1432,9 @@ export class ParkingRequestFormDetailsComponent
     public readonly end_time_mins = signal<number>(1020);
     public readonly custom_start_time_mins = signal<number>(480);
     public readonly custom_end_time_mins = signal<number>(600);
+    public readonly supporting_doc_names = signal<string[]>([]);
     public readonly shift_options = computed(() => {
-        const user_groups = currentUser()?.groups || [];
+        const user_groups = user_group_names();
         return this._normaliseShiftOptions(this.shift_options_setting()).filter(
             (option) => {
                 if (option.groups?.length) {
@@ -1426,6 +1494,31 @@ export class ParkingRequestFormDetailsComponent
     public readonly vehicle_type_options = computed(() =>
         this._normaliseOptions(this.vehicle_type_options_setting()),
     );
+    public readonly plate_number_options = computed(() => {
+        const saved_plate_numbers = this._settings.get('plate_numbers');
+        const preferred_plate_number = this._settings.get('plate_number');
+        const removed_plate_numbers = new Set(this._removed_plate_numbers());
+        const plate_numbers = [
+            ...(typeof preferred_plate_number === 'string'
+                ? [preferred_plate_number]
+                : []),
+            ...(Array.isArray(saved_plate_numbers) ? saved_plate_numbers : []),
+        ];
+        const search = `${this.model?.()?.plate_number || ''}`
+            .trim()
+            .toLowerCase();
+        return plate_numbers
+            .filter((_) => typeof _ === 'string' && _.trim())
+            .map((_) => _.trim())
+            .filter(
+                (plate_number, index, list) =>
+                    list.findIndex(
+                        (_) => _.toLowerCase() === plate_number.toLowerCase(),
+                    ) === index &&
+                    plate_number.toLowerCase().includes(search) &&
+                    !removed_plate_numbers.has(plate_number.toLowerCase()),
+            );
+    });
     public readonly space_restriction_options = computed(() =>
         this._normaliseOptions(this.space_restriction_options_setting()),
     );
@@ -1472,7 +1565,7 @@ export class ParkingRequestFormDetailsComponent
     public readonly selected_space_restriction = computed(() => {
         const value = this.model()?.space_restrictions;
         if (typeof value === 'string' && value) return value;
-        return this.space_restriction_options()[0]?.id || '';
+        return false;
     });
 
     public readonly WEEKDAY_OPTIONS = [1, 2, 3, 4, 5, 6, 7].map((index) => ({
@@ -1514,7 +1607,7 @@ export class ParkingRequestFormDetailsComponent
             custom_types?.length > 0
                 ? custom_types
                 : this._default_request_types;
-        const user_groups = currentUser()?.groups || [];
+        const user_groups = user_group_names();
         return all_types.filter((t) => {
             if (t.groups?.length)
                 return t.groups.some((g) => user_groups.includes(g));
@@ -1557,6 +1650,11 @@ export class ParkingRequestFormDetailsComponent
         const form = this.form();
         const model = this.model;
         if (!form || !model) return;
+        this.supporting_doc_names.set(
+            (model().attachments || []).map((url) =>
+                this._fileNameFromUrl(url),
+            ),
+        );
         runInInjectionContext(this._injector, () =>
             effect((onCleanup) => {
                 const buildings = this.building_list();
@@ -1590,6 +1688,10 @@ export class ParkingRequestFormDetailsComponent
         );
         runInInjectionContext(this._injector, () =>
             effect((onCleanup) => {
+                if (this.hide_availability_counter()) {
+                    this.availability_loading.set(false);
+                    return;
+                }
                 const bld = this.building();
                 const spaces = this._parking.spaces();
                 const { date, duration } = availability_window();
@@ -1728,16 +1830,13 @@ export class ParkingRequestFormDetailsComponent
         if (this.space_restriction_options().length) {
             const current = model().space_restrictions;
             if (
-                !current ||
                 current === true ||
                 (typeof current === 'string' &&
                     !this.space_restriction_options().find(
                         (_) => _.id === current,
                     ))
             ) {
-                this.setSpaceRestriction(
-                    this.space_restriction_options()[0].id,
-                );
+                this.setSpaceRestriction(false);
             }
         }
         const is_daily =
@@ -1919,12 +2018,12 @@ export class ParkingRequestFormDetailsComponent
         this._updateFormTimes(start_time, end_time);
     }
 
-    public setSpaceRestriction(value: string) {
+    public setSpaceRestriction(value: string | false) {
         const model = this.model;
         if (!model) return;
         model.update((m) => ({
             ...m,
-            space_restrictions: (value || false) as any,
+            space_restrictions: value || false,
         }));
     }
 
@@ -1947,6 +2046,66 @@ export class ParkingRequestFormDetailsComponent
     public setBuilding(bld) {
         this.desk_booking_building_id.set('');
         this._org.building = bld;
+    }
+
+    public async onSupportingDocsSelected(event: Event) {
+        const input = event.target as HTMLInputElement;
+        const files = Array.from(input.files || []);
+        const valid_files = files.filter(
+            (file) => file.size <= 10 * 1024 * 1024,
+        );
+        if (valid_files.length !== files.length) {
+            notifyError('Some files exceeded 10MB and were skipped.');
+        }
+        const model = this.model;
+        const existing_urls: string[] = model?.().attachments || [];
+        const existing_names = this.supporting_doc_names();
+        const new_urls: string[] = [];
+        const uploaded_names: string[] = [];
+        for (const file of valid_files) {
+            const upload_id = await this._uploads
+                .uploadFile(file, true)
+                .catch(() => '');
+            if (!upload_id) continue;
+            uploaded_names.push(file.name);
+            new_urls.push(
+                `${location.origin}/api/engine/v2/uploads/${encodeURIComponent(upload_id)}/url`,
+            );
+        }
+        const names = [...existing_names, ...uploaded_names];
+        const urls = [...existing_urls, ...new_urls];
+        this.supporting_doc_names.set(names);
+        model?.update((m) => ({
+            ...m,
+            attachments: urls,
+        }));
+        input.value = '';
+    }
+
+    public removeSupportingDoc(index: number) {
+        const model = this.model;
+        const names = [...this.supporting_doc_names()];
+        const urls = [...(model?.().attachments || [])];
+        if (index < 0 || index >= names.length) return;
+        names.splice(index, 1);
+        if (index < urls.length) urls.splice(index, 1);
+        this.supporting_doc_names.set(names);
+        model?.update((m) => ({
+            ...m,
+            attachments: urls,
+        }));
+    }
+
+    public previewSupportingDoc(index: number) {
+        const urls = [...(this.model?.().attachments || [])];
+        const url = urls[index];
+        if (!url) return;
+        // this._dialog.open(FullscreenEmbedComponent, { data: url });
+    }
+
+    private _fileNameFromUrl(url: string): string {
+        const last_part = `${url || ''}`.split('/').pop() || '';
+        return decodeURIComponent(last_part || 'Uploaded file');
     }
 
     public shiftTime(mins: number): number {
@@ -1980,6 +2139,31 @@ export class ParkingRequestFormDetailsComponent
         const model = this.model;
         if (!model || model().plate_number === plate_number) return;
         model.update((m) => ({ ...m, plate_number }));
+    }
+
+    public removePlateNumber(event: Event, plate_number: string) {
+        event.preventDefault();
+        event.stopPropagation();
+        const key = plate_number.trim().toLowerCase();
+        const saved_plate_numbers = this._settings.get('plate_numbers');
+        this._settings.saveUserSetting(
+            'plate_numbers',
+            Array.isArray(saved_plate_numbers)
+                ? saved_plate_numbers.filter(
+                      (_) =>
+                          typeof _ !== 'string' ||
+                          _.trim().toLowerCase() !== key,
+                  )
+                : [],
+        );
+        const preferred_plate_number = this._settings.get('plate_number');
+        if (
+            typeof preferred_plate_number === 'string' &&
+            preferred_plate_number.trim().toLowerCase() === key
+        ) {
+            this._settings.saveUserSetting('plate_number', '');
+        }
+        this._removed_plate_numbers.update((removed) => [...removed, key]);
     }
 
     private _timeSync(model = this.model) {

@@ -1,12 +1,16 @@
-import { PlaceAuthOptions, setup } from '@placeos/ts-client';
+import { PlaceAuthOptions, setAppHeaders, setup } from '@placeos/ts-client';
 import {
     getNativeRedirectUri,
     isNativeApp,
     storeNativePkceVerifier,
 } from './native-app';
 import { notifyInfo } from './notifications';
+import { VERSION } from './version';
 
 const NATIVE_CREDENTIAL_FETCH_KEY = '__placeos_native_credential_fetch__';
+
+/** Longest an application waits for PlaceOS authority setup to settle. */
+export const PLACE_SETUP_TIMEOUT = 10 * 1000;
 
 export interface PlaceSettings {
     /** Protocol used by the application server */
@@ -122,7 +126,10 @@ export async function createNativeAuthUrl(
 /**
  * Initialise the PlaceOS API library
  */
-export async function setupPlace(settings: PlaceSettings): Promise<void> {
+export async function setupPlace(
+    settings: PlaceSettings,
+    timeout_ms = PLACE_SETUP_TIMEOUT,
+): Promise<void> {
     const protocol = settings.protocol || location.protocol;
     const host = settings.domain || location.hostname;
     const port = settings.port || location.port;
@@ -168,5 +175,30 @@ export async function setupPlace(settings: PlaceSettings): Promise<void> {
     if (mock) {
         notifyInfo('Application in mock mode.');
     }
-    return setup(config);
+    // Identify the app and build on every API request
+    setAppHeaders(
+        settings.app_name ||
+            location.pathname.split('/').find(Boolean) ||
+            'PlaceOS',
+        new Date(VERSION.time).toISOString(),
+        VERSION.hash,
+    );
+    const setup_promise = setup(config);
+    if (timeout_ms <= 0) return setup_promise;
+    return new Promise<void>((resolve, reject) => {
+        const timer = setTimeout(
+            () => reject(new Error('PlaceOS setup timed out.')),
+            timeout_ms,
+        );
+        setup_promise.then(
+            () => {
+                clearTimeout(timer);
+                resolve();
+            },
+            (error) => {
+                clearTimeout(timer);
+                reject(error);
+            },
+        );
+    });
 }

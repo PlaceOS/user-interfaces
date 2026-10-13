@@ -19,7 +19,8 @@ export const CHECKIN_PREFERENCES_URL = '/#/checkin/preferences';
 export const CHECKIN_RESULTS_URL = '/#/checkin/results';
 export const CHECKIN_INDUCTION_URL = '/#/checkin/induction';
 export const CHECKIN_ERROR_URL = '/#/checkin/error';
-export const CHECKOUT_URL = '/#/checkin/checkout';
+export const CHECKOUT_URL = '/#/checkout/confirm';
+export const CHECKOUT_SCAN_URL = '/#/checkout/scan';
 export const EXPLORE_URL = '/#/explore';
 
 // Mock guest email from users.data.ts

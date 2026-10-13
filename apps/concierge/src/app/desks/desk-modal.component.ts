@@ -18,19 +18,19 @@ import {
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSelectModule } from '@angular/material/select';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { queryBookings } from '@placeos/bookings';
 import {
     Booking,
+    BuildingLevel,
     Desk,
     DialogEvent,
     notifyInfo,
     OrganisationService,
     randomString,
-    unique,
     User,
 } from '@placeos/common';
-import { queryBookings } from '@placeos/bookings';
-import { addMonths, getUnixTime } from 'date-fns';
 import {
     IconComponent,
     SettingsToggleComponent,
@@ -41,9 +41,22 @@ import {
     UserSearchFieldComponent,
 } from '@placeos/form-fields';
 import { showStaff } from '@placeos/users';
+import { addMonths, getUnixTime } from 'date-fns';
 import { SelectMapItemModalComponent } from '../ui/select-map-item-modal.component';
 
 const CHARS = '0123456789ABCDEF';
+
+type LevelOption = Pick<BuildingLevel, 'id' | 'name' | 'display_name'>;
+type DeskModalDesk = Partial<Desk> & {
+    assigned_name?: string;
+    notes?: string;
+};
+
+export interface DeskModalData {
+    desk?: DeskModalDesk;
+    levels?: readonly LevelOption[];
+    zone_id?: string;
+}
 
 @Component({
     selector: 'desk-modal',
@@ -68,6 +81,28 @@ const CHARS = '0123456789ABCDEF';
             </header>
             @if (!loading()) {
                 <main class="flex max-h-[65vh] flex-col overflow-auto p-4">
+                    @if (is_new) {
+                        <label for="level">
+                            {{ 'RESOURCE.LEVEL' | translate }}<span>*</span>
+                        </label>
+                        <mat-form-field appearance="outline">
+                            <mat-select
+                                [formField]="form.zone_id"
+                                [placeholder]="
+                                    'COMMON.LEVEL_SELECT' | translate
+                                "
+                            >
+                                @for (level of levels; track level.id) {
+                                    <mat-option [value]="level.id">
+                                        {{ level.display_name || level.name }}
+                                    </mat-option>
+                                }
+                            </mat-select>
+                            <mat-error>{{
+                                'APP.CONCIERGE.ROOMS_LEVEL_REQUIRED' | translate
+                            }}</mat-error>
+                        </mat-form-field>
+                    }
                     <div class="w-full">
                         <label for="id">
                             {{ 'APP.CONCIERGE.DESKS_ID' | translate }}
@@ -171,7 +206,10 @@ const CHARS = '0123456789ABCDEF';
                                 {{
                                     'APP.CONCIERGE.ASSIGNED_FUTURE_DESK_BOOKINGS'
                                         | translate
-                                            : { count: future_bookings().length }
+                                            : {
+                                                  count: future_bookings()
+                                                      .length,
+                                              }
                                             : future_bookings().length
                                 }}
                             </p>
@@ -246,6 +284,7 @@ const CHARS = '0123456789ABCDEF';
         MatRippleModule,
         MatFormFieldModule,
         MatInputModule,
+        MatSelectModule,
         FormField,
         MatProgressSpinnerModule,
         ItemListFieldComponent,
@@ -255,9 +294,7 @@ const CHARS = '0123456789ABCDEF';
     ],
 })
 export class DeskModalComponent implements OnInit {
-    private _data = inject<{
-        desk?: Desk;
-    }>(MAT_DIALOG_DATA);
+    private _data = inject<DeskModalData>(MAT_DIALOG_DATA);
     private _dialog_ref =
         inject<MatDialogRef<DeskModalComponent>>(MatDialogRef);
     private _org = inject(OrganisationService);
@@ -275,9 +312,12 @@ export class DeskModalComponent implements OnInit {
         return this._data?.desk?.id || '';
     }
 
-    public get desk(): Desk {
+    public get desk(): DeskModalDesk {
         return this._data?.desk;
     }
+
+    public readonly is_new = !this._data?.desk?.id;
+    public readonly levels = this._data?.levels || [];
 
     public readonly model = signal({
         id: ``,
@@ -291,15 +331,17 @@ export class DeskModalComponent implements OnInit {
         assigned_to: '',
         assigned_name: '',
         security: '',
+        zone_id: this._data?.zone_id || '',
     });
 
     public readonly form = form(this.model, (p) => {
         required(p.name);
         required(p.map_id);
+        if (this.is_new) required(p.zone_id);
     });
 
     constructor() {
-        const desk = this._data?.desk as any;
+        const desk = this._data?.desk;
         if (desk) {
             this.model.update((m) => ({
                 ...m,
@@ -351,8 +393,11 @@ export class DeskModalComponent implements OnInit {
 
     public async ngOnInit() {
         if (this.desk?.assigned_to) {
-            const user = await showStaff(this.desk.assigned_to);
+            const user = await showStaff(this.desk.assigned_to).catch(
+                () => null,
+            );
             if (user) {
+                this._user_loaded = true;
                 this.model.update((m) => ({
                     ...m,
                     assigned_user: user,
@@ -362,6 +407,9 @@ export class DeskModalComponent implements OnInit {
             }
         }
     }
+
+    /** True once the stored assignee was loaded into the search field. */
+    private _user_loaded = false;
 
     public clearUser() {
         this.model.update((m) => ({
@@ -376,15 +424,18 @@ export class DeskModalComponent implements OnInit {
         this.form().markAsTouched();
         if (!this.form().valid()) return;
         this.loading.set(true);
-        const value: any = { ...this.model() };
+        const value = { ...this.model() };
         if (value.assigned_user) {
             value.assigned_to = value.assigned_user?.email || value.assigned_to;
             value.assigned_name =
                 value.assigned_user?.name || value.assigned_name;
-        } else {
-            delete value.assigned_to;
-            delete value.assigned_name;
+        } else if (this._user_loaded) {
+            // The loaded assignee was removed from the search field.
+            value.assigned_to = '';
+            value.assigned_name = '';
         }
+        // Otherwise keep the stored assignee. The staff lookup may have
+        // failed or not finished, and that must not clear the assignment.
         delete value.assigned_user;
 
         this._dialog_ref.disableClose = true;
@@ -405,18 +456,12 @@ export class DeskModalComponent implements OnInit {
         const ref = this._dialog.open(SelectMapItemModalComponent, {
             data: {
                 location: this.model().map_id,
-                level_id: this.form,
+                level_id: this.model().zone_id || this.desk?.zone?.id,
             },
         });
         ref.afterClosed().subscribe((d) => {
             if (!d) return;
             level = ref.componentInstance.level || level;
-            const zones = unique([
-                this._org.organisation.id,
-                this._org.building.parent_id,
-                this._org.building.id,
-                level?.id,
-            ]);
             this.model.update((m) => ({ ...m, map_id: d }));
         });
     }

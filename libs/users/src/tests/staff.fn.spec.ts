@@ -1,6 +1,6 @@
 import { locateStaff, searchStaff, showStaff } from '../lib/staff.fn';
 
-jest.mock('@placeos/ts-client');
+vi.mock('@placeos/ts-client');
 
 import { StaffUser } from '@placeos/common';
 import * as ts_client from '@placeos/ts-client';
@@ -8,7 +8,7 @@ import * as ts_client from '@placeos/ts-client';
 describe('[Staff API]', () => {
     describe('searchStaff', () => {
         it('should perform GET on guests endpoint', async () => {
-            const spy = jest.spyOn(ts_client, 'get');
+            const spy = vi.spyOn(ts_client, 'get');
             spy.mockResolvedValue([{ name: 'Jim' }] as any);
             const list = await searchStaff('');
             expect(list).toBeInstanceOf(Array);
@@ -16,7 +16,7 @@ describe('[Staff API]', () => {
         });
 
         it('should return Guest objects', async () => {
-            const spy = jest.spyOn(ts_client, 'get');
+            const spy = vi.spyOn(ts_client, 'get');
             spy.mockResolvedValue([{ name: 'Jim' }] as any);
             const list = await searchStaff('');
             expect(list).toBeInstanceOf(Array);
@@ -24,7 +24,7 @@ describe('[Staff API]', () => {
         });
 
         it('should allow filtering Guests', async () => {
-            const spy = jest.spyOn(ts_client, 'get');
+            const spy = vi.spyOn(ts_client, 'get');
             spy.mockResolvedValue([{ name: 'Jim' }] as any);
             await searchStaff('Jim');
             expect(spy).toHaveBeenCalledWith(
@@ -35,7 +35,7 @@ describe('[Staff API]', () => {
 
     describe('showStaff', () => {
         it('should GET guest', async () => {
-            const spy = jest.spyOn(ts_client, 'get');
+            const spy = vi.spyOn(ts_client, 'get');
             spy.mockResolvedValue({ name: 'Jim' } as any);
             const item = await showStaff('jim');
             expect(item).toBeInstanceOf(StaffUser);
@@ -45,7 +45,7 @@ describe('[Staff API]', () => {
 
     describe('locateStaff', () => {
         it('should GET staff location', async () => {
-            const spy = jest.spyOn(ts_client, 'get');
+            const spy = vi.spyOn(ts_client, 'get');
             spy.mockResolvedValue({ name: 'Jim' } as any);
             const item = await locateStaff('jim');
             expect(item).toBeInstanceOf(StaffUser);

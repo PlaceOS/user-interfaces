@@ -254,7 +254,7 @@ export class LockerBankModalComponent {
     /** List of available locker levels for the current building */
     public readonly levels = computed(() => {
         const all = this._org.level_list();
-        if (!this._settings.get('app.use_region')) {
+        if (this._settings.get('app.use_region')) {
             const blds = this._org.buildingsForRegion();
             const bld_ids = blds.map((bld) => bld.id);
             return all.filter((lvl) => bld_ids.includes(lvl.parent_id));
@@ -262,9 +262,8 @@ export class LockerBankModalComponent {
         return all.filter((lvl) => lvl.parent_id === this._org.building.id);
     });
 
-    public readonly addTag = (e) => addChipItem(this._tags_control as any, e);
-    public readonly removeTag = (i) =>
-        removeChipItem(this._tags_control as any, i);
+    public readonly addTag = (e) => addChipItem(this._tags_control, e);
+    public readonly removeTag = (i) => removeChipItem(this._tags_control, i);
 
     public get tag_list(): string[] {
         return this.model().tags;
@@ -291,7 +290,9 @@ export class LockerBankModalComponent {
                 ...m,
                 id: data.id ?? m.id,
                 level_id:
-                    data.level_id || this._levelFromZones(data.zones) || m.level_id,
+                    data.level_id ||
+                    this._levelFromZones(data.zones) ||
+                    m.level_id,
                 name: data.name ?? m.name,
                 map_id: data.map_id ?? m.map_id,
                 notes: data.notes ?? m.notes,
@@ -306,14 +307,16 @@ export class LockerBankModalComponent {
         this.form().markAsTouched();
         if (!this.form().valid()) return;
         this.loading.set(true);
-        const value: any = { ...this.model() };
+        const value = { ...this.model() };
+        // The level may not be loaded (e.g. a bank saved on a building), and
+        // there may be no region, so do not assume either exists.
         const level = this._org.levelWithID([value.level_id]);
         value.zones = unique(
             [
-                level.id,
+                level?.id || value.level_id,
                 this._org.organisation.id,
-                this._org.region.id,
-                level.parent_id,
+                this._org.region?.id,
+                level?.parent_id || this._org.building?.id,
             ].filter((_) => _),
         );
         this._dialog_ref.disableClose = true;

@@ -2,7 +2,7 @@ import { Component, computed, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { AsyncHandler } from '@placeos/common';
 import { TranslatePipe } from '@placeos/components';
-import { DateOptionsComponent } from '../ui/date-options.component';
+import { DateOptionsComponent } from '@placeos/form-fields';
 
 @Component({
     selector: 'points-topbar',

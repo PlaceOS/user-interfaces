@@ -1,4 +1,11 @@
-import { Component, computed, effect, inject, signal } from '@angular/core';
+import {
+    Component,
+    computed,
+    effect,
+    inject,
+    signal,
+    untracked,
+} from '@angular/core';
 import { form, FormField, required, validate } from '@angular/forms/signals';
 import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -6,6 +13,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { queryAllBookings } from '@placeos/bookings';
 import {
+    currentUser,
     getTimezoneDifferenceInHours,
     notifyError,
     notifySuccess,
@@ -47,9 +55,7 @@ type BroadcastRecipientGroup = 'rooms' | 'desks' | 'parking' | 'all' | 'custom';
                         [formField]="form.subject"
                         placeholder="Email subject"
                     />
-                    @if (
-                        form.subject().invalid() && form.subject().touched()
-                    ) {
+                    @if (form.subject().invalid() && form.subject().touched()) {
                         <mat-error>A subject line is required</mat-error>
                     }
                 </mat-form-field>
@@ -231,7 +237,7 @@ export class BroadcastEmailModalComponent {
         effect(() => {
             this.form.recipient_group().value();
             this.form.recipients().value();
-            this.updateRecipients();
+            untracked(() => this.updateRecipients());
         });
     }
 
@@ -258,11 +264,24 @@ export class BroadcastEmailModalComponent {
             notifyError('No matching recipients found.');
             return;
         }
-        const to =
-            recipient_list.length === 1 ? recipient_list[0] : recipient_list;
+        // Recipients go in BCC so they cannot see each other's addresses.
+        const sender = currentUser()?.email;
+        if (!sender) {
+            notifyError('Unable to determine the sender email address.');
+            return;
+        }
         this.loading.set('Sending email...');
         try {
-            await mod.execute('send_mail', [to, subject, message_plaintext]);
+            await mod.execute('send_mail', [
+                sender,
+                subject,
+                message_plaintext,
+                null, // message_html
+                [], // resource attachments
+                [], // attachments
+                [], // cc
+                recipient_list, // bcc
+            ]);
             notifySuccess('Broadcast email sent.');
             this._dialog_ref.close(true);
         } catch (error) {
@@ -315,7 +334,7 @@ export class BroadcastEmailModalComponent {
         const query = {
             period_start: getUnixTime(period_start),
             period_end: getUnixTime(period_end),
-            limit: 1000,
+            limit: 200,
         };
         const zone_ids = this._activeZoneIds().join(',');
         const rooms_request =
@@ -346,10 +365,21 @@ export class BroadcastEmailModalComponent {
             parking_request,
         ]);
         return this._validEmails([
-            ...rooms.flatMap((event) => [
-                event.host,
-                ...(event.attendees || []).map((user) => user.email),
-            ]),
+            ...rooms.flatMap((event) => {
+                const room_emails = new Set(
+                    [event.system, ...(event.resources || [])]
+                        .map((room) => room?.email?.trim().toLowerCase())
+                        .filter((email) => !!email),
+                );
+                return [
+                    event.host,
+                    ...(event.attendees || [])
+                        .filter((user) => !user.resource)
+                        .map((user) => user.email),
+                ].filter(
+                    (email) => !room_emails.has(email.trim().toLowerCase()),
+                );
+            }),
             ...desks.flatMap((booking) => [
                 booking.user_email,
                 booking.booked_by_email,

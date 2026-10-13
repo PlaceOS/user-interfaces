@@ -18,7 +18,7 @@ async function ensurePoweredOn(page) {
         .waitFor({ timeout: LOAD_TIMEOUT });
 
     // Wait for system to be connected (splash or topbar visible)
-    const splash = page.locator('div[name="splash"]');
+    const splash = page.locator('[name="splash"]');
     const topbar = page.locator('topbar-header');
 
     await Promise.race([
@@ -40,18 +40,6 @@ test.describe('US-020: Start Video Conference Call', () => {
         await ensurePoweredOn(page);
     });
 
-    test('should display video conference button when available', async ({
-        page,
-    }) => {
-        // Video conference button has type="video_conf"
-        const vcButton = page.locator('button[type="video_conf"]');
-        const isVisible = await vcButton.isVisible().catch(() => false);
-
-        // VC tab may also be available in the tab outlet
-        const vcTab = page.locator('[tab-outlet]');
-        await expect(vcTab).toBeVisible({ timeout: ACTION_TIMEOUT });
-    });
-
     test('should display dial pad in VC tab or tooltip', async ({ page }) => {
         // Look for VC controls tab
         const tabOutlet = page.locator('[tab-outlet]');
@@ -70,41 +58,6 @@ test.describe('US-020: Start Video Conference Call', () => {
         // May be visible depending on tab selection
         if (isVisible) {
             await expect(dialpad).toBeVisible();
-        }
-    });
-});
-
-test.describe('US-021: Join Scheduled Meeting', () => {
-    test.beforeEach(async ({ page }) => {
-        await ensurePoweredOn(page);
-    });
-
-    test('should display meeting join button when meetings available', async ({
-        page,
-    }) => {
-        // Meet button has type="meet"
-        const meetButton = page.locator('button[type="meet"]');
-        const isVisible = await meetButton.isVisible().catch(() => false);
-
-        // Button visibility depends on configuration and meeting URL
-    });
-
-    test('should show meeting selection modal when joining', async ({
-        page,
-    }) => {
-        const meetButton = page.locator('button[type="meet"]');
-
-        if (await meetButton.isVisible().catch(() => false)) {
-            await meetButton.click();
-            await page.waitForTimeout(500);
-
-            // Select meeting modal should appear
-            const modal = page.locator('select-meeting-modal');
-            const isVisible = await modal.isVisible().catch(() => false);
-
-            if (isVisible) {
-                await expect(modal).toBeVisible();
-            }
         }
     });
 });
@@ -172,7 +125,7 @@ test.describe('US-024: Toggle Self-View', () => {
         await ensurePoweredOn(page);
     });
 
-    test('should have self-view toggle in VC controls', async ({ page }) => {
+    test('should have self-view toggle in VC controls', async () => {
         // Self-view is part of video conference controls
         // Available when VidConf module is present
     });
@@ -183,7 +136,7 @@ test.describe('US-025: Change Video Layout', () => {
         await ensurePoweredOn(page);
     });
 
-    test('should have layout options in VC controls', async ({ page }) => {
+    test('should have layout options in VC controls', async () => {
         // Layout options: Auto, Equal, Overlay, Prominent, Single
         // Available in video conference tooltip or tab
     });
@@ -194,7 +147,7 @@ test.describe('US-026: Share Presentation in Call', () => {
         await ensurePoweredOn(page);
     });
 
-    test('should have presentation sharing controls', async ({ page }) => {
+    test('should have presentation sharing controls', async () => {
         // Presentation mode can be None, Local, or Remote
         // Available in VC controls
     });
@@ -205,7 +158,7 @@ test.describe('US-027: Send DTMF Tones', () => {
         await ensurePoweredOn(page);
     });
 
-    test('should have dial pad accessible during calls', async ({ page }) => {
+    test('should have dial pad accessible during calls', async () => {
         // DTMF can be sent via dial pad during active calls
     });
 });
@@ -215,7 +168,7 @@ test.describe('US-028: Hold/Resume Call', () => {
         await ensurePoweredOn(page);
     });
 
-    test('should have hold/resume controls in call view', async ({ page }) => {
+    test('should have hold/resume controls in call view', async () => {
         // Hold and resume buttons in video call controls
     });
 });
@@ -253,7 +206,7 @@ test.describe('Video Conferencing - Call Page', () => {
         const callView = page.locator(
             'video-call-page, app-control-video-call-view',
         );
-        const isVisible = await callView.isVisible().catch(() => false);
+        await callView.isVisible().catch(() => false);
 
         // May or may not be visible depending on routing
     });

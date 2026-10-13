@@ -18,7 +18,7 @@ async function ensurePoweredOn(page) {
         .waitFor({ timeout: LOAD_TIMEOUT });
 
     // Wait for system to be connected (splash or topbar visible)
-    const splash = page.locator('div[name="splash"]');
+    const splash = page.locator('[name="splash"]');
     const topbar = page.locator('topbar-header');
 
     await Promise.race([
@@ -167,16 +167,15 @@ test.describe('US-031: View Recording Status', () => {
         }
     });
 
-    test('should show recording indicator icon', async ({ page }) => {
+    test('should show stop recording button', async ({ page }) => {
         const statusBar = page.locator('control-status-bar');
         const recordingSection = statusBar.locator('[recording]');
 
         if (await recordingSection.isVisible().catch(() => false)) {
-            // Record icon (fiber_manual_record)
-            const recordIcon = recordingSection.locator(
-                'icon:has-text("fiber_manual_record")',
+            const stopButton = recordingSection.locator(
+                '[place-action="stop"]',
             );
-            await expect(recordIcon).toBeVisible();
+            await expect(stopButton).toBeVisible();
         }
     });
 });
@@ -265,7 +264,6 @@ test.describe('Phone & Recording - Status Bar Layout', () => {
 
         // Recording is on left, volume is on right
         const recordingSection = statusBar.locator('[recording]');
-        const volumeSection = statusBar.locator('mat-slider');
 
         if (await recordingSection.isVisible().catch(() => false)) {
             // Both should be in status bar with flex-1 spacer between
@@ -297,7 +295,7 @@ test.describe('Phone & Recording - Responsive', () => {
         await page.setViewportSize({ width: 1920, height: 1080 });
 
         const phoneButton = page.locator('button[type="phone"]');
-        const isVisible = await phoneButton.isVisible().catch(() => false);
+        await phoneButton.isVisible().catch(() => false);
 
         // Phone button visibility depends on dial_bindings configuration
     });

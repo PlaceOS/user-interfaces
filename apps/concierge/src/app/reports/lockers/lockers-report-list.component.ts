@@ -169,13 +169,13 @@ export class LockersReportListComponent {
                 all_day: booking.all_day,
                 host: booking.user_name || booking.user_email,
                 checked_in: i18n(
-                    booking.checked_in ? 'COMMON.TRUE' : 'COMMON.FALSE',
+                    booking.checked_in ? 'COMMON.YES' : 'COMMON.NO',
                 ),
                 status: reportBookingStatus(booking),
                 self_registered: i18n(
                     booking.extension_data?.self_registered
-                        ? 'COMMON.TRUE'
-                        : 'COMMON.FALSE',
+                        ? 'COMMON.YES'
+                        : 'COMMON.NO',
                 ),
                 type:
                     booking.extension_data?.tags?.[0] ||

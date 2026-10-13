@@ -173,7 +173,7 @@ export class NewSurveyWidgetComponent {
                   .fill(0)
                   .map((_, i) => ({ text: i + 1 }));
         return (
-            choices?.map((choice) => ({
+            (Array.isArray(choices) ? choices : []).map((choice) => ({
                 id: choice.text,
                 name: choice.text,
                 percentage:

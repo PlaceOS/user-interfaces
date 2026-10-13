@@ -8,18 +8,15 @@ import {
 } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { unique } from '@placeos/common';
+import { i18n, notifyError, unique } from '@placeos/common';
 import { TranslatePipe } from '@placeos/components';
 import { ControlStateService, RoomInput } from '../control-state.service';
+import { errorText } from '../error-text';
 
 @Component({
     selector: 'source-select',
     template: `
-        <div
-            class="flex flex-col items-center text-black"
-            [class.p-2]="simple()"
-            [class.p-4]="!simple()"
-        >
+        <div class="flex flex-col items-center p-4 text-black">
             @let source = details();
             <h3 class="mb-2 text-xl font-medium">
                 {{
@@ -29,11 +26,7 @@ import { ControlStateService, RoomInput } from '../control-state.service';
             </h3>
             @if (!loading()) {
                 @if (input_types().length) {
-                    <div
-                        class="divide flex"
-                        [class.flex-col]="simple()"
-                        [class.flex-wrap]="!simple()"
-                    >
+                    <div class="divide flex flex-wrap">
                         @for (type of input_types(); track type) {
                             <div group class="flex flex-col space-y-2 p-2">
                                 <h4 class="text-center underline">
@@ -49,7 +42,7 @@ import { ControlStateService, RoomInput } from '../control-state.service';
                                         source
                                         class="w-48"
                                         [class.inverse]="
-                                            input.id === details()?.source
+                                            input.id !== details()?.source
                                         "
                                         (click)="selectSource(input)"
                                     >
@@ -89,8 +82,6 @@ import { ControlStateService, RoomInput } from '../control-state.service';
 export class SourceSelectComponent {
     private _state = inject(ControlStateService);
 
-    // Whether to use the simple display
-    public readonly simple = input(false);
     // ID of the selected output
     public readonly output = input<string>(undefined);
     /** Emitter for changes to the selected input source */
@@ -131,8 +122,16 @@ export class SourceSelectComponent {
 
     public async selectSource(input: RoomInput) {
         this.loading.set(true);
-        await this._state.setRoute(input.id, this.output());
-        this.loading.set(false);
+        try {
+            await this._state.setRoute(input.id, this.output());
+        } catch (error) {
+            notifyError(
+                i18n('APP.CONTROL.ROUTE_ERROR', { error: errorText(error) }),
+            );
+            return;
+        } finally {
+            this.loading.set(false);
+        }
         this.source.emit(input);
     }
 }

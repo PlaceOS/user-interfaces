@@ -14,6 +14,7 @@ import {
 } from '@placeos/catering';
 import {
     AsyncHandler,
+    notifyError,
     notifySuccess,
     OrganisationService,
     SettingsService,
@@ -24,8 +25,10 @@ import {
     IconComponent,
     TranslatePipe,
 } from '@placeos/components';
-import { DateOptionsComponent } from '../ui/date-options.component';
+import { DateOptionsComponent } from '@placeos/form-fields';
+import { errorText } from '../ui/modal-actions';
 import { SearchbarComponent } from '../ui/searchbar.component';
+import { loadPersistedZones, persistZones } from '../ui/zone-persistence';
 
 @Component({
     selector: 'catering-topbar',
@@ -49,7 +52,7 @@ import { SearchbarComponent } from '../ui/searchbar.component';
         <div class="bg-base-100 flex h-20 items-center space-x-2 px-8">
             <mat-form-field appearance="outline" class="no-subscript w-60">
                 <mat-select
-                    [ngModel]="filters()?.zones"
+                    [ngModel]="zones()"
                     (ngModelChange)="updateZones($event)"
                     [placeholder]="'COMMON.LEVEL_ALL' | translate"
                     multiple
@@ -110,6 +113,7 @@ import { SearchbarComponent } from '../ui/searchbar.component';
                     default
                     matRipple
                     [matTooltip]="'CATERING.MENU_ADD' | translate"
+                    data-shortcut="new"
                     (click)="addItem()"
                 >
                     <icon class="text-2xl">add</icon>
@@ -221,15 +225,21 @@ export class CateringTopbarComponent extends AsyncHandler implements OnInit {
     };
     /** List of levels for the active building */
     public readonly updateZones = (z) => {
-        this.zones.set(z || []);
+        const zones = z || [];
+        this.zones.set(zones);
         this._router.navigate([], {
             relativeTo: this._route,
-            queryParams: { zone_ids: z.join(',') },
+            queryParams: { zone_ids: zones.length ? zones.join(',') : null },
             queryParamsHandling: 'merge',
         });
-        this._orders.filters = { ...this._orders.filters, zones: [z] };
+        this._orders.filters = { ...this._orders.filters, zones };
         this.filters.set(this._orders.filters);
-        this._catering.zone = z[0];
+        this._catering.zone = zones[0];
+        persistZones(
+            this.page() === 'menu' ? 'catering-menu' : 'catering-orders',
+            this._persistScopeId(),
+            zones,
+        );
     };
 
     public readonly addItem = () => this._catering.addItem();
@@ -277,13 +287,30 @@ export class CateringTopbarComponent extends AsyncHandler implements OnInit {
         this.subscription(
             'route.params',
             this._route.paramMap.subscribe((params) => {
-                this.page.set(params?.get('view') || '');
+                const page = params?.get('view') || '';
+                const page_changed = !!this.page() && this.page() !== page;
+                this.page.set(page);
+                if (page_changed) {
+                    const zones = loadPersistedZones(
+                        page === 'menu' ? 'catering-menu' : 'catering-orders',
+                        this._persistScopeId(),
+                    ).filter((zone) =>
+                        this.levels().find((level) => level.id === zone),
+                    );
+                    this.updateZones(zones);
+                }
             }),
         );
         this.filters.set(this._orders.order_filters() || {});
         this.caterers.set(this._catering.caterers() || []);
         this._catering.zone =
             (this.filters()?.zones || [])[0] || this._org.building?.id;
+    }
+
+    private _persistScopeId() {
+        return this.use_region
+            ? this._org.region?.id || ''
+            : this._org.building?.id || '';
     }
 
     public async setRoomAvailability() {
@@ -296,12 +323,16 @@ export class CateringTopbarComponent extends AsyncHandler implements OnInit {
         this.subscription(
             'room-availability',
             ref.componentInstance.change.subscribe(async (list) => {
-                console.log('List:', list);
-                await this._catering
-                    .saveSettings({ disabled_rooms: list })
-                    .catch();
-                ref.componentInstance.loading.set(false);
-                notifySuccess('Room availability settings saved');
+                try {
+                    await this._catering.saveSettings({ disabled_rooms: list });
+                    notifySuccess('Room availability settings saved');
+                } catch (e) {
+                    notifyError(
+                        `Failed to save room availability. ${errorText(e)}`,
+                    );
+                } finally {
+                    ref.componentInstance.loading.set(false);
+                }
             }),
         );
     }

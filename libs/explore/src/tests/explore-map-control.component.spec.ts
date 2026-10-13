@@ -1,10 +1,12 @@
 import { signal } from '@angular/core';
-import { fakeAsync } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { ActivatedRoute, Router } from '@angular/router';
-import { SpectatorRouting, createRoutingFactory } from '@ngneat/spectator/jest';
+import {
+    SpectatorRouting,
+    createRoutingFactory,
+} from '@ngneat/spectator/vitest';
 import { OrganisationService } from '@placeos/common';
 
 import { MockProvider } from 'ng-mocks';
@@ -17,26 +19,22 @@ describe('ExploreMapControlComponent', () => {
         component: ExploreMapControlComponent,
         providers: [
             MockProvider(OrganisationService, {
-                initialised: signal(true) as any,
-                active_buildings: signal([]) as any,
-                active_building: signal(null) as any,
-                active_levels: signal([]) as any,
+                initialised: signal(true),
+                active_buildings: signal([]),
+                active_building: signal(null),
+                active_levels: signal([]),
             }),
             MockProvider(ExploreStateService, {
-                level: signal(null) as any,
-                setLevel: jest.fn(),
-                setFeatures: jest.fn(),
+                level: signal(null),
+                setLevel: vi.fn(),
+                setFeatures: vi.fn(),
             }),
-            MockProvider(Router, { navigate: jest.fn() }),
+            MockProvider(Router, { navigate: vi.fn() }),
         ],
         imports: [MatFormFieldModule, MatSelectModule, FormsModule],
     });
 
     beforeEach(() => (spectator = createComponent()));
-
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
 
     it('should show dropdowns for buildings and levels', () => {
         expect('[buildings]').not.toExist();
@@ -69,14 +67,14 @@ describe('ExploreMapControlComponent', () => {
         ]);
         spectator.detectChanges();
         expect('[buildings]').toExist();
-        const spy = jest.spyOn(spectator.component, 'setBuilding');
+        const spy = vi.spyOn(spectator.component, 'setBuilding');
         spectator.click('[buildings] mat-select');
         spectator.detectChanges();
         spectator.click(document.querySelector('mat-option'));
         expect(spy).toHaveBeenCalledWith({ id: 'bld-1', name: 'Building 1' });
     });
 
-    it('should allow switching levels', fakeAsync(() => {
+    it('should allow switching levels', async () => {
         const levels = spectator.inject(OrganisationService).active_levels;
         (levels as any).set([
             { id: 'lvl-1', name: 'Level 1' },
@@ -84,18 +82,17 @@ describe('ExploreMapControlComponent', () => {
         ]);
         spectator.detectChanges();
         expect('[levels]').toExist();
-        const spy = jest.spyOn(spectator.component, 'setLevel');
+        const spy = vi.spyOn(spectator.component, 'setLevel');
         spectator.click('[levels] mat-select');
         spectator.detectChanges();
         spectator.click(document.querySelector('mat-option'));
         expect(spy).toHaveBeenCalledWith({ id: 'lvl-1', name: 'Level 1' });
-        spectator.tick(240);
+        await new Promise((resolve) => setTimeout(resolve, 300));
         expect(spectator.inject(Router).navigate).toHaveBeenCalledWith([], {
             relativeTo: spectator.inject(ActivatedRoute),
             queryParams: { zone: 'lvl-1' },
         });
-        spectator.tick(10000);
-    }));
+    });
 
     it('should handle routing changes', () => {
         const state = spectator.inject(ExploreStateService);

@@ -15,11 +15,9 @@ import {
     settingSignal,
     SettingsService,
 } from '@placeos/common';
-import {
-    IconComponent,
-    SanitizePipe,
-    TranslatePipe,
-} from '@placeos/components';
+import { IconComponent } from 'libs/components/src/lib/icon.component';
+import { SanitizePipe } from 'libs/components/src/lib/sanitise.pipe';
+import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import {
     CalEvent,
     generateCalendarFileLink,
@@ -151,6 +149,7 @@ export class VisitorInviteSuccessComponent implements OnInit {
     private _org = inject(OrganisationService);
     private _settings = inject(SettingsService);
 
+    // fallow-ignore-next-line unused-component-input -- read in a template pipe expression fallow does not parse
     public readonly last_count = input(1);
     public readonly done = output<void>();
     public readonly another = output<void>();

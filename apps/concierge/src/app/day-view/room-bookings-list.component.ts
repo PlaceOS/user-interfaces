@@ -5,6 +5,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import {
+    CalendarEvent,
     SettingsService,
     i18n,
     nextValueFrom,
@@ -19,8 +20,8 @@ import {
     EventDetailsModalComponent,
     SetupBreakdownModalComponent,
 } from '@placeos/events';
+import { DateOptionsComponent } from '@placeos/form-fields';
 import { UserPipe } from '@placeos/users';
-import { DateOptionsComponent } from '../ui/date-options.component';
 import { EventsStateService } from './events-state.service';
 
 @Component({
@@ -40,8 +41,10 @@ import { EventsStateService } from './events-state.service';
                     [hide_today]="true"
                 ></date-options>
             </div>
-            <div class="min-h-0 flex-1 overflow-auto pb-16">
+            <div class="min-h-0 flex-1 overflow-auto px-8 pb-16">
                 <simple-table
+                    [error]="load_error()"
+                    (retry)="retryLoad()"
                     class="block min-w-368 text-sm"
                     [data]="bookings()"
                     [columns]="[
@@ -87,7 +90,7 @@ import { EventsStateService } from './events-state.service';
                             key: 'actions',
                             name: ' ',
                             content: action_template,
-                            size: '3.5rem',
+                            size: '3.25rem',
                             sortable: false,
                         },
                     ]"
@@ -131,13 +134,16 @@ import { EventsStateService } from './events-state.service';
                     }
                 </div>
             </ng-template>
-            <ng-template #user_template let-email="data">
-                @let user = email | user | async;
+            <ng-template #user_template let-email="data" let-row="row">
+                @let user = email | user: 'email-prefix' | async;
+                @let attendee_name = hostAttendeeName(row.source_event);
                 <div class="flex flex-col justify-center px-4 py-2">
                     <div class="select-all">
-                        {{ user?.name || user?.email || email }}
+                        {{
+                            user?.name || attendee_name || user?.email || email
+                        }}
                     </div>
-                    @if (user?.name) {
+                    @if (user?.name || attendee_name) {
                         <div
                             class="max-w-48 truncate text-xs opacity-30 select-all"
                         >
@@ -197,16 +203,14 @@ import { EventsStateService } from './events-state.service';
             </ng-template>
             <ng-template #action_template let-row="row">
                 @if (show_actions(row)) {
-                    <div
-                        class="mx-auto flex items-center justify-end space-x-2"
-                    >
+                    <div class="mx-auto">
                         <button
                             icon
                             default
                             matRipple
                             [matMenuTriggerFor]="action_menu"
                         >
-                            <icon class="text-2xl">more_vert</icon>
+                            <icon>more_vert</icon>
                         </button>
                         <mat-menu #action_menu="matMenu">
                             @if (!hide_edit()) {
@@ -313,6 +317,8 @@ import { EventsStateService } from './events-state.service';
 })
 export class RoomBookingsListComponent {
     private _state = inject(EventsStateService);
+    public readonly load_error = this._state.load_error;
+    public readonly retryLoad = () => this._state.reload();
     private _settings = inject(SettingsService);
     private _dialog = inject(MatDialog);
 
@@ -391,6 +397,15 @@ export class RoomBookingsListComponent {
         return this._settings.get('app.week_start');
     }
 
+    public hostAttendeeName(event: CalendarEvent) {
+        const host_email = event.host.toLowerCase();
+        return (
+            event.attendees?.find(
+                ({ email }) => email.toLowerCase() === host_email,
+            )?.name || ''
+        );
+    }
+
     private room_name(event: any) {
         const space = this.spaces().find(
             (item) =>
@@ -406,7 +421,7 @@ export class RoomBookingsListComponent {
             space?.display_name ||
             space?.name ||
             event.location ||
-            i18n('COMMON.ROOM') ||
+            i18n('RESOURCE.ROOM') ||
             ''
         );
     }

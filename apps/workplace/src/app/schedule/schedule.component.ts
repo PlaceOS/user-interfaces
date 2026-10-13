@@ -11,9 +11,8 @@ import { Router } from '@angular/router';
 import {
     BookingCardComponent,
     BookingFormService,
-    checkinBooking,
-    checkinBookingInstance,
     removeBooking,
+    setBookingCheckedIn,
 } from '@placeos/bookings';
 import {
     AsyncHandler,
@@ -144,6 +143,7 @@ import {
                                     [edit_fn]="edit_booking_fn"
                                     [remove_fn]="remove_fn"
                                     [end_fn]="end_fn"
+                                    [refresh_fn]="refresh_fn"
                                 ></booking-card>
                             }
                         }
@@ -242,7 +242,7 @@ export class ScheduleComponent extends AsyncHandler implements OnInit {
         return this._state.getOptions().period;
     }
 
-    public isEvent(item: any) {
+    public isEvent(item: unknown) {
         return item instanceof CalendarEvent;
     }
 
@@ -254,6 +254,7 @@ export class ScheduleComponent extends AsyncHandler implements OnInit {
     public readonly edit_booking_fn = (i) => this.editBooking(i);
     public readonly remove_fn = (i, t?) => this.remove(i, t);
     public readonly end_fn = (i) => this.end(i);
+    public readonly refresh_fn = () => this._state.triggerPoll();
 
     public ngOnInit() {
         this._state.triggerPoll();
@@ -269,7 +270,6 @@ export class ScheduleComponent extends AsyncHandler implements OnInit {
     }
 
     public async edit(event: CalendarEvent) {
-        console.log('Edit Event:', event);
         this._router.navigate(['/book', 'meeting', 'form']);
         if (event.creator !== event.mailbox) {
             event =
@@ -285,7 +285,6 @@ export class ScheduleComponent extends AsyncHandler implements OnInit {
     }
 
     public editBooking(event: Booking) {
-        console.log('Edit Booking:', event.type);
         this._router.navigate(['/book', `${event.type}`]);
         this._booking_form.newForm(event.booking_type, event);
         if (event.booking_type === 'visitor') return;
@@ -327,7 +326,12 @@ export class ScheduleComponent extends AsyncHandler implements OnInit {
             },
             this._dialog,
         );
-        if (item instanceof CalendarEvent && item.creator !== item.mailbox) {
+        if (resp.reason !== 'done') return;
+        if (
+            item instanceof CalendarEvent &&
+            !item.from_bookings &&
+            item.creator !== item.mailbox
+        ) {
             item =
                 (
                     await queryEvents({
@@ -339,7 +343,6 @@ export class ScheduleComponent extends AsyncHandler implements OnInit {
                     (_) => _.ical_uid === (item as CalendarEvent).ical_uid,
                 ) || item;
         }
-        if (resp.reason !== 'done') return;
         resp.loading(
             i18n(
                 remove_series
@@ -348,7 +351,9 @@ export class ScheduleComponent extends AsyncHandler implements OnInit {
             ),
         );
         const remove_result = (
-            item instanceof CalendarEvent ? removeEvent : removeBooking
+            item instanceof CalendarEvent && !item.from_bookings
+                ? removeEvent
+                : removeBooking
         )(
             remove_series
                 ? (item as any).recurring_event_id || item.id
@@ -362,7 +367,7 @@ export class ScheduleComponent extends AsyncHandler implements OnInit {
                 start_time: (item as any).instance
                     ? (item as any).instance
                     : undefined,
-            } as any,
+            },
         ) as any;
         await (
             remove_result?.then instanceof Function
@@ -387,7 +392,8 @@ export class ScheduleComponent extends AsyncHandler implements OnInit {
                     : 'APP.WORKPLACE.SCHEDULE_REMOVE_SUCCESS',
             ),
         );
-        this._state.removeItem(item);
+        if (item instanceof CalendarEvent) this._state.removeItem(item);
+        else this._state.triggerPoll();
         this._dialog.closeAll();
     }
 
@@ -408,11 +414,7 @@ export class ScheduleComponent extends AsyncHandler implements OnInit {
 
         if (resp.reason !== 'done') return;
         resp.loading(i18n('APP.WORKPLACE.SCHEDULE_END_LOADING'));
-        const promise = (
-            item.instance
-                ? checkinBookingInstance(item.id, item.instance, false)
-                : checkinBooking(item.id, false)
-        ).catch((e) => {
+        const promise = setBookingCheckedIn(item, false).catch((e) => {
             notifyError(i18n('APP.WORKPLACE.SCHEDULE_END_ERROR', { error: e }));
             resp.close();
             throw e;

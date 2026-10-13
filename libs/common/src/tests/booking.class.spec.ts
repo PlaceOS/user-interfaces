@@ -17,7 +17,7 @@ describe('Booking', () => {
             date,
             booking_start: 1, // stale
             booking_end: 2, // stale, well before `date`
-        } as any);
+        });
         expect(booking.booking_start).toBe(Math.floor(date / 1000));
         expect(booking.booking_end).toBeGreaterThan(booking.booking_start);
     });
@@ -26,8 +26,23 @@ describe('Booking', () => {
         const booking = new Booking({
             booking_start: 1_700_000_000,
             booking_end: 1_700_003_600,
-        } as any);
+        });
         expect(booking.booking_start).toBe(1_700_000_000);
         expect(booking.booking_end).toBe(1_700_003_600);
+    });
+
+    it('retains server-provided booking history without serialising it', () => {
+        const booking = new Booking({
+            history: [
+                { state: 'reserved', time: 1_700_000_000, source: 'desktop' },
+                { state: 'checked_in', time: 1_700_000_600 },
+            ],
+        });
+
+        expect(booking.history).toEqual([
+            { state: 'reserved', time: 1_700_000_000, source: 'desktop' },
+            { state: 'checked_in', time: 1_700_000_600 },
+        ]);
+        expect(booking.toJSON()).not.toHaveProperty('history');
     });
 });

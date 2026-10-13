@@ -40,9 +40,9 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { User } from '@placeos/common';
 import { authority, queryUsers } from '@placeos/ts-client';
 
-import { UserAvatarComponent } from '@placeos/components';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
+import { UserAvatarComponent } from 'libs/components/src/lib/user-avatar.component';
 import { searchGuests } from 'libs/users/src/lib/guests.fn';
 import { NewUserModalComponent } from 'libs/users/src/lib/new-user-modal.component';
 import { searchStaff } from 'libs/users/src/lib/staff.fn';
@@ -71,25 +71,40 @@ const DENIED_FILE_TYPES = [
                     matAutocompleteOrigin
                     #origin="matAutocompleteOrigin"
                 >
-                    <mat-chip-grid #chipList aria-label="User Seleciom">
-                        @for (item of active_list(); track item.id) {
+                    <mat-chip-grid #chipList aria-label="User selection">
+                        @for (item of active_list(); track $index) {
                             <mat-chip-row
                                 user
+                                [class.bg-base-200]="!item.is_external"
                                 [class.bg-warning]="item.is_external"
-                                (removed)="removeUser(item)"
+                                (removed)="removeUser($index)"
                                 [matTooltip]="item.email"
                             >
-                                <div class="flex items-center space-x-2">
+                                <div
+                                    class="flex items-center space-x-2"
+                                    [class.text-base-content!]="
+                                        !item.is_external
+                                    "
+                                    [class.text-warning-content!]="
+                                        item.is_external
+                                    "
+                                >
                                     <div>{{ item.name || item.email }}</div>
                                 </div>
                                 <button
                                     matChipRemove
                                     remove
+                                    [class.text-base-content!]="
+                                        !item.is_external
+                                    "
+                                    [class.text-warning-content!]="
+                                        item.is_external
+                                    "
                                     [attr.aria-label]="
                                         'COMMON.REMOVE_ITEM'
                                             | translate
                                                 : {
-                                                      name:
+                                                      item:
                                                           item.name ||
                                                           item.email,
                                                   }
@@ -311,7 +326,7 @@ export class UserListFieldComponent
                     });
                 }
                 return unique(
-                    (staff as any).concat(guests).concat(visitors_list),
+                    staff.concat(guests).concat(visitors_list),
                     'email',
                 );
             } catch {
@@ -320,7 +335,11 @@ export class UserListFieldComponent
         },
     });
     /** User list to display */
-    public readonly user_list = computed(() => this._user_search.value() ?? []);
+    public readonly user_list = computed(() =>
+        [...(this._user_search.value() ?? [])].sort((a, b) =>
+            a.name.localeCompare(b.name),
+        ),
+    );
     /** Whether user list is loading */
     public readonly loading = computed(() => this._user_search.isLoading());
     /** List of active selected users on the list */
@@ -373,7 +392,10 @@ export class UserListFieldComponent
      * @param user
      */
     public addUser(user: User) {
-        const list = this.active_list().filter((_) => _.id !== user.id);
+        const user_id = user.id || user.email;
+        const list = this.active_list().filter(
+            (_) => (_.id || _.email) !== user_id,
+        );
         this.setValue([
             ...list,
             new User({
@@ -396,13 +418,18 @@ export class UserListFieldComponent
     }
 
     /**
-     * Remove user from the user list
-     * @param user
+     * Remove the user at the given position in the list.
+     *
+     * Removal is positional rather than identity based. Visitor lists are built
+     * from booking data where `id`/`email` can be blank or shared between
+     * entries, and an identity filter then drops every matching row instead of
+     * the one the user clicked. (PPT-2634)
+     * @param index Index of the user in `active_list`
      */
-    public removeUser(user: User) {
-        const list = this.active_list().filter(
-            (a_user) => a_user.id !== user.id,
-        );
+    public removeUser(index: number) {
+        const list = [...this.active_list()];
+        if (index < 0 || index >= list.length) return;
+        list.splice(index, 1);
         this.setValue(list);
     }
 

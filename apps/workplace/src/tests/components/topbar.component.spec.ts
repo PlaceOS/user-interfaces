@@ -1,12 +1,15 @@
+import { signal } from '@angular/core';
 import { MatMenuModule } from '@angular/material/menu';
-import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
+import {
+    createRoutingFactory,
+    SpectatorRouting,
+} from '@ngneat/spectator/vitest';
 import {
     Building,
     OrganisationService,
     SettingsService,
 } from '@placeos/common';
 import { mockComponent, mockDirective } from '@placeos/common/tests';
-import { signal } from '@angular/core';
 import { MockProvider } from 'ng-mocks';
 
 import {
@@ -24,7 +27,7 @@ describe('TopbarComponent', () => {
     const createComponent = createRoutingFactory({
         component: TopbarComponent,
         providers: [
-            MockProvider(SettingsService, { get: jest.fn(), value: jest.fn() }),
+            MockProvider(SettingsService, { get: vi.fn(), value: vi.fn() }),
             MockProvider(OrganisationService, {
                 active_building: signal(new Building()),
                 active_region: signal(null),
@@ -45,27 +48,21 @@ describe('TopbarComponent', () => {
 
     beforeEach(() => (spectator = createComponent()));
 
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
-
     it('should render global search', () => {
         expect('global-search').toExist();
         const settings = spectator.inject(SettingsService);
-        (settings as any).get.mockImplementation((x) =>
+        settings.get.mockImplementation((x) =>
             x.includes('search') ? false : null,
         );
         spectator.detectChanges();
         expect('global-search').not.toExist();
-        (settings as any).value.mockReset();
+        settings.value.mockReset();
     });
 
     it('should render page title', () => {
         expect('[name="nav-logo"] span').not.toExist();
         const settings = spectator.inject(SettingsService);
-        (settings as any).value.mockImplementation(
-            () => 'An interesting title',
-        );
+        settings.value.mockImplementation(() => 'An interesting title');
         spectator.detectChanges();
         expect('[name="nav-logo"] span').toExist();
         expect('[name="nav-logo"] span').toContainText('An interesting title');

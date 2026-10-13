@@ -1,6 +1,6 @@
 import { Clipboard } from '@angular/cdk/clipboard';
 import { signal } from '@angular/core';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { SimpleTableComponent } from '@placeos/components';
 import { MockProvider } from 'ng-mocks';
 
@@ -13,7 +13,7 @@ describe('ParkingSpaceListComponent', () => {
     const createComponent = createComponentFactory({
         component: ParkingSpaceListComponent,
         providers: [
-            MockProvider(Clipboard, { copy: jest.fn(() => true) }),
+            MockProvider(Clipboard, { copy: vi.fn(() => true) }),
             MockProvider(ParkingStateService, {
                 spaces: signal([
                     {
@@ -31,8 +31,8 @@ describe('ParkingSpaceListComponent', () => {
                 }),
                 loading: signal([]),
                 bookings: signal([]),
-                editSpace: jest.fn(),
-                removeSpace: jest.fn(),
+                editSpace: vi.fn(),
+                removeSpace: vi.fn(),
             } as any),
         ],
     });

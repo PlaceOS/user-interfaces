@@ -8,7 +8,6 @@ import {
 } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import {
-    ANIMATION_SHOW_CONTRACT_EXPAND,
     CalendarEvent,
     DialogEvent,
     SettingsService,
@@ -22,6 +21,7 @@ import { EventFormService } from '@placeos/events';
 import { FormsModule } from '@angular/forms';
 import { FormField } from '@angular/forms/signals';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
@@ -65,7 +65,7 @@ import { MeetingFormDetailsComponent } from 'libs/events/src/lib/meeting-form-de
                             1
                         </div>
                         <div class="text-xl">
-                            {{ 'BOOKINGS.DETAILS' | translate }}
+                            {{ 'COMMON.DETAILS' | translate }}
                         </div>
                         <div class="w-px flex-1"></div>
                         <button
@@ -88,8 +88,8 @@ import { MeetingFormDetailsComponent } from 'libs/events/src/lib/meeting-form-de
                         </button>
                     </h3>
                     <div
-                        class="overflow-hidden"
-                        [@show]="hide_block().details ? 'hide' : 'show'"
+                        class="contract-expand"
+                        [class.contract-collapsed]="hide_block().details"
                     >
                         <meeting-form-details
                             class="mt-4"
@@ -129,14 +129,26 @@ import { MeetingFormDetailsComponent } from 'libs/events/src/lib/meeting-form-de
                             </button>
                         </h3>
                         <div
-                            class="overflow-hidden"
-                            [@show]="hide_block().attendees ? 'hide' : 'show'"
+                            class="contract-expand"
+                            [class.contract-collapsed]="hide_block().attendees"
                         >
                             <a-user-list-field
                                 class="mt-4"
                                 [formField]="form.attendees"
                                 [guests]="allow_externals"
                             ></a-user-list-field>
+                            @if (can_notify_new_attendees_only()) {
+                                <mat-checkbox
+                                    name="notify-new-attendees-only"
+                                    [(ngModel)]="notify_new_attendees_only"
+                                    [ngModelOptions]="{ standalone: true }"
+                                >
+                                    {{
+                                        'CALENDAR_EVENT.NOTIFY_NEW_ATTENDEES_ONLY'
+                                            | translate
+                                    }}
+                                </mat-checkbox>
+                            }
                         </div>
                     </section>
                 }
@@ -171,8 +183,8 @@ import { MeetingFormDetailsComponent } from 'libs/events/src/lib/meeting-form-de
                         </button>
                     </h3>
                     <div
-                        class="flex flex-col items-center overflow-hidden"
-                        [@show]="hide_block().resources ? 'hide' : 'show'"
+                        class="contract-expand flex flex-col items-center"
+                        [class.contract-collapsed]="hide_block().resources"
                     >
                         @if (
                             !strict_capacity_check &&
@@ -204,7 +216,7 @@ import { MeetingFormDetailsComponent } from 'libs/events/src/lib/meeting-form-de
                                 4
                             </div>
                             <div class="text-xl">
-                                {{ 'CALENDAR_EVENT.CATERING' | translate }}
+                                {{ 'RESOURCE.CATERING' | translate }}
                             </div>
                             <div class="w-px flex-1"></div>
                             <button
@@ -227,8 +239,8 @@ import { MeetingFormDetailsComponent } from 'libs/events/src/lib/meeting-form-de
                             </button>
                         </h3>
                         <div
-                            class="overflow-hidden"
-                            [@show]="hide_block().catering ? 'hide' : 'show'"
+                            class="contract-expand"
+                            [class.contract-collapsed]="hide_block().catering"
                         >
                             <catering-list-field
                                 [formField]="form.catering"
@@ -250,8 +262,7 @@ import { MeetingFormDetailsComponent } from 'libs/events/src/lib/meeting-form-de
                                     <mat-select
                                         [formField]="form.catering_charge_code"
                                         [placeholder]="
-                                            'CALENDAR_EVENT.CATERING_CHARGE_CODE'
-                                                | translate
+                                            'CATERING.CHARGE_CODE' | translate
                                         "
                                     >
                                         <input
@@ -346,8 +357,8 @@ import { MeetingFormDetailsComponent } from 'libs/events/src/lib/meeting-form-de
                             </button>
                         </h3>
                         <div
-                            class="overflow-hidden"
-                            [@show]="hide_block().assets ? 'hide' : 'show'"
+                            class="contract-expand"
+                            [class.contract-collapsed]="hide_block().assets"
                         >
                             <asset-list-field
                                 [options]="{
@@ -379,7 +390,7 @@ import { MeetingFormDetailsComponent } from 'libs/events/src/lib/meeting-form-de
                                 }}
                             </div>
                             <div class="text-xl">
-                                {{ 'CALENDAR_EVENT.NOTES_HEADER' | translate }}
+                                {{ 'FORM.NOTES' | translate }}
                             </div>
                         </h3>
                         <div class="flex w-full flex-col">
@@ -399,7 +410,6 @@ import { MeetingFormDetailsComponent } from 'libs/events/src/lib/meeting-form-de
         </fullscreen-modal-shell>
     `,
     styles: [``],
-    animations: [ANIMATION_SHOW_CONTRACT_EXPAND],
     imports: [
         FullscreenModalShellComponent,
         RichTextInputComponent,
@@ -414,6 +424,7 @@ import { MeetingFormDetailsComponent } from 'libs/events/src/lib/meeting-form-de
         MeetingFormDetailsComponent,
         UserListFieldComponent,
         MatAutocompleteModule,
+        MatCheckboxModule,
         FormsModule,
         MatSelectModule,
     ],
@@ -432,6 +443,10 @@ export class EventBookModalComponent implements OnInit {
     public readonly loading = signal(false);
     public readonly hide_block = signal<Record<string, boolean>>({});
     public readonly code_filter = signal('');
+    public readonly can_notify_new_attendees_only =
+        this._event_form.can_notify_new_attendees_only;
+    public readonly notify_new_attendees_only =
+        this._event_form.notify_new_attendees_only;
 
     private readonly _charge_codes = this._catering.charge_codes;
 
@@ -478,9 +493,7 @@ export class EventBookModalComponent implements OnInit {
     }
 
     public get total_capacity() {
-        return (
-            this.model().resources?.reduce((c, i) => c + i.capacity, 0) || 0
-        );
+        return this.model().resources?.reduce((c, i) => c + i.capacity, 0) || 0;
     }
 
     public get allow_multiday() {

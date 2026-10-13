@@ -1,11 +1,31 @@
-import { DatePipe } from '@angular/common';
-import { Component, computed, inject, input, output } from '@angular/core';
+import { DatePipe, NgTemplateOutlet } from '@angular/common';
+import {
+    afterNextRender,
+    Component,
+    computed,
+    inject,
+    Injector,
+    input,
+    output,
+    signal,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { FieldTree, FormField } from '@angular/forms/signals';
+import { FieldTree, FormField, schema, validate } from '@angular/forms/signals';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
-import { i18n, LocaleService } from '@placeos/common';
+import { MatSelect, MatSelectModule } from '@angular/material/select';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import {
+    formatTimeInTimezone,
+    getTimeInTimezone,
+    getTimezoneOffsetString,
+    i18n,
+    LOCAL_TIMEZONE,
+    LocaleService,
+    setTimeInTimezone,
+    settingSignal,
+} from '@placeos/common';
+import { TIMEZONES_IANA } from '@placeos/common/timezones';
 import {
     IconComponent,
     SettingsToggleComponent,
@@ -17,15 +37,37 @@ import {
     DurationFieldComponent,
     TimeFieldComponent,
 } from '@placeos/form-fields';
+import { SignagePlaylist } from '@placeos/ts-client';
+import { endOfDay, fromUnixTime, getUnixTime, startOfDay } from 'date-fns';
+import { fromZonedTime, toZonedTime } from 'date-fns-tz';
 import {
-    SignagePlaylist,
-    type SignagePlaylistSchedule,
-} from '@placeos/ts-client';
-import { getUnixTime } from 'date-fns';
+    cronDaySlots,
+    cronParts,
+    doesCronMatchDay,
+    isCronMonthlyWeekday,
+    nextCronDates,
+    parseCronNumber,
+    parseCronWeekdays,
+    parseCronWeeksOfMonth,
+} from '../signage-cron.util';
+import {
+    createScheduleMaskFilter,
+    DEFAULT_PLAY_PERIOD_MINUTES,
+    formatPlayAtLocal,
+    formatPlayDateTime,
+    formatPlayDateTimeRange,
+    hasPlayableScheduleMask,
+    isPlayOnceSchedule,
+    isValidScheduleMask,
+    ordinal,
+    parseCronMonthDays,
+    parsePlayAtLocal,
+    playlistScheduleExpiryLabel,
+    type PlaylistSchedule,
+} from '../signage-playlist.util';
 
 export type PlaylistScheduleType = 'play_at' | 'play_cron';
 type RecurringScheduleType =
-    | 'minutes'
     | 'hours'
     | 'daily'
     | 'weekdays'
@@ -38,23 +80,32 @@ export interface PlaylistScheduleFormModel {
     schedule_type: PlaylistScheduleType;
     play_start: number;
     play_at: number;
+    /**
+     * Play once at the same moment on all displays (`play_at`). Otherwise play
+     * at a wall-clock time in each display's timezone (`play_at_local`).
+     */
+    play_at_exact: boolean;
     play_takeover: boolean;
     play_cron: string;
     recurrence_type: RecurringScheduleType;
     recurrence_time: string;
     recurrence_interval: number;
     recurrence_week_of_month: number[];
-    recurrence_day_of_week: number;
     recurrence_weekdays: number[];
     recurrence_day_of_month: number[];
     play_period: number;
+    has_mask: boolean;
+    mask: string;
+    has_valid_from: boolean;
+    valid_from: number;
+    has_valid_until: boolean;
+    valid_until: number;
 }
 
 const FULL_DAY_START_MINUTES = 0;
 const FULL_DAY_END_MINUTES = 23 * 60 + 59;
 const DEFAULT_RECURRING_TIME = '00:00';
 const DEFAULT_RECURRING_CRON = '0 0 * * *';
-const DEFAULT_PLAY_PERIOD_MINUTES = 24 * 60;
 const WEEKDAY_OPTIONS = [
     { value: 1 },
     { value: 2 },
@@ -86,20 +137,6 @@ function timeToMinutes(value: string) {
     );
 }
 
-function ordinal(value: number) {
-    if (value >= 11 && value <= 13) return `${value}th`;
-    switch (value % 10) {
-        case 1:
-            return `${value}st`;
-        case 2:
-            return `${value}nd`;
-        case 3:
-            return `${value}rd`;
-        default:
-            return `${value}th`;
-    }
-}
-
 function normaliseWeekdays(value: number[] | null | undefined) {
     const seen_days = new Set<number>();
     for (const day of value || []) {
@@ -128,12 +165,6 @@ function normaliseWeeksOfMonth(value: number[] | null | undefined) {
     return WEEK_OF_MONTH_OPTIONS.filter((week) => seen_weeks.has(week));
 }
 
-function parseCronNumber(value: string, min: number, max: number) {
-    if (!/^\d+$/.test(value || '')) return null;
-    const number_value = +value;
-    return number_value >= min && number_value <= max ? number_value : null;
-}
-
 function parseCronStep(value: string, min: number, max: number) {
     const match = /^\*\/(\d+)$/.exec(value || '');
     if (!match) return null;
@@ -146,65 +177,6 @@ function dayRangeForWeekOfMonth(value: number | null | undefined) {
     if (week === 5) return '29-31';
     const start = (week - 1) * 7 + 1;
     return `${start}-${start + 6}`;
-}
-
-function parseCronWeekOfMonthRange(value: string) {
-    const match = /^(\d+)-(\d+)$/.exec(value || '');
-    if (!match) return null;
-    const start = +match[1];
-    const end = +match[2];
-    if (start === 29 && end === 31) return 5;
-    if ((start - 1) % 7 !== 0 || end !== start + 6) return null;
-    const week = (start - 1) / 7 + 1;
-    return week >= 1 && week <= 4 ? week : null;
-}
-
-function parseCronWeeksOfMonth(value: string) {
-    if (!value?.trim() || value === '*') return null;
-    const weeks = new Set<number>();
-    for (const part of value.split(',')) {
-        const week = parseCronWeekOfMonthRange(part);
-        if (week === null) return null;
-        weeks.add(week);
-    }
-    return normaliseWeeksOfMonth([...weeks]);
-}
-
-function parseCronWeekdays(value: string) {
-    if (!value?.trim() || value === '*') return null;
-    const days = new Set<number>();
-    for (const part of value.split(',')) {
-        if (part.includes('-')) {
-            const [start, end] = part
-                .split('-')
-                .map((_) => parseCronNumber(_, 0, 6));
-            if (start === null || end === null || start > end) return null;
-            for (let day = start; day <= end; day++) days.add(day);
-        } else {
-            const day = parseCronNumber(part, 0, 6);
-            if (day === null) return null;
-            days.add(day);
-        }
-    }
-    return normaliseWeekdays([...days]);
-}
-
-function parseCronMonthDays(value: string) {
-    if (!value?.trim() || value === '*') return null;
-    const days = new Set<number>();
-    for (const part of value.split(',')) {
-        const day = parseCronNumber(part, 1, 31);
-        if (day === null) return null;
-        days.add(day);
-    }
-    return normaliseMonthDays([...days]);
-}
-
-function isCronMonthlyWeekday(day_part: string, weekday_part: string) {
-    return (
-        !!parseCronWeeksOfMonth(day_part)?.length &&
-        !!parseCronWeekdays(weekday_part)?.length
-    );
 }
 
 function parseRecurringCron(value: string | null | undefined) {
@@ -226,7 +198,6 @@ function parseRecurringCron(value: string | null | undefined) {
         recurrence_time: time,
         recurrence_interval: 1,
         recurrence_week_of_month: [1],
-        recurrence_day_of_week: 1,
         recurrence_weekdays: [1],
         recurrence_day_of_month: [1],
     };
@@ -254,18 +225,16 @@ function parseRecurringCron(value: string | null | undefined) {
             recurrence_type: 'weekdays' as RecurringScheduleType,
         };
     }
-    const weekdays = parseCronWeekdays(weekday_part);
+    const weekdays = normaliseWeekdays(parseCronWeekdays(weekday_part));
     if (isCronMonthlyWeekday(day_part, weekday_part)) {
-        const month_weekdays = parseCronWeekdays(weekday_part) || [1];
         return {
             ...custom,
             recurrence_type: 'monthly_weekday' as RecurringScheduleType,
-            recurrence_week_of_month: parseCronWeeksOfMonth(day_part) || [1],
-            recurrence_day_of_week: month_weekdays[0],
-            recurrence_weekdays: month_weekdays,
+            recurrence_week_of_month: parseCronWeeksOfMonth(day_part),
+            recurrence_weekdays: weekdays,
         };
     }
-    if (day_part === '*' && weekdays?.length) {
+    if (day_part === '*' && weekdays.length) {
         return {
             ...custom,
             recurrence_type: 'weekly' as RecurringScheduleType,
@@ -286,7 +255,7 @@ function parseRecurringCron(value: string | null | undefined) {
 function isIntervalRecurringType(
     value: RecurringScheduleType | null | undefined,
 ) {
-    return value === 'minutes' || value === 'hours';
+    return value === 'hours';
 }
 
 function buildRecurringCron(value: {
@@ -294,7 +263,6 @@ function buildRecurringCron(value: {
     recurrence_time?: string | null;
     recurrence_interval?: number | null;
     recurrence_week_of_month?: number[] | null;
-    recurrence_day_of_week?: number | null;
     recurrence_weekdays?: number[] | null;
     recurrence_day_of_month?: number[] | null;
     play_start?: number | null;
@@ -311,13 +279,6 @@ function buildRecurringCron(value: {
     const [hours, minutes] = recurrence_time.split(':').map((_) => +_ || 0);
     const minute = Math.max(0, Math.min(59, minutes));
     const hour = Math.max(0, Math.min(23, hours));
-    if (value.recurrence_type === 'minutes') {
-        const interval = Math.max(
-            1,
-            Math.min(59, value.recurrence_interval || 1),
-        );
-        return interval === 1 ? '* * * * *' : `*/${interval} * * * *`;
-    }
     if (value.recurrence_type === 'hours') {
         const interval = Math.max(
             1,
@@ -346,16 +307,16 @@ function buildRecurringCron(value: {
     return `${minute} ${hour} * * *`;
 }
 
-function playlistPlayPeriod(schedule: Partial<SignagePlaylistSchedule>) {
+function playlistPlayPeriod(schedule: Partial<PlaylistSchedule>) {
     return Number.isFinite(schedule.play_period)
         ? Math.max(0, schedule.play_period)
         : DEFAULT_PLAY_PERIOD_MINUTES;
 }
 
 function scheduleTypeFor(
-    schedule: Partial<SignagePlaylistSchedule>,
+    schedule: Partial<PlaylistSchedule>,
 ): PlaylistScheduleType {
-    return schedule.play_at ? 'play_at' : 'play_cron';
+    return isPlayOnceSchedule(schedule) ? 'play_at' : 'play_cron';
 }
 
 function currentPlaylistSchedule(playlist: SignagePlaylist) {
@@ -378,70 +339,6 @@ function currentPlaylistSchedule(playlist: SignagePlaylist) {
 export function playlistSchedules(playlist: SignagePlaylist) {
     const schedule = currentPlaylistSchedule(playlist);
     return playlist.schedules?.length ? playlist.schedules : [schedule];
-}
-
-function matchesCronPart(value: number, cron_part: string) {
-    if (cron_part === '*') return true;
-    if (cron_part.includes(',')) {
-        return cron_part
-            .split(',')
-            .some((item) => matchesCronPart(value, item));
-    }
-    if (cron_part.includes('/')) {
-        const [base, step] = cron_part.split('/');
-        return !!+step && value % +step === 0 && matchesCronPart(value, base);
-    }
-    if (cron_part.includes('-')) {
-        const [start, end] = cron_part.split('-').map(Number);
-        return value >= start && value <= end;
-    }
-    return Number(cron_part) === value;
-}
-
-function doesCronMatchDate(cron: string, date: Date) {
-    const parts = cron.trim().split(/\s+/);
-    if (parts.length !== 5) return false;
-    const [minute, hour, day, month, day_of_week] = parts;
-    if (!matchesCronPart(date.getMinutes(), minute)) return false;
-    if (!matchesCronPart(date.getHours(), hour)) return false;
-    if (!matchesCronPart(date.getMonth() + 1, month)) return false;
-    const day_matches = matchesCronPart(date.getDate(), day);
-    const weekday_matches = matchesCronPart(date.getDay(), day_of_week);
-    if (day === '*' && day_of_week === '*') return true;
-    if (day !== '*' && day_of_week === '*') return day_matches;
-    if (day === '*' && day_of_week !== '*') return weekday_matches;
-    if (isCronMonthlyWeekday(day, day_of_week)) {
-        return day_matches && weekday_matches;
-    }
-    return day_matches || weekday_matches;
-}
-
-function formatPlayDateTime(date: Date) {
-    return date.toLocaleString(undefined, {
-        weekday: 'short',
-        month: 'short',
-        day: 'numeric',
-        hour: 'numeric',
-        minute: '2-digit',
-    });
-}
-
-function formatPlayTime(date: Date) {
-    return date.toLocaleTimeString(undefined, {
-        hour: 'numeric',
-        minute: '2-digit',
-    });
-}
-
-function formatPlayDateTimeRange(start: Date, duration_minutes: number) {
-    const end = new Date(start);
-    end.setMinutes(end.getMinutes() + Math.max(0, duration_minutes || 0));
-    if (duration_minutes > 0) end.setSeconds(end.getSeconds() - 1);
-    const end_text =
-        start.toDateString() === end.toDateString()
-            ? formatPlayTime(end)
-            : formatPlayDateTime(end);
-    return `${formatPlayDateTime(start)} – ${end_text}`;
 }
 
 function formatMinutes(value: number | null | undefined) {
@@ -470,60 +367,200 @@ function formatMinutes(value: number | null | undefined) {
         .join(' ');
 }
 
-function nextCronPlayTimes(cron: string, duration_minutes: number) {
-    const result: string[] = [];
-    if (!cron?.trim()) return result;
-    const date = new Date();
-    date.setSeconds(0, 0);
-    date.setMinutes(date.getMinutes() + 1);
-    const end = new Date(date);
-    end.setFullYear(end.getFullYear() + 2);
-    while (date <= end && result.length < 5) {
-        if (doesCronMatchDate(cron, date)) {
-            result.push(formatPlayDateTimeRange(date, duration_minutes));
+/** Time ranges of the next five plays of a recurring schedule in the timezone. */
+function nextCronPlayTimes(
+    cron: string,
+    duration_minutes: number,
+    valid_until = 0,
+    timezone = LOCAL_TIMEZONE,
+    valid_from = 0,
+    mask = '',
+) {
+    if (!hasPlayableScheduleMask({ mask, valid_from: valid_from / 1000 }))
+        return [];
+    return nextCronDates(cron, {
+        from: Math.max(Date.now() + 1, valid_from),
+        until: valid_until || undefined,
+        count: 5,
+        timezone,
+        allows: createScheduleMaskFilter(
+            { play_cron: cron, valid_from: valid_from / 1000, mask },
+            timezone,
+        ),
+    }).map((instant) =>
+        formatPlayDateTimeRange(instant, duration_minutes, timezone),
+    );
+}
+
+/** Find the first mask cycle, including occurrences selected to skip. */
+function maskOccurrenceDates(
+    value: PlaylistScheduleFormModel,
+    timezone: string,
+) {
+    const result: Date[] = [];
+    const start = value.valid_from;
+    if (
+        !value.has_valid_from ||
+        !start ||
+        !Number.isFinite(new Date(start).getTime())
+    )
+        return result;
+    const expiry = value.has_valid_until ? value.valid_until : Infinity;
+    if (expiry < start) return result;
+    if (value.schedule_type === 'play_at') {
+        return value.play_at >= start && value.play_at <= expiry
+            ? [new Date(value.play_at)]
+            : result;
+    }
+    const parts = cronParts(buildRecurringCron(value));
+    if (!parts) return result;
+    const slots = cronDaySlots(parts);
+    if (!slots.length) return result;
+    const day = toZonedTime(start, timezone);
+    day.setHours(0, 0, 0, 0);
+    // A Gregorian calendar cycle bounds the search for invalid or rare cron dates.
+    const end = new Date(day);
+    end.setFullYear(end.getFullYear() + 400);
+    const last_day = Number.isFinite(expiry)
+        ? toZonedTime(expiry, timezone)
+        : end;
+    const count = Math.min(128, value.mask.length);
+    for (
+        ;
+        day <= end && day <= last_day && result.length < count;
+        day.setDate(day.getDate() + 1)
+    ) {
+        if (!doesCronMatchDay(parts, day)) continue;
+        for (const slot of slots) {
+            if (result.length >= count) break;
+            const wall = new Date(day);
+            wall.setHours(0, slot, 0, 0);
+            const instant = fromZonedTime(wall, timezone);
+            if (
+                instant.getTime() >= start &&
+                instant.getTime() <= expiry &&
+                toZonedTime(instant, timezone).getTime() === wall.getTime()
+            )
+                result.push(instant);
         }
-        date.setMinutes(date.getMinutes() + 1);
     }
     return result;
 }
 
 export function createPlaylistScheduleModel(
-    schedule?: Partial<SignagePlaylistSchedule>,
+    schedule?: Partial<PlaylistSchedule>,
 ): PlaylistScheduleFormModel {
     const source = schedule || {};
     const recurring_schedule = parseRecurringCron(source.play_cron);
     return {
         schedule_type: scheduleTypeFor(source),
         play_start: timeToMinutes(recurring_schedule.recurrence_time),
-        play_at: source.play_at || Date.now(),
+        // The API carries a unix timestamp in seconds; the form model works in
+        // milliseconds, as playlistSchedulePayload's getUnixTime assumes.
+        // Local play times use the browser timezone for the wall-clock value.
+        play_at: source.play_at
+            ? fromUnixTime(source.play_at).getTime()
+            : (parsePlayAtLocal(source.play_at_local)?.getTime() ?? Date.now()),
+        play_at_exact: !!source.play_at,
         play_takeover: !!source.play_takeover,
         play_cron: source.play_cron || DEFAULT_RECURRING_CRON,
         recurrence_type: recurring_schedule.recurrence_type,
         recurrence_time: recurring_schedule.recurrence_time,
         recurrence_interval: recurring_schedule.recurrence_interval,
         recurrence_week_of_month: recurring_schedule.recurrence_week_of_month,
-        recurrence_day_of_week: recurring_schedule.recurrence_day_of_week,
         recurrence_weekdays: recurring_schedule.recurrence_weekdays,
         recurrence_day_of_month: recurring_schedule.recurrence_day_of_month,
         play_period: playlistPlayPeriod(source),
+        has_mask: !!source.mask,
+        mask: source.mask || '',
+        has_valid_from: !!source.valid_from,
+        valid_from: source.valid_from
+            ? fromUnixTime(source.valid_from).getTime()
+            : startOfDay(Date.now()).getTime(),
+        has_valid_until: !!source.valid_until,
+        valid_until: source.valid_until
+            ? fromUnixTime(source.valid_until).getTime()
+            : endOfDay(Date.now()).getTime(),
     };
 }
 
+/** Validate the repeat mask and schedule validity window. */
+export const playlistScheduleSchema = schema<PlaylistScheduleFormModel>(
+    (path) => {
+        validate(path.mask, ({ value, valueOf }) => {
+            if (!valueOf(path.has_mask)) return undefined;
+            if (isValidScheduleMask(value())) return undefined;
+            return {
+                kind: 'mask_range',
+                message: i18n('SIGNAGE_MANAGER.SCHEDULE_MASK_RANGE'),
+            };
+        });
+        validate(path.valid_from, ({ value, valueOf }) => {
+            if (!valueOf(path.has_mask)) return undefined;
+            if (
+                valueOf(path.has_valid_from) &&
+                value() !== 0 &&
+                Number.isFinite(new Date(value()).getTime())
+            )
+                return undefined;
+            return {
+                kind: 'mask_valid_from',
+                message: i18n('SIGNAGE_MANAGER.SCHEDULE_MASK_VALID_FROM'),
+            };
+        });
+        validate(path.valid_until, ({ value, valueOf }) => {
+            if (
+                valueOf(path.has_valid_from) &&
+                valueOf(path.has_valid_until) &&
+                valueOf(path.valid_from) >= value()
+            ) {
+                return {
+                    kind: 'validity_order',
+                    message: i18n('SIGNAGE_MANAGER.SCHEDULE_VALIDITY_ORDER'),
+                };
+            }
+            return undefined;
+        });
+    },
+);
+
 export function playlistSchedulePayload(
     value: PlaylistScheduleFormModel,
-): SignagePlaylistSchedule {
+): PlaylistSchedule {
     return value.schedule_type === 'play_at'
         ? {
-              play_at: value.play_at ? getUnixTime(new Date(value.play_at)) : 0,
-              play_cron: '',
+              play_at:
+                  value.play_at_exact && value.play_at
+                      ? getUnixTime(new Date(value.play_at))
+                      : undefined,
+              play_at_local:
+                  !value.play_at_exact && value.play_at
+                      ? formatPlayAtLocal(value.play_at)
+                      : undefined,
+              play_cron: DEFAULT_RECURRING_CRON,
               play_period: Math.max(0, value.play_period || 0),
               play_takeover: !!value.play_takeover,
+              mask: value.has_mask ? value.mask : '',
+              valid_from: value.has_valid_from
+                  ? getUnixTime(new Date(value.valid_from))
+                  : undefined,
+              valid_until: value.has_valid_until
+                  ? getUnixTime(new Date(value.valid_until))
+                  : undefined,
           }
         : {
-              play_at: 0,
+              play_at: undefined,
+              play_at_local: undefined,
               play_cron: buildRecurringCron(value),
               play_period: Math.max(0, value.play_period || 0),
               play_takeover: !!value.play_takeover,
+              mask: value.has_mask ? value.mask : '',
+              valid_from: value.has_valid_from
+                  ? getUnixTime(new Date(value.valid_from))
+                  : undefined,
+              valid_until: value.has_valid_until
+                  ? getUnixTime(new Date(value.valid_until))
+                  : undefined,
           };
 }
 
@@ -551,6 +588,8 @@ export function playlistSchedulePayload(
                     </div>
                     <div
                         class="text-base-content min-w-0 flex-1 truncate text-xs"
+                        [matTooltip]="scheduleExpiryTooltip()"
+                        [matTooltipDisabled]="!value().has_valid_until"
                     >
                         {{ scheduleSummary() }}
                     </div>
@@ -598,36 +637,79 @@ export function playlistSchedulePayload(
                         </mat-select>
                     </mat-form-field>
                     @if (value().schedule_type === 'play_at') {
+                        <settings-toggle
+                            play-at-exact
+                            [label]="
+                                'SIGNAGE_MANAGER.PLAY_AT_EXACT_TIME' | translate
+                            "
+                            [info]="
+                                (value().play_at_exact
+                                    ? 'SIGNAGE_MANAGER.PLAY_AT_EXACT_TIME_HINT'
+                                    : 'SIGNAGE_MANAGER.PLAY_AT_LOCAL_TIME_HINT'
+                                ) | translate
+                            "
+                            [ngModel]="value().play_at_exact"
+                            (ngModelChange)="setPlayAtExact($event)"
+                            [ngModelOptions]="{ standalone: true }"
+                        />
+                    }
+                    @if (
+                        !schedule_timezone_once_only() || playAtUsesTimezone()
+                    ) {
+                        <ng-container [ngTemplateOutlet]="timezone_field" />
+                    }
+                    @if (
+                        !schedule_timezone_once_only() &&
+                        value().schedule_type === 'play_cron'
+                    ) {
+                        <p class="text-base-content/60 text-xs">
+                            {{
+                                'SIGNAGE_MANAGER.SCHEDULE_TIMEZONE_HINT'
+                                    | translate
+                            }}
+                        </p>
+                    }
+                    @if (value().schedule_type === 'play_at') {
                         <div class="flex space-x-4">
                             <div class="flex-1">
                                 <label>{{
                                     'SIGNAGE_MANAGER.PLAY_AT' | translate
                                 }}</label>
                                 <a-date-field
+                                    [timezone]="playTimezone()"
                                     class="w-full"
                                     [formField]="schedule().play_at"
                                 ></a-date-field>
                             </div>
                             <div class="flex-1">
                                 <label>&nbsp;</label>
-                                <a-time-field
-                                    class="w-full"
-                                    [ngModel]="value().play_at"
-                                    (ngModelChange)="
-                                        schedule().play_at().value.set($event)
-                                    "
-                                    [ngModelOptions]="{ standalone: true }"
-                                ></a-time-field>
+                                <!-- Recreate the time input to refresh its cached display when the timezone changes. -->
+                                @for (zone of [playTimezone()]; track zone) {
+                                    <a-time-field
+                                        [timezone]="playTimezone()"
+                                        class="w-full"
+                                        [ngModel]="value().play_at"
+                                        (ngModelChange)="
+                                            schedule()
+                                                .play_at()
+                                                .value.set($event)
+                                        "
+                                        [ngModelOptions]="{ standalone: true }"
+                                    ></a-time-field>
+                                }
                             </div>
                         </div>
                         <label>{{
                             'SIGNAGE_MANAGER.PLAY_PERIOD' | translate
                         }}</label>
                         <a-duration-field
+                            [timezone]="playTimezone()"
                             class="w-full"
                             [formField]="schedule().play_period"
+                            [min]="15"
                             [max]="24 * 60"
                             [time]="value().play_at"
+                            [allow_end_time]="true"
                             [custom_options]="[value().play_period]"
                         ></a-duration-field>
                         <settings-toggle
@@ -703,21 +785,13 @@ export function playlistSchedulePayload(
                                     <label class="m-0 min-w-40 flex-1">
                                         <div>
                                             {{
-                                                (value().recurrence_type ===
-                                                'minutes'
-                                                    ? 'SIGNAGE_MANAGER.MINUTES_BETWEEN_PLAYS'
-                                                    : 'SIGNAGE_MANAGER.HOURS_BETWEEN_PLAYS'
-                                                ) | translate
+                                                'SIGNAGE_MANAGER.HOURS_BETWEEN_PLAYS'
+                                                    | translate
                                             }}
                                         </div>
                                         <a-counter
                                             [min]="1"
-                                            [max]="
-                                                value().recurrence_type ===
-                                                'minutes'
-                                                    ? 59
-                                                    : 23
-                                            "
+                                            [max]="23"
                                             [formField]="
                                                 schedule().recurrence_interval
                                             "
@@ -909,12 +983,12 @@ export function playlistSchedulePayload(
                                             class="no-subscript"
                                         >
                                             <input
+                                                #start_input
                                                 matInput
                                                 type="time"
+                                                step="60"
                                                 [value]="
-                                                    formatPlayHour(
-                                                        value().play_start
-                                                    )
+                                                    recurringStartInputTime()
                                                 "
                                                 [attr.aria-label]="
                                                     'SIGNAGE_MANAGER.PLAY_PERIOD_START_ARIA'
@@ -922,12 +996,28 @@ export function playlistSchedulePayload(
                                                 "
                                                 (input)="
                                                     setPlayStart(
-                                                        $any($event.target)
-                                                            .value
+                                                        start_input.value
                                                     )
+                                                "
+                                                (blur)="
+                                                    start_input.value =
+                                                        recurringStartInputTime()
                                                 "
                                             />
                                         </mat-form-field>
+                                        @if (start_timezone_offset()) {
+                                            <div
+                                                start-timezone
+                                                class="text-xs opacity-30"
+                                            >
+                                                {{
+                                                    recurringPlayStartTime()
+                                                        | date
+                                                            : 'h : mm a (z)'
+                                                            : start_timezone_offset()
+                                                }}
+                                            </div>
+                                        }
                                     </div>
                                 }
                                 <div class="w-full flex-1">
@@ -936,10 +1026,13 @@ export function playlistSchedulePayload(
                                             | translate
                                     }}</label>
                                     <a-duration-field
+                                        [timezone]="timezone()"
                                         class="no-subscript w-full flex-1"
                                         [formField]="schedule().play_period"
+                                        [min]="15"
                                         [max]="24 * 60"
                                         [time]="recurringPlayStartTime()"
+                                        [allow_end_time]="true"
                                         [custom_options]="[value().play_period]"
                                     ></a-duration-field>
                                 </div>
@@ -982,12 +1075,356 @@ export function playlistSchedulePayload(
                             }
                         </div>
                     }
+                    <settings-toggle
+                        [label]="'SIGNAGE_MANAGER.SCHEDULE_MASK' | translate"
+                        [ngModel]="value().has_mask"
+                        (ngModelChange)="setMaskEnabled($event)"
+                        [ngModelOptions]="{ standalone: true }"
+                    />
+                    @if (value().has_mask) {
+                        <div
+                            mask-editor
+                            class="border-base-300 space-y-3 rounded-lg border px-3 py-2"
+                        >
+                            <div class="space-y-1">
+                                <label for="mask-length">
+                                    {{
+                                        'SIGNAGE_MANAGER.MASK_REPEAT_LENGTH'
+                                            | translate
+                                    }}
+                                </label>
+                                <div
+                                    class="flex items-center justify-between gap-2"
+                                >
+                                    <a-counter
+                                        class="block max-w-64 min-w-0 flex-1 [&_[value]]:text-sm"
+                                        [render_fn]="formatMaskOccurrences"
+                                        name="mask-length"
+                                        [min]="1"
+                                        [max]="128"
+                                        [step]="1"
+                                        [ngModel]="value().mask.length"
+                                        (ngModelChange)="resizeMask($event)"
+                                        [ngModelOptions]="{
+                                            standalone: true,
+                                        }"
+                                        [attr.aria-label]="
+                                            'SIGNAGE_MANAGER.MASK_REPEAT_LENGTH'
+                                                | translate
+                                        "
+                                    />
+                                    <p
+                                        class="text-base-content/70 shrink-0 text-sm whitespace-nowrap"
+                                        aria-live="polite"
+                                    >
+                                        {{
+                                            'SIGNAGE_MANAGER.MASK_PLAY_COUNT'
+                                                | translate
+                                                    : {
+                                                          count: mask_play_count(),
+                                                          total: value().mask
+                                                              .length,
+                                                      }
+                                        }}
+                                    </p>
+                                </div>
+                            </div>
+                            <p class="text-base-content/70 text-xs">
+                                {{
+                                    'SIGNAGE_MANAGER.SCHEDULE_MASK_HINT'
+                                        | translate
+                                }}
+                            </p>
+                            <div class="flex flex-wrap items-center gap-2">
+                                <button
+                                    type="button"
+                                    class="border-base-300 hover:bg-base-200 rounded border px-3 py-2 text-xs"
+                                    (click)="fillMask('play')"
+                                >
+                                    {{
+                                        'SIGNAGE_MANAGER.MASK_PLAY_ALL'
+                                            | translate
+                                    }}
+                                </button>
+                                <button
+                                    type="button"
+                                    class="border-base-300 hover:bg-base-200 rounded border px-3 py-2 text-xs"
+                                    (click)="fillMask('skip')"
+                                >
+                                    {{
+                                        'SIGNAGE_MANAGER.MASK_SKIP_ALL'
+                                            | translate
+                                    }}
+                                </button>
+                                <button
+                                    type="button"
+                                    class="border-base-300 hover:bg-base-200 rounded border px-3 py-2 text-xs"
+                                    (click)="fillMask('alternate')"
+                                >
+                                    {{
+                                        'SIGNAGE_MANAGER.MASK_ALTERNATE'
+                                            | translate
+                                    }}
+                                </button>
+                                <div
+                                    class="border-base-300 ml-auto flex shrink-0 overflow-hidden rounded-lg border"
+                                >
+                                    @for (view of mask_views; track view.mode) {
+                                        <button
+                                            type="button"
+                                            class="focus-visible:ring-primary flex min-h-10 items-center gap-2 px-3 text-xs focus-visible:ring-2 focus-visible:ring-inset"
+                                            [class.bg-base-200]="
+                                                mask_view() === view.mode
+                                            "
+                                            [class.font-semibold]="
+                                                mask_view() === view.mode
+                                            "
+                                            [attr.aria-pressed]="
+                                                mask_view() === view.mode
+                                            "
+                                            (click)="mask_view.set(view.mode)"
+                                        >
+                                            <icon aria-hidden="true">{{
+                                                view.icon
+                                            }}</icon>
+                                            {{ view.label | translate }}
+                                        </button>
+                                    }
+                                </div>
+                            </div>
+                            <div
+                                role="group"
+                                [attr.aria-label]="
+                                    'SIGNAGE_MANAGER.MASK_PATTERN' | translate
+                                "
+                                class="grid max-h-80 gap-2 overflow-y-auto p-1"
+                                [class]="
+                                    mask_view() === 'grid'
+                                        ? 'grid-cols-4 sm:grid-cols-8'
+                                        : 'grid-cols-1'
+                                "
+                            >
+                                @for (bit of mask_bits(); track $index) {
+                                    <button
+                                        type="button"
+                                        mask-instance
+                                        [matTooltip]="
+                                            mask_occurrence_labels()[$index]
+                                        "
+                                        [matTooltipDisabled]="
+                                            mask_view() !== 'grid'
+                                        "
+                                        class="focus-visible:ring-primary flex items-center gap-1 rounded-lg border text-xs focus-visible:ring-2 focus-visible:ring-offset-2"
+                                        [class.flex-col]="
+                                            mask_view() === 'grid'
+                                        "
+                                        [class.justify-center]="
+                                            mask_view() === 'grid'
+                                        "
+                                        [class.min-h-14]="
+                                            mask_view() === 'grid'
+                                        "
+                                        [class.justify-between]="
+                                            mask_view() === 'list'
+                                        "
+                                        [class.min-h-11]="
+                                            mask_view() === 'list'
+                                        "
+                                        [class.px-3]="mask_view() === 'list'"
+                                        [class.bg-primary]="bit === '1'"
+                                        [class.text-primary-content]="
+                                            bit === '1'
+                                        "
+                                        [class.border-primary]="bit === '1'"
+                                        [class.border-base-300]="bit !== '1'"
+                                        [class.bg-base-100]="bit !== '1'"
+                                        [attr.aria-pressed]="bit === '1'"
+                                        [attr.aria-label]="
+                                            'SIGNAGE_MANAGER.MASK_INSTANCE'
+                                                | translate
+                                                    : {
+                                                          number: $index + 1,
+                                                          state:
+                                                              ((bit === '1'
+                                                                  ? 'SIGNAGE_MANAGER.MASK_PLAY'
+                                                                  : 'SIGNAGE_MANAGER.MASK_SKIP'
+                                                              ) | translate) +
+                                                              (mask_view() ===
+                                                              'list'
+                                                                  ? ', ' +
+                                                                    mask_occurrence_labels()[
+                                                                        $index
+                                                                    ]
+                                                                  : ''),
+                                                      }
+                                        "
+                                        (click)="toggleMaskInstance($index)"
+                                    >
+                                        <span class="font-semibold">{{
+                                            $index + 1
+                                        }}</span>
+                                        @if (mask_view() === 'list') {
+                                            <span
+                                                class="min-w-0 flex-1 px-2 text-left leading-snug"
+                                                mask-instance-date
+                                                >{{
+                                                    mask_occurrence_labels()[
+                                                        $index
+                                                    ]
+                                                }}</span
+                                            >
+                                        }
+                                        <span
+                                            class="flex shrink-0 items-center gap-1"
+                                        >
+                                            <icon aria-hidden="true">{{
+                                                bit === '1'
+                                                    ? 'play_arrow'
+                                                    : 'block'
+                                            }}</icon>
+                                            @if (mask_view() === 'list') {
+                                                {{
+                                                    (bit === '1'
+                                                        ? 'SIGNAGE_MANAGER.MASK_PLAY'
+                                                        : 'SIGNAGE_MANAGER.MASK_SKIP'
+                                                    ) | translate
+                                                }}
+                                            }
+                                        </span>
+                                    </button>
+                                }
+                            </div>
+                            @if (!mask_play_count()) {
+                                <p class="text-base-content/70 text-xs">
+                                    {{
+                                        'SIGNAGE_MANAGER.MASK_NONE_PLAY'
+                                            | translate
+                                    }}
+                                </p>
+                            }
+                        </div>
+                    }
+                    <div
+                        schedule-validity
+                        class="bg-base-200/40 border-base-300 mt-4 rounded-lg border p-2"
+                    >
+                        @if (
+                            schedule_timezone_once_only() &&
+                            !playAtUsesTimezone()
+                        ) {
+                            <ng-container [ngTemplateOutlet]="timezone_field" />
+                        }
+                        <settings-toggle
+                            [class.mt-2]="
+                                schedule_timezone_once_only() &&
+                                !playAtUsesTimezone()
+                            "
+                            [label]="'SIGNAGE_MANAGER.VALID_FROM' | translate"
+                            [formField]="schedule().has_valid_from"
+                        />
+                        @if (value().has_valid_from) {
+                            <div class="mt-2 flex gap-2">
+                                <a-date-field
+                                    [timezone]="timezone()"
+                                    class="w-full flex-1"
+                                    [formField]="schedule().valid_from"
+                                ></a-date-field>
+                                @for (zone of [timezone()]; track zone) {
+                                    <a-time-field
+                                        [timezone]="timezone()"
+                                        class="w-full flex-1"
+                                        [(ngModel)]="
+                                            schedule().valid_from().value
+                                        "
+                                        [ngModelOptions]="{ standalone: true }"
+                                    ></a-time-field>
+                                }
+                            </div>
+                        }
+                        <settings-toggle
+                            class="mt-2"
+                            [label]="'FORM.EXPIRES_AT' | translate"
+                            [formField]="schedule().has_valid_until"
+                        />
+                        @if (value().has_valid_until) {
+                            <div class="mt-2 flex gap-2">
+                                <a-date-field
+                                    [timezone]="timezone()"
+                                    class="w-full flex-1"
+                                    [formField]="schedule().valid_until"
+                                ></a-date-field>
+                                @for (zone of [timezone()]; track zone) {
+                                    <a-time-field
+                                        [timezone]="timezone()"
+                                        class="w-full flex-1"
+                                        [ngModel]="value().valid_until"
+                                        (ngModelChange)="
+                                            schedule()
+                                                .valid_until()
+                                                .value.set($event)
+                                        "
+                                        [ngModelOptions]="{ standalone: true }"
+                                    ></a-time-field>
+                                }
+                            </div>
+                        }
+                    </div>
                 </div>
             }
+            @for (error of schedule()().errorSummary(); track error.kind) {
+                <p role="alert" class="text-error px-3 pb-3 text-sm">
+                    {{ error.message }}
+                </p>
+            }
         </div>
+        <ng-template #timezone_field>
+            <label for="timezone">{{ 'COMMON.TIMEZONE' | translate }}</label>
+            <mat-form-field appearance="outline" class="no-subscript w-full">
+                <mat-select
+                    #timezone_select
+                    name="timezone"
+                    [aria-label]="'COMMON.TIMEZONE' | translate"
+                    [(ngModel)]="timezone"
+                    [ngModelOptions]="{ standalone: true }"
+                    (openedChange)="
+                        timezone_search.set('');
+                        $event &&
+                            focusTimezoneSearch(
+                                timezone_select,
+                                timezone_filter
+                            )
+                    "
+                >
+                    <mat-select-trigger>{{ timezone() }}</mat-select-trigger>
+                    <div class="bg-base-100 sticky -top-1.5 z-10">
+                        <input
+                            #timezone_filter
+                            class="border-base-300 h-full w-full border-b px-4 py-3"
+                            [placeholder]="'COMMON.SEARCH' | translate"
+                            [attr.aria-label]="
+                                'SIGNAGE_MANAGER.SEARCH_TIMEZONES' | translate
+                            "
+                            [(ngModel)]="timezone_search"
+                            [ngModelOptions]="{ standalone: true }"
+                            (keydown)="onTimezoneSearchKeydown($event)"
+                        />
+                    </div>
+                    @for (zone of timezone_options(); track zone) {
+                        <mat-option [value]="zone">{{ zone }}</mat-option>
+                    }
+                    @if (!filtered_timezones().length) {
+                        <mat-option disabled>{{
+                            'COMMON.TIMEZONE_EMPTY' | translate
+                        }}</mat-option>
+                    }
+                </mat-select>
+            </mat-form-field>
+        </ng-template>
     `,
     styles: [``],
     imports: [
+        DatePipe,
+        NgTemplateOutlet,
         FormField,
         FormsModule,
         DateFieldComponent,
@@ -996,6 +1433,7 @@ export function playlistSchedulePayload(
         MatFormFieldModule,
         MatInputModule,
         MatSelectModule,
+        MatTooltipModule,
         IconComponent,
         CounterComponent,
         SettingsToggleComponent,
@@ -1003,16 +1441,42 @@ export function playlistSchedulePayload(
     ],
 })
 export class PlaylistScheduleFormComponent {
+    private readonly _injector = inject(Injector);
     private readonly _locale = inject(LocaleService);
     private readonly _date_pipe = new DatePipe(this._locale.locale);
 
     public readonly schedule =
-        input.required<FieldTree<PlaylistScheduleFormModel, number>>();
+        input.required<FieldTree<PlaylistScheduleFormModel>>();
+    // fallow-ignore-next-line unused-component-input -- read in a template pipe expression fallow does not parse
     public readonly index = input.required<number>();
     public readonly open = input(false);
     public readonly can_remove = input(false);
     public readonly toggle = output<void>();
     public readonly remove = output<Event>();
+
+    public readonly schedule_timezone_once_only = settingSignal(
+        'schedule_timezone_once_only',
+        true,
+    );
+    public readonly timezone = signal(LOCAL_TIMEZONE);
+    public readonly timezones = [
+        ...new Set([LOCAL_TIMEZONE, 'UTC', ...TIMEZONES_IANA]),
+    ].sort();
+
+    public readonly timezone_search = signal('');
+    public readonly filtered_timezones = computed(() => {
+        const search = this.timezone_search().trim().toLowerCase();
+        return this.timezones.filter((zone) =>
+            zone.toLowerCase().includes(search),
+        );
+    });
+
+    // Material needs the selected option to remain in the list to display its trigger.
+    public readonly timezone_options = computed(() => {
+        const matches = this.filtered_timezones();
+        const selected = this.timezone();
+        return matches.includes(selected) ? matches : [selected, ...matches];
+    });
 
     public readonly weekday_options = WEEKDAY_OPTIONS;
     public readonly week_of_month_options = WEEK_OF_MONTH_OPTIONS;
@@ -1022,8 +1486,142 @@ export class PlaylistScheduleFormComponent {
     );
     public readonly ordinal = ordinal;
     public readonly value = computed(() => this.schedule()().value());
+    public readonly mask_occurrence_dates = computed(() =>
+        maskOccurrenceDates(this.value(), this.timezone()),
+    );
+    public readonly mask_occurrence_labels = computed(() => {
+        const formatter = new Intl.DateTimeFormat(this._locale.locale, {
+            timeZone: this.playTimezone() || undefined,
+            weekday: 'short',
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric',
+            hour: 'numeric',
+            minute: '2-digit',
+            timeZoneName: 'short',
+        });
+        const dates = this.mask_occurrence_dates();
+        const missing = i18n(
+            this.value().has_valid_from
+                ? 'SIGNAGE_MANAGER.MASK_INSTANCE_UNAVAILABLE'
+                : 'SIGNAGE_MANAGER.MASK_INSTANCE_START_REQUIRED',
+        );
+        return this.mask_bits().map((_, index) =>
+            dates[index] ? formatter.format(dates[index]) : missing,
+        );
+    });
+    public readonly formatMaskOccurrences = (count: number) =>
+        i18n('SIGNAGE_MANAGER.MASK_OCCURRENCES', { count }, count);
+
+    public readonly mask_view = signal<'grid' | 'list'>('grid');
+    public readonly mask_views = [
+        { mode: 'grid', icon: 'grid_view', label: 'SIGNAGE_MANAGER.VIEW_GRID' },
+        { mode: 'list', icon: 'view_list', label: 'SIGNAGE_MANAGER.VIEW_LIST' },
+    ] as const;
+    public readonly mask_bits = computed(() =>
+        this.value().mask.slice(0, 128).split(''),
+    );
+    public readonly mask_play_count = computed(
+        () => this.mask_bits().filter((bit) => bit === '1').length,
+    );
+
+    public setMaskEnabled(enabled: boolean) {
+        if (enabled && !this.value().mask)
+            this.schedule().mask().value.set('11');
+        this.schedule().has_mask().value.set(enabled);
+    }
+
+    /** Keep existing choices when resizing. New occurrences play by default. */
+    public resizeMask(length: number) {
+        if (!Number.isFinite(length)) return;
+        const size = Math.max(1, Math.min(128, Math.floor(length)));
+        this.schedule()
+            .mask()
+            .value.set(this.value().mask.slice(0, size).padEnd(size, '1'));
+    }
+
+    public toggleMaskInstance(index: number) {
+        if (
+            !Number.isInteger(index) ||
+            index < 0 ||
+            index >= Math.min(128, this.value().mask.length)
+        )
+            return;
+        const bits = [...this.value().mask];
+        bits[index] = bits[index] === '1' ? '0' : '1';
+        this.schedule().mask().value.set(bits.join(''));
+    }
+
+    public fillMask(pattern: 'play' | 'skip' | 'alternate') {
+        const size = Math.max(1, Math.min(128, this.value().mask.length));
+        this.schedule()
+            .mask()
+            .value.set(
+                Array.from({ length: size }, (_, index) =>
+                    pattern === 'play' ||
+                    (pattern === 'alternate' && index % 2 === 0)
+                        ? '1'
+                        : '0',
+                ).join(''),
+            );
+    }
+
     public readonly formatPlayHour = (value: number | null | undefined) =>
         minutesToTime(value || 0);
+
+    /** Whether the selected timezone sets the play once time. */
+    public readonly playAtUsesTimezone = computed(
+        () =>
+            this.value().schedule_type === 'play_at' &&
+            this.value().play_at_exact,
+    );
+
+    /**
+     * Timezone of the play time fields. Local play once times have no
+     * timezone, so their fields use the browser timezone ('').
+     */
+    public readonly playTimezone = computed(() =>
+        this.value().schedule_type === 'play_at' && !this.value().play_at_exact
+            ? ''
+            : this.timezone(),
+    );
+
+    /** Switch the play once mode and keep the displayed wall-clock time. */
+    public setPlayAtExact(exact: boolean) {
+        const { play_at, play_at_exact } = this.value();
+        if (exact === play_at_exact) return;
+        const play_at_value = exact
+            ? fromZonedTime(new Date(play_at), this.timezone()).getTime()
+            : toZonedTime(play_at, this.timezone()).getTime();
+        this.schedule().play_at().value.set(play_at_value);
+        this.schedule().play_at_exact().value.set(exact);
+    }
+
+    public focusTimezoneSearch(select: MatSelect, input: HTMLInputElement) {
+        afterNextRender(
+            () => {
+                if (select.panelOpen) input.focus({ preventScroll: true });
+            },
+            { injector: this._injector },
+        );
+    }
+
+    public onTimezoneSearchKeydown(event: KeyboardEvent) {
+        const navigation_keys = [
+            'Escape',
+            'Tab',
+            'ArrowUp',
+            'ArrowDown',
+            'Enter',
+        ];
+        if (
+            !navigation_keys.includes(event.key) ||
+            event.ctrlKey ||
+            event.metaKey
+        ) {
+            event.stopPropagation();
+        }
+    }
 
     public removeSchedule(event: Event) {
         event.preventDefault();
@@ -1031,14 +1629,19 @@ export class PlaylistScheduleFormComponent {
         this.remove.emit(event);
     }
 
-    public nextCronPlayTimes() {
+    /** Upcoming plays of a recurring schedule. Updates when the form changes. */
+    public readonly nextCronPlayTimes = computed(() => {
         const value = this.value();
         if (value.schedule_type !== 'play_cron') return [];
         return nextCronPlayTimes(
             buildRecurringCron(value),
             value.play_period ?? DEFAULT_PLAY_PERIOD_MINUTES,
+            value.has_valid_until ? value.valid_until : 0,
+            this.timezone(),
+            value.has_valid_from ? value.valid_from : 0,
+            value.has_mask ? value.mask : '',
         );
-    }
+    });
 
     public recurringScheduleSummary() {
         const value = this.value();
@@ -1050,13 +1653,6 @@ export class PlaylistScheduleFormComponent {
         const period = value.play_period ?? DEFAULT_PLAY_PERIOD_MINUTES;
         const duration =
             formatMinutes(period) || i18n('SIGNAGE_MANAGER.ONE_PLAYLIST_PASS');
-        if (value.recurrence_type === 'minutes') {
-            return i18n(
-                'SIGNAGE_MANAGER.SUMMARY_EVERY_MINUTE',
-                { interval },
-                interval,
-            );
-        }
         if (value.recurrence_type === 'hours') {
             return i18n(
                 'SIGNAGE_MANAGER.SUMMARY_EVERY_HOUR',
@@ -1113,27 +1709,74 @@ export class PlaylistScheduleFormComponent {
         const takeover = value.play_takeover
             ? i18n('SIGNAGE_MANAGER.TAKEOVER_SUFFIX')
             : '';
+        const expiry = playlistScheduleExpiryLabel(
+            playlistSchedulePayload(value),
+        );
+        const expiry_suffix =
+            (expiry ? ` · ${expiry}` : '') +
+            (value.has_mask
+                ? ` · ${i18n('SIGNAGE_MANAGER.SCHEDULE_MASK_SUMMARY', { mask: value.mask, size: value.mask.length })}`
+                : '');
         if (value.schedule_type === 'play_at') {
             const date = new Date(value.play_at || Date.now());
+            const datetime = value.play_at_exact
+                ? `${formatPlayDateTime(date, this.timezone())} ${this.timezone()}`
+                : `${formatPlayDateTime(date)} ${i18n('SIGNAGE_MANAGER.DISPLAY_LOCAL_TIME')}`;
             return `${i18n('SIGNAGE_MANAGER.SUMMARY_PLAY_ONCE', {
-                datetime: formatPlayDateTime(date),
+                datetime,
                 duration,
-            })}${takeover}`;
+            })}${takeover}${expiry_suffix}`;
         }
-        return `${this.recurringScheduleSummary()}${takeover}`;
+        return `${this.recurringScheduleSummary()} · ${this.timezone()}${takeover}${expiry_suffix}`;
+    }
+
+    public scheduleExpiryTooltip() {
+        const value = this.value();
+        return value.has_valid_until
+            ? new Date(value.valid_until).toLocaleString(undefined, {
+                  timeZone: this.timezone(),
+              })
+            : '';
     }
 
     public recurringPlayStartTime() {
         if (!this.showRecurringStartTime()) return undefined;
         const value = this.value();
-        const start_time = new Date();
-        start_time.setSeconds(0, 0);
-        start_time.setHours(0, value.play_start || 0, 0, 0);
-        return start_time.valueOf();
+        return setTimeInTimezone(
+            Date.now(),
+            0,
+            value.play_start || 0,
+            this.timezone(),
+        );
     }
 
+    public recurringStartInputTime() {
+        return formatTimeInTimezone(this.recurringPlayStartTime());
+    }
+
+    public readonly start_timezone_offset = computed(() => {
+        const date = new Date(this.recurringPlayStartTime());
+        const offset = getTimezoneOffsetString(this.timezone(), date);
+        return offset === getTimezoneOffsetString(LOCAL_TIMEZONE, date)
+            ? ''
+            : offset;
+    });
+
     public setPlayStart(value: string) {
-        this.schedule().play_start().value.set(timeToMinutes(value));
+        if (!/^([01]\d|2[0-3]):[0-5]\d$/.test(value)) return;
+        const [local_hours, local_minutes] = value.split(':').map(Number);
+        const timestamp = setTimeInTimezone(
+            this.recurringPlayStartTime(),
+            local_hours,
+            local_minutes,
+        );
+        const { hours, minutes } = getTimeInTimezone(
+            timestamp,
+            this.timezone(),
+        );
+        this.schedule()
+            .play_start()
+            .value.set(hours * 60 + minutes);
     }
 
     public isIntervalRecurrence() {

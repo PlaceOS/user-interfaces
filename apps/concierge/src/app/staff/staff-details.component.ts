@@ -100,7 +100,11 @@ export class StaffDetailsComponent {
         await this._state
             .checkout(this.user())
             .catch((e) =>
-                i18n('APP.CONCIERGE.DIRECTORY_CHECKOUT_ERROR', { error: e }),
+                notifyError(
+                    i18n('APP.CONCIERGE.DIRECTORY_CHECKOUT_ERROR', {
+                        error: e,
+                    }),
+                ),
             );
         this.loading.set(false);
     };

@@ -1,5 +1,5 @@
 import { signal } from '@angular/core';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { Booking, MAP_FEATURE_DATA } from '@placeos/common';
 import { ngMocks } from 'ng-mocks';
 

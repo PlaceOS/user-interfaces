@@ -1,13 +1,17 @@
 import { Component, computed, inject } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterModule } from '@angular/router';
 import { SettingsService, userSignal } from '@placeos/common';
 import {
     AuthenticatedImageDirective,
     IconComponent,
+    TranslatePipe,
     UserAvatarComponent,
     UserControlsSidebarComponent,
 } from '@placeos/components';
+
+import { KeyboardShortcutsService } from './keyboard-shortcuts.service';
 
 @Component({
     selector: 'app-topbar',
@@ -31,6 +35,15 @@ import {
                 />
             </mat-form-field> -->
             <div class="flex flex-1 items-center justify-end space-x-2">
+                <button
+                    btn
+                    icon
+                    matRipple
+                    [matTooltip]="'APP.CONCIERGE.SHORTCUTS_TITLE' | translate"
+                    (click)="openShortcuts()"
+                >
+                    <icon class="text-2xl">keyboard</icon>
+                </button>
                 <button btn icon matRipple>
                     <icon class="text-2xl">notifications</icon>
                 </button>
@@ -54,10 +67,13 @@ import {
         AuthenticatedImageDirective,
         IconComponent,
         UserControlsSidebarComponent,
+        MatTooltipModule,
+        TranslatePipe,
     ],
 })
 export class ApplicationTopbarComponent {
     private _settings = inject(SettingsService);
+    private _shortcuts = inject(KeyboardShortcutsService);
     private readonly _theme = this._settings.theme_signal;
     private readonly _logo_dark = this._settings.signal(
         'app.logo_dark',
@@ -82,4 +98,5 @@ export class ApplicationTopbarComponent {
                 : this._logo_light()) || {},
     );
     public readonly user = userSignal();
+    public readonly openShortcuts = () => this._shortcuts.openHelp();
 }

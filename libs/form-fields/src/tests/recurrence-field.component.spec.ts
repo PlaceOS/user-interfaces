@@ -8,7 +8,7 @@ import { TestBed } from '@angular/core/testing';
 import { MatDialog } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { addDays, addMonths, addWeeks, endOfDay, getUnixTime } from 'date-fns';
 import { MockModule, MockProvider } from 'ng-mocks';
 
@@ -43,7 +43,7 @@ describe('RecurrenceFieldComponent – date change regression', () => {
     const createComponent = createComponentFactory({
         component: RecurrenceFieldComponent,
         imports: [MockModule(MatFormFieldModule), MockModule(MatSelectModule)],
-        providers: [MockProvider(MatDialog, { open: jest.fn() })],
+        providers: [MockProvider(MatDialog, { open: vi.fn() })],
     });
 
     /** Update the date signal input and flush effects. */
@@ -126,7 +126,7 @@ describe('RecurrenceFieldComponent – date change regression', () => {
                 _custom: true,
                 type: 'weekly',
                 interval: 2,
-                weekdays: new Set([1 as any]),
+                weekdays: new Set([1]),
                 end_type: 'date',
                 end_date: monday + 30 * 24 * 60 * 60 * 1000,
             });
@@ -143,9 +143,9 @@ describe('RecurrenceFieldComponent – date change regression', () => {
                 _custom: true,
                 type: 'monthly',
                 interval: 1,
-                weekdays: new Set([1 as any]),
+                weekdays: new Set([1]),
                 monthly_type: 'day_of_week',
-                week: 2 as any,
+                week: 2,
                 end_type: 'never',
             });
 
@@ -182,7 +182,7 @@ describe('RecurrenceFieldComponent – date change regression', () => {
                 type: 'monthly',
                 interval: 1,
                 monthly_type: 'day_of_month',
-                weekdays: new Set([3 as any]),
+                weekdays: new Set([3]),
                 week: 0 as any,
                 end_type: 'never',
             });
@@ -228,7 +228,7 @@ describe('RecurrenceFieldComponent – date change regression', () => {
                 _custom: true,
                 type: 'weekly',
                 interval: 1,
-                weekdays: new Set([1 as any]),
+                weekdays: new Set([1]),
                 end_type: 'instances',
                 end_instances: 4,
                 end_date: endOfDay(addWeeks(jan8, 3)).valueOf(),
@@ -297,7 +297,7 @@ describe('RecurrenceFieldComponent – date change regression', () => {
                 _custom: true,
                 type: 'weekly',
                 interval: 1,
-                weekdays: new Set([1 as any]),
+                weekdays: new Set([1]),
                 end_type: 'date',
                 end_date: fixed_end,
             });
@@ -317,7 +317,7 @@ describe('RecurrenceFieldComponent – date change regression', () => {
                 _custom: true,
                 type: 'weekly',
                 interval: 1,
-                weekdays: new Set([5 as any]), // Friday
+                weekdays: new Set([5]), // Friday
                 end_type: 'date',
                 end_date: apr5,
             });
@@ -340,7 +340,7 @@ describe('RecurrenceFieldComponent – date change regression', () => {
                 _custom: true,
                 type: 'weekly',
                 interval: 1,
-                weekdays: new Set([5 as any]), // Friday
+                weekdays: new Set([5]), // Friday
                 end_type: 'date',
                 end_date: apr30,
             });
@@ -367,7 +367,7 @@ describe('RecurrenceFieldComponent – date change regression', () => {
                 _custom: true,
                 type: 'weekly',
                 interval: 1,
-                weekdays: new Set([1 as any]),
+                weekdays: new Set([1]),
                 end_type: 'instances',
                 end_instances: 3,
             });
@@ -390,7 +390,7 @@ describe('RecurrenceFieldComponent – date change regression', () => {
                 _custom: true,
                 type: 'weekly',
                 interval: 1,
-                weekdays: new Set([2 as any]),
+                weekdays: new Set([2]),
                 end_type: 'instances',
                 end_instances: 7,
             });
@@ -480,7 +480,7 @@ describe('RecurrenceFieldComponent – date change regression', () => {
                 _custom: true,
                 type: 'weekly',
                 interval: 1,
-                weekdays: new Set([1 as any]),
+                weekdays: new Set([1]),
                 end_type: 'instances',
                 end_instances: 4,
                 end_date: endOfDay(addWeeks(jan8, 3)).valueOf(),
@@ -520,7 +520,7 @@ describe('RecurrenceFieldComponent – date change regression', () => {
                 _custom: true,
                 type: 'weekly',
                 interval: 1,
-                weekdays: new Set([1 as any]),
+                weekdays: new Set([1]),
                 end_type: 'instances',
                 end_instances: 4,
                 end_date: endOfDay(addWeeks(jan8, 3)).valueOf(),
@@ -546,7 +546,7 @@ describe('RecurrenceFieldComponent – date change regression', () => {
                 _custom: true,
                 type: 'weekly',
                 interval: 1,
-                weekdays: new Set([1 as any]),
+                weekdays: new Set([1]),
                 end_type: 'instances',
                 end_instances: 5,
                 end_date: endOfDay(addWeeks(jan8, 4)).valueOf(),
@@ -580,7 +580,7 @@ describe('RecurrenceFieldComponent – date change regression', () => {
                 _custom: true,
                 type: 'weekly',
                 interval: 1,
-                weekdays: new Set([1 as any]),
+                weekdays: new Set([1]),
                 end_type: 'instances',
                 end_instances: 4,
                 end_date: endOfDay(addWeeks(jan8, 3)).valueOf(),
@@ -588,7 +588,7 @@ describe('RecurrenceFieldComponent – date change regression', () => {
             spectator.component.recurr_type.set('custom_display');
             spectator.component.prev_type.set('custom_display');
 
-            spectator.component.writeValue(null as any);
+            spectator.component.writeValue(null);
 
             expect(spectator.component.value().type).toBe('none');
             expect(spectator.component.recurr_type()).toBe('none');
@@ -603,7 +603,7 @@ describe('RecurrenceFieldComponent – date change regression', () => {
                 _custom: true,
                 type: 'weekly',
                 interval: 1,
-                weekdays: new Set([1 as any]),
+                weekdays: new Set([1]),
                 end_type: 'instances',
                 end_instances: 5,
                 end_date: endOfDay(addWeeks(jan8, 4)).valueOf(),
@@ -637,7 +637,7 @@ describe('RecurrenceFieldComponent – date change regression', () => {
                 _custom: true,
                 type: 'weekly',
                 interval: 1,
-                weekdays: new Set([1 as any]),
+                weekdays: new Set([1]),
                 end_type: 'instances',
                 end_instances: 4,
                 end_date: endOfDay(addWeeks(jan8, 3)).valueOf(),

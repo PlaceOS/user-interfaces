@@ -128,7 +128,7 @@ export class NewParkingFlowComponent extends AsyncHandler implements OnInit {
         const active_form = this._state.model();
         const has_edit_state =
             !!active_form?.id && active_form?.booking_type === 'parking';
-        if (!has_edit_state) this._state.loadForm();
+        if (!has_edit_state) this._state.loadForm('parking');
         this._state.setOptions({ type: 'parking' });
         const { id, booking_type } = this._state.model();
         if (!id || booking_type !== 'parking') this._state.newForm('parking');

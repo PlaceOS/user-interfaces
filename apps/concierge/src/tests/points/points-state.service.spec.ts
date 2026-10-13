@@ -1,5 +1,5 @@
 import { MatDialog } from '@angular/material/dialog';
-import { createServiceFactory, SpectatorService } from '@ngneat/spectator/jest';
+import { createServiceFactory, SpectatorService } from '@ngneat/spectator/vitest';
 import { PointsStateService } from '../../app/points/points-state.service';
 
 describe('PointsStateService', () => {
@@ -10,7 +10,7 @@ describe('PointsStateService', () => {
             {
                 provide: MatDialog,
                 useValue: {
-                    open: jest.fn(),
+                    open: vi.fn(),
                 },
             },
         ],

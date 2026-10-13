@@ -2,54 +2,101 @@ import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { MatDialog } from '@angular/material/dialog';
 import { NavigationEnd, Router } from '@angular/router';
-import { createServiceFactory, SpectatorService } from '@ngneat/spectator/jest';
+import {
+    createServiceFactory,
+    SpectatorService,
+} from '@ngneat/spectator/vitest';
 import { PaymentsService } from '@placeos/payments';
 import { of, Subject } from 'rxjs';
+import type { Mock, MockedFunction } from 'vitest';
 
-import { Booking, currentUser, OrganisationService } from '@placeos/common';
+import {
+    AssetRequest,
+    Booking,
+    currentUser,
+    i18n,
+    OrganisationService,
+    setCurrentUser,
+    settingSignal,
+    StaffUser,
+    User,
+} from '@placeos/common';
 import { AssetStateService } from 'libs/assets/src/lib/asset-state.service';
 import { SettingsService } from 'libs/common/src/lib/settings.service';
 import { CalendarService } from 'libs/events/src/lib/calendar.service';
 import { BookingFormService } from '../lib/booking-form.service';
-import * as booking_utility_mod from '../lib/booking.utilities';
-import * as booking_mod from '../lib/bookings.fn';
 
-jest.mock('@placeos/ts-client', () => ({
-    ...jest.requireActual('@placeos/ts-client'),
-    cleanObject: jest.fn((value) => value),
-    listChildMetadata: jest.fn(),
-    showMetadata: jest.fn(() => Promise.resolve({ details: [] })),
-    showUser: jest.fn(),
-}));
-jest.mock('libs/bookings/src/lib/bookings.fn');
+// bookings.fn and booking.utilities run for real; only the ts-client API layer
+// beneath them is stubbed (queryBookings -> get, bookedResourceList -> query,
+// findBookingClashes -> post(/clashing-assets), saveBooking -> post|patch,
+// removeBooking -> del).
+vi.mock('@placeos/ts-client', { spy: true });
 
 import * as ts_client from '@placeos/ts-client';
 import { endOfYear } from 'date-fns';
 import { MockProvider } from 'ng-mocks';
 
+// Per-test overridable results for the ts-client layer beneath bookings.fn.
+let booked_result: string[] = [];
+let clash_result: unknown[] = [];
+
+const BOOKINGS_ENDPOINT = '/api/staff/v1/bookings';
+
+/**
+ * Bookings passed to `saveBooking` are now the create/update request bodies.
+ * `saveBooking` moves the id into the PATCH url for updates, so reconstruct it.
+ */
+const savedBookings = (): Booking[] =>
+    [
+        ...vi
+            .mocked(ts_client.post)
+            .mock.calls.filter(([url]) =>
+                url.startsWith(`${BOOKINGS_ENDPOINT}?`),
+            )
+            .map(([, body]) => body),
+        ...vi
+            .mocked(ts_client.patch)
+            .mock.calls.filter(([url]) =>
+                new RegExp(`^${BOOKINGS_ENDPOINT}/[^/]+$`).test(url),
+            )
+            .map(([url, body]) => ({ ...body, id: url.split('/').pop() })),
+    ] as Booking[];
+
+/** Booking sent to the clashing-assets endpoint (findBookingClashes body). */
+const clashBookings = (): any[] =>
+    vi
+        .mocked(ts_client.post)
+        .mock.calls.filter(([url]) => url.includes('/clashing-assets'))
+        .map(([, body]) => body);
+
 describe('BookingFormService', () => {
     let spectator: SpectatorService<BookingFormService>;
+    const settings_overrides = signal<Record<string, unknown>[]>([]);
     const createService = createServiceFactory({
         service: BookingFormService,
         providers: [
             MockProvider(Router, {
-                navigate: jest.fn(),
+                navigate: vi.fn(),
                 events: new Subject(),
             }),
             MockProvider(SettingsService, {
-                get: jest.fn(),
-                overrides: signal([]),
+                get: vi.fn(),
+                overrides: settings_overrides,
             }),
             MockProvider(OrganisationService, {
                 initialised: signal(true),
                 waitUntilInitialised: () => Promise.resolve(),
+                active_region: signal(null),
                 active_building: signal({ id: 'bld-1' }),
+                active_building_loaded: signal(true),
+                regions: [],
+                settings: [],
                 building_list: signal([{ id: 'bld-1', parent_id: 'reg-1' }]),
                 organisation: { id: 'org-1' },
                 region: { id: 'reg-1' },
                 building: { id: 'bld-1', parent_id: 'reg-1' },
                 buildings: [{ id: 'bld-1', parent_id: 'reg-1' }],
-                levelWithID: jest.fn((ids: string[]) =>
+                levelWithID: vi.fn((ids: string[]) =>
                     ids?.[0]
                         ? {
                               id: ids[0],
@@ -59,29 +106,41 @@ describe('BookingFormService', () => {
                         : null,
                 ),
             } as any),
-            MockProvider(MatDialog, { open: jest.fn() }),
+            MockProvider(MatDialog, { open: vi.fn() }),
             MockProvider(PaymentsService, {
-                makePayment: jest.fn(),
+                makePayment: vi.fn(),
                 enabled: true,
             }),
             // Mock the asset state service so its async `resource()`/effects do
             // not run away when effects are flushed synchronously in tests.
             MockProvider(AssetStateService, {
-                getOptions: jest.fn(() => ({ date: 0 })),
-                setOptions: jest.fn(),
+                getOptions: vi.fn(() => ({ date: 0 })),
+                setOptions: vi.fn(),
             }),
             MockProvider(CalendarService, {
-                loadCalendars: jest.fn(),
+                loadCalendars: vi.fn(),
             }),
         ],
     });
 
     beforeEach(() => {
-        jest.clearAllMocks();
-        jest.mocked(ts_client.showMetadata).mockResolvedValue({
+        vi.clearAllMocks();
+        // Seed a concrete user so newForm()/loadForm() has stable creator data.
+        setCurrentUser(
+            new StaffUser({
+                id: 'current-user',
+                email: 'current.user@example.com',
+                name: 'Current User',
+            }),
+        );
+        booked_result = [];
+        clash_result = [];
+        vi.mocked(ts_client.cleanObject).mockImplementation((a) => a);
+        vi.mocked(ts_client.showMetadata).mockResolvedValue({
             details: [],
         } as any);
-        jest.mocked(ts_client.listChildMetadata).mockResolvedValue([
+        vi.mocked(ts_client.showUser).mockReturnValue(undefined);
+        vi.mocked(ts_client.listChildMetadata).mockResolvedValue([
             {
                 metadata: {
                     desks: {
@@ -91,15 +150,44 @@ describe('BookingFormService', () => {
                 zone: { id: 'lvl-1' },
             },
         ] as any);
+        // ts-client layer beneath the real bookings.fn functions.
+        vi.mocked(ts_client.get).mockResolvedValue([] as any);
+        vi.mocked(ts_client.query).mockImplementation(async () => ({
+            data: [...booked_result],
+            next: null,
+            total: booked_result.length,
+        }));
+        vi.mocked(ts_client.post).mockImplementation(
+            async (url: string, body: any) => {
+                if (url.includes('/clashing-assets')) return [...clash_result];
+                // Emulate the backend assigning an id to a newly-created group
+                // container so children can reference it as their parent_id.
+                if (
+                    url.startsWith(`${BOOKINGS_ENDPOINT}?`) &&
+                    !body?.id &&
+                    (body?.type === 'group' || body?.booking_type === 'group')
+                ) {
+                    return { ...body, id: 'booking-group' };
+                }
+                return body;
+            },
+        );
+        vi.mocked(ts_client.patch).mockImplementation(
+            async (_url: string, body: any) => body,
+        );
+        vi.mocked(ts_client.put).mockImplementation(
+            async (_url: string, body: any) => body,
+        );
+        vi.mocked(ts_client.del).mockResolvedValue(undefined);
         spectator = createService();
-        jest.mocked(ts_client.cleanObject).mockImplementation((a) => a);
-        jest.spyOn(spectator.inject(SettingsService), 'get').mockImplementation(
+        vi.mocked(ts_client.cleanObject).mockImplementation((a) => a);
+        vi.spyOn(spectator.inject(SettingsService), 'get').mockImplementation(
             () => undefined,
         );
     });
 
     afterEach(() => {
-        jest.restoreAllMocks();
+        vi.restoreAllMocks();
         spectator?.service?.clearForm();
         sessionStorage.removeItem('PLACEOS.booking_form_filters');
     });
@@ -113,10 +201,47 @@ describe('BookingFormService', () => {
         expect(ts_client.listChildMetadata).not.toHaveBeenCalled();
     });
 
-    it('should debounce identical booked resource queries', async () => {
-        jest.mocked(booking_mod.bookedResourceList).mockResolvedValue([
-            'desk-1',
+    it('should load desk resources from assets when enabled', async () => {
+        vi.mocked(spectator.inject(SettingsService).get).mockImplementation(
+            (key: string) => key === 'app.desks.use_assets',
+        );
+        const org = spectator.inject(OrganisationService) as any;
+        org.levelsForBuilding = vi.fn(() => [{ id: 'lvl-1' }]);
+        vi.mocked(ts_client.queryAssetCategories).mockResolvedValue({
+            data: [{ id: 'desk-category', name: '_DESKS_' }],
+        } as any);
+        vi.mocked(ts_client.queryAssetTypes).mockResolvedValue({
+            data: [{ id: 'desk-type', name: '_DESKS_' }],
+        } as any);
+        vi.mocked(ts_client.queryAssets).mockResolvedValue({
+            data: [
+                {
+                    id: 'asset-desk-1',
+                    asset_type_id: 'desk-type',
+                    zone_id: 'lvl-1',
+                    identifier: 'Desk One',
+                    map_id: 'desk-map-1',
+                    bookable: true,
+                    place_groups: ['engineering'],
+                },
+            ],
+        } as any);
+
+        const desks = await spectator.service.loadResourceList('desks');
+
+        expect(desks).toEqual([
+            expect.objectContaining({
+                id: 'asset-desk-1',
+                name: 'Desk One',
+                map_id: 'desk-map-1',
+                groups: ['engineering'],
+            }),
         ]);
+        expect(ts_client.listChildMetadata).not.toHaveBeenCalled();
+    });
+
+    it('should debounce identical booked resource queries', async () => {
+        booked_result = ['desk-1'];
         const query = {
             period_start: 100,
             period_end: 200,
@@ -129,11 +254,27 @@ describe('BookingFormService', () => {
             (spectator.service as any)._bookedResourceList(query, 42),
         ]);
 
+        // The underlying booked-resource query (bookedResourceList -> query)
+        // is debounced, so it must not run until the debounce window elapses.
         await new Promise((resolve) => setTimeout(resolve, 250));
-        expect(booking_mod.bookedResourceList).not.toHaveBeenCalled();
-        await requests;
-        expect(booking_mod.bookedResourceList).toHaveBeenCalledTimes(1);
-        expect(booking_mod.bookedResourceList).toHaveBeenCalledWith(query, 42);
+        expect(ts_client.query).not.toHaveBeenCalled();
+        const [first, second] = await requests;
+        expect(first).toEqual(['desk-1']);
+        expect(second).toEqual(['desk-1']);
+        expect(ts_client.query).toHaveBeenCalledTimes(1);
+        expect(ts_client.query).toHaveBeenCalledWith(
+            expect.objectContaining({
+                path: 'booked',
+                endpoint: BOOKINGS_ENDPOINT,
+                query_params: expect.objectContaining({
+                    period_start: 100,
+                    period_end: 200,
+                    type: 'desk',
+                    zones: 'bld-1',
+                    limit: 200,
+                }),
+            }),
+        );
     });
 
     it('should keep form fields bound after storeForm even when cleanObject mutates in place', () => {
@@ -141,8 +282,8 @@ describe('BookingFormService', () => {
         // must clone the live model before cleaning it, otherwise empty keys
         // (e.g. `asset_id: ''`) get deleted out of the signal-forms model,
         // orphaning `[formField]` bindings (`field() is not a function`).
-        jest.mocked(ts_client.cleanObject).mockImplementation(
-            (value: any, exclude: any[] = []) => {
+        vi.mocked(ts_client.cleanObject).mockImplementation(
+            (value, exclude: unknown[] = []) => {
                 for (const key of Object.keys(value || {})) {
                     if (exclude.includes(value[key])) delete value[key];
                 }
@@ -153,7 +294,7 @@ describe('BookingFormService', () => {
         spectator.service.newForm('visitor');
         spectator.service.storeForm();
 
-        const form: any = spectator.service.form;
+        const form = spectator.service.form;
         expect(typeof form.asset_id).toBe('function');
         expect(form.asset_id()).toBeDefined();
         // touching/validating must not throw an orphan-field error
@@ -168,7 +309,7 @@ describe('BookingFormService', () => {
             'PLACEOS.booking_form_filters',
             JSON.stringify({ type: 'desk' }),
         );
-        const clear_form = jest.spyOn(spectator.service, 'clearForm');
+        const clear_form = vi.spyOn(spectator.service, 'clearForm');
 
         spectator.service.newForm('visitor');
 
@@ -186,14 +327,14 @@ describe('BookingFormService', () => {
     });
 
     it('should use the current user as booking rule host when enabled', async () => {
-        (spectator.inject(SettingsService).get as jest.Mock).mockImplementation(
+        (spectator.inject(SettingsService).get as Mock).mockImplementation(
             (key: string) =>
                 key === 'app.bookings.force_current_user_for_booking_rules'
                     ? true
                     : undefined,
         );
-        const show_user = jest.fn(() => of({ email: 'other@example.com' }));
-        jest.mocked(ts_client.showUser).mockImplementation(show_user as any);
+        const show_user = vi.fn(() => of({ email: 'other@example.com' }));
+        vi.mocked(ts_client.showUser).mockImplementation(show_user as any);
 
         const immediate_host = (spectator.service as any)._bookingRulesHost({
             email: 'other@example.com',
@@ -217,13 +358,13 @@ describe('BookingFormService', () => {
         spectator.service.newForm('desk');
         const form = spectator.service.form;
         expect(spectator.service.form).toBeTruthy();
-        const spy = jest.spyOn(spectator.service, 'storeForm');
+        const spy = vi.spyOn(spectator.service, 'storeForm');
         expect(spectator.service.storeForm).not.toHaveBeenCalled();
         const date = endOfYear(Date.now()).valueOf();
         spectator.service.model.update((m) => ({ ...m, date }));
         // The form-change side effect (storeForm) runs on the reactive flush,
         // not synchronously, so trigger it before asserting it ran.
-        TestBed.flushEffects();
+        TestBed.tick();
         expect(spectator.service.storeForm).toHaveBeenCalled();
         expect(spectator.service.model().date).toBe(date);
         spectator.service.resetForm();
@@ -239,17 +380,17 @@ describe('BookingFormService', () => {
     it('should not update asset options when form date and duration are unchanged', () => {
         const asset_state = spectator.inject(AssetStateService);
         spectator.service.newForm('desk');
-        TestBed.flushEffects();
+        TestBed.tick();
 
-        (asset_state.setOptions as jest.Mock).mockClear();
+        (asset_state.setOptions as Mock).mockClear();
         const { date, duration } = spectator.service.model();
         (
-            asset_state.getOptions as jest.MockedFunction<
+            asset_state.getOptions as MockedFunction<
                 AssetStateService['getOptions']
             >
         ).mockReturnValue({ date, duration });
         spectator.service.model.update((m) => ({ ...m, date, duration }));
-        TestBed.flushEffects();
+        TestBed.tick();
 
         expect(asset_state.setOptions).not.toHaveBeenCalled();
     });
@@ -257,14 +398,14 @@ describe('BookingFormService', () => {
     it('should not update asset options for unrelated form changes', () => {
         const asset_state = spectator.inject(AssetStateService);
         spectator.service.newForm('desk');
-        TestBed.flushEffects();
+        TestBed.tick();
 
-        (asset_state.setOptions as jest.Mock).mockClear();
+        (asset_state.setOptions as Mock).mockClear();
         spectator.service.model.update((m) => ({
             ...m,
             title: `${m.title} updated`,
         }));
-        TestBed.flushEffects();
+        TestBed.tick();
 
         expect(asset_state.setOptions).not.toHaveBeenCalled();
     });
@@ -272,22 +413,22 @@ describe('BookingFormService', () => {
     it('should not update asset options for equivalent date objects', () => {
         const asset_state = spectator.inject(AssetStateService);
         spectator.service.newForm('desk');
-        TestBed.flushEffects();
+        TestBed.tick();
 
         const { date, duration } = spectator.service.model();
         spectator.service.model.update((m) => ({
             ...m,
             date: new Date(date) as any,
         }));
-        TestBed.flushEffects();
+        TestBed.tick();
 
-        (asset_state.setOptions as jest.Mock).mockClear();
+        (asset_state.setOptions as Mock).mockClear();
         spectator.service.model.update((m) => ({
             ...m,
             date: new Date(date) as any,
             duration,
         }));
-        TestBed.flushEffects();
+        TestBed.tick();
 
         expect(asset_state.setOptions).not.toHaveBeenCalled();
     });
@@ -303,18 +444,93 @@ describe('BookingFormService', () => {
 
     it.todo('should list asset features');
 
-    it.todo('should list available assets');
+    it('should list availability for an immediately updated booking window', async () => {
+        settings_overrides.set([{}, {}]);
+        try {
+            spectator.service.newForm('desk');
+            spectator.service.model.update((model) => ({
+                ...model,
+                date: Date.now() + 60 * 60 * 1000,
+                duration: 60,
+            }));
+
+            const available = await spectator.service.listAvailableResources();
+
+            expect(available.map((asset) => asset.id)).toEqual([
+                'desk-1',
+                'desk-1',
+            ]);
+        } finally {
+            settings_overrides.set([]);
+        }
+    });
+
+    it('should follow form updates while quick-book availability is loading', async () => {
+        const metadata = await ts_client.listChildMetadata('bld-1', {});
+        vi.mocked(ts_client.listChildMetadata).mockImplementation(async () => {
+            await new Promise((resolve) => setTimeout(resolve, 800));
+            return metadata;
+        });
+        settings_overrides.set([{}, {}]);
+        try {
+            spectator.service.newForm('desk');
+            const request = spectator.service.listAvailableResources();
+            TestBed.tick();
+            await new Promise((resolve) => setTimeout(resolve, 100));
+            spectator.service.model.update((model) => ({
+                ...model,
+                duration: 120,
+            }));
+            TestBed.tick();
+
+            const available = await request;
+
+            expect(available.map((asset) => asset.id)).toEqual([
+                'desk-1',
+                'desk-1',
+            ]);
+        } finally {
+            settings_overrides.set([]);
+        }
+    });
+
+    it('should wait for availability when org data reloads during the request', async () => {
+        settings_overrides.set([{}, {}]);
+        try {
+            spectator.service.newForm('desk');
+            const request = spectator.service.listAvailableResources();
+            TestBed.tick();
+            await spectator.service.listResources();
+            // An org reload clears the overrides before the form debounce ends.
+            settings_overrides.set([]);
+            TestBed.tick();
+            await new Promise((resolve) => setTimeout(resolve, 1200));
+            settings_overrides.set([{}, {}]);
+            TestBed.tick();
+
+            const available = await request;
+
+            expect(available.map((asset) => asset.id)).toEqual([
+                'desk-1',
+                'desk-1',
+            ]);
+        } finally {
+            settings_overrides.set([]);
+        }
+    });
 
     it('should exclude window-booked AND recurring-clash desks', async () => {
         // desk-1 is booked in the first-instance window, desk-2 clashes with a
         // later recurrence instance. Enabling recurrence must exclude both, not
         // replace the window-booked query and let desk-1 re-appear.
-        (booking_mod as any).bookedResourceList = jest.fn(() =>
-            Promise.resolve(['desk-1']),
+        const get = spectator.inject(SettingsService).get as Mock;
+        get.mockImplementation((key: string) =>
+            key === 'app.desks.use_building_timezone' ? true : undefined,
         );
-        (booking_mod as any).findBookingClashes = jest.fn(() =>
-            Promise.resolve(['desk-2']),
-        );
+        (spectator.inject(OrganisationService).building as any).timezone =
+            'America/New_York';
+        booked_result = ['desk-1'];
+        clash_result = ['desk-2'];
         const desks = ['desk-1', 'desk-2', 'desk-3'].map((id) => ({
             id,
             name: id,
@@ -328,6 +544,7 @@ describe('BookingFormService', () => {
             ...m,
             date: new Date(2028, 5, 15, 15, 0, 0).valueOf(),
             duration: 60,
+            timezone: 'Australia/Sydney',
             recurrence_type: 'daily',
             recurrence_interval: 1,
             recurrence_end: Math.floor(
@@ -344,6 +561,7 @@ describe('BookingFormService', () => {
             {
                 date: new Date(2028, 5, 15, 15, 0, 0).valueOf(),
                 duration: 60,
+                timezone: 'Australia/Sydney',
                 recurrence_type: 'daily',
                 recurrence_interval: 1,
                 recurrence_end: Math.floor(
@@ -352,11 +570,15 @@ describe('BookingFormService', () => {
             },
         );
 
-        expect(booking_mod.bookedResourceList).toHaveBeenCalled();
-        const clash_booking = (booking_mod.findBookingClashes as jest.Mock).mock
-            .calls[0][0];
+        // bookedResourceList -> query(path:'booked'); findBookingClashes ->
+        // post(/clashing-assets, booking.toJSON()).
+        expect(ts_client.query).toHaveBeenCalledWith(
+            expect.objectContaining({ path: 'booked' }),
+        );
+        const clash_booking = clashBookings()[0];
         expect(clash_booking.asset_ids).toEqual(['desk-1', 'desk-2', 'desk-3']);
         expect(clash_booking.recurrence_type).toBe('daily');
+        expect(clash_booking.timezone).toBe('America/New_York');
         expect(available.map((_: any) => _.id)).toEqual(['desk-3']);
     });
 
@@ -364,8 +586,68 @@ describe('BookingFormService', () => {
 
     it.todo('should allow confirming booking details');
 
+    it.each([
+        ['checked-out', { checked_out_at: 1 }],
+        ['cancelled', { status: 'cancelled' }],
+    ])(
+        'should allow a visitor booking after an overlapping visit is %s',
+        async (_, ended_state) => {
+            const date = Date.now() + 60 * 60 * 1000;
+            vi.mocked(ts_client.get).mockResolvedValue([
+                {
+                    id: 'ended-visit',
+                    booking_type: 'visitor',
+                    asset_id: 'visitor@example.com',
+                    user_email: currentUser().email,
+                    booking_start: Math.floor(date / 1000),
+                    booking_end: Math.floor((date + 30 * 60 * 1000) / 1000),
+                    ...ended_state,
+                },
+            ] as any);
+
+            await expect(
+                (spectator.service as any)._checkResourceAvailable(
+                    {
+                        asset_id: 'visitor@example.com',
+                        date: date + 20 * 60 * 1000,
+                        duration: 30,
+                        user_email: currentUser().email,
+                    },
+                    'visitor',
+                ),
+            ).resolves.toBe(true);
+        },
+    );
+
+    it('should reject a visitor booking that overlaps an active visit', async () => {
+        const date = Date.now() + 60 * 60 * 1000;
+        vi.mocked(ts_client.get).mockResolvedValue([
+            {
+                id: 'active-visit',
+                booking_type: 'visitor',
+                asset_id: 'visitor@example.com',
+                user_email: currentUser().email,
+                booking_start: Math.floor(date / 1000),
+                booking_end: Math.floor((date + 30 * 60 * 1000) / 1000),
+                status: 'approved',
+            },
+        ] as any);
+
+        await expect(
+            (spectator.service as any)._checkResourceAvailable(
+                {
+                    asset_id: 'visitor@example.com',
+                    date: date + 20 * 60 * 1000,
+                    duration: 30,
+                    user_email: currentUser().email,
+                },
+                'visitor',
+            ),
+        ).rejects.toBeTruthy();
+    });
+
     // it('should allow posting booking details', fakeAsync(async () => {
-    //     (booking_mod as any).queryBookings = jest.fn(() =>
+    //     (booking_mod as any).queryBookings = vi.fn(() =>
     //         of([{ asset_id: 'desk-1' }])
     //     );
     //     spectator.service.newForm();
@@ -380,15 +662,15 @@ describe('BookingFormService', () => {
     //         'desk-1 is not available at the selected time'
     //     );
 
-    //     (booking_mod as any).saveBooking = jest.fn(() => of({}));
-    //     (booking_mod as any).queryBookings = jest.fn(() => of([]));
+    //     (booking_mod as any).saveBooking = vi.fn(() => of({}));
+    //     (booking_mod as any).queryBookings = vi.fn(() => of([]));
     //     spectator.service.form.patchValue({ asset_id: 'desk-2' });
     //     await spectator.service.postForm();
     //     expect(spectator.service.view).toBe('success');
     // }));
 
     it('should clear form on navigation away from form', () => {
-        const spy = jest.spyOn(spectator.service, 'clearForm');
+        const spy = vi.spyOn(spectator.service, 'clearForm');
         expect(spectator.service.clearForm).not.toHaveBeenCalled();
         const router = spectator.inject(Router);
         (router.events as any).next(
@@ -415,7 +697,7 @@ describe('BookingFormService', () => {
     });
 
     it('should keep past start time when loading an in-progress booking for edit', () => {
-        jest.useFakeTimers();
+        vi.useFakeTimers();
         const booking_date = Date.now() - 10 * 60 * 1000;
         spectator.service.newForm(
             'visitor',
@@ -427,16 +709,16 @@ describe('BookingFormService', () => {
                 asset_id: 'visitor@example.com',
             }),
         );
-        jest.runAllTimers();
+        vi.runAllTimers();
 
         expect(spectator.service.model().date).toBe(booking_date);
-        jest.useRealTimers();
+        vi.useRealTimers();
     });
 
     it('should use parking booking hours when creating a new parking form', () => {
-        jest.useFakeTimers();
-        jest.setSystemTime(new Date(2026, 2, 20, 18, 15, 0));
-        const get = spectator.inject(SettingsService).get as jest.Mock;
+        vi.useFakeTimers();
+        vi.setSystemTime(new Date(2026, 2, 20, 18, 15, 0));
+        const get = spectator.inject(SettingsService).get as Mock;
         get.mockImplementation((key: string) => {
             if (
                 key === 'app.parkings.bookable_hours' ||
@@ -453,12 +735,12 @@ describe('BookingFormService', () => {
         expect(spectator.service.model().date).toBe(
             new Date(2026, 2, 21, 8, 0, 0, 0).valueOf(),
         );
-        jest.useRealTimers();
+        vi.useRealTimers();
     });
 
     it('should not overwrite date and duration changed before delayed form sync runs', () => {
-        jest.useFakeTimers();
-        jest.setSystemTime(new Date(2026, 2, 20, 9, 0, 0));
+        vi.useFakeTimers();
+        vi.setSystemTime(new Date(2026, 2, 20, 9, 0, 0));
 
         spectator.service.newForm('parking');
         spectator.service.model.update((m) => ({
@@ -467,22 +749,22 @@ describe('BookingFormService', () => {
             duration: 240,
         }));
 
-        jest.runAllTimers();
+        vi.runAllTimers();
 
         expect(spectator.service.model().date).toBe(
             new Date(2026, 2, 21, 8, 0, 0).valueOf(),
         );
         expect(spectator.service.model().duration).toBe(240);
-        jest.useRealTimers();
+        vi.useRealTimers();
     });
 
     it('should align loaded draft bookings to the start of bookable hours', () => {
-        jest.useFakeTimers();
+        vi.useFakeTimers();
         // Set system time well before the draft date so it is not considered
         // past and snapped to "now" by the form time sync.
-        jest.setSystemTime(new Date(2028, 5, 14, 6, 0, 0, 0));
+        vi.setSystemTime(new Date(2028, 5, 14, 6, 0, 0, 0));
         const draft_date = new Date(2028, 5, 15, 0, 0, 0, 0).valueOf();
-        const get = spectator.inject(SettingsService).get as jest.Mock;
+        const get = spectator.inject(SettingsService).get as Mock;
         get.mockImplementation((key: string) => {
             if (key === 'app.desks.bookable_hours') {
                 return { start: 8, end: 17 };
@@ -501,18 +783,18 @@ describe('BookingFormService', () => {
 
         spectator.service.setOptions({ type: 'desk' });
         spectator.service.loadForm();
-        jest.runAllTimers();
+        vi.runAllTimers();
 
         expect(spectator.service.model().date).toBe(
             new Date(2028, 5, 15, 8, 0, 0, 0).valueOf(),
         );
-        jest.useRealTimers();
+        vi.useRealTimers();
     });
 
     it('should move same-day after-hours drafts to the next bookable day', () => {
-        jest.useFakeTimers();
-        jest.setSystemTime(new Date(2028, 5, 15, 18, 15, 0, 0));
-        const get = spectator.inject(SettingsService).get as jest.Mock;
+        vi.useFakeTimers();
+        vi.setSystemTime(new Date(2028, 5, 15, 18, 15, 0, 0));
+        const get = spectator.inject(SettingsService).get as Mock;
         get.mockImplementation((key: string) => {
             if (key === 'app.desks.bookable_hours') {
                 return { start: 8, end: 17 };
@@ -531,21 +813,16 @@ describe('BookingFormService', () => {
 
         spectator.service.setOptions({ type: 'desk' });
         spectator.service.loadForm();
-        jest.runAllTimers();
+        vi.runAllTimers();
 
         expect(spectator.service.model().date).toBe(
             new Date(2028, 5, 16, 8, 0, 0, 0).valueOf(),
         );
-        jest.useRealTimers();
+        vi.useRealTimers();
     });
 
     it('should store visitor_name in extension data when saving visitor bookings', async () => {
-        const save_booking = booking_mod.saveBooking as jest.Mock;
         (spectator.inject(PaymentsService) as any).enabled = false;
-        save_booking.mockReset();
-        save_booking.mockImplementation((booking: Booking) =>
-            Promise.resolve(booking),
-        );
         spectator.service.newForm(
             'visitor',
             new Booking({
@@ -565,23 +842,231 @@ describe('BookingFormService', () => {
 
         await spectator.service.postForm(true);
 
-        expect(save_booking).toHaveBeenCalledTimes(1);
+        expect(savedBookings().length).toBe(1);
         expect(
-            (save_booking.mock.calls[0][0] as Booking).extension_data
-                .visitor_name,
+            (savedBookings()[0] as Booking).extension_data.visitor_name,
         ).toBe('Visitor One');
-        expect((save_booking.mock.calls[0][0] as Booking).description).toBe(
+        expect((savedBookings()[0] as Booking).description).toBe(
             'Vendor Interview',
         );
     });
 
-    it('should store the parking request user groups in extension data', async () => {
-        const save_booking = booking_mod.saveBooking as jest.Mock;
+    it('should post the flow type when the form has no booking type', async () => {
         (spectator.inject(PaymentsService) as any).enabled = false;
-        save_booking.mockReset();
-        save_booking.mockImplementation((booking: Booking) =>
-            Promise.resolve(booking),
+        spectator.service.newForm('desk');
+        spectator.service.model.update((m) => ({
+            ...m,
+            booking_type: ' ',
+            asset_id: 'desk-1',
+            asset_name: 'Desk 1',
+            date: Date.now() + 60 * 60 * 1000,
+            duration: 60,
+        }));
+
+        await spectator.service.postForm(true);
+
+        expect(savedBookings().length).toBe(1);
+        expect((savedBookings()[0] as Booking).booking_type).toBe('desk');
+    });
+
+    it('should keep an untyped stored booking when the flow loads it', () => {
+        sessionStorage.setItem(
+            'PLACEOS.booking_form',
+            JSON.stringify({
+                id: 'untyped-1',
+                booking_type: ' ',
+                asset_id: 'desk-1',
+                date: Date.now() + 60 * 60 * 1000,
+                duration: 60,
+            }),
         );
+
+        spectator.service.loadForm('desk');
+
+        expect(spectator.service.model().id).toBe('untyped-1');
+        expect(spectator.service.model().booking_type).toBe('desk');
+    });
+
+    it('should validate an untyped parking form as parking', async () => {
+        (spectator.inject(PaymentsService) as any).enabled = false;
+        const require_plate_number = settingSignal(
+            'parking.require_plate_number',
+            false,
+        );
+        require_plate_number.set(true);
+        try {
+            spectator.service.newForm('parking');
+            spectator.service.model.update((m) => ({
+                ...m,
+                asset_id: 'parking-1',
+                asset_name: 'Parking 1',
+                date: Date.now() + 60 * 60 * 1000,
+                duration: 60,
+            }));
+
+            await expect(spectator.service.postForm(true)).rejects.toBe(
+                'FORM.INVALID_FIELDS',
+            );
+            expect(savedBookings().length).toBe(0);
+        } finally {
+            require_plate_number.set(false);
+        }
+    });
+
+    it('should keep an untyped booking when it is opened for editing', () => {
+        spectator.service.newForm(
+            'desk',
+            new Booking({
+                id: 'untyped-1',
+                asset_id: 'desk-1',
+                date: Date.now() + 60 * 60 * 1000,
+                duration: 60,
+            }),
+        );
+
+        expect(spectator.service.model().id).toBe('untyped-1');
+        expect(spectator.service.model().booking_type).toBe('desk');
+    });
+
+    it('should leave approval to the backend for a standard user when approval is skipped', async () => {
+        (spectator.inject(PaymentsService) as any).enabled = false;
+        (spectator.inject(SettingsService).get as Mock).mockImplementation(
+            (key: string) => key === 'app.bookings.no_approval' || undefined,
+        );
+        spectator.service.newForm('desk');
+        spectator.service.model.update((m) => ({
+            ...m,
+            asset_id: 'desk-1',
+            asset_name: 'Desk 1',
+            date: Date.now() + 60 * 60 * 1000,
+            duration: 60,
+        }));
+
+        await spectator.service.postForm(true);
+
+        expect((savedBookings()[0] as Booking).approved).toBe(false);
+    });
+
+    it('should send approved for a support user when approval is skipped', async () => {
+        (spectator.inject(PaymentsService) as any).enabled = false;
+        (spectator.inject(SettingsService).get as Mock).mockImplementation(
+            (key: string) => key === 'app.bookings.no_approval' || undefined,
+        );
+        setCurrentUser(
+            new StaffUser({
+                id: 'support-user',
+                email: 'support.user@example.com',
+                name: 'Support User',
+                groups: ['placeos_support'],
+            }),
+        );
+        spectator.service.newForm('desk');
+        spectator.service.model.update((m) => ({
+            ...m,
+            asset_id: 'desk-1',
+            asset_name: 'Desk 1',
+            date: Date.now() + 60 * 60 * 1000,
+            duration: 60,
+        }));
+
+        await spectator.service.postForm(true);
+
+        expect((savedBookings()[0] as Booking).approved).toBe(true);
+    });
+
+    it('should keep the host when editing a delegated visitor booking', async () => {
+        (spectator.inject(PaymentsService) as any).enabled = false;
+        spectator.service.newForm(
+            'visitor',
+            new Booking({
+                id: 'bkn-1',
+                booking_type: 'visitor',
+                date: Date.now() + 60 * 60 * 1000,
+                duration: 60,
+                asset_id: 'visitor@example.com',
+                asset_name: 'Visitor One',
+                user_id: 'host-user',
+                user_email: 'host@example.com',
+                user_name: 'Host User',
+                booked_by_id: 'current-user',
+                booked_by_email: 'current.user@example.com',
+                booked_by_name: 'Current User',
+            }),
+        );
+
+        expect(spectator.service.model().user?.email).toBe('host@example.com');
+
+        spectator.service.model.update((m) => ({ ...m, title: 'Updated' }));
+        await spectator.service.postForm(true);
+
+        expect(savedBookings().length).toBe(1);
+        expect((savedBookings()[0] as Booking).user_email).toBe(
+            'host@example.com',
+        );
+        expect((savedBookings()[0] as Booking).user_name).toBe('Host User');
+    });
+
+    it('should keep the visitor email after edit form effects settle', () => {
+        spectator.service.newForm(
+            'visitor',
+            new Booking({
+                id: 'visitor-booking',
+                booking_type: 'visitor',
+                date: Date.now() + 60 * 60 * 1000,
+                duration: 60,
+                asset_id: 'visitor@example.com',
+                asset_name: 'Visitor One',
+            }),
+        );
+
+        TestBed.flushEffects();
+
+        expect(spectator.service.model().asset_id).toBe('visitor@example.com');
+        expect(spectator.service.form.asset_id().valid()).toBe(true);
+    });
+
+    it('should update the host identity when editing a delegated visitor booking', async () => {
+        (spectator.inject(PaymentsService) as any).enabled = false;
+        spectator.service.newForm(
+            'visitor',
+            new Booking({
+                id: 'bkn-1',
+                booking_type: 'visitor',
+                date: Date.now() + 60 * 60 * 1000,
+                duration: 60,
+                asset_id: 'visitor@example.com',
+                asset_name: 'Visitor One',
+                user_id: 'old-host',
+                user_email: 'old.host@example.com',
+                user_name: 'Old Host',
+                booked_by_id: 'current-user',
+                booked_by_email: 'current.user@example.com',
+                booked_by_name: 'Current User',
+            }),
+        );
+        spectator.service.model.update((m) => ({
+            ...m,
+            user: new User({
+                id: 'new-host',
+                email: 'new.host@example.com',
+                name: 'New Host',
+            }),
+        }));
+
+        await spectator.service.postForm(true);
+
+        expect(savedBookings().length).toBe(1);
+        expect(savedBookings()[0]).toEqual(
+            expect.objectContaining({
+                user_id: 'new-host',
+                user_email: 'new.host@example.com',
+                user_name: 'New Host',
+            }),
+        );
+    });
+
+    it('should store the parking request user groups in extension data', async () => {
+        (spectator.inject(PaymentsService) as any).enabled = false;
         spectator.service.newForm(
             'parking',
             new Booking({
@@ -606,52 +1091,97 @@ describe('BookingFormService', () => {
 
         await spectator.service.postForm(true);
 
-        expect(save_booking).toHaveBeenCalledTimes(1);
+        expect(savedBookings().length).toBe(1);
         expect(
-            (save_booking.mock.calls[0][0] as Booking).extension_data
-                .user_groups,
+            (savedBookings()[0] as Booking).extension_data.user_groups,
         ).toEqual(['PlaceOS P1 Parking', 'After Hours Parking']);
     });
 
-    it('should recompute parking request start and end when stale booking fields are present', async () => {
-        const save_booking = booking_mod.saveBooking as jest.Mock;
+    it('should only save form fields from booking extension data', async () => {
         (spectator.inject(PaymentsService) as any).enabled = false;
-        save_booking.mockReset();
-        save_booking.mockImplementation((booking: Booking) =>
-            Promise.resolve(booking),
+        spectator.service.newForm(
+            'parking',
+            new Booking({
+                booking_type: 'parking',
+                date: Date.now() + 60 * 60 * 1000,
+                duration: 60,
+                asset_id: 'unallocated-parking',
+                extension_data: {
+                    notes: 'Needs access',
+                    p2_document_names: ['Permit.pdf'],
+                    attachments: ['https://example.com/permit.pdf'],
+                    cost_code: 'CC-123',
+                    resources: [{ id: 'resource-1' }],
+                    level: { id: 'lvl-1' },
+                },
+            }),
         );
-
-        const date = new Date(2027, 2, 20, 22, 0, 0, 0).valueOf();
-        spectator.service.newForm('parking');
-        spectator.service.model.update(
-            (m) =>
-                ({
-                    ...m,
-                    booking_type: 'parking',
-                    asset_id: 'unallocated-parking',
-                    asset_name: 'Parking Request',
-                    title: 'Parking Request',
-                    date,
-                    date_end: date + 8 * 60 * 60 * 1000,
-                    duration: 8 * 60,
-                    booking_start: 2,
-                    booking_end: 1,
-                }) as any,
-        );
+        spectator.service.model.update((m) => ({
+            ...m,
+            booking_type: 'parking',
+            asset_id: 'unallocated-parking',
+            asset_name: 'Parking Request',
+            title: 'Parking Request',
+            cost_code: 'CC-123',
+            p2_document_names: ['Permit.pdf'],
+            resources: [{ id: 'resource-1' }],
+            level: { id: 'lvl-1' },
+            extension_data: {
+                notes: 'Needs access',
+                p2_document_names: ['Permit.pdf'],
+                attachments: ['https://example.com/permit.pdf'],
+                cost_code: 'CC-123',
+                resources: [{ id: 'resource-1' }],
+                assets: [{ id: 'asset-1' }],
+                level: { id: 'lvl-1' },
+            },
+        }));
 
         await spectator.service.postForm(true);
 
-        expect(save_booking).toHaveBeenCalledTimes(1);
-        expect(save_booking.mock.calls[0][0]).toMatchObject({
+        const extension_data = (savedBookings()[0] as Booking).extension_data;
+        expect(savedBookings().length).toBe(1);
+        expect(extension_data.notes).toBe('Needs access');
+        expect(extension_data.attachments).toEqual([
+            'https://example.com/permit.pdf',
+            'Permit.pdf',
+        ]);
+        expect(extension_data.p2_document_names).toBeUndefined();
+        expect(extension_data.cost_code).toBeUndefined();
+        expect(extension_data.resources).toBeUndefined();
+        expect(extension_data.assets).toEqual([]);
+        expect(extension_data.level).toBeUndefined();
+    });
+
+    it('should recompute parking request start and end when stale booking fields are present', async () => {
+        (spectator.inject(PaymentsService) as any).enabled = false;
+
+        const date = new Date(2027, 2, 20, 22, 0, 0, 0).valueOf();
+        spectator.service.newForm('parking');
+        spectator.service.model.update((m) => ({
+            ...m,
+            booking_type: 'parking',
+            asset_id: 'unallocated-parking',
+            asset_name: 'Parking Request',
+            title: 'Parking Request',
+            date,
+            date_end: date + 8 * 60 * 60 * 1000,
+            duration: 8 * 60,
+            booking_start: 2,
+            booking_end: 1,
+        }));
+
+        await spectator.service.postForm(true);
+
+        expect(savedBookings().length).toBe(1);
+        expect(savedBookings()[0]).toMatchObject({
             booking_start: Math.floor(date / 1000),
             booking_end: Math.floor((date + 8 * 60 * 60 * 1000) / 1000),
         });
     });
 
     it('should not post parking requests with a non-positive duration', async () => {
-        const save_booking = booking_mod.saveBooking as jest.Mock;
         (spectator.inject(PaymentsService) as any).enabled = false;
-        save_booking.mockReset();
 
         spectator.service.newForm('parking');
         spectator.service.model.update((m) => ({
@@ -667,11 +1197,11 @@ describe('BookingFormService', () => {
         await expect(spectator.service.postForm(true)).rejects.toBe(
             'FORM.INVALID_FIELDS',
         );
-        expect(save_booking).not.toHaveBeenCalled();
+        expect(savedBookings().length).toBe(0);
     });
 
     it('should not collapse overnight parking request duration to zero against parking bookable hours', () => {
-        const get = spectator.inject(SettingsService).get as jest.Mock;
+        const get = spectator.inject(SettingsService).get as Mock;
         get.mockImplementation((key: string) => {
             if (
                 key === 'app.parkings.bookable_hours' ||
@@ -695,7 +1225,7 @@ describe('BookingFormService', () => {
             date_end: date + 8 * 60 * 60 * 1000,
             duration: 8 * 60,
         }));
-        TestBed.flushEffects();
+        TestBed.tick();
 
         expect(spectator.service.model().duration).toBeGreaterThan(0);
         expect(spectator.service.model().date_end).toBeGreaterThan(
@@ -705,16 +1235,15 @@ describe('BookingFormService', () => {
     });
 
     it('should block self desk bookings when the user has an assigned desk', async () => {
-        const get = spectator.inject(SettingsService).get as jest.Mock;
-        const save_booking = booking_mod.saveBooking as jest.Mock;
+        const get = spectator.inject(SettingsService).get as Mock;
         (spectator.inject(PaymentsService) as any).enabled = false;
         get.mockImplementation((key: string) => {
-            if (key === 'app.desks.prevent_self_booking_if_assigned_desk') {
-                return true;
+            if (key === 'app.desks.assigned_resource_booking') {
+                return 'deny';
             }
             return undefined;
         });
-        jest.mocked(ts_client.listChildMetadata).mockResolvedValue([
+        vi.mocked(ts_client.listChildMetadata).mockResolvedValue([
             {
                 metadata: {
                     desks: {
@@ -729,10 +1258,6 @@ describe('BookingFormService', () => {
                 zone: { id: 'lvl-1' },
             },
         ] as any);
-        save_booking.mockReset();
-        save_booking.mockImplementation((booking: Booking) =>
-            Promise.resolve(booking),
-        );
         spectator.service.newForm(
             'desk',
             new Booking({
@@ -759,20 +1284,19 @@ describe('BookingFormService', () => {
         await expect(spectator.service.postForm(true)).rejects.toBe(
             'You have an assigned desk and cannot book another desk.',
         );
-        expect(save_booking).not.toHaveBeenCalled();
+        expect(savedBookings().length).toBe(0);
     });
 
     it('should allow desk bookings for other users when the current user has an assigned desk', async () => {
-        const get = spectator.inject(SettingsService).get as jest.Mock;
-        const save_booking = booking_mod.saveBooking as jest.Mock;
+        const get = spectator.inject(SettingsService).get as Mock;
         (spectator.inject(PaymentsService) as any).enabled = false;
         get.mockImplementation((key: string) => {
-            if (key === 'app.desks.prevent_self_booking_if_assigned_desk') {
-                return true;
+            if (key === 'app.desks.assigned_resource_booking') {
+                return 'other_only';
             }
             return undefined;
         });
-        jest.mocked(ts_client.listChildMetadata).mockResolvedValue([
+        vi.mocked(ts_client.listChildMetadata).mockResolvedValue([
             {
                 metadata: {
                     desks: {
@@ -787,10 +1311,6 @@ describe('BookingFormService', () => {
                 zone: { id: 'lvl-1' },
             },
         ] as any);
-        save_booking.mockReset();
-        save_booking.mockImplementation((booking: Booking) =>
-            Promise.resolve(booking),
-        );
         spectator.service.newForm(
             'desk',
             new Booking({
@@ -821,16 +1341,73 @@ describe('BookingFormService', () => {
 
         await spectator.service.postForm(true);
 
-        expect(save_booking).toHaveBeenCalledTimes(1);
-        expect((save_booking.mock.calls[0][0] as Booking).user_email).toBe(
+        expect(savedBookings().length).toBe(1);
+        expect((savedBookings()[0] as Booking).user_email).toBe(
             'other.user@example.com',
         );
     });
 
-    it('should block self desk bookings by default when the user has an assigned desk', async () => {
-        const save_booking = booking_mod.saveBooking as jest.Mock;
+    it('should block desk bookings for other users who have an assigned desk', async () => {
+        const get = spectator.inject(SettingsService).get as Mock;
         (spectator.inject(PaymentsService) as any).enabled = false;
-        jest.mocked(ts_client.listChildMetadata).mockResolvedValue([
+        get.mockImplementation((key: string) => {
+            if (key === 'app.desks.assigned_resource_booking') {
+                return 'other_only';
+            }
+            return undefined;
+        });
+        vi.mocked(ts_client.listChildMetadata).mockResolvedValue([
+            {
+                metadata: {
+                    desks: {
+                        details: [
+                            {
+                                id: 'assigned-desk',
+                                assigned_to: 'other.user@example.com',
+                            },
+                        ],
+                    },
+                },
+                zone: { id: 'lvl-1' },
+            },
+        ] as any);
+        spectator.service.newForm(
+            'desk',
+            new Booking({
+                booking_type: 'desk',
+                date: Date.now() + 60 * 60 * 1000,
+                duration: 60,
+                asset_id: 'desk-1',
+            }),
+        );
+        spectator.service.model.update((m) => ({
+            ...m,
+            user: {
+                email: 'other.user@example.com',
+                name: 'Other User',
+                id: 'other-user',
+            } as any,
+            asset_id: 'desk-1',
+            asset_name: 'Desk 1',
+            resources: [
+                {
+                    id: 'desk-1',
+                    name: 'Desk 1',
+                    zone: { id: 'lvl-1', parent_id: 'bld-1' },
+                    features: [],
+                },
+            ],
+        }));
+
+        await expect(spectator.service.postForm(true)).rejects.toBe(
+            'This user has an assigned desk and cannot book another desk.',
+        );
+        expect(savedBookings().length).toBe(0);
+    });
+
+    it('should block self desk bookings by default when the user has an assigned desk', async () => {
+        (spectator.inject(PaymentsService) as any).enabled = false;
+        vi.mocked(ts_client.listChildMetadata).mockResolvedValue([
             {
                 metadata: {
                     desks: {
@@ -845,10 +1422,6 @@ describe('BookingFormService', () => {
                 zone: { id: 'lvl-1' },
             },
         ] as any);
-        save_booking.mockReset();
-        save_booking.mockImplementation((booking: Booking) =>
-            Promise.resolve(booking),
-        );
         spectator.service.newForm(
             'desk',
             new Booking({
@@ -875,20 +1448,19 @@ describe('BookingFormService', () => {
         await expect(spectator.service.postForm(true)).rejects.toBe(
             'You have an assigned desk and cannot book another desk.',
         );
-        expect(save_booking).not.toHaveBeenCalled();
+        expect(savedBookings().length).toBe(0);
     });
 
     it('should allow self desk bookings for users with an assigned desk when the setting is enabled', async () => {
-        const get = spectator.inject(SettingsService).get as jest.Mock;
-        const save_booking = booking_mod.saveBooking as jest.Mock;
+        const get = spectator.inject(SettingsService).get as Mock;
         (spectator.inject(PaymentsService) as any).enabled = false;
         get.mockImplementation((key: string) => {
-            if (key === 'app.desks.allow_booking_with_reserved_desk') {
-                return true;
+            if (key === 'app.desks.assigned_resource_booking') {
+                return 'allow';
             }
             return undefined;
         });
-        jest.mocked(ts_client.listChildMetadata).mockResolvedValue([
+        vi.mocked(ts_client.listChildMetadata).mockResolvedValue([
             {
                 metadata: {
                     desks: {
@@ -903,10 +1475,6 @@ describe('BookingFormService', () => {
                 zone: { id: 'lvl-1' },
             },
         ] as any);
-        save_booking.mockReset();
-        save_booking.mockImplementation((booking: Booking) =>
-            Promise.resolve(booking),
-        );
         spectator.service.newForm(
             'desk',
             new Booking({
@@ -932,23 +1500,19 @@ describe('BookingFormService', () => {
 
         await spectator.service.postForm(true);
 
-        expect(save_booking).toHaveBeenCalledTimes(1);
+        expect(savedBookings().length).toBe(1);
     });
 
-    it('should block self desk bookings when the legacy prevent setting overrides the allow setting', async () => {
-        const get = spectator.inject(SettingsService).get as jest.Mock;
-        const save_booking = booking_mod.saveBooking as jest.Mock;
+    it('should block self desk bookings when assigned resource booking is other only', async () => {
+        const get = spectator.inject(SettingsService).get as Mock;
         (spectator.inject(PaymentsService) as any).enabled = false;
         get.mockImplementation((key: string) => {
-            if (key === 'app.desks.allow_booking_with_reserved_desk') {
-                return true;
-            }
-            if (key === 'app.desks.prevent_self_booking_if_assigned_desk') {
-                return true;
+            if (key === 'app.desks.assigned_resource_booking') {
+                return 'other_only';
             }
             return undefined;
         });
-        jest.mocked(ts_client.listChildMetadata).mockResolvedValue([
+        vi.mocked(ts_client.listChildMetadata).mockResolvedValue([
             {
                 metadata: {
                     desks: {
@@ -963,10 +1527,6 @@ describe('BookingFormService', () => {
                 zone: { id: 'lvl-1' },
             },
         ] as any);
-        save_booking.mockReset();
-        save_booking.mockImplementation((booking: Booking) =>
-            Promise.resolve(booking),
-        );
         spectator.service.newForm(
             'desk',
             new Booking({
@@ -993,17 +1553,300 @@ describe('BookingFormService', () => {
         await expect(spectator.service.postForm(true)).rejects.toBe(
             'You have an assigned desk and cannot book another desk.',
         );
-        expect(save_booking).not.toHaveBeenCalled();
+        expect(savedBookings().length).toBe(0);
+    });
+
+    it('should resolve assigned-resource booking from desk settings regardless of the active flow type', () => {
+        const get = spectator.inject(SettingsService).get as Mock;
+        get.mockImplementation((key: string) => {
+            if (key === 'app.desks.assigned_resource_booking') {
+                return 'allow';
+            }
+            return undefined;
+        });
+        // Simulate another flow (e.g. parking) being active on the shared
+        // singleton. The desk allowance must remain stable so the reserved-desk
+        // block does not appear intermittently.
+        spectator.service.newForm('parking');
+        expect(spectator.service.assignedResourceBooking('desk')).toBe('allow');
+        spectator.service.newForm('desk');
+        expect(spectator.service.assignedResourceBooking('desk')).toBe('allow');
+    });
+
+    it('should keep the form available when assigned resource booking is other only', () => {
+        const get = spectator.inject(SettingsService).get as Mock;
+        get.mockImplementation((key: string) => {
+            if (key === 'app.desks.assigned_resource_booking') {
+                return 'other_only';
+            }
+            return undefined;
+        });
+        expect(spectator.service.assignedResourceBooking('desk')).toBe(
+            'other_only',
+        );
+    });
+
+    it('should resolve assigned-resource booking independently for each resource type', () => {
+        const get = spectator.inject(SettingsService).get as Mock;
+        get.mockImplementation((key: string) => {
+            if (key === 'app.parking.assigned_resource_booking') {
+                return 'deny';
+            }
+            return undefined;
+        });
+        expect(spectator.service.assignedResourceBooking('parking')).toBe(
+            'deny',
+        );
+        expect(spectator.service.assignedResourceBooking('desk')).toBe(
+            'other_only',
+        );
+        expect(spectator.service.assignedResourceBooking('locker')).toBe(
+            'other_only',
+        );
+    });
+
+    it('should fall back to booking-level assigned-resource settings for any resource type', () => {
+        const get = spectator.inject(SettingsService).get as Mock;
+        get.mockImplementation((key: string) => {
+            if (key === 'app.bookings.assigned_resource_booking') {
+                return 'deny';
+            }
+            return undefined;
+        });
+        expect(spectator.service.assignedResourceBooking('desk')).toBe('deny');
+        expect(spectator.service.assignedResourceBooking('parking')).toBe(
+            'deny',
+        );
+        expect(spectator.service.assignedResourceBooking('locker')).toBe(
+            'deny',
+        );
+    });
+
+    it('should block desk bookings for another user that has an assigned desk', async () => {
+        const get = spectator.inject(SettingsService).get as Mock;
+        (spectator.inject(PaymentsService) as any).enabled = false;
+        get.mockImplementation((key: string) => {
+            if (key === 'app.desks.assigned_resource_booking') {
+                return 'other_only';
+            }
+            return undefined;
+        });
+        vi.mocked(ts_client.listChildMetadata).mockResolvedValue([
+            {
+                metadata: {
+                    desks: {
+                        details: [
+                            {
+                                id: 'assigned-desk',
+                                assigned_to: 'other.user@example.com',
+                            },
+                        ],
+                    },
+                },
+                zone: { id: 'lvl-1' },
+            },
+        ] as any);
+        spectator.service.newForm(
+            'desk',
+            new Booking({
+                booking_type: 'desk',
+                date: Date.now() + 60 * 60 * 1000,
+                duration: 60,
+                asset_id: 'desk-1',
+            }),
+        );
+        spectator.service.model.update((m) => ({
+            ...m,
+            user: {
+                email: 'other.user@example.com',
+                name: 'Other User',
+                id: 'other-user',
+            } as any,
+            asset_id: 'desk-1',
+            asset_name: 'Desk 1',
+            resources: [
+                {
+                    id: 'desk-1',
+                    name: 'Desk 1',
+                    zone: { id: 'lvl-1', parent_id: 'bld-1' },
+                    features: [],
+                },
+            ],
+        }));
+
+        await expect(spectator.service.postForm()).rejects.toBeTruthy();
+        expect(savedBookings().length).toBe(0);
+    });
+
+    it('should block bookings for a user with an assigned booking even when the daily limit is higher', async () => {
+        const get = spectator.inject(SettingsService).get as Mock;
+        (spectator.inject(PaymentsService) as any).enabled = false;
+        get.mockImplementation((key: string) => {
+            if (key === 'app.desks.assigned_resource_booking') {
+                return 'other_only';
+            }
+            if (key === 'app.bookings.allowed_daily_desk_count') return 3;
+            return undefined;
+        });
+        // Permanent allocations are stored as bookings tagged `is_assigned`,
+        // and can exist without a matching `assigned_to` in desk metadata.
+        vi.mocked(ts_client.get).mockResolvedValue([
+            {
+                id: 'assigned-booking',
+                type: 'desk',
+                asset_id: 'assigned-desk',
+                user_email: 'other.user@example.com',
+                extension_data: { is_assigned: true },
+            },
+        ] as any);
+        spectator.service.newForm(
+            'desk',
+            new Booking({
+                booking_type: 'desk',
+                date: Date.now() + 60 * 60 * 1000,
+                duration: 60,
+                asset_id: 'desk-1',
+            }),
+        );
+        spectator.service.model.update((m) => ({
+            ...m,
+            user: {
+                email: 'other.user@example.com',
+                name: 'Other User',
+                id: 'other-user',
+            } as any,
+            asset_id: 'desk-1',
+            asset_name: 'Desk 1',
+            resources: [
+                {
+                    id: 'desk-1',
+                    name: 'Desk 1',
+                    zone: { id: 'lvl-1', parent_id: 'bld-1' },
+                    features: [],
+                },
+            ],
+        }));
+
+        await expect(spectator.service.postForm()).rejects.toBe(
+            'This user has an assigned desk and cannot book another desk.',
+        );
+        expect(savedBookings().length).toBe(0);
+    });
+
+    it('should allow bookings alongside an assigned booking when assigned resource booking is allowed', async () => {
+        const get = spectator.inject(SettingsService).get as Mock;
+        (spectator.inject(PaymentsService) as any).enabled = false;
+        get.mockImplementation((key: string) => {
+            if (key === 'app.desks.assigned_resource_booking') return 'allow';
+            if (key === 'app.bookings.allowed_daily_desk_count') return 3;
+            return undefined;
+        });
+        vi.mocked(ts_client.showUser).mockReturnValue(
+            Promise.resolve({ email: 'other.user@example.com' }) as any,
+        );
+        vi.mocked(ts_client.get).mockResolvedValue([
+            {
+                id: 'assigned-booking',
+                type: 'desk',
+                asset_id: 'assigned-desk',
+                user_email: 'other.user@example.com',
+                extension_data: { is_assigned: true },
+            },
+        ] as any);
+        spectator.service.newForm(
+            'desk',
+            new Booking({
+                booking_type: 'desk',
+                date: Date.now() + 60 * 60 * 1000,
+                duration: 60,
+                asset_id: 'desk-1',
+            }),
+        );
+        spectator.service.model.update((m) => ({
+            ...m,
+            user: {
+                email: 'other.user@example.com',
+                name: 'Other User',
+                id: 'other-user',
+            } as any,
+            asset_id: 'desk-1',
+            asset_name: 'Desk 1',
+            resources: [],
+        }));
+
+        await spectator.service.postForm();
+
+        expect(savedBookings().length).toBe(1);
+    });
+
+    it('should allow desk bookings for others when self-booking is prevented for reserved-desk users', async () => {
+        const get = spectator.inject(SettingsService).get as Mock;
+        (spectator.inject(PaymentsService) as any).enabled = false;
+        get.mockImplementation((key: string) => {
+            if (key === 'app.desks.assigned_resource_booking') {
+                return 'other_only';
+            }
+            return undefined;
+        });
+        vi.mocked(ts_client.listChildMetadata).mockResolvedValue([
+            {
+                metadata: {
+                    desks: {
+                        details: [
+                            {
+                                id: 'assigned-desk',
+                                assigned_to: currentUser().email,
+                            },
+                        ],
+                    },
+                },
+                zone: { id: 'lvl-1' },
+            },
+        ] as any);
+        spectator.service.newForm(
+            'desk',
+            new Booking({
+                booking_type: 'desk',
+                date: Date.now() + 60 * 60 * 1000,
+                duration: 60,
+                asset_id: 'desk-1',
+            }),
+        );
+        spectator.service.model.update((m) => ({
+            ...m,
+            user: {
+                email: 'other.user@example.com',
+                name: 'Other User',
+                id: 'other-user',
+            } as any,
+            asset_id: 'desk-1',
+            asset_name: 'Desk 1',
+            resources: [
+                {
+                    id: 'desk-1',
+                    name: 'Desk 1',
+                    zone: { id: 'lvl-1', parent_id: 'bld-1' },
+                    features: [],
+                },
+            ],
+        }));
+
+        await spectator.service.postForm(true);
+
+        expect(savedBookings().length).toBe(1);
+        expect((savedBookings()[0] as Booking).user_email).toBe(
+            'other.user@example.com',
+        );
     });
 
     it('should clear saved host changes after a permission error', async () => {
-        const save_booking = booking_mod.saveBooking as jest.Mock;
         const current_user = currentUser();
         (spectator.inject(PaymentsService) as any).enabled = false;
-        save_booking.mockReset();
-        save_booking.mockImplementation(() =>
-            Promise.reject({ status: 403, error: 'Forbidden' }),
-        );
+        // saveBooking -> createBooking -> post; reject it to simulate a 403.
+        vi.mocked(ts_client.post).mockImplementation((async (url: string) => {
+            if (url.includes('/clashing-assets')) return [];
+            throw { status: 403, error: 'Forbidden' };
+        }) as any);
         spectator.service.newForm(
             'desk',
             new Booking({
@@ -1037,12 +1880,11 @@ describe('BookingFormService', () => {
         expect(spectator.service.model().user_email).toBe(current_user.email);
     });
 
-    it('should clamp current-day all-day bookings before posting', async () => {
-        jest.useFakeTimers();
-        jest.setSystemTime(new Date(2026, 2, 20, 10, 2, 0, 0));
+    it('should post current-day all-day bookings from the all-day period start', async () => {
+        vi.useFakeTimers();
+        vi.setSystemTime(new Date(2026, 2, 20, 10, 2, 0, 0));
         try {
-            const get = spectator.inject(SettingsService).get as jest.Mock;
-            const save_booking = booking_mod.saveBooking as jest.Mock;
+            const get = spectator.inject(SettingsService).get as Mock;
             (spectator.inject(PaymentsService) as any).enabled = false;
             get.mockImplementation((key: string) => {
                 if (key === 'app.bookings.all_day_period') {
@@ -1050,10 +1892,6 @@ describe('BookingFormService', () => {
                 }
                 return undefined;
             });
-            save_booking.mockReset();
-            save_booking.mockImplementation((booking: Booking) =>
-                Promise.resolve(booking),
-            );
 
             spectator.service.newForm('desk');
             spectator.service.model.update((m) => ({
@@ -1066,11 +1904,11 @@ describe('BookingFormService', () => {
 
             await spectator.service.postForm(true);
 
-            expect(save_booking).toHaveBeenCalledTimes(1);
-            expect(save_booking.mock.calls[0][0]).toMatchObject({
+            expect(savedBookings().length).toBe(1);
+            expect(savedBookings()[0]).toMatchObject({
                 all_day: true,
                 booking_start: Math.floor(
-                    new Date(2026, 2, 20, 10, 5, 0, 0).valueOf() / 1000,
+                    new Date(2026, 2, 20, 9, 0, 0, 0).valueOf() / 1000,
                 ),
                 booking_end: Math.floor(
                     new Date(2026, 2, 20, 17, 0, 0, 0).valueOf() / 1000,
@@ -1078,8 +1916,55 @@ describe('BookingFormService', () => {
                 date_end: new Date(2026, 2, 20, 17, 0, 0, 0).valueOf(),
             });
         } finally {
-            jest.useRealTimers();
+            vi.useRealTimers();
         }
+    });
+
+    it('should use the building timezone for recurring clash checks and saving', async () => {
+        const get = spectator.inject(SettingsService).get as Mock;
+        get.mockImplementation((key: string) =>
+            key === 'app.desks.use_building_timezone' ? true : undefined,
+        );
+        (spectator.inject(OrganisationService).building as any).timezone =
+            'America/New_York';
+        (spectator.inject(PaymentsService) as any).enabled = false;
+        const date = Date.now() + 24 * 60 * 60 * 1000;
+        const desk = {
+            id: 'desk-1',
+            name: 'Desk 1',
+            zone: { id: 'lvl-1', parent_id: 'bld-1' },
+            features: [],
+        };
+        spectator.service.newForm(
+            'desk',
+            new Booking({
+                booking_type: 'desk',
+                date,
+                duration: 60,
+                asset_id: desk.id,
+                timezone: 'Australia/Sydney',
+            }),
+        );
+        spectator.service.model.update((m) => ({
+            ...m,
+            asset_id: desk.id,
+            asset_name: desk.name,
+            resources: [desk],
+            recurrence_type: 'daily',
+            recurrence_interval: 1,
+            recurrence_end: Math.floor((date + 7 * 24 * 60 * 60 * 1000) / 1000),
+        }));
+        vi.spyOn(
+            spectator.service as any,
+            '_checkResourceRules',
+        ).mockResolvedValue(true);
+
+        await spectator.service.postForm(false, false);
+
+        expect(clashBookings()).toHaveLength(1);
+        expect(clashBookings()[0].timezone).toBe('America/New_York');
+        expect(savedBookings()).toHaveLength(1);
+        expect(savedBookings()[0].timezone).toBe('America/New_York');
     });
 
     it('should assign unique desks when posting desk group bookings', async () => {
@@ -1106,32 +1991,30 @@ describe('BookingFormService', () => {
                 features: [],
             },
         ] as any[];
-        jest.spyOn(spectator.service, 'listResources').mockResolvedValue(
+        vi.spyOn(spectator.service, 'listResources').mockResolvedValue(
             desk_list,
         );
-        jest.spyOn(
-            spectator.service,
-            'listAvailableResources',
-        ).mockResolvedValue(desk_list);
-        jest.spyOn(booking_utility_mod, 'findNearbyFeature')
-            .mockResolvedValueOnce('map-2')
-            .mockResolvedValueOnce('map-3');
-        jest.spyOn(
+        vi.spyOn(spectator.service, 'listAvailableResources').mockResolvedValue(
+            desk_list,
+        );
+        vi.spyOn(
+            spectator.service as any,
+            '_getNearbyResources',
+        ).mockResolvedValue([desk_list[1], desk_list[2]]);
+        vi.spyOn(
             spectator.service as any,
             '_checkResourceAvailable',
         ).mockResolvedValue(true);
         const saved_desks: string[] = [];
-        jest.spyOn(spectator.service, 'postForm').mockImplementation(
-            async () => {
-                const value = spectator.service.model();
-                saved_desks.push(value.asset_id);
-                return new Booking({
-                    id: `booking-${saved_desks.length}`,
-                    user_email: value.user_email,
-                    asset_id: value.asset_id,
-                });
-            },
-        );
+        vi.spyOn(spectator.service, 'postForm').mockImplementation(async () => {
+            const value = spectator.service.model();
+            saved_desks.push(value.asset_id);
+            return new Booking({
+                id: `booking-${saved_desks.length}`,
+                user_email: value.user_email,
+                asset_id: value.asset_id,
+            });
+        });
         spectator.service.newForm(
             'desk',
             new Booking({
@@ -1190,35 +2073,38 @@ describe('BookingFormService', () => {
                 features: [],
             },
         ] as any[];
-        jest.spyOn(spectator.service, 'listResources').mockResolvedValue(
+        vi.spyOn(spectator.service, 'listResources').mockResolvedValue(
             desk_list,
         );
-        jest.spyOn(
-            spectator.service,
-            'listAvailableResources',
-        ).mockResolvedValue(desk_list);
-        jest.spyOn(booking_utility_mod, 'findNearbyFeature').mockResolvedValue(
-            'map-2',
+        vi.spyOn(spectator.service, 'listAvailableResources').mockResolvedValue(
+            desk_list,
         );
-        jest.spyOn(
+        vi.spyOn(
+            spectator.service as any,
+            '_getNearbyResources',
+        ).mockResolvedValue([desk_list[1]]);
+        vi.spyOn(
             spectator.service as any,
             '_checkResourceAvailable',
         ).mockResolvedValue(true);
-        const saved_forms: { asset_id: string; resource_id: string }[] = [];
-        jest.spyOn(spectator.service, 'postForm').mockImplementation(
-            async () => {
-                const value = spectator.service.model();
-                saved_forms.push({
-                    asset_id: value.asset_id,
-                    resource_id: value.resources?.[0]?.id,
-                });
-                return new Booking({
-                    id: `booking-${saved_forms.length}`,
-                    user_email: value.user_email,
-                    asset_id: value.asset_id,
-                });
-            },
-        );
+        const saved_forms: {
+            asset_id: string;
+            resource_id: string;
+            extension_name: string;
+        }[] = [];
+        vi.spyOn(spectator.service, 'postForm').mockImplementation(async () => {
+            const value = spectator.service.model();
+            saved_forms.push({
+                asset_id: value.asset_id,
+                resource_id: value.resources?.[0]?.id,
+                extension_name: value.name,
+            });
+            return new Booking({
+                id: `booking-${saved_forms.length}`,
+                user_email: value.user_email,
+                asset_id: value.asset_id,
+            });
+        });
         spectator.service.newForm(
             'desk',
             new Booking({
@@ -1233,6 +2119,7 @@ describe('BookingFormService', () => {
             ...m,
             asset_id: 'desk-1',
             asset_name: 'Desk 1',
+            name: 'Desk 1',
             map_id: 'map-1',
             resources: [desk_list[0]],
         }));
@@ -1254,13 +2141,20 @@ describe('BookingFormService', () => {
         await spectator.service.postFormForGroup();
 
         expect(saved_forms).toEqual([
-            { asset_id: 'desk-1', resource_id: 'desk-1' },
-            { asset_id: 'desk-2', resource_id: 'desk-2' },
+            {
+                asset_id: 'desk-1',
+                resource_id: 'desk-1',
+                extension_name: 'Desk 1',
+            },
+            {
+                asset_id: 'desk-2',
+                resource_id: 'desk-2',
+                extension_name: 'Desk 2',
+            },
         ]);
     });
 
     it('should create a group container parent before desk group booking children', async () => {
-        const save_booking = booking_mod.saveBooking as jest.Mock;
         const desk_list = [
             {
                 id: 'desk-1',
@@ -1277,37 +2171,31 @@ describe('BookingFormService', () => {
                 features: [],
             },
         ] as any[];
-        save_booking.mockReset();
-        save_booking.mockImplementation((booking: Booking) =>
-            Promise.resolve(new Booking({ ...booking, id: 'booking-group' })),
-        );
-        jest.spyOn(spectator.service, 'listResources').mockResolvedValue(
+        vi.spyOn(spectator.service, 'listResources').mockResolvedValue(
             desk_list,
         );
-        jest.spyOn(
-            spectator.service,
-            'listAvailableResources',
-        ).mockResolvedValue(desk_list);
-        jest.spyOn(booking_utility_mod, 'findNearbyFeature').mockResolvedValue(
-            'map-2',
+        vi.spyOn(spectator.service, 'listAvailableResources').mockResolvedValue(
+            desk_list,
         );
-        jest.spyOn(
+        vi.spyOn(
+            spectator.service as any,
+            '_getNearbyResources',
+        ).mockResolvedValue([desk_list[1]]);
+        vi.spyOn(
             spectator.service as any,
             '_checkResourceAvailable',
         ).mockResolvedValue(true);
         const child_parent_ids: string[] = [];
-        jest.spyOn(spectator.service, 'postForm').mockImplementation(
-            async () => {
-                const value = spectator.service.model();
-                child_parent_ids.push(value.parent_id);
-                return new Booking({
-                    id: `booking-child-${child_parent_ids.length}`,
-                    parent_id: value.parent_id,
-                    user_email: value.user_email,
-                    asset_id: value.asset_id,
-                });
-            },
-        );
+        vi.spyOn(spectator.service, 'postForm').mockImplementation(async () => {
+            const value = spectator.service.model();
+            child_parent_ids.push(value.parent_id);
+            return new Booking({
+                id: `booking-child-${child_parent_ids.length}`,
+                parent_id: value.parent_id,
+                user_email: value.user_email,
+                asset_id: value.asset_id,
+            });
+        });
         spectator.service.newForm(
             'desk',
             new Booking({
@@ -1341,8 +2229,8 @@ describe('BookingFormService', () => {
 
         await spectator.service.postFormForGroup();
 
-        expect(save_booking).toHaveBeenCalledTimes(1);
-        expect(save_booking.mock.calls[0][0]).toEqual(
+        expect(savedBookings().length).toBe(1);
+        expect(savedBookings()[0]).toEqual(
             expect.objectContaining({
                 booking_type: 'group',
                 asset_name: 'Group Booking',
@@ -1350,16 +2238,16 @@ describe('BookingFormService', () => {
             }),
         );
         expect(
-            (save_booking.mock.calls[0][0] as Booking).extension_data
-                .group_resource_type,
+            (savedBookings()[0] as Booking).extension_data.group_resource_type,
         ).toBe('desk');
         expect(child_parent_ids).toEqual(['booking-group', 'booking-group']);
     });
 
     it('should complete desk group bookings with child errors when rollback is disabled', async () => {
-        const get = spectator.inject(SettingsService).get as jest.Mock;
-        const save_booking = booking_mod.saveBooking as jest.Mock;
-        const remove_booking = booking_mod.removeBooking as jest.Mock;
+        Object.defineProperty(spectator.inject(PaymentsService), 'enabled', {
+            value: false,
+        });
+        const get = spectator.inject(SettingsService).get as Mock;
         const desk_list = [
             {
                 id: 'desk-1',
@@ -1387,42 +2275,40 @@ describe('BookingFormService', () => {
             if (key === 'app.desks.rollback_group_bookings') return false;
             return undefined;
         });
-        save_booking.mockReset();
-        save_booking.mockImplementation((booking: Booking) =>
-            Promise.resolve(new Booking({ ...booking, id: 'booking-group' })),
-        );
-        remove_booking.mockReset();
-        remove_booking.mockImplementation(() => Promise.resolve({}));
-        jest.spyOn(spectator.service, 'listResources').mockResolvedValue(
+        vi.spyOn(spectator.service, 'listResources').mockResolvedValue(
             desk_list,
         );
-        jest.spyOn(
-            spectator.service,
-            'listAvailableResources',
-        ).mockResolvedValue(desk_list);
-        jest.spyOn(booking_utility_mod, 'findNearbyFeature')
-            .mockResolvedValueOnce('map-2')
-            .mockResolvedValueOnce('map-3');
-        jest.spyOn(
+        vi.spyOn(spectator.service, 'listAvailableResources').mockResolvedValue(
+            desk_list,
+        );
+        vi.spyOn(
+            spectator.service as any,
+            '_getNearbyResources',
+        ).mockResolvedValue([desk_list[1], desk_list[2]]);
+        vi.spyOn(
             spectator.service as any,
             '_checkResourceAvailable',
         ).mockResolvedValue(true);
         const saved_users: string[] = [];
-        jest.spyOn(spectator.service, 'postForm').mockImplementation(
-            async () => {
-                const value = spectator.service.model();
-                saved_users.push(value.user_email);
-                if (value.user_email === 'member.one@example.com') {
-                    throw new Error('Save failed');
-                }
-                return new Booking({
-                    id: `booking-child-${saved_users.length}`,
-                    parent_id: value.parent_id,
-                    user_email: value.user_email,
-                    asset_id: value.asset_id,
-                });
-            },
-        );
+        vi.mocked(ts_client.post).mockImplementation((async (
+            url: string,
+            body: unknown,
+        ) => {
+            if (url.includes('/clashing-assets')) return [];
+            const value = body as ReturnType<Booking['toJSON']>;
+            if (value.type === 'group')
+                return { ...value, id: 'booking-group' };
+            saved_users.push(value.user_email);
+            if (value.user_email === 'member.one@example.com') {
+                throw new Response(
+                    JSON.stringify({ error: 'Member refused' }),
+                    {
+                        status: 409,
+                    },
+                );
+            }
+            return { ...value, id: `booking-child-${saved_users.length}` };
+        }) as unknown as typeof ts_client.post);
         spectator.service.newForm(
             'desk',
             new Booking({
@@ -1467,7 +2353,7 @@ describe('BookingFormService', () => {
             'member.one@example.com',
             'member.two@example.com',
         ]);
-        expect(remove_booking).not.toHaveBeenCalled();
+        expect(ts_client.del).not.toHaveBeenCalled();
         expect(spectator.service.view()).toBe('success');
         expect(
             JSON.parse(localStorage.getItem('PLACEOS.last_group_booking_ids')),
@@ -1482,7 +2368,7 @@ describe('BookingFormService', () => {
                 name: 'Member One',
                 asset_id: 'desk-2',
                 asset_name: 'Desk 2',
-                error: 'Save failed',
+                error: 'Member refused',
             },
         ]);
     });
@@ -1511,32 +2397,30 @@ describe('BookingFormService', () => {
                 features: [],
             },
         ] as any[];
-        jest.spyOn(spectator.service, 'listResources').mockResolvedValue(
+        vi.spyOn(spectator.service, 'listResources').mockResolvedValue(
             desk_list,
         );
-        jest.spyOn(
-            spectator.service,
-            'listAvailableResources',
-        ).mockResolvedValue(desk_list);
-        jest.spyOn(booking_utility_mod, 'findNearbyFeature')
-            .mockResolvedValueOnce('map-2')
-            .mockResolvedValueOnce('map-3');
-        jest.spyOn(
+        vi.spyOn(spectator.service, 'listAvailableResources').mockResolvedValue(
+            desk_list,
+        );
+        vi.spyOn(
+            spectator.service as any,
+            '_getNearbyResources',
+        ).mockResolvedValue([desk_list[1], desk_list[2]]);
+        vi.spyOn(
             spectator.service as any,
             '_checkResourceAvailable',
         ).mockResolvedValue(true);
         const saved_names: string[] = [];
-        jest.spyOn(spectator.service, 'postForm').mockImplementation(
-            async () => {
-                const value = spectator.service.model();
-                saved_names.push(value.asset_name);
-                return new Booking({
-                    id: `booking-${saved_names.length}`,
-                    user_email: value.user_email,
-                    asset_id: value.asset_id,
-                });
-            },
-        );
+        vi.spyOn(spectator.service, 'postForm').mockImplementation(async () => {
+            const value = spectator.service.model();
+            saved_names.push(value.asset_name);
+            return new Booking({
+                id: `booking-${saved_names.length}`,
+                user_email: value.user_email,
+                asset_id: value.asset_id,
+            });
+        });
         spectator.service.newForm(
             'desk',
             new Booking({
@@ -1602,31 +2486,29 @@ describe('BookingFormService', () => {
                 features: [],
             },
         ] as any[];
-        jest.spyOn(spectator.service, 'listResources').mockResolvedValue(
+        vi.spyOn(spectator.service, 'listResources').mockResolvedValue(
             all_desks,
         );
-        jest.spyOn(
-            spectator.service,
-            'listAvailableResources',
-        ).mockResolvedValue([all_desks[1], all_desks[2]]);
-        jest.spyOn(booking_utility_mod, 'findNearbyFeature').mockResolvedValue(
-            'map-3',
+        vi.spyOn(spectator.service, 'listAvailableResources').mockResolvedValue(
+            [all_desks[1], all_desks[2]],
         );
+        vi.spyOn(
+            spectator.service as any,
+            '_getNearbyResources',
+        ).mockResolvedValue([all_desks[2]]);
         const saved_forms: { user_email: string; asset_id: string }[] = [];
-        jest.spyOn(spectator.service, 'postForm').mockImplementation(
-            async () => {
-                const value = spectator.service.model();
-                saved_forms.push({
-                    user_email: value.user_email,
-                    asset_id: value.asset_id,
-                });
-                return new Booking({
-                    id: `booking-${saved_forms.length}`,
-                    user_email: value.user_email,
-                    asset_id: value.asset_id,
-                });
-            },
-        );
+        vi.spyOn(spectator.service, 'postForm').mockImplementation(async () => {
+            const value = spectator.service.model();
+            saved_forms.push({
+                user_email: value.user_email,
+                asset_id: value.asset_id,
+            });
+            return new Booking({
+                id: `booking-${saved_forms.length}`,
+                user_email: value.user_email,
+                asset_id: value.asset_id,
+            });
+        });
         spectator.service.newForm(
             'desk',
             new Booking({
@@ -1695,11 +2577,6 @@ describe('BookingFormService', () => {
     });
 
     it('should update group container metadata when editing container-backed desk groups', async () => {
-        const save_booking = booking_mod.saveBooking as jest.Mock;
-        save_booking.mockReset();
-        save_booking.mockImplementation((booking: Booking) =>
-            Promise.resolve(booking),
-        );
         const all_desks = [
             {
                 id: 'desk-1',
@@ -1716,29 +2593,27 @@ describe('BookingFormService', () => {
                 features: [],
             },
         ] as any[];
-        jest.spyOn(spectator.service, 'listResources').mockResolvedValue(
+        vi.spyOn(spectator.service, 'listResources').mockResolvedValue(
             all_desks,
         );
-        jest.spyOn(
-            spectator.service,
-            'listAvailableResources',
+        vi.spyOn(spectator.service, 'listAvailableResources').mockResolvedValue(
+            [all_desks[1]],
+        );
+        vi.spyOn(
+            spectator.service as any,
+            '_getNearbyResources',
         ).mockResolvedValue([all_desks[1]]);
-        jest.spyOn(booking_utility_mod, 'findNearbyFeature').mockResolvedValue(
-            'map-2',
-        );
         const saved_forms: { id: string; parent_id: string }[] = [];
-        jest.spyOn(spectator.service, 'postForm').mockImplementation(
-            async () => {
-                const value = spectator.service.model();
-                saved_forms.push({ id: value.id, parent_id: value.parent_id });
-                return new Booking({
-                    id: value.id || `booking-child-${saved_forms.length}`,
-                    parent_id: value.parent_id,
-                    user_email: value.user_email,
-                    asset_id: value.asset_id,
-                });
-            },
-        );
+        vi.spyOn(spectator.service, 'postForm').mockImplementation(async () => {
+            const value = spectator.service.model();
+            saved_forms.push({ id: value.id, parent_id: value.parent_id });
+            return new Booking({
+                id: value.id || `booking-child-${saved_forms.length}`,
+                parent_id: value.parent_id,
+                user_email: value.user_email,
+                asset_id: value.asset_id,
+            });
+        });
         spectator.service.newForm(
             'desk',
             new Booking({
@@ -1793,8 +2668,8 @@ describe('BookingFormService', () => {
             }),
         ]);
 
-        expect(save_booking).toHaveBeenCalledTimes(1);
-        expect(save_booking.mock.calls[0][0]).toEqual(
+        expect(savedBookings().length).toBe(1);
+        expect(savedBookings()[0]).toEqual(
             expect.objectContaining({
                 id: 'booking-group',
                 booking_type: 'group',
@@ -1802,8 +2677,7 @@ describe('BookingFormService', () => {
             }),
         );
         expect(
-            (save_booking.mock.calls[0][0] as Booking).extension_data
-                .group_members,
+            (savedBookings()[0] as Booking).extension_data.group_members,
         ).toHaveLength(2);
         expect(saved_forms).toEqual([
             { id: 'booking-current-child', parent_id: 'booking-group' },
@@ -1835,17 +2709,17 @@ describe('BookingFormService', () => {
                 features: [],
             },
         ] as any[];
-        jest.spyOn(spectator.service, 'listResources').mockResolvedValue(
+        vi.spyOn(spectator.service, 'listResources').mockResolvedValue(
             desk_list,
         );
-        jest.spyOn(
-            spectator.service,
-            'listAvailableResources',
-        ).mockResolvedValue(desk_list);
-        jest.spyOn(booking_utility_mod, 'findNearbyFeature')
-            .mockResolvedValueOnce('map-2')
-            .mockResolvedValueOnce('map-3');
-        jest.spyOn(
+        vi.spyOn(spectator.service, 'listAvailableResources').mockResolvedValue(
+            desk_list,
+        );
+        vi.spyOn(
+            spectator.service as any,
+            '_getNearbyResources',
+        ).mockResolvedValue([desk_list[1], desk_list[2]]);
+        vi.spyOn(
             spectator.service as any,
             '_checkResourceAvailable',
         ).mockResolvedValue(true);
@@ -1876,18 +2750,16 @@ describe('BookingFormService', () => {
             },
         ];
         let booking_count = 0;
-        jest.spyOn(spectator.service, 'postForm').mockImplementation(
-            async () => {
-                const value = spectator.service.model();
-                booking_count++;
-                return new Booking({
-                    id: `booking-${booking_count}`,
-                    user_email: value.user_email,
-                    asset_id: value.asset_id,
-                    extension_data: { group_members: group_members_payload },
-                });
-            },
-        );
+        vi.spyOn(spectator.service, 'postForm').mockImplementation(async () => {
+            const value = spectator.service.model();
+            booking_count++;
+            return new Booking({
+                id: `booking-${booking_count}`,
+                user_email: value.user_email,
+                asset_id: value.asset_id,
+                extension_data: { group_members: group_members_payload },
+            });
+        });
         spectator.service.newForm(
             'desk',
             new Booking({
@@ -1936,13 +2808,13 @@ describe('BookingFormService', () => {
     });
 
     it('should only clear grouped visitor edit form after all siblings are saved', async () => {
-        const clear_form = jest.spyOn(spectator.service, 'clearForm');
+        const clear_form = vi.spyOn(spectator.service, 'clearForm');
         const saved_forms: {
             asset_id: string;
             zones: string[];
             location: string;
         }[] = [];
-        const post_form = jest
+        const post_form = vi
             .spyOn(spectator.service, 'postForm')
             .mockImplementation(async () => {
                 const value = spectator.service.model();
@@ -1957,7 +2829,7 @@ describe('BookingFormService', () => {
                         value.asset_id === 'visitor.one@example.com'
                             ? 'booking-parent'
                             : 'booking-child',
-                });
+                } as any);
             });
         spectator.service.newForm(
             'visitor',
@@ -2016,5 +2888,911 @@ describe('BookingFormService', () => {
         expect(clear_form).toHaveBeenCalledTimes(1);
         expect(saved_forms[0].zones).toEqual(['org-1', 'bld-1']);
         expect(saved_forms[1].location).toBe('Main Lobby');
+    });
+
+    it('should add a container when editing a legacy visitor group', async () => {
+        const saved_forms: {
+            id: string;
+            parent_id: string;
+            asset_id: string;
+            asset_name: string;
+        }[] = [];
+        vi.spyOn(spectator.service, 'postForm').mockImplementation(async () => {
+            const value = spectator.service.model();
+            saved_forms.push({
+                id: value.id,
+                parent_id: value.parent_id,
+                asset_id: value.asset_id,
+                asset_name: value.asset_name,
+            });
+            return new Booking({
+                ...value,
+                id: value.id || 'booking-new',
+            } as any);
+        });
+        spectator.service.newForm(
+            'visitor',
+            new Booking({
+                id: 'booking-removed',
+                booking_type: 'visitor',
+                date: Date.now() + 60 * 60 * 1000,
+                duration: 60,
+                asset_id: 'removed@example.com',
+                asset_name: 'Removed Visitor',
+            }),
+        );
+        spectator.service.setOptions({
+            type: 'visitor',
+            group: true,
+            members: [
+                new User({
+                    name: 'Retained Visitor',
+                    email: 'retained@example.com',
+                }),
+                new User({
+                    name: 'New Visitor',
+                    email: 'new@example.com',
+                }),
+            ],
+        });
+
+        await spectator.service.editFormForGroup([
+            new Booking({
+                id: 'booking-removed',
+                booking_type: 'visitor',
+                asset_id: 'removed@example.com',
+                asset_name: 'Removed Visitor',
+            }),
+            new Booking({
+                id: 'booking-retained',
+                booking_type: 'visitor',
+                asset_id: 'retained@example.com',
+                asset_name: 'Retained Visitor',
+            }),
+        ]);
+
+        expect(savedBookings()).toHaveLength(2);
+        expect(savedBookings()[0]).toEqual(
+            expect.objectContaining({
+                booking_type: 'group',
+                asset_name: 'Group Booking',
+                type: 'group',
+            }),
+        );
+        expect(
+            (savedBookings()[0] as Booking).extension_data.group_resource_type,
+        ).toBe('visitor');
+        expect(
+            (savedBookings()[0] as Booking).extension_data.group_members.map(
+                (member) => member.email,
+            ),
+        ).toEqual(['retained@example.com', 'new@example.com']);
+        expect(saved_forms).toEqual([
+            {
+                id: 'booking-retained',
+                parent_id: 'booking-group',
+                asset_id: 'retained@example.com',
+                asset_name: 'Retained Visitor',
+            },
+            {
+                id: '',
+                parent_id: 'booking-group',
+                asset_id: 'new@example.com',
+                asset_name: 'New Visitor',
+            },
+        ]);
+        expect(ts_client.del).toHaveBeenCalledWith(
+            expect.stringContaining('/booking-removed?'),
+            expect.anything(),
+        );
+    });
+
+    it('should load unlinked visitor group siblings by their `grp-` description', async () => {
+        vi.mocked(ts_client.get).mockResolvedValue([
+            {
+                id: 'booking-one',
+                type: 'visitor',
+                description: 'grp-abc12345',
+                asset_id: 'visitor.one@example.com',
+            },
+            {
+                id: 'booking-two',
+                type: 'visitor',
+                description: 'grp-abc12345',
+                asset_id: 'visitor.two@example.com',
+            },
+            {
+                id: 'booking-other',
+                type: 'visitor',
+                description: 'grp-zzz99999',
+                asset_id: 'visitor.three@example.com',
+            },
+            {
+                id: 'booking-single',
+                type: 'visitor',
+                description: 'Vendor Visit',
+                asset_id: 'visitor.four@example.com',
+            },
+        ] as any);
+        spectator.service.setOptions({ type: 'visitor' });
+
+        const siblings = await spectator.service.loadGroupSiblings(
+            new Booking({
+                id: 'booking-one',
+                booking_type: 'visitor',
+                description: 'grp-abc12345',
+                date: Date.now() + 60 * 60 * 1000,
+                duration: 60,
+            }),
+        );
+
+        expect(siblings.map((_) => _.id)).toEqual([
+            'booking-one',
+            'booking-two',
+        ]);
+    });
+
+    it('should load unlinked visitor group siblings by their shared group reference', async () => {
+        vi.mocked(ts_client.get).mockResolvedValue([
+            {
+                id: 'booking-one',
+                type: 'visitor',
+                asset_id: 'visitor.one@example.com',
+                extension_data: { group: 'host@example.com[2026-07-28]' },
+            },
+            {
+                id: 'booking-two',
+                type: 'visitor',
+                asset_id: 'visitor.two@example.com',
+                extension_data: { group: 'host@example.com[2026-07-28]' },
+            },
+            {
+                id: 'booking-other-group',
+                type: 'visitor',
+                asset_id: 'visitor.three@example.com',
+                extension_data: { group: 'host@example.com[2026-07-29]' },
+            },
+            {
+                id: 'booking-ungrouped',
+                type: 'visitor',
+                asset_id: 'visitor.four@example.com',
+            },
+        ] as any);
+        spectator.service.setOptions({ type: 'visitor' });
+
+        const siblings = await spectator.service.loadGroupSiblings(
+            new Booking({
+                id: 'booking-one',
+                booking_type: 'visitor',
+                date: Date.now() + 60 * 60 * 1000,
+                duration: 60,
+                extension_data: { group: 'host@example.com[2026-07-28]' },
+            }),
+        );
+
+        expect(siblings.map((_) => _.id)).toEqual([
+            'booking-one',
+            'booking-two',
+        ]);
+    });
+
+    it('should exclude removed visitors when reopening a group', async () => {
+        spectator.service.setOptions({ type: 'visitor' });
+        const retained = new Booking({
+            id: 'visitor-retained',
+            parent_id: 'visitor-group',
+            booking_type: 'visitor',
+            asset_id: 'retained@example.com',
+            date: new Date('2026-09-10T09:00:00Z').valueOf(),
+            duration: 60,
+        });
+        const removed = new Booking({
+            ...retained.toJSON(),
+            id: 'visitor-removed',
+            asset_id: 'removed@example.com',
+            deleted: true,
+        });
+        (
+            ts_client.get as unknown as Mock<() => Promise<Booking[]>>
+        ).mockResolvedValue([retained, removed]);
+
+        const members =
+            await spectator.service.loadGroupMembersForBooking(retained);
+
+        expect(members.map((member) => member.email)).toEqual([
+            'retained@example.com',
+        ]);
+    });
+
+    it('should include bookings made by the current user when loading group siblings', async () => {
+        spectator.service.setOptions({ type: 'visitor' });
+
+        await spectator.service.loadGroupSiblings(
+            new Booking({
+                id: 'booking-one',
+                booking_type: 'visitor',
+                date: Date.now() + 60 * 60 * 1000,
+                duration: 60,
+                user_email: 'host@example.com',
+                booked_by_email: 'current.user@example.com',
+            }),
+        );
+
+        expect(ts_client.get).toHaveBeenCalledWith(
+            expect.stringContaining('include_booked_by=true'),
+        );
+    });
+
+    it('should use the stored period when loading siblings after the booking period changes', async () => {
+        const original_date = new Date('2026-09-10T09:00:00.000Z').valueOf();
+        const booking = new Booking({
+            id: 'booking-one',
+            parent_id: 'booking-group',
+            booking_type: 'desk',
+            date: original_date,
+            duration: 60,
+        });
+        spectator.service.newForm('desk', booking);
+        spectator.service.model.update((form) => ({
+            ...form,
+            date: original_date + 60 * 60 * 1000,
+            duration: 90,
+        }));
+
+        const changed_form = spectator.service.model();
+        await spectator.service.loadGroupSiblings(
+            new Booking({
+                id: changed_form.id,
+                parent_id: changed_form.parent_id,
+                booking_type: changed_form.booking_type,
+                date: changed_form.date,
+                duration: changed_form.duration,
+            }),
+        );
+
+        expect(ts_client.get).toHaveBeenCalledWith(
+            expect.stringContaining(`period_start=${original_date / 1000}`),
+        );
+        expect(ts_client.get).toHaveBeenCalledWith(
+            expect.stringContaining(
+                `period_end=${original_date / 1000 + 60 * 60}`,
+            ),
+        );
+    });
+
+    it('should mark a removed visitor and update the linked event and parent group', async () => {
+        Object.defineProperty(spectator.inject(PaymentsService), 'enabled', {
+            value: false,
+        });
+        const removed = new User({
+            name: 'Removed Visitor',
+            email: 'removed@example.com',
+        });
+        const retained = new User({
+            name: 'Retained Visitor',
+            email: 'retained@example.com',
+        });
+        const booking = new Booking({
+            id: 'booking-removed',
+            parent_id: 'booking-group',
+            booking_type: 'visitor',
+            date: Date.now() + 60 * 60 * 1000,
+            duration: 60,
+            asset_id: removed.email,
+            asset_name: removed.name,
+            linked_event: {
+                event_id: 'calendar/event-id',
+                system_id: 'sys-room',
+                resource_calendar: 'room@example.com',
+                host_email: 'host@example.com',
+                date: Date.now() + 60 * 60 * 1000,
+                duration: 60,
+                date_end: Date.now() + 2 * 60 * 60 * 1000,
+            },
+            attendees: [removed, retained],
+            extension_data: { group_members: [removed, retained] },
+        });
+        spectator.service.newForm('visitor', booking);
+        spectator.service.setOptions({
+            type: 'visitor',
+            group: true,
+            members: [retained],
+        });
+
+        await spectator.service.editFormForGroup([
+            booking,
+            new Booking({
+                ...booking.toJSON(),
+                id: 'booking-retained',
+                asset_id: retained.email,
+                asset_name: retained.name,
+            }),
+        ]);
+
+        expect(ts_client.patch).toHaveBeenCalledWith(
+            '/api/staff/v1/bookings/booking-removed',
+            expect.objectContaining({
+                extension_data: expect.objectContaining({
+                    removed_from_group: true,
+                }),
+            }),
+        );
+        expect(ts_client.del).toHaveBeenCalledWith(
+            '/api/staff/v1/events/calendar%2Fevent-id/attendee/removed%40example.com?system_id=sys-room&calendar=room%40example.com',
+        );
+        expect(ts_client.del).toHaveBeenCalledWith(
+            expect.stringContaining('/booking-removed?'),
+            expect.anything(),
+        );
+        expect(ts_client.del).toHaveBeenCalledTimes(2);
+        const group = savedBookings().find(
+            (item) => item.id === 'booking-group',
+        );
+        expect(group.attendees.map((attendee) => attendee.email)).toEqual([
+            retained.email,
+        ]);
+        expect(
+            group.extension_data.group_members.map(
+                (member: User) => member.email,
+            ),
+        ).toEqual([retained.email]);
+        const visitor = savedBookings().find(
+            (item) => item.id === 'booking-retained',
+        );
+        expect(visitor.attendees.map((attendee) => attendee.email)).toEqual([
+            retained.email,
+        ]);
+    });
+
+    it('should restore the removal marker if cancelling a removed visitor fails', async () => {
+        const booking = new Booking({
+            id: 'booking-removed',
+            parent_id: 'booking-group',
+            booking_type: 'visitor',
+            asset_id: 'removed@example.com',
+        });
+        spectator.service.newForm('visitor', booking);
+        spectator.service.setOptions({
+            type: 'visitor',
+            group: true,
+            members: [new User({ email: 'retained@example.com' })],
+        });
+        const error = new Error('Booking cancellation failed');
+        vi.mocked(ts_client.del).mockRejectedValueOnce(error);
+
+        await expect(
+            spectator.service.editFormForGroup([booking]),
+        ).rejects.toThrow(error);
+
+        expect(ts_client.patch).toHaveBeenLastCalledWith(
+            '/api/staff/v1/bookings/booking-removed',
+            expect.objectContaining({
+                extension_data: expect.objectContaining({
+                    removed_from_group: false,
+                }),
+            }),
+        );
+        expect(ts_client.patch).toHaveBeenCalledTimes(2);
+    });
+
+    it('should leave the visitor booking active if linked event removal fails', async () => {
+        const booking = new Booking({
+            id: 'booking-removed',
+            parent_id: 'booking-group',
+            booking_type: 'visitor',
+            asset_id: 'removed@example.com',
+            linked_event: {
+                id: 'linked-event',
+                event_id: '',
+                system_id: 'sys-room',
+                resource_calendar: 'room@example.com',
+                host_email: 'host@example.com',
+                date: Date.now(),
+                duration: 60,
+                date_end: Date.now() + 60 * 60 * 1000,
+            },
+        });
+        spectator.service.newForm('visitor', booking);
+        spectator.service.setOptions({
+            type: 'visitor',
+            group: true,
+            members: [new User({ email: 'retained@example.com' })],
+        });
+        const error = new Error('Event update failed');
+        vi.mocked(ts_client.del).mockRejectedValueOnce(error);
+
+        await expect(
+            spectator.service.editFormForGroup([booking]),
+        ).rejects.toThrow(error);
+
+        expect(ts_client.del).toHaveBeenCalledExactlyOnceWith(
+            '/api/staff/v1/events/linked-event/attendee/removed%40example.com?system_id=sys-room&calendar=room%40example.com',
+        );
+        expect(savedBookings()).toEqual([]);
+    });
+
+    it('should keep overlapping visitor groups separate for the same host', async () => {
+        Object.defineProperty(spectator.inject(PaymentsService), 'enabled', {
+            value: false,
+        });
+        const now = Date.now();
+        vi.spyOn(Date, 'now').mockReturnValue(now);
+        const groups = [
+            ['alice@example.com', 'bob@example.com'],
+            ['carol@example.com', 'dave@example.com'],
+        ];
+        for (const emails of groups) {
+            spectator.service.newForm(
+                'visitor',
+                new Booking({
+                    booking_type: 'visitor',
+                    date: now + 60 * 60 * 1000,
+                    duration: 60,
+                }),
+            );
+            spectator.service.setOptions({
+                type: 'visitor',
+                group: true,
+                members: emails.map((email) => new User({ email })),
+            });
+
+            await spectator.service.postFormForVisitorGroup();
+        }
+
+        const saved = savedBookings();
+        const parents = saved.filter(
+            (booking) => booking.booking_type === 'group',
+        );
+        const visitors = saved.filter(
+            (booking) => booking.booking_type === 'visitor',
+        );
+        expect(parents).toHaveLength(2);
+        expect(parents[0].user_email).toBe(parents[1].user_email);
+        expect(parents[0].booking_start).toBe(parents[1].booking_start);
+        expect(parents[0].asset_id).toBeTruthy();
+        expect(parents[1].asset_id).toBeTruthy();
+        expect(parents[0].asset_id).not.toBe(parents[1].asset_id);
+        expect(visitors).toHaveLength(4);
+        for (const [index, emails] of groups.entries()) {
+            expect(parents[index].extension_data.group).toBe(
+                parents[index].asset_id,
+            );
+            const members = visitors.filter((booking) =>
+                emails.includes(booking.asset_id),
+            );
+            expect(members.map((booking) => booking.asset_id)).toEqual(emails);
+            expect(
+                members.every(
+                    (booking) =>
+                        booking.extension_data.group ===
+                            parents[index].asset_id &&
+                        booking.parent_id === 'booking-group',
+                ),
+            ).toBe(true);
+        }
+    });
+
+    it.each(['grp-existing-id', 'host@example.com[2026-09-22]'])(
+        'should preserve visitor group identifier %s during edits',
+        async (group) => {
+            Object.defineProperty(
+                spectator.inject(PaymentsService),
+                'enabled',
+                {
+                    value: false,
+                },
+            );
+            const member = new User({ email: 'alice@example.com' });
+            const booking = new Booking({
+                id: 'booking-alice',
+                parent_id: 'booking-group',
+                booking_type: 'visitor',
+                date: Date.now() + 60 * 60 * 1000,
+                duration: 60,
+                asset_id: member.email,
+                extension_data: { group },
+            });
+            spectator.service.newForm('visitor', booking);
+            spectator.service.setOptions({
+                type: 'visitor',
+                group: true,
+                members: [member],
+            });
+
+            await spectator.service.editFormForGroup([booking]);
+
+            expect(savedBookings()).toEqual([
+                expect.objectContaining({
+                    id: 'booking-group',
+                    asset_id: group,
+                    extension_data: expect.objectContaining({ group }),
+                }),
+                expect.objectContaining({
+                    id: booking.id,
+                    parent_id: booking.parent_id,
+                    asset_id: member.email,
+                    extension_data: expect.objectContaining({ group }),
+                }),
+            ]);
+        },
+    );
+
+    it('should save each visitor against their own asset on group edit', async () => {
+        (spectator.inject(PaymentsService) as any).enabled = false;
+        spectator.service.newForm(
+            'visitor',
+            new Booking({
+                id: 'booking-one',
+                parent_id: 'booking-group',
+                booking_type: 'visitor',
+                date: Date.now() + 60 * 60 * 1000,
+                duration: 60,
+                title: 'Vendor Visit',
+                asset_id: 'visitor.one@example.com',
+                asset_name: 'Visitor One',
+                zones: ['org-1', 'bld-1'],
+                extension_data: { visitor_name: 'Visitor One' },
+            }),
+        );
+        spectator.service.setOptions({
+            type: 'visitor',
+            group: true,
+            members: [
+                new User({
+                    name: 'Visitor One',
+                    email: 'visitor.one@example.com',
+                }),
+                new User({
+                    name: 'Visitor Two',
+                    email: 'visitor.two@example.com',
+                }),
+            ],
+        });
+
+        await spectator.service.editFormForGroup([
+            new Booking({
+                id: 'booking-one',
+                parent_id: 'booking-group',
+                booking_type: 'visitor',
+                asset_id: 'visitor.one@example.com',
+                asset_name: 'Visitor One',
+            }),
+            new Booking({
+                id: 'booking-two',
+                parent_id: 'booking-group',
+                booking_type: 'visitor',
+                asset_id: 'visitor.two@example.com',
+                asset_name: 'Visitor Two',
+            }),
+        ]);
+
+        // `asset_ids` is what the API stores the visitor against. Carrying the
+        // edited booking's stale value onto every sibling made all of them
+        // resolve to the first visitor's name in the bookings list.
+        const visitor_bookings = savedBookings().filter(
+            (_) => _.booking_type === 'visitor',
+        );
+        expect(visitor_bookings.map((_) => [_.asset_id, _.asset_ids])).toEqual([
+            ['visitor.one@example.com', ['visitor.one@example.com']],
+            ['visitor.two@example.com', ['visitor.two@example.com']],
+        ]);
+    });
+
+    it('should not save a stale asset_ids when the booked resource changes', async () => {
+        (spectator.inject(PaymentsService) as any).enabled = false;
+        spectator.service.newForm(
+            'desk',
+            new Booking({
+                id: 'booking-desk',
+                booking_type: 'desk',
+                date: Date.now() + 60 * 60 * 1000,
+                duration: 60,
+                asset_id: 'desk-1',
+                asset_name: 'Desk 1',
+            }),
+        );
+        spectator.service.model.update((m) => ({
+            ...m,
+            asset_id: 'desk-2',
+            asset_name: 'Desk 2',
+        }));
+
+        await spectator.service.postForm(true);
+
+        expect(savedBookings().length).toBe(1);
+        expect((savedBookings()[0] as Booking).asset_ids).toEqual(['desk-2']);
+    });
+
+    describe('initialisation after the user has already loaded', () => {
+        /**
+         * The case the flows actually hit. Every booking flow renders its form
+         * on first paint but initialises it late: `NewDeskFlowComponent.ngOnInit`
+         * awaits org initialisation plus a 300ms settle, then calls `loadForm`
+         * and — for a fresh booking — `newForm`, back to back.
+         *
+         * The current user is restored from the localStorage cache within about
+         * 50ms of bootstrap, long before org data arrives, so `newForm` never
+         * takes its deferred branch here. Nothing is mocked and no runtime probe
+         * is neutralised: this is the ordinary path.
+         */
+        function userEdits(field: string, value: unknown) {
+            const node = spectator.service.form[field]();
+            node.value.set(value);
+            node.markAsDirty();
+        }
+
+        it('keeps input entered before the flow initialises the form', () => {
+            userEdits('title', 'Quiet corner desk');
+            userEdits('all_day', true);
+
+            // exactly what desk-flow.component.ts does once org data lands
+            spectator.service.loadForm('desk');
+            spectator.service.newForm('desk');
+
+            expect(spectator.service.model().title).toBe('Quiet corner desk');
+            expect(spectator.service.model().all_day).toBe(true);
+        });
+
+        it('carries a typed title between booking forms, deliberately', () => {
+            // Switching desk -> parking without leaving the booking area does not
+            // reset the form, so the user's own typing follows them. Pinned
+            // rather than left to chance: only fields they actually edited move,
+            // `isCrossTypeEdit` still discards the previous booking's identity,
+            // and leaving the booking section entirely calls `clearForm()`.
+            userEdits('title', 'Desk title');
+            spectator.service.loadForm('parking');
+            spectator.service.newForm('parking');
+            expect(spectator.service.model().title).toBe('Desk title');
+        });
+
+        it('does not carry those edits into a later unrelated form', () => {
+            userEdits('title', 'Quiet corner desk');
+            spectator.service.loadForm('desk');
+            spectator.service.newForm('desk');
+            expect(spectator.service.model().title).toBe('Quiet corner desk');
+
+            // A form opened later must start clean, not inherit the last one.
+            spectator.service.newForm('desk');
+            expect(spectator.service.model().title).not.toBe(
+                'Quiet corner desk',
+            );
+        });
+    });
+
+    describe('initialisation while the user is still loading', () => {
+        /**
+         * Put the service into the state `newForm` sees on a slow load: no
+         * current user yet, so it defers and returns while the form is already
+         * rendered and interactive.
+         *
+         * Nothing is mocked. `currentUserIsLoaded()` is real, and it reports
+         * "loaded" whenever it detects a test runtime, so the runtime probe
+         * (`typeof vi`) is what has to be neutralised to reach the branch.
+         * That keeps the real promise plumbing in `currentUserLoaded()` under
+         * test rather than a stub of it.
+         */
+        function deferCurrentUser() {
+            const runtime_vi = (globalThis as any).vi;
+            setCurrentUser(new StaffUser({}));
+            (globalThis as any).vi = undefined;
+            const restore = () => ((globalThis as any).vi = runtime_vi);
+            return {
+                restore,
+                release: async () => {
+                    restore();
+                    setCurrentUser(
+                        new StaffUser({
+                            id: 'current-user',
+                            email: 'current.user@example.com',
+                            name: 'Current User',
+                        }),
+                    );
+                    // let the `.then` re-entry and its patches settle
+                    await Promise.resolve();
+                    await Promise.resolve();
+                    await Promise.resolve();
+                },
+            };
+        }
+
+        /** Type into a field the way the Field directive does. */
+        function userEdits(field: string, value: unknown) {
+            const node = spectator.service.form[field]();
+            node.value.set(value);
+            node.markAsDirty();
+        }
+
+        it('keeps input the user entered before initialisation finished', async () => {
+            const deferred = deferCurrentUser();
+            try {
+                spectator.service.newForm('desk');
+
+                userEdits('title', 'Quiet corner desk');
+                userEdits('all_day', true);
+
+                await deferred.release();
+
+                expect(spectator.service.model().title).toBe(
+                    'Quiet corner desk',
+                );
+                expect(spectator.service.model().all_day).toBe(true);
+            } finally {
+                deferred.restore();
+            }
+        });
+
+        it('does not resurrect that input on the next new form', async () => {
+            // The preserved edits are one-shot. If they leaked, opening a
+            // second form would silently inherit the previous booking's title.
+            const deferred = deferCurrentUser();
+            try {
+                spectator.service.newForm('desk');
+                userEdits('title', 'Quiet corner desk');
+                await deferred.release();
+            } finally {
+                deferred.restore();
+            }
+
+            spectator.service.newForm('desk');
+
+            expect(spectator.service.model().title).not.toBe(
+                'Quiet corner desk',
+            );
+        });
+
+        it('leaves untouched fields to the incoming booking', async () => {
+            // Only dirty fields are carried across. A field the user never
+            // touched must still take its value from the booking being opened.
+            const deferred = deferCurrentUser();
+            try {
+                spectator.service.newForm(
+                    'desk',
+                    new Booking({
+                        id: 'bkn-1',
+                        booking_type: 'desk',
+                        title: 'From the booking',
+                        asset_id: 'desk-1',
+                    }),
+                );
+
+                userEdits('all_day', true);
+
+                await deferred.release();
+
+                expect(spectator.service.model().all_day).toBe(true);
+                expect(spectator.service.model().title).toBe(
+                    'From the booking',
+                );
+            } finally {
+                deferred.restore();
+            }
+        });
+    });
+
+    describe('asset request failures', () => {
+        /** Booking ids passed to removeBooking (-> del /bookings/<id>). */
+        const deletedBookingIds = () =>
+            vi
+                .mocked(ts_client.del)
+                .mock.calls.map(([url]) => url)
+                .filter((url) => url.startsWith(`${BOOKINGS_ENDPOINT}/`))
+                .map((url) => url.split('/').pop().split('?')[0]);
+
+        /**
+         * Post handler that assigns an id to created bookings, and fails the
+         * `asset-request` records posted after the desk booking when `error`
+         * is given.
+         */
+        const postBookings = (error?: unknown) =>
+            vi
+                .mocked(ts_client.post)
+                .mockImplementation(async (url: string, body: any) => {
+                    if (url.includes('/clashing-assets'))
+                        return [...clash_result];
+                    if (error && body?.type === 'asset-request') throw error;
+                    return body?.id ? body : { ...body, id: 'booking-1' };
+                });
+
+        const useDeskFormWithAssets = (booking?: Booking) => {
+            spectator.service.newForm('desk', booking);
+            spectator.service.model.update((m) => ({
+                ...m,
+                asset_id: 'desk-1',
+                asset_name: 'Desk 1',
+                assets: [
+                    new AssetRequest({
+                        id: 'asset-request-1',
+                        items: [
+                            {
+                                id: 'asset-type-1',
+                                name: 'Monitor',
+                                quantity: 1,
+                                item_ids: [],
+                            },
+                        ],
+                    }),
+                ],
+            }));
+        };
+
+        beforeEach(() => {
+            (spectator.inject(PaymentsService) as any).enabled = false;
+            // Asset group availability is resolved from the asset APIs before
+            // the requests are posted.
+            vi.mocked(ts_client.queryAssetTypes).mockResolvedValue({
+                data: [{ id: 'asset-type-1', name: 'Monitors' }],
+                next: null,
+                total: 1,
+            } as any);
+            vi.mocked(ts_client.queryAssets).mockResolvedValue({
+                data: [
+                    {
+                        id: 'asset-1',
+                        asset_type_id: 'asset-type-1',
+                    },
+                ],
+                next: null,
+                total: 1,
+            } as any);
+            postBookings();
+        });
+
+        it('should remove the new booking when its asset requests fail', async () => {
+            postBookings({ status: 422, error: 'Asset unavailable' });
+            useDeskFormWithAssets();
+
+            await expect(spectator.service.postForm(true)).rejects.toBe(
+                'Asset unavailable',
+            );
+
+            expect(deletedBookingIds()).toEqual(['booking-1']);
+        });
+
+        it('should report an asset clash instead of the desk being unavailable', async () => {
+            postBookings({ status: 409 });
+            useDeskFormWithAssets();
+
+            await expect(spectator.service.postForm(true)).rejects.toBe(
+                i18n('BOOKINGS.ASSETS_CLASH_ERROR'),
+            );
+
+            expect(deletedBookingIds()).toEqual(['booking-1']);
+        });
+
+        it('should keep an existing booking when its asset requests fail', async () => {
+            postBookings({ status: 422, error: 'Asset unavailable' });
+            for (const method of [ts_client.patch, ts_client.put]) {
+                vi.mocked(method).mockImplementation(
+                    async (_url: string, body: any) => ({
+                        ...body,
+                        id: 'bkn-1',
+                    }),
+                );
+            }
+            useDeskFormWithAssets(
+                new Booking({
+                    id: 'bkn-1',
+                    booking_type: 'desk',
+                    asset_id: 'desk-1',
+                }),
+            );
+
+            await expect(spectator.service.postForm(true)).rejects.toBe(
+                'Asset unavailable',
+            );
+
+            expect(deletedBookingIds()).toEqual([]);
+        });
+
+        it('should keep the booking when its asset requests succeed', async () => {
+            useDeskFormWithAssets();
+
+            await spectator.service.postForm(true);
+
+            expect(
+                savedBookings().some((_) => _.type === 'asset-request'),
+            ).toBe(true);
+            expect(deletedBookingIds()).toEqual([]);
+        });
     });
 });

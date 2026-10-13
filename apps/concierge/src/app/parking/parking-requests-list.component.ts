@@ -1,263 +1,335 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, computed, inject } from '@angular/core';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { AsyncHandler, Booking, SettingsService } from '@placeos/common';
+import {
+    AsyncHandler,
+    Booking,
+    SettingsService,
+    settingSignal,
+} from '@placeos/common';
 import {
     IconComponent,
     SimpleTableComponent,
     TranslatePipe,
 } from '@placeos/components';
-import { endOfWeek, startOfWeek } from 'date-fns';
+import { BookingApprovalBarComponent } from '../ui/booking-approval-bar.component';
+import { bookingRowKey, selectedBookings } from '../ui/bulk-booking-actions';
 import { ParkingRequestsWeekViewComponent } from './parking-requests-week-view.component';
 import {
     ParkingRequestFilter,
     ParkingStateService,
 } from './parking-state.service';
-import { isParkingAllDayBooking } from './parking.utilities';
+import {
+    isParkingAllDayBooking,
+    parkingRequestStatusLabel,
+    parkingRequestStatusTone,
+} from './parking.utilities';
 
 @Component({
     selector: 'parking-requests-list',
     template: `
-        @if (period() === 'week') {
-            <parking-requests-week-view />
-        } @else {
-            <mat-progress-bar
-                [class.opacity-0]="!loading().includes('[BOOKINGS]')"
-                class="sticky left-0 w-full"
-            />
-            <simple-table
-                class="block min-w-304 text-sm"
-                [data]="filtered_events()"
-                [columns]="[
-                    {
-                        key: 'state',
-                        name: 'COMMON.STATUS_BUSY' | translate,
-                        content: state_template,
-                        size: '4.75rem',
-                        sortable: false,
-                    },
-                    {
-                        key: 'date',
-                        name: 'FORM.TIME' | translate,
-                        content: date_template,
-                    },
-                    {
-                        key: 'user_name',
-                        name: 'APP.CONCIERGE.PARKING_RESERVED_FOR' | translate,
-                        content: person_template,
-                    },
-                    {
-                        key: 'booked_by_name',
-                        name: 'APP.CONCIERGE.PARKING_RESERVED_BY' | translate,
-                        content: host_template,
-                    },
-                    {
-                        key: 'plate_number',
-                        name: 'EXPLORE.PARKING_PLATE_NUMBER' | translate,
-                        content: plate_template,
-                        size: '10rem',
-                        sortable: false,
-                    },
-                    {
-                        key: 'status',
-                        name: 'COMMON.STATUS' | translate,
-                        content: status_template,
-                        size: '9.5rem',
-                    },
-                    {
-                        key: 'actions',
-                        name: ' ',
-                        content: action_template,
-                        size: '6rem',
-                        sortable: false,
-                    },
-                ]"
-                [filter]="options().search"
-                [sortable]="true"
-                [empty_message]="
-                    'APP.CONCIERGE.PARKING_REQUESTS_EMPTY' | translate
-                "
-            />
-            <ng-template #date_template let-row="row">
-                <div class="px-4 py-2">
-                    {{
-                        isAllDayBooking(row)
-                            ? ('COMMON.ALL_DAY' | translate)
-                            : (row.date | date: time_format : timezone) +
-                              ' - ' +
-                              (row.date_end | date: time_format : timezone)
-                    }}
-                </div>
-            </ng-template>
-            <ng-template #person_template let-row="row">
-                <div class="px-4 py-2">
-                    <div>{{ row.user_name || row.user_email }}</div>
-                    @if (row.user_name && row.user_email) {
-                        <div class="text-xs opacity-30">
-                            {{ row.user_email }}
-                        </div>
-                    }
-                </div>
-            </ng-template>
-            <ng-template #host_template let-row="row">
-                <div class="px-4 py-2">
-                    <div>{{ row.booked_by_name || row.booked_by_email }}</div>
-                    @if (row.booked_by_name && row.booked_by_email) {
-                        <div class="text-xs opacity-30">
-                            {{ row.booked_by_email }}
-                        </div>
-                    }
-                </div>
-            </ng-template>
-            <ng-template #state_template let-row="row">
-                @if (!row?.checked_in && row.checked_out_at) {
-                    <div
-                        class="bg-base-300 text-base-100 mx-auto flex h-8 w-8 items-center justify-center rounded-sm text-2xl"
-                        [matTooltip]="
-                            'APP.CONCIERGE.PARKING_CHECKED_OUT_AT'
+        <div class="w-fit px-8">
+            <div class="flex items-center justify-end gap-2 px-2 py-1 text-xs">
+                @if (last_updated()) {
+                    <span class="opacity-60">
+                        {{
+                            'COMMON.LAST_UPDATED'
                                 | translate
                                     : {
                                           time:
-                                              (row.checked_out_at * 1000
+                                              (last_updated()
                                               | date: time_format : timezone),
                                       }
-                        "
-                        matTooltipPosition="right"
-                    >
-                        <icon>done</icon>
-                    </div>
+                        }}
+                    </span>
                 }
-                @if (!row?.checked_in && !row.checked_out_at) {
-                    <div
-                        class="bg-warning text-warning-content mx-auto flex h-8 w-8 items-center justify-center rounded-sm text-2xl"
-                        [matTooltip]="
-                            'APP.CONCIERGE.PARKING_NOT_CHECKED_IN' | translate
-                        "
-                        matTooltipPosition="right"
-                    >
-                        <icon>question_mark</icon>
+                <button
+                    icon
+                    default
+                    matRipple
+                    [disabled]="loading().includes('[BOOKINGS]')"
+                    [matTooltip]="'COMMON.REFRESH' | translate"
+                    data-shortcut="refresh"
+                    (click)="refresh()"
+                >
+                    <icon>refresh</icon>
+                </button>
+            </div>
+            @if (period() === 'week') {
+                <parking-requests-week-view />
+            } @else {
+                <mat-progress-bar
+                    [class.opacity-0]="!loading().includes('[BOOKINGS]')"
+                    class="sticky left-0 w-full"
+                />
+                <simple-table
+                    [error]="load_error()"
+                    (retry)="retryLoad()"
+                    [selectable]="bulk_actions()"
+                    [row_key]="rowKey"
+                    [can_select]="canSelect"
+                    [(selected)]="selected"
+                    class="block min-w-304 text-sm"
+                    [data]="filtered_events()"
+                    [columns]="[
+                        {
+                            key: 'state',
+                            name: 'COMMON.STATUS_BUSY' | translate,
+                            content: state_template,
+                            size: '4.75rem',
+                            sortable: false,
+                        },
+                        {
+                            key: 'date',
+                            name: 'COMMON.TIME' | translate,
+                            content: date_template,
+                        },
+                        {
+                            key: 'user_name',
+                            name:
+                                'APP.CONCIERGE.PARKING_RESERVED_FOR'
+                                | translate,
+                            content: person_template,
+                        },
+                        {
+                            key: 'booked_by_name',
+                            name:
+                                'APP.CONCIERGE.PARKING_RESERVED_BY' | translate,
+                            content: host_template,
+                        },
+                        {
+                            key: 'plate_number',
+                            name: 'BOOKINGS.PARKING_PLATE_NUMBER' | translate,
+                            content: plate_template,
+                            size: '10rem',
+                            sortable: false,
+                        },
+                        {
+                            key: 'status',
+                            name: 'COMMON.STATUS' | translate,
+                            content: status_template,
+                            size: '9.5rem',
+                        },
+                        {
+                            key: 'actions',
+                            name: ' ',
+                            content: action_template,
+                            size: '6rem',
+                            sortable: false,
+                        },
+                    ]"
+                    [filter]="options().search"
+                    [sortable]="true"
+                    [empty_message]="
+                        'APP.CONCIERGE.PARKING_REQUESTS_EMPTY' | translate
+                    "
+                />
+                <ng-template #date_template let-row="row">
+                    <div class="px-4 py-2">
+                        {{
+                            isAllDayBooking(row)
+                                ? ('COMMON.ALL_DAY' | translate)
+                                : (row.date | date: time_format : timezone) +
+                                  ' - ' +
+                                  (row.date_end | date: time_format : timezone)
+                        }}
                     </div>
-                }
-                @if (row?.checked_in) {
-                    <div
-                        class="bg-success text-success-content mx-auto flex h-8 w-8 items-center justify-center rounded-sm text-2xl"
-                        [matTooltip]="
-                            'APP.CONCIERGE.PARKING_CHECKED_IN' | translate
-                        "
-                        matTooltipPosition="right"
-                    >
-                        <icon>done</icon>
+                </ng-template>
+                <ng-template #person_template let-row="row">
+                    <div class="px-4 py-2">
+                        <div>{{ row.user_name || row.user_email }}</div>
+                        @if (row.user_name && row.user_email) {
+                            <div class="text-xs opacity-30">
+                                {{ row.user_email }}
+                            </div>
+                        }
                     </div>
-                }
-            </ng-template>
-            <ng-template #plate_template let-row="row">
-                <div class="p-4 font-mono text-sm uppercase">
-                    {{ row?.extension_data?.plate_number }}
-                    @if (!row?.extension_data?.plate_number) {
-                        <span class="opacity-30">
-                            {{ 'COMMON.EMPTY' | translate }}
-                        </span>
+                </ng-template>
+                <ng-template #host_template let-row="row">
+                    <div class="px-4 py-2">
+                        <div>
+                            {{ row.booked_by_name || row.booked_by_email }}
+                        </div>
+                        @if (row.booked_by_name && row.booked_by_email) {
+                            <div class="text-xs opacity-30">
+                                {{ row.booked_by_email }}
+                            </div>
+                        }
+                    </div>
+                </ng-template>
+                <ng-template #state_template let-row="row">
+                    @if (!row?.checked_in && row.checked_out_at) {
+                        <div
+                            class="bg-base-300 text-base-100 mx-auto flex h-8 w-8 items-center justify-center rounded-sm text-2xl"
+                            [matTooltip]="
+                                'APP.CONCIERGE.PARKING_CHECKED_OUT_AT'
+                                    | translate
+                                        : {
+                                              time:
+                                                  (row.checked_out_at * 1000
+                                                  | date
+                                                      : time_format
+                                                      : timezone),
+                                          }
+                            "
+                            matTooltipPosition="right"
+                        >
+                            <icon>done</icon>
+                        </div>
                     }
-                </div>
-            </ng-template>
-            <ng-template #status_template let-row="row">
-                <div class="px-4">
-                    <button
-                        matRipple
-                        class="h-10 w-30 rounded-3xl border-none"
-                        [class.text-success-content]="
-                            row?.status === 'approved'
-                        "
-                        [class.bg-success]="row?.status === 'approved'"
-                        [class.text-error-content]="row?.status === 'declined'"
-                        [class.bg-error]="row?.status === 'declined'"
-                        [class.text-neutral-content]="row?.status === 'ended'"
-                        [class.bg-neutral]="row?.status === 'ended'"
-                        [class.opacity-30]="row?.status === 'ended'"
-                        [class.text-info-content]="
-                            row?.status === 'tentative' &&
-                            isVisibleWaitlisted(row)
-                        "
-                        [class.bg-info]="
-                            row?.status === 'tentative' &&
-                            isVisibleWaitlisted(row)
-                        "
-                        [class.text-warning-content]="
-                            row?.status === 'tentative' &&
-                            !isVisibleWaitlisted(row)
-                        "
-                        [class.bg-warning]="
-                            row?.status === 'tentative' &&
-                            !isVisibleWaitlisted(row)
-                        "
-                        [matMenuTriggerFor]="menu"
-                        [disabled]="
-                            row?.status === 'ended' || !canApproveBooking(row)
-                        "
-                    >
-                        <div class="flex items-center space-x-2 pr-2 pl-4">
-                            <div class="flex-1 text-left">
-                                {{
-                                    (row?.status === 'ended'
-                                        ? 'APP.CONCIERGE.BOOKING_STATUS_ENDED'
-                                        : row?.status === 'approved'
-                                          ? 'APP.CONCIERGE.BOOKING_STATUS_APPROVED'
-                                          : row?.status === 'declined'
-                                            ? 'APP.CONCIERGE.BOOKING_STATUS_DECLINED'
-                                            : isVisibleWaitlisted(row)
-                                              ? 'APP.CONCIERGE.PARKING_WAITLISTED'
-                                              : 'APP.CONCIERGE.BOOKING_STATUS_PENDING'
-                                    ) | translate
-                                }}
-                            </div>
-                            @if (
-                                !(
-                                    row?.status === 'ended' ||
-                                    !canApproveBooking(row)
-                                )
-                            ) {
-                                <icon class="text-2xl">arrow_drop_down</icon>
-                            }
+                    @if (!row?.checked_in && !row.checked_out_at) {
+                        <div
+                            class="bg-warning text-warning-content mx-auto flex h-8 w-8 items-center justify-center rounded-sm text-2xl"
+                            [matTooltip]="
+                                'APP.CONCIERGE.PARKING_NOT_CHECKED_IN'
+                                    | translate
+                            "
+                            matTooltipPosition="right"
+                        >
+                            <icon>question_mark</icon>
                         </div>
-                    </button>
-                </div>
-                <mat-menu #menu="matMenu">
-                    <button
-                        mat-menu-item
-                        [disabled]="!canApproveBooking(row)"
-                        (click)="approve(row)"
-                    >
-                        <div class="flex items-center space-x-2">
-                            <icon class="text-2xl">event_available</icon>
-                            <div class="pr-2">
-                                {{
-                                    'APP.CONCIERGE.PARKING_APPROVE' | translate
-                                }}
-                            </div>
+                    }
+                    @if (row?.checked_in) {
+                        <div
+                            class="bg-success text-success-content mx-auto flex h-8 w-8 items-center justify-center rounded-sm text-2xl"
+                            [matTooltip]="
+                                'APP.CONCIERGE.PARKING_CHECKED_IN' | translate
+                            "
+                            matTooltipPosition="right"
+                        >
+                            <icon>done</icon>
                         </div>
-                    </button>
-                    <button
-                        mat-menu-item
-                        [disabled]="!canApproveBooking(row)"
-                        (click)="reject(row)"
-                    >
-                        <div class="flex items-center space-x-2">
-                            <icon class="text-2xl">event_busy</icon>
-                            <div class="pr-2">
-                                {{
-                                    'APP.CONCIERGE.PARKING_DECLINE' | translate
-                                }}
+                    }
+                </ng-template>
+                <ng-template #plate_template let-row="row">
+                    <div class="p-4 font-mono text-sm uppercase">
+                        {{ row?.extension_data?.plate_number }}
+                        @if (!row?.extension_data?.plate_number) {
+                            <span class="opacity-30">
+                                {{ 'COMMON.EMPTY' | translate }}
+                            </span>
+                        }
+                    </div>
+                </ng-template>
+                <ng-template #status_template let-row="row">
+                    <div class="px-4">
+                        <button
+                            matRipple
+                            class="h-10 w-30 rounded-3xl border-none"
+                            [class.text-success-content]="
+                                row?.status === 'approved'
+                            "
+                            [class.bg-success]="row?.status === 'approved'"
+                            [class.text-error-content]="
+                                row?.status === 'declined'
+                            "
+                            [class.bg-error]="row?.status === 'declined'"
+                            [class.text-neutral-content]="
+                                row?.status === 'ended'
+                            "
+                            [class.bg-neutral]="row?.status === 'ended'"
+                            [class.opacity-30]="row?.status === 'ended'"
+                            [class.text-info-content]="
+                                statusTone(row) === 'info'
+                            "
+                            [class.bg-info]="statusTone(row) === 'info'"
+                            [class.text-approval-content]="
+                                statusTone(row) === 'approval'
+                            "
+                            [class.bg-approval]="statusTone(row) === 'approval'"
+                            [class.text-warning-content]="
+                                statusTone(row) === 'warning'
+                            "
+                            [class.bg-warning]="statusTone(row) === 'warning'"
+                            [matMenuTriggerFor]="menu"
+                            [disabled]="
+                                row?.status === 'ended' ||
+                                !canApproveBooking(row)
+                            "
+                        >
+                            <div class="flex items-center space-x-2 pr-2 pl-4">
+                                <div class="flex-1 text-left">
+                                    {{
+                                        (row?.status === 'ended'
+                                            ? 'APP.CONCIERGE.BOOKING_STATUS_ENDED'
+                                            : row?.status === 'approved'
+                                              ? 'APP.CONCIERGE.BOOKING_STATUS_APPROVED'
+                                              : row?.status === 'declined'
+                                                ? 'APP.CONCIERGE.BOOKING_STATUS_DECLINED'
+                                                : requestStatusLabel(row)
+                                        ) | translate
+                                    }}
+                                </div>
+                                @if (
+                                    !(
+                                        row?.status === 'ended' ||
+                                        !canApproveBooking(row)
+                                    )
+                                ) {
+                                    <icon class="text-2xl"
+                                        >arrow_drop_down</icon
+                                    >
+                                }
                             </div>
-                        </div>
-                    </button>
-                </mat-menu>
-            </ng-template>
-            <ng-template #action_template let-row="row">
-                <div class="flex w-full items-center justify-end gap-2 p-2">
-                    @if (!hide_assign_space) {
+                        </button>
+                    </div>
+                    <mat-menu #menu="matMenu">
+                        <button
+                            mat-menu-item
+                            [disabled]="!canApproveBooking(row)"
+                            (click)="approve(row)"
+                        >
+                            <div class="flex items-center space-x-2">
+                                <icon class="text-2xl">event_available</icon>
+                                <div class="pr-2">
+                                    {{
+                                        'APP.CONCIERGE.PARKING_APPROVE'
+                                            | translate
+                                    }}
+                                </div>
+                            </div>
+                        </button>
+                        <button
+                            mat-menu-item
+                            [disabled]="!canApproveBooking(row)"
+                            (click)="reject(row)"
+                        >
+                            <div class="flex items-center space-x-2">
+                                <icon class="text-2xl">event_busy</icon>
+                                <div class="pr-2">
+                                    {{
+                                        'APP.CONCIERGE.PARKING_DECLINE'
+                                            | translate
+                                    }}
+                                </div>
+                            </div>
+                        </button>
+                    </mat-menu>
+                </ng-template>
+                <ng-template #action_template let-row="row">
+                    <div class="flex w-full items-center justify-end gap-2 p-2">
+                        @if (!hide_assign_space) {
+                            <button
+                                icon
+                                default
+                                matRipple
+                                [disabled]="
+                                    row.checked_in ||
+                                    row.state === 'in_progress' ||
+                                    row.status === 'ended'
+                                "
+                                [matTooltip]="
+                                    'APP.CONCIERGE.PARKING_ASSIGN_SPACE'
+                                        | translate
+                                "
+                                (click)="assignSpace(row)"
+                            >
+                                <icon>add_location</icon>
+                            </button>
+                        }
                         <button
                             icon
                             default
@@ -265,41 +337,39 @@ import { isParkingAllDayBooking } from './parking.utilities';
                             [disabled]="
                                 row.checked_in ||
                                 row.state === 'in_progress' ||
-                                row.status === 'ended'
+                                row.status === 'ended' ||
+                                row.instance
                             "
                             [matTooltip]="
-                                'APP.CONCIERGE.PARKING_ASSIGN_SPACE' | translate
+                                'APP.CONCIERGE.PARKING_EDIT' | translate
                             "
-                            (click)="assignSpace(row)"
+                            (click)="editReservation(row)"
                         >
-                            <icon>add_location</icon>
+                            <icon>edit</icon>
                         </button>
-                    }
-                    <button
-                        icon
-                        default
-                        matRipple
-                        [disabled]="
-                            row.checked_in ||
-                            row.state === 'in_progress' ||
-                            row.status === 'ended' ||
-                            row.instance
-                        "
-                        [matTooltip]="'APP.CONCIERGE.PARKING_EDIT' | translate"
-                        (click)="editReservation(row)"
-                    >
-                        <icon>edit</icon>
-                    </button>
-                </div>
-            </ng-template>
-            <div class="h-20 w-full"></div>
-        }
+                    </div>
+                </ng-template>
+                <div class="h-20 w-full"></div>
+            }
+            @if (!loading().includes('[BOOKINGS]') && has_more_pages()) {
+                <button btn matRipple class="mb-4 w-32" (click)="loadMore()">
+                    {{ 'COMMON.LOAD_MORE' | translate }}
+                </button>
+            }
+        </div>
+        <booking-approval-bar
+            [count]="selected().length"
+            [busy]="bulk_busy()"
+            (setApproval)="setApproval($event)"
+            (clear)="selected.set([])"
+        />
     `,
     styles: [``],
     imports: [
         CommonModule,
         MatProgressBarModule,
         SimpleTableComponent,
+        BookingApprovalBarComponent,
         TranslatePipe,
         MatRippleModule,
         IconComponent,
@@ -319,6 +389,29 @@ export class ParkingRequestsListComponent
     public readonly options = this._state.options;
     public readonly loading = this._state.loading;
     public readonly period = this._state.period;
+    public readonly has_more_pages = this._state.has_more_pages;
+    public readonly last_updated = this._state.last_updated;
+    public readonly loadMore = () => this._state.nextPage();
+    public readonly refresh = () => this._state.refresh();
+    public readonly load_error = this._state.load_error;
+    public readonly retryLoad = this.refresh;
+    public readonly rowKey = bookingRowKey;
+    public readonly canSelect = (e: Booking) => this.canApproveBooking(e);
+    /** Whether rows can be selected for bulk approval */
+    public readonly bulk_actions = settingSignal('bulk_actions', false);
+    /** Row keys of the selected bookings */
+    public readonly selected = signal<string[]>([]);
+    public readonly bulk_busy = signal(false);
+
+    /** Approve or reject the selected bookings */
+    public async setApproval(approve: boolean) {
+        const list = selectedBookings(this.filtered_events(), this.selected());
+        this.bulk_busy.set(true);
+        const done = await this._state
+            .setBookingsApproval(list, approve)
+            .finally(() => this.bulk_busy.set(false));
+        if (done) this.selected.set([]);
+    }
 
     public readonly filtered_events = computed(() => {
         const { search, request_filter } = this.options();
@@ -341,30 +434,18 @@ export class ParkingRequestsListComponent
         filter_type: ParkingRequestFilter,
     ): Booking[] {
         if (filter_type === 'all') return list;
-        const now = Date.now();
-        const week_start = this._state.week_start;
-        const current_week_start = startOfWeek(now, {
-            weekStartsOn: week_start,
-        }).valueOf();
-        const current_week_end = endOfWeek(now, {
-            weekStartsOn: week_start,
-        }).valueOf();
+        if (filter_type === 'manual') {
+            return list.filter((b) => this._state.isManualRequest(b));
+        }
         if (filter_type === 'waitlist') {
             if (!this.show_waitlist) return list;
-            return list.filter(
-                (b) =>
-                    b.status === 'tentative' &&
-                    b.date >= current_week_start &&
-                    b.date <= current_week_end,
-            );
+            return list.filter((b) => this._state.isWaitlisted(b));
         }
         if (filter_type === 'pending') {
             return list.filter(
                 (b) =>
                     b.status === 'tentative' &&
-                    (!this.show_waitlist ||
-                        b.date < current_week_start ||
-                        b.date > current_week_end),
+                    (!this.show_waitlist || !this._state.isWaitlisted(b)),
             );
         }
         return list;
@@ -386,24 +467,14 @@ export class ParkingRequestsListComponent
         return this._settings.get('app.parking.show_waitlist') !== false;
     }
 
-    public isWaitlisted(booking: Booking): boolean {
-        if (booking.status !== 'tentative') return false;
-        const now = Date.now();
-        const week_start = this._state.week_start;
-        const current_week_start = startOfWeek(now, {
-            weekStartsOn: week_start,
-        }).valueOf();
-        const current_week_end = endOfWeek(now, {
-            weekStartsOn: week_start,
-        }).valueOf();
-        return (
-            booking.date >= current_week_start &&
-            booking.date <= current_week_end
-        );
+    /** Status colour tone for tentative requests, empty for any other status */
+    public statusTone(booking: Booking): string {
+        if (booking?.status !== 'tentative') return '';
+        return parkingRequestStatusTone(booking, this.show_waitlist);
     }
 
-    public isVisibleWaitlisted(booking: Booking): boolean {
-        return this.show_waitlist && this.isWaitlisted(booking);
+    public requestStatusLabel(booking: Booking): string {
+        return parkingRequestStatusLabel(booking, this.show_waitlist);
     }
 
     public isAllDayBooking(booking: Booking) {
@@ -411,6 +482,6 @@ export class ParkingRequestsListComponent
     }
 
     public ngOnInit() {
-        this.subscription('poll', this._state.startPolling());
+        this._state.refresh();
     }
 }

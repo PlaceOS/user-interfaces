@@ -12,7 +12,8 @@ import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
-import { AsyncHandler, i18n, Identity, TIMEZONES_IANA } from '@placeos/common';
+import { AsyncHandler, i18n, Identity } from '@placeos/common';
+import { TIMEZONES_IANA } from '@placeos/common/timezones';
 import { TriggerTimeConditionType } from '@placeos/ts-client';
 import { format, setDay, setMonth } from 'date-fns';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
@@ -98,9 +99,7 @@ export function numberToPosition(num: number): string {
                         @if (form().time) {
                             <div class="flex flex-1 flex-col">
                                 <label for="type"
-                                    >{{
-                                        'TRIGGERS.TIME_FIELD_DATE' | translate
-                                    }}
+                                    >{{ 'FORM.DATE' | translate }}
                                 </label>
                                 <a-date-field
                                     name="date"
@@ -111,9 +110,7 @@ export function numberToPosition(num: number): string {
                         @if (form().time) {
                             <div class="flex flex-1 flex-col">
                                 <label for="type"
-                                    >{{
-                                        'TRIGGERS.TIME_FIELD_TIME' | translate
-                                    }}
+                                    >{{ 'COMMON.TIME' | translate }}
                                 </label>
                                 <a-time-field
                                     name="date"
@@ -382,7 +379,7 @@ export class AlertConditionTimeFormComponent
 
     public readonly timezones = signal<string[]>([]);
 
-    public pad(str: any, digits = 2) {
+    public pad(str: unknown, digits = 2) {
         return `${str}`.padStart(digits, '0');
     }
 
@@ -444,11 +441,13 @@ export class AlertConditionTimeFormComponent
 
     public toggleCRON(is_cron: boolean) {
         this.form().cron().value.set('');
-        this.form().time_type().value.set(
-            is_cron
-                ? TriggerTimeConditionType.CRON
-                : TriggerTimeConditionType.AT,
-        );
+        this.form()
+            .time_type()
+            .value.set(
+                is_cron
+                    ? TriggerTimeConditionType.CRON
+                    : TriggerTimeConditionType.AT,
+            );
         this.updateCronString();
     }
 
@@ -468,13 +467,9 @@ export class AlertConditionTimeFormComponent
         if (form && form.cron) {
             const hour = this.cron_hour();
             const minute = this.cron_minute() % 60;
-            const day_of_week = this.days_of_week().indexOf(
-                this.cron_day() as any,
-            );
+            const day_of_week = this.cron_day();
             const day_of_month = this.cron_date();
-            const month = this.months_of_year().indexOf(
-                this.cron_month() as any,
-            );
+            const month = this.cron_month();
             let cron_str = '* * * * *';
             switch (this.cron_period()) {
                 case 'minute':
@@ -518,7 +513,7 @@ export class AlertConditionTimeFormComponent
         this.cron_hour.set(+hour || 0);
         this.cron_day.set(+weekday || 0);
         this.cron_date.set(+hour || 1);
-        this.cron_month.set(+month - 1);
+        this.cron_month.set(+month || 1);
         this.cron_period.set('minute');
         if (month !== '*') {
             this.cron_period.set('month');

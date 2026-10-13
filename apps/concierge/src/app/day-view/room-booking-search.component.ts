@@ -25,7 +25,12 @@ import { EventsStateService } from './events-state.service';
     selector: 'room-booking-search',
     template: `
         <div class="relative">
-            <button icon matRipple (click)="showSearch()">
+            <button
+                icon
+                matRipple
+                data-shortcut="search"
+                (click)="showSearch()"
+            >
                 <icon>search</icon>
             </button>
             <input

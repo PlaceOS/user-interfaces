@@ -38,7 +38,7 @@ import {
                         btn
                         matRipple
                         class="w-64"
-                        [class.inverse]="state === light.state"
+                        [class.inverse]="state !== light.state"
                         binding
                         onEvent="click"
                         [sys]="id"

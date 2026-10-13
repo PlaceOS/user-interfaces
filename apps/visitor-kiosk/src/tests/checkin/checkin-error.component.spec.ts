@@ -1,5 +1,5 @@
 import { SpectatorRouting } from '@ngneat/spectator';
-import { createRoutingFactory } from '@ngneat/spectator/jest';
+import { createRoutingFactory } from '@ngneat/spectator/vitest';
 import { IconComponent } from '@placeos/components';
 import { MockComponent } from 'ng-mocks';
 import { CheckinErrorComponent } from '../../app/checkin/checkin-error.component';
@@ -15,10 +15,6 @@ describe('CheckinErrorComponent', () => {
     beforeEach(() => {
         window.PLACEOS_PUBLIC_MODE = false;
         spectator = createComponent();
-    });
-
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
     });
 
     it('should show done button when public mode is disabled', () => {

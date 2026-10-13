@@ -17,6 +17,7 @@ import {
     EventDetailsModalComponent,
     SetupBreakdownModalComponent,
 } from '@placeos/events';
+import { DateOptionsComponent } from '@placeos/form-fields';
 import { UserPipe } from '@placeos/users';
 import {
     addDays,
@@ -26,7 +27,6 @@ import {
     startOfMinute,
     startOfWeek,
 } from 'date-fns';
-import { DateOptionsComponent } from '../ui/date-options.component';
 import { EventsStateService } from './events-state.service';
 import { RoomBookingSearchComponent } from './room-booking-search.component';
 import { isActiveRoomTimelineEvent } from './room-timeline.utilities';
@@ -55,7 +55,7 @@ import { isActiveRoomTimelineEvent } from './room-timeline.utilities';
             ></date-options>
             @if (this_week()) {
                 <div
-                    class="text-info absolute top-1/2 left-4 -translate-y-1/2 text-sm"
+                    class="text-info absolute top-1/2 left-10 -translate-y-1/2 text-sm"
                 >
                     {{ 'COMMON.WEEK_THIS' | translate }}
                 </div>
@@ -69,9 +69,9 @@ import { isActiveRoomTimelineEvent } from './room-timeline.utilities';
         <div timeline class="z-0 grid h-1/2 w-full flex-1 overflow-auto">
             <div
                 timezone
-                class="bg-base-100 sticky top-0 left-0 z-30 flex items-center justify-center"
+                class="bg-base-100 min-w-items-center sticky top-0 left-0 z-30 flex justify-center"
             >
-                <div class="text-xs opacity-30">
+                <div class="m-auto text-xs opacity-30">
                     {{ date() | date: 'zzzz' : tz }}
                 </div>
                 <div
@@ -170,7 +170,12 @@ import { isActiveRoomTimelineEvent } from './room-timeline.utilities';
                                     </div>
                                     <div class="truncate text-xs opacity-30">
                                         {{
-                                            (event.host | user | async)?.name ||
+                                            (
+                                                event.host
+                                                | user: 'email-prefix'
+                                                | async
+                                            )?.name ||
+                                                hostAttendeeName(event) ||
                                                 event.host
                                         }}
                                     </div>
@@ -191,7 +196,7 @@ import { isActiveRoomTimelineEvent } from './room-timeline.utilities';
             }
 
             [timeline] {
-                grid-template-columns: 4rem auto;
+                grid-template-columns: 5rem auto;
                 grid-template-rows: 3.5rem auto;
             }
         `,
@@ -221,7 +226,8 @@ export class RoomWeekBookingsTimelineComponent
     public readonly ui_options = this._state.options;
     public readonly date = this._state.date;
 
-    public readonly remove = this._state.removeBooking;
+    public readonly remove = (event: CalendarEvent) =>
+        this._state.removeBooking(event);
 
     public readonly types = signal([
         { id: 'internal', name: 'Internal', color: '#D81B60' },
@@ -341,6 +347,15 @@ export class RoomWeekBookingsTimelineComponent
         return this._settings.time_format;
     }
 
+    public hostAttendeeName(event: CalendarEvent) {
+        const host_email = event.host.toLowerCase();
+        return (
+            event.attendees?.find(
+                ({ email }) => email.toLowerCase() === host_email,
+            )?.name || ''
+        );
+    }
+
     public ngOnInit() {
         this.subscription('poll', this._state.poll());
         this.types.set([
@@ -369,7 +384,7 @@ export class RoomWeekBookingsTimelineComponent
     public viewEvent(
         event: CalendarEvent,
         space_id: string,
-        scroll_to = false,
+        _scroll_to = false,
     ) {
         if (event.is_system_event) return;
         const ref = this._dialog.open(EventDetailsModalComponent, {

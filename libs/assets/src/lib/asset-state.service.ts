@@ -69,11 +69,11 @@ export class AssetStateService {
     private _settings = signal<Record<string, any>>({});
     private _network_requested = false;
     private _network_consumed = signal(false);
-    private _asset_list_request: Promise<any> = null;
-    private _category_list_request: Promise<any> = null;
-    private _booking_requests = new Map<string, Promise<any[]>>();
+    private _asset_list_request: Promise<unknown> = null;
+    private _category_list_request: Promise<unknown> = null;
+    private _booking_requests = new Map<string, Promise<unknown[]>>();
     private _available_group_requests = new Map<string, Promise<AssetGroup[]>>();
-    private _settings_requests = new Map<string, Promise<Record<string, any>>>();
+    private _settings_requests = new Map<string, Promise<Record<string, unknown>>>();
 
     private readonly _options_debounced = debounced(this._options, 300, {
         injector: this._injector,
@@ -304,7 +304,7 @@ export class AssetStateService {
             showMetadata(building_id, 'assets-settings')
                 .then(
                     (metadata) =>
-                        (metadata.details as Record<string, any>) || {},
+                        (metadata.details as Record<string, unknown>) || {},
                 )
                 .catch(() => ({}));
         if (!existing) this._settings_requests.set(building_id, request);

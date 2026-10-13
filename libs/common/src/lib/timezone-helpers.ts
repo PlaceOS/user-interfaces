@@ -45,18 +45,21 @@ export function endOfDayInTimezone(
     return fromZonedTime(endOfDay(toZonedTime(date, tz)), tz).valueOf();
 }
 
-const TIMZONE_OFFSET_STRINGS = {};
+const TIMEZONE_OFFSET_STRINGS: Record<string, string> = {};
 
-export function getTimezoneOffsetString(tz: string) {
-    if (TIMZONE_OFFSET_STRINGS[tz]) return TIMZONE_OFFSET_STRINGS[tz];
-    const offset = getTimezoneOffsetInMinutes(tz);
+export function getTimezoneOffsetString(tz: string, date = new Date()) {
+    const offset = getTimezoneOffsetInMinutes(tz, date);
+    const cache_key = `${tz}:${offset}`;
+    if (TIMEZONE_OFFSET_STRINGS[cache_key]) {
+        return TIMEZONE_OFFSET_STRINGS[cache_key];
+    }
     const hours = Math.floor(Math.abs(offset) / 60);
     const minutes = Math.abs(offset) % 60;
     const output = `${offset >= 0 ? '+' : '-'}${padLength(hours, 2)}${padLength(
         minutes,
         2,
     )}`;
-    TIMZONE_OFFSET_STRINGS[tz] = output;
+    TIMEZONE_OFFSET_STRINGS[cache_key] = output;
     return output;
 }
 
@@ -82,7 +85,9 @@ export function getTimezoneOffsetInMinutes(timeZone, date = new Date()) {
     const tzOffsetString = tzOffsetPart ? tzOffsetPart.value : 'GMT';
 
     // Match the offset from the string (e.g., "GMT+0530")
-    const offsetMatch = tzOffsetString.match(/GMT([+-])(\d{1,2})(?::?(\d{2}))?/);
+    const offsetMatch = tzOffsetString.match(
+        /GMT([+-])(\d{1,2})(?::?(\d{2}))?/,
+    );
     if (!offsetMatch) {
         return 0; // If no match, assume UTC (offset 0)
     }
@@ -120,6 +125,26 @@ export function getTimeInTimezone(
     }
     const zoned = toZonedTime(date, tz);
     return { hours: zoned.getHours(), minutes: zoned.getMinutes() };
+}
+
+/**
+ * Get noon, in `to_tz`, of the calendar day that `date` falls on in `from_tz`.
+ * Use it to move a picked day to another timezone. Midnight in one timezone
+ * can be the previous day in another.
+ */
+export function sameDayInTimezone(
+    date: Date | number,
+    from_tz: string,
+    to_tz: string,
+): number {
+    const day = toZonedTime(date, from_tz || LOCAL_TIMEZONE);
+    const noon = set(day, {
+        hours: 12,
+        minutes: 0,
+        seconds: 0,
+        milliseconds: 0,
+    });
+    return fromZonedTime(noon, to_tz || LOCAL_TIMEZONE).valueOf();
 }
 
 /**

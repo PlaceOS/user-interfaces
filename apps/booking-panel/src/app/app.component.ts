@@ -7,10 +7,11 @@ import {
 import { RouterOutlet } from '@angular/router';
 import { PlaceOS_Service, setMocks } from '@placeos/common';
 import {
-    ChatComponent,
     GlobalBannerComponent,
     GlobalLoadingComponent,
 } from '@placeos/components';
+import { ChatComponent } from '@placeos/components/chat';
+import { SettingsDebugPanelLauncherComponent } from '@placeos/components/settings-debug';
 import { mocksInit } from '@placeos/mocks';
 
 @Component({
@@ -20,17 +21,22 @@ import { mocksInit } from '@placeos/mocks';
         ChatComponent,
         GlobalBannerComponent,
         GlobalLoadingComponent,
+        SettingsDebugPanelLauncherComponent,
     ],
     template: `
         <global-banner />
         <div class="relative h-1/2 w-full flex-1">
             <router-outlet></router-outlet>
         </div>
-        @if (has_chat) {
+        @defer (when has_chat) {
             <global-chat />
         }
         <global-loading />
-        <!-- <debug-console *ngIf="debug"></debug-console> -->
+        @defer (on idle) {
+            <settings-debug-panel-launcher
+                [loadSchema]="load_settings_schema"
+            />
+        }
     `,
     styles: [
         `
@@ -45,6 +51,9 @@ import { mocksInit } from '@placeos/mocks';
     changeDetection: ChangeDetectionStrategy.Eager,
 })
 export class AppComponent implements OnInit {
+    public readonly load_settings_schema = () =>
+        import('../environments/settings.schema.json');
+
     private _placeos = inject(PlaceOS_Service);
 
     public get has_chat(): boolean {

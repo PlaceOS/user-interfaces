@@ -3,8 +3,8 @@ import { format } from 'date-fns';
 
 import { OrganisationService } from './org/organisation.service';
 import { SettingsService } from './settings.service';
-import { CalendarEvent } from './types/event.class';
 import { CateringItem, CateringOrder } from './types/catering.class';
+import { CalendarEvent } from './types/event.class';
 import { currentUser } from './user-state';
 
 /** Binding name used to resolve the external `Catering` driver module */
@@ -147,14 +147,18 @@ export class ExternalCateringService {
             this._org.building?.display_name ||
             this._org.building?.name ||
             '';
-        const placed: { order: CateringOrder; reference: ExternalOrderReference }[] =
-            [];
+        const placed: {
+            order: CateringOrder;
+            reference: ExternalOrderReference;
+        }[] = [];
         for (const order of valid) {
-            const order_items: ExternalOrderItem[] = order.items.map((item) => ({
-                product_name: item.name,
-                price: centsToCurrency(item.unit_price_with_options),
-                quantity: item.quantity,
-            }));
+            const order_items: ExternalOrderItem[] = order.items.map(
+                (item) => ({
+                    product_name: item.name,
+                    price: centsToCurrency(item.unit_price_with_options),
+                    quantity: item.quantity,
+                }),
+            );
             // `create_external_order` takes POSITIONAL arguments (the first
             // param is the purchase_order_number string) — passing a single
             // object makes the driver fail to parse. Order matches the driver

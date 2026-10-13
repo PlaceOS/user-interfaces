@@ -1,7 +1,7 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { AsyncHandler } from '@placeos/common';
-import { EventFormService } from '@placeos/events';
+import { AsyncHandler, notifyInfo } from '@placeos/common';
+import { EventFormService, SpacePipe } from '@placeos/events';
 import { MeetingFlowConfirmComponent } from './meeting-flow/meeting-flow-confirm.component';
 import { MeetingFlowFormComponent } from './meeting-flow/meeting-flow-form.component';
 import { MeetingFlowSuccessComponent } from './meeting-flow/meeting-flow-success.component';
@@ -36,10 +36,12 @@ import { MeetingFlowSuccessComponent } from './meeting-flow/meeting-flow-success
         MeetingFlowConfirmComponent,
         MeetingFlowFormComponent,
     ],
+    providers: [SpacePipe],
 })
 export class BookMeetingFlowComponent extends AsyncHandler implements OnInit {
     private _state = inject(EventFormService);
     private _route = inject(ActivatedRoute);
+    private _space_pipe = inject(SpacePipe);
 
     public readonly view = this._state.view;
     public readonly last_success = this._state.last_success;
@@ -55,8 +57,22 @@ export class BookMeetingFlowComponent extends AsyncHandler implements OnInit {
         );
         this.subscription(
             'route.query',
-            this._route.queryParamMap.subscribe((param) => {
-                if (param.has('success')) this._state.setView('success');
+            this._route.queryParams.subscribe(async (param) => {
+                if ('success' in param) this._state.setView('success');
+                if (param.space_id) {
+                    const space = await this._space_pipe.transform(
+                        param.space_id,
+                    );
+                    if (!space?.id) {
+                        return notifyInfo(
+                            'Unable to find room with given space ID.',
+                        );
+                    }
+                    this._state.model.update((m) => ({
+                        ...m,
+                        resources: [space],
+                    }));
+                }
             }),
         );
     }

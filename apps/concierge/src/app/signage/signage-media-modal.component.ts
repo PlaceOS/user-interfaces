@@ -27,6 +27,8 @@ import {
 import { addYears, endOfDay, getUnixTime, startOfDay } from 'date-fns';
 import { UploadPermissionsModalComponent } from 'libs/components/src/lib/upload-permissions-modal.component';
 
+import { webPageFrameUrl } from './signage.utilities';
+
 @Component({
     selector: 'signage-media-modal',
     template: `
@@ -54,7 +56,7 @@ import { UploadPermissionsModalComponent } from 'libs/components/src/lib/upload-
                         @if (media_type === 'webpage') {
                             <iframe
                                 class="h-screen w-full object-contain object-center"
-                                [src]="url | safe: 'resource'"
+                                [src]="web_url | safe: 'resource'"
                             ></iframe>
                         } @else {
                             <img
@@ -198,7 +200,7 @@ import { UploadPermissionsModalComponent } from 'libs/components/src/lib/upload-
                         </div>
                         <div class="flex-1">
                             <label for="valid-until">{{
-                                'APP.CONCIERGE.VALID_UNTIL' | translate
+                                'COMMON.VALID_UNTIL' | translate
                             }}</label>
                             <a-date-field
                                 [from]="model().valid_from"
@@ -283,6 +285,10 @@ export class SignageMediaModalComponent implements OnDestroy {
         );
     }
 
+    public get web_url() {
+        return webPageFrameUrl(this.url);
+    }
+
     public get url() {
         if (this.item.id) return this.item.media_url;
         if (this._file_url) return this._file_url;
@@ -291,7 +297,7 @@ export class SignageMediaModalComponent implements OnDestroy {
     }
 
     constructor() {
-        const media = this._data.media as any;
+        const media = this._data.media;
         this.model.update((m) => ({
             ...m,
             name: media.name ?? m.name,
@@ -321,7 +327,7 @@ export class SignageMediaModalComponent implements OnDestroy {
         if (!this.form().valid()) return;
         this.loading.set(true);
         this._dialog_ref.disableClose = true;
-        const form_value: any = { ...this.model() };
+        const form_value = { ...this.model() };
         const new_media = {
             ...this.item,
             ...form_value,

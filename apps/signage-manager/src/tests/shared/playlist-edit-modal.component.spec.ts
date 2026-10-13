@@ -1,31 +1,43 @@
-import { signal } from '@angular/core';
+import { NO_ERRORS_SCHEMA, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { form } from '@angular/forms/signals';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { notifySuccess } from '@placeos/common';
+import { HotkeysService, setNotifyOutlet } from '@placeos/common';
+import { MediaAnimation, SignagePlaylist } from '@placeos/ts-client';
 import { PlaylistEditModalComponent } from '../../app/shared/playlist-edit-modal.component';
 import {
     createPlaylistScheduleModel,
     PlaylistScheduleFormComponent,
 } from '../../app/shared/playlist-schedule-form.component';
+import { SignageSharedWithComponent } from '../../app/shared/signage-shared-with.component';
 
-jest.mock('@placeos/common', () => ({
-    ...jest.requireActual('@placeos/common'),
-    notifyError: jest.fn(),
-    notifySuccess: jest.fn(),
+const notify_open = vi.fn(() => ({
+    onAction: () => ({ subscribe: () => ({ unsubscribe: () => {} }) }),
+    dismiss: vi.fn(),
 }));
 
 describe('PlaylistEditModalComponent', () => {
     const dialog_ref = {
-        close: jest.fn(),
+        close: vi.fn(),
         disableClose: false,
     };
-    const onEdit = jest.fn();
+    const onEdit = vi.fn();
+    const before_save = vi.fn();
+    const hotkey_listen = vi.fn();
+    let hotkey_callback: () => void;
 
     beforeEach(async () => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
+        setNotifyOutlet({ open: notify_open } as any, true);
         dialog_ref.disableClose = false;
         onEdit.mockResolvedValue({ id: 'playlist-1' });
+        before_save.mockResolvedValue(true);
+        hotkey_listen.mockImplementation(
+            (_combo: string[], callback: () => void) => {
+                hotkey_callback = callback;
+                return { unsubscribe: vi.fn() };
+            },
+        );
         await TestBed.configureTestingModule({
             imports: [
                 PlaylistEditModalComponent,
@@ -47,15 +59,239 @@ describe('PlaylistEditModalComponent', () => {
                             ],
                         },
                         onEdit,
+                        beforeSave: before_save,
                     },
                 },
                 { provide: MatDialogRef, useValue: dialog_ref },
+                {
+                    provide: HotkeysService,
+                    useValue: { listen: hotkey_listen },
+                },
             ],
         })
             .overrideComponent(PlaylistEditModalComponent, {
                 set: { template: '' },
             })
             .compileComponents();
+    });
+
+    it('keeps the modal open when the pre-save check says stop', async () => {
+        before_save.mockResolvedValue(false);
+        const component = TestBed.createComponent(
+            PlaylistEditModalComponent,
+        ).componentInstance;
+
+        await component.savePlaylist();
+
+        expect(before_save).toHaveBeenCalled();
+        expect(onEdit).not.toHaveBeenCalled();
+        expect(dialog_ref.close).not.toHaveBeenCalled();
+        expect(component.loading()).toBe(false);
+    });
+
+    it('sends null for cleared validity dates, so the patch clears them', async () => {
+        const component = TestBed.createComponent(
+            PlaylistEditModalComponent,
+        ).componentInstance;
+        component.model.update((value) => ({
+            ...value,
+            valid_from: null,
+            valid_until: null,
+        }));
+
+        await component.savePlaylist();
+
+        expect(onEdit).toHaveBeenCalledWith(
+            'playlist-1',
+            expect.objectContaining({ valid_from: null, valid_until: null }),
+        );
+    });
+
+    it('shows an error and resolves when the save fails', async () => {
+        onEdit.mockRejectedValue(new Error('Offline'));
+        const component = TestBed.createComponent(
+            PlaylistEditModalComponent,
+        ).componentInstance;
+
+        await expect(component.savePlaylist()).resolves.toBeUndefined();
+
+        expect(dialog_ref.close).not.toHaveBeenCalled();
+        expect(component.loading()).toBe(false);
+        expect(notify_open).toHaveBeenCalledWith(
+            'Error saving playlist',
+            expect.anything(),
+            expect.objectContaining({ panelClass: ['error'] }),
+        );
+    });
+
+    /**
+     * Render the modal for a distribution playlist with a saved animation
+     * @returns The fixture and the shown values of the selects
+     */
+    async function renderWithAnimation(
+        default_animation: MediaAnimation | number,
+    ) {
+        TestBed.resetTestingModule();
+        await TestBed.configureTestingModule({
+            imports: [PlaylistEditModalComponent],
+            providers: [
+                {
+                    provide: MAT_DIALOG_DATA,
+                    useValue: {
+                        playlist: {
+                            id: 'playlist-1',
+                            name: 'Playlist 1',
+                            distribution: true,
+                            default_animation,
+                        },
+                        onEdit,
+                    },
+                },
+                { provide: MatDialogRef, useValue: dialog_ref },
+                {
+                    provide: HotkeysService,
+                    useValue: { listen: hotkey_listen },
+                },
+            ],
+        })
+            .overrideComponent(PlaylistEditModalComponent, {
+                remove: { imports: [SignageSharedWithComponent] },
+                add: { schemas: [NO_ERRORS_SCHEMA] },
+            })
+            .compileComponents();
+        const fixture = TestBed.createComponent(PlaylistEditModalComponent);
+        fixture.detectChanges();
+        await fixture.whenStable();
+        fixture.detectChanges();
+        const element: HTMLElement = fixture.nativeElement;
+        const values = Array.from(
+            element.querySelectorAll('.mat-mdc-select-value'),
+            (value) => value.textContent?.trim(),
+        );
+        return { fixture, values };
+    }
+
+    it('keeps the default animation when saving other changes', async () => {
+        // ts-client turns the saved index 0 into `cut`
+        const { fixture, values } = await renderWithAnimation(
+            new SignagePlaylist({
+                default_animation: 0 as unknown as MediaAnimation,
+            }).default_animation,
+        );
+        const component = fixture.componentInstance;
+        component.model.update((model) => ({ ...model, name: 'Renamed' }));
+
+        await component.savePlaylist();
+
+        expect(values).toContain('Default');
+        expect(onEdit.mock.calls[0][1]).not.toHaveProperty('default_animation');
+    });
+
+    it('sends the animation when the user changes it', async () => {
+        const { fixture } = await renderWithAnimation(2);
+        const component = fixture.componentInstance;
+        component.model.update((model) => ({
+            ...model,
+            default_animation: MediaAnimation.SlideTop,
+        }));
+
+        await component.savePlaylist();
+
+        expect(onEdit.mock.calls[0][1]).toMatchObject({
+            default_animation: MediaAnimation.SlideTop,
+        });
+    });
+
+    it('shows a saved animation index as its animation', async () => {
+        const { fixture, values } = await renderWithAnimation(2);
+
+        expect(values).toContain('Cross Fade');
+        expect(fixture.componentInstance.model().default_animation).toBe(
+            MediaAnimation.CrossFade,
+        );
+    });
+
+    it('selects the saved animation and stores the picked enum value', async () => {
+        const { fixture, values } = await renderWithAnimation(
+            MediaAnimation.CrossFade,
+        );
+        const element: HTMLElement = fixture.nativeElement;
+
+        expect(values).toContain('Cross Fade');
+
+        const triggers = element.querySelectorAll<HTMLElement>(
+            '.mat-mdc-select-trigger',
+        );
+        triggers[triggers.length - 1].click();
+        fixture.detectChanges();
+        await fixture.whenStable();
+        const cut = Array.from(
+            document.querySelectorAll<HTMLElement>('mat-option'),
+        ).find((option) => option.textContent?.trim() === 'Cut');
+        cut?.click();
+        fixture.detectChanges();
+
+        expect(fixture.componentInstance.model().default_animation).toBe(
+            MediaAnimation.Cut,
+        );
+    });
+
+    it('blocks saving a schedule with reversed validity limits', async () => {
+        const component = TestBed.createComponent(
+            PlaylistEditModalComponent,
+        ).componentInstance;
+        component.model.update((value) => ({
+            ...value,
+            schedules: value.schedules.map((schedule) => ({
+                ...schedule,
+                has_valid_from: true,
+                valid_from: 2000,
+                has_valid_until: true,
+                valid_until: 1000,
+            })),
+        }));
+        await component.savePlaylist();
+        expect(onEdit).not.toHaveBeenCalled();
+        expect(dialog_ref.close).not.toHaveBeenCalled();
+        component.model.update((value) => ({ ...value, distribution: true }));
+        await component.savePlaylist();
+        expect(onEdit).toHaveBeenCalled();
+    });
+
+    it('requires a start before saving a binary mask', async () => {
+        const component = TestBed.createComponent(
+            PlaylistEditModalComponent,
+        ).componentInstance;
+        component.model.update((value) => ({
+            ...value,
+            schedules: value.schedules.map((schedule) => ({
+                ...schedule,
+                has_mask: true,
+                mask: '00101',
+            })),
+        }));
+        await component.savePlaylist();
+        expect(onEdit).not.toHaveBeenCalled();
+        component.model.update((value) => ({
+            ...value,
+            schedules: value.schedules.map((schedule) => ({
+                ...schedule,
+                has_valid_from: true,
+                valid_from: 1770000000000,
+            })),
+        }));
+        await component.savePlaylist();
+        expect(onEdit).toHaveBeenCalledWith(
+            'playlist-1',
+            expect.objectContaining({
+                schedules: [
+                    expect.objectContaining({
+                        mask: '00101',
+                        valid_from: 1770000000,
+                    }),
+                ],
+            }),
+        );
     });
 
     it('saves monthly weekday schedules with multiple month instances', async () => {
@@ -84,16 +320,80 @@ describe('PlaylistEditModalComponent', () => {
             expect.objectContaining({
                 schedules: [
                     {
-                        play_at: 0,
+                        play_at: undefined,
                         play_cron: '0 9 1-7,15-21 * 1,3',
                         play_period: 120,
                         play_takeover: false,
+                        valid_from: undefined,
+                        valid_until: undefined,
+                        mask: '',
                     },
                 ],
             }),
         );
         expect(dialog_ref.close).toHaveBeenCalledWith({ id: 'playlist-1' });
-        expect(notifySuccess).toHaveBeenCalledWith('Playlist saved');
+        expect(notify_open).toHaveBeenCalledWith(
+            'Playlist saved',
+            expect.anything(),
+            expect.objectContaining({ panelClass: ['success'] }),
+        );
+    });
+
+    it('saves when the S hotkey is pressed', () => {
+        const fixture = TestBed.createComponent(PlaylistEditModalComponent);
+        const component = fixture.componentInstance;
+        const save = vi.spyOn(component, 'savePlaylist').mockResolvedValue();
+
+        hotkey_callback();
+
+        expect(hotkey_listen).toHaveBeenCalledWith(
+            ['KeyS'],
+            expect.any(Function),
+        );
+        expect(save).toHaveBeenCalled();
+    });
+
+    it('ignores the S hotkey while a select has focus', () => {
+        const fixture = TestBed.createComponent(PlaylistEditModalComponent);
+        const save = vi
+            .spyOn(fixture.componentInstance, 'savePlaylist')
+            .mockResolvedValue();
+        const select = document.createElement('div');
+        select.setAttribute('role', 'combobox');
+        select.tabIndex = 0;
+        document.body.appendChild(select);
+        select.focus();
+
+        hotkey_callback();
+
+        expect(save).not.toHaveBeenCalled();
+        select.remove();
+    });
+
+    it('starts blank validity dates as empty values', () => {
+        const fixture = TestBed.createComponent(PlaylistEditModalComponent);
+        const component = fixture.componentInstance;
+
+        expect(component.model().valid_from).toBeNull();
+        expect(component.model().valid_until).toBeNull();
+    });
+
+    it('does not save playlist-level schedules for distribution playlists', async () => {
+        const fixture = TestBed.createComponent(PlaylistEditModalComponent);
+        const component = fixture.componentInstance;
+
+        component.model.update((model) => ({
+            ...model,
+            distribution: true,
+            name: 'Playlist 1',
+        }));
+
+        await component.savePlaylist();
+
+        expect(onEdit).toHaveBeenCalledWith(
+            'playlist-1',
+            expect.not.objectContaining({ schedules: expect.anything() }),
+        );
     });
 
     it('saves multiple schedules', async () => {
@@ -122,6 +422,9 @@ describe('PlaylistEditModalComponent', () => {
                           ...schedule,
                           schedule_type: 'play_at',
                           play_at,
+                          play_at_exact: true,
+                          has_valid_from: true,
+                          valid_from: play_at - 3600000,
                           play_period: 45,
                           play_takeover: true,
                       }
@@ -136,16 +439,22 @@ describe('PlaylistEditModalComponent', () => {
             expect.objectContaining({
                 schedules: [
                     {
-                        play_at: 0,
+                        play_at: undefined,
                         play_cron: '0 9 * * *',
                         play_period: 120,
                         play_takeover: false,
+                        valid_from: undefined,
+                        valid_until: undefined,
+                        mask: '',
                     },
                     {
                         play_at: Math.floor(play_at / 1000),
-                        play_cron: '',
+                        play_cron: '0 0 * * *',
                         play_period: 45,
                         play_takeover: true,
+                        valid_from: Math.floor(play_at / 1000) - 3600,
+                        valid_until: undefined,
+                        mask: '',
                     },
                 ],
             }),
@@ -155,7 +464,7 @@ describe('PlaylistEditModalComponent', () => {
     it('keeps at least one schedule', () => {
         const fixture = TestBed.createComponent(PlaylistEditModalComponent);
         const component = fixture.componentInstance;
-        const event = { preventDefault: jest.fn(), stopPropagation: jest.fn() };
+        const event = { preventDefault: vi.fn(), stopPropagation: vi.fn() };
 
         component.removeSchedule(event as any, 0);
 

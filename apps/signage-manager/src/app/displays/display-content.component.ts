@@ -1,17 +1,20 @@
-import { Component, computed, effect, inject, input } from '@angular/core';
+import { Component, computed, inject, input } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterLink } from '@angular/router';
 import {
-    AuthenticatedImageDirective,
     IconComponent,
+    LoadErrorComponent,
     TranslatePipe,
 } from '@placeos/components';
 import { SignagePlaylist } from '@placeos/ts-client';
-import { SignageService } from '../signage.service';
+import { SignagePlaylistService } from '../playlists/signage-playlist.service';
+import { PlaylistThumbnailComponent } from '../shared/playlist-thumbnail.component';
+import { TemplateMappingsComponent } from '../shared/template-mappings.component';
+import { SignageContextService } from '../signage-context.service';
+import { playlistStatus } from '../signage-playlist.util';
 import { DisplayScheduleComponent } from './display-schedule.component';
-
-type PlaylistStatus = 'expired' | 'pending' | 'awaiting_approval' | null;
+import { SignageDisplayService } from './signage-display.service';
 
 @Component({
     selector: 'display-content',
@@ -28,6 +31,20 @@ type PlaylistStatus = 'expired' | 'pending' | 'awaiting_approval' | null;
                             class="bg-base-100 border-base-300 min-h-0 flex-1 overflow-hidden rounded-lg border"
                         >
                             <display-schedule />
+                        </div>
+                    }
+
+                    @if (activeTab() === 'templates') {
+                        <div
+                            id="display-templates-panel"
+                            role="tabpanel"
+                            aria-labelledby="display-templates-tab"
+                            class="bg-base-100 border-base-300 min-h-0 flex-1 overflow-hidden rounded-lg border"
+                        >
+                            <template-mappings
+                                target_type="display"
+                                [target_id]="selected_display().id"
+                            />
                         </div>
                     }
 
@@ -100,64 +117,10 @@ type PlaylistStatus = 'expired' | 'pending' | 'awaiting_approval' | null;
                                                               }
                                                 "
                                             >
-                                                <div
+                                                <playlist-thumbnail
+                                                    [playlist]="playlist"
                                                     class="border-base-200 relative h-12 w-12 shrink-0 overflow-hidden rounded-md border"
-                                                >
-                                                    @if (
-                                                        playlist_thumbnail_media()[
-                                                            playlist.id
-                                                        ]?.length
-                                                    ) {
-                                                        @for (
-                                                            media of playlist_thumbnail_media()[
-                                                                playlist.id
-                                                            ];
-                                                            track media;
-                                                            let i = $index;
-                                                            let len = $count
-                                                        ) {
-                                                            <img
-                                                                auth
-                                                                [source]="media"
-                                                                alt=""
-                                                                class="border-base-300 bg-base-200 absolute h-9 w-9 rounded-sm border object-cover shadow"
-                                                                [style.top]="
-                                                                    0.3 -
-                                                                    (len - 1) *
-                                                                        0.125 +
-                                                                    (len -
-                                                                        1 -
-                                                                        i) *
-                                                                        0.25 +
-                                                                    'rem'
-                                                                "
-                                                                [style.left]="
-                                                                    0.3 -
-                                                                    (len - 1) *
-                                                                        0.125 +
-                                                                    (len -
-                                                                        1 -
-                                                                        i) *
-                                                                        0.25 +
-                                                                    'rem'
-                                                                "
-                                                                [style.z-index]="
-                                                                    i
-                                                                "
-                                                            />
-                                                        }
-                                                    } @else {
-                                                        <div
-                                                            class="text-base-content/35 flex h-full w-full items-center justify-center"
-                                                        >
-                                                            <icon
-                                                                class="text-2xl"
-                                                            >
-                                                                playlist_play
-                                                            </icon>
-                                                        </div>
-                                                    }
-                                                </div>
+                                                />
                                                 <div class="min-w-0 flex-1">
                                                     <div
                                                         class="truncate text-sm font-medium"
@@ -202,12 +165,22 @@ type PlaylistStatus = 'expired' | 'pending' | 'awaiting_approval' | null;
                                                                     }}
                                                                 </span>
                                                             }
+                                                            @case ('awaiting_review') {
+                                                                <span
+                                                                    class="bg-warning text-warning-content shrink-0 rounded px-1.5 py-0.5 text-[10px] font-bold uppercase"
+                                                                >
+                                                                    {{
+                                                                        'SIGNAGE_MANAGER.STATUS_AWAITING_REVIEW'
+                                                                            | translate
+                                                                    }}
+                                                                </span>
+                                                            }
                                                             @case ('awaiting_approval') {
                                                                 <span
                                                                     class="bg-secondary text-secondary-content shrink-0 rounded px-1.5 py-0.5 text-[10px] font-bold uppercase"
                                                                 >
                                                                     {{
-                                                                        'SIGNAGE_MANAGER.STATUS_AWAITING_APPROVAL'
+                                                                        'COMMON.APPROVAL_REQUIRED'
                                                                             | translate
                                                                     }}
                                                                 </span>
@@ -255,6 +228,21 @@ type PlaylistStatus = 'expired' | 'pending' | 'awaiting_approval' | null;
                                             }
                                         </div>
                                     }
+                                } @else if (
+                                    has_assigned_playlists() &&
+                                    playlists_loading()
+                                ) {
+                                    <div
+                                        class="text-base-content/70 p-6 text-center"
+                                        role="status"
+                                    >
+                                        {{ 'COMMON.LOADING' | translate }}
+                                    </div>
+                                } @else if (
+                                    has_assigned_playlists() &&
+                                    playlists_error()
+                                ) {
+                                    <load-error (retry)="reloadPlaylists()" />
                                 } @else {
                                     <div
                                         class="text-base-content/70 flex flex-col items-center justify-center space-y-2 p-6"
@@ -343,6 +331,15 @@ type PlaylistStatus = 'expired' | 'pending' | 'awaiting_approval' | null;
                                             </div>
                                         </a>
                                     }
+                                } @else if (display_zones_loading()) {
+                                    <div
+                                        class="text-base-content/70 p-6 text-center"
+                                        role="status"
+                                    >
+                                        {{ 'COMMON.LOADING' | translate }}
+                                    </div>
+                                } @else if (display_zones_error()) {
+                                    <load-error (retry)="reloadZones()" />
                                 } @else {
                                     <div
                                         class="text-base-content/70 flex flex-col items-center justify-center space-y-2 p-6"
@@ -387,51 +384,59 @@ type PlaylistStatus = 'expired' | 'pending' | 'awaiting_approval' | null;
         MatRippleModule,
         MatTooltipModule,
         RouterLink,
-        AuthenticatedImageDirective,
         IconComponent,
+        LoadErrorComponent,
         DisplayScheduleComponent,
+        TemplateMappingsComponent,
         TranslatePipe,
+        PlaylistThumbnailComponent,
     ],
 })
 export class DisplayContentComponent {
-    private readonly _service = inject(SignageService);
+    private readonly _context = inject(SignageContextService);
+    private readonly _display_service = inject(SignageDisplayService);
+    private readonly _playlist_service = inject(SignagePlaylistService);
 
-    public readonly activeTab = input<'schedule' | 'playlists' | 'zones'>(
-        'schedule',
-    );
-    public readonly selected_display = this._service.selected_display;
-    public readonly playlist_thumbnail_media =
-        this._service.playlist_thumbnail_media;
+    public readonly activeTab = input<
+        'schedule' | 'templates' | 'playlists' | 'zones'
+    >('schedule');
+    public readonly selected_display = this._display_service.selected_display;
     public readonly playlist_approval_status =
-        this._service.playlist_approval_status;
-    public readonly can_update = this._service.can_update;
+        this._playlist_service.playlist_approval_status;
+    public readonly can_update = this._context.can_update;
 
-    private readonly _playlists = this._service.playlists;
-    private readonly _zones = this._service.zones;
+    public readonly display_playlists = computed(() =>
+        this._playlist_service.playlistsById(
+            this.selected_display()?.playlists || [],
+        ),
+    );
+    public readonly playlists_loading =
+        this._playlist_service.playlists_loading;
+    public readonly playlists_error = this._playlist_service.playlists_error;
+    // The tab reads the playlist ids of the display and resolves them from the
+    // shared playlist list. The list state matters only when there are ids.
+    public readonly has_assigned_playlists = computed(
+        () => !!this.selected_display()?.playlists?.length,
+    );
 
-    public readonly display_playlists = computed(() => {
-        const display = this.selected_display();
-        if (!display) return [];
-        return this._playlists().filter((p) =>
-            display.playlists?.includes(p.id),
-        );
-    });
+    public reloadPlaylists() {
+        this._playlist_service.reloadPlaylists();
+    }
 
-    public readonly display_zones = computed(() => {
-        const display = this.selected_display();
-        if (!display) return [];
-        return this._zones().filter((z) => display.zones?.includes(z.id));
-    });
+    public readonly display_zones =
+        this._display_service.selected_display_zones;
+    public readonly display_zones_loading =
+        this._display_service.selected_display_zones_loading;
+    public readonly display_zones_error =
+        this._display_service.selected_display_zones_error;
 
-    constructor() {
-        effect(() => {
-            this._service.queuePlaylistMeta(this.display_playlists());
-        });
+    public reloadZones() {
+        this._display_service.reloadSelectedDisplayZones();
     }
 
     public addPlaylist() {
         const display = this.selected_display();
-        if (display) this._service.addPlaylistToDisplay(display);
+        if (display) this._display_service.addPlaylistToDisplay(display);
     }
 
     public removePlaylist(event: Event, playlist_id: string) {
@@ -439,18 +444,17 @@ export class DisplayContentComponent {
         event.stopPropagation();
         const display = this.selected_display();
         if (display)
-            this._service.removePlaylistFromDisplay(display, playlist_id);
+            this._display_service.removePlaylistFromDisplay(
+                display,
+                playlist_id,
+            );
     }
 
-    public getStatus(playlist: SignagePlaylist): PlaylistStatus {
-        const now_s = Math.floor(Date.now() / 1000);
-        if (playlist.valid_until && playlist.valid_until < now_s)
-            return 'expired';
-        if (playlist.valid_from && playlist.valid_from > now_s)
-            return 'pending';
-        const approvals = this.playlist_approval_status();
-        if (playlist.id in approvals && !approvals[playlist.id])
-            return 'awaiting_approval';
-        return null;
+    public getStatus(playlist: SignagePlaylist) {
+        return playlistStatus(
+            playlist,
+            this.playlist_approval_status(),
+            this._playlist_service.playlist_approval_requested_status(),
+        );
     }
 }

@@ -5,10 +5,6 @@
         "apps/**/src/test-setup.ts",
         "apps/**/src/index.html",
         "apps/**/src/manifest.webmanifest",
-        "apps/outlook-addin/commands/commands.ts",
-        "apps/outlook-addin/lib/**/*.js",
-        "apps/outlook-addin/src/function-file/**/*.js",
-        "apps/outlook-addin/taskpane/taskpane.ts",
         "config/proxy.conf.js",
         "jest.preset.js",
         "libs/**/src/lib/**/*.ts",
@@ -26,9 +22,11 @@
         "angular-animate",
         "angular-route",
         "angular-sanitize",
-        "core-js",
         "fs-extra",
-        "regenerator-runtime"
+        // Root folder imported through the tsconfig baseUrl, not a package
+        "shared",
+        // Installed transitively by @capacitor/assets
+        "sharp"
     ],
     "ignoreExports": [
         {
@@ -57,6 +55,23 @@
         "unused-dev-dependencies": "off",
         "unresolved-imports": "off",
         "duplicate-exports": "off",
-        "circular-dependencies": "off"
-    }
+        "circular-dependencies": "off",
+        // Applications are bundled, so the dependency section has no runtime effect
+        "dev-dependencies-in-production": "off"
+    },
+    "overrides": [
+        {
+            // Spec files declare stub components that mirror the real API
+            "files": [
+                "**/*.spec.ts",
+                "apps/*/src/tests/**",
+                "libs/*/src/test/**",
+                "libs/*/src/tests/**"
+            ],
+            "rules": {
+                "unused-component-inputs": "off",
+                "unused-component-outputs": "off"
+            }
+        }
+    ]
 }

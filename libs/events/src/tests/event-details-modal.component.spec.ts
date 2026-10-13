@@ -1,11 +1,12 @@
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { MatMenuModule } from '@angular/material/menu';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import {
     CalendarEvent,
     OrganisationService,
     SettingsService,
     Space,
+    User,
 } from '@placeos/common';
 import { MockDirective, MockModule, MockPipe, MockProvider } from 'ng-mocks';
 import { AttendeeListComponent } from '../lib/attendee-list.component';
@@ -20,34 +21,44 @@ import { InteractiveMapComponent } from 'libs/components/src/lib/interactive-map
 import { StatusPillComponent } from 'libs/components/src/lib/status-pill.component';
 import { UserAvatarComponent } from 'libs/components/src/lib/user-avatar.component';
 import { SpacePipe } from 'libs/events/src/lib/space.pipe';
+import { UserPipe } from 'libs/users/src/lib/user.pipe';
 import { EventDetailsModalComponent } from '../lib/event-details-modal.component';
 
 describe('EventDetailsModalComponent', () => {
     let spectator: Spectator<EventDetailsModalComponent>;
-    const edit_fn = jest.fn();
-    const remove_fn = jest.fn();
+    const edit_fn = vi.fn();
+    const remove_fn = vi.fn();
+    const user_pipe_transform = vi.fn(
+        async (user_id: string, lookup_mode?: string) =>
+            new User({
+                email: user_id,
+                name: lookup_mode === 'email-prefix' ? 'Katherine Savage' : '',
+            }),
+    );
     const createComponent = createComponentFactory({
         component: EventDetailsModalComponent,
         providers: [
             MockProvider(MAT_DIALOG_DATA, {
-                event: new CalendarEvent(),
+                event: new CalendarEvent({
+                    host: 'katherine.savage@royhill.com.au',
+                }),
                 edit_fn,
                 remove_fn,
             }),
             MockProvider(OrganisationService, {
-                levelWithID: jest.fn(),
+                levelWithID: vi.fn(),
                 buildings: [],
                 building: { timezone: 'UTC' } as any,
             }),
             MockProvider(SettingsService, {
-                get: jest.fn(),
+                get: vi.fn(),
                 time_format: 'h:mm a',
-                app_name: 'test',
+                app_name: 'concierge',
             }),
         ],
         componentProviders: [
             MockProvider(SpacePipe, {
-                transform: jest.fn(async () => new Space()),
+                transform: vi.fn(async () => new Space()),
             }),
         ],
         declarations: [
@@ -56,6 +67,7 @@ describe('EventDetailsModalComponent', () => {
             mockComponent(IconComponent),
             mockComponent(UserAvatarComponent),
             mockComponent(AttendeeListComponent),
+            MockPipe(UserPipe, user_pipe_transform),
             MockDirective(BindingDirective),
             mockComponent(StatusPillComponent),
         ],
@@ -68,16 +80,13 @@ describe('EventDetailsModalComponent', () => {
     });
 
     beforeEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
         spectator = createComponent();
     });
 
-    it('should create component', () =>
-        expect(spectator.component).toBeTruthy());
-
     it('should show images', () => {
         expect('image-carousel').not.toExist();
-        (spectator.component as any).event.set(
+        spectator.component.event.set(
             new CalendarEvent({
                 system: { images: ['test.png'] },
             } as any),
@@ -93,16 +102,81 @@ describe('EventDetailsModalComponent', () => {
             id: 'event-1',
             date: Date.now() - 2 * 60 * 60 * 1000,
             duration: 60,
-        } as any);
+        });
 
         spectator.component.remove(event);
 
         expect(remove_fn).not.toHaveBeenCalled();
     });
 
+    it.each([
+        { offset: -5, status: 'busy', can_cancel: false },
+        { offset: 0, status: 'busy', can_cancel: false },
+        { offset: 5, status: 'busy', can_cancel: true },
+        { offset: -5, status: 'pending', can_cancel: true },
+        { offset: -5, status: 'free', can_cancel: true },
+    ])(
+        'should set cancellation to $can_cancel with status $status and start offset $offset minutes',
+        async ({ offset, status, can_cancel }) => {
+            const event = new CalendarEvent({
+                id: 'event-1',
+                date: Date.now() + offset * 60 * 1000,
+                duration: 60,
+            });
+            spectator.component.event.set(event);
+            spectator.component.room_status.set(status);
+            await spectator.fixture.whenStable();
+
+            expect(spectator.component.can_cancel).toBe(can_cancel);
+            const cancel_button = spectator
+                .queryAll('button[mat-menu-item]')
+                .find((button) => button.textContent.includes('delete'));
+            expect(!!cancel_button).toBe(can_cancel);
+
+            spectator.component.remove(event, false);
+            expect(remove_fn).toHaveBeenCalledTimes(can_cancel ? 1 : 0);
+        },
+    );
+
     it('should show map', () => expect('interactive-map').toExist());
 
     it('should show host', () => expect('[host]').toExist());
+
+    it('should resolve an aliased host name by email prefix', async () => {
+        expect(user_pipe_transform).toHaveBeenCalledWith(
+            'katherine.savage@royhill.com.au',
+            'email-prefix',
+        );
+        await spectator.fixture.whenStable();
+        await vi.waitFor(() => {
+            spectator.detectChanges();
+            expect('[host]').toHaveText('Katherine Savage');
+            expect('[host]').toHaveText('katherine.savage@royhill.com.au');
+        });
+    });
+
+    it('should resolve the host name from attendee details when the user lookup has no name', async () => {
+        user_pipe_transform.mockResolvedValueOnce(
+            new User({ email: 'fallback.host@example.com' }),
+        );
+        spectator.component.event.set(
+            new CalendarEvent({
+                host: 'fallback.host@example.com',
+                attendees: [
+                    new User({
+                        email: 'FALLBACK.HOST@EXAMPLE.COM',
+                        name: 'Fallback Host',
+                    }),
+                ],
+            }),
+        );
+
+        await spectator.fixture.whenStable();
+        await vi.waitFor(() => {
+            spectator.detectChanges();
+            expect('[host]').toHaveText('Fallback Host');
+        });
+    });
 
     it('should show attendees', () => {
         expect('attendee-list').not.toExist();

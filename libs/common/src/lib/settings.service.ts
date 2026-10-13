@@ -22,12 +22,28 @@ declare global {
     interface Window {
         debug: boolean;
         app: HashMap;
-        setting: (string) => any;
+        setting: (string) => unknown;
     }
 }
 
 let _service: SettingsService;
 const _setting_signals: Record<string, WritableSignal<any>> = {};
+
+const DEBUG_OVERRIDES_KEY = 'PLACEOS.setting_overrides';
+
+function loadDebugOverrides(): HashMap {
+    try {
+        const overrides = JSON.parse(
+            localStorage.getItem(DEBUG_OVERRIDES_KEY) || '{}',
+        );
+        for (const key in overrides) {
+            if (!key.startsWith('app.')) delete overrides[key];
+        }
+        return overrides;
+    } catch {
+        return {};
+    }
+}
 
 export function setting<T = any>(key: string): T | undefined {
     return _service ? _service.get(key) : undefined;
@@ -62,6 +78,9 @@ export class SettingsService extends AsyncHandler {
     public readonly overrides = this._overrides.asReadonly();
     /** User's personal settings */
     private _user_settings = signal<HashMap>({});
+    /** Local debug overrides, highest priority. Flat dot-notation keys. */
+    private _debug_overrides = signal<HashMap>(loadDebugOverrides());
+    public readonly debug_overrides = this._debug_overrides.asReadonly();
     /** Mapping of setting signals */
     private _subjects: HashMap<WritableSignal<any>> = {};
     /** Mapping of pending settings */
@@ -72,6 +91,32 @@ export class SettingsService extends AsyncHandler {
      */
     public setOverrides(value: HashMap[]) {
         this._overrides.set(value);
+        this._refreshSettings();
+    }
+
+    /** Set a local debug override for an `app.*` setting. `undefined` clears the key. */
+    public setDebugOverride(key: string, value: unknown) {
+        if (!key.startsWith('app.')) return;
+        const overrides = { ...this._debug_overrides() };
+        if (value === undefined) delete overrides[key];
+        else overrides[key] = value;
+        this._debug_overrides.set(overrides);
+        if (Object.keys(overrides).length) {
+            localStorage.setItem(
+                DEBUG_OVERRIDES_KEY,
+                JSON.stringify(overrides),
+            );
+        } else localStorage.removeItem(DEBUG_OVERRIDES_KEY);
+        this._refreshSettings();
+    }
+
+    public clearDebugOverrides() {
+        this._debug_overrides.set({});
+        localStorage.removeItem(DEBUG_OVERRIDES_KEY);
+        this._refreshSettings();
+    }
+
+    private _refreshSettings() {
         this._applyCssVariables();
         this._updateSignals();
         this._applyTheme();
@@ -85,7 +130,8 @@ export class SettingsService extends AsyncHandler {
     }
 
     public readonly theme_signal = computed(() => {
-        const allow_dark_mode = this.signal('allow_dark_mode', true)();
+        // Unset means disabled, matching `theme` and `_applyTheme`.
+        const allow_dark_mode = this.signal('allow_dark_mode', false)();
         return allow_dark_mode
             ? this.signal('theme', 'light', true)()
             : 'light';
@@ -134,6 +180,9 @@ export class SettingsService extends AsyncHandler {
 
     constructor() {
         super();
+        // Register early so setting signals created before init completes
+        // read current overrides instead of their default values.
+        _service = this;
         const now = new Date();
         const time = new Date(VERSION.time);
         const built = isSameDay(now, time)
@@ -165,6 +214,7 @@ export class SettingsService extends AsyncHandler {
         const user = await this._currentUser();
         const data = await showMetadata(user.id, 'settings');
         this._user_settings.set(data.details || {});
+        this._updateSignals();
         this.timeout(
             'init',
             () => {
@@ -175,7 +225,6 @@ export class SettingsService extends AsyncHandler {
             },
             1000,
         );
-        _service = this as any;
     }
 
     /** Whether settings service has initialised */
@@ -192,6 +241,9 @@ export class SettingsService extends AsyncHandler {
      * @param key Name of the setting. i.e. nested items can be grabbed using `.` to seperate key names
      */
     public get<T = any>(key: string): T {
+        const debug_overrides = this._debug_overrides();
+        // ponytail: exact-key match only — override `app.a` won't affect get('app.a.b')
+        if (key in debug_overrides) return debug_overrides[key];
         const keys = key.split('.');
         if (keys[0] !== 'app') {
             return (
@@ -212,6 +264,7 @@ export class SettingsService extends AsyncHandler {
 
     public saveUserSetting<T>(name: string, value: T) {
         this._pending_settings[name] = value;
+        this._updateSignals();
         if (name === 'dark_mode') this.setTheme(value ? 'dark' : '');
         if (name === 'font_size') this._setFontSize();
         this.timeout('save_settings', () => this._savePendingChanges(), 2400);

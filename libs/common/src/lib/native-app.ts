@@ -9,6 +9,7 @@ const CONSUMED_AUTH_URL_STORAGE_KEY = 'PlaceOS.native.consumed_auth_url';
 const PKCE_STORAGE_KEY = 'PlaceOS.native.pkce';
 const AUTH_ERROR_STORAGE_KEY = 'PlaceOS.native.auth_error';
 const LOOKUP_HOST = 'au.placeos.run';
+const NATIVE_CALL_TIMEOUT_MS = 10 * 1000;
 
 const NATIVE_APP_IDS: Record<string, string> = {
     workplace: 'com.placeos.workplace',
@@ -32,21 +33,40 @@ interface NativePluginHandle {
  */
 interface CapacitorBridge {
     isNativePlatform?: () => boolean;
-    registerPlugin?: (name: string) => Record<string, any>;
-    Plugins?: Record<string, Record<string, any> | undefined>;
+    registerPlugin?: (name: string) => Record<string, unknown>;
+    Plugins?: Record<string, Record<string, unknown> | undefined>;
     addListener?: (
         plugin_name: string,
         event_name: string,
-        listener: (event: any) => void,
+        listener: (event: unknown) => void,
     ) => NativePluginHandle;
     nativePromise?: (
         plugin_name: string,
         method_name: string,
-        options?: Record<string, any>,
-    ) => Promise<any>;
+        options?: Record<string, unknown>,
+    ) => Promise<unknown>;
 }
 
 let _native_url_listener: Promise<NativePluginHandle> | null = null;
+
+function boundedNativeCall<T>(promise: Promise<T>): Promise<T> {
+    return new Promise<T>((resolve, reject) => {
+        const timer = setTimeout(
+            () => reject(new Error('Native plugin call timed out.')),
+            NATIVE_CALL_TIMEOUT_MS,
+        );
+        promise.then(
+            (value) => {
+                clearTimeout(timer);
+                resolve(value);
+            },
+            (error) => {
+                clearTimeout(timer);
+                reject(error);
+            },
+        );
+    });
+}
 
 function capacitor(): CapacitorBridge | null {
     return (window as any).Capacitor || null;
@@ -70,12 +90,14 @@ function listenToNativeEvent(
 ): Promise<NativePluginHandle> | null {
     const proxy = nativePluginProxy(plugin_name);
     if (proxy?.addListener) {
-        return Promise.resolve(proxy.addListener(event_name, listener));
+        return boundedNativeCall(
+            Promise.resolve(proxy.addListener(event_name, listener)),
+        );
     }
     const cap = capacitor();
     if (cap?.addListener) {
-        return Promise.resolve(
-            cap.addListener(plugin_name, event_name, listener),
+        return boundedNativeCall(
+            Promise.resolve(cap.addListener(plugin_name, event_name, listener)),
         );
     }
     return null;
@@ -85,15 +107,17 @@ function listenToNativeEvent(
 function callNativeMethod(
     plugin_name: string,
     method_name: string,
-    options?: Record<string, any>,
+    options?: Record<string, unknown>,
 ): Promise<any> | null {
     const proxy = nativePluginProxy(plugin_name);
     if (typeof proxy?.[method_name] === 'function') {
-        return proxy[method_name](options);
+        return boundedNativeCall(Promise.resolve(proxy[method_name](options)));
     }
     const cap = capacitor();
     if (cap?.nativePromise) {
-        return cap.nativePromise(plugin_name, method_name, options);
+        return boundedNativeCall(
+            cap.nativePromise(plugin_name, method_name, options),
+        );
     }
     return null;
 }
@@ -483,12 +507,64 @@ export function scheduleNativeRestart(hour: number): void {
     );
 }
 
+/**
+ * The Microsoft Intune (MAM) enrolled account, as returned by the native
+ * `@capgo/capacitor-intune` plugin. `username` is the user's UPN (email).
+ */
+export interface IntuneAccount {
+    accountId: string;
+    accountIdentifier?: string;
+    username?: string;
+    tenantId?: string;
+    authority?: string;
+}
+
+/**
+ * Scopes requested when acquiring the Intune access token. Overridable via the
+ * `app.intune.scopes` setting per deployment.
+ * ponytail: placeholder default — the real audience/resource for the PlaceOS
+ * backend is deployment-specific; set it via settings rather than here.
+ */
+export const DEFAULT_INTUNE_SCOPES = ['User.Read'];
+
+/**
+ * Read the Intune MAM account enrolled on this device, or null when the device
+ * isn't Intune-managed (or the plugin isn't present). Used as the gate for the
+ * Intune auth path — a null result falls back to the normal OAuth flow.
+ */
+export async function getIntuneAccount(): Promise<IntuneAccount | null> {
+    if (!isNativeApp()) return null;
+    const result = await callNativeMethod(
+        'IntuneMAM',
+        'enrolledAccount',
+    )?.catch(() => null);
+    return result?.accountId ? (result as IntuneAccount) : null;
+}
+
+/**
+ * Acquire an MS access token for the enrolled Intune account without prompting.
+ * Returns an empty string when no token can be obtained silently.
+ */
+export async function getIntuneToken(
+    account: IntuneAccount,
+    scopes: string[] = DEFAULT_INTUNE_SCOPES,
+): Promise<string> {
+    const result = await callNativeMethod('IntuneMAM', 'acquireTokenSilent', {
+        scopes,
+        accountId: account.accountId,
+    })?.catch(() => null);
+    return `${result?.accessToken || ''}`.trim();
+}
+
 export async function lookupNativeDomainByEmail(
     email: string,
 ): Promise<string> {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), NATIVE_CALL_TIMEOUT_MS);
     const response = await fetch(
         `https://${LOOKUP_HOST}/api/engine/v2/domains/lookup/${encodeURIComponent(email)}`,
-    );
+        { signal: controller.signal },
+    ).finally(() => clearTimeout(timer));
     if (!response.ok) {
         throw new Error('Unable to lookup domain.');
     }

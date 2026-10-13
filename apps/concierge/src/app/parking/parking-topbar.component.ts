@@ -28,8 +28,8 @@ import {
     IconComponent,
     TranslatePipe,
 } from '@placeos/components';
+import { DateOptionsComponent } from '@placeos/form-fields';
 import { BookingRulesModalComponent } from '../ui/booking-rules-modal.component';
-import { DateOptionsComponent } from '../ui/date-options.component';
 import { SearchbarComponent } from '../ui/searchbar.component';
 import { loadPersistedZones, persistZones } from '../ui/zone-persistence';
 import {
@@ -70,32 +70,25 @@ import {
                 (modelChange)="setSearch($event)"
             ></searchbar>
             @if (view() === 'spaces') {
-                <div
-                    [matTooltip]="
-                        options().zones?.length
-                            ? ''
-                            : 'Select a level to add a space'
-                    "
+                <button
+                    btn
+                    matRipple
+                    class="w-40 space-x-2"
+                    data-shortcut="new"
+                    (click)="newParkingSpace()"
                 >
-                    <button
-                        btn
-                        matRipple
-                        class="w-40 space-x-2"
-                        (click)="newParkingSpace()"
-                        [disabled]="!options().zones?.length"
-                    >
-                        <div class="pl-2">
-                            {{ 'APP.CONCIERGE.PARKING_SPACE_ADD' | translate }}
-                        </div>
-                        <icon>add</icon>
-                    </button>
-                </div>
+                    <div class="pl-2">
+                        {{ 'APP.CONCIERGE.PARKING_SPACE_ADD' | translate }}
+                    </div>
+                    <icon>add</icon>
+                </button>
             }
             @if (view() === 'users') {
                 <button
                     btn
                     matRipple
                     class="w-40 space-x-2"
+                    data-shortcut="new"
                     (click)="newParkingUser()"
                 >
                     <div class="pl-2">
@@ -109,6 +102,7 @@ import {
                     btn
                     matRipple
                     class="w-52 space-x-2"
+                    data-shortcut="new"
                     (click)="newFleetVehicle()"
                 >
                     <div class="pl-2">
@@ -123,6 +117,7 @@ import {
                         btn
                         matRipple
                         class="w-44 space-x-2"
+                        data-shortcut="new"
                         (click)="newRequest()"
                     >
                         <div class="pl-2">
@@ -137,6 +132,7 @@ import {
                         btn
                         matRipple
                         class="w-48 space-x-2"
+                        data-shortcut="new"
                         (click)="newReservation()"
                     >
                         <div class="pl-2">
@@ -212,12 +208,7 @@ import {
                             [disabled]="
                                 disable_level_selector_on_booking_list()
                             "
-                            [placeholder]="
-                                (section() === 'manage'
-                                    ? 'COMMON.LEVEL_SELECT'
-                                    : 'COMMON.LEVEL_ALL'
-                                ) | translate
-                            "
+                            [placeholder]="'COMMON.LEVEL_ALL' | translate"
                             multiple
                         >
                             @for (level of levels(); track level) {
@@ -445,8 +436,19 @@ export class ParkingTopbarComponent extends AsyncHandler implements OnInit {
         }
         return filter_options;
     }
-    /** Set filtered date */
-    public readonly setDate = (d) => this._state.setOptions({ date: d });
+    /** Set filtered date while retaining the selected availability hour. */
+    public readonly setDate = (value: number | string) => {
+        const date = new Date(value).valueOf();
+        const hour =
+            this.options().all_day === false
+                ? new Date(this.options().date).getHours()
+                : null;
+        const selected_date = new Date(date);
+        if (hour !== null) selected_date.setHours(hour, 0, 0, 0);
+        this._state.setOptions({
+            date: selected_date.valueOf(),
+        });
+    };
     /** Set filter string */
     public readonly setSearch = (str) =>
         this._state.setOptions({ search: str });
@@ -464,12 +466,6 @@ export class ParkingTopbarComponent extends AsyncHandler implements OnInit {
             zones = [];
         } else if (this.section() === 'events' && this.view() === 'map') {
             zones = zones.slice(0, 1);
-        }
-        // Manage section must always have a specific zone; snap empty
-        // selections back to the first available level.
-        if (this.section() === 'manage' && !zones.length) {
-            const first = this.levels()[0]?.id;
-            if (first) zones = [first];
         }
         const zone_param = zones.length ? zones.join(',') : null;
         const query_zone_param = this._query_params().get('zone_ids') || null;
@@ -638,17 +634,12 @@ export class ParkingTopbarComponent extends AsyncHandler implements OnInit {
                 levels.find((lvl) => lvl.id === zone),
             );
             if (!zones.length) {
-                // Fall back to persisted selection for this section. Manage
-                // view additionally guarantees at least the first level.
-                const persisted = loadPersistedZones(
+                // Fall back to the persisted selection for this section; no
+                // selection means all levels.
+                zones = loadPersistedZones(
                     this.section() === 'manage' ? 'parking-manage' : 'parking',
                     this._persistScopeId(),
                 ).filter((zone) => levels.find((lvl) => lvl.id === zone));
-                if (persisted.length) {
-                    zones = persisted;
-                } else if (this.section() === 'manage') {
-                    zones = [levels[0].id];
-                }
             }
             if (this._sameZones(zones, this.zones())) return;
             this.updateZones(zones);
@@ -744,6 +735,8 @@ export class ParkingTopbarComponent extends AsyncHandler implements OnInit {
         const [section = 'events', view = 'list'] = parts.slice(-2);
         const current_view = (view || 'list').split('?')[0];
         const route_key = `${section}/${current_view}`;
+        const section_changed =
+            !!this._previous_route_key && this.section() !== section;
         this.section.set(section as any);
         this.view.set(
             current_view === 'bookings' || current_view === 'requests'
@@ -756,6 +749,7 @@ export class ParkingTopbarComponent extends AsyncHandler implements OnInit {
         ) {
             this.setSearch('');
         }
+        if (section_changed) this.zones.set([]);
         this._previous_route_key = route_key;
         if (current_view === 'bookings') {
             this.setRequestFilter('bookings');
@@ -785,24 +779,6 @@ export class ParkingTopbarComponent extends AsyncHandler implements OnInit {
         ) {
             this.updateZones([]);
         }
-        this.selectDefaultZoneForManage();
-    }
-
-    private async selectDefaultZoneForManage() {
-        if (
-            this.section() !== 'manage' ||
-            this.use_region ||
-            this.zones().length
-        ) {
-            return;
-        }
-        const levels = this.levels();
-        if (!levels.length) return;
-        const persisted = loadPersistedZones(
-            'parking-manage',
-            this._persistScopeId(),
-        ).filter((zone) => levels.find((lvl) => lvl.id === zone));
-        this.updateZones(persisted.length ? persisted : [levels[0].id]);
     }
 
     private _sameZones(first: string[], second: string[]) {

@@ -76,7 +76,7 @@ export class EventViewComponent extends AsyncHandler implements OnInit {
             this._settings.get<string>('app.group_events_calendar') || '';
         this.loading.set(true);
         const space_pipe = new SpacePipe();
-        const booking = await showEvent(id, { calendar }).catch();
+        const booking = await showEvent(id, { calendar }).catch(() => null);
         if (!booking) return this.loading.set(false);
         const space = await space_pipe.transform(calendar);
         const metadata = await showEventMetadata(

@@ -19,16 +19,8 @@ import {
     onFieldChange,
     OrganisationService,
     SettingsService,
+    User,
 } from '@placeos/common';
-import { SettingsToggleComponent, TranslatePipe } from '@placeos/components';
-import {
-    DateFieldComponent,
-    DurationFieldComponent,
-    HostSelectFieldComponent,
-    RecurrenceFieldComponent,
-    TimeFieldComponent,
-    UserSearchFieldComponent,
-} from '@placeos/form-fields';
 import {
     addDays,
     addMinutes,
@@ -37,11 +29,19 @@ import {
     format,
     startOfDay,
 } from 'date-fns';
+import { IconComponent } from 'libs/components/src/lib/icon.component';
+import { SettingsToggleComponent } from 'libs/components/src/lib/settings-toggle.component';
+import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
+import { DateFieldComponent } from 'libs/form-fields/src/lib/date-field.component';
+import { DurationFieldComponent } from 'libs/form-fields/src/lib/duration-field.component';
+import { HostSelectFieldComponent } from 'libs/form-fields/src/lib/host-select-field.component';
+import { RecurrenceFieldComponent } from 'libs/form-fields/src/lib/recurrence-field.component';
+import { TimeFieldComponent } from 'libs/form-fields/src/lib/time-field.component';
+import { UserSearchFieldComponent } from 'libs/form-fields/src/lib/user-search-field.component';
 
 import { queryCalendarPermission } from './calendar.fn';
 import { EventFormService } from './event-form.service';
-
-const MINUTES_IN_DAY = 24 * 60;
+import { multipleSpacesSignal, organiserTimezone } from './utilities';
 
 const ALLOWED_CALENDAR_ROLES = [
     'write',
@@ -151,7 +151,10 @@ const ALLOWED_CALENDAR_ROLES = [
                                 name="start-time"
                                 [ngModel]="model().date"
                                 (ngModelChange)="
-                                    model.update((m) => ({ ...m, date: $event }))
+                                    model.update((m) => ({
+                                        ...m,
+                                        date: $event,
+                                    }))
                                 "
                                 [ngModelOptions]="{ standalone: true }"
                                 [disabled]="form().date().disabled()"
@@ -236,6 +239,26 @@ const ALLOWED_CALENDAR_ROLES = [
                         ></host-select-field>
                     </div>
                 }
+                @if (show_host_change_warning()) {
+                    <div
+                        host-change-warning
+                        class="bg-warning text-warning-content mb-4 flex items-center gap-2 rounded-sm p-2 text-sm"
+                    >
+                        <icon class="text-2xl">warning</icon>
+                        <p>
+                            {{
+                                'CALENDAR_EVENT.HOST_CHANGE_WARNING' | translate
+                            }}
+                            @if (has_visitors()) {
+                                <br />
+                                {{
+                                    'CALENDAR_EVENT.HOST_CHANGE_VISITORS_WARNING'
+                                        | translate
+                                }}
+                            }
+                        </p>
+                    </div>
+                }
                 @if (allow_recurrence()) {
                     <div class="flex w-full flex-col">
                         <label for="recurrence">
@@ -315,6 +338,7 @@ const ALLOWED_CALENDAR_ROLES = [
         FormField,
         FormsModule,
         SettingsToggleComponent,
+        IconComponent,
     ],
 })
 export class MeetingFormDetailsComponent extends AsyncHandler {
@@ -335,6 +359,10 @@ export class MeetingFormDetailsComponent extends AsyncHandler {
     );
     private readonly _can_book_for_anyone = this._settings.signal(
         'events.can_book_for_anyone',
+        false,
+    );
+    private readonly _use_bookings = this._settings.signal(
+        'events.use_bookings',
         false,
     );
     private readonly _allow_all_day = this._settings.signal(
@@ -361,6 +389,7 @@ export class MeetingFormDetailsComponent extends AsyncHandler {
         'events.use_building_timezone',
         false,
     );
+    private readonly _multiple_spaces = multipleSpacesSignal(this._settings);
     private readonly _allowed_future_days = this._settings.signal(
         'events.allowed_future_days',
         180,
@@ -394,21 +423,66 @@ export class MeetingFormDetailsComponent extends AsyncHandler {
         return this._event_form.model;
     }
 
+    public readonly show_host_change_warning = computed(() => {
+        const event = this._event_form.event;
+        const model = this.model();
+        const original_host = (event?.host || event?.organiser?.email || '')
+            .trim()
+            .toLowerCase();
+        const new_host = (model.host || model.organiser?.email || '')
+            .trim()
+            .toLowerCase();
+        return (
+            !!event?.id &&
+            (this.can_book_for_anyone() || this.can_book_for_others()) &&
+            !!original_host &&
+            !!new_host &&
+            original_host !== new_host
+        );
+    });
+    public readonly has_visitors = computed(() => {
+        const event = this._event_form.event;
+        return [
+            ...(event?.attendees || []),
+            ...(this.model().attendees || []),
+        ].some((user) => user?.is_external);
+    });
+
     constructor() {
         super();
         onFieldChange(
             this.model,
             (m) => m.organiser,
-            (user) => this._checkCalendarPermission(user),
+            (user) => {
+                this._setOrganiserTimezone(user);
+                return this._checkCalendarPermission(user);
+            },
             this._injector,
         );
     }
 
-    private async _checkCalendarPermission(user: any) {
-        this.permission_error.set('');
+    private _setOrganiserTimezone(user: User) {
+        if (!this._multiple_spaces()) return;
+        const timezone = organiserTimezone(user);
+        if (!timezone || timezone === this.model().timezone) return;
+        try {
+            new Intl.DateTimeFormat(undefined, { timeZone: timezone });
+        } catch {
+            return;
+        }
+        this.model.update((model) => ({ ...model, timezone }));
+    }
+
+    /**
+     * Confirm the current user can write to the selected host's calendar.
+     * Native bookings do not write to calendars, so they skip this check.
+     */
+    private async _checkCalendarPermission(user: User) {
         if (!user?.email || !this.can_book_for_anyone()) return;
+        if (this._use_bookings()) return;
         const current = currentUser();
         if (user.email.toLowerCase() === current?.email?.toLowerCase()) return;
+        this.permission_error.set('');
         const checked_email = user.email;
         this.checking_permission.set(true);
         try {
@@ -461,9 +535,13 @@ export class MeetingFormDetailsComponent extends AsyncHandler {
     public readonly allow_multiday = computed(
         () => this._allow_multiday() || this._event_form.is_multiday,
     );
-    public readonly timezone = computed(() =>
-        this._use_building_timezone() ? this._org.building?.timezone || '' : '',
-    );
+    public readonly timezone = computed(() => {
+        return this._multiple_spaces()
+            ? this.model().timezone || ''
+            : this._use_building_timezone()
+              ? this._org.building?.timezone || ''
+              : '';
+    });
 
     public get start_date() {
         const date = this.model().date || Date.now();

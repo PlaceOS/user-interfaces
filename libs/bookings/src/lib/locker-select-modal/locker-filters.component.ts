@@ -47,7 +47,7 @@ import { BookingFormService } from '../booking-form.service';
         <form class="divide-base-200 relative z-0 w-full divide-y p-2">
             <section details>
                 <h2 class="mb-1 text-lg font-medium">
-                    {{ 'BOOKINGS.DETAILS' | translate }}
+                    {{ 'COMMON.DETAILS' | translate }}
                 </h2>
                 @if (
                     !hide_levels() &&
@@ -56,7 +56,7 @@ import { BookingFormService } from '../booking-form.service';
                 ) {
                     <div class="flex min-w-32 flex-1 flex-col">
                         <label for="location">
-                            {{ 'BOOKINGS.LOCATION' | translate }}
+                            {{ 'COMMON.LOCATION' | translate }}
                         </label>
                         @if (use_region() && regions()?.length) {
                             <mat-form-field appearance="outline" class="w-full">
@@ -146,10 +146,7 @@ import { BookingFormService } from '../booking-form.service';
                 <!-- Date -->
                 <div class="min-w-[256px] flex-1">
                     <label>{{ 'FORM.DATE' | translate }}</label>
-                    <a-date-field
-                        [formField]="form.date"
-                        [to]="end_date()"
-                    >
+                    <a-date-field [formField]="form.date" [to]="end_date()">
                         {{ 'FORM.DATE_ERROR' | translate }}
                     </a-date-field>
                 </div>
@@ -170,7 +167,10 @@ import { BookingFormService } from '../booking-form.service';
                                 name="start-time"
                                 [ngModel]="model().date"
                                 (ngModelChange)="
-                                    model.update((m) => ({ ...m, date: $event }))
+                                    model.update((m) => ({
+                                        ...m,
+                                        date: $event,
+                                    }))
                                 "
                                 [ngModelOptions]="{ standalone: true }"
                                 [use_24hr]="use_24hr()"
@@ -297,13 +297,15 @@ export class LockerFiltersComponent extends AsyncHandler implements OnInit {
         return level_list.sort(
             (a, b) =>
                 a.parent_id.localeCompare(b.parent_id) ||
+                Number(a.tags.includes('parking')) -
+                    Number(b.tags.includes('parking')) ||
                 (a.display_name || '').localeCompare(b.display_name || ''),
         );
     });
 
     public readonly setOptions = (o) => this._state.setOptions(o);
     public readonly setFeature = (f, e) => this._state.setFeature(f, e);
-    public readonly setLevel = (l) => {};
+    public readonly setLevel = (_l) => {};
     public readonly setBuilding = (bld) => (this._org.building = bld);
     public readonly setRegion = (reg) => (this._org.region = reg);
     private readonly _locker_bookable_hours = this._settings.signal(

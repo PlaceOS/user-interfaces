@@ -2,10 +2,11 @@ import { cleanObject } from '@placeos/ts-client';
 import { addDays, addMinutes, set, startOfDay, startOfMinute } from 'date-fns';
 
 import { randomInt } from '../general';
-import { CalendarEvent } from './event.class';
+import type { CalendarEvent } from './event.class';
 
 // Event catering order interfaces
 export type CateringOrderStatus =
+    | 'pending'
     | 'accepted'
     | 'preparing'
     | 'ready'

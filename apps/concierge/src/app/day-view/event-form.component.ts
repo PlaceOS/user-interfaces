@@ -1,6 +1,7 @@
 import { Component, computed, inject, input, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { FormField } from '@angular/forms/signals';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
@@ -37,6 +38,18 @@ import { MeetingFormDetailsComponent } from 'libs/events/src/lib/meeting-form-de
                             [time]="model().date"
                             [guests]="allow_externals"
                         ></a-user-list-field>
+                        @if (can_notify_new_attendees_only()) {
+                            <mat-checkbox
+                                name="notify-new-attendees-only"
+                                [(ngModel)]="notify_new_attendees_only"
+                                [ngModelOptions]="{ standalone: true }"
+                            >
+                                {{
+                                    'CALENDAR_EVENT.NOTIFY_NEW_ATTENDEES_ONLY'
+                                        | translate
+                                }}
+                            </mat-checkbox>
+                        }
                     </div>
                 }
                 <div class="flex flex-1 flex-col">
@@ -116,8 +129,6 @@ import { MeetingFormDetailsComponent } from 'libs/events/src/lib/meeting-form-de
                     <div class="mb-4 flex flex-1 flex-col">
                         <label for="space">Assets:</label>
                         <asset-list-field
-                            [date]="model().date"
-                            [duration]="model().duration"
                             [formField]="form().assets"
                         ></asset-list-field>
                     </div>
@@ -150,6 +161,7 @@ import { MeetingFormDetailsComponent } from 'libs/events/src/lib/meeting-form-de
         FormsModule,
         FormField,
         MatFormFieldModule,
+        MatCheckboxModule,
         MatInputModule,
         DurationFieldComponent,
         MatSelectModule,
@@ -168,6 +180,10 @@ export class EventFormComponent {
 
     public readonly form = input<EventFormService['form']>(undefined);
     public readonly code_filter = signal('');
+    public readonly can_notify_new_attendees_only =
+        this._event_form.can_notify_new_attendees_only;
+    public readonly notify_new_attendees_only =
+        this._event_form.notify_new_attendees_only;
 
     /** Raw value signal for the event form (mirrors the bound form). */
     public get model() {

@@ -6,6 +6,7 @@ import {
     CateringMenuComponent,
     CateringOrderListComponent,
 } from '@placeos/catering';
+import { settingSignal } from '@placeos/common';
 import { TranslatePipe } from '@placeos/components';
 import { ApplicationSidebarComponent } from '../ui/app-sidebar.component';
 import { ApplicationTopbarComponent } from '../ui/app-topbar.component';
@@ -32,6 +33,7 @@ import { CateringTopbarComponent } from './catering-topbar.component';
                             @case ('orders') {
                                 <catering-order-list
                                     class="flex-1"
+                                    [bulk_actions]="bulk_actions()"
                                 ></catering-order-list>
                             }
                             @case ('menu') {
@@ -44,7 +46,7 @@ import { CateringTopbarComponent } from './catering-topbar.component';
                                     <a
                                         matRipple
                                         class="bg-base-100 flex flex-col items-center rounded-sm text-black shadow-sm"
-                                        [routerLink]="['/catering', 'menu']"
+                                        routerLink="/book/catering/menu"
                                     >
                                         <div
                                             name="img"
@@ -67,7 +69,7 @@ import { CateringTopbarComponent } from './catering-topbar.component';
                                     <a
                                         matRipple
                                         class="bg-base-100 flex flex-col items-center rounded-sm text-black shadow-sm"
-                                        [routerLink]="['/catering', 'orders']"
+                                        routerLink="/book/catering/orders"
                                     >
                                         <div
                                             name="img"
@@ -139,6 +141,8 @@ export class CateringComponent implements OnDestroy {
     public readonly page = signal(
         this._route.snapshot.paramMap.get('view') || '',
     );
+    /** Whether orders can be selected to change their status in bulk */
+    public readonly bulk_actions = settingSignal('bulk_actions', false);
     private _sub = this._route.paramMap.subscribe((params) =>
         this.page.set(params.get('view') || ''),
     );

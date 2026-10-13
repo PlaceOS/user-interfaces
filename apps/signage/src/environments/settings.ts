@@ -7,6 +7,7 @@ const app = {
     logo_dark: 'assets/logo-dark.svg',
     diagnostics: true,
     default_animation_time: 1000,
+    templates_enabled: true,
 };
 
 /**

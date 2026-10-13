@@ -1,11 +1,16 @@
 import { signal } from '@angular/core';
 import { Router } from '@angular/router';
-import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
+import {
+    createRoutingFactory,
+    SpectatorRouting,
+} from '@ngneat/spectator/vitest';
 import { SettingsService } from '@placeos/common';
 import { MockProvider } from 'ng-mocks';
 
+import { MediaPlayerComponent } from '../app/media-player.component';
 import { SignagePanelComponent } from '../app/signage.component';
 import { SignageService } from '../app/signage.service';
+import { MediaPlayerItem } from '../app/types';
 
 describe('SignagePanelComponent', () => {
     let spectator: SpectatorRouting<SignagePanelComponent>;
@@ -24,19 +29,20 @@ describe('SignagePanelComponent', () => {
     });
 
     beforeEach(() => {
+        localStorage.clear();
         sessionStorage.clear();
         signage_service = {
             playlist: signal([]),
             override_playlist: signal({ ends_at: 0, playlist: [] }),
             debug: signal(false),
             playing_id: signal(''),
-            setDisplay: jest.fn(),
-            clearPlaylistOverride: jest.fn(),
-            storeMetricEvent: jest.fn(),
+            setDisplay: vi.fn(),
+            clearPlaylistOverride: vi.fn(),
+            storeMetricEvent: vi.fn(),
         };
     });
 
-    afterEach(() => jest.useRealTimers());
+    afterEach(() => vi.useRealTimers());
 
     function build_component(route_options = {}) {
         spectator = create_component({
@@ -65,28 +71,28 @@ describe('SignagePanelComponent', () => {
     });
 
     it('should redirect to bootstrap if no display is provided', () => {
-        jest.useFakeTimers();
+        vi.useFakeTimers();
         build_component();
         const router = spectator.inject(Router);
 
-        jest.advanceTimersByTime(3001);
+        vi.advanceTimersByTime(3001);
 
         expect(router.navigate).toHaveBeenCalledWith(['/bootstrap']);
-        jest.useRealTimers();
+        vi.useRealTimers();
     });
 
     it('should set the display from the route and cancel the bootstrap redirect', () => {
-        jest.useFakeTimers();
+        vi.useFakeTimers();
         build_component();
         const router = spectator.inject(Router);
 
         spectator.setRouteParam('system_id', 'display-1');
         spectator.detectChanges();
-        jest.advanceTimersByTime(3001);
+        vi.advanceTimersByTime(3001);
 
         expect(signage_service.setDisplay).toHaveBeenCalledWith('display-1');
         expect(router.navigate).not.toHaveBeenCalledWith(['/bootstrap']);
-        jest.useRealTimers();
+        vi.useRealTimers();
     });
 
     it('should enable debug mode from the route query string', () => {
@@ -144,10 +150,46 @@ describe('SignagePanelComponent', () => {
             spectator.component.version_hash,
         );
         expect(spectator.element.textContent).toContain(
-            new Date(spectator.component.version_date)
-                .getFullYear()
-                .toString(),
+            new Date(spectator.component.version_date).getFullYear().toString(),
         );
+    });
+
+    it('should only show the layout grid while editing the debug layout', async () => {
+        build_component();
+        spectator.component.debug.set(true);
+        await spectator.fixture.whenStable();
+
+        expect(
+            spectator.query('[data-testid="debug-layout-grid"]'),
+        ).toBeFalsy();
+        expect(spectator.query('media-player')?.classList).toContain('z-0');
+
+        spectator.click('button[aria-label="Edit debug layout"]');
+        await spectator.fixture.whenStable();
+
+        expect(spectator.component.debug_layout_editing()).toBe(true);
+        expect(
+            spectator.query('[data-testid="debug-layout-grid"]'),
+        ).toBeTruthy();
+        expect(spectator.query('media-player')?.classList).toContain('z-auto');
+        expect(spectator.query('media-player')?.classList).not.toContain('z-0');
+        expect(
+            spectator.query('button[aria-label="Reset debug layout"]'),
+        ).toBeTruthy();
+    });
+
+    it('should clear saved debug layouts without clearing other storage', () => {
+        localStorage.setItem('SIGNAGE.debug-overlay.player-time', '{}');
+        localStorage.setItem('unrelated', 'keep');
+        build_component();
+
+        spectator.component.resetDebugLayout();
+
+        expect(spectator.component.debug_layout_reset_count()).toBe(1);
+        expect(
+            localStorage.getItem('SIGNAGE.debug-overlay.player-time'),
+        ).toBeNull();
+        expect(localStorage.getItem('unrelated')).toBe('keep');
     });
 
     it('should persist muted state for the browser session', () => {
@@ -180,24 +222,24 @@ describe('SignagePanelComponent', () => {
     });
 
     it('should clear expired override playlists on the interval check', () => {
-        jest.useFakeTimers();
+        vi.useFakeTimers();
         build_component();
         signage_service.override_playlist.set({
             ends_at: Date.now() - 1000,
-            playlist: [{ id: 'override-1' }],
+            playlist: [{ id: 'override-1', getURL: async () => '' }],
         });
 
-        jest.advanceTimersByTime(301);
+        vi.advanceTimersByTime(301);
 
         expect(signage_service.clearPlaylistOverride).toHaveBeenCalled();
-        jest.useRealTimers();
+        vi.useRealTimers();
     });
 
     it('should clear one-shot override playlists after a full playthrough', () => {
         build_component();
         signage_service.override_playlist.set({
             ends_at: 0,
-            playlist: [{ id: 'override-1' }],
+            playlist: [{ id: 'override-1', playlist: 'playlist-1' }],
         });
 
         spectator.component.handlePlayerEvent(
@@ -209,6 +251,127 @@ describe('SignagePanelComponent', () => {
         expect(signage_service.storeMetricEvent).toHaveBeenCalledWith({
             type: 'playlist_through',
             ref_id: 'playlist-1',
+        });
+    });
+
+    it('should play every playlist of overlapping one-shot overrides', () => {
+        build_component();
+        signage_service.override_playlist.set({
+            ends_at: 0,
+            playlist: [
+                { id: 'media-a', playlist: 'playlist-a' },
+                { id: 'media-b', playlist: 'playlist-b' },
+            ],
+        });
+
+        spectator.component.handlePlayerEvent(
+            { type: 'playlist_through', ref_id: 'playlist-a' },
+            true,
+        );
+        expect(signage_service.clearPlaylistOverride).not.toHaveBeenCalled();
+
+        spectator.component.handlePlayerEvent(
+            { type: 'playlist_through', ref_id: 'playlist-b' },
+            true,
+        );
+        expect(signage_service.clearPlaylistOverride).toHaveBeenCalled();
+    });
+
+    describe('remote playback commands', () => {
+        let shell_frame: HTMLIFrameElement;
+        let shell: Window;
+
+        const post = (type: string, source: Window) =>
+            window.dispatchEvent(
+                new MessageEvent('message', { data: { type }, source }),
+            );
+
+        const player_state = () =>
+            spectator.query(MediaPlayerComponent)?.state();
+
+        beforeEach(() => {
+            // Stand in for a shell that embeds the player in an iframe
+            shell_frame = document.createElement('iframe');
+            document.body.appendChild(shell_frame);
+            shell = shell_frame.contentWindow as Window;
+            vi.spyOn(window, 'parent', 'get').mockReturnValue(shell);
+            build_component();
+        });
+
+        afterEach(() => {
+            vi.restoreAllMocks();
+            shell_frame.remove();
+        });
+
+        it('should pause and resume when the parent shell asks', () => {
+            post('signage:pause', shell);
+            expect(player_state()).toBe('PAUSED');
+
+            post('signage:resume', shell);
+            expect(player_state()).toBe('PLAYING');
+        });
+
+        const players = () => spectator.queryAll(MediaPlayerComponent);
+        const setOverride = (playlist: Partial<MediaPlayerItem>[]) => {
+            signage_service.override_playlist.set({ ends_at: 0, playlist });
+            spectator.detectChanges();
+        };
+        const takeover = [
+            {
+                id: 'takeover-1',
+                playlist: 'playlist-1',
+                type: 'image',
+                getURL: async () => 'https://media.test/takeover.png',
+            } satisfies Partial<MediaPlayerItem>,
+        ];
+
+        it('should keep a takeover paused that starts while paused', async () => {
+            vi.useFakeTimers();
+            post('signage:pause', shell);
+            setOverride(takeover);
+            // Let the takeover load its first item, which starts playback
+            await vi.advanceTimersByTimeAsync(1000);
+            spectator.detectChanges();
+
+            expect(players()).toHaveLength(2);
+            expect(players().map((player) => player.state())).toEqual([
+                'PAUSED',
+                'PAUSED',
+            ]);
+        });
+
+        it('should keep the background paused when a takeover ends while paused', () => {
+            setOverride(takeover);
+            post('signage:pause', shell);
+            setOverride([]);
+
+            expect(players()).toHaveLength(1);
+            expect(player_state()).toBe('PAUSED');
+
+            post('signage:resume', shell);
+            expect(player_state()).toBe('PLAYING');
+        });
+
+        it('should only resume the takeover while one is playing', () => {
+            setOverride(takeover);
+            post('signage:pause', shell);
+            post('signage:resume', shell);
+
+            expect(players().map((player) => player.state())).toEqual([
+                'PAUSED',
+                'PLAYING',
+            ]);
+        });
+
+        it('should ignore commands from any other window', () => {
+            const content_frame = document.createElement('iframe');
+            document.body.appendChild(content_frame);
+
+            post('signage:pause', content_frame.contentWindow as Window);
+            post('signage:pause', window);
+
+            expect(player_state()).toBe('PLAYING');
+            content_frame.remove();
         });
     });
 

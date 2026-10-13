@@ -1,0 +1,214 @@
+{
+    "type": "object",
+    "description": "Customisable settings for the visitor-kiosk app",
+    "properties": {
+        "name": {
+            "type": "string",
+            "description": "Name of the application"
+        },
+        "title": {
+            "type": "string",
+            "description": "Title to display in the browser tab"
+        },
+        "description": {
+            "type": "string",
+            "description": "Description of the application"
+        },
+        "short_name": {
+            "type": "string",
+            "description": "Short name for the application"
+        },
+        "default_route": {
+            "type": "string",
+            "description": "Route to redirect to after the application has initialised. Defaults to `welcome`"
+        },
+        "logo_light": {
+            "type": "string",
+            "description": "URL of the logo to display when the application is using a light theme"
+        },
+        "logo_dark": {
+            "type": "string",
+            "description": "URL of the logo to display when the application is using a dark theme"
+        },
+        "welcome_background": {
+            "type": "string",
+            "description": "URL of the background image displayed on the welcome, check-in and registration pages"
+        },
+        "welcome_message": {
+            "type": "string",
+            "description": "HTML message displayed on the welcome page. Falls back to a translated default message when unset"
+        },
+        "hide_building_image": {
+            "type": "boolean",
+            "description": "Whether to hide the building image panel on the welcome, check-in and registration pages"
+        },
+        "hide_explore": {
+            "type": "boolean",
+            "description": "Whether to hide the explore (building map) button on the welcome page"
+        },
+        "allow_self_registration": {
+            "type": "boolean",
+            "description": "Whether walk-up visitors can register themselves. Shows the register button on the welcome page"
+        },
+        "allow_registration_time_options": {
+            "type": "boolean",
+            "description": "Whether the self-registration form shows time options (all-day checkbox and visit duration field)"
+        },
+        "allow_pass_number": {
+            "type": "boolean",
+            "description": "Whether to show a visitor pass number field on the registration and check-in details forms"
+        },
+        "allow_user_photo": {
+            "type": "boolean",
+            "description": "Whether visitors are asked to take a photo of themselves during check-in"
+        },
+        "allow_printing_label": {
+            "type": "boolean",
+            "description": "Whether a visitor badge label can be printed after check-in. Defaults to `true`"
+        },
+        "allow_beverages": {
+            "type": "boolean",
+            "description": "Whether visitors can select beverage (catering) preferences after checking in. Only applies to visitors with a linked event or when `standalone_visitor_location` is set"
+        },
+        "visitor_label_size": {
+            "type": "object",
+            "description": "Dimensions of the printed visitor badge label",
+            "properties": {
+                "width": {
+                    "type": "number",
+                    "description": "Width of the printed label in millimetres. Defaults to `25`"
+                },
+                "height": {
+                    "type": "number",
+                    "description": "Height of the printed label in millimetres. Defaults to `15`"
+                },
+                "scale": {
+                    "type": "number",
+                    "description": "Render scale for the printed label. Defaults to `4`"
+                }
+            }
+        },
+        "checked_in_template": {
+            "type": "string",
+            "description": "HTML template displayed after a successful check-in. Supports the placeholders {{ title }}, {{ room_name }}, {{ host_name }}, {{ host_email }}, {{ visitor_name }}, {{ visitor_email }}, {{ can_use_lift }}, {{ date }} and {{ time }}"
+        },
+        "standalone_visitor_location": {
+            "type": "string",
+            "description": "Location associated with standalone visitors (visitors without a linked calendar event). When set, standalone visitors are also offered beverage preferences after check-in"
+        },
+        "induction_enabled": {
+            "type": "boolean",
+            "description": "Whether to show an induction acceptance step in the check-in and registration flows. Requires `induction_details` to also be set"
+        },
+        "induction_details": {
+            "type": "string",
+            "description": "Induction text displayed to visitors for acceptance. The induction step is hidden when this is unset"
+        },
+        "induction_after_details": {
+            "type": "boolean",
+            "description": "Whether the induction step is shown after the visitor details form instead of before it"
+        },
+        "visitors": {
+            "type": "object",
+            "description": "Visitor booking settings. These override the matching `bookings` settings",
+            "properties": {
+                "allow_all_day": {
+                    "type": "boolean",
+                    "description": "Whether the all-day option is available on the self-registration form. Overrides `bookings.allow_all_day`"
+                },
+                "max_duration": {
+                    "type": "number",
+                    "description": "Maximum visit duration in minutes selectable on the self-registration form. Overrides `bookings.max_duration`. Defaults to `180`"
+                }
+            }
+        },
+        "bookings": {
+            "type": "object",
+            "description": "General booking settings used as a fallback for the matching `visitors` settings",
+            "properties": {
+                "allow_all_day": {
+                    "type": "boolean",
+                    "description": "Whether the all-day option is available on the self-registration form"
+                },
+                "max_duration": {
+                    "type": "number",
+                    "description": "Maximum visit duration in minutes selectable on the self-registration form. Defaults to `180`"
+                }
+            }
+        },
+        "home": {
+            "type": "object",
+            "description": "Data associated with rendering the home page in the app"
+        },
+        "explore": {
+            "type": "object",
+            "description": "Data associated with map rendering on the explore page",
+            "properties": {
+                "colors": {
+                    "type": "object",
+                    "description": "Mapping of keys to their color values. Keys are usually in the format `<type>-<status>`",
+                    "additionalProperties": { "type": "string" }
+                },
+                "can_select_building": {
+                    "type": "boolean",
+                    "description": "Whether user is allowed to select different buildings to view"
+                },
+                "show_legend_group_names": {
+                    "type": "boolean",
+                    "description": "Whether to show group names in the map legend"
+                },
+                "legend": {
+                    "type": "object",
+                    "description": "Mapping of group names to the legend items to display for that group",
+                    "additionalProperties": {
+                        "type": "array",
+                        "items": { "$ref": "#/$defs/identity" }
+                    }
+                }
+            }
+        },
+        "locales": {
+            "type": "array",
+            "description": "List of locales available in the language selector on the welcome page. The selector is hidden when fewer than two locales are set",
+            "items": { "$ref": "#/$defs/locale" }
+        }
+    },
+    "$defs": {
+        "identity": {
+            "type": "object",
+            "required": ["id", "name"],
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "description": "Unique identifier for this object"
+                },
+                "name": {
+                    "type": "string",
+                    "description": "Display string for the object"
+                }
+            }
+        },
+        "locale": {
+            "type": "object",
+            "required": ["id", "name"],
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "description": "Locale code, e.g. `en-AU` or `fr`"
+                },
+                "name": {
+                    "type": "string",
+                    "description": "Translation key for the locale's display name, e.g. `LANGUAGE.ENGLISH`"
+                },
+                "local": {
+                    "type": "string",
+                    "description": "Name of the locale in its own language, e.g. `Français`"
+                },
+                "flag": {
+                    "type": "string",
+                    "description": "Flag emoji displayed next to the locale name"
+                }
+            }
+        }
+    }
+}

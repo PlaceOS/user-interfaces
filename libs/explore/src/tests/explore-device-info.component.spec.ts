@@ -1,14 +1,14 @@
 import { OverlayModule } from '@angular/cdk/overlay';
 import { PortalModule } from '@angular/cdk/portal';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { MockProvider, ngMocks } from 'ng-mocks';
 
 import { ExploreDeviceInfoComponent } from '../lib/explore-device-info.component';
 
-jest.mock('@placeos/ts-client');
+vi.mock('@placeos/ts-client');
 
 import { MAP_FEATURE_DATA, SettingsService } from '@placeos/common';
-import { FixedPipe } from '@placeos/components';
+import { FixedPipe } from 'libs/components/src/lib/fixed.pipe';
 
 describe('ExploreDeviceInfoComponent', () => {
     let spectator: Spectator<ExploreDeviceInfoComponent>;
@@ -20,19 +20,15 @@ describe('ExploreDeviceInfoComponent', () => {
                 mac: 'User',
                 variance: 10,
             }),
-            MockProvider(SettingsService, { get: jest.fn() }),
+            MockProvider(SettingsService, { get: vi.fn() }),
         ],
     });
 
     beforeEach(() => (spectator = createComponent()));
 
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
-
     it('should show location and range', () => {
         expect('[name="dot"]').toExist();
-        spectator.dispatchMouseEvent('[shadow]', 'mouseenter');
+        spectator.query('[shadow]').dispatchEvent(new MouseEvent('mouseenter'));
         spectator.detectChanges();
         expect('[name="radius"]').toExist();
     });

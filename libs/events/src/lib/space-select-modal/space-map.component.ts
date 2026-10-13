@@ -40,9 +40,7 @@ import { SpaceLocationPinComponent } from './space-location-pin.component';
                         [(ngModel)]="level"
                         (ngModelChange)="setOptions({ zone_ids: [$event.id] })"
                         [ngModelOptions]="{ standalone: true }"
-                        [placeholder]="
-                            'CALENDAR_EVENT.SPACE_LEVEL_ANY' | translate
-                        "
+                        [placeholder]="'COMMON.LEVEL_ANY' | translate"
                     >
                         @for (lvl of levels(); track lvl) {
                             <mat-option [value]="lvl">
@@ -104,8 +102,15 @@ export class SpaceMapComponent {
 
     public readonly selected = input<string[]>([]);
     public readonly active = input<string>(undefined);
-    public readonly is_displayed = input(false);
     public readonly onSelect = output<Space>();
+    /**
+     * Spaces to show as available. Defaults to the event form service
+     * results. Set it to show a list that the host has filtered.
+     */
+    public readonly available = input<Space[] | null>(null);
+    private readonly _available = computed(
+        () => this.available() ?? this._event_form.available_spaces(),
+    );
 
     public readonly zoom = signal(1);
     public readonly center = signal({ x: 0.5, y: 0.5 });
@@ -155,7 +160,7 @@ export class SpaceMapComponent {
     // Debounced trigger mirroring the old `debounceTime(300)` on the feature pins
     private readonly _features_source = debounced(
         computed(() => ({
-            spaces: this._event_form.available_spaces(),
+            spaces: this._available(),
             change: this._change(),
         })),
         300,
@@ -174,7 +179,7 @@ export class SpaceMapComponent {
     );
 
     public readonly actions = computed(() =>
-        this._event_form.available_spaces().map((space) => ({
+        this._available().map((space) => ({
             id: space.map_id,
             action: ['touchend', 'mouseup'],
             callback: this._seletedSpace(space),
@@ -183,7 +188,7 @@ export class SpaceMapComponent {
 
     public readonly styles = computed(() => {
         const spaces = this._event_form.spaces();
-        const free_spaces = this._event_form.available_spaces();
+        const free_spaces = this._available();
         return spaces.reduce((styles, space) => {
             const colours = this._settings.get('app.explore.colors') || {};
             const status = free_spaces.find((_) => _.id === space.id)

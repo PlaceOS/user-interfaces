@@ -37,14 +37,14 @@ export class PointsStateService {
             }),
             nextValueFrom(ref.afterClosed()),
         ]);
-        if (details.reason !== 'done') return ref.close();
+        if (details?.reason !== 'done') return ref.close();
         this._assets.set([
             ...this._assets().filter((_) => _.id !== asset?.id),
             {
                 ...details.metadata,
                 id: details.metadata.id || `PA-${randomInt(999_999_999)}`,
             },
-        ] as any);
+        ]);
         ref.close();
     }
 

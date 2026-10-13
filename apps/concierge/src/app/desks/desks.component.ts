@@ -47,11 +47,11 @@ import {
     SafePipe,
     TranslatePipe,
 } from '@placeos/components';
+import { DateOptionsComponent } from '@placeos/form-fields';
 import { showMetadata } from '@placeos/ts-client';
 import { ApplicationSidebarComponent } from '../ui/app-sidebar.component';
 import { ApplicationTopbarComponent } from '../ui/app-topbar.component';
 import { BookingRulesModalComponent } from '../ui/booking-rules-modal.component';
-import { DateOptionsComponent } from '../ui/date-options.component';
 import { SearchbarComponent } from '../ui/searchbar.component';
 import { loadPersistedZones, persistZones } from '../ui/zone-persistence';
 import { DeskBookModalComponent } from './desk-book-modal.component';
@@ -85,6 +85,7 @@ import { DesksStateService } from './desks-state.service';
                             btn
                             matRipple
                             class="w-44 space-x-2"
+                            data-shortcut="new"
                             (click)="newDeskBooking()"
                         >
                             <div class="pl-2">
@@ -98,6 +99,7 @@ import { DesksStateService } from './desks-state.service';
                             btn
                             matRipple
                             class="w-44 space-x-2"
+                            data-shortcut="new"
                             (click)="editDesk()"
                         >
                             <div class="pl-2">
@@ -108,104 +110,45 @@ import { DesksStateService } from './desks-state.service';
                     }
                 </div>
                 <div class="mb-4 flex w-full items-center gap-2 px-8">
-                    @if (!manage()) {
-                        <mat-form-field
-                            appearance="outline"
-                            class="no-subscript w-60"
+                    <mat-form-field
+                        appearance="outline"
+                        class="no-subscript w-60"
+                    >
+                        <mat-select
+                            [ngModel]="filters().zones"
+                            (ngModelChange)="updateZones($event)"
+                            [placeholder]="'COMMON.LEVEL_ALL' | translate"
+                            multiple
                         >
-                            <mat-select
-                                [ngModel]="filters().zones"
-                                (ngModelChange)="updateZones($event)"
-                                [placeholder]="'COMMON.LEVEL_ALL' | translate"
-                                multiple
-                            >
-                                @for (level of levels(); track level) {
-                                    <mat-option [value]="level.id">
-                                        <div class="flex flex-col-reverse">
-                                            @if (use_region) {
-                                                <div class="text-xs opacity-30">
-                                                    {{
-                                                        (
-                                                            level.parent_id
-                                                            | building
-                                                        )?.display_name
-                                                    }}
-                                                    <span class="opacity-0">
-                                                        -
-                                                    </span>
-                                                </div>
-                                            }
-                                            <div>
+                            @for (level of levels(); track level) {
+                                <mat-option [value]="level.id">
+                                    <div class="flex flex-col-reverse">
+                                        @if (use_region) {
+                                            <div class="text-xs opacity-30">
                                                 {{
-                                                    level.display_name ||
-                                                        level.name
+                                                    (level.parent_id | building)
+                                                        ?.display_name
                                                 }}
+                                                <span class="opacity-0">
+                                                    -
+                                                </span>
                                             </div>
+                                        }
+                                        <div>
+                                            {{
+                                                level.display_name || level.name
+                                            }}
                                         </div>
-                                    </mat-option>
-                                }
-                            </mat-select>
-                        </mat-form-field>
-                    }
-                    @if (manage()) {
-                        <mat-form-field
-                            appearance="outline"
-                            class="no-subscript w-60"
-                        >
-                            <mat-select
-                                [ngModel]="
-                                    filters().zones?.length
-                                        ? filters().zones[0]
-                                        : ''
-                                "
-                                (ngModelChange)="updateZones([$event])"
-                                [placeholder]="
-                                    'COMMON.LEVEL_SELECT' | translate
-                                "
-                            >
-                                @for (level of levels(); track level) {
-                                    <mat-option [value]="level.id">
-                                        <div class="flex flex-col-reverse">
-                                            @if (use_region) {
-                                                <div class="text-xs opacity-30">
-                                                    {{
-                                                        (
-                                                            level.parent_id
-                                                            | building
-                                                        )?.display_name
-                                                    }}
-                                                    <span class="opacity-0">
-                                                        -
-                                                    </span>
-                                                </div>
-                                            }
-                                            <div>
-                                                {{
-                                                    level.display_name ||
-                                                        level.name
-                                                }}
-                                            </div>
-                                        </div>
-                                    </mat-option>
-                                }
-                            </mat-select>
-                        </mat-form-field>
-                    }
+                                    </div>
+                                </mat-option>
+                            }
+                        </mat-select>
+                    </mat-form-field>
                     <div class="w-px flex-1"></div>
                     @if (path() === 'events') {
                         <date-options
                             (dateChange)="setDate($event)"
                         ></date-options>
-                        <button
-                            icon
-                            default
-                            matRipple
-                            [matTooltip]="'COMMON.REFRESH' | translate"
-                            (click)="refresh()"
-                            [disabled]="loading()"
-                        >
-                            <icon>refresh</icon>
-                        </button>
                         <button
                             icon
                             default
@@ -218,7 +161,7 @@ import { DesksStateService } from './desks-state.service';
                         >
                             <icon>event_busy</icon>
                         </button>
-                        @if (hide_user_list_download()) {
+                        @if (!hide_user_list_download()) {
                             <button
                                 icon
                                 default
@@ -370,12 +313,17 @@ export class DesksComponent extends AsyncHandler implements OnInit, OnDestroy {
     public readonly hide_user_list_download = settingSignal(
         'desks.hide_user_list_download',
     );
-    /** All levels for the active building or region */
+    /** All levels for the active building or region, parking-only levels last */
     private readonly _all_levels = computed(
         () =>
-            this._settings.get('app.use_region')
+            (this._settings.get('app.use_region')
                 ? this._org.levelsForRegion(this._org.active_region())
-                : this._org.levelsForBuilding(this._org.active_building()),
+                : this._org.levelsForBuilding(this._org.active_building())
+            ).sort(
+                (a, b) =>
+                    +!!a.tags?.includes('parking') -
+                    +!!b.tags?.includes('parking'),
+            ),
         {
             equal: (a, b) =>
                 a.length === b.length &&
@@ -433,13 +381,7 @@ export class DesksComponent extends AsyncHandler implements OnInit, OnDestroy {
     public readonly editDesk = () => this._state.editDesk();
     /** Update active zones for desks */
     public readonly updateZones = (zones: string[]) => {
-        let clean_zones = (zones || []).filter((_) => !!_);
-        // Manage view must always have a specific zone to write metadata
-        // to — snap empty selections back to the first available level.
-        if (this.manage() && !clean_zones.length) {
-            const levels = this.levels();
-            if (levels.length) clean_zones = [levels[0].id];
-        }
+        const clean_zones = (zones || []).filter((_) => !!_);
         this._router.navigate([], {
             relativeTo: this._route,
             queryParams: {
@@ -448,11 +390,14 @@ export class DesksComponent extends AsyncHandler implements OnInit, OnDestroy {
             queryParamsHandling: 'merge',
         });
         this._state.setFilters({ zones: clean_zones });
-        persistZones(
-            this.manage() ? 'desks-manage' : 'desks',
-            this._persistScopeId(),
-            clean_zones,
-        );
+        const persistence_view = this.manage()
+            ? 'desks-manage'
+            : this.path() === 'map'
+              ? 'desks'
+              : '';
+        if (persistence_view) {
+            persistZones(persistence_view, this._persistScopeId(), clean_zones);
+        }
     };
 
     public get use_region() {
@@ -516,16 +461,7 @@ export class DesksComponent extends AsyncHandler implements OnInit, OnDestroy {
     }
 
     public downloadTemplate() {
-        const desk: any = new Desk({
-            id: 'desk-123',
-            name: 'Test Desk',
-            bookable: true,
-            groups: ['test-desk-group', 'desk-bookers'],
-            features: ['Standing Desk', 'Dual Monitor'],
-        }).toJSON();
-        delete desk.images;
-        const data = jsonToCsv([desk]);
-        downloadFile('desk-template.csv', data);
+        this._state.downloadDesksCSV();
     }
 
     public readonly downloadCsv = async () => {
@@ -587,32 +523,29 @@ export class DesksComponent extends AsyncHandler implements OnInit, OnDestroy {
     private _updateView() {
         const view = this._getViewFromPath();
         const previous_view = this._state.filters().view;
-        this._state.setFilters(
-            previous_view && previous_view !== view
-                ? { view, search: '' }
-                : { view },
-        );
-        this._syncZones(this.levels());
+        const view_changed = !!previous_view && previous_view !== view;
+        this._state.setFilters(view_changed ? { view, search: '' } : { view });
+        this._syncZones(this.levels(), view_changed);
     }
 
-    private _syncZones(levels: BuildingLevel[]) {
+    private _syncZones(levels: BuildingLevel[], restore = false) {
         const current_zones = this._state.filters().zones || [];
         const valid_zones = current_zones.filter((zone) =>
             levels.find((level) => level.id === zone),
         );
-        let next_zones = this.manage() ? valid_zones.slice(0, 1) : valid_zones;
-        if (!next_zones.length) {
-            // Restore persisted selection for the current view when none is
-            // active. Manage view then falls back to the first level if no
-            // valid persisted zone exists — it can never be "all levels".
+        let next_zones = restore ? [] : valid_zones;
+        const persistence_view = this.manage()
+            ? 'desks-manage'
+            : this.path() === 'map'
+              ? 'desks'
+              : '';
+        if (!next_zones.length && persistence_view) {
             const persisted = loadPersistedZones(
-                this.manage() ? 'desks-manage' : 'desks',
+                persistence_view,
                 this._persistScopeId(),
             ).filter((zone) => levels.find((lvl) => lvl.id === zone));
             if (persisted.length) {
-                next_zones = this.manage() ? persisted.slice(0, 1) : persisted;
-            } else if (this.manage() && levels.length) {
-                next_zones = [levels[0].id];
+                next_zones = persisted;
             }
         }
         if (this._sameZones(current_zones, next_zones)) return;

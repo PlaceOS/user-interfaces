@@ -1,5 +1,9 @@
+import { signal } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
+import {
+    createRoutingFactory,
+    SpectatorRouting,
+} from '@ngneat/spectator/vitest';
 import {
     CalendarEvent,
     OrganisationService,
@@ -9,7 +13,6 @@ import { set } from 'date-fns';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { StatusPillComponent } from 'libs/components/src/lib/status-pill.component';
 import { SpacePipe } from 'libs/events/src/lib/space.pipe';
-import { signal } from '@angular/core';
 import { MockComponent, MockProvider } from 'ng-mocks';
 import { EventCardComponent } from '../lib/event-card.component';
 
@@ -23,21 +26,17 @@ describe('EventCardComponent', () => {
         ],
         providers: [
             MockProvider(OrganisationService, {
-                levelWithID: jest.fn(),
+                levelWithID: vi.fn(),
                 buildings: [],
                 active_building: signal(null),
             }),
-            MockProvider(MatDialog, { open: jest.fn() }),
+            MockProvider(MatDialog, { open: vi.fn() }),
             MockProvider(SettingsService, { time_format: 'h:mm a' }),
         ],
         componentProviders: [MockProvider(SpacePipe)],
     });
 
     beforeEach(() => (spectator = createComponent()));
-
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
 
     it('should show event details', () => {
         expect('[details]').not.toExist();

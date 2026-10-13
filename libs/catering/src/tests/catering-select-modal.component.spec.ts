@@ -1,5 +1,5 @@
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
-import { createRoutingFactory, Spectator } from '@ngneat/spectator/jest';
+import { createRoutingFactory, Spectator } from '@ngneat/spectator/vitest';
 import {
     CateringItem,
     OrganisationService,
@@ -19,9 +19,9 @@ describe('CateringSelectModalComponent', () => {
     const createComponent = createRoutingFactory({
         component: CateringSelectModalComponent,
         providers: [
-            MockProvider(SettingsService as any, createSettingsServiceMock()),
+            MockProvider(SettingsService, createSettingsServiceMock()),
             MockProvider(MAT_DIALOG_DATA, { details: {} }),
-            MockProvider(OrganisationService as any, {}),
+            MockProvider(OrganisationService, {}),
             MockProvider(CateringOrderStateService, {}),
         ],
         declarations: [
@@ -33,9 +33,6 @@ describe('CateringSelectModalComponent', () => {
     });
 
     beforeEach(() => (spectator = createComponent()));
-
-    it('should create component', () =>
-        expect(spectator.component).toBeTruthy());
 
     it('should treat different option selections as separate items', () => {
         const item = new CateringItem({ id: '1' });
@@ -136,9 +133,7 @@ describe('CateringSelectModalComponent', () => {
         spectator.component.offset_day.set(1);
         spectator.detectChanges();
 
-        const filters = spectator.query(
-            CateringItemFiltersComponent as any,
-        ) as any;
+        const filters = spectator.query(CateringItemFiltersComponent);
         expect(filters.at_time).toBe(true);
         expect(filters.offset).toBe(45);
         expect(filters.offset_day).toBe(1);

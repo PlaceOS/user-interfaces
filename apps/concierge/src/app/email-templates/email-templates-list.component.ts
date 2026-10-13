@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatMenuModule } from '@angular/material/menu';
 import { RouterModule } from '@angular/router';
@@ -19,6 +19,7 @@ import {
 import { BroadcastEmailModalComponent } from './broadcast-email-modal.component';
 import {
     EmailTemplate,
+    EmailTemplateDefinition,
     EmailTemplatesFilters,
     EmailTemplatesStateService,
 } from './email-templates-state.service';
@@ -48,7 +49,12 @@ import {
                     <icon class="text-2xl">campaign</icon>
                 </button>
             }
-            <a btn matRipple [routerLink]="['/email-templates', 'manage']">
+            <a
+                btn
+                matRipple
+                data-shortcut="new"
+                [routerLink]="['/email-templates', 'manage']"
+            >
                 <div class="ml-2">
                     {{ 'APP.CONCIERGE.EMAIL_TEMPLATES_ADD' | translate }}
                 </div>
@@ -60,7 +66,9 @@ import {
                 <simple-table
                     class="block w-full min-w-4xl text-sm"
                     [data]="templates()"
-                    empty_message="No group events for selected period"
+                    [empty_message]="
+                        'APP.CONCIERGE.EMAIL_TEMPLATES_EMPTY' | translate
+                    "
                     [columns]="[
                         { key: 'subject', name: 'FORM.TITLE' | translate },
                         {
@@ -111,12 +119,17 @@ import {
                     </div>
                 </ng-template>
                 <ng-template #trigger_template let-data="data">
-                    <div class="p-4 font-mono text-xs">
-                        {{ data }}
+                    <div class="px-4 py-2 text-sm leading-tight">
+                        {{ triggerName(data) }}
                         @if (!data) {
                             <span class="opacity-30">
                                 {{ 'COMMON.TRIGGER_EMPTY' | translate }}
                             </span>
+                        }
+                        @if (triggerDescription(data)) {
+                            <div class="text-xs opacity-30">
+                                {{ triggerDescription(data) }}
+                            </div>
                         }
                     </div>
                 </ng-template>
@@ -197,6 +210,22 @@ export class EmailTemplatesListComponent {
     public sending_email: string;
     public readonly filters = this._state.filters;
     public readonly templates = this._state.filtered_templates;
+
+    private readonly _triggers = computed(() => {
+        const map: Record<string, EmailTemplateDefinition> = {};
+        for (const def of this._state.template_definitions()) {
+            map[def.id] = def;
+        }
+        return map;
+    });
+
+    /** Friendly name for a trigger id, falling back to the raw id */
+    public readonly triggerName = (id: string) => {
+        const def = this._triggers()[id];
+        return def ? def.name || def.module_name : id;
+    };
+    public readonly triggerDescription = (id: string) =>
+        this._triggers()[id]?.description || '';
 
     public readonly removeTemplate = (t) => this._state.removeTemplate(t);
     public readonly openBroadcastModal = () =>

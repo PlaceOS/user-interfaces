@@ -61,7 +61,7 @@ export interface UserDetails extends User {
             <div
                 class="absolute bottom-[1em] left-[1em] mt-[0.5em] w-[8em] rounded-[0.5em] border border-black px-[0.5em] py-[0.25em] text-center font-medium text-black uppercase"
             >
-                {{ 'APP.VISITOR_KIOSK.VISITOR' | translate }}
+                {{ 'RESOURCE.VISITOR' | translate }}
             </div>
             <div
                 class="absolute top-[1em] right-[1em] flex flex-col items-end space-y-[0.5em]"

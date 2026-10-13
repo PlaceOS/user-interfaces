@@ -6,6 +6,8 @@ import {
     inject,
     input,
     model,
+    OnInit,
+    Signal,
     signal,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -130,7 +132,7 @@ import { AssetStateService } from '../asset-state.service';
         IconComponent,
     ],
 })
-export class AssetFiltersComponent extends AsyncHandler {
+export class AssetFiltersComponent extends AsyncHandler implements OnInit {
     private _state = inject(AssetStateService);
     private _settings = inject(SettingsService);
 
@@ -147,7 +149,7 @@ export class AssetFiltersComponent extends AsyncHandler {
     public readonly category = this._state.category;
     public readonly categories = this._state.category_list;
     public readonly options = this._state.options;
-    private readonly _step_interval = this._settings.signal(
+    public readonly step_interval: Signal<number> = this._settings.signal(
         'assets.step_interval',
         5,
     );
@@ -177,8 +179,6 @@ export class AssetFiltersComponent extends AsyncHandler {
     public readonly min_offset = computed(() =>
         this.offset_day() > 0 ? 0 : this._min_offset(),
     );
-
-    public readonly step_interval = computed(() => this._step_interval());
 
     public readonly max_offset = computed(() => {
         const end = Math.min(

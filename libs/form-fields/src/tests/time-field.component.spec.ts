@@ -1,5 +1,4 @@
-import { fakeAsync, flush } from '@angular/core/testing';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import {
     addMinutes,
     format,
@@ -26,15 +25,11 @@ describe('TimeFieldComponent', () => {
 
     beforeEach(() => (spectator = createComponent()));
 
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
+    it('should not submit a parent form when opened', () => {
+        expect('button[time-field]').toHaveAttribute('type', 'button');
     });
 
-    it('should allow the user to select a time', fakeAsync(() => {
-        // spectator.click('icon');
-        // spectator.detectChanges();
-        // spectator.tick(300);
-        // spectator.detectChanges();
+    it('should allow the user to select a time', () => {
         spectator.click('button[time-field]');
         const option_elements = document.querySelectorAll('[mat-menu-item]');
         expect(option_elements.length).toBeGreaterThan(0);
@@ -45,18 +40,7 @@ describe('TimeFieldComponent', () => {
         );
         spectator.component.writeValue(startOfDay(Date.now()).valueOf());
         expect(spectator.component.time()).toBe(`00:00`);
-        flush();
-    }));
-
-    // it('should allow the user to manually input a time', () => {
-    //     spectator.setInput({ no_past_times: false });
-    //     spectator.detectChanges();
-    //     const input_el: HTMLInputElement = spectator.query('input');
-    //     expect('input').toExist();
-    //     input_el.value = '00:00';
-    //     spectator.dispatchFakeEvent('input', 'input');
-    //     expect(spectator.component.time).toBe('00:00');
-    // });
+    });
 
     it('should allow customising the step between time options', () => {
         spectator.setInput({ step: 5, no_past_times: false });
@@ -109,6 +93,24 @@ describe('TimeFieldComponent', () => {
             '01:30',
             '01:45',
         ]);
+    });
+
+    it('should ignore a time range with blank or empty bounds', () => {
+        const date = startOfDay(new Date()).valueOf();
+        for (const range of [
+            { start: null, end: null },
+            { start: '', end: '' },
+            { start: 9, end: 9 },
+            {},
+        ] as unknown[]) {
+            spectator.setInput({ no_past_times: false, from: date, range });
+            spectator.component.writeValue(date);
+            spectator.detectChanges();
+            const options = spectator.component.time_options();
+            expect(options.length).toBe(96);
+            expect(options[0].id).toBe('00:00');
+            expect(options[options.length - 1].id).toBe('23:45');
+        }
     });
 
     it('should not include custom times outside the time range', () => {

@@ -17,6 +17,7 @@ import {
     ReportMetricGuideItem,
 } from '../report-metric-guide.component';
 import { ReportsOptionsComponent } from '../reports-options.component';
+import { SiteAttendanceReportChartComponent } from './site-attendance-report-chart.component';
 import { SiteAttendanceReportService } from './site-attendance-report.service';
 
 const CARD_DETAILS = {
@@ -151,10 +152,10 @@ const PEOPLE_TABLE_METRIC_GUIDE: ReportMetricGuideItem[] = [
                         [items]="metric_guide"
                     />
                     <div
-                        class="grid grid-cols-1 gap-4 px-4 pb-4 md:grid-cols-2 xl:grid-cols-5"
+                        class="grid grid-cols-1 gap-4 px-4 pb-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5"
                     >
                         <div
-                            class="border-base-200 bg-base-100 rounded-sm border p-4"
+                            class="border-base-300 bg-base-100 rounded-sm border p-4 shadow"
                         >
                             <h3 class="text-sm opacity-60">
                                 {{
@@ -167,7 +168,7 @@ const PEOPLE_TABLE_METRIC_GUIDE: ReportMetricGuideItem[] = [
                             </p>
                         </div>
                         <div
-                            class="border-base-200 bg-base-100 rounded-sm border p-4"
+                            class="border-base-300 bg-base-100 rounded-sm border p-4 shadow"
                         >
                             <h3 class="text-sm opacity-60">
                                 {{
@@ -180,7 +181,7 @@ const PEOPLE_TABLE_METRIC_GUIDE: ReportMetricGuideItem[] = [
                             </p>
                         </div>
                         <div
-                            class="border-base-200 bg-base-100 rounded-sm border p-4"
+                            class="border-base-300 bg-base-100 rounded-sm border p-4 shadow"
                         >
                             <h3 class="text-sm opacity-60">
                                 {{
@@ -193,7 +194,7 @@ const PEOPLE_TABLE_METRIC_GUIDE: ReportMetricGuideItem[] = [
                             </p>
                         </div>
                         <div
-                            class="border-base-200 bg-base-100 rounded-sm border p-4"
+                            class="border-base-300 bg-base-100 rounded-sm border p-4 shadow"
                         >
                             <h3 class="text-sm opacity-60">
                                 {{
@@ -206,7 +207,7 @@ const PEOPLE_TABLE_METRIC_GUIDE: ReportMetricGuideItem[] = [
                             </p>
                         </div>
                         <div
-                            class="border-base-200 bg-base-100 rounded-sm border p-4"
+                            class="border-base-300 bg-base-100 rounded-sm border p-4 shadow"
                         >
                             <h3 class="text-sm opacity-60">
                                 {{
@@ -218,6 +219,13 @@ const PEOPLE_TABLE_METRIC_GUIDE: ReportMetricGuideItem[] = [
                                 {{ report().business_days }}
                             </p>
                         </div>
+                    </div>
+
+                    <div class="px-4 pb-4">
+                        <site-attendance-report-chart
+                            [daily_attendance]="report().daily_attendance"
+                            [show_parking]="hasResource('parking')"
+                        />
                     </div>
 
                     <div
@@ -575,6 +583,7 @@ const PEOPLE_TABLE_METRIC_GUIDE: ReportMetricGuideItem[] = [
         MatProgressSpinnerModule,
         TranslatePipe,
         ReportMetricGuideComponent,
+        SiteAttendanceReportChartComponent,
     ],
 })
 export class SiteAttendanceReportComponent extends AsyncHandler {
@@ -582,9 +591,6 @@ export class SiteAttendanceReportComponent extends AsyncHandler {
     private _settings = inject(SettingsService);
     private _route = inject(ActivatedRoute);
     private _org = inject(OrganisationService);
-
-    private readonly _report = this._state.report;
-    private readonly _loading = this._state.loading;
 
     public readonly details = CARD_DETAILS;
     public readonly metric_guide = METRIC_GUIDE;
@@ -599,8 +605,8 @@ export class SiteAttendanceReportComponent extends AsyncHandler {
         }),
     );
     public readonly printing = signal(false);
-    public readonly report = computed(() => this._report());
-    public readonly loading = computed(() => this._loading());
+    public readonly report = this._state.report;
+    public readonly loading = this._state.loading;
     public readonly has_data = computed(() => !!this.report().total_bookings);
 
     public readonly downloadReport = () => this._state.downloadReport();

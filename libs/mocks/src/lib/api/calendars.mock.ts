@@ -11,7 +11,7 @@ export function registerMockCalendars() {
         path: '/api/staff/v1/calendars',
         metadata: {},
         method: 'GET',
-        callback: (request) => {
+        callback: (_request) => {
             const user = MOCK_STAFF[predictableRandomInt(MOCK_STAFF.length)];
             const user2 = MOCK_STAFF[predictableRandomInt(MOCK_STAFF.length)];
             const user3 = MOCK_STAFF[predictableRandomInt(MOCK_STAFF.length)];

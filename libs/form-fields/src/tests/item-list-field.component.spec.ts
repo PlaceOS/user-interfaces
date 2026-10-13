@@ -1,6 +1,6 @@
 import { MatChipInputEvent, MatChipsModule } from '@angular/material/chips';
 import { MatFormFieldModule } from '@angular/material/form-field';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { MockComponent } from 'ng-mocks';
 import { ItemListFieldComponent } from '../lib/item-list-field.component';
@@ -9,7 +9,7 @@ const chipEvent = (input: HTMLInputElement, value: string): MatChipInputEvent =>
     ({ input, value }) as unknown as MatChipInputEvent;
 
 describe('ItemListFieldComponent', () => {
-    let spectator: Spectator<ItemListFieldComponent<any>>;
+    let spectator: Spectator<ItemListFieldComponent<unknown>>;
     const createComponent = createComponentFactory({
         component: ItemListFieldComponent,
         declarations: [MockComponent(IconComponent)],
@@ -17,10 +17,6 @@ describe('ItemListFieldComponent', () => {
     });
 
     beforeEach(() => (spectator = createComponent()));
-
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
 
     it('should allow adding items', () => {
         const input: HTMLInputElement = spectator.query('input');
@@ -94,5 +90,40 @@ describe('ItemListFieldComponent', () => {
         );
 
         expect(spectator.component.value()).toEqual(['Element1', 'Element2']);
+    });
+
+    it('should suggest matching options that have not been added', () => {
+        spectator.setInput('options', ['Lobby', 'News', 'Lift Lobby']);
+        expect(spectator.component.matching_options()).toEqual([
+            'Lobby',
+            'News',
+            'Lift Lobby',
+        ]);
+        spectator.component.search.set('lob');
+        expect(spectator.component.matching_options()).toEqual([
+            'Lobby',
+            'Lift Lobby',
+        ]);
+        spectator.component.writeValue(['Lobby']);
+        expect(spectator.component.matching_options()).toEqual(['Lift Lobby']);
+    });
+
+    it('should add items picked from the suggestions', () => {
+        spectator.setInput('options', ['Lobby', 'News']);
+        spectator.typeInElement('lob', 'input');
+        spectator.component.addSuggestion('Lobby');
+        spectator.detectChanges();
+
+        expect(spectator.component.value()).toEqual(['Lobby']);
+        expect(spectator.component.search()).toBe('');
+        expect(spectator.query<HTMLInputElement>('input').value).toBe('');
+    });
+
+    it('should still allow adding items that are not suggested', () => {
+        const input: HTMLInputElement = spectator.query('input');
+        spectator.setInput('options', ['Lobby', 'News']);
+        spectator.component.add(chipEvent(input, 'Cafeteria'));
+
+        expect(spectator.component.value()).toEqual(['Cafeteria']);
     });
 });

@@ -1,5 +1,5 @@
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { Recurrence, recurrenceEndDate } from '@placeos/common';
 import { addDays, addWeeks, endOfDay } from 'date-fns';
 

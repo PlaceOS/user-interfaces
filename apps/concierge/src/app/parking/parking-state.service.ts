@@ -4,7 +4,6 @@ import {
     effect,
     inject,
     Injectable,
-    linkedSignal,
     resource,
     signal,
     untracked,
@@ -24,18 +23,20 @@ import {
     saveParkingSpace,
     saveParkingUser,
     toParkingFleetVehicle,
+    toParkingUser,
 } from '@placeos/assets';
 import {
     approveBooking,
     approveBookingInstance,
     bookedResourceList,
-    checkinBooking,
-    checkinBookingInstance,
-    queryBookings,
+    parkingRequestStatus,
+    queryAllBookings,
+    queryPagedBookings,
     rejectBooking,
     rejectBookingInstance,
     removeBooking as removeBookingApi,
     saveBooking,
+    setBookingCheckedIn,
     updateBooking,
     updateBookingInstance,
 } from '@placeos/bookings';
@@ -49,7 +50,6 @@ import {
     i18n,
     jsonToCsv,
     loadTextFileFromInputEvent,
-    MINUTES,
     notifyError,
     notifySuccess,
     OrganisationService,
@@ -59,8 +59,8 @@ import {
     unique,
     User,
 } from '@placeos/common';
-import { openConfirmModal } from '@placeos/components';
-import { PlaceAsset } from '@placeos/ts-client';
+import { openConfirmModal, runBulkAction } from '@placeos/components';
+import { PlaceAsset, QueryResponse } from '@placeos/ts-client';
 import { UserPipe } from '@placeos/users';
 import {
     addHours,
@@ -72,6 +72,9 @@ import {
     startOfWeek,
     subDays,
 } from 'date-fns';
+import { BookingHistoryModalComponent } from '../ui/booking-history-modal.component';
+import { bulkRejectOptions } from '../ui/bulk-booking-actions';
+import { confirmAction, errorText, saveFromModal } from '../ui/modal-actions';
 import { ParkingAssignSpaceModalComponent } from './parking-assign-space-modal.component';
 import { ParkingBookingModalComponent } from './parking-booking-modal.component';
 import { ParkingFleetModalComponent } from './parking-fleet-modal.component';
@@ -89,6 +92,8 @@ export type ParkingRequestFilter =
 
 export interface ParkingOptions {
     date: number;
+    all_day?: boolean;
+    duration?: number;
     search: string;
     zones: string[];
     period: 'day' | 'week';
@@ -101,12 +106,28 @@ export type { ParkingFleetVehicle, ParkingUser } from '@placeos/assets';
 
 const USER_PIPE = new UserPipe();
 const PARKING_SPACE_PIPE = new ParkingSpacePipe();
+const MAX_BOOKING_PAGES = 50;
 
 function csvList(value: unknown): string[] {
     const list = Array.isArray(value)
         ? value
         : String(value || '').split(/[|,]/);
     return list.map((_) => String(_).trim()).filter(Boolean);
+}
+
+function csvString(value: unknown): string {
+    return value === null || value === undefined ? '' : String(value).trim();
+}
+
+function csvBoolean(value: unknown): boolean {
+    return value === true || csvString(value).toLowerCase() === 'true';
+}
+
+function stripParkingZones(space: Partial<ParkingSpace>) {
+    const metadata = { ...space };
+    Reflect.deleteProperty(metadata, 'zone_id');
+    Reflect.deleteProperty(metadata, 'zones');
+    return metadata;
 }
 
 @Injectable({
@@ -119,6 +140,8 @@ export class ParkingStateService extends AsyncHandler {
 
     private readonly _options = signal<ParkingOptions>({
         date: Date.now(),
+        all_day: true,
+        duration: 60,
         search: '',
         zones: [],
         period: 'day',
@@ -140,6 +163,8 @@ export class ParkingStateService extends AsyncHandler {
 
     /** Whether the organisation data has finished loading */
     public readonly org_initialised = this._org.initialised;
+    /** True while cached org data is being replaced with the latest. */
+    public readonly org_refreshing = this._org.refreshing;
 
     /** Currently applied filter/view options for the parking section */
     public readonly options = this._options.asReadonly();
@@ -202,11 +227,10 @@ export class ParkingStateService extends AsyncHandler {
         () => {
             const levels = this.levels();
             const options = this._options();
+            // No selection means all levels for the building.
             const zone_ids = options.zones.length
                 ? options.zones
-                : levels[0]?.id
-                  ? [levels[0].id]
-                  : [];
+                : levels.map((lvl) => lvl.id);
             return zone_ids.length ? { zone_ids } : undefined;
         },
         {
@@ -245,6 +269,15 @@ export class ParkingStateService extends AsyncHandler {
 
     constructor() {
         super();
+        // Rebuild the bookings paging query whenever the options, building or
+        // user list change. Debounced to collapse rapid updates.
+        effect(() => {
+            const params = this._bookings_params_debounced.value();
+            if (!params) return;
+            this._first_page = this._buildFirstPage(params.options, params.bld);
+            this._next_page_fn = this._first_page;
+            this._loadPage(true);
+        });
         // Resolve bay identifiers for the loaded bookings so they can be
         // searched by bay number/name. Uses the ParkingSpacePipe (shared asset
         // cache, with a per-id fetch fallback) so resolution matches the
@@ -337,55 +370,140 @@ export class ParkingStateService extends AsyncHandler {
         this._bookings_params,
         500,
     );
-    /** Resource resolving the parking bookings for the current selection */
-    private readonly _bookings_resource = resource({
-        params: () => this._bookings_params_debounced.value(),
-        loader: async ({ params: { bld, options, users } }) => {
-            const week_start = this._settings.get('app.week_start') || 0;
-            const range_start =
-                options.period === 'week'
-                    ? startOfWeek(options.date, { weekStartsOn: week_start })
-                    : startOfDay(options.date);
-            const range_end =
-                options.period === 'week'
-                    ? endOfWeek(options.date, { weekStartsOn: week_start })
-                    : endOfDay(options.date);
-            const period_start = addMinutes(range_start, this.tz_offset * 60);
-            const period_end = addMinutes(range_end, this.tz_offset * 60);
-            const list = await queryBookings({
+    /** Accumulated paged parking bookings for the current selection */
+    private readonly _bookings_state = signal<{
+        list: Booking[];
+        total: number;
+        has_next: boolean;
+    }>({ list: [], total: 0, has_next: false });
+    /** Query for the first page of bookings for the active options */
+    private _first_page: (() => QueryResponse<Booking>) | null = null;
+    /** Query for the next page of bookings */
+    private _next_page_fn: (() => QueryResponse<Booking> | null) | null = null;
+    /** Token used to discard responses from superseded page loads */
+    private _load_token = 0;
+    private readonly _bookings_loading = signal(false);
+    private readonly _load_error = signal(false);
+    /** Whether the latest load of bookings failed */
+    public readonly load_error = this._load_error.asReadonly();
+    /** Time the booking list last finished loading from the server */
+    private readonly _last_updated = signal(0);
+    public readonly last_updated = this._last_updated.asReadonly();
+    public readonly has_more_pages = computed(
+        () => this._bookings_state().has_next,
+    );
+    /**
+     * List of parking bookings for the current building/level. The previously
+     * loaded list stays visible while a new first page is loading (polling,
+     * filter/date change, etc.) instead of momentarily collapsing to `[]` and
+     * flickering the table.
+     */
+    public readonly bookings = computed(() => this._bookings_state().list);
+
+    public nextPage() {
+        this._loadPage(false);
+    }
+
+    /** Reload the first page of bookings for the active options */
+    public refresh() {
+        this._next_page_fn = this._first_page;
+        this._loadPage(true);
+    }
+
+    /** Build the first page query function for the given options */
+    private _buildFirstPage(
+        options: ParkingOptions,
+        bld: { id?: string },
+    ): () => QueryResponse<Booking> {
+        const week_start = this._settings.get('app.week_start') || 0;
+        const range_start =
+            options.period === 'week'
+                ? startOfWeek(options.date, { weekStartsOn: week_start })
+                : startOfDay(options.date);
+        const range_end =
+            options.period === 'week'
+                ? endOfWeek(options.date, { weekStartsOn: week_start })
+                : endOfDay(options.date);
+        const period_start = addMinutes(range_start, this.tz_offset * 60);
+        const period_end = addMinutes(range_end, this.tz_offset * 60);
+        return () =>
+            queryPagedBookings({
                 period_start: getUnixTime(period_start),
                 period_end: getUnixTime(period_end),
                 type: 'parking',
                 zones: this._bookingQueryZone(options, bld),
                 include_checked_out: true,
-                limit: 1000,
+                include_deleted: true,
+                limit: 200,
             });
-            for (const booking of list) {
-                const user = users.find(
-                    (_) =>
-                        _.email.toLowerCase() ===
-                        booking.user_email.toLowerCase(),
-                );
-                if (user) {
-                    booking.extension_data.plate_number =
-                        booking.extension_data.plate_number ||
-                        user.plate_number;
-                }
-            }
-            return list;
-        },
-    });
+    }
+
     /**
-     * List of parking bookings for the current building/level.
-     *
-     * Backed by a linkedSignal so the previously loaded list stays visible
-     * while the resource is reloading (polling, filter/date change, etc.)
-     * instead of momentarily collapsing to `[]` and flickering the table.
+     * Load a page of parking bookings, either resetting the list or appending
+     * the next page. Stale responses are discarded if a newer load started.
      */
-    public readonly bookings = linkedSignal<Booking[] | undefined, Booking[]>({
-        source: () => this._bookings_resource.value(),
-        computation: (value, previous) => value ?? previous?.value ?? [],
-    });
+    private async _loadPage(reset: boolean, page_count = 1) {
+        const fetch = reset ? this._first_page : this._next_page_fn;
+        if (!fetch) {
+            if (reset) {
+                this._bookings_state.set({
+                    list: [],
+                    total: 0,
+                    has_next: false,
+                });
+            }
+            return;
+        }
+        const token = ++this._load_token;
+        this._bookings_loading.set(true);
+        let failed = false;
+        const resp = await Promise.resolve(fetch()).catch(() => {
+            failed = true;
+            return { data: [], total: 0, next: null };
+        });
+        if (token !== this._load_token) return;
+        this._load_error.set(failed);
+        const { data = [], total = 0, next = null } = resp || {};
+        const users = this._users_resource.value() || [];
+        for (const booking of data) {
+            const user = users.find(
+                (_) =>
+                    _.email.toLowerCase() === booking.user_email.toLowerCase(),
+            );
+            if (user) {
+                booking.extension_data.plate_number =
+                    booking.extension_data.plate_number || user.plate_number;
+            }
+        }
+        const loaded_count = reset
+            ? data.length
+            : this._bookings_state().list.length + data.length;
+        const has_next =
+            data.length > 0 &&
+            !!next &&
+            page_count < MAX_BOOKING_PAGES &&
+            (!total || loaded_count < total);
+        this._next_page_fn = has_next ? next : null;
+        this._bookings_state.update((acc) =>
+            reset
+                ? {
+                      list: data,
+                      total,
+                      has_next,
+                  }
+                : {
+                      list: [...acc.list, ...data],
+                      total,
+                      has_next,
+                  },
+        );
+        if (has_next) {
+            await this._loadPage(false, page_count + 1);
+            return;
+        }
+        this._bookings_loading.set(false);
+        this._last_updated.set(Date.now());
+    }
 
     /** List of loading state tokens for the active parking resources */
     public readonly loading = computed(() => {
@@ -393,7 +511,7 @@ export class ParkingStateService extends AsyncHandler {
         if (this._spaces_resource.isLoading()) list.push('spaces');
         if (this._users_resource.isLoading()) list.push('users');
         if (this._fleet_resource.isLoading()) list.push('fleet');
-        if (this._bookings_resource.isLoading()) list.push('[BOOKINGS]');
+        if (this._bookings_loading()) list.push('[BOOKINGS]');
         return list;
     });
 
@@ -418,30 +536,7 @@ export class ParkingStateService extends AsyncHandler {
         this._spaces_resource.reload();
         this._users_resource.reload();
         this._fleet_resource.reload();
-        this._bookings_resource.reload();
-    }
-
-    /**
-     * Resolve once a modal emits a `done` event or the dialog is closed,
-     * whichever happens first.
-     */
-    private _waitForModalResult<T = any>(ref: any): Promise<T> {
-        return new Promise<T>((resolve) => {
-            let resolved = false;
-            let event_sub: { unsubscribe: () => void } | undefined;
-            let close_sub: { unsubscribe: () => void } | undefined;
-            const done = (value: T) => {
-                if (resolved) return;
-                resolved = true;
-                event_sub?.unsubscribe();
-                close_sub?.unsubscribe();
-                resolve(value);
-            };
-            close_sub = ref.afterClosed().subscribe((value: T) => done(value));
-            event_sub = ref.componentInstance?.event?.subscribe((e: any) => {
-                if (e?.reason === 'done') done(e);
-            });
-        });
+        this.refresh();
     }
 
     private _bookingQueryZone(options: ParkingOptions, bld?: { id?: string }) {
@@ -472,30 +567,15 @@ export class ParkingStateService extends AsyncHandler {
 
     public isManualRequest(booking: Booking) {
         return (
-            !!booking.extension_data?.requires_manual_approval ||
-            (this.isRequest(booking) &&
-                !!booking.extension_data?.approver_group)
+            booking.status === 'tentative' &&
+            parkingRequestStatus(booking) === 'approval_required'
         );
     }
 
     public isWaitlisted(booking: Booking) {
-        if (
-            !this.isRequest(booking) ||
-            booking.status !== 'tentative' ||
-            booking.process_state === 'waiting_approval'
-        ) {
-            return false;
-        }
-        const now = Date.now();
-        const current_week_start = startOfWeek(now, {
-            weekStartsOn: this.week_start,
-        }).valueOf();
-        const current_week_end = endOfWeek(now, {
-            weekStartsOn: this.week_start,
-        }).valueOf();
         return (
-            booking.date >= current_week_start &&
-            booking.date <= current_week_end
+            booking.status === 'tentative' &&
+            parkingRequestStatus(booking) === 'waitlist'
         );
     }
 
@@ -564,21 +644,6 @@ export class ParkingStateService extends AsyncHandler {
         return list.filter((booking) => !this.isRequest(booking));
     }
 
-    public startPolling(delay = 3 * MINUTES) {
-        const poll_delay = Math.max(delay, 3 * MINUTES);
-        this._bookings_resource.reload();
-        this.interval(
-            'poll',
-            () => this._bookings_resource.reload(),
-            poll_delay,
-        );
-        return () => this.stopPolling();
-    }
-
-    public stopPolling() {
-        this.clearInterval('poll');
-    }
-
     /** Download current parking spaces as a CSV file */
     public async downloadSpacesCSV() {
         const spaces = this.spaces();
@@ -618,36 +683,45 @@ export class ParkingStateService extends AsyncHandler {
             throw e;
         });
         try {
-            const rows = csvToJson(data) || [];
+            // Skip blank lines, such as a trailing newline.
+            const rows = (csvToJson(data) || []).filter((row) =>
+                Object.values(row).some((value) => csvString(value)),
+            );
             if (!rows.length) {
                 notifyError(i18n('APP.CONCIERGE.PARKING_CSV_EMPTY'));
                 return;
             }
-            const zone_id =
-                this._options().zones[0] ||
-                this._org.levelsForBuilding()[0]?.id;
-            if (!zone_id) {
+            const zone_id = this._options().zones[0] || '';
+            // New spaces (rows without an id) need a level to be created on,
+            // so require a specific level selection for them.
+            const has_new_spaces = rows.some((row) => !csvString(row.id));
+            if (has_new_spaces && !zone_id) {
                 notifyError(i18n('APP.CONCIERGE.PARKING_CSV_NO_ZONE'));
                 return;
             }
+            // New spaces get the same zones as spaces created in the modal.
+            const zones = unique([
+                this._org.organisation.id,
+                this._org.region?.id,
+                this._org.building?.id,
+                zone_id,
+            ]).filter((_) => !!_);
             let success_count = 0;
             let error_count = 0;
+            const saved_spaces: PlaceAsset[] = [];
             for (const row of rows) {
                 try {
                     const space_data: Partial<ParkingSpace> = {
-                        ...(row.id ? { id: row.id } : {}),
-                        identifier: row.identifier || '',
-                        map_id: row.map_id || '',
-                        assigned_to: row.assigned_to || '',
-                        assigned_name: row.assigned_name || '',
-                        bookable:
-                            row.bookable === true ||
-                            row.bookable === 'true' ||
-                            row.bookable === 'TRUE',
+                        ...(csvString(row.id) ? { id: csvString(row.id) } : {}),
+                        identifier: csvString(row.identifier),
+                        map_id: csvString(row.map_id),
+                        assigned_to: csvString(row.assigned_to),
+                        assigned_name: csvString(row.assigned_name),
+                        bookable: csvBoolean(row.bookable),
                         place_groups: csvList(row.place_groups),
                         features: csvList(row.features),
-                        notes: row.notes || '',
-                        ...(!row.id ? { zone_id } : {}),
+                        notes: csvString(row.notes),
+                        ...(!csvString(row.id) ? { zone_id, zones } : {}),
                     };
                     if (space_data.assigned_to) {
                         await this._checkAssignedParkingLimit(
@@ -655,7 +729,7 @@ export class ParkingStateService extends AsyncHandler {
                             space_data.id,
                         );
                     }
-                    await saveParkingSpace(space_data);
+                    saved_spaces.push(await saveParkingSpace(space_data));
                     success_count++;
                 } catch (e) {
                     console.error('Failed to save parking space row:', row, e);
@@ -677,6 +751,7 @@ export class ParkingStateService extends AsyncHandler {
                 );
             }
             this._reloadResources();
+            this._upsertSpaces(saved_spaces);
         } catch (e) {
             console.error('CSV parsing error:', e);
             notifyError(i18n('APP.CONCIERGE.PARKING_CSV_PARSE_ERROR'));
@@ -685,133 +760,132 @@ export class ParkingStateService extends AsyncHandler {
 
     /** Add or update a space in the available list */
     public async editSpace(space: ParkingSpace = {} as any) {
-        const ref = this._dialog.open(ParkingSpaceModalComponent, {
-            data: space,
-        });
-        const state = await this._waitForModalResult(ref);
-        if (state?.reason !== 'done') return;
+        const levels = this.levels();
         const zone_id =
-            this._options().zones[0] ||
-            space.zone_id ||
-            this._org.levelsForBuilding()[0]?.id;
-        const asset_data: Partial<ParkingSpace> = {
-            ...state.metadata,
-            zone_id,
-            id: state.metadata.id || undefined,
-        };
-        if (
-            asset_data.assigned_to &&
-            (space.assigned_to !== asset_data.assigned_to ||
-                space.id !== asset_data.id)
-        ) {
-            try {
-                await this._checkAssignedParkingLimit(
-                    asset_data.assigned_to,
-                    space.id,
-                );
-            } catch (error) {
-                notifyError(
-                    error instanceof Error ? error.message : `${error}`,
-                );
-                ref.componentInstance.loading.set(false);
-                throw error;
-            }
-        }
-        const original_space_data: Partial<ParkingSpace> = {
-            ...space,
-            zone_id: space.zone_id || zone_id,
-        };
-        let recreate = false;
-        if (
-            space.assigned_to &&
-            (space.assigned_to !== asset_data.assigned_to ||
-                space.id !== asset_data.id)
-        ) {
-            try {
-                await this._clearAssignedBooking(space);
-            } catch (e) {
-                notifyError(
-                    i18n('APP.CONCIERGE.PARKING_ASSIGN_SPACE_ERROR', {
-                        error: e,
-                    }),
-                );
-                ref.componentInstance.loading.set(false);
-                throw e;
-            }
-            recreate = true;
-        }
-        const zones = unique([
-            this._org.organisation.id,
-            this._org.region?.id,
-            this._org.building?.id,
-            zone_id,
-        ]);
-        const saved = await saveParkingSpace({
-            ...asset_data,
-            zones,
-        }).catch((e) => {
-            notifyError(
-                i18n('APP.CONCIERGE.PARKING_ASSIGN_SPACE_ERROR', {
-                    error: e,
-                }),
-            );
-            ref.componentInstance.loading.set(false);
-            throw e;
+            space.zone_id || this._options().zones[0] || levels[0]?.id || '';
+        const ref = this._dialog.open(ParkingSpaceModalComponent, {
+            data: { space, levels, zone_id },
         });
-        if (
-            (space.assigned_to !== asset_data.assigned_to || recreate) &&
-            asset_data.assigned_to
-        ) {
-            await saveBooking(
-                await this._createAssignedParkingBooking(
-                    saved,
-                    asset_data.assigned_to,
-                    zones,
-                ),
-            ).catch(async (e) => {
-                if (space.id) {
-                    await saveParkingSpace(original_space_data);
-                } else if (saved.id) {
-                    await deleteParkingSpace(saved.id);
-                }
-                if (recreate) {
-                    await this._restoreAssignedBooking(space).catch(
-                        (restore_err) =>
-                            console.error(
-                                'Failed to restore assigned parking booking during rollback',
-                                restore_err,
-                            ),
+        await saveFromModal(ref, async (state) => {
+            // Existing spaces stay on their current level. New spaces use the
+            // level selected in the modal.
+            const selected_zone_id =
+                space.zone_id || state.metadata.zone_id || zone_id;
+            const asset_data: Partial<ParkingSpace> = {
+                ...stripParkingZones(state.metadata),
+                id: state.metadata.id || undefined,
+            };
+            if (
+                asset_data.assigned_to &&
+                (space.assigned_to !== asset_data.assigned_to ||
+                    space.id !== asset_data.id)
+            ) {
+                try {
+                    await this._checkAssignedParkingLimit(
+                        asset_data.assigned_to,
+                        space.id,
                     );
+                } catch (error) {
+                    notifyError(
+                        error instanceof Error ? error.message : `${error}`,
+                    );
+                    throw error;
                 }
+            }
+            const original_space_data = stripParkingZones(space);
+            let recreate = false;
+            if (
+                space.assigned_to &&
+                (space.assigned_to !== asset_data.assigned_to ||
+                    space.id !== asset_data.id)
+            ) {
+                try {
+                    await this._clearAssignedBooking(space);
+                } catch (e) {
+                    notifyError(
+                        i18n('APP.CONCIERGE.PARKING_ASSIGN_SPACE_ERROR', {
+                            error: errorText(e),
+                        }),
+                    );
+                    throw e;
+                }
+                recreate = true;
+            }
+            const zones = unique([
+                this._org.organisation.id,
+                this._org.region?.id,
+                this._org.building?.id,
+                selected_zone_id,
+            ]).filter((_) => !!_);
+            const saved = await saveParkingSpace(
+                space.id
+                    ? asset_data
+                    : { ...asset_data, zone_id: selected_zone_id, zones },
+            ).catch((e) => {
                 notifyError(
                     i18n('APP.CONCIERGE.PARKING_ASSIGN_SPACE_ERROR', {
-                        error: e,
+                        error: errorText(e),
                     }),
                 );
-                ref.componentInstance.loading.set(false);
                 throw e;
             });
-        }
-        this._reloadResources();
-        ref.close();
+            if (
+                (space.assigned_to !== asset_data.assigned_to || recreate) &&
+                asset_data.assigned_to
+            ) {
+                await saveBooking(
+                    await this._createAssignedParkingBooking(
+                        saved,
+                        asset_data.assigned_to,
+                        zones,
+                    ),
+                ).catch(async (e) => {
+                    if (space.id) {
+                        await saveParkingSpace(original_space_data);
+                    } else if (saved.id) {
+                        await deleteParkingSpace(saved.id);
+                    }
+                    if (recreate) {
+                        await this._restoreAssignedBooking(space).catch(
+                            (restore_err) =>
+                                console.error(
+                                    'Failed to restore assigned parking booking during rollback',
+                                    restore_err,
+                                ),
+                        );
+                    }
+                    notifyError(
+                        i18n('APP.CONCIERGE.PARKING_ASSIGN_SPACE_ERROR', {
+                            error: errorText(e),
+                        }),
+                    );
+                    throw e;
+                });
+            }
+            this._reloadResources();
+            this._upsertSpaces([saved]);
+        });
     }
 
     /** Remove the given space from the available list */
     public async removeSpace(space: ParkingSpace) {
-        const state = await openConfirmModal(
+        const removed = await confirmAction(
+            this._dialog,
             {
                 title: 'Remove Parking Space',
                 content: `Are you sure you wish to remove the parking space "${space.name}"?`,
                 icon: { content: 'delete' },
             },
-            this._dialog,
+            {
+                loading: 'Removing parking space...',
+                action: async () => {
+                    await this._clearAssignedBooking(space);
+                    await deleteParkingSpace(space.id);
+                },
+                error: (e) => `Failed to remove parking space. ${errorText(e)}`,
+            },
         );
-        if (state?.reason !== 'done') return;
-        state.loading('Removing parking space...');
-        await this._clearAssignedBooking(space);
-        await deleteParkingSpace(space.id);
-        this._reloadResources();
-        state.close();
+        if (removed) this._reloadResources();
     }
 
     /** Add or update a user in the available list */
@@ -819,22 +893,28 @@ export class ParkingStateService extends AsyncHandler {
         const ref = this._dialog.open(ParkingUserModalComponent, {
             data: user,
         });
-        const state = await this._waitForModalResult(ref);
-        if (state?.reason !== 'done') return;
-        const zone = this._org.building.id;
-        const new_user = {
-            ...state.metadata,
-            id: state.metadata.id || undefined,
-        };
-        if ('user' in new_user) delete new_user.user;
-        await saveParkingUser(new_user, zone);
-        this._reloadResources();
-        ref.close();
+        await saveFromModal(ref, async (state) => {
+            const new_user = {
+                ...state.metadata,
+                id: state.metadata.id || undefined,
+            };
+            if ('user' in new_user) delete new_user.user;
+            const saved = await saveParkingUser(
+                new_user,
+                this._org.building.id,
+            ).catch((e) => {
+                notifyError(`Failed to save parking user. ${errorText(e)}`);
+                throw e;
+            });
+            this._reloadResources();
+            this._upsertUser(toParkingUser(saved));
+        });
     }
 
     /** Remove the given user from the available list */
     public async removeUser(user: ParkingUser) {
-        const state = await openConfirmModal(
+        const removed = await confirmAction(
+            this._dialog,
             {
                 title: i18n('APP.CONCIERGE.PARKING_USER_REMOVE'),
                 content: i18n('APP.CONCIERGE.PARKING_USER_REMOVE_MSG', {
@@ -842,19 +922,16 @@ export class ParkingStateService extends AsyncHandler {
                 }),
                 icon: { content: 'delete' },
             },
-            this._dialog,
+            {
+                loading: i18n('APP.CONCIERGE.PARKING_USER_REMOVE_LOADING'),
+                action: () => deleteParkingUser(user.id),
+                error: (e) =>
+                    i18n('APP.CONCIERGE.PARKING_USER_REMOVE_ERROR', {
+                        error: errorText(e),
+                    }),
+            },
         );
-        if (state?.reason !== 'done') return;
-        state.loading(i18n('APP.CONCIERGE.PARKING_USER_REMOVE_LOADING'));
-        await deleteParkingUser(user.id).catch((e) => {
-            notifyError(
-                i18n('APP.CONCIERGE.PARKING_USER_REMOVE_ERROR', {
-                    error: e,
-                }),
-            );
-            throw e;
-        });
-        state.close();
+        if (!removed) return;
         notifySuccess(i18n('APP.CONCIERGE.PARKING_USER_REMOVE_SUCCESS'));
         this._reloadResources();
     }
@@ -864,21 +941,26 @@ export class ParkingStateService extends AsyncHandler {
         const ref = this._dialog.open(ParkingFleetModalComponent, {
             data: vehicle,
         });
-        const state = await this._waitForModalResult(ref);
-        if (state?.reason !== 'done') return;
-        const zone = this._org.building.id;
-        const new_vehicle = {
-            ...state.metadata,
-            id: state.metadata.id || undefined,
-        };
-        const saved = await saveParkingFleetVehicle(new_vehicle, zone);
-        this._upsertFleetVehicle(toParkingFleetVehicle(saved));
-        ref.close();
+        await saveFromModal(ref, async (state) => {
+            const new_vehicle = {
+                ...state.metadata,
+                id: state.metadata.id || undefined,
+            };
+            const saved = await saveParkingFleetVehicle(
+                new_vehicle,
+                this._org.building.id,
+            ).catch((e) => {
+                notifyError(`Failed to save fleet vehicle. ${errorText(e)}`);
+                throw e;
+            });
+            this._upsertFleetVehicle(toParkingFleetVehicle(saved));
+        });
     }
 
     /** Remove the given fleet vehicle from the available list */
     public async removeFleetVehicle(vehicle: ParkingFleetVehicle) {
-        const state = await openConfirmModal(
+        const removed = await confirmAction(
+            this._dialog,
             {
                 title: i18n('APP.CONCIERGE.PARKING_FLEET_REMOVE'),
                 content: i18n('APP.CONCIERGE.PARKING_FLEET_REMOVE_MSG', {
@@ -886,19 +968,16 @@ export class ParkingStateService extends AsyncHandler {
                 }),
                 icon: { content: 'delete' },
             },
-            this._dialog,
+            {
+                loading: i18n('APP.CONCIERGE.PARKING_FLEET_REMOVE_LOADING'),
+                action: () => deleteParkingFleetVehicle(vehicle.id),
+                error: (e) =>
+                    i18n('APP.CONCIERGE.PARKING_FLEET_REMOVE_ERROR', {
+                        error: errorText(e),
+                    }),
+            },
         );
-        if (state?.reason !== 'done') return;
-        state.loading(i18n('APP.CONCIERGE.PARKING_FLEET_REMOVE_LOADING'));
-        await deleteParkingFleetVehicle(vehicle.id).catch((e) => {
-            notifyError(
-                i18n('APP.CONCIERGE.PARKING_FLEET_REMOVE_ERROR', {
-                    error: e,
-                }),
-            );
-            throw e;
-        });
-        state.close();
+        if (!removed) return;
         notifySuccess(i18n('APP.CONCIERGE.PARKING_FLEET_REMOVE_SUCCESS'));
         this._removeFleetVehicleFromList(vehicle.id);
     }
@@ -931,7 +1010,7 @@ export class ParkingStateService extends AsyncHandler {
                 ref.afterClosed().subscribe((id) => {
                     resolve(id);
                     if (id) this._reloadResources();
-                    else this._bookings_resource.reload();
+                    else this.refresh();
                 });
             });
         }
@@ -956,8 +1035,17 @@ export class ParkingStateService extends AsyncHandler {
             });
             ref.afterClosed().subscribe((id) => {
                 resolve(id);
-                this._bookings_resource.reload();
+                this.refresh();
             });
+        });
+    }
+
+    public viewBookingHistory(booking: Booking) {
+        if (!booking) return;
+        this._dialog.open(BookingHistoryModalComponent, {
+            data: { booking },
+            width: '32rem',
+            maxWidth: '100vw',
         });
     }
 
@@ -974,11 +1062,10 @@ export class ParkingStateService extends AsyncHandler {
     }
 
     public async setBookingCheckinState(booking: Booking, state = true) {
-        const promise = (
-            booking.instance
-                ? checkinBookingInstance(booking.id, booking.instance, state)
-                : checkinBooking(booking.id, state)
-        ).catch((_) => ({ state: 'failed', error: _ }));
+        const promise = setBookingCheckedIn(booking, state).catch((_) => ({
+            state: 'failed',
+            error: _,
+        }));
         const success = await promise;
         success.state === 'failed'
             ? notifyError(
@@ -1000,59 +1087,84 @@ export class ParkingStateService extends AsyncHandler {
     }
 
     public async approveBooking(booking: Booking, series = false) {
+        try {
+            await this._approveBooking(booking, series);
+        } catch (error) {
+            notifyError(
+                i18n('APP.CONCIERGE.PARKING_APPROVE_ERROR', {
+                    error: error?.message || error?.error || error,
+                }),
+            );
+            return;
+        }
+        notifySuccess(i18n('APP.CONCIERGE.PARKING_APPROVE_SUCCESS'));
+        this._reloadResources();
+    }
+
+    public async rejectBooking(booking: Booking, series = false) {
+        try {
+            await this._rejectBooking(booking, series);
+        } catch (error) {
+            notifyError(i18n('APP.CONCIERGE.PARKING_DECLINE_ERROR', { error }));
+            return;
+        }
+        notifySuccess(i18n('APP.CONCIERGE.PARKING_DECLINE_SUCCESS'));
+        this._reloadResources();
+    }
+
+    /**
+     * Approve or reject several bookings. Asks before it rejects.
+     * @returns `false` if the user cancelled
+     */
+    public async setBookingsApproval(bookings: Booking[], approve: boolean) {
+        const options = approve
+            ? {}
+            : bulkRejectOptions(bookings.length, this._dialog);
+        // Space assignment picks the first free space, so approve one at a
+        // time to stop two requests getting the same space
+        const assigns_space = this._settings.get(
+            'app.parking.assign_space_on_approve',
+        );
+        const failed = await runBulkAction(
+            bookings,
+            (booking) =>
+                approve
+                    ? this._approveBooking(booking)
+                    : this._rejectBooking(booking),
+            {
+                ...options,
+                concurrency: approve && assigns_space ? 1 : undefined,
+            },
+        );
+        if (failed === null) return false;
+        this._reloadResources();
+        return true;
+    }
+
+    /** Approve a booking. Assigns a space first when the settings ask for it. */
+    private async _approveBooking(booking: Booking, series = false) {
         if (
             !series &&
             this._settings.get('app.parking.assign_space_on_approve') &&
             this.isRequest(booking)
         ) {
-            try {
-                await this._assignSpaceForApproval(booking);
-            } catch (error) {
-                notifyError(
-                    i18n('APP.CONCIERGE.PARKING_APPROVE_ERROR', {
-                        error: error?.message || error?.error || error,
-                    }),
-                );
-                return;
-            }
+            await this._assignSpaceForApproval(booking);
         }
         const booking_id = series
             ? booking.parent_id || booking.id
             : booking.id;
-        const promise = (
-            !series && booking.instance
-                ? approveBookingInstance(booking_id, booking.instance)
-                : approveBooking(booking_id)
-        ).catch((_) => ({ state: 'failed', error: _ }));
-        const success = await promise;
-        success.state === 'failed'
-            ? notifyError(
-                  i18n('APP.CONCIERGE.PARKING_APPROVE_ERROR', {
-                      error: success.error,
-                  }),
-              )
-            : notifySuccess(i18n('APP.CONCIERGE.PARKING_APPROVE_SUCCESS'));
-        if (success.state !== 'failed') this._reloadResources();
+        await (!series && booking.instance
+            ? approveBookingInstance(booking_id, booking.instance)
+            : approveBooking(booking_id));
     }
 
-    public async rejectBooking(booking: Booking, series = false) {
+    private async _rejectBooking(booking: Booking, series = false) {
         const booking_id = series
             ? booking.parent_id || booking.id
             : booking.id;
-        const promise = (
-            !series && booking.instance
-                ? rejectBookingInstance(booking_id, booking.instance)
-                : rejectBooking(booking_id)
-        ).catch((_) => ({ state: 'failed', error: _ }));
-        const success = await promise;
-        success.state === 'failed'
-            ? notifyError(
-                  i18n('APP.CONCIERGE.PARKING_DECLINE_ERROR', {
-                      error: success.error,
-                  }),
-              )
-            : notifySuccess(i18n('APP.CONCIERGE.PARKING_DECLINE_SUCCESS'));
-        if (success.state !== 'failed') this._reloadResources();
+        await (!series && booking.instance
+            ? rejectBookingInstance(booking_id, booking.instance)
+            : rejectBooking(booking_id));
     }
 
     public async assignSpace(booking: Booking) {
@@ -1144,7 +1256,9 @@ export class ParkingStateService extends AsyncHandler {
             : {};
         await removeBookingApi(booking.id, query).catch((e) => {
             notifyError(
-                i18n('APP.CONCIERGE.BOOKING_REMOVE_ERROR', { error: e }),
+                i18n('APP.CONCIERGE.BOOKING_REMOVE_ERROR', {
+                    error: errorText(e),
+                }),
             );
             details.close();
             throw e;
@@ -1177,11 +1291,12 @@ export class ParkingStateService extends AsyncHandler {
                 space.assigned_to?.toLowerCase() === email,
         ).length;
         if (assigned_count >= max_assigned_count) {
-            const key =
-                max_assigned_count === 1
-                    ? 'APP.CONCIERGE.PARKING_ASSIGN_LIMIT_ERROR_1'
-                    : 'APP.CONCIERGE.PARKING_ASSIGN_LIMIT_ERROR_N';
-            const message = i18n(key, { count: max_assigned_count });
+            const key = 'APP.CONCIERGE.PARKING_ASSIGN_LIMIT_ERROR';
+            const message = i18n(
+                key,
+                { count: max_assigned_count },
+                max_assigned_count,
+            );
             throw !message || message === key
                 ? `Users can only have ${max_assigned_count} assigned parking space${max_assigned_count === 1 ? '' : 's'} at a time.`
                 : message;
@@ -1190,13 +1305,13 @@ export class ParkingStateService extends AsyncHandler {
 
     private async _clearAssignedBooking(resource: ParkingSpace) {
         const today = Date.now();
-        const booking_list = await queryBookings({
+        const booking_list = await queryAllBookings({
             period_start: getUnixTime(startOfDay(today)),
             period_end: getUnixTime(endOfDay(today)),
             type: 'parking',
             email: resource.assigned_to,
             include_checked_out: true,
-            limit: 1000,
+            limit: 200,
         });
         const filtered = booking_list.filter((_) => _.asset_id === resource.id);
         for (const booking of filtered) {
@@ -1260,6 +1375,38 @@ export class ParkingStateService extends AsyncHandler {
                 plate_number: user?.plate_number || '',
             },
         });
+    }
+
+    /**
+     * Add or replace saved spaces in the displayed list. The asset list query
+     * lags new records by about a second, so a reload straight after a create
+     * misses them. Setting the value also cancels that stale reload.
+     */
+    private _upsertSpaces(saved: PlaceAsset[]) {
+        if (!saved.length) return;
+        const zone_ids = this._spaces_params_debounced.value()?.zone_ids || [];
+        const by_id = new Map(saved.map((space) => [space.id, space]));
+        const list = (this._spaces_resource.value() ?? []).map(
+            (space) => by_id.get(space.id) ?? space,
+        );
+        for (const space of saved) {
+            const is_new = !list.some((_) => _.id === space.id);
+            if (is_new && zone_ids.includes(space.zone_id)) list.push(space);
+        }
+        this._spaces_resource.value.set(
+            list.sort((a, b) => (a.name || '').localeCompare(b.name || '')),
+        );
+    }
+
+    /** Add or replace a saved parking user in the displayed list. */
+    private _upsertUser(user: ParkingUser) {
+        const users = this._users_resource.value() ?? [];
+        const index = users.findIndex((_) => _.id === user.id);
+        this._users_resource.value.set(
+            index >= 0
+                ? users.map((item, idx) => (idx === index ? user : item))
+                : [...users, user],
+        );
     }
 
     private _upsertFleetVehicle(vehicle: ParkingFleetVehicle) {

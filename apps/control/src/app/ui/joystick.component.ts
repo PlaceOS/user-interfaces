@@ -2,31 +2,16 @@ import {
     Component,
     computed,
     ElementRef,
-    inject,
     input,
     linkedSignal,
+    OnDestroy,
     output,
-    Renderer2,
     viewChild,
 } from '@angular/core';
-import { AsyncHandler, Point } from '@placeos/common';
 import { IconComponent } from '@placeos/components';
 
-/**
- * Grab point details from mouse or touch event
- * @param event Event to grab details from
- */
-export function eventToPoint(event: MouseEvent | TouchEvent): Point {
-    if (!event) {
-        return { x: -1, y: -1 };
-    }
-    if (event instanceof MouseEvent) {
-        return { x: event.clientX, y: event.clientY };
-    }
-    return event.touches && event.touches.length > 0
-        ? { x: event.touches[0].clientX, y: event.touches[0].clientY }
-        : { x: -1, y: -1 };
-}
+/** Distance from the centre, as a fraction of the radius, that does not move the camera */
+const DEAD_ZONE = 0.25;
 
 export enum JoystickTilt {
     Down = 'down',
@@ -46,11 +31,13 @@ export enum JoystickPan {
         <div
             #panning_control
             joystick
-            (mousedown)="startPan($event)"
-            (touchstart)="startPan($event)"
+            (pointerdown)="startPan($event)"
+            (pointermove)="movePan($event)"
+            (pointerup)="stopPan()"
+            (pointercancel)="stopPan()"
+            (lostpointercapture)="stopPan()"
             (contextmenu)="$event.preventDefault()"
-            (click)="stopPan()"
-            class="bg-base-300 relative h-48 w-48 rounded-full text-white"
+            class="bg-base-300 relative h-48 w-48 touch-none rounded-full text-white select-none"
         >
             <div class="absolute inset-0 flex items-center text-5xl">
                 <icon style="transform: translateX(-.5rem)">
@@ -84,9 +71,7 @@ export enum JoystickPan {
     styles: [``],
     imports: [IconComponent],
 })
-export class JoystickComponent extends AsyncHandler {
-    private _renderer = inject(Renderer2);
-
+export class JoystickComponent implements OnDestroy {
     public readonly panInput = input<JoystickPan>(JoystickPan.Stop, {
         alias: 'pan',
     });
@@ -102,7 +87,8 @@ export class JoystickComponent extends AsyncHandler {
     private readonly _panning_el =
         viewChild<ElementRef<HTMLDivElement>>('panning_control');
 
-    private _box: ClientRect;
+    /** Joystick bounds while a gesture is active */
+    private _box?: DOMRect;
 
     public readonly thumb_transform = computed(() => {
         const pan = this.pan();
@@ -122,43 +108,39 @@ export class JoystickComponent extends AsyncHandler {
         }%)`;
     });
 
-    public startPan(event: MouseEvent | TouchEvent) {
-        const move_event =
-            event instanceof MouseEvent ? 'mousemove' : 'touchmove';
-        const end_event = event instanceof MouseEvent ? 'mouseup' : 'touchend';
-        this._box = this._panning_el().nativeElement.getBoundingClientRect();
+    /** Start a pan gesture. Pointer capture keeps move and end events on this element. */
+    public startPan(event: PointerEvent) {
+        const el = this._panning_el().nativeElement;
+        el.setPointerCapture?.(event.pointerId);
+        this._box = el.getBoundingClientRect();
         this.handlePan(event);
-        this.subscription(
-            'on_move',
-            this._renderer.listen('window', move_event, (e) =>
-                this.handlePan(e),
-            ),
-        );
-        this.subscription(
-            'on_end',
-            this._renderer.listen('window', end_event, (_) => {
-                this.unsub('on_move');
-                this.unsub('on_end');
-                this.tilt.set(JoystickTilt.Stop);
-                this.pan.set(JoystickPan.Stop);
-                this.tiltChange.emit(this.tilt());
-                this.panChange.emit(this.pan());
-            }),
-        );
     }
 
-    public handlePan(event: MouseEvent | TouchEvent) {
-        const point = eventToPoint(event);
-        const box_point = {
-            y: this._box.top + this._box.height / 2,
-            x: this._box.left + this._box.width / 2,
-        };
-        const angle =
-            (Math.atan2(point.y - box_point.y, point.x - box_point.x) * 180) /
-            Math.PI;
-        const { tilt: tiltInput, pan: panInput } = this;
-        const tilt = tiltInput();
-        const pan = panInput();
+    /** Update the direction while a pan gesture is active */
+    public movePan(event: PointerEvent) {
+        if (this._box) this.handlePan(event);
+    }
+
+    public handlePan(event: PointerEvent) {
+        if (!this._box) return;
+        const dx = event.clientX - (this._box.left + this._box.width / 2);
+        const dy = event.clientY - (this._box.top + this._box.height / 2);
+        const tilt = this.tilt();
+        const pan = this.pan();
+        if (Math.hypot(dx, dy) < (this._box.width / 2) * DEAD_ZONE) {
+            this.tilt.set(JoystickTilt.Stop);
+            this.pan.set(JoystickPan.Stop);
+        } else {
+            this._setDirection((Math.atan2(dy, dx) * 180) / Math.PI);
+        }
+        const tiltValue = this.tilt();
+        if (tilt !== tiltValue) this.tiltChange.emit(tiltValue);
+        const panValue = this.pan();
+        if (pan !== panValue) this.panChange.emit(panValue);
+    }
+
+    /** Set pan and tilt from an angle in degrees, where 0 is right and 90 is down */
+    private _setDirection(angle: number) {
         this.tilt.set(
             angle >= 150 || angle <= -150 || (angle > -30 && angle < 30)
                 ? JoystickTilt.Stop
@@ -173,16 +155,20 @@ export class JoystickComponent extends AsyncHandler {
                   ? JoystickPan.Left
                   : JoystickPan.Right,
         );
-        const tiltValue = this.tilt();
-        if (tilt !== tiltValue) this.tiltChange.emit(tiltValue);
-        const panValue = this.pan();
-        if (pan !== panValue) this.panChange.emit(panValue);
     }
 
+    /** Never leave a camera moving when the joystick is removed mid-gesture */
+    public ngOnDestroy() {
+        this.stopPan();
+    }
+
+    /** End the pan gesture and emit a stop. Does nothing when no gesture is active. */
     public stopPan() {
+        if (!this._box) return;
+        this._box = undefined;
         this.tilt.set(JoystickTilt.Stop);
         this.pan.set(JoystickPan.Stop);
-        this.tiltChange.emit(this.tilt());
-        this.panChange.emit(this.pan());
+        this.tiltChange.emit(JoystickTilt.Stop);
+        this.panChange.emit(JoystickPan.Stop);
     }
 }

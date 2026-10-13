@@ -3,7 +3,7 @@ import {
     MatDialogModule,
     MatDialogRef,
 } from '@angular/material/dialog';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { MockModule } from 'ng-mocks';
 
 import { mockComponent } from '@placeos/common/tests';
@@ -23,24 +23,24 @@ describe('EmbeddedControlModalComponent', () => {
     });
 
     beforeEach(() => {
-        jest.useFakeTimers();
+        vi.useFakeTimers();
         spectator = createComponent();
     });
 
-    afterEach(() => jest.useRealTimers());
+    afterEach(() => vi.useRealTimers());
 
     it('should show an iframe', () => {
         expect(spectator.query('iframe')).toBeTruthy();
     });
 
-    it('should show a countdown', () => {
+    it('should show a countdown', async () => {
         expect('[countdown]').toHaveText('30');
-        jest.advanceTimersByTime(2500);
+        await vi.advanceTimersByTimeAsync(2500);
         spectator.detectChanges();
         expect('[countdown]').toHaveText('28');
-        const spy = jest.spyOn(spectator.component, 'close');
+        const spy = vi.spyOn(spectator.component, 'close');
         spectator.component.countdown.set(0);
-        jest.advanceTimersByTime(1000);
+        await vi.advanceTimersByTimeAsync(1000);
         expect(spy).toHaveBeenCalled();
         spectator.component.reset();
         spectator.detectChanges();
@@ -49,5 +49,11 @@ describe('EmbeddedControlModalComponent', () => {
 
     it('should show an close button', () => {
         expect('.close').toExist();
+    });
+
+    it('should close after 30 seconds without interaction', async () => {
+        const spy = vi.spyOn(spectator.component, 'close');
+        await vi.advanceTimersByTimeAsync(30_000);
+        expect(spy).toHaveBeenCalledTimes(1);
     });
 });

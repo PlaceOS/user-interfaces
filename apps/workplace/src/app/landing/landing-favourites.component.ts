@@ -128,7 +128,7 @@ const EMPTY = [];
                     class="flex items-center space-x-2"
                     >
                     <icon class="text-2xl">info</icon>
-                    <div>{{ 'APP.WORKPLACE.VIEW_DETAILS' | translate }}</div>
+                    <div>{{ 'COMMON.VIEW_DETAILS' | translate }}</div>
                   </button> -->
                                 <button
                                     name="landing-remove-favourite"
@@ -226,7 +226,7 @@ const EMPTY = [];
                   >
                   <div class="flex items-center space-x-2">
                     <icon class="text-2xl">info</icon>
-                    <div>{{ 'APP.WORKPLACE.VIEW_DETAILS' | translate }}</div>
+                    <div>{{ 'COMMON.VIEW_DETAILS' | translate }}</div>
                   </div>
                 </button> -->
                             <button
@@ -343,7 +343,7 @@ export class LandingFavouritesComponent extends AsyncHandler implements OnInit {
 
     public async loadAssets() {
         const [desks, parking] = await Promise.all([
-            this._booking_form.loadResourceList('desks' as any),
+            this._booking_form.loadResourceList('desks'),
             this._booking_form.loadParkingResources(),
         ]);
         this.assets.set([

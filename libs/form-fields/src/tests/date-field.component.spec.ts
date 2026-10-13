@@ -1,6 +1,5 @@
-import { fakeAsync } from '@angular/core/testing';
 import { FormsModule, NgControl } from '@angular/forms';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { addDays, format, set, startOfMinute } from 'date-fns';
 import { fromZonedTime, toZonedTime } from 'date-fns-tz';
 import { MockComponent, MockProvider } from 'ng-mocks';
@@ -45,16 +44,17 @@ describe('DateFieldComponent', () => {
             local_timezone,
             reference_date,
         );
-        const supported_timezones =
-            ((Intl as any).supportedValuesOf?.('timeZone') as string[]) || [
-                'Pacific/Pago_Pago',
-                'Pacific/Honolulu',
-                'America/Adak',
-                'America/Anchorage',
-                'America/Los_Angeles',
-                'America/New_York',
-                'UTC',
-            ];
+        const supported_timezones = (Intl.supportedValuesOf?.(
+            'timeZone',
+        ) as string[]) || [
+            'Pacific/Pago_Pago',
+            'Pacific/Honolulu',
+            'America/Adak',
+            'America/Anchorage',
+            'America/Los_Angeles',
+            'America/New_York',
+            'UTC',
+        ];
         return supported_timezones
             .filter((timezone) => {
                 try {
@@ -73,10 +73,6 @@ describe('DateFieldComponent', () => {
             )[0];
     };
 
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
-
     it('should be able to be disabled', () => {
         expect('button').not.toBeDisabled();
         spectator.component.setDisabledState(true);
@@ -88,7 +84,7 @@ describe('DateFieldComponent', () => {
         expect(spectator.query('button')).toHaveAttribute('type', 'button');
     });
 
-    it('should handler external changes to the date selected', fakeAsync(() => {
+    it('should handler external changes to the date selected', () => {
         spectator.component.writeValue(Date.now());
         spectator.detectChanges();
 
@@ -96,11 +92,10 @@ describe('DateFieldComponent', () => {
         const new_date = addDays(new Date(), randomInt(12, 2));
         spectator.component.writeValue(new_date.valueOf());
         spectator.detectChanges();
-        spectator.tick(600);
         expect(format(spectator.component.date(), 'MMMM d, yyyy')).toEqual(
             format(new_date, 'MMMM d, yyyy'),
         );
-    }));
+    });
 
     it('should allow clearing the selected date', () => {
         spectator.component.writeValue(Date.now());
@@ -126,7 +121,7 @@ describe('DateFieldComponent', () => {
         expect(timezone).toBeTruthy();
         const old_date = new Date('2026-04-08T15:30:00.000Z').valueOf();
         const new_date = new Date('2026-04-12T00:00:00.000Z').valueOf();
-        const on_change = jest.fn();
+        const on_change = vi.fn();
         spectator.setInput('from', 1);
         spectator.setInput('timezone', timezone);
         spectator.component.registerOnChange(on_change);
@@ -150,8 +145,6 @@ describe('DateFieldComponent', () => {
                 timezone,
             ),
         ).valueOf();
-        expect(on_change).toHaveBeenCalledWith(
-            expected,
-        );
+        expect(on_change).toHaveBeenCalledWith(expected);
     });
 });

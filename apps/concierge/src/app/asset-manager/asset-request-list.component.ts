@@ -6,6 +6,7 @@ import {
     AsyncHandler,
     Booking,
     OrganisationService,
+    settingSignal,
     SettingsService,
 } from '@placeos/common';
 import {
@@ -13,8 +14,9 @@ import {
     SimpleTableComponent,
     TranslatePipe,
 } from '@placeos/components';
+import { DateOptionsComponent } from '@placeos/form-fields';
 import { startOfDay } from 'date-fns';
-import { DateOptionsComponent } from '../ui/date-options.component';
+import { BookingApprovalBarComponent } from '../ui/booking-approval-bar.component';
 import { AssetManagerStateService } from './asset-manager-state.service';
 import { AssetRequestDetailsComponent } from './asset-request-details.component';
 import { SplitJoinPipe } from './split-join.pipe';
@@ -40,6 +42,8 @@ import { SplitJoinPipe } from './split-join.pipe';
                     class="block min-w-328 text-sm"
                     asset-requests
                     [data]="requests()"
+                    [selectable]="bulk_actions()"
+                    [(selected)]="selected"
                     [filter]="filters().search"
                     [columns]="[
                         {
@@ -264,6 +268,12 @@ import { SplitJoinPipe } from './split-join.pipe';
             [request]="request()"
             (requestChange)="request.set($event)"
         />
+        <booking-approval-bar
+            [count]="selected().length"
+            [busy]="bulk_busy()"
+            (setApproval)="setApproval($event)"
+            (clear)="selected.set([])"
+        />
     `,
     styles: [
         `
@@ -284,6 +294,7 @@ import { SplitJoinPipe } from './split-join.pipe';
         IconComponent,
         SplitJoinPipe,
         TranslatePipe,
+        BookingApprovalBarComponent,
     ],
 })
 export class AssetRequestListComponent extends AsyncHandler implements OnInit {
@@ -300,6 +311,11 @@ export class AssetRequestListComponent extends AsyncHandler implements OnInit {
     public readonly request = signal<any>(null);
 
     public readonly loading = signal<Record<string, boolean>>({});
+    /** Whether rows can be selected for bulk approval */
+    public readonly bulk_actions = settingSignal('bulk_actions', false);
+    /** IDs of the selected requests */
+    public readonly selected = signal<string[]>([]);
+    public readonly bulk_busy = signal(false);
     public readonly time_format = computed(() => this._settings.time_format);
 
     public date(booking: Booking) {
@@ -310,14 +326,39 @@ export class AssetRequestListComponent extends AsyncHandler implements OnInit {
 
     public async setStatus(item: Booking, status: string) {
         this.loading.update((loading) => ({ ...loading, [item.id]: true }));
-        await this._state.setStatus(item, status);
-        this.loading.update((loading) => ({ ...loading, [item.id]: false }));
+        await this._state
+            .setStatus(item, status)
+            .catch(() => undefined)
+            .finally(() =>
+                this.loading.update((loading) => ({
+                    ...loading,
+                    [item.id]: false,
+                })),
+            );
+    }
+
+    /** Approve or decline the selected requests */
+    public async setApproval(approve: boolean) {
+        const ids = new Set(this.selected());
+        const list = this.requests().filter((item) => ids.has(item.id));
+        this.bulk_busy.set(true);
+        const done = await this._state
+            .setRequestsApproval(list, approve)
+            .finally(() => this.bulk_busy.set(false));
+        if (done) this.selected.set([]);
     }
 
     public async setTracking(item: Booking, state: string) {
         this.loading.update((loading) => ({ ...loading, [item.id]: true }));
-        await this._state.setTracking(item, state);
-        this.loading.update((loading) => ({ ...loading, [item.id]: false }));
+        await this._state
+            .setTracking(item, state)
+            .catch(() => undefined)
+            .finally(() =>
+                this.loading.update((loading) => ({
+                    ...loading,
+                    [item.id]: false,
+                })),
+            );
     }
 
     public readonly setDate = (date) => this._state.setOptions({ date });

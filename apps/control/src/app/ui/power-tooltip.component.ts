@@ -37,6 +37,4 @@ export class PowerTooltipComponent {
     public readonly shutdown = (t = false) => this._state.powerOff(t);
     /** Close the tooltip */
     public readonly close = () => this._tooltip.close();
-
-    public readonly joined = this._state.joined;
 }

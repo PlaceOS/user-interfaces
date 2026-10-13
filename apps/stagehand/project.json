@@ -9,6 +9,7 @@
         "build": {
             "executor": "@angular/build:application",
             "outputs": ["{options.outputPath}"],
+            "defaultConfiguration": "production",
             "options": {
                 "baseHref": "./",
                 "outputPath": "dist/apps/stagehand",
@@ -26,11 +27,6 @@
                     {
                         "glob": "**/*",
                         "input": "apps/stagehand/public"
-                    },
-                    {
-                        "glob": "*.woff2",
-                        "input": "node_modules/material-symbols",
-                        "output": "/assets/"
                     },
                     {
                         "glob": "oauth-resp.html",
@@ -84,8 +80,8 @@
                     "budgets": [
                         {
                             "type": "initial",
-                            "maximumWarning": "1mb",
-                            "maximumError": "2.5mb"
+                            "maximumWarning": "800kb",
+                            "maximumError": "950kb"
                         },
                         {
                             "type": "anyComponentStyle",
@@ -101,11 +97,12 @@
                     "extractLicenses": false,
                     "sourceMap": true
                 }
-            },
-            "defaultConfiguration": "production"
+            }
         },
         "serve": {
             "executor": "@angular/build:dev-server",
+            "defaultConfiguration": "development",
+            "continuous": true,
             "options": {
                 "proxyConfig": "config/proxy.conf.js"
             },
@@ -116,9 +113,7 @@
                 "development": {
                     "buildTarget": "stagehand:build:development"
                 }
-            },
-            "defaultConfiguration": "development",
-            "continuous": true
+            }
         },
         "extract-i18n": {
             "executor": "@angular/build:extract-i18n",
@@ -126,15 +121,28 @@
                 "buildTarget": "stagehand:build"
             }
         },
-        "lint": {
-            "executor": "@nx/eslint:lint"
-        },
+        "lint": {},
         "test": {
-            "executor": "@nx/jest:jest",
-            "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+            "executor": "@angular/build:unit-test",
+            "outputs": ["{workspaceRoot}/coverage/apps/stagehand"],
             "options": {
-                "jestConfig": "apps/stagehand/jest.config.ts",
-                "tsConfig": "apps/stagehand/tsconfig.spec.json"
+                "tsConfig": "apps/stagehand/tsconfig.spec.json",
+                "setupFiles": ["apps/stagehand/src/test-setup.ts"],
+                "isolate": true,
+                "watch": false,
+                "buildTarget": "stagehand:test-build:development"
+            }
+        },
+        "test-build": {
+            "executor": "@angular/build:application",
+            "options": {
+                "outputPath": "dist/apps/stagehand-test",
+                "browser": "apps/stagehand/src/main.ts",
+                "tsConfig": "apps/stagehand/tsconfig.spec.json",
+                "polyfills": []
+            },
+            "configurations": {
+                "development": {}
             }
         },
         "serve-static": {

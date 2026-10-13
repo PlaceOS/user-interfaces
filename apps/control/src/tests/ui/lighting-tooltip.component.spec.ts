@@ -1,5 +1,5 @@
 import { signal } from '@angular/core';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { MockDirective } from 'ng-mocks';
 
 import { BindingDirective, CustomTooltipData } from '@placeos/components';
@@ -20,16 +20,12 @@ describe('LightingTooltipComponent', () => {
             },
             {
                 provide: CustomTooltipData,
-                useValue: { close: jest.fn() },
+                useValue: { close: vi.fn() },
             },
         ],
     });
 
     beforeEach(() => (spectator = createComponent()));
-
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
 
     it('should list light presets', () => {
         spectator.detectChanges();
@@ -41,10 +37,11 @@ describe('LightingTooltipComponent', () => {
         spectator.detectChanges();
         expect('p').not.toExist();
         expect('button[state]').toExist();
-        expect('button[state].inverse').toContainText('One');
+        // Unselected states use the inverse (outlined) style
+        expect('button[state]:not(.inverse)').toContainText('One');
         spectator.component.light.state = 'Two';
         spectator.detectChanges();
-        expect('button[state].inverse').not.toContainText('One');
-        expect('button[state].inverse').toContainText('Two');
+        expect('button[state]:not(.inverse)').not.toContainText('One');
+        expect('button[state]:not(.inverse)').toContainText('Two');
     });
 });

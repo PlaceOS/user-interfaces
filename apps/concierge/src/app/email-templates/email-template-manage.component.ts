@@ -20,6 +20,7 @@ import {
 } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import { RichTextInputComponent } from '@placeos/form-fields';
+import { HasUnsavedChanges } from '../ui/unsaved-changes.guard';
 import {
     EmailTemplate,
     EmailTemplatesStateService,
@@ -27,6 +28,10 @@ import {
 
 @Component({
     selector: 'email-template-manage',
+    host: {
+        '(window:beforeunload)':
+            'hasUnsavedChanges() && $event.preventDefault()',
+    },
     template: `
         <div class="bg-base-200 absolute inset-0 overflow-auto">
             <div
@@ -83,6 +88,7 @@ import {
                                 {{ 'COMMON.TRIGGER' | translate }}
                             </label>
                             <button
+                                type="button"
                                 class="inverse border-base-300 flex h-12 w-full items-center justify-between rounded-sm border px-2"
                                 btn
                                 matRipple
@@ -172,6 +178,7 @@ import {
                         </div>
                         <button
                             btn
+                            type="button"
                             matRipple
                             class="mt-5.5 flex-1"
                             matTooltip="Values that get replaced in the email template when sent"
@@ -242,6 +249,44 @@ import {
                             }}</mat-error>
                         </mat-form-field>
                     </div>
+                    <div class="flex items-center space-x-2">
+                        <mat-form-field appearance="outline" class="flex-1">
+                            <input
+                                matInput
+                                [placeholder]="
+                                    'APP.CONCIERGE.EMAIL_TEMPLATES_TO'
+                                        | translate
+                                "
+                                [formField]="form.to"
+                            />
+                        </mat-form-field>
+                        <mat-form-field appearance="outline" class="flex-1">
+                            <input
+                                matInput
+                                [placeholder]="
+                                    'APP.CONCIERGE.EMAIL_TEMPLATES_CC'
+                                        | translate
+                                "
+                                [formField]="form.cc"
+                            />
+                        </mat-form-field>
+                        <mat-form-field appearance="outline" class="flex-1">
+                            <input
+                                matInput
+                                [placeholder]="
+                                    'APP.CONCIERGE.EMAIL_TEMPLATES_BCC'
+                                        | translate
+                                "
+                                [formField]="form.bcc"
+                            />
+                        </mat-form-field>
+                    </div>
+                    <p class="-mt-2 mb-2 text-xs opacity-60">
+                        {{
+                            'APP.CONCIERGE.EMAIL_TEMPLATES_RECIPIENTS_HINT'
+                                | translate
+                        }}
+                    </p>
                     <mat-form-field appearance="outline" class="w-full">
                         <icon matPrefix class="relative -left-1 text-2xl">
                             description
@@ -269,7 +314,13 @@ import {
                     <footer
                         class="bg-base-200 sticky bottom-2 z-20 mx-auto mt-2 flex w-full max-w-160 items-center justify-end rounded-sm border-none px-4 py-2"
                     >
-                        <button btn matRipple class="w-40" (click)="save()">
+                        <button
+                            btn
+                            type="button"
+                            matRipple
+                            class="w-40"
+                            (click)="save()"
+                        >
                             {{
                                 'APP.CONCIERGE.EMAIL_TEMPLATES_SAVE' | translate
                             }}
@@ -304,7 +355,10 @@ import {
         IconComponent,
     ],
 })
-export class EmailTemplateManageComponent extends AsyncHandler {
+export class EmailTemplateManageComponent
+    extends AsyncHandler
+    implements HasUnsavedChanges
+{
     private _org = inject(OrganisationService);
     private _state = inject(EmailTemplatesStateService);
     private _route = inject(ActivatedRoute);
@@ -323,6 +377,9 @@ export class EmailTemplateManageComponent extends AsyncHandler {
         id: '',
         reply_to: '',
         from: '',
+        to: '',
+        cc: '',
+        bcc: '',
         subject: '',
         category: 'internal',
         trigger: '',
@@ -348,6 +405,10 @@ export class EmailTemplateManageComponent extends AsyncHandler {
         });
     }
 
+    public hasUnsavedChanges() {
+        return this.form().dirty();
+    }
+
     public copyField(field: string) {
         this._clipboard.copy(`%{${field}}`);
         notifySuccess(
@@ -356,27 +417,29 @@ export class EmailTemplateManageComponent extends AsyncHandler {
     }
 
     public async save() {
-        this.loading.set(i18n('APP.CONCIERGE.EMAIL_TEMPLATES_SAVING'));
         const value = this.model();
+        if (!value.zone_id) return notifyError('A building is required');
+        this.loading.set(i18n('APP.CONCIERGE.EMAIL_TEMPLATES_SAVING'));
         const zone =
             this.template()?.zone_id !== value.zone_id
                 ? this.template()?.zone_id
                 : '';
-        await this._state
-            .saveTemplate(
+        try {
+            await this._state.saveTemplate(
                 {
                     ...(this.template() || {}),
                     ...value,
                     text: extractTextFromHTML(value.html || ''),
                 } as any,
                 zone,
-            )
-            .catch((e) => {
-                this.loading.set('');
-                notifyError(i18n(e));
-                throw e;
-            });
-        this.loading.set('');
+            );
+        } catch {
+            // The state service shows the error.
+            return;
+        } finally {
+            this.loading.set('');
+        }
+        this.form().reset();
         this._router.navigate(['/email-templates']);
     }
 
@@ -389,12 +452,15 @@ export class EmailTemplateManageComponent extends AsyncHandler {
             this._router.navigate(['/email-templates', 'manage']);
             return;
         }
-        const tmpl = template as any;
+        const tmpl = template;
         this.model.update((m) => ({
             ...m,
             id: tmpl.id ?? m.id,
             reply_to: tmpl.reply_to ?? m.reply_to,
             from: tmpl.from ?? m.from,
+            to: tmpl.to ?? m.to,
+            cc: tmpl.cc ?? m.cc,
+            bcc: tmpl.bcc ?? m.bcc,
             subject: tmpl.subject ?? m.subject,
             category: tmpl.category ?? m.category,
             trigger: tmpl.trigger ?? m.trigger,

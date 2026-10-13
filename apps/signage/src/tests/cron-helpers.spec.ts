@@ -1,4 +1,8 @@
-import { getNextCronRunTimestampInRange } from '../app/cron-helpers';
+import {
+    createScheduleMaskFilter,
+    getLastCronRunTimestampInRange,
+    getNextCronRunTimestampInRange,
+} from '../app/cron-helpers';
 
 function localDate(
     year: number,
@@ -85,5 +89,349 @@ describe('cron helpers', () => {
                 localDate(2026, 3, 2, 10, 0).getTime(),
             ),
         ).toThrow('Invalid CRON string: Must have 5 parts.');
+    });
+
+    it('finds the last run of a daily schedule', () => {
+        const result = getLastCronRunTimestampInRange(
+            '0 6 * * *',
+            12 * 60 * 60,
+            localDate(2026, 3, 3, 7, 30).getTime(),
+        );
+
+        expectLocalDate(result, localDate(2026, 3, 3, 6, 0));
+    });
+
+    it('returns the most recent run when several fall inside the window', () => {
+        const result = getLastCronRunTimestampInRange(
+            '0 */6 * * *',
+            12 * 60 * 60,
+            localDate(2026, 3, 3, 7, 0).getTime(),
+        );
+
+        expectLocalDate(result, localDate(2026, 3, 3, 6, 0));
+    });
+
+    it('matches a run in the same minute as the search start', () => {
+        const now = localDate(2026, 3, 3, 6, 0);
+        now.setSeconds(20);
+        const result = getLastCronRunTimestampInRange(
+            '0 6 * * *',
+            30,
+            now.getTime(),
+        );
+
+        expectLocalDate(result, localDate(2026, 3, 3, 6, 0));
+    });
+
+    it('returns null when the last run predates the search window', () => {
+        const result = getLastCronRunTimestampInRange(
+            '0 6 * * *',
+            60 * 60,
+            localDate(2026, 3, 3, 8, 0).getTime(),
+        );
+
+        expect(result).toBeNull();
+    });
+
+    it('finds the last weekday run across a weekend', () => {
+        const result = getLastCronRunTimestampInRange(
+            '0 9 * * 1-5',
+            3 * 24 * 60 * 60,
+            localDate(2026, 3, 8, 10, 0).getTime(),
+        );
+
+        expectLocalDate(result, localDate(2026, 3, 6, 9, 0));
+    });
+
+    it('reuses a long-window result within the same second', () => {
+        // A cron string used by no other test, so the first call cannot be
+        // answered from a lookup cached by an earlier test in this file.
+        const cron = '17 4 * * *';
+        const now = localDate(2026, 3, 3, 7, 31).getTime();
+        const spy = vi.spyOn(Date.prototype, 'getMinutes');
+
+        getLastCronRunTimestampInRange(cron, 12 * 60 * 60, now);
+        const first_pass = spy.mock.calls.length;
+        getLastCronRunTimestampInRange(cron, 12 * 60 * 60, now);
+
+        expect(first_pass).toBeGreaterThan(0);
+        expect(spy.mock.calls.length).toBe(first_pass);
+        spy.mockRestore();
+    });
+
+    it('recalculates a long-window result once the second changes', () => {
+        const now = localDate(2026, 3, 3, 7, 30).getTime();
+
+        expectLocalDate(
+            getLastCronRunTimestampInRange('0 6 * * *', 12 * 60 * 60, now),
+            localDate(2026, 3, 3, 6, 0),
+        );
+        expectLocalDate(
+            getLastCronRunTimestampInRange(
+                '0 6 * * *',
+                12 * 60 * 60,
+                now + 1000,
+            ),
+            localDate(2026, 3, 3, 6, 0),
+        );
+        expect(
+            getLastCronRunTimestampInRange(
+                '0 6 * * *',
+                12 * 60 * 60,
+                localDate(2026, 3, 3, 19, 0).getTime(),
+            ),
+        ).toBeNull();
+    });
+
+    it('does not memoise short trigger-window searches', () => {
+        const in_window = localDate(2026, 3, 3, 6, 0);
+        in_window.setSeconds(20);
+        const past_window = localDate(2026, 3, 3, 6, 0);
+        past_window.setSeconds(45);
+
+        expectLocalDate(
+            getLastCronRunTimestampInRange(
+                '0 6 * * *',
+                30,
+                in_window.getTime(),
+            ),
+            localDate(2026, 3, 3, 6, 0),
+        );
+        expect(
+            getLastCronRunTimestampInRange(
+                '0 6 * * *',
+                30,
+                past_window.getTime(),
+            ),
+        ).toBeNull();
+    });
+
+    it('finds a run that started more than a year ago', () => {
+        // A 29 February run with a 368 day play period is still active on
+        // 2 March of the next year.
+        const result = getLastCronRunTimestampInRange(
+            '0 0 29 2 *',
+            368 * 24 * 60 * 60,
+            localDate(2025, 3, 2, 12, 0).getTime(),
+        );
+
+        expectLocalDate(result, localDate(2024, 2, 29, 0, 0));
+    });
+
+    it('rejects last-run cron strings that are not five fields', () => {
+        expect(() =>
+            getLastCronRunTimestampInRange(
+                '0 9 * *',
+                24 * 60 * 60,
+                localDate(2026, 3, 2, 10, 0).getTime(),
+            ),
+        ).toThrow('Invalid CRON string: Must have 5 parts.');
+    });
+});
+
+describe('schedule masking', () => {
+    const start = localDate(2026, 3, 2, 9);
+    const schedule = { valid_from: start.getTime() / 1000, mask: '101' };
+
+    it('repeats the mask and supports backwards clock changes', () => {
+        const allows = createScheduleMaskFilter('0 9 * * *', schedule);
+        expect(
+            Array.from({ length: 7 }, (_, index) =>
+                allows(localDate(2026, 3, 2 + index, 9)),
+            ),
+        ).toEqual([true, false, true, true, false, true, true]);
+        expect(allows(start)).toBe(true);
+        expect(allows(localDate(2026, 3, 1, 9))).toBe(false);
+    });
+
+    it('counts occurrences rather than days', () => {
+        const allows = createScheduleMaskFilter('0 9 * * 1,3,5', {
+            ...schedule,
+            mask: '10',
+        });
+        expect(allows(localDate(2026, 3, 4, 9))).toBe(false);
+        expect(allows(localDate(2026, 3, 6, 9))).toBe(true);
+        expect(allows(localDate(2026, 3, 9, 9))).toBe(false);
+    });
+
+    it('counts monthly weekday runs across month and year boundaries', () => {
+        const anchor = localDate(2025, 12, 1, 9);
+        const allows = createScheduleMaskFilter('0 9 1-7,15-21 * 1', {
+            valid_from: anchor.getTime() / 1000,
+            mask: '101',
+        });
+        expect(allows(localDate(2025, 12, 15, 9))).toBe(false);
+        expect(allows(localDate(2026, 1, 5, 9))).toBe(true);
+        expect(allows(localDate(2026, 1, 19, 9))).toBe(true);
+        expect(allows(localDate(2026, 2, 2, 9))).toBe(false);
+        expect(allows(anchor)).toBe(true);
+    });
+
+    it('does not count a nonexistent local time during daylight saving', () => {
+        const anchor = localDate(2026, 3, 7, 2, 30);
+        const transition = localDate(2026, 3, 8, 2, 30);
+        const allows = createScheduleMaskFilter('30 2 * * *', {
+            valid_from: anchor.getTime() / 1000,
+            mask: '10',
+        });
+        const skipped = transition.getHours() !== 2;
+        expect(allows(localDate(2026, 3, 9, 2, 30))).toBe(!skipped);
+        expect(allows(localDate(2026, 3, 10, 2, 30))).toBe(skipped);
+    });
+
+    it('starts after a partial minute and retains leading zeros across 128 bits', () => {
+        const allows = createScheduleMaskFilter('* * * * *', {
+            valid_from: schedule.valid_from + 30,
+            mask: '0'.repeat(127) + '1',
+        });
+        expect(allows(localDate(2026, 3, 2, 11, 7))).toBe(false);
+        expect(allows(localDate(2026, 3, 2, 11, 8))).toBe(true);
+        expect(allows(localDate(2026, 3, 2, 11, 9))).toBe(false);
+    });
+
+    it.each(['000', '10x', '1'.repeat(129), ' 1'])(
+        'rejects unplayable mask %s',
+        (mask) => {
+            expect(
+                getNextCronRunTimestampInRange(
+                    '0 9 * * *',
+                    86400,
+                    start.getTime(),
+                    { ...schedule, mask },
+                ),
+            ).toBeNull();
+        },
+    );
+
+    it('requires an anchor for a mask and honours an unmasked start limit', () => {
+        expect(
+            createScheduleMaskFilter('0 9 * * *', { mask: '1' })(start),
+        ).toBe(false);
+        expect(
+            createScheduleMaskFilter('0 9 * * *', {
+                valid_from: schedule.valid_from + 1,
+            })(start),
+        ).toBe(false);
+    });
+
+    it('stops playback when the latest overlapping run is masked', () => {
+        expect(
+            getLastCronRunTimestampInRange(
+                '0 9 * * *',
+                2 * 86400,
+                localDate(2026, 3, 3, 10).getTime(),
+                schedule,
+            ),
+        ).toBeNull();
+    });
+
+    it('skips masked upcoming runs and separates cached mask results', () => {
+        const now = start.getTime();
+        expectLocalDate(
+            getNextCronRunTimestampInRange(
+                '0 9 * * *',
+                3 * 86400,
+                now,
+                schedule,
+            ),
+            localDate(2026, 3, 4, 9),
+        );
+        expectLocalDate(
+            getNextCronRunTimestampInRange('0 9 * * *', 3 * 86400, now, {
+                ...schedule,
+                mask: '111',
+            }),
+            localDate(2026, 3, 3, 9),
+        );
+        expect(
+            getNextCronRunTimestampInRange('0 9 * * *', 86400, now, schedule),
+        ).toBeNull();
+    });
+});
+
+describe('cron runs across daylight saving changes', () => {
+    const original_timezone = process.env.TZ;
+    const at = (iso: string) => Date.parse(iso);
+    const unix = (iso: string) => Date.parse(iso) / 1000;
+
+    afterEach(() => {
+        if (original_timezone === undefined) delete process.env.TZ;
+        else process.env.TZ = original_timezone;
+    });
+
+    describe('in New York', () => {
+        // Clocks go back from 02:00 EDT to 01:00 EST on 1 November 2026, so
+        // 01:00 to 01:59 happens twice: 05:00Z to 05:59Z, then 06:00Z to 06:59Z.
+        beforeEach(() => (process.env.TZ = 'America/New_York'));
+
+        it('finds a run from the first 1 am while in the repeated hour', () => {
+            expect(
+                getLastCronRunTimestampInRange(
+                    '45 1 * * *',
+                    60 * 60,
+                    at('2026-11-01T06:30:00Z'),
+                ),
+            ).toBe(unix('2026-11-01T05:45:00Z'));
+        });
+
+        it('never looks for the next run in the past during the repeated hour', () => {
+            expect(
+                getNextCronRunTimestampInRange(
+                    '*/15 * * * *',
+                    60 * 60,
+                    at('2026-11-01T06:10:00Z'),
+                ),
+            ).toBe(unix('2026-11-01T07:00:00Z'));
+        });
+
+        it('runs a repeated wall-clock time once', () => {
+            expect(
+                getNextCronRunTimestampInRange(
+                    '30 1 * * *',
+                    4 * 60 * 60,
+                    at('2026-11-01T04:00:00Z'),
+                ),
+            ).toBe(unix('2026-11-01T05:30:00Z'));
+            expect(
+                getLastCronRunTimestampInRange(
+                    '30 1 * * *',
+                    30,
+                    at('2026-11-01T06:30:10Z'),
+                ),
+            ).toBeNull();
+        });
+    });
+
+    describe('in Sydney', () => {
+        // Clocks go back from 03:00 AEDT to 02:00 AEST on 5 April 2026, and
+        // forward from 02:00 AEST to 03:00 AEDT on 4 October 2026.
+        beforeEach(() => (process.env.TZ = 'Australia/Sydney'));
+
+        it('finds a run from the first 2 am while in the repeated hour', () => {
+            expect(
+                getLastCronRunTimestampInRange(
+                    '45 2 * * *',
+                    60 * 60,
+                    at('2026-04-04T16:30:00Z'),
+                ),
+            ).toBe(unix('2026-04-04T15:45:00Z'));
+        });
+
+        it('skips a run in the hour the clocks go forward over', () => {
+            expect(
+                getNextCronRunTimestampInRange(
+                    '30 2 * * *',
+                    2 * 60 * 60,
+                    at('2026-10-03T15:50:00Z'),
+                ),
+            ).toBeNull();
+            expect(
+                getLastCronRunTimestampInRange(
+                    '0 1 * * *',
+                    3 * 60 * 60,
+                    at('2026-10-03T17:05:00Z'),
+                ),
+            ).toBe(unix('2026-10-03T15:00:00Z'));
+        });
     });
 });

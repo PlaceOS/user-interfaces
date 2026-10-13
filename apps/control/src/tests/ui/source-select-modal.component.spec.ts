@@ -1,5 +1,5 @@
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { mockComponent } from '@placeos/common/tests';
 import { IconComponent } from '@placeos/components';
 
@@ -21,15 +21,11 @@ describe('SourceSelectModalComponent', () => {
                     output: {},
                 },
             },
-            { provide: MatDialogRef, useValue: { close: jest.fn() } },
+            { provide: MatDialogRef, useValue: { close: vi.fn() } },
         ],
     });
 
     beforeEach(() => (spectator = createComponent()));
-
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
 
     it('should close on source changes', () => {
         expect('source-select').toExist();

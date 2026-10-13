@@ -1,8 +1,10 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, inject, linkedSignal } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { TranslatePipe } from '@placeos/components';
 import { ControlStateService } from './control-state.service';
 import { OutputDisplayComponent } from './ui/output-display.component';
+
+const PAGE_SIZE = 6;
 
 @Component({
     selector: 'control-advanced-view',
@@ -63,18 +65,24 @@ import { OutputDisplayComponent } from './ui/output-display.component';
 export class ControlAdvancedViewComponent {
     private _state = inject(ControlStateService);
 
-    public readonly page = signal(0);
-
     public readonly outputs = this._state.output_list;
 
-    public readonly paged_outputs = computed(() => {
-        const all = this.outputs();
-        const p = this.page();
-        return all.slice(p * 6, (p + 1) * 6);
+    private readonly _page_total = computed(() =>
+        Math.max(1, Math.ceil((this.outputs()?.length || 0) / PAGE_SIZE)),
+    );
+    /** Selected page. Moves to the last page when the output list shrinks. */
+    public readonly page = linkedSignal<number, number>({
+        source: this._page_total,
+        computation: (total, previous) =>
+            Math.min(previous?.value ?? 0, total - 1),
     });
 
-    public readonly page_count = computed(() => {
-        const len = this.outputs()?.length || 0;
-        return new Array(Math.floor(len / 6) + 1).fill(0);
+    public readonly paged_outputs = computed(() => {
+        const p = this.page();
+        return this.outputs().slice(p * PAGE_SIZE, (p + 1) * PAGE_SIZE);
     });
+
+    public readonly page_count = computed(() =>
+        new Array(this._page_total()).fill(0),
+    );
 }

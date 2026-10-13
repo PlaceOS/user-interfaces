@@ -1,36 +1,55 @@
 import { EventEmitter, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { MatDialog } from '@angular/material/dialog';
-import { SpectatorService, createServiceFactory } from '@ngneat/spectator/jest';
-import { OrganisationService, SettingsService } from '@placeos/common';
+import {
+    SpectatorService,
+    createServiceFactory,
+} from '@ngneat/spectator/vitest';
+import {
+    OrganisationService,
+    SettingsService,
+    setTimeInTimezone,
+} from '@placeos/common';
 import { addMinutes, endOfDay, getUnixTime, startOfDay } from 'date-fns';
-import { of } from 'rxjs';
+import { NEVER, of } from 'rxjs';
 
-import * as assets_mod from '@placeos/assets';
-import * as booking_mod from '@placeos/bookings';
-import * as common_mod from '@placeos/common';
-import * as ts_client_mod from '@placeos/ts-client';
+import * as ts_client from '@placeos/ts-client';
 import { MockProvider } from 'ng-mocks';
 import { LockerStateService } from '../../app/lockers/locker-state.service';
 
-jest.mock('@placeos/assets');
-jest.mock('@placeos/bookings');
-jest.mock('@placeos/ts-client');
-jest.mock('@placeos/common', () => {
-    const actual = jest.requireActual('@placeos/common');
-    return { ...actual, getTimezoneDifferenceInHours: jest.fn(() => 0) };
-});
+vi.mock('@placeos/ts-client', { spy: true });
+
+const CATEGORY_STUB = {
+    data: [{ id: 'cat-lockers', name: '_LOCKERS_', hidden: true }],
+    total: 1,
+    next: null,
+};
+const TYPE_STUB = {
+    data: [
+        {
+            id: 'type-locker-banks',
+            name: '_LOCKER_BANKS_',
+            category_id: 'cat-lockers',
+        },
+        { id: 'type-lockers', name: '_LOCKERS_', category_id: 'cat-lockers' },
+    ],
+    total: 2,
+    next: null,
+};
 
 describe('LockerStateService', () => {
     let spectator: SpectatorService<LockerStateService>;
-    let current_building: any;
+    let current_building: unknown;
+    let settings_map: Record<string, any>;
 
     const organisation_service: any = {
         initialised: signal(true),
         organisation: { id: 'org-1' },
         region: { id: 'region-1' },
         level_list: signal([]),
-        levelsForBuilding: jest.fn(() => []),
+        buildingsForRegion: vi.fn(() => []),
+        levelsForBuilding: vi.fn(() => []),
+        levelsForRegion: vi.fn(() => []),
         get building() {
             return current_building;
         },
@@ -39,62 +58,126 @@ describe('LockerStateService', () => {
     const createService = createServiceFactory({
         service: LockerStateService,
         providers: [
-            MockProvider(MatDialog, { open: jest.fn() }),
+            MockProvider(MatDialog, { open: vi.fn() }),
             MockProvider(SettingsService, {
-                get: jest.fn((name: string) => {
-                    if (name === 'app.use_region') return false;
-                    if (name === 'app.bookings.use_building_timezone') {
-                        return true;
-                    }
-                    return undefined;
-                }) as any,
-            } as any),
+                get: vi.fn((name: string) => settings_map[name]),
+            }),
             MockProvider(OrganisationService, organisation_service),
         ],
     });
 
-    beforeEach(() => {
-        jest.useFakeTimers();
-        jest.clearAllMocks();
-        current_building = { id: 'bld-1', timezone: 'Australia/Sydney' };
-        organisation_service.active_building = signal(current_building);
-        organisation_service.active_region = signal({
-            id: 'region-1',
+    /** Reset ts-client boundary spies with safe defaults for service bootstrap */
+    const stubTsClient = () => {
+        (ts_client.queryAssetCategories as any).mockReset();
+        (ts_client.queryAssetCategories as any).mockResolvedValue(
+            CATEGORY_STUB,
+        );
+        (ts_client.queryAssetTypes as any).mockReset();
+        (ts_client.queryAssetTypes as any).mockResolvedValue(TYPE_STUB);
+        (ts_client.queryAssets as any).mockReset();
+        (ts_client.queryAssets as any).mockResolvedValue({
+            data: [],
+            total: 0,
+            next: null,
         });
-        (booking_mod.queryPagedBookings as jest.Mock).mockReturnValue(
-            of({ data: [], total: 0, next: null } as any),
+        (ts_client.query as any).mockReset();
+        (ts_client.query as any).mockResolvedValue({
+            data: [],
+            total: 0,
+            next: null,
+        });
+        (ts_client.get as any).mockReset();
+        (ts_client.get as any).mockResolvedValue([]);
+        (ts_client.post as any).mockReset();
+        (ts_client.post as any).mockResolvedValue({});
+        (ts_client.patch as any).mockReset();
+        (ts_client.patch as any).mockResolvedValue({});
+        (ts_client.del as any).mockReset();
+        (ts_client.del as any).mockResolvedValue(undefined);
+        (ts_client.addAsset as any).mockReset();
+        (ts_client.addAsset as any).mockResolvedValue({ id: 'locker-1' });
+        (ts_client.updateAsset as any).mockReset();
+        (ts_client.updateAsset as any).mockResolvedValue({ id: 'locker-1' });
+    };
+
+    /** Paged booking listing requests (queryPagedBookings -> query path '') */
+    const pagedBookingCalls = () =>
+        (ts_client.query as any).mock.calls.filter(
+            (c: any[]) =>
+                c[0]?.path === '' && c[0]?.endpoint?.includes('booking'),
         );
-        (booking_mod.saveBooking as jest.Mock).mockReturnValue(of({}));
-        (assets_mod.queryLockerAssetsForZones as jest.Mock).mockReturnValue(
-            of([]),
+    /** Locker asset queries by resolved asset type */
+    const assetQueryCalls = (type_id: string) =>
+        (ts_client.queryAssets as any).mock.calls.filter(
+            (c: any[]) => c[0]?.type_id === type_id,
         );
-        (assets_mod.queryLockerBankAssetsForZones as jest.Mock).mockReturnValue(
-            of([]),
-        );
-        (assets_mod.saveLockerAsset as jest.Mock).mockReturnValue(
-            of({ id: 'locker-1' }),
-        );
-        (assets_mod.saveLockerBankAsset as jest.Mock).mockReturnValue(
-            of({ id: 'bank-1' }),
-        );
-        (ts_client_mod.updateMetadata as jest.Mock).mockReturnValue(of({}));
-        (common_mod.getTimezoneDifferenceInHours as jest.Mock).mockReturnValue(
-            2,
-        );
+
+    beforeEach(() => {
+        vi.useFakeTimers();
+        organisation_service.level_list.set([]);
+        organisation_service.buildingsForRegion.mockImplementation(() => []);
+        current_building = { id: 'bld-1', timezone: 'Australia/Sydney' };
+        settings_map = {
+            'app.use_region': false,
+            'app.bookings.use_building_timezone': true,
+        };
+        organisation_service.active_building = signal(current_building);
+        organisation_service.active_region = signal({ id: 'region-1' });
+        stubTsClient();
     });
 
     afterEach(() => {
-        jest.useRealTimers();
-        jest.restoreAllMocks();
+        vi.useRealTimers();
+        vi.restoreAllMocks();
     });
 
     async function settle(rounds = 4) {
         for (let i = 0; i < rounds; i++) {
-            jest.advanceTimersByTime(500);
-            TestBed.tick();
-            await Promise.resolve();
+            await vi.advanceTimersByTimeAsync(500);
+            TestBed.flushEffects();
         }
     }
+
+    it('should list active building levels with parking-only levels last', () => {
+        spectator = createService();
+        organisation_service.buildingsForRegion.mockReturnValue([
+            { id: 'bld-1' },
+            { id: 'bld-2' },
+        ]);
+        organisation_service.level_list.set([
+            {
+                id: 'lvl-parking',
+                parent_id: 'bld-1',
+                tags: ['level', 'parking'],
+            },
+            { id: 'lvl-ground', parent_id: 'bld-1', tags: ['level'] },
+            { id: 'lvl-other', parent_id: 'bld-2', tags: ['level'] },
+        ]);
+
+        expect(spectator.service.levels().map((lvl) => lvl.id)).toEqual([
+            'lvl-ground',
+            'lvl-parking',
+        ]);
+    });
+
+    it('should list levels for every building in region mode', () => {
+        settings_map['app.use_region'] = true;
+        organisation_service.buildingsForRegion.mockReturnValue([
+            { id: 'bld-1' },
+            { id: 'bld-2' },
+        ]);
+        organisation_service.level_list.set([
+            { id: 'lvl-ground', parent_id: 'bld-1', tags: ['level'] },
+            { id: 'lvl-other', parent_id: 'bld-2', tags: ['level'] },
+            { id: 'lvl-outside', parent_id: 'bld-3', tags: ['level'] },
+        ]);
+        spectator = createService();
+
+        expect(spectator.service.levels().map((lvl) => lvl.id)).toEqual([
+            'lvl-ground',
+            'lvl-other',
+        ]);
+    });
 
     it('should apply building timezone to locker booking listing requests', () => {
         const date = new Date('2026-06-15T12:00:00').valueOf();
@@ -102,49 +185,182 @@ describe('LockerStateService', () => {
         const first_page = (spectator.service as any)._buildFirstPage({ date });
         first_page();
 
-        expect(spectator.service.tz_offset).toBe(2);
-        expect(booking_mod.queryPagedBookings).toHaveBeenLastCalledWith(
+        const offset = spectator.service.tz_offset;
+        const paged = pagedBookingCalls();
+        expect(paged.length).toBeGreaterThan(0);
+        expect(paged[paged.length - 1][0].query_params).toEqual(
             expect.objectContaining({
-                period_start: getUnixTime(addMinutes(startOfDay(date), 120)),
-                period_end: getUnixTime(addMinutes(endOfDay(date), 120)),
+                period_start: getUnixTime(
+                    addMinutes(startOfDay(date), offset * 60),
+                ),
+                period_end: getUnixTime(
+                    addMinutes(endOfDay(date), offset * 60),
+                ),
             }),
         );
     });
 
     it('should not reload locker bookings when loading state changes', async () => {
-        (booking_mod.queryPagedBookings as jest.Mock).mockResolvedValue({
-            data: [],
-            total: 0,
-            next: null,
-        });
         spectator = createService();
         await settle();
 
-        expect(booking_mod.queryPagedBookings).toHaveBeenCalledTimes(1);
+        expect(pagedBookingCalls()).toHaveLength(1);
+    });
+
+    it('should reload locker bookings on refresh', async () => {
+        spectator = createService();
+        await settle();
+
+        spectator.service.refresh();
+        await settle();
+
+        expect(pagedBookingCalls()).toHaveLength(2);
+    });
+
+    it('should stop locker booking pagination when a page is empty', async () => {
+        spectator = createService();
+        const next_page = vi.fn();
+        const empty_page = vi.fn().mockResolvedValue({
+            data: [],
+            total: 2,
+            next: next_page,
+        });
+        const booking = { id: 'booking-1' };
+        (spectator.service as any)._bookings_state.set({
+            list: [booking],
+            total: 2,
+            has_next: true,
+        });
+        (spectator.service as any)._next_page_fn = empty_page;
+
+        await (spectator.service as any)._loadPage(false);
+
+        expect(spectator.service.bookings()).toEqual([booking]);
+        expect(spectator.service.has_more_pages()).toBe(false);
+        expect((spectator.service as any)._next_page_fn).toBeNull();
+        expect(next_page).not.toHaveBeenCalled();
     });
 
     it('should wait for locker banks before loading lockers', async () => {
-        let resolve_banks: (banks: any[]) => void;
-        (assets_mod.queryLockerBankAssetsForZones as jest.Mock).mockReturnValue(
-            new Promise((resolve) => (resolve_banks = resolve)),
-        );
-        (assets_mod.queryLockerAssetsForZones as jest.Mock).mockResolvedValue(
-            [],
-        );
+        let resolve_banks: (value: any) => void;
+        (ts_client.queryAssets as any).mockImplementation((q: any) => {
+            if (q?.type_id === 'type-locker-banks') {
+                return new Promise((resolve) => (resolve_banks = resolve));
+            }
+            return Promise.resolve({ data: [], total: 0, next: null });
+        });
         spectator = createService();
         await settle();
-        expect(assets_mod.queryLockerAssetsForZones).not.toHaveBeenCalled();
+        expect(assetQueryCalls('type-lockers')).toHaveLength(0);
 
-        resolve_banks([]);
+        resolve_banks({ data: [], total: 0, next: null });
         await Promise.resolve();
         await settle();
 
-        expect(assets_mod.queryLockerAssetsForZones).toHaveBeenCalledTimes(1);
+        expect(assetQueryCalls('type-lockers')).toHaveLength(1);
+    });
+
+    it('should find locker banks saved on the building levels', async () => {
+        organisation_service.levelsForBuilding.mockReturnValue([
+            { id: 'lvl-1' },
+        ]);
+        (ts_client.queryAssets as any).mockImplementation((q: any) =>
+            Promise.resolve({
+                data:
+                    q?.type_id === 'type-locker-banks' && q.zone_id === 'lvl-1'
+                        ? [{ id: 'bank-on-level', zone_id: 'lvl-1' }]
+                        : [],
+                total: 0,
+                next: null,
+            }),
+        );
+
+        spectator = createService();
+        await settle();
+
+        expect(
+            assetQueryCalls('type-locker-banks').map((c) => c[0].zone_id),
+        ).toEqual(['bld-1', 'lvl-1']);
+        expect(spectator.service.lockers_banks().map((_) => _.id)).toEqual([
+            'bank-on-level',
+        ]);
+        organisation_service.levelsForBuilding.mockReturnValue([]);
+    });
+
+    it('should show a new locker bank before the list query includes it', async () => {
+        (ts_client.addAsset as any).mockResolvedValue({
+            id: 'bank-new',
+            identifier: 'Bank New',
+            zone_id: 'lvl-1',
+            zones: ['lvl-1'],
+        });
+        spectator = createService();
+        await settle();
+        const events = new EventEmitter<any>();
+        (spectator.inject(MatDialog).open as any).mockReturnValue({
+            afterClosed: () => NEVER,
+            componentInstance: { event: events },
+            close: vi.fn(),
+        });
+
+        // This spec uses fake timers, so advance them while saving.
+        const saving = spectator.service.editLockerBank();
+        setTimeout(() =>
+            events.emit({
+                reason: 'done',
+                metadata: { name: 'Bank New', level_id: 'lvl-1' },
+            }),
+        );
+        await settle();
+        await saving;
+
+        expect(spectator.service.lockers_banks().map((_) => _.id)).toContain(
+            'bank-new',
+        );
+    });
+
+    it('should tolerate malformed locker metadata', async () => {
+        (ts_client.queryAssets as any).mockImplementation((q: any) => {
+            if (q?.type_id === 'type-locker-banks') {
+                return Promise.resolve({
+                    data: [{ id: 'bank-1', zone_id: 'bld-1' }],
+                    total: 1,
+                    next: null,
+                });
+            }
+            return Promise.resolve({
+                data: [
+                    {
+                        id: 'locker-1',
+                        parent_id: 'bank-1',
+                        other_data: {
+                            position: '1,2',
+                            size: '1x1',
+                            features: 'power',
+                        },
+                    },
+                ],
+                total: 1,
+                next: null,
+            });
+        });
+
+        spectator = createService();
+        await settle();
+
+        expect(spectator.service.lockers()).toEqual([
+            expect.objectContaining({
+                id: 'locker-1',
+                position: [0, 0],
+                size: [1, 1],
+                features: [],
+            }),
+        ]);
     });
 
     it('should use the building timezone for assigned locker bookings', async () => {
         const mock_now = new Date('2026-06-15T12:00:00Z').valueOf();
-        const assigned_start = common_mod.setTimeInTimezone(
+        const assigned_start = setTimeInTimezone(
             mock_now,
             2,
             0,
@@ -152,8 +368,10 @@ describe('LockerStateService', () => {
         );
         spectator = createService();
         const dialog_ref = {
-            afterClosed: () =>
-                of({
+            afterClosed: () => NEVER,
+            componentInstance: {
+                loading: { set: vi.fn() },
+                event: of({
                     reason: 'done',
                     metadata: {
                         id: 'locker-1',
@@ -162,17 +380,22 @@ describe('LockerStateService', () => {
                         assigned_name: 'Staff Name',
                     },
                 }),
-            componentInstance: {
-                event: new EventEmitter<any>(),
             },
-            close: jest.fn(),
+            close: vi.fn(),
         };
         (spectator.inject(MatDialog).open as any).mockReturnValue(dialog_ref);
-        jest.spyOn(Date, 'now').mockReturnValue(mock_now);
+        (ts_client.addAsset as any).mockResolvedValue({ id: 'locker-1' });
+        vi.spyOn(Date, 'now').mockReturnValue(mock_now);
 
         await spectator.service.editLocker({ id: 'bank-1', tags: [] } as any);
 
-        expect(booking_mod.saveBooking).toHaveBeenCalledWith(
+        // saveBooking(no id) -> createBooking -> post(url, data)
+        const booking_post = (ts_client.post as any).mock.calls.find(
+            (c: any[]) =>
+                typeof c[0] === 'string' && c[0].includes('/bookings'),
+        );
+        expect(booking_post).toBeTruthy();
+        expect(booking_post[1]).toEqual(
             expect.objectContaining({
                 booking_start: getUnixTime(assigned_start),
                 booking_end: getUnixTime(assigned_start + 20 * 60 * 60 * 1000),

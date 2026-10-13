@@ -1,12 +1,6 @@
 import { Clipboard } from '@angular/cdk/clipboard';
 
-import {
-    Component,
-    computed,
-    ElementRef,
-    inject,
-    signal,
-} from '@angular/core';
+import { Component, computed, ElementRef, inject, signal } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -15,7 +9,6 @@ import {
     AsyncHandler,
     csvToJson,
     Desk,
-    generateQRCode,
     i18n,
     loadTextFileFromInputEvent,
     notifyError,
@@ -25,6 +18,7 @@ import {
     settingSignal,
     SettingsService,
 } from '@placeos/common';
+import { generateQRCode } from '@placeos/common/qr-code';
 import {
     CustomTooltipComponent,
     IconComponent,
@@ -34,10 +28,7 @@ import {
     SimpleTableComponent,
     TranslatePipe,
 } from '@placeos/components';
-import { updateMetadata } from '@placeos/ts-client';
 import { DeskQrItem, DesksStateService } from './desks-state.service';
-
-const QR_CODES = {};
 
 @Component({
     selector: 'desks-manage',
@@ -308,16 +299,17 @@ export class DesksManageComponent extends AsyncHandler {
         );
         if (resp.reason !== 'done') return;
         resp.close();
-        const desks = this.desks();
-        const updated_desks = desks.filter((_) => _.id !== desk.id);
         const filters = this.filters();
-        const level = this._org.levelWithID(filters.zones);
+        // Target the desk's own level so removing while viewing all levels
+        // only rewrites the metadata of the zone the desk belongs to.
+        const zone_id =
+            desk.zone?.id || this._org.levelWithID(filters.zones)?.id;
+        if (!zone_id) {
+            notifyError(i18n('APP.CONCIERGE.DESKS_SELECT_LEVEL'));
+            return;
+        }
         this.loading.set(i18n('APP.CONCIERGE.DESKS_REMOVE_LOADING'));
-        await updateMetadata(level.id, {
-            name: 'desks',
-            description: 'desks',
-            details: updated_desks,
-        }).catch((e) => {
+        await this._state.removeDesk(desk, zone_id).catch((e) => {
             this.loading.set('');
             notifyError(
                 i18n('APP.CONCIERGE.DESKS_REMOVE_ERROR', {
@@ -388,7 +380,7 @@ export class DesksManageComponent extends AsyncHandler {
         this.loading.set('');
     }
 
-    public handleDrag(type: 'enter' | 'leave' | 'end', event: DragEvent) {
+    public handleDrag(type: 'enter' | 'leave' | 'end', _event: DragEvent) {
         this.dragging.set(type === 'enter');
     }
 }

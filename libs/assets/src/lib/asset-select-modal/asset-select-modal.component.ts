@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, inject, Signal, signal } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { AssetGroup, isMobileSafari, SettingsService } from '@placeos/common';
@@ -67,10 +67,6 @@ const EMPTY_FAVS: string[] = [];
                 >
                     <asset-details
                         [item]="displayed()"
-                        [active]="
-                            selected_ids().includes(displayed()?.id || '')
-                        "
-                        (activeChange)="setSelected(displayed(), $event)"
                         [fav]="
                             !!displayed() &&
                             favorites().includes(displayed()?.id || '')
@@ -177,15 +173,13 @@ export class AssetSelectModalComponent {
         'assets.end_offset',
         0,
     );
-    private readonly _favorites = this._settings.signal<string[]>(
+    public readonly favorites: Signal<string[]> = this._settings.signal(
         'favourite_assets',
         EMPTY_FAVS,
         true,
     );
 
     public readonly is_safari = computed(() => isMobileSafari());
-
-    public readonly favorites = computed(() => this._favorites());
 
     public readonly selected_ids = computed(() =>
         this.selected()

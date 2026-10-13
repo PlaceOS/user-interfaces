@@ -1,93 +1,74 @@
 import { signal } from '@angular/core';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
-import { ControlStateService } from '../../app/control-state.service';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
+import { setNotifyOutlet } from '@placeos/common';
+import { TranslatePipe } from '@placeos/components';
+import { MockPipe } from 'ng-mocks';
+import { of } from 'rxjs';
 
+import {
+    ControlStateService,
+    RoomInput,
+} from '../../app/control-state.service';
 import { SourceSelectComponent } from '../../app/ui/source-select.component';
 
 describe('SourceSelectComponent', () => {
     let spectator: Spectator<SourceSelectComponent>;
+    const setRoute = vi.fn();
+    const notify_open = vi.fn(() => ({
+        onAction: () => of(),
+        dismiss: vi.fn(),
+    }));
+    const input = { id: 'pc', name: 'PC', type: 'pc' } as RoomInput;
     const createComponent = createComponentFactory({
         component: SourceSelectComponent,
+        declarations: [MockPipe(TranslatePipe, (v) => v)],
         providers: [
             {
                 provide: ControlStateService,
                 useValue: {
-                    output_list: signal([]),
-                    available_inputs: signal([]),
-                    setRoute: jest.fn(),
+                    output_list: signal([{ id: 'display', source: 'pc' }]),
+                    available_inputs: signal([input]),
+                    setRoute,
                 },
             },
         ],
-        imports: [MatProgressSpinnerModule],
     });
 
-    beforeEach(() => (spectator = createComponent()));
-
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
+    beforeEach(() => {
+        setRoute.mockReset();
+        notify_open.mockClear();
+        setNotifyOutlet(
+            { open: notify_open } as unknown as Parameters<
+                typeof setNotifyOutlet
+            >[0],
+            true,
+        );
+        spectator = createComponent({ props: { output: 'display' } });
     });
 
-    // it('should show empty state', async () => {
-    //     expect('p').toContainText('');
-    //     const service = spectator.inject(ControlStateService);
-    //     (service as any).input_list.set([{ id: 'i1', name: 'i1', type: 'F' }]);
-    //     (service as any).output_list.set([{ id: 'o1', name: 'o1' }]);
-    //     spectator.setInput({ output: 'o1' });
-    //     spectator.detectChanges();
-    //     expect('p').not.toExist();
-    // });
+    afterEach(() => setNotifyOutlet(null, true));
 
-    // it('should list available inputs', async () => {
-    //     const service = spectator.inject(ControlStateService);
-    //     (service as any).input_list.set([{ id: 'i1', name: 'i1', type: 'F' }]);
-    //     (service as any).output_list.set([{ id: 'o1', name: 'o1' }]);
-    //     spectator.setInput({ output: 'o1' });
-    //     spectator.detectChanges();
-    //     expect('h4').toContainText('F');
-    //     expect('button[source]').toContainText('i1');
-    //     (service as any).input_list.set([
-    //         { id: 'i1', name: 'i1', type: 'F' },
-    //         { id: 'i2', name: 'i2', type: 'F' },
-    //     ]);
-    //     spectator.detectChanges();
-    //     expect(spectator.queryAll('button[source]')).toHaveLength(2);
-    //     expect(spectator.queryAll('[group]')).toHaveLength(1);
-    //     (service as any).input_list.set([
-    //         { id: 'i1', name: 'i1', type: 'F' },
-    //         { id: 'i2', name: 'i2', type: 'A' },
-    //     ]);
-    //     spectator.detectChanges();
-    //     expect(spectator.queryAll('button[source]')).toHaveLength(2);
-    //     expect(spectator.queryAll('[group]')).toHaveLength(2);
-    // });
+    it('should route the source and emit it', async () => {
+        setRoute.mockResolvedValue(null);
+        const emitted = vi.fn();
+        spectator.output('source').subscribe(emitted);
+        await spectator.component.selectSource(input);
+        expect(setRoute).toHaveBeenCalledWith('pc', 'display');
+        expect(spectator.component.loading()).toBe(false);
+        expect(emitted).toHaveBeenCalledWith(input);
+    });
 
-    // it('should indicate the currently selected input', async () => {
-    //     const service = spectator.inject(ControlStateService);
-    //     (service as any).input_list.set([{ id: 'i1', name: 'i1', type: 'F' }]);
-    //     (service as any).output_list.set([{ id: 'o1', name: 'o1' }]);
-    //     spectator.setInput({ output: 'o1' });
-    //     spectator.detectChanges();
-    //     expect('button[source]').not.toHaveClass('inverse');
-    //     (service as any).output_list.set([
-    //         { id: 'o1', name: 'o1', source: 'i1' },
-    //     ]);
-    //     spectator.detectChanges();
-    //     expect('button[source]').toHaveClass('inverse');
-    // });
+    it('should clear loading and show an error when routing fails', async () => {
+        setRoute.mockRejectedValue(new Error('offline'));
+        const emitted = vi.fn();
+        spectator.output('source').subscribe(emitted);
+        await spectator.component.selectSource(input);
+        expect(spectator.component.loading()).toBe(false);
+        expect(notify_open).toHaveBeenCalled();
+        expect(emitted).not.toHaveBeenCalled();
+    });
 
-    // it('should emit selected inputs', (done) => {
-    //     const input = { id: 'i1', name: 'i1', type: 'F' };
-    //     const service = spectator.inject(ControlStateService);
-    //     (service as any).input_list.set([input]);
-    //     (service as any).output_list.set([{ id: 'o1', name: 'o1' }]);
-    //     spectator.setInput({ output: 'o1' });
-    //     spectator.detectChanges();
-    //     spectator.component.source.subscribe((id) => {
-    //         expect(id).toBe(input);
-    //         expect(service.setRoute).toHaveBeenCalledWith(input.id, 'o1');
-    //         done();
-    //     });
-    //     spectator.click('button[source]');
-    // });
+    it('should highlight the routed source as selected', () => {
+        expect(spectator.query('button[source]')).not.toHaveClass('inverse');
+    });
 });

@@ -1,9 +1,4 @@
-import {
-    Component,
-    computed,
-    inject,
-    signal,
-} from '@angular/core';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatRippleModule } from '@angular/material/core';
@@ -51,7 +46,7 @@ import { CheckinStateService } from './checkin-state.service';
                     [disabled]="!agree()"
                     (click)="continue()"
                 >
-                    {{ 'APP.VISITOR_KIOSK.ACCEPT' | translate }}
+                    {{ 'COMMON.ACCEPT' | translate }}
                 </button>
             </div>
         </div>
@@ -59,7 +54,7 @@ import { CheckinStateService } from './checkin-state.service';
     styles: [],
     imports: [TranslatePipe, MatRippleModule, MatCheckboxModule, FormsModule],
 })
-export class CheckinInductionComponent {
+export class CheckinInductionComponent implements OnInit {
     private _checkin = inject(CheckinStateService);
     private _router = inject(Router);
     private _org = inject(OrganisationService);
@@ -123,11 +118,18 @@ export class CheckinInductionComponent {
         });
         notifySuccess('Induction completed successfully');
         if (this.induction_after_details()) {
+            const checked_in = await this._checkin
+                .checkinGuest()
+                .then(() => true)
+                .catch(() => false);
+            this.loading.set(false);
+            if (!checked_in) return;
             this._router.navigate([
                 '/checkin',
                 this.allow_user_photo() ? 'photo' : 'results',
             ]);
         } else {
+            this.loading.set(false);
             this._router.navigate(['/checkin', 'details']);
         }
     }

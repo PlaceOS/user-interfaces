@@ -7,7 +7,7 @@ import { SettingsService } from 'libs/common/src/lib/settings.service';
 import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticated-image.directive';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
-import { BookingAsset } from './booking-form.service';
+import { BookingAsset } from './booking-form.types';
 import {
     FAV_PARKING_KEY,
     ParkingSelectModalComponent,
@@ -153,7 +153,7 @@ export class ParkingSpaceListFieldComponent implements ControlValueAccessor {
     private _onTouch: (_: BookingAsset[]) => void;
 
     public readonly favorites = this._settings.signal<string[]>(
-        'favourite_spaces',
+        FAV_PARKING_KEY,
         EMPTY_FAVS,
         true,
     );

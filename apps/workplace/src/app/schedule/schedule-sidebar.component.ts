@@ -98,7 +98,7 @@ import {
                 </div>
             }
             <h3 class="mx-4 mt-4 font-medium">
-                {{ 'APP.WORKPLACE.SCHEDULE_FILTERS' | translate }}
+                {{ 'COMMON.FILTERS' | translate }}
             </h3>
             <div class="h-1/2 flex-1 space-y-4 overflow-auto p-4">
                 @if (hasFeature('spaces')) {

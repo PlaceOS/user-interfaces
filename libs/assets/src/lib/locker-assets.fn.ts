@@ -6,7 +6,12 @@ import {
     queryAssetTypes,
     removeAsset,
 } from '@placeos/ts-client';
-import { saveAsset, saveAssetCategory, saveAssetType } from './assets.fn';
+import {
+    findOldestByName,
+    saveAsset,
+    saveAssetCategory,
+    saveAssetType,
+} from './assets.fn';
 
 const LOCKER_CATEGORY_NAME = '_LOCKERS_';
 const LOCKER_BANK_TYPE_NAME = '_LOCKER_BANKS_';
@@ -16,12 +21,8 @@ let _locker_bank_type_id: string | null = null;
 let _locker_bank_type_id_promise: Promise<string> | null = null;
 let _locker_type_id: string | null = null;
 let _locker_type_id_promise: Promise<string> | null = null;
-let _hidden_categories_promise: Promise<any[]> | null = null;
-const _types_for_category_promises = new Map<string, Promise<any[]>>();
-
-function normalise_name(name: string = '') {
-    return name.trim().toLowerCase();
-}
+let _hidden_categories_promise: Promise<unknown[]> | null = null;
+const _types_for_category_promises = new Map<string, Promise<unknown[]>>();
 
 async function query_hidden_categories() {
     if (!_hidden_categories_promise) {
@@ -48,35 +49,30 @@ async function query_types_for_category(category_id: string) {
 }
 
 async function ensure_hidden_category(name: string) {
-    const match_name = normalise_name(name);
-    let category = (await query_hidden_categories()).find(
-        (_) => normalise_name(_.name) === match_name,
-    );
+    let category = findOldestByName(await query_hidden_categories(), name);
     if (category) return category;
     _hidden_categories_promise = null;
-    category = (await query_hidden_categories()).find(
-        (_) => normalise_name(_.name) === match_name,
-    );
+    category = findOldestByName(await query_hidden_categories(), name);
     if (category) return category;
     const created = await saveAssetCategory({
         name,
         hidden: true,
-    } as any);
+    });
     _hidden_categories_promise = null;
     return created;
 }
 
 async function ensure_type(category_id: string, name: string) {
-    const match_name = normalise_name(name);
-    let type = (await query_types_for_category(category_id)).find(
-        (_) => normalise_name(_.name) === match_name,
+    let type = findOldestByName(
+        await query_types_for_category(category_id),
+        name,
     );
     if (type) return type;
     const created = await saveAssetType({
         name,
         brand: 'PlaceOS',
         category_id,
-    } as any);
+    });
     _types_for_category_promises.delete(category_id);
     return created;
 }

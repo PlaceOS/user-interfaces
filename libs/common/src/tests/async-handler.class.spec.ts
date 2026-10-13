@@ -19,7 +19,7 @@ describe('AsyncHandler', () => {
     });
 
     it('should clear timers on destroy', () => {
-        const spy = jest.spyOn(window, 'clearTimeout');
+        const spy = vi.spyOn(window, 'clearTimeout');
         obj = new BaseTestClass(() => null);
         expect(spy).not.toHaveBeenCalled();
         obj.ngOnDestroy();
@@ -27,7 +27,7 @@ describe('AsyncHandler', () => {
     });
 
     it('should clear intervals on destroy', () => {
-        const spy = jest.spyOn(window, 'clearInterval');
+        const spy = vi.spyOn(window, 'clearInterval');
         obj = new BaseTestClass(null, () => null);
         expect(spy).not.toHaveBeenCalled();
         obj.ngOnDestroy();
@@ -35,7 +35,7 @@ describe('AsyncHandler', () => {
     });
 
     it('should unsub from subscriptions on destroy', () => {
-        const spy = jest.fn();
+        const spy = vi.fn();
         obj = new BaseTestClass(null, null, spy);
         expect(spy).not.toHaveBeenCalled();
         obj.ngOnDestroy();

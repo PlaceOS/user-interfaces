@@ -27,7 +27,7 @@ import { MapLocation } from 'libs/users/src/lib/location.class';
 import { showStaff } from 'libs/users/src/lib/staff.fn';
 
 import { FormsModule } from '@angular/forms';
-import { SettingsToggleComponent } from '@placeos/components';
+import { SettingsToggleComponent } from 'libs/components/src/lib/settings-toggle.component';
 import { ExploreDesksService } from './explore-desks.service';
 import { ExploreLockersService } from './explore-lockers.service';
 import { ExploreMapControlComponent } from './explore-map-control.component';
@@ -55,17 +55,52 @@ const EMPTY = [];
         @if (!use_mapsindoors()) {
             <div
                 controls
-                class="border-base-300 bg-base-100 absolute top-2 left-2 max-w-[calc(100vw-1rem)] space-y-2 overflow-hidden rounded-lg border p-2 shadow-xl"
+                class="flex flex-col border-base-300 bg-base-100 absolute top-2 left-2 max-w-[calc(100vw-1rem)] gap-2 overflow-hidden rounded-lg border p-2 shadow-xl"
             >
                 <explore-map-controls></explore-map-controls>
-                @if (!hide_zones()) {
-                    <settings-toggle
-                        class="mt-2"
-                        [label]="'EXPLORE.AREAS' | translate"
-                        [ngModel]="!options()?.disable?.includes('zones')"
-                        (ngModelChange)="toggleZones($event)"
-                    />
+                @if (toggle_count() >= 2) {
+                    <button
+                        toggle-controls
+                        matRipple
+                        type="button"
+                        class="bg-base-200 rounded flex w-full items-center justify-between space-x-4 font-medium p-2"
+                        [attr.aria-expanded]="!toggles_collapsed()"
+                        aria-controls="explore-map-toggle-options"
+                        (click)="toggles_collapsed.set(!toggles_collapsed())"
+                    >
+                        <div class="px-2">Map Overlays</div>
+                        <div class="text-sm underline">
+                            {{ toggles_collapsed() ? 'Show' : 'Hide' }}
+                        </div>
+                    </button>
                 }
+                <div
+                    id="explore-map-toggle-options"
+                    class="space-y-2"
+                    [class.hidden]="toggles_collapsed() && toggle_count() >= 2"
+                >
+                    @if (!hide_zones()) {
+                        <settings-toggle
+                            [label]="'EXPLORE.AREAS' | translate"
+                            [ngModel]="!options()?.disable?.includes('zones')"
+                            (ngModelChange)="toggleFeature('zones', $event)"
+                        />
+                    }
+                    @if (!hide_devices()) {
+                        <settings-toggle
+                            label="Show Devices"
+                            [ngModel]="!options()?.disable?.includes('devices')"
+                            (ngModelChange)="toggleFeature('devices', $event)"
+                        />
+                    }
+                    @if (!hide_sensors()) {
+                        <settings-toggle
+                            label="Show Sensors"
+                            [ngModel]="!options()?.disable?.includes('sensors')"
+                            (ngModelChange)="toggleFeature('sensors', $event)"
+                        />
+                    }
+                </div>
             </div>
         }
         @if (show_legend() && legend().length) {
@@ -76,19 +111,16 @@ const EMPTY = [];
                 @if (legend().length > 3) {
                     <button
                         type="button"
-                        class="flex w-full min-w-64 items-center justify-between space-x-4 p-3 text-left font-medium sm:hidden"
+                        class="flex w-full min-w-64 items-center justify-between space-x-4 p-3 text-left font-medium"
                         [attr.aria-expanded]="!legend_collapsed()"
                         aria-controls="explore-map-legend-items"
                         (click)="legend_collapsed.set(!legend_collapsed())"
                     >
                         <div>{{ 'EXPLORE.LEGEND' | translate }}</div>
-                        <div class="text-sm underline sm:hidden">
+                        <div class="text-sm underline">
                             {{ legend_collapsed() ? 'Show' : 'Hide' }}
                         </div>
                     </button>
-                    <h3 class="hidden min-w-64 p-3 font-medium sm:block">
-                        {{ 'EXPLORE.LEGEND' | translate }}
-                    </h3>
                 } @else {
                     <h3 class="min-w-64 p-3 font-medium">
                         {{ 'EXPLORE.LEGEND' | translate }}
@@ -96,7 +128,7 @@ const EMPTY = [];
                 }
                 <div
                     id="explore-map-legend-items"
-                    class="space-y-1 px-4 pb-3 sm:block"
+                    class="space-y-1 px-4 pb-3"
                     [class.hidden]="legend_collapsed() && legend().length > 3"
                 >
                     @for (pair of legend(); track pair) {
@@ -113,7 +145,7 @@ const EMPTY = [];
         }
         @if (locate()) {
             <button
-                class="border-base-300 bg-base-100 absolute top-2 right-2 h-12 min-w-32 rounded-lg border px-4 shadow-sm"
+                class="border-base-300 bg-base-100 absolute bottom-2 right-2 h-12 min-w-32 rounded-lg border px-4 shadow-sm"
                 matRipple
                 (click)="clearLocate()"
             >
@@ -189,20 +221,30 @@ export class ExploreMapViewComponent extends AsyncHandler implements OnInit {
     public readonly locate = signal('');
     public readonly map_info = signal<Record<string, any>>({});
     public readonly legend_collapsed = signal(true);
+    public readonly toggles_collapsed = signal(true);
 
-    public async toggleZones(enabled: boolean) {
+    public toggleFeature(
+        feature: 'zones' | 'devices' | 'sensors',
+        enabled: boolean,
+    ) {
         const options = this.options();
         const disable = !enabled
-            ? unique([...(options?.disable || []), 'zones', 'devices'])
-            : options?.disable?.filter(
-                  (_) => _ !== 'zones' && _ !== 'devices',
-              ) || [];
+            ? unique([...(options?.disable || []), feature])
+            : options?.disable?.filter((_) => _ !== feature) || [];
         this.setOptions({ disable });
     }
 
     public readonly show_legend = settingSignal('explore.show_legend', false);
 
     public readonly hide_zones = settingSignal('explore.hide_zones', false);
+    public readonly hide_devices = settingSignal('explore.hide_devices', true);
+    public readonly hide_sensors = settingSignal('explore.hide_sensors', true);
+    public readonly toggle_count = computed(
+        () =>
+            +!this.hide_zones() +
+            +!this.hide_devices() +
+            +!this.hide_sensors(),
+    );
 
     public readonly legend = settingSignal<[string, string][]>(
         'explore.legend',
@@ -227,7 +269,7 @@ export class ExploreMapViewComponent extends AsyncHandler implements OnInit {
         ) {
             await new Promise((resolve) => setTimeout(resolve, 100));
         }
-        this.toggleZones(false);
+        this.toggleFeature('zones', false);
         const stop_polling: (() => void) | { unsubscribe?: () => void } =
             this._parking.startPolling?.() || (() => undefined);
         const cleanup_polling =
@@ -313,7 +355,7 @@ export class ExploreMapViewComponent extends AsyncHandler implements OnInit {
     private _locateFeature(id: string, name = '') {
         const has_coordinates = id.includes(',');
         const parts = id.split(',');
-        const feature: any = {
+        const feature = {
             track_id: `locate-${id}`,
             location: has_coordinates
                 ? { x: parseFloat(parts[0]), y: parseFloat(parts[1]) }
@@ -333,7 +375,7 @@ export class ExploreMapViewComponent extends AsyncHandler implements OnInit {
         if (!space)
             return notifyError(i18n('EXPLORE.LOCATE_SPACE_DETAILS_FAILED'));
         this._state.setLevel(this._org.levelWithID(space.zones)?.id);
-        const feature: any = {
+        const feature = {
             track_id: `locate-${space.id}`,
             location: space.map_id,
             content: MapPinComponent,

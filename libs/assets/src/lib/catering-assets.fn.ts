@@ -6,7 +6,12 @@ import {
     queryAssetTypes,
     removeAsset,
 } from '@placeos/ts-client';
-import { saveAsset, saveAssetCategory, saveAssetType } from './assets.fn';
+import {
+    findOldestByName,
+    saveAsset,
+    saveAssetCategory,
+    saveAssetType,
+} from './assets.fn';
 
 const CATERING_CATEGORY_NAME = '_CATERING_';
 const CATERING_TYPE_PREFIX = 'CATERING:';
@@ -15,8 +20,8 @@ const STANDALONE_CATERER_LABEL = 'standalone';
 
 let _catering_category_id: string | null = null;
 let _catering_category_id_promise: Promise<string> | null = null;
-let _hidden_categories_promise: Promise<any[]> | null = null;
-let _catering_types_promise: Promise<any[]> | null = null;
+let _hidden_categories_promise: Promise<unknown[]> | null = null;
+let _catering_types_promise: Promise<unknown[]> | null = null;
 
 function normalise_name(name: string = '') {
     return name.trim().toLowerCase();
@@ -43,28 +48,21 @@ async function query_hidden_categories() {
 }
 
 async function ensure_hidden_category(name: string) {
-    const match_name = normalise_name(name);
-    let category = (await query_hidden_categories()).find(
-        (_) => normalise_name(_.name) === match_name,
-    );
+    let category = findOldestByName(await query_hidden_categories(), name);
     if (category) return category;
     reset_hidden_categories_cache();
-    category = (await query_hidden_categories()).find(
-        (_) => normalise_name(_.name) === match_name,
-    );
+    category = findOldestByName(await query_hidden_categories(), name);
     if (category) return category;
     try {
         category = await saveAssetCategory({
             name,
             hidden: true,
-        } as any);
+        });
         reset_hidden_categories_cache();
         return category;
     } catch (error) {
         reset_hidden_categories_cache();
-        category = (await query_hidden_categories()).find(
-            (_) => normalise_name(_.name) === match_name,
-        );
+        category = findOldestByName(await query_hidden_categories(), name);
         if (category) return category;
         throw error;
     }
@@ -120,9 +118,7 @@ export async function resolveCateringTypeId(
 ): Promise<string> {
     const type_name = toCateringTypeName(caterer);
     const types = await query_catering_types();
-    const type = types.find(
-        (_) => normalise_name(_.name) === normalise_name(type_name),
-    );
+    const type = findOldestByName(types, type_name);
     if (type) return type.id;
     try {
         const category_id = await resolveCateringCategoryId();
@@ -130,15 +126,13 @@ export async function resolveCateringTypeId(
             name: type_name,
             brand: 'PlaceOS',
             category_id,
-        } as any);
+        });
         reset_catering_types_cache();
         return type.id;
     } catch (error) {
         reset_catering_types_cache();
         const types = await query_catering_types();
-        const type = types.find(
-            (_) => normalise_name(_.name) === normalise_name(type_name),
-        );
+        const type = findOldestByName(types, type_name);
         if (type) return type.id;
         throw error;
     }
@@ -242,7 +236,7 @@ export async function saveCateringItem(
     try {
         saved = await saveAsset(asset);
     } catch (error) {
-        if (!asset.id || (error as any)?.status !== 404) throw error;
+        if (!asset.id || error?.status !== 404) throw error;
         const { id, ...new_asset } = asset;
         saved = await saveAsset(new_asset);
     }

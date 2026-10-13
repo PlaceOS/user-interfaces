@@ -375,7 +375,7 @@ function generateMockMedia() {
     const media = [];
     let mediaId = 1;
 
-    CONTENT_TEMPLATES.forEach((template, templateIndex) => {
+    CONTENT_TEMPLATES.forEach((template) => {
         // Create 2-3 variations of each template
         const variations = predictableRandomInt(3, 2);
 
@@ -745,6 +745,32 @@ function generateMockTriggers() {
 const MOCK_DISPLAYS = generateMockDisplays();
 const MOCK_MEDIA = generateMockMedia();
 const MOCK_PLAYLISTS = generateMockPlaylists(MOCK_DISPLAYS, MOCK_MEDIA);
+const MOCK_PLUGINS = [
+    {
+        id: 'weather',
+        name: 'Weather',
+        description: 'Current weather signage widget',
+        uri: '/plugins/weather/index.html',
+        enabled: true,
+        defaults: { units: 'metric' },
+        params: {
+            location: {
+                type: 'string',
+                title: 'Location',
+                default: 'Sydney',
+            },
+        },
+    },
+    {
+        id: 'clock',
+        name: 'Clock',
+        description: 'Clock signage widget',
+        uri: '/plugins/clock/index.html',
+        enabled: true,
+        defaults: { format: '24h' },
+        params: {},
+    },
+];
 const MOCK_TRIGGERS = generateMockTriggers();
 
 const SIGNAGE_GROUPS: Array<{ group: any; permissions: number }> = [
@@ -780,6 +806,30 @@ const SIGNAGE_GROUP_USERS: any[] = [
         user_id: MOCK_STAFF[1].email,
         permissions: 0x41,
         user: MOCK_STAFF[1],
+    },
+];
+
+/** Organisation directory groups returned by the staff API */
+const MOCK_DIRECTORY_GROUPS = [
+    {
+        id: '6a1c9a4e-0000-4000-8000-000000000001',
+        name: 'All Staff',
+        email: 'all-staff@place.tech',
+    },
+    {
+        id: '6a1c9a4e-0000-4000-8000-000000000002',
+        name: 'Facilities Team',
+        email: 'facilities@place.tech',
+    },
+    {
+        id: '6a1c9a4e-0000-4000-8000-000000000003',
+        name: 'Marketing Team',
+        email: 'marketing@place.tech',
+    },
+    {
+        id: '6a1c9a4e-0000-4000-8000-000000000004',
+        name: 'Reception',
+        email: 'reception@place.tech',
     },
 ];
 
@@ -826,6 +876,17 @@ function filterByGroup<T>(items: T[], group_id = '') {
     return items.filter((_, index) => index % 2 === 0);
 }
 
+/**
+ * Groups holding an item, matching the index parity `filterByGroup` uses to
+ * fake group scoping.
+ */
+function sharedWithGroups(items: any[], id: string) {
+    const index = items.findIndex((item) => item.id === id);
+    if (index < 0) return [];
+    const groups = index % 2 === 0 ? SIGNAGE_GROUPS : [SIGNAGE_GROUPS[0]];
+    return groups.map(({ group }) => ({ id: group.id, name: group.name }));
+}
+
 function toEngineMedia(item: any) {
     const is_video = item.type === 'video';
     return {
@@ -843,6 +904,7 @@ function toEngineMedia(item: any) {
         updated_at: item.updated_at,
         valid_from: item.scheduling?.start_date,
         valid_until: item.scheduling?.end_date,
+        tags: item.tags || [],
     };
 }
 
@@ -868,9 +930,60 @@ function playlistMediaResponse(playlist_id: string, approved = false) {
         id: `${playlist_id}-media`,
         playlist_id,
         items: (playlist?.items || []).map((item) => item.media_id),
+        schedules: (playlist?.items || []).map((item) => ({
+            id: item.id,
+            item_id: item.media_id,
+            schedules: [],
+        })),
         approved,
         approval_requested: false,
         updated_at: playlist?.updated_at || getUnixTime(Date.now()),
+    };
+}
+
+function signageDisplay(display_id: string) {
+    if (display_id === 'display-1') {
+        throw { status: 404, message: 'Display not found' };
+    }
+    const display =
+        MOCK_DISPLAYS.find((item) => item.id === display_id) ||
+        MOCK_DISPLAYS[0];
+    const playlists = MOCK_PLAYLISTS.filter(
+        (playlist) =>
+            playlist.target?.displays?.includes(display.id) ||
+            playlist.target?.zones?.includes(display.zone_id),
+    ).slice(0, 3);
+    const mapped_playlists = playlists.length
+        ? playlists
+        : MOCK_PLAYLISTS.slice(0, 2);
+    const media_ids = [
+        ...new Set(
+            mapped_playlists.flatMap((playlist) =>
+                playlist.items.map((item) => item.media_id),
+            ),
+        ),
+    ];
+    return {
+        id: display_id,
+        zones: [display.zone_id, display.building_id].filter(Boolean),
+        playlist_mappings: {
+            [display_id]: mapped_playlists.map((playlist) => playlist.id),
+            [display.zone_id]: [],
+        },
+        playlist_config: Object.fromEntries(
+            mapped_playlists.map((playlist) => [
+                playlist.id,
+                [
+                    toEnginePlaylist(playlist),
+                    playlist.items.map((item) => item.media_id),
+                ],
+            ]),
+        ),
+        playlist_media: media_ids
+            .map((id) => MOCK_MEDIA.find((item) => item.id === id))
+            .filter((item) => !!item)
+            .map(toEngineMedia),
+        plugins: MOCK_PLUGINS,
     };
 }
 
@@ -955,6 +1068,49 @@ export function registerMockSignage() {
     registerMockEndpoint({
         path: '/api/engine/v2/groups/:id',
         metadata: {},
+        method: 'GET',
+        callback: (request) => {
+            const item = SIGNAGE_GROUPS.find(
+                ({ group }) => group.id === request.route_params.id,
+            );
+            if (!item) throw { status: 404, message: 'Group not found' };
+            return item.group;
+        },
+    });
+
+    // Effective features: each group's own flags merged over its ancestors'
+    registerMockEndpoint({
+        path: '/api/engine/v2/groups/:id/features',
+        metadata: {},
+        method: 'GET',
+        callback: (request) => {
+            const groups = SIGNAGE_GROUPS.map(({ group }) => group);
+            const chain: any[] = [];
+            let group = groups.find(({ id }) => id === request.route_params.id);
+            while (group && !chain.includes(group)) {
+                chain.unshift(group);
+                group = groups.find(({ id }) => id === group.parent_id);
+            }
+            if (!chain.length) throw { status: 404, message: 'Not found' };
+            const features: Record<string, Record<string, unknown>> = {};
+            for (const { features: own = {} } of chain) {
+                for (const [subsystem, flags] of Object.entries(own)) {
+                    features[subsystem] = {
+                        ...features[subsystem],
+                        ...(flags as Record<string, unknown>),
+                    };
+                }
+            }
+            const subsystem = request.query_params?.subsystem;
+            return subsystem
+                ? { [subsystem]: features[subsystem] || {} }
+                : features;
+        },
+    });
+
+    registerMockEndpoint({
+        path: '/api/engine/v2/groups/:id',
+        metadata: {},
         method: 'DELETE',
         callback: (request) => {
             const index = SIGNAGE_GROUPS.findIndex(
@@ -962,6 +1118,21 @@ export function registerMockSignage() {
             );
             if (index >= 0) SIGNAGE_GROUPS.splice(index, 1);
             return {};
+        },
+    });
+
+    registerMockEndpoint({
+        path: '/api/staff/v1/groups',
+        metadata: {},
+        method: 'GET',
+        callback: (request) => {
+            const q = (request.query_params?.q || '').toLowerCase();
+            return MOCK_DIRECTORY_GROUPS.filter(
+                (group) =>
+                    !q ||
+                    group.name.toLowerCase().includes(q) ||
+                    group.email.toLowerCase().includes(q),
+            );
         },
     });
 
@@ -985,10 +1156,15 @@ export function registerMockSignage() {
                     item.email === request.body.user_id ||
                     item.id === request.body.user_id,
             );
+            const group = SIGNAGE_GROUPS.find(
+                (item) => item.group.id === request.body.group_id,
+            )?.group;
+            // Like the backend, omitted permissions use the group defaults
             const item = {
                 ...request.body,
                 user_id: request.body.user_id,
-                permissions: request.body.permissions || 0,
+                permissions:
+                    request.body.permissions ?? group?.default_permissions ?? 0,
                 user,
                 created_at: new Date().toISOString(),
                 updated_at: new Date().toISOString(),
@@ -1106,6 +1282,38 @@ export function registerMockSignage() {
     });
 
     registerMockEndpoint({
+        path: '/api/engine/v2/signage/media/tags',
+        metadata: {},
+        method: 'GET',
+        callback: (request) => [
+            ...new Set(
+                filterByGroup(MOCK_MEDIA, request.query_params?.group_id)
+                    .flatMap((item) => item.tags || [])
+                    .filter((tag) => !!tag),
+            ),
+        ],
+    });
+
+    registerMockEndpoint({
+        path: '/api/engine/v2/signage/media/tag_counts',
+        metadata: {},
+        method: 'GET',
+        callback: (request) => {
+            const counts: Record<string, number> = {};
+            for (const item of filterByGroup(
+                MOCK_MEDIA,
+                request.query_params?.group_id,
+            )) {
+                for (const tag of item.tags || []) {
+                    if (!tag) continue;
+                    counts[tag] = (counts[tag] || 0) + 1;
+                }
+            }
+            return counts;
+        },
+    });
+
+    registerMockEndpoint({
         path: '/api/engine/v2/signage/media',
         metadata: {},
         method: 'POST',
@@ -1114,6 +1322,18 @@ export function registerMockSignage() {
             id: `media-${Date.now()}`,
             created_at: getUnixTime(Date.now()),
             updated_at: getUnixTime(Date.now()),
+        }),
+    });
+
+    registerMockEndpoint({
+        path: '/api/engine/v2/signage/media/:id',
+        metadata: {},
+        method: 'GET',
+        callback: (request) => ({
+            ...toEngineMedia(
+                MOCK_MEDIA.find((item) => item.id === request.route_params.id),
+            ),
+            shared_with: sharedWithGroups(MOCK_MEDIA, request.route_params.id),
         }),
     });
 
@@ -1138,10 +1358,54 @@ export function registerMockSignage() {
     });
 
     registerMockEndpoint({
+        path: '/api/engine/v2/signage/media/:id/thumbnail',
+        metadata: {},
+        method: 'GET',
+        callback: () => ({}),
+    });
+
+    // Webpage and plugin thumbnails start from a server side screenshot
+    registerMockEndpoint({
+        path: '/api/engine/v2/uploads/screenshot',
+        metadata: {},
+        method: 'POST',
+        callback: (request) => ({
+            id: `upload-screenshot-${Date.now()}`,
+            file_name: `screenshot-${new URL(request.body.url).host}.jpg`,
+            file_mime: 'image/jpeg',
+            tags: ['screenshot'],
+        }),
+    });
+
+    registerMockEndpoint({
+        path: '/api/engine/v2/uploads/:id',
+        metadata: {},
+        method: 'DELETE',
+        callback: () => ({}),
+    });
+
+    registerMockEndpoint({
         path: '/api/engine/v2/signage/media/share',
         metadata: {},
         method: 'POST',
         callback: () => ({}),
+    });
+
+    registerMockEndpoint({
+        path: '/api/engine/v2/signage/plugins',
+        metadata: {},
+        method: 'GET',
+        callback: () => MOCK_PLUGINS,
+    });
+
+    registerMockEndpoint({
+        path: '/api/engine/v2/signage/plugins/:id',
+        metadata: {},
+        method: 'GET',
+        callback: (request) =>
+            MOCK_PLUGINS.find(
+                (plugin) => plugin.id === request.route_params.id,
+            ) || {},
     });
 
     registerMockEndpoint({
@@ -1176,6 +1440,23 @@ export function registerMockSignage() {
             id: `playlist-${Date.now()}`,
             created_at: getUnixTime(Date.now()),
             updated_at: getUnixTime(Date.now()),
+        }),
+    });
+
+    registerMockEndpoint({
+        path: '/api/engine/v2/signage/playlists/:id',
+        metadata: {},
+        method: 'GET',
+        callback: (request) => ({
+            ...toEnginePlaylist(
+                MOCK_PLAYLISTS.find(
+                    (item) => item.id === request.route_params.id,
+                ),
+            ),
+            shared_with: sharedWithGroups(
+                MOCK_PLAYLISTS,
+                request.route_params.id,
+            ),
         }),
     });
 
@@ -1221,6 +1502,33 @@ export function registerMockSignage() {
     });
 
     registerMockEndpoint({
+        path: '/api/engine/v2/signage/playlists/:id/media/schedule',
+        metadata: {},
+        method: 'POST',
+        callback: (request) => ({
+            ...playlistMediaResponse(request.route_params.id, false),
+            schedules: [
+                {
+                    id: `schedule-${Date.now()}`,
+                    item_id: request.body?.item_id,
+                    schedules: request.body?.schedules || [],
+                },
+            ],
+        }),
+    });
+
+    registerMockEndpoint({
+        path: '/api/engine/v2/signage/playlists/:id/media/schedule/:item_id',
+        metadata: {},
+        method: 'PATCH',
+        callback: (request) => ({
+            id: request.route_params.item_id,
+            item_id: request.body?.item_id || request.route_params.item_id,
+            schedules: request.body?.schedules || [],
+        }),
+    });
+
+    registerMockEndpoint({
         path: '/api/engine/v2/signage/playlists/:id/media/revisions',
         metadata: {},
         method: 'GET',
@@ -1247,6 +1555,20 @@ export function registerMockSignage() {
 
     registerMockEndpoint({
         path: '/api/engine/v2/signage/playlists/share',
+        metadata: {},
+        method: 'POST',
+        callback: () => ({}),
+    });
+
+    registerMockEndpoint({
+        path: '/api/engine/v2/signage/:id',
+        metadata: {},
+        method: 'GET',
+        callback: (request) => signageDisplay(request.route_params.id),
+    });
+
+    registerMockEndpoint({
+        path: '/api/engine/v2/signage/:id/metrics',
         metadata: {},
         method: 'POST',
         callback: () => ({}),
@@ -1584,6 +1906,215 @@ export function registerMockSignage() {
                 message: `Action ${action} executed successfully`,
                 timestamp: new Date().toISOString(),
             };
+        },
+    });
+
+    registerMockSignageImageGen();
+}
+
+/**
+ * Image generation, in mock mode.
+ *
+ * Jobs live in a closure so the long poll behaves the way the real one does:
+ * the first request comes back queued, and candidates land one at a time a
+ * moment later. Images point at media already in the mock library, so the
+ * modal renders something real.
+ */
+interface MockImageGenRequest {
+    candidates?: number;
+    parent_job_id?: string;
+    prompt?: string;
+}
+
+interface MockImageGenJobImage {
+    state: 'done';
+    index: number;
+    upload_id: string;
+    url: string;
+    width: number;
+    height: number;
+    mime: string;
+    item_id?: string;
+}
+
+interface MockImageGenJob {
+    id: string;
+    state: 'queued' | 'running' | 'done' | 'failed' | 'cancelled';
+    kind: 'generate' | 'edit';
+    provider: string;
+    model: string;
+    candidates: number;
+    images_produced: number;
+    parent_job_id?: string;
+    version: number;
+    prompt?: string;
+    images: (MockImageGenJobImage | null)[];
+    error_kind?: string;
+    error_message?: string;
+    created_at: number;
+    finished_at?: number;
+}
+
+function registerMockSignageImageGen() {
+    const IMAGE_GEN_JOBS: Record<string, MockImageGenJob> = {};
+    const SAMPLE_IMAGES = MOCK_MEDIA.slice(0, 4).map((item) => item.id);
+
+    const now = () => Math.floor(Date.now() / 1000);
+
+    function makeJob(request: MockImageGenRequest, kind: 'generate' | 'edit') {
+        const count = Math.min(Math.max(request.candidates || 2, 1), 4);
+        const job: MockImageGenJob = {
+            id: `signage-ai-job-${Object.keys(IMAGE_GEN_JOBS).length + 1}`,
+            state: 'queued',
+            kind,
+            provider: 'OPENAI',
+            model: 'gpt-image-2.5-sunburst',
+            candidates: count,
+            images_produced: 0,
+            parent_job_id: request.parent_job_id,
+            version: 0,
+            prompt: request.prompt,
+            images: Array.from({ length: count }, () => null),
+            created_at: now(),
+        };
+        IMAGE_GEN_JOBS[job.id] = job;
+
+        if (`${request.prompt}`.includes('trigger-moderation')) {
+            setTimeout(() => {
+                job.state = 'failed';
+                job.error_kind = 'moderation';
+                job.error_message =
+                    'The request was blocked by the safety system';
+                job.version += 1;
+            }, 600);
+            return job;
+        }
+
+        job.state = 'running';
+        for (let index = 0; index < count; index++) {
+            setTimeout(
+                () => {
+                    const media_id =
+                        SAMPLE_IMAGES[index % SAMPLE_IMAGES.length] ||
+                        'upload-1';
+                    job.images[index] = {
+                        state: 'done',
+                        index,
+                        upload_id: media_id,
+                        url: `/api/engine/v2/uploads/${media_id}/url`,
+                        width: 2048,
+                        height: 1152,
+                        mime: 'image/jpeg',
+                    };
+                    job.images_produced += 1;
+                    job.version += 1;
+                    if (job.images_produced >= count) {
+                        job.state = 'done';
+                        job.finished_at = now();
+                        job.version += 1;
+                    }
+                },
+                800 + index * 500,
+            );
+        }
+        return job;
+    }
+
+    registerMockEndpoint({
+        path: '/api/engine/v2/signage/ai/capabilities',
+        metadata: {},
+        method: 'GET',
+        callback: () => ({
+            enabled: true,
+            providers: [
+                {
+                    id: 'signage-ai-provider-1',
+                    name: 'Mock provider',
+                    provider: 'OPENAI',
+                    default_model: 'gpt-image-2.5-sunburst',
+                    models: [
+                        {
+                            id: 'gpt-image-2.5-sunburst',
+                            name: 'GPT Image 2.5 Sunburst',
+                            generate: true,
+                            edit: true,
+                            enhance: true,
+                            max_references: 16,
+                            max_candidates: 4,
+                            qualities: ['standard', 'high'],
+                            aspect_ratios: ['16:9', '9:16', '1:1', '4:3'],
+                        },
+                    ],
+                },
+            ],
+            default_provider_id: 'signage-ai-provider-1',
+            aspect_ratios: ['16:9', '9:16', '1:1', '4:3'],
+            qualities: ['standard', 'high'],
+            max_candidates: 4,
+            logo_layer: false,
+            quota: { user_remaining_today: 42, domain_remaining_month: 900 },
+        }),
+    });
+
+    registerMockEndpoint({
+        path: '/api/engine/v2/signage/ai/generate',
+        metadata: {},
+        method: 'POST',
+        callback: (request) => makeJob(request.body || {}, 'generate'),
+    });
+
+    registerMockEndpoint({
+        path: '/api/engine/v2/signage/ai/edit',
+        metadata: {},
+        method: 'POST',
+        callback: (request) => makeJob(request.body || {}, 'edit'),
+    });
+
+    registerMockEndpoint({
+        path: '/api/engine/v2/signage/ai/jobs',
+        metadata: {},
+        method: 'GET',
+        callback: () => Object.values(IMAGE_GEN_JOBS),
+    });
+
+    registerMockEndpoint({
+        path: '/api/engine/v2/signage/ai/jobs/:id',
+        metadata: {},
+        method: 'GET',
+        callback: (request) => {
+            const job = IMAGE_GEN_JOBS[request.route_params.id];
+            if (!job) throw { status: 404, message: 'No such job' };
+            return job;
+        },
+    });
+
+    registerMockEndpoint({
+        path: '/api/engine/v2/signage/ai/jobs/:id/cancel',
+        metadata: {},
+        method: 'POST',
+        callback: (request) => {
+            const job = IMAGE_GEN_JOBS[request.route_params.id];
+            if (!job) throw { status: 404, message: 'No such job' };
+            if (job.state === 'queued' || job.state === 'running') {
+                job.state = 'cancelled';
+                job.version += 1;
+            }
+            return job;
+        },
+    });
+
+    registerMockEndpoint({
+        path: '/api/engine/v2/signage/ai/jobs/:id/claim',
+        metadata: {},
+        method: 'POST',
+        callback: (request) => {
+            const job = IMAGE_GEN_JOBS[request.route_params.id];
+            if (!job) throw { status: 404, message: 'No such job' };
+            const entry = job.images.find(
+                (image) => image?.upload_id === request.body?.upload_id,
+            );
+            if (entry) entry.item_id = request.body?.item_id;
+            return job;
         },
     });
 }

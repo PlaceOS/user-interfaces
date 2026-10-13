@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, effect, inject, signal } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import {
     MAT_DIALOG_DATA,
@@ -9,14 +9,16 @@ import {
 import { MatTooltipModule } from '@angular/material/tooltip';
 import {
     isMobileSafari,
+    OrganisationService,
     settingSignal,
     SettingsService,
     Space,
 } from '@placeos/common';
-import { EventFormOptions, EventFormService } from '@placeos/events';
+import { EventFormOptions, EventFormService } from '../event-form.service';
 
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
+import { multipleSpacesEnabled } from '../utilities';
 import { SpaceDetailsComponent } from './space-details.component';
 import { SpaceFiltersDisplayComponent } from './space-filters-display.component';
 import { SpaceFiltersComponent } from './space-filters.component';
@@ -98,24 +100,24 @@ export const FAV_DESK_KEY = 'favourite_spaces';
                     "
                 >
                     @if (view() === 'list') {
-                        <space-filters-display
-                            [(view)]="view"
-                        ></space-filters-display>
+                        <space-filters-display></space-filters-display>
                     }
                     @if (view() === 'list') {
                         <space-list
                             list
                             [active]="displayed()?.id"
                             [selected]="selected_ids()"
+                            [selected_spaces]="
+                                allow_multiple() ? selected_locations() : []
+                            "
                             [favorites]="favorites()"
                             (toggleFav)="toggleFavourite($event)"
-                            (onSelect)="displayed.set($event)"
+                            (onSelect)="selectSpace($event)"
                         ></space-list>
                     } @else {
                         <space-map
                             map
                             class="h-full min-h-[60vh] w-full"
-                            [is_displayed]="!!displayed()"
                             [active]="displayed()?.id"
                             (onSelect)="displayed.set($event)"
                         >
@@ -142,9 +144,7 @@ export const FAV_DESK_KEY = 'favourite_spaces';
                     <space-details
                         details
                         [space]="displayed()"
-                        [active]="selected_ids().includes(displayed()?.id)"
                         [hide_map]="view() === 'map'"
-                        (activeChange)="setSelected(displayed(), $event)"
                         [fav]="
                             displayed() && favorites().includes(displayed()?.id)
                         "
@@ -246,6 +246,7 @@ export class SpaceSelectModalComponent {
         inject<MatDialogRef<SpaceSelectModalComponent>>(MatDialogRef);
     private _settings = inject(SettingsService);
     private _event_form = inject(EventFormService);
+    private _org = inject(OrganisationService);
     private _data = inject<{
         spaces: Space[];
         options: Partial<EventFormOptions>;
@@ -262,10 +263,20 @@ export class SpaceSelectModalComponent {
     public readonly is_safari = computed(() => isMobileSafari());
 
     public readonly selected_ids = computed(() =>
-        this.selected()
-            .map((_) => _.id)
-            .join(','),
+        this.selected().map((_) => _.id),
     );
+
+    public readonly selected_locations = computed(() => {
+        return this.selected().map((space) => {
+            const {
+                level,
+                building,
+                region,
+                label: location,
+            } = this._org.locationWithID(space.zones);
+            return { space, level, building, region, location };
+        });
+    });
 
     public readonly favorites = settingSignal<string[]>(
         'favourite_spaces',
@@ -273,10 +284,31 @@ export class SpaceSelectModalComponent {
         true,
     );
 
-    public readonly allow_multiple = settingSignal<boolean>(
-        'events.allow_multiple_spaces',
-        false,
-    );
+    public readonly allow_multiple = computed(() => {
+        this._settings.overrides();
+        return multipleSpacesEnabled(this._settings);
+    });
+
+    private readonly _remove_stale_selections = effect(() => {
+        const loaded_lists = {
+            ...this._event_form.loaded_space_lists(),
+            [this._event_form.loaded_space_zone()]: this._event_form.spaces(),
+        };
+        const stale = this.selected().filter((space) => {
+            const matching_lists = Object.entries(loaded_lists).filter(
+                ([zone_id]) => zone_id && space.zones.includes(zone_id),
+            );
+            return matching_lists.some(
+                ([, spaces]) =>
+                    !spaces.some((candidate) => candidate.id === space.id),
+            );
+        });
+        if (!stale.length) return;
+        const stale_ids = new Set(stale.map((space) => space.id));
+        this.selected.update((spaces) =>
+            spaces.filter((space) => !stale_ids.has(space.id)),
+        );
+    });
 
     constructor() {
         const _data = this._data;
@@ -291,7 +323,7 @@ export class SpaceSelectModalComponent {
     }
 
     public isSelected(id: string) {
-        return id && this.selected_ids().includes(id);
+        return !!id && this.selected().some((space) => space.id === id);
     }
 
     public setSelected(item: Space, state: boolean) {
@@ -314,19 +346,36 @@ export class SpaceSelectModalComponent {
         );
     }
 
+    /** Show a selected room at its original organisation location. */
+    public selectSpace(space: Space) {
+        if (this.isSelected(space.id)) {
+            void this.returnToSpace(space);
+            return;
+        }
+        this.displayed.set(space);
+    }
+
+    /** Restore the filters for a selected room and open its details. */
+    public async returnToSpace(space: Space) {
+        const item = this.selected_locations().find(
+            (_) => _.space.id === space.id,
+        );
+        if (!item) return;
+        if (item.region) await this._org.setRegion(item.region);
+        if (item.building) this._org.setBuilding(item.building);
+        this._event_form.setOptions({
+            zones: item.level?.id ? [item.level.id] : [],
+        });
+        this.displayed.set(space);
+        this.show_filters.set(false);
+    }
+
     public toggleFavourite(item: Space) {
         const fav_list = this.favorites();
-        const new_state = !fav_list.includes(item.id);
-        if (new_state) {
-            this._settings.saveUserSetting('favourite_spaces', [
-                ...fav_list,
-                item.id,
-            ]);
-        } else {
-            this._settings.saveUserSetting(
-                'favourite_spaces',
-                fav_list.filter((_) => _ !== item.id),
-            );
-        }
+        const next_favs = fav_list.includes(item.id)
+            ? fav_list.filter((_) => _ !== item.id)
+            : [...fav_list, item.id];
+        this.favorites.set(next_favs);
+        this._settings.saveUserSetting('favourite_spaces', next_favs);
     }
 }

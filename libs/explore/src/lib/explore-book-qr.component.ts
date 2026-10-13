@@ -1,7 +1,8 @@
 import { Component, inject, signal } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { generateQRCode, SettingsService, Space } from '@placeos/common';
+import { SettingsService, Space } from '@placeos/common';
+import { generateQRCode } from '@placeos/common/qr-code';
 
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';

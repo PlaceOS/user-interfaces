@@ -5,7 +5,7 @@ import { AsyncHandler } from '@placeos/common';
 import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
-import { OrganisationService } from '@placeos/common';
+import { Building, BuildingLevel, OrganisationService } from '@placeos/common';
 import { ExploreStateService } from './explore-state.service';
 
 @Component({
@@ -23,6 +23,7 @@ import { ExploreStateService } from './explore-state.service';
                     <mat-select
                         placeholder="Select Building..."
                         [ngModel]="building()"
+                        [compareWith]="compareZones"
                         (ngModelChange)="setBuilding($event)"
                     >
                         @for (bld of buildings(); track bld.id) {
@@ -44,6 +45,7 @@ import { ExploreStateService } from './explore-state.service';
                     <mat-select
                         placeholder="Select Level..."
                         [ngModel]="level()"
+                        [compareWith]="compareZones"
                         (ngModelChange)="setLevel($event)"
                     >
                         @for (lvl of levels(); track lvl.id) {
@@ -79,12 +81,12 @@ export class ExploreMapControlComponent extends AsyncHandler implements OnInit {
     public readonly buildings = this._org.active_buildings;
     /** Currently active building */
     public readonly building = this._org.active_building;
-    /** List of availabel levels */
+    /** List of available levels */
     public readonly levels = this._org.active_levels;
     /** Currently active level */
     public readonly level = this._state.level;
     /** Set the currently active level */
-    public readonly setLevel = (lvl) => {
+    public readonly setLevel = (lvl: BuildingLevel) => {
         this._state.setFeatures('_located', []);
         this.timeout(
             'set_level',
@@ -96,8 +98,17 @@ export class ExploreMapControlComponent extends AsyncHandler implements OnInit {
             201,
         );
     };
-    /** Set the currenly active building */
-    public readonly setBuilding = (bld) => (this._org.building = bld);
+    /** Match zones across separately loaded option and selection objects. */
+    public readonly compareZones = (
+        first: Building | BuildingLevel | null,
+        second: Building | BuildingLevel | null,
+    ) => first?.id === second?.id;
+
+    /** Keep the active building's loaded bindings when it is selected again. */
+    public readonly setBuilding = (bld: Building) => {
+        if (bld?.id === this.building()?.id) return;
+        this._org.building = bld;
+    };
 
     constructor() {
         super();

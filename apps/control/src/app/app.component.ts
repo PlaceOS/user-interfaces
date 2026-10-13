@@ -5,11 +5,16 @@ import {
     GlobalBannerComponent,
     GlobalLoadingComponent,
 } from '@placeos/components';
+import { SettingsDebugPanelLauncherComponent } from '@placeos/components/settings-debug';
 import { mocksInit } from '@placeos/mocks';
 
 @Component({
     selector: 'app-root',
     template: `
+        @defer (on idle) {
+            <settings-debug-panel-launcher />
+        }
+
         <global-banner />
         <div class="relative h-1/2 w-full flex-1">
             <router-outlet></router-outlet>
@@ -26,7 +31,12 @@ import { mocksInit } from '@placeos/mocks';
             }
         `,
     ],
-    imports: [RouterOutlet, GlobalBannerComponent, GlobalLoadingComponent],
+    imports: [
+        SettingsDebugPanelLauncherComponent,
+        RouterOutlet,
+        GlobalBannerComponent,
+        GlobalLoadingComponent,
+    ],
 })
 export class AppComponent implements OnInit {
     private _placeos = inject(PlaceOS_Service);

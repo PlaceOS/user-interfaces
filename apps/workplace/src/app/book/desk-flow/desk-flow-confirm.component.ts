@@ -1,6 +1,7 @@
 import { CommonModule, DatePipe } from '@angular/common';
 import {
     Component,
+    OnInit,
     computed,
     inject,
     model,
@@ -18,6 +19,7 @@ import {
     Desk,
     OrganisationService,
     SettingsService,
+    errorMessage,
     formatRecurrence,
     fromBookingRecurrence,
     getTimezoneOffsetString,
@@ -233,7 +235,10 @@ import { addMinutes, endOfDay } from 'date-fns';
         MatTooltipModule,
     ],
 })
-export class NewDeskFlowConfirmComponent extends AsyncHandler {
+export class NewDeskFlowConfirmComponent
+    extends AsyncHandler
+    implements OnInit
+{
     private _state = inject(BookingFormService);
     private _org = inject(OrganisationService);
     private _sheet_ref = inject(MatBottomSheetRef, { optional: true });
@@ -273,9 +278,7 @@ export class NewDeskFlowConfirmComponent extends AsyncHandler {
             this.dismiss(true);
         } catch (e) {
             notifyError(
-                typeof e === 'string'
-                    ? e
-                    : i18n(`BOOKINGS.DESK_AVAILABLE_ERROR`),
+                errorMessage(e) || i18n(`BOOKINGS.DESK_AVAILABLE_ERROR`),
             );
         }
     };
@@ -325,6 +328,10 @@ export class NewDeskFlowConfirmComponent extends AsyncHandler {
             : '';
     }
 
+    public get can_book_lockers() {
+        return this._settings.get('app.desks.can_book_lockers');
+    }
+
     public get tz() {
         const tz = this.timezone;
         if (!tz) return '';
@@ -336,7 +343,7 @@ export class NewDeskFlowConfirmComponent extends AsyncHandler {
     }
 
     public get needs_locker() {
-        return !!this.booking.secondary_resource;
+        return !!this.booking.secondary_resource && this.can_book_lockers;
     }
 
     public get assets_count() {
@@ -367,8 +374,6 @@ export class NewDeskFlowConfirmComponent extends AsyncHandler {
     public async ngOnInit() {
         const resources = await this._state.listResources();
         const asset = this.booking.booking_asset;
-        this.booking_asset.set(
-            resources.find((_) => _.id == asset.id) as Desk,
-        );
+        this.booking_asset.set(resources.find((_) => _.id == asset.id) as Desk);
     }
 }

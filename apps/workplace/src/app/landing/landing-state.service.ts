@@ -56,7 +56,7 @@ export class LandingStateService extends AsyncHandler {
     private _occupancy_binding: PlaceVariableBinding;
     private _booking_rules = signal<BookingRuleset[]>([]);
     private _space_list = signal<any[]>([]);
-    private _space_statuses = signal<any[]>([]);
+    private _space_statuses = signal<unknown[]>([]);
     private _search_results = signal<StaffUser[]>([]);
     private _upcoming_events = signal<any[]>([]);
 
@@ -90,7 +90,7 @@ export class LandingStateService extends AsyncHandler {
         this._settings.get('app.basic_user_search') ||
         this._settings.get('app.colleagues_require_auth') !== false
             ? queryUsers({ q, authority_id: authority()?.id }).then(
-                  ({ data }) => data.map((_) => new StaffUser(_ as any)),
+                  ({ data }) => data.map((_) => new StaffUser(_)),
               )
             : searchStaff(q);
 
@@ -151,7 +151,10 @@ export class LandingStateService extends AsyncHandler {
                     .filtered_bookings()
                     .filter(
                         (i) =>
-                            i.state !== 'done' && isSameDay(i.date, Date.now()),
+                            i.status !== 'cancelled' &&
+                            i.type !== 'cancelled' &&
+                            i.state !== 'done' &&
+                            isSameDay(i.date, Date.now()),
                     ),
             );
         });
@@ -190,15 +193,15 @@ export class LandingStateService extends AsyncHandler {
     }
 
     public async updateContacts() {
-        const metadata: PlaceMetadata = (await showMetadata(
+        const metadata: PlaceMetadata = await showMetadata(
             currentUser().id,
             'contacts',
-        )) as any;
+        );
         const list = metadata.details instanceof Array ? metadata.details : [];
         const users = await Promise.all(
             list.map((_) => showUser(_.email).catch(() => _)),
         );
-        this._contacts.set(users.map((i) => new StaffUser(i as any)));
+        this._contacts.set(users.map((i) => new StaffUser(i)));
     }
 
     public async addContact(user: StaffUser) {

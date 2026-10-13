@@ -6,13 +6,35 @@ import {
     provideAppInitializer,
     provideZonelessChangeDetection,
 } from '@angular/core';
-import { provideRouter, Router, withHashLocation } from '@angular/router';
+import { provideRouter, withHashLocation } from '@angular/router';
 import { provideServiceWorker } from '@angular/service-worker';
-import { LocaleService, registerActiveLocale } from '@placeos/common';
-import * as Sentry from '@sentry/angular';
+import {
+    LazySentryErrorHandler,
+    LocaleService,
+    registerActiveLocale,
+} from '@placeos/common';
 
 import { environment } from '../environments/environment';
 import { routes } from './app.routes';
+import { recordFatalError } from './watchdog';
+
+/**
+ * Readable text for a thrown value. Errors are not always `Error` instances -
+ * HTTP failures and API client rejections are plain objects - so any string
+ * `message` is used before falling back to the value itself.
+ */
+function errorMessage(error: unknown): string {
+    if (
+        typeof error === 'object' &&
+        error !== null &&
+        'message' in error &&
+        typeof error.message === 'string' &&
+        error.message
+    ) {
+        return error.message;
+    }
+    return String(error);
+}
 
 export const appConfig: ApplicationConfig = {
     providers: [
@@ -25,14 +47,18 @@ export const appConfig: ApplicationConfig = {
             enabled: environment.production,
         }),
         {
+            // Angular handles errors before they reach `window.onerror`, so
+            // the recovery watchdog is told about them here as well.
             provide: ErrorHandler,
-            useValue: Sentry.createErrorHandler({
-                showDialog: false,
-            }),
-        },
-        {
-            provide: Sentry.TraceService,
-            deps: [Router],
+            useFactory: () => {
+                const handler = new LazySentryErrorHandler();
+                return {
+                    handleError: (error: unknown) => {
+                        recordFatalError(errorMessage(error));
+                        handler.handleError(error);
+                    },
+                };
+            },
         },
 
         {

@@ -125,6 +125,12 @@ export class DateRangeCalendarComponent implements OnInit, OnChanges {
     public readonly endChange = output<number>();
 
     public readonly hovered_date = signal<number | null>(null);
+    /**
+     * True after the first click of a selection. The given start and end
+     * only show the current range, so the first click always starts a new
+     * range and the second click sets its end.
+     */
+    private readonly _picking_end = signal(false);
 
     public readonly weekdays = signal<Date[]>([]);
     public readonly month_days = signal<any[]>([]);
@@ -156,18 +162,20 @@ export class DateRangeCalendarComponent implements OnInit, OnChanges {
 
     public selectDate(date: number) {
         const start = this.start();
-        if (!start || date < start) {
+        if (!this._picking_end() || !start || date < start) {
             this.start.set(date);
             this.startChange.emit(date);
+            this._picking_end.set(true);
         } else {
             this.end.set(date);
             this.endChange.emit(date);
+            this._picking_end.set(false);
         }
         this._setMonthDays();
     }
 
     public setHoveredDate(date: number) {
-        if (!this.start()) return;
+        if (!this._picking_end() || !this.start()) return;
         this.hovered_date.set(date);
         this.end.set(date);
         this._setMonthDays();

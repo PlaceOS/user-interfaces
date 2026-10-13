@@ -19,6 +19,7 @@ import {
     OrganisationService,
     Region,
     settingSignal,
+    SettingsService,
     unique,
 } from '@placeos/common';
 import { addDays, endOfDay, startOfDay } from 'date-fns';
@@ -30,6 +31,7 @@ import { DateFieldComponent } from 'libs/form-fields/src/lib/date-field.componen
 import { DurationFieldComponent } from 'libs/form-fields/src/lib/duration-field.component';
 import { TimeFieldComponent } from 'libs/form-fields/src/lib/time-field.component';
 import { SpacesService } from '../spaces.service';
+import { multipleSpacesSignal } from '../utilities';
 
 @Component({
     selector: `space-filters`,
@@ -46,7 +48,7 @@ import { SpacesService } from '../spaces.service';
         >
             <section details>
                 <h2 class="mb-1 text-lg font-medium">
-                    {{ 'CALENDAR_EVENT.DETAILS' | translate }}
+                    {{ 'COMMON.DETAILS' | translate }}
                 </h2>
                 <div class="flex min-w-32 flex-1 flex-col">
                     @if (
@@ -55,13 +57,14 @@ import { SpacesService } from '../spaces.service';
                         !(!use_region() && buildings()?.length > 1)
                     ) {
                         <label for="location">
-                            {{ 'CALENDAR_EVENT.SPACE_LOCATION' | translate }}
+                            {{ 'COMMON.LOCATION' | translate }}
                         </label>
                     }
                     @if (use_region() && regions()?.length) {
                         <mat-form-field appearance="outline" class="w-full">
                             <mat-select
                                 name="region"
+                                aria-label="Region"
                                 [ngModel]="region()"
                                 (ngModelChange)="setRegion($event)"
                                 [ngModelOptions]="{ standalone: true }"
@@ -79,6 +82,7 @@ import { SpacesService } from '../spaces.service';
                         <mat-form-field appearance="outline" class="w-full">
                             <mat-select
                                 name="building"
+                                aria-label="Building"
                                 [ngModel]="building()"
                                 (ngModelChange)="setBuilding($event)"
                                 [ngModelOptions]="{ standalone: true }"
@@ -98,6 +102,7 @@ import { SpacesService } from '../spaces.service';
                         <mat-form-field appearance="outline" class="w-full">
                             <mat-select
                                 name="location"
+                                aria-label="Level"
                                 [ngModel]="options()?.zones"
                                 (ngModelChange)="setOptions({ zones: $event })"
                                 [ngModelOptions]="{ standalone: true }"
@@ -163,7 +168,7 @@ import { SpacesService } from '../spaces.service';
                                 (ngModelChange)="
                                     model.update((m) => ({
                                         ...m,
-                                        date_end: $event
+                                        date_end: $event,
                                     }))
                                 "
                                 [ngModelOptions]="{ standalone: true }"
@@ -203,7 +208,10 @@ import { SpacesService } from '../spaces.service';
                                 name="start-time"
                                 [ngModel]="model().date"
                                 (ngModelChange)="
-                                    model.update((m) => ({ ...m, date: $event }))
+                                    model.update((m) => ({
+                                        ...m,
+                                        date: $event,
+                                    }))
                                 "
                                 [ngModelOptions]="{ standalone: true }"
                                 [use_24hr]="use_24hr()"
@@ -224,7 +232,7 @@ import { SpacesService } from '../spaces.service';
                                     (ngModelChange)="
                                         model.update((m) => ({
                                             ...m,
-                                            date_end: $event
+                                            date_end: $event,
                                         }))
                                     "
                                     [ngModelOptions]="{ standalone: true }"
@@ -345,6 +353,7 @@ export class SpaceFiltersComponent {
     private _org = inject(OrganisationService);
     private _spaces = inject(SpacesService);
     private _mapspeople = inject(MapsPeopleService);
+    private _settings = inject(SettingsService);
 
     public readonly multiday = input<boolean>(undefined);
     public readonly hide_levels = input<boolean>(undefined);
@@ -414,10 +423,15 @@ export class SpaceFiltersComponent {
         false,
     );
 
+    private readonly _allow_multiple = multipleSpacesSignal(this._settings);
+
     public readonly timezone = computed(() =>
-        this._use_building_tz()
-            ? this._org.active_building()?.timezone || ''
-            : '',
+        this._allow_multiple()
+            ? this.model().timezone ||
+              Intl.DateTimeFormat().resolvedOptions().timeZone
+            : this._use_building_tz()
+              ? this._org.active_building()?.timezone || ''
+              : '',
     );
 
     public readonly setOptions = (o) => this._event_form.setOptions(o);
@@ -433,10 +447,14 @@ export class SpaceFiltersComponent {
         return this._event_form.model;
     }
 
-    public readonly bookable_hours = settingSignal<{
+    private readonly _bookable_hours = settingSignal<{
         start: number;
         end: number;
     }>('events.bookable_hours', undefined);
+
+    public readonly bookable_hours = computed(() =>
+        this._allow_multiple() ? undefined : this._bookable_hours(),
+    );
 
     public readonly max_duration = settingSignal<number>(
         'events.max_duration',

@@ -1,18 +1,16 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, OnInit } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { BookingFormService } from '@placeos/bookings';
 import { AsyncHandler } from '@placeos/common';
 import { TranslatePipe } from '@placeos/components';
 
-const VALID_TYPES = ['not_started', 'wrong_resource', 'other'];
-
 @Component({
-    selector: 'code-flow-success',
+    selector: 'code-flow-error',
     template: `
         <div class="bg-base-100 z-50 flex h-full w-full flex-col">
             <main
-                class="flex flex-1 flex-col items-center justify-center space-y-2 p-8"
+                class="flex min-h-0 flex-1 flex-col items-center justify-center space-y-2 overflow-y-auto p-8"
             >
                 <h2 class="text-2xl font-medium">
                     {{
@@ -21,7 +19,7 @@ const VALID_TYPES = ['not_started', 'wrong_resource', 'other'];
                     }}
                 </h2>
                 <div class="py-4">
-                    <img src="assets/icons/not-found.svg" class="h-64" />
+                    <img src="assets/icons/not-found.svg" class="h-32 sm:h-64" />
                 </div>
                 <p class="max-w-lg text-center">
                     @switch (type()) {
@@ -40,7 +38,7 @@ const VALID_TYPES = ['not_started', 'wrong_resource', 'other'];
                 </p>
             </main>
             <footer
-                class="border-base-200 mt-4 flex w-full items-center justify-center space-x-2 border-t p-2"
+                class="border-base-200 mt-4 flex w-full shrink-0 items-center justify-center space-x-2 border-t p-2"
             >
                 @if (type() === 'not_started') {
                     <a
@@ -53,7 +51,7 @@ const VALID_TYPES = ['not_started', 'wrong_resource', 'other'];
                         {{ 'APP.WORKPLACE.TRY_AGAIN' | translate }}
                     </a>
                 }
-                @if (type() === 'no_booking') {
+                @if (type() !== 'not_started') {
                     <a
                         btn
                         matRipple
@@ -86,7 +84,7 @@ const VALID_TYPES = ['not_started', 'wrong_resource', 'other'];
     ],
     imports: [MatRippleModule, TranslatePipe, RouterModule],
 })
-export class CodeFlowErrorComponent extends AsyncHandler {
+export class CodeFlowErrorComponent extends AsyncHandler implements OnInit {
     private _route = inject(ActivatedRoute);
     private _state = inject(BookingFormService);
 
@@ -100,11 +98,11 @@ export class CodeFlowErrorComponent extends AsyncHandler {
         this.subscription(
             'route.query',
             this._route.queryParamMap.subscribe((params) => {
-                this.type.set((params.get('type') as any) || 'other');
+                this.type.set(params.get('type') || 'other');
                 this.asset_type.set(
-                    (params.get('asset_type') as any) || 'resource',
+                    params.get('asset_type') || 'resource',
                 );
-                this.asset_id.set(params.get('asset_id') as any);
+                this.asset_id.set(params.get('asset_id'));
             }),
         );
     }

@@ -86,7 +86,7 @@ function compareAsTopic(
             building_id: zones.building,
         });
     const parts = (item.left?.mod || '').split('_');
-    const module_index = parts.pop();
+    parts.pop();
     const module_name = parts.join('_');
     const topic = topicToString({
         module_name,
@@ -127,10 +127,10 @@ function calculateModuleIndex(
     module_list: PlaceModule[],
     module: PlaceModule,
 ): number {
-    const driver = module.driver || ({ class_name: 'System' } as any);
+    const driver = module.driver || { class_name: 'System' };
     const module_class = module.custom_name || module.name || driver.class_name;
     const modules_with_class = module_list.filter((mod) => {
-        const d = mod.driver || ({ class_name: 'System' } as any);
+        const d = mod.driver || { class_name: 'System' };
         const mod_class = mod.custom_name || mod.name || d.class_name;
         return mod_class === module_class;
     });
@@ -145,7 +145,7 @@ function calculateModuleIndex(
  */
 function getModuleDeviceNames(modules: PlaceModule[]): string[] {
     return modules.map((mod) => {
-        const driver = mod.driver || ({ class_name: 'System' } as any);
+        const driver = mod.driver || { class_name: 'System' };
         const name =
             mod.custom_name || mod.name || driver.class_name || 'Blank';
         const index = calculateModuleIndex(modules, mod);
@@ -481,7 +481,7 @@ export class DashboardsService extends AsyncHandler {
         device: string,
         status_key: string,
         keys: string[] = [],
-    ): Promise<any> {
+    ): Promise<unknown> {
         const parts = (device || '').split('_');
         const module_index = parseInt(parts.pop(), 10) || 1;
         const module_name = parts.join('_');
@@ -514,7 +514,7 @@ export class DashboardsService extends AsyncHandler {
      * Coerce a value that may be a string representation to its actual type.
      * Handles "true"/"false" strings, numeric strings, and null/undefined strings.
      */
-    private _coerceValue(value: any): any {
+    private _coerceValue(value: unknown): unknown {
         if (typeof value !== 'string') return value;
 
         const lower = value.toLowerCase();
@@ -695,7 +695,7 @@ export class DashboardsService extends AsyncHandler {
                             const device = `${topic.module_name}_${topic.module_index}`;
                             alert_out.push({
                                 id: `${alert.id}+${topic.system_id}+${device}`,
-                                severity: alert.severity as any,
+                                severity: alert.severity,
                                 type: alert.alert_type as any,
                                 location: topic.system_id,
                                 device,

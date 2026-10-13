@@ -77,6 +77,26 @@ describe('CalendarEvent[Methods]', () => {
                 ]),
             ).toHaveLength(3);
         });
+
+        it('should merge overlapping bookings and include setup and breakdown time', () => {
+            const date = new Date('2024-06-12T10:00:00').valueOf();
+            const slots = getFreeTimeSlots([
+                {
+                    date,
+                    duration: 60,
+                    setup_time: 15,
+                    breakdown_time: 30,
+                },
+                {
+                    date: addMinutes(date, 60).valueOf(),
+                    duration: 120,
+                },
+            ]);
+
+            expect(slots).toHaveLength(2);
+            expect(slots[0].end).toBe(addMinutes(date, -15).valueOf());
+            expect(slots[1].start).toBe(addMinutes(date, 180).valueOf());
+        });
     });
 
     describe('getNextFreeTimeSlot', () => {

@@ -32,7 +32,6 @@ import {
     AsyncHandler,
     OrganisationService,
     Space,
-    TIMEZONES_IANA,
     getInvalidSignalFields,
     getItemWithKeys,
     i18n,
@@ -42,6 +41,7 @@ import {
     patchSignalModel,
     unique,
 } from '@placeos/common';
+import { TIMEZONES_IANA } from '@placeos/common/timezones';
 import {
     FullscreenModalShellComponent,
     IconComponent,
@@ -54,6 +54,7 @@ import {
     DurationFieldComponent,
     ImageListFieldComponent,
 } from '@placeos/form-fields';
+import { errorText } from '../ui/modal-actions';
 import { SelectMapItemModalComponent } from '../ui/select-map-item-modal.component';
 
 @Component({
@@ -174,14 +175,12 @@ import { SelectMapItemModalComponent } from '../ui/select-map-item-modal.compone
                     @if (form.display_name) {
                         <div class="flex flex-1 flex-col">
                             <label for="code-name">{{
-                                'APP.CONCIERGE.ROOMS_CODE' | translate
+                                'COMMON.CODE' | translate
                             }}</label>
                             <mat-form-field appearance="outline">
                                 <input
                                     matInput
-                                    [placeholder]="
-                                        'APP.CONCIERGE.ROOMS_CODE' | translate
-                                    "
+                                    [placeholder]="'COMMON.CODE' | translate"
                                     [formField]="form.code"
                                 />
                             </mat-form-field>
@@ -339,6 +338,7 @@ import { SelectMapItemModalComponent } from '../ui/select-map-item-modal.compone
                             </mat-form-field>
                             <button
                                 icon
+                                type="button"
                                 matRipple
                                 class="border-secondary text-secondary h-12 w-12 rounded-sm border"
                                 [matTooltip]="
@@ -599,34 +599,48 @@ export class RoomModalComponent extends AsyncHandler implements OnInit {
         this.loading.set(true);
         this._dialog_ref.disableClose = true;
         const data = { ...this.model() };
+        try {
+            // Save the room first, so a new room has an ID for its
+            // setup and breakdown times.
+            const system = await (data.id
+                ? updateSystem(data.id, data)
+                : addSystem(data));
+            await this._saveOverflow(system.id).catch(() =>
+                notifyWarn('Unable to save room setup and breakdown times'),
+            );
+            this._dialog_ref.close(true);
+        } catch (e) {
+            notifyError(`Failed to save room. ${errorText(e)}`);
+        } finally {
+            this._dialog_ref.disableClose = false;
+            this.loading.set(false);
+        }
+    }
+
+    /** Store the room's setup and breakdown times in the org settings. */
+    private async _saveOverflow(system_id: string) {
         const { details } = (await showMetadata(
             this._org.organisation.id,
             'settings',
         )) as any;
         const overflow = getItemWithKeys(['events', 'overflow'], details) || {};
-        overflow[data.id] = this.settings_model();
+        overflow[system_id] = this.settings_model();
         await updateMetadata(this._org.organisation.id, {
             name: 'settings',
             details: {
                 ...details,
-                events: { ...(details.events || {}), overflow },
+                events: { ...(details?.events || {}), overflow },
             },
             description: '',
-        }).catch((e) =>
-            notifyWarn('Unable to save room setup and breakdown times'),
-        );
-        await (data.id ? updateSystem(data.id, data) : addSystem(data));
-        this._dialog_ref.disableClose = false;
-        this._dialog_ref.close(true);
-        this.loading.set(false);
+        });
     }
 
     public selectItemfromMap() {
-        let level = this._org.levelWithID(this.model().zones as any);
+        let level = this._org.levelWithID(this.model().zones);
         const ref = this._dialog.open(SelectMapItemModalComponent, {
             data: {
                 location: this.model().map_id,
-                level_id: this.form,
+                level_id: level?.id,
             },
         });
         ref.afterClosed().subscribe((d) => {

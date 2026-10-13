@@ -4,7 +4,6 @@ import { notifySuccess, OrganisationService } from '@placeos/common';
 import { openConfirmModal } from '@placeos/components';
 import {
     queryAnswers,
-    queryQuestions,
     querySurveys,
     removeQuestion,
     removeSurvey,
@@ -13,6 +12,7 @@ import {
     SurveyAnswer,
     SurveyQuestion,
 } from '@placeos/ts-client';
+import { queryAllSurveyQuestions } from '../query-all-pages';
 
 export interface QuestionFilters {
     search_text?: string;
@@ -161,7 +161,7 @@ export class SurveyService {
             this.answer_list.set(answers.flat());
         }
         if (type === LoadType.ALL || type === LoadType.QUESTIONS) {
-            const questions = await queryQuestions({ limit: 1000 } as any);
+            const questions = await queryAllSurveyQuestions({ limit: 200 });
             this.question_list.set(questions);
         }
         this.loading.set('');

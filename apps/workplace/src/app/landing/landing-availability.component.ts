@@ -98,7 +98,7 @@ import { LandingStateService } from './landing-state.service';
                     class="flex items-center space-x-2 px-4 text-sm sm:text-base"
                 >
                     <div>
-                        {{ 'APP.WORKPLACE.AVAILABLE_LIST_ROOMS' | translate }}
+                        {{ 'RESOURCE.ROOMS' | translate }}
                     </div>
                     @if (loading_spaces()) {
                         <mat-spinner diameter="24"></mat-spinner>

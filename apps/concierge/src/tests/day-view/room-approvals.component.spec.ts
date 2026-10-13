@@ -1,10 +1,10 @@
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { signal } from '@angular/core';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import {
     CalendarEvent,
     OrganisationService,
     SettingsService,
 } from '@placeos/common';
-import { signal } from '@angular/core';
 import { MockProvider } from 'ng-mocks';
 
 import { EventsStateService } from '../../app/day-view/events-state.service';
@@ -13,20 +13,20 @@ import { RoomBookingsApprovalsComponent } from '../../app/day-view/room-approval
 describe('RoomBookingsApprovalsComponent', () => {
     let spectator: Spectator<RoomBookingsApprovalsComponent>;
     const pending = signal<CalendarEvent[]>([]);
-    const execute = jest.fn(() => Promise.resolve());
-    const replace = jest.fn();
+    const execute = vi.fn(() => Promise.resolve());
+    const replace = vi.fn();
     const createComponent = createComponentFactory({
         component: RoomBookingsApprovalsComponent,
         shallow: true,
         detectChanges: false,
         providers: [
-            MockProvider(EventsStateService, { pending, replace } as any),
+            MockProvider(EventsStateService, { pending, replace }),
             MockProvider(OrganisationService, {
                 building: { timezone: 'Australia/Sydney' },
-                module: jest.fn(() => ({ execute })),
+                module: vi.fn(() => ({ execute })),
             } as any),
             MockProvider(SettingsService, {
-                get: jest.fn(() => false),
+                get: vi.fn(() => false),
                 time_format: 'h:mm a',
             } as any),
         ],
@@ -37,10 +37,6 @@ describe('RoomBookingsApprovalsComponent', () => {
         replace.mockClear();
         pending.set([]);
         spectator = createComponent();
-    });
-
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
     });
 
     it('should not refresh pending approvals immediately after approving series', async () => {
@@ -128,6 +124,11 @@ describe('RoomBookingsApprovalsComponent', () => {
 
         await spectator.component.approve(event);
 
+        expect(execute).toHaveBeenCalledWith(
+            'accept_event',
+            ['room@example.com', 'event-1'],
+            30 * 1000,
+        );
         expect(replace).toHaveBeenCalledTimes(1);
         expect(replace.mock.calls[0][0].status).toBe('approved');
     });
@@ -146,6 +147,11 @@ describe('RoomBookingsApprovalsComponent', () => {
 
         await spectator.component.reject(event);
 
+        expect(execute).toHaveBeenCalledWith(
+            'decline_event',
+            ['room@example.com', 'event-1'],
+            30 * 1000,
+        );
         expect(replace).toHaveBeenCalledTimes(1);
         expect(replace.mock.calls[0][0].status).toBe('declined');
     });

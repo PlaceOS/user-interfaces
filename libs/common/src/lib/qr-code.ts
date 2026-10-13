@@ -72,7 +72,7 @@ function _scanFrame(
         // Try to decode QR code
         const result = decodeQR(image);
         if (result) return result;
-    } catch (error) {
+    } catch {
         // Ignore decoding errors - they're expected when no QR code is present
     }
 }

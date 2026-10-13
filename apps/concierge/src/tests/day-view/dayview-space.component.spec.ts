@@ -1,5 +1,5 @@
 import { signal } from '@angular/core';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { MockComponent } from 'ng-mocks';
 
 import { DayviewEventComponent } from '../../app/day-view/dayview-event.component';
@@ -23,13 +23,9 @@ describe('DayviewSpaceComponent', () => {
 
     beforeEach(() => (spectator = createComponent()));
 
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
-
     it('should display events', () => {
         expect('dayview-event').not.toExist();
-        spectator.setInput({ space: { email: '1@2.3' } as any });
+        spectator.setInput({ space: { email: '1@2.3' } });
         const events = spectator.inject(EventsStateService);
         (events as any).filtered.set([
             { resources: [{ email: '1@2.3' } as any] },

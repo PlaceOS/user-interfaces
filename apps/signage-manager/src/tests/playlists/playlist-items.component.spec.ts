@@ -1,0 +1,402 @@
+import { NO_ERRORS_SCHEMA, signal } from '@angular/core';
+import { TestBed } from '@angular/core/testing';
+import { SignagePlaylistItemSchedule } from '@placeos/ts-client';
+import { SignageMediaService } from '../../app/media/signage-media.service';
+import { PlaylistActionsComponent } from '../../app/playlists/playlist-actions.component';
+import { PlaylistItemsComponent } from '../../app/playlists/playlist-items.component';
+import { SignagePlaylistService } from '../../app/playlists/signage-playlist.service';
+import { SignageContextService } from '../../app/signage-context.service';
+
+function media(id: string, media_type = 'image') {
+    return { id, name: id, media_type } as any;
+}
+
+describe('PlaylistItemsComponent', () => {
+    const selected_playlist = signal<unknown>(null);
+    const selected_playlist_item = signal<unknown>(null);
+    const selected_playlist_item_index = signal<number | null>(null);
+    const playlist_media_items = signal<unknown[]>([]);
+    const playlist_item_schedules = signal(
+        new Map<string, SignagePlaylistItemSchedule>(),
+    );
+    const playlist_item_schedule_list = signal<SignagePlaylistItemSchedule[]>(
+        [],
+    );
+    const can_update = signal(true);
+    const playlist_media_loading = signal(false);
+    const playlist_media_error = signal(false);
+    const reload_media = vi.fn();
+    const reorder = vi.fn();
+    const remove_media = vi.fn().mockResolvedValue(undefined);
+    const remove_media_items = vi.fn().mockResolvedValue(true);
+    const edit_item_schedules = vi.fn().mockResolvedValue(true);
+    const preview_media = vi.fn();
+
+    const context_stub = { can_update };
+    const media_stub = { previewMedia: preview_media };
+    const playlist_stub = {
+        selected_playlist,
+        selected_playlist_item,
+        selected_playlist_item_index,
+        playlist_media_loading,
+        playlist_media_error,
+        reloadPlaylistMedia: reload_media,
+        playlist_media_items,
+        playlist_item_schedules,
+        playlist_item_schedule_list,
+        reorderPlaylistMedia: reorder,
+        removeMediaFromPlaylist: remove_media,
+        removeMediaItemsFromPlaylist: remove_media_items,
+        editPlaylistItemSchedules: edit_item_schedules,
+    };
+
+    async function make() {
+        await TestBed.configureTestingModule({
+            imports: [PlaylistItemsComponent],
+            providers: [
+                { provide: SignageContextService, useValue: context_stub },
+                { provide: SignageMediaService, useValue: media_stub },
+                { provide: SignagePlaylistService, useValue: playlist_stub },
+            ],
+        })
+            .overrideComponent(PlaylistItemsComponent, {
+                set: { template: '' },
+            })
+            .compileComponents();
+        return TestBed.createComponent(PlaylistItemsComponent)
+            .componentInstance;
+    }
+
+    beforeEach(() => {
+        vi.clearAllMocks();
+        selected_playlist.set(null);
+        selected_playlist_item.set(null);
+        selected_playlist_item_index.set(null);
+        playlist_media_items.set([]);
+        playlist_item_schedules.set(new Map());
+        playlist_item_schedule_list.set([]);
+        can_update.set(true);
+        playlist_media_loading.set(false);
+        playlist_media_error.set(false);
+    });
+
+    /** Render the real template, without the playlist action buttons */
+    async function render() {
+        await TestBed.configureTestingModule({
+            imports: [PlaylistItemsComponent],
+            providers: [
+                { provide: SignageContextService, useValue: context_stub },
+                { provide: SignageMediaService, useValue: media_stub },
+                { provide: SignagePlaylistService, useValue: playlist_stub },
+            ],
+        })
+            .overrideComponent(PlaylistItemsComponent, {
+                remove: { imports: [PlaylistActionsComponent] },
+                add: { schemas: [NO_ERRORS_SCHEMA] },
+            })
+            .compileComponents();
+        const fixture = TestBed.createComponent(PlaylistItemsComponent);
+        fixture.detectChanges();
+        return fixture;
+    }
+
+    it('keeps the items on screen while they reload', async () => {
+        const component = await make();
+        playlist_media_loading.set(true);
+        expect(component.loading()).toBe(true);
+
+        playlist_media_items.set([media('a')]);
+        expect(component.loading()).toBe(false);
+    });
+
+    it('selects an item through the shared service signal', async () => {
+        const component = await make();
+        const item = media('a');
+        component.selectItem(item, 0);
+        expect(selected_playlist_item()).toBe(item);
+        expect(selected_playlist_item_index()).toBe(0);
+    });
+
+    it('selects only one occurrence when the playlist contains duplicates', async () => {
+        const item = media('a');
+        const component = await make();
+
+        component.selectItem(item, 1);
+
+        expect(component.isItemSelected(item, 0)).toBe(false);
+        expect(component.isItemSelected(item, 1)).toBe(true);
+    });
+
+    it('bulk-selects duplicate media by playlist position', async () => {
+        const item = media('a');
+        playlist_media_items.set([item, item]);
+        const component = await make();
+
+        component.toggleSelection(0);
+        component.toggleSelection(1);
+
+        expect(component.selected_count()).toBe(2);
+        expect(component.isBulkItemSelected(0)).toBe(true);
+        expect(component.isBulkItemSelected(1)).toBe(true);
+
+        component.toggleSelection(0);
+        expect(component.selected_count()).toBe(1);
+    });
+
+    it('clears the bulk selection when playlist items change', async () => {
+        playlist_media_items.set([media('a')]);
+        const component = await make();
+        component.toggleSelection(0);
+
+        playlist_media_items.set([media('b')]);
+
+        expect(component.selected_count()).toBe(0);
+    });
+
+    it('flags a distribution playlist', async () => {
+        selected_playlist.set({ id: 'pl-1', distribution: true });
+        const component = await make();
+        expect(component.is_distribution()).toBe(true);
+    });
+
+    it('prefers the positional schedule when its media matches the item', async () => {
+        const item = media('a');
+        const positional = new SignagePlaylistItemSchedule({
+            item_id: 'a',
+            media: item,
+        });
+        playlist_item_schedule_list.set([positional]);
+        const component = await make();
+        expect(component.itemSchedule(item, 0)).toBe(positional);
+    });
+
+    it('falls back to the schedule map, then a fresh schedule', async () => {
+        const item = media('b');
+        const mapped = new SignagePlaylistItemSchedule({ item_id: 'b' });
+        playlist_item_schedules.set(new Map([['b', mapped]]));
+        const component = await make();
+        expect(component.itemSchedule(item, 5)).toBe(mapped);
+
+        playlist_item_schedules.set(new Map());
+        const fresh = component.itemSchedule(item, 5);
+        expect(fresh).toBeInstanceOf(SignagePlaylistItemSchedule);
+        expect(fresh.item_id).toBe('b');
+    });
+
+    it('toggles a single item schedule open/closed', async () => {
+        const item = media('a');
+        playlist_media_items.set([item]);
+        const component = await make();
+        const event = { preventDefault: vi.fn(), stopPropagation: vi.fn() };
+        // Schedules default to open.
+        expect(component.schedulesOpen(item, 0)).toBe(true);
+        component.toggleSchedules(event as any, item, 0);
+        expect(component.schedulesOpen(item, 0)).toBe(false);
+    });
+
+    it('collapses and expands all schedules together', async () => {
+        const items = [media('a'), media('b')];
+        playlist_media_items.set(items);
+        const component = await make();
+        const event = { preventDefault: vi.fn(), stopPropagation: vi.fn() };
+
+        expect(component.allSchedulesCollapsed()).toBe(false);
+        component.toggleAllSchedules(event as any);
+        expect(component.allSchedulesCollapsed()).toBe(true);
+        component.toggleAllSchedules(event as any);
+        expect(component.allSchedulesCollapsed()).toBe(false);
+    });
+
+    it('builds a tooltip with the next play blocks for a schedule', async () => {
+        const component = await make();
+        const valid_until = Math.floor(Date.UTC(2027, 0, 2, 18, 45) / 1000);
+        const tooltip = component.scheduleTooltip({
+            play_cron: '0 9 * * *',
+            play_period: 30,
+            valid_until,
+        });
+        expect(tooltip).toContain('–');
+        expect(tooltip).toContain(
+            new Date(valid_until * 1000).toLocaleString(),
+        );
+    });
+
+    it('reorders media on drop when updates are permitted', async () => {
+        const items = [media('a'), media('b'), media('c')];
+        playlist_media_items.set(items);
+        selected_playlist.set({ id: 'pl-1' });
+        const component = await make();
+
+        await component.onDrop({ previousIndex: 0, currentIndex: 2 } as any);
+
+        expect(reorder).toHaveBeenCalledWith('pl-1', ['b', 'c', 'a']);
+    });
+
+    it('moves an item one place for keyboard users', async () => {
+        playlist_media_items.set([media('a'), media('b'), media('c')]);
+        selected_playlist.set({ id: 'pl-1' });
+        const component = await make();
+
+        await component.moveItem(1, -1);
+        expect(reorder).toHaveBeenLastCalledWith('pl-1', ['b', 'a', 'c']);
+
+        await component.moveItem(1, 1);
+        expect(reorder).toHaveBeenLastCalledWith('pl-1', ['a', 'c', 'b']);
+
+        reorder.mockClear();
+        await component.moveItem(0, -1);
+        await component.moveItem(2, 1);
+        expect(reorder).not.toHaveBeenCalled();
+    });
+
+    it('renders items as list items', async () => {
+        playlist_media_items.set([media('a'), media('b')]);
+        selected_playlist.set({ id: 'pl-1' });
+        const fixture = await render();
+        const element: HTMLElement = fixture.nativeElement;
+
+        const list = element.querySelector('[role="list"]');
+        expect(list?.children).toHaveLength(2);
+        for (const child of Array.from(list?.children || [])) {
+            expect(child.getAttribute('role')).toBe('listitem');
+        }
+    });
+
+    it('leaves Enter and Space to the controls inside a row', async () => {
+        const item = media('a');
+        playlist_media_items.set([item]);
+        selected_playlist.set({ id: 'pl-1' });
+        const fixture = await render();
+        const element: HTMLElement = fixture.nativeElement;
+        const press = (target: Element, key: string) => {
+            const event = new KeyboardEvent('keydown', {
+                key,
+                bubbles: true,
+                cancelable: true,
+            });
+            target.dispatchEvent(event);
+            return event;
+        };
+
+        // A default action that is not prevented lets the browser click
+        // the actions button, which opens the menu, or toggle the checkbox
+        const menu_trigger = element.querySelector('.mat-mdc-menu-trigger');
+        expect(press(menu_trigger, 'Enter').defaultPrevented).toBe(false);
+        const checkbox = element.querySelector('mat-checkbox input');
+        expect(press(checkbox, ' ').defaultPrevented).toBe(false);
+        expect(selected_playlist_item()).toBeNull();
+
+        const row = element.querySelector('[role="button"]');
+        expect(press(row, 'Enter').defaultPrevented).toBe(true);
+        expect(selected_playlist_item()).toBe(item);
+    });
+
+    it('shows a load error with retry when the items fail to load', async () => {
+        selected_playlist.set({ id: 'pl-1' });
+        playlist_media_error.set(true);
+        const fixture = await render();
+        const element: HTMLElement = fixture.nativeElement;
+
+        expect(element.textContent).not.toContain('No items');
+        const retry =
+            element.querySelector<HTMLButtonElement>('load-error button');
+        retry?.click();
+        expect(reload_media).toHaveBeenCalled();
+    });
+
+    it('does not reorder distribution playlists or without update rights', async () => {
+        playlist_media_items.set([media('a'), media('b')]);
+        selected_playlist.set({ id: 'pl-1', distribution: true });
+        const component = await make();
+        await component.onDrop({ previousIndex: 0, currentIndex: 1 } as any);
+        expect(reorder).not.toHaveBeenCalled();
+
+        selected_playlist.set({ id: 'pl-1' });
+        can_update.set(false);
+        await component.onDrop({ previousIndex: 0, currentIndex: 1 } as any);
+        expect(reorder).not.toHaveBeenCalled();
+    });
+
+    it('removes an item and clears the selection when it was selected', async () => {
+        const item = media('a');
+        selected_playlist.set({ id: 'pl-1' });
+        selected_playlist_item.set(item);
+        selected_playlist_item_index.set(3);
+        const component = await make();
+
+        await component.removeItem(item, 3);
+
+        expect(remove_media).toHaveBeenCalledWith('pl-1', 'a', 3);
+        expect(selected_playlist_item()).toBeNull();
+        expect(selected_playlist_item_index()).toBeNull();
+    });
+
+    it('removes a distribution schedule by its playlist item id', async () => {
+        const item = media('media-1');
+        const schedule = new SignagePlaylistItemSchedule({
+            id: 'schedule-1',
+            item_id: item.id,
+            media: item,
+        });
+        selected_playlist.set({ id: 'pl-1', distribution: true });
+        playlist_item_schedule_list.set([schedule]);
+        const component = await make();
+
+        await component.removeItem(item, 0);
+
+        expect(remove_media).toHaveBeenCalledWith('pl-1', 'schedule-1', 0);
+    });
+
+    it('removes selected playlist occurrences and clears the bulk selection', async () => {
+        const items = [media('a'), media('b'), media('a')];
+        selected_playlist.set({ id: 'pl-1' });
+        playlist_media_items.set(items);
+        const component = await make();
+        component.toggleSelection(0);
+        component.toggleSelection(2);
+
+        await component.deleteSelected();
+
+        expect(remove_media_items).toHaveBeenCalledWith('pl-1', [
+            { id: 'a', index: 0 },
+            { id: 'a', index: 2 },
+        ]);
+        expect(component.selected_count()).toBe(0);
+    });
+
+    it('applies the first selected schedule to all selected distribution items', async () => {
+        const first_item = media('a');
+        const second_item = media('b');
+        const first_schedule = new SignagePlaylistItemSchedule({
+            id: 'schedule-1',
+            item_id: first_item.id,
+            media: first_item,
+            schedules: [
+                {
+                    play_cron: '0 9 * * *',
+                    play_period: 30,
+                    play_takeover: false,
+                },
+            ],
+        });
+        const second_schedule = new SignagePlaylistItemSchedule({
+            id: 'schedule-2',
+            item_id: second_item.id,
+            media: second_item,
+        });
+        selected_playlist.set({ id: 'pl-1', distribution: true });
+        playlist_media_items.set([first_item, second_item]);
+        playlist_item_schedule_list.set([first_schedule, second_schedule]);
+        const component = await make();
+        component.toggleSelection(0);
+        component.toggleSelection(1);
+
+        await component.applyScheduleToSelected();
+
+        expect(edit_item_schedules).toHaveBeenCalledWith([
+            first_schedule,
+            second_schedule,
+        ]);
+        expect(component.selected_count()).toBe(0);
+    });
+});

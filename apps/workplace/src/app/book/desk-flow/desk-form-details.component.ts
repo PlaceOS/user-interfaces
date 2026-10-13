@@ -41,8 +41,6 @@ import {
 } from '@placeos/form-fields';
 import { addDays, endOfDay } from 'date-fns';
 
-const MINUTES_IN_DAY = 24 * 60;
-
 @Component({
     selector: 'desk-form-details',
     styles: [],
@@ -79,7 +77,7 @@ const MINUTES_IN_DAY = 24 * 60;
                         >
                             <icon class="text-2xl">group_add</icon>
                             <div class="">
-                                {{ 'BOOKINGS.DESK_GROUP' | translate }}
+                                {{ 'COMMON.GROUP' | translate }}
                             </div>
                             <div
                                 class="absolute inset-x-0 bottom-0 m-0! h-1"
@@ -97,7 +95,7 @@ const MINUTES_IN_DAY = 24 * 60;
                             1
                         </div>
                         <div class="text-xl">
-                            {{ 'BOOKINGS.DETAILS' | translate }}
+                            {{ 'COMMON.DETAILS' | translate }}
                         </div>
                     </h3>
                     @if (can_book_for_others && !options()?.group) {

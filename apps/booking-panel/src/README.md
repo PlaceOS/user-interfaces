@@ -56,6 +56,8 @@ The timeline section binds to the following status variables:
 
 | Name        | Description   | Type  | Example |
 | ----------- | ------------- | ----- | ------- |
+| show_timeline | Shows the floating schedule timeline on the left of the panel view | Boolean | `false` |
+| timeline_position | Positions the timeline. Supported values are `left`, `right`, `bottom`, `floating-left`, and `floating-bottom` | String | `"floating-left"` |
 | timeout | Enables start/stop and auto-cancellations. Value specifies the seconds with which the event is cancelled  | Number | `900` |
 | hide_availability | Hides details related to the availability of the system | Boolean | `true` |
 | booking_disabled | Prevents user from making bookings using the UI | Boolean | `false` |

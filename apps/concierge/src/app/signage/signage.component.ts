@@ -30,6 +30,7 @@ import { SignageStateService } from './signage-state.service';
                             btn
                             matRipple
                             class="w-40"
+                            data-shortcut="new"
                             (click)="newItem(active_link())"
                         >
                             {{

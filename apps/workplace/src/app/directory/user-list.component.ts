@@ -220,7 +220,9 @@ export class DirectoryUserListComponent extends AsyncHandler {
 
     private buildGroups(users: User[]) {
         const grouped_users: Record<string, User[]> = {};
-        const sorted = users.sort((a, b) => a.name.localeCompare(b.name));
+        const sorted = [...users].sort((a, b) =>
+            a.name.localeCompare(b.name),
+        );
         for (const letter of this.letters) {
             grouped_users[letter] = sorted.filter((f) =>
                 f.name.startsWith(letter),

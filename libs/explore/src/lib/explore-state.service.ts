@@ -73,7 +73,7 @@ export class ExploreStateService {
 
     private _options = signal<MapOptions>({
         is_public: false,
-        disable: ['zones', 'devices'],
+        disable: ['zones', 'devices', 'sensors'],
     });
 
     private _message = signal<string>('');
@@ -233,6 +233,7 @@ export class ExploreStateService {
             disable: unique([
                 'zones',
                 'devices',
+                'sensors',
                 ...this._normaliseDisabledSetting('app.explore.disable'),
             ]),
         });

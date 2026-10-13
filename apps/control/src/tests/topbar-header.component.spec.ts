@@ -1,6 +1,6 @@
 import { signal } from '@angular/core';
 import { MatMenuModule } from '@angular/material/menu';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { OrganisationService, SettingsService } from '@placeos/common';
 import { mockComponent, mockDirective } from '@placeos/common/tests';
 import { MockProvider } from 'ng-mocks';
@@ -16,6 +16,7 @@ import { VideoCallStateService } from '../app/video-call/video-call-state.servic
 
 describe('TopbarHeaderComponent', () => {
     let spectator: Spectator<TopbarHeaderComponent>;
+    let can_change_room = true;
     const createComponent = createComponentFactory({
         component: TopbarHeaderComponent,
         declarations: [
@@ -24,10 +25,10 @@ describe('TopbarHeaderComponent', () => {
             mockDirective(AuthenticatedImageDirective),
         ],
         providers: [
-            MockProvider(SettingsService, { get: jest.fn(), theme: 'light' }),
+            MockProvider(SettingsService, { get: vi.fn(), theme: 'light' }),
             MockProvider(OrganisationService, {
                 active_building: signal({} as any),
-            } as any),
+            }),
             MockProvider(ControlStateService, {
                 system: signal([]),
                 mic_list: signal([]),
@@ -43,7 +44,9 @@ describe('TopbarHeaderComponent', () => {
                 hide_join_button: signal(false),
                 help_items: signal({}),
                 room_accessories: signal([]),
-                powerOff: jest.fn(),
+                powerOff: vi.fn(),
+                changeRoom: vi.fn(),
+                canChangeRoom: vi.fn(() => can_change_room),
             } as any),
             MockProvider(VideoCallStateService, {
                 call: signal(null),
@@ -54,13 +57,43 @@ describe('TopbarHeaderComponent', () => {
         imports: [MatMenuModule],
     });
 
-    beforeEach(() => (spectator = createComponent()));
-
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
+    beforeEach(() => {
+        can_change_room = true;
+        vi.clearAllMocks();
+        vi.useFakeTimers();
     });
 
+    afterEach(() => vi.useRealTimers());
+
     it('should show the logo', () => {
+        spectator = createComponent();
         expect('img[auth]').toExist();
+    });
+
+    it('should open change room after holding the logo', () => {
+        spectator = createComponent();
+        spectator.component.startHold();
+        vi.advanceTimersByTime(3000);
+        expect(
+            spectator.inject(ControlStateService).changeRoom,
+        ).toHaveBeenCalled();
+    });
+
+    it('should not change room on a fixed device', () => {
+        can_change_room = false;
+        spectator = createComponent();
+        spectator.component.startHold();
+        vi.advanceTimersByTime(3000);
+        expect(
+            spectator.inject(ControlStateService).changeRoom,
+        ).not.toHaveBeenCalled();
+    });
+
+    it('should hide the lighting scenes action when the room has no scenes', () => {
+        spectator = createComponent();
+        const action = spectator.component
+            .action_list()
+            .find((_) => _.id === 'lighting_scenes');
+        expect(action.show).toBe(false);
     });
 });

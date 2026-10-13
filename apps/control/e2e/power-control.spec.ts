@@ -23,7 +23,7 @@ test.describe('US-003: Power On Room', () => {
     }) => {
         // When system is not active, splash screen should be visible
         // Wait for either splash (system connected but inactive) or topbar (system active)
-        const splash = page.locator('div[name="splash"]');
+        const splash = page.locator('[name="splash"]');
         const topbar = page.locator('topbar-header');
 
         // Wait for system to be connected and UI to render
@@ -43,7 +43,7 @@ test.describe('US-003: Power On Room', () => {
     test('should show "touch to start" message on splash screen', async ({
         page,
     }) => {
-        const splash = page.locator('div[name="splash"]');
+        const splash = page.locator('[name="splash"]');
 
         if (await splash.isVisible().catch(() => false)) {
             // Check for the touch to start heading
@@ -53,7 +53,7 @@ test.describe('US-003: Power On Room', () => {
     });
 
     test('should display room name on splash screen', async ({ page }) => {
-        const splash = page.locator('div[name="splash"]');
+        const splash = page.locator('[name="splash"]');
 
         if (await splash.isVisible().catch(() => false)) {
             // Room name should be displayed
@@ -63,7 +63,7 @@ test.describe('US-003: Power On Room', () => {
     });
 
     test('should power on when clicking splash screen', async ({ page }) => {
-        const splash = page.locator('div[name="splash"]');
+        const splash = page.locator('[name="splash"]');
 
         if (await splash.isVisible().catch(() => false)) {
             // Click to power on
@@ -80,7 +80,7 @@ test.describe('US-003: Power On Room', () => {
         page,
     }) => {
         // Wait for splash or topbar to appear first
-        const splash = page.locator('div[name="splash"]');
+        const splash = page.locator('[name="splash"]');
         const topbar = page.locator('topbar-header');
 
         await Promise.race([
@@ -105,7 +105,7 @@ test.describe('US-003: Power On Room', () => {
     });
 
     test('should display version info on splash screen', async ({ page }) => {
-        const splash = page.locator('div[name="splash"]');
+        const splash = page.locator('[name="splash"]');
 
         if (await splash.isVisible().catch(() => false)) {
             // Version info should be in bottom left
@@ -123,7 +123,7 @@ test.describe('US-004: Power Off Room', () => {
             .waitFor({ timeout: LOAD_TIMEOUT });
 
         // Wait for system to be connected (splash or topbar visible)
-        const splash = page.locator('div[name="splash"]');
+        const splash = page.locator('[name="splash"]');
         const topbar = page.locator('topbar-header');
 
         await Promise.race([
@@ -185,7 +185,7 @@ test.describe('Power Control - Voice Assistant on Splash', () => {
     test('should display voice assistant on splash screen when enabled', async ({
         page,
     }) => {
-        const splash = page.locator('div[name="splash"]');
+        const splash = page.locator('[name="splash"]');
 
         if (await splash.isVisible().catch(() => false)) {
             // Voice assistant should be in bottom right
@@ -234,7 +234,7 @@ test.describe('Power Control - Responsive', () => {
             .waitFor({ timeout: LOAD_TIMEOUT });
 
         // Wait for system to be connected (splash or topbar visible)
-        const splash = page.locator('div[name="splash"]');
+        const splash = page.locator('[name="splash"]');
         const topbar = page.locator('topbar-header');
 
         await Promise.race([

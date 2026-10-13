@@ -3,11 +3,15 @@ import {
     computed,
     effect,
     inject,
+    input,
     model,
+    OnInit,
     signal,
 } from '@angular/core';
 
 import { ScrollingModule } from '@angular/cdk/scrolling';
+import { DatePipe } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { OrganisationService, SettingsService } from '@placeos/common';
 import { AsyncHandler } from 'libs/common/src/lib/async-handler.class';
@@ -16,7 +20,11 @@ import {
     ClientEvent,
     RemoteLoggingService,
 } from 'libs/common/src/lib/remote-logging.service';
+import { CustomTooltipComponent } from './custom-tooltip.component';
+import { IconComponent } from './icon.component';
 import { JsonDisplayComponent } from './json-display.component';
+import { SanitizePipe } from './sanitise.pipe';
+import { TranslatePipe } from './translate.pipe';
 
 const COLOR_MAP = {
     console: 'bg-success-light text-black',
@@ -61,29 +69,29 @@ const URL_STARTS = [
                         class="h-120 max-h-full w-full flex-1"
                     >
                         <div
-                            class="hover:bg-base-100 flex h-8 max-w-full items-center space-x-1 truncate p-2 font-mono text-sm"
+                            class="hover:bg-base-100 flex h-8 max-w-full items-center space-x-1 truncate p-2 font-mono text-xs"
                             *cdkVirtualFor="
                                 let log of filtered_logs();
                                 trackBy: trackByFn
                             "
                         >
                             <div
-                                class="bg-base-100/10 rounded-sm p-1 font-mono text-xs uppercase"
+                                class="bg-base-100/10 rounded-sm p-1 font-mono text-[0.625rem] uppercase"
                             >
-                                {{ log.timestamp | date: 'MMM d HH:mm:ss' }}
+                                {{ log.timestamp | date: 'HH:mm:ss' }}
                             </div>
-                            <div
+                            <!-- <div
                                 [class]="
-                                    'p-1 text-xs uppercase ' +
+                                    'p-1 uppercase ' +
                                     colors[log.type] +
                                     ' rounded-sm font-mono'
                                 "
                             >
                                 {{ log.type }}
-                            </div>
+                            </div> -->
                             <div
                                 [class]="
-                                    'p-1 text-xs capitalize ' +
+                                    'p-1 capitalize ' +
                                     colors[log.subtype] +
                                     ' w-16 rounded-sm text-center font-mono'
                                 "
@@ -178,15 +186,25 @@ const URL_STARTS = [
         }
     `,
     styles: [``],
-    imports: [ScrollingModule, MatRippleModule],
+    imports: [
+        ScrollingModule,
+        MatRippleModule,
+        FormsModule,
+        DatePipe,
+        TranslatePipe,
+        SanitizePipe,
+        IconComponent,
+        CustomTooltipComponent,
+    ],
 })
-export class DebugConsoleComponent extends AsyncHandler {
+export class DebugConsoleComponent extends AsyncHandler implements OnInit {
     private _org = inject(OrganisationService);
     private _logs = inject(RemoteLoggingService);
     private _hotkey = inject(HotkeysService);
     private _settings = inject(SettingsService);
 
     public readonly show = model(false);
+    public readonly hotkeysEnabled = input(true);
     public readonly colors = COLOR_MAP;
     public readonly json_tooltip = JsonDisplayComponent;
     public readonly filter = signal<string>('');
@@ -234,6 +252,7 @@ export class DebugConsoleComponent extends AsyncHandler {
     }
 
     public ngOnInit() {
+        if (!this.hotkeysEnabled()) return;
         this.subscription(
             'toggle',
             this._hotkey.listen(['Control', 'Backquote'], () =>
@@ -242,7 +261,7 @@ export class DebugConsoleComponent extends AsyncHandler {
         );
     }
 
-    public type(item: any) {
+    public type(item: unknown) {
         if (
             typeof item === 'string' &&
             URL_STARTS.find((start) => item.startsWith(start))

@@ -22,9 +22,11 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import {
     AsyncHandler,
+    notifyError,
     notifyInfo,
     unique,
     UPLOAD_PERMISSIONS_MODAL,
+    UploadCancelledError,
     UploadsService,
 } from '@placeos/common';
 import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticated-image.directive';
@@ -276,7 +278,7 @@ export class ImageListFieldComponent
     });
 
     public readonly length = computed(
-        () => this.list().length + this.upload_list().length + 1,
+        () => this.list().length + this.uploads().length + 1,
     );
 
     private readonly _list_el =
@@ -345,7 +347,7 @@ export class ImageListFieldComponent
     }
 
     public async uploadImages(event) {
-        const element: HTMLInputElement = event.target as any;
+        const element: HTMLInputElement = event.target;
         /* istanbul ignore else */
         if (element?.files) {
             const files: FileList = element.files;
@@ -354,13 +356,22 @@ export class ImageListFieldComponent
                 this.interval('update_status', () =>
                     this._updateUploadHistory(),
                 );
+                // Keep going after a failure so one bad file doesn't drop the rest
                 for (let i = 0; i < files.length; i++) {
-                    const id = await this._uploads.uploadFileWithPermissions(
-                        files[i],
-                    );
-                    this.upload_ids.set([...this.upload_ids(), id]);
-                    this._file_input().nativeElement.value = '';
+                    try {
+                        const id =
+                            await this._uploads.uploadFileWithPermissions(
+                                files[i],
+                            );
+                        this.upload_ids.set([...this.upload_ids(), id]);
+                    } catch (error) {
+                        if (error instanceof UploadCancelledError) continue;
+                        notifyError(
+                            `Failed to upload ${files[i].name}: ${error?.message || 'Unknown error'}`,
+                        );
+                    }
                 }
+                this._file_input().nativeElement.value = '';
             }
         }
     }
@@ -394,7 +405,6 @@ export class ImageListFieldComponent
         const done_list = new_list.filter((file) => file.progress >= 100);
         this.upload_list.set(new_list);
         done_list.forEach((i) => {
-            console.log('ID:', { ...i });
             this.upload_map[i?.id] = i.upload?.id || i?.id;
             delete i.upload;
         });

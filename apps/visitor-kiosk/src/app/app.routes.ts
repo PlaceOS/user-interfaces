@@ -4,38 +4,44 @@ import {
     UnauthorisedComponent,
 } from '@placeos/components';
 
-import { BootstrapComponent } from './bootstrap.component';
-import { VisitorRegistrationComponent } from './visitor-registration.component';
-import { WelcomeComponent } from './welcome.component';
-
 export const routes: Routes = [
     { path: 'unauthorised', component: UnauthorisedComponent },
     {
         path: 'bootstrap',
-        component: BootstrapComponent,
+        loadComponent: () =>
+            import('./bootstrap.component').then((m) => m.BootstrapComponent),
         canActivate: [AuthorisedUserGuard],
     },
     {
         path: 'welcome',
-        component: WelcomeComponent,
+        loadComponent: () =>
+            import('./welcome.component').then((m) => m.WelcomeComponent),
         canActivate: [AuthorisedUserGuard],
     },
     {
         path: 'register',
-        component: VisitorRegistrationComponent,
+        loadComponent: () =>
+            import('./visitor-registration.component').then(
+                (m) => m.VisitorRegistrationComponent,
+            ),
         canActivate: [AuthorisedUserGuard],
     },
     {
         path: 'explore',
         canActivate: [AuthorisedUserGuard],
-        loadChildren: () =>
-            import('./explore.routes').then((m) => m.ROUTES),
+        loadChildren: () => import('./explore.routes').then((m) => m.ROUTES),
     },
     {
         path: 'checkin',
         canActivate: [AuthorisedUserGuard],
         loadChildren: () =>
             import('./checkin/checkin.routes').then((m) => m.ROUTES),
+    },
+    {
+        path: 'checkout',
+        canActivate: [AuthorisedUserGuard],
+        loadChildren: () =>
+            import('./checkin/checkout.routes').then((m) => m.ROUTES),
     },
     { path: '**', redirectTo: 'bootstrap' },
 ];

@@ -5,8 +5,8 @@ import { Router, RouterModule } from '@angular/router';
 import {
     BookingCardComponent,
     BookingFormService,
-    checkinBooking,
     removeBooking,
+    setBookingCheckedIn,
 } from '@placeos/bookings';
 import {
     AsyncHandler,
@@ -42,14 +42,14 @@ import { LandingStateService } from './landing-state.service';
                     class="inverse hidden sm:flex"
                     [routerLink]="['/your-bookings']"
                 >
-                    {{ 'APP.WORKPLACE.UPCOMING_VIEW' | translate }}
+                    {{ 'COMMON.VIEW_ALL' | translate }}
                 </a>
                 <a
                     name="upcoming-view-all-mobile"
                     class="inverse relative top-8 flex text-blue-500 underline sm:hidden"
                     [routerLink]="['/your-bookings']"
                 >
-                    {{ 'APP.WORKPLACE.UPCOMING_VIEW' | translate }}
+                    {{ 'COMMON.VIEW_ALL' | translate }}
                 </a>
             </div>
             <div class="space-y-4 px-4">
@@ -75,6 +75,7 @@ import { LandingStateService } from './landing-state.service';
                                     [edit_fn]="edit_booking_fn"
                                     [remove_fn]="remove_fn"
                                     [end_fn]="end_fn"
+                                    [refresh_fn]="refresh_fn"
                                 ></booking-card>
                             }
                         }
@@ -131,6 +132,7 @@ export class LandingUpcomingComponent
     public readonly edit_booking_fn = (i) => this.editBooking(i);
     public readonly remove_fn = (i, s?) => this.remove(i, s);
     public readonly end_fn = (i) => this.end(i);
+    public readonly refresh_fn = () => this._state.refreshUpcomingEvents();
 
     public ngOnInit() {
         // this._state.refreshUpcomingEvents();
@@ -192,7 +194,9 @@ export class LandingUpcomingComponent
         if (resp.reason !== 'done') return;
         resp.loading(i18n('APP.WORKPLACE.SCHEDULE_REMOVE_LOADING'));
         const remove_result = (
-            item instanceof CalendarEvent ? removeEvent : removeBooking
+            item instanceof CalendarEvent && !item.from_bookings
+                ? removeEvent
+                : removeBooking
         )(item.id, {
             calendar: this._settings.get('app.events.use_bookings')
                 ? null
@@ -202,7 +206,7 @@ export class LandingUpcomingComponent
             start_time: (item as any).instance
                 ? (item as any).booking_start
                 : undefined,
-        } as any) as any;
+        }) as any;
         await (
             remove_result?.then instanceof Function
                 ? remove_result
@@ -236,7 +240,7 @@ export class LandingUpcomingComponent
 
         if (resp.reason !== 'done') return;
         resp.loading(i18n('APP.WORKPLACE.SCHEDULE_END_LOADING'));
-        await checkinBooking(item.id, false).catch((e) => {
+        await setBookingCheckedIn(item, false).catch((e) => {
             notifyError(i18n('APP.WORKPLACE.SCHEDULE_END_ERROR', { error: e }));
             resp.close();
             throw e;

@@ -49,7 +49,7 @@ const ITEM_LIST_CONDITIONS = ['groups', 'locations', 'tags', 'resource_ids'];
             <div class="flex items-center space-x-4">
                 <div class="flex flex-1 flex-col">
                     <label for="zone"
-                        >{{ 'COMMON.ZONE' | translate }}<span>*</span>:</label
+                        >{{ 'RESOURCE.ZONE' | translate }}<span>*</span>:</label
                     >
                     <mat-form-field appearance="outline">
                         <mat-select name="zone" formControlName="zone">
@@ -185,12 +185,12 @@ const ITEM_LIST_CONDITIONS = ['groups', 'locations', 'tags', 'resource_ids'];
             @if (available_conditions().includes('tags')) {
                 <div class="flex flex-col" formGroupName="conditions">
                     <label for="tags">
-                        {{ 'BOOKINGS.CONDITION_TAGS' | translate }}
+                        {{ 'COMMON.TAGS' | translate }}
                     </label>
                     <item-list-field
                         name="tags"
                         formControlName="tags"
-                        [placeholder]="'BOOKINGS.CONDITION_TAGS' | translate"
+                        [placeholder]="'COMMON.TAGS' | translate"
                     ></item-list-field>
                 </div>
             }
@@ -451,7 +451,9 @@ export class BookingRulesFormComponent implements OnChanges {
 
     public readonly available_conditions = signal<string[]>([]);
 
-    public readonly building_zones = toObservable(this._org.active_building).pipe(
+    public readonly building_zones = toObservable(
+        this._org.active_building,
+    ).pipe(
         filter((_) => !!_),
         switchMap((bld) =>
             queryZones({ parent_id: bld.id }).catch(() => ({ data: [] })),

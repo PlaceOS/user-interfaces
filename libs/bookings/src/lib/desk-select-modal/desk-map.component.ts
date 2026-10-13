@@ -23,7 +23,8 @@ import { InteractiveMapComponent } from 'libs/components/src/lib/interactive-map
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { ExploreDeskInfoComponent } from 'libs/explore/src/lib/explore-desk-info.component';
 import { DEFAULT_COLOURS } from 'libs/explore/src/lib/explore-spaces.service';
-import { BookingAsset, BookingFormService } from '../booking-form.service';
+import { BookingFormService } from '../booking-form.service';
+import { BookingAsset } from '../booking-form.types';
 
 @Component({
     selector: 'desk-map',
@@ -38,7 +39,7 @@ import { BookingAsset, BookingFormService } from '../booking-form.service';
                     <mat-select
                         name="location"
                         [(ngModel)]="level"
-                        (ngModelChange)="setOptions({ zone_ids: [$event.id] })"
+                        (ngModelChange)="setLevel($event)"
                         [ngModelOptions]="{ standalone: true }"
                         [placeholder]="'COMMON.LEVEL_ANY' | translate"
                     >
@@ -105,11 +106,17 @@ export class DeskMapComponent {
     private _org = inject(OrganisationService);
     private readonly _use_region = this._settings.signal('use_region', false);
 
-    public readonly is_displayed = input(false);
     public readonly active = input('');
     public readonly onSelect = output<BookingAsset>();
+    /**
+     * Desks to show as available. Defaults to the booking form service
+     * results. Set it to show a list that the host has filtered.
+     */
+    public readonly available = input<BookingAsset[] | null>(null);
 
-    public readonly desks = this._state.available_resources;
+    public readonly desks = computed(
+        () => this.available() ?? this._state.available_resources(),
+    );
     public readonly loading = this._state.loading;
 
     public readonly zoom = model(1);
@@ -148,10 +155,10 @@ export class DeskMapComponent {
     public readonly map_url = computed(() => this.level()?.map_id || '');
 
     public readonly actions = computed(() =>
-        this._state.available_resources().map((desk) => ({
+        this.desks().map((desk) => ({
             id: desk.map_id || desk.id,
             action: ['touchend', 'mouseup'],
-            callback: () => this.selectDesk(desk as any),
+            callback: () => this.selectDesk(desk),
         })),
     );
 
@@ -168,7 +175,7 @@ export class DeskMapComponent {
                       id: desk.map_id || desk.id,
                       map_id: desk.name,
                       name: desk.name || desk.map_id,
-                      user: this._state.resourceUserName(desk.id),
+                      user: signal(this._state.resourceUserName(desk.id)),
                       status: this.statuses[desk.id],
                   },
                   z_index: 20,
@@ -185,7 +192,7 @@ export class DeskMapComponent {
         });
         effect(() => {
             const desks = this._state.resources();
-            const free_desks = this._state.available_resources();
+            const free_desks = this.desks();
             this._change();
             const styles = desks.reduce((styles, desk) => {
                 const colours = this._settings.get('app.explore.colors') || {};

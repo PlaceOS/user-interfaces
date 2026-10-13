@@ -26,6 +26,7 @@ import {
 import { DateFieldComponent } from '@placeos/form-fields';
 import { showAssetPurchaseOrder } from '@placeos/ts-client';
 import { addYears, getUnixTime } from 'date-fns';
+import { queryAllPages } from '../query-all-pages';
 import { AssetManagerStateService } from './asset-manager-state.service';
 
 @Component({
@@ -207,17 +208,18 @@ export class AssetPurchaseOrderFormComponent
             if (!params.id || !params.building) return [];
             const [asset_list, groups] = await Promise.all([
                 queryAssets({ order_id: params.id }),
-                queryAssetTypes({
-                    zone_id: this._org.building.id,
-                    limit: 500,
-                }),
+                queryAllPages(
+                    queryAssetTypes({
+                        zone_id: this._org.building.id,
+                        limit: 200,
+                    }),
+                ),
             ]);
             return asset_list.data.map((asset) => ({
                 ...asset,
                 name:
-                    groups.data.find(
-                        (_) => _.id === (asset as any).asset_type_id,
-                    )?.name || asset.id,
+                    groups.find((_) => _.id === asset.asset_type_id)?.name ||
+                    asset.id,
             }));
         },
     });
@@ -243,6 +245,7 @@ export class AssetPurchaseOrderFormComponent
                             i18n('APP.CONCIERGE.ASSETS_PURCHASE_LOAD_ERROR'),
                         );
                         this._router.navigate([this.base_route]);
+                        return this.loading.set('');
                     }
                     patchSignalModel(this.model, {
                         ...asset,
@@ -278,7 +281,7 @@ export class AssetPurchaseOrderFormComponent
             this.item()?.expected_service_end_date ||
             null;
         data.unit_price = +data.unit_price;
-        const item = await saveAssetPurchaseOrder(data as any).catch((e) => {
+        await saveAssetPurchaseOrder(data).catch((e) => {
             this.loading.set('');
             notifyError(
                 i18n('APP.CONCIERGE.ASSETS_PURCHASE_SAVE_ERROR', {

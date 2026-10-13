@@ -46,6 +46,7 @@ import { AuthenticatedImageDirective } from './authenticated-image.directive';
                             <mat-form-field appearance="outline">
                                 <input
                                     #username
+                                    matInput
                                     [formField]="form.username"
                                     (keyup.enter)="toPassword()"
                                 />
@@ -56,6 +57,7 @@ import { AuthenticatedImageDirective } from './authenticated-image.directive';
                             <mat-form-field appearance="outline">
                                 <input
                                     #pass_field
+                                    matInput
                                     [formField]="form.password"
                                     (keyup.enter)="login()"
                                 />

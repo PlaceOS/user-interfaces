@@ -1,6 +1,8 @@
 import {
     Component,
     ElementRef,
+    OnDestroy,
+    OnInit,
     computed,
     effect,
     inject,
@@ -8,7 +10,11 @@ import {
     viewChild,
 } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { AsyncHandler, currentUser } from '@placeos/common';
+import {
+    AsyncHandler,
+    OrganisationService,
+    currentUser,
+} from '@placeos/common';
 import {
     ChatService,
     DateFromPipe,
@@ -19,10 +25,34 @@ import {
 } from '@placeos/components';
 
 import { MatRippleModule } from '@angular/material/core';
-import { OrganisationService } from '@placeos/common';
-import * as tf from '@tensorflow/tfjs';
+import {
+    CompiledModel,
+    Tensor,
+    isWebGPUSupported,
+    loadAndCompile,
+    loadLiteRt,
+} from '@litertjs/core';
 
-declare let loadVosklet: any;
+const MODEL_INPUT_SIZE = 640;
+const MODEL_PIXEL_COUNT = MODEL_INPUT_SIZE * MODEL_INPUT_SIZE;
+
+interface SpeechRecognitionInstance {
+    interimResults: boolean;
+    lang: string;
+    onresult: ((event: SpeechRecognitionEvent) => void) | null;
+    onerror: ((event: SpeechRecognitionErrorEvent) => void) | null;
+    onend: (() => void) | null;
+    start(): void;
+    stop(): void;
+    abort(): void;
+}
+
+type SpeechRecognitionConstructor = new () => SpeechRecognitionInstance;
+type AssistantWindow = Window & {
+    SpeechRecognition?: SpeechRecognitionConstructor;
+    webkitSpeechRecognition?: SpeechRecognitionConstructor;
+    webkitAudioContext?: typeof AudioContext;
+};
 
 @Component({
     selector: 'app-panel-view',
@@ -133,14 +163,17 @@ declare let loadVosklet: any;
                                                 : 'You'
                                         }}
                                     </div>
-                                    <div
-                                        class="text-base-content w-full px-2 py-1 text-right text-xs opacity-40"
-                                    >
-                                        {{
-                                            message.timestamp + offset
-                                                | dateFrom
-                                        }}
-                                    </div>
+                                    @if (show_time()[message.id]) {
+                                        <div
+                                            message-time
+                                            class="text-base-content w-full px-2 py-1 text-right text-xs opacity-40"
+                                        >
+                                            {{
+                                                message.timestamp + offset
+                                                    | dateFrom
+                                            }}
+                                        </div>
+                                    }
                                 </div>
                                 <div
                                     message
@@ -243,7 +276,10 @@ declare let loadVosklet: any;
         UserAvatarComponent,
     ],
 })
-export class PanelViewComponent extends AsyncHandler {
+export class PanelViewComponent
+    extends AsyncHandler
+    implements OnDestroy, OnInit
+{
     private _route = inject(ActivatedRoute);
     private _chat = inject(ChatService);
     private _org = inject(OrganisationService);
@@ -262,7 +298,7 @@ export class PanelViewComponent extends AsyncHandler {
     private _time = 0;
     private _last_message = '';
     private _previous_message = '';
-    private _context: any;
+    private _context: CanvasRenderingContext2D;
 
     public readonly icons = {
         list_function_schemas: 'help',
@@ -305,7 +341,11 @@ export class PanelViewComponent extends AsyncHandler {
         this.show_time.update((state) => ({ ...state, [id]: !state[id] }));
     }
 
-    private _recognition: any;
+    private _recognition?: SpeechRecognitionInstance;
+    private readonly _model_input = new Float32Array(MODEL_PIXEL_COUNT * 3);
+    private _webcam_stream: MediaStream | null = null;
+    private _audio_stream: MediaStream | null = null;
+    private _destroyed = false;
     private readonly _video_el =
         viewChild<ElementRef<HTMLVideoElement>>('video');
     private readonly _canvas_el =
@@ -322,73 +362,105 @@ export class PanelViewComponent extends AsyncHandler {
     public async ngOnInit() {
         await this._org.waitUntilInitialised();
         const start_voice = () => {
-            this._setupVoiceRecognition();
-            window.removeEventListener('click', start_voice);
+            void this._setupVoiceRecognition();
+            this.unsub('start_voice');
         };
         window.addEventListener('click', start_voice);
-        this._context = this._canvas_el().nativeElement.getContext('2d', {
+        this.subscription('start_voice', () =>
+            window.removeEventListener('click', start_voice),
+        );
+        const context = this._canvas_el().nativeElement.getContext('2d', {
             willReadFrequently: true,
         });
+        if (!context) throw new Error('Unable to initialise webcam canvas');
+        this._context = context;
         this._setupWebcam();
         this._chat.startChat();
         this.interval('process_frame', () => this._processWebcamFrame(), 500);
         this.subscription(
             'route.query',
             this._route.queryParamMap.subscribe((p) => {
-                if (p.has('debug'))
-                    this.debug.set(p.get('debug') === 'true');
+                if (p.has('debug')) this.debug.set(p.get('debug') === 'true');
             }),
         );
         this._listen();
     }
 
     public startListening() {
-        if (this.listening() || !this.person_in_view()) return;
+        if (!this._recognition || this.listening() || !this.person_in_view()) {
+            return;
+        }
         this._recognition.start();
         this.listening.set(true);
     }
 
     public endService() {
         this.setup.set(false);
-        this._recognition.stop();
+        this._recognition?.stop();
         this.listening.set(false);
         this._last_text = '';
         this._spoken = false;
         this._chat.close();
     }
 
-    private _model: tf.GraphModel;
+    public override ngOnDestroy(): void {
+        this._destroyed = true;
+        if (this._frame_id) cancelAnimationFrame(this._frame_id);
+        this._recognition?.abort?.();
+        this._webcam_stream?.getTracks().forEach((track) => track.stop());
+        this._audio_stream?.getTracks().forEach((track) => track.stop());
+        this._audio_source?.disconnect();
+        if (this._audio_context?.state !== 'closed') {
+            void this._audio_context?.close();
+        }
+        super.ngOnDestroy();
+    }
 
-    private async _loadModel() {
-        tf.setBackend('webgl');
-        this._model = await tf.loadGraphModel(
-            `${location.origin}${location.pathname}assets/yolov8x_web_model/model.json`,
-        );
+    private _model?: Promise<CompiledModel>;
+
+    private _loadModel() {
+        if (!this._model) {
+            const assets_path = `${location.origin}${location.pathname}assets`;
+            this._model = loadLiteRt(`${assets_path}/litert/`).then(() =>
+                loadAndCompile(
+                    `${assets_path}/yolov8n_litert_model/model.tflite`,
+                    {
+                        accelerator: isWebGPUSupported() ? 'webgpu' : 'wasm',
+                    },
+                ),
+            );
+        }
+        return this._model;
     }
 
     private _spoken = false;
+    private _processing_frame = false;
 
     private async _processWebcamFrame() {
-        if (!this.setup()) return;
-        if (!this._model) await this._loadModel();
-        tf.tidy(() => {
-            const tensor = this._webcamToTensor();
-            const predictions = this._model.predict(tensor);
-            const detections = this._processPredictions(predictions, {
-                0: 'person',
-            });
+        if (!this.setup() || this._processing_frame) return;
+        this._processing_frame = true;
+        let input_tensor: Tensor | undefined;
+        let output_tensors: Tensor[] = [];
+        try {
+            const model = await this._loadModel();
+            input_tensor = this._webcamToTensor();
+            output_tensors = await model.run(input_tensor);
+            const prediction_tensor = output_tensors[0];
+            const predictions =
+                prediction_tensor.toTypedArray() as Float32Array;
+            const person_detected = this._containsPerson(
+                predictions,
+                prediction_tensor.type.layout.dimensions,
+            );
             const old_state = this.person_in_view();
-            this.person_in_view.set(false);
-            for (const { box, label } of detections) {
-                if (label === 'person') {
-                    this.person_in_view.set(true);
-                    if (this.setup() && !this._spoken) {
-                        this._speakText('Hello, how may I help you?');
-                        this._spoken = true;
-                        this.clearTimeout('clean_chat');
-                    }
-                    return;
+            this.person_in_view.set(person_detected);
+            if (person_detected) {
+                if (this.setup() && !this._spoken) {
+                    this._speakText('Hello, how may I help you?');
+                    this._spoken = true;
+                    this.clearTimeout('clean_chat');
                 }
+                return;
             }
             if (old_state !== this.person_in_view() && this._recognition) {
                 if (this.person_in_view()) {
@@ -406,57 +478,59 @@ export class PanelViewComponent extends AsyncHandler {
                     );
                 }
             }
-        });
+        } finally {
+            input_tensor?.delete();
+            output_tensors.forEach((tensor) => tensor.delete());
+            this._processing_frame = false;
+        }
     }
 
     private _webcamToTensor() {
-        const videoElement = this._video_el().nativeElement;
+        const video_element = this._video_el().nativeElement;
 
-        this._context.drawImage(videoElement, 0, 0, 640, 640);
-        const imageData = this._context.getImageData(0, 0, 640, 640);
-        const tensor = tf.browser.fromPixels(imageData);
-
-        return tf.cast(tensor, 'float32').div(tf.scalar(255)).expandDims(0);
+        this._context.drawImage(
+            video_element,
+            0,
+            0,
+            MODEL_INPUT_SIZE,
+            MODEL_INPUT_SIZE,
+        );
+        const image_data = this._context.getImageData(
+            0,
+            0,
+            MODEL_INPUT_SIZE,
+            MODEL_INPUT_SIZE,
+        ).data;
+        for (
+            let pixel_index = 0;
+            pixel_index < MODEL_PIXEL_COUNT;
+            pixel_index++
+        ) {
+            const image_index = pixel_index * 4;
+            this._model_input[pixel_index] = image_data[image_index] / 255;
+            this._model_input[MODEL_PIXEL_COUNT + pixel_index] =
+                image_data[image_index + 1] / 255;
+            this._model_input[MODEL_PIXEL_COUNT * 2 + pixel_index] =
+                image_data[image_index + 2] / 255;
+        }
+        return new Tensor(this._model_input, [
+            1,
+            3,
+            MODEL_INPUT_SIZE,
+            MODEL_INPUT_SIZE,
+        ]);
     }
 
-    private _processPredictions(predictions, classNames) {
-        return tf.tidy(() => {
-            const transRes = predictions.transpose([0, 2, 1]);
-            const boxes = this._calculateBoundingBoxes(transRes);
-            const rawScores = transRes
-                .slice([0, 0, 4], [-1, -1, Object.keys(classNames).length])
-                .squeeze(0);
-            const [scores, labels] = [rawScores.max(1), rawScores.argMax(1)];
-
-            const indices = tf.image
-                .nonMaxSuppression(
-                    boxes,
-                    scores,
-                    predictions.shape[2],
-                    0.45,
-                    0.2,
-                )
-                .arraySync();
-            return indices.map((i) => {
-                // Extract predictions
-                const box = boxes.slice([i, 0], [1, -1]).squeeze().arraySync();
-                const label = labels.slice([i], [1]).arraySync()[0];
-                return { box, label: classNames[label] };
-            });
-        });
-    }
-
-    private _calculateBoundingBoxes(transRes) {
-        const [xCenter, yCenter, width, height] = [
-            transRes.slice([0, 0, 0], [-1, -1, 1]),
-            transRes.slice([0, 0, 1], [-1, -1, 1]),
-            transRes.slice([0, 0, 2], [-1, -1, 1]),
-            transRes.slice([0, 0, 3], [-1, -1, 1]),
-        ];
-
-        const topLeftX = tf.sub(xCenter, tf.div(width, 2));
-        const topLeftY = tf.sub(yCenter, tf.div(height, 2));
-        return tf.concat([topLeftX, topLeftY, width, height], 2).squeeze();
+    private _containsPerson(
+        predictions: Float32Array,
+        shape: Int32Array | number[],
+    ) {
+        const prediction_count = shape[2];
+        const person_scores_offset = prediction_count * 4;
+        for (let index = 0; index < prediction_count; index++) {
+            if (predictions[person_scores_offset + index] > 0.2) return true;
+        }
+        return false;
     }
 
     private async _setupWebcam() {
@@ -464,6 +538,11 @@ export class PanelViewComponent extends AsyncHandler {
             const stream = await navigator.mediaDevices.getUserMedia({
                 video: true,
             });
+            if (this._destroyed) {
+                stream.getTracks().forEach((track) => track.stop());
+                return;
+            }
+            this._webcam_stream = stream;
             this._video_el().nativeElement.srcObject = stream;
         } else {
             console.error('getUserMedia is not supported');
@@ -471,14 +550,16 @@ export class PanelViewComponent extends AsyncHandler {
     }
 
     private async _setupVoiceRecognition() {
-        if (!loadVosklet) {
-            return this.timeout('loadVosklet', () =>
-                this._setupVoiceRecognition(),
-            );
-        }
         const SpeechRecognition =
-            (window as any).SpeechRecognition ||
-            (window as any).webkitSpeechRecognition;
+            (window as AssistantWindow).SpeechRecognition ||
+            (window as AssistantWindow).webkitSpeechRecognition;
+        if (!SpeechRecognition) {
+            this.error.update((state) => ({
+                ...state,
+                speech_recognition: true,
+            }));
+            return;
+        }
 
         const recognition = new SpeechRecognition();
         recognition.interimResults = true;
@@ -504,7 +585,7 @@ export class PanelViewComponent extends AsyncHandler {
             }));
         };
 
-        recognition.onend = (event) => {
+        recognition.onend = () => {
             // const { transcript } = event.results[0][0];
             // do something with transcript
             this._handleEnd();
@@ -610,8 +691,15 @@ export class PanelViewComponent extends AsyncHandler {
         const stream = await navigator.mediaDevices.getUserMedia({
             audio: true,
         });
+        if (this._destroyed) {
+            stream.getTracks().forEach((track) => track.stop());
+            return;
+        }
+        this._audio_stream = stream;
         const AudioContext =
-            window.AudioContext || (window as any).webkitAudioContext;
+            window.AudioContext ||
+            (window as AssistantWindow).webkitAudioContext;
+        if (!AudioContext) return;
         this._audio_context = new AudioContext();
         this._analyser = this._audio_context.createAnalyser();
         this._audio_bytes = new Uint8Array(this._analyser.frequencyBinCount);
@@ -624,6 +712,7 @@ export class PanelViewComponent extends AsyncHandler {
     private _frame_count = 0;
 
     private _processWaveform() {
+        if (this._destroyed) return;
         if (this._frame_count % 2 === 0) {
             this._analyser.getByteTimeDomainData(
                 this._audio_bytes as Uint8Array<ArrayBuffer>,

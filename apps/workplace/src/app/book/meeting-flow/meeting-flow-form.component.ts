@@ -17,6 +17,7 @@ import {
     MatBottomSheet,
     MatBottomSheetRef,
 } from '@angular/material/bottom-sheet';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -29,7 +30,6 @@ import {
     CateringOrderStateService,
 } from '@placeos/catering';
 import {
-    ANIMATION_SHOW_CONTRACT_EXPAND,
     AsyncHandler,
     currentUser,
     getInvalidSignalFields,
@@ -89,7 +89,7 @@ import { MeetingFlowConfirmComponent } from './meeting-flow-confirm.component';
                                     1
                                 </div>
                                 <div class="text-xl">
-                                    {{ 'CALENDAR_EVENT.DETAILS' | translate }}
+                                    {{ 'COMMON.DETAILS' | translate }}
                                 </div>
                                 <div class="w-px flex-1"></div>
                                 <button
@@ -108,8 +108,8 @@ import { MeetingFlowConfirmComponent } from './meeting-flow-confirm.component';
                                 </button>
                             </h3>
                             <div
-                                class="overflow-hidden"
-                                [@show]="hide_block.details ? 'hide' : 'show'"
+                                class="contract-expand"
+                                [class.contract-collapsed]="hide_block.details"
                             >
                                 <meeting-form-details
                                     class="mt-4"
@@ -157,9 +157,9 @@ import { MeetingFlowConfirmComponent } from './meeting-flow-confirm.component';
                                     </button>
                                 </h3>
                                 <div
-                                    class="overflow-hidden"
-                                    [@show]="
-                                        hide_block.attendees ? 'hide' : 'show'
+                                    class="contract-expand"
+                                    [class.contract-collapsed]="
+                                        hide_block.attendees
                                     "
                                 >
                                     <a-user-list-field
@@ -168,6 +168,22 @@ import { MeetingFlowConfirmComponent } from './meeting-flow-confirm.component';
                                         [time]="model().date"
                                         [guests]="allow_externals()"
                                     ></a-user-list-field>
+                                    @if (can_notify_new_attendees_only()) {
+                                        <mat-checkbox
+                                            name="notify-new-attendees-only"
+                                            [(ngModel)]="
+                                                notify_new_attendees_only
+                                            "
+                                            [ngModelOptions]="{
+                                                standalone: true,
+                                            }"
+                                        >
+                                            {{
+                                                'CALENDAR_EVENT.NOTIFY_NEW_ATTENDEES_ONLY'
+                                                    | translate
+                                            }}
+                                        </mat-checkbox>
+                                    }
                                 </div>
                             </section>
                         }
@@ -199,8 +215,10 @@ import { MeetingFlowConfirmComponent } from './meeting-flow-confirm.component';
                                 </button>
                             </h3>
                             <div
-                                class="flex flex-col items-center overflow-hidden"
-                                [@show]="hide_block.resources ? 'hide' : 'show'"
+                                class="contract-expand flex flex-col items-center"
+                                [class.contract-collapsed]="
+                                    hide_block.resources
+                                "
                             >
                                 @if (
                                     !strict_capacity_check &&
@@ -232,10 +250,7 @@ import { MeetingFlowConfirmComponent } from './meeting-flow-confirm.component';
                                         4
                                     </div>
                                     <div class="text-xl">
-                                        {{
-                                            'CALENDAR_EVENT.CATERING'
-                                                | translate
-                                        }}
+                                        {{ 'RESOURCE.CATERING' | translate }}
                                     </div>
                                     <div class="w-px flex-1"></div>
                                     <button
@@ -255,9 +270,9 @@ import { MeetingFlowConfirmComponent } from './meeting-flow-confirm.component';
                                     </button>
                                 </h3>
                                 <div
-                                    class="overflow-hidden"
-                                    [@show]="
-                                        hide_block.catering ? 'hide' : 'show'
+                                    class="contract-expand"
+                                    [class.contract-collapsed]="
+                                        hide_block.catering
                                     "
                                 >
                                     <catering-list-field
@@ -270,6 +285,7 @@ import { MeetingFlowConfirmComponent } from './meeting-flow-confirm.component';
                                                 ? model()?.resources[0]?.level
                                                       ?.parent_id
                                                 : '',
+                                            resources: model().resources,
                                         }"
                                     ></catering-list-field>
                                     @if (
@@ -285,7 +301,7 @@ import { MeetingFlowConfirmComponent } from './meeting-flow-confirm.component';
                                                     form.catering_charge_code
                                                 "
                                                 [placeholder]="
-                                                    'CALENDAR_EVENT.CATERING_CHARGE_CODE'
+                                                    'CATERING.CHARGE_CODE'
                                                         | translate
                                                 "
                                             >
@@ -385,9 +401,9 @@ import { MeetingFlowConfirmComponent } from './meeting-flow-confirm.component';
                                     </button>
                                 </h3>
                                 <div
-                                    class="overflow-hidden"
-                                    [@show]="
-                                        hide_block.assets ? 'hide' : 'show'
+                                    class="contract-expand"
+                                    [class.contract-collapsed]="
+                                        hide_block.assets
                                     "
                                 >
                                     <asset-list-field
@@ -422,11 +438,18 @@ import { MeetingFlowConfirmComponent } from './meeting-flow-confirm.component';
                                         }}
                                     </div>
                                     <div class="text-xl">
-                                        {{
-                                            'CALENDAR_EVENT.NOTES_HEADER'
-                                                | translate
-                                        }}
+                                        {{ 'FORM.NOTES' | translate }}
                                     </div>
+                                    <div class="w-px flex-1"></div>
+                                    <button
+                                        type="button"
+                                        matRipple
+                                        name="reset-notes-meeting"
+                                        class="text-info bg-none text-xs underline"
+                                        (click)="resetNotes()"
+                                    >
+                                        {{ 'FORM.RESET_NOTES' | translate }}
+                                    </button>
                                 </h3>
                                 <div class="flex w-full flex-col">
                                     <label for="notes">
@@ -456,9 +479,7 @@ import { MeetingFlowConfirmComponent } from './meeting-flow-confirm.component';
                                 class="mb-2 w-full sm:mb-0 sm:w-auto"
                                 (click)="viewConfirm()"
                             >
-                                {{
-                                    'CALENDAR_EVENT.CONFIRM_DETAILS' | translate
-                                }}
+                                {{ 'CALENDAR_EVENT.CONFIRM' | translate }}
                             </button>
                             <button
                                 btn
@@ -480,12 +501,12 @@ import { MeetingFlowConfirmComponent } from './meeting-flow-confirm.component';
         </div>
     `,
     styles: [],
-    animations: [ANIMATION_SHOW_CONTRACT_EXPAND],
     imports: [
         CommonModule,
         TranslatePipe,
         IconComponent,
         MatRippleModule,
+        MatCheckboxModule,
         RichTextInputComponent,
         AssetListFieldComponent,
         CateringListFieldComponent,
@@ -517,6 +538,10 @@ export class MeetingFlowFormComponent extends AsyncHandler implements OnInit {
     public hide_block: Record<string, boolean> = {};
     public code_filter = signal('');
     public invalid_assets = signal<string[]>([]);
+    public readonly can_notify_new_attendees_only =
+        this._state.can_notify_new_attendees_only;
+    public readonly notify_new_attendees_only =
+        this._state.notify_new_attendees_only;
 
     public readonly has_catering = computed(
         () => this._catering.available_menu().length > 0,
@@ -619,6 +644,14 @@ export class MeetingFlowFormComponent extends AsyncHandler implements OnInit {
 
     public readonly clearForm = () => this._state.resetForm();
 
+    public resetNotes() {
+        this.model.update((model) => ({
+            ...model,
+            body: this.event?.body || '',
+        }));
+        this.form.body().reset();
+    }
+
     public get allow_daily_allday_recurrence() {
         return this._settings.get('app.events.allow_daily_allday_recurrence');
     }
@@ -649,6 +682,9 @@ export class MeetingFlowFormComponent extends AsyncHandler implements OnInit {
                     ).join(', '),
                 }),
             );
+        if (!(await this._cateringOrdersAvailable())) {
+            return notifyError(i18n('CALENDAR_EVENT.CATERING_UNAVAILABLE'));
+        }
         if (
             this._settings.get('app.events.no_standalone') &&
             !this.model().resources.length
@@ -683,7 +719,8 @@ export class MeetingFlowFormComponent extends AsyncHandler implements OnInit {
         }
     };
 
-    private readonly _confirm_ref = viewChild<TemplateRef<any>>('confirm_ref');
+    private readonly _confirm_ref =
+        viewChild<TemplateRef<unknown>>('confirm_ref');
     private readonly _input_el =
         viewChild<ElementRef<HTMLInputElement>>('input');
 
@@ -757,6 +794,18 @@ export class MeetingFlowFormComponent extends AsyncHandler implements OnInit {
             return;
         }
         const value = this.model();
+        const room_ids = new Set(
+            space_list.flatMap((space) => [space.id, space.email]),
+        );
+        const valid_orders = (value.catering || []).filter(
+            (order) => !order.system_id || room_ids.has(order.system_id),
+        );
+        if (valid_orders.length !== (value.catering || []).length) {
+            this.model.update((model) => ({
+                ...model,
+                catering: valid_orders,
+            }));
+        }
         this._catering.setFilters({
             search: '',
             date: value.date,
@@ -766,20 +815,18 @@ export class MeetingFlowFormComponent extends AsyncHandler implements OnInit {
             tags: [],
             categories: [],
         });
-        const menu = this._catering.filtered_menu();
+        const menu = this._catering.available_menu();
         const disabled_rooms = this._catering.availability();
-        const can_cater = space_list.every(
+        const can_cater = space_list.some(
             (space) =>
-                menu.filter(
+                !disabled_rooms.includes(space.id) &&
+                menu.some(
                     (_) =>
-                        !_.hide_for_zones.find((z) => space.zones.includes(z)),
-                ).length > 0,
+                        !_.hide_for_zones.some((z) => space.zones.includes(z)),
+                ),
         );
-        const available =
-            can_cater &&
-            !disabled_rooms.find((_) => space_list.find((i) => i.id === _));
-        this._catering_available.set(available);
-        if (available) return;
+        this._catering_available.set(can_cater);
+        if (can_cater) return;
         const event = this._state.event;
         const { id, catering, date, date_end } = this.model();
         const has_catering = !!catering?.length;
@@ -794,6 +841,31 @@ export class MeetingFlowFormComponent extends AsyncHandler implements OnInit {
         }
     }
 
+    private async _cateringOrdersAvailable() {
+        const { catering = [], date, duration, resources } = this.model();
+        for (const order of catering) {
+            if (!order.system_id) return false;
+            const room = resources.find(
+                (_) => _.id === order.system_id || _.email === order.system_id,
+            );
+            if (!room) return false;
+            const zone_id =
+                room.level?.parent_id ||
+                this._org.levelWithID(room.zones)?.parent_id ||
+                this._org.locationWithID(room.zones).building?.id;
+            if (
+                !(await this._catering.orderAvailable(order, room, {
+                    date,
+                    duration,
+                    zone_id,
+                }))
+            ) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     public async ngOnInit() {
         await this._org.waitUntilInitialised();
         // Asset enable/disable is driven by the form schema (assets are
@@ -806,7 +878,7 @@ export class MeetingFlowFormComponent extends AsyncHandler implements OnInit {
                 () => this._updateValidAssets(),
                 this._injector,
             ).destroy,
-        } as any);
+        });
         for (const key of [
             'resources',
             'date',
@@ -816,20 +888,26 @@ export class MeetingFlowFormComponent extends AsyncHandler implements OnInit {
             this.subscription(`${key}_changes`, {
                 unsubscribe: onFieldChange(
                     this._state.model,
-                    (m) => (m as any)[key],
+                    (m) => m[key],
                     () =>
                         this.timeout('check_resources', () =>
                             this._space_list.set(this.model().resources || []),
                         ),
                     this._injector,
                 ).destroy,
-            } as any);
+            });
         }
         this._catering.setOptions({ zone: '' });
         this._space_list.set(this.model().resources || []);
+        const idle_abort = new AbortController();
+        this.subscription('idle-detection', () => idle_abort.abort());
         this._idle
-            .idleFor((this._settings.get('app.idle_timeout') || 5) * 60 * 1000)
-            .then(async () => {
+            .idleFor(
+                (this._settings.get('app.idle_timeout') || 5) * 60 * 1000,
+                idle_abort.signal,
+            )
+            .then(async (did_idle) => {
+                if (!did_idle) return;
                 await openConfirmModal(
                     {
                         title: i18n('APP.WORKPLACE.MEETING_IDLE_TITLE'),

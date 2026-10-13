@@ -1,4 +1,11 @@
-import { Component, inject, OnInit, output, signal } from '@angular/core';
+import {
+    Component,
+    computed,
+    inject,
+    OnInit,
+    output,
+    signal,
+} from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -8,6 +15,8 @@ import {
     SafePipe,
     TranslatePipe,
 } from '@placeos/components';
+
+import { webPageFrameUrl } from './signage.utilities';
 
 @Component({
     selector: 'signage-media-preview-modal',
@@ -40,7 +49,7 @@ import {
                     @if (type() === 'webpage') {
                         <iframe
                             class="h-full w-full object-contain object-center"
-                            [src]="resource() | safe: 'resource'"
+                            [src]="web_url() | safe: 'resource'"
                         ></iframe>
                     }
                     @if (type() === 'video') {
@@ -95,6 +104,7 @@ export class SignageMediaPreviewModalComponent implements OnInit {
 
     public readonly loading = signal('');
     public readonly resource = signal(this._data.url.toString());
+    public readonly web_url = computed(() => webPageFrameUrl(this.resource()));
     public readonly name = signal(this._data.name);
     public readonly type = signal(this._data.type);
     public readonly can_save = signal(this._data.save !== false);

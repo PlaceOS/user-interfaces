@@ -1,8 +1,8 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { Locker, LockerBank } from '@placeos/bookings';
 import { LockerGridComponent } from 'libs/bookings/src/lib/locker-grid.component';
+import { Locker, LockerBank } from 'libs/bookings/src/lib/locker.class';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 
 export interface LockerBankModalData {

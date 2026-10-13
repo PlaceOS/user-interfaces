@@ -4,22 +4,34 @@ import {
     effect,
     inject,
     input,
+    resource,
     signal,
 } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, Router } from '@angular/router';
 import { IconComponent, TranslatePipe } from '@placeos/components';
+import { showZone } from '@placeos/ts-client';
+import { selectRoutedItem } from '../displays/routed-selection.util';
+import { SignageDisplayService } from '../displays/signage-display.service';
+import { SignagePlaylistService } from '../playlists/signage-playlist.service';
+import { decodeEntityNames } from '../shared/decode-entity-names.util';
 import { NavFooterComponent } from '../shared/nav-footer.component';
 import { NavSidebarComponent } from '../shared/nav-sidebar.component';
-import { SignageService } from '../signage.service';
+import { SignageContextService } from '../signage-context.service';
+import { SignageTemplateService } from '../templates/signage-template.service';
+import { SignageZoneService } from './signage-zone.service';
 import { ZoneContentComponent } from './zone-content.component';
 import { ZoneHeaderComponent } from './zone-header.component';
 import { ZoneListComponent } from './zone-list.component';
 
 const TAB_QUERY_PARAM = 'tab';
 
-function parseZoneTab(value: string | null): 'playlists' | 'displays' {
-    return value === 'displays' ? 'displays' : 'playlists';
+function parseZoneTab(
+    value: string | null,
+): 'playlists' | 'displays' | 'templates' {
+    if (value === 'displays' || value === 'templates') return value;
+    return 'playlists';
 }
 
 @Component({
@@ -35,18 +47,18 @@ function parseZoneTab(value: string | null): 'playlists' | 'displays' {
                         class="mobile-full"
                     />
                     <div
-                        class="flex min-h-0 w-px flex-1 flex-col"
+                        class="flex min-h-0 w-px flex-1 flex-col overflow-hidden"
                         [class.mobile-hidden]="!selected_zone()"
                     >
                         @if (selected_zone()) {
                             <div
-                                class="bg-base-100 border-base-300 mx-2 flex items-center gap-2 rounded-b-lg border px-4 py-3"
+                                class="bg-base-100 border-base-300 relative z-10 mx-2 flex shrink-0 items-center gap-2 rounded-b-lg border px-4 py-3"
                             >
                                 <button
                                     icon
                                     type="button"
                                     matRipple
-                                    class="sm:hidden"
+                                    class="desktop-hidden"
                                     (click)="deselectZone()"
                                     [attr.aria-label]="
                                         'SIGNAGE_MANAGER.BACK_TO_ZONES'
@@ -73,9 +85,46 @@ function parseZoneTab(value: string | null): 'playlists' | 'displays' {
                                         </div>
                                     }
                                 </div>
+                                @if (can_manage_selected_zone()) {
+                                    <button
+                                        icon
+                                        default
+                                        type="button"
+                                        matRipple
+                                        [matTooltip]="
+                                            'SIGNAGE_MANAGER.EDIT_ZONE_TOOLTIP'
+                                                | translate
+                                        "
+                                        (click)="editZone()"
+                                        [attr.aria-label]="
+                                            'SIGNAGE_MANAGER.EDIT_SELECTED_ZONE'
+                                                | translate
+                                        "
+                                    >
+                                        <icon>edit</icon>
+                                    </button>
+                                    <button
+                                        icon
+                                        default
+                                        error
+                                        type="button"
+                                        matRipple
+                                        [matTooltip]="
+                                            'SIGNAGE_MANAGER.DELETE_ZONE_TOOLTIP'
+                                                | translate
+                                        "
+                                        (click)="removeZone()"
+                                        [attr.aria-label]="
+                                            'SIGNAGE_MANAGER.DELETE_SELECTED_ZONE'
+                                                | translate
+                                        "
+                                    >
+                                        <icon>delete</icon>
+                                    </button>
+                                }
                             </div>
                             <div
-                                class="bg-base-100 border-base-300 mx-2 mt-2 flex overflow-hidden rounded-lg border lg:hidden"
+                                class="bg-base-100 border-base-300 relative z-10 mx-2 mt-2 flex shrink-0 overflow-hidden rounded-lg border"
                                 role="tablist"
                                 [attr.aria-label]="
                                     'SIGNAGE_MANAGER.ZONE_DETAILS_TABS'
@@ -85,7 +134,7 @@ function parseZoneTab(value: string | null): 'playlists' | 'displays' {
                                 <button
                                     type="button"
                                     role="tab"
-                                    class="flex-1 px-4 py-2.5 text-sm font-medium transition-colors"
+                                    class="flex flex-1 items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium transition-colors"
                                     [class.border-primary]="
                                         view_tab() === 'playlists'
                                     "
@@ -106,16 +155,26 @@ function parseZoneTab(value: string | null): 'playlists' | 'displays' {
                                     id="zone-playlists-tab"
                                 >
                                     {{
-                                        'SIGNAGE_MANAGER.PLAYLISTS_COUNT'
+                                        'SIGNAGE_MANAGER.NAV_PLAYLISTS'
                                             | translate
-                                                : { count: playlist_count() }
-                                                : playlist_count()
                                     }}
+                                    <span
+                                        class="bg-base-content/5 inline-flex h-6 min-w-6 items-center justify-center rounded-full px-1.5 text-xs tabular-nums"
+                                        [attr.aria-busy]="
+                                            playlist_count_loading()
+                                        "
+                                    >
+                                        {{
+                                            playlist_count_loading()
+                                                ? '?'
+                                                : playlist_count()
+                                        }}
+                                    </span>
                                 </button>
                                 <button
                                     type="button"
                                     role="tab"
-                                    class="flex-1 px-4 py-2.5 text-sm font-medium transition-colors"
+                                    class="flex flex-1 items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium transition-colors"
                                     [class.border-primary]="
                                         view_tab() === 'displays'
                                     "
@@ -136,12 +195,64 @@ function parseZoneTab(value: string | null): 'playlists' | 'displays' {
                                     id="zone-displays-tab"
                                 >
                                     {{
-                                        'SIGNAGE_MANAGER.DISPLAYS_COUNT'
+                                        'SIGNAGE_MANAGER.NAV_DISPLAYS'
                                             | translate
-                                                : { count: display_count() }
-                                                : display_count()
                                     }}
+                                    <span
+                                        class="bg-base-content/5 inline-flex h-6 min-w-6 items-center justify-center rounded-full px-1.5 text-xs tabular-nums"
+                                        [attr.aria-busy]="
+                                            display_count_loading()
+                                        "
+                                    >
+                                        {{
+                                            display_count_loading()
+                                                ? '?'
+                                                : display_count()
+                                        }}
+                                    </span>
                                 </button>
+                                @if (templates_enabled()) {
+                                    <button
+                                        type="button"
+                                        role="tab"
+                                        class="flex flex-1 items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium transition-colors"
+                                        [class.border-primary]="
+                                            view_tab() === 'templates'
+                                        "
+                                        [class.border-b-2]="
+                                            view_tab() === 'templates'
+                                        "
+                                        [class.text-primary]="
+                                            view_tab() === 'templates'
+                                        "
+                                        [class.opacity-60]="
+                                            view_tab() !== 'templates'
+                                        "
+                                        (click)="setViewTab('templates')"
+                                        [attr.aria-selected]="
+                                            view_tab() === 'templates'
+                                        "
+                                        aria-controls="zone-templates-panel"
+                                        id="zone-templates-tab"
+                                    >
+                                        {{
+                                            'SIGNAGE_MANAGER.NAV_TEMPLATES'
+                                                | translate
+                                        }}
+                                        <span
+                                            class="bg-base-content/5 inline-flex h-6 min-w-6 items-center justify-center rounded-full px-1.5 text-xs tabular-nums"
+                                            [attr.aria-busy]="
+                                                template_count_loading()
+                                            "
+                                        >
+                                            {{
+                                                template_count_loading()
+                                                    ? '?'
+                                                    : template_count()
+                                            }}
+                                        </span>
+                                    </button>
+                                }
                             </div>
                         }
                         <zone-content
@@ -176,70 +287,109 @@ function parseZoneTab(value: string | null): 'playlists' | 'displays' {
         ZoneListComponent,
         ZoneContentComponent,
         MatRippleModule,
+        MatTooltipModule,
         IconComponent,
         TranslatePipe,
     ],
 })
 export class ZonesSectionComponent {
-    private readonly _service = inject(SignageService);
+    private readonly _context = inject(SignageContextService);
+    private readonly _display_service = inject(SignageDisplayService);
+    private readonly _playlist_service = inject(SignagePlaylistService);
+    private readonly _template_service = inject(SignageTemplateService);
+    private readonly _zone_service = inject(SignageZoneService);
     private readonly _route = inject(ActivatedRoute);
     private readonly _router = inject(Router);
 
     public readonly id = input('');
     public readonly tab = input<string | null>(null);
-    public readonly view_tab = signal<'playlists' | 'displays'>('playlists');
-    public readonly selected_zone = this._service.selected_zone;
-
-    private readonly _zones = this._service.all_zones;
-    private readonly _playlists = this._service.playlists;
-    private readonly _displays = this._service.displays;
-
-    public readonly playlist_count = computed(() => {
+    public readonly templates_enabled = this._context.templates_enabled;
+    public readonly view_tab = signal<'playlists' | 'displays' | 'templates'>(
+        'playlists',
+    );
+    public readonly selected_zone = this._zone_service.selected_zone;
+    public readonly can_manage_selected_zone = computed(() => {
         const zone = this.selected_zone();
-        if (!zone) return 0;
-        return this._playlists().filter((p) => zone.playlists?.includes(p.id))
-            .length;
+        return (
+            this._context.can_manage_zones() &&
+            !!zone?.tags?.includes('signage')
+        );
     });
 
-    public readonly display_count = computed(() => {
-        const zone = this.selected_zone();
-        if (!zone) return 0;
-        return this._displays().filter((d) => d.zones?.includes(zone.id))
-            .length;
+    private readonly _template_mappings = resource({
+        params: () => {
+            const id = this.selected_zone()?.id;
+            return this.templates_enabled() && id
+                ? {
+                      id,
+                      revision:
+                          this._template_service.template_mappings_revision(),
+                  }
+                : undefined;
+        },
+        loader: ({ params }) =>
+            this._template_service.listTemplateMappings({ zone_id: params.id }),
     });
+    public readonly template_count_loading = this._template_mappings.isLoading;
+    public readonly playlist_count_loading =
+        this._playlist_service.playlists_loading;
+    public readonly display_count_loading =
+        this._display_service.selected_zone_displays_loading;
+    public readonly template_count = computed(() =>
+        this._template_mappings.hasValue()
+            ? this._template_mappings.value().length
+            : 0,
+    );
 
-    private _route_resolved = false;
+    public readonly playlist_count = computed(
+        () =>
+            this._playlist_service.playlistsById(
+                this.selected_zone()?.playlists || [],
+            ).length,
+    );
+
+    public readonly display_count = computed(
+        () => this._display_service.selected_zone_displays().length,
+    );
 
     constructor() {
         effect(() => {
             const route_tab = parseZoneTab(this.tab());
-            if (route_tab !== this.view_tab()) {
-                this.view_tab.set(route_tab);
+            const available_tab =
+                route_tab === 'templates' && !this.templates_enabled()
+                    ? 'playlists'
+                    : route_tab;
+            if (available_tab !== this.view_tab()) {
+                this.view_tab.set(available_tab);
             }
         });
 
-        effect(() => {
-            const id = this.id();
-            const list = this._zones();
-            if (!list.length) return;
-            if (id) {
-                const match = list.find((z) => z.id === id);
-                if (match && this._service.selected_zone()?.id !== match.id) {
-                    this._service.selected_zone.set(match);
-                }
-                this._route_resolved = true;
-            } else if (this._route_resolved) {
-                this._service.selected_zone.set(null);
-            }
+        selectRoutedItem({
+            id: this.id,
+            list: this._zone_service.all_zones,
+            selected: this._zone_service.selected_zone,
+            // `all_zones` holds only the first 500 zones of the group
+            load: async (id) => decodeEntityNames(await showZone(id)),
         });
     }
 
     public deselectZone() {
-        this._service.selected_zone.set(null);
+        this._zone_service.selected_zone.set(null);
         this._router.navigate(['/zones'], {});
     }
 
-    public setViewTab(tab: 'playlists' | 'displays') {
+    public editZone() {
+        const zone = this.selected_zone();
+        if (zone) this._zone_service.editZone(zone);
+    }
+
+    public async removeZone() {
+        const zone = this.selected_zone();
+        if (!zone || !(await this._zone_service.removeZone(zone))) return;
+        await this._router.navigate(['/zones'], {});
+    }
+
+    public setViewTab(tab: 'playlists' | 'displays' | 'templates') {
         if (tab === this.view_tab()) return;
         this.view_tab.set(tab);
         void this._router.navigate([], {

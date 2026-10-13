@@ -3,29 +3,38 @@ import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatTooltip } from '@angular/material/tooltip';
 import { DomSanitizer } from '@angular/platform-browser';
 import { RouterLink } from '@angular/router';
 import {
     AuthenticatedImageDirective,
     IconComponent,
+    LoadErrorComponent,
     MediaDurationPipe,
     PluginConfigPayload,
     PluginEmbedComponent,
     TranslatePipe,
 } from '@placeos/components';
 import {
-    listSignagePlaylistMedia,
     MediaAnimation,
+    showSignageMedia,
     SignageMedia,
     SignagePlaylist,
     SignagePlugin,
 } from '@placeos/ts-client';
-import { playlistMediaThumbnailUrl } from '../signage-playlist.util';
-import { SignageService } from '../signage.service';
+import { mediaAnimation } from '../media/media-view.util';
+import { SignageMediaService } from '../media/signage-media.service';
+import {
+    playlistMediaThumbnailUrl,
+    playlistMediaUrl,
+} from '../signage-playlist.util';
+import { webPageFrameUrl } from '../signage-url.util';
+import { SignageSharedWithComponent } from './signage-shared-with.component';
 
 interface MediaPreviewModalData {
     media: SignageMedia;
     plugin?: SignagePlugin;
+    group_id?: string;
 }
 
 @Component({
@@ -43,7 +52,7 @@ interface MediaPreviewModalData {
                     type="button"
                     matRipple
                     mat-dialog-close
-                    [attr.aria-label]="
+                    [aria-label]="
                         'SIGNAGE_MANAGER.CLOSE_MEDIA_PREVIEW' | translate
                     "
                 >
@@ -71,7 +80,10 @@ interface MediaPreviewModalData {
                         >
                             <icon class="text-error text-6xl">error</icon>
                             <p class="text-base font-medium">
-                                Failed to load media preview.
+                                {{
+                                    'SIGNAGE_MANAGER.MEDIA_PREVIEW_LOAD_ERROR'
+                                        | translate
+                                }}
                             </p>
                             <p class="text-base-content/70 max-w-sm text-sm">
                                 {{
@@ -114,6 +126,7 @@ interface MediaPreviewModalData {
                         ></video>
                     } @else if (item.media_type === 'webpage') {
                         <iframe
+                            sandbox="allow-scripts allow-same-origin allow-forms"
                             [src]="safe_url()"
                             [title]="item.name"
                             class="h-full w-full border-0 bg-white"
@@ -144,7 +157,24 @@ interface MediaPreviewModalData {
                 <aside
                     class="border-base-300 bg-base-100 w-72 shrink-0 overflow-y-auto rounded-lg border max-md:w-full"
                 >
-                    <div class="space-y-5 p-5">
+                    <div class="relative space-y-5 p-5">
+                        @if (item.id) {
+                            <button
+                                icon
+                                default
+                                class="absolute top-2 right-2"
+                                [matTooltip]="
+                                    'SIGNAGE_MANAGER.MEDIA_EDIT' | translate
+                                "
+                                [attr.aria-label]="
+                                    'SIGNAGE_MANAGER.MEDIA_EDIT' | translate
+                                "
+                                matTooltipPosition="left"
+                                (click)="edit()"
+                            >
+                                <icon>edit</icon>
+                            </button>
+                        }
                         @if (item.description) {
                             <div>
                                 <div
@@ -187,6 +217,24 @@ interface MediaPreviewModalData {
                                 {{ type_label() | translate }}
                             </span>
                         </div>
+                        @if (item.tags?.length) {
+                            <div>
+                                <div
+                                    class="text-base-content/70 mb-1 text-xs font-medium tracking-wider uppercase"
+                                >
+                                    {{ 'COMMON.TAGS' | translate }}
+                                </div>
+                                <div class="flex flex-wrap gap-1">
+                                    @for (tag of item.tags; track tag) {
+                                        <span
+                                            class="bg-info-light text-info max-w-full truncate rounded-full px-2 py-1 text-xs font-medium"
+                                        >
+                                            {{ tag }}
+                                        </span>
+                                    }
+                                </div>
+                            </div>
+                        }
                         @if (item.play_time) {
                             <div>
                                 <div
@@ -235,6 +283,8 @@ interface MediaPreviewModalData {
                                 <div class="text-base-content/70 text-sm">
                                     {{ 'COMMON.LOADING' | translate }}
                                 </div>
+                            } @else if (playlists_error()) {
+                                <load-error (retry)="loadPlaylists()" />
                             } @else if (containing_playlists().length > 0) {
                                 <div class="space-y-1">
                                     @for (
@@ -319,6 +369,12 @@ interface MediaPreviewModalData {
                                 </div>
                             </div>
                         }
+                        <signage-shared-with
+                            type="media"
+                            [item_id]="item.id"
+                            [group_id]="group_id"
+                            [compact_label]="true"
+                        ></signage-shared-with>
                     </div>
                 </aside>
             </main>
@@ -339,32 +395,40 @@ interface MediaPreviewModalData {
         MatProgressSpinnerModule,
         RouterLink,
         IconComponent,
+        LoadErrorComponent,
         AuthenticatedImageDirective,
         DatePipe,
         MediaDurationPipe,
         PluginEmbedComponent,
         TranslatePipe,
+        MatTooltip,
+        SignageSharedWithComponent,
     ],
 })
 export class MediaPreviewModalComponent implements OnInit {
     private readonly _data: MediaPreviewModalData = inject(MAT_DIALOG_DATA);
-    private readonly _service = inject(SignageService);
+    private readonly _media_service = inject(SignageMediaService);
     private readonly _sanitizer = inject(DomSanitizer);
 
     public readonly item = this._data.media;
+    public readonly group_id = this._data.group_id || '';
     public readonly plugin = this._data.plugin;
-    public readonly media_url = this.item.media_url || this.item.media_uri;
+    public readonly media_url = playlistMediaUrl(this.item);
     public readonly thumbnail_url = playlistMediaThumbnailUrl(this.item);
     public readonly media_loading = signal(this._hasLoadableMedia());
     public readonly media_error = signal(false);
 
     public readonly containing_playlists = signal<SignagePlaylist[]>([]);
     public readonly loading_playlists = signal(true);
+    /** Whether the playlists that use the media failed to load */
+    public readonly playlists_error = signal(false);
+    public readonly edit = () => this._media_service.editMedia(this.item);
 
+    /** Webpage URL for the preview iframe. Only http and https URLs load. */
     public readonly safe_url = computed(() => {
         if (this.item.media_type === 'webpage') {
             return this._sanitizer.bypassSecurityTrustResourceUrl(
-                this.media_url,
+                webPageFrameUrl(this.media_url),
             );
         }
         return null;
@@ -399,7 +463,7 @@ export class MediaPreviewModalComponent implements OnInit {
     });
 
     public readonly animation_label = computed(() => {
-        switch (this.item.animation) {
+        switch (mediaAnimation(this.item.animation)) {
             case MediaAnimation.Cut:
                 return 'SIGNAGE_MANAGER.ANIM_CUT';
             case MediaAnimation.CrossFade:
@@ -417,21 +481,32 @@ export class MediaPreviewModalComponent implements OnInit {
         }
     });
 
-    public async ngOnInit() {
-        const all_playlists = this._service.playlists();
-        const matching: SignagePlaylist[] = [];
-        for (const playlist of all_playlists) {
-            try {
-                const media_list = await listSignagePlaylistMedia(playlist.id);
-                if (media_list.items?.includes(this.item.id)) {
-                    matching.push(playlist);
-                }
-            } catch {
-                // Skip playlists that fail to load
-            }
+    public ngOnInit() {
+        return this.loadPlaylists();
+    }
+
+    /** Load the playlists that use the media */
+    public async loadPlaylists() {
+        // Unsaved media, such as a preview from the edit modal, is in no
+        // playlist yet.
+        if (!this.item.id) {
+            this.loading_playlists.set(false);
+            return;
         }
-        this.containing_playlists.set(matching);
-        this.loading_playlists.set(false);
+        this.loading_playlists.set(true);
+        this.playlists_error.set(false);
+        try {
+            const media = await showSignageMedia(
+                this.item.id,
+                this.group_id ? { group_id: this.group_id } : {},
+            );
+            this.containing_playlists.set(media.playlists || []);
+        } catch {
+            this.containing_playlists.set([]);
+            this.playlists_error.set(true);
+        } finally {
+            this.loading_playlists.set(false);
+        }
     }
 
     public handleMediaLoaded() {

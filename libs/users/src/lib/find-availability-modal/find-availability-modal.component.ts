@@ -132,7 +132,7 @@ export interface FindAvailabilityData {
                                 <div
                                     class="max-w-full px-2 text-center text-xs wrap-break-word"
                                 >
-                                    {{ user.name || host.email }}
+                                    {{ user.name || user.email }}
                                 </div>
                                 <button
                                     icon
@@ -211,7 +211,8 @@ export interface FindAvailabilityData {
                                 [user]="host"
                                 [date]="date()"
                                 [availability]="
-                                    availability()[host.email] ?? []
+                                    availability()[host.email.toLowerCase()] ??
+                                    []
                                 "
                             ></user-availability-list>
                             @for (user of users(); track user) {
@@ -505,7 +506,7 @@ export class FindAvailabilityModalComponent
             Math.floor(Math.abs((change_px / this._move_size) * 24 * 60) / 5) *
             5;
         if (change_min) {
-            const old_date = this.date();
+            this.date();
             const new_date = addMinutes(this._start_time, change_min).valueOf();
             if (new_date >= Date.now()) {
                 this.date.set(new_date);

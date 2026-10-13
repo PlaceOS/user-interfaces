@@ -1,4 +1,4 @@
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { CateringItem } from '@placeos/common';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { MockComponent } from 'ng-mocks';
@@ -12,10 +12,9 @@ describe('CateringOrderItemComponent', () => {
         declarations: [MockComponent(IconComponent)],
     });
 
-    beforeEach(() => (spectator = createComponent()));
-
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
+    beforeEach(() => {
+        localStorage.removeItem('PLACEOS.catering.checked_items');
+        spectator = createComponent();
     });
 
     it('should show details', () => {
@@ -23,5 +22,18 @@ describe('CateringOrderItemComponent', () => {
         spectator.setInput({ item: new CateringItem({ name: 'Test' }) });
         spectator.detectChanges();
         expect('[action]').toExist();
+    });
+
+    it('should keep checked items after the list is created again', () => {
+        const props = {
+            order_id: 'order-1',
+            item: new CateringItem({ id: 'item-1', name: 'Test' }),
+        };
+        spectator.setInput(props);
+        spectator.click('[action]');
+        expect(spectator.component.active()).toBe(true);
+
+        const next = createComponent({ props });
+        expect(next.component.active()).toBe(true);
     });
 });

@@ -2,8 +2,8 @@ import { Injector } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { CalendarEvent } from '@placeos/common';
 
+import { generateEventForm } from '../lib/event-form';
 import { generateSystemsFormFields } from '../lib/space.utilities';
-import { generateEventForm } from '../lib/utilities';
 
 describe('utilities', () => {
     let injector: Injector;
@@ -19,7 +19,7 @@ describe('utilities', () => {
                 id: 'evt-1',
                 date: now - 30 * 60 * 1000,
                 duration: 60,
-            } as any);
+            });
 
             const { form } = TestBed.runInInjectionContext(() =>
                 generateEventForm(event, undefined, injector),
@@ -34,7 +34,7 @@ describe('utilities', () => {
                 id: 'evt-2',
                 date: now - 5 * 60 * 1000,
                 duration: 60,
-            } as any);
+            });
 
             const { form } = TestBed.runInInjectionContext(() =>
                 generateEventForm(event, undefined, injector),
@@ -49,7 +49,7 @@ describe('utilities', () => {
                 id: 'evt-3',
                 date: now - 2 * 60 * 60 * 1000,
                 duration: 30,
-            } as any);
+            });
 
             const { form } = TestBed.runInInjectionContext(() =>
                 generateEventForm(event, undefined, injector),
@@ -74,7 +74,7 @@ describe('utilities', () => {
                 id: 'evt-locked',
                 date: Date.now() - 5 * 60 * 1000,
                 duration: 60,
-            } as any);
+            });
             const { model, form } = TestBed.runInInjectionContext(() =>
                 generateEventForm(event, undefined, injector),
             );
@@ -90,7 +90,7 @@ describe('utilities', () => {
                 generateEventForm(new CalendarEvent(), undefined, injector),
             );
 
-            model.update((m) => ({ ...m, host: undefined as any }));
+            model.update((m) => ({ ...m, host: undefined }));
 
             // Sanitisation happens synchronously at the update() boundary, so
             // the field is never removed from the FieldTree.
@@ -102,7 +102,7 @@ describe('utilities', () => {
             const date = Date.now();
             const { model } = TestBed.runInInjectionContext(() =>
                 generateEventForm(
-                    new CalendarEvent({ date, duration: 30 } as any),
+                    new CalendarEvent({ date, duration: 30 }),
                     undefined,
                     injector,
                 ),

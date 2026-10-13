@@ -1,8 +1,12 @@
-import { Component, computed, inject } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import { PlaceCurrentGroup } from '@placeos/ts-client';
+import { groupHierarchy } from '../signage-context.service';
 
 export interface GroupSelectModalData {
     title: string;
@@ -13,7 +17,6 @@ export interface GroupSelectModalData {
 
 @Component({
     // Existing signage-manager components use feature selectors without the app prefix.
-    // eslint-disable-next-line @angular-eslint/component-selector
     selector: 'group-select-modal',
     template: `
         <header
@@ -24,7 +27,7 @@ export interface GroupSelectModalData {
                 icon
                 type="button"
                 matRipple
-                mat-dialog-close
+                [mat-dialog-close]="undefined"
                 [attr.aria-label]="
                     'SIGNAGE_MANAGER.CLOSE_GROUP_SELECT' | translate
                 "
@@ -84,7 +87,21 @@ export interface GroupSelectModalData {
                     }
                 </nav>
             }
-            @if (data.show_all_groups) {
+            <mat-form-field
+                appearance="outline"
+                class="no-subscript bg-base-100 sticky top-0 z-10 w-full"
+            >
+                <input
+                    matInput
+                    cdkFocusInitial
+                    [(ngModel)]="search"
+                    [placeholder]="'SIGNAGE_MANAGER.SEARCH_GROUPS' | translate"
+                    [attr.aria-label]="
+                        'SIGNAGE_MANAGER.SEARCH_GROUPS' | translate
+                    "
+                />
+            </mat-form-field>
+            @if (data.show_all_groups && !search()) {
                 <button
                     type="button"
                     matRipple
@@ -108,7 +125,7 @@ export interface GroupSelectModalData {
                     </div>
                 </button>
             }
-            @for (item of data.groups; track item.group.id) {
+            @for (item of filtered_groups(); track item.group.id) {
                 <button
                     type="button"
                     matRipple
@@ -152,24 +169,33 @@ export interface GroupSelectModalData {
             }
         </main>
     `,
-    imports: [MatRippleModule, MatDialogModule, IconComponent, TranslatePipe],
+    imports: [
+        FormsModule,
+        MatRippleModule,
+        MatDialogModule,
+        MatFormFieldModule,
+        MatInputModule,
+        IconComponent,
+        TranslatePipe,
+    ],
 })
 export class GroupSelectModalComponent {
     public readonly data = inject<GroupSelectModalData>(MAT_DIALOG_DATA);
-    public readonly selected_hierarchy = computed(() => {
-        const selected_group_id = this.data.selected_group_id;
-        if (!selected_group_id) return [];
-        const groups = new Map(
-            this.data.groups.map((item) => [item.group.id, item.group]),
+    public readonly search = signal('');
+    public readonly filtered_groups = computed(() => {
+        const term = this.search().toLowerCase().trim();
+        if (!term) return this.data.groups;
+        return this.data.groups.filter((item) =>
+            `${item.group.name} ${item.group.description || ''}`
+                .toLowerCase()
+                .includes(term),
         );
-        const hierarchy: PlaceCurrentGroup['group'][] = [];
-        const seen = new Set<string>();
-        let group = groups.get(selected_group_id);
-        while (group?.id && !seen.has(group.id)) {
-            hierarchy.unshift(group);
-            seen.add(group.id);
-            group = group.parent_id ? groups.get(group.parent_id) : undefined;
-        }
-        return hierarchy;
+    });
+    public readonly selected_hierarchy = computed(() => {
+        const groups = this.data.groups.map((item) => item.group);
+        const selected = this.data.selected_group_id
+            ? groups.find((group) => group.id === this.data.selected_group_id)
+            : undefined;
+        return groupHierarchy(selected, groups);
     });
 }

@@ -1,4 +1,4 @@
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { MediaAnimation } from '@placeos/ts-client';
 
 import { PlaylistDisplayComponent } from '../app/playlist-display.component';
@@ -68,13 +68,13 @@ describe('PlaylistDisplayComponent', () => {
                 create_item('cached-media', { isCached: () => true }),
             ),
         ).toBe('Cached');
-        expect(spectator.component.cacheStatus(create_item('remote-media'))).toBe(
-            'Not cached',
-        );
+        expect(
+            spectator.component.cacheStatus(create_item('remote-media')),
+        ).toBe('Not cached');
     });
 
     it('should emit the selected playlist index', () => {
-        const emit_spy = jest.spyOn(spectator.component.selected, 'emit');
+        const emit_spy = vi.spyOn(spectator.component.selected, 'emit');
         spectator.setInput('playlist', [
             create_item('media-1'),
             create_item('media-2'),
@@ -128,8 +128,26 @@ describe('PlaylistDisplayComponent', () => {
         expect(buttons[1].getAttribute('aria-disabled')).toBe('true');
     });
 
+    it('should scroll overflowing playlist items without shrinking them', async () => {
+        spectator.setInput('playlist', [
+            create_item('active-media'),
+            create_item('queued-media'),
+        ]);
+        spectator.setInput('index', 0);
+        await spectator.fixture.whenStable();
+
+        const list = spectator.query('[data-testid="playlist-media-list"]');
+        const buttons = spectator.queryAll('button');
+
+        expect(list?.classList).toContain('max-h-[50vh]');
+        expect(list?.classList).toContain('overflow-auto');
+        expect(buttons).toHaveLength(2);
+        expect(buttons.every((button) => button.classList.contains('shrink-0')))
+            .toBe(true);
+    });
+
     it('should not emit when selecting invalid or active playlist items', () => {
-        const emit_spy = jest.spyOn(spectator.component.selected, 'emit');
+        const emit_spy = vi.spyOn(spectator.component.selected, 'emit');
         spectator.setInput('playlist', [
             create_item('active-media'),
             create_item('invalid-media', {

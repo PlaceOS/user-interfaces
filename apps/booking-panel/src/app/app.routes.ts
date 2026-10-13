@@ -4,31 +4,36 @@ import {
     UnauthorisedComponent,
 } from '@placeos/components';
 
-import { BootstrapComponent } from './bootstrap.component';
-import { CheckinViewComponent } from './checkin/checkin-view.component';
-import { EventPanelComponent } from './event-panel.component';
-import { PanelViewComponent } from './new-panel/panel-view.component';
-
 export const routes: Routes = [
     { path: 'unauthorised', component: UnauthorisedComponent },
     {
         path: 'bootstrap',
-        component: BootstrapComponent,
+        loadComponent: () =>
+            import('./bootstrap.component').then((m) => m.BootstrapComponent),
         canActivate: [AuthorisedUserGuard],
     },
     {
         path: 'panel/:system_id',
-        component: PanelViewComponent,
+        loadComponent: () =>
+            import('./new-panel/panel-view.component').then(
+                (m) => m.PanelViewComponent,
+            ),
         canActivate: [AuthorisedUserGuard],
     },
     {
         path: 'checkin/:system_id',
-        component: CheckinViewComponent,
+        loadComponent: () =>
+            import('./checkin/checkin-view.component').then(
+                (m) => m.CheckinViewComponent,
+            ),
         canActivate: [AuthorisedUserGuard],
     },
     {
         path: 'events/:system_id',
-        component: EventPanelComponent,
+        loadComponent: () =>
+            import('./event-panel.component').then(
+                (m) => m.EventPanelComponent,
+            ),
         canActivate: [AuthorisedUserGuard],
     },
     { path: '**', redirectTo: 'bootstrap' },

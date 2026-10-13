@@ -1,0 +1,146 @@
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { Subject } from 'rxjs';
+import type { Mock } from 'vitest';
+
+import {
+    notify,
+    notifyError,
+    notifyInfo,
+    notifySuccess,
+    notifyWarn,
+    setNotifyFilter,
+    setNotifyOutlet,
+} from '../lib/notifications';
+
+describe('notifications', () => {
+    let snackbar: MatSnackBar;
+    let on_action: Subject<void>;
+    let snackbar_ref: { onAction: Mock; dismiss: Mock };
+
+    beforeEach(() => {
+        on_action = new Subject();
+        snackbar_ref = {
+            onAction: vi.fn(() => on_action.asObservable()),
+            dismiss: vi.fn(),
+        };
+        snackbar = { open: vi.fn(() => snackbar_ref) } as any;
+        setNotifyOutlet(snackbar, true);
+    });
+
+    afterEach(() => {
+        setNotifyOutlet(null, true);
+        setNotifyFilter(null);
+    });
+
+    it('should suppress notifications the filter rejects', () => {
+        setNotifyFilter((type) => type !== 'error');
+
+        notifyError('Hidden');
+        expect(snackbar.open).not.toHaveBeenCalled();
+
+        notifySuccess('Shown');
+        expect(snackbar.open).toHaveBeenCalledWith(
+            'Shown',
+            'OK',
+            expect.anything(),
+        );
+    });
+
+    it('should show everything again once the filter is removed', () => {
+        setNotifyFilter(() => false);
+        notifyError('Hidden');
+        setNotifyFilter(null);
+
+        notifyError('Shown');
+
+        expect(snackbar.open).toHaveBeenCalledTimes(1);
+    });
+
+    it('should open a snackbar with the given type and message', () => {
+        notify('success', 'Job done');
+        expect(snackbar.open).toHaveBeenCalledWith(
+            'Job done',
+            'OK',
+            expect.objectContaining({
+                panelClass: ['success'],
+                duration: 5000,
+            }),
+        );
+    });
+
+    it('should allow overriding snackbar config', () => {
+        notify('info', 'Message', 'OK', undefined, { duration: 100 });
+        expect(snackbar.open).toHaveBeenCalledWith(
+            'Message',
+            'OK',
+            expect.objectContaining({ duration: 100 }),
+        );
+    });
+
+    it('should call the action callback when the action is triggered', () => {
+        const callback = vi.fn();
+        notify('info', 'Message', 'Undo', callback);
+        on_action.next();
+        expect(callback).toHaveBeenCalled();
+    });
+
+    it('should dismiss the snackbar when no action callback given', () => {
+        notify('info', 'Message');
+        on_action.next();
+        expect(snackbar_ref.dismiss).toHaveBeenCalled();
+    });
+
+    it('should do nothing when no outlet is set', () => {
+        setNotifyOutlet(null, true);
+        expect(() => notify('info', 'Message')).not.toThrow();
+    });
+
+    it('should map helper functions to notification types', () => {
+        notifySuccess('Success');
+        notifyError('Error');
+        notifyWarn('Warn');
+        notifyInfo('Info');
+        const types = vi
+            .mocked(snackbar.open)
+            .mock.calls.map(([, , config]) => config.panelClass[0]);
+        expect(types).toEqual(['success', 'error', 'warn', 'info']);
+    });
+
+    it('should extract error messages from non-string errors', () => {
+        notifyError({ message: 'Broken' } as any);
+        expect(snackbar.open).toHaveBeenCalledWith(
+            'Broken',
+            'OK',
+            expect.anything(),
+        );
+        notifyError({} as any);
+        expect(snackbar.open).toHaveBeenLastCalledWith(
+            'An error occurred',
+            'OK',
+            expect.anything(),
+        );
+    });
+
+    it('should load a lazy outlet once and show queued notifications', async () => {
+        const loader = vi.fn(async () => snackbar);
+        setNotifyOutlet(loader, true);
+
+        notifyInfo('First');
+        notifyInfo('Second');
+        expect(snackbar.open).not.toHaveBeenCalled();
+        await loader.mock.results[0].value;
+        await Promise.resolve();
+
+        expect(loader).toHaveBeenCalledTimes(1);
+        expect(snackbar.open).toHaveBeenCalledWith(
+            'First',
+            'OK',
+            expect.anything(),
+        );
+        expect(snackbar.open).toHaveBeenCalledWith(
+            'Second',
+            'OK',
+            expect.anything(),
+        );
+    });
+});

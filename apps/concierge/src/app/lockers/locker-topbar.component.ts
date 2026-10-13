@@ -5,6 +5,7 @@ import {
     inject,
     OnInit,
     signal,
+    untracked,
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -26,8 +27,8 @@ import {
     IconComponent,
     TranslatePipe,
 } from '@placeos/components';
+import { DateOptionsComponent } from '@placeos/form-fields';
 import { BookingRulesModalComponent } from '../ui/booking-rules-modal.component';
-import { DateOptionsComponent } from '../ui/date-options.component';
 import { SearchbarComponent } from '../ui/searchbar.component';
 import { loadPersistedZones, persistZones } from '../ui/zone-persistence';
 import { LockerStateService } from './locker-state.service';
@@ -52,7 +53,7 @@ import { LockerStateService } from './locker-state.service';
             ></searchbar>
             <div
                 [matTooltip]="
-                    (options()?.zones?.length
+                    (levels().length
                         ? ''
                         : 'APP.CONCIERGE.LOCKERS_LEVEL_SELECT'
                     ) | translate
@@ -63,8 +64,9 @@ import { LockerStateService } from './locker-state.service';
                         btn
                         matRipple
                         class="w-40 space-x-2"
+                        data-shortcut="new"
                         (click)="newLockerBank()"
-                        [disabled]="!options()?.zones?.length"
+                        [disabled]="!levels().length"
                     >
                         <div class="pl-4">
                             {{ 'APP.CONCIERGE.LOCKERS_BANK_ADD' | translate }}
@@ -78,6 +80,7 @@ import { LockerStateService } from './locker-state.service';
                     btn
                     matRipple
                     class="w-48 space-x-2"
+                    data-shortcut="new"
                     (click)="newBooking()"
                 >
                     <div class="pl-2">
@@ -92,12 +95,7 @@ import { LockerStateService } from './locker-state.service';
                 <mat-select
                     [ngModel]="zones()"
                     (ngModelChange)="updateZones($event)"
-                    [placeholder]="
-                        (path() === 'manage'
-                            ? 'COMMON.LEVEL_SELECT'
-                            : 'COMMON.LEVEL_ALL'
-                        ) | translate
-                    "
+                    [placeholder]="'COMMON.LEVEL_ALL' | translate"
                     multiple
                 >
                     @for (level of levels(); track level) {
@@ -221,13 +219,7 @@ export class LockersTopbarComponent extends AsyncHandler implements OnInit {
     /** List of levels for the active building */
     public readonly updateZones = (z) => {
         if (!this._router.url.includes('lockers')) return;
-        let zones = (z || []).filter((_) => !!_);
-        // Manage view must always have a specific zone; snap empty
-        // selections back to the first available level.
-        if (this.path() === 'manage' && !zones.length) {
-            const first = this.levels()[0]?.id;
-            if (first) zones = [first];
-        }
+        const zones = (z || []).filter((_) => !!_);
         this.zones.set(zones);
         this._router.navigate([], {
             relativeTo: this._route,
@@ -269,13 +261,18 @@ export class LockersTopbarComponent extends AsyncHandler implements OnInit {
                 .split(',')
                 .filter(Boolean);
             if (!zones.length) return;
-            const level = this._org.levelWithID(zones);
-            this.zones.set(zones);
-            if (!level) return;
-            this._org.building = this._org.buildings.find(
-                (bld) => bld.id === level.parent_id,
-            );
-            this._state.setFilters({ zones });
+            // Reading/writing org state here must stay untracked: setting the
+            // building reloads level metadata, which would re-fire this effect
+            // and loop forever.
+            untracked(() => {
+                const level = this._org.levelWithID(zones);
+                this.zones.set(zones);
+                if (!level) return;
+                this._org.building = this._org.buildings.find(
+                    (bld) => bld.id === level.parent_id,
+                );
+                this._state.setFilters({ zones });
+            });
         });
         effect(() => {
             if (!this._ready() || this.use_region) return;
@@ -285,17 +282,12 @@ export class LockersTopbarComponent extends AsyncHandler implements OnInit {
                 levels.find((lvl) => lvl.id === zone),
             );
             if (!zones.length) {
-                // Fall back to persisted selection for this view. Manage
-                // view additionally guarantees at least the first level.
-                const persisted = loadPersistedZones(
+                // Fall back to the persisted selection for this view; no
+                // selection means all levels.
+                zones = loadPersistedZones(
                     this.path() === 'manage' ? 'lockers-manage' : 'lockers',
                     this._persistScopeId(),
                 ).filter((zone) => levels.find((lvl) => lvl.id === zone));
-                if (persisted.length) {
-                    zones = persisted;
-                } else if (this.path() === 'manage') {
-                    zones = [levels[0].id];
-                }
             }
             if (this._same_zones(zones, this.zones())) return;
             this.updateZones(zones);
@@ -312,6 +304,7 @@ export class LockersTopbarComponent extends AsyncHandler implements OnInit {
         const path = this.path();
         if (this._previous_path && this._previous_path !== path) {
             this._state.setSearch('');
+            this.zones.set([]);
         }
         this._previous_path = path;
     }

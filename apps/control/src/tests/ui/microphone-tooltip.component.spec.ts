@@ -1,7 +1,7 @@
 import { signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatSliderModule } from '@angular/material/slider';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { mockComponent, mockDirective } from '@placeos/common/tests';
 
 import {
@@ -30,17 +30,13 @@ describe('MicrophoneTooltipComponent', () => {
             },
             {
                 provide: CustomTooltipData,
-                useValue: { close: jest.fn() },
+                useValue: { close: vi.fn() },
             },
         ],
         imports: [MatSliderModule, FormsModule],
     });
 
     beforeEach(() => (spectator = createComponent()));
-
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
 
     it('should list microphones available', async () => {
         spectator.detectChanges();

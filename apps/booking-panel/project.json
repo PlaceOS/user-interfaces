@@ -29,11 +29,6 @@
                         "output": "/assets/"
                     },
                     {
-                        "glob": "*.woff2",
-                        "input": "node_modules/material-symbols",
-                        "output": "/assets/"
-                    },
-                    {
                         "glob": "oauth-resp.html",
                         "input": "node_modules/@placeos/ts-client/dist/",
                         "output": "/"
@@ -90,8 +85,8 @@
                     "budgets": [
                         {
                             "type": "initial",
-                            "maximumWarning": "2mb",
-                            "maximumError": "5mb"
+                            "maximumWarning": "800kb",
+                            "maximumError": "950kb"
                         },
                         {
                             "type": "anyComponentStyle",
@@ -125,8 +120,8 @@
                     "budgets": [
                         {
                             "type": "initial",
-                            "maximumWarning": "2mb",
-                            "maximumError": "5mb"
+                            "maximumWarning": "800kb",
+                            "maximumError": "950kb"
                         },
                         {
                             "type": "anyComponentStyle",
@@ -139,6 +134,7 @@
         },
         "serve": {
             "executor": "@angular/build:dev-server",
+            "continuous": true,
             "options": {
                 "proxyConfig": "config/proxy.conf.js",
                 "buildTarget": "booking-panel:build"
@@ -147,19 +143,30 @@
                 "production": {
                     "buildTarget": "booking-panel:build:production"
                 }
-            },
-            "continuous": true
+            }
         },
-        "lint": {
-            "executor": "@nx/eslint:lint",
-            "outputs": ["{options.outputFile}"]
-        },
+        "lint": {},
         "test": {
-            "executor": "@nx/jest:jest",
+            "executor": "@angular/build:unit-test",
             "outputs": ["{workspaceRoot}/coverage/apps/booking-panel"],
             "options": {
-                "jestConfig": "apps/booking-panel/jest.config.ts",
-                "tsConfig": "apps/booking-panel/tsconfig.spec.json"
+                "tsConfig": "apps/booking-panel/tsconfig.spec.json",
+                "setupFiles": ["apps/booking-panel/src/test-setup.ts"],
+                "isolate": true,
+                "watch": false,
+                "buildTarget": "booking-panel:test-build:development"
+            }
+        },
+        "test-build": {
+            "executor": "@angular/build:application",
+            "options": {
+                "outputPath": "dist/apps/booking-panel-test",
+                "browser": "apps/booking-panel/src/main.ts",
+                "tsConfig": "apps/booking-panel/tsconfig.spec.json",
+                "polyfills": []
+            },
+            "configurations": {
+                "development": {}
             }
         },
         "mobile:sync:android": {

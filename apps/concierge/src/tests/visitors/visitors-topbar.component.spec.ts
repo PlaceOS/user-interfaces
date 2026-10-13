@@ -1,12 +1,15 @@
+import { signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
-import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
+import {
+    createRoutingFactory,
+    SpectatorRouting,
+} from '@ngneat/spectator/vitest';
 import { OrganisationService } from '@placeos/common';
-import { signal } from '@angular/core';
+import { DateOptionsComponent } from '@placeos/form-fields';
 import { MockComponent } from 'ng-mocks';
-import { DateOptionsComponent } from '../../app/ui/date-options.component';
 import { SearchbarComponent } from '../../app/ui/searchbar.component';
 import { VisitorsStateService } from '../../app/visitors/visitors-state.service';
 import { VisitorsTopbarComponent } from '../../app/visitors/visitors-topbar.component';
@@ -24,8 +27,8 @@ describe('VisitorsTopbarComponent', () => {
                 provide: VisitorsStateService,
                 useValue: {
                     filters: signal({}),
-                    setFilters: jest.fn(),
-                    setSearchString: jest.fn(),
+                    setFilters: vi.fn(),
+                    setSearchString: vi.fn(),
                 },
             },
             {
@@ -33,8 +36,8 @@ describe('VisitorsTopbarComponent', () => {
                 useValue: {
                     active_levels: signal([]),
                     initialised: signal(true),
-                    waitUntilInitialised: jest.fn(() => Promise.resolve()),
-                    levelWithID: jest.fn(),
+                    waitUntilInitialised: vi.fn(() => Promise.resolve()),
+                    levelWithID: vi.fn(),
                     buildings: [],
                 },
             },
@@ -48,10 +51,6 @@ describe('VisitorsTopbarComponent', () => {
     });
 
     beforeEach(() => (spectator = createComponent()));
-
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
 
     it('should handle query parameters', () => {
         expect(spectator.component.zones()).toEqual([]);

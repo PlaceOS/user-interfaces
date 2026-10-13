@@ -1,5 +1,11 @@
 import { Component, OnInit, inject, output } from '@angular/core';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { MatRippleModule } from '@angular/material/core';
+import {
+    MAT_DIALOG_DATA,
+    MatDialogModule,
+    MatDialogRef,
+} from '@angular/material/dialog';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 import {
     CalendarEvent,
@@ -9,7 +15,9 @@ import {
     notifyError,
     notifySuccess,
 } from '@placeos/common';
+import { IconComponent } from '@placeos/components';
 import { EventFormService, queryEvents } from '@placeos/events';
+import { EventFormComponent } from './event-form.component';
 
 export interface BookingModalData {
     event?: CalendarEvent;
@@ -59,7 +67,13 @@ export interface BookingModalData {
             }
         `,
     ],
-    standalone: false,
+    imports: [
+        IconComponent,
+        EventFormComponent,
+        MatProgressSpinnerModule,
+        MatRippleModule,
+        MatDialogModule,
+    ],
 })
 export class BookingModalComponent implements OnInit {
     private _data = inject<BookingModalData>(MAT_DIALOG_DATA);
@@ -90,7 +104,7 @@ export class BookingModalComponent implements OnInit {
                         period_end: event.event_end,
                         ical_uid: event.ical_uid,
                     })
-                ).find((_) => _.ical_uid === (event as any).ical_uid) || event;
+                ).find((_) => _.ical_uid === event.ical_uid) || event;
         }
         if (event && !event.id) {
             (event as any).all_day =

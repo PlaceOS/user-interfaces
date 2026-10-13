@@ -24,6 +24,9 @@ let shown_id = '';
             yPosition="center"
             xPosition="center"
             class="bg-base-100 pointer-events-auto absolute top-1/2 left-1/2 h-7 w-7 min-w-0 -translate-x-1/2 -translate-y-1/2 shadow-sm"
+            (pointerdown)="$event.stopPropagation()"
+            (pointerup)="$event.stopPropagation()"
+            (click)="$event.stopPropagation()"
         >
             <icon> visibility </icon>
         </button>

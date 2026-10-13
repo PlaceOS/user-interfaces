@@ -3,18 +3,15 @@ import {
     ErrorHandler,
     provideZonelessChangeDetection,
 } from '@angular/core';
-import { provideAnimations } from '@angular/platform-browser/animations';
 import {
     provideRouter,
-    Router,
     Routes,
     withEnabledBlockingInitialNavigation,
     withHashLocation,
 } from '@angular/router';
 import { provideServiceWorker } from '@angular/service-worker';
 
-import * as Sentry from '@sentry/angular';
-
+import { LazySentryErrorHandler } from '@placeos/common';
 import { environment } from '../environments/environment';
 import { EnrolmentComponent } from './enrolment.component';
 
@@ -27,7 +24,6 @@ const routes: Routes = [
 export const appConfig: ApplicationConfig = {
     providers: [
         provideZonelessChangeDetection(),
-        provideAnimations(),
         provideRouter(
             routes,
             withHashLocation(),
@@ -41,13 +37,7 @@ export const appConfig: ApplicationConfig = {
         }),
         {
             provide: ErrorHandler,
-            useValue: Sentry.createErrorHandler({
-                showDialog: false,
-            }),
-        },
-        {
-            provide: Sentry.TraceService,
-            deps: [Router],
+            useClass: LazySentryErrorHandler,
         },
     ],
 };

@@ -63,12 +63,12 @@ class RoomModule {
 
     // Camera bindings
     public available_cameras: string[] = [
-        'Camera_1',
-        'Camera_2',
-        'Camera_3',
-        'Camera_4',
+        'Camera1',
+        'Camera2',
+        'Camera3',
+        'Camera4',
     ];
-    public selected_camera: string = 'Camera_1';
+    public selected_camera: string | null = null;
 
     // Microphone bindings
     public microphones: string[] = [
@@ -240,7 +240,18 @@ Plug your laptop into the HDMI to stream it to the screen, or access the CMS to 
      * Predominantly intended for outputs that support more than one simultaneous input source
      * (mixed audio zone, or display capable of compositing multiple video sources).
      **/
-    $unroute() {}
+    $unroute(output: string) {
+        const input = this.output_list[output]?.source;
+        if (!input) return;
+        if (this.input_list[input]) {
+            this.$updateState(input, {
+                routes: (this.input_list[input].routes || []).filter(
+                    (_) => _ !== output,
+                ),
+            });
+        }
+        this.$updateState(output, { source: '', following: '' });
+    }
     /**
      * Establish a call (either phone or video) with a remote participant.
      * This may be a peer-to-peer connection or a wider group via an external bridging service.
@@ -280,12 +291,16 @@ Plug your laptop into the HDMI to stream it to the screen, or access the CMS to 
      * output node.
      **/
     $volume(value: number, source: string = 'all') {
-        if (source === 'all') {
+        if (source === 'all' || source === this.outputs[0]) {
             this.volume = value;
         }
+        this.$updateState(source, { volume: value });
     }
     /** Interact with audio muting on supporting signal nodes within the space. */
     $mute(state: boolean = true, source: string = 'all') {
+        if (source === 'all' || source === this.outputs[0]) {
+            this.mute = state;
+        }
         this.$updateState(source, { mute: state });
     }
     /**
@@ -343,7 +358,7 @@ Plug your laptop into the HDMI to stream it to the screen, or access the CMS to 
     }
 
     /** Select a camera */
-    $select_camera(camera_id: string) {
+    $selected_camera(camera_id: string) {
         if (this.available_cameras.includes(camera_id)) {
             this.selected_camera = camera_id;
         }
@@ -373,7 +388,7 @@ Plug your laptop into the HDMI to stream it to the screen, or access the CMS to 
     }
 
     /** Dial a phone number */
-    $dial_phone(number: string) {
+    $dial_phone(_number: string) {
         this.offhook = true;
         return new Promise<void>((r) => setTimeout(() => r(), 1000));
     }

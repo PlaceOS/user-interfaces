@@ -25,7 +25,12 @@ import { DealsService } from './deals.service';
                 <h2 class="text-2xl font-medium">
                     {{ 'APP.CONCIERGE.DEALS_HEADER' | translate }}
                 </h2>
-                <a btn matRipple [routerLink]="['/deals-n-offers', 'manage']">
+                <a
+                    btn
+                    matRipple
+                    data-shortcut="new"
+                    [routerLink]="['/deals-n-offers', 'manage']"
+                >
                     <div class="ml-2">
                         {{ 'APP.CONCIERGE.DEALS_ADD' | translate }}
                     </div>

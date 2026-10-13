@@ -11,19 +11,23 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, Router } from '@angular/router';
 import { settingSignal } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
+import { SignagePlaylistService } from '../playlists/signage-playlist.service';
 import { NavFooterComponent } from '../shared/nav-footer.component';
 import { NavSidebarComponent } from '../shared/nav-sidebar.component';
-import { SignageService } from '../signage.service';
+import { SignageContextService } from '../signage-context.service';
 import { DisplayContentComponent } from './display-content.component';
 import { DisplayHeaderComponent } from './display-header.component';
 import { DisplayListComponent } from './display-list.component';
+import { selectRoutedItem } from './routed-selection.util';
+import { showSignageDisplay } from './signage-display';
+import { SignageDisplayService } from './signage-display.service';
 
 const TAB_QUERY_PARAM = 'tab';
 
 function parseDisplayTab(
     value: string | null,
-): 'schedule' | 'playlists' | 'zones' {
-    if (value === 'playlists' || value === 'zones') {
+): 'schedule' | 'templates' | 'playlists' | 'zones' {
+    if (value === 'templates' || value === 'playlists' || value === 'zones') {
         return value;
     }
     return 'schedule';
@@ -53,7 +57,7 @@ function parseDisplayTab(
                                     icon
                                     type="button"
                                     matRipple
-                                    class="sm:hidden"
+                                    class="desktop-hidden"
                                     (click)="deselectDisplay()"
                                     [attr.aria-label]="
                                         'SIGNAGE_MANAGER.BACK_TO_DISPLAYS'
@@ -79,7 +83,51 @@ function parseDisplayTab(
                                             {{ selected_display().description }}
                                         </div>
                                     }
+                                    <div
+                                        class="text-base-content/60 truncate text-xs capitalize"
+                                    >
+                                        {{ selected_display().orientation }}
+                                    </div>
                                 </div>
+                                @if (can_update()) {
+                                    <button
+                                        icon
+                                        default
+                                        type="button"
+                                        matRipple
+                                        [matTooltip]="
+                                            'SIGNAGE_MANAGER.EDIT_DISPLAY_TOOLTIP'
+                                                | translate
+                                        "
+                                        (click)="editDisplay()"
+                                        [attr.aria-label]="
+                                            'SIGNAGE_MANAGER.EDIT_SELECTED_DISPLAY'
+                                                | translate
+                                        "
+                                    >
+                                        <icon>edit</icon>
+                                    </button>
+                                }
+                                @if (can_delete_displays()) {
+                                    <button
+                                        icon
+                                        default
+                                        error
+                                        type="button"
+                                        matRipple
+                                        [matTooltip]="
+                                            'SIGNAGE_MANAGER.DELETE_DISPLAY_TOOLTIP'
+                                                | translate
+                                        "
+                                        (click)="removeDisplay()"
+                                        [attr.aria-label]="
+                                            'SIGNAGE_MANAGER.DELETE_SELECTED_DISPLAY'
+                                                | translate
+                                        "
+                                    >
+                                        <icon>delete</icon>
+                                    </button>
+                                }
                                 <a
                                     icon
                                     default
@@ -109,7 +157,7 @@ function parseDisplayTab(
                                 <button
                                     type="button"
                                     role="tab"
-                                    class="flex-1 px-4 py-2.5 text-sm font-medium transition-colors"
+                                    class="flex flex-1 items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium transition-colors"
                                     [class.border-primary]="
                                         view_tab() === 'schedule'
                                     "
@@ -131,10 +179,52 @@ function parseDisplayTab(
                                 >
                                     {{ 'SIGNAGE_MANAGER.SCHEDULE' | translate }}
                                 </button>
+                                @if (templates_enabled()) {
+                                    <button
+                                        type="button"
+                                        role="tab"
+                                        class="flex flex-1 items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium transition-colors"
+                                        [class.border-primary]="
+                                            view_tab() === 'templates'
+                                        "
+                                        [class.border-b-2]="
+                                            view_tab() === 'templates'
+                                        "
+                                        [class.text-primary]="
+                                            view_tab() === 'templates'
+                                        "
+                                        [class.opacity-60]="
+                                            view_tab() !== 'templates'
+                                        "
+                                        (click)="setViewTab('templates')"
+                                        [attr.aria-selected]="
+                                            view_tab() === 'templates'
+                                        "
+                                        aria-controls="display-templates-panel"
+                                        id="display-templates-tab"
+                                    >
+                                        {{
+                                            'SIGNAGE_MANAGER.NAV_TEMPLATES'
+                                                | translate
+                                        }}
+                                        <span
+                                            class="bg-base-content/5 inline-flex h-6 min-w-6 items-center justify-center rounded-full px-1.5 text-xs tabular-nums"
+                                            [attr.aria-busy]="
+                                                template_count_loading()
+                                            "
+                                        >
+                                            {{
+                                                template_count_loading()
+                                                    ? '?'
+                                                    : template_count()
+                                            }}
+                                        </span>
+                                    </button>
+                                }
                                 <button
                                     type="button"
                                     role="tab"
-                                    class="flex-1 px-4 py-2.5 text-sm font-medium transition-colors"
+                                    class="flex flex-1 items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium transition-colors"
                                     [class.border-primary]="
                                         view_tab() === 'playlists'
                                     "
@@ -155,16 +245,26 @@ function parseDisplayTab(
                                     id="display-playlists-tab"
                                 >
                                     {{
-                                        'SIGNAGE_MANAGER.PLAYLISTS_COUNT'
+                                        'SIGNAGE_MANAGER.NAV_PLAYLISTS'
                                             | translate
-                                                : { count: playlist_count() }
-                                                : playlist_count()
                                     }}
+                                    <span
+                                        class="bg-base-content/5 inline-flex h-6 min-w-6 items-center justify-center rounded-full px-1.5 text-xs tabular-nums"
+                                        [attr.aria-busy]="
+                                            playlist_count_loading()
+                                        "
+                                    >
+                                        {{
+                                            playlist_count_loading()
+                                                ? '?'
+                                                : playlist_count()
+                                        }}
+                                    </span>
                                 </button>
                                 <button
                                     type="button"
                                     role="tab"
-                                    class="flex-1 px-4 py-2.5 text-sm font-medium transition-colors"
+                                    class="flex flex-1 items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium transition-colors"
                                     [class.border-primary]="
                                         view_tab() === 'zones'
                                     "
@@ -181,11 +281,18 @@ function parseDisplayTab(
                                     id="display-zones-tab"
                                 >
                                     {{
-                                        'SIGNAGE_MANAGER.ZONES_COUNT'
-                                            | translate
-                                                : { count: zone_count() }
-                                                : zone_count()
+                                        'SIGNAGE_MANAGER.NAV_ZONES' | translate
                                     }}
+                                    <span
+                                        class="bg-base-content/5 inline-flex h-6 min-w-6 items-center justify-center rounded-full px-1.5 text-xs tabular-nums"
+                                        [attr.aria-busy]="zone_count_loading()"
+                                    >
+                                        {{
+                                            zone_count_loading()
+                                                ? '?'
+                                                : zone_count()
+                                        }}
+                                    </span>
                                 </button>
                             </div>
                         }
@@ -227,36 +334,43 @@ function parseDisplayTab(
     ],
 })
 export class DisplaysSectionComponent {
-    private readonly _service = inject(SignageService);
+    private readonly _context = inject(SignageContextService);
+    private readonly _display_service = inject(SignageDisplayService);
+    private readonly _playlist_service = inject(SignagePlaylistService);
     private readonly _route = inject(ActivatedRoute);
     private readonly _router = inject(Router);
 
     public readonly id = input('');
     public readonly tab = input<string | null>(null);
     public readonly signage_path = settingSignal('signage_path');
-    public readonly view_tab = signal<'schedule' | 'playlists' | 'zones'>(
-        'schedule',
+    public readonly templates_enabled = this._context.templates_enabled;
+    public readonly view_tab = signal<
+        'schedule' | 'templates' | 'playlists' | 'zones'
+    >('schedule');
+    public readonly selected_display = this._display_service.selected_display;
+    public readonly can_update = this._context.can_update;
+    public readonly can_delete_displays = this._context.can_delete_displays;
+
+    public readonly template_count_loading =
+        this._display_service.selected_display_template_mappings_loading;
+    public readonly playlist_count_loading =
+        this._playlist_service.playlists_loading;
+    public readonly zone_count_loading =
+        this._display_service.selected_display_zones_loading;
+    public readonly template_count = computed(
+        () => this._display_service.selected_display_template_mappings().length,
     );
-    public readonly selected_display = this._service.selected_display;
 
-    private readonly _displays = this._service.displays;
-    private readonly _playlists = this._service.playlists;
-    private readonly _zones = this._service.zones;
+    public readonly playlist_count = computed(
+        () =>
+            this._playlist_service.playlistsById(
+                this.selected_display()?.playlists || [],
+            ).length,
+    );
 
-    public readonly playlist_count = computed(() => {
-        const display = this.selected_display();
-        if (!display) return 0;
-        return this._playlists().filter((p) =>
-            display.playlists?.includes(p.id),
-        ).length;
-    });
-
-    public readonly zone_count = computed(() => {
-        const display = this.selected_display();
-        if (!display) return 0;
-        return this._zones().filter((z) => display.zones?.includes(z.id))
-            .length;
-    });
+    public readonly zone_count = computed(
+        () => this._display_service.selected_display_zones().length,
+    );
     public readonly panel_link = computed(() => {
         const display = this.selected_display();
         if (!display?.id) return '';
@@ -264,41 +378,45 @@ export class DisplaysSectionComponent {
         return `${signage_path.replace(/\/$/, '')}/#/signage/${encodeURIComponent(display.id)}?debug=true`;
     });
 
-    private _route_resolved = false;
-
     constructor() {
         effect(() => {
             const route_tab = parseDisplayTab(this.tab());
-            if (route_tab !== this.view_tab()) {
-                this.view_tab.set(route_tab);
+            const available_tab =
+                route_tab === 'templates' && !this.templates_enabled()
+                    ? 'schedule'
+                    : route_tab;
+            if (available_tab !== this.view_tab()) {
+                this.view_tab.set(available_tab);
             }
         });
 
-        effect(() => {
-            const id = this.id();
-            const list = this._displays();
-            if (!list.length) return;
-            if (id) {
-                const match = list.find((d) => d.id === id);
-                if (
-                    match &&
-                    this._service.selected_display()?.id !== match.id
-                ) {
-                    this._service.selected_display.set(match);
-                }
-                this._route_resolved = true;
-            } else if (this._route_resolved) {
-                this._service.selected_display.set(null);
-            }
+        selectRoutedItem({
+            id: this.id,
+            list: this._display_service.displays,
+            selected: this._display_service.selected_display,
+            // The list holds only the pages loaded so far
+            load: showSignageDisplay,
         });
     }
 
     public deselectDisplay() {
-        this._service.selected_display.set(null);
+        this._display_service.selected_display.set(null);
         this._router.navigate(['/displays'], {});
     }
 
-    public setViewTab(tab: 'schedule' | 'playlists' | 'zones') {
+    public editDisplay() {
+        const display = this.selected_display();
+        if (display) this._display_service.editDisplay(display);
+    }
+
+    public async removeDisplay() {
+        const display = this.selected_display();
+        if (!display || !(await this._display_service.removeDisplay(display)))
+            return;
+        await this._router.navigate(['/displays'], {});
+    }
+
+    public setViewTab(tab: 'schedule' | 'templates' | 'playlists' | 'zones') {
         if (tab === this.view_tab()) return;
         this.view_tab.set(tab);
         void this._router.navigate([], {

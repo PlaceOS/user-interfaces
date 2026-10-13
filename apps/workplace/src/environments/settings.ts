@@ -131,6 +131,8 @@ const explore = {
     show_legend_group_names: true,
     show_legend: true,
     hide_zones: true,
+    hide_devices: true,
+    hide_sensors: true,
     use_zone_polygons: false,
     show_simple_sensor_info: false,
     show_presence_indicators: false,
@@ -223,8 +225,12 @@ const app = {
         allowed_daily_visitor_count: 100,
         multiple_visitors: true,
         force_current_user_for_booking_rules: false,
+        // Applies to any assignable resource type (desk/parking/locker).
+        // Override per type under `app.<type>s.*` (e.g. `app.desks.*`).
+        assigned_resource_booking: 'other_only',
     },
     desks: {
+        use_assets: false,
         can_book_lockers: true,
         can_book_for_others: true,
         // bookable_hours: { start: 8, end: 19 },
@@ -232,8 +238,6 @@ const app = {
         allow_time_changes: true,
         allow_all_day: true,
         auto_allocation: false,
-        allow_booking_with_reserved_desk: false,
-        prevent_self_booking_if_assigned_desk: false,
         show_calendar_links: true,
         allow_recurrence: true,
         hide_map: false,
@@ -257,6 +261,7 @@ const app = {
         hide_selected_space: false,
         hide_availability_counter: false,
         require_plate_number: false,
+        require_space_restriction: true,
     },
     analytics: {
         enabled: true,

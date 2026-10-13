@@ -1,7 +1,9 @@
 import { expect, test } from '@playwright/test';
 
 test.describe('Locker Management Page', () => {
-    test('creates a locker bank and child locker with mocks', async ({ page }) => {
+    test('creates a locker bank and child locker with mocks', async ({
+        page,
+    }) => {
         const suffix = Date.now();
         const bank_name = `Mock Bank ${suffix}`;
         const locker_name = `Locker ${suffix}`;
@@ -13,16 +15,18 @@ test.describe('Locker Management Page', () => {
 
         await page.getByRole('button', { name: /Add Bank/ }).click();
         await page.locator('mat-dialog-container').waitFor();
-        await page
-            .locator('mat-dialog-container input[formcontrolname="name"]')
+        const bank_dialog = page.getByRole('dialog');
+        await bank_dialog
+            .getByRole('textbox', { name: 'Name' })
             .fill(bank_name);
-        await page
-            .locator('mat-dialog-container input[formcontrolname="map_id"]')
+        await bank_dialog
+            .getByRole('textbox', { name: 'Map ID' })
             .fill(`mock-bank-${suffix}`);
+        await bank_dialog.getByRole('combobox').click();
         await page
-            .locator('mat-dialog-container mat-select[formcontrolname="level_id"]')
+            .getByRole('option', { name: 'Ground Floor' })
+            .first()
             .click();
-        await page.getByRole('option', { name: 'Ground Floor' }).first().click();
         await page.getByRole('button', { name: 'Save' }).click();
         await page
             .locator('mat-dialog-container')
@@ -40,7 +44,8 @@ test.describe('Locker Management Page', () => {
         await page.getByRole('menuitem', { name: /Add Locker/ }).click();
         await page.locator('mat-dialog-container').waitFor();
         await page
-            .locator('mat-dialog-container input[formcontrolname="name"]')
+            .getByRole('dialog')
+            .getByRole('textbox', { name: 'Name' })
             .fill(locker_name);
         await page.getByRole('button', { name: 'Save' }).click();
         await page

@@ -20,8 +20,6 @@ import {
     AsyncHandler,
     csvToJson,
     Desk,
-    downloadFile,
-    jsonToCsv,
     loadTextFileFromInputEvent,
     notifyError,
     notifyInfo,
@@ -29,8 +27,8 @@ import {
     randomInt,
 } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
+import { DateOptionsComponent } from '@placeos/form-fields';
 import { BookingRulesModalComponent } from '../ui/booking-rules-modal.component';
-import { DateOptionsComponent } from '../ui/date-options.component';
 import { SearchbarComponent } from '../ui/searchbar.component';
 import { DeskBookModalComponent } from './desk-book-modal.component';
 import { DesksStateService } from './desks-state.service';
@@ -67,6 +65,7 @@ import { DesksStateService } from './desks-state.service';
                     matRipple
                     class="mx-2 w-40"
                     matTooltip="New Desk Booking"
+                    data-shortcut="new"
                     (click)="newDeskBooking()"
                 >
                     {{ 'APP.CONCIERGE.NEW_BOOKING' | translate }}
@@ -77,6 +76,7 @@ import { DesksStateService } from './desks-state.service';
                     icon
                     default
                     matRipple
+                    data-shortcut="new"
                     (click)="newDesk()"
                     [matTooltip]="'APP.CONCIERGE.DESKS_NEW' | translate"
                 >
@@ -94,7 +94,7 @@ import { DesksStateService } from './desks-state.service';
                     <input
                         type="file"
                         class="absolute inset-0 opacity-0"
-                        (change)="loadCSVData($event)"
+                        (change)="loadCSVData($any($event))"
                     />
                 </button>
             }
@@ -201,7 +201,7 @@ export class DesksTopbarComponent extends AsyncHandler implements OnInit {
                             levels.find((lvl) => lvl.id === zone) ||
                             zone === 'All',
                     ) || [];
-                if (!zones.length && levels.length) zones.push(levels[0].id);
+                if (!zones.length && levels.length) zones.push('All');
                 this.updateZones(zones);
             });
         });
@@ -287,16 +287,7 @@ export class DesksTopbarComponent extends AsyncHandler implements OnInit {
     }
 
     public downloadTemplate() {
-        const desk: any = new Desk({
-            id: 'desk-123',
-            name: 'Test Desk',
-            bookable: true,
-            groups: ['test-desk-group', 'desk-bookers'],
-            features: ['Standing Desk', 'Dual Monitor'],
-        }).toJSON();
-        delete desk.images;
-        const data = jsonToCsv([desk]);
-        downloadFile('desk-template.csv', data);
+        this._desks.downloadDesksCSV();
     }
 
     /**

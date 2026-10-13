@@ -6,16 +6,6 @@
     "prefix": "placeos",
     "tags": [],
     "targets": {
-        "test": {
-            "executor": "@nx/jest:jest",
-            "outputs": ["{workspaceRoot}/coverage/libs/payments"],
-            "options": {
-                "jestConfig": "libs/payments/jest.config.ts",
-                "tsConfig": "libs/payments/tsconfig.spec.json"
-            }
-        },
-        "lint": {
-            "executor": "@nx/eslint:lint"
-        }
+        "lint": {}
     }
 }

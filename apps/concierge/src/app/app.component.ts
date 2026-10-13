@@ -1,12 +1,20 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { PlaceOS_Service, setMocks, UploadsService } from '@placeos/common';
 import {
-    ChatComponent,
+    PlaceOS_Service,
+    setMocks,
+    UploadsService,
+    watchUserGroupSync,
+} from '@placeos/common';
+import {
     GlobalBannerComponent,
     GlobalLoadingComponent,
 } from '@placeos/components';
+import { ChatComponent } from '@placeos/components/chat';
+import { SettingsDebugPanelLauncherComponent } from '@placeos/components/settings-debug';
 import { mocksInit } from '@placeos/mocks';
+
+import { KeyboardShortcutsService } from './ui/keyboard-shortcuts.service';
 
 @Component({
     selector: 'app-root',
@@ -14,6 +22,7 @@ import { mocksInit } from '@placeos/mocks';
         RouterOutlet,
         GlobalBannerComponent,
         GlobalLoadingComponent,
+        SettingsDebugPanelLauncherComponent,
         ChatComponent,
     ],
     template: `
@@ -21,12 +30,19 @@ import { mocksInit } from '@placeos/mocks';
         <div class="relative h-1/2 w-full flex-1">
             <router-outlet></router-outlet>
         </div>
-        @if (has_chat()) {
+        @defer (when has_chat()) {
             <global-chat />
         }
         <global-loading />
-        <!-- <debug-console *ngIf="debug"></debug-console> -->
+        @defer (on idle) {
+            <settings-debug-panel-launcher
+                [loadSchema]="load_settings_schema"
+            />
+        }
     `,
+    host: {
+        '(window:keydown)': 'shortcuts.handleKeydown($event)',
+    },
     styles: [
         `
             :host {
@@ -39,13 +55,22 @@ import { mocksInit } from '@placeos/mocks';
     ],
 })
 export class AppComponent implements OnInit {
+    public readonly load_settings_schema = () =>
+        import('../environments/settings.schema.json');
+
     private _placeos = inject(PlaceOS_Service);
     private _uploads = inject(UploadsService);
+    protected readonly shortcuts = inject(KeyboardShortcutsService);
     public readonly has_chat = signal(this._placeos.has_chat);
+
+    constructor() {
+        watchUserGroupSync();
+    }
 
     public async ngOnInit() {
         setMocks(mocksInit);
         await this._placeos.init();
+
         this.has_chat.set(this._placeos.has_chat);
         if (this._placeos.has_uploads) this._uploads.init();
     }

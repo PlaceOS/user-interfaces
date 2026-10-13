@@ -1,5 +1,6 @@
 import { signal } from '@angular/core';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
+import { CateringItem } from '@placeos/common';
 import { MockComponent, MockModule, MockProvider } from 'ng-mocks';
 
 import { MatTabsModule } from '@angular/material/tabs';
@@ -10,7 +11,8 @@ import { CateringOrdersService } from '../lib/catering-orders.service';
 import { CateringStateService } from '../lib/catering-state.service';
 
 describe('CateringMenuComponent', () => {
-    let spectator: Spectator<CateringMenuComponent>;
+    const menu = signal<CateringItem[]>([]);
+    const order_filters = signal<Record<string, string>>({});
     const createComponent = createComponentFactory({
         component: CateringMenuComponent,
         declarations: [
@@ -19,26 +21,38 @@ describe('CateringMenuComponent', () => {
         ],
         providers: [
             MockProvider(CateringStateService, {
-                menu: signal([]),
+                menu,
                 currency: signal('USD'),
                 categories: [],
                 caterer_list: [],
             }),
             MockProvider(CateringOrdersService, {
                 filters: {},
-                order_filters: signal({}),
+                order_filters,
             }),
         ],
         imports: [MockModule(MatTabsModule)],
     });
 
-    beforeEach(() => (spectator = createComponent()));
+    let spectator: Spectator<CateringMenuComponent>;
 
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
+    beforeEach(() => {
+        menu.set([]);
+        order_filters.set({});
+        spectator = createComponent();
     });
 
     it('should show table', () => {
         expect('simple-table').toExist();
+    });
+
+    it('should only show items that match the search', () => {
+        menu.set([
+            new CateringItem({ id: '1', name: 'Coffee', category: 'Drinks' }),
+            new CateringItem({ id: '2', name: 'Muffin', category: 'Bakery' }),
+        ]);
+        order_filters.set({ search: 'drinks' });
+
+        expect(spectator.component.menu().map((i) => i.id)).toEqual(['1']);
     });
 });

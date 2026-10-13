@@ -32,9 +32,13 @@ import {
     queryUsers,
     showMetadata,
 } from '@placeos/ts-client';
+import {
+    deskFromAsset,
+    queryDeskAssetsForZones,
+} from 'libs/assets/src/lib/desk-assets.fn';
 
 import { toQueryString } from '@placeos/common';
-import { searchStaff } from '@placeos/users';
+import { searchStaff } from 'libs/users/src/lib/staff.fn';
 import { ExploreStateService } from './explore-state.service';
 
 const EMERGENCY_CONTACTS_CATEGORY_NAME = '_EMERGENCY_CONTACTS_';
@@ -57,7 +61,7 @@ interface EmergencyContactFromAsset {
 function queryAssetCategoriesLocal(query: Record<string, unknown> = {}) {
     const q = toQueryString(query);
     return get(`${BASE_ENDPOINT}/asset_categories${q ? '?' + q : ''}`).then(
-        (_) => _ as any as AssetCategory[],
+        (_) => _ as AssetCategory[],
     );
 }
 
@@ -65,7 +69,7 @@ function queryAssetCategoriesLocal(query: Record<string, unknown> = {}) {
 function queryAssetTypesLocal(query: Record<string, unknown> = {}) {
     const q = toQueryString(query);
     return get(`${BASE_ENDPOINT}/asset_types${q ? '?' + q : ''}`).then(
-        (_) => _ as any as AssetGroup[],
+        (_) => _ as AssetGroup[],
     );
 }
 
@@ -73,7 +77,7 @@ function queryAssetTypesLocal(query: Record<string, unknown> = {}) {
 function queryAssetsLocal(query: Record<string, unknown> = {}) {
     const q = toQueryString(query);
     return get(`${BASE_ENDPOINT}/assets${q ? '?' + q : ''}`).then(
-        (_) => _ as any as Asset[],
+        (_) => _ as Asset[],
     );
 }
 
@@ -282,8 +286,23 @@ export class ExploreSearchService {
 
     private _desk_search = resource({
         params: () => this._building() || undefined,
-        loader: ({ params: bld }) =>
-            listChildMetadata(bld.id, { name: 'desks' })
+        loader: ({ params: bld }) => {
+            if (this._settings.get('app.desks.use_assets')) {
+                const levels = this._org.levelsForBuilding(bld);
+                return queryDeskAssetsForZones(levels.map((level) => level.id))
+                    .then((assets) =>
+                        assets.map((asset) =>
+                            deskFromAsset(
+                                asset,
+                                levels.find(
+                                    (level) => level.id === asset.zone_id,
+                                ),
+                            ),
+                        ),
+                    )
+                    .catch(() => [] as Desk[]);
+            }
+            return listChildMetadata(bld.id, { name: 'desks' })
                 .then((i) =>
                     flatten(
                         i.map((j) =>
@@ -293,7 +312,8 @@ export class ExploreSearchService {
                         ),
                     ),
                 )
-                .catch(() => [] as Desk[]),
+                .catch(() => [] as Desk[]);
+        },
     });
 
     private _maps_people_search = resource({
@@ -433,19 +453,16 @@ export class ExploreSearchService {
             results = results.concat(
                 flatten(
                     roled_contacts.map((u) =>
-                        (u as any).roles.map(
-                            (role) =>
-                                ({
-                                    id: u.email,
-                                    type: role || 'contact',
-                                    is_role: true,
-                                    name: u.name,
-                                    email: u.email,
-                                    description: u.email,
-                                    zone: (u as any).zone,
-                                    zone_name: (u as any).zone_name,
-                                }) as any,
-                        ),
+                        (u as any).roles.map((role) => ({
+                            id: u.email,
+                            type: role || 'contact',
+                            is_role: true,
+                            name: u.name,
+                            email: u.email,
+                            description: u.email,
+                            zone: u.zone,
+                            zone_name: u.zone_name,
+                        })),
                     ),
                 ),
             );
@@ -471,17 +488,14 @@ export class ExploreSearchService {
             results = results.concat(points_of_interest);
         if (!this.hideItem('contacts')) {
             results = results.concat(
-                contacts.map(
-                    (u) =>
-                        ({
-                            id: u.email,
-                            type: (u as any).type || 'contact',
-                            is_role: true,
-                            name: u.name,
-                            email: u.email,
-                            description: u.email,
-                        }) as any,
-                ),
+                contacts.map((u) => ({
+                    id: u.email,
+                    type: (u as any).type || 'contact',
+                    is_role: true,
+                    name: u.name,
+                    email: u.email,
+                    description: u.email,
+                })),
             );
         }
         if (!this.hideItem('users')) {

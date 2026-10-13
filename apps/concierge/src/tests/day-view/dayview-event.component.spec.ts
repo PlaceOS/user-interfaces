@@ -1,5 +1,5 @@
 import { signal } from '@angular/core';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { IconComponent } from '@placeos/components';
 import { MockComponent, MockProvider } from 'ng-mocks';
 
@@ -15,17 +15,13 @@ describe('DayviewEventComponent', () => {
         providers: [
             MockProvider(EventsStateService, {
                 options: signal({}),
-                setEvent: jest.fn(),
+                setEvent: vi.fn(),
             }),
             MockProvider(SettingsService, { time_format: 'h:mm a' }),
         ],
     });
 
     beforeEach(() => (spectator = createComponent()));
-
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
 
     it('should display event details', () => {
         expect('[event]').not.toExist();

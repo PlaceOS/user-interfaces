@@ -18,7 +18,7 @@ async function ensurePoweredOn(page) {
         .waitFor({ timeout: LOAD_TIMEOUT });
 
     // Wait for system to be connected (splash or topbar visible)
-    const splash = page.locator('div[name="splash"]');
+    const splash = page.locator('[name="splash"]');
     const topbar = page.locator('topbar-header');
 
     await Promise.race([
@@ -160,7 +160,7 @@ test.describe('US-037: View Join Lockout', () => {
     }) => {
         // Lockout overlay appears when !join_status[0] && join_status[1]
         const lockoutOverlay = page.locator('[lockout]');
-        const isVisible = await lockoutOverlay.isVisible().catch(() => false);
+        await lockoutOverlay.isVisible().catch(() => false);
 
         // Lockout may or may not be active depending on state
     });
@@ -199,20 +199,12 @@ test.describe('Room Joining - Button States', () => {
         await ensurePoweredOn(page);
     });
 
-    test('should hide join button when hide_join_button is true', async ({
-        page,
-    }) => {
+    test('should hide join button when hide_join_button is true', async () => {
         // Button visibility depends on !hide_join_button and join_modes > 1
-        const joinButton = page.locator('button[type="join"]');
-
         // Button may be hidden based on configuration
     });
 
-    test('should require multiple join modes for button to appear', async ({
-        page,
-    }) => {
-        const joinButton = page.locator('button[type="join"]');
-
+    test('should require multiple join modes for button to appear', async () => {
         // Only shows if Object.keys(join_modes).length > 1
     });
 
@@ -243,13 +235,6 @@ test.describe('Room Joining - Z-Index Priority', () => {
 
         if (await lockoutOverlay.isVisible().catch(() => false)) {
             // Join and power buttons should be above the lockout overlay
-            const joinButtonWrapper = page.locator(
-                '[customTooltip]:has(button[type="join"])',
-            );
-            const powerButtonWrapper = page.locator(
-                '[customTooltip]:has(button[type="power"])',
-            );
-
             // These should be clickable even with lockout active
         }
     });
@@ -264,7 +249,7 @@ test.describe('Room Joining - Responsive', () => {
         await page.setViewportSize({ width: 1920, height: 1080 });
 
         const joinButton = page.locator('button[type="join"]');
-        const isVisible = await joinButton.isVisible().catch(() => false);
+        await joinButton.isVisible().catch(() => false);
 
         // Visibility depends on join_modes configuration
     });

@@ -1,26 +1,30 @@
-import { createServiceFactory, SpectatorService } from '@ngneat/spectator/jest';
+import {
+    createServiceFactory,
+    SpectatorService,
+} from '@ngneat/spectator/vitest';
 import { MockProvider } from 'ng-mocks';
+import type { Mock } from 'vitest';
 
 import { ExternalCateringService } from '../lib/external-catering.service';
 import { OrganisationService } from '../lib/org/organisation.service';
 import { SettingsService } from '../lib/settings.service';
-import { CalendarEvent } from '../lib/types/event.class';
 import { CateringItem, CateringOrder } from '../lib/types/catering.class';
-import * as user_state from '../lib/user-state';
+import { CalendarEvent } from '../lib/types/event.class';
+import { setCurrentUser } from '../lib/user-state';
 
 describe('ExternalCateringService', () => {
     let spectator: SpectatorService<ExternalCateringService>;
-    let module: { execute: jest.Mock };
+    let module: { execute: Mock };
     let settings: Record<string, any>;
 
     const createService = createServiceFactory({
         service: ExternalCateringService,
         providers: [
             MockProvider(SettingsService, {
-                get: jest.fn((key: string) => settings[key]),
+                get: vi.fn((key: string) => settings[key]),
             }),
             MockProvider(OrganisationService, {
-                module: jest.fn(() => module as any),
+                module: vi.fn(() => module as any),
                 building: { display_name: 'HQ' } as any,
             }),
         ],
@@ -28,7 +32,7 @@ describe('ExternalCateringService', () => {
 
     beforeEach(() => {
         settings = { 'app.catering.backend': 'external' };
-        module = { execute: jest.fn() };
+        module = { execute: vi.fn() };
         spectator = createService();
     });
 
@@ -51,7 +55,12 @@ describe('ExternalCateringService', () => {
                     product_categories: [{ name: 'Drinks' }],
                     dietaries: [{ code: 'v', name: 'Vegan' }],
                 },
-                { uuid: 'p2', name: 'Stale Cake', price: 3, status: 'archived' },
+                {
+                    uuid: 'p2',
+                    name: 'Stale Cake',
+                    price: 3,
+                    status: 'archived',
+                },
             ],
         });
         const items = await spectator.service.loadMenu();
@@ -81,7 +90,7 @@ describe('ExternalCateringService', () => {
     });
 
     it('places an order with a grand total in currency units', async () => {
-        jest.spyOn(user_state, 'currentUser').mockReturnValue({
+        setCurrentUser({
             email: 'jane@example.com',
             first_name: 'Jane',
             last_name: 'Doe',

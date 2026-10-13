@@ -1,11 +1,6 @@
 module.exports = {
     prefix: '',
-    important: '#placeos',
     mode: 'jit',
-    content: [
-        './apps/**/*.{html,ts,css,scss,sass,less,styl}',
-        './libs/**/*.{html,ts,css,scss,sass,less,styl}',
-    ],
     darkMode: 'class', // or 'media' or 'class'
     theme: {
         colors: {
@@ -42,6 +37,9 @@ module.exports = {
             warning: 'var(--warn)',
             'warning-light': 'var(--warn-light)',
             'warning-content': 'var(--warn-content)',
+            approval: 'var(--approval)',
+            'approval-light': 'var(--approval-light)',
+            'approval-content': 'var(--approval-content)',
             error: 'var(--error)',
             'error-light': 'var(--error-light)',
             'error-content': 'var(--error-content)',

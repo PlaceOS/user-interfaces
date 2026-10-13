@@ -1,5 +1,6 @@
 import { predictableRandomInt, timePeriodsIntersect } from '@placeos/common';
 import { registerMockEndpoint } from '@placeos/ts-client';
+import { getUnixTime } from 'date-fns';
 
 import { MOCK_BOOKINGS, MOCK_CATERING_BOOKINGS } from './bookings.data';
 import { ACTIVE_USER } from './users.data';
@@ -59,6 +60,11 @@ export function registerMockBookings() {
                         event.booking_end,
                     ),
                 );
+            }
+
+            // Real API hides soft-deleted bookings unless asked for them
+            if (!_.query_params.include_deleted && !_.query_params.deleted) {
+                events = events.filter((booking) => !booking.deleted);
             }
 
             // Filter by type if provided
@@ -275,7 +281,7 @@ export function registerMockBookings() {
     });
 
     registerMockEndpoint({
-        path: '/api/staff/v1/bookings/:id/checkin',
+        path: '/api/staff/v1/bookings/:id/check_in',
         metadata: {},
         method: 'POST',
         callback: (req) => {
@@ -287,7 +293,14 @@ export function registerMockBookings() {
                     status: 404,
                     message: `Unable to find booking with ID ${req.route_params.id}`,
                 };
-            booking.checked_in = true;
+            const state = `${req.query_params?.state ?? 'true'}` === 'true';
+            booking.checked_in = state;
+            if (state) {
+                booking.checked_in_at = getUnixTime(Date.now());
+                delete booking.checked_out_at;
+            } else {
+                booking.checked_out_at = getUnixTime(Date.now());
+            }
             return booking;
         },
     });
@@ -307,7 +320,7 @@ export function registerMockBookings() {
                     message: `Unable to find booking with ID ${req.route_params.id}`,
                 };
             const induction = req.query_params.induction || 'tentative';
-            (booking as any).induction = induction;
+            booking.induction = induction;
             return booking;
         },
     });
@@ -324,15 +337,17 @@ export function registerMockBookings() {
         metadata: {},
         method: 'DELETE',
         callback: (req) => {
-            const index = ALL_BOOKINGS.findIndex(
+            const booking = ALL_BOOKINGS.find(
                 (e) => `${e.id}` === `${req.route_params.id}`,
             );
-            if (index < 0)
+            if (!booking)
                 throw {
                     status: 404,
                     message: `Unable to find booking with ID ${req.route_params.id}`,
                 };
-            ALL_BOOKINGS.splice(index, 1);
+            // Real API soft-deletes, so the booking stays queryable as cancelled
+            booking.deleted = true;
+            booking.deleted_at = Math.floor(Date.now() / 1000);
             return;
         },
     });

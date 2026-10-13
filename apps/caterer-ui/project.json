@@ -29,11 +29,6 @@
                         "output": "/assets/"
                     },
                     {
-                        "glob": "*.woff2",
-                        "input": "node_modules/material-symbols",
-                        "output": "/assets/"
-                    },
-                    {
                         "glob": "oauth-resp.html",
                         "input": "node_modules/@placeos/ts-client/dist/",
                         "output": "/"
@@ -90,8 +85,8 @@
                     "budgets": [
                         {
                             "type": "initial",
-                            "maximumWarning": "2mb",
-                            "maximumError": "5mb"
+                            "maximumWarning": "950kb",
+                            "maximumError": "1150kb"
                         },
                         {
                             "type": "anyComponentStyle",
@@ -105,6 +100,7 @@
         },
         "serve": {
             "executor": "@angular/build:dev-server",
+            "continuous": true,
             "options": {
                 "proxyConfig": "config/proxy.conf.js",
                 "buildTarget": "caterer-ui:build"
@@ -113,19 +109,30 @@
                 "production": {
                     "buildTarget": "caterer-ui:build:production"
                 }
-            },
-            "continuous": true
+            }
         },
-        "lint": {
-            "executor": "@nx/eslint:lint",
-            "outputs": ["{options.outputFile}"]
-        },
+        "lint": {},
         "test": {
-            "executor": "@nx/jest:jest",
+            "executor": "@angular/build:unit-test",
             "outputs": ["{workspaceRoot}/coverage/apps/caterer-ui"],
             "options": {
-                "jestConfig": "apps/caterer-ui/jest.config.ts",
-                "tsConfig": "apps/caterer-ui/tsconfig.spec.json"
+                "tsConfig": "apps/caterer-ui/tsconfig.spec.json",
+                "setupFiles": ["apps/caterer-ui/src/test-setup.ts"],
+                "isolate": true,
+                "watch": false,
+                "buildTarget": "caterer-ui:test-build:development"
+            }
+        },
+        "test-build": {
+            "executor": "@angular/build:application",
+            "options": {
+                "outputPath": "dist/apps/caterer-ui-test",
+                "browser": "apps/caterer-ui/src/main.ts",
+                "tsConfig": "apps/caterer-ui/tsconfig.spec.json",
+                "polyfills": []
+            },
+            "configurations": {
+                "development": {}
             }
         }
     }

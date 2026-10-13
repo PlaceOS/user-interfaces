@@ -9,7 +9,6 @@ import {
     ParkingSpaceListFieldComponent,
 } from '@placeos/bookings';
 import {
-    ANIMATION_SHOW_CONTRACT_EXPAND,
     AsyncHandler,
     currentUser,
     getInvalidSignalFields,
@@ -49,7 +48,7 @@ import { ParkingFormDetailsComponent } from './parking-form-details.component';
                                 1
                             </div>
                             <div class="text-xl">
-                                {{ 'BOOKINGS.DETAILS' | translate }}
+                                {{ 'COMMON.DETAILS' | translate }}
                             </div>
                             <div class="w-px flex-1"></div>
                             <button
@@ -68,8 +67,8 @@ import { ParkingFormDetailsComponent } from './parking-form-details.component';
                             </button>
                         </h3>
                         <div
-                            class="overflow-hidden"
-                            [@show]="hide_block.details ? 'hide' : 'show'"
+                            class="contract-expand"
+                            [class.contract-collapsed]="hide_block.details"
                         >
                             <parking-form-details
                                 class="mt-4"
@@ -102,8 +101,8 @@ import { ParkingFormDetailsComponent } from './parking-form-details.component';
                             </button>
                         </h3>
                         <div
-                            class="overflow-hidden"
-                            [@show]="hide_block.space ? 'hide' : 'show'"
+                            class="contract-expand"
+                            [class.contract-collapsed]="hide_block.space"
                         >
                             <parking-space-list-field
                                 [formField]="form.resources"
@@ -142,7 +141,6 @@ import { ParkingFormDetailsComponent } from './parking-form-details.component';
         </div>
     `,
     styles: [``],
-    animations: [ANIMATION_SHOW_CONTRACT_EXPAND],
     imports: [
         MatRippleModule,
         FormField,
@@ -189,7 +187,6 @@ export class ParkingFlowFormComponent extends AsyncHandler implements OnInit {
 
     public readonly viewConfirm = () => {
         const { asset_id, resources, date } = this.model();
-        console.log('Form:', this.model().date);
         if (resources?.length && !asset_id) {
             this.model.update((m) => ({ ...m, asset_id: resources[0].id }));
         }
@@ -202,7 +199,6 @@ export class ParkingFlowFormComponent extends AsyncHandler implements OnInit {
                 }).valueOf(),
             }));
         }
-        console.log('Form:', this.model().date);
         if (!this.form().valid())
             return notifyError(
                 `Some fields are invalid. [${getInvalidSignalFields(

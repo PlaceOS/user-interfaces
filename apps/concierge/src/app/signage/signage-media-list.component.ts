@@ -15,10 +15,10 @@ import {
     MediaDurationPipe,
     TranslatePipe,
 } from '@placeos/components';
-import { isValidUrl } from '@placeos/events';
 import { listSignagePlaylistMedia, SignageMedia } from '@placeos/ts-client';
 import { getUnixTime, startOfMinute } from 'date-fns';
 import { SignageStateService } from './signage-state.service';
+import { isWebPageUrl } from './signage.utilities';
 
 @Component({
     selector: 'signage-media-list',
@@ -390,8 +390,7 @@ export class SignageMediaListComponent {
         this._state.previewFileFromInput(event);
 
     public readonly addFromLink = async (url: string) => {
-        const is_valid = isValidUrl(url);
-        if (!is_valid) {
+        if (!isWebPageUrl(url)) {
             notifyError('Supplied URL is not valid.');
             return;
         }
@@ -412,7 +411,7 @@ export class SignageMediaListComponent {
     public readonly removeItem = async (item: SignageMedia) =>
         this._state.removeMedia(item);
 
-    public drop(event: any) {
+    public drop(_event: unknown) {
         // No-op for media list drops - media is managed via addToPlaylist
     }
 

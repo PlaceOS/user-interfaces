@@ -29,7 +29,7 @@ import { SupportTicketModalComponent } from 'libs/form-fields/src/lib/support-ti
 import { WFHSettingsModalComponent } from 'libs/users/src/lib/wfh-settings-modal.component';
 import { AccessibilityTooltipComponent } from './accessibility-tooltip.component';
 import { BuildingSelectComponent } from './building-select.component';
-import { ChangelogModalComponent } from './changelog-modal.component';
+import { ChangelogService } from './changelog.service';
 import { CustomTooltipComponent } from './custom-tooltip.component';
 import { DeskHeightPresetsComponent } from './desk-height-presets.component';
 import { HelpTooltipComponent } from './help-tooltip.component';
@@ -207,9 +207,7 @@ export interface AppLocale {
                                 <icon>share_location</icon>
                             </div>
                             <div class="flex-1">
-                                {{
-                                    'COMMON.CONTROLS_WORK_LOCATION' | translate
-                                }}
+                                {{ 'COMMON.WORK_LOCATION' | translate }}
                             </div>
                             <icon class="text-2xl opacity-60"
                                 >chevron_right</icon
@@ -374,6 +372,7 @@ export interface AppLocale {
                     @if (show_changelog()) {
                         <button
                             class="m-0 border-none bg-none p-0 text-xs underline"
+                            [disabled]="!changelog_available()"
                             (click)="viewChangelog()"
                         >
                             {{ version.hash }}
@@ -407,6 +406,7 @@ export class UserControlsComponent implements OnInit {
     private _settings = inject(SettingsService);
     private _org = inject(OrganisationService);
     private _dialog = inject(MatDialog);
+    private _changelog = inject(ChangelogService);
     private _locale = inject(LocaleService);
 
     public readonly building = this._org.active_building;
@@ -418,6 +418,8 @@ export class UserControlsComponent implements OnInit {
         true,
     );
     public readonly show_changelog = settingSignal('show_changelog', true);
+    public readonly changelog_available = this._changelog.available;
+    public readonly viewChangelog = () => this._changelog.view();
 
     public readonly region_select = RegionSelectComponent;
     public readonly building_select = BuildingSelectComponent;
@@ -559,16 +561,7 @@ export class UserControlsComponent implements OnInit {
         this._dialog.open(WFHSettingsModalComponent);
     }
 
-    public async viewChangelog() {
-        const changelog = await (
-            await fetch(
-                'https://raw.githubusercontent.com/PlaceOS/user-interfaces/develop/CHANGELOG.md',
-            )
-        ).text();
-        this._dialog.open(ChangelogModalComponent, { data: { changelog } });
-    }
-
-    public saveSetting(name: string, value: any) {
+    public saveSetting(name: string, value: unknown) {
         this._settings.saveUserSetting(name, value);
     }
 

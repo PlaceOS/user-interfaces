@@ -72,7 +72,7 @@ function uploadErrorMessage(error: unknown) {
                     type="button"
                     matRipple
                     mat-dialog-close
-                    [attr.aria-label]="
+                    [aria-label]="
                         'SIGNAGE_MANAGER.BULK_UPLOAD_CLOSE_ARIA' | translate
                     "
                 >
@@ -84,18 +84,17 @@ function uploadErrorMessage(error: unknown) {
             class="max-h-[65vh] w-[32rem] max-w-full space-y-2 overflow-auto px-4 pt-2 pb-4 max-md:h-auto max-md:w-auto max-md:flex-1"
         >
             <div class="flex flex-col">
-                <label for="permissions">
+                <!-- A mat-select names itself from the label by its id -->
+                <label id="bulk-permissions-label" for="bulk-permissions">
                     {{ 'SIGNAGE_MANAGER.BULK_UPLOAD_PERMISSIONS' | translate }}
                 </label>
                 <mat-form-field appearance="outline" class="no-subscript">
                     <mat-select
+                        id="bulk-permissions"
                         name="permissions"
+                        aria-labelledby="bulk-permissions-label"
                         [(ngModel)]="permissions"
                         [disabled]="uploading()"
-                        [attr.aria-label]="
-                            'SIGNAGE_MANAGER.BULK_UPLOAD_PERMISSIONS'
-                                | translate
-                        "
                     >
                         <mat-option value="none">
                             {{
@@ -181,31 +180,46 @@ function uploadErrorMessage(error: unknown) {
         >
             @if (uploading()) {
                 <div class="text-base-content/70 flex-1 text-sm">
-                    {{
-                        'SIGNAGE_MANAGER.BULK_UPLOAD_UPLOADING'
-                            | translate
-                                : {
-                                      current: done_count() + error_count() + 1,
-                                      total: rows().length,
-                                  }
-                    }}
+                    @if (stopping()) {
+                        {{ 'SIGNAGE_MANAGER.BULK_UPLOAD_STOPPING' | translate }}
+                    } @else {
+                        {{
+                            'SIGNAGE_MANAGER.BULK_UPLOAD_UPLOADING'
+                                | translate
+                                    : {
+                                          current:
+                                              done_count() + error_count() + 1,
+                                          total: rows().length,
+                                      }
+                        }}
+                    }
                 </div>
+                <button
+                    btn
+                    matRipple
+                    type="button"
+                    class="inverse w-32"
+                    [disabled]="stopping()"
+                    (click)="stop()"
+                >
+                    {{ 'COMMON.CANCEL' | translate }}
+                </button>
+            } @else {
+                <button
+                    btn
+                    matRipple
+                    type="button"
+                    class="inverse w-32"
+                    mat-dialog-close
+                >
+                    {{
+                        (done_count() || error_count()
+                            ? 'SIGNAGE_MANAGER.BULK_UPLOAD_CLOSE'
+                            : 'COMMON.CANCEL'
+                        ) | translate
+                    }}
+                </button>
             }
-            <button
-                btn
-                matRipple
-                type="button"
-                class="inverse w-32"
-                mat-dialog-close
-                [disabled]="uploading()"
-            >
-                {{
-                    (done_count() || error_count()
-                        ? 'SIGNAGE_MANAGER.BULK_UPLOAD_CLOSE'
-                        : 'COMMON.CANCEL'
-                    ) | translate
-                }}
-            </button>
             <button
                 btn
                 matRipple
@@ -252,6 +266,8 @@ export class BulkMediaUploadModalComponent {
     );
     public readonly permissions = signal<UploadPermissions>('none');
     public readonly uploading = signal(false);
+    /** Set by `stop()`. The upload loop ends after the current file. */
+    public readonly stopping = signal(false);
 
     public readonly done_count = computed(
         () => this.rows().filter((_) => _.status === 'done').length,
@@ -277,12 +293,18 @@ export class BulkMediaUploadModalComponent {
         );
     }
 
+    /** Stop the upload after the current file. The file in flight completes. */
+    public stop() {
+        if (this.uploading()) this.stopping.set(true);
+    }
+
     public async uploadAll() {
         if (this.uploading()) return;
         this.uploading.set(true);
         this._dialog_ref.disableClose = true;
         const permissions = this.permissions();
         for (const row of this.rows()) {
+            if (this.stopping()) break;
             if (row.status !== 'pending' && row.status !== 'error') continue;
             this._patchRow(row.id, {
                 status: 'uploading',
@@ -305,6 +327,8 @@ export class BulkMediaUploadModalComponent {
         }
         this._dialog_ref.disableClose = false;
         this.uploading.set(false);
+        const stopped = this.stopping();
+        this.stopping.set(false);
         const failed = this.error_count();
         if (failed) {
             notifyError(
@@ -312,6 +336,8 @@ export class BulkMediaUploadModalComponent {
             );
             return;
         }
+        // Files not yet uploaded stay in the list to start again or close
+        if (stopped && this.remaining_count()) return;
         notifySuccess(
             i18n('SIGNAGE_MANAGER.BULK_UPLOAD_SUCCESS', {
                 count: this.done_count(),

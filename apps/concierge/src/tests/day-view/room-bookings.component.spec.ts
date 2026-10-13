@@ -1,11 +1,14 @@
+import { signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
-import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
+import {
+    createRoutingFactory,
+    SpectatorRouting,
+} from '@ngneat/spectator/vitest';
 import { OrganisationService, SettingsService } from '@placeos/common';
-import { signal } from '@angular/core';
 import { MockProvider } from 'ng-mocks';
 import { timer } from 'rxjs';
 
@@ -26,13 +29,15 @@ describe('RoomBookingsComponent', () => {
                 active_building: signal({ id: 'bld-1' }),
                 active_region: signal({ id: 'reg-1' }),
                 active_levels,
-                levelsForBuilding: jest.fn(() => active_levels()),
-                levelsForRegion: jest.fn(() => active_levels()),
-                levelWithID: jest.fn(),
+                levelsForBuilding: vi.fn(() => active_levels()),
+                levelsForRegion: vi.fn(() => active_levels()),
+                levelWithID: vi.fn(),
                 buildings: [{ id: 'bld-1', parent_id: 'reg-1' }],
-                binding: jest.fn(),
+                binding: vi.fn(),
             } as any),
             MockProvider(EventsStateService, {
+                load_error: signal(false),
+                failed_spaces: signal([]),
                 zones,
                 period: signal('day'),
                 date: signal(Date.now()),
@@ -41,16 +46,16 @@ describe('RoomBookingsComponent', () => {
                 spaces: signal([]),
                 loading: signal(false),
                 filters: {},
-                setZones: jest.fn((zone_ids: string[]) => zones.set(zone_ids)),
-                setPeriod: jest.fn(),
-                setFilters: jest.fn(),
-                setUIOptions: jest.fn(),
-                newBooking: jest.fn(),
-                getDate: jest.fn(() => Date.now()),
-            } as any),
+                setZones: vi.fn((zone_ids: string[]) => zones.set(zone_ids)),
+                setPeriod: vi.fn(),
+                setFilters: vi.fn(),
+                setUIOptions: vi.fn(),
+                newBooking: vi.fn(),
+                getDate: vi.fn(() => Date.now()),
+            }),
             MockProvider(SettingsService, {
-                get: ((_: string) => false) as any,
-            } as any),
+                get: (() => false) as any,
+            }),
         ],
         imports: [
             FormsModule,
@@ -69,13 +74,9 @@ describe('RoomBookingsComponent', () => {
         spectator.detectChanges();
     });
 
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
-
     it('should clear zone_ids query params when no levels are selected', () => {
         const router = spectator.inject(Router);
-        jest.spyOn(router, 'navigate');
+        vi.spyOn(router, 'navigate');
         spectator.component.updateZones([]);
         expect(
             spectator.inject(EventsStateService).setZones,

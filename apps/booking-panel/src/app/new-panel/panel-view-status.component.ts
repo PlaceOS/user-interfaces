@@ -3,17 +3,28 @@ import {
     Component,
     computed,
     inject,
+    signal,
 } from '@angular/core';
+import { AsyncHandler } from '@placeos/common';
 import { IconComponent, SafePipe, TranslatePipe } from '@placeos/components';
 import { PanelStateService } from '../panel-state.service';
-import { currentPeriod, nextPeriod } from './helpers';
+import {
+    currentPeriod,
+    formatCountdown,
+    nextPeriod,
+    releaseCountdown,
+} from './helpers';
 
 @Component({
     selector: 'panel-view-status',
     template: `
         @let s = state();
         @let es = event_state();
-        <div class="flex h-full w-full items-center justify-center">
+        <div
+            status-layout
+            class="flex h-full w-full items-center justify-center bg-[#424242]"
+            [style.padding-bottom]="show_floating_bottom ? '7rem' : null"
+        >
             <div
                 class="relative flex h-full flex-1 flex-col items-center justify-center text-white"
                 [class.bg-error]="s === 'busy'"
@@ -22,17 +33,20 @@ import { currentPeriod, nextPeriod } from './helpers';
                 [class.text-error-content]="s === 'busy'"
                 [class.text-success-content]="s === 'free'"
                 [class.text-warning-content]="s === 'pending'"
+                [class.pb-32]="reserve_actions"
             >
-                <div
-                    [innerHTML]="
-                        (s === 'busy'
-                            ? in_use_svg
-                            : s === 'pending'
-                              ? pending_svg
-                              : free_svg
-                        ) | safe
-                    "
-                ></div>
+                @if (!reserve_actions) {
+                    <div
+                        [innerHTML]="
+                            (s === 'busy'
+                                ? in_use_svg
+                                : s === 'pending'
+                                  ? pending_svg
+                                  : free_svg
+                            ) | safe
+                        "
+                    ></div>
+                }
                 <h3 class="mt-4 text-4xl font-medium uppercase">
                     {{ 'APP.BOOKING_PANEL.NOW' | translate }}
                 </h3>
@@ -107,9 +121,32 @@ import { currentPeriod, nextPeriod } from './helpers';
                         {{ 'APP.BOOKING_PANEL.NO_CURRENT' | translate }}
                     }
                 </p>
+                @let release = release_in();
+                @if (release !== null) {
+                    <p checkin-countdown class="mt-2 text-2xl font-medium">
+                        {{
+                            'APP.BOOKING_PANEL.RELEASES_IN'
+                                | translate: { time: countdown(release) }
+                        }}
+                    </p>
+                }
+                @if (people_detected) {
+                    <p
+                        presence
+                        class="mt-4 flex items-center space-x-2 rounded-full bg-black/20 px-4 py-1 text-xl"
+                    >
+                        <icon>groups</icon>
+                        <span>{{
+                            'APP.BOOKING_PANEL.PEOPLE_DETECTED' | translate
+                        }}</span>
+                    </p>
+                }
                 @if (s === 'pending' && can_book) {
                     <div
                         class="absolute inset-x-0 top-0 flex items-center justify-center space-x-4 bg-[#0008] p-4 text-2xl"
+                        [style.padding-left]="
+                            show_floating_left ? '9rem' : null
+                        "
                     >
                         <p class="uppercase">
                             {{
@@ -125,6 +162,9 @@ import { currentPeriod, nextPeriod } from './helpers';
                 @if (s === 'free' && can_book) {
                     <div
                         class="absolute inset-x-0 top-0 flex items-center justify-center space-x-4 bg-[#0008] p-4 text-2xl"
+                        [style.padding-left]="
+                            show_floating_left ? '9rem' : null
+                        "
                     >
                         <p class="uppercase">
                             {{
@@ -140,6 +180,9 @@ import { currentPeriod, nextPeriod } from './helpers';
                 @if (s === 'busy' && can_end) {
                     <div
                         class="absolute inset-x-0 top-0 flex items-center justify-center space-x-4 bg-[#0008] p-4 text-2xl"
+                        [style.padding-left]="
+                            show_floating_left ? '9rem' : null
+                        "
                     >
                         <p class="uppercase">
                             {{ 'APP.BOOKING_PANEL.END_INPUT' | translate }}
@@ -155,7 +198,7 @@ import { currentPeriod, nextPeriod } from './helpers';
                     [innerHTML]="(!es?.next ? free_svg : in_use_svg) | safe"
                 ></div>
                 <h3 class="text-4xl font-medium uppercase">
-                    {{ 'APP.BOOKING_PANEL.NEXT' | translate }}
+                    {{ 'COMMON.NEXT' | translate }}
                 </h3>
                 <p class="text-2xl font-light">
                     {{
@@ -176,8 +219,57 @@ import { currentPeriod, nextPeriod } from './helpers';
     changeDetection: ChangeDetectionStrategy.Eager,
     imports: [TranslatePipe, SafePipe, IconComponent],
 })
-export class PanelViewStatusComponent {
+export class PanelViewStatusComponent extends AsyncHandler {
     private _state = inject(PanelStateService);
+    private _now = signal(Date.now());
+
+    public readonly countdown = formatCountdown;
+
+    /**
+     * Milliseconds until the pending booking is released.
+     * `null` unless the `checkin_countdown` feature is on and the
+     * panel will release the booking.
+     */
+    public readonly release_in = computed(() => {
+        const current = this._state.current();
+        const settings = this._state.settings();
+        if (
+            !this._state.hasFeature('checkin_countdown') ||
+            this._state.status() !== 'pending' ||
+            !current ||
+            current.body?.includes('main_event_id') ||
+            settings.disable_end_meeting === true
+        ) {
+            return null;
+        }
+        return releaseCountdown(current, settings.pending_period, this._now());
+    });
+
+    constructor() {
+        super();
+        this.interval('now', () => this._now.set(Date.now()), 1000);
+    }
+
+    /**
+     * Whether to keep space for the action bar at the bottom of this column.
+     * The status icon is hidden to make room.
+     */
+    public get reserve_actions() {
+        return (
+            this._state.hasFeature('quick_book') ||
+            this._state.hasFeature('extend_meeting') ||
+            this._state.hasFeature('room_services')
+        );
+    }
+
+    /** Whether to show that sensors detect people in a free room */
+    public get people_detected() {
+        return (
+            this._state.hasFeature('presence_status') &&
+            this._state.status() === 'free' &&
+            this._state.setting('presence') === true
+        );
+    }
 
     public readonly state = this._state.status;
 
@@ -191,6 +283,24 @@ export class PanelViewStatusComponent {
 
     public get can_end() {
         return this._state.setting('enable_end_meeting_button') === true;
+    }
+
+    public get show_timeline() {
+        return this._state.setting('show_timeline') === true;
+    }
+
+    public get timeline_position() {
+        return this._state.setting('timeline_position') || 'floating-left';
+    }
+
+    public get show_floating_left() {
+        return this.show_timeline && this.timeline_position === 'floating-left';
+    }
+
+    public get show_floating_bottom() {
+        return (
+            this.show_timeline && this.timeline_position === 'floating-bottom'
+        );
     }
 
     public readonly event_state = computed(() => ({

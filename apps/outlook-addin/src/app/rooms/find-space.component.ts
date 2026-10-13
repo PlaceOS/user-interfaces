@@ -499,7 +499,7 @@ export class FindSpaceComponent extends AsyncHandler implements OnInit {
         () => this.selected_features()?.length || 0,
     );
     public readonly loading = this._state.loading;
-    public readonly spaces = this._state.available_spaces;
+    public readonly spaces = this._featuresFilterService.filtered_spaces;
     public readonly maps_list = this._mapService.maps_list;
     public readonly map_features = signal<ViewerFeature[]>([]);
     public readonly map_actions = this._mapService.map_actions;
@@ -530,7 +530,6 @@ export class FindSpaceComponent extends AsyncHandler implements OnInit {
     public readonly buildings = this._org.building_list;
 
     public readonly setBuilding = (b) => (this._org.building = b);
-    public readonly setOptions = (o) => this._state.setOptions(o);
 
     constructor() {
         super();
@@ -540,11 +539,6 @@ export class FindSpaceComponent extends AsyncHandler implements OnInit {
                 this.selected_level.set(maps);
             }
         });
-        effect(() =>
-            this.setOptions({
-                features: this._featuresFilterService.selected_features() || [],
-            }),
-        );
     }
 
     public async ngOnInit() {
@@ -576,17 +570,32 @@ export class FindSpaceComponent extends AsyncHandler implements OnInit {
     }
 
     public handleBookEvent(space: Space, book = true) {
-        this.book_space.update((state) => ({ ...state, [space.id]: book }));
+        this.book_space.set(book ? { [space.id]: true } : {});
         this._roomConfirmService.book_space = this.book_space();
         this._roomConfirmService.handleBookEvent(space, book);
-        this.show_room_details.set(true);
-        this._roomConfirmService.updateSelectedSpace(space);
+        this.show_room_details.set(book);
+        this._roomConfirmService.updateSelectedSpace(book ? space : null);
     }
 
     openFilter() {
         this.bottomSheetRef = this._bottomSheet.open(FilterSpaceComponent, {
             data: this.buildings(),
         });
+        this.subscription(
+            'filter-sheet',
+            this.bottomSheetRef.afterDismissed().subscribe((applied) => {
+                if (!applied) return;
+                void this.refreshMap();
+            }),
+        );
+    }
+
+    private async refreshMap() {
+        await this._mapService.locateSpaces(this.spaces());
+        this._mapService.processFeature();
+        this.selected_level.set(this.maps_list());
+        this.processStyles();
+        this.map_features.set(this._mapService.map_features());
     }
 
     openRoomDetails() {

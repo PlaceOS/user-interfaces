@@ -3,10 +3,6 @@ import {
     AuthorisedUserGuard,
     UnauthorisedComponent,
 } from '@placeos/components';
-import { BootstrapComponent } from './bootstrap.component';
-import { DeskBookingComponent } from './desk-booking.component';
-import { ExploreComponent } from './explore.component';
-import { ParkingComponent } from './parking.component';
 
 export const routes: Routes = [
     {
@@ -15,22 +11,28 @@ export const routes: Routes = [
     },
     {
         path: 'bootstrap',
-        component: BootstrapComponent,
+        loadComponent: () =>
+            import('./bootstrap.component').then((m) => m.BootstrapComponent),
         canActivate: [AuthorisedUserGuard],
     },
     {
         path: 'explore',
-        component: ExploreComponent,
+        loadComponent: () =>
+            import('./explore.component').then((m) => m.ExploreComponent),
         canActivate: [AuthorisedUserGuard],
     },
     {
         path: 'desks',
-        component: DeskBookingComponent,
+        loadComponent: () =>
+            import('./desk-booking.component').then(
+                (m) => m.DeskBookingComponent,
+            ),
         canActivate: [AuthorisedUserGuard],
     },
     {
         path: 'parking',
-        component: ParkingComponent,
+        loadComponent: () =>
+            import('./parking.component').then((m) => m.ParkingComponent),
         canActivate: [AuthorisedUserGuard],
     },
     { path: '**', redirectTo: 'bootstrap' },

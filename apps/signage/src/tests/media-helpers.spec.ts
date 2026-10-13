@@ -1,6 +1,8 @@
 import { MediaAnimation } from '@placeos/ts-client';
 import {
     findValidPlaylistIndex,
+    isMediaValid,
+    mediaAnimation,
     mockTimeState,
     setMockTime,
     time,
@@ -24,6 +26,22 @@ const create_item = (
     valid_from: valid ? 0 : Math.floor(Date.now() / 1000) + 3600,
     valid_until: 0,
     getURL: async () => '',
+});
+
+describe('API media animations', () => {
+    it.each([
+        [1, MediaAnimation.Cut],
+        [2, MediaAnimation.CrossFade],
+        [0, MediaAnimation.Default],
+        [MediaAnimation.Cut, MediaAnimation.Cut],
+        [MediaAnimation.CrossFade, MediaAnimation.CrossFade],
+        [-1, MediaAnimation.Default],
+        [1.5, MediaAnimation.Default],
+        [999, MediaAnimation.Default],
+        [undefined, MediaAnimation.Default],
+    ])('converts %s to %s', (value, expected) => {
+        expect(mediaAnimation(value)).toBe(expected);
+    });
 });
 
 function formatTestTime(date: number) {
@@ -74,17 +92,17 @@ describe('time helpers', () => {
     });
 
     it('returns a progressing mocked time when progress is enabled', () => {
-        jest.spyOn(Date, 'now').mockReturnValue(2000);
+        vi.spyOn(Date, 'now').mockReturnValue(2000);
         setMockTime(1000, true);
-        jest.spyOn(Date, 'now').mockReturnValue(2600);
+        vi.spyOn(Date, 'now').mockReturnValue(2600);
 
         expect(time()).toBe(1600);
     });
 
     it('returns a progressing mocked time at the selected speed', () => {
-        jest.spyOn(Date, 'now').mockReturnValue(2000);
+        vi.spyOn(Date, 'now').mockReturnValue(2000);
         setMockTime(1000, 4);
-        jest.spyOn(Date, 'now').mockReturnValue(2600);
+        vi.spyOn(Date, 'now').mockReturnValue(2600);
 
         expect(time()).toBe(3400);
     });
@@ -95,7 +113,25 @@ describe('time helpers', () => {
         expect(mockTimeState().active).toBe(true);
         expect(mockTimeState().speed).toBe(0.5);
     });
+});
 
+describe('isMediaValid', () => {
+    it('agrees with validateMedia', () => {
+        const now = Date.now();
+        const expired = create_item('expired', true);
+        expired.valid_until = Math.floor((now - 60 * 1000) / 1000);
+        const items = [
+            create_item('valid', true),
+            create_item('future', false),
+            expired,
+            create_item('', true),
+            null,
+        ];
+
+        for (const item of items) {
+            expect(isMediaValid(item)).toBe(validateMedia(item) === '');
+        }
+    });
 });
 
 describe('validateMedia', () => {
@@ -174,9 +210,9 @@ describe('validateMedia', () => {
     });
 
     it('returns detailed errors for missing media data', () => {
-        expect(validateMedia(null as any)).toBe(
-            'Invalid media: missing media data.',
+        expect(validateMedia(null)).toBe('Invalid media: missing media data.');
+        expect(validateMedia({} as any)).toBe(
+            'Invalid media: missing media ID.',
         );
-        expect(validateMedia({} as any)).toBe('Invalid media: missing media ID.');
     });
 });

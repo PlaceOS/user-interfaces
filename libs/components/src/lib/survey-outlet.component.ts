@@ -401,7 +401,7 @@ export class SurveyOutletComponent
 
     public toggleOption(question_id: string, value: string, state: boolean) {
         let list = this.form().value[question_id];
-        list = list.filter((_: any) => _ !== value);
+        list = list.filter((_: unknown) => _ !== value);
         if (state) list.push(value);
         this.form().patchValue({ [question_id]: list });
     }
@@ -417,7 +417,7 @@ export class SurveyOutletComponent
             if (value !== null && value !== undefined) {
                 answers.push({
                     survey_id: +`${this.survey().id}`,
-                    question_id: +`${q_id as any}`,
+                    question_id: +`${q_id}`,
                     type: this.questions[q_id].type,
                     answer_json: value,
                 });
@@ -454,6 +454,8 @@ export class SurveyOutletComponent
         if (!requests.length) return;
         const questions = await Promise.all(requests);
         for (const q of questions) {
+            // The API can return `{}` for questions created without choices.
+            if (!Array.isArray(q.choices)) q.choices = [];
             this.questions[q.id] = q;
             if (q.type === 'rating') {
                 q.options = new Array(q.max_rating)

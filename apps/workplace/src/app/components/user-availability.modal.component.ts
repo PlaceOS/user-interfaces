@@ -191,7 +191,6 @@ export class UserAvailabilityModalComponent
                         period_end,
                         calendars: user.email,
                     })
-                        .toPromise()
                         .then((res) =>
                             res.map((i) => ({
                                 start: new Date(i.date).getHours(),

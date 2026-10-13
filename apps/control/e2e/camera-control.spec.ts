@@ -18,7 +18,7 @@ async function ensurePoweredOn(page) {
         .waitFor({ timeout: LOAD_TIMEOUT });
 
     // Wait for system to be connected (splash or topbar visible)
-    const splash = page.locator('div[name="splash"]');
+    const splash = page.locator('[name="splash"]');
     const topbar = page.locator('topbar-header');
 
     await Promise.race([

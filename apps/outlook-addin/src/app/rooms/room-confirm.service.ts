@@ -1,7 +1,7 @@
-import { Injectable, inject, signal } from '@angular/core';
+import { inject, Injectable, signal } from '@angular/core';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { Router } from '@angular/router';
-import { HashMap, Space } from '@placeos/common';
+import { errorMessage, HashMap, notifyError, Space } from '@placeos/common';
 import { EventFormService, SpacePipe, SpacesService } from '@placeos/events';
 import { RoomConfirmComponent } from './room-confirm.component';
 import { RoomDetailsComponent } from './room-details.component';
@@ -11,7 +11,7 @@ import { RoomDetailsComponent } from './room-details.component';
 })
 export class RoomConfirmService {
     private _bottomSheet = inject(MatBottomSheet);
-    private router = inject(Router);
+    private _router = inject(Router);
     private _state = inject(EventFormService);
     private _spaces = inject(SpacesService);
     private _space_pipe = new SpacePipe();
@@ -20,7 +20,7 @@ export class RoomConfirmService {
     public book_space: HashMap<boolean> = {};
     public space_list: Space[] = [];
 
-    public readonly selected_space = signal<Space>(null);
+    public readonly selected_space = signal<Space | null>(null);
 
     public get form() {
         return this._state.form;
@@ -37,28 +37,26 @@ export class RoomConfirmService {
         this.space_list = this._spaces.filter((s) => this.book_space[s.id]);
     }
 
-    async openRoomDetail(space = this.selected_space()) {
+    openRoomDetail(space = this.selected_space()) {
         const room_details_ref = this._bottomSheet.open(RoomDetailsComponent, {
             data: space,
         });
 
-        await room_details_ref
-            .afterDismissed()
-            .subscribe((selectedSpace) =>
-                selectedSpace ? this.openRoomConfirm(selectedSpace) : null,
-            );
+        room_details_ref.afterDismissed().subscribe((selected_space) => {
+            if (selected_space) this.openRoomConfirm(selected_space);
+        });
     }
 
-    openRoomConfirm(space?) {
+    openRoomConfirm(space?: Space) {
         if (space) {
-            const confirm_ref = this._bottomSheet.open(RoomConfirmComponent, {
+            this._bottomSheet.open(RoomConfirmComponent, {
                 data: space,
             });
         }
     }
 
-    updateSelectedSpace(space?) {
-        if (space) this.selected_space.set(space);
+    updateSelectedSpace(space: Space | null) {
+        this.selected_space.set(space);
     }
 
     handleBookEvent(space: Space, book: boolean = true) {
@@ -66,7 +64,9 @@ export class RoomConfirmService {
         this.book_space[space.id] = book;
     }
 
-    async bookRoom(space?) {
+    async bookRoom(space?: Space): Promise<boolean> {
+        if (!space) return false;
+        this.handleBookEvent(space);
         const id_list = Object.keys(this.book_space).filter(
             (id) => this.book_space[id],
         );
@@ -79,12 +79,17 @@ export class RoomConfirmService {
             system: spaces[0],
         }));
         this.space_list = this._spaces.filter((s) => this.book_space[s.id]);
-        this.postForm();
+        return this.postForm();
     }
 
-    async postForm() {
-        await this._state.postForm().catch((err) => console.error(err));
-        if (this._state.last_success)
-            this.router.navigate(['/confirm/success']);
+    async postForm(): Promise<boolean> {
+        try {
+            await this._state.postForm();
+            await this._router.navigate(['/confirm/success']);
+            return true;
+        } catch (error) {
+            notifyError(errorMessage(error) || 'Unable to book the room.');
+            return false;
+        }
     }
 }

@@ -8,17 +8,24 @@ import {
     Signal,
     signal,
 } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
+import {
+    deleteDeskAsset,
+    deskFromAsset,
+    queryDeskAssets,
+    queryDeskAssetsForZones,
+    saveDeskAsset,
+} from '@placeos/assets';
 import {
     approveBooking,
-    checkinBooking,
+    cancelOverlappingRecurringBookings,
     queryBookings,
     queryPagedBookings,
     rejectBooking,
     rejectBookingInstance,
-    rejectOverlappingRecurringBookings,
     removeBooking,
     saveBooking,
+    setBookingCheckedIn,
     updateBooking,
 } from '@placeos/bookings';
 import {
@@ -26,10 +33,10 @@ import {
     Booking,
     BuildingLevel,
     Desk,
-    generateQRCode,
+    downloadFile,
     getTimezoneDifferenceInHours,
     i18n,
-    nextValueFrom,
+    jsonToCsv,
     notifyError,
     notifyInfo,
     notifySuccess,
@@ -42,6 +49,7 @@ import {
 } from '@placeos/common';
 import {
     listChildMetadata,
+    PlaceZone,
     QueryResponse,
     showMetadata,
     updateMetadata,
@@ -55,22 +63,20 @@ import {
     subDays,
 } from 'date-fns';
 
-import { openConfirmModal } from '@placeos/components';
+import { openConfirmModal, runBulkAction } from '@placeos/components';
+import { BookingHistoryModalComponent } from '../ui/booking-history-modal.component';
+import { bulkRejectOptions } from '../ui/bulk-booking-actions';
+import {
+    canChangeDeskBooking,
+    isDeskBookingRejected,
+} from './desk-booking-actions';
+import {
+    assignmentChanged,
+    deskModalResult,
+    isConflict,
+    upsertDesk,
+} from './desk-edit';
 import { DeskModalComponent } from './desk-modal.component';
-
-function addQRCodeToBooking(booking: Booking): Booking {
-    return new Booking({
-        ...booking,
-        extension_data: {
-            ...booking.extension_data,
-            checkin_qr_code: generateQRCode(
-                `/workplace/#/book/code?asset_id=${encodeURIComponent(
-                    booking.asset_id,
-                )}`,
-            ),
-        },
-    });
-}
 
 export type DeskView = 'manage' | 'events' | 'map';
 
@@ -105,6 +111,9 @@ export class DesksStateService extends AsyncHandler {
     );
 
     public readonly loading = this._loading.asReadonly();
+    private readonly _load_error = signal(false);
+    /** Whether the latest load of bookings failed */
+    public readonly load_error = this._load_error.asReadonly();
     public readonly filters = this._filters.asReadonly();
     public readonly print_desk = signal<DeskQrItem | null>(null);
 
@@ -127,6 +136,7 @@ export class DesksStateService extends AsyncHandler {
             change: this._change(),
             building: this._org.active_building()?.id,
             region: this._org.active_region()?.id,
+            use_assets: !!this._settings.get('app.desks.use_assets'),
         }),
         {
             equal: (a, b) =>
@@ -134,39 +144,77 @@ export class DesksStateService extends AsyncHandler {
                 a.change === b.change &&
                 a.building === b.building &&
                 a.region === b.region &&
+                a.use_assets === b.use_assets &&
                 a.zones.join(',') === b.zones.join(','),
         },
     );
     private readonly _desk_params_debounced = debounced(this._desk_params, 300);
 
-    /** List of desks for the active management zone */
+    /** List of desks for the active management levels */
     private readonly _desks = resource({
         params: () => this._desk_params_debounced.value(),
         defaultValue: [] as Desk[],
         loader: async ({ params }) => {
-            // Only load desk metadata when on manage view
-            if (params.view !== 'manage') return [];
+            if (params.view !== 'manage' && params.view !== 'events') return [];
             this._loading.set(true);
             try {
                 const zones = this._getActiveZones(params.zones);
+                if (params.use_assets) {
+                    const level_ids =
+                        zones.length && !params.zones.includes('All')
+                            ? zones
+                            : this._currentLevelList().map((level) => level.id);
+                    const levels = new Map(
+                        this._currentLevelList().map((level) => [
+                            level.id,
+                            level,
+                        ]),
+                    );
+                    const assets = await queryDeskAssetsForZones(level_ids);
+                    return assets
+                        .map((asset) =>
+                            deskFromAsset(asset, levels.get(asset.zone_id)),
+                        )
+                        .sort((a, b) => a.name.localeCompare(b.name));
+                }
                 let list: any[] = [];
-                if (zones && !zones.includes('All')) {
-                    const metadata = await showMetadata(
-                        zones[0],
-                        'desks',
-                    ).catch(() => ({ details: [] }) as any);
-                    list =
-                        metadata.details instanceof Array
-                            ? metadata.details
-                            : [];
+                if (zones.length && !params.zones.includes('All')) {
+                    const metadata = await Promise.all(
+                        zones.map(async (zone) => ({
+                            zone,
+                            details: await showMetadata(zone, 'desks')
+                                .then((item) =>
+                                    item.details instanceof Array
+                                        ? item.details
+                                        : [],
+                                )
+                                .catch(() => []),
+                        })),
+                    );
+                    list = metadata.flatMap(({ zone, details }) =>
+                        details.map((item) => ({
+                            ...item,
+                            zone: { id: zone },
+                        })),
+                    );
                 } else {
                     const metadata = await listChildMetadata(
                         this._org.building?.id,
                         { name: 'desks' },
-                    ).catch(() => [] as any[]);
+                    ).catch(() => [] as unknown[]);
+                    // Tag each desk with its level so per-desk saves can
+                    // target the correct zone when viewing all levels.
                     list = metadata
-                        .map((i) => i.metadata?.desks?.details || [])
-                        .reduce((c: any[], i: any[]) => [...c, ...i], []);
+                        .map((item) =>
+                            (item.metadata?.desks?.details instanceof Array
+                                ? item.metadata.desks.details
+                                : []
+                            ).map((i) => ({ ...i, zone: item.zone })),
+                        )
+                        .reduce(
+                            (c: unknown[], i: unknown[]) => [...c, ...i],
+                            [],
+                        );
                 }
                 if (!(list instanceof Array)) list = [];
                 list.sort((a, b) => a.name?.localeCompare(b.name));
@@ -180,12 +228,24 @@ export class DesksStateService extends AsyncHandler {
 
     /** List of levels with bookable desk resources */
     private readonly _levels = resource({
-        params: () => this._org.active_levels(),
+        params: () => ({
+            levels: this._org.active_levels(),
+            use_assets: !!this._settings.get('app.desks.use_assets'),
+        }),
         defaultValue: [] as BuildingLevel[],
-        loader: async ({ params: levels }) => {
+        loader: async ({ params: { levels, use_assets } }) => {
             if (!levels.length) return [];
             const results = await Promise.all(
                 levels.map(async (level) => {
+                    if (use_assets) {
+                        const desks = await queryDeskAssets(level.id).catch(
+                            () => [],
+                        );
+                        return {
+                            level,
+                            has_bookable: desks.some((desk) => desk.bookable),
+                        };
+                    }
                     const metadata = await showMetadata(
                         level.id,
                         'desks',
@@ -216,7 +276,20 @@ export class DesksStateService extends AsyncHandler {
     public readonly has_more_pages = computed(
         () => this.paged_bookings().has_next,
     );
-    public readonly bookings = computed(() => this.paged_bookings().list);
+    public readonly bookings = computed(() => {
+        const desks = new Map(this.desks().map((desk) => [desk.id, desk]));
+        const bookings = this.paged_bookings().list;
+        for (const booking of bookings) {
+            Object.assign(booking, {
+                asset_name:
+                    desks.get(booking.asset_id)?.name || booking.asset_id,
+            });
+        }
+        return [...bookings];
+    });
+    /** Time the booking list last finished loading from the server */
+    private readonly _last_updated = signal(0);
+    public readonly last_updated = this._last_updated.asReadonly();
 
     /** Query for the first page of bookings for the active filters */
     private _first_page: (() => QueryResponse<Booking>) | null = null;
@@ -274,11 +347,13 @@ export class DesksStateService extends AsyncHandler {
         const period_start = addMinutes(startOfDay(date), this.tz_offset * 60);
         const period_end = addMinutes(endOfDay(date), this.tz_offset * 60);
         const active_zones = this._getActiveZones(filters.zones);
-        const zones = !active_zones.length
+        const all_zones =
+            !active_zones.length || filters.zones?.includes('All');
+        const zones = all_zones
             ? this._settings.get('app.use_region')
                 ? this._org.buildingsForRegion().map((_) => _.id)
                 : [this._org.building.id]
-            : filters.zones;
+            : active_zones;
         return () =>
             queryPagedBookings({
                 period_start: getUnixTime(period_start),
@@ -287,8 +362,8 @@ export class DesksStateService extends AsyncHandler {
                 zones: zones.join(','),
                 include_checked_out: true,
                 include_deleted: true,
-                limit: 500,
-            } as any);
+                limit: 200,
+            });
     }
 
     /**
@@ -309,21 +384,24 @@ export class DesksStateService extends AsyncHandler {
         }
         const token = ++this._load_token;
         this._loading.set(true);
-        const resp: any = await Promise.resolve(fetch()).catch(() => ({
-            data: [],
-            total: 0,
-            next: null,
-        }));
+        let failed = false;
+        const resp = await Promise.resolve(fetch()).catch(() => {
+            failed = true;
+            return { data: [], total: 0, next: null };
+        });
         if (token !== this._load_token) return;
+        this._load_error.set(failed);
         const { data = [], total = 0, next = null } = resp || {};
         const list = data.map((booking) => this._normaliseBooking(booking));
-        this._next_page_fn = next;
+        const has_next = list.length > 0 && !!next;
+        this._next_page_fn = has_next ? next : null;
         this._bookings_state.update((acc) =>
             reset
-                ? { list, total, has_next: list.length < total && !!next }
-                : { list: [...acc.list, ...list], total, has_next: !!next },
+                ? { list, total, has_next: list.length < total && has_next }
+                : { list: [...acc.list, ...list], total, has_next },
         );
         this._loading.set(false);
+        this._last_updated.set(Date.now());
     }
 
     private _normaliseBooking(booking: Booking) {
@@ -363,143 +441,183 @@ export class DesksStateService extends AsyncHandler {
         this._loadPage(true);
     }
 
-    public async addDesks(list: Desk[]) {
-        const zone = this._filters().zones[0];
-        const desk_list = [...this.desks()];
-        for (const desk of list) {
-            const idx = desk_list.findIndex((_) => _.id === desk.id);
-            if (idx >= 0) desk_list[idx] = desk;
-            else desk_list.push(desk);
-        }
-        await updateMetadata(zone, {
-            name: 'desks',
-            details: desk_list,
-            description: 'List of available desks',
+    /** Download the current desk list as a CSV file */
+    public downloadDesksCSV() {
+        const desks = this.desks();
+        const rows = (
+            desks.length
+                ? desks
+                : [
+                      new Desk({
+                          id: 'desk-123',
+                          name: 'Test Desk',
+                          bookable: true,
+                          groups: ['test-desk-group', 'desk-bookers'],
+                          features: ['Standing Desk', 'Dual Monitor'],
+                      }),
+                  ]
+        ).map((desk) => {
+            const row: any = desk.toJSON();
+            delete row.images;
+            return row;
         });
+        downloadFile('desks.csv', jsonToCsv(rows));
+    }
+
+    public async addDesks(list: Desk[]) {
+        const selected_zones = this._getSelectedZones();
+        const all_zones = this._filters().zones?.includes('All');
+        const fallback_zone =
+            !all_zones && selected_zones.length ? selected_zones[0] : '';
+        // Group the desks by their level so each level's metadata is only
+        // written with its own desks.
+        const groups = new Map<string, Desk[]>();
+        for (const desk of list) {
+            const zone = desk.zone?.id || fallback_zone;
+            if (!zone) {
+                notifyError(i18n('APP.CONCIERGE.DESKS_SELECT_LEVEL'));
+                return;
+            }
+            groups.set(zone, [...(groups.get(zone) || []), desk]);
+        }
+        for (const [zone, desks] of groups) {
+            if (this._settings.get('app.desks.use_assets')) {
+                const asset_zones = this._deskAssetZones(zone);
+                await Promise.all(
+                    desks.map((desk) => saveDeskAsset(desk, zone, asset_zones)),
+                );
+                continue;
+            }
+            const desk_list = await this._storedDeskList(zone);
+            for (const desk of desks) {
+                const idx = desk_list.findIndex((_) => _.id === desk.id);
+                if (idx >= 0) desk_list[idx] = desk;
+                else desk_list.push(desk);
+            }
+            await updateMetadata(zone, {
+                name: 'desks',
+                details: desk_list,
+                description: 'List of available desks',
+            });
+        }
         this._change.set(Date.now());
     }
 
+    /** Remove one desk from the configured resource store. */
+    public async removeDesk(desk: Desk, zone_id: string) {
+        if (this._settings.get('app.desks.use_assets')) {
+            await deleteDeskAsset(desk.id);
+        } else {
+            const updated_desks = (await this._storedDeskList(zone_id)).filter(
+                (_) => _.id !== desk.id,
+            );
+            await updateMetadata(zone_id, {
+                name: 'desks',
+                description: 'desks',
+                details: updated_desks,
+            });
+        }
+        this._change.set(Date.now());
+    }
+
+    /**
+     * Open the desk modal and save the result. Moves the desk's assigned
+     * booking when the assignee or ID changes, and rolls back the desk save
+     * when that fails.
+     */
     public async editDesk(desk: Desk = new Desk()) {
-        const ref = this._dialog.open(DeskModalComponent, { data: { desk } });
-        const state = await Promise.race([
-            nextValueFrom(ref.afterClosed()),
-            new Promise<any>((resolve) => {
-                const sub = ref.componentInstance.event.subscribe((event) => {
-                    if (event?.reason !== 'done') return;
-                    sub.unsubscribe();
-                    resolve(event);
-                });
-            }),
-        ]);
+        const levels = this._currentLevelList();
+        const zone_id =
+            desk.zone?.id || this._getSelectedZones()[0] || levels[0]?.id || '';
+        const ref = this._dialog.open(DeskModalComponent, {
+            data: { desk, levels, zone_id },
+        });
+        const state = await deskModalResult(ref);
         if (state?.reason !== 'done') return;
-        const zone = this._filters().zones[0];
-        const new_desk = {
-            ...state.metadata,
-            id:
-                state.metadata.id ||
-                `desk-${zone.slice(-3)}.${randomInt(999_999)}`,
-        };
-        const original_desk_list = [...this.desks()];
-        const desk_list = [...original_desk_list];
-        const idx = desk_list.findIndex((_) => _.id === desk.id);
-        if (idx >= 0) desk_list[idx] = new_desk;
-        else desk_list.push(new_desk);
-        if (
-            new_desk.assigned_to &&
-            (desk.assigned_to !== new_desk.assigned_to ||
-                desk.id !== new_desk.id)
-        ) {
-            try {
-                await this._checkAssignedDeskLimit(
-                    new_desk.assigned_to,
-                    desk.id,
-                );
-            } catch (error) {
+        const { zone_id: selected_zone_id, ...desk_metadata } = state.metadata;
+        const zone = desk.zone?.id || selected_zone_id || zone_id;
+        if (!zone) {
+            notifyError(i18n('APP.CONCIERGE.DESKS_SELECT_LEVEL'));
+            return;
+        }
+        const use_assets = this._settings.get('app.desks.use_assets');
+        const new_desk = this._editedDesk(
+            desk,
+            desk_metadata,
+            zone,
+            use_assets,
+        );
+        const original_desk_list = await this._levelDeskList(
+            zone,
+            use_assets,
+        ).catch((e) => this._failDeskSave(ref, e));
+        const desk_list = upsertDesk(original_desk_list, desk.id, new_desk);
+        // Saving would store two desks with the same ID on this level.
+        if (desk_list.filter((_) => _.id === new_desk.id).length > 1) {
+            notifyError(`A desk with the ID "${new_desk.id}" already exists.`);
+            ref.componentInstance.loading.set(false);
+            ref.close();
+            return;
+        }
+        if (new_desk.assigned_to && assignmentChanged(desk, new_desk)) {
+            await this._checkAssignedDeskLimit(
+                new_desk.assigned_to,
+                desk.id,
+            ).catch((error) => {
                 notifyError(
                     error instanceof Error ? error.message : `${error}`,
                 );
                 ref.componentInstance.loading.set(false);
                 ref.close();
                 throw error;
-            }
-        }
-        try {
-            await updateMetadata(zone, {
-                name: 'desks',
-                details: desk_list,
-                description: 'List of available desks',
             });
-        } catch (e) {
-            notifyError(i18n('APP.CONCIERGE.DESKS_SAVE_ERROR', { error: e }));
-            ref.componentInstance.loading.set(false);
-            throw e;
         }
+        const saved_desk = await this._saveEditedDesk(
+            new_desk,
+            zone,
+            desk_list,
+            use_assets,
+        ).catch((e) => this._failDeskSave(ref, e));
+        const rollback = () =>
+            this._rollbackDeskSave(zone, original_desk_list, desk, saved_desk);
         let recreate = false;
-        if (
-            desk.assigned_to &&
-            (desk.assigned_to !== new_desk.assigned_to ||
-                desk.id !== new_desk.id)
-        ) {
-            try {
-                await this._clearAssignedBooking(desk);
-            } catch (e) {
-                await this._rollbackMetadata(zone, original_desk_list);
-                notifyError(
-                    i18n('APP.CONCIERGE.DESKS_SAVE_ERROR', { error: e }),
-                );
-                ref.componentInstance.loading.set(false);
-                throw e;
-            }
+        if (desk.assigned_to && assignmentChanged(desk, saved_desk)) {
+            await this._clearAssignedBooking(desk).catch(async (e) => {
+                await rollback();
+                return this._failDeskSave(ref, e);
+            });
             recreate = true;
         }
         if (
-            (desk.assigned_to !== new_desk.assigned_to || recreate) &&
-            new_desk.assigned_to
+            saved_desk.assigned_to &&
+            (recreate || desk.assigned_to !== saved_desk.assigned_to)
         ) {
-            const created = await saveBooking(
-                this._createAssignedBooking(new_desk, zone),
-            ).catch(async (e) => {
-                await this._rollbackMetadata(zone, original_desk_list);
-                if (recreate) {
-                    await this._restoreAssignedBooking(desk, zone).catch(
-                        (restore_err) =>
-                            console.error(
-                                'Failed to restore assigned booking during rollback',
-                                restore_err,
-                            ),
-                    );
-                }
-                if (e?.status === 409) {
-                    notifyError(
-                        i18n('APP.CONCIERGE.DESKS_ASSIGN_CONFLICT_ERROR'),
-                    );
-                } else {
-                    notifyError(
-                        i18n('APP.CONCIERGE.DESKS_SAVE_ERROR', {
-                            error: e,
-                        }),
-                    );
-                }
-                ref.componentInstance.loading.set(false);
-                throw e;
-            });
-            // Reject the assignee's overlapping ad-hoc desk bookings over the
-            // next 4 weeks now that they have a recurring desk assigned.
-            if (created?.id) {
-                await rejectOverlappingRecurringBookings(created, 'desk').catch(
-                    () => [],
-                );
-            }
+            await this._saveAssignedBooking(
+                desk,
+                saved_desk,
+                zone,
+                recreate,
+                rollback,
+            ).catch((e) =>
+                this._failDeskSave(
+                    ref,
+                    e,
+                    isConflict(e)
+                        ? i18n('APP.CONCIERGE.DESKS_ASSIGN_CONFLICT_ERROR')
+                        : undefined,
+                ),
+            );
         }
         this._change.set(Date.now());
         ref.close();
     }
 
     public async checkinDesk(desk: Booking, state = true) {
-        const status: any = await checkinBooking(desk.id, state ?? true).catch(
+        if (!canChangeDeskBooking(this._normaliseBooking(desk))) return;
+        const status = await setBookingCheckedIn(desk, state ?? true).catch(
             (_) => ({ failed: true, error: _ }),
         );
-        if (status.failed) {
+        if ('failed' in status) {
             notifyError(
                 i18n(
                     state
@@ -510,6 +628,12 @@ export class DesksStateService extends AsyncHandler {
             );
             throw status.error;
         }
+        Object.assign(desk, {
+            checked_in: status.checked_in,
+            checked_in_at: status.checked_in_at,
+            checked_out_at: status.checked_out_at,
+            status: status.status,
+        });
         notifySuccess(
             i18n(
                 state
@@ -520,6 +644,7 @@ export class DesksStateService extends AsyncHandler {
     }
 
     public async approveDesk(desk: Booking) {
+        if (!canChangeDeskBooking(this._normaliseBooking(desk))) return;
         const status: any = await approveBooking(desk.id).catch((_) => ({
             failed: true,
             error: _,
@@ -540,6 +665,7 @@ export class DesksStateService extends AsyncHandler {
     }
 
     public async rejectDesk(desk: Booking) {
+        if (!canChangeDeskBooking(this._normaliseBooking(desk))) return;
         const status: any = await this._rejectDeskBooking(desk).catch((_) => ({
             failed: true,
             error: _,
@@ -560,6 +686,7 @@ export class DesksStateService extends AsyncHandler {
     }
 
     public async cancelBooking(booking: Booking, series = false) {
+        if (isDeskBookingRejected(this._normaliseBooking(booking))) return;
         const result = await openConfirmModal(
             {
                 title: i18n(
@@ -600,12 +727,35 @@ export class DesksStateService extends AsyncHandler {
         });
         notifySuccess(i18n('APP.CONCIERGE.DESKS_BOOKING_DELETE_SUCCESS'));
         result.close();
-        this.setFilters({});
+        this._bookings_state.update((state) => ({
+            ...state,
+            list: state.list.map((item) => {
+                const is_deleted = series
+                    ? item.id === booking_id || item.parent_id === booking_id
+                    : this._bookingKey(item) === this._bookingKey(booking);
+                return is_deleted
+                    ? new Booking({
+                          ...item,
+                          deleted: true,
+                          status: 'cancelled',
+                      })
+                    : item;
+            }),
+        }));
+    }
+
+    public viewBookingHistory(booking: Booking) {
+        if (!booking) return;
+        this._dialog.open(BookingHistoryModalComponent, {
+            data: { booking },
+            width: '32rem',
+            maxWidth: '100vw',
+        });
     }
 
     public async giveAccess(desk: Booking) {
         const status: any = await saveBooking(
-            new Booking({ ...desk, access: true }),
+            new Booking({ ...desk, access: true }).toJSON(),
         ).catch((_) => ({ failed: true, error: _ }));
         if (status.failed) {
             return notifyError(
@@ -619,7 +769,9 @@ export class DesksStateService extends AsyncHandler {
     }
 
     public async rejectAllDesks() {
-        const list = this.bookings();
+        const list = this.bookings().filter((desk) =>
+            canChangeDeskBooking(this._normaliseBooking(desk)),
+        );
         if (list.length <= 0)
             return notifyInfo('No desks to reject for the selected date');
         const resp = await openConfirmModal(
@@ -658,6 +810,29 @@ export class DesksStateService extends AsyncHandler {
         this.refresh();
     }
 
+    /**
+     * Approve or reject several bookings. Asks before it rejects.
+     * @returns `false` if the user cancelled
+     */
+    public async setBookingsApproval(bookings: Booking[], approve: boolean) {
+        const list = bookings.filter((desk) =>
+            canChangeDeskBooking(this._normaliseBooking(desk)),
+        );
+        const failed = await runBulkAction(
+            list,
+            async (desk) => {
+                await (approve
+                    ? approveBooking(desk.id)
+                    : this._rejectDeskBooking(desk));
+                this._setBookingStatus(desk, approve ? 'approved' : 'declined');
+            },
+            approve ? {} : bulkRejectOptions(list.length, this._dialog),
+        );
+        if (failed === null) return false;
+        this.refresh();
+        return true;
+    }
+
     private _rejectDeskBooking(desk: Booking) {
         return desk.instance
             ? rejectBookingInstance(desk.id, desk.instance)
@@ -688,38 +863,192 @@ export class DesksStateService extends AsyncHandler {
         );
         if (!max_assigned_count || !user_email) return;
         const email = user_email.toLowerCase();
-        const assigned_count = (
-            await Promise.all(
-                this._currentLevelList().map((level) =>
-                    showMetadata(level.id, 'desks')
-                        .then((metadata) =>
-                            metadata.details instanceof Array
-                                ? metadata.details
-                                : [],
-                        )
-                        .catch(() => []),
-                ),
-            )
-        )
-            .flat()
-            .filter(
-                (item: Partial<Desk>) =>
-                    item.id !== current_desk_id &&
-                    item.assigned_to?.toLowerCase() === email,
-            ).length;
+        const levels = this._currentLevelList();
+        const desks = this._settings.get('app.desks.use_assets')
+            ? await queryDeskAssetsForZones(levels.map((level) => level.id))
+            : (
+                  await Promise.all(
+                      levels.map((level) =>
+                          showMetadata(level.id, 'desks')
+                              .then((metadata) =>
+                                  metadata.details instanceof Array
+                                      ? metadata.details
+                                      : [],
+                              )
+                              .catch(() => []),
+                      ),
+                  )
+              ).flat();
+        const assigned_count = desks.filter(
+            (item: Partial<Desk>) =>
+                item.id !== current_desk_id &&
+                item.assigned_to?.toLowerCase() === email,
+        ).length;
         if (assigned_count >= max_assigned_count) {
-            const key =
-                max_assigned_count === 1
-                    ? 'APP.CONCIERGE.DESKS_ASSIGN_LIMIT_ERROR_1'
-                    : 'APP.CONCIERGE.DESKS_ASSIGN_LIMIT_ERROR_N';
-            const message = i18n(key, { count: max_assigned_count });
+            const key = 'APP.CONCIERGE.DESKS_ASSIGN_LIMIT_ERROR';
+            const message = i18n(
+                key,
+                { count: max_assigned_count },
+                max_assigned_count,
+            );
             throw !message || message === key
                 ? `Users can only have ${max_assigned_count} assigned desk${max_assigned_count === 1 ? '' : 's'} at a time.`
                 : message;
         }
     }
 
-    private async _rollbackMetadata(zone: string, original_desk_list: any[]) {
+    /**
+     * Read the desk list stored in a zone's metadata. Errors are not caught,
+     * so callers never write a list built from a failed read.
+     */
+    private async _storedDeskList(zone: string): Promise<Desk[]> {
+        const { details } = await showMetadata(zone, 'desks');
+        return (details instanceof Array ? details : []).map(
+            (item) => new Desk({ ...item, zone: { id: zone } }),
+        );
+    }
+
+    /**
+     * Build the desk to save from the modal values. Asset desks keep their
+     * stored fields and ID. New desks without an ID get a random one.
+     */
+    private _editedDesk(
+        desk: Desk,
+        metadata: Partial<Desk>,
+        zone: string,
+        use_assets: boolean,
+    ): Desk {
+        return new Desk({
+            ...(use_assets ? desk : {}),
+            ...metadata,
+            id:
+                (use_assets && desk['asset_type_id'] ? desk.id : metadata.id) ||
+                `desk-${zone.slice(-3)}.${randomInt(999_999)}`,
+            // Desks store the level as their zone. Desk types its zone as a
+            // PlaceZone, which BuildingLevel does not match.
+            zone: this._org.levelWithID([zone]) as unknown as PlaceZone,
+        });
+    }
+
+    /**
+     * Desks currently on a level. Only this level is written on save, so for
+     * metadata the stored list is read to keep desks that are not loaded in
+     * the current view.
+     */
+    private async _levelDeskList(
+        zone: string,
+        use_assets: boolean,
+    ): Promise<Desk[]> {
+        return use_assets
+            ? this.desks().filter((_) => (_.zone?.id || zone) === zone)
+            : this._storedDeskList(zone);
+    }
+
+    /**
+     * Write an edited desk. Asset desks are saved one at a time. Metadata
+     * desks are saved as the level's full `desk_list`.
+     * @returns The desk as stored
+     */
+    private async _saveEditedDesk(
+        desk: Desk,
+        zone: string,
+        desk_list: Desk[],
+        use_assets: boolean,
+    ): Promise<Desk> {
+        if (use_assets) {
+            const saved = await saveDeskAsset(
+                desk,
+                zone,
+                this._deskAssetZones(zone),
+            );
+            return deskFromAsset(saved, this._org.levelWithID([zone]));
+        }
+        await updateMetadata(zone, {
+            name: 'desks',
+            details: desk_list,
+            description: 'List of available desks',
+        });
+        return desk;
+    }
+
+    /**
+     * Create the assigned booking for a saved desk and cancel the assignee's
+     * overlapping desk bookings. On failure, roll back the desk save, restore
+     * the previous assigned booking when it was cleared, and rethrow.
+     */
+    private async _saveAssignedBooking(
+        previous: Desk,
+        desk: Desk,
+        zone: string,
+        restore_previous: boolean,
+        rollback: () => Promise<void>,
+    ) {
+        const created = await saveBooking(
+            this._createAssignedBooking(desk, zone).toJSON(),
+        ).catch(async (e) => {
+            await rollback();
+            if (restore_previous) {
+                await this._restoreAssignedBooking(previous, zone).catch(
+                    (restore_err) =>
+                        console.error(
+                            'Failed to restore assigned booking during rollback',
+                            restore_err,
+                        ),
+                );
+            }
+            throw e;
+        });
+        // Cancel the assignee's overlapping ad-hoc desk bookings over the
+        // next 4 weeks so a later approval cannot reactivate them.
+        if (created?.id) {
+            await cancelOverlappingRecurringBookings(created, 'desk').catch(
+                () => [],
+            );
+        }
+    }
+
+    /** Show a desk save error, stop the modal's loading state, and rethrow. */
+    private _failDeskSave(
+        ref: MatDialogRef<DeskModalComponent>,
+        error: unknown,
+        message = i18n('APP.CONCIERGE.DESKS_SAVE_ERROR', { error }),
+    ): never {
+        notifyError(message);
+        ref.componentInstance.loading.set(false);
+        throw error;
+    }
+
+    private async _rollbackDeskSave(
+        zone: string,
+        original_desk_list: Desk[],
+        original_desk: Desk,
+        saved_desk: Desk,
+    ) {
+        if (!this._settings.get('app.desks.use_assets')) {
+            return this._rollbackMetadata(zone, original_desk_list);
+        }
+        try {
+            if (original_desk['asset_type_id']) {
+                await saveDeskAsset(
+                    original_desk,
+                    zone,
+                    this._deskAssetZones(zone),
+                );
+            } else if (saved_desk.id) {
+                await deleteDeskAsset(saved_desk.id);
+            }
+        } catch (rollback_err) {
+            console.error(
+                'Failed to rollback desk asset after error',
+                rollback_err,
+            );
+        }
+    }
+
+    private async _rollbackMetadata(
+        zone: string,
+        original_desk_list: unknown[],
+    ) {
         try {
             await updateMetadata(zone, {
                 name: 'desks',
@@ -732,6 +1061,22 @@ export class DesksStateService extends AsyncHandler {
                 rollback_err,
             );
         }
+    }
+
+    /** Build the complete zone path required for asset scope queries. */
+    private _deskAssetZones(level_id: string) {
+        const level = this._org.levels?.find((item) => item.id === level_id);
+        const building =
+            this._org.buildings?.find((item) => item.id === level?.parent_id) ||
+            (this._org.building?.id === level?.parent_id
+                ? this._org.building
+                : undefined);
+        return unique([
+            this._org.organisation?.id,
+            building?.parent_id || this._org.region?.id,
+            building?.id || level?.parent_id,
+            level_id,
+        ]).filter((id) => !!id);
     }
 
     private _createAssignedBooking(desk: Desk, zone?: string) {
@@ -778,7 +1123,7 @@ export class DesksStateService extends AsyncHandler {
 
     private async _restoreAssignedBooking(desk: Desk, zone?: string) {
         if (!desk.assigned_to) return;
-        await saveBooking(this._createAssignedBooking(desk, zone));
+        await saveBooking(this._createAssignedBooking(desk, zone).toJSON());
     }
 
     private async _clearAssignedBooking(desk: Desk) {
@@ -810,6 +1155,13 @@ export class DesksStateService extends AsyncHandler {
                 await removeBooking(booking.parent_id || booking.id);
             }
         }
+    }
+
+    /** Selected zone filters with the "all levels" sentinel keys stripped */
+    private _getSelectedZones(): string[] {
+        return (this._filters().zones || []).filter(
+            (zone) => !this._all_zones_keys.includes(zone),
+        );
     }
 
     private _getActiveZones(zones: string[] = []): string[] {

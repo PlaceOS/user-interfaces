@@ -1,3 +1,4 @@
+import { CdkScrollable } from '@angular/cdk/scrolling';
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -24,7 +25,10 @@ import { ParkingRequestFormDetailsComponent } from './parking-request-form-detai
 @Component({
     selector: 'parking-request-form',
     template: `
-        <div class="bg-base-200 h-full w-full overflow-auto p-2 sm:p-4">
+        <div
+            cdkScrollable
+            class="bg-base-200 h-full w-full overflow-auto p-2 sm:p-4"
+        >
             <div
                 class="bg-base-100 border-base-300 mx-auto flex w-3xl max-w-full flex-col gap-2 rounded-xl border p-2 sm:gap-4 sm:p-4"
             >
@@ -95,7 +99,7 @@ import { ParkingRequestFormDetailsComponent } from './parking-request-form-detai
                             >
                                 <icon class="text-xl">close</icon>
                                 <div class="mr-2">
-                                    {{ 'BOOKINGS.PARKING_CANCEL' | translate }}
+                                    {{ 'COMMON.CANCEL' | translate }}
                                 </div>
                             </button>
                             <button
@@ -121,6 +125,7 @@ import { ParkingRequestFormDetailsComponent } from './parking-request-form-detai
     `,
     styles: [``],
     imports: [
+        CdkScrollable,
         MatRippleModule,
         TranslatePipe,
         SanitizePipe,
@@ -171,7 +176,7 @@ export class ParkingRequestFormComponent
             nearestTo: 5,
             roundingMethod: 'ceil',
         }).valueOf();
-        const defaults: Record<string, any> = {
+        const defaults: Record<string, unknown> = {
             user,
             title: 'Parking Request',
             request_type: 'standard',
@@ -179,6 +184,7 @@ export class ParkingRequestFormComponent
             space_restrictions: false,
             extra_space_restrictions: [],
             prefer_booked_location_first: false,
+            attachments: [],
             recurrence_type: 'none',
         };
         // For new parking requests (no id), always seed a sensible parking
@@ -226,6 +232,7 @@ export class ParkingRequestFormComponent
             asset_name: 'Parking Request',
             description: 'Parking Request',
             title: m.title || 'Parking Request',
+            plate_number: `${m.plate_number || ''}`.trim(),
         }));
         const building = this._org.building;
         const location =
@@ -234,19 +241,16 @@ export class ParkingRequestFormComponent
             ...((this.model() as any).extension_data || {}),
             location,
         };
-        this.model.update(
-            (m) =>
-                ({
-                    ...m,
-                    zones: [
-                        this._org.organisation.id,
-                        this._org.region?.id,
-                        building?.id,
-                    ].filter(Boolean),
-                    location,
-                    extension_data,
-                }) as any,
-        );
+        this.model.update((m) => ({
+            ...m,
+            zones: [
+                this._org.organisation.id,
+                this._org.region?.id,
+                building?.id,
+            ].filter(Boolean),
+            location,
+            extension_data,
+        }));
         if (!this.form().valid())
             return notifyError(
                 `Some fields are invalid. [${getInvalidSignalFields(
@@ -254,6 +258,7 @@ export class ParkingRequestFormComponent
                     this.model,
                 ).join(', ')}]`,
             );
+        const plate_number = this.model().plate_number;
         this.loading.set(true);
         try {
             const r = await this._state.postForm().catch((_) => {
@@ -261,10 +266,27 @@ export class ParkingRequestFormComponent
                 return null;
             });
             if (!r) return;
+            this._savePlateNumber(plate_number);
             this._router.navigate(['/book', 'parking-request', 'success']);
             this._state.setView('success');
         } finally {
             this.loading.set(false);
         }
     };
+
+    private _savePlateNumber(plate_number: string) {
+        if (!plate_number) return;
+        const saved_plate_numbers = this._settings.get('plate_numbers');
+        const plate_numbers = Array.isArray(saved_plate_numbers)
+            ? saved_plate_numbers
+            : [];
+        this._settings.saveUserSetting('plate_numbers', [
+            plate_number,
+            ...plate_numbers.filter(
+                (_) =>
+                    typeof _ === 'string' &&
+                    _.trim().toLowerCase() !== plate_number.toLowerCase(),
+            ),
+        ]);
+    }
 }

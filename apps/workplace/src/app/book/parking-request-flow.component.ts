@@ -63,7 +63,7 @@ export class ParkingRequestFlowComponent
 
     public ngOnInit() {
         this._parking.loadBookings();
-        this._state.loadForm();
+        this._state.loadForm('parking');
         this._state.setOptions({ type: 'parking' });
         if (!this._state.model().id) this._state.newForm('parking');
         this._state.model.update((m) => ({ ...m, booking_type: 'parking' }));

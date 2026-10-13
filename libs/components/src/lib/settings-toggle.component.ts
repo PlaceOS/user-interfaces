@@ -12,18 +12,21 @@ import { IconComponent } from './icon.component';
     selector: 'settings-toggle',
     template: `
         <button
+            type="button"
             matRipple
             class="hover:bg-base-200 relative flex flex-1 items-center space-x-2 overflow-hidden rounded-sm border py-1 pr-1 pl-2"
             [class.border-base-300]="!value()"
             [class.border-info]="value()"
             (click)="setValue(!value())"
         >
-            <div class="z-10 flex flex-1 items-center space-x-2 p-2 text-left">
-                <div>
-                    {{ label() }}
-                    <ng-content></ng-content>
+            <div class="z-10 flex flex-1 items-center space-x-2 px-2 text-left" [class.py-2]="!inline()" [class.py-1]="!inline()">
+                <div class="flex flex-col justify-center w-full leading-none h-full">
+                    <div>{{ label() }}<ng-content></ng-content></div>
+                    @if (info() && inline()) {
+                        <div class="text-xs opacity-30">{{ info() }}</div>
+                    }
                 </div>
-                @if (info()) {
+                @if (info() && !inline()) {
                     <icon [matTooltip]="info()">info</icon>
                 }
             </div>
@@ -85,6 +88,7 @@ export class SettingsToggleComponent implements ControlValueAccessor {
     public readonly toggle = input<boolean>(undefined);
     public readonly label = input<string>(undefined);
     public readonly info = input<string>(undefined);
+    public readonly inline = input(true);
 
     public value = signal<boolean>(undefined);
 

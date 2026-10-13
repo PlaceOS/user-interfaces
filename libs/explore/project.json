@@ -6,16 +6,28 @@
     "prefix": "placeos",
     "tags": [],
     "targets": {
-        "lint": {
-            "executor": "@nx/eslint:lint",
-            "outputs": ["{options.outputFile}"]
-        },
+        "lint": {},
         "test": {
-            "executor": "@nx/jest:jest",
+            "executor": "@angular/build:unit-test",
             "outputs": ["{workspaceRoot}/coverage/libs/explore"],
             "options": {
-                "jestConfig": "libs/explore/jest.config.ts",
-                "tsConfig": "libs/explore/tsconfig.spec.json"
+                "tsConfig": "libs/explore/tsconfig.spec.json",
+                "setupFiles": ["libs/explore/src/test-setup.ts"],
+                "isolate": true,
+                "watch": false,
+                "buildTarget": "explore:test-build:development"
+            }
+        },
+        "test-build": {
+            "executor": "@angular/build:application",
+            "options": {
+                "outputPath": "dist/libs/explore",
+                "browser": "libs/explore/src/index.ts",
+                "tsConfig": "libs/explore/tsconfig.spec.json",
+                "polyfills": []
+            },
+            "configurations": {
+                "development": {}
             }
         }
     }

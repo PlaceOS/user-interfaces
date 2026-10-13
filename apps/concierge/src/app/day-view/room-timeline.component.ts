@@ -21,6 +21,7 @@ import {
     SetupBreakdownModalComponent,
     declineEvent,
 } from '@placeos/events';
+import { DateOptionsComponent } from '@placeos/form-fields';
 import {
     addHours,
     differenceInMinutes,
@@ -30,7 +31,6 @@ import {
     startOfDay,
     startOfMinute,
 } from 'date-fns';
-import { DateOptionsComponent } from '../ui/date-options.component';
 import { EventsStateService } from './events-state.service';
 import { RoomBookingSearchComponent } from './room-booking-search.component';
 import { isActiveRoomTimelineEvent } from './room-timeline.utilities';
@@ -56,7 +56,7 @@ import { isActiveRoomTimelineEvent } from './room-timeline.utilities';
             ></date-options>
             @if (is_today()) {
                 <div
-                    class="text-info absolute top-1/2 left-4 -translate-y-1/2 text-sm"
+                    class="text-info absolute top-1/2 left-10 -translate-y-1/2 text-sm"
                 >
                     {{ 'COMMON.TODAY' | translate }}
                 </div>
@@ -414,7 +414,7 @@ Host:  ${event.organiser?.name || event.host}`;
     public viewEvent(
         event: CalendarEvent,
         space_id: string,
-        scroll_to = false,
+        _scroll_to = false,
     ) {
         if (event.is_system_event) return;
         const ref = this._dialog.open(EventDetailsModalComponent, {

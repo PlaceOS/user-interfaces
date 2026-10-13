@@ -1,10 +1,12 @@
 import { signal } from '@angular/core';
-import { fakeAsync } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { Router } from '@angular/router';
-import { SpectatorRouting, createRoutingFactory } from '@ngneat/spectator/jest';
+import {
+    SpectatorRouting,
+    createRoutingFactory,
+} from '@ngneat/spectator/vitest';
 import {
     Building,
     BuildingLevel,
@@ -44,15 +46,21 @@ describe('BootstrapComponent', () => {
         imports: [MatFormFieldModule, MatSelectModule, FormsModule],
     });
 
-    beforeEach(() => (spectator = createComponent()));
+    beforeEach(() => {
+        localStorage.clear();
+        spectator = createComponent();
+    });
 
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
+    afterEach(() => {
+        localStorage.clear();
+        vi.restoreAllMocks();
+        vi.useRealTimers();
     });
 
     it('should allow selecting level', async () => {
         expect('[level]').not.toExist();
         expect('mat-select').toHaveLength(1);
+        expect('button').toBeDisabled();
         spectator.click('[building]');
         spectator.click(document.querySelector('mat-option'));
         spectator.detectChanges();
@@ -61,17 +69,17 @@ describe('BootstrapComponent', () => {
         expect(spectator.component.active_level()).toBeFalsy();
         expect(spectator.component.levels().length).toBe(2);
         expect('[level]').toExist();
+        expect('button').toBeDisabled();
         spectator.click('[level]');
         spectator.click(document.querySelector('mat-option'));
         spectator.detectChanges();
         expect(spectator.component.active_level()).toBeTruthy();
+        expect('button').not.toBeDisabled();
     });
 
-    it('should allow selecting orientations', () => {
-        // TODO: Add implementation
-    });
     it('should handling bootstrapping', () => {
-        const spy = jest.spyOn(Storage.prototype, 'setItem');
+        vi.spyOn(Storage.prototype, 'setItem');
+        vi.spyOn(Storage.prototype, 'removeItem');
         expect(localStorage.setItem).not.toHaveBeenCalled();
         spectator.component.bootstrapKiosk();
         expect(localStorage.setItem).not.toHaveBeenCalled();
@@ -81,6 +89,9 @@ describe('BootstrapComponent', () => {
         spectator.component.active_level.set(
             new BuildingLevel({ id: 'lvl-1' }),
         );
+        localStorage.setItem('KIOSK.parking', 'true');
+        localStorage.setItem('KIOSK.orientation', '180');
+        localStorage.setItem('KIOSK.location', 'old-kiosk');
         spectator.component.bootstrapKiosk();
         expect(localStorage.setItem).toHaveBeenCalledWith(
             'KIOSK.building',
@@ -98,6 +109,11 @@ describe('BootstrapComponent', () => {
             'KIOSK.location',
             'kiosk-1',
         );
+        expect(localStorage.removeItem).toHaveBeenCalledWith('KIOSK.parking');
+        expect(localStorage.removeItem).toHaveBeenCalledWith(
+            'KIOSK.orientation',
+        );
+        expect(localStorage.removeItem).toHaveBeenCalledWith('KIOSK.location');
         spectator.component.active_rotation.set({ id: '90', name: '' });
         spectator.component.active_location.set({
             id: 'kiosk-1',
@@ -115,7 +131,7 @@ describe('BootstrapComponent', () => {
     });
 
     it('should handle clearing bootstrap details', () => {
-        jest.spyOn(Storage.prototype, 'removeItem');
+        vi.spyOn(Storage.prototype, 'removeItem');
         expect(localStorage.removeItem).not.toHaveBeenCalled();
         spectator.setRouteQueryParam('clear', 'true');
         spectator.detectChanges();
@@ -124,19 +140,21 @@ describe('BootstrapComponent', () => {
         expect(localStorage.removeItem).toHaveBeenCalledWith(
             'KIOSK.orientation',
         );
+        expect(localStorage.removeItem).toHaveBeenCalledWith('KIOSK.parking');
+        expect(localStorage.removeItem).toHaveBeenCalledWith('KIOSK.location');
     });
 
-    it('should re-direct if already bootstrapped', fakeAsync(async () => {
+    it('should re-direct if already bootstrapped', async () => {
+        vi.useFakeTimers();
         const router = spectator.inject(Router);
         expect(router.navigate).not.toHaveBeenCalled();
-        spectator.component.ngOnInit();
-        spectator.tick(1001);
+        await spectator.component.ngOnInit();
+        await vi.advanceTimersByTimeAsync(1001);
         localStorage.setItem('KIOSK.building', '1');
         localStorage.setItem('KIOSK.level', '1');
         expect(router.navigate).not.toHaveBeenCalled();
-        spectator.component.ngOnInit();
-        spectator.tick(1001);
-        // TODO: Fix
-        // expect(router.navigate).toHaveBeenCalled();
-    }));
+        await spectator.component.ngOnInit();
+        await vi.advanceTimersByTimeAsync(1001);
+        expect(router.navigate).toHaveBeenCalled();
+    });
 });

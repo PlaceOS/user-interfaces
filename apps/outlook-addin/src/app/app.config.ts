@@ -9,8 +9,6 @@ import {
     provideZonelessChangeDetection,
 } from '@angular/core';
 import { NativeDateModule } from '@angular/material/core';
-import { MatSnackBarModule } from '@angular/material/snack-bar';
-import { provideAnimations } from '@angular/platform-browser/animations';
 import { provideRouter, withHashLocation } from '@angular/router';
 import { provideServiceWorker } from '@angular/service-worker';
 
@@ -21,11 +19,10 @@ export const appConfig: ApplicationConfig = {
     providers: [
         provideZonelessChangeDetection(),
         provideHttpClient(withXhr(), withInterceptorsFromDi()),
-        provideAnimations(),
         provideRouter(routes, withHashLocation()),
         provideServiceWorker('ngsw-worker.js', {
             enabled: environment.production,
         }),
-        importProvidersFrom(MatSnackBarModule, NativeDateModule),
+        importProvidersFrom(NativeDateModule),
     ],
 };

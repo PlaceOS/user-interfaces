@@ -9,9 +9,10 @@ import {
 } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import {
-    checkinBooking,
     loadLockerResources,
+    queryAllBookings,
     queryBookings,
+    setBookingCheckedIn,
 } from '@placeos/bookings';
 import {
     AsyncHandler,
@@ -148,7 +149,7 @@ export class ScheduleStateService extends AsyncHandler {
 
     public readonly week_date = computed(() =>
         startOfWeek(this._date(), {
-            weekStartsOn: this.offset_weekday as any,
+            weekStartsOn: this.offset_weekday,
         }).valueOf(),
     );
 
@@ -295,7 +296,7 @@ export class ScheduleStateService extends AsyncHandler {
                 return false;
             }
             if (_ instanceof CalendarEvent) return true;
-            return filters?.shown_types?.includes((_ as any).booking_type);
+            return filters?.shown_types?.includes(_.booking_type);
         }),
     );
 
@@ -389,11 +390,9 @@ export class ScheduleStateService extends AsyncHandler {
         return this._event_sources();
     }
 
+    /** Reload bookings. Drops in-flight requests so a change made just now is not masked by a stale response. */
     public triggerPoll() {
-        if (this._network_started) {
-            this._poll.set(Date.now());
-            return;
-        }
+        this._booking_query_requests.clear();
         this._poll.set(Date.now());
     }
 
@@ -546,7 +545,7 @@ export class ScheduleStateService extends AsyncHandler {
                 this._loading.set(true);
                 const query = this._periodQuery(period, date);
                 const list = this._settings.get('app.events.use_bookings')
-                    ? await queryBookings({ ...query, type: 'room' })
+                    ? await queryAllBookings({ ...query, type: 'room' })
                           .then((_) =>
                               _.map((i) => newCalendarEventFromBooking(i)),
                           )
@@ -678,14 +677,14 @@ export class ScheduleStateService extends AsyncHandler {
                 period === 'day'
                     ? startOfDay(date)
                     : startOfWeek(date, {
-                          weekStartsOn: this.offset_weekday as any,
+                          weekStartsOn: this.offset_weekday,
                       }),
             ),
             period_end: getUnixTime(
                 period === 'day'
                     ? endOfDay(date)
                     : endOfWeek(date, {
-                          weekStartsOn: this.offset_weekday as any,
+                          weekStartsOn: this.offset_weekday,
                       }),
             ),
         };
@@ -701,11 +700,23 @@ export class ScheduleStateService extends AsyncHandler {
             type,
             include_checked_out: true,
             include_booked_by: true,
+            include_deleted: true,
         };
         const key = JSON.stringify(query);
         const existing = this._booking_query_requests.get(key);
         if (existing) return existing;
-        const request = queryBookings(query)
+        // Every page: the listing shows a user's whole day, and a hundred
+        // cancelled rows must not hide a live one.
+        const request = queryAllBookings(query)
+            .then((list) =>
+                type === 'visitor'
+                    ? list.filter(
+                          (booking) =>
+                              booking.status !== 'cancelled' ||
+                              !booking.extension_data?.removed_from_group,
+                      )
+                    : list,
+            )
             .catch(() => [])
             .finally(() => this._booking_query_requests.delete(key));
         this._booking_query_requests.set(key, request);
@@ -791,7 +802,7 @@ export class ScheduleStateService extends AsyncHandler {
                     continue;
                 }
                 result.loading('Checking in booking...');
-                await checkinBooking(booking.id, true);
+                await setBookingCheckedIn(booking, true);
                 result.close();
             }
         }

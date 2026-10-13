@@ -1,10 +1,10 @@
 import { AsyncPipe } from '@angular/common';
 import { Component, computed, ElementRef, inject, signal } from '@angular/core';
 import { settingSignal, SettingsService } from '@placeos/common';
-import { UserPipe } from '@placeos/users';
 import { ParkingSpace } from 'libs/bookings/src/lib/parking.service';
 import { MAP_FEATURE_DATA } from 'libs/common/src/lib/types';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
+import { UserPipe } from 'libs/users/src/lib/user.pipe';
 
 interface ParkingSpaceExtended extends ParkingSpace {
     user: string;
@@ -66,7 +66,7 @@ interface ParkingSpaceExtended extends ParkingSpace {
                         <div
                             class="w-full pt-1 text-center text-[0.625rem] font-medium whitespace-nowrap"
                         >
-                            {{ 'EXPLORE.PARKING_PLATE_NUMBER' | translate }}
+                            {{ 'BOOKINGS.PARKING_PLATE_NUMBER' | translate }}
                         </div>
                         <div
                             class="w-full pb-1 text-center font-mono uppercase"

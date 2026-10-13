@@ -185,7 +185,7 @@ export class SignageZonesComponent extends AsyncHandler {
 
     private readonly _triggers = resource({
         params: () => this.selected(),
-        defaultValue: [] as any[],
+        defaultValue: [] as unknown[],
         loader: async ({ params: id }) => {
             if (!id) return [];
             const resp = await listZoneTriggers(id);
@@ -252,8 +252,8 @@ export class SignageZonesComponent extends AsyncHandler {
         notifySuccess(
             i18n(
                 trigger
-                    ? 'APP.CONCIERGE.SIGNAGE_TRIGGERS_PLAYLIST_REMOVE'
-                    : 'APP.CONCIERGE.SIGNAGE_ZONES_PLAYLIST_REMOVE',
+                    ? 'APP.CONCIERGE.SIGNAGE_TRIGGERS_PLAYLIST_REMOVED'
+                    : 'APP.CONCIERGE.SIGNAGE_ZONES_PLAYLIST_REMOVED',
             ),
         );
         this._state.changed();

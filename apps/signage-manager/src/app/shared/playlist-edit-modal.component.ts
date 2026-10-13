@@ -1,5 +1,7 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, DestroyRef, inject, signal } from '@angular/core';
 import {
+    applyEach,
+    applyWhen,
     form,
     FormField,
     minLength,
@@ -11,7 +13,12 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSliderModule } from '@angular/material/slider';
-import { i18n, notifyError, notifySuccess } from '@placeos/common';
+import {
+    HotkeysService,
+    i18n,
+    notifyError,
+    notifySuccess,
+} from '@placeos/common';
 import {
     FullscreenModalShellComponent,
     MediaDurationPipe,
@@ -26,34 +33,69 @@ import {
     updateSignagePlaylist,
 } from '@placeos/ts-client';
 import { endOfDay, getUnixTime, startOfDay } from 'date-fns';
+import { playlistAnimation } from '../signage-playlist.util';
 import {
     createPlaylistScheduleModel,
     PlaylistScheduleFormComponent,
     PlaylistScheduleFormModel,
     playlistSchedulePayload,
     playlistSchedules,
+    playlistScheduleSchema,
 } from './playlist-schedule-form.component';
+import { SignageSharedWithComponent } from './signage-shared-with.component';
 
 export interface PlaylistEditModalData {
     playlist: SignagePlaylist;
+    /** Signage group the playlist is being viewed from */
+    group_id?: string;
     onAdd?: (data: Partial<SignagePlaylist>) => Promise<SignagePlaylist>;
     onEdit?: (
         id: string,
         data: Partial<SignagePlaylist>,
     ) => Promise<SignagePlaylist>;
+    /** Runs before an existing playlist is saved. Return false to stop the save. */
+    beforeSave?: (data: Partial<SignagePlaylist>) => Promise<boolean>;
 }
+
+/** Focus targets where a plain key press belongs to the control, not a hotkey */
+const HOTKEY_BLOCKING_FOCUS =
+    'select, mat-select, [role="combobox"], [role="listbox"], [role="option"], [role="menu"], [role="menuitem"]';
+
+/** Animations the user can pick, with their label keys */
+const ANIMATION_OPTIONS: { value: MediaAnimation; label: string }[] = [
+    { value: MediaAnimation.Default, label: 'COMMON.DEFAULT' },
+    { value: MediaAnimation.Cut, label: 'SIGNAGE_MANAGER.ANIM_CUT' },
+    {
+        value: MediaAnimation.CrossFade,
+        label: 'SIGNAGE_MANAGER.ANIM_CROSS_FADE',
+    },
+    { value: MediaAnimation.SlideTop, label: 'SIGNAGE_MANAGER.ANIM_SLIDE_TOP' },
+    {
+        value: MediaAnimation.SlideLeft,
+        label: 'SIGNAGE_MANAGER.ANIM_SLIDE_LEFT',
+    },
+    {
+        value: MediaAnimation.SlideRight,
+        label: 'SIGNAGE_MANAGER.ANIM_SLIDE_RIGHT',
+    },
+    {
+        value: MediaAnimation.SlideBottom,
+        label: 'SIGNAGE_MANAGER.ANIM_SLIDE_BOTTOM',
+    },
+];
 
 export interface PlaylistEditFormModel {
     name: string;
     description: string;
     enabled: boolean;
+    distribution: boolean;
     random: boolean;
     default_animation: MediaAnimation;
     orientation: string;
     default_duration: number;
     schedules: PlaylistScheduleFormModel[];
-    valid_from: number;
-    valid_until: number;
+    valid_from: number | null;
+    valid_until: number | null;
 }
 
 @Component({
@@ -66,6 +108,7 @@ export interface PlaylistEditFormModel {
                     : 'SIGNAGE_MANAGER.NEW_PLAYLIST'
                 ) | translate
             "
+            confirm_hotkey="S"
             (confirm)="savePlaylist()"
             [loading]="
                 loading() ? ('SIGNAGE_MANAGER.PLAYLIST_SAVING' | translate) : ''
@@ -102,6 +145,18 @@ export interface PlaylistEditFormModel {
                     >
                     </settings-toggle>
                 </div>
+                @if (!playlist.id) {
+                    <div class="mb-4">
+                        <settings-toggle
+                            [label]="
+                                'SIGNAGE_MANAGER.PLAYLIST_DISTRIBUTION'
+                                    | translate
+                            "
+                            [formField]="form.distribution"
+                        >
+                        </settings-toggle>
+                    </div>
+                }
                 <div class="pt-2 pb-4">
                     <div class="border-base-300 relative rounded-sm border">
                         <label
@@ -186,31 +241,14 @@ export interface PlaylistEditFormModel {
                                         | translate
                                 "
                             >
-                                <mat-option [value]="0">{{
-                                    'COMMON.DEFAULT' | translate
-                                }}</mat-option>
-                                <mat-option [value]="1">{{
-                                    'SIGNAGE_MANAGER.ANIM_CUT' | translate
-                                }}</mat-option>
-                                <mat-option [value]="2">{{
-                                    'SIGNAGE_MANAGER.ANIM_CROSS_FADE'
-                                        | translate
-                                }}</mat-option>
-                                <mat-option [value]="3">{{
-                                    'SIGNAGE_MANAGER.ANIM_SLIDE_TOP' | translate
-                                }}</mat-option>
-                                <mat-option [value]="4">{{
-                                    'SIGNAGE_MANAGER.ANIM_SLIDE_LEFT'
-                                        | translate
-                                }}</mat-option>
-                                <mat-option [value]="5">{{
-                                    'SIGNAGE_MANAGER.ANIM_SLIDE_RIGHT'
-                                        | translate
-                                }}</mat-option>
-                                <mat-option [value]="6">{{
-                                    'SIGNAGE_MANAGER.ANIM_SLIDE_BOTTOM'
-                                        | translate
-                                }}</mat-option>
+                                @for (
+                                    option of animation_options;
+                                    track option.value
+                                ) {
+                                    <mat-option [value]="option.value">{{
+                                        option.label | translate
+                                    }}</mat-option>
+                                }
                             </mat-select>
                         </mat-form-field>
                     </div>
@@ -230,57 +268,66 @@ export interface PlaylistEditFormModel {
                         "
                     ></textarea>
                 </mat-form-field>
-                <div class="flex space-x-4">
-                    <div class="flex-1">
-                        <label for="valid-from">{{
-                            'SIGNAGE_MANAGER.VALID_FROM' | translate
+                @if (!model().distribution) {
+                    <div class="flex space-x-4">
+                        <div class="flex-1">
+                            <label for="valid-from">{{
+                                'SIGNAGE_MANAGER.VALID_FROM' | translate
+                            }}</label>
+                            <a-date-field
+                                name="valid-from"
+                                [formField]="form.valid_from"
+                                [clear]="true"
+                            ></a-date-field>
+                        </div>
+                        <div class="flex-1">
+                            <label for="valid-until">{{
+                                'FORM.EXPIRES_AT' | translate
+                            }}</label>
+                            <a-date-field
+                                name="valid-until"
+                                [from]="model().valid_from"
+                                [formField]="form.valid_until"
+                                [clear]="true"
+                            ></a-date-field>
+                        </div>
+                    </div>
+                    <div class="pt-2 pb-4">
+                        <label>{{
+                            'SIGNAGE_MANAGER.PLAYLIST_SCHEDULES' | translate
                         }}</label>
-                        <a-date-field
-                            name="valid-from"
-                            [formField]="form.valid_from"
-                            [clear]="true"
-                        ></a-date-field>
+                        <div class="mt-2 flex flex-col gap-4">
+                            <!-- Track the field, so each form keeps its state when one before it is removed -->
+                            @for (
+                                schedule of form.schedules;
+                                track schedule;
+                                let index = $index
+                            ) {
+                                <playlist-schedule-form
+                                    [schedule]="schedule"
+                                    [index]="index"
+                                    [open]="isScheduleOpen(index)"
+                                    [can_remove]="model().schedules.length > 1"
+                                    (toggle)="openSchedule(index)"
+                                    (remove)="removeSchedule($event, index)"
+                                />
+                            }
+                            <button
+                                type="button"
+                                class="border-primary text-primary hover:bg-primary/10 rounded border px-3 py-2 text-sm font-medium"
+                                (click)="addSchedule()"
+                            >
+                                {{ 'SIGNAGE_MANAGER.ADD_SCHEDULE' | translate }}
+                            </button>
+                        </div>
                     </div>
-                    <div class="flex-1">
-                        <label for="valid-until">{{
-                            'FORM.EXPIRES_AT' | translate
-                        }}</label>
-                        <a-date-field
-                            name="valid-until"
-                            [from]="model().valid_from"
-                            [formField]="form.valid_until"
-                            [clear]="true"
-                        ></a-date-field>
-                    </div>
-                </div>
-                <div class="pt-2 pb-4">
-                    <label>{{
-                        'SIGNAGE_MANAGER.PLAYLIST_SCHEDULES' | translate
-                    }}</label>
-                    <div class="mt-2 flex flex-col gap-4">
-                        @for (
-                            schedule of form.schedules;
-                            track index;
-                            let index = $index
-                        ) {
-                            <playlist-schedule-form
-                                [schedule]="schedule"
-                                [index]="index"
-                                [open]="isScheduleOpen(index)"
-                                [can_remove]="model().schedules.length > 1"
-                                (toggle)="openSchedule(index)"
-                                (remove)="removeSchedule($event, index)"
-                            />
-                        }
-                        <button
-                            type="button"
-                            class="border-primary text-primary hover:bg-primary/10 rounded border px-3 py-2 text-sm font-medium"
-                            (click)="addSchedule()"
-                        >
-                            {{ 'SIGNAGE_MANAGER.ADD_SCHEDULE' | translate }}
-                        </button>
-                    </div>
-                </div>
+                }
+                <signage-shared-with
+                    type="playlists"
+                    [item_id]="playlist.id"
+                    [group_id]="group_id"
+                    [allow_unshare]="true"
+                ></signage-shared-with>
             </form>
         </fullscreen-modal-shell>
     `,
@@ -297,6 +344,7 @@ export interface PlaylistEditFormModel {
         MatSliderModule,
         MediaDurationPipe,
         PlaylistScheduleFormComponent,
+        SignageSharedWithComponent,
     ],
 })
 export class PlaylistEditModalComponent {
@@ -305,15 +353,19 @@ export class PlaylistEditModalComponent {
         inject<MatDialogRef<PlaylistEditModalComponent>>(MatDialogRef);
 
     public readonly loading = signal(false);
+    public readonly animation_options = ANIMATION_OPTIONS;
     public readonly active_schedule_index = signal<number | null>(0);
     public readonly playlist = this._data.playlist;
+    public readonly group_id = this._data.group_id || '';
+    /** Default animation when the modal opened */
+    private readonly _loaded_animation = playlistAnimation(this.playlist);
     public readonly model = signal<PlaylistEditFormModel>({
         name: this.playlist.name || '',
         description: this.playlist.description || '',
         enabled: this.playlist.enabled ?? true,
+        distribution: !!this.playlist.distribution,
         random: !!this.playlist.random,
-        default_animation:
-            this.playlist.default_animation ?? MediaAnimation.Default,
+        default_animation: this._loaded_animation,
         orientation: this.playlist.orientation || 'unspecified',
         default_duration: this.playlist.default_duration || 15000,
         schedules: playlistSchedules(this.playlist).map((schedule) =>
@@ -321,18 +373,35 @@ export class PlaylistEditModalComponent {
         ),
         valid_from: this.playlist.valid_from
             ? this.playlist.valid_from * 1000
-            : 0,
+            : null,
         valid_until: this.playlist.valid_until
             ? this.playlist.valid_until * 1000
-            : 0,
+            : null,
     });
     public readonly form = form(this.model, (path) => {
         required(path.name);
         minLength(path.schedules, 1);
+        applyWhen(
+            path.schedules,
+            ({ valueOf }) => !valueOf(path.distribution),
+            (schedules) => {
+                applyEach(schedules, playlistScheduleSchema);
+            },
+        );
     });
 
     constructor() {
-        if (!this.model().schedules.length) this.addSchedule();
+        // The save hotkey is a plain key, so a select or list that has focus
+        // keeps it, e.g. to jump to an option such as "Square"
+        const save_hotkey = inject(HotkeysService).listen(['KeyS'], () => {
+            if (!document.activeElement?.closest(HOTKEY_BLOCKING_FOCUS)) {
+                this.savePlaylist();
+            }
+        });
+        inject(DestroyRef).onDestroy(() => save_hotkey?.unsubscribe());
+        if (!this.model().distribution && !this.model().schedules.length) {
+            this.addSchedule();
+        }
     }
 
     public addSchedule() {
@@ -373,17 +442,46 @@ export class PlaylistEditModalComponent {
         await submit(this.form, async () => {
             this.loading.set(true);
             this._dialog_ref.disableClose = true;
-            const form_value = this.model();
-            const data: any = { ...form_value };
-            data.schedules = form_value.schedules.map((schedule) =>
-                playlistSchedulePayload(schedule),
-            );
-            if (data.valid_from) {
-                data.valid_from = getUnixTime(startOfDay(data.valid_from));
-            } else delete data.valid_from;
-            if (data.valid_until) {
-                data.valid_until = getUnixTime(endOfDay(data.valid_until));
-            } else delete data.valid_until;
+            const {
+                schedules,
+                valid_from,
+                valid_until,
+                default_animation,
+                ...fields
+            } = this.model();
+            const data: Partial<SignagePlaylist> = {
+                ...fields,
+                // Send the animation only when the user changes it. The
+                // loaded value can be a guess (see `playlistAnimation`), and
+                // saving must not change it.
+                ...(default_animation !== this._loaded_animation
+                    ? { default_animation }
+                    : {}),
+                ...(fields.distribution
+                    ? {}
+                    : {
+                          schedules: schedules.map((schedule) =>
+                              playlistSchedulePayload(schedule),
+                          ),
+                      }),
+                // Null clears a date. The update is a patch, so a missing
+                // date would keep the saved one.
+                valid_from: valid_from
+                    ? getUnixTime(startOfDay(valid_from))
+                    : null,
+                valid_until: valid_until
+                    ? getUnixTime(endOfDay(valid_until))
+                    : null,
+            };
+            if (
+                this.playlist.id &&
+                this._data.beforeSave &&
+                !(await this._data.beforeSave(data))
+            ) {
+                this._dialog_ref.disableClose = false;
+                this.loading.set(false);
+                return;
+            }
             try {
                 let result: SignagePlaylist;
                 if (this.playlist.id) {
@@ -398,11 +496,10 @@ export class PlaylistEditModalComponent {
                 this._dialog_ref.disableClose = false;
                 this._dialog_ref.close(result);
                 notifySuccess(i18n('SIGNAGE_MANAGER.PLAYLIST_SAVED'));
-            } catch (e) {
+            } catch {
                 this._dialog_ref.disableClose = false;
                 this.loading.set(false);
                 notifyError(i18n('SIGNAGE_MANAGER.PLAYLIST_SAVE_ERROR'));
-                throw e;
             }
         });
     }

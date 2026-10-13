@@ -29,11 +29,6 @@
                         "output": "/assets/"
                     },
                     {
-                        "glob": "*.woff2",
-                        "input": "node_modules/material-symbols",
-                        "output": "/assets/"
-                    },
-                    {
                         "glob": "oauth-resp.html",
                         "input": "node_modules/@placeos/ts-client/dist/",
                         "output": "/"
@@ -90,8 +85,8 @@
                     "budgets": [
                         {
                             "type": "initial",
-                            "maximumWarning": "2mb",
-                            "maximumError": "5mb"
+                            "maximumWarning": "800kb",
+                            "maximumError": "950kb"
                         },
                         {
                             "type": "anyComponentStyle",
@@ -105,6 +100,7 @@
         },
         "serve": {
             "executor": "@angular/build:dev-server",
+            "continuous": true,
             "options": {
                 "proxyConfig": "config/proxy.conf.js",
                 "buildTarget": "map-kiosk:build"
@@ -113,19 +109,30 @@
                 "production": {
                     "buildTarget": "map-kiosk:build:production"
                 }
-            },
-            "continuous": true
+            }
         },
-        "lint": {
-            "executor": "@nx/eslint:lint",
-            "outputs": ["{options.outputFile}"]
-        },
+        "lint": {},
         "test": {
-            "executor": "@nx/jest:jest",
+            "executor": "@angular/build:unit-test",
             "outputs": ["{workspaceRoot}/coverage/apps/map-kiosk"],
             "options": {
-                "jestConfig": "apps/map-kiosk/jest.config.ts",
-                "tsConfig": "apps/map-kiosk/tsconfig.spec.json"
+                "tsConfig": "apps/map-kiosk/tsconfig.spec.json",
+                "setupFiles": ["apps/map-kiosk/src/test-setup.ts"],
+                "isolate": true,
+                "watch": false,
+                "buildTarget": "map-kiosk:test-build:development"
+            }
+        },
+        "test-build": {
+            "executor": "@angular/build:application",
+            "options": {
+                "outputPath": "dist/apps/map-kiosk-test",
+                "browser": "apps/map-kiosk/src/main.ts",
+                "tsConfig": "apps/map-kiosk/tsconfig.spec.json",
+                "polyfills": []
+            },
+            "configurations": {
+                "development": {}
             }
         }
     }
