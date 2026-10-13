@@ -45,10 +45,10 @@ developer's own stack and cannot disturb it.
 
 ```bash
 e2e/stack/up.sh              # bring up + seed (reuses volumes)
-e2e/stack/up.sh --fresh      # destroy volumes first — a genuine cold start
+e2e/stack/up.sh --fresh      # destroy volumes first, driver binaries included — a genuine cold start
 e2e/stack/up.sh --pull       # pull the current images first (what CI does every run)
 e2e/stack/up.sh --pull-only  # pull and stop; CI runs this as its own bounded step
-e2e/stack/down.sh            # stop        (--volumes to wipe)
+e2e/stack/down.sh            # stop        (--volumes to wipe; driver binaries are kept)
 ```
 
 It is trimmed to what the e2e path exercises: postgres, elasticsearch, redis,
@@ -276,12 +276,12 @@ CI-specific choices worth knowing:
 
 | | |
 |---|---|
-| `E2E_WORKERS: 2` | Lower than the local default of 4. The runner is also hosting ~10 containers, a dev server and browsers. Less contention means fewer failures that are about the machine rather than the code — avoiding false positives matters more than run time here. |
+| `E2E_WORKERS: 4` | The same as the local default. The runner also hosts ~10 containers, a dev server and the browsers, and four workers already use all of it: a trial with six took the same time, because each test ran about 50% slower. |
 | No `pull_request` trigger | This repo is public and the runner is self-hosted, so a fork PR could run arbitrary code on an internal machine. Triggers are limited to ones requiring write access. Do not add it back without moving to `ubuntu-latest`. |
 | Reclaim step | A self-hosted machine is not a fresh VM; a previous aborted run can leave the stack up or port 4214 held. |
 | No `vm.max_map_count` bump | Needed on GitHub-hosted Linux, meaningless on macOS — the value lives inside Colima's VM, which already sets it to 1048576. Restore it if reverting to `ubuntu-latest`. |
 | Network access to GitHub | `up.sh` clones `PlaceOS/www-core` into the `www` volume once — that is where the platform `/login` page comes from. |
-| Network access to the build farm | core fetches driver binaries from build.placeos.run and the S3 bucket it hands out links to. A commit the farm has not built for the runner's architecture is compiled there on the first run that asks. |
+| Network access to the build farm | core fetches driver binaries from build.placeos.run and the S3 bucket it hands out links to. A commit the farm has not built for the runner's architecture is compiled there on the first run that asks. The binaries stay in the `placeos-e2e-core-drivers` volume between runs, so later runs do not ask again. |
 | Network access to Docker Hub, every run | `up.sh --pull-only` runs first as its own step, bounded to 20 minutes and advisory, so `latest` tracks the registry rather than the day the runner was set up. Each image pulls on its own; one that fails or stalls leaves the stack on the image already present, and "Record backend inputs" shows which. `SELF_HOSTED_RUNNER.md` lists the hosts. |
 
 ## Booking specs: what the backend actually does

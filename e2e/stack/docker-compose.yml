@@ -35,7 +35,13 @@ volumes:
   redis-data:
   nginx-data:
   www:
+  # Driver binaries, keyed by file and commit. External, so that
+  # `down --volumes` keeps it: core uses a binary that is already on disk and
+  # does not ask the build farm again. `up.sh` creates the volume, and
+  # `up.sh --fresh` removes it.
   core-drivers:
+    name: ${E2E_STACK_PROJECT:-placeos-e2e}-core-drivers
+    external: true
 
 x-deployment-env: &deployment-env
   PLACE_LOG_FORMAT: JSON
@@ -181,6 +187,8 @@ services:
     <<: *std-logging
     healthcheck:
       test: keydb-cli ping
+      # The default interval is 30s, and `up --wait` blocks on the first check.
+      interval: 5s
     volumes:
       - redis-data:/data
     environment:
