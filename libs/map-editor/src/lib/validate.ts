@@ -1,3 +1,4 @@
+import { sameDrawing } from './ai/context';
 import { applyOps, ApplyOptions, ApplyResult, textLines } from './apply';
 import {
     isAllowedAttributeName,
@@ -5,6 +6,7 @@ import {
     MAX_ELEMENT_GROWTH,
     MAX_OPS_PER_PROPOSAL,
     MAX_REPLACEMENT_MARKUP_BYTES,
+    NON_RENDERED_TAGS,
     OFF_CANVAS_TOLERANCE,
     REFERENCE_ATTRS,
     REPLACEMENT_DENIED_TAGS,
@@ -299,6 +301,29 @@ function protectedIdsIn(
     protected_ids: ProtectedIdSet,
 ): string[] {
     return [...idsIn(element)].filter((id) => protected_ids.has(id));
+}
+
+/** Anonymous siblings of the deleted elements that lie on the same spot and stay, at most five. */
+function layersLeftBehind(
+    doc: MapDocument,
+    deleted: readonly Element[],
+    geometry: GeometryProvider,
+): string[] {
+    const gone = new Set(deleted);
+    const found: string[] = [];
+    for (const element of deleted) {
+        const box = geometry.bboxOf(element);
+        if (!box || !element.parentElement) continue;
+        for (const sibling of Array.from(element.parentElement.children)) {
+            if (gone.has(sibling) || sibling.getAttribute('id')) continue;
+            if (NON_RENDERED_TAGS.has(sibling.localName)) continue;
+            if (!sameDrawing(box, geometry.bboxOf(sibling))) continue;
+            const anchor = doc.anchorOf(sibling);
+            if (!found.includes(anchor)) found.push(anchor);
+            if (found.length >= 5) return found;
+        }
+    }
+    return found;
 }
 
 /** Number of <tspan> lines a text of several lines creates; 0 for one line. */
@@ -738,6 +763,18 @@ class Validator {
                     );
                 }
                 this._danglingWarning(step, elements);
+                const left_behind = layersLeftBehind(
+                    this.trial,
+                    elements,
+                    this._trial_geometry,
+                );
+                if (left_behind.length) {
+                    push(
+                        'info',
+                        'layers_left',
+                        `leaves ${left_behind.join(', ')}, drawn on the same spot (a layer of the same object?)`,
+                    );
+                }
                 return;
             }
             case 'duplicate': {

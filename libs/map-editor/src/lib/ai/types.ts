@@ -150,6 +150,8 @@ export interface MapAIContextEntry {
     fill: string | null;
     /** Id or anchor of the smallest bookable or zone whose box contains this element's box. */
     in: string | null;
+    /** Shared by the sibling layers of one drawn object, such as a chair's shadow, seat and outline. */
+    piece: string | null;
 }
 
 export type MapAIAnnotationKind = 'box' | 'arrow' | 'path' | 'pin';

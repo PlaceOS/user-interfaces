@@ -1019,3 +1019,21 @@ describe('validation of a rename of an outlined label', () => {
         expect(result.trial?.byId('ai-label')?.children.length).toBe(2);
     });
 });
+
+describe('deleting part of a drawn object', () => {
+    it('notes the layers left on the same spot', async () => {
+        const doc = MapDocument.load(
+            `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300"><g id="furniture"><path id="shadow" d="M100 100h30v27h-30z" fill="#020202"/><path d="M101 98h30v27h-30z" fill="#596069"/><path d="M109 94h22v28h-22z" fill="none" stroke="#7a8f94"/><rect x="200" y="200" width="60" height="30" fill="#fff"/></g></svg>`,
+            { geometry: new AttributeGeometryProvider() },
+        );
+        const result = await validateProposal(doc, [
+            { op: 'delete', why: '', target: { id: 'shadow' } },
+        ]);
+        expect(result.ops[0].locked).toBe(false);
+        const note = result.ops[0].issues.find(
+            (issue) => issue.code === 'layers_left',
+        );
+        expect(note?.level).toBe('info');
+        expect(note?.message).toMatch(/leaves e\d+, e\d+/);
+    });
+});

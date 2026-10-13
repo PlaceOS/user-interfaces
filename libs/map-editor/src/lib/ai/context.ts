@@ -270,6 +270,95 @@ export function labelClusters(
     return clusters;
 }
 
+const PIECE_MIN_OVERLAP = 0.4;
+
+function boxOverlap(a: Box, b: Box): number {
+    const w = Math.min(a[0] + a[2], b[0] + b[2]) - Math.max(a[0], b[0]);
+    const h = Math.min(a[1] + a[3], b[1] + b[3]) - Math.max(a[1], b[1]);
+    if (w <= 0 || h <= 0) return 0;
+    const smaller = Math.min(a[2] * a[3], b[2] * b[3]);
+    return smaller > 0 ? (w * h) / smaller : 0;
+}
+
+/** Whether two boxes lie on each other closely enough to be layers of one drawn object. */
+export function sameDrawing(a: Box | null, b: Box | null): boolean {
+    if (!a || !b || a[2] <= 0 || a[3] <= 0 || b[2] <= 0 || b[3] <= 0)
+        return false;
+    return boxOverlap(a, b) >= PIECE_MIN_OVERLAP;
+}
+
+/**
+ * Anonymous rendered siblings whose boxes lie on each other are the layers
+ * of one drawn object; each such group gets one piece id, p1, p2, ... in
+ * document order. Glyphs and containers are left out.
+ */
+export function pieceIndex(
+    index: MapIndex,
+    glyphs: ReadonlySet<string>,
+): Map<string, string> {
+    const by_parent = new Map<string, MapIndexEntry[]>();
+    for (const entry of index.entries) {
+        if (
+            entry.id ||
+            entry.label ||
+            entry.protected ||
+            !entry.bbox ||
+            entry.kind === 'root' ||
+            entry.kind === 'non-rendered' ||
+            entry.kind === 'bookable' ||
+            entry.kind === 'zone' ||
+            entry.kind === 'layer-group' ||
+            glyphs.has(entry.anchor)
+        )
+            continue;
+        const key = entry.parent || '';
+        const list = by_parent.get(key) || [];
+        list.push(entry);
+        by_parent.set(key, list);
+    }
+    const group_of = new Map<string, number>();
+    const members = new Map<number, string[]>();
+    let next_group = 0;
+    for (const siblings of by_parent.values()) {
+        for (let i = 0; i < siblings.length; i++) {
+            const a = siblings[i];
+            for (let j = i + 1; j < siblings.length; j++) {
+                const b = siblings[j];
+                if (!sameDrawing(a.bbox as Box, b.bbox as Box)) continue;
+                const ga = group_of.get(a.anchor);
+                const gb = group_of.get(b.anchor);
+                if (ga === undefined && gb === undefined) {
+                    const id = next_group++;
+                    group_of.set(a.anchor, id);
+                    group_of.set(b.anchor, id);
+                    members.set(id, [a.anchor, b.anchor]);
+                } else if (ga !== undefined && gb === undefined) {
+                    group_of.set(b.anchor, ga);
+                    members.get(ga)?.push(b.anchor);
+                } else if (ga === undefined && gb !== undefined) {
+                    group_of.set(a.anchor, gb);
+                    members.get(gb)?.push(a.anchor);
+                } else if (ga !== undefined && gb !== undefined && ga !== gb) {
+                    const moved = members.get(gb) || [];
+                    for (const anchor of moved) group_of.set(anchor, ga);
+                    members.get(ga)?.push(...moved);
+                    members.delete(gb);
+                }
+            }
+        }
+    }
+    const result = new Map<string, string>();
+    let counter = 0;
+    for (const entry of index.entries) {
+        const group = group_of.get(entry.anchor);
+        if (group === undefined || result.has(entry.anchor)) continue;
+        counter += 1;
+        for (const anchor of members.get(group) || [])
+            result.set(anchor, `p${counter}`);
+    }
+    return result;
+}
+
 const MENTION = /[A-Za-z0-9.]*\d[A-Za-z0-9.]*/g;
 const ID_SEPARATOR = /[-_.\s]+/;
 const MAX_MENTIONS = 12;
@@ -322,6 +411,7 @@ export function contextEntry(
     root_anchor: string | null,
     container?: MapIndexEntry,
     glyph = false,
+    piece: string | null = null,
 ): MapAIContextEntry {
     return {
         a: entry.anchor,
@@ -337,6 +427,7 @@ export function contextEntry(
         h: entry.hash,
         fill: entry.fill,
         in: container ? container.id || container.anchor : null,
+        piece,
     };
 }
 
@@ -397,12 +488,14 @@ export function buildContext(
     const containers = containerIndex(index);
     const labels = labelClusters(index, containers);
     const glyphs = new Set(labels.flatMap((label) => label.anchors));
+    const pieces = pieceIndex(index, glyphs);
     const entries = ordered.map((entry) =>
         contextEntry(
             entry,
             root_anchor,
             containers.get(entry.anchor),
             glyphs.has(entry.anchor),
+            pieces.get(entry.anchor) ?? null,
         ),
     );
     const named_count = ordered.filter(isNamedEntry).length;

@@ -60,6 +60,7 @@ function assertEntryShape(entry: MapAIContextEntry): void {
             'kind',
             'label',
             'p',
+            'piece',
             'prot',
             'tag',
             'z',
@@ -82,6 +83,7 @@ function assertEntryShape(entry: MapAIContextEntry): void {
     expect(entry.h).toMatch(HEX8);
     expect(entry.fill === null || typeof entry.fill === 'string').toBe(true);
     expect(entry.in === null || typeof entry.in === 'string').toBe(true);
+    expect(entry.piece === null || typeof entry.piece === 'string').toBe(true);
 }
 
 describe('buildContext', () => {
@@ -337,5 +339,22 @@ describe('containment, glyphs and mentions', () => {
         expect(build('Make the walls darker').built.context.shortlist).toEqual(
             [],
         );
+    });
+});
+
+describe('pieces', () => {
+    it('gives the stacked layers of one drawn object one piece id', () => {
+        const doc = MapDocument.load(
+            `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300"><g id="furniture"><path d="M100 100h30v27h-30z" fill="#020202"/><path d="M101 98h30v27h-30z" fill="#596069"/><path d="M101 94h30v27h-30z" fill="#9baeb8"/><path d="M109 94h22v28h-22z" fill="none" stroke="#7a8f94"/><path d="M300 100h30v27h-30z" fill="#020202"/><path d="M301 96h30v27h-30z" fill="#9baeb8"/><rect x="200" y="200" width="60" height="30" fill="#fff"/></g></svg>`,
+            { geometry: new AttributeGeometryProvider() },
+        );
+        const index = buildIndex(doc);
+        const built = buildContext({ doc, index: () => index });
+        const pieces = built.context.index
+            .filter((e) => e.tag === 'path' || e.tag === 'rect')
+            .map((e) => e.piece);
+        expect(pieces.filter((piece) => piece === 'p1').length).toBe(4);
+        expect(pieces.filter((piece) => piece === 'p2').length).toBe(2);
+        expect(pieces.filter((piece) => piece === null).length).toBe(1);
     });
 });

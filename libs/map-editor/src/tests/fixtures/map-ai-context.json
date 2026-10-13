@@ -19,7 +19,8 @@
             "prot": false,
             "h": "a1a1a1a1",
             "fill": null,
-            "in": null
+            "in": null,
+            "piece": null
         },
         {
             "a": "e2",
@@ -34,7 +35,8 @@
             "prot": false,
             "h": "b2b2b2b2",
             "fill": null,
-            "in": null
+            "in": null,
+            "piece": null
         },
         {
             "a": "e3",
@@ -49,7 +51,8 @@
             "prot": true,
             "h": "c3c3c3c3",
             "fill": null,
-            "in": null
+            "in": null,
+            "piece": null
         },
         {
             "a": "e4",
@@ -64,7 +67,8 @@
             "prot": true,
             "h": "d4d4d4d4",
             "fill": null,
-            "in": null
+            "in": null,
+            "piece": null
         },
         {
             "a": "e5",
@@ -79,7 +83,8 @@
             "prot": false,
             "h": "e5e5e5e5",
             "fill": null,
-            "in": null
+            "in": null,
+            "piece": null
         },
         {
             "a": "e6",
@@ -94,7 +99,8 @@
             "prot": false,
             "h": "f6f6f6f6",
             "fill": null,
-            "in": null
+            "in": null,
+            "piece": null
         },
         {
             "a": "e7",
@@ -109,7 +115,8 @@
             "prot": false,
             "h": "07070707",
             "fill": null,
-            "in": null
+            "in": null,
+            "piece": null
         }
     ],
     "labels": [],
