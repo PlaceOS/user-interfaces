@@ -8,11 +8,11 @@ import {
   MatProgressBarModule,
   generateMockSpace,
   subDays
-} from "./chunk-QNVFHFLC.js";
-import "./chunk-6QEWF7WC.js";
+} from "./chunk-FUZHILWQ.js";
 import {
   TranslatePipe
-} from "./chunk-QAO3G4VI.js";
+} from "./chunk-QWXVZUSC.js";
+import "./chunk-6PODK65P.js";
 import {
   AsyncHandler,
   GroupPermission,
@@ -61,20 +61,20 @@ import {
   toDate,
   unique,
   user_groups_loaded
-} from "./chunk-JQQZD4SZ.js";
+} from "./chunk-ZSNQS5RI.js";
 import {
   IconComponent
-} from "./chunk-5NZELXYP.js";
-import "./chunk-IQJMK7AC.js";
-import "./chunk-VD4LEJKP.js";
-import "./chunk-7E5CWEBW.js";
+} from "./chunk-76GMIDEP.js";
+import "./chunk-3VVETPYG.js";
+import "./chunk-HIDO5ZAZ.js";
+import "./chunk-54BH5SYL.js";
 import {
   Router,
   RouterLink,
   RouterOutlet,
   provideRouter,
   withHashLocation
-} from "./chunk-YQHRR62F.js";
+} from "./chunk-OCHWLO2X.js";
 import {
   Component,
   DOCUMENT,
@@ -129,11 +129,11 @@ import {
   ɵɵtextInterpolate,
   ɵɵtextInterpolate1,
   ɵɵviewQuerySignal
-} from "./chunk-S46WIYNY.js";
+} from "./chunk-3HMDYHSV.js";
 import {
   __spreadProps,
   __spreadValues
-} from "./chunk-GOMI4DH3.js";
+} from "./chunk-653SOEEV.js";
 
 // node_modules/date-fns/setHours.js
 function setHours(date, hours, options) {
@@ -406,7 +406,7 @@ var ServiceWorkerUpdateCardComponent = class _ServiceWorkerUpdateCardComponent {
 // libs/components/src/lib/global-loading.component.ts
 var NativeDomainOverlayLoaderComponent_Conditional_0_Defer_1_DepsFn = () => [
   /* @ts-ignore */
-  import("./native-domain-overlay.component-DRDKMQJZ.js").then((m) => m.NativeDomainOverlayComponent)
+  import("./native-domain-overlay.component-5WLOHGKW.js").then((m) => m.NativeDomainOverlayComponent)
 ];
 function NativeDomainOverlayLoaderComponent_Conditional_0_Defer_0_Template(rf, ctx) {
   if (rf & 1) {
@@ -529,7 +529,7 @@ var NativeDomainOverlayLoaderComponent = class _NativeDomainOverlayLoaderCompone
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(NativeDomainOverlayLoaderComponent, () => [
     /* @ts-ignore */
-    import("./native-domain-overlay.component-DRDKMQJZ.js").then((m) => m.NativeDomainOverlayComponent)
+    import("./native-domain-overlay.component-5WLOHGKW.js").then((m) => m.NativeDomainOverlayComponent)
   ], (NativeDomainOverlayComponent) => {
     setClassMetadata(NativeDomainOverlayLoaderComponent, [{
       type: Component,
@@ -718,15 +718,15 @@ var GlobalLoadingComponent = class _GlobalLoadingComponent extends AsyncHandler 
 // libs/components/src/lib/settings-debug-panel-launcher.component.ts
 var SettingsDebugPanelLauncherComponent_Defer_25_DepsFn = () => [
   /* @ts-ignore */
-  import("./settings-debug-panel.component-Q2COSM3A.js").then((m) => m.SettingsDebugPanelComponent)
+  import("./settings-debug-panel.component-R54UXNV5.js").then((m) => m.SettingsDebugPanelComponent)
 ];
 var SettingsDebugPanelLauncherComponent_Defer_28_DepsFn = () => [
   /* @ts-ignore */
-  import("./binding-debug-panel.component-LZYYIBAT.js").then((m) => m.BindingDebugPanelComponent)
+  import("./binding-debug-panel.component-2DS57LIA.js").then((m) => m.BindingDebugPanelComponent)
 ];
 var SettingsDebugPanelLauncherComponent_Defer_31_DepsFn = () => [
   /* @ts-ignore */
-  import("./debug-console.component-3KCAGNUF.js").then((m) => m.DebugConsoleComponent)
+  import("./debug-console.component-GOCQQQWU.js").then((m) => m.DebugConsoleComponent)
 ];
 function SettingsDebugPanelLauncherComponent_Defer_24_Conditional_0_Template(rf, ctx) {
   if (rf & 1) {
@@ -961,11 +961,11 @@ var SettingsDebugPanelLauncherComponent = class _SettingsDebugPanelLauncherCompo
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(SettingsDebugPanelLauncherComponent, () => [
     /* @ts-ignore */
-    import("./settings-debug-panel.component-Q2COSM3A.js").then((m) => m.SettingsDebugPanelComponent),
+    import("./settings-debug-panel.component-R54UXNV5.js").then((m) => m.SettingsDebugPanelComponent),
     /* @ts-ignore */
-    import("./binding-debug-panel.component-LZYYIBAT.js").then((m) => m.BindingDebugPanelComponent),
+    import("./binding-debug-panel.component-2DS57LIA.js").then((m) => m.BindingDebugPanelComponent),
     /* @ts-ignore */
-    import("./debug-console.component-3KCAGNUF.js").then((m) => m.DebugConsoleComponent)
+    import("./debug-console.component-GOCQQQWU.js").then((m) => m.DebugConsoleComponent)
   ], (SettingsDebugPanelComponent, BindingDebugPanelComponent, DebugConsoleComponent) => {
     setClassMetadata(SettingsDebugPanelLauncherComponent, [{
       type: Component,
@@ -9462,7 +9462,7 @@ function mocksInit() {
 // apps/caterer-ui/src/app/app.component.ts
 var AppComponent_Defer_5_DepsFn = () => [
   /* @ts-ignore */
-  import("./chat.component-TZKRGMZI.js").then((m) => m.ChatComponent)
+  import("./chat.component-HZPCXLWV.js").then((m) => m.ChatComponent)
 ];
 function AppComponent_Defer_4_Template(rf, ctx) {
   if (rf & 1) {
@@ -9471,7 +9471,7 @@ function AppComponent_Defer_4_Template(rf, ctx) {
 }
 var AppComponent = class _AppComponent {
   constructor() {
-    this.load_settings_schema = () => import("./settings.schema-C2HRJZ3Q.js");
+    this.load_settings_schema = () => import("./settings.schema-4P6S7LSF.js");
     this._placeos = inject(PlaceOS_Service);
     this.has_chat = settingSignal("chat.enabled", false);
   }
@@ -9514,7 +9514,7 @@ var AppComponent = class _AppComponent {
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(AppComponent, () => [
     /* @ts-ignore */
-    import("./chat.component-TZKRGMZI.js").then((m) => m.ChatComponent)
+    import("./chat.component-HZPCXLWV.js").then((m) => m.ChatComponent)
   ], (ChatComponent) => {
     setClassMetadata(AppComponent, [{
       type: Component,
@@ -9550,7 +9550,7 @@ var environment = {
 };
 
 // apps/caterer-ui/src/app/app.routes.ts
-var loadCatering = () => import("./catering.component-6F3YRXA4.js").then((m) => m.CateringComponent);
+var loadCatering = () => import("./catering.component-UTPGY5RQ.js").then((m) => m.CateringComponent);
 var routes = [
   {
     path: "unauthorised",
