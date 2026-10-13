@@ -42,7 +42,13 @@ export const LIMITED_HOURS = {
     'app.bookings.bookable_hours': { start: 9, end: 17 },
 };
 
-/** Allow all-day desk bookings — the form's All Day checkbox. */
+/**
+ * Allow all-day desk bookings.
+ *
+ * The setting gates the All Day checkbox of `desk-flow-details`, which shows
+ * on small screens only. The All Day toggle in the filters of
+ * `desk-flow-select` shows with or without it.
+ */
 export const ALLOW_ALL_DAY = {
     'app.bookings.allow_all_day': true,
 };
@@ -51,10 +57,10 @@ export const ALLOW_ALL_DAY = {
  * Book a desk on somebody else's behalf.
  *
  * ONE setting, unlike visitors. `can_book_for_anyone` is read only by the
- * visitor forms (`visitor-invite-form.component.ts`); the desk form reads
- * `can_book_for_others` alone (`desk-form-details.component.ts`) and renders its
- * user field from that. Setting the visitor key here as well would look thorough
- * and do nothing, so it is left out on purpose.
+ * visitor forms (`visitor-invite-form.component.ts`); the desk flow reads
+ * `can_book_for_others` alone (`desk-flow-details.component.ts`) and offers its
+ * "Book for other" booking type from that. Setting the visitor key here as well
+ * would look thorough and do nothing, so it is left out on purpose.
  */
 export const BOOK_FOR_OTHERS = {
     'app.bookings.can_book_for_others': true,
@@ -77,7 +83,7 @@ export const BOOK_FOR_OTHERS = {
     'app.basic_user_search': true,
 };
 
-/** Enable the desk form's group mode and its local user search backend. */
+/** Enable the Group booking type of the desk flow and its local user search backend. */
 export const ALLOW_GROUP_BOOKING = {
     'app.desks.allow_groups': true,
     'app.basic_user_search': true,

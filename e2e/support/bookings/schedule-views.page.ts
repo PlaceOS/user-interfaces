@@ -2,10 +2,9 @@
  * Page object for `/your-bookings` — the schedule with the day, week and list
  * views.
  *
- * `schedule.page.ts` and `visitor/your-bookings.page.ts` drive the page as it
- * was before these views: one list of cards, and filter toggles with the names
- * `schedule-toggle-<type>-filter`. The page now opens on the DAY view, which
- * has no cards, and the filter toggles have no names.
+ * `schedule.page.ts` and `visitor/your-bookings.page.ts` drive the LIST view,
+ * where each booking is a card with its id. This file is for what the day and
+ * week views add: the page opens on the DAY view, which has no cards.
  *
  * ## Three views, one route
  *
@@ -14,7 +13,7 @@
  *
  *  - The day and week views draw each booking as a button with no id on it.
  *    The only handle is the title, so specs give each booking a unique title.
- *  - The list view draws the `booking-card` of the old page, whose link has
+ *  - The list view draws a `booking-card` for each booking, whose link has
  *    the booking id in its `href`.
  *
  * The details modal and its menu are the same as before. For those, use

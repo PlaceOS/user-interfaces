@@ -3,35 +3,35 @@
  *
  * The visitor equivalent (VIS-09) found a real defect: the host picker rendered
  * from one setting while the choice was only KEPT when a second was also set, so
- * the booking came back owned by whoever filled the form. Rooms have the same
- * shape — `meeting-form-details.component.ts` renders a host field from
- * `events.can_book_for_anyone` — and nothing has checked which user a room
- * booking ends up against.
+ * the booking came back owned by whoever filled the form. Rooms had the same
+ * defect (ROOM-B8, PPT-2805): the chosen host was discarded.
  *
  * It matters beyond bookkeeping: a room booked "for" a colleague but stored
  * against the booker does not appear on the colleague's schedule, so as far as
  * the app is concerned they have no room, and the booker holds two.
  *
- * ## The local user list, again
+ * ## `fixme` — the new meeting flow cannot name a colleague on this stack
  *
- * `app.basic_user_search` is set with it, for the same reason DESK-14 needs it:
- * without it the field searches `/api/staff/v1/people`, the calendar directory,
- * which 500s on this stack. So this covers the PlaceOS path only.
+ * The flow that this one replaced rendered a user SEARCH field from
+ * `events.can_book_for_anyone`, and this test picked the colleague there.
+ * `meeting-flow-new` does not read that setting. Measured 13 Oct 2026:
  *
- * ## ROOM-B8 (PPT-2805): the chosen host was discarded — fixed on develop
+ *   `can_book_for_anyone` ..... the details step has no host field at all
+ *                               (0 `host-select-field`, 0 `a-user-search-field`)
+ *   `can_book_for_others` ..... the step has a `host-select-field`. It is a
+ *                               select of the signed-in user and the CALENDARS
+ *                               that the user can edit. On this stack
+ *                               `GET /api/staff/v1/calendars` answers 500, so
+ *                               the select holds one option: the signed-in user.
  *
- * Measured: the colleague was picked from the host field, **the field was proven
- * to still show them at the moment the meeting was confirmed**, and the stored
- * booking came back owned by the person who filled the form.
+ * So no colleague can be chosen, and the stored owner cannot be tested. The
+ * test body drives the `host-select-field`, which is the control that exists.
+ * It runs as far as `chooseHost`, which fails with the list that the select
+ * offers.
  *
- * That "still showing" check is what makes this a finding rather than a test
- * bug — it rules out the form reverting the field before sending, which looks
- * identical from outside. `bookRoomViaUI` asserts it for this reason.
- *
- * The consequence is the same one VIS-09 used to have for visitors: the room
- * does not appear on the colleague's schedule, so as far as the app is concerned
- * they have no room, and the booker holds two. Desks get this right (DESK-14 is
- * green), which is the useful comparison for whoever fixes it.
+ * To unblock it, one of these has to be true: the flow gets a host search for
+ * `events.can_book_for_anyone`, or the stack has a calendar tenant in which the
+ * staff user can edit the calendar of a colleague.
  */
 import { test, expect } from '../../../../e2e/support/fixtures';
 import {
@@ -45,7 +45,7 @@ import { ROOM_SLOTS_2, SECOND_DAY, slotFor } from '../../../../e2e/support/room/
 import { roomForWorker } from '../../../../e2e/support/room/room.seed';
 import { releaseRoom } from '../../../../e2e/support/room/room.api';
 import {
-    BOOK_FOR_ANYONE,
+    BOOK_FOR_OTHERS,
     ROOM_BASE_SETTINGS,
     useSettings,
 } from '../../../../e2e/support/room/room.settings';
@@ -56,7 +56,8 @@ const window_from = () => Math.floor(Date.now() / 1000) - 2 * DAY;
 const window_to = () => Math.floor(Date.now() / 1000) + 7 * DAY;
 
 test.describe('booking a room for a colleague', () => {
-    test('the chosen colleague is stored as the host, and you as the booker', async ({
+    // See the file header: the flow offers no colleague to choose on this stack.
+    test.fixme('the chosen colleague is stored as the host, and you as the booker', async ({
         staffPage,
         staffApi,
     }, testInfo) => {
@@ -71,7 +72,7 @@ test.describe('booking a room for a colleague', () => {
         let booking_id: number | undefined;
 
         await releaseRoom(staffApi, room.id, window_from(), window_to());
-        await useSettings(staffPage, { ...ROOM_BASE_SETTINGS, ...BOOK_FOR_ANYONE });
+        await useSettings(staffPage, { ...ROOM_BASE_SETTINGS, ...BOOK_FOR_OTHERS });
 
         try {
             const me = await currentUser(staffApi);

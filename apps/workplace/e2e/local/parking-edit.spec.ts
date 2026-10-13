@@ -77,8 +77,19 @@ test.describe('editing a parking booking', () => {
                 'the edit form should open with the booked space already on it',
             ).toHaveCount(1, { timeout: 30_000 });
 
-            await form.setStartTime(hhmm(to_slot.start));
-            await staffPage.waitForTimeout(3_000);
+            // The form can be rebuilt while it loads, and the rebuild puts the
+            // booked time back. Under load that came after the choice, and the
+            // edit was saved with the old time. So set the time again until
+            // it holds for the three seconds that the wait has always been.
+            await expect(async () => {
+                await form.setStartTime(hhmm(to_slot.start));
+                const shown = await form.startTimeTrigger.innerText();
+                await staffPage.waitForTimeout(3_000);
+                await expect(
+                    form.startTimeTrigger,
+                    'the form put the start time back after it was chosen',
+                ).toHaveText(shown, { timeout: 1_000 });
+            }).toPass({ timeout: 30_000 });
             await form.confirmAndSend();
 
             await expect(async () => {

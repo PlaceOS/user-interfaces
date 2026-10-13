@@ -11,7 +11,7 @@
  *
  * ## Where the edit starts, and why that is not this page
  *
- * A desk booking cannot be opened for editing from the desk form directly: the
+ * A desk booking cannot be opened for editing from the desk flow directly: the
  * schedule loads the form with the booking (`editBooking`) and then routes to
  * `/book/desk`. So these tests begin on the schedule, through
  * `DeskSchedulePage` — which inherits it rather than copying it.
@@ -43,7 +43,7 @@ import {
     hourFor,
     slotOn,
 } from '../../../../e2e/support/desk/desk.env';
-import { DeskForm } from '../../../../e2e/support/desk/desk-form.page';
+import { DeskFlow } from '../../../../e2e/support/desk/desk-flow.page';
 import { DeskSchedulePage } from '../../../../e2e/support/desk/desk-schedule.page';
 import { createDeskBookingViaApi } from '../../../../e2e/support/desk/desk.api';
 
@@ -80,17 +80,16 @@ test.describe('editing a desk booking', () => {
             await schedule.showDayOf(from_slot.date_ms);
             await schedule.startEdit(booking_id);
 
-            const form = new DeskForm(staffPage);
+            const form = new DeskFlow(staffPage);
             await expect(
                 form.chosenDesks,
-                'the edit form should open with the booked desk already on it',
+                'the edit form should open with the booked desk already selected',
             ).toHaveCount(1, { timeout: 30_000 });
+            await expect(form.title, 'and with the title of the booking').toHaveValue(title);
 
-            // Only the time changes. The fields reach the model asynchronously
-            // and the confirm dialog snapshots the model when it opens, so set
-            // and settle before confirming.
+            // Only the time changes. Confirm saves at once, with the values
+            // the form holds at the click.
             await form.setStartTime(hhmm(to_slot.start));
-            await staffPage.waitForTimeout(3_000);
             await form.confirmAndSend();
 
             await expect(async () => {
@@ -149,25 +148,19 @@ test.describe('editing a desk booking', () => {
             await schedule.showDayOf(slot.date_ms);
             await schedule.startEdit(booking_id);
 
-            const form = new DeskForm(staffPage);
+            const form = new DeskFlow(staffPage);
             await expect(
                 form.chosenDesks,
-                'the edit form should open with the booked desk already on it',
+                'the edit form should open with the booked desk already selected',
             ).toHaveCount(1, { timeout: 30_000 });
+            await expect(form.chosenDeskNames).toHaveText([desk.name]);
 
-            // The form holds one desk, so the old one comes off before the new
-            // one goes on. Converged on the NAME rather than the count: the
-            // count is 1 before and 1 after, so it cannot see this swap, and the
-            // choice reaches the model asynchronously while the confirm dialog
-            // snapshots the model when it opens.
-            await expect(async () => {
-                if (!(await form.chosenDeskNames()).includes(other.name)) {
-                    await form.removeDesk();
-                    await form.chooseDesk(other.name);
-                }
-                expect(await form.chosenDeskNames()).toEqual([other.name]);
-            }).toPass({ timeout: 45_000 });
-            await staffPage.waitForTimeout(3_000);
+            // The flow holds one desk, so a click on another desk replaces the
+            // selection: there is nothing to take off first. Asserted on the
+            // NAME rather than the count: the count is 1 before and 1 after,
+            // so it cannot see this swap.
+            await form.selectDesk(other.name);
+            await expect(form.chosenDeskNames).toHaveText([other.name]);
             await form.confirmAndSend();
 
             await expect(async () => {

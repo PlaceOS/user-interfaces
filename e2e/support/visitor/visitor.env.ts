@@ -41,7 +41,7 @@ export const VISITOR_SLOTS = {
     /** visitor-validation.spec.ts */
     validation: { badEmail: 18, keptA: 19, removedB: 20 },
     /** visitor-details.spec.ts */
-    details: { extras: 21, company: 22 },
+    details: { extras: 21, company: 22, international: 52 },
     /** visitor-duplicate.spec.ts — the guard for VIS-B1 */
     duplicate: { same: 23 },
     /** visitor-group-clash.spec.ts — the guard for VIS-B9 */
@@ -58,7 +58,7 @@ export const VISITOR_SLOTS = {
      * other file owns. 40 onwards is clear of everything above.
      */
     concurrency: { base: 40, count: 8 },
-    /** visitor-flow-new.spec.ts — clear of the concurrency block above */
+    /** visitor-flow-new.spec.ts — clear of the concurrency block above. 52 is `details`. */
     new_flow: { stores: 50, recent: 51 },
 } as const;
 

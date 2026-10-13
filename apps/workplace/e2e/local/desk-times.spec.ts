@@ -36,7 +36,7 @@ import {
     slotOn,
 } from '../../../../e2e/support/desk/desk.env';
 import { LIMITED_HOURS, useSettings } from '../../../../e2e/support/desk/desk.settings';
-import { DeskForm } from '../../../../e2e/support/desk/desk-form.page';
+import { DeskFlow } from '../../../../e2e/support/desk/desk-flow.page';
 
 const MINUTES = 60;
 
@@ -54,35 +54,23 @@ test.describe('desk booking times', () => {
         await releaseAsset(staffApi, 'desk', desk.id, from, to);
 
         try {
-            const form = new DeskForm(staffPage);
+            const form = new DeskFlow(staffPage);
             await form.open();
 
-            // The date goes first and ONCE. Changing the day resets the
-            // duration asynchronously, so a date click repeated inside the
-            // converging block below lands after the length is picked and
-            // quietly reverts it — the same trap the meeting form has.
+            // The date goes first: a new day loads the list of free desks
+            // again, and the desk is chosen for the window that gets booked.
             await form.pickDate(slot.date_ms);
-
-            // Converge on the rest: the form is rebuilt when async init
-            // finishes and restores its defaults (REG-10).
-            await expect(async () => {
-                await form.setChecked(form.requireLocker, false);
-                await form.setChecked(form.allDay, false);
-                await form.title.fill(title);
-                if ((await form.chosenDesks.count()) === 0) {
-                    await form.chooseDesk(desk.name);
-                }
-                await expect(form.title).toHaveValue(title, { timeout: 1_000 });
-                await expect(form.allDay).not.toBeChecked({ timeout: 1_000 });
-            }).toPass({ timeout: 45_000 });
-
-            // Times LAST, after the rebuild can no longer undo them, and with a
-            // settle before confirming: the fields reach the model
-            // asynchronously and the confirm dialog snapshots the model when it
-            // opens.
+            await form.setChecked(form.requireLocker, false);
+            await form.setAllDay(false);
+            await form.title.fill(title);
             await form.setDuration(60);
             await form.setStartTime(hhmm(slot.start));
-            await staffPage.waitForTimeout(3_000);
+            await form.selectDesk(desk.name);
+
+            // Read the form back before the click. Confirm saves at once.
+            await expect(form.title).toHaveValue(title);
+            await expect(form.allDayInput).not.toBeChecked();
+            await expect(form.chosenDeskNames).toHaveText([desk.name]);
 
             const [response] = await Promise.all([
                 staffPage.waitForResponse(
@@ -126,13 +114,10 @@ test.describe('desk booking times', () => {
 
         await useSettings(staffPage, LIMITED_HOURS);
 
-        const form = new DeskForm(staffPage);
+        const form = new DeskFlow(staffPage);
         await form.open();
-        await expect(async () => {
-            await form.setChecked(form.requireLocker, false);
-            await form.setChecked(form.allDay, false);
-            await expect(form.allDay).not.toBeChecked({ timeout: 1_000 });
-        }).toPass({ timeout: 45_000 });
+        // The time and length fields show only while All Day is off.
+        await form.setAllDay(false);
 
         // Lengths: nothing beyond the cap may be on offer. Without the setting
         // the form offers up to eight hours, which is what makes this

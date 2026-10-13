@@ -20,7 +20,7 @@
  * production exactly as it does here.
  */
 import { expect, test } from '../../../../e2e/support/fixtures';
-import { LandingPage } from '../../../../e2e/support/home/landing.page';
+import { LandingNewPage } from '../../../../e2e/support/home/landing-new.page';
 
 test.describe('home page — loading cleanly', () => {
     test('the home page loads with no uncaught exception', async ({
@@ -34,7 +34,7 @@ test.describe('home page — loading cleanly', () => {
             server_errors.push(`${r.status()} ${new URL(r.url()).pathname}`);
         });
 
-        const home = new LandingPage(staffPage);
+        const home = new LandingNewPage(staffPage);
         await home.open();
         // Long enough for the panels to finish their own requests: an exception
         // raised by a late response is still an exception.

@@ -1,10 +1,11 @@
 /**
- * NEW-DESK-01, NEW-DESK-02 — the `desk-flow-new` booking flow, as a NON-ADMIN,
- * against a real local backend.
+ * NEW-DESK-01..03 — the `desk-flow-new` booking flow, as a NON-ADMIN, against a
+ * real local backend.
  *
- * `desk-booking.spec.ts` covers the same story for the flow this one replaced.
- * That flow is no longer routed, so these are the specs that hold the story
- * for `/book/desk`.
+ * `desk-booking.spec.ts` books through the same flow with `bookDeskViaUI`.
+ * These specs drive the page object directly: NEW-DESK-01 also checks the
+ * success view, and NEW-DESK-02 checks that Confirm sends nothing when no desk
+ * is selected. NEW-DESK-03 is a `fixme` for an app fault, see its comment.
  *
  * Isolation is the same as the other desk specs: each worker books its OWN
  * desk and SWEEPS it before booking, because an all-day booking that leaked
@@ -20,6 +21,10 @@ import {
     uniqueTitle,
 } from '../../../../e2e/support/api';
 import { DeskFlow } from '../../../../e2e/support/desk/desk-flow.page';
+import {
+    createSecondLevel,
+    removeSecondLevel,
+} from '../../../../e2e/support/desk/desk.zones';
 
 /** Window wide enough to cover an all-day booking made in any timezone. */
 const DAY = 86_400;
@@ -119,5 +124,42 @@ test.describe('desk booking — the new flow', () => {
         await expect(staffPage).toHaveURL(/#\/book\/desk\/form/);
         await expect(flow.successContinue).toHaveCount(0);
         expect(posts, 'no booking request may leave the page without a desk').toEqual([]);
+    });
+
+    // FIXME (app fault, measured 2026-10-13): one desk whose metadata has no
+    // `features` list stops `desk-flow-select` from rendering a selection.
+    // The `features` computed of `desk-flow-select.component.ts` calls
+    // `.trim()` on the `features` of every desk of the building with no guard,
+    // and throws for such a desk. The console shows `TypeError: Cannot read
+    // properties of undefined (reading 'trim')` on each render, and the
+    // bindings after it in the template do not update. Measured: after a
+    // click on a desk the form holds it (`model().asset_id` is the desk id),
+    // and no row shows as selected. This test fails at `selectDesk` with
+    // `desk "E2E Desk 0" should show as selected`.
+    //
+    // The flow that this one replaced read the list through
+    // `BookingFormService.features`, which has the guard.
+    //
+    // Do not run this beside the other specs before the app is fixed: the
+    // desk it adds breaks the selection in the pages of all workers.
+    test.fixme('NEW-DESK-03: a desk with no features list does not break the desk selection', async ({
+        staffPage,
+    }, testInfo) => {
+        const desk = deskFor(testInfo.parallelIndex);
+        const extra = await createSecondLevel(testInfo.parallelIndex, { features: false });
+        try {
+            const flow = new DeskFlow(staffPage);
+            await flow.open();
+            // The desk with no list is offered, so the page has it loaded.
+            await expect
+                .poll(() => flow.deskNames(), { timeout: 30_000 })
+                .toContain(extra.desk.name);
+
+            // A desk that has the list must still show as selected.
+            await flow.selectDesk(desk.name);
+            await expect(flow.chosenDeskNames).toHaveText([desk.name]);
+        } finally {
+            await removeSecondLevel(extra.zone_id);
+        }
     });
 });

@@ -7,7 +7,7 @@
  * the question is not "did a message appear" but "did anything leave".
  *
  * `asset_id` carries the visitor's address on a visitor booking and has an
- * `email` validator on it (`booking.utilities.ts`), which is what test 1
+ * `email` validator on it (`booking-form.model.ts`), which is what test 1
  * exercises. The backend would happily store `not-an-email`, so if the form
  * lets it through nothing else will stop it.
  */
@@ -42,7 +42,7 @@ test.describe('visitor invite validation', () => {
 
         const form = new InviteVisitorForm(staffPage);
         await form.open();
-        await form.expectSingleMode();
+        await form.useSingleMode();
 
         const posts: number[] = [];
         staffPage.on('response', (r) => {
@@ -60,6 +60,14 @@ test.describe('visitor invite validation', () => {
         }).toPass({ timeout: 30_000 });
 
         await form.sendButton.click();
+        // The page answers Confirm with a snack bar. Waiting for it proves the
+        // click was handled, so the checks below are not made on a page that
+        // has not reacted yet. A sent invite shows a snack bar too: the checks
+        // below are what tell a refusal from a send.
+        await expect(
+            staffPage.locator('mat-snack-bar-container'),
+            'Confirm must be answered with a snack bar',
+        ).toBeVisible();
         // Long enough that a slow POST would still have been seen. Asserting
         // "nothing yet" straight after the click would pass either way.
         await staffPage.waitForTimeout(5_000);
@@ -69,6 +77,7 @@ test.describe('visitor invite validation', () => {
             'a malformed address must be caught in the form — the backend stores ' +
                 'whatever it is given, so nothing else will catch it',
         ).toHaveLength(0);
+        await expect(form.sendButton, 'the form must still be on screen').toBeVisible();
         await expect(
             form.successPanel,
             'and the invite must not reach its success screen',

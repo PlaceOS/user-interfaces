@@ -8,13 +8,16 @@
  *
  * So this asserts twice, on two different things:
  *
- *  1. the BACKEND holds the room id in `favourite_spaces` afterwards. The write
+ *  1. the BACKEND holds the room id in `favourite_rooms` afterwards. The write
  *     is debounced (~2.4 seconds in `SettingsService.saveUserSetting`) and sends
  *     the whole settings blob as one `PUT /metadata/{user_id}`, so a spec that
  *     read it immediately would see the old value and call it a bug.
- *  2. the "Favorites Only" filter then narrows the picker to it. The list is
- *     asserted to hold more than one room BEFORE the filter goes on, so
+ *  2. the "Favorites Only" filter then narrows the room list to it. The list
+ *     is asserted to hold more than one room BEFORE the filter goes on, so
  *     "narrowed to one" cannot pass in a stack that only has one room to offer.
+ *
+ * The list and its filters are the second step of the meeting flow, and that
+ * step needs a title. No booking is made.
  *
  * ## Cleanup matters more here than anywhere else in these specs
  *
@@ -24,14 +27,16 @@
  * `setFavouriteSpaces` deliberately reads-modifies-writes so it cannot wipe the
  * visitor data as collateral.
  */
+import { uniqueTitle } from '../../../../e2e/support/api';
 import { test, expect } from '../../../../e2e/support/fixtures';
 import { roomForWorker } from '../../../../e2e/support/room/room.seed';
 import {
+    FAVOURITE_ROOMS_KEY,
     readUserSettings,
     setFavouriteSpaces,
 } from '../../../../e2e/support/room/room.api';
 import { ROOM_BASE_SETTINGS, useSettings } from '../../../../e2e/support/room/room.settings';
-import { MeetingForm } from '../../../../e2e/support/room/meeting-form.page';
+import { MeetingFlow } from '../../../../e2e/support/room/meeting-flow.page';
 
 test.describe('favourite rooms', () => {
     test('a room marked as a favourite is saved and can be filtered to', async ({
@@ -46,48 +51,41 @@ test.describe('favourite rooms', () => {
         await useSettings(staffPage, ROOM_BASE_SETTINGS);
 
         try {
-            const form = new MeetingForm(staffPage);
+            const form = new MeetingFlow(staffPage);
             await form.open();
-            await form.addSpaceButton.click();
-            const rows = staffPage.locator('button[name="select-space"]');
-            await expect(rows.first(), 'the room picker did not open').toBeVisible({
-                timeout: 20_000,
-            });
-            const offered_before = await rows.count();
+            await form.title.fill(uniqueTitle('E2E Room Favourite'));
+            await form.toRoomStep();
+            const offered_before = await form.offeredRoomNames();
             expect(
-                offered_before,
-                'the picker must offer more than one room, or filtering down to one ' +
+                offered_before.length,
+                'the list must offer more than one room, or filtering down to one ' +
                     'proves nothing',
             ).toBeGreaterThan(1);
 
-            const row = staffPage.locator('li[space]').filter({ hasText: room.name });
-            await expect(
-                row,
-                `no row for ${room.name} in the picker — it offers ${offered_before}`,
-            ).toHaveCount(1, { timeout: 20_000 });
-            await row.locator('button[name="toggle-space-favourite"]').first().click();
+            // The favourites were set to none above, so this click turns the
+            // favourite ON.
+            await form.showRoom(room.name);
+            await form.favouriteButton(room.name).click();
 
             // The write is debounced, so poll rather than read once.
             await expect(async () => {
                 const settings = await readUserSettings(staffApi);
                 expect(
-                    settings.favourite_spaces ?? [],
+                    settings[FAVOURITE_ROOMS_KEY] ?? [],
                     `${room.name} (${room.id}) should be saved as a favourite room`,
                 ).toContain(room.id);
             }).toPass({ timeout: 30_000 });
 
-            // "Favorites Only" is a toggle in the picker's filter panel. Its
-            // label is translated, so it is reached through the `favs` section
-            // attribute instead.
-            await staffPage.locator('section[favs] settings-toggle button').first().click();
-            await expect(
-                rows,
-                'with Favorites Only on, the picker should offer just the favourite',
-            ).toHaveCount(1, { timeout: 20_000 });
-            await expect(
-                staffPage.locator('li[space]').filter({ hasText: room.name }),
-                'and the one it offers should be the room that was favourited',
-            ).toHaveCount(1, { timeout: 20_000 });
+            // "Favorites Only" is a toggle in the filter column. Polled: the
+            // list shows its old answer until the new query lands.
+            await form.setToggle(form.favouritesOnly, true);
+            await expect(async () => {
+                expect(
+                    await form.offeredRoomNames(),
+                    'with Favorites Only on, the list should offer just the room ' +
+                        'that was favourited',
+                ).toEqual([room.name]);
+            }).toPass({ timeout: 30_000 });
         } finally {
             // Not optional. This is a saved user setting, not a booking.
             await setFavouriteSpaces(staffApi, []);

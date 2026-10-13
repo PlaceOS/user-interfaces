@@ -70,7 +70,7 @@ export const ROOM_SLOTS_2 = {
     allday: { hour: 18 },
     /** room-delegate.spec.ts */
     delegate: { hour: 19 },
-    /** room-features.spec.ts — no booking, so only the picker matters */
+    /** room-features.spec.ts — no booking, so only the room list matters */
     features: { hour: 20 },
 } as const;
 
@@ -117,7 +117,7 @@ export interface RoomIdentity {
  *    way for the test to fail for an unrelated reason.
  *
  * The names deliberately share no prefix with each other's full name, because
- * the picker is searched by name text: "E2E Room 0" does not appear inside
+ * the room list is searched by name text: "E2E Room 0" does not appear inside
  * "E2E Alt Room 0" or "E2E Small Room 0".
  */
 export type RoomVariant = 'main' | 'alt' | 'small';
@@ -126,10 +126,10 @@ export type RoomVariant = 'main' | 'alt' | 'small';
  * A feature only the `alt` room has.
  *
  * Space features come from the engine System's own `features` list, and the
- * picker's facilities filter is built from whatever the loaded rooms carry
- * (`space-filters.component.ts`). With no room carrying anything, the filter
- * section is not rendered at all — so testing it needs exactly this: one
- * feature, on one room, so filtering by it has a right answer.
+ * facilities filter of the room list is built from whatever the loaded rooms
+ * carry (`meeting-flow-space-select.component.ts`). With no room carrying
+ * anything, the filter section is not rendered at all — so testing it needs
+ * exactly this: one feature, on one room, so filtering by it has a right answer.
  */
 export const ALT_ROOM_FEATURE = 'E2E Projector';
 

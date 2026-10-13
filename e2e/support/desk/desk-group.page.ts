@@ -1,14 +1,19 @@
-/** Group-specific page actions; ordinary desk tests keep using DeskForm. */
+/** Group-specific page actions; ordinary desk tests keep using DeskFlow. */
 import { type Page, expect } from '@playwright/test';
-import { DeskForm } from './desk-form.page';
+import { DeskFlow } from './desk-flow.page';
 import { groupDeskSlot } from './desk-group.env';
 import { type GroupDeskSeed } from './desk-group.seed';
 import { hhmm } from './desk.env';
 
 export class DeskGroupPage {
-    readonly form: DeskForm;
+    readonly form: DeskFlow;
     constructor(readonly page: Page) {
-        this.form = new DeskForm(page);
+        this.form = new DeskFlow(page);
+    }
+
+    /** The notices of the app. A refusal and a warning both show as one. */
+    get notice() {
+        return this.page.locator('mat-snack-bar-container:not([mat-exit])');
     }
 
     async prepare(
@@ -18,48 +23,39 @@ export class DeskGroupPage {
         slot: ReturnType<typeof groupDeskSlot>,
     ) {
         await this.form.open();
-        await this.form.groupModeButton.click();
+        await this.form.bookForGroup();
         await this.form.pickDate(slot.date_ms);
-        // Safeguard: this sets Group mode again. It does not toggle the mode.
-        await this.form.groupModeButton.click();
-        await expect(this.form.root.locator('a-user-list-field')).toBeVisible();
         await this.form.setChecked(this.form.requireLocker, false);
-        await this.form.setChecked(this.form.allDay, false);
-        await this.form.title.fill(title);
-        for (const member of members) await this.form.addGroupMember(member);
-        await this.form.addDeskButton.click();
-        // Wait for the initial resource list before narrowing to the test level.
-        // Resource updates can rebuild the dropdown while it is open.
-        await expect(
-            this.page.locator('button[name="select-desk"]').filter({
-                hasText: seed.desks[0].name,
-            }),
-        ).toBeVisible();
-        const level = this.page.locator('mat-select[name="location"]').first();
-        await expect(async () => {
-            if ((await level.innerText()).includes(seed.level_name)) return;
-            if ((await level.getAttribute('aria-expanded')) !== 'true')
-                await level.click();
-            await this.page
-                .getByRole('option', { name: seed.level_name, exact: true })
-                .click({ timeout: 2_000 });
-            await expect(level).toContainText(seed.level_name);
-        }).toPass({ timeout: 15_000 });
-        await this.page
-            .locator('button[name="select-desk"]')
-            .filter({ hasText: seed.desks[0].name })
-            .click();
-        await this.page.locator('button[name="toggle-desk"]').click();
+        await this.form.setAllDay(false);
         await this.form.setStartTime(hhmm(slot.start));
         await this.form.setDuration(slot.duration);
+        await this.form.title.fill(title);
+        for (const member of members) await this.form.addGroupMember(member);
+        // Narrow the list to the test level, then select its first desk. The
+        // flow gives the other members the desks nearest to it on the map.
+        await this.form.chooseLevel(seed.level_name);
+        await this.form.selectDesk(seed.desks[0].name);
+        // Read the form back. Confirm saves at once.
+        await expect(this.form.groupField).toBeVisible();
         await expect(this.form.title).toHaveValue(title);
         await expect(this.form.groupMembers).toHaveCount(members.length);
+        await expect(this.form.allDayInput).not.toBeChecked();
     }
 
+    /** Confirm. The flow saves at once: there is no confirm dialog. */
     async submit() {
         await this.form.confirmAndSend();
     }
+
     async expectSuccess() {
         await expect(this.page).toHaveURL(/#\/book\/desk\/success/);
+        await expect(this.form.successContinue).toBeVisible();
+    }
+
+    /** The flow refused the booking: a notice shows and the form stays. */
+    async expectRefused() {
+        await expect(this.notice).toBeVisible();
+        await expect(this.page).toHaveURL(/#\/book\/desk\/form/);
+        await expect(this.form.confirm).toBeVisible();
     }
 }

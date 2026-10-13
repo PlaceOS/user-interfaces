@@ -1,9 +1,9 @@
 /**
  * Page object for `/landing` — the `landing-new` home page.
  *
- * `landing.page.ts` drives the home page that this one replaced
- * (`app-landing`, `landing-upcoming`, `landing-quick-book`). None of those
- * elements exist here, so this file shares nothing with it.
+ * The home page that this one replaced (`app-landing`, `landing-upcoming`,
+ * `landing-quick-book`) is no longer routed. None of those elements exist
+ * here.
  *
  * ## The page shows ONE next booking
  *
@@ -49,6 +49,11 @@ export class LandingNewPage {
             .filter({ has: this.page.locator('icon', { hasText: 'delete' }) });
     }
 
+    /** The link from the card to Your Bookings. Both states of the card have it. */
+    get viewAllBookings(): Locator {
+        return this.upcoming.locator('a[href$="/your-bookings"]');
+    }
+
     /** The "book a desk" link, which only the clear state shows. */
     get clearStateDeskLink(): Locator {
         return this.upcoming.locator('a[href$="/book/desk"]');
@@ -91,18 +96,98 @@ export class LandingNewPage {
         return this.page.locator('landing-favourites-new');
     }
 
-    /** The Book control of a favourite, by the name the favourite shows. */
-    bookFavourite(name: string): Locator {
+    /**
+     * One favourite, by the name it shows. The innermost element that holds
+     * the name and the Book control is the row.
+     */
+    favourite(name: string): Locator {
         const book = this.page.locator('button[name="book-favourite"]');
-        // The innermost element that holds the name and the control is the row.
-        return this.favourites
-            .locator('div', { has: book, hasText: name })
-            .last()
-            .locator('button[name="book-favourite"]');
+        return this.favourites.locator('div', { has: book, hasText: name }).last();
+    }
+
+    /** The Book control of a favourite. */
+    bookFavourite(name: string): Locator {
+        return this.favourite(name).locator('button[name="book-favourite"]');
+    }
+
+    /** The remove control of a favourite. */
+    removeFavourite(name: string): Locator {
+        return this.favourite(name).locator('button[name="remove-favourite"]');
+    }
+
+    /** A tab of the "available now" panel. */
+    availableTab(tab: 'desks' | 'rooms' | 'lockers'): Locator {
+        return this.page.locator(`landing-available-now button[name="tab-${tab}"]`);
+    }
+
+    /**
+     * The levels that the active tab of the "available now" panel lists. The
+     * panel lists a level only when it has a free resource of the tab.
+     */
+    get availableLevels(): Locator {
+        return this.page.locator('landing-available-now a[name="available-level"]');
+    }
+
+    /** The quick action that finds a desk for today. */
+    get autoAssignDesk(): Locator {
+        return this.page.locator('landing-quick-actions button[name="auto-assign-desk"]');
+    }
+
+    /** The modal that shows the desk the quick action found. */
+    get autoAssignModal(): Locator {
+        return this.page.locator('auto-assigned-desk-modal');
+    }
+
+    /**
+     * The control of the modal that books the desk. It is the last control of
+     * the footer, and it is disabled while the modal looks for a desk.
+     */
+    get autoAssignConfirm(): Locator {
+        return this.autoAssignModal.locator('footer button[btn]').last();
+    }
+
+    /** The Cancel control of the modal. It is the first control of the footer. */
+    get autoAssignCancel(): Locator {
+        return this.autoAssignModal.locator('footer button[btn]').first();
     }
 
     get colleagues(): Locator {
         return this.page.locator('landing-colleagues-new');
+    }
+
+    /**
+     * The row of one colleague, by address. The innermost element that holds
+     * the avatar and the address is the row.
+     */
+    colleague(email: string): Locator {
+        return this.colleagues
+            .locator('div')
+            .filter({ has: this.page.locator('a-user-avatar') })
+            .filter({ hasText: email })
+            .last();
+    }
+
+    /**
+     * Open the menu of a colleague and return one of its actions.
+     *
+     * The actions have no `name` attribute. Each has its own icon: `event`
+     * (book a meeting), `star` / `star_outline` (favourite), `group_add` /
+     * `group_remove` (team) and `person_remove` (remove).
+     */
+    async colleagueAction(email: string, icon: string): Promise<Locator> {
+        await this.colleague(email)
+            .locator('button[icon]')
+            .filter({ has: this.page.locator('icon', { hasText: 'more_vert' }) })
+            .click();
+        const action = this.page
+            .locator('.cdk-overlay-container button[mat-menu-item]')
+            .filter({
+                has: this.page.locator('icon', { hasText: new RegExp(`^\\s*${icon}\\s*$`) }),
+            });
+        await expect(action, `the colleague menu has no "${icon}" action`).toBeVisible({
+            timeout: 10_000,
+        });
+        return action;
     }
 
     get addColleaguesModal(): Locator {
@@ -122,9 +207,20 @@ export class LandingNewPage {
             .filter({ has: this.page.locator('icon', { hasText: 'person_add' }) })
             .click();
         const modal = this.addColleaguesModal;
-        await modal.locator('input').pressSequentially(email, { delay: 30 });
+        const input = modal.locator('input');
         const row = modal.locator('main button').filter({ hasText: email });
-        await expect(row, `the search should find ${email}`).toBeVisible({ timeout: 20_000 });
+        // The modal moves the focus to its close control when it opens. Keys
+        // typed before that go nowhere, so type again until the field holds
+        // the whole address.
+        await expect(async () => {
+            await input.click();
+            await input.fill('');
+            await input.pressSequentially(email, { delay: 30 });
+            await expect(input).toHaveValue(email, { timeout: 1_000 });
+            await expect(row, `the search should find ${email}`).toBeVisible({
+                timeout: 10_000,
+            });
+        }).toPass({ timeout: 45_000 });
         await row.click();
         await expect(row.locator('icon', { hasText: 'radio_button_unchecked' })).toHaveCount(0);
         // The last control of the footer is Add. The first is Cancel.

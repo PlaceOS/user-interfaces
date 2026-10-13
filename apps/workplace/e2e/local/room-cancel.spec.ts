@@ -44,8 +44,10 @@ async function isLive(api: APIRequestContext, id: number): Promise<boolean> {
 }
 
 test.describe('cancelling a room booking from the app', () => {
-    // ROOM-11 / ROOM-B4: native booking cancellation; assert persisted state.
-    // Keep active so a fix can be verified rather than hidden by test.fixme.
+    // ROOM-11. With ROOM-B4 the schedule sent `DELETE /events/<id>`, which
+    // answered 500, and the booking stayed live. Measured 13 Oct 2026: the
+    // schedule sends `DELETE /api/staff/v1/bookings/<id>`, which answers 202,
+    // and the booking is gone. The responses are attached as evidence.
     test('cancelling from the booking menu removes it for real', async ({
         staffPage,
         staffApi,

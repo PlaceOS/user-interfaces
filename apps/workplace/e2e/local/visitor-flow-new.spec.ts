@@ -2,9 +2,10 @@
  * NEW-VIS-01 … NEW-VIS-03 — the `visitor-flow-new` invite flow, as a
  * NON-ADMIN, against a real local backend.
  *
- * `visitor-invite.spec.ts` covers the same story for the flow this one
- * replaced. That flow is no longer routed, so these are the specs that hold
- * the story for `/book/visitor`.
+ * These were written when every other visitor spec still drove the flow that
+ * this one replaced. The other specs now drive this flow too, so NEW-VIS-01
+ * overlaps `visitor-invite.spec.ts`; it adds the success view. NEW-VIS-02 (no
+ * address) and NEW-VIS-03 (the recent visitors) are covered nowhere else.
  */
 import { test, expect } from '../../../../e2e/support/fixtures';
 import {
@@ -15,7 +16,7 @@ import {
     uniqueTitle,
 } from '../../../../e2e/support/api';
 import { readUserSettings, setUserSetting } from '../../../../e2e/support/home/home.api';
-import { VisitorFlow } from '../../../../e2e/support/visitor/visitor-flow.page';
+import { InviteVisitorForm } from '../../../../e2e/support/visitor/invite-form.page';
 import { VISITOR_SLOTS, visitorFor } from '../../../../e2e/support/visitor/visitor.env';
 import {
     deleteGuest,
@@ -27,6 +28,7 @@ import {
     SINGLE_VISITOR_MODE,
     useSettings,
 } from '../../../../e2e/support/visitor/visitor.settings';
+import { inviteVisitorViaUI } from '../../../../e2e/support/visitor/visitor.flows';
 
 /** Window wide enough to cover an invite made in any timezone. */
 const DAY = 86_400;
@@ -48,7 +50,6 @@ test.describe('visitor invite — the new flow', () => {
     }, testInfo) => {
         const visitor = visitorFor(testInfo.parallelIndex, VISITOR_SLOTS.new_flow.stores);
         const reason = uniqueTitle('E2E New Visit');
-        const flow = new VisitorFlow(staffPage);
         let booking_id: number | undefined;
 
         const swept = await releaseVisitor(staffApi, visitor.email, window_from(), window_to());
@@ -63,31 +64,21 @@ test.describe('visitor invite — the new flow', () => {
         await useSettings(staffPage, SETTINGS);
 
         try {
-            await flow.open();
+            // Through the flow, not a bare click on Confirm: the flow retries a
+            // `POST /bookings` that REG-09 refused (see `visitor.flows.ts`),
+            // and a bare click failed on that 400 in a parallel run.
             // All Day replaces the default slot, which is the next boundary of
             // the clock and makes the invite depend on how fast the run is.
-            await flow.setAllDay(true);
-            await flow.reason.fill(reason);
-            await flow.name.fill(visitor.name);
-            await flow.email.fill(visitor.email);
-            await flow.company.fill(visitor.company);
-
-            const [response] = await Promise.all([
-                staffPage.waitForResponse(
-                    (r) => isBookingPost(r.url(), r.request().method()),
-                    { timeout: 30_000 },
-                ),
-                flow.confirm.click(),
-            ]);
-            const status = response.status();
-            const body = await response.text().catch(() => '<body unavailable>');
-            expect(response.ok(), `POST /bookings should succeed, got ${status}: ${body}`).toBeTruthy();
-            const created_id: number = JSON.parse(body).id;
+            const created = await inviteVisitorViaUI(staffPage, staffApi, visitor, reason, {
+                allDay: true,
+            });
+            const created_id = created.id;
             booking_id = created_id;
 
             // The app reached its own success state, and names the visitor.
             await expect(staffPage).toHaveURL(/#\/book\/visitor\/success/);
-            await expect(flow.success).toContainText(visitor.name);
+            const form = new InviteVisitorForm(staffPage);
+            await expect(form.successPanel).toContainText(visitor.name);
 
             // Read it back independently of the response parsed above.
             const stored = await getBooking(staffApi, created_id);
@@ -124,18 +115,18 @@ test.describe('visitor invite — the new flow', () => {
     test('NEW-VIS-02: Confirm with no visitor email is refused and nothing is sent', async ({
         staffPage,
     }) => {
-        const flow = new VisitorFlow(staffPage);
+        const form = new InviteVisitorForm(staffPage);
         const posts: string[] = [];
         staffPage.on('request', (request) => {
             if (isBookingPost(request.url(), request.method())) posts.push(request.url());
         });
         await useSettings(staffPage, SETTINGS);
 
-        await flow.open();
-        await flow.reason.fill(uniqueTitle('E2E New Visit None'));
-        await flow.name.fill('E2E Visitor With No Address');
-        await expect(flow.email).toHaveValue('');
-        await flow.confirm.click();
+        await form.open();
+        await form.reason.fill(uniqueTitle('E2E New Visit None'));
+        await form.visitorName.fill('E2E Visitor With No Address');
+        await expect(form.visitorEmail).toHaveValue('');
+        await form.sendButton.click();
 
         await expect(staffPage.locator('mat-snack-bar-container')).toBeVisible();
         await expect(staffPage).toHaveURL(/#\/book\/visitor\/form/);
@@ -147,7 +138,7 @@ test.describe('visitor invite — the new flow', () => {
         staffApi,
     }, testInfo) => {
         const visitor = visitorFor(testInfo.parallelIndex, VISITOR_SLOTS.new_flow.recent);
-        const flow = new VisitorFlow(staffPage);
+        const form = new InviteVisitorForm(staffPage);
         const before: unknown = (await readUserSettings(staffApi))[INVITEES_KEY];
         const history: unknown[] = Array.isArray(before) ? before : [];
 
@@ -160,16 +151,16 @@ test.describe('visitor invite — the new flow', () => {
         await useSettings(staffPage, SETTINGS);
 
         try {
-            await flow.open();
-            await expect(flow.email, 'the fields start empty').toHaveValue('');
+            await form.open();
+            await expect(form.visitorEmail, 'the fields start empty').toHaveValue('');
 
-            const recent = flow.recentVisitors.filter({ hasText: visitor.email });
+            const recent = form.recentVisitors.filter({ hasText: visitor.email });
             await expect(recent, 'the panel offers the visitor from the settings').toBeVisible();
             await recent.click();
 
-            await expect(flow.email).toHaveValue(visitor.email);
-            await expect(flow.name).toHaveValue(visitor.name);
-            await expect(flow.company).toHaveValue(visitor.company);
+            await expect(form.visitorEmail).toHaveValue(visitor.email);
+            await expect(form.visitorName).toHaveValue(visitor.name);
+            await expect(form.company).toHaveValue(visitor.company);
         } finally {
             await setUserSetting(staffApi, INVITEES_KEY, history);
         }

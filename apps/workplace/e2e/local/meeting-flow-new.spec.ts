@@ -2,9 +2,10 @@
  * NEW-ROOM-01, NEW-ROOM-02 — the `meeting-flow-new` booking flow, as a
  * NON-ADMIN, against a real local backend.
  *
- * `room-booking.spec.ts` covers the same story for the flow this one replaced.
- * That flow is no longer routed, so these are the specs that hold the story
- * for `/book/meeting`.
+ * `room-booking.spec.ts` books through the same flow with `bookRoomViaUI`.
+ * These specs drive the page object directly: NEW-ROOM-01 also checks the
+ * summary of the last step and the success view, and NEW-ROOM-02 checks that
+ * each step refuses to go forward without its requirement.
  *
  * As with every room spec, this runs with `app.events.use_bookings = true`:
  * the room is saved as a PlaceOS booking of type `room`. A green run says

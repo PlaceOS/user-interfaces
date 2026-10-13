@@ -62,9 +62,12 @@ export async function searchGuests(api: APIRequestContext, q: string): Promise<G
 /**
  * Is this response REG-09 (PPT-2642) rather than a real rejection?
  *
- * Two signatures, both produced by the same poisoned connection. The 400 is the
+ * Three signatures, all produced by the same poisoned connection. The 400 is the
  * confusing one — it claims the request body was empty when it was not.
- * `e2e/support/repro/vis-b6-burst.ts` reproduces both with no browser involved.
+ * `e2e/support/repro/vis-b6-burst.ts` reproduces the first two with no browser
+ * involved. The 422 was seen on the PATCH of a group container under a
+ * parallel run. An empty `failures` list is the tell: a real validation error
+ * names the field it refuses. The desk and home helpers match it the same way.
  *
  * Deliberately narrow. Matching on the status alone would swallow genuine 400s
  * and 500s, and a suite that retries real failures is worse than no suite.
@@ -72,6 +75,7 @@ export async function searchGuests(api: APIRequestContext, q: string): Promise<G
 export function isReg09(status: number, body: string): boolean {
     if (status === 400 && /Expected BeginObject but was EOF/.test(body)) return true;
     if (status === 500 && /could not serialize access/.test(body)) return true;
+    if (status === 422 && /"failures"\s*:\s*\[\s*\]/.test(body)) return true;
     return false;
 }
 

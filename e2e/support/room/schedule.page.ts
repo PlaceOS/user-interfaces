@@ -20,7 +20,7 @@
  * overriding that one method redirects the lot.
  *
  * The filter is different too: rooms sit behind the ROOMS toggle
- * (`schedule-toggle-event-filter`), not the visitor one.
+ * (the `meeting_room` one), not the visitor one.
  */
 import { Locator, expect } from '@playwright/test';
 import { YourBookingsPage } from '../visitor/your-bookings.page';
@@ -45,15 +45,7 @@ export class RoomSchedulePage extends YourBookingsPage {
 
     /** Make sure room bookings are among the types being shown. */
     async showRooms(): Promise<void> {
-        const toggle = this.page
-            .locator('button[name="schedule-toggle-event-filter"]')
-            .first();
-        // ENSURE, never blindly toggle: clicking a filter that is already on
-        // turns it off, and the list then looks like the booking is missing.
-        const checkbox = toggle.locator('input[type="checkbox"]');
-        if (await checkbox.count()) {
-            if (!(await checkbox.isChecked().catch(() => false))) await toggle.click();
-        }
+        await this.ensureShown('event');
     }
 
     /**
@@ -63,7 +55,7 @@ export class RoomSchedulePage extends YourBookingsPage {
      * found by its icon — is identical, so only these two hooks are overridden.
      */
     protected override get editForm(): Locator {
-        return this.page.locator('meeting-flow-form');
+        return this.page.locator('meeting-flow-new');
     }
 
     protected override get editFormHint(): string {
@@ -94,11 +86,13 @@ export class RoomSchedulePage extends YourBookingsPage {
                     `schedule asks the calendar instead and lists nothing at all.`,
             );
         }
-        await card.click();
         const modal = this.page.locator('event-details-modal');
-        await expect(modal, 'the event details modal did not open').toBeVisible({
-            timeout: 20_000,
-        });
+        // See `YourBookingsPage.openDetails`: a card that the list drops after
+        // the click never opens its details, so click again if needed.
+        await expect(async () => {
+            if (!(await modal.isVisible())) await card.click({ timeout: 5_000 });
+            await expect(modal).toBeVisible({ timeout: 5_000 });
+        }, 'the event details modal did not open').toPass({ timeout: 30_000 });
         return modal;
     }
 }

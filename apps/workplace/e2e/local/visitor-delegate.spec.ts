@@ -137,8 +137,8 @@ test.describe('visitor invite on behalf of another host', () => {
             await expect(
                 mine_page.associateBadge(booking_id),
                 'and it is badged "Associate", because the host is not you. If this ' +
-                    'fails, check whether a third badge was added to that corner of ' +
-                    'the card — the locator excludes only the checked-in one',
+                    'fails, check where the card draws its warning badges — the ' +
+                    'locator matches on their position classes',
             ).toBeVisible();
             await expect(
                 mine_page.bookedForLine(booking_id),

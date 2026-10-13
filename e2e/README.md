@@ -107,8 +107,7 @@ e2e/                          shared engine, all apps
       visitor.env.ts              per-worker visitor addresses + slot table
       visitor.api.ts              guest + visitor-booking helpers and sweeps
       visitor.settings.ts         per-context app settings presets
-      invite-form.page.ts         locators for the invite form
-      visitor-flow.page.ts        locators for the `visitor-flow-new` invite flow
+      invite-form.page.ts         locators for the invite page (`visitor-flow-new`)
       your-bookings.page.ts       locators for the schedule + details modal
       visitor.flows.ts            multi-step UI flows (inviteVisitorViaUI)
     room/                     room-booking coverage, kept out of the files above
@@ -116,7 +115,6 @@ e2e/                          shared engine, all apps
       room.seed.ts                creates the rooms as engine Systems (needs ADMIN)
       room.api.ts                 room-booking helpers, sweeps, tryRoomBooking
       room.settings.ts            per-context app settings presets (use_bookings mode)
-      meeting-form.page.ts        locators for the meeting form + room picker
       meeting-flow.page.ts        locators for the `meeting-flow-new` booking flow
       schedule.page.ts            extends visitor/your-bookings.page.ts for event cards
       room.flows.ts               multi-step UI flows (bookRoomViaUI)

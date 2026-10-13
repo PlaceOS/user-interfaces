@@ -28,15 +28,6 @@ export class ParkingSchedulePage extends YourBookingsPage {
 
     /** Make sure parking bookings are among the types being shown. */
     async showParking(): Promise<void> {
-        const toggle = this.page
-            .locator('button[name="schedule-toggle-parking-filter"]:visible')
-            .first();
-        const checkbox = toggle.locator('input[type="checkbox"]');
-        if (!(await checkbox.count())) return;
-        // ENSURE, never blindly toggle: clicking a filter that is already on
-        // turns it off, and the list then looks like the booking is missing.
-        if (!(await checkbox.isChecked().catch(() => false))) {
-            await toggle.click({ timeout: 10_000 });
-        }
+        await this.ensureShown('parking');
     }
 }

@@ -2,9 +2,9 @@
  * NEW-YB-01 … NEW-YB-04 — the day, week and list views of `/your-bookings`,
  * as a NON-ADMIN, against a real local backend.
  *
- * The `bookings-*.spec.ts` files drive the page as it was before these views:
- * one list of cards. The page now opens on the day view, so these are the
- * specs that hold the story for it.
+ * The `bookings-*.spec.ts` files drive the list view, where each booking is a
+ * card. The page opens on the day view, and these specs hold the stories of
+ * the day and week views and of the change between the three.
  *
  * Bookings are made through the API: the subject here is the schedule, and the
  * booking flows have their own specs.

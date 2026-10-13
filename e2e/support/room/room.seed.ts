@@ -98,7 +98,7 @@ export async function ensureRooms(api?: APIRequestContext): Promise<RoomSet> {
                 if (found) {
                     rooms[variant].push({ ...want, id: found.id });
                     // The `alt` room carries a feature nothing else has, so the
-                    // picker's facilities filter has something to filter on.
+                    // facilities filter of the room list has something to filter on.
                     // Patched rather than only set at creation, because the
                     // rooms are left in place between runs and were created
                     // before this existed.
@@ -140,7 +140,7 @@ export async function ensureRooms(api?: APIRequestContext): Promise<RoomSet> {
                         bookable: true,
                         // `signage: false` matters: the app's room lookup filters
                         // signage systems out, so a room created without it is
-                        // invisible in the picker while existing perfectly well.
+                        // invisible in the room list while existing perfectly well.
                         signage: false,
                         zones,
                         ...(variant === 'alt' ? { features: [ALT_ROOM_FEATURE] } : {}),
@@ -248,13 +248,13 @@ export async function roomForWorker(
 /**
  * Hide a room with a ZONE BOOKING RULE, and remove the rule again.
  *
- * Booking rules live in `booking_rules` metadata on a zone, as a list of
- * rulesets (`libs/common/src/lib/booking-rules.ts`). Each ruleset names the zone
- * it applies to, a set of CONDITIONS, and the RULES that result — and `hidden`
- * is the one that takes a resource out of the picker entirely.
+ * Room booking rules live in `room_booking_rules` metadata on a zone, as a list
+ * of rulesets (`libs/common/src/lib/booking-rules.ts`). Each ruleset names the
+ * zone it applies to, a set of CONDITIONS, and the RULES that result — and
+ * `hidden` is the one that takes a resource out of the room list entirely.
  *
  * The condition used here is `resource_ids`, which is the narrowest available:
- * it matches one room by id, so the rest of the picker is unaffected and the
+ * it matches one room by id, so the rest of the room list is unaffected and the
  * test has a control.
  *
  * Writes the WHOLE document, which is safe because nothing else in this suite
@@ -268,13 +268,9 @@ export async function setRoomBookingRules(
 ): Promise<void> {
     const admin = await apiFor('admin', 0);
     try {
-        // WHERE THE APP LOOKS, measured rather than guessed.
-        //
-        // The app fetches `GET /metadata/booking_rules/bulk?parent_ids=<building>`
-        // and the response comes back keyed by the BUILDING's own id, carrying
-        // the building's document — despite `parent_ids` reading like a query
-        // about children. `event-form.service.ts` then looks the rules up as
-        // `rules[building.id]`.
+        // WHERE THE APP LOOKS: `event-form.service.ts` reads the
+        // `room_booking_rules` metadata of each building and looks the rules
+        // up by the id of the building.
         //
         // So the document has to be on the building. It is written to the levels
         // as well, because nothing else writes booking rules and a stale

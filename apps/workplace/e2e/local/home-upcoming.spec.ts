@@ -1,140 +1,73 @@
 /**
- * HOME-04 / HOME-05 / HOME-08 — the Upcoming panel on the home page.
+ * HOME-04 / HOME-05 / HOME-08 — the next-booking card on the home page.
  *
- * This panel is the first thing a user sees after signing in, and the only place
- * they check "have I got a desk today?". Nothing has tested it: `boot.spec.ts`
- * proves the shell renders and org data resolves, which says nothing about
- * whether the panel shows the right bookings — or any.
+ * This card is the first thing a user sees after signing in, and the only
+ * place they check "have I got a desk today?".
  *
- * ## How the panel actually works, which is not what its name suggests
+ * ## How the card works
  *
- * "Upcoming" means **today**, and nothing else. `landing-state.service.ts`
- * builds it from the SCHEDULE's own booking list:
+ * The card shows ONE booking: the first booking of TODAY that is not done,
+ * cancelled or declined (`landing-state.service.ts`, `upcoming_events`, and
+ * `landing-upcoming-booking.component.ts`, `nextEvent`). Three consequences
+ * shaped these tests:
  *
- *   filtered_bookings().filter(i => i.state !== 'done' && isSameDay(i.date, now))
+ *  - a booking tomorrow is not on it;
+ *  - a booking that has finished is not on it;
+ *  - a second booking today is not on it until the first one ends. So each
+ *    test starts from an empty day (`clearToday`).
  *
- * then the template shows the first FIVE (`events | slice: 0 : 5`). Three
- * consequences, all of which shaped these tests:
- *
- *  - a booking tomorrow is not on it. A first draft of this file booked sixteen
- *    days out and spent three failures discovering that;
- *  - a booking that has finished is not on it either;
- *  - it inherits everything the schedule's query does — including
- *    `include_deleted: true`. See HOME-B1 on the third test.
+ * The page before this one listed five bookings and kept cancelled ones, which
+ * was HOME-B1. This card filters deleted bookings out, and the third test
+ * holds that.
  */
-import {
-    deleteBooking,
-    releaseAsset,
-    uniqueTitle,
-} from '../../../../e2e/support/api';
+import { deleteBooking, uniqueTitle } from '../../../../e2e/support/api';
 import { SchedulePage } from '../../../../e2e/support/bookings/schedule.page';
-import { WORKERS, deskFor } from '../../../../e2e/support/env';
+import { deskFor } from '../../../../e2e/support/env';
 import { expect, test } from '../../../../e2e/support/fixtures';
-import { createBookingViaApi } from '../../../../e2e/support/home/home.api';
-import { LandingPage } from '../../../../e2e/support/home/landing.page';
+import {
+    clearToday,
+    createBookingViaApi,
+    inProgressSlot,
+} from '../../../../e2e/support/home/home.api';
+import { LandingNewPage } from '../../../../e2e/support/home/landing-new.page';
 
-const MINUTE = 60;
-
-/**
- * A short window later TODAY, on the desk no worker owns.
- *
- * The panel only shows today, which puts these specs on the same day as the
- * dev's desk specs (all day, own desk), `bookings-checkin` (an hour from now,
- * own desk) and `desk-status` (minutes from now, spare desk). So: the SPARE
- * desk, and a start well clear of `desk-status`, staggered twenty minutes per
- * worker.
- */
-function laterToday(workerIndex: number) {
-    const start =
-        Math.floor(Date.now() / 1000) + (90 + 20 * workerIndex) * MINUTE;
-    return { start, end: start + 15 * MINUTE };
-}
-
-/** Is that window still today, locally? Late-evening runs cannot use it. */
-function stillToday(unix_seconds: number): boolean {
-    return (
-        new Date(unix_seconds * 1000).toDateString() ===
-        new Date().toDateString()
-    );
-}
-
-test.describe('home page — the Upcoming panel', () => {
-    /**
-     * HOME-B1, first facet — a live booking can be crowded off the panel.
-     *
-     * This passes in isolation and FAILS under a full suite run, and the reason
-     * is the finding rather than the test. The panel holds five cards and
-     * cancelled bookings take slots, so after a busy run today's five slots are
-     * full of junk: measured at `[1162, 1530, 1642, 1575, 1576]`, every one
-     * cancelled, with a live booking for the same user on the same day absent.
-     *
-     * So this is `fixme` alongside the cancelled-booking test below. Between
-     * them they state both halves of HOME-B1: cancelled bookings never leave,
-     * and their presence can hide a real booking. Neither needs changing when
-     * the panel starts excluding deleted bookings — they will simply go green.
-     */
-    test('a booking later today is listed on the panel', async ({
+test.describe('home page — the next-booking card', () => {
+    test('the card changes from the clear state to the booking of today', async ({
         staffPage,
         staffApi,
     }, testInfo) => {
-        const desk = deskFor(WORKERS);
-        const slot = laterToday(testInfo.parallelIndex);
-        test.skip(
-            !stillToday(slot.start),
-            'this window has crossed midnight, and the panel only shows today',
-        );
+        const desk = deskFor(testInfo.parallelIndex);
+        const title = uniqueTitle('E2E Home Upcoming');
+        const home = new LandingNewPage(staffPage);
         let booking_id: number | undefined;
 
-        // Only this worker's own window: the spare desk is shared, so a wider
-        // sweep would delete another worker's booking mid-test.
-        await releaseAsset(
-            staffApi,
-            'desk',
-            desk.id,
-            slot.start - 60,
-            slot.end + 60,
-        );
+        await clearToday(staffApi);
 
         try {
+            await home.open();
+            await expect(
+                home.clearStateDeskLink,
+                'with no booking today the card offers to make one',
+            ).toBeVisible();
+            await expect(home.upcomingEdit).toHaveCount(0);
+
             const booking = await createBookingViaApi(staffApi, {
                 type: 'desk',
                 asset_id: desk.id,
                 asset_name: desk.name,
-                title: uniqueTitle('E2E Home Upcoming'),
-                start: slot.start,
-                end: slot.end,
+                title,
+                ...inProgressSlot(),
             });
             booking_id = booking.id;
 
-            const home = new LandingPage(staffPage);
-            await home.open();
-
-            const found = await home
-                .upcomingCard(booking_id)
-                .waitFor({ state: 'visible', timeout: 30_000 })
-                .then(() => true)
-                .catch(() => false);
-            if (!found) {
-                // Say what the panel IS showing, with the reason it might be
-                // full: it holds five, and cancelled bookings count (HOME-B1).
-                const showing = await home.upcomingIds();
-                throw new Error(
-                    `booking ${booking_id} is not on the Upcoming panel. It is showing ` +
-                        `${showing.length}: [${showing.join(', ')}]. The panel holds five ` +
-                        `and CANCELLED bookings take slots too, so a user with five ` +
-                        `cancelled bookings today cannot see a real one — that is HOME-B1, ` +
-                        `covered by the third test in this file.`,
-                );
-            }
+            await staffPage.reload();
+            await expect(
+                home.upcomingTitle,
+                'the card should show the booking the user has today',
+            ).toHaveText(title, { timeout: 30_000 });
+            await expect(home.clearStateDeskLink).toHaveCount(0);
         } finally {
             if (booking_id != null) await deleteBooking(staffApi, booking_id);
-            await releaseAsset(
-                staffApi,
-                'desk',
-                desk.id,
-                slot.start - 60,
-                slot.end + 60,
-            );
         }
     });
 
@@ -142,52 +75,36 @@ test.describe('home page — the Upcoming panel', () => {
         staffPage,
         staffApi,
     }, testInfo) => {
-        const desk = deskFor(WORKERS);
-        // Well clear of the first test's window, still today.
-        const start =
-            Math.floor(Date.now() / 1000) +
-            (200 + 20 * testInfo.parallelIndex) * MINUTE;
-        const slot = { start, end: start + 15 * MINUTE };
-        test.skip(
-            !stillToday(slot.start),
-            'this window has crossed midnight, and the panel only shows today',
-        );
+        const desk = deskFor(testInfo.parallelIndex);
+        const title = uniqueTitle('E2E Home ViewAll');
+        const slot = inProgressSlot();
+        const home = new LandingNewPage(staffPage);
         let booking_id: number | undefined;
 
-        await releaseAsset(
-            staffApi,
-            'desk',
-            desk.id,
-            slot.start - 60,
-            slot.end + 60,
-        );
+        await clearToday(staffApi);
 
         try {
             const booking = await createBookingViaApi(staffApi, {
                 type: 'desk',
                 asset_id: desk.id,
                 asset_name: desk.name,
-                title: uniqueTitle('E2E Home ViewAll'),
-                start: slot.start,
-                end: slot.end,
+                title,
+                ...slot,
             });
             booking_id = booking.id;
 
-            const home = new LandingPage(staffPage);
             await home.open();
-            await expect(
-                home.viewAll,
-                'the Upcoming panel should offer a View all link',
-            ).toBeVisible({ timeout: 30_000 });
-            await home.viewAll.click();
-
+            await expect(home.upcomingTitle).toHaveText(title, { timeout: 30_000 });
+            await home.viewAllBookings.click();
             await expect(
                 staffPage,
                 'View all should land on the Your Bookings page',
             ).toHaveURL(/#\/your-bookings/, { timeout: 30_000 });
 
             // The handoff is only useful if the booking is findable there.
+            // `open` is what puts the page on its list view.
             const schedule = new SchedulePage(staffPage);
+            await schedule.open();
             await schedule.showBooking(booking_id, slot.start * 1000, ['desk']);
             await expect(
                 schedule.card(booking_id),
@@ -195,95 +112,51 @@ test.describe('home page — the Upcoming panel', () => {
             ).toBeVisible({ timeout: 30_000 });
         } finally {
             if (booking_id != null) await deleteBooking(staffApi, booking_id);
-            await releaseAsset(
-                staffApi,
-                'desk',
-                desk.id,
-                slot.start - 60,
-                slot.end + 60,
-            );
         }
     });
 
     /**
-     * HOME-B1 — the home page keeps showing bookings you cancelled.
-     *
-     * The panel is built from the schedule's booking list, and the schedule asks
-     * for bookings with `include_deleted: true` (`schedule-state.service.ts`),
-     * hiding only what the user cancelled in the CURRENT session. So a cancelled
-     * booking stays on the home page for ever.
-     *
-     * Measured on this stack: the panel was showing **five bookings, every one
-     * of them cancelled** — `deleted: true` on all five, confirmed by id — while
-     * a live booking for the same user on the same day was absent. Because the
-     * panel holds exactly five, the junk had crowded the real one out entirely.
-     *
-     * Two separate harms, and the second is the worse one:
-     *
-     *  1. the page tells a user they have a desk today when they cancelled it;
-     *  2. it can HIDE a real booking, because cancelled ones take the slots.
-     *
-     * This is the same root cause as the 100-row listing problem in the project
-     * notes, surfacing on the first screen users see. `fixme` until the panel
-     * either excludes deleted bookings or the schedule stops asking for them.
+     * HOME-B1 — the page before this one kept showing bookings that the user
+     * had cancelled, and they could crowd a live booking out. The card must
+     * drop a cancelled booking.
      */
-    test('a cancelled booking leaves the panel', async ({
-        staffPage,
-        staffApi,
-    }, testInfo) => {
-        const desk = deskFor(WORKERS);
-        const start =
-            Math.floor(Date.now() / 1000) +
-            (300 + 20 * testInfo.parallelIndex) * MINUTE;
-        const slot = { start, end: start + 15 * MINUTE };
-        test.skip(!stillToday(slot.start), 'this window has crossed midnight');
+    test('a cancelled booking leaves the card', async ({ staffPage, staffApi }, testInfo) => {
+        const desk = deskFor(testInfo.parallelIndex);
+        const title = uniqueTitle('E2E Home Cancelled');
+        const home = new LandingNewPage(staffPage);
         let booking_id: number | undefined;
 
-        await releaseAsset(
-            staffApi,
-            'desk',
-            desk.id,
-            slot.start - 60,
-            slot.end + 60,
-        );
+        await clearToday(staffApi);
 
         try {
             const booking = await createBookingViaApi(staffApi, {
                 type: 'desk',
                 asset_id: desk.id,
                 asset_name: desk.name,
-                title: uniqueTitle('E2E Home Cancelled'),
-                start: slot.start,
-                end: slot.end,
+                title,
+                ...inProgressSlot(),
             });
             booking_id = booking.id;
 
-            const home = new LandingPage(staffPage);
             await home.open();
             await expect(
-                home.upcomingCard(booking_id),
-                'precondition: the booking is on the panel before it is cancelled',
-            ).toBeVisible({ timeout: 30_000 });
+                home.upcomingTitle,
+                'precondition: the booking is on the card before it is cancelled',
+            ).toHaveText(title, { timeout: 30_000 });
 
             await deleteBooking(staffApi, booking_id);
             await staffPage.reload();
             await home.open();
-
+            // The clear state is the proof. It only shows when the card has
+            // loaded and has no booking to show.
             await expect(
-                home.upcomingCard(booking_id),
+                home.clearStateDeskLink,
                 'a cancelled booking must NOT stay on the home page — it tells the user ' +
-                    'they have a desk they no longer have, and it takes one of the five ' +
-                    'slots the panel has',
-            ).toBeHidden({ timeout: 30_000 });
+                    'they have a desk they no longer have',
+            ).toBeVisible({ timeout: 30_000 });
+            await expect(home.upcoming).not.toContainText(title);
         } finally {
             if (booking_id != null) await deleteBooking(staffApi, booking_id);
-            await releaseAsset(
-                staffApi,
-                'desk',
-                desk.id,
-                slot.start - 60,
-                slot.end + 60,
-            );
         }
     });
 });

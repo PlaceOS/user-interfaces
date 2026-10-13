@@ -56,9 +56,9 @@ export async function useSettings(
 }
 
 /**
- * Turn on the meeting form's EQUIPMENT section — ROOM-24.
+ * Turn on the EQUIPMENT section of the meeting flow — ROOM-24.
  *
- * `app.events.has_assets` is what `meeting-flow-form.component.ts` reads to
+ * `app.events.has_assets` is what `meeting-flow-options.component.ts` reads to
  * decide whether to render the section at all, and it is off by default. The
  * setting alone gives a section with nothing in it: the items also have to be
  * seeded, by `asset.seed.ts`. Both are needed, and neither fails loudly without
@@ -69,12 +69,12 @@ export const ROOM_ASSETS_MODE = {
 };
 
 /**
- * Turn on the meeting form's RECURRENCE control — ROOM-25.
+ * Turn on the RECURRENCE control of the meeting flow — ROOM-25.
  *
- * `events.allow_recurrence` is what `meeting-form-details.component.ts` reads,
+ * `events.allow_recurrence` is what `meeting-flow-details.component.ts` reads,
  * and it is off by default. Note the component ALSO requires the meeting to be
- * 24 hours or shorter (`allow_recurrence = _allow_recurrence() && duration <=
- * 24 * 60`), so a recurrence test cannot also be an all-day-multi-day test.
+ * 24 hours or shorter (`allow_recurrence = recurrence_enabled() && duration <=
+ * 24 * 60`), so a recurrence test cannot also be a multi-day test.
  */
 export const ROOM_RECURRENCE_MODE = {
     'app.events.allow_recurrence': true,
@@ -86,29 +86,23 @@ export const ROOM_BOOKINGS_MODE = {
 };
 
 /**
- * Skip the approval step, so a new booking is stored `approved` rather than
- * `tentative` (`event-form.service.ts`, `_performBooking`).
+ * Skip the approval step (`app.bookings.no_approval`).
  *
- * ## NOT in the base settings, on purpose — it makes booking a room 500
+ * The app sends `approved: true` only for users that staff-api accepts it
+ * from: admin, support and zone manager users (PPT-2767). For a standard user
+ * it leaves `approved` to the backend, so the booking is stored pending.
+ * Measured through the new meeting flow, 13 Oct 2026: a standard user's
+ * booking is stored (`201`) and is not approved. `room-approval.spec.ts` holds
+ * that as ROOM-21.
  *
- * With this on, the app sends `approved: true`, and staff-api answers **HTTP 500
- * with `syntax error at or near ")" (PQ::PQError)`** for any non-admin. Found
- * while writing the first room spec; minimised to a seven-field request:
+ * ## Why it is not in the base settings
  *
- *   staff, no `approved` field .................. 201
- *   staff, `approved: true` ..................... 500   <- SQL syntax error
- *   staff, `approved: false` .................... 201
- *   staff, `approved: true` WITH `zones` ........ 403   <- correctly refused
- *   admin, `approved: true` ..................... 201
- *   staff, `approved: true`, a DESK booking ..... 500   <- not room-specific
- *
- * So the backend's approval permission check blows up instead of refusing when
- * it has no zones to check against, and the meeting form hands it exactly that
- * because it sends `zones: []` for a room booking. Two bugs meeting in the
- * middle; both are written up as ROOM-B1.
- *
- * Left defined rather than deleted so the constant has somewhere to live once
- * the backend is fixed and approval coverage is written.
+ * The first version of the room specs measured a failure with this setting
+ * (ROOM-B1): the old meeting form sent `approved: true` with `zones: []` for
+ * every user, and staff-api answered **HTTP 500 `syntax error at or near ")"
+ * (PQ::PQError)`** in place of a 403. The new flow sends the zones of the
+ * room. The setting stays out of the base settings so that only ROOM-21
+ * depends on it.
  */
 export const NO_APPROVAL = {
     'app.bookings.no_approval': true,
@@ -135,10 +129,10 @@ export const LIMITED_HOURS = {
  * OFF by default, and the two states behave completely differently rather than
  * one being a stronger version of the other:
  *
- *   unset ......... a WARNING is rendered next to the room list, and the booking
- *                   goes through regardless.
- *   true .......... `viewConfirm` stops before opening the confirm screen and
- *                   shows a toast. Nothing is sent.
+ *   unset ......... a WARNING is rendered under the attendee list of the last
+ *                   step, and the booking goes through regardless.
+ *   true .......... Confirm (`confirmBooking`) stops with a toast. Nothing is
+ *                   sent.
  *
  * Both halves are covered by `room-capacity.spec.ts`, because the one users
  * complain about is the one that lets them book a room nobody fits in.
@@ -151,27 +145,30 @@ export const STRICT_CAPACITY = {
  * Let a meeting hold more than one room.
  *
  * Two keys mean the same thing (`multipleSpacesEnabled` in
- * `events/utilities.ts` accepts either), and the mode changes the picker: the
- * confirm button becomes `space-return` instead of `toggle-space`, which is the
- * trap recorded at the top of `meeting-form.page.ts`.
+ * `events/utilities.ts` accepts either), and the mode changes the room list: a
+ * click on a room adds it to the selection or takes it off, where the default
+ * replaces the room that was selected. No active spec uses this mode.
  */
 export const MULTI_SPACE = {
     'app.events.multiple_spaces': true,
 };
 
 /**
- * Offer an All Day control on the meeting form.
+ * Offer an All Day control in the meeting flow.
  *
- * `app.events.allow_all_day`, read in `meeting-form-details.component.ts` —
- * NOT `allow_multiday`, which only widens the date range the room picker
- * offers. A first attempt at the all-day test set the multiday key, found no
- * checkbox, and nearly concluded the app has no all-day meetings at all.
+ * `app.events.allow_all_day`, read in `meeting-flow-details.component.ts` —
+ * NOT `allow_multiday`. A first attempt at the all-day test set the multiday
+ * key, found no checkbox, and nearly concluded the app has no all-day meetings
+ * at all.
  */
 export const ALLOW_ALL_DAY = {
     'app.events.allow_all_day': true,
 };
 
-/** Let a meeting span more than one day (widens the picker's dates). */
+/**
+ * Let a meeting span more than one day. The details step then shows an end
+ * date and an end time in place of the length.
+ */
 export const ALLOW_MULTIDAY = {
     'app.events.allow_multiday': true,
 };
@@ -179,25 +176,22 @@ export const ALLOW_MULTIDAY = {
 /**
  * Book a meeting on somebody else's behalf.
  *
- * Two different controls, depending on which key is set
- * (`meeting-form-details.component.ts`): `can_book_for_anyone` renders a user
- * SEARCH field, `can_book_for_others` renders a `host-select-field` of people
- * the user may book for. The search field is the one that behaves like the desk
- * form's, so that is the one these specs use.
+ * `app.events.can_book_for_others` renders a `host-select-field` on the details
+ * step (`meeting-flow-details.component.ts`). It is a select of the signed-in
+ * user and the calendars that the user can edit.
+ *
+ * The flow does not read `events.can_book_for_anyone`, which gave the flow it
+ * replaced a user search field. See `room-delegate.spec.ts`.
  */
-export const BOOK_FOR_ANYONE = {
-    'app.events.can_book_for_anyone': true,
-    // The local user list, not the calendar directory — see the desk settings
-    // for why: /api/staff/v1/people 500s on this stack.
-    'app.basic_user_search': true,
+export const BOOK_FOR_OTHERS = {
+    'app.events.can_book_for_others': true,
 };
 
 /**
  * Settings shared by every room spec.
  *
  * Just the booking mode. Bookings therefore land as `tentative`, which is the
- * app's default behaviour anyway — and `NO_APPROVAL` cannot be added here until
- * ROOM-B1 is fixed.
+ * app's default behaviour anyway. See `NO_APPROVAL` for the approval setting.
  */
 export const ROOM_BASE_SETTINGS = {
     ...ROOM_BOOKINGS_MODE,

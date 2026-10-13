@@ -15,6 +15,8 @@ import {
     ENGINE_API,
     STAFF_API,
     currentUser,
+    deleteBooking,
+    listBookings,
     readBack,
     zonesWithTag,
 } from '../api';
@@ -181,5 +183,45 @@ export async function setContacts(
     });
     if (!res.ok()) {
         throw new Error(`write contacts failed: HTTP ${res.status()} ${await res.text()}`);
+    }
+}
+
+/** Booking types that the next-booking card of the home page can show. */
+const CARD_TYPES = ['desk', 'room', 'visitor', 'parking', 'locker'];
+
+/** Today, in local time, as a unix-second window. */
+export function todayBounds() {
+    const start = new Date();
+    start.setHours(0, 0, 0, 0);
+    const from = Math.floor(start.valueOf() / 1000);
+    return { from, to: from + 86_399 };
+}
+
+/**
+ * A window that is in progress now, so that the home page shows it at once.
+ * The start does not go back past midnight: the page lists a booking by the
+ * day it starts on.
+ */
+export function inProgressSlot() {
+    const now = Math.floor(Date.now() / 1000);
+    const start = Math.max(now - 5 * 60, todayBounds().from);
+    return { start, end: start + 3600 };
+}
+
+/**
+ * Delete every booking that the signed-in user has today.
+ *
+ * The next-booking card shows the FIRST booking that the user has today,
+ * whatever its type, so a spec about the card must start from an empty day.
+ * This is safe in a parallel run: a worker runs one test at a time, and no
+ * spec makes a booking of today for the user of a different worker.
+ */
+export async function clearToday(api: APIRequestContext): Promise<void> {
+    const { from, to } = todayBounds();
+    for (const type of CARD_TYPES) {
+        const bookings = await listBookings(api, type, from, to).catch(() => []);
+        for (const booking of bookings) {
+            if (!booking.deleted) await deleteBooking(api, booking.id);
+        }
     }
 }

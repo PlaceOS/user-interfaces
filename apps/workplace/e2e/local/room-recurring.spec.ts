@@ -1,13 +1,23 @@
 /**
  * ROOM-25 — a recurring room booking stores its pattern, and the instances exist.
  *
- * ## The headline: a recurring meeting booked through the app disappears
+ * ## State on the new meeting flow
  *
- * Measured 2026-09-17, and it is a NEW finding — **ROOM-B10**. It is the worst
- * of the room findings by outcome, because the user is shown a success screen
- * and then cannot find the booking anywhere.
+ * Measured 13 Oct 2026 through `meeting-flow-new`: the weekly meeting is
+ * stored with the weekday of its date in `recurrence_days`, and the listing
+ * returns it on its own day and one and two weeks later. Both tests are
+ * active.
  *
- * Choosing "Weekly on Tuesday" on the form and confirming gives:
+ * The rest of this note is the finding that the first test was written for.
+ * It is kept because it says what the assertions guard against.
+ *
+ * ## ROOM-B10: a recurring meeting booked through the app disappeared
+ *
+ * Measured 2026-09-17 on the flow that this one replaced. It was the worst of
+ * the room findings by outcome, because the user was shown a success screen
+ * and then could not find the booking anywhere.
+ *
+ * Choosing "Weekly on Tuesday" on the form and confirming gave:
  *
  *   POST /api/staff/v1/bookings  -> 201
  *   { booking_type: 'room', recurrence_type: 'daily',
@@ -15,21 +25,21 @@
  *
  * `recurrence_type: 'daily'` is CORRECT and not the bug: `toBookingRecurrence`
  * deliberately encodes a weekly pattern as daily-plus-a-weekday-bitmask
- * (`libs/common/src/lib/recurrence.ts`). The bug is that the bitmask is **0** —
- * no weekday at all — so the pattern matches no day, and:
+ * (`libs/common/src/lib/recurrence.ts`). The bug was that the bitmask was **0** —
+ * no weekday at all — so the pattern matched no day, and:
  *
  *   GET /bookings/<id>                       -> 200, the row is there
  *   GET /bookings?type=room&period_start=…   -> the booking is NOWHERE
  *
  * Tried with five different query shapes, including an eleven-day window with
  * `limit=500`, `include_deleted`, `include_checked_out`, an `email` filter and a
- * `zones` filter. Only a direct fetch by id finds it. So the meeting is stored,
- * the user is told it worked, and no listing, schedule or cancel screen can ever
- * show it to them.
+ * `zones` filter. Only a direct fetch by id found it. So the meeting was stored,
+ * the user was told it worked, and no listing, schedule or cancel screen could
+ * ever show it to them.
  *
- * ## Why the cause is certainly client-side, and that is what the control proves
+ * ## Why the cause was certainly client-side, and that is what the control proves
  *
- * The second test below is ACTIVE and passing. It creates the same recurrence
+ * The second test below creates the same recurrence
  * **correctly formed** straight through the API — `recurrence_days: 8`
  * (Wednesday), a `recurrence_end`, and `timezone`, which is mandatory for a
  * recurring booking and is a 422 without it — and the backend then behaves
@@ -40,20 +50,19 @@
  *   Wed +13d  -> listed
  *   Wed +20d  -> listed
  *
- * So recurrence expansion works. The app's own payload is what is malformed.
+ * So recurrence expansion works. The app's own payload was what was malformed.
  * Keeping that control in the file is the difference between "recurring bookings
  * are broken" and a finding a developer can act on in one sitting.
  *
  * Cause, in one line: `toBookingRecurrence` builds the bitmask from
- * `r.weekdays`, and the form's model reaches it with `weekdays` empty — the UI
- * derives the label "Weekly on Tuesday" from the chosen date, but never puts
+ * `r.weekdays`, and the form's model reached it with `weekdays` empty — the UI
+ * derived the label "Weekly on Tuesday" from the chosen date, but never put
  * that day in the model.
  *
  * ## Preconditions
  *
  * `app.events.allow_recurrence` (ROOM_RECURRENCE_MODE) or the control is not
- * rendered. The component also hides it for meetings longer than 24 hours, so a
- * recurrence test cannot also be an all-day test.
+ * rendered. The details step also hides it for meetings longer than 24 hours.
  */
 import { test, expect } from '../../../../e2e/support/fixtures';
 import { STAFF_API, deleteBooking, uniqueTitle } from '../../../../e2e/support/api';
@@ -69,7 +78,7 @@ import {
     ROOM_RECURRENCE_MODE,
     useSettings,
 } from '../../../../e2e/support/room/room.settings';
-import { MeetingForm } from '../../../../e2e/support/room/meeting-form.page';
+import { MeetingFlow } from '../../../../e2e/support/room/meeting-flow.page';
 import { setDate } from '../../../../e2e/support/room/room.flows';
 import { fromZonedTime } from 'date-fns-tz';
 
@@ -107,8 +116,8 @@ async function roomBookingsOn(
 
 test.describe('recurring room bookings', () => {
     /**
-     * `fixme` on ROOM-B10. The assertions are what SHOULD happen; drop the
-     * `fixme` once the form puts the chosen weekday into the model.
+     * The guard for ROOM-B10. The weekly option is picked on the details step,
+     * and the booking is then read from the listing, not by its id.
      */
     test('ROOM-25: a recurring meeting stores its pattern and its instances appear', async ({
         staffPage,
@@ -130,57 +139,83 @@ test.describe('recurring room bookings', () => {
             ...ROOM_BASE_SETTINGS,
             ...ROOM_RECURRENCE_MODE,
         });
-        const form = new MeetingForm(staffPage);
+        const form = new MeetingFlow(staffPage);
         await form.open();
+        await form.title.fill(title);
         // The DATE first: the recurrence options are named after the weekday of
         // the chosen date ("Weekly on Tuesday"), so they are wrong before it is
         // set, and the start-time list is for the wrong day too.
         await setDate(form, staffPage, slot.date_ms);
-        await staffPage.waitForTimeout(2_000);
-
-        const recurrence = staffPage.locator('recurrence-field mat-select');
-        await expect(
-            recurrence,
-            'the recurrence control is missing — is `app.events.allow_recurrence` ' +
-                'set? See ROOM_RECURRENCE_MODE',
-        ).toBeVisible({ timeout: 20_000 });
-        await recurrence.click();
-        // Match the accessible name: the option's raw text starts with template
-        // whitespace, so a `^` anchor on `hasText` never matches it.
-        const weekly = staffPage.getByRole('option', { name: /^Weekly on/ });
-        await expect(
-            weekly.first(),
-            'the recurrence menu offered no "Weekly on <day>" option',
-        ).toBeVisible({ timeout: 15_000 });
-        await weekly.first().click();
-        await staffPage.waitForTimeout(2_000);
-
-        await form.title.fill(title);
-        await form.chooseRoom(room.name);
-        await staffPage.waitForTimeout(2_000);
         await form.setStartTime(
             `${String(ROOM_SLOTS_3.recurring.hour).padStart(2, '0')}:00`,
         );
-        await staffPage.waitForTimeout(4_000);
 
-        // PROVE the form still holds the pattern immediately before sending, so
-        // "the app threw the choice away" can be told apart from "the form
-        // reverted itself" — the same guard the rest of the room specs carry.
         await expect(
-            recurrence,
-            'the recurrence field must still show a weekly pattern at send time',
-        ).toContainText(/Weekly on/, { timeout: 10_000 });
+            form.recurrence,
+            'the recurrence control is missing — is `app.events.allow_recurrence` ' +
+                'set? See ROOM_RECURRENCE_MODE',
+        ).toBeVisible({ timeout: 20_000 });
+        // The options are matched on their `value`, which is not translated.
+        const weekly = staffPage.locator('mat-option[value="weekly"]');
+        await form.recurrence.click();
+        await expect(
+            weekly,
+            'the recurrence menu offered no weekly option',
+        ).toBeVisible({ timeout: 15_000 });
+        await weekly.click();
+        await expect(weekly, 'the recurrence menu stayed open').toBeHidden({
+            timeout: 10_000,
+        });
+
+        // PROVE the flow still holds the pattern before the details are left,
+        // so "the app threw the choice away" can be told apart from "the form
+        // reverted itself" — the same guard the rest of the room specs carry.
+        await form.recurrence.click();
+        await expect(
+            weekly,
+            'the recurrence field must still hold the weekly pattern',
+        ).toHaveAttribute('aria-selected', 'true', { timeout: 10_000 });
+        await staffPage.keyboard.press('Escape');
+        await expect(weekly, 'the recurrence menu stayed open').toBeHidden({
+            timeout: 10_000,
+        });
+
+        await form.toRoomStep();
+        await form.selectRoom(room.name);
+        await form.toOptionsStep();
+        // The summary has a row with the `update` icon only when the meeting
+        // that Confirm sends has a recurrence pattern.
+        await expect(
+            form.options.locator('icon', { hasText: 'update' }),
+            'the summary of the last step must show that the meeting repeats',
+        ).toBeVisible({ timeout: 10_000 });
 
         try {
-            await form.confirmAndSend();
+            // The id is read from the response, so that the booking is deleted
+            // afterwards even when no listing returns it.
+            const [response] = await Promise.all([
+                staffPage.waitForResponse(
+                    (r) =>
+                        r.url().includes(`${STAFF_API}/bookings`) &&
+                        r.request().method() === 'POST',
+                    { timeout: 30_000 },
+                ),
+                form.confirm.click(),
+            ]);
+            const sent = await response.text().catch(() => '');
+            expect(
+                response.ok(),
+                `the meeting was refused outright: HTTP ${response.status()} ${sent}`,
+            ).toBe(true);
+            created.push(JSON.parse(sent).id);
             await expect(
-                form.successPanel,
-                'the meeting was refused outright',
+                form.successContinue,
+                'the flow did not reach its success screen',
             ).toBeVisible({ timeout: 30_000 });
 
             // 1. The FIRST instance must be findable on its own day. This is the
-            //    assertion that fails today: the booking exists but no listing
-            //    returns it, because its weekday bitmask is empty.
+            //    assertion that failed with ROOM-B10: the booking existed but no
+            //    listing returned it, because its weekday bitmask was empty.
             await expect
                 .poll(
                     async () => {
@@ -205,7 +240,6 @@ test.describe('recurring room bookings', () => {
             const [first] = (await roomBookingsOn(staffApi, THIRD_DAY)).filter(
                 (booking) => booking.asset_id === room.id,
             );
-            created.push(first.id);
 
             // 2. The pattern must name the weekday it was booked on.
             expect(
@@ -247,9 +281,9 @@ test.describe('recurring room bookings', () => {
     /**
      * The control that makes ROOM-B10 actionable.
      *
-     * Active and passing. It sends the recurrence the app SHOULD have sent —
-     * straight through the API, no form — and proves the backend expands it
-     * correctly. Without this, ROOM-B10 reads as "recurring room bookings do not
+     * It sends the recurrence the app SHOULD send — straight through the API,
+     * no form — and proves the backend expands it correctly. Without this, a
+     * failure of the test above reads as "recurring room bookings do not
      * work", which would send somebody looking in the wrong place.
      */
     test('ROOM-25b: a correctly formed weekly recurrence is expanded by the backend', async ({

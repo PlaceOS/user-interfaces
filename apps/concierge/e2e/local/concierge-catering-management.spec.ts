@@ -8,7 +8,7 @@ import {
     runName,
 } from '../../../../e2e/support/concierge/management.api';
 import { APP_URL, BACKEND_URL, roleFor } from '../../../../e2e/support/env';
-import { MeetingForm } from '../../../../e2e/support/room/meeting-form.page';
+import { MeetingFlow } from '../../../../e2e/support/room/meeting-flow.page';
 import {
     ROOM_BASE_SETTINGS,
     useSettings,
@@ -82,7 +82,7 @@ test('CON-CAT-03: an item created in concierge is stored and offered on the work
             const page = await context.newPage();
             await useSettings(page, ROOM_BASE_SETTINGS);
             await page.goto(`${APP_URL}/#/book/meeting/form`);
-            const form = new MeetingForm(page);
+            const form = new MeetingFlow(page);
             const systems = await adminApi.get(`${ENGINE}/systems`, {
                 params: { limit: '500' },
             });
@@ -92,7 +92,12 @@ test('CON-CAT-03: an item created in concierge is stored and offered on the work
                 (item: { name: string }) => item.name === 'E2E Room 0',
             );
             expect(room, 'the framework must seed E2E Room 0').toBeTruthy();
-            await form.chooseRoom(room.name);
+            // Catering is on the last step of the meeting flow. The first
+            // step needs a title and the second needs a room.
+            await form.title.fill(name);
+            await form.toRoomStep();
+            await form.selectRoom(room.name);
+            await form.toOptionsStep();
             await form.addCateringItem(name);
             await expect(form.cateringOrders).toContainText(name);
         } finally {

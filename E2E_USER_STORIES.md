@@ -151,19 +151,19 @@ was built in. Extending there is a separate piece of work, not an oversight.
 | VIS-05 | P1 | One user's visitor invite is **not** visible to another user, and cannot be deleted by them. | **done** — `local/visitor-scoping.spec.ts`. The desk equivalent is WP-E2E-08; a visitor invite leaks a named outside person, not just a seat. |
 | VIS-06 | P1 | Control for VIS-05: you *can* see your own invite and its guest record, so "nobody sees anything" cannot pass as success. | **done** — `local/visitor-scoping.spec.ts` |
 | VIS-07 | P2 | With all-day invites allowed, an all-day invite is **stored** as all-day rather than as a long timed booking. | **done** — `local/visitor-settings.spec.ts` |
-| VIS-08 | P2 | With a reason required, sending without one is refused by the form and nothing reaches the backend. | **done** — `local/visitor-settings.spec.ts` |
+| VIS-08 | P2 | With a reason required, sending without one is refused by the form and nothing reaches the backend. | **blocked** — `local/visitor-settings.spec.ts`, `test.fixme`. The new invite flow does not read `visitors.reason_required`: with the reason cleared, Confirm sends the invite with the title "Visit" and gets `201`. The spec passed on the flow before PR #561. |
 | VIS-09 | P1 | Booking on behalf of somebody else stores **them** as the host (`user_*`) and **you** as the booker (`booked_by_*`). | **done** — `local/visitor-delegate.spec.ts`. Needs `visitors.can_book_for_anyone` **and** `visitors.can_book_for_others`: one without the other renders the host picker and then silently discards the choice. |
 | VIS-10 | P1 | The booker's schedule flags a delegated invite as **Associate** (and shows "For {name}"); the host's own listing shows it as theirs, unflagged. | **done** — `local/visitor-delegate.spec.ts`. Visibility is asymmetric — the booker only sees it at all because the schedule sends `include_booked_by=true`. |
 | VIS-11 | P1 | A visitor is checked **in** and then back **out**, both recorded on the backend; after checking out the control is gone, so one invite cannot be used twice. | **done** — `local/visitor-checkin.spec.ts`. Check-in and check-out are the same button; only the check-out asks for confirmation. |
 | VIS-12 | P1 | A booking too far ahead offers no check-in control, **and** the API refuses one for the timing reason — so hiding the button is not the only thing stopping it. | **done** — `local/visitor-checkin.spec.ts`. The two gates are different sizes: the app hides the button until **15 minutes** before the start, the backend accepts within **1 hour**. |
 | VIS-13 | P2 | Re-saving a delegated invite **for a future day** keeps the original host, and keeps the day, rather than resetting either to the person editing. | **done** — `local/visitor-edit.spec.ts` |
 | VIS-14 | P2 | Removing one visitor from a group invite leaves the other members untouched. | **done** — `local/visitor-edit.spec.ts` (PPT-2634 / PPT-2638) |
-| VIS-15 | P2 | The same edit works when the app is in **single-visitor** mode. | **blocked** — `local/visitor-edit.spec.ts`, `test.fixme`. VIS-B8 below. The identical flow in the default mode is green (VIS-13), so this is the mode, not the flow. |
+| VIS-15 | P2 | The same edit works when the app is in **single-visitor** mode. | **done** — `local/visitor-edit.spec.ts`. VIS-B8 does not occur in the new invite flow: a single-mode edit sends `PATCH /bookings/:id`, gets `200`, and the reason is stored. |
 | VIS-16 | P1 | Cancelling an invite **from the app** — the booking menu and its confirmation — really removes it, on the backend and not just on screen. | **done** — `local/visitor-cancel.spec.ts`. Every other spec tears down through the API, so this button was never once pressed. |
 | VIS-17 | P1 | Declining that confirmation leaves the invite alone. | **done** — `local/visitor-cancel.spec.ts`. A dialog whose decline button also deletes is worse than one that fails to delete, and only this catches it. |
 | VIS-18 | P1 | An address that is not an email is refused **before anything is sent**. | **done** — `local/visitor-validation.spec.ts`. Asserts on the network, not on a message: the backend stores whatever it is given, so the form is the only guard. Includes a control that a valid address does send. |
 | VIS-19 | P2 | A visitor taken off the list before sending is not invited, and the rest still are. | **done** — `local/visitor-validation.spec.ts` |
-| VIS-20 | P2 | A pass number and the international-visitor flag are stored with the invite. | **done** — `local/visitor-details.spec.ts`. Both behind settings that are off by default. |
+| VIS-20 | P2 | A pass number and the international-visitor flag are stored with the invite. | **partial** — `local/visitor-details.spec.ts`. The pass number is stored. The international flag is `test.fixme`: with `visitors.allow_international` on, the new invite flow has no control for it and sends `international: false`. |
 | VIS-21 | P2 | The company is stored, and the separate guest record carries the visitor's name. | **done** — `local/visitor-details.spec.ts`. The guest record is what reception reads and it outlives the booking. |
 | VIS-22 | P1 | The start time and length chosen on the form are the ones stored. | **done** — `local/visitor-times.spec.ts`. Everything else here takes the default hour, so a form that ignored the picker would have passed the whole suite. |
 | VIS-23 | P2 | A maximum visit length and bookable hours limit what the form offers. | **done** — `local/visitor-times.spec.ts`. Asserts on the options offered, because an out-of-range choice is absent rather than refused. Red-checked: without the settings the form offers 240 minutes against a 60 minute cap. |
@@ -226,23 +226,23 @@ needs, and its row says what the spec has to set up.
 | ROOM-08 | P2 | A maximum meeting length and bookable hours limit what the form offers. | **done** — `local/room-times.spec.ts`. Asserts on the options *offered*, because an out-of-range choice is absent rather than refused. The keys are `app.events.*`, not `app.bookings.*`: set the bookings keys and the form happily offers an 8-hour meeting. |
 | ROOM-09 | P2 | An attendee added on the form is stored with the booking. | **done** — `local/room-attendees.spec.ts`. A room booking is the only one of the three surfaces with a real attendee list, so it is the only place the list can go wrong. Stored in `extension_data.attendees`, which also carries the room itself as a resource. |
 | ROOM-10 | P2 | An attendee removed before sending is not invited, and the rest still are. | **done** — `local/room-attendees.spec.ts` |
-| ROOM-11 | P1 | Cancelling a room booking **from the app** — the booking menu and its confirmation — really removes it on the backend. | **blocked** — `local/room-cancel.spec.ts`, `test.fixme`. ROOM-B4 below. Every other room spec tears down through the API, so this button was never once pressed. |
+| ROOM-11 | P1 | Cancelling a room booking **from the app** — the booking menu and its confirmation — really removes it on the backend. | **done** — `local/room-cancel.spec.ts`. On the new schedule the cancel sends `DELETE /api/staff/v1/bookings/<id>` and gets `202`. ROOM-B4 does not occur. |
 | ROOM-12 | P1 | Declining that confirmation leaves the booking alone. | **done** — `local/room-cancel.spec.ts`. A dialog whose decline button also deletes is worse than one that fails to delete. It passing while ROOM-11 does not is what shows ROOM-B4 is the delete itself, not the menu or the dialog. |
-| ROOM-13 | P1 | A room booking carries its **zone hierarchy** (org, building, level), as desk and visitor bookings do. | **blocked** — `local/room-booking.spec.ts`, `test.fixme`. ROOM-B2 below. Fold it into ROOM-01 once the app populates zones. |
-| ROOM-14 | P1 | The meeting **length** chosen on the form is the length the room is held for. | **blocked** — `local/room-times.spec.ts`, `test.fixme`. ROOM-B3 below. Fold it into ROOM-07 once the app carries the choice through. |
+| ROOM-13 | P1 | A room booking carries its **zone hierarchy** (org, building, level), as desk and visitor bookings do. | **done** — `local/room-booking.spec.ts`. The new meeting flow stores the zones. ROOM-B2 does not occur. |
+| ROOM-14 | P1 | The meeting **length** chosen on the form is the length the room is held for. | **done** — `local/room-times.spec.ts`. A 90 minute meeting is stored as 90 minutes. ROOM-B3 does not occur. |
 | ROOM-15 | P1 | Re-opening a booking and choosing a new **start time** stores the new time, keeps the room, and updates the same booking rather than replacing it. | **done** — `local/room-edit.spec.ts`. The first row here to exercise a `PATCH` rather than a `POST`: `saveBooking` branches on the id, so an edit that lost it would create a second booking and hold the room twice. |
 | ROOM-16 | P1 | Moving a booking to **another room** stores it against that room, and does not move it in time. | **done** — `local/room-edit.spec.ts`. Needs the second seeded room — with one room, "the room changed" and "the field was ignored" are the same observation. |
 | ROOM-17 | P1 | With `app.events.strict_capacity_check`, a meeting with more people than the room holds is **refused by the form and nothing reaches the backend**. | **done** — `local/room-capacity.spec.ts`. Asserts on the network, not on a message. Carries its own control — one attendee lighter, the same form reaches the confirm screen. Red-checked: without the setting the over-capacity meeting gets straight through. |
 | ROOM-18 | P2 | **By default** the same meeting is only **warned** about, and still books. | **done** — `local/room-capacity.spec.ts`. The shipped behaviour, so the one real users get. Only the room changes between the control and the assertion, which is what makes it about capacity. |
 | ROOM-19 | P2 | A room marked as a **favourite** is saved to the user's own settings and the "Favorites Only" filter then narrows the picker to it. | **done** — `local/room-favourites.spec.ts`. The one room feature that outlives the booking flow: it is stored in the user's `settings` metadata, debounced ~2.4s, so the spec polls the backend rather than trusting the star. |
 | ROOM-20 | P1 | A room booked with the default settings is stored **unapproved** (`tentative`), and still holds the room. | **done** — `local/room-approval.spec.ts`. Also the control for ROOM-21. |
-| ROOM-21 | P2 | With `app.bookings.no_approval`, the booking is stored **approved**. | **blocked** — `local/room-approval.spec.ts`, `test.fixme`. ROOM-B1 below, **re-measured 2026-09-16**: the booking POST is still a `500`. |
-| ROOM-22 | P1 | **Catering** ordered on the form reaches the backend as its own `catering-order` booking, linked to the meeting. | **blocked** — `local/room-catering.spec.ts`, `test.fixme`. ROOM-B5 below. The menu seeding works and the form offers catering; it is the order that cannot be saved in this mode. |
+| ROOM-21 | P2 | With `app.bookings.no_approval`, the booking is stored **approved**. | **done** — `local/room-approval.spec.ts`. With `app.bookings.no_approval` the booking is stored, and it is stored pending. ROOM-B1 (the `500`) does not occur, because the booking now has zones. |
+| ROOM-22 | P1 | **Catering** ordered on the form reaches the backend as its own `catering-order` booking, linked to the meeting. | **done** — `local/room-catering.spec.ts`. The catering order is stored and names the item. ROOM-B5 does not occur. |
 | ROOM-23 | P1 | **Checking in** to a room booking. | **unblocked, no spec yet.** The check-in button only renders when a websocket `binding` to a **`Bookings` driver module** on the room's System reports a status (`event-details-modal.component.ts`: `mod="Bookings" bind="status"`, and the button also needs `room_status() !== 'free'`). The stack now runs core, and every seeded room carries `Place::Bookings` polling a demo calendar in the same system (`e2e/support/room/room.seed.ts`); `home-availability.spec.ts` (HOME-10) proves that chain end to end, since the home page lists a room only while its module reports `free`. A spec here has to put an event covering now into the room's `Calendar_1` (`create_event`, through the module exec route) so the module reports a meeting, then the control renders. Contrast VIS-11, where visitor check-in is a plain API call and is covered. |
 
 ### Findings from building this coverage
 
-Five, all reproduced and minimised, **none filed**. Each has a `fixme` row above waiting on it.
+Five, all reproduced and minimised on the meeting flow before PR #561, **none filed**. **Measured again on 2026-10-13 with the new meeting flow: none of the five occurs**, and the rows that waited on them are done. The table is kept as the record of what the earlier flow did.
 
 | ID | Finding |
 |----|---------|
@@ -269,9 +269,6 @@ What is left, in rough order of value:
 
 ## 1c. Workplace — the views that PR #561 made the default
 
-Nineteen tests in six files under `apps/workplace/e2e/local/`. Each file has its own page
-object in `e2e/support/`. The page objects for the replaced views are not changed.
-
 PR #561 changed the components that these routes open:
 
 | Route | Opens now | Opened before |
@@ -283,65 +280,99 @@ PR #561 changed the components that these routes open:
 | `/your-bookings` | Day, week and list views. The day view is the default. | One list of cards |
 | `/team-schedule` | `team-schedule` | No route |
 
-**The specs that drive the replaced views through the UI do not pass now.** Measured on 2026-10-13 with a full local run of 161 tests: all 19 tests of this section pass,
-and **102 of the 140 tests that were there before fail**, in 60 of the spec files. The failures
-are in the `desk-*`, `room-*`, `visitor-*`, `home-*` and `bookings-*` files that drive a form or
-the schedule, and in the five `parking-*` files that do the same. The specs that use only the
-API still pass, as do login, boot, lockers and the parking booking form. The failures were not
-examined one by one. For comparison, the last CI run before PR #561 had 131 passes and 10
-failures.
-Their rows in this document still say **done**. That status is correct for the replaced views
-only. Each of those specs must be moved to the new view or removed, and that decision is not
-made yet. The rows below are the only UI coverage of these six routes until then.
+**What that did to the suite, and what was done.** The specs drove the replaced views, so on
+2026-10-13 a full local run had **102 failures in 140 tests**. All 102 are accounted for:
+
+- **The page objects now drive the new views.** The specs kept their stories and their backend
+  assertions. `desk-flow.page.ts`, `meeting-flow.page.ts`, `invite-form.page.ts`,
+  `landing-new.page.ts` and `your-bookings.page.ts` are the page objects of the new views. The
+  page objects of the replaced views are deleted.
+- **Four stories are blocked by the new views** and are `test.fixme`. They are in the table
+  "Blocked by the new views" below.
+- **Six rows that were blocked on the replaced flows now pass**: ROOM-11, ROOM-13, ROOM-14,
+  ROOM-21, ROOM-22 and VIS-15.
+- **After the move, a full local run of 161 tests has 155 passes, 5 `fixme` and 1 failure.**
+  The failure is VIS-28, the detector for REG-09. It passes when it runs alone, it failed in
+  the last CI run before PR #561 too, and its file is not changed. The fifth `fixme` is
+  VIS-B1, which was `fixme` before.
+
+How each area changed:
+
+| Area | What the specs do differently |
+|---|---|
+| Your Bookings (`bookings-*`, and every spec that opens a booking from the schedule) | The page opens on the day view, which has no cards. `YourBookingsPage.open` asks for `?view=list`. `showDayOf` goes to the day view, picks the day on its calendar and comes back, because the list view has a range picker and no single-day calendar. The type filters are matched on their icons. |
+| Desk (`desk-*`) | One page, no picker modal and no confirm overlay: Confirm sends the booking. Group and "book for other" are buttons of the details. |
+| Room (`room-*`) | Three steps on one route (`view=0`, `1`, `2`) and no confirm screen. The room list has ten rooms a page. |
+| Visitor (`visitor-*`) | One page. Single or multiple visitors is a toggle of the page, not a setting. |
+| Home (`home-*`) | The next-booking card shows ONE booking, the first of today, so each spec clears the bookings its user has today. The "other user" of the scoping spec is the admin: a booking of today for the user of a different worker would show on that worker's card. Add colleague is a modal. Quick book is the "auto-assign desk" action. |
+| Parking (`parking-request`, `parking-restrictions`, `parking-favourites`) | The submit control of the request form lost its `confirm` attribute. The favourite setting is now `favourite_parking`. |
+
+### Stories that only the new views have
+
+Seventeen tests in six files. Each has `NEW-` in its name.
 
 | ID | P | Story | Status |
 |----|---|-------|--------|
-| NEW-DESK-01 | P1 | A **non-admin** books a desk from the list of the new flow. The backend stores it with the correct desk, title and zones, and the app shows its success view. | **done** — `local/desk-flow-new.spec.ts`. The flow has one page and no second confirmation: Confirm sends the booking. |
+| NEW-DESK-01 | P1 | A **non-admin** books a desk from the list of the new flow. The backend stores it with the correct desk, title and zones, and the app shows its success view. | **done** — `local/desk-flow-new.spec.ts` |
 | NEW-DESK-02 | P1 | Confirm with no desk selected is refused, and no booking request leaves the page. | **done** — `local/desk-flow-new.spec.ts`. Red-checked: with a desk selected the flow goes to the success view. |
-| NEW-ROOM-01 | P1 | A **non-admin** books a room through the three steps of the new flow (details, room, options). The backend stores a `room` booking with the correct system, title and zones. | **done** — `local/meeting-flow-new.spec.ts`. Runs with `app.events.use_bookings = true`, as §1b does. A green run says nothing about the calendar path. |
-| NEW-ROOM-02 | P1 | Each step refuses to go forward without its requirement: a title for the room step, a room for the options step. No booking request leaves the page. | **done** — `local/meeting-flow-new.spec.ts`. Red-checked: with a title the first step goes forward. |
-| NEW-VIS-01 | P1 | A **non-admin** invites one visitor through the new flow. The backend stores the booking with the correct address, reason and zones, and makes a guest record. | **done** — `local/visitor-flow-new.spec.ts` |
-| NEW-VIS-02 | P1 | Confirm with no visitor address is refused, and no booking request leaves the page. | **done** — `local/visitor-flow-new.spec.ts`. Red-checked: with an address the flow goes to the success view. |
-| NEW-VIS-03 | P2 | A recent visitor from the user settings (`visitor-invitees`) is shown on the quick action panel, and a click fills the visitor fields. | **done** — `local/visitor-flow-new.spec.ts`. Red-checked: without the click the fields stay empty. |
-| NEW-HOME-01 | P1 | The next-booking card shows the "schedule is clear" state with no booking today, and the booking when there is one. | **done** — `local/landing-new.spec.ts`. The card shows only the first booking of today that is not done. Each test deletes every booking that the user has today before it starts. |
-| NEW-HOME-02 | P1 | Edit on the card opens the new desk flow with the booking loaded: the title and the selected desk are those of the booking. | **done** — `local/landing-new.spec.ts`. This proves the load only. The save of an edit through the new flow has no spec. |
+| NEW-ROOM-01 | P1 | A **non-admin** books a room through the three steps of the new flow. The backend stores a `room` booking with the correct system, title and zones. | **done** — `local/meeting-flow-new.spec.ts`. Runs with `app.events.use_bookings = true`, as §1b does. |
+| NEW-ROOM-02 | P1 | Each step refuses to go forward without its requirement: a title for the room step, a room for the options step. No booking request leaves the page. | **done** — `local/meeting-flow-new.spec.ts`. Red-checked. |
+| NEW-VIS-01 | P1 | A **non-admin** invites one visitor through the new flow. The backend stores the booking and makes a guest record. | **done** — `local/visitor-flow-new.spec.ts` |
+| NEW-VIS-02 | P1 | Confirm with no visitor address is refused, and no booking request leaves the page. | **done** — `local/visitor-flow-new.spec.ts`. Red-checked. |
+| NEW-VIS-03 | P2 | A recent visitor from the user settings (`visitor-invitees`) is shown on the quick action panel, and a click fills the visitor fields. | **done** — `local/visitor-flow-new.spec.ts`. Red-checked. |
+| NEW-HOME-02 | P1 | Edit on the next-booking card opens the new desk flow with the booking loaded: the title and the selected desk are those of the booking. | **done** — `local/landing-new.spec.ts` |
 | NEW-HOME-03 | P1 | Delete on the card, and its confirmation, removes the booking on the backend. | **done** — `local/landing-new.spec.ts`. Red-checked: without the confirmation the booking stays live. |
 | NEW-HOME-04 | P2 | A favourite desk from the user settings is listed, and Book opens the new desk flow with that desk selected. | **done** — `local/landing-new.spec.ts` |
-| NEW-HOME-05 | P2 | The desk week offers to book a desk on a day with no desk booking. It shows the booking on a day that has one, and a click opens the booking details. | **done** — `local/landing-new.spec.ts`. Red-checked: a booking on a different day does not show on today. |
-| NEW-HOME-06 | P2 | A colleague added through the modal is listed and is saved to the `contacts` document of the user. | **done** — `local/landing-new.spec.ts`. Red-checked: without the add the colleague is not listed. |
+| NEW-HOME-05 | P2 | The desk week offers to book a desk on a day with no desk booking. It shows the booking on a day that has one, and a click opens the booking details. | **done** — `local/landing-new.spec.ts`. Red-checked. |
 | NEW-YB-01 | P1 | A booking of today shows on the day view, the week view and the list view. The page opens on the day view. | **done** — `local/schedule-views.spec.ts` |
-| NEW-YB-02 | P1 | The day view shows only the bookings of its day, and the topbar moves it to the next day and back to today. | **done** — `local/schedule-views.spec.ts`. Has a booking of today as a control. The first version had no control and passed with both bookings on one day, because "not shown" is also true of a view that has not loaded. |
-| NEW-YB-03 | P1 | A booking cancelled from the day view (details, menu, confirmation) is removed on the backend. | **done** — `local/schedule-views.spec.ts`. Red-checked: a declined confirmation leaves the booking live. The booking must be in progress or in the future: a booking that has ended has no actions. |
-| NEW-YB-04 | P2 | The Desks filter of the sidebar hides a desk booking and shows it again. | **done** — `local/schedule-views.spec.ts`. Red-checked: a different type filter does not hide it. |
-| NEW-TEAM-01 | P1 | A colleague from the contacts is a row of the team schedule, and their desk booking shows on its day and on no other day. | **done** — `local/team-schedule.spec.ts`. The booking is four weeks on and on the desk of the worker that makes it, so that it cannot race the specs of the worker whose user is the colleague. |
-| NEW-TEAM-02 | P2 | A colleague marked as a favourite is saved to the user settings (`favourite_team_members`), and the Favorites view lists only the favourites. | **done** — `local/team-schedule.spec.ts`. Red-checked: without the mark the view lists nobody. |
+| NEW-YB-02 | P1 | The day view shows only the bookings of its day, and the topbar moves it to the next day and back to today. | **done** — `local/schedule-views.spec.ts`. Has a booking of today as a control: "not shown" is also true of a view that has not loaded. |
+| NEW-YB-03 | P1 | A booking cancelled from the day view (details, menu, confirmation) is removed on the backend. | **done** — `local/schedule-views.spec.ts`. Red-checked. A booking that has ended has no actions. |
+| NEW-YB-04 | P2 | The Desks filter of the sidebar hides a desk booking and shows it again. | **done** — `local/schedule-views.spec.ts`. Red-checked. |
+| NEW-TEAM-01 | P1 | A colleague from the contacts is a row of the team schedule, and their desk booking shows on its day and on no other day. | **done** — `local/team-schedule.spec.ts`. The booking is four weeks on, so that it cannot race the specs of the worker whose user is the colleague. |
+| NEW-TEAM-02 | P2 | A colleague marked as a favourite is saved to the user settings (`favourite_team_members`), and the Favorites view lists only the favourites. | **done** — `local/team-schedule.spec.ts`. Red-checked. |
+
+### Blocked by the new views
+
+Each of these is `test.fixme` with the measurement in its comment. The first three passed on the
+views before PR #561.
+
+| ID | Story | What blocks it |
+|----|-------|----------------|
+| VIS-08 | With a reason required, an invite without one is refused. | The new invite flow does not read `visitors.reason_required`. With the reason cleared, Confirm sends the invite with the title "Visit" and gets `201`. |
+| VIS-20 (half) | The international-visitor flag is stored with the invite. | With `visitors.allow_international` on, the new invite flow has no control for the flag and sends `international: false`. |
+| ROOM-28 | A meeting booked for a colleague is stored with that colleague as the host. | The new meeting flow cannot name a colleague on this stack. `events.can_book_for_anyone` renders no host field. `events.can_book_for_others` renders a select that is filled from `GET /calendars`, which answers `500` without a calendar tenant, so the select holds only the signed-in user. |
+| NEW-DESK-03 | A desk can be selected when another desk of the building has no `features` list. | `desk-flow-select.component.ts` calls `.trim()` on the features of every desk with no guard. One desk without the list throws `TypeError: Cannot read properties of undefined (reading 'trim')`, and after that no row of the list shows as selected. The earlier flow read the list through `BookingFormService.features`, which has the guard. |
 
 **Not covered, and why.**
 
-- **Edits saved through the new flows.** NEW-HOME-02 proves that a booking loads into the new desk
-  flow. No spec changes a booking and saves it.
-- **The other modes of the new flows.** Group and "book for other" desk bookings, multiple
-  visitors, and the attendees, catering and assets of the meeting options step. The replaced
-  flows had specs for each of these.
-- **Auto-assign desk**, on the home page and at the top of the desk flow.
 - **The map views** of the desk list and the room list. The stack has no map metadata
   (WP-E2E-13).
-- **"Available now" on the home page.** The free count of a level is shared by all workers, so
-  an exact count cannot be asserted in a parallel run.
+- **"Available now" counts on the home page.** The free count of a level is shared by all
+  workers, so HOME-10 asserts that a level is listed, not a number. The room rows and the
+  booking modal of the earlier page are gone from the page.
+- **The route guard of the invite flow**, which asks before it drops an edited invite.
 - **Narrow screens.** The team schedule list, the mobile filter sheets and the mobile schedule
   calendar. Every spec runs at the desktop size.
 - **The calendar path** for rooms, as in §1b.
 
 ### Findings from building this coverage
 
-None is a failure of a test. None is filed.
+None is a failure of a test. None is filed. The four in "Blocked by the new views" are not
+repeated here.
 
 | ID | Finding |
 |----|---------|
-| **NEW-F1** | **The load-bearing controls of the new views have no `name` attribute.** The Confirm buttons of the three flows, "Search available rooms", Continue, the single/group/other buttons, the schedule view links and type filters, and every control of the team schedule. The specs match them on their icon ligature or on their position. The replaced views had names on these controls (`open-desk-confirm`, `confirm-desk`, `schedule-toggle-desk-filter`). A `name` on each would make the page objects shorter and stop a change of icon from breaking a spec. |
-| **NEW-F2** | A room booking from the new meeting flow is stored with the **address of the host as `user_id`** (`e2e-staff-0@place.tech`). Desk and visitor bookings from the new flows are stored with the user id (`user-…`). The value comes from `newBookingFromCalendarEvent` (`event.organiser?.id \|\| event.host`). The booking is still in the listing of the user, so no spec fails. It was not measured whether the replaced meeting flow did the same. |
-| **NEW-F3** | `createDeskBookingViaApi` and the other API helpers send `asset_name` at the top level of the booking. The backend does not keep it, so every surface shows the **asset id** for a booking made by a helper (`e2e-desk-0`), where a booking made by the app shows the name (`E2E Desk 0`). This is a limit of the helpers, not of the app. A spec that asserts on the name of a resource must make the booking through the app, or accept the id. |
-| **NEW-F4** | `landing-new` and `desk-flow-success` have no box, so Playwright reports them as hidden while their content shows. Wait for an element inside them. |
+| **NEW-F1** | **The load-bearing controls of the new views have no `name` attribute.** The Confirm buttons of the three flows, "Search available rooms", Continue, the single/group/other buttons, the schedule view links and type filters, and every control of the team schedule. The page objects match them on their icon ligature or on their position. The replaced views had names on these controls. A `name` on each would make the page objects shorter and stop a change of icon from breaking a spec. |
+| **NEW-F2** | A room booking from the new meeting flow is stored with the **address of the host as `user_id`**. Desk and visitor bookings are stored with the user id (`user-…`). The value comes from `newBookingFromCalendarEvent` (`event.organiser?.id \|\| event.host`). The booking is still in the listing of the user. It was not measured whether the earlier meeting flow did the same. |
+| **NEW-F3** | **A card of the schedule list that is clicked while the list loads never opens its details.** The list drops its cards while it loads, and the card opens its details on a timer that is cleared when the card is destroyed. A change of view starts a load on a 300 ms debounce. In two traces of the visitor work, the answer for page 2 of today (more than 100 rows) came after the answer for the selected day and replaced the list. `openDetails` clicks again when this happens. |
+| **NEW-F4** | **Group invite edits.** The invite page loads the other members of a group after it opens. A Confirm before that sent a `PATCH` for the opened member only. After one member of a group invite is refused, the visitor list of the page goes from two chips to none, and a live container with no members stays on the backend. |
+| **NEW-F5** | **The asset modal of the meeting options can drop a request.** In 2 of 24 runs the modal closed with the group at quantity 0, and `asset-list-field` dropped the request with no message. `addAssetRequest` adds it again, up to three times, with a warning in the log. |
+| **NEW-F6** | The "no results" text of the add-colleagues modal shows the placeholder itself: `No matching users found for "{{ text }}"`. |
+| **NEW-F7** | "Auto-assign desk" sends the **desk id as `asset_name`**, where the modal shows the desk name. The schedule then shows the id for that booking. |
+| **NEW-F8** | The All Day toggle of the desk filters shows, and turns on, with `app.bookings.allow_all_day` and `app.desks.allow_all_day` both false. It was not measured whether such a booking saves. |
+| **NEW-F9** | PR #561 renamed two user settings: `favourite_spaces` is now `favourite_rooms`, and `favourite_parking_spaces` is now `favourite_parking`. The app reads a value under an old key only until the new key has a value (`settings.service.ts`, `LEGACY_USER_SETTING_KEYS`). This is not a fault; the helpers that seed favourites must write the new keys. |
+| **NEW-F10** | The API helpers send `asset_name` at the top level of a booking. The backend does not keep it, so every surface shows the **asset id** for a booking made by a helper. This is a limit of the helpers, not of the app. |
+| **NEW-F11** | `landing-new` and `desk-flow-success` have no box, so Playwright reports them as hidden while their content shows. The loading screen (`global-loading`) can also cover a form for a moment after it renders. Wait for an element inside, and do not force a click. |
 
 ## 2. Auth & session
 
@@ -375,7 +406,7 @@ task that found it, so the row can be traced.
 | REG-07 | P2 | Level selection does not persist once the selector is hidden/disabled. | "Fix level selections persisting when selector is disabled/hidden" | todo |
 | REG-08 | P1 | An authority with a **relative** `login_url` still reaches a usable login page. | Found 2026-07-30, this suite | **blocked** — currently worked around in `seed.ts`; ts-client resolves a relative `login_url` against the authority host **without its port**, so any non-443 deployment dead-ends. Needs a ts-client/init fix before a spec can assert the good behaviour. |
 | REG-09 | P1 | Concurrent `POST /bookings` do not 500. | **[PPT-2642](https://acaprojects.atlassian.net/browse/PPT-2642)** | **fixed at source, not yet in the image this suite runs against.** Root cause was in pg-orm: crystal-db clears a connection's transaction flag only *after* the COMMIT it issues, so a COMMIT that fails — the serialization failures a booking burst produces — leaves it set, and the one place connections return to the pool could not see it. The connection went back to the pool with its `BEGIN` still open; reads kept working inside the orphaned transaction while every write returned 500 until restart. Fixed in [pg-orm#19](https://github.com/spider-gazelle/pg-orm/pull/19) (v2.2.4) and picked up by staff-api in #386. Measured with images differing only by that version: control stranded a connection in 3 of 4 bursts and ended unable to write; fixed, 0 of 11 and still writable. **`e2e/stack` pulls `placeos/staff-api:latest`, which is a release image — so this suite keeps running the old behaviour until the next platform release.** **Corrected 2026-09-14: this suite now DOES burst concurrent bookings.** The line that used to sit here — "harmless for now, nothing here bursts concurrent bookings" — stopped being true when the group-invite specs (VIS-03/VIS-04) landed: a group invite posts the container and every member at once, which is exactly the burst. Measured with `e2e/support/repro/vis-b6-burst.ts` (no browser, 4 concurrent POSTs x 12 rounds): 13x 201, 29x 400, 6x 500, clean in the early rounds and degrading after. Before a rollback-and-retry was added to the visitor flows the group specs failed about one run in three; with it, 10 of 10 runs clean and the recovery fired twice. That retry is a **workaround living in `e2e/support/visitor/visitor.flows.ts`**, to be deleted once the staff-api image carries pg-orm v2.2.4 — it is also why the suite being green must not be read as REG-09 being gone from the image. Reproducers: `e2e/support/repro/reg09-concurrent-bookings.ts` and `vis-b6-burst.ts`. |
-| REG-10 | P1 | The booking form does not discard user input while it is still initialising. | **[PPT-2643](https://acaprojects.atlassian.net/browse/PPT-2643)** | **partial** — `desk-initialisation.spec.ts` (DESK-21) covers the desk form. It holds the 300 ms settle timer of the desk flow, so its edits to the title and "Require locker" come before the form reset on any hardware. It fails when the replay of the "Require locker" edit is removed. No spec covers the other forms, and the flows below still converge on the form state. History: the form is rebuilt when async init completes and restores defaults (title, All Day, Require locker), silently dropping anything typed before that. A real user can hit this; they would just see their title or options revert. `bookDeskViaUI` converges on the state to work around it, which means **the suite no longer detects it** — hence this row. Investigated 2026-08-05 against #478 (`a0360486`): **the bug is still live**, established by reading the code rather than by running this suite, and fixed in **PR #479**. `newForm`'s protected branch is never taken by the flows — the current user is restored from cache ~50ms after bootstrap, while `NewDeskFlowComponent.ngOnInit` calls `loadForm` then `newForm` only after org init plus a 300ms settle — and `loadForm` had no capture at all. The shipped e2e suite meanwhile is stable at 6 consecutive full runs, 8/8, `--retries=0`, which is precisely the problem: **it passes either way**. Removing the block could not be shown to be safe *or* unsafe from here: the race needs initialisation to be slow relative to typing, and this machine wins it every time. Two failed attempts to prove otherwise, both recorded so nobody repeats them: (1) a synthetic "type during init, assert it survives" spec passed with *and* without the fix, even with the API responses held to widen the window; (2) removing the block appeared to prove the bug survived — it did not. That red was a Playwright **strict-mode violation**, not a reverted value: opening the desk-select modal puts a second "All Day" checkbox in the DOM (`desk-filters`, bound to the same field), so an unscoped locator matched two elements and threw, with both checked. Scoping the locator to `desk-flow-form` then broke it a second way, because `setCheckbox` silently returns when its locator matches nothing, turning a narrower scope into a no-op and a genuinely invalid form. Both experiments were reverted. **The block stays and this row stays blocked even once #479 lands** — not because the app is unfixed, but because this suite cannot tell either way on fast hardware. The guard for REG-10 is the unit specs in `libs/bookings/src/test/booking-form.service.spec.ts`; unblocking this row needs artificial slowness (throttled CPU), not another e2e attempt. |
+| REG-10 | P1 | The booking form does not discard user input while it is still initialising. | **[PPT-2643](https://acaprojects.atlassian.net/browse/PPT-2643)** | **partial** — `desk-initialisation.spec.ts` (DESK-21) covers the desk form. The new desk flow resets the form before its first render, so there is no settle timer to hold. A late reset comes only when `newForm` waits for `GET /users/current`, so the spec holds that request, makes its edits to the title and "Require locker", then releases it. It fails when the replay of the "Require locker" edit is removed, and when `_captureUserEdits()` is removed from the deferred branch of `newForm`. No spec covers the other forms, and the flows below still converge on the form state. History: the form is rebuilt when async init completes and restores defaults (title, All Day, Require locker), silently dropping anything typed before that. A real user can hit this; they would just see their title or options revert. `bookDeskViaUI` converges on the state to work around it, which means **the suite no longer detects it** — hence this row. Investigated 2026-08-05 against #478 (`a0360486`): **the bug is still live**, established by reading the code rather than by running this suite, and fixed in **PR #479**. `newForm`'s protected branch is never taken by the flows — the current user is restored from cache ~50ms after bootstrap, while `NewDeskFlowComponent.ngOnInit` calls `loadForm` then `newForm` only after org init plus a 300ms settle — and `loadForm` had no capture at all. The shipped e2e suite meanwhile is stable at 6 consecutive full runs, 8/8, `--retries=0`, which is precisely the problem: **it passes either way**. Removing the block could not be shown to be safe *or* unsafe from here: the race needs initialisation to be slow relative to typing, and this machine wins it every time. Two failed attempts to prove otherwise, both recorded so nobody repeats them: (1) a synthetic "type during init, assert it survives" spec passed with *and* without the fix, even with the API responses held to widen the window; (2) removing the block appeared to prove the bug survived — it did not. That red was a Playwright **strict-mode violation**, not a reverted value: opening the desk-select modal puts a second "All Day" checkbox in the DOM (`desk-filters`, bound to the same field), so an unscoped locator matched two elements and threw, with both checked. Scoping the locator to `desk-flow-form` then broke it a second way, because `setCheckbox` silently returns when its locator matches nothing, turning a narrower scope into a no-op and a genuinely invalid form. Both experiments were reverted. **The block stays and this row stays blocked even once #479 lands** — not because the app is unfixed, but because this suite cannot tell either way on fast hardware. The guard for REG-10 is the unit specs in `libs/bookings/src/test/booking-form.service.spec.ts`; unblocking this row needs artificial slowness (throttled CPU), not another e2e attempt. |
 
 ## 4. Platform & configuration
 
@@ -403,9 +434,10 @@ Config gaps caused several production incidents, and they are invisible to UI sp
   or through `use_bookings`?** Nobody has answered it. If the answer is "the calendar", the
   green rows in §1b guard a path those customers never take. This needs a product answer, not more
   specs.
-- **Eight rows are blocked on product fixes, not on test effort** (REG-08, REG-09,
-  VIS-15, ROOM-11, ROOM-13, ROOM-14, ROOM-21, ROOM-22). All were found by this suite. Leaving them visible here is the point — a blocked row is coverage
-  information, a deleted row is not.
+- **Six rows are blocked on product fixes, not on test effort** (REG-08, REG-09, VIS-08, the
+  international half of VIS-20, ROOM-28 and NEW-DESK-03). The last four are gaps or faults of
+  the views that PR #561 made the default; §1c has them. All were found by this suite. Leaving
+  them visible here is the point — a blocked row is coverage information, a deleted row is not.
 - **One row is blocked by the environment rather than by a bug** (AUTH-E2E-08), and it says
   what would unblock it. ROOM-23 was the other until the stack gained core and a `Bookings`
   driver on every seeded room; it is now only unwritten.
@@ -433,7 +465,7 @@ Config gaps caused several production incidents, and they are invisible to UI sp
   form bug).
 - **REG-10 is invisible to the booking flows of this suite by design.** `bookDeskViaUI` converges
   on the form state, so no flow will catch it regressing. Only `desk-initialisation.spec.ts`
-  (DESK-21) detects it, and only for the desk form: it holds the settle timer of the desk flow. PPT-2643's fix landed in #478; whether it is
+  (DESK-21) detects it, and only for the desk form: it holds the request that the late form reset waits for. PPT-2643's fix landed in #478; whether it is
   *complete* is genuinely unresolved, and the honest summary is that this suite cannot answer it
   on hardware this fast. Deleting the converging block passes serially and fails about one full
   parallel run in three, on the symptom rather than on the mechanism.
