@@ -1,15 +1,15 @@
 import {
   subMinutes
-} from "./chunk-SFCWVIEQ.js";
+} from "./chunk-4BK573V7.js";
 import {
   generateMockSpace,
   setHours,
   subDays
-} from "./chunk-OBWROB3H.js";
-import "./chunk-CS6C6SLC.js";
+} from "./chunk-7GU6CKKH.js";
 import {
   TranslatePipe
-} from "./chunk-ZMER4YKL.js";
+} from "./chunk-AALDW5PU.js";
+import "./chunk-23SNESJ7.js";
 import {
   GroupPermission,
   LazySentryErrorHandler,
@@ -34,7 +34,7 @@ import {
   setMocks,
   settingSignal,
   user_groups_loaded
-} from "./chunk-X5XZ2JSA.js";
+} from "./chunk-XI6JXUR7.js";
 import {
   AsyncHandler,
   Hp,
@@ -60,22 +60,22 @@ import {
   timePeriodsIntersect,
   toDate,
   unique
-} from "./chunk-ZR2M3KOK.js";
+} from "./chunk-DUCEPKUF.js";
 import {
   IconComponent
-} from "./chunk-SHFLO3X7.js";
-import "./chunk-RVZIYKJD.js";
+} from "./chunk-L6MLRQN4.js";
+import "./chunk-RTQVCH7M.js";
 import {
   BidiModule,
   _getAnimationsState
-} from "./chunk-HIXE6JIY.js";
+} from "./chunk-3QGOQTGO.js";
 import {
   Router,
   RouterLink,
   RouterOutlet,
   provideRouter,
   withHashLocation
-} from "./chunk-INGPUCP7.js";
+} from "./chunk-YGERT4XE.js";
 import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
@@ -143,11 +143,11 @@ import {
   ɵɵtext,
   ɵɵtextInterpolate,
   ɵɵtextInterpolate1
-} from "./chunk-JQIZG7UA.js";
+} from "./chunk-ZYVW5CFU.js";
 import {
   __spreadProps,
   __spreadValues
-} from "./chunk-SZBWVRCN.js";
+} from "./chunk-KUGYOAP2.js";
 
 // node_modules/date-fns/setMinutes.js
 function setMinutes(date, minutes, options) {
@@ -163,12 +163,12 @@ function subMonths(date, amount, options) {
 
 // libs/common/src/lib/locale-data.ts
 var SUPPORTED_LOCALES = {
-  ar: () => import("./ar-NKBZPGSY.js"),
-  es: () => import("./es-YCDSOSJL.js"),
-  fr: () => import("./fr-VTD7ENGJ.js"),
-  it: () => import("./it-CP4GUF6V.js"),
-  ja: () => import("./ja-OKLJROBP.js"),
-  zh: () => import("./zh-2TSR4L2W.js")
+  ar: () => import("./ar-6TROPDTB.js"),
+  es: () => import("./es-GXOKCJAX.js"),
+  fr: () => import("./fr-DZMTSPTM.js"),
+  it: () => import("./it-VNNMXGHO.js"),
+  ja: () => import("./ja-ZC5X427B.js"),
+  zh: () => import("./zh-JAPPBIO4.js")
 };
 async function registerActiveLocale(locale) {
   const short = (locale || "en").split("-")[0];
@@ -673,7 +673,7 @@ var ServiceWorkerUpdateCardComponent = _ServiceWorkerUpdateCardComponent;
 // libs/components/src/lib/global-loading.component.ts
 var NativeDomainOverlayLoaderComponent_Conditional_0_Defer_1_DepsFn = () => [
   /* @ts-ignore */
-  import("./native-domain-overlay.component-J4MPM6NW.js").then((m) => m.NativeDomainOverlayComponent)
+  import("./native-domain-overlay.component-NIYCRZTB.js").then((m) => m.NativeDomainOverlayComponent)
 ];
 function NativeDomainOverlayLoaderComponent_Conditional_0_Defer_0_Template(rf, ctx) {
   if (rf & 1) {
@@ -793,7 +793,7 @@ var NativeDomainOverlayLoaderComponent = _NativeDomainOverlayLoaderComponent;
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(NativeDomainOverlayLoaderComponent, () => [
     /* @ts-ignore */
-    import("./native-domain-overlay.component-J4MPM6NW.js").then((m) => m.NativeDomainOverlayComponent)
+    import("./native-domain-overlay.component-NIYCRZTB.js").then((m) => m.NativeDomainOverlayComponent)
   ], (NativeDomainOverlayComponent) => {
     setClassMetadata(NativeDomainOverlayLoaderComponent, [{
       type: Component,
@@ -9461,11 +9461,11 @@ function mocksInit() {
 // apps/booking-panel/src/app/app.component.ts
 var AppComponent_Defer_4_DepsFn = () => [
   /* @ts-ignore */
-  import("./chat.component-W6OBHJXX.js").then((m) => m.ChatComponent)
+  import("./chat.component-HJKJSBN4.js").then((m) => m.ChatComponent)
 ];
 var AppComponent_Defer_8_DepsFn = () => [
   /* @ts-ignore */
-  import("./settings-debug-panel-launcher.component-77LYCORN.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+  import("./settings-debug-panel-launcher.component-EABAQBF3.js").then((m) => m.SettingsDebugPanelLauncherComponent)
 ];
 function AppComponent_Defer_3_Template(rf, ctx) {
   if (rf & 1) {
@@ -9483,7 +9483,7 @@ function AppComponent_Defer_7_Template(rf, ctx) {
 }
 var _AppComponent = class _AppComponent {
   constructor() {
-    this.load_settings_schema = () => import("./settings.schema-64EG5H5N.js");
+    this.load_settings_schema = () => import("./settings.schema-DDIXIYMB.js");
     this._placeos = inject(PlaceOS_Service);
   }
   get has_chat() {
@@ -9523,9 +9523,9 @@ var AppComponent = _AppComponent;
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(AppComponent, () => [
     /* @ts-ignore */
-    import("./chat.component-W6OBHJXX.js").then((m) => m.ChatComponent),
+    import("./chat.component-HJKJSBN4.js").then((m) => m.ChatComponent),
     /* @ts-ignore */
-    import("./settings-debug-panel-launcher.component-77LYCORN.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+    import("./settings-debug-panel-launcher.component-EABAQBF3.js").then((m) => m.SettingsDebugPanelLauncherComponent)
   ], (ChatComponent, SettingsDebugPanelLauncherComponent) => {
     setClassMetadata(AppComponent, [{
       type: Component,
@@ -9568,22 +9568,22 @@ var routes = [
   { path: "unauthorised", component: UnauthorisedComponent },
   {
     path: "bootstrap",
-    loadComponent: () => import("./bootstrap.component-MHDLNKVO.js").then((m) => m.BootstrapComponent),
+    loadComponent: () => import("./bootstrap.component-NV4ES3SI.js").then((m) => m.BootstrapComponent),
     canActivate: [AuthorisedUserGuard]
   },
   {
     path: "panel/:system_id",
-    loadComponent: () => import("./panel-view.component-76CCHFRH.js").then((m) => m.PanelViewComponent),
+    loadComponent: () => import("./panel-view.component-5SXZ6TMZ.js").then((m) => m.PanelViewComponent),
     canActivate: [AuthorisedUserGuard]
   },
   {
     path: "checkin/:system_id",
-    loadComponent: () => import("./checkin-view.component-LNO6OT67.js").then((m) => m.CheckinViewComponent),
+    loadComponent: () => import("./checkin-view.component-L46XXEAR.js").then((m) => m.CheckinViewComponent),
     canActivate: [AuthorisedUserGuard]
   },
   {
     path: "events/:system_id",
-    loadComponent: () => import("./event-panel.component-BCAJLQA3.js").then((m) => m.EventPanelComponent),
+    loadComponent: () => import("./event-panel.component-D3MEC34P.js").then((m) => m.EventPanelComponent),
     canActivate: [AuthorisedUserGuard]
   },
   { path: "**", redirectTo: "bootstrap" }
