@@ -49,8 +49,9 @@ timeouts, not 200s.
   app-only credentials the workflow passes in (`E2E_O365_*`).
 - **build.placeos.run / placeos-drivers.s3-ap-southeast-2.amazonaws.com** — the
   build farm core fetches driver binaries from, and the bucket its download links
-  point at. The stack is torn down with its volumes after every run, so every run
-  downloads them again.
+  point at. The stack is torn down with its volumes after every run, but the
+  driver binaries volume (`placeos-e2e-core-drivers`) is kept, so a run downloads
+  only a binary it does not have yet.
 
 > A slow link looks like a block. Colima's first VM image download failed here with a
 > timeout that read like a firewall; the host was fine, just slow. Retry before

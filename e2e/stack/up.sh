@@ -7,6 +7,7 @@
 #
 #   ./up.sh              bring up (reuses volumes if present)
 #   ./up.sh --fresh      destroy volumes first — a genuine cold start
+#                        (this also removes the driver binaries)
 #   ./up.sh --pull       pull the current images first (CI does this every run)
 #   ./up.sh --pull-only  pull and stop (CI runs this as its own bounded step)
 #   ./down.sh            stop
@@ -18,6 +19,8 @@ set -euEo pipefail
 cd "$(dirname "${BASH_SOURCE[0]}")"
 
 PROJECT=${E2E_STACK_PROJECT:-placeos-e2e}
+# Must match the `core-drivers` volume name in docker-compose.yml.
+DRIVERS_VOLUME="${PROJECT}-core-drivers"
 HTTPS_PORT=${E2E_HTTPS_PORT:-9443}
 export E2E_HTTPS_PORT
 export E2E_DOMAIN=${E2E_DOMAIN:-localhost:${HTTPS_PORT}}
@@ -44,7 +47,13 @@ step() { printf '\n\033[1m== %s\033[0m\n' "$1"; }
 if [[ "$fresh" == true ]]; then
     step "tearing down (volumes included)"
     dc down --volumes --remove-orphans || true
+    docker volume rm --force "$DRIVERS_VOLUME" >/dev/null
 fi
+
+# The driver binaries volume is external to the compose project, so that
+# `down.sh --volumes` keeps it between runs. Compose does not create an external
+# volume. Idempotent: an existing volume is kept.
+docker volume create "$DRIVERS_VOLUME" >/dev/null
 
 # ---------------------------------------------------------------------------
 # Secrets live in .secrets/, generated below and never committed. The env files
@@ -143,8 +152,9 @@ step "starting core"
 dc up -d core
 
 # The last step of the seed waits for core to hold the suite's driver binaries.
-# A commit the build farm has already built for this CPU architecture is a
-# download; one it has not takes a few minutes.
+# A binary already in the drivers volume is used at once. Otherwise a commit the
+# build farm has already built for this CPU architecture is a download; one it
+# has not takes a few minutes.
 step "seeding e2e fixtures"
 cd ../..
 E2E_BACKEND_URL="https://localhost:${HTTPS_PORT}" bunx tsx e2e/support/seed.ts
