@@ -1,8 +1,10 @@
 import { buildProposal, Proposal } from '../lib/ai/proposal';
 import {
     canCompose,
+    effectiveChoice,
     initialState,
     MapAiState,
+    modelOptions,
     quotaBlock,
     reduce,
 } from '../lib/ai/state';
@@ -110,6 +112,71 @@ describe('map AI reducer', () => {
             reason: 'offline',
             hidden: false,
         });
+    });
+
+    it('keeps a chosen model while the capabilities offer it', () => {
+        const offered = capabilities({
+            providers: [
+                {
+                    id: 'prov-1',
+                    name: 'Signage Image Gen',
+                    provider: 'OPENAI',
+                    text_model: 'gpt-5.4-mini',
+                    text_models: ['gpt-5.4-mini', 'gpt-6-luna'],
+                },
+                {
+                    id: 'prov-2',
+                    name: 'Claude',
+                    provider: 'ANTHROPIC',
+                    text_model: 'claude-opus-5-5',
+                    text_models: ['claude-opus-5-5', 'claude-fable-5-1'],
+                },
+            ],
+        });
+        expect(modelOptions(offered).map((option) => option.key)).toEqual([
+            'prov-1|gpt-5.4-mini',
+            'prov-1|gpt-6-luna',
+            'prov-2|claude-opus-5-5',
+            'prov-2|claude-fable-5-1',
+        ]);
+        let next = reduce(
+            initialState(),
+            { type: 'capabilities', capabilities: offered },
+            strings,
+        );
+        expect(next.choice).toBeNull();
+        expect(effectiveChoice(next)).toEqual({
+            provider_id: 'prov-1',
+            model: 'gpt-5.4-mini',
+        });
+        next = reduce(
+            next,
+            {
+                type: 'model_chosen',
+                choice: { provider_id: 'prov-2', model: 'claude-fable-5-1' },
+            },
+            strings,
+        );
+        expect(effectiveChoice(next)).toEqual({
+            provider_id: 'prov-2',
+            model: 'claude-fable-5-1',
+        });
+        next = reduce(
+            next,
+            { type: 'capabilities', capabilities: offered },
+            strings,
+        );
+        expect(next.choice).toEqual({
+            provider_id: 'prov-2',
+            model: 'claude-fable-5-1',
+        });
+        next = reduce(
+            next,
+            { type: 'capabilities', capabilities: capabilities() },
+            strings,
+        );
+        expect(next.choice).toBeNull();
+        expect(modelOptions(capabilities())).toHaveLength(1);
     });
 
     it('blocks the composer when the quota is used up', () => {

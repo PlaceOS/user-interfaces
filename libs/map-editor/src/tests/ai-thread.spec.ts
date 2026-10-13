@@ -1,3 +1,4 @@
+import { MapAiModelChoice } from '../lib/ai/state';
 import { DEFAULT_AI_STRINGS } from '../lib/ai/strings';
 import { errorFromJob, errorFromStatus, MapAiThread } from '../lib/ai/thread';
 import {
@@ -61,6 +62,90 @@ function setup(ops: MapOp[], final: Partial<MapAIJob> = {}) {
 }
 
 describe('MapAiThread', () => {
+    it('sends the chosen model, remembered for the next thread', async () => {
+        const stored: { choice: MapAiModelChoice | null } = { choice: null };
+        const memory = {
+            read: () => stored.choice,
+            write: (choice: MapAiModelChoice | null) => {
+                stored.choice = choice;
+            },
+        };
+        const offered = capabilities({
+            providers: [
+                {
+                    id: 'prov-1',
+                    name: 'Signage Image Gen',
+                    provider: 'OPENAI',
+                    text_model: 'gpt-5.4-mini',
+                    text_models: ['gpt-5.4-mini', 'gpt-6-luna'],
+                },
+                {
+                    id: 'prov-2',
+                    name: 'Claude',
+                    provider: 'ANTHROPIC',
+                    text_model: 'claude-opus-5-5',
+                    text_models: ['claude-opus-5-5', 'claude-fable-5-1'],
+                },
+            ],
+        });
+        const doc = MapDocument.load(OFFICE);
+        const session = new FakeSession(doc);
+        const sequence = jobSequence({
+            summary: 'Recoloured.',
+            ops: [recolour(doc, 'area-1.01-status', '#d1fae5')],
+        });
+        const transport = new FakeTransport({
+            edit: sequence.accepted,
+            polls: sequence.polls,
+            capabilities: offered,
+        });
+        const options = {
+            transport,
+            sleep: no_sleep,
+            now: () => 1000,
+            idempotency_key: () => 'key-1',
+            memory,
+        };
+        const thread = new MapAiThread(session, 'zone-1', options);
+        await thread.load();
+        expect(thread.choice()).toEqual({
+            provider_id: 'prov-1',
+            model: 'gpt-5.4-mini',
+        });
+        expect(thread.model_options()).toHaveLength(4);
+
+        thread.chooseModel({
+            provider_id: 'prov-2',
+            model: 'claude-fable-5-1',
+        });
+        expect(stored.choice).toEqual({
+            provider_id: 'prov-2',
+            model: 'claude-fable-5-1',
+        });
+        await thread.submit('recolour Meeting 1.01 light green');
+        expect(transport.edits[0].body).toMatchObject({
+            provider_id: 'prov-2',
+            model: 'claude-fable-5-1',
+        });
+
+        const again = new MapAiThread(session, 'zone-1', options);
+        expect(again.state().choice).toEqual({
+            provider_id: 'prov-2',
+            model: 'claude-fable-5-1',
+        });
+        await again.load();
+        expect(again.choice()).toEqual({
+            provider_id: 'prov-2',
+            model: 'claude-fable-5-1',
+        });
+
+        const forgetful = new MapAiThread(session, 'zone-1', {
+            ...options,
+            memory: null,
+        });
+        expect(forgetful.state().choice).toBeNull();
+    });
+
     it('previews a proposal on the map, then keeps it and refines from it', async () => {
         const { doc, session, transport, thread, sequence } = setup([
             recolour(MapDocument.load(OFFICE), 'area-1.01-status', '#d1fae5'),

@@ -13,7 +13,7 @@ import {
 import { MapAiTransport } from './api';
 import { Proposal, ProposalGroup, ProposalRow } from './proposal';
 import { MapEditorSessionLike } from './session-contract';
-import { MapAiPhase, MapAiState, ThreadTurn } from './state';
+import { MapAiPhase, MapAiState, modelKey, ThreadTurn } from './state';
 import {
     DEFAULT_AI_STRINGS,
     format,
@@ -90,7 +90,37 @@ const IDLE: MapAiPhase = { kind: 'idle' };
                                 <h2 class="text-sm font-medium">
                                     {{ t.strings.title }}
                                 </h2>
-                                @if (model_note()) {
+                                @if (model_options().length > 1) {
+                                    <label
+                                        class="flex items-center gap-2"
+                                        model-choice
+                                    >
+                                        <span class="opacity-70">
+                                            {{ t.strings.model_label }}
+                                        </span>
+                                        <select
+                                            class="select select-bordered select-xs min-w-0 flex-1"
+                                            [value]="model_key()"
+                                            (change)="chooseModel($event)"
+                                        >
+                                            @for (
+                                                option of model_options();
+                                                track option.key
+                                            ) {
+                                                <option
+                                                    [value]="option.key"
+                                                    [selected]="
+                                                        option.key ===
+                                                        model_key()
+                                                    "
+                                                >
+                                                    {{ option.model }} ·
+                                                    {{ option.provider_name }}
+                                                </option>
+                                            }
+                                        </select>
+                                    </label>
+                                } @else if (model_note()) {
                                     <p model-note>{{ model_note() }}</p>
                                 }
                                 @if (quota_note()) {
@@ -814,18 +844,24 @@ export class MapEditorAiPanelComponent implements OnInit, OnDestroy {
     public readonly model_note = computed(() => {
         const thread = this.thread();
         const capabilities = thread?.capabilities();
-        if (!thread || !capabilities?.enabled) return '';
-        const provider =
-            capabilities.providers.find(
-                (candidate) =>
-                    candidate.id === capabilities.default_provider_id,
-            ) ?? capabilities.providers[0];
+        const choice = thread?.choice();
+        if (!thread || !capabilities?.enabled || !choice) return '';
+        const provider = capabilities.providers.find(
+            (candidate) => candidate.id === choice.provider_id,
+        );
         return provider
             ? format(thread.strings.model_note, {
-                  model: provider.text_model,
+                  model: choice.model,
                   provider: provider.name,
               })
             : '';
+    });
+    public readonly model_options = computed(
+        () => this.thread()?.model_options() ?? [],
+    );
+    public readonly model_key = computed(() => {
+        const choice = this.thread()?.choice();
+        return choice ? modelKey(choice) : '';
     });
     public readonly quota_note = computed(() => {
         const thread = this.thread();
@@ -1154,5 +1190,19 @@ export class MapEditorAiPanelComponent implements OnInit, OnDestroy {
             );
         if (turn.snapshot) parts.push(thread.strings.snapshot_toggle);
         return parts.join(' · ');
+    }
+
+    public chooseModel(event: Event): void {
+        const thread = this.thread();
+        if (!thread) return;
+        const key = (event.target as HTMLSelectElement).value;
+        const option = thread
+            .model_options()
+            .find((candidate) => candidate.key === key);
+        thread.chooseModel(
+            option
+                ? { provider_id: option.provider_id, model: option.model }
+                : null,
+        );
     }
 }

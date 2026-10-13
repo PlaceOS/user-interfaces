@@ -78,9 +78,75 @@ export type ThreadTurn =
           at: number;
       };
 
+/** The provider and model the next request asks for; null leaves it to the server. */
+export interface MapAiModelChoice {
+    provider_id: string;
+    model: string;
+}
+
+export interface MapAiModelOption extends MapAiModelChoice {
+    provider_name: string;
+    key: string;
+}
+
+export function modelKey(choice: MapAiModelChoice): string {
+    return `${choice.provider_id}|${choice.model}`;
+}
+
+/** Every model the capabilities offer, provider by provider. */
+export function modelOptions(
+    capabilities: MapAICapabilities | null | undefined,
+): MapAiModelOption[] {
+    if (!capabilities?.enabled) return [];
+    return capabilities.providers.flatMap((provider) => {
+        const models = provider.text_models?.length
+            ? provider.text_models
+            : [provider.text_model];
+        return models.map((model) => ({
+            provider_id: provider.id,
+            provider_name: provider.name,
+            model,
+            key: modelKey({ provider_id: provider.id, model }),
+        }));
+    });
+}
+
+/** The default provider's own model. */
+export function defaultChoice(
+    capabilities: MapAICapabilities | null | undefined,
+): MapAiModelChoice | null {
+    if (!capabilities?.enabled) return null;
+    const provider =
+        capabilities.providers.find(
+            (candidate) => candidate.id === capabilities.default_provider_id,
+        ) ?? capabilities.providers[0];
+    return provider
+        ? { provider_id: provider.id, model: provider.text_model }
+        : null;
+}
+
+/** The choice while the capabilities still offer it. */
+export function offeredChoice(
+    choice: MapAiModelChoice | null,
+    capabilities: MapAICapabilities | null | undefined,
+): MapAiModelChoice | null {
+    if (!choice) return null;
+    const key = modelKey(choice);
+    return modelOptions(capabilities).some((option) => option.key === key)
+        ? choice
+        : null;
+}
+
+/** The model the next request asks for: the choice, else the default. */
+export function effectiveChoice(state: MapAiState): MapAiModelChoice | null {
+    return state.choice ?? defaultChoice(state.capabilities);
+}
+
 export interface MapAiState {
     phase: MapAiPhase;
     capabilities: MapAICapabilities | null;
+    /** The model picked in the panel; null for the server's default. */
+    choice: MapAiModelChoice | null;
     turns: ThreadTurn[];
     /** The last finished job; the next request refines it. */
     parent_job_id: string | null;
@@ -103,6 +169,7 @@ export type MapAiEvent =
           message: string;
       }
     | { type: 'draft'; text: string }
+    | { type: 'model_chosen'; choice: MapAiModelChoice | null }
     | { type: 'snapshot_toggled'; on: boolean }
     | {
           type: 'submit';
@@ -138,6 +205,7 @@ export function initialState(): MapAiState {
     return {
         phase: { kind: 'idle' },
         capabilities: null,
+        choice: null,
         turns: [],
         parent_job_id: null,
         draft: '',
@@ -263,6 +331,7 @@ export function reduce(
             return {
                 ...state,
                 capabilities,
+                choice: offeredChoice(state.choice, capabilities),
                 phase: canCompose(state.phase)
                     ? state.phase
                     : { kind: 'composing' },
@@ -284,6 +353,8 @@ export function reduce(
         }
         case 'draft':
             return { ...state, draft: event.text };
+        case 'model_chosen':
+            return { ...state, choice: event.choice };
         case 'snapshot_toggled':
             return { ...state, snapshot_on: event.on };
         case 'submit': {

@@ -10,6 +10,8 @@ export interface MapAIProviderCapabilities {
     provider: MapAIProviderType | string;
     /** Model used for map edits on this provider. */
     text_model: string;
+    /** The models the vendor serves, `text_model` first. */
+    text_models?: string[];
 }
 
 /** Edits left of the allowance; `null` when the feature is off. */
@@ -118,12 +120,16 @@ export type MapAIViewBox = [number, number, number, number];
 
 /** An outlined label: the glyph paths of one or two rows inside a room, desk or zone. */
 export interface MapAILabel {
-    /** Id or anchor of the element the label sits in. */
-    in: string;
-    /** Anchors of the glyph paths, left to right, top row first. */
+    /** `glyphs` for a word outlined into paths, `text` for a text element. */
+    kind: 'glyphs' | 'text';
+    /** Id or anchor of the room, desk or zone the label sits in; null outside every one. */
+    in: string | null;
+    /** Anchors of the glyph paths, left to right, top row first; the text element's anchor for `text`. */
     anchors: string[];
     bbox: MapAIViewBox;
     fill: string | null;
+    /** The words of a text label, lines separated by newlines. */
+    text: string | null;
 }
 
 /** One line of the element index the prompt builder reads. */

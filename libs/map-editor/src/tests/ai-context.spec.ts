@@ -6,6 +6,7 @@ import {
     orderEntries,
     styleRuleStrings,
     subtreeMarkup,
+    textWords,
 } from '../lib/ai/context';
 import {
     MAP_AI_CONTEXT_SCHEMA,
@@ -313,10 +314,12 @@ describe('containment, glyphs and mentions', () => {
         expect(lone?.kind).toBe('art');
         expect(built.context.labels).toEqual([
             {
+                kind: 'glyphs',
                 in: 'area-1.03-status',
                 anchors: glyphs.map((e) => e.a),
                 bbox: [560, 320, 42, 14],
                 fill: '#fff',
+                text: null,
             },
         ]);
     });
@@ -356,5 +359,103 @@ describe('pieces', () => {
         expect(pieces.filter((piece) => piece === 'p1').length).toBe(4);
         expect(pieces.filter((piece) => piece === 'p2').length).toBe(2);
         expect(pieces.filter((piece) => piece === null).length).toBe(1);
+    });
+});
+
+describe('labels outside rooms and text labels', () => {
+    const map = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 600">
+  <g id="bookings">
+    <path id="area-1.03-status" d="M500 300h400v250h-400z" fill="#505a5e"/>
+  </g>
+  <g id="furniture">
+    <path d="M560 320h12v14h-12z" fill="#fff"/>
+    <path d="M575 320h12v14h-12z" fill="#fff"/>
+    <path d="M590 320h12v14h-12z" fill="#fff"/>
+  </g>
+  <g id="signs">
+    <path d="M100 100h12v14h-12z" fill="#333"/>
+    <path d="M115 100h12v14h-12z" fill="#333"/>
+    <path d="M130 100h12v14h-12z" fill="#333"/>
+    <path d="M300 100h12v14h-12z" fill="#333"/>
+    <path d="M400 100h12v14h-12z" fill="#999"/>
+    <path d="M402 102h12v14h-12z" fill="#999"/>
+    <path d="M404 104h12v14h-12z" fill="#999"/>
+    <path d="M600 100h40v40h-40z" fill="#333"/>
+  </g>
+  <text id="kitchen" x="40" y="60" font-size="12" fill="#222">Kitchen</text>
+  <text id="studio" x="700" y="330" font-size="12">Studio Space<tspan x="700" y="346">1.04</tspan></text>
+</svg>`;
+
+    function build() {
+        const doc = MapDocument.load(map, {
+            geometry: new AttributeGeometryProvider(),
+        });
+        const index = buildIndex(doc);
+        return {
+            doc,
+            built: buildContext({ doc, index: () => index }, {}),
+        };
+    }
+
+    it('finds outlined words outside every room by the size of the room labels', () => {
+        const { built, doc } = build();
+        const outlined = built.context.labels.filter(
+            (label) => label.kind === 'glyphs',
+        );
+        expect(outlined).toHaveLength(2);
+        expect(outlined[0]).toMatchObject({
+            in: 'area-1.03-status',
+            bbox: [560, 320, 42, 14],
+            fill: '#fff',
+            text: null,
+        });
+        expect(outlined[1]).toMatchObject({
+            in: null,
+            bbox: [100, 100, 42, 14],
+            fill: '#333',
+            text: null,
+        });
+        expect(outlined[1].anchors).toHaveLength(3);
+        const signs = built.context.index.filter(
+            (entry) => entry.p === doc.anchorOf(doc.byId('signs') as Element),
+        );
+        expect(signs.filter((entry) => entry.kind === 'glyph')).toHaveLength(3);
+        const lone = signs.find((entry) => entry.bbox?.[0] === 300);
+        expect(lone?.kind).toBe('art');
+        const big = signs.find((entry) => entry.bbox?.[0] === 600);
+        expect(big?.kind).toBe('art');
+        const layered = signs.filter((entry) => entry.fill === '#999');
+        expect(layered).toHaveLength(3);
+        expect(layered[0].piece).toBeTruthy();
+        for (const layer of layered) {
+            expect(layer.kind).toBe('art');
+            expect(layer.piece).toBe(layered[0].piece);
+        }
+    });
+
+    it('lists text elements as labels with their words, one line per tspan', () => {
+        const { built, doc } = build();
+        const texts = built.context.labels.filter(
+            (label) => label.kind === 'text',
+        );
+        expect(texts).toHaveLength(2);
+        expect(texts[0]).toMatchObject({
+            in: null,
+            anchors: [doc.anchorOf(doc.byId('kitchen') as Element)],
+            fill: '#222',
+            text: 'Kitchen',
+        });
+        expect(texts[1]).toMatchObject({
+            in: 'area-1.03-status',
+            anchors: [doc.anchorOf(doc.byId('studio') as Element)],
+            text: 'Studio Space\n1.04',
+        });
+        expect(textWords(doc.byId('studio') as Element)).toBe(
+            'Studio Space\n1.04',
+        );
+        const studio = built.context.index.find(
+            (entry) => entry.id === 'studio',
+        );
+        expect(studio?.kind).not.toBe('glyph');
     });
 });

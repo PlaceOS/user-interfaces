@@ -8,6 +8,8 @@ export interface MapEditorAiStrings {
     unavailable: string;
     /** `{model}` and `{provider}`. */
     model_note: string;
+    /** Label of the model picker. */
+    model_label: string;
     /** `{count}` edits the person may still ask for today. */
     quota_note: string;
     /** `{count}` edits the organisation has left this month. */
@@ -146,6 +148,7 @@ export const DEFAULT_AI_STRINGS: MapEditorAiStrings = {
     checking: 'Checking what the AI can do here...',
     unavailable: 'AI editing is not available: {reason}',
     model_note: 'Edits by {model}, via {provider}',
+    model_label: 'Model',
     quota_note: '{count} edits left today',
     quota_domain_note: '{count} left this month for the organisation',
     quota_user_exhausted: "You have used today's allowance of AI edits.",

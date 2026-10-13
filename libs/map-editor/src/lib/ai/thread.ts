@@ -30,10 +30,14 @@ import { MapEditorSessionLike } from './session-contract';
 import { renderSnapshot, SnapshotSize } from './snapshot';
 import {
     canCompose,
+    effectiveChoice,
     initialState,
     MapAiError,
     MapAiEvent,
+    MapAiModelChoice,
+    MapAiModelOption,
     MapAiState,
+    modelOptions,
     quotaBlock,
     reduce,
 } from './state';
@@ -71,6 +75,46 @@ export type SnapshotPort = (
     tags: readonly string[],
 ) => Promise<{ blob: Blob } & SnapshotSize>;
 
+/** Where the model choice is kept between visits; null keeps nothing. */
+export interface ModelMemory {
+    read(): MapAiModelChoice | null;
+    write(choice: MapAiModelChoice | null): void;
+}
+
+export const MODEL_MEMORY_KEY = 'placeos.map-editor.ai-model';
+
+/** The choice in this browser's localStorage; a store that fails reads as empty. */
+export function localModelMemory(
+    storage: () => Storage | undefined = () => globalThis.localStorage,
+): ModelMemory {
+    return {
+        read: () => {
+            try {
+                const raw = storage()?.getItem(MODEL_MEMORY_KEY);
+                if (!raw) return null;
+                const parsed = JSON.parse(raw) as Partial<MapAiModelChoice>;
+                return typeof parsed.provider_id === 'string' &&
+                    typeof parsed.model === 'string'
+                    ? { provider_id: parsed.provider_id, model: parsed.model }
+                    : null;
+            } catch {
+                return null;
+            }
+        },
+        write: (choice) => {
+            try {
+                const store = storage();
+                if (!store) return;
+                if (choice)
+                    store.setItem(MODEL_MEMORY_KEY, JSON.stringify(choice));
+                else store.removeItem(MODEL_MEMORY_KEY);
+            } catch {
+                return;
+            }
+        },
+    };
+}
+
 export interface MapAiThreadOptions {
     transport?: MapAiTransport;
     upload?: UploadPort | null;
@@ -80,6 +124,8 @@ export interface MapAiThreadOptions {
     long_side?: number;
     snapshot?: SnapshotPort;
     idempotency_key?: () => string;
+    /** Defaults to this browser's localStorage. */
+    memory?: ModelMemory | null;
 }
 
 const BUSY_MESSAGE = /busy|running right now|try again/i;
@@ -223,8 +269,12 @@ export class MapAiThread {
     public readonly quota_block: Signal<string | null>;
     public readonly can_send: Signal<boolean>;
     public readonly announcement: Signal<string>;
+    /** The model the next request asks for. */
+    public readonly choice: Signal<MapAiModelChoice | null>;
+    public readonly model_options: Signal<MapAiModelOption[]>;
 
     private readonly _state: WritableSignal<MapAiState>;
+    private readonly _memory: ModelMemory | null;
     private readonly _transport: MapAiTransport;
     private readonly _upload: UploadPort | null;
     private readonly _now: () => number;
@@ -250,8 +300,17 @@ export class MapAiThread {
             options.snapshot ??
             ((session, selection, tags) =>
                 renderSnapshot(session.doc, { selection, tags, long_side }));
-        this._state = signal(initialState());
+        this._memory =
+            options.memory === undefined ? localModelMemory() : options.memory;
+        this._state = signal({
+            ...initialState(),
+            choice: this._memory?.read() ?? null,
+        });
         this.state = this._state.asReadonly();
+        this.choice = computed(() => effectiveChoice(this._state()));
+        this.model_options = computed(() =>
+            modelOptions(this._state().capabilities),
+        );
         this.phase = computed(() => this._state().phase);
         this.capabilities = computed(() => this._state().capabilities);
         this.turns = computed(() => this._state().turns);
@@ -295,6 +354,12 @@ export class MapAiThread {
                 message: errorMessage(error),
             });
         }
+    }
+
+    /** Picks the model for the next requests, remembered for this browser. */
+    public chooseModel(choice: MapAiModelChoice | null): void {
+        this.dispatch({ type: 'model_chosen', choice });
+        this._memory?.write(choice);
     }
 
     public setDraft(text: string): void {
@@ -374,6 +439,7 @@ export class MapAiThread {
                 snapshot: size,
             },
         );
+        const choice = state.choice;
         let job: MapAIJob;
         try {
             job = await submitMapAIEdit(
@@ -384,6 +450,12 @@ export class MapAiThread {
                     markup_upload_id,
                     parent_job_id: state.parent_job_id,
                     idempotency_key: this._key(),
+                    ...(choice
+                        ? {
+                              provider_id: choice.provider_id,
+                              model: choice.model,
+                          }
+                        : {}),
                 },
                 this._transport,
             );

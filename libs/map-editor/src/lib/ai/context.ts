@@ -198,21 +198,124 @@ function stacked(upper: Box, lower: Box): boolean {
 }
 
 export interface LabelCluster {
-    in: string;
+    kind: 'glyphs' | 'text';
+    in: string | null;
     anchors: string[];
     bbox: Box;
     fill: string | null;
+    text: string | null;
+}
+
+interface GlyphRun {
+    anchors: string[];
+    bbox: Box;
 }
 
 /**
- * Outlined labels: glyph candidates with one parent and one fill inside one
- * container, grouped into rows of adjacent letters, with rows that stack
- * joined into one label. Rows shorter than LABEL_MIN_GLYPHS are not labels.
+ * Rows of adjacent glyphs, left to right, with rows that stack joined into one
+ * run. Rows shorter than LABEL_MIN_GLYPHS are dropped.
+ */
+function glyphRuns(members: readonly MapIndexEntry[]): GlyphRun[] {
+    const sorted = [...members].sort(
+        (a, b) => (a.bbox as Box)[0] - (b.bbox as Box)[0],
+    );
+    const rows: MapIndexEntry[][] = [];
+    for (const member of sorted) {
+        const row = rows.find((candidate) =>
+            sameRow(
+                candidate[candidate.length - 1].bbox as Box,
+                member.bbox as Box,
+            ),
+        );
+        if (row) row.push(member);
+        else rows.push([member]);
+    }
+    const labels = rows
+        .filter((row) => row.length >= LABEL_MIN_GLYPHS)
+        .map((row) => ({
+            rows: [row],
+            bbox: unionBox(row.map((entry) => entry.bbox as Box)),
+        }))
+        .sort((a, b) => a.bbox[1] - b.bbox[1]);
+    const merged: typeof labels = [];
+    for (const label of labels) {
+        const above = merged.find((candidate) =>
+            stacked(candidate.bbox, label.bbox),
+        );
+        if (above) {
+            above.rows.push(...label.rows);
+            above.bbox = unionBox([above.bbox, label.bbox]);
+        } else merged.push(label);
+    }
+    return merged.map((label) => ({
+        anchors: label.rows.flat().map((entry) => entry.anchor),
+        bbox: label.bbox,
+    }));
+}
+
+const LOOSE_GLYPH_MIN_RATIO = 0.6;
+const LOOSE_GLYPH_MAX_RATIO = 1.6;
+const LOOSE_GLYPH_WIDTH_RATIO = 2;
+
+function median(values: readonly number[]): number {
+    const sorted = [...values].sort((a, b) => a - b);
+    const mid = Math.floor(sorted.length / 2);
+    return sorted.length % 2
+        ? sorted[mid]
+        : (sorted[mid - 1] + sorted[mid]) / 2;
+}
+
+/**
+ * An anonymous filled path outside every room, sized like the glyphs found
+ * inside rooms. Shapes lying on a sibling are the layers of a drawn object,
+ * not letters.
+ */
+export function isLooseGlyphCandidate(
+    entry: MapIndexEntry,
+    glyph_height: number,
+    siblings: readonly MapIndexEntry[],
+): boolean {
+    if (!entry.bbox || entry.id || entry.label || entry.protected) return false;
+    if (entry.tag !== 'path' && entry.tag !== 'polygon') return false;
+    if (!entry.fill || entry.fill === 'none') return false;
+    const [, , w, h] = entry.bbox;
+    if (
+        h < glyph_height * LOOSE_GLYPH_MIN_RATIO ||
+        h > glyph_height * LOOSE_GLYPH_MAX_RATIO ||
+        w > glyph_height * LOOSE_GLYPH_WIDTH_RATIO
+    )
+        return false;
+    return !siblings.some(
+        (other) =>
+            other !== entry &&
+            other.parent === entry.parent &&
+            sameDrawing(entry.bbox as Box, other.bbox),
+    );
+}
+
+/** A text element's words: its own text and each tspan as one line. */
+export function textWords(element: Element): string {
+    const lines = Array.from(element.childNodes).map((node) =>
+        node.nodeType === Node.TEXT_NODE ||
+        (node as Element).localName === 'tspan'
+            ? (node.textContent || '').trim()
+            : '',
+    );
+    return lines.filter((line) => !!line).join('\n');
+}
+
+/**
+ * The labels on the map. Outlined labels are glyph candidates with one parent
+ * and one fill inside one container, clustered into runs; paths outside every
+ * container sized like those glyphs are clustered the same way. Text elements
+ * are labels as they stand, with their words.
  */
 export function labelClusters(
     index: MapIndex,
     containers: Map<string, MapIndexEntry>,
+    words: (anchor: string) => string | null = () => null,
 ): LabelCluster[] {
+    const clusters: LabelCluster[] = [];
     const groups = new Map<
         string,
         { container: MapIndexEntry; members: MapIndexEntry[] }
@@ -225,47 +328,67 @@ export function labelClusters(
         group.members.push(entry);
         groups.set(key, group);
     }
-    const clusters: LabelCluster[] = [];
+    const glyph_heights: number[] = [];
     for (const { container, members } of groups.values()) {
-        const sorted = [...members].sort(
-            (a, b) => (a.bbox as Box)[0] - (b.bbox as Box)[0],
-        );
-        const rows: MapIndexEntry[][] = [];
-        for (const member of sorted) {
-            const row = rows.find((candidate) =>
-                sameRow(
-                    candidate[candidate.length - 1].bbox as Box,
-                    member.bbox as Box,
-                ),
-            );
-            if (row) row.push(member);
-            else rows.push([member]);
-        }
-        const labels = rows
-            .filter((row) => row.length >= LABEL_MIN_GLYPHS)
-            .map((row) => ({
-                rows: [row],
-                bbox: unionBox(row.map((entry) => entry.bbox as Box)),
-            }))
-            .sort((a, b) => a.bbox[1] - b.bbox[1]);
-        const merged: typeof labels = [];
-        for (const label of labels) {
-            const above = merged.find((candidate) =>
-                stacked(candidate.bbox, label.bbox),
-            );
-            if (above) {
-                above.rows.push(...label.rows);
-                above.bbox = unionBox([above.bbox, label.bbox]);
-            } else merged.push(label);
-        }
-        for (const label of merged) {
+        for (const run of glyphRuns(members)) {
             clusters.push({
+                kind: 'glyphs',
                 in: container.id || container.anchor,
-                anchors: label.rows.flat().map((entry) => entry.anchor),
-                bbox: label.bbox,
+                anchors: run.anchors,
+                bbox: run.bbox,
                 fill: members[0].fill,
+                text: null,
             });
+            for (const anchor of run.anchors) {
+                const box = index.by_anchor.get(anchor)?.bbox;
+                if (box) glyph_heights.push(box[3]);
+            }
         }
+    }
+    if (glyph_heights.length) {
+        const typical = median(glyph_heights);
+        const outside = index.entries.filter(
+            (entry) =>
+                !containers.has(entry.anchor) &&
+                entry.kind !== 'root' &&
+                entry.kind !== 'non-rendered' &&
+                entry.kind !== 'bookable' &&
+                entry.kind !== 'zone',
+        );
+        const loose = new Map<string, MapIndexEntry[]>();
+        for (const entry of outside) {
+            if (!isLooseGlyphCandidate(entry, typical, outside)) continue;
+            const key = `${entry.parent}|${entry.fill}`;
+            const members = loose.get(key) || [];
+            members.push(entry);
+            loose.set(key, members);
+        }
+        for (const members of loose.values()) {
+            for (const run of glyphRuns(members)) {
+                clusters.push({
+                    kind: 'glyphs',
+                    in: null,
+                    anchors: run.anchors,
+                    bbox: run.bbox,
+                    fill: members[0].fill,
+                    text: null,
+                });
+            }
+        }
+    }
+    for (const entry of index.entries) {
+        if (entry.tag !== 'text' || !entry.bbox) continue;
+        const text = words(entry.anchor) ?? entry.text ?? entry.label;
+        if (!text) continue;
+        const container = containers.get(entry.anchor);
+        clusters.push({
+            kind: 'text',
+            in: container ? container.id || container.anchor : null,
+            anchors: [entry.anchor],
+            bbox: entry.bbox as Box,
+            fill: entry.fill,
+            text,
+        });
     }
     return clusters;
 }
@@ -486,8 +609,15 @@ export function buildContext(
 
     const ordered = orderEntries(index);
     const containers = containerIndex(index);
-    const labels = labelClusters(index, containers);
-    const glyphs = new Set(labels.flatMap((label) => label.anchors));
+    const labels = labelClusters(index, containers, (anchor) => {
+        const element = doc.byAnchor(anchor);
+        return element ? textWords(element) : null;
+    });
+    const glyphs = new Set(
+        labels.flatMap((label) =>
+            label.kind === 'glyphs' ? label.anchors : [],
+        ),
+    );
     const pieces = pieceIndex(index, glyphs);
     const entries = ordered.map((entry) =>
         contextEntry(
@@ -518,10 +648,12 @@ export function buildContext(
         duplicate_ids: [...index.duplicate_ids],
         index: entries,
         labels: labels.map((label) => ({
+            kind: label.kind,
             in: label.in,
             anchors: [...label.anchors],
             bbox: [...label.bbox] as MapAIViewBox,
             fill: label.fill,
+            text: label.text,
         })),
         shortlist: subtree_keys,
         subtrees,
