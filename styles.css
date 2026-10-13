@@ -2375,6 +2375,7 @@ html {
   --radius-2xl: 1rem;
   --radius-3xl: 1.5rem;
   --ease-out: cubic-bezier(0, 0, 0.2, 1);
+  --animate-spin: spin 1s linear infinite;
   --animate-ping: ping 1s cubic-bezier(0, 0, 0.2, 1) infinite;
   --animate-bounce: bounce 1s infinite;
   --blur-sm: 8px;
@@ -3215,6 +3216,9 @@ input:where([type=button], [type=reset], [type=submit]),
 #placeos .h-\[17\.25rem\] {
   height: 17.25rem;
 }
+#placeos .h-\[26rem\] {
+  height: 26rem;
+}
 #placeos .h-\[60vh\] {
   height: 60vh;
 }
@@ -3779,6 +3783,9 @@ input:where([type=button], [type=reset], [type=submit]),
 #placeos .animate-ping {
   animation: var(--animate-ping);
 }
+#placeos .animate-spin {
+  animation: var(--animate-spin);
+}
 #placeos .cursor-col-resize {
   cursor: col-resize;
 }
@@ -3908,6 +3915,9 @@ input:where([type=button], [type=reset], [type=submit]),
   --tw-space-y-reverse: 0;
   margin-block-start: calc(0.5em * var(--tw-space-y-reverse));
   margin-block-end: calc(0.5em * calc(1 - var(--tw-space-y-reverse)));
+}
+#placeos .gap-x-3 {
+  column-gap: calc(var(--spacing) * 3);
 }
 #placeos .gap-x-4 {
   column-gap: calc(var(--spacing) * 4);
@@ -4356,6 +4366,9 @@ input:where([type=button], [type=reset], [type=submit]),
 #placeos .p-0 {
   padding: calc(var(--spacing) * 0);
 }
+#placeos .p-0\.5 {
+  padding: calc(var(--spacing) * 0.5);
+}
 #placeos .p-1 {
   padding: calc(var(--spacing) * 1);
 }
@@ -4433,6 +4446,9 @@ input:where([type=button], [type=reset], [type=submit]),
 }
 #placeos .py-5 {
   padding-block: calc(var(--spacing) * 5);
+}
+#placeos .py-6 {
+  padding-block: calc(var(--spacing) * 6);
 }
 #placeos .py-16 {
   padding-block: calc(var(--spacing) * 16);
@@ -4514,6 +4530,9 @@ input:where([type=button], [type=reset], [type=submit]),
 }
 #placeos .pl-2 {
   padding-left: calc(var(--spacing) * 2);
+}
+#placeos .pl-3 {
+  padding-left: calc(var(--spacing) * 3);
 }
 #placeos .pl-4 {
   padding-left: calc(var(--spacing) * 4);
@@ -5608,6 +5627,11 @@ body {
 @property --tw-drop-shadow-size { syntax: "*"; inherits: false; }
 @property --tw-duration { syntax: "*"; inherits: false; }
 @property --tw-ease { syntax: "*"; inherits: false; }
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
 @keyframes ping {
   75%, 100% {
     transform: scale(2);
