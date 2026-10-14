@@ -163,8 +163,8 @@ test.describe('concierge access', () => {
      *
      * `e2e-staff-0@place.tech` has `sys_admin: false`, `support: false` and
      * `groups: []`. With `app.allow_access_groups` unset the guard admits it;
-     * the sidebar still drops the management block, because `is_admin` reads
-     * the user's flags and groups.
+     * the sidebar still drops the management block, because its admin check
+     * reads the user's flags and groups.
      */
     test('CON-B1: with no access group configured, a staff user is admitted without the management pages', async ({
         browser,

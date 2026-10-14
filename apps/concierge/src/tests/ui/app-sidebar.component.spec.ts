@@ -1,7 +1,12 @@
 import { signal } from '@angular/core';
 import { provideRouter } from '@angular/router';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
-import { OrganisationService, SettingsService } from '@placeos/common';
+import {
+    OrganisationService,
+    setCurrentUser,
+    SettingsService,
+    StaffUser,
+} from '@placeos/common';
 import { TranslatePipe } from '@placeos/components';
 import { MockProvider, ngMocks } from 'ng-mocks';
 
@@ -9,85 +14,100 @@ import { ApplicationSidebarComponent } from '../../app/ui/app-sidebar.component'
 
 describe('ApplicationSidebarComponent', () => {
     let spectator: Spectator<ApplicationSidebarComponent>;
-    const settings = { get: vi.fn() };
+    let app_settings: Record<string, unknown>;
     const createComponent = createComponentFactory({
         component: ApplicationSidebarComponent,
         shallow: true,
         detectChanges: false,
         providers: [
             provideRouter([]),
-            MockProvider(SettingsService, settings),
+            MockProvider(SettingsService, {
+                get: ((name: string) =>
+                    app_settings[name]) as SettingsService['get'],
+            }),
             MockProvider(OrganisationService, {
-                active_building: signal(null),
+                initialised: signal(true),
                 waitUntilInitialised: () => Promise.resolve(),
             }),
         ],
     });
 
+    /** IDs of the shown items. A group shows as `group:child,child` */
+    const shown = () =>
+        spectator.component
+            .links()
+            .map((item) =>
+                'children' in item
+                    ? `${item.id}:${item.children.map((_) => _.id)}`
+                    : item.id,
+            );
+
+    const setGroups = (groups: string[]) =>
+        setCurrentUser(new StaffUser({ id: 'user-1', groups }));
+
     beforeEach(() => {
-        settings.get.mockReset();
-        settings.get.mockImplementation((name: string) => {
-            if (name === 'app.features') return ['events'];
-            if (name === 'app.feature_groups') return {};
-            return undefined;
-        });
+        app_settings = { 'app.features': ['events'] };
+        setGroups([]);
         spectator = createComponent();
     });
 
-    it('should toggle and report collapsed block state', () => {
-        expect(spectator.component.isBlockCollapsed('reports')).toBe(false);
-        spectator.component.toggleBlock('reports');
-        expect(spectator.component.isBlockCollapsed('reports')).toBe(true);
-        spectator.component.toggleBlock('reports');
-        expect(spectator.component.isBlockCollapsed('reports')).toBe(false);
+    afterEach(() => {
+        setGroups([]);
+        spectator.component.collapsed.set({});
     });
 
-    it('should keep only links whose feature is enabled', () => {
-        spectator.component.links = [
-            { id: 'events', name: 'Events', route: ['/e'], icon: 'x' },
-            { id: 'hidden', name: 'Hidden', route: ['/h'], icon: 'y' },
-        ];
-        spectator.component.updateFilteredLinks();
-        const ids = spectator.component.filtered_links().map((_: any) => _.id);
-        expect(ids).toContain('events');
-        expect(ids).not.toContain('hidden');
+    it('should toggle the collapsed state of a group', () => {
+        expect(spectator.component.collapsed()['reports']).toBeFalsy();
+        spectator.component.toggleGroup('reports');
+        expect(spectator.component.collapsed()['reports']).toBe(true);
+        spectator.component.toggleGroup('reports');
+        expect(spectator.component.collapsed()['reports']).toBe(false);
     });
 
-    it('should drop parent groups whose children are all filtered out', () => {
-        spectator.component.links = [
+    it('should keep the collapsed state for the next sidebar', () => {
+        spectator.component.toggleGroup('reports');
+        expect(createComponent().component.collapsed()['reports']).toBe(true);
+    });
+
+    it('should show only the links of the enabled features', () => {
+        app_settings['app.features'] = ['events', 'desks', 'desk-report'];
+        expect(shown()).toEqual([
+            'bookings:desks',
+            'events',
+            'reports:desk-report',
+        ]);
+    });
+
+    it('should show one link when two of its features are enabled', () => {
+        app_settings['app.features'] = ['parking', 'parking-bookings'];
+        expect(shown()).toEqual(['bookings:parking']);
+    });
+
+    it('should show the management group only to admin users', () => {
+        app_settings['app.features'] = ['zones'];
+        expect(shown()).toEqual([]);
+        setGroups(['placeos_support']);
+        expect(shown()).toEqual(['facilities:zones']);
+    });
+
+    it('should limit a feature to its groups', () => {
+        app_settings['app.feature_groups'] = { events: ['event-team'] };
+        expect(shown()).toEqual([]);
+        setGroups(['event-team']);
+        expect(shown()).toEqual(['events']);
+    });
+
+    it('should list custom reports without a feature', () => {
+        app_settings['app.custom_reports'] = [{ id: 'kpi', name: 'KPI' }];
+        const reports = spectator.component.links()[1];
+        expect('children' in reports && reports.children).toEqual([
             {
-                id: 'facilities',
-                name: 'Facilities',
-                icon: 'p',
-                children: [{ id: 'zones', name: 'Zones', route: ['/z'] }],
+                id: 'custom-kpi',
+                name: 'KPI',
+                route: ['/reports', 'kpi'],
+                icon: 'insert_chart',
             },
-        ];
-        spectator.component.updateFilteredLinks();
-        const ids = spectator.component.filtered_links().map((_: any) => _.id);
-        expect(ids).not.toContain('facilities');
-    });
-
-    it('should treat a non-admin user as not admin', () => {
-        expect(spectator.component.is_admin).toBe(false);
-    });
-
-    it('should hide the facilities group from non-admin users', () => {
-        settings.get.mockImplementation((name: string) => {
-            if (name === 'app.features') return ['facilities', 'zones'];
-            if (name === 'app.feature_groups') return {};
-            return undefined;
-        });
-        spectator.component.links = [
-            {
-                id: 'facilities',
-                name: 'Facilities',
-                icon: 'p',
-                children: [{ id: 'zones', name: 'Zones', route: ['/z'] }],
-            },
-        ];
-        spectator.component.updateFilteredLinks();
-        const ids = spectator.component.filtered_links().map((_: any) => _.id);
-        expect(ids).not.toContain('facilities');
+        ]);
     });
 
     describe('with translations loaded after render', () => {
@@ -100,16 +120,13 @@ describe('ApplicationSidebarComponent', () => {
         afterAll(() => ngMocks.defaultMock(TranslatePipe, undefined));
 
         it('should update link names', () => {
-            spectator.component.links = [
-                { id: 'events', name: 'MENU_EVENTS', route: ['/e'], icon: 'x' },
-            ];
-            spectator.component.updateFilteredLinks();
+            const key = 'APP.CONCIERGE.MENU_EVENTS';
             spectator.detectChanges();
-            expect(spectator.element.textContent).toContain('MENU_EVENTS');
-            translations['MENU_EVENTS'] = 'Events';
+            expect(spectator.element.textContent).toContain(key);
+            translations[key] = 'Events';
             spectator.detectChanges();
             expect(spectator.element.textContent).toContain('Events');
-            expect(spectator.element.textContent).not.toContain('MENU_EVENTS');
+            expect(spectator.element.textContent).not.toContain(key);
         });
     });
 });
