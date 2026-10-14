@@ -346,18 +346,14 @@ export class LandingFavouritesNewComponent {
                 const space = this.all_spaces().find((s) => s.id === item.id);
                 if (!space) return;
 
-                this._event_form.newForm();
+                // Saved with the form at once, so the form page restores
+                // the room at any load time.
+                this._event_form.newFormWith({ resources: [space] });
                 if (use_new_features) {
                     this._router.navigate(['/book', 'meeting']);
                 } else {
                     this._router.navigate(['/book', 'spaces']);
                 }
-                setTimeout(() => {
-                    this._event_form.model.update((m) => ({
-                        ...m,
-                        resources: [space],
-                    }));
-                }, 300);
                 break;
 
             case 'desk':

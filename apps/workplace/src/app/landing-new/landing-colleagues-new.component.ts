@@ -8,7 +8,6 @@ import { Router } from '@angular/router';
 import { BookingFormService } from '@placeos/bookings';
 import {
     Booking,
-    CalendarEvent,
     i18n,
     notifySuccess,
     settingSignal,
@@ -291,25 +290,23 @@ export class LandingColleaguesNewComponent {
         this.selected_users.set([]);
     }
 
-    public async bookMeeting(user: User) {
+    /**
+     * Open the meeting form with the colleague invited. The attendees are
+     * saved with the form at once, so the form page restores them at any
+     * load time.
+     */
+    public bookMeeting(user: User) {
+        this._event_form.newFormWith({ attendees: [user] });
         this._router.navigate(['/book', 'meeting', 'form']);
-        const event = new CalendarEvent({
-            attendees: [user],
-        });
-        setTimeout(() => this._event_form.newForm(event), 300);
     }
 
-    public async bookMeetingWithSelected() {
+    /** Open the meeting form with the selected colleagues invited */
+    public bookMeetingWithSelected() {
         const attendees = this.selected_users();
         if (attendees.length === 0) return;
+        this._event_form.newFormWith({ attendees });
+        this.clearSelection();
         this._router.navigate(['/book', 'meeting', 'form']);
-        const event = new CalendarEvent({
-            attendees: attendees,
-        });
-        setTimeout(() => {
-            this._event_form.newForm(event);
-            this.clearSelection();
-        }, 300);
     }
 
     public async bookDeskWithSelected() {

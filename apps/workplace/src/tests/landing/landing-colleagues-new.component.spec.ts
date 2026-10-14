@@ -39,6 +39,7 @@ describe('LandingColleaguesNewComponent', () => {
             }),
             MockProvider(EventFormService, {
                 newForm: vi.fn(),
+                newFormWith: vi.fn(),
             }),
             MockProvider(BookingFormService, booking_form_service),
             MockProvider(Router, { navigate: vi.fn() }),
@@ -128,6 +129,42 @@ describe('LandingColleaguesNewComponent', () => {
             spectator.inject(OverlayContainer).getContainerElement()
                 .textContent,
         ).not.toContain('COLLEAGUES_BOOK_MEETING');
+    });
+
+    // No wait before the checks: a prefill on a timer is lost when the form
+    // page loads after the timer.
+    it('should save the colleague with the meeting form before it opens the form', () => {
+        const user = { name: 'Test User', email: 'test@example.com' };
+        spectator = createComponent();
+        const event_form = spectator.inject(EventFormService);
+
+        spectator.component.bookMeeting(user as any);
+
+        expect(event_form.newFormWith).toHaveBeenCalledWith({
+            attendees: [user],
+        });
+        expect(spectator.inject(Router).navigate).toHaveBeenCalledWith([
+            '/book',
+            'meeting',
+            'form',
+        ]);
+    });
+
+    it('should save the selected colleagues with the meeting form and clear the selection', () => {
+        const attendees = [{ name: 'Test User', email: 'test@example.com' }];
+        spectator = createComponent();
+        const event_form = spectator.inject(EventFormService);
+        spectator.component.selected_users.set(attendees as any);
+
+        spectator.component.bookMeetingWithSelected();
+
+        expect(event_form.newFormWith).toHaveBeenCalledWith({ attendees });
+        expect(spectator.component.selected_users()).toEqual([]);
+        expect(spectator.inject(Router).navigate).toHaveBeenCalledWith([
+            '/book',
+            'meeting',
+            'form',
+        ]);
     });
 
     it('should initialise colleague desk bookings with desk booking type', async () => {
