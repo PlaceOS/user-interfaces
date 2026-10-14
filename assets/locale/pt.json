@@ -1258,6 +1258,8 @@
             "URLS_REMOVE_SUCCESS": "URL Curto removido com sucesso",
             "URLS_REMOVE_ERROR": "Falha ao remover URL Curto. Erro: {{ error }}",
             "URLS_EMPTY": "Nenhum URL Curto encontrado",
+            "USER_GROUP_COUNT": "{{ count }} grupos",
+            "USER_GROUP_COUNT_1": "{{ count }} grupo",
             "SHORTCUTS_TITLE": "Atalhos de Teclado",
             "SHORTCUTS_SEARCH": "Ir para o campo de pesquisa",
             "SHORTCUTS_NEW": "Adicionar um novo item",

@@ -1258,6 +1258,8 @@
             "URLS_REMOVE_SUCCESS": "تمت إزالة الرابط القصير بنجاح",
             "URLS_REMOVE_ERROR": "فشل إزالة الرابط القصير. خطأ: {{ error }}",
             "URLS_EMPTY": "لم يتم العثور على روابط قصيرة",
+            "USER_GROUP_COUNT": "{{ count }} مجموعة",
+            "USER_GROUP_COUNT_1": "{{ count }} مجموعة",
             "SHORTCUTS_TITLE": "اختصارات لوحة المفاتيح",
             "SHORTCUTS_SEARCH": "الانتقال إلى حقل البحث",
             "SHORTCUTS_NEW": "إضافة عنصر جديد",
