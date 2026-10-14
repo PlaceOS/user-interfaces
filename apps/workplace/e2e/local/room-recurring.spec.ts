@@ -94,11 +94,15 @@ function dayBounds(days_ahead: number) {
 }
 
 /** Room bookings on one local day. */
-async function roomBookingsOn(
+function roomBookingsOn(api: Parameters<typeof deleteBooking>[0], days_ahead: number) {
+    return roomBookingsIn(api, dayBounds(days_ahead));
+}
+
+/** Room bookings in a window of unix seconds. */
+async function roomBookingsIn(
     api: Parameters<typeof deleteBooking>[0],
-    days_ahead: number,
+    { from, to }: { from: number; to: number },
 ) {
-    const { from, to } = dayBounds(days_ahead);
     const res = await api.get(`${STAFF_API}/bookings`, {
         params: {
             type: 'room',
@@ -290,20 +294,30 @@ test.describe('recurring room bookings', () => {
         staffApi,
     }) => {
         const room = await roomForWorker(test.info().parallelIndex);
-        // Two days clear of the fixme test's slot, so the two cannot contend for
-        // the same room.
+        // One day clear of the fixme test's slot, so the two cannot contend
+        // for the same room.
         const days_ahead = THIRD_DAY + 1;
-const sydney_now = new Date(
-    new Date().toLocaleString('en-US', {
-        timeZone: 'Australia/Sydney',
-    }),
-);
-sydney_now.setDate(sydney_now.getDate() + days_ahead);
-sydney_now.setHours(14, 0, 0, 0);
+        // The booking is at 14:00 in SYDNEY, the timezone it is sent with.
+        const sydney_now = new Date(
+            new Date().toLocaleString('en-US', {
+                timeZone: 'Australia/Sydney',
+            }),
+        );
+        sydney_now.setDate(sydney_now.getDate() + days_ahead);
+        sydney_now.setHours(14, 0, 0, 0);
 
-const start = fromZonedTime(sydney_now, 'Australia/Sydney');
-const booking_start = Math.floor(start.valueOf() / 1000);
-const weekday_bit = 1 << sydney_now.getDay();
+        const start = fromZonedTime(sydney_now, 'Australia/Sydney');
+        const booking_start = Math.floor(start.valueOf() / 1000);
+        const weekday_bit = 1 << sydney_now.getDay();
+        // The SYDNEY day of the booking, some days on. Not the local day of
+        // the machine: on a runner in UTC the two are different dates from
+        // 13:00 to 24:00 UTC, and the listing of the local day then misses
+        // the booking. 14:00 is far from both ends of the day, so the window
+        // also holds across a change of daylight saving.
+        const sydneyDay = (days_on: number) => {
+            const from = booking_start - 14 * 3600 + days_on * DAY;
+            return { from, to: from + DAY };
+        };
         const title = uniqueTitle('E2E Recurring API');
 
         await releaseRoom(
@@ -349,10 +363,7 @@ const weekday_bit = 1 << sydney_now.getDay();
             // The same day, one and two weeks on: present. This is the behaviour
             // the app's own booking never gets.
             for (const week of [0, 1, 2]) {
-                const rows = await roomBookingsOn(
-                    staffApi,
-                    days_ahead + week * 7,
-                );
+                const rows = await roomBookingsIn(staffApi, sydneyDay(week * 7));
                 expect(
                     rows.some((booking) => booking.id === id),
                     `a weekly recurrence must be returned for week ${week}. If this ` +
@@ -362,7 +373,7 @@ const weekday_bit = 1 << sydney_now.getDay();
             }
 
             // And NOT on the following day, or the pattern is really daily.
-            const next_day = await roomBookingsOn(staffApi, days_ahead + 1);
+            const next_day = await roomBookingsIn(staffApi, sydneyDay(1));
             expect(
                 next_day.some((booking) => booking.id === id),
                 'a weekly recurrence must NOT be returned for the day after. If it ' +

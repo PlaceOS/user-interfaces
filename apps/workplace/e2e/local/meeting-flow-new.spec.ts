@@ -34,7 +34,7 @@ import {
 
 const DAY = 86_400;
 const window_from = () => Math.floor(Date.now() / 1000) - 2 * DAY;
-const window_to = () => Math.floor(Date.now() / 1000) + 8 * DAY;
+const window_to = () => Math.floor(Date.now() / 1000) + 10 * DAY;
 
 const isBookingPost = (url: string, method: string) =>
     url.includes('/api/staff/v1/bookings') && method === 'POST';

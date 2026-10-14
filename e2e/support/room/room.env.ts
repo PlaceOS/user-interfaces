@@ -103,8 +103,12 @@ export const ROOM_SLOTS_3 = {
  * spec. On today it would also hold the room against the specs that take the
  * default time (`home-meeting-with`, and the concierge catering spec on
  * worker 0).
+ *
+ * Not 6 or 7: ROOM-25b in `room-recurring.spec.ts` books `THIRD_DAY + 1` in
+ * Sydney time, which is local day 6 or 7, and its weekly instances are one
+ * and two weeks after that.
  */
-export const FOURTH_DAY = 6;
+export const FOURTH_DAY = 8;
 
 export interface RoomIdentity {
     /** Engine system id, filled in by the seeder — not known up front. */

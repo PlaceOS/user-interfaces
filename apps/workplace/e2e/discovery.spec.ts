@@ -71,6 +71,19 @@ test.describe('Group Events', () => {
 });
 
 test.describe('Deals & Offers', () => {
+    // The default features do not include `deals-n-offers`, and the page goes
+    // back to the home page when its feature is off (`deals.component.ts`,
+    // `ngOnInit`). The override map is the debug hook that the app reads from
+    // localStorage (`settings.service.ts`, `loadDebugOverrides`).
+    test.beforeEach(async ({ page }) => {
+        await page.addInitScript(() =>
+            window.localStorage.setItem(
+                'PLACEOS.setting_overrides',
+                JSON.stringify({ 'app.features': ['deals-n-offers'] }),
+            ),
+        );
+    });
+
     test('US-071: renders the deals & offers page', async ({ page }) => {
         await page.goto('/#/deals-n-offers?mock=true');
         await page

@@ -291,25 +291,35 @@ PR #561 changed the components that these routes open:
   "Blocked by the new views" below.
 - **Six rows that were blocked on the replaced flows now pass**: ROOM-11, ROOM-13, ROOM-14,
   ROOM-21, ROOM-22 and VIS-15.
-- **After the move, a full local run of 161 tests has 155 passes, 5 `fixme` and 1 failure.**
-  The failure is in `visitor-concurrency.spec.ts`, the detector for REG-09: VIS-28 in one run
-  and VIS-28b in the next, each time with a phantom write. The detector passes when it runs
-  alone, it failed in the last CI run before PR #561 too, and its file is not changed. The
-  fifth `fixme` is VIS-B1, which was `fixme` before. The count was the same on 2026-10-14,
-  after the review changes: one test was merged into WP-E2E-05 and one was added for a
-  booking that has not started.
-- **The `mock` project has three failures that this work did not cause and does not fix.**
-  They are in [CI run 38386909981](https://github.com/PlaceOS/user-interfaces/actions/runs/38386909981)
-  and they fail in the same way on a local run. Their spec files are not changed here.
-  - `discovery.spec.ts`, US-071 and US-072. `/#/deals-n-offers?mock=true` shows the home page,
-    and `deals-n-offers` never renders. The cause is not found.
-  - `error-states.spec.ts`, US-090. `app-unauthorised` renders, but its only child is
+- **After the move, a full local run of 161 tests has 154 passes, 7 `fixme` and no failure**
+  (2026-10-14). Five of the `fixme` are the four below and VIS-B1, which was `fixme` before.
+  The other two are VIS-28 and VIS-28b, the detector for REG-09. They were active until
+  2026-10-14 and one of them had a phantom write in each full run, so the first runs of this
+  work had 155 passes and 1 failure. The REG-09 row in §3 has the measurement.
+- **ROOM-25b failed in CI for a reason of its own.** `room-recurring.spec.ts` picked the day of
+  its booking in Sydney time and listed the local day of the machine. The CI runner is in UTC,
+  where the two are different dates from 13:00 to 24:00 UTC, and the test failed in
+  [CI run 38482234089](https://github.com/PlaceOS/user-interfaces/actions/runs/38482234089).
+  It now lists the Sydney day of the booking.
+- **The `mock` project has 57 passes and no failure**, three times in a row. Six of its tests
+  were wrong before this work. PR #561 broke one. The other five were wrong before it.
+  - `landing.spec.ts`, "controlled free status shows a room and opens its booking modal". It
+    waited for `app-landing`, which has no route now. It is deleted: the room rows and the
+    booking modal are gone from the page, and HOME-10 (`local/home-availability.spec.ts`) holds
+    the free status of a room on the new page.
+  - `discovery.spec.ts`, US-071 and US-072. The default features do not include
+    `deals-n-offers`, and the page goes back to the home page when its feature is off. The
+    spec now turns the feature on.
+  - `error-states.spec.ts`, US-090. The only child of `app-unauthorised` is
     `absolute inset-0`, so the host has no box and Playwright reports it as hidden. This is
-    the cause of NEW-F11, on a component that was last changed in July 2026.
-- **One `mock` test drove the replaced home page and is deleted**: "controlled free status
-  shows a room and opens its booking modal" in `landing.spec.ts`. It waited for `app-landing`,
-  which has no route now. The room rows and the booking modal are gone from the page, and
-  HOME-10 (`local/home-availability.spec.ts`) holds the free status of a room on the new page.
+    the cause of NEW-F11. The spec now asserts on the element inside.
+  - `explore.spec.ts`, US-041, and `schedule.spec.ts`, US-033/036. Each took a count of an
+    element at once, before the page had rendered it, and then passed with no check. In a run
+    where the element was there at that moment, the check that followed was wrong and the
+    test failed. US-041 expected "Clear Pin", which is the control of a `locate` query: the pin
+    action renders `event-map-pin`. US-033/036 expected the status text to be visible: the day
+    view shows a status as a dot, and the text is a hidden description for screen readers.
+    Both now wait for the element and assert what the page does.
 
 How each area changed:
 
@@ -421,7 +431,7 @@ task that found it, so the row can be traced.
 | REG-06 | P2 | Timezone parsing does not error for a building with an unusual timezone. | "Fix error when parsing timezones" | todo |
 | REG-07 | P2 | Level selection does not persist once the selector is hidden/disabled. | "Fix level selections persisting when selector is disabled/hidden" | todo |
 | REG-08 | P1 | An authority with a **relative** `login_url` still reaches a usable login page. | Found 2026-07-30, this suite | **blocked** — currently worked around in `seed.ts`; ts-client resolves a relative `login_url` against the authority host **without its port**, so any non-443 deployment dead-ends. Needs a ts-client/init fix before a spec can assert the good behaviour. |
-| REG-09 | P1 | Concurrent `POST /bookings` do not 500. | **[PPT-2642](https://acaprojects.atlassian.net/browse/PPT-2642)** | **fixed at source, not yet in the image this suite runs against.** Root cause was in pg-orm: crystal-db clears a connection's transaction flag only *after* the COMMIT it issues, so a COMMIT that fails — the serialization failures a booking burst produces — leaves it set, and the one place connections return to the pool could not see it. The connection went back to the pool with its `BEGIN` still open; reads kept working inside the orphaned transaction while every write returned 500 until restart. Fixed in [pg-orm#19](https://github.com/spider-gazelle/pg-orm/pull/19) (v2.2.4) and picked up by staff-api in #386. Measured with images differing only by that version: control stranded a connection in 3 of 4 bursts and ended unable to write; fixed, 0 of 11 and still writable. **`e2e/stack` pulls `placeos/staff-api:latest`, which is a release image — so this suite keeps running the old behaviour until the next platform release.** **Corrected 2026-09-14: this suite now DOES burst concurrent bookings.** The line that used to sit here — "harmless for now, nothing here bursts concurrent bookings" — stopped being true when the group-invite specs (VIS-03/VIS-04) landed: a group invite posts the container and every member at once, which is exactly the burst. Measured with `e2e/support/repro/vis-b6-burst.ts` (no browser, 4 concurrent POSTs x 12 rounds): 13x 201, 29x 400, 6x 500, clean in the early rounds and degrading after. Before a rollback-and-retry was added to the visitor flows the group specs failed about one run in three; with it, 10 of 10 runs clean and the recovery fired twice. That retry is a **workaround living in `e2e/support/visitor/visitor.flows.ts`**, to be deleted once the staff-api image carries pg-orm v2.2.4 — it is also why the suite being green must not be read as REG-09 being gone from the image. Reproducers: `e2e/support/repro/reg09-concurrent-bookings.ts` and `vis-b6-burst.ts`. |
+| REG-09 | P1 | Concurrent `POST /bookings` do not 500. | **[PPT-2642](https://acaprojects.atlassian.net/browse/PPT-2642)** | **not fixed on the image this suite runs: measured again on 2026-10-14.** On staff-api `placeos-2.2609.6` (revision `e7257439`), the version that has the pg-orm change, `POST /bookings` still answers `201` for a row that is never committed. VIS-28 alone, ten times on one worker, had a phantom write in 3 runs. Each full local run of 13 and 14 October had one, and VIS-28 failed 3 of 3 tries in CI run 38386909981. One phantom was checked by hand: booking 2519 answered `201`, and `GET /bookings/2519` as the admin answered `404` afterwards, while the other member of its group was stored. The refusals of the burst are still `400` and `500`. So VIS-28 and VIS-28b (`local/visitor-concurrency.spec.ts`) are `test.fixme` again, and the retries in the helpers stay. PPT-2642 needs to be opened again. **The history, as it was written before this measurement:** fixed at source, not yet in the image this suite runs against. Root cause was in pg-orm: crystal-db clears a connection's transaction flag only *after* the COMMIT it issues, so a COMMIT that fails — the serialization failures a booking burst produces — leaves it set, and the one place connections return to the pool could not see it. The connection went back to the pool with its `BEGIN` still open; reads kept working inside the orphaned transaction while every write returned 500 until restart. Fixed in [pg-orm#19](https://github.com/spider-gazelle/pg-orm/pull/19) (v2.2.4) and picked up by staff-api in #386. Measured with images differing only by that version: control stranded a connection in 3 of 4 bursts and ended unable to write; fixed, 0 of 11 and still writable. **`e2e/stack` pulls `placeos/staff-api:latest`, which is a release image — so this suite keeps running the old behaviour until the next platform release.** **Corrected 2026-09-14: this suite now DOES burst concurrent bookings.** The line that used to sit here — "harmless for now, nothing here bursts concurrent bookings" — stopped being true when the group-invite specs (VIS-03/VIS-04) landed: a group invite posts the container and every member at once, which is exactly the burst. Measured with `e2e/support/repro/vis-b6-burst.ts` (no browser, 4 concurrent POSTs x 12 rounds): 13x 201, 29x 400, 6x 500, clean in the early rounds and degrading after. Before a rollback-and-retry was added to the visitor flows the group specs failed about one run in three; with it, 10 of 10 runs clean and the recovery fired twice. That retry is a **workaround living in `e2e/support/visitor/visitor.flows.ts`**, to be deleted once the staff-api image carries pg-orm v2.2.4 — it is also why the suite being green must not be read as REG-09 being gone from the image. Reproducers: `e2e/support/repro/reg09-concurrent-bookings.ts` and `vis-b6-burst.ts`. |
 | REG-10 | P1 | The booking form does not discard user input while it is still initialising. | **[PPT-2643](https://acaprojects.atlassian.net/browse/PPT-2643)** | **partial** — `desk-initialisation.spec.ts` (DESK-21) covers the desk form. The new desk flow resets the form before its first render, so there is no settle timer to hold. A late reset comes only when `newForm` waits for `GET /users/current`, so the spec holds that request, makes its edits to the title and "Require locker", then releases it. It fails when the replay of the "Require locker" edit is removed, and when `_captureUserEdits()` is removed from the deferred branch of `newForm`. No spec covers the other forms, and the flows below still converge on the form state. History: the form is rebuilt when async init completes and restores defaults (title, All Day, Require locker), silently dropping anything typed before that. A real user can hit this; they would just see their title or options revert. `bookDeskViaUI` converges on the state to work around it, which means **the suite no longer detects it** — hence this row. Investigated 2026-08-05 against #478 (`a0360486`): **the bug is still live**, established by reading the code rather than by running this suite, and fixed in **PR #479**. `newForm`'s protected branch is never taken by the flows — the current user is restored from cache ~50ms after bootstrap, while `NewDeskFlowComponent.ngOnInit` calls `loadForm` then `newForm` only after org init plus a 300ms settle — and `loadForm` had no capture at all. The shipped e2e suite meanwhile is stable at 6 consecutive full runs, 8/8, `--retries=0`, which is precisely the problem: **it passes either way**. Removing the block could not be shown to be safe *or* unsafe from here: the race needs initialisation to be slow relative to typing, and this machine wins it every time. Two failed attempts to prove otherwise, both recorded so nobody repeats them: (1) a synthetic "type during init, assert it survives" spec passed with *and* without the fix, even with the API responses held to widen the window; (2) removing the block appeared to prove the bug survived — it did not. That red was a Playwright **strict-mode violation**, not a reverted value: opening the desk-select modal puts a second "All Day" checkbox in the DOM (`desk-filters`, bound to the same field), so an unscoped locator matched two elements and threw, with both checked. Scoping the locator to `desk-flow-form` then broke it a second way, because `setCheckbox` silently returns when its locator matches nothing, turning a narrower scope into a no-op and a genuinely invalid form. Both experiments were reverted. **The block stays and this row stays blocked even once #479 lands** — not because the app is unfixed, but because this suite cannot tell either way on fast hardware. The guard for REG-10 is the unit specs in `libs/bookings/src/test/booking-form.service.spec.ts`; unblocking this row needs artificial slowness (throttled CPU), not another e2e attempt. |
 
 ## 4. Platform & configuration
@@ -466,7 +476,10 @@ Config gaps caused several production incidents, and they are invisible to UI sp
   The desk specs also fail more often as the suite grows, because more specs means more
   parallel load. **Nothing should go near CI until this is settled**, and settling it is a
   backend change or a purge step — not a spec change, and the user's decision either way.
-- **REG-09 is fixed, and worth reading about.** One burst of concurrent booking POSTs used to
+- **REG-09 is NOT fixed on the image that the suite runs.** This note said "fixed" until
+  2026-10-14. The REG-09 row in §3 has the measurement: phantom `201` writes still occur on
+  staff-api `placeos-2.2609.6`. The rest of this note is the history of the first fix, and it
+  is still worth reading. One burst of concurrent booking POSTs used to
   poison staff-api's connection pool, so booking creation returned 500 for everyone until the
   service restarted — while reads kept working, because they ran inside the orphaned transaction.
   Filed as PPT-2642, root-caused to pg-orm and fixed in v2.2.4. It reaches this suite when the
