@@ -320,4 +320,55 @@ describe('DashboardsService', () => {
             );
         });
     });
+
+    // SH-HOT-02: the module list was cached on a system's first alert and never
+    // refreshed, so a module added afterwards could never raise an alert
+    describe('module existence check', () => {
+        const projector = {
+            id: 'mod-1',
+            custom_name: 'Projector',
+            driver: { class_name: 'Harness' },
+        };
+        const display = {
+            id: 'mod-2',
+            name: 'Display',
+            driver: { class_name: 'Harness' },
+        };
+        const exists = (device: string) =>
+            (spectator.service as any)._moduleExistsOnSystem('sys-1', device);
+
+        afterEach(() => vi.useRealTimers());
+
+        it('refetches a stale module list before dropping an unknown device', async () => {
+            vi.useFakeTimers({ toFake: ['Date'] });
+            vi.mocked(ts_client.queryModules)
+                .mockResolvedValueOnce({ data: [projector] } as any)
+                .mockResolvedValueOnce({ data: [projector, display] } as any);
+
+            expect(await exists('Projector_1')).toBe(true);
+            vi.setSystemTime(Date.now() + 6_000);
+
+            expect(await exists('Display_1')).toBe(true);
+            expect(ts_client.queryModules).toHaveBeenCalledTimes(2);
+        });
+
+        it('refetches at most once per interval, and looks again when it may', async () => {
+            vi.useFakeTimers({ toFake: ['Date'] });
+            vi.mocked(ts_client.queryModules).mockResolvedValue({
+                data: [projector],
+            } as any);
+            const recheck = vi.spyOn(spectator.service as any, 'timeout');
+
+            expect(await exists('Projector_1')).toBe(true);
+            expect(await exists('Display_1')).toBe(false);
+            expect(await exists('Display_1')).toBe(false);
+
+            expect(ts_client.queryModules).toHaveBeenCalledTimes(1);
+            expect(recheck).toHaveBeenCalledWith(
+                'module_list_recheck',
+                expect.any(Function),
+                expect.any(Number),
+            );
+        });
+    });
 });

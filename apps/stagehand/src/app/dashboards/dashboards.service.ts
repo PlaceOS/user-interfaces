@@ -113,6 +113,9 @@ function matchTopics(topic: string, comp: string): boolean {
     return true;
 }
 
+/** Minimum time between refetches of a system's modules on an unknown device */
+const MODULE_LIST_REFRESH_MS = 5000;
+
 interface BrokerAlert {
     time: number;
     topic: StateTopic;
@@ -217,6 +220,8 @@ export class DashboardsService extends AsyncHandler {
     private _notified_alert_ids = new Set<string>();
     /** Cache of system modules: system_id -> list of valid device names */
     private _system_modules_cache = new Map<string, string[]>();
+    /** When each system's module list was fetched, to bound refetches */
+    private _system_modules_fetched_at = new Map<string, number>();
     /** Track in-flight module queries to prevent duplicate requests */
     private _pending_module_queries = new Map<string, Promise<string[]>>();
     /** Track current alert subscription scope to avoid unnecessary resets */
@@ -425,9 +430,12 @@ export class DashboardsService extends AsyncHandler {
      * Get valid module device names for a system.
      * Caches results to avoid repeated API calls.
      */
-    private async _getSystemModuleNames(system_id: string): Promise<string[]> {
+    private async _getSystemModuleNames(
+        system_id: string,
+        refresh = false,
+    ): Promise<string[]> {
         // Return cached result if available
-        if (this._system_modules_cache.has(system_id)) {
+        if (!refresh && this._system_modules_cache.has(system_id)) {
             return this._system_modules_cache.get(system_id);
         }
 
@@ -442,6 +450,7 @@ export class DashboardsService extends AsyncHandler {
             .then((modules) => {
                 const device_names = getModuleDeviceNames(modules);
                 this._system_modules_cache.set(system_id, device_names);
+                this._system_modules_fetched_at.set(system_id, Date.now());
                 this._pending_module_queries.delete(system_id);
                 return device_names;
             })
@@ -469,7 +478,22 @@ export class DashboardsService extends AsyncHandler {
         device: string,
     ): Promise<boolean> {
         const module_names = await this._getSystemModuleNames(system_id);
-        return module_names.includes(device);
+        if (module_names.includes(device)) return true;
+        // The cached list predates a module added to the system since; check
+        // again before dropping the alert, but not more often than this
+        const fetched_at = this._system_modules_fetched_at.get(system_id) ?? 0;
+        const wait = fetched_at + MODULE_LIST_REFRESH_MS - Date.now();
+        if (wait > 0) {
+            // Nothing may arrive to prompt another look, so schedule one
+            this.timeout(
+                'module_list_recheck',
+                () => this._updateDashboardAlertList(),
+                wait + 50,
+            );
+            return false;
+        }
+        const refreshed = await this._getSystemModuleNames(system_id, true);
+        return refreshed.includes(device);
     }
 
     /**
