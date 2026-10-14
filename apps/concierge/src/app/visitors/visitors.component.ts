@@ -11,7 +11,6 @@ import { BuildingPipe, TranslatePipe } from '@placeos/components';
 import { DateOptionsComponent } from '@placeos/form-fields';
 import { parse } from 'date-fns';
 import { ApplicationSidebarComponent } from '../ui/app-sidebar.component';
-import { ApplicationTopbarComponent } from '../ui/app-topbar.component';
 import { SearchbarComponent } from '../ui/searchbar.component';
 import { GuestListingComponent } from './guest-listing.component';
 import { InviteVisitorModalComponent } from './invite-visitor-modal.component';
@@ -20,7 +19,6 @@ import { VisitorsStateService } from './visitors-state.service';
 @Component({
     selector: '[app-new-visitors]',
     template: `
-        <app-topbar class="print:hidden">></app-topbar>
         <div class="flex h-px flex-1">
             <app-sidebar class="print:hidden"></app-sidebar>
             <main class="flex h-full w-1/2 flex-1 flex-col">
@@ -114,7 +112,6 @@ import { VisitorsStateService } from './visitors-state.service';
         MatRippleModule,
         SearchbarComponent,
         ApplicationSidebarComponent,
-        ApplicationTopbarComponent,
         TranslatePipe,
         BuildingPipe,
     ],

@@ -15,6 +15,9 @@ import { ApplicationSidebarComponent } from '../../app/ui/app-sidebar.component'
 describe('ApplicationSidebarComponent', () => {
     let spectator: Spectator<ApplicationSidebarComponent>;
     let app_settings: Record<string, unknown>;
+    const theme = signal<'light' | 'dark'>('light');
+    const logo_dark = signal<unknown>('dark-logo.png');
+    const logo_light = signal<unknown>('light-logo.png');
     const createComponent = createComponentFactory({
         component: ApplicationSidebarComponent,
         shallow: true,
@@ -24,6 +27,11 @@ describe('ApplicationSidebarComponent', () => {
             MockProvider(SettingsService, {
                 get: ((name: string) =>
                     app_settings[name]) as SettingsService['get'],
+                theme_signal: theme,
+                signal: ((name: string) =>
+                    name === 'app.logo_dark'
+                        ? logo_dark
+                        : logo_light) as SettingsService['signal'],
             }),
             MockProvider(OrganisationService, {
                 initialised: signal(true),
@@ -44,6 +52,9 @@ describe('ApplicationSidebarComponent', () => {
     beforeEach(() => {
         app_settings = { 'app.features': ['events'] };
         setGroups([]);
+        theme.set('light');
+        logo_dark.set('dark-logo.png');
+        logo_light.set('light-logo.png');
         spectator = createComponent();
     });
 
@@ -104,6 +115,19 @@ describe('ApplicationSidebarComponent', () => {
                 icon: 'insert_chart',
             },
         ]);
+    });
+
+    it('should show the logo for the current theme', () => {
+        expect(spectator.component.logo_src()).toBe('light-logo.png');
+        theme.set('dark');
+        expect(spectator.component.logo_src()).toBe('dark-logo.png');
+    });
+
+    it('should resolve the logo from an object or an empty value', () => {
+        logo_light.set({ src: 'nested-logo.png' });
+        expect(spectator.component.logo_src()).toBe('nested-logo.png');
+        logo_light.set(null);
+        expect(spectator.component.logo_src()).toBe('');
     });
 
     describe('with translations loaded after render', () => {

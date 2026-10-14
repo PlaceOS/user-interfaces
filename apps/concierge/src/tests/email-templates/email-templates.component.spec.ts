@@ -1,11 +1,10 @@
-import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { Router } from '@angular/router';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { MockComponent, MockProvider } from 'ng-mocks';
 import { Subject } from 'rxjs';
 
 import { EmailTemplatesComponent } from '../../app/email-templates/email-templates.component';
 import { ApplicationSidebarComponent } from '../../app/ui/app-sidebar.component';
-import { ApplicationTopbarComponent } from '../../app/ui/app-topbar.component';
 
 describe('EmailTemplatesComponent', () => {
     let spectator: Spectator<EmailTemplatesComponent>;
@@ -16,10 +15,7 @@ describe('EmailTemplatesComponent', () => {
         component: EmailTemplatesComponent,
         shallow: true,
         detectChanges: false,
-        declarations: [
-            MockComponent(ApplicationTopbarComponent),
-            MockComponent(ApplicationSidebarComponent),
-        ],
+        declarations: [MockComponent(ApplicationSidebarComponent)],
         providers: [
             MockProvider(Router, {
                 events: router_events,

@@ -1258,6 +1258,8 @@
             "URLS_REMOVE_SUCCESS": "URL courte supprimée avec succès",
             "URLS_REMOVE_ERROR": "Impossible de supprimer l’URL courte. Erreur : {{ error }}",
             "URLS_EMPTY": "Aucune URL courte trouvée",
+            "USER_GROUP_COUNT": "{{ count }} groupes",
+            "USER_GROUP_COUNT_1": "{{ count }} groupe",
             "SHORTCUTS_TITLE": "Raccourcis clavier",
             "SHORTCUTS_SEARCH": "Aller au champ de recherche",
             "SHORTCUTS_NEW": "Ajouter un nouvel élément",

@@ -6,7 +6,6 @@ export async function gotoMockRoute(page: Page, route: string) {
 }
 
 export async function waitForAppShell(page: Page) {
-    await page.locator('app-topbar').first().waitFor({ timeout: 30000 });
     await page.locator('app-sidebar').first().waitFor({ timeout: 30000 });
 }
 

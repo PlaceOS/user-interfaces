@@ -1,13 +1,16 @@
 import { signal } from '@angular/core';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
-import { Building, OrganisationService, SettingsService } from '@placeos/common';
+import {
+    Building,
+    OrganisationService,
+    SettingsService,
+} from '@placeos/common';
 import { MockComponent, MockProvider } from 'ng-mocks';
 
-import { ApplicationSidebarComponent } from '../../app/ui/app-sidebar.component';
-import { ApplicationTopbarComponent } from '../../app/ui/app-topbar.component';
 import { POIListComponent } from '../../app/poi-manager/poi-list.component';
-import { POIManagerComponent } from '../../app/poi-manager/poi-manager.component';
 import { POIManagementService } from '../../app/poi-manager/poi-management.service';
+import { POIManagerComponent } from '../../app/poi-manager/poi-manager.component';
+import { ApplicationSidebarComponent } from '../../app/ui/app-sidebar.component';
 
 describe('POIManagerComponent', () => {
     let spectator: Spectator<POIManagerComponent>;
@@ -19,7 +22,6 @@ describe('POIManagerComponent', () => {
     const createComponent = createComponentFactory({
         component: POIManagerComponent,
         declarations: [
-            MockComponent(ApplicationTopbarComponent),
             MockComponent(ApplicationSidebarComponent),
             MockComponent(POIListComponent),
         ],
@@ -28,7 +30,7 @@ describe('POIManagerComponent', () => {
                 editPointOfInterest: vi.fn(),
             }),
             MockProvider(SettingsService, {
-                get: ((name: string) => settings_map[name]),
+                get: (name: string) => settings_map[name],
             }),
         ],
     });

@@ -8,7 +8,6 @@ test.describe('Room Management Page', () => {
             .locator('[app-new-room-manager]')
             .waitFor({ timeout: 30000 });
 
-        await expect(page.locator('app-topbar')).toBeVisible();
         await expect(page.locator('room-manager-topbar')).toBeVisible();
         await expect(page.locator('room-list')).toBeVisible();
     });

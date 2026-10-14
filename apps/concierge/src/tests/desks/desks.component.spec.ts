@@ -20,7 +20,6 @@ import {
 import { DesksTopbarComponent } from '../../app/desks/desks-topbar.component';
 import { DesksComponent } from '../../app/desks/desks.component';
 import { ApplicationSidebarComponent } from '../../app/ui/app-sidebar.component';
-import { ApplicationTopbarComponent } from '../../app/ui/app-topbar.component';
 import { SearchbarComponent } from '../../app/ui/searchbar.component';
 
 describe('DesksComponent', () => {
@@ -52,7 +51,6 @@ describe('DesksComponent', () => {
     const createComponent = createRoutingFactory({
         component: DesksComponent,
         declarations: [
-            MockComponent(ApplicationTopbarComponent),
             MockComponent(ApplicationSidebarComponent),
             MockComponent(DesksTopbarComponent),
             MockComponent(IconComponent),

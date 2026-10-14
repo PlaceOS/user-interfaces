@@ -1258,6 +1258,8 @@
             "URLS_REMOVE_SUCCESS": "Short URL rimosso con successo",
             "URLS_REMOVE_ERROR": "Impossibile rimuovere lo Short URL. Errore: {{ error }}",
             "URLS_EMPTY": "Nessuno Short URL trovato",
+            "USER_GROUP_COUNT": "{{ count }} gruppi",
+            "USER_GROUP_COUNT_1": "{{ count }} gruppo",
             "SHORTCUTS_TITLE": "Scorciatoie da tastiera",
             "SHORTCUTS_SEARCH": "Vai al campo di ricerca",
             "SHORTCUTS_NEW": "Aggiungi un nuovo elemento",

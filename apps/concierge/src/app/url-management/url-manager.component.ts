@@ -4,14 +4,12 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { TranslatePipe } from '@placeos/components';
 import { ApplicationSidebarComponent } from '../ui/app-sidebar.component';
-import { ApplicationTopbarComponent } from '../ui/app-topbar.component';
 import { UrlListComponent } from './url-list.component';
 import { UrlManagementService } from './url-management.service';
 
 @Component({
     selector: '[app-short-url-manager]',
     template: `
-        <app-topbar class="print:hidden" />
         <div class="flex h-px flex-1 print:hidden">
             <app-sidebar></app-sidebar>
             <main class="flex h-full w-1/2 flex-1 flex-col">
@@ -66,7 +64,6 @@ import { UrlManagementService } from './url-management.service';
         `,
     ],
     imports: [
-        ApplicationTopbarComponent,
         ApplicationSidebarComponent,
         MatFormFieldModule,
         MatInputModule,

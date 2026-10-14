@@ -27,7 +27,7 @@ The app covers room, desk, parking, locker, catering, asset, visitor, staff, rep
 **Acceptance Criteria:**
 - Opening `/#/` redirects through the configured `default_route`.
 - The default route is expected to take users to room bookings unless the configured concierge settings override it.
-- The top bar (`app-topbar`) and side navigation (`app-sidebar`) are visible once the route loads.
+- The side navigation (`app-sidebar`) is visible once the route loads.
 - The route loads against mock data when `?mock=true` is supplied.
 - If the target route is unavailable because the feature is disabled, the app redirects to a reachable route instead of leaving the shell blank.
 
@@ -52,7 +52,7 @@ The app covers room, desk, parking, locker, catering, asset, visitor, staff, rep
 **So that** I can manage my session and understand app-wide status
 
 **Acceptance Criteria:**
-- The top bar shows the configured logo, notification control, and current user avatar.
+- The sidebar shows the configured logo, keyboard shortcuts control, notification control, and current user avatar.
 - The logo links back to the landing route.
 - Global banners render above the active route when configured.
 - Global loading state is visible while blocking app-level operations are in progress.

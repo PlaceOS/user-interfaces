@@ -1,20 +1,30 @@
 import {
     Component,
-    ElementRef,
-    OnInit,
     computed,
+    ElementRef,
     inject,
+    OnInit,
     signal,
 } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterModule } from '@angular/router';
 import {
     AsyncHandler,
     OrganisationService,
     SettingsService,
     user_group_names,
+    userSignal,
 } from '@placeos/common';
-import { IconComponent, TranslatePipe } from '@placeos/components';
+import {
+    AuthenticatedImageDirective,
+    IconComponent,
+    TranslatePipe,
+    UserAvatarComponent,
+    UserControlsSidebarComponent,
+} from '@placeos/components';
+
+import { KeyboardShortcutsService } from './keyboard-shortcuts.service';
 
 /** Link to a page of the application */
 interface SidebarLink {
@@ -298,15 +308,18 @@ const SIDEBAR_GROUPS: readonly SidebarGroup[] = [
 ];
 
 /**
- * Navigation between the areas of the application. Shows the links of the
- * features that the `app.features` setting turns on for the current user.
+ * Application shell for each page. Shows the logo, the navigation between
+ * the areas of the application and the user controls. The navigation shows
+ * the links of the features that the `app.features` setting turns on for the
+ * current user.
  */
 @Component({
     selector: 'app-sidebar',
     template: `
-        <nav
-            class="border-base-200 h-full w-64 overflow-auto border-r py-2 pr-3"
-        >
+        <a class="block px-4 pt-3 pb-2" [routerLink]="['/']">
+            <img auth class="h-10" [source]="logo_src()" />
+        </a>
+        <nav class="flex-1 overflow-auto py-2 pr-3">
             @for (group of groups(); track group.id) {
                 <button
                     matRipple
@@ -314,7 +327,10 @@ const SIDEBAR_GROUPS: readonly SidebarGroup[] = [
                     [attr.aria-expanded]="!collapsed()[group.id]"
                     (click)="toggleGroup(group.id)"
                 >
-                    <div class="flex-1 text-left uppercase" [style.letter-spacing]="'0.125rem'">
+                    <div
+                        class="flex-1 text-left uppercase"
+                        [style.letter-spacing]="'0.125rem'"
+                    >
                         {{ group.name | translate }}
                     </div>
                     <icon
@@ -344,11 +360,52 @@ const SIDEBAR_GROUPS: readonly SidebarGroup[] = [
                 </section>
             }
         </nav>
+        <div class="border-base-200 flex items-center gap-1 border-t p-2">
+            <user-controls-sidebar #user_controls>
+                <a-user-avatar [user]="user()"></a-user-avatar>
+            </user-controls-sidebar>
+            <!-- Mouse shortcut to the user controls. Keyboard users use the avatar -->
+            <button
+                matRipple
+                type="button"
+                tabindex="-1"
+                class="hover:bg-base-200 min-w-0 flex-1 rounded-lg px-2 py-1 text-left"
+                (click)="user_controls.open()"
+            >
+                <div class="truncate text-sm font-medium">
+                    {{ user().name }}
+                </div>
+                <div class="truncate text-xs opacity-60">
+                    {{
+                        'APP.CONCIERGE.USER_GROUP_COUNT'
+                            | translate
+                                : { count: group_count() }
+                                : group_count()
+                    }}
+                </div>
+            </button>
+            <button
+                btn
+                icon
+                matRipple
+                [matTooltip]="'APP.CONCIERGE.SHORTCUTS_TITLE' | translate"
+                (click)="openShortcuts()"
+            >
+                <icon class="text-2xl">keyboard</icon>
+            </button>
+            <button btn icon matRipple>
+                <icon class="text-2xl">notifications</icon>
+            </button>
+        </div>
     `,
     styles: [
         `
             :host {
+                display: flex;
+                flex-direction: column;
                 height: 100%;
+                width: 16rem;
+                border-right: 1px solid var(--base-200);
             }
 
             a.active {
@@ -362,7 +419,16 @@ const SIDEBAR_GROUPS: readonly SidebarGroup[] = [
             }
         `,
     ],
-    imports: [RouterModule, MatRippleModule, IconComponent, TranslatePipe],
+    imports: [
+        RouterModule,
+        MatRippleModule,
+        MatTooltipModule,
+        AuthenticatedImageDirective,
+        IconComponent,
+        TranslatePipe,
+        UserAvatarComponent,
+        UserControlsSidebarComponent,
+    ],
 })
 export class ApplicationSidebarComponent
     extends AsyncHandler
@@ -371,8 +437,34 @@ export class ApplicationSidebarComponent
     private _settings = inject(SettingsService);
     private _org = inject(OrganisationService);
     private _element_ref = inject<ElementRef<HTMLElement>>(ElementRef);
+    private _shortcuts = inject(KeyboardShortcutsService);
+
+    private readonly _logo_dark = this._settings.signal(
+        'app.logo_dark',
+        {},
+        true,
+    );
+    private readonly _logo_light = this._settings.signal(
+        'app.logo_light',
+        {},
+        true,
+    );
 
     public readonly collapsed = collapsed_groups;
+    public readonly user = userSignal();
+    /** Number of groups of the current user. No groups before the user loads */
+    public readonly group_count = computed(
+        () => this.user().groups?.length || 0,
+    );
+
+    /** Source of the logo for the current theme */
+    public readonly logo_src = computed(() => {
+        const logo: string | { src?: string } =
+            (this._settings.theme_signal() === 'dark'
+                ? this._logo_dark()
+                : this._logo_light()) || {};
+        return typeof logo === 'string' ? logo : logo?.src || '';
+    });
 
     private readonly _is_admin = computed(() => {
         const groups = user_group_names();
@@ -412,6 +504,10 @@ export class ApplicationSidebarComponent
         await this._org.waitUntilInitialised();
         // Wait for the router to mark the active link
         this.timeout('scroll', () => this._scrollToActiveLink(), 50);
+    }
+
+    public openShortcuts() {
+        this._shortcuts.openHelp();
     }
 
     public toggleGroup(id: string) {

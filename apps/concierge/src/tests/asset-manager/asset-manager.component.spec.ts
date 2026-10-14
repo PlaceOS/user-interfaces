@@ -1,19 +1,18 @@
 import { Router } from '@angular/router';
-import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/vitest';
+import {
+    createRoutingFactory,
+    SpectatorRouting,
+} from '@ngneat/spectator/vitest';
 import { MockComponent } from 'ng-mocks';
 
 import { AssetManagerComponent } from '../../app/asset-manager/asset-manager.component';
 import { ApplicationSidebarComponent } from '../../app/ui/app-sidebar.component';
-import { ApplicationTopbarComponent } from '../../app/ui/app-topbar.component';
 
 describe('AssetManagerComponent', () => {
     let spectator: SpectatorRouting<AssetManagerComponent>;
     const createComponent = createRoutingFactory({
         component: AssetManagerComponent,
-        declarations: [
-            MockComponent(ApplicationTopbarComponent),
-            MockComponent(ApplicationSidebarComponent),
-        ],
+        declarations: [MockComponent(ApplicationSidebarComponent)],
     });
 
     beforeEach(() => (spectator = createComponent()));

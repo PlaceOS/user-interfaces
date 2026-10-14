@@ -4,14 +4,12 @@ import { NavigationEnd, Router, RouterModule } from '@angular/router';
 import { AsyncHandler, SettingsService, currentUser } from '@placeos/common';
 import { TranslatePipe } from '@placeos/components';
 import { ApplicationSidebarComponent } from '../ui/app-sidebar.component';
-import { ApplicationTopbarComponent } from '../ui/app-topbar.component';
 import { ParkingStateService } from './parking-state.service';
 import { ParkingTopbarComponent } from './parking-topbar.component';
 
 @Component({
     selector: 'app-parking',
     template: `
-        <app-topbar />
         <div class="flex h-px flex-1">
             <app-sidebar></app-sidebar>
             <main class="relative flex h-full w-1/2 flex-1 flex-col">
@@ -135,7 +133,6 @@ import { ParkingTopbarComponent } from './parking-topbar.component';
         `,
     ],
     imports: [
-        ApplicationTopbarComponent,
         ApplicationSidebarComponent,
         MatTabsModule,
         RouterModule,

@@ -88,7 +88,7 @@ test.describe('concierge staff directory', () => {
         );
 
         await expect(
-            adminPage.locator('app-topbar'),
+            adminPage.locator('app-sidebar'),
             'the shell must still be standing after the directory call fails',
         ).toBeVisible();
         await expect(

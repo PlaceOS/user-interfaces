@@ -9,14 +9,12 @@ import { FacilitiesStatusComponent } from '../../app/facilities/facilities-statu
 import { FacilitiesTopbarComponent } from '../../app/facilities/facilities-topbar.component';
 import { FacilitiesComponent } from '../../app/facilities/facilities.component';
 import { ApplicationSidebarComponent } from '../../app/ui/app-sidebar.component';
-import { ApplicationTopbarComponent } from '../../app/ui/app-topbar.component';
 
 describe('FacilitiesComponent', () => {
     let spectator: SpectatorRouting<FacilitiesComponent>;
     const createComponent = createRoutingFactory({
         component: FacilitiesComponent,
         declarations: [
-            MockComponent(ApplicationTopbarComponent),
             MockComponent(ApplicationSidebarComponent),
             MockComponent(FacilitiesTopbarComponent),
             MockComponent(FacilitiesMapComponent),

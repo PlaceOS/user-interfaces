@@ -6,16 +6,12 @@ import { MockComponent } from 'ng-mocks';
 
 import { DealsComponent } from '../../app/deals/deals.component';
 import { ApplicationSidebarComponent } from '../../app/ui/app-sidebar.component';
-import { ApplicationTopbarComponent } from '../../app/ui/app-topbar.component';
 
 describe('DealsComponent', () => {
     let spectator: SpectatorRouting<DealsComponent>;
     const createComponent = createRoutingFactory({
         component: DealsComponent,
-        declarations: [
-            MockComponent(ApplicationTopbarComponent),
-            MockComponent(ApplicationSidebarComponent),
-        ],
+        declarations: [MockComponent(ApplicationSidebarComponent)],
     });
 
     beforeEach(() => (spectator = createComponent()));

@@ -1,13 +1,11 @@
 import { Component } from '@angular/core';
 import { ApplicationSidebarComponent } from '../ui/app-sidebar.component';
-import { ApplicationTopbarComponent } from '../ui/app-topbar.component';
 import { RoomListComponent } from './room-list.component';
 import { RoomManagerTopbarComponent } from './room-manager-topbar.component';
 
 @Component({
     selector: '[app-new-room-manager]',
     template: `
-        <app-topbar />
         <div class="flex h-px flex-1">
             <app-sidebar></app-sidebar>
             <main class="flex h-full w-1/2 flex-1 flex-col">
@@ -42,7 +40,6 @@ import { RoomManagerTopbarComponent } from './room-manager-topbar.component';
         `,
     ],
     imports: [
-        ApplicationTopbarComponent,
         ApplicationSidebarComponent,
         RoomManagerTopbarComponent,
         RoomListComponent,

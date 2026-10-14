@@ -12,7 +12,6 @@ import { CateringTopbarComponent } from '../../app/catering/catering-topbar.comp
 
 import { CateringComponent } from '../../app/catering/catering.component';
 import { ApplicationSidebarComponent } from '../../app/ui/app-sidebar.component';
-import { ApplicationTopbarComponent } from '../../app/ui/app-topbar.component';
 
 describe('CateringComponent', () => {
     let spectator: SpectatorRouting<CateringComponent>;
@@ -21,7 +20,6 @@ describe('CateringComponent', () => {
         providers: [{ provide: MatDialog, useValue: { open: vi.fn() } }],
         declarations: [
             MockComponent(CateringTopbarComponent),
-            MockComponent(ApplicationTopbarComponent),
             MockComponent(ApplicationSidebarComponent),
             MockComponent(CateringMenuComponent),
             MockComponent(CateringOrderListComponent),

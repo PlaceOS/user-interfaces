@@ -7,7 +7,6 @@ test.describe('Desk Bookings Page', () => {
         await page.goto('/#/book/desks/events?mock=true');
         await page.locator('[app-desks]').waitFor({ timeout: 30000 });
 
-        await expect(page.locator('app-topbar')).toBeVisible();
         await expect(page.locator('desk-bookings')).toBeVisible();
     });
 

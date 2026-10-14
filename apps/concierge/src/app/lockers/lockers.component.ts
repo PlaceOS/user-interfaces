@@ -6,14 +6,12 @@ import { LockerStateService } from './locker-state.service';
 
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { ApplicationSidebarComponent } from '../ui/app-sidebar.component';
-import { ApplicationTopbarComponent } from '../ui/app-topbar.component';
 import { BookingRulesModalComponent } from '../ui/booking-rules-modal.component';
 import { LockersTopbarComponent } from './locker-topbar.component';
 
 @Component({
     selector: '[app-lockers]',
     template: `
-        <app-topbar />
         <div class="flex h-px flex-1">
             <app-sidebar></app-sidebar>
             <main class="relative flex h-full w-1/2 flex-1 flex-col">
@@ -44,7 +42,6 @@ import { LockersTopbarComponent } from './locker-topbar.component';
         `,
     ],
     imports: [
-        ApplicationTopbarComponent,
         ApplicationSidebarComponent,
         LockersTopbarComponent,
         RouterModule,

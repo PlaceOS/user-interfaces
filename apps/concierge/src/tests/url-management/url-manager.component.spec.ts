@@ -2,10 +2,9 @@ import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { MockComponent, MockProvider } from 'ng-mocks';
 
 import { ApplicationSidebarComponent } from '../../app/ui/app-sidebar.component';
-import { ApplicationTopbarComponent } from '../../app/ui/app-topbar.component';
 import { UrlListComponent } from '../../app/url-management/url-list.component';
-import { UrlManagerComponent } from '../../app/url-management/url-manager.component';
 import { UrlManagementService } from '../../app/url-management/url-management.service';
+import { UrlManagerComponent } from '../../app/url-management/url-manager.component';
 
 describe('UrlManagerComponent', () => {
     let spectator: Spectator<UrlManagerComponent>;
@@ -14,7 +13,6 @@ describe('UrlManagerComponent', () => {
     const createComponent = createComponentFactory({
         component: UrlManagerComponent,
         declarations: [
-            MockComponent(ApplicationTopbarComponent),
             MockComponent(ApplicationSidebarComponent),
             MockComponent(UrlListComponent),
         ],
