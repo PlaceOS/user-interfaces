@@ -929,6 +929,7 @@
             "MENU_MANAGE_URLS": "URL管理",
             "MENU_MANAGE_EMAILS": "メールテンプレート",
             "MENU_MANAGE_DEALS": "お得情報・特典",
+            "MENU_OTHER": "その他",
             "MENU_ASSETS": "資産管理",
             "MENU_USER_LIST": "ユーザーディレクトリ",
             "MENU_EVENTS": "イベント",
