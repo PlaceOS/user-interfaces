@@ -314,7 +314,7 @@ const SIDEBAR_GROUPS: readonly SidebarGroup[] = [
                     [attr.aria-expanded]="!collapsed()[group.id]"
                     (click)="toggleGroup(group.id)"
                 >
-                    <div class="flex-1 text-left">
+                    <div class="flex-1 text-left uppercase" [style.letter-spacing]="'0.125rem'">
                         {{ group.name | translate }}
                     </div>
                     <icon
