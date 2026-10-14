@@ -9,13 +9,14 @@ import {
     setCurrentUser,
     StaffUser,
 } from '@placeos/common';
-import { MockProvider } from 'ng-mocks';
+import { MockComponent, MockProvider } from 'ng-mocks';
 import { of } from 'rxjs';
 
 import { EmergencyContactModalComponent } from '../../app/staff/emergency-contact-modal.component';
 import { EmergencyContactsComponent } from '../../app/staff/emergency-contacts.component';
 import { EmergencyContactsService } from '../../app/staff/emergency-contacts.service';
 import { RoleManagementModalComponent } from '../../app/staff/role-management-modal.component';
+import { ApplicationSidebarComponent } from '../../app/ui/app-sidebar.component';
 
 describe('EmergencyContactsComponent', () => {
     let spectator: SpectatorRouting<EmergencyContactsComponent>;
@@ -36,6 +37,18 @@ describe('EmergencyContactsComponent', () => {
         component: EmergencyContactsComponent,
         shallow: true,
         detectChanges: false,
+        // The page imports the real sidebar; these tests do not need it.
+        overrideComponents: [
+            [
+                EmergencyContactsComponent,
+                {
+                    remove: { imports: [ApplicationSidebarComponent] },
+                    add: {
+                        imports: [MockComponent(ApplicationSidebarComponent)],
+                    },
+                },
+            ],
+        ],
         providers: [
             MockProvider(EmergencyContactsService, service as any),
             MockProvider(Clipboard, clipboard),
