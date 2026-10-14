@@ -151,6 +151,12 @@ dc run --rm init start
 step "starting core"
 dc up -d core
 
+# source subscribes to the module tables at startup, so it comes up after init
+# for the same reason core does. It publishes nothing until the seed below
+# gives it a Broker row.
+step "starting source and mosquitto"
+dc up -d mosquitto source
+
 # The last step of the seed waits for core to hold the suite's driver binaries.
 # A binary already in the drivers volume is used at once. Otherwise a commit the
 # build farm has already built for this CPU architecture is a download; one it
@@ -159,6 +165,8 @@ step "seeding e2e fixtures"
 cd ../..
 E2E_BACKEND_URL="https://localhost:${HTTPS_PORT}" bunx tsx e2e/support/seed.ts
 E2E_BACKEND_URL="https://localhost:${HTTPS_PORT}" bunx tsx e2e/support/room/room.seed.ts
+E2E_BACKEND_URL="https://localhost:${HTTPS_PORT}" bunx tsx e2e/support/mqtt/mqtt.seed.ts
+E2E_BACKEND_URL="https://localhost:${HTTPS_PORT}" bunx tsx e2e/support/stagehand/stagehand.seed.ts
 
 printf '\n\033[32mstack ready\033[0m  backend=https://localhost:%s  project=%s\n' "$HTTPS_PORT" "$PROJECT"
 printf 'run the suite with:\n  E2E_BACKEND_URL=https://localhost:%s bunx playwright test --config apps/workplace/playwright.config.ts\n' "$HTTPS_PORT"

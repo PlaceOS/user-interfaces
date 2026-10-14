@@ -447,6 +447,49 @@ Config gaps caused several production incidents, and they are invisible to UI sp
 | CFG-04 | P1 | A missing `org`/parented-`level` zone is caught as `/misconfigured`, not as a blank page. | **partial** — WP-E2E-01 asserts the healthy path; the negative case is unasserted |
 | CFG-05 | P2 | Deployment-shaped run: the app served by nginx at `/workplace/` behind the `verified` cookie gate. | todo — a second project; `mintToken` already captures the cookie |
 
+## 5. Stagehand — MQTT state and the hot list
+
+Stagehand's hot list is built from MQTT: drivers write state to redis, `source` publishes
+each status retained to mosquitto, and stagehand subscribes through `/api/mqtt/`. The stack
+runs `source` and `mosquitto` for this, and the specs drive state with a purpose-built driver,
+`drivers/place/e2e/state_harness.cr` (a UDP device whose `connected` and other statuses are
+set through `exec`). See "MQTT" in `e2e/README.md`.
+
+**The broker is asserted directly, not only through the page.** Stagehand re-checks every
+MQTT alert over REST before showing it (`DashboardsService._updateDashboardAlertList`), which
+hides wrong data on the broker. Removing that re-check — it is what makes stagehand slow — is
+only safe once the MQTT rows below are all green.
+
+| ID | P | Story | Status |
+|----|---|-------|--------|
+| SH-MQTT-01 | P0 | A started module publishes `connected: true`, retained, at its full topic: org, `_` for an absent region and area, building, level, system, driver, module name, index. | **done** — `local/stagehand-mqtt.spec.ts` |
+| SH-MQTT-02 | P0 | `connected` follows the module through false and back to true. | **done** — `local/stagehand-mqtt.spec.ts` |
+| SH-MQTT-03 | P1 | Any status is published as the JSON value the driver set (boolean, number, string, object), not a string of it. | **done** — `local/stagehand-mqtt.spec.ts` |
+| SH-MQTT-04 | P0 | A client connecting later is handed the current value of every status, and nothing the module does not hold. | **done** — `local/stagehand-mqtt.spec.ts` |
+| SH-HOT-01 | P0 | The hot list shows a module while it reports `connected: false`, and not while it is connected; a reload agrees. Held against a disconnected control module. | **done** — `local/stagehand-hotlist.spec.ts` |
+| SH-MQTT-10 | P0 | Reordering a system's modules moves each module's state to its new index; nothing is left at the old one. | **done** — `local/stagehand-mqtt-lifecycle.spec.ts`. The field report "alerts on the old index". Root cause: source numbered modules in database order (`Module.find_all`), not the system's, so a reorder changed nothing it published. |
+| SH-MQTT-11 | P0 | A module removed from a system (still existing) leaves no retained topics under that system. | **done** — `local/stagehand-mqtt-lifecycle.spec.ts` |
+| SH-MQTT-12 | P0 | A deleted module leaves no retained topics. | **done** — `local/stagehand-mqtt-lifecycle.spec.ts`. The field report "results for deleted modules". source worked out what to remove from the module's redis state and the current mappings, either of which can be gone first. |
+| SH-MQTT-13 | P1 | A deleted system leaves no retained topics. | **done** — `local/stagehand-mqtt-lifecycle.spec.ts` |
+| SH-MQTT-14 | P1 | Renaming a module (`custom_name`) moves its state to the new name, and other modules' indexes with it. | **done** — `local/stagehand-mqtt-lifecycle.spec.ts` |
+| SH-MQTT-15 | P1 | Moving a system between zones moves its topics. | **done** — `local/stagehand-mqtt-lifecycle.spec.ts` |
+| SH-MQTT-16 | P1 | `source` that starts before the broker is reachable publishes once it is. | **done, not automated** — verified by hand (stop mosquitto, restart source, start mosquitto: all state published). Automating it needs a spec that can stop containers. source spec covers the retry path. |
+| SH-MQTT-17 | P1 | A status the driver clears is removed from the broker, not retained as `null`. | **done** — `local/stagehand-mqtt-lifecycle.spec.ts` |
+| SH-MQTT-18 | P0 | A module added to a system after it started has its state published. | **done** — every lifecycle spec's setup depends on it. Was a race: the state was written before source mapped the module, and nothing republished it. Found while building this coverage. |
+| SH-MQTT-19 | P0 | Two quick edits to one system leave source's mapping matching the latest. | **done** — the lifecycle setup makes them (two modules added back to back). pg-orm and placeos-resource handle each change on its own fiber, so source processed them out of order and kept the older module list. Found while building this coverage. |
+| SH-MQTT-20 | P1 | After a broker restart, every status is published again. | **done, not automated** — verified by hand (restart mosquitto: 32 of 32 topics back within 2 s; before the fix, 0 until each value changed). |
+| SH-MQTT-21 | P1 | Retained topics nothing maps to (left by a module deleted while source was down, or by an older source) are removed when source starts. | **done, not automated** — verified by hand with a planted topic. source spec `sweeps retained topics that nothing maps to`. |
+| SH-HOT-02 | P1 | A module added to a system after stagehand has loaded it can still raise an alert. | **done** — `local/stagehand-hotlist.spec.ts`. Stagehand cached each system's module list forever (`_system_modules_cache`); it now refetches, at most every 5 s, before dropping an alert for an unknown device. |
+
+**The lifecycle specs need source v1.22.1 or later** (PlaceOS/source#65). Against
+`placeos-2.2610.1` SH-MQTT-10 … 19 and SH-HOT-02 are red, which is what they are for. Until a
+PlaceOS release carries the fix, run them with `E2E_SOURCE_IMAGE=placeos/source:nightly` (a
+nightly built after 2026-10-14) or a local build (see `e2e/README.md`, "MQTT"). The advisory CI
+runs only the workplace suite, so it is not affected.
+
+**Not covered yet**: a status set with a TTL (`set_expire`) that expires in redis publishes
+nothing, so the broker keeps its last value. source would need redis keyspace notifications to see it.
+
 ---
 
 ## Notes & blockers

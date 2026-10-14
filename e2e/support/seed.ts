@@ -79,7 +79,7 @@ async function authority(api: APIRequestContext, timeoutMs = 90_000) {
  * `nx serve` the app origin is the dev server, NOT the stack, so this is a
  * different application from the deployed one.
  */
-async function ensureOAuthApp(api: APIRequestContext, appUrl: string, name: string) {
+export async function ensureOAuthApp(api: APIRequestContext, appUrl: string, name: string) {
     const redirect_uri = redirectUriFor(appUrl);
     const uid = clientId(redirect_uri);
 

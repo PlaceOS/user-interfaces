@@ -9,8 +9,14 @@
 #     without touching it.
 #  2. It is what CI needs. This is a trimmed stack — only what the e2e path
 #     actually exercises. Dropped from PlaceOS/local: edge, triggers, dispatch,
-#     source, influx, chronograf, mosquitto, minio and the loki/promtail/grafana
-#     profile. That is roughly half the containers and most of the RAM.
+#     influx, chronograf, minio and the loki/promtail/grafana profile. That is
+#     roughly half the containers and most of the RAM.
+#
+# source and mosquitto ARE here: they are the MQTT path stagehand reads. A
+# status a driver writes reaches the browser as driver -> redis -> source ->
+# mosquitto -> nginx `/api/mqtt/` -> websocket, and the stagehand specs assert
+# on both ends of it. source runs without influx, which it allows: only its
+# MQTT publisher is under test. See "MQTT" in e2e/README.md.
 #
 # frontend-loader IS required, despite the SPA being served by the Angular dev
 # server. It does not only deploy app builds: on startup it clones
@@ -283,6 +289,39 @@ services:
       BUILD_URL: ${E2E_BUILD_URL:-https://build.placeos.run}
       # The User-Agent core sends the farm, so its logs can tell this stack apart.
       CLUSTER_NAME: ${E2E_STACK_PROJECT:-placeos-e2e}
+
+  # Publishes module state from redis to every Broker row, retained, one topic
+  # per status. Overridable so the suite can run against a source build that is
+  # not released yet: `E2E_SOURCE_IMAGE=placeos/source:local e2e/stack/up.sh`.
+  source:
+    image: ${E2E_SOURCE_IMAGE:-placeos/source:${PLACEOS_TAG:-latest}}
+    hostname: source
+    restart: always
+    <<: *std-logging
+    depends_on:
+      postgres: { condition: service_healthy }
+      redis: { condition: service_started }
+      mosquitto: { condition: service_started }
+    env_file:
+      - .secrets/.env.secret_key
+    environment:
+      <<: [*deployment-env, *postgresdb-client-env, *redis-client-env]
+
+  # The broker stagehand subscribes to. Authentication is the production
+  # arrangement: mosquitto-go-auth asks rest-api about every client (a bearer for
+  # a browser, an API key for source) and every topic. Pinned to what
+  # PlaceOS/local's `latest` resolves to; it has not moved since 2023.
+  mosquitto:
+    image: iegomez/mosquitto-go-auth:${E2E_MOSQUITTO_TAG:-2.1.0-mosquitto_2.0.15}
+    hostname: mosquitto # load-bearing: nginx proxies /api/mqtt/ to mosquitto:9001
+    restart: always
+    <<: *std-logging
+    depends_on:
+      - rest-api
+    volumes:
+      - ./mosquitto.conf:/etc/mosquitto/mosquitto.conf:ro
+    environment:
+      TZ: ${TZ:-UTC}
 
   staff-api:
     image: placeos/staff-api:${PLACEOS_TAG:-latest}
