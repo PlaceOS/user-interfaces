@@ -929,6 +929,7 @@
             "MENU_MANAGE_URLS": "URL 管理",
             "MENU_MANAGE_EMAILS": "电子邮件模板",
             "MENU_MANAGE_DEALS": "优惠与特价",
+            "MENU_OTHER": "其他",
             "MENU_ASSETS": "资产管理器",
             "MENU_USER_LIST": "用户目录",
             "MENU_EVENTS": "活动",

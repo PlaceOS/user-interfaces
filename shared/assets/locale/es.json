@@ -929,6 +929,7 @@
             "MENU_MANAGE_URLS": "Gestión de URL",
             "MENU_MANAGE_EMAILS": "Plantillas de Correo Electrónico",
             "MENU_MANAGE_DEALS": "Ofertas y Descuentos",
+            "MENU_OTHER": "Otros",
             "MENU_ASSETS": "Gestor de Activos",
             "MENU_USER_LIST": "Directorio de Usuarios",
             "MENU_EVENTS": "Eventos",

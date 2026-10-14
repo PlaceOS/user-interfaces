@@ -37,8 +37,6 @@ interface SidebarGroup {
     children: SidebarLink[];
 }
 
-type SidebarItem = SidebarLink | SidebarGroup;
-
 /** Report page from the `app.custom_reports` setting */
 interface CustomReport {
     id: string;
@@ -58,8 +56,8 @@ const ADMIN_GROUPS = ['placeos_admin', 'placeos_support'];
  */
 const collapsed_groups = signal<Record<string, boolean>>({});
 
-/** All items of the sidebar, in display order */
-const SIDEBAR_ITEMS: readonly SidebarItem[] = [
+/** All groups of the sidebar, in display order */
+const SIDEBAR_GROUPS: readonly SidebarGroup[] = [
     {
         id: 'bookings',
         name: 'APP.CONCIERGE.MENU_BOOKINGS',
@@ -202,28 +200,34 @@ const SIDEBAR_ITEMS: readonly SidebarItem[] = [
         ],
     },
     {
-        id: 'assets',
-        name: 'APP.CONCIERGE.MENU_ASSETS',
-        route: ['/book/assets/list/items'],
-        icon: 'vibration',
-    },
-    {
-        id: 'internal-users',
-        name: 'APP.CONCIERGE.MENU_USER_LIST',
-        route: ['/users/staff'],
-        icon: 'assignment_ind',
-    },
-    {
-        id: 'events',
-        name: 'APP.CONCIERGE.MENU_EVENTS',
-        route: ['/entertainment/events'],
-        icon: 'confirmation_number',
-    },
-    {
-        id: 'surveys',
-        name: 'APP.CONCIERGE.MENU_SURVEYS',
-        route: ['/surveys'],
-        icon: 'add_reaction',
+        id: 'other',
+        name: 'APP.CONCIERGE.MENU_OTHER',
+        children: [
+            {
+                id: 'assets',
+                name: 'APP.CONCIERGE.MENU_ASSETS',
+                route: ['/book/assets/list/items'],
+                icon: 'vibration',
+            },
+            {
+                id: 'internal-users',
+                name: 'APP.CONCIERGE.MENU_USER_LIST',
+                route: ['/users/staff'],
+                icon: 'assignment_ind',
+            },
+            {
+                id: 'events',
+                name: 'APP.CONCIERGE.MENU_EVENTS',
+                route: ['/entertainment/events'],
+                icon: 'confirmation_number',
+            },
+            {
+                id: 'surveys',
+                name: 'APP.CONCIERGE.MENU_SURVEYS',
+                route: ['/surveys'],
+                icon: 'add_reaction',
+            },
+        ],
     },
     {
         id: REPORTS_GROUP,
@@ -303,54 +307,41 @@ const SIDEBAR_ITEMS: readonly SidebarItem[] = [
         <nav
             class="border-base-200 h-full w-64 overflow-auto border-r py-2 pr-3"
         >
-            @for (item of links(); track item.id) {
-                @if ('children' in item) {
-                    <button
-                        matRipple
-                        class="hover:bg-base-200 flex w-full items-center rounded-r-full py-1 pr-1 pl-3 text-xs font-medium uppercase opacity-60 not-first:mt-3"
-                        [attr.aria-expanded]="!collapsed()[item.id]"
-                        (click)="toggleGroup(item.id)"
+            @for (group of groups(); track group.id) {
+                <button
+                    matRipple
+                    class="hover:bg-base-200 flex w-full items-center rounded-r-full py-1 pr-1 pl-3 text-xs font-medium uppercase opacity-60 not-first:mt-3"
+                    [attr.aria-expanded]="!collapsed()[group.id]"
+                    (click)="toggleGroup(group.id)"
+                >
+                    <div class="flex-1 text-left">
+                        {{ group.name | translate }}
+                    </div>
+                    <icon
+                        class="text-xl transition-transform"
+                        [class.-rotate-90]="collapsed()[group.id]"
                     >
-                        <div class="flex-1 text-left">
-                            {{ item.name | translate }}
-                        </div>
-                        <icon
-                            class="text-xl transition-transform"
-                            [class.-rotate-90]="collapsed()[item.id]"
+                        arrow_drop_down
+                    </icon>
+                </button>
+                <section
+                    class="contract-expand w-full"
+                    [class.contract-collapsed]="collapsed()[group.id]"
+                >
+                    @for (link of group.children; track link.id) {
+                        <a
+                            matRipple
+                            class="hover:bg-base-200 my-0.5 flex w-full items-center gap-2 rounded-r-full py-1 pr-2 pl-3 text-sm"
+                            [routerLink]="link.route"
+                            routerLinkActive="active"
                         >
-                            arrow_drop_down
-                        </icon>
-                    </button>
-                    <!-- The bottom margin sets the group apart from links below -->
-                    <section
-                        class="contract-expand mb-3 w-full"
-                        [class.contract-collapsed]="collapsed()[item.id]"
-                    >
-                        @for (child of item.children; track child.id) {
-                            <a
-                                matRipple
-                                class="hover:bg-base-200 my-0.5 flex w-full items-center gap-2 rounded-r-full py-1 pr-2 pl-3 text-sm"
-                                [routerLink]="child.route"
-                                routerLinkActive="active"
-                            >
-                                <icon class="text-xl opacity-60">
-                                    {{ child.icon }}
-                                </icon>
-                                <span>{{ child.name | translate }}</span>
-                            </a>
-                        }
-                    </section>
-                } @else {
-                    <a
-                        matRipple
-                        class="hover:bg-base-200 my-0.5 flex w-full items-center gap-2 rounded-r-full py-1 pr-2 pl-3 text-sm"
-                        [routerLink]="item.route"
-                        routerLinkActive="active"
-                    >
-                        <icon class="text-xl opacity-60">{{ item.icon }}</icon>
-                        <span>{{ item.name | translate }}</span>
-                    </a>
-                }
+                            <icon class="text-xl opacity-60">{{
+                                link.icon
+                            }}</icon>
+                            <span>{{ link.name | translate }}</span>
+                        </a>
+                    }
+                </section>
             }
         </nav>
     `,
@@ -401,22 +392,19 @@ export class ApplicationSidebarComponent
     });
 
     /**
-     * Items that the current user can see. Empty until the organisation
+     * Groups that the current user can see. Empty until the organisation
      * loads, because the building can change the enabled features.
      */
-    public readonly links = computed<SidebarItem[]>(() => {
+    public readonly groups = computed<SidebarGroup[]>(() => {
         if (!this._org.initialised()) return [];
-        return SIDEBAR_ITEMS.flatMap((item): SidebarItem[] => {
-            if (!('children' in item)) {
-                return this._canView(item) ? [item] : [];
-            }
-            if (item.admin_only && !this._is_admin()) return [];
-            const children = item.children.filter((_) => this._canView(_));
+        return SIDEBAR_GROUPS.flatMap((group) => {
+            if (group.admin_only && !this._is_admin()) return [];
+            const children = group.children.filter((_) => this._canView(_));
             // Custom reports have no feature to turn them on
-            if (item.id === REPORTS_GROUP) {
+            if (group.id === REPORTS_GROUP) {
                 children.push(...this._custom_reports());
             }
-            return children.length ? [{ ...item, children }] : [];
+            return children.length ? [{ ...group, children }] : [];
         });
     });
 

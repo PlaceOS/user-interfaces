@@ -32,15 +32,11 @@ describe('ApplicationSidebarComponent', () => {
         ],
     });
 
-    /** IDs of the shown items. A group shows as `group:child,child` */
+    /** IDs of the shown groups and links, each group as `group:link,link` */
     const shown = () =>
         spectator.component
-            .links()
-            .map((item) =>
-                'children' in item
-                    ? `${item.id}:${item.children.map((_) => _.id)}`
-                    : item.id,
-            );
+            .groups()
+            .map((group) => `${group.id}:${group.children.map((_) => _.id)}`);
 
     const setGroups = (groups: string[]) =>
         setCurrentUser(new StaffUser({ id: 'user-1', groups }));
@@ -73,7 +69,7 @@ describe('ApplicationSidebarComponent', () => {
         app_settings['app.features'] = ['events', 'desks', 'desk-report'];
         expect(shown()).toEqual([
             'bookings:desks',
-            'events',
+            'other:events',
             'reports:desk-report',
         ]);
     });
@@ -94,13 +90,13 @@ describe('ApplicationSidebarComponent', () => {
         app_settings['app.feature_groups'] = { events: ['event-team'] };
         expect(shown()).toEqual([]);
         setGroups(['event-team']);
-        expect(shown()).toEqual(['events']);
+        expect(shown()).toEqual(['other:events']);
     });
 
     it('should list custom reports without a feature', () => {
         app_settings['app.custom_reports'] = [{ id: 'kpi', name: 'KPI' }];
-        const reports = spectator.component.links()[1];
-        expect('children' in reports && reports.children).toEqual([
+        const reports = spectator.component.groups()[1];
+        expect(reports.children).toEqual([
             {
                 id: 'custom-kpi',
                 name: 'KPI',

@@ -33,14 +33,14 @@ The app covers room, desk, parking, locker, catering, asset, visitor, staff, rep
 
 ### US-002: Navigate between feature areas
 **As a** concierge
-**I want to** use the sidebar to move between bookings, management, reports, and standalone tools
+**I want to** use the sidebar to move between bookings, management, reports, and other tools
 **So that** I can reach any operational area quickly
 
 **Acceptance Criteria:**
-- The sidebar groups links under Bookings, Management, and Reports where child links exist.
+- The sidebar groups links under Bookings, Management, Other, and Reports where child links exist.
 - Bookings links include room bookings, desk bookings, parking bookings, locker bookings, asset bookings, catering bookings, visitor bookings, and visitor rules when those features are enabled.
 - Management links include zones, rooms, desks, parking, lockers, catering, points, emergency contacts, signage, map features, URL management, email templates, and deals when those features are enabled.
-- Standalone links include assets, staff, events, and surveys when enabled.
+- Other links include assets, staff, events, and surveys when enabled.
 - The active route is highlighted.
 - Links hidden by `app.features` or `app.feature_groups` are not shown to users without access.
 - Management items are hidden from non-admin users.
