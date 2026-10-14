@@ -106,6 +106,9 @@ driver --> redis --> source --> mosquitto:1883      (source publishes, API key a
   are `/api/engine/v2/mqtt/user` and `/mqtt/access`. PlaceOS/local's config names
   `mqtt_user`/`mqtt_access`, which 404, so every client is refused there; `e2e/stack/mosquitto.conf`
   has the working names.
+- **A subscription is sent everything retained under it at once**, and mosquitto drops what
+  does not fit the client's queue. `mosquitto.conf` sets `max_queued_messages 10000`, as
+  deployments now do; the default of 1000 cut wide subscriptions short on large sites.
 - **Restarting mosquitto empties it** (no persistence). source before v1.22.1 (so
   `placeos-2.2610.1`) neither republishes after reconnecting nor retries a broker it could not
   reach at startup, so restart source after mosquitto. v1.22.1 (PlaceOS/source#65) does both.
