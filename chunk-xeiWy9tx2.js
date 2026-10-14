@@ -1,0 +1,3 @@
+import{Rn as en,S as E}from"./chunk--InGYtT4.js";import{M as Qe}from"./chunk-C8r4AJy2.js";var f=(()=>{class t{constructor(){this._org=E(Qe)}transform(e){return this._org.levelWithID(e instanceof Array?e:[e])}static{this.ɵfac=function(n){return new(n||t)}}static{this.ɵpipe=en({name:`level`,type:t,pure:!0})}}return t})();export{f as t};
+//# debugId=e5374911-8238-50ca-9aec-d8018f2497f3
+//# sourceMappingURL=chunk-xeiWy9tx2.js.map
