@@ -563,6 +563,7 @@
         "PARKING_SELECT_MSG": "Select a parking space to view it's details",
         "VISITOR_INVITE_TITLE": "Invite Visitor",
         "VISITOR_EDIT_TITLE": "Edit Visitor",
+        "INTERNATIONAL_VISITORS": "International visitors:",
         "VISITOR_NAME": "Visitor Name",
         "VISITOR_NAME_PLACEHOLDER": "Name of the visitor",
         "VISITOR_EMAIL": "Visitor Email",

@@ -3,7 +3,11 @@ import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
-import { BookingFlowView, BookingFormService } from '@placeos/bookings';
+import {
+    BookingFlowView,
+    BookingFormService,
+    mapGroupMembersFromBookings,
+} from '@placeos/bookings';
 import {
     AsyncHandler,
     Booking,
@@ -193,15 +197,7 @@ export class VisitorFlowNewComponent extends AsyncHandler implements OnInit {
             await this._booking_form.loadGroupSiblings(booking);
         if (!siblings?.length) return;
         this._existing_siblings = siblings;
-        const visitors = siblings.map(
-            (s) =>
-                new User({
-                    name: s.asset_name,
-                    email: s.asset_id,
-                    organisation: s.extension_data?.company,
-                    phone: s.extension_data?.phone,
-                }),
-        );
+        const visitors = mapGroupMembersFromBookings(siblings, true);
         this._model.update((m) => ({
             ...m,
             assets: visitors,
