@@ -45,11 +45,15 @@ These options live at the root of the settings file (alongside `app`, not inside
 | `hide_colleagues` | boolean | – | Hide the colleagues card on the landing page. The favourites card takes the full row. |
 | `hide_landing_spaces` | boolean | – | Hide the Desks and Lockers tabs of the Available Now card on the landing page. |
 | `hide_landing_rooms` | boolean | – | Hide the Rooms tab of the Available Now card on the landing page. The card is hidden when no tab is left. |
+| `hide_landing_customise` | boolean | – | Stop users from changing the layout of the landing page. The **Edit home screen** button is hidden, and each user gets the default layout. A saved layout is kept, but it is not used. |
+| `hide_landing_widgets` | string[] | – | Cards of the landing page that users cannot have. The cards are not on the page, and users cannot add them. Valid values are `available_now`, `quick_actions`, `desk_week`, `favourites`, `colleagues`, `focus_timer` and `world_clock`. |
 | `show_quick_links` | boolean | – | Show the booking links in the Quick Actions card on the landing page, one for each enabled feature. Shown when not set; set to `false` to hide them. |
 | `show_quick_book` | boolean | – | Show the Auto-assign Desk action in the Quick Actions card on the landing page. Needs the `desks` feature. Shown when not set; set to `false` to hide it. |
 | `features` | string[] | see below | List of feature flags controlling which sections of the app are available. |
 | `locales` | object[] | 10 languages | Languages available in the language selector. |
 | `menu_embeds` | object[] | – | Additional menu items that open third-party URLs embedded inside the app. |
+
+Each user can add, remove and reorder the cards of the landing page with **Edit home screen**, unless `hide_landing_customise` is set. The app saves the layout in the `landing_layout` key of the user's `settings` metadata. The settings above, such as `hide_landing_widgets`, decide which cards a user can add. The next-booking card stays at the top. The Focus Timer and World Clock cards are not on the page by default. A user adds them in the same edit mode. The World Clock card saves its cities in the `world_clock_zones` key of the same metadata.
 
 Default `features` list — remove entries to hide sections of the app:
 
