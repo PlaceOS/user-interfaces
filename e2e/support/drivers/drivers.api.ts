@@ -7,6 +7,9 @@ import { APIRequestContext } from '@playwright/test';
 import { ENGINE_API, alreadyExists, asList, getJson } from '../api';
 import { DRIVERS_COMMIT, DRIVERS_REPOSITORY, DriverSpec } from './drivers.env';
 
+/** A repository row the suite loads drivers from. */
+export type RepositorySpec = typeof DRIVERS_REPOSITORY;
+
 interface RepositoryRow {
     id: string;
     folder_name: string;
@@ -38,25 +41,26 @@ const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
  */
 export async function ensureDriversRepository(
     api: APIRequestContext,
+    repository: RepositorySpec = DRIVERS_REPOSITORY,
 ): Promise<{ id: string; created: boolean }> {
     const find = async () =>
         asList<RepositoryRow>(
             await getJson(api, `${ENGINE_API}/repositories`, { limit: '500' }),
         ).find(
             (r) =>
-                r.folder_name === DRIVERS_REPOSITORY.folder_name &&
+                r.folder_name === repository.folder_name &&
                 `${r.repo_type}`.toLowerCase() === 'driver',
         );
 
     const found = await find();
     if (found) {
-        await syncRepository(api, found);
+        await syncRepository(api, found, repository);
         return { id: found.id, created: false };
     }
 
     const res = await api.post(`${ENGINE_API}/repositories`, {
         data: {
-            ...DRIVERS_REPOSITORY,
+            ...repository,
             repo_type: 'driver',
             commit_hash: 'HEAD',
             description: 'Drivers loaded by the e2e suite. Safe to delete.',
@@ -74,13 +78,13 @@ export async function ensureDriversRepository(
     for (let i = 0; i < 15; i++) {
         const raced = await find();
         if (raced) {
-            await syncRepository(api, raced);
+            await syncRepository(api, raced, repository);
             return { id: raced.id, created: false };
         }
         await sleep(2000);
     }
     throw new Error(
-        `repository ${DRIVERS_REPOSITORY.folder_name} exists but is not listed`,
+        `repository ${repository.folder_name} exists but is not listed`,
     );
 }
 
@@ -88,8 +92,9 @@ export async function ensureDriversRepository(
 async function syncRepository(
     api: APIRequestContext,
     row: RepositoryRow,
+    repository: RepositorySpec,
 ): Promise<void> {
-    const { uri, branch } = DRIVERS_REPOSITORY;
+    const { uri, branch } = repository;
     if (row.uri === uri && row.branch === branch) return;
     const res = await api.patch(`${ENGINE_API}/repositories/${row.id}`, {
         data: { uri, branch },
@@ -117,6 +122,7 @@ export async function ensureDriver(
     repository_id: string,
     spec: DriverSpec,
     repositoryIsNew: boolean,
+    commit: string = DRIVERS_COMMIT,
 ): Promise<{ id: string; created: boolean }> {
     const find = async () =>
         asList<DriverRow>(
@@ -124,7 +130,7 @@ export async function ensureDriver(
         ).find(
             (d) =>
                 d.file_name === spec.file_name &&
-                d.commit === DRIVERS_COMMIT &&
+                d.commit === commit &&
                 d.repository_id === repository_id,
         );
 
@@ -142,7 +148,7 @@ export async function ensureDriver(
             role: spec.role,
             module_name: spec.module_name,
             file_name: spec.file_name,
-            commit: DRIVERS_COMMIT,
+            commit,
             repository_id,
         },
     });
