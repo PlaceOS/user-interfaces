@@ -79,14 +79,16 @@ test.describe('Schedule / Your Bookings', () => {
             { timeout: LOAD_TIMEOUT },
         );
 
-        const status_labels = page.getByText(
-            /approved|tentative|declined|waitlisted/i,
-        );
-        const status_count = await status_labels.count();
-        if (status_count > 0) {
-            await expect(status_labels.first()).toBeVisible();
-        } else {
-            await expect(page.locator('schedule-day-view')).toBeVisible();
-        }
+        // The day view shows the status of a booking as a coloured dot. The
+        // label of the dot is its tooltip, which is in the DOM as a hidden
+        // description for screen readers. So the label is attached, not
+        // visible. It renders a moment after the day view, so wait for it: a
+        // count taken at once is 0.
+        const status_labels = page.locator('[role="tooltip"]', {
+            hasText: /approved|tentative|declined|waitlisted/i,
+        });
+        await expect(status_labels.first()).toBeAttached({
+            timeout: LOAD_TIMEOUT,
+        });
     });
 });

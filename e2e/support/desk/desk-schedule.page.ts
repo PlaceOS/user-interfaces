@@ -22,7 +22,7 @@ import { YourBookingsPage } from '../visitor/your-bookings.page';
 
 export class DeskSchedulePage extends YourBookingsPage {
     protected override get editForm(): Locator {
-        return this.page.locator('desk-flow-form');
+        return this.page.locator('desk-flow-new');
     }
 
     protected override get editFormHint(): string {
@@ -36,15 +36,6 @@ export class DeskSchedulePage extends YourBookingsPage {
 
     /** Make sure desk bookings are among the types being shown. */
     async showDesks(): Promise<void> {
-        const toggle = this.page
-            .locator('button[name="schedule-toggle-desk-filter"]:visible')
-            .first();
-        const checkbox = toggle.locator('input[type="checkbox"]');
-        if (!(await checkbox.count())) return;
-        // ENSURE, never blindly toggle: clicking a filter that is already on
-        // turns it off, and the list then looks like the booking is missing.
-        if (!(await checkbox.isChecked().catch(() => false))) {
-            await toggle.click({ timeout: 10_000 });
-        }
+        await this.ensureShown('desk');
     }
 }

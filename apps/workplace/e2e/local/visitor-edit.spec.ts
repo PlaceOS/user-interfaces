@@ -1,32 +1,27 @@
 /**
  * VIS-13 / VIS-14 / VIS-15 — editing an invite that already exists.
  *
- * ## Which invites can actually be edited
+ * ## How an edit works
  *
- * Editing works in MULTI-visitor mode, which is what the app ships with
- * (`bookings.multiple_visitors` defaults to true). It is broken in
- * SINGLE-visitor mode: pressing Update throws `_.toJSON is not a function`, no
- * request is sent, and the user sees only that raw string. That is VIS-B8, and
- * the third test here is the placeholder for it.
+ * Edit, in the booking's menu on the schedule, opens the page that makes an
+ * invite (`visitor-flow-new`) with the invite filled in. The Single/Multiple
+ * toggle and the recent visitors are not shown: an invite keeps the mode it
+ * was made in. Confirm saves with one `PATCH` per booking, and the page then
+ * shows the same success view as a new invite.
  *
- * Measured, all three created and edited through the app — multi with one
- * visitor and with two both save cleanly (`PATCH`, "updated successfully");
- * single fails every time, on today's date and on a future one alike. The mode
- * decides it, not the date and not the number of people.
- *
- * Cause: `Booking` declares `attendees` as `User[]` but assigns the raw server
- * JSON to it (`booking.class.ts`), so at runtime they are plain objects. In
- * single-visitor mode the edit path hands that straight to the form's `assets`
- * (`invite-visitor-form.component.ts`), and saving calls `.toJSON()` on every
- * entry (`booking-form.service.ts`). Plain JSON has no such method. The
- * multi-visitor paths escape it because they rebuild each person with
- * `new User(...)` first.
+ * Every test saves through `saveEditViaUI`, which does the edit again when
+ * REG-09 refuses the save. The three tests start together on three workers,
+ * so their saves are concurrent writes: without it one of them was refused
+ * (`PATCH` 400 "Expected BeginObject but was EOF") in most parallel runs.
  *
  * ## Why THREE tests in this file, when every other spec has two
  *
- * The third is a deliberate placeholder for VIS-B8 and is `fixme`, so it costs
- * nothing per run. Fold it away once the app is fixed: at that point it is the
- * same assertion as the first test with one setting changed.
+ * The third is the guard for VIS-B8. In the form that this page replaced
+ * (`invite-visitor-form`), saving an edit in SINGLE-visitor mode threw
+ * `_.toJSON is not a function` and sent no request, while the multi-visitor
+ * mode saved cleanly. On this page both modes save. Measured for single mode:
+ * the edit sends `PATCH /bookings/:id`, gets a 200, and the new reason is
+ * stored. It is the same assertion as the first test in the other mode.
  *
  * ## What the first two guard
  *
@@ -51,7 +46,6 @@ import {
 } from '../../../../e2e/support/api';
 import { WORKERS, staffEmail } from '../../../../e2e/support/env';
 import { expect, test } from '../../../../e2e/support/fixtures';
-import { InviteVisitorForm } from '../../../../e2e/support/visitor/invite-form.page';
 import {
     deleteGuest,
     releaseGroupContainers,
@@ -64,6 +58,7 @@ import {
 import {
     inviteVisitorViaUI,
     inviteVisitorsViaUI,
+    saveEditViaUI,
 } from '../../../../e2e/support/visitor/visitor.flows';
 import {
     ALLOW_EDITING,
@@ -130,8 +125,8 @@ test.describe('editing a visitor invite', () => {
 
         try {
             const me = await currentUser(staffApi);
-            // Multi-visitor mode with one guest: the mode the app ships with,
-            // and the one where saving an edit works at all (VIS-B8).
+            // Multi-visitor mode with one guest. The third test makes the
+            // same kind of edit in single mode.
             const created = await inviteVisitorsViaUI(
                 staffPage,
                 staffApi,
@@ -145,7 +140,8 @@ test.describe('editing a visitor invite', () => {
                 member,
                 'the invite created a visitor booking to edit',
             ).toBeTruthy();
-            booking_id = member!.id;
+            const member_id = member!.id;
+            booking_id = member_id;
 
             const stored = await getBooking(staffApi, booking_id);
             expect(
@@ -160,17 +156,25 @@ test.describe('editing a visitor invite', () => {
             // Re-open it and change only the reason. The schedule opens on
             // today, so it has to be walked to the visit's own day first.
             const bookings_page = new YourBookingsPage(staffPage);
-            await bookings_page.open();
-            await bookings_page.showVisitors();
-            await bookings_page.showDayOf(visit_day);
-            await bookings_page.startEdit(booking_id);
+            await saveEditViaUI(staffPage, async (form) => {
+                await bookings_page.open();
+                await bookings_page.showVisitors();
+                await bookings_page.showDayOf(visit_day);
+                await bookings_page.startEdit(member_id);
 
-            const form = new InviteVisitorForm(staffPage);
-            await expect(async () => {
-                await form.reason.fill(new_reason);
-                await expect(form.reason).toHaveValue(new_reason, { timeout: 1_000 });
-            }).toPass({ timeout: 30_000 });
-            await form.sendButton.click();
+                // The page opens on the one booking and loads the rest of its
+                // group afterwards. Until then it is in single mode, and
+                // Confirm saves that booking alone: no request is made for
+                // the container.
+                await expect(
+                    form.chips,
+                    'the edit form should load with the visitor listed',
+                ).toHaveCount(1, { timeout: 30_000 });
+                await expect(async () => {
+                    await form.reason.fill(new_reason);
+                    await expect(form.reason).toHaveValue(new_reason, { timeout: 1_000 });
+                }).toPass({ timeout: 30_000 });
+            });
 
             await expect(async () => {
                 const updated = await getBooking(staffApi, booking_id!);
@@ -251,27 +255,43 @@ test.describe('editing a visitor invite', () => {
             ).toBeTruthy();
 
             // Edit the group from either member — they share a container.
+            const kept_id = kept_booking!.id;
             const bookings_page = new YourBookingsPage(staffPage);
-            await bookings_page.open();
-            await bookings_page.showVisitors();
-            await bookings_page.startEdit(kept_booking!.id);
+            await saveEditViaUI(staffPage, async (form, attempt) => {
+                await bookings_page.open();
+                await bookings_page.showVisitors();
+                await bookings_page.startEdit(kept_id);
 
-            const form = new InviteVisitorForm(staffPage);
-            await expect(
-                form.chips,
-                'the edit form should load with both visitors already listed',
-            ).toHaveCount(2, { timeout: 30_000 });
+                if (attempt === 1) {
+                    await expect(
+                        form.chips,
+                        'the edit form should load with both visitors already listed',
+                    ).toHaveCount(2, { timeout: 30_000 });
+                } else {
+                    // A save that REG-09 refused part-way can already have
+                    // removed the visitor, so a retry can only demand the
+                    // one that stays.
+                    await expect(async () => {
+                        await form.chipIndexFor(kept.email);
+                    }, 'the edit form should load with the kept visitor listed').toPass({
+                        timeout: 30_000,
+                    });
+                }
 
-            // Not a `hasText` filter on the address: a chip renders only the
-            // part before the @, so that matched nothing and read as a broken
-            // remove button. `removeVisitorChip` matches what is really shown.
-            await form.removeVisitorChip(removed.email);
-            await expect(
-                form.chips,
-                'one visitor was removed from the list',
-            ).toHaveCount(1);
-
-            await form.sendButton.click();
+                // Not a `hasText` filter on the address: a chip renders only
+                // the part before the @, so that matched nothing and read as a
+                // broken remove button. `removeVisitorChip` matches what is
+                // really shown.
+                const still_listed = await form
+                    .chipIndexFor(removed.email)
+                    .then(() => true)
+                    .catch(() => false);
+                if (attempt === 1 || still_listed) await form.removeVisitorChip(removed.email);
+                await expect(
+                    form.chips,
+                    'one visitor was removed from the list',
+                ).toHaveCount(1);
+            });
 
             // Read the backend, not the screen. A group edit rewrites several
             // rows and the screen shows only what the form thinks it did.
@@ -315,14 +335,9 @@ test.describe('editing a visitor invite', () => {
     });
 
     /**
-     * VIS-15 — the SAME edit, in single-visitor mode. This is the one that is
-     * broken (VIS-B8): `_.toJSON is not a function`, no request sent, nothing
-     * saved. Kept as `fixme` so the bug has a home in the suite rather than
-     * only in a document.
-     *
-     * When the app is fixed, drop the `fixme` and this should pass as written.
-     * Evidence it is the mode and not anything else: the first test above does
-     * the same thing in multi-visitor mode and is green.
+     * VIS-15 — the SAME edit, in single-visitor mode. The guard for VIS-B8:
+     * the old form threw `_.toJSON is not a function` here, sent no request
+     * and saved nothing. See the file header.
      */
     test('an invite made in single-visitor mode can be re-saved', async ({
         staffPage,
@@ -357,23 +372,23 @@ test.describe('editing a visitor invite', () => {
             booking_id = created.id;
 
             const bookings_page = new YourBookingsPage(staffPage);
-            await bookings_page.open();
-            await bookings_page.showVisitors();
-            await bookings_page.startEdit(booking_id);
+            await saveEditViaUI(staffPage, async (form) => {
+                await bookings_page.open();
+                await bookings_page.showVisitors();
+                await bookings_page.startEdit(created.id);
 
-            const form = new InviteVisitorForm(staffPage);
-            await expect(async () => {
-                await form.reason.fill(new_reason);
-                await expect(form.reason).toHaveValue(new_reason, { timeout: 1_000 });
-            }).toPass({ timeout: 30_000 });
-            await form.sendButton.click();
+                await expect(async () => {
+                    await form.reason.fill(new_reason);
+                    await expect(form.reason).toHaveValue(new_reason, { timeout: 1_000 });
+                }).toPass({ timeout: 30_000 });
+            });
 
             await expect(async () => {
                 const updated = await getBooking(staffApi, booking_id!);
                 expect(
                     updated.title,
-                    'the edit must reach the backend — in single-visitor mode it ' +
-                        'currently throws in the browser and sends nothing (VIS-B8)',
+                    'the edit must reach the backend — in single-visitor mode the ' +
+                        'old form threw in the browser and sent nothing (VIS-B8)',
                 ).toBe(new_reason);
             }).toPass({ timeout: 30_000 });
         } finally {

@@ -106,8 +106,9 @@ export const SCOPING_DESK_PREFIX = 'e2e-scoping-desk-';
 
 /**
  * The desk the scoping specs use on this worker. Those specs book it as another
- * user as well as this worker's own, and sweep it as both, so no other spec may
- * book it.
+ * user as well as this worker's own, and sweep it as both.
+ * `home-upcoming.spec.ts` books it as the second desk of this worker's own
+ * user. No other spec may book it.
  */
 export function scopingDeskFor(workerIndex: number): { id: string; name: string } {
     return {

@@ -50,12 +50,17 @@ export async function seedGroupDesks(
             data: {
                 name: 'desks',
                 description: 'Owned by this group desk E2E test',
+                // `features` is not optional: `desk-flow-select` reads it
+                // from every desk of the building, and a desk without the
+                // list stops that view from rendering a desk selection —
+                // in the pages of the other workers too.
                 details: desks.map((desk) => ({
                     ...desk,
                     map_id: desk.id,
                     zone: level_id,
                     bookable: true,
                     groups: [],
+                    features: [],
                 })),
             },
         });

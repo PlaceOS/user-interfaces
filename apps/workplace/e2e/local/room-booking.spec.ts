@@ -22,9 +22,9 @@
  *  - A room is EXCLUSIVE for its window, like a desk. Measured before this spec
  *    was written: the same slot as another user is 409, a partial overlap is
  *    409, a clear slot is 201. `room-clash.spec.ts` owns that.
- *  - The flow has THREE screens — form, confirm, success — and nothing is sent
- *    until the second. A spec that clicks Confirm once and looks for a booking
- *    will find none and blame the backend.
+ *  - The flow has THREE steps — details, room, options — and nothing is sent
+ *    until Confirm on the last one. There is no separate confirm screen:
+ *    Confirm sends the request at once. See `meeting-flow.page.ts`.
  */
 import {
     deleteBooking,
@@ -61,7 +61,7 @@ test.describe('room booking', () => {
 
         // Sweep first, not just after. A run that died between booking and
         // cleanup leaves the room held, and every later run then fails with
-        // "no room called ... in the picker" — which looks nothing like the cause.
+        // "no room called ... in the room list" — which looks nothing like the cause.
         const swept = await releaseRoom(
             staffApi,
             room.id,
@@ -110,7 +110,7 @@ test.describe('room booking', () => {
             ).toBe(title);
             expect(stored.deleted, 'not soft-deleted').toBeFalsy();
             expect(stored.rejected, 'not rejected').toBeFalsy();
-            // Zones are deliberately NOT asserted here — see the `fixme` below.
+            // Zones have a test of their own below.
             expect(
                 new Date(stored.booking_start * 1000).toDateString(),
                 'and falls on the day chosen in the form, not the default day',
@@ -168,21 +168,18 @@ test.describe('room booking', () => {
     });
 
     /**
-     * ROOM-13, blocked by ROOM-B2 — a room booked through the app is stored
-     * with NO zones.
+     * ROOM-13 — a room booked through the app carries its zone hierarchy.
      *
-     * The meeting form sends `zones: []`. Desk and visitor bookings both carry
-     * the org/building/level hierarchy, and anything that scopes bookings by
-     * zone — a building filter, a report, a per-site view — cannot see a booking
-     * that has none.
+     * Desk and visitor bookings both carry the org/building/level hierarchy,
+     * and anything that scopes bookings by zone — a building filter, a report,
+     * a per-site view — cannot see a booking that has none.
      *
-     * It is also half of ROOM-B1: with no zones, the backend's approval
-     * permission check has nothing to check against, and instead of refusing
-     * with 403 it builds a query with an empty list and dies with
-     * `syntax error at or near ")" (PQ::PQError)`.
+     * The flow that this one replaced sent `zones: []` (ROOM-B2), and this test
+     * was blocked on it. Measured on the new flow, 13 Oct 2026: the booking is
+     * stored with its zones, so the test is active.
      *
-     * A third test in a two-test file, on purpose, and `fixme` so it costs
-     * nothing per run. Fold it into the first test once the app populates zones.
+     * It was also half of ROOM-B1: with no zones, the backend's approval
+     * permission check had nothing to check against.
      */
     test('a room booking carries its zone hierarchy', async ({
         staffPage,

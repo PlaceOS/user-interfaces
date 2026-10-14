@@ -271,6 +271,37 @@ export async function readBack(
     return 'unknown';
 }
 
+/**
+ * Is this response REG-09 (PPT-2642) and not a real rejection?
+ *
+ * A burst of booking writes poisons a staff-api connection, and the request
+ * that lands on it fails for a reason unrelated to what was sent. It has three
+ * signatures:
+ *
+ *   400 "Expected BeginObject but was EOF" — says the body was empty. It was not.
+ *   500 "could not serialize access"
+ *   422 {"error":"error validating booking data","failures":[]}
+ *
+ * The 422 is not proof on its own. A real validation error names the field it
+ * refuses, but an asset held by a leftover booking also answers 422 with an
+ * empty `failures` list (`e2e/README.md`). Every caller bounds its retries, so
+ * a real refusal still fails the test, only later.
+ *
+ * Deliberately narrow. Matching on the status alone would swallow genuine 400s
+ * and 500s, and a suite that retries real failures is worse than no suite.
+ * `e2e/support/repro/vis-b6-burst.ts` reproduces the first two signatures with
+ * no browser.
+ *
+ * Delete this, and each retry that calls it, once the stack runs a staff-api
+ * built on pg-orm >= 2.2.4. A green run is not evidence that the image is fixed.
+ */
+export function isReg09(status: number, body: string): boolean {
+    if (status === 400 && /Expected BeginObject but was EOF/.test(body)) return true;
+    if (status === 500 && /could not serialize access/.test(body)) return true;
+    if (status === 422 && /"failures"\s*:\s*\[\s*\]/.test(body)) return true;
+    return false;
+}
+
 /** Best-effort cleanup — never throws, so teardown cannot fail a passing test. */
 export async function deleteBooking(api: APIRequestContext, id: number): Promise<void> {
     try {

@@ -76,7 +76,7 @@ test.describe('your bookings — editing', () => {
             booking_id = booking.id;
 
             const schedule = new SchedulePage(staffPage);
-            schedule.expectEditForm('desk-flow-form');
+            schedule.expectEditForm('desk-flow-new');
             await schedule.open();
             await schedule.showBooking(booking_id, slot.date_ms, ['desk'], async () => {
                 const now = await readBooking(staffApi, booking_id!);
@@ -135,7 +135,7 @@ test.describe('your bookings — editing', () => {
             booking_id = booking.id;
 
             const schedule = new SchedulePage(staffPage);
-            schedule.expectEditForm('invite-visitor-form');
+            schedule.expectEditForm('visitor-flow-new');
             await schedule.open();
             await schedule.showBooking(booking_id, slot.date_ms, ['visitor']);
             await schedule.startEdit(booking_id);
@@ -147,10 +147,12 @@ test.describe('your bookings — editing', () => {
 
             // The visitor is the invite's identity, so the form arriving without
             // them is the same failure as an empty desk form.
+            // In the visitor flow the address is the value of an input, so
+            // it is not in the text of the form.
             await expect(
-                staffPage.locator('invite-visitor-form'),
+                staffPage.locator('visitor-flow-new input[name$=".asset_id"]'),
                 'the visitor form should carry the invited visitor',
-            ).toContainText(visitor.email.split('@')[0], { timeout: 30_000 });
+            ).toHaveValue(visitor.email, { timeout: 30_000 });
         } finally {
             if (booking_id != null) await deleteBooking(staffApi, booking_id);
             await deleteGuestByEmail(staffApi, visitor.email);

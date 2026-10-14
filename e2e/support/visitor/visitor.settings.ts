@@ -5,9 +5,10 @@
  * `localStorage['PLACEOS.setting_overrides']`
  * (libs/common/src/lib/settings.service.ts, `loadDebugOverrides`). Because it
  * lives in the browser context rather than on a zone, two specs can demand
- * opposite settings and still run in parallel — which matters here, since
- * single- and multi-visitor mode are the same setting with two values, and
- * seeding it on the org zone would force the whole suite to serialise.
+ * opposite settings and still run in parallel — which matters here, since one
+ * spec limits the bookable hours or shows the All Day checkbox and the next
+ * must not, and seeding either on the org zone would force the whole suite to
+ * serialise.
  *
  * The trade-off, stated plainly because a future reader deserves it: this is a
  * debug hook, so these specs run with an override layer a real user does not
@@ -57,13 +58,21 @@ export const VISITOR_BASE_SETTINGS = {
     'app.basic_user_search': true,
 };
 
-/** Single-visitor mode: name/email/company fields. NOT the app default. */
+/**
+ * `bookings.multiple_visitors` off, for the specs that invite one visitor.
+ *
+ * On the `visitor-flow-new` page this does NOT choose the mode. The page has a
+ * Single/Multiple toggle and always opens on Single; the flows click the
+ * toggle (`useSingleMode` / `useGroupMode`). The setting only changes the
+ * wording of the success view. The old form (`invite-visitor-form`, no longer
+ * routed) chose its mode from it.
+ */
 export const SINGLE_VISITOR_MODE = {
     ...VISITOR_BASE_SETTINGS,
     'app.bookings.multiple_visitors': false,
 };
 
-/** Multi-visitor mode: the chip list. This IS the app default. */
+/** `bookings.multiple_visitors` on (the app default), for the group specs. */
 export const GROUP_VISITOR_MODE = {
     ...VISITOR_BASE_SETTINGS,
     'app.bookings.multiple_visitors': true,
@@ -72,16 +81,14 @@ export const GROUP_VISITOR_MODE = {
 /**
  * Let the invite be booked on behalf of any user the search can find.
  *
- * BOTH keys are required, and that is not obvious. `can_book_for_anyone` is
- * what renders the searchable host field, but `sendInvite` decides whether to
- * KEEP the chosen host by checking `can_book_for_others`
- * (invite-visitor-form.component.ts, "fall back to the signed-in user for a new
- * booking with no host"). Enable only `can_book_for_anyone` and you get a host
- * picker that works right up until you press send, at which point the choice is
- * silently replaced by whoever is signed in — no error, no hint.
+ * `can_book_for_anyone` is what renders the searchable host field. On the
+ * `visitor-flow-new` page it is enough on its own: measured with only that key
+ * set, the invite is stored with the chosen host as `user_email`.
  *
- * Worth raising with the dev team: a deployment that sets one flag and not the
- * other gets exactly that silent failure.
+ * The old form (`invite-visitor-form`) needed BOTH keys: its `sendInvite` kept
+ * the chosen host only if `can_book_for_others` was also set, and otherwise
+ * replaced the choice with whoever was signed in — no error, no hint. Both
+ * stay in this preset: with both set, the page still shows the search field.
  */
 export const BOOK_FOR_ANYONE = {
     'app.visitors.can_book_for_anyone': true,
@@ -93,13 +100,23 @@ export const ALLOW_ALL_DAY = {
     'app.visitors.allow_all_day': true,
 };
 
-/** Show the pass-number and international-visitor controls. */
+/**
+ * Show the pass-number and international-visitor controls.
+ *
+ * The `visitor-flow-new` page reads only `allow_pass_number`. It has no
+ * international control, with or without the setting.
+ */
 export const ALLOW_EXTRAS = {
     'app.visitors.allow_pass_number': true,
     'app.visitors.allow_international': true,
 };
 
-/** Make the reason mandatory (PPT-2782). */
+/**
+ * Make the reason mandatory (PPT-2782).
+ *
+ * The `visitor-flow-new` page does not read this: the reason starts as
+ * "Visit", and an emptied reason is sent as "Visit".
+ */
 export const REASON_REQUIRED = {
     'app.visitors.reason_required': true,
 };

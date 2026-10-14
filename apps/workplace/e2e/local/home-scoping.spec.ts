@@ -6,111 +6,99 @@
  * the third surface, and the one a leak would be most visible on: the home page
  * is what appears the moment anyone signs in.
  *
- * The panel is built from the schedule's booking list filtered to today
- * (`landing-state.service.ts`), so a scope failure anywhere in that chain shows
- * up here.
+ * ## The other user is the ADMIN, not another worker
  *
- * The control is not optional: a panel that showed nothing at all would pass the
- * first test on its own.
+ * The next-booking card shows the first booking a user has today. A booking
+ * made today for the non-admin of another worker would show on THAT worker's
+ * card while its own home specs run. The admin has no spec that reads the
+ * card, so the admin is the "somebody else" here.
  *
- * Both tests book THIS worker's scoping desk (`scopingDeskFor`), as either
- * user; no other spec may book it.
+ * ## The control is in the same test
+ *
+ * The card shows one booking, the earliest of today. The admin's booking
+ * starts BEFORE this user's own booking. A leak would put the admin's booking
+ * on the card. The correct card shows this user's own booking, which also
+ * proves that the card loaded.
+ *
+ * The admin's booking is on THIS worker's scoping desk (`scopingDeskFor`); no
+ * other spec may book it.
  */
 import { test, expect } from '../../../../e2e/support/fixtures';
-import { request } from '@playwright/test';
-import { deleteBooking, releaseAsset, uniqueTitle } from '../../../../e2e/support/api';
+import { apiFor, deleteBooking, releaseAsset, uniqueTitle } from '../../../../e2e/support/api';
+import { deskFor, scopingDeskFor } from '../../../../e2e/support/env';
 import {
-    APP_URL,
-    BACKEND_URL,
-    WORKERS,
-    roleFor,
-    scopingDeskFor,
-} from '../../../../e2e/support/env';
-import { mintToken } from '../../../../e2e/support/auth';
-import { createBookingViaApi } from '../../../../e2e/support/home/home.api';
-import { LandingPage } from '../../../../e2e/support/home/landing.page';
+    clearToday,
+    createBookingViaApi,
+    inProgressSlot,
+    stillToday,
+    todayBounds,
+} from '../../../../e2e/support/home/home.api';
+import { LandingNewPage } from '../../../../e2e/support/home/landing-new.page';
 import { SchedulePage } from '../../../../e2e/support/bookings/schedule.page';
 
 const MINUTE = 60;
 
-async function apiAsOtherUser(workerIndex: number) {
-    const role = roleFor('staff', workerIndex);
-    const mint = await mintToken(BACKEND_URL, APP_URL, role.email, role.password);
-    return request.newContext({
-        baseURL: BACKEND_URL,
-        ignoreHTTPSErrors: true,
-        extraHTTPHeaders: { Authorization: `Bearer ${mint.accessToken}` },
-    });
-}
-
-/** Still today, locally? The panel shows today and nothing else. */
-function stillToday(unix_seconds: number): boolean {
-    return new Date(unix_seconds * 1000).toDateString() === new Date().toDateString();
-}
-
 test.describe('home page — visibility between users', () => {
-    test("another user's booking today is not on your panel", async ({
+    test("another user's booking today is not on your card", async ({
         staffPage,
         staffApi,
     }, testInfo) => {
-        const mine = testInfo.parallelIndex;
-        const theirs = (mine + 1) % WORKERS;
-        test.skip(theirs === mine, 'needs at least two workers to have two distinct users');
+        const scoping_desk = scopingDeskFor(testInfo.parallelIndex);
+        const own_desk = deskFor(testInfo.parallelIndex);
+        const theirs_title = uniqueTitle('E2E Home Theirs');
+        const mine_title = uniqueTitle('E2E Home Mine First');
+        const { from, to } = todayBounds();
+        // Theirs starts first, so a card that leaked would show theirs.
+        const theirs = inProgressSlot();
+        const mine = { start: theirs.start + MINUTE, end: theirs.end };
 
-        const desk = scopingDeskFor(mine);
-        const start = Math.floor(Date.now() / 1000) + (60 + 20 * mine) * MINUTE;
-        test.skip(!stillToday(start), 'this window has crossed midnight');
-        const other = await apiAsOtherUser(theirs);
+        const admin = await apiFor('admin', testInfo.parallelIndex);
         let their_booking: number | undefined;
+        let my_booking: number | undefined;
 
-        // Their booking on this worker's scoping desk, swept by THEM: `GET
-        // /bookings` is caller-scoped, so this worker cannot see or clear it.
-        await releaseAsset(other, 'desk', desk.id, start - 60, start + 3600);
+        // Their booking is swept by THEM: `GET /bookings` is caller-scoped, so
+        // this worker cannot see or clear it.
+        await releaseAsset(admin, 'desk', scoping_desk.id, from, to);
+        await clearToday(staffApi);
 
         try {
-            const booking = await createBookingViaApi(other, {
-                type: 'desk',
-                asset_id: desk.id,
-                asset_name: desk.name,
-                title: uniqueTitle('E2E Home Theirs'),
-                start,
-                end: start + 15 * MINUTE,
-            });
-            their_booking = booking.id;
+            their_booking = (
+                await createBookingViaApi(admin, {
+                    type: 'desk',
+                    asset_id: scoping_desk.id,
+                    asset_name: scoping_desk.name,
+                    title: theirs_title,
+                    ...theirs,
+                })
+            ).id;
+            my_booking = (
+                await createBookingViaApi(staffApi, {
+                    type: 'desk',
+                    asset_id: own_desk.id,
+                    asset_name: own_desk.name,
+                    title: mine_title,
+                    ...mine,
+                })
+            ).id;
 
-            const home = new LandingPage(staffPage);
+            const home = new LandingNewPage(staffPage);
             await home.open();
             await expect(
-                home.upcomingCard(their_booking),
-                `booking ${their_booking} belongs to another user and must not appear ` +
-                    `on this user's home page`,
-            ).toBeHidden({ timeout: 20_000 });
-
-            const showing = await home.upcomingIds();
-            expect(
-                showing,
-                `nothing of theirs should be listed. The panel is showing ` +
-                    `[${showing.join(', ')}]`,
-            ).not.toContain(their_booking);
+                home.upcomingTitle,
+                `the card must show this user's own booking. An earlier booking of ` +
+                    `another user (${their_booking}) must not take its place`,
+            ).toHaveText(mine_title, { timeout: 30_000 });
+            await expect(home.upcoming).not.toContainText(theirs_title);
         } finally {
-            if (their_booking != null) await deleteBooking(other, their_booking);
-            await releaseAsset(other, 'desk', desk.id, start - 60, start + 3600);
-            await other.dispose();
+            if (their_booking != null) await deleteBooking(admin, their_booking);
+            if (my_booking != null) await deleteBooking(staffApi, my_booking);
+            await admin.dispose();
         }
     });
 
     /**
-     * The control, and why it does not use the panel.
-     *
-     * A control is essential here: without one, "nobody sees anything" passes
-     * the test above. The obvious control — your own booking IS on the panel —
-     * cannot be relied on this stack, because the panel holds five cards and
-     * cancelled bookings take slots (HOME-B1). Measured: the panel was showing
-     * five cancelled bookings and could not show a live one.
-     *
-     * So the control proves the same thing on a surface that is not capped:
-     * the booking is yours, it exists, and YOUR pages show it. Your Bookings
-     * lists everything for a day, which is exactly the property needed.
+     * A second control, on a surface that is not limited to one booking: the
+     * booking is yours, it exists, and Your Bookings lists it.
      */
     test('control: your own booking today is visible to you', async ({
         staffPage,

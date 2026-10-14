@@ -3,54 +3,35 @@
  *
  * Booking rules are how a site says "this room is not for general booking" —
  * a boardroom, a room under repair, a floor reserved for an event. They live in
- * `booking_rules` metadata on the zone and are applied client-side
- * (`filterResourcesFromRules`), so a change that stopped reading them would
- * offer restricted rooms to everybody, and the picker would look completely
+ * `room_booking_rules` metadata on the building and are applied client-side
+ * (`event-form.service.ts`), so a change that stopped reading them would offer
+ * restricted rooms to everybody, and the room list would look completely
  * normal doing it.
  *
- * Nothing has ever tested them, for the same reason as several other rows: the
- * stack seeds no rules, so there was nothing to observe. This spec writes one,
+ * Nothing else tests them, for the same reason as several other rows: the
+ * stack seeds no rules, so there is nothing to observe. This spec writes one,
  * asserts its effect, and clears it.
  *
  * The condition is `resource_ids`, the narrowest one available, so exactly one
  * room is hidden and the others are the control. Both halves matter: the hidden
- * room disappears AND the rest stay, or "the picker is empty" would pass.
+ * room disappears AND the rest stay, or "the list is empty" would pass.
  *
- * ## `fixme`, and UNRESOLVED — read this before trusting either answer
+ * The ruleset is `{ zone: '*', conditions: { resource_ids: [<system id>] },
+ * rules: { hidden: true } }`. Measured on the room list of the new meeting
+ * flow, 13 Oct 2026: the room is offered before the rule is written and is
+ * not offered after it, and the other rooms stay.
  *
- * The rule has no effect, and I have not established why. What is known:
- *
- *  - the app fetches `GET /metadata/booking_rules/bulk?parent_ids=<building>`,
- *    and the response comes back keyed by the BUILDING's id carrying the
- *    building's own document — despite `parent_ids` reading like a query about
- *    children. `event-form.service.ts` looks them up as `rules[building.id]`.
- *  - `setRoomBookingRules` writes the document to the building AND every level,
- *    so the app is definitely being served a ruleset.
- *  - the ruleset is `{ zone: '*', conditions: { resource_ids: [<system id>] },
- *    rules: { hidden: true } }`. On paper that satisfies both
- *    `rulesForResource` (a `*` zone matches any resource) and
- *    `checkRulesMatch` (one condition, one match).
- *  - the room is still offered.
- *
- * So it is one of two things, and they need different owners:
- *
- *  1. the ruleset shape is wrong — most likely `resource_ids` wants something
- *     other than the system id (the room's email is the obvious candidate), or
- *     `zone` must name a real zone rather than `*`;
- *  2. the picker does not apply `hidden` at all, which would be a real defect.
- *
- * The next step is to set `window.debug_booking_rules = true` in the page before
- * opening the picker: `rulesForResource` then logs every ruleset it matched or
- * rejected, per resource, which answers this in one run. I have not done that,
- * so this test is parked rather than reported as a bug.
+ * The room list shows ten rooms a page, so "not offered" is read from every
+ * page (`offeredRoomNames`).
  */
+import { uniqueTitle } from '../../../../e2e/support/api';
 import { test, expect } from '../../../../e2e/support/fixtures';
 import {
     roomForWorker,
     setRoomBookingRules,
 } from '../../../../e2e/support/room/room.seed';
 import { ROOM_BASE_SETTINGS, useSettings } from '../../../../e2e/support/room/room.settings';
-import { MeetingForm } from '../../../../e2e/support/room/meeting-form.page';
+import { MeetingFlow } from '../../../../e2e/support/room/meeting-flow.page';
 
 test.describe('zone booking rules', () => {
     test('a room hidden by a booking rule is not offered, and the others still are', async ({
@@ -61,25 +42,18 @@ test.describe('zone booking rules', () => {
 
         await useSettings(staffPage, ROOM_BASE_SETTINGS);
 
+        // The room list is the second step of the flow, and that step needs a
+        // title. No booking is made.
+        const title = uniqueTitle('E2E Room Rules');
+
         try {
             // No rules yet: both rooms are offered. This is the baseline the
             // assertion below is measured against.
-            const form = new MeetingForm(staffPage);
+            const form = new MeetingFlow(staffPage);
             await form.open();
-            await form.setRoomSize(1);
-            await form.addSpaceButton.click();
-            await expect(
-                staffPage.locator('button[name="select-space"]').first(),
-                'the room picker did not open',
-            ).toBeVisible({ timeout: 20_000 });
-
-            const offered = async () => {
-                const texts = await staffPage
-                    .locator('button[name="select-space"]')
-                    .allInnerTexts();
-                return texts.map((t) => t.split('\n')[0].trim());
-            };
-            const before = await offered();
+            await form.title.fill(title);
+            await form.toRoomStep();
+            const before = await form.offeredRoomNames();
             expect(
                 before,
                 `precondition: ${hidden.name} is offered before any rule exists. ` +
@@ -89,17 +63,13 @@ test.describe('zone booking rules', () => {
             // Now hide it, and reload so the app reads the new metadata.
             await setRoomBookingRules([hidden.id]);
             await staffPage.reload();
-            const after_form = new MeetingForm(staffPage);
+            const after_form = new MeetingFlow(staffPage);
             await after_form.open();
-            await after_form.setRoomSize(1);
-            await after_form.addSpaceButton.click();
-            await expect(
-                staffPage.locator('button[name="select-space"]').first(),
-                'the room picker did not open after the rule was written',
-            ).toBeVisible({ timeout: 20_000 });
+            await after_form.title.fill(title);
+            await after_form.toRoomStep();
 
             await expect(async () => {
-                const after = await offered();
+                const after = await after_form.offeredRoomNames();
                 expect(
                     after,
                     `${hidden.name} is hidden by a booking rule and must NOT be ` +
@@ -108,7 +78,7 @@ test.describe('zone booking rules', () => {
                 expect(
                     after,
                     `and ${visible.name}, which no rule mentions, must still be — ` +
-                        `otherwise this is "the picker went empty" rather than a rule ` +
+                        `otherwise this is "the list went empty" rather than a rule ` +
                         `being applied`,
                 ).toContain(visible.name);
             }).toPass({ timeout: 30_000 });

@@ -19,9 +19,10 @@
  *  - A GUEST record is created alongside the booking, from its `attendees`, and
  *    it OUTLIVES the booking. Teardown has to remove both, or "was a guest
  *    created?" starts passing on the last run's data.
- *  - The form has two modes and the app default is the MULTI-visitor one. This
- *    file covers single mode, so it pins the setting per test rather than
- *    trusting a default a settings change could flip underneath it.
+ *  - The page has two modes, chosen with a toggle on the page itself. This
+ *    file covers single mode, which `inviteVisitorViaUI` selects.
+ *    `bookings.multiple_visitors` no longer chooses the mode: it only changes
+ *    the wording of the success view.
  */
 import { test, expect } from '../../../../e2e/support/fixtures';
 import {

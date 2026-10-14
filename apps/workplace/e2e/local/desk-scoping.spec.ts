@@ -18,7 +18,7 @@
  *
  * ## What is being guarded
  *
- * A picker that ignored the selector would offer every desk in the building
+ * A desk list that ignored the selector would offer every desk in the building
  * whatever the user chose — so somebody would book a desk on a floor they never
  * meant, and nothing about the screen would look wrong. Hence both halves: the
  * extra level's desk appears when it is selected, and the ordinary level's desks
@@ -30,72 +30,44 @@ import {
     createSecondLevel,
     removeSecondLevel,
 } from '../../../../e2e/support/desk/desk.zones';
-import { DeskForm } from '../../../../e2e/support/desk/desk-form.page';
+import { DeskFlow } from '../../../../e2e/support/desk/desk-flow.page';
 
 test.describe('desk level scoping', () => {
-    test('choosing a level changes which desks the picker offers', async ({
+    test('choosing a level changes which desks the list offers', async ({
         staffPage,
     }, testInfo) => {
         const ordinary_desk = deskFor(testInfo.parallelIndex);
         const extra = await createSecondLevel(testInfo.parallelIndex);
 
         try {
-            const form = new DeskForm(staffPage);
+            const form = new DeskFlow(staffPage);
             await form.open();
             await form.setChecked(form.requireLocker, false);
-            await form.addDeskButton.click();
 
-            const offered = async () => {
-                const texts = await staffPage
-                    .locator('button[name="select-desk"]')
-                    .allInnerTexts();
-                return texts.map((t) => t.split('\n')[0].trim());
-            };
-            await expect(
-                staffPage.locator('button[name="select-desk"]').first(),
-                'the desk picker did not open',
-            ).toBeVisible({ timeout: 20_000 });
+            // Converging: the list shows its empty placeholder for a moment
+            // before the first desks load.
+            await expect(async () => {
+                const before = await form.deskNames();
+                expect(
+                    before,
+                    `precondition: the ordinary level's desk is offered to begin with. ` +
+                        `Offered: ${JSON.stringify(before)}`,
+                ).toContain(ordinary_desk.name);
+            }).toPass({ timeout: 30_000 });
 
-            const before = await offered();
-            expect(
-                before,
-                `precondition: the ordinary level's desk is offered to begin with. ` +
-                    `Offered: ${JSON.stringify(before)}`,
-            ).toContain(ordinary_desk.name);
-
-            // Switch the level. The selector is a `mat-select` named `location`
-            // in the picker's filters; its options are the building's levels.
-            const selector = staffPage.locator('mat-select[name="location"]').first();
-            const present = await selector
-                .waitFor({ state: 'visible', timeout: 10_000 })
-                .then(() => true)
-                .catch(() => false);
-            if (!present) {
-                throw new Error(
-                    `no level selector in the desk picker. It is only rendered when the ` +
-                        `building has levels to choose between — this spec creates a ` +
-                        `second one, so check createSecondLevel ran (zone ` +
-                        `${extra.zone_id}).`,
-                );
-            }
-            await selector.click();
-            // `.first()`: a run that died before teardown can leave a second
-            // level with this name, and either carries the desk.
-            const option = staffPage
-                .locator('.cdk-overlay-container')
-                .getByRole('option', { name: extra.name, exact: true })
-                .first();
-            await expect(
-                option,
-                'the extra level is not among the options the selector offers',
-            ).toBeVisible({ timeout: 10_000 });
-            await option.click();
+            // Switch the level. The selector is the `mat-select` named
+            // `location-multi` in the filters of the desk list; its options are
+            // the levels of the building that have desks. This spec creates a
+            // second one, so if the option is missing check createSecondLevel
+            // ran (zone `extra.zone_id`).
+            await form.chooseLevel(extra.name);
 
             // The desk on the extra level appears, and the ordinary level's does
             // not. The second half is what makes this about scoping rather than
-            // about the list simply growing.
+            // about the list simply growing. Converging, because the list
+            // loads again after the filter changes.
             await expect(async () => {
-                const after = await offered();
+                const after = await form.deskNames();
                 expect(
                     after,
                     `the extra level's desk should be offered once it is selected. ` +
@@ -103,7 +75,7 @@ test.describe('desk level scoping', () => {
                 ).toContain(extra.desk.name);
                 expect(
                     after,
-                    `and the other level's desks must NOT be — otherwise the picker is ` +
+                    `and the other level's desks must NOT be — otherwise the list is ` +
                         `ignoring the selector, and somebody can book a desk on a floor ` +
                         `they never chose`,
                 ).not.toContain(ordinary_desk.name);

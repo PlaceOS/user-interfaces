@@ -4,12 +4,12 @@
  * The room equivalent of `desk-clash.spec.ts`, and the same reasoning: a
  * double-booked room is the failure users notice fastest, and it is the backend
  * that has to refuse it. The UI's own availability check (`queryResourceAvailability`)
- * only filters the picker; it would be no defence against a second person
+ * only filters the room list; it would be no defence against a second person
  * booking at the same moment, or against any other client.
  *
  * Everything is created through the API, not the form. The subject is the rule,
- * and driving the meeting form twice would add an unrelated way to fail —
- * including hitting the picker's own filtering, which hides busy rooms and would
+ * and driving the meeting flow twice would add an unrelated way to fail —
+ * including hitting the room list's own filtering, which hides busy rooms and would
  * make "the second booking was refused" indistinguishable from "the room was
  * never offered".
  *

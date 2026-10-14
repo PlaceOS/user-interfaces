@@ -13,17 +13,10 @@ import {
     ENGINE_API,
     STAFF_API,
     currentUser,
+    isReg09,
     readBack,
     zonesWithTag,
 } from '../api';
-
-function isConcurrentWriteFailure(status: number, body: string): boolean {
-    if (status === 400 && /Expected BeginObject but was EOF/.test(body)) return true;
-    if (status === 500 && /could not serialize access/.test(body)) return true;
-    // An empty `failures` list is the tell: a real validation error names a field.
-    if (status === 422 && /"failures"\s*:\s*\[\s*\]/.test(body)) return true;
-    return false;
-}
 
 /**
  * Create a parking booking straight through the API.
@@ -77,7 +70,7 @@ export async function createParkingBookingViaApi(
             continue;
         }
         last = `HTTP ${res.status()} ${body.slice(0, 200)}`;
-        if (!isConcurrentWriteFailure(res.status(), body)) {
+        if (!isReg09(res.status(), body)) {
             throw new Error(
                 `create parking booking failed: ${last}. A 409 means the space is ` +
                     `already held for that window — check the spec swept first, and ` +
@@ -129,21 +122,21 @@ export async function readUserSettings(
 /**
  * Set the user's favourite parking spaces, leaving every other setting alone.
  *
- * ## The key is `favourite_parking_spaces`
+ * ## The key is `favourite_parking`
  *
- * Not `favourite_parking`. Both names exist in the codebase:
- * `parking-select-modal.component.ts` exports `FAV_PARKING_KEY =
- * 'favourite_parking_spaces'` and is what actually reads and writes the setting,
- * while `libs/common/src/lib/constants.ts` carries
- * `FAVORITE_PARKING_SPACES: 'favourite_parking'`. Nothing reads the constant, so
- * it is dead rather than broken — but a future feature that trusts it would see
- * no favourites, and this spec asserting on the wrong one cost a run.
+ * `SETTING_KEYS.FAVORITE_PARKING_SPACES` in `libs/common/src/lib/constants.ts`.
+ * Every reader and writer in the app uses that constant. The key was
+ * `favourite_parking_spaces` before PR #561. The app still reads a value under
+ * the old key, but only until the new key has a value
+ * (`settings.service.ts`, `LEGACY_USER_SETTING_KEYS`). So this helper writes
+ * the new key: an empty list under the old key does not clear a favourite
+ * that is saved under the new one.
  *
  * Read-modify-write, because the app PUTs the WHOLE settings blob: a PUT
  * carrying only this key would wipe the visitor specs' invitee list and the
  * other areas' favourites, which share this object.
  */
-export const FAVOURITE_PARKING_KEY = 'favourite_parking_spaces';
+export const FAVOURITE_PARKING_KEY = 'favourite_parking';
 
 export async function setFavouriteParking(
     api: APIRequestContext,
@@ -155,7 +148,7 @@ export async function setFavouriteParking(
         data: {
             name: 'settings',
             description: '',
-            details: { ...details, favourite_parking_spaces: ids },
+            details: { ...details, [FAVOURITE_PARKING_KEY]: ids },
         },
     });
     if (!res.ok()) {

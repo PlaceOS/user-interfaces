@@ -13,10 +13,12 @@
  *
  * ## The setting
  *
- * The checkbox only renders when all-day bookings are allowed
- * (`desk-form-details.component.ts`: `allow_all_day`, which also requires
- * `allow_time_changes`). It is `app.bookings.allow_all_day` — the BOOKING
- * family, not the event family the meeting form reads.
+ * All-day bookings are allowed with `app.bookings.allow_all_day` — the BOOKING
+ * family, not the event family the meeting form reads. The setting gates the
+ * All Day checkbox of `desk-flow-details` (`allow_all_day`, which also requires
+ * `allow_time_changes`), and that checkbox shows on small screens only. The
+ * All Day toggle in the filters of `desk-flow-select`, which this spec uses,
+ * shows with or without the setting.
  */
 import { test, expect } from '../../../../e2e/support/fixtures';
 import {
@@ -32,7 +34,7 @@ import {
     slotOn,
 } from '../../../../e2e/support/desk/desk.env';
 import { ALLOW_ALL_DAY, useSettings } from '../../../../e2e/support/desk/desk.settings';
-import { DeskForm } from '../../../../e2e/support/desk/desk-form.page';
+import { DeskFlow } from '../../../../e2e/support/desk/desk-flow.page';
 
 const HOUR = 3600;
 
@@ -51,25 +53,20 @@ test.describe('desk booking settings', () => {
         await useSettings(staffPage, ALLOW_ALL_DAY);
 
         try {
-            const form = new DeskForm(staffPage);
+            const form = new DeskFlow(staffPage);
             await form.open();
             await form.pickDate(slot.date_ms);
 
-            await expect(async () => {
-                await form.setChecked(form.requireLocker, false);
-                await form.setChecked(form.allDay, true);
-                await form.title.fill(title);
-                if ((await form.chosenDesks.count()) === 0) {
-                    await form.chooseDesk(desk.name);
-                }
-                await expect(form.title).toHaveValue(title, { timeout: 1_000 });
-                await expect(
-                    form.allDay,
-                    'the All Day checkbox should be on — is `app.bookings.allow_all_day` set?',
-                ).toBeChecked({ timeout: 1_000 });
-            }).toPass({ timeout: 45_000 });
+            await form.setChecked(form.requireLocker, false);
+            await form.setAllDay(true);
+            await form.title.fill(title);
+            await form.selectDesk(desk.name);
 
-            await staffPage.waitForTimeout(2_000);
+            // Read the form back before the click. Confirm saves at once.
+            await expect(form.title).toHaveValue(title);
+            await expect(form.allDayInput, 'the All Day toggle should be on').toBeChecked();
+            await expect(form.chosenDeskNames).toHaveText([desk.name]);
+
             const [response] = await Promise.all([
                 staffPage.waitForResponse(
                     (r) =>

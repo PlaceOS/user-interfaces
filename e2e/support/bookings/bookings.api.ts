@@ -16,7 +16,15 @@
  * only ever a row that ought to show up on a page.
  */
 import { APIRequestContext } from '@playwright/test';
-import { Booking, STAFF_API, currentUser, readBack, releaseAsset, zonesWithTag } from '../api';
+import {
+    Booking,
+    STAFF_API,
+    currentUser,
+    isReg09,
+    readBack,
+    releaseAsset,
+    zonesWithTag,
+} from '../api';
 
 export interface ScheduleBooking extends Booking {
     checked_in?: boolean;
@@ -39,30 +47,6 @@ async function allZones(api: APIRequestContext): Promise<string[]> {
  * under test does not care which — it cares that the card renders on the right
  * day under the right filter.
  */
-/**
- * Is this failure the known concurrent-write defect rather than a bad request?
- *
- * REG-09 / PPT-2642: a burst of booking writes poisons a staff-api connection,
- * and the request that lands on it fails in a way that has nothing to do with
- * what was sent. The visitor area found the two 400/500 shapes; a THIRD turned
- * up here, under a fifteen-test parallel run:
- *
- *   422 {"error":"error validating booking data","failures":[]}
- *
- * An empty `failures` list is the tell. A genuine validation error names the
- * field it is unhappy about; this one has nothing to say, because nothing was
- * actually wrong with the payload — the same payload succeeds on retry.
- *
- * Delete this whole retry once the stack runs a staff-api built on
- * pg-orm >= 2.2.4, and do not read a green run as evidence the image is fixed.
- */
-function isConcurrentWriteFailure(status: number, body: string): boolean {
-    if (status === 400 && /Expected BeginObject but was EOF/.test(body)) return true;
-    if (status === 500 && /could not serialize access/.test(body)) return true;
-    if (status === 422 && /"failures"\s*:\s*\[\s*\]/.test(body)) return true;
-    return false;
-}
-
 export async function createBookingViaApi(
     api: APIRequestContext,
     options: {
@@ -107,7 +91,7 @@ export async function createBookingViaApi(
         }
 
         last = `HTTP ${res.status()} ${body.slice(0, 200)}`;
-        if (!isConcurrentWriteFailure(res.status(), body)) {
+        if (!isReg09(res.status(), body)) {
             throw new Error(
                 `create ${options.type} booking failed: ${last}. ` +
                     `A 409 means the asset is already held for that window — check the ` +

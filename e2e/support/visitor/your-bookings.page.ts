@@ -7,21 +7,24 @@
  * "Associate" badge, which is the only marker on a card with no attribute of
  * its own:
  *
- *   <div class="bg-warning/50 absolute top-2 right-2 ...">Associate</div>
+ *   <div class="bg-warning/50 absolute top-14 right-2 ...">Associate</div>
  *
- * Its sibling above it DOES have one (`checked-in-badge`), and the only other
- * element that could match the class shape is the `group-event` badge — which a
- * visitor booking can never be, since that is a different `booking_type`. So
- * `.absolute.top-2.right-2:not([checked-in-badge])`, scoped to a card we have
- * already identified by booking id, is unambiguous here even though it would
- * not be in general. If a third badge is ever added to that corner this breaks,
+ * It is one of the card's warning badges, which all have that class shape. The
+ * others are the `group-event` badge and the reserved-parking badges — which a
+ * visitor booking can never have, since those are different `booking_type`s. So
+ * `.absolute.top-14.right-2`, scoped to a card we have already identified by
+ * booking id, is unambiguous here even though it would not be in general. The
+ * corner above it (`top-2`) holds the type icon of every card and the
+ * `checked-in-badge`. If another badge is ever added at `top-14` this breaks,
  * which is why the locator carries a failure message saying so.
  *
  * Cards are found by booking id rather than by title: the card anchor renders
  * `routerLink` query params into its href, so `?booking=123` is real data in
- * the DOM and cannot be knocked out by a copy change.
+ * the DOM and cannot be knocked out by a copy change. The id is the END of the
+ * href, and the locators match it there: `booking=123` is also inside
+ * `booking=1230`.
  */
-import { Locator, Page, expect } from '@playwright/test';
+import { Locator, Page, expect, test } from '@playwright/test';
 import {
     calendarDayLabel,
     calendarIndexForDate,
@@ -29,6 +32,35 @@ import {
     selectedCalendarIndex,
 } from './calendar';
 
+/**
+ * The booking types the schedule can filter on, and the icon of each filter.
+ *
+ * The filter toggles of the sidebar have no `name` attribute. The icon is the
+ * only handle that is not translated (`schedule-sidebar.component.ts`,
+ * `feature_list`).
+ */
+export type ScheduleType = 'event' | 'desk' | 'parking' | 'visitor' | 'locker';
+
+const FILTER_ICONS: Record<ScheduleType, string> = {
+    event: 'meeting_room',
+    desk: 'desk',
+    parking: 'drive_eta',
+    visitor: 'people',
+    locker: 'lock',
+};
+
+/**
+ * ## The page has three views, and this class uses two of them
+ *
+ * `/your-bookings` opens on the DAY view, which draws bookings on a timeline
+ * with no id on them. The cards that this class finds by booking id are on
+ * the LIST view only, so `open` asks for `?view=list`.
+ *
+ * The list view has no single-day calendar: its sidebar holds a range picker.
+ * `showDayOf` therefore goes to the day view, picks the day on the calendar
+ * there, and comes back. The day is kept across the view change. A reload
+ * puts the list back on today.
+ */
 export class YourBookingsPage {
     // `protected`, not `private`, so another area can inherit this page rather
     // than copy it. The schedule is not visitor-specific — the room specs need
@@ -37,26 +69,67 @@ export class YourBookingsPage {
     // with what is room-shaped (event cards instead of booking cards).
     constructor(protected readonly page: Page) {}
 
-    /** Open the list and wait for the schedule to render. */
+    /** Open the list view and wait for the schedule to render. */
     async open(): Promise<void> {
-        await this.page.goto('/#/your-bookings');
+        await this.page.goto('/#/your-bookings?view=list');
         await expect(
-            this.page.locator('button[name="schedule-toggle-visitor-filter"]').first(),
-            'the schedule filters never rendered — is the `visitor-invite` feature enabled?',
+            this.page.locator('schedule-topbar'),
+            'the schedule never rendered',
         ).toBeVisible({ timeout: 30_000 });
+    }
+
+    /** The link of the topbar that changes the view. */
+    viewLink(view: 'day' | 'week' | 'list'): Locator {
+        return this.page.locator(`schedule-topbar a[href*="view=${view}"]`);
+    }
+
+    /**
+     * A type filter of the sidebar.
+     *
+     * The sidebar shows from the `sm` breakpoint up, which covers the desktop
+     * size the suite runs at. A filter is only rendered when its booking type
+     * is enabled for the org.
+     */
+    typeFilter(type: ScheduleType): Locator {
+        return this.page.locator('schedule-sidebar settings-toggle').filter({
+            has: this.page.locator('icon', {
+                hasText: new RegExp(`^\\s*${FILTER_ICONS[type]}\\s*$`),
+            }),
+        });
+    }
+
+    /** Is a type currently being shown? Read from the checkbox, not the class. */
+    async isShown(type: ScheduleType): Promise<boolean> {
+        const checkbox = this.typeFilter(type).locator('input[type="checkbox"]');
+        if (!(await checkbox.count())) return false;
+        return checkbox.isChecked().catch(() => false);
+    }
+
+    /**
+     * Turn a type filter on, if it is off.
+     *
+     * ENSURE, never blindly toggle: clicking a filter that is already on turns
+     * it off, and the list then looks like the booking is missing.
+     *
+     * A filter that is not on the page fails here. The filter is matched on
+     * its icon, so a change of icon would make this do nothing, and the spec
+     * would then fail later on a missing card.
+     */
+    protected async ensureShown(type: ScheduleType): Promise<void> {
+        const toggle = this.typeFilter(type);
+        await expect(
+            toggle,
+            `the schedule sidebar has no ${type} filter (icon \`${FILTER_ICONS[type]}\`). ` +
+                `It is rendered only when that booking type is enabled for the org`,
+        ).toHaveCount(1);
+        if (!(await this.isShown(type))) {
+            await toggle.locator('button').first().click({ timeout: 10_000 });
+        }
     }
 
     /** Make sure visitor bookings are among the types being shown. */
     async showVisitors(): Promise<void> {
-        const toggle = this.page
-            .locator('button[name="schedule-toggle-visitor-filter"]')
-            .first();
-        // ENSURE, never blindly toggle: clicking a filter that is already on
-        // turns it off, and the list then looks like the booking is missing.
-        const checkbox = toggle.locator('input[type="checkbox"]');
-        if (await checkbox.count()) {
-            if (!(await checkbox.isChecked().catch(() => false))) await toggle.click();
-        }
+        await this.ensureShown('visitor');
     }
 
     /**
@@ -79,6 +152,29 @@ export class YourBookingsPage {
      * require today to be visible and respects the rendered week ordering.
      */
     async showDayOf(timestamp_ms: number): Promise<void> {
+        // The single-day calendar is on the day view only. See the class note.
+        await this.viewLink('day').click();
+        try {
+            await this.pickDayOnDayView(timestamp_ms);
+        } finally {
+            await this.viewLink('list').click();
+            await expect(
+                this.page.locator('schedule-day-view'),
+                'the schedule did not go back to the list view',
+            ).toHaveCount(0, { timeout: 15_000 });
+            // The change of view starts a new query on a 300ms debounce, and
+            // the list drops its cards while it loads. A card clicked in that
+            // gap is destroyed before its details open, so settle first.
+            await this.page.waitForTimeout(500);
+            await expect(
+                this.page.locator('mat-progress-bar'),
+                'the schedule never finished loading the list view',
+            ).toHaveCount(0, { timeout: 30_000 });
+        }
+    }
+
+    /** Pick a day on the sidebar calendar of the day view, and check it holds. */
+    private async pickDayOnDayView(timestamp_ms: number): Promise<void> {
         const calendar = this.page.locator('schedule-sidebar date-calendar');
         // Twice, if needed. Under a loaded parallel run the schedule has been
         // seen back on today after the click — the component rebinds its date
@@ -132,9 +228,9 @@ export class YourBookingsPage {
         });
     }
 
-    /** The card for a specific booking, matched on the id in its href. */
+    /** The card for a specific booking, matched on the id at the end of its href. */
     card(bookingId: number): Locator {
-        return this.page.locator(`a[name="view-booking-details"][href*="booking=${bookingId}"]`);
+        return this.page.locator(`a[name="view-booking-details"][href$="booking=${bookingId}"]`);
     }
 
     /**
@@ -142,9 +238,7 @@ export class YourBookingsPage {
      * user, which for a visitor invite means somebody booked it on their behalf.
      */
     associateBadge(bookingId: number): Locator {
-        return this.card(bookingId).locator(
-            'div.absolute.top-2.right-2:not([checked-in-badge])',
-        );
+        return this.card(bookingId).locator('div.absolute.top-14.right-2');
     }
 
     /** The green badge that replaces the Associate one once checked in. */
@@ -167,6 +261,25 @@ export class YourBookingsPage {
             .filter((n) => Number.isFinite(n));
     }
 
+    /**
+     * The modal that a click on a card opens.
+     *
+     * A hook, like `editForm` below: a room booking opens
+     * `event-details-modal`. See `room/schedule.page.ts`.
+     */
+    protected get detailsModal(): Locator {
+        return this.page.locator('booking-details-modal');
+    }
+
+    /** What to check when a card is missing. Type-specific. */
+    protected get missingCardHint(): string {
+        return (
+            'Check the day being shown is the booking\'s own day (`showDayOf` ' +
+            'moves it), that the visitor filter is on, and that the list is not ' +
+            'dominated by leftovers from earlier runs.'
+        );
+    }
+
     /** Open a booking's details modal and wait for it. */
     async openDetails(bookingId: number): Promise<Locator> {
         const card = this.card(bookingId);
@@ -179,25 +292,35 @@ export class YourBookingsPage {
             // distinguish "wrong day", "filter off" and "the list is so full of
             // old bookings that this one is paged out".
             const rendered = await this.renderedBookingIds();
-            const calendar = this.page.locator('schedule-sidebar date-calendar');
-            const showing = await calendarDayLabel(
-                calendar,
-                await selectedCalendarIndex(calendar),
-            );
+            const showing = await this.page.locator('schedule-list-view h3').allInnerTexts();
             throw new Error(
-                `no card for booking ${bookingId} on /your-bookings, which is showing ` +
-                    `day "${showing}" of the month. ` +
+                `no card for booking ${bookingId} on the list view of /your-bookings, ` +
+                    `which is showing ${JSON.stringify(showing.map((t) => t.trim()))}. ` +
                     `${rendered.length} card(s) are rendered: [${rendered.join(', ')}]. ` +
-                    `Check the day being shown is the booking's own day (\`showDayOf\` ` +
-                    `moves it), that the visitor filter is on, and that the list is not ` +
-                    `dominated by leftovers from earlier runs.`,
+                    this.missingCardHint,
             );
         }
-        await card.click();
-        const modal = this.page.locator('booking-details-modal');
-        await expect(modal, 'the booking details modal did not open').toBeVisible({
-            timeout: 20_000,
-        });
+        const modal = this.detailsModal;
+        // The list drops its cards while it loads, and a card that is dropped
+        // after the click never opens its details (NEW-F3). A late answer for
+        // another day can start such a load at any time, so click again if
+        // needed. Each click after the first is put in the report: the defect
+        // must stay visible on a green run.
+        let clicks = 0;
+        await expect(async () => {
+            if (!(await modal.isVisible())) {
+                await card.click({ timeout: 5_000 });
+                clicks += 1;
+            }
+            await expect(modal).toBeVisible({ timeout: 5_000 });
+        }, `the details modal of booking ${bookingId} did not open`).toPass({ timeout: 30_000 });
+        if (clicks > 1) {
+            const description =
+                `the card of booking ${bookingId} was clicked ${clicks} times before ` +
+                `its details opened`;
+            test.info().annotations.push({ type: 'NEW-F3', description });
+            console.warn(`  ! NEW-F3: ${description} — see \`openDetails\``);
+        }
         return modal;
     }
 
@@ -311,7 +434,7 @@ export class YourBookingsPage {
      * `room/schedule.page.ts`.
      */
     protected get editForm(): Locator {
-        return this.page.locator('invite-visitor-form');
+        return this.page.locator('visitor-flow-new');
     }
 
     /** What to suggest when the Edit item is missing. Type-specific. */

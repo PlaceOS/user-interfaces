@@ -21,6 +21,13 @@
  *
  * Requires `visitors.can_book_for_anyone` AND `basic_user_search`; see
  * `invite-form.page.ts` for why the other host control cannot work locally.
+ *
+ * ## The visit is three days on, not today
+ *
+ * The host is the user of the NEXT worker. An invite of today would show on
+ * the next-booking card of that worker's home page, and the home specs of that
+ * worker delete every booking their user has today (`clearToday` in
+ * `home.api.ts`). A later day keeps the two apart.
  */
 import { test, expect } from '../../../../e2e/support/fixtures';
 import {
@@ -44,7 +51,15 @@ import { YourBookingsPage } from '../../../../e2e/support/visitor/your-bookings.
 
 const DAY = 86_400;
 const window_from = () => Math.floor(Date.now() / 1000) - 2 * DAY;
-const window_to = () => Math.floor(Date.now() / 1000) + 2 * DAY;
+const window_to = () => Math.floor(Date.now() / 1000) + 7 * DAY;
+
+/** The day of the visit, in local time. See the file header for why not today. */
+function visitDay(): number {
+    const day = new Date();
+    day.setDate(day.getDate() + 3);
+    day.setHours(10, 0, 0, 0);
+    return day.valueOf();
+}
 
 const DELEGATE_MODE = { ...SINGLE_VISITOR_MODE, ...BOOK_FOR_ANYONE };
 
@@ -72,6 +87,7 @@ test.describe('visitor invite on behalf of another host', () => {
 
         const visitor = visitorFor(mine, VISITOR_SLOTS.delegate.single);
         const reason = uniqueTitle('E2E Delegate Visit');
+        const visit_day = visitDay();
         let booking_id: number | undefined;
 
         await releaseVisitor(staffApi, visitor.email, window_from(), window_to());
@@ -81,10 +97,15 @@ test.describe('visitor invite on behalf of another host', () => {
             const me = await currentUser(staffApi);
             const created = await inviteVisitorViaUI(staffPage, staffApi, visitor, reason, {
                 host: { email: host.email, name: host.name },
+                date: visit_day,
             });
             booking_id = created.id;
 
             const stored = await getBooking(staffApi, booking_id);
+            expect(
+                new Date(stored.booking_start * 1000).toDateString(),
+                'the invite is on the later day, clear of the home specs of the host',
+            ).toBe(new Date(visit_day).toDateString());
             expect(stored.user_email, 'the chosen host owns the booking').toBe(host.email);
             expect(stored.booked_by_email, 'and we are recorded as the booker').toBe(
                 me.email,
@@ -113,6 +134,7 @@ test.describe('visitor invite on behalf of another host', () => {
 
         const visitor = visitorFor(mine, VISITOR_SLOTS.delegate.groupA);
         const reason = uniqueTitle('E2E Delegate View');
+        const visit_day = visitDay();
         let booking_id: number | undefined;
 
         await releaseVisitor(staffApi, visitor.email, window_from(), window_to());
@@ -121,13 +143,16 @@ test.describe('visitor invite on behalf of another host', () => {
         try {
             const created = await inviteVisitorViaUI(staffPage, staffApi, visitor, reason, {
                 host: { email: host.email, name: host.name },
+                date: visit_day,
             });
             booking_id = created.id;
 
             // --- the BOOKER's view -------------------------------------------
+            // The schedule opens on today, so both views go to the visit day.
             const mine_page = new YourBookingsPage(staffPage);
             await mine_page.open();
             await mine_page.showVisitors();
+            await mine_page.showDayOf(visit_day);
 
             await expect(
                 mine_page.card(booking_id),
@@ -137,8 +162,8 @@ test.describe('visitor invite on behalf of another host', () => {
             await expect(
                 mine_page.associateBadge(booking_id),
                 'and it is badged "Associate", because the host is not you. If this ' +
-                    'fails, check whether a third badge was added to that corner of ' +
-                    'the card — the locator excludes only the checked-in one',
+                    'fails, check where the card draws its warning badges — the ' +
+                    'locator matches on their position classes',
             ).toBeVisible();
             await expect(
                 mine_page.bookedForLine(booking_id),
@@ -156,6 +181,7 @@ test.describe('visitor invite on behalf of another host', () => {
                 const theirs = new YourBookingsPage(host_page);
                 await theirs.open();
                 await theirs.showVisitors();
+                await theirs.showDayOf(visit_day);
 
                 await expect(
                     theirs.card(booking_id),

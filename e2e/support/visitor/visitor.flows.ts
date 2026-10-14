@@ -29,7 +29,8 @@
  * E2E_USER_STORIES.md says of REG-09: "harmless for now: the suite does not
  * burst concurrent bookings, so nothing here trips it." A GROUP invite is the
  * first thing in this suite that does — one send posts a container plus one
- * booking per visitor, and several workers do that at once.
+ * booking per visitor (one after the other), and several workers do that at
+ * once.
  *
  * So the retry below is NOT papering over a frontend defect. It absorbs a known
  * backend bug whose fix is already merged upstream, the same way CI's
@@ -44,13 +45,15 @@
 import { APIRequestContext, Page, expect } from '@playwright/test';
 import { InviteVisitorForm } from './invite-form.page';
 import { VisitorIdentity } from './visitor.env';
-import { deleteBooking } from '../api';
+import { deleteBooking, isReg09, readBack } from '../api';
 import { VisitorBooking } from './visitor.api';
 
 /** How long the form's values must hold steady before we trust them. */
 const SETTLE_MS = 1_000;
 
 interface CapturedPost {
+    /** The method and the path under `/api/staff/v1`, for failure messages. */
+    call: string;
     status: number;
     body: string;
     request: string;
@@ -68,13 +71,18 @@ interface CapturedPost {
  * container plus one booking per visitor. `waitForResponse` resolves on the
  * FIRST match, so using it for a group would assert against the container and
  * silently ignore every member.
+ *
+ * `methods` widens it for an edit, which saves with PATCH and removes a
+ * visitor with DELETE.
  */
-function collectBookingPosts(page: Page) {
+function collectBookingPosts(page: Page, methods: string[] = ['POST']) {
     const posts: CapturedPost[] = [];
     const pending: Promise<void>[] = [];
     const onResponse = (r: import('@playwright/test').Response) => {
         if (!r.url().includes('/api/staff/v1/bookings')) return;
-        if (r.request().method() !== 'POST') return;
+        const method = r.request().method();
+        if (!methods.includes(method)) return;
+        const call = `${method} ${r.url().split('/api/staff/v1')[1].split('?')[0]}`;
         const request = r.request().postData() ?? '';
         const headers = r.request().headers();
         // Read the body while the response is still live; resolving it later can
@@ -85,7 +93,8 @@ function collectBookingPosts(page: Page) {
                 .text()
                 .catch(() => '<body unavailable>')
                 .then(
-                    (body) => void posts.push({ status: r.status(), body, request, headers }),
+                    (body) =>
+                        void posts.push({ call, status: r.status(), body, request, headers }),
                 ),
         );
     };
@@ -96,7 +105,8 @@ function collectBookingPosts(page: Page) {
             .map((p) => {
                 const ok = p.status >= 200 && p.status < 300;
                 const base =
-                    `HTTP ${p.status} req=${p.request.length ? `${p.request.length}b` : 'EMPTY'}`;
+                    `${p.call} HTTP ${p.status} ` +
+                    `req=${p.request.length ? `${p.request.length}b` : 'EMPTY'}`;
                 // Only dump the full picture for a FAILED post. On the happy path
                 // it is noise, and on a failure it is the only evidence there is —
                 // the app's error toast has faded before any screenshot is taken.
@@ -108,10 +118,11 @@ function collectBookingPosts(page: Page) {
                     `\n      resp=${p.body.slice(0, 220)}`
                 );
             })
-            .join('\n    | ') || '(no booking POST was made at all)';
+            .join('\n    | ') || `(no booking ${methods.join('/')} was made at all)`;
 
     return {
         okCount: () => posts.filter((p) => p.status >= 200 && p.status < 300).length,
+        refusedCount: () => posts.filter((p) => p.status < 200 || p.status >= 300).length,
         /** Ids of everything that really got created, for cleaning up a partial group. */
         createdIds: () =>
             posts
@@ -125,6 +136,10 @@ function collectBookingPosts(page: Page) {
                 })
                 .filter((id): id is number => typeof id === 'number'),
         describe,
+        /** Wait until every response seen so far has been read. */
+        settle: async () => {
+            await Promise.all(pending);
+        },
         /** Forget everything so far — used after a failed attempt is rolled back. */
         reset: async () => {
             await Promise.all(pending);
@@ -142,9 +157,11 @@ function collectBookingPosts(page: Page) {
 /**
  * Fill the form, then require the values to SURVIVE a settling window.
  *
- * Converging on the values is not enough on its own: the rebuild can land in
- * the gap between the last check and the click. Holding them steady for a beat
- * closes most of that gap; the retry in `submitWhenAccepted` closes the rest.
+ * Converging on the values is not enough on its own: the form is rebuilt once
+ * the signed-in user has loaded (`BookingFormService.newForm`), and that can
+ * land in the gap between the last check and the click. Holding them steady
+ * for a beat closes most of that gap; the retry in `submitWhenAccepted` closes
+ * the rest.
  */
 async function fillAndSettle(page: Page, fill: () => Promise<void>): Promise<void> {
     await expect(async () => {
@@ -154,13 +171,40 @@ async function fillAndSettle(page: Page, fill: () => Promise<void>): Promise<voi
     }).toPass({ timeout: 45_000 });
 }
 
-/** A send attempt that did not reach the success screen. */
+/** How many times a send is tried before the flow gives up. */
 const MAX_ATTEMPTS = 3;
+
+/** How long the app may take over one send or one save. */
+const OUTCOME_MS = 45_000;
+
+/**
+ * Wait until the app has finished with a Confirm: it shows its success view,
+ * or the backend has refused one of its requests. True for the success view.
+ *
+ * The app sends its requests one after the other and stops at the first
+ * refusal, so once one is seen nothing more is on its way. Not waiting out the
+ * whole timeout after a refusal is what keeps a REG-09 retry short. A save
+ * that is only slow gets the whole timeout: measured on a loaded machine, only
+ * one of the three requests of a group had been answered after 20 seconds.
+ */
+async function reachedSuccess(
+    form: InviteVisitorForm,
+    writes: ReturnType<typeof collectBookingPosts>,
+): Promise<boolean> {
+    await expect
+        .poll(
+            async () => (await form.successPanel.isVisible()) || writes.refusedCount() > 0,
+            { timeout: OUTCOME_MS },
+        )
+        .toBe(true)
+        .catch(() => undefined);
+    return form.successPanel.isVisible();
+}
 
 /**
  * Click send, and keep trying until the app confirms the invite.
  *
- * Two distinct failure shapes, and they need opposite handling:
+ * Three distinct failure shapes:
  *
  *  - NOTHING was created. Safe to settle and click again.
  *  - SOMETHING was created but the flow still failed. For a group invite this
@@ -168,6 +212,11 @@ const MAX_ATTEMPTS = 3;
  *    `booking_type: 'group'` row with no members. Clicking again would add a
  *    SECOND container, so the partial result is deleted first and the whole
  *    invite starts over.
+ *  - The app reached its success view, but a booking it was told about does
+ *    not exist: the POST answered 201 and the row was never committed. This
+ *    is the other face of REG-09 (see `readBack` in `../api`). The app cannot
+ *    know, so the read-back is done here, and the invite starts over as for a
+ *    partial create.
  *
  * Rolling back rather than giving up is deliberate. The cause is REG-09, a
  * backend defect already fixed upstream (see the file header), so a failed
@@ -186,36 +235,49 @@ async function submitWhenAccepted(
 
     for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
         await form.sendButton.click();
-        const ok = await form.successPanel
-            .waitFor({ state: 'visible', timeout: 20_000 })
-            .then(() => true)
-            .catch(() => false);
-        if (ok) return;
+        const ok = await reachedSuccess(form, posts);
+        await posts.settle();
+        const created = posts.createdIds();
+        const phantoms: number[] = [];
+        if (ok) {
+            for (const id of created) {
+                if ((await readBack(api, id)) === 'missing') phantoms.push(id);
+            }
+            if (!phantoms.length) return;
+        }
 
         last = posts.describe();
-        const partial = posts.createdIds();
-        if (partial.length) {
+        if (phantoms.length) {
+            last += `\n    | answered 201 but cannot be read back: ${phantoms.join(', ')}`;
             console.warn(
-                `  ! REG-09: ${what} partially created ${partial.length} booking(s) then ` +
+                `  ! REG-09: ${what} was answered 201 for booking(s) ${phantoms.join(', ')} ` +
+                    `that do not exist — rolling back and retrying ` +
+                    `(attempt ${attempt}/${MAX_ATTEMPTS})`,
+            );
+        } else if (created.length) {
+            console.warn(
+                `  ! REG-09: ${what} partially created ${created.length} booking(s) then ` +
                     `failed — rolling them back and retrying (attempt ${attempt}/${MAX_ATTEMPTS})`,
             );
-            for (const id of partial) await deleteBooking(api, id);
         }
+        for (const id of created) await deleteBooking(api, id);
         await posts.reset();
 
         if (attempt === MAX_ATTEMPTS) break;
-        // Start from a clean form: after a partial create the component has
-        // already advanced its own state, so re-filling the current DOM is not
-        // the same as re-opening.
+        // Start from a clean form: after a partial create the form model
+        // already holds the first member and the container id, so re-filling
+        // the current DOM is not the same as re-opening. `open` reloads.
         await form.open();
         await fillAndSettle(page, refill);
     }
 
     throw new Error(
-        `${what} never reached its success screen after ${MAX_ATTEMPTS} attempts. ` +
-            `If every attempt shows HTTP 400 "Expected BeginObject but was EOF" or HTTP 500 ` +
-            `"could not serialize access", this is REG-09 (PPT-2642) and the stack is ` +
-            `running a staff-api older than pg-orm 2.2.4. Last responses:\n    ${last}`,
+        `${what} was not made after ${MAX_ATTEMPTS} attempts: it never reached its ` +
+            `success screen, or a booking it was answered 201 for does not exist. ` +
+            `If every attempt shows HTTP 400 "Expected BeginObject but was EOF", HTTP 500 ` +
+            `"could not serialize access" or a 201 that cannot be read back, this is ` +
+            `REG-09 (PPT-2642) and the stack is running a staff-api older than pg-orm ` +
+            `2.2.4. Last responses:\n    ${last}`,
     );
 }
 
@@ -249,6 +311,10 @@ function createdBookings(posts: CapturedPost[]): VisitorBooking[] {
 /**
  * Invite ONE visitor through the full UI, in single-visitor mode.
  * Returns the booking the API created.
+ *
+ * `allDay` and `passNumber` each need the setting that shows the control (see
+ * `visitor.settings.ts`), and fail if the control is missing. The page has no
+ * control for `international` at the moment, so that option always fails.
  */
 export async function inviteVisitorViaUI(
     page: Page,
@@ -271,17 +337,18 @@ export async function inviteVisitorViaUI(
 ): Promise<VisitorBooking> {
     const form = new InviteVisitorForm(page);
     await form.open();
-    await form.expectSingleMode();
 
     const fill = async () => {
-        // Host first: choosing one can reset parts of the form, so anything
-        // typed before it would be lost.
+        // The mode is part of the fill: a retry re-opens the page, and the
+        // page always opens in single mode.
+        await form.useSingleMode();
+        // Host next: choosing one can reset parts of the form, so anything
+        // typed before it would be lost. It comes after the mode, because the
+        // mode toggle puts the host back to the signed-in user.
         if (options.host) await form.chooseHost(options.host.email, options.host.name);
         await form.visitorName.fill(visitor.name);
         await form.visitorEmail.fill(visitor.email);
-        if (visitor.company && (await form.company.count())) {
-            await form.company.fill(visitor.company);
-        }
+        await form.company.fill(visitor.company);
         if (options.date !== undefined) await form.setDate(options.date);
         // Times go in before the rest: changing the start can shift which
         // lengths are on offer, so setting them the other way round can leave a
@@ -289,9 +356,7 @@ export async function inviteVisitorViaUI(
         if (options.startTime) await form.setStartTime(options.startTime);
         if (options.duration !== undefined) await form.setDuration(options.duration);
         await form.reason.fill(reason);
-        if (options.passNumber && (await form.passNumber.count())) {
-            await form.passNumber.fill(options.passNumber);
-        }
+        if (options.passNumber) await form.passNumber.fill(options.passNumber);
         if (options.allDay !== undefined) {
             await form.setCheckbox(form.allDay, options.allDay);
         }
@@ -345,9 +410,10 @@ export async function inviteVisitorsViaUI(
     );
     const form = new InviteVisitorForm(page);
     await form.open();
-    await form.expectGroupMode();
 
     const fill = async () => {
+        // Mode first, then host — see `inviteVisitorViaUI`.
+        await form.useGroupMode();
         if (options.host) await form.chooseHost(options.host.email, options.host.name);
         for (const visitor of visitors) {
             // "Already added?" has to go through `chipIndexFor`: a chip shows
@@ -381,4 +447,64 @@ export async function inviteVisitorsViaUI(
             `(${expected.length + 1} total), got ${bookings.length}`,
     ).toBe(expected.length + 1);
     return bookings;
+}
+
+/**
+ * The requests that saving an edit can make: PATCH to save, DELETE to remove a
+ * visitor, and POST for a visitor or a container that the edit adds.
+ */
+const EDIT_METHODS = ['POST', 'PATCH', 'DELETE'];
+
+/**
+ * Save an EDITED invite, and do the edit again if REG-09 refused the save.
+ *
+ * `edit` opens the invite for editing and makes the change. It gets the page
+ * object and the attempt number. A retry runs it again from the start, because
+ * a refused save cannot be sent again from the same page: after a refused
+ * member of a group, the page has emptied its visitor list. A refused save can
+ * also leave the invite half-changed — a visitor already removed, the
+ * container already moved — so `edit` has to cope with that on any attempt
+ * after the first.
+ *
+ * Only REG-09 is retried (`isReg09`), for the reason the file header gives. Any
+ * other refusal, and a Confirm that sends nothing, fails at once with what was
+ * sent: a retry there would hide a real bug in the edit under test.
+ *
+ * This proves only that the app accepted the save. What was stored is for the
+ * caller to read back.
+ */
+export async function saveEditViaUI(
+    page: Page,
+    edit: (form: InviteVisitorForm, attempt: number) => Promise<void>,
+    what = 'the edit',
+): Promise<void> {
+    const form = new InviteVisitorForm(page);
+    let last = '';
+
+    for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
+        await edit(form, attempt);
+        const writes = collectBookingPosts(page, EDIT_METHODS);
+        await form.sendButton.click();
+        const ok = await reachedSuccess(form, writes);
+        const seen = await writes.stop();
+        if (ok) return;
+
+        last = writes.describe();
+        const refused = seen.filter((w) => w.status < 200 || w.status >= 300);
+        if (!refused.length || !refused.every((w) => isReg09(w.status, w.body))) break;
+        if (attempt === MAX_ATTEMPTS) break;
+        console.warn(
+            `  ! REG-09: ${what} was refused — doing the edit again ` +
+                `(attempt ${attempt}/${MAX_ATTEMPTS}): ${refused.map((w) => w.call).join(', ')}`,
+        );
+        // Leave with a reload. The page still holds the unsaved edit, and its
+        // route guard would stop a plain navigation to ask for confirmation.
+        await page.reload();
+    }
+
+    throw new Error(
+        `${what} was not saved: the app never reached its success screen. Only a ` +
+            `refusal with a REG-09 signature (PPT-2642) is retried, ${MAX_ATTEMPTS} times ` +
+            `at most. Last responses:\n    ${last}`,
+    );
 }

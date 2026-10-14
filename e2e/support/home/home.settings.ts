@@ -29,13 +29,11 @@ export async function useSettings(
 }
 
 /**
- * Show the one-click quick-book tiles.
+ * Show the "auto-assign desk" quick action.
  *
- * `landing.component.ts` renders the panel only when `show_quick_book` is set,
- * and the setting has NO default — so on a stack with no configuration the
- * tiles simply are not there, and a spec looking for them reports a missing
- * selector rather than a missing setting. Measured: without this, the desk tile
- * never appears.
+ * `landing-quick-actions.component.ts` shows it unless `show_quick_book` is
+ * `false`, so on this stack it shows with no setting at all. The preset stays
+ * so that the spec does not depend on that default.
  */
 export const SHOW_QUICK_BOOK = {
     'app.show_quick_book': true,

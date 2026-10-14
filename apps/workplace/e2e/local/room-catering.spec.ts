@@ -16,36 +16,35 @@
  * on the ENGINE api, all needing admin. `catering.seed.ts` does it, idempotently
  * and once per process, and explains the shape.
  *
- * ## Order of operations on the form
+ * ## Order of operations in the flow
  *
- * The room goes first. "Add catering" is DISABLED until a room is chosen, since
- * catering is delivered to a room — so this test cannot be written in the
- * obvious order, and `MeetingForm.addCateringItem` says so where somebody will
- * read it.
+ * The room goes first. Catering is delivered to a room, so the catering
+ * section is on the last step of the flow, after the room list. See
+ * `MeetingFlow.addCateringItem`.
  *
  * ## ROOM-B5, the worst of the room findings — fixed in the app
  *
- * Ordering catering with a PlaceOS-native room booking cannot work at all. The
- * meeting is created (`201`), and the catering order that follows is refused:
+ * Ordering catering with a PlaceOS-native room booking could not work at all.
+ * The meeting was created (`201`), and the catering order that followed was
+ * refused:
  *
  *   POST /api/staff/v1/bookings  (booking_type: catering-order)
  *   -> 422 {"error":"error linking booking to event",
  *           "failures":[{"field":"event_id",
  *                        "reason":"Could not find metadata for event ARRAY['1138']"}]}
  *
- * The order is linked to a calendar EVENT by `event_id`, and in `use_bookings`
+ * The order was linked to a calendar EVENT by `event_id`, and in `use_bookings`
  * mode there is no event — the meeting is a booking, so the id handed over
- * (1138 here) is a booking id and the lookup finds nothing.
+ * (1138 here) was a booking id and the lookup found nothing.
  *
- * Measured what is left behind afterwards, because that is what decides how bad
- * it is: **the room booking survives, undeleted, and no catering order exists.**
- * The user is shown an error on the confirm screen, so they have every reason to
- * believe nothing was booked — while the room is held and the food was never
- * ordered. `postForm` does call `_removeBookingAfterError` on a catering
- * failure, and it did not roll the room booking back.
+ * Measured what was left behind afterwards, because that is what decides how
+ * bad it is: **the room booking survived, undeleted, and no catering order
+ * existed.** The user was shown an error, so they had every reason to believe
+ * nothing was booked — while the room was held and the food was never ordered.
  *
  * The order is now linked to the native booking by `parent_id`, which is what
- * the assertions below check.
+ * the assertions below check. Measured through the new meeting flow,
+ * 13 Oct 2026: the order is stored and names the item.
  */
 import { test, expect } from '../../../../e2e/support/fixtures';
 import {

@@ -42,8 +42,14 @@ const LEVEL_NAME_PREFIX = 'E2E Extra Level';
  *
  * Named per worker, so parallel workers do not share a zone: each one's spec
  * switches the selector to its own level and expects exactly its own desk.
+ *
+ * `features: false` writes the desk with no `features` list. Only the spec
+ * for that fault uses it: see the note at the metadata below.
  */
-export async function createSecondLevel(workerIndex: number): Promise<SecondLevel> {
+export async function createSecondLevel(
+    workerIndex: number,
+    { features = true }: { features?: boolean } = {},
+): Promise<SecondLevel> {
     const admin = await apiFor('admin', 0);
     try {
         const [building] = await zonesWithTag(admin, 'building');
@@ -80,6 +86,10 @@ export async function createSecondLevel(workerIndex: number): Promise<SecondLeve
             })());
 
         // One desk, as zone metadata — the shape `seed.ts` uses for the others.
+        // The `features` list is there by default, also when it is empty:
+        // `desk-flow-select` reads it from every desk of the building, and a
+        // desk without the list stops that view from rendering a desk
+        // selection — in the pages of the other workers too.
         const meta = await admin.put(`${ENGINE_API}/metadata/${zone.id}`, {
             data: {
                 name: 'desks',
@@ -90,6 +100,7 @@ export async function createSecondLevel(workerIndex: number): Promise<SecondLeve
                         name: desk.name,
                         bookable: true,
                         zone: zone.id,
+                        ...(features ? { features: [] } : {}),
                     },
                 ],
             },

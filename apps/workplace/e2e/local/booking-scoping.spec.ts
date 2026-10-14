@@ -22,22 +22,10 @@ import {
     listBookings,
     releaseAsset,
     uniqueTitle,
-    zonesWithTag,
 } from '../../../../e2e/support/api';
-import type { APIRequestContext } from '@playwright/test';
+import { createDeskBookingViaApi } from '../../../../e2e/support/desk/desk.api';
 import { deskFor } from '../../../../e2e/support/env';
 
-
-/**
- * The org/building/level zone ids a booking carries, matching what the UI sends.
- * Always queried by tag: `GET /zones` with no `tags` parameter comes back empty.
- */
-async function bookingZones(api: APIRequestContext): Promise<string[]> {
-    const groups = await Promise.all(
-        ['org', 'building', 'level'].map((tag) => zonesWithTag(api, tag)),
-    );
-    return groups.flat().map((z) => z.id);
-}
 
 const DAY = 86_400;
 // Window comfortably wider than any booking these specs create. Keep it that
@@ -60,26 +48,17 @@ test.describe('booking visibility between users', () => {
 
         // Create as *this* worker's user, through the API rather than the UI —
         // the subject here is authorisation, not the booking form.
-        const me = await (await staffApi.get('/api/engine/v2/users/current')).json();
-        const zones = await bookingZones(staffApi);
         const start = Math.floor(Date.now() / 1000) + DAY;
 
-        const created = await staffApi.post(`${STAFF_API}/bookings`, {
-            data: {
-                booking_type: 'desk',
-                asset_id: desk.id,
-                booking_start: start,
-                booking_end: start + 3600,
-                timezone: 'Etc/UTC',
-                user_email: me.email,
-                user_id: me.id,
-                user_name: me.name,
-                title,
-                zones,
-            },
+        // The helper creates the booking again when the backend refuses it
+        // with a concurrent-write signature (REG-09), which a parallel run
+        // can produce on any create.
+        const booking = await createDeskBookingViaApi(staffApi, {
+            desk,
+            title,
+            start,
+            end: start + 3600,
         });
-        expect(created.ok(), `creating the booking should succeed: ${created.status()}`).toBeTruthy();
-        const booking = await created.json();
 
         // A second, genuinely different user.
         const other_role = roleFor('staff', theirs);
@@ -99,7 +78,9 @@ test.describe('booking visibility between users', () => {
             // Sanity: the two identities really are different, or everything below
             // would pass for the wrong reason.
             const them = await (await other.get('/api/engine/v2/users/current')).json();
-            expect(them.email, 'the second user must be a different person').not.toBe(me.email);
+            expect(them.email, 'the second user must be a different person').not.toBe(
+                booking.user_email,
+            );
 
             // The privacy boundary.
             const their_view = await listBookings(other, 'desk', from(), to());
@@ -136,29 +117,17 @@ test.describe('booking visibility between users', () => {
         const title = uniqueTitle('E2E Scoping Control');
         await releaseAsset(staffApi, 'desk', desk.id, from(), to());
 
-        const me = await (await staffApi.get('/api/engine/v2/users/current')).json();
-        const zones = await bookingZones(staffApi);
         const start = Math.floor(Date.now() / 1000) + DAY;
 
-        const created = await staffApi.post(`${STAFF_API}/bookings`, {
-            data: {
-                booking_type: 'desk',
-                asset_id: desk.id,
-                booking_start: start,
-                booking_end: start + 3600,
-                timezone: 'Etc/UTC',
-                user_email: me.email,
-                user_id: me.id,
-                user_name: me.name,
-                title,
-                zones,
-            },
+        // The helper creates the booking again when the backend refuses it
+        // with a concurrent-write signature (REG-09), which a parallel run
+        // can produce on any create.
+        const booking = await createDeskBookingViaApi(staffApi, {
+            desk,
+            title,
+            start,
+            end: start + 3600,
         });
-        expect(
-            created.ok(),
-            `creating the booking should succeed: ${created.status()} ${await created.text()}`,
-        ).toBeTruthy();
-        const booking = await created.json();
 
         try {
             const mine = await listBookings(staffApi, 'desk', from(), to());

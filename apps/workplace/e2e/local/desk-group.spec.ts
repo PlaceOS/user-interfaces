@@ -53,18 +53,10 @@ test.describe('group desk bookings', () => {
         staffApi,
     }) => {
         await group.ui.prepare(group.seed, group.title, [], group.slot);
-        if (await group.ui.form.confirmViewButton.isEnabled()) {
-            await group.ui.submit();
-            await expect(
-                group.ui.page.locator('mat-snack-bar-container'),
-            ).toBeVisible();
-            await expect(group.ui.form.confirmButton).toBeVisible();
-            await group.ui.page
-                .locator('button[name="close-desk-confirm"]')
-                .click();
-        } else {
-            await expect(group.ui.form.confirmViewButton).toBeDisabled();
-        }
+        // Confirm is always enabled. With no colleague the flow refuses the
+        // booking with a notice and sends nothing.
+        await group.ui.submit();
+        await group.ui.expectRefused();
         expect(await group.created()).toHaveLength(0);
         await group.ui.form.addGroupMember(group.members[1]);
         await group.ui.form.addGroupMember(group.members[1]);
@@ -103,10 +95,7 @@ test.describe('group desk bookings', () => {
                 group.slot,
             );
             await group.ui.submit();
-            await expect(
-                group.ui.page.locator('mat-snack-bar-container:not([mat-exit])'),
-            ).toBeVisible();
-            await expect(group.ui.form.confirmButton).toBeVisible();
+            await group.ui.expectRefused();
             expect(
                 await group.created(),
                 'Insufficient mapped desks must not create a partial group',
@@ -119,8 +108,8 @@ test.describe('group desk bookings', () => {
         }
     });
 
-    // Known product defect: the UI reports the read-only Response.status error
-    // instead of displaying the member refusal reason.
+    // The success view lists each member. A member whose write was refused
+    // shows with the refusal reason.
     test('DESK-GROUP-04: reports partial success when a member write is refused', async ({
         groupScenario: group,
         staffApi,

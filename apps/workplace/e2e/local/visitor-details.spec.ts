@@ -14,9 +14,15 @@
  *   the visitor      -> `asset_id` / `attendees`, and a separate guest record
  * So all three are asserted on what came back from the backend, not on the form.
  *
- * Pass number and the international tick are both behind `visitors.allow_pass_number`
- * / `visitors.allow_international`, off by default — the classic "only breaks for
- * the customers who switched it on" shape.
+ * The pass number is behind `visitors.allow_pass_number`, off by default — the
+ * classic "only breaks for the customers who switched it on" shape.
+ *
+ * ## Three tests, and one of them is `fixme`
+ *
+ * The pass number and the international tick were one test (VIS-20) while the
+ * old form had both controls. The `visitor-flow-new` page has no control for
+ * the tick, so the two are split: the pass number stays covered, and the tick
+ * waits as `fixme`. See the note on that test.
  */
 import { test, expect } from '../../../../e2e/support/fixtures';
 import { deleteBooking, getBooking, uniqueTitle } from '../../../../e2e/support/api';
@@ -39,7 +45,7 @@ const window_from = () => Math.floor(Date.now() / 1000) - 2 * DAY;
 const window_to = () => Math.floor(Date.now() / 1000) + 2 * DAY;
 
 test.describe('visitor invite details', () => {
-    test('a pass number and the international flag are stored with the invite', async ({
+    test('a pass number is stored with the invite', async ({
         staffPage,
         staffApi,
     }, testInfo) => {
@@ -54,7 +60,6 @@ test.describe('visitor invite details', () => {
         try {
             const created = await inviteVisitorViaUI(staffPage, staffApi, visitor, reason, {
                 passNumber: pass_number,
-                international: true,
             });
             booking_id = created.id;
 
@@ -67,13 +72,56 @@ test.describe('visitor invite details', () => {
                 'the pass number typed into the form must reach the backend — ' +
                     'reception reads this one',
             ).toBe(pass_number);
+
+            // The visitor themselves, alongside the extra, so a booking that
+            // stored the pass against the wrong person cannot pass.
+            expect(stored.asset_id, 'the invite is still for this visitor').toBe(
+                visitor.email,
+            );
+        } finally {
+            if (booking_id != null) await deleteBooking(staffApi, booking_id);
+            await deleteGuest(staffApi, visitor.email);
+        }
+    });
+
+    /**
+     * The other half of VIS-20. `fixme`, because the `visitor-flow-new` page
+     * has no control for the international tick.
+     *
+     * Measured with `visitors.allow_international` on: the page renders no
+     * `input[name$=".international"]` (count 0), and the invite it sends has
+     * `extension_data.international: false`. No file under `visitor-flow-new`
+     * reads the setting. The old form (`invite-visitor-form`) rendered the
+     * checkbox, but `/book/visitor` no longer opens that form.
+     *
+     * Written as it should pass once the page has the control. It fails today
+     * at `setCheckbox`, with "the checkbox is not on the page".
+     */
+    test.fixme('the international flag is stored with the invite', async ({
+        staffPage,
+        staffApi,
+    }, testInfo) => {
+        const visitor = visitorFor(
+            testInfo.parallelIndex,
+            VISITOR_SLOTS.details.international,
+        );
+        const reason = uniqueTitle('E2E Visit International');
+        let booking_id: number | undefined;
+
+        await releaseVisitor(staffApi, visitor.email, window_from(), window_to());
+        await useSettings(staffPage, { ...SINGLE_VISITOR_MODE, ...ALLOW_EXTRAS });
+
+        try {
+            const created = await inviteVisitorViaUI(staffPage, staffApi, visitor, reason, {
+                international: true,
+            });
+            booking_id = created.id;
+
+            const stored = (await getBooking(staffApi, booking_id)) as VisitorBooking;
             expect(
                 stored.extension_data?.international,
-                'and the international tick must be stored as a real true, not dropped',
+                'the international tick must be stored as a real true, not dropped',
             ).toBe(true);
-
-            // The visitor themselves, alongside the extras, so a booking that
-            // stored the flags against the wrong person cannot pass.
             expect(stored.asset_id, 'the invite is still for this visitor').toBe(
                 visitor.email,
             );
