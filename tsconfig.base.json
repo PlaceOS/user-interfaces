@@ -38,6 +38,7 @@
             "@placeos/events": ["libs/events/src/index.ts"],
             "@placeos/explore": ["libs/explore/src/index.ts"],
             "@placeos/form-fields": ["libs/form-fields/src/index.ts"],
+            "@placeos/map-editor": ["libs/map-editor/src/index.ts"],
             "@placeos/mocks": ["libs/mocks/src/index.ts"],
             "@placeos/payments": ["libs/payments/src/index.ts"],
             "@placeos/users": ["libs/users/src/index.ts"]

@@ -135,6 +135,12 @@ const SIDEBAR_GROUPS: readonly SidebarGroup[] = [
                 icon: 'business',
             },
             {
+                id: 'maps',
+                name: 'APP.CONCIERGE.MENU_MANAGE_MAPS',
+                route: ['/map-management'],
+                icon: 'map',
+            },
+            {
                 id: 'spaces',
                 name: 'APP.CONCIERGE.MENU_MANAGE_ROOMS',
                 route: ['/room-management'],

@@ -1,5 +1,6 @@
-import { MapObject } from '../data/types';
+import { MapObject, ObjectGeometry } from '../data/types';
 import { TYPE_COLORS } from './constants';
+import { composeSourceSvg, importedObject } from './source-svg';
 
 /** Order objects are painted in, back to front */
 const TYPE_ORDER = [
@@ -137,19 +138,64 @@ function escapeXml(value: string): string {
         .replace(/'/g, '&apos;');
 }
 
+/** Geometry that carries a full bounding box */
+type Bounded = Required<Pick<ObjectGeometry, 'x' | 'y' | 'width' | 'height'>>;
+
+const hasBounds = (g: ObjectGeometry): g is ObjectGeometry & Bounded =>
+    [g.x, g.y, g.width, g.height].every((v) => typeof v === 'number');
+
+/** Label centred in a box, sized to fit inside it */
+function boxLabel(label: string, box: Bounded): string {
+    const size = Math.max(8, Math.min(box.width / 6, box.height / 3, 16));
+    return `<text x="${box.x + box.width / 2}" y="${box.y + box.height / 2}" text-anchor="middle" dominant-baseline="central" fill="#ffffff" font-size="${size}" font-weight="600" font-family="Arial, sans-serif">${label}</text>`;
+}
+
 /**
- * Builds a clean, PlaceOS-ready SVG from the map objects.
- *
- * Objects are grouped by type and each carries its `svg_id`, so PlaceOS can
- * bind bookings to elements by id. The background image is deliberately left
- * out — the export is vector only.
+ * Export imported SVGs in their source hierarchy; build shapes for new maps.
+ * PlaceOS viewers paint availability on the element carrying a shape's id.
  */
 export function buildSvg(
     objects: MapObject[],
     width: number,
     height: number,
     background_color = '#ffffff',
+    source?: string | null,
+    managed_ids?: string[],
 ): string {
+    if (source) {
+        const doc = new DOMParser().parseFromString(
+            composeSourceSvg(source, objects, managed_ids),
+            'image/svg+xml',
+        );
+        const added = objects.filter((object) => !importedObject(object));
+        if (added.length) {
+            const additions = new DOMParser().parseFromString(
+                buildSvg(added, width, height, background_color),
+                'image/svg+xml',
+            );
+            const group = doc.createElementNS(
+                'http://www.w3.org/2000/svg',
+                'g',
+            );
+            const viewBox = doc.documentElement
+                .getAttribute('viewBox')
+                ?.split(/[ ,]+/)
+                .map(Number);
+            if (viewBox?.length === 4)
+                group.setAttribute(
+                    'transform',
+                    `translate(${viewBox[0]} ${viewBox[1]})`,
+                );
+            for (const child of Array.from(
+                additions.documentElement.children,
+            ).slice(1)) {
+                child.removeAttribute('id');
+                group.appendChild(doc.importNode(child, true));
+            }
+            doc.documentElement.appendChild(group);
+        }
+        return new XMLSerializer().serializeToString(doc.documentElement);
+    }
     const lines: string[] = [
         '<?xml version="1.0" encoding="UTF-8"?>',
         `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 ${width} ${height}" width="${width}" height="${height}">`,
@@ -165,62 +211,63 @@ export function buildSvg(
         lines.push(`  <g id="${type}s">`);
         for (const object of matching) {
             const g = object.geometry;
-            const fill = exportFill(object);
             const stroke = exportStroke(object);
-            const stroke_width = exportStrokeWidth(object);
             const label = escapeXml(object.label ?? '');
             const id = escapeXml(idOf(object));
-            const rotation = g.rotation
-                ? ` transform="rotate(${g.rotation} ${(g.x ?? 0) + (g.width ?? 0) / 2} ${(g.y ?? 0) + (g.height ?? 0) / 2})"`
-                : '';
+            const style = `fill="${exportFill(object)}" stroke="${stroke}" stroke-width="${exportStrokeWidth(object)}" data-type="${object.object_type}" data-label="${label}"`;
+            let shape = '';
+            let text = '';
+            let transform = '';
 
             if (g.type === 'rect') {
-                const x = g.x ?? 0;
-                const y = g.y ?? 0;
-                const w = g.width ?? 50;
-                const h = g.height ?? 50;
-                lines.push(`    <g id="${id}"${rotation}>`);
-                lines.push(
-                    `      <rect x="${x}" y="${y}" width="${w}" height="${h}" fill="${fill}" stroke="${stroke}" stroke-width="${stroke_width}" rx="2" data-type="${object.object_type}" data-label="${label}" />`,
-                );
-                if (label && object.object_type !== 'decorative') {
-                    const size = Math.max(8, Math.min(w / 6, h / 3, 16));
-                    lines.push(
-                        `      <text x="${x + w / 2}" y="${y + h / 2}" text-anchor="middle" dominant-baseline="central" fill="#ffffff" font-size="${size}" font-weight="600" font-family="Arial, sans-serif">${label}</text>`,
-                    );
+                const box = {
+                    x: g.x ?? 0,
+                    y: g.y ?? 0,
+                    width: g.width ?? 50,
+                    height: g.height ?? 50,
+                };
+                if (g.rotation) {
+                    transform = ` transform="rotate(${g.rotation} ${(g.x ?? 0) + (g.width ?? 0) / 2} ${(g.y ?? 0) + (g.height ?? 0) / 2})"`;
                 }
-                lines.push('    </g>');
+                shape = `<rect id="${id}" x="${box.x}" y="${box.y}" width="${box.width}" height="${box.height}" rx="2" ${style} />`;
+                if (label && object.object_type !== 'decorative') {
+                    text = boxLabel(label, box);
+                }
             } else if (g.type === 'polygon' && g.points?.length) {
                 const points = g.points.map((p) => `${p.x},${p.y}`).join(' ');
                 const cx =
                     g.points.reduce((sum, p) => sum + p.x, 0) / g.points.length;
                 const cy =
                     g.points.reduce((sum, p) => sum + p.y, 0) / g.points.length;
-                lines.push(`    <g id="${id}">`);
-                lines.push(
-                    `      <polygon points="${points}" fill="${fill}" stroke="${stroke}" stroke-width="${stroke_width}" data-type="${object.object_type}" data-label="${label}" />`,
-                );
+                shape = `<polygon id="${id}" points="${points}" ${style} />`;
                 if (label) {
-                    lines.push(
-                        `      <text x="${cx}" y="${cy}" text-anchor="middle" dominant-baseline="central" fill="#ffffff" font-size="10" font-weight="600" font-family="Arial, sans-serif">${label}</text>`,
-                    );
+                    text = `<text x="${cx}" y="${cy}" text-anchor="middle" dominant-baseline="central" fill="#ffffff" font-size="10" font-weight="600" font-family="Arial, sans-serif">${label}</text>`;
                 }
-                lines.push('    </g>');
             } else if (g.type === 'circle') {
                 const cx = g.x ?? 0;
                 const cy = g.y ?? 0;
                 const r = g.r ?? 10;
-                lines.push(`    <g id="${id}">`);
-                lines.push(
-                    `      <circle cx="${cx}" cy="${cy}" r="${r}" fill="${fill}" stroke="${stroke}" stroke-width="${stroke_width}" data-type="${object.object_type}" data-label="${label}" />`,
-                );
+                shape = `<circle id="${id}" cx="${cx}" cy="${cy}" r="${r}" ${style} />`;
                 if (label) {
-                    lines.push(
-                        `      <text x="${cx}" y="${cy + r + 10}" text-anchor="middle" dominant-baseline="central" fill="${stroke}" font-size="8" font-weight="600" font-family="Arial, sans-serif">${label}</text>`,
-                    );
+                    text = `<text x="${cx}" y="${cy + r + 10}" text-anchor="middle" dominant-baseline="central" fill="${stroke}" font-size="8" font-weight="600" font-family="Arial, sans-serif">${label}</text>`;
                 }
-                lines.push('    </g>');
+            } else if (g.type === 'path' && g.d) {
+                shape = `<path id="${id}" d="${escapeXml(g.d)}" ${style} />`;
+                if (
+                    label &&
+                    object.object_type !== 'decorative' &&
+                    hasBounds(g)
+                ) {
+                    text = boxLabel(label, g);
+                }
+            } else {
+                continue;
             }
+
+            lines.push(`    <g${transform}>`);
+            lines.push(`      ${shape}`);
+            if (text) lines.push(`      ${text}`);
+            lines.push('    </g>');
         }
         lines.push('  </g>');
     }
