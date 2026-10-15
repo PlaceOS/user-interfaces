@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["dialpad.component.ts"],
+  "sourcesContent": ["\n            [digit] {\n                box-shadow: 0px 4px 0px 0px var(--base-300);\n                border: 2px solid var(--base-300);\n                transition:\n                    top 200ms,\n                    bottom 200ms,\n                    box-shadow 200ms;\n            }\n\n            [digit]:active {\n                box-shadow: none;\n            }\n        "],
+  "mappings": ";AACY,CAAA;AACI,cAAA,IAAA,IAAA,IAAA,IAAA,IAAA;AACA,UAAA,IAAA,MAAA,IAAA;AACA;;;;AAIJ;AAEA,CAAA,MAAA;AACI,cAAA;AACJ;",
+  "names": []
+}
