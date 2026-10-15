@@ -1,0 +1,3 @@
+import{Zt as Yt}from"./chunk-1EQRFgKO.js";function r(e){return`${e.id}:${e.instance||``}`}function E(e,t){let o=new Set(t);return e.filter(i=>o.has(r(i)))}function s(e,t){return{dialog:t,confirm:{title:Yt(`APP.CONCIERGE.BULK_REJECT_TITLE`),content:Yt(`APP.CONCIERGE.BULK_REJECT_MSG`,{count:e}),icon:`event_busy`}}}export{r as n,s as r,E as t};
+//# debugId=ed75c204-1d2e-5117-bd7a-5db3157596b7
+//# sourceMappingURL=chunk-CCcm7O2S.js.map
