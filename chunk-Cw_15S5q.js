@@ -1,0 +1,3 @@
+import{H as Js}from"./chunk-1EQRFgKO.js";function n(o,s){return Js(o,`${s}_booking_rules`).then(t=>t?.details instanceof Array?t.details:[]).catch(()=>[])}var d={free:`#43a047`,pending:`#ffb300`,reserved:`#e65100`,busy:`#e53935`,"signs-of-life":`#1565c0`,"not-bookable":`#757575`,unknown:`#757575`};export{n,d as t};
+//# debugId=7602dda4-9f99-54ca-902d-bea31c611092
+//# sourceMappingURL=chunk-Cw_15S5q.js.map
