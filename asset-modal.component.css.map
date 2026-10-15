@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["asset-modal.component.ts"],
+  "sourcesContent": ["\n            label {\n                width: auto;\n                min-width: 0;\n                margin: 0 1rem 0 0;\n            }\n        "],
+  "mappings": ";AACY;AACI,SAAA;AACA,aAAA;AACA,UAAA,EAAA,KAAA,EAAA;AACJ;",
+  "names": []
+}

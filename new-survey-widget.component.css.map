@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["new-survey-widget.component.ts"],
+  "sourcesContent": ["\n            svg circle {\n                fill: transparent;\n            }\n\n            .progress-bar {\n                stroke-linecap: round;\n                transition: stroke-dashoffset 0.5s ease-in-out;\n            }\n        "],
+  "mappings": ";AACY,IAAA;AACI,QAAA;AACJ;AAEA,CAAA;AACI,kBAAA;AACA,cAAA,kBAAA,KAAA;AACJ;",
+  "names": []
+}

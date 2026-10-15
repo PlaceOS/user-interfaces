@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["booking-history-modal.component.ts"],
+  "sourcesContent": ["\n            :host {\n                display: flex;\n                flex-direction: column;\n                width: 100%;\n                max-height: 80vh;\n                overflow: hidden;\n            }\n        "],
+  "mappings": ";AACY;AACI,WAAA;AACA,kBAAA;AACA,SAAA;AACA,cAAA;AACA,YAAA;AACJ;",
+  "names": []
+}

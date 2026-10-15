@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["room-modal.component.ts"],
+  "sourcesContent": ["\n            mat-checkbox {\n                margin-top: 2.5em;\n                margin-bottom: 1.5em;\n            }\n\n            @media screen and (max-width: 640px) {\n                mat-checkbox {\n                    margin-top: 0;\n                }\n            }\n        "],
+  "mappings": ";AACY;AACI,cAAA;AACA,iBAAA;AACJ;AAEA,OAAA,YAAA,WAAA;AACI;AACI,gBAAA;AACJ;AACJ;",
+  "names": []
+}
