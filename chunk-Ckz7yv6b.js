@@ -1,0 +1,3 @@
+import{Gt as Yt}from"./chunk-DvcfaCHO.js";function r(e){return`${e.id}:${e.instance||``}`}function E(e,t){let o=new Set(t);return e.filter(i=>o.has(r(i)))}function s(e,t){return{dialog:t,confirm:{title:Yt(`APP.CONCIERGE.BULK_REJECT_TITLE`),content:Yt(`APP.CONCIERGE.BULK_REJECT_MSG`,{count:e}),icon:`event_busy`}}}export{r as n,s as r,E as t};
+//# debugId=1738278f-3440-5afd-b066-ed525cd8b35d
+//# sourceMappingURL=chunk-Ckz7yv6b.js.map
