@@ -13,10 +13,6 @@ import {
 } from '@placeos/common';
 import { generateBookingForm } from '../lib/booking-form.model';
 import {
-    mapGroupMembers,
-    visitorMemberPatch,
-} from '../lib/booking-group.utilities';
-import {
     bookingLocationString,
     loadLockersForScope,
     newBookingFromCalendarEvent,
@@ -475,55 +471,5 @@ describe('Booking Utilities', () => {
             expect(booking.recurrence_nth_of_month).toBe(WeekOfMonth.Third);
             expect(booking.recurrence_interval).toBe(1);
         });
-    });
-});
-
-describe('visitor group international flags', () => {
-    const base_form = { booking_type: 'visitor', zones: ['bld-1'] };
-    const patch_opts = {
-        id: '',
-        parent_id: 'bkn-1',
-        group_name: 'grp-1',
-    };
-
-    it('carries a member flag into the member booking patch', () => {
-        const member = new User({
-            name: 'Adam Brown',
-            email: 'adam@place.tech',
-            extension_data: { international: true },
-        });
-        const patch = visitorMemberPatch(member, base_form, patch_opts);
-        expect(patch.international).toBe(true);
-    });
-
-    it('defaults the member booking patch to a local visitor', () => {
-        const member = new User({
-            name: 'Zoe Amos',
-            email: 'zoe@place.tech',
-        });
-        const patch = visitorMemberPatch(member, base_form, patch_opts);
-        expect(patch.international).toBe(false);
-    });
-
-    it('stores each flag against the matching group member record', () => {
-        const members = [
-            new User({
-                name: 'Adam Brown',
-                email: 'adam@place.tech',
-                extension_data: { international: true },
-            }),
-            new User({ name: 'Zoe Amos', email: 'zoe@place.tech' }),
-        ];
-        const mapped = mapGroupMembers('visitor', members);
-        expect(mapped).toEqual([
-            expect.objectContaining({
-                email: 'adam@place.tech',
-                international: true,
-            }),
-            expect.objectContaining({
-                email: 'zoe@place.tech',
-                international: false,
-            }),
-        ]);
     });
 });

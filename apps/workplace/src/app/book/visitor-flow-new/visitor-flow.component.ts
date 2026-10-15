@@ -301,6 +301,7 @@ export class VisitorFlowNewComponent extends AsyncHandler implements OnInit {
                             name: a.name,
                             company: a.organisation || a.company,
                             phone: a.phone,
+                            international: !!a.extension_data?.international,
                         }),
                     ),
             ]);

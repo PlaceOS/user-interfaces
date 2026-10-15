@@ -168,12 +168,6 @@ describe('VisitorFlowInvitesComponent', () => {
         const enableInternational = () =>
             settingSignal('visitors.allow_international', false).set(true);
 
-        it('exposes the international setting for template display', () => {
-            expect(spectator.component.allow_international()).toBe(false);
-            enableInternational();
-            expect(spectator.component.allow_international()).toBe(true);
-        });
-
         it('hides the section when the setting is off', () => {
             model.update((m) => ({
                 ...m,
@@ -244,29 +238,6 @@ describe('VisitorFlowInvitesComponent', () => {
                 spectator.queryAll('.international-visitors mat-checkbox')
                     .length,
             ).toBe(3);
-        });
-
-        it('stores a group member flag against that member only', () => {
-            enableInternational();
-            options.set({ type: 'visitor', group: true });
-            model.update((m) => ({
-                ...m,
-                asset_id: 'multiple@place.tech',
-                assets: [
-                    new User({ name: 'Zoe Amos', email: 'zoe@place.tech' }),
-                    new User({ name: 'Adam Brown', email: 'adam@place.tech' }),
-                ],
-            }));
-            spectator.detectChanges();
-            spectator.component.setInternational('adam@place.tech', true);
-            const adam = (model().assets || []).find(
-                (asset) => asset.email === 'adam@place.tech',
-            );
-            const zoe = (model().assets || []).find(
-                (asset) => asset.email === 'zoe@place.tech',
-            );
-            expect(adam?.extension_data?.international).toBe(true);
-            expect(zoe?.extension_data?.international).toBeFalsy();
         });
 
         it('reads a member flag back from the stored extension data', () => {

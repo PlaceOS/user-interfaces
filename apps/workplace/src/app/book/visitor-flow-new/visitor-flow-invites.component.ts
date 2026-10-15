@@ -30,26 +30,6 @@ import {
     recentVisitorEntry,
 } from './recent-visitors';
 
-/** First and last name parts of a visitor's display name. */
-function visitorNameParts(name = '') {
-    const parts = `${name}`
-        .trim()
-        .split(/\s+/)
-        .filter((_) => _);
-    return { first: parts[0] || '', last: parts.slice(1).join(' ') };
-}
-
-/** Order visitors alphabetically by first name, then last name. */
-function compareVisitorNames(a: string, b: string) {
-    const left = visitorNameParts(a);
-    const right = visitorNameParts(b);
-    return (
-        left.first.localeCompare(right.first) ||
-        left.last.localeCompare(right.last) ||
-        `${a}`.localeCompare(`${b}`)
-    );
-}
-
 @Component({
     selector: 'visitor-flow-invites',
     template: `
@@ -316,13 +296,11 @@ export class VisitorFlowInvitesComponent
             : (model.assets || []).map((item) => ({
                   key: item.email || item.id,
                   name: item.name || item.email || '',
-                  international: !!(
-                      item.international ?? item.extension_data?.international
-                  ),
+                  international: !!item.extension_data?.international,
               }));
         return visitors
             .filter((visitor) => !!`${visitor.name}`.trim())
-            .sort((a, b) => compareVisitorNames(a.name, b.name));
+            .sort((a, b) => a.name.localeCompare(b.name));
     });
 
     public readonly multiple = settingSignal(
@@ -422,13 +400,9 @@ export class VisitorFlowInvitesComponent
         );
     }
 
-    /** Store the international flag against a single visitor or group member. */
+    /** Store the international flag against a group member. A single
+     * visitor binds the checkbox to `form.international` instead. */
     public setInternational(key: string, international: boolean) {
-        const flag = !!international;
-        if (this.is_single()) {
-            this.model.update((m) => ({ ...m, international: flag }));
-            return;
-        }
         this.model.update((m) => ({
             ...m,
             assets: (m.assets || []).map((item) => {
@@ -436,10 +410,9 @@ export class VisitorFlowInvitesComponent
                 if (item_key !== key) return item;
                 return new User({
                     ...item,
-                    international: flag,
                     extension_data: {
                         ...(item.extension_data || {}),
-                        international: flag,
+                        international,
                     },
                 });
             }),
