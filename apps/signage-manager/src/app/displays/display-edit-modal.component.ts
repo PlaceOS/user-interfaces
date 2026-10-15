@@ -1,6 +1,7 @@
 import {
     Component,
     computed,
+    effect,
     inject,
     linkedSignal,
     signal,
@@ -32,6 +33,8 @@ export interface DisplayEditModalData {
     ) => QueryResponse<PlaceZone> | null;
     /** Ids of a zone and its ancestors, parent first */
     zone_ids: (zone: PlaceZone) => Promise<string[]>;
+    /** Load a zone outside the loaded lists, or null when it cannot be read */
+    load_zone: (zone_id: string) => Promise<PlaceZone | null>;
     onAdd: (data: Partial<PlaceSystem>) => Promise<PlaceSystem>;
     onEdit: (id: string, data: Partial<PlaceSystem>) => Promise<PlaceSystem>;
 }
@@ -208,7 +211,10 @@ export class DisplayEditModalComponent {
     private readonly _dialog_ref = inject(
         MatDialogRef<DisplayEditModalComponent>,
     );
+    // Zones picked or loaded in the modal, which the zone lists can lack
     private readonly _selected_zone_items = signal<PlaceZone[]>([]);
+    // Zone ids requested once, so a zone that fails to load shows its id
+    private readonly _requested_zone_ids = new Set<string>();
 
     public readonly display = this._data.display;
     public readonly loading = signal(false);
@@ -248,6 +254,31 @@ export class DisplayEditModalComponent {
             (zone_id) => zones.get(zone_id) || new PlaceZone({ id: zone_id }),
         );
     });
+
+    constructor() {
+        // `zones` holds only the first page of the group, and not the
+        // ancestors outside the group, so load the other display zones
+        effect(() => {
+            const known_ids = new Set(
+                [...this._data.zones(), ...this._selected_zone_items()].map(
+                    ({ id }) => id,
+                ),
+            );
+            const missing_ids = this.model().zones.filter(
+                (id) => !known_ids.has(id) && !this._requested_zone_ids.has(id),
+            );
+            for (const zone_id of missing_ids) {
+                this._requested_zone_ids.add(zone_id);
+                this._data.load_zone(zone_id).then((zone) => {
+                    if (!zone) return;
+                    this._selected_zone_items.update((zones) => [
+                        ...zones,
+                        zone,
+                    ]);
+                });
+            }
+        });
+    }
 
     /** Add a zone and its ancestors, so playlists of a building reach the display */
     public async addZone(zone: PlaceZone) {

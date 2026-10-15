@@ -16,6 +16,11 @@ describe('DisplayEditModalComponent', () => {
     const on_edit = vi.fn();
     // A zone with the organisation as its only ancestor
     const zone_ids = vi.fn(async (zone: PlaceZone) => ['org', zone.id]);
+    const load_zone = vi.fn(async (id: string) =>
+        id === 'level-9'
+            ? new PlaceZone({ id, display_name: 'Level 9' })
+            : null,
+    );
     const dialog_ref = { close: vi.fn(), disableClose: false };
     const notify_open = vi.fn(() => ({
         onAction: () => ({ subscribe: () => ({ unsubscribe: () => {} }) }),
@@ -34,6 +39,7 @@ describe('DisplayEditModalComponent', () => {
             load_children: vi.fn().mockResolvedValue([]),
             query_zones,
             zone_ids,
+            load_zone,
             onAdd: on_add,
             onEdit: on_edit,
         };
@@ -144,6 +150,25 @@ describe('DisplayEditModalComponent', () => {
 
         expect(component.model().zones).toEqual(['building']);
         expect(component.selected_zones()[0].name).toBe('Building');
+    });
+
+    it('shows the names of display zones outside the zone list', async () => {
+        const component = await make(
+            new PlaceSystem({
+                id: 'display-1',
+                zones: ['building', 'level-9'],
+            }),
+        );
+        TestBed.tick();
+        await Promise.resolve();
+
+        expect(load_zone).toHaveBeenCalledTimes(1);
+        expect(load_zone).toHaveBeenCalledWith('level-9');
+        expect(
+            component
+                .selected_zones()
+                .map((zone) => zone.display_name || zone.name),
+        ).toEqual(['Building', 'Level 9']);
     });
 
     // Playlists of a building only reach displays that are in the building
