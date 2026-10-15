@@ -1,0 +1,12 @@
+{
+  "version": 3,
+  "sources": [
+    "apps/concierge/src/app/ui/bulk-booking-actions.ts"
+  ],
+  "sourcesContent": [
+    "import { MatDialog } from '@angular/material/dialog';\nimport { Booking, i18n } from '@placeos/common';\nimport { BulkActionOptions } from '@placeos/components';\n\n/** Booking fields that identify a table row */\nexport type BookingRowKeyFields = Pick<Booking, 'id' | 'instance'>;\n\n/** Row key for a booking. Instances of a recurring booking share an ID. */\nexport function bookingRowKey(booking: BookingRowKeyFields) {\n    return `${booking.id}:${booking.instance || ''}`;\n}\n\n/** Bookings in `list` whose row keys are in `keys` */\nexport function selectedBookings<T extends BookingRowKeyFields>(\n    list: T[],\n    keys: string[],\n) {\n    const selected = new Set(keys);\n    return list.filter((booking) => selected.has(bookingRowKey(booking)));\n}\n\n/** Bulk action options that ask the user before they reject bookings */\nexport function bulkRejectOptions(\n    count: number,\n    dialog: MatDialog,\n): BulkActionOptions {\n    return {\n        dialog,\n        confirm: {\n            title: i18n('APP.CONCIERGE.BULK_REJECT_TITLE'),\n            content: i18n('APP.CONCIERGE.BULK_REJECT_MSG', { count }),\n            icon: 'event_busy',\n        },\n    };\n}\n"
+  ],
+  "mappings": ";;;;;AAQM,SAAU,cAAc,SAA4B;AACtD,SAAO,GAAG,QAAQ,EAAE,IAAI,QAAQ,YAAY,EAAE;AAClD;AAGM,SAAU,iBACZ,MACA,MAAc;AAEd,QAAM,WAAW,IAAI,IAAI,IAAI;AAC7B,SAAO,KAAK,OAAO,CAAC,YAAY,SAAS,IAAI,cAAc,OAAO,CAAC,CAAC;AACxE;AAGM,SAAU,kBACZ,OACA,QAAiB;AAEjB,SAAO;IACH;IACA,SAAS;MACL,OAAO,KAAK,iCAAiC;MAC7C,SAAS,KAAK,iCAAiC,EAAE,MAAK,CAAE;MACxD,MAAM;;;AAGlB;",
+  "names": [],
+  "debugId": "23a8394b-75ec-5466-8f13-65d658e7e391"
+}
