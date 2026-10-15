@@ -712,11 +712,22 @@ export class EventFormService extends AsyncHandler {
     }
 
     public newForm(event = new CalendarEvent()) {
+        this._resetForm(event, true);
+    }
+
+    /**
+     * Reset the form to `event`. Set `start_network` to start the space, rule
+     * and availability loads. When the user is not loaded, the reset waits
+     * for the user and keeps the same choice.
+     */
+    private _resetForm(event: CalendarEvent, start_network: boolean) {
         if (!currentUserIsLoaded()) {
-            currentUserLoaded().then(() => this.newForm(event));
+            currentUserLoaded().then(() =>
+                this._resetForm(event, start_network),
+            );
             return;
         }
-        this._startNetwork();
+        if (start_network) this._startNetwork();
         this._calendar.loadCalendars();
         this._loading.set('');
         const lock_start_time =
@@ -817,9 +828,7 @@ export class EventFormService extends AsyncHandler {
     public clearForm() {
         sessionStorage.removeItem('PLACEOS.event');
         sessionStorage.removeItem('PLACEOS.event_form');
-        const consumed = this._network_consumed();
-        this.newForm();
-        this._network_consumed.set(consumed);
+        this._resetForm(new CalendarEvent(), false);
     }
 
     public openEventLinkModal(force = false) {

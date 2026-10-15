@@ -3880,6 +3880,19 @@ describe('BookingFormService', () => {
             node.markAsDirty();
         }
 
+        it('does not start the form loads when a clear waits for the user', async () => {
+            const active = () => (spectator.service as any)._network_active();
+            spectator.service.releaseNetwork();
+            const deferred = deferCurrentUser();
+            try {
+                spectator.service.clearForm();
+                await deferred.release();
+                expect(active()).toBe(false);
+            } finally {
+                deferred.restore();
+            }
+        });
+
         it('keeps input the user entered before initialisation finished', async () => {
             const deferred = deferCurrentUser();
             try {

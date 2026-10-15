@@ -19,16 +19,18 @@ import * as ts_client from '@placeos/ts-client';
 
 describe('ParkingService', () => {
     let spectator: SpectatorService<ParkingService>;
+    const settings_get = vi.fn();
     const createService = createServiceFactory({
         service: ParkingService,
         providers: [
             MockProvider(SettingsService, {
-                get: vi.fn(() => true) as any,
+                get: settings_get as any,
             }),
             MockProvider(OrganisationService, {
                 active_building: signal({ id: 'bld-1' }),
                 building: { id: 'bld-1' },
                 building_list: signal([]),
+                levels: [],
                 level_list: signal([
                     { id: 'lvl-1', parent_id: 'bld-1', tags: ['parking'] },
                 ]),
@@ -38,6 +40,8 @@ describe('ParkingService', () => {
 
     beforeEach(async () => {
         vi.clearAllMocks();
+        // Tests change the settings, so reset them before the next service
+        settings_get.mockImplementation(() => true);
         vi.mocked(ts_client.queryAssetCategories).mockResolvedValue({
             data: [{ id: 'cat-parking', name: '_PARKING_', hidden: true }],
         } as any);
@@ -129,6 +133,39 @@ describe('ParkingService', () => {
         }
         expect(spectator.service.home_building_id()).toBe('bld-1');
         expect(spectator.service.is_home_location()).toBe(true);
+    });
+
+    it('should scan desks for the home location again when the user loads', async () => {
+        setCurrentUser(new StaffUser({}));
+        const settings = spectator.inject(SettingsService);
+        vi.mocked(settings.get).mockImplementation(
+            (key: string) =>
+                key === 'app.parking.restrict_home_location' ||
+                key === 'app.use_region',
+        );
+        vi.mocked(ts_client.listChildMetadata).mockResolvedValue([
+            {
+                zone: { id: 'lvl-1' },
+                metadata: {
+                    desks: {
+                        details: [{ id: 'desk-1', assigned_to: 'me@example.com' }],
+                    },
+                },
+            },
+        ] as any);
+        const org = spectator.inject(OrganisationService) as any;
+        const settle = async () => {
+            TestBed.tick();
+            await new Promise((resolve) => setTimeout(resolve, 20));
+        };
+
+        org.building_list.set([{ id: 'bld-3' }]);
+        await settle();
+        expect(spectator.service.home_building_id()).toBeNull();
+
+        setCurrentUser(new StaffUser({ id: 'me', email: 'me@example.com' }));
+        await settle();
+        expect(spectator.service.home_building_id()).toBe('bld-3');
     });
 });
 

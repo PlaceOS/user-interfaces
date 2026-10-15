@@ -912,6 +912,19 @@ export class BookingFormService extends AsyncHandler {
     }
 
     public newForm(type: BookingType, booking: Booking = new Booking({})) {
+        this._resetForm(type, booking, true);
+    }
+
+    /**
+     * Reset the form to `booking`. Set `start_network` to start the resource,
+     * rule and availability loads. When the user is not loaded, the reset
+     * waits for the user and keeps the same choice.
+     */
+    private _resetForm(
+        type: BookingType,
+        booking: Booking,
+        start_network: boolean,
+    ) {
         if (!currentUserIsLoaded()) {
             // The form is already rendered and interactive at this point, so
             // anything typed or toggled before the user resolves would be
@@ -919,7 +932,7 @@ export class BookingFormService extends AsyncHandler {
             // as late as possible, so we take the user's final state.
             currentUserLoaded().then(() => {
                 this._captureUserEdits();
-                this.newForm(type, booking);
+                this._resetForm(type, booking, start_network);
             });
             return;
         }
@@ -928,7 +941,7 @@ export class BookingFormService extends AsyncHandler {
         // Never apply an existing booking's edit state to a different type
         // (e.g. editing parking then opening the desk form).
         if (isCrossTypeEdit(booking, type)) booking = new Booking({});
-        this._startNetwork();
+        if (start_network) this._startNetwork();
         this._calendar.loadCalendars();
         if (type !== this._options().type) {
             this._clearStoredForm();
@@ -1174,9 +1187,7 @@ export class BookingFormService extends AsyncHandler {
      */
     public clearForm() {
         this._clearStoredForm();
-        const consumed = this._network_consumed();
-        this.newForm(this._options().type);
-        this._network_consumed.set(consumed);
+        this._resetForm(this._options().type, new Booking({}), false);
     }
 
     private _clearStoredForm() {

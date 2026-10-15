@@ -11,6 +11,7 @@ import {
     currentUser,
     OrganisationService,
     SettingsService,
+    userSignal,
 } from '@placeos/common';
 import { PlaceAsset } from '@placeos/ts-client';
 import { endOfDay, getUnixTime, startOfDay } from 'date-fns';
@@ -127,17 +128,15 @@ export class ParkingService extends AsyncHandler {
                 'app.parking.restrict_home_location',
             );
             const use_assets = !!this._settings.get('app.desks.use_assets');
+            // Read the user here, so the scan runs again when the user loads
+            const email = userSignal()().email;
             this._org.building_list();
             this._org.active_building();
             if (!restrict) return this._home_building_id.set(null);
             let active = true;
             onCleanup(() => (active = false));
             untracked(() =>
-                assignedDeskBuilding(
-                    this._org,
-                    currentUser()?.email,
-                    use_assets,
-                ).then((id) => active && this._home_building_id.set(id)),
+                assignedDeskBuilding(this._org, email, use_assets).then((id) => active && this._home_building_id.set(id)),
             );
         });
         effect(() => {
