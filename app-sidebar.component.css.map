@@ -1,7 +1,7 @@
 {
   "version": 3,
   "sources": ["app-sidebar.component.ts"],
-  "sourcesContent": ["\n            :host {\n                height: 100%;\n            }\n\n            a.active {\n                background-color: var(--secondary);\n                color: var(--secondary-content);\n            }\n\n            a.active:hover {\n                color: var(--base-content);\n                opacity: 0.75;\n            }\n        "],
-  "mappings": "AACY,MACI,OAAA,IACJ,CAEA,CAAA,CAAA,OACI,iBAAA,IAAA,aACA,MAAA,IAAA,oBACJ,CAEA,CAAA,CALA,MAKA,OACI,MAAA,IAAA,gBACA,QAAA,GACJ",
+  "sourcesContent": ["\n            :host {\n                display: flex;\n                flex-direction: column;\n                height: 100%;\n                width: 16rem;\n                border-right: 1px solid var(--base-200);\n            }\n\n            a.active {\n                background-color: var(--secondary);\n                color: var(--secondary-content);\n            }\n\n            a.active:hover {\n                color: var(--base-content);\n                opacity: 0.75;\n            }\n        "],
+  "mappings": "AACY,MACI,QAAA,KACA,eAAA,OACA,OAAA,KACA,MAAA,MACA,aAAA,IAAA,MAAA,IAAA,WACJ,CAEA,CAAA,CAAA,OACI,iBAAA,IAAA,aACA,MAAA,IAAA,oBACJ,CAEA,CAAA,CALA,MAKA,OACI,MAAA,IAAA,gBACA,QAAA,GACJ",
   "names": []
 }
