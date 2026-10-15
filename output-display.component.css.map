@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["output-display.component.ts"],
+  "sourcesContent": ["\n            [view] {\n                width: 28vw;\n            }\n        "],
+  "mappings": ";AACY,CAAA;AACI,SAAA;AACJ;",
+  "names": []
+}

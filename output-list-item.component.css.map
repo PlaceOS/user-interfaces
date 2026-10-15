@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["output-list-item.component.ts"],
+  "sourcesContent": ["\n            :host {\n                display: flex;\n            }\n        "],
+  "mappings": ";AACY;AACI,WAAA;AACJ;",
+  "names": []
+}
