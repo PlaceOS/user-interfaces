@@ -1576,6 +1576,7 @@
         "PARKING_CANCEL": "Cancel",
         "VISITOR_INVITE_TITLE": "Invite Visitor",
         "VISITOR_EDIT_TITLE": "Edit Visitor",
+        "INTERNATIONAL_VISITORS": "International visitors:",
         "VISITOR_NAME": "Visitor Name",
         "VISITOR_NAME_PLACEHOLDER": "Name of the visitor",
         "VISITOR_EMAIL": "Visitor Email",
