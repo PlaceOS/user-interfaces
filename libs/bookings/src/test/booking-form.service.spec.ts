@@ -276,6 +276,35 @@ describe('BookingFormService', () => {
         expect(ts_client.listChildMetadata).not.toHaveBeenCalled();
     });
 
+    it('should share an in-flight resource list load between callers', async () => {
+        vi.mocked(ts_client.listChildMetadata).mockResolvedValue([]);
+
+        await Promise.all([
+            spectator.service.loadResourceList('desks'),
+            spectator.service.loadResourceList('desks'),
+        ]);
+        expect(ts_client.listChildMetadata).toHaveBeenCalledTimes(1);
+
+        // A load after the first one settles gets fresh data
+        await spectator.service.loadResourceList('desks');
+        expect(ts_client.listChildMetadata).toHaveBeenCalledTimes(2);
+    });
+
+    it('should stop the form loads on release and not start them on clear', () => {
+        const active = () => (spectator.service as any)._network_active();
+        spectator.service.newForm('desk');
+        expect(active()).toBe(true);
+
+        spectator.service.releaseNetwork();
+        spectator.service.clearForm();
+        expect(active()).toBe(false);
+
+        // A list call keeps the loads active until it resolves
+        void spectator.service.listResources();
+        spectator.service.releaseNetwork();
+        expect(active()).toBe(true);
+    });
+
     it('should debounce identical booked resource queries', async () => {
         booked_result = ['desk-1'];
         const query = {
@@ -3850,6 +3879,19 @@ describe('BookingFormService', () => {
             node.value.set(value);
             node.markAsDirty();
         }
+
+        it('does not start the form loads when a clear waits for the user', async () => {
+            const active = () => (spectator.service as any)._network_active();
+            spectator.service.releaseNetwork();
+            const deferred = deferCurrentUser();
+            try {
+                spectator.service.clearForm();
+                await deferred.release();
+                expect(active()).toBe(false);
+            } finally {
+                deferred.restore();
+            }
+        });
 
         it('keeps input the user entered before initialisation finished', async () => {
             const deferred = deferCurrentUser();

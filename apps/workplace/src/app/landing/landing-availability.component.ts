@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component, DestroyRef, inject } from '@angular/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { RouterModule } from '@angular/router';
 import { settingSignal, Space } from '@placeos/common';
@@ -197,6 +197,10 @@ export class LandingAvailabilityComponent {
     public readonly hide_rooms = settingSignal<boolean>('hide_landing_rooms');
 
     public book = (s) => this._explore.bookSpace(s, true);
+
+    constructor() {
+        inject(DestroyRef).onDestroy(this._state.watchSpaceStatuses());
+    }
 
     public trackBySpaceId(index: number, space: Space) {
         return space.id;

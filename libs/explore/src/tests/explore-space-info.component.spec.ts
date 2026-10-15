@@ -1,3 +1,4 @@
+import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { CalendarEvent, MAP_FEATURE_DATA, Space } from '@placeos/common';
@@ -7,13 +8,27 @@ import { MockPipe } from 'ng-mocks';
 import { BehaviorSubject } from 'rxjs';
 
 import { CustomTooltipComponent } from 'libs/components/src/lib/custom-tooltip.component';
-import { ExploreSpaceInfoComponent } from '../lib/explore-space-info.component';
+import {
+    ExploreSpaceInfoComponent,
+    SpaceInfoStatus,
+} from '../lib/explore-space-info.component';
 
 describe('ExploreSpaceInfoComponent privacy', () => {
     const hide_details = new BehaviorSubject<boolean | undefined>(false);
     const hide_title = new BehaviorSubject<boolean | undefined>(false);
+    const status = signal<SpaceInfoStatus>('busy');
+    const events = signal<CalendarEvent[]>([]);
 
     beforeEach(() => {
+        status.set('busy');
+        events.set([
+            new CalendarEvent({
+                title: 'Confidential meeting',
+                host: 'host@example.test',
+                date: Date.now(),
+                duration: 60,
+            }),
+        ]);
         hide_details.next(false);
         hide_title.next(false);
         const module = getModule('space-privacy', 'Bookings');
@@ -35,19 +50,14 @@ describe('ExploreSpaceInfoComponent privacy', () => {
                 {
                     provide: MAP_FEATURE_DATA,
                     useValue: {
-                        space: new Space({
-                            id: 'space-privacy',
-                            name: 'Test room',
-                        }),
-                        events: [
-                            new CalendarEvent({
-                                title: 'Confidential meeting',
-                                host: 'host@example.test',
-                                date: Date.now(),
-                                duration: 60,
+                        space: signal(
+                            new Space({
+                                id: 'space-privacy',
+                                name: 'Test room',
                             }),
-                        ],
-                        status: 'busy',
+                        ),
+                        events,
+                        status,
                     },
                 },
             ],
@@ -141,5 +151,18 @@ describe('ExploreSpaceInfoComponent privacy', () => {
         fixture.destroy();
         expect(hide_details.observed).toBe(false);
         expect(hide_title.observed).toBe(false);
+    });
+
+    it('should show status and booking changes without a new component', async () => {
+        const fixture = await openTooltip();
+        const tooltip = document.querySelector('[name="space-info"]');
+        expect(tooltip?.querySelector('[status]')?.className).toContain('busy');
+
+        status.set('free');
+        events.set([]);
+        await fixture.whenStable();
+        expect(tooltip?.querySelector('[status]')?.className).toContain('free');
+        expect(tooltip?.textContent).not.toContain('Confidential meeting');
+        fixture.destroy();
     });
 });

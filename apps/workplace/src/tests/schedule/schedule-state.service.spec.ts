@@ -1,4 +1,5 @@
 import { signal } from '@angular/core';
+import { TestBed } from '@angular/core/testing';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import {
@@ -593,4 +594,103 @@ describe('ScheduleStateService', () => {
             expect(removeItem).not.toHaveBeenCalled();
         });
     });
+
+    describe('event sources', () => {
+        let open_bindings = 0;
+        let configured_sources: string[] = ['api'];
+        let initialised = signal(true);
+
+        const settle = async () => {
+            for (let i = 0; i < 4; i++) {
+                TestBed.tick();
+                await vi.advanceTimersByTimeAsync(400);
+            }
+        };
+
+        /** Open the schedule for `building_id` with the configured sources */
+        const open = async (building_id: string, sources: string[]) => {
+            configured_sources = sources;
+            const org = spectator.inject(OrganisationService) as any;
+            org.active_building.set({ id: building_id });
+            spectator.service.raw_events();
+            await settle();
+        };
+
+        beforeEach(() => {
+            open_bindings = 0;
+            configured_sources = ['api'];
+            const org = spectator.inject(OrganisationService) as any;
+            initialised = signal(true);
+            org.initialised = initialised;
+            org.regions = [];
+            const settings = spectator.inject(SettingsService) as any;
+            settings.overrides = signal([{}, {}]);
+            settings.get.mockImplementation((key: string) => {
+                if (key === 'app.features') return ['spaces'];
+                if (key === 'app.schedule.event_sources') {
+                    return configured_sources;
+                }
+                return undefined;
+            });
+            vi.mocked(ts_client.querySystems).mockResolvedValue({
+                data: [
+                    { id: 'sys-1', email: 'room-1@example.com' },
+                    { id: 'sys-2', email: 'room-2@example.com' },
+                ],
+            } as any);
+            vi.mocked(ts_client.getModule).mockImplementation(
+                () =>
+                    ({
+                        variable: () => ({
+                            bindThenSubscribe: (callback) => {
+                                open_bindings++;
+                                callback([]);
+                                return () => open_bindings--;
+                            },
+                        }),
+                    }) as any,
+            );
+        });
+
+        // The organisation mock is shared between tests. Stop the requests of
+        // this test's service, so it does not bind rooms in a later test.
+        afterEach(() => {
+            initialised.set(false);
+            TestBed.tick();
+        });
+
+        it('should not bind room bookings when the WebSocket source is not selected', async () => {
+            await open('bld-api-only', ['api']);
+
+            expect(spectator.service.event_sources()).toEqual(['api']);
+            expect(ts_client.querySystems).not.toHaveBeenCalled();
+            expect(open_bindings).toBe(0);
+        });
+
+        it('should bind room bookings only while the WebSocket source is selected', async () => {
+            await open('bld-ws', ['ws', 'api']);
+            expect(open_bindings).toBe(2);
+
+            spectator.service.setEventSources(['api']);
+            await settle();
+            expect(open_bindings).toBe(0);
+        });
+
+        it('should not bind rooms when the source changes while the room list loads', async () => {
+            let resolveSpaces: (value: unknown) => void = () => null;
+            vi.mocked(ts_client.querySystems).mockReturnValueOnce(
+                new Promise((resolve) => (resolveSpaces = resolve)) as any,
+            );
+            await open('bld-slow', ['ws']);
+            spectator.service.setEventSources(['api']);
+            await settle();
+
+            resolveSpaces({ data: [{ id: 'sys-1' }, { id: 'sys-2' }] });
+            await settle();
+
+            expect(open_bindings).toBe(0);
+            expect(spectator.service.loading()).toBe(false);
+        });
+    });
 });
+

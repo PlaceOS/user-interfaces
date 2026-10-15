@@ -1,5 +1,11 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, inject, resource } from '@angular/core';
+import {
+    Component,
+    computed,
+    inject,
+    resource,
+    Signal,
+} from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { Router } from '@angular/router';
@@ -17,7 +23,6 @@ import {
     TranslatePipe,
 } from '@placeos/components';
 import { EventFormService } from '@placeos/events';
-import { ExploreSpacesService } from '@placeos/explore';
 import { LandingStateService } from '../landing/landing-state.service';
 import { landingFeatures } from './landing-features';
 
@@ -150,7 +155,6 @@ export interface FavoriteEntry {
             }
         </div>
     `,
-    providers: [ExploreSpacesService],
     imports: [
         CommonModule,
         IconComponent,
@@ -162,7 +166,6 @@ export interface FavoriteEntry {
     ],
 })
 export class LandingFavouritesNewComponent {
-    private _explore = inject(ExploreSpacesService);
     private _state = inject(LandingStateService);
     private _event_form = inject(EventFormService);
     private _booking_form = inject(BookingFormService);
@@ -194,7 +197,8 @@ export class LandingFavouritesNewComponent {
 
     public readonly features = landingFeatures();
 
-    // Full resource lists. A list loads only when its feature is enabled.
+    // Full resource lists. A list loads only when its feature is enabled and
+    // the user has a favourite of that type.
     /**
      * Rooms of the active building that the event form can book. The list
      * is from the landing state: the event form loads its space list only
@@ -207,22 +211,33 @@ export class LandingFavouritesNewComponent {
                   .filter((s) => s.email && !s.room_booking_url)
             : [],
     );
+    // Each scope is a computed signal, so a change that keeps the same
+    // building (e.g. one more favourite) does not load the list again
+    private readonly _desks_scope = computed(() =>
+        this._buildingWithFeature('desks', this.fav_desk_ids),
+    );
+    private readonly _parking_scope = computed(() =>
+        this._buildingWithFeature('parking', this.fav_parking_ids),
+    );
+    private readonly _lockers_scope = computed(() =>
+        this._buildingWithFeature('lockers', this.fav_locker_ids),
+    );
     private readonly _desks_resource = resource({
-        params: () => this._buildingWithFeature('desks'),
+        params: () => this._desks_scope(),
         loader: () => this._booking_form.loadResourceList('desks'),
     });
     public readonly all_desks = computed(
         () => this._desks_resource.value() ?? ([] as BookingAsset[]),
     );
     private readonly _parking_resource = resource({
-        params: () => this._buildingWithFeature('parking'),
+        params: () => this._parking_scope(),
         loader: () => this._booking_form.loadResourceList('parking-spaces'),
     });
     public readonly all_parking = computed(
         () => this._parking_resource.value() ?? ([] as BookingAsset[]),
     );
     private readonly _lockers_resource = resource({
-        params: () => this._buildingWithFeature('lockers'),
+        params: () => this._lockers_scope(),
         loader: () => this._booking_form.loadResourceList('lockers'),
     });
     public readonly all_lockers = computed(
@@ -293,9 +308,15 @@ export class LandingFavouritesNewComponent {
         return list;
     });
 
-    /** ID of the active building when the feature is enabled */
-    private _buildingWithFeature(feature: string) {
-        return this.features().includes(feature)
+    /**
+     * ID of the active building when the feature is enabled and `fav_ids`
+     * has an ID. The list does not load again when more IDs are added.
+     */
+    private _buildingWithFeature(
+        feature: string,
+        fav_ids: Signal<string[] | undefined>,
+    ) {
+        return this.features().includes(feature) && fav_ids()?.length
             ? this._org.active_building()?.id || undefined
             : undefined;
     }

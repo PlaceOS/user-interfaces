@@ -173,15 +173,13 @@ export class ExploreSearchService {
 
     public readonly emergency_contacts = this._emergency_contacts.asReadonly();
 
-    /** Emergency contacts from Assets API (primary) */
+    /**
+     * Emergency contacts from Assets API (primary). They load once for each
+     * building. `search_results` filters them by the search text.
+     */
     private _asset_based_contacts = resource({
-        params: () => {
-            const bld = this._building();
-            return bld
-                ? { bld, search: this._debounced_filter.value() }
-                : undefined;
-        },
-        loader: async ({ params: { bld } }) => {
+        params: () => this._building() || undefined,
+        loader: async ({ params: bld }) => {
             // First get the category
             const categories = await queryAssetCategoriesLocal({
                 zone_id: bld.id,

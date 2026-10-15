@@ -15,6 +15,9 @@ import {
 
 vi.mock('@placeos/ts-client');
 
+import { TestBed } from '@angular/core/testing';
+import * as ts_client from '@placeos/ts-client';
+
 import { SettingsService } from 'libs/common/src/lib/settings.service';
 import { MockProvider } from 'ng-mocks';
 import { ExploreStateService } from '../lib/explore-state.service';
@@ -162,5 +165,42 @@ describe('ExploreSearchService', () => {
         // result = await nextValueFrom(spectator.service.search_results
         //     );
         // expect(result).toHaveLength(0);
+    });
+
+    it('should not load the emergency contacts again for each search', async () => {
+        vi.useFakeTimers();
+        vi.mocked(ts_client.get).mockResolvedValue([] as any);
+        vi.mocked(ts_client.showMetadata).mockResolvedValue({
+            details: {},
+        } as any);
+        vi.mocked(ts_client.querySystems).mockResolvedValue({
+            data: [],
+        } as any);
+        vi.mocked(ts_client.queryUsers).mockResolvedValue({
+            data: [],
+        } as any);
+        vi.mocked(ts_client.listChildMetadata).mockResolvedValue([]);
+        const asset_category_requests = () =>
+            vi
+                .mocked(ts_client.get)
+                .mock.calls.filter(([url]) =>
+                    `${url}`.includes('/asset_categories'),
+                ).length;
+        // Resources load without a reader. Reading `search_results` would
+        // also need the mocks of every other search source.
+        const search = spectator.service;
+        TestBed.tick();
+        await vi.advanceTimersByTimeAsync(500);
+        const loaded = asset_category_requests();
+        expect(loaded).toBeGreaterThan(0);
+
+        for (const text of ['ale', 'alex', 'alexa']) {
+            search.setFilter(text);
+            TestBed.tick();
+            await vi.advanceTimersByTimeAsync(500);
+        }
+        expect(asset_category_requests()).toBe(loaded);
+        expect(ts_client.querySystems).toHaveBeenCalled();
+        vi.useRealTimers();
     });
 });

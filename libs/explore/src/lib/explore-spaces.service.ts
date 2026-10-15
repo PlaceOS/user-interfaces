@@ -5,7 +5,9 @@ import {
     Injectable,
     OnDestroy,
     resource,
+    signal,
     untracked,
+    WritableSignal,
 } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ViewAction, ViewerFeature } from '@placeos/common';
@@ -31,8 +33,18 @@ import { ExploreBookQrComponent } from './explore-book-qr.component';
 import { ExploreBookingModalComponent } from './explore-booking-modal.component';
 import { loadBookingRules } from './explore-booking-rules';
 import { ExploreIconComponent } from './explore-icon.component';
-import { ExploreSpaceInfoComponent } from './explore-space-info.component';
+import {
+    ExploreSpaceInfoComponent,
+    SpaceInfoStatus,
+} from './explore-space-info.component';
 import { ExploreStateService } from './explore-state.service';
+
+/** Live tooltip values for one space */
+interface SpaceInfoSignals {
+    space: WritableSignal<Space>;
+    events: WritableSignal<CalendarEvent[]>;
+    status: WritableSignal<SpaceInfoStatus>;
+}
 
 export const DEFAULT_COLOURS = {
     free: '#43a047',
@@ -54,7 +66,8 @@ export class ExploreSpacesService extends AsyncHandler implements OnDestroy {
 
     private _building = this._org.active_building;
 
-    private _bookings: Record<string, CalendarEvent[]> = {};
+    /** Tooltip values by space ID. Map features share these signals */
+    private _space_info: Record<string, SpaceInfoSignals> = {};
     private _statuses: Record<string, string> = {};
     private _presence: Record<string, boolean> = {};
     private _panning = true;
@@ -94,6 +107,18 @@ export class ExploreSpacesService extends AsyncHandler implements OnDestroy {
         this.unsubWith('s-');
         this.unsubWith('c-');
         this._statuses = {};
+        const previous_info = this._space_info;
+        this._space_info = {};
+        for (const space of list || []) {
+            const info = previous_info[space.id] || {
+                space: signal(new Space(space)),
+                events: signal<CalendarEvent[]>([]),
+                status: signal<SpaceInfoStatus>('not-bookable'),
+            };
+            info.space.set(new Space(space));
+            info.status.set('not-bookable');
+            this._space_info[space.id] = info;
+        }
         if (!list?.length) return;
         for (const space of list) {
             const mod = getModule(space.id, 'Bookings');
@@ -101,7 +126,7 @@ export class ExploreSpacesService extends AsyncHandler implements OnDestroy {
             this.subscription(
                 `b-${space.id}`,
                 binding.bindThenSubscribe((d) =>
-                    this.handleBookingsChange(list, space, d),
+                    this.handleBookingsChange(space, d),
                 ),
             );
             binding = mod.variable('status');
@@ -197,32 +222,20 @@ export class ExploreSpacesService extends AsyncHandler implements OnDestroy {
         );
     }
 
-    public handleBookingsChange(
-        spaces: Space[],
-        space: Space,
-        bookings: HashMap[],
-    ) {
+    public handleBookingsChange(space: Space, bookings: HashMap[]) {
         if (!bookings) return;
-        this._bookings[space.id] = bookings.map((i) => new CalendarEvent(i));
-        this.timeout(
-            'update_hover_els',
-            () => this._updateHoverElements(spaces),
-            100,
+        this._space_info[space.id]?.events.set(
+            bookings.map((i) => new CalendarEvent(i)),
         );
     }
 
     public handleStatusChange(spaces: Space[], space: Space, status: string) {
         if (space.bookable) this._statuses[space.id] = status || 'free';
         else delete this._statuses[space.id];
-        this.timeout(
-            'update_statuses',
-            () => {
-                this.clearTimeout('update_hover_els');
-                this._updateStatus(spaces);
-                this._updateHoverElements(spaces);
-            },
-            100,
+        this._space_info[space.id]?.status.set(
+            (this._statuses[space.id] || 'not-bookable') as SpaceInfoStatus,
         );
+        this.timeout('update_statuses', () => this._updateStatus(spaces), 100);
     }
 
     public handlePresenceChange(
@@ -251,22 +264,25 @@ export class ExploreSpacesService extends AsyncHandler implements OnDestroy {
         this._state.setStyles('spaces', style_map);
     }
 
+    /**
+     * Set the tooltip features for the spaces. The stable track ID and
+     * signal data let the map keep each tooltip component when other
+     * features change.
+     */
     private _updateHoverElements(spaces: Space[]) {
         const features: ViewerFeature[] = [];
         for (const space of spaces) {
-            if (!space.map_id) continue;
+            const info = this._space_info[space.id];
+            if (!space.map_id || !info) continue;
             features.push({
+                track_id: `space:hover:${space.id}`,
                 location: space.map_id,
                 full_size: true,
                 no_scale: true,
                 content: ExploreSpaceInfoComponent,
                 z_index: 10,
-                data: {
-                    space: new Space(space),
-                    events: this._bookings[space.id],
-                    status: this._statuses[space.id] || 'not-bookable',
-                },
-            } as any);
+                data: { ...info },
+            } as ViewerFeature);
         }
         this._state.setFeatures('spaces', features);
     }

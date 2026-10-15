@@ -1,6 +1,7 @@
 import {
     Component,
     computed,
+    effect,
     inject,
     resource,
     signal,
@@ -266,6 +267,14 @@ export class LandingAvailableNowComponent {
         const counts = this.free_by_level();
         return this.levels().filter((lvl) => counts[lvl.id] > 0);
     });
+
+    constructor() {
+        // Bind the live room statuses only while the rooms tab shows them
+        effect((onCleanup) => {
+            if (this.active_tab() !== 'rooms') return;
+            onCleanup(this._state.watchSpaceStatuses());
+        });
+    }
 
     /**
      * List the desks or lockers of the building that are free for

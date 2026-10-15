@@ -24,7 +24,11 @@ describe('TeamScheduleComponent', () => {
             MockComponent(TeamScheduleTableComponent),
             MockComponent(TeamScheduleListComponent),
         ],
-        providers: [MockProvider(TeamScheduleService, {} as any)],
+        providers: [
+            MockProvider(TeamScheduleService, {
+                watch: vi.fn(() => vi.fn()),
+            } as any),
+        ],
     });
 
     beforeEach(() => (spectator = createComponent()));

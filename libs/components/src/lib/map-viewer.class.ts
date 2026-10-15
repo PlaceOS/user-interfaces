@@ -551,16 +551,27 @@ export class MapViewer {
         this._notifyViewChange();
     }
 
+    /**
+     * Replace the overlays. A wrapper whose content element is still present
+     * is kept, so that content is not detached and attached again when an
+     * unrelated overlay changes.
+     */
     public setOverlays(overlays: MapOverlay[]) {
-        // Clear existing overlay elements
-        for (const instance of this._overlay_instances) {
-            instance.element.remove();
+        const old_wrappers = new Map<Node, HTMLDivElement>();
+        for (const { overlay, element } of this._overlay_instances) {
+            if (typeof overlay.contents === 'string') element.remove();
+            else old_wrappers.set(overlay.contents, element);
         }
         this._overlay_instances = [];
 
-        // Create new overlay elements
+        const wrappers: HTMLDivElement[] = [];
         for (const overlay of overlays) {
-            const element = document.createElement('div');
+            const reused =
+                typeof overlay.contents === 'string'
+                    ? undefined
+                    : old_wrappers.get(overlay.contents);
+            if (reused) old_wrappers.delete(overlay.contents as Node);
+            const element = reused || document.createElement('div');
             // Wrappers ignore pointer events by default so map interactions
             // pass through, contents can opt-in with their own styles.
             // Positioned from 0,0 with transforms so per-frame position
@@ -570,19 +581,28 @@ export class MapViewer {
             if (overlay.z_index != null) {
                 element.style.zIndex = `${overlay.z_index}`;
             }
-            if (overlay.hover) {
-                // Contents are only shown while the overlay area is hovered
-                element.classList.add('map-overlay-hover');
-            }
+            // Contents are only shown while the overlay area is hovered
+            element.classList.toggle('map-overlay-hover', !!overlay.hover);
 
             if (typeof overlay.contents === 'string') {
                 element.innerHTML = overlay.contents;
-            } else {
+            } else if (overlay.contents.parentNode !== element) {
                 element.appendChild(overlay.contents);
             }
 
-            this.overlays.appendChild(element);
+            wrappers.push(element);
             this._overlay_instances.push({ overlay, element });
+        }
+        for (const element of old_wrappers.values()) element.remove();
+
+        // Move wrappers only when their order changed
+        let expected = this.overlays.firstChild;
+        for (const element of wrappers) {
+            if (element === expected) {
+                expected = element.nextSibling;
+            } else {
+                this.overlays.insertBefore(element, expected);
+            }
         }
 
         this._applyOverlayOutlines();
