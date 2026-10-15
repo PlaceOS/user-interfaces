@@ -1,5 +1,8 @@
 import { Booking, currentUser } from '@placeos/common';
-import { bookingFormValue } from './booking-form.model';
+import {
+    bookingFormValue,
+    toVisitorInternalOrExternal,
+} from './booking-form.model';
 
 /** Keys that live on the `Booking` model itself. `extension_data` must never
  * duplicate these — built once from a throwaway instance. */
@@ -79,6 +82,9 @@ export function buildBookingExtensionData(
         ...(type === 'visitor'
             ? {
                   international: !!value.international,
+                  visitor_internal_or_external: toVisitorInternalOrExternal(
+                      value.visitor_internal_or_external,
+                  ),
                   visitor_name: value.asset_name || value.asset_id || '',
               }
             : {}),

@@ -27,6 +27,16 @@ import {
 } from '@placeos/common';
 import { addMinutes, isAfter } from 'date-fns';
 
+/** Visitor type. Visitors are `internal` unless marked `external`. */
+export type VisitorInternalOrExternal = 'internal' | 'external';
+
+/** Read a stored visitor type. Anything that is not `external` is `internal`. */
+export function toVisitorInternalOrExternal(
+    value: unknown,
+): VisitorInternalOrExternal {
+    return value === 'external' ? 'external' : 'internal';
+}
+
 /** Raw value held by the booking form model. */
 export interface BookingFormValue {
     id: string;
@@ -78,6 +88,7 @@ export interface BookingFormValue {
     prefer_booked_location_first: boolean;
     pass_number: string;
     international: boolean;
+    visitor_internal_or_external: VisitorInternalOrExternal;
     recurrence_custom: boolean;
     recurrence_type: string;
     recurrence_days: any;
@@ -190,6 +201,9 @@ export function bookingFormValue(
             extension_data.prefer_booked_location_first ?? false,
         pass_number: extension_data.pass_number || '',
         international: extension_data.international ?? false,
+        visitor_internal_or_external: toVisitorInternalOrExternal(
+            extension_data.visitor_internal_or_external,
+        ),
         recurrence_custom: extension_data.recurrence_custom ?? false,
         recurrence_type: booking.recurrence_type || 'none',
         recurrence_days: booking.recurrence_days ?? 0,

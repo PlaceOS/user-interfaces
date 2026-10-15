@@ -508,6 +508,10 @@
                     "type": "boolean",
                     "description": "Whether international visitor details are enabled in visitor listings and reports"
                 },
+                "allow_visitor_internal_or_external": {
+                    "type": "boolean",
+                    "description": "Whether visitors can be marked as internal or external in visitor invitations, listings and reports"
+                },
                 "has_parking": {
                     "type": "boolean",
                     "description": "Whether parking can be arranged for visitors. Requires the `parking` feature to be enabled."

@@ -229,6 +229,7 @@ Each custom column requires a `field` (the booking extension data field to displ
 | `visitors.allow_editing` | boolean | `false` | Allow visitor booking edits from the shared booking details modal, subject to the booking status and user permissions. |
 | `visitors.hide_fields` | string[] | – | List of field names to hide in the visitor listing. |
 | `visitors.allow_international` | boolean | – | Enable international visitor details in visitor listings and reports. |
+| `visitors.allow_visitor_internal_or_external` | boolean | `false` | Let each invited visitor be marked internal or external in the invite form, and show the type in visitor listings and reports. |
 | `visitors.has_parking` | boolean | – | Allow parking to be arranged for visitors. Requires the `parking` feature to be enabled. |
 | `visitors.allow_printing_label` | boolean | – | Allow visitor labels to be printed from the visitor listing. Defaults to `true`. |
 | `visitors.allow_pass_number` | boolean | – | Allow pass numbers to be set for visitors. Defaults to `true`. |

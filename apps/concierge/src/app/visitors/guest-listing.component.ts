@@ -104,6 +104,13 @@ import { VisitorsStateService } from './visitors-state.service';
                     size: '7rem',
                 },
                 {
+                    key: 'visitor_internal_or_external',
+                    name: 'BOOKINGS.VISITOR_INTERNAL_OR_EXTERNAL' | translate,
+                    content: visitor_internal_or_external_template,
+                    show: allow_visitor_internal_or_external,
+                    size: '7rem',
+                },
+                {
                     key: 'parking_space',
                     name: 'RESOURCE.PARKING' | translate,
                     content: parking_template,
@@ -435,6 +442,20 @@ import { VisitorsStateService } from './visitors-state.service';
                 } @else {
                     <span class="opacity-30">{{
                         'COMMON.NO' | translate
+                    }}</span>
+                }
+            </div>
+        </ng-template>
+        <ng-template #visitor_internal_or_external_template let-row="row">
+            <div class="px-4">
+                @if (
+                    row.extension_data?.visitor_internal_or_external ===
+                    'external'
+                ) {
+                    {{ 'COMMON.TYPE_EXTERNAL' | translate }}
+                } @else {
+                    <span class="opacity-30">{{
+                        'COMMON.TYPE_INTERNAL' | translate
                     }}</span>
                 }
             </div>
@@ -811,6 +832,12 @@ export class GuestListingComponent extends AsyncHandler {
 
     public get allow_international() {
         return !!this._settings.get('app.visitors.allow_international');
+    }
+
+    public get allow_visitor_internal_or_external() {
+        return !!this._settings.get(
+            'app.visitors.allow_visitor_internal_or_external',
+        );
     }
 
     public readonly downloadVisitorList = () =>

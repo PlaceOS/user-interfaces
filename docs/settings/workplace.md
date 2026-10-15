@@ -211,6 +211,7 @@ These settings override the matching `bookings.*` settings for visitor invites.
 | `visitors.allow_all_day` | boolean | `true` | Make the all-day option available for visitor invites. Falls back to `bookings.allow_all_day` when not set. |
 | `visitors.can_book_for_others` | boolean | – | Allow users to invite visitors on behalf of another internal host. Falls back to `bookings.can_book_for_others`. |
 | `visitors.can_book_for_anyone` | boolean | – | Allow users to invite visitors on behalf of any host, including an external host. Falls back to `bookings.can_book_for_anyone`. |
+| `visitors.allow_visitor_internal_or_external` | boolean | `false` | Show a control on the visitor invites step that marks each visitor as internal (default) or external. |
 
 ## Meetings & Events (`events.*`)
 

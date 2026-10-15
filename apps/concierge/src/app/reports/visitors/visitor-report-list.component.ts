@@ -43,6 +43,11 @@ const TABLE_METRIC_GUIDE: ReportMetricGuideItem[] = [
         description:
             'Shown only when international visitors are enabled, using the booking extension international flag.',
     },
+    {
+        label: 'Internal or external',
+        description:
+            'Shown only when the visitor internal/external type is enabled. Internal unless the booking extension value is external.',
+    },
 ];
 
 @Component({
@@ -102,6 +107,12 @@ const TABLE_METRIC_GUIDE: ReportMetricGuideItem[] = [
                         name: 'International',
                         show: allow_international,
                     },
+                    {
+                        key: 'visitor_internal_or_external',
+                        name:
+                            'BOOKINGS.VISITOR_INTERNAL_OR_EXTERNAL' | translate,
+                        show: allow_visitor_internal_or_external,
+                    },
                 ]"
                 [sortable]="true"
                 [page_size]="print() ? 0 : 10"
@@ -135,12 +146,19 @@ export class VisitorReportListComponent {
         return !!this._settings.get('app.visitors.allow_international');
     }
 
+    public get allow_visitor_internal_or_external() {
+        return !!this._settings.get(
+            'app.visitors.allow_visitor_internal_or_external',
+        );
+    }
+
     public get table_metric_guide() {
-        return this.allow_international
-            ? TABLE_METRIC_GUIDE
-            : TABLE_METRIC_GUIDE.filter(
-                  (item) => item.label !== 'International',
-              );
+        return TABLE_METRIC_GUIDE.filter(
+            (item) =>
+                (this.allow_international || item.label !== 'International') &&
+                (this.allow_visitor_internal_or_external ||
+                    item.label !== 'Internal or external'),
+        );
     }
 
     public readonly visitor_bookings = computed(() => {
@@ -173,6 +191,12 @@ export class VisitorReportListComponent {
                     booking.extension_data?.international
                         ? 'COMMON.YES'
                         : 'COMMON.NO',
+                ),
+                visitor_internal_or_external: i18n(
+                    booking.extension_data?.visitor_internal_or_external ===
+                        'external'
+                        ? 'COMMON.TYPE_EXTERNAL'
+                        : 'COMMON.TYPE_INTERNAL',
                 ),
             });
         }
