@@ -872,6 +872,59 @@ describe('BookingFormService', () => {
         vi.useRealTimers();
     });
 
+    describe('configured default duration', () => {
+        beforeEach(() => {
+            vi.useFakeTimers();
+            vi.setSystemTime(new Date(2026, 9, 15, 9, 0));
+            const get = spectator.inject(SettingsService).get as Mock;
+            get.mockImplementation((key: string) =>
+                key === 'app.desks.default_duration' ? 90 : undefined,
+            );
+        });
+
+        afterEach(() => vi.useRealTimers());
+
+        it('starts a new form with the configured default duration', () => {
+            spectator.service.newForm('desk');
+            vi.runAllTimers();
+            TestBed.tick();
+
+            const { date, duration, date_end } = spectator.service.model();
+            expect(duration).toBe(90);
+            expect(date_end).toBe(date + 90 * 60 * 1000);
+        });
+
+        it('keeps a duration the user chose over the default', () => {
+            const node = spectator.service.form.duration();
+            node.value.set(120);
+            node.markAsDirty();
+            TestBed.tick();
+
+            spectator.service.loadForm('desk');
+            spectator.service.newForm('desk');
+            vi.runAllTimers();
+            TestBed.tick();
+
+            expect(spectator.service.model().duration).toBe(120);
+        });
+
+        it('keeps the duration of an existing booking', () => {
+            spectator.service.newForm(
+                'desk',
+                new Booking({
+                    id: 'booking-1',
+                    booking_type: 'desk',
+                    date: new Date(2026, 9, 16, 9, 0).valueOf(),
+                    duration: 45,
+                }),
+            );
+            vi.runAllTimers();
+            TestBed.tick();
+
+            expect(spectator.service.model().duration).toBe(45);
+        });
+    });
+
     it('should align loaded draft bookings to the start of bookable hours', () => {
         vi.useFakeTimers();
         // Set system time well before the draft date so it is not considered
