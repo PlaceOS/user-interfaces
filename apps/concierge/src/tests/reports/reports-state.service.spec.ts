@@ -1,4 +1,6 @@
 import { formatDate } from '@angular/common';
+import { ApplicationRef, signal } from '@angular/core';
+import { TestBed } from '@angular/core/testing';
 import {
     createServiceFactory,
     SpectatorService,
@@ -33,20 +35,6 @@ describe('ReportsStateService', () => {
             MockProvider(SettingsService, {
                 get: (name: string) => settings_map[name],
             }),
-            MockProvider(OrganisationService, {
-                building: {
-                    id: 'bld-1',
-                    parent_id: 'region-1',
-                    timezone: 'Pacific/Auckland',
-                },
-                region: { id: 'region-1' },
-                levels: [],
-                levelsForBuilding: vi.fn(() => [
-                    { id: 'lvl-1' },
-                    { id: 'lvl-2' },
-                ]),
-                levelsForRegion: vi.fn(() => []),
-            } as any),
         ],
     });
 
@@ -92,7 +80,32 @@ describe('ReportsStateService', () => {
         vi.mocked(ts_client_mod.showMetadata).mockResolvedValue({
             details: [],
         } as any);
-        spectator = createService();
+        spectator = createService({
+            providers: [
+                // New signals for each test, so that services from earlier
+                // tests do not react to building changes
+                MockProvider(OrganisationService, {
+                    building: {
+                        id: 'bld-1',
+                        parent_id: 'region-1',
+                        timezone: 'Pacific/Auckland',
+                    },
+                    region: { id: 'region-1' },
+                    active_building: signal({
+                        id: 'bld-1',
+                        parent_id: 'region-1',
+                    }),
+                    active_region: signal({ id: 'region-1' }),
+                    levels: [],
+                    levelsForBuilding: vi.fn((bld?: { id: string }) =>
+                        bld?.id === 'bld-2'
+                            ? [{ id: 'lvl-3' }]
+                            : [{ id: 'lvl-1' }, { id: 'lvl-2' }],
+                    ),
+                    levelsForRegion: vi.fn(() => []),
+                } as any),
+            ],
+        });
     });
 
     afterEach(() => {
@@ -127,9 +140,10 @@ describe('ReportsStateService', () => {
         expect(spectator.service.options().zones).toEqual([]);
     });
 
-    it('should merge new options, clear stale bookings and bump the load token', () => {
+    it('should merge new options, clear stale bookings and abort the load', () => {
         (spectator.service as any)._active_bookings.set([{ id: 'stale' }]);
-        const before = (spectator.service as any)._load_token;
+        const controller = new AbortController();
+        (spectator.service as any)._load_controller = controller;
 
         spectator.service.setOptions({
             type: 'desks',
@@ -141,7 +155,7 @@ describe('ReportsStateService', () => {
         expect(spectator.service.options().type).toBe('desks');
         expect(spectator.service.options().zones).toEqual(['z1']);
         expect(spectator.service.bookings()).toEqual([]);
-        expect((spectator.service as any)._load_token).toBeGreaterThan(before);
+        expect(controller.signal.aborted).toBe(true);
     });
 
     it('should apply an update when any given option changes', () => {
@@ -152,11 +166,12 @@ describe('ReportsStateService', () => {
 
     it('should ignore updates where no given option changes', () => {
         spectator.service.setOptions({ start: 1000, end: 2000 });
-        const token = (spectator.service as any)._load_token;
+        const controller = new AbortController();
+        (spectator.service as any)._load_controller = controller;
 
         spectator.service.setOptions({ start: new Date(1000), end: 2000 });
 
-        expect((spectator.service as any)._load_token).toBe(token);
+        expect(controller.signal.aborted).toBe(false);
     });
 
     it('should count business days, excluding configured ignore days', () => {
@@ -192,6 +207,90 @@ describe('ReportsStateService', () => {
         });
 
         expect(spectator.service.loading()).toBe('');
+    });
+
+    it('should load locker inventory once per building for all levels', async () => {
+        (TestBed.inject(OrganisationService) as any).levels = [
+            { id: 'lvl-1', parent_id: 'bld-1' },
+            { id: 'lvl-2', parent_id: 'bld-1' },
+        ];
+        vi.mocked(ts_client_mod.queryAssetTypes).mockResolvedValue({
+            data: [
+                { id: 'type-bank', name: '_LOCKER_BANKS_', category_id: 'cat-lock' },
+                { id: 'type-lock', name: '_LOCKERS_', category_id: 'cat-lock' },
+            ],
+            next: undefined,
+        } as any);
+        vi.mocked(ts_client_mod.queryAssets).mockImplementation(
+            ({ type_id }: any) =>
+                Promise.resolve({
+                    data:
+                        type_id === 'type-lock'
+                            ? [
+                                  { id: 'l1', parent_id: 'bank-1' },
+                                  { id: 'l2', parent_id: 'bank-2' },
+                                  { id: 'l3', parent_id: 'bank-2', bookable: false },
+                              ]
+                            : [
+                                  { id: 'bank-1', zones: ['lvl-1'] },
+                                  { id: 'bank-2', zones: ['lvl-2'] },
+                              ],
+                    next: undefined,
+                }) as any,
+        );
+        spectator.service.setOptions({ type: 'lockers', zones: ['lvl-1', 'lvl-2'] });
+        await TestBed.inject(ApplicationRef).whenStable();
+
+        expect(spectator.service.counts()).toEqual({ 'lvl-1': 1, 'lvl-2': 1 });
+        const zone_ids = vi
+            .mocked(ts_client_mod.queryAssets)
+            .mock.calls.map(([q]: any) => q.zone_id);
+        expect(zone_ids).toEqual(['bld-1', 'bld-1']);
+
+        spectator.service.setOptions({ start: 5000, end: 6000 });
+        await TestBed.inject(ApplicationRef).whenStable();
+        expect(ts_client_mod.queryAssets).toHaveBeenCalledTimes(2);
+    });
+
+    it('should load the counts again when the building changes with no zones selected', async () => {
+        const org = TestBed.inject(OrganisationService) as any;
+        const app = TestBed.inject(ApplicationRef);
+        vi.mocked(ts_client_mod.showMetadata).mockResolvedValue({
+            details: [{}, {}],
+        } as any);
+        spectator.service.setOptions({ type: 'desks', zones: [] });
+        await app.whenStable();
+        expect(spectator.service.counts()).toEqual({ 'lvl-1': 2, 'lvl-2': 2 });
+
+        org.active_building.set({ id: 'bld-2', parent_id: 'region-1' });
+        await app.whenStable();
+        expect(spectator.service.counts()).toEqual({ 'lvl-3': 2 });
+
+        vi.mocked(ts_client_mod.showMetadata).mockClear();
+        spectator.service.setOptions({ start: 5000, end: 6000 });
+        await app.whenStable();
+        expect(ts_client_mod.showMetadata).not.toHaveBeenCalled();
+    });
+
+    it('should load the inventory again when a report is generated', async () => {
+        const app = TestBed.inject(ApplicationRef);
+        vi.spyOn(spectator.service as any, 'timeout').mockImplementation(
+            () => undefined,
+        );
+        vi.mocked(ts_client_mod.showMetadata).mockResolvedValue({
+            details: [{}],
+        } as any);
+        spectator.service.setOptions({ type: 'desks', zones: ['lvl-1'] });
+        await app.whenStable();
+        expect(spectator.service.counts()).toEqual({ 'lvl-1': 1 });
+
+        // An inventory edit made elsewhere, with the same type and zones
+        vi.mocked(ts_client_mod.showMetadata).mockResolvedValue({
+            details: [{}, {}, {}],
+        } as any);
+        spectator.service.generateReport();
+        await app.whenStable();
+        expect(spectator.service.counts()).toEqual({ 'lvl-1': 3 });
     });
 
     it('should query desk bookings and store the filtered results', async () => {

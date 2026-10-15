@@ -148,6 +148,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
 })
 export class AssetGroupFormComponent extends AsyncHandler implements OnInit {
     private _state = inject(AssetManagerStateService);
+    private readonly _uses_lists = this._state.use('categories');
     private _route = inject(ActivatedRoute);
     private _router = inject(Router);
     private _dialog = inject(MatDialog);

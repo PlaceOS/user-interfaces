@@ -365,6 +365,7 @@ import { SignageStateService } from './signage-state.service';
 })
 export class SignagePlaylistMediaListComponent {
     private _state = inject(SignageStateService);
+    private readonly _uses_lists = this._state.use('media', 'playlists');
     private _router = inject(Router);
     private _clipboard = inject(Clipboard);
     private _settings = inject(SettingsService);

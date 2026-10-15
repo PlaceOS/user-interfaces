@@ -509,6 +509,7 @@ export class AssetViewComponent extends AsyncHandler implements OnInit {
     private _route = inject(ActivatedRoute);
     private _router = inject(Router);
     private _state = inject(AssetManagerStateService);
+    private readonly _uses_lists = this._state.use('requests');
     private _dialog = inject(MatDialog);
     private _org = inject(OrganisationService);
     private _injector = inject(Injector);

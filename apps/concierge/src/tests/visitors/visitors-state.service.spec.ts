@@ -65,6 +65,7 @@ describe('VisitorStateService', () => {
         vi.mocked(ts_client.put).mockResolvedValue({} as any);
         setNotifyOutlet(null, true);
         spectator = createService();
+        spectator.service.activate();
     });
 
     afterEach(() => setNotifyOutlet(null, true));
@@ -88,6 +89,34 @@ describe('VisitorStateService', () => {
                 }),
             }),
         );
+    });
+
+    it('should not load while the visitors view is closed', async () => {
+        spectator.service.deactivate();
+        TestBed.flushEffects();
+        await wait(10);
+        expect(ts_client.query).not.toHaveBeenCalled();
+    });
+
+    it('should not publish a load that a newer load replaced', async () => {
+        let resolveFirst: (value: unknown) => void = () => null;
+        vi.mocked(ts_client.query)
+            .mockImplementationOnce(
+                () => new Promise((resolve) => (resolveFirst = resolve)) as any,
+            )
+            .mockResolvedValueOnce({
+                data: [new Booking({ id: 'new' })],
+                total: 1,
+                next: null,
+            });
+        const building = { id: 'bld-1' } as any;
+        const first = (spectator.service as any)._load(building, {});
+        await (spectator.service as any)._load(building, {});
+        resolveFirst({ data: [new Booking({ id: 'old' })], total: 1, next: null });
+        await first;
+
+        expect(spectator.service.bookings().map((_) => _.id)).toEqual(['new']);
+        expect(spectator.service.loading()).toBe(false);
     });
 
     it('should hide removed visitors but keep ordinary cancellations and failed removals', async () => {

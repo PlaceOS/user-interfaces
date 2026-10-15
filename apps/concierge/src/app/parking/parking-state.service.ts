@@ -46,6 +46,7 @@ import {
     csvToJson,
     currentUser,
     downloadFile,
+    flatten,
     getTimezoneDifferenceInHours,
     i18n,
     jsonToCsv,
@@ -107,6 +108,8 @@ export type { ParkingFleetVehicle, ParkingUser } from '@placeos/assets';
 const USER_PIPE = new UserPipe();
 const PARKING_SPACE_PIPE = new ParkingSpacePipe();
 const MAX_BOOKING_PAGES = 50;
+/** Time in ms that a level space request stays usable by the spaces load */
+const RECENT_SPACES_MAX_AGE = 30 * 1000;
 
 function csvList(value: unknown): string[] {
     const list = Array.isArray(value)
@@ -198,12 +201,16 @@ export class ParkingStateService extends AsyncHandler {
     private readonly _bookable_levels_resource = resource({
         params: () => this.levels(),
         loader: async ({ params: levels }) => {
+            this._recent_level_spaces.clear();
             if (!levels.length) return [];
             const checks = await Promise.all(
                 levels.map(async (level) => {
-                    const spaces = await queryParkingSpacesForZones([
-                        level.id,
-                    ]).catch(() => []);
+                    const request = queryParkingSpacesForZones([level.id]);
+                    this._recent_level_spaces.set(level.id, {
+                        at: Date.now(),
+                        request,
+                    });
+                    const spaces = await request.catch(() => []);
                     return { level, has_bookable: spaces.length > 0 };
                 }),
             );
@@ -212,6 +219,24 @@ export class ParkingStateService extends AsyncHandler {
                 .map((item) => item.level);
         },
     });
+    /**
+     * Space requests that the bookable level check made for each level.
+     * The spaces load uses each request one time if it is recent, so the
+     * first load does not send the same requests again.
+     */
+    private readonly _recent_level_spaces = new Map<
+        string,
+        { at: number; request: Promise<PlaceAsset[]> }
+    >();
+
+    private _takeRecentLevelSpaces(zone_id: string) {
+        const item = this._recent_level_spaces.get(zone_id);
+        this._recent_level_spaces.delete(zone_id);
+        return item && Date.now() - item.at < RECENT_SPACES_MAX_AGE
+            ? item.request
+            : undefined;
+    }
+
     /** List of parking levels with parking space resources */
     public readonly bookable_levels = computed(
         () => this._bookable_levels_resource.value() ?? [],
@@ -247,8 +272,14 @@ export class ParkingStateService extends AsyncHandler {
     private readonly _spaces_resource = resource({
         params: () => this._spaces_params_debounced.value(),
         loader: async ({ params: { zone_ids } }) => {
-            const list = await queryParkingSpacesForZones(zone_ids);
-            return list.sort((a, b) =>
+            const lists = await Promise.all(
+                zone_ids.map(
+                    (id) =>
+                        this._takeRecentLevelSpaces(id) ??
+                        queryParkingSpacesForZones([id]),
+                ),
+            );
+            return flatten(lists).sort((a, b) =>
                 (a.name || '').localeCompare(b.name || ''),
             );
         },
@@ -439,11 +470,16 @@ export class ParkingStateService extends AsyncHandler {
     }
 
     /**
-     * Load a page of parking bookings, either resetting the list or appending
-     * the next page. Stale responses are discarded if a newer load started.
+     * Load pages of parking bookings, either resetting the list or appending
+     * to it, until the API has no more pages. Stops if a newer load starts.
+     *
+     * The list is published after pages 1, 2, 4, 8... and after the last
+     * page. The first page shows quickly, and the total work to rebuild the
+     * list stays below twice the work for the full list. Publishing after
+     * each page of 25 would rebuild the list 25 times.
      */
-    private async _loadPage(reset: boolean, page_count = 1) {
-        const fetch = reset ? this._first_page : this._next_page_fn;
+    private async _loadPage(reset: boolean) {
+        let fetch = reset ? this._first_page : this._next_page_fn;
         if (!fetch) {
             if (reset) {
                 this._bookings_state.set({
@@ -456,50 +492,42 @@ export class ParkingStateService extends AsyncHandler {
         }
         const token = ++this._load_token;
         this._bookings_loading.set(true);
-        let failed = false;
-        const resp = await Promise.resolve(fetch()).catch(() => {
-            failed = true;
-            return { data: [], total: 0, next: null };
-        });
-        if (token !== this._load_token) return;
-        this._load_error.set(failed);
-        const { data = [], total = 0, next = null } = resp || {};
-        const users = this._users_resource.value() || [];
-        for (const booking of data) {
-            const user = users.find(
-                (_) =>
-                    _.email.toLowerCase() === booking.user_email.toLowerCase(),
-            );
-            if (user) {
-                booking.extension_data.plate_number =
-                    booking.extension_data.plate_number || user.plate_number;
-            }
+        const users = new Map<string, ParkingUser>();
+        for (const user of this._users_resource.value() || []) {
+            const email = user.email?.toLowerCase();
+            if (email && !users.has(email)) users.set(email, user);
         }
-        const loaded_count = reset
-            ? data.length
-            : this._bookings_state().list.length + data.length;
-        const has_next =
-            data.length > 0 &&
-            !!next &&
-            page_count < MAX_BOOKING_PAGES &&
-            (!total || loaded_count < total);
-        this._next_page_fn = has_next ? next : null;
-        this._bookings_state.update((acc) =>
-            reset
-                ? {
-                      list: data,
-                      total,
-                      has_next,
-                  }
-                : {
-                      list: [...acc.list, ...data],
-                      total,
-                      has_next,
-                  },
-        );
-        if (has_next) {
-            await this._loadPage(false, page_count + 1);
-            return;
+        let list = reset ? [] : this._bookings_state().list;
+        for (let page_count = 1; page_count <= MAX_BOOKING_PAGES; page_count++) {
+            let failed = false;
+            const resp = await Promise.resolve(fetch()).catch(() => {
+                failed = true;
+                return { data: [], total: 0, next: null };
+            });
+            if (token !== this._load_token) return;
+            this._load_error.set(failed);
+            const { data = [], total = 0, next = null } = resp || {};
+            for (const booking of data) {
+                const user = users.get(booking.user_email?.toLowerCase());
+                if (user) {
+                    booking.extension_data.plate_number =
+                        booking.extension_data.plate_number ||
+                        user.plate_number;
+                }
+            }
+            list = list.concat(data);
+            const has_next =
+                data.length > 0 &&
+                !!next &&
+                page_count < MAX_BOOKING_PAGES &&
+                (!total || list.length < total);
+            this._next_page_fn = has_next ? next : null;
+            const is_power_of_two = (page_count & (page_count - 1)) === 0;
+            if (!has_next || is_power_of_two) {
+                this._bookings_state.set({ list, total, has_next });
+            }
+            if (!has_next) break;
+            fetch = next;
         }
         this._bookings_loading.set(false);
         this._last_updated.set(Date.now());

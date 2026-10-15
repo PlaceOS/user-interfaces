@@ -6,6 +6,7 @@ import {
     downloadFile,
     i18n,
     jsonToCsv,
+    notifyError,
     OrganisationService,
     SettingsService,
     User,
@@ -103,11 +104,15 @@ export class UserReportService {
             // the tenant forces the calendar host, `host_override` has the
             // user who made the booking.
             const [events, ...booking_lists] = await Promise.all([
+                // Tell the user when the room events are too many to load
                 queryAllEvents({
                     ...period,
                     zone_ids: zone,
                     include_cancelled: true,
                     limit: 200,
+                }).catch(() => {
+                    notifyError(i18n('COMMON.LOAD_ERROR'));
+                    return [] as CalendarEvent[];
                 }),
                 ...BOOKING_TYPES.map((type) =>
                     queryAllBookings({

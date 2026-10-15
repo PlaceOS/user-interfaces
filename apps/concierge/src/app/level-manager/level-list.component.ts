@@ -8,7 +8,6 @@ import {
     SimpleTableComponent,
     TranslatePipe,
 } from '@placeos/components';
-import { BookingPanelSettingsModalComponent } from '../ui/app-settings/booking-panel-settings-modal.component';
 import { LevelManagementService } from './level-management.service';
 
 @Component({
@@ -151,7 +150,9 @@ export class LevelListComponent {
         if (success) notifySuccess(i18n('APP.CONCIERGE.LEVELS_COPIED_ID'));
     };
 
-    public editBookingPanelSettings(level) {
+    public async editBookingPanelSettings(level) {
+        const { BookingPanelSettingsModalComponent } =
+            await import('../ui/app-settings/booking-panel-settings-modal.component');
         this._dialog.open(BookingPanelSettingsModalComponent, {
             data: { zone: level },
         });

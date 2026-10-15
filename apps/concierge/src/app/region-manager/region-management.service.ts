@@ -7,7 +7,6 @@ import {
     notifySuccess,
 } from '@placeos/common';
 import { PlaceZone, removeZone } from '@placeos/ts-client';
-import { AppSettingsModalComponent } from '../ui/app-settings-modal.component';
 import { RegionModalComponent } from './region-modal.component';
 
 export interface RegionListOptions {
@@ -60,7 +59,9 @@ export class RegionManagementService {
         });
     }
 
-    public editRegionMetadata(region: PlaceZone = new PlaceZone()) {
+    public async editRegionMetadata(region: PlaceZone = new PlaceZone()) {
+        const { AppSettingsModalComponent } =
+            await import('../ui/app-settings-modal.component');
         const ref = this._dialog.open(AppSettingsModalComponent, {
             data: { zone: region },
         });

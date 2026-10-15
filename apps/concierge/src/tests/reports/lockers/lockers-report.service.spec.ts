@@ -4,6 +4,8 @@ import { createServiceFactory, SpectatorService } from '@ngneat/spectator/vitest
 import { OrganisationService, SettingsService } from '@placeos/common';
 import { MockProvider } from 'ng-mocks';
 
+import { queryLockerAssetsForZones } from '@placeos/assets';
+
 import * as ts_client_mod from '@placeos/ts-client';
 import { LockersReportService } from 'apps/concierge/src/app/reports/lockers/lockers-report.service';
 import { ReportsStateService } from 'apps/concierge/src/app/reports/reports-state.service';
@@ -22,20 +24,13 @@ describe('LockersReportService', () => {
     let report_generate: unknown;
     let downloads: ReturnType<typeof captureDownloads>;
     let locker_assets: unknown[];
+    let inventory_version: ReturnType<typeof signal<number>>;
 
     const createService = createServiceFactory({
         service: LockersReportService,
         providers: [
             MockProvider(SettingsService, {
                 get: vi.fn(() => false),
-            } as any),
-            MockProvider(OrganisationService, {
-                building: { id: 'building-1' },
-                region: { id: 'region-1' },
-                levelsForBuilding: vi.fn(() => [
-                    { id: 'level-1', tags: ['lockers'] },
-                ]),
-                levelsForRegion: vi.fn(() => []),
             } as any),
         ],
     });
@@ -49,6 +44,7 @@ describe('LockersReportService', () => {
         report_bookings = signal([]);
         report_set_options = vi.fn();
         report_generate = vi.fn();
+        inventory_version = signal(0);
         downloads = captureDownloads();
         locker_assets = [
             { zones: ['level-1'] },
@@ -72,6 +68,18 @@ describe('LockersReportService', () => {
         );
         spectator = createService({
             providers: [
+                // New signals for each test, so that services from earlier
+                // tests do not react to building changes
+                MockProvider(OrganisationService, {
+                    building: { id: 'building-1' },
+                    region: { id: 'region-1' },
+                    active_building: signal({ id: 'building-1' }),
+                    active_region: signal({ id: 'region-1' }),
+                    levelsForBuilding: vi.fn(() => [
+                        { id: 'level-1', tags: ['lockers'] },
+                    ]),
+                    levelsForRegion: vi.fn(() => []),
+                } as any),
                 {
                     provide: ReportsStateService,
                     useValue: {
@@ -79,6 +87,9 @@ describe('LockersReportService', () => {
                         loading: signal(''),
                         setOptions: report_set_options,
                         generateReport: report_generate,
+                        inventory_version: inventory_version,
+                        queryLockers: (id: string) =>
+                            queryLockerAssetsForZones([id]),
                     },
                 },
             ],
@@ -138,5 +149,29 @@ describe('LockersReportService', () => {
         spectator.service.setOptions({ zones: ['level-1'], start: 1, end: 2 });
         await settle();
         expect(spectator.service.counts()).toEqual({ 'level-1': 2 });
+        const calls = vi.mocked(ts_client_mod.queryAssets).mock.calls.length;
+
+        spectator.service.setOptions({ start: 3, end: 4 });
+        await settle();
+        expect(ts_client_mod.queryAssets).toHaveBeenCalledTimes(calls);
+    });
+
+    it('should count lockers again for a new building or a refresh', async () => {
+        const org = TestBed.inject(OrganisationService) as any;
+        spectator.service.setOptions({ zones: ['level-1'] });
+        await settle();
+        const zone_ids = () =>
+            vi.mocked(ts_client_mod.queryAssets).mock.calls.map(
+                ([q]: any) => q.zone_id,
+            );
+        expect(zone_ids()).toEqual(['building-1']);
+
+        org.active_building.set({ id: 'building-2' });
+        await settle();
+        expect(zone_ids()).toEqual(['building-1', 'building-2']);
+
+        inventory_version.set(1);
+        await settle();
+        expect(zone_ids()).toEqual(['building-1', 'building-2', 'building-2']);
     });
 });

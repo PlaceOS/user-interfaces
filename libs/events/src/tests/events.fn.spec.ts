@@ -2,6 +2,8 @@ import { CalendarEvent, GuestUser, Space, VERSION } from '@placeos/common';
 import {
     approveEvent,
     checkinEventGuest,
+    MAX_EVENT_PAGES,
+    queryAllEvents,
     queryEventGuests,
     queryEventListOrThrow,
     queryEvents,
@@ -35,6 +37,37 @@ describe('Event API Methods', () => {
                 `/api/staff/v1/events?period_start=1&period_end=2`,
             );
             spy.mockReset();
+        });
+    });
+
+    describe('queryAllEvents', () => {
+        it('should stop and throw when the page chain does not end', async () => {
+            const next = vi.fn(async () => ({ data: [{}], next }));
+            vi.spyOn(ts_client, 'query').mockResolvedValue({
+                data: [{}],
+                next,
+            } as any);
+            await expect(queryAllEvents({} as any)).rejects.toThrow(
+                `more than ${MAX_EVENT_PAGES} pages`,
+            );
+            expect(next).toHaveBeenCalledTimes(MAX_EVENT_PAGES - 1);
+        });
+
+        it('should stop requesting pages after an abort', async () => {
+            const controller = new AbortController();
+            const next = vi.fn(async () => {
+                controller.abort();
+                return { data: [{}], next };
+            });
+            vi.spyOn(ts_client, 'query').mockResolvedValue({
+                data: [{}],
+                next,
+            } as any);
+            const events = await queryAllEvents({} as any, {
+                signal: controller.signal,
+            });
+            expect(events).toEqual([]);
+            expect(next).toHaveBeenCalledTimes(1);
         });
     });
 

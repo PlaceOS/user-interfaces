@@ -201,6 +201,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
 })
 export class AssetItemListComponent {
     private _state = inject(AssetManagerStateService);
+    private readonly _uses_lists = this._state.use('products', 'categories');
 
     public readonly loading = this._state.loading;
     public readonly load_error = this._state.load_error;

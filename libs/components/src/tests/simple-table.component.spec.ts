@@ -102,6 +102,35 @@ describe('SimpleTableComponent', () => {
         expect(spectator.query('[role="table"]')).toContainText('Carol');
     });
 
+    it('should keep the page on reload and reset it when the rows change', () => {
+        spectator.setInput({ columns: COLUMNS, data: DATA, page_size: 2 });
+        spectator.component.setPage(1);
+        spectator.setInput({ data: DATA.map((_) => ({ ..._, age: 40 })) });
+        spectator.detectChanges();
+        expect(spectator.component.page()).toBe(1);
+
+        spectator.setInput({ data: DATA.slice(1) });
+        spectator.detectChanges();
+        expect(spectator.component.page()).toBe(0);
+    });
+
+    it('should show an empty page range and disable paging with no rows', () => {
+        spectator.setInput({ columns: COLUMNS, data: [], page_size: 2 });
+        const footer = spectator.element.lastElementChild;
+        expect(footer.textContent.replace(/\s+/g, ' ')).toContain('0 – 0 of 0');
+        const buttons = [...footer.querySelectorAll('button')];
+        expect(buttons).toHaveLength(4);
+        expect(buttons.every((_) => _.disabled)).toBe(true);
+    });
+
+    it('should keep the row layout wide for horizontal scrolling', () => {
+        spectator.setInput({ columns: COLUMNS, data: DATA, page_size: 2 });
+        spectator.setInput({ min_width: '72rem' });
+        const table = spectator.query<HTMLElement>('[role="table"]');
+        expect(table.style.minWidth).toBe('72rem');
+        expect(spectator.element.style.minWidth).toBe('72rem');
+    });
+
     it('should select rows by key and select all rows', () => {
         spectator.setInput({ columns: COLUMNS, data: DATA, selectable: true });
         spectator.component.select('2', true);
@@ -167,5 +196,160 @@ describe('SimpleTableComponent', () => {
         spectator.component.active_row.set(1);
         spectator.click('[role="table"]');
         expect(spy).toHaveBeenCalledWith(1);
+    });
+
+    describe('virtual scrolling', () => {
+        const rows = Array.from({ length: 2000 }, (_, index) => ({
+            id: `row-${index}`,
+            name: `Row ${index}`,
+            age: index,
+        }));
+
+        function scrollTo(top: number) {
+            spectator.element.scrollTop = top;
+            spectator.dispatchFakeEvent(spectator.element, 'scroll');
+        }
+
+        beforeEach(() => {
+            Object.defineProperty(spectator.element, 'clientHeight', {
+                value: 640,
+            });
+            spectator.setInput({
+                columns: [{ key: '_index', name: '#' }, ...COLUMNS],
+                data: rows,
+                virtual_scroll: true,
+            });
+        });
+
+        afterEach(() => vi.unstubAllGlobals());
+
+        it('should render a bounded window and reach the middle and last rows', () => {
+            expect(spectator.queryAll('[table-row]').length).toBeLessThan(40);
+            expect(spectator.component.data_view()).toHaveLength(2000);
+            scrollTo(64000);
+            expect('[data-row-index="1000"]').toContainText('Row 1000');
+            expect('[data-row-index="1000"] [role="cell"]').toContainText(
+                '1001',
+            );
+            expect('[data-row-index="0"]').not.toExist();
+            expect(spectator.queryAll('[table-row]').length).toBeLessThan(40);
+            scrollTo(128000 - 640);
+            expect('[data-row-index="1999"]').toContainText('Row 1999');
+        });
+
+        it('should select across the full data and keep global row click indices', () => {
+            const clicked = vi.spyOn(spectator.component.rowClicked, 'emit');
+            spectator.setInput({ selectable: true });
+            spectator.component.selectAll(true);
+            expect(spectator.component.selected()).toHaveLength(2000);
+            scrollTo(64000);
+            const cell = spectator.query(
+                '[data-row-index="1000"] [role="cell"]',
+            );
+            cell.dispatchEvent(new MouseEvent('mouseenter'));
+            spectator.click(cell);
+            expect(clicked).toHaveBeenCalledWith(1000);
+        });
+
+        it('should keep the scroll on refresh and reset it for search and sorting', () => {
+            scrollTo(64000);
+            spectator.setInput({ data: rows.map((row) => ({ ...row })) });
+            expect(spectator.element.scrollTop).toBe(64000);
+            spectator.setInput({ filter: 'Row 1999' });
+            expect(spectator.element.scrollTop).toBe(0);
+            expect(spectator.queryAll('[table-row]')).toHaveLength(1);
+            expect('[table-row]').toContainText('Row 1999');
+            spectator.setInput({ filter: '' });
+            scrollTo(64000);
+            spectator.component.setSort('age');
+            spectator.detectChanges();
+            expect(spectator.element.scrollTop).toBe(0);
+            scrollTo(64000);
+            spectator.component.setSort('age');
+            spectator.detectChanges();
+            expect(spectator.element.scrollTop).toBe(0);
+            expect('[data-row-index="0"]').toContainText('Row 1999');
+        });
+
+        it('should measure variable row heights, preserve the visible anchor, and disconnect observers', () => {
+            let resize: () => void = () => undefined;
+            const disconnect = vi.fn();
+            vi.stubGlobal(
+                'ResizeObserver',
+                class {
+                    constructor(callback: () => void) {
+                        resize = callback;
+                    }
+                    observe() {}
+                    disconnect = disconnect;
+                },
+            );
+            Object.defineProperty(spectator.element, 'clientWidth', {
+                value: 1200,
+            });
+            spectator.setInput({ data: [...rows] });
+            // Start measurement through the render callback, as in the browser.
+            spectator.setInput({ show_header: false });
+            spectator.detectChanges();
+            const first = spectator.query<HTMLElement>('[data-row-index="0"]');
+            vi.spyOn(first, 'getBoundingClientRect').mockReturnValue({
+                height: 160,
+            } as DOMRect);
+            resize();
+            spectator.detectChanges();
+            expect(spectator.component.row_offsets()[1]).toBe(160);
+            scrollTo(640);
+            const before = spectator.element.scrollTop;
+            vi.spyOn(first, 'getBoundingClientRect').mockReturnValue({
+                height: 240,
+            } as DOMRect);
+            resize();
+            spectator.detectChanges();
+            expect(spectator.element.scrollTop).toBe(before + 80);
+            expect(spectator.component.row_offsets()[1]).toBe(240);
+            spectator.fixture.destroy();
+            expect(disconnect).toHaveBeenCalled();
+            vi.unstubAllGlobals();
+        });
+
+        it('should stay at the end when the last rendered rows are taller than estimated', () => {
+            let resize = () => undefined;
+            vi.stubGlobal(
+                'ResizeObserver',
+                class {
+                    constructor(callback: () => undefined) {
+                        resize = callback;
+                    }
+                    observe() {}
+                    disconnect() {}
+                },
+            );
+            let scroll_height = 128000;
+            let scroll_top = 0;
+            Object.defineProperties(spectator.element, {
+                clientWidth: { value: 1200 },
+                scrollHeight: { get: () => scroll_height },
+                scrollTop: {
+                    get: () => scroll_top,
+                    set: (value: number) => {
+                        scroll_top = Math.min(value, scroll_height - 640);
+                    },
+                },
+            });
+            spectator.setInput({ show_header: false });
+            scrollTo(scroll_height - 640);
+            const last = spectator.query<HTMLElement>(
+                '[data-row-index="1999"]',
+            );
+            vi.spyOn(last, 'getBoundingClientRect').mockReturnValue({
+                height: 192,
+            } as DOMRect);
+            // Layout grows before ResizeObserver measures the new row.
+            scroll_height += 128;
+            resize();
+            spectator.detectChanges();
+            expect(spectator.element.scrollTop).toBe(scroll_height - 640);
+            expect('[data-row-index="1999"]').toContainText('Row 1999');
+        });
     });
 });

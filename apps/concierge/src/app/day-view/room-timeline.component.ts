@@ -10,6 +10,7 @@ import {
     SettingsService,
     getTimezoneDifferenceInHours,
     getTimezoneOffsetString,
+    HashMap,
     nextValueFrom,
     notifyError,
     notifyInfo,
@@ -33,7 +34,10 @@ import {
 } from 'date-fns';
 import { EventsStateService } from './events-state.service';
 import { RoomBookingSearchComponent } from './room-booking-search.component';
-import { isActiveRoomTimelineEvent } from './room-timeline.utilities';
+import {
+    groupRoomTimelineEvents,
+    isActiveRoomTimelineEvent,
+} from './room-timeline.utilities';
 
 @Component({
     selector: 'room-bookings-timeline',
@@ -288,7 +292,6 @@ export class RoomBookingsTimelineComponent
         const spaces = this.spaces();
         const events = this._filtered().filter(isActiveRoomTimelineEvent);
         const date = this.date();
-        const event_map = {};
         const offset = this.timezone
             ? getTimezoneDifferenceInHours(this.timezone)
             : 0;
@@ -300,22 +303,13 @@ export class RoomBookingsTimelineComponent
             setHours(startOfDay(date), this.block_end),
             -offset,
         ).valueOf();
-        for (const space of spaces) {
-            event_map[space.id] = events
-                .filter(
-                    (event) =>
-                        event.resources.find(
-                            (item) =>
-                                item.id === space.id ||
-                                item.email === space.email,
-                        ) ||
-                        event.system?.id === space.id ||
-                        event.system?.email === space.email,
-                )
-                .filter(
-                    (event) => event.date_end >= start && event.date <= end,
-                );
-        }
+        // HashMap keeps the loose template types of the old `{}` map
+        const event_map: HashMap = groupRoomTimelineEvents(
+            spaces,
+            events.filter(
+                (event) => event.date_end >= start && event.date <= end,
+            ),
+        );
         return event_map;
     });
 

@@ -204,17 +204,25 @@ export class ExploreParkingService extends AsyncHandler {
             const { date } = this._options();
             user_group_names();
             untracked(() => {
+                // Build lookups once, not once for each space
+                const event_by_space = new Map<string, (typeof events)[number]>();
+                for (const e of events) {
+                    if (!e.rejected && !event_by_space.has(e.asset_id)) {
+                        event_by_space.set(e.asset_id, e);
+                    }
+                }
+                const user_by_email = new Map<string, (typeof users)[number]>();
+                for (const u of users) {
+                    const email = u.email.toLowerCase();
+                    if (!user_by_email.has(email)) user_by_email.set(email, u);
+                }
                 const available = spaces.filter((space) => {
-                    const event = events.find(
-                        (e) => e.asset_id === space.id && !e.rejected,
-                    );
+                    const event = event_by_space.get(space.id);
                     const level = this._org.levelWithID([space.zone_id]);
                     const assigned = `${
                         event?.user_email || space.assigned_to || ''
                     }`.toLowerCase();
-                    const user = users.find(
-                        (u) => u.email.toLowerCase() === assigned.toLowerCase(),
-                    );
+                    const user = user_by_email.get(assigned);
                     const is_restricted = rulesForResource(
                         {
                             date: date || Date.now(),
@@ -277,11 +285,12 @@ export class ExploreParkingService extends AsyncHandler {
         const actions: ViewAction[] = [];
         const colours = this._settings.get('app.explore.colors') || {};
         const options = this._options();
+        const available_ids = new Set(available.map((_) => _.id));
+        const app_name = this._settings.app_name.toLowerCase();
+        const is_workplace =
+            app_name.includes('workplace') || app_name.includes('staff');
         for (const space of spaces) {
-            const can_book = !!available.find((_) => _.id === space.id);
-            const is_workplace =
-                this._settings.app_name.toLowerCase().includes('workplace') ||
-                this._settings.app_name.toLowerCase().includes('staff');
+            const can_book = available_ids.has(space.id);
             const is_assigned = is_workplace ? false : !!space.assigned_to;
             const id = space.map_id || space.id;
             const status = parkingStatus(space, is_assigned, can_book);

@@ -152,6 +152,7 @@ import { SplitJoinPipe } from './split-join.pipe';
 })
 export class AssetLocationModalComponent {
     private _state = inject(AssetManagerStateService);
+    private readonly _uses_lists = this._state.use('requests');
     private _org = inject(OrganisationService);
 
     public readonly asset = this._state.active_product;

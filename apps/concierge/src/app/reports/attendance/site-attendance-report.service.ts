@@ -199,7 +199,11 @@ export class SiteAttendanceReportService {
                           ...query,
                           zone_ids: booking_zones,
                           limit: 200,
-                      }).catch(() => [])
+                      }).catch(() => {
+                          // The events are too many to load
+                          notifyError(i18n('COMMON.LOAD_ERROR'));
+                          return [] as CalendarEvent[];
+                      })
                     : Promise.resolve([]),
                 enabled.desks
                     ? queryAllBookings({

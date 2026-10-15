@@ -374,6 +374,7 @@ export class SignagePlaylistModalComponent implements OnInit {
     private _data: SignagePlaylist =
         inject(MAT_DIALOG_DATA) ?? new SignagePlaylist({});
     private _state = inject(SignageStateService);
+    private readonly _uses_lists = this._state.use('media');
     private _dialog_ref =
         inject<MatDialogRef<SignagePlaylistModalComponent>>(MatDialogRef);
 

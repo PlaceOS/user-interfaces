@@ -343,6 +343,7 @@ import { ZoneSelectModalComponent } from './zone-select-modal.component';
 })
 export class SignageDisplaysComponent extends AsyncHandler {
     private _state = inject(SignageStateService);
+    private readonly _uses_lists = this._state.use('displays', 'playlists');
     private _route = inject(ActivatedRoute);
     private _settings = inject(SettingsService);
     private _dialog = inject(MatDialog);

@@ -85,6 +85,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
 })
 export class AssetPurchaseOrderListComponent {
     private _state = inject(AssetManagerStateService);
+    private readonly _uses_lists = this._state.use('purchase_orders');
     private _router = inject(Router);
 
     public readonly now = Date.now();
