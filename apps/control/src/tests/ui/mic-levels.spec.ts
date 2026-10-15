@@ -1,83 +1,51 @@
 import { MIC_LEVEL_BARS, MicLevels } from '../../app/ui/mic-levels';
 
 describe('MicLevels', () => {
-    let stop_track: ReturnType<typeof vi.fn>;
-    let resolve_stream: (stream: unknown) => void;
-    let context_state: AudioContextState;
+    let disconnect: ReturnType<typeof vi.fn>;
     let frequency_data: number[];
 
     beforeEach(() => {
-        stop_track = vi.fn();
-        context_state = 'running';
+        disconnect = vi.fn();
         frequency_data = [];
-        Object.defineProperty(navigator, 'mediaDevices', {
-            configurable: true,
-            value: {
-                getUserMedia: vi.fn(
-                    () => new Promise((resolve) => (resolve_stream = resolve)),
-                ),
-            },
-        });
-        (window as any).AudioContext = function () {
-            this.state = context_state;
-            this.sampleRate = 48000;
-            this.resume = vi.fn(() => Promise.resolve());
-            this.close = vi.fn(() => Promise.resolve());
-            this.createMediaStreamSource = () => ({ connect: vi.fn() });
-            this.createAnalyser = () => ({
+    });
+
+    const context = (state: AudioContextState = 'running') =>
+        ({
+            state,
+            sampleRate: 48000,
+            addEventListener: vi.fn(),
+            removeEventListener: vi.fn(),
+            createMediaStreamSource: () => ({ connect: vi.fn(), disconnect }),
+            createAnalyser: () => ({
                 fftSize: 0,
                 frequencyBinCount: 256,
                 getByteFrequencyData: (bytes: Uint8Array) =>
                     bytes.set(frequency_data.slice(0, bytes.length)),
-            });
-        };
-    });
+            }),
+        }) as unknown as AudioContext;
+    const stream = {} as MediaStream;
 
-    afterEach(() => {
-        delete window.AudioContext;
-        delete (navigator as any).mediaDevices;
-    });
-
-    const stream = () => ({ getTracks: () => [{ stop: stop_track }] });
-
-    it('should be ready once the stream opens and release it on close', async () => {
+    it('should be ready once open and disconnect on close', () => {
         const levels = new MicLevels();
-        const opening = levels.open();
-        resolve_stream(stream());
-        await opening;
+        levels.open(context(), stream);
         expect(levels.ready()).toBe(true);
         levels.close();
         expect(levels.ready()).toBe(false);
-        expect(stop_track).toHaveBeenCalled();
+        expect(disconnect).toHaveBeenCalled();
     });
 
-    it('should stop a stream that opens after close', async () => {
+    it('should not be ready while the audio context is suspended', () => {
         const levels = new MicLevels();
-        const opening = levels.open();
-        levels.close();
-        resolve_stream(stream());
-        await opening;
-        expect(stop_track).toHaveBeenCalled();
+        levels.open(context('suspended'), stream);
         expect(levels.ready()).toBe(false);
     });
 
-    it('should not be ready while the audio context is suspended', async () => {
-        context_state = 'suspended';
-        const levels = new MicLevels();
-        const opening = levels.open();
-        resolve_stream(stream());
-        await opening;
-        expect(levels.ready()).toBe(false);
-    });
-
-    it('should average speech frequencies into bars from 0 to 1', async () => {
+    it('should average speech frequencies into bars from 0 to 1', () => {
         const levels = new MicLevels();
         expect(Array.from(levels.read())).toEqual(
             new Array(MIC_LEVEL_BARS).fill(0),
         );
-        const opening = levels.open();
-        resolve_stream(stream());
-        await opening;
+        levels.open(context(), stream);
         // 93.75 Hz bins: the lowest band (100-197 Hz) is bin 1
         frequency_data = new Array(256)
             .fill(0)
