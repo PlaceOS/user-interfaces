@@ -52,6 +52,9 @@ describe('phonemize', () => {
 
     it('should read numbers and symbols as words', async () => {
         expect(await ipa('Volume 50%')).toEqual(['volume fifty percent']);
+        expect(await ipa('It holds 1,000,000 people, 2,3 or 4.')).toEqual([
+            'it holds one million people, two, three or four.',
+        ]);
     });
 
     it('should split a long sentence to fit the model', async () => {

@@ -19,8 +19,8 @@ export type SpeechRequest =
     | { type: 'setup'; setup: SpeechSetup }
     /** Converts a full phrase into text and ends any live transcription */
     | { type: 'transcribe'; id: number; audio: Float32Array }
-    /** Adds about one second of audio to a live transcription */
-    | { type: 'stream'; id: number; audio: Float32Array }
+    /** Adds about one second of audio to a live transcription. `reset` starts a new one. */
+    | { type: 'stream'; id: number; audio: Float32Array; reset: boolean }
     | { type: 'synthesize'; id: number; text: string }
     | { type: 'cancel'; id: number };
 

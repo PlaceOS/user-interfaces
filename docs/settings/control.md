@@ -70,7 +70,7 @@ The System's `voice_control` binding turns on the voice assistant. To give a com
 - Speech to text: [Whistle](https://huggingface.co/Cactus-Compute/whistle) on the Needle Wasm engine (Apache-2.0 licence). The app uses English. The engine is in `apps/control/src/assets/needle`.
 - Text to speech: [Matcha-TTS](https://huggingface.co/litert-community/Matcha-TTS) on LiteRT (English only, MIT licence).
 
-The app downloads approximately 110 MB of model files when the voice assistant starts for the first time. The browser keeps the files in the Cache API for later visits. By default, the files come from Hugging Face at fixed commits.
+The app downloads approximately 110 MB of model files when the voice assistant starts for the first time. While the speech to text model loads, the microphone button shows an hourglass and the panel ignores speech. The browser keeps the files in the Cache API for later visits. When the model files change, the app deletes the old files from the cache. By default, the files come from Hugging Face at fixed commits.
 
 | Setting | Type | Default | Description |
 |---------|------|---------|-------------|

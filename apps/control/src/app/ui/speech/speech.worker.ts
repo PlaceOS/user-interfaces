@@ -90,6 +90,10 @@ function setup({
             .then(() => MatchaSynthesizer.load(files)),
     );
     cached_phrases = new Set(phrases);
+    void text_to_speech
+        .catch(() => {})
+        .then(() => files.prune())
+        .catch(() => {});
     void text_to_speech.then((synthesizer) => {
         for (const phrase of phrases) {
             enqueue(() => render(synthesizer, phrase, () => {}));
@@ -162,7 +166,7 @@ self.onmessage = ({ data }: MessageEvent<SpeechRequest>) => {
             return schedule(data.id, speech_to_text, async (transcriber) => {
                 const text =
                     data.type === 'stream'
-                        ? transcriber.stream(data.audio)
+                        ? transcriber.stream(data.audio, data.reset)
                         : transcriber.transcribe(data.audio);
                 post({ type: 'transcript', id: data.id, text });
             });

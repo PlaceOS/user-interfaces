@@ -59,7 +59,9 @@ const LETTER_NAMES: Record<string, string> = {
     Y: 'why',
     Z: 'zed',
 };
-const SYMBOL_WORDS: [RegExp, string][] = [
+const TEXT_REPLACEMENTS: [RegExp, string][] = [
+    // Thousands separators, so "1,000" is one number and not "1" and "000"
+    [/(\d),(?=\d{3}\b)/g, '$1'],
     [/%/g, ' percent'],
     [/&/g, ' and '],
     [/°/g, ' degrees'],
@@ -240,7 +242,7 @@ export async function phonemize(
         current.ids.push(...ids);
         current.ipa += ipa;
     };
-    const normalized = SYMBOL_WORDS.reduce(
+    const normalized = TEXT_REPLACEMENTS.reduce(
         (result, [pattern, words]) => result.replace(pattern, words),
         spellAcronyms(text).toLowerCase(),
     );

@@ -17,6 +17,7 @@ describe('VoiceAssistantComponent', () => {
     let hearing: ReturnType<typeof signal<boolean>>;
     let transcribing: ReturnType<typeof signal<boolean>>;
     let live_text: ReturnType<typeof signal<string>>;
+    let ready: ReturnType<typeof signal<boolean>>;
     let service: any;
 
     const createComponent = createComponentFactory({
@@ -34,8 +35,10 @@ describe('VoiceAssistantComponent', () => {
         hearing = signal(false);
         transcribing = signal(false);
         live_text = signal('');
+        ready = signal(true);
         service = {
             live_text,
+            ready,
             hearing,
             transcribing,
             activate: vi.fn(),
@@ -59,6 +62,17 @@ describe('VoiceAssistantComponent', () => {
         enabled.set(false);
         spectator.detectChanges();
         expect(spectator.query('icon')).not.toExist();
+    });
+
+    it('should show that voice control is loading', () => {
+        ready.set(false);
+        spectator.detectChanges();
+        expect(spectator.query('icon')).toHaveText('hourglass_empty');
+        expect(spectator.query('button')).toBeDisabled();
+        ready.set(true);
+        spectator.detectChanges();
+        expect(spectator.query('icon')).toHaveText('mic');
+        expect(spectator.query('button')).not.toBeDisabled();
     });
 
     it('should mark itself unavailable when speech recognition errors', () => {

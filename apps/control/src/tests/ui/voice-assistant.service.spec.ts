@@ -105,10 +105,13 @@ describe('VoiceAssistantService', () => {
         vi.useRealTimers();
     });
 
-    function enable() {
+    /** Turns on voice control. Speech to text is ready unless `ready` is false. */
+    async function enable(ready = true) {
         spectator.service.setEnabled(true);
         vi.advanceTimersByTime(300);
         TestBed.flushEffects();
+        await vi.advanceTimersByTimeAsync(0);
+        if (ready) engine_events.ready('speech_to_text');
     }
 
     /** Simulates a spoken phrase that speech recognition reads as `text` */
@@ -144,8 +147,8 @@ describe('VoiceAssistantService', () => {
         expect(capture.start).toHaveBeenCalled();
     });
 
-    it('should release the microphone at once when disabled', () => {
-        enable();
+    it('should release the microphone at once when disabled', async () => {
+        await enable();
         spectator.service.setEnabled(false);
         expect(spectator.service.enabled()).toBe(false);
         expect(capture.stop).toHaveBeenCalled();
@@ -165,8 +168,7 @@ describe('VoiceAssistantService', () => {
     });
 
     it('should report a model that fails to load', async () => {
-        enable();
-        await vi.advanceTimersByTimeAsync(0);
+        await enable();
         engine_events.failed('text_to_speech', 'HTTP 404');
         expect(spectator.service.error().speech_synthesis).toBe(true);
         expect(spectator.service.error().speech_recognition).toBeUndefined();
@@ -182,7 +184,8 @@ describe('VoiceAssistantService', () => {
         expect(chat.setBinding).toHaveBeenLastCalledWith('sys-2');
     });
 
-    it('should listen after a tap and cancel on a second tap', () => {
+    it('should listen after a tap and cancel on a second tap', async () => {
+        await enable();
         spectator.service.activate();
         expect(spectator.service.state()).toBe('listening');
         expect(player.chime).toHaveBeenCalled();
@@ -193,8 +196,8 @@ describe('VoiceAssistantService', () => {
         expect(spectator.service.state()).toBe('idle');
     });
 
-    it('should keep listening while the user speaks', () => {
-        enable();
+    it('should keep listening while the user speaks', async () => {
+        await enable();
         spectator.service.activate();
         vi.advanceTimersByTime(7000);
         capture_events.start();
@@ -203,7 +206,7 @@ describe('VoiceAssistantService', () => {
     });
 
     it('should send the command after the wake phrase', async () => {
-        enable();
+        await enable();
         await hear('Hey Room, turn on the projector.');
         expect(spectator.service.state()).toBe('processing');
         expect(chat.sendMessage).toHaveBeenCalledWith(
@@ -212,7 +215,7 @@ describe('VoiceAssistantService', () => {
     });
 
     it('should chime and listen after the wake phrase alone', async () => {
-        enable();
+        await enable();
         await hear('Hey Room.');
         expect(spectator.service.state()).toBe('listening');
         expect(player.chime).toHaveBeenCalled();
@@ -221,7 +224,7 @@ describe('VoiceAssistantService', () => {
     });
 
     it('should show when it heard speech but no command', async () => {
-        enable();
+        await enable();
         spectator.service.activate();
         await hear('');
         expect(spectator.service.state()).toBe('listening');
@@ -231,7 +234,7 @@ describe('VoiceAssistantService', () => {
     });
 
     it('should show the words of a command while it is spoken', async () => {
-        enable();
+        await enable();
         spectator.service.activate();
         engine.stream.mockResolvedValueOnce('turn on the');
         capture_events.start();
@@ -245,15 +248,44 @@ describe('VoiceAssistantService', () => {
         );
     });
 
-    it('should not transcribe live while waiting for the wake phrase', () => {
-        enable();
+    it('should start a new live transcription for each phrase', async () => {
+        await enable();
+        spectator.service.activate();
+        capture_events.start();
+        capture_events.progress(new Float32Array(16000));
+        capture_events.progress(new Float32Array(16000));
+        // The detector drops this phrase as noise, so no transcribe ends the stream
+        capture_events.end();
+        capture_events.start();
+        capture_events.progress(new Float32Array(16000));
+        expect(engine.stream.mock.calls.map(([, reset]) => reset)).toEqual([
+            true,
+            false,
+            true,
+        ]);
+    });
+
+    it('should ignore speech until speech to text is ready', async () => {
+        await enable(false);
+        spectator.service.activate();
+        expect(spectator.service.state()).toBe('idle');
+        await hear('Hey Room, turn on the projector.');
+        expect(spectator.service.hearing()).toBe(false);
+        expect(engine.transcribe).not.toHaveBeenCalled();
+        engine_events.ready('speech_to_text');
+        await hear('Hey Room, turn on the projector.');
+        expect(chat.sendMessage).toHaveBeenCalledTimes(1);
+    });
+
+    it('should not transcribe live while waiting for the wake phrase', async () => {
+        await enable();
         capture_events.start();
         capture_events.progress(new Float32Array(16000));
         expect(engine.stream).not.toHaveBeenCalled();
     });
 
     it('should show when speech is heard and processed', async () => {
-        enable();
+        await enable();
         let resolve: (text: string) => void = () => {};
         engine.transcribe.mockReturnValueOnce(
             new Promise((_) => (resolve = _)),
@@ -269,7 +301,7 @@ describe('VoiceAssistantService', () => {
     });
 
     it('should send the next phrase as a command after a tap', async () => {
-        enable();
+        await enable();
         spectator.service.activate();
         await hear('Mute the microphones.');
         expect(chat.sendMessage).toHaveBeenCalledWith(
@@ -278,7 +310,7 @@ describe('VoiceAssistantService', () => {
     });
 
     it('should ignore speech without the wake phrase', async () => {
-        enable();
+        await enable();
         await hear('turn on the projector');
         expect(spectator.service.state()).toBe('idle');
         expect(chat.sendMessage).not.toHaveBeenCalled();
@@ -287,7 +319,7 @@ describe('VoiceAssistantService', () => {
     it('should not send a pending command to a new room', async () => {
         spectator.service.setBinding('sys-1');
         TestBed.flushEffects();
-        enable();
+        await enable();
         chat.connected = false;
         await hear('Hey room turn on the projector');
         spectator.service.setBinding('sys-2');
@@ -299,7 +331,7 @@ describe('VoiceAssistantService', () => {
     });
 
     it('should drop a transcript that arrives after voice control turns off', async () => {
-        enable();
+        await enable();
         let resolve: (text: string) => void = () => {};
         engine.transcribe.mockReturnValueOnce(
             new Promise((_) => (resolve = _)),
@@ -311,8 +343,8 @@ describe('VoiceAssistantService', () => {
         expect(chat.sendMessage).not.toHaveBeenCalled();
     });
 
-    it('should mute the microphone while the assistant speaks', () => {
-        enable();
+    it('should mute the microphone while the assistant speaks', async () => {
+        await enable();
         expect(is_muted()).toBe(false);
         player.busy_until = Date.now() + 500;
         expect(is_muted()).toBe(true);
@@ -324,7 +356,7 @@ describe('VoiceAssistantService', () => {
     });
 
     it('should speak the reply as plain text and go idle', async () => {
-        enable();
+        await enable();
         await hear('hey room what is on today');
         messages.set([
             {
@@ -344,7 +376,7 @@ describe('VoiceAssistantService', () => {
     });
 
     it('should stop the current speech before the next', async () => {
-        enable();
+        await enable();
         await hear('hey room what is on today');
         const [, , first_signal] = engine.synthesize.mock.lastCall;
         messages.set([{ id: 'm1', user_id: 'assistant', message: 'Done' }]);

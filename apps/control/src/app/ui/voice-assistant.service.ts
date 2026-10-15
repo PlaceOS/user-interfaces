@@ -115,6 +115,12 @@ export class VoiceAssistantService extends AsyncHandler {
     public readonly live_text = this._live_text.asReadonly();
     /** True while speech is converted to text */
     public readonly transcribing = computed(() => this._transcribing() > 0);
+    private _ready = signal(false);
+    /**
+     * True when speech to text is loaded. Until then, speech is ignored, so a
+     * command spoken during a long download does not run minutes later.
+     */
+    public readonly ready = this._ready.asReadonly();
 
     private _mic_levels = new MicLevels();
     /** True when `readLevels()` returns live microphone levels */
@@ -131,6 +137,8 @@ export class VoiceAssistantService extends AsyncHandler {
     private _last_message_id = '';
     /** Changes when a phrase starts or ends, so late live text is dropped */
     private _phrase_id = 0;
+    /** Phrase of the last live transcription. A new phrase resets it. */
+    private _streamed_phrase_id = -1;
 
     constructor() {
         super();
@@ -202,7 +210,7 @@ export class VoiceAssistantService extends AsyncHandler {
 
     /** Toggles listening for a command without the wake phrase. Used by the mic button. */
     public activate() {
-        if (this._error().speech_recognition) return;
+        if (this._error().speech_recognition || !this._ready()) return;
         // A tap lets the browser start audio that it held back
         this._capture.resume();
         if (this._state() === 'listening') return this._setIdle();
@@ -279,11 +287,16 @@ export class VoiceAssistantService extends AsyncHandler {
                 keywords: WAKE_KEYWORD,
             },
             {
-                ready: (model) => log('VOICE', `Loaded ${model} model.`),
+                ready: (model) => {
+                    log('VOICE', `Loaded ${model} model.`);
+                    if (model === 'speech_to_text') this._ready.set(true);
+                },
                 failed: (model, message) => {
                     log('VOICE', `Unable to load ${model}:`, message, 'warn');
                     this._setError(model);
-                    if (model === 'speech_to_text') this._stopVoice();
+                    if (model !== 'speech_to_text') return;
+                    this._ready.set(false);
+                    this._stopVoice();
                 },
             },
         );
@@ -303,6 +316,7 @@ export class VoiceAssistantService extends AsyncHandler {
     }
 
     private _onSpeechStart() {
+        if (!this._ready()) return;
         this._hearing.set(true);
         this._phrase_id++;
         this._live_text.set('');
@@ -312,9 +326,11 @@ export class VoiceAssistantService extends AsyncHandler {
 
     /** Shows the words of a command as they are spoken */
     private _onSpeechProgress(audio: Float32Array) {
-        if (this._state() !== 'listening') return;
+        if (!this._ready() || this._state() !== 'listening') return;
         const phrase_id = this._phrase_id;
-        this._engine.stream(audio).then(
+        const reset = phrase_id !== this._streamed_phrase_id;
+        this._streamed_phrase_id = phrase_id;
+        this._engine.stream(audio, reset).then(
             (text) => {
                 const is_current =
                     phrase_id === this._phrase_id &&
@@ -329,7 +345,7 @@ export class VoiceAssistantService extends AsyncHandler {
         this._hearing.set(false);
         // Drop live results that arrive after the full transcript
         this._phrase_id++;
-        if (!phrase) return this._live_text.set('');
+        if (!phrase || !this._ready()) return this._live_text.set('');
         const session = this._session;
         if (this._state() === 'listening') this._listen();
         this._transcribing.update((count) => count + 1);

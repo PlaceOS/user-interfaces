@@ -94,9 +94,11 @@ export class WhistleTranscriber {
 
     /**
      * Adds about one second of audio to a live transcription.
+     * Use `reset` for the first audio of a phrase, so no words from an earlier phrase stay.
      * Returns the text so far: the confirmed words and the latest guess after them.
      */
-    public stream(audio: Float32Array) {
+    public stream(audio: Float32Array, reset: boolean) {
+        if (reset) this._stopStream();
         const json = this._call(
             (pcm, language, keywords, out) =>
                 this._module._needle_stream_transcribe_process(

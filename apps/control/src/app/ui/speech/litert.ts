@@ -49,10 +49,7 @@ export class ModelFiles {
 
     public async bytes(file: ModelFile) {
         const url = this.url(file);
-        const cache =
-            'caches' in globalThis
-                ? await caches.open(CACHE_NAME).catch(() => undefined)
-                : undefined;
+        const cache = await openCache();
         const hit = await cache?.match(url);
         if (hit) return new Uint8Array(await hit.arrayBuffer());
         const response = await fetch(url);
@@ -67,6 +64,26 @@ export class ModelFiles {
     public async json<T>(file: ModelFile): Promise<T> {
         return JSON.parse(new TextDecoder().decode(await this.bytes(file)));
     }
+
+    /**
+     * Deletes cached files that the app no longer uses, such as files from an
+     * older pinned commit or another mirror. Call after the models load.
+     */
+    public async prune() {
+        const cache = await openCache();
+        if (!cache) return;
+        const files = Object.keys(DEFAULT_FILE_URLS) as ModelFile[];
+        const current = new Set(files.map((file) => this.url(file)));
+        for (const request of await cache.keys()) {
+            if (!current.has(request.url)) await cache.delete(request);
+        }
+    }
+}
+
+/** Returns the model cache, or undefined when the browser has no Cache API here */
+async function openCache() {
+    if (!('caches' in globalThis)) return undefined;
+    return caches.open(CACHE_NAME).catch(() => undefined);
 }
 
 let runtime: Promise<unknown> | undefined;

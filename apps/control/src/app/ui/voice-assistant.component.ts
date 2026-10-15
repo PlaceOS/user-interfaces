@@ -58,19 +58,22 @@ const PROGRESS_ICONS: Record<string, string> = {
                     }
                     <icon
                         class="relative text-2xl"
-                        [class.animate-pulse]="state() === 'processing'"
-                        >{{
-                            state() === 'processing' ? 'graphic_eq' : 'mic'
-                        }}</icon
+                        [class.animate-pulse]="
+                            state() === 'processing' || !ready()
+                        "
+                        >{{ icon() }}</icon
                     >
                 }
                 <button
                     matRipple
                     class="absolute inset-0 rounded-full opacity-0"
+                    [disabled]="!ready()"
                     [attr.aria-label]="
-                        state() === 'listening'
-                            ? 'Stop listening'
-                            : 'Give a voice command'
+                        !ready()
+                            ? 'Voice control is loading'
+                            : state() === 'listening'
+                              ? 'Stop listening'
+                              : 'Give a voice command'
                     "
                     [attr.aria-pressed]="state() === 'listening'"
                     (click)="activate(); $event.stopPropagation()"
@@ -111,6 +114,12 @@ export class VoiceAssistantComponent {
     public readonly state = this._service.state;
     /** Shows a ring while the microphone picks up speech, so people know they were heard */
     public readonly hearing = this._service.hearing;
+    /** False while speech to text loads. The mic shows an hourglass and ignores taps. */
+    public readonly ready = this._service.ready;
+    public readonly icon = computed(() => {
+        if (!this.ready()) return 'hourglass_empty';
+        return this.state() === 'processing' ? 'graphic_eq' : 'mic';
+    });
     public readonly bars = new Array(MIC_LEVEL_BARS);
     /** Shows live microphone bars while listening. Falls back to a pulse without audio. */
     public readonly show_bars = computed(
