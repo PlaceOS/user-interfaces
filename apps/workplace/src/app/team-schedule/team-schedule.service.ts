@@ -3,6 +3,7 @@ import {
     effect,
     inject,
     Injectable,
+    linkedSignal,
     signal,
     untracked,
 } from '@angular/core';
@@ -16,7 +17,6 @@ import {
     SettingsService,
     StaffUser,
 } from '@placeos/common';
-import { PlaceMetadata, showMetadata, showUser } from '@placeos/ts-client';
 import {
     addDays,
     addWeeks,
@@ -30,6 +30,11 @@ import {
     subWeeks,
 } from 'date-fns';
 import { catchError, lastValueFrom, of } from 'rxjs';
+import {
+    COLLEAGUE_REQUEST_LIMIT,
+    loadContacts,
+    mapWithLimit,
+} from '../landing/contacts.fn';
 import {
     DayStatus,
     DeskBooking,
@@ -75,7 +80,11 @@ export class TeamScheduleService {
 
     // Loading state - starts true, set to false after initial load completes
     public readonly loading = signal(true);
+    /** Whether the colleagues are loaded. Cleared when they change */
     private _initialized = false;
+    /** Number of open screens that show the team members */
+    private readonly _watchers = signal(0);
+    private readonly _active = computed(() => this._watchers() > 0);
     /** Colleagues from the contacts of the user */
     private _users: StaffUser[] = [];
     /** Number of the last booking load. A response for an old load is dropped */
@@ -85,9 +94,12 @@ export class TeamScheduleService {
     public readonly select_mode = signal(false);
     private readonly _selected_member_ids = signal<Set<string>>(new Set());
 
-    // Store favorite and team member IDs
-    private readonly _favorite_ids = signal<Set<string>>(new Set());
-    private readonly _team_member_ids = signal<Set<string>>(new Set());
+    // Favourite and team member IDs. Read from the settings without a
+    // member load, so other screens can show the flags.
+    private readonly _favorite_ids = linkedSignal(() => this._getFavoriteIds());
+    private readonly _team_member_ids = linkedSignal(() =>
+        this._getTeamMemberIds(),
+    );
 
     /**
      * Start of the selected week. The value is a number, so a filter change
@@ -316,14 +328,31 @@ export class TeamScheduleService {
     }
 
     constructor() {
-        // Initialize data when org service is ready
-        this._initializeData();
-
-        // Re-fetch bookings when the week changes
+        // Load the colleagues while a screen shows them, and their bookings
+        // again when the week changes or the screen opens again
         effect(() => {
+            if (!this._active()) return;
             this._week_start();
-            untracked(() => this._refreshBookings());
+            untracked(() =>
+                this._initialized
+                    ? this._refreshBookings()
+                    : this._initializeData(),
+            );
         });
+    }
+
+    /**
+     * Load the team members and their bookings while a screen shows them.
+     * Call the returned function when the screen closes.
+     */
+    public watch() {
+        this._watchers.update((count) => count + 1);
+        let released = false;
+        return () => {
+            if (released) return;
+            released = true;
+            this._watchers.update((count) => count - 1);
+        };
     }
 
     private async _initializeData() {
@@ -380,28 +409,9 @@ export class TeamScheduleService {
 
     /** Fetch colleagues from user's contacts metadata */
     private async _fetchColleagues(): Promise<StaffUser[]> {
-        try {
-            const user = currentUser();
-            if (!user?.id) return [];
-
-            const metadata: Partial<PlaceMetadata> = await showMetadata(
-                user.id,
-                'contacts',
-            ).catch(() => ({}));
-            const list: Partial<StaffUser>[] =
-                metadata?.details instanceof Array ? metadata.details : [];
-
-            // Fetch full user details for each contact
-            const users = await Promise.all(
-                list.map((contact) =>
-                    showUser(contact.email).catch(() => contact),
-                ),
-            );
-            return users.map((u) => new StaffUser(u));
-        } catch (error) {
-            console.error('Error fetching colleagues:', error);
-            return [];
-        }
+        const user = currentUser();
+        if (!user?.id) return [];
+        return loadContacts(user.id).catch(() => [] as StaffUser[]);
     }
 
     /** Get favourite team member IDs from user settings */
@@ -491,17 +501,19 @@ export class TeamScheduleService {
         const week_start = startOfDay(week_days[0].date);
         const week_end = endOfDay(week_days[week_days.length - 1].date);
 
-        // Fetch desk bookings for all users in parallel
-        const bookings_promises = users.map((user) =>
-            queryBookings({
-                email: user.email,
-                type: 'desk',
-                period_start: getUnixTime(week_start),
-                period_end: getUnixTime(week_end),
-            }).catch(() => [] as Booking[]),
+        // The bookings API filters by one user, so this is one request for
+        // each user. Limit the requests that run at one time.
+        const all_bookings = await mapWithLimit(
+            users,
+            COLLEAGUE_REQUEST_LIMIT,
+            (user) =>
+                queryBookings({
+                    email: user.email,
+                    type: 'desk',
+                    period_start: getUnixTime(week_start),
+                    period_end: getUnixTime(week_end),
+                }).catch(() => [] as Booking[]),
         );
-
-        const all_bookings = await Promise.all(bookings_promises);
 
         // Build team members with their booking data
         return users.map((user, index) => {
@@ -687,8 +699,15 @@ export class TeamScheduleService {
         this._team_members.set(members);
     }
 
-    /** Refresh all data */
+    /**
+     * Load the colleagues and their bookings again. When no screen shows
+     * them, the next screen to open loads them.
+     */
     public async refresh() {
+        if (!this._active()) {
+            this._initialized = false;
+            return;
+        }
         await this._loadUsers();
     }
 }

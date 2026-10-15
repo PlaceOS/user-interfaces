@@ -434,6 +434,11 @@ export class ScheduleStateService extends AsyncHandler {
         );
     }
 
+    /** Whether the selected event sources include `source` */
+    private _usesSource(source: EventSource) {
+        return this._event_sources().includes(source);
+    }
+
     private _canLoadEvents() {
         return this._hasFeature('spaces') || this._hasFeature('group-events');
     }
@@ -560,6 +565,7 @@ export class ScheduleStateService extends AsyncHandler {
             async (onCleanup) => {
                 const bld = this._org.active_building();
                 if (
+                    !this._usesSource('ws') ||
                     !this._hasFeature('spaces') ||
                     !this._requests_ready() ||
                     !bld?.id
@@ -577,6 +583,9 @@ export class ScheduleStateService extends AsyncHandler {
                 const spaces = await requestSpacesForZone(bld.id)
                     .toPromise()
                     .catch(() => []);
+                this._loading.set(false);
+                // The source or building can change while the list loads
+                if (!active) return;
                 const events_by_space: CalendarEvent[][] = [];
                 for (const [idx, space] of (spaces || []).entries()) {
                     const binding = getModule(space.id, 'Bookings').variable(
@@ -604,7 +613,6 @@ export class ScheduleStateService extends AsyncHandler {
                         }),
                     );
                 }
-                this._loading.set(false);
             },
             { injector: this._injector },
         );
@@ -615,7 +623,12 @@ export class ScheduleStateService extends AsyncHandler {
             async () => {
                 const bld = this._org.active_building();
                 const query = this._query_params_debounced.value();
-                if (!this._hasFeature('spaces') || !query || !bld?.id) {
+                if (
+                    !this._usesSource('driver') ||
+                    !this._hasFeature('spaces') ||
+                    !query ||
+                    !bld?.id
+                ) {
                     this._user_bookings.set([]);
                     return;
                 }
@@ -640,7 +653,11 @@ export class ScheduleStateService extends AsyncHandler {
         effect(
             async () => {
                 const query_params = this._query_params_debounced.value();
-                if (!this._canLoadEvents() || !query_params) {
+                if (
+                    !this._usesSource('api') ||
+                    !this._canLoadEvents() ||
+                    !query_params
+                ) {
                     this._api_events.set([]);
                     return;
                 }

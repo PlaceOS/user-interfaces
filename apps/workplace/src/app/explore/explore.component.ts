@@ -1,7 +1,14 @@
-import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import {
+    Component,
+    OnInit,
+    computed,
+    effect,
+    inject,
+    linkedSignal,
+} from '@angular/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { DesksService } from '@placeos/bookings';
-import { AsyncHandler, OrganisationService } from '@placeos/common';
+import { AsyncHandler, MINUTES, OrganisationService } from '@placeos/common';
 import { IconComponent, LevelPipe, TranslatePipe } from '@placeos/components';
 import { ExploreMapViewComponent, ExploreStateService } from '@placeos/explore';
 import { differenceInMinutes } from 'date-fns';
@@ -10,6 +17,21 @@ import { TopbarComponent } from '../components/topbar.component';
 import { VirtualConciergeButtonComponent } from '../components/virtual-concierge-button.component';
 import { LandingStateService } from '../landing/landing-state.service';
 import { EventPinComponent } from './event-pin.component';
+
+/**
+ * Milliseconds from `now` until `differenceInMinutes(target, now)` changes for
+ * one of the future targets. Null when no target is in the future.
+ */
+export function msUntilMinuteChange(now: number, targets: number[]) {
+    let delay: number | null = null;
+    for (const target of targets) {
+        if (!(target > now)) continue;
+        // The truncated minute count drops 1 ms after the remainder passes
+        const next = ((target - now) % MINUTES) + 1;
+        delay = delay === null ? next : Math.min(delay, next);
+    }
+    return delay;
+}
 
 @Component({
     selector: 'app-explore',
@@ -104,7 +126,6 @@ export class ExploreComponent extends AsyncHandler implements OnInit {
     private _org = inject(OrganisationService);
 
     private _upcoming = this._landing.upcoming_events;
-    private _time = signal(Date.now());
 
     public readonly next_event = computed(() => {
         const upcoming = this._upcoming()?.[0];
@@ -113,6 +134,11 @@ export class ExploreComponent extends AsyncHandler implements OnInit {
             return upcoming;
         }
         return null;
+    });
+    /** Time for the countdowns. Resets to now when the next event changes */
+    private _time = linkedSignal({
+        source: this.next_event,
+        computation: () => Date.now(),
     });
     public readonly begins_in = computed(() => {
         const event = this.next_event();
@@ -129,9 +155,24 @@ export class ExploreComponent extends AsyncHandler implements OnInit {
         return localStorage.getItem('PlaceOS.hide_nav') === 'true';
     }
 
+    constructor() {
+        super();
+        // Update the time only when a whole-minute countdown changes
+        effect(() => {
+            const event = this.next_event();
+            const delay = event
+                ? msUntilMinuteChange(this._time(), [
+                      event.date,
+                      event.date_end,
+                  ])
+                : null;
+            if (delay === null) return this.clearTimeout('time');
+            this.timeout('time', () => this._time.set(Date.now()), delay);
+        });
+    }
+
     public ngOnInit() {
         this._desks.error_on_host = false;
-        this.interval('time', () => this._time.set(Date.now()));
     }
 
     public pinEvent() {

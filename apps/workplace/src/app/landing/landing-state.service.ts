@@ -9,11 +9,9 @@ import {
 import {
     authority,
     getModule,
-    PlaceMetadata,
     PlaceVariableBinding,
     queryUsers,
     showMetadata,
-    showUser,
     updateMetadata,
 } from '@placeos/ts-client';
 
@@ -37,6 +35,7 @@ import { CalendarService, requestSpacesForZone } from '@placeos/events';
 import { searchStaff } from '@placeos/users';
 import { isSameDay } from 'date-fns';
 import { ScheduleStateService } from '../schedule/schedule-state.service';
+import { loadContacts } from './contacts.fn';
 
 export interface LandingOptions {
     search?: string;
@@ -64,6 +63,9 @@ export class LandingStateService extends AsyncHandler {
     // `any` stays here: explore.component.ts reads event and booking fields
     // from this list with no type guard.
     private _upcoming_events = signal<any[]>([]);
+    /** Number of open screens that show live room statuses */
+    private _status_watchers = signal(0);
+    private _watch_statuses = computed(() => this._status_watchers() > 0);
 
     private _filtered_spaces = computed(
         () =>
@@ -83,7 +85,8 @@ export class LandingStateService extends AsyncHandler {
     public readonly space_list = this._space_list.asReadonly();
     /**
      * Spaces that the user can book and that have a live status of free.
-     * The statuses have the same order as the filtered spaces.
+     * The statuses have the same order as the filtered spaces. Empty unless a
+     * screen calls `watchSpaceStatuses`.
      */
     public readonly free_space_list = computed(() =>
         this._filtered_spaces()
@@ -129,7 +132,7 @@ export class LandingStateService extends AsyncHandler {
             this.updateOccupancy({});
         });
         effect((onCleanup) => {
-            const list = this._filtered_spaces();
+            const list = this._watch_statuses() ? this._filtered_spaces() : [];
             this.unsubWith('bind:');
             this._space_statuses.set(Array(list.length).fill(null));
             for (const [idx, space] of list.entries()) {
@@ -191,6 +194,20 @@ export class LandingStateService extends AsyncHandler {
         );
     }
 
+    /**
+     * Bind the live room statuses for `free_space_list` while a screen shows
+     * them. Call the returned function when the screen closes.
+     */
+    public watchSpaceStatuses() {
+        this._status_watchers.update((count) => count + 1);
+        let released = false;
+        return () => {
+            if (released) return;
+            released = true;
+            this._status_watchers.update((count) => count - 1);
+        };
+    }
+
     public setOptions(options: Partial<LandingOptions>) {
         this._options.update((old_options) => ({ ...old_options, ...options }));
     }
@@ -210,16 +227,12 @@ export class LandingStateService extends AsyncHandler {
         this._schedule.triggerPoll();
     }
 
-    public async updateContacts() {
-        const metadata: PlaceMetadata = await showMetadata(
-            currentUser().id,
-            'contacts',
-        );
-        const list = metadata.details instanceof Array ? metadata.details : [];
-        const users = await Promise.all(
-            list.map((_) => showUser(_.email).catch(() => _)),
-        );
-        this._contacts.set(users.map((i) => new StaffUser(i)));
+    /**
+     * Load the contacts of the user. Set `refresh` after a contact change, so
+     * that a load which started before the change is not used.
+     */
+    public async updateContacts(refresh = false) {
+        this._contacts.set(await loadContacts(currentUser().id, refresh));
     }
 
     public async addContact(user: StaffUser) {
@@ -231,7 +244,7 @@ export class LandingStateService extends AsyncHandler {
             description: 'Contacts for the User',
             details: users,
         });
-        this.updateContacts();
+        this.updateContacts(true);
     }
 
     public async addContacts(user_list: User[]) {
@@ -242,7 +255,7 @@ export class LandingStateService extends AsyncHandler {
             description: 'Contacts for the User',
             details: users,
         });
-        this.updateContacts();
+        this.updateContacts(true);
     }
 
     public async removeContact(user: User) {
@@ -253,7 +266,7 @@ export class LandingStateService extends AsyncHandler {
             description: 'Contacts for the User',
             details: users,
         });
-        this.updateContacts();
+        this.updateContacts(true);
     }
 
     private async updateOccupancy(map: HashMap<{ recommendation: number }>) {

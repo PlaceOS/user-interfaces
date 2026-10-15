@@ -456,9 +456,11 @@ describe('TeamScheduleService', () => {
         const week_start = startOfWeek(Date.now(), { weekStartsOn: 1 });
         const monday = week_start.valueOf();
 
-        // Let the constructor's initial (empty) load settle before each test
-        // so it cannot overwrite the data we load via refresh().
+        // Open the page, and let its first (empty) load settle so it cannot
+        // overwrite the data that the tests load with refresh().
         beforeEach(async () => {
+            service.watch();
+            TestBed.tick();
             await wait();
         });
 
@@ -660,6 +662,69 @@ describe('TeamScheduleService', () => {
 
             const member = (service as any)._team_members()[0];
             expect(member.statuses[0].date).toBe(service.week_days()[0].date);
+            expect(service.loading()).toBe(false);
+        });
+    });
+
+    describe('page lifecycle', () => {
+        it('should make no request until a screen watches the members', async () => {
+            settings_store['favourite_team_members'] = ['fav@example.com'];
+            TestBed.tick();
+            await wait();
+            expect(showMetadata).not.toHaveBeenCalled();
+            expect(get).not.toHaveBeenCalled();
+            // Other screens can read the flags without a member load
+            expect(service.isFavorite({ email: 'fav@example.com' })).toBe(true);
+
+            // A contact change on Home marks the members to load later
+            await service.refresh();
+            expect(showMetadata).not.toHaveBeenCalled();
+
+            service.watch();
+            TestBed.tick();
+            await wait();
+            expect(showMetadata).toHaveBeenCalledTimes(1);
+        });
+
+        it('should limit the booking requests that run at one time', async () => {
+            const emails = Array.from(
+                { length: 10 },
+                (_, i) => `user-${i}@example.com`,
+            );
+            (showMetadata as any).mockResolvedValue({
+                details: emails.map((email) => ({ email })),
+            });
+            let running = 0;
+            let peak = 0;
+            vi.mocked(get).mockImplementation(async () => {
+                peak = Math.max(peak, ++running);
+                await wait(1);
+                running--;
+                return [] as any;
+            });
+
+            service.watch();
+            TestBed.tick();
+            await wait(50);
+
+            expect(get).toHaveBeenCalledTimes(emails.length);
+            expect(peak).toBeLessThanOrEqual(6);
+            expect((service as any)._team_members()).toHaveLength(10);
+        });
+
+        it('should load the bookings again when the page opens again', async () => {
+            const release = service.watch();
+            TestBed.tick();
+            await wait();
+            (showMetadata as any).mockClear();
+            release();
+            TestBed.tick();
+
+            service.watch();
+            TestBed.tick();
+            await wait();
+            // The colleagues stay loaded. Only their bookings load again.
+            expect(showMetadata).not.toHaveBeenCalled();
             expect(service.loading()).toBe(false);
         });
     });

@@ -9,7 +9,6 @@ import {
     SettingsService,
 } from '@placeos/common';
 import { EventFormService } from '@placeos/events';
-import { ExploreSpacesService } from '@placeos/explore';
 import { MockProvider } from 'ng-mocks';
 import { LandingStateService } from '../../app/landing/landing-state.service';
 import { LandingFavouritesNewComponent } from '../../app/landing-new/landing-favourites-new.component';
@@ -20,7 +19,6 @@ describe('LandingFavouritesNewComponent', () => {
     const createComponent = createComponentFactory({
         component: LandingFavouritesNewComponent,
         detectChanges: false,
-        componentProviders: [MockProvider(ExploreSpacesService)],
         providers: [
             MockProvider(OrganisationService, {
                 organisation: { id: 'org-1' },
@@ -62,12 +60,18 @@ describe('LandingFavouritesNewComponent', () => {
         [],
         true,
     );
+    const fav_parking = settingSignal<string[]>(
+        SETTING_KEYS.FAVORITE_PARKING_SPACES,
+        [],
+        true,
+    );
 
     beforeEach(() => {
         vi.clearAllMocks();
         booking_model.set({});
         features.set(['spaces', 'desks', 'parking', 'lockers']);
         fav_rooms.set([]);
+        fav_parking.set([]);
         spectator = createComponent();
     });
 
@@ -83,13 +87,24 @@ describe('LandingFavouritesNewComponent', () => {
         expect(spectator.component.favourites()).toEqual([]);
     });
 
-    it('should load a resource list only when its feature is enabled', async () => {
+    it('should load a resource list only for an enabled feature with favourites', async () => {
+        const load = spectator.inject(BookingFormService).loadResourceList;
+        spectator.detectChanges();
+        await spectator.fixture.whenStable();
+        expect(load).not.toHaveBeenCalled();
+
+        fav_parking.set(['park-123']);
         features.set(['parking']);
         spectator.detectChanges();
         await spectator.fixture.whenStable();
-        const load = spectator.inject(BookingFormService).loadResourceList;
         expect(load).toHaveBeenCalledTimes(1);
         expect(load).toHaveBeenCalledWith('parking-spaces');
+
+        // More favourites of the same type use the list that is loaded
+        fav_parking.set(['park-123', 'park-456']);
+        spectator.detectChanges();
+        await spectator.fixture.whenStable();
+        expect(load).toHaveBeenCalledTimes(1);
     });
 
     it('should navigate desk favourites using asset_id query params', () => {
@@ -147,6 +162,7 @@ describe('LandingFavouritesNewComponent', () => {
         } as any;
 
         // Flush the parking resource loader so the full list is available
+        fav_parking.set(['park-123']);
         spectator.detectChanges();
         await new Promise((resolve) => setTimeout(resolve, 0));
         spectator.detectChanges();

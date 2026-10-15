@@ -155,7 +155,14 @@ export class EventFormService extends AsyncHandler {
     private _loading = signal('');
     private _event = signal(new CalendarEvent());
     private _network_requested = false;
+    /** Whether a form is open. `releaseNetwork` clears it */
     private _network_consumed = signal(false);
+    /** Number of list calls that wait for the form's resources */
+    private _network_holds = signal(0);
+    /** Whether the space, rule and availability loads can run */
+    private readonly _network_active = computed(
+        () => this._network_consumed() || this._network_holds() > 0,
+    );
     private _space_requests = new Map<string, Promise<Space[]>>();
     private readonly _loaded_space_lists = signal<Record<string, Space[]>>({});
     /** Bookable room lists loaded during the current selection session. */
@@ -209,6 +216,25 @@ export class EventFormService extends AsyncHandler {
         this._network_requested = true;
         this._network_consumed.set(true);
     }
+
+    /**
+     * Stop the space, rule and availability loads when the user leaves the
+     * booking flows. Opening or loading a form starts them again. Calls that
+     * wait for the loads keep them active until they resolve.
+     */
+    public releaseNetwork() {
+        this._network_consumed.set(false);
+    }
+
+    /** Keep the loads active while `work` runs */
+    private async _holdNetwork<T>(work: () => Promise<T>): Promise<T> {
+        this._network_holds.update((count) => count + 1);
+        try {
+            return await work();
+        } finally {
+            this._network_holds.update((count) => count - 1);
+        }
+    }
     private readonly _requests_ready = computed(() => {
         const region = this._org.active_region();
         const building = this._org.active_building();
@@ -235,7 +261,7 @@ export class EventFormService extends AsyncHandler {
     /** Booking rules for the active buildings, grouped by building id */
     private readonly _booking_rules_resource = resource({
         params: () => {
-            if (!this._network_consumed() || !this._requests_ready()) {
+            if (!this._network_active() || !this._requests_ready()) {
                 return undefined;
             }
             const list = this._org.building_list();
@@ -285,7 +311,7 @@ export class EventFormService extends AsyncHandler {
     /** Bookable spaces for the active zone */
     private readonly _spaces_resource = resource({
         params: () =>
-            this._network_consumed() && this._requests_ready()
+            this._network_active() && this._requests_ready()
                 ? this._space_zone_debounced.value() || undefined
                 : undefined,
         loader: ({ params: zone_id }) => {
@@ -324,7 +350,7 @@ export class EventFormService extends AsyncHandler {
     /** Room alert messaging for the active organisation */
     private readonly _room_alerts_resource = resource({
         params: () =>
-            this._network_consumed() && this._requests_ready()
+            this._network_active() && this._requests_ready()
                 ? this._org.organisation?.id || undefined
                 : undefined,
         loader: ({ params: id }) =>
@@ -400,7 +426,7 @@ export class EventFormService extends AsyncHandler {
     /** Spaces available to book for the current event selection */
     private readonly _available_resource = resource({
         params: () => {
-            if (!this._network_consumed() || !this._requests_ready()) {
+            if (!this._network_active() || !this._requests_ready()) {
                 return undefined;
             }
             if (
@@ -667,8 +693,10 @@ export class EventFormService extends AsyncHandler {
     /** Resolve with the spaces available to book once the list has loaded */
     public async listAvailableSpaces(): Promise<Space[]> {
         this._startNetwork();
-        await this._whenSettled(this._available_resource);
-        return this.available_spaces();
+        return this._holdNetwork(async () => {
+            await this._whenSettled(this._available_resource);
+            return this.available_spaces();
+        });
     }
 
     public setView(value: EventFlowView) {
@@ -782,10 +810,16 @@ export class EventFormService extends AsyncHandler {
         }));
     }
 
+    /**
+     * Reset the form and its stored state. This does not start the loads: a
+     * flow can clear the form while the user leaves it.
+     */
     public clearForm() {
         sessionStorage.removeItem('PLACEOS.event');
         sessionStorage.removeItem('PLACEOS.event_form');
+        const consumed = this._network_consumed();
         this.newForm();
+        this._network_consumed.set(consumed);
     }
 
     public openEventLinkModal(force = false) {
@@ -1296,6 +1330,7 @@ export class EventFormService extends AsyncHandler {
         host: string,
     ) {
         const user = await this._bookingRulesHost(host);
+        // `checkSpaceRules` loads the rules of a building that has none here
         await this._whenSettled(this._booking_rules_resource);
         return checkSpaceRules(
             this._org,

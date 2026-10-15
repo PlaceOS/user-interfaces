@@ -238,11 +238,14 @@ describe('LandingStateService', () => {
 
         active_building.set({ id: 'bld-rules' });
         spectator = createService();
+        const release = spectator.service.watchSpaceStatuses();
         await flush();
 
         expect(
             spectator.service.free_space_list().map((space) => space.id),
         ).toEqual(['space-free']);
+        release();
+        await flush();
     });
 
     it('should not rebind space status when a status value is received', async () => {
@@ -266,6 +269,7 @@ describe('LandingStateService', () => {
 
         active_building.set({ id: 'bld-1' });
         spectator = createService();
+        const release = spectator.service.watchSpaceStatuses();
         await flush();
 
         // User-dependent booking rules may rebind when the current-user signal
@@ -276,5 +280,50 @@ describe('LandingStateService', () => {
         expect(settled_count).toBeGreaterThanOrEqual(1);
         await flush();
         expect(bindThenSubscribe.mock.calls.length).toBe(settled_count);
+        release();
+        await flush();
+    });
+
+    it('should bind space statuses only while a screen watches them', async () => {
+        // The effect can rebind when the booking rules settle, so count the
+        // bindings that are open
+        let open = 0;
+        const bindThenSubscribe = vi.fn((callback) => {
+            open++;
+            callback('free');
+            return () => open--;
+        });
+        vi.mocked(ts_client.querySystems).mockResolvedValue({
+            data: [
+                { id: 'space-1', bookable: true, zones: ['bld-watch'] },
+                { id: 'space-2', bookable: true, zones: ['bld-watch'] },
+            ],
+        } as any);
+        vi.mocked(ts_client.getModule).mockReturnValue({
+            variable: vi.fn(() => ({ bindThenSubscribe })),
+        } as any);
+
+        active_building.set({ id: 'bld-watch' });
+        spectator = createService();
+        await flush();
+        expect(bindThenSubscribe).not.toHaveBeenCalled();
+        expect(spectator.service.space_list()).toHaveLength(2);
+
+        const release_home = spectator.service.watchSpaceStatuses();
+        const release_other = spectator.service.watchSpaceStatuses();
+        await flush();
+        expect(open).toBe(2);
+        expect(spectator.service.free_space_list()).toHaveLength(2);
+
+        // A second release of the same watcher does not end the other watch
+        release_home();
+        release_home();
+        await flush();
+        expect(open).toBe(2);
+
+        release_other();
+        await flush();
+        expect(open).toBe(0);
+        expect(spectator.service.free_space_list()).toEqual([]);
     });
 });

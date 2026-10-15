@@ -76,4 +76,40 @@ describe('MapViewer overlays', () => {
         expect(callback).toHaveBeenCalledOnce();
         viewer.destroy();
     });
+
+    it('keeps overlay wrappers whose contents stay when the overlays change', () => {
+        const viewer = new MapViewer(document.createElement('div'));
+        viewer.map = {
+            raw_data: '',
+            element_bounds: new Map(),
+            aspect_ratio: 1,
+        };
+        const room = document.createElement('div');
+        const desk = document.createElement('div');
+        const point = { x: 0.5, y: 0.5 };
+        viewer.setOverlays([
+            { ref: point, type: 'point', contents: room },
+            { ref: point, type: 'point', contents: desk, hover: true },
+        ]);
+        const [room_wrapper, desk_wrapper] = Array.from(
+            viewer.overlays.children,
+        );
+        const removed = vi.spyOn(desk_wrapper, 'remove');
+
+        // An unrelated overlay is added, and the desk is removed
+        const pin = document.createElement('div');
+        viewer.setOverlays([
+            { ref: point, type: 'point', contents: pin },
+            { ref: point, type: 'point', contents: room, z_index: 5 },
+        ]);
+
+        const wrappers = Array.from(viewer.overlays.children);
+        expect(wrappers).toHaveLength(2);
+        expect(wrappers[1]).toBe(room_wrapper);
+        expect(room.parentElement).toBe(room_wrapper);
+        expect((room_wrapper as HTMLElement).style.zIndex).toBe('5');
+        expect(wrappers[0].firstChild).toBe(pin);
+        expect(removed).toHaveBeenCalled();
+        viewer.destroy();
+    });
 });

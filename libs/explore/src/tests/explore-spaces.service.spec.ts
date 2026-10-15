@@ -6,7 +6,7 @@ import { createServiceFactory, SpectatorService } from '@ngneat/spectator';
 import { MockProvider } from 'ng-mocks';
 import { of } from 'rxjs';
 
-import { OrganisationService, SettingsService } from '@placeos/common';
+import { OrganisationService, SettingsService, Space } from '@placeos/common';
 import { EventFormService } from 'libs/events/src/lib/event-form.service';
 
 import { ExploreSpacesService } from '../lib/explore-spaces.service';
@@ -116,4 +116,50 @@ describe('ExploreSpacesService', () => {
     //     expect(notify.notifyError).toHaveBeenCalled();
     //     expect(dialog.open).toHaveBeenCalledTimes(1);
     // });
+
+    it('should keep stable room features and update their data in place', () => {
+        vi.useFakeTimers();
+        const callbacks: Record<string, (value: unknown) => void> = {};
+        vi.mocked(ts_client.getModule).mockImplementation(
+            (id: string) =>
+                ({
+                    variable: (name: string) => ({
+                        bindThenSubscribe: (callback) => {
+                            callbacks[`${id}:${name}`] = callback;
+                            return () => null;
+                        },
+                    }),
+                }) as any,
+        );
+        const state = spectator.inject(ExploreStateService);
+        (state.spaces as any).set([
+            new Space({ id: 'space-1', map_id: 'map-1', bookable: true }),
+        ]);
+        TestBed.tick();
+        vi.runOnlyPendingTimers();
+        const set_features = vi.mocked(state.setFeatures);
+        const room_calls = () =>
+            set_features.mock.calls.filter(([group]) => group === 'spaces');
+        expect(room_calls()).toHaveLength(1);
+        const [feature] = room_calls()[0][1];
+        expect(feature.track_id).toBe('space:hover:space-1');
+        const data = feature.data as any;
+        expect(data.status()).toBe('not-bookable');
+
+        // Status and booking changes update the signals, not the features
+        callbacks['space-1:status']('busy');
+        callbacks['space-1:bookings']([
+            { id: 'event-1', date: Date.now(), duration: 30 },
+        ]);
+        vi.runOnlyPendingTimers();
+        expect(room_calls()).toHaveLength(1);
+        expect(data.status()).toBe('busy');
+        expect(data.events().map((event) => event.id)).toEqual(['event-1']);
+        expect(state.setStyles).toHaveBeenCalledWith(
+            'spaces',
+            expect.objectContaining({ '#map-1': expect.anything() }),
+        );
+        vi.useRealTimers();
+    });
 });
+
