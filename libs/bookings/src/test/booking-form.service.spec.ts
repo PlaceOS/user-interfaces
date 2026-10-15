@@ -894,6 +894,25 @@ describe('BookingFormService', () => {
             expect(date_end).toBe(date + 90 * 60 * 1000);
         });
 
+        it.each([
+            ['default_duration', 120, 'duration'],
+            ['all_day_default', true, 'all_day'],
+        ] as const)(
+            'falls back to app.bookings.%s',
+            (setting, value, field) => {
+                const get = spectator.inject(SettingsService).get as Mock;
+                get.mockImplementation((key: string) =>
+                    key === `app.bookings.${setting}` ? value : undefined,
+                );
+
+                spectator.service.newForm('desk');
+                vi.runAllTimers();
+                TestBed.tick();
+
+                expect(spectator.service.model()[field]).toBe(value);
+            },
+        );
+
         it('keeps a duration the user chose over the default', () => {
             const node = spectator.service.form.duration();
             node.value.set(120);

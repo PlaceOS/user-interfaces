@@ -11,7 +11,6 @@ import {
     i18n,
     notifyError,
     OrganisationService,
-    SettingsService,
 } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import { isBefore, startOfMinute } from 'date-fns';
@@ -90,7 +89,6 @@ export class NewDeskFlowFormComponent implements OnInit {
     private _router = inject(Router);
     private _org = inject(OrganisationService);
     private _bottom_sheet = inject(MatBottomSheet);
-    private _settings = inject(SettingsService);
 
     public sheet_ref: MatBottomSheetRef<NewDeskFlowConfirmComponent>;
     public level = '';
@@ -165,13 +163,6 @@ export class NewDeskFlowFormComponent implements OnInit {
             this.model.update((m) => ({
                 ...m,
                 date: startOfMinute(Date.now()).valueOf(),
-            }));
-        }
-        if (!this.model().id) {
-            this.model.update((m) => ({
-                ...m,
-                duration:
-                    this._settings.get('app.desks.default_duration') || 60,
             }));
         }
     }
