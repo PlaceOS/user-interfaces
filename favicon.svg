@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="Map Studio">
+    <title>Map Studio</title>
+    <defs>
+        <linearGradient id="tile" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#D0446F" />
+            <stop offset="1" stop-color="#A32A5B" />
+        </linearGradient>
+    </defs>
+
+    <!-- Brand tile -->
+    <rect width="32" height="32" rx="7" fill="url(#tile)" />
+
+    <!-- Floor plan: outer wall plus two dividers, making three spaces -->
+    <g
+        fill="none"
+        stroke="#ffffff"
+        stroke-width="2"
+        stroke-linejoin="round"
+        stroke-linecap="round"
+    >
+        <rect x="7" y="7" width="18" height="18" rx="1.5" />
+        <path d="M16 7v9M7 16h18" />
+    </g>
+
+    <!-- One space filled, to read as the room being edited -->
+    <rect x="17.4" y="8.4" width="6.2" height="6.2" rx="0.9" fill="#ffffff" />
+</svg>
