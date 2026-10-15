@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["welcome.component.ts"],
+  "sourcesContent": ["\n            a {\n                height: 3.5rem;\n            }\n        "],
+  "mappings": ";AACY;AACI,UAAA;AACJ;",
+  "names": []
+}
