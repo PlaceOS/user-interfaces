@@ -911,6 +911,11 @@ export class BookingFormService extends AsyncHandler {
         return use_building_timezone ? this._org.building?.timezone || '' : '';
     }
 
+    /**
+     * Reset the form to `booking`, or to an empty booking of `type`.
+     * A booking without an `id` takes the configured `default_duration`, so
+     * set a different length on the model after this call.
+     */
     public newForm(type: BookingType, booking: Booking = new Booking({})) {
         this._resetForm(type, booking, true);
     }
@@ -977,6 +982,19 @@ export class BookingFormService extends AsyncHandler {
             ),
             { emitEvent: false },
         );
+        // A new booking takes the configured default length, not the 60
+        // minutes that `Booking` falls back to. Done before the replay, so a
+        // length the user chose still wins.
+        const default_duration = Number(this.setting('default_duration'));
+        if (!booking.id && default_duration > 0) {
+            this._patch({
+                duration: default_duration,
+                date_end: addMinutes(
+                    this.model().date,
+                    default_duration,
+                ).valueOf(),
+            });
+        }
         // Re-apply the user's own edits over the incoming booking. Done here,
         // before `applyDurationSettings`, so a restored `all_day` still drives
         // the time-sync window; and before `_syncWindowIfUnchanged`, which

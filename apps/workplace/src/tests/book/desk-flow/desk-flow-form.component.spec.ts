@@ -6,11 +6,7 @@ import {
     SpectatorRouting,
 } from '@ngneat/spectator/vitest';
 import { BookingFormService } from '@placeos/bookings';
-import {
-    OrganisationService,
-    setNotifyOutlet,
-    SettingsService,
-} from '@placeos/common';
+import { OrganisationService, setNotifyOutlet } from '@placeos/common';
 import { MockComponent, MockProvider } from 'ng-mocks';
 import { of } from 'rxjs';
 import { NewDeskFlowFormComponent } from '../../../app/book/desk-flow/desk-flow-form.component';
@@ -35,7 +31,6 @@ describe('NewDeskFlowFormComponent', () => {
         detectChanges: false,
         declarations: [MockComponent(NewDeskFormDetailsComponent)],
         providers: [
-            MockProvider(SettingsService, { get: vi.fn(() => undefined) }),
             MockProvider(OrganisationService, {
                 building: { id: 'bld-1' },
                 waitUntilInitialised: vi.fn(() => Promise.resolve()),
