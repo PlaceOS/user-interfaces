@@ -1,6 +1,7 @@
 import { MapDocument, stripEditorAttributes, ViewBox } from '../map-document';
 import { MapIndex, MapIndexEntry } from '../map-index';
 import { formatDeclarations, StyleRule } from '../style-resolution';
+import { annotationPoints } from './annotations';
 import { snapshotSize, SnapshotSize } from './snapshot';
 import {
     MAP_AI_CONTEXT_SCHEMA,
@@ -721,25 +722,15 @@ export function buildContext(
         .slice(0, MAX_MENTIONS)
         .map((entry) => entry.anchor);
     const box = doc.view_box;
-    const outside = (options.annotations || []).some((mark) => {
-        const points = [...(mark.points || [])];
-        if (mark.x !== undefined && mark.y !== undefined) {
-            points.push([mark.x, mark.y]);
-            points.push([
-                mark.x + (mark.width || 0),
-                mark.y + (mark.height || 0),
-            ]);
-        }
-        if (mark.x2 !== undefined && mark.y2 !== undefined)
-            points.push([mark.x2, mark.y2]);
-        return points.some(
+    const outside = (options.annotations || []).some((mark) =>
+        annotationPoints(mark).some(
             ([x, y]) =>
                 x < box.x ||
                 y < box.y ||
                 x > box.x + box.width ||
                 y > box.y + box.height,
-        );
-    });
+        ),
+    );
     const include_root =
         !!root_entry &&
         (outside || /\b(expand|extend|enlarge)\b/.test(instruction));

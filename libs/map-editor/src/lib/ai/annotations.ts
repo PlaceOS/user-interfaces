@@ -19,6 +19,18 @@ export function annotationColour(mark: MapAIAnnotation): string {
     );
 }
 
+/** Every point a mark covers in viewBox units: its path, its box corners and an arrow's tip. */
+export function annotationPoints(mark: MapAIAnnotation): [number, number][] {
+    const points: [number, number][] = [...(mark.points || [])];
+    if (mark.x !== undefined && mark.y !== undefined) {
+        points.push([mark.x, mark.y]);
+        points.push([mark.x + (mark.width || 0), mark.y + (mark.height || 0)]);
+    }
+    if (mark.x2 !== undefined && mark.y2 !== undefined)
+        points.push([mark.x2, mark.y2]);
+    return points.filter(([x, y]) => Number.isFinite(x) && Number.isFinite(y));
+}
+
 /** The same marks on the canvas overlay and the uploaded snapshot, in viewBox units. */
 export function drawAnnotations(
     overlay: SVGElement,

@@ -1,6 +1,6 @@
 import { SVG_NS } from '../constants';
 import { MapDocument, stripEditorAttributes, ViewBox } from '../map-document';
-import { drawAnnotations } from './annotations';
+import { annotationPoints, drawAnnotations } from './annotations';
 import { MapAIAnnotation } from './types';
 
 export const SNAPSHOT_LONG_SIDE = 2048;
@@ -65,21 +65,7 @@ export function snapshotMarkup(
     options: SnapshotMarkupOptions = {},
 ): SnapshotMarkup {
     const bounds = { ...doc.view_box };
-    const points = (options.annotations || [])
-        .flatMap((mark) => {
-            const result = [...(mark.points || [])];
-            if (mark.x !== undefined && mark.y !== undefined) {
-                result.push([mark.x, mark.y]);
-                result.push([
-                    mark.x + (mark.width || 0),
-                    mark.y + (mark.height || 0),
-                ]);
-            }
-            if (mark.x2 !== undefined && mark.y2 !== undefined)
-                result.push([mark.x2, mark.y2]);
-            return result;
-        })
-        .filter(([x, y]) => Number.isFinite(x) && Number.isFinite(y));
+    const points = (options.annotations || []).flatMap(annotationPoints);
     for (const [x, y] of points) {
         const right = Math.max(bounds.x + bounds.width, x);
         const bottom = Math.max(bounds.y + bounds.height, y);
