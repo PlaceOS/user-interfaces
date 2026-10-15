@@ -1,0 +1,3 @@
+import{gn as _t}from"./chunk-BF3rhqXc.js";import{X as Lp}from"./chunk-DbKFSQhX.js";var u=(()=>{class r{transform(t,e=!1){let i=Lp({hours:Math.floor(t/60),minutes:t%60});return e&&(i=i.replace(` hour`,`h`).replace(` minute`,`m`).replace(/s/gi,``)),i}static{this.ɵfac=function(e){return new(e||r)}}static{this.ɵpipe=_t({name:`duration`,type:r,pure:!0})}}return r})();export{u as t};
+//# debugId=33da1f7b-77ee-5eb4-a01a-2883e0093111
+//# sourceMappingURL=chunk-pse4DkML.js.map
