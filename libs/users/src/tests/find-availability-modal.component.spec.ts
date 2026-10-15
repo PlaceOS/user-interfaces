@@ -87,6 +87,26 @@ describe('FindAvailabilityModalComponent', () => {
         expect(spectator.component.users()[0].name).toBe('Alice II');
     });
 
+    it('should not add a user again when the email differs only in case', () => {
+        // the user search field emits the search result, then the same user
+        // with the stored PlaceOS details, whose email case can differ
+        spectator.component.addUser(
+            new User({ email: 'carol@place.tech', name: 'Carol' }),
+        );
+        spectator.component.addUser(
+            new User({ email: 'Carol@Place.Tech', name: 'Carol Smith' }),
+        );
+        expect(spectator.component.users().length).toBe(2);
+        expect(spectator.component.users()[1].name).toBe('Carol Smith');
+    });
+
+    it('should remove a user whose email differs only in case', () => {
+        spectator.component.removeUser(
+            new User({ email: 'A@PLACE.TECH', name: 'Alice' }),
+        );
+        expect(spectator.component.users().length).toBe(0);
+    });
+
     it('should ignore adding a falsy user', () => {
         spectator.component.addUser(undefined);
         expect(spectator.component.users().length).toBe(1);

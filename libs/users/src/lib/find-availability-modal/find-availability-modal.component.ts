@@ -49,6 +49,11 @@ export interface FindAvailabilityData {
     duration: number;
 }
 
+/** Email addresses compared without regard to case */
+function sameEmail(a: string, b: string) {
+    return (a || '').toLowerCase() === (b || '').toLowerCase();
+}
+
 @Component({
     selector: 'find-availability-modal',
     template: `
@@ -381,7 +386,7 @@ export class FindAvailabilityModalComponent
     public addUser(new_user: User) {
         if (!new_user) return;
         this.users.update((current) => [
-            ...current.filter((u) => u.email !== new_user.email),
+            ...current.filter((u) => !sameEmail(u.email, new_user.email)),
             new_user,
         ]);
         this.user.set(undefined);
@@ -389,7 +394,7 @@ export class FindAvailabilityModalComponent
 
     public removeUser(user_to_remove: User) {
         this.users.update((current) =>
-            current.filter((u) => u.email !== user_to_remove.email),
+            current.filter((u) => !sameEmail(u.email, user_to_remove.email)),
         );
         this.user.set(undefined);
     }
