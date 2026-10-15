@@ -6,196 +6,30 @@ import {
     log,
     notifySuccess,
     OrganisationService,
-    unique,
 } from '@placeos/common';
 import {
     listDashboardAlerts,
     PlaceAlert,
     PlaceAlertDashboard,
-    PlaceModule,
     queryAlertDashboards,
-    queryModules,
     removeAlert,
     removeAlertDashboard,
     showAlert,
     showAlertDashboard,
-    systemModuleState,
     token,
-    TriggerComparison,
     TriggerConditionOperator,
 } from '@placeos/ts-client';
 
 import { openConfirmModal } from '@placeos/components';
 import mqtt from 'mqtt';
-import { Alert } from '../alerts.service';
 import { AlertNotificationService } from '../push-notification.service';
-
-export interface StateTopic {
-    region_id?: string;
-    building_id?: string;
-    level_id?: string;
-    area_id?: string;
-    system_id?: string;
-    driver_id?: string;
-    module_name?: string;
-    module_index?: string;
-    state_key?: string;
-}
-
-let _org_id = '';
-
-function topicToString(topic: StateTopic): string {
-    return `placeos/${_org_id || '+'}/+/${topic.region_id || '+'}/${topic.building_id || '+'}/${topic.level_id || '+'}/${topic.area_id || '+'}/${topic.system_id || '+'}/${topic.driver_id || '+'}/${topic.module_name || '+'}/${topic.module_index || '+'}/${topic.state_key || '+'}`;
-}
-
-function stringToTopic(topic: string): StateTopic {
-    const [
-        _,
-        _o,
-        _s,
-        bld_id,
-        lvl_id,
-        area_id,
-        _b,
-        sys_id,
-        dev_id,
-        mod_id,
-        mod_idx,
-        key,
-    ] = topic.split('/');
-    return {
-        building_id: bld_id,
-        level_id: lvl_id,
-        area_id: area_id,
-        system_id: sys_id,
-        driver_id: dev_id,
-        module_name: mod_id,
-        module_index: mod_idx,
-        state_key: key,
-    };
-}
-
-function compareAsTopic(
-    item: TriggerComparison,
-    zones: { region?: string; building?: string; level?: string } = {},
-): string {
-    if (!(item.left instanceof Object))
-        return topicToString({
-            state_key: `${item.left}`,
-            region_id: zones.region,
-            building_id: zones.building,
-        });
-    const parts = (item.left?.mod || '').split('_');
-    parts.pop();
-    const module_name = parts.join('_');
-    const topic = topicToString({
-        module_name,
-        state_key: item.left.status,
-        region_id: zones.region,
-        building_id: zones.building,
-        level_id: zones.level,
-    });
-    return topic;
-}
-
-function matchTopics(topic: string, comp: string): boolean {
-    const t_state = topic.split('/');
-    const comp_t_state = comp.split('/');
-    for (let i = 0; i < t_state.length; i++) {
-        if (
-            t_state[i] !== comp_t_state[i] &&
-            t_state[i] !== '+' &&
-            comp_t_state[i] !== '+'
-        ) {
-            return false;
-        }
-    }
-    return true;
-}
-
-/** Minimum time between refetches of a system's modules on an unknown device */
-const MODULE_LIST_REFRESH_MS = 5000;
-
-interface BrokerAlert {
-    time: number;
-    topic: StateTopic;
-    topic_str: string;
-    value: any;
-}
-
-/**
- * Calculate module index based on modules of the same name/class
- */
-function calculateModuleIndex(
-    module_list: PlaceModule[],
-    module: PlaceModule,
-): number {
-    const driver = module.driver || { class_name: 'System' };
-    const module_class = module.custom_name || module.name || driver.class_name;
-    const modules_with_class = module_list.filter((mod) => {
-        const d = mod.driver || { class_name: 'System' };
-        const mod_class = mod.custom_name || mod.name || d.class_name;
-        return mod_class === module_class;
-    });
-    return Math.max(
-        1,
-        modules_with_class.findIndex((mod) => mod.id === module.id) + 1,
-    );
-}
-
-/**
- * Get list of valid device names (module_name_index format) for a system's modules
- */
-function getModuleDeviceNames(modules: PlaceModule[]): string[] {
-    return modules.map((mod) => {
-        const driver = mod.driver || { class_name: 'System' };
-        const name =
-            mod.custom_name || mod.name || driver.class_name || 'Blank';
-        const index = calculateModuleIndex(modules, mod);
-        return `${name}_${index}`;
-    });
-}
-
-function findCompareMatches(alerts: BrokerAlert[], item: TriggerComparison) {
-    const topic = compareAsTopic(item);
-    const matches: BrokerAlert[] = [];
-    for (const alert of alerts) {
-        if (matchTopics(topic, alert.topic_str)) {
-            switch (item.operator) {
-                case TriggerConditionOperator.EQ:
-                    item.right === alert.value ? matches.push(alert) : '';
-                    break;
-                case TriggerConditionOperator.NEQ:
-                    item.right !== alert.value ? matches.push(alert) : '';
-                    break;
-                case TriggerConditionOperator.GT:
-                    item.right > alert.value ? matches.push(alert) : '';
-                    break;
-                case TriggerConditionOperator.LT:
-                    item.right < alert.value ? matches.push(alert) : '';
-                    break;
-                case TriggerConditionOperator.GTE:
-                    item.right >= alert.value ? matches.push(alert) : '';
-                    break;
-                case TriggerConditionOperator.LTE:
-                    item.right <= alert.value ? matches.push(alert) : '';
-                    break;
-                case TriggerConditionOperator.AND:
-                    item.right && alert.value ? matches.push(alert) : '';
-                    break;
-                case TriggerConditionOperator.OR:
-                    item.right || alert.value ? matches.push(alert) : '';
-                    break;
-                case TriggerConditionOperator.XOR:
-                    (item.right as number) | alert.value
-                        ? matches.push(alert)
-                        : '';
-                    break;
-            }
-        }
-    }
-    return matches;
-}
+import {
+    Alert,
+    BrokerValue,
+    compareAsTopic,
+    parseBrokerMessage,
+    raisedAlerts,
+} from './broker-alerts';
 
 @Injectable({
     providedIn: 'root',
@@ -207,7 +41,8 @@ export class DashboardsService extends AsyncHandler {
 
     private _mqtt_broker: mqtt.MqttClient;
     private _connected = false;
-    private _alerts = signal([]);
+    /** The latest value of each topic the broker holds, by topic */
+    private _values = new Map<string, BrokerValue>();
     private _initialising = signal(false);
     private _region_set_from_params = false;
     /** Capture original URL query string at construction time before effects can modify it */
@@ -218,12 +53,6 @@ export class DashboardsService extends AsyncHandler {
     })();
     /** Track alert IDs that have already been notified to prevent duplicates */
     private _notified_alert_ids = new Set<string>();
-    /** Cache of system modules: system_id -> list of valid device names */
-    private _system_modules_cache = new Map<string, string[]>();
-    /** When each system's module list was fetched, to bound refetches */
-    private _system_modules_fetched_at = new Map<string, number>();
-    /** Track in-flight module queries to prevent duplicate requests */
-    private _pending_module_queries = new Map<string, Promise<string[]>>();
     /** Track current alert subscription scope to avoid unnecessary resets */
     private _alert_scope = '';
 
@@ -386,7 +215,7 @@ export class DashboardsService extends AsyncHandler {
 
         if (scope_changed) {
             this.dashboard_alerts.set([]);
-            this._alerts.set([]);
+            this._values.clear();
         }
         this._alert_scope = alert_scope;
         if (!this._mqtt_broker) await this._initialiseBroker();
@@ -399,7 +228,6 @@ export class DashboardsService extends AsyncHandler {
         try {
             await this._org.waitUntilInitialised();
             this.unsubWith('alert:');
-            _org_id = this._org.organisation.id;
             const jwt = token();
             const url = `${location.host}/api/mqtt/`;
             const secure = location.protocol === 'https:';
@@ -411,7 +239,13 @@ export class DashboardsService extends AsyncHandler {
                     keepalive: 30,
                 },
             );
-            this._mqtt_broker.on('connect', () => (this._connected = true));
+            this._mqtt_broker.on('connect', () => {
+                // on a reconnection the client subscribes again and is handed
+                // every retained value; a topic removed while it was away
+                // sends nothing, so start from what it is handed
+                this._values.clear();
+                this._connected = true;
+            });
             this._mqtt_broker.on('disconnect', () => {
                 this._connected = false;
                 delete this._mqtt_broker;
@@ -426,200 +260,6 @@ export class DashboardsService extends AsyncHandler {
         this.timeout('init_finish', () => this._initialising.set(false));
     }
 
-    /**
-     * Get valid module device names for a system.
-     * Caches results to avoid repeated API calls.
-     */
-    private async _getSystemModuleNames(
-        system_id: string,
-        refresh = false,
-    ): Promise<string[]> {
-        // Return cached result if available
-        if (!refresh && this._system_modules_cache.has(system_id)) {
-            return this._system_modules_cache.get(system_id);
-        }
-
-        // Check if there's already a pending query for this system
-        if (this._pending_module_queries.has(system_id)) {
-            return this._pending_module_queries.get(system_id);
-        }
-
-        // Create new query promise
-        const query_promise = queryModules({ control_system_id: system_id })
-            .then((resp) => resp.data)
-            .then((modules) => {
-                const device_names = getModuleDeviceNames(modules);
-                this._system_modules_cache.set(system_id, device_names);
-                this._system_modules_fetched_at.set(system_id, Date.now());
-                this._pending_module_queries.delete(system_id);
-                return device_names;
-            })
-            .catch((err) => {
-                log(
-                    'ALERTS',
-                    `Failed to fetch modules for system ${system_id}:`,
-                    err,
-                );
-                this._pending_module_queries.delete(system_id);
-                // Return empty array on error - this will cause the alert to be filtered out
-                return [];
-            });
-
-        this._pending_module_queries.set(system_id, query_promise);
-        return query_promise;
-    }
-
-    /**
-     * Check if a module exists on a system.
-     * Returns true if the module exists, false otherwise.
-     */
-    private async _moduleExistsOnSystem(
-        system_id: string,
-        device: string,
-    ): Promise<boolean> {
-        const module_names = await this._getSystemModuleNames(system_id);
-        if (module_names.includes(device)) return true;
-        // The cached list predates a module added to the system since; check
-        // again before dropping the alert, but not more often than this
-        const fetched_at = this._system_modules_fetched_at.get(system_id) ?? 0;
-        const wait = fetched_at + MODULE_LIST_REFRESH_MS - Date.now();
-        if (wait > 0) {
-            // Nothing may arrive to prompt another look, so schedule one
-            this.timeout(
-                'module_list_recheck',
-                () => this._updateDashboardAlertList(),
-                wait + 50,
-            );
-            return false;
-        }
-        const refreshed = await this._getSystemModuleNames(system_id, true);
-        return refreshed.includes(device);
-    }
-
-    /**
-     * Get the current value of a status variable from a module.
-     * Returns undefined if the value cannot be fetched.
-     */
-    private async _getModuleStatusValue(
-        system_id: string,
-        device: string,
-        status_key: string,
-        keys: string[] = [],
-    ): Promise<unknown> {
-        const parts = (device || '').split('_');
-        const module_index = parseInt(parts.pop(), 10) || 1;
-        const module_name = parts.join('_');
-        if (!module_name) return undefined;
-
-        try {
-            const state = await systemModuleState(
-                system_id,
-                module_name,
-                module_index,
-            );
-            let value = state?.[status_key];
-            // Navigate through sub-keys if specified
-            for (const key of keys || []) {
-                if (value == null) break;
-                value = value[key];
-            }
-            return value;
-        } catch (err) {
-            log(
-                'ALERTS',
-                `Failed to fetch status value for ${device}.${status_key} on system ${system_id}:`,
-                err,
-            );
-            return undefined;
-        }
-    }
-
-    /**
-     * Coerce a value that may be a string representation to its actual type.
-     * Handles "true"/"false" strings, numeric strings, and null/undefined strings.
-     */
-    private _coerceValue(value: unknown): unknown {
-        if (typeof value !== 'string') return value;
-
-        const lower = value.toLowerCase();
-        // Handle boolean strings
-        if (lower === 'true') return true;
-        if (lower === 'false') return false;
-        // Handle null/undefined strings
-        if (lower === 'null') return null;
-        if (lower === 'undefined') return undefined;
-        // Handle numeric strings
-        if (value !== '' && !isNaN(Number(value))) {
-            return Number(value);
-        }
-        return value;
-    }
-
-    /**
-     * Validate that an alert condition matches the current module state.
-     * This prevents false positives from delayed or stale MQTT messages.
-     */
-    private async _validateAlertCondition(
-        system_id: string,
-        device: string,
-        comparison: TriggerComparison,
-    ): Promise<boolean> {
-        // Get the status key and subkeys from the comparison
-        let status_key: string;
-        let keys: string[] = [];
-        if (comparison.left instanceof Object) {
-            status_key = comparison.left.status;
-            keys = comparison.left.keys || [];
-        } else {
-            status_key = comparison.left as string;
-        }
-
-        // Fetch the current value from the module
-        const raw_value = await this._getModuleStatusValue(
-            system_id,
-            device,
-            status_key,
-            keys,
-        );
-
-        if (raw_value === undefined) {
-            // If we can't fetch the value, don't validate (let alert through)
-            log(
-                'ALERTS',
-                `Could not fetch current value for ${device}.${status_key}, skipping validation`,
-            );
-            return true;
-        }
-
-        // Coerce values that may be string representations to their actual types
-        const current_value = this._coerceValue(raw_value);
-        const expected = this._coerceValue(comparison.right);
-
-        // Validate against the comparison operator
-        switch (comparison.operator) {
-            case TriggerConditionOperator.EQ:
-                return current_value === expected;
-            case TriggerConditionOperator.NEQ:
-                return current_value !== expected;
-            case TriggerConditionOperator.GT:
-                return current_value > expected;
-            case TriggerConditionOperator.LT:
-                return current_value < expected;
-            case TriggerConditionOperator.GTE:
-                return current_value >= expected;
-            case TriggerConditionOperator.LTE:
-                return current_value <= expected;
-            case TriggerConditionOperator.AND:
-                return !!(current_value && expected);
-            case TriggerConditionOperator.OR:
-                return !!(current_value || expected);
-            case TriggerConditionOperator.XOR:
-                return !!current_value !== !!expected;
-            default:
-                return true;
-        }
-    }
-
     private _listenToAlertTopics() {
         if (!this._connected) {
             return this.timeout('alert_topics', () =>
@@ -627,6 +267,9 @@ export class DashboardsService extends AsyncHandler {
             );
         }
         this.unsubWith('alert:');
+        // resubscribing hands back every retained value, so drop what came
+        // from the old subscriptions rather than keep values nothing updates
+        this._values.clear();
         const dashboard = this.dashboard();
         const alert_list = this.alerts_list();
         if (!alert_list.length) {
@@ -653,6 +296,7 @@ export class DashboardsService extends AsyncHandler {
                         : this.region_id()
                           ? { region: this.region_id() }
                           : {},
+                    this._org.organisation.id,
                 );
                 if (!topic) continue;
                 log('ALERTS', 'Listening to topic:', topic);
@@ -669,120 +313,33 @@ export class DashboardsService extends AsyncHandler {
     }
 
     private _handleBrokerMessage(t: string, msg_buffer: Buffer) {
-        const topic = stringToTopic(t);
-        const data = JSON.parse(msg_buffer.toString());
-        const details = { ...data, topic, topic_str: t };
-        this._alerts.update((l) => [...l.filter((_) => _), details]);
+        let entry: BrokerValue | null;
+        try {
+            entry = parseBrokerMessage(t, msg_buffer.toString());
+        } catch (e) {
+            log('ALERTS', `Ignoring unreadable message on ${t}:`, e);
+            return;
+        }
+        // keep only the latest value of each topic, and forget removed ones
+        if (entry) this._values.set(t, entry);
+        else this._values.delete(t);
         this._updateDashboardAlertList();
     }
 
     private _updateDashboardAlertList() {
+        // a subscription is handed every retained topic at once, so wait for
+        // the burst to finish before working the alerts out
         this.timeout(
             'update_alerts',
-            async () => {
-                const alert_list = this.alerts_list();
-                // Track alerts with their triggering comparisons for validation
-                let alert_out: (Alert & {
-                    _comparisons?: TriggerComparison[];
-                })[] = [];
-                for (const alert of alert_list) {
-                    const comparision_matches: any[][] = [];
-                    for (const item of alert.conditions.comparisons) {
-                        const matches = findCompareMatches(
-                            this._alerts(),
-                            item,
-                        );
-                        comparision_matches.push(matches);
-                    }
-                    console.log('Matches:', alert, comparision_matches);
-                    if (!comparision_matches.length) continue;
-                    const match_groups: any[][] = [];
-                    for (const match of comparision_matches[0]) {
-                        const group = [match];
-                        for (let i = 1; i < comparision_matches.length; i++) {
-                            const other_match = comparision_matches[i].find(
-                                (_) =>
-                                    Math.abs(_.time - match.time) <
-                                    alert.debounce_period,
-                            );
-                            if (other_match) group.push(other_match);
-                        }
-                        match_groups.push(group);
-                    }
-                    for (const group of match_groups) {
-                        const required_matches = alert.any_match
-                            ? 1
-                            : alert.conditions.comparisons.length;
-                        if (group.length >= required_matches) {
-                            const { time, topic_str } = group[0];
-                            const topic = stringToTopic(topic_str);
-                            const device = `${topic.module_name}_${topic.module_index}`;
-                            alert_out.push({
-                                id: `${alert.id}+${topic.system_id}+${device}`,
-                                severity: alert.severity,
-                                type: alert.alert_type as any,
-                                location: topic.system_id,
-                                device,
-                                subject: alert.name,
-                                body: alert.description,
-                                status: 'open',
-                                timestamp: time * 1000,
-                                // Store comparisons for validation
-                                _comparisons: alert.conditions.comparisons,
-                            });
-                        }
-                    }
-                    alert_out = unique(alert_out, 'id');
-                }
-
-                // Filter out alerts where the module no longer exists on the system
-                // and validate that current state matches the alert condition
-                const filtered_alerts: Alert[] = [];
-                for (const alert of alert_out) {
-                    const exists = await this._moduleExistsOnSystem(
-                        alert.location,
-                        alert.device,
-                    );
-                    if (!exists) {
-                        log(
-                            'ALERTS',
-                            `Filtering out alert for non-existent module: ${alert.device} on system ${alert.location}`,
-                        );
-                        continue;
-                    }
-
-                    // Validate current state matches at least one comparison
-                    const comparisons = alert._comparisons || [];
-                    let valid = comparisons.length === 0; // If no comparisons, consider valid
-                    for (const comparison of comparisons) {
-                        const is_valid = await this._validateAlertCondition(
-                            alert.location,
-                            alert.device,
-                            comparison,
-                        );
-                        if (is_valid) {
-                            valid = true;
-                            break; // At least one comparison is still valid
-                        }
-                    }
-
-                    if (valid) {
-                        // Remove internal _comparisons before adding to output
-                        const { _comparisons, ...clean_alert } = alert;
-                        filtered_alerts.push(clean_alert);
-                    } else {
-                        log(
-                            'ALERTS',
-                            `Filtering out alert for ${alert.device} on system ${alert.location}: current state no longer matches condition`,
-                        );
-                    }
-                }
-
-                // Send push notifications for new alerts
-                this._sendPushNotifications(filtered_alerts);
-                this.dashboard_alerts.set(filtered_alerts);
+            () => {
+                const alerts = raisedAlerts(
+                    this.alerts_list(),
+                    this._values.values(),
+                );
+                this._sendPushNotifications(alerts);
+                this.dashboard_alerts.set(alerts);
             },
-            10,
+            50,
         );
     }
 

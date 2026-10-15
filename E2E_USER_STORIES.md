@@ -455,10 +455,11 @@ runs `source` and `mosquitto` for this, and the specs drive state with a purpose
 `drivers/place/e2e/state_harness.cr` (a UDP device whose `connected` and other statuses are
 set through `exec`). See "MQTT" in `e2e/README.md`.
 
-**The broker is asserted directly, not only through the page.** Stagehand re-checks every
-MQTT alert over REST before showing it (`DashboardsService._updateDashboardAlertList`), which
-hides wrong data on the broker. Removing that re-check — it is what makes stagehand slow — is
-only safe once the MQTT rows below are all green.
+**The broker is asserted directly, not only through the page.** Stagehand builds the hot list
+from the broker's retained state alone: the latest value of each topic, with an emptied topic
+removed. It used to re-check every alert over REST (a module list and a state read per alert, on
+every message), which made it slow and hid wrong data on the broker; that went once the MQTT rows
+below were green.
 
 | ID | P | Story | Status |
 |----|---|-------|--------|
@@ -479,7 +480,8 @@ only safe once the MQTT rows below are all green.
 | SH-MQTT-19 | P0 | Two quick edits to one system leave source's mapping matching the latest. | **done** — the lifecycle setup makes them (two modules added back to back). pg-orm and placeos-resource handle each change on its own fiber, so source processed them out of order and kept the older module list. Found while building this coverage. |
 | SH-MQTT-20 | P1 | After a broker restart, every status is published again. | **done, not automated** — verified by hand (restart mosquitto: 32 of 32 topics back within 2 s; before the fix, 0 until each value changed). |
 | SH-MQTT-21 | P1 | Retained topics nothing maps to (left by a module deleted while source was down, or by an older source) are removed when source starts. | **done, not automated** — verified by hand with a planted topic. source spec `sweeps retained topics that nothing maps to`. |
-| SH-HOT-02 | P1 | A module added to a system after stagehand has loaded it can still raise an alert. | **done** — `local/stagehand-hotlist.spec.ts`. Stagehand cached each system's module list forever (`_system_modules_cache`); it now refetches, at most every 5 s, before dropping an alert for an unknown device. |
+| SH-HOT-02 | P1 | A module added to a system after stagehand has loaded it can still raise an alert. | **done** — `local/stagehand-hotlist.spec.ts`. Was a module list cached forever by the REST re-check, which is gone. |
+| SH-HOT-03 | P0 | A deleted module leaves the hot list, the module after it is listed at its index, and the page makes no per-alert REST calls. | **done** — `local/stagehand-hotlist.spec.ts`. Red against the REST re-checking stagehand: an emptied topic failed to parse, so the deleted module stayed listed. |
 
 **The lifecycle specs need source v1.22.1 or later** (PlaceOS/source#65). Against
 `placeos-2.2610.1` SH-MQTT-10 … 19 and SH-HOT-02 are red, which is what they are for. Until a

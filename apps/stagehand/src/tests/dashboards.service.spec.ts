@@ -321,54 +321,89 @@ describe('DashboardsService', () => {
         });
     });
 
-    // SH-HOT-02: the module list was cached on a system's first alert and never
-    // refreshed, so a module added afterwards could never raise an alert
-    describe('module existence check', () => {
-        const projector = {
-            id: 'mod-1',
-            custom_name: 'Projector',
-            driver: { class_name: 'Harness' },
-        };
-        const display = {
-            id: 'mod-2',
-            name: 'Display',
-            driver: { class_name: 'Harness' },
-        };
-        const exists = (device: string) =>
-            (spectator.service as any)._moduleExistsOnSystem('sys-1', device);
+    // The broker is the source of truth: each topic's latest value raises or
+    // clears an alert, and nothing is checked again over REST
+    describe('broker messages', () => {
+        const topic = (system: string, device: string, index = 1) =>
+            `placeos/org-1/state/_/bld/lvl/_/${system}/driver-1/${device}/${index}/connected`;
+        const send = (t: string, payload: unknown) =>
+            (spectator.service as any)._handleBrokerMessage(
+                t,
+                Buffer.from(
+                    payload === '' ? '' : JSON.stringify({ time: 1, value: payload }),
+                ),
+            );
 
+        beforeEach(() => vi.useFakeTimers());
         afterEach(() => vi.useRealTimers());
 
-        it('refetches a stale module list before dropping an unknown device', async () => {
-            vi.useFakeTimers({ toFake: ['Date'] });
-            vi.mocked(ts_client.queryModules)
-                .mockResolvedValueOnce({ data: [projector] } as any)
-                .mockResolvedValueOnce({ data: [projector, display] } as any);
+        it('raises an alert from the latest value only', () => {
+            spectator.service.alerts_list.set([
+                {
+                    id: 'alert-1',
+                    name: 'Disconnected',
+                    conditions: {
+                        comparisons: [
+                            {
+                                left: 'connected',
+                                operator: ts_client.TriggerConditionOperator.EQ,
+                                right: false,
+                            },
+                        ],
+                    },
+                } as any,
+            ]);
+            send(topic('sys-1', 'Display'), false);
+            send(topic('sys-2', 'Display'), false);
+            vi.advanceTimersByTime(100);
+            expect(
+                spectator.service.dashboard_alerts().map((a) => a.location),
+            ).toEqual(['sys-1', 'sys-2']);
 
-            expect(await exists('Projector_1')).toBe(true);
-            vi.setSystemTime(Date.now() + 6_000);
+            // the module reconnects: its earlier value no longer counts
+            send(topic('sys-1', 'Display'), true);
+            vi.advanceTimersByTime(100);
+            expect(
+                spectator.service.dashboard_alerts().map((a) => a.location),
+            ).toEqual(['sys-2']);
 
-            expect(await exists('Display_1')).toBe(true);
-            expect(ts_client.queryModules).toHaveBeenCalledTimes(2);
+            expect(ts_client.queryModules).not.toHaveBeenCalled();
+            expect(ts_client.systemModuleState).not.toHaveBeenCalled();
         });
 
-        it('refetches at most once per interval, and looks again when it may', async () => {
-            vi.useFakeTimers({ toFake: ['Date'] });
-            vi.mocked(ts_client.queryModules).mockResolvedValue({
-                data: [projector],
-            } as any);
-            const recheck = vi.spyOn(spectator.service as any, 'timeout');
+        it('drops the alert of a topic the broker removes', () => {
+            spectator.service.alerts_list.set([
+                {
+                    id: 'alert-1',
+                    name: 'Disconnected',
+                    conditions: {
+                        comparisons: [
+                            {
+                                left: 'connected',
+                                operator: ts_client.TriggerConditionOperator.EQ,
+                                right: false,
+                            },
+                        ],
+                    },
+                } as any,
+            ]);
+            send(topic('sys-1', 'Display', 2), false);
+            vi.advanceTimersByTime(100);
+            expect(spectator.service.dashboard_alerts()).toHaveLength(1);
 
-            expect(await exists('Projector_1')).toBe(true);
-            expect(await exists('Display_1')).toBe(false);
-            expect(await exists('Display_1')).toBe(false);
+            // source empties a retained topic when its module is deleted
+            send(topic('sys-1', 'Display', 2), '');
+            vi.advanceTimersByTime(100);
+            expect(spectator.service.dashboard_alerts()).toEqual([]);
+        });
 
-            expect(ts_client.queryModules).toHaveBeenCalledTimes(1);
-            expect(recheck).toHaveBeenCalledWith(
-                'module_list_recheck',
-                expect.any(Function),
-                expect.any(Number),
-            );
+        it('ignores a message it cannot read', () => {
+            expect(() =>
+                (spectator.service as any)._handleBrokerMessage(
+                    topic('sys-1', 'Display'),
+                    Buffer.from('not json'),
+                ),
+            ).not.toThrow();
         });
     });
 });
