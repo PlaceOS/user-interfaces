@@ -19,14 +19,19 @@ const silence = (seconds: number) => new Float32Array(seconds * RATE);
 describe('VoiceActivityDetector', () => {
     let phrases: Float32Array[];
     let starts: number;
+    let ends: number;
     let detector: VoiceActivityDetector;
 
     beforeEach(() => {
         phrases = [];
         starts = 0;
+        ends = 0;
         detector = new VoiceActivityDetector({
             start: () => starts++,
-            phrase: (audio) => phrases.push(audio),
+            end: (phrase) => {
+                ends++;
+                if (phrase) phrases.push(phrase);
+            },
         });
     });
 
@@ -39,8 +44,8 @@ describe('VoiceActivityDetector', () => {
         expect(phrases).toHaveLength(1);
         // The speech, the lead-in and a short gap, without the full quiet tail
         const seconds = phrases[0].length / RATE;
-        expect(seconds).toBeGreaterThan(1.2);
-        expect(seconds).toBeLessThan(1.8);
+        expect(seconds).toBeGreaterThan(1.4);
+        expect(seconds).toBeLessThan(2);
     });
 
     it('should accept audio in blocks of any size', () => {
@@ -53,11 +58,21 @@ describe('VoiceActivityDetector', () => {
         expect(phrases).toHaveLength(1);
     });
 
+    it('should pick up quiet speech over a quiet room', () => {
+        const hum = (seconds: number) => tone(seconds, 0.002);
+        detector.push(hum(1));
+        detector.push(tone(1, 0.01));
+        detector.push(hum(1));
+        expect(phrases).toHaveLength(1);
+    });
+
     it('should ignore short sounds such as a tap', () => {
         detector.push(silence(0.5));
         detector.push(tone(0.12));
         detector.push(silence(1));
         expect(phrases).toHaveLength(0);
+        // The end still fires, so the display stops showing speech
+        expect(ends).toBe(starts);
     });
 
     it('should split speech that runs past the longest phrase', () => {
@@ -69,6 +84,7 @@ describe('VoiceActivityDetector', () => {
     it('should drop a partial phrase on reset', () => {
         detector.push(tone(1));
         detector.reset();
+        expect(ends).toBe(1);
         detector.push(silence(1));
         expect(phrases).toHaveLength(0);
     });

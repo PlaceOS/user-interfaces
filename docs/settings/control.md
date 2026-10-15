@@ -65,7 +65,7 @@ Example:
 
 ## Voice Assistant
 
-The System's `voice_control` binding turns on the voice assistant. To give a command, say "Hey Room" and then the command, or tap the microphone button. Speech recognition and speech synthesis run on the device with LiteRT models:
+The System's `voice_control` binding turns on the voice assistant. To give a command, say "Hey Room" and then the command, or tap the microphone button. A green ring shows on the button when the panel hears speech. If you say "Hey Room" and stop, the panel plays a short tone and waits for the command. Speech recognition and speech synthesis run on the device with LiteRT models:
 
 - Speech to text: [Moonshine Tiny](https://huggingface.co/litert-community/moonshine-tiny) (English only, MIT licence).
 - Text to speech: [Matcha-TTS](https://huggingface.co/litert-community/Matcha-TTS) (English only, MIT licence).

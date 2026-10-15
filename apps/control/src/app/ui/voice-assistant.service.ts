@@ -1,4 +1,11 @@
-import { Injectable, effect, inject, signal, untracked } from '@angular/core';
+import {
+    Injectable,
+    computed,
+    effect,
+    inject,
+    signal,
+    untracked,
+} from '@angular/core';
 import {
     AsyncHandler,
     SettingsService,
@@ -10,7 +17,7 @@ import {
 import { ChatService } from '@placeos/components';
 import { MicLevels } from './mic-levels';
 import { MicCapture } from './speech/mic-capture';
-import { SpeechEngine, SpeechModel } from './speech/speech-engine';
+import { SpeechEngine, SpeechModel, Transcript } from './speech/speech-engine';
 import { SpeechPlayer } from './speech/speech-player';
 
 /**
@@ -21,8 +28,12 @@ import { SpeechPlayer } from './speech/speech-player';
 export type VoiceState = 'idle' | 'listening' | 'processing';
 
 const WAITING_PHRASES = ['One second...', 'One moment...', 'Working on it...'];
-const PROMPT_PHRASE = 'How may I help you?';
-/** Wake phrases without spaces, including words that speech recognition hears by mistake */
+/** The speech model scores this phrase directly. Each word must be one model token. */
+const WAKE_PHRASE = 'Hey room';
+/**
+ * Wake phrases without spaces, including words that speech recognition hears by mistake.
+ * Used when the model score misses the wake phrase.
+ */
 const WAKE_PHRASES = [
     'heyroom',
     'hayroom',
@@ -33,6 +44,7 @@ const WAKE_PHRASES = [
 ];
 const MAX_WAKE_WORDS = 2;
 const LISTEN_TIMEOUT = 8 * 1000;
+const NOT_HEARD_MESSAGE = "Sorry, I didn't catch that.";
 const RESPONSE_TIMEOUT = 60 * 1000;
 /** Time after speech ends where the microphone can still hear our own voice */
 const ECHO_DELAY = 1000;
@@ -96,6 +108,13 @@ export class VoiceAssistantService extends AsyncHandler {
     public readonly error = this._error.asReadonly();
     public readonly state = this._state.asReadonly();
     public readonly progress = this._chat_service.progress;
+
+    private _hearing = signal(false);
+    private _transcribing = signal(0);
+    /** True while the microphone picks up speech */
+    public readonly hearing = this._hearing.asReadonly();
+    /** True while speech is converted to text */
+    public readonly transcribing = computed(() => this._transcribing() > 0);
 
     private _mic_levels = new MicLevels();
     /** True when `readLevels()` returns live microphone levels */
@@ -186,12 +205,14 @@ export class VoiceAssistantService extends AsyncHandler {
         this._capture.resume();
         if (this._state() === 'listening') return this._setIdle();
         this._stopSpeaking();
+        this._player.chime();
         this._listen();
     }
 
-    private _listen() {
+    /** Waits for a command. `message` shows in place of "Listening...". */
+    private _listen(message = '') {
         this._state.set('listening');
-        this._current_text.set('');
+        this._current_text.set(message);
         this.timeout('state', () => this._setIdle(), LISTEN_TIMEOUT);
     }
 
@@ -229,7 +250,7 @@ export class VoiceAssistantService extends AsyncHandler {
             await this._capture.start(
                 {
                     start: () => this._onSpeechStart(),
-                    phrase: (audio) => this._onPhrase(audio),
+                    end: (phrase) => this._onSpeechEnd(phrase),
                 },
                 () => this._isSpeaking(),
             );
@@ -248,7 +269,8 @@ export class VoiceAssistantService extends AsyncHandler {
                 mirror_url: mirror
                     ? new URL(mirror, document.baseURI).href
                     : '',
-                cached_phrases: [...WAITING_PHRASES, PROMPT_PHRASE],
+                cached_phrases: WAITING_PHRASES,
+                wake_phrase: WAKE_PHRASE,
             },
             {
                 ready: (model) => log('VOICE', `Loaded ${model} model.`),
@@ -266,6 +288,7 @@ export class VoiceAssistantService extends AsyncHandler {
         if (!this._voice_on) return;
         this._voice_on = false;
         this._session++;
+        this._hearing.set(false);
         this._stopSpeaking();
         this._mic_levels.close();
         this._capture.stop();
@@ -274,32 +297,45 @@ export class VoiceAssistantService extends AsyncHandler {
     }
 
     private _onSpeechStart() {
+        this._hearing.set(true);
         // Give the speaker time to finish the command
         if (this._state() === 'listening') this._listen();
     }
 
-    private _onPhrase(audio: Float32Array) {
+    private _onSpeechEnd(phrase?: Float32Array) {
+        this._hearing.set(false);
+        if (!phrase) return;
         const session = this._session;
         if (this._state() === 'listening') this._listen();
-        this._engine.transcribe(audio).then(
-            (text) => session === this._session && this._onTranscript(text),
-            (error) => log('VOICE', 'Speech recognition error:', error, 'warn'),
-        );
+        this._transcribing.update((count) => count + 1);
+        this._engine
+            .transcribe(phrase)
+            .then(
+                (transcript) =>
+                    session === this._session && this._onTranscript(transcript),
+                (error) =>
+                    log('VOICE', 'Speech recognition error:', error, 'warn'),
+            )
+            .finally(() => this._transcribing.update((count) => count - 1));
     }
 
-    private _onTranscript(transcript: string) {
-        const text = normalizeTranscript(transcript);
-        if (!text) return;
+    private _onTranscript({ text, command }: Transcript) {
+        const heard = normalizeTranscript(text);
         const is_listening = this._state() === 'listening';
-        const command =
-            parseWakePhrase(text) ?? (is_listening ? text : undefined);
-        if (command === undefined) return;
-        if (command.length <= 3) {
-            this._listen();
-            this._speakText(PROMPT_PHRASE);
-            return;
+        if (!heard && !is_listening) return;
+        const wake_command =
+            command !== undefined
+                ? normalizeTranscript(command)
+                : parseWakePhrase(heard);
+        const next = wake_command ?? (is_listening ? heard : undefined);
+        if (next === undefined) return;
+        if (next.length > 3) return this._sendCommand(next);
+        // The wake phrase alone. Chime and wait for the command.
+        if (wake_command !== undefined) {
+            this._player.chime();
+            return this._listen();
         }
-        this._sendCommand(command);
+        this._listen(NOT_HEARD_MESSAGE);
     }
 
     private _sendCommand(command: string, attempt = 0) {

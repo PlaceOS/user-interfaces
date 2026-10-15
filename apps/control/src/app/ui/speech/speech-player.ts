@@ -3,6 +3,10 @@ import { MicCapture } from './mic-capture';
 
 /** Short delay before new audio starts, so the first samples are not cut */
 const START_DELAY = 0.05;
+/** Frequencies in Hz of the listening chime */
+const CHIME_NOTES = [660, 880];
+const CHIME_NOTE_LENGTH = 0.09;
+const CHIME_VOLUME = 0.2;
 
 /**
  * Plays synthesized speech. Each clip plays after the clips already queued.
@@ -45,6 +49,32 @@ export class SpeechPlayer {
         this._end_time = start + buffer.duration;
         this._busy_until =
             Date.now() + (this._end_time - context.currentTime) * 1000;
+    }
+
+    /**
+     * Plays two short rising tones to show that the assistant is listening.
+     * The microphone stays open, so the speaker can start at once.
+     * Echo cancellation removes the tones from the microphone input.
+     */
+    public chime() {
+        const context = this._capture.context;
+        if (!context) return;
+        const start = context.currentTime + START_DELAY;
+        CHIME_NOTES.forEach((frequency, i) => {
+            const time = start + i * CHIME_NOTE_LENGTH;
+            const oscillator = context.createOscillator();
+            const gain = context.createGain();
+            oscillator.frequency.value = frequency;
+            gain.gain.setValueAtTime(0, time);
+            gain.gain.linearRampToValueAtTime(CHIME_VOLUME, time + 0.01);
+            gain.gain.exponentialRampToValueAtTime(
+                0.001,
+                time + CHIME_NOTE_LENGTH * 1.5,
+            );
+            oscillator.connect(gain).connect(context.destination);
+            oscillator.start(time);
+            oscillator.stop(time + CHIME_NOTE_LENGTH * 1.5);
+        });
     }
 
     /** Stops all queued audio */

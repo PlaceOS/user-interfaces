@@ -1,4 +1,8 @@
+import type { Transcript } from './moonshine';
+
 /** Messages between the speech worker and `SpeechEngine` */
+
+export type { Transcript };
 
 export type SpeechModel = 'speech_to_text' | 'text_to_speech';
 
@@ -9,6 +13,8 @@ export interface SpeechSetup {
     mirror_url: string;
     /** Phrases to synthesize at load time and keep, so they play without delay */
     cached_phrases: string[];
+    /** Words that start a command, such as "Hey room". Each word must be one model token. */
+    wake_phrase: string;
 }
 
 export type SpeechRequest =
@@ -20,7 +26,7 @@ export type SpeechRequest =
 export type SpeechResponse =
     | { type: 'ready'; model: SpeechModel }
     | { type: 'failed'; model: SpeechModel; message: string }
-    | { type: 'transcript'; id: number; text: string }
+    | { type: 'transcript'; id: number; transcript: Transcript }
     | {
           type: 'audio';
           id: number;

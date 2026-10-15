@@ -4,9 +4,10 @@ import type {
     SpeechRequest,
     SpeechResponse,
     SpeechSetup,
+    Transcript,
 } from './speech-messages';
 
-export type { SpeechModel, SpeechSetup };
+export type { SpeechModel, SpeechSetup, Transcript };
 
 type AudioHandler = (
     samples: Float32Array<ArrayBuffer>,
@@ -14,7 +15,7 @@ type AudioHandler = (
 ) => void;
 
 interface PendingRequest {
-    resolve: (text: string) => void;
+    resolve: (transcript?: Transcript) => void;
     reject: (error: Error) => void;
     on_audio?: AudioHandler;
 }
@@ -53,11 +54,12 @@ export class SpeechEngine {
     }
 
     /** Converts 16 kHz mono audio into text */
-    public transcribe(audio: Float32Array) {
-        return this._request(
+    public async transcribe(audio: Float32Array): Promise<Transcript> {
+        const transcript = await this._request(
             (id) => ({ type: 'transcribe', id, audio }),
             [audio.buffer],
         );
+        return transcript ?? { text: '' };
     }
 
     /**
@@ -78,7 +80,7 @@ export class SpeechEngine {
         );
     }
 
-    /** Resolves with the transcript, or an empty string for speech requests */
+    /** Resolves with the transcript, or undefined for speech requests */
     private _request(
         message: (id: number) => SpeechRequest & { id: number },
         transfer: Transferable[],
@@ -86,11 +88,11 @@ export class SpeechEngine {
         signal?: AbortSignal,
     ) {
         const id = this._next_id++;
-        return new Promise<string>((resolve, reject) => {
+        return new Promise<Transcript | undefined>((resolve, reject) => {
             const on_abort = () => {
                 this._send({ type: 'cancel', id });
                 this._pending.delete(id);
-                resolve('');
+                resolve(undefined);
             };
             signal?.addEventListener('abort', on_abort, { once: true });
             this._pending.set(id, {
@@ -124,10 +126,10 @@ export class SpeechEngine {
                 return pending.on_audio?.(message.samples, message.sample_rate);
             case 'transcript':
                 this._pending.delete(message.id);
-                return pending.resolve(message.text);
+                return pending.resolve(message.transcript);
             case 'done':
                 this._pending.delete(message.id);
-                return pending.resolve('');
+                return pending.resolve();
             case 'error':
                 this._pending.delete(message.id);
                 return pending.reject(new Error(message.message));

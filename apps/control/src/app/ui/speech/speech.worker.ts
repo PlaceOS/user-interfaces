@@ -62,13 +62,18 @@ function watch<T>(model: SpeechModel, loading: Promise<T>) {
     return loading;
 }
 
-function setup({ wasm_url, mirror_url, cached_phrases: phrases }: SpeechSetup) {
+function setup({
+    wasm_url,
+    mirror_url,
+    cached_phrases: phrases,
+    wake_phrase,
+}: SpeechSetup) {
     if (speech_to_text) return;
     const files = new ModelFiles(mirror_url);
     const runtime = loadRuntime(wasm_url);
     speech_to_text = watch(
         'speech_to_text',
-        runtime.then(() => MoonshineTranscriber.load(files)),
+        runtime.then(() => MoonshineTranscriber.load(files, wake_phrase)),
     );
     // Load text to speech second, so listening for the wake phrase starts sooner
     text_to_speech = watch(
@@ -147,8 +152,8 @@ self.onmessage = ({ data }: MessageEvent<SpeechRequest>) => {
             return;
         case 'transcribe':
             return schedule(data.id, speech_to_text, async (transcriber) => {
-                const text = await transcriber.transcribe(data.audio);
-                post({ type: 'transcript', id: data.id, text });
+                const transcript = await transcriber.transcribe(data.audio);
+                post({ type: 'transcript', id: data.id, transcript });
             });
         case 'synthesize':
             return schedule(

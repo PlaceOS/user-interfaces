@@ -4,24 +4,26 @@ export const SPEECH_SAMPLE_RATE = 16000;
 const FRAME_SAMPLES = 480;
 /** Loud frames in a row that start a phrase */
 const START_FRAMES = 3;
-/** Quiet frames in a row that end a phrase */
-const END_FRAMES = 25;
+/** Quiet frames in a row that end a phrase. Long enough for a pause between words. */
+const END_FRAMES = 30;
 /** Phrases with fewer loud frames are noise, such as a tap or a cough */
 const MIN_SPEECH_FRAMES = 8;
 /** Longest phrase, 10 seconds */
 const MAX_FRAMES = 334;
-/** Frames kept from before the phrase starts, so the first sound is not cut */
-const PRE_ROLL_FRAMES = 10;
-/** Loudness (RMS) that always counts as quiet */
-const MIN_LEVEL = 0.01;
+/** Frames kept from before the phrase starts, so soft first sounds such as "h" are not cut */
+const PRE_ROLL_FRAMES = 15;
+/** Quiet frames kept after the last word */
+const TAIL_FRAMES = 10;
+/** Loudness (RMS) that always counts as quiet. About -48 dBFS, for people far from the panel. */
+const MIN_LEVEL = 0.004;
 /** A frame is loud when it is this many times louder than the background noise */
-const NOISE_RATIO = 3;
+const NOISE_RATIO = 2.5;
 
 export interface VoiceActivityEvents {
     /** Someone started to speak */
     start: () => void;
-    /** A full phrase of 16 kHz audio */
-    phrase: (audio: Float32Array) => void;
+    /** The speaker stopped. Gives the phrase as 16 kHz audio, or undefined if it was only noise. */
+    end: (phrase?: Float32Array) => void;
 }
 
 /**
@@ -63,6 +65,11 @@ export class VoiceActivityDetector {
 
     /** Drops any partial phrase. Use while our own voice plays. */
     public reset() {
+        if (this._speaking) this._events.end();
+        this._clear();
+    }
+
+    private _clear() {
         this._frame_length = 0;
         this._pre_roll = [];
         this._phrase = [];
@@ -109,13 +116,13 @@ export class VoiceActivityDetector {
         const frames = this._phrase;
         const is_speech = this._loud_frames >= MIN_SPEECH_FRAMES;
         // Drop the quiet tail, but keep a short gap after the last word
-        const tail = Math.max(0, this._quiet_run - PRE_ROLL_FRAMES);
-        this.reset();
-        if (!is_speech) return;
+        const tail = Math.max(0, this._quiet_run - TAIL_FRAMES);
+        this._clear();
+        if (!is_speech) return this._events.end();
         const kept = frames.slice(0, frames.length - tail);
         const audio = new Float32Array(kept.length * FRAME_SAMPLES);
         kept.forEach((frame, i) => audio.set(frame, i * FRAME_SAMPLES));
-        this._events.phrase(audio);
+        this._events.end(audio);
     }
 }
 

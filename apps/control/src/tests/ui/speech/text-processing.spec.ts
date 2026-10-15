@@ -1,5 +1,8 @@
 import { numberToWords, phonemize } from '../../../app/ui/speech/g2p';
-import { decodeTokens } from '../../../app/ui/speech/moonshine';
+import {
+    decodeTokens,
+    wakePhraseTokens,
+} from '../../../app/ui/speech/moonshine';
 
 describe('decodeTokens', () => {
     const vocab = [
@@ -23,6 +26,25 @@ describe('decodeTokens', () => {
 
     it('should skip special tokens', () => {
         expect(decodeTokens(vocab, [1, 6, 2])).toBe('the');
+    });
+});
+
+describe('wakePhraseTokens', () => {
+    const ids = new Map([
+        ['▁Hey', 10],
+        ['▁room', 11],
+        [',', 12],
+    ]);
+
+    it('should give the phrase with and without a comma', () => {
+        expect(wakePhraseTokens(ids, 'Hey room')).toEqual([
+            [10, 11],
+            [10, 12, 11],
+        ]);
+    });
+
+    it('should give nothing when a word is not one token', () => {
+        expect(wakePhraseTokens(ids, 'Hey PlaceOS')).toEqual([]);
     });
 });
 

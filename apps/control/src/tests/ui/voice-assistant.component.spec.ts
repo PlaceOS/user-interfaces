@@ -14,6 +14,8 @@ describe('VoiceAssistantComponent', () => {
     let progress: ReturnType<typeof signal<unknown>>;
     let error: ReturnType<typeof signal<unknown>>;
     let enabled: ReturnType<typeof signal<boolean>>;
+    let hearing: ReturnType<typeof signal<boolean>>;
+    let transcribing: ReturnType<typeof signal<boolean>>;
     let service: any;
 
     const createComponent = createComponentFactory({
@@ -28,7 +30,11 @@ describe('VoiceAssistantComponent', () => {
         progress = signal<unknown>(null);
         error = signal<unknown>({});
         enabled = signal(true);
+        hearing = signal(false);
+        transcribing = signal(false);
         service = {
+            hearing,
+            transcribing,
             activate: vi.fn(),
             state,
             current_text,
@@ -84,6 +90,35 @@ describe('VoiceAssistantComponent', () => {
         state.set('processing');
         spectator.detectChanges();
         expect(spectator.query('[aria-hidden] span')).not.toExist();
+    });
+
+    it('should show when speech is heard and processed', () => {
+        hearing.set(true);
+        spectator.detectChanges();
+        expect(spectator.query('.ring-4')).toExist();
+        // People talking in the room do not open the status bubble
+        expect(spectator.query('[role="status"]')).not.toExist();
+        state.set('listening');
+        spectator.detectChanges();
+        expect(spectator.query('[role="status"]')).toContainText(
+            'Hearing you...',
+        );
+        hearing.set(false);
+        transcribing.set(true);
+        spectator.detectChanges();
+        expect(spectator.query('.ring-4')).not.toExist();
+        expect(spectator.query('[role="status"]')).toContainText(
+            'Processing...',
+        );
+    });
+
+    it('should quote the command that it heard', () => {
+        state.set('processing');
+        current_text.set('turn on the lights');
+        spectator.detectChanges();
+        expect(spectator.query('[role="status"]')).toContainText(
+            '“turn on the lights”',
+        );
     });
 
     it('should activate the service when the button is clicked', () => {
