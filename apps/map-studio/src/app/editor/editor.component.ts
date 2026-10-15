@@ -243,6 +243,14 @@ const TOOLS: { id: Tool; label: string; key: string; icon: string }[] = [
                                 (change)="onUpload($event)"
                             />
                         </label>
+                        @if (state.can_reimport_svg()) {
+                            <button
+                                [class]="toolClass(false)"
+                                (click)="state.reimportSvg()"
+                            >
+                                Reimport original SVG
+                            </button>
+                        }
                         @if (ai_configured) {
                             <button
                                 [class]="toolClass(false)"
@@ -444,7 +452,10 @@ const TOOLS: { id: Tool; label: string; key: string; icon: string }[] = [
                             </button>
                         </div>
                         @if (canvas()?.containerEl(); as container) {
-                            <map-studio-minimap [container]="container" />
+                            <map-studio-minimap
+                                [container]="container"
+                                [source_image]="canvas()?.sourceImage()"
+                            />
                         }
                     </main>
 

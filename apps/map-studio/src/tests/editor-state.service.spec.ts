@@ -71,6 +71,32 @@ describe('EditorStateService', () => {
         expect(editor.error()).toBe('');
     });
 
+    it('requires confirmation before replacing a legacy SVG draft', async () => {
+        await store.updateFloorplan(floorplan_id, {
+            source_type: 'svg-import',
+            svg_output:
+                '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 50 50"><rect width="20" height="20"/></svg>',
+        });
+        await editor.load(floorplan_id);
+        const imported = vi
+            .spyOn(store, 'importLevelSvg')
+            .mockResolvedValue(await store.getFloorplan(floorplan_id));
+        const confirm_import = vi.fn(() => false);
+        vi.stubGlobal('confirm', confirm_import);
+        await editor.reimportSvg();
+        expect(imported).not.toHaveBeenCalled();
+        expect(editor.objects()).toHaveLength(1);
+        confirm_import.mockReturnValue(true);
+        vi.spyOn(editor, 'load').mockResolvedValue(undefined);
+        vi.spyOn(editor, 'save').mockResolvedValue(undefined);
+        await editor.reimportSvg();
+        expect(imported).toHaveBeenCalledWith(
+            floorplan_id,
+            expect.stringContaining('<rect'),
+        );
+        vi.unstubAllGlobals();
+    });
+
     it('offers to apply a newer server floorplan', async () => {
         const server = {
             floor_name: 'Server Level',

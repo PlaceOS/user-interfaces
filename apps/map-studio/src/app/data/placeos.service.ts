@@ -32,12 +32,15 @@ function withDeadline<T>(promise: Promise<T>, message: string): Promise<T> {
     });
 }
 
-function fetchWithDeadline(
+function fetchWithDeadline<T>(
     input: RequestInfo | URL,
-    init: RequestInit = {},
-): Promise<Response> {
+    init: RequestInit,
+    read: (response: Response) => T | Promise<T>,
+): Promise<T> {
     const controller = new AbortController();
-    const request = fetch(input, { ...init, signal: controller.signal });
+    const request = fetch(input, { ...init, signal: controller.signal }).then(
+        read,
+    );
     return withDeadline(request, 'PlaceOS request timed out.').finally(() =>
         controller.abort(),
     );
@@ -138,11 +141,11 @@ export class PlaceOSService {
      * flow if an authority is available on the current origin.
      */
     public async init(): Promise<void> {
-        const resolved = await fetchWithDeadline('/auth/authority', {
-            credentials: 'same-origin',
-        })
-            .then((resp) => resp.ok)
-            .catch(() => false);
+        const resolved = await fetchWithDeadline(
+            '/auth/authority',
+            { credentials: 'same-origin' },
+            (resp) => resp.ok,
+        ).catch(() => false);
         if (!resolved) return this._mode.set('manual');
         // Redirects to login when there's no session, and comes back here
         try {
@@ -158,6 +161,7 @@ export class PlaceOSService {
                 }),
                 'PlaceOS setup timed out.',
             );
+            if (!token()) return;
             this._mode.set('domain');
         } catch {
             this._mode.set('manual');
@@ -458,7 +462,7 @@ export class PlaceOSService {
         const on_domain = this._mode() === 'domain';
         if (!on_domain && !api_key) throw new Error('PlaceOS not configured');
         const query = new URLSearchParams(params).toString();
-        const response = await fetchWithDeadline(
+        return fetchWithDeadline(
             `${on_domain ? '' : domain}/api/engine/v2${path}${query ? `?${query}` : ''}`,
             {
                 ...options,
@@ -470,13 +474,15 @@ export class PlaceOSService {
                     ...(options.headers ?? {}),
                 },
             },
+            async (response) => {
+                if (!response.ok) {
+                    const detail = await response.text().catch(() => '');
+                    throw new Error(
+                        `PlaceOS ${response.status}: ${detail || response.statusText}`,
+                    );
+                }
+                return response.json() as Promise<T>;
+            },
         );
-        if (!response.ok) {
-            const detail = await response.text().catch(() => '');
-            throw new Error(
-                `PlaceOS ${response.status}: ${detail || response.statusText}`,
-            );
-        }
-        return response.json() as Promise<T>;
     }
 }

@@ -62,7 +62,7 @@
         },
         "features": {
             "type": "array",
-            "description": "List of features enabled in the app. e.g. `spaces`, `zones`, `desks`, `parking`, `visitors`, `assets`, `facilities`, `internal-users`, `points`, `surveys`, `catering`, `events`, `booking-report`, `attendance-report`, `contact-tracing-report`, `user-report`, `signage`, `email-templates`",
+            "description": "List of features enabled in the app. e.g. `spaces`, `zones`, `maps`, `desks`, `parking`, `visitors`, `assets`, `facilities`, `internal-users`, `points`, `surveys`, `catering`, `events`, `booking-report`, `attendance-report`, `contact-tracing-report`, `user-report`, `signage`, `email-templates`",
             "items": { "type": "string" }
         },
         "feature_groups": {
@@ -76,6 +76,10 @@
         "delegated": {
             "type": "boolean",
             "description": "Whether the PlaceOS instance uses delegated calendar access. When set, event actions are hidden from the event details view."
+        },
+        "map_studio_url": {
+            "type": "string",
+            "description": "Where Map Management's `Open in Map Studio` link goes. Defaults to `/map-studio/`"
         },
         "has_uploads": {
             "type": "boolean",

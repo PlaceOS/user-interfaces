@@ -94,6 +94,20 @@ describe('preflightChecks', () => {
 });
 
 describe('buildSvg', () => {
+    const parse = (svg: string) =>
+        new DOMParser().parseFromString(svg, 'image/svg+xml');
+
+    const wall = (partial: Partial<MapObject> = {}) =>
+        object({
+            id: 'w',
+            svg_id: 'wall-001',
+            object_type: 'decorative',
+            layer: 'walls',
+            label: '',
+            geometry: { type: 'path', d: 'M0 0 L20 0 L20 10 Z' },
+            ...partial,
+        });
+
     it('emits a well-formed document at the canvas size', () => {
         const svg = buildSvg([object({})], 1200, 800);
 
@@ -101,8 +115,7 @@ describe('buildSvg', () => {
         expect(svg).toContain('viewBox="0 0 1200 800"');
         expect(svg.trimEnd().endsWith('</svg>')).toBe(true);
         // It must parse as XML
-        const doc = new DOMParser().parseFromString(svg, 'image/svg+xml');
-        expect(doc.querySelector('parsererror')).toBeNull();
+        expect(parse(svg).querySelector('parsererror')).toBeNull();
     });
 
     it('groups objects by type and keeps their svg ids', () => {
@@ -119,7 +132,7 @@ describe('buildSvg', () => {
             100,
             100,
         );
-        const doc = new DOMParser().parseFromString(svg, 'image/svg+xml');
+        const doc = parse(svg);
 
         expect(doc.querySelector('#rooms')).not.toBeNull();
         expect(doc.querySelector('#desks')).not.toBeNull();
@@ -138,13 +151,13 @@ describe('buildSvg', () => {
 
     it('escapes labels so markup stays valid', () => {
         const svg = buildSvg([object({ label: 'R&D <Lab>' })], 100, 100);
-        const doc = new DOMParser().parseFromString(svg, 'image/svg+xml');
+        const doc = parse(svg);
 
         expect(doc.querySelector('parsererror')).toBeNull();
         expect(doc.querySelector('text')?.textContent).toBe('R&D <Lab>');
     });
 
-    it('renders each geometry type', () => {
+    it('renders each geometry type as the element carrying its id', () => {
         const svg = buildSvg(
             [
                 object({ id: 'a', svg_id: 'room-001' }),
@@ -167,18 +180,128 @@ describe('buildSvg', () => {
                     object_type: 'amenity',
                     geometry: { type: 'circle', x: 5, y: 5, r: 3 },
                 }),
+                wall(),
             ],
             100,
             100,
         );
-        const doc = new DOMParser().parseFromString(svg, 'image/svg+xml');
+        const doc = parse(svg);
 
-        expect(doc.querySelector('#room-001 rect')).not.toBeNull();
-        expect(doc.querySelector('#zone-001 polygon')).not.toBeNull();
-        expect(doc.querySelector('#amenity-001 circle')).not.toBeNull();
+        expect(doc.querySelector('parsererror')).toBeNull();
+        expect(doc.getElementById('room-001')?.localName).toBe('rect');
+        expect(doc.getElementById('zone-001')?.localName).toBe('polygon');
+        expect(doc.getElementById('amenity-001')?.localName).toBe('circle');
+        expect(doc.getElementById('wall-001')?.localName).toBe('path');
     });
 
-    it('carries rotation through as a transform', () => {
+    it('gives ids to the type layer groups and to no other group', () => {
+        const svg = buildSvg(
+            [
+                object({ id: 'a', svg_id: 'room-001' }),
+                object({
+                    id: 'b',
+                    svg_id: 'desk-001',
+                    object_type: 'desk',
+                    layer: 'desks',
+                }),
+                wall(),
+            ],
+            100,
+            100,
+        );
+        const doc = parse(svg);
+        const groups = Array.from(doc.querySelectorAll('g[id]'));
+
+        expect(groups.map((g) => g.id).sort()).toEqual([
+            'decoratives',
+            'desks',
+            'rooms',
+        ]);
+        expect(
+            groups.every((g) => g.parentElement === doc.documentElement),
+        ).toBe(true);
+        expect(
+            doc.getElementById('room-001')?.parentElement?.hasAttribute('id'),
+        ).toBe(false);
+    });
+
+    it('exports path objects with their path data', () => {
+        const d = 'M0 0 L20 0 L20 10 Z';
+        const svg = buildSvg(
+            [wall({ geometry: { type: 'path', d } })],
+            100,
+            100,
+        );
+        const doc = parse(svg);
+        const path = doc.getElementById('wall-001');
+
+        expect(doc.querySelector('parsererror')).toBeNull();
+        expect(path?.getAttribute('d')).toBe(d);
+        expect(path?.getAttribute('data-type')).toBe('decorative');
+        expect(doc.querySelector('text')).toBeNull();
+    });
+
+    it('labels a path at the centre of its bounding box', () => {
+        const svg = buildSvg(
+            [
+                object({
+                    svg_id: 'room-002',
+                    label: 'Boardroom',
+                    geometry: {
+                        type: 'path',
+                        d: 'M10 20 H110 V70 H10 Z',
+                        x: 10,
+                        y: 20,
+                        width: 100,
+                        height: 50,
+                    },
+                }),
+            ],
+            200,
+            200,
+        );
+        const text = parse(svg).querySelector('text');
+
+        expect(text?.textContent).toBe('Boardroom');
+        expect(text?.getAttribute('x')).toBe('60');
+        expect(text?.getAttribute('y')).toBe('45');
+    });
+
+    it('leaves a path without a bounding box unlabelled', () => {
+        const svg = buildSvg(
+            [
+                object({
+                    svg_id: 'room-002',
+                    label: 'Boardroom',
+                    geometry: { type: 'path', d: 'M0 0 H10 V10 Z' },
+                }),
+            ],
+            100,
+            100,
+        );
+        const doc = parse(svg);
+
+        expect(doc.getElementById('room-002')).not.toBeNull();
+        expect(doc.querySelector('text')).toBeNull();
+    });
+
+    it('skips a path object with no path data', () => {
+        const svg = buildSvg([wall({ geometry: { type: 'path' } })], 100, 100);
+        expect(svg).not.toContain('wall-001');
+    });
+
+    it('keeps the label text beside a labelled rect', () => {
+        const svg = buildSvg([object({ label: 'Room 1' })], 100, 100);
+        const rect = parse(svg).getElementById('room-001');
+        const text = rect?.parentElement?.querySelector('text');
+
+        expect(rect?.localName).toBe('rect');
+        expect(text?.textContent).toBe('Room 1');
+        expect(text?.getAttribute('x')).toBe('50');
+        expect(text?.getAttribute('y')).toBe('25');
+    });
+
+    it('carries rotation through as a transform on the wrapper', () => {
         const svg = buildSvg(
             [
                 object({
@@ -195,6 +318,11 @@ describe('buildSvg', () => {
             100,
             100,
         );
+        const rect = parse(svg).getElementById('room-001');
+
         expect(svg).toContain('transform="rotate(45 50 25)"');
+        expect(rect?.parentElement?.getAttribute('transform')).toBe(
+            'rotate(45 50 25)',
+        );
     });
 });

@@ -26,6 +26,8 @@ export interface Floorplan {
     canvas_width: number | null;
     canvas_height: number | null;
     canvas_state: EditorState | null;
+    svg_source?: string | null;
+    svg_source_ids?: string[];
     svg_output: string | null;
     status: 'draft' | 'published' | 'archived';
     version: number;
@@ -38,6 +40,8 @@ export interface FloorplanVersion {
     floorplan_id: string;
     version: number;
     canvas_state: EditorState;
+    svg_source?: string | null;
+    svg_source_ids?: string[];
     svg_output: string | null;
     note: string | null;
     created_at: string;

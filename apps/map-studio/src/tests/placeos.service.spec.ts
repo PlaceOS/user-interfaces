@@ -11,13 +11,13 @@ vi.mock('@placeos/ts-client', () => ({
     }),
     setup: vi.fn(async () => undefined),
     showMetadata: vi.fn(async () => ({ details: {} })),
-    token: () => 'session-token',
+    token: vi.fn(() => 'session-token'),
     updateMetadata: vi.fn(async () => undefined),
 }));
 
 import { provideZonelessChangeDetection } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { setup, showMetadata, updateMetadata } from '@placeos/ts-client';
+import { setup, showMetadata, token, updateMetadata } from '@placeos/ts-client';
 
 import { PlaceOSService } from '../app/data/placeos.service';
 
@@ -64,6 +64,7 @@ describe('PlaceOSService', () => {
         vi.clearAllMocks();
         localStorage.clear();
         vi.mocked(setup).mockResolvedValue(undefined);
+        vi.mocked(token).mockReturnValue('session-token');
         TestBed.configureTestingModule({
             providers: [provideZonelessChangeDetection()],
         });
@@ -104,6 +105,37 @@ describe('PlaceOSService', () => {
 
         expect(service.mode()).toBe('manual');
         vi.useRealTimers();
+    });
+
+    it('keeps the response readable until its JSON body has finished', async () => {
+        stubFetch(true);
+        await service.init();
+        let signal: AbortSignal;
+        vi.stubGlobal(
+            'fetch',
+            vi.fn(async (_url, options: RequestInit) => {
+                signal = options.signal as AbortSignal;
+                return {
+                    ok: true,
+                    json: async () => {
+                        await new Promise((resolve) => setTimeout(resolve, 0));
+                        if (signal.aborted)
+                            throw new DOMException('Aborted', 'AbortError');
+                        return [{ id: 'org-2' }];
+                    },
+                };
+            }),
+        );
+
+        await expect(service.getZones()).resolves.toEqual([{ id: 'org-2' }]);
+        expect(signal!.aborted).toBe(true);
+    });
+
+    it('does not start domain requests while login is redirecting', async () => {
+        stubFetch(true);
+        vi.mocked(token).mockReturnValue('');
+        await service.init();
+        expect(service.mode()).toBe('checking');
     });
 
     it('falls back to manual setup when PlaceOS setup does not settle', async () => {

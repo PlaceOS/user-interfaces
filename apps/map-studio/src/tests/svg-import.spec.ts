@@ -4,6 +4,35 @@ const svg = (body: string, attrs = 'viewBox="0 0 800 600"') =>
     `<svg xmlns="http://www.w3.org/2000/svg" ${attrs}>${body}</svg>`;
 
 describe('analyzeSvg', () => {
+    it('uses viewBox coordinates for the canvas when display dimensions differ', () => {
+        const result = analyzeSvg(
+            svg(
+                '<rect width="20" height="30"/>',
+                'width="300" height="100" viewBox="10 20 800 600"',
+            ),
+        );
+        expect(result.width).toBe(800);
+        expect(result.height).toBe(600);
+        expect(result.sourceSvg).toContain('width="300"');
+        expect(result.sourceSvg).toContain('viewBox="10 20 800 600"');
+    });
+
+    it('keeps definitions out of the object list and preserves furniture grouping', () => {
+        const result = analyzeSvg(
+            svg(
+                '<defs><path id="icon" d="M0 0L10 10"/></defs><g id="furniture"><g id="desk-pieces"><rect id="desk-1" width="10" height="10"/><ellipse cx="10" cy="20" rx="4" ry="2"/></g></g>',
+            ),
+        );
+        expect(result.objects).toHaveLength(2);
+        expect(
+            result.objects.every(
+                (object) =>
+                    object.layer === 'background' &&
+                    object.groupId === 'desk-pieces',
+            ),
+        ).toBe(true);
+        expect(result.sourceSvg).toContain('id="icon"');
+    });
     it('takes dimensions from viewBox when width/height are absent', () => {
         const result = analyzeSvg(
             svg('<rect id="room-1" width="10" height="10"/>'),
@@ -135,16 +164,17 @@ describe('analyzeSvg', () => {
         expect(labels['room-3']).toBeNull();
     });
 
-    it('skips shapes with no id and reports how many', () => {
+    it('assigns anonymous shapes IDs and retains them in the source', () => {
         const result = analyzeSvg(
             svg(
                 '<rect id="room-1" width="10" height="10"/><rect width="10" height="10"/>',
             ),
         );
 
-        expect(result.objects).toHaveLength(1);
+        expect(result.objects).toHaveLength(2);
+        expect(result.sourceSvg).toContain('id="imported-svg-1"');
         expect(
-            result.issues.some((i) => i.message.includes('no id attribute')),
+            result.issues.some((i) => i.message.includes('assigned IDs')),
         ).toBe(true);
     });
 

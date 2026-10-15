@@ -1,4 +1,4 @@
-import { inject, Injectable } from '@angular/core';
+import { inject, Injectable, signal } from '@angular/core';
 
 import { DbService } from './db';
 import type { PlaceOSZone } from './placeos.service';
@@ -105,6 +105,7 @@ function toCsvField(value: unknown): string {
 export class StoreService {
     private readonly _db = inject(DbService);
     private readonly _placeos = inject(PlaceOSService);
+    public readonly zone_sync_version = signal(0);
 
     // ── Projects ────────────────────────────────────────────────────────────
 
@@ -257,6 +258,7 @@ export class StoreService {
                 existing_levels.add(level.id);
             }
         }
+        this.zone_sync_version.update((version) => version + 1);
     }
 
     public async getFloorplan(id: string): Promise<Floorplan> {
@@ -366,6 +368,8 @@ export class StoreService {
         if (!version) throw new Error('Version not found');
         await this.updateFloorplan(id, {
             canvas_state: version.canvas_state,
+            svg_source: version.svg_source ?? null,
+            svg_source_ids: version.svg_source_ids,
             svg_output: version.svg_output,
         });
     }
@@ -380,6 +384,8 @@ export class StoreService {
             floorplan_id: floorplan.id,
             version,
             canvas_state: floorplan.canvas_state as EditorState,
+            svg_source: floorplan.svg_source,
+            svg_source_ids: floorplan.svg_source_ids,
             svg_output: floorplan.svg_output,
             note,
             created_at: now(),
@@ -425,10 +431,14 @@ export class StoreService {
     ): Promise<Floorplan> {
         const floorplan = await this.getFloorplan(id);
         const analysis = analyzeSvg(svg_content);
+        if (!analysis.sourceSvg)
+            throw new Error('The file is not a valid SVG map.');
         const blob = new Blob([svg_content], { type: 'image/svg+xml' });
         const updated: Floorplan = {
             ...floorplan,
-            svg_output: svg_content,
+            svg_source: analysis.sourceSvg,
+            svg_source_ids: analysis.objects.map((object) => object.svgId),
+            svg_output: analysis.sourceSvg || svg_content,
             canvas_width: analysis.width,
             canvas_height: analysis.height,
             source_image_path: URL.createObjectURL(blob),
@@ -467,12 +477,17 @@ export class StoreService {
             outline_points,
         } = options;
 
+        if (!analysis.sourceSvg)
+            throw new Error('The file is not a valid SVG map.');
+
         const project = await this.createProject(project_name);
         const floorplan = await this.addFloorplan(project.id, floor_name, 0);
 
         const has_outline = (outline_points?.length ?? 0) >= 3;
         await this.updateFloorplan(floorplan.id, {
-            svg_output: svg_content,
+            svg_source: analysis.sourceSvg,
+            svg_source_ids: analysis.objects.map((object) => object.svgId),
+            svg_output: analysis.sourceSvg || svg_content,
             canvas_width: analysis.width,
             canvas_height: analysis.height,
             source_type: 'svg-import',
@@ -480,6 +495,11 @@ export class StoreService {
 
         const chosen = new Map(mappings.map((m) => [m.svgId, m]));
         const objects = this._objectsFromSvg(analysis, chosen);
+        await this.updateFloorplan(floorplan.id, {
+            svg_source_ids: objects.flatMap((object) =>
+                object.svg_id ? [object.svg_id] : [],
+            ),
+        });
 
         if (has_outline) {
             const points = outline_points as { x: number; y: number }[];
@@ -520,20 +540,53 @@ export class StoreService {
         >,
     ): Partial<MapObject>[] {
         const objects: Partial<MapObject>[] = [];
-        for (const parsed of analysis.objects) {
+        for (const [index, parsed] of analysis.objects.entries()) {
             const mapping = mappings?.get(parsed.svgId);
             if (mappings && !mapping) continue;
             objects.push({
                 object_type: (mapping?.objectType ??
                     parsed.suggestedType) as MapObjectType,
                 svg_id: parsed.svgId,
-                label: mapping?.label || parsed.label || parsed.svgId,
+                label:
+                    mapping?.label ||
+                    parsed.label ||
+                    (parsed.tag === 'text' ? '' : parsed.svgId),
                 geometry: parsed.geometry,
+                fill_color:
+                    parsed.presentation?.fill ||
+                    parsed.attributes['fill'] ||
+                    null,
+                stroke_color:
+                    parsed.presentation?.stroke ||
+                    parsed.attributes['stroke'] ||
+                    null,
+                opacity:
+                    parsed.presentation?.opacity ??
+                    Number(parsed.attributes['opacity'] ?? 1),
                 layer: parsed.layer,
+                group_id: parsed.groupId,
+                z_index: index,
                 metadata: {
                     source: 'svg-import',
                     originalTag: parsed.tag,
                     originalAttributes: parsed.attributes,
+                    originalGeometry: parsed.geometry,
+                    originalFill:
+                        parsed.presentation?.fill ||
+                        parsed.attributes['fill'] ||
+                        null,
+                    originalStroke:
+                        parsed.presentation?.stroke ||
+                        parsed.attributes['stroke'] ||
+                        null,
+                    originalOpacity:
+                        parsed.presentation?.opacity ??
+                        Number(parsed.attributes['opacity'] ?? 1),
+                    originalLabel:
+                        mapping?.label ||
+                        parsed.label ||
+                        (parsed.tag === 'text' ? '' : parsed.svgId),
+                    parentMatrix: parsed.parentMatrix,
                 },
             });
         }
